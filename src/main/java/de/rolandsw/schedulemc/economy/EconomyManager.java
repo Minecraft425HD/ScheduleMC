@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.economy;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
+import de.rolandsw.schedulemc.util.GsonHelper;
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
 
@@ -19,7 +20,7 @@ public class EconomyManager {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Map<UUID, Double> balances = new ConcurrentHashMap<>();
     private static final File file = new File("config/plotmod_economy.json");
-    private static final Gson gson = new Gson();
+    private static final Gson gson = GsonHelper.get();
     private static boolean needsSave = false;
 
     /**
@@ -38,10 +39,10 @@ public class EconomyManager {
                     try {
                         balances.put(UUID.fromString(k), v);
                     } catch (IllegalArgumentException e) {
-                        LOGGER.error("Ungültige UUID in Economy-Datei: " + k, e);
+                        LOGGER.error("Ungültige UUID in Economy-Datei: {}", k, e);
                     }
                 });
-                LOGGER.info("Economy-Daten geladen: " + balances.size() + " Konten");
+                LOGGER.info("Economy-Daten geladen: {} Konten", balances.size());
             }
         } catch (IOException e) {
             LOGGER.error("Fehler beim Laden der Economy-Daten", e);
@@ -60,7 +61,7 @@ public class EconomyManager {
                 balances.forEach((k, v) -> saveMap.put(k.toString(), v));
                 gson.toJson(saveMap, writer);
                 needsSave = false;
-                LOGGER.debug("Economy-Daten gespeichert: " + saveMap.size() + " Konten");
+                LOGGER.debug("Economy-Daten gespeichert: {} Konten", saveMap.size());
             }
         } catch (IOException e) {
             LOGGER.error("Fehler beim Speichern der Economy-Daten", e);
@@ -90,7 +91,7 @@ public class EconomyManager {
         double startBalance = getStartBalance();
         balances.put(uuid, startBalance);
         markDirty();
-        LOGGER.info("Neues Konto erstellt für " + uuid + " mit " + startBalance + " €");
+        LOGGER.info("Neues Konto erstellt für {} mit {} €", uuid, startBalance);
     }
 
     /**
@@ -112,13 +113,13 @@ public class EconomyManager {
      */
     public static void deposit(UUID uuid, double amount) {
         if (amount < 0) {
-            LOGGER.warn("Versuch, negativen Betrag einzuzahlen: " + amount);
+            LOGGER.warn("Versuch, negativen Betrag einzuzahlen: {}", amount);
             return;
         }
-        
+
         balances.put(uuid, getBalance(uuid) + amount);
         markDirty();
-        LOGGER.debug("Einzahlung: " + amount + " € für " + uuid);
+        LOGGER.debug("Einzahlung: {} € für {}", amount, uuid);
     }
 
     /**
@@ -127,14 +128,14 @@ public class EconomyManager {
      */
     public static boolean withdraw(UUID uuid, double amount) {
         if (amount < 0) {
-            LOGGER.warn("Versuch, negativen Betrag abzuheben: " + amount);
+            LOGGER.warn("Versuch, negativen Betrag abzuheben: {}", amount);
             return false;
         }
-        
+
         if (getBalance(uuid) >= amount) {
             balances.put(uuid, getBalance(uuid) - amount);
             markDirty();
-            LOGGER.debug("Abbuchung: " + amount + " € von " + uuid);
+            LOGGER.debug("Abbuchung: {} € von {}", amount, uuid);
             return true;
         }
         return false;
@@ -149,7 +150,7 @@ public class EconomyManager {
         }
         balances.put(uuid, amount);
         markDirty();
-        LOGGER.info("Guthaben gesetzt: " + uuid + " auf " + amount + " €");
+        LOGGER.info("Guthaben gesetzt: {} auf {} €", uuid, amount);
     }
 
     /**
@@ -172,6 +173,6 @@ public class EconomyManager {
     public static void deleteAccount(UUID uuid) {
         balances.remove(uuid);
         markDirty();
-        LOGGER.info("Konto gelöscht: " + uuid);
+        LOGGER.info("Konto gelöscht: {}", uuid);
     }
 }

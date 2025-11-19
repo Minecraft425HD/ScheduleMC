@@ -59,9 +59,9 @@ public class RentManager {
         plot.setRentEndTime(System.currentTimeMillis() + rentDuration);
         
         PlotManager.savePlots();
-        
-        LOGGER.info("Plot vermietet: " + plot.getPlotId() + " an " + renterUUID + " für " + days + " Tage");
-        
+
+        LOGGER.info("Plot vermietet: {} an {} für {} Tage", plot.getPlotId(), renterUUID, days);
+
         return true;
     }
     
@@ -99,9 +99,9 @@ public class RentManager {
         plot.setRentEndTime(plot.getRentEndTime() + extension);
         
         PlotManager.savePlots();
-        
-        LOGGER.info("Miete verlängert: " + plot.getPlotId() + " um " + additionalDays + " Tage");
-        
+
+        LOGGER.info("Miete verlängert: {} um {} Tage", plot.getPlotId(), additionalDays);
+
         return true;
     }
     
@@ -110,9 +110,9 @@ public class RentManager {
      */
     public static void cancelRent(PlotRegion plot) {
         if (!plot.isRented()) return;
-        
-        LOGGER.info("Miete beendet: " + plot.getPlotId());
-        
+
+        LOGGER.info("Miete beendet: {}", plot.getPlotId());
+
         plot.endRent();
         PlotManager.savePlots();
     }
@@ -129,15 +129,15 @@ public class RentManager {
         
         for (PlotRegion plot : PlotManager.getPlots()) {
             if (plot.isRentExpired()) {
-                LOGGER.info("Miete abgelaufen: " + plot.getPlotId() + " (Mieter: " + plot.getRenterUUID() + ")");
+                LOGGER.info("Miete abgelaufen: {} (Mieter: {})", plot.getPlotId(), plot.getRenterUUID());
                 plot.endRent();
                 expired++;
             }
         }
-        
+
         if (expired > 0) {
             PlotManager.savePlots();
-            LOGGER.info("Abgelaufene Mieten bereinigt: " + expired);
+            LOGGER.info("Abgelaufene Mieten bereinigt: {}", expired);
         }
     }
     

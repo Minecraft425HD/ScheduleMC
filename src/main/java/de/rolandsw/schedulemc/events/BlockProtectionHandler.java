@@ -51,7 +51,9 @@ public class BlockProtectionHandler {
 
     /**
      * Zentrale Berechtigungsprüfung
-     * 
+     *
+     * OPTIMIERT: Nutzt Spatial Index für O(1) statt O(n) Plot-Lookup
+     *
      * @param player Der Spieler
      * @param pos Die Position
      * @param action Die Aktion (für Fehlermeldung)
@@ -65,90 +67,93 @@ public class BlockProtectionHandler {
             return true;
         }
 
-        // Prüfe alle Plots
-        for (PlotRegion plot : PlotManager.getPlots()) {
-            if (plot.contains(pos)) {
-                
-                // Öffentlicher Plot: KEIN Bauen/Abbauen erlaubt!
-                if (plot.isPublic()) {
-                    player.displayClientMessage(Component.literal(
-                        "§cÖffentlicher Plot - Bauen/Abbauen verboten!"
-                    ), true);
-                    return false;
-                }
-                
-                // Plot hat keinen Besitzer = frei
-                if (!plot.hasOwner()) {
-                    return true;
-                }
-
-                // Besitzer oder Trusted?
-                if (plot.hasAccess(playerUUID)) {
-                    return true;
-                }
-
-                // Keine Berechtigung - zeige Fehlermeldung
-                String ownerInfo;
-                if (plot.isRented()) {
-                    ownerInfo = "Dieser Plot ist vermietet";
-                } else {
-                    ownerInfo = "Dieser Plot gehört jemand anderem";
-                }
-                
-                player.displayClientMessage(
-                    Component.literal(
-                        "§c✗ Du darfst hier keine Blöcke " + action + "!\n" +
-                        "§7" + ownerInfo
-                    ), 
-                    true
-                );
-                
-                LOGGER.debug("Plot-Schutz: {} versuchte Block zu {} bei {} (Plot: {})",
-                    player.getName().getString(), action, pos, plot.getPlotName());
-                
-                return false;
-            }
-        }
+        // OPTIMIERT: Direkter Lookup statt Iteration über alle Plots
+        PlotRegion plot = PlotManager.getPlotAt(pos);
 
         // Nicht in einem Plot = erlaubt
-        return true;
+        if (plot == null) {
+            return true;
+        }
+
+        // Öffentlicher Plot: KEIN Bauen/Abbauen erlaubt!
+        if (plot.isPublic()) {
+            player.displayClientMessage(Component.literal(
+                "§cÖffentlicher Plot - Bauen/Abbauen verboten!"
+            ), true);
+            return false;
+        }
+
+        // Plot hat keinen Besitzer = frei
+        if (!plot.hasOwner()) {
+            return true;
+        }
+
+        // Besitzer oder Trusted?
+        if (plot.hasAccess(playerUUID)) {
+            return true;
+        }
+
+        // Keine Berechtigung - zeige Fehlermeldung
+        String ownerInfo;
+        if (plot.isRented()) {
+            ownerInfo = "Dieser Plot ist vermietet";
+        } else {
+            ownerInfo = "Dieser Plot gehört jemand anderem";
+        }
+
+        player.displayClientMessage(
+            Component.literal(
+                "§c✗ Du darfst hier keine Blöcke " + action + "!\n" +
+                "§7" + ownerInfo
+            ),
+            true
+        );
+
+        LOGGER.debug("Plot-Schutz: {} versuchte Block zu {} bei {} (Plot: {})",
+            player.getName().getString(), action, pos, plot.getPlotName());
+
+        return false;
     }
 
     /**
      * Erlaubt Interaktion in öffentlichen Plots (Truhen, GUIs, etc.)
+     *
+     * OPTIMIERT: Nutzt Spatial Index für schnellen Plot-Lookup
      */
     @SubscribeEvent
     public void onBlockInteract(PlayerInteractEvent.RightClickBlock event) {
         Player player = event.getEntity();
         BlockPos pos = event.getPos();
-        
+
         // Admin darf immer!
         if (player.hasPermissions(2)) {
             return;
         }
 
-        for (PlotRegion plot : PlotManager.getPlots()) {
-            if (plot.contains(pos)) {
-                
-                // Öffentlicher Plot: Interaktion ERLAUBT!
-                if (plot.isPublic()) {
-                    return;  // Erlauben!
-                }
-                
-                // Privater Plot ohne Besitzer: Erlauben
-                if (!plot.hasOwner()) {
-                    return;
-                }
-                
-                // Privater Plot: Nur Besitzer + Trusted
-                if (!plot.hasAccess(player.getUUID())) {
-                    event.setCanceled(true);
-                    player.displayClientMessage(Component.literal(
-                        "§c✗ Du darfst hier nichts benutzen!"
-                    ), true);
-                    return;
-                }
-            }
+        // OPTIMIERT: Direkter Lookup statt Iteration
+        PlotRegion plot = PlotManager.getPlotAt(pos);
+
+        // Nicht in einem Plot = erlaubt
+        if (plot == null) {
+            return;
+        }
+
+        // Öffentlicher Plot: Interaktion ERLAUBT!
+        if (plot.isPublic()) {
+            return;
+        }
+
+        // Privater Plot ohne Besitzer: Erlauben
+        if (!plot.hasOwner()) {
+            return;
+        }
+
+        // Privater Plot: Nur Besitzer + Trusted
+        if (!plot.hasAccess(player.getUUID())) {
+            event.setCanceled(true);
+            player.displayClientMessage(Component.literal(
+                "§c✗ Du darfst hier nichts benutzen!"
+            ), true);
         }
     }
 }

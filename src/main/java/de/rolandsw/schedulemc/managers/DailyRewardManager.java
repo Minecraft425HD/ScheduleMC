@@ -1,11 +1,11 @@
 package de.rolandsw.schedulemc.managers;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.data.DailyReward;
+import de.rolandsw.schedulemc.util.GsonHelper;
 import org.slf4j.Logger;
 
 import java.io.*;
@@ -13,16 +13,19 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Verwaltet tägliche Belohnungen für Spieler
+ *
+ * OPTIMIERT: Thread-safe durch ConcurrentHashMap
  */
 public class DailyRewardManager {
-    
+
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final File file = new File("config/plotmod_daily.json");
-    private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    private static final Map<String, DailyReward> rewards = new HashMap<>();
+    private static final Gson gson = GsonHelper.get();
+    private static final Map<String, DailyReward> rewards = new ConcurrentHashMap<>();
     private static boolean needsSave = false;
     
     /**
@@ -41,7 +44,7 @@ public class DailyRewardManager {
             if (loaded != null) {
                 rewards.clear();
                 rewards.putAll(loaded);
-                LOGGER.info("Daily Rewards geladen: " + rewards.size() + " Spieler");
+                LOGGER.info("Daily Rewards geladen: {} Spieler", rewards.size());
             }
         } catch (IOException e) {
             LOGGER.error("Fehler beim Laden der Daily Rewards", e);
@@ -58,7 +61,7 @@ public class DailyRewardManager {
             try (FileWriter writer = new FileWriter(file)) {
                 gson.toJson(rewards, writer);
                 needsSave = false;
-                LOGGER.info("Daily Rewards gespeichert: " + rewards.size() + " Spieler");
+                LOGGER.info("Daily Rewards gespeichert: {} Spieler", rewards.size());
             }
         } catch (IOException e) {
             LOGGER.error("Fehler beim Speichern der Daily Rewards", e);
@@ -126,9 +129,9 @@ public class DailyRewardManager {
         // Claim durchführen
         reward.claim();
         markDirty();
-        
-        LOGGER.info("Daily Reward geclaimed: " + playerUUID + " - " + totalAmount + "€ (Streak: " + streak + ")");
-        
+
+        LOGGER.info("Daily Reward geclaimed: {} - {}€ (Streak: {})", playerUUID, totalAmount, streak);
+
         return totalAmount;
     }
     
@@ -167,7 +170,7 @@ public class DailyRewardManager {
         DailyReward reward = getReward(playerUUID);
         reward.setCurrentStreak(0);
         markDirty();
-        LOGGER.info("Streak resettet für: " + playerUUID);
+        LOGGER.info("Streak resettet für: {}", playerUUID);
     }
     
     /**
