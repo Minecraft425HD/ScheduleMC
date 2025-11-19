@@ -138,6 +138,16 @@ public class PlotCommand {
                 .then(Commands.literal("remove")
                         .requires(source -> source.hasPermission(2))
                         .executes(PlotCommand::removePlot))
+
+                // /plot reindex (Admin-Debug-Befehl)
+                .then(Commands.literal("reindex")
+                        .requires(source -> source.hasPermission(2))
+                        .executes(PlotCommand::reindexPlots))
+
+                // /plot debug (Admin-Debug-Befehl)
+                .then(Commands.literal("debug")
+                        .requires(source -> source.hasPermission(2))
+                        .executes(PlotCommand::debugPosition))
         );
     }
 
@@ -905,26 +915,67 @@ public class PlotCommand {
         try {
             ServerPlayer admin = ctx.getSource().getPlayerOrException();
             PlotRegion plot = PlotManager.getPlotAt(admin.blockPosition());
-            
+
             if (plot == null) {
                 ctx.getSource().sendFailure(Component.literal("§cDu stehst in keinem Plot!"));
                 return 0;
             }
-            
+
             String plotName = plot.getPlotName();
             String plotId = plot.getPlotId();
-            
+
             PlotManager.removePlot(plotId);
-            
+
             ctx.getSource().sendSuccess(() -> Component.literal(
                 "§a✓ Plot entfernt!\n" +
                 "§7ID: §e" + plotId + "\n" +
                 "§7Name: §e" + plotName
             ), true);
-            
+
             return 1;
         } catch (Exception e) {
             LOGGER.error("Fehler bei /plot remove", e);
+            return 0;
+        }
+    }
+
+    private static int reindexPlots(CommandContext<CommandSourceStack> ctx) {
+        try {
+            PlotManager.rebuildSpatialIndex();
+
+            ctx.getSource().sendSuccess(() -> Component.literal(
+                "§a✓ Spatial Index neu aufgebaut!\n" +
+                "§7Alle Plots wurden neu indiziert."
+            ), true);
+
+            LOGGER.info("Spatial Index manuell neu aufgebaut durch Admin");
+            return 1;
+        } catch (Exception e) {
+            LOGGER.error("Fehler bei /plot reindex", e);
+            return 0;
+        }
+    }
+
+    private static int debugPosition(CommandContext<CommandSourceStack> ctx) {
+        try {
+            ServerPlayer player = ctx.getSource().getPlayerOrException();
+            BlockPos pos = player.blockPosition();
+            PlotRegion plot = PlotManager.getPlotAt(pos);
+
+            String plotInfo = plot != null ?
+                "§aPlot gefunden: §e" + plot.getPlotId() + " (" + plot.getPlotName() + ")" :
+                "§cKein Plot an dieser Position";
+
+            ctx.getSource().sendSuccess(() -> Component.literal(
+                "§6═══ Debug-Info ═══\n" +
+                "§7Position: §f" + pos.getX() + ", " + pos.getY() + ", " + pos.getZ() + "\n" +
+                plotInfo + "\n" +
+                "§7Alle Plots: §f" + PlotManager.getPlotCount()
+            ), false);
+
+            return 1;
+        } catch (Exception e) {
+            LOGGER.error("Fehler bei /plot debug", e);
             return 0;
         }
     }

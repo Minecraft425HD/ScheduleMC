@@ -68,24 +68,26 @@ public class PlotRegion {
 
     /**
      * Konstruktor für neue Plots
+     *
+     * BEHOBEN: Der erste Parameter ist jetzt plotId (wurde vorher fälschlicherweise ignoriert)
      */
-    public PlotRegion(String ownerUUID, BlockPos min, BlockPos max, double price) {
-        this.ownerUUID = "";  // LEER statt Parameter!
+    public PlotRegion(String plotId, BlockPos min, BlockPos max, double price) {
+        this.ownerUUID = "";  // Kein Besitzer bei Erstellung
         this.ownerName = null;
         this.min = min;
         this.max = max;
         this.price = price;
         this.isPublic = false;
-        
-        // ID & Namen
-        this.plotId = "plot_" + UUID.randomUUID().toString().substring(0, 8);
+
+        // ID & Namen - VERWENDE die übergebene plotId!
+        this.plotId = plotId;
         this.plotName = "Unbenannter Plot";
         this.description = "";
-        
+
         // Collections initialisieren
         this.trustedPlayers = new HashSet<>();
         this.ratings = new HashMap<>();
-        
+
         // Verkauf & Miete
         this.forSale = false;
         this.salePrice = 0;
@@ -93,7 +95,7 @@ public class PlotRegion {
         this.rentPricePerDay = 0;
         this.renterUUID = "";
         this.rentEndTime = 0;
-        
+
         // Statistiken
         this.creationTime = System.currentTimeMillis();
         this.lastVisited = System.currentTimeMillis();
