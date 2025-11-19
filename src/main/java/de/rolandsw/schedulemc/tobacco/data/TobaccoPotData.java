@@ -126,11 +126,11 @@ public class TobaccoPotData {
         if (plant == null || plant.isFullyGrown()) {
             return false;
         }
-        
-        // Braucht Wasser und Erde
-        double waterNeeded = plant.getType().getWaterConsumption();
-        double soilNeeded = 1.0; // Basis-Erdeverbrauch
-        
+
+        // Braucht Wasser und Erde (reduzierte Werte wie in tick())
+        double waterNeeded = plant.getType().getWaterConsumption() * 0.15;
+        double soilNeeded = 0.3;
+
         return waterLevel >= potType.calculateWaterConsumption(waterNeeded) &&
                soilLevel >= potType.calculateSoilConsumption(soilNeeded);
     }
@@ -142,12 +142,12 @@ public class TobaccoPotData {
         if (plant == null || plant.isFullyGrown()) {
             return;
         }
-        
+
         if (canGrow()) {
-            // Verbrauche Ressourcen
-            consumeWater(plant.getType().getWaterConsumption());
-            consumeSoil(1.0);
-            
+            // Verbrauche Ressourcen (reduziert für längeres Wachstum)
+            consumeWater(plant.getType().getWaterConsumption() * 0.15);
+            consumeSoil(0.3);
+
             // Pflanze wachsen lassen
             plant.tick();
         }
