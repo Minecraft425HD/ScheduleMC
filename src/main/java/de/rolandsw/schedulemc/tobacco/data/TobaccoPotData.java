@@ -127,14 +127,14 @@ public class TobaccoPotData {
             return false;
         }
 
-        // Braucht Wasser und Erde (reduzierte Werte wie in tick())
-        double waterNeeded = plant.getType().getWaterConsumption() * 0.15;
-        double soilNeeded = 0.3;
+        // Braucht Wasser und Erde (4x kleiner, da 4x öfter geticked)
+        double waterNeeded = plant.getType().getWaterConsumption() * 0.0375; // 0.15 / 4
+        double soilNeeded = 0.075; // 0.3 / 4
 
         return waterLevel >= potType.calculateWaterConsumption(waterNeeded) &&
                soilLevel >= potType.calculateSoilConsumption(soilNeeded);
     }
-    
+
     /**
      * Lässt die Pflanze wachsen (tick)
      */
@@ -144,9 +144,9 @@ public class TobaccoPotData {
         }
 
         if (canGrow()) {
-            // Verbrauche Ressourcen (reduziert für längeres Wachstum)
-            consumeWater(plant.getType().getWaterConsumption() * 0.15);
-            consumeSoil(0.3);
+            // Verbrauche Ressourcen (4x kleiner, da 4x öfter geticked = kontinuierliche Anzeige)
+            consumeWater(plant.getType().getWaterConsumption() * 0.0375); // 0.15 / 4
+            consumeSoil(0.075); // 0.3 / 4
 
             // Pflanze wachsen lassen
             plant.tick();
