@@ -107,40 +107,52 @@ public class TobaccoPotBlockEntity extends BlockEntity {
     public void load(CompoundTag tag) {
         super.load(tag);
 
+        // NUR neues Objekt erstellen wenn PotType sich ändert oder noch nicht existiert
         if (tag.contains("PotType")) {
             PotType type = PotType.valueOf(tag.getString("PotType"));
-            this.potData = new TobaccoPotData(type);
+            if (potData == null || potData.getPotType() != type) {
+                this.potData = new TobaccoPotData(type);
+            }
         }
 
-        // WICHTIG: Gespeicherte Werte direkt setzen, nicht addieren!
+        // WICHTIG: Werte direkt setzen, nicht addieren!
         if (tag.contains("WaterLevel")) {
             potData.setWaterLevel(tag.getInt("WaterLevel"));
         }
         if (tag.contains("SoilLevel")) {
             potData.setSoilLevel(tag.getInt("SoilLevel"));
         }
-        if (tag.contains("HasSoil")) {
-            // HasSoil wird jetzt automatisch in setSoilLevel gesetzt
-        }
 
+        // Pflanzen-Daten laden (oder Pflanze entfernen wenn nicht im Tag)
         if (tag.contains("Plant")) {
             CompoundTag plantTag = tag.getCompound("Plant");
 
             TobaccoType type = TobaccoType.valueOf(plantTag.getString("Type"));
-            potData.plantSeed(type);
+
+            // Nur Samen pflanzen wenn noch keine Pflanze da ist
+            if (!potData.hasPlant()) {
+                potData.plantSeed(type);
+            }
 
             var plant = potData.getPlant();
             if (plant != null) {
                 plant.setQuality(de.rolandsw.schedulemc.tobacco.TobaccoQuality.valueOf(plantTag.getString("Quality")));
                 plant.setGrowthStage(plantTag.getInt("GrowthStage"));
 
-                for (int i = 0; i < plantTag.getInt("TicksGrown"); i++) {
+                // Ticks rekonstruieren
+                int ticksGrown = plantTag.getInt("TicksGrown");
+                while (plant.getTicksGrown() < ticksGrown) {
                     plant.incrementTicks();
                 }
 
                 if (plantTag.getBoolean("HasFertilizer")) plant.applyFertilizer();
                 if (plantTag.getBoolean("HasGrowthBooster")) plant.applyGrowthBooster();
                 if (plantTag.getBoolean("HasQualityBooster")) plant.applyQualityBooster();
+            }
+        } else {
+            // Kein Plant-Tag -> Pflanze entfernen falls vorhanden
+            if (potData.hasPlant()) {
+                potData.clearPlant();
             }
         }
     }
