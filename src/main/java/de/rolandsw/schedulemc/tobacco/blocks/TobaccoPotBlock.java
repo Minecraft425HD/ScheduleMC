@@ -172,12 +172,15 @@ public class TobaccoPotBlock extends Block implements EntityBlock {
             potData.plantSeed(seedItem.getTobaccoType());
             potBE.setChanged();
             handStack.shrink(1);
-            
+
+            // Platziere Pflanzen-Block oberhalb des Topfes
+            TobaccoPlantBlock.growToStage(level, pos, 0, seedItem.getTobaccoType());
+
             player.displayClientMessage(Component.literal(
                 "§a✓ Samen gepflanzt!\n" +
                 "§7Sorte: " + seedItem.getTobaccoType().getColoredName()
             ), true);
-            
+
             player.playSound(net.minecraft.sounds.SoundEvents.CROP_PLANTED, 1.0f, 1.0f);
             return InteractionResult.SUCCESS;
         }
@@ -191,7 +194,7 @@ public class TobaccoPotBlock extends Block implements EntityBlock {
             if (!plant.isFullyGrown()) {
                 player.displayClientMessage(Component.literal(
                     "§c✗ Pflanze ist noch nicht ausgewachsen!\n" +
-                    "§7Wachstum: §e" + (plant.getGrowthStage() * 25) + "%"
+                    "§7Wachstum: §e" + (plant.getGrowthStage() * 100 / 7) + "%"
                 ), true);
                 return InteractionResult.FAIL;
             }
@@ -204,16 +207,19 @@ public class TobaccoPotBlock extends Block implements EntityBlock {
                     harvested.getQuality(),
                     harvested.getHarvestYield()
                 );
-                
+
                 player.getInventory().add(leaves);
                 potBE.setChanged();
-                
+
+                // Entferne Pflanzen-Block
+                TobaccoPlantBlock.removePlant(level, pos);
+
                 player.displayClientMessage(Component.literal(
                     "§a✓ Geerntet!\n" +
                     "§7Ertrag: §e" + harvested.getHarvestYield() + " Blätter\n" +
                     "§7Qualität: " + harvested.getQuality().getColoredName()
                 ), true);
-                
+
                 player.playSound(net.minecraft.sounds.SoundEvents.CROP_BREAK, 1.0f, 1.0f);
                 return InteractionResult.SUCCESS;
             }
@@ -244,9 +250,9 @@ public class TobaccoPotBlock extends Block implements EntityBlock {
                 var plant = potData.getPlant();
                 info.append("§6╠══════════════════════════════╣\n");
                 info.append("§7│ Sorte: ").append(plant.getType().getColoredName()).append("\n");
-                info.append("§7│ Wachstum: §e").append(plant.getGrowthStage() * 25).append("%\n");
+                info.append("§7│ Wachstum: §e").append(plant.getGrowthStage() * 100 / 7).append("%\n");
                 info.append("§7│ Qualität: ").append(plant.getQuality().getColoredName()).append("\n");
-                
+
                 if (plant.isFullyGrown()) {
                     info.append("§a│ BEREIT ZUM ERNTEN! (Shift+Rechtsklick)\n");
                 }

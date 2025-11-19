@@ -10,7 +10,7 @@ public class TobaccoPlantData {
     
     private TobaccoType type;
     private TobaccoQuality quality;
-    private int growthStage; // 0-3 (3 = ausgewachsen)
+    private int growthStage; // 0-7 (7 = ausgewachsen)
     private int ticksGrown; // Wie lange die Pflanze bereits wächst
     private boolean hasFertilizer; // Dünger angewendet
     private boolean hasGrowthBooster; // Wachstumsbeschleuniger angewendet
@@ -43,7 +43,7 @@ public class TobaccoPlantData {
     }
     
     public void setGrowthStage(int stage) {
-        this.growthStage = Math.max(0, Math.min(3, stage));
+        this.growthStage = Math.max(0, Math.min(7, stage));
     }
     
     public int getTicksGrown() {
@@ -55,7 +55,7 @@ public class TobaccoPlantData {
     }
     
     public boolean isFullyGrown() {
-        return growthStage >= 3;
+        return growthStage >= 7;
     }
     
     public boolean hasFertilizer() {
@@ -121,13 +121,13 @@ public class TobaccoPlantData {
      */
     public void tick() {
         if (isFullyGrown()) return;
-        
+
         incrementTicks();
-        
+
         int requiredTicks = getGrowthSpeed();
-        int ticksPerStage = requiredTicks / 4; // 4 Wachstumsstufen (0-3)
-        
-        int newStage = Math.min(3, ticksGrown / ticksPerStage);
+        int ticksPerStage = requiredTicks / 8; // 8 Wachstumsstufen (0-7)
+
+        int newStage = Math.min(7, ticksGrown / ticksPerStage);
         setGrowthStage(newStage);
     }
 }

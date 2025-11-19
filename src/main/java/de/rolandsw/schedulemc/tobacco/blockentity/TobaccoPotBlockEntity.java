@@ -37,14 +37,24 @@ public class TobaccoPotBlockEntity extends BlockEntity {
     
     public void tick() {
         if (level == null || level.isClientSide) return;
-        
+
         tickCounter++;
-        
+
         if (tickCounter >= 20) {
             tickCounter = 0;
-            
+
             if (potData.hasPlant() && potData.canGrow()) {
+                int oldStage = potData.getPlant().getGrowthStage();
                 potData.tick();
+                int newStage = potData.getPlant().getGrowthStage();
+
+                // Update Pflanzen-Block wenn Wachstumsstufe sich geändert hat
+                if (oldStage != newStage) {
+                    de.rolandsw.schedulemc.tobacco.blocks.TobaccoPlantBlock.growToStage(
+                        level, worldPosition, newStage, potData.getPlant().getType()
+                    );
+                }
+
                 setChanged();
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
             }

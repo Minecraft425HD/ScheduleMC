@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.tobacco.blocks;
 
 import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.tobacco.PotType;
+import de.rolandsw.schedulemc.tobacco.TobaccoType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -104,7 +105,31 @@ public class TobaccoBlocks {
                 .noOcclusion()
         )
     );
-    
+
+    // ═══════════════════════════════════════════════════════════
+    // PFLANZEN-BLÖCKE (4 Tabak-Typen, KEIN BlockItem!)
+    // ═══════════════════════════════════════════════════════════
+
+    public static final RegistryObject<Block> VIRGINIA_PLANT = BLOCKS.register(
+        "virginia_plant",
+        () -> new TobaccoPlantBlock(TobaccoType.VIRGINIA)
+    );
+
+    public static final RegistryObject<Block> BURLEY_PLANT = BLOCKS.register(
+        "burley_plant",
+        () -> new TobaccoPlantBlock(TobaccoType.BURLEY)
+    );
+
+    public static final RegistryObject<Block> ORIENTAL_PLANT = BLOCKS.register(
+        "oriental_plant",
+        () -> new TobaccoPlantBlock(TobaccoType.ORIENTAL)
+    );
+
+    public static final RegistryObject<Block> HAVANA_PLANT = BLOCKS.register(
+        "havana_plant",
+        () -> new TobaccoPlantBlock(TobaccoType.HAVANA)
+    );
+
     // ═══════════════════════════════════════════════════════════
     // HELPER METHODE
     // ═══════════════════════════════════════════════════════════
