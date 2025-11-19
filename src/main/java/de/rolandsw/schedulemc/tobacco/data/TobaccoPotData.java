@@ -128,10 +128,17 @@ public class TobaccoPotData {
         if (plant == null || !plant.isFullyGrown()) {
             return null;
         }
-        
+
         TobaccoPlantData harvested = plant;
         plant = null;
         return harvested;
+    }
+
+    /**
+     * Entfernt die Pflanze (ohne Ernte-Bedingungen)
+     */
+    public void clearPlant() {
+        this.plant = null;
     }
     
     /**

@@ -192,6 +192,33 @@ public class TobaccoPlantBlock extends Block {
     }
 
     /**
+     * Wird aufgerufen wenn die Pflanze abgebaut wird - entfernt sie aus dem Topf
+     */
+    @Override
+    public void playerWillDestroy(Level level, BlockPos pos, BlockState state, net.minecraft.world.entity.player.Player player) {
+        super.playerWillDestroy(level, pos, state, player);
+
+        if (!level.isClientSide && state.getValue(HALF) == DoubleBlockHalf.LOWER) {
+            // Finde Topf unter der Pflanze
+            BlockPos potPos = pos.below();
+            var be = level.getBlockEntity(potPos);
+
+            if (be instanceof de.rolandsw.schedulemc.tobacco.blockentity.TobaccoPotBlockEntity potBE) {
+                var potData = potBE.getPotData();
+                if (potData.hasPlant()) {
+                    // Entferne Pflanze aus Topf
+                    potData.clearPlant();
+                    potBE.setChanged();
+
+                    // WICHTIG: Client-Update senden!
+                    BlockState potState = level.getBlockState(potPos);
+                    level.sendBlockUpdated(potPos, potState, potState, 3);
+                }
+            }
+        }
+    }
+
+    /**
      * Gibt den Pflanzen-Block für einen Tabak-Typ zurück
      */
     private static Block getPlantBlockForType(TobaccoType type) {
