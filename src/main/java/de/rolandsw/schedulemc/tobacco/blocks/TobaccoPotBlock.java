@@ -81,12 +81,13 @@ public class TobaccoPotBlock extends Block implements EntityBlock {
             if (SoilBagItem.consumeUnits(handStack, 1)) {
                 potData.setSoil(true); // Diese Methode setzt auch soilLevel automatisch!
                 potBE.setChanged();
-                
+                level.sendBlockUpdated(pos, state, state, 3); // Client-Update!
+
                 player.displayClientMessage(Component.literal(
                     "§a✓ Erde eingefüllt!\n" +
                     "§7Erde: §6" + potData.getSoilLevel() + "/" + potData.getMaxSoil()
                 ), true);
-                
+
                 player.playSound(net.minecraft.sounds.SoundEvents.GRAVEL_PLACE, 1.0f, 1.0f);
                 return InteractionResult.SUCCESS;
             } else {
@@ -133,7 +134,8 @@ public class TobaccoPotBlock extends Block implements EntityBlock {
             // Verbrauche Wasser aus Gießkanne
             WateringCanItem.setWaterLevel(handStack, waterLevel - toAdd); // RICHTIGE Methode!
             potBE.setChanged();
-            
+            level.sendBlockUpdated(pos, state, state, 3); // Client-Update!
+
             player.displayClientMessage(Component.literal(
                 "§b✓ Gegossen!\n" +
                 "§7Wasser: §b" + potData.getWaterLevel() + "/" + maxWater
@@ -171,6 +173,7 @@ public class TobaccoPotBlock extends Block implements EntityBlock {
             // Pflanze Samen
             potData.plantSeed(seedItem.getTobaccoType());
             potBE.setChanged();
+            level.sendBlockUpdated(pos, state, state, 3); // Client-Update!
             handStack.shrink(1);
 
             // Platziere Pflanzen-Block oberhalb des Topfes
@@ -210,6 +213,7 @@ public class TobaccoPotBlock extends Block implements EntityBlock {
 
                 player.getInventory().add(leaves);
                 potBE.setChanged();
+                level.sendBlockUpdated(pos, state, state, 3); // Client-Update!
 
                 // Entferne Pflanzen-Block
                 TobaccoPlantBlock.removePlant(level, pos);
