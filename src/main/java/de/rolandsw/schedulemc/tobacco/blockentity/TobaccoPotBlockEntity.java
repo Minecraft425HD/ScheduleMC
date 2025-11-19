@@ -20,7 +20,6 @@ public class TobaccoPotBlockEntity extends BlockEntity {
     
     private TobaccoPotData potData;
     private int tickCounter = 0;
-    private int syncCounter = 0;
 
     public TobaccoPotBlockEntity(BlockPos pos, BlockState state) {
         super(TobaccoBlockEntities.TOBACCO_POT.get(), pos, state);
@@ -40,15 +39,18 @@ public class TobaccoPotBlockEntity extends BlockEntity {
         if (level == null || level.isClientSide) return;
 
         tickCounter++;
-        syncCounter++;
 
-        // Wachstums-Tick (alle 20 Ticks = 1 Sekunde)
-        if (tickCounter >= 20) {
+        // Wachstums-Tick (alle 5 Ticks = 0.25 Sekunden = 4x pro Sekunde)
+        if (tickCounter >= 5) {
             tickCounter = 0;
 
             if (potData.hasPlant() && potData.canGrow()) {
                 int oldStage = potData.getPlant().getGrowthStage();
-                potData.tick();
+                int oldWater = potData.getWaterLevel();
+                int oldSoil = potData.getSoilLevel();
+
+                potData.tick(); // Verbraucht Ressourcen!
+
                 int newStage = potData.getPlant().getGrowthStage();
 
                 // Update Pflanzen-Block wenn Wachstumsstufe sich geändert hat
@@ -59,13 +61,12 @@ public class TobaccoPotBlockEntity extends BlockEntity {
                 }
 
                 setChanged();
-            }
-        }
 
-        // Client-Sync öfter senden (alle 5 Ticks = 4x pro Sekunde) für flüssige Anzeige
-        if (syncCounter >= 5 && potData.hasPlant()) {
-            syncCounter = 0;
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+                // SOFORT Client-Update senden wenn Ressourcen verbraucht wurden
+                if (oldWater != potData.getWaterLevel() || oldSoil != potData.getSoilLevel()) {
+                    level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+                }
+            }
         }
     }
     
