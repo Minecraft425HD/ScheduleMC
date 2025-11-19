@@ -224,47 +224,7 @@ public class TobaccoPotBlock extends Block implements EntityBlock {
                 return InteractionResult.SUCCESS;
             }
         }
-        
-        // ═══════════════════════════════════════════════════════════
-        // 5. INFO ANZEIGEN
-        // ═══════════════════════════════════════════════════════════
-        if (handStack.isEmpty()) {
-            showInfo(player, potData);
-            return InteractionResult.SUCCESS;
-        }
-        
-        return InteractionResult.PASS;
-    }
-    
-    private void showInfo(Player player, de.rolandsw.schedulemc.tobacco.data.TobaccoPotData potData) {
-        StringBuilder info = new StringBuilder();
-        info.append("§6╔══════════════════════════════╗\n");
-        info.append("§6║ ").append(potType.getColoredName()).append(" §6║\n");
-        info.append("§6╠══════════════════════════════╣\n");
-        
-        if (potData.hasSoil()) {
-            info.append("§7│ Wasser: §b").append(potData.getWaterLevel()).append("/").append(potData.getMaxWater()).append("\n");
-            info.append("§7│ Erde: §6").append(potData.getSoilLevel()).append("/").append(potData.getMaxSoil()).append("\n");
-            
-            if (potData.hasPlant()) {
-                var plant = potData.getPlant();
-                info.append("§6╠══════════════════════════════╣\n");
-                info.append("§7│ Sorte: ").append(plant.getType().getColoredName()).append("\n");
-                info.append("§7│ Wachstum: §e").append(plant.getGrowthStage() * 100 / 7).append("%\n");
-                info.append("§7│ Qualität: ").append(plant.getQuality().getColoredName()).append("\n");
 
-                if (plant.isFullyGrown()) {
-                    info.append("§a│ BEREIT ZUM ERNTEN! (Shift+Rechtsklick)\n");
-                }
-            } else {
-                info.append("§7│ §8Keine Pflanze\n");
-            }
-        } else {
-            info.append("§7│ §cKeine Erde! Fülle Erde ein.\n");
-        }
-        
-        info.append("§6╚══════════════════════════════╝");
-        
-        player.displayClientMessage(Component.literal(info.toString()), false);
+        return InteractionResult.PASS;
     }
 }

@@ -16,19 +16,19 @@ public class TobaccoItems {
         DeferredRegister.create(ForgeRegistries.ITEMS, ScheduleMC.MOD_ID);
     
     // ═══════════════════════════════════════════════════════════
-    // SAMEN
+    // SAMEN (für Töpfe)
     // ═══════════════════════════════════════════════════════════
-    
-    public static final RegistryObject<Item> VIRGINIA_SEEDS = 
+
+    public static final RegistryObject<Item> VIRGINIA_SEEDS =
         ITEMS.register("virginia_seeds", () -> new TobaccoSeedItem(TobaccoType.VIRGINIA));
-    
-    public static final RegistryObject<Item> BURLEY_SEEDS = 
+
+    public static final RegistryObject<Item> BURLEY_SEEDS =
         ITEMS.register("burley_seeds", () -> new TobaccoSeedItem(TobaccoType.BURLEY));
-    
-    public static final RegistryObject<Item> ORIENTAL_SEEDS = 
+
+    public static final RegistryObject<Item> ORIENTAL_SEEDS =
         ITEMS.register("oriental_seeds", () -> new TobaccoSeedItem(TobaccoType.ORIENTAL));
-    
-    public static final RegistryObject<Item> HAVANA_SEEDS = 
+
+    public static final RegistryObject<Item> HAVANA_SEEDS =
         ITEMS.register("havana_seeds", () -> new TobaccoSeedItem(TobaccoType.HAVANA));
     
     // ═══════════════════════════════════════════════════════════

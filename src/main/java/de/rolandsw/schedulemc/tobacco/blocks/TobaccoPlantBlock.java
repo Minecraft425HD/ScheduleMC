@@ -1,10 +1,13 @@
 package de.rolandsw.schedulemc.tobacco.blocks;
 
+import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
 import de.rolandsw.schedulemc.tobacco.TobaccoType;
+import de.rolandsw.schedulemc.tobacco.items.FreshTobaccoLeafItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -21,8 +24,11 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
+import java.util.List;
+
 /**
  * Tabak-Pflanze Block - wächst in 8 Stufen, wird ab Stufe 4 zwei Blöcke hoch
+ * Droppt Blätter beim Abbauen
  */
 public class TobaccoPlantBlock extends Block {
 
@@ -30,17 +36,15 @@ public class TobaccoPlantBlock extends Block {
     public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
 
     // X-förmige Collision-Box (wie Pflanzen in Minecraft)
-    private static final VoxelShape SHAPE_SMALL = Block.box(2.0D, 0.0D, 2.0D, 14.0D, 8.0D, 14.0D); // Stufe 0-3
-    private static final VoxelShape SHAPE_MEDIUM = Block.box(2.0D, 0.0D, 2.0D, 14.0D, 16.0D, 14.0D); // Stufe 4-6 unten
-    private static final VoxelShape SHAPE_TALL_BOTTOM = Block.box(2.0D, 0.0D, 2.0D, 14.0D, 16.0D, 14.0D); // Stufe 7 unten
-    private static final VoxelShape SHAPE_TALL_TOP = Block.box(2.0D, 0.0D, 2.0D, 14.0D, 16.0D, 14.0D); // Stufe 4+ oben
+    private static final VoxelShape SHAPE_SMALL = Block.box(2.0D, 0.0D, 2.0D, 14.0D, 8.0D, 14.0D);
+    private static final VoxelShape SHAPE_MEDIUM = Block.box(2.0D, 0.0D, 2.0D, 14.0D, 16.0D, 14.0D);
+    private static final VoxelShape SHAPE_TALL = Block.box(2.0D, 0.0D, 2.0D, 14.0D, 16.0D, 14.0D);
 
     private final TobaccoType tobaccoType;
 
     public TobaccoPlantBlock(TobaccoType type) {
         super(BlockBehaviour.Properties.copy(Blocks.WHEAT)
                 .noCollission() // Keine Kollision!
-                .randomTicks()
                 .strength(0.0F)
                 .sound(net.minecraft.world.level.block.SoundType.CROP));
 
@@ -65,19 +69,14 @@ public class TobaccoPlantBlock extends Block {
         DoubleBlockHalf half = state.getValue(HALF);
 
         if (age < 4) {
-            return SHAPE_SMALL; // Stufe 0-3: klein, 1 Block hoch
+            return SHAPE_SMALL;
         } else if (half == DoubleBlockHalf.UPPER) {
-            return SHAPE_TALL_TOP; // Oberer Block
-        } else if (age == 7) {
-            return SHAPE_TALL_BOTTOM; // Stufe 7 unten (voll ausgewachsen)
+            return SHAPE_TALL;
         } else {
-            return SHAPE_MEDIUM; // Stufe 4-6 unten
+            return SHAPE_MEDIUM;
         }
     }
 
-    /**
-     * Entfernt Pflanze wenn unterer Block zerstört wird
-     */
     @Override
     public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState,
                                     LevelAccessor level, BlockPos currentPos, BlockPos neighborPos) {
@@ -85,19 +84,16 @@ public class TobaccoPlantBlock extends Block {
 
         if (direction.getAxis() == Direction.Axis.Y) {
             if (half == DoubleBlockHalf.LOWER && direction == Direction.UP) {
-                // Unterer Block: prüfe ob oben noch der obere Teil ist
                 if (state.getValue(AGE) >= 4 && neighborState.getBlock() != this) {
                     return Blocks.AIR.defaultBlockState();
                 }
             } else if (half == DoubleBlockHalf.UPPER && direction == Direction.DOWN) {
-                // Oberer Block: muss unterer Teil vorhanden sein
                 if (neighborState.getBlock() != this || neighborState.getValue(HALF) != DoubleBlockHalf.LOWER) {
                     return Blocks.AIR.defaultBlockState();
                 }
             }
         }
 
-        // Untere Hälfte: muss auf solidem Block stehen (Topf)
         if (half == DoubleBlockHalf.LOWER && direction == Direction.DOWN) {
             return !canSurvive(state, level, currentPos) ? Blocks.AIR.defaultBlockState() : super.updateShape(state, direction, neighborState, level, currentPos, neighborPos);
         }
@@ -112,10 +108,37 @@ public class TobaccoPlantBlock extends Block {
             return below.is(this) && below.getValue(HALF) == DoubleBlockHalf.LOWER;
         }
 
-        // Unterer Block: muss auf TobaccoPotBlock stehen
+        // Unterer Block: muss auf TobaccoPotBlock stehen!
         BlockPos belowPos = pos.below();
         BlockState belowState = level.getBlockState(belowPos);
         return belowState.getBlock() instanceof TobaccoPotBlock;
+    }
+
+    /**
+     * Drops beim Abbauen
+     */
+    @Override
+    public List<ItemStack> getDrops(BlockState state, net.minecraft.world.level.storage.loot.LootParams.Builder builder) {
+        List<ItemStack> drops = new java.util.ArrayList<>();
+
+        // Nur untere Hälfte droppt Items
+        if (state.getValue(HALF) == DoubleBlockHalf.LOWER) {
+            int age = state.getValue(AGE);
+
+            // Berechne Ertrag basierend auf Wachstumsstufe
+            if (age >= 7) {
+                // Voll ausgewachsen - voller Ertrag
+                int yield = tobaccoType.getBaseYield();
+                drops.add(FreshTobaccoLeafItem.create(tobaccoType, TobaccoQuality.GUT, yield));
+            } else if (age >= 4) {
+                // Teilweise gewachsen - reduzierter Ertrag
+                int yield = (int) (tobaccoType.getBaseYield() * 0.5);
+                drops.add(FreshTobaccoLeafItem.create(tobaccoType, TobaccoQuality.SCHLECHT, yield));
+            }
+            // Stufe 0-3: kein Drop
+        }
+
+        return drops;
     }
 
     /**

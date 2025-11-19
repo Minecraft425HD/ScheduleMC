@@ -10,22 +10,21 @@ import net.minecraft.world.level.Level;
 import java.util.List;
 
 /**
- * Tabaksamen - verschiedene Sorten
+ * Tabaksamen - verschiedene Sorten (zum Pflanzen in Töpfe)
  */
 public class TobaccoSeedItem extends Item {
-    
+
     private final TobaccoType tobaccoType;
-    
+
     public TobaccoSeedItem(TobaccoType type) {
-        super(new Properties()
-                .stacksTo(64));
+        super(new Properties().stacksTo(64));
         this.tobaccoType = type;
     }
-    
+
     public TobaccoType getTobaccoType() {
         return tobaccoType;
     }
-    
+
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
         tooltip.add(Component.literal("§7Sorte: " + tobaccoType.getColoredName()));
