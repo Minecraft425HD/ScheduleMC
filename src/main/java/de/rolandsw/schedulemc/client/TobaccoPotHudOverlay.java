@@ -25,7 +25,7 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(modid = ScheduleMC.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class TobaccoPotHudOverlay {
 
-    private static final int BAR_WIDTH = 120;
+    private static final int BAR_WIDTH = 24; // 80% schmaler (120 → 24)
     private static final int BAR_HEIGHT = 8;
     private static final int SEGMENT_WIDTH = BAR_WIDTH / 5;
     private static final float SCALE = 0.7f;
