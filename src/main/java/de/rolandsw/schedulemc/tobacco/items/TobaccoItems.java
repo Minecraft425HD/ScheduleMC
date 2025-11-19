@@ -2,7 +2,6 @@ package de.rolandsw.schedulemc.tobacco.items;
 
 import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.tobacco.TobaccoType;
-import de.rolandsw.schedulemc.tobacco.blocks.TobaccoBlocks;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -17,20 +16,20 @@ public class TobaccoItems {
         DeferredRegister.create(ForgeRegistries.ITEMS, ScheduleMC.MOD_ID);
     
     // ═══════════════════════════════════════════════════════════
-    // SAMEN (Platziert Pflanzen auf dem Boden)
+    // SAMEN (für Töpfe)
     // ═══════════════════════════════════════════════════════════
 
     public static final RegistryObject<Item> VIRGINIA_SEEDS =
-        ITEMS.register("virginia_seeds", () -> new TobaccoSeedItem(TobaccoType.VIRGINIA, TobaccoBlocks.VIRGINIA_PLANT.get()));
+        ITEMS.register("virginia_seeds", () -> new TobaccoSeedItem(TobaccoType.VIRGINIA));
 
     public static final RegistryObject<Item> BURLEY_SEEDS =
-        ITEMS.register("burley_seeds", () -> new TobaccoSeedItem(TobaccoType.BURLEY, TobaccoBlocks.BURLEY_PLANT.get()));
+        ITEMS.register("burley_seeds", () -> new TobaccoSeedItem(TobaccoType.BURLEY));
 
     public static final RegistryObject<Item> ORIENTAL_SEEDS =
-        ITEMS.register("oriental_seeds", () -> new TobaccoSeedItem(TobaccoType.ORIENTAL, TobaccoBlocks.ORIENTAL_PLANT.get()));
+        ITEMS.register("oriental_seeds", () -> new TobaccoSeedItem(TobaccoType.ORIENTAL));
 
     public static final RegistryObject<Item> HAVANA_SEEDS =
-        ITEMS.register("havana_seeds", () -> new TobaccoSeedItem(TobaccoType.HAVANA, TobaccoBlocks.HAVANA_PLANT.get()));
+        ITEMS.register("havana_seeds", () -> new TobaccoSeedItem(TobaccoType.HAVANA));
     
     // ═══════════════════════════════════════════════════════════
     // FRISCHE BLÄTTER (KEIN TYPE IM KONSTRUKTOR!)

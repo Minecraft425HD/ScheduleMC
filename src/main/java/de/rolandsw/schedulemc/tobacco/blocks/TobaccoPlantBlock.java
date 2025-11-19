@@ -45,7 +45,6 @@ public class TobaccoPlantBlock extends Block {
     public TobaccoPlantBlock(TobaccoType type) {
         super(BlockBehaviour.Properties.copy(Blocks.WHEAT)
                 .noCollission() // Keine Kollision!
-                .randomTicks()
                 .strength(0.0F)
                 .sound(net.minecraft.world.level.block.SoundType.CROP));
 
@@ -109,10 +108,10 @@ public class TobaccoPlantBlock extends Block {
             return below.is(this) && below.getValue(HALF) == DoubleBlockHalf.LOWER;
         }
 
-        // Unterer Block: muss auf einem soliden Block stehen
+        // Unterer Block: muss auf TobaccoPotBlock stehen!
         BlockPos belowPos = pos.below();
         BlockState belowState = level.getBlockState(belowPos);
-        return belowState.isSolidRender(level, belowPos);
+        return belowState.getBlock() instanceof TobaccoPotBlock;
     }
 
     /**
@@ -143,40 +142,64 @@ public class TobaccoPlantBlock extends Block {
     }
 
     /**
-     * Zufälliges Wachstum
+     * Wächst zur nächsten Stufe (wird vom TobaccoPotBlockEntity aufgerufen)
      */
-    @Override
-    public void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        if (state.getValue(HALF) == DoubleBlockHalf.LOWER && !this.isMaxAge(state)) {
-            if (random.nextInt(3) == 0) {
-                this.grow(level, pos, state);
-            }
-        }
-    }
+    public static void growToStage(Level level, BlockPos potPos, int newAge, TobaccoType type) {
+        BlockPos plantPos = potPos.above();
 
-    private boolean isMaxAge(BlockState state) {
-        return state.getValue(AGE) >= 7;
-    }
+        // Finde den richtigen Pflanzen-Block für diesen Typ
+        Block plantBlock = getPlantBlockForType(type);
 
-    private void grow(Level level, BlockPos pos, BlockState state) {
-        int currentAge = state.getValue(AGE);
-        int newAge = Math.min(7, currentAge + 1);
-
-        // Update unterer Block
-        level.setBlock(pos, state.setValue(AGE, newAge), 3);
-
-        // Ab Stufe 4: setze/update oberen Block
-        if (newAge >= 4) {
-            BlockState upperState = this.defaultBlockState()
+        if (newAge <= 7) {
+            // Setze unteren Block
+            BlockState lowerState = plantBlock.defaultBlockState()
                     .setValue(AGE, newAge)
-                    .setValue(HALF, DoubleBlockHalf.UPPER);
-            level.setBlock(pos.above(), upperState, 3);
-        } else {
-            // Entferne oberen Block falls vorhanden
-            BlockState above = level.getBlockState(pos.above());
-            if (above.getBlock() instanceof TobaccoPlantBlock) {
-                level.setBlock(pos.above(), Blocks.AIR.defaultBlockState(), 3);
+                    .setValue(HALF, DoubleBlockHalf.LOWER);
+            level.setBlock(plantPos, lowerState, 3);
+
+            // Ab Stufe 4: setze oberen Block
+            if (newAge >= 4) {
+                BlockState upperState = plantBlock.defaultBlockState()
+                        .setValue(AGE, newAge)
+                        .setValue(HALF, DoubleBlockHalf.UPPER);
+                level.setBlock(plantPos.above(), upperState, 3);
+            } else {
+                // Entferne oberen Block falls vorhanden (downgrade)
+                BlockState above = level.getBlockState(plantPos.above());
+                if (above.getBlock() instanceof TobaccoPlantBlock) {
+                    level.setBlock(plantPos.above(), Blocks.AIR.defaultBlockState(), 3);
+                }
             }
         }
+    }
+
+    /**
+     * Entfernt die Pflanze (beim Ernten)
+     */
+    public static void removePlant(Level level, BlockPos potPos) {
+        BlockPos plantPos = potPos.above();
+        BlockState state = level.getBlockState(plantPos);
+
+        if (state.getBlock() instanceof TobaccoPlantBlock) {
+            level.setBlock(plantPos, Blocks.AIR.defaultBlockState(), 3);
+
+            // Entferne oberen Block falls vorhanden
+            BlockState above = level.getBlockState(plantPos.above());
+            if (above.getBlock() instanceof TobaccoPlantBlock) {
+                level.setBlock(plantPos.above(), Blocks.AIR.defaultBlockState(), 3);
+            }
+        }
+    }
+
+    /**
+     * Gibt den Pflanzen-Block für einen Tabak-Typ zurück
+     */
+    private static Block getPlantBlockForType(TobaccoType type) {
+        return switch (type) {
+            case VIRGINIA -> TobaccoBlocks.VIRGINIA_PLANT.get();
+            case BURLEY -> TobaccoBlocks.BURLEY_PLANT.get();
+            case ORIENTAL -> TobaccoBlocks.ORIENTAL_PLANT.get();
+            case HAVANA -> TobaccoBlocks.HAVANA_PLANT.get();
+        };
     }
 }
