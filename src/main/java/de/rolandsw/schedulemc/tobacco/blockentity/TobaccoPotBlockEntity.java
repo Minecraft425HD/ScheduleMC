@@ -20,26 +20,29 @@ public class TobaccoPotBlockEntity extends BlockEntity {
     
     private TobaccoPotData potData;
     private int tickCounter = 0;
-    
+    private int syncCounter = 0;
+
     public TobaccoPotBlockEntity(BlockPos pos, BlockState state) {
         super(TobaccoBlockEntities.TOBACCO_POT.get(), pos, state);
         this.potData = new TobaccoPotData(PotType.TERRACOTTA);
     }
-    
+
     public void setPotType(PotType type) {
         this.potData = new TobaccoPotData(type);
         setChanged();
     }
-    
+
     public TobaccoPotData getPotData() {
         return potData;
     }
-    
+
     public void tick() {
         if (level == null || level.isClientSide) return;
 
         tickCounter++;
+        syncCounter++;
 
+        // Wachstums-Tick (alle 20 Ticks = 1 Sekunde)
         if (tickCounter >= 20) {
             tickCounter = 0;
 
@@ -56,8 +59,13 @@ public class TobaccoPotBlockEntity extends BlockEntity {
                 }
 
                 setChanged();
-                level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
             }
+        }
+
+        // Client-Sync öfter senden (alle 5 Ticks = 4x pro Sekunde) für flüssige Anzeige
+        if (syncCounter >= 5 && potData.hasPlant()) {
+            syncCounter = 0;
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
     }
     
