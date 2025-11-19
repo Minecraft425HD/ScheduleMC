@@ -95,6 +95,7 @@ public class PlotManager {
      * Gibt Plot an einer Position zurück
      *
      * OPTIMIERT: Nutzt Spatial Index für O(1) statt O(n) Lookup
+     * Mit Fallback zur linearen Suche als Sicherheitsnetz
      *
      * @param pos Die Position
      * @return Der Plot oder null
@@ -106,6 +107,18 @@ public class PlotManager {
         for (String plotId : candidatePlotIds) {
             PlotRegion plot = plots.get(plotId);
             if (plot != null && plot.contains(pos)) {
+                return plot;
+            }
+        }
+
+        // Fallback: Wenn Spatial Index nichts findet, prüfe alle Plots
+        // Dies fängt Edge-Cases ab und wird nur selten ausgeführt
+        for (PlotRegion plot : plots.values()) {
+            if (plot.contains(pos)) {
+                LOGGER.warn("Spatial Index Miss - Plot {} nicht im Index gefunden bei Position {}",
+                           plot.getPlotId(), pos);
+                // Re-indexiere diesen Plot
+                spatialIndex.addPlot(plot);
                 return plot;
             }
         }
@@ -244,7 +257,15 @@ public class PlotManager {
     public static void markDirty() {
         dirty = true;
     }
-    
+
+    /**
+     * Baut den Spatial Index neu auf (Admin-Funktion)
+     */
+    public static void rebuildSpatialIndex() {
+        spatialIndex.rebuild(plots.values());
+        LOGGER.info("Spatial Index manuell neu aufgebaut");
+    }
+
     // ═══════════════════════════════════════════════════════════
     // LADEN & SPEICHERN
     // ═══════════════════════════════════════════════════════════
