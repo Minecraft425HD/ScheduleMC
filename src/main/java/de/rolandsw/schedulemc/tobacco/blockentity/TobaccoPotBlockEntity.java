@@ -20,6 +20,7 @@ public class TobaccoPotBlockEntity extends BlockEntity {
     
     private TobaccoPotData potData;
     private int tickCounter = 0;
+    private int plantGrowthCounter = 0;
 
     public TobaccoPotBlockEntity(BlockPos pos, BlockState state) {
         super(TobaccoBlockEntities.TOBACCO_POT.get(), pos, state);
@@ -40,16 +41,25 @@ public class TobaccoPotBlockEntity extends BlockEntity {
 
         tickCounter++;
 
-        // Wachstums-Tick (alle 5 Ticks = 0.25 Sekunden = 4x pro Sekunde)
+        // Ressourcen-Verbrauch (alle 5 Ticks = 4x pro Sekunde für flüssige Anzeige)
         if (tickCounter >= 5) {
             tickCounter = 0;
+            plantGrowthCounter++;
 
             if (potData.hasPlant() && potData.canGrow()) {
                 int oldStage = potData.getPlant().getGrowthStage();
                 int oldWater = potData.getWaterLevel();
                 int oldSoil = potData.getSoilLevel();
 
-                potData.tick(); // Verbraucht Ressourcen!
+                // Ressourcen verbrauchen (JEDES Mal)
+                potData.consumeWater(potData.getPlant().getType().getWaterConsumption() * 0.0375);
+                potData.consumeSoil(0.075);
+
+                // Pflanze wachsen lassen (NUR alle 4. Mal = 1x pro Sekunde wie früher)
+                if (plantGrowthCounter >= 4) {
+                    plantGrowthCounter = 0;
+                    potData.getPlant().tick();
+                }
 
                 int newStage = potData.getPlant().getGrowthStage();
 
@@ -62,10 +72,8 @@ public class TobaccoPotBlockEntity extends BlockEntity {
 
                 setChanged();
 
-                // SOFORT Client-Update senden wenn Ressourcen verbraucht wurden
-                if (oldWater != potData.getWaterLevel() || oldSoil != potData.getSoilLevel()) {
-                    level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-                }
+                // SOFORT Client-Update senden (IMMER bei Wachstum)
+                level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
             }
         }
     }
@@ -98,34 +106,38 @@ public class TobaccoPotBlockEntity extends BlockEntity {
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
-        
+
         if (tag.contains("PotType")) {
             PotType type = PotType.valueOf(tag.getString("PotType"));
             this.potData = new TobaccoPotData(type);
         }
-        
+
+        // WICHTIG: Gespeicherte Werte direkt setzen, nicht addieren!
         if (tag.contains("WaterLevel")) {
-            potData.addWater(tag.getInt("WaterLevel"));
+            potData.setWaterLevel(tag.getInt("WaterLevel"));
+        }
+        if (tag.contains("SoilLevel")) {
+            potData.setSoilLevel(tag.getInt("SoilLevel"));
         }
         if (tag.contains("HasSoil")) {
-            potData.setSoil(tag.getBoolean("HasSoil"));
+            // HasSoil wird jetzt automatisch in setSoilLevel gesetzt
         }
-        
+
         if (tag.contains("Plant")) {
             CompoundTag plantTag = tag.getCompound("Plant");
-            
+
             TobaccoType type = TobaccoType.valueOf(plantTag.getString("Type"));
             potData.plantSeed(type);
-            
+
             var plant = potData.getPlant();
             if (plant != null) {
                 plant.setQuality(de.rolandsw.schedulemc.tobacco.TobaccoQuality.valueOf(plantTag.getString("Quality")));
                 plant.setGrowthStage(plantTag.getInt("GrowthStage"));
-                
+
                 for (int i = 0; i < plantTag.getInt("TicksGrown"); i++) {
                     plant.incrementTicks();
                 }
-                
+
                 if (plantTag.getBoolean("HasFertilizer")) plant.applyFertilizer();
                 if (plantTag.getBoolean("HasGrowthBooster")) plant.applyGrowthBooster();
                 if (plantTag.getBoolean("HasQualityBooster")) plant.applyQualityBooster();

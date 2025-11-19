@@ -62,7 +62,22 @@ public class TobaccoPotData {
             this.soilLevel = 0;
         }
     }
-    
+
+    /**
+     * Setzt Wasser-Level direkt (für Deserialisierung)
+     */
+    public void setWaterLevel(int waterLevel) {
+        this.waterLevel = Math.max(0, Math.min(waterLevel, getMaxWater()));
+    }
+
+    /**
+     * Setzt Erde-Level direkt (für Deserialisierung)
+     */
+    public void setSoilLevel(int soilLevel) {
+        this.soilLevel = Math.max(0, Math.min(soilLevel, getMaxSoil()));
+        this.hasSoil = soilLevel > 0;
+    }
+
     /**
      * Fügt Wasser hinzu
      */
@@ -127,30 +142,12 @@ public class TobaccoPotData {
             return false;
         }
 
-        // Braucht Wasser und Erde (4x kleiner, da 4x öfter geticked)
+        // Minimale Ressourcen-Anforderungen für einen Tick (4x kleiner, da 4x öfter gecheckt)
         double waterNeeded = plant.getType().getWaterConsumption() * 0.0375; // 0.15 / 4
         double soilNeeded = 0.075; // 0.3 / 4
 
         return waterLevel >= potType.calculateWaterConsumption(waterNeeded) &&
                soilLevel >= potType.calculateSoilConsumption(soilNeeded);
-    }
-
-    /**
-     * Lässt die Pflanze wachsen (tick)
-     */
-    public void tick() {
-        if (plant == null || plant.isFullyGrown()) {
-            return;
-        }
-
-        if (canGrow()) {
-            // Verbrauche Ressourcen (4x kleiner, da 4x öfter geticked = kontinuierliche Anzeige)
-            consumeWater(plant.getType().getWaterConsumption() * 0.0375); // 0.15 / 4
-            consumeSoil(0.075); // 0.3 / 4
-
-            // Pflanze wachsen lassen
-            plant.tick();
-        }
     }
     
     /**
