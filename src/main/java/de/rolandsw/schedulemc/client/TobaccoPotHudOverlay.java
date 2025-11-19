@@ -8,6 +8,7 @@ import de.rolandsw.schedulemc.tobacco.data.TobaccoPlantData;
 import de.rolandsw.schedulemc.tobacco.data.TobaccoPotData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
@@ -19,15 +20,17 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 /**
- * HUD-Overlay für Tabak-Töpfe und Pflanzen - klein, halbtransparent, am oberen Rand
+ * Vereinheitlichtes HUD-Overlay am oberen Bildschirmrand für Töpfe und Pflanzen
  */
 @Mod.EventBusSubscriber(modid = ScheduleMC.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class TobaccoPotHudOverlay {
 
-    private static final int BAR_WIDTH = 100;
+    private static final int BAR_WIDTH = 120;
     private static final int BAR_HEIGHT = 8;
-    private static final int SEGMENT_WIDTH = BAR_WIDTH / 5; // 5 Einheiten
-    private static final float SCALE = 0.65f;
+    private static final int SEGMENT_WIDTH = BAR_WIDTH / 5;
+    private static final float SCALE = 0.7f;
+    private static final int HUD_X = 10;
+    private static final int HUD_Y = 10;
 
     @SubscribeEvent
     public static void onRenderGuiOverlay(RenderGuiOverlayEvent.Post event) {
@@ -38,157 +41,153 @@ public class TobaccoPotHudOverlay {
         if (hitResult == null || hitResult.getType() != HitResult.Type.BLOCK) return;
 
         BlockHitResult blockHitResult = (BlockHitResult) hitResult;
-        BlockState state = mc.level.getBlockState(blockHitResult.getBlockPos());
+        BlockPos targetPos = blockHitResult.getBlockPos();
+        BlockState state = mc.level.getBlockState(targetPos);
 
         GuiGraphics guiGraphics = event.getGuiGraphics();
-        int screenWidth = mc.getWindow().getGuiScaledWidth();
 
-        // Fall 1: Spieler schaut auf Pflanze
-        if (state.getBlock() instanceof TobaccoPlantBlock plant) {
-            if (state.getValue(TobaccoPlantBlock.HALF) == DoubleBlockHalf.LOWER) {
-                renderPlantHud(guiGraphics, mc, screenWidth, plant, state);
+        // Fall 1: Spieler schaut auf Pflanze - zeige Topf darunter
+        if (state.getBlock() instanceof TobaccoPlantBlock) {
+            if (state.getValue(TobaccoPlantBlock.HALF) == DoubleBlockHalf.UPPER) {
+                targetPos = targetPos.below(); // Gehe zum unteren Teil
+            }
+            // Topf ist unter der Pflanze
+            BlockPos potPos = targetPos.below();
+            BlockEntity be = mc.level.getBlockEntity(potPos);
+            BlockState potState = mc.level.getBlockState(potPos);
+
+            if (be instanceof TobaccoPotBlockEntity potBE && potState.getBlock() instanceof TobaccoPotBlock potBlock) {
+                renderUnifiedHud(guiGraphics, mc, potBlock, potBE, true);
             }
             return;
         }
 
-        // Fall 2: Spieler schaut auf Topf
+        // Fall 2: Spieler schaut direkt auf Topf
         if (state.getBlock() instanceof TobaccoPotBlock potBlock) {
-            BlockEntity be = mc.level.getBlockEntity(blockHitResult.getBlockPos());
+            BlockEntity be = mc.level.getBlockEntity(targetPos);
             if (be instanceof TobaccoPotBlockEntity potBE) {
-                renderPotHud(guiGraphics, mc, screenWidth, potBlock, potBE);
+                renderUnifiedHud(guiGraphics, mc, potBlock, potBE, false);
             }
         }
     }
 
     /**
-     * Pflanzen-HUD (Mitte des Bildschirms)
+     * Vereinheitlichtes HUD am oberen Bildschirmrand
      */
-    private static void renderPlantHud(GuiGraphics guiGraphics, Minecraft mc, int screenWidth, TobaccoPlantBlock plant, BlockState state) {
-        int age = state.getValue(TobaccoPlantBlock.AGE);
-        int growthPercent = (age * 100) / 7;
-        boolean isFullyGrown = age >= 7;
-
-        int screenHeight = mc.getWindow().getGuiScaledHeight();
-        int centerX = screenWidth / 2;
-        int centerY = screenHeight / 2 + 40;
-
-        // Kompakte Box
-        int bgWidth = 110;
-        int bgHeight = 30;
-        int bgX = centerX - bgWidth / 2;
-        int bgY = centerY - bgHeight / 2;
-
-        // Halbtransparenter Hintergrund
-        guiGraphics.fill(bgX, bgY, bgX + bgWidth, bgY + bgHeight, 0x66000000);
-
-        // Pflanzenname
-        String plantName = plant.getTobaccoType().getColoredName();
-        int textWidth = (int) (mc.font.width(plantName) * SCALE);
-        int textX = centerX - textWidth / 2;
-        int textY = bgY + 4;
-
-        guiGraphics.pose().pushPose();
-        guiGraphics.pose().scale(SCALE, SCALE, 1.0f);
-        guiGraphics.drawString(mc.font, plantName, (int)(textX / SCALE), (int)(textY / SCALE), 0xFFFFFF);
-        guiGraphics.pose().popPose();
-
-        // Wachstums-Balken
-        int barX = centerX - 40;
-        int barY = bgY + 16;
-        drawProgressBar(guiGraphics, barX, barY, 80, BAR_HEIGHT, growthPercent, isFullyGrown ? 0xFF4CAF50 : 0xFFFDD835, false);
-
-        // Prozent-Text
-        String percentText = growthPercent + "%";
-        if (isFullyGrown) percentText += " §a✓";
-        int percentWidth = (int) (mc.font.width(percentText) * SCALE);
-        int percentX = centerX - percentWidth / 2;
-        int percentY = bgY + 24;
-
-        guiGraphics.pose().pushPose();
-        guiGraphics.pose().scale(SCALE, SCALE, 1.0f);
-        int color = isFullyGrown ? 0x00FF00 : 0xFFFFFF;
-        guiGraphics.drawString(mc.font, percentText, (int)(percentX / SCALE), (int)(percentY / SCALE), color);
-        guiGraphics.pose().popPose();
-    }
-
-    /**
-     * Topf-HUD (Oberer Bildschirmrand)
-     */
-    private static void renderPotHud(GuiGraphics guiGraphics, Minecraft mc, int screenWidth, TobaccoPotBlock potBlock, TobaccoPotBlockEntity potBE) {
+    private static void renderUnifiedHud(GuiGraphics guiGraphics, Minecraft mc, TobaccoPotBlock potBlock,
+                                         TobaccoPotBlockEntity potBE, boolean lookingAtPlant) {
         TobaccoPotData potData = potBE.getPotData();
         if (potData == null) return;
 
-        int hudX = 10;
-        int hudY = 10;
+        int currentY = HUD_Y;
 
-        // Berechne Höhe basierend auf Inhalt
-        int bgHeight = 50;
-        if (potData.hasSoil()) bgHeight = 70;
-        if (potData.hasPlant()) bgHeight = 90;
+        // Berechne dynamische Höhe
+        int lineHeight = 12;
+        int totalLines = 1; // Topf-Typ
 
+        if (potData.hasSoil()) {
+            totalLines += 4; // Wasser-Label + Balken + Erde-Label + Balken
+        } else {
+            totalLines += 1; // "Keine Erde"
+        }
+
+        if (potData.hasPlant()) {
+            totalLines += 2; // Pflanze-Info + Wachstum
+            TobaccoPlantData plant = potData.getPlant();
+            if (plant.hasFertilizer() || plant.hasGrowthBooster() || plant.hasQualityBooster()) {
+                totalLines += 1; // Booster
+            }
+        }
+
+        int bgHeight = totalLines * lineHeight + 10;
         int bgWidth = BAR_WIDTH + 20;
 
         // Halbtransparenter Hintergrund
-        guiGraphics.fill(hudX - 5, hudY - 5, hudX + bgWidth + 5, hudY + bgHeight, 0x66000000);
-
-        int currentY = hudY;
+        guiGraphics.fill(HUD_X - 5, HUD_Y - 5, HUD_X + bgWidth + 5, HUD_Y + bgHeight, 0x88000000);
 
         // Topf-Typ
         String potName = potBlock.getPotType().getColoredName();
         guiGraphics.pose().pushPose();
         guiGraphics.pose().scale(SCALE, SCALE, 1.0f);
-        guiGraphics.drawString(mc.font, potName, (int)(hudX / SCALE), (int)(currentY / SCALE), 0xFFFFFF);
+        guiGraphics.drawString(mc.font, potName, (int)(HUD_X / SCALE), (int)(currentY / SCALE), 0xFFFFFF);
         guiGraphics.pose().popPose();
-
-        currentY += 12;
+        currentY += lineHeight;
 
         if (!potData.hasSoil()) {
-            // Keine Erde
+            // Keine Erde - zeige Warnung
             guiGraphics.pose().pushPose();
             guiGraphics.pose().scale(SCALE, SCALE, 1.0f);
-            guiGraphics.drawString(mc.font, "§cKeine Erde!", (int)(hudX / SCALE), (int)(currentY / SCALE), 0xFF0000);
+            guiGraphics.drawString(mc.font, "§c⚠ Keine Erde!", (int)(HUD_X / SCALE), (int)(currentY / SCALE), 0xFF0000);
             guiGraphics.pose().popPose();
             return;
         }
 
         // Wasser-Balken
-        String waterLabel = "Wasser: " + potData.getWaterLevel() + "/" + potData.getMaxWater();
+        String waterLabel = "§bWasser: " + potData.getWaterLevel() + "/" + potData.getMaxWater();
         guiGraphics.pose().pushPose();
         guiGraphics.pose().scale(SCALE, SCALE, 1.0f);
-        guiGraphics.drawString(mc.font, waterLabel, (int)(hudX / SCALE), (int)((currentY - 2) / SCALE), 0x88CCFF);
+        guiGraphics.drawString(mc.font, waterLabel, (int)(HUD_X / SCALE), (int)(currentY / SCALE), 0xFFFFFF);
         guiGraphics.pose().popPose();
         currentY += 10;
 
         float waterRatio = (float) potData.getWaterLevel() / potData.getMaxWater();
-        drawResourceBar(guiGraphics, hudX, currentY, waterRatio, 0xFF2196F3);
-        currentY += BAR_HEIGHT + 10;
+        drawResourceBar(guiGraphics, HUD_X, currentY, waterRatio, 0xFF2196F3);
+        currentY += BAR_HEIGHT + 4;
 
         // Erd-Balken
-        String soilLabel = "Erde: " + potData.getSoilLevel() + "/" + potData.getMaxSoil();
+        String soilLabel = "§6Erde: " + potData.getSoilLevel() + "/" + potData.getMaxSoil();
         guiGraphics.pose().pushPose();
         guiGraphics.pose().scale(SCALE, SCALE, 1.0f);
-        guiGraphics.drawString(mc.font, soilLabel, (int)(hudX / SCALE), (int)((currentY - 2) / SCALE), 0xFFCC88);
+        guiGraphics.drawString(mc.font, soilLabel, (int)(HUD_X / SCALE), (int)(currentY / SCALE), 0xFFFFFF);
         guiGraphics.pose().popPose();
         currentY += 10;
 
         float soilRatio = (float) potData.getSoilLevel() / potData.getMaxSoil();
-        drawResourceBar(guiGraphics, hudX, currentY, soilRatio, 0xFF8D6E63);
-        currentY += BAR_HEIGHT + 10;
+        drawResourceBar(guiGraphics, HUD_X, currentY, soilRatio, 0xFF8D6E63);
+        currentY += BAR_HEIGHT + 4;
 
         // Pflanzen-Info (falls vorhanden)
         if (potData.hasPlant()) {
             TobaccoPlantData plant = potData.getPlant();
 
-            // Booster-Icons
+            // Trennlinie
+            guiGraphics.fill(HUD_X, currentY, HUD_X + BAR_WIDTH, currentY + 1, 0x44FFFFFF);
+            currentY += 4;
+
+            // Pflanzen-Typ + Qualität
+            String plantInfo = plant.getType().getColoredName() + " §7| " + plant.getQuality().getColoredName();
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().scale(SCALE, SCALE, 1.0f);
+            guiGraphics.drawString(mc.font, plantInfo, (int)(HUD_X / SCALE), (int)(currentY / SCALE), 0xFFFFFF);
+            guiGraphics.pose().popPose();
+            currentY += 10;
+
+            // Wachstum
+            int growthPercent = (plant.getGrowthStage() * 100) / 7;
+            boolean isFullyGrown = plant.isFullyGrown();
+
+            String growthLabel = "§eWachstum: " + growthPercent + "%" + (isFullyGrown ? " §a✓" : "");
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().scale(SCALE, SCALE, 1.0f);
+            guiGraphics.drawString(mc.font, growthLabel, (int)(HUD_X / SCALE), (int)(currentY / SCALE),
+                                 isFullyGrown ? 0x00FF00 : 0xFFFFFF);
+            guiGraphics.pose().popPose();
+            currentY += 10;
+
+            drawProgressBar(guiGraphics, HUD_X, currentY, growthPercent, isFullyGrown);
+            currentY += BAR_HEIGHT + 4;
+
+            // Booster
             String boosters = "";
             if (plant.hasFertilizer()) boosters += "§6[Dünger] ";
             if (plant.hasGrowthBooster()) boosters += "§e[Wachstum+] ";
-            if (plant.hasQualityBooster()) boosters += "§d[Qualität+] ";
+            if (plant.hasQualityBooster()) boosters += "§d[Qualität+]";
 
             if (!boosters.isEmpty()) {
                 guiGraphics.pose().pushPose();
-                guiGraphics.pose().scale(SCALE, SCALE, 1.0f);
-                guiGraphics.drawString(mc.font, boosters.trim(), (int)(hudX / SCALE), (int)(currentY / SCALE), 0xFFFFFF);
+                guiGraphics.pose().scale(SCALE * 0.9f, SCALE * 0.9f, 1.0f);
+                guiGraphics.drawString(mc.font, boosters.trim(), (int)(HUD_X / (SCALE * 0.9f)),
+                                     (int)(currentY / (SCALE * 0.9f)), 0xFFFFFF);
                 guiGraphics.pose().popPose();
             }
         }
@@ -199,7 +198,7 @@ public class TobaccoPotHudOverlay {
      */
     private static void drawResourceBar(GuiGraphics guiGraphics, int x, int y, float fillRatio, int color) {
         // Hintergrund
-        guiGraphics.fill(x, y, x + BAR_WIDTH, y + BAR_HEIGHT, 0xFF2A2A2A);
+        guiGraphics.fill(x, y, x + BAR_WIDTH, y + BAR_HEIGHT, 0xFF1A1A1A);
 
         // Gefüllter Teil
         int filledWidth = (int) (BAR_WIDTH * fillRatio);
@@ -210,33 +209,35 @@ public class TobaccoPotHudOverlay {
         // Segment-Trennlinien (5 Einheiten)
         for (int i = 1; i < 5; i++) {
             int segmentX = x + (i * SEGMENT_WIDTH);
-            guiGraphics.fill(segmentX, y, segmentX + 1, y + BAR_HEIGHT, 0x88FFFFFF);
+            guiGraphics.fill(segmentX, y, segmentX + 1, y + BAR_HEIGHT, 0xAAFFFFFF);
         }
 
         // Rahmen
-        guiGraphics.fill(x, y, x + BAR_WIDTH, y + 1, 0x88FFFFFF);
-        guiGraphics.fill(x, y + BAR_HEIGHT - 1, x + BAR_WIDTH, y + BAR_HEIGHT, 0x88FFFFFF);
-        guiGraphics.fill(x, y, x + 1, y + BAR_HEIGHT, 0x88FFFFFF);
-        guiGraphics.fill(x + BAR_WIDTH - 1, y, x + BAR_WIDTH, y + BAR_HEIGHT, 0x88FFFFFF);
+        guiGraphics.fill(x - 1, y - 1, x + BAR_WIDTH + 1, y, 0xAAFFFFFF); // oben
+        guiGraphics.fill(x - 1, y + BAR_HEIGHT, x + BAR_WIDTH + 1, y + BAR_HEIGHT + 1, 0xAAFFFFFF); // unten
+        guiGraphics.fill(x - 1, y, x, y + BAR_HEIGHT, 0xAAFFFFFF); // links
+        guiGraphics.fill(x + BAR_WIDTH, y, x + BAR_WIDTH + 1, y + BAR_HEIGHT, 0xAAFFFFFF); // rechts
     }
 
     /**
-     * Fortschritts-Balken ohne Segmente
+     * Fortschritts-Balken (Wachstum)
      */
-    private static void drawProgressBar(GuiGraphics guiGraphics, int x, int y, int width, int height, int percent, int color, boolean showSegments) {
+    private static void drawProgressBar(GuiGraphics guiGraphics, int x, int y, int percent, boolean fullyGrown) {
+        int color = fullyGrown ? 0xFF4CAF50 : 0xFFFDD835;
+
         // Hintergrund
-        guiGraphics.fill(x, y, x + width, y + height, 0xFF2A2A2A);
+        guiGraphics.fill(x, y, x + BAR_WIDTH, y + BAR_HEIGHT, 0xFF1A1A1A);
 
         // Gefüllter Teil
-        int filledWidth = (width * percent) / 100;
+        int filledWidth = (BAR_WIDTH * percent) / 100;
         if (filledWidth > 0) {
-            guiGraphics.fill(x, y, x + filledWidth, y + height, color);
+            guiGraphics.fill(x, y, x + filledWidth, y + BAR_HEIGHT, color);
         }
 
         // Rahmen
-        guiGraphics.fill(x, y, x + width, y + 1, 0x88FFFFFF);
-        guiGraphics.fill(x, y + height - 1, x + width, y + height, 0x88FFFFFF);
-        guiGraphics.fill(x, y, x + 1, y + height, 0x88FFFFFF);
-        guiGraphics.fill(x + width - 1, y, x + width, y + height, 0x88FFFFFF);
+        guiGraphics.fill(x - 1, y - 1, x + BAR_WIDTH + 1, y, 0xAAFFFFFF);
+        guiGraphics.fill(x - 1, y + BAR_HEIGHT, x + BAR_WIDTH + 1, y + BAR_HEIGHT + 1, 0xAAFFFFFF);
+        guiGraphics.fill(x - 1, y, x, y + BAR_HEIGHT, 0xAAFFFFFF);
+        guiGraphics.fill(x + BAR_WIDTH, y, x + BAR_WIDTH + 1, y + BAR_HEIGHT, 0xAAFFFFFF);
     }
 }
