@@ -1,27 +1,30 @@
 package de.rolandsw.schedulemc.managers;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.data.ShopItem;
+import de.rolandsw.schedulemc.util.GsonHelper;
 import net.minecraft.world.item.Items;
 import org.slf4j.Logger;
 
 import java.io.*;
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Verwaltet das Shop-System mit Items und Preisen
+ *
+ * OPTIMIERT: Thread-safe durch ConcurrentHashMap
  */
 public class ShopManager {
-    
+
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final File file = new File("config/plotmod_shop.json");
-    private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    private static final Map<String, ShopItem> items = new HashMap<>();
+    private static final Gson gson = GsonHelper.get();
+    private static final Map<String, ShopItem> items = new ConcurrentHashMap<>();
     private static boolean needsSave = false;
     
     /**
@@ -42,7 +45,7 @@ public class ShopManager {
             if (loaded != null) {
                 items.clear();
                 items.putAll(loaded);
-                LOGGER.info("Shop-Items geladen: " + items.size() + " Items");
+                LOGGER.info("Shop-Items geladen: {} Items", items.size());
             }
         } catch (IOException e) {
             LOGGER.error("Fehler beim Laden der Shop-Items", e);
@@ -59,7 +62,7 @@ public class ShopManager {
             try (FileWriter writer = new FileWriter(file)) {
                 gson.toJson(items, writer);
                 needsSave = false;
-                LOGGER.info("Shop-Items gespeichert: " + items.size() + " Items");
+                LOGGER.info("Shop-Items gespeichert: {} Items", items.size());
             }
         } catch (IOException e) {
             LOGGER.error("Fehler beim Speichern der Shop-Items", e);
@@ -205,7 +208,7 @@ public class ShopManager {
             item.setBuyPrice(buyPrice);
             item.setSellPrice(sellPrice);
             markDirty();
-            LOGGER.info("Preise aktualisiert für: " + itemId);
+            LOGGER.info("Preise aktualisiert für: {}", itemId);
         }
     }
     

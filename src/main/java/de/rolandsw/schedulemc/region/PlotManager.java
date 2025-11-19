@@ -1,9 +1,9 @@
 package de.rolandsw.schedulemc.region;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.logging.LogUtils;
+import de.rolandsw.schedulemc.util.GsonHelper;
 import net.minecraft.core.BlockPos;
 import org.slf4j.Logger;
 
@@ -25,12 +25,15 @@ import java.util.stream.Collectors;
  * - Auto-Save mit dirty-Flag
  */
 public class PlotManager {
-    
+
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Map<String, PlotRegion> plots = new ConcurrentHashMap<>();
     private static final File PLOTS_FILE = new File("config/plotmod_plots.json");
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    
+    private static final Gson GSON = GsonHelper.get();
+
+    // Spatial Index für schnelle Lookups
+    private static final PlotSpatialIndex spatialIndex = new PlotSpatialIndex();
+
     private static boolean dirty = false;
     private static int plotCounter = 1;
     
@@ -53,22 +56,23 @@ public class PlotManager {
             Math.min(pos1.getY(), pos2.getY()),
             Math.min(pos1.getZ(), pos2.getZ())
         );
-        
+
         BlockPos max = new BlockPos(
             Math.max(pos1.getX(), pos2.getX()),
             Math.max(pos1.getY(), pos2.getY()),
             Math.max(pos1.getZ(), pos2.getZ())
         );
-        
+
         String plotId = generatePlotId();
         PlotRegion plot = new PlotRegion(plotId, min, max, price);
         plots.put(plotId, plot);
-        
+        spatialIndex.addPlot(plot);
+
         dirty = true;
-        
-        LOGGER.info("Plot erstellt: {} von {} bis {} ({}€)", 
+
+        LOGGER.info("Plot erstellt: {} von {} bis {} ({}€)",
             plotId, min.toShortString(), max.toShortString(), price);
-        
+
         return plot;
     }
     
@@ -89,16 +93,23 @@ public class PlotManager {
     
     /**
      * Gibt Plot an einer Position zurück
-     * 
+     *
+     * OPTIMIERT: Nutzt Spatial Index für O(1) statt O(n) Lookup
+     *
      * @param pos Die Position
      * @return Der Plot oder null
      */
     public static PlotRegion getPlotAt(BlockPos pos) {
-        for (PlotRegion plot : plots.values()) {
-            if (plot.contains(pos)) {
+        // Nutze Spatial Index um nur relevante Plots zu prüfen
+        Set<String> candidatePlotIds = spatialIndex.getPlotsNear(pos);
+
+        for (String plotId : candidatePlotIds) {
+            PlotRegion plot = plots.get(plotId);
+            if (plot != null && plot.contains(pos)) {
                 return plot;
             }
         }
+
         return null;
     }
     
@@ -182,6 +193,7 @@ public class PlotManager {
      */
     public static void addPlot(PlotRegion plot) {
         plots.put(plot.getPlotId(), plot);
+        spatialIndex.addPlot(plot);
         dirty = true;
     }
     
@@ -191,6 +203,7 @@ public class PlotManager {
     public static boolean removePlot(String plotId) {
         PlotRegion removed = plots.remove(plotId);
         if (removed != null) {
+            spatialIndex.removePlot(plotId);
             dirty = true;
             LOGGER.info("Plot entfernt: {}", plotId);
             return true;
@@ -270,13 +283,17 @@ public class PlotManager {
                         })
                         .max()
                         .orElse(0);
-                    
+
                     plotCounter = maxId + 1;
-                    
+
+                    // Spatial Index neu aufbauen
+                    spatialIndex.rebuild(plots.values());
+
                     LOGGER.info("Plots geladen: {} Plots", plots.size());
+                    LOGGER.info("Spatial Index: {}", spatialIndex.getStats());
                 }
             }
-            
+
             dirty = false;
             
         } catch (Exception e) {
@@ -325,16 +342,42 @@ public class PlotManager {
     
     /**
      * Gibt Statistiken zurück
+     *
+     * OPTIMIERT: Ein einzelner Durchlauf statt 6+ separate Streams
      */
     public static PlotStatistics getStatistics() {
-        long totalVolume = getTotalPlotVolume();
-        int totalPlots = getPlotCount();
-        int ownedPlots = (int) plots.values().stream().filter(PlotRegion::hasOwner).count();
-        int availablePlots = (int) plots.values().stream().filter(p -> !p.hasOwner()).count();
-        int forSale = (int) plots.values().stream().filter(PlotRegion::isForSale).count();
-        int forRent = (int) plots.values().stream().filter(p -> p.isForRent() && !p.isRented()).count();
-        int rented = (int) plots.values().stream().filter(PlotRegion::isRented).count();
-        
+        int totalPlots = 0;
+        int ownedPlots = 0;
+        int availablePlots = 0;
+        int forSale = 0;
+        int forRent = 0;
+        int rented = 0;
+        long totalVolume = 0;
+
+        // Ein einzelner Durchlauf für alle Statistiken
+        for (PlotRegion plot : plots.values()) {
+            totalPlots++;
+            totalVolume += plot.getVolume();
+
+            if (plot.hasOwner()) {
+                ownedPlots++;
+            } else {
+                availablePlots++;
+            }
+
+            if (plot.isForSale()) {
+                forSale++;
+            }
+
+            if (plot.isForRent() && !plot.isRented()) {
+                forRent++;
+            }
+
+            if (plot.isRented()) {
+                rented++;
+            }
+        }
+
         return new PlotStatistics(
             totalPlots,
             ownedPlots,
@@ -379,6 +422,7 @@ public class PlotManager {
      */
     public static void clearAllPlots() {
         plots.clear();
+        spatialIndex.clear();
         dirty = true;
         plotCounter = 1;
         LOGGER.warn("Alle Plots gelöscht!");
