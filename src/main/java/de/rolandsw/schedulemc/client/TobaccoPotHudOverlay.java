@@ -163,8 +163,9 @@ public class TobaccoPotHudOverlay {
             currentY += 10;
 
             // Wachstum
-            int growthPercent = (plant.getGrowthStage() * 100) / 7;
             boolean isFullyGrown = plant.isFullyGrown();
+            // Bei erntereifer Pflanze immer 100% anzeigen, auch wenn Ressourcen aufgebraucht
+            int growthPercent = isFullyGrown ? 100 : (plant.getGrowthStage() * 100) / 7;
 
             String growthLabel = "§eWachstum: " + growthPercent + "%" + (isFullyGrown ? " §a✓" : "");
             guiGraphics.pose().pushPose();
