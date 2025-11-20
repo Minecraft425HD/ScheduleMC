@@ -1,13 +1,13 @@
 package de.rolandsw.schedulemc.tobacco;
 
 /**
- * Verschiedene Topf-Typen mit unterschiedlichen Kapazitäten
+ * Verschiedene Topf-Typen mit gleichen Kapazitäten (nur optische Unterschiede)
  */
 public enum PotType {
     TERRACOTTA("Terracotta-Topf", "§6", 20.0, 100, 50, 1.0),
-    CERAMIC("Keramik-Topf", "§f", 40.0, 200, 100, 0.8),
-    IRON("Eisen-Topf", "§7", 80.0, 400, 200, 0.6),
-    GOLDEN("Gold-Topf", "§e§l", 150.0, 800, 400, 0.4);
+    CERAMIC("Keramik-Topf", "§f", 40.0, 100, 50, 1.0),
+    IRON("Eisen-Topf", "§7", 80.0, 100, 50, 1.0),
+    GOLDEN("Gold-Topf", "§e§l", 150.0, 100, 50, 1.0);
     
     private final String displayName;
     private final String colorCode;
