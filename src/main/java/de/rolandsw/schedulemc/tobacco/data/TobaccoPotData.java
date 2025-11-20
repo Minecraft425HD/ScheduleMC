@@ -189,9 +189,8 @@ public class TobaccoPotData {
 
         // Ressourcen-Anforderungen für einen Wachstumsschritt
         // 7 Wachstumsschritte (0→1, 1→2, ... 6→7)
-        // 100 Wasser / 7 = 14.2857 pro Schritt
-        // 15 Erde / 7 = 2.1429 pro Schritt
-        double waterNeeded = (100.0 / 7.0) * plant.getType().getWaterConsumption();
+        // Verbrauche 1/7 der Topfkapazität pro Schritt
+        double waterNeeded = getMaxWater() / 7.0;
         double soilNeeded = 15.0 / 7.0;
 
         return waterLevel >= potType.calculateWaterConsumption(waterNeeded) &&
