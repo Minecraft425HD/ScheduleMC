@@ -26,6 +26,13 @@ public class SoilBagItem extends Item {
     public SoilBagType getType() {
         return type;
     }
+
+    /**
+     * Gibt die Anzahl der Pflanzen zurück, für die dieser Erdsack reicht
+     */
+    public int getPlantsPerBag() {
+        return type.getPlantsPerBag();
+    }
     
     /**
      * Erstellt neuen vollen Erdsack
@@ -135,7 +142,7 @@ public class SoilBagItem extends Item {
 /**
  * Verschiedene Erdsack-Typen
  */
-public enum SoilBagType {
+enum SoilBagType {
     SMALL("Kleiner Erdsack", "§7", 1, 10.0),
     MEDIUM("Mittlerer Erdsack", "§e", 2, 25.0),
     LARGE("Großer Erdsack", "§6", 3, 50.0);

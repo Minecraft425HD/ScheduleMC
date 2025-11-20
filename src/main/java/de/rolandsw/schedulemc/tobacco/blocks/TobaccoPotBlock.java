@@ -89,7 +89,7 @@ public class TobaccoPotBlock extends Block implements EntityBlock {
             // Verbrauche 1 Einheit Erde
             if (SoilBagItem.consumeUnits(handStack, 1)) {
                 // Füge Erde basierend auf Erdsack-Typ hinzu (1, 2 oder 3 Pflanzen)
-                int plantsPerBag = soilBagItem.getType().getPlantsPerBag();
+                int plantsPerBag = soilBagItem.getPlantsPerBag();
                 potData.addSoilForPlants(plantsPerBag);
                 potBE.setChanged();
                 level.sendBlockUpdated(pos, state, state, 3); // Client-Update!
