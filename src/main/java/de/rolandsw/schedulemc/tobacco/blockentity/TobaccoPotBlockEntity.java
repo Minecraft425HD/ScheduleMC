@@ -60,13 +60,22 @@ public class TobaccoPotBlockEntity extends BlockEntity {
                 // Ressourcen BEIM WACHSTUM verbrauchen (bei jedem Wachstumsschritt)
                 if (oldStage != newStage) {
                     // 7 Wachstumsschritte (0→1, 1→2, ... 6→7)
-                    // Verbrauche 1/7 der Topfkapazität pro Schritt
-                    // Damit ist der Topf bei Erntereife IMMER leer (unabhängig von Topf-Typ)
-                    double waterPerStep = potData.getMaxWater() / 7.0;
-                    double soilPerStep = 15.0 / 7.0;
+                    // Beim letzten Schritt (6→7): Verbrauche ALLE verbleibenden Ressourcen
+                    // Sonst: Verbrauche 1/7 der Kapazität
+                    double waterToConsume, soilToConsume;
 
-                    potData.consumeWater(waterPerStep);
-                    potData.consumeSoil(soilPerStep);
+                    if (newStage == 7) {
+                        // Letzter Schritt: Verbrauche alles was noch da ist
+                        waterToConsume = potData.getWaterLevelExact();
+                        soilToConsume = potData.getSoilLevelExact();
+                    } else {
+                        // Normale Schritte: 1/7 der Kapazität
+                        waterToConsume = potData.getMaxWater() / 7.0;
+                        soilToConsume = 15.0 / 7.0;
+                    }
+
+                    potData.consumeWater(waterToConsume);
+                    potData.consumeSoil(soilToConsume);
 
                     // Update Pflanzen-Block
                     de.rolandsw.schedulemc.tobacco.blocks.TobaccoPlantBlock.growToStage(
