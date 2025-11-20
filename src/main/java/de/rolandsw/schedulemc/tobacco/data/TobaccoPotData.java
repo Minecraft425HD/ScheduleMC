@@ -84,8 +84,8 @@ public class TobaccoPotData {
     public void addSoilForPlants(int plantsPerBag) {
         this.hasSoil = true;
         // Kalibrierung: 15 Einheiten Erde reichen genau für 1 Pflanze (bei Terracotta)
-        // Verbrauch: 0.01875 Erde pro Ressourcen-Zyklus
-        // Bei ~800 Ressourcen-Zyklen: 800 * 0.01875 = 15 Einheiten
+        // Verbrauch: 15/7 = 2.1429 Erde pro Wachstumsschritt
+        // Bei 7 Wachstumsschritten: 7 × 2.1429 = 15 Einheiten
 
         // Bessere Töpfe haben kleineren consumptionMultiplier (verbrauchen weniger)
         // Daher wird mehr Erde hinzugefügt, damit die gleiche Anzahl Pflanzen möglich ist
@@ -187,10 +187,12 @@ public class TobaccoPotData {
             return false;
         }
 
-        // Minimale Ressourcen-Anforderungen für einen Tick
-        // Kalibriert: 100 Wasser und 15 Erde für eine komplette Pflanze
-        double waterNeeded = plant.getType().getWaterConsumption() * 0.125;
-        double soilNeeded = 0.01875;
+        // Ressourcen-Anforderungen für einen Wachstumsschritt
+        // 7 Wachstumsschritte (0→1, 1→2, ... 6→7)
+        // 100 Wasser / 7 = 14.2857 pro Schritt
+        // 15 Erde / 7 = 2.1429 pro Schritt
+        double waterNeeded = (100.0 / 7.0) * plant.getType().getWaterConsumption();
+        double soilNeeded = 15.0 / 7.0;
 
         return waterLevel >= potType.calculateWaterConsumption(waterNeeded) &&
                soilLevel >= potType.calculateSoilConsumption(soilNeeded);

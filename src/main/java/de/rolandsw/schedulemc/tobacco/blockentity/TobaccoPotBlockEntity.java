@@ -41,23 +41,15 @@ public class TobaccoPotBlockEntity extends BlockEntity {
 
         tickCounter++;
 
-        // Ressourcen-Verbrauch (alle 5 Ticks = 4x pro Sekunde für flüssige Anzeige)
+        // Pflanzen-Wachstum prüfen (alle 5 Ticks = 4x pro Sekunde)
         if (tickCounter >= 5) {
             tickCounter = 0;
             plantGrowthCounter++;
 
             if (potData.hasPlant() && potData.canGrow()) {
                 int oldStage = potData.getPlant().getGrowthStage();
-                int oldWater = potData.getWaterLevel();
-                int oldSoil = potData.getSoilLevel();
 
-                // Ressourcen verbrauchen (JEDES Mal)
-                // Kalibriert: 100 Wasser und 15 Erde reichen genau für eine Pflanze
-                // Bei ~800 Ressourcen-Zyklen: 100/800=0.125 Wasser, 15/800=0.01875 Erde
-                potData.consumeWater(potData.getPlant().getType().getWaterConsumption() * 0.125);
-                potData.consumeSoil(0.01875);
-
-                // Pflanze wachsen lassen (NUR alle 4. Mal = 1x pro Sekunde wie früher)
+                // Pflanze wachsen lassen (alle 4. Mal = 1x pro Sekunde)
                 if (plantGrowthCounter >= 4) {
                     plantGrowthCounter = 0;
                     potData.getPlant().tick();
@@ -65,17 +57,26 @@ public class TobaccoPotBlockEntity extends BlockEntity {
 
                 int newStage = potData.getPlant().getGrowthStage();
 
-                // Update Pflanzen-Block wenn Wachstumsstufe sich geändert hat
+                // Ressourcen BEIM WACHSTUM verbrauchen (bei jedem Wachstumsschritt)
                 if (oldStage != newStage) {
+                    // 7 Wachstumsschritte (0→1, 1→2, ... 6→7)
+                    // 100 Wasser / 7 = 14.2857 pro Schritt
+                    // 15 Erde / 7 = 2.1429 pro Schritt
+                    double waterPerStep = 100.0 / 7.0;
+                    double soilPerStep = 15.0 / 7.0;
+
+                    potData.consumeWater(waterPerStep * potData.getPlant().getType().getWaterConsumption());
+                    potData.consumeSoil(soilPerStep);
+
+                    // Update Pflanzen-Block
                     de.rolandsw.schedulemc.tobacco.blocks.TobaccoPlantBlock.growToStage(
                         level, worldPosition, newStage, potData.getPlant().getType()
                     );
+
+                    setChanged();
+                    // Client-Update senden (nur bei tatsächlichem Wachstum)
+                    level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
                 }
-
-                setChanged();
-
-                // SOFORT Client-Update senden (IMMER bei Wachstum)
-                level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
             }
         }
     }
