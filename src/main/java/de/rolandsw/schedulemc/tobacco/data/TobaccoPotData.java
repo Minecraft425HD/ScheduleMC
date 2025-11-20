@@ -193,8 +193,12 @@ public class TobaccoPotData {
         double waterNeeded = getMaxWater() / 7.0;
         double soilNeeded = 15.0 / 7.0;
 
-        return waterLevel >= potType.calculateWaterConsumption(waterNeeded) &&
-               soilLevel >= potType.calculateSoilConsumption(soilNeeded);
+        // Kleine Toleranz (0.5) für Floating-Point-Rundungsfehler
+        // Nach 6 Schritten können Rundungsfehler dazu führen, dass 2.1426 < 2.1429
+        double tolerance = 0.5;
+
+        return waterLevel >= (potType.calculateWaterConsumption(waterNeeded) - tolerance) &&
+               soilLevel >= (potType.calculateSoilConsumption(soilNeeded) - tolerance);
     }
     
     /**
