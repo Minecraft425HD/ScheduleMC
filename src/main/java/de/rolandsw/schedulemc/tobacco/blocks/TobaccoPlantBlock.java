@@ -198,11 +198,19 @@ public class TobaccoPlantBlock extends Block {
     public void playerWillDestroy(Level level, BlockPos pos, BlockState state, net.minecraft.world.entity.player.Player player) {
         super.playerWillDestroy(level, pos, state, player);
 
-        if (!level.isClientSide && state.getValue(HALF) == DoubleBlockHalf.LOWER) {
-            // Finde Topf unter der Pflanze
-            BlockPos potPos = pos.below();
-            var be = level.getBlockEntity(potPos);
+        if (!level.isClientSide) {
+            DoubleBlockHalf half = state.getValue(HALF);
+            BlockPos potPos;
 
+            // Finde Topf-Position (unter der unteren Pflanzenhälfte)
+            if (half == DoubleBlockHalf.LOWER) {
+                potPos = pos.below();
+            } else {
+                // Obere Hälfte wurde abgebaut - Topf ist 2 Blöcke darunter
+                potPos = pos.below(2);
+            }
+
+            var be = level.getBlockEntity(potPos);
             if (be instanceof de.rolandsw.schedulemc.tobacco.blockentity.TobaccoPotBlockEntity potBE) {
                 var potData = potBE.getPotData();
                 if (potData.hasPlant()) {
@@ -213,6 +221,15 @@ public class TobaccoPlantBlock extends Block {
                     // WICHTIG: Client-Update senden!
                     BlockState potState = level.getBlockState(potPos);
                     level.sendBlockUpdated(potPos, potState, potState, 3);
+                }
+            }
+
+            // Wenn obere Hälfte abgebaut wird, entferne auch untere Hälfte
+            if (half == DoubleBlockHalf.UPPER) {
+                BlockPos lowerPos = pos.below();
+                BlockState lowerState = level.getBlockState(lowerPos);
+                if (lowerState.getBlock() instanceof TobaccoPlantBlock) {
+                    level.destroyBlock(lowerPos, false); // false = keine Drops
                 }
             }
         }
