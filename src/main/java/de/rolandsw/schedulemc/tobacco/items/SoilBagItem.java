@@ -135,7 +135,7 @@ public class SoilBagItem extends Item {
 /**
  * Verschiedene Erdsack-Typen
  */
-enum SoilBagType {
+public enum SoilBagType {
     SMALL("Kleiner Erdsack", "§7", 1, 10.0),
     MEDIUM("Mittlerer Erdsack", "§e", 2, 25.0),
     LARGE("Großer Erdsack", "§6", 3, 50.0);
