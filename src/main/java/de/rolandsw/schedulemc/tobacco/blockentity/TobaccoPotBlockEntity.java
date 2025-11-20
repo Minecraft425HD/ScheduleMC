@@ -52,8 +52,10 @@ public class TobaccoPotBlockEntity extends BlockEntity {
                 int oldSoil = potData.getSoilLevel();
 
                 // Ressourcen verbrauchen (JEDES Mal)
-                potData.consumeWater(potData.getPlant().getType().getWaterConsumption() * 0.0375);
-                potData.consumeSoil(0.075);
+                // Kalibriert: 100 Wasser und 15 Erde reichen genau für eine Pflanze
+                // Bei ~800 Ressourcen-Zyklen: 100/800=0.125 Wasser, 15/800=0.01875 Erde
+                potData.consumeWater(potData.getPlant().getType().getWaterConsumption() * 0.125);
+                potData.consumeSoil(0.01875);
 
                 // Pflanze wachsen lassen (NUR alle 4. Mal = 1x pro Sekunde wie früher)
                 if (plantGrowthCounter >= 4) {

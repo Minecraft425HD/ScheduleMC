@@ -83,13 +83,12 @@ public class TobaccoPotData {
      */
     public void addSoilForPlants(int plantsPerBag) {
         this.hasSoil = true;
-        // Berechne benötigte Erde für die angegebene Anzahl von Pflanzen
-        // Eine Pflanze benötigt ca. 0.075 Erde pro Tick (alle 5 Ticks)
-        // Bei 4 Checks pro Sekunde: 0.075 * 4 = 0.3 pro Sekunde
-        // Durchschnittliche Wachstumszeit: ~140 Ticks für Virginia (bei base 700 / 5)
-        // 140 * 0.075 = 10.5 Erde pro Pflanze (Basis-Verbrauch ohne Multiplikator)
+        // Kalibrierung: 15 Einheiten Erde reichen genau für 1 Pflanze (bei Terracotta)
+        // Verbrauch: 0.01875 Erde pro Ressourcen-Zyklus
+        // Bei ~800 Ressourcen-Zyklen: 800 * 0.01875 = 15 Einheiten
 
-        // Sicherheitsfaktor: 15 Erde pro Pflanze (Basis) vor Multiplikator
+        // Bessere Töpfe haben kleineren consumptionMultiplier (verbrauchen weniger)
+        // Daher wird mehr Erde hinzugefügt, damit die gleiche Anzahl Pflanzen möglich ist
         int baseSoilPerPlant = 15;
         int targetSoil = (int) (baseSoilPerPlant * plantsPerBag / potType.getConsumptionMultiplier());
 
@@ -188,9 +187,10 @@ public class TobaccoPotData {
             return false;
         }
 
-        // Minimale Ressourcen-Anforderungen für einen Tick (4x kleiner, da 4x öfter gecheckt)
-        double waterNeeded = plant.getType().getWaterConsumption() * 0.0375; // 0.15 / 4
-        double soilNeeded = 0.075; // 0.3 / 4
+        // Minimale Ressourcen-Anforderungen für einen Tick
+        // Kalibriert: 100 Wasser und 15 Erde für eine komplette Pflanze
+        double waterNeeded = plant.getType().getWaterConsumption() * 0.125;
+        double soilNeeded = 0.01875;
 
         return waterLevel >= potType.calculateWaterConsumption(waterNeeded) &&
                soilLevel >= potType.calculateSoilConsumption(soilNeeded);
