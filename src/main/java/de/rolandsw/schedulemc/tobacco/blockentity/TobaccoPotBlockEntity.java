@@ -83,8 +83,8 @@ public class TobaccoPotBlockEntity extends BlockEntity {
         super.saveAdditional(tag);
         
         tag.putString("PotType", potData.getPotType().name());
-        tag.putInt("WaterLevel", potData.getWaterLevel());
-        tag.putInt("SoilLevel", potData.getSoilLevel());
+        tag.putDouble("WaterLevel", potData.getWaterLevelExact()); // Speichere exakte Werte
+        tag.putDouble("SoilLevel", potData.getSoilLevelExact()); // Speichere exakte Werte
         tag.putBoolean("HasSoil", potData.hasSoil());
         
         if (potData.hasPlant()) {
@@ -117,10 +117,10 @@ public class TobaccoPotBlockEntity extends BlockEntity {
 
         // WICHTIG: Werte direkt setzen, nicht addieren!
         if (tag.contains("WaterLevel")) {
-            potData.setWaterLevel(tag.getInt("WaterLevel"));
+            potData.setWaterLevel(tag.getDouble("WaterLevel")); // Lade als double
         }
         if (tag.contains("SoilLevel")) {
-            potData.setSoilLevel(tag.getInt("SoilLevel"));
+            potData.setSoilLevel(tag.getDouble("SoilLevel")); // Lade als double
         }
 
         // Pflanzen-Daten laden (oder Pflanze entfernen wenn nicht im Tag)

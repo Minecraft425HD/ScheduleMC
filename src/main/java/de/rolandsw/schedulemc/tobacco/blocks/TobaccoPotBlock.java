@@ -67,25 +67,37 @@ public class TobaccoPotBlock extends Block implements EntityBlock {
         var potData = potBE.getPotData();
         
         // ═══════════════════════════════════════════════════════════
-        // 1. ERDE BEFÜLLEN (FIXED!)
+        // 1. ERDE BEFÜLLEN (Berücksichtigt Erdsack-Typ!)
         // ═══════════════════════════════════════════════════════════
-        if (handStack.getItem() instanceof SoilBagItem) {
-            if (potData.hasSoil()) {
+        if (handStack.getItem() instanceof SoilBagItem soilBagItem) {
+            // Erlaube Nachfüllen nur wenn keine Pflanze vorhanden ist
+            if (potData.hasPlant()) {
                 player.displayClientMessage(Component.literal(
-                    "§c✗ Topf hat bereits Erde!"
+                    "§c✗ Entferne zuerst die Pflanze!"
                 ), true);
                 return InteractionResult.FAIL;
             }
-            
+
+            // Prüfe ob Topf bereits voll ist
+            if (potData.getSoilLevel() >= potData.getMaxSoil()) {
+                player.displayClientMessage(Component.literal(
+                    "§c✗ Topf ist bereits voll mit Erde!"
+                ), true);
+                return InteractionResult.FAIL;
+            }
+
             // Verbrauche 1 Einheit Erde
             if (SoilBagItem.consumeUnits(handStack, 1)) {
-                potData.setSoil(true); // Diese Methode setzt auch soilLevel automatisch!
+                // Füge Erde basierend auf Erdsack-Typ hinzu (1, 2 oder 3 Pflanzen)
+                int plantsPerBag = soilBagItem.getType().getPlantsPerBag();
+                potData.addSoilForPlants(plantsPerBag);
                 potBE.setChanged();
                 level.sendBlockUpdated(pos, state, state, 3); // Client-Update!
 
                 player.displayClientMessage(Component.literal(
                     "§a✓ Erde eingefüllt!\n" +
-                    "§7Erde: §6" + potData.getSoilLevel() + "/" + potData.getMaxSoil()
+                    "§7Erde: §6" + potData.getSoilLevel() + "/" + potData.getMaxSoil() + "\n" +
+                    "§7Reicht für: §e~" + plantsPerBag + " Pflanzen"
                 ), true);
 
                 player.playSound(net.minecraft.sounds.SoundEvents.GRAVEL_PLACE, 1.0f, 1.0f);
