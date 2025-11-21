@@ -69,7 +69,7 @@ public class PurchaseItemPacket {
         int totalPrice = entry.getPrice() * quantity;
 
         // Prüfe ob Spieler genug Geld hat
-        int playerBalance = EconomyManager.getBalance(player.getUUID());
+        double playerBalance = EconomyManager.getBalance(player.getUUID());
         if (playerBalance < totalPrice) {
             player.sendSystemMessage(Component.literal("§cNicht genug Geld! Du brauchst " + totalPrice + "$"));
             return;
@@ -85,11 +85,14 @@ public class PurchaseItemPacket {
         }
 
         // Transaktion durchführen
-        EconomyManager.removeBalance(player.getUUID(), totalPrice);
-        player.getInventory().add(itemToGive);
+        if (EconomyManager.withdraw(player.getUUID(), totalPrice)) {
+            player.getInventory().add(itemToGive);
 
-        player.sendSystemMessage(Component.literal("§aGekauft: " + quantity + "x " +
-            entry.getItem().getHoverName().getString() + " für " + totalPrice + "$"));
+            player.sendSystemMessage(Component.literal("§aGekauft: " + quantity + "x " +
+                entry.getItem().getHoverName().getString() + " für " + totalPrice + "$"));
+        } else {
+            player.sendSystemMessage(Component.literal("§cFehler beim Abbuchung! Kauf abgebrochen."));
+        }
     }
 
     /**
