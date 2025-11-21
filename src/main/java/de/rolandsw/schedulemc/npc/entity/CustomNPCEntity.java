@@ -22,6 +22,7 @@ import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.OpenDoorGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -74,6 +75,7 @@ public class CustomNPCEntity extends PathfinderMob {
         this.goalSelector.addGoal(2, new ScheduleBasedMovementGoal(this)); // Schedule-basiertes Movement
         this.goalSelector.addGoal(3, new LookAtPlayerGoal(this, Player.class, 8.0F)); // Spieler anschauen
         this.goalSelector.addGoal(4, new RandomLookAroundGoal(this)); // Zufällig umschauen
+        this.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 0.6D)); // Zufällig herumwandern (Fallback)
     }
 
     @Override
