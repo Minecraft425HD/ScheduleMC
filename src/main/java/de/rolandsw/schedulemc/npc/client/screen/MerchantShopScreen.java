@@ -53,18 +53,7 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
         loadShopItems();
 
         // Erstelle Input-Felder für sichtbare Rows
-        // Layout: Icon(18) | Name(80) | Preis(50) | Verfügbar(45) | Input(40)
-        for (int i = 0; i < Math.min(VISIBLE_ROWS, shopItemRows.size()); i++) {
-            ShopItemRow row = shopItemRows.get(i);
-
-            // Menge Eingabe-Feld (Standard: 0)
-            EditBox quantityInput = new EditBox(this.font, x + 230, y + 30 + i * 22, 35, 16, Component.literal("Menge"));
-            quantityInput.setMaxLength(4);
-            quantityInput.setValue("0");
-            quantityInput.setFilter(s -> s.matches("\\d*")); // Nur Zahlen
-            row.quantityInput = quantityInput;
-            addRenderableWidget(quantityInput);
-        }
+        createInputFields();
 
         // Scroll Buttons (falls mehr als VISIBLE_ROWS vorhanden)
         if (shopItemRows.size() > VISIBLE_ROWS) {
@@ -81,6 +70,36 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
         buyButton = addRenderableWidget(Button.builder(Component.literal("Kaufen"), button -> {
             purchaseAllItems();
         }).bounds(x + imageWidth - 70, y + imageHeight - 25, 60, 20).build());
+    }
+
+    /**
+     * Erstellt die Input-Felder für die aktuell sichtbaren Rows
+     */
+    private void createInputFields() {
+        int x = (width - imageWidth) / 2;
+        int y = (height - imageHeight) / 2;
+
+        // Erstelle Input-Felder für sichtbare Rows
+        // Layout: Icon(18) | Name(80) | Preis(50) | Verfügbar(45) | Input(40)
+        for (int i = 0; i < Math.min(VISIBLE_ROWS, shopItemRows.size() - scrollOffset); i++) {
+            int rowIndex = i + scrollOffset;
+            ShopItemRow row = shopItemRows.get(rowIndex);
+
+            // Menge Eingabe-Feld
+            EditBox quantityInput = new EditBox(this.font, x + 230, y + 30 + i * 22, 35, 16, Component.literal("Menge"));
+            quantityInput.setMaxLength(4);
+            quantityInput.setValue(row.savedQuantity);
+            quantityInput.setFilter(s -> s.matches("\\d*")); // Nur Zahlen
+
+            // Speichere Werte beim Tippen
+            final int finalRowIndex = rowIndex;
+            quantityInput.setResponder(value -> {
+                shopItemRows.get(finalRowIndex).savedQuantity = value;
+            });
+
+            row.quantityInput = quantityInput;
+            addRenderableWidget(quantityInput);
+        }
     }
 
     /**
@@ -105,30 +124,42 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
      * Kauft alle Items mit Menge > 0
      */
     private void purchaseAllItems() {
+        // Speichere aktuelle Eingaben vor dem Kauf
+        saveCurrentInputValues();
+
         // Sammle alle Items mit Menge > 0
         for (int i = 0; i < shopItemRows.size(); i++) {
             ShopItemRow row = shopItemRows.get(i);
-            if (row.quantityInput != null) {
-                String quantityStr = row.quantityInput.getValue();
-                if (!quantityStr.isEmpty() && !quantityStr.equals("0")) {
-                    try {
-                        int quantity = Integer.parseInt(quantityStr);
-                        if (quantity > 0 && quantity <= row.availableQuantity) {
-                            // Sende Kauf-Packet an Server für dieses Item
-                            NPCNetworkHandler.sendToServer(new PurchaseItemPacket(
-                                menu.getEntityId(),
-                                i,
-                                quantity
-                            ));
-                        }
-                    } catch (NumberFormatException e) {
-                        // Ignoriere ungültige Eingaben
+            String quantityStr = row.savedQuantity;
+            if (!quantityStr.isEmpty() && !quantityStr.equals("0")) {
+                try {
+                    int quantity = Integer.parseInt(quantityStr);
+                    if (quantity > 0 && quantity <= row.availableQuantity) {
+                        // Sende Kauf-Packet an Server für dieses Item
+                        NPCNetworkHandler.sendToServer(new PurchaseItemPacket(
+                            menu.getEntityId(),
+                            i,
+                            quantity
+                        ));
                     }
+                } catch (NumberFormatException e) {
+                    // Ignoriere ungültige Eingaben
                 }
             }
         }
         // Schließe GUI nach Kauf
         this.onClose();
+    }
+
+    /**
+     * Speichert die aktuellen Input-Werte in savedQuantity
+     */
+    private void saveCurrentInputValues() {
+        for (ShopItemRow row : shopItemRows) {
+            if (row.quantityInput != null) {
+                row.savedQuantity = row.quantityInput.getValue();
+            }
+        }
     }
 
     private void scrollUp() {
@@ -145,12 +176,23 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
         }
     }
 
+    /**
+     * Aktualisiert die sichtbaren Rows nach dem Scrollen
+     * Entfernt alte Input-Felder und erstellt neue für die aktuellen Items
+     */
     private void updateVisibleRows() {
-        // Update row data nach Scroll
-        for (int i = 0; i < VISIBLE_ROWS && (i + scrollOffset) < shopItemRows.size(); i++) {
-            ShopItemRow row = shopItemRows.get(i + scrollOffset);
-            // Row wird beim Rendern aktualisiert
+        // Speichere die aktuellen Input-Werte (passiert automatisch via setResponder)
+
+        // Entferne alle alten Input-Felder
+        for (ShopItemRow row : shopItemRows) {
+            if (row.quantityInput != null) {
+                this.removeWidget(row.quantityInput);
+                row.quantityInput = null;
+            }
         }
+
+        // Erstelle neue Input-Felder für die aktuell sichtbaren Items
+        createInputFields();
     }
 
     @Override
@@ -206,11 +248,14 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
      * Berechnet die Gesamtkosten aller eingegebenen Mengen
      */
     private int calculateTotalCost() {
+        // Speichere zuerst die aktuellen Eingaben
+        saveCurrentInputValues();
+
         int totalCost = 0;
         for (ShopItemRow row : shopItemRows) {
-            if (row.quantityInput != null && !row.quantityInput.getValue().isEmpty()) {
+            if (!row.savedQuantity.isEmpty()) {
                 try {
-                    int quantity = Integer.parseInt(row.quantityInput.getValue());
+                    int quantity = Integer.parseInt(row.savedQuantity);
                     if (quantity > 0) {
                         totalCost += row.pricePerItem * quantity;
                     }
@@ -244,5 +289,6 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
         int pricePerItem;
         int availableQuantity;
         EditBox quantityInput;
+        String savedQuantity = "0"; // Gespeicherte Eingabe (persistent beim Scrollen)
     }
 }
