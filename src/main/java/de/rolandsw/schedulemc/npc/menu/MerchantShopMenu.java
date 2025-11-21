@@ -26,7 +26,7 @@ public class MerchantShopMenu extends AbstractContainerMenu {
         super(NPCMenuTypes.MERCHANT_SHOP_MENU.get(), id);
         this.merchant = merchant;
         this.entityId = merchant.getId();
-        this.category = merchant.getNpcData().getMerchantCategory();
+        this.category = merchant.getMerchantCategory();
 
         // Player Inventory
         for (int row = 0; row < 3; ++row) {
