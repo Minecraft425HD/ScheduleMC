@@ -5,6 +5,7 @@ import de.rolandsw.schedulemc.npc.client.model.CustomNPCModel;
 import de.rolandsw.schedulemc.npc.client.renderer.CustomNPCRenderer;
 import de.rolandsw.schedulemc.npc.client.screen.NPCInteractionScreen;
 import de.rolandsw.schedulemc.npc.client.screen.NPCSpawnerScreen;
+import de.rolandsw.schedulemc.npc.client.screen.MerchantShopScreen;
 import de.rolandsw.schedulemc.npc.entity.NPCEntities;
 import de.rolandsw.schedulemc.npc.menu.NPCMenuTypes;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -27,6 +28,7 @@ public class NPCClientEvents {
             // Register Screens
             MenuScreens.register(NPCMenuTypes.NPC_SPAWNER_MENU.get(), NPCSpawnerScreen::new);
             MenuScreens.register(NPCMenuTypes.NPC_INTERACTION_MENU.get(), NPCInteractionScreen::new);
+            MenuScreens.register(NPCMenuTypes.MERCHANT_SHOP_MENU.get(), MerchantShopScreen::new);
 
             // Register Entity Renderer
             EntityRenderers.register(NPCEntities.CUSTOM_NPC.get(), CustomNPCRenderer::new);

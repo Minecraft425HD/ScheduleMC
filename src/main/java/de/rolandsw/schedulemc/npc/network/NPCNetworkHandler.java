@@ -44,6 +44,18 @@ public class NPCNetworkHandler {
             .encoder(SyncNPCDataPacket::encode)
             .consumerMainThread(SyncNPCDataPacket::handle)
             .add();
+
+        INSTANCE.messageBuilder(PurchaseItemPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(PurchaseItemPacket::decode)
+            .encoder(PurchaseItemPacket::encode)
+            .consumerMainThread(PurchaseItemPacket::handle)
+            .add();
+
+        INSTANCE.messageBuilder(OpenMerchantShopPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(OpenMerchantShopPacket::decode)
+            .encoder(OpenMerchantShopPacket::encode)
+            .consumerMainThread(OpenMerchantShopPacket::handle)
+            .add();
     }
 
     public static <MSG> void sendToServer(MSG message) {
