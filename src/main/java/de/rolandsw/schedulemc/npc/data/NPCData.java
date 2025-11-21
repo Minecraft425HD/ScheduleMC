@@ -258,6 +258,14 @@ public class NPCData {
             entries.add(new ShopEntry(item, price));
         }
 
+        public void addEntry(ShopEntry entry) {
+            entries.add(entry);
+        }
+
+        public void clear() {
+            entries.clear();
+        }
+
         public List<ShopEntry> getEntries() {
             return entries;
         }
