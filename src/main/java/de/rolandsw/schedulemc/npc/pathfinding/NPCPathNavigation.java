@@ -65,13 +65,11 @@ public class NPCPathNavigation extends GroundPathNavigation {
 
     /**
      * Prüft, ob eine Position erreichbar ist
+     * Die Walkable-Block-Prüfung erfolgt im NPCNodeEvaluator während der Pfadberechnung
      */
     @Override
     protected boolean canUpdatePath() {
-        // Nur aktualisieren wenn der NPC auf einem erlaubten Block steht
-        BlockPos below = this.mob.blockPosition().below();
-        BlockState state = this.level.getBlockState(below);
-        return isBlockWalkable(state) && super.canUpdatePath();
+        return super.canUpdatePath();
     }
 
     /**

@@ -25,8 +25,12 @@ public class NPCNodeEvaluator extends WalkNodeEvaluator {
             return state.getValue(DoorBlock.OPEN) ? BlockPathTypes.DOOR_OPEN : BlockPathTypes.DOOR_WOOD_CLOSED;
         }
 
-        // Prüfe ob der Block zum Laufen erlaubt ist
-        if (!NPCPathNavigation.isBlockWalkable(state)) {
+        // Prüfe Block unter den Füßen (y-1)
+        BlockPos below = new BlockPos(x, y - 1, z);
+        BlockState stateBelow = level.getBlockState(below);
+
+        // Prüfe ob der Block unter den Füßen zum Laufen erlaubt ist
+        if (!NPCPathNavigation.isBlockWalkable(stateBelow)) {
             return BlockPathTypes.BLOCKED;
         }
 
