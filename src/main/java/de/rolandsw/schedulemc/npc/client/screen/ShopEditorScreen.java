@@ -7,7 +7,6 @@ import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
 import de.rolandsw.schedulemc.npc.network.UpdateShopItemsPacket;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
@@ -32,7 +31,7 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
 
     private static class ItemRow {
         EditBox priceInput;
-        Checkbox unlimitedCheckbox;
+        Button unlimitedToggle;
         EditBox stockInput;
     }
 
@@ -83,7 +82,7 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
         // Entferne alte Felder
         for (ItemRow row : itemRows) {
             if (row.priceInput != null) this.removeWidget(row.priceInput);
-            if (row.unlimitedCheckbox != null) this.removeWidget(row.unlimitedCheckbox);
+            if (row.unlimitedToggle != null) this.removeWidget(row.unlimitedToggle);
             if (row.stockInput != null) this.removeWidget(row.stockInput);
         }
         itemRows.clear();
@@ -116,25 +115,28 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
                 }
             });
 
-            // Unlimited-Checkbox
-            row.unlimitedCheckbox = new Checkbox(
-                x + 226, rowY, 16, 16,
-                Component.literal("∞"),
-                menu.getItemUnlimited()[slotIndex],
-                false // not focused
-            );
-            row.unlimitedCheckbox.onPress = () -> {
-                boolean unlimited = row.unlimitedCheckbox.selected();
-                menu.setItemUnlimited(finalSlotIndex, unlimited);
+            // Unlimited-Toggle Button (zeigt ∞ oder ✓)
+            boolean initialUnlimited = menu.getItemUnlimited()[slotIndex];
+            row.unlimitedToggle = Button.builder(
+                Component.literal(initialUnlimited ? "∞" : "✓"),
+                button -> {
+                    // Toggle unlimited status
+                    boolean currentUnlimited = menu.getItemUnlimited()[finalSlotIndex];
+                    boolean newUnlimited = !currentUnlimited;
+                    menu.setItemUnlimited(finalSlotIndex, newUnlimited);
 
-                // Aktiviere/Deaktiviere Stock-Feld basierend auf Unlimited
-                row.stockInput.setEditable(!unlimited);
-                if (unlimited) {
-                    row.stockInput.setTextColor(0x808080); // Grau wenn deaktiviert
-                } else {
-                    row.stockInput.setTextColor(0xE0E0E0); // Weiß wenn aktiv
+                    // Update Button-Text
+                    button.setMessage(Component.literal(newUnlimited ? "∞" : "✓"));
+
+                    // Aktiviere/Deaktiviere Stock-Feld basierend auf Unlimited
+                    row.stockInput.setEditable(!newUnlimited);
+                    if (newUnlimited) {
+                        row.stockInput.setTextColor(0x808080); // Grau wenn deaktiviert
+                    } else {
+                        row.stockInput.setTextColor(0xE0E0E0); // Weiß wenn aktiv
+                    }
                 }
-            };
+            ).bounds(x + 226, rowY, 16, 16).build();
 
             // Stock-Eingabefeld
             row.stockInput = new EditBox(this.font,
@@ -160,7 +162,7 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
 
             itemRows.add(row);
             addRenderableWidget(row.priceInput);
-            addRenderableWidget(row.unlimitedCheckbox);
+            addRenderableWidget(row.unlimitedToggle);
             addRenderableWidget(row.stockInput);
         }
     }
