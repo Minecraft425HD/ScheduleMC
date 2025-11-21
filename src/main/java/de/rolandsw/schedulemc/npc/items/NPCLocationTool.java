@@ -119,6 +119,13 @@ public class NPCLocationTool extends Item {
     }
 
     /**
+     * Setzt den ausgewählten NPC für einen Spieler
+     */
+    public static void setSelectedNPC(UUID playerUUID, Integer npcId) {
+        selectedNPCs.put(playerUUID, npcId);
+    }
+
+    /**
      * Entfernt die NPC-Auswahl für einen Spieler
      */
     public static void clearSelectedNPC(UUID playerUUID) {
