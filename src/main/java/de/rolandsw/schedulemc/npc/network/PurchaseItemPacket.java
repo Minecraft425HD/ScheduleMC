@@ -68,6 +68,13 @@ public class PurchaseItemPacket {
         NPCData.ShopEntry entry = shopItems.get(itemIndex);
         int totalPrice = entry.getPrice() * quantity;
 
+        // Prüfe Lagerbestand
+        if (!entry.hasStock(quantity)) {
+            int available = entry.getStock();
+            player.sendSystemMessage(Component.literal("§cNicht genug auf Lager! Verfügbar: " + available));
+            return;
+        }
+
         // Prüfe ob Spieler genug Geld hat
         double playerBalance = EconomyManager.getBalance(player.getUUID());
         if (playerBalance < totalPrice) {
@@ -87,6 +94,9 @@ public class PurchaseItemPacket {
         // Transaktion durchführen
         if (EconomyManager.withdraw(player.getUUID(), totalPrice)) {
             player.getInventory().add(itemToGive);
+
+            // Reduziere Lagerbestand (nur wenn nicht unlimited)
+            entry.reduceStock(quantity);
 
             player.sendSystemMessage(Component.literal("§aGekauft: " + quantity + "x " +
                 entry.getItem().getHoverName().getString() + " für " + totalPrice + "$"));

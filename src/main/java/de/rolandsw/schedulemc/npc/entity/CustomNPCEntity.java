@@ -124,6 +124,8 @@ public class CustomNPCEntity extends PathfinderMob {
             for (var entry : shopItems) {
                 buf.writeItem(entry.getItem());
                 buf.writeInt(entry.getPrice());
+                buf.writeBoolean(entry.isUnlimited());
+                buf.writeInt(entry.getStock());
             }
         });
     }

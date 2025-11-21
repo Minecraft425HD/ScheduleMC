@@ -27,8 +27,10 @@ public class ShopEditorMenu extends AbstractContainerMenu {
     private final Container shopContainer;
     public static final int SHOP_SLOTS = 16; // Max 16 Items im Shop (4x4)
 
-    // Für Client: Speichere Preis-Informationen
+    // Für Client: Speichere Item-Informationen
     private final int[] itemPrices = new int[SHOP_SLOTS];
+    private final boolean[] itemUnlimited = new boolean[SHOP_SLOTS];
+    private final int[] itemStock = new int[SHOP_SLOTS];
 
     // Server-Side Constructor
     public ShopEditorMenu(int id, Inventory playerInventory, CustomNPCEntity merchant) {
@@ -75,8 +77,12 @@ public class ShopEditorMenu extends AbstractContainerMenu {
         for (int i = 0; i < itemCount && i < SHOP_SLOTS; i++) {
             ItemStack item = extraData.readItem();
             int price = extraData.readInt();
+            boolean unlimited = extraData.readBoolean();
+            int stock = extraData.readInt();
             shopContainer.setItem(i, item);
             itemPrices[i] = price;
+            itemUnlimited[i] = unlimited;
+            itemStock[i] = stock;
         }
 
         // Shop-Item-Slots (4x4 Grid)
@@ -109,6 +115,8 @@ public class ShopEditorMenu extends AbstractContainerMenu {
                 NPCData.ShopEntry entry = entries.get(i);
                 shopContainer.setItem(i, entry.getItem().copy());
                 itemPrices[i] = entry.getPrice();
+                itemUnlimited[i] = entry.isUnlimited();
+                itemStock[i] = entry.getStock();
             }
         }
     }
@@ -169,6 +177,26 @@ public class ShopEditorMenu extends AbstractContainerMenu {
     public void setItemPrice(int slot, int price) {
         if (slot >= 0 && slot < SHOP_SLOTS) {
             itemPrices[slot] = price;
+        }
+    }
+
+    public boolean[] getItemUnlimited() {
+        return itemUnlimited;
+    }
+
+    public void setItemUnlimited(int slot, boolean unlimited) {
+        if (slot >= 0 && slot < SHOP_SLOTS) {
+            itemUnlimited[slot] = unlimited;
+        }
+    }
+
+    public int[] getItemStock() {
+        return itemStock;
+    }
+
+    public void setItemStock(int slot, int stock) {
+        if (slot >= 0 && slot < SHOP_SLOTS) {
+            itemStock[slot] = stock;
         }
     }
 }
