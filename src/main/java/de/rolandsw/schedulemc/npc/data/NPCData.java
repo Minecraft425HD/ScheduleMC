@@ -1,0 +1,339 @@
+package de.rolandsw.schedulemc.npc.data;
+
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.item.ItemStack;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+/**
+ * Erweiterbare Datenklasse für Custom NPCs
+ * Enthält alle Eigenschaften eines NPCs inkl. Skin, Dialog, Shop, etc.
+ */
+public class NPCData {
+    private String npcName;
+    private String skinFileName; // Dateiname des Skins (z.B. "steve.png")
+    private UUID npcUUID;
+
+    // Dialog System
+    private List<DialogEntry> dialogEntries;
+    private int currentDialogIndex;
+
+    // Shop System
+    private ShopInventory buyShop;  // Was der NPC verkauft
+    private ShopInventory sellShop; // Was der NPC kauft
+
+    // Erweiterbare Features (für zukünftige Features)
+    private CompoundTag customData;
+
+    // Verhalten
+    private NPCBehavior behavior;
+
+    public NPCData() {
+        this.npcName = "NPC";
+        this.skinFileName = "default.png";
+        this.npcUUID = UUID.randomUUID();
+        this.dialogEntries = new ArrayList<>();
+        this.currentDialogIndex = 0;
+        this.buyShop = new ShopInventory();
+        this.sellShop = new ShopInventory();
+        this.customData = new CompoundTag();
+        this.behavior = new NPCBehavior();
+    }
+
+    public NPCData(String name, String skinFile) {
+        this();
+        this.npcName = name;
+        this.skinFileName = skinFile;
+    }
+
+    // NBT Serialization
+    public CompoundTag save(CompoundTag tag) {
+        tag.putString("NPCName", npcName);
+        tag.putString("SkinFileName", skinFileName);
+        tag.putUUID("NPCUUID", npcUUID);
+        tag.putInt("CurrentDialogIndex", currentDialogIndex);
+
+        // Dialog speichern
+        ListTag dialogList = new ListTag();
+        for (DialogEntry entry : dialogEntries) {
+            dialogList.add(entry.save(new CompoundTag()));
+        }
+        tag.put("DialogEntries", dialogList);
+
+        // Shop speichern
+        tag.put("BuyShop", buyShop.save(new CompoundTag()));
+        tag.put("SellShop", sellShop.save(new CompoundTag()));
+
+        // Custom Data
+        tag.put("CustomData", customData);
+
+        // Behavior
+        tag.put("Behavior", behavior.save(new CompoundTag()));
+
+        return tag;
+    }
+
+    public void load(CompoundTag tag) {
+        npcName = tag.getString("NPCName");
+        skinFileName = tag.getString("SkinFileName");
+        npcUUID = tag.getUUID("NPCUUID");
+        currentDialogIndex = tag.getInt("CurrentDialogIndex");
+
+        // Dialog laden
+        dialogEntries.clear();
+        ListTag dialogList = tag.getList("DialogEntries", Tag.TAG_COMPOUND);
+        for (int i = 0; i < dialogList.size(); i++) {
+            DialogEntry entry = new DialogEntry();
+            entry.load(dialogList.getCompound(i));
+            dialogEntries.add(entry);
+        }
+
+        // Shop laden
+        buyShop = new ShopInventory();
+        buyShop.load(tag.getCompound("BuyShop"));
+        sellShop = new ShopInventory();
+        sellShop.load(tag.getCompound("SellShop"));
+
+        // Custom Data
+        customData = tag.getCompound("CustomData");
+
+        // Behavior
+        behavior = new NPCBehavior();
+        behavior.load(tag.getCompound("Behavior"));
+    }
+
+    // Getters & Setters
+    public String getNpcName() {
+        return npcName;
+    }
+
+    public void setNpcName(String npcName) {
+        this.npcName = npcName;
+    }
+
+    public String getSkinFileName() {
+        return skinFileName;
+    }
+
+    public void setSkinFileName(String skinFileName) {
+        this.skinFileName = skinFileName;
+    }
+
+    public UUID getNpcUUID() {
+        return npcUUID;
+    }
+
+    public List<DialogEntry> getDialogEntries() {
+        return dialogEntries;
+    }
+
+    public void addDialogEntry(DialogEntry entry) {
+        dialogEntries.add(entry);
+    }
+
+    public DialogEntry getCurrentDialog() {
+        if (dialogEntries.isEmpty()) {
+            return new DialogEntry("Hallo!", "");
+        }
+        if (currentDialogIndex >= dialogEntries.size()) {
+            currentDialogIndex = 0;
+        }
+        return dialogEntries.get(currentDialogIndex);
+    }
+
+    public void nextDialog() {
+        currentDialogIndex = (currentDialogIndex + 1) % Math.max(1, dialogEntries.size());
+    }
+
+    public ShopInventory getBuyShop() {
+        return buyShop;
+    }
+
+    public ShopInventory getSellShop() {
+        return sellShop;
+    }
+
+    public CompoundTag getCustomData() {
+        return customData;
+    }
+
+    public NPCBehavior getBehavior() {
+        return behavior;
+    }
+
+    /**
+     * Dialog Entry - einzelner Dialog-Eintrag
+     */
+    public static class DialogEntry {
+        private String text;
+        private String response; // Optionale Antwort des Spielers
+
+        public DialogEntry() {
+            this.text = "";
+            this.response = "";
+        }
+
+        public DialogEntry(String text, String response) {
+            this.text = text;
+            this.response = response;
+        }
+
+        public CompoundTag save(CompoundTag tag) {
+            tag.putString("Text", text);
+            tag.putString("Response", response);
+            return tag;
+        }
+
+        public void load(CompoundTag tag) {
+            text = tag.getString("Text");
+            response = tag.getString("Response");
+        }
+
+        public String getText() {
+            return text;
+        }
+
+        public void setText(String text) {
+            this.text = text;
+        }
+
+        public String getResponse() {
+            return response;
+        }
+
+        public void setResponse(String response) {
+            this.response = response;
+        }
+    }
+
+    /**
+     * Shop Inventory - Kaufen/Verkaufen Items
+     */
+    public static class ShopInventory {
+        private List<ShopEntry> entries;
+
+        public ShopInventory() {
+            this.entries = new ArrayList<>();
+        }
+
+        public void addEntry(ItemStack item, int price) {
+            entries.add(new ShopEntry(item, price));
+        }
+
+        public List<ShopEntry> getEntries() {
+            return entries;
+        }
+
+        public CompoundTag save(CompoundTag tag) {
+            ListTag list = new ListTag();
+            for (ShopEntry entry : entries) {
+                list.add(entry.save(new CompoundTag()));
+            }
+            tag.put("Entries", list);
+            return tag;
+        }
+
+        public void load(CompoundTag tag) {
+            entries.clear();
+            ListTag list = tag.getList("Entries", Tag.TAG_COMPOUND);
+            for (int i = 0; i < list.size(); i++) {
+                ShopEntry entry = new ShopEntry();
+                entry.load(list.getCompound(i));
+                entries.add(entry);
+            }
+        }
+    }
+
+    /**
+     * Shop Entry - einzelnes Shop-Item
+     */
+    public static class ShopEntry {
+        private ItemStack item;
+        private int price;
+
+        public ShopEntry() {
+            this.item = ItemStack.EMPTY;
+            this.price = 0;
+        }
+
+        public ShopEntry(ItemStack item, int price) {
+            this.item = item.copy();
+            this.price = price;
+        }
+
+        public ItemStack getItem() {
+            return item;
+        }
+
+        public int getPrice() {
+            return price;
+        }
+
+        public CompoundTag save(CompoundTag tag) {
+            tag.put("Item", item.save(new CompoundTag()));
+            tag.putInt("Price", price);
+            return tag;
+        }
+
+        public void load(CompoundTag tag) {
+            item = ItemStack.of(tag.getCompound("Item"));
+            price = tag.getInt("Price");
+        }
+    }
+
+    /**
+     * NPC Behavior - Verhaltenseinstellungen
+     */
+    public static class NPCBehavior {
+        private boolean canMove;
+        private boolean lookAtPlayer;
+        private float movementSpeed;
+
+        public NPCBehavior() {
+            this.canMove = false; // Standardmäßig statisch
+            this.lookAtPlayer = true;
+            this.movementSpeed = 0.3f;
+        }
+
+        public CompoundTag save(CompoundTag tag) {
+            tag.putBoolean("CanMove", canMove);
+            tag.putBoolean("LookAtPlayer", lookAtPlayer);
+            tag.putFloat("MovementSpeed", movementSpeed);
+            return tag;
+        }
+
+        public void load(CompoundTag tag) {
+            canMove = tag.getBoolean("CanMove");
+            lookAtPlayer = tag.getBoolean("LookAtPlayer");
+            movementSpeed = tag.getFloat("MovementSpeed");
+        }
+
+        public boolean canMove() {
+            return canMove;
+        }
+
+        public void setCanMove(boolean canMove) {
+            this.canMove = canMove;
+        }
+
+        public boolean shouldLookAtPlayer() {
+            return lookAtPlayer;
+        }
+
+        public void setLookAtPlayer(boolean lookAtPlayer) {
+            this.lookAtPlayer = lookAtPlayer;
+        }
+
+        public float getMovementSpeed() {
+            return movementSpeed;
+        }
+
+        public void setMovementSpeed(float movementSpeed) {
+            this.movementSpeed = movementSpeed;
+        }
+    }
+}

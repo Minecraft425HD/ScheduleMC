@@ -1,0 +1,205 @@
+package de.rolandsw.schedulemc.npc.entity;
+
+import de.rolandsw.schedulemc.npc.data.NPCData;
+import de.rolandsw.schedulemc.npc.menu.NPCInteractionMenu;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.goal.FloatGoal;
+import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
+import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.network.NetworkHooks;
+
+import javax.annotation.Nullable;
+
+/**
+ * Custom NPC Entity
+ * - Kein Villager
+ * - Eigener Player-Skin
+ * - Interaktionssystem (Dialog, Kaufen, Verkaufen)
+ * - Erweiterbar für zukünftige Features
+ */
+public class CustomNPCEntity extends PathfinderMob {
+
+    // Synced Data für Client-Server Kommunikation
+    private static final EntityDataAccessor<String> NPC_NAME =
+        SynchedEntityData.defineId(CustomNPCEntity.class, EntityDataSerializers.STRING);
+    private static final EntityDataAccessor<String> SKIN_FILE =
+        SynchedEntityData.defineId(CustomNPCEntity.class, EntityDataSerializers.STRING);
+
+    // NPC Daten (Server-Side)
+    private NPCData npcData;
+
+    public CustomNPCEntity(EntityType<? extends PathfinderMob> entityType, Level level) {
+        super(entityType, level);
+        this.npcData = new NPCData();
+    }
+
+    @Override
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(NPC_NAME, "NPC");
+        this.entityData.define(SKIN_FILE, "default.png");
+    }
+
+    @Override
+    protected void registerGoals() {
+        // Grundlegende AI Goals
+        this.goalSelector.addGoal(0, new FloatGoal(this)); // Schwimmen
+        this.goalSelector.addGoal(1, new LookAtPlayerGoal(this, Player.class, 8.0F)); // Spieler anschauen
+        this.goalSelector.addGoal(2, new RandomLookAroundGoal(this)); // Zufällig umschauen
+
+        // Weitere Goals werden später hinzugefügt (Bewegung, etc.)
+    }
+
+    public static AttributeSupplier.Builder createAttributes() {
+        return PathfinderMob.createMobAttributes()
+            .add(Attributes.MAX_HEALTH, 20.0D)
+            .add(Attributes.MOVEMENT_SPEED, 0.3D)
+            .add(Attributes.FOLLOW_RANGE, 32.0D);
+    }
+
+    @Override
+    public InteractionResult mobInteract(Player player, InteractionHand hand) {
+        if (!this.level().isClientSide && player instanceof ServerPlayer serverPlayer) {
+            // Öffne Interaktions-GUI
+            openInteractionMenu(serverPlayer);
+            return InteractionResult.SUCCESS;
+        }
+        return InteractionResult.sidedSuccess(this.level().isClientSide);
+    }
+
+    /**
+     * Öffnet das Interaktionsmenü für den Spieler
+     */
+    private void openInteractionMenu(ServerPlayer player) {
+        NetworkHooks.openScreen(player, new SimpleMenuProvider(
+            (id, playerInventory, p) -> new NPCInteractionMenu(id, playerInventory, this),
+            Component.literal(this.getNpcName())
+        ), buf -> {
+            buf.writeInt(this.getId()); // Entity ID für Client-Side
+        });
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+
+        if (!this.level().isClientSide) {
+            // Server-Side Logic
+
+            // Look at nearest player
+            if (npcData.getBehavior().shouldLookAtPlayer()) {
+                Player nearestPlayer = this.level().getNearestPlayer(this, 8.0D);
+                if (nearestPlayer != null) {
+                    this.getLookControl().setLookAt(nearestPlayer, 10.0F, 10.0F);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundTag tag) {
+        super.addAdditionalSaveData(tag);
+        tag.put("NPCData", npcData.save(new CompoundTag()));
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag tag) {
+        super.readAdditionalSaveData(tag);
+        if (tag.contains("NPCData")) {
+            npcData.load(tag.getCompound("NPCData"));
+            // Sync to client
+            syncToClient();
+        }
+    }
+
+    /**
+     * Synchronisiert wichtige Daten zum Client
+     */
+    private void syncToClient() {
+        this.entityData.set(NPC_NAME, npcData.getNpcName());
+        this.entityData.set(SKIN_FILE, npcData.getSkinFileName());
+    }
+
+    // Custom Name Handling
+    @Override
+    public Component getName() {
+        return Component.literal(getNpcName());
+    }
+
+    @Override
+    public boolean hasCustomName() {
+        return true;
+    }
+
+    @Nullable
+    @Override
+    public Component getCustomName() {
+        return Component.literal(getNpcName());
+    }
+
+    // Getters & Setters
+    public NPCData getNpcData() {
+        return npcData;
+    }
+
+    public void setNpcData(NPCData data) {
+        this.npcData = data;
+        syncToClient();
+    }
+
+    public String getNpcName() {
+        return this.entityData.get(NPC_NAME);
+    }
+
+    public void setNpcName(String name) {
+        this.npcData.setNpcName(name);
+        this.entityData.set(NPC_NAME, name);
+    }
+
+    public String getSkinFileName() {
+        return this.entityData.get(SKIN_FILE);
+    }
+
+    public void setSkinFileName(String skinFile) {
+        this.npcData.setSkinFileName(skinFile);
+        this.entityData.set(SKIN_FILE, skinFile);
+    }
+
+    // Verhindern von Despawning
+    @Override
+    public boolean isPersistenceRequired() {
+        return true;
+    }
+
+    @Override
+    public boolean requiresCustomPersistence() {
+        return true;
+    }
+
+    @Override
+    public void checkDespawn() {
+        // NPCs despawnen nie
+    }
+
+    // Verhindern von Schaden (optional - kann angepasst werden)
+    @Override
+    public boolean isInvulnerable() {
+        return true; // NPCs sind unsterblich (kann später konfigurierbar gemacht werden)
+    }
+}

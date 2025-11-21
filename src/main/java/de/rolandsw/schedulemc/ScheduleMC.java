@@ -25,6 +25,11 @@ import de.rolandsw.schedulemc.tobacco.menu.ModMenuTypes;
 import de.rolandsw.schedulemc.tobacco.entity.ModEntities;
 import de.rolandsw.schedulemc.economy.blocks.EconomyBlocks;
 import de.rolandsw.schedulemc.economy.menu.EconomyMenuTypes;
+import de.rolandsw.schedulemc.npc.entity.NPCEntities;
+import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
+import de.rolandsw.schedulemc.npc.items.NPCItems;
+import de.rolandsw.schedulemc.npc.menu.NPCMenuTypes;
+import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
@@ -49,14 +54,15 @@ import org.slf4j.Logger;
 public class ScheduleMC {
     
     public static final String MOD_ID = "schedulemc";
-    private static final Logger LOGGER = LogUtils.getLogger();
+    public static final Logger LOGGER = LogUtils.getLogger();
     private static final int SAVE_INTERVAL = 6000;
     private int tickCounter = 0;
 
     public ScheduleMC() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         modEventBus.addListener(this::commonSetup);
-        
+        modEventBus.addListener(this::onEntityAttributeCreation);
+
         ModItems.ITEMS.register(modEventBus);
         TobaccoItems.ITEMS.register(modEventBus);
         TobaccoBlocks.BLOCKS.register(modEventBus);
@@ -68,6 +74,9 @@ public class ScheduleMC {
         ModMenuTypes.MENUS.register(modEventBus);
         EconomyMenuTypes.MENUS.register(modEventBus);
         ModEntities.ENTITIES.register(modEventBus);
+        NPCItems.ITEMS.register(modEventBus);
+        NPCEntities.ENTITIES.register(modEventBus);
+        NPCMenuTypes.MENUS.register(modEventBus);
         ModCreativeTabs.CREATIVE_MODE_TABS.register(modEventBus);
         
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ModConfigHandler.SPEC);
@@ -84,7 +93,14 @@ public class ScheduleMC {
     }
     
     private void commonSetup(final FMLCommonSetupEvent event) {
-        event.enqueueWork(() -> EconomyNetworkHandler.register());
+        event.enqueueWork(() -> {
+            EconomyNetworkHandler.register();
+            NPCNetworkHandler.register();
+        });
+    }
+
+    private void onEntityAttributeCreation(EntityAttributeCreationEvent event) {
+        event.put(NPCEntities.CUSTOM_NPC.get(), CustomNPCEntity.createAttributes().build());
     }
 
     @SubscribeEvent
