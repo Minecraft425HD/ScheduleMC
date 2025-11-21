@@ -43,8 +43,9 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
     public ShopEditorScreen(ShopEditorMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.imageWidth = 320; // Breiter für alle Felder
-        this.imageHeight = 180; // Kompakter ohne Player-Inventar
+        this.imageHeight = 220; // Höhe für 4 Item-Zeilen + Hotbar
         this.itemRows = new ArrayList<>();
+        this.inventoryLabelY = 10000; // Verstecke Inventar-Label
     }
 
     @Override
@@ -61,11 +62,11 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
         if (ShopEditorMenu.SHOP_SLOTS > VISIBLE_ROWS) {
             addRenderableWidget(Button.builder(Component.literal("▲"), button -> {
                 scrollUp();
-            }).bounds(x + 290, y + 18, 12, 12).build());
+            }).bounds(x + 290, y + 28, 12, 12).build());
 
             addRenderableWidget(Button.builder(Component.literal("▼"), button -> {
                 scrollDown();
-            }).bounds(x + 290, y + 86, 12, 12).build());
+            }).bounds(x + 290, y + 152, 12, 12).build());
         }
 
         // Speichern-Button (groß und deutlich)
@@ -95,7 +96,7 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
             int slotIndex = i + scrollOffset;
             ItemRow row = new ItemRow();
 
-            int rowY = y + 30 + i * 18; // Gleiche Höhe wie Item-Grid (2 Zeilen = 36 Pixel pro Tabellenzeile)
+            int rowY = y + 30 + i * 36; // 36 Pixel Abstand = 2 Item-Höhen pro Zeile (nur 4 Zeilen sichtbar)
 
             // Preis-Eingabefeld
             row.priceInput = new EditBox(this.font,
@@ -235,7 +236,7 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
             int slotIndex = i + scrollOffset;
             ItemStack item = menu.getShopContainer().getItem(slotIndex);
 
-            int rowY = y + 30 + i * 18;
+            int rowY = y + 30 + i * 36; // 36 Pixel Abstand = nur 4 Zeilen sichtbar
 
             // Slot-Nummer
             guiGraphics.drawString(this.font, "#" + (slotIndex + 1), x + 92, rowY + 4, 0x888888, false);
@@ -252,8 +253,12 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
             }
         }
 
+        // Hotbar-Label
+        guiGraphics.drawString(this.font, "Schnellauswahl (Items hier platzieren)",
+            x + 10, y + 166, 0x404040, false);
+
         // Hinweistext unten (dunkle Farbe für gute Lesbarkeit auf hellgrauem Hintergrund)
-        guiGraphics.drawString(this.font, "Items: Platziere Items im 4x4 Grid (links)",
+        guiGraphics.drawString(this.font, "Items aus Hotbar ins 4x4 Grid ziehen",
             x + 10, y + imageHeight - 38, 0x404040, false);
         guiGraphics.drawString(this.font, "Preis: $-Betrag | ∞: Unbegrenzt | Lager: Stückzahl",
             x + 10, y + imageHeight - 28, 0x404040, false);
@@ -271,8 +276,11 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
         // Item-Grid Hintergrund (4x4)
         guiGraphics.fill(x + 6, y + 16, x + 80, y + 90, 0xFF373737);
 
-        // Tabelle Hintergrund (auf gleicher Höhe wie Item-Grid)
+        // Tabelle Hintergrund (4 Zeilen mit 36px Abstand)
         guiGraphics.fill(x + 88, y + 14, x + 304, y + 174, 0xFF373737);
+
+        // Hotbar Hintergrund (9 Slots)
+        guiGraphics.fill(x + 6, y + 174, x + 168, y + 200, 0xFF373737);
 
         // Rahmen
         guiGraphics.renderOutline(x, y, imageWidth, imageHeight, 0xFF000000);
@@ -288,5 +296,14 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
 
         // Überschrift für Shop Items
         guiGraphics.drawString(this.font, "Shop Items (4x4)", 8, 94, 0xFFFFFF, false);
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        // Verhindere, dass E-Taste das GUI schließt
+        if (keyCode == 69) { // 69 = E-Taste
+            return true; // Event konsumieren ohne etwas zu tun
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
     }
 }

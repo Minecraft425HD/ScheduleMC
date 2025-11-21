@@ -49,6 +49,11 @@ public class ShopEditorMenu extends AbstractContainerMenu {
                 this.addSlot(new Slot(shopContainer, col + row * 4, 8 + col * 18, 18 + row * 18));
             }
         }
+
+        // Player Hotbar (Schnellauswahleiste)
+        for (int i = 0; i < 9; ++i) {
+            this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 186));
+        }
     }
 
     // Client-Side Constructor
@@ -79,6 +84,11 @@ public class ShopEditorMenu extends AbstractContainerMenu {
                 this.addSlot(new Slot(shopContainer, col + row * 4, 8 + col * 18, 18 + row * 18));
             }
         }
+
+        // Player Hotbar (Schnellauswahleiste)
+        for (int i = 0; i < 9; ++i) {
+            this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 186));
+        }
     }
 
     /**
@@ -99,8 +109,36 @@ public class ShopEditorMenu extends AbstractContainerMenu {
 
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
-        // Kein Shift-Click da kein Player-Inventar vorhanden
-        return ItemStack.EMPTY;
+        ItemStack resultStack = ItemStack.EMPTY;
+        Slot slot = this.slots.get(index);
+
+        if (slot != null && slot.hasItem()) {
+            ItemStack slotStack = slot.getItem();
+            resultStack = slotStack.copy();
+
+            // Wenn aus Hotbar geklickt wird (Slots 16-24)
+            if (index >= SHOP_SLOTS && index < SHOP_SLOTS + 9) {
+                // Versuche in Shop-Slots zu verschieben
+                if (!this.moveItemStackTo(slotStack, 0, SHOP_SLOTS, false)) {
+                    return ItemStack.EMPTY;
+                }
+            }
+            // Wenn aus Shop geklickt wird (Slots 0-15)
+            else if (index < SHOP_SLOTS) {
+                // Versuche in Hotbar zu verschieben
+                if (!this.moveItemStackTo(slotStack, SHOP_SLOTS, SHOP_SLOTS + 9, false)) {
+                    return ItemStack.EMPTY;
+                }
+            }
+
+            if (slotStack.isEmpty()) {
+                slot.set(ItemStack.EMPTY);
+            } else {
+                slot.setChanged();
+            }
+        }
+
+        return resultStack;
     }
 
     @Override
