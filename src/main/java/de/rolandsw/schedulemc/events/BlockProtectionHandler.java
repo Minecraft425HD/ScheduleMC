@@ -11,6 +11,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.border.WorldBorder;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.Event;
@@ -120,9 +122,14 @@ public class BlockProtectionHandler {
         }
 
         // Suche alle NPCs im Level
+        WorldBorder border = player.level().getWorldBorder();
+        AABB searchArea = new AABB(
+            border.getMinX(), player.level().getMinBuildHeight(), border.getMinZ(),
+            border.getMaxX(), player.level().getMaxBuildHeight(), border.getMaxZ()
+        );
         List<CustomNPCEntity> npcs = player.level().getEntitiesOfClass(
             CustomNPCEntity.class,
-            player.level().getWorldBorder().getBounds()
+            searchArea
         );
 
         for (CustomNPCEntity npc : npcs) {
