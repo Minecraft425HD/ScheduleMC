@@ -5,8 +5,10 @@ import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.menu.NPCInteractionMenu;
+import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
 import de.rolandsw.schedulemc.npc.network.NPCActionPacket;
+import de.rolandsw.schedulemc.npc.network.OpenMerchantShopPacket;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -109,10 +111,16 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
      * Öffnet Shop (Kaufen)
      */
     private void openShopBuy() {
-        // TODO: Implementiere Shop-GUI für Kaufen
-        // Zeigt Items an die der NPC verkauft
-        if (minecraft != null && minecraft.player != null) {
-            minecraft.player.sendSystemMessage(Component.literal("Shop (Kaufen) - Wird noch implementiert"));
+        CustomNPCEntity npc = menu.getNpc();
+        if (npc != null && npc.getNpcData().getNpcType() == NPCType.VERKAEUFER) {
+            // Sende Packet an Server um Shop zu öffnen
+            NPCNetworkHandler.sendToServer(new OpenMerchantShopPacket(menu.getEntityId()));
+            // Schließe aktuelles GUI - das Shop-GUI wird vom Server geöffnet
+            this.onClose();
+        } else {
+            if (minecraft != null && minecraft.player != null) {
+                minecraft.player.sendSystemMessage(Component.literal("§cDieser NPC ist kein Verkäufer!"));
+            }
         }
     }
 

@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.npc.network;
 import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.npc.data.MerchantCategory;
+import de.rolandsw.schedulemc.npc.data.MerchantShopDefaults;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.entity.NPCEntities;
 import net.minecraft.core.BlockPos;
@@ -95,6 +96,9 @@ public class SpawnNPCPacket {
                 data.addDialogEntry(new NPCData.DialogEntry("Ich bin " + npcName + ", dein Händler.", ""));
                 data.addDialogEntry(new NPCData.DialogEntry("Was möchtest du kaufen oder verkaufen?", ""));
                 data.addDialogEntry(new NPCData.DialogEntry("Danke für deinen Einkauf!", ""));
+
+                // Initialisiere Shop-Items basierend auf Kategorie
+                MerchantShopDefaults.setupShopItems(data, merchantCategory);
                 break;
 
             case POLIZEI:
