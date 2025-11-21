@@ -57,7 +57,7 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
     public NPCSpawnerScreen(NPCSpawnerMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.imageWidth = 176;
-        this.imageHeight = 200; // Größer für mehr Optionen
+        this.imageHeight = 140; // Ohne Player-Inventar
         this.availableSkins = loadAvailableSkins();
     }
 

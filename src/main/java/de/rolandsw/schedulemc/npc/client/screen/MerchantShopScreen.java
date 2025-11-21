@@ -33,11 +33,12 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
     private List<ShopItemRow> shopItemRows;
     private int scrollOffset = 0;
     private static final int VISIBLE_ROWS = 6; // Wie viele Items gleichzeitig sichtbar sind
+    private Button buyButton; // Einziger Kaufen-Button unten rechts
 
     public MerchantShopScreen(MerchantShopMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.imageWidth = 320; // Breitere GUI für alle Spalten
-        this.imageHeight = 180; // Höhe ohne Inventar
+        this.imageHeight = 200; // Höhe ohne Inventar + Platz für Kostenaufstellung
         this.shopItemRows = new ArrayList<>();
     }
 
@@ -51,25 +52,18 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
         // Lade Shop-Items
         loadShopItems();
 
-        // Erstelle Input-Felder und Buttons für sichtbare Rows
-        // Layout: Icon(18) | Name(80) | Preis(50) | Verfügbar(45) | Input(40) | Gesamt(40) | Button(45)
+        // Erstelle Input-Felder für sichtbare Rows
+        // Layout: Icon(18) | Name(80) | Preis(50) | Verfügbar(45) | Input(40)
         for (int i = 0; i < Math.min(VISIBLE_ROWS, shopItemRows.size()); i++) {
-            int rowIndex = i;
             ShopItemRow row = shopItemRows.get(i);
 
-            // Menge Eingabe-Feld
-            EditBox quantityInput = new EditBox(this.font, x + 200, y + 30 + i * 22, 35, 16, Component.literal("Menge"));
+            // Menge Eingabe-Feld (Standard: 0)
+            EditBox quantityInput = new EditBox(this.font, x + 230, y + 30 + i * 22, 35, 16, Component.literal("Menge"));
             quantityInput.setMaxLength(4);
-            quantityInput.setValue("1");
+            quantityInput.setValue("0");
             quantityInput.setFilter(s -> s.matches("\\d*")); // Nur Zahlen
             row.quantityInput = quantityInput;
             addRenderableWidget(quantityInput);
-
-            // Kaufen Button
-            Button buyButton = addRenderableWidget(Button.builder(Component.literal("Kaufen"), button -> {
-                purchaseItem(rowIndex + scrollOffset);
-            }).bounds(x + 270, y + 29, 45, 18).build());
-            row.buyButton = buyButton;
         }
 
         // Scroll Buttons (falls mehr als VISIBLE_ROWS vorhanden)
@@ -82,6 +76,11 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
                 scrollDown();
             }).bounds(x + imageWidth - 15, y + 150, 12, 12).build());
         }
+
+        // Großer Kaufen-Button unten rechts
+        buyButton = addRenderableWidget(Button.builder(Component.literal("Kaufen"), button -> {
+            purchaseAllItems();
+        }).bounds(x + imageWidth - 70, y + imageHeight - 25, 60, 20).build());
     }
 
     /**
@@ -103,26 +102,33 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
     }
 
     /**
-     * Kauft ein Item
+     * Kauft alle Items mit Menge > 0
      */
-    private void purchaseItem(int shopIndex) {
-        if (shopIndex >= 0 && shopIndex < shopItemRows.size()) {
-            ShopItemRow row = shopItemRows.get(shopIndex - scrollOffset);
+    private void purchaseAllItems() {
+        // Sammle alle Items mit Menge > 0
+        for (int i = 0; i < shopItemRows.size(); i++) {
+            ShopItemRow row = shopItemRows.get(i);
             if (row.quantityInput != null) {
                 String quantityStr = row.quantityInput.getValue();
-                if (!quantityStr.isEmpty()) {
-                    int quantity = Integer.parseInt(quantityStr);
-                    if (quantity > 0 && quantity <= row.availableQuantity) {
-                        // Sende Kauf-Packet an Server
-                        NPCNetworkHandler.sendToServer(new PurchaseItemPacket(
-                            menu.getEntityId(),
-                            shopIndex,
-                            quantity
-                        ));
+                if (!quantityStr.isEmpty() && !quantityStr.equals("0")) {
+                    try {
+                        int quantity = Integer.parseInt(quantityStr);
+                        if (quantity > 0 && quantity <= row.availableQuantity) {
+                            // Sende Kauf-Packet an Server für dieses Item
+                            NPCNetworkHandler.sendToServer(new PurchaseItemPacket(
+                                menu.getEntityId(),
+                                i,
+                                quantity
+                            ));
+                        }
+                    } catch (NumberFormatException e) {
+                        // Ignoriere ungültige Eingaben
                     }
                 }
             }
         }
+        // Schließe GUI nach Kauf
+        this.onClose();
     }
 
     private void scrollUp() {
@@ -160,19 +166,23 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
         guiGraphics.drawString(this.font, "Item", x + 25, y + 18, 0x404040, false);
         guiGraphics.drawString(this.font, "Preis", x + 110, y + 18, 0x404040, false);
         guiGraphics.drawString(this.font, "Lager", x + 155, y + 18, 0x404040, false);
-        guiGraphics.drawString(this.font, "Menge", x + 200, y + 18, 0x404040, false);
-        guiGraphics.drawString(this.font, "Gesamt", x + 240, y + 18, 0x404040, false);
+        guiGraphics.drawString(this.font, "Menge", x + 230, y + 18, 0x404040, false);
 
         // Render Shop Items
         for (int i = 0; i < Math.min(VISIBLE_ROWS, shopItemRows.size() - scrollOffset); i++) {
             ShopItemRow row = shopItemRows.get(i + scrollOffset);
             renderShopItem(guiGraphics, row, x + 8, y + 30 + i * 22, i);
         }
+
+        // Render Kostenaufstellung unten
+        int totalCost = calculateTotalCost();
+        guiGraphics.drawString(this.font, "Gesamtkosten:", x + 10, y + imageHeight - 22, 0x404040, false);
+        guiGraphics.drawString(this.font, totalCost + "$", x + 90, y + imageHeight - 22, totalCost > 0 ? 0xFFFF55 : 0x888888, false);
     }
 
     /**
      * Rendert eine Shop-Item Row
-     * Schema: [Icon] Name | Preis | Verfügbar | [Input] | Gesamt | [Button]
+     * Schema: [Icon] Name | Preis | Verfügbar | [Input]
      */
     private void renderShopItem(GuiGraphics guiGraphics, ShopItemRow row, int x, int y, int rowIndex) {
         // Item Icon (16x16)
@@ -190,18 +200,26 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
 
         // Verfügbare Menge im Lager
         guiGraphics.drawString(this.font, "" + row.availableQuantity, x + 155, y + 4, 0xAAAAAA, false);
+    }
 
-        // Gesamtpreis berechnen und anzeigen
-        int quantity = 1;
-        if (row.quantityInput != null && !row.quantityInput.getValue().isEmpty()) {
-            try {
-                quantity = Integer.parseInt(row.quantityInput.getValue());
-            } catch (NumberFormatException e) {
-                quantity = 1;
+    /**
+     * Berechnet die Gesamtkosten aller eingegebenen Mengen
+     */
+    private int calculateTotalCost() {
+        int totalCost = 0;
+        for (ShopItemRow row : shopItemRows) {
+            if (row.quantityInput != null && !row.quantityInput.getValue().isEmpty()) {
+                try {
+                    int quantity = Integer.parseInt(row.quantityInput.getValue());
+                    if (quantity > 0) {
+                        totalCost += row.pricePerItem * quantity;
+                    }
+                } catch (NumberFormatException e) {
+                    // Ignoriere ungültige Eingaben
+                }
             }
         }
-        int totalPrice = row.pricePerItem * quantity;
-        guiGraphics.drawString(this.font, totalPrice + "$", x + 232, y + 4, 0xFFFF55, false);
+        return totalCost;
     }
 
     @Override
@@ -226,6 +244,5 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
         int pricePerItem;
         int availableQuantity;
         EditBox quantityInput;
-        Button buyButton;
     }
 }
