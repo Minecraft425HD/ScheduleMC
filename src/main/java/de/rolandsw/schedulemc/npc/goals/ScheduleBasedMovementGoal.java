@@ -6,6 +6,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
@@ -16,6 +18,7 @@ import java.util.EnumSet;
  */
 public class ScheduleBasedMovementGoal extends Goal {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ScheduleBasedMovementGoal.class);
     private final CustomNPCEntity npc;
     private BlockPos targetPos;
     private ScheduleEntry currentEntry;
@@ -48,6 +51,8 @@ public class ScheduleBasedMovementGoal extends Goal {
         // Ziel-Location für diesen Eintrag ermitteln
         BlockPos target = npc.getNpcData().getTargetLocationForEntry(entry);
         if (target == null) {
+            LOGGER.warn("NPC '{}' hat keine Ziel-Location für Schedule-Eintrag: {}",
+                npc.getNpcName(), entry.getActivity());
             return false;
         }
 
@@ -123,12 +128,27 @@ public class ScheduleBasedMovementGoal extends Goal {
 
     private void navigateToTarget() {
         if (targetPos != null) {
-            npc.getNavigation().moveTo(
+            boolean success = npc.getNavigation().moveTo(
                 targetPos.getX() + 0.5,
                 targetPos.getY(),
                 targetPos.getZ() + 0.5,
                 npc.getNpcData().getBehavior().getMovementSpeed()
             );
+
+            if (!success) {
+                LOGGER.warn("NPC '{}' konnte keinen Pfad zu {} finden! Position: {}, Ziel: {}",
+                    npc.getNpcName(),
+                    currentEntry != null ? currentEntry.getActivity() : "unknown",
+                    String.format("%.1f, %.1f, %.1f", npc.getX(), npc.getY(), npc.getZ()),
+                    String.format("%d, %d, %d", targetPos.getX(), targetPos.getY(), targetPos.getZ())
+                );
+            } else {
+                LOGGER.debug("NPC '{}' navigiert zu {} bei {}",
+                    npc.getNpcName(),
+                    currentEntry != null ? currentEntry.getActivity() : "unknown",
+                    String.format("%d, %d, %d", targetPos.getX(), targetPos.getY(), targetPos.getZ())
+                );
+            }
         }
     }
 }
