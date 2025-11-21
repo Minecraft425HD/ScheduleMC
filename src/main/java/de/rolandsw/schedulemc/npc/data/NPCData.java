@@ -18,6 +18,10 @@ public class NPCData {
     private String skinFileName; // Dateiname des Skins (z.B. "steve.png")
     private UUID npcUUID;
 
+    // NPC Typ System
+    private NPCType npcType;
+    private MerchantCategory merchantCategory; // Nur relevant wenn npcType == VERKAEUFER
+
     // Dialog System
     private List<DialogEntry> dialogEntries;
     private int currentDialogIndex;
@@ -36,6 +40,8 @@ public class NPCData {
         this.npcName = "NPC";
         this.skinFileName = "default.png";
         this.npcUUID = UUID.randomUUID();
+        this.npcType = NPCType.BEWOHNER;
+        this.merchantCategory = MerchantCategory.BAUMARKT;
         this.dialogEntries = new ArrayList<>();
         this.currentDialogIndex = 0;
         this.buyShop = new ShopInventory();
@@ -50,11 +56,21 @@ public class NPCData {
         this.skinFileName = skinFile;
     }
 
+    public NPCData(String name, String skinFile, NPCType type, MerchantCategory category) {
+        this();
+        this.npcName = name;
+        this.skinFileName = skinFile;
+        this.npcType = type;
+        this.merchantCategory = category;
+    }
+
     // NBT Serialization
     public CompoundTag save(CompoundTag tag) {
         tag.putString("NPCName", npcName);
         tag.putString("SkinFileName", skinFileName);
         tag.putUUID("NPCUUID", npcUUID);
+        tag.putInt("NPCType", npcType.ordinal());
+        tag.putInt("MerchantCategory", merchantCategory.ordinal());
         tag.putInt("CurrentDialogIndex", currentDialogIndex);
 
         // Dialog speichern
@@ -81,6 +97,8 @@ public class NPCData {
         npcName = tag.getString("NPCName");
         skinFileName = tag.getString("SkinFileName");
         npcUUID = tag.getUUID("NPCUUID");
+        npcType = NPCType.fromOrdinal(tag.getInt("NPCType"));
+        merchantCategory = MerchantCategory.fromOrdinal(tag.getInt("MerchantCategory"));
         currentDialogIndex = tag.getInt("CurrentDialogIndex");
 
         // Dialog laden
@@ -121,6 +139,22 @@ public class NPCData {
 
     public void setSkinFileName(String skinFileName) {
         this.skinFileName = skinFileName;
+    }
+
+    public NPCType getNpcType() {
+        return npcType;
+    }
+
+    public void setNpcType(NPCType npcType) {
+        this.npcType = npcType;
+    }
+
+    public MerchantCategory getMerchantCategory() {
+        return merchantCategory;
+    }
+
+    public void setMerchantCategory(MerchantCategory merchantCategory) {
+        this.merchantCategory = merchantCategory;
     }
 
     public UUID getNpcUUID() {
