@@ -1,7 +1,6 @@
 package de.rolandsw.schedulemc.npc.entity;
 
 import de.rolandsw.schedulemc.npc.data.NPCData;
-import de.rolandsw.schedulemc.npc.goals.NPCCloseDoorGoal;
 import de.rolandsw.schedulemc.npc.goals.ScheduleBasedMovementGoal;
 import de.rolandsw.schedulemc.npc.menu.NPCInteractionMenu;
 import de.rolandsw.schedulemc.npc.pathfinding.NPCPathNavigation;
@@ -71,7 +70,7 @@ public class CustomNPCEntity extends PathfinderMob {
     protected void registerGoals() {
         // Grundlegende AI Goals
         this.goalSelector.addGoal(0, new FloatGoal(this)); // Schwimmen
-        this.goalSelector.addGoal(1, new NPCCloseDoorGoal(this)); // Türen NUR schließen (nicht öffnen)
+        this.goalSelector.addGoal(1, new OpenDoorGoal(this, true)); // Türen öffnen UND schließen
         this.goalSelector.addGoal(2, new ScheduleBasedMovementGoal(this)); // Schedule-basiertes Movement
         this.goalSelector.addGoal(3, new LookAtPlayerGoal(this, Player.class, 8.0F)); // Spieler anschauen
         this.goalSelector.addGoal(4, new RandomLookAroundGoal(this)); // Zufällig umschauen

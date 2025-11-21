@@ -7,6 +7,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.pathfinder.PathFinder;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.HashSet;
@@ -15,6 +16,7 @@ import java.util.Set;
 /**
  * Custom PathNavigation für NPCs
  * Erlaubt nur Bewegung auf konfigurierten Blocktypen
+ * NPCs können Türen öffnen und schließen
  */
 public class NPCPathNavigation extends GroundPathNavigation {
 
@@ -23,6 +25,16 @@ public class NPCPathNavigation extends GroundPathNavigation {
     public NPCPathNavigation(Mob mob, Level level) {
         super(mob, level);
         loadAllowedBlocks();
+        // Erlaube NPCs das Öffnen von Türen
+        this.setCanOpenDoors(true);
+    }
+
+    @Override
+    protected PathFinder createPathFinder(int maxVisitedNodes) {
+        this.nodeEvaluator = new NPCNodeEvaluator();
+        this.nodeEvaluator.setCanPassDoors(true); // NPCs können durch Türen gehen
+        this.nodeEvaluator.setCanOpenDoors(true); // NPCs können Türen öffnen
+        return new PathFinder(this.nodeEvaluator, maxVisitedNodes);
     }
 
     /**
