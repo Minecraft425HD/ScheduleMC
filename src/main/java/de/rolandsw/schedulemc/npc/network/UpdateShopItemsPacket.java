@@ -68,8 +68,7 @@ public class UpdateShopItemsPacket {
                         }
                     }
 
-                    // Speichere NPC-Daten (für Persistenz)
-                    npc.setChanged();
+                    // NPC-Daten werden automatisch über NBT persistiert
 
                     player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
                         "§aShop erfolgreich aktualisiert! " + items.size() + " Items hinzugefügt."));
