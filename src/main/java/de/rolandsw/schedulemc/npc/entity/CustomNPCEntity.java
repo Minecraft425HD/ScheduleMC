@@ -1,8 +1,8 @@
 package de.rolandsw.schedulemc.npc.entity;
 
 import de.rolandsw.schedulemc.npc.data.NPCData;
-import de.rolandsw.schedulemc.npc.goals.MoveToHomeGoal;
-import de.rolandsw.schedulemc.npc.goals.MoveToWorkGoal;
+import de.rolandsw.schedulemc.npc.goals.NPCCloseDoorGoal;
+import de.rolandsw.schedulemc.npc.goals.ScheduleBasedMovementGoal;
 import de.rolandsw.schedulemc.npc.menu.NPCInteractionMenu;
 import de.rolandsw.schedulemc.npc.pathfinding.NPCPathNavigation;
 import net.minecraft.nbt.CompoundTag;
@@ -71,11 +71,10 @@ public class CustomNPCEntity extends PathfinderMob {
     protected void registerGoals() {
         // Grundlegende AI Goals
         this.goalSelector.addGoal(0, new FloatGoal(this)); // Schwimmen
-        this.goalSelector.addGoal(1, new OpenDoorGoal(this, true)); // Türen öffnen (und schließen)
-        this.goalSelector.addGoal(2, new MoveToHomeGoal(this)); // Nachts nach Hause gehen
-        this.goalSelector.addGoal(3, new MoveToWorkGoal(this)); // Tagsüber zur Arbeit gehen
-        this.goalSelector.addGoal(4, new LookAtPlayerGoal(this, Player.class, 8.0F)); // Spieler anschauen
-        this.goalSelector.addGoal(5, new RandomLookAroundGoal(this)); // Zufällig umschauen
+        this.goalSelector.addGoal(1, new NPCCloseDoorGoal(this)); // Türen NUR schließen (nicht öffnen)
+        this.goalSelector.addGoal(2, new ScheduleBasedMovementGoal(this)); // Schedule-basiertes Movement
+        this.goalSelector.addGoal(3, new LookAtPlayerGoal(this, Player.class, 8.0F)); // Spieler anschauen
+        this.goalSelector.addGoal(4, new RandomLookAroundGoal(this)); // Zufällig umschauen
     }
 
     @Override
