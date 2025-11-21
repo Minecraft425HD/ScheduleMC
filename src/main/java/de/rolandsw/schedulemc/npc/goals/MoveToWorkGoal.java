@@ -4,6 +4,7 @@ import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.EnumSet;
 
@@ -48,7 +49,7 @@ public class MoveToWorkGoal extends Goal {
         // Nur wenn NPC nicht bereits bei der Arbeit ist
         this.workPos = work;
         double distanceToWork = npc.position().distanceTo(
-            workPos.getX() + 0.5, workPos.getY(), workPos.getZ() + 0.5
+            new Vec3(workPos.getX() + 0.5, workPos.getY(), workPos.getZ() + 0.5)
         );
 
         return distanceToWork > ARRIVAL_THRESHOLD;
@@ -70,7 +71,7 @@ public class MoveToWorkGoal extends Goal {
         }
 
         double distanceToWork = npc.position().distanceTo(
-            workPos.getX() + 0.5, workPos.getY(), workPos.getZ() + 0.5
+            new Vec3(workPos.getX() + 0.5, workPos.getY(), workPos.getZ() + 0.5)
         );
 
         return distanceToWork > ARRIVAL_THRESHOLD;
