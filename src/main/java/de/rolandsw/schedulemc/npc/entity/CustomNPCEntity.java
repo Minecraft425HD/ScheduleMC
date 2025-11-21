@@ -40,6 +40,10 @@ public class CustomNPCEntity extends PathfinderMob {
         SynchedEntityData.defineId(CustomNPCEntity.class, EntityDataSerializers.STRING);
     private static final EntityDataAccessor<String> SKIN_FILE =
         SynchedEntityData.defineId(CustomNPCEntity.class, EntityDataSerializers.STRING);
+    private static final EntityDataAccessor<Integer> NPC_TYPE_ORDINAL =
+        SynchedEntityData.defineId(CustomNPCEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> MERCHANT_CATEGORY_ORDINAL =
+        SynchedEntityData.defineId(CustomNPCEntity.class, EntityDataSerializers.INT);
 
     // NPC Daten (Server-Side)
     private NPCData npcData;
@@ -54,6 +58,8 @@ public class CustomNPCEntity extends PathfinderMob {
         super.defineSynchedData();
         this.entityData.define(NPC_NAME, "NPC");
         this.entityData.define(SKIN_FILE, "default.png");
+        this.entityData.define(NPC_TYPE_ORDINAL, 0); // BEWOHNER
+        this.entityData.define(MERCHANT_CATEGORY_ORDINAL, 0); // BAUMARKT
     }
 
     @Override
@@ -134,6 +140,8 @@ public class CustomNPCEntity extends PathfinderMob {
     private void syncToClient() {
         this.entityData.set(NPC_NAME, npcData.getNpcName());
         this.entityData.set(SKIN_FILE, npcData.getSkinFileName());
+        this.entityData.set(NPC_TYPE_ORDINAL, npcData.getNpcType().ordinal());
+        this.entityData.set(MERCHANT_CATEGORY_ORDINAL, npcData.getMerchantCategory().ordinal());
     }
 
     // Custom Name Handling
@@ -179,6 +187,20 @@ public class CustomNPCEntity extends PathfinderMob {
     public void setSkinFileName(String skinFile) {
         this.npcData.setSkinFileName(skinFile);
         this.entityData.set(SKIN_FILE, skinFile);
+    }
+
+    /**
+     * Gibt den NPC-Typ zurück (Client-safe via synced data)
+     */
+    public de.rolandsw.schedulemc.npc.data.NPCType getNpcType() {
+        return de.rolandsw.schedulemc.npc.data.NPCType.fromOrdinal(this.entityData.get(NPC_TYPE_ORDINAL));
+    }
+
+    /**
+     * Gibt die Verkäufer-Kategorie zurück (Client-safe via synced data)
+     */
+    public de.rolandsw.schedulemc.npc.data.MerchantCategory getMerchantCategory() {
+        return de.rolandsw.schedulemc.npc.data.MerchantCategory.fromOrdinal(this.entityData.get(MERCHANT_CATEGORY_ORDINAL));
     }
 
     // Verhindern von Despawning

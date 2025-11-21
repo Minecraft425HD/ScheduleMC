@@ -38,11 +38,11 @@ public class OpenMerchantShopPacket {
                 Entity entity = player.level().getEntity(merchantEntityId);
                 if (entity instanceof CustomNPCEntity npc) {
                     // Prüfe ob es ein Verkäufer ist
-                    if (npc.getNpcData().getNpcType() == NPCType.VERKAEUFER) {
+                    if (npc.getNpcType() == NPCType.VERKAEUFER) {
                         // Öffne Shop-GUI
                         NetworkHooks.openScreen(player, new SimpleMenuProvider(
                             (id, playerInventory, p) -> new MerchantShopMenu(id, playerInventory, npc),
-                            Component.literal(npc.getNpcData().getMerchantCategory().getDisplayName())
+                            Component.literal(npc.getMerchantCategory().getDisplayName())
                         ), buf -> {
                             buf.writeInt(npc.getId());
                         });
