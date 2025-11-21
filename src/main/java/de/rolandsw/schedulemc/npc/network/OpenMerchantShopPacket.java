@@ -39,12 +39,19 @@ public class OpenMerchantShopPacket {
                 if (entity instanceof CustomNPCEntity npc) {
                     // Prüfe ob es ein Verkäufer ist
                     if (npc.getNpcType() == NPCType.VERKAEUFER) {
-                        // Öffne Shop-GUI
+                        // Öffne Shop-GUI und sende Shop-Items zum Client
+                        var shopItems = npc.getNpcData().getBuyShop().getEntries();
                         NetworkHooks.openScreen(player, new SimpleMenuProvider(
                             (id, playerInventory, p) -> new MerchantShopMenu(id, playerInventory, npc),
                             Component.literal(npc.getMerchantCategory().getDisplayName())
                         ), buf -> {
                             buf.writeInt(npc.getId());
+                            // Sende Shop-Items
+                            buf.writeInt(shopItems.size());
+                            for (var entry : shopItems) {
+                                buf.writeItem(entry.getItem());
+                                buf.writeInt(entry.getPrice());
+                            }
                         });
                     }
                 }
