@@ -38,7 +38,7 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
     private List<ItemRow> itemRows;
     private Button saveButton;
     private int scrollOffset = 0;
-    private static final int VISIBLE_ROWS = 8; // Zeige 8 Zeilen gleichzeitig
+    private static final int VISIBLE_ROWS = 4; // Zeige 4 Zeilen gleichzeitig (keine Überlappung)
 
     public ShopEditorScreen(ShopEditorMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -252,11 +252,11 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
             }
         }
 
-        // Hinweistext unten
+        // Hinweistext unten (dunkle Farbe für gute Lesbarkeit auf hellgrauem Hintergrund)
         guiGraphics.drawString(this.font, "Items: Platziere Items im 4x4 Grid (links)",
-            x + 10, y + imageHeight - 38, 0x888888, false);
+            x + 10, y + imageHeight - 38, 0x404040, false);
         guiGraphics.drawString(this.font, "Preis: $-Betrag | ∞: Unbegrenzt | Lager: Stückzahl",
-            x + 10, y + imageHeight - 28, 0x888888, false);
+            x + 10, y + imageHeight - 28, 0x404040, false);
     }
 
     @Override
