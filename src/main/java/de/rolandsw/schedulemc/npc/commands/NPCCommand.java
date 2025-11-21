@@ -47,6 +47,11 @@ public class NPCCommand {
                 .then(Commands.literal("info")
                     .executes(NPCCommand::showInfo)
                 )
+                .then(Commands.literal("debug")
+                    .then(Commands.literal("move")
+                        .executes(NPCCommand::debugMove)
+                    )
+                )
                 .then(Commands.literal("schedule")
                     .then(Commands.literal("add")
                         .then(Commands.argument("activity", StringArgumentType.word())
@@ -206,6 +211,155 @@ public class NPCCommand {
         return 1;
     }
 
+    private static int debugMove(CommandContext<CommandSourceStack> context) {
+        Player player = context.getSource().getPlayer();
+
+        if (player == null) {
+            context.getSource().sendFailure(Component.literal("Nur Spieler können diesen Command verwenden!"));
+            return 0;
+        }
+
+        CustomNPCEntity npc = getSelectedOrNearestNPC(player);
+        if (npc == null) {
+            context.getSource().sendFailure(
+                Component.literal("Kein NPC ausgewählt oder in der Nähe!")
+                    .withStyle(ChatFormatting.RED)
+            );
+            return 0;
+        }
+
+        var data = npc.getNpcData();
+        var behavior = data.getBehavior();
+
+        player.sendSystemMessage(Component.literal("=== Movement Debug ===").withStyle(ChatFormatting.GOLD));
+
+        // Prüfe Movement-Einstellung
+        player.sendSystemMessage(
+            Component.literal("1. Movement aktiviert: ")
+                .withStyle(ChatFormatting.GRAY)
+                .append(Component.literal(behavior.canMove() ? "✓ Ja" : "✗ Nein")
+                    .withStyle(behavior.canMove() ? ChatFormatting.GREEN : ChatFormatting.RED))
+        );
+
+        if (!behavior.canMove()) {
+            player.sendSystemMessage(
+                Component.literal("   → Aktiviere Movement mit /npc movement true")
+                    .withStyle(ChatFormatting.YELLOW)
+            );
+            return 0;
+        }
+
+        // Prüfe Schedule
+        long dayTime = player.level().getDayTime();
+        ScheduleEntry current = data.getCurrentScheduleEntry(dayTime);
+
+        if (current == null) {
+            player.sendSystemMessage(
+                Component.literal("2. Schedule-Eintrag: ")
+                    .withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal("✗ Keiner gefunden!")
+                        .withStyle(ChatFormatting.RED))
+            );
+            player.sendSystemMessage(
+                Component.literal("   → Erstelle Schedule mit /npc schedule default")
+                    .withStyle(ChatFormatting.YELLOW)
+            );
+            return 0;
+        }
+
+        player.sendSystemMessage(
+            Component.literal("2. Schedule-Eintrag: ")
+                .withStyle(ChatFormatting.GRAY)
+                .append(Component.literal("✓ " + current.getActivityType().getDisplayName())
+                    .withStyle(ChatFormatting.GREEN))
+        );
+
+        // Prüfe Ziel-Location
+        BlockPos targetLoc = data.getTargetLocationForEntry(current);
+        if (targetLoc == null) {
+            player.sendSystemMessage(
+                Component.literal("3. Ziel-Location: ")
+                    .withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal("✗ Nicht gesetzt!")
+                        .withStyle(ChatFormatting.RED))
+            );
+            player.sendSystemMessage(
+                Component.literal("   → Setze Locations mit dem LocationTool (Shift-Click)")
+                    .withStyle(ChatFormatting.YELLOW)
+            );
+            return 0;
+        }
+
+        player.sendSystemMessage(
+            Component.literal("3. Ziel-Location: ")
+                .withStyle(ChatFormatting.GRAY)
+                .append(Component.literal("✓ " + targetLoc.toShortString())
+                    .withStyle(ChatFormatting.GREEN))
+        );
+
+        // Prüfe Distanz
+        BlockPos currentPos = npc.blockPosition();
+        double distance = Math.sqrt(currentPos.distSqr(targetLoc));
+
+        player.sendSystemMessage(
+            Component.literal("4. Distanz zum Ziel: ")
+                .withStyle(ChatFormatting.GRAY)
+                .append(Component.literal(String.format("%.1f Blöcke", distance))
+                    .withStyle(distance > 2.0 ? ChatFormatting.YELLOW : ChatFormatting.GREEN))
+        );
+
+        if (distance <= 2.0) {
+            player.sendSystemMessage(
+                Component.literal("   ℹ NPC ist bereits am Ziel angekommen!")
+                    .withStyle(ChatFormatting.GREEN)
+            );
+            return 1;
+        }
+
+        // Versuche manuell Pfad zu starten
+        player.sendSystemMessage(
+            Component.literal("5. Starte Pathfinding manuell...")
+                .withStyle(ChatFormatting.GRAY)
+        );
+
+        boolean success = npc.getNavigation().moveTo(
+            targetLoc.getX() + 0.5,
+            targetLoc.getY(),
+            targetLoc.getZ() + 0.5,
+            behavior.getMovementSpeed()
+        );
+
+        if (success) {
+            player.sendSystemMessage(
+                Component.literal("   ✓ Pathfinding erfolgreich gestartet!")
+                    .withStyle(ChatFormatting.GREEN)
+            );
+        } else {
+            player.sendSystemMessage(
+                Component.literal("   ✗ Pathfinding fehlgeschlagen!")
+                    .withStyle(ChatFormatting.RED)
+            );
+            player.sendSystemMessage(
+                Component.literal("   → Mögliche Ursachen:")
+                    .withStyle(ChatFormatting.YELLOW)
+            );
+            player.sendSystemMessage(
+                Component.literal("      - Kein Pfad zum Ziel vorhanden")
+                    .withStyle(ChatFormatting.GRAY)
+            );
+            player.sendSystemMessage(
+                Component.literal("      - Ziel ist blockiert oder unzugänglich")
+                    .withStyle(ChatFormatting.GRAY)
+            );
+            player.sendSystemMessage(
+                Component.literal("      - Ziel ist zu weit entfernt")
+                    .withStyle(ChatFormatting.GRAY)
+            );
+        }
+
+        return 1;
+    }
+
     private static int showInfo(CommandContext<CommandSourceStack> context) {
         Player player = context.getSource().getPlayer();
 
@@ -278,6 +432,15 @@ public class NPCCommand {
                     .withStyle(ChatFormatting.YELLOW))
         );
 
+        // Zeige aktuelle Position des NPCs
+        BlockPos currentPos = npc.blockPosition();
+        player.sendSystemMessage(
+            Component.literal("Aktuelle Position: ")
+                .withStyle(ChatFormatting.GRAY)
+                .append(Component.literal(currentPos.toShortString())
+                    .withStyle(ChatFormatting.YELLOW))
+        );
+
         // Zeige aktuellen Schedule-Eintrag
         ScheduleEntry current = data.getCurrentScheduleEntry(player.level().getDayTime());
         if (current != null) {
@@ -299,6 +462,31 @@ public class NPCCommand {
                         .append(Component.literal(targetLoc.toShortString())
                             .withStyle(ChatFormatting.GREEN))
                 );
+
+                // Zeige Distanz zum Ziel
+                double distance = Math.sqrt(currentPos.distSqr(targetLoc));
+                player.sendSystemMessage(
+                    Component.literal("Distanz zum Ziel: ")
+                        .withStyle(ChatFormatting.GRAY)
+                        .append(Component.literal(String.format("%.1f Blöcke", distance))
+                            .withStyle(distance > 2.0 ? ChatFormatting.YELLOW : ChatFormatting.GREEN))
+                );
+
+                // Debug: Ist Movement-Goal aktiv?
+                boolean isMoving = npc.getNavigation().isInProgress();
+                player.sendSystemMessage(
+                    Component.literal("Navigiert gerade: ")
+                        .withStyle(ChatFormatting.GRAY)
+                        .append(Component.literal(isMoving ? "Ja" : "Nein")
+                            .withStyle(isMoving ? ChatFormatting.GREEN : ChatFormatting.RED))
+                );
+
+                if (!isMoving && distance > 2.0) {
+                    player.sendSystemMessage(
+                        Component.literal("⚠ PROBLEM: NPC ist zu weit weg vom Ziel, aber navigiert nicht!")
+                            .withStyle(ChatFormatting.RED)
+                    );
+                }
             } else {
                 player.sendSystemMessage(
                     Component.literal("⚠ Ziel: ")
