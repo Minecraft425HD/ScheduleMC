@@ -47,7 +47,9 @@ public class MerchantShopMenu extends AbstractContainerMenu {
         for (int i = 0; i < itemCount; i++) {
             ItemStack item = extraData.readItem();
             int price = extraData.readInt();
-            shopItems.add(new NPCData.ShopEntry(item, price));
+            boolean unlimited = extraData.readBoolean();
+            int stock = extraData.readInt();
+            shopItems.add(new NPCData.ShopEntry(item, price, unlimited, stock));
         }
     }
 
