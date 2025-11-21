@@ -43,7 +43,7 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
     public ShopEditorScreen(ShopEditorMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.imageWidth = 320; // Breiter für alle Felder
-        this.imageHeight = 240;
+        this.imageHeight = 180; // Kompakter ohne Player-Inventar
         this.itemRows = new ArrayList<>();
     }
 
@@ -61,11 +61,11 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
         if (ShopEditorMenu.SHOP_SLOTS > VISIBLE_ROWS) {
             addRenderableWidget(Button.builder(Component.literal("▲"), button -> {
                 scrollUp();
-            }).bounds(x + 302, y + 92, 12, 12).build());
+            }).bounds(x + 290, y + 18, 12, 12).build());
 
             addRenderableWidget(Button.builder(Component.literal("▼"), button -> {
                 scrollDown();
-            }).bounds(x + 302, y + 160, 12, 12).build());
+            }).bounds(x + 290, y + 86, 12, 12).build());
         }
 
         // Speichern-Button (groß und deutlich)
@@ -95,7 +95,7 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
             int slotIndex = i + scrollOffset;
             ItemRow row = new ItemRow();
 
-            int rowY = y + 92 + i * 20;
+            int rowY = y + 30 + i * 18; // Gleiche Höhe wie Item-Grid (2 Zeilen = 36 Pixel pro Tabellenzeile)
 
             // Preis-Eingabefeld
             row.priceInput = new EditBox(this.font,
@@ -224,18 +224,18 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
         int y = (height - imageHeight) / 2;
 
         // Render Tabellen-Header
-        guiGraphics.drawString(this.font, "#", x + 92, y + 80, 0x404040, false);
-        guiGraphics.drawString(this.font, "Item", x + 110, y + 80, 0x404040, false);
-        guiGraphics.drawString(this.font, "Preis", x + 180, y + 80, 0x404040, false);
-        guiGraphics.drawString(this.font, "∞", x + 228, y + 80, 0x404040, false);
-        guiGraphics.drawString(this.font, "Lager", x + 250, y + 80, 0x404040, false);
+        guiGraphics.drawString(this.font, "#", x + 92, y + 18, 0x404040, false);
+        guiGraphics.drawString(this.font, "Item", x + 110, y + 18, 0x404040, false);
+        guiGraphics.drawString(this.font, "Preis", x + 180, y + 18, 0x404040, false);
+        guiGraphics.drawString(this.font, "∞", x + 228, y + 18, 0x404040, false);
+        guiGraphics.drawString(this.font, "Lager", x + 250, y + 18, 0x404040, false);
 
         // Render Tabellen-Einträge
         for (int i = 0; i < Math.min(VISIBLE_ROWS, ShopEditorMenu.SHOP_SLOTS - scrollOffset); i++) {
             int slotIndex = i + scrollOffset;
             ItemStack item = menu.getShopContainer().getItem(slotIndex);
 
-            int rowY = y + 92 + i * 20;
+            int rowY = y + 30 + i * 18;
 
             // Slot-Nummer
             guiGraphics.drawString(this.font, "#" + (slotIndex + 1), x + 92, rowY + 4, 0x888888, false);
@@ -253,10 +253,10 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
         }
 
         // Hinweistext unten
-        guiGraphics.drawString(this.font, "Items: Ziehe Items ins 4x4 Grid (links)",
-            x + 10, y + imageHeight - 52, 0x888888, false);
+        guiGraphics.drawString(this.font, "Items: Platziere Items im 4x4 Grid (links)",
+            x + 10, y + imageHeight - 38, 0x888888, false);
         guiGraphics.drawString(this.font, "Preis: $-Betrag | ∞: Unbegrenzt | Lager: Stückzahl",
-            x + 10, y + imageHeight - 42, 0x888888, false);
+            x + 10, y + imageHeight - 28, 0x888888, false);
     }
 
     @Override
@@ -271,11 +271,8 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
         // Item-Grid Hintergrund (4x4)
         guiGraphics.fill(x + 6, y + 16, x + 80, y + 90, 0xFF373737);
 
-        // Tabelle Hintergrund
-        guiGraphics.fill(x + 88, y + 76, x + 298, y + 176, 0xFF373737);
-
-        // Player-Inventar Hintergrund
-        guiGraphics.fill(x + 6, y + 182, x + 168, y + 214, 0xFF373737);
+        // Tabelle Hintergrund (auf gleicher Höhe wie Item-Grid)
+        guiGraphics.fill(x + 88, y + 14, x + 304, y + 174, 0xFF373737);
 
         // Rahmen
         guiGraphics.renderOutline(x, y, imageWidth, imageHeight, 0xFF000000);
@@ -289,8 +286,7 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
         String category = "§7" + menu.getCategory().getDisplayName();
         guiGraphics.drawString(this.font, category, imageWidth - font.width(category) - 8, 6, 0xAAAAAA, false);
 
-        // Überschriften
-        guiGraphics.drawString(this.font, "Shop Items (4x4)", 8, 90, 0xFFFFFF, false);
-        guiGraphics.drawString(this.font, "Inventar", 8, 172, 0xFFFFFF, false);
+        // Überschrift für Shop Items
+        guiGraphics.drawString(this.font, "Shop Items (4x4)", 8, 94, 0xFFFFFF, false);
     }
 }
