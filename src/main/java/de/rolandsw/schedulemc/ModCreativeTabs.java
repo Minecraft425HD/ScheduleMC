@@ -4,6 +4,7 @@ import de.rolandsw.schedulemc.items.ModItems;
 import de.rolandsw.schedulemc.tobacco.blocks.TobaccoBlocks;
 import de.rolandsw.schedulemc.tobacco.items.TobaccoItems;
 import de.rolandsw.schedulemc.economy.blocks.EconomyBlocks;
+import de.rolandsw.schedulemc.npc.items.NPCItems;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -34,6 +35,11 @@ public class ModCreativeTabs {
                 // ═══════════════════════════════════════════════════════════
                 output.accept(ModItems.PLOT_SELECTION_TOOL.get());
                 output.accept(ModItems.CASH.get());
+
+                // ═══════════════════════════════════════════════════════════
+                // NPC TOOLS
+                // ═══════════════════════════════════════════════════════════
+                output.accept(NPCItems.NPC_SPAWNER_TOOL.get());
                 
                 // ═══════════════════════════════════════════════════════════
                 // TABAK SAMEN
