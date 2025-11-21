@@ -3,7 +3,6 @@ package de.rolandsw.schedulemc.npc.items;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -14,6 +13,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 /**
  * Tool zum Setzen von Home- und Arbeitsstätte für NPCs
  * - Linksklick auf NPC: NPC auswählen
@@ -22,7 +25,8 @@ import net.minecraft.world.level.Level;
  */
 public class NPCLocationTool extends Item {
 
-    private static final String TAG_SELECTED_NPC = "SelectedNPC";
+    // Speichere ausgewählten NPC pro Spieler (UUID -> NPC Entity ID)
+    private static final Map<UUID, Integer> selectedNPCs = new HashMap<>();
 
     public NPCLocationTool() {
         super(new Item.Properties().stacksTo(1));
@@ -32,7 +36,6 @@ public class NPCLocationTool extends Item {
     public InteractionResult useOn(UseOnContext context) {
         Player player = context.getPlayer();
         Level level = context.getLevel();
-        ItemStack stack = context.getItemInHand();
         BlockPos clickedPos = context.getClickedPos();
 
         if (player == null) {
@@ -40,10 +43,9 @@ public class NPCLocationTool extends Item {
         }
 
         if (!level.isClientSide) {
-            CompoundTag tag = stack.getOrCreateTag();
-
             // Prüfe ob ein NPC ausgewählt wurde
-            if (!tag.contains(TAG_SELECTED_NPC)) {
+            Integer npcId = selectedNPCs.get(player.getUUID());
+            if (npcId == null) {
                 player.sendSystemMessage(
                     Component.literal("Kein NPC ausgewählt! Linksklick auf einen NPC.")
                         .withStyle(ChatFormatting.RED)
@@ -51,7 +53,6 @@ public class NPCLocationTool extends Item {
                 return InteractionResult.FAIL;
             }
 
-            int npcId = tag.getInt(TAG_SELECTED_NPC);
             Entity entity = level.getEntity(npcId);
 
             if (!(entity instanceof CustomNPCEntity npc)) {
@@ -59,7 +60,7 @@ public class NPCLocationTool extends Item {
                     Component.literal("Ausgewählter NPC nicht mehr verfügbar!")
                         .withStyle(ChatFormatting.RED)
                 );
-                tag.remove(TAG_SELECTED_NPC);
+                selectedNPCs.remove(player.getUUID());
                 return InteractionResult.FAIL;
             }
 
@@ -88,10 +89,8 @@ public class NPCLocationTool extends Item {
         }
 
         if (!player.level().isClientSide) {
-            CompoundTag tag = stack.getOrCreateTag();
-
-            // Speichere NPC ID
-            tag.putInt(TAG_SELECTED_NPC, npc.getId());
+            // Speichere NPC ID in der Map
+            selectedNPCs.put(player.getUUID(), npc.getId());
 
             player.sendSystemMessage(
                 Component.literal("NPC ")
@@ -110,5 +109,19 @@ public class NPCLocationTool extends Item {
         }
 
         return InteractionResult.sidedSuccess(player.level().isClientSide);
+    }
+
+    /**
+     * Gibt die ausgewählte NPC-ID für einen Spieler zurück
+     */
+    public static Integer getSelectedNPC(UUID playerUUID) {
+        return selectedNPCs.get(playerUUID);
+    }
+
+    /**
+     * Entfernt die NPC-Auswahl für einen Spieler
+     */
+    public static void clearSelectedNPC(UUID playerUUID) {
+        selectedNPCs.remove(playerUUID);
     }
 }
