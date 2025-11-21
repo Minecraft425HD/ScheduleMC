@@ -1,16 +1,24 @@
 package de.rolandsw.schedulemc.events;
 
+import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
+import de.rolandsw.schedulemc.npc.items.NPCLocationTool;
 import de.rolandsw.schedulemc.region.PlotManager;
 import de.rolandsw.schedulemc.region.PlotRegion;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -21,16 +29,116 @@ public class BlockProtectionHandler {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     /**
-     * Verhindert das Abbauen von Blöcken in fremden Plots
+     * Verhindert das Abbauen von Blöcken in fremden Plots oder NPC-Arbeitsorten
      */
     @SubscribeEvent
     public void onBlockBreak(BlockEvent.BreakEvent event) {
         Player player = event.getPlayer();
         BlockPos pos = event.getPos();
 
+        // Prüfe ob Block ein NPC Arbeitsort ist
+        if (isNPCWorkLocation(player, pos)) {
+            event.setCanceled(true);
+            return;
+        }
+
         if (!checkPlotPermission(player, pos, "abbauen")) {
             event.setCanceled(true);
         }
+    }
+
+    /**
+     * Behandelt Linksklick auf Blöcke für das LocationTool (Arbeitsort setzen)
+     */
+    @SubscribeEvent
+    public void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
+        Player player = event.getEntity();
+        ItemStack stack = player.getItemInHand(event.getHand());
+
+        // Prüfe ob Spieler das LocationTool hält
+        if (!(stack.getItem() instanceof NPCLocationTool)) {
+            return;
+        }
+
+        BlockPos clickedPos = event.getPos();
+
+        if (!player.level().isClientSide) {
+            CompoundTag tag = stack.getOrCreateTag();
+
+            // Prüfe ob ein NPC ausgewählt wurde
+            if (!tag.contains("SelectedNPC")) {
+                player.sendSystemMessage(
+                    Component.literal("Kein NPC ausgewählt! Linksklick auf einen NPC.")
+                        .withStyle(ChatFormatting.RED)
+                );
+                event.setCanceled(true);
+                event.setUseBlock(Event.Result.DENY);
+                event.setUseItem(Event.Result.DENY);
+                return;
+            }
+
+            int npcId = tag.getInt("SelectedNPC");
+            Entity entity = player.level().getEntity(npcId);
+
+            if (!(entity instanceof CustomNPCEntity npc)) {
+                player.sendSystemMessage(
+                    Component.literal("Ausgewählter NPC nicht mehr verfügbar!")
+                        .withStyle(ChatFormatting.RED)
+                );
+                tag.remove("SelectedNPC");
+                event.setCanceled(true);
+                event.setUseBlock(Event.Result.DENY);
+                event.setUseItem(Event.Result.DENY);
+                return;
+            }
+
+            // Setze Arbeitsort
+            npc.getNpcData().setWorkLocation(clickedPos);
+            player.sendSystemMessage(
+                Component.literal("Arbeitsstätte gesetzt für ")
+                    .withStyle(ChatFormatting.GREEN)
+                    .append(Component.literal(npc.getNpcName())
+                        .withStyle(ChatFormatting.YELLOW))
+                    .append(Component.literal(" bei " + clickedPos.toShortString())
+                        .withStyle(ChatFormatting.WHITE))
+            );
+
+            // Verhindere Block-Abbau
+            event.setCanceled(true);
+            event.setUseBlock(Event.Result.DENY);
+            event.setUseItem(Event.Result.DENY);
+        }
+    }
+
+    /**
+     * Prüft ob eine Position ein NPC Arbeitsort ist und schützt sie
+     */
+    private boolean isNPCWorkLocation(Player player, BlockPos pos) {
+        // Admin darf Arbeitsorte abbauen
+        if (player.hasPermissions(2)) {
+            return false;
+        }
+
+        // Suche alle NPCs im Level
+        List<CustomNPCEntity> npcs = player.level().getEntitiesOfClass(
+            CustomNPCEntity.class,
+            player.level().getWorldBorder().getBounds()
+        );
+
+        for (CustomNPCEntity npc : npcs) {
+            BlockPos workLocation = npc.getNpcData().getWorkLocation();
+            if (workLocation != null && workLocation.equals(pos)) {
+                player.displayClientMessage(
+                    Component.literal("§c✗ Dies ist der Arbeitsort von ")
+                        .append(Component.literal(npc.getNpcName()).withStyle(ChatFormatting.YELLOW))
+                        .append(Component.literal("!")),
+                    true
+                );
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
