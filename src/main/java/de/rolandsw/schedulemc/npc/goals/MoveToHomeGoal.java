@@ -4,6 +4,7 @@ import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.EnumSet;
 
@@ -48,7 +49,7 @@ public class MoveToHomeGoal extends Goal {
         // Nur wenn NPC nicht bereits zu Hause ist
         this.homePos = home;
         double distanceToHome = npc.position().distanceTo(
-            homePos.getX() + 0.5, homePos.getY(), homePos.getZ() + 0.5
+            new Vec3(homePos.getX() + 0.5, homePos.getY(), homePos.getZ() + 0.5)
         );
 
         return distanceToHome > ARRIVAL_THRESHOLD;
@@ -70,7 +71,7 @@ public class MoveToHomeGoal extends Goal {
         }
 
         double distanceToHome = npc.position().distanceTo(
-            homePos.getX() + 0.5, homePos.getY(), homePos.getZ() + 0.5
+            new Vec3(homePos.getX() + 0.5, homePos.getY(), homePos.getZ() + 0.5)
         );
 
         return distanceToHome > ARRIVAL_THRESHOLD;
