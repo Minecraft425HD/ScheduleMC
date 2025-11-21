@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc;
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.commands.*;
 import de.rolandsw.schedulemc.economy.commands.HospitalCommand;
+import de.rolandsw.schedulemc.npc.commands.NPCCommand;
 import de.rolandsw.schedulemc.tobacco.commands.TobaccoCommand;
 import de.rolandsw.schedulemc.economy.PlayerJoinHandler;
 import de.rolandsw.schedulemc.events.BlockProtectionHandler;
@@ -111,6 +112,7 @@ public class ScheduleMC {
         ShopCommand.register(event.getDispatcher());
         TobaccoCommand.register(event.getDispatcher());
         HospitalCommand.register(event.getDispatcher());
+        NPCCommand.register(event.getDispatcher());
     }
 
     @SubscribeEvent
