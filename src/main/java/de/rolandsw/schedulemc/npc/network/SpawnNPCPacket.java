@@ -1,6 +1,8 @@
 package de.rolandsw.schedulemc.npc.network;
 
 import de.rolandsw.schedulemc.npc.data.NPCData;
+import de.rolandsw.schedulemc.npc.data.NPCType;
+import de.rolandsw.schedulemc.npc.data.MerchantCategory;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.entity.NPCEntities;
 import net.minecraft.core.BlockPos;
@@ -18,24 +20,32 @@ public class SpawnNPCPacket {
     private final BlockPos position;
     private final String npcName;
     private final String skinFile;
+    private final NPCType npcType;
+    private final MerchantCategory merchantCategory;
 
-    public SpawnNPCPacket(BlockPos position, String npcName, String skinFile) {
+    public SpawnNPCPacket(BlockPos position, String npcName, String skinFile, NPCType npcType, MerchantCategory merchantCategory) {
         this.position = position;
         this.npcName = npcName;
         this.skinFile = skinFile;
+        this.npcType = npcType;
+        this.merchantCategory = merchantCategory;
     }
 
     public void encode(FriendlyByteBuf buf) {
         buf.writeBlockPos(position);
         buf.writeUtf(npcName);
         buf.writeUtf(skinFile);
+        buf.writeEnum(npcType);
+        buf.writeEnum(merchantCategory);
     }
 
     public static SpawnNPCPacket decode(FriendlyByteBuf buf) {
         return new SpawnNPCPacket(
             buf.readBlockPos(),
             buf.readUtf(),
-            buf.readUtf()
+            buf.readUtf(),
+            buf.readEnum(NPCType.class),
+            buf.readEnum(MerchantCategory.class)
         );
     }
 
@@ -52,12 +62,10 @@ public class SpawnNPCPacket {
                     npc.setPos(position.getX() + 0.5, position.getY() + 1.0, position.getZ() + 0.5);
 
                     // Konfiguriere NPC Data
-                    NPCData data = new NPCData(npcName, skinFile);
+                    NPCData data = new NPCData(npcName, skinFile, npcType, merchantCategory);
 
-                    // Füge Standard-Dialog hinzu
-                    data.addDialogEntry(new NPCData.DialogEntry("Hallo! Ich bin " + npcName + ".", ""));
-                    data.addDialogEntry(new NPCData.DialogEntry("Wie kann ich dir helfen?", ""));
-                    data.addDialogEntry(new NPCData.DialogEntry("Komm bald wieder!", ""));
+                    // Füge typ-spezifische Standard-Dialoge hinzu
+                    setupDialogForType(data, npcName, npcType, merchantCategory);
 
                     npc.setNpcData(data);
                     npc.setNpcName(npcName);
@@ -69,5 +77,31 @@ public class SpawnNPCPacket {
             }
         });
         ctx.get().setPacketHandled(true);
+    }
+
+    /**
+     * Richtet typ-spezifische Dialoge ein
+     */
+    private static void setupDialogForType(NPCData data, String npcName, NPCType npcType, MerchantCategory merchantCategory) {
+        switch (npcType) {
+            case BEWOHNER:
+                data.addDialogEntry(new NPCData.DialogEntry("Hallo! Ich bin " + npcName + ".", ""));
+                data.addDialogEntry(new NPCData.DialogEntry("Wie kann ich dir helfen?", ""));
+                data.addDialogEntry(new NPCData.DialogEntry("Schönen Tag noch!", ""));
+                break;
+
+            case VERKAEUFER:
+                data.addDialogEntry(new NPCData.DialogEntry("Willkommen bei " + merchantCategory.getDisplayName() + "!", ""));
+                data.addDialogEntry(new NPCData.DialogEntry("Ich bin " + npcName + ", dein Händler.", ""));
+                data.addDialogEntry(new NPCData.DialogEntry("Was möchtest du kaufen oder verkaufen?", ""));
+                data.addDialogEntry(new NPCData.DialogEntry("Danke für deinen Einkauf!", ""));
+                break;
+
+            case POLIZEI:
+                data.addDialogEntry(new NPCData.DialogEntry("Guten Tag. Polizei " + npcName + ".", ""));
+                data.addDialogEntry(new NPCData.DialogEntry("Kann ich Ihnen helfen?", ""));
+                data.addDialogEntry(new NPCData.DialogEntry("Bleiben Sie sicher!", ""));
+                break;
+        }
     }
 }
