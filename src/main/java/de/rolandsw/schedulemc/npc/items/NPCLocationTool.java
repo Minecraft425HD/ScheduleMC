@@ -16,13 +16,13 @@ import net.minecraft.world.level.Level;
 
 /**
  * Tool zum Setzen von Home- und Arbeitsstätte für NPCs
- * - Rechtsklick auf Block: Speichert Position (Normal: Home, Shift: Work)
- * - Rechtsklick auf NPC: Weist gespeicherte Position zu
+ * - Linksklick auf NPC: NPC auswählen
+ * - Linksklick auf Block: Arbeitsort setzen für ausgewählten NPC
+ * - Rechtsklick auf Block: Wohnort setzen für ausgewählten NPC
  */
 public class NPCLocationTool extends Item {
 
-    private static final String TAG_STORED_POS = "StoredPos";
-    private static final String TAG_MODE = "Mode"; // "home" oder "work"
+    private static final String TAG_SELECTED_NPC = "SelectedNPC";
 
     public NPCLocationTool() {
         super(new Item.Properties().stacksTo(1));
@@ -40,25 +40,39 @@ public class NPCLocationTool extends Item {
         }
 
         if (!level.isClientSide) {
-            // Bestimme den Modus basierend auf Shift-Taste
-            String mode = player.isShiftKeyDown() ? "work" : "home";
-
-            // Speichere Position im Item NBT
             CompoundTag tag = stack.getOrCreateTag();
-            tag.putLong(TAG_STORED_POS, clickedPos.asLong());
-            tag.putString(TAG_MODE, mode);
 
-            // Feedback an Spieler
-            String modeText = mode.equals("home") ? "Wohnort" : "Arbeitsstätte";
+            // Prüfe ob ein NPC ausgewählt wurde
+            if (!tag.contains(TAG_SELECTED_NPC)) {
+                player.sendSystemMessage(
+                    Component.literal("Kein NPC ausgewählt! Linksklick auf einen NPC.")
+                        .withStyle(ChatFormatting.RED)
+                );
+                return InteractionResult.FAIL;
+            }
+
+            int npcId = tag.getInt(TAG_SELECTED_NPC);
+            Entity entity = level.getEntity(npcId);
+
+            if (!(entity instanceof CustomNPCEntity npc)) {
+                player.sendSystemMessage(
+                    Component.literal("Ausgewählter NPC nicht mehr verfügbar!")
+                        .withStyle(ChatFormatting.RED)
+                );
+                tag.remove(TAG_SELECTED_NPC);
+                return InteractionResult.FAIL;
+            }
+
+            // Rechtsklick = Wohnort, Linksklick = Arbeitsort
+            // Bei useOn ist es immer Rechtsklick auf einen Block
+            npc.getNpcData().setHomeLocation(clickedPos);
             player.sendSystemMessage(
-                Component.literal("Position gespeichert: " + modeText + " bei ")
+                Component.literal("Wohnort gesetzt für ")
                     .withStyle(ChatFormatting.GREEN)
-                    .append(Component.literal(clickedPos.toShortString())
+                    .append(Component.literal(npc.getNpcName())
                         .withStyle(ChatFormatting.YELLOW))
-            );
-            player.sendSystemMessage(
-                Component.literal("Rechtsklick auf einen NPC, um die Position zuzuweisen.")
-                    .withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal(" bei " + clickedPos.toShortString())
+                        .withStyle(ChatFormatting.WHITE))
             );
 
             return InteractionResult.SUCCESS;
@@ -76,39 +90,21 @@ public class NPCLocationTool extends Item {
         if (!player.level().isClientSide) {
             CompoundTag tag = stack.getOrCreateTag();
 
-            if (!tag.contains(TAG_STORED_POS)) {
-                player.sendSystemMessage(
-                    Component.literal("Keine Position gespeichert! Rechtsklick auf einen Block.")
-                        .withStyle(ChatFormatting.RED)
-                );
-                return InteractionResult.FAIL;
-            }
+            // Speichere NPC ID
+            tag.putInt(TAG_SELECTED_NPC, npc.getId());
 
-            BlockPos storedPos = BlockPos.of(tag.getLong(TAG_STORED_POS));
-            String mode = tag.getString(TAG_MODE);
-
-            // Setze die Location im NPC
-            if (mode.equals("home")) {
-                npc.getNpcData().setHomeLocation(storedPos);
-                player.sendSystemMessage(
-                    Component.literal("Wohnort gesetzt für ")
-                        .withStyle(ChatFormatting.GREEN)
-                        .append(Component.literal(npc.getNpcName())
-                            .withStyle(ChatFormatting.YELLOW))
-                        .append(Component.literal(" bei " + storedPos.toShortString())
-                            .withStyle(ChatFormatting.WHITE))
-                );
-            } else {
-                npc.getNpcData().setWorkLocation(storedPos);
-                player.sendSystemMessage(
-                    Component.literal("Arbeitsstätte gesetzt für ")
-                        .withStyle(ChatFormatting.GREEN)
-                        .append(Component.literal(npc.getNpcName())
-                            .withStyle(ChatFormatting.YELLOW))
-                        .append(Component.literal(" bei " + storedPos.toShortString())
-                            .withStyle(ChatFormatting.WHITE))
-                );
-            }
+            player.sendSystemMessage(
+                Component.literal("NPC ")
+                    .withStyle(ChatFormatting.GREEN)
+                    .append(Component.literal(npc.getNpcName())
+                        .withStyle(ChatFormatting.YELLOW))
+                    .append(Component.literal(" ausgewählt!")
+                        .withStyle(ChatFormatting.GREEN))
+            );
+            player.sendSystemMessage(
+                Component.literal("Linksklick auf Block = Arbeitsort | Rechtsklick = Wohnort")
+                    .withStyle(ChatFormatting.GRAY)
+            );
 
             return InteractionResult.SUCCESS;
         }
