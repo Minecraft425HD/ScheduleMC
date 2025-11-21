@@ -1,10 +1,12 @@
 package de.rolandsw.schedulemc.npc.data;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -35,6 +37,12 @@ public class NPCData {
 
     // Verhalten
     private NPCBehavior behavior;
+
+    // Locations
+    @Nullable
+    private BlockPos homeLocation;  // Wohnbereich
+    @Nullable
+    private BlockPos workLocation;  // Arbeitsstätte
 
     public NPCData() {
         this.npcName = "NPC";
@@ -90,6 +98,14 @@ public class NPCData {
         // Behavior
         tag.put("Behavior", behavior.save(new CompoundTag()));
 
+        // Locations
+        if (homeLocation != null) {
+            tag.putLong("HomeLocation", homeLocation.asLong());
+        }
+        if (workLocation != null) {
+            tag.putLong("WorkLocation", workLocation.asLong());
+        }
+
         return tag;
     }
 
@@ -122,6 +138,14 @@ public class NPCData {
         // Behavior
         behavior = new NPCBehavior();
         behavior.load(tag.getCompound("Behavior"));
+
+        // Locations
+        if (tag.contains("HomeLocation")) {
+            homeLocation = BlockPos.of(tag.getLong("HomeLocation"));
+        }
+        if (tag.contains("WorkLocation")) {
+            workLocation = BlockPos.of(tag.getLong("WorkLocation"));
+        }
     }
 
     // Getters & Setters
@@ -197,6 +221,24 @@ public class NPCData {
 
     public NPCBehavior getBehavior() {
         return behavior;
+    }
+
+    @Nullable
+    public BlockPos getHomeLocation() {
+        return homeLocation;
+    }
+
+    public void setHomeLocation(@Nullable BlockPos homeLocation) {
+        this.homeLocation = homeLocation;
+    }
+
+    @Nullable
+    public BlockPos getWorkLocation() {
+        return workLocation;
+    }
+
+    public void setWorkLocation(@Nullable BlockPos workLocation) {
+        this.workLocation = workLocation;
     }
 
     /**

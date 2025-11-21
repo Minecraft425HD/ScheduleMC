@@ -1,7 +1,10 @@
 package de.rolandsw.schedulemc.npc.entity;
 
 import de.rolandsw.schedulemc.npc.data.NPCData;
+import de.rolandsw.schedulemc.npc.goals.MoveToHomeGoal;
+import de.rolandsw.schedulemc.npc.goals.MoveToWorkGoal;
 import de.rolandsw.schedulemc.npc.menu.NPCInteractionMenu;
+import de.rolandsw.schedulemc.npc.pathfinding.NPCPathNavigation;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -18,7 +21,9 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
+import net.minecraft.world.entity.ai.goal.OpenDoorGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -66,10 +71,16 @@ public class CustomNPCEntity extends PathfinderMob {
     protected void registerGoals() {
         // Grundlegende AI Goals
         this.goalSelector.addGoal(0, new FloatGoal(this)); // Schwimmen
-        this.goalSelector.addGoal(1, new LookAtPlayerGoal(this, Player.class, 8.0F)); // Spieler anschauen
-        this.goalSelector.addGoal(2, new RandomLookAroundGoal(this)); // Zufällig umschauen
+        this.goalSelector.addGoal(1, new OpenDoorGoal(this, true)); // Türen öffnen (und schließen)
+        this.goalSelector.addGoal(2, new MoveToHomeGoal(this)); // Nachts nach Hause gehen
+        this.goalSelector.addGoal(3, new MoveToWorkGoal(this)); // Tagsüber zur Arbeit gehen
+        this.goalSelector.addGoal(4, new LookAtPlayerGoal(this, Player.class, 8.0F)); // Spieler anschauen
+        this.goalSelector.addGoal(5, new RandomLookAroundGoal(this)); // Zufällig umschauen
+    }
 
-        // Weitere Goals werden später hinzugefügt (Bewegung, etc.)
+    @Override
+    protected PathNavigation createNavigation(Level level) {
+        return new NPCPathNavigation(this, level);
     }
 
     public static AttributeSupplier.Builder createAttributes() {
