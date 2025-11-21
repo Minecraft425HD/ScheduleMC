@@ -25,7 +25,7 @@ public class ShopEditorMenu extends AbstractContainerMenu {
     private final int entityId;
     private final MerchantCategory category;
     private final Container shopContainer;
-    public static final int SHOP_SLOTS = 9; // Max 9 Items im Shop
+    public static final int SHOP_SLOTS = 16; // Max 16 Items im Shop (4x4)
 
     // Für Client: Speichere Preis-Informationen
     private final int[] itemPrices = new int[SHOP_SLOTS];
@@ -41,10 +41,10 @@ public class ShopEditorMenu extends AbstractContainerMenu {
         // Lade aktuelle Shop-Items in den Container
         loadShopItems();
 
-        // Shop-Item-Slots (3x3 Grid)
-        for (int row = 0; row < 3; ++row) {
-            for (int col = 0; col < 3; ++col) {
-                this.addSlot(new Slot(shopContainer, col + row * 3, 8 + col * 18, 18 + row * 18));
+        // Shop-Item-Slots (4x4 Grid)
+        for (int row = 0; row < 4; ++row) {
+            for (int col = 0; col < 4; ++col) {
+                this.addSlot(new Slot(shopContainer, col + row * 4, 8 + col * 18, 18 + row * 18));
             }
         }
 
@@ -79,10 +79,10 @@ public class ShopEditorMenu extends AbstractContainerMenu {
             itemPrices[i] = price;
         }
 
-        // Shop-Item-Slots (3x3 Grid)
-        for (int row = 0; row < 3; ++row) {
-            for (int col = 0; col < 3; ++col) {
-                this.addSlot(new Slot(shopContainer, col + row * 3, 8 + col * 18, 18 + row * 18));
+        // Shop-Item-Slots (4x4 Grid)
+        for (int row = 0; row < 4; ++row) {
+            for (int col = 0; col < 4; ++col) {
+                this.addSlot(new Slot(shopContainer, col + row * 4, 8 + col * 18, 18 + row * 18));
             }
         }
 
