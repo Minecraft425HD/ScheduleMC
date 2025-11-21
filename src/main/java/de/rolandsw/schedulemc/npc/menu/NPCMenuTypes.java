@@ -22,4 +22,7 @@ public class NPCMenuTypes {
 
     public static final RegistryObject<MenuType<MerchantShopMenu>> MERCHANT_SHOP_MENU =
         MENUS.register("merchant_shop_menu", () -> IForgeMenuType.create(MerchantShopMenu::new));
+
+    public static final RegistryObject<MenuType<ShopEditorMenu>> SHOP_EDITOR_MENU =
+        MENUS.register("shop_editor_menu", () -> IForgeMenuType.create(ShopEditorMenu::new));
 }

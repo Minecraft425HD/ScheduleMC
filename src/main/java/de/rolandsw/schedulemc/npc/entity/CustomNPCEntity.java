@@ -82,7 +82,15 @@ public class CustomNPCEntity extends PathfinderMob {
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
         if (!this.level().isClientSide && player instanceof ServerPlayer serverPlayer) {
-            // Öffne Interaktions-GUI
+            // Admin: Shift + Rechtsklick öffnet Shop-Editor (nur für Verkäufer)
+            if (player.isShiftKeyDown() && serverPlayer.hasPermissions(2)) {
+                if (getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.VERKAEUFER) {
+                    openShopEditor(serverPlayer);
+                    return InteractionResult.SUCCESS;
+                }
+            }
+
+            // Normal: Öffne Interaktions-GUI
             openInteractionMenu(serverPlayer);
             return InteractionResult.SUCCESS;
         }
@@ -98,6 +106,25 @@ public class CustomNPCEntity extends PathfinderMob {
             Component.literal(this.getNpcName())
         ), buf -> {
             buf.writeInt(this.getId()); // Entity ID für Client-Side
+        });
+    }
+
+    /**
+     * Öffnet den Shop-Editor für Admins (nur Verkäufer)
+     */
+    private void openShopEditor(ServerPlayer player) {
+        NetworkHooks.openScreen(player, new SimpleMenuProvider(
+            (id, playerInventory, p) -> new de.rolandsw.schedulemc.npc.menu.ShopEditorMenu(id, playerInventory, this),
+            Component.literal("Shop Editor: " + this.getNpcName())
+        ), buf -> {
+            buf.writeInt(this.getId()); // Entity ID
+            // Sende aktuelle Shop-Items
+            var shopItems = this.getNpcData().getBuyShop().getEntries();
+            buf.writeInt(shopItems.size());
+            for (var entry : shopItems) {
+                buf.writeItem(entry.getItem());
+                buf.writeInt(entry.getPrice());
+            }
         });
     }
 
