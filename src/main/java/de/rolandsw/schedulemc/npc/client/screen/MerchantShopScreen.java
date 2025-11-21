@@ -32,12 +32,12 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
 
     private List<ShopItemRow> shopItemRows;
     private int scrollOffset = 0;
-    private static final int VISIBLE_ROWS = 4; // Wie viele Items gleichzeitig sichtbar sind
+    private static final int VISIBLE_ROWS = 6; // Wie viele Items gleichzeitig sichtbar sind
 
     public MerchantShopScreen(MerchantShopMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
-        this.imageWidth = 176;
-        this.imageHeight = 222;
+        this.imageWidth = 320; // Breitere GUI für alle Spalten
+        this.imageHeight = 180; // Höhe ohne Inventar
         this.shopItemRows = new ArrayList<>();
     }
 
@@ -52,12 +52,13 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
         loadShopItems();
 
         // Erstelle Input-Felder und Buttons für sichtbare Rows
+        // Layout: Icon(18) | Name(80) | Preis(50) | Verfügbar(45) | Input(40) | Gesamt(40) | Button(45)
         for (int i = 0; i < Math.min(VISIBLE_ROWS, shopItemRows.size()); i++) {
             int rowIndex = i;
             ShopItemRow row = shopItemRows.get(i);
 
             // Menge Eingabe-Feld
-            EditBox quantityInput = new EditBox(this.font, x + 105, y + 20 + i * 25, 30, 18, Component.literal("Menge"));
+            EditBox quantityInput = new EditBox(this.font, x + 200, y + 30 + i * 22, 35, 16, Component.literal("Menge"));
             quantityInput.setMaxLength(4);
             quantityInput.setValue("1");
             quantityInput.setFilter(s -> s.matches("\\d*")); // Nur Zahlen
@@ -67,7 +68,7 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
             // Kaufen Button
             Button buyButton = addRenderableWidget(Button.builder(Component.literal("Kaufen"), button -> {
                 purchaseItem(rowIndex + scrollOffset);
-            }).bounds(x + 140, y + 20 + i * 25, 30, 18).build());
+            }).bounds(x + 270, y + 29, 45, 18).build());
             row.buyButton = buyButton;
         }
 
@@ -75,11 +76,11 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
         if (shopItemRows.size() > VISIBLE_ROWS) {
             addRenderableWidget(Button.builder(Component.literal("▲"), button -> {
                 scrollUp();
-            }).bounds(x + imageWidth - 15, y + 20, 12, 12).build());
+            }).bounds(x + imageWidth - 15, y + 25, 12, 12).build());
 
             addRenderableWidget(Button.builder(Component.literal("▼"), button -> {
                 scrollDown();
-            }).bounds(x + imageWidth - 15, y + 100, 12, 12).build());
+            }).bounds(x + imageWidth - 15, y + 150, 12, 12).build());
         }
     }
 
@@ -92,11 +93,13 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
 
         for (NPCData.ShopEntry entry : items) {
             ShopItemRow row = new ShopItemRow();
-            row.item = entry.getItem();
+            row.item = entry.getItem().copy(); // Kopie erstellen
             row.pricePerItem = entry.getPrice();
-            row.availableQuantity = entry.getItem().getCount(); // Kann später erweitert werden
+            row.availableQuantity = entry.getItem().getCount(); // Stack-Größe = verfügbare Menge
             shopItemRows.add(row);
         }
+
+        ScheduleMC.LOGGER.info("Shop geladen: {} Items für Kategorie {}", shopItemRows.size(), menu.getCategory());
     }
 
     /**
@@ -153,33 +156,40 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
 
+        // Render Spaltenüberschriften
+        guiGraphics.drawString(this.font, "Item", x + 25, y + 18, 0x404040, false);
+        guiGraphics.drawString(this.font, "Preis", x + 110, y + 18, 0x404040, false);
+        guiGraphics.drawString(this.font, "Lager", x + 155, y + 18, 0x404040, false);
+        guiGraphics.drawString(this.font, "Menge", x + 200, y + 18, 0x404040, false);
+        guiGraphics.drawString(this.font, "Gesamt", x + 240, y + 18, 0x404040, false);
+
         // Render Shop Items
         for (int i = 0; i < Math.min(VISIBLE_ROWS, shopItemRows.size() - scrollOffset); i++) {
             ShopItemRow row = shopItemRows.get(i + scrollOffset);
-            renderShopItem(guiGraphics, row, x + 8, y + 20 + i * 25);
+            renderShopItem(guiGraphics, row, x + 8, y + 30 + i * 22, i);
         }
     }
 
     /**
      * Rendert eine Shop-Item Row
-     * Schema: [Icon] Name | Preis | Verfügbar | [Input] | Gesamt
+     * Schema: [Icon] Name | Preis | Verfügbar | [Input] | Gesamt | [Button]
      */
-    private void renderShopItem(GuiGraphics guiGraphics, ShopItemRow row, int x, int y) {
+    private void renderShopItem(GuiGraphics guiGraphics, ShopItemRow row, int x, int y, int rowIndex) {
         // Item Icon (16x16)
         guiGraphics.renderItem(row.item, x, y);
 
-        // Item Name
+        // Item Name (gekürzt wenn zu lang)
         String itemName = row.item.getHoverName().getString();
-        if (itemName.length() > 8) {
-            itemName = itemName.substring(0, 8) + "..";
+        if (itemName.length() > 12) {
+            itemName = itemName.substring(0, 12) + "..";
         }
-        guiGraphics.drawString(this.font, itemName, x + 20, y + 4, 0x404040, false);
+        guiGraphics.drawString(this.font, itemName, x + 18, y + 4, 0xFFFFFF, false);
 
         // Preis pro Item
-        guiGraphics.drawString(this.font, row.pricePerItem + "$", x + 60, y + 4, 0x006600, false);
+        guiGraphics.drawString(this.font, row.pricePerItem + "$", x + 102, y + 4, 0x55FF55, false);
 
-        // Verfügbare Menge
-        guiGraphics.drawString(this.font, "x" + row.availableQuantity, x + 85, y + 4, 0x666666, false);
+        // Verfügbare Menge im Lager
+        guiGraphics.drawString(this.font, "" + row.availableQuantity, x + 155, y + 4, 0xAAAAAA, false);
 
         // Gesamtpreis berechnen und anzeigen
         int quantity = 1;
@@ -191,7 +201,7 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
             }
         }
         int totalPrice = row.pricePerItem * quantity;
-        guiGraphics.drawString(this.font, totalPrice + "$", x + 138, y + 4, 0x004400, false);
+        guiGraphics.drawString(this.font, totalPrice + "$", x + 232, y + 4, 0xFFFF55, false);
     }
 
     @Override
@@ -204,7 +214,7 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
 
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        String categoryName = menu.getCategory().getDisplayName();
+        String categoryName = "Shop: " + menu.getCategory().getDisplayName();
         guiGraphics.drawString(this.font, categoryName, 8, 6, 0x404040, false);
     }
 
