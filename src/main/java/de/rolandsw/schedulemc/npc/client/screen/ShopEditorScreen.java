@@ -43,7 +43,7 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
     public ShopEditorScreen(ShopEditorMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.imageWidth = 320; // Breiter für alle Felder
-        this.imageHeight = 220; // Höhe für 4 Item-Zeilen + Hotbar
+        this.imageHeight = 188; // Kompakte Höhe für 4 Item-Zeilen + Hotbar
         this.itemRows = new ArrayList<>();
         this.inventoryLabelY = 10000; // Verstecke Inventar-Label
     }
@@ -66,7 +66,7 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
 
             addRenderableWidget(Button.builder(Component.literal("▼"), button -> {
                 scrollDown();
-            }).bounds(x + 290, y + 152, 12, 12).build());
+            }).bounds(x + 290, y + 120, 12, 12).build());
         }
 
         // Speichern-Button (groß und deutlich)
@@ -96,7 +96,7 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
             int slotIndex = i + scrollOffset;
             ItemRow row = new ItemRow();
 
-            int rowY = y + 30 + i * 36; // 36 Pixel Abstand = 2 Item-Höhen pro Zeile (nur 4 Zeilen sichtbar)
+            int rowY = y + 30 + i * 28; // 28 Pixel Abstand = kompakte Darstellung (nur 4 Zeilen sichtbar)
 
             // Preis-Eingabefeld
             row.priceInput = new EditBox(this.font,
@@ -236,7 +236,7 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
             int slotIndex = i + scrollOffset;
             ItemStack item = menu.getShopContainer().getItem(slotIndex);
 
-            int rowY = y + 30 + i * 36; // 36 Pixel Abstand = nur 4 Zeilen sichtbar
+            int rowY = y + 30 + i * 28; // 28 Pixel Abstand = kompakte Darstellung
 
             // Slot-Nummer
             guiGraphics.drawString(this.font, "#" + (slotIndex + 1), x + 92, rowY + 4, 0x888888, false);
@@ -254,11 +254,11 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
         }
 
         // Hotbar-Label
-        guiGraphics.drawString(this.font, "Schnellauswahl (Items hier platzieren)",
-            x + 10, y + 166, 0x404040, false);
+        guiGraphics.drawString(this.font, "Schnellauswahl",
+            x + 92, y + 144, 0x404040, false);
 
         // Hinweistext unten (dunkle Farbe für gute Lesbarkeit auf hellgrauem Hintergrund)
-        guiGraphics.drawString(this.font, "Items aus Hotbar ins 4x4 Grid ziehen",
+        guiGraphics.drawString(this.font, "Items aus Hotbar ins 4x4 Grid ziehen, dann konfigurieren",
             x + 10, y + imageHeight - 38, 0x404040, false);
         guiGraphics.drawString(this.font, "Preis: $-Betrag | ∞: Unbegrenzt | Lager: Stückzahl",
             x + 10, y + imageHeight - 28, 0x404040, false);
@@ -276,11 +276,11 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
         // Item-Grid Hintergrund (4x4)
         guiGraphics.fill(x + 6, y + 16, x + 80, y + 90, 0xFF373737);
 
-        // Tabelle Hintergrund (4 Zeilen mit 36px Abstand)
-        guiGraphics.fill(x + 88, y + 14, x + 304, y + 174, 0xFF373737);
+        // Tabelle Hintergrund (4 Zeilen mit 28px Abstand - kompakt)
+        guiGraphics.fill(x + 88, y + 14, x + 304, y + 142, 0xFF373737);
 
-        // Hotbar Hintergrund (9 Slots)
-        guiGraphics.fill(x + 6, y + 174, x + 168, y + 200, 0xFF373737);
+        // Hotbar Hintergrund (9 Slots) - rechts neben Item-Grid
+        guiGraphics.fill(x + 88, y + 150, x + 250, y + 176, 0xFF373737);
 
         // Rahmen
         guiGraphics.renderOutline(x, y, imageWidth, imageHeight, 0xFF000000);
