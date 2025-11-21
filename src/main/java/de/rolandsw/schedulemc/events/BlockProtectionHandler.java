@@ -6,7 +6,6 @@ import de.rolandsw.schedulemc.region.PlotManager;
 import de.rolandsw.schedulemc.region.PlotRegion;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.network.chat.Component;
@@ -65,10 +64,9 @@ public class BlockProtectionHandler {
         BlockPos clickedPos = event.getPos();
 
         if (!player.level().isClientSide) {
-            CompoundTag tag = stack.getOrCreateTag();
-
             // Prüfe ob ein NPC ausgewählt wurde
-            if (!tag.contains("SelectedNPC")) {
+            Integer npcId = NPCLocationTool.getSelectedNPC(player.getUUID());
+            if (npcId == null) {
                 player.sendSystemMessage(
                     Component.literal("Kein NPC ausgewählt! Linksklick auf einen NPC.")
                         .withStyle(ChatFormatting.RED)
@@ -79,7 +77,6 @@ public class BlockProtectionHandler {
                 return;
             }
 
-            int npcId = tag.getInt("SelectedNPC");
             Entity entity = player.level().getEntity(npcId);
 
             if (!(entity instanceof CustomNPCEntity npc)) {
@@ -87,7 +84,7 @@ public class BlockProtectionHandler {
                     Component.literal("Ausgewählter NPC nicht mehr verfügbar!")
                         .withStyle(ChatFormatting.RED)
                 );
-                tag.remove("SelectedNPC");
+                NPCLocationTool.clearSelectedNPC(player.getUUID());
                 event.setCanceled(true);
                 event.setUseBlock(Event.Result.DENY);
                 event.setUseItem(Event.Result.DENY);
