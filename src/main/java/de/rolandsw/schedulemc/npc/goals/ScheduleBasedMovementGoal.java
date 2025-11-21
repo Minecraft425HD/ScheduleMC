@@ -52,7 +52,7 @@ public class ScheduleBasedMovementGoal extends Goal {
         BlockPos target = npc.getNpcData().getTargetLocationForEntry(entry);
         if (target == null) {
             LOGGER.warn("NPC '{}' hat keine Ziel-Location für Schedule-Eintrag: {}",
-                npc.getNpcName(), entry.getActivity());
+                npc.getNpcName(), entry.getActivityType());
             return false;
         }
 
@@ -138,14 +138,14 @@ public class ScheduleBasedMovementGoal extends Goal {
             if (!success) {
                 LOGGER.warn("NPC '{}' konnte keinen Pfad zu {} finden! Position: {}, Ziel: {}",
                     npc.getNpcName(),
-                    currentEntry != null ? currentEntry.getActivity() : "unknown",
+                    currentEntry != null ? currentEntry.getActivityType() : "unknown",
                     String.format("%.1f, %.1f, %.1f", npc.getX(), npc.getY(), npc.getZ()),
                     String.format("%d, %d, %d", targetPos.getX(), targetPos.getY(), targetPos.getZ())
                 );
             } else {
                 LOGGER.debug("NPC '{}' navigiert zu {} bei {}",
                     npc.getNpcName(),
-                    currentEntry != null ? currentEntry.getActivity() : "unknown",
+                    currentEntry != null ? currentEntry.getActivityType() : "unknown",
                     String.format("%d, %d, %d", targetPos.getX(), targetPos.getY(), targetPos.getZ())
                 );
             }
