@@ -113,7 +113,8 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
             ShopItemRow row = new ShopItemRow();
             row.item = entry.getItem().copy(); // Kopie erstellen
             row.pricePerItem = entry.getPrice();
-            row.availableQuantity = entry.getItem().getCount(); // Stack-Größe = verfügbare Menge
+            row.unlimited = entry.isUnlimited();
+            row.availableQuantity = entry.isUnlimited() ? Integer.MAX_VALUE : entry.getStock();
             shopItemRows.add(row);
         }
 
@@ -240,8 +241,9 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
         // Preis pro Item
         guiGraphics.drawString(this.font, row.pricePerItem + "$", x + 102, y + 4, 0x55FF55, false);
 
-        // Verfügbare Menge im Lager
-        guiGraphics.drawString(this.font, "" + row.availableQuantity, x + 155, y + 4, 0xAAAAAA, false);
+        // Verfügbare Menge im Lager (∞ für unlimited, Zahl für limited)
+        String stockDisplay = row.unlimited ? "∞" : String.valueOf(row.availableQuantity);
+        guiGraphics.drawString(this.font, stockDisplay, x + 155, y + 4, row.unlimited ? 0x55FFFF : 0xAAAAAA, false);
     }
 
     /**
@@ -287,6 +289,7 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
     private static class ShopItemRow {
         ItemStack item;
         int pricePerItem;
+        boolean unlimited; // True = unbegrenzte Menge, False = begrenzter Lagerbestand
         int availableQuantity;
         EditBox quantityInput;
         String savedQuantity = "0"; // Gespeicherte Eingabe (persistent beim Scrollen)

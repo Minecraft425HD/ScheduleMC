@@ -7,6 +7,7 @@ import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
 import de.rolandsw.schedulemc.npc.network.UpdateShopItemsPacket;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
@@ -21,7 +22,7 @@ import java.util.List;
 
 /**
  * GUI für Shop-Editor (Admin-Only)
- * Professionelles Design mit 4x4 Item-Grid und Preis-Tabelle
+ * Professionelles Design mit 4x4 Item-Grid und Preis/Stock-Tabelle
  */
 @OnlyIn(Dist.CLIENT)
 public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
@@ -29,16 +30,22 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
     private static final ResourceLocation TEXTURE =
         new ResourceLocation("minecraft", "textures/gui/container/generic_54.png");
 
-    private List<EditBox> priceInputFields;
+    private static class ItemRow {
+        EditBox priceInput;
+        Checkbox unlimitedCheckbox;
+        EditBox stockInput;
+    }
+
+    private List<ItemRow> itemRows;
     private Button saveButton;
     private int scrollOffset = 0;
-    private static final int VISIBLE_PRICE_ROWS = 8; // Zeige 8 Preisfelder gleichzeitig
+    private static final int VISIBLE_ROWS = 8; // Zeige 8 Zeilen gleichzeitig
 
     public ShopEditorScreen(ShopEditorMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
-        this.imageWidth = 256; // Breiter für Items + Preis-Tabelle
-        this.imageHeight = 240; // Höher für mehr Übersicht
-        this.priceInputFields = new ArrayList<>();
+        this.imageWidth = 320; // Breiter für alle Felder
+        this.imageHeight = 240;
+        this.itemRows = new ArrayList<>();
     }
 
     @Override
@@ -48,53 +55,59 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
 
-        // Erstelle Preis-Eingabefelder (scrollbar für alle 16 Items)
-        createPriceInputFields();
+        // Erstelle Eingabefelder (scrollbar für alle 16 Items)
+        createInputFields();
 
-        // Scroll-Buttons (falls mehr als VISIBLE_PRICE_ROWS Items)
-        if (ShopEditorMenu.SHOP_SLOTS > VISIBLE_PRICE_ROWS) {
+        // Scroll-Buttons (falls mehr als VISIBLE_ROWS Items)
+        if (ShopEditorMenu.SHOP_SLOTS > VISIBLE_ROWS) {
             addRenderableWidget(Button.builder(Component.literal("▲"), button -> {
                 scrollUp();
-            }).bounds(x + 238, y + 92, 12, 12).build());
+            }).bounds(x + 302, y + 92, 12, 12).build());
 
             addRenderableWidget(Button.builder(Component.literal("▼"), button -> {
                 scrollDown();
-            }).bounds(x + 238, y + 160, 12, 12).build());
+            }).bounds(x + 302, y + 160, 12, 12).build());
         }
 
         // Speichern-Button (groß und deutlich)
         saveButton = addRenderableWidget(Button.builder(
             Component.literal("Shop Speichern"),
             button -> saveShopItems()
-        ).bounds(x + 8, y + imageHeight - 26, 240, 20).build());
+        ).bounds(x + 8, y + imageHeight - 26, 304, 20).build());
     }
 
     /**
-     * Erstellt die Preis-Eingabefelder
+     * Erstellt die Eingabefelder für Preis, Unlimited und Stock
      */
-    private void createPriceInputFields() {
+    private void createInputFields() {
         // Entferne alte Felder
-        for (EditBox field : priceInputFields) {
-            this.removeWidget(field);
+        for (ItemRow row : itemRows) {
+            if (row.priceInput != null) this.removeWidget(row.priceInput);
+            if (row.unlimitedCheckbox != null) this.removeWidget(row.unlimitedCheckbox);
+            if (row.stockInput != null) this.removeWidget(row.stockInput);
         }
-        priceInputFields.clear();
+        itemRows.clear();
 
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
 
-        // Erstelle sichtbare Preis-Eingabefelder
-        for (int i = 0; i < Math.min(VISIBLE_PRICE_ROWS, ShopEditorMenu.SHOP_SLOTS - scrollOffset); i++) {
+        // Erstelle sichtbare Eingabefelder
+        for (int i = 0; i < Math.min(VISIBLE_ROWS, ShopEditorMenu.SHOP_SLOTS - scrollOffset); i++) {
             int slotIndex = i + scrollOffset;
+            ItemRow row = new ItemRow();
 
-            EditBox priceInput = new EditBox(this.font,
-                x + 180, y + 92 + i * 20, 50, 16,
+            int rowY = y + 92 + i * 20;
+
+            // Preis-Eingabefeld
+            row.priceInput = new EditBox(this.font,
+                x + 180, rowY, 40, 16,
                 Component.literal("Preis"));
-            priceInput.setMaxLength(6);
-            priceInput.setValue(String.valueOf(menu.getItemPrices()[slotIndex]));
-            priceInput.setFilter(s -> s.matches("\\d*")); // Nur Zahlen
+            row.priceInput.setMaxLength(6);
+            row.priceInput.setValue(String.valueOf(menu.getItemPrices()[slotIndex]));
+            row.priceInput.setFilter(s -> s.matches("\\d*")); // Nur Zahlen
 
             final int finalSlotIndex = slotIndex;
-            priceInput.setResponder(value -> {
+            row.priceInput.setResponder(value -> {
                 try {
                     int price = value.isEmpty() ? 0 : Integer.parseInt(value);
                     menu.setItemPrice(finalSlotIndex, price);
@@ -103,22 +116,66 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
                 }
             });
 
-            priceInputFields.add(priceInput);
-            addRenderableWidget(priceInput);
+            // Unlimited-Checkbox
+            row.unlimitedCheckbox = new Checkbox(
+                x + 226, rowY, 16, 16,
+                Component.literal("∞"),
+                menu.getItemUnlimited()[slotIndex],
+                false // not focused
+            );
+            row.unlimitedCheckbox.onPress = () -> {
+                boolean unlimited = row.unlimitedCheckbox.selected();
+                menu.setItemUnlimited(finalSlotIndex, unlimited);
+
+                // Aktiviere/Deaktiviere Stock-Feld basierend auf Unlimited
+                row.stockInput.setEditable(!unlimited);
+                if (unlimited) {
+                    row.stockInput.setTextColor(0x808080); // Grau wenn deaktiviert
+                } else {
+                    row.stockInput.setTextColor(0xE0E0E0); // Weiß wenn aktiv
+                }
+            };
+
+            // Stock-Eingabefeld
+            row.stockInput = new EditBox(this.font,
+                x + 248, rowY, 40, 16,
+                Component.literal("Lager"));
+            row.stockInput.setMaxLength(6);
+            row.stockInput.setValue(String.valueOf(menu.getItemStock()[slotIndex]));
+            row.stockInput.setFilter(s -> s.matches("\\d*")); // Nur Zahlen
+
+            // Deaktiviere Stock-Feld wenn Unlimited
+            boolean unlimited = menu.getItemUnlimited()[slotIndex];
+            row.stockInput.setEditable(!unlimited);
+            row.stockInput.setTextColor(unlimited ? 0x808080 : 0xE0E0E0);
+
+            row.stockInput.setResponder(value -> {
+                try {
+                    int stock = value.isEmpty() ? 0 : Integer.parseInt(value);
+                    menu.setItemStock(finalSlotIndex, stock);
+                } catch (NumberFormatException e) {
+                    // Ignoriere ungültige Eingaben
+                }
+            });
+
+            itemRows.add(row);
+            addRenderableWidget(row.priceInput);
+            addRenderableWidget(row.unlimitedCheckbox);
+            addRenderableWidget(row.stockInput);
         }
     }
 
     private void scrollUp() {
         if (scrollOffset > 0) {
             scrollOffset--;
-            createPriceInputFields();
+            createInputFields();
         }
     }
 
     private void scrollDown() {
-        if (scrollOffset < ShopEditorMenu.SHOP_SLOTS - VISIBLE_PRICE_ROWS) {
+        if (scrollOffset < ShopEditorMenu.SHOP_SLOTS - VISIBLE_ROWS) {
             scrollOffset++;
-            createPriceInputFields();
+            createInputFields();
         }
     }
 
@@ -128,13 +185,17 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
     private void saveShopItems() {
         List<ItemStack> items = new ArrayList<>();
         List<Integer> prices = new ArrayList<>();
+        List<Boolean> unlimited = new ArrayList<>();
+        List<Integer> stock = new ArrayList<>();
 
-        // Sammle Items und Preise
+        // Sammle Items, Preise, Unlimited und Stock
         for (int i = 0; i < ShopEditorMenu.SHOP_SLOTS; i++) {
             ItemStack item = menu.getShopContainer().getItem(i);
             if (!item.isEmpty()) {
                 items.add(item.copy());
                 prices.add(menu.getItemPrices()[i]);
+                unlimited.add(menu.getItemUnlimited()[i]);
+                stock.add(menu.getItemStock()[i]);
             }
         }
 
@@ -142,7 +203,9 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
         NPCNetworkHandler.sendToServer(new UpdateShopItemsPacket(
             menu.getEntityId(),
             items,
-            prices
+            prices,
+            unlimited,
+            stock
         ));
 
         // Schließe GUI
@@ -158,13 +221,15 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
 
-        // Render Preis-Tabellen-Header
-        guiGraphics.drawString(this.font, "Slot", x + 92, y + 80, 0x404040, false);
-        guiGraphics.drawString(this.font, "Item", x + 118, y + 80, 0x404040, false);
-        guiGraphics.drawString(this.font, "Preis ($)", x + 180, y + 80, 0x404040, false);
+        // Render Tabellen-Header
+        guiGraphics.drawString(this.font, "#", x + 92, y + 80, 0x404040, false);
+        guiGraphics.drawString(this.font, "Item", x + 110, y + 80, 0x404040, false);
+        guiGraphics.drawString(this.font, "Preis", x + 180, y + 80, 0x404040, false);
+        guiGraphics.drawString(this.font, "∞", x + 228, y + 80, 0x404040, false);
+        guiGraphics.drawString(this.font, "Lager", x + 250, y + 80, 0x404040, false);
 
-        // Render Preis-Tabellen-Einträge
-        for (int i = 0; i < Math.min(VISIBLE_PRICE_ROWS, ShopEditorMenu.SHOP_SLOTS - scrollOffset); i++) {
+        // Render Tabellen-Einträge
+        for (int i = 0; i < Math.min(VISIBLE_ROWS, ShopEditorMenu.SHOP_SLOTS - scrollOffset); i++) {
             int slotIndex = i + scrollOffset;
             ItemStack item = menu.getShopContainer().getItem(slotIndex);
 
@@ -176,20 +241,20 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
             // Item-Name (wenn vorhanden)
             if (!item.isEmpty()) {
                 String itemName = item.getHoverName().getString();
-                if (itemName.length() > 10) {
-                    itemName = itemName.substring(0, 10) + "..";
+                if (itemName.length() > 11) {
+                    itemName = itemName.substring(0, 11) + "..";
                 }
-                guiGraphics.drawString(this.font, itemName, x + 118, rowY + 4, 0xFFFFFF, false);
+                guiGraphics.drawString(this.font, itemName, x + 110, rowY + 4, 0xFFFFFF, false);
             } else {
-                guiGraphics.drawString(this.font, "-leer-", x + 118, rowY + 4, 0x666666, false);
+                guiGraphics.drawString(this.font, "-leer-", x + 110, rowY + 4, 0x666666, false);
             }
         }
 
         // Hinweistext unten
-        guiGraphics.drawString(this.font, "Ziehe Items ins Grid (links)",
-            x + 10, y + imageHeight - 50, 0x888888, false);
-        guiGraphics.drawString(this.font, "Setze Preise (rechts)",
-            x + 10, y + imageHeight - 40, 0x888888, false);
+        guiGraphics.drawString(this.font, "Items: Ziehe Items ins 4x4 Grid (links)",
+            x + 10, y + imageHeight - 52, 0x888888, false);
+        guiGraphics.drawString(this.font, "Preis: $-Betrag | ∞: Unbegrenzt | Lager: Stückzahl",
+            x + 10, y + imageHeight - 42, 0x888888, false);
     }
 
     @Override
@@ -204,8 +269,8 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
         // Item-Grid Hintergrund (4x4)
         guiGraphics.fill(x + 6, y + 16, x + 80, y + 90, 0xFF373737);
 
-        // Preis-Tabelle Hintergrund
-        guiGraphics.fill(x + 88, y + 76, x + 234, y + 176, 0xFF373737);
+        // Tabelle Hintergrund
+        guiGraphics.fill(x + 88, y + 76, x + 298, y + 176, 0xFF373737);
 
         // Player-Inventar Hintergrund
         guiGraphics.fill(x + 6, y + 182, x + 168, y + 214, 0xFF373737);

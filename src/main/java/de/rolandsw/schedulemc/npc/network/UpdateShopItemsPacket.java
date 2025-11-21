@@ -20,11 +20,16 @@ public class UpdateShopItemsPacket {
     private final int merchantEntityId;
     private final List<ItemStack> items;
     private final List<Integer> prices;
+    private final List<Boolean> unlimited;
+    private final List<Integer> stock;
 
-    public UpdateShopItemsPacket(int merchantEntityId, List<ItemStack> items, List<Integer> prices) {
+    public UpdateShopItemsPacket(int merchantEntityId, List<ItemStack> items, List<Integer> prices,
+                                  List<Boolean> unlimited, List<Integer> stock) {
         this.merchantEntityId = merchantEntityId;
         this.items = items;
         this.prices = prices;
+        this.unlimited = unlimited;
+        this.stock = stock;
     }
 
     public void encode(FriendlyByteBuf buf) {
@@ -33,6 +38,8 @@ public class UpdateShopItemsPacket {
         for (int i = 0; i < items.size(); i++) {
             buf.writeItem(items.get(i));
             buf.writeInt(prices.get(i));
+            buf.writeBoolean(unlimited.get(i));
+            buf.writeInt(stock.get(i));
         }
     }
 
@@ -41,13 +48,17 @@ public class UpdateShopItemsPacket {
         int count = buf.readInt();
         List<ItemStack> items = new ArrayList<>();
         List<Integer> prices = new ArrayList<>();
+        List<Boolean> unlimited = new ArrayList<>();
+        List<Integer> stock = new ArrayList<>();
 
         for (int i = 0; i < count; i++) {
             items.add(buf.readItem());
             prices.add(buf.readInt());
+            unlimited.add(buf.readBoolean());
+            stock.add(buf.readInt());
         }
 
-        return new UpdateShopItemsPacket(entityId, items, prices);
+        return new UpdateShopItemsPacket(entityId, items, prices, unlimited, stock);
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
@@ -63,8 +74,11 @@ public class UpdateShopItemsPacket {
                     for (int i = 0; i < items.size(); i++) {
                         ItemStack item = items.get(i);
                         int price = prices.get(i);
+                        boolean isUnlimited = unlimited.get(i);
+                        int itemStock = stock.get(i);
                         if (!item.isEmpty() && price > 0) {
-                            npc.getNpcData().getBuyShop().addEntry(new NPCData.ShopEntry(item, price));
+                            npc.getNpcData().getBuyShop().addEntry(
+                                new NPCData.ShopEntry(item, price, isUnlimited, itemStock));
                         }
                     }
 
