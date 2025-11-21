@@ -14,6 +14,7 @@ import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import com.mojang.logging.LogUtils;
@@ -107,6 +108,52 @@ public class BlockProtectionHandler {
             event.setUseBlock(Event.Result.DENY);
             event.setUseItem(Event.Result.DENY);
         }
+    }
+
+    /**
+     * Behandelt Linksklick auf NPCs für das LocationTool (NPC auswählen)
+     */
+    @SubscribeEvent
+    public void onAttackEntity(AttackEntityEvent event) {
+        Player player = event.getEntity();
+        Entity target = event.getTarget();
+
+        // Prüfe ob Spieler das LocationTool hält
+        ItemStack mainHandItem = player.getMainHandItem();
+        ItemStack offHandItem = player.getOffhandItem();
+
+        boolean holdsLocationTool = (mainHandItem.getItem() instanceof NPCLocationTool) ||
+                                   (offHandItem.getItem() instanceof NPCLocationTool);
+
+        if (!holdsLocationTool) {
+            return;
+        }
+
+        // Prüfe ob Ziel ein CustomNPC ist
+        if (!(target instanceof CustomNPCEntity npc)) {
+            return;
+        }
+
+        if (!player.level().isClientSide) {
+            // Speichere NPC ID
+            NPCLocationTool.setSelectedNPC(player.getUUID(), npc.getId());
+
+            player.sendSystemMessage(
+                Component.literal("NPC ")
+                    .withStyle(ChatFormatting.GREEN)
+                    .append(Component.literal(npc.getNpcName())
+                        .withStyle(ChatFormatting.YELLOW))
+                    .append(Component.literal(" ausgewählt!")
+                        .withStyle(ChatFormatting.GREEN))
+            );
+            player.sendSystemMessage(
+                Component.literal("Linksklick auf Block = Arbeitsort | Rechtsklick = Wohnort")
+                    .withStyle(ChatFormatting.GRAY)
+            );
+        }
+
+        // Verhindere Schaden am NPC
+        event.setCanceled(true);
     }
 
     /**
