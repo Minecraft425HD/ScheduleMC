@@ -69,6 +69,11 @@ public class ModConfigHandler {
         public final ForgeConfigSpec.IntValue MIN_RATING;
         public final ForgeConfigSpec.IntValue MAX_RATING;
 
+        // ═══════════════════════════════════════════════════════════
+        // NPC SYSTEM
+        // ═══════════════════════════════════════════════════════════
+        public final ForgeConfigSpec.ConfigValue<java.util.List<? extends String>> NPC_WALKABLE_BLOCKS;
+
         public Common(ForgeConfigSpec.Builder builder) {
             
             builder.comment("ScheduleMC 3.0 - Economy Settings")
@@ -194,6 +199,32 @@ public class ModConfigHandler {
             MAX_RATING = builder
                     .comment("Maximales Rating (Sterne)")
                     .defineInRange("max_rating", 5, 1, 5);
+
+            builder.pop();
+
+            builder.comment("NPC System Settings")
+                    .push("npc");
+
+            NPC_WALKABLE_BLOCKS = builder
+                    .comment("Blocktypen, auf denen NPCs laufen dürfen (Beispiel: minecraft:stone, minecraft:grass_block)")
+                    .defineList("walkable_blocks",
+                        java.util.Arrays.asList(
+                            "minecraft:stone",
+                            "minecraft:grass_block",
+                            "minecraft:dirt",
+                            "minecraft:cobblestone",
+                            "minecraft:oak_planks",
+                            "minecraft:spruce_planks",
+                            "minecraft:birch_planks",
+                            "minecraft:jungle_planks",
+                            "minecraft:acacia_planks",
+                            "minecraft:dark_oak_planks",
+                            "minecraft:gravel",
+                            "minecraft:sand",
+                            "minecraft:stone_bricks",
+                            "minecraft:bricks"
+                        ),
+                        obj -> obj instanceof String);
 
             builder.pop();
         }

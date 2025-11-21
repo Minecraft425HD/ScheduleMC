@@ -15,4 +15,7 @@ public class NPCItems {
 
     public static final RegistryObject<Item> NPC_SPAWNER_TOOL = ITEMS.register("npc_spawner_tool",
         NPCSpawnerTool::new);
+
+    public static final RegistryObject<Item> NPC_LOCATION_TOOL = ITEMS.register("npc_location_tool",
+        NPCLocationTool::new);
 }
