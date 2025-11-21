@@ -118,6 +118,56 @@ public class NPCCommand {
             false
         );
 
+        // Warnung, wenn Movement aktiviert wird, aber Locations fehlen
+        if (enabled && player != null) {
+            var data = npc.getNpcData();
+            boolean hasLocations = false;
+            StringBuilder missingLocations = new StringBuilder();
+
+            // Prüfe welche Locations in Schedule verwendet werden
+            for (var entry : data.getSchedule()) {
+                switch (entry.getActivityType()) {
+                    case HOME:
+                        if (data.getHomeLocation() == null) {
+                            if (missingLocations.length() > 0) missingLocations.append(", ");
+                            missingLocations.append("Home");
+                        } else {
+                            hasLocations = true;
+                        }
+                        break;
+                    case WORK:
+                        if (data.getWorkLocation() == null) {
+                            if (missingLocations.length() > 0) missingLocations.append(", ");
+                            missingLocations.append("Work");
+                        } else {
+                            hasLocations = true;
+                        }
+                        break;
+                    case FREETIME:
+                        if (data.getFreetimeLocations().isEmpty()) {
+                            if (missingLocations.length() > 0) missingLocations.append(", ");
+                            missingLocations.append("Freetime");
+                        } else {
+                            hasLocations = true;
+                        }
+                        break;
+                }
+            }
+
+            if (missingLocations.length() > 0) {
+                player.sendSystemMessage(
+                    Component.literal("⚠ Warnung: Folgende Locations fehlen: ")
+                        .withStyle(ChatFormatting.GOLD)
+                        .append(Component.literal(missingLocations.toString())
+                            .withStyle(ChatFormatting.YELLOW))
+                );
+                player.sendSystemMessage(
+                    Component.literal("Verwende das LocationTool (Shift-Click), um Locations zu setzen!")
+                        .withStyle(ChatFormatting.GRAY)
+                );
+            }
+        }
+
         return 1;
     }
 
@@ -239,6 +289,46 @@ public class NPCCommand {
                     .append(Component.literal(" (" + current.getTimeDescription() + ")")
                         .withStyle(ChatFormatting.DARK_GRAY))
             );
+
+            // Zeige Ziel-Location für aktuelle Aktivität
+            BlockPos targetLoc = data.getTargetLocationForEntry(current);
+            if (targetLoc != null) {
+                player.sendSystemMessage(
+                    Component.literal("Ziel: ")
+                        .withStyle(ChatFormatting.GRAY)
+                        .append(Component.literal(targetLoc.toShortString())
+                            .withStyle(ChatFormatting.GREEN))
+                );
+            } else {
+                player.sendSystemMessage(
+                    Component.literal("⚠ Ziel: ")
+                        .withStyle(ChatFormatting.GOLD)
+                        .append(Component.literal("Nicht gesetzt!")
+                            .withStyle(ChatFormatting.RED))
+                );
+            }
+        }
+
+        // Warnung, wenn Movement aktiviert ist, aber NPC sich nicht bewegen kann
+        if (behavior.canMove() && !data.getSchedule().isEmpty()) {
+            boolean canMove = false;
+            for (ScheduleEntry entry : data.getSchedule()) {
+                if (data.getTargetLocationForEntry(entry) != null) {
+                    canMove = true;
+                    break;
+                }
+            }
+
+            if (!canMove) {
+                player.sendSystemMessage(
+                    Component.literal("⚠ PROBLEM: Movement aktiviert, aber keine Locations gesetzt!")
+                        .withStyle(ChatFormatting.RED)
+                );
+                player.sendSystemMessage(
+                    Component.literal("Verwende das LocationTool um Locations zu setzen!")
+                        .withStyle(ChatFormatting.YELLOW)
+                );
+            }
         }
 
         return 1;
@@ -392,6 +482,46 @@ public class NPCCommand {
                     .withStyle(ChatFormatting.GRAY)),
             false
         );
+
+        // Warnung, wenn Locations fehlen
+        if (player != null) {
+            var data = npc.getNpcData();
+            StringBuilder missingLocations = new StringBuilder();
+
+            if (data.getWorkLocation() == null) {
+                missingLocations.append("Work");
+            }
+            if (data.getFreetimeLocations().isEmpty()) {
+                if (missingLocations.length() > 0) missingLocations.append(", ");
+                missingLocations.append("Freetime");
+            }
+            if (data.getHomeLocation() == null) {
+                if (missingLocations.length() > 0) missingLocations.append(", ");
+                missingLocations.append("Home");
+            }
+
+            if (missingLocations.length() > 0) {
+                player.sendSystemMessage(
+                    Component.literal("⚠ Wichtig: Folgende Locations müssen noch gesetzt werden: ")
+                        .withStyle(ChatFormatting.GOLD)
+                        .append(Component.literal(missingLocations.toString())
+                            .withStyle(ChatFormatting.YELLOW))
+                );
+                player.sendSystemMessage(
+                    Component.literal("1. Verwende das LocationTool (Shift-Click auf NPC)")
+                        .withStyle(ChatFormatting.GRAY)
+                );
+                player.sendSystemMessage(
+                    Component.literal("2. Dann aktiviere Movement mit /npc movement true")
+                        .withStyle(ChatFormatting.GRAY)
+                );
+            } else if (!data.getBehavior().canMove()) {
+                player.sendSystemMessage(
+                    Component.literal("✓ Alle Locations gesetzt! Aktiviere Movement mit /npc movement true")
+                        .withStyle(ChatFormatting.GREEN)
+                );
+            }
+        }
 
         return 1;
     }
