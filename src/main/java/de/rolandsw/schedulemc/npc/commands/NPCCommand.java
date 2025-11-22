@@ -22,9 +22,9 @@ import net.minecraft.world.phys.AABB;
  * Command für NPC-Verwaltung
  * /npc movement <true|false> - Aktiviert/Deaktiviert Bewegung für ausgewählten NPC
  * /npc speed <value> - Setzt Bewegungsgeschwindigkeit für ausgewählten NPC
- * /npc schedule workstart <time> - Setzt Arbeitsbeginn (Format: HH:MM, z.B. 07:00)
- * /npc schedule workend <time> - Setzt Arbeitsende (Format: HH:MM, z.B. 18:00)
- * /npc schedule home <time> - Setzt Heimzeit (Format: HH:MM, z.B. 23:00)
+ * /npc schedule workstart <time> - Setzt Arbeitsbeginn (Format: HHMM, z.B. 0700)
+ * /npc schedule workend <time> - Setzt Arbeitsende (Format: HHMM, z.B. 1800)
+ * /npc schedule home <time> - Setzt Heimzeit (Format: HHMM, z.B. 2300)
  * /npc leisure add - Fügt aktuelle Position als Freizeitort hinzu
  * /npc leisure remove <index> - Entfernt Freizeitort
  * /npc leisure list - Listet alle Freizeitorte auf
@@ -289,20 +289,19 @@ public class NPCCommand {
             return 0;
         }
 
-        // Parse Zeit (nur HH:MM Format)
+        // Parse Zeit (nur HHMM Format - 4 Ziffern)
         long ticks;
         try {
-            if (!timeInput.contains(":")) {
+            if (timeInput.length() != 4) {
                 context.getSource().sendFailure(
-                    Component.literal("Ungültiges Format! Verwende HH:MM (z.B. 07:00, 18:30)")
+                    Component.literal("Ungültiges Format! Verwende HHMM (z.B. 0700, 1830)")
                         .withStyle(ChatFormatting.RED)
                 );
                 return 0;
             }
 
-            String[] parts = timeInput.split(":");
-            int hours = Integer.parseInt(parts[0]);
-            int minutes = Integer.parseInt(parts[1]);
+            int hours = Integer.parseInt(timeInput.substring(0, 2));
+            int minutes = Integer.parseInt(timeInput.substring(2, 4));
 
             if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
                 context.getSource().sendFailure(
@@ -313,9 +312,9 @@ public class NPCCommand {
             }
 
             ticks = timeToTicks(hours, minutes);
-        } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+        } catch (NumberFormatException | StringIndexOutOfBoundsException e) {
             context.getSource().sendFailure(
-                Component.literal("Ungültiges Format! Verwende HH:MM (z.B. 07:00, 18:30)")
+                Component.literal("Ungültiges Format! Verwende HHMM (z.B. 0700, 1830)")
                     .withStyle(ChatFormatting.RED)
             );
             return 0;
@@ -534,7 +533,7 @@ public class NPCCommand {
     }
 
     /**
-     * Konvertiert Minecraft-Ticks zu HH:MM Format
+     * Konvertiert Minecraft-Ticks zu HHMM Format (4-Ziffern ohne Doppelpunkt)
      */
     private static String ticksToTime(long ticks) {
         // 0 Ticks = 6:00 Uhr morgens
@@ -544,7 +543,7 @@ public class NPCCommand {
         int hours = (totalMinutes / 60) % 24;
         int minutes = totalMinutes % 60;
 
-        return String.format("%02d:%02d", hours, minutes);
+        return String.format("%02d%02d", hours, minutes);
     }
 
     /**
