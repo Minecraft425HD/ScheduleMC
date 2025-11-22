@@ -28,16 +28,8 @@ public class NPCPathNavigation extends GroundPathNavigation {
         // Türen öffnen und durchgehen erlauben
         this.setCanOpenDoors(true);
         this.setCanPassDoors(true);
-        // Erlaube NPCs das Öffnen von Türen
-        this.setCanOpenDoors(true);
-    }
-
-    @Override
-    protected PathFinder createPathFinder(int maxVisitedNodes) {
-        this.nodeEvaluator = new NPCNodeEvaluator();
-        this.nodeEvaluator.setCanPassDoors(true); // NPCs können durch Türen gehen
-        this.nodeEvaluator.setCanOpenDoors(true); // NPCs können Türen öffnen
-        return new PathFinder(this.nodeEvaluator, maxVisitedNodes);
+        // Erlaube Float (Schwimmen/Fliegen falls nötig)
+        this.setCanFloat(true);
     }
 
     /**
