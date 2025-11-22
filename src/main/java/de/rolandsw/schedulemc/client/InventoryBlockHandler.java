@@ -15,17 +15,23 @@ import net.minecraftforge.fml.common.Mod;
 public class InventoryBlockHandler {
 
     /**
-     * Verhindert dass das Inventar-GUI geöffnet wird
+     * Verhindert dass das Inventar-GUI geöffnet wird (außer für Admins/OP)
      */
     @SubscribeEvent
     public static void onGuiOpen(ScreenEvent.Opening event) {
         // Prüfe ob das Inventar-GUI geöffnet werden soll
         if (event.getNewScreen() instanceof InventoryScreen) {
-            // Blockiere das Öffnen
+            Minecraft mc = Minecraft.getInstance();
+
+            // Admins (OP) dürfen weiterhin auf Inventar zugreifen
+            if (mc.player != null && mc.player.hasPermissions(2)) {
+                return; // Admin bypass
+            }
+
+            // Blockiere das Öffnen für normale Spieler
             event.setCanceled(true);
 
             // Zeige Nachricht
-            Minecraft mc = Minecraft.getInstance();
             if (mc.player != null) {
                 mc.player.displayClientMessage(
                     Component.literal("§c⚠ Inventar ist gesperrt! Nutze nur die Schnellzugriffsleiste (1-9)."),

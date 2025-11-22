@@ -20,6 +20,7 @@ public class InventoryRestrictionHandler {
     /**
      * Verhindert dass Items in das gesperrte Inventar gelegt werden
      * Verschiebt Items automatisch zurück in die Hotbar
+     * Admins (OP) sind ausgenommen
      */
     @SubscribeEvent
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
@@ -27,6 +28,11 @@ public class InventoryRestrictionHandler {
         if (event.player.level().isClientSide) return;
 
         Player player = event.player;
+
+        // Admins (OP) dürfen volles Inventar nutzen
+        if (player.hasPermissions(2)) {
+            return; // Admin bypass
+        }
 
         // Prüfe alle Inventar-Slots (nicht Hotbar)
         for (int i = INVENTORY_START; i < INVENTORY_END; i++) {
