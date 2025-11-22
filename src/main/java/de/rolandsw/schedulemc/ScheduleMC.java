@@ -9,6 +9,7 @@ import de.rolandsw.schedulemc.economy.PlayerJoinHandler;
 import de.rolandsw.schedulemc.events.BlockProtectionHandler;
 import de.rolandsw.schedulemc.tobacco.events.TobaccoBottleHandler;
 import de.rolandsw.schedulemc.economy.events.CashSlotRestrictionHandler;
+import de.rolandsw.schedulemc.npc.events.NPCDailyIncomeHandler;
 import de.rolandsw.schedulemc.economy.network.EconomyNetworkHandler;
 import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.economy.WalletManager;
@@ -88,6 +89,7 @@ public class ScheduleMC {
         MinecraftForge.EVENT_BUS.register(new TobaccoBottleHandler());
         MinecraftForge.EVENT_BUS.register(new CashSlotRestrictionHandler());
         MinecraftForge.EVENT_BUS.register(RespawnHandler.class);
+        MinecraftForge.EVENT_BUS.register(NPCDailyIncomeHandler.class);
 
 
         LOGGER.info("ScheduleMC initialized");

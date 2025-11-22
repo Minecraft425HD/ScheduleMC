@@ -44,6 +44,11 @@ public class NPCData {
     @Nullable
     private BlockPos workLocation;  // Arbeitsstätte
 
+    // Inventar & Ökonomie (nur für BEWOHNER und VERKAEUFER, nicht für POLIZEI)
+    private ItemStack[] inventory;  // Hotbar-ähnliches Inventar (9 Slots)
+    private int cash;  // Geldbörse in Bargeld
+    private long lastDailyIncomeDay;  // Letzter Tag, an dem Einkommen erhalten wurde
+
     public NPCData() {
         this.npcName = "NPC";
         this.skinFileName = "default.png";
@@ -56,6 +61,12 @@ public class NPCData {
         this.sellShop = new ShopInventory();
         this.customData = new CompoundTag();
         this.behavior = new NPCBehavior();
+        this.inventory = new ItemStack[9];
+        for (int i = 0; i < 9; i++) {
+            this.inventory[i] = ItemStack.EMPTY;
+        }
+        this.cash = 0;
+        this.lastDailyIncomeDay = -1;
     }
 
     public NPCData(String name, String skinFile) {
@@ -106,6 +117,22 @@ public class NPCData {
             tag.putLong("WorkLocation", workLocation.asLong());
         }
 
+        // Inventar & Ökonomie speichern (nur für BEWOHNER und VERKAEUFER)
+        if (npcType != NPCType.POLIZEI) {
+            ListTag inventoryList = new ListTag();
+            for (int i = 0; i < inventory.length; i++) {
+                if (!inventory[i].isEmpty()) {
+                    CompoundTag itemTag = new CompoundTag();
+                    itemTag.putByte("Slot", (byte) i);
+                    inventory[i].save(itemTag);
+                    inventoryList.add(itemTag);
+                }
+            }
+            tag.put("Inventory", inventoryList);
+            tag.putInt("Cash", cash);
+            tag.putLong("LastDailyIncomeDay", lastDailyIncomeDay);
+        }
+
         return tag;
     }
 
@@ -145,6 +172,30 @@ public class NPCData {
         }
         if (tag.contains("WorkLocation")) {
             workLocation = BlockPos.of(tag.getLong("WorkLocation"));
+        }
+
+        // Inventar & Ökonomie laden (nur für BEWOHNER und VERKAEUFER)
+        if (npcType != NPCType.POLIZEI) {
+            // Inventar initialisieren
+            inventory = new ItemStack[9];
+            for (int i = 0; i < 9; i++) {
+                inventory[i] = ItemStack.EMPTY;
+            }
+
+            // Inventar Items laden
+            if (tag.contains("Inventory")) {
+                ListTag inventoryList = tag.getList("Inventory", Tag.TAG_COMPOUND);
+                for (int i = 0; i < inventoryList.size(); i++) {
+                    CompoundTag itemTag = inventoryList.getCompound(i);
+                    int slot = itemTag.getByte("Slot") & 255;
+                    if (slot >= 0 && slot < inventory.length) {
+                        inventory[slot] = ItemStack.of(itemTag);
+                    }
+                }
+            }
+
+            cash = tag.getInt("Cash");
+            lastDailyIncomeDay = tag.getLong("LastDailyIncomeDay");
         }
     }
 
@@ -239,6 +290,62 @@ public class NPCData {
 
     public void setWorkLocation(@Nullable BlockPos workLocation) {
         this.workLocation = workLocation;
+    }
+
+    // Inventar & Ökonomie Getter/Setter
+    public ItemStack[] getInventory() {
+        return inventory;
+    }
+
+    public ItemStack getInventoryItem(int slot) {
+        if (slot >= 0 && slot < inventory.length) {
+            return inventory[slot];
+        }
+        return ItemStack.EMPTY;
+    }
+
+    public void setInventoryItem(int slot, ItemStack stack) {
+        if (slot >= 0 && slot < inventory.length) {
+            inventory[slot] = stack;
+        }
+    }
+
+    public int getCash() {
+        return cash;
+    }
+
+    public void setCash(int cash) {
+        this.cash = Math.max(0, cash); // Verhindert negativen Bargeldstand
+    }
+
+    public void addCash(int amount) {
+        this.cash += amount;
+        this.cash = Math.max(0, this.cash);
+    }
+
+    public void removeCash(int amount) {
+        this.cash -= amount;
+        this.cash = Math.max(0, this.cash);
+    }
+
+    public boolean hasCash(int amount) {
+        return this.cash >= amount;
+    }
+
+    public long getLastDailyIncomeDay() {
+        return lastDailyIncomeDay;
+    }
+
+    public void setLastDailyIncomeDay(long day) {
+        this.lastDailyIncomeDay = day;
+    }
+
+    /**
+     * Prüft, ob dieser NPC Inventar und Geldbörse haben sollte
+     * (nur BEWOHNER und VERKAEUFER, nicht POLIZEI)
+     */
+    public boolean hasEconomyFeatures() {
+        return npcType != NPCType.POLIZEI;
     }
 
     /**
