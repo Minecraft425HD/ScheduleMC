@@ -12,7 +12,8 @@ import java.util.Random;
 
 /**
  * Goal: NPC geht in seiner Freizeit zu einem von 3 festgelegten Orten
- * und bleibt dort in einem Umkreis von 15 Blöcken
+ * und bleibt dort in einem Umkreis von 15 Blöcken.
+ * Alle 5 Minuten wechselt der NPC zufällig zu einem anderen Freizeitort.
  */
 public class MoveToLeisureGoal extends Goal {
 
@@ -25,9 +26,11 @@ public class MoveToLeisureGoal extends Goal {
     private static final int LEISURE_RADIUS = 15; // Umkreis von 15 Blöcken
     private static final int RECALCULATE_INTERVAL = 100; // Alle 5 Sekunden neu berechnen
     private static final int WANDER_INTERVAL = 200; // Alle 10 Sekunden neuen Wander-Punkt wählen
+    private static final int LOCATION_CHANGE_INTERVAL = 6000; // Alle 5 Minuten (6000 Ticks) Freizeitort wechseln
 
     private int tickCounter = 0;
     private int wanderCounter = 0;
+    private int locationChangeCounter = 0;
 
     public MoveToLeisureGoal(CustomNPCEntity npc) {
         this.npc = npc;
@@ -80,6 +83,21 @@ public class MoveToLeisureGoal extends Goal {
 
         tickCounter++;
         wanderCounter++;
+        locationChangeCounter++;
+
+        // Alle 5 Minuten: Wechsle zu einem anderen Freizeitort
+        List<BlockPos> leisureLocations = npc.getNpcData().getLeisureLocations();
+        if (locationChangeCounter >= LOCATION_CHANGE_INTERVAL && leisureLocations.size() > 1) {
+            locationChangeCounter = 0;
+            // Wähle einen anderen Freizeitort (nicht den aktuellen)
+            BlockPos newTarget;
+            do {
+                newTarget = leisureLocations.get(random.nextInt(leisureLocations.size()));
+            } while (newTarget.equals(targetLeisurePos) && leisureLocations.size() > 1);
+
+            targetLeisurePos = newTarget;
+            currentWanderTarget = null; // Reset Wander-Ziel
+        }
 
         // Prüfe ob NPC im Umkreis des Freizeitortes ist
         double distanceToLeisure = npc.position().distanceTo(
@@ -142,6 +160,7 @@ public class MoveToLeisureGoal extends Goal {
         npc.getNavigation().stop();
         tickCounter = 0;
         wanderCounter = 0;
+        locationChangeCounter = 0;
         targetLeisurePos = null;
         currentWanderTarget = null;
     }

@@ -22,9 +22,9 @@ import net.minecraft.world.phys.AABB;
  * Command für NPC-Verwaltung
  * /npc movement <true|false> - Aktiviert/Deaktiviert Bewegung für ausgewählten NPC
  * /npc speed <value> - Setzt Bewegungsgeschwindigkeit für ausgewählten NPC
- * /npc schedule workstart <time> - Setzt Arbeitsbeginn (Format: HH:MM oder Ticks)
- * /npc schedule workend <time> - Setzt Arbeitsende (Format: HH:MM oder Ticks)
- * /npc schedule home <time> - Setzt Heimzeit (Format: HH:MM oder Ticks)
+ * /npc schedule workstart <time> - Setzt Arbeitsbeginn (Format: HH:MM, z.B. 07:00)
+ * /npc schedule workend <time> - Setzt Arbeitsende (Format: HH:MM, z.B. 18:00)
+ * /npc schedule home <time> - Setzt Heimzeit (Format: HH:MM, z.B. 23:00)
  * /npc leisure add - Fügt aktuelle Position als Freizeitort hinzu
  * /npc leisure remove <index> - Entfernt Freizeitort
  * /npc leisure list - Listet alle Freizeitorte auf
@@ -221,19 +221,19 @@ public class NPCCommand {
         player.sendSystemMessage(
             Component.literal("Arbeitsbeginn: ")
                 .withStyle(ChatFormatting.GRAY)
-                .append(Component.literal(ticksToTime(data.getWorkStartTime()) + " (" + data.getWorkStartTime() + " Ticks)")
+                .append(Component.literal(ticksToTime(data.getWorkStartTime()))
                     .withStyle(ChatFormatting.YELLOW))
         );
         player.sendSystemMessage(
             Component.literal("Arbeitsende: ")
                 .withStyle(ChatFormatting.GRAY)
-                .append(Component.literal(ticksToTime(data.getWorkEndTime()) + " (" + data.getWorkEndTime() + " Ticks)")
+                .append(Component.literal(ticksToTime(data.getWorkEndTime()))
                     .withStyle(ChatFormatting.YELLOW))
         );
         player.sendSystemMessage(
             Component.literal("Heimzeit: ")
                 .withStyle(ChatFormatting.GRAY)
-                .append(Component.literal(ticksToTime(data.getHomeTime()) + " (" + data.getHomeTime() + " Ticks)")
+                .append(Component.literal(ticksToTime(data.getHomeTime()))
                     .withStyle(ChatFormatting.YELLOW))
         );
 
@@ -289,30 +289,33 @@ public class NPCCommand {
             return 0;
         }
 
-        // Parse Zeit (Format: HH:MM oder direkte Ticks)
+        // Parse Zeit (nur HH:MM Format)
         long ticks;
         try {
-            if (timeInput.contains(":")) {
-                // Format HH:MM
-                String[] parts = timeInput.split(":");
-                int hours = Integer.parseInt(parts[0]);
-                int minutes = Integer.parseInt(parts[1]);
-                ticks = timeToTicks(hours, minutes);
-            } else {
-                // Direkte Ticks
-                ticks = Long.parseLong(timeInput);
-            }
-
-            if (ticks < 0 || ticks >= 24000) {
+            if (!timeInput.contains(":")) {
                 context.getSource().sendFailure(
-                    Component.literal("Ungültige Zeit! Muss zwischen 0 und 24000 Ticks (oder 00:00 - 23:59) liegen.")
+                    Component.literal("Ungültiges Format! Verwende HH:MM (z.B. 07:00, 18:30)")
                         .withStyle(ChatFormatting.RED)
                 );
                 return 0;
             }
+
+            String[] parts = timeInput.split(":");
+            int hours = Integer.parseInt(parts[0]);
+            int minutes = Integer.parseInt(parts[1]);
+
+            if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
+                context.getSource().sendFailure(
+                    Component.literal("Ungültige Zeit! Stunden: 0-23, Minuten: 0-59")
+                        .withStyle(ChatFormatting.RED)
+                );
+                return 0;
+            }
+
+            ticks = timeToTicks(hours, minutes);
         } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
             context.getSource().sendFailure(
-                Component.literal("Ungültiges Format! Verwende HH:MM oder Ticks (0-24000)")
+                Component.literal("Ungültiges Format! Verwende HH:MM (z.B. 07:00, 18:30)")
                     .withStyle(ChatFormatting.RED)
             );
             return 0;
@@ -335,7 +338,7 @@ public class NPCCommand {
         context.getSource().sendSuccess(
             () -> Component.literal(timeName + " gesetzt auf ")
                 .withStyle(ChatFormatting.GREEN)
-                .append(Component.literal(ticksToTime(ticks) + " (" + ticks + " Ticks)")
+                .append(Component.literal(timeInput)
                     .withStyle(ChatFormatting.YELLOW))
                 .append(Component.literal(" für NPC ")
                     .withStyle(ChatFormatting.GREEN))
