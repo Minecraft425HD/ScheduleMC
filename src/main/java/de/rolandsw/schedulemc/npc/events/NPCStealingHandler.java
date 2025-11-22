@@ -41,6 +41,17 @@ public class NPCStealingHandler {
                 return;
             }
 
+            // Prüfe Cooldown (1x pro Tag pro NPC)
+            long currentDay = player.level().getDayTime() / 24000; // Minecraft Tag
+            long lastStealDay = npc.getNpcData().getCustomData().getLong("LastSteal_" + player.getStringUUID());
+
+            if (lastStealDay >= currentDay) {
+                player.displayClientMessage(Component.literal("§c✗ Du hast heute bereits von diesem NPC gestohlen!"), true);
+                player.displayClientMessage(Component.literal("§7Versuche es morgen nochmal."), true);
+                event.setCanceled(true);
+                return;
+            }
+
             // Prüfe ob NPC etwas zum Stehlen hat
             boolean hasItems = false;
             for (int i = 0; i < 9; i++) {

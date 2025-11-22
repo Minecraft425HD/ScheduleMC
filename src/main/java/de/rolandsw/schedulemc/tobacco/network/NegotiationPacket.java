@@ -64,8 +64,27 @@ public class NegotiationPacket {
                 // Verkauf durchführen
                 double price = offeredPrice;
 
-                // Item entfernen
+                // Item entfernen und mit 50% Wahrscheinlichkeit ins NPC Inventar legen
+                ItemStack soldItem = playerItem.copy();
+                soldItem.setCount(1);
                 playerItem.shrink(1);
+
+                // 50% Chance: Item geht ins NPC Inventar (kann gestohlen werden)
+                if (player.level().getRandom().nextDouble() < 0.5) {
+                    // Finde ersten leeren Slot im NPC Inventar
+                    boolean added = false;
+                    for (int i = 0; i < 9; i++) {
+                        ItemStack slotItem = npc.getNpcData().getInventoryItem(i);
+                        if (slotItem.isEmpty()) {
+                            npc.getNpcData().setInventoryItem(i, soldItem);
+                            added = true;
+                            break;
+                        }
+                    }
+                    if (added) {
+                        npc.saveNPCData(); // NPC Daten speichern
+                    }
+                }
 
                 // Geld zum Wallet-Item hinzufügen (Slot 8 = Slot 9 im UI)
                 ItemStack walletItem = player.getInventory().getItem(8);

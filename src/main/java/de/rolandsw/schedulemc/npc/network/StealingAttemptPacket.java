@@ -20,19 +20,22 @@ import java.util.function.Supplier;
 public class StealingAttemptPacket {
     private final int npcEntityId;
     private final boolean success;
+    private final int stealType; // 0 = Geld, 1 = Items
 
-    public StealingAttemptPacket(int npcEntityId, boolean success) {
+    public StealingAttemptPacket(int npcEntityId, boolean success, int stealType) {
         this.npcEntityId = npcEntityId;
         this.success = success;
+        this.stealType = stealType;
     }
 
     public void encode(FriendlyByteBuf buf) {
         buf.writeInt(npcEntityId);
         buf.writeBoolean(success);
+        buf.writeInt(stealType);
     }
 
     public static StealingAttemptPacket decode(FriendlyByteBuf buf) {
-        return new StealingAttemptPacket(buf.readInt(), buf.readBoolean());
+        return new StealingAttemptPacket(buf.readInt(), buf.readBoolean(), buf.readInt());
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
@@ -42,100 +45,98 @@ public class StealingAttemptPacket {
                 Entity entity = player.level().getEntity(npcEntityId);
                 if (entity instanceof CustomNPCEntity npc) {
                     // Erfolgreicher Diebstahl!
-                    List<ItemStack> stolenItems = new ArrayList<>();
+                    ItemStack stolenItem = ItemStack.EMPTY;
                     double stolenMoney = 0.0;
 
-                    // Debug: Player Info
-                    System.out.println("[STEALING] Player: " + player.getName().getString() + " (UUID: " + player.getUUID() + ")");
-                    System.out.println("[STEALING] Balance vorher: " + WalletManager.getBalance(player.getUUID()) + "€");
+                    System.out.println("[STEALING] Player: " + player.getName().getString() + " - StealType: " + stealType);
 
-                    // 1. Geld stehlen (50% des NPC Guthabens)
-                    int npcWallet = npc.getNpcData().getWallet();
-                    System.out.println("[STEALING] NPC Wallet: " + npcWallet + "€");
+                    if (stealType == 0) {
+                        // ═══════════════════════════════════════════
+                        // GELD STEHLEN (50% des NPC Guthabens)
+                        // ═══════════════════════════════════════════
+                        int npcWallet = npc.getNpcData().getWallet();
+                        System.out.println("[STEALING] NPC Wallet: " + npcWallet + "€");
 
-                    if (npcWallet > 0) {
-                        int stolenAmount = (int)(npcWallet * 0.5);
-                        System.out.println("[STEALING] Berechnet 50%: " + stolenAmount + "€");
+                        if (npcWallet > 0) {
+                            int stolenAmount = (int)(npcWallet * 0.5);
+                            System.out.println("[STEALING] Berechnet 50%: " + stolenAmount + "€");
 
-                        if (stolenAmount > 0) {
-                            npc.getNpcData().removeMoney(stolenAmount);
-                            stolenMoney = stolenAmount;
-                            System.out.println("[STEALING] Geld vom NPC entfernt: " + stolenAmount + "€");
-                        }
-                    }
+                            if (stolenAmount > 0) {
+                                npc.getNpcData().removeMoney(stolenAmount);
+                                stolenMoney = stolenAmount;
+                                System.out.println("[STEALING] Geld vom NPC entfernt: " + stolenAmount + "€");
 
-                    // 2. Items stehlen (zufällig 1-3 Items aus Hotbar)
-                    int itemsToSteal = 1 + (int)(Math.random() * 3); // 1-3 Items
-                    List<Integer> availableSlots = new ArrayList<>();
+                                // Geld zum Wallet-Item hinzufügen
+                                ItemStack walletItem = player.getInventory().getItem(8);
+                                if (walletItem.getItem() instanceof CashItem) {
+                                    double previousValue = CashItem.getValue(walletItem);
+                                    System.out.println("[STEALING] Wallet-Item vorher: " + previousValue + "€");
 
-                    // Finde nicht-leere Slots
-                    for (int i = 0; i < 9; i++) {
-                        ItemStack stack = npc.getNpcData().getInventory().get(i);
-                        if (!stack.isEmpty()) {
-                            availableSlots.add(i);
-                        }
-                    }
+                                    CashItem.addValue(walletItem, stolenMoney);
 
-                    // Stehle zufällige Items
-                    for (int i = 0; i < Math.min(itemsToSteal, availableSlots.size()); i++) {
-                        int randomIndex = (int)(Math.random() * availableSlots.size());
-                        int slot = availableSlots.remove(randomIndex);
+                                    double newValue = CashItem.getValue(walletItem);
+                                    System.out.println("[STEALING] Wallet-Item nachher: " + newValue + "€");
 
-                        ItemStack stack = npc.getNpcData().getInventory().get(slot);
-                        if (!stack.isEmpty()) {
-                            // Stehle einen Teil des Stacks (50-100%)
-                            int amountToSteal = Math.max(1, (int)(stack.getCount() * (0.5 + Math.random() * 0.5)));
-                            ItemStack stolen = stack.copy();
-                            stolen.setCount(amountToSteal);
-
-                            // Entferne vom NPC
-                            stack.shrink(amountToSteal);
-                            npc.getNpcData().getInventory().set(slot, stack);
-
-                            // Gib dem Spieler
-                            if (!player.getInventory().add(stolen)) {
-                                // Inventar voll - droppe Item
-                                player.drop(stolen, false);
+                                    // Auch WalletManager aktualisieren
+                                    WalletManager.addMoney(player.getUUID(), stolenMoney);
+                                    WalletManager.save();
+                                } else {
+                                    System.out.println("[STEALING] WARNUNG: Kein Wallet-Item in Slot 8!");
+                                }
                             }
+                        }
+                    } else if (stealType == 1) {
+                        // ═══════════════════════════════════════════
+                        // ITEM STEHLEN (nur 1 Item)
+                        // ═══════════════════════════════════════════
+                        List<Integer> availableSlots = new ArrayList<>();
 
-                            stolenItems.add(stolen);
+                        // Finde nicht-leere Slots
+                        for (int i = 0; i < 9; i++) {
+                            ItemStack stack = npc.getNpcData().getInventory().get(i);
+                            if (!stack.isEmpty()) {
+                                availableSlots.add(i);
+                            }
+                        }
+
+                        if (!availableSlots.isEmpty()) {
+                            // Wähle zufälligen Slot
+                            int randomIndex = (int)(Math.random() * availableSlots.size());
+                            int slot = availableSlots.get(randomIndex);
+
+                            ItemStack stack = npc.getNpcData().getInventory().get(slot);
+                            if (!stack.isEmpty()) {
+                                // Stehle das komplette Item
+                                stolenItem = stack.copy();
+
+                                // Entferne vom NPC
+                                npc.getNpcData().getInventory().set(slot, ItemStack.EMPTY);
+
+                                // Gib dem Spieler
+                                if (!player.getInventory().add(stolenItem)) {
+                                    // Inventar voll - droppe Item
+                                    player.drop(stolenItem, false);
+                                }
+
+                                System.out.println("[STEALING] Item gestohlen: " + stolenItem.getHoverName().getString() + " x" + stolenItem.getCount());
+                            }
                         }
                     }
 
-                    // 3. Geld zum Spieler Wallet-Item hinzufügen (Slot 8 = Slot 9 im UI)
-                    System.out.println("[STEALING] Gestohlenes Geld: " + stolenMoney + "€");
+                    // Setze Cooldown (aktueller Tag)
+                    long currentDay = player.level().getDayTime() / 24000;
+                    npc.getNpcData().getCustomData().putLong("LastSteal_" + player.getStringUUID(), currentDay);
+                    System.out.println("[STEALING] Cooldown gesetzt für Tag: " + currentDay);
 
-                    if (stolenMoney > 0) {
-                        // Hole Wallet-Item aus Slot 8 (Slot 9 im UI - ganz rechts)
-                        ItemStack walletItem = player.getInventory().getItem(8);
+                    // Speichere NPC Daten
+                    npc.saveNPCData();
 
-                        if (walletItem.getItem() instanceof CashItem) {
-                            // Vorheriger Wert im Wallet-Item
-                            double previousValue = CashItem.getValue(walletItem);
-                            System.out.println("[STEALING] Wallet-Item vorher: " + previousValue + "€");
-
-                            // Füge gestohlenes Geld zum Wallet-Item hinzu
-                            CashItem.addValue(walletItem, stolenMoney);
-
-                            // Neuer Wert im Wallet-Item
-                            double newValue = CashItem.getValue(walletItem);
-                            System.out.println("[STEALING] Wallet-Item nachher: " + newValue + "€");
-
-                            // Auch WalletManager aktualisieren (für Persistenz)
-                            WalletManager.addMoney(player.getUUID(), stolenMoney);
-                            WalletManager.save();
-                        } else {
-                            System.out.println("[STEALING] WARNUNG: Kein Wallet-Item in Slot 8 gefunden!");
-                        }
-                    } else {
-                        System.out.println("[STEALING] WARNUNG: stolenMoney ist 0 oder negativ!");
-                    }
-
-                    // 4. Erfolgsmeldung
+                    // ═══════════════════════════════════════════
+                    // ERFOLGSMELDUNG
+                    // ═══════════════════════════════════════════
                     player.sendSystemMessage(Component.literal("§a✓ Diebstahl erfolgreich!"));
 
                     if (stolenMoney > 0) {
-                        // Hole aktuellen Wert aus Wallet-Item
                         ItemStack walletItem = player.getInventory().getItem(8);
                         if (walletItem.getItem() instanceof CashItem) {
                             double walletValue = CashItem.getValue(walletItem);
@@ -144,8 +145,8 @@ public class StealingAttemptPacket {
                         }
                     }
 
-                    if (!stolenItems.isEmpty()) {
-                        player.sendSystemMessage(Component.literal("§7+ " + stolenItems.size() + " Items gestohlen"));
+                    if (!stolenItem.isEmpty()) {
+                        player.sendSystemMessage(Component.literal("§7+ " + stolenItem.getHoverName().getString() + " x" + stolenItem.getCount() + " gestohlen"));
                     }
 
                     // TODO: Füge Wanted-Level hinzu (für zukünftiges Polizei-System)

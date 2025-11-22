@@ -8,6 +8,7 @@ import de.rolandsw.schedulemc.npc.menu.StealingMenu;
 import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
 import de.rolandsw.schedulemc.npc.network.StealingAttemptPacket;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -28,6 +29,10 @@ public class StealingScreen extends AbstractContainerScreen<StealingMenu> {
     private static final ResourceLocation TEXTURE =
         new ResourceLocation(ScheduleMC.MOD_ID, "textures/gui/stealing.png");
 
+    // Auswahl-Modus
+    private boolean choosingMode = true; // true = Auswahl, false = Minigame
+    private int stealType = 0; // 0 = Geld, 1 = Items
+
     // Minigame-Variablen
     private boolean gameActive = false;
     private long gameStartTime = 0;
@@ -41,6 +46,10 @@ public class StealingScreen extends AbstractContainerScreen<StealingMenu> {
     private int attempts = 0;
     private int maxAttempts = 3;
 
+    // Buttons
+    private Button moneyButton;
+    private Button itemsButton;
+
     public StealingScreen(StealingMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.imageWidth = 176;
@@ -50,7 +59,39 @@ public class StealingScreen extends AbstractContainerScreen<StealingMenu> {
     @Override
     protected void init() {
         super.init();
-        startGame();
+
+        // Erstelle Auswahl-Buttons
+        int buttonWidth = 70;
+        int buttonHeight = 20;
+        int centerX = (width - imageWidth) / 2 + imageWidth / 2;
+        int centerY = (height - imageHeight) / 2 + imageHeight / 2;
+
+        moneyButton = Button.builder(Component.literal("§6Geld"), button -> {
+            stealType = 0;
+            choosingMode = false;
+            startGame();
+            updateButtons();
+        }).bounds(centerX - buttonWidth - 5, centerY - buttonHeight / 2, buttonWidth, buttonHeight).build();
+
+        itemsButton = Button.builder(Component.literal("§bItems"), button -> {
+            stealType = 1;
+            choosingMode = false;
+            startGame();
+            updateButtons();
+        }).bounds(centerX + 5, centerY - buttonHeight / 2, buttonWidth, buttonHeight).build();
+
+        addRenderableWidget(moneyButton);
+        addRenderableWidget(itemsButton);
+
+        updateButtons();
+    }
+
+    /**
+     * Aktualisiert Button-Sichtbarkeit
+     */
+    private void updateButtons() {
+        moneyButton.visible = choosingMode;
+        itemsButton.visible = choosingMode;
     }
 
     /**
@@ -133,8 +174,8 @@ public class StealingScreen extends AbstractContainerScreen<StealingMenu> {
         // Hintergrund (fallback wenn Texture fehlt)
         guiGraphics.fill(x, y, x + imageWidth, y + imageHeight, 0xFF8B8B8B);
 
-        // Minigame Bar
-        if (gameActive) {
+        // Minigame Bar (nur wenn nicht in Auswahl-Modus)
+        if (!choosingMode && gameActive) {
             int barX = x + 18;
             int barY = y + 60;
             int barWidth = 140;
@@ -161,13 +202,19 @@ public class StealingScreen extends AbstractContainerScreen<StealingMenu> {
             guiGraphics.drawString(this.font, "§cBestehle: " + npc.getNpcName(), 8, 6, 0x404040, false);
         }
 
-        guiGraphics.drawString(this.font, "§7Geschätzter Wert: §a" + String.format("%.0f€", inventoryValue), 8, 20, 0x404040, false);
-        guiGraphics.drawString(this.font, "§7Versuche: §e" + attempts + "/" + maxAttempts, 8, 32, 0x404040, false);
-
-        if (gameActive) {
-            guiGraphics.drawString(this.font, "§eDrücke LEERTASTE im grünen Bereich!", 8, 48, 0x404040, false);
+        if (choosingMode) {
+            // Auswahl-Modus
+            guiGraphics.drawString(this.font, "§eWas möchtest du stehlen?", 8, 20, 0x404040, false);
         } else {
-            guiGraphics.drawString(this.font, "§cFehlgeschlagen! Zu viele Versuche.", 8, 48, 0x404040, false);
+            // Minigame-Modus
+            guiGraphics.drawString(this.font, "§7Geschätzter Wert: §a" + String.format("%.0f€", inventoryValue), 8, 20, 0x404040, false);
+            guiGraphics.drawString(this.font, "§7Versuche: §e" + attempts + "/" + maxAttempts, 8, 32, 0x404040, false);
+
+            if (gameActive) {
+                guiGraphics.drawString(this.font, "§eDrücke LEERTASTE im grünen Bereich!", 8, 48, 0x404040, false);
+            } else {
+                guiGraphics.drawString(this.font, "§cFehlgeschlagen! Zu viele Versuche.", 8, 48, 0x404040, false);
+            }
         }
     }
 
@@ -175,7 +222,7 @@ public class StealingScreen extends AbstractContainerScreen<StealingMenu> {
     public void containerTick() {
         super.containerTick();
 
-        if (gameActive) {
+        if (!choosingMode && gameActive) {
             // Bewege Indikator
             if (movingRight) {
                 currentPosition += speed;
@@ -223,10 +270,11 @@ public class StealingScreen extends AbstractContainerScreen<StealingMenu> {
         boolean success = currentPosition >= targetMin && currentPosition <= targetMax;
 
         if (success) {
-            // Erfolg! Sende Packet an Server
+            // Erfolg! Sende Packet an Server mit stealType
             NPCNetworkHandler.sendToServer(new StealingAttemptPacket(
                 menu.getEntityId(),
-                true
+                true,
+                stealType
             ));
 
             if (minecraft != null && minecraft.player != null) {
@@ -240,7 +288,8 @@ public class StealingScreen extends AbstractContainerScreen<StealingMenu> {
                 // Zu viele Versuche - sende Fehlschlag an Server
                 NPCNetworkHandler.sendToServer(new StealingAttemptPacket(
                     menu.getEntityId(),
-                    false
+                    false,
+                    stealType
                 ));
 
                 gameActive = false;
