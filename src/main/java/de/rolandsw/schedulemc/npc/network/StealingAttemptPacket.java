@@ -45,9 +45,14 @@ public class StealingAttemptPacket {
                     double stolenMoney = 0.0;
 
                     // 1. Geld stehlen (50% des NPC Guthabens)
-                    // TODO: Implementiere NPC Wallet System
-                    double npcMoney = Math.random() * 500; // Placeholder
-                    stolenMoney = npcMoney * 0.5;
+                    int npcWallet = npc.getNpcData().getWallet();
+                    if (npcWallet > 0) {
+                        int stolenAmount = (int)(npcWallet * 0.5);
+                        if (stolenAmount > 0) {
+                            npc.getNpcData().removeMoney(stolenAmount);
+                            stolenMoney = stolenAmount;
+                        }
+                    }
 
                     // 2. Items stehlen (zufällig 1-3 Items aus Hotbar)
                     int itemsToSteal = 1 + (int)(Math.random() * 3); // 1-3 Items

@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.npc.client.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import de.rolandsw.schedulemc.ScheduleMC;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.menu.StealingMenu;
 import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
@@ -38,7 +39,7 @@ public class StealingScreen extends AbstractContainerScreen<StealingMenu> {
 
     private double inventoryValue = 0.0;
     private int attempts = 0;
-    private static final int MAX_ATTEMPTS = 3;
+    private int maxAttempts = 3;
 
     public StealingScreen(StealingMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -62,25 +63,32 @@ public class StealingScreen extends AbstractContainerScreen<StealingMenu> {
         movingRight = true;
         attempts = 0;
 
+        // Lade Config-Werte
+        maxAttempts = ModConfigHandler.COMMON.STEALING_MAX_ATTEMPTS.get();
+        speed = ModConfigHandler.COMMON.STEALING_INDICATOR_SPEED.get().floatValue();
+
+        float minZone = ModConfigHandler.COMMON.STEALING_MIN_ZONE_SIZE.get().floatValue();
+        float maxZone = ModConfigHandler.COMMON.STEALING_MAX_ZONE_SIZE.get().floatValue();
+
         // Berechne Inventarwert des NPCs
         CustomNPCEntity npc = menu.getNpc();
         if (npc != null) {
             inventoryValue = calculateInventoryValue(npc);
 
-            // Schwierigkeit basierend auf Inventarwert
-            // Je wertvoller, desto kleiner die Zone
-            if (inventoryValue < 100) {
-                targetZoneSize = 0.25f; // Einfach
-                speed = 0.004f;
+            // Schwierigkeit basierend auf Inventarwert (logarithmische Skalierung)
+            // Je wertvoller, desto kleiner die Zone und schneller der Indikator
+            if (inventoryValue <= 0) {
+                targetZoneSize = maxZone; // Einfach (wenn NPC nichts hat)
+            } else if (inventoryValue < 50) {
+                targetZoneSize = maxZone; // Sehr einfach
+            } else if (inventoryValue < 200) {
+                targetZoneSize = maxZone * 0.8f; // Einfach
             } else if (inventoryValue < 500) {
-                targetZoneSize = 0.20f; // Mittel
-                speed = 0.005f;
+                targetZoneSize = (minZone + maxZone) / 2; // Mittel
             } else if (inventoryValue < 1000) {
-                targetZoneSize = 0.15f; // Schwer
-                speed = 0.006f;
+                targetZoneSize = minZone * 1.5f; // Schwer
             } else {
-                targetZoneSize = 0.10f; // Sehr schwer
-                speed = 0.007f;
+                targetZoneSize = minZone; // Sehr schwer
             }
 
             // Zufällige Target-Position
@@ -95,14 +103,13 @@ public class StealingScreen extends AbstractContainerScreen<StealingMenu> {
         double value = 0.0;
 
         // Geld des NPCs (aus NPC Wallet)
-        // TODO: Implementiere NPC Wallet System
-        value += Math.random() * 500; // Placeholder
+        value += npc.getNpcData().getWallet();
 
         // Items im NPC Inventar (Hotbar)
         for (int i = 0; i < 9; i++) {
             ItemStack stack = npc.getNpcData().getInventory().get(i);
             if (!stack.isEmpty()) {
-                // Schätze Item-Wert (vereinfacht)
+                // Schätze Item-Wert (vereinfacht: 10€ pro Item)
                 value += stack.getCount() * 10;
             }
         }
@@ -155,7 +162,7 @@ public class StealingScreen extends AbstractContainerScreen<StealingMenu> {
         }
 
         guiGraphics.drawString(this.font, "§7Geschätzter Wert: §a" + String.format("%.0f€", inventoryValue), 8, 20, 0x404040, false);
-        guiGraphics.drawString(this.font, "§7Versuche: §e" + attempts + "/" + MAX_ATTEMPTS, 8, 32, 0x404040, false);
+        guiGraphics.drawString(this.font, "§7Versuche: §e" + attempts + "/" + maxAttempts, 8, 32, 0x404040, false);
 
         if (gameActive) {
             guiGraphics.drawString(this.font, "§eDrücke LEERTASTE im grünen Bereich!", 8, 48, 0x404040, false);
@@ -229,7 +236,7 @@ public class StealingScreen extends AbstractContainerScreen<StealingMenu> {
             this.onClose();
         } else {
             // Fehlgeschlagen
-            if (attempts >= MAX_ATTEMPTS) {
+            if (attempts >= maxAttempts) {
                 // Zu viele Versuche - sende Fehlschlag an Server
                 NPCNetworkHandler.sendToServer(new StealingAttemptPacket(
                     menu.getEntityId(),

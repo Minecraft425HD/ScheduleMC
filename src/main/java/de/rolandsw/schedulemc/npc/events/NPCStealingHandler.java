@@ -41,6 +41,23 @@ public class NPCStealingHandler {
                 return;
             }
 
+            // Prüfe ob NPC etwas zum Stehlen hat
+            boolean hasItems = false;
+            for (int i = 0; i < 9; i++) {
+                if (!npc.getNpcData().getInventory().get(i).isEmpty()) {
+                    hasItems = true;
+                    break;
+                }
+            }
+
+            boolean hasMoney = npc.getNpcData().getWallet() > 0;
+
+            if (!hasItems && !hasMoney) {
+                player.displayClientMessage(Component.literal("§c✗ Dieser NPC hat nichts zum Stehlen!"), true);
+                event.setCanceled(true);
+                return;
+            }
+
             // Öffne Diebstahl-GUI
             if (player instanceof ServerPlayer serverPlayer) {
                 NetworkHooks.openScreen(serverPlayer, new SimpleMenuProvider(
