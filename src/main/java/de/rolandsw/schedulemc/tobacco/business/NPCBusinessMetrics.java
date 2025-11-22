@@ -107,7 +107,7 @@ public class NPCBusinessMetrics {
         }
         data.put("purchaseHistory", historyList);
 
-        npcData.save(data);
+        // Note: No need to call npcData.save() here as we're already modifying the customData reference directly
     }
 
     // ═══════════════════════════════════════════════════════════
