@@ -62,6 +62,18 @@ public class NPCNetworkHandler {
             .encoder(UpdateShopItemsPacket::encode)
             .consumerMainThread(UpdateShopItemsPacket::handle)
             .add();
+
+        INSTANCE.messageBuilder(OpenStealingMenuPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(OpenStealingMenuPacket::decode)
+            .encoder(OpenStealingMenuPacket::encode)
+            .consumerMainThread(OpenStealingMenuPacket::handle)
+            .add();
+
+        INSTANCE.messageBuilder(StealingAttemptPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(StealingAttemptPacket::decode)
+            .encoder(StealingAttemptPacket::encode)
+            .consumerMainThread(StealingAttemptPacket::handle)
+            .add();
     }
 
     public static <MSG> void sendToServer(MSG message) {
