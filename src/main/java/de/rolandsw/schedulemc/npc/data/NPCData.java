@@ -43,6 +43,10 @@ public class NPCData {
     private BlockPos homeLocation;  // Wohnbereich
     @Nullable
     private BlockPos workLocation;  // Arbeitsstätte
+    private List<BlockPos> freetimeLocations; // Freizeitbereiche (Park, Café, etc.)
+
+    // Schedule System
+    private List<ScheduleEntry> schedule; // Zeitplan-Einträge
 
     public NPCData() {
         this.npcName = "NPC";
@@ -56,6 +60,9 @@ public class NPCData {
         this.sellShop = new ShopInventory();
         this.customData = new CompoundTag();
         this.behavior = new NPCBehavior();
+        this.freetimeLocations = new ArrayList<>();
+        this.schedule = new ArrayList<>();
+        createDefaultSchedule();
     }
 
     public NPCData(String name, String skinFile) {
@@ -106,6 +113,22 @@ public class NPCData {
             tag.putLong("WorkLocation", workLocation.asLong());
         }
 
+        // Freetime Locations
+        ListTag freetimeList = new ListTag();
+        for (BlockPos pos : freetimeLocations) {
+            CompoundTag posTag = new CompoundTag();
+            posTag.putLong("Pos", pos.asLong());
+            freetimeList.add(posTag);
+        }
+        tag.put("FreetimeLocations", freetimeList);
+
+        // Schedule
+        ListTag scheduleList = new ListTag();
+        for (ScheduleEntry entry : schedule) {
+            scheduleList.add(entry.save(new CompoundTag()));
+        }
+        tag.put("Schedule", scheduleList);
+
         return tag;
     }
 
@@ -145,6 +168,31 @@ public class NPCData {
         }
         if (tag.contains("WorkLocation")) {
             workLocation = BlockPos.of(tag.getLong("WorkLocation"));
+        }
+
+        // Freetime Locations
+        freetimeLocations.clear();
+        if (tag.contains("FreetimeLocations")) {
+            ListTag freetimeList = tag.getList("FreetimeLocations", Tag.TAG_COMPOUND);
+            for (int i = 0; i < freetimeList.size(); i++) {
+                CompoundTag posTag = freetimeList.getCompound(i);
+                freetimeLocations.add(BlockPos.of(posTag.getLong("Pos")));
+            }
+        }
+
+        // Schedule
+        schedule.clear();
+        if (tag.contains("Schedule")) {
+            ListTag scheduleList = tag.getList("Schedule", Tag.TAG_COMPOUND);
+            for (int i = 0; i < scheduleList.size(); i++) {
+                ScheduleEntry entry = new ScheduleEntry();
+                entry.load(scheduleList.getCompound(i));
+                schedule.add(entry);
+            }
+        }
+        // Falls kein Schedule geladen wurde, erstelle Default
+        if (schedule.isEmpty()) {
+            createDefaultSchedule();
         }
     }
 
@@ -239,6 +287,104 @@ public class NPCData {
 
     public void setWorkLocation(@Nullable BlockPos workLocation) {
         this.workLocation = workLocation;
+    }
+
+    public List<BlockPos> getFreetimeLocations() {
+        return freetimeLocations;
+    }
+
+    public void addFreetimeLocation(BlockPos location) {
+        this.freetimeLocations.add(location);
+    }
+
+    public void removeFreetimeLocation(int index) {
+        if (index >= 0 && index < freetimeLocations.size()) {
+            this.freetimeLocations.remove(index);
+        }
+    }
+
+    public void clearFreetimeLocations() {
+        this.freetimeLocations.clear();
+    }
+
+    public List<ScheduleEntry> getSchedule() {
+        return schedule;
+    }
+
+    public void addScheduleEntry(ScheduleEntry entry) {
+        this.schedule.add(entry);
+    }
+
+    public void removeScheduleEntry(int index) {
+        if (index >= 0 && index < schedule.size()) {
+            this.schedule.remove(index);
+        }
+    }
+
+    public void clearSchedule() {
+        this.schedule.clear();
+    }
+
+    /**
+     * Erstellt einen Standard-Zeitplan:
+     * - 06:00-18:00 (0-12000): Arbeit
+     * - 18:00-22:00 (12000-16000): Freizeit
+     * - 22:00-06:00 (16000-24000/0): Zuhause
+     */
+    public void createDefaultSchedule() {
+        schedule.clear();
+        // Arbeit: 06:00-18:00 (0-12000 Ticks)
+        schedule.add(new ScheduleEntry(0, 12000, ActivityType.WORK));
+        // Freizeit: 18:00-22:00 (12000-16000 Ticks)
+        schedule.add(new ScheduleEntry(12000, 16000, ActivityType.FREETIME));
+        // Zuhause: 22:00-06:00 (16000-24000 Ticks, dann 0)
+        schedule.add(new ScheduleEntry(16000, 24000, ActivityType.HOME));
+    }
+
+    /**
+     * Gibt den aktuellen Schedule-Eintrag basierend auf der Tageszeit zurück
+     */
+    @Nullable
+    public ScheduleEntry getCurrentScheduleEntry(long dayTime) {
+        for (ScheduleEntry entry : schedule) {
+            if (entry.isActive(dayTime)) {
+                return entry;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Gibt die Ziel-Location für einen Schedule-Eintrag zurück
+     * Berücksichtigt ActivityType und targetLocation/locationIndex
+     */
+    @Nullable
+    public BlockPos getTargetLocationForEntry(ScheduleEntry entry) {
+        // Wenn eine spezifische Location gesetzt ist, diese verwenden
+        if (entry.getTargetLocation() != null) {
+            return entry.getTargetLocation();
+        }
+
+        // Sonst basierend auf ActivityType
+        switch (entry.getActivityType()) {
+            case HOME:
+                return homeLocation;
+            case WORK:
+                return workLocation;
+            case FREETIME:
+                // Verwende locationIndex wenn gesetzt
+                if (entry.getLocationIndex() >= 0 && entry.getLocationIndex() < freetimeLocations.size()) {
+                    return freetimeLocations.get(entry.getLocationIndex());
+                }
+                // Sonst zufällige Freetime-Location
+                if (!freetimeLocations.isEmpty()) {
+                    int randomIndex = (int) (Math.random() * freetimeLocations.size());
+                    return freetimeLocations.get(randomIndex);
+                }
+                return null;
+            default:
+                return null;
+        }
     }
 
     /**

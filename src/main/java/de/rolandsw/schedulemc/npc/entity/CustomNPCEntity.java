@@ -1,8 +1,7 @@
 package de.rolandsw.schedulemc.npc.entity;
 
 import de.rolandsw.schedulemc.npc.data.NPCData;
-import de.rolandsw.schedulemc.npc.goals.MoveToHomeGoal;
-import de.rolandsw.schedulemc.npc.goals.MoveToWorkGoal;
+import de.rolandsw.schedulemc.npc.goals.ScheduleBasedMovementGoal;
 import de.rolandsw.schedulemc.npc.menu.NPCInteractionMenu;
 import de.rolandsw.schedulemc.npc.pathfinding.NPCPathNavigation;
 import net.minecraft.nbt.CompoundTag;
@@ -23,6 +22,7 @@ import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.OpenDoorGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -71,11 +71,11 @@ public class CustomNPCEntity extends PathfinderMob {
     protected void registerGoals() {
         // Grundlegende AI Goals
         this.goalSelector.addGoal(0, new FloatGoal(this)); // Schwimmen
-        this.goalSelector.addGoal(1, new OpenDoorGoal(this, true)); // Türen öffnen (und schließen)
-        this.goalSelector.addGoal(2, new MoveToHomeGoal(this)); // Nachts nach Hause gehen
-        this.goalSelector.addGoal(3, new MoveToWorkGoal(this)); // Tagsüber zur Arbeit gehen
-        this.goalSelector.addGoal(4, new LookAtPlayerGoal(this, Player.class, 8.0F)); // Spieler anschauen
-        this.goalSelector.addGoal(5, new RandomLookAroundGoal(this)); // Zufällig umschauen
+        this.goalSelector.addGoal(1, new OpenDoorGoal(this, true)); // Türen öffnen UND schließen
+        this.goalSelector.addGoal(2, new ScheduleBasedMovementGoal(this)); // Schedule-basiertes Movement
+        this.goalSelector.addGoal(3, new LookAtPlayerGoal(this, Player.class, 8.0F)); // Spieler anschauen
+        this.goalSelector.addGoal(4, new RandomLookAroundGoal(this)); // Zufällig umschauen
+        this.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 0.6D)); // Zufällig herumwandern (Fallback)
     }
 
     @Override
@@ -142,6 +142,16 @@ public class CustomNPCEntity extends PathfinderMob {
     }
 
     @Override
+    protected void customServerAiStep() {
+        super.customServerAiStep();
+
+        // Force AI to always be active
+        // This ensures that goals are checked every tick, even when no player is nearby
+        this.level().getProfiler().push("npcBrain");
+        this.level().getProfiler().pop();
+    }
+
+    @Override
     public void tick() {
         super.tick();
 
@@ -159,6 +169,12 @@ public class CustomNPCEntity extends PathfinderMob {
     }
 
     @Override
+    public boolean isEffectiveAi() {
+        // NPCs should always have their AI active, but only on the server side
+        return !this.level().isClientSide && super.isEffectiveAi();
+    }
+
+    @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.put("NPCData", npcData.save(new CompoundTag()));
@@ -171,6 +187,10 @@ public class CustomNPCEntity extends PathfinderMob {
             npcData.load(tag.getCompound("NPCData"));
             // Sync to client
             syncToClient();
+            // Force AI update after loading data
+            if (!this.level().isClientSide) {
+                this.goalSelector.tick();
+            }
         }
     }
 
@@ -209,6 +229,10 @@ public class CustomNPCEntity extends PathfinderMob {
     public void setNpcData(NPCData data) {
         this.npcData = data;
         syncToClient();
+        // Force AI update after setting data
+        if (!this.level().isClientSide) {
+            this.goalSelector.tick();
+        }
     }
 
     public String getNpcName() {
