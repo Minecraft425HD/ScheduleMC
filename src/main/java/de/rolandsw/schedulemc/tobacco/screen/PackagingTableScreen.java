@@ -17,7 +17,7 @@ public class PackagingTableScreen extends AbstractContainerScreen<PackagingTable
 
     public PackagingTableScreen(PackagingTableMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
-        this.imageHeight = 166;
+        this.imageHeight = 110; // Reduziert, da nur Hotbar
         this.inventoryLabelY = this.imageHeight - 94;
     }
 
@@ -25,19 +25,19 @@ public class PackagingTableScreen extends AbstractContainerScreen<PackagingTable
     protected void init() {
         super.init();
 
-        int buttonWidth = 60;
+        int buttonWidth = 40;
         int buttonHeight = 20;
         int startX = this.leftPos + 8;
         int startY = this.topPos + 60;
         int spacing = 2;
 
-        // 4 Gewichts-Buttons (50g, 100g, 250g, 500g)
-        int[] weights = {50, 100, 250, 500};
+        // 4 Gewichts-Buttons (1g, 5g, 10g, 20g) - horizontal angeordnet
+        int[] weights = {1, 5, 10, 20};
 
         for (int i = 0; i < weights.length; i++) {
             int weight = weights[i];
-            int buttonX = startX + (buttonWidth + spacing) * (i % 2);
-            int buttonY = startY + (buttonHeight + spacing) * (i / 2);
+            int buttonX = startX + (buttonWidth + spacing) * i;
+            int buttonY = startY;
 
             this.addRenderableWidget(
                 Button.builder(
@@ -83,16 +83,9 @@ public class PackagingTableScreen extends AbstractContainerScreen<PackagingTable
             }
         }
 
-        // Player Inventory (3 Reihen)
-        for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 9; col++) {
-                drawSlot(graphics, x + 8 + col * 18, y + 84 + row * 18);
-            }
-        }
-
-        // Player Hotbar
+        // Player Hotbar (nur Schnellzugriffsleiste)
         for (int i = 0; i < 9; i++) {
-            drawSlot(graphics, x + 8 + i * 18, y + 142);
+            drawSlot(graphics, x + 8 + i * 18, y + 86);
         }
     }
 
