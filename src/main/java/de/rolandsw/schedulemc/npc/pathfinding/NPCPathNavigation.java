@@ -28,6 +28,8 @@ public class NPCPathNavigation extends GroundPathNavigation {
         this.setCanPassDoors(true);
         // Erlaube Float (Schwimmen/Fliegen falls nötig)
         this.setCanFloat(true);
+        // Treppen und Stufen erlauben - wichtig für Navigation
+        this.setCanWalkOverFences(false);
     }
 
     /**
@@ -58,13 +60,11 @@ public class NPCPathNavigation extends GroundPathNavigation {
 
     /**
      * Prüft, ob eine Position erreichbar ist
+     * Entfernt die restriktive Prüfung, um Treppen-Navigation zu ermöglichen
      */
     @Override
     protected boolean canUpdatePath() {
-        // Nur aktualisieren wenn der NPC auf einem erlaubten Block steht
-        BlockPos below = this.mob.blockPosition().below();
-        BlockState state = this.level.getBlockState(below);
-        return isBlockWalkable(state) && super.canUpdatePath();
+        return super.canUpdatePath();
     }
 
     /**

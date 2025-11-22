@@ -222,7 +222,17 @@ public class ModConfigHandler {
                             "minecraft:gravel",
                             "minecraft:sand",
                             "minecraft:stone_bricks",
-                            "minecraft:bricks"
+                            "minecraft:bricks",
+                            "minecraft:oak_stairs",
+                            "minecraft:spruce_stairs",
+                            "minecraft:birch_stairs",
+                            "minecraft:jungle_stairs",
+                            "minecraft:acacia_stairs",
+                            "minecraft:dark_oak_stairs",
+                            "minecraft:stone_stairs",
+                            "minecraft:cobblestone_stairs",
+                            "minecraft:brick_stairs",
+                            "minecraft:stone_brick_stairs"
                         ),
                         obj -> obj instanceof String);
 
