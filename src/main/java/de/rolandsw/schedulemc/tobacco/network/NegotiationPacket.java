@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.tobacco.network;
 
 import de.rolandsw.schedulemc.economy.WalletManager;
+import de.rolandsw.schedulemc.economy.items.CashItem;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.tobacco.business.NPCBusinessMetrics;
 import de.rolandsw.schedulemc.tobacco.business.NPCResponse;
@@ -66,8 +67,15 @@ public class NegotiationPacket {
                 // Item entfernen
                 playerItem.shrink(1);
 
-                // Geld zur Geldbörse hinzufügen
-                WalletManager.addMoney(player.getUUID(), price);
+                // Geld zum Wallet-Item hinzufügen (Slot 8 = Slot 9 im UI)
+                ItemStack walletItem = player.getInventory().getItem(8);
+                if (walletItem.getItem() instanceof CashItem) {
+                    CashItem.addValue(walletItem, price);
+
+                    // Auch WalletManager aktualisieren (für Persistenz)
+                    WalletManager.addMoney(player.getUUID(), price);
+                    WalletManager.save();
+                }
 
                 // Metriken aktualisieren
                 metrics.recordPurchase(
@@ -85,12 +93,12 @@ public class NegotiationPacket {
                 // Metriken speichern (aktualisiert Reputation und Zufriedenheit)
                 metrics.save();
 
-                // Geldbörse speichern
-                WalletManager.save();
-
-                double newBalance = WalletManager.getBalance(player.getUUID());
-                player.sendSystemMessage(Component.literal("§a✓ Verkauf erfolgreich! +" + String.format("%.2f", price) + "€"));
-                player.sendSystemMessage(Component.literal("§7Geldbörse: " + String.format("%.2f", newBalance) + "€"));
+                // Erfolgsmeldung mit aktuellem Wallet-Item Wert
+                if (walletItem.getItem() instanceof CashItem) {
+                    double walletValue = CashItem.getValue(walletItem);
+                    player.sendSystemMessage(Component.literal("§a✓ Verkauf erfolgreich! +" + String.format("%.2f", price) + "€"));
+                    player.sendSystemMessage(Component.literal("§7Geldbörse: " + String.format("%.2f", walletValue) + "€"));
+                }
             } else {
                 player.sendSystemMessage(Component.literal("§e" + response.getMessage()));
                 if (response.getCounterOffer() > 0) {
