@@ -61,6 +61,19 @@ public class NegotiationPacket {
             );
 
             if (response.isAccepted()) {
+                // Prüfe Cooldown (1x pro Tag pro NPC)
+                String cooldownKey = "LastTobaccoSale_" + player.getStringUUID();
+                if (npc.getNpcData().getCustomData().contains(cooldownKey)) {
+                    long currentDay = player.level().getDayTime() / 24000;
+                    long lastSaleDay = npc.getNpcData().getCustomData().getLong(cooldownKey);
+
+                    if (lastSaleDay >= currentDay) {
+                        player.sendSystemMessage(Component.literal("§c✗ Dieser NPC hat heute bereits Tabak gekauft!"));
+                        player.sendSystemMessage(Component.literal("§7Versuche es morgen nochmal."));
+                        return;
+                    }
+                }
+
                 // Verkauf durchführen
                 double price = offeredPrice;
 
@@ -106,6 +119,10 @@ public class NegotiationPacket {
 
                 // Metriken speichern (aktualisiert Reputation und Zufriedenheit)
                 metrics.save();
+
+                // Setze Cooldown (aktueller Tag)
+                long currentDay = player.level().getDayTime() / 24000;
+                npc.getNpcData().getCustomData().putLong("LastTobaccoSale_" + player.getStringUUID(), currentDay);
 
                 // Erfolgsmeldung mit aktuellem Wallet-Item Wert
                 if (walletItem.getItem() instanceof CashItem) {
