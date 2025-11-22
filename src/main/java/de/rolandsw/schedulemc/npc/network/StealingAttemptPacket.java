@@ -2,12 +2,14 @@ package de.rolandsw.schedulemc.npc.network;
 
 import de.rolandsw.schedulemc.economy.WalletManager;
 import de.rolandsw.schedulemc.economy.items.CashItem;
+import de.rolandsw.schedulemc.npc.crime.CrimeManager;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.network.NetworkEvent;
 
 import java.util.ArrayList;
@@ -41,14 +43,19 @@ public class StealingAttemptPacket {
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             ServerPlayer player = ctx.get().getSender();
-            if (player != null && success) {
+            if (player != null) {
                 Entity entity = player.level().getEntity(npcEntityId);
                 if (entity instanceof CustomNPCEntity npc) {
-                    // Erfolgreicher Diebstahl!
-                    ItemStack stolenItem = ItemStack.EMPTY;
-                    double stolenMoney = 0.0;
+                    long currentDay = player.level().getDayTime() / 24000;
 
-                    System.out.println("[STEALING] Player: " + player.getName().getString() + " - StealType: " + stealType);
+                    if (success) {
+                        // ═══════════════════════════════════════════
+                        // ERFOLGREICHER DIEBSTAHL
+                        // ═══════════════════════════════════════════
+                        ItemStack stolenItem = ItemStack.EMPTY;
+                        double stolenMoney = 0.0;
+
+                        System.out.println("[STEALING] Player: " + player.getName().getString() + " - StealType: " + stealType);
 
                     if (stealType == 0) {
                         // ═══════════════════════════════════════════
@@ -123,30 +130,77 @@ public class StealingAttemptPacket {
                         }
                     }
 
-                    // Setze Cooldown (aktueller Tag)
-                    long currentDay = player.level().getDayTime() / 24000;
-                    npc.getNpcData().getCustomData().putLong("LastSteal_" + player.getStringUUID(), currentDay);
-                    System.out.println("[STEALING] Cooldown gesetzt für Tag: " + currentDay);
+                        // Setze Cooldown (aktueller Tag)
+                        npc.getNpcData().getCustomData().putLong("LastSteal_" + player.getStringUUID(), currentDay);
+                        System.out.println("[STEALING] Cooldown gesetzt für Tag: " + currentDay);
 
-                    // ═══════════════════════════════════════════
-                    // ERFOLGSMELDUNG
-                    // ═══════════════════════════════════════════
-                    player.sendSystemMessage(Component.literal("§a✓ Diebstahl erfolgreich!"));
+                        // ═══════════════════════════════════════════
+                        // ERFOLGSMELDUNG
+                        // ═══════════════════════════════════════════
+                        player.sendSystemMessage(Component.literal("§a✓ Diebstahl erfolgreich!"));
 
-                    if (stolenMoney > 0) {
-                        ItemStack walletItem = player.getInventory().getItem(8);
-                        if (walletItem.getItem() instanceof CashItem) {
-                            double walletValue = CashItem.getValue(walletItem);
-                            player.sendSystemMessage(Component.literal("§7+ " + String.format("%.2f€", stolenMoney) + " gestohlen"));
-                            player.sendSystemMessage(Component.literal("§7Geldbörse: " + String.format("%.2f€", walletValue)));
+                        if (stolenMoney > 0) {
+                            ItemStack walletItem = player.getInventory().getItem(8);
+                            if (walletItem.getItem() instanceof CashItem) {
+                                double walletValue = CashItem.getValue(walletItem);
+                                player.sendSystemMessage(Component.literal("§7+ " + String.format("%.2f€", stolenMoney) + " gestohlen"));
+                                player.sendSystemMessage(Component.literal("§7Geldbörse: " + String.format("%.2f€", walletValue)));
+                            }
+                        }
+
+                        if (!stolenItem.isEmpty()) {
+                            player.sendSystemMessage(Component.literal("§7+ " + stolenItem.getHoverName().getString() + " x" + stolenItem.getCount() + " gestohlen"));
+                        }
+                    } else {
+                        // ═══════════════════════════════════════════
+                        // FEHLGESCHLAGENER DIEBSTAHL
+                        // ═══════════════════════════════════════════
+                        System.out.println("[STEALING] Fehlgeschlagen - Player: " + player.getName().getString());
+
+                        // 33% Chance: NPC attackiert Spieler
+                        if (Math.random() < 0.33) {
+                            npc.setTarget(player);
+                            player.sendSystemMessage(Component.literal("§c⚠ " + npc.getNpcName() + " greift dich an!"));
+                            System.out.println("[STEALING] NPC " + npc.getNpcName() + " attackiert Spieler");
                         }
                     }
 
-                    if (!stolenItem.isEmpty()) {
-                        player.sendSystemMessage(Component.literal("§7+ " + stolenItem.getHoverName().getString() + " x" + stolenItem.getCount() + " gestohlen"));
-                    }
+                    // ═══════════════════════════════════════════
+                    // ZEUGEN-DETEKTION & WANTED-LEVEL
+                    // ═══════════════════════════════════════════
+                    // Suche NPCs in 16 Block Radius
+                    List<CustomNPCEntity> witnesses = player.level().getEntitiesOfClass(
+                        CustomNPCEntity.class,
+                        AABB.ofSize(player.position(), 16, 16, 16)
+                    );
 
-                    // TODO: Füge Wanted-Level hinzu (für zukünftiges Polizei-System)
+                    // Entferne das Opfer aus der Zeugenliste
+                    witnesses.remove(npc);
+
+                    if (!witnesses.isEmpty()) {
+                        // Chance steigt mit Anzahl Zeugen: 15% pro Zeuge, max 90%
+                        double detectionChance = Math.min(0.9, witnesses.size() * 0.15);
+
+                        if (Math.random() < detectionChance) {
+                            // Verbrechen wurde gesehen!
+                            CrimeManager.addWantedLevel(player.getUUID(), 2, currentDay);
+
+                            int currentWantedLevel = CrimeManager.getWantedLevel(player.getUUID());
+                            String stars = "⭐".repeat(currentWantedLevel);
+
+                            player.sendSystemMessage(Component.literal("§c⚠ Du wurdest beim Stehlen gesehen!"));
+                            player.sendSystemMessage(Component.literal("§c" + stars + " Fahndungsstufe: " + currentWantedLevel));
+
+                            System.out.println("[CRIME] Player " + player.getName().getString() +
+                                " gesehen beim Stehlen - Wanted Level: " + currentWantedLevel +
+                                " (" + witnesses.size() + " Zeugen)");
+                        } else {
+                            System.out.println("[STEALING] Nicht entdeckt (Chance: " +
+                                String.format("%.1f%%", detectionChance * 100) + ")");
+                        }
+                    } else {
+                        System.out.println("[STEALING] Keine Zeugen in der Nähe");
+                    }
                 }
             }
         });
