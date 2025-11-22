@@ -49,17 +49,17 @@ public class NPCCommand {
                 )
                 .then(Commands.literal("schedule")
                     .then(Commands.literal("workstart")
-                        .then(Commands.argument("time", StringArgumentType.string())
+                        .then(Commands.argument("time", StringArgumentType.word())
                             .executes(NPCCommand::setWorkStartTime)
                         )
                     )
                     .then(Commands.literal("workend")
-                        .then(Commands.argument("time", StringArgumentType.string())
+                        .then(Commands.argument("time", StringArgumentType.word())
                             .executes(NPCCommand::setWorkEndTime)
                         )
                     )
                     .then(Commands.literal("home")
-                        .then(Commands.argument("time", StringArgumentType.string())
+                        .then(Commands.argument("time", StringArgumentType.word())
                             .executes(NPCCommand::setHomeTime)
                         )
                     )
@@ -272,7 +272,7 @@ public class NPCCommand {
     }
 
     private static int setScheduleTime(CommandContext<CommandSourceStack> context, String timeType) {
-        String timeInput = StringArgumentType.getString(context, "time");
+        String timeInput = StringArgumentType.getWord(context, "time");
         Player player = context.getSource().getPlayer();
 
         if (player == null) {
