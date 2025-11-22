@@ -178,8 +178,23 @@ public class StealingAttemptPacket {
                     witnesses.remove(npc);
 
                     if (!witnesses.isEmpty()) {
-                        // Chance steigt mit Anzahl Zeugen: 15% pro Zeuge, max 90%
-                        double detectionChance = Math.min(0.9, witnesses.size() * 0.15);
+                        // Prüfe ob POLIZEI dabei ist
+                        boolean policePresent = false;
+                        for (CustomNPCEntity witness : witnesses) {
+                            if (witness.getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.POLIZEI) {
+                                policePresent = true;
+                                break;
+                            }
+                        }
+
+                        double detectionChance;
+                        if (policePresent) {
+                            // POLIZEI anwesend = 100% Erkennung!
+                            detectionChance = 1.0;
+                        } else {
+                            // Normale Zeugen: 15% pro Zeuge, max 90%
+                            detectionChance = Math.min(0.9, witnesses.size() * 0.15);
+                        }
 
                         if (Math.random() < detectionChance) {
                             // Verbrechen wurde gesehen!
@@ -188,12 +203,16 @@ public class StealingAttemptPacket {
                             int currentWantedLevel = CrimeManager.getWantedLevel(player.getUUID());
                             String stars = "⭐".repeat(currentWantedLevel);
 
-                            player.sendSystemMessage(Component.literal("§c⚠ Du wurdest beim Stehlen gesehen!"));
+                            if (policePresent) {
+                                player.sendSystemMessage(Component.literal("§c⚠ POLIZEI hat dich gesehen!"));
+                            } else {
+                                player.sendSystemMessage(Component.literal("§c⚠ Du wurdest beim Stehlen gesehen!"));
+                            }
                             player.sendSystemMessage(Component.literal("§c" + stars + " Fahndungsstufe: " + currentWantedLevel));
 
                             System.out.println("[CRIME] Player " + player.getName().getString() +
                                 " gesehen beim Stehlen - Wanted Level: " + currentWantedLevel +
-                                " (" + witnesses.size() + " Zeugen)");
+                                " (" + witnesses.size() + " Zeugen" + (policePresent ? ", POLIZEI dabei!" : "") + ")");
                         } else {
                             System.out.println("[STEALING] Nicht entdeckt (Chance: " +
                                 String.format("%.1f%%", detectionChance * 100) + ")");
