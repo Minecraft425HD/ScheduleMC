@@ -26,6 +26,8 @@ public class NPCPathNavigation extends GroundPathNavigation {
         // Türen öffnen und durchgehen erlauben
         this.setCanOpenDoors(true);
         this.setCanPassDoors(true);
+        // Erlaube Float (Schwimmen/Fliegen falls nötig)
+        this.setCanFloat(true);
     }
 
     /**
