@@ -44,13 +44,22 @@ public class StealingAttemptPacket {
                     List<ItemStack> stolenItems = new ArrayList<>();
                     double stolenMoney = 0.0;
 
+                    // Debug: Player Info
+                    System.out.println("[STEALING] Player: " + player.getName().getString() + " (UUID: " + player.getUUID() + ")");
+                    System.out.println("[STEALING] Balance vorher: " + WalletManager.getBalance(player.getUUID()) + "€");
+
                     // 1. Geld stehlen (50% des NPC Guthabens)
                     int npcWallet = npc.getNpcData().getWallet();
+                    System.out.println("[STEALING] NPC Wallet: " + npcWallet + "€");
+
                     if (npcWallet > 0) {
                         int stolenAmount = (int)(npcWallet * 0.5);
+                        System.out.println("[STEALING] Berechnet 50%: " + stolenAmount + "€");
+
                         if (stolenAmount > 0) {
                             npc.getNpcData().removeMoney(stolenAmount);
                             stolenMoney = stolenAmount;
+                            System.out.println("[STEALING] Geld vom NPC entfernt: " + stolenAmount + "€");
                         }
                     }
 
@@ -93,9 +102,17 @@ public class StealingAttemptPacket {
                     }
 
                     // 3. Geld zum Spieler Wallet hinzufügen
+                    System.out.println("[STEALING] Gestohlenes Geld: " + stolenMoney + "€");
+
                     if (stolenMoney > 0) {
+                        System.out.println("[STEALING] Füge " + stolenMoney + "€ zu Player UUID " + player.getUUID() + " hinzu");
                         WalletManager.addMoney(player.getUUID(), stolenMoney);
                         WalletManager.save();
+
+                        double newBalance = WalletManager.getBalance(player.getUUID());
+                        System.out.println("[STEALING] Balance nachher: " + newBalance + "€");
+                    } else {
+                        System.out.println("[STEALING] WARNUNG: stolenMoney ist 0 oder negativ!");
                     }
 
                     // 4. Erfolgsmeldung
