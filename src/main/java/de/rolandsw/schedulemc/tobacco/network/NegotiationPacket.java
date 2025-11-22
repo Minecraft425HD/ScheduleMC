@@ -72,17 +72,12 @@ public class NegotiationPacket {
                 // 50% Chance: Item geht ins NPC Inventar (kann gestohlen werden)
                 if (player.level().getRandom().nextDouble() < 0.5) {
                     // Finde ersten leeren Slot im NPC Inventar
-                    boolean added = false;
                     for (int i = 0; i < 9; i++) {
                         ItemStack slotItem = npc.getNpcData().getInventoryItem(i);
                         if (slotItem.isEmpty()) {
                             npc.getNpcData().setInventoryItem(i, soldItem);
-                            added = true;
                             break;
                         }
-                    }
-                    if (added) {
-                        npc.saveNPCData(); // NPC Daten speichern
                     }
                 }
 

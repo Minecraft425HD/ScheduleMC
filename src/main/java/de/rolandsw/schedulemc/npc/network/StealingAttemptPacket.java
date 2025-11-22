@@ -128,9 +128,6 @@ public class StealingAttemptPacket {
                     npc.getNpcData().getCustomData().putLong("LastSteal_" + player.getStringUUID(), currentDay);
                     System.out.println("[STEALING] Cooldown gesetzt für Tag: " + currentDay);
 
-                    // Speichere NPC Daten
-                    npc.saveNPCData();
-
                     // ═══════════════════════════════════════════
                     // ERFOLGSMELDUNG
                     // ═══════════════════════════════════════════
