@@ -11,6 +11,7 @@ import de.rolandsw.schedulemc.npc.items.NPCLocationTool;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -24,6 +25,13 @@ import java.util.Random;
  * Command für NPC-Verwaltung
  * /npc movement <true|false> - Aktiviert/Deaktiviert Bewegung für ausgewählten NPC
  * /npc speed <value> - Setzt Bewegungsgeschwindigkeit für ausgewählten NPC
+ * /npc schedule workstart <time> - Setzt Arbeitsbeginn (Format: HHMM, z.B. 0700)
+ * /npc schedule workend <time> - Setzt Arbeitsende (Format: HHMM, z.B. 1800)
+ * /npc schedule home <time> - Setzt Heimzeit (Format: HHMM, z.B. 2300)
+ * /npc leisure add - Fügt aktuelle Position als Freizeitort hinzu
+ * /npc leisure remove <index> - Entfernt Freizeitort
+ * /npc leisure list - Listet alle Freizeitorte auf
+ * /npc leisure clear - Löscht alle Freizeitorte
  * /npc info - Zeigt Informationen über ausgewählten NPC
  * /npc wallet info - Zeigt Geldbörsen-Informationen
  * /npc wallet set <amount> - Setzt Geldbörse auf Betrag
@@ -47,6 +55,39 @@ public class NPCCommand {
                 .then(Commands.literal("speed")
                     .then(Commands.argument("speed", FloatArgumentType.floatArg(0.1f, 1.0f))
                         .executes(NPCCommand::setSpeed)
+                    )
+                )
+                .then(Commands.literal("schedule")
+                    .then(Commands.literal("workstart")
+                        .then(Commands.argument("time", StringArgumentType.word())
+                            .executes(NPCCommand::setWorkStartTime)
+                        )
+                    )
+                    .then(Commands.literal("workend")
+                        .then(Commands.argument("time", StringArgumentType.word())
+                            .executes(NPCCommand::setWorkEndTime)
+                        )
+                    )
+                    .then(Commands.literal("home")
+                        .then(Commands.argument("time", StringArgumentType.word())
+                            .executes(NPCCommand::setHomeTime)
+                        )
+                    )
+                )
+                .then(Commands.literal("leisure")
+                    .then(Commands.literal("add")
+                        .executes(NPCCommand::addLeisureLocation)
+                    )
+                    .then(Commands.literal("remove")
+                        .then(Commands.argument("index", IntegerArgumentType.integer(0, 2))
+                            .executes(NPCCommand::removeLeisureLocation)
+                        )
+                    )
+                    .then(Commands.literal("list")
+                        .executes(NPCCommand::listLeisureLocations)
+                    )
+                    .then(Commands.literal("clear")
+                        .executes(NPCCommand::clearLeisureLocations)
                     )
                 )
                 .then(Commands.literal("info")

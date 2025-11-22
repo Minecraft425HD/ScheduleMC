@@ -43,6 +43,12 @@ public class NPCData {
     private BlockPos homeLocation;  // Wohnbereich
     @Nullable
     private BlockPos workLocation;  // Arbeitsstätte
+    private List<BlockPos> leisureLocations; // 3 Freizeitorte in der Stadt
+
+    // Schedule - Zeiteinstellungen (in Minecraft Ticks, 24000 = 1 Tag)
+    private long workStartTime;  // Wann geht NPC zur Arbeit (Standard: 0 = 6:00 Uhr)
+    private long workEndTime;    // Wann endet die Arbeit (Standard: 13000 = 19:00 Uhr)
+    private long homeTime;       // Wann muss NPC nach Hause (Standard: 23000 = 5:00 Uhr morgens)
 
     // Inventar & Ökonomie (nur für BEWOHNER und VERKAEUFER, nicht für POLIZEI)
     private ItemStack[] inventory;  // Hotbar-ähnliches Inventar (9 Slots)

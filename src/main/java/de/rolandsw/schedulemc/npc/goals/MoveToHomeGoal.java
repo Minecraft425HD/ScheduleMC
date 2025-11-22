@@ -9,7 +9,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.EnumSet;
 
 /**
- * Goal: NPC geht nachts (13000-23000 Ticks) zu seinem Wohnort
+ * Goal: NPC geht zu seinem Wohnort (einstellbare Zeiten)
  */
 public class MoveToHomeGoal extends Goal {
 
@@ -37,12 +37,16 @@ public class MoveToHomeGoal extends Goal {
             return false;
         }
 
-        // Nur nachts (13000 - 23000 Ticks, ca. 19:00 - 05:00 Uhr)
+        // Prüfe ob Heimzeit ist (einstellbare Zeiten)
         Level level = npc.level();
         long dayTime = level.getDayTime() % 24000;
-        boolean isNight = dayTime >= 13000 && dayTime <= 23000;
+        long homeTime = npc.getNpcData().getHomeTime();
+        long workStart = npc.getNpcData().getWorkStartTime();
 
-        if (!isNight) {
+        // Heimzeit = ab homeTime bis workStart (kann über Mitternacht gehen)
+        boolean isHomeTime = isTimeBetween(dayTime, homeTime, workStart);
+
+        if (!isHomeTime) {
             return false;
         }
 
@@ -57,16 +61,19 @@ public class MoveToHomeGoal extends Goal {
 
     @Override
     public boolean canContinueToUse() {
-        // Weitermachen solange es Nacht ist und NPC nicht angekommen
+        // Weitermachen solange es Heimzeit ist und NPC nicht angekommen
         if (homePos == null) {
             return false;
         }
 
         Level level = npc.level();
         long dayTime = level.getDayTime() % 24000;
-        boolean isNight = dayTime >= 13000 && dayTime <= 23000;
+        long homeTime = npc.getNpcData().getHomeTime();
+        long workStart = npc.getNpcData().getWorkStartTime();
 
-        if (!isNight) {
+        boolean isHomeTime = isTimeBetween(dayTime, homeTime, workStart);
+
+        if (!isHomeTime) {
             return false;
         }
 
@@ -113,5 +120,17 @@ public class MoveToHomeGoal extends Goal {
     public void stop() {
         npc.getNavigation().stop();
         tickCounter = 0;
+    }
+
+    /**
+     * Hilfsmethode: Prüft ob eine Zeit zwischen zwei Zeitpunkten liegt
+     */
+    private boolean isTimeBetween(long time, long start, long end) {
+        if (start <= end) {
+            return time >= start && time < end;
+        } else {
+            // Zeit geht über Mitternacht
+            return time >= start || time < end;
+        }
     }
 }
