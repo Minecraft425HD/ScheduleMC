@@ -56,6 +56,7 @@ public class CustomNPCEntity extends PathfinderMob {
     public CustomNPCEntity(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);
         this.npcData = new NPCData();
+        this.setMaxUpStep(1.0F); // Ermöglicht das Steigen auf Blöcke (Treppen)
     }
 
     @Override
@@ -87,8 +88,7 @@ public class CustomNPCEntity extends PathfinderMob {
         return PathfinderMob.createMobAttributes()
             .add(Attributes.MAX_HEALTH, 20.0D)
             .add(Attributes.MOVEMENT_SPEED, 0.3D)
-            .add(Attributes.FOLLOW_RANGE, 32.0D)
-            .add(Attributes.STEP_HEIGHT, 1.0D); // Ermöglicht das Steigen auf Blöcke (Treppen)
+            .add(Attributes.FOLLOW_RANGE, 32.0D);
     }
 
     @Override
