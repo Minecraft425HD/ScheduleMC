@@ -50,6 +50,11 @@ public class NPCData {
     private long workEndTime;    // Wann endet die Arbeit (Standard: 13000 = 19:00 Uhr)
     private long homeTime;       // Wann muss NPC nach Hause (Standard: 23000 = 5:00 Uhr morgens)
 
+    // Inventar & Ökonomie (nur für BEWOHNER und VERKAEUFER, nicht für POLIZEI)
+    private ItemStack[] inventory;  // Hotbar-ähnliches Inventar (9 Slots)
+    private int cash;  // Geldbörse in Bargeld
+    private long lastDailyIncomeDay;  // Letzter Tag, an dem Einkommen erhalten wurde
+
     public NPCData() {
         this.npcName = "NPC";
         this.skinFileName = "default.png";
@@ -62,11 +67,12 @@ public class NPCData {
         this.sellShop = new ShopInventory();
         this.customData = new CompoundTag();
         this.behavior = new NPCBehavior();
-        this.leisureLocations = new ArrayList<>();
-        // Standard-Zeiten (Minecraft Ticks: 0 = 6:00, 6000 = 12:00, 12000 = 18:00, 18000 = 0:00)
-        this.workStartTime = 0;      // 6:00 Uhr morgens
-        this.workEndTime = 13000;    // 19:00 Uhr abends
-        this.homeTime = 23000;       // 5:00 Uhr morgens (Zeit zum Schlafen)
+        this.inventory = new ItemStack[9];
+        for (int i = 0; i < 9; i++) {
+            this.inventory[i] = ItemStack.EMPTY;
+        }
+        this.cash = 0;
+        this.lastDailyIncomeDay = -1;
     }
 
     public NPCData(String name, String skinFile) {
@@ -117,19 +123,21 @@ public class NPCData {
             tag.putLong("WorkLocation", workLocation.asLong());
         }
 
-        // Leisure Locations
-        ListTag leisureList = new ListTag();
-        for (BlockPos pos : leisureLocations) {
-            CompoundTag posTag = new CompoundTag();
-            posTag.putLong("Pos", pos.asLong());
-            leisureList.add(posTag);
+        // Inventar & Ökonomie speichern (nur für BEWOHNER und VERKAEUFER)
+        if (npcType != NPCType.POLIZEI) {
+            ListTag inventoryList = new ListTag();
+            for (int i = 0; i < inventory.length; i++) {
+                if (!inventory[i].isEmpty()) {
+                    CompoundTag itemTag = new CompoundTag();
+                    itemTag.putByte("Slot", (byte) i);
+                    inventory[i].save(itemTag);
+                    inventoryList.add(itemTag);
+                }
+            }
+            tag.put("Inventory", inventoryList);
+            tag.putInt("Cash", cash);
+            tag.putLong("LastDailyIncomeDay", lastDailyIncomeDay);
         }
-        tag.put("LeisureLocations", leisureList);
-
-        // Schedule Times
-        tag.putLong("WorkStartTime", workStartTime);
-        tag.putLong("WorkEndTime", workEndTime);
-        tag.putLong("HomeTime", homeTime);
 
         return tag;
     }
@@ -172,25 +180,28 @@ public class NPCData {
             workLocation = BlockPos.of(tag.getLong("WorkLocation"));
         }
 
-        // Leisure Locations
-        leisureLocations.clear();
-        if (tag.contains("LeisureLocations")) {
-            ListTag leisureList = tag.getList("LeisureLocations", Tag.TAG_COMPOUND);
-            for (int i = 0; i < leisureList.size(); i++) {
-                CompoundTag posTag = leisureList.getCompound(i);
-                leisureLocations.add(BlockPos.of(posTag.getLong("Pos")));
+        // Inventar & Ökonomie laden (nur für BEWOHNER und VERKAEUFER)
+        if (npcType != NPCType.POLIZEI) {
+            // Inventar initialisieren
+            inventory = new ItemStack[9];
+            for (int i = 0; i < 9; i++) {
+                inventory[i] = ItemStack.EMPTY;
             }
-        }
 
-        // Schedule Times
-        if (tag.contains("WorkStartTime")) {
-            workStartTime = tag.getLong("WorkStartTime");
-        }
-        if (tag.contains("WorkEndTime")) {
-            workEndTime = tag.getLong("WorkEndTime");
-        }
-        if (tag.contains("HomeTime")) {
-            homeTime = tag.getLong("HomeTime");
+            // Inventar Items laden
+            if (tag.contains("Inventory")) {
+                ListTag inventoryList = tag.getList("Inventory", Tag.TAG_COMPOUND);
+                for (int i = 0; i < inventoryList.size(); i++) {
+                    CompoundTag itemTag = inventoryList.getCompound(i);
+                    int slot = itemTag.getByte("Slot") & 255;
+                    if (slot >= 0 && slot < inventory.length) {
+                        inventory[slot] = ItemStack.of(itemTag);
+                    }
+                }
+            }
+
+            cash = tag.getInt("Cash");
+            lastDailyIncomeDay = tag.getLong("LastDailyIncomeDay");
         }
     }
 
@@ -287,48 +298,60 @@ public class NPCData {
         this.workLocation = workLocation;
     }
 
-    public List<BlockPos> getLeisureLocations() {
-        return leisureLocations;
+    // Inventar & Ökonomie Getter/Setter
+    public ItemStack[] getInventory() {
+        return inventory;
     }
 
-    public void addLeisureLocation(BlockPos location) {
-        if (leisureLocations.size() < 3) {
-            leisureLocations.add(location);
+    public ItemStack getInventoryItem(int slot) {
+        if (slot >= 0 && slot < inventory.length) {
+            return inventory[slot];
+        }
+        return ItemStack.EMPTY;
+    }
+
+    public void setInventoryItem(int slot, ItemStack stack) {
+        if (slot >= 0 && slot < inventory.length) {
+            inventory[slot] = stack;
         }
     }
 
-    public void removeLeisureLocation(int index) {
-        if (index >= 0 && index < leisureLocations.size()) {
-            leisureLocations.remove(index);
-        }
+    public int getCash() {
+        return cash;
     }
 
-    public void clearLeisureLocations() {
-        leisureLocations.clear();
+    public void setCash(int cash) {
+        this.cash = Math.max(0, cash); // Verhindert negativen Bargeldstand
     }
 
-    public long getWorkStartTime() {
-        return workStartTime;
+    public void addCash(int amount) {
+        this.cash += amount;
+        this.cash = Math.max(0, this.cash);
     }
 
-    public void setWorkStartTime(long workStartTime) {
-        this.workStartTime = workStartTime;
+    public void removeCash(int amount) {
+        this.cash -= amount;
+        this.cash = Math.max(0, this.cash);
     }
 
-    public long getWorkEndTime() {
-        return workEndTime;
+    public boolean hasCash(int amount) {
+        return this.cash >= amount;
     }
 
-    public void setWorkEndTime(long workEndTime) {
-        this.workEndTime = workEndTime;
+    public long getLastDailyIncomeDay() {
+        return lastDailyIncomeDay;
     }
 
-    public long getHomeTime() {
-        return homeTime;
+    public void setLastDailyIncomeDay(long day) {
+        this.lastDailyIncomeDay = day;
     }
 
-    public void setHomeTime(long homeTime) {
-        this.homeTime = homeTime;
+    /**
+     * Prüft, ob dieser NPC Inventar und Geldbörse haben sollte
+     * (nur BEWOHNER und VERKAEUFER, nicht POLIZEI)
+     */
+    public boolean hasEconomyFeatures() {
+        return npcType != NPCType.POLIZEI;
     }
 
     /**

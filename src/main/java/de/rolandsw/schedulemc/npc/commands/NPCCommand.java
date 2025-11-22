@@ -4,8 +4,8 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.items.NPCLocationTool;
 import net.minecraft.ChatFormatting;
@@ -16,7 +16,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
+
+import java.util.Random;
 
 /**
  * Command für NPC-Verwaltung
@@ -30,6 +33,13 @@ import net.minecraft.world.phys.AABB;
  * /npc leisure list - Listet alle Freizeitorte auf
  * /npc leisure clear - Löscht alle Freizeitorte
  * /npc info - Zeigt Informationen über ausgewählten NPC
+ * /npc wallet info - Zeigt Geldbörsen-Informationen
+ * /npc wallet set <amount> - Setzt Geldbörse auf Betrag
+ * /npc wallet add <amount> - Fügt Betrag zur Geldbörse hinzu
+ * /npc wallet remove <amount> - Entfernt Betrag von Geldbörse
+ * /npc inventory info - Zeigt Inventar-Informationen
+ * /npc inventory clear - Leert das Inventar
+ * /npc dailyincome trigger - Triggert manuell das tägliche Einkommen (für Tests)
  */
 public class NPCCommand {
 
@@ -82,6 +92,42 @@ public class NPCCommand {
                 )
                 .then(Commands.literal("info")
                     .executes(NPCCommand::showInfo)
+                )
+                // Wallet Commands
+                .then(Commands.literal("wallet")
+                    .then(Commands.literal("info")
+                        .executes(NPCCommand::showWalletInfo)
+                    )
+                    .then(Commands.literal("set")
+                        .then(Commands.argument("amount", IntegerArgumentType.integer(0))
+                            .executes(NPCCommand::setWallet)
+                        )
+                    )
+                    .then(Commands.literal("add")
+                        .then(Commands.argument("amount", IntegerArgumentType.integer(1))
+                            .executes(NPCCommand::addWallet)
+                        )
+                    )
+                    .then(Commands.literal("remove")
+                        .then(Commands.argument("amount", IntegerArgumentType.integer(1))
+                            .executes(NPCCommand::removeWallet)
+                        )
+                    )
+                )
+                // Inventory Commands
+                .then(Commands.literal("inventory")
+                    .then(Commands.literal("info")
+                        .executes(NPCCommand::showInventoryInfo)
+                    )
+                    .then(Commands.literal("clear")
+                        .executes(NPCCommand::clearInventory)
+                    )
+                )
+                // Daily Income Commands
+                .then(Commands.literal("dailyincome")
+                    .then(Commands.literal("trigger")
+                        .executes(NPCCommand::triggerDailyIncome)
+                    )
                 )
         );
     }
@@ -216,273 +262,302 @@ public class NPCCommand {
                     .withStyle(data.getWorkLocation() != null ? ChatFormatting.GREEN : ChatFormatting.RED))
         );
 
-        // Schedule Zeiten
-        player.sendSystemMessage(Component.literal("=== Zeitplan ===").withStyle(ChatFormatting.GOLD));
-        player.sendSystemMessage(
-            Component.literal("Arbeitsbeginn: ")
-                .withStyle(ChatFormatting.GRAY)
-                .append(Component.literal(ticksToTime(data.getWorkStartTime()))
-                    .withStyle(ChatFormatting.YELLOW))
-        );
-        player.sendSystemMessage(
-            Component.literal("Arbeitsende: ")
-                .withStyle(ChatFormatting.GRAY)
-                .append(Component.literal(ticksToTime(data.getWorkEndTime()))
-                    .withStyle(ChatFormatting.YELLOW))
-        );
-        player.sendSystemMessage(
-            Component.literal("Heimzeit: ")
-                .withStyle(ChatFormatting.GRAY)
-                .append(Component.literal(ticksToTime(data.getHomeTime()))
-                    .withStyle(ChatFormatting.YELLOW))
-        );
-
-        // Freizeitorte
-        player.sendSystemMessage(Component.literal("=== Freizeitorte ===").withStyle(ChatFormatting.GOLD));
-        var leisureLocations = data.getLeisureLocations();
-        if (leisureLocations.isEmpty()) {
+        // Ökonomie-Features (nur für BEWOHNER und VERKÄUFER)
+        if (data.hasEconomyFeatures()) {
+            player.sendSystemMessage(Component.literal("--- Ökonomie ---").withStyle(ChatFormatting.GOLD));
             player.sendSystemMessage(
-                Component.literal("Keine Freizeitorte definiert")
+                Component.literal("Geldbörse: ")
                     .withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal(data.getCash() + "€").withStyle(ChatFormatting.GREEN))
+            );
+
+            // Zähle Items im Inventar
+            int itemCount = 0;
+            for (ItemStack stack : data.getInventory()) {
+                if (!stack.isEmpty()) {
+                    itemCount++;
+                }
+            }
+
+            player.sendSystemMessage(
+                Component.literal("Inventar: ")
+                    .withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal(itemCount + "/9 Slots belegt")
+                        .withStyle(itemCount > 0 ? ChatFormatting.GREEN : ChatFormatting.YELLOW))
+            );
+
+            player.sendSystemMessage(
+                Component.literal("Letztes Einkommen: ")
+                    .withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal(data.getLastDailyIncomeDay() >= 0 ?
+                        "Tag " + data.getLastDailyIncomeDay() : "Nie")
+                        .withStyle(data.getLastDailyIncomeDay() >= 0 ? ChatFormatting.GREEN : ChatFormatting.RED))
             );
         } else {
-            for (int i = 0; i < leisureLocations.size(); i++) {
+            player.sendSystemMessage(
+                Component.literal("Ökonomie: ")
+                    .withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal("Nicht verfügbar (Polizei)")
+                        .withStyle(ChatFormatting.RED))
+            );
+        }
+
+        return 1;
+    }
+
+    // ==================== WALLET COMMANDS ====================
+
+    private static int showWalletInfo(CommandContext<CommandSourceStack> context) {
+        Player player = context.getSource().getPlayer();
+        if (player == null) {
+            context.getSource().sendFailure(Component.literal("Nur Spieler können diesen Command verwenden!"));
+            return 0;
+        }
+
+        CustomNPCEntity npc = getSelectedOrNearestNPC(player);
+        if (npc == null) {
+            context.getSource().sendFailure(
+                Component.literal("Kein NPC ausgewählt oder in der Nähe!")
+                    .withStyle(ChatFormatting.RED)
+            );
+            return 0;
+        }
+
+        if (!npc.getNpcData().hasEconomyFeatures()) {
+            context.getSource().sendFailure(
+                Component.literal("NPC '")
+                    .append(Component.literal(npc.getNpcName()).withStyle(ChatFormatting.YELLOW))
+                    .append(Component.literal("' hat keine Geldbörse (nur BEWOHNER und VERKÄUFER)!"))
+                    .withStyle(ChatFormatting.RED)
+            );
+            return 0;
+        }
+
+        int cash = npc.getNpcData().getCash();
+        long lastIncomeDay = npc.getNpcData().getLastDailyIncomeDay();
+
+        player.sendSystemMessage(Component.literal("=== Geldbörse Info ===").withStyle(ChatFormatting.GOLD));
+        player.sendSystemMessage(
+            Component.literal("NPC: ")
+                .withStyle(ChatFormatting.GRAY)
+                .append(Component.literal(npc.getNpcName()).withStyle(ChatFormatting.YELLOW))
+        );
+        player.sendSystemMessage(
+            Component.literal("Bargeld: ")
+                .withStyle(ChatFormatting.GRAY)
+                .append(Component.literal(cash + "€").withStyle(ChatFormatting.GREEN))
+        );
+        player.sendSystemMessage(
+            Component.literal("Letztes Einkommen (Tag): ")
+                .withStyle(ChatFormatting.GRAY)
+                .append(Component.literal(lastIncomeDay >= 0 ? String.valueOf(lastIncomeDay) : "Nie")
+                    .withStyle(lastIncomeDay >= 0 ? ChatFormatting.GREEN : ChatFormatting.RED))
+        );
+
+        return 1;
+    }
+
+    private static int setWallet(CommandContext<CommandSourceStack> context) {
+        int amount = IntegerArgumentType.getInteger(context, "amount");
+        Player player = context.getSource().getPlayer();
+
+        if (player == null) {
+            context.getSource().sendFailure(Component.literal("Nur Spieler können diesen Command verwenden!"));
+            return 0;
+        }
+
+        CustomNPCEntity npc = getSelectedOrNearestNPC(player);
+        if (npc == null) {
+            context.getSource().sendFailure(
+                Component.literal("Kein NPC ausgewählt oder in der Nähe!").withStyle(ChatFormatting.RED)
+            );
+            return 0;
+        }
+
+        if (!npc.getNpcData().hasEconomyFeatures()) {
+            context.getSource().sendFailure(
+                Component.literal("NPC hat keine Geldbörse (nur BEWOHNER und VERKÄUFER)!")
+                    .withStyle(ChatFormatting.RED)
+            );
+            return 0;
+        }
+
+        npc.getNpcData().setCash(amount);
+
+        context.getSource().sendSuccess(
+            () -> Component.literal("Geldbörse von ")
+                .withStyle(ChatFormatting.GREEN)
+                .append(Component.literal(npc.getNpcName()).withStyle(ChatFormatting.YELLOW))
+                .append(Component.literal(" auf ").withStyle(ChatFormatting.GREEN))
+                .append(Component.literal(amount + "€").withStyle(ChatFormatting.GOLD))
+                .append(Component.literal(" gesetzt!").withStyle(ChatFormatting.GREEN)),
+            false
+        );
+
+        return 1;
+    }
+
+    private static int addWallet(CommandContext<CommandSourceStack> context) {
+        int amount = IntegerArgumentType.getInteger(context, "amount");
+        Player player = context.getSource().getPlayer();
+
+        if (player == null) {
+            context.getSource().sendFailure(Component.literal("Nur Spieler können diesen Command verwenden!"));
+            return 0;
+        }
+
+        CustomNPCEntity npc = getSelectedOrNearestNPC(player);
+        if (npc == null) {
+            context.getSource().sendFailure(
+                Component.literal("Kein NPC ausgewählt oder in der Nähe!").withStyle(ChatFormatting.RED)
+            );
+            return 0;
+        }
+
+        if (!npc.getNpcData().hasEconomyFeatures()) {
+            context.getSource().sendFailure(
+                Component.literal("NPC hat keine Geldbörse (nur BEWOHNER und VERKÄUFER)!")
+                    .withStyle(ChatFormatting.RED)
+            );
+            return 0;
+        }
+
+        int oldCash = npc.getNpcData().getCash();
+        npc.getNpcData().addCash(amount);
+        int newCash = npc.getNpcData().getCash();
+
+        context.getSource().sendSuccess(
+            () -> Component.literal("")
+                .append(Component.literal(amount + "€").withStyle(ChatFormatting.GOLD))
+                .append(Component.literal(" zu Geldbörse von ").withStyle(ChatFormatting.GREEN))
+                .append(Component.literal(npc.getNpcName()).withStyle(ChatFormatting.YELLOW))
+                .append(Component.literal(" hinzugefügt! (").withStyle(ChatFormatting.GREEN))
+                .append(Component.literal(oldCash + "€").withStyle(ChatFormatting.GRAY))
+                .append(Component.literal(" → ").withStyle(ChatFormatting.GREEN))
+                .append(Component.literal(newCash + "€").withStyle(ChatFormatting.GOLD))
+                .append(Component.literal(")").withStyle(ChatFormatting.GREEN)),
+            false
+        );
+
+        return 1;
+    }
+
+    private static int removeWallet(CommandContext<CommandSourceStack> context) {
+        int amount = IntegerArgumentType.getInteger(context, "amount");
+        Player player = context.getSource().getPlayer();
+
+        if (player == null) {
+            context.getSource().sendFailure(Component.literal("Nur Spieler können diesen Command verwenden!"));
+            return 0;
+        }
+
+        CustomNPCEntity npc = getSelectedOrNearestNPC(player);
+        if (npc == null) {
+            context.getSource().sendFailure(
+                Component.literal("Kein NPC ausgewählt oder in der Nähe!").withStyle(ChatFormatting.RED)
+            );
+            return 0;
+        }
+
+        if (!npc.getNpcData().hasEconomyFeatures()) {
+            context.getSource().sendFailure(
+                Component.literal("NPC hat keine Geldbörse (nur BEWOHNER und VERKÄUFER)!")
+                    .withStyle(ChatFormatting.RED)
+            );
+            return 0;
+        }
+
+        int oldCash = npc.getNpcData().getCash();
+        npc.getNpcData().removeCash(amount);
+        int newCash = npc.getNpcData().getCash();
+
+        context.getSource().sendSuccess(
+            () -> Component.literal("")
+                .append(Component.literal(amount + "€").withStyle(ChatFormatting.GOLD))
+                .append(Component.literal(" von Geldbörse von ").withStyle(ChatFormatting.GREEN))
+                .append(Component.literal(npc.getNpcName()).withStyle(ChatFormatting.YELLOW))
+                .append(Component.literal(" entfernt! (").withStyle(ChatFormatting.GREEN))
+                .append(Component.literal(oldCash + "€").withStyle(ChatFormatting.GRAY))
+                .append(Component.literal(" → ").withStyle(ChatFormatting.GREEN))
+                .append(Component.literal(newCash + "€").withStyle(ChatFormatting.GOLD))
+                .append(Component.literal(")").withStyle(ChatFormatting.GREEN)),
+            false
+        );
+
+        return 1;
+    }
+
+    // ==================== INVENTORY COMMANDS ====================
+
+    private static int showInventoryInfo(CommandContext<CommandSourceStack> context) {
+        Player player = context.getSource().getPlayer();
+        if (player == null) {
+            context.getSource().sendFailure(Component.literal("Nur Spieler können diesen Command verwenden!"));
+            return 0;
+        }
+
+        CustomNPCEntity npc = getSelectedOrNearestNPC(player);
+        if (npc == null) {
+            context.getSource().sendFailure(
+                Component.literal("Kein NPC ausgewählt oder in der Nähe!").withStyle(ChatFormatting.RED)
+            );
+            return 0;
+        }
+
+        if (!npc.getNpcData().hasEconomyFeatures()) {
+            context.getSource().sendFailure(
+                Component.literal("NPC '")
+                    .append(Component.literal(npc.getNpcName()).withStyle(ChatFormatting.YELLOW))
+                    .append(Component.literal("' hat kein Inventar (nur BEWOHNER und VERKÄUFER)!"))
+                    .withStyle(ChatFormatting.RED)
+            );
+            return 0;
+        }
+
+        player.sendSystemMessage(Component.literal("=== Inventar Info ===").withStyle(ChatFormatting.GOLD));
+        player.sendSystemMessage(
+            Component.literal("NPC: ")
+                .withStyle(ChatFormatting.GRAY)
+                .append(Component.literal(npc.getNpcName()).withStyle(ChatFormatting.YELLOW))
+        );
+
+        ItemStack[] inventory = npc.getNpcData().getInventory();
+        int itemCount = 0;
+
+        for (int i = 0; i < inventory.length; i++) {
+            ItemStack stack = inventory[i];
+            if (!stack.isEmpty()) {
+                itemCount++;
                 player.sendSystemMessage(
-                    Component.literal("[" + i + "] ")
+                    Component.literal("  Slot " + i + ": ")
                         .withStyle(ChatFormatting.GRAY)
-                        .append(Component.literal(leisureLocations.get(i).toShortString())
-                            .withStyle(ChatFormatting.YELLOW))
+                        .append(Component.literal(stack.getCount() + "x ")
+                            .withStyle(ChatFormatting.WHITE))
+                        .append(stack.getDisplayName().copy().withStyle(ChatFormatting.AQUA))
                 );
             }
         }
 
-        return 1;
-    }
-
-    private static int setWorkStartTime(CommandContext<CommandSourceStack> context) {
-        return setScheduleTime(context, "workstart");
-    }
-
-    private static int setWorkEndTime(CommandContext<CommandSourceStack> context) {
-        return setScheduleTime(context, "workend");
-    }
-
-    private static int setHomeTime(CommandContext<CommandSourceStack> context) {
-        return setScheduleTime(context, "home");
-    }
-
-    private static int setScheduleTime(CommandContext<CommandSourceStack> context, String timeType) {
-        String timeInput = StringArgumentType.getString(context, "time");
-        Player player = context.getSource().getPlayer();
-
-        if (player == null) {
-            context.getSource().sendFailure(Component.literal("Nur Spieler können diesen Command verwenden!"));
-            return 0;
-        }
-
-        CustomNPCEntity npc = getSelectedOrNearestNPC(player);
-        if (npc == null) {
-            context.getSource().sendFailure(
-                Component.literal("Kein NPC ausgewählt oder in der Nähe!")
-                    .withStyle(ChatFormatting.RED)
+        if (itemCount == 0) {
+            player.sendSystemMessage(
+                Component.literal("  Inventar ist leer")
+                    .withStyle(ChatFormatting.GRAY)
+                    .withStyle(ChatFormatting.ITALIC)
             );
-            return 0;
         }
-
-        // Parse Zeit (nur HHMM Format - 4 Ziffern)
-        long ticks;
-        try {
-            if (timeInput.length() != 4) {
-                context.getSource().sendFailure(
-                    Component.literal("Ungültiges Format! Verwende HHMM (z.B. 0700, 1830)")
-                        .withStyle(ChatFormatting.RED)
-                );
-                return 0;
-            }
-
-            int hours = Integer.parseInt(timeInput.substring(0, 2));
-            int minutes = Integer.parseInt(timeInput.substring(2, 4));
-
-            if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
-                context.getSource().sendFailure(
-                    Component.literal("Ungültige Zeit! Stunden: 0-23, Minuten: 0-59")
-                        .withStyle(ChatFormatting.RED)
-                );
-                return 0;
-            }
-
-            ticks = timeToTicks(hours, minutes);
-        } catch (NumberFormatException | StringIndexOutOfBoundsException e) {
-            context.getSource().sendFailure(
-                Component.literal("Ungültiges Format! Verwende HHMM (z.B. 0700, 1830)")
-                    .withStyle(ChatFormatting.RED)
-            );
-            return 0;
-        }
-
-        // Setze die Zeit
-        switch (timeType) {
-            case "workstart" -> npc.getNpcData().setWorkStartTime(ticks);
-            case "workend" -> npc.getNpcData().setWorkEndTime(ticks);
-            case "home" -> npc.getNpcData().setHomeTime(ticks);
-        }
-
-        String timeName = switch (timeType) {
-            case "workstart" -> "Arbeitsbeginn";
-            case "workend" -> "Arbeitsende";
-            case "home" -> "Heimzeit";
-            default -> "Zeit";
-        };
-
-        context.getSource().sendSuccess(
-            () -> Component.literal(timeName + " gesetzt auf ")
-                .withStyle(ChatFormatting.GREEN)
-                .append(Component.literal(timeInput)
-                    .withStyle(ChatFormatting.YELLOW))
-                .append(Component.literal(" für NPC ")
-                    .withStyle(ChatFormatting.GREEN))
-                .append(Component.literal(npc.getNpcName())
-                    .withStyle(ChatFormatting.YELLOW)),
-            false
-        );
-
-        return 1;
-    }
-
-    private static int addLeisureLocation(CommandContext<CommandSourceStack> context) {
-        Player player = context.getSource().getPlayer();
-
-        if (player == null) {
-            context.getSource().sendFailure(Component.literal("Nur Spieler können diesen Command verwenden!"));
-            return 0;
-        }
-
-        CustomNPCEntity npc = getSelectedOrNearestNPC(player);
-        if (npc == null) {
-            context.getSource().sendFailure(
-                Component.literal("Kein NPC ausgewählt oder in der Nähe!")
-                    .withStyle(ChatFormatting.RED)
-            );
-            return 0;
-        }
-
-        if (npc.getNpcData().getLeisureLocations().size() >= 3) {
-            context.getSource().sendFailure(
-                Component.literal("Maximale Anzahl von 3 Freizeitorten erreicht!")
-                    .withStyle(ChatFormatting.RED)
-            );
-            return 0;
-        }
-
-        BlockPos playerPos = player.blockPosition();
-        npc.getNpcData().addLeisureLocation(playerPos);
-
-        context.getSource().sendSuccess(
-            () -> Component.literal("Freizeitort hinzugefügt: ")
-                .withStyle(ChatFormatting.GREEN)
-                .append(Component.literal(playerPos.toShortString())
-                    .withStyle(ChatFormatting.YELLOW))
-                .append(Component.literal(" für NPC ")
-                    .withStyle(ChatFormatting.GREEN))
-                .append(Component.literal(npc.getNpcName())
-                    .withStyle(ChatFormatting.YELLOW)),
-            false
-        );
-
-        return 1;
-    }
-
-    private static int removeLeisureLocation(CommandContext<CommandSourceStack> context) {
-        int index = IntegerArgumentType.getInteger(context, "index");
-        Player player = context.getSource().getPlayer();
-
-        if (player == null) {
-            context.getSource().sendFailure(Component.literal("Nur Spieler können diesen Command verwenden!"));
-            return 0;
-        }
-
-        CustomNPCEntity npc = getSelectedOrNearestNPC(player);
-        if (npc == null) {
-            context.getSource().sendFailure(
-                Component.literal("Kein NPC ausgewählt oder in der Nähe!")
-                    .withStyle(ChatFormatting.RED)
-            );
-            return 0;
-        }
-
-        if (index >= npc.getNpcData().getLeisureLocations().size()) {
-            context.getSource().sendFailure(
-                Component.literal("Ungültiger Index! Verwende /npc leisure list um alle Orte zu sehen.")
-                    .withStyle(ChatFormatting.RED)
-            );
-            return 0;
-        }
-
-        BlockPos removed = npc.getNpcData().getLeisureLocations().get(index);
-        npc.getNpcData().removeLeisureLocation(index);
-
-        context.getSource().sendSuccess(
-            () -> Component.literal("Freizeitort entfernt: ")
-                .withStyle(ChatFormatting.GREEN)
-                .append(Component.literal(removed.toShortString())
-                    .withStyle(ChatFormatting.YELLOW))
-                .append(Component.literal(" für NPC ")
-                    .withStyle(ChatFormatting.GREEN))
-                .append(Component.literal(npc.getNpcName())
-                    .withStyle(ChatFormatting.YELLOW)),
-            false
-        );
-
-        return 1;
-    }
-
-    private static int listLeisureLocations(CommandContext<CommandSourceStack> context) {
-        Player player = context.getSource().getPlayer();
-
-        if (player == null) {
-            context.getSource().sendFailure(Component.literal("Nur Spieler können diesen Command verwenden!"));
-            return 0;
-        }
-
-        CustomNPCEntity npc = getSelectedOrNearestNPC(player);
-        if (npc == null) {
-            context.getSource().sendFailure(
-                Component.literal("Kein NPC ausgewählt oder in der Nähe!")
-                    .withStyle(ChatFormatting.RED)
-            );
-            return 0;
-        }
-
-        var leisureLocations = npc.getNpcData().getLeisureLocations();
 
         player.sendSystemMessage(
-            Component.literal("=== Freizeitorte von " + npc.getNpcName() + " ===")
-                .withStyle(ChatFormatting.GOLD)
+            Component.literal("Gesamt: ")
+                .withStyle(ChatFormatting.GRAY)
+                .append(Component.literal(itemCount + "/9 Slots belegt")
+                    .withStyle(ChatFormatting.YELLOW))
         );
-
-        if (leisureLocations.isEmpty()) {
-            player.sendSystemMessage(
-                Component.literal("Keine Freizeitorte definiert.")
-                    .withStyle(ChatFormatting.GRAY)
-            );
-        } else {
-            for (int i = 0; i < leisureLocations.size(); i++) {
-                BlockPos pos = leisureLocations.get(i);
-                player.sendSystemMessage(
-                    Component.literal("[" + i + "] ")
-                        .withStyle(ChatFormatting.GRAY)
-                        .append(Component.literal(pos.toShortString())
-                            .withStyle(ChatFormatting.YELLOW))
-                );
-            }
-        }
 
         return 1;
     }
 
-    private static int clearLeisureLocations(CommandContext<CommandSourceStack> context) {
+    private static int clearInventory(CommandContext<CommandSourceStack> context) {
         Player player = context.getSource().getPlayer();
-
         if (player == null) {
             context.getSource().sendFailure(Component.literal("Nur Spieler können diesen Command verwenden!"));
             return 0;
@@ -491,60 +566,98 @@ public class NPCCommand {
         CustomNPCEntity npc = getSelectedOrNearestNPC(player);
         if (npc == null) {
             context.getSource().sendFailure(
-                Component.literal("Kein NPC ausgewählt oder in der Nähe!")
+                Component.literal("Kein NPC ausgewählt oder in der Nähe!").withStyle(ChatFormatting.RED)
+            );
+            return 0;
+        }
+
+        if (!npc.getNpcData().hasEconomyFeatures()) {
+            context.getSource().sendFailure(
+                Component.literal("NPC hat kein Inventar (nur BEWOHNER und VERKÄUFER)!")
                     .withStyle(ChatFormatting.RED)
             );
             return 0;
         }
 
-        npc.getNpcData().clearLeisureLocations();
+        // Zähle Items vor dem Löschen
+        int itemCount = 0;
+        ItemStack[] inventory = npc.getNpcData().getInventory();
+        for (ItemStack stack : inventory) {
+            if (!stack.isEmpty()) {
+                itemCount++;
+            }
+        }
+
+        // Leere Inventar
+        for (int i = 0; i < inventory.length; i++) {
+            npc.getNpcData().setInventoryItem(i, ItemStack.EMPTY);
+        }
 
         context.getSource().sendSuccess(
-            () -> Component.literal("Alle Freizeitorte entfernt für NPC ")
+            () -> Component.literal("Inventar von ")
                 .withStyle(ChatFormatting.GREEN)
-                .append(Component.literal(npc.getNpcName())
-                    .withStyle(ChatFormatting.YELLOW)),
+                .append(Component.literal(npc.getNpcName()).withStyle(ChatFormatting.YELLOW))
+                .append(Component.literal(" geleert! (").withStyle(ChatFormatting.GREEN))
+                .append(Component.literal(itemCount + " Items entfernt").withStyle(ChatFormatting.GRAY))
+                .append(Component.literal(")").withStyle(ChatFormatting.GREEN)),
             false
         );
 
         return 1;
     }
 
-    /**
-     * Konvertiert Stunden und Minuten zu Minecraft-Ticks
-     * Minecraft Zeit: 0 Ticks = 6:00 Uhr morgens
-     * 1 Stunde = 1000 Ticks, 1 Tag = 24000 Ticks
-     */
-    private static long timeToTicks(int hours, int minutes) {
-        // Berechne Gesamtminuten seit Mitternacht
-        int totalMinutes = hours * 60 + minutes;
+    // ==================== DAILY INCOME COMMANDS ====================
 
-        // Minecraft Offset: 0 Ticks = 6:00 Uhr (360 Minuten seit Mitternacht)
-        // Verwende double für präzise Berechnung
-        long ticks = (long) ((totalMinutes - 360) * (1000.0 / 60.0));
+    private static int triggerDailyIncome(CommandContext<CommandSourceStack> context) {
+        ServerLevel level = context.getSource().getLevel();
+        Random random = new Random();
 
-        // Normalisiere zu 0-24000 (ein Minecraft-Tag)
-        while (ticks < 0) {
-            ticks += 24000;
+        int npcCount = 0;
+        int totalPaid = 0;
+
+        // Iteriere über alle NPCs in der Welt
+        for (Entity entity : level.getAllEntities()) {
+            if (entity instanceof CustomNPCEntity npc) {
+                // Nur für BEWOHNER und VERKÄUFER, nicht für POLIZEI
+                if (!npc.getNpcData().hasEconomyFeatures()) {
+                    continue;
+                }
+
+                // Generiere zufälligen Betrag zwischen 20 und 150
+                int income = 20 + random.nextInt(131); // 20-150 inklusiv
+
+                // Zahle dem NPC das Geld
+                npc.getNpcData().addCash(income);
+                npc.getNpcData().setLastDailyIncomeDay(level.getDayTime() / 24000);
+
+                npcCount++;
+                totalPaid += income;
+            }
         }
-        ticks = ticks % 24000;
 
-        return ticks;
+        final int finalNpcCount = npcCount;
+        final int finalTotalPaid = totalPaid;
+
+        if (npcCount > 0) {
+            context.getSource().sendSuccess(
+                () -> Component.literal("Tägliches Einkommen manuell ausgelöst!")
+                    .withStyle(ChatFormatting.GREEN)
+                    .append(Component.literal("\n" + finalNpcCount + " NPCs erhielten insgesamt ")
+                        .withStyle(ChatFormatting.GRAY))
+                    .append(Component.literal(finalTotalPaid + "€").withStyle(ChatFormatting.GOLD)),
+                true
+            );
+        } else {
+            context.getSource().sendFailure(
+                Component.literal("Keine NPCs mit Geldbörse gefunden!")
+                    .withStyle(ChatFormatting.RED)
+            );
+        }
+
+        return npcCount;
     }
 
-    /**
-     * Konvertiert Minecraft-Ticks zu HHMM Format (4-Ziffern ohne Doppelpunkt)
-     */
-    private static String ticksToTime(long ticks) {
-        // 0 Ticks = 6:00 Uhr morgens
-        // Verwende double für präzise Berechnung
-        int totalMinutes = (int) ((ticks * (60.0 / 1000.0)) + 360);
-
-        int hours = (totalMinutes / 60) % 24;
-        int minutes = totalMinutes % 60;
-
-        return String.format("%02d%02d", hours, minutes);
-    }
+    // ==================== HELPER METHODS ====================
 
     /**
      * Gibt den mit dem LocationTool ausgewählten NPC zurück, oder den nächsten NPC
