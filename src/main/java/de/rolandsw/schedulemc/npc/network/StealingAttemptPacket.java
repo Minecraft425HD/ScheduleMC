@@ -55,7 +55,7 @@ public class StealingAttemptPacket {
 
                     // Finde nicht-leere Slots
                     for (int i = 0; i < 9; i++) {
-                        ItemStack stack = npc.getInventory().getItem(i);
+                        ItemStack stack = npc.getNpcData().getInventory().get(i);
                         if (!stack.isEmpty()) {
                             availableSlots.add(i);
                         }
@@ -66,7 +66,7 @@ public class StealingAttemptPacket {
                         int randomIndex = (int)(Math.random() * availableSlots.size());
                         int slot = availableSlots.remove(randomIndex);
 
-                        ItemStack stack = npc.getInventory().getItem(slot);
+                        ItemStack stack = npc.getNpcData().getInventory().get(slot);
                         if (!stack.isEmpty()) {
                             // Stehle einen Teil des Stacks (50-100%)
                             int amountToSteal = Math.max(1, (int)(stack.getCount() * (0.5 + Math.random() * 0.5)));
@@ -75,7 +75,7 @@ public class StealingAttemptPacket {
 
                             // Entferne vom NPC
                             stack.shrink(amountToSteal);
-                            npc.getInventory().setItem(slot, stack);
+                            npc.getNpcData().getInventory().set(slot, stack);
 
                             // Gib dem Spieler
                             if (!player.getInventory().add(stolen)) {

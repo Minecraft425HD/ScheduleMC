@@ -100,7 +100,7 @@ public class StealingScreen extends AbstractContainerScreen<StealingMenu> {
 
         // Items im NPC Inventar (Hotbar)
         for (int i = 0; i < 9; i++) {
-            ItemStack stack = npc.getInventory().getItem(i);
+            ItemStack stack = npc.getNpcData().getInventory().get(i);
             if (!stack.isEmpty()) {
                 // Schätze Item-Wert (vereinfacht)
                 value += stack.getCount() * 10;
