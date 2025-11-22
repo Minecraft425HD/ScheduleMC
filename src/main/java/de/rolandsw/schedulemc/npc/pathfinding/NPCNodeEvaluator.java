@@ -51,7 +51,16 @@ public class NPCNodeEvaluator extends WalkNodeEvaluator {
 
     @Override
     public BlockPathTypes getBlockPathType(BlockGetter level, int x, int y, int z, Mob mob) {
-        BlockPos pos = new BlockPos(x, y - 1, z); // Block unter den Füßen
+        // Türprüfung für aktuelle Position
+        BlockPos currentPos = new BlockPos(x, y, z);
+        BlockState currentState = level.getBlockState(currentPos);
+
+        if (currentState.getBlock() instanceof DoorBlock) {
+            return currentState.getValue(DoorBlock.OPEN) ? BlockPathTypes.DOOR_OPEN : BlockPathTypes.DOOR_WOOD_CLOSED;
+        }
+
+        // Prüfe Block unter den Füßen (y-1)
+        BlockPos pos = new BlockPos(x, y - 1, z);
         BlockState state = level.getBlockState(pos);
 
         // Aktuelle Position (für Türprüfung)
