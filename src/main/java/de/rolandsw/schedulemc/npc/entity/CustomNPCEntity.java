@@ -170,8 +170,8 @@ public class CustomNPCEntity extends PathfinderMob {
 
     @Override
     public boolean isEffectiveAi() {
-        // NPCs should always have their AI active
-        return true;
+        // NPCs should always have their AI active, but only on the server side
+        return !this.level().isClientSide && super.isEffectiveAi();
     }
 
     @Override
