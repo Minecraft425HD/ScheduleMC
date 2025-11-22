@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.client;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
@@ -24,8 +25,9 @@ public class InventoryBlockHandler {
             event.setCanceled(true);
 
             // Zeige Nachricht
-            if (event.getScreen() != null && event.getScreen().getMinecraft().player != null) {
-                event.getScreen().getMinecraft().player.displayClientMessage(
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.player != null) {
+                mc.player.displayClientMessage(
                     Component.literal("§c⚠ Inventar ist gesperrt! Nutze nur die Schnellzugriffsleiste (1-9)."),
                     true
                 );
