@@ -1,0 +1,135 @@
+
+#ScheduleMC 3.0 - Economy Settings
+[economy]
+	#Startguthaben für neue Spieler
+	#Range: 0.0 ~ 1000000.0
+	start_balance = 1000.0
+	#Auto-Save Intervall in Minuten
+	#Range: 1 ~ 60
+	save_interval_minutes = 5
+
+#Plot System Settings
+[plots]
+	#Minimale Plot-Größe in Blöcken
+	#Range: 1 ~ 1000000
+	min_plot_size = 64
+	#Maximale Plot-Größe in Blöcken
+	#Range: 1 ~ 100000000
+	max_plot_size = 1000000
+	#Minimaler Plot-Preis
+	#Range: 0.01 ~ 1000000.0
+	min_plot_price = 1.0
+	#Maximaler Plot-Preis
+	#Range: 1.0 ~ 1.0E8
+	max_plot_price = 1000000.0
+	#Maximale Anzahl vertrauter Spieler pro Plot
+	#Range: 1 ~ 100
+	max_trusted_players = 10
+	#Plots können übertragen werden
+	allow_plot_transfer = true
+	#Rückerstattung beim Aufgeben (0.0-1.0, 0.5 = 50%)
+	#Range: 0.0 ~ 1.0
+	refund_on_abandon = 0.5
+
+#Daily Reward Settings
+[daily]
+	#Basis-Belohnung pro Tag
+	#Range: 1.0 ~ 10000.0
+	daily_reward = 50.0
+	#Bonus pro Streak-Tag
+	#Range: 0.0 ~ 1000.0
+	streak_bonus = 10.0
+	#Maximale Streak-Tage für Bonus
+	#Range: 1 ~ 365
+	max_streak = 30
+
+#Plot Rental System Settings
+[rent]
+	#Mietsystem aktiviert
+	enabled = true
+	#Minimaler Mietpreis pro Tag
+	#Range: 0.1 ~ 10000.0
+	min_rent_price = 10.0
+	#Minimale Mietdauer in Tagen
+	#Range: 1 ~ 365
+	min_rent_days = 1
+	#Maximale Mietdauer in Tagen
+	#Range: 1 ~ 365
+	max_rent_days = 30
+	#Automatisch räumen bei abgelaufener Miete
+	auto_evict = true
+
+#Shop System Settings
+[shop]
+	#Shop-System aktiviert
+	enabled = true
+	#Kaufpreis-Multiplikator (Basispreis * Multiplikator)
+	#Range: 0.1 ~ 10.0
+	buy_multiplier = 1.5
+	#Verkaufspreis-Multiplikator
+	#Range: 0.1 ~ 10.0
+	sell_multiplier = 0.5
+
+#Plot Rating System Settings
+[ratings]
+	#Rating-System aktiviert
+	enabled = true
+	#Spieler können mehrfach bewerten
+	allow_multiple = false
+	#Minimales Rating (Sterne)
+	#Range: 1 ~ 5
+	min_rating = 1
+	#Maximales Rating (Sterne)
+	#Range: 1 ~ 5
+	max_rating = 5
+
+#NPC System Settings
+[npc]
+	#Blocktypen, auf denen NPCs laufen dürfen (Beispiel: minecraft:stone, minecraft:grass_block)
+	walkable_blocks = ["minecraft:stone", "minecraft:grass_block", "minecraft:dirt", "minecraft:cobblestone", "minecraft:oak_planks", "minecraft:spruce_planks", "minecraft:birch_planks", "minecraft:jungle_planks", "minecraft:acacia_planks", "minecraft:dark_oak_planks", "minecraft:gravel", "minecraft:sand", "minecraft:stone_bricks", "minecraft:bricks", "minecraft:oak_stairs", "minecraft:spruce_stairs", "minecraft:birch_stairs", "minecraft:jungle_stairs", "minecraft:acacia_stairs", "minecraft:dark_oak_stairs", "minecraft:stone_stairs", "minecraft:cobblestone_stairs", "minecraft:brick_stairs", "minecraft:stone_brick_stairs"]
+
+#Tobacco System Settings
+[tobacco]
+	#Aktiviert das Tabak-Anbau-System
+	enabled = true
+	#Wachstumsgeschwindigkeit (1.0 = normal, 2.0 = doppelt so schnell)
+	#Range: 0.1 ~ 10.0
+	growth_speed_multiplier = 1.0
+	#Trocknungszeit in Ticks (6000 = 5 Minuten)
+	#Range: 100 ~ 72000
+	drying_time = 6000
+	#Fermentierungszeit in Ticks (12000 = 10 Minuten)
+	#Range: 100 ~ 72000
+	fermenting_time = 12000
+	#Chance auf Qualitätsverbesserung bei Fermentierung (0.3 = 30%)
+	#Range: 0.0 ~ 1.0
+	fermentation_quality_chance = 0.3
+
+#Pot Capacities
+[pot_capacities]
+	#Range: 10 ~ 10000
+	terracotta_water = 100
+	#Range: 10 ~ 10000
+	ceramic_water = 200
+	#Range: 10 ~ 10000
+	iron_water = 400
+	#Range: 10 ~ 10000
+	golden_water = 800
+	#Range: 10 ~ 10000
+	terracotta_soil = 50
+	#Range: 10 ~ 10000
+	ceramic_soil = 100
+	#Range: 10 ~ 10000
+	iron_soil = 200
+	#Range: 10 ~ 10000
+	golden_soil = 400
+
+#Bottle Effects
+[bottle_effects]
+	#Dünger Ertrags-Bonus (0.5 = +50%)
+	#Range: 0.0 ~ 5.0
+	fertilizer_yield_bonus = 0.5
+	#Wachstumsbeschleuniger Multiplikator (2.0 = doppelt so schnell)
+	#Range: 1.0 ~ 10.0
+	growth_booster_speed = 2.0
+

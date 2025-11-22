@@ -1,0 +1,7 @@
+{
+  "item.schedulemc.npc_spawner_tool": "NPC Spawner",
+  "entity.schedulemc.custom_npc": "Custom NPC",
+  "container.schedulemc.npc_spawner": "NPC Spawner",
+  "container.schedulemc.npc_interaction": "NPC Interaction",
+  "container.schedulemc.merchant_shop": "Merchant Shop"
+}

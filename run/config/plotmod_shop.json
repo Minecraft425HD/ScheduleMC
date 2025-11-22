@@ -1,0 +1,370 @@
+{
+  "schedulemc:terracotta_pot": {
+    "itemId": "schedulemc:terracotta_pot",
+    "buyPrice": 20.0,
+    "sellPrice": 10.0,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "minecraft:oak_log": {
+    "itemId": "minecraft:oak_log",
+    "buyPrice": 2.0,
+    "sellPrice": 1.0,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "minecraft:netherite_ingot": {
+    "itemId": "minecraft:netherite_ingot",
+    "buyPrice": 500.0,
+    "sellPrice": 250.0,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "minecraft:redstone": {
+    "itemId": "minecraft:redstone",
+    "buyPrice": 10.0,
+    "sellPrice": 5.0,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "minecraft:dirt": {
+    "itemId": "minecraft:dirt",
+    "buyPrice": 0.1,
+    "sellPrice": 0.05,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "minecraft:diamond": {
+    "itemId": "minecraft:diamond",
+    "buyPrice": 100.0,
+    "sellPrice": 50.0,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "schedulemc:iron_pot": {
+    "itemId": "schedulemc:iron_pot",
+    "buyPrice": 80.0,
+    "sellPrice": 40.0,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "schedulemc:soil_bag_large": {
+    "itemId": "schedulemc:soil_bag_large",
+    "buyPrice": 50.0,
+    "sellPrice": 25.0,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "schedulemc:oriental_seeds": {
+    "itemId": "schedulemc:oriental_seeds",
+    "buyPrice": 20.0,
+    "sellPrice": 0.0,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "schedulemc:virginia_seeds": {
+    "itemId": "schedulemc:virginia_seeds",
+    "buyPrice": 10.0,
+    "sellPrice": 0.0,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "schedulemc:ceramic_pot": {
+    "itemId": "schedulemc:ceramic_pot",
+    "buyPrice": 40.0,
+    "sellPrice": 20.0,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "schedulemc:drying_rack": {
+    "itemId": "schedulemc:drying_rack",
+    "buyPrice": 100.0,
+    "sellPrice": 50.0,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "minecraft:glass": {
+    "itemId": "minecraft:glass",
+    "buyPrice": 2.0,
+    "sellPrice": 1.0,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "minecraft:bread": {
+    "itemId": "minecraft:bread",
+    "buyPrice": 5.0,
+    "sellPrice": 2.5,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "minecraft:iron_ingot": {
+    "itemId": "minecraft:iron_ingot",
+    "buyPrice": 10.0,
+    "sellPrice": 5.0,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "minecraft:emerald": {
+    "itemId": "minecraft:emerald",
+    "buyPrice": 150.0,
+    "sellPrice": 75.0,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "schedulemc:fermented_virginia_leaf": {
+    "itemId": "schedulemc:fermented_virginia_leaf",
+    "buyPrice": 0.0,
+    "sellPrice": 20.0,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "minecraft:glowstone": {
+    "itemId": "minecraft:glowstone",
+    "buyPrice": 15.0,
+    "sellPrice": 7.5,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "schedulemc:soil_bag_small": {
+    "itemId": "schedulemc:soil_bag_small",
+    "buyPrice": 10.0,
+    "sellPrice": 5.0,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "minecraft:oak_planks": {
+    "itemId": "minecraft:oak_planks",
+    "buyPrice": 0.5,
+    "sellPrice": 0.25,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "schedulemc:burley_seeds": {
+    "itemId": "schedulemc:burley_seeds",
+    "buyPrice": 15.0,
+    "sellPrice": 0.0,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "schedulemc:sink": {
+    "itemId": "schedulemc:sink",
+    "buyPrice": 150.0,
+    "sellPrice": 75.0,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "schedulemc:havana_seeds": {
+    "itemId": "schedulemc:havana_seeds",
+    "buyPrice": 30.0,
+    "sellPrice": 0.0,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "schedulemc:soil_bag_medium": {
+    "itemId": "schedulemc:soil_bag_medium",
+    "buyPrice": 25.0,
+    "sellPrice": 12.0,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "schedulemc:fermented_havana_leaf": {
+    "itemId": "schedulemc:fermented_havana_leaf",
+    "buyPrice": 0.0,
+    "sellPrice": 60.0,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "schedulemc:fermented_burley_leaf": {
+    "itemId": "schedulemc:fermented_burley_leaf",
+    "buyPrice": 0.0,
+    "sellPrice": 30.0,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "minecraft:iron_axe": {
+    "itemId": "minecraft:iron_axe",
+    "buyPrice": 50.0,
+    "sellPrice": 25.0,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "schedulemc:fermentation_barrel": {
+    "itemId": "schedulemc:fermentation_barrel",
+    "buyPrice": 200.0,
+    "sellPrice": 100.0,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "schedulemc:growth_booster_bottle": {
+    "itemId": "schedulemc:growth_booster_bottle",
+    "buyPrice": 75.0,
+    "sellPrice": 0.0,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "minecraft:cobblestone": {
+    "itemId": "minecraft:cobblestone",
+    "buyPrice": 0.5,
+    "sellPrice": 0.25,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "minecraft:white_wool": {
+    "itemId": "minecraft:white_wool",
+    "buyPrice": 3.0,
+    "sellPrice": 1.5,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "minecraft:iron_pickaxe": {
+    "itemId": "minecraft:iron_pickaxe",
+    "buyPrice": 50.0,
+    "sellPrice": 25.0,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "minecraft:diamond_pickaxe": {
+    "itemId": "minecraft:diamond_pickaxe",
+    "buyPrice": 300.0,
+    "sellPrice": 150.0,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "minecraft:cooked_beef": {
+    "itemId": "minecraft:cooked_beef",
+    "buyPrice": 8.0,
+    "sellPrice": 4.0,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "minecraft:piston": {
+    "itemId": "minecraft:piston",
+    "buyPrice": 20.0,
+    "sellPrice": 10.0,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "schedulemc:quality_booster_bottle": {
+    "itemId": "schedulemc:quality_booster_bottle",
+    "buyPrice": 100.0,
+    "sellPrice": 0.0,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "minecraft:stone": {
+    "itemId": "minecraft:stone",
+    "buyPrice": 1.0,
+    "sellPrice": 0.5,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "minecraft:gold_ingot": {
+    "itemId": "minecraft:gold_ingot",
+    "buyPrice": 20.0,
+    "sellPrice": 10.0,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "minecraft:golden_apple": {
+    "itemId": "minecraft:golden_apple",
+    "buyPrice": 50.0,
+    "sellPrice": 25.0,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "minecraft:coal": {
+    "itemId": "minecraft:coal",
+    "buyPrice": 5.0,
+    "sellPrice": 2.5,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "minecraft:iron_shovel": {
+    "itemId": "minecraft:iron_shovel",
+    "buyPrice": 40.0,
+    "sellPrice": 20.0,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "schedulemc:watering_can": {
+    "itemId": "schedulemc:watering_can",
+    "buyPrice": 50.0,
+    "sellPrice": 25.0,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "schedulemc:fermented_oriental_leaf": {
+    "itemId": "schedulemc:fermented_oriental_leaf",
+    "buyPrice": 0.0,
+    "sellPrice": 40.0,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "schedulemc:worker_storage": {
+    "itemId": "schedulemc:worker_storage",
+    "buyPrice": 500.0,
+    "sellPrice": 250.0,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "schedulemc:golden_pot": {
+    "itemId": "schedulemc:golden_pot",
+    "buyPrice": 150.0,
+    "sellPrice": 75.0,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  },
+  "schedulemc:fertilizer_bottle": {
+    "itemId": "schedulemc:fertilizer_bottle",
+    "buyPrice": 50.0,
+    "sellPrice": 0.0,
+    "canBuy": true,
+    "canSell": true,
+    "stock": -1
+  }
+}

@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Specification-Title: schedulemc
+Specification-Vendor: Dein Name
+Specification-Version: 1
+Implementation-Title: ScheduleMC
+Implementation-Version: 2.0.0
+Implementation-Vendor: Dein Name
+Implementation-Timestamp: 2025-11-22T18:43:38+0100
+
