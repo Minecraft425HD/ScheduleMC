@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.npc.network;
 
 import de.rolandsw.schedulemc.economy.WalletManager;
+import de.rolandsw.schedulemc.economy.items.CashItem;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -101,16 +102,31 @@ public class StealingAttemptPacket {
                         }
                     }
 
-                    // 3. Geld zum Spieler Wallet hinzufügen
+                    // 3. Geld zum Spieler Wallet-Item hinzufügen (Slot 8 = Slot 9 im UI)
                     System.out.println("[STEALING] Gestohlenes Geld: " + stolenMoney + "€");
 
                     if (stolenMoney > 0) {
-                        System.out.println("[STEALING] Füge " + stolenMoney + "€ zu Player UUID " + player.getUUID() + " hinzu");
-                        WalletManager.addMoney(player.getUUID(), stolenMoney);
-                        WalletManager.save();
+                        // Hole Wallet-Item aus Slot 8 (Slot 9 im UI - ganz rechts)
+                        ItemStack walletItem = player.getInventory().getItem(8);
 
-                        double newBalance = WalletManager.getBalance(player.getUUID());
-                        System.out.println("[STEALING] Balance nachher: " + newBalance + "€");
+                        if (walletItem.getItem() instanceof CashItem) {
+                            // Vorheriger Wert im Wallet-Item
+                            double previousValue = CashItem.getValue(walletItem);
+                            System.out.println("[STEALING] Wallet-Item vorher: " + previousValue + "€");
+
+                            // Füge gestohlenes Geld zum Wallet-Item hinzu
+                            CashItem.addValue(walletItem, stolenMoney);
+
+                            // Neuer Wert im Wallet-Item
+                            double newValue = CashItem.getValue(walletItem);
+                            System.out.println("[STEALING] Wallet-Item nachher: " + newValue + "€");
+
+                            // Auch WalletManager aktualisieren (für Persistenz)
+                            WalletManager.addMoney(player.getUUID(), stolenMoney);
+                            WalletManager.save();
+                        } else {
+                            System.out.println("[STEALING] WARNUNG: Kein Wallet-Item in Slot 8 gefunden!");
+                        }
                     } else {
                         System.out.println("[STEALING] WARNUNG: stolenMoney ist 0 oder negativ!");
                     }
@@ -119,9 +135,13 @@ public class StealingAttemptPacket {
                     player.sendSystemMessage(Component.literal("§a✓ Diebstahl erfolgreich!"));
 
                     if (stolenMoney > 0) {
-                        double newBalance = WalletManager.getBalance(player.getUUID());
-                        player.sendSystemMessage(Component.literal("§7+ " + String.format("%.2f€", stolenMoney) + " gestohlen"));
-                        player.sendSystemMessage(Component.literal("§7Geldbörse: " + String.format("%.2f€", newBalance)));
+                        // Hole aktuellen Wert aus Wallet-Item
+                        ItemStack walletItem = player.getInventory().getItem(8);
+                        if (walletItem.getItem() instanceof CashItem) {
+                            double walletValue = CashItem.getValue(walletItem);
+                            player.sendSystemMessage(Component.literal("§7+ " + String.format("%.2f€", stolenMoney) + " gestohlen"));
+                            player.sendSystemMessage(Component.literal("§7Geldbörse: " + String.format("%.2f€", walletValue)));
+                        }
                     }
 
                     if (!stolenItems.isEmpty()) {
