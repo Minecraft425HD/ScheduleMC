@@ -25,6 +25,9 @@ public class NPCPathNavigation extends GroundPathNavigation {
     public NPCPathNavigation(Mob mob, Level level) {
         super(mob, level);
         loadAllowedBlocks();
+        // Türen öffnen und durchgehen erlauben
+        this.setCanOpenDoors(true);
+        this.setCanPassDoors(true);
         // Erlaube NPCs das Öffnen von Türen
         this.setCanOpenDoors(true);
     }
