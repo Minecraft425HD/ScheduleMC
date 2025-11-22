@@ -102,8 +102,8 @@ public class StealingScreen extends AbstractContainerScreen<StealingMenu> {
     private double calculateInventoryValue(CustomNPCEntity npc) {
         double value = 0.0;
 
-        // Geld des NPCs (aus NPC Wallet)
-        value += npc.getNpcData().getWallet();
+        // Geld des NPCs (aus Menu - vom Server gesendet)
+        value += menu.getNpcWalletAmount();
 
         // Items im NPC Inventar (Hotbar)
         for (int i = 0; i < 9; i++) {

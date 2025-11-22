@@ -16,19 +16,25 @@ public class StealingMenu extends AbstractContainerMenu {
 
     private final CustomNPCEntity npc;
     private final int entityId;
+    private final int npcWalletAmount;
 
     // Server-Side Constructor
     public StealingMenu(int id, Inventory playerInventory, CustomNPCEntity npc) {
         super(NPCMenuTypes.STEALING_MENU.get(), id);
         this.npc = npc;
         this.entityId = npc.getId();
+        this.npcWalletAmount = npc.getNpcData().getWallet();
 
         // Kein Player-Inventar in dieser GUI - nur Minigame
     }
 
     // Client-Side Constructor
     public StealingMenu(int id, Inventory playerInventory, FriendlyByteBuf extraData) {
-        this(id, playerInventory, (CustomNPCEntity) playerInventory.player.level().getEntity(extraData.readInt()));
+        super(NPCMenuTypes.STEALING_MENU.get(), id);
+        int npcId = extraData.readInt();
+        this.npcWalletAmount = extraData.readInt(); // Lese Wallet vom Server
+        this.npc = (CustomNPCEntity) playerInventory.player.level().getEntity(npcId);
+        this.entityId = npcId;
     }
 
     @Override
@@ -47,5 +53,9 @@ public class StealingMenu extends AbstractContainerMenu {
 
     public int getEntityId() {
         return entityId;
+    }
+
+    public int getNpcWalletAmount() {
+        return npcWalletAmount;
     }
 }

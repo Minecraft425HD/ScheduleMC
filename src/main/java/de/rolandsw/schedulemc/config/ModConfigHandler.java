@@ -250,8 +250,8 @@ public class ModConfigHandler {
                     .push("stealing");
 
             STEALING_INDICATOR_SPEED = builder
-                    .comment("Geschwindigkeit des roten Indikators (höher = schneller, Standard: 0.01)")
-                    .defineInRange("indicator_speed", 0.01, 0.001, 0.05);
+                    .comment("Geschwindigkeit des roten Indikators (höher = schneller, Standard: 0.04)")
+                    .defineInRange("indicator_speed", 0.04, 0.001, 0.2);
 
             STEALING_MAX_ATTEMPTS = builder
                     .comment("Maximale Anzahl der Versuche")

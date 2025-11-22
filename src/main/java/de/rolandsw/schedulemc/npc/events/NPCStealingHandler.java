@@ -65,6 +65,7 @@ public class NPCStealingHandler {
                     Component.literal("§cBestehle " + npc.getNpcName())
                 ), buf -> {
                     buf.writeInt(npc.getId());
+                    buf.writeInt(npc.getNpcData().getWallet()); // Sende Wallet-Betrag zum Client
                 });
             }
 

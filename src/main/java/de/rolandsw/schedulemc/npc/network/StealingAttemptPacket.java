@@ -99,15 +99,17 @@ public class StealingAttemptPacket {
                     }
 
                     // 4. Erfolgsmeldung
-                    StringBuilder message = new StringBuilder("§a✓ Diebstahl erfolgreich!");
+                    player.sendSystemMessage(Component.literal("§a✓ Diebstahl erfolgreich!"));
+
                     if (stolenMoney > 0) {
-                        message.append("\n§7+ ").append(String.format("%.2f€", stolenMoney));
-                    }
-                    if (!stolenItems.isEmpty()) {
-                        message.append("\n§7+ ").append(stolenItems.size()).append(" Items gestohlen");
+                        double newBalance = WalletManager.getBalance(player.getUUID());
+                        player.sendSystemMessage(Component.literal("§7+ " + String.format("%.2f€", stolenMoney) + " gestohlen"));
+                        player.sendSystemMessage(Component.literal("§7Geldbörse: " + String.format("%.2f€", newBalance)));
                     }
 
-                    player.sendSystemMessage(Component.literal(message.toString()));
+                    if (!stolenItems.isEmpty()) {
+                        player.sendSystemMessage(Component.literal("§7+ " + stolenItems.size() + " Items gestohlen"));
+                    }
 
                     // TODO: Füge Wanted-Level hinzu (für zukünftiges Polizei-System)
                 }
