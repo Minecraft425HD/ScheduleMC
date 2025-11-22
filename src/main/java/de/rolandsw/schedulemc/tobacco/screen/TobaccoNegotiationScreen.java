@@ -34,7 +34,7 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
 
     public TobaccoNegotiationScreen(TobaccoNegotiationMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
-        this.imageHeight = 180;
+        this.imageHeight = 140; // Reduziert, da kein Inventar mehr
         this.inventoryLabelY = this.imageHeight - 94;
     }
 
@@ -154,28 +154,6 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
 
         // Header-Bereich
         graphics.fill(x + 2, y + 2, x + this.imageWidth - 2, y + 20, 0xFF1E1E1E);
-
-        // Slot-Umrandungen für Player Inventory
-        renderPlayerSlots(graphics, x, y);
-    }
-
-    private void renderPlayerSlots(GuiGraphics graphics, int x, int y) {
-        // Player Inventory (3 Reihen)
-        for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 9; col++) {
-                drawSlot(graphics, x + 8 + col * 18, y + 84 + row * 18);
-            }
-        }
-
-        // Player Hotbar
-        for (int i = 0; i < 9; i++) {
-            drawSlot(graphics, x + 8 + i * 18, y + 142);
-        }
-    }
-
-    private void drawSlot(GuiGraphics graphics, int x, int y) {
-        graphics.fill(x - 1, y - 1, x + 17, y + 17, 0xFF8B8B8B);
-        graphics.fill(x, y, x + 16, y + 16, 0xFF373737);
     }
 
     @Override
@@ -192,21 +170,21 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
             // Title
             graphics.drawString(this.font, "Tabak verkaufen", x + 8, y + 6, 0xFFFFFF, false);
 
-            // NPC Metriken
+            // NPC Metriken (neue Position)
             graphics.drawString(this.font, "§7Ruf: §f" + reputation, x + 8, y + 86, 0xFFFFFF, false);
-            graphics.drawString(this.font, "§7Zufriedenheit: §f" + satisfaction, x + 8, y + 96, 0xFFFFFF, false);
-            graphics.drawString(this.font, demand.getDisplayName(), x + 8, y + 106, 0xFFFFFF, false);
+            graphics.drawString(this.font, "§7Zufriedenheit: §f" + satisfaction, x + 80, y + 86, 0xFFFFFF, false);
+            graphics.drawString(this.font, demand.getDisplayName(), x + 8, y + 96, 0xFFFFFF, false);
 
             // Fairer Preis
             if (selectedSlot >= 0) {
                 String fairPriceText = String.format("§7Fairer Preis: §a%.2f€", fairPrice);
-                graphics.drawString(this.font, fairPriceText, x + 8, y + 116, 0xFFFFFF, false);
+                graphics.drawString(this.font, fairPriceText, x + 8, y + 106, 0xFFFFFF, false);
             }
         }
 
         // Response Message
         if (!responseMessage.isEmpty()) {
-            graphics.drawString(this.font, responseMessage, x + 8, y + 126, 0xFFFFFF, false);
+            graphics.drawString(this.font, responseMessage, x + 8, y + 116, 0xFFFFFF, false);
         }
     }
 

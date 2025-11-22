@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.tobacco.network;
 
+import de.rolandsw.schedulemc.economy.WalletManager;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.tobacco.business.NPCBusinessMetrics;
 import de.rolandsw.schedulemc.tobacco.business.NPCResponse;
@@ -65,8 +66,8 @@ public class NegotiationPacket {
                 // Item entfernen
                 playerItem.shrink(1);
 
-                // Geld hinzufügen
-                // TODO: Integration mit Economy-System
+                // Geld zur Geldbörse hinzufügen
+                WalletManager.addMoney(player.getUUID(), price);
 
                 // Metriken aktualisieren
                 metrics.recordPurchase(
@@ -80,9 +81,16 @@ public class NegotiationPacket {
 
                 // Reputation ändern
                 metrics.modifyReputation(player.getStringUUID(), response.getReputationChange());
+
+                // Metriken speichern (aktualisiert Reputation und Zufriedenheit)
                 metrics.save();
 
+                // Geldbörse speichern
+                WalletManager.save();
+
+                double newBalance = WalletManager.getBalance(player.getUUID());
                 player.sendSystemMessage(Component.literal("§a✓ Verkauf erfolgreich! +" + String.format("%.2f", price) + "€"));
+                player.sendSystemMessage(Component.literal("§7Geldbörse: " + String.format("%.2f", newBalance) + "€"));
             } else {
                 player.sendSystemMessage(Component.literal("§e" + response.getMessage()));
                 if (response.getCounterOffer() > 0) {
