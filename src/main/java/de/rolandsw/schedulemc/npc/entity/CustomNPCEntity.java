@@ -142,6 +142,16 @@ public class CustomNPCEntity extends PathfinderMob {
     }
 
     @Override
+    protected void customServerAiStep() {
+        super.customServerAiStep();
+
+        // Force AI to always be active
+        // This ensures that goals are checked every tick, even when no player is nearby
+        this.level().getProfiler().push("npcBrain");
+        this.level().getProfiler().pop();
+    }
+
+    @Override
     public void tick() {
         super.tick();
 
@@ -159,6 +169,12 @@ public class CustomNPCEntity extends PathfinderMob {
     }
 
     @Override
+    public boolean isEffectiveAi() {
+        // NPCs should always have their AI active
+        return true;
+    }
+
+    @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.put("NPCData", npcData.save(new CompoundTag()));
@@ -171,6 +187,10 @@ public class CustomNPCEntity extends PathfinderMob {
             npcData.load(tag.getCompound("NPCData"));
             // Sync to client
             syncToClient();
+            // Force AI update after loading data
+            if (!this.level().isClientSide) {
+                this.goalSelector.tick();
+            }
         }
     }
 
@@ -209,6 +229,10 @@ public class CustomNPCEntity extends PathfinderMob {
     public void setNpcData(NPCData data) {
         this.npcData = data;
         syncToClient();
+        // Force AI update after setting data
+        if (!this.level().isClientSide) {
+            this.goalSelector.tick();
+        }
     }
 
     public String getNpcName() {
