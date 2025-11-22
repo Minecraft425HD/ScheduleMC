@@ -46,7 +46,7 @@ public class InventoryRestrictionHandler {
                         player.getInventory().setItem(i, ItemStack.EMPTY);
                         moved = true;
                         break;
-                    } else if (ItemStack.isSameItemSameComponents(hotbarStack, stack) &&
+                    } else if (ItemStack.isSameItemSameTags(hotbarStack, stack) &&
                                hotbarStack.getCount() + stack.getCount() <= hotbarStack.getMaxStackSize()) {
                         // Stackable Item gefunden
                         hotbarStack.grow(stack.getCount());
