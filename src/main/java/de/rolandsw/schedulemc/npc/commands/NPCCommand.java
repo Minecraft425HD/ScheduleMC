@@ -513,22 +513,21 @@ public class NPCCommand {
 
     /**
      * Konvertiert Stunden und Minuten zu Minecraft-Ticks
-     * 0:00 = -6000 Ticks (wird zu 18000 nach Modulo)
-     * 6:00 = 0 Ticks
-     * 12:00 = 6000 Ticks
-     * 18:00 = 12000 Ticks
-     * 0:00 (Mitternacht) = 18000 Ticks
+     * Minecraft Zeit: 0 Ticks = 6:00 Uhr morgens
+     * 1 Stunde = 1000 Ticks, 1 Tag = 24000 Ticks
      */
     private static long timeToTicks(int hours, int minutes) {
-        // Minecraft Zeit: 0 = 6:00 Uhr morgens
-        // Jede Stunde = 1000 Ticks
-        // 6:00 = 0, 7:00 = 1000, ..., 18:00 = 12000, ..., 5:00 = 23000
+        // Berechne Gesamtminuten seit Mitternacht
         int totalMinutes = hours * 60 + minutes;
-        int ticksPerMinute = 1000 / 60; // ca. 16.67
-        long ticks = (totalMinutes - 360) * ticksPerMinute; // 360 min = 6:00 Uhr (Offset)
 
-        // Normalisiere zu 0-24000
-        while (ticks < 0) ticks += 24000;
+        // Minecraft Offset: 0 Ticks = 6:00 Uhr (360 Minuten seit Mitternacht)
+        // Verwende double für präzise Berechnung
+        long ticks = (long) ((totalMinutes - 360) * (1000.0 / 60.0));
+
+        // Normalisiere zu 0-24000 (ein Minecraft-Tag)
+        while (ticks < 0) {
+            ticks += 24000;
+        }
         ticks = ticks % 24000;
 
         return ticks;
@@ -538,10 +537,13 @@ public class NPCCommand {
      * Konvertiert Minecraft-Ticks zu HH:MM Format
      */
     private static String ticksToTime(long ticks) {
-        // 0 Ticks = 6:00 Uhr
-        int totalMinutes = (int) ((ticks / 16.67) + 360); // Rückrechnung
+        // 0 Ticks = 6:00 Uhr morgens
+        // Verwende double für präzise Berechnung
+        int totalMinutes = (int) ((ticks * (60.0 / 1000.0)) + 360);
+
         int hours = (totalMinutes / 60) % 24;
         int minutes = totalMinutes % 60;
+
         return String.format("%02d:%02d", hours, minutes);
     }
 
