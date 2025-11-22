@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.npc.entity;
 
 import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.goals.MoveToHomeGoal;
+import de.rolandsw.schedulemc.npc.goals.MoveToLeisureGoal;
 import de.rolandsw.schedulemc.npc.goals.MoveToWorkGoal;
 import de.rolandsw.schedulemc.npc.menu.NPCInteractionMenu;
 import de.rolandsw.schedulemc.npc.pathfinding.NPCPathNavigation;
@@ -73,10 +74,11 @@ public class CustomNPCEntity extends PathfinderMob {
         // Grundlegende AI Goals
         this.goalSelector.addGoal(0, new FloatGoal(this)); // Schwimmen
         this.goalSelector.addGoal(1, new OpenDoorGoal(this, true)); // Türen öffnen (und schließen)
-        this.goalSelector.addGoal(2, new MoveToHomeGoal(this)); // Nachts nach Hause gehen
-        this.goalSelector.addGoal(3, new MoveToWorkGoal(this)); // Tagsüber zur Arbeit gehen
-        this.goalSelector.addGoal(4, new LookAtPlayerGoal(this, Player.class, 8.0F)); // Spieler anschauen
-        this.goalSelector.addGoal(5, new RandomLookAroundGoal(this)); // Zufällig umschauen
+        this.goalSelector.addGoal(2, new MoveToHomeGoal(this)); // Nach Hause gehen (Heimzeit)
+        this.goalSelector.addGoal(3, new MoveToWorkGoal(this)); // Zur Arbeit gehen (Arbeitszeit)
+        this.goalSelector.addGoal(4, new MoveToLeisureGoal(this)); // Zu Freizeitorten gehen (Freizeit)
+        this.goalSelector.addGoal(5, new LookAtPlayerGoal(this, Player.class, 8.0F)); // Spieler anschauen
+        this.goalSelector.addGoal(6, new RandomLookAroundGoal(this)); // Zufällig umschauen
     }
 
     @Override

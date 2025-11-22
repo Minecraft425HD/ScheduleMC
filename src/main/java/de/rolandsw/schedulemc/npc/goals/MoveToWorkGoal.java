@@ -9,7 +9,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.EnumSet;
 
 /**
- * Goal: NPC geht tagsüber (0-13000 Ticks) zu seiner Arbeitsstätte
+ * Goal: NPC geht zu seiner Arbeitsstätte (einstellbare Zeiten)
  */
 public class MoveToWorkGoal extends Goal {
 
@@ -37,12 +37,15 @@ public class MoveToWorkGoal extends Goal {
             return false;
         }
 
-        // Nur tagsüber (0 - 13000 Ticks, ca. 06:00 - 19:00 Uhr)
+        // Prüfe ob Arbeitszeit ist (einstellbare Zeiten)
         Level level = npc.level();
         long dayTime = level.getDayTime() % 24000;
-        boolean isDay = dayTime >= 0 && dayTime < 13000;
+        long workStart = npc.getNpcData().getWorkStartTime();
+        long workEnd = npc.getNpcData().getWorkEndTime();
 
-        if (!isDay) {
+        boolean isWorkTime = isTimeBetween(dayTime, workStart, workEnd);
+
+        if (!isWorkTime) {
             return false;
         }
 
@@ -57,16 +60,19 @@ public class MoveToWorkGoal extends Goal {
 
     @Override
     public boolean canContinueToUse() {
-        // Weitermachen solange es Tag ist und NPC nicht angekommen
+        // Weitermachen solange es Arbeitszeit ist und NPC nicht angekommen
         if (workPos == null) {
             return false;
         }
 
         Level level = npc.level();
         long dayTime = level.getDayTime() % 24000;
-        boolean isDay = dayTime >= 0 && dayTime < 13000;
+        long workStart = npc.getNpcData().getWorkStartTime();
+        long workEnd = npc.getNpcData().getWorkEndTime();
 
-        if (!isDay) {
+        boolean isWorkTime = isTimeBetween(dayTime, workStart, workEnd);
+
+        if (!isWorkTime) {
             return false;
         }
 
@@ -113,5 +119,17 @@ public class MoveToWorkGoal extends Goal {
     public void stop() {
         npc.getNavigation().stop();
         tickCounter = 0;
+    }
+
+    /**
+     * Hilfsmethode: Prüft ob eine Zeit zwischen zwei Zeitpunkten liegt
+     */
+    private boolean isTimeBetween(long time, long start, long end) {
+        if (start <= end) {
+            return time >= start && time < end;
+        } else {
+            // Zeit geht über Mitternacht
+            return time >= start || time < end;
+        }
     }
 }

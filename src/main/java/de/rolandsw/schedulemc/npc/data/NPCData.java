@@ -43,6 +43,12 @@ public class NPCData {
     private BlockPos homeLocation;  // Wohnbereich
     @Nullable
     private BlockPos workLocation;  // Arbeitsstätte
+    private List<BlockPos> leisureLocations; // 3 Freizeitorte in der Stadt
+
+    // Schedule - Zeiteinstellungen (in Minecraft Ticks, 24000 = 1 Tag)
+    private long workStartTime;  // Wann geht NPC zur Arbeit (Standard: 0 = 6:00 Uhr)
+    private long workEndTime;    // Wann endet die Arbeit (Standard: 13000 = 19:00 Uhr)
+    private long homeTime;       // Wann muss NPC nach Hause (Standard: 23000 = 5:00 Uhr morgens)
 
     public NPCData() {
         this.npcName = "NPC";
@@ -56,6 +62,11 @@ public class NPCData {
         this.sellShop = new ShopInventory();
         this.customData = new CompoundTag();
         this.behavior = new NPCBehavior();
+        this.leisureLocations = new ArrayList<>();
+        // Standard-Zeiten (Minecraft Ticks: 0 = 6:00, 6000 = 12:00, 12000 = 18:00, 18000 = 0:00)
+        this.workStartTime = 0;      // 6:00 Uhr morgens
+        this.workEndTime = 13000;    // 19:00 Uhr abends
+        this.homeTime = 23000;       // 5:00 Uhr morgens (Zeit zum Schlafen)
     }
 
     public NPCData(String name, String skinFile) {
@@ -106,6 +117,20 @@ public class NPCData {
             tag.putLong("WorkLocation", workLocation.asLong());
         }
 
+        // Leisure Locations
+        ListTag leisureList = new ListTag();
+        for (BlockPos pos : leisureLocations) {
+            CompoundTag posTag = new CompoundTag();
+            posTag.putLong("Pos", pos.asLong());
+            leisureList.add(posTag);
+        }
+        tag.put("LeisureLocations", leisureList);
+
+        // Schedule Times
+        tag.putLong("WorkStartTime", workStartTime);
+        tag.putLong("WorkEndTime", workEndTime);
+        tag.putLong("HomeTime", homeTime);
+
         return tag;
     }
 
@@ -145,6 +170,27 @@ public class NPCData {
         }
         if (tag.contains("WorkLocation")) {
             workLocation = BlockPos.of(tag.getLong("WorkLocation"));
+        }
+
+        // Leisure Locations
+        leisureLocations.clear();
+        if (tag.contains("LeisureLocations")) {
+            ListTag leisureList = tag.getList("LeisureLocations", Tag.TAG_COMPOUND);
+            for (int i = 0; i < leisureList.size(); i++) {
+                CompoundTag posTag = leisureList.getCompound(i);
+                leisureLocations.add(BlockPos.of(posTag.getLong("Pos")));
+            }
+        }
+
+        // Schedule Times
+        if (tag.contains("WorkStartTime")) {
+            workStartTime = tag.getLong("WorkStartTime");
+        }
+        if (tag.contains("WorkEndTime")) {
+            workEndTime = tag.getLong("WorkEndTime");
+        }
+        if (tag.contains("HomeTime")) {
+            homeTime = tag.getLong("HomeTime");
         }
     }
 
@@ -239,6 +285,50 @@ public class NPCData {
 
     public void setWorkLocation(@Nullable BlockPos workLocation) {
         this.workLocation = workLocation;
+    }
+
+    public List<BlockPos> getLeisureLocations() {
+        return leisureLocations;
+    }
+
+    public void addLeisureLocation(BlockPos location) {
+        if (leisureLocations.size() < 3) {
+            leisureLocations.add(location);
+        }
+    }
+
+    public void removeLeisureLocation(int index) {
+        if (index >= 0 && index < leisureLocations.size()) {
+            leisureLocations.remove(index);
+        }
+    }
+
+    public void clearLeisureLocations() {
+        leisureLocations.clear();
+    }
+
+    public long getWorkStartTime() {
+        return workStartTime;
+    }
+
+    public void setWorkStartTime(long workStartTime) {
+        this.workStartTime = workStartTime;
+    }
+
+    public long getWorkEndTime() {
+        return workEndTime;
+    }
+
+    public void setWorkEndTime(long workEndTime) {
+        this.workEndTime = workEndTime;
+    }
+
+    public long getHomeTime() {
+        return homeTime;
+    }
+
+    public void setHomeTime(long homeTime) {
+        this.homeTime = homeTime;
     }
 
     /**
