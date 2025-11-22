@@ -272,7 +272,7 @@ public class NPCCommand {
     }
 
     private static int setScheduleTime(CommandContext<CommandSourceStack> context, String timeType) {
-        String timeInput = StringArgumentType.getWord(context, "time");
+        String timeInput = StringArgumentType.getString(context, "time");
         Player player = context.getSource().getPlayer();
 
         if (player == null) {
