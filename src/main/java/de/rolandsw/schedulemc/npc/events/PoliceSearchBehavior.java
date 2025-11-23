@@ -35,6 +35,9 @@ public class PoliceSearchBehavior {
     // NPC UUID -> Target Player UUID
     private static final Map<UUID, UUID> activeSearches = new HashMap<>();
 
+    // NPC UUID -> Last Search Target Update Time
+    private static final Map<UUID, Long> lastTargetUpdate = new HashMap<>();
+
     /**
      * Prüft, ob ein Spieler sich erfolgreich vor der Polizei versteckt
      *
@@ -201,6 +204,7 @@ public class PoliceSearchBehavior {
     public static void stopSearch(CustomNPCEntity police, UUID playerUUID) {
         searchTimers.remove(playerUUID);
         activeSearches.remove(police.getUUID());
+        lastTargetUpdate.remove(police.getUUID());
         // lastKnownPositions bleibt für spätere Referenz
     }
 
@@ -242,21 +246,47 @@ public class PoliceSearchBehavior {
 
     /**
      * Bewegt Polizei zur letzten bekannten Position des Spielers
+     * Setzt nur alle 10 Sekunden ein neues Ziel, damit die Polizei aktiv patrouilliert
      */
-    public static void searchArea(CustomNPCEntity police, UUID playerUUID) {
+    public static void searchArea(CustomNPCEntity police, UUID playerUUID, long currentTick) {
         BlockPos lastPos = getLastKnownPosition(playerUUID);
         if (lastPos == null) return;
 
-        int searchRadius = ModConfigHandler.COMMON.POLICE_SEARCH_RADIUS.get();
+        UUID policeUUID = police.getUUID();
 
-        // Zufällige Position in der Nähe der letzten bekannten Position
-        int randomX = lastPos.getX() + (police.getRandom().nextInt(searchRadius * 2) - searchRadius);
-        int randomZ = lastPos.getZ() + (police.getRandom().nextInt(searchRadius * 2) - searchRadius);
+        // Prüfe ob wir ein neues Ziel setzen müssen
+        boolean needsNewTarget = false;
 
-        BlockPos searchTarget = new BlockPos(randomX, lastPos.getY(), randomZ);
+        if (!lastTargetUpdate.containsKey(policeUUID)) {
+            needsNewTarget = true; // Erstes Mal
+        } else {
+            long lastUpdate = lastTargetUpdate.get(policeUUID);
+            long timeSinceUpdate = currentTick - lastUpdate;
+            long updateInterval = ModConfigHandler.COMMON.POLICE_SEARCH_TARGET_UPDATE_SECONDS.get() * 20L;
 
-        // Navigiere zur Suchposition
-        police.getNavigation().moveTo(searchTarget.getX(), searchTarget.getY(), searchTarget.getZ(), 1.0);
+            // Neues Ziel nach konfigurierbarem Intervall ODER wenn Polizei angekommen ist
+            if (timeSinceUpdate >= updateInterval || police.getNavigation().isDone()) {
+                needsNewTarget = true;
+            }
+        }
+
+        if (needsNewTarget) {
+            int searchRadius = ModConfigHandler.COMMON.POLICE_SEARCH_RADIUS.get();
+
+            // Zufällige Position in der Nähe der letzten bekannten Position
+            int randomX = lastPos.getX() + (police.getRandom().nextInt(searchRadius * 2) - searchRadius);
+            int randomZ = lastPos.getZ() + (police.getRandom().nextInt(searchRadius * 2) - searchRadius);
+
+            BlockPos searchTarget = new BlockPos(randomX, lastPos.getY(), randomZ);
+
+            // Navigiere zur Suchposition mit höherer Geschwindigkeit
+            police.getNavigation().moveTo(searchTarget.getX(), searchTarget.getY(), searchTarget.getZ(), 1.2);
+
+            // Speichere Update-Zeit
+            lastTargetUpdate.put(policeUUID, currentTick);
+
+            System.out.println("[POLICE] " + police.getNpcName() + " sucht bei " + searchTarget + " (Radius: " + searchRadius + ")");
+        }
     }
 
     /**

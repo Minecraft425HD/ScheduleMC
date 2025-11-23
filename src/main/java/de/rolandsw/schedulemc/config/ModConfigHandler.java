@@ -82,6 +82,7 @@ public class ModConfigHandler {
         public final ForgeConfigSpec.DoubleValue POLICE_ARREST_DISTANCE;
         public final ForgeConfigSpec.IntValue POLICE_SEARCH_DURATION_SECONDS;
         public final ForgeConfigSpec.IntValue POLICE_SEARCH_RADIUS;
+        public final ForgeConfigSpec.IntValue POLICE_SEARCH_TARGET_UPDATE_SECONDS;
         public final ForgeConfigSpec.BooleanValue POLICE_INDOOR_HIDING_ENABLED;
         public final ForgeConfigSpec.BooleanValue POLICE_BLOCK_DOORS_DURING_PURSUIT;
 
@@ -279,6 +280,10 @@ public class ModConfigHandler {
             POLICE_SEARCH_RADIUS = builder
                     .comment("Suchradius in Blöcken, in dem Polizei nach Spieler sucht")
                     .defineInRange("search_radius", 50, 10, 100);
+
+            POLICE_SEARCH_TARGET_UPDATE_SECONDS = builder
+                    .comment("Intervall in Sekunden, wie oft Polizei ein neues Suchziel wählt")
+                    .defineInRange("search_target_update_seconds", 10, 5, 60);
 
             POLICE_INDOOR_HIDING_ENABLED = builder
                     .comment("Aktiviert Versteck-System in Gebäuden (Spieler können sich vor Polizei verstecken)")

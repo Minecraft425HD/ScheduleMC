@@ -74,7 +74,7 @@ public class PoliceAIHandler {
                 System.out.println("[POLICE] " + npc.getNpcName() + " hat die Suche aufgegeben");
             } else {
                 // Weiter suchen
-                PoliceSearchBehavior.searchArea(npc, searchTarget);
+                PoliceSearchBehavior.searchArea(npc, searchTarget, currentTick);
             }
         }
 
