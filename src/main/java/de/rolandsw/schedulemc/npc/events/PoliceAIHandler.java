@@ -40,6 +40,9 @@ public class PoliceAIHandler {
     // UUID -> Arrest Start Time (in Ticks)
     private static final Map<UUID, Long> arrestTimers = new HashMap<>();
 
+    // NPC UUID -> Last Pursuit Target (um zu wissen wen wir verfolgt haben)
+    private static final Map<UUID, UUID> lastPursuitTarget = new HashMap<>();
+
     /**
      * Polizei-KI: Sucht Verbrecher und verfolgt sie
      */
@@ -107,6 +110,9 @@ public class PoliceAIHandler {
                 PoliceSearchBehavior.stopSearch(npc, targetCriminal.getUUID());
             }
 
+            // Speichere dass wir diesen Spieler verfolgen
+            lastPursuitTarget.put(npc.getUUID(), targetCriminal.getUUID());
+
             // Verfolge Verbrecher
             double distance = npc.distanceTo(targetCriminal);
 
@@ -168,21 +174,27 @@ public class PoliceAIHandler {
             // KEIN VERBRECHER IN SICHT
             // ═══════════════════════════════════════════
             // Prüfe ob wir vorher jemanden verfolgt haben
-            if (!arrestTimers.isEmpty()) {
-                System.out.println("[POLICE] " + npc.getNpcName() + " hat jemanden verloren, starte Suche...");
-                for (UUID trackedPlayer : arrestTimers.keySet()) {
-                    // Starte Suchverhalten für verlorenen Spieler
-                    ServerPlayer lostPlayer = npc.level().getServer().getPlayerList().getPlayer(trackedPlayer);
-                    if (lostPlayer != null && CrimeManager.getWantedLevel(trackedPlayer) > 0) {
-                        System.out.println("[POLICE] " + npc.getNpcName() + " startet Suche nach " + lostPlayer.getName().getString());
-                        PoliceSearchBehavior.startSearch(npc, lostPlayer, currentTick);
-                        lostPlayer.sendSystemMessage(Component.literal("§e⚠ Die Polizei sucht dich im Gebiet..."));
-                    } else {
-                        System.out.println("[POLICE] " + npc.getNpcName() + " kann Spieler nicht finden oder Wanted-Level ist 0");
-                    }
-                    arrestTimers.remove(trackedPlayer);
-                    break; // Nur einen Spieler suchen
+            UUID lastTarget = lastPursuitTarget.get(npc.getUUID());
+
+            if (lastTarget != null) {
+                System.out.println("[POLICE] " + npc.getNpcName() + " hat Verfolgungsziel verloren, starte Suche...");
+
+                // Starte Suchverhalten für verlorenen Spieler
+                ServerPlayer lostPlayer = npc.level().getServer().getPlayerList().getPlayer(lastTarget);
+
+                if (lostPlayer != null && CrimeManager.getWantedLevel(lastTarget) > 0) {
+                    System.out.println("[POLICE] " + npc.getNpcName() + " startet Suche nach " + lostPlayer.getName().getString());
+                    PoliceSearchBehavior.startSearch(npc, lostPlayer, currentTick);
+                    lostPlayer.sendSystemMessage(Component.literal("§e⚠ Die Polizei sucht dich im Gebiet..."));
+                } else {
+                    System.out.println("[POLICE] " + npc.getNpcName() + " kann Spieler nicht finden oder Wanted-Level ist 0");
                 }
+
+                // Entferne Verfolgungsziel
+                lastPursuitTarget.remove(npc.getUUID());
+
+                // Cleanup arrestTimers falls vorhanden
+                arrestTimers.remove(lastTarget);
             }
         }
     }
