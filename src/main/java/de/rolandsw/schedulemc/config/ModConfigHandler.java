@@ -74,6 +74,14 @@ public class ModConfigHandler {
         // ═══════════════════════════════════════════════════════════
         public final ForgeConfigSpec.ConfigValue<java.util.List<? extends String>> NPC_WALKABLE_BLOCKS;
 
+        // ═══════════════════════════════════════════════════════════
+        // STEALING MINIGAME
+        // ═══════════════════════════════════════════════════════════
+        public final ForgeConfigSpec.DoubleValue STEALING_INDICATOR_SPEED;
+        public final ForgeConfigSpec.IntValue STEALING_MAX_ATTEMPTS;
+        public final ForgeConfigSpec.DoubleValue STEALING_MIN_ZONE_SIZE;
+        public final ForgeConfigSpec.DoubleValue STEALING_MAX_ZONE_SIZE;
+
         public Common(ForgeConfigSpec.Builder builder) {
             
             builder.comment("ScheduleMC 3.0 - Economy Settings")
@@ -235,6 +243,27 @@ public class ModConfigHandler {
                             "minecraft:stone_brick_stairs"
                         ),
                         obj -> obj instanceof String);
+
+            builder.pop();
+
+            builder.comment("Stealing Minigame Settings")
+                    .push("stealing");
+
+            STEALING_INDICATOR_SPEED = builder
+                    .comment("Geschwindigkeit des roten Indikators (höher = schneller, Standard: 0.04)")
+                    .defineInRange("indicator_speed", 0.04, 0.001, 0.2);
+
+            STEALING_MAX_ATTEMPTS = builder
+                    .comment("Maximale Anzahl der Versuche")
+                    .defineInRange("max_attempts", 3, 1, 10);
+
+            STEALING_MIN_ZONE_SIZE = builder
+                    .comment("Minimale Größe der Erfolgszone (schwer, hoher Wert, 0.05 = 5%)")
+                    .defineInRange("min_zone_size", 0.05, 0.01, 0.5);
+
+            STEALING_MAX_ZONE_SIZE = builder
+                    .comment("Maximale Größe der Erfolgszone (einfach, niedriger Wert, 0.15 = 15%)")
+                    .defineInRange("max_zone_size", 0.15, 0.01, 0.5);
 
             builder.pop();
         }
