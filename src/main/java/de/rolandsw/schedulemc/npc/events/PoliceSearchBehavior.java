@@ -307,7 +307,10 @@ public class PoliceSearchBehavior {
      */
     public static void searchArea(CustomNPCEntity police, UUID playerUUID, long currentTick) {
         BlockPos lastPos = getLastKnownPosition(playerUUID);
-        if (lastPos == null) return;
+        if (lastPos == null) {
+            System.out.println("[POLICE] FEHLER: Keine letzte Position für Spieler " + playerUUID);
+            return;
+        }
 
         UUID policeUUID = police.getUUID();
 
@@ -316,14 +319,19 @@ public class PoliceSearchBehavior {
 
         if (!lastTargetUpdate.containsKey(policeUUID)) {
             needsNewTarget = true; // Erstes Mal
+            System.out.println("[POLICE] " + police.getNpcName() + " setzt erstes Suchziel");
         } else {
             long lastUpdate = lastTargetUpdate.get(policeUUID);
             long timeSinceUpdate = currentTick - lastUpdate;
             long updateInterval = ModConfigHandler.COMMON.POLICE_SEARCH_TARGET_UPDATE_SECONDS.get() * 20L;
 
             // Neues Ziel nach konfigurierbarem Intervall ODER wenn Polizei angekommen ist
-            if (timeSinceUpdate >= updateInterval || police.getNavigation().isDone()) {
+            if (timeSinceUpdate >= updateInterval) {
                 needsNewTarget = true;
+                System.out.println("[POLICE] " + police.getNpcName() + " Update-Intervall erreicht (" + (timeSinceUpdate/20) + "s)");
+            } else if (police.getNavigation().isDone()) {
+                needsNewTarget = true;
+                System.out.println("[POLICE] " + police.getNpcName() + " hat Ziel erreicht, neues Ziel wird gesetzt");
             }
         }
 
@@ -367,11 +375,25 @@ public class PoliceSearchBehavior {
                 System.out.println("[POLICE] " + police.getNpcName() + " sucht zufällig bei " + searchTarget + " (Radius: " + searchRadius + ")");
             }
 
+            // Stoppe aktuelle Navigation
+            police.getNavigation().stop();
+
             // Navigiere zur Suchposition mit höherer Geschwindigkeit
-            police.getNavigation().moveTo(searchTarget.getX(), searchTarget.getY(), searchTarget.getZ(), 1.2);
+            boolean navigationStarted = police.getNavigation().moveTo(searchTarget.getX(), searchTarget.getY(), searchTarget.getZ(), 1.2);
+
+            if (navigationStarted) {
+                System.out.println("[POLICE] " + police.getNpcName() + " Navigation gestartet zu " + searchTarget);
+            } else {
+                System.out.println("[POLICE] FEHLER: " + police.getNpcName() + " konnte nicht zu " + searchTarget + " navigieren!");
+            }
 
             // Speichere Update-Zeit
             lastTargetUpdate.put(policeUUID, currentTick);
+        } else {
+            // Kein neues Ziel - prüfe ob Navigation noch läuft
+            if (police.getNavigation().isDone()) {
+                System.out.println("[POLICE] WARNUNG: " + police.getNpcName() + " Navigation ist fertig aber kein neues Ziel wurde gesetzt!");
+            }
         }
     }
 

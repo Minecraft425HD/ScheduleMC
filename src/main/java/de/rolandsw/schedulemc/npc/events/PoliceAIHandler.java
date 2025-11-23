@@ -74,6 +74,7 @@ public class PoliceAIHandler {
                 System.out.println("[POLICE] " + npc.getNpcName() + " hat die Suche aufgegeben");
             } else {
                 // Weiter suchen
+                System.out.println("[POLICE] " + npc.getNpcName() + " führt Suche fort (searchArea wird aufgerufen)");
                 PoliceSearchBehavior.searchArea(npc, searchTarget, currentTick);
             }
         }
@@ -167,15 +168,21 @@ public class PoliceAIHandler {
             // KEIN VERBRECHER IN SICHT
             // ═══════════════════════════════════════════
             // Prüfe ob wir vorher jemanden verfolgt haben
-            for (UUID trackedPlayer : arrestTimers.keySet()) {
-                // Starte Suchverhalten für verlorenen Spieler
-                ServerPlayer lostPlayer = npc.level().getServer().getPlayerList().getPlayer(trackedPlayer);
-                if (lostPlayer != null && CrimeManager.getWantedLevel(trackedPlayer) > 0) {
-                    PoliceSearchBehavior.startSearch(npc, lostPlayer, currentTick);
-                    lostPlayer.sendSystemMessage(Component.literal("§e⚠ Die Polizei sucht dich im Gebiet..."));
+            if (!arrestTimers.isEmpty()) {
+                System.out.println("[POLICE] " + npc.getNpcName() + " hat jemanden verloren, starte Suche...");
+                for (UUID trackedPlayer : arrestTimers.keySet()) {
+                    // Starte Suchverhalten für verlorenen Spieler
+                    ServerPlayer lostPlayer = npc.level().getServer().getPlayerList().getPlayer(trackedPlayer);
+                    if (lostPlayer != null && CrimeManager.getWantedLevel(trackedPlayer) > 0) {
+                        System.out.println("[POLICE] " + npc.getNpcName() + " startet Suche nach " + lostPlayer.getName().getString());
+                        PoliceSearchBehavior.startSearch(npc, lostPlayer, currentTick);
+                        lostPlayer.sendSystemMessage(Component.literal("§e⚠ Die Polizei sucht dich im Gebiet..."));
+                    } else {
+                        System.out.println("[POLICE] " + npc.getNpcName() + " kann Spieler nicht finden oder Wanted-Level ist 0");
+                    }
+                    arrestTimers.remove(trackedPlayer);
+                    break; // Nur einen Spieler suchen
                 }
-                arrestTimers.remove(trackedPlayer);
-                break; // Nur einen Spieler suchen
             }
         }
     }
