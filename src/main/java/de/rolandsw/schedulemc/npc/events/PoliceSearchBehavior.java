@@ -146,13 +146,26 @@ public class PoliceSearchBehavior {
      * Prüft, ob ein Block transparent ist (Fenster, Glas-Türen, etc.)
      */
     private static boolean isTransparentBlock(Block block) {
-        return block instanceof GlassBlock ||
-               block instanceof StainedGlassBlock ||
-               block instanceof TintedGlassBlock ||
-               block instanceof GlassPaneBlock ||
-               block instanceof StainedGlassPaneBlock ||
-               block instanceof IronBarsBlock ||
-               (block instanceof DoorBlock && isTransparentDoor(block));
+        // Prüfe bekannte transparente Block-Typen
+        if (block instanceof GlassBlock ||
+            block instanceof StainedGlassBlock ||
+            block instanceof TintedGlassBlock ||
+            block instanceof IronBarsBlock) {
+            return true;
+        }
+
+        // Prüfe ob Block-Name "glass" oder "pane" enthält (für Glasscheiben)
+        String blockName = block.getDescriptionId().toLowerCase();
+        if (blockName.contains("glass") || blockName.contains("pane")) {
+            return true;
+        }
+
+        // Prüfe Türen
+        if (block instanceof DoorBlock && isTransparentDoor(block)) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
