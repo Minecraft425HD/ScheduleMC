@@ -4,8 +4,11 @@ import de.rolandsw.schedulemc.economy.items.CashItem;
 import de.rolandsw.schedulemc.npc.crime.CrimeManager;
 import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
+import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
+import de.rolandsw.schedulemc.npc.network.WantedLevelSyncPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -209,6 +212,56 @@ public class PoliceAIHandler {
                     ));
                 }
             }
+        }
+
+        // ═══════════════════════════════════════════
+        // ESCAPE SYSTEM (Verstecken vor Polizei)
+        // ═══════════════════════════════════════════
+        int wantedLevel = CrimeManager.getWantedLevel(player.getUUID());
+        if (wantedLevel > 0) {
+            long currentTick = player.level().getGameTime();
+
+            // Finde nächste Polizei
+            List<CustomNPCEntity> nearbyPolice = player.level().getEntitiesOfClass(
+                CustomNPCEntity.class,
+                AABB.ofSize(player.position(), 100, 100, 100),
+                npc -> npc.getNpcType() == NPCType.POLIZEI && !npc.getPersistentData().getBoolean("IsKnockedOut")
+            );
+
+            double minDistance = Double.MAX_VALUE;
+            for (CustomNPCEntity police : nearbyPolice) {
+                double distance = player.distanceTo(police);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                }
+            }
+
+            // Escape-Logic
+            if (minDistance > CrimeManager.ESCAPE_DISTANCE) {
+                // Weit genug von Polizei entfernt → Start Escape-Timer
+                if (!CrimeManager.isHiding(player.getUUID())) {
+                    CrimeManager.startEscapeTimer(player.getUUID(), currentTick);
+                    player.sendSystemMessage(Component.literal("§e✓ Du versteckst dich vor der Polizei..."));
+                }
+
+                // Prüfe ob Escape erfolgreich
+                if (CrimeManager.checkEscapeSuccess(player.getUUID(), currentTick)) {
+                    player.sendSystemMessage(Component.literal("§a✓ Du bist entkommen! -1★"));
+                }
+            } else {
+                // Polizei zu nah → Stop Escape-Timer
+                if (CrimeManager.isHiding(player.getUUID())) {
+                    CrimeManager.stopEscapeTimer(player.getUUID());
+                    player.sendSystemMessage(Component.literal("§c✗ Polizei hat dich entdeckt!"));
+                }
+            }
+
+            // Sync zu Client (für HUD Overlay)
+            long escapeTime = CrimeManager.getEscapeTimeRemaining(player.getUUID(), currentTick);
+            NPCNetworkHandler.sendToPlayer(new WantedLevelSyncPacket(wantedLevel, escapeTime), player);
+        } else {
+            // Kein Wanted-Level → sync 0 zum Client
+            NPCNetworkHandler.sendToPlayer(new WantedLevelSyncPacket(0, 0), player);
         }
     }
 }

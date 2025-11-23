@@ -74,6 +74,12 @@ public class NPCNetworkHandler {
             .encoder(StealingAttemptPacket::encode)
             .consumerMainThread(StealingAttemptPacket::handle)
             .add();
+
+        INSTANCE.messageBuilder(WantedLevelSyncPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+            .decoder(WantedLevelSyncPacket::decode)
+            .encoder(WantedLevelSyncPacket::encode)
+            .consumerMainThread(WantedLevelSyncPacket::handle)
+            .add();
     }
 
     public static <MSG> void sendToServer(MSG message) {
