@@ -75,6 +75,24 @@ public class ModConfigHandler {
         public final ForgeConfigSpec.ConfigValue<java.util.List<? extends String>> NPC_WALKABLE_BLOCKS;
 
         // ═══════════════════════════════════════════════════════════
+        // POLICE SYSTEM
+        // ═══════════════════════════════════════════════════════════
+        public final ForgeConfigSpec.IntValue POLICE_ARREST_COOLDOWN_SECONDS;
+        public final ForgeConfigSpec.IntValue POLICE_DETECTION_RADIUS;
+        public final ForgeConfigSpec.DoubleValue POLICE_ARREST_DISTANCE;
+        public final ForgeConfigSpec.IntValue POLICE_SEARCH_DURATION_SECONDS;
+        public final ForgeConfigSpec.IntValue POLICE_SEARCH_RADIUS;
+        public final ForgeConfigSpec.IntValue POLICE_SEARCH_TARGET_UPDATE_SECONDS;
+        public final ForgeConfigSpec.BooleanValue POLICE_INDOOR_HIDING_ENABLED;
+        public final ForgeConfigSpec.BooleanValue POLICE_BLOCK_DOORS_DURING_PURSUIT;
+
+        // Police Raid System
+        public final ForgeConfigSpec.IntValue POLICE_RAID_SCAN_RADIUS;
+        public final ForgeConfigSpec.DoubleValue POLICE_ILLEGAL_CASH_THRESHOLD;
+        public final ForgeConfigSpec.DoubleValue POLICE_RAID_ACCOUNT_PERCENTAGE;
+        public final ForgeConfigSpec.DoubleValue POLICE_RAID_MIN_FINE;
+
+        // ═══════════════════════════════════════════════════════════
         // STEALING MINIGAME
         // ═══════════════════════════════════════════════════════════
         public final ForgeConfigSpec.DoubleValue STEALING_INDICATOR_SPEED;
@@ -243,6 +261,59 @@ public class ModConfigHandler {
                             "minecraft:stone_brick_stairs"
                         ),
                         obj -> obj instanceof String);
+
+            builder.pop();
+
+            builder.comment("Police System Settings")
+                    .push("police");
+
+            POLICE_ARREST_COOLDOWN_SECONDS = builder
+                    .comment("Cooldown in Sekunden, bevor Polizei einen Spieler verhaften kann")
+                    .defineInRange("arrest_cooldown_seconds", 5, 1, 60);
+
+            POLICE_DETECTION_RADIUS = builder
+                    .comment("Erkennungsradius der Polizei in Blöcken")
+                    .defineInRange("detection_radius", 32, 8, 128);
+
+            POLICE_ARREST_DISTANCE = builder
+                    .comment("Distanz in Blöcken, bei der Festnahme möglich ist")
+                    .defineInRange("arrest_distance", 2.0, 1.0, 10.0);
+
+            POLICE_SEARCH_DURATION_SECONDS = builder
+                    .comment("Dauer in Sekunden, wie lange Polizei nach entkommenem Spieler sucht")
+                    .defineInRange("search_duration_seconds", 60, 10, 300);
+
+            POLICE_SEARCH_RADIUS = builder
+                    .comment("Suchradius in Blöcken, in dem Polizei nach Spieler sucht")
+                    .defineInRange("search_radius", 50, 10, 100);
+
+            POLICE_SEARCH_TARGET_UPDATE_SECONDS = builder
+                    .comment("Intervall in Sekunden, wie oft Polizei ein neues Suchziel wählt")
+                    .defineInRange("search_target_update_seconds", 10, 5, 60);
+
+            POLICE_INDOOR_HIDING_ENABLED = builder
+                    .comment("Aktiviert Versteck-System in Gebäuden (Spieler können sich vor Polizei verstecken)")
+                    .define("indoor_hiding_enabled", true);
+
+            POLICE_BLOCK_DOORS_DURING_PURSUIT = builder
+                    .comment("Blockiert Türöffnen während aktiver Verfolgung")
+                    .define("block_doors_during_pursuit", true);
+
+            POLICE_RAID_SCAN_RADIUS = builder
+                    .comment("Scan-Radius für illegale Items bei Verhaftung (in Blöcken)")
+                    .defineInRange("raid_scan_radius", 20, 5, 50);
+
+            POLICE_ILLEGAL_CASH_THRESHOLD = builder
+                    .comment("Bargeld-Schwellenwert für illegales Bargeld (über diesem Wert ist es illegal)")
+                    .defineInRange("illegal_cash_threshold", 10000.0, 1000.0, 100000.0);
+
+            POLICE_RAID_ACCOUNT_PERCENTAGE = builder
+                    .comment("Prozentsatz vom Kontostand für Geldstrafe (0.1 = 10%)")
+                    .defineInRange("raid_account_percentage", 0.1, 0.01, 0.5);
+
+            POLICE_RAID_MIN_FINE = builder
+                    .comment("Mindest-Geldstrafe bei Raid in Euro")
+                    .defineInRange("raid_min_fine", 1000.0, 100.0, 50000.0);
 
             builder.pop();
 
