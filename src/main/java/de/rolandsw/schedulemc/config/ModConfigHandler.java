@@ -75,6 +75,17 @@ public class ModConfigHandler {
         public final ForgeConfigSpec.ConfigValue<java.util.List<? extends String>> NPC_WALKABLE_BLOCKS;
 
         // ═══════════════════════════════════════════════════════════
+        // POLICE SYSTEM
+        // ═══════════════════════════════════════════════════════════
+        public final ForgeConfigSpec.IntValue POLICE_ARREST_COOLDOWN_SECONDS;
+        public final ForgeConfigSpec.IntValue POLICE_DETECTION_RADIUS;
+        public final ForgeConfigSpec.DoubleValue POLICE_ARREST_DISTANCE;
+        public final ForgeConfigSpec.IntValue POLICE_SEARCH_DURATION_SECONDS;
+        public final ForgeConfigSpec.IntValue POLICE_SEARCH_RADIUS;
+        public final ForgeConfigSpec.BooleanValue POLICE_INDOOR_HIDING_ENABLED;
+        public final ForgeConfigSpec.BooleanValue POLICE_BLOCK_DOORS_DURING_PURSUIT;
+
+        // ═══════════════════════════════════════════════════════════
         // STEALING MINIGAME
         // ═══════════════════════════════════════════════════════════
         public final ForgeConfigSpec.DoubleValue STEALING_INDICATOR_SPEED;
@@ -243,6 +254,39 @@ public class ModConfigHandler {
                             "minecraft:stone_brick_stairs"
                         ),
                         obj -> obj instanceof String);
+
+            builder.pop();
+
+            builder.comment("Police System Settings")
+                    .push("police");
+
+            POLICE_ARREST_COOLDOWN_SECONDS = builder
+                    .comment("Cooldown in Sekunden, bevor Polizei einen Spieler verhaften kann")
+                    .defineInRange("arrest_cooldown_seconds", 5, 1, 60);
+
+            POLICE_DETECTION_RADIUS = builder
+                    .comment("Erkennungsradius der Polizei in Blöcken")
+                    .defineInRange("detection_radius", 32, 8, 128);
+
+            POLICE_ARREST_DISTANCE = builder
+                    .comment("Distanz in Blöcken, bei der Festnahme möglich ist")
+                    .defineInRange("arrest_distance", 2.0, 1.0, 10.0);
+
+            POLICE_SEARCH_DURATION_SECONDS = builder
+                    .comment("Dauer in Sekunden, wie lange Polizei nach entkommenem Spieler sucht")
+                    .defineInRange("search_duration_seconds", 60, 10, 300);
+
+            POLICE_SEARCH_RADIUS = builder
+                    .comment("Suchradius in Blöcken, in dem Polizei nach Spieler sucht")
+                    .defineInRange("search_radius", 50, 10, 100);
+
+            POLICE_INDOOR_HIDING_ENABLED = builder
+                    .comment("Aktiviert Versteck-System in Gebäuden (Spieler können sich vor Polizei verstecken)")
+                    .define("indoor_hiding_enabled", true);
+
+            POLICE_BLOCK_DOORS_DURING_PURSUIT = builder
+                    .comment("Blockiert Türöffnen während aktiver Verfolgung")
+                    .define("block_doors_during_pursuit", true);
 
             builder.pop();
 

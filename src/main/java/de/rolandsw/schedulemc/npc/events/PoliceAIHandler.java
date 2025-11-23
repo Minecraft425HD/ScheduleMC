@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.npc.events;
 
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.economy.items.CashItem;
 import de.rolandsw.schedulemc.npc.crime.CrimeManager;
 import de.rolandsw.schedulemc.npc.data.NPCType;
@@ -27,15 +28,14 @@ import java.util.UUID;
  * Polizei-KI System:
  * - Patrouilliert und sucht Verbrecher
  * - Verfolgt Spieler mit Wanted-Level
- * - Festnahme bei Kontakt (5 Sekunden Cooldown)
+ * - Festnahme bei Kontakt (konfigurierbarer Cooldown)
  * - Gefängnis-System mit Timer
+ * - Indoor-Versteck-System
+ * - Polizei sucht in Gebieten wo Spieler zuletzt gesehen wurde
  */
 public class PoliceAIHandler {
 
-    private static final int DETECTION_RADIUS = 32; // 32 Blöcke
-    private static final double ARREST_DISTANCE = 2.0; // 2 Blöcke
     private static final double POLICE_SPEED = 1.2; // 20% schneller
-    private static final long ARREST_COOLDOWN = 5 * 20; // 5 Sekunden in Ticks
 
     // UUID -> Arrest Start Time (in Ticks)
     private static final Map<UUID, Long> arrestTimers = new HashMap<>();
@@ -57,10 +57,31 @@ public class PoliceAIHandler {
         // Nur alle 20 Ticks (1 Sekunde) prüfen
         if (npc.tickCount % 20 != 0) return;
 
+        long currentTick = npc.level().getGameTime();
+
+        // Lade Config-Werte
+        int detectionRadius = ModConfigHandler.COMMON.POLICE_DETECTION_RADIUS.get();
+        double arrestDistance = ModConfigHandler.COMMON.POLICE_ARREST_DISTANCE.get();
+        long arrestCooldown = ModConfigHandler.COMMON.POLICE_ARREST_COOLDOWN_SECONDS.get() * 20L;
+
+        // Prüfe ob Polizei gerade sucht
+        if (PoliceSearchBehavior.isSearching(npc)) {
+            UUID searchTarget = PoliceSearchBehavior.getSearchTarget(npc);
+
+            if (PoliceSearchBehavior.isSearchExpired(searchTarget, currentTick)) {
+                // Suche abgebrochen
+                PoliceSearchBehavior.stopSearch(npc, searchTarget);
+                System.out.println("[POLICE] " + npc.getNpcName() + " hat die Suche aufgegeben");
+            } else {
+                // Weiter suchen
+                PoliceSearchBehavior.searchArea(npc, searchTarget);
+            }
+        }
+
         // Suche Verbrecher in der Nähe
         List<ServerPlayer> nearbyPlayers = npc.level().getEntitiesOfClass(
             ServerPlayer.class,
-            AABB.ofSize(npc.position(), DETECTION_RADIUS, DETECTION_RADIUS, DETECTION_RADIUS)
+            AABB.ofSize(npc.position(), detectionRadius, detectionRadius, detectionRadius)
         );
 
         ServerPlayer targetCriminal = null;
@@ -71,38 +92,46 @@ public class PoliceAIHandler {
             int wantedLevel = CrimeManager.getWantedLevel(player.getUUID());
 
             if (wantedLevel > 0 && wantedLevel > highestWantedLevel) {
-                targetCriminal = player;
-                highestWantedLevel = wantedLevel;
+                // Prüfe ob Spieler versteckt ist
+                if (!PoliceSearchBehavior.isPlayerHidden(player, npc)) {
+                    targetCriminal = player;
+                    highestWantedLevel = wantedLevel;
+                }
             }
         }
 
         if (targetCriminal != null) {
+            // Spieler gefunden! Stoppe Suchverhalten falls aktiv
+            if (PoliceSearchBehavior.isSearching(npc)) {
+                PoliceSearchBehavior.stopSearch(npc, targetCriminal.getUUID());
+            }
+
             // Verfolge Verbrecher
             double distance = npc.distanceTo(targetCriminal);
 
-            if (distance < ARREST_DISTANCE) {
+            if (distance < arrestDistance) {
                 // ═══════════════════════════════════════════
-                // IM ARREST-BEREICH (< 2 Blöcke)
+                // IM ARREST-BEREICH
                 // ═══════════════════════════════════════════
-                long currentTick = npc.level().getGameTime();
                 UUID playerUUID = targetCriminal.getUUID();
 
                 if (!arrestTimers.containsKey(playerUUID)) {
                     // Start Arrest-Timer
                     arrestTimers.put(playerUUID, currentTick);
-                    targetCriminal.sendSystemMessage(Component.literal("§c⚠ FESTNAHME läuft... 5s"));
+                    int cooldownSeconds = ModConfigHandler.COMMON.POLICE_ARREST_COOLDOWN_SECONDS.get();
+                    targetCriminal.sendSystemMessage(Component.literal("§c⚠ FESTNAHME läuft... " + cooldownSeconds + "s"));
                 } else {
                     // Timer läuft bereits - prüfe ob abgelaufen
                     long startTick = arrestTimers.get(playerUUID);
                     long elapsed = currentTick - startTick;
 
-                    if (elapsed >= ARREST_COOLDOWN) {
-                        // 5 Sekunden vorbei → FESTNAHME!
+                    if (elapsed >= arrestCooldown) {
+                        // Cooldown vorbei → FESTNAHME!
                         arrestPlayer(npc, targetCriminal);
                         arrestTimers.remove(playerUUID);
                     } else {
                         // Zeige verbleibende Zeit (alle Sekunde)
-                        long remainingTicks = ARREST_COOLDOWN - elapsed;
+                        long remainingTicks = arrestCooldown - elapsed;
                         int remainingSeconds = (int) Math.ceil(remainingTicks / 20.0);
 
                         if (elapsed % 20 == 0) { // Jede Sekunde
@@ -133,9 +162,21 @@ public class PoliceAIHandler {
                     );
                 }
             }
-        } else {
-            // Keine Verbrecher - patrouilliere normal
-            // (TODO: Implementiere Patrol-Route wenn gewünscht)
+        } else if (!PoliceSearchBehavior.isSearching(npc)) {
+            // ═══════════════════════════════════════════
+            // KEIN VERBRECHER IN SICHT
+            // ═══════════════════════════════════════════
+            // Prüfe ob wir vorher jemanden verfolgt haben
+            for (UUID trackedPlayer : arrestTimers.keySet()) {
+                // Starte Suchverhalten für verlorenen Spieler
+                ServerPlayer lostPlayer = npc.level().getServer().getPlayerList().getPlayer(trackedPlayer);
+                if (lostPlayer != null && CrimeManager.getWantedLevel(trackedPlayer) > 0) {
+                    PoliceSearchBehavior.startSearch(npc, lostPlayer, currentTick);
+                    lostPlayer.sendSystemMessage(Component.literal("§e⚠ Die Polizei sucht dich im Gebiet..."));
+                }
+                arrestTimers.remove(trackedPlayer);
+                break; // Nur einen Spieler suchen
+            }
         }
     }
 
