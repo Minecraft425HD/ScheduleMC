@@ -18,13 +18,16 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Polizei-KI System:
  * - Patrouilliert und sucht Verbrecher
  * - Verfolgt Spieler mit Wanted-Level
- * - Festnahme bei Kontakt
+ * - Festnahme bei Kontakt (5 Sekunden Cooldown)
  * - Gefängnis-System mit Timer
  */
 public class PoliceAIHandler {
@@ -32,6 +35,10 @@ public class PoliceAIHandler {
     private static final int DETECTION_RADIUS = 32; // 32 Blöcke
     private static final double ARREST_DISTANCE = 2.0; // 2 Blöcke
     private static final double POLICE_SPEED = 1.2; // 20% schneller
+    private static final long ARREST_COOLDOWN = 5 * 20; // 5 Sekunden in Ticks
+
+    // UUID -> Arrest Start Time (in Ticks)
+    private static final Map<UUID, Long> arrestTimers = new HashMap<>();
 
     /**
      * Polizei-KI: Sucht Verbrecher und verfolgt sie
@@ -74,9 +81,48 @@ public class PoliceAIHandler {
             double distance = npc.distanceTo(targetCriminal);
 
             if (distance < ARREST_DISTANCE) {
-                // Festnahme!
-                arrestPlayer(npc, targetCriminal);
+                // ═══════════════════════════════════════════
+                // IM ARREST-BEREICH (< 2 Blöcke)
+                // ═══════════════════════════════════════════
+                long currentTick = npc.level().getGameTime();
+                UUID playerUUID = targetCriminal.getUUID();
+
+                if (!arrestTimers.containsKey(playerUUID)) {
+                    // Start Arrest-Timer
+                    arrestTimers.put(playerUUID, currentTick);
+                    targetCriminal.sendSystemMessage(Component.literal("§c⚠ FESTNAHME läuft... 5s"));
+                } else {
+                    // Timer läuft bereits - prüfe ob abgelaufen
+                    long startTick = arrestTimers.get(playerUUID);
+                    long elapsed = currentTick - startTick;
+
+                    if (elapsed >= ARREST_COOLDOWN) {
+                        // 5 Sekunden vorbei → FESTNAHME!
+                        arrestPlayer(npc, targetCriminal);
+                        arrestTimers.remove(playerUUID);
+                    } else {
+                        // Zeige verbleibende Zeit (alle Sekunde)
+                        long remainingTicks = ARREST_COOLDOWN - elapsed;
+                        int remainingSeconds = (int) Math.ceil(remainingTicks / 20.0);
+
+                        if (elapsed % 20 == 0) { // Jede Sekunde
+                            targetCriminal.sendSystemMessage(
+                                Component.literal("§c⚠ FESTNAHME in " + remainingSeconds + "s...")
+                            );
+                        }
+                    }
+                }
             } else {
+                // ═══════════════════════════════════════════
+                // AUSSERHALB ARREST-BEREICH (verfolgen)
+                // ═══════════════════════════════════════════
+                // Reset Timer falls vorhanden
+                UUID playerUUID = targetCriminal.getUUID();
+                if (arrestTimers.containsKey(playerUUID)) {
+                    arrestTimers.remove(playerUUID);
+                    targetCriminal.sendSystemMessage(Component.literal("§e✓ Du bist entkommen!"));
+                }
+
                 // Verfolge
                 npc.getNavigation().moveTo(targetCriminal, POLICE_SPEED);
 
@@ -149,6 +195,9 @@ public class PoliceAIHandler {
 
         // Reset Wanted-Level
         CrimeManager.clearWantedLevel(player.getUUID());
+
+        // Reset Arrest-Timer
+        arrestTimers.remove(player.getUUID());
 
         // Meldungen
         player.sendSystemMessage(Component.literal("§7Haftzeit: §e" + jailTimeSeconds + " Sekunden"));
@@ -260,7 +309,8 @@ public class PoliceAIHandler {
             long escapeTime = CrimeManager.getEscapeTimeRemaining(player.getUUID(), currentTick);
             NPCNetworkHandler.sendToPlayer(new WantedLevelSyncPacket(wantedLevel, escapeTime), player);
         } else {
-            // Kein Wanted-Level → sync 0 zum Client
+            // Kein Wanted-Level → cleanup und sync 0 zum Client
+            arrestTimers.remove(player.getUUID());
             NPCNetworkHandler.sendToPlayer(new WantedLevelSyncPacket(0, 0), player);
         }
     }
