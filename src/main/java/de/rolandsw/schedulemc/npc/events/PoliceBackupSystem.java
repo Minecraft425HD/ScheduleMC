@@ -94,7 +94,9 @@ public class PoliceBackupSystem {
         List<CustomNPCEntity> nearbyPolice = caller.level().getEntitiesOfClass(
             CustomNPCEntity.class,
             searchArea,
-            npc -> npc.isPolice() && !npc.equals(caller) && !isPoliceAssigned(npc.getUUID())
+            npc -> npc.getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.POLIZEI &&
+                   !npc.equals(caller) &&
+                   !isPoliceAssigned(npc.getUUID())
         );
 
         if (nearbyPolice.isEmpty()) {

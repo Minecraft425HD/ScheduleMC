@@ -55,9 +55,9 @@ public class PoliceRaidPenalty {
         ));
 
         // 3. Ziehe Geldstrafe ab
-        if (EconomyManager.hasBalance(player.getUUID(), fine)) {
+        if (EconomyManager.getBalance(player.getUUID()) >= fine) {
             // Genug Geld - ziehe von Konto ab
-            EconomyManager.removeBalance(player.getUUID(), fine);
+            EconomyManager.withdraw(player.getUUID(), fine);
             player.sendSystemMessage(Component.literal(
                 "§c✗ GELDSTRAFE: " + String.format("%.2f", fine) + "€ vom Konto abgezogen"
             ));
@@ -68,7 +68,7 @@ public class PoliceRaidPenalty {
             // Nicht genug Geld - ziehe alles ab + verdoppele Gefängnis
             double availableBalance = EconomyManager.getBalance(player.getUUID());
             if (availableBalance > 0) {
-                EconomyManager.removeBalance(player.getUUID(), availableBalance);
+                EconomyManager.withdraw(player.getUUID(), availableBalance);
             }
 
             player.sendSystemMessage(Component.literal(
@@ -111,6 +111,6 @@ public class PoliceRaidPenalty {
      * Prüft ob Spieler genug Geld für Strafe hat
      */
     public static boolean canPayFine(ServerPlayer player, double fine) {
-        return EconomyManager.hasBalance(player.getUUID(), fine);
+        return EconomyManager.getBalance(player.getUUID()) >= fine;
     }
 }
