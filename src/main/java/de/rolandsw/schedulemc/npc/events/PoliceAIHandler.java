@@ -434,11 +434,25 @@ public class PoliceAIHandler {
             boolean canHide = false;
 
             // Prüfe ob Spieler sich verstecken kann
-            if (PoliceSearchBehavior.isPlayerHidingIndoors(player)) {
-                // Spieler ist in Gebäude UND nicht am Fenster → kann sich verstecken
-                canHide = true;
+            if (!nearbyPolice.isEmpty()) {
+                // Es gibt Polizei in der Nähe - prüfe ob Spieler vor ALLEN versteckt ist
+                boolean hiddenFromAll = true;
+
+                for (CustomNPCEntity police : nearbyPolice) {
+                    // isPlayerHidden gibt FALSE zurück wenn Polizei den Spieler SEHEN kann
+                    if (!PoliceSearchBehavior.isPlayerHidden(player, police)) {
+                        // Diese Polizei kann den Spieler sehen (z.B. draußen oder durch Fenster)
+                        hiddenFromAll = false;
+                        break;
+                    }
+                }
+
+                if (hiddenFromAll) {
+                    // Spieler ist vor ALLER Polizei versteckt (im Gebäude, nicht am Fenster)
+                    canHide = true;
+                }
             } else if (minDistance > CrimeManager.ESCAPE_DISTANCE) {
-                // Alternativ: Weit genug von Polizei entfernt
+                // Keine Polizei in der Nähe UND weit genug entfernt
                 canHide = true;
             }
 
@@ -446,11 +460,7 @@ public class PoliceAIHandler {
                 // Spieler kann sich verstecken → Start Escape-Timer
                 if (!CrimeManager.isHiding(player.getUUID())) {
                     CrimeManager.startEscapeTimer(player.getUUID(), currentTick);
-                    if (PoliceSearchBehavior.isPlayerHidingIndoors(player)) {
-                        player.sendSystemMessage(Component.literal("§e✓ Du versteckst dich im Gebäude..."));
-                    } else {
-                        player.sendSystemMessage(Component.literal("§e✓ Du versteckst dich vor der Polizei..."));
-                    }
+                    player.sendSystemMessage(Component.literal("§e✓ Du versteckst dich vor der Polizei..."));
                 }
 
                 // Prüfe ob Escape erfolgreich
@@ -461,10 +471,17 @@ public class PoliceAIHandler {
                 // Spieler kann sich nicht verstecken → Stop Escape-Timer
                 if (CrimeManager.isHiding(player.getUUID())) {
                     CrimeManager.stopEscapeTimer(player.getUUID());
-                    if (PoliceSearchBehavior.isPlayerHidingIndoors(player) == false && minDistance <= CrimeManager.ESCAPE_DISTANCE) {
+
+                    boolean isIndoors = PoliceSearchBehavior.isPlayerHidingIndoors(player);
+                    if (isIndoors) {
+                        // Im Gebäude aber am Fenster sichtbar
+                        player.sendSystemMessage(Component.literal("§c✗ Polizei hat dich am Fenster entdeckt!"));
+                    } else if (minDistance <= CrimeManager.ESCAPE_DISTANCE) {
+                        // Draußen und Polizei zu nah
                         player.sendSystemMessage(Component.literal("§c✗ Polizei ist zu nah!"));
                     } else {
-                        player.sendSystemMessage(Component.literal("§c✗ Polizei hat dich am Fenster entdeckt!"));
+                        // Draußen und sichtbar
+                        player.sendSystemMessage(Component.literal("§c✗ Polizei hat dich gesehen!"));
                     }
                 }
             }
