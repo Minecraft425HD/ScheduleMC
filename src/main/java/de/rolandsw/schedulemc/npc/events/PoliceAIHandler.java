@@ -168,21 +168,49 @@ public class PoliceAIHandler {
                 // ═══════════════════════════════════════════
                 // AUSSERHALB ARREST-BEREICH (verfolgen)
                 // ═══════════════════════════════════════════
-                // Reset Timer falls vorhanden
                 UUID playerUUID = targetCriminal.getUUID();
-                if (arrestTimers.containsKey(playerUUID)) {
-                    arrestTimers.remove(playerUUID);
-                    targetCriminal.sendSystemMessage(Component.literal("§e✓ Du bist entkommen!"));
-                }
 
-                // Verfolge
-                npc.getNavigation().moveTo(targetCriminal, POLICE_SPEED);
+                // Prüfe ob Spieler versteckt ist (im Gebäude)
+                boolean isHidden = PoliceSearchBehavior.isPlayerHidden(targetCriminal, npc);
 
-                // Warnung alle 5 Sekunden
-                if (npc.tickCount % 100 == 0) {
-                    targetCriminal.sendSystemMessage(
-                        Component.literal("§c⚠ POLIZEI! Bleib stehen!")
-                    );
+                if (isHidden) {
+                    // Spieler ist versteckt - NICHT ins Gebäude folgen!
+                    // Stattdessen: Gebiet durchsuchen / vor Gebäude warten
+                    System.out.println("[POLICE] " + npc.getNpcName() + " - Spieler ist versteckt, wechsle zu Suchmodus");
+
+                    // Reset Timer falls vorhanden
+                    if (arrestTimers.containsKey(playerUUID)) {
+                        arrestTimers.remove(playerUUID);
+                        targetCriminal.sendSystemMessage(Component.literal("§e✓ Du bist entkommen!"));
+                    }
+
+                    // Starte Suchverhalten statt direkter Verfolgung
+                    if (!PoliceSearchBehavior.isSearching(npc)) {
+                        PoliceSearchBehavior.startSearch(npc, targetCriminal, currentTick);
+                        targetCriminal.sendSystemMessage(Component.literal("§e⚠ Die Polizei sucht dich im Gebiet..."));
+                    }
+
+                    // Speichere dass wir diesen Spieler verfolgen
+                    lastPursuitTarget.put(npc.getUUID(), targetCriminal.getUUID());
+
+                } else {
+                    // Spieler ist NICHT versteckt - normale Verfolgung
+
+                    // Reset Timer falls vorhanden
+                    if (arrestTimers.containsKey(playerUUID)) {
+                        arrestTimers.remove(playerUUID);
+                        targetCriminal.sendSystemMessage(Component.literal("§e✓ Du bist entkommen!"));
+                    }
+
+                    // Verfolge direkt
+                    npc.getNavigation().moveTo(targetCriminal, POLICE_SPEED);
+
+                    // Warnung alle 5 Sekunden
+                    if (npc.tickCount % 100 == 0) {
+                        targetCriminal.sendSystemMessage(
+                            Component.literal("§c⚠ POLIZEI! Bleib stehen!")
+                        );
+                    }
                 }
             }
         } else if (!PoliceSearchBehavior.isSearching(npc)) {
