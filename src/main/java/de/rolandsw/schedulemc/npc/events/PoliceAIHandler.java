@@ -74,6 +74,7 @@ public class PoliceAIHandler {
             if (PoliceSearchBehavior.isSearchExpired(searchTarget, currentTick)) {
                 // Suche abgebrochen
                 PoliceSearchBehavior.stopSearch(npc, searchTarget);
+                PoliceBackupSystem.unregisterPolice(searchTarget, npc.getUUID());
                 System.out.println("[POLICE] " + npc.getNpcName() + " hat die Suche aufgegeben");
             } else {
                 // Weiter suchen
@@ -82,24 +83,39 @@ public class PoliceAIHandler {
             }
         }
 
-        // Suche Verbrecher in der Nähe
-        List<ServerPlayer> nearbyPlayers = npc.level().getEntitiesOfClass(
-            ServerPlayer.class,
-            AABB.ofSize(npc.position(), detectionRadius, detectionRadius, detectionRadius)
-        );
-
+        // Prüfe ob diese Polizei einer Verfolgung zugewiesen ist (Backup-System)
+        UUID assignedTarget = PoliceBackupSystem.getAssignedTarget(npc.getUUID());
         ServerPlayer targetCriminal = null;
         int highestWantedLevel = 0;
 
-        // Finde Spieler mit höchstem Wanted-Level
-        for (ServerPlayer player : nearbyPlayers) {
-            int wantedLevel = CrimeManager.getWantedLevel(player.getUUID());
+        if (assignedTarget != null) {
+            // Diese Polizei hat ein zugewiesenes Ziel (Verstärkung)
+            ServerPlayer assignedPlayer = npc.level().getServer().getPlayerList().getPlayer(assignedTarget);
+            if (assignedPlayer != null && !PoliceSearchBehavior.isPlayerHidden(assignedPlayer, npc)) {
+                targetCriminal = assignedPlayer;
+                highestWantedLevel = CrimeManager.getWantedLevel(assignedPlayer.getUUID());
+                System.out.println("[BACKUP] " + npc.getNpcName() + " verfolgt zugewiesenes Ziel: " +
+                    assignedPlayer.getName().getString());
+            }
+        }
 
-            if (wantedLevel > 0 && wantedLevel > highestWantedLevel) {
-                // Prüfe ob Spieler versteckt ist
-                if (!PoliceSearchBehavior.isPlayerHidden(player, npc)) {
-                    targetCriminal = player;
-                    highestWantedLevel = wantedLevel;
+        // Wenn kein zugewiesenes Ziel, suche Verbrecher in der Nähe
+        if (targetCriminal == null) {
+            List<ServerPlayer> nearbyPlayers = npc.level().getEntitiesOfClass(
+                ServerPlayer.class,
+                AABB.ofSize(npc.position(), detectionRadius, detectionRadius, detectionRadius)
+            );
+
+            // Finde Spieler mit höchstem Wanted-Level
+            for (ServerPlayer player : nearbyPlayers) {
+                int wantedLevel = CrimeManager.getWantedLevel(player.getUUID());
+
+                if (wantedLevel > 0 && wantedLevel > highestWantedLevel) {
+                    // Prüfe ob Spieler versteckt ist
+                    if (!PoliceSearchBehavior.isPlayerHidden(player, npc)) {
+                        targetCriminal = player;
+                        highestWantedLevel = wantedLevel;
+                    }
                 }
             }
         }
@@ -211,9 +227,47 @@ public class PoliceAIHandler {
             return; // Schon im Gefängnis
         }
 
+        // ═══════════════════════════════════════════════════════════
+        // POLIZEI RAID - Scanne Umgebung nach illegalen Items
+        // ═══════════════════════════════════════════════════════════
+        IllegalActivityScanner.ScanResult scanResult = IllegalActivityScanner.scanArea(
+            player.level(),
+            player.blockPosition(),
+            player
+        );
+
+        if (scanResult.hasIllegalActivity()) {
+            // Illegale Aktivitäten gefunden!
+            System.out.println("[RAID] Illegale Aktivitäten bei " + player.getName().getString() + " festgestellt!");
+            System.out.println("[RAID] Pflanzen: " + scanResult.illegalPlantCount +
+                ", Bargeld: " + scanResult.totalCashFound +
+                ", Items: " + scanResult.illegalItemCount);
+
+            // Wende Strafen an (Geldstrafe, Fahndungslevel-Erhöhung)
+            PoliceRaidPenalty.applyPenalties(player, scanResult);
+
+            // Upgrade zu Raid (max 4 Polizisten statt 2)
+            PoliceBackupSystem.upgradeToRaid(player.getUUID());
+            PoliceBackupSystem.registerPolice(player.getUUID(), police.getUUID(), true);
+
+            // Rufe Verstärkung (bis zu 4 Polizisten total)
+            PoliceBackupSystem.callBackup(player, police);
+
+        } else {
+            // Keine illegalen Items - normale Verfolgung (max 2 Polizisten)
+            PoliceBackupSystem.registerPolice(player.getUUID(), police.getUUID(), false);
+        }
+
         // Strafe berechnen
         int fine = wantedLevel * 500; // 500€ pro Stern
         int jailTimeSeconds = wantedLevel * 60; // 60 Sekunden pro Stern
+
+        // Prüfe ob Raid-Strafe nicht bezahlt werden konnte (aus PoliceRaidPenalty)
+        if (player.getPersistentData().getBoolean("DoublePenalty")) {
+            jailTimeSeconds *= 2;
+            player.getPersistentData().remove("DoublePenalty");
+            System.out.println("[RAID] Haftzeit verdoppelt wegen unbezahlter Raid-Strafe");
+        }
 
         // Geld aus Wallet-Item abziehen
         ItemStack wallet = player.getInventory().getItem(8);
@@ -258,6 +312,9 @@ public class PoliceAIHandler {
 
         // Reset Arrest-Timer
         arrestTimers.remove(player.getUUID());
+
+        // Cleanup Backup-System
+        PoliceBackupSystem.cleanup(player.getUUID());
 
         // Meldungen
         player.sendSystemMessage(Component.literal("§7Haftzeit: §e" + jailTimeSeconds + " Sekunden"));

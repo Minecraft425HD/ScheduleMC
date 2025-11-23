@@ -86,6 +86,12 @@ public class ModConfigHandler {
         public final ForgeConfigSpec.BooleanValue POLICE_INDOOR_HIDING_ENABLED;
         public final ForgeConfigSpec.BooleanValue POLICE_BLOCK_DOORS_DURING_PURSUIT;
 
+        // Police Raid System
+        public final ForgeConfigSpec.IntValue POLICE_RAID_SCAN_RADIUS;
+        public final ForgeConfigSpec.DoubleValue POLICE_ILLEGAL_CASH_THRESHOLD;
+        public final ForgeConfigSpec.DoubleValue POLICE_RAID_ACCOUNT_PERCENTAGE;
+        public final ForgeConfigSpec.DoubleValue POLICE_RAID_MIN_FINE;
+
         // ═══════════════════════════════════════════════════════════
         // STEALING MINIGAME
         // ═══════════════════════════════════════════════════════════
@@ -292,6 +298,22 @@ public class ModConfigHandler {
             POLICE_BLOCK_DOORS_DURING_PURSUIT = builder
                     .comment("Blockiert Türöffnen während aktiver Verfolgung")
                     .define("block_doors_during_pursuit", true);
+
+            POLICE_RAID_SCAN_RADIUS = builder
+                    .comment("Scan-Radius für illegale Items bei Verhaftung (in Blöcken)")
+                    .defineInRange("raid_scan_radius", 20, 5, 50);
+
+            POLICE_ILLEGAL_CASH_THRESHOLD = builder
+                    .comment("Bargeld-Schwellenwert für illegales Bargeld (über diesem Wert ist es illegal)")
+                    .defineInRange("illegal_cash_threshold", 10000.0, 1000.0, 100000.0);
+
+            POLICE_RAID_ACCOUNT_PERCENTAGE = builder
+                    .comment("Prozentsatz vom Kontostand für Geldstrafe (0.1 = 10%)")
+                    .defineInRange("raid_account_percentage", 0.1, 0.01, 0.5);
+
+            POLICE_RAID_MIN_FINE = builder
+                    .comment("Mindest-Geldstrafe bei Raid in Euro")
+                    .defineInRange("raid_min_fine", 1000.0, 100.0, 50000.0);
 
             builder.pop();
 
