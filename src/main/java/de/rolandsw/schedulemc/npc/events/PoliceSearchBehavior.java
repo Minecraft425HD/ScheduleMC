@@ -29,6 +29,9 @@ public class PoliceSearchBehavior {
     // UUID -> Last Known Position
     private static final Map<UUID, BlockPos> lastKnownPositions = new HashMap<>();
 
+    // UUID -> Movement Direction (Vec3 als String gespeichert: "x,y,z")
+    private static final Map<UUID, String> movementDirections = new HashMap<>();
+
     // UUID -> Search Start Time (in Ticks)
     private static final Map<UUID, Long> searchTimers = new HashMap<>();
 
@@ -57,6 +60,49 @@ public class PoliceSearchBehavior {
 
         // Prüfe Sichtlinie (Line of Sight)
         return !hasLineOfSight(police, player);
+    }
+
+    /**
+     * Prüft ob Spieler sich in einem Gebäude versteckt (für Escape-Timer)
+     * Gibt true zurück wenn Spieler indoor ist UND nicht am Fenster steht
+     */
+    public static boolean isPlayerHidingIndoors(ServerPlayer player) {
+        if (!ModConfigHandler.COMMON.POLICE_INDOOR_HIDING_ENABLED.get()) {
+            return false;
+        }
+
+        // Prüfe ob Spieler in einem Gebäude ist
+        if (!isPlayerIndoors(player)) {
+            return false;
+        }
+
+        // Prüfe ob Spieler am Fenster steht
+        return !isPlayerNearWindow(player);
+    }
+
+    /**
+     * Prüft ob Spieler nah an einem Fenster/transparenten Block steht
+     */
+    private static boolean isPlayerNearWindow(ServerPlayer player) {
+        Level level = player.level();
+        BlockPos playerPos = player.blockPosition();
+
+        // Prüfe Blöcke im 2-Block-Radius um den Spieler
+        for (int x = -2; x <= 2; x++) {
+            for (int y = -1; y <= 2; y++) {
+                for (int z = -2; z <= 2; z++) {
+                    BlockPos checkPos = playerPos.offset(x, y, z);
+                    BlockState state = level.getBlockState(checkPos);
+                    Block block = state.getBlock();
+
+                    if (isTransparentBlock(block)) {
+                        return true; // Fenster in der Nähe
+                    }
+                }
+            }
+        }
+
+        return false; // Kein Fenster in der Nähe
     }
 
     /**
@@ -194,8 +240,19 @@ public class PoliceSearchBehavior {
         searchTimers.put(playerUUID, currentTick);
         activeSearches.put(policeUUID, playerUUID);
 
-        System.out.println("[POLICE] " + police.getNpcName() + " startet Suche nach Spieler " +
-            player.getName().getString() + " bei " + player.blockPosition());
+        // Speichere Bewegungsrichtung des Spielers
+        Vec3 movement = player.getDeltaMovement();
+        if (movement.lengthSqr() > 0.01) { // Nur wenn sich Spieler bewegt
+            String direction = movement.x + "," + movement.y + "," + movement.z;
+            movementDirections.put(playerUUID, direction);
+            System.out.println("[POLICE] " + police.getNpcName() + " startet Suche nach Spieler " +
+                player.getName().getString() + " bei " + player.blockPosition() + " in Richtung " + movement);
+        } else {
+            // Spieler steht still - keine bevorzugte Richtung
+            movementDirections.remove(playerUUID);
+            System.out.println("[POLICE] " + police.getNpcName() + " startet Suche nach Spieler " +
+                player.getName().getString() + " bei " + player.blockPosition());
+        }
     }
 
     /**
@@ -273,19 +330,48 @@ public class PoliceSearchBehavior {
         if (needsNewTarget) {
             int searchRadius = ModConfigHandler.COMMON.POLICE_SEARCH_RADIUS.get();
 
-            // Zufällige Position in der Nähe der letzten bekannten Position
-            int randomX = lastPos.getX() + (police.getRandom().nextInt(searchRadius * 2) - searchRadius);
-            int randomZ = lastPos.getZ() + (police.getRandom().nextInt(searchRadius * 2) - searchRadius);
+            BlockPos searchTarget;
 
-            BlockPos searchTarget = new BlockPos(randomX, lastPos.getY(), randomZ);
+            // Prüfe ob wir eine Bewegungsrichtung haben
+            if (movementDirections.containsKey(playerUUID)) {
+                // Suche in Bewegungsrichtung des Spielers
+                String dirStr = movementDirections.get(playerUUID);
+                String[] parts = dirStr.split(",");
+                double dirX = Double.parseDouble(parts[0]);
+                double dirZ = Double.parseDouble(parts[2]);
+
+                // Normalisiere die Richtung
+                double length = Math.sqrt(dirX * dirX + dirZ * dirZ);
+                if (length > 0) {
+                    dirX /= length;
+                    dirZ /= length;
+                }
+
+                // Suche hauptsächlich in Bewegungsrichtung (70%) + etwas Zufall (30%)
+                double distance = searchRadius * (0.5 + police.getRandom().nextDouble() * 0.5); // 50-100% des Radius
+                double spread = searchRadius * 0.3; // 30% Streuung
+
+                int targetX = lastPos.getX() + (int)(dirX * distance) + (police.getRandom().nextInt((int)(spread * 2)) - (int)spread);
+                int targetZ = lastPos.getZ() + (int)(dirZ * distance) + (police.getRandom().nextInt((int)(spread * 2)) - (int)spread);
+
+                searchTarget = new BlockPos(targetX, lastPos.getY(), targetZ);
+
+                System.out.println("[POLICE] " + police.getNpcName() + " sucht in Bewegungsrichtung bei " + searchTarget + " (Radius: " + searchRadius + ")");
+            } else {
+                // Keine Bewegungsrichtung - zufällige Position
+                int randomX = lastPos.getX() + (police.getRandom().nextInt(searchRadius * 2) - searchRadius);
+                int randomZ = lastPos.getZ() + (police.getRandom().nextInt(searchRadius * 2) - searchRadius);
+
+                searchTarget = new BlockPos(randomX, lastPos.getY(), randomZ);
+
+                System.out.println("[POLICE] " + police.getNpcName() + " sucht zufällig bei " + searchTarget + " (Radius: " + searchRadius + ")");
+            }
 
             // Navigiere zur Suchposition mit höherer Geschwindigkeit
             police.getNavigation().moveTo(searchTarget.getX(), searchTarget.getY(), searchTarget.getZ(), 1.2);
 
             // Speichere Update-Zeit
             lastTargetUpdate.put(policeUUID, currentTick);
-
-            System.out.println("[POLICE] " + police.getNpcName() + " sucht bei " + searchTarget + " (Radius: " + searchRadius + ")");
         }
     }
 
@@ -295,5 +381,6 @@ public class PoliceSearchBehavior {
     public static void cleanup(UUID playerUUID) {
         lastKnownPositions.remove(playerUUID);
         searchTimers.remove(playerUUID);
+        movementDirections.remove(playerUUID);
     }
 }

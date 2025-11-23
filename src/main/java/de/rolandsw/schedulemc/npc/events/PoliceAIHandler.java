@@ -327,11 +327,26 @@ public class PoliceAIHandler {
             }
 
             // Escape-Logic
-            if (minDistance > CrimeManager.ESCAPE_DISTANCE) {
-                // Weit genug von Polizei entfernt → Start Escape-Timer
+            boolean canHide = false;
+
+            // Prüfe ob Spieler sich verstecken kann
+            if (PoliceSearchBehavior.isPlayerHidingIndoors(player)) {
+                // Spieler ist in Gebäude UND nicht am Fenster → kann sich verstecken
+                canHide = true;
+            } else if (minDistance > CrimeManager.ESCAPE_DISTANCE) {
+                // Alternativ: Weit genug von Polizei entfernt
+                canHide = true;
+            }
+
+            if (canHide) {
+                // Spieler kann sich verstecken → Start Escape-Timer
                 if (!CrimeManager.isHiding(player.getUUID())) {
                     CrimeManager.startEscapeTimer(player.getUUID(), currentTick);
-                    player.sendSystemMessage(Component.literal("§e✓ Du versteckst dich vor der Polizei..."));
+                    if (PoliceSearchBehavior.isPlayerHidingIndoors(player)) {
+                        player.sendSystemMessage(Component.literal("§e✓ Du versteckst dich im Gebäude..."));
+                    } else {
+                        player.sendSystemMessage(Component.literal("§e✓ Du versteckst dich vor der Polizei..."));
+                    }
                 }
 
                 // Prüfe ob Escape erfolgreich
@@ -339,10 +354,14 @@ public class PoliceAIHandler {
                     player.sendSystemMessage(Component.literal("§a✓ Du bist entkommen! -1★"));
                 }
             } else {
-                // Polizei zu nah → Stop Escape-Timer
+                // Spieler kann sich nicht verstecken → Stop Escape-Timer
                 if (CrimeManager.isHiding(player.getUUID())) {
                     CrimeManager.stopEscapeTimer(player.getUUID());
-                    player.sendSystemMessage(Component.literal("§c✗ Polizei hat dich entdeckt!"));
+                    if (PoliceSearchBehavior.isPlayerHidingIndoors(player) == false && minDistance <= CrimeManager.ESCAPE_DISTANCE) {
+                        player.sendSystemMessage(Component.literal("§c✗ Polizei ist zu nah!"));
+                    } else {
+                        player.sendSystemMessage(Component.literal("§c✗ Polizei hat dich am Fenster entdeckt!"));
+                    }
                 }
             }
 
