@@ -116,6 +116,33 @@ public class TobaccoBlocks {
         )
     );
 
+    public static final RegistryObject<Block> SMALL_PACKAGING_TABLE = registerBlockWithItem(
+        "small_packaging_table",
+        () -> new SmallPackagingTableBlock(
+            BlockBehaviour.Properties.of()
+                .strength(2.5f)
+                .sound(SoundType.WOOD)
+        )
+    );
+
+    public static final RegistryObject<Block> MEDIUM_PACKAGING_TABLE = registerBlockWithItem(
+        "medium_packaging_table",
+        () -> new MediumPackagingTableBlock(
+            BlockBehaviour.Properties.of()
+                .strength(2.5f)
+                .sound(SoundType.WOOD)
+        )
+    );
+
+    public static final RegistryObject<Block> LARGE_PACKAGING_TABLE = registerBlockWithItem(
+        "large_packaging_table",
+        () -> new LargePackagingTableBlock(
+            BlockBehaviour.Properties.of()
+                .strength(2.5f)
+                .sound(SoundType.WOOD)
+        )
+    );
+
     // ═══════════════════════════════════════════════════════════
     // PFLANZEN-BLÖCKE (4 Tabak-Typen, KEIN BlockItem!)
     // ═══════════════════════════════════════════════════════════

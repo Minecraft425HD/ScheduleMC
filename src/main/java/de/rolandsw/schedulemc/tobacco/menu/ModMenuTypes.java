@@ -22,4 +22,16 @@ public class ModMenuTypes {
     public static final RegistryObject<MenuType<TobaccoNegotiationMenu>> TOBACCO_NEGOTIATION_MENU =
         MENUS.register("tobacco_negotiation_menu", () ->
             IForgeMenuType.create(TobaccoNegotiationMenu::new));
+
+    public static final RegistryObject<MenuType<SmallPackagingTableMenu>> SMALL_PACKAGING_TABLE_MENU =
+        MENUS.register("small_packaging_table_menu", () ->
+            IForgeMenuType.create(SmallPackagingTableMenu::new));
+
+    public static final RegistryObject<MenuType<MediumPackagingTableMenu>> MEDIUM_PACKAGING_TABLE_MENU =
+        MENUS.register("medium_packaging_table_menu", () ->
+            IForgeMenuType.create(MediumPackagingTableMenu::new));
+
+    public static final RegistryObject<MenuType<LargePackagingTableMenu>> LARGE_PACKAGING_TABLE_MENU =
+        MENUS.register("large_packaging_table_menu", () ->
+            IForgeMenuType.create(LargePackagingTableMenu::new));
 }

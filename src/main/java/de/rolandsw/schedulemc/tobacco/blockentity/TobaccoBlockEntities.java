@@ -45,4 +45,25 @@ public class TobaccoBlockEntities {
             BlockEntityType.Builder.of(PackagingTableBlockEntity::new,
                 TobaccoBlocks.PACKAGING_TABLE.get()
             ).build(null));
+
+    // Small Packtisch BlockEntity (1g, 5g)
+    public static final RegistryObject<BlockEntityType<SmallPackagingTableBlockEntity>> SMALL_PACKAGING_TABLE =
+        BLOCK_ENTITIES.register("small_packaging_table", () ->
+            BlockEntityType.Builder.of(SmallPackagingTableBlockEntity::new,
+                TobaccoBlocks.SMALL_PACKAGING_TABLE.get()
+            ).build(null));
+
+    // Medium Packtisch BlockEntity (10g)
+    public static final RegistryObject<BlockEntityType<MediumPackagingTableBlockEntity>> MEDIUM_PACKAGING_TABLE =
+        BLOCK_ENTITIES.register("medium_packaging_table", () ->
+            BlockEntityType.Builder.of(MediumPackagingTableBlockEntity::new,
+                TobaccoBlocks.MEDIUM_PACKAGING_TABLE.get()
+            ).build(null));
+
+    // Large Packtisch BlockEntity (20g)
+    public static final RegistryObject<BlockEntityType<LargePackagingTableBlockEntity>> LARGE_PACKAGING_TABLE =
+        BLOCK_ENTITIES.register("large_packaging_table", () ->
+            BlockEntityType.Builder.of(LargePackagingTableBlockEntity::new,
+                TobaccoBlocks.LARGE_PACKAGING_TABLE.get()
+            ).build(null));
 }

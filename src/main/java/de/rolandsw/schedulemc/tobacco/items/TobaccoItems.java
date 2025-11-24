@@ -113,6 +113,19 @@ public class TobaccoItems {
         ITEMS.register("soil_bag_large", () -> new SoilBagItem(SoilBagType.LARGE));
 
     // ═══════════════════════════════════════════════════════════
+    // VERPACKUNGSMATERIALIEN
+    // ═══════════════════════════════════════════════════════════
+
+    public static final RegistryObject<Item> PACKAGING_BAG =
+        ITEMS.register("packaging_bag", PackagingBagItem::new);
+
+    public static final RegistryObject<Item> PACKAGING_JAR =
+        ITEMS.register("packaging_jar", PackagingJarItem::new);
+
+    public static final RegistryObject<Item> PACKAGING_BOX =
+        ITEMS.register("packaging_box", PackagingBoxItem::new);
+
+    // ═══════════════════════════════════════════════════════════
     // VERPACKTER TABAK (für Verkauf an NPCs)
     // ═══════════════════════════════════════════════════════════
 
