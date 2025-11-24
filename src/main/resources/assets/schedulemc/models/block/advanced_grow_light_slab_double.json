@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "schedulemc:block/advanced_grow_light_slab"
+  }
+}
