@@ -23,24 +23,28 @@ public class NegotiationPacket {
     private final int npcEntityId;
     private final int playerSlot;
     private final double offeredPrice;
+    private final int offeredGrams;  // NEU: Anzahl Gramm zum Verkaufen
 
-    public NegotiationPacket(int npcEntityId, int playerSlot, double offeredPrice) {
+    public NegotiationPacket(int npcEntityId, int playerSlot, double offeredPrice, int offeredGrams) {
         this.npcEntityId = npcEntityId;
         this.playerSlot = playerSlot;
         this.offeredPrice = offeredPrice;
+        this.offeredGrams = offeredGrams;
     }
 
     public void encode(FriendlyByteBuf buf) {
         buf.writeInt(npcEntityId);
         buf.writeInt(playerSlot);
         buf.writeDouble(offeredPrice);
+        buf.writeInt(offeredGrams);
     }
 
     public static NegotiationPacket decode(FriendlyByteBuf buf) {
         return new NegotiationPacket(
             buf.readInt(),
             buf.readInt(),
-            buf.readDouble()
+            buf.readDouble(),
+            buf.readInt()
         );
     }
 
@@ -54,6 +58,21 @@ public class NegotiationPacket {
 
             ItemStack playerItem = player.getInventory().getItem(playerSlot);
             if (!(playerItem.getItem() instanceof PackagedTobaccoItem)) return;
+
+            // Validierung der Gramm-Anzahl
+            int availableGrams = PackagedTobaccoItem.getWeight(playerItem);
+            if (offeredGrams <= 0 || offeredGrams > availableGrams) {
+                player.sendSystemMessage(Component.literal("§cUngültige Grammzahl!"));
+                return;
+            }
+
+            // Wallet-Check: NPC muss genug Geld haben
+            int npcWallet = npc.getNpcData().getWallet();
+            if (offeredPrice > npcWallet) {
+                player.sendSystemMessage(Component.literal("§c✗ Der NPC hat nicht genug Geld!"));
+                player.sendSystemMessage(Component.literal("§7NPC Geldbörse: " + npcWallet + "€, Preis: " + String.format("%.2f", offeredPrice) + "€"));
+                return;
+            }
 
             NPCBusinessMetrics metrics = new NPCBusinessMetrics(npc);
             NPCResponse response = NegotiationEngine.handleNegotiation(
@@ -76,11 +95,31 @@ public class NegotiationPacket {
 
                 // Verkauf durchführen
                 double price = offeredPrice;
+                long currentDay = player.level().getDayTime() / 24000;
 
-                // Item entfernen und mit 50% Wahrscheinlichkeit ins NPC Inventar legen
-                ItemStack soldItem = playerItem.copy();
-                soldItem.setCount(1);
-                playerItem.shrink(1);
+                // Erstelle verkauftes Item mit der gewünschten Grammzahl
+                ItemStack soldItem = PackagedTobaccoItem.create(
+                    PackagedTobaccoItem.getType(playerItem),
+                    PackagedTobaccoItem.getQuality(playerItem),
+                    offeredGrams,
+                    PackagedTobaccoItem.getPackagedDate(playerItem)  // Behalte Original-Datum
+                );
+
+                // Wenn nur ein Teil verkauft wird, reduziere das Spieler-Item
+                if (offeredGrams < availableGrams) {
+                    // Erstelle neues Item mit verbleibenden Gramm
+                    int remainingGrams = availableGrams - offeredGrams;
+                    ItemStack remainingItem = PackagedTobaccoItem.create(
+                        PackagedTobaccoItem.getType(playerItem),
+                        PackagedTobaccoItem.getQuality(playerItem),
+                        remainingGrams,
+                        PackagedTobaccoItem.getPackagedDate(playerItem)  // Behalte Original-Datum
+                    );
+                    player.getInventory().setItem(playerSlot, remainingItem);
+                } else {
+                    // Ganzes Paket wurde verkauft
+                    playerItem.shrink(1);
+                }
 
                 // 50% Chance: Item geht ins NPC Inventar (kann gestohlen werden)
                 if (player.level().getRandom().nextDouble() < 0.5) {
@@ -94,6 +133,9 @@ public class NegotiationPacket {
                     }
                 }
 
+                // NPC bezahlt: Ziehe Geld vom NPC-Wallet ab
+                npc.getNpcData().removeMoney((int)price);
+
                 // Geld zum Wallet-Item hinzufügen (Slot 8 = Slot 9 im UI)
                 ItemStack walletItem = player.getInventory().getItem(8);
                 if (walletItem.getItem() instanceof CashItem) {
@@ -104,12 +146,12 @@ public class NegotiationPacket {
                     WalletManager.save();
                 }
 
-                // Metriken aktualisieren
+                // Metriken aktualisieren (mit den tatsächlich verkauften Gramm)
                 metrics.recordPurchase(
                     player.getStringUUID(),
-                    PackagedTobaccoItem.getType(playerItem),
-                    PackagedTobaccoItem.getQuality(playerItem),
-                    PackagedTobaccoItem.getWeight(playerItem),
+                    PackagedTobaccoItem.getType(soldItem),
+                    PackagedTobaccoItem.getQuality(soldItem),
+                    offeredGrams,  // Die tatsächlich verkauften Gramm
                     price,
                     player.level().getDayTime() / 24000
                 );
@@ -120,15 +162,15 @@ public class NegotiationPacket {
                 // Metriken speichern (aktualisiert Reputation und Zufriedenheit)
                 metrics.save();
 
-                // Setze Cooldown (aktueller Tag)
-                long currentDay = player.level().getDayTime() / 24000;
+                // Setze Cooldown (aktueller Tag) - reuse variable from line 98
+                currentDay = player.level().getDayTime() / 24000;
                 npc.getNpcData().getCustomData().putLong("LastTobaccoSale_" + player.getStringUUID(), currentDay);
 
                 // Erfolgsmeldung mit aktuellem Wallet-Item Wert
                 if (walletItem.getItem() instanceof CashItem) {
                     double walletValue = CashItem.getValue(walletItem);
-                    player.sendSystemMessage(Component.literal("§a✓ Verkauf erfolgreich! +" + String.format("%.2f", price) + "€"));
-                    player.sendSystemMessage(Component.literal("§7Geldbörse: " + String.format("%.2f", walletValue) + "€"));
+                    player.sendSystemMessage(Component.literal("§a✓ Verkauf erfolgreich! " + offeredGrams + "g für " + String.format("%.2f", price) + "€"));
+                    player.sendSystemMessage(Component.literal("§7Deine Geldbörse: " + String.format("%.2f", walletValue) + "€ | NPC Geldbörse: " + npc.getNpcData().getWallet() + "€"));
                 }
             } else {
                 player.sendSystemMessage(Component.literal("§e" + response.getMessage()));

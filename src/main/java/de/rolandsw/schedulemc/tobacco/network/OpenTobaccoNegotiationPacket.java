@@ -1,6 +1,9 @@
 package de.rolandsw.schedulemc.tobacco.network;
 
+import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
+import de.rolandsw.schedulemc.tobacco.business.NPCBusinessMetrics;
+import de.rolandsw.schedulemc.tobacco.business.NPCPurchaseDecision;
 import de.rolandsw.schedulemc.tobacco.menu.TobaccoNegotiationMenu;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -43,6 +46,17 @@ public class OpenTobaccoNegotiationPacket {
             Entity entity = player.level().getEntity(npcEntityId);
             if (!(entity instanceof CustomNPCEntity npc)) return;
 
+            // Polizisten können keinen Tabak kaufen!
+            if (npc.getNpcType() == NPCType.POLIZEI) {
+                player.sendSystemMessage(Component.literal("§c✗ Polizisten kaufen keinen Tabak!"));
+                return;
+            }
+
+            // Berechne Purchase Decision
+            NPCBusinessMetrics metrics = new NPCBusinessMetrics(npc);
+            metrics.updatePurchaseDecision(player);
+            NPCPurchaseDecision decision = metrics.getLastPurchaseDecision();
+
             // Öffne Negotiation GUI
             NetworkHooks.openScreen(player, new MenuProvider() {
                 @Override
@@ -56,6 +70,16 @@ public class OpenTobaccoNegotiationPacket {
                     return new TobaccoNegotiationMenu(containerId, playerInventory, npcEntityId);
                 }
             }, buf -> buf.writeInt(npcEntityId));
+
+            // Sende Purchase Decision zum Client
+            if (decision != null) {
+                PurchaseDecisionSyncPacket syncPacket = new PurchaseDecisionSyncPacket(
+                    (int)decision.getTotalScore(),
+                    decision.isWillingToBuy(),
+                    decision.getDesiredAmount()
+                );
+                ModNetworking.sendToClient(syncPacket, player);
+            }
         });
         ctx.get().setPacketHandled(true);
     }

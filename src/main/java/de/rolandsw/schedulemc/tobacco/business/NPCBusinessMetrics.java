@@ -7,6 +7,7 @@ import de.rolandsw.schedulemc.tobacco.TobaccoType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.entity.player.Player;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,6 +30,9 @@ public class NPCBusinessMetrics {
     private int totalPurchases;                        // Gesamt-Käufe
     private Map<String, Integer> playerReputation;     // UUID -> Reputation
     private List<Purchase> purchaseHistory;            // Letzte 10 Käufe
+
+    // Purchase Decision System
+    private NPCPurchaseDecision lastPurchaseDecision;  // Letzte Kaufentscheidung
 
     public NPCBusinessMetrics(CustomNPCEntity npc) {
         this.npc = npc;
@@ -206,5 +210,27 @@ public class NPCBusinessMetrics {
             demand = DemandLevel.HIGH;
         }
         save();
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // PURCHASE DECISION SYSTEM
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Aktualisiert die Kaufentscheidung für einen Spieler
+     * Wird beim Öffnen des Verhandlungsmenüs aufgerufen
+     */
+    public void updatePurchaseDecision(Player player) {
+        lastPurchaseDecision = new NPCPurchaseDecision(npc, player).calculate();
+
+        // Optional: Debug-Logging
+        // System.out.println(lastPurchaseDecision.toString());
+    }
+
+    /**
+     * Gibt die letzte Kaufentscheidung zurück
+     */
+    public NPCPurchaseDecision getLastPurchaseDecision() {
+        return lastPurchaseDecision;
     }
 }

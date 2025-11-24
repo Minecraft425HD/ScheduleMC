@@ -2,8 +2,10 @@ package de.rolandsw.schedulemc.tobacco.network;
 
 import de.rolandsw.schedulemc.ScheduleMC;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkRegistry;
+import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
 
 /**
@@ -60,9 +62,19 @@ public class ModNetworking {
             .encoder(OpenTobaccoNegotiationPacket::encode)
             .consumerMainThread(OpenTobaccoNegotiationPacket::handle)
             .add();
+
+        INSTANCE.messageBuilder(PurchaseDecisionSyncPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+            .decoder(PurchaseDecisionSyncPacket::decode)
+            .encoder(PurchaseDecisionSyncPacket::encode)
+            .consumerMainThread(PurchaseDecisionSyncPacket::handle)
+            .add();
     }
 
     public static <MSG> void sendToServer(MSG message) {
         INSTANCE.sendToServer(message);
+    }
+
+    public static <MSG> void sendToClient(MSG message, ServerPlayer player) {
+        INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), message);
     }
 }
