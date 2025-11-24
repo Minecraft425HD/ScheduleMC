@@ -17,8 +17,8 @@ public class MediumPackagingTableScreen extends AbstractContainerScreen<MediumPa
 
     public MediumPackagingTableScreen(MediumPackagingTableMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
-        this.imageHeight = 176;
-        this.inventoryLabelY = this.imageHeight - 82;
+        this.imageHeight = 164;
+        this.inventoryLabelY = this.imageHeight - 10;
     }
 
     @Override
@@ -26,9 +26,9 @@ public class MediumPackagingTableScreen extends AbstractContainerScreen<MediumPa
         super.init();
 
         int buttonWidth = 50;
-        int buttonHeight = 20;
+        int buttonHeight = 18;
         int centerX = this.leftPos + this.imageWidth / 2;
-        int buttonY = this.topPos + 140;
+        int buttonY = this.topPos + 125;
 
         // 10g Button
         this.addRenderableWidget(
@@ -78,16 +78,9 @@ public class MediumPackagingTableScreen extends AbstractContainerScreen<MediumPa
             }
         }
 
-        // Player Hotbar
+        // Player Hotbar (nur Schnellzugriffsleiste)
         for (int i = 0; i < 9; i++) {
-            drawSlot(graphics, x + 8 + i * 18, y + 152);
-        }
-
-        // Player Inventory
-        for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 9; col++) {
-                drawSlot(graphics, x + 8 + col * 18, y + 94 + row * 18);
-            }
+            drawSlot(graphics, x + 8 + i * 18, y + 140);
         }
     }
 

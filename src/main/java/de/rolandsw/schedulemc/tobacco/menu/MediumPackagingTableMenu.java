@@ -57,16 +57,9 @@ public class MediumPackagingTableMenu extends AbstractContainerMenu {
             }
         }
 
-        // Player Hotbar
+        // Player Hotbar (nur Schnellzugriffsleiste)
         for (int i = 0; i < 9; i++) {
-            this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 152));
-        }
-
-        // Player Inventory
-        for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 9; col++) {
-                this.addSlot(new Slot(playerInventory, col + row * 9 + 9, 8 + col * 18, 94 + row * 18));
-            }
+            this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 140));
         }
     }
 
