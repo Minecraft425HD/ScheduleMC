@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "down": "schedulemc:block/medium_packaging_table_bottom",
+    "up": "schedulemc:block/medium_packaging_table_top",
+    "north": "schedulemc:block/medium_packaging_table_side",
+    "south": "schedulemc:block/medium_packaging_table_side",
+    "west": "schedulemc:block/medium_packaging_table_side",
+    "east": "schedulemc:block/medium_packaging_table_side",
+    "particle": "schedulemc:block/medium_packaging_table_top"
+  }
+}
