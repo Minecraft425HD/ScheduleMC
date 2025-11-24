@@ -1,0 +1,372 @@
+package de.rolandsw.schedulemc.tobacco.blockentity;
+
+import de.rolandsw.schedulemc.tobacco.items.*;
+import de.rolandsw.schedulemc.tobacco.menu.SmallPackagingTableMenu;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.Containers;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemStackHandler;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+/**
+ * BlockEntity für Small Packaging Table (1g und 5g)
+ * Inventar:
+ * - Slot 0: Input (fermentierter Tabak)
+ * - Slots 1-10: Tüten (leer und voll gemischt, für 1g)
+ * - Slots 11-20: Gläser (leer und voll gemischt, für 5g)
+ */
+public class SmallPackagingTableBlockEntity extends BlockEntity implements MenuProvider {
+
+    // Inventar: 1 Input + 10 Tüten + 10 Gläser = 21 Slots
+    private final ItemStackHandler itemHandler = new ItemStackHandler(21) {
+        @Override
+        protected void onContentsChanged(int slot) {
+            setChanged();
+        }
+
+        @Override
+        public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+            // Slot 0: Nur fermentierter Tabak
+            if (slot == 0) {
+                return stack.getItem() instanceof FermentedTobaccoLeafItem;
+            }
+            // Slots 1-10: Nur Tüten (leer oder voll)
+            if (slot >= 1 && slot <= 10) {
+                return stack.getItem() instanceof PackagingBagItem ||
+                       (stack.getItem() instanceof PackagedTobaccoItem && PackagedTobaccoItem.getWeight(stack) == 1);
+            }
+            // Slots 11-20: Nur Gläser (leer oder voll)
+            if (slot >= 11 && slot <= 20) {
+                return stack.getItem() instanceof PackagingJarItem ||
+                       (stack.getItem() instanceof PackagedTobaccoItem && PackagedTobaccoItem.getWeight(stack) == 5);
+            }
+            return false;
+        }
+    };
+
+    private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
+
+    public SmallPackagingTableBlockEntity(BlockPos pos, BlockState state) {
+        super(TobaccoBlockEntities.SMALL_PACKAGING_TABLE.get(), pos, state);
+    }
+
+    @Override
+    public Component getDisplayName() {
+        return Component.literal("Kleiner Packtisch (1g, 5g)");
+    }
+
+    @Nullable
+    @Override
+    public AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
+        return new SmallPackagingTableMenu(containerId, playerInventory, this);
+    }
+
+    public ItemStackHandler getItemHandler() {
+        return itemHandler;
+    }
+
+    public ItemStack getInputStack() {
+        return itemHandler.getStackInSlot(0);
+    }
+
+    public void setInputStack(ItemStack stack) {
+        itemHandler.setStackInSlot(0, stack);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // PACK-LOGIK (1g mit Tüten)
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Packt Tabak in 1g Tüten ab
+     * @return Anzahl erstellter Pakete
+     */
+    public int packageTobacco1g() {
+        ItemStack input = getInputStack();
+
+        if (!(input.getItem() instanceof FermentedTobaccoLeafItem)) {
+            return 0;
+        }
+
+        // Berechne verfügbares Gewicht (1 Item = 100g)
+        int totalWeight = input.getCount() * 100;
+        int packagesCount = totalWeight / 1; // Für 1g Pakete
+
+        // Zähle verfügbare leere Tüten (Slots 1-10)
+        int emptyBags = 0;
+        for (int i = 1; i <= 10; i++) {
+            ItemStack stack = itemHandler.getStackInSlot(i);
+            if (stack.getItem() instanceof PackagingBagItem) {
+                emptyBags += stack.getCount();
+            }
+        }
+
+        // Begrenze auf verfügbare Tüten
+        packagesCount = Math.min(packagesCount, emptyBags);
+
+        if (packagesCount == 0) {
+            return 0;
+        }
+
+        // Hole Typ und Qualität
+        var type = FermentedTobaccoLeafItem.getType(input);
+        var quality = FermentedTobaccoLeafItem.getQuality(input);
+        long currentDay = level != null ? level.getDayTime() / 24000L : 0;
+
+        int created = 0;
+
+        // Erstelle Pakete
+        for (int i = 0; i < packagesCount; i++) {
+            // Finde leere Tüte und verbrauche sie
+            if (!consumeEmptyBag()) {
+                break;
+            }
+
+            // Finde freien Slot für volle Tüte (Slots 1-10)
+            int slot = findFreeSlot(1, 10);
+            if (slot == -1) {
+                break; // Kein Platz mehr
+            }
+
+            // Erstelle 1g Paket
+            ItemStack packagedTobacco = PackagedTobaccoItem.create(type, quality, 1, currentDay);
+            itemHandler.setStackInSlot(slot, packagedTobacco);
+            created++;
+        }
+
+        // Verbrauche Input (1g = 0.01 Items, also 100g = 1 Item)
+        int itemsUsed = (created * 1 + 99) / 100; // Aufrunden
+        input.shrink(Math.max(1, itemsUsed));
+        setInputStack(input);
+
+        setChanged();
+        return created;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // PACK-LOGIK (5g mit Gläsern)
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Packt Tabak in 5g Gläser ab
+     * @return Anzahl erstellter Pakete
+     */
+    public int packageTobacco5g() {
+        ItemStack input = getInputStack();
+
+        if (!(input.getItem() instanceof FermentedTobaccoLeafItem)) {
+            return 0;
+        }
+
+        // Berechne verfügbares Gewicht
+        int totalWeight = input.getCount() * 100;
+        int packagesCount = totalWeight / 5;
+
+        // Zähle verfügbare leere Gläser (Slots 11-20)
+        int emptyJars = 0;
+        for (int i = 11; i <= 20; i++) {
+            ItemStack stack = itemHandler.getStackInSlot(i);
+            if (stack.getItem() instanceof PackagingJarItem) {
+                emptyJars += stack.getCount();
+            }
+        }
+
+        packagesCount = Math.min(packagesCount, emptyJars);
+
+        if (packagesCount == 0) {
+            return 0;
+        }
+
+        var type = FermentedTobaccoLeafItem.getType(input);
+        var quality = FermentedTobaccoLeafItem.getQuality(input);
+        long currentDay = level != null ? level.getDayTime() / 24000L : 0;
+
+        int created = 0;
+
+        for (int i = 0; i < packagesCount; i++) {
+            if (!consumeEmptyJar()) {
+                break;
+            }
+
+            int slot = findFreeSlot(11, 20);
+            if (slot == -1) {
+                break;
+            }
+
+            ItemStack packagedTobacco = PackagedTobaccoItem.create(type, quality, 5, currentDay);
+            itemHandler.setStackInSlot(slot, packagedTobacco);
+            created++;
+        }
+
+        int itemsUsed = (created * 5 + 99) / 100;
+        input.shrink(Math.max(1, itemsUsed));
+        setInputStack(input);
+
+        setChanged();
+        return created;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // UNPACK-LOGIK
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Entpackt alle vollen Pakete zurück zu Tabak + leeres Material
+     */
+    public void unpackAll() {
+        ItemStack input = getInputStack();
+        int totalWeight = 0;
+
+        // Durchsuche alle Slots nach vollen Paketen
+        for (int i = 1; i <= 20; i++) {
+            ItemStack stack = itemHandler.getStackInSlot(i);
+            if (stack.getItem() instanceof PackagedTobaccoItem) {
+                int weight = PackagedTobaccoItem.getWeight(stack);
+                totalWeight += weight;
+
+                // Gib leeres Material zurück
+                if (weight == 1) {
+                    // Gib Tüte zurück
+                    addItemToSlots(new ItemStack(TobaccoItems.PACKAGING_BAG.get(), 1), 1, 10);
+                } else if (weight == 5) {
+                    // Gib Glas zurück
+                    addItemToSlots(new ItemStack(TobaccoItems.PACKAGING_JAR.get(), 1), 11, 20);
+                }
+
+                // Entferne das volle Paket
+                itemHandler.setStackInSlot(i, ItemStack.EMPTY);
+            }
+        }
+
+        // Gib Tabak zurück (100g = 1 Item)
+        if (totalWeight > 0 && !input.isEmpty() && input.getItem() instanceof FermentedTobaccoLeafItem) {
+            int itemsToAdd = totalWeight / 100;
+            if (itemsToAdd > 0) {
+                input.grow(itemsToAdd);
+                setInputStack(input);
+            }
+        }
+
+        setChanged();
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // HELPER METHODEN
+    // ═══════════════════════════════════════════════════════════
+
+    private boolean consumeEmptyBag() {
+        for (int i = 1; i <= 10; i++) {
+            ItemStack stack = itemHandler.getStackInSlot(i);
+            if (stack.getItem() instanceof PackagingBagItem) {
+                stack.shrink(1);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean consumeEmptyJar() {
+        for (int i = 11; i <= 20; i++) {
+            ItemStack stack = itemHandler.getStackInSlot(i);
+            if (stack.getItem() instanceof PackagingJarItem) {
+                stack.shrink(1);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private int findFreeSlot(int start, int end) {
+        for (int i = start; i <= end; i++) {
+            if (itemHandler.getStackInSlot(i).isEmpty()) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private void addItemToSlots(ItemStack itemToAdd, int start, int end) {
+        for (int i = start; i <= end; i++) {
+            ItemStack stack = itemHandler.getStackInSlot(i);
+            if (stack.isEmpty()) {
+                itemHandler.setStackInSlot(i, itemToAdd.copy());
+                return;
+            } else if (ItemStack.isSameItemSameTags(stack, itemToAdd) && stack.getCount() < stack.getMaxStackSize()) {
+                int space = stack.getMaxStackSize() - stack.getCount();
+                int toAdd = Math.min(space, itemToAdd.getCount());
+                stack.grow(toAdd);
+                itemToAdd.shrink(toAdd);
+                if (itemToAdd.isEmpty()) {
+                    return;
+                }
+            }
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // CAPABILITIES
+    // ═══════════════════════════════════════════════════════════
+
+    @Override
+    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
+        if (cap == ForgeCapabilities.ITEM_HANDLER) {
+            return lazyItemHandler.cast();
+        }
+        return super.getCapability(cap, side);
+    }
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        lazyItemHandler = LazyOptional.of(() -> itemHandler);
+    }
+
+    @Override
+    public void invalidateCaps() {
+        super.invalidateCaps();
+        lazyItemHandler.invalidate();
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // NBT SPEICHERN/LADEN
+    // ═══════════════════════════════════════════════════════════
+
+    @Override
+    protected void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
+        tag.put("Inventory", itemHandler.serializeNBT());
+    }
+
+    @Override
+    public void load(CompoundTag tag) {
+        super.load(tag);
+        itemHandler.deserializeNBT(tag.getCompound("Inventory"));
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // DROPS
+    // ═══════════════════════════════════════════════════════════
+
+    public void drops() {
+        SimpleContainer inventory = new SimpleContainer(itemHandler.getSlots());
+        for (int i = 0; i < itemHandler.getSlots(); i++) {
+            inventory.setItem(i, itemHandler.getStackInSlot(i));
+        }
+        Containers.dropContents(this.level, this.worldPosition, inventory);
+    }
+}

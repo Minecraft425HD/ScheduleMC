@@ -31,6 +31,24 @@ public class ModNetworking {
             .consumerMainThread(PackageRequestPacket::handle)
             .add();
 
+        INSTANCE.messageBuilder(SmallPackageRequestPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(SmallPackageRequestPacket::decode)
+            .encoder(SmallPackageRequestPacket::encode)
+            .consumerMainThread(SmallPackageRequestPacket::handle)
+            .add();
+
+        INSTANCE.messageBuilder(MediumPackageRequestPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(MediumPackageRequestPacket::decode)
+            .encoder(MediumPackageRequestPacket::encode)
+            .consumerMainThread(MediumPackageRequestPacket::handle)
+            .add();
+
+        INSTANCE.messageBuilder(LargePackageRequestPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(LargePackageRequestPacket::decode)
+            .encoder(LargePackageRequestPacket::encode)
+            .consumerMainThread(LargePackageRequestPacket::handle)
+            .add();
+
         INSTANCE.messageBuilder(NegotiationPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
             .decoder(NegotiationPacket::decode)
             .encoder(NegotiationPacket::encode)
