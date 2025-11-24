@@ -1,5 +1,7 @@
 package de.rolandsw.schedulemc.npc.data;
 
+import net.minecraft.util.RandomSource;
+
 /**
  * Defines three personality types for NPCs that affect their purchasing behavior
  */
@@ -74,7 +76,7 @@ public enum NPCPersonality {
     /**
      * Gets a random personality for new NPCs
      */
-    public static NPCPersonality getRandom(java.util.Random random) {
+    public static NPCPersonality getRandom(RandomSource random) {
         NPCPersonality[] values = values();
         return values[random.nextInt(values.length)];
     }

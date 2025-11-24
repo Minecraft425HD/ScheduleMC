@@ -3,9 +3,8 @@ package de.rolandsw.schedulemc.tobacco.business;
 import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.data.NPCPersonality;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
-
-import java.util.Random;
 
 /**
  * Zentrale Klasse für NPC-Kaufentscheidungen mit Weighted-Scoring
@@ -108,11 +107,9 @@ public class NPCPurchaseDecision {
     private void calculateDemandScore() {
         DemandLevel demand = metrics.getDemand();
         demandScore = switch(demand) {
-            case VERY_LOW -> 0.1f;
             case LOW -> 0.3f;
-            case MEDIUM -> 0.5f;
-            case HIGH -> 0.7f;
-            case VERY_HIGH -> 1.0f;
+            case MEDIUM -> 0.6f;
+            case HIGH -> 1.0f;
         };
     }
 
@@ -187,7 +184,7 @@ public class NPCPurchaseDecision {
      * -10 bis +10 Punkte
      */
     private void calculateRandomBonus() {
-        Random random = npc.getRandom();
+        RandomSource random = npc.getRandom();
         randomBonus = (random.nextFloat() * 20.0f) - 10.0f;
     }
 
