@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.npc.entity;
 
 import de.rolandsw.schedulemc.npc.data.NPCData;
+import de.rolandsw.schedulemc.npc.data.NPCPersonality;
 import de.rolandsw.schedulemc.npc.goals.MoveToHomeGoal;
 import de.rolandsw.schedulemc.npc.goals.MoveToLeisureGoal;
 import de.rolandsw.schedulemc.npc.goals.MoveToWorkGoal;
@@ -51,6 +52,8 @@ public class CustomNPCEntity extends PathfinderMob {
         SynchedEntityData.defineId(CustomNPCEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> MERCHANT_CATEGORY_ORDINAL =
         SynchedEntityData.defineId(CustomNPCEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<String> PERSONALITY =
+        SynchedEntityData.defineId(CustomNPCEntity.class, EntityDataSerializers.STRING);
 
     // NPC Daten (Server-Side)
     private NPCData npcData;
@@ -68,6 +71,7 @@ public class CustomNPCEntity extends PathfinderMob {
         this.entityData.define(SKIN_FILE, "default.png");
         this.entityData.define(NPC_TYPE_ORDINAL, 0); // BEWOHNER
         this.entityData.define(MERCHANT_CATEGORY_ORDINAL, 0); // BAUMARKT
+        this.entityData.define(PERSONALITY, NPCPersonality.AUSGEWOGEN.name()); // Standard-Persönlichkeit
     }
 
     @Override
@@ -226,6 +230,12 @@ public class CustomNPCEntity extends PathfinderMob {
         this.entityData.set(SKIN_FILE, npcData.getSkinFileName());
         this.entityData.set(NPC_TYPE_ORDINAL, npcData.getNpcType().ordinal());
         this.entityData.set(MERCHANT_CATEGORY_ORDINAL, npcData.getMerchantCategory().ordinal());
+
+        // Personality synchronisieren
+        String personalityStr = npcData.getCustomData().getString("personality");
+        if (!personalityStr.isEmpty()) {
+            this.entityData.set(PERSONALITY, personalityStr);
+        }
     }
 
     // Custom Name Handling
@@ -285,6 +295,30 @@ public class CustomNPCEntity extends PathfinderMob {
      */
     public de.rolandsw.schedulemc.npc.data.MerchantCategory getMerchantCategory() {
         return de.rolandsw.schedulemc.npc.data.MerchantCategory.fromOrdinal(this.entityData.get(MERCHANT_CATEGORY_ORDINAL));
+    }
+
+    /**
+     * Gibt die Persönlichkeit des NPCs zurück (Client-safe via synced data)
+     * Wird für Tobacco Purchase Decision System verwendet
+     */
+    public NPCPersonality getPersonality() {
+        String personalityStr = this.entityData.get(PERSONALITY);
+        if (personalityStr.isEmpty()) {
+            return NPCPersonality.AUSGEWOGEN; // Standard-Persönlichkeit
+        }
+        try {
+            return NPCPersonality.valueOf(personalityStr);
+        } catch (IllegalArgumentException e) {
+            return NPCPersonality.AUSGEWOGEN;
+        }
+    }
+
+    /**
+     * Setzt die Persönlichkeit des NPCs
+     */
+    public void setPersonality(NPCPersonality personality) {
+        npcData.getCustomData().putString("personality", personality.name());
+        this.entityData.set(PERSONALITY, personality.name());
     }
 
     // Verhindern von Despawning

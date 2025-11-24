@@ -32,9 +32,14 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
     private int satisfaction = 0;
     private DemandLevel demand = DemandLevel.MEDIUM;
 
+    // Purchase Decision System
+    private int purchaseScore = 0;          // 0-100+ Punkte
+    private boolean willingToBuy = false;   // Kaufbereitschaft
+    private int desiredGrams = 0;           // Gewünschte Menge
+
     public TobaccoNegotiationScreen(TobaccoNegotiationMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
-        this.imageHeight = 140; // Reduziert, da kein Inventar mehr
+        this.imageHeight = 180; // Erhöht für Purchase Willingness Indicator
         this.inventoryLabelY = this.imageHeight - 94;
     }
 
@@ -90,6 +95,15 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
             satisfaction = metrics.getSatisfaction();
             demand = metrics.getDemand();
         }
+    }
+
+    /**
+     * Wird vom PurchaseDecisionSyncPacket aufgerufen, um die Kaufbereitschaft anzuzeigen
+     */
+    public void updatePurchaseDecision(int score, boolean willing, int amount) {
+        this.purchaseScore = score;
+        this.willingToBuy = willing;
+        this.desiredGrams = amount;
     }
 
     private void calculateFairPrice() {
@@ -175,21 +189,63 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
             graphics.drawString(this.font, "§7Zufriedenheit: §f" + satisfaction, x + 80, y + 86, 0xFFFFFF, false);
             graphics.drawString(this.font, demand.getDisplayName(), x + 8, y + 96, 0xFFFFFF, false);
 
+            // Purchase Willingness Indicator (NEU)
+            renderPurchaseWillingnessIndicator(graphics, x + 8, y + 106);
+
             // Fairer Preis
             if (selectedSlot >= 0) {
                 String fairPriceText = String.format("§7Fairer Preis: §a%.2f€", fairPrice);
-                graphics.drawString(this.font, fairPriceText, x + 8, y + 106, 0xFFFFFF, false);
+                graphics.drawString(this.font, fairPriceText, x + 8, y + 126, 0xFFFFFF, false);
             }
         }
 
         // Response Message
         if (!responseMessage.isEmpty()) {
-            graphics.drawString(this.font, responseMessage, x + 8, y + 116, 0xFFFFFF, false);
+            graphics.drawString(this.font, responseMessage, x + 8, y + 136, 0xFFFFFF, false);
         }
     }
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
         // Leer lassen - wir rendern alles in render()
+    }
+
+    /**
+     * Rendert den Kaufbereitschafts-Indikator
+     */
+    private void renderPurchaseWillingnessIndicator(GuiGraphics graphics, int x, int y) {
+        // Titel
+        graphics.drawString(this.font, "§7Kaufbereitschaft:", x, y, 0xFFFFFF, false);
+
+        // Score-Balken (100 Pixel breit)
+        int barWidth = Math.min((purchaseScore * 100) / 100, 100); // Normalisiert auf 0-100
+        graphics.fill(x, y + 10, x + 100, y + 16, 0xFF333333); // Hintergrund (dunkelgrau)
+
+        // Farbe basierend auf Kaufbereitschaft
+        int barColor;
+        if (willingToBuy) {
+            if (purchaseScore >= 70) barColor = 0xFF55FF55; // Grün (hohes Interesse)
+            else if (purchaseScore >= 50) barColor = 0xFFFFFF55; // Gelb (mittleres Interesse)
+            else barColor = 0xFFFFAA00; // Orange (niedriges Interesse)
+        } else {
+            barColor = 0xFFFF5555; // Rot (kein Interesse)
+        }
+
+        graphics.fill(x, y + 10, x + barWidth, y + 16, barColor);
+
+        // Score-Text
+        graphics.drawString(this.font, purchaseScore + "/100", x + 105, y + 10, 0xFFFFFF, false);
+
+        // Kaufmenge oder "Kein Interesse"
+        String amountText;
+        ChatFormatting color;
+        if (willingToBuy && desiredGrams > 0) {
+            amountText = "Möchte " + desiredGrams + "g kaufen";
+            color = ChatFormatting.GREEN;
+        } else {
+            amountText = "Kein Interesse";
+            color = ChatFormatting.RED;
+        }
+        graphics.drawString(this.font, color + amountText, x, y + 20, 0xFFFFFF, false);
     }
 }
