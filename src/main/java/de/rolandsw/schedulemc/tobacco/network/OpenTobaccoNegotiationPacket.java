@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.tobacco.network;
 
+import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.tobacco.business.NPCBusinessMetrics;
 import de.rolandsw.schedulemc.tobacco.business.NPCPurchaseDecision;
@@ -44,6 +45,12 @@ public class OpenTobaccoNegotiationPacket {
 
             Entity entity = player.level().getEntity(npcEntityId);
             if (!(entity instanceof CustomNPCEntity npc)) return;
+
+            // Polizisten können keinen Tabak kaufen!
+            if (npc.getNpcType() == NPCType.POLIZEI) {
+                player.sendSystemMessage(Component.literal("§c✗ Polizisten kaufen keinen Tabak!"));
+                return;
+            }
 
             // Berechne Purchase Decision
             NPCBusinessMetrics metrics = new NPCBusinessMetrics(npc);
