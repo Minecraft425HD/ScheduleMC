@@ -1,8 +1,190 @@
 {
-  "item.schedulemc.npc_spawner_tool": "NPC Spawner",
-  "item.schedulemc.npc_location_tool": "NPC Locations-Tool",
-  "entity.schedulemc.custom_npc": "Custom NPC",
-  "container.schedulemc.npc_spawner": "NPC Spawner",
-  "container.schedulemc.npc_interaction": "NPC Interaktion",
-  "container.schedulemc.merchant_shop": "Händler Shop"
+  "_comment": "ScheduleMC Vollständige Sprachdatei - Deutsch",
+
+  "itemGroup.schedulemc.plotmod_tab": "ScheduleMC",
+  "itemGroup.schedulemc.tobacco_tab": "Tabakanbau",
+
+  "item.schedulemc.plot_selection_tool": "Grundstücksauswahl-Werkzeug",
+  "item.schedulemc.cash": "Bargeld",
+  "item.schedulemc.npc_spawner_tool": "NPC-Spawner-Werkzeug",
+  "item.schedulemc.npc_location_tool": "NPC-Standort-Werkzeug",
+
+  "item.schedulemc.virginia_seeds": "Virginia-Tabaksamen",
+  "item.schedulemc.burley_seeds": "Burley-Tabaksamen",
+  "item.schedulemc.oriental_seeds": "Orient-Tabaksamen",
+  "item.schedulemc.havana_seeds": "Havanna-Tabaksamen",
+
+  "item.schedulemc.fresh_virginia_leaf": "Frisches Virginia-Tabakblatt",
+  "item.schedulemc.fresh_burley_leaf": "Frisches Burley-Tabakblatt",
+  "item.schedulemc.fresh_oriental_leaf": "Frisches Orient-Tabakblatt",
+  "item.schedulemc.fresh_havana_leaf": "Frisches Havanna-Tabakblatt",
+
+  "item.schedulemc.dried_virginia_leaf": "Getrocknetes Virginia-Tabakblatt",
+  "item.schedulemc.dried_burley_leaf": "Getrocknetes Burley-Tabakblatt",
+  "item.schedulemc.dried_oriental_leaf": "Getrocknetes Orient-Tabakblatt",
+  "item.schedulemc.dried_havana_leaf": "Getrocknetes Havanna-Tabakblatt",
+
+  "item.schedulemc.fermented_virginia_leaf": "Fermentiertes Virginia-Tabakblatt",
+  "item.schedulemc.fermented_burley_leaf": "Fermentiertes Burley-Tabakblatt",
+  "item.schedulemc.fermented_oriental_leaf": "Fermentiertes Orient-Tabakblatt",
+  "item.schedulemc.fermented_havana_leaf": "Fermentiertes Havanna-Tabakblatt",
+
+  "item.schedulemc.fertilizer_bottle": "Düngerflasche",
+  "item.schedulemc.growth_booster_bottle": "Wachstumsbeschleuniger-Flasche",
+  "item.schedulemc.quality_booster_bottle": "Qualitätsverbesserer-Flasche",
+
+  "item.schedulemc.watering_can": "Gießkanne",
+
+  "item.schedulemc.soil_bag_small": "Kleiner Erdsack",
+  "item.schedulemc.soil_bag_medium": "Mittlerer Erdsack",
+  "item.schedulemc.soil_bag_large": "Großer Erdsack",
+
+  "item.schedulemc.packaging_bag": "Verpackungsbeutel",
+  "item.schedulemc.packaging_jar": "Verpackungsglas",
+  "item.schedulemc.packaging_box": "Verpackungsbox",
+  "item.schedulemc.packaged_tobacco": "Verpackter Tabak",
+
+  "block.schedulemc.terracotta_pot": "Terrakotta-Topf",
+  "block.schedulemc.ceramic_pot": "Keramik-Topf",
+  "block.schedulemc.iron_pot": "Eisen-Topf",
+  "block.schedulemc.golden_pot": "Gold-Topf",
+
+  "block.schedulemc.drying_rack": "Trockengestell",
+  "block.schedulemc.fermentation_barrel": "Fermentationsfass",
+  "block.schedulemc.sink": "Spülbecken",
+  "block.schedulemc.packaging_table": "Packtisch",
+  "block.schedulemc.small_packaging_table": "Kleiner Packtisch",
+  "block.schedulemc.medium_packaging_table": "Mittlerer Packtisch",
+  "block.schedulemc.large_packaging_table": "Großer Packtisch",
+
+  "block.schedulemc.basic_grow_light_slab": "Einfache Pflanzenlampe",
+  "block.schedulemc.advanced_grow_light_slab": "Fortgeschrittene Pflanzenlampe",
+  "block.schedulemc.premium_grow_light_slab": "Premium Pflanzenlampe",
+
+  "block.schedulemc.cash_block": "Geldblock",
+  "block.schedulemc.atm": "Geldautomat",
+
+  "block.schedulemc.plot_info_block": "Grundstücks-Info-Block",
+
+  "block.schedulemc.virginia_plant": "Virginia-Tabakpflanze",
+  "block.schedulemc.burley_plant": "Burley-Tabakpflanze",
+  "block.schedulemc.oriental_plant": "Orient-Tabakpflanze",
+  "block.schedulemc.havana_plant": "Havanna-Tabakpflanze",
+
+  "entity.schedulemc.custom_npc": "Benutzerdefinierter NPC",
+
+  "container.schedulemc.packaging_table": "Packtisch",
+  "container.schedulemc.tobacco_negotiation": "Tabakverhandlung",
+  "container.schedulemc.small_packaging_table": "Kleiner Packtisch",
+  "container.schedulemc.medium_packaging_table": "Mittlerer Packtisch",
+  "container.schedulemc.large_packaging_table": "Großer Packtisch",
+  "container.schedulemc.atm": "Geldautomat",
+  "container.schedulemc.npc_spawner": "NPC-Spawner",
+  "container.schedulemc.npc_interaction": "NPC-Interaktion",
+  "container.schedulemc.merchant_shop": "Händlershop",
+  "container.schedulemc.shop_editor": "Shop-Editor",
+  "container.schedulemc.stealing": "Diebstahl",
+
+  "item.schedulemc.soil_bag.tooltip.units": "%s Einheiten",
+  "item.schedulemc.soil_bag.tooltip.plants": "Kann %s Pflanzen füllen",
+  "item.schedulemc.soil_bag.tooltip.usage": "Rechtsklick auf Topf zum Befüllen mit Erde",
+  "item.schedulemc.packaged_tobacco.tooltip.type": "Typ: %s",
+  "item.schedulemc.packaged_tobacco.tooltip.quality": "Qualität: %s",
+  "item.schedulemc.packaged_tobacco.tooltip.weight": "Gewicht: %s g",
+
+  "tobacco.type.virginia": "Virginia",
+  "tobacco.type.burley": "Burley",
+  "tobacco.type.oriental": "Orient",
+  "tobacco.type.havana": "Havanna",
+
+  "tobacco.quality.poor": "Schlecht",
+  "tobacco.quality.good": "Gut",
+  "tobacco.quality.very_good": "Sehr Gut",
+  "tobacco.quality.legendary": "Legendär",
+
+  "pot.type.terracotta": "Terrakotta-Topf",
+  "pot.type.ceramic": "Keramik-Topf",
+  "pot.type.iron": "Eisen-Topf",
+  "pot.type.golden": "Gold-Topf",
+
+  "soilbag.type.small": "Kleiner Erdsack",
+  "soilbag.type.medium": "Mittlerer Erdsack",
+  "soilbag.type.large": "Großer Erdsack",
+
+  "npc.type.resident": "Bewohner",
+  "npc.type.merchant": "Händler",
+  "npc.type.police": "Polizei",
+
+  "merchant.category.hardware_store": "Baumarkt",
+  "merchant.category.gun_shop": "Waffenhändler",
+  "merchant.category.gas_station": "Tankstelle",
+  "merchant.category.grocery_store": "Lebensmittelgeschäft",
+  "merchant.category.hr_management": "Personalverwaltung",
+  "merchant.category.black_market": "Schwarzmarkt",
+
+  "gui.schedulemc.npc_spawner.title": "NPC-Spawner",
+  "gui.schedulemc.npc_spawner.name": "Name:",
+  "gui.schedulemc.npc_spawner.skin": "Skin:",
+  "gui.schedulemc.npc_spawner.type": "Typ:",
+  "gui.schedulemc.npc_spawner.category": "Kategorie:",
+  "gui.schedulemc.npc_spawner.button.spawn": "NPC Spawnen",
+
+  "gui.schedulemc.atm.title": "Geldautomat",
+  "gui.schedulemc.atm.account": "Konto:",
+  "gui.schedulemc.atm.cash": "Bargeld:",
+  "gui.schedulemc.atm.amount": "Betrag:",
+  "gui.schedulemc.atm.button.withdraw": "Abheben",
+  "gui.schedulemc.atm.button.deposit": "Einzahlen",
+  "gui.schedulemc.atm.button.deposit_all": "Alles",
+
+  "gui.schedulemc.packaging_table.title": "Packtisch",
+  "gui.schedulemc.packaging_table.tobacco_type": "Tabaksorte:",
+  "gui.schedulemc.packaging_table.quality": "Qualität:",
+  "gui.schedulemc.packaging_table.weight": "Gewicht:",
+  "gui.schedulemc.packaging_table.button.package": "Verpacken",
+
+  "gui.schedulemc.shop_editor.title": "Shop-Editor",
+  "gui.schedulemc.shop_editor.add_item": "Gegenstand hinzufügen",
+  "gui.schedulemc.shop_editor.remove_item": "Gegenstand entfernen",
+  "gui.schedulemc.shop_editor.price": "Preis:",
+  "gui.schedulemc.shop_editor.stock": "Lagerbestand:",
+
+  "gui.schedulemc.stealing.title": "Diebstahl",
+  "gui.schedulemc.stealing.difficulty": "Schwierigkeit:",
+  "gui.schedulemc.stealing.reward": "Belohnung:",
+
+  "message.schedulemc.plot.position1": "Position 1 gesetzt!",
+  "message.schedulemc.plot.position2": "Position 2 gesetzt!",
+  "message.schedulemc.plot.coordinates": "Koordinaten:",
+  "message.schedulemc.plot.created": "Grundstück erfolgreich erstellt!",
+  "message.schedulemc.plot.deleted": "Grundstück gelöscht!",
+  "message.schedulemc.plot.error": "Fehler: Ungültige Grundstücksauswahl",
+
+  "message.schedulemc.economy.transaction.success": "Transaktion erfolgreich!",
+  "message.schedulemc.economy.transaction.failed": "Transaktion fehlgeschlagen!",
+  "message.schedulemc.economy.insufficient_funds": "Nicht genügend Guthaben!",
+  "message.schedulemc.economy.balance": "Kontostand: %s€",
+  "message.schedulemc.economy.deposited": "Eingezahlt: %s€",
+  "message.schedulemc.economy.withdrawn": "Abgehoben: %s€",
+
+  "message.schedulemc.npc.spawn.success": "NPC erfolgreich gespawnt!",
+  "message.schedulemc.npc.spawn.failed": "NPC konnte nicht gespawnt werden!",
+  "message.schedulemc.npc.dialogue.greeting": "Hallo! Wie kann ich dir helfen?",
+  "message.schedulemc.npc.shop.open": "Willkommen in meinem Shop!",
+
+  "message.schedulemc.tobacco.planted": "Tabaksamen gepflanzt!",
+  "message.schedulemc.tobacco.harvested": "Tabak geerntet!",
+  "message.schedulemc.tobacco.dried": "Tabak erfolgreich getrocknet!",
+  "message.schedulemc.tobacco.fermented": "Tabak erfolgreich fermentiert!",
+  "message.schedulemc.tobacco.packaged": "Tabak erfolgreich verpackt!",
+  "message.schedulemc.tobacco.quality_improved": "Tabakqualität verbessert!",
+
+  "message.schedulemc.pot.filled": "Topf mit Erde gefüllt!",
+  "message.schedulemc.pot.watered": "Pflanze gegossen!",
+  "message.schedulemc.pot.fertilized": "Dünger aufgetragen!",
+  "message.schedulemc.pot.needs_water": "Pflanze braucht Wasser!",
+  "message.schedulemc.pot.needs_light": "Pflanze braucht mehr Licht!",
+
+  "death.attack.schedulemc.police": "%s wurde von der Polizei verhaftet",
+  "death.attack.schedulemc.police.player": "%s wurde von der Polizei verhaftet, während er gegen %s kämpfte"
 }
