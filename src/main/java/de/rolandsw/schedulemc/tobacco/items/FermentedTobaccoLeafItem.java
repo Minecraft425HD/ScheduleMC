@@ -19,7 +19,7 @@ public class FermentedTobaccoLeafItem extends Item {
     
     public FermentedTobaccoLeafItem() {
         super(new Properties()
-                .stacksTo(64));
+                .stacksTo(20)); // 1 Blatt = 1g, max 20 Blätter pro Stack
     }
     
     /**

@@ -103,9 +103,9 @@ public class SmallPackagingTableBlockEntity extends BlockEntity implements MenuP
             return 0;
         }
 
-        // Berechne verfügbares Gewicht (1 Item = 100g)
-        int totalWeight = input.getCount() * 100;
-        int packagesCount = totalWeight / 1; // Für 1g Pakete
+        // Berechne verfügbares Gewicht (1 Blatt = 1g)
+        int totalWeight = input.getCount();
+        int packagesCount = totalWeight / 1; // Für 1g Pakete (= totalWeight)
 
         // Zähle verfügbare leere Tüten (Slots 1-10)
         int emptyBags = 0;
@@ -149,9 +149,9 @@ public class SmallPackagingTableBlockEntity extends BlockEntity implements MenuP
             created++;
         }
 
-        // Verbrauche Input (1g = 0.01 Items, also 100g = 1 Item)
-        int itemsUsed = (created * 1 + 99) / 100; // Aufrunden
-        input.shrink(Math.max(1, itemsUsed));
+        // Verbrauche Input (1 Blatt = 1g)
+        int itemsUsed = created * 1; // Jedes 1g Paket braucht 1 Blatt
+        input.shrink(itemsUsed);
         setInputStack(input);
 
         setChanged();
@@ -173,9 +173,9 @@ public class SmallPackagingTableBlockEntity extends BlockEntity implements MenuP
             return 0;
         }
 
-        // Berechne verfügbares Gewicht
-        int totalWeight = input.getCount() * 100;
-        int packagesCount = totalWeight / 5;
+        // Berechne verfügbares Gewicht (1 Blatt = 1g)
+        int totalWeight = input.getCount();
+        int packagesCount = totalWeight / 5; // Für 5g Pakete
 
         // Zähle verfügbare leere Gläser (Slots 11-20)
         int emptyJars = 0;
@@ -213,8 +213,9 @@ public class SmallPackagingTableBlockEntity extends BlockEntity implements MenuP
             created++;
         }
 
-        int itemsUsed = (created * 5 + 99) / 100;
-        input.shrink(Math.max(1, itemsUsed));
+        // Verbrauche Input (1 Blatt = 1g)
+        int itemsUsed = created * 5; // Jedes 5g Paket braucht 5 Blätter
+        input.shrink(itemsUsed);
         setInputStack(input);
 
         setChanged();
@@ -253,9 +254,9 @@ public class SmallPackagingTableBlockEntity extends BlockEntity implements MenuP
             }
         }
 
-        // Gib Tabak zurück (100g = 1 Item)
+        // Gib Tabak zurück (1g = 1 Blatt)
         if (totalWeight > 0 && !input.isEmpty() && input.getItem() instanceof FermentedTobaccoLeafItem) {
-            int itemsToAdd = totalWeight / 100;
+            int itemsToAdd = totalWeight; // 1g = 1 Blatt
             if (itemsToAdd > 0) {
                 input.grow(itemsToAdd);
                 setInputStack(input);

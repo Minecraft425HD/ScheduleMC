@@ -92,8 +92,9 @@ public class LargePackagingTableBlockEntity extends BlockEntity implements MenuP
             return 0;
         }
 
-        int totalWeight = input.getCount() * 100;
-        int packagesCount = totalWeight / 20;
+        // Berechne verfügbares Gewicht (1 Blatt = 1g)
+        int totalWeight = input.getCount();
+        int packagesCount = totalWeight / 20; // Für 20g Pakete
 
         if (packagesCount == 0) {
             return 0;
@@ -116,8 +117,9 @@ public class LargePackagingTableBlockEntity extends BlockEntity implements MenuP
             created++;
         }
 
-        int itemsUsed = (created * 20 + 99) / 100;
-        input.shrink(Math.max(1, itemsUsed));
+        // Verbrauche Input (1 Blatt = 1g)
+        int itemsUsed = created * 20; // Jedes 20g Paket braucht 20 Blätter
+        input.shrink(itemsUsed);
         setInputStack(input);
 
         setChanged();
@@ -143,8 +145,9 @@ public class LargePackagingTableBlockEntity extends BlockEntity implements MenuP
             }
         }
 
+        // Gib Tabak zurück (1g = 1 Blatt)
         if (totalWeight > 0 && !input.isEmpty() && input.getItem() instanceof FermentedTobaccoLeafItem) {
-            int itemsToAdd = totalWeight / 100;
+            int itemsToAdd = totalWeight; // 1g = 1 Blatt
             if (itemsToAdd > 0) {
                 input.grow(itemsToAdd);
                 setInputStack(input);

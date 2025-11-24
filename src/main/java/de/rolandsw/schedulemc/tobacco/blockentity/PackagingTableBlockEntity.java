@@ -118,8 +118,8 @@ public class PackagingTableBlockEntity extends BlockEntity implements MenuProvid
             return 0;
         }
 
-        // Berechne verfügbares Gewicht
-        int totalWeight = input.getCount() * 100; // 1 Item = 100g
+        // Berechne verfügbares Gewicht (1 Blatt = 1g)
+        int totalWeight = input.getCount();
         int packagesCount = totalWeight / weight;
 
         if (packagesCount == 0) {
@@ -146,8 +146,8 @@ public class PackagingTableBlockEntity extends BlockEntity implements MenuProvid
             created++;
         }
 
-        // Verbrauche Input
-        int itemsUsed = (created * weight) / 100;
+        // Verbrauche Input (1 Blatt = 1g)
+        int itemsUsed = created * weight; // weight in Gramm
         input.shrink(itemsUsed);
         setInputStack(input);
 

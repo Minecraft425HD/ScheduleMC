@@ -91,8 +91,9 @@ public class MediumPackagingTableBlockEntity extends BlockEntity implements Menu
             return 0;
         }
 
-        int totalWeight = input.getCount() * 100;
-        int packagesCount = totalWeight / 10;
+        // Berechne verfügbares Gewicht (1 Blatt = 1g)
+        int totalWeight = input.getCount();
+        int packagesCount = totalWeight / 10; // Für 10g Pakete
 
         // Zähle leere Schachteln
         int emptyBoxes = 0;
@@ -130,8 +131,9 @@ public class MediumPackagingTableBlockEntity extends BlockEntity implements Menu
             created++;
         }
 
-        int itemsUsed = (created * 10 + 99) / 100;
-        input.shrink(Math.max(1, itemsUsed));
+        // Verbrauche Input (1 Blatt = 1g)
+        int itemsUsed = created * 10; // Jedes 10g Paket braucht 10 Blätter
+        input.shrink(itemsUsed);
         setInputStack(input);
 
         setChanged();
@@ -159,8 +161,9 @@ public class MediumPackagingTableBlockEntity extends BlockEntity implements Menu
             }
         }
 
+        // Gib Tabak zurück (1g = 1 Blatt)
         if (totalWeight > 0 && !input.isEmpty() && input.getItem() instanceof FermentedTobaccoLeafItem) {
-            int itemsToAdd = totalWeight / 100;
+            int itemsToAdd = totalWeight; // 1g = 1 Blatt
             if (itemsToAdd > 0) {
                 input.grow(itemsToAdd);
                 setInputStack(input);
