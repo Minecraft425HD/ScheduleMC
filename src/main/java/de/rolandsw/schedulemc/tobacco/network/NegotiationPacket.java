@@ -162,8 +162,8 @@ public class NegotiationPacket {
                 // Metriken speichern (aktualisiert Reputation und Zufriedenheit)
                 metrics.save();
 
-                // Setze Cooldown (aktueller Tag)
-                long currentDay = player.level().getDayTime() / 24000;
+                // Setze Cooldown (aktueller Tag) - reuse variable from line 98
+                currentDay = player.level().getDayTime() / 24000;
                 npc.getNpcData().getCustomData().putLong("LastTobaccoSale_" + player.getStringUUID(), currentDay);
 
                 // Erfolgsmeldung mit aktuellem Wallet-Item Wert
