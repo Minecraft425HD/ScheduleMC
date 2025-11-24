@@ -1,0 +1,6 @@
+{
+  "parent": "item/handheld",
+  "textures": {
+    "layer0": "schedulemc:item/plot_selection_tool"
+  }
+}
