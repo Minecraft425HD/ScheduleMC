@@ -151,7 +151,8 @@ public class NPCBusinessMetrics {
     }
 
     public int getReputation(String uuid) {
-        return playerReputation.getOrDefault(uuid, 50);
+        // Anfänglicher Ruf ist 0 - Spieler müssen sich ihren Ruf erst aufbauen
+        return playerReputation.getOrDefault(uuid, 0);
     }
 
     public void setReputation(String uuid, int value) {

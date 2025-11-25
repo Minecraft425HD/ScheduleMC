@@ -66,6 +66,15 @@ public class NegotiationPacket {
                 return;
             }
 
+            // WICHTIG: Man kann nur exakt passende Päckchen verkaufen!
+            // Aus einem 5g Glas kann man nicht 1g herausnehmen
+            if (offeredGrams != availableGrams) {
+                player.sendSystemMessage(Component.literal("§c✗ Du kannst nur das komplette Päckchen verkaufen!"));
+                player.sendSystemMessage(Component.literal("§7Dieses Päckchen enthält " + availableGrams + "g."));
+                player.sendSystemMessage(Component.literal("§7Wenn du " + offeredGrams + "g verkaufen möchtest, brauchst du ein " + offeredGrams + "g Päckchen."));
+                return;
+            }
+
             // Wallet-Check: NPC muss genug Geld haben
             int npcWallet = npc.getNpcData().getWallet();
             if (offeredPrice > npcWallet) {
@@ -97,7 +106,7 @@ public class NegotiationPacket {
                 double price = offeredPrice;
                 long currentDay = player.level().getDayTime() / 24000;
 
-                // Erstelle verkauftes Item mit der gewünschten Grammzahl
+                // Erstelle verkauftes Item (komplettes Päckchen, da offeredGrams == availableGrams)
                 ItemStack soldItem = PackagedTobaccoItem.create(
                     PackagedTobaccoItem.getType(playerItem),
                     PackagedTobaccoItem.getQuality(playerItem),
@@ -105,21 +114,8 @@ public class NegotiationPacket {
                     PackagedTobaccoItem.getPackagedDate(playerItem)  // Behalte Original-Datum
                 );
 
-                // Wenn nur ein Teil verkauft wird, reduziere das Spieler-Item
-                if (offeredGrams < availableGrams) {
-                    // Erstelle neues Item mit verbleibenden Gramm
-                    int remainingGrams = availableGrams - offeredGrams;
-                    ItemStack remainingItem = PackagedTobaccoItem.create(
-                        PackagedTobaccoItem.getType(playerItem),
-                        PackagedTobaccoItem.getQuality(playerItem),
-                        remainingGrams,
-                        PackagedTobaccoItem.getPackagedDate(playerItem)  // Behalte Original-Datum
-                    );
-                    player.getInventory().setItem(playerSlot, remainingItem);
-                } else {
-                    // Ganzes Paket wurde verkauft
-                    playerItem.shrink(1);
-                }
+                // Entferne das komplette Päckchen aus dem Inventar
+                playerItem.shrink(1);
 
                 // 50% Chance: Item geht ins NPC Inventar (kann gestohlen werden)
                 if (player.level().getRandom().nextDouble() < 0.5) {
