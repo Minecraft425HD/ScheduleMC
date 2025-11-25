@@ -164,49 +164,7 @@ public class CustomNPCEntity extends PathfinderMob {
                 }
             }
 
-            // Tägliches Einkommen (nur für BEWOHNER und VERKAEUFER)
-            if (npcData.hasInventoryAndWallet()) {
-                checkDailyIncome();
-            }
-        }
-    }
-
-    /**
-     * Prüft und zahlt tägliches Einkommen aus (20-150 Bargeld um 0000 Uhr)
-     * WICHTIG: Funktioniert auch wenn Spieler schlafen und die Zeit übersprungen wird
-     */
-    private void checkDailyIncome() {
-        long totalTime = this.level().getDayTime();
-        long currentDay = totalTime / 24000L; // Aktueller Tag
-        long timeOfDay = totalTime % 24000L; // Zeit im aktuellen Tag (0-23999)
-
-        // Prüfen ob es Mitternacht ist ODER ob wir nach dem Schlafen sind (früher Morgen)
-        // - Normaler Tageswechsel: 18000-18100 Ticks (0000 Uhr, ~5 Sekunden Fenster)
-        // - Nach Schlafen: 0-100 Ticks (früher Morgen, Zeit wurde übersprungen)
-        // Dies stellt sicher, dass NPCs ihr Gehalt IMMER bekommen, auch wenn Spieler schlafen
-        if ((timeOfDay >= 18000 && timeOfDay < 18100) || (timeOfDay >= 0 && timeOfDay < 100)) {
-            // Prüfen ob heute schon Einkommen ausgezahlt wurde
-            if (npcData.getLastDailyIncome() < currentDay) {
-                // Zufälliger Betrag zwischen 20 und 150
-                int income = 20 + this.random.nextInt(131); // 20 + [0-130] = 20-150
-                int oldWallet = npcData.getWallet();
-                npcData.addMoney(income);
-                npcData.setLastDailyIncome(currentDay);
-
-                // Nachricht an alle Spieler in der Nähe
-                if (this.level() instanceof ServerLevel serverLevel) {
-                    serverLevel.getPlayers(player -> player.distanceToSqr(this) < 2500) // 50 Blöcke
-                        .forEach(player -> player.sendSystemMessage(
-                            Component.literal("[NPC] " + getNpcName() + " erhielt tägliches Einkommen: ")
-                                .withStyle(ChatFormatting.GREEN)
-                                .append(Component.literal(income + " Bargeld")
-                                    .withStyle(ChatFormatting.GOLD))
-                                .append(Component.literal(" (Tag " + currentDay + ", Geldbörse: " +
-                                    oldWallet + " → " + npcData.getWallet() + ")")
-                                    .withStyle(ChatFormatting.GRAY))
-                        ));
-                }
-            }
+            // Tägliches Einkommen wird jetzt global durch NPCDailySalaryHandler verwaltet
         }
     }
 
