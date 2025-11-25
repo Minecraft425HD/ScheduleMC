@@ -39,6 +39,7 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
     private int purchaseScore = 0;          // 0-100+ Punkte
     private boolean willingToBuy = false;   // Kaufbereitschaft
     private int desiredGrams = 0;           // Gewünschte Menge
+    private int npcWalletBalance = 0;       // NPC Wallet Balance (vom Server synchronisiert)
 
     public TobaccoNegotiationScreen(TobaccoNegotiationMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -115,10 +116,11 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
     /**
      * Wird vom PurchaseDecisionSyncPacket aufgerufen, um die Kaufbereitschaft anzuzeigen
      */
-    public void updatePurchaseDecision(int score, boolean willing, int amount) {
+    public void updatePurchaseDecision(int score, boolean willing, int amount, int wallet) {
         this.purchaseScore = score;
         this.willingToBuy = willing;
         this.desiredGrams = amount;
+        this.npcWalletBalance = wallet;
     }
 
     private void calculateFairPrice() {
@@ -194,12 +196,11 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
                 gramsScore = 5;
             }
 
-            // 3. Wallet-Check (0-20%)
-            int walletBalance = npc.getNpcData().getWallet();
+            // 3. Wallet-Check (0-20%) - verwende synchronisierten Wert
             int walletScore = 0;
-            if (offeredPrice <= walletBalance) {
+            if (offeredPrice <= npcWalletBalance) {
                 // NPC kann sich das leisten
-                float budgetUsage = (float)offeredPrice / walletBalance;
+                float budgetUsage = (float)offeredPrice / npcWalletBalance;
                 if (budgetUsage <= 0.3f) walletScore = 20; // Nur 30% Budget = gut
                 else if (budgetUsage <= 0.5f) walletScore = 15; // 30-50% = ok
                 else if (budgetUsage <= 0.7f) walletScore = 10; // 50-70% = kritisch
@@ -286,9 +287,8 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
             graphics.drawString(this.font, "§7Preis €", x + 10, y + 50, 0xFFFFFF, false);
             graphics.drawString(this.font, "§7Gramm", x + 75, y + 50, 0xFFFFFF, false);
 
-            // NPC Wallet Balance
-            int walletBalance = npc.getNpcData().getWallet();
-            graphics.drawString(this.font, "§7NPC Geld: §e" + walletBalance + "€", x + 8, y + 20, 0xFFFFFF, false);
+            // NPC Wallet Balance (verwende synchronisierten Wert vom Server)
+            graphics.drawString(this.font, "§7NPC Geld: §e" + npcWalletBalance + "€", x + 8, y + 20, 0xFFFFFF, false);
 
             // NPC Metriken
             graphics.drawString(this.font, "§7Ruf: §f" + reputation, x + 8, y + 86, 0xFFFFFF, false);

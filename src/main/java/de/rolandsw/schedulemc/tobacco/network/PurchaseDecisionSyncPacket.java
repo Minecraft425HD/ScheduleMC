@@ -15,11 +15,13 @@ public class PurchaseDecisionSyncPacket {
     private final int totalScore;           // 0-100+ Punkte
     private final boolean willingToBuy;     // Kaufbereitschaft (true/false)
     private final int desiredAmount;        // Gewünschte Menge in Gramm (0-10)
+    private final int npcWallet;            // NPC Geld in Euro
 
-    public PurchaseDecisionSyncPacket(int totalScore, boolean willingToBuy, int desiredAmount) {
+    public PurchaseDecisionSyncPacket(int totalScore, boolean willingToBuy, int desiredAmount, int npcWallet) {
         this.totalScore = totalScore;
         this.willingToBuy = willingToBuy;
         this.desiredAmount = desiredAmount;
+        this.npcWallet = npcWallet;
     }
 
     /**
@@ -29,6 +31,7 @@ public class PurchaseDecisionSyncPacket {
         buf.writeInt(totalScore);
         buf.writeBoolean(willingToBuy);
         buf.writeInt(desiredAmount);
+        buf.writeInt(npcWallet);
     }
 
     /**
@@ -38,6 +41,7 @@ public class PurchaseDecisionSyncPacket {
         return new PurchaseDecisionSyncPacket(
             buf.readInt(),
             buf.readBoolean(),
+            buf.readInt(),
             buf.readInt()
         );
     }
@@ -49,7 +53,7 @@ public class PurchaseDecisionSyncPacket {
         ctx.get().enqueueWork(() -> {
             // Client-Side: Update Screen
             if (Minecraft.getInstance().screen instanceof TobaccoNegotiationScreen screen) {
-                screen.updatePurchaseDecision(totalScore, willingToBuy, desiredAmount);
+                screen.updatePurchaseDecision(totalScore, willingToBuy, desiredAmount, npcWallet);
             }
         });
         ctx.get().setPacketHandled(true);
@@ -66,5 +70,9 @@ public class PurchaseDecisionSyncPacket {
 
     public int getDesiredAmount() {
         return desiredAmount;
+    }
+
+    public int getNpcWallet() {
+        return npcWallet;
     }
 }
