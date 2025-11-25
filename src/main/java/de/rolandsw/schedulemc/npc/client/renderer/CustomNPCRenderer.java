@@ -4,18 +4,12 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.npc.client.model.CustomNPCModel;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
-import net.minecraft.client.model.PlayerModel;
-import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Renderer für Custom NPCs mit Player-Skin Support
@@ -34,19 +28,17 @@ public class CustomNPCRenderer extends MobRenderer<CustomNPCEntity, CustomNPCMod
     public ResourceLocation getTextureLocation(CustomNPCEntity entity) {
         String skinFileName = entity.getSkinFileName();
 
-        // Versuche, den Skin aus dem config Ordner zu laden
-        try {
-            // Check if custom skin exists
-            Path skinPath = Paths.get("config", ScheduleMC.MOD_ID, "npc_skins", skinFileName);
-            File skinFile = skinPath.toFile();
+        // Prüfe auf Standard-Minecraft-Skins
+        if (skinFileName.equals("steve")) {
+            return new ResourceLocation("minecraft", "textures/entity/player/wide/steve.png");
+        } else if (skinFileName.equals("alex")) {
+            return new ResourceLocation("minecraft", "textures/entity/player/slim/alex.png");
+        }
 
-            if (skinFile.exists()) {
-                // Erstelle ResourceLocation für custom skin
-                // Diese werden dynamisch geladen via SkinManager
-                return new ResourceLocation(ScheduleMC.MOD_ID, "npc_skins/" + skinFileName);
-            }
-        } catch (Exception e) {
-            ScheduleMC.LOGGER.warn("Failed to load custom NPC skin: " + skinFileName, e);
+        // Prüfe, ob es ein Custom Skin ist (endet mit .png)
+        if (skinFileName.endsWith(".png")) {
+            // Lade den Custom Skin dynamisch
+            return CustomSkinManager.loadCustomSkin(skinFileName);
         }
 
         // Fallback zu default skin

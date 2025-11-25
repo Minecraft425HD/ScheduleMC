@@ -42,6 +42,7 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
     private int selectedSkinIndex = 0;
     private Button prevSkinButton;
     private Button nextSkinButton;
+    private Button refreshSkinsButton;
     private Button spawnButton;
 
     // NPC Typ Auswahl
@@ -82,6 +83,11 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
         nextSkinButton = addRenderableWidget(Button.builder(Component.literal(">"), button -> {
             selectedSkinIndex = (selectedSkinIndex + 1) % Math.max(1, availableSkins.size());
         }).bounds(x + 136, y + 50, 20, 20).build());
+
+        // Refresh Skins Button (Reload button to refresh the skin list)
+        refreshSkinsButton = addRenderableWidget(Button.builder(Component.literal("⟳"), button -> {
+            refreshSkinList();
+        }).bounds(x + 42, y + 50, 20, 20).build());
 
         // NPC Typ Selection Buttons
         prevNPCTypeButton = addRenderableWidget(Button.builder(Component.literal("<"), button -> {
@@ -124,10 +130,32 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
     }
 
     /**
+     * Lädt die Skin-Liste neu (z.B. nachdem neue Skins hinzugefügt wurden)
+     */
+    private void refreshSkinList() {
+        ScheduleMC.LOGGER.info("Refreshing NPC skin list...");
+        availableSkins = loadAvailableSkins();
+
+        // Passe den ausgewählten Index an, falls er außerhalb des Bereichs liegt
+        if (selectedSkinIndex >= availableSkins.size()) {
+            selectedSkinIndex = Math.max(0, availableSkins.size() - 1);
+        }
+
+        ScheduleMC.LOGGER.info("Skin list refreshed. Currently selected: {} ({}/{})",
+            availableSkins.get(selectedSkinIndex), selectedSkinIndex + 1, availableSkins.size());
+    }
+
+    /**
      * Lädt alle verfügbaren Skins aus dem config/schedulemc/npc_skins/ Ordner
+     * und fügt Standard-Minecraft-Skins hinzu
      */
     private List<String> loadAvailableSkins() {
         List<String> skins = new ArrayList<>();
+
+        // Füge Standard-Minecraft-Player-Skins hinzu
+        skins.add("steve");
+        skins.add("alex");
+        skins.add("default.png");
 
         try {
             Path skinsDir = Paths.get("config", ScheduleMC.MOD_ID, "npc_skins");
@@ -135,21 +163,31 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
 
             if (!dir.exists()) {
                 dir.mkdirs();
-                ScheduleMC.LOGGER.info("Created NPC skins directory: " + skinsDir);
+                ScheduleMC.LOGGER.info("Created NPC skins directory: {}", dir.getAbsolutePath());
             }
+
+            ScheduleMC.LOGGER.info("Loading custom NPC skins from: {}", dir.getAbsolutePath());
 
             File[] files = dir.listFiles((d, name) -> name.toLowerCase().endsWith(".png"));
-            if (files != null) {
+            if (files != null && files.length > 0) {
+                ScheduleMC.LOGGER.info("Found {} PNG files in skins directory", files.length);
                 for (File file : files) {
-                    skins.add(file.getName());
+                    String fileName = file.getName();
+                    ScheduleMC.LOGGER.info("Found skin file: {}", fileName);
+
+                    // Füge nur hinzu, wenn nicht schon in der Liste (außer default.png, das wurde bereits hinzugefügt)
+                    if (!skins.contains(fileName)) {
+                        skins.add(fileName);
+                        ScheduleMC.LOGGER.info("Added custom skin: {}", fileName);
+                    }
                 }
+            } else {
+                ScheduleMC.LOGGER.info("No custom skin files found in directory");
             }
+
+            ScheduleMC.LOGGER.info("Total skins available: {} ({})", skins.size(), String.join(", ", skins));
         } catch (Exception e) {
             ScheduleMC.LOGGER.error("Failed to load NPC skins", e);
-        }
-
-        if (skins.isEmpty()) {
-            skins.add("default.png");
         }
 
         return skins;
@@ -184,12 +222,30 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
 
-        // Zeige ausgewählten Skin-Namen
+        // Zeige ausgewählten Skin-Namen mit Zähler
         if (!availableSkins.isEmpty()) {
             String skinName = availableSkins.get(selectedSkinIndex);
-            int textX = x + (imageWidth - font.width(skinName)) / 2;
+            // Zeige schöneren Namen für Standard-Skins
+            String displayName = skinName;
+            if (skinName.equals("steve")) {
+                displayName = "Steve (Standard)";
+            } else if (skinName.equals("alex")) {
+                displayName = "Alex (Standard)";
+            } else if (skinName.equals("default.png")) {
+                displayName = "Default";
+            } else {
+                // Entferne .png Endung für bessere Anzeige
+                displayName = skinName.replace(".png", "");
+            }
+
+            String skinCounter = "(" + (selectedSkinIndex + 1) + "/" + availableSkins.size() + ")";
+            int textX = x + (imageWidth - font.width(displayName)) / 2;
             int textY = y + 55;
-            guiGraphics.drawString(this.font, skinName, textX, textY, 0x404040, false);
+            int counterX = x + (imageWidth - font.width(skinCounter)) / 2;
+            int counterY = y + 65;
+
+            guiGraphics.drawString(this.font, displayName, textX, textY, 0x404040, false);
+            guiGraphics.drawString(this.font, skinCounter, counterX, counterY, 0x808080, false);
         }
 
         // Zeige ausgewählten NPC Typ
