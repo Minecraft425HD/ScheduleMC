@@ -173,14 +173,18 @@ public class CustomNPCEntity extends PathfinderMob {
 
     /**
      * Prüft und zahlt tägliches Einkommen aus (20-150 Bargeld um 0000 Uhr)
+     * WICHTIG: Funktioniert auch wenn Spieler schlafen und die Zeit übersprungen wird
      */
     private void checkDailyIncome() {
         long totalTime = this.level().getDayTime();
         long currentDay = totalTime / 24000L; // Aktueller Tag
         long timeOfDay = totalTime % 24000L; // Zeit im aktuellen Tag (0-23999)
 
-        // Prüfen ob es zwischen 18000 und 18100 Ticks ist (0000 Uhr, ~5 Sekunden Fenster)
-        if (timeOfDay >= 18000 && timeOfDay < 18100) {
+        // Prüfen ob es Mitternacht ist ODER ob wir nach dem Schlafen sind (früher Morgen)
+        // - Normaler Tageswechsel: 18000-18100 Ticks (0000 Uhr, ~5 Sekunden Fenster)
+        // - Nach Schlafen: 0-100 Ticks (früher Morgen, Zeit wurde übersprungen)
+        // Dies stellt sicher, dass NPCs ihr Gehalt IMMER bekommen, auch wenn Spieler schlafen
+        if ((timeOfDay >= 18000 && timeOfDay < 18100) || (timeOfDay >= 0 && timeOfDay < 100)) {
             // Prüfen ob heute schon Einkommen ausgezahlt wurde
             if (npcData.getLastDailyIncome() < currentDay) {
                 // Zufälliger Betrag zwischen 20 und 150
