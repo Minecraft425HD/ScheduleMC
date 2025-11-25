@@ -19,9 +19,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -146,7 +143,7 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
     }
 
     /**
-     * Lädt alle verfügbaren Skins aus dem config/schedulemc/npc_skins/ Ordner
+     * Lädt alle verfügbaren Skins aus dem assets/schedulemc/skins/ Ordner
      * und fügt Standard-Minecraft-Skins hinzu
      */
     private List<String> loadAvailableSkins() {
@@ -158,32 +155,34 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
         skins.add("default.png");
 
         try {
-            Path skinsDir = Paths.get("config", ScheduleMC.MOD_ID, "npc_skins");
-            File dir = skinsDir.toFile();
+            // Lade Skins aus dem Ressourcen-Ordner
+            // In der Entwicklung: src/main/resources/assets/schedulemc/skins/
+            // Im Build: assets/schedulemc/skins/ im JAR
+            var resourceManager = Minecraft.getInstance().getResourceManager();
+            var namespace = ScheduleMC.MOD_ID;
 
-            if (!dir.exists()) {
-                dir.mkdirs();
-                ScheduleMC.LOGGER.info("Created NPC skins directory: {}", dir.getAbsolutePath());
-            }
+            ScheduleMC.LOGGER.info("Loading custom NPC skins from assets/{}/skins/", namespace);
 
-            ScheduleMC.LOGGER.info("Loading custom NPC skins from: {}", dir.getAbsolutePath());
+            // Liste alle Ressourcen im skins Ordner auf
+            resourceManager.listResources("skins", location ->
+                location.getNamespace().equals(namespace) && location.getPath().endsWith(".png")
+            ).forEach((location, resource) -> {
+                try {
+                    // Extrahiere den Dateinamen aus dem Pfad
+                    String path = location.getPath();
+                    String fileName = path.substring(path.lastIndexOf('/') + 1);
 
-            File[] files = dir.listFiles((d, name) -> name.toLowerCase().endsWith(".png"));
-            if (files != null && files.length > 0) {
-                ScheduleMC.LOGGER.info("Found {} PNG files in skins directory", files.length);
-                for (File file : files) {
-                    String fileName = file.getName();
                     ScheduleMC.LOGGER.info("Found skin file: {}", fileName);
 
-                    // Füge nur hinzu, wenn nicht schon in der Liste (außer default.png, das wurde bereits hinzugefügt)
+                    // Füge nur hinzu, wenn nicht schon in der Liste
                     if (!skins.contains(fileName)) {
                         skins.add(fileName);
                         ScheduleMC.LOGGER.info("Added custom skin: {}", fileName);
                     }
+                } catch (Exception e) {
+                    ScheduleMC.LOGGER.error("Error processing skin: {}", location, e);
                 }
-            } else {
-                ScheduleMC.LOGGER.info("No custom skin files found in directory");
-            }
+            });
 
             ScheduleMC.LOGGER.info("Total skins available: {} ({})", skins.size(), String.join(", ", skins));
         } catch (Exception e) {
