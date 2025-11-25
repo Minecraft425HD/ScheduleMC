@@ -8,11 +8,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,7 +23,7 @@ public class CustomSkinManager {
         new ResourceLocation(ScheduleMC.MOD_ID, "textures/entity/npc/default.png");
 
     /**
-     * Lädt einen benutzerdefinierten Skin aus dem config Ordner und registriert ihn als Textur
+     * Lädt einen benutzerdefinierten Skin aus dem assets/schedulemc/skins/ Ordner und registriert ihn als Textur
      *
      * @param skinFileName Der Dateiname des Skins (z.B. "my_skin.png")
      * @return Die ResourceLocation der geladenen Textur, oder DEFAULT_SKIN bei Fehler
@@ -39,16 +35,24 @@ public class CustomSkinManager {
         }
 
         try {
-            Path skinPath = Paths.get("config", ScheduleMC.MOD_ID, "npc_skins", skinFileName);
-            File skinFile = skinPath.toFile();
+            // Erstelle ResourceLocation für den Skin im Ressourcen-Ordner
+            // Pfad: assets/schedulemc/skins/skinFileName
+            ResourceLocation skinResourceLocation = new ResourceLocation(
+                ScheduleMC.MOD_ID,
+                "skins/" + skinFileName
+            );
 
-            if (!skinFile.exists()) {
-                ScheduleMC.LOGGER.warn("Custom skin file not found: {}", skinPath.toAbsolutePath());
+            var resourceManager = Minecraft.getInstance().getResourceManager();
+
+            // Prüfe, ob die Ressource existiert
+            var resourceOptional = resourceManager.getResource(skinResourceLocation);
+            if (resourceOptional.isEmpty()) {
+                ScheduleMC.LOGGER.warn("Custom skin resource not found: {}", skinResourceLocation);
                 return DEFAULT_SKIN;
             }
 
-            // Lade die PNG-Datei als NativeImage
-            try (InputStream inputStream = new FileInputStream(skinFile)) {
+            // Lade die PNG-Datei als NativeImage aus der Ressource
+            try (InputStream inputStream = resourceOptional.get().open()) {
                 NativeImage image = NativeImage.read(inputStream);
 
                 // Erstelle eine DynamicTexture aus dem NativeImage
