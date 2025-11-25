@@ -71,12 +71,13 @@ public class OpenTobaccoNegotiationPacket {
                 }
             }, buf -> buf.writeInt(npcEntityId));
 
-            // Sende Purchase Decision zum Client
+            // Sende Purchase Decision zum Client (inkl. Wallet)
             if (decision != null) {
                 PurchaseDecisionSyncPacket syncPacket = new PurchaseDecisionSyncPacket(
                     (int)decision.getTotalScore(),
                     decision.isWillingToBuy(),
-                    decision.getDesiredAmount()
+                    decision.getDesiredAmount(),
+                    npc.getNpcData().getWallet()  // NPC Wallet hinzufügen
                 );
                 ModNetworking.sendToClient(syncPacket, player);
             }

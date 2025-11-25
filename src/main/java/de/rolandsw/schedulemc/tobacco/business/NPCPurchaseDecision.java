@@ -189,25 +189,41 @@ public class NPCPurchaseDecision {
     }
 
     /**
-     * Berechnet die gewünschte Kaufmenge basierend auf Score und Budget
-     * 0-10g für Standard-NPCs
+     * Berechnet die gewünschte Kaufmenge basierend auf Score, Budget und Reputation
+     * Reputation skaliert die maximale Menge: 0-20 Rep = 1g, 21-40 Rep = 2-3g, 41-60 Rep = 4-6g, 61+ Rep = 7-10g
      */
     private int calculatePurchaseAmount() {
-        // 1. Score-basierte Menge (0-10g)
-        float scorePercent = Math.min(totalScore / 100.0f, 1.0f);
-        int maxGrams = 10;
-        int scoreBasedAmount = Math.round(scorePercent * maxGrams);
+        // 1. Reputation-basierte maximale Menge (skaliert langsam über Zeit)
+        String playerUUID = player.getStringUUID();
+        int reputation = metrics.getReputation(playerUUID);
+        int maxGrams;
 
-        // 2. Budget-Limit prüfen
+        if (reputation <= 20) {
+            maxGrams = 1;  // Anfänger: NPC kennt dich nicht, will nur 1g
+        } else if (reputation <= 40) {
+            maxGrams = 2 + (reputation - 20) / 10;  // 2-3g
+        } else if (reputation <= 60) {
+            maxGrams = 4 + (reputation - 40) / 10;  // 4-6g
+        } else if (reputation <= 80) {
+            maxGrams = 7 + (reputation - 60) / 10;  // 7-9g
+        } else {
+            maxGrams = 10;  // Vertrauter Händler: bis zu 10g
+        }
+
+        // 2. Score-basierte Menge (0-maxGrams)
+        float scorePercent = Math.min(totalScore / 100.0f, 1.0f);
+        int scoreBasedAmount = Math.max(1, Math.round(scorePercent * maxGrams));
+
+        // 3. Budget-Limit prüfen
         int walletBalance = npcData.getWallet();
         float estimatedPricePerGram = 5.0f; // Durchschnittspreis, wird später genauer berechnet
         float maxBudget = walletBalance * personality.getMaxBudgetPercent();
         int budgetBasedAmount = (int)(maxBudget / estimatedPricePerGram);
 
-        // 3. Minimum nehmen und auf 0-10g limitieren
+        // 4. Minimum nehmen und auf 1-maxGrams limitieren
         int finalAmount = Math.min(Math.min(scoreBasedAmount, budgetBasedAmount), maxGrams);
 
-        // 4. Mindestens 1g wenn überhaupt kaufen
+        // 5. Mindestens 1g wenn überhaupt kaufen
         return Math.max(finalAmount, 1);
     }
 
