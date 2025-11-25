@@ -35,6 +35,11 @@ public class NPCDailySalaryHandler {
             return;
         }
 
+        // Überspringe wenn keine Spieler online sind (Zeit läuft nicht)
+        if (event.getServer().getPlayerCount() == 0) {
+            return;
+        }
+
         ServerLevel level = event.getServer().overworld();
         long currentDay = level.getDayTime() / 24000L;
 
