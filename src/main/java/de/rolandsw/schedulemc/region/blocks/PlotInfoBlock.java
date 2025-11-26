@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.fml.DistExecutor;
 
 /**
  * Plot-Info-Block
@@ -79,7 +80,7 @@ public class PlotInfoBlock extends Block {
      * Öffnet das Plot-Info-GUI (nur Client-Seite)
      */
     private void openPlotInfoScreen(PlotRegion plot) {
-        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
-        mc.setScreen(new de.rolandsw.schedulemc.client.PlotInfoScreen(plot));
+        DistExecutor.unsafeRunWhenOn(net.minecraftforge.api.distmarker.Dist.CLIENT,
+            () -> () -> de.rolandsw.schedulemc.client.PlotInfoClientHandler.openPlotInfoScreen(plot));
     }
 }
