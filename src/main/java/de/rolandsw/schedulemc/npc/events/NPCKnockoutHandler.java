@@ -3,6 +3,8 @@ package de.rolandsw.schedulemc.npc.events;
 import de.rolandsw.schedulemc.npc.crime.CrimeManager;
 import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
+import com.mojang.logging.LogUtils;
+import org.slf4j.Logger;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
@@ -23,6 +25,8 @@ import java.util.List;
  * - Wanted-Level für Angriffe auf NPCs (nur wenn gesehen)
  */
 public class NPCKnockoutHandler {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     @SubscribeEvent
     public void onNPCDamage(LivingDamageEvent event) {
@@ -73,7 +77,9 @@ public class NPCKnockoutHandler {
                 );
             }
 
-            System.out.println("[KNOCKOUT] NPC " + npc.getNpcName() + " knockout an Tag " + currentDay);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("[KNOCKOUT] NPC {} knockout an Tag {}", npc.getNpcName(), currentDay);
+            }
         }
 
         // ═══════════════════════════════════════════
@@ -142,9 +148,11 @@ public class NPCKnockoutHandler {
                     player.sendSystemMessage(Component.literal("§7Verbrechen: §c" + crimeType));
                     player.sendSystemMessage(Component.literal("§c" + stars + " Fahndungsstufe: " + currentWantedLevel));
 
-                    System.out.println("[CRIME] Player " + player.getName().getString() +
-                        " - " + crimeType + " - Wanted Level: " + currentWantedLevel +
-                        " (+" + starsToAdd + " Sterne" + (policePresent ? ", POLIZEI dabei!" : "") + ")");
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("[CRIME] Player {} - {} - Wanted Level: {} (+{} Sterne{})",
+                            player.getName().getString(), crimeType, currentWantedLevel, starsToAdd,
+                            policePresent ? ", POLIZEI dabei!" : "");
+                    }
                 }
             }
         }
@@ -176,7 +184,9 @@ public class NPCKnockoutHandler {
                 // Stelle HP wieder her
                 npc.setHealth(npc.getMaxHealth());
 
-                System.out.println("[KNOCKOUT] NPC " + npc.getNpcName() + " erholt sich an Tag " + currentDay);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("[KNOCKOUT] NPC {} erholt sich an Tag {}", npc.getNpcName(), currentDay);
+                }
             } else {
                 // Noch knockout - verhindere Bewegung
                 npc.setDeltaMovement(0, 0, 0);

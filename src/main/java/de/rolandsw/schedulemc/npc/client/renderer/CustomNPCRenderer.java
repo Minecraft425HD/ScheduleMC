@@ -11,14 +11,26 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * Renderer für Custom NPCs mit Player-Skin Support
+ * OPTIMIERT: Cached ResourceLocations für bessere Performance
  */
 @OnlyIn(Dist.CLIENT)
 public class CustomNPCRenderer extends MobRenderer<CustomNPCEntity, CustomNPCModel> {
 
+    // Cached ResourceLocations (Performance-Optimierung)
     private static final ResourceLocation DEFAULT_SKIN =
         new ResourceLocation(ScheduleMC.MOD_ID, "textures/entity/npc/default.png");
+    private static final ResourceLocation STEVE_SKIN =
+        new ResourceLocation("minecraft", "textures/entity/player/wide/steve.png");
+    private static final ResourceLocation ALEX_SKIN =
+        new ResourceLocation("minecraft", "textures/entity/player/slim/alex.png");
+
+    // Cache für Custom Skins (verhindert wiederholtes Laden)
+    private static final Map<String, ResourceLocation> customSkinCache = new ConcurrentHashMap<>();
 
     public CustomNPCRenderer(EntityRendererProvider.Context context) {
         super(context, new CustomNPCModel(context.bakeLayer(CustomNPCModel.LAYER_LOCATION)), 0.5F);
@@ -28,17 +40,18 @@ public class CustomNPCRenderer extends MobRenderer<CustomNPCEntity, CustomNPCMod
     public ResourceLocation getTextureLocation(CustomNPCEntity entity) {
         String skinFileName = entity.getSkinFileName();
 
-        // Prüfe auf Standard-Minecraft-Skins
-        if (skinFileName.equals("steve")) {
-            return new ResourceLocation("minecraft", "textures/entity/player/wide/steve.png");
-        } else if (skinFileName.equals("alex")) {
-            return new ResourceLocation("minecraft", "textures/entity/player/slim/alex.png");
+        // Prüfe auf Standard-Minecraft-Skins (gecached)
+        if ("steve".equals(skinFileName)) {
+            return STEVE_SKIN;
+        } else if ("alex".equals(skinFileName)) {
+            return ALEX_SKIN;
         }
 
         // Prüfe, ob es ein Custom Skin ist (endet mit .png)
         if (skinFileName.endsWith(".png")) {
-            // Lade den Custom Skin dynamisch
-            return CustomSkinManager.loadCustomSkin(skinFileName);
+            // Lade den Custom Skin dynamisch (mit Cache)
+            return customSkinCache.computeIfAbsent(skinFileName,
+                CustomSkinManager::loadCustomSkin);
         }
 
         // Fallback zu default skin

@@ -117,7 +117,8 @@ public class EconomyManager {
             return;
         }
 
-        balances.put(uuid, getBalance(uuid) + amount);
+        double currentBalance = balances.getOrDefault(uuid, 0.0);
+        balances.put(uuid, currentBalance + amount);
         markDirty();
         LOGGER.debug("Einzahlung: {} € für {}", amount, uuid);
     }
@@ -132,8 +133,9 @@ public class EconomyManager {
             return false;
         }
 
-        if (getBalance(uuid) >= amount) {
-            balances.put(uuid, getBalance(uuid) - amount);
+        double currentBalance = balances.getOrDefault(uuid, 0.0);
+        if (currentBalance >= amount) {
+            balances.put(uuid, currentBalance - amount);
             markDirty();
             LOGGER.debug("Abbuchung: {} € von {}", amount, uuid);
             return true;

@@ -22,6 +22,8 @@ import org.slf4j.Logger;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * ScheduleMC 3.0 - Block-Schutz mit Trusted Players Support
@@ -29,6 +31,11 @@ import java.util.UUID;
 public class BlockProtectionHandler {
 
     private static final Logger LOGGER = LogUtils.getLogger();
+
+    // NPC Work Location Cache (Performance-Optimierung)
+    private static final Map<BlockPos, CustomNPCEntity> npcWorkLocationCache = new ConcurrentHashMap<>();
+    private static long lastNPCCacheUpdate = 0;
+    private static final long CACHE_DURATION_MS = 5000; // 5 Sekunden Cache
 
     /**
      * Verhindert das Abbauen von Blöcken in fremden Plots oder NPC-Arbeitsorten
@@ -157,15 +164,18 @@ public class BlockProtectionHandler {
     }
 
     /**
-     * Prüft ob eine Position ein NPC Arbeitsort ist und schützt sie
+     * Aktualisiert den NPC Work Location Cache
+     * PERFORMANCE: Wird nur alle 5 Sekunden ausgeführt statt bei jedem Block-Event
      */
-    private boolean isNPCWorkLocation(Player player, BlockPos pos) {
-        // Admin darf Arbeitsorte abbauen
-        if (player.hasPermissions(2)) {
-            return false;
+    private static void updateNPCWorkLocationCache(Player player) {
+        long now = System.currentTimeMillis();
+        if (now - lastNPCCacheUpdate < CACHE_DURATION_MS) {
+            return; // Cache ist noch gültig
         }
 
-        // Suche alle NPCs im Level
+        npcWorkLocationCache.clear();
+
+        // Suche alle NPCs einmalig
         WorldBorder border = player.level().getWorldBorder();
         AABB searchArea = new AABB(
             border.getMinX(), player.level().getMinBuildHeight(), border.getMinZ(),
@@ -176,17 +186,41 @@ public class BlockProtectionHandler {
             searchArea
         );
 
+        // Befülle Cache
         for (CustomNPCEntity npc : npcs) {
             BlockPos workLocation = npc.getNpcData().getWorkLocation();
-            if (workLocation != null && workLocation.equals(pos)) {
-                player.displayClientMessage(
-                    Component.literal("§c✗ Dies ist der Arbeitsort von ")
-                        .append(Component.literal(npc.getNpcName()).withStyle(ChatFormatting.YELLOW))
-                        .append(Component.literal("!")),
-                    true
-                );
-                return true;
+            if (workLocation != null) {
+                npcWorkLocationCache.put(workLocation, npc);
             }
+        }
+
+        lastNPCCacheUpdate = now;
+        LOGGER.debug("NPC Work Location Cache aktualisiert: {} Einträge", npcWorkLocationCache.size());
+    }
+
+    /**
+     * Prüft ob eine Position ein NPC Arbeitsort ist und schützt sie
+     * OPTIMIERT: Verwendet Cache statt bei jedem Event alle NPCs zu durchsuchen
+     */
+    private boolean isNPCWorkLocation(Player player, BlockPos pos) {
+        // Admin darf Arbeitsorte abbauen
+        if (player.hasPermissions(2)) {
+            return false;
+        }
+
+        // Aktualisiere Cache falls nötig (max alle 5 Sekunden)
+        updateNPCWorkLocationCache(player);
+
+        // O(1) Lookup statt O(n) Suche!
+        CustomNPCEntity npc = npcWorkLocationCache.get(pos);
+        if (npc != null) {
+            player.displayClientMessage(
+                Component.literal("§c✗ Dies ist der Arbeitsort von ")
+                    .append(Component.literal(npc.getNpcName()).withStyle(ChatFormatting.YELLOW))
+                    .append(Component.literal("!")),
+                true
+            );
+            return true;
         }
 
         return false;
