@@ -68,7 +68,7 @@ public class PlotSpatialIndex {
      * Findet alle Plot-IDs die eine Position enthalten könnten
      *
      * @param pos Die Position
-     * @return Set von Plot-IDs die überprüft werden müssen
+     * @return Set von Plot-IDs die überprüft werden müssen (unmodifiable view)
      */
     public Set<String> getPlotsNear(BlockPos pos) {
         ChunkKey chunk = getChunkKey(pos);
@@ -78,7 +78,7 @@ public class PlotSpatialIndex {
             return Collections.emptySet();
         }
 
-        return new HashSet<>(plots);
+        return Collections.unmodifiableSet(plots);
     }
 
     /**

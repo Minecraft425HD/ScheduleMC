@@ -79,7 +79,9 @@ public class IllegalActivityScanner {
     public static ScanResult scanArea(Level level, BlockPos center, ServerPlayer player) {
         ScanResult result = new ScanResult();
 
-        int radius = ModConfigHandler.COMMON.POLICE_RAID_SCAN_RADIUS.get();
+        int configRadius = ModConfigHandler.COMMON.POLICE_RAID_SCAN_RADIUS.get();
+        // Hard-Limit bei 15 Blöcken für Performance (15³ = 3375 Blöcke statt 20³ = 8000)
+        int radius = Math.min(configRadius, 15);
 
         // Scanne alle Blöcke im Radius
         for (int x = -radius; x <= radius; x++) {

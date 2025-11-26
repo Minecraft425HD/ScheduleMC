@@ -4,6 +4,8 @@ import de.rolandsw.schedulemc.economy.WalletManager;
 import de.rolandsw.schedulemc.economy.items.CashItem;
 import de.rolandsw.schedulemc.npc.crime.CrimeManager;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
+import com.mojang.logging.LogUtils;
+import org.slf4j.Logger;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -20,6 +22,9 @@ import java.util.function.Supplier;
  * Packet für Diebstahl-Versuch (Ergebnis des Minigames)
  */
 public class StealingAttemptPacket {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
+
     private final int npcEntityId;
     private final boolean success;
     private final int stealType; // 0 = Geld, 1 = Items
@@ -55,40 +60,52 @@ public class StealingAttemptPacket {
                         ItemStack stolenItem = ItemStack.EMPTY;
                         double stolenMoney = 0.0;
 
-                        System.out.println("[STEALING] Player: " + player.getName().getString() + " - StealType: " + stealType);
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("[STEALING] Player: {} - StealType: {}", player.getName().getString(), stealType);
+                        }
 
                     if (stealType == 0) {
                         // ═══════════════════════════════════════════
                         // GELD STEHLEN (50% des NPC Guthabens)
                         // ═══════════════════════════════════════════
                         int npcWallet = npc.getNpcData().getWallet();
-                        System.out.println("[STEALING] NPC Wallet: " + npcWallet + "€");
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("[STEALING] NPC Wallet: {}€", npcWallet);
+                        }
 
                         if (npcWallet > 0) {
                             int stolenAmount = (int)(npcWallet * 0.5);
-                            System.out.println("[STEALING] Berechnet 50%: " + stolenAmount + "€");
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug("[STEALING] Berechnet 50%: {}€", stolenAmount);
+                            }
 
                             if (stolenAmount > 0) {
                                 npc.getNpcData().removeMoney(stolenAmount);
                                 stolenMoney = stolenAmount;
-                                System.out.println("[STEALING] Geld vom NPC entfernt: " + stolenAmount + "€");
+                                if (LOGGER.isDebugEnabled()) {
+                                    LOGGER.debug("[STEALING] Geld vom NPC entfernt: {}€", stolenAmount);
+                                }
 
                                 // Geld zum Wallet-Item hinzufügen
                                 ItemStack walletItem = player.getInventory().getItem(8);
                                 if (walletItem.getItem() instanceof CashItem) {
                                     double previousValue = CashItem.getValue(walletItem);
-                                    System.out.println("[STEALING] Wallet-Item vorher: " + previousValue + "€");
+                                    if (LOGGER.isDebugEnabled()) {
+                                        LOGGER.debug("[STEALING] Wallet-Item vorher: {}€", previousValue);
+                                    }
 
                                     CashItem.addValue(walletItem, stolenMoney);
 
                                     double newValue = CashItem.getValue(walletItem);
-                                    System.out.println("[STEALING] Wallet-Item nachher: " + newValue + "€");
+                                    if (LOGGER.isDebugEnabled()) {
+                                        LOGGER.debug("[STEALING] Wallet-Item nachher: {}€", newValue);
+                                    }
 
                                     // Auch WalletManager aktualisieren
                                     WalletManager.addMoney(player.getUUID(), stolenMoney);
                                     WalletManager.save();
                                 } else {
-                                    System.out.println("[STEALING] WARNUNG: Kein Wallet-Item in Slot 8!");
+                                    LOGGER.warn("[STEALING] WARNUNG: Kein Wallet-Item in Slot 8!");
                                 }
                             }
                         }
@@ -125,14 +142,18 @@ public class StealingAttemptPacket {
                                     player.drop(stolenItem, false);
                                 }
 
-                                System.out.println("[STEALING] Item gestohlen: " + stolenItem.getHoverName().getString() + " x" + stolenItem.getCount());
+                                if (LOGGER.isDebugEnabled()) {
+                                    LOGGER.debug("[STEALING] Item gestohlen: {} x{}", stolenItem.getHoverName().getString(), stolenItem.getCount());
+                                }
                             }
                         }
                     }
 
                         // Setze Cooldown (aktueller Tag)
                         npc.getNpcData().getCustomData().putLong("LastSteal_" + player.getStringUUID(), currentDay);
-                        System.out.println("[STEALING] Cooldown gesetzt für Tag: " + currentDay);
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("[STEALING] Cooldown gesetzt für Tag: {}", currentDay);
+                        }
 
                         // ═══════════════════════════════════════════
                         // ERFOLGSMELDUNG
@@ -155,13 +176,17 @@ public class StealingAttemptPacket {
                         // ═══════════════════════════════════════════
                         // FEHLGESCHLAGENER DIEBSTAHL
                         // ═══════════════════════════════════════════
-                        System.out.println("[STEALING] Fehlgeschlagen - Player: " + player.getName().getString());
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("[STEALING] Fehlgeschlagen - Player: {}", player.getName().getString());
+                        }
 
                         // 33% Chance: NPC attackiert Spieler
                         if (Math.random() < 0.33) {
                             npc.setTarget(player);
                             player.sendSystemMessage(Component.literal("§c⚠ " + npc.getNpcName() + " greift dich an!"));
-                            System.out.println("[STEALING] NPC " + npc.getNpcName() + " attackiert Spieler");
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug("[STEALING] NPC {} attackiert Spieler", npc.getNpcName());
+                            }
                         }
                     }
 
@@ -210,15 +235,20 @@ public class StealingAttemptPacket {
                             }
                             player.sendSystemMessage(Component.literal("§c" + stars + " Fahndungsstufe: " + currentWantedLevel));
 
-                            System.out.println("[CRIME] Player " + player.getName().getString() +
-                                " gesehen beim Stehlen - Wanted Level: " + currentWantedLevel +
-                                " (" + witnesses.size() + " Zeugen" + (policePresent ? ", POLIZEI dabei!" : "") + ")");
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug("[CRIME] Player {} gesehen beim Stehlen - Wanted Level: {} ({} Zeugen{})",
+                                    player.getName().getString(), currentWantedLevel, witnesses.size(),
+                                    policePresent ? ", POLIZEI dabei!" : "");
+                            }
                         } else {
-                            System.out.println("[STEALING] Nicht entdeckt (Chance: " +
-                                String.format("%.1f%%", detectionChance * 100) + ")");
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug("[STEALING] Nicht entdeckt (Chance: {:.1f}%)", detectionChance * 100);
+                            }
                         }
                     } else {
-                        System.out.println("[STEALING] Keine Zeugen in der Nähe");
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("[STEALING] Keine Zeugen in der Nähe");
+                        }
                     }
                 }
             }

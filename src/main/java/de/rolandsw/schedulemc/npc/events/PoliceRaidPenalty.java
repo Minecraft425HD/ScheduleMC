@@ -4,6 +4,8 @@ import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.economy.items.CashItem;
 import de.rolandsw.schedulemc.npc.crime.CrimeManager;
+import com.mojang.logging.LogUtils;
+import org.slf4j.Logger;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
@@ -17,6 +19,8 @@ import net.minecraft.world.item.ItemStack;
  * - Gefängnis-Zeit: Wird verdoppelt wenn Kontostand zu niedrig
  */
 public class PoliceRaidPenalty {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     /**
      * Wendet alle Strafen nach einem Raid an
@@ -37,8 +41,10 @@ public class PoliceRaidPenalty {
                 "§c⚠ FAHNDUNGSLEVEL ERHÖHT: +" + wantedIncrease + "★ (Illegal possession)"
             ));
 
-            System.out.println("[RAID] Player " + player.getName().getString() +
-                " Fahndungslevel erhöht: " + currentWanted + " -> " + (currentWanted + wantedIncrease));
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("[RAID] Player {} Fahndungslevel erhöht: {} -> {}",
+                    player.getName().getString(), currentWanted, currentWanted + wantedIncrease);
+            }
         }
 
         // 2. Berechne Geldstrafe
@@ -62,8 +68,10 @@ public class PoliceRaidPenalty {
                 "§c✗ GELDSTRAFE: " + String.format("%.2f", fine) + "€ vom Konto abgezogen"
             ));
 
-            System.out.println("[RAID] Player " + player.getName().getString() +
-                " Geldstrafe: " + fine + "€ (Kontostand: " + accountBalance + "€)");
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("[RAID] Player {} Geldstrafe: {}€ (Kontostand: {}€)",
+                    player.getName().getString(), fine, accountBalance);
+            }
         } else {
             // Nicht genug Geld - ziehe alles ab + verdoppele Gefängnis
             double availableBalance = EconomyManager.getBalance(player.getUUID());
@@ -84,8 +92,8 @@ public class PoliceRaidPenalty {
             // Verdopple Gefängnis-Zeit wird in PoliceAIHandler.arrestPlayer() gemacht
             player.getPersistentData().putBoolean("DoublePenalty", true);
 
-            System.out.println("[RAID] Player " + player.getName().getString() +
-                " kann Strafe nicht bezahlen - Gefängnis-Zeit verdoppelt");
+            LOGGER.warn("[RAID] Player {} kann Strafe nicht bezahlen - Gefängnis-Zeit verdoppelt",
+                player.getName().getString());
         }
     }
 

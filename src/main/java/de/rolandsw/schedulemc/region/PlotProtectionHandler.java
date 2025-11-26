@@ -1,6 +1,8 @@
 package de.rolandsw.schedulemc.region;
 
 import de.rolandsw.schedulemc.ScheduleMC;
+import com.mojang.logging.LogUtils;
+import org.slf4j.Logger;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -28,6 +30,7 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(modid = ScheduleMC.MOD_ID)
 public class PlotProtectionHandler {
 
+    private static final Logger LOGGER = LogUtils.getLogger();
     private static final boolean ENABLE_WORLD_PROTECTION = true; // In Config verschieben später
 
     /**
@@ -52,8 +55,8 @@ public class PlotProtectionHandler {
             player.sendSystemMessage(Component.literal(
                 "§c✗ Du kannst hier nicht abbauen! Kaufe einen Plot mit /plot buy"
             ));
-            System.out.println("[PLOT-PROTECTION] " + player.getName().getString() +
-                " versuchte außerhalb eines Plots bei " + pos.toShortString() + " abzubauen");
+            LOGGER.debug("[PLOT-PROTECTION] {} versuchte außerhalb eines Plots bei {} abzubauen",
+                player.getName().getString(), pos.toShortString());
             return;
         }
 
@@ -80,9 +83,8 @@ public class PlotProtectionHandler {
                     ));
                 }
 
-                System.out.println("[PLOT-PROTECTION] " + player.getName().getString() +
-                    " versuchte ohne Rechte in Apartment " + apartment.getId() +
-                    " (Plot: " + plot.getPlotId() + ") abzubauen");
+                LOGGER.debug("[PLOT-PROTECTION] {} versuchte ohne Rechte in Apartment {} (Plot: {}) abzubauen",
+                    player.getName().getString(), apartment.getId(), plot.getPlotId());
             } else {
                 // Normaler Plot-Bereich
                 String ownerName = plot.getOwnerName();
@@ -96,9 +98,8 @@ public class PlotProtectionHandler {
                     ));
                 }
 
-                System.out.println("[PLOT-PROTECTION] " + player.getName().getString() +
-                    " versuchte ohne Rechte in Plot " + plot.getPlotId() +
-                    " (Besitzer: " + ownerName + ") abzubauen");
+                LOGGER.debug("[PLOT-PROTECTION] {} versuchte ohne Rechte in Plot {} (Besitzer: {}) abzubauen",
+                    player.getName().getString(), plot.getPlotId(), ownerName);
             }
         }
     }
@@ -213,8 +214,8 @@ public class PlotProtectionHandler {
             // Explosion in Plot → Verhindere Block-Schaden
             event.getAffectedBlocks().clear();
 
-            System.out.println("[PLOT-PROTECTION] Explosion in Plot " + plot.getPlotId() +
-                " verhindert bei " + explosionPos.toShortString());
+            LOGGER.debug("[PLOT-PROTECTION] Explosion in Plot {} verhindert bei {}",
+                plot.getPlotId(), explosionPos.toShortString());
         }
     }
 

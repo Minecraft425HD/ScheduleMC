@@ -18,8 +18,11 @@ import net.minecraft.world.phys.AABB;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import com.mojang.logging.LogUtils;
+import org.slf4j.Logger;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -35,13 +38,30 @@ import java.util.UUID;
  */
 public class PoliceAIHandler {
 
-    private static final double POLICE_SPEED = 1.2; // 20% schneller
+    private static final Logger LOGGER = LogUtils.getLogger();
 
-    // UUID -> Arrest Start Time (in Ticks)
-    private static final Map<UUID, Long> arrestTimers = new HashMap<>();
+    // Konstanten
+    private static final double POLICE_SPEED = 1.2; // 20% schneller
+    private static final long TICKS_PER_SECOND = 20L;
+    private static final int AI_UPDATE_INTERVAL_TICKS = 20; // Alle 1 Sekunde
+    private static final int FINE_PER_WANTED_LEVEL = 500;
+    private static final int JAIL_SECONDS_PER_WANTED_LEVEL = 60;
+    private static final int MAX_ARREST_TIMER_ENTRIES = 1000;
+    private static final long ARREST_TIMER_TIMEOUT_MS = 600000; // 10 Minuten
+
+    // UUID -> Arrest Start Time (in Ticks) - mit automatischem Cleanup
+    private static final Map<UUID, Long> arrestTimers = new LinkedHashMap<UUID, Long>(16, 0.75f, true) {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<UUID, Long> eldest) {
+            return size() > MAX_ARREST_TIMER_ENTRIES;
+        }
+    };
 
     // NPC UUID -> Last Pursuit Target (um zu wissen wen wir verfolgt haben)
     private static final Map<UUID, UUID> lastPursuitTarget = new HashMap<>();
+
+    // Wanted-Level Sync Cache (verhindert unnötige Netzwerk-Pakete)
+    private static final Map<UUID, Integer> lastSyncedWantedLevel = new HashMap<>();
 
     /**
      * Polizei-KI: Sucht Verbrecher und verfolgt sie
@@ -58,14 +78,14 @@ public class PoliceAIHandler {
         }
 
         // Nur alle 20 Ticks (1 Sekunde) prüfen
-        if (npc.tickCount % 20 != 0) return;
+        if (npc.tickCount % AI_UPDATE_INTERVAL_TICKS != 0) return;
 
         long currentTick = npc.level().getGameTime();
 
         // Lade Config-Werte
         int detectionRadius = ModConfigHandler.COMMON.POLICE_DETECTION_RADIUS.get();
         double arrestDistance = ModConfigHandler.COMMON.POLICE_ARREST_DISTANCE.get();
-        long arrestCooldown = ModConfigHandler.COMMON.POLICE_ARREST_COOLDOWN_SECONDS.get() * 20L;
+        long arrestCooldown = ModConfigHandler.COMMON.POLICE_ARREST_COOLDOWN_SECONDS.get() * TICKS_PER_SECOND;
 
         // Prüfe ob Polizei gerade sucht
         if (PoliceSearchBehavior.isSearching(npc)) {
@@ -75,10 +95,14 @@ public class PoliceAIHandler {
                 // Suche abgebrochen
                 PoliceSearchBehavior.stopSearch(npc, searchTarget);
                 PoliceBackupSystem.unregisterPolice(searchTarget, npc.getUUID());
-                System.out.println("[POLICE] " + npc.getNpcName() + " hat die Suche aufgegeben");
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("[POLICE] {} hat die Suche aufgegeben", npc.getNpcName());
+                }
             } else {
                 // Weiter suchen
-                System.out.println("[POLICE] " + npc.getNpcName() + " führt Suche fort (searchArea wird aufgerufen)");
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("[POLICE] {} führt Suche fort", npc.getNpcName());
+                }
                 PoliceSearchBehavior.searchArea(npc, searchTarget, currentTick);
             }
         }
@@ -94,8 +118,10 @@ public class PoliceAIHandler {
             if (assignedPlayer != null && !PoliceSearchBehavior.isPlayerHidden(assignedPlayer, npc)) {
                 targetCriminal = assignedPlayer;
                 highestWantedLevel = CrimeManager.getWantedLevel(assignedPlayer.getUUID());
-                System.out.println("[BACKUP] " + npc.getNpcName() + " verfolgt zugewiesenes Ziel: " +
-                    assignedPlayer.getName().getString());
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("[BACKUP] {} verfolgt zugewiesenes Ziel: {}",
+                        npc.getNpcName(), assignedPlayer.getName().getString());
+                }
             }
         }
 
@@ -176,7 +202,9 @@ public class PoliceAIHandler {
                 if (isHidden) {
                     // Spieler ist versteckt - NICHT ins Gebäude folgen!
                     // Stattdessen: Gebiet durchsuchen / vor Gebäude warten
-                    System.out.println("[POLICE] " + npc.getNpcName() + " - Spieler ist versteckt, wechsle zu Suchmodus");
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("[POLICE] {} - Spieler ist versteckt, wechsle zu Suchmodus", npc.getNpcName());
+                    }
 
                     // Reset Timer falls vorhanden
                     if (arrestTimers.containsKey(playerUUID)) {
@@ -221,17 +249,23 @@ public class PoliceAIHandler {
             UUID lastTarget = lastPursuitTarget.get(npc.getUUID());
 
             if (lastTarget != null) {
-                System.out.println("[POLICE] " + npc.getNpcName() + " hat Verfolgungsziel verloren, starte Suche...");
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("[POLICE] {} hat Verfolgungsziel verloren, starte Suche...", npc.getNpcName());
+                }
 
                 // Starte Suchverhalten für verlorenen Spieler
                 ServerPlayer lostPlayer = npc.level().getServer().getPlayerList().getPlayer(lastTarget);
 
                 if (lostPlayer != null && CrimeManager.getWantedLevel(lastTarget) > 0) {
-                    System.out.println("[POLICE] " + npc.getNpcName() + " startet Suche nach " + lostPlayer.getName().getString());
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("[POLICE] {} startet Suche nach {}", npc.getNpcName(), lostPlayer.getName().getString());
+                    }
                     PoliceSearchBehavior.startSearch(npc, lostPlayer, currentTick);
                     lostPlayer.sendSystemMessage(Component.literal("§e⚠ Die Polizei sucht dich im Gebiet..."));
                 } else {
-                    System.out.println("[POLICE] " + npc.getNpcName() + " kann Spieler nicht finden oder Wanted-Level ist 0");
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("[POLICE] {} kann Spieler nicht finden oder Wanted-Level ist 0", npc.getNpcName());
+                    }
                 }
 
                 // Entferne Verfolgungsziel
@@ -266,10 +300,11 @@ public class PoliceAIHandler {
 
         if (scanResult.hasIllegalActivity()) {
             // Illegale Aktivitäten gefunden!
-            System.out.println("[RAID] Illegale Aktivitäten bei " + player.getName().getString() + " festgestellt!");
-            System.out.println("[RAID] Pflanzen: " + scanResult.illegalPlantCount +
-                ", Bargeld: " + scanResult.totalCashFound +
-                ", Items: " + scanResult.illegalItemCount);
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("[RAID] Illegale Aktivitäten bei {} festgestellt!", player.getName().getString());
+                LOGGER.info("[RAID] Pflanzen: {}, Bargeld: {}, Items: {}",
+                    scanResult.illegalPlantCount, scanResult.totalCashFound, scanResult.illegalItemCount);
+            }
 
             // Wende Strafen an (Geldstrafe, Fahndungslevel-Erhöhung)
             PoliceRaidPenalty.applyPenalties(player, scanResult);
@@ -294,7 +329,7 @@ public class PoliceAIHandler {
         if (player.getPersistentData().getBoolean("DoublePenalty")) {
             jailTimeSeconds *= 2;
             player.getPersistentData().remove("DoublePenalty");
-            System.out.println("[RAID] Haftzeit verdoppelt wegen unbezahlter Raid-Strafe");
+            LOGGER.warn("[RAID] Haftzeit verdoppelt wegen unbezahlter Raid-Strafe");
         }
 
         // Geld aus Wallet-Item abziehen
@@ -348,8 +383,8 @@ public class PoliceAIHandler {
         player.sendSystemMessage(Component.literal("§7Haftzeit: §e" + jailTimeSeconds + " Sekunden"));
         player.sendSystemMessage(Component.literal("§7Fahndungsstufe zurückgesetzt"));
 
-        System.out.println("[POLICE] " + police.getNpcName() + " arrested " +
-            player.getName().getString() + " - Jail time: " + jailTimeSeconds + "s");
+        LOGGER.info("[POLICE] {} arrested {} - Jail time: {}s",
+            police.getNpcName(), player.getName().getString(), jailTimeSeconds);
     }
 
     /**
@@ -381,7 +416,7 @@ public class PoliceAIHandler {
                 player.removeEffect(MobEffects.MOVEMENT_SLOWDOWN);
                 player.removeEffect(MobEffects.JUMP);
 
-                System.out.println("[JAIL] Player " + player.getName().getString() + " released");
+                LOGGER.info("[JAIL] Player {} released", player.getName().getString());
             } else {
                 // ═══════════════════════════════════════════
                 // NOCH IM GEFÄNGNIS
@@ -415,10 +450,11 @@ public class PoliceAIHandler {
         if (wantedLevel > 0) {
             long currentTick = player.level().getGameTime();
 
-            // Finde nächste Polizei
+            // Finde nächste Polizei (OPTIMIERT: konfigurierbar statt hardcoded 100)
+            int backupSearchRadius = ModConfigHandler.COMMON.POLICE_BACKUP_SEARCH_RADIUS.get();
             List<CustomNPCEntity> nearbyPolice = player.level().getEntitiesOfClass(
                 CustomNPCEntity.class,
-                AABB.ofSize(player.position(), 100, 100, 100),
+                AABB.ofSize(player.position(), backupSearchRadius, backupSearchRadius, backupSearchRadius),
                 npc -> npc.getNpcType() == NPCType.POLIZEI && !npc.getPersistentData().getBoolean("IsKnockedOut")
             );
 
@@ -486,13 +522,20 @@ public class PoliceAIHandler {
                 }
             }
 
-            // Sync zu Client (für HUD Overlay)
-            long escapeTime = CrimeManager.getEscapeTimeRemaining(player.getUUID(), currentTick);
-            NPCNetworkHandler.sendToPlayer(new WantedLevelSyncPacket(wantedLevel, escapeTime), player);
+            // Sync zu Client (für HUD Overlay) - NUR wenn sich Wert geändert hat!
+            int lastSynced = lastSyncedWantedLevel.getOrDefault(player.getUUID(), -1);
+            if (wantedLevel != lastSynced) {
+                long escapeTime = CrimeManager.getEscapeTimeRemaining(player.getUUID(), currentTick);
+                NPCNetworkHandler.sendToPlayer(new WantedLevelSyncPacket(wantedLevel, escapeTime), player);
+                lastSyncedWantedLevel.put(player.getUUID(), wantedLevel);
+            }
         } else {
-            // Kein Wanted-Level → cleanup und sync 0 zum Client
-            arrestTimers.remove(player.getUUID());
-            NPCNetworkHandler.sendToPlayer(new WantedLevelSyncPacket(0, 0), player);
+            // Kein Wanted-Level → cleanup und sync 0 zum Client (nur einmal)
+            if (lastSyncedWantedLevel.getOrDefault(player.getUUID(), -1) != 0) {
+                arrestTimers.remove(player.getUUID());
+                NPCNetworkHandler.sendToPlayer(new WantedLevelSyncPacket(0, 0), player);
+                lastSyncedWantedLevel.put(player.getUUID(), 0);
+            }
         }
     }
 }

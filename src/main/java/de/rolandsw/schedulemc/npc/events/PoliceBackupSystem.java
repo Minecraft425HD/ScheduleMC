@@ -1,6 +1,8 @@
 package de.rolandsw.schedulemc.npc.events;
 
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
+import com.mojang.logging.LogUtils;
+import org.slf4j.Logger;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.AABB;
 
@@ -15,6 +17,8 @@ import java.util.*;
  */
 public class PoliceBackupSystem {
 
+    private static final Logger LOGGER = LogUtils.getLogger();
+
     // Player UUID -> Set of Police UUIDs currently pursuing
     private static final Map<UUID, Set<UUID>> activePolice = new HashMap<>();
 
@@ -28,8 +32,10 @@ public class PoliceBackupSystem {
         activePolice.computeIfAbsent(playerUUID, k -> new HashSet<>()).add(policeUUID);
         isRaidPursuit.put(playerUUID, isRaid);
 
-        System.out.println("[BACKUP] Polizei " + policeUUID + " verfolgt Spieler " + playerUUID +
-            " (Raid: " + isRaid + ", Gesamt: " + activePolice.get(playerUUID).size() + ")");
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("[BACKUP] Polizei {} verfolgt Spieler {} (Raid: {}, Gesamt: {})",
+                policeUUID, playerUUID, isRaid, activePolice.get(playerUUID).size());
+        }
     }
 
     /**
@@ -43,7 +49,9 @@ public class PoliceBackupSystem {
                 activePolice.remove(playerUUID);
                 isRaidPursuit.remove(playerUUID);
             }
-            System.out.println("[BACKUP] Polizei " + policeUUID + " gibt Verfolgung auf von Spieler " + playerUUID);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("[BACKUP] Polizei {} gibt Verfolgung auf von Spieler {}", policeUUID, playerUUID);
+            }
         }
     }
 
@@ -73,7 +81,7 @@ public class PoliceBackupSystem {
      */
     public static void callBackup(ServerPlayer player, CustomNPCEntity caller) {
         if (!canCallBackup(player.getUUID())) {
-            System.out.println("[BACKUP] Keine Verstärkung möglich - Maximum erreicht");
+            LOGGER.info("[BACKUP] Keine Verstärkung möglich - Maximum erreicht");
             return;
         }
 
@@ -82,8 +90,10 @@ public class PoliceBackupSystem {
         int currentCount = getActivePoliceCount(player.getUUID());
         int needed = maxPolice - currentCount;
 
-        System.out.println("[BACKUP] Rufe " + needed + " Verstärkung(en) für Spieler " +
-            player.getName().getString() + " (Raid: " + isRaid + ")");
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("[BACKUP] Rufe {} Verstärkung(en) für Spieler {} (Raid: {})",
+                needed, player.getName().getString(), isRaid);
+        }
 
         // Suche Polizisten in 100-Block-Radius
         AABB searchArea = new AABB(
@@ -100,7 +110,7 @@ public class PoliceBackupSystem {
         );
 
         if (nearbyPolice.isEmpty()) {
-            System.out.println("[BACKUP] Keine verfügbaren Polizisten in der Nähe gefunden");
+            LOGGER.debug("[BACKUP] Keine verfügbaren Polizisten in der Nähe gefunden");
             return;
         }
 
@@ -120,17 +130,18 @@ public class PoliceBackupSystem {
             registerPolice(player.getUUID(), police.getUUID(), isRaid);
 
             // Setze Ziel für Verstärkung (wird in PoliceAIHandler übernommen)
-            System.out.println("[BACKUP] Polizist " + police.getNpcName() +
-                " als Verstärkung zugewiesen (Entfernung: " +
-                String.format("%.1f", Math.sqrt(police.distanceToSqr(caller.getX(), caller.getY(), caller.getZ()))) + " Blöcke)");
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("[BACKUP] Polizist {} als Verstärkung zugewiesen (Entfernung: {:.1f} Blöcke)",
+                    police.getNpcName(), Math.sqrt(police.distanceToSqr(caller.getX(), caller.getY(), caller.getZ())));
+            }
 
             assigned++;
         }
 
         if (assigned > 0) {
-            System.out.println("[BACKUP] " + assigned + " Verstärkung(en) erfolgreich zugewiesen");
+            LOGGER.debug("[BACKUP] {} Verstärkung(en) erfolgreich zugewiesen", assigned);
         } else {
-            System.out.println("[BACKUP] Keine Verstärkung zugewiesen");
+            LOGGER.debug("[BACKUP] Keine Verstärkung zugewiesen");
         }
     }
 
@@ -172,7 +183,7 @@ public class PoliceBackupSystem {
     public static void upgradeToRaid(UUID playerUUID) {
         if (activePolice.containsKey(playerUUID)) {
             isRaidPursuit.put(playerUUID, true);
-            System.out.println("[BACKUP] Verfolgung zu Raid hochgestuft - Max 4 Polizisten erlaubt");
+            LOGGER.info("[BACKUP] Verfolgung zu Raid hochgestuft - Max 4 Polizisten erlaubt");
         }
     }
 
@@ -180,11 +191,13 @@ public class PoliceBackupSystem {
      * Debug-Info
      */
     public static void printStatus() {
-        System.out.println("[BACKUP] === Polizei-Status ===");
-        for (Map.Entry<UUID, Set<UUID>> entry : activePolice.entrySet()) {
-            boolean isRaid = isRaidPursuit.getOrDefault(entry.getKey(), false);
-            System.out.println("[BACKUP] Spieler " + entry.getKey() + ": " +
-                entry.getValue().size() + " Polizisten (Raid: " + isRaid + ")");
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("[BACKUP] === Polizei-Status ===");
+            for (Map.Entry<UUID, Set<UUID>> entry : activePolice.entrySet()) {
+                boolean isRaid = isRaidPursuit.getOrDefault(entry.getKey(), false);
+                LOGGER.debug("[BACKUP] Spieler {}: {} Polizisten (Raid: {})",
+                    entry.getKey(), entry.getValue().size(), isRaid);
+            }
         }
     }
 }

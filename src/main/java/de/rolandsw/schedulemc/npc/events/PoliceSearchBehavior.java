@@ -2,6 +2,8 @@ package de.rolandsw.schedulemc.npc.events;
 
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
+import com.mojang.logging.LogUtils;
+import org.slf4j.Logger;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ClipContext;
@@ -25,6 +27,8 @@ import java.util.UUID;
  * - Polizei sucht in der Gegend, wo Spieler zuletzt gesehen wurde
  */
 public class PoliceSearchBehavior {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     // UUID -> Last Known Position
     private static final Map<UUID, BlockPos> lastKnownPositions = new HashMap<>();
@@ -245,13 +249,17 @@ public class PoliceSearchBehavior {
         if (movement.lengthSqr() > 0.01) { // Nur wenn sich Spieler bewegt
             String direction = movement.x + "," + movement.y + "," + movement.z;
             movementDirections.put(playerUUID, direction);
-            System.out.println("[POLICE] " + police.getNpcName() + " startet Suche nach Spieler " +
-                player.getName().getString() + " bei " + player.blockPosition() + " in Richtung " + movement);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("[POLICE] {} startet Suche nach Spieler {} bei {} in Richtung {}",
+                    police.getNpcName(), player.getName().getString(), player.blockPosition(), movement);
+            }
         } else {
             // Spieler steht still - keine bevorzugte Richtung
             movementDirections.remove(playerUUID);
-            System.out.println("[POLICE] " + police.getNpcName() + " startet Suche nach Spieler " +
-                player.getName().getString() + " bei " + player.blockPosition());
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("[POLICE] {} startet Suche nach Spieler {} bei {}",
+                    police.getNpcName(), player.getName().getString(), player.blockPosition());
+            }
         }
     }
 
@@ -308,7 +316,7 @@ public class PoliceSearchBehavior {
     public static void searchArea(CustomNPCEntity police, UUID playerUUID, long currentTick) {
         BlockPos lastPos = getLastKnownPosition(playerUUID);
         if (lastPos == null) {
-            System.out.println("[POLICE] FEHLER: Keine letzte Position für Spieler " + playerUUID);
+            LOGGER.error("[POLICE] FEHLER: Keine letzte Position für Spieler {}", playerUUID);
             return;
         }
 
@@ -319,7 +327,9 @@ public class PoliceSearchBehavior {
 
         if (!lastTargetUpdate.containsKey(policeUUID)) {
             needsNewTarget = true; // Erstes Mal
-            System.out.println("[POLICE] " + police.getNpcName() + " setzt erstes Suchziel");
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("[POLICE] {} setzt erstes Suchziel", police.getNpcName());
+            }
         } else {
             long lastUpdate = lastTargetUpdate.get(policeUUID);
             long timeSinceUpdate = currentTick - lastUpdate;
@@ -328,10 +338,14 @@ public class PoliceSearchBehavior {
             // Neues Ziel nach konfigurierbarem Intervall ODER wenn Polizei angekommen ist
             if (timeSinceUpdate >= updateInterval) {
                 needsNewTarget = true;
-                System.out.println("[POLICE] " + police.getNpcName() + " Update-Intervall erreicht (" + (timeSinceUpdate/20) + "s)");
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("[POLICE] {} Update-Intervall erreicht ({}s)", police.getNpcName(), timeSinceUpdate / 20);
+                }
             } else if (police.getNavigation().isDone()) {
                 needsNewTarget = true;
-                System.out.println("[POLICE] " + police.getNpcName() + " hat Ziel erreicht, neues Ziel wird gesetzt");
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("[POLICE] {} hat Ziel erreicht, neues Ziel wird gesetzt", police.getNpcName());
+                }
             }
         }
 
@@ -364,7 +378,10 @@ public class PoliceSearchBehavior {
 
                 searchTarget = new BlockPos(targetX, lastPos.getY(), targetZ);
 
-                System.out.println("[POLICE] " + police.getNpcName() + " sucht in Bewegungsrichtung bei " + searchTarget + " (Radius: " + searchRadius + ")");
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("[POLICE] {} sucht in Bewegungsrichtung bei {} (Radius: {})",
+                        police.getNpcName(), searchTarget, searchRadius);
+                }
             } else {
                 // Keine Bewegungsrichtung - zufällige Position
                 int randomX = lastPos.getX() + (police.getRandom().nextInt(searchRadius * 2) - searchRadius);
@@ -372,7 +389,10 @@ public class PoliceSearchBehavior {
 
                 searchTarget = new BlockPos(randomX, lastPos.getY(), randomZ);
 
-                System.out.println("[POLICE] " + police.getNpcName() + " sucht zufällig bei " + searchTarget + " (Radius: " + searchRadius + ")");
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("[POLICE] {} sucht zufällig bei {} (Radius: {})",
+                        police.getNpcName(), searchTarget, searchRadius);
+                }
             }
 
             // Stoppe aktuelle Navigation
@@ -382,9 +402,11 @@ public class PoliceSearchBehavior {
             boolean navigationStarted = police.getNavigation().moveTo(searchTarget.getX(), searchTarget.getY(), searchTarget.getZ(), 1.2);
 
             if (navigationStarted) {
-                System.out.println("[POLICE] " + police.getNpcName() + " Navigation gestartet zu " + searchTarget);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("[POLICE] {} Navigation gestartet zu {}", police.getNpcName(), searchTarget);
+                }
             } else {
-                System.out.println("[POLICE] FEHLER: " + police.getNpcName() + " konnte nicht zu " + searchTarget + " navigieren!");
+                LOGGER.error("[POLICE] FEHLER: {} konnte nicht zu {} navigieren!", police.getNpcName(), searchTarget);
             }
 
             // Speichere Update-Zeit
@@ -392,7 +414,7 @@ public class PoliceSearchBehavior {
         } else {
             // Kein neues Ziel - prüfe ob Navigation noch läuft
             if (police.getNavigation().isDone()) {
-                System.out.println("[POLICE] WARNUNG: " + police.getNpcName() + " Navigation ist fertig aber kein neues Ziel wurde gesetzt!");
+                LOGGER.warn("[POLICE] WARNUNG: {} Navigation ist fertig aber kein neues Ziel wurde gesetzt!", police.getNpcName());
             }
         }
     }
