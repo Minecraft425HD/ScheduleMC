@@ -63,6 +63,9 @@ public class PoliceAIHandler {
     // Wanted-Level Sync Cache (verhindert unnötige Netzwerk-Pakete)
     private static final Map<UUID, Integer> lastSyncedWantedLevel = new HashMap<>();
 
+    // Escape-Time Sync Cache (verhindert unnötige Netzwerk-Pakete)
+    private static final Map<UUID, Long> lastSyncedEscapeTime = new HashMap<>();
+
     /**
      * Polizei-KI: Sucht Verbrecher und verfolgt sie
      */
@@ -523,11 +526,15 @@ public class PoliceAIHandler {
             }
 
             // Sync zu Client (für HUD Overlay) - NUR wenn sich Wert geändert hat!
-            int lastSynced = lastSyncedWantedLevel.getOrDefault(player.getUUID(), -1);
-            if (wantedLevel != lastSynced) {
-                long escapeTime = CrimeManager.getEscapeTimeRemaining(player.getUUID(), currentTick);
+            long escapeTime = CrimeManager.getEscapeTimeRemaining(player.getUUID(), currentTick);
+            int lastSyncedLevel = lastSyncedWantedLevel.getOrDefault(player.getUUID(), -1);
+            long lastSyncedTime = lastSyncedEscapeTime.getOrDefault(player.getUUID(), -1L);
+
+            // Sync wenn sich Wanted-Level ODER Escape-Time geändert hat
+            if (wantedLevel != lastSyncedLevel || escapeTime != lastSyncedTime) {
                 NPCNetworkHandler.sendToPlayer(new WantedLevelSyncPacket(wantedLevel, escapeTime), player);
                 lastSyncedWantedLevel.put(player.getUUID(), wantedLevel);
+                lastSyncedEscapeTime.put(player.getUUID(), escapeTime);
             }
         } else {
             // Kein Wanted-Level → cleanup und sync 0 zum Client (nur einmal)
@@ -535,6 +542,7 @@ public class PoliceAIHandler {
                 arrestTimers.remove(player.getUUID());
                 NPCNetworkHandler.sendToPlayer(new WantedLevelSyncPacket(0, 0), player);
                 lastSyncedWantedLevel.put(player.getUUID(), 0);
+                lastSyncedEscapeTime.put(player.getUUID(), 0L);
             }
         }
     }
