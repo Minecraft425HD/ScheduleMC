@@ -81,6 +81,13 @@ public class VersionChecker {
                 downloadUrl = jsonObject.get("html_url").getAsString();
             }
 
+            // Prüfe ob die Version ein gültiges Format hat (x.y.z)
+            if (!isValidVersionFormat(latestVersion)) {
+                ScheduleMC.LOGGER.warn("Invalid version format in GitHub release: " + latestVersion);
+                ScheduleMC.LOGGER.info("Running version: " + getCurrentVersion());
+                return;
+            }
+
             // Vergleiche Versionen
             updateAvailable = isNewerVersion(latestVersion, getCurrentVersion());
 
@@ -92,6 +99,35 @@ public class VersionChecker {
         } catch (Exception e) {
             ScheduleMC.LOGGER.error("Error parsing version response", e);
         }
+    }
+
+    /**
+     * Prüft ob eine Version ein gültiges Format hat (mindestens x.y)
+     */
+    private static boolean isValidVersionFormat(String version) {
+        if (version == null || version.isEmpty()) {
+            return false;
+        }
+
+        // Entferne Pre-Release-Suffix für Validierung
+        String versionNumeric = version.split("-")[0];
+
+        // Muss mindestens einen Punkt enthalten (z.B. 1.0 oder 1.0.0)
+        if (!versionNumeric.contains(".")) {
+            return false;
+        }
+
+        // Prüfe ob alle Teile numerisch sind
+        String[] parts = versionNumeric.split("\\.");
+        for (String part : parts) {
+            try {
+                Integer.parseInt(part);
+            } catch (NumberFormatException e) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
