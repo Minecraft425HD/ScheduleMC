@@ -4,7 +4,7 @@ license="MIT"
 
 [[mods]]
 modId="schedulemc"
-version="1.0.0"
+version="${file.jarVersion}"
 displayName="ScheduleMC"
 description="ScheduleMC Main Mod"
 
