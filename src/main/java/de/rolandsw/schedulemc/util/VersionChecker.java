@@ -95,12 +95,17 @@ public class VersionChecker {
     }
 
     /**
-     * Vergleicht zwei Versionen im Format x.y.z
+     * Vergleicht zwei Versionen im Format x.y.z[-suffix]
+     * Unterstützt Pre-Release-Versionen wie 1.0.0-alpha, 1.0.0-beta, etc.
      */
     private static boolean isNewerVersion(String latest, String current) {
         try {
-            String[] latestParts = latest.split("\\.");
-            String[] currentParts = current.split("\\.");
+            // Entferne Pre-Release-Suffixe für den Vergleich
+            String latestNumeric = latest.split("-")[0];
+            String currentNumeric = current.split("-")[0];
+
+            String[] latestParts = latestNumeric.split("\\.");
+            String[] currentParts = currentNumeric.split("\\.");
 
             int length = Math.max(latestParts.length, currentParts.length);
 
@@ -113,6 +118,16 @@ public class VersionChecker {
                 } else if (latestPart < currentPart) {
                     return false;
                 }
+            }
+
+            // Wenn die numerischen Teile gleich sind, prüfe Pre-Release Status
+            // Eine Release-Version (ohne Suffix) ist neuer als eine Pre-Release
+            boolean latestIsPreRelease = latest.contains("-");
+            boolean currentIsPreRelease = current.contains("-");
+
+            if (!latestIsPreRelease && currentIsPreRelease) {
+                // Latest ist Release, Current ist Pre-Release -> Update verfügbar
+                return true;
             }
 
             return false;
