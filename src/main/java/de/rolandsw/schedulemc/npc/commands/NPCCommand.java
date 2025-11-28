@@ -163,7 +163,7 @@ public class NPCCommand {
             context.getSource().sendFailure(
                 Component.literal("NPC '")
                     .withStyle(ChatFormatting.RED)
-                    .append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW)).
+                    .append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW))
                     .append(Component.literal("' nicht gefunden!").withStyle(ChatFormatting.RED))
             );
             return 0;
@@ -196,7 +196,7 @@ public class NPCCommand {
             context.getSource().sendFailure(
                 Component.literal("NPC '")
                     .withStyle(ChatFormatting.RED)
-                    .append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW)).
+                    .append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW))
                     .append(Component.literal("' nicht gefunden!").withStyle(ChatFormatting.RED))
             );
             return 0;
@@ -208,7 +208,7 @@ public class NPCCommand {
             () -> Component.literal("Bewegungsgeschwindigkeit gesetzt auf ")
                 .withStyle(ChatFormatting.GREEN)
                 .append(Component.literal(String.format("%.2f", speed))
-                    .withStyle(ChatFormatting.YELLOW)).
+                    .withStyle(ChatFormatting.YELLOW))
                 .append(Component.literal(" für NPC ")
                     .withStyle(ChatFormatting.GREEN))
                 .append(Component.literal(npc.getNpcName())
@@ -229,7 +229,7 @@ public class NPCCommand {
             context.getSource().sendFailure(
                 Component.literal("NPC '")
                     .withStyle(ChatFormatting.RED)
-                    .append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW)).
+                    .append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW))
                     .append(Component.literal("' nicht gefunden!").withStyle(ChatFormatting.RED))
             );
             return 0;
@@ -243,13 +243,13 @@ public class NPCCommand {
             Component.literal("Name: ")
                 .withStyle(ChatFormatting.GRAY)
                 .append(Component.literal(npc.getNpcName())
-                    .withStyle(ChatFormatting.YELLOW)).
+                    .withStyle(ChatFormatting.YELLOW))
         );
         player.sendSystemMessage(
             Component.literal("Typ: ")
                 .withStyle(ChatFormatting.GRAY)
                 .append(Component.literal(data.getNpcType().toString())
-                    .withStyle(ChatFormatting.YELLOW)).
+                    .withStyle(ChatFormatting.YELLOW))
         );
         player.sendSystemMessage(
             Component.literal("Bewegung: ")
@@ -261,7 +261,7 @@ public class NPCCommand {
             Component.literal("Geschwindigkeit: ")
                 .withStyle(ChatFormatting.GRAY)
                 .append(Component.literal(String.format("%.2f", behavior.getMovementSpeed()))
-                    .withStyle(ChatFormatting.YELLOW)).
+                    .withStyle(ChatFormatting.YELLOW))
         );
         player.sendSystemMessage(
             Component.literal("Wohnort: ")
@@ -285,7 +285,7 @@ public class NPCCommand {
                 Component.literal("Arbeitsort: ")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal("Bewohner arbeiten nicht")
-                        .withStyle(ChatFormatting.YELLOW)).
+                        .withStyle(ChatFormatting.YELLOW))
             );
             player.sendSystemMessage(
                 Component.literal("Freizeitorte: ")
@@ -304,19 +304,19 @@ public class NPCCommand {
                 Component.literal("Arbeitsbeginn: ")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(ticksToTime(data.getWorkStartTime()))
-                        .withStyle(ChatFormatting.YELLOW)).
+                        .withStyle(ChatFormatting.YELLOW))
             );
             player.sendSystemMessage(
                 Component.literal("Arbeitsende: ")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(ticksToTime(data.getWorkEndTime()))
-                        .withStyle(ChatFormatting.YELLOW)).
+                        .withStyle(ChatFormatting.YELLOW))
             );
             player.sendSystemMessage(
                 Component.literal("Heimzeit: ")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal("ab " + ticksToTime(data.getHomeTime()))
-                        .withStyle(ChatFormatting.YELLOW)).
+                        .withStyle(ChatFormatting.YELLOW))
             );
         } else if (data.getNpcType() == NPCType.BEWOHNER) {
             // Bewohner: Nur Heimzeit (Schlafenszeit)
@@ -326,7 +326,7 @@ public class NPCCommand {
                 Component.literal("Heimzeit (Schlaf): ")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(homeStart + " - " + homeEnd)
-                        .withStyle(ChatFormatting.YELLOW)).
+                        .withStyle(ChatFormatting.YELLOW))
             );
             player.sendSystemMessage(
                 Component.literal("Freizeit: ")
@@ -340,19 +340,19 @@ public class NPCCommand {
                 Component.literal("Arbeitsbeginn: ")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(ticksToTime(data.getWorkStartTime()))
-                        .withStyle(ChatFormatting.YELLOW)).
+                        .withStyle(ChatFormatting.YELLOW))
             );
             player.sendSystemMessage(
                 Component.literal("Arbeitsende: ")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(ticksToTime(data.getWorkEndTime()))
-                        .withStyle(ChatFormatting.YELLOW)).
+                        .withStyle(ChatFormatting.YELLOW))
             );
             player.sendSystemMessage(
                 Component.literal("Heimzeit: ")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(ticksToTime(data.getHomeTime()))
-                        .withStyle(ChatFormatting.YELLOW)).
+                        .withStyle(ChatFormatting.YELLOW))
             );
         }
 
@@ -370,7 +370,7 @@ public class NPCCommand {
                     Component.literal("[" + i + "] ")
                         .withStyle(ChatFormatting.GRAY)
                         .append(Component.literal(leisureLocations.get(i).toShortString())
-                            .withStyle(ChatFormatting.YELLOW)).
+                            .withStyle(ChatFormatting.YELLOW))
                 );
             }
         }
@@ -428,7 +428,7 @@ public class NPCCommand {
             context.getSource().sendFailure(
                 Component.literal("NPC '")
                     .withStyle(ChatFormatting.RED)
-                    .append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW)).
+                    .append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW))
                     .append(Component.literal("' nicht gefunden!").withStyle(ChatFormatting.RED))
             );
             return 0;
@@ -483,7 +483,7 @@ public class NPCCommand {
             () -> Component.literal(timeName + " gesetzt auf ")
                 .withStyle(ChatFormatting.GREEN)
                 .append(Component.literal(timeInput)
-                    .withStyle(ChatFormatting.YELLOW)).
+                    .withStyle(ChatFormatting.YELLOW))
                 .append(Component.literal(" für NPC ")
                     .withStyle(ChatFormatting.GREEN))
                 .append(Component.literal(npc.getNpcName())
@@ -508,8 +508,8 @@ public class NPCCommand {
         if (npc == null) {
             context.getSource().sendFailure(
                 Component.literal("NPC '").withStyle(ChatFormatting.RED)
-                    append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW)).
-                    append(Component.literal("' nicht gefunden!")
+                    .append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW))
+                    .append(Component.literal("' nicht gefunden!")
                     .withStyle(ChatFormatting.RED)
             );
             return 0;
@@ -530,7 +530,7 @@ public class NPCCommand {
             () -> Component.literal("Freizeitort hinzugefügt: ")
                 .withStyle(ChatFormatting.GREEN)
                 .append(Component.literal(playerPos.toShortString())
-                    .withStyle(ChatFormatting.YELLOW)).
+                    .withStyle(ChatFormatting.YELLOW))
                 .append(Component.literal(" für NPC ")
                     .withStyle(ChatFormatting.GREEN))
                 .append(Component.literal(npc.getNpcName())
@@ -556,8 +556,8 @@ public class NPCCommand {
         if (npc == null) {
             context.getSource().sendFailure(
                 Component.literal("NPC '").withStyle(ChatFormatting.RED)
-                    append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW)).
-                    append(Component.literal("' nicht gefunden!")
+                    .append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW))
+                    .append(Component.literal("' nicht gefunden!")
                     .withStyle(ChatFormatting.RED)
             );
             return 0;
@@ -578,7 +578,7 @@ public class NPCCommand {
             () -> Component.literal("Freizeitort entfernt: ")
                 .withStyle(ChatFormatting.GREEN)
                 .append(Component.literal(removed.toShortString())
-                    .withStyle(ChatFormatting.YELLOW)).
+                    .withStyle(ChatFormatting.YELLOW))
                 .append(Component.literal(" für NPC ")
                     .withStyle(ChatFormatting.GREEN))
                 .append(Component.literal(npc.getNpcName())
@@ -603,8 +603,8 @@ public class NPCCommand {
         if (npc == null) {
             context.getSource().sendFailure(
                 Component.literal("NPC '").withStyle(ChatFormatting.RED)
-                    append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW)).
-                    append(Component.literal("' nicht gefunden!")
+                    .append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW))
+                    .append(Component.literal("' nicht gefunden!")
                     .withStyle(ChatFormatting.RED)
             );
             return 0;
@@ -629,7 +629,7 @@ public class NPCCommand {
                     Component.literal("[" + i + "] ")
                         .withStyle(ChatFormatting.GRAY)
                         .append(Component.literal(pos.toShortString())
-                            .withStyle(ChatFormatting.YELLOW)).
+                            .withStyle(ChatFormatting.YELLOW))
                 );
             }
         }
@@ -651,8 +651,8 @@ public class NPCCommand {
         if (npc == null) {
             context.getSource().sendFailure(
                 Component.literal("NPC '").withStyle(ChatFormatting.RED)
-                    append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW)).
-                    append(Component.literal("' nicht gefunden!")
+                    .append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW))
+                    .append(Component.literal("' nicht gefunden!")
                     .withStyle(ChatFormatting.RED)
             );
             return 0;
@@ -687,8 +687,8 @@ public class NPCCommand {
         if (npc == null) {
             context.getSource().sendFailure(
                 Component.literal("NPC '").withStyle(ChatFormatting.RED)
-                    append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW)).
-                    append(Component.literal("' nicht gefunden!")
+                    .append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW))
+                    .append(Component.literal("' nicht gefunden!")
                     .withStyle(ChatFormatting.RED)
             );
             return 0;
@@ -717,7 +717,7 @@ public class NPCCommand {
                     Component.literal("[" + i + "] ")
                         .withStyle(ChatFormatting.GRAY)
                         .append(Component.literal(stack.getCount() + "x ")
-                            .withStyle(ChatFormatting.YELLOW)).
+                            .withStyle(ChatFormatting.YELLOW))
                         .append(stack.getDisplayName())
                 );
             }
@@ -749,8 +749,8 @@ public class NPCCommand {
         if (npc == null) {
             context.getSource().sendFailure(
                 Component.literal("NPC '").withStyle(ChatFormatting.RED)
-                    append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW)).
-                    append(Component.literal("' nicht gefunden!")
+                    .append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW))
+                    .append(Component.literal("' nicht gefunden!")
                     .withStyle(ChatFormatting.RED)
             );
             return 0;
@@ -803,8 +803,8 @@ public class NPCCommand {
         if (npc == null) {
             context.getSource().sendFailure(
                 Component.literal("NPC '").withStyle(ChatFormatting.RED)
-                    append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW)).
-                    append(Component.literal("' nicht gefunden!")
+                    .append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW))
+                    .append(Component.literal("' nicht gefunden!")
                     .withStyle(ChatFormatting.RED)
             );
             return 0;
@@ -849,8 +849,8 @@ public class NPCCommand {
         if (npc == null) {
             context.getSource().sendFailure(
                 Component.literal("NPC '").withStyle(ChatFormatting.RED)
-                    append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW)).
-                    append(Component.literal("' nicht gefunden!")
+                    .append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW))
+                    .append(Component.literal("' nicht gefunden!")
                     .withStyle(ChatFormatting.RED)
             );
             return 0;
@@ -893,8 +893,8 @@ public class NPCCommand {
         if (npc == null) {
             context.getSource().sendFailure(
                 Component.literal("NPC '").withStyle(ChatFormatting.RED)
-                    append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW)).
-                    append(Component.literal("' nicht gefunden!")
+                    .append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW))
+                    .append(Component.literal("' nicht gefunden!")
                     .withStyle(ChatFormatting.RED)
             );
             return 0;
@@ -914,7 +914,7 @@ public class NPCCommand {
             () -> Component.literal("Geldbörse von ")
                 .withStyle(ChatFormatting.GREEN)
                 .append(Component.literal(npc.getNpcName())
-                    .withStyle(ChatFormatting.YELLOW)).
+                    .withStyle(ChatFormatting.YELLOW))
                 .append(Component.literal(": ")
                     .withStyle(ChatFormatting.GREEN))
                 .append(Component.literal(wallet + " Bargeld")
@@ -940,8 +940,8 @@ public class NPCCommand {
         if (npc == null) {
             context.getSource().sendFailure(
                 Component.literal("NPC '").withStyle(ChatFormatting.RED)
-                    append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW)).
-                    append(Component.literal("' nicht gefunden!")
+                    .append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW))
+                    .append(Component.literal("' nicht gefunden!")
                     .withStyle(ChatFormatting.RED)
             );
             return 0;
@@ -987,8 +987,8 @@ public class NPCCommand {
         if (npc == null) {
             context.getSource().sendFailure(
                 Component.literal("NPC '").withStyle(ChatFormatting.RED)
-                    append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW)).
-                    append(Component.literal("' nicht gefunden!")
+                    .append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW))
+                    .append(Component.literal("' nicht gefunden!")
                     .withStyle(ChatFormatting.RED)
             );
             return 0;
@@ -1034,8 +1034,8 @@ public class NPCCommand {
         if (npc == null) {
             context.getSource().sendFailure(
                 Component.literal("NPC '").withStyle(ChatFormatting.RED)
-                    append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW)).
-                    append(Component.literal("' nicht gefunden!")
+                    .append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW))
+                    .append(Component.literal("' nicht gefunden!")
                     .withStyle(ChatFormatting.RED)
             );
             return 0;
