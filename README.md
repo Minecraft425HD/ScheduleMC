@@ -7,7 +7,7 @@
 ![Java](https://img.shields.io/badge/Java-17-blue?style=for-the-badge)
 ![Version](https://img.shields.io/badge/Version-1.0.0--alpha-red?style=for-the-badge)
 
-**Plot-Verwaltung mit Economy-System für Minecraft**
+**Minecraft Schedule Mod**
 
 Schedule in Minecraft!
 
