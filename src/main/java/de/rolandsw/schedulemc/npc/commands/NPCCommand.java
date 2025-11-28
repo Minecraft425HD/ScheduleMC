@@ -8,6 +8,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
+import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.npc.items.NPCLocationTool;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandBuildContext;
@@ -254,34 +255,89 @@ public class NPCCommand {
                     data.getHomeLocation().toShortString() : "Nicht gesetzt")
                     .withStyle(data.getHomeLocation() != null ? ChatFormatting.GREEN : ChatFormatting.RED))
         );
-        player.sendSystemMessage(
-            Component.literal("Arbeitsort: ")
-                .withStyle(ChatFormatting.GRAY)
-                .append(Component.literal(data.getWorkLocation() != null ?
-                    data.getWorkLocation().toShortString() : "Nicht gesetzt")
-                    .withStyle(data.getWorkLocation() != null ? ChatFormatting.GREEN : ChatFormatting.RED))
-        );
 
-        // Schedule Zeiten
+        // Arbeitsort nur für Verkäufer anzeigen
+        if (data.getNpcType() == NPCType.VERKAEUFER) {
+            player.sendSystemMessage(
+                Component.literal("Arbeitsort: ")
+                    .withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal(data.getWorkLocation() != null ?
+                        data.getWorkLocation().toShortString() : "Nicht gesetzt")
+                        .withStyle(data.getWorkLocation() != null ? ChatFormatting.GREEN : ChatFormatting.RED))
+            );
+        } else if (data.getNpcType() == NPCType.BEWOHNER) {
+            player.sendSystemMessage(
+                Component.literal("Arbeitsort: ")
+                    .withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal("Bewohner arbeiten nicht")
+                        .withStyle(ChatFormatting.YELLOW))
+            );
+            player.sendSystemMessage(
+                Component.literal("Freizeitorte: ")
+                    .withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal(data.getLeisureLocations().size() + "/10")
+                        .withStyle(ChatFormatting.WHITE))
+            );
+        }
+
+        // Schedule Zeiten - unterschiedlich je nach NPC-Typ
         player.sendSystemMessage(Component.literal("=== Zeitplan ===").withStyle(ChatFormatting.GOLD));
-        player.sendSystemMessage(
-            Component.literal("Arbeitsbeginn: ")
-                .withStyle(ChatFormatting.GRAY)
-                .append(Component.literal(ticksToTime(data.getWorkStartTime()))
-                    .withStyle(ChatFormatting.YELLOW))
-        );
-        player.sendSystemMessage(
-            Component.literal("Arbeitsende: ")
-                .withStyle(ChatFormatting.GRAY)
-                .append(Component.literal(ticksToTime(data.getWorkEndTime()))
-                    .withStyle(ChatFormatting.YELLOW))
-        );
-        player.sendSystemMessage(
-            Component.literal("Heimzeit: ")
-                .withStyle(ChatFormatting.GRAY)
-                .append(Component.literal(ticksToTime(data.getHomeTime()))
-                    .withStyle(ChatFormatting.YELLOW))
-        );
+
+        if (data.getNpcType() == NPCType.VERKAEUFER) {
+            // Verkäufer: Vollständiger Zeitplan
+            player.sendSystemMessage(
+                Component.literal("Arbeitsbeginn: ")
+                    .withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal(ticksToTime(data.getWorkStartTime()))
+                        .withStyle(ChatFormatting.YELLOW))
+            );
+            player.sendSystemMessage(
+                Component.literal("Arbeitsende: ")
+                    .withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal(ticksToTime(data.getWorkEndTime()))
+                        .withStyle(ChatFormatting.YELLOW))
+            );
+            player.sendSystemMessage(
+                Component.literal("Heimzeit: ")
+                    .withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal("ab " + ticksToTime(data.getHomeTime()))
+                        .withStyle(ChatFormatting.YELLOW))
+            );
+        } else if (data.getNpcType() == NPCType.BEWOHNER) {
+            // Bewohner: Nur Heimzeit
+            player.sendSystemMessage(
+                Component.literal("Heimzeit: ")
+                    .withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal("ab " + ticksToTime(data.getHomeTime()))
+                        .withStyle(ChatFormatting.YELLOW))
+            );
+            player.sendSystemMessage(
+                Component.literal("Freizeit: ")
+                    .withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal("Den ganzen Tag (außer Heimzeit)")
+                        .withStyle(ChatFormatting.GREEN))
+            );
+        } else {
+            // Polizei oder andere: Alte Anzeige
+            player.sendSystemMessage(
+                Component.literal("Arbeitsbeginn: ")
+                    .withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal(ticksToTime(data.getWorkStartTime()))
+                        .withStyle(ChatFormatting.YELLOW))
+            );
+            player.sendSystemMessage(
+                Component.literal("Arbeitsende: ")
+                    .withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal(ticksToTime(data.getWorkEndTime()))
+                        .withStyle(ChatFormatting.YELLOW))
+            );
+            player.sendSystemMessage(
+                Component.literal("Heimzeit: ")
+                    .withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal(ticksToTime(data.getHomeTime()))
+                        .withStyle(ChatFormatting.YELLOW))
+            );
+        }
 
         // Freizeitorte
         player.sendSystemMessage(Component.literal("=== Freizeitorte ===").withStyle(ChatFormatting.GOLD));
