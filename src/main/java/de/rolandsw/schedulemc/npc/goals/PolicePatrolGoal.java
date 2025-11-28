@@ -83,8 +83,29 @@ public class PolicePatrolGoal extends Goal {
             long waitTimeTicks = ModConfigHandler.COMMON.POLICE_PATROL_WAIT_MINUTES.get() * 60 * 20; // Minuten → Ticks
 
             if (currentTime - arrivalTime >= waitTimeTicks) {
-                // Wartezeit vorbei - gehe zum nächsten Punkt
-                return false;
+                // Wartezeit vorbei - gehe zum nächsten Punkt (OHNE zu stoppen!)
+                npc.getNpcData().incrementPatrolIndex();
+
+                // Hole nächsten Punkt
+                int nextIndex = npc.getNpcData().getCurrentPatrolIndex();
+                if (nextIndex >= patrolPoints.size()) {
+                    npc.getNpcData().setCurrentPatrolIndex(0);
+                    nextIndex = 0;
+                }
+
+                // Setze neues Ziel
+                currentTarget = patrolPoints.get(nextIndex);
+                hasArrived = false;
+                tickCounter = 0;
+                wanderTickCounter = 0;
+
+                // Starte Bewegung zum nächsten Punkt
+                npc.getNavigation().moveTo(
+                    currentTarget.getX() + 0.5,
+                    currentTarget.getY(),
+                    currentTarget.getZ() + 0.5,
+                    npc.getNpcData().getBehavior().getMovementSpeed()
+                );
             }
         }
 
@@ -154,11 +175,7 @@ public class PolicePatrolGoal extends Goal {
     public void stop() {
         npc.getNavigation().stop();
 
-        // Gehe zum nächsten Patrouillenpunkt (Loop)
-        if (hasArrived) {
-            npc.getNpcData().incrementPatrolIndex();
-        }
-
+        // Reset state (Index wird jetzt in canContinueToUse() inkrementiert)
         tickCounter = 0;
         wanderTickCounter = 0;
         currentTarget = null;
