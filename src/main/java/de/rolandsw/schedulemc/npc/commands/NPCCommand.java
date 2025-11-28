@@ -304,17 +304,19 @@ public class NPCCommand {
                         .withStyle(ChatFormatting.YELLOW))
             );
         } else if (data.getNpcType() == NPCType.BEWOHNER) {
-            // Bewohner: Nur Heimzeit
+            // Bewohner: Nur Heimzeit (Schlafenszeit)
+            String homeStart = ticksToTime(data.getHomeTime());
+            String homeEnd = ticksToTime(data.getWorkStartTime()); // Aufstehzeit
             player.sendSystemMessage(
-                Component.literal("Heimzeit: ")
+                Component.literal("Heimzeit (Schlaf): ")
                     .withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal("ab " + ticksToTime(data.getHomeTime()))
+                    .append(Component.literal(homeStart + " - " + homeEnd)
                         .withStyle(ChatFormatting.YELLOW))
             );
             player.sendSystemMessage(
                 Component.literal("Freizeit: ")
                     .withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal("Den ganzen Tag (außer Heimzeit)")
+                    .append(Component.literal(homeEnd + " - " + homeStart + " (Aktiv in der Stadt)")
                         .withStyle(ChatFormatting.GREEN))
             );
         } else {

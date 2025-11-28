@@ -233,6 +233,14 @@ public class NPCLocationTool extends Item {
                     .append(Component.literal(ticksToTime(workStart) + " - " + ticksToTime(workEnd))
                         .withStyle(ChatFormatting.WHITE))
             );
+            // Zeige Heimzeit für Verkäufer
+            long homeTime = npc.getNpcData().getHomeTime();
+            player.sendSystemMessage(
+                Component.literal("Heimzeit: ")
+                    .withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal("ab " + ticksToTime(homeTime))
+                        .withStyle(ChatFormatting.WHITE))
+            );
         } else if (npc.getNpcData().getNpcType() == NPCType.BEWOHNER) {
             player.sendSystemMessage(
                 Component.literal("Arbeitsort: ")
@@ -247,16 +255,34 @@ public class NPCLocationTool extends Item {
                     .append(Component.literal(leisureCount + "/10")
                         .withStyle(ChatFormatting.WHITE))
             );
-        }
 
-        // Zeige Heimzeit
-        long homeTime = npc.getNpcData().getHomeTime();
-        player.sendSystemMessage(
-            Component.literal("Heimzeit: ")
-                .withStyle(ChatFormatting.GRAY)
-                .append(Component.literal("ab " + ticksToTime(homeTime))
-                    .withStyle(ChatFormatting.WHITE))
-        );
+            // Zeige Heimzeit (Schlafenszeit) als Zeitbereich
+            String homeStart = ticksToTime(npc.getNpcData().getHomeTime());
+            String homeEnd = ticksToTime(npc.getNpcData().getWorkStartTime()); // Aufstehzeit
+            player.sendSystemMessage(
+                Component.literal("Heimzeit (Schlaf): ")
+                    .withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal(homeStart + " - " + homeEnd)
+                        .withStyle(ChatFormatting.YELLOW))
+            );
+
+            // Zeige Freizeit als Zeitbereich
+            player.sendSystemMessage(
+                Component.literal("Freizeit: ")
+                    .withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal(homeEnd + " - " + homeStart + " (Aktiv in der Stadt)")
+                        .withStyle(ChatFormatting.GREEN))
+            );
+        } else {
+            // Zeige Heimzeit für andere NPC-Typen
+            long homeTime = npc.getNpcData().getHomeTime();
+            player.sendSystemMessage(
+                Component.literal("Heimzeit: ")
+                    .withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal("ab " + ticksToTime(homeTime))
+                        .withStyle(ChatFormatting.WHITE))
+            );
+        }
     }
 
     /**
