@@ -356,7 +356,7 @@ Dieses Projekt ist unter der [MIT Lizenz](LICENSE) lizenziert.
 
 ## 🙏 Credits
 
-- **Entwickelt von**: [Dein Name]
+- **Entwickelt von**: Luckas R. Schneider
 - **Minecraft Version**: 1.20.1
 - **Forge Version**: 47.4.0
 - **Libraries**: Gson 2.10.1
