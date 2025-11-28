@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.npc.entity;
 
+import de.rolandsw.schedulemc.managers.NPCNameRegistry;
 import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.data.NPCPersonality;
 import de.rolandsw.schedulemc.npc.data.NPCType;
@@ -314,5 +315,20 @@ public class CustomNPCEntity extends PathfinderMob {
     @Override
     public boolean isInvulnerable() {
         return true; // NPCs sind unsterblich (kann später konfigurierbar gemacht werden)
+    }
+
+    // Cleanup bei Entity-Removal
+    @Override
+    public void remove(RemovalReason reason) {
+        super.remove(reason);
+
+        // Unregistriere Namen aus dem Registry nur auf Server-Seite
+        if (!this.level().isClientSide) {
+            String npcName = getNpcName();
+            if (npcName != null && !npcName.isEmpty()) {
+                NPCNameRegistry.unregisterName(npcName);
+                NPCNameRegistry.saveIfNeeded();
+            }
+        }
     }
 }
