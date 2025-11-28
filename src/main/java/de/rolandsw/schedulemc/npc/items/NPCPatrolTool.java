@@ -75,9 +75,20 @@ public class NPCPatrolTool extends Item {
                 return InteractionResult.FAIL;
             }
 
-            // Wenn noch keine Station gesetzt ist, setze die Station
+            // Prüfe max 16 Patrouillenpunkte
+            int currentSize = npc.getNpcData().getPatrolPoints().size();
+            if (currentSize >= 16) {
+                player.sendSystemMessage(
+                    Component.literal("Maximum von 16 Patrouillenpunkten erreicht!")
+                        .withStyle(ChatFormatting.RED)
+                );
+                return InteractionResult.FAIL;
+            }
+
+            // Wenn noch keine Station gesetzt ist, setze die Station UND füge als ersten Patrol Point hinzu
             if (npc.getNpcData().getPoliceStation() == null) {
                 npc.getNpcData().setPoliceStation(clickedPos);
+                npc.getNpcData().addPatrolPoint(clickedPos); // Station ist IMMER Patrouillenpunkt 1!
                 player.sendSystemMessage(
                     Component.literal("✓ Polizeistation gesetzt für ")
                         .withStyle(ChatFormatting.GREEN)
@@ -87,24 +98,19 @@ public class NPCPatrolTool extends Item {
                             .withStyle(ChatFormatting.WHITE))
                 );
                 player.sendSystemMessage(
-                    Component.literal("Jetzt Patrouillenpunkte setzen (0/16)")
+                    Component.literal("→ Patrouillenpunkt 1/16 (Polizeistation)")
+                        .withStyle(ChatFormatting.AQUA)
+                );
+                player.sendSystemMessage(
+                    Component.literal("Jetzt weitere Patrouillenpunkte setzen (2-16)")
                         .withStyle(ChatFormatting.GRAY)
                 );
             } else {
-                // Station existiert bereits - füge Patrouillenpunkt hinzu
-                int currentSize = npc.getNpcData().getPatrolPoints().size();
-
-                if (currentSize >= 16) {
-                    player.sendSystemMessage(
-                        Component.literal("Maximum von 16 Patrouillenpunkten erreicht!")
-                            .withStyle(ChatFormatting.RED)
-                    );
-                    return InteractionResult.FAIL;
-                }
-
+                // Station existiert bereits - füge weiteren Patrouillenpunkt hinzu
                 npc.getNpcData().addPatrolPoint(clickedPos);
+                int newSize = npc.getNpcData().getPatrolPoints().size();
                 player.sendSystemMessage(
-                    Component.literal("✓ Patrouillenpunkt " + (currentSize + 1) + "/16 gesetzt bei " + clickedPos.toShortString())
+                    Component.literal("✓ Patrouillenpunkt " + newSize + "/16 gesetzt bei " + clickedPos.toShortString())
                         .withStyle(ChatFormatting.GREEN)
                 );
             }
