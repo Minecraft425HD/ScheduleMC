@@ -9,7 +9,7 @@
 
 **Plot-Verwaltung mit Economy-System für Minecraft**
 
-Erstelle und verkaufe Plots mit WorldEdit-Integration und einem umfangreichen NPC-, Tabak- und Wirtschaftssystem.
+Schedule in Minecraft!
 
 </div>
 
