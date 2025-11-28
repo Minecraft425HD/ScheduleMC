@@ -93,6 +93,16 @@ public class PolicePatrolGoal extends Goal {
                     nextIndex = 0;
                 }
 
+                // DEBUG: Zeige Punkt-Wechsel
+                npc.level().players().forEach(player -> {
+                    if (player.distanceTo(npc) < 50) {
+                        player.sendSystemMessage(
+                            net.minecraft.network.chat.Component.literal("[DEBUG] " + npc.getNpcName() + " geht zu Punkt " + (nextIndex + 1) + "/" + patrolPoints.size())
+                                .withStyle(net.minecraft.ChatFormatting.YELLOW)
+                        );
+                    }
+                });
+
                 // Setze neues Ziel
                 currentTarget = patrolPoints.get(nextIndex);
                 hasArrived = false;
@@ -149,6 +159,16 @@ public class PolicePatrolGoal extends Goal {
             hasArrived = true;
             npc.getNpcData().setPatrolArrivalTime(npc.level().getGameTime());
             npc.getNavigation().stop();
+
+            // DEBUG: Zeige Ankunft
+            npc.level().players().forEach(player -> {
+                if (player.distanceTo(npc) < 50) {
+                    player.sendSystemMessage(
+                        net.minecraft.network.chat.Component.literal("[DEBUG] " + npc.getNpcName() + " angekommen am Punkt " + (npc.getNpcData().getCurrentPatrolIndex() + 1))
+                            .withStyle(net.minecraft.ChatFormatting.GRAY)
+                    );
+                }
+            });
         }
 
         if (hasArrived) {
