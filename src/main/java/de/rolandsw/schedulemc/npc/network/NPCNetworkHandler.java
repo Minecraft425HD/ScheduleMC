@@ -80,6 +80,12 @@ public class NPCNetworkHandler {
             .encoder(WantedLevelSyncPacket::encode)
             .consumerMainThread(WantedLevelSyncPacket::handle)
             .add();
+
+        INSTANCE.messageBuilder(SyncNPCNamesPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+            .decoder(SyncNPCNamesPacket::decode)
+            .encoder(SyncNPCNamesPacket::encode)
+            .consumerMainThread(SyncNPCNamesPacket::handle)
+            .add();
     }
 
     public static <MSG> void sendToServer(MSG message) {

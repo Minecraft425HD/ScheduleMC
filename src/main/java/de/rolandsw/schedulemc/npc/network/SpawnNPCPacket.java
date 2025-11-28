@@ -102,6 +102,11 @@ public class SpawnNPCPacket {
                                     .withStyle(ChatFormatting.GREEN))
                         );
                         NPCNameRegistry.saveIfNeeded();
+
+                        // Sende aktualisierte Namen-Liste an alle Clients
+                        de.rolandsw.schedulemc.npc.events.NPCNameSyncHandler.broadcastNameUpdate(
+                            level.getServer()
+                        );
                     }
                 }
             }

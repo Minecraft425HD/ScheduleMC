@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.npc.client.screen;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import de.rolandsw.schedulemc.ScheduleMC;
+import de.rolandsw.schedulemc.npc.client.ClientNPCNameCache;
 import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.npc.data.MerchantCategory;
 import de.rolandsw.schedulemc.npc.menu.NPCSpawnerMenu;
@@ -70,6 +71,7 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
         npcNameInput = new EditBox(this.font, x + 38, y + 25, 100, 20, Component.literal("NPC Name"));
         npcNameInput.setMaxLength(32);
         npcNameInput.setValue("NPC");
+        npcNameInput.setResponder(this::onNameChanged);
         addRenderableWidget(npcNameInput);
 
         // Skin Selection Buttons
@@ -113,6 +115,15 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
 
         // Initial visibility update
         updateMerchantCategoryVisibility();
+    }
+
+    /**
+     * Callback wenn der NPC-Name geändert wird
+     */
+    private void onNameChanged(String newName) {
+        // Update Spawn-Button Aktivierung
+        boolean nameTaken = ClientNPCNameCache.isNameTaken(newName);
+        spawnButton.active = !nameTaken && !newName.trim().isEmpty();
     }
 
     /**
@@ -220,6 +231,19 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
 
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
+
+        // Zeige Warnung wenn Name bereits existiert
+        String currentName = npcNameInput.getValue();
+        if (ClientNPCNameCache.isNameTaken(currentName)) {
+            npcNameInput.setTextColor(0xFF5555); // Rot
+            // Zeige Fehlermeldung unter dem Name-Input
+            String errorMsg = "Name bereits vergeben!";
+            int errorX = x + 38;
+            int errorY = y + 46;
+            guiGraphics.drawString(this.font, errorMsg, errorX, errorY, 0xFF5555, false);
+        } else {
+            npcNameInput.setTextColor(0xE0E0E0); // Normal (hell-grau)
+        }
 
         // Zeige ausgewählten Skin-Namen mit Zähler
         if (!availableSkins.isEmpty()) {
