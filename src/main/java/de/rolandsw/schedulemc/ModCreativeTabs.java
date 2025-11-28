@@ -46,7 +46,9 @@ public class ModCreativeTabs {
                 // NPC TOOLS
                 // ═══════════════════════════════════════════════════════════
                 output.accept(NPCItems.NPC_SPAWNER_TOOL.get());
-                
+                output.accept(NPCItems.NPC_LOCATION_TOOL.get());
+                output.accept(NPCItems.NPC_PATROL_TOOL.get());
+
                 // ═══════════════════════════════════════════════════════════
                 // TABAK SAMEN
                 // ═══════════════════════════════════════════════════════════
