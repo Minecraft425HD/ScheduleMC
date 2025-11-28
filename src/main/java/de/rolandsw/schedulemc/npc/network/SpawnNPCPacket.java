@@ -1,13 +1,16 @@
 package de.rolandsw.schedulemc.npc.network;
 
+import de.rolandsw.schedulemc.managers.NPCNameRegistry;
 import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.npc.data.MerchantCategory;
 import de.rolandsw.schedulemc.npc.data.MerchantShopDefaults;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.entity.NPCEntities;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
@@ -56,6 +59,19 @@ public class SpawnNPCPacket {
             if (player != null) {
                 ServerLevel level = player.serverLevel();
 
+                // Prüfe ob Name bereits vergeben ist
+                if (NPCNameRegistry.isNameTaken(npcName)) {
+                    player.sendSystemMessage(
+                        Component.literal("⚠ Ein NPC mit dem Namen '")
+                            .withStyle(ChatFormatting.RED)
+                            .append(Component.literal(npcName)
+                                .withStyle(ChatFormatting.YELLOW))
+                            .append(Component.literal("' existiert bereits!")
+                                .withStyle(ChatFormatting.RED))
+                    );
+                    return;
+                }
+
                 // Spawne NPC
                 CustomNPCEntity npc = NPCEntities.CUSTOM_NPC.get().create(level);
                 if (npc != null) {
@@ -74,6 +90,24 @@ public class SpawnNPCPacket {
 
                     // Füge Entity zur Welt hinzu
                     level.addFreshEntity(npc);
+
+                    // Registriere Namen (nach dem Entity spawnen, damit ID verfügbar ist)
+                    if (NPCNameRegistry.registerName(npcName, npc.getId())) {
+                        player.sendSystemMessage(
+                            Component.literal("✓ NPC '")
+                                .withStyle(ChatFormatting.GREEN)
+                                .append(Component.literal(npcName)
+                                    .withStyle(ChatFormatting.YELLOW))
+                                .append(Component.literal("' erfolgreich erstellt!")
+                                    .withStyle(ChatFormatting.GREEN))
+                        );
+                        NPCNameRegistry.saveIfNeeded();
+
+                        // Sende aktualisierte Namen-Liste an alle Clients
+                        de.rolandsw.schedulemc.npc.events.NPCNameSyncHandler.broadcastNameUpdate(
+                            level.getServer()
+                        );
+                    }
                 }
             }
         });

@@ -43,8 +43,8 @@ public class NPCData {
     @Nullable
     private BlockPos homeLocation;  // Wohnbereich
     @Nullable
-    private BlockPos workLocation;  // Arbeitsstätte
-    private List<BlockPos> leisureLocations; // 3 Freizeitorte in der Stadt
+    private BlockPos workLocation;  // Arbeitsstätte (nur für VERKAEUFER)
+    private List<BlockPos> leisureLocations; // Bis zu 10 Freizeitorte in der Stadt
 
     // Police Patrol System (nur für POLIZEI NPCs)
     @Nullable
@@ -387,7 +387,7 @@ public class NPCData {
     }
 
     public void addLeisureLocation(BlockPos location) {
-        if (leisureLocations.size() < 3) {
+        if (leisureLocations.size() < 10) {
             leisureLocations.add(location);
         }
     }

@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.events;
 
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.items.NPCLocationTool;
+import de.rolandsw.schedulemc.npc.items.NPCLeisureTool;
 import de.rolandsw.schedulemc.npc.items.NPCPatrolTool;
 import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.region.PlotManager;
@@ -101,16 +102,32 @@ public class BlockProtectionHandler {
                 return;
             }
 
-            // Setze Arbeitsort
-            npc.getNpcData().setWorkLocation(clickedPos);
-            player.sendSystemMessage(
-                Component.literal("Arbeitsstätte gesetzt für ")
-                    .withStyle(ChatFormatting.GREEN)
-                    .append(Component.literal(npc.getNpcName())
-                        .withStyle(ChatFormatting.YELLOW))
-                    .append(Component.literal(" bei " + clickedPos.toShortString())
-                        .withStyle(ChatFormatting.WHITE))
-            );
+            // Setze Arbeitsort nur für VERKAEUFER
+            if (npc.getNpcData().getNpcType() == NPCType.VERKAEUFER) {
+                npc.getNpcData().setWorkLocation(clickedPos);
+                player.sendSystemMessage(
+                    Component.literal("Arbeitsstätte gesetzt für ")
+                        .withStyle(ChatFormatting.GREEN)
+                        .append(Component.literal(npc.getNpcName())
+                            .withStyle(ChatFormatting.YELLOW))
+                        .append(Component.literal(" bei " + clickedPos.toShortString())
+                            .withStyle(ChatFormatting.WHITE))
+                );
+            } else if (npc.getNpcData().getNpcType() == NPCType.BEWOHNER) {
+                player.sendSystemMessage(
+                    Component.literal("⚠ Bewohner arbeiten nicht! Sie brauchen keinen Arbeitsort.")
+                        .withStyle(ChatFormatting.YELLOW)
+                );
+                player.sendSystemMessage(
+                    Component.literal("→ Nutze NPCLeisureTool um Freizeitorte zu setzen.")
+                        .withStyle(ChatFormatting.GRAY)
+                );
+            } else {
+                player.sendSystemMessage(
+                    Component.literal("⚠ Dieser NPC-Typ hat keine Arbeitsorte!")
+                        .withStyle(ChatFormatting.RED)
+                );
+            }
 
             // Verhindere Block-Abbau
             event.setCanceled(true);
@@ -120,23 +137,25 @@ public class BlockProtectionHandler {
     }
 
     /**
-     * Behandelt Linksklick auf NPCs für LocationTool und PatrolTool (NPC auswählen)
+     * Behandelt Linksklick auf NPCs für LocationTool, LeisureTool und PatrolTool (NPC auswählen)
      */
     @SubscribeEvent
     public void onAttackEntity(AttackEntityEvent event) {
         Player player = event.getEntity();
         Entity target = event.getTarget();
 
-        // Prüfe ob Spieler das LocationTool oder PatrolTool hält
+        // Prüfe ob Spieler das LocationTool, LeisureTool oder PatrolTool hält
         ItemStack mainHandItem = player.getMainHandItem();
         ItemStack offHandItem = player.getOffhandItem();
 
         boolean holdsLocationTool = (mainHandItem.getItem() instanceof NPCLocationTool) ||
                                    (offHandItem.getItem() instanceof NPCLocationTool);
+        boolean holdsLeisureTool = (mainHandItem.getItem() instanceof NPCLeisureTool) ||
+                                  (offHandItem.getItem() instanceof NPCLeisureTool);
         boolean holdsPatrolTool = (mainHandItem.getItem() instanceof NPCPatrolTool) ||
                                  (offHandItem.getItem() instanceof NPCPatrolTool);
 
-        if (!holdsLocationTool && !holdsPatrolTool) {
+        if (!holdsLocationTool && !holdsLeisureTool && !holdsPatrolTool) {
             return;
         }
 
@@ -155,13 +174,75 @@ public class BlockProtectionHandler {
                         .withStyle(ChatFormatting.GREEN)
                         .append(Component.literal(npc.getNpcName())
                             .withStyle(ChatFormatting.YELLOW))
+                        .append(Component.literal(" (" + npc.getNpcData().getNpcType().getDisplayName() + ")")
+                            .withStyle(ChatFormatting.GRAY))
                         .append(Component.literal(" ausgewählt!")
                             .withStyle(ChatFormatting.GREEN))
                 );
-                player.sendSystemMessage(
-                    Component.literal("Linksklick auf Block = Arbeitsort | Rechtsklick = Wohnort")
-                        .withStyle(ChatFormatting.GRAY)
-                );
+
+                // Unterschiedliche Hinweise je nach NPC-Typ
+                if (npc.getNpcData().getNpcType() == NPCType.BEWOHNER) {
+                    player.sendSystemMessage(
+                        Component.literal("Rechtsklick auf Block = Wohnort")
+                            .withStyle(ChatFormatting.GRAY)
+                    );
+                    player.sendSystemMessage(
+                        Component.literal("⚠ Bewohner arbeiten nicht! Nutze NPCLeisureTool für Freizeitorte.")
+                            .withStyle(ChatFormatting.YELLOW)
+                    );
+                } else if (npc.getNpcData().getNpcType() == NPCType.VERKAEUFER) {
+                    player.sendSystemMessage(
+                        Component.literal("Rechtsklick = Wohnort | Shift+Rechtsklick = Arbeitsort")
+                            .withStyle(ChatFormatting.GRAY)
+                    );
+                } else if (npc.getNpcData().getNpcType() == NPCType.POLIZEI) {
+                    player.sendSystemMessage(
+                        Component.literal("⚠ Polizei-NPCs nutzen das NPCPatrolTool!")
+                            .withStyle(ChatFormatting.RED)
+                    );
+                }
+            }
+            // Handle LeisureTool
+            else if (holdsLeisureTool) {
+                // Prüfe ob NPC Freizeitorte haben kann
+                if (npc.getNpcData().getNpcType() != NPCType.BEWOHNER
+                    && npc.getNpcData().getNpcType() != NPCType.VERKAEUFER) {
+                    player.sendSystemMessage(
+                        Component.literal("⚠ Dieser NPC-Typ hat keine Freizeitorte!")
+                            .withStyle(ChatFormatting.RED)
+                    );
+                } else {
+                    NPCLeisureTool.setSelectedNPC(player.getUUID(), npc.getId());
+
+                    player.sendSystemMessage(
+                        Component.literal("NPC ")
+                            .withStyle(ChatFormatting.GREEN)
+                            .append(Component.literal(npc.getNpcName())
+                                .withStyle(ChatFormatting.YELLOW))
+                            .append(Component.literal(" (" + npc.getNpcData().getNpcType().getDisplayName() + ")")
+                                .withStyle(ChatFormatting.GRAY))
+                            .append(Component.literal(" ausgewählt!")
+                                .withStyle(ChatFormatting.GREEN))
+                    );
+
+                    // Zeige aktuellen Status
+                    int leisureCount = npc.getNpcData().getLeisureLocations().size();
+                    player.sendSystemMessage(
+                        Component.literal("Freizeitorte: " + leisureCount + "/10")
+                            .withStyle(ChatFormatting.GRAY)
+                    );
+
+                    player.sendSystemMessage(
+                        Component.literal("Rechtsklick auf Block = Freizeitort hinzufügen")
+                            .withStyle(ChatFormatting.GRAY)
+                    );
+                    if (leisureCount > 0) {
+                        player.sendSystemMessage(
+                            Component.literal("Shift+Rechtsklick auf Block = Letzten Ort entfernen")
+                                .withStyle(ChatFormatting.GRAY)
+                        );
+                    }
+                }
             }
             // Handle PatrolTool
             else if (holdsPatrolTool) {

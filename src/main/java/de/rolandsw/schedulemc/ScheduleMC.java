@@ -98,6 +98,7 @@ public class ScheduleMC {
         MinecraftForge.EVENT_BUS.register(new de.rolandsw.schedulemc.npc.events.NPCKnockoutHandler());
         MinecraftForge.EVENT_BUS.register(new de.rolandsw.schedulemc.npc.events.PoliceAIHandler());
         MinecraftForge.EVENT_BUS.register(new de.rolandsw.schedulemc.npc.events.PoliceDoorBlockHandler());
+        MinecraftForge.EVENT_BUS.register(de.rolandsw.schedulemc.npc.events.NPCNameSyncHandler.class);
         MinecraftForge.EVENT_BUS.register(RespawnHandler.class);
         MinecraftForge.EVENT_BUS.register(BusinessMetricsUpdateHandler.class);
 
@@ -137,6 +138,7 @@ public class ScheduleMC {
         TobaccoShopIntegration.registerShopItems();
         WalletManager.load();
         de.rolandsw.schedulemc.npc.crime.CrimeManager.load();
+        NPCNameRegistry.loadRegistry();
     }
 
     @SubscribeEvent
@@ -151,6 +153,7 @@ public class ScheduleMC {
             ShopManager.saveIfNeeded();
             RentManager.checkExpiredRents();
             WalletManager.saveIfNeeded();
+            NPCNameRegistry.saveIfNeeded();
         }
     }
 
@@ -161,6 +164,7 @@ public class ScheduleMC {
         DailyRewardManager.save();
         ShopManager.save();
         WalletManager.save();
+        NPCNameRegistry.saveRegistry();
     }
 
     @SubscribeEvent

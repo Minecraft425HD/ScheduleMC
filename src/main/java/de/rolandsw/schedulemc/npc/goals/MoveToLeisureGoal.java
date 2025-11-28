@@ -11,9 +11,10 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Goal: NPC geht in seiner Freizeit zu einem von 3 festgelegten Orten
+ * Goal: NPC geht in seiner Freizeit zu einem von bis zu 10 festgelegten Orten
  * und bleibt dort in einem Umkreis von 15 Blöcken.
  * Alle 5 Minuten wechselt der NPC zufällig zu einem anderen Freizeitort.
+ * BEWOHNER arbeiten nicht und haben nur Freizeit + Heimzeit.
  */
 public class MoveToLeisureGoal extends Goal {
 
@@ -196,10 +197,15 @@ public class MoveToLeisureGoal extends Goal {
         long workEnd = npc.getNpcData().getWorkEndTime();
         long homeTime = npc.getNpcData().getHomeTime();
 
-        // Freizeit = NICHT Arbeitszeit UND NICHT Heimzeit
-        boolean isWorkTime = isTimeBetween(dayTime, workStart, workEnd);
-        boolean isHomeTime;
+        // Für BEWOHNER: Freizeit = NICHT Heimzeit (sie arbeiten nicht)
+        // Für VERKAEUFER: Freizeit = NICHT Arbeitszeit UND NICHT Heimzeit
+        boolean isWorkTime = false;
+        if (npc.getNpcData().getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.VERKAEUFER
+            && npc.getNpcData().getWorkLocation() != null) {
+            isWorkTime = isTimeBetween(dayTime, workStart, workEnd);
+        }
 
+        boolean isHomeTime;
         // Heimzeit kann über Mitternacht gehen (z.B. 23000 bis workStart)
         if (homeTime > workStart) {
             // Heimzeit geht über Mitternacht (z.B. 23000 bis 0)
