@@ -20,7 +20,7 @@ import java.util.UUID;
 
 /**
  * Tool zum Setzen von Polizeistationen und Patrouillenpunkten für Polizei-NPCs
- * - Rechtsklick auf Polizei-NPC: NPC auswählen
+ * - Linksklick auf Polizei-NPC: NPC auswählen (via AttackEntityEvent Handler)
  * - Rechtsklick auf Block (ohne Station): Polizeistation setzen
  * - Rechtsklick auf Block (mit Station): Patrouillenpunkt hinzufügen (max 16)
  * - Shift+Rechtsklick auf NPC: Info anzeigen & zurücksetzen
@@ -49,7 +49,7 @@ public class NPCPatrolTool extends Item {
             Integer npcId = selectedNPCs.get(player.getUUID());
             if (npcId == null) {
                 player.sendSystemMessage(
-                    Component.literal("Kein Polizist ausgewählt! Rechtsklick auf einen Polizei-NPC.")
+                    Component.literal("Kein Polizist ausgewählt! Linksklick auf einen Polizei-NPC.")
                         .withStyle(ChatFormatting.RED)
                 );
                 return InteractionResult.FAIL;
