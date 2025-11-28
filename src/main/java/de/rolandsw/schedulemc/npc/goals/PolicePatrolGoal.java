@@ -93,11 +93,13 @@ public class PolicePatrolGoal extends Goal {
                     nextIndex = 0;
                 }
 
-                // DEBUG: Zeige Punkt-Wechsel
+                // DEBUG: Zeige Punkt-Wechsel (final copy for lambda)
+                final int finalNextIndex = nextIndex;
+                final int totalPoints = patrolPoints.size();
                 npc.level().players().forEach(player -> {
                     if (player.distanceTo(npc) < 50) {
                         player.sendSystemMessage(
-                            net.minecraft.network.chat.Component.literal("[DEBUG] " + npc.getNpcName() + " geht zu Punkt " + (nextIndex + 1) + "/" + patrolPoints.size())
+                            net.minecraft.network.chat.Component.literal("[DEBUG] " + npc.getNpcName() + " geht zu Punkt " + (finalNextIndex + 1) + "/" + totalPoints)
                                 .withStyle(net.minecraft.ChatFormatting.YELLOW)
                         );
                     }
