@@ -78,11 +78,18 @@ public class PolicePatrolGoal extends Goal {
 
         // Prüfe ob genug Zeit am Punkt gewartet wurde
         if (hasArrived) {
-            long currentTime = npc.level().getGameTime();
+            long currentTime = npc.level().getDayTime();
             long arrivalTime = npc.getNpcData().getPatrolArrivalTime();
             long waitTimeTicks = ModConfigHandler.COMMON.POLICE_PATROL_WAIT_MINUTES.get() * 60 * 20; // Minuten → Ticks
 
-            if (currentTime - arrivalTime >= waitTimeTicks) {
+            // Berechne verstrichene Zeit (mit Wrap-Around bei 24000 Ticks pro Tag)
+            long elapsedTicks = currentTime - arrivalTime;
+            if (elapsedTicks < 0) {
+                // Wrap-around: neuer Tag hat begonnen
+                elapsedTicks += 24000;
+            }
+
+            if (elapsedTicks >= waitTimeTicks) {
                 // Wartezeit vorbei - gehe zum nächsten Punkt
                 npc.getNpcData().incrementPatrolIndex();
 
@@ -145,9 +152,9 @@ public class PolicePatrolGoal extends Goal {
         );
 
         if (!hasArrived && distanceToTarget <= ARRIVAL_THRESHOLD) {
-            // Gerade angekommen - speichere Ankunftszeit
+            // Gerade angekommen - speichere Ankunftszeit (DayTime für /time add Kompatibilität)
             hasArrived = true;
-            npc.getNpcData().setPatrolArrivalTime(npc.level().getGameTime());
+            npc.getNpcData().setPatrolArrivalTime(npc.level().getDayTime());
             npc.getNavigation().stop();
         }
 
