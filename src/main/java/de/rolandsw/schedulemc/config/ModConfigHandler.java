@@ -335,8 +335,8 @@ public class ModConfigHandler {
                     .defineInRange("station_radius", 10, 3, 50);
 
             POLICE_PATROL_WAIT_MINUTES = builder
-                    .comment("Wartezeit in Minuten an jedem Patrouillenpunkt")
-                    .defineInRange("patrol_wait_minutes", 3, 1, 30);
+                    .comment("Wartezeit in Minuten an jedem Patrouillenpunkt (HINWEIS: /time set funktioniert NICHT, echte Zeit muss vergehen!)")
+                    .defineInRange("patrol_wait_minutes", 1, 1, 30);
 
             POLICE_PATROL_RADIUS = builder
                     .comment("Radius in Blöcken, in dem sich Polizisten um Patrouillenpunkte bewegen")

@@ -81,6 +81,21 @@ public class PolicePatrolGoal extends Goal {
             long currentTime = npc.level().getGameTime();
             long arrivalTime = npc.getNpcData().getPatrolArrivalTime();
             long waitTimeTicks = ModConfigHandler.COMMON.POLICE_PATROL_WAIT_MINUTES.get() * 60 * 20; // Minuten → Ticks
+            long elapsedTicks = currentTime - arrivalTime;
+            long remainingTicks = waitTimeTicks - elapsedTicks;
+
+            // DEBUG: Alle 100 Ticks (5 Sekunden) zeige verbleibende Zeit
+            if (tickCounter % 100 == 0 && remainingTicks > 0) {
+                final long remainingSeconds = remainingTicks / 20;
+                npc.level().players().forEach(player -> {
+                    if (player.distanceTo(npc) < 50) {
+                        player.sendSystemMessage(
+                            net.minecraft.network.chat.Component.literal("[DEBUG] " + npc.getNpcName() + " wartet noch " + remainingSeconds + " Sekunden am Punkt " + (npc.getNpcData().getCurrentPatrolIndex() + 1))
+                                .withStyle(net.minecraft.ChatFormatting.GRAY)
+                        );
+                    }
+                });
+            }
 
             if (currentTime - arrivalTime >= waitTimeTicks) {
                 // Wartezeit vorbei - gehe zum nächsten Punkt (OHNE zu stoppen!)
