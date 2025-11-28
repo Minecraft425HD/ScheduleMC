@@ -26,6 +26,11 @@ public class MoveToWorkGoal extends Goal {
 
     @Override
     public boolean canUse() {
+        // NICHT für Polizei-NPCs (die haben eigene Goals)
+        if (npc.getNpcData().getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.POLIZEI) {
+            return false;
+        }
+
         // Nur wenn Movement aktiviert ist
         if (!npc.getNpcData().getBehavior().canMove()) {
             return false;

@@ -36,6 +36,11 @@ public class PoliceStationGoal extends Goal {
 
     @Override
     public boolean canUse() {
+        // NUR für Polizei-NPCs aktiv
+        if (npc.getNpcData().getNpcType() != de.rolandsw.schedulemc.npc.data.NPCType.POLIZEI) {
+            return false;
+        }
+
         // Nur wenn Movement aktiviert ist
         if (!npc.getNpcData().getBehavior().canMove()) {
             return false;
