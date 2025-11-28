@@ -46,6 +46,14 @@ public class NPCData {
     private BlockPos workLocation;  // Arbeitsstätte
     private List<BlockPos> leisureLocations; // 3 Freizeitorte in der Stadt
 
+    // Police Patrol System (nur für POLIZEI NPCs)
+    @Nullable
+    private BlockPos policeStation;  // Polizeistation
+    private List<BlockPos> patrolPoints; // Bis zu 16 Patrouillenpunkte
+    private int currentPatrolIndex; // Aktueller Patrol-Index
+    private long patrolArrivalTime; // Letzte Ankunftszeit am Patrol-Punkt
+    private long stationArrivalTime; // Letzte Ankunftszeit an der Station
+
     // Schedule - Zeiteinstellungen (in Minecraft Ticks, 24000 = 1 Tag)
     private long workStartTime;  // Wann geht NPC zur Arbeit (Standard: 0 = 6:00 Uhr)
     private long workEndTime;    // Wann endet die Arbeit (Standard: 13000 = 19:00 Uhr)
@@ -69,6 +77,11 @@ public class NPCData {
         this.customData = new CompoundTag();
         this.behavior = new NPCBehavior();
         this.leisureLocations = new ArrayList<>();
+        // Police Patrol System
+        this.patrolPoints = new ArrayList<>();
+        this.currentPatrolIndex = 0;
+        this.patrolArrivalTime = 0;
+        this.stationArrivalTime = 0;
         // Standard-Zeiten (Minecraft Ticks: 0 = 6:00, 6000 = 12:00, 12000 = 18:00, 18000 = 0:00)
         this.workStartTime = 0;      // 6:00 Uhr morgens
         this.workEndTime = 13000;    // 19:00 Uhr abends
@@ -135,6 +148,21 @@ public class NPCData {
             leisureList.add(posTag);
         }
         tag.put("LeisureLocations", leisureList);
+
+        // Police Patrol System
+        if (policeStation != null) {
+            tag.putLong("PoliceStation", policeStation.asLong());
+        }
+        ListTag patrolList = new ListTag();
+        for (BlockPos pos : patrolPoints) {
+            CompoundTag posTag = new CompoundTag();
+            posTag.putLong("Pos", pos.asLong());
+            patrolList.add(posTag);
+        }
+        tag.put("PatrolPoints", patrolList);
+        tag.putInt("CurrentPatrolIndex", currentPatrolIndex);
+        tag.putLong("PatrolArrivalTime", patrolArrivalTime);
+        tag.putLong("StationArrivalTime", stationArrivalTime);
 
         // Schedule Times
         tag.putLong("WorkStartTime", workStartTime);
@@ -204,6 +232,28 @@ public class NPCData {
                 CompoundTag posTag = leisureList.getCompound(i);
                 leisureLocations.add(BlockPos.of(posTag.getLong("Pos")));
             }
+        }
+
+        // Police Patrol System
+        if (tag.contains("PoliceStation")) {
+            policeStation = BlockPos.of(tag.getLong("PoliceStation"));
+        }
+        patrolPoints.clear();
+        if (tag.contains("PatrolPoints")) {
+            ListTag patrolList = tag.getList("PatrolPoints", Tag.TAG_COMPOUND);
+            for (int i = 0; i < patrolList.size(); i++) {
+                CompoundTag posTag = patrolList.getCompound(i);
+                patrolPoints.add(BlockPos.of(posTag.getLong("Pos")));
+            }
+        }
+        if (tag.contains("CurrentPatrolIndex")) {
+            currentPatrolIndex = tag.getInt("CurrentPatrolIndex");
+        }
+        if (tag.contains("PatrolArrivalTime")) {
+            patrolArrivalTime = tag.getLong("PatrolArrivalTime");
+        }
+        if (tag.contains("StationArrivalTime")) {
+            stationArrivalTime = tag.getLong("StationArrivalTime");
         }
 
         // Schedule Times
@@ -427,6 +477,67 @@ public class NPCData {
      */
     public boolean hasInventoryAndWallet() {
         return npcType == NPCType.BEWOHNER || npcType == NPCType.VERKAEUFER;
+    }
+
+    // Police Patrol System Getters/Setters
+    @Nullable
+    public BlockPos getPoliceStation() {
+        return policeStation;
+    }
+
+    public void setPoliceStation(@Nullable BlockPos policeStation) {
+        this.policeStation = policeStation;
+    }
+
+    public List<BlockPos> getPatrolPoints() {
+        return patrolPoints;
+    }
+
+    public void addPatrolPoint(BlockPos point) {
+        if (patrolPoints.size() < 16) {
+            patrolPoints.add(point);
+        }
+    }
+
+    public void removePatrolPoint(int index) {
+        if (index >= 0 && index < patrolPoints.size()) {
+            patrolPoints.remove(index);
+        }
+    }
+
+    public void clearPatrolPoints() {
+        patrolPoints.clear();
+        currentPatrolIndex = 0;
+    }
+
+    public int getCurrentPatrolIndex() {
+        return currentPatrolIndex;
+    }
+
+    public void setCurrentPatrolIndex(int index) {
+        this.currentPatrolIndex = index;
+    }
+
+    public void incrementPatrolIndex() {
+        if (!patrolPoints.isEmpty()) {
+            currentPatrolIndex = (currentPatrolIndex + 1) % patrolPoints.size();
+        }
+    }
+
+    public long getPatrolArrivalTime() {
+        return patrolArrivalTime;
+    }
+
+    public void setPatrolArrivalTime(long time) {
+        this.patrolArrivalTime = time;
+    }
+
+    public long getStationArrivalTime() {
+        return stationArrivalTime;
+    }
+
+    public void setStationArrivalTime(long time) {
+        this.stationArrivalTime = time;
     }
 
     /**

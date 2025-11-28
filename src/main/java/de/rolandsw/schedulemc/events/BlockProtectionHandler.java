@@ -2,6 +2,8 @@ package de.rolandsw.schedulemc.events;
 
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.items.NPCLocationTool;
+import de.rolandsw.schedulemc.npc.items.NPCPatrolTool;
+import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.region.PlotManager;
 import de.rolandsw.schedulemc.region.PlotRegion;
 import net.minecraft.ChatFormatting;
@@ -118,21 +120,23 @@ public class BlockProtectionHandler {
     }
 
     /**
-     * Behandelt Linksklick auf NPCs für das LocationTool (NPC auswählen)
+     * Behandelt Linksklick auf NPCs für LocationTool und PatrolTool (NPC auswählen)
      */
     @SubscribeEvent
     public void onAttackEntity(AttackEntityEvent event) {
         Player player = event.getEntity();
         Entity target = event.getTarget();
 
-        // Prüfe ob Spieler das LocationTool hält
+        // Prüfe ob Spieler das LocationTool oder PatrolTool hält
         ItemStack mainHandItem = player.getMainHandItem();
         ItemStack offHandItem = player.getOffhandItem();
 
         boolean holdsLocationTool = (mainHandItem.getItem() instanceof NPCLocationTool) ||
                                    (offHandItem.getItem() instanceof NPCLocationTool);
+        boolean holdsPatrolTool = (mainHandItem.getItem() instanceof NPCPatrolTool) ||
+                                 (offHandItem.getItem() instanceof NPCPatrolTool);
 
-        if (!holdsLocationTool) {
+        if (!holdsLocationTool && !holdsPatrolTool) {
             return;
         }
 
@@ -142,21 +146,64 @@ public class BlockProtectionHandler {
         }
 
         if (!player.level().isClientSide) {
-            // Speichere NPC ID
-            NPCLocationTool.setSelectedNPC(player.getUUID(), npc.getId());
+            // Handle LocationTool
+            if (holdsLocationTool) {
+                NPCLocationTool.setSelectedNPC(player.getUUID(), npc.getId());
 
-            player.sendSystemMessage(
-                Component.literal("NPC ")
-                    .withStyle(ChatFormatting.GREEN)
-                    .append(Component.literal(npc.getNpcName())
-                        .withStyle(ChatFormatting.YELLOW))
-                    .append(Component.literal(" ausgewählt!")
-                        .withStyle(ChatFormatting.GREEN))
-            );
-            player.sendSystemMessage(
-                Component.literal("Linksklick auf Block = Arbeitsort | Rechtsklick = Wohnort")
-                    .withStyle(ChatFormatting.GRAY)
-            );
+                player.sendSystemMessage(
+                    Component.literal("NPC ")
+                        .withStyle(ChatFormatting.GREEN)
+                        .append(Component.literal(npc.getNpcName())
+                            .withStyle(ChatFormatting.YELLOW))
+                        .append(Component.literal(" ausgewählt!")
+                            .withStyle(ChatFormatting.GREEN))
+                );
+                player.sendSystemMessage(
+                    Component.literal("Linksklick auf Block = Arbeitsort | Rechtsklick = Wohnort")
+                        .withStyle(ChatFormatting.GRAY)
+                );
+            }
+            // Handle PatrolTool
+            else if (holdsPatrolTool) {
+                // Prüfe ob es ein Polizist ist
+                if (npc.getNpcData().getNpcType() != NPCType.POLIZEI) {
+                    player.sendSystemMessage(
+                        Component.literal("Dieser NPC ist kein Polizist! Das Patrol-Tool funktioniert nur mit Polizei-NPCs.")
+                            .withStyle(ChatFormatting.RED)
+                    );
+                } else {
+                    NPCPatrolTool.setSelectedNPC(player.getUUID(), npc.getId());
+
+                    player.sendSystemMessage(
+                        Component.literal("Polizist ")
+                            .withStyle(ChatFormatting.GREEN)
+                            .append(Component.literal(npc.getNpcName())
+                                .withStyle(ChatFormatting.YELLOW))
+                            .append(Component.literal(" ausgewählt!")
+                                .withStyle(ChatFormatting.GREEN))
+                    );
+
+                    // Zeige aktuellen Status
+                    boolean hasStation = npc.getNpcData().getPoliceStation() != null;
+                    int patrolCount = npc.getNpcData().getPatrolPoints().size();
+
+                    if (hasStation) {
+                        player.sendSystemMessage(
+                            Component.literal("Station: ")
+                                .withStyle(ChatFormatting.GRAY)
+                                .append(Component.literal(npc.getNpcData().getPoliceStation().toShortString())
+                                    .withStyle(ChatFormatting.WHITE))
+                                .append(Component.literal(" | Patrouille: " + patrolCount + "/16")
+                                    .withStyle(ChatFormatting.GRAY))
+                        );
+                    } else {
+                        player.sendSystemMessage(
+                            Component.literal("Rechtsklick auf Block = Polizeistation setzen")
+                                .withStyle(ChatFormatting.GRAY)
+                        );
+                    }
+                }
+            }
         }
 
         // Verhindere Schaden am NPC

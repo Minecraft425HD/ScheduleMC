@@ -93,6 +93,12 @@ public class ModConfigHandler {
         public final ForgeConfigSpec.DoubleValue POLICE_RAID_ACCOUNT_PERCENTAGE;
         public final ForgeConfigSpec.DoubleValue POLICE_RAID_MIN_FINE;
 
+        // Police Patrol System
+        public final ForgeConfigSpec.IntValue POLICE_STATION_WAIT_MINUTES;
+        public final ForgeConfigSpec.IntValue POLICE_STATION_RADIUS;
+        public final ForgeConfigSpec.IntValue POLICE_PATROL_WAIT_MINUTES;
+        public final ForgeConfigSpec.IntValue POLICE_PATROL_RADIUS;
+
         // ═══════════════════════════════════════════════════════════
         // STEALING MINIGAME
         // ═══════════════════════════════════════════════════════════
@@ -319,6 +325,22 @@ public class ModConfigHandler {
             POLICE_RAID_MIN_FINE = builder
                     .comment("Mindest-Geldstrafe bei Raid in Euro")
                     .defineInRange("raid_min_fine", 1000.0, 100.0, 50000.0);
+
+            POLICE_STATION_WAIT_MINUTES = builder
+                    .comment("Wartezeit in Minuten, die Polizisten an der Polizeistation bleiben")
+                    .defineInRange("station_wait_minutes", 5, 1, 60);
+
+            POLICE_STATION_RADIUS = builder
+                    .comment("Radius in Blöcken, in dem sich Polizisten um die Station bewegen")
+                    .defineInRange("station_radius", 10, 3, 50);
+
+            POLICE_PATROL_WAIT_MINUTES = builder
+                    .comment("Wartezeit in Minuten an jedem Patrouillenpunkt (nutze /time add zum Beschleunigen)")
+                    .defineInRange("patrol_wait_minutes", 1, 1, 30);
+
+            POLICE_PATROL_RADIUS = builder
+                    .comment("Radius in Blöcken, in dem sich Polizisten um Patrouillenpunkte bewegen")
+                    .defineInRange("patrol_radius", 3, 1, 20);
 
             builder.pop();
 

@@ -2,9 +2,12 @@ package de.rolandsw.schedulemc.npc.entity;
 
 import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.data.NPCPersonality;
+import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.npc.goals.MoveToHomeGoal;
 import de.rolandsw.schedulemc.npc.goals.MoveToLeisureGoal;
 import de.rolandsw.schedulemc.npc.goals.MoveToWorkGoal;
+import de.rolandsw.schedulemc.npc.goals.PolicePatrolGoal;
+import de.rolandsw.schedulemc.npc.goals.PoliceStationGoal;
 import de.rolandsw.schedulemc.npc.menu.NPCInteractionMenu;
 import de.rolandsw.schedulemc.npc.pathfinding.NPCPathNavigation;
 import net.minecraft.ChatFormatting;
@@ -79,11 +82,19 @@ public class CustomNPCEntity extends PathfinderMob {
         // Grundlegende AI Goals
         this.goalSelector.addGoal(0, new FloatGoal(this)); // Schwimmen
         this.goalSelector.addGoal(1, new OpenDoorGoal(this, true)); // Türen öffnen (und schließen)
-        this.goalSelector.addGoal(2, new MoveToHomeGoal(this)); // Nach Hause gehen (Heimzeit)
-        this.goalSelector.addGoal(3, new MoveToWorkGoal(this)); // Zur Arbeit gehen (Arbeitszeit)
-        this.goalSelector.addGoal(4, new MoveToLeisureGoal(this)); // Zu Freizeitorten gehen (Freizeit)
-        this.goalSelector.addGoal(5, new LookAtPlayerGoal(this, Player.class, 8.0F)); // Spieler anschauen
-        this.goalSelector.addGoal(6, new RandomLookAroundGoal(this)); // Zufällig umschauen
+
+        // Registriere ALLE Goals - die Goals prüfen selbst ob sie aktiv sein sollen
+        // Police Goals (nur aktiv für POLIZEI NPCs)
+        this.goalSelector.addGoal(2, new PolicePatrolGoal(this)); // Patrouillieren zwischen Punkten
+        this.goalSelector.addGoal(3, new PoliceStationGoal(this)); // An Station bleiben (wenn keine Patrol)
+
+        // Normal NPC Goals (nur aktiv für BEWOHNER/VERKAEUFER)
+        this.goalSelector.addGoal(4, new MoveToHomeGoal(this)); // Nach Hause gehen (Heimzeit)
+        this.goalSelector.addGoal(5, new MoveToWorkGoal(this)); // Zur Arbeit gehen (Arbeitszeit)
+        this.goalSelector.addGoal(6, new MoveToLeisureGoal(this)); // Zu Freizeitorten gehen (Freizeit)
+
+        this.goalSelector.addGoal(7, new LookAtPlayerGoal(this, Player.class, 8.0F)); // Spieler anschauen
+        this.goalSelector.addGoal(8, new RandomLookAroundGoal(this)); // Zufällig umschauen
     }
 
     @Override
