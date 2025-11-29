@@ -17,7 +17,8 @@ public class DealerAppScreen extends Screen {
     private static final int WIDTH = 200;
     private static final int HEIGHT = 288; // Reduziert von 320 (10% kleiner)
     private static final int BORDER_SIZE = 5; // Rahmen um das Smartphone
-    private static final int MARGIN = 10; // Mindestabstand vom Bildschirmrand
+    private static final int MARGIN_TOP = 15;
+    private static final int MARGIN_BOTTOM = 35; // Mindestabstand vom Bildschirmrand
     private int leftPos;
     private int topPos;
 
@@ -34,8 +35,8 @@ public class DealerAppScreen extends Screen {
 
         // Zentriere vertikal mit Margin-Check
         int centeredTop = (this.height - HEIGHT) / 2;
-        int minTop = MARGIN + BORDER_SIZE;
-        int maxTop = this.height - HEIGHT - BORDER_SIZE - MARGIN;
+        int minTop = MARGIN_TOP + BORDER_SIZE;
+        int maxTop = this.height - HEIGHT - BORDER_SIZE - MARGIN_BOTTOM;
         this.topPos = Math.max(minTop, Math.min(centeredTop, maxTop));
 
         // Zurück-Button

@@ -28,7 +28,8 @@ public class SmartphoneScreen extends Screen {
     private static final int APP_SPACING = 14; // Reduziert von 16 (10% kleiner)
     private static final int CLOSE_BUTTON_SIZE = 20;
     private static final int BORDER_SIZE = 5; // Rahmen um das Smartphone
-    private static final int MARGIN = 10; // Mindestabstand vom Bildschirmrand
+    private static final int MARGIN_TOP = 15; // Mindestabstand vom oberen Bildschirmrand
+    private static final int MARGIN_BOTTOM = 35; // Mindestabstand vom unteren Bildschirmrand (wegen Hotbar)
 
     // App-Icons (konfigurierbar über Ressourcen)
     private static final ResourceLocation APP_MAP = new ResourceLocation(ScheduleMC.MOD_ID, "textures/gui/apps/app_map.png");
@@ -62,14 +63,14 @@ public class SmartphoneScreen extends Screen {
         // Für Zentrierung: topPos = (height - PHONE_HEIGHT) / 2
         int centeredTop = (this.height - PHONE_HEIGHT) / 2;
 
-        // Obere Grenze: Rahmen muss mindestens MARGIN vom oberen Rand sein
-        // topPos - BORDER_SIZE >= MARGIN → topPos >= MARGIN + BORDER_SIZE
-        int minTop = MARGIN + BORDER_SIZE;
+        // Obere Grenze: Rahmen muss mindestens MARGIN_TOP vom oberen Rand sein
+        // topPos - BORDER_SIZE >= MARGIN_TOP → topPos >= MARGIN_TOP + BORDER_SIZE
+        int minTop = MARGIN_TOP + BORDER_SIZE;
 
-        // Untere Grenze: Rahmen muss mindestens MARGIN vom unteren Rand sein
-        // topPos + PHONE_HEIGHT + BORDER_SIZE <= height - MARGIN
-        // → topPos <= height - PHONE_HEIGHT - BORDER_SIZE - MARGIN
-        int maxTop = this.height - PHONE_HEIGHT - BORDER_SIZE - MARGIN;
+        // Untere Grenze: Rahmen muss mindestens MARGIN_BOTTOM vom unteren Rand sein
+        // topPos + PHONE_HEIGHT + BORDER_SIZE <= height - MARGIN_BOTTOM
+        // → topPos <= height - PHONE_HEIGHT - BORDER_SIZE - MARGIN_BOTTOM
+        int maxTop = this.height - PHONE_HEIGHT - BORDER_SIZE - MARGIN_BOTTOM;
 
         // Wende Grenzen an
         this.topPos = Math.max(minTop, Math.min(centeredTop, maxTop));
