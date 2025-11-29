@@ -391,5 +391,8 @@
   "command.npc.info.wallet.amount": "Geldbörse: %s Bargeld",
 
   "death.attack.schedulemc.police": "%s wurde von der Polizei verhaftet",
-  "death.attack.schedulemc.police.player": "%s wurde von der Polizei verhaftet, während er gegen %s kämpfte"
+  "death.attack.schedulemc.police.player": "%s wurde von der Polizei verhaftet, während er gegen %s kämpfte",
+
+  "key.categories.schedulemc": "ScheduleMC",
+  "key.schedulemc.open_smartphone": "Smartphone öffnen"
 }

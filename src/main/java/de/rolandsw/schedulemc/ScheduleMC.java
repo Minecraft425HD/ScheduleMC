@@ -15,6 +15,7 @@ import de.rolandsw.schedulemc.economy.network.EconomyNetworkHandler;
 import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.tobacco.network.ModNetworking;
 import de.rolandsw.schedulemc.economy.WalletManager;
+import de.rolandsw.schedulemc.client.network.SmartphoneNetworkHandler;
 import de.rolandsw.schedulemc.economy.events.RespawnHandler;
 import de.rolandsw.schedulemc.region.PlotManager;
 import de.rolandsw.schedulemc.managers.*;
@@ -111,6 +112,7 @@ public class ScheduleMC {
             EconomyNetworkHandler.register();
             NPCNetworkHandler.register();
             ModNetworking.register();
+            SmartphoneNetworkHandler.register();
         });
     }
 
