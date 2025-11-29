@@ -57,10 +57,11 @@ public class SmartphoneScreen extends Screen {
 
         // Zentriere das Smartphone vertikal mit Margin-Check
         int centeredTop = (this.height - PHONE_HEIGHT) / 2;
+        int maxTop = this.height - PHONE_HEIGHT - MARGIN;
 
         // Stelle sicher, dass das GUI nicht über die Bildschirmränder hinausragt
-        this.topPos = Math.max(MARGIN, centeredTop);
-        this.topPos = Math.min(this.topPos, this.height - PHONE_HEIGHT - MARGIN);
+        // Verwendet den zentrierten Wert, aber begrenzt auf MARGIN oben und unten
+        this.topPos = Math.max(MARGIN, Math.min(centeredTop, maxTop));
 
         // Berechne Start-Position für App-Grid (zentriert im Smartphone)
         int gridWidth = (APP_ICON_SIZE * 2) + APP_SPACING;

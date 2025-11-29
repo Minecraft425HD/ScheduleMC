@@ -33,8 +33,8 @@ public class ProductsAppScreen extends Screen {
 
         // Zentriere vertikal mit Margin-Check
         int centeredTop = (this.height - HEIGHT) / 2;
-        this.topPos = Math.max(MARGIN, centeredTop);
-        this.topPos = Math.min(this.topPos, this.height - HEIGHT - MARGIN);
+        int maxTop = this.height - HEIGHT - MARGIN;
+        this.topPos = Math.max(MARGIN, Math.min(centeredTop, maxTop));
 
         // Zurück-Button
         addRenderableWidget(Button.builder(Component.literal("← Zurück"), button -> {
