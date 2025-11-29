@@ -27,6 +27,7 @@ public class SmartphoneScreen extends Screen {
     private static final int APP_ICON_SIZE = 43; // Reduziert von 48 (10% kleiner)
     private static final int APP_SPACING = 14; // Reduziert von 16 (10% kleiner)
     private static final int CLOSE_BUTTON_SIZE = 20;
+    private static final int BORDER_SIZE = 5; // Rahmen um das Smartphone
     private static final int MARGIN = 10; // Mindestabstand vom Bildschirmrand
 
     // App-Icons (konfigurierbar über Ressourcen)
@@ -56,12 +57,19 @@ public class SmartphoneScreen extends Screen {
         this.leftPos = (this.width - PHONE_WIDTH) / 2;
 
         // Zentriere das Smartphone vertikal mit Margin-Check
-        int centeredTop = (this.height - PHONE_HEIGHT) / 2;
-        int maxTop = this.height - PHONE_HEIGHT - MARGIN;
+        // Der Rahmen geht von (topPos - BORDER_SIZE) bis (topPos + PHONE_HEIGHT + BORDER_SIZE)
+        // Gesamthöhe des gerenderten GUIs = PHONE_HEIGHT + 2 * BORDER_SIZE
+        int totalHeight = PHONE_HEIGHT + (BORDER_SIZE * 2);
+        int centeredTop = (this.height - totalHeight) / 2 + BORDER_SIZE;
+
+        // Obere Grenze: topPos - BORDER_SIZE >= MARGIN → topPos >= MARGIN + BORDER_SIZE
+        int minTop = MARGIN + BORDER_SIZE;
+        // Untere Grenze: topPos + PHONE_HEIGHT + BORDER_SIZE <= height - MARGIN
+        // → topPos <= height - PHONE_HEIGHT - BORDER_SIZE - MARGIN
+        int maxTop = this.height - PHONE_HEIGHT - BORDER_SIZE - MARGIN;
 
         // Stelle sicher, dass das GUI nicht über die Bildschirmränder hinausragt
-        // Verwendet den zentrierten Wert, aber begrenzt auf MARGIN oben und unten
-        this.topPos = Math.max(MARGIN, Math.min(centeredTop, maxTop));
+        this.topPos = Math.max(minTop, Math.min(centeredTop, maxTop));
 
         // Berechne Start-Position für App-Grid (zentriert im Smartphone)
         int gridWidth = (APP_ICON_SIZE * 2) + APP_SPACING;

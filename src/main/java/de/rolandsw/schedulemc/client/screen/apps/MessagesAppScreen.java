@@ -16,6 +16,7 @@ public class MessagesAppScreen extends Screen {
     private final Screen parentScreen;
     private static final int WIDTH = 200;
     private static final int HEIGHT = 288; // Reduziert von 320 (10% kleiner)
+    private static final int BORDER_SIZE = 5; // Rahmen um das Smartphone
     private static final int MARGIN = 10; // Mindestabstand vom Bildschirmrand
     private int leftPos;
     private int topPos;
@@ -32,9 +33,11 @@ public class MessagesAppScreen extends Screen {
         this.leftPos = (this.width - WIDTH) / 2;
 
         // Zentriere vertikal mit Margin-Check
-        int centeredTop = (this.height - HEIGHT) / 2;
-        int maxTop = this.height - HEIGHT - MARGIN;
-        this.topPos = Math.max(MARGIN, Math.min(centeredTop, maxTop));
+        int totalHeight = HEIGHT + (BORDER_SIZE * 2);
+        int centeredTop = (this.height - totalHeight) / 2 + BORDER_SIZE;
+        int minTop = MARGIN + BORDER_SIZE;
+        int maxTop = this.height - HEIGHT - BORDER_SIZE - MARGIN;
+        this.topPos = Math.max(minTop, Math.min(centeredTop, maxTop));
 
         // Zurück-Button
         addRenderableWidget(Button.builder(Component.literal("← Zurück"), button -> {
