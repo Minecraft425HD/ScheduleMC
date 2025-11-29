@@ -15,10 +15,10 @@ public class ContactsAppScreen extends Screen {
 
     private final Screen parentScreen;
     private static final int WIDTH = 200;
-    private static final int HEIGHT = 288; // Reduziert von 320 (10% kleiner)
+    private static final int HEIGHT = 240; // Reduziert von 320 (10% kleiner)
     private static final int BORDER_SIZE = 5; // Rahmen um das Smartphone
     private static final int MARGIN_TOP = 15;
-    private static final int MARGIN_BOTTOM = 35; // Mindestabstand vom Bildschirmrand
+    private static final int MARGIN_BOTTOM = 60; // Mindestabstand vom Bildschirmrand
     private int leftPos;
     private int topPos;
 

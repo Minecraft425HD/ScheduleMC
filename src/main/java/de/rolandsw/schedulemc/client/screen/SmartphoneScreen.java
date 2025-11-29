@@ -21,15 +21,15 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class SmartphoneScreen extends Screen {
 
-    // Layout-Konstanten (10% kompakter für bessere Bildschirmpassung)
+    // Layout-Konstanten (kompakter für ALLE Bildschirmgrößen)
     private static final int PHONE_WIDTH = 200;
-    private static final int PHONE_HEIGHT = 288; // Reduziert von 320 (10% kleiner)
-    private static final int APP_ICON_SIZE = 43; // Reduziert von 48 (10% kleiner)
-    private static final int APP_SPACING = 14; // Reduziert von 16 (10% kleiner)
+    private static final int PHONE_HEIGHT = 240; // Nochmal reduziert von 288 für bessere Passform
+    private static final int APP_ICON_SIZE = 40; // Reduziert von 43
+    private static final int APP_SPACING = 12; // Reduziert von 14
     private static final int CLOSE_BUTTON_SIZE = 20;
     private static final int BORDER_SIZE = 5; // Rahmen um das Smartphone
     private static final int MARGIN_TOP = 15; // Mindestabstand vom oberen Bildschirmrand
-    private static final int MARGIN_BOTTOM = 35; // Mindestabstand vom unteren Bildschirmrand (wegen Hotbar)
+    private static final int MARGIN_BOTTOM = 60; // Erhöht von 35 - genug Platz für Hotbar!
 
     // App-Icons (konfigurierbar über Ressourcen)
     private static final ResourceLocation APP_MAP = new ResourceLocation(ScheduleMC.MOD_ID, "textures/gui/apps/app_map.png");
