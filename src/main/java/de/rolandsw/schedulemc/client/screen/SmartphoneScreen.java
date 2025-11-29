@@ -21,11 +21,11 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class SmartphoneScreen extends Screen {
 
-    // Layout-Konstanten
+    // Layout-Konstanten (10% kompakter für bessere Bildschirmpassung)
     private static final int PHONE_WIDTH = 200;
-    private static final int PHONE_HEIGHT = 320;
-    private static final int APP_ICON_SIZE = 48;
-    private static final int APP_SPACING = 16;
+    private static final int PHONE_HEIGHT = 288; // Reduziert von 320 (10% kleiner)
+    private static final int APP_ICON_SIZE = 43; // Reduziert von 48 (10% kleiner)
+    private static final int APP_SPACING = 14; // Reduziert von 16 (10% kleiner)
     private static final int CLOSE_BUTTON_SIZE = 20;
     private static final int MARGIN = 10; // Mindestabstand vom Bildschirmrand
 
