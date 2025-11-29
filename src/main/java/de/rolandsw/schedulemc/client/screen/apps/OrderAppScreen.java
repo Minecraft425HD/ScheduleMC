@@ -16,6 +16,7 @@ public class OrderAppScreen extends Screen {
     private final Screen parentScreen;
     private static final int WIDTH = 200;
     private static final int HEIGHT = 320;
+    private static final int MARGIN = 10; // Mindestabstand vom Bildschirmrand
     private int leftPos;
     private int topPos;
 
@@ -29,7 +30,11 @@ public class OrderAppScreen extends Screen {
         super.init();
 
         this.leftPos = (this.width - WIDTH) / 2;
-        this.topPos = (this.height - HEIGHT) / 2;
+
+        // Zentriere vertikal mit Margin-Check
+        int centeredTop = (this.height - HEIGHT) / 2;
+        this.topPos = Math.max(MARGIN, centeredTop);
+        this.topPos = Math.min(this.topPos, this.height - HEIGHT - MARGIN);
 
         // Zurück-Button
         addRenderableWidget(Button.builder(Component.literal("← Zurück"), button -> {

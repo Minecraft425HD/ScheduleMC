@@ -27,6 +27,7 @@ public class SmartphoneScreen extends Screen {
     private static final int APP_ICON_SIZE = 48;
     private static final int APP_SPACING = 16;
     private static final int CLOSE_BUTTON_SIZE = 20;
+    private static final int MARGIN = 10; // Mindestabstand vom Bildschirmrand
 
     // App-Icons (konfigurierbar über Ressourcen)
     private static final ResourceLocation APP_MAP = new ResourceLocation(ScheduleMC.MOD_ID, "textures/gui/apps/app_map.png");
@@ -51,9 +52,15 @@ public class SmartphoneScreen extends Screen {
         // Sende Paket an Server: Smartphone ist jetzt offen
         SmartphoneNetworkHandler.sendToServer(new SmartphoneStatePacket(true));
 
-        // Zentriere das Smartphone
+        // Zentriere das Smartphone horizontal
         this.leftPos = (this.width - PHONE_WIDTH) / 2;
-        this.topPos = (this.height - PHONE_HEIGHT) / 2;
+
+        // Zentriere das Smartphone vertikal mit Margin-Check
+        int centeredTop = (this.height - PHONE_HEIGHT) / 2;
+
+        // Stelle sicher, dass das GUI nicht über die Bildschirmränder hinausragt
+        this.topPos = Math.max(MARGIN, centeredTop);
+        this.topPos = Math.min(this.topPos, this.height - PHONE_HEIGHT - MARGIN);
 
         // Berechne Start-Position für App-Grid (zentriert im Smartphone)
         int gridWidth = (APP_ICON_SIZE * 2) + APP_SPACING;
