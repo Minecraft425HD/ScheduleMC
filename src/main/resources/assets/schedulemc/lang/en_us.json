@@ -391,5 +391,8 @@
   "command.npc.info.wallet.amount": "Wallet: %s cash",
 
   "death.attack.schedulemc.police": "%s was arrested by the police",
-  "death.attack.schedulemc.police.player": "%s was arrested by the police while fighting %s"
+  "death.attack.schedulemc.police.player": "%s was arrested by the police while fighting %s",
+
+  "key.categories.schedulemc": "ScheduleMC",
+  "key.schedulemc.open_smartphone": "Open Smartphone"
 }
