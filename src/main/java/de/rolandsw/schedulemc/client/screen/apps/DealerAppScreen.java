@@ -33,8 +33,7 @@ public class DealerAppScreen extends Screen {
         this.leftPos = (this.width - WIDTH) / 2;
 
         // Zentriere vertikal mit Margin-Check
-        int totalHeight = HEIGHT + (BORDER_SIZE * 2);
-        int centeredTop = (this.height - totalHeight) / 2 + BORDER_SIZE;
+        int centeredTop = (this.height - HEIGHT) / 2;
         int minTop = MARGIN + BORDER_SIZE;
         int maxTop = this.height - HEIGHT - BORDER_SIZE - MARGIN;
         this.topPos = Math.max(minTop, Math.min(centeredTop, maxTop));
