@@ -38,13 +38,9 @@ public class MinimapOverlay {
     @SubscribeEvent
     public static void onRenderGuiOverlay(RenderGuiOverlayEvent.Post event) {
         Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.level == null) return;
 
-        // Nur im Survival/Creative rendern
-        if (mc.player == null || mc.level == null) {
-            return;
-        }
-
-        // Rendere die Minimap
+        // Rendere Minimap wie MapAppScreen - gleicher Ansatz!
         renderMinimap(event.getGuiGraphics(), mc);
     }
 
@@ -103,41 +99,66 @@ public class MinimapOverlay {
     }
 
     /**
-     * Rendert Minimap direkt aus MapAppScreen.exploredChunks (gleiche Daten!)
+     * Rendert Minimap GENAU WIE MapAppScreen - chunk-basiert und effizient!
      */
     private static void renderMapFromExploredChunks(GuiGraphics guiGraphics, int x, int y, BlockPos playerPos) {
-        float pixelsPerBlock = (float) MINIMAP_SIZE / (RANGE * 2);
+        float scale = (float) MINIMAP_SIZE / (RANGE * 2);
+        int pixelSize = Math.max(1, (int) scale);
 
-        // Rendere Blöcke im RANGE-Radius um den Spieler
-        for (int dx = -RANGE; dx < RANGE; dx++) {
-            for (int dz = -RANGE; dz < RANGE; dz++) {
-                int worldX = playerPos.getX() + dx;
-                int worldZ = playerPos.getZ() + dz;
+        // View ist IMMER auf Spieler zentriert (kein Pan/Zoom bei Minimap)
+        int viewCenterX = playerPos.getX();
+        int viewCenterZ = playerPos.getZ();
 
-                // Chunk-Koordinaten
-                int chunkX = worldX >> 4;
-                int chunkZ = worldZ >> 4;
-                int localX = worldX & 15;
-                int localZ = worldZ & 15;
+        // Berechne welcher Weltbereich sichtbar ist (RANGE Blöcke in jede Richtung)
+        int viewMinWorldX = viewCenterX - RANGE;
+        int viewMaxWorldX = viewCenterX + RANGE;
+        int viewMinWorldZ = viewCenterZ - RANGE;
+        int viewMaxWorldZ = viewCenterZ + RANGE;
 
-                // Hole Farbe aus exploredChunks
+        // Konvertiere zu Chunk-Koordinaten (GENAU WIE MapAppScreen!)
+        int minChunkX = viewMinWorldX >> 4;
+        int maxChunkX = viewMaxWorldX >> 4;
+        int minChunkZ = viewMinWorldZ >> 4;
+        int maxChunkZ = viewMaxWorldZ >> 4;
+
+        // Rendere nur sichtbare Chunks (GENAU WIE MapAppScreen!)
+        for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
+            for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
                 long chunkKey = ((long) chunkX << 32) | (chunkZ & 0xFFFFFFFFL);
                 byte[] chunkData = MapAppScreen.getExploredChunkData(chunkKey);
 
-                int color;
-                if (chunkData != null) {
-                    byte colorId = chunkData[localX + localZ * 16];
-                    color = colorId != 0 ? MapAppScreen.getMaterialColorStatic(colorId) : 0xFF1A1A1A;
-                } else {
-                    color = 0xFF1A1A1A; // Schwarz für unerkundete Bereiche
+                if (chunkData == null) {
+                    continue; // Chunk nie erkundet - schwarz lassen
                 }
 
-                // Screen-Position (zentriert auf Spieler)
-                int screenX = x + (int)((dx + RANGE) * pixelsPerBlock);
-                int screenY = y + (int)((dz + RANGE) * pixelsPerBlock);
-                int pixelSize = Math.max(1, (int) pixelsPerBlock);
+                // Rendere alle 16x16 Blöcke in diesem Chunk (GENAU WIE MapAppScreen!)
+                for (int localX = 0; localX < 16; localX++) {
+                    for (int localZ = 0; localZ < 16; localZ++) {
+                        int worldX = (chunkX << 4) + localX;
+                        int worldZ = (chunkZ << 4) + localZ;
 
-                guiGraphics.fill(screenX, screenY, screenX + pixelSize, screenY + pixelSize, color);
+                        byte colorId = chunkData[localX + localZ * 16];
+                        if (colorId == 0) continue; // Keine Farbe
+
+                        int color = MapAppScreen.getMaterialColorStatic(colorId);
+
+                        // Berechne Bildschirm-Position relativ zum View-Zentrum (GENAU WIE MapAppScreen!)
+                        int dx = worldX - viewCenterX;
+                        int dz = worldZ - viewCenterZ;
+
+                        int screenX = (x + MINIMAP_SIZE / 2) + (int)(dx * scale);
+                        int screenY = (y + MINIMAP_SIZE / 2) + (int)(dz * scale);
+
+                        // Clipping (GENAU WIE MapAppScreen!)
+                        if (screenX + pixelSize < x || screenX > x + MINIMAP_SIZE ||
+                            screenY + pixelSize < y || screenY > y + MINIMAP_SIZE) {
+                            continue;
+                        }
+
+                        guiGraphics.fill(screenX, screenY,
+                                       screenX + pixelSize, screenY + pixelSize, color);
+                    }
+                }
             }
         }
     }
