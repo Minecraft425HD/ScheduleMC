@@ -136,43 +136,60 @@ public class MapAppScreen extends Screen {
             Level level = minecraft.player.level();
             BlockPos playerPos = minecraft.player.blockPosition();
 
-            // Berechne Kartenbereich basierend auf Zoom
-            float zoom = getCurrentZoom();
-            int viewRange = (int)(40 / zoom); // Reduziert für Performance
+            // ULTRA-VEREINFACHT: Nur ein kleiner Bereich
+            int viewRange = 20; // Fest, kein Zoom erstmal
 
-            // Update Cache nur wenn nötig
-            tickCounter++;
-            if (cachedMapColors == null
-                || tickCounter >= UPDATE_INTERVAL
-                || !playerPos.equals(lastCachePos)
-                || currentZoomIndex != lastCacheZoom) {
-
-                updateMapCache(level, playerPos, viewRange);
-                lastCachePos = playerPos;
-                lastCacheZoom = currentZoomIndex;
-                tickCounter = 0;
-            }
-
-            // Rendere gecachte Karte
-            renderCachedWorldMap(guiGraphics, x, y, width, height, viewRange);
+            // Rendere DIREKT ohne Cache (für Testing)
+            renderSimpleMap(guiGraphics, level, playerPos, x, y, width, height, viewRange);
 
             // Spieler-Position (Zentrum)
             int centerX = x + width / 2;
             int centerY = y + height / 2;
-            guiGraphics.fill(centerX - 3, centerY - 3, centerX + 3, centerY + 3, 0xFFFFFF00); // Gelber Punkt
 
-            // Weißer Rand um Spieler
-            guiGraphics.fill(centerX - 4, centerY - 4, centerX + 4, centerY - 3, 0xFFFFFFFF);
-            guiGraphics.fill(centerX - 4, centerY + 3, centerX + 4, centerY + 4, 0xFFFFFFFF);
-            guiGraphics.fill(centerX - 4, centerY - 3, centerX - 3, centerY + 3, 0xFFFFFFFF);
-            guiGraphics.fill(centerX + 3, centerY - 3, centerX + 4, centerY + 3, 0xFFFFFFFF);
-
-            // Render Marker
-            renderMapMarkers(guiGraphics, playerPos, x, y, width, height, viewRange);
+            // Roter Punkt für Spieler (größer, besser sichtbar)
+            guiGraphics.fill(centerX - 4, centerY - 4, centerX + 4, centerY + 4, 0xFFFF0000);
         } else {
             guiGraphics.drawCenteredString(this.font, "§7Lade Karte...",
                                           x + width / 2, y + height / 2, 0xFFFFFF);
         }
+    }
+
+    /**
+     * Ultra-einfaches Map-Rendering (kein Cache, direkt)
+     */
+    private void renderSimpleMap(GuiGraphics guiGraphics, Level level, BlockPos center,
+                                  int x, int y, int width, int height, int range) {
+        int pixelSize = 3; // Große Pixel für bessere Performance
+
+        for (int dx = -range; dx < range; dx += 1) {
+            for (int dz = -range; dz < range; dz += 1) {
+                BlockPos pos = center.offset(dx, 0, dz);
+
+                // Direkt Block-Farbe holen
+                int color = getSimpleBlockColor(level, pos);
+
+                int screenX = x + (dx + range) * pixelSize;
+                int screenY = y + (dz + range) * pixelSize;
+
+                guiGraphics.fill(screenX, screenY, screenX + pixelSize, screenY + pixelSize, color);
+            }
+        }
+    }
+
+    /**
+     * Extrem vereinfachte Farb-Erkennung
+     */
+    private int getSimpleBlockColor(Level level, BlockPos pos) {
+        BlockState state = level.getBlockState(pos.above(64)); // Feste Y-Höhe erstmal
+
+        // Nur die wichtigsten Blöcke
+        if (state.is(Blocks.GRASS_BLOCK)) return 0xFF00FF00; // Grün
+        if (state.is(Blocks.WATER)) return 0xFF0000FF; // Blau
+        if (state.is(Blocks.STONE)) return 0xFF808080; // Grau
+        if (state.is(Blocks.DIRT)) return 0xFF8B4513; // Braun
+        if (state.is(Blocks.SAND)) return 0xFFFFFF00; // Gelb
+
+        return 0xFF404040; // Dunkelgrau als Standard
     }
 
     /**

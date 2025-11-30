@@ -35,13 +35,9 @@ public class MinimapOverlay {
 
     @SubscribeEvent
     public static void onRenderGuiOverlay(RenderGuiOverlayEvent.Post event) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.level == null) return;
-
-        // Nicht anzeigen wenn F1 gedrückt (GUI versteckt)
-        if (!mc.options.hideGui) {
-            renderMinimap(event.getGuiGraphics(), mc);
-        }
+        // TEMPORÄR DEAKTIVIERT - Performance-Probleme
+        // TODO: Später wieder aktivieren mit besserer Implementierung
+        return;
     }
 
     private static void renderMinimap(GuiGraphics guiGraphics, Minecraft mc) {
