@@ -1,24 +1,21 @@
 package de.rolandsw.schedulemc.client.screen.apps;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.joml.Matrix4f;
 
 /**
- * Map App - Zeigt Karten und Standorte mit Minimap
+ * Map App - Zeigt Karten und Standorte
  * Horizontale Ausrichtung für bessere Kartenansicht
+ * Minimap ist als permanentes HUD-Overlay verfügbar (siehe MinimapOverlay.java)
  */
 @OnlyIn(Dist.CLIENT)
 public class MapAppScreen extends Screen {
@@ -32,9 +29,6 @@ public class MapAppScreen extends Screen {
     private static final int MARGIN_TOP = 15;
     private static final int MARGIN_BOTTOM = 60;
 
-    // Minimap-Konstanten
-    private static final int MINIMAP_SIZE = 80;
-    private static final int MINIMAP_MARGIN = 10;
     private static final float[] ZOOM_LEVELS = {0.5f, 1.0f, 2.0f, 4.0f}; // Zoom-Stufen
 
     private int leftPos;
@@ -117,14 +111,9 @@ public class MapAppScreen extends Screen {
         int mapAreaX = leftPos + 10;
         int mapAreaY = topPos + 35;
         int mapAreaWidth = WIDTH - 20;
-        int mapAreaHeight = HEIGHT - 75;
+        int mapAreaHeight = HEIGHT - 45;
 
         renderMainMap(guiGraphics, mapAreaX, mapAreaY, mapAreaWidth, mapAreaHeight);
-
-        // Minimap (oben rechts)
-        int minimapX = leftPos + WIDTH - MINIMAP_SIZE - MINIMAP_MARGIN;
-        int minimapY = topPos + 35;
-        renderMinimap(guiGraphics, minimapX, minimapY, partialTick);
 
         super.render(guiGraphics, mouseX, mouseY, partialTick);
     }
@@ -142,15 +131,21 @@ public class MapAppScreen extends Screen {
 
             // Berechne Kartenbereich basierend auf Zoom
             float zoom = getCurrentZoom();
-            int viewRange = (int)(width / (4 * zoom)); // Angepasster Bereich
+            int viewRange = (int)(50 / zoom); // Angepasster Bereich
 
-            // Rendere vereinfachte Karte
+            // Rendere Karte
             renderWorldMap(guiGraphics, level, playerPos, x, y, width, height, viewRange);
 
             // Spieler-Position (Zentrum)
             int centerX = x + width / 2;
             int centerY = y + height / 2;
-            guiGraphics.fill(centerX - 2, centerY - 2, centerX + 2, centerY + 2, 0xFFFFFF00); // Gelber Punkt
+            guiGraphics.fill(centerX - 3, centerY - 3, centerX + 3, centerY + 3, 0xFFFFFF00); // Gelber Punkt
+
+            // Weißer Rand um Spieler
+            guiGraphics.fill(centerX - 4, centerY - 4, centerX + 4, centerY - 3, 0xFFFFFFFF);
+            guiGraphics.fill(centerX - 4, centerY + 3, centerX + 4, centerY + 4, 0xFFFFFFFF);
+            guiGraphics.fill(centerX - 4, centerY - 3, centerX - 3, centerY + 3, 0xFFFFFFFF);
+            guiGraphics.fill(centerX + 3, centerY - 3, centerX + 4, centerY + 3, 0xFFFFFFFF);
 
             // Render Marker
             renderMapMarkers(guiGraphics, playerPos, x, y, width, height, viewRange);
@@ -161,61 +156,15 @@ public class MapAppScreen extends Screen {
     }
 
     /**
-     * Rendert die runde Minimap mit Himmelsrichtungen
-     */
-    private void renderMinimap(GuiGraphics guiGraphics, int x, int y, float partialTick) {
-        // Hintergrund-Quadrat
-        guiGraphics.fill(x - 2, y - 2, x + MINIMAP_SIZE + 2, y + MINIMAP_SIZE + 2, 0xFF1A1A1A);
-
-        if (minecraft != null && minecraft.player != null) {
-            Level level = minecraft.player.level();
-            BlockPos playerPos = minecraft.player.blockPosition();
-            float playerYaw = minecraft.player.getYRot();
-
-            // Berechne Minimap-Bereich
-            int minimapRange = 32; // Fester Bereich für Minimap
-
-            PoseStack poseStack = guiGraphics.pose();
-            poseStack.pushPose();
-
-            // Transformiere für Rotation um Zentrum
-            int centerX = x + MINIMAP_SIZE / 2;
-            int centerY = y + MINIMAP_SIZE / 2;
-            poseStack.translate(centerX, centerY, 0);
-            poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(playerYaw));
-            poseStack.translate(-centerX, -centerY, 0);
-
-            // Rendere rotierende Karte
-            renderWorldMapCircular(guiGraphics, level, playerPos, x, y, MINIMAP_SIZE, minimapRange);
-
-            poseStack.popPose();
-
-            // Runde Maske (darüber, nicht rotiert)
-            renderCircularMask(guiGraphics, centerX, centerY, MINIMAP_SIZE / 2);
-
-            // Himmelsrichtungen (fixiert, nicht rotiert)
-            renderCardinalDirections(guiGraphics, centerX, centerY, MINIMAP_SIZE / 2);
-
-            // Spieler-Marker (Zentrum, nicht rotiert)
-            guiGraphics.fill(centerX - 1, centerY - 1, centerX + 1, centerY + 1, 0xFFFFFF00);
-        }
-    }
-
-    /**
      * Rendert eine vereinfachte Weltkarte
      */
     private void renderWorldMap(GuiGraphics guiGraphics, Level level, BlockPos center,
                                 int x, int y, int width, int height, int range) {
-        int pixelSize = Math.max(1, width / (range * 2));
+        int pixelSize = Math.max(1, Math.min(width, height) / (range * 2));
 
         for (int dx = -range; dx < range; dx++) {
             for (int dz = -range; dz < range; dz++) {
-                BlockPos pos = center.offset(dx, 0, dz);
-                int topY = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.WORLD_SURFACE, pos.getX(), pos.getZ());
-                BlockPos topPos = new BlockPos(pos.getX(), topY, pos.getZ());
-
-                BlockState state = level.getBlockState(topPos);
-                int color = getBlockColor(state, level, topPos);
+                int color = getTerrainColor(level, center.offset(dx, 0, dz));
 
                 int screenX = x + (dx + range) * pixelSize;
                 int screenY = y + (dz + range) * pixelSize;
@@ -226,112 +175,113 @@ public class MapAppScreen extends Screen {
     }
 
     /**
-     * Rendert eine kreisförmige Weltkarte für die Minimap
+     * Holt die Terrain-Farbe für eine Position
      */
-    private void renderWorldMapCircular(GuiGraphics guiGraphics, Level level, BlockPos center,
-                                       int x, int y, int size, int range) {
-        int pixelSize = Math.max(1, size / (range * 2));
-        int radius = size / 2;
+    private int getTerrainColor(Level level, BlockPos pos) {
+        // Finde obersten Block
+        int topY = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.WORLD_SURFACE, pos.getX(), pos.getZ());
+        BlockPos topPos = new BlockPos(pos.getX(), topY - 1, pos.getZ());
 
-        for (int dx = -range; dx < range; dx++) {
-            for (int dz = -range; dz < range; dz++) {
-                // Prüfe ob Punkt im Kreis liegt
-                int screenX = (dx + range) * pixelSize;
-                int screenY = (dz + range) * pixelSize;
-                int distFromCenter = (int)Math.sqrt(
-                    Math.pow(screenX - radius, 2) + Math.pow(screenY - radius, 2)
-                );
+        BlockState state = level.getBlockState(topPos);
 
-                if (distFromCenter > radius) continue;
-
-                BlockPos pos = center.offset(dx, 0, dz);
-                int topY = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.WORLD_SURFACE, pos.getX(), pos.getZ());
-                BlockPos topPos = new BlockPos(pos.getX(), topY, pos.getZ());
-
-                BlockState state = level.getBlockState(topPos);
-                int color = getBlockColor(state, level, topPos);
-
-                guiGraphics.fill(x + screenX, y + screenY,
-                               x + screenX + pixelSize, y + screenY + pixelSize, color);
-            }
-        }
-    }
-
-    /**
-     * Erstellt eine kreisförmige Maske für die Minimap
-     */
-    private void renderCircularMask(GuiGraphics guiGraphics, int centerX, int centerY, int radius) {
-        // Zeichne schwarzen Rand um den Kreis
-        int size = radius * 2;
-        for (int x = -radius; x <= radius; x++) {
-            for (int y = -radius; y <= radius; y++) {
-                int distSq = x * x + y * y;
-                if (distSq > radius * radius) {
-                    guiGraphics.fill(centerX + x, centerY + y,
-                                   centerX + x + 1, centerY + y + 1, 0xFF2A2A2A);
+        // Falls Luft, gehe weiter runter
+        if (state.isAir()) {
+            for (int i = 1; i < 10; i++) {
+                BlockPos checkPos = topPos.below(i);
+                BlockState checkState = level.getBlockState(checkPos);
+                if (!checkState.isAir()) {
+                    state = checkState;
+                    topPos = checkPos;
+                    break;
                 }
             }
         }
 
-        // Äußerer Ring
-        drawCircleOutline(guiGraphics, centerX, centerY, radius, 0xFF4A4A4A);
-    }
+        // Nutze MapColor
+        MapColor mapColor = state.getMapColor(level, topPos);
 
-    /**
-     * Zeichnet einen Kreis-Umriss
-     */
-    private void drawCircleOutline(GuiGraphics guiGraphics, int centerX, int centerY, int radius, int color) {
-        for (int angle = 0; angle < 360; angle += 2) {
-            double rad = Math.toRadians(angle);
-            int x = centerX + (int)(Math.cos(rad) * radius);
-            int y = centerY + (int)(Math.sin(rad) * radius);
-            guiGraphics.fill(x, y, x + 1, y + 1, color);
-        }
-    }
-
-    /**
-     * Rendert Himmelsrichtungen um die Minimap
-     */
-    private void renderCardinalDirections(GuiGraphics guiGraphics, int centerX, int centerY, int radius) {
-        int offset = radius + 8;
-
-        // N (Norden - oben)
-        guiGraphics.drawCenteredString(this.font, "§fN", centerX, centerY - offset, 0xFFFFFF);
-
-        // S (Süden - unten)
-        guiGraphics.drawCenteredString(this.font, "§7S", centerX, centerY + offset - 8, 0xFFFFFF);
-
-        // O (Osten - rechts)
-        guiGraphics.drawString(this.font, "§7O", centerX + offset - 4, centerY - 4, 0xFFFFFF);
-
-        // W (Westen - links)
-        guiGraphics.drawString(this.font, "§7W", centerX - offset - 4, centerY - 4, 0xFFFFFF);
-    }
-
-    /**
-     * Konvertiert einen BlockState zu einer Farbe
-     */
-    private int getBlockColor(BlockState state, Level level, BlockPos pos) {
-        // Nutze Minecraft's MapColor System
-        MapColor mapColor = state.getMapColor(level, pos);
-        if (mapColor == MapColor.NONE) {
-            return 0xFF1A1A1A; // Dunkelgrau für unbekannt
+        // Fallback zu manueller Farbe
+        if (mapColor == MapColor.NONE || mapColor.col == 0) {
+            return getBlockTypeColor(state);
         }
 
-        // Extrahiere Farbe aus MapColor
-        int colorId = mapColor.col;
+        return getColorFromMapColor(mapColor.col);
+    }
 
-        // Basis-Farben (vereinfacht)
+    /**
+     * Konvertiert MapColor ID zu RGB
+     */
+    private int getColorFromMapColor(int colorId) {
         switch (colorId) {
-            case 2: return 0xFF7FB238; // Gras
-            case 4: return 0xFF8C8C8C; // Stein
-            case 8: return 0xFF3C76DD; // Wasser
-            case 12: return 0xFFA0522D; // Erde
-            case 14: return 0xFF707070; // Grau
-            case 16: return 0xFFFF0000; // Rot
-            case 20: return 0xFF00FF00; // Grün
-            default: return 0xFF606060; // Standard Grau
+            case 0: return 0xFF000000;
+            case 1: return 0xFF7FB238; // Gras
+            case 2: return 0xFFB5651D; // Sand
+            case 3: return 0xFFC7C7C7; // Wolle
+            case 4: return 0xFFFF0000; // Feuer
+            case 5: return 0xFFA0A0FF; // Eis
+            case 6: return 0xFFA7A7A7; // Metall
+            case 7: return 0xFF007C00; // Pflanzen
+            case 8: return 0xFFFFFFFF; // Schnee
+            case 9: return 0xFFA4A8B8; // Lehm
+            case 10: return 0xFF976D4D; // Erde
+            case 11: return 0xFF707070; // Stein
+            case 12: return 0xFF4040FF; // Wasser
+            case 13: return 0xFF8B7653; // Holz
+            case 14: return 0xFFFFFFFF; // Quarz
+            case 15: return 0xFFFF9800; // Orange
+            case 16: return 0xFFE91E63; // Magenta
+            case 17: return 0xFF2196F3; // Hellblau
+            case 18: return 0xFFFDD835; // Gelb
+            case 19: return 0xFF8BC34A; // Lime
+            case 20: return 0xFFF48FB1; // Rosa
+            case 21: return 0xFF757575; // Grau
+            case 22: return 0xFFBDBDBD; // Hellgrau
+            case 23: return 0xFF00BCD4; // Cyan
+            case 24: return 0xFF9C27B0; // Lila
+            case 25: return 0xFF3F51B5; // Blau
+            case 26: return 0xFF795548; // Braun
+            case 27: return 0xFF4CAF50; // Grün
+            case 28: return 0xFFFF5722; // Rot
+            case 29: return 0xFF212121; // Schwarz
+            default: return 0xFF808080;
         }
+    }
+
+    /**
+     * Fallback-Farbe basierend auf Block-Typ
+     */
+    private int getBlockTypeColor(BlockState state) {
+        if (state.is(Blocks.WATER) || state.is(Blocks.FLOWING_WATER)) {
+            return 0xFF4040FF;
+        }
+        if (state.is(Blocks.LAVA) || state.is(Blocks.FLOWING_LAVA)) {
+            return 0xFFFF4400;
+        }
+        if (state.is(Blocks.GRASS_BLOCK) || state.is(Blocks.SHORT_GRASS) || state.is(Blocks.TALL_GRASS)) {
+            return 0xFF7FB238;
+        }
+        if (state.is(Blocks.STONE) || state.is(Blocks.COBBLESTONE) || state.is(Blocks.ANDESITE)
+            || state.is(Blocks.DIORITE) || state.is(Blocks.GRANITE)) {
+            return 0xFF808080;
+        }
+        if (state.is(Blocks.DIRT) || state.is(Blocks.COARSE_DIRT)) {
+            return 0xFF976D4D;
+        }
+        if (state.is(Blocks.SAND) || state.is(Blocks.SANDSTONE)) {
+            return 0xFFB5651D;
+        }
+        if (state.is(Blocks.SNOW) || state.is(Blocks.SNOW_BLOCK)) {
+            return 0xFFFFFFFF;
+        }
+        if (state.is(Blocks.OAK_LOG) || state.is(Blocks.OAK_PLANKS) || state.is(Blocks.SPRUCE_LOG)
+            || state.is(Blocks.BIRCH_LOG) || state.is(Blocks.JUNGLE_LOG)) {
+            return 0xFF8B7653;
+        }
+        if (state.is(Blocks.OAK_LEAVES) || state.is(Blocks.SPRUCE_LEAVES)
+            || state.is(Blocks.BIRCH_LEAVES) || state.is(Blocks.JUNGLE_LEAVES)) {
+            return 0xFF007C00;
+        }
+        return 0xFF404040;
     }
 
     /**
