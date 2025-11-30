@@ -27,13 +27,9 @@ public class MinimapOverlay {
 
     private static final int MINIMAP_SIZE = 60; // Reduziert von 80 auf 60
     private static final int MARGIN = 10;
-    private static final int RANGE = 20; // Reduziert von 24 auf 20
-    private static final int UPDATE_INTERVAL = 20; // Erhöht von 10 auf 20 Ticks
+    private static final int RANGE = 40; // In Blöcken - größerer Bereich da wir gecachte Daten nutzen
 
-    // Cache für Performance
-    private static int[][] cachedColors = new int[RANGE * 2][RANGE * 2];
-    private static BlockPos lastCachePos = BlockPos.ZERO;
-    private static int tickCounter = 0;
+    // KEIN eigener Cache mehr - nutzt MapAppScreen.exploredChunks!
 
     // Map-Update Counter (für Background-Updates)
     private static int mapUpdateCounter = 0;
@@ -87,17 +83,10 @@ public class MinimapOverlay {
         // Hintergrund
         guiGraphics.fill(x - 2, y - 2, x + MINIMAP_SIZE + 2, y + MINIMAP_SIZE + 2, 0xCC1A1A1A);
 
-        Level level = mc.player.level();
         BlockPos playerPos = mc.player.blockPosition();
         float playerYaw = mc.player.getYRot();
 
-        // Update Cache nur alle paar Ticks
-        tickCounter++;
-        if (tickCounter >= UPDATE_INTERVAL || !playerPos.equals(lastCachePos)) {
-            updateCache(level, playerPos);
-            lastCachePos = playerPos;
-            tickCounter = 0;
-        }
+        // KEINE eigene Cache-Berechnung mehr! Nutzt MapAppScreen.exploredChunks
 
         PoseStack poseStack = guiGraphics.pose();
         poseStack.pushPose();
@@ -107,8 +96,8 @@ public class MinimapOverlay {
         poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(playerYaw));
         poseStack.translate(-centerX, -centerY, 0);
 
-        // Rendere gecachte Karte (rotiert)
-        renderCachedMap(guiGraphics, x, y);
+        // Rendere direkt aus exploredChunks (rotiert)
+        renderMapFromExploredChunks(guiGraphics, x, y, playerPos);
 
         poseStack.popPose();
 
@@ -127,94 +116,42 @@ public class MinimapOverlay {
     }
 
     /**
-     * Update Cache mit aktuellen Terrain-Farben
+     * Rendert Minimap direkt aus MapAppScreen.exploredChunks (gleiche Daten!)
      */
-    private static void updateCache(Level level, BlockPos center) {
+    private static void renderMapFromExploredChunks(GuiGraphics guiGraphics, int x, int y, BlockPos playerPos) {
+        float pixelsPerBlock = (float) MINIMAP_SIZE / (RANGE * 2);
+
+        // Rendere Blöcke im RANGE-Radius um den Spieler
         for (int dx = -RANGE; dx < RANGE; dx++) {
             for (int dz = -RANGE; dz < RANGE; dz++) {
-                BlockPos pos = center.offset(dx, 0, dz);
-                cachedColors[dx + RANGE][dz + RANGE] = getTerrainColorSimple(level, pos);
-            }
-        }
-    }
+                int worldX = playerPos.getX() + dx;
+                int worldZ = playerPos.getZ() + dz;
 
-    /**
-     * Rendert die gecachte Karte (quadratisch für Performance!)
-     */
-    private static void renderCachedMap(GuiGraphics guiGraphics, int x, int y) {
-        int pixelSize = Math.max(1, MINIMAP_SIZE / (RANGE * 2));
+                // Chunk-Koordinaten
+                int chunkX = worldX >> 4;
+                int chunkZ = worldZ >> 4;
+                int localX = worldX & 15;
+                int localZ = worldZ & 15;
 
-        for (int dx = 0; dx < RANGE * 2; dx++) {
-            for (int dz = 0; dz < RANGE * 2; dz++) {
-                int screenX = dx * pixelSize;
-                int screenY = dz * pixelSize;
+                // Hole Farbe aus exploredChunks
+                long chunkKey = ((long) chunkX << 32) | (chunkZ & 0xFFFFFFFFL);
+                byte[] chunkData = MapAppScreen.getExploredChunkData(chunkKey);
 
-                int color = cachedColors[dx][dz];
-                guiGraphics.fill(x + screenX, y + screenY,
-                               x + screenX + pixelSize, y + screenY + pixelSize, color);
-            }
-        }
-    }
-
-    /**
-     * Vereinfachte Terrain-Farbe (Performance-optimiert)
-     */
-    private static int getTerrainColorSimple(Level level, BlockPos pos) {
-        // Nutze Heightmap für schnellere Berechnung
-        int topY = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, pos.getX(), pos.getZ());
-        BlockPos topPos = new BlockPos(pos.getX(), topY - 1, pos.getZ());
-
-        BlockState state = level.getBlockState(topPos);
-
-        // Schnelle Block-Type Checks
-        if (state.is(Blocks.WATER)) return 0xFF3030DD;
-        if (state.is(Blocks.LAVA)) return 0xFFDD3030;
-        if (state.is(Blocks.GRASS_BLOCK)) return 0xFF60A040;
-        if (state.is(Blocks.DIRT) || state.is(Blocks.COARSE_DIRT)) return 0xFF8B6914;
-        if (state.is(Blocks.SAND)) return 0xFFDDDD88;
-        if (state.is(Blocks.STONE) || state.is(Blocks.COBBLESTONE)) return 0xFF888888;
-        if (state.is(Blocks.SNOW_BLOCK) || state.is(Blocks.SNOW)) return 0xFFFFFFFF;
-        if (state.is(Blocks.OAK_LEAVES) || state.is(Blocks.SPRUCE_LEAVES)
-            || state.is(Blocks.BIRCH_LEAVES)) return 0xFF228B22;
-        if (state.is(Blocks.OAK_LOG) || state.is(Blocks.SPRUCE_LOG)) return 0xFF8B4513;
-
-        // MapColor als Fallback (schneller als vorher)
-        MapColor mapColor = state.getMapColor(level, topPos);
-        if (mapColor != MapColor.NONE) {
-            int id = mapColor.col;
-            if (id == 12) return 0xFF3030DD; // Wasser
-            if (id == 1 || id == 7) return 0xFF60A040; // Gras/Pflanzen
-            if (id == 10) return 0xFF8B6914; // Erde
-            if (id == 11) return 0xFF888888; // Stein
-            if (id == 2) return 0xFFDDDD88; // Sand
-            if (id == 8) return 0xFFFFFFFF; // Schnee
-        }
-
-        // Standard grau
-        return 0xFF505050;
-    }
-
-    /**
-     * Kreismaske über der Minimap
-     */
-    private static void renderCircularMask(GuiGraphics guiGraphics, int centerX, int centerY, int radius) {
-        // Zeichne Maske außerhalb des Kreises
-        for (int x = -radius; x <= radius; x++) {
-            for (int y = -radius; y <= radius; y++) {
-                int distSq = x * x + y * y;
-                if (distSq > radius * radius) {
-                    guiGraphics.fill(centerX + x, centerY + y,
-                                   centerX + x + 1, centerY + y + 1, 0xCC1A1A1A);
+                int color;
+                if (chunkData != null) {
+                    byte colorId = chunkData[localX + localZ * 16];
+                    color = colorId != 0 ? MapAppScreen.getMaterialColorStatic(colorId) : 0xFF1A1A1A;
+                } else {
+                    color = 0xFF1A1A1A; // Schwarz für unerkundete Bereiche
                 }
-            }
-        }
 
-        // Weißer Rand
-        for (int angle = 0; angle < 360; angle += 3) {
-            double rad = Math.toRadians(angle);
-            int x = centerX + (int)(Math.cos(rad) * radius);
-            int y = centerY + (int)(Math.sin(rad) * radius);
-            guiGraphics.fill(x, y, x + 1, y + 1, 0xFFFFFFFF);
+                // Screen-Position (zentriert auf Spieler)
+                int screenX = x + (int)((dx + RANGE) * pixelsPerBlock);
+                int screenY = y + (int)((dz + RANGE) * pixelsPerBlock);
+                int pixelSize = Math.max(1, (int) pixelsPerBlock);
+
+                guiGraphics.fill(screenX, screenY, screenX + pixelSize, screenY + pixelSize, color);
+            }
         }
     }
 
