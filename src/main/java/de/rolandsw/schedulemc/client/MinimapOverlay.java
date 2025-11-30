@@ -1,11 +1,14 @@
 package de.rolandsw.schedulemc.client;
 
+import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.vertex.PoseStack;
 import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.client.screen.apps.MapAppScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -29,7 +32,12 @@ public class MinimapOverlay {
     private static final int MARGIN = 10;
     private static final int RANGE = 40; // In Blöcken - größerer Bereich da wir gecachte Daten nutzen
 
-    // KEIN eigener Cache mehr - nutzt MapAppScreen.exploredChunks!
+    // TEXTURE-CACHING für Performance (Lösung 1!)
+    private static NativeImage minimapImage = null;
+    private static DynamicTexture minimapTexture = null;
+    private static ResourceLocation minimapTextureLocation = null;
+    private static int textureUpdateCounter = 0;
+    private static final int TEXTURE_UPDATE_INTERVAL = 20; // Update Texture alle 20 Ticks (1 Sekunde)
 
     // Map-Update Counter (für Background-Updates)
     private static int mapUpdateCounter = 0;
@@ -40,7 +48,19 @@ public class MinimapOverlay {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null) return;
 
-        // Rendere Minimap wie MapAppScreen - gleicher Ansatz!
+        // Initialisiere Texture beim ersten Aufruf
+        if (minimapTexture == null) {
+            initMinimapTexture(mc);
+        }
+
+        // Update Texture nur alle 20 Ticks (1 Sekunde) - PERFORMANCE-TRICK!
+        textureUpdateCounter++;
+        if (textureUpdateCounter >= TEXTURE_UPDATE_INTERVAL) {
+            updateMinimapTexture(mc.player.blockPosition());
+            textureUpdateCounter = 0;
+        }
+
+        // Rendere Minimap (zeichnet nur die gecachte Texture - SEHR SCHNELL!)
         renderMinimap(event.getGuiGraphics(), mc);
     }
 
@@ -66,6 +86,83 @@ public class MinimapOverlay {
         }
     }
 
+    /**
+     * Initialisiert die Minimap-Texture (nur 1x beim ersten Aufruf)
+     */
+    private static void initMinimapTexture(Minecraft mc) {
+        if (minimapImage == null) {
+            minimapImage = new NativeImage(MINIMAP_SIZE, MINIMAP_SIZE, false);
+            minimapTexture = new DynamicTexture(minimapImage);
+            minimapTextureLocation = mc.getTextureManager().register("minimap_overlay", minimapTexture);
+        }
+    }
+
+    /**
+     * Rendert Minimap in die NativeImage Texture (nur alle 20 Ticks = 1 Sekunde!)
+     * Das ist der PERFORMANCE-TRICK: Rendering nur 1x pro Sekunde statt 60x!
+     */
+    private static void updateMinimapTexture(BlockPos playerPos) {
+        if (minimapImage == null) return;
+
+        // Clear image - schwarzer Hintergrund
+        for (int x = 0; x < MINIMAP_SIZE; x++) {
+            for (int y = 0; y < MINIMAP_SIZE; y++) {
+                minimapImage.setPixelRGBA(x, y, 0xFF1A1A1A);
+            }
+        }
+
+        // Rendere Map in NativeImage - GLEICHE LOGIK wie MapAppScreen!
+        float scale = (float) MINIMAP_SIZE / (RANGE * 2);
+        int viewCenterX = playerPos.getX();
+        int viewCenterZ = playerPos.getZ();
+
+        int viewMinWorldX = viewCenterX - RANGE;
+        int viewMaxWorldX = viewCenterX + RANGE;
+        int viewMinWorldZ = viewCenterZ - RANGE;
+        int viewMaxWorldZ = viewCenterZ + RANGE;
+
+        int minChunkX = viewMinWorldX >> 4;
+        int maxChunkX = viewMaxWorldX >> 4;
+        int minChunkZ = viewMinWorldZ >> 4;
+        int maxChunkZ = viewMaxWorldZ >> 4;
+
+        // Rendere nur sichtbare Chunks
+        for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
+            for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
+                long chunkKey = ((long) chunkX << 32) | (chunkZ & 0xFFFFFFFFL);
+                byte[] chunkData = MapAppScreen.getExploredChunkData(chunkKey);
+
+                if (chunkData == null) continue;
+
+                for (int localX = 0; localX < 16; localX++) {
+                    for (int localZ = 0; localZ < 16; localZ++) {
+                        int worldX = (chunkX << 4) + localX;
+                        int worldZ = (chunkZ << 4) + localZ;
+
+                        byte colorId = chunkData[localX + localZ * 16];
+                        if (colorId == 0) continue;
+
+                        int color = MapAppScreen.getMaterialColorStatic(colorId);
+
+                        int dx = worldX - viewCenterX;
+                        int dz = worldZ - viewCenterZ;
+
+                        int imgX = (MINIMAP_SIZE / 2) + (int)(dx * scale);
+                        int imgY = (MINIMAP_SIZE / 2) + (int)(dz * scale);
+
+                        // Setze Pixel in NativeImage
+                        if (imgX >= 0 && imgX < MINIMAP_SIZE && imgY >= 0 && imgY < MINIMAP_SIZE) {
+                            minimapImage.setPixelRGBA(imgX, imgY, color);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Upload zu GPU - ab jetzt kann die Texture gezeichnet werden
+        minimapTexture.upload();
+    }
+
     private static void renderMinimap(GuiGraphics guiGraphics, Minecraft mc) {
         int screenWidth = mc.getWindow().getGuiScaledWidth();
 
@@ -79,11 +176,12 @@ public class MinimapOverlay {
         // Hintergrund
         guiGraphics.fill(x - 2, y - 2, x + MINIMAP_SIZE + 2, y + MINIMAP_SIZE + 2, 0xCC1A1A1A);
 
-        BlockPos playerPos = mc.player.blockPosition();
         float playerYaw = mc.player.getYRot();
 
-        // Rendere Map OHNE Rotation (Performance!)
-        renderMapFromExploredChunks(guiGraphics, x, y, playerPos);
+        // Zeichne gecachte Texture - SEHR SCHNELL! (nur 1 Texture-Blit statt tausende Pixel-Fills!)
+        if (minimapTextureLocation != null) {
+            guiGraphics.blit(minimapTextureLocation, x, y, 0, 0, MINIMAP_SIZE, MINIMAP_SIZE, MINIMAP_SIZE, MINIMAP_SIZE);
+        }
 
         // Einfacher Rahmen
         guiGraphics.fill(x - 1, y - 1, x + MINIMAP_SIZE + 1, y, 0xFFFFFFFF); // Top
@@ -96,71 +194,6 @@ public class MinimapOverlay {
 
         // Spieler-Marker als DREIECK - zeigt in Laufrichtung
         renderPlayerTriangle(guiGraphics, centerX, centerY, playerYaw);
-    }
-
-    /**
-     * Rendert Minimap GENAU WIE MapAppScreen - chunk-basiert und effizient!
-     */
-    private static void renderMapFromExploredChunks(GuiGraphics guiGraphics, int x, int y, BlockPos playerPos) {
-        float scale = (float) MINIMAP_SIZE / (RANGE * 2);
-        int pixelSize = Math.max(1, (int) scale);
-
-        // View ist IMMER auf Spieler zentriert (kein Pan/Zoom bei Minimap)
-        int viewCenterX = playerPos.getX();
-        int viewCenterZ = playerPos.getZ();
-
-        // Berechne welcher Weltbereich sichtbar ist (RANGE Blöcke in jede Richtung)
-        int viewMinWorldX = viewCenterX - RANGE;
-        int viewMaxWorldX = viewCenterX + RANGE;
-        int viewMinWorldZ = viewCenterZ - RANGE;
-        int viewMaxWorldZ = viewCenterZ + RANGE;
-
-        // Konvertiere zu Chunk-Koordinaten (GENAU WIE MapAppScreen!)
-        int minChunkX = viewMinWorldX >> 4;
-        int maxChunkX = viewMaxWorldX >> 4;
-        int minChunkZ = viewMinWorldZ >> 4;
-        int maxChunkZ = viewMaxWorldZ >> 4;
-
-        // Rendere nur sichtbare Chunks (GENAU WIE MapAppScreen!)
-        for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
-            for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
-                long chunkKey = ((long) chunkX << 32) | (chunkZ & 0xFFFFFFFFL);
-                byte[] chunkData = MapAppScreen.getExploredChunkData(chunkKey);
-
-                if (chunkData == null) {
-                    continue; // Chunk nie erkundet - schwarz lassen
-                }
-
-                // Rendere alle 16x16 Blöcke in diesem Chunk (GENAU WIE MapAppScreen!)
-                for (int localX = 0; localX < 16; localX++) {
-                    for (int localZ = 0; localZ < 16; localZ++) {
-                        int worldX = (chunkX << 4) + localX;
-                        int worldZ = (chunkZ << 4) + localZ;
-
-                        byte colorId = chunkData[localX + localZ * 16];
-                        if (colorId == 0) continue; // Keine Farbe
-
-                        int color = MapAppScreen.getMaterialColorStatic(colorId);
-
-                        // Berechne Bildschirm-Position relativ zum View-Zentrum (GENAU WIE MapAppScreen!)
-                        int dx = worldX - viewCenterX;
-                        int dz = worldZ - viewCenterZ;
-
-                        int screenX = (x + MINIMAP_SIZE / 2) + (int)(dx * scale);
-                        int screenY = (y + MINIMAP_SIZE / 2) + (int)(dz * scale);
-
-                        // Clipping (GENAU WIE MapAppScreen!)
-                        if (screenX + pixelSize < x || screenX > x + MINIMAP_SIZE ||
-                            screenY + pixelSize < y || screenY > y + MINIMAP_SIZE) {
-                            continue;
-                        }
-
-                        guiGraphics.fill(screenX, screenY,
-                                       screenX + pixelSize, screenY + pixelSize, color);
-                    }
-                }
-            }
-        }
     }
 
     /**
