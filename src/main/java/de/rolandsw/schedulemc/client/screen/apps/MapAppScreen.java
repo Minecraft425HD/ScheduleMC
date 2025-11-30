@@ -36,6 +36,10 @@ public class MapAppScreen extends Screen {
     private static final int CHUNK_SIZE = 16;
     private final Map<Long, byte[]> exploredChunks = new HashMap<>(); // ChunkPos -> 16x16 Farben
 
+    // View-Zentrum: Welche Welt-Koordinate wird im Zentrum der View angezeigt?
+    private int viewCenterWorldX = Integer.MAX_VALUE;
+    private int viewCenterWorldZ = Integer.MAX_VALUE;
+
     private int updateCounter = 0;
     private static final int UPDATE_INTERVAL = 20; // Update alle 20 Ticks (1 Sekunde)
 
@@ -146,6 +150,12 @@ public class MapAppScreen extends Screen {
         Level level = minecraft.player.level();
         BlockPos playerPos = minecraft.player.blockPosition();
 
+        // Initialisiere View-Zentrum beim ersten Öffnen (zentriert auf Spieler)
+        if (viewCenterWorldX == Integer.MAX_VALUE) {
+            viewCenterWorldX = playerPos.getX();
+            viewCenterWorldZ = playerPos.getZ();
+        }
+
         // Update Karte nur alle paar Ticks
         updateCounter++;
         if (updateCounter >= UPDATE_INTERVAL) {
@@ -161,15 +171,29 @@ public class MapAppScreen extends Screen {
     }
 
     /**
-     * Rendert den Spieler-Marker auf der Map (immer im Zentrum)
+     * Rendert den Spieler-Marker auf der Map (an tatsächlicher Position!)
      */
     private void renderPlayerMarker(GuiGraphics guiGraphics, int x, int y, int width, int height, BlockPos playerPos) {
-        // Spieler ist immer im Zentrum der Ansicht
-        int centerX = x + width / 2;
-        int centerY = y + height / 2;
+        float zoom = getCurrentZoom();
+        float scale = zoom;
 
-        // Roter Spieler-Marker (8x8 Pixel)
-        guiGraphics.fill(centerX - 4, centerY - 4, centerX + 4, centerY + 4, 0xFFFF0000);
+        // Berechne View-Zentrum mit Pan-Offset
+        int viewCenterX = viewCenterWorldX - (int)(panOffsetX / scale);
+        int viewCenterZ = viewCenterWorldZ - (int)(panOffsetY / scale);
+
+        // Spieler-Position relativ zum View-Zentrum
+        int dx = playerPos.getX() - viewCenterX;
+        int dz = playerPos.getZ() - viewCenterZ;
+
+        // Screen-Position
+        int screenX = (x + width / 2) + (int)(dx * scale);
+        int screenY = (y + height / 2) + (int)(dz * scale);
+
+        // Roter Spieler-Marker (8x8 Pixel) - nur wenn sichtbar
+        if (screenX >= x - 4 && screenX <= x + width + 4 &&
+            screenY >= y - 4 && screenY <= y + height + 4) {
+            guiGraphics.fill(screenX - 4, screenY - 4, screenX + 4, screenY + 4, 0xFFFF0000);
+        }
     }
 
     /**
@@ -250,16 +274,18 @@ public class MapAppScreen extends Screen {
 
         int pixelSize = Math.max(1, (int) scale);
 
-        // Berechne Weltkoordinaten-Bereich der sichtbar ist
-        // Spieler ist im Zentrum, Pan-Offset verschiebt die View
-        int centerScreenX = x + width / 2 + panOffsetX;
-        int centerScreenY = y + height / 2 + panOffsetY;
+        // Berechne View-Zentrum mit Pan-Offset (in Welt-Koordinaten)
+        int viewCenterX = viewCenterWorldX - (int)(panOffsetX / scale);
+        int viewCenterZ = viewCenterWorldZ - (int)(panOffsetY / scale);
 
-        // Welcher Weltblock ist an welcher Bildschirmposition?
-        int viewMinWorldX = playerPos.getX() - (int) ((centerScreenX - x) / scale);
-        int viewMaxWorldX = playerPos.getX() + (int) ((x + width - centerScreenX) / scale);
-        int viewMinWorldZ = playerPos.getZ() - (int) ((centerScreenY - y) / scale);
-        int viewMaxWorldZ = playerPos.getZ() + (int) ((y + height - centerScreenY) / scale);
+        // Berechne welcher Weltbereich sichtbar ist
+        int viewHalfWidth = (int)(width / 2 / scale);
+        int viewHalfHeight = (int)(height / 2 / scale);
+
+        int viewMinWorldX = viewCenterX - viewHalfWidth;
+        int viewMaxWorldX = viewCenterX + viewHalfWidth;
+        int viewMinWorldZ = viewCenterZ - viewHalfHeight;
+        int viewMaxWorldZ = viewCenterZ + viewHalfHeight;
 
         // Konvertiere zu Chunk-Koordinaten
         int minChunkX = viewMinWorldX >> 4;
@@ -288,12 +314,12 @@ public class MapAppScreen extends Screen {
 
                         int color = getMaterialColor(colorId);
 
-                        // Berechne Bildschirm-Position relativ zum Spieler
-                        int dx = worldX - playerPos.getX();
-                        int dz = worldZ - playerPos.getZ();
+                        // Berechne Bildschirm-Position relativ zum View-Zentrum
+                        int dx = worldX - viewCenterX;
+                        int dz = worldZ - viewCenterZ;
 
-                        int screenX = centerScreenX + (int) (dx * scale);
-                        int screenY = centerScreenY + (int) (dz * scale);
+                        int screenX = (x + width / 2) + (int)(dx * scale);
+                        int screenY = (y + height / 2) + (int)(dz * scale);
 
                         // Clipping
                         if (screenX + pixelSize < x || screenX > x + width ||
