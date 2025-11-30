@@ -28,10 +28,16 @@ public class MapAppScreen extends Screen {
     private int leftPos;
     private int topPos;
 
-    // Karte: RECHTECKIG - horizontal breiter (256x128 = 2:1 Ratio)
-    private static final int MAP_WIDTH = 256;
-    private static final int MAP_HEIGHT = 128;
+    // Karte: Große persistente Karte für Exploration (512x512)
+    private static final int MAP_WIDTH = 512;
+    private static final int MAP_HEIGHT = 512;
     private byte[] mapColors = new byte[MAP_WIDTH * MAP_HEIGHT];
+    private boolean[] exploredPixels = new boolean[MAP_WIDTH * MAP_HEIGHT]; // Wurde dieser Bereich erkundet?
+
+    // Map-Origin (feste Weltkoordinaten für linke obere Ecke)
+    private int mapOriginX = Integer.MAX_VALUE;
+    private int mapOriginZ = Integer.MAX_VALUE;
+
     private int updateCounter = 0;
     private static final int UPDATE_INTERVAL = 20; // Update alle 20 Ticks (1 Sekunde)
 
@@ -150,35 +156,88 @@ public class MapAppScreen extends Screen {
         }
 
         // Rendere die Pixel-Karte
-        renderMapPixels(guiGraphics, x, y, width, height);
+        renderMapPixels(guiGraphics, x, y, width, height, playerPos);
 
-        // Spieler-Position (Zentrum) - ROTER Punkt
-        int centerX = x + width / 2;
-        int centerY = y + height / 2;
-        guiGraphics.fill(centerX - 4, centerY - 4, centerX + 4, centerY + 4, 0xFFFF0000);
+        // Spieler-Position auf der Map - ROTER Punkt
+        renderPlayerMarker(guiGraphics, x, y, width, height, playerPos);
     }
 
     /**
-     * Update Map-Daten (wie Minecraft Maps) - rechteckig 256x128
+     * Rendert den Spieler-Marker auf der Map
      */
-    private void updateMapData(Level level, BlockPos center) {
-        int rangeX = MAP_WIDTH / 2;  // 128 Blöcke in X-Richtung
-        int rangeZ = MAP_HEIGHT / 2; // 64 Blöcke in Z-Richtung
+    private void renderPlayerMarker(GuiGraphics guiGraphics, int x, int y, int width, int height, BlockPos playerPos) {
+        if (mapOriginX == Integer.MAX_VALUE) return; // Map noch nicht initialisiert
 
-        for (int x = 0; x < MAP_WIDTH; x++) {
-            for (int z = 0; z < MAP_HEIGHT; z++) {
-                int worldX = center.getX() - rangeX + x;
-                int worldZ = center.getZ() - rangeZ + z;
+        // Berechne Spieler-Position relativ zur Map
+        int mapX = playerPos.getX() - mapOriginX;
+        int mapZ = playerPos.getZ() - mapOriginZ;
 
-                int topY = level.getHeight(
-                    net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING,
-                    worldX, worldZ
-                );
+        // Prüfe ob Spieler innerhalb der Map ist
+        if (mapX < 0 || mapX >= MAP_WIDTH || mapZ < 0 || mapZ >= MAP_HEIGHT) {
+            return; // Spieler außerhalb der Map
+        }
 
-                BlockPos topPos = new BlockPos(worldX, topY - 1, worldZ);
-                int color = getMapColor(level, topPos);
+        float zoom = getCurrentZoom();
+        float scaleX = (float) width / MAP_WIDTH;
+        float scaleY = (float) height / MAP_HEIGHT;
+        float baseScale = Math.min(scaleX, scaleY);
+        float scale = baseScale * zoom;
 
-                mapColors[x + z * MAP_WIDTH] = (byte) color;
+        int renderWidth = (int) (MAP_WIDTH * scale);
+        int renderHeight = (int) (MAP_HEIGHT * scale);
+
+        int offsetX = (width - renderWidth) / 2 + panOffsetX;
+        int offsetY = (height - renderHeight) / 2 + panOffsetY;
+
+        int screenX = x + offsetX + (int) (mapX * scale);
+        int screenY = y + offsetY + (int) (mapZ * scale);
+
+        // Roter Spieler-Marker (8x8 Pixel)
+        guiGraphics.fill(screenX - 4, screenY - 4, screenX + 4, screenY + 4, 0xFFFF0000);
+    }
+
+    /**
+     * Update Map-Daten - nur geladene Chunks werden aktualisiert (Exploration System)
+     */
+    private void updateMapData(Level level, BlockPos playerPos) {
+        // Initialisiere Map-Origin beim ersten Öffnen (zentriert auf Spieler)
+        if (mapOriginX == Integer.MAX_VALUE) {
+            mapOriginX = playerPos.getX() - MAP_WIDTH / 2;
+            mapOriginZ = playerPos.getZ() - MAP_HEIGHT / 2;
+        }
+
+        // Nur Chunks in einem Radius um den Spieler prüfen (Performance)
+        // Update-Radius: 10 Chunks = 160 Blöcke
+        int updateRadius = 160;
+        int minX = Math.max(0, playerPos.getX() - mapOriginX - updateRadius);
+        int maxX = Math.min(MAP_WIDTH, playerPos.getX() - mapOriginX + updateRadius);
+        int minZ = Math.max(0, playerPos.getZ() - mapOriginZ - updateRadius);
+        int maxZ = Math.min(MAP_HEIGHT, playerPos.getZ() - mapOriginZ + updateRadius);
+
+        for (int x = minX; x < maxX; x++) {
+            for (int z = minZ; z < maxZ; z++) {
+                int worldX = mapOriginX + x;
+                int worldZ = mapOriginZ + z;
+
+                // Chunk-Koordinaten (Block >> 4 = Block / 16)
+                int chunkX = worldX >> 4;
+                int chunkZ = worldZ >> 4;
+
+                // Nur geladene Chunks updaten
+                if (level.hasChunk(chunkX, chunkZ)) {
+                    int topY = level.getHeight(
+                        net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING,
+                        worldX, worldZ
+                    );
+
+                    BlockPos topPos = new BlockPos(worldX, topY - 1, worldZ);
+                    int color = getMapColor(level, topPos);
+
+                    int index = x + z * MAP_WIDTH;
+                    mapColors[index] = (byte) color;
+                    exploredPixels[index] = true; // Markiere als erkundet
+                }
+                // Nicht geladene Chunks: Behalte alten Zustand (oder schwarz wenn nie erkundet)
             }
         }
     }
@@ -198,12 +257,12 @@ public class MapAppScreen extends Screen {
     }
 
     /**
-     * Rendert Map-Pixel auf den Bildschirm mit Zoom & Pan - rechteckige Map
+     * Rendert Map-Pixel auf den Bildschirm mit Zoom & Pan - nur erkundete Bereiche
      */
-    private void renderMapPixels(GuiGraphics guiGraphics, int x, int y, int width, int height) {
+    private void renderMapPixels(GuiGraphics guiGraphics, int x, int y, int width, int height, BlockPos playerPos) {
         float zoom = getCurrentZoom();
 
-        // Skalierung basierend auf Zoom - rechteckig
+        // Skalierung basierend auf Zoom
         float scaleX = (float) width / MAP_WIDTH;
         float scaleY = (float) height / MAP_HEIGHT;
         float baseScale = Math.min(scaleX, scaleY);
@@ -220,8 +279,14 @@ public class MapAppScreen extends Screen {
 
         for (int mapX = 0; mapX < MAP_WIDTH; mapX++) {
             for (int mapZ = 0; mapZ < MAP_HEIGHT; mapZ++) {
-                byte colorId = mapColors[mapX + mapZ * MAP_WIDTH];
+                int index = mapX + mapZ * MAP_WIDTH;
 
+                // Nur erkundete Bereiche anzeigen
+                if (!exploredPixels[index]) {
+                    continue; // Schwarz lassen (nicht erkundet)
+                }
+
+                byte colorId = mapColors[index];
                 if (colorId == 0) continue;
 
                 int color = getMaterialColor(colorId);
