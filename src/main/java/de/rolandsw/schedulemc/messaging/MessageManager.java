@@ -190,6 +190,25 @@ public class MessageManager {
     }
 
     /**
+     * Gets or creates a conversation (used for opening chats with NPCs/players)
+     */
+    public static Conversation getOrCreateConversation(UUID playerUUID, UUID participantUUID,
+                                                      String participantName, boolean isPlayerParticipant) {
+        playerConversations.computeIfAbsent(playerUUID, k -> new ConcurrentHashMap<>());
+        Map<UUID, Conversation> conversations = playerConversations.get(playerUUID);
+
+        Conversation conv = conversations.get(participantUUID);
+        if (conv == null) {
+            conv = new Conversation(participantUUID, participantName, isPlayerParticipant);
+            conversations.put(participantUUID, conv);
+            markDirty();
+            LOGGER.debug("Created new conversation: {} <-> {}", playerUUID, participantName);
+        }
+
+        return conv;
+    }
+
+    /**
      * Helper classes for JSON serialization
      */
     private static class ConversationData {

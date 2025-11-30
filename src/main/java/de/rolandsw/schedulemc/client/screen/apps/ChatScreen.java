@@ -116,22 +116,33 @@ public class ChatScreen extends Screen {
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         renderBackground(guiGraphics);
 
-        // Smartphone background
+        // Smartphone border (dark frame)
         guiGraphics.fill(leftPos - 5, topPos - 5, leftPos + WIDTH + 5, topPos + HEIGHT + 5, 0xFF1C1C1C);
-        guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + HEIGHT, 0xFF2A2A2A);
 
-        // Header with participant name and head
-        guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 40, 0xFF1A1A1A);
+        // WhatsApp chat wallpaper (light beige/cream)
+        guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + HEIGHT, 0xFFE7DDD3);
 
-        // Profile picture in header
-        int headSize = 24;
-        int headX = leftPos + 8;
-        int headY = topPos + 8;
-        HeadRenderer.renderPlayerHead(guiGraphics, headX, headY, headSize, null);
+        // WhatsApp green header (#075E54)
+        guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 40, 0xFF075E54);
 
-        // Name
+        // Back arrow
+        guiGraphics.drawString(this.font, "§f←", leftPos + 8, topPos + 14, 0xFFFFFFFF);
+
+        // Profile picture in header (circular)
+        int headSize = 28;
+        int headX = leftPos + 25;
+        int headY = topPos + 6;
+
+        // Circular background for profile picture
+        drawCircle(guiGraphics, headX + headSize/2, headY + headSize/2, headSize/2, 0xFFDFDFDF);
+        HeadRenderer.renderPlayerHead(guiGraphics, headX + 2, headY + 2, headSize - 4, null);
+
+        // Name (white, bold)
         String displayName = conversation.getParticipantName();
-        guiGraphics.drawString(this.font, "§6§l" + displayName, headX + headSize + 8, topPos + 14, 0xFFFFFF);
+        guiGraphics.drawString(this.font, "§f§l" + displayName, headX + headSize + 8, topPos + 12, 0xFFFFFFFF);
+
+        // Online status (small text below name)
+        guiGraphics.drawString(this.font, "§7online", headX + headSize + 8, topPos + 24, 0xFFCCCCCC);
 
         // Messages area
         int messagesY = topPos + 45;
@@ -140,6 +151,14 @@ public class ChatScreen extends Screen {
         renderMessages(guiGraphics, messagesY, messagesHeight);
 
         super.render(guiGraphics, mouseX, mouseY, partialTick);
+    }
+
+    private void drawCircle(GuiGraphics guiGraphics, int centerX, int centerY, int radius, int color) {
+        // Simple circle approximation using filled rectangles
+        for (int dy = -radius; dy <= radius; dy++) {
+            int width = (int) Math.sqrt(radius * radius - dy * dy);
+            guiGraphics.fill(centerX - width, centerY + dy, centerX + width, centerY + dy + 1, color);
+        }
     }
 
     private void renderMessages(GuiGraphics guiGraphics, int startY, int height) {
@@ -169,32 +188,87 @@ public class ChatScreen extends Screen {
             message.getSenderUUID().equals(minecraft.player.getUUID());
 
         String content = message.getContent();
-        int maxWidth = WIDTH - 60;
+        int maxWidth = WIDTH - 70;
 
         // Word wrap
         List<String> lines = wrapText(content, maxWidth);
-        int msgHeight = lines.size() * 10 + 10;
+
+        // Calculate bubble size
+        int maxLineWidth = 0;
+        for (String line : lines) {
+            maxLineWidth = Math.max(maxLineWidth, this.font.width(line));
+        }
+
+        int padding = 8;
+        int msgWidth = Math.min(maxWidth, maxLineWidth + padding * 2 + 20); // Extra space for timestamp
+        int msgHeight = lines.size() * 10 + padding * 2 + 6; // Extra space for timestamp
+
+        // Get timestamp
+        String timeStr = getMessageTime(message.getTimestamp());
+        int timeWidth = this.font.width(timeStr);
 
         if (isSentByMe) {
-            // Right-aligned (sent messages) - green
-            int msgWidth = Math.min(maxWidth, this.font.width(content) + 10);
-            int msgX = leftPos + WIDTH - msgWidth - 10;
+            // Right-aligned (sent messages) - WhatsApp green (#DCF8C6)
+            int msgX = leftPos + WIDTH - msgWidth - 8;
 
-            guiGraphics.fill(msgX, y, msgX + msgWidth, y + msgHeight, 0xFF2D5016);
+            // Message bubble with rounded corner effect
+            drawRoundedBubble(guiGraphics, msgX, y, msgWidth, msgHeight, 0xFFDCF8C6);
 
+            // Message text (black)
             for (int i = 0; i < lines.size(); i++) {
-                guiGraphics.drawString(this.font, "§f" + lines.get(i), msgX + 5, y + 5 + (i * 10), 0xFFFFFF);
+                guiGraphics.drawString(this.font, "§0" + lines.get(i), msgX + padding, y + padding + (i * 10), 0xFF000000);
             }
+
+            // Timestamp (bottom right, small, gray)
+            guiGraphics.drawString(this.font, "§8" + timeStr,
+                msgX + msgWidth - timeWidth - padding,
+                y + msgHeight - 10, 0xFF888888);
+
         } else {
-            // Left-aligned (received messages) - dark gray
-            int msgWidth = Math.min(maxWidth, this.font.width(content) + 10);
-            int msgX = leftPos + 10;
+            // Left-aligned (received messages) - White
+            int msgX = leftPos + 8;
 
-            guiGraphics.fill(msgX, y, msgX + msgWidth, y + msgHeight, 0xFF3A3A3A);
+            // Message bubble with rounded corner effect
+            drawRoundedBubble(guiGraphics, msgX, y, msgWidth, msgHeight, 0xFFFFFFFF);
 
+            // Message text (black)
             for (int i = 0; i < lines.size(); i++) {
-                guiGraphics.drawString(this.font, "§f" + lines.get(i), msgX + 5, y + 5 + (i * 10), 0xFFFFFF);
+                guiGraphics.drawString(this.font, "§0" + lines.get(i), msgX + padding, y + padding + (i * 10), 0xFF000000);
             }
+
+            // Timestamp (bottom right, small, gray)
+            guiGraphics.drawString(this.font, "§8" + timeStr,
+                msgX + msgWidth - timeWidth - padding,
+                y + msgHeight - 10, 0xFF888888);
+        }
+    }
+
+    private void drawRoundedBubble(GuiGraphics guiGraphics, int x, int y, int width, int height, int color) {
+        // Main rectangle
+        guiGraphics.fill(x + 2, y, x + width - 2, y + height, color);
+        guiGraphics.fill(x, y + 2, x + width, y + height - 2, color);
+
+        // Corners (simple approximation)
+        guiGraphics.fill(x + 1, y + 1, x + 2, y + 2, color);
+        guiGraphics.fill(x + width - 2, y + 1, x + width - 1, y + 2, color);
+        guiGraphics.fill(x + 1, y + height - 2, x + 2, y + height - 1, color);
+        guiGraphics.fill(x + width - 2, y + height - 2, x + width - 1, y + height - 1, color);
+    }
+
+    private String getMessageTime(long timestamp) {
+        long now = System.currentTimeMillis();
+        long diff = now - timestamp;
+
+        long seconds = diff / 1000;
+        long minutes = seconds / 60;
+        long hours = minutes / 60;
+
+        if (hours > 0) {
+            return String.format("%02d:%02d", hours % 24, minutes % 60);
+        } else if (minutes > 0) {
+            return minutes + "m";
+        } else {
+            return "now";
         }
     }
 

@@ -66,22 +66,30 @@ public class MessagesAppScreen extends Screen {
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         renderBackground(guiGraphics);
 
-        // Smartphone-Hintergrund
+        // Smartphone border (dark frame)
         guiGraphics.fill(leftPos - 5, topPos - 5, leftPos + WIDTH + 5, topPos + HEIGHT + 5, 0xFF1C1C1C);
-        guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + HEIGHT, 0xFF2A2A2A);
 
-        // Header
-        guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 30, 0xFF1A1A1A);
-        guiGraphics.drawCenteredString(this.font, "§6§lNachrichten", leftPos + WIDTH / 2, topPos + 12, 0xFFFFFF);
+        // WhatsApp background (light gray/white)
+        guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + HEIGHT, 0xFFECE5DD);
+
+        // WhatsApp green header (#075E54)
+        guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 35, 0xFF075E54);
+
+        // Header title in white
+        guiGraphics.drawString(this.font, "§fWhatsApp", leftPos + 10, topPos + 13, 0xFFFFFFFF);
 
         // Content area
         int contentY = topPos + 40;
-        int contentHeight = HEIGHT - 80; // Space for header and back button
+        int contentHeight = HEIGHT - 80;
 
         if (conversations == null || conversations.isEmpty()) {
-            guiGraphics.drawCenteredString(this.font, "§7Keine Nachrichten", leftPos + WIDTH / 2, contentY + 40, 0xFFFFFF);
+            // Empty state
+            guiGraphics.fill(leftPos, contentY, leftPos + WIDTH, contentY + 60, 0xFFFFFFFF);
+            guiGraphics.drawCenteredString(this.font, "§8Keine Chats", leftPos + WIDTH / 2, contentY + 20, 0xFF666666);
+            guiGraphics.drawCenteredString(this.font, "§7Tippe einen Spieler an,", leftPos + WIDTH / 2, contentY + 32, 0xFF999999);
+            guiGraphics.drawCenteredString(this.font, "§7um zu chatten", leftPos + WIDTH / 2, contentY + 42, 0xFF999999);
         } else {
-            // Render conversation list (WhatsApp style)
+            // Render conversation list
             for (int i = 0; i < conversations.size(); i++) {
                 int itemY = contentY + (i * CHAT_ITEM_HEIGHT) - scrollOffset;
 
@@ -90,7 +98,7 @@ public class MessagesAppScreen extends Screen {
                     continue;
                 }
 
-                renderConversationItem(guiGraphics, conversations.get(i), leftPos + 5, itemY, mouseX, mouseY);
+                renderConversationItem(guiGraphics, conversations.get(i), leftPos, itemY, mouseX, mouseY);
             }
         }
 
@@ -98,55 +106,96 @@ public class MessagesAppScreen extends Screen {
     }
 
     private void renderConversationItem(GuiGraphics guiGraphics, Conversation conversation, int x, int y, int mouseX, int mouseY) {
-        int itemWidth = WIDTH - 10;
+        int itemWidth = WIDTH;
 
         // Check if mouse is hovering
         boolean isHovering = mouseX >= x && mouseX <= x + itemWidth && mouseY >= y && mouseY <= y + CHAT_ITEM_HEIGHT;
 
-        // Background
-        int bgColor = isHovering ? 0xFF3A3A3A : 0xFF2A2A2A;
+        // WhatsApp-style background (white with hover)
+        int bgColor = isHovering ? 0xFFF5F5F5 : 0xFFFFFFFF;
         guiGraphics.fill(x, y, x + itemWidth, y + CHAT_ITEM_HEIGHT, bgColor);
 
-        // Separator line
-        guiGraphics.fill(x, y + CHAT_ITEM_HEIGHT - 1, x + itemWidth, y + CHAT_ITEM_HEIGHT, 0xFF1A1A1A);
+        // Bottom border line (light gray)
+        guiGraphics.fill(x + 70, y + CHAT_ITEM_HEIGHT - 1, x + itemWidth, y + CHAT_ITEM_HEIGHT, 0xFFE0E0E0);
 
-        // Profile picture (head)
-        int headSize = 32;
-        int headX = x + 8;
+        // Profile picture (circular)
+        int headSize = 40;
+        int headX = x + 12;
         int headY = y + (CHAT_ITEM_HEIGHT - headSize) / 2;
 
+        // Circular background for profile picture (gray circle)
+        drawCircle(guiGraphics, headX + headSize/2, headY + headSize/2, headSize/2, 0xFFDFDFDF);
+
+        // Render head
         if (conversation.isPlayerParticipant()) {
-            // Render player head
-            HeadRenderer.renderPlayerHead(guiGraphics, headX, headY, headSize, null);
+            HeadRenderer.renderPlayerHead(guiGraphics, headX + 4, headY + 4, headSize - 8, null);
         } else {
-            // Render NPC head (we'll need to get skin filename from NPC data)
-            HeadRenderer.renderPlayerHead(guiGraphics, headX, headY, headSize, null);
+            HeadRenderer.renderPlayerHead(guiGraphics, headX + 4, headY + 4, headSize - 8, null);
         }
 
-        // Name and message preview
-        int textX = headX + headSize + 8;
-        int nameY = y + 8;
-        int previewY = y + 24;
+        // Text area
+        int textX = headX + headSize + 12;
+        int nameY = y + 10;
+        int previewY = y + 26;
+        int timeY = y + 10;
 
-        // Name
+        // Name (black, bold)
         String displayName = conversation.getParticipantName();
-        guiGraphics.drawString(this.font, "§f§l" + displayName, textX, nameY, 0xFFFFFF);
+        if (displayName.length() > 15) {
+            displayName = displayName.substring(0, 12) + "...";
+        }
+        guiGraphics.drawString(this.font, "§0§l" + displayName, textX, nameY, 0xFF000000);
 
-        // Message preview
+        // Message preview (gray)
         String preview = conversation.getPreviewText();
-        guiGraphics.drawString(this.font, "§7" + preview, textX, previewY, 0xAAAAAA);
+        if (preview.length() > 25) {
+            preview = preview.substring(0, 22) + "...";
+        }
+        guiGraphics.drawString(this.font, "§8" + preview, textX, previewY, 0xFF667781);
+
+        // Timestamp (top right, small gray text)
+        String timeStr = getTimeString(conversation.getLastMessageTime());
+        int timeWidth = this.font.width(timeStr);
+        guiGraphics.drawString(this.font, "§8" + timeStr, x + itemWidth - timeWidth - 10, timeY, 0xFF667781);
+    }
+
+    private void drawCircle(GuiGraphics guiGraphics, int centerX, int centerY, int radius, int color) {
+        // Simple circle approximation using filled rectangles
+        for (int dy = -radius; dy <= radius; dy++) {
+            int width = (int) Math.sqrt(radius * radius - dy * dy);
+            guiGraphics.fill(centerX - width, centerY + dy, centerX + width, centerY + dy + 1, color);
+        }
+    }
+
+    private String getTimeString(long timestamp) {
+        long now = System.currentTimeMillis();
+        long diff = now - timestamp;
+
+        long seconds = diff / 1000;
+        long minutes = seconds / 60;
+        long hours = minutes / 60;
+        long days = hours / 24;
+
+        if (days > 0) {
+            return days + "d";
+        } else if (hours > 0) {
+            return hours + "h";
+        } else if (minutes > 0) {
+            return minutes + "m";
+        } else {
+            return "now";
+        }
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button == 0 && conversations != null) { // Left click
             int contentY = topPos + 40;
-            int contentHeight = HEIGHT - 80;
 
             for (int i = 0; i < conversations.size(); i++) {
                 int itemY = contentY + (i * CHAT_ITEM_HEIGHT) - scrollOffset;
-                int itemX = leftPos + 5;
-                int itemWidth = WIDTH - 10;
+                int itemX = leftPos;
+                int itemWidth = WIDTH;
 
                 if (mouseX >= itemX && mouseX <= itemX + itemWidth &&
                     mouseY >= itemY && mouseY <= itemY + CHAT_ITEM_HEIGHT) {

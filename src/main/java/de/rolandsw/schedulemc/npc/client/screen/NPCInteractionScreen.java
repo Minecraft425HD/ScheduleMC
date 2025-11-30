@@ -2,6 +2,9 @@ package de.rolandsw.schedulemc.npc.client.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import de.rolandsw.schedulemc.ScheduleMC;
+import de.rolandsw.schedulemc.client.screen.apps.ChatScreen;
+import de.rolandsw.schedulemc.messaging.Conversation;
+import de.rolandsw.schedulemc.messaging.MessageManager;
 import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.menu.NPCInteractionMenu;
@@ -34,6 +37,7 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
     private Button dialogButton;
     private Button shopBuyButton;
     private Button shopSellButton;
+    private Button messageButton;
 
     private String currentDialogText = "";
 
@@ -55,15 +59,20 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
             openDialog();
         }).bounds(x + 8, y + 30, 160, 20).build());
 
+        // Nachricht Button (WhatsApp chat)
+        messageButton = addRenderableWidget(Button.builder(Component.literal("📱 Nachricht"), button -> {
+            openMessage();
+        }).bounds(x + 8, y + 52, 160, 20).build());
+
         // Shop Verkaufen Button
         shopSellButton = addRenderableWidget(Button.builder(Component.literal("Verkaufen"), button -> {
             openShopSell();
-        }).bounds(x + 8, y + 54, 78, 20).build());
+        }).bounds(x + 8, y + 74, 78, 20).build());
 
         // Shop Kaufen Button
         shopBuyButton = addRenderableWidget(Button.builder(Component.literal("Kaufen"), button -> {
             openShopBuy();
-        }).bounds(x + 90, y + 54, 78, 20).build());
+        }).bounds(x + 90, y + 74, 78, 20).build());
 
         // Lade initialen Dialog
         loadCurrentDialog();
@@ -95,6 +104,25 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
             // Nächsten Dialog laden
             npc.getNpcData().nextDialog();
             loadCurrentDialog();
+        }
+    }
+
+    /**
+     * Öffnet Nachricht (WhatsApp chat)
+     */
+    private void openMessage() {
+        CustomNPCEntity npc = menu.getNpc();
+        if (npc != null && minecraft != null && minecraft.player != null) {
+            // Get or create conversation with this NPC
+            Conversation conversation = MessageManager.getOrCreateConversation(
+                minecraft.player.getUUID(),
+                npc.getUUID(),
+                npc.getNpcName(),
+                false // NPC, not player
+            );
+
+            // Open chat screen
+            minecraft.setScreen(new ChatScreen(this, conversation));
         }
     }
 
