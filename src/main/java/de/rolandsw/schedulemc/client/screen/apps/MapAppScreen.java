@@ -28,10 +28,22 @@ public class MapAppScreen extends Screen {
     private int leftPos;
     private int topPos;
 
-    // Einfache Pixel-basierte Karte
-    private byte[] mapColors = new byte[128 * 128]; // Wie Minecraft Maps (128x128)
+    // Karte: 192x192 statt 128x128 für bessere Abdeckung
+    private static final int MAP_SIZE = 192;
+    private byte[] mapColors = new byte[MAP_SIZE * MAP_SIZE];
     private int updateCounter = 0;
     private static final int UPDATE_INTERVAL = 20; // Update alle 20 Ticks (1 Sekunde)
+
+    // Zoom & Pan
+    private static final float[] ZOOM_LEVELS = {0.5f, 1.0f, 2.0f, 4.0f};
+    private int currentZoomIndex = 1; // Standard: 1.0x
+    private int panOffsetX = 0;
+    private int panOffsetY = 0;
+
+    // Drag-to-Pan
+    private boolean isDragging = false;
+    private int lastMouseX = 0;
+    private int lastMouseY = 0;
 
     public MapAppScreen(Screen parent) {
         super(Component.literal("Map"));
@@ -56,6 +68,32 @@ public class MapAppScreen extends Screen {
                 minecraft.setScreen(parentScreen);
             }
         }).bounds(leftPos + 10, topPos + HEIGHT - 30, 80, 20).build());
+
+        // Zoom Out Button
+        addRenderableWidget(Button.builder(Component.literal("-"), button -> {
+            zoomOut();
+        }).bounds(leftPos + WIDTH - 60, topPos + HEIGHT - 30, 25, 20).build());
+
+        // Zoom In Button
+        addRenderableWidget(Button.builder(Component.literal("+"), button -> {
+            zoomIn();
+        }).bounds(leftPos + WIDTH - 30, topPos + HEIGHT - 30, 25, 20).build());
+    }
+
+    private void zoomIn() {
+        if (currentZoomIndex < ZOOM_LEVELS.length - 1) {
+            currentZoomIndex++;
+        }
+    }
+
+    private void zoomOut() {
+        if (currentZoomIndex > 0) {
+            currentZoomIndex--;
+        }
+    }
+
+    private float getCurrentZoom() {
+        return ZOOM_LEVELS[currentZoomIndex];
     }
 
     @Override
@@ -70,6 +108,11 @@ public class MapAppScreen extends Screen {
         // Header
         guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 30, 0xFF1A1A1A);
         guiGraphics.drawString(this.font, "§6§lMap", leftPos + 10, topPos + 12, 0xFFFFFF);
+
+        // Zoom-Anzeige
+        String zoomText = String.format("%.1fx", getCurrentZoom());
+        guiGraphics.drawString(this.font, "§7Zoom: " + zoomText,
+                              leftPos + WIDTH - 70, topPos + 12, 0xFFFFFF);
 
         // Haupt-Kartenbereich
         int mapAreaX = leftPos + 10;
@@ -115,13 +158,13 @@ public class MapAppScreen extends Screen {
     }
 
     /**
-     * Update Map-Daten (wie Minecraft Maps)
+     * Update Map-Daten (wie Minecraft Maps) - jetzt 192x192
      */
     private void updateMapData(Level level, BlockPos center) {
-        int range = 64; // 64 Blöcke in jede Richtung = 128x128 wie Minecraft Map
+        int range = MAP_SIZE / 2; // 96 Blöcke in jede Richtung
 
-        for (int x = 0; x < 128; x++) {
-            for (int z = 0; z < 128; z++) {
+        for (int x = 0; x < MAP_SIZE; x++) {
+            for (int z = 0; z < MAP_SIZE; z++) {
                 int worldX = center.getX() - range + x;
                 int worldZ = center.getZ() - range + z;
 
@@ -133,7 +176,7 @@ public class MapAppScreen extends Screen {
                 BlockPos topPos = new BlockPos(worldX, topY - 1, worldZ);
                 int color = getMapColor(level, topPos);
 
-                mapColors[x + z * 128] = (byte) color;
+                mapColors[x + z * MAP_SIZE] = (byte) color;
             }
         }
     }
@@ -153,22 +196,27 @@ public class MapAppScreen extends Screen {
     }
 
     /**
-     * Rendert Map-Pixel auf den Bildschirm
+     * Rendert Map-Pixel auf den Bildschirm mit Zoom & Pan
      */
     private void renderMapPixels(GuiGraphics guiGraphics, int x, int y, int width, int height) {
-        // Skaliere die 128x128 Map auf den verfügbaren Platz
-        float scaleX = (float) width / 128.0f;
-        float scaleY = (float) height / 128.0f;
-        float scale = Math.min(scaleX, scaleY);
+        float zoom = getCurrentZoom();
 
-        int renderWidth = (int) (128 * scale);
-        int renderHeight = (int) (128 * scale);
-        int offsetX = (width - renderWidth) / 2;
-        int offsetY = (height - renderHeight) / 2;
+        // Skalierung basierend auf Zoom
+        float baseScale = Math.min((float) width / MAP_SIZE, (float) height / MAP_SIZE);
+        float scale = baseScale * zoom;
 
-        for (int mapX = 0; mapX < 128; mapX++) {
-            for (int mapZ = 0; mapZ < 128; mapZ++) {
-                byte colorId = mapColors[mapX + mapZ * 128];
+        int renderWidth = (int) (MAP_SIZE * scale);
+        int renderHeight = (int) (MAP_SIZE * scale);
+
+        // Pan-Offset anwenden
+        int offsetX = (width - renderWidth) / 2 + panOffsetX;
+        int offsetY = (height - renderHeight) / 2 + panOffsetY;
+
+        int pixelSize = Math.max(1, (int) scale);
+
+        for (int mapX = 0; mapX < MAP_SIZE; mapX++) {
+            for (int mapZ = 0; mapZ < MAP_SIZE; mapZ++) {
+                byte colorId = mapColors[mapX + mapZ * MAP_SIZE];
 
                 if (colorId == 0) continue;
 
@@ -176,7 +224,12 @@ public class MapAppScreen extends Screen {
 
                 int screenX = x + offsetX + (int) (mapX * scale);
                 int screenY = y + offsetY + (int) (mapZ * scale);
-                int pixelSize = Math.max(1, (int) scale);
+
+                // Clipping: Nur rendern wenn sichtbar
+                if (screenX + pixelSize < x || screenX > x + width ||
+                    screenY + pixelSize < y || screenY > y + height) {
+                    continue;
+                }
 
                 guiGraphics.fill(screenX, screenY,
                                screenX + pixelSize, screenY + pixelSize, color);
@@ -231,6 +284,58 @@ public class MapAppScreen extends Screen {
             case 38: return 0xFFB24CD8; // TERRACOTTA_MAGENTA
             default: return 0xFF808080; // Default grau
         }
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        // Linke Maustaste: Start Dragging
+        if (button == 0) {
+            isDragging = true;
+            lastMouseX = (int) mouseX;
+            lastMouseY = (int) mouseY;
+            return true;
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        // Stop Dragging
+        if (button == 0) {
+            isDragging = false;
+            return true;
+        }
+        return super.mouseReleased(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        if (isDragging && button == 0) {
+            int deltaX = (int) mouseX - lastMouseX;
+            int deltaY = (int) mouseY - lastMouseY;
+
+            panOffsetX += deltaX;
+            panOffsetY += deltaY;
+
+            lastMouseX = (int) mouseX;
+            lastMouseY = (int) mouseY;
+
+            return true;
+        }
+        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        // Scroll zum Zoomen
+        if (scrollY > 0) {
+            zoomIn();
+            return true;
+        } else if (scrollY < 0) {
+            zoomOut();
+            return true;
+        }
+        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 
     @Override
