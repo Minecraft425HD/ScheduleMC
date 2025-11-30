@@ -202,8 +202,15 @@ public class MapAppScreen extends Screen {
      * Update Map-Daten - Chunk-basiert für unbegrenzte Exploration
      */
     private void updateMapData(Level level, BlockPos playerPos) {
-        // Update-Radius: 10 Chunks = 160 Blöcke um den Spieler
-        int chunkRadius = 10;
+        updateMapDataStatic(level, playerPos);
+    }
+
+    /**
+     * Static Version für Background-Updates (kann von außen aufgerufen werden)
+     */
+    public static void updateMapDataStatic(Level level, BlockPos playerPos) {
+        // Update-Radius: 5 Chunks = 80 Blöcke um den Spieler (für Background-Updates)
+        int chunkRadius = 5;
         int playerChunkX = playerPos.getX() >> 4;
         int playerChunkZ = playerPos.getZ() >> 4;
 
@@ -217,7 +224,7 @@ public class MapAppScreen extends Screen {
                 }
 
                 // Hole oder erstelle Chunk-Daten
-                long chunkKey = getChunkKey(chunkX, chunkZ);
+                long chunkKey = getChunkKeyStatic(chunkX, chunkZ);
                 byte[] chunkData = exploredChunks.get(chunkKey);
 
                 if (chunkData == null) {
@@ -237,7 +244,7 @@ public class MapAppScreen extends Screen {
                         );
 
                         BlockPos topPos = new BlockPos(worldX, topY - 1, worldZ);
-                        int color = getMapColor(level, topPos);
+                        int color = getMapColorStatic(level, topPos);
 
                         chunkData[localX + localZ * CHUNK_SIZE] = (byte) color;
                     }
@@ -250,6 +257,10 @@ public class MapAppScreen extends Screen {
      * Erstellt einen eindeutigen Key für Chunk-Koordinaten
      */
     private long getChunkKey(int chunkX, int chunkZ) {
+        return getChunkKeyStatic(chunkX, chunkZ);
+    }
+
+    private static long getChunkKeyStatic(int chunkX, int chunkZ) {
         return ((long) chunkX << 32) | (chunkZ & 0xFFFFFFFFL);
     }
 
@@ -257,6 +268,10 @@ public class MapAppScreen extends Screen {
      * Holt MapColor-ID wie Minecraft es macht
      */
     private int getMapColor(Level level, BlockPos pos) {
+        return getMapColorStatic(level, pos);
+    }
+
+    private static int getMapColorStatic(Level level, BlockPos pos) {
         var state = level.getBlockState(pos);
         var mapColor = state.getMapColor(level, pos);
 

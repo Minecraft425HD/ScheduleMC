@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import de.rolandsw.schedulemc.ScheduleMC;
+import de.rolandsw.schedulemc.client.screen.apps.MapAppScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
@@ -11,6 +12,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -33,11 +35,37 @@ public class MinimapOverlay {
     private static BlockPos lastCachePos = BlockPos.ZERO;
     private static int tickCounter = 0;
 
+    // Map-Update Counter (für Background-Updates)
+    private static int mapUpdateCounter = 0;
+    private static final int MAP_UPDATE_INTERVAL = 40; // Update Map alle 40 Ticks (2 Sekunden)
+
     @SubscribeEvent
     public static void onRenderGuiOverlay(RenderGuiOverlayEvent.Post event) {
         // TEMPORÄR DEAKTIVIERT - Performance-Probleme
         // TODO: Später wieder aktivieren mit besserer Implementierung
         return;
+    }
+
+    /**
+     * Background-Update für Map-Daten - läuft kontinuierlich auch wenn Map geschlossen ist
+     */
+    @SubscribeEvent
+    public static void onClientTick(TickEvent.ClientTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.level == null) return;
+
+        // Update Map alle 40 Ticks (2 Sekunden)
+        mapUpdateCounter++;
+        if (mapUpdateCounter >= MAP_UPDATE_INTERVAL) {
+            try {
+                MapAppScreen.updateMapDataStatic(mc.level, mc.player.blockPosition());
+            } catch (Exception e) {
+                // Fehler silent ignorieren - Map-Update ist nicht kritisch
+            }
+            mapUpdateCounter = 0;
+        }
     }
 
     private static void renderMinimap(GuiGraphics guiGraphics, Minecraft mc) {
