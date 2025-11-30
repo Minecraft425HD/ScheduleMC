@@ -16,6 +16,8 @@ import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.tobacco.network.ModNetworking;
 import de.rolandsw.schedulemc.economy.WalletManager;
 import de.rolandsw.schedulemc.client.network.SmartphoneNetworkHandler;
+import de.rolandsw.schedulemc.messaging.MessageManager;
+import de.rolandsw.schedulemc.messaging.network.MessageNetworkHandler;
 import de.rolandsw.schedulemc.economy.events.RespawnHandler;
 import de.rolandsw.schedulemc.region.PlotManager;
 import de.rolandsw.schedulemc.managers.*;
@@ -113,6 +115,7 @@ public class ScheduleMC {
             NPCNetworkHandler.register();
             ModNetworking.register();
             SmartphoneNetworkHandler.register();
+            MessageNetworkHandler.register();
         });
     }
 
@@ -141,6 +144,7 @@ public class ScheduleMC {
         WalletManager.load();
         de.rolandsw.schedulemc.npc.crime.CrimeManager.load();
         NPCNameRegistry.loadRegistry();
+        MessageManager.loadMessages();
     }
 
     @SubscribeEvent
@@ -156,6 +160,7 @@ public class ScheduleMC {
             RentManager.checkExpiredRents();
             WalletManager.saveIfNeeded();
             NPCNameRegistry.saveIfNeeded();
+            MessageManager.saveIfNeeded();
         }
     }
 
@@ -167,6 +172,7 @@ public class ScheduleMC {
         ShopManager.save();
         WalletManager.save();
         NPCNameRegistry.saveRegistry();
+        MessageManager.saveMessages();
     }
 
     @SubscribeEvent

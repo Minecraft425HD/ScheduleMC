@@ -2,6 +2,9 @@ package de.rolandsw.schedulemc.npc.client.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import de.rolandsw.schedulemc.ScheduleMC;
+import de.rolandsw.schedulemc.client.screen.apps.ChatScreen;
+import de.rolandsw.schedulemc.messaging.Conversation;
+import de.rolandsw.schedulemc.messaging.MessageManager;
 import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.menu.NPCInteractionMenu;
@@ -35,8 +38,6 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
     private Button shopBuyButton;
     private Button shopSellButton;
 
-    private String currentDialogText = "";
-
     public NPCInteractionScreen(NPCInteractionMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.imageWidth = 176;
@@ -50,9 +51,18 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
 
-        // Dialog Button
-        dialogButton = addRenderableWidget(Button.builder(Component.literal("Dialog"), button -> {
-            openDialog();
+        CustomNPCEntity npc = menu.getNpc();
+        boolean canMessage = npc != null &&
+            (npc.getNpcType() == NPCType.BEWOHNER || npc.getNpcType() == NPCType.VERKAEUFER);
+
+        // Dialog/Chat Button - opens chat for BEWOHNER and VERKAEUFER, dialog for others
+        String buttonLabel = canMessage ? "📱 Chat" : "Dialog";
+        dialogButton = addRenderableWidget(Button.builder(Component.literal(buttonLabel), button -> {
+            if (canMessage) {
+                openMessage();
+            } else {
+                openDialog();
+            }
         }).bounds(x + 8, y + 30, 160, 20).build());
 
         // Shop Verkaufen Button
@@ -64,20 +74,6 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
         shopBuyButton = addRenderableWidget(Button.builder(Component.literal("Kaufen"), button -> {
             openShopBuy();
         }).bounds(x + 90, y + 54, 78, 20).build());
-
-        // Lade initialen Dialog
-        loadCurrentDialog();
-    }
-
-    /**
-     * Lädt den aktuellen Dialog vom NPC
-     */
-    private void loadCurrentDialog() {
-        CustomNPCEntity npc = menu.getNpc();
-        if (npc != null) {
-            NPCData.DialogEntry dialog = npc.getNpcData().getCurrentDialog();
-            currentDialogText = dialog.getText();
-        }
     }
 
     /**
@@ -94,7 +90,25 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
 
             // Nächsten Dialog laden
             npc.getNpcData().nextDialog();
-            loadCurrentDialog();
+        }
+    }
+
+    /**
+     * Öffnet Nachricht (WhatsApp chat)
+     */
+    private void openMessage() {
+        CustomNPCEntity npc = menu.getNpc();
+        if (npc != null && minecraft != null && minecraft.player != null) {
+            // Get or create conversation with this NPC
+            Conversation conversation = MessageManager.getOrCreateConversation(
+                minecraft.player.getUUID(),
+                npc.getUUID(),
+                npc.getNpcName(),
+                false // NPC, not player
+            );
+
+            // Open chat screen
+            minecraft.setScreen(new ChatScreen(this, conversation));
         }
     }
 
@@ -152,38 +166,6 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
         CustomNPCEntity npc = menu.getNpc();
         if (npc != null) {
             guiGraphics.drawString(this.font, npc.getNpcName(), 8, 6, 0x404040, false);
-        }
-
-        // Dialog Text anzeigen
-        guiGraphics.drawString(this.font, "Dialog:", 8, 18, 0x404040, false);
-
-        // Mehrzeiliger Dialog-Text
-        if (!currentDialogText.isEmpty()) {
-            int maxWidth = imageWidth - 20;
-            int lineHeight = 10;
-            int startY = 78;
-
-            // Split text into lines
-            String[] words = currentDialogText.split(" ");
-            StringBuilder currentLine = new StringBuilder();
-            int currentY = startY;
-
-            for (String word : words) {
-                String testLine = currentLine.isEmpty() ? word : currentLine + " " + word;
-                if (font.width(testLine) > maxWidth) {
-                    guiGraphics.drawString(this.font, currentLine.toString(), 8, currentY, 0x404040, false);
-                    currentLine = new StringBuilder(word);
-                    currentY += lineHeight;
-                } else {
-                    currentLine = new StringBuilder(testLine);
-                }
-            }
-
-            if (currentLine.length() > 0) {
-                guiGraphics.drawString(this.font, currentLine.toString(), 8, currentY, 0x404040, false);
-            }
-        } else {
-            guiGraphics.drawString(this.font, "Kein Dialog verfügbar", 8, 78, 0x808080, false);
         }
     }
 }
