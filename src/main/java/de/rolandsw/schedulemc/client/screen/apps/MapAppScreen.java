@@ -326,16 +326,16 @@ public class MapAppScreen extends Screen {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
         // Scroll zum Zoomen
-        if (scrollY > 0) {
+        if (delta > 0) {
             zoomIn();
             return true;
-        } else if (scrollY < 0) {
+        } else if (delta < 0) {
             zoomOut();
             return true;
         }
-        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+        return super.mouseScrolled(mouseX, mouseY, delta);
     }
 
     @Override
