@@ -86,33 +86,20 @@ public class MinimapOverlay {
         BlockPos playerPos = mc.player.blockPosition();
         float playerYaw = mc.player.getYRot();
 
-        // KEINE eigene Cache-Berechnung mehr! Nutzt MapAppScreen.exploredChunks
-
-        PoseStack poseStack = guiGraphics.pose();
-        poseStack.pushPose();
-
-        // Rotation um Minimap-Zentrum
-        poseStack.translate(centerX, centerY, 0);
-        poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(playerYaw));
-        poseStack.translate(-centerX, -centerY, 0);
-
-        // Rendere direkt aus exploredChunks (rotiert)
+        // Rendere Map OHNE Rotation (Performance!)
         renderMapFromExploredChunks(guiGraphics, x, y, playerPos);
 
-        poseStack.popPose();
-
-        // Einfacher Rahmen statt teurer Kreismaske (Performance!)
+        // Einfacher Rahmen
         guiGraphics.fill(x - 1, y - 1, x + MINIMAP_SIZE + 1, y, 0xFFFFFFFF); // Top
         guiGraphics.fill(x - 1, y + MINIMAP_SIZE, x + MINIMAP_SIZE + 1, y + MINIMAP_SIZE + 1, 0xFFFFFFFF); // Bottom
         guiGraphics.fill(x - 1, y, x, y + MINIMAP_SIZE, 0xFFFFFFFF); // Left
         guiGraphics.fill(x + MINIMAP_SIZE, y, x + MINIMAP_SIZE + 1, y + MINIMAP_SIZE, 0xFFFFFFFF); // Right
 
-        // Himmelsrichtungen (nicht rotiert)
+        // Himmelsrichtungen (fixiert - N oben, S unten, O rechts, W links)
         renderCardinalDirections(guiGraphics, mc, centerX, centerY, MINIMAP_SIZE / 2);
 
-        // Spieler-Marker im Zentrum (nicht rotiert)
-        guiGraphics.fill(centerX - 2, centerY - 2, centerX + 2, centerY + 2, 0xFFFFFF00);
-        guiGraphics.fill(centerX - 1, centerY - 1, centerX + 1, centerY + 1, 0xFFFFFFFF);
+        // Spieler-Marker als DREIECK - zeigt in Laufrichtung
+        renderPlayerTriangle(guiGraphics, centerX, centerY, playerYaw);
     }
 
     /**
@@ -151,6 +138,87 @@ public class MinimapOverlay {
                 int pixelSize = Math.max(1, (int) pixelsPerBlock);
 
                 guiGraphics.fill(screenX, screenY, screenX + pixelSize, screenY + pixelSize, color);
+            }
+        }
+    }
+
+    /**
+     * Rendert Spieler als Dreieck das in Laufrichtung zeigt
+     */
+    private static void renderPlayerTriangle(GuiGraphics guiGraphics, int centerX, int centerY, float yaw) {
+        // Dreieck-Größe
+        int size = 5;
+
+        // Yaw zu Radians (0° = Süden in Minecraft, -90° = Osten, 90° = Westen, 180° = Norden)
+        // Wir wollen dass 0° nach Norden zeigt, also addieren wir 180°
+        double angle = Math.toRadians(yaw + 180);
+
+        // Dreieck-Punkte (Spitze zeigt nach oben/Norden bei angle=0)
+        // Spitze
+        int x1 = centerX + (int)(Math.sin(angle) * size);
+        int y1 = centerY - (int)(Math.cos(angle) * size);
+
+        // Linke Ecke
+        int x2 = centerX + (int)(Math.sin(angle + Math.toRadians(140)) * size);
+        int y2 = centerY - (int)(Math.cos(angle + Math.toRadians(140)) * size);
+
+        // Rechte Ecke
+        int x3 = centerX + (int)(Math.sin(angle - Math.toRadians(140)) * size);
+        int y3 = centerY - (int)(Math.cos(angle - Math.toRadians(140)) * size);
+
+        // Gelber Hintergrund (größer)
+        fillTriangle(guiGraphics, x1, y1, x2, y2, x3, y3, 0xFFFFFF00);
+
+        // Weißer Rand (kleiner)
+        int innerSize = size - 1;
+        x1 = centerX + (int)(Math.sin(angle) * innerSize);
+        y1 = centerY - (int)(Math.cos(angle) * innerSize);
+        x2 = centerX + (int)(Math.sin(angle + Math.toRadians(140)) * innerSize);
+        y2 = centerY - (int)(Math.cos(angle + Math.toRadians(140)) * innerSize);
+        x3 = centerX + (int)(Math.sin(angle - Math.toRadians(140)) * innerSize);
+        y3 = centerY - (int)(Math.cos(angle - Math.toRadians(140)) * innerSize);
+
+        fillTriangle(guiGraphics, x1, y1, x2, y2, x3, y3, 0xFFFFFFFF);
+    }
+
+    /**
+     * Füllt ein Dreieck (einfache Implementierung)
+     */
+    private static void fillTriangle(GuiGraphics guiGraphics, int x1, int y1, int x2, int y2, int x3, int y3, int color) {
+        // Zeichne Linien zwischen den Punkten (einfache Version)
+        drawLine(guiGraphics, x1, y1, x2, y2, color);
+        drawLine(guiGraphics, x2, y2, x3, y3, color);
+        drawLine(guiGraphics, x3, y3, x1, y1, color);
+
+        // Fülle das Dreieck grob (zentrierter Punkt)
+        int centerTriX = (x1 + x2 + x3) / 3;
+        int centerTriY = (y1 + y2 + y3) / 3;
+        guiGraphics.fill(centerTriX - 1, centerTriY - 1, centerTriX + 2, centerTriY + 2, color);
+    }
+
+    /**
+     * Zeichnet eine Linie zwischen zwei Punkten
+     */
+    private static void drawLine(GuiGraphics guiGraphics, int x1, int y1, int x2, int y2, int color) {
+        int dx = Math.abs(x2 - x1);
+        int dy = Math.abs(y2 - y1);
+        int sx = x1 < x2 ? 1 : -1;
+        int sy = y1 < y2 ? 1 : -1;
+        int err = dx - dy;
+
+        while (true) {
+            guiGraphics.fill(x1, y1, x1 + 1, y1 + 1, color);
+
+            if (x1 == x2 && y1 == y2) break;
+
+            int e2 = 2 * err;
+            if (e2 > -dy) {
+                err -= dy;
+                x1 += sx;
+            }
+            if (e2 < dx) {
+                err += dx;
+                y1 += sy;
             }
         }
     }
