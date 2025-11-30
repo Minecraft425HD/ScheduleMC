@@ -33,12 +33,14 @@ public class MapAppScreen extends Screen {
 
     // Chunk-basiertes Map-System für unbegrenzte Exploration
     // Jeder Chunk speichert 16x16 Block-Farben
+    // STATIC = bleibt zwischen Map-Öffnungen erhalten!
     private static final int CHUNK_SIZE = 16;
-    private final Map<Long, byte[]> exploredChunks = new HashMap<>(); // ChunkPos -> 16x16 Farben
+    private static final Map<Long, byte[]> exploredChunks = new HashMap<>(); // ChunkPos -> 16x16 Farben
 
     // View-Zentrum: Welche Welt-Koordinate wird im Zentrum der View angezeigt?
-    private int viewCenterWorldX = Integer.MAX_VALUE;
-    private int viewCenterWorldZ = Integer.MAX_VALUE;
+    // STATIC = Position bleibt gespeichert
+    private static int viewCenterWorldX = Integer.MAX_VALUE;
+    private static int viewCenterWorldZ = Integer.MAX_VALUE;
 
     private int updateCounter = 0;
     private static final int UPDATE_INTERVAL = 20; // Update alle 20 Ticks (1 Sekunde)
