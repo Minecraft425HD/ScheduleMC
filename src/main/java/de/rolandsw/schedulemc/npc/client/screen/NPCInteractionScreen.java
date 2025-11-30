@@ -37,9 +37,6 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
     private Button dialogButton;
     private Button shopBuyButton;
     private Button shopSellButton;
-    private Button messageButton;
-
-    private String currentDialogText = "";
 
     public NPCInteractionScreen(NPCInteractionMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -54,39 +51,29 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
 
-        // Dialog Button
-        dialogButton = addRenderableWidget(Button.builder(Component.literal("Dialog"), button -> {
-            openDialog();
-        }).bounds(x + 8, y + 30, 160, 20).build());
+        CustomNPCEntity npc = menu.getNpc();
+        boolean canMessage = npc != null &&
+            (npc.getNpcType() == NPCType.BEWOHNER || npc.getNpcType() == NPCType.VERKAEUFER);
 
-        // Nachricht Button (WhatsApp chat)
-        messageButton = addRenderableWidget(Button.builder(Component.literal("📱 Nachricht"), button -> {
-            openMessage();
-        }).bounds(x + 8, y + 52, 160, 20).build());
+        // Dialog/Chat Button - opens chat for BEWOHNER and VERKAEUFER, dialog for others
+        String buttonLabel = canMessage ? "📱 Chat" : "Dialog";
+        dialogButton = addRenderableWidget(Button.builder(Component.literal(buttonLabel), button -> {
+            if (canMessage) {
+                openMessage();
+            } else {
+                openDialog();
+            }
+        }).bounds(x + 8, y + 30, 160, 20).build());
 
         // Shop Verkaufen Button
         shopSellButton = addRenderableWidget(Button.builder(Component.literal("Verkaufen"), button -> {
             openShopSell();
-        }).bounds(x + 8, y + 74, 78, 20).build());
+        }).bounds(x + 8, y + 54, 78, 20).build());
 
         // Shop Kaufen Button
         shopBuyButton = addRenderableWidget(Button.builder(Component.literal("Kaufen"), button -> {
             openShopBuy();
-        }).bounds(x + 90, y + 74, 78, 20).build());
-
-        // Lade initialen Dialog
-        loadCurrentDialog();
-    }
-
-    /**
-     * Lädt den aktuellen Dialog vom NPC
-     */
-    private void loadCurrentDialog() {
-        CustomNPCEntity npc = menu.getNpc();
-        if (npc != null) {
-            NPCData.DialogEntry dialog = npc.getNpcData().getCurrentDialog();
-            currentDialogText = dialog.getText();
-        }
+        }).bounds(x + 90, y + 54, 78, 20).build());
     }
 
     /**
@@ -103,7 +90,6 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
 
             // Nächsten Dialog laden
             npc.getNpcData().nextDialog();
-            loadCurrentDialog();
         }
     }
 
@@ -180,38 +166,6 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
         CustomNPCEntity npc = menu.getNpc();
         if (npc != null) {
             guiGraphics.drawString(this.font, npc.getNpcName(), 8, 6, 0x404040, false);
-        }
-
-        // Dialog Text anzeigen
-        guiGraphics.drawString(this.font, "Dialog:", 8, 18, 0x404040, false);
-
-        // Mehrzeiliger Dialog-Text
-        if (!currentDialogText.isEmpty()) {
-            int maxWidth = imageWidth - 20;
-            int lineHeight = 10;
-            int startY = 78;
-
-            // Split text into lines
-            String[] words = currentDialogText.split(" ");
-            StringBuilder currentLine = new StringBuilder();
-            int currentY = startY;
-
-            for (String word : words) {
-                String testLine = currentLine.isEmpty() ? word : currentLine + " " + word;
-                if (font.width(testLine) > maxWidth) {
-                    guiGraphics.drawString(this.font, currentLine.toString(), 8, currentY, 0x404040, false);
-                    currentLine = new StringBuilder(word);
-                    currentY += lineHeight;
-                } else {
-                    currentLine = new StringBuilder(testLine);
-                }
-            }
-
-            if (currentLine.length() > 0) {
-                guiGraphics.drawString(this.font, currentLine.toString(), 8, currentY, 0x404040, false);
-            }
-        } else {
-            guiGraphics.drawString(this.font, "Kein Dialog verfügbar", 8, 78, 0x808080, false);
         }
     }
 }

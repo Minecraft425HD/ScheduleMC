@@ -75,8 +75,8 @@ public class MessagesAppScreen extends Screen {
         // WhatsApp green header (#075E54)
         guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 35, 0xFF075E54);
 
-        // Header title in white
-        guiGraphics.drawString(this.font, "§fWhatsApp", leftPos + 10, topPos + 13, 0xFFFFFFFF);
+        // Header title in white - no shadow
+        guiGraphics.drawString(this.font, "WhatsApp", leftPos + 10, topPos + 13, 0xFFFFFFFF, false);
 
         // Content area
         int contentY = topPos + 40;
@@ -118,20 +118,13 @@ public class MessagesAppScreen extends Screen {
         // Bottom border line (light gray)
         guiGraphics.fill(x + 70, y + CHAT_ITEM_HEIGHT - 1, x + itemWidth, y + CHAT_ITEM_HEIGHT, 0xFFE0E0E0);
 
-        // Profile picture (circular)
-        int headSize = 40;
+        // Profile picture
+        int headSize = 32;
         int headX = x + 12;
         int headY = y + (CHAT_ITEM_HEIGHT - headSize) / 2;
 
-        // Circular background for profile picture (gray circle)
-        drawCircle(guiGraphics, headX + headSize/2, headY + headSize/2, headSize/2, 0xFFDFDFDF);
-
-        // Render head
-        if (conversation.isPlayerParticipant()) {
-            HeadRenderer.renderPlayerHead(guiGraphics, headX + 4, headY + 4, headSize - 8, null);
-        } else {
-            HeadRenderer.renderPlayerHead(guiGraphics, headX + 4, headY + 4, headSize - 8, null);
-        }
+        // Render head directly without circle background
+        HeadRenderer.renderPlayerHead(guiGraphics, headX, headY, headSize, null);
 
         // Text area
         int textX = headX + headSize + 12;
@@ -139,32 +132,24 @@ public class MessagesAppScreen extends Screen {
         int previewY = y + 26;
         int timeY = y + 10;
 
-        // Name (black, bold)
+        // Name (black, bold) - no shadow
         String displayName = conversation.getParticipantName();
         if (displayName.length() > 15) {
             displayName = displayName.substring(0, 12) + "...";
         }
-        guiGraphics.drawString(this.font, "§0§l" + displayName, textX, nameY, 0xFF000000);
+        guiGraphics.drawString(this.font, displayName, textX, nameY, 0xFF000000, false);
 
-        // Message preview (gray)
+        // Message preview (gray) - no shadow
         String preview = conversation.getPreviewText();
         if (preview.length() > 25) {
             preview = preview.substring(0, 22) + "...";
         }
-        guiGraphics.drawString(this.font, "§8" + preview, textX, previewY, 0xFF667781);
+        guiGraphics.drawString(this.font, preview, textX, previewY, 0xFF667781, false);
 
-        // Timestamp (top right, small gray text)
+        // Timestamp (top right, small gray text) - no shadow
         String timeStr = getTimeString(conversation.getLastMessageTime());
         int timeWidth = this.font.width(timeStr);
-        guiGraphics.drawString(this.font, "§8" + timeStr, x + itemWidth - timeWidth - 10, timeY, 0xFF667781);
-    }
-
-    private void drawCircle(GuiGraphics guiGraphics, int centerX, int centerY, int radius, int color) {
-        // Simple circle approximation using filled rectangles
-        for (int dy = -radius; dy <= radius; dy++) {
-            int width = (int) Math.sqrt(radius * radius - dy * dy);
-            guiGraphics.fill(centerX - width, centerY + dy, centerX + width, centerY + dy + 1, color);
-        }
+        guiGraphics.drawString(this.font, timeStr, x + itemWidth - timeWidth - 10, timeY, 0xFF667781, false);
     }
 
     private String getTimeString(long timestamp) {

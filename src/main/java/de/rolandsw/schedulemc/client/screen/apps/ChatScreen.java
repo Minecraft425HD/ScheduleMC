@@ -126,23 +126,22 @@ public class ChatScreen extends Screen {
         guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 40, 0xFF075E54);
 
         // Back arrow
-        guiGraphics.drawString(this.font, "§f←", leftPos + 8, topPos + 14, 0xFFFFFFFF);
+        guiGraphics.drawString(this.font, "←", leftPos + 8, topPos + 14, 0xFFFFFFFF, false);
 
-        // Profile picture in header (circular)
+        // Profile picture in header
         int headSize = 28;
         int headX = leftPos + 25;
         int headY = topPos + 6;
 
-        // Circular background for profile picture
-        drawCircle(guiGraphics, headX + headSize/2, headY + headSize/2, headSize/2, 0xFFDFDFDF);
-        HeadRenderer.renderPlayerHead(guiGraphics, headX + 2, headY + 2, headSize - 4, null);
+        // Render head directly without circle background
+        HeadRenderer.renderPlayerHead(guiGraphics, headX, headY, headSize, null);
 
-        // Name (white, bold)
+        // Name (white, bold) - no shadow
         String displayName = conversation.getParticipantName();
-        guiGraphics.drawString(this.font, "§f§l" + displayName, headX + headSize + 8, topPos + 12, 0xFFFFFFFF);
+        guiGraphics.drawString(this.font, displayName, headX + headSize + 8, topPos + 12, 0xFFFFFFFF, false);
 
-        // Online status (small text below name)
-        guiGraphics.drawString(this.font, "§7online", headX + headSize + 8, topPos + 24, 0xFFCCCCCC);
+        // Online status (small text below name) - no shadow
+        guiGraphics.drawString(this.font, "online", headX + headSize + 8, topPos + 24, 0xFFCCCCCC, false);
 
         // Messages area
         int messagesY = topPos + 45;
@@ -151,14 +150,6 @@ public class ChatScreen extends Screen {
         renderMessages(guiGraphics, messagesY, messagesHeight);
 
         super.render(guiGraphics, mouseX, mouseY, partialTick);
-    }
-
-    private void drawCircle(GuiGraphics guiGraphics, int centerX, int centerY, int radius, int color) {
-        // Simple circle approximation using filled rectangles
-        for (int dy = -radius; dy <= radius; dy++) {
-            int width = (int) Math.sqrt(radius * radius - dy * dy);
-            guiGraphics.fill(centerX - width, centerY + dy, centerX + width, centerY + dy + 1, color);
-        }
     }
 
     private void renderMessages(GuiGraphics guiGraphics, int startY, int height) {
@@ -214,15 +205,15 @@ public class ChatScreen extends Screen {
             // Message bubble with rounded corner effect
             drawRoundedBubble(guiGraphics, msgX, y, msgWidth, msgHeight, 0xFFDCF8C6);
 
-            // Message text (black)
+            // Message text (black) - no shadow
             for (int i = 0; i < lines.size(); i++) {
-                guiGraphics.drawString(this.font, "§0" + lines.get(i), msgX + padding, y + padding + (i * 10), 0xFF000000);
+                guiGraphics.drawString(this.font, lines.get(i), msgX + padding, y + padding + (i * 10), 0xFF000000, false);
             }
 
-            // Timestamp (bottom right, small, gray)
-            guiGraphics.drawString(this.font, "§8" + timeStr,
+            // Timestamp (bottom right, small, gray) - no shadow
+            guiGraphics.drawString(this.font, timeStr,
                 msgX + msgWidth - timeWidth - padding,
-                y + msgHeight - 10, 0xFF888888);
+                y + msgHeight - 10, 0xFF888888, false);
 
         } else {
             // Left-aligned (received messages) - White
@@ -231,15 +222,15 @@ public class ChatScreen extends Screen {
             // Message bubble with rounded corner effect
             drawRoundedBubble(guiGraphics, msgX, y, msgWidth, msgHeight, 0xFFFFFFFF);
 
-            // Message text (black)
+            // Message text (black) - no shadow
             for (int i = 0; i < lines.size(); i++) {
-                guiGraphics.drawString(this.font, "§0" + lines.get(i), msgX + padding, y + padding + (i * 10), 0xFF000000);
+                guiGraphics.drawString(this.font, lines.get(i), msgX + padding, y + padding + (i * 10), 0xFF000000, false);
             }
 
-            // Timestamp (bottom right, small, gray)
-            guiGraphics.drawString(this.font, "§8" + timeStr,
+            // Timestamp (bottom right, small, gray) - no shadow
+            guiGraphics.drawString(this.font, timeStr,
                 msgX + msgWidth - timeWidth - padding,
-                y + msgHeight - 10, 0xFF888888);
+                y + msgHeight - 10, 0xFF888888, false);
         }
     }
 
