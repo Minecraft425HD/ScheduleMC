@@ -251,13 +251,13 @@ public class MapAppScreen extends Screen {
      * Fallback-Farbe basierend auf Block-Typ
      */
     private int getBlockTypeColor(BlockState state) {
-        if (state.is(Blocks.WATER) || state.is(Blocks.FLOWING_WATER)) {
+        if (state.is(Blocks.WATER)) {
             return 0xFF4040FF;
         }
-        if (state.is(Blocks.LAVA) || state.is(Blocks.FLOWING_LAVA)) {
+        if (state.is(Blocks.LAVA)) {
             return 0xFFFF4400;
         }
-        if (state.is(Blocks.GRASS_BLOCK) || state.is(Blocks.SHORT_GRASS) || state.is(Blocks.TALL_GRASS)) {
+        if (state.is(Blocks.GRASS_BLOCK) || state.is(Blocks.GRASS) || state.is(Blocks.TALL_GRASS)) {
             return 0xFF7FB238;
         }
         if (state.is(Blocks.STONE) || state.is(Blocks.COBBLESTONE) || state.is(Blocks.ANDESITE)

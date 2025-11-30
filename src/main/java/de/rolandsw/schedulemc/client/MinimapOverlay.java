@@ -187,15 +187,15 @@ public class MinimapOverlay {
      */
     private static int getBlockTypeColor(BlockState state) {
         // Wasser
-        if (state.is(Blocks.WATER) || state.is(Blocks.FLOWING_WATER)) {
+        if (state.is(Blocks.WATER)) {
             return 0xFF4040FF;
         }
         // Lava
-        if (state.is(Blocks.LAVA) || state.is(Blocks.FLOWING_LAVA)) {
+        if (state.is(Blocks.LAVA)) {
             return 0xFFFF4400;
         }
         // Gras
-        if (state.is(Blocks.GRASS_BLOCK) || state.is(Blocks.SHORT_GRASS) || state.is(Blocks.TALL_GRASS)) {
+        if (state.is(Blocks.GRASS_BLOCK) || state.is(Blocks.GRASS) || state.is(Blocks.TALL_GRASS)) {
             return 0xFF7FB238;
         }
         // Stein
