@@ -180,16 +180,35 @@ public class MapAppScreen extends Screen {
      * Extrem vereinfachte Farb-Erkennung
      */
     private int getSimpleBlockColor(Level level, BlockPos pos) {
-        BlockState state = level.getBlockState(pos.above(64)); // Feste Y-Höhe erstmal
+        // RICHTIG: Nutze Heightmap um obersten Block zu finden
+        int topY = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, pos.getX(), pos.getZ());
+        BlockPos topPos = new BlockPos(pos.getX(), topY - 1, pos.getZ());
+
+        BlockState state = level.getBlockState(topPos);
+
+        // Debug: Falls Luft, gehe runter
+        if (state.isAir()) {
+            for (int i = 1; i <= 5; i++) {
+                BlockPos checkPos = topPos.below(i);
+                BlockState checkState = level.getBlockState(checkPos);
+                if (!checkState.isAir()) {
+                    state = checkState;
+                    break;
+                }
+            }
+        }
 
         // Nur die wichtigsten Blöcke
-        if (state.is(Blocks.GRASS_BLOCK)) return 0xFF00FF00; // Grün
-        if (state.is(Blocks.WATER)) return 0xFF0000FF; // Blau
-        if (state.is(Blocks.STONE)) return 0xFF808080; // Grau
+        if (state.is(Blocks.GRASS_BLOCK)) return 0xFF00FF00; // Leuchtend Grün
+        if (state.is(Blocks.WATER)) return 0xFF0000FF; // Leuchtend Blau
+        if (state.is(Blocks.STONE)) return 0xFFAAAAAA; // Hellgrau
         if (state.is(Blocks.DIRT)) return 0xFF8B4513; // Braun
         if (state.is(Blocks.SAND)) return 0xFFFFFF00; // Gelb
+        if (state.is(Blocks.OAK_LEAVES) || state.is(Blocks.SPRUCE_LEAVES)) return 0xFF228B22; // Dunkelgrün
+        if (state.is(Blocks.COBBLESTONE)) return 0xFF808080; // Mittelgrau
 
-        return 0xFF404040; // Dunkelgrau als Standard
+        // Standard: Hellgrau (nicht schwarz!)
+        return 0xFFCCCCCC;
     }
 
     /**
