@@ -30,6 +30,7 @@ public class MapAppScreen extends Screen {
     private static final int MARGIN_BOTTOM = 60;
 
     private static final float[] ZOOM_LEVELS = {0.5f, 1.0f, 2.0f, 4.0f}; // Zoom-Stufen
+    private static final int UPDATE_INTERVAL = 5; // Update alle 5 Ticks
 
     private int leftPos;
     private int topPos;
@@ -37,6 +38,12 @@ public class MapAppScreen extends Screen {
 
     // Map-Marker-System (Vorbereitung für interaktive Symbole)
     private java.util.List<MapMarker> markers = new java.util.ArrayList<>();
+
+    // Cache für Performance
+    private int[][] cachedMapColors;
+    private BlockPos lastCachePos = BlockPos.ZERO;
+    private int lastCacheZoom = -1;
+    private int tickCounter = 0;
 
     public MapAppScreen(Screen parent) {
         super(Component.literal("Map"));
@@ -131,10 +138,23 @@ public class MapAppScreen extends Screen {
 
             // Berechne Kartenbereich basierend auf Zoom
             float zoom = getCurrentZoom();
-            int viewRange = (int)(50 / zoom); // Angepasster Bereich
+            int viewRange = (int)(40 / zoom); // Reduziert für Performance
 
-            // Rendere Karte
-            renderWorldMap(guiGraphics, level, playerPos, x, y, width, height, viewRange);
+            // Update Cache nur wenn nötig
+            tickCounter++;
+            if (cachedMapColors == null
+                || tickCounter >= UPDATE_INTERVAL
+                || !playerPos.equals(lastCachePos)
+                || currentZoomIndex != lastCacheZoom) {
+
+                updateMapCache(level, playerPos, viewRange);
+                lastCachePos = playerPos;
+                lastCacheZoom = currentZoomIndex;
+                tickCounter = 0;
+            }
+
+            // Rendere gecachte Karte
+            renderCachedWorldMap(guiGraphics, x, y, width, height, viewRange);
 
             // Spieler-Position (Zentrum)
             int centerX = x + width / 2;
@@ -156,132 +176,71 @@ public class MapAppScreen extends Screen {
     }
 
     /**
-     * Rendert eine vereinfachte Weltkarte
+     * Update Map Cache
      */
-    private void renderWorldMap(GuiGraphics guiGraphics, Level level, BlockPos center,
-                                int x, int y, int width, int height, int range) {
-        int pixelSize = Math.max(1, Math.min(width, height) / (range * 2));
+    private void updateMapCache(Level level, BlockPos center, int range) {
+        int size = range * 2;
+        cachedMapColors = new int[size][size];
 
         for (int dx = -range; dx < range; dx++) {
             for (int dz = -range; dz < range; dz++) {
-                int color = getTerrainColor(level, center.offset(dx, 0, dz));
+                BlockPos pos = center.offset(dx, 0, dz);
+                cachedMapColors[dx + range][dz + range] = getTerrainColorSimple(level, pos);
+            }
+        }
+    }
 
-                int screenX = x + (dx + range) * pixelSize;
-                int screenY = y + (dz + range) * pixelSize;
+    /**
+     * Rendert gecachte Weltkarte
+     */
+    private void renderCachedWorldMap(GuiGraphics guiGraphics, int x, int y, int width, int height, int range) {
+        int pixelSize = Math.max(1, Math.min(width, height) / (range * 2));
 
+        for (int dx = 0; dx < range * 2; dx++) {
+            for (int dz = 0; dz < range * 2; dz++) {
+                int screenX = x + dx * pixelSize;
+                int screenY = y + dz * pixelSize;
+
+                int color = cachedMapColors[dx][dz];
                 guiGraphics.fill(screenX, screenY, screenX + pixelSize, screenY + pixelSize, color);
             }
         }
     }
 
     /**
-     * Holt die Terrain-Farbe für eine Position
+     * Vereinfachte Terrain-Farbe (Performance-optimiert)
      */
-    private int getTerrainColor(Level level, BlockPos pos) {
-        // Finde obersten Block
-        int topY = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.WORLD_SURFACE, pos.getX(), pos.getZ());
+    private int getTerrainColorSimple(Level level, BlockPos pos) {
+        int topY = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, pos.getX(), pos.getZ());
         BlockPos topPos = new BlockPos(pos.getX(), topY - 1, pos.getZ());
 
         BlockState state = level.getBlockState(topPos);
 
-        // Falls Luft, gehe weiter runter
-        if (state.isAir()) {
-            for (int i = 1; i < 10; i++) {
-                BlockPos checkPos = topPos.below(i);
-                BlockState checkState = level.getBlockState(checkPos);
-                if (!checkState.isAir()) {
-                    state = checkState;
-                    topPos = checkPos;
-                    break;
-                }
-            }
-        }
-
-        // Nutze MapColor
-        MapColor mapColor = state.getMapColor(level, topPos);
-
-        // Fallback zu manueller Farbe
-        if (mapColor == MapColor.NONE || mapColor.col == 0) {
-            return getBlockTypeColor(state);
-        }
-
-        return getColorFromMapColor(mapColor.col);
-    }
-
-    /**
-     * Konvertiert MapColor ID zu RGB
-     */
-    private int getColorFromMapColor(int colorId) {
-        switch (colorId) {
-            case 0: return 0xFF000000;
-            case 1: return 0xFF7FB238; // Gras
-            case 2: return 0xFFB5651D; // Sand
-            case 3: return 0xFFC7C7C7; // Wolle
-            case 4: return 0xFFFF0000; // Feuer
-            case 5: return 0xFFA0A0FF; // Eis
-            case 6: return 0xFFA7A7A7; // Metall
-            case 7: return 0xFF007C00; // Pflanzen
-            case 8: return 0xFFFFFFFF; // Schnee
-            case 9: return 0xFFA4A8B8; // Lehm
-            case 10: return 0xFF976D4D; // Erde
-            case 11: return 0xFF707070; // Stein
-            case 12: return 0xFF4040FF; // Wasser
-            case 13: return 0xFF8B7653; // Holz
-            case 14: return 0xFFFFFFFF; // Quarz
-            case 15: return 0xFFFF9800; // Orange
-            case 16: return 0xFFE91E63; // Magenta
-            case 17: return 0xFF2196F3; // Hellblau
-            case 18: return 0xFFFDD835; // Gelb
-            case 19: return 0xFF8BC34A; // Lime
-            case 20: return 0xFFF48FB1; // Rosa
-            case 21: return 0xFF757575; // Grau
-            case 22: return 0xFFBDBDBD; // Hellgrau
-            case 23: return 0xFF00BCD4; // Cyan
-            case 24: return 0xFF9C27B0; // Lila
-            case 25: return 0xFF3F51B5; // Blau
-            case 26: return 0xFF795548; // Braun
-            case 27: return 0xFF4CAF50; // Grün
-            case 28: return 0xFFFF5722; // Rot
-            case 29: return 0xFF212121; // Schwarz
-            default: return 0xFF808080;
-        }
-    }
-
-    /**
-     * Fallback-Farbe basierend auf Block-Typ
-     */
-    private int getBlockTypeColor(BlockState state) {
-        if (state.is(Blocks.WATER)) {
-            return 0xFF4040FF;
-        }
-        if (state.is(Blocks.LAVA)) {
-            return 0xFFFF4400;
-        }
-        if (state.is(Blocks.GRASS_BLOCK) || state.is(Blocks.GRASS) || state.is(Blocks.TALL_GRASS)) {
-            return 0xFF7FB238;
-        }
-        if (state.is(Blocks.STONE) || state.is(Blocks.COBBLESTONE) || state.is(Blocks.ANDESITE)
-            || state.is(Blocks.DIORITE) || state.is(Blocks.GRANITE)) {
-            return 0xFF808080;
-        }
-        if (state.is(Blocks.DIRT) || state.is(Blocks.COARSE_DIRT)) {
-            return 0xFF976D4D;
-        }
-        if (state.is(Blocks.SAND) || state.is(Blocks.SANDSTONE)) {
-            return 0xFFB5651D;
-        }
-        if (state.is(Blocks.SNOW) || state.is(Blocks.SNOW_BLOCK)) {
-            return 0xFFFFFFFF;
-        }
-        if (state.is(Blocks.OAK_LOG) || state.is(Blocks.OAK_PLANKS) || state.is(Blocks.SPRUCE_LOG)
-            || state.is(Blocks.BIRCH_LOG) || state.is(Blocks.JUNGLE_LOG)) {
-            return 0xFF8B7653;
-        }
+        // Schnelle Block-Type Checks
+        if (state.is(Blocks.WATER)) return 0xFF3030DD;
+        if (state.is(Blocks.LAVA)) return 0xFFDD3030;
+        if (state.is(Blocks.GRASS_BLOCK)) return 0xFF60A040;
+        if (state.is(Blocks.DIRT) || state.is(Blocks.COARSE_DIRT)) return 0xFF8B6914;
+        if (state.is(Blocks.SAND)) return 0xFFDDDD88;
+        if (state.is(Blocks.STONE) || state.is(Blocks.COBBLESTONE)) return 0xFF888888;
+        if (state.is(Blocks.SNOW_BLOCK) || state.is(Blocks.SNOW)) return 0xFFFFFFFF;
         if (state.is(Blocks.OAK_LEAVES) || state.is(Blocks.SPRUCE_LEAVES)
-            || state.is(Blocks.BIRCH_LEAVES) || state.is(Blocks.JUNGLE_LEAVES)) {
-            return 0xFF007C00;
+            || state.is(Blocks.BIRCH_LEAVES)) return 0xFF228B22;
+        if (state.is(Blocks.OAK_LOG) || state.is(Blocks.SPRUCE_LOG)) return 0xFF8B4513;
+
+        // MapColor als Fallback
+        MapColor mapColor = state.getMapColor(level, topPos);
+        if (mapColor != MapColor.NONE) {
+            int id = mapColor.col;
+            if (id == 12) return 0xFF3030DD; // Wasser
+            if (id == 1 || id == 7) return 0xFF60A040; // Gras/Pflanzen
+            if (id == 10) return 0xFF8B6914; // Erde
+            if (id == 11) return 0xFF888888; // Stein
+            if (id == 2) return 0xFFDDDD88; // Sand
+            if (id == 8) return 0xFFFFFFFF; // Schnee
         }
-        return 0xFF404040;
+
+        return 0xFF505050;
     }
 
     /**
