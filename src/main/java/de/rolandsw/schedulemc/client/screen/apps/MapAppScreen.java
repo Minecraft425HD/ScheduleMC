@@ -9,6 +9,9 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Map App - Zeigt Karten wie Minecraft Maps (von oben fotografiert)
  * Horizontale Ausrichtung für bessere Kartenansicht
@@ -28,15 +31,10 @@ public class MapAppScreen extends Screen {
     private int leftPos;
     private int topPos;
 
-    // Karte: Große persistente Karte für Exploration (512x512)
-    private static final int MAP_WIDTH = 512;
-    private static final int MAP_HEIGHT = 512;
-    private byte[] mapColors = new byte[MAP_WIDTH * MAP_HEIGHT];
-    private boolean[] exploredPixels = new boolean[MAP_WIDTH * MAP_HEIGHT]; // Wurde dieser Bereich erkundet?
-
-    // Map-Origin (feste Weltkoordinaten für linke obere Ecke)
-    private int mapOriginX = Integer.MAX_VALUE;
-    private int mapOriginZ = Integer.MAX_VALUE;
+    // Chunk-basiertes Map-System für unbegrenzte Exploration
+    // Jeder Chunk speichert 16x16 Block-Farben
+    private static final int CHUNK_SIZE = 16;
+    private final Map<Long, byte[]> exploredChunks = new HashMap<>(); // ChunkPos -> 16x16 Farben
 
     private int updateCounter = 0;
     private static final int UPDATE_INTERVAL = 20; // Update alle 20 Ticks (1 Sekunde)
@@ -163,83 +161,70 @@ public class MapAppScreen extends Screen {
     }
 
     /**
-     * Rendert den Spieler-Marker auf der Map
+     * Rendert den Spieler-Marker auf der Map (immer im Zentrum)
      */
     private void renderPlayerMarker(GuiGraphics guiGraphics, int x, int y, int width, int height, BlockPos playerPos) {
-        if (mapOriginX == Integer.MAX_VALUE) return; // Map noch nicht initialisiert
-
-        // Berechne Spieler-Position relativ zur Map
-        int mapX = playerPos.getX() - mapOriginX;
-        int mapZ = playerPos.getZ() - mapOriginZ;
-
-        // Prüfe ob Spieler innerhalb der Map ist
-        if (mapX < 0 || mapX >= MAP_WIDTH || mapZ < 0 || mapZ >= MAP_HEIGHT) {
-            return; // Spieler außerhalb der Map
-        }
-
-        float zoom = getCurrentZoom();
-        float scaleX = (float) width / MAP_WIDTH;
-        float scaleY = (float) height / MAP_HEIGHT;
-        float baseScale = Math.min(scaleX, scaleY);
-        float scale = baseScale * zoom;
-
-        int renderWidth = (int) (MAP_WIDTH * scale);
-        int renderHeight = (int) (MAP_HEIGHT * scale);
-
-        int offsetX = (width - renderWidth) / 2 + panOffsetX;
-        int offsetY = (height - renderHeight) / 2 + panOffsetY;
-
-        int screenX = x + offsetX + (int) (mapX * scale);
-        int screenY = y + offsetY + (int) (mapZ * scale);
+        // Spieler ist immer im Zentrum der Ansicht
+        int centerX = x + width / 2;
+        int centerY = y + height / 2;
 
         // Roter Spieler-Marker (8x8 Pixel)
-        guiGraphics.fill(screenX - 4, screenY - 4, screenX + 4, screenY + 4, 0xFFFF0000);
+        guiGraphics.fill(centerX - 4, centerY - 4, centerX + 4, centerY + 4, 0xFFFF0000);
     }
 
     /**
-     * Update Map-Daten - nur geladene Chunks werden aktualisiert (Exploration System)
+     * Update Map-Daten - Chunk-basiert für unbegrenzte Exploration
      */
     private void updateMapData(Level level, BlockPos playerPos) {
-        // Initialisiere Map-Origin beim ersten Öffnen (zentriert auf Spieler)
-        if (mapOriginX == Integer.MAX_VALUE) {
-            mapOriginX = playerPos.getX() - MAP_WIDTH / 2;
-            mapOriginZ = playerPos.getZ() - MAP_HEIGHT / 2;
-        }
+        // Update-Radius: 10 Chunks = 160 Blöcke um den Spieler
+        int chunkRadius = 10;
+        int playerChunkX = playerPos.getX() >> 4;
+        int playerChunkZ = playerPos.getZ() >> 4;
 
-        // Nur Chunks in einem Radius um den Spieler prüfen (Performance)
-        // Update-Radius: 10 Chunks = 160 Blöcke
-        int updateRadius = 160;
-        int minX = Math.max(0, playerPos.getX() - mapOriginX - updateRadius);
-        int maxX = Math.min(MAP_WIDTH, playerPos.getX() - mapOriginX + updateRadius);
-        int minZ = Math.max(0, playerPos.getZ() - mapOriginZ - updateRadius);
-        int maxZ = Math.min(MAP_HEIGHT, playerPos.getZ() - mapOriginZ + updateRadius);
-
-        for (int x = minX; x < maxX; x++) {
-            for (int z = minZ; z < maxZ; z++) {
-                int worldX = mapOriginX + x;
-                int worldZ = mapOriginZ + z;
-
-                // Chunk-Koordinaten (Block >> 4 = Block / 16)
-                int chunkX = worldX >> 4;
-                int chunkZ = worldZ >> 4;
+        // Iteriere über alle Chunks im Radius
+        for (int chunkX = playerChunkX - chunkRadius; chunkX <= playerChunkX + chunkRadius; chunkX++) {
+            for (int chunkZ = playerChunkZ - chunkRadius; chunkZ <= playerChunkZ + chunkRadius; chunkZ++) {
 
                 // Nur geladene Chunks updaten
-                if (level.hasChunk(chunkX, chunkZ)) {
-                    int topY = level.getHeight(
-                        net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING,
-                        worldX, worldZ
-                    );
-
-                    BlockPos topPos = new BlockPos(worldX, topY - 1, worldZ);
-                    int color = getMapColor(level, topPos);
-
-                    int index = x + z * MAP_WIDTH;
-                    mapColors[index] = (byte) color;
-                    exploredPixels[index] = true; // Markiere als erkundet
+                if (!level.hasChunk(chunkX, chunkZ)) {
+                    continue; // Chunk nicht geladen - überspringen
                 }
-                // Nicht geladene Chunks: Behalte alten Zustand (oder schwarz wenn nie erkundet)
+
+                // Hole oder erstelle Chunk-Daten
+                long chunkKey = getChunkKey(chunkX, chunkZ);
+                byte[] chunkData = exploredChunks.get(chunkKey);
+
+                if (chunkData == null) {
+                    chunkData = new byte[CHUNK_SIZE * CHUNK_SIZE];
+                    exploredChunks.put(chunkKey, chunkData);
+                }
+
+                // Update alle 16x16 Blöcke in diesem Chunk
+                for (int localX = 0; localX < CHUNK_SIZE; localX++) {
+                    for (int localZ = 0; localZ < CHUNK_SIZE; localZ++) {
+                        int worldX = (chunkX << 4) + localX;
+                        int worldZ = (chunkZ << 4) + localZ;
+
+                        int topY = level.getHeight(
+                            net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING,
+                            worldX, worldZ
+                        );
+
+                        BlockPos topPos = new BlockPos(worldX, topY - 1, worldZ);
+                        int color = getMapColor(level, topPos);
+
+                        chunkData[localX + localZ * CHUNK_SIZE] = (byte) color;
+                    }
+                }
             }
         }
+    }
+
+    /**
+     * Erstellt einen eindeutigen Key für Chunk-Koordinaten
+     */
+    private long getChunkKey(int chunkX, int chunkZ) {
+        return ((long) chunkX << 32) | (chunkZ & 0xFFFFFFFFL);
     }
 
     /**
@@ -257,51 +242,69 @@ public class MapAppScreen extends Screen {
     }
 
     /**
-     * Rendert Map-Pixel auf den Bildschirm mit Zoom & Pan - nur erkundete Bereiche
+     * Rendert Map-Pixel - Chunk-basiert, nur sichtbare Bereiche (Performance!)
      */
     private void renderMapPixels(GuiGraphics guiGraphics, int x, int y, int width, int height, BlockPos playerPos) {
         float zoom = getCurrentZoom();
-
-        // Skalierung basierend auf Zoom
-        float scaleX = (float) width / MAP_WIDTH;
-        float scaleY = (float) height / MAP_HEIGHT;
-        float baseScale = Math.min(scaleX, scaleY);
-        float scale = baseScale * zoom;
-
-        int renderWidth = (int) (MAP_WIDTH * scale);
-        int renderHeight = (int) (MAP_HEIGHT * scale);
-
-        // Pan-Offset anwenden
-        int offsetX = (width - renderWidth) / 2 + panOffsetX;
-        int offsetY = (height - renderHeight) / 2 + panOffsetY;
+        float scale = zoom; // 1 Block = 1 Pixel bei Zoom 1.0
 
         int pixelSize = Math.max(1, (int) scale);
 
-        for (int mapX = 0; mapX < MAP_WIDTH; mapX++) {
-            for (int mapZ = 0; mapZ < MAP_HEIGHT; mapZ++) {
-                int index = mapX + mapZ * MAP_WIDTH;
+        // Berechne Weltkoordinaten-Bereich der sichtbar ist
+        // Spieler ist im Zentrum, Pan-Offset verschiebt die View
+        int centerScreenX = x + width / 2 + panOffsetX;
+        int centerScreenY = y + height / 2 + panOffsetY;
 
-                // Nur erkundete Bereiche anzeigen
-                if (!exploredPixels[index]) {
-                    continue; // Schwarz lassen (nicht erkundet)
+        // Welcher Weltblock ist an welcher Bildschirmposition?
+        int viewMinWorldX = playerPos.getX() - (int) ((centerScreenX - x) / scale);
+        int viewMaxWorldX = playerPos.getX() + (int) ((x + width - centerScreenX) / scale);
+        int viewMinWorldZ = playerPos.getZ() - (int) ((centerScreenY - y) / scale);
+        int viewMaxWorldZ = playerPos.getZ() + (int) ((y + height - centerScreenY) / scale);
+
+        // Konvertiere zu Chunk-Koordinaten
+        int minChunkX = viewMinWorldX >> 4;
+        int maxChunkX = viewMaxWorldX >> 4;
+        int minChunkZ = viewMinWorldZ >> 4;
+        int maxChunkZ = viewMaxWorldZ >> 4;
+
+        // Rendere nur sichtbare Chunks
+        for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
+            for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
+                long chunkKey = getChunkKey(chunkX, chunkZ);
+                byte[] chunkData = exploredChunks.get(chunkKey);
+
+                if (chunkData == null) {
+                    continue; // Chunk nie erkundet - schwarz lassen
                 }
 
-                byte colorId = mapColors[index];
-                if (colorId == 0) continue;
+                // Rendere alle 16x16 Blöcke in diesem Chunk
+                for (int localX = 0; localX < CHUNK_SIZE; localX++) {
+                    for (int localZ = 0; localZ < CHUNK_SIZE; localZ++) {
+                        int worldX = (chunkX << 4) + localX;
+                        int worldZ = (chunkZ << 4) + localZ;
 
-                int color = getMaterialColor(colorId);
+                        byte colorId = chunkData[localX + localZ * CHUNK_SIZE];
+                        if (colorId == 0) continue; // Keine Farbe
 
-                int screenX = x + offsetX + (int) (mapX * scale);
-                int screenY = y + offsetY + (int) (mapZ * scale);
+                        int color = getMaterialColor(colorId);
 
-                // Clipping: Nur rendern wenn sichtbar
-                if (screenX + pixelSize < x || screenX > x + width ||
-                    screenY + pixelSize < y || screenY > y + height) {
-                    continue;
+                        // Berechne Bildschirm-Position relativ zum Spieler
+                        int dx = worldX - playerPos.getX();
+                        int dz = worldZ - playerPos.getZ();
+
+                        int screenX = centerScreenX + (int) (dx * scale);
+                        int screenY = centerScreenY + (int) (dz * scale);
+
+                        // Clipping
+                        if (screenX + pixelSize < x || screenX > x + width ||
+                            screenY + pixelSize < y || screenY > y + height) {
+                            continue;
+                        }
+
+                        guiGraphics.fill(screenX, screenY,
+                                       screenX + pixelSize, screenY + pixelSize, color);
+                    }
                 }
-
-                guiGraphics.fill(screenX, screenY,
-                               screenX + pixelSize, screenY + pixelSize, color);
             }
         }
     }
