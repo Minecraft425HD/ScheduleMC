@@ -18,9 +18,9 @@ public class MapAppScreen extends Screen {
 
     private final Screen parentScreen;
 
-    // Horizontale Ausrichtung (Landschaft-Modus) - Größer für bessere Kartensicht
-    private static final int WIDTH = 400;
-    private static final int HEIGHT = 260;
+    // Horizontale Ausrichtung (Landschaft-Modus)
+    private static final int WIDTH = 320;
+    private static final int HEIGHT = 180;
     private static final int BORDER_SIZE = 5;
     private static final int MARGIN_TOP = 15;
     private static final int MARGIN_BOTTOM = 60;
@@ -28,9 +28,10 @@ public class MapAppScreen extends Screen {
     private int leftPos;
     private int topPos;
 
-    // Karte: 192x192 statt 128x128 für bessere Abdeckung
-    private static final int MAP_SIZE = 192;
-    private byte[] mapColors = new byte[MAP_SIZE * MAP_SIZE];
+    // Karte: RECHTECKIG - horizontal breiter (256x128 = 2:1 Ratio)
+    private static final int MAP_WIDTH = 256;
+    private static final int MAP_HEIGHT = 128;
+    private byte[] mapColors = new byte[MAP_WIDTH * MAP_HEIGHT];
     private int updateCounter = 0;
     private static final int UPDATE_INTERVAL = 20; // Update alle 20 Ticks (1 Sekunde)
 
@@ -158,15 +159,16 @@ public class MapAppScreen extends Screen {
     }
 
     /**
-     * Update Map-Daten (wie Minecraft Maps) - jetzt 192x192
+     * Update Map-Daten (wie Minecraft Maps) - rechteckig 256x128
      */
     private void updateMapData(Level level, BlockPos center) {
-        int range = MAP_SIZE / 2; // 96 Blöcke in jede Richtung
+        int rangeX = MAP_WIDTH / 2;  // 128 Blöcke in X-Richtung
+        int rangeZ = MAP_HEIGHT / 2; // 64 Blöcke in Z-Richtung
 
-        for (int x = 0; x < MAP_SIZE; x++) {
-            for (int z = 0; z < MAP_SIZE; z++) {
-                int worldX = center.getX() - range + x;
-                int worldZ = center.getZ() - range + z;
+        for (int x = 0; x < MAP_WIDTH; x++) {
+            for (int z = 0; z < MAP_HEIGHT; z++) {
+                int worldX = center.getX() - rangeX + x;
+                int worldZ = center.getZ() - rangeZ + z;
 
                 int topY = level.getHeight(
                     net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING,
@@ -176,7 +178,7 @@ public class MapAppScreen extends Screen {
                 BlockPos topPos = new BlockPos(worldX, topY - 1, worldZ);
                 int color = getMapColor(level, topPos);
 
-                mapColors[x + z * MAP_SIZE] = (byte) color;
+                mapColors[x + z * MAP_WIDTH] = (byte) color;
             }
         }
     }
@@ -196,17 +198,19 @@ public class MapAppScreen extends Screen {
     }
 
     /**
-     * Rendert Map-Pixel auf den Bildschirm mit Zoom & Pan
+     * Rendert Map-Pixel auf den Bildschirm mit Zoom & Pan - rechteckige Map
      */
     private void renderMapPixels(GuiGraphics guiGraphics, int x, int y, int width, int height) {
         float zoom = getCurrentZoom();
 
-        // Skalierung basierend auf Zoom
-        float baseScale = Math.min((float) width / MAP_SIZE, (float) height / MAP_SIZE);
+        // Skalierung basierend auf Zoom - rechteckig
+        float scaleX = (float) width / MAP_WIDTH;
+        float scaleY = (float) height / MAP_HEIGHT;
+        float baseScale = Math.min(scaleX, scaleY);
         float scale = baseScale * zoom;
 
-        int renderWidth = (int) (MAP_SIZE * scale);
-        int renderHeight = (int) (MAP_SIZE * scale);
+        int renderWidth = (int) (MAP_WIDTH * scale);
+        int renderHeight = (int) (MAP_HEIGHT * scale);
 
         // Pan-Offset anwenden
         int offsetX = (width - renderWidth) / 2 + panOffsetX;
@@ -214,9 +218,9 @@ public class MapAppScreen extends Screen {
 
         int pixelSize = Math.max(1, (int) scale);
 
-        for (int mapX = 0; mapX < MAP_SIZE; mapX++) {
-            for (int mapZ = 0; mapZ < MAP_SIZE; mapZ++) {
-                byte colorId = mapColors[mapX + mapZ * MAP_SIZE];
+        for (int mapX = 0; mapX < MAP_WIDTH; mapX++) {
+            for (int mapZ = 0; mapZ < MAP_HEIGHT; mapZ++) {
+                byte colorId = mapColors[mapX + mapZ * MAP_WIDTH];
 
                 if (colorId == 0) continue;
 
