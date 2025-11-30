@@ -41,9 +41,15 @@ public class MinimapOverlay {
 
     @SubscribeEvent
     public static void onRenderGuiOverlay(RenderGuiOverlayEvent.Post event) {
-        // TEMPORÄR DEAKTIVIERT - Performance-Probleme
-        // TODO: Später wieder aktivieren mit besserer Implementierung
-        return;
+        Minecraft mc = Minecraft.getInstance();
+
+        // Nur im Survival/Creative rendern
+        if (mc.player == null || mc.level == null) {
+            return;
+        }
+
+        // Rendere die Minimap
+        renderMinimap(event.getGuiGraphics(), mc);
     }
 
     /**
