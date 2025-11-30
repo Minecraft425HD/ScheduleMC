@@ -1,21 +1,25 @@
 package de.rolandsw.schedulemc.client.screen.apps;
 
+import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
+import net.minecraft.world.level.material.MaterialColor;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Matrix4f;
 
 /**
- * Map App - Zeigt Karten und Standorte
+ * Map App - Zeigt Karten wie Minecraft Maps (von oben fotografiert)
  * Horizontale Ausrichtung für bessere Kartenansicht
- * Minimap ist als permanentes HUD-Overlay verfügbar (siehe MinimapOverlay.java)
  */
 @OnlyIn(Dist.CLIENT)
 public class MapAppScreen extends Screen {
@@ -29,21 +33,13 @@ public class MapAppScreen extends Screen {
     private static final int MARGIN_TOP = 15;
     private static final int MARGIN_BOTTOM = 60;
 
-    private static final float[] ZOOM_LEVELS = {0.5f, 1.0f, 2.0f, 4.0f}; // Zoom-Stufen
-    private static final int UPDATE_INTERVAL = 5; // Update alle 5 Ticks
-
     private int leftPos;
     private int topPos;
-    private int currentZoomIndex = 1; // Standard: 1.0x Zoom
 
-    // Map-Marker-System (Vorbereitung für interaktive Symbole)
-    private java.util.List<MapMarker> markers = new java.util.ArrayList<>();
-
-    // Cache für Performance
-    private int[][] cachedMapColors;
-    private BlockPos lastCachePos = BlockPos.ZERO;
-    private int lastCacheZoom = -1;
-    private int tickCounter = 0;
+    // Einfache Pixel-basierte Karte
+    private byte[] mapColors = new byte[128 * 128]; // Wie Minecraft Maps (128x128)
+    private int updateCounter = 0;
+    private static final int UPDATE_INTERVAL = 20; // Update alle 20 Ticks (1 Sekunde)
 
     public MapAppScreen(Screen parent) {
         super(Component.literal("Map"));
@@ -68,32 +64,6 @@ public class MapAppScreen extends Screen {
                 minecraft.setScreen(parentScreen);
             }
         }).bounds(leftPos + 10, topPos + HEIGHT - 30, 80, 20).build());
-
-        // Zoom Out Button (unten rechts)
-        addRenderableWidget(Button.builder(Component.literal("-"), button -> {
-            zoomOut();
-        }).bounds(leftPos + WIDTH - 60, topPos + HEIGHT - 30, 25, 20).build());
-
-        // Zoom In Button (unten rechts)
-        addRenderableWidget(Button.builder(Component.literal("+"), button -> {
-            zoomIn();
-        }).bounds(leftPos + WIDTH - 30, topPos + HEIGHT - 30, 25, 20).build());
-    }
-
-    private void zoomIn() {
-        if (currentZoomIndex < ZOOM_LEVELS.length - 1) {
-            currentZoomIndex++;
-        }
-    }
-
-    private void zoomOut() {
-        if (currentZoomIndex > 0) {
-            currentZoomIndex--;
-        }
-    }
-
-    private float getCurrentZoom() {
-        return ZOOM_LEVELS[currentZoomIndex];
     }
 
     @Override
@@ -109,240 +79,171 @@ public class MapAppScreen extends Screen {
         guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 30, 0xFF1A1A1A);
         guiGraphics.drawString(this.font, "§6§lMap", leftPos + 10, topPos + 12, 0xFFFFFF);
 
-        // Zoom-Anzeige im Header
-        String zoomText = "Zoom: " + String.format("%.1fx", getCurrentZoom());
-        guiGraphics.drawString(this.font, "§7" + zoomText,
-                              leftPos + WIDTH - 70, topPos + 12, 0xFFFFFF);
-
         // Haupt-Kartenbereich
         int mapAreaX = leftPos + 10;
         int mapAreaY = topPos + 35;
         int mapAreaWidth = WIDTH - 20;
         int mapAreaHeight = HEIGHT - 45;
 
-        renderMainMap(guiGraphics, mapAreaX, mapAreaY, mapAreaWidth, mapAreaHeight);
+        renderMap(guiGraphics, mapAreaX, mapAreaY, mapAreaWidth, mapAreaHeight);
 
         super.render(guiGraphics, mouseX, mouseY, partialTick);
     }
 
     /**
-     * Rendert die Hauptkarte im großen Bereich
+     * Rendert die Karte mit Minecraft-Map-Farben
      */
-    private void renderMainMap(GuiGraphics guiGraphics, int x, int y, int width, int height) {
+    private void renderMap(GuiGraphics guiGraphics, int x, int y, int width, int height) {
         // Karten-Hintergrund
         guiGraphics.fill(x, y, x + width, y + height, 0xFF1A1A1A);
 
-        if (minecraft != null && minecraft.player != null) {
-            Level level = minecraft.player.level();
-            BlockPos playerPos = minecraft.player.blockPosition();
-
-            // ULTRA-VEREINFACHT: Nur ein kleiner Bereich
-            int viewRange = 20; // Fest, kein Zoom erstmal
-
-            // Rendere DIREKT ohne Cache (für Testing)
-            renderSimpleMap(guiGraphics, level, playerPos, x, y, width, height, viewRange);
-
-            // Spieler-Position (Zentrum)
-            int centerX = x + width / 2;
-            int centerY = y + height / 2;
-
-            // Roter Punkt für Spieler (größer, besser sichtbar)
-            guiGraphics.fill(centerX - 4, centerY - 4, centerX + 4, centerY + 4, 0xFFFF0000);
-        } else {
+        if (minecraft == null || minecraft.player == null) {
             guiGraphics.drawCenteredString(this.font, "§7Lade Karte...",
                                           x + width / 2, y + height / 2, 0xFFFFFF);
+            return;
         }
+
+        Level level = minecraft.player.level();
+        BlockPos playerPos = minecraft.player.blockPosition();
+
+        // Update Karte nur alle paar Ticks
+        updateCounter++;
+        if (updateCounter >= UPDATE_INTERVAL) {
+            updateMapData(level, playerPos);
+            updateCounter = 0;
+        }
+
+        // Rendere die Pixel-Karte
+        renderMapPixels(guiGraphics, x, y, width, height);
+
+        // Spieler-Position (Zentrum) - ROTER Punkt
+        int centerX = x + width / 2;
+        int centerY = y + height / 2;
+        guiGraphics.fill(centerX - 4, centerY - 4, centerX + 4, centerY + 4, 0xFFFF0000);
     }
 
     /**
-     * Ultra-einfaches Map-Rendering (kein Cache, direkt)
+     * Update Map-Daten (wie Minecraft Maps)
      */
-    private void renderSimpleMap(GuiGraphics guiGraphics, Level level, BlockPos center,
-                                  int x, int y, int width, int height, int range) {
-        int pixelSize = 3; // Große Pixel für bessere Performance
+    private void updateMapData(Level level, BlockPos center) {
+        int range = 64; // 64 Blöcke in jede Richtung = 128x128 wie Minecraft Map
 
-        for (int dx = -range; dx < range; dx += 1) {
-            for (int dz = -range; dz < range; dz += 1) {
-                BlockPos pos = center.offset(dx, 0, dz);
+        for (int x = 0; x < 128; x++) {
+            for (int z = 0; z < 128; z++) {
+                int worldX = center.getX() - range + x;
+                int worldZ = center.getZ() - range + z;
 
-                // Direkt Block-Farbe holen
-                int color = getSimpleBlockColor(level, pos);
+                int topY = level.getHeight(
+                    net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING,
+                    worldX, worldZ
+                );
 
-                int screenX = x + (dx + range) * pixelSize;
-                int screenY = y + (dz + range) * pixelSize;
+                BlockPos topPos = new BlockPos(worldX, topY - 1, worldZ);
+                int color = getMapColor(level, topPos);
 
-                guiGraphics.fill(screenX, screenY, screenX + pixelSize, screenY + pixelSize, color);
+                mapColors[x + z * 128] = (byte) color;
             }
         }
     }
 
     /**
-     * Extrem vereinfachte Farb-Erkennung
+     * Holt MapColor-ID wie Minecraft es macht
      */
-    private int getSimpleBlockColor(Level level, BlockPos pos) {
-        // RICHTIG: Nutze Heightmap um obersten Block zu finden
-        int topY = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, pos.getX(), pos.getZ());
-        BlockPos topPos = new BlockPos(pos.getX(), topY - 1, pos.getZ());
+    private int getMapColor(Level level, BlockPos pos) {
+        var state = level.getBlockState(pos);
+        var mapColor = state.getMapColor(level, pos);
 
-        BlockState state = level.getBlockState(topPos);
-
-        // Debug: Falls Luft, gehe runter
-        if (state.isAir()) {
-            for (int i = 1; i <= 5; i++) {
-                BlockPos checkPos = topPos.below(i);
-                BlockState checkState = level.getBlockState(checkPos);
-                if (!checkState.isAir()) {
-                    state = checkState;
-                    break;
-                }
-            }
+        if (mapColor == net.minecraft.world.level.material.MapColor.NONE) {
+            return 0;
         }
 
-        // Nur die wichtigsten Blöcke
-        if (state.is(Blocks.GRASS_BLOCK)) return 0xFF00FF00; // Leuchtend Grün
-        if (state.is(Blocks.WATER)) return 0xFF0000FF; // Leuchtend Blau
-        if (state.is(Blocks.STONE)) return 0xFFAAAAAA; // Hellgrau
-        if (state.is(Blocks.DIRT)) return 0xFF8B4513; // Braun
-        if (state.is(Blocks.SAND)) return 0xFFFFFF00; // Gelb
-        if (state.is(Blocks.OAK_LEAVES) || state.is(Blocks.SPRUCE_LEAVES)) return 0xFF228B22; // Dunkelgrün
-        if (state.is(Blocks.COBBLESTONE)) return 0xFF808080; // Mittelgrau
-
-        // Standard: Hellgrau (nicht schwarz!)
-        return 0xFFCCCCCC;
+        return mapColor.id;
     }
 
     /**
-     * Update Map Cache
+     * Rendert Map-Pixel auf den Bildschirm
      */
-    private void updateMapCache(Level level, BlockPos center, int range) {
-        int size = range * 2;
-        cachedMapColors = new int[size][size];
+    private void renderMapPixels(GuiGraphics guiGraphics, int x, int y, int width, int height) {
+        // Skaliere die 128x128 Map auf den verfügbaren Platz
+        float scaleX = (float) width / 128.0f;
+        float scaleY = (float) height / 128.0f;
+        float scale = Math.min(scaleX, scaleY);
 
-        for (int dx = -range; dx < range; dx++) {
-            for (int dz = -range; dz < range; dz++) {
-                BlockPos pos = center.offset(dx, 0, dz);
-                cachedMapColors[dx + range][dz + range] = getTerrainColorSimple(level, pos);
+        int renderWidth = (int) (128 * scale);
+        int renderHeight = (int) (128 * scale);
+        int offsetX = (width - renderWidth) / 2;
+        int offsetY = (height - renderHeight) / 2;
+
+        for (int mapX = 0; mapX < 128; mapX++) {
+            for (int mapZ = 0; mapZ < 128; mapZ++) {
+                byte colorId = mapColors[mapX + mapZ * 128];
+
+                if (colorId == 0) continue;
+
+                int color = getMaterialColor(colorId);
+
+                int screenX = x + offsetX + (int) (mapX * scale);
+                int screenY = y + offsetY + (int) (mapZ * scale);
+                int pixelSize = Math.max(1, (int) scale);
+
+                guiGraphics.fill(screenX, screenY,
+                               screenX + pixelSize, screenY + pixelSize, color);
             }
         }
     }
 
     /**
-     * Rendert gecachte Weltkarte
+     * Konvertiert MapColor ID zu RGB (Minecraft-Farben)
      */
-    private void renderCachedWorldMap(GuiGraphics guiGraphics, int x, int y, int width, int height, int range) {
-        int pixelSize = Math.max(1, Math.min(width, height) / (range * 2));
-
-        for (int dx = 0; dx < range * 2; dx++) {
-            for (int dz = 0; dz < range * 2; dz++) {
-                int screenX = x + dx * pixelSize;
-                int screenY = y + dz * pixelSize;
-
-                int color = cachedMapColors[dx][dz];
-                guiGraphics.fill(screenX, screenY, screenX + pixelSize, screenY + pixelSize, color);
-            }
+    private int getMaterialColor(int id) {
+        // Minecraft MapColor IDs -> RGB
+        switch (id) {
+            case 0: return 0x00000000; // NONE
+            case 1: return 0xFF7FB238; // GRASS
+            case 2: return 0xFFF7E9A3; // SAND
+            case 3: return 0xFFC7C7C7; // WOOL
+            case 4: return 0xFFFF0000; // FIRE
+            case 5: return 0xFFA0A0FF; // ICE
+            case 6: return 0xFFA7A7A7; // METAL
+            case 7: return 0xFF007C00; // PLANT
+            case 8: return 0xFFFFFFFF; // SNOW
+            case 9: return 0xFFA4A8B8; // CLAY
+            case 10: return 0xFF976D4D; // DIRT
+            case 11: return 0xFF707070; // STONE
+            case 12: return 0xFF4040FF; // WATER
+            case 13: return 0xFF8B7653; // WOOD
+            case 14: return 0xFFFFFFFF; // QUARTZ
+            case 15: return 0xFFD87F33; // COLOR_ORANGE
+            case 16: return 0xFFB24CD8; // COLOR_MAGENTA
+            case 17: return 0xFF6699D8; // COLOR_LIGHT_BLUE
+            case 18: return 0xFFE5E533; // COLOR_YELLOW
+            case 19: return 0xFF7FCC19; // COLOR_LIGHT_GREEN
+            case 20: return 0xFFF27FA5; // COLOR_PINK
+            case 21: return 0xFF4C4C4C; // COLOR_GRAY
+            case 22: return 0xFF999999; // COLOR_LIGHT_GRAY
+            case 23: return 0xFF4C7F99; // COLOR_CYAN
+            case 24: return 0xFF7F3FB2; // COLOR_PURPLE
+            case 25: return 0xFF334CB2; // COLOR_BLUE
+            case 26: return 0xFF664C33; // COLOR_BROWN
+            case 27: return 0xFF667F33; // COLOR_GREEN
+            case 28: return 0xFF993333; // COLOR_RED
+            case 29: return 0xFF191919; // COLOR_BLACK
+            case 30: return 0xFFB76A2C; // GOLD
+            case 31: return 0xFF6DBAA1; // DIAMOND
+            case 32: return 0xFF4164C0; // LAPIS
+            case 33: return 0xFF00A000; // EMERALD
+            case 34: return 0xFF603020; // PODZOL
+            case 35: return 0xFF805020; // NETHER
+            case 36: return 0xFFFFFFFF; // TERRACOTTA_WHITE
+            case 37: return 0xFFD87F33; // TERRACOTTA_ORANGE
+            case 38: return 0xFFB24CD8; // TERRACOTTA_MAGENTA
+            default: return 0xFF808080; // Default grau
         }
-    }
-
-    /**
-     * Vereinfachte Terrain-Farbe (Performance-optimiert)
-     */
-    private int getTerrainColorSimple(Level level, BlockPos pos) {
-        int topY = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, pos.getX(), pos.getZ());
-        BlockPos topPos = new BlockPos(pos.getX(), topY - 1, pos.getZ());
-
-        BlockState state = level.getBlockState(topPos);
-
-        // Schnelle Block-Type Checks
-        if (state.is(Blocks.WATER)) return 0xFF3030DD;
-        if (state.is(Blocks.LAVA)) return 0xFFDD3030;
-        if (state.is(Blocks.GRASS_BLOCK)) return 0xFF60A040;
-        if (state.is(Blocks.DIRT) || state.is(Blocks.COARSE_DIRT)) return 0xFF8B6914;
-        if (state.is(Blocks.SAND)) return 0xFFDDDD88;
-        if (state.is(Blocks.STONE) || state.is(Blocks.COBBLESTONE)) return 0xFF888888;
-        if (state.is(Blocks.SNOW_BLOCK) || state.is(Blocks.SNOW)) return 0xFFFFFFFF;
-        if (state.is(Blocks.OAK_LEAVES) || state.is(Blocks.SPRUCE_LEAVES)
-            || state.is(Blocks.BIRCH_LEAVES)) return 0xFF228B22;
-        if (state.is(Blocks.OAK_LOG) || state.is(Blocks.SPRUCE_LOG)) return 0xFF8B4513;
-
-        // MapColor als Fallback
-        MapColor mapColor = state.getMapColor(level, topPos);
-        if (mapColor != MapColor.NONE) {
-            int id = mapColor.col;
-            if (id == 12) return 0xFF3030DD; // Wasser
-            if (id == 1 || id == 7) return 0xFF60A040; // Gras/Pflanzen
-            if (id == 10) return 0xFF8B6914; // Erde
-            if (id == 11) return 0xFF888888; // Stein
-            if (id == 2) return 0xFFDDDD88; // Sand
-            if (id == 8) return 0xFFFFFFFF; // Schnee
-        }
-
-        return 0xFF505050;
-    }
-
-    /**
-     * Rendert Map-Marker (Vorbereitung für interaktive Symbole)
-     */
-    private void renderMapMarkers(GuiGraphics guiGraphics, BlockPos playerPos,
-                                  int x, int y, int width, int height, int range) {
-        for (MapMarker marker : markers) {
-            int dx = marker.pos.getX() - playerPos.getX();
-            int dz = marker.pos.getZ() - playerPos.getZ();
-
-            if (Math.abs(dx) > range || Math.abs(dz) > range) continue;
-
-            int markerX = x + width / 2 + (dx * width / (range * 2));
-            int markerY = y + height / 2 + (dz * height / (range * 2));
-
-            // Render Marker-Symbol
-            guiGraphics.fill(markerX - 2, markerY - 2, markerX + 2, markerY + 2, marker.color);
-
-            // Optional: Marker-Label
-            if (marker.label != null && !marker.label.isEmpty()) {
-                guiGraphics.drawString(this.font, marker.label, markerX + 4, markerY - 4, 0xFFFFFF);
-            }
-        }
-    }
-
-    /**
-     * Fügt einen Marker zur Karte hinzu
-     */
-    public void addMarker(BlockPos pos, int color, String label) {
-        markers.add(new MapMarker(pos, color, label));
-    }
-
-    /**
-     * Entfernt alle Marker
-     */
-    public void clearMarkers() {
-        markers.clear();
     }
 
     @Override
     public boolean isPauseScreen() {
         return false;
     }
-
-    /**
-     * Map-Marker Klasse für interaktive Symbole
-     */
-    public static class MapMarker {
-        public final BlockPos pos;
-        public final int color;
-        public final String label;
-        public String type; // Für zukünftige Erweiterungen (z.B. "waypoint", "dealer", "quest")
-
-        public MapMarker(BlockPos pos, int color, String label) {
-            this.pos = pos;
-            this.color = color;
-            this.label = label;
-            this.type = "default";
-        }
-
-        public MapMarker(BlockPos pos, int color, String label, String type) {
-            this.pos = pos;
-            this.color = color;
-            this.label = label;
-            this.type = type;
-        }
-    }
 }
+
