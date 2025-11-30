@@ -18,9 +18,9 @@ public class MapAppScreen extends Screen {
 
     private final Screen parentScreen;
 
-    // Horizontale Ausrichtung (Landschaft-Modus)
-    private static final int WIDTH = 320;
-    private static final int HEIGHT = 180;
+    // Horizontale Ausrichtung (Landschaft-Modus) - Größer für bessere Kartensicht
+    private static final int WIDTH = 400;
+    private static final int HEIGHT = 260;
     private static final int BORDER_SIZE = 5;
     private static final int MARGIN_TOP = 15;
     private static final int MARGIN_BOTTOM = 60;
@@ -288,14 +288,19 @@ public class MapAppScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        // Linke Maustaste: Start Dragging
+        // Erst prüfen ob ein Button geklickt wurde
+        if (super.mouseClicked(mouseX, mouseY, button)) {
+            return true;
+        }
+
+        // Wenn kein Button geklickt wurde: Linke Maustaste startet Dragging
         if (button == 0) {
             isDragging = true;
             lastMouseX = (int) mouseX;
             lastMouseY = (int) mouseY;
             return true;
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return false;
     }
 
     @Override
@@ -327,6 +332,11 @@ public class MapAppScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        // Erst prüfen ob ein Widget das Event konsumiert
+        if (super.mouseScrolled(mouseX, mouseY, delta)) {
+            return true;
+        }
+
         // Scroll zum Zoomen
         if (delta > 0) {
             zoomIn();
@@ -335,7 +345,7 @@ public class MapAppScreen extends Screen {
             zoomOut();
             return true;
         }
-        return super.mouseScrolled(mouseX, mouseY, delta);
+        return false;
     }
 
     @Override
