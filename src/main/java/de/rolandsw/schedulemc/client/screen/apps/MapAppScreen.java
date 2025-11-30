@@ -65,6 +65,14 @@ public class MapAppScreen extends Screen {
     protected void init() {
         super.init();
 
+        // Beim Öffnen der Map: IMMER auf Spieler zentrieren
+        if (minecraft != null && minecraft.player != null) {
+            viewCenterWorldX = minecraft.player.blockPosition().getX();
+            viewCenterWorldZ = minecraft.player.blockPosition().getZ();
+            panOffsetX = 0;
+            panOffsetY = 0;
+        }
+
         this.leftPos = (this.width - WIDTH) / 2;
 
         // Zentriere vertikal mit Margin-Check
@@ -93,13 +101,25 @@ public class MapAppScreen extends Screen {
 
     private void zoomIn() {
         if (currentZoomIndex < ZOOM_LEVELS.length - 1) {
+            float oldZoom = getCurrentZoom();
             currentZoomIndex++;
+            float newZoom = getCurrentZoom();
+
+            // Passe Pan-Offset an damit der gleiche Welt-Punkt im Zentrum bleibt
+            panOffsetX = (int)(panOffsetX * newZoom / oldZoom);
+            panOffsetY = (int)(panOffsetY * newZoom / oldZoom);
         }
     }
 
     private void zoomOut() {
         if (currentZoomIndex > 0) {
+            float oldZoom = getCurrentZoom();
             currentZoomIndex--;
+            float newZoom = getCurrentZoom();
+
+            // Passe Pan-Offset an damit der gleiche Welt-Punkt im Zentrum bleibt
+            panOffsetX = (int)(panOffsetX * newZoom / oldZoom);
+            panOffsetY = (int)(panOffsetY * newZoom / oldZoom);
         }
     }
 
@@ -151,12 +171,6 @@ public class MapAppScreen extends Screen {
 
         Level level = minecraft.player.level();
         BlockPos playerPos = minecraft.player.blockPosition();
-
-        // Initialisiere View-Zentrum beim ersten Öffnen (zentriert auf Spieler)
-        if (viewCenterWorldX == Integer.MAX_VALUE) {
-            viewCenterWorldX = playerPos.getX();
-            viewCenterWorldZ = playerPos.getZ();
-        }
 
         // Update Karte nur alle paar Ticks
         updateCounter++;
