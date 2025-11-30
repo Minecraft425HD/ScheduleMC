@@ -25,10 +25,10 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(modid = ScheduleMC.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class MinimapOverlay {
 
-    private static final int MINIMAP_SIZE = 80;
+    private static final int MINIMAP_SIZE = 60; // Reduziert von 80 auf 60
     private static final int MARGIN = 10;
-    private static final int RANGE = 24; // Reduziert für Performance
-    private static final int UPDATE_INTERVAL = 10; // Update alle 10 Ticks statt jeden Frame
+    private static final int RANGE = 20; // Reduziert von 24 auf 20
+    private static final int UPDATE_INTERVAL = 20; // Erhöht von 10 auf 20 Ticks
 
     // Cache für Performance
     private static int[][] cachedColors = new int[RANGE * 2][RANGE * 2];
@@ -112,8 +112,11 @@ public class MinimapOverlay {
 
         poseStack.popPose();
 
-        // Kreismaske (nicht rotiert)
-        renderCircularMask(guiGraphics, centerX, centerY, MINIMAP_SIZE / 2);
+        // Einfacher Rahmen statt teurer Kreismaske (Performance!)
+        guiGraphics.fill(x - 1, y - 1, x + MINIMAP_SIZE + 1, y, 0xFFFFFFFF); // Top
+        guiGraphics.fill(x - 1, y + MINIMAP_SIZE, x + MINIMAP_SIZE + 1, y + MINIMAP_SIZE + 1, 0xFFFFFFFF); // Bottom
+        guiGraphics.fill(x - 1, y, x, y + MINIMAP_SIZE, 0xFFFFFFFF); // Left
+        guiGraphics.fill(x + MINIMAP_SIZE, y, x + MINIMAP_SIZE + 1, y + MINIMAP_SIZE, 0xFFFFFFFF); // Right
 
         // Himmelsrichtungen (nicht rotiert)
         renderCardinalDirections(guiGraphics, mc, centerX, centerY, MINIMAP_SIZE / 2);
@@ -136,22 +139,15 @@ public class MinimapOverlay {
     }
 
     /**
-     * Rendert die gecachte Karte
+     * Rendert die gecachte Karte (quadratisch für Performance!)
      */
     private static void renderCachedMap(GuiGraphics guiGraphics, int x, int y) {
         int pixelSize = Math.max(1, MINIMAP_SIZE / (RANGE * 2));
-        int radius = MINIMAP_SIZE / 2;
 
         for (int dx = 0; dx < RANGE * 2; dx++) {
             for (int dz = 0; dz < RANGE * 2; dz++) {
                 int screenX = dx * pixelSize;
                 int screenY = dz * pixelSize;
-
-                // Prüfe ob im Kreis
-                int distFromCenter = (int)Math.sqrt(
-                    Math.pow(screenX - radius, 2) + Math.pow(screenY - radius, 2)
-                );
-                if (distFromCenter > radius) continue;
 
                 int color = cachedColors[dx][dz];
                 guiGraphics.fill(x + screenX, y + screenY,
