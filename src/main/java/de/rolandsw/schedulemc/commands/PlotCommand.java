@@ -11,6 +11,7 @@ import de.rolandsw.schedulemc.items.ModItems;
 import de.rolandsw.schedulemc.items.PlotSelectionTool;
 import de.rolandsw.schedulemc.region.PlotManager;
 import de.rolandsw.schedulemc.region.PlotRegion;
+import de.rolandsw.schedulemc.region.PlotType;
 import de.rolandsw.schedulemc.region.blocks.PlotBlocks;
 import de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity;
 import net.minecraft.commands.CommandSourceStack;
@@ -45,13 +46,36 @@ public class PlotCommand {
                 .then(Commands.literal("wand")
                         .executes(PlotCommand::giveWand))
                 
-                // /plot create <preis> [public]
+                // /plot create <type> <name> [price]
                 .then(Commands.literal("create")
                         .requires(source -> source.hasPermission(2))
-                        .then(Commands.argument("price", DoubleArgumentType.doubleArg(0.01))
-                                .executes(PlotCommand::createPlot)
-                                .then(Commands.literal("public")
-                                        .executes(PlotCommand::createPublicPlot))))
+
+                        // /plot create residential <name> <price>
+                        .then(Commands.literal("residential")
+                                .then(Commands.argument("name", StringArgumentType.string())
+                                        .then(Commands.argument("price", DoubleArgumentType.doubleArg(0.01))
+                                                .executes(ctx -> createPlotWithType(ctx, PlotType.RESIDENTIAL)))))
+
+                        // /plot create commercial <name> <price>
+                        .then(Commands.literal("commercial")
+                                .then(Commands.argument("name", StringArgumentType.string())
+                                        .then(Commands.argument("price", DoubleArgumentType.doubleArg(0.01))
+                                                .executes(ctx -> createPlotWithType(ctx, PlotType.COMMERCIAL)))))
+
+                        // /plot create shop <name>
+                        .then(Commands.literal("shop")
+                                .then(Commands.argument("name", StringArgumentType.string())
+                                        .executes(ctx -> createPlotWithType(ctx, PlotType.SHOP))))
+
+                        // /plot create public <name>
+                        .then(Commands.literal("public")
+                                .then(Commands.argument("name", StringArgumentType.string())
+                                        .executes(ctx -> createPlotWithType(ctx, PlotType.PUBLIC))))
+
+                        // /plot create government <name>
+                        .then(Commands.literal("government")
+                                .then(Commands.argument("name", StringArgumentType.string())
+                                        .executes(ctx -> createPlotWithType(ctx, PlotType.GOVERNMENT)))))
                 
                 // /plot setowner <player>
                 .then(Commands.literal("setowner")
@@ -232,13 +256,13 @@ public class PlotCommand {
         try {
             ServerPlayer player = ctx.getSource().getPlayerOrException();
             ItemStack wand = new ItemStack(ModItems.PLOT_SELECTION_TOOL.get());
-            
+
             if (player.getInventory().add(wand)) {
                 ctx.getSource().sendSuccess(() -> Component.literal(
                     "§a✓ Plot-Auswahl-Werkzeug erhalten!\n" +
                     "§7Linksklick: §ePosition 1\n" +
                     "§7Rechtsklick auf Block: §ePosition 2\n" +
-                    "§7Dann: §e/plot create <preis>"
+                    "§7Dann: §e/plot create <type> <name> [price]"
                 ), false);
             } else {
                 ctx.getSource().sendFailure(Component.literal("§cInventar ist voll!"));
@@ -250,14 +274,31 @@ public class PlotCommand {
         }
     }
 
-    private static int createPlot(CommandContext<CommandSourceStack> ctx) {
+    /**
+     * Erstellt einen Plot mit spezifischem Typ
+     */
+    private static int createPlotWithType(CommandContext<CommandSourceStack> ctx, PlotType type) {
         try {
             ServerPlayer player = ctx.getSource().getPlayerOrException();
-            double price = DoubleArgumentType.getDouble(ctx, "price");
-            
+            String name = StringArgumentType.getString(ctx, "name");
+
+            // Preis nur für kaufbare Typen erforderlich
+            double price = 0.0;
+            if (type.canBePurchased()) {
+                try {
+                    price = DoubleArgumentType.getDouble(ctx, "price");
+                } catch (IllegalArgumentException e) {
+                    ctx.getSource().sendFailure(Component.literal(
+                        "§cFehler: " + type.getDisplayName() + " benötigt einen Preis!\n" +
+                        "§7Verwendung: §e/plot create " + type.name().toLowerCase() + " <name> <price>"
+                    ));
+                    return 0;
+                }
+            }
+
             BlockPos pos1 = PlotSelectionTool.getPosition1(player.getUUID());
             BlockPos pos2 = PlotSelectionTool.getPosition2(player.getUUID());
-            
+
             if (pos1 == null || pos2 == null) {
                 ctx.getSource().sendFailure(Component.literal(
                     "§cKeine Auswahl vorhanden!\n" +
@@ -265,57 +306,28 @@ public class PlotCommand {
                 ));
                 return 0;
             }
-            
-            PlotRegion plot = PlotManager.createPlot(pos1, pos2, price);
+
+            // Erstelle Plot mit Namen und Typ
+            PlotRegion plot = PlotManager.createPlot(pos1, pos2, name, type, price);
             PlotSelectionTool.clearSelection(player.getUUID());
-            
+
+            // Erfolgs-Nachricht basierend auf Typ
+            String priceInfo = type.canBePurchased() ?
+                "\n§7Preis: §e" + String.format("%.2f", price) + "€" :
+                "\n§7Staatseigentum (nicht kaufbar)";
+
             ctx.getSource().sendSuccess(() -> Component.literal(
-                "§a✓ Plot erstellt!\n" +
-                "§7ID: §e" + plot.getPlotId() + "\n" +
-                "§7Preis: §e" + String.format("%.2f", price) + "€\n" +
+                "§a✓ " + type.getDisplayName() + " erstellt!\n" +
+                "§7Name: §e" + plot.getPlotId() + "\n" +
+                "§7Typ: §b" + type.getDisplayName() +
+                priceInfo + "\n" +
                 "§7Größe: §e" + plot.getVolume() + " Blöcke"
             ), true);
-            
-            return 1;
-        } catch (Exception e) {
-            LOGGER.error("Fehler bei /plot create", e);
-            ctx.getSource().sendFailure(Component.literal("§cFehler beim Erstellen des Plots!"));
-            return 0;
-        }
-    }
 
-    private static int createPublicPlot(CommandContext<CommandSourceStack> ctx) {
-        try {
-            ServerPlayer player = ctx.getSource().getPlayerOrException();
-            double price = DoubleArgumentType.getDouble(ctx, "price");
-            
-            BlockPos pos1 = PlotSelectionTool.getPosition1(player.getUUID());
-            BlockPos pos2 = PlotSelectionTool.getPosition2(player.getUUID());
-            
-            if (pos1 == null || pos2 == null) {
-                ctx.getSource().sendFailure(Component.literal(
-                    "§cKeine Auswahl vorhanden!\n" +
-                    "§7Benutze das Selection Tool um zwei Positionen zu markieren."
-                ));
-                return 0;
-            }
-            
-            PlotRegion plot = PlotManager.createPlot(pos1, pos2, price);
-            plot.setPublic(true);
-            PlotSelectionTool.clearSelection(player.getUUID());
-            PlotManager.markDirty();
-            
-            ctx.getSource().sendSuccess(() -> Component.literal(
-                "§a✓ Öffentlicher Plot erstellt!\n" +
-                "§7ID: §e" + plot.getPlotId() + "\n" +
-                "§d§lÖFFENTLICH\n" +
-                "§7Jeder kann Objekte benutzen\n" +
-                "§7Niemand kann bauen/abbauen"
-            ), true);
-            
             return 1;
         } catch (Exception e) {
-            LOGGER.error("Fehler bei /plot create public", e);
+            LOGGER.error("Fehler bei /plot create " + type.name(), e);
+            ctx.getSource().sendFailure(Component.literal("§cFehler beim Erstellen des Plots!"));
             return 0;
         }
     }
