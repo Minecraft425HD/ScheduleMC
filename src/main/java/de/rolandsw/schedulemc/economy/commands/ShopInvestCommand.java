@@ -242,7 +242,7 @@ public class ShopInvestCommand {
                     sb.append("§7Shop: §e").append(shop.getShopId()).append("\n");
                     sb.append("§7  Anteile: §e").append(holder.getSharesOwned())
                         .append(" §7(").append(String.format("%.1f", holder.getOwnershipPercentage())).append("%)\n");
-                    sb.append("§7  Kaufpreis: §e").append(holder.getTotalInvestment()).append("€\n");
+                    sb.append("§7  Investiert: §e").append(holder.getPurchasePrice()).append("€\n");
                     sb.append("§7  7-Tage Netto: §e").append(shop.get7DayNetRevenue()).append("€\n\n");
                 }
             }

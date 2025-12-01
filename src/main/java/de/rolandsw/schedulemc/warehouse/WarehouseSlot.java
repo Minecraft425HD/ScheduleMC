@@ -99,6 +99,14 @@ public class WarehouseSlot {
         return maxCapacity - currentStock;
     }
 
+    /**
+     * Leert den Slot komplett
+     */
+    public void clear() {
+        this.allowedItem = null;
+        this.currentStock = 0;
+    }
+
     // === SERIALISIERUNG ===
 
     public CompoundTag save(CompoundTag tag) {
