@@ -14,8 +14,12 @@ import net.minecraft.commands.arguments.item.ItemInput;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 
 /**
@@ -68,17 +72,58 @@ public class WarehouseCommand {
         );
     }
 
+    /**
+     * Findet das Warehouse, auf das der Spieler schaut oder an dem er steht
+     */
+    private static WarehouseBlockEntity findWarehouse(ServerPlayer player) {
+        Level level = player.level();
+
+        // Zuerst: Prüfe Block, auf den der Spieler schaut (Raycast)
+        Vec3 eyePos = player.getEyePosition(1.0F);
+        Vec3 lookVec = player.getLookAngle();
+        Vec3 endPos = eyePos.add(lookVec.scale(5.0)); // 5 Blöcke Reichweite
+
+        BlockHitResult hitResult = level.clip(new ClipContext(
+            eyePos, endPos,
+            ClipContext.Block.OUTLINE,
+            ClipContext.Fluid.NONE,
+            player
+        ));
+
+        if (hitResult.getType() == HitResult.Type.BLOCK) {
+            BlockEntity be = level.getBlockEntity(hitResult.getBlockPos());
+            if (be instanceof WarehouseBlockEntity warehouse) {
+                return warehouse;
+            }
+        }
+
+        // Fallback: Prüfe Position unter dem Spieler
+        BlockPos playerPos = player.blockPosition();
+        BlockEntity be = level.getBlockEntity(playerPos.below());
+        if (be instanceof WarehouseBlockEntity warehouse) {
+            return warehouse;
+        }
+
+        // Prüfe Position des Spielers selbst
+        be = level.getBlockEntity(playerPos);
+        if (be instanceof WarehouseBlockEntity warehouse) {
+            return warehouse;
+        }
+
+        return null;
+    }
+
     private static int showInfo(CommandContext<CommandSourceStack> ctx) {
         try {
             ServerPlayer player = ctx.getSource().getPlayerOrException();
-            BlockPos pos = player.blockPosition();
-            Level level = player.level();
+            WarehouseBlockEntity warehouse = findWarehouse(player);
 
-            BlockEntity be = level.getBlockEntity(pos);
-            if (!(be instanceof WarehouseBlockEntity warehouse)) {
-                ctx.getSource().sendFailure(Component.literal("§cKein Warehouse an dieser Position!"));
+            if (warehouse == null) {
+                ctx.getSource().sendFailure(Component.literal("§cKein Warehouse gefunden! Schaue auf einen Warehouse-Block oder stehe direkt darauf."));
                 return 0;
             }
+
+            BlockPos pos = warehouse.getBlockPos();
 
             ctx.getSource().sendSuccess(() -> Component.literal(
                 "§e§l=== Warehouse Info ===\n" +
@@ -99,12 +144,10 @@ public class WarehouseCommand {
     private static int addItem(CommandContext<CommandSourceStack> ctx) {
         try {
             ServerPlayer player = ctx.getSource().getPlayerOrException();
-            BlockPos pos = player.blockPosition();
-            Level level = player.level();
+            WarehouseBlockEntity warehouse = findWarehouse(player);
 
-            BlockEntity be = level.getBlockEntity(pos);
-            if (!(be instanceof WarehouseBlockEntity warehouse)) {
-                ctx.getSource().sendFailure(Component.literal("§cKein Warehouse an dieser Position!"));
+            if (warehouse == null) {
+                ctx.getSource().sendFailure(Component.literal("§cKein Warehouse gefunden! Schaue auf einen Warehouse-Block oder stehe direkt darauf."));
                 return 0;
             }
 
@@ -133,12 +176,10 @@ public class WarehouseCommand {
     private static int removeItem(CommandContext<CommandSourceStack> ctx) {
         try {
             ServerPlayer player = ctx.getSource().getPlayerOrException();
-            BlockPos pos = player.blockPosition();
-            Level level = player.level();
+            WarehouseBlockEntity warehouse = findWarehouse(player);
 
-            BlockEntity be = level.getBlockEntity(pos);
-            if (!(be instanceof WarehouseBlockEntity warehouse)) {
-                ctx.getSource().sendFailure(Component.literal("§cKein Warehouse an dieser Position!"));
+            if (warehouse == null) {
+                ctx.getSource().sendFailure(Component.literal("§cKein Warehouse gefunden! Schaue auf einen Warehouse-Block oder stehe direkt darauf."));
                 return 0;
             }
 
@@ -167,12 +208,10 @@ public class WarehouseCommand {
     private static int clearWarehouse(CommandContext<CommandSourceStack> ctx) {
         try {
             ServerPlayer player = ctx.getSource().getPlayerOrException();
-            BlockPos pos = player.blockPosition();
-            Level level = player.level();
+            WarehouseBlockEntity warehouse = findWarehouse(player);
 
-            BlockEntity be = level.getBlockEntity(pos);
-            if (!(be instanceof WarehouseBlockEntity warehouse)) {
-                ctx.getSource().sendFailure(Component.literal("§cKein Warehouse an dieser Position!"));
+            if (warehouse == null) {
+                ctx.getSource().sendFailure(Component.literal("§cKein Warehouse gefunden! Schaue auf einen Warehouse-Block oder stehe direkt darauf."));
                 return 0;
             }
 
@@ -191,12 +230,10 @@ public class WarehouseCommand {
     private static int setShopId(CommandContext<CommandSourceStack> ctx) {
         try {
             ServerPlayer player = ctx.getSource().getPlayerOrException();
-            BlockPos pos = player.blockPosition();
-            Level level = player.level();
+            WarehouseBlockEntity warehouse = findWarehouse(player);
 
-            BlockEntity be = level.getBlockEntity(pos);
-            if (!(be instanceof WarehouseBlockEntity warehouse)) {
-                ctx.getSource().sendFailure(Component.literal("§cKein Warehouse an dieser Position!"));
+            if (warehouse == null) {
+                ctx.getSource().sendFailure(Component.literal("§cKein Warehouse gefunden! Schaue auf einen Warehouse-Block oder stehe direkt darauf."));
                 return 0;
             }
 
