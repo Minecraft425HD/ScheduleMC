@@ -116,8 +116,9 @@ public class WarehouseTool extends Item {
             return InteractionResult.FAIL;
         }
 
-        // Verknüpfe NPC mit Warehouse
+        // Verknüpfe NPC mit Warehouse (bidirektional)
         npc.getNpcData().setAssignedWarehouse(warehousePos);
+        warehouse.addSeller(npc.getNpcData().getNpcUUID());
 
         player.sendSystemMessage(
             Component.literal("§a✓ NPC mit Warehouse verknüpft!")
@@ -125,6 +126,7 @@ public class WarehouseTool extends Item {
                 .append(Component.literal("\n§7Warehouse: §f" + warehousePos.toShortString()))
                 .append(Component.literal("\n§7Shop-ID: §e" +
                     (warehouse.getShopId() != null ? warehouse.getShopId() : "§cNicht gesetzt")))
+                .append(Component.literal("\n§7Verknüpfte Verkäufer: §e" + warehouse.getLinkedSellers().size()))
         );
 
         // Warehouse-Auswahl beibehalten für weitere NPCs
