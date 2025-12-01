@@ -139,7 +139,7 @@ public class ScheduleMC {
         PlotCommand.register(event.getDispatcher());
         MoneyCommand.register(event.getDispatcher());
         DailyCommand.register(event.getDispatcher());
-        de.rolandsw.schedulemc.managers.ShopManager.ShopCommand.register(event.getDispatcher());
+        ShopCommand.register(event.getDispatcher());
         TobaccoCommand.register(event.getDispatcher());
         HospitalCommand.register(event.getDispatcher());
         NPCCommand.register(event.getDispatcher(), event.getBuildContext());

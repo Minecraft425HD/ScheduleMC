@@ -176,7 +176,7 @@ public class WarehouseCommand {
                 return 0;
             }
 
-            warehouse.clearAllSlots();
+            warehouse.clearAll();
 
             ctx.getSource().sendSuccess(() -> Component.literal(
                 "§a✓ Warehouse geleert!"

@@ -7,6 +7,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.economy.ShopAccount;
 import de.rolandsw.schedulemc.economy.ShopAccountManager;
+import de.rolandsw.schedulemc.economy.ShareHolder;
 import de.rolandsw.schedulemc.economy.WalletManager;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -105,14 +106,14 @@ public class ShopInvestCommand {
             sb.append("§7Verfügbare Anteile: §e").append(shop.getAvailableShares()).append(" §7/ 100\n");
             sb.append("§77-Tage Netto-Umsatz: §e").append(shop.get7DayNetRevenue()).append("€\n\n");
 
-            if (shop.getShareHolders().isEmpty()) {
+            if (shop.getShareholders().isEmpty()) {
                 sb.append("§7Keine Teilhaber");
             } else {
                 sb.append("§e§lTeilhaber:\n");
-                for (var holder : shop.getShareHolders()) {
+                for (var holder : shop.getShareholders()) {
                     String playerName = ctx.getSource().getServer()
                         .getPlayerList()
-                        .getPlayer(holder.getPlayerId())
+                        .getPlayer(holder.getPlayerUUID())
                         .getName().getString();
                     sb.append("§7- §e").append(playerName)
                         .append(" §7(§e").append(holder.getSharesOwned()).append("§7 Anteile, ")
@@ -143,10 +144,9 @@ public class ShopInvestCommand {
 
             // Check if player already owns shares
             UUID playerId = player.getUUID();
-            boolean alreadyInvested = shop.getShareHolders().stream()
-                .anyMatch(holder -> holder.getPlayerId().equals(playerId));
+            boolean alreadyInvested = shop.hasShareholder(playerId);
 
-            if (!alreadyInvested && shop.getShareHolders().size() >= 2) {
+            if (!alreadyInvested && !shop.canAddShareholder()) {
                 ctx.getSource().sendFailure(Component.literal("§cMaximal 2 Teilhaber pro Shop erlaubt!"));
                 return 0;
             }
@@ -160,17 +160,18 @@ public class ShopInvestCommand {
             }
 
             int cost = shares * PRICE_PER_SHARE;
-            if (!WalletManager.hasEnoughMoney(player, cost)) {
+            double balance = WalletManager.getBalance(playerId);
+            if (balance < cost) {
                 ctx.getSource().sendFailure(Component.literal(
                     "§cNicht genug Geld!\n" +
                     "§7Benötigt: §e" + cost + "€\n" +
-                    "§7Kontostand: §e" + WalletManager.getBalance(playerId) + "€"
+                    "§7Kontostand: §e" + (int)balance + "€"
                 ));
                 return 0;
             }
 
-            if (shop.addShareHolder(playerId, shares, cost)) {
-                WalletManager.removeMoney(player, cost, "Shop-Investition: " + shopId);
+            if (shop.purchaseShares(playerId, player.getName().getString(), shares, cost)) {
+                WalletManager.removeMoney(playerId, (double)cost);
 
                 ctx.getSource().sendSuccess(() -> Component.literal(
                     "§a✓ Anteile gekauft!\n" +
@@ -203,10 +204,10 @@ public class ShopInvestCommand {
             }
 
             UUID playerId = player.getUUID();
-            int refund = shop.removeShareHolder(playerId, shares);
+            int refund = shop.sellShares(playerId, shares);
 
             if (refund > 0) {
-                WalletManager.addMoney(player, refund, "Anteils-Verkauf: " + shopId);
+                WalletManager.addMoney(playerId, (double)refund);
 
                 ctx.getSource().sendSuccess(() -> Component.literal(
                     "§a✓ Anteile verkauft!\n" +
@@ -234,16 +235,14 @@ public class ShopInvestCommand {
             boolean hasShares = false;
 
             for (ShopAccount shop : ShopAccountManager.getAllAccounts()) {
-                var holder = shop.getShareHolders().stream()
-                    .filter(h -> h.getPlayerId().equals(playerId))
-                    .findFirst();
+                ShareHolder holder = shop.getShareholder(playerId);
 
-                if (holder.isPresent()) {
+                if (holder != null) {
                     hasShares = true;
                     sb.append("§7Shop: §e").append(shop.getShopId()).append("\n");
-                    sb.append("§7  Anteile: §e").append(holder.get().getSharesOwned())
-                        .append(" §7(").append(String.format("%.1f", holder.get().getOwnershipPercentage())).append("%)\n");
-                    sb.append("§7  Kaufpreis: §e").append(holder.get().getPurchasePrice()).append("€\n");
+                    sb.append("§7  Anteile: §e").append(holder.getSharesOwned())
+                        .append(" §7(").append(String.format("%.1f", holder.getOwnershipPercentage())).append("%)\n");
+                    sb.append("§7  Kaufpreis: §e").append(holder.getTotalInvestment()).append("€\n");
                     sb.append("§7  7-Tage Netto: §e").append(shop.get7DayNetRevenue()).append("€\n\n");
                 }
             }

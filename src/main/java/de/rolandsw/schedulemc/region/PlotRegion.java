@@ -617,9 +617,9 @@ public class PlotRegion {
     }
 
     /**
-     * Überschreibt setForSale: Shop-Plots können nicht verkauft werden
+     * Erweitert setForSale: Shop-Plots können nicht verkauft werden
+     * (Duplicate method - old ones commented out above)
      */
-    @Override
     public void setForSale(boolean forSale) {
         if (type != null && !type.canBePurchased()) {
             // Shop-Plots und andere nicht-kaufbare Plots können nicht verkauft werden
@@ -629,9 +629,9 @@ public class PlotRegion {
     }
 
     /**
-     * Überschreibt setForRent: Shop-Plots können nicht vermietet werden
+     * Erweitert setForRent: Shop-Plots können nicht vermietet werden
+     * (Duplicate method - old ones commented out above)
      */
-    @Override
     public void setForRent(boolean forRent) {
         if (type != null && !type.canBeRented()) {
             // Shop-Plots und andere nicht-vermietbare Plots können nicht vermietet werden

@@ -815,7 +815,7 @@ public class NPCData {
         }
 
         // Fallback: Nutze altes Stock-System
-        return entry.hasStock();
+        return entry.hasStock(amount);
     }
 
     /**
@@ -843,6 +843,6 @@ public class NPCData {
         }
 
         // Fallback: Nutze altes System
-        entry.reduceStock();
+        entry.reduceStock(amount);
     }
 }

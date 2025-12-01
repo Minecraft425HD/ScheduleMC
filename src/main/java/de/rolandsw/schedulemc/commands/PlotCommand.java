@@ -1655,7 +1655,7 @@ public class PlotCommand {
             ServerPlayer player = ctx.getSource().getPlayerOrException();
             String typeStr = StringArgumentType.getString(ctx, "type").toUpperCase();
 
-            PlotRegion plot = PlotManager.getPlotAtPosition(player.blockPosition());
+            PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
             if (plot == null) {
                 ctx.getSource().sendFailure(Component.literal("§cDu stehst nicht in einem Plot!"));
                 return 0;
@@ -1689,7 +1689,7 @@ public class PlotCommand {
             ServerPlayer player = ctx.getSource().getPlayerOrException();
             BlockPos playerPos = player.blockPosition();
 
-            PlotRegion plot = PlotManager.getPlotAtPosition(playerPos);
+            PlotRegion plot = PlotManager.getPlotAt(playerPos);
             if (plot == null) {
                 ctx.getSource().sendFailure(Component.literal("§cDu stehst nicht in einem Plot!"));
                 return 0;
@@ -1714,7 +1714,7 @@ public class PlotCommand {
         try {
             ServerPlayer player = ctx.getSource().getPlayerOrException();
 
-            PlotRegion plot = PlotManager.getPlotAtPosition(player.blockPosition());
+            PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
             if (plot == null) {
                 ctx.getSource().sendFailure(Component.literal("§cDu stehst nicht in einem Plot!"));
                 return 0;
@@ -1738,7 +1738,7 @@ public class PlotCommand {
         try {
             ServerPlayer player = ctx.getSource().getPlayerOrException();
 
-            PlotRegion plot = PlotManager.getPlotAtPosition(player.blockPosition());
+            PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
             if (plot == null) {
                 ctx.getSource().sendFailure(Component.literal("§cDu stehst nicht in einem Plot!"));
                 return 0;

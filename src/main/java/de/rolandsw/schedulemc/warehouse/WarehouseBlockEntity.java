@@ -249,6 +249,20 @@ public class WarehouseBlockEntity extends BlockEntity {
         return count;
     }
 
+    public long getLastDeliveryTime() {
+        return lastDeliveryTime;
+    }
+
+    /**
+     * Leert alle Slots (Admin-Funktion)
+     */
+    public void clearAll() {
+        for (WarehouseSlot slot : slots) {
+            slot.clear();
+        }
+        setChanged();
+    }
+
     // ═══════════════════════════════════════════════════════════
     // NBT SERIALISIERUNG
     // ═══════════════════════════════════════════════════════════
