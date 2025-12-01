@@ -15,10 +15,6 @@ public class ModMenuTypes {
     public static final DeferredRegister<MenuType<?>> MENUS =
         DeferredRegister.create(ForgeRegistries.MENU_TYPES, ScheduleMC.MOD_ID);
 
-    public static final RegistryObject<MenuType<PackagingTableMenu>> PACKAGING_TABLE_MENU =
-        MENUS.register("packaging_table_menu", () ->
-            IForgeMenuType.create(PackagingTableMenu::new));
-
     public static final RegistryObject<MenuType<TobaccoNegotiationMenu>> TOBACCO_NEGOTIATION_MENU =
         MENUS.register("tobacco_negotiation_menu", () ->
             IForgeMenuType.create(TobaccoNegotiationMenu::new));
