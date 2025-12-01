@@ -113,19 +113,27 @@ public class CustomNPCEntity extends PathfinderMob {
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
         if (!this.level().isClientSide && player instanceof ServerPlayer serverPlayer) {
-            // Admin: Shift + Rechtsklick öffnet Shop-Editor (nur für Verkäufer)
-            if (player.isShiftKeyDown() && serverPlayer.hasPermissions(2)) {
-                if (getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.VERKAEUFER) {
-                    openShopEditor(serverPlayer);
-                    return InteractionResult.SUCCESS;
-                }
-            }
-
             // Normal: Öffne Interaktions-GUI
             openInteractionMenu(serverPlayer);
             return InteractionResult.SUCCESS;
         }
         return InteractionResult.sidedSuccess(this.level().isClientSide);
+    }
+
+    @Override
+    public boolean hurt(net.minecraft.world.damagesource.DamageSource source, float amount) {
+        // Admin: SHIFT + Linksklick öffnet Shop-Editor (nur für Verkäufer)
+        if (!this.level().isClientSide && source.getEntity() instanceof ServerPlayer serverPlayer) {
+            if (serverPlayer.isShiftKeyDown() && serverPlayer.hasPermissions(2)) {
+                if (getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.VERKAEUFER) {
+                    openShopEditor(serverPlayer);
+                    return false; // Verhindere Schaden
+                }
+            }
+        }
+
+        // Normal: Kein Schaden (NPCs sind invulnerable)
+        return super.hurt(source, amount);
     }
 
     /**
