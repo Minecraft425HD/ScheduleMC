@@ -141,6 +141,9 @@ public class NPCData {
         if (workLocation != null) {
             tag.putLong("WorkLocation", workLocation.asLong());
         }
+        if (assignedWarehouse != null) {
+            tag.putLong("AssignedWarehouse", assignedWarehouse.asLong());
+        }
 
         // Leisure Locations
         ListTag leisureList = new ListTag();
@@ -224,6 +227,9 @@ public class NPCData {
         }
         if (tag.contains("WorkLocation")) {
             workLocation = BlockPos.of(tag.getLong("WorkLocation"));
+        }
+        if (tag.contains("AssignedWarehouse")) {
+            assignedWarehouse = BlockPos.of(tag.getLong("AssignedWarehouse"));
         }
 
         // Leisure Locations

@@ -203,6 +203,22 @@ public class PlotCommand {
                                 .then(Commands.argument("apartmentId", StringArgumentType.string())
                                         .executes(PlotCommand::evictTenant)))
                 )
+
+                // /plot settype <type>
+                .then(Commands.literal("settype")
+                        .requires(source -> source.hasPermission(2))
+                        .then(Commands.argument("type", StringArgumentType.string())
+                                .executes(PlotCommand::setPlotType)))
+
+                // /plot warehouse set
+                .then(Commands.literal("warehouse")
+                        .requires(source -> source.hasPermission(2))
+                        .then(Commands.literal("set")
+                                .executes(PlotCommand::setWarehouseLocation))
+                        .then(Commands.literal("clear")
+                                .executes(PlotCommand::clearWarehouseLocation))
+                        .then(Commands.literal("info")
+                                .executes(PlotCommand::warehouseInfo)))
         );
     }
 
@@ -1628,5 +1644,124 @@ public class PlotCommand {
         }
 
         return apartment;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // WAREHOUSE & PLOT TYPE COMMANDS
+    // ═══════════════════════════════════════════════════════════
+
+    private static int setPlotType(CommandContext<CommandSourceStack> ctx) {
+        try {
+            ServerPlayer player = ctx.getSource().getPlayerOrException();
+            String typeStr = StringArgumentType.getString(ctx, "type").toUpperCase();
+
+            PlotRegion plot = PlotManager.getPlotAtPosition(player.blockPosition());
+            if (plot == null) {
+                ctx.getSource().sendFailure(Component.literal("§cDu stehst nicht in einem Plot!"));
+                return 0;
+            }
+
+            try {
+                de.rolandsw.schedulemc.region.PlotType type = de.rolandsw.schedulemc.region.PlotType.valueOf(typeStr);
+                plot.setType(type);
+                PlotManager.markDirty();
+
+                ctx.getSource().sendSuccess(() -> Component.literal(
+                    "§a✓ Plot-Typ geändert!\n" +
+                    "§7Neuer Typ: §e" + type.getDisplayName()
+                ), false);
+                return 1;
+            } catch (IllegalArgumentException e) {
+                ctx.getSource().sendFailure(Component.literal(
+                    "§cUngültiger Plot-Typ!\n" +
+                    "§7Verfügbar: §eRESIDENTIAL, COMMERCIAL, SHOP, PUBLIC, GOVERNMENT"
+                ));
+                return 0;
+            }
+        } catch (Exception e) {
+            LOGGER.error("Fehler bei /plot settype", e);
+            return 0;
+        }
+    }
+
+    private static int setWarehouseLocation(CommandContext<CommandSourceStack> ctx) {
+        try {
+            ServerPlayer player = ctx.getSource().getPlayerOrException();
+            BlockPos playerPos = player.blockPosition();
+
+            PlotRegion plot = PlotManager.getPlotAtPosition(playerPos);
+            if (plot == null) {
+                ctx.getSource().sendFailure(Component.literal("§cDu stehst nicht in einem Plot!"));
+                return 0;
+            }
+
+            plot.setWarehouseLocation(playerPos);
+            PlotManager.markDirty();
+
+            ctx.getSource().sendSuccess(() -> Component.literal(
+                "§a✓ Warehouse-Position gesetzt!\n" +
+                "§7Plot: §e" + plot.getPlotId() + "\n" +
+                "§7Position: §f" + playerPos.getX() + ", " + playerPos.getY() + ", " + playerPos.getZ()
+            ), false);
+            return 1;
+        } catch (Exception e) {
+            LOGGER.error("Fehler bei /plot warehouse set", e);
+            return 0;
+        }
+    }
+
+    private static int clearWarehouseLocation(CommandContext<CommandSourceStack> ctx) {
+        try {
+            ServerPlayer player = ctx.getSource().getPlayerOrException();
+
+            PlotRegion plot = PlotManager.getPlotAtPosition(player.blockPosition());
+            if (plot == null) {
+                ctx.getSource().sendFailure(Component.literal("§cDu stehst nicht in einem Plot!"));
+                return 0;
+            }
+
+            plot.setWarehouseLocation(null);
+            PlotManager.markDirty();
+
+            ctx.getSource().sendSuccess(() -> Component.literal(
+                "§a✓ Warehouse-Position entfernt!\n" +
+                "§7Plot: §e" + plot.getPlotId()
+            ), false);
+            return 1;
+        } catch (Exception e) {
+            LOGGER.error("Fehler bei /plot warehouse clear", e);
+            return 0;
+        }
+    }
+
+    private static int warehouseInfo(CommandContext<CommandSourceStack> ctx) {
+        try {
+            ServerPlayer player = ctx.getSource().getPlayerOrException();
+
+            PlotRegion plot = PlotManager.getPlotAtPosition(player.blockPosition());
+            if (plot == null) {
+                ctx.getSource().sendFailure(Component.literal("§cDu stehst nicht in einem Plot!"));
+                return 0;
+            }
+
+            BlockPos warehousePos = plot.getWarehouseLocation();
+            if (warehousePos == null) {
+                ctx.getSource().sendSuccess(() -> Component.literal(
+                    "§e=== Warehouse Info ===\n" +
+                    "§7Plot: §e" + plot.getPlotId() + "\n" +
+                    "§7Status: §cKein Warehouse verknüpft"
+                ), false);
+            } else {
+                ctx.getSource().sendSuccess(() -> Component.literal(
+                    "§e=== Warehouse Info ===\n" +
+                    "§7Plot: §e" + plot.getPlotId() + "\n" +
+                    "§7Position: §f" + warehousePos.getX() + ", " + warehousePos.getY() + ", " + warehousePos.getZ()
+                ), false);
+            }
+            return 1;
+        } catch (Exception e) {
+            LOGGER.error("Fehler bei /plot warehouse info", e);
+            return 0;
+        }
     }
 }

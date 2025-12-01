@@ -37,8 +37,7 @@ public class WarehouseBlockEntity extends BlockEntity {
     private String shopId; // Referenz zum Shop-Konto
 
     public WarehouseBlockEntity(BlockPos pos, BlockState state) {
-        // TODO: super(ModBlockEntities.WAREHOUSE.get(), pos, state);
-        super(null, pos, state); // Temporär bis BlockEntity registriert ist
+        super(WarehouseBlocks.WAREHOUSE_BLOCK_ENTITY.get(), pos, state);
 
         int slotCount = WarehouseConfig.SLOT_COUNT.get();
         int capacity = WarehouseConfig.MAX_CAPACITY_PER_SLOT.get();
