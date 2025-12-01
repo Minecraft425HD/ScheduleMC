@@ -14,6 +14,7 @@ import de.rolandsw.schedulemc.managers.NPCNameRegistry;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.npc.items.NPCLocationTool;
+import de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
@@ -24,10 +25,16 @@ import net.minecraft.commands.arguments.item.ItemInput;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -1070,11 +1077,50 @@ public class NPCCommand {
     // WAREHOUSE COMMANDS
     // ═══════════════════════════════════════════════════════════
 
+    /**
+     * Findet die Position des Warehouse-Blocks, auf den der Spieler schaut
+     */
+    private static BlockPos findWarehouseBlockPos(ServerPlayer player) {
+        // Zuerst: Prüfe Block, auf den der Spieler schaut (Raycast)
+        Vec3 eyePos = player.getEyePosition(1.0F);
+        Vec3 lookVec = player.getLookAngle();
+        Vec3 endPos = eyePos.add(lookVec.scale(5.0)); // 5 Blöcke Reichweite
+
+        BlockHitResult hitResult = player.level().clip(new ClipContext(
+            eyePos, endPos,
+            ClipContext.Block.OUTLINE,
+            ClipContext.Fluid.NONE,
+            player
+        ));
+
+        if (hitResult.getType() == HitResult.Type.BLOCK) {
+            BlockEntity be = player.level().getBlockEntity(hitResult.getBlockPos());
+            if (be instanceof WarehouseBlockEntity) {
+                return hitResult.getBlockPos();
+            }
+        }
+
+        // Fallback: Prüfe Position unter dem Spieler
+        BlockPos playerPos = player.blockPosition();
+        BlockEntity be = player.level().getBlockEntity(playerPos.below());
+        if (be instanceof WarehouseBlockEntity) {
+            return playerPos.below();
+        }
+
+        // Prüfe Position des Spielers selbst
+        be = player.level().getBlockEntity(playerPos);
+        if (be instanceof WarehouseBlockEntity) {
+            return playerPos;
+        }
+
+        return null;
+    }
+
     private static int setWarehouse(CommandContext<CommandSourceStack> context) {
         try {
             String npcName = StringArgumentType.getString(context, "npcName");
             ServerLevel level = context.getSource().getLevel();
-            BlockPos playerPos = context.getSource().getPlayerOrException().blockPosition();
+            ServerPlayer player = context.getSource().getPlayerOrException();
 
             CustomNPCEntity npc = getNPCByName(npcName, level);
             if (npc == null) {
@@ -1084,20 +1130,20 @@ public class NPCCommand {
                 return 0;
             }
 
-            // Prüfe ob an der Position ein Warehouse-Block ist
-            if (!(level.getBlockEntity(playerPos) instanceof de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity)) {
+            BlockPos warehousePos = findWarehouseBlockPos(player);
+            if (warehousePos == null) {
                 context.getSource().sendFailure(
-                    Component.literal("§cKein Warehouse an dieser Position!")
+                    Component.literal("§cKein Warehouse gefunden! Schaue auf einen Warehouse-Block oder stehe direkt darauf.")
                 );
                 return 0;
             }
 
-            npc.getNpcData().setAssignedWarehouse(playerPos);
+            npc.getNpcData().setAssignedWarehouse(warehousePos);
 
             context.getSource().sendSuccess(() ->
                 Component.literal("§a✓ Warehouse verknüpft!\n" +
                     "§7NPC: §e" + npc.getNpcName() + "\n" +
-                    "§7Position: §f" + playerPos.getX() + ", " + playerPos.getY() + ", " + playerPos.getZ()
+                    "§7Position: §f" + warehousePos.getX() + ", " + warehousePos.getY() + ", " + warehousePos.getZ()
                 ), false
             );
             return 1;
