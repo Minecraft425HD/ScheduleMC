@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.warehouse;
 
+import de.rolandsw.schedulemc.warehouse.items.WarehouseTool;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -48,6 +49,11 @@ public class WarehouseBlock extends Block implements EntityBlock {
 
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        // Wenn Spieler Warehouse-Tool hält, lasse das Tool die Interaktion handhaben
+        if (player.getItemInHand(hand).getItem() instanceof WarehouseTool) {
+            return InteractionResult.PASS;
+        }
+
         if (level.isClientSide) {
             return InteractionResult.SUCCESS;
         }
