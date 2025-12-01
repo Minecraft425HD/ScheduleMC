@@ -98,9 +98,11 @@ public class ScheduleMC {
         NPCEntities.ENTITIES.register(modEventBus);
         NPCMenuTypes.MENUS.register(modEventBus);
         ModCreativeTabs.CREATIVE_MODE_TABS.register(modEventBus);
-        
+
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ModConfigHandler.SPEC);
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, WarehouseConfig.SPEC);
+
+        // Initialize warehouse config after main config is registered
+        WarehouseConfig.init();
 
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(new BlockProtectionHandler());
