@@ -52,7 +52,23 @@ public class OpenMerchantShopPacket {
                                 buf.writeItem(entry.getItem());
                                 buf.writeInt(entry.getPrice());
                                 buf.writeBoolean(entry.isUnlimited());
-                                buf.writeInt(entry.getStock());
+
+                                // Stock aus Warehouse oder lokalem Entry
+                                int actualStock;
+                                if (entry.isUnlimited()) {
+                                    actualStock = Integer.MAX_VALUE;
+                                } else if (npc.getNpcData().hasWarehouse()) {
+                                    // Hole Stock aus Warehouse
+                                    var warehouse = npc.getNpcData().getWarehouseEntity(player.level());
+                                    if (warehouse != null) {
+                                        actualStock = warehouse.getStock(entry.getItem().getItem());
+                                    } else {
+                                        actualStock = entry.getStock(); // Fallback
+                                    }
+                                } else {
+                                    actualStock = entry.getStock();
+                                }
+                                buf.writeInt(actualStock);
                             }
                         });
                     }
