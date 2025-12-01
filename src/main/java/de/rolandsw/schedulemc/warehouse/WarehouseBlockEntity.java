@@ -199,10 +199,11 @@ public class WarehouseBlockEntity extends BlockEntity {
                 worldPosition.toShortString(), totalCost, toDeliver.size());
 
             // Benachrichtige nahe Spieler
+            final int finalCost = totalCost;
             level.players().stream()
                 .filter(player -> player.blockPosition().distSqr(worldPosition) < 2500) // 50 Blöcke
                 .forEach(player -> player.sendSystemMessage(
-                    Component.literal("§a[Warehouse] Lieferung erhalten! Kosten: " + totalCost + "€")
+                    Component.literal("§a[Warehouse] Lieferung erhalten! Kosten: " + finalCost + "€")
                 ));
         } else {
             LOGGER.warn("Warehouse-Lieferung fehlgeschlagen @ {}: Staatskasse hat nicht genug Geld (benötigt: {}€)",
