@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.tobacco.blockentity;
 
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
 import de.rolandsw.schedulemc.tobacco.TobaccoType;
 import de.rolandsw.schedulemc.tobacco.items.DriedTobaccoLeafItem;
@@ -16,22 +17,37 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Kleines Trocknungsgestell BlockEntity
- * Kapazität: 6 Tabakblätter
+ * Kapazität: Konfigurierbar (Standard: 6 Tabakblätter)
  */
 public class SmallDryingRackBlockEntity extends BlockEntity {
 
-    private static final int CAPACITY = 6;
-    private static final int DRYING_TIME = 6000; // 5 Minuten
+    private static int getCapacity() {
+        return ModConfigHandler.TOBACCO.SMALL_DRYING_RACK_CAPACITY.get();
+    }
 
-    private final ItemStack[] inputs = new ItemStack[CAPACITY];
-    private final ItemStack[] outputs = new ItemStack[CAPACITY];
-    private final int[] dryingProgress = new int[CAPACITY];
-    private final TobaccoType[] tobaccoTypes = new TobaccoType[CAPACITY];
-    private final TobaccoQuality[] qualities = new TobaccoQuality[CAPACITY];
+    private static int getDryingTime() {
+        return ModConfigHandler.TOBACCO.TOBACCO_DRYING_TIME.get();
+    }
+
+    private ItemStack[] inputs;
+    private ItemStack[] outputs;
+    private int[] dryingProgress;
+    private TobaccoType[] tobaccoTypes;
+    private TobaccoQuality[] qualities;
 
     public SmallDryingRackBlockEntity(BlockPos pos, BlockState state) {
         super(TobaccoBlockEntities.SMALL_DRYING_RACK.get(), pos, state);
-        for (int i = 0; i < CAPACITY; i++) {
+        initArrays();
+    }
+
+    private void initArrays() {
+        int capacity = getCapacity();
+        inputs = new ItemStack[capacity];
+        outputs = new ItemStack[capacity];
+        dryingProgress = new int[capacity];
+        tobaccoTypes = new TobaccoType[capacity];
+        qualities = new TobaccoQuality[capacity];
+        for (int i = 0; i < capacity; i++) {
             inputs[i] = ItemStack.EMPTY;
             outputs[i] = ItemStack.EMPTY;
             dryingProgress[i] = 0;
@@ -44,7 +60,7 @@ public class SmallDryingRackBlockEntity extends BlockEntity {
         }
 
         // Finde leeren Slot
-        for (int i = 0; i < CAPACITY; i++) {
+        for (int i = 0; i < getCapacity(); i++) {
             if (inputs[i].isEmpty() && outputs[i].isEmpty()) {
                 inputs[i] = stack.copy();
                 inputs[i].setCount(1);
@@ -64,7 +80,7 @@ public class SmallDryingRackBlockEntity extends BlockEntity {
         TobaccoQuality quality = null;
 
         // Sammle alle fertigen Blätter
-        for (int i = 0; i < CAPACITY; i++) {
+        for (int i = 0; i < getCapacity(); i++) {
             if (!outputs[i].isEmpty()) {
                 if (type == null) {
                     type = DriedTobaccoLeafItem.getType(outputs[i]);
@@ -84,7 +100,7 @@ public class SmallDryingRackBlockEntity extends BlockEntity {
     }
 
     public boolean isFull() {
-        for (int i = 0; i < CAPACITY; i++) {
+        for (int i = 0; i < getCapacity(); i++) {
             if (inputs[i].isEmpty() && outputs[i].isEmpty()) {
                 return false;
             }
@@ -93,7 +109,7 @@ public class SmallDryingRackBlockEntity extends BlockEntity {
     }
 
     public boolean hasInput() {
-        for (int i = 0; i < CAPACITY; i++) {
+        for (int i = 0; i < getCapacity(); i++) {
             if (!inputs[i].isEmpty()) {
                 return true;
             }
@@ -102,7 +118,7 @@ public class SmallDryingRackBlockEntity extends BlockEntity {
     }
 
     public boolean hasOutput() {
-        for (int i = 0; i < CAPACITY; i++) {
+        for (int i = 0; i < getCapacity(); i++) {
             if (!outputs[i].isEmpty()) {
                 return true;
             }
@@ -112,7 +128,7 @@ public class SmallDryingRackBlockEntity extends BlockEntity {
 
     public int getInputCount() {
         int count = 0;
-        for (int i = 0; i < CAPACITY; i++) {
+        for (int i = 0; i < getCapacity(); i++) {
             if (!inputs[i].isEmpty()) count++;
         }
         return count;
@@ -120,7 +136,7 @@ public class SmallDryingRackBlockEntity extends BlockEntity {
 
     public int getOutputCount() {
         int count = 0;
-        for (int i = 0; i < CAPACITY; i++) {
+        for (int i = 0; i < getCapacity(); i++) {
             if (!outputs[i].isEmpty()) count++;
         }
         return count;
@@ -130,10 +146,10 @@ public class SmallDryingRackBlockEntity extends BlockEntity {
         int activeSlots = 0;
         float totalProgress = 0;
 
-        for (int i = 0; i < CAPACITY; i++) {
+        for (int i = 0; i < getCapacity(); i++) {
             if (!inputs[i].isEmpty()) {
                 activeSlots++;
-                totalProgress += (float) dryingProgress[i] / DRYING_TIME;
+                totalProgress += (float) dryingProgress[i] / getDryingTime();
             }
         }
 
@@ -145,11 +161,11 @@ public class SmallDryingRackBlockEntity extends BlockEntity {
 
         boolean changed = false;
 
-        for (int i = 0; i < CAPACITY; i++) {
+        for (int i = 0; i < getCapacity(); i++) {
             if (!inputs[i].isEmpty() && outputs[i].isEmpty()) {
                 dryingProgress[i]++;
 
-                if (dryingProgress[i] >= DRYING_TIME) {
+                if (dryingProgress[i] >= getDryingTime()) {
                     // Trocknung abgeschlossen
                     outputs[i] = DriedTobaccoLeafItem.create(tobaccoTypes[i], qualities[i], 1);
                     changed = true;
@@ -171,7 +187,10 @@ public class SmallDryingRackBlockEntity extends BlockEntity {
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
 
-        for (int i = 0; i < CAPACITY; i++) {
+        int capacity = getCapacity();
+        tag.putInt("Capacity", capacity);
+
+        for (int i = 0; i < capacity; i++) {
             if (!inputs[i].isEmpty()) {
                 CompoundTag inputTag = new CompoundTag();
                 inputs[i].save(inputTag);
@@ -199,7 +218,14 @@ public class SmallDryingRackBlockEntity extends BlockEntity {
     public void load(CompoundTag tag) {
         super.load(tag);
 
-        for (int i = 0; i < CAPACITY; i++) {
+        // Initialisiere Arrays wenn nötig
+        if (inputs == null) {
+            initArrays();
+        }
+
+        int savedCapacity = tag.contains("Capacity") ? tag.getInt("Capacity") : getCapacity();
+
+        for (int i = 0; i < Math.min(savedCapacity, getCapacity()); i++) {
             inputs[i] = tag.contains("Input" + i) ? ItemStack.of(tag.getCompound("Input" + i)) : ItemStack.EMPTY;
             outputs[i] = tag.contains("Output" + i) ? ItemStack.of(tag.getCompound("Output" + i)) : ItemStack.EMPTY;
             dryingProgress[i] = tag.getInt("Progress" + i);

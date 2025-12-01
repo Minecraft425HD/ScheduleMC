@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.tobacco.blockentity;
 
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
 import de.rolandsw.schedulemc.tobacco.TobaccoType;
 import de.rolandsw.schedulemc.tobacco.items.DriedTobaccoLeafItem;
@@ -16,22 +17,37 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Kleines Fermentierungsfass BlockEntity
- * Kapazität: 6 Tabakblätter
+ * Kapazität: Konfigurierbar (Standard: 6 Tabakblätter)
  */
 public class SmallFermentationBarrelBlockEntity extends BlockEntity {
 
-    private static final int CAPACITY = 6;
-    private static final int FERMENTATION_TIME = 12000; // 10 Minuten
+    private static int getCapacity() {
+        return ModConfigHandler.TOBACCO.SMALL_FERMENTATION_BARREL_CAPACITY.get();
+    }
 
-    private final ItemStack[] inputs = new ItemStack[CAPACITY];
-    private final ItemStack[] outputs = new ItemStack[CAPACITY];
-    private final int[] fermentationProgress = new int[CAPACITY];
-    private final TobaccoType[] tobaccoTypes = new TobaccoType[CAPACITY];
-    private final TobaccoQuality[] qualities = new TobaccoQuality[CAPACITY];
+    private static int getFermentationTime() {
+        return ModConfigHandler.TOBACCO.TOBACCO_FERMENTING_TIME.get();
+    }
+
+    private ItemStack[] inputs;
+    private ItemStack[] outputs;
+    private int[] fermentationProgress;
+    private TobaccoType[] tobaccoTypes;
+    private TobaccoQuality[] qualities;
 
     public SmallFermentationBarrelBlockEntity(BlockPos pos, BlockState state) {
         super(TobaccoBlockEntities.SMALL_FERMENTATION_BARREL.get(), pos, state);
-        for (int i = 0; i < CAPACITY; i++) {
+        initArrays();
+    }
+
+    private void initArrays() {
+        int capacity = getCapacity();
+        inputs = new ItemStack[capacity];
+        outputs = new ItemStack[capacity];
+        fermentationProgress = new int[capacity];
+        tobaccoTypes = new TobaccoType[capacity];
+        qualities = new TobaccoQuality[capacity];
+        for (int i = 0; i < capacity; i++) {
             inputs[i] = ItemStack.EMPTY;
             outputs[i] = ItemStack.EMPTY;
             fermentationProgress[i] = 0;
@@ -44,7 +60,7 @@ public class SmallFermentationBarrelBlockEntity extends BlockEntity {
         }
 
         // Finde leeren Slot
-        for (int i = 0; i < CAPACITY; i++) {
+        for (int i = 0; i < getCapacity(); i++) {
             if (inputs[i].isEmpty() && outputs[i].isEmpty()) {
                 inputs[i] = stack.copy();
                 inputs[i].setCount(1);
@@ -64,7 +80,7 @@ public class SmallFermentationBarrelBlockEntity extends BlockEntity {
         TobaccoQuality quality = null;
 
         // Sammle alle fertigen Blätter
-        for (int i = 0; i < CAPACITY; i++) {
+        for (int i = 0; i < getCapacity(); i++) {
             if (!outputs[i].isEmpty()) {
                 if (type == null) {
                     type = FermentedTobaccoLeafItem.getType(outputs[i]);
@@ -84,7 +100,7 @@ public class SmallFermentationBarrelBlockEntity extends BlockEntity {
     }
 
     public boolean isFull() {
-        for (int i = 0; i < CAPACITY; i++) {
+        for (int i = 0; i < getCapacity(); i++) {
             if (inputs[i].isEmpty() && outputs[i].isEmpty()) {
                 return false;
             }
@@ -93,7 +109,7 @@ public class SmallFermentationBarrelBlockEntity extends BlockEntity {
     }
 
     public boolean hasInput() {
-        for (int i = 0; i < CAPACITY; i++) {
+        for (int i = 0; i < getCapacity(); i++) {
             if (!inputs[i].isEmpty()) {
                 return true;
             }
@@ -102,7 +118,7 @@ public class SmallFermentationBarrelBlockEntity extends BlockEntity {
     }
 
     public boolean hasOutput() {
-        for (int i = 0; i < CAPACITY; i++) {
+        for (int i = 0; i < getCapacity(); i++) {
             if (!outputs[i].isEmpty()) {
                 return true;
             }
@@ -112,7 +128,7 @@ public class SmallFermentationBarrelBlockEntity extends BlockEntity {
 
     public int getInputCount() {
         int count = 0;
-        for (int i = 0; i < CAPACITY; i++) {
+        for (int i = 0; i < getCapacity(); i++) {
             if (!inputs[i].isEmpty()) count++;
         }
         return count;
@@ -120,7 +136,7 @@ public class SmallFermentationBarrelBlockEntity extends BlockEntity {
 
     public int getOutputCount() {
         int count = 0;
-        for (int i = 0; i < CAPACITY; i++) {
+        for (int i = 0; i < getCapacity(); i++) {
             if (!outputs[i].isEmpty()) count++;
         }
         return count;
@@ -130,10 +146,10 @@ public class SmallFermentationBarrelBlockEntity extends BlockEntity {
         int activeSlots = 0;
         float totalProgress = 0;
 
-        for (int i = 0; i < CAPACITY; i++) {
+        for (int i = 0; i < getCapacity(); i++) {
             if (!inputs[i].isEmpty()) {
                 activeSlots++;
-                totalProgress += (float) fermentationProgress[i] / FERMENTATION_TIME;
+                totalProgress += (float) fermentationProgress[i] / getFermentationTime();
             }
         }
 
@@ -145,11 +161,11 @@ public class SmallFermentationBarrelBlockEntity extends BlockEntity {
 
         boolean changed = false;
 
-        for (int i = 0; i < CAPACITY; i++) {
+        for (int i = 0; i < getCapacity(); i++) {
             if (!inputs[i].isEmpty() && outputs[i].isEmpty()) {
                 fermentationProgress[i]++;
 
-                if (fermentationProgress[i] >= FERMENTATION_TIME) {
+                if (fermentationProgress[i] >= getFermentationTime()) {
                     // Fermentierung abgeschlossen - mit 30% Chance auf Qualitätsverbesserung
                     TobaccoQuality finalQuality = calculateFinalQuality(qualities[i]);
                     outputs[i] = FermentedTobaccoLeafItem.create(tobaccoTypes[i], finalQuality, 1);
@@ -185,7 +201,10 @@ public class SmallFermentationBarrelBlockEntity extends BlockEntity {
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
 
-        for (int i = 0; i < CAPACITY; i++) {
+        int capacity = getCapacity();
+        tag.putInt("Capacity", capacity);
+
+        for (int i = 0; i < capacity; i++) {
             if (!inputs[i].isEmpty()) {
                 CompoundTag inputTag = new CompoundTag();
                 inputs[i].save(inputTag);
@@ -213,7 +232,14 @@ public class SmallFermentationBarrelBlockEntity extends BlockEntity {
     public void load(CompoundTag tag) {
         super.load(tag);
 
-        for (int i = 0; i < CAPACITY; i++) {
+        // Initialisiere Arrays wenn nötig
+        if (inputs == null) {
+            initArrays();
+        }
+
+        int savedCapacity = tag.contains("Capacity") ? tag.getInt("Capacity") : getCapacity();
+
+        for (int i = 0; i < Math.min(savedCapacity, getCapacity()); i++) {
             inputs[i] = tag.contains("Input" + i) ? ItemStack.of(tag.getCompound("Input" + i)) : ItemStack.EMPTY;
             outputs[i] = tag.contains("Output" + i) ? ItemStack.of(tag.getCompound("Output" + i)) : ItemStack.EMPTY;
             fermentationProgress[i] = tag.getInt("Progress" + i);
