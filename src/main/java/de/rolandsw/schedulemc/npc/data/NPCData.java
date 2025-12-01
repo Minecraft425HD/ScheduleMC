@@ -44,6 +44,8 @@ public class NPCData {
     private BlockPos homeLocation;  // Wohnbereich
     @Nullable
     private BlockPos workLocation;  // Arbeitsstätte (nur für VERKAEUFER)
+    @Nullable
+    private BlockPos assignedWarehouse; // Warehouse für Shop-Verkäufer (NEU)
     private List<BlockPos> leisureLocations; // Bis zu 10 Freizeitorte in der Stadt
 
     // Police Patrol System (nur für POLIZEI NPCs)
@@ -757,5 +759,84 @@ public class NPCData {
         public void setMovementSpeed(float movementSpeed) {
             this.movementSpeed = movementSpeed;
         }
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // WAREHOUSE INTEGRATION (NEU)
+    // ═══════════════════════════════════════════════════════════
+
+    @Nullable
+    public BlockPos getAssignedWarehouse() {
+        return assignedWarehouse;
+    }
+
+    public void setAssignedWarehouse(@Nullable BlockPos pos) {
+        this.assignedWarehouse = pos;
+    }
+
+    public boolean hasWarehouse() {
+        return assignedWarehouse != null;
+    }
+
+    /**
+     * Gibt Warehouse BlockEntity zurück (wenn vorhanden)
+     */
+    @Nullable
+    public de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity getWarehouseEntity(net.minecraft.world.level.Level level) {
+        if (assignedWarehouse == null) return null;
+        net.minecraft.world.level.block.entity.BlockEntity be = level.getBlockEntity(assignedWarehouse);
+        if (be instanceof de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity) {
+            return (de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity) be;
+        }
+        return null;
+    }
+
+    /**
+     * Prüft ob Item im Warehouse verfügbar ist (für Shop-System)
+     */
+    public boolean canSellItemFromWarehouse(net.minecraft.world.level.Level level, ShopEntry entry, int amount) {
+        // Falls unlimited: wie bisher
+        if (entry.isUnlimited()) {
+            return true;
+        }
+
+        // Falls Warehouse vorhanden, prüfe dort
+        if (hasWarehouse()) {
+            de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity warehouse = getWarehouseEntity(level);
+            if (warehouse != null) {
+                return warehouse.hasStock(entry.getItem().getItem(), amount);
+            }
+        }
+
+        // Fallback: Nutze altes Stock-System
+        return entry.hasStock();
+    }
+
+    /**
+     * Wird aufgerufen wenn Item verkauft wird (reduziert Warehouse-Stock)
+     */
+    public void onItemSoldFromWarehouse(net.minecraft.world.level.Level level, ShopEntry entry, int amount, int totalPrice) {
+        // Warehouse-Integration
+        if (hasWarehouse()) {
+            de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity warehouse = getWarehouseEntity(level);
+            if (warehouse != null) {
+                // Stock aus Warehouse entfernen
+                warehouse.removeItem(entry.getItem().getItem(), amount);
+
+                // Erlös ans Shop-Konto senden
+                String shopId = warehouse.getShopId();
+                if (shopId != null) {
+                    de.rolandsw.schedulemc.economy.ShopAccount account =
+                        de.rolandsw.schedulemc.economy.ShopAccountManager.getAccount(shopId);
+                    if (account != null) {
+                        account.addRevenue(level, totalPrice, "Verkauf");
+                    }
+                }
+                return;
+            }
+        }
+
+        // Fallback: Nutze altes System
+        entry.reduceStock();
     }
 }

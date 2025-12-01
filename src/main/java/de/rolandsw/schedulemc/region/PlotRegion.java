@@ -67,6 +67,12 @@ public class PlotRegion {
     private boolean isPublic;
 
     // ═══════════════════════════════════════════════════════════
+    // PLOT-TYPE & WAREHOUSE (NEU)
+    // ═══════════════════════════════════════════════════════════
+    private PlotType type = PlotType.RESIDENTIAL; // Default: Wohngebäude
+    private BlockPos warehouseLocation; // Warehouse für Shop-Plots
+
+    // ═══════════════════════════════════════════════════════════
     // UNTERBEREICHE (APARTMENTS)
     // ═══════════════════════════════════════════════════════════
     private List<PlotArea> subAreas;
@@ -93,6 +99,10 @@ public class PlotRegion {
         this.trustedPlayers = new HashSet<>();
         this.ratings = new HashMap<>();
         this.subAreas = new ArrayList<>();
+
+        // Plot-Type & Warehouse
+        this.type = PlotType.RESIDENTIAL;
+        this.warehouseLocation = null;
 
         // Verkauf & Miete
         this.forSale = false;
@@ -213,19 +223,19 @@ public class PlotRegion {
     // ═══════════════════════════════════════════════════════════
     // VERKAUF
     // ═══════════════════════════════════════════════════════════
-    
+
     public boolean isForSale() { return forSale; }
-    public void setForSale(boolean forSale) { this.forSale = forSale; }
-    
+    // setForSale() ist am Ende der Klasse überschrieben (respektiert PlotType)
+
     public double getSalePrice() { return salePrice; }
     public void setSalePrice(double price) { this.salePrice = price; }
 
     // ═══════════════════════════════════════════════════════════
     // MIETSYSTEM
     // ═══════════════════════════════════════════════════════════
-    
+
     public boolean isForRent() { return forRent; }
-    public void setForRent(boolean forRent) { this.forRent = forRent; }
+    // setForRent() ist am Ende der Klasse überschrieben (respektiert PlotType)
     
     public double getRentPricePerDay() { return rentPricePerDay; }
     public void setRentPricePerDay(double price) { this.rentPricePerDay = price; }
@@ -576,6 +586,58 @@ public class PlotRegion {
         return getSubAreas().stream()
             .filter(area -> area.isForRent() && !area.isRented())
             .collect(java.util.stream.Collectors.toList());
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // PLOT-TYPE & WAREHOUSE METHODEN (NEU)
+    // ═══════════════════════════════════════════════════════════
+
+    public PlotType getType() {
+        return type;
+    }
+
+    public void setType(PlotType type) {
+        this.type = type;
+    }
+
+    public boolean isShop() {
+        return type == PlotType.SHOP;
+    }
+
+    public BlockPos getWarehouseLocation() {
+        return warehouseLocation;
+    }
+
+    public void setWarehouseLocation(BlockPos pos) {
+        this.warehouseLocation = pos;
+    }
+
+    public boolean hasWarehouse() {
+        return warehouseLocation != null;
+    }
+
+    /**
+     * Überschreibt setForSale: Shop-Plots können nicht verkauft werden
+     */
+    @Override
+    public void setForSale(boolean forSale) {
+        if (type != null && !type.canBePurchased()) {
+            // Shop-Plots und andere nicht-kaufbare Plots können nicht verkauft werden
+            return;
+        }
+        this.forSale = forSale;
+    }
+
+    /**
+     * Überschreibt setForRent: Shop-Plots können nicht vermietet werden
+     */
+    @Override
+    public void setForRent(boolean forRent) {
+        if (type != null && !type.canBeRented()) {
+            // Shop-Plots und andere nicht-vermietbare Plots können nicht vermietet werden
+            return;
+        }
+        this.forRent = forRent;
     }
 
     @Override
