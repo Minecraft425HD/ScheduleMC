@@ -3,8 +3,11 @@ package de.rolandsw.schedulemc;
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.commands.*;
 import de.rolandsw.schedulemc.economy.commands.HospitalCommand;
+import de.rolandsw.schedulemc.economy.commands.ShopInvestCommand;
+import de.rolandsw.schedulemc.economy.commands.StateCommand;
 import de.rolandsw.schedulemc.npc.commands.NPCCommand;
 import de.rolandsw.schedulemc.tobacco.commands.TobaccoCommand;
+import de.rolandsw.schedulemc.warehouse.commands.WarehouseCommand;
 import de.rolandsw.schedulemc.economy.PlayerJoinHandler;
 import de.rolandsw.schedulemc.events.BlockProtectionHandler;
 import de.rolandsw.schedulemc.events.InventoryRestrictionHandler;
@@ -33,6 +36,11 @@ import de.rolandsw.schedulemc.tobacco.menu.ModMenuTypes;
 import de.rolandsw.schedulemc.tobacco.entity.ModEntities;
 import de.rolandsw.schedulemc.economy.blocks.EconomyBlocks;
 import de.rolandsw.schedulemc.economy.menu.EconomyMenuTypes;
+import de.rolandsw.schedulemc.warehouse.WarehouseBlocks;
+import de.rolandsw.schedulemc.warehouse.WarehouseConfig;
+import de.rolandsw.schedulemc.warehouse.items.WarehouseItems;
+import de.rolandsw.schedulemc.economy.StateAccount;
+import de.rolandsw.schedulemc.economy.ShopAccountManager;
 import de.rolandsw.schedulemc.npc.entity.NPCEntities;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.items.NPCItems;
@@ -81,6 +89,10 @@ public class ScheduleMC {
         de.rolandsw.schedulemc.region.blocks.PlotBlocks.ITEMS.register(modEventBus);
         TobaccoBlockEntities.BLOCK_ENTITIES.register(modEventBus);
         EconomyBlocks.BLOCK_ENTITIES.register(modEventBus);
+        WarehouseBlocks.BLOCKS.register(modEventBus);
+        WarehouseBlocks.ITEMS.register(modEventBus);
+        WarehouseBlocks.BLOCK_ENTITIES.register(modEventBus);
+        WarehouseItems.ITEMS.register(modEventBus);
         ModMenuTypes.MENUS.register(modEventBus);
         EconomyMenuTypes.MENUS.register(modEventBus);
         ModEntities.ENTITIES.register(modEventBus);
@@ -88,8 +100,11 @@ public class ScheduleMC {
         NPCEntities.ENTITIES.register(modEventBus);
         NPCMenuTypes.MENUS.register(modEventBus);
         ModCreativeTabs.CREATIVE_MODE_TABS.register(modEventBus);
-        
+
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ModConfigHandler.SPEC);
+
+        // Initialize warehouse config after main config is registered
+        WarehouseConfig.init();
 
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(new BlockProtectionHandler());
@@ -132,6 +147,9 @@ public class ScheduleMC {
         TobaccoCommand.register(event.getDispatcher());
         HospitalCommand.register(event.getDispatcher());
         NPCCommand.register(event.getDispatcher(), event.getBuildContext());
+        WarehouseCommand.register(event.getDispatcher(), event.getBuildContext());
+        ShopInvestCommand.register(event.getDispatcher());
+        StateCommand.register(event.getDispatcher());
     }
 
     @SubscribeEvent
@@ -145,6 +163,10 @@ public class ScheduleMC {
         de.rolandsw.schedulemc.npc.crime.CrimeManager.load();
         NPCNameRegistry.loadRegistry();
         MessageManager.loadMessages();
+
+        // NEU: Warehouse & Shop System initialisieren
+        StateAccount.load();
+        MinecraftForge.EVENT_BUS.register(ShopAccountManager.class);
     }
 
     @SubscribeEvent

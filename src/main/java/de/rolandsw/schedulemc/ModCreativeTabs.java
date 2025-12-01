@@ -6,6 +6,8 @@ import de.rolandsw.schedulemc.tobacco.items.TobaccoItems;
 import de.rolandsw.schedulemc.economy.blocks.EconomyBlocks;
 import de.rolandsw.schedulemc.npc.items.NPCItems;
 import de.rolandsw.schedulemc.region.blocks.PlotBlocks;
+import de.rolandsw.schedulemc.warehouse.WarehouseBlocks;
+import de.rolandsw.schedulemc.warehouse.items.WarehouseItems;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -49,6 +51,7 @@ public class ModCreativeTabs {
                 output.accept(NPCItems.NPC_LOCATION_TOOL.get());
                 output.accept(NPCItems.NPC_LEISURE_TOOL.get());
                 output.accept(NPCItems.NPC_PATROL_TOOL.get());
+                output.accept(WarehouseItems.WAREHOUSE_TOOL.get());
 
                 // ═══════════════════════════════════════════════════════════
                 // TABAK SAMEN
@@ -150,6 +153,11 @@ public class ModCreativeTabs {
                 // ═══════════════════════════════════════════════════════════
                 output.accept(EconomyBlocks.CASH_BLOCK.get());
                 output.accept(EconomyBlocks.ATM_BLOCK.get());
+
+                // ═══════════════════════════════════════════════════════════
+                // WAREHOUSE BLOCKS
+                // ═══════════════════════════════════════════════════════════
+                output.accept(WarehouseBlocks.WAREHOUSE_ITEM.get());
             })
             .build()
     );
