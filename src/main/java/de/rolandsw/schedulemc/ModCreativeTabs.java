@@ -6,6 +6,7 @@ import de.rolandsw.schedulemc.tobacco.items.TobaccoItems;
 import de.rolandsw.schedulemc.economy.blocks.EconomyBlocks;
 import de.rolandsw.schedulemc.npc.items.NPCItems;
 import de.rolandsw.schedulemc.region.blocks.PlotBlocks;
+import de.rolandsw.schedulemc.warehouse.WarehouseBlocks;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -150,6 +151,11 @@ public class ModCreativeTabs {
                 // ═══════════════════════════════════════════════════════════
                 output.accept(EconomyBlocks.CASH_BLOCK.get());
                 output.accept(EconomyBlocks.ATM_BLOCK.get());
+
+                // ═══════════════════════════════════════════════════════════
+                // WAREHOUSE BLOCKS
+                // ═══════════════════════════════════════════════════════════
+                output.accept(WarehouseBlocks.WAREHOUSE_ITEM.get());
             })
             .build()
     );
