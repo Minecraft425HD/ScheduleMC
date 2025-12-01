@@ -1,7 +1,7 @@
 package de.rolandsw.schedulemc.tobacco.blocks;
 
-import de.rolandsw.schedulemc.tobacco.blockentity.FermentationBarrelBlockEntity;
-import de.rolandsw.schedulemc.tobacco.items.DriedTobaccoLeafItem;
+import de.rolandsw.schedulemc.tobacco.blockentity.BigDryingRackBlockEntity;
+import de.rolandsw.schedulemc.tobacco.items.FreshTobaccoLeafItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -19,115 +19,114 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Fermentierungsfass-Block
- * Fermentiert getrocknete Tabakblätter und verbessert Qualität
+ * Großes Trocknungsgestell
+ * Kapazität: 10 Tabakblätter
  */
-public class FermentationBarrelBlock extends Block implements EntityBlock {
-    
-    public FermentationBarrelBlock(Properties properties) {
+public class BigDryingRackBlock extends Block implements EntityBlock {
+
+    public BigDryingRackBlock(Properties properties) {
         super(properties);
     }
-    
+
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new FermentationBarrelBlockEntity(pos, state);
+        return new BigDryingRackBlockEntity(pos, state);
     }
-    
+
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         return level.isClientSide ? null : (lvl, pos, st, be) -> {
-            if (be instanceof FermentationBarrelBlockEntity barrelBE) {
-                barrelBE.tick();
+            if (be instanceof BigDryingRackBlockEntity rackBE) {
+                rackBE.tick();
             }
         };
     }
-    
+
     @Override
-    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, 
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player,
                                  InteractionHand hand, BlockHitResult hit) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
-        
+
         BlockEntity be = level.getBlockEntity(pos);
-        if (!(be instanceof FermentationBarrelBlockEntity barrelBE)) {
+        if (!(be instanceof BigDryingRackBlockEntity rackBE)) {
             return InteractionResult.PASS;
         }
-        
+
         ItemStack heldItem = player.getItemInHand(hand);
-        
+
         // ═══════════════════════════════════════════════════════════
-        // 1. GETROCKNETE BLÄTTER HINZUFÜGEN
+        // 1. FRISCHE BLÄTTER HINZUFÜGEN
         // ═══════════════════════════════════════════════════════════
-        if (heldItem.getItem() instanceof DriedTobaccoLeafItem) {
-            if (barrelBE.hasInput()) {
+        if (heldItem.getItem() instanceof FreshTobaccoLeafItem) {
+            if (rackBE.isFull()) {
                 player.displayClientMessage(Component.literal(
-                    "§c✗ Fass ist bereits belegt!"
+                    "§c✗ Trocknungsgestell ist voll! (10/10)"
                 ), true);
                 return InteractionResult.FAIL;
             }
-            
-            if (barrelBE.addDriedLeaves(heldItem)) {
+
+            if (rackBE.addFreshLeaves(heldItem)) {
                 if (!player.isCreative()) {
-                    heldItem.shrink(heldItem.getCount());
+                    heldItem.shrink(1);
                 }
-                
+
+                int count = rackBE.getInputCount();
                 player.displayClientMessage(Component.literal(
-                    "§a✓ Fermentierung gestartet!\n" +
-                    "§7Dauer: §e~10 Minuten\n" +
-                    "§630% Chance auf Qualitätsverbesserung!"
+                    "§a✓ Blatt hinzugefügt! (" + count + "/10)\n" +
+                    "§7Dauer: §e~5 Minuten"
                 ), true);
                 return InteractionResult.SUCCESS;
             }
         }
-        
+
         // ═══════════════════════════════════════════════════════════
-        // 2. FERMENTIERTE BLÄTTER ENTNEHMEN
+        // 2. GETROCKNETE BLÄTTER ENTNEHMEN
         // ═══════════════════════════════════════════════════════════
-        if (player.isShiftKeyDown() && barrelBE.hasOutput()) {
-            ItemStack fermented = barrelBE.extractFermentedLeaves();
-            if (!fermented.isEmpty()) {
-                player.getInventory().add(fermented);
-                
+        if (player.isShiftKeyDown() && rackBE.hasOutput()) {
+            ItemStack dried = rackBE.extractAllDriedLeaves();
+            if (!dried.isEmpty()) {
+                player.getInventory().add(dried);
+
                 player.displayClientMessage(Component.literal(
-                    "§a✓ Fermentierung abgeschlossen!\n" +
-                    "§7Erhalten: §e" + fermented.getCount() + "x §7fermentierten Tabak\n" +
-                    "§7Verkaufe im Shop!"
+                    "§a✓ Trocknung abgeschlossen!\n" +
+                    "§7Erhalten: §e" + dried.getCount() + "x §7getrocknete Blätter"
                 ), true);
                 return InteractionResult.SUCCESS;
             }
         }
-        
+
         // ═══════════════════════════════════════════════════════════
         // 3. FORTSCHRITT ANZEIGEN
         // ═══════════════════════════════════════════════════════════
-        if (barrelBE.hasInput()) {
-            float progress = barrelBE.getFermentationPercentage() * 100;
-            String bar = createProgressBar(barrelBE.getFermentationPercentage());
-            
+        if (rackBE.hasInput()) {
+            float progress = rackBE.getAverageDryingPercentage() * 100;
+            String bar = createProgressBar(rackBE.getAverageDryingPercentage());
+            int inputCount = rackBE.getInputCount();
+            int outputCount = rackBE.getOutputCount();
+
             player.displayClientMessage(Component.literal(
-                "§6═══ Fermentierungsfass ═══\n" +
+                "§6═══ Großes Trocknungsgestell ═══\n" +
+                "§7Kapazität: §e" + inputCount + "/10\n" +
                 "§7Fortschritt: " + bar + " §e" + String.format("%.1f", progress) + "%\n" +
-                (barrelBE.hasOutput() ? "§a✓ Fertig! Shift+Rechtsklick zum Entnehmen" : "§7Fermentierung läuft...")
+                "§7Fertig: §e" + outputCount + "x\n" +
+                (rackBE.hasOutput() ? "§a✓ Shift+Rechtsklick zum Entnehmen" : "§7Trocknung läuft...")
             ), false);
         } else {
             player.displayClientMessage(Component.literal(
-                "§6═══ Fermentierungsfass ═══\n" +
-                "§7Leer\n" +
-                "§7Lege getrocknete Tabakblätter hinein\n" +
-                "§830% Chance auf Qualitätsverbesserung"
+                "§6═══ Großes Trocknungsgestell ═══\n" +
+                "§7Kapazität: §e10 Blätter\n" +
+                "§7Leer - Lege frische Tabakblätter hinein"
             ), false);
         }
-        
+
         return InteractionResult.SUCCESS;
     }
-    
-    /**
-     * Erstellt visuellen Fortschrittsbalken
-     */
+
     private String createProgressBar(float progress) {
         int filled = (int) (progress * 10);
         int empty = 10 - filled;
-        return "§6" + "▰".repeat(Math.max(0, filled)) + "§7" + "▱".repeat(Math.max(0, empty));
+        return "§a" + "▰".repeat(Math.max(0, filled)) + "§7" + "▱".repeat(Math.max(0, empty));
     }
 }

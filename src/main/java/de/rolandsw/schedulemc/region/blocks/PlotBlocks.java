@@ -22,14 +22,15 @@ public class PlotBlocks {
         DeferredRegister.create(ForgeRegistries.ITEMS, ScheduleMC.MOD_ID);
 
     // ═══════════════════════════════════════════════════════════
-    // PLOT-INFO-BLOCK
+    // PLOT-INFO-SCHILD (Sign)
     // ═══════════════════════════════════════════════════════════
 
     public static final RegistryObject<Block> PLOT_INFO_BLOCK = BLOCKS.register("plot_info_block",
         () -> new PlotInfoBlock(BlockBehaviour.Properties.of()
-            .strength(2.0f)
+            .strength(1.0f)
             .sound(SoundType.WOOD)
-            .noOcclusion()));
+            .noOcclusion()
+            .ignitedByLava()));
 
     public static final RegistryObject<Item> PLOT_INFO_BLOCK_ITEM = ITEMS.register("plot_info_block",
         () -> new BlockItem(PLOT_INFO_BLOCK.get(), new Item.Properties()));

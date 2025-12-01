@@ -120,10 +120,20 @@ public class ModCreativeTabs {
                 // ═══════════════════════════════════════════════════════════
                 // VERARBEITUNGS-BLÖCKE
                 // ═══════════════════════════════════════════════════════════
-                output.accept(TobaccoBlocks.DRYING_RACK.get());
-                output.accept(TobaccoBlocks.FERMENTATION_BARREL.get());
+                // Trocknungsgestelle (3 Größen)
+                output.accept(TobaccoBlocks.SMALL_DRYING_RACK.get());
+                output.accept(TobaccoBlocks.MEDIUM_DRYING_RACK.get());
+                output.accept(TobaccoBlocks.BIG_DRYING_RACK.get());
+
+                // Fermentierungsfässer (3 Größen)
+                output.accept(TobaccoBlocks.SMALL_FERMENTATION_BARREL.get());
+                output.accept(TobaccoBlocks.MEDIUM_FERMENTATION_BARREL.get());
+                output.accept(TobaccoBlocks.BIG_FERMENTATION_BARREL.get());
+
+                // Weitere Verarbeitungsblöcke
                 output.accept(TobaccoBlocks.SINK.get());
-                output.accept(TobaccoBlocks.PACKAGING_TABLE.get());
+
+                // Packtische (3 Größen)
                 output.accept(TobaccoBlocks.SMALL_PACKAGING_TABLE.get());
                 output.accept(TobaccoBlocks.MEDIUM_PACKAGING_TABLE.get());
                 output.accept(TobaccoBlocks.LARGE_PACKAGING_TABLE.get());

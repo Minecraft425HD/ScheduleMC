@@ -27,12 +27,6 @@ public class ModNetworking {
     }
 
     public static void register() {
-        INSTANCE.messageBuilder(PackageRequestPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
-            .decoder(PackageRequestPacket::decode)
-            .encoder(PackageRequestPacket::encode)
-            .consumerMainThread(PackageRequestPacket::handle)
-            .add();
-
         INSTANCE.messageBuilder(SmallPackageRequestPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
             .decoder(SmallPackageRequestPacket::decode)
             .encoder(SmallPackageRequestPacket::encode)
