@@ -605,9 +605,46 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
                     x + 15, contentY, balance >= 0 ? COLOR_SUCCESS : COLOR_DANGER, false);
                 contentY += 12;
 
-                // TODO: Expense tracking über 30 Tage
-                graphics.drawString(this.font, "Ausgaben (30 Tage): Noch nicht erfasst",
-                    x + 15, contentY, COLOR_TEXT_GRAY, false);
+                // Expense tracking über 30 Tage
+                long currentTime = minecraft.level != null ? minecraft.level.getGameTime() : 0;
+                int totalExpenses30Days = warehouse.getTotalExpenses(currentTime, 30);
+                int deliveryCount30Days = warehouse.getDeliveryCount(currentTime, 30);
+                double avgExpensePerDelivery = warehouse.getAverageExpensePerDelivery(currentTime, 30);
+
+                graphics.drawString(this.font,
+                    "Ausgaben (30 Tage): " + String.format("%d€", totalExpenses30Days),
+                    x + 15, contentY, COLOR_WARNING, false);
+                contentY += 12;
+
+                if (deliveryCount30Days > 0) {
+                    graphics.drawString(this.font,
+                        "  Lieferungen: " + deliveryCount30Days + "x | Ø " + String.format("%.0f€", avgExpensePerDelivery),
+                        x + 15, contentY, COLOR_TEXT_GRAY, false);
+                    contentY += 12;
+
+                    // Zeige letzte 3 Lieferungen
+                    List<de.rolandsw.schedulemc.warehouse.ExpenseEntry> recentExpenses = warehouse.getExpenses();
+                    if (!recentExpenses.isEmpty()) {
+                        graphics.drawString(this.font, "  Letzte Lieferungen:",
+                            x + 15, contentY, COLOR_TEXT_GRAY, false);
+                        contentY += 12;
+
+                        // Zeige bis zu 3 der letzten Lieferungen
+                        int shown = 0;
+                        for (int i = recentExpenses.size() - 1; i >= 0 && shown < 3; i--) {
+                            de.rolandsw.schedulemc.warehouse.ExpenseEntry expense = recentExpenses.get(i);
+                            int ageDays = expense.getAgeDays(currentTime);
+                            String ageStr = ageDays == 0 ? "heute" : "vor " + ageDays + "d";
+
+                            graphics.drawString(this.font,
+                                String.format("    • %d€ (%s)", expense.getAmount(), ageStr),
+                                x + 15, contentY, COLOR_TEXT_GRAY, false);
+                            contentY += 10;
+                            shown++;
+                        }
+                        contentY += 2;
+                    }
+                }
             } else {
                 graphics.drawString(this.font, "Shop-Konto nicht gefunden: " + shopId,
                     x + 15, contentY, COLOR_DANGER, false);

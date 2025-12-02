@@ -29,12 +29,14 @@ import java.util.*;
 public class WarehouseBlockEntity extends BlockEntity {
 
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static final int EXPENSE_RETENTION_DAYS = 30; // Behalte Ausgaben für 30 Tage
 
     private WarehouseSlot[] slots;
     private List<UUID> linkedSellers = new ArrayList<>();
     private long lastDeliveryTime = 0;
     @Nullable
     private String shopId; // Referenz zum Shop-Konto
+    private List<ExpenseEntry> expenses = new ArrayList<>(); // Ausgaben-Historie
 
     public WarehouseBlockEntity(BlockPos pos, BlockState state) {
         super(WarehouseBlocks.WAREHOUSE_BLOCK_ENTITY.get(), pos, state);
@@ -155,6 +157,11 @@ public class WarehouseBlockEntity extends BlockEntity {
             be.lastDeliveryTime = currentTime;
             be.setChanged();
         }
+
+        // Bereinige alte Ausgaben alle 10 Minuten (12000 ticks)
+        if (currentTime % 12000 == 0) {
+            be.cleanupOldExpenses(currentTime);
+        }
     }
 
     /**
@@ -194,6 +201,9 @@ public class WarehouseBlockEntity extends BlockEntity {
                     account.addExpense(level, totalCost, "Warehouse-Lieferung");
                 }
             }
+
+            // EXPENSE TRACKING: Füge Ausgabe zur Historie hinzu
+            addExpense(level.getGameTime(), totalCost, "Auto-Lieferung (" + toDeliver.size() + " Items)");
 
             LOGGER.info("Warehouse-Lieferung erfolgreich @ {}: {}€ (Staatskasse), {} Items",
                 worldPosition.toShortString(), totalCost, toDeliver.size());
@@ -265,6 +275,70 @@ public class WarehouseBlockEntity extends BlockEntity {
     }
 
     // ═══════════════════════════════════════════════════════════
+    // EXPENSE TRACKING
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Fügt eine Ausgabe zur Historie hinzu
+     */
+    public void addExpense(long timestamp, int amount, String description) {
+        expenses.add(new ExpenseEntry(timestamp, amount, description));
+        setChanged();
+    }
+
+    /**
+     * Bereinigt alte Ausgaben (älter als EXPENSE_RETENTION_DAYS)
+     */
+    public void cleanupOldExpenses(long currentTime) {
+        expenses.removeIf(entry -> entry.isOlderThan(currentTime, EXPENSE_RETENTION_DAYS));
+    }
+
+    /**
+     * Gibt alle Ausgaben zurück
+     */
+    public List<ExpenseEntry> getExpenses() {
+        return new ArrayList<>(expenses);
+    }
+
+    /**
+     * Berechnet Gesamtausgaben über die letzten X Tage
+     */
+    public int getTotalExpenses(long currentTime, int days) {
+        return expenses.stream()
+            .filter(entry -> !entry.isOlderThan(currentTime, days))
+            .mapToInt(ExpenseEntry::getAmount)
+            .sum();
+    }
+
+    /**
+     * Berechnet durchschnittliche Ausgaben pro Lieferung
+     */
+    public double getAverageExpensePerDelivery(long currentTime, int days) {
+        List<ExpenseEntry> recentExpenses = expenses.stream()
+            .filter(entry -> !entry.isOlderThan(currentTime, days))
+            .toList();
+
+        if (recentExpenses.isEmpty()) {
+            return 0.0;
+        }
+
+        int total = recentExpenses.stream()
+            .mapToInt(ExpenseEntry::getAmount)
+            .sum();
+
+        return (double) total / recentExpenses.size();
+    }
+
+    /**
+     * Gibt Anzahl der Lieferungen in den letzten X Tagen zurück
+     */
+    public int getDeliveryCount(long currentTime, int days) {
+        return (int) expenses.stream()
+            .filter(entry -> !entry.isOlderThan(currentTime, days))
+            .count();
+    }
+
+    // ═══════════════════════════════════════════════════════════
     // NBT SERIALISIERUNG
     // ═══════════════════════════════════════════════════════════
 
@@ -294,6 +368,17 @@ public class WarehouseBlockEntity extends BlockEntity {
 
         if (shopId != null) {
             tag.putString("ShopId", shopId);
+        }
+
+        // Speichere Ausgaben
+        if (!expenses.isEmpty()) {
+            ListTag expensesList = new ListTag();
+            for (ExpenseEntry expense : expenses) {
+                CompoundTag expenseTag = new CompoundTag();
+                expense.save(expenseTag);
+                expensesList.add(expenseTag);
+            }
+            tag.put("Expenses", expensesList);
         }
     }
 
@@ -332,6 +417,16 @@ public class WarehouseBlockEntity extends BlockEntity {
 
         if (tag.contains("ShopId")) {
             shopId = tag.getString("ShopId");
+        }
+
+        // Lade Ausgaben
+        if (tag.contains("Expenses")) {
+            ListTag expensesList = tag.getList("Expenses", 10);
+            expenses.clear();
+            for (int i = 0; i < expensesList.size(); i++) {
+                CompoundTag expenseTag = expensesList.getCompound(i);
+                expenses.add(ExpenseEntry.load(expenseTag));
+            }
         }
     }
 }
