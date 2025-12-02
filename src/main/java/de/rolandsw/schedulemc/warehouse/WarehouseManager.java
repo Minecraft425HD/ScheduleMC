@@ -69,8 +69,7 @@ public class WarehouseManager {
     /**
      * Server Tick Event - Prüft alle Warehouses auf Auto-Delivery
      *
-     * WICHTIG: Verwendet die EXAKT GLEICHE Logik wie NPCDailySalaryHandler!
-     * Vergleicht Tag-Nummern (getDayTime() / 24000L) statt absolute ticks.
+     * Verwendet Tag-basierte Logik wie NPCDailySalaryHandler.
      * Funktioniert mit /time add, /time set, Schlafen, etc.
      */
     @SubscribeEvent
@@ -85,20 +84,8 @@ public class WarehouseManager {
 
         // Prüfe nur jede Sekunde (20 ticks) statt jeden Tick
         tickCounter++;
-
-        // DEBUG: Log every second to verify this is running
-        if (tickCounter == 1) {
-            LOGGER.info("★★★ [WarehouseManager] TICK! Warehouses registered: {}, players online: {}",
-                warehouses.size(), server.getPlayerCount());
-            for (Map.Entry<String, Set<BlockPos>> entry : warehouses.entrySet()) {
-                LOGGER.info("  → Level {}: {} warehouses", entry.getKey(), entry.getValue().size());
-            }
-        }
-
         if (tickCounter < CHECK_INTERVAL) return;
         tickCounter = 0;
-
-        LOGGER.info("★★★ [WarehouseManager] Checking {} warehouse groups for delivery", warehouses.size());
 
         // Prüfe alle registrierten Warehouses
         for (Map.Entry<String, Set<BlockPos>> entry : warehouses.entrySet()) {
@@ -110,10 +97,7 @@ public class WarehouseManager {
                 continue;
             }
 
-            // TAG-BASIERTE LOGIK wie NPCs!
             long currentDay = level.getDayTime() / 24000L;
-            LOGGER.info("[WarehouseManager] Checking level {} at day {}, {} warehouses",
-                levelKey, currentDay, entry.getValue().size());
 
             for (BlockPos pos : new ArrayList<>(entry.getValue())) {
                 checkWarehouseDelivery(level, pos, currentDay);
@@ -123,7 +107,6 @@ public class WarehouseManager {
 
     /**
      * Prüft ein einzelnes Warehouse auf notwendige Delivery
-     * EXAKT wie NPCDailySalaryHandler: Vergleicht Tag-Nummern!
      */
     private static void checkWarehouseDelivery(ServerLevel level, BlockPos pos, long currentDay) {
         // Lade Chunk falls nötig (force load für diesen Tick)
@@ -143,25 +126,15 @@ public class WarehouseManager {
                 return;
             }
 
-            // TAG-BASIERTE PRÜFUNG wie NPCs!
             long intervalDays = WarehouseConfig.DELIVERY_INTERVAL_DAYS.get();
             long lastDeliveryDay = warehouse.getLastDeliveryDay();
 
             // Prüfe ob genug Tage vergangen sind
-            // currentDay >= lastDeliveryDay + intervalDays
             if (currentDay >= lastDeliveryDay + intervalDays) {
-                LOGGER.info("★★★ WarehouseManager: Triggering delivery for warehouse @ {} (currentDay={}, lastDay={}, interval={} days)",
-                    pos.toShortString(), currentDay, lastDeliveryDay, intervalDays);
-
                 warehouse.performDelivery(level);
                 warehouse.setLastDeliveryDay(currentDay);
                 warehouse.setChanged();
                 warehouse.syncToClient();
-
-                LOGGER.info("★★★ WarehouseManager: Delivery completed! Updated lastDeliveryDay to {}", currentDay);
-            } else {
-                LOGGER.debug("WarehouseManager: No delivery needed @ {} (currentDay={}, lastDay={}, need {} more days)",
-                    pos.toShortString(), currentDay, lastDeliveryDay, (lastDeliveryDay + intervalDays) - currentDay);
             }
 
         } catch (Exception e) {

@@ -261,21 +261,15 @@ public class WarehouseBlockEntity extends BlockEntity {
     }
 
     /**
-     * Manuelle Lieferung für Debugging (Admin-Command)
+     * Manuelle Lieferung (Admin-Command)
      */
     public void performManualDelivery(Level level) {
-        LOGGER.info("=== MANUELLE LIEFERUNG GESTARTET ===");
-        long currentDay = level.getDayTime() / 24000L;
-        LOGGER.info("Current Day: {}, Last Delivery Day: {}", currentDay, lastDeliveryDay);
-
         performDelivery(level);
 
-        // Update lastDeliveryDay so auto-delivery can work correctly
+        long currentDay = level.getDayTime() / 24000L;
         lastDeliveryDay = currentDay;
         setChanged();
         syncToClient();
-
-        LOGGER.info("=== MANUELLE LIEFERUNG BEENDET === (lastDeliveryDay now: {})", lastDeliveryDay);
     }
 
     // ═══════════════════════════════════════════════════════════
