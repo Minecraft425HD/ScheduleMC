@@ -73,6 +73,10 @@ public class WarehouseCommand {
                 .then(Commands.literal("deliver")
                     .executes(WarehouseCommand::manualDelivery)
                 )
+
+                .then(Commands.literal("reset")
+                    .executes(WarehouseCommand::resetTimer)
+                )
         );
     }
 
@@ -305,6 +309,42 @@ public class WarehouseCommand {
             return 1;
         } catch (Exception e) {
             LOGGER.error("Fehler bei /warehouse deliver", e);
+            ctx.getSource().sendFailure(Component.literal("§cFehler: " + e.getMessage()));
+            return 0;
+        }
+    }
+
+    private static int resetTimer(CommandContext<CommandSourceStack> ctx) {
+        try {
+            ServerPlayer player = ctx.getSource().getPlayerOrException();
+            WarehouseBlockEntity warehouse = findWarehouse(player);
+
+            if (warehouse == null) {
+                ctx.getSource().sendFailure(Component.literal("§cKein Warehouse gefunden! Schaue auf einen Warehouse-Block oder stehe direkt darauf."));
+                return 0;
+            }
+
+            long currentTime = player.level().getGameTime();
+            long oldLastDelivery = warehouse.getLastDeliveryTime();
+
+            // Reset lastDeliveryTime to current time
+            warehouse.setLastDeliveryTime(currentTime);
+            warehouse.setChanged();
+            warehouse.syncToClient();
+
+            LOGGER.info("Warehouse delivery timer reset by {} at warehouse {} (old: {}, new: {})",
+                player.getName().getString(), warehouse.getBlockPos(), oldLastDelivery, currentTime);
+
+            ctx.getSource().sendSuccess(() -> Component.literal(
+                "§a✓ Lieferungs-Timer zurückgesetzt!\n" +
+                "§7Alte Zeit: §e" + oldLastDelivery + " §7ticks\n" +
+                "§7Neue Zeit: §e" + currentTime + " §7ticks\n" +
+                "§7Nächste Lieferung in 3 Tagen (72000 ticks)"
+            ), false);
+
+            return 1;
+        } catch (Exception e) {
+            LOGGER.error("Fehler bei /warehouse reset", e);
             ctx.getSource().sendFailure(Component.literal("§cFehler: " + e.getMessage()));
             return 0;
         }

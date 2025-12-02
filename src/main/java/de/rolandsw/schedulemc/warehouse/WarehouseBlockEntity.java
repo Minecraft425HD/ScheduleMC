@@ -339,6 +339,11 @@ public class WarehouseBlockEntity extends BlockEntity {
         return lastDeliveryTime;
     }
 
+    public void setLastDeliveryTime(long time) {
+        this.lastDeliveryTime = time;
+        setChanged();
+    }
+
     /**
      * Leert alle Slots (Admin-Funktion)
      */
