@@ -733,14 +733,13 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         graphics.drawString(this.font, "Status: Aktiv ✓", x + 15, contentY, COLOR_SUCCESS, false);
         contentY += 12;
 
-        long lastDelivery = warehouse.getLastDeliveryTime();
-        long currentTime = minecraft.level != null ? minecraft.level.getGameTime() : 0;
-        long intervalTicks = de.rolandsw.schedulemc.warehouse.WarehouseConfig.DELIVERY_INTERVAL_DAYS.get() * 24000L;
-        long nextDeliveryTicks = lastDelivery + intervalTicks - currentTime;
-        long nextDeliveryDays = nextDeliveryTicks / 24000L;
+        long lastDeliveryDay = warehouse.getLastDeliveryDay();
+        long currentDay = minecraft.level != null ? minecraft.level.getDayTime() / 24000L : 0;
+        long intervalDays = de.rolandsw.schedulemc.warehouse.WarehouseConfig.DELIVERY_INTERVAL_DAYS.get();
+        long daysUntilNext = (lastDeliveryDay + intervalDays) - currentDay;
 
         graphics.drawString(this.font,
-            "Nächste Lieferung: in " + Math.max(0, nextDeliveryDays) + " Tagen",
+            "Nächste Lieferung: in " + Math.max(0, daysUntilNext) + " Tagen",
             x + 15, contentY, COLOR_TEXT, false);
         contentY += 12;
 
