@@ -128,6 +128,21 @@ public class WarehouseCommand {
             }
 
             BlockPos pos = warehouse.getBlockPos();
+            long currentTime = player.level().getGameTime();
+            long lastDelivery = warehouse.getLastDeliveryTime();
+            long timeSince = currentTime - lastDelivery;
+            long intervalTicks = 72000; // 3 days
+            long timeUntilNext = intervalTicks - timeSince;
+
+            String nextDeliveryStr;
+            if (timeUntilNext <= 0) {
+                nextDeliveryStr = "§aÜBERFÄLLIG! Sollte jeden Moment erfolgen...";
+            } else {
+                long daysUntil = timeUntilNext / 24000;
+                long hoursUntil = (timeUntilNext % 24000) / 1000;
+                long minutesUntil = ((timeUntilNext % 24000) % 1000) / 16;
+                nextDeliveryStr = "§e" + daysUntil + " Tage, " + hoursUntil + " Stunden, " + minutesUntil + " Minuten";
+            }
 
             ctx.getSource().sendSuccess(() -> Component.literal(
                 "§e§l=== Warehouse Info ===\n" +
@@ -136,7 +151,12 @@ public class WarehouseCommand {
                 "§7Total Items: §e" + warehouse.getTotalItems() + "\n" +
                 "§7Shop-ID: §e" + (warehouse.getShopId() != null ? warehouse.getShopId() : "Nicht verknüpft") + "\n" +
                 "§7Verkäufer: §e" + warehouse.getLinkedSellers().size() + "\n" +
-                "§7Letzter Delivery: §e" + (warehouse.getLastDeliveryTime() / 24000) + " Tage"
+                "§7\n" +
+                "§6=== Lieferungs-Status ===\n" +
+                "§7Aktuelle Zeit: §e" + currentTime + " §7ticks (§e" + (currentTime / 24000) + " §7Tage)\n" +
+                "§7Letzte Lieferung: §e" + lastDelivery + " §7ticks (§e" + (lastDelivery / 24000) + " §7Tage)\n" +
+                "§7Zeit seit letzter: §e" + timeSince + " §7ticks (§e" + (timeSince / 24000) + " §7Tage)\n" +
+                "§7Nächste Lieferung in: " + nextDeliveryStr
             ), false);
             return 1;
         } catch (Exception e) {

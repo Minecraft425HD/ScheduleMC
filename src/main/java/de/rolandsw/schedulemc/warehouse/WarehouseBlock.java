@@ -56,6 +56,9 @@ public class WarehouseBlock extends Block implements EntityBlock {
         if (!level.isClientSide) {
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof WarehouseBlockEntity warehouse) {
+                // Initialize warehouse with current game time
+                warehouse.initializeOnPlace(level);
+
                 // Prüfe ob Warehouse in einem Plot liegt
                 PlotRegion plot = PlotManager.getPlotAt(pos);
                 if (plot != null && plot.getType().isShop()) {

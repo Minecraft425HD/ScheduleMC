@@ -52,6 +52,16 @@ public class WarehouseBlockEntity extends BlockEntity {
         }
     }
 
+    /**
+     * Initialisiert das Warehouse nach dem Platzieren
+     * Setzt lastDeliveryTime auf aktuelle Zeit, damit erste Lieferung nach Interval erfolgt
+     */
+    public void initializeOnPlace(Level level) {
+        this.lastDeliveryTime = level.getGameTime();
+        LOGGER.info("Warehouse initialized at {}, lastDeliveryTime set to {}", worldPosition.toShortString(), lastDeliveryTime);
+        setChanged();
+    }
+
     // ═══════════════════════════════════════════════════════════
     // ITEM MANAGEMENT
     // ═══════════════════════════════════════════════════════════
@@ -157,6 +167,15 @@ public class WarehouseBlockEntity extends BlockEntity {
         if (level.isClientSide) return;
 
         long currentTime = level.getGameTime();
+
+        // Initialize lastDeliveryTime for existing warehouses (backwards compatibility)
+        if (be.lastDeliveryTime == 0 && currentTime > 0) {
+            be.lastDeliveryTime = currentTime;
+            be.setChanged();
+            LOGGER.info("Warehouse @ {}: Initialized lastDeliveryTime to {} (existing warehouse)",
+                pos.toShortString(), currentTime);
+        }
+
         long intervalTicks = WarehouseConfig.DELIVERY_INTERVAL_DAYS.get() * 24000L;
         long timeSinceLastDelivery = currentTime - be.lastDeliveryTime;
 
@@ -271,10 +290,17 @@ public class WarehouseBlockEntity extends BlockEntity {
      */
     public void performManualDelivery(Level level) {
         LOGGER.info("=== MANUELLE LIEFERUNG GESTARTET ===");
+        long currentTime = level.getGameTime();
+        LOGGER.info("Current Time: {}, Last Delivery: {}", currentTime, lastDeliveryTime);
+
         performDelivery(level);
+
+        // Update lastDeliveryTime so auto-delivery can work correctly
+        lastDeliveryTime = currentTime;
         setChanged();
         syncToClient();
-        LOGGER.info("=== MANUELLE LIEFERUNG BEENDET ===");
+
+        LOGGER.info("=== MANUELLE LIEFERUNG BEENDET === (lastDeliveryTime now: {})", lastDeliveryTime);
     }
 
     // ═══════════════════════════════════════════════════════════
