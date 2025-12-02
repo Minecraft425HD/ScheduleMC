@@ -69,8 +69,8 @@ public class WarehouseManager {
     /**
      * Server Tick Event - Prüft alle Warehouses auf Auto-Delivery
      *
-     * WICHTIG: Verwendet die gleiche Logik wie NPCDailySalaryHandler!
-     * Prüft einfach für jedes Warehouse ob genug Zeit vergangen ist.
+     * WICHTIG: Verwendet die EXAKT GLEICHE Logik wie NPCDailySalaryHandler!
+     * Vergleicht Tag-Nummern (getDayTime() / 24000L) statt absolute ticks.
      * Funktioniert mit /time add, /time set, Schlafen, etc.
      */
     @SubscribeEvent
@@ -110,20 +110,22 @@ public class WarehouseManager {
                 continue;
             }
 
-            long currentTime = level.getGameTime();
-            LOGGER.info("[WarehouseManager] Checking level {} at time {}, {} warehouses",
-                levelKey, currentTime, entry.getValue().size());
+            // TAG-BASIERTE LOGIK wie NPCs!
+            long currentDay = level.getDayTime() / 24000L;
+            LOGGER.info("[WarehouseManager] Checking level {} at day {}, {} warehouses",
+                levelKey, currentDay, entry.getValue().size());
 
             for (BlockPos pos : new ArrayList<>(entry.getValue())) {
-                checkWarehouseDelivery(level, pos, currentTime);
+                checkWarehouseDelivery(level, pos, currentDay);
             }
         }
     }
 
     /**
      * Prüft ein einzelnes Warehouse auf notwendige Delivery
+     * EXAKT wie NPCDailySalaryHandler: Vergleicht Tag-Nummern!
      */
-    private static void checkWarehouseDelivery(ServerLevel level, BlockPos pos, long currentTime) {
+    private static void checkWarehouseDelivery(ServerLevel level, BlockPos pos, long currentDay) {
         // Lade Chunk falls nötig (force load für diesen Tick)
         ChunkPos chunkPos = new ChunkPos(pos);
         boolean wasLoaded = level.isLoaded(pos);
@@ -141,18 +143,25 @@ public class WarehouseManager {
                 return;
             }
 
-            // Prüfe ob Delivery fällig ist
-            long intervalTicks = WarehouseConfig.DELIVERY_INTERVAL_DAYS.get() * 24000L;
-            long timeSinceLastDelivery = currentTime - warehouse.getLastDeliveryTime();
+            // TAG-BASIERTE PRÜFUNG wie NPCs!
+            long intervalDays = WarehouseConfig.DELIVERY_INTERVAL_DAYS.get();
+            long lastDeliveryDay = warehouse.getLastDeliveryDay();
 
-            if (timeSinceLastDelivery >= intervalTicks) {
-                LOGGER.info("WarehouseManager: Triggering delivery for warehouse @ {} (timeSince={}, interval={})",
-                    pos.toShortString(), timeSinceLastDelivery, intervalTicks);
+            // Prüfe ob genug Tage vergangen sind
+            // currentDay >= lastDeliveryDay + intervalDays
+            if (currentDay >= lastDeliveryDay + intervalDays) {
+                LOGGER.info("★★★ WarehouseManager: Triggering delivery for warehouse @ {} (currentDay={}, lastDay={}, interval={} days)",
+                    pos.toShortString(), currentDay, lastDeliveryDay, intervalDays);
 
                 warehouse.performDelivery(level);
-                warehouse.setLastDeliveryTime(currentTime);
+                warehouse.setLastDeliveryDay(currentDay);
                 warehouse.setChanged();
                 warehouse.syncToClient();
+
+                LOGGER.info("★★★ WarehouseManager: Delivery completed! Updated lastDeliveryDay to {}", currentDay);
+            } else {
+                LOGGER.debug("WarehouseManager: No delivery needed @ {} (currentDay={}, lastDay={}, need {} more days)",
+                    pos.toShortString(), currentDay, lastDeliveryDay, (lastDeliveryDay + intervalDays) - currentDay);
             }
 
         } catch (Exception e) {

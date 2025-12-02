@@ -6,6 +6,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity;
+import de.rolandsw.schedulemc.warehouse.WarehouseConfig;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -132,20 +133,17 @@ public class WarehouseCommand {
             }
 
             BlockPos pos = warehouse.getBlockPos();
-            long currentTime = player.level().getGameTime();
-            long lastDelivery = warehouse.getLastDeliveryTime();
-            long timeSince = currentTime - lastDelivery;
-            long intervalTicks = 72000; // 3 days
-            long timeUntilNext = intervalTicks - timeSince;
+            long currentDay = player.level().getDayTime() / 24000L;
+            long lastDeliveryDay = warehouse.getLastDeliveryDay();
+            long daysSinceLastDelivery = currentDay - lastDeliveryDay;
+            long intervalDays = WarehouseConfig.DELIVERY_INTERVAL_DAYS.get();
+            long daysUntilNext = (lastDeliveryDay + intervalDays) - currentDay;
 
             String nextDeliveryStr;
-            if (timeUntilNext <= 0) {
+            if (daysUntilNext <= 0) {
                 nextDeliveryStr = "§aÜBERFÄLLIG! Sollte jeden Moment erfolgen...";
             } else {
-                long daysUntil = timeUntilNext / 24000;
-                long hoursUntil = (timeUntilNext % 24000) / 1000;
-                long minutesUntil = ((timeUntilNext % 24000) % 1000) / 16;
-                nextDeliveryStr = "§e" + daysUntil + " Tage, " + hoursUntil + " Stunden, " + minutesUntil + " Minuten";
+                nextDeliveryStr = "§e" + daysUntilNext + " Tage";
             }
 
             ctx.getSource().sendSuccess(() -> Component.literal(
@@ -156,10 +154,11 @@ public class WarehouseCommand {
                 "§7Shop-ID: §e" + (warehouse.getShopId() != null ? warehouse.getShopId() : "Nicht verknüpft") + "\n" +
                 "§7Verkäufer: §e" + warehouse.getLinkedSellers().size() + "\n" +
                 "§7\n" +
-                "§6=== Lieferungs-Status ===\n" +
-                "§7Aktuelle Zeit: §e" + currentTime + " §7ticks (§e" + (currentTime / 24000) + " §7Tage)\n" +
-                "§7Letzte Lieferung: §e" + lastDelivery + " §7ticks (§e" + (lastDelivery / 24000) + " §7Tage)\n" +
-                "§7Zeit seit letzter: §e" + timeSince + " §7ticks (§e" + (timeSince / 24000) + " §7Tage)\n" +
+                "§6=== Lieferungs-Status (Tag-basiert wie NPCs!) ===\n" +
+                "§7Aktueller Tag: §e" + currentDay + "\n" +
+                "§7Letzte Lieferung: §eTag " + lastDeliveryDay + "\n" +
+                "§7Tage seit letzter: §e" + daysSinceLastDelivery + " Tage\n" +
+                "§7Lieferungs-Interval: §e" + intervalDays + " Tage\n" +
                 "§7Nächste Lieferung in: " + nextDeliveryStr
             ), false);
             return 1;
@@ -289,17 +288,17 @@ public class WarehouseCommand {
                 return 0;
             }
 
-            long currentTime = player.level().getGameTime();
-            long lastDelivery = warehouse.getLastDeliveryTime();
-            long timeSince = currentTime - lastDelivery;
+            long currentDay = player.level().getDayTime() / 24000L;
+            long lastDeliveryDay = warehouse.getLastDeliveryDay();
+            long daysSince = currentDay - lastDeliveryDay;
 
             LOGGER.info("Manual delivery triggered by {} at warehouse {}", player.getName().getString(), warehouse.getBlockPos());
 
             ctx.getSource().sendSuccess(() -> Component.literal(
                 "§e=== Manuelle Lieferung ausgelöst ===\n" +
-                "§7Current Time: §e" + currentTime + "\n" +
-                "§7Last Delivery: §e" + lastDelivery + "\n" +
-                "§7Time Since: §e" + timeSince + " §7ticks (§e" + (timeSince / 24000) + " §7Tage)\n" +
+                "§7Current Day: §e" + currentDay + "\n" +
+                "§7Last Delivery Day: §e" + lastDeliveryDay + "\n" +
+                "§7Days Since: §e" + daysSince + " Tage\n" +
                 "§7Prüfe Server-Logs für Details..."
             ), false);
 
@@ -324,22 +323,23 @@ public class WarehouseCommand {
                 return 0;
             }
 
-            long currentTime = player.level().getGameTime();
-            long oldLastDelivery = warehouse.getLastDeliveryTime();
+            long currentDay = player.level().getDayTime() / 24000L;
+            long oldLastDeliveryDay = warehouse.getLastDeliveryDay();
+            long intervalDays = WarehouseConfig.DELIVERY_INTERVAL_DAYS.get();
 
-            // Reset lastDeliveryTime to current time
-            warehouse.setLastDeliveryTime(currentTime);
+            // Reset lastDeliveryDay to current day
+            warehouse.setLastDeliveryDay(currentDay);
             warehouse.setChanged();
             warehouse.syncToClient();
 
-            LOGGER.info("Warehouse delivery timer reset by {} at warehouse {} (old: {}, new: {})",
-                player.getName().getString(), warehouse.getBlockPos(), oldLastDelivery, currentTime);
+            LOGGER.info("Warehouse delivery timer reset by {} at warehouse {} (old: Tag {}, new: Tag {})",
+                player.getName().getString(), warehouse.getBlockPos(), oldLastDeliveryDay, currentDay);
 
             ctx.getSource().sendSuccess(() -> Component.literal(
                 "§a✓ Lieferungs-Timer zurückgesetzt!\n" +
-                "§7Alte Zeit: §e" + oldLastDelivery + " §7ticks\n" +
-                "§7Neue Zeit: §e" + currentTime + " §7ticks\n" +
-                "§7Nächste Lieferung in 3 Tagen (72000 ticks)"
+                "§7Alter Tag: §eTag " + oldLastDeliveryDay + "\n" +
+                "§7Neuer Tag: §eTag " + currentDay + "\n" +
+                "§7Nächste Lieferung in " + intervalDays + " Tagen"
             ), false);
 
             return 1;

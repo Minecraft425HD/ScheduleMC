@@ -35,7 +35,7 @@ public class WarehouseBlockEntity extends BlockEntity {
 
     private WarehouseSlot[] slots;
     private List<UUID> linkedSellers = new ArrayList<>();
-    private long lastDeliveryTime = 0;
+    private long lastDeliveryDay = -1; // Tag der letzten Lieferung (nicht absolute ticks!)
     @Nullable
     private String shopId; // Referenz zum Shop-Konto
     private List<ExpenseEntry> expenses = new ArrayList<>(); // Ausgaben-Historie
@@ -54,11 +54,11 @@ public class WarehouseBlockEntity extends BlockEntity {
 
     /**
      * Initialisiert das Warehouse nach dem Platzieren
-     * Setzt lastDeliveryTime auf aktuelle Zeit, damit erste Lieferung nach Interval erfolgt
+     * Setzt lastDeliveryDay auf aktuellen Tag, damit erste Lieferung nach Interval erfolgt
      */
     public void initializeOnPlace(Level level) {
-        this.lastDeliveryTime = level.getGameTime();
-        LOGGER.info("Warehouse initialized at {}, lastDeliveryTime set to {}", worldPosition.toShortString(), lastDeliveryTime);
+        this.lastDeliveryDay = level.getDayTime() / 24000L;
+        LOGGER.info("Warehouse initialized at {}, lastDeliveryDay set to {}", worldPosition.toShortString(), lastDeliveryDay);
         setChanged();
     }
 
@@ -265,17 +265,17 @@ public class WarehouseBlockEntity extends BlockEntity {
      */
     public void performManualDelivery(Level level) {
         LOGGER.info("=== MANUELLE LIEFERUNG GESTARTET ===");
-        long currentTime = level.getGameTime();
-        LOGGER.info("Current Time: {}, Last Delivery: {}", currentTime, lastDeliveryTime);
+        long currentDay = level.getDayTime() / 24000L;
+        LOGGER.info("Current Day: {}, Last Delivery Day: {}", currentDay, lastDeliveryDay);
 
         performDelivery(level);
 
-        // Update lastDeliveryTime so auto-delivery can work correctly
-        lastDeliveryTime = currentTime;
+        // Update lastDeliveryDay so auto-delivery can work correctly
+        lastDeliveryDay = currentDay;
         setChanged();
         syncToClient();
 
-        LOGGER.info("=== MANUELLE LIEFERUNG BEENDET === (lastDeliveryTime now: {})", lastDeliveryTime);
+        LOGGER.info("=== MANUELLE LIEFERUNG BEENDET === (lastDeliveryDay now: {})", lastDeliveryDay);
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -310,12 +310,12 @@ public class WarehouseBlockEntity extends BlockEntity {
         return count;
     }
 
-    public long getLastDeliveryTime() {
-        return lastDeliveryTime;
+    public long getLastDeliveryDay() {
+        return lastDeliveryDay;
     }
 
-    public void setLastDeliveryTime(long time) {
-        this.lastDeliveryTime = time;
+    public void setLastDeliveryDay(long day) {
+        this.lastDeliveryDay = day;
         setChanged();
     }
 
@@ -421,7 +421,7 @@ public class WarehouseBlockEntity extends BlockEntity {
             tag.putString("Sellers", String.join(",", uuids));
         }
 
-        tag.putLong("LastDelivery", lastDeliveryTime);
+        tag.putLong("LastDeliveryDay", lastDeliveryDay);
 
         if (shopId != null) {
             tag.putString("ShopId", shopId);
@@ -470,7 +470,17 @@ public class WarehouseBlockEntity extends BlockEntity {
             }
         }
 
-        lastDeliveryTime = tag.getLong("LastDelivery");
+        // Lade lastDeliveryDay (mit Backwards-Compatibility für alte Saves)
+        if (tag.contains("LastDeliveryDay")) {
+            lastDeliveryDay = tag.getLong("LastDeliveryDay");
+        } else if (tag.contains("LastDelivery")) {
+            // Alte Saves: Konvertiere absolute Zeit zu Tag
+            long oldTime = tag.getLong("LastDelivery");
+            lastDeliveryDay = oldTime / 24000L;
+            LOGGER.info("Converted old lastDeliveryTime {} to lastDeliveryDay {}", oldTime, lastDeliveryDay);
+        } else {
+            lastDeliveryDay = -1; // Keine Daten vorhanden
+        }
 
         if (tag.contains("ShopId")) {
             shopId = tag.getString("ShopId");
