@@ -81,14 +81,26 @@ public class WarehouseManager {
 
         long currentTime = server.overworld().getGameTime();
 
+        // DEBUG: Log every 100 ticks to verify this method is being called
+        if (tickCounter == 0) {
+            LOGGER.info("[WarehouseManager] Tick check: currentTime={}, lastCheck={}, warehouses={}",
+                currentTime, lastCheckGameTime, warehouses.size());
+        }
+
         // Detect time jumps (e.g. /time add command)
         boolean forceCheck = false;
         if (lastCheckGameTime != -1) {
             long gameTimeDiff = currentTime - lastCheckGameTime;
+
+            // DEBUG: Log time difference
+            if (tickCounter % 20 == 0) {
+                LOGGER.debug("[WarehouseManager] GameTimeDiff: {} (threshold: {})", gameTimeDiff, TIME_JUMP_THRESHOLD);
+            }
+
             // If game time jumped more than threshold, force immediate check
             if (gameTimeDiff > TIME_JUMP_THRESHOLD) {
                 forceCheck = true;
-                LOGGER.info("Zeit-Sprung erkannt! GameTime sprang um {} ticks. Erzwinge Warehouse-Prüfung.", gameTimeDiff);
+                LOGGER.info("★★★ Zeit-Sprung erkannt! GameTime sprang um {} ticks. Erzwinge Warehouse-Prüfung. ★★★", gameTimeDiff);
             }
         }
 
@@ -101,12 +113,19 @@ public class WarehouseManager {
         tickCounter = 0;
         lastCheckGameTime = currentTime;
 
+        LOGGER.info("[WarehouseManager] Starting warehouse check - Time: {}, Warehouses: {}", currentTime, warehouses.size());
+
         // Prüfe alle registrierten Warehouses
         for (Map.Entry<String, Set<BlockPos>> entry : warehouses.entrySet()) {
             String levelKey = entry.getKey();
             ServerLevel level = getLevelByKey(server, levelKey);
 
-            if (level == null) continue;
+            if (level == null) {
+                LOGGER.warn("[WarehouseManager] Level not found: {}", levelKey);
+                continue;
+            }
+
+            LOGGER.debug("[WarehouseManager] Checking {} warehouses in level {}", entry.getValue().size(), levelKey);
 
             for (BlockPos pos : new ArrayList<>(entry.getValue())) {
                 checkWarehouseDelivery(level, pos, currentTime);
