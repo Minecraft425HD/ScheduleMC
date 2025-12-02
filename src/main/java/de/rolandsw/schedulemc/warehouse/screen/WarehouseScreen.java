@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.warehouse.screen;
 import com.mojang.blaze3d.systems.RenderSystem;
 import de.rolandsw.schedulemc.economy.ShopAccountManager;
 import de.rolandsw.schedulemc.economy.ShopAccount;
+import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity;
 import de.rolandsw.schedulemc.warehouse.WarehouseSlot;
 import de.rolandsw.schedulemc.warehouse.menu.WarehouseMenu;
@@ -463,6 +464,21 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         } else {
             graphics.drawString(this.font, "Kein Slot ausgewählt",
                 x + 270, y + 120, COLOR_TEXT_GRAY, false);
+
+            // Zeige Hilfetext wenn keine Items vorhanden
+            if (warehouse.getUsedSlots() == 0) {
+                int helpY = y + 140;
+                graphics.drawString(this.font, "§7So fügen Sie Items hinzu:",
+                    x + 270, helpY, COLOR_TEXT_GRAY, false);
+                helpY += 12;
+
+                graphics.drawString(this.font, "§7Verwenden Sie den Command:",
+                    x + 270, helpY, COLOR_TEXT_GRAY, false);
+                helpY += 12;
+
+                graphics.drawString(this.font, "§e/warehouse add <item> <amount>",
+                    x + 270, helpY, COLOR_WARNING, false);
+            }
         }
 
         // Bottom Info
@@ -492,18 +508,16 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         for (int i = sellerScrollOffset; i < sellers.size() && visibleCount < SELLER_VISIBLE_ROWS; i++) {
             UUID sellerId = sellers.get(i);
 
-            // Get player name (if online)
-            String playerName = "Unknown";
-            if (minecraft.level != null) {
-                var player = minecraft.level.getPlayerByUUID(sellerId);
-                if (player != null) {
-                    playerName = player.getName().getString();
-                }
-            }
+            // Get NPC name
+            String npcName = getNPCName(sellerId);
 
-            graphics.drawString(this.font, "✓ " + playerName, x + 15, renderY, COLOR_SUCCESS, false);
-            graphics.drawString(this.font, sellerId.toString().substring(0, 8) + "...",
-                x + 150, renderY, COLOR_TEXT_GRAY, false);
+            graphics.drawString(this.font, "✓ " + npcName, x + 15, renderY, COLOR_SUCCESS, false);
+
+            // Zeige UUID nur wenn Name nicht gefunden
+            if (npcName.contains("...")) {
+                graphics.drawString(this.font, "(UUID: " + npcName + ")",
+                    x + 150, renderY, COLOR_TEXT_GRAY, false);
+            }
 
             // Remove button area
             int removeX = x + 350;
@@ -527,6 +541,27 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         if (sellers.isEmpty()) {
             graphics.drawString(this.font, "Keine Verkäufer verknüpft",
                 x + 15, y + 50, COLOR_TEXT_GRAY, false);
+            int helpY = y + 70;
+
+            // Anleitung zum Verknüpfen
+            graphics.drawString(this.font, "§7So verknüpfen Sie einen NPC-Verkäufer:",
+                x + 15, helpY, COLOR_TEXT_GRAY, false);
+            helpY += 12;
+
+            graphics.drawString(this.font, "§71. Nimm das §eWarehouse Tool §7aus dem Creative-Inventar",
+                x + 15, helpY, COLOR_TEXT_GRAY, false);
+            helpY += 12;
+
+            graphics.drawString(this.font, "§72. §eRechtsklick §7auf diesen Warehouse-Block",
+                x + 15, helpY, COLOR_TEXT_GRAY, false);
+            helpY += 12;
+
+            graphics.drawString(this.font, "§73. §eLinksklick §7auf den NPC den Sie verknüpfen möchten",
+                x + 15, helpY, COLOR_TEXT_GRAY, false);
+            helpY += 12;
+
+            graphics.drawString(this.font, "§74. Der NPC verkauft dann Items aus diesem Warehouse",
+                x + 15, helpY, COLOR_TEXT_GRAY, false);
         }
 
         // Bottom info
@@ -756,5 +791,28 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
     @Override
     public boolean isPauseScreen() {
         return false;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // HELPER METHODS
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Versucht den NPC-Namen aus einer UUID abzurufen
+     */
+    private String getNPCName(UUID npcUUID) {
+        if (minecraft.level == null) return "Unknown";
+
+        // Suche alle Custom NPCs in der Welt
+        for (var entity : minecraft.level.entitiesForRendering()) {
+            if (entity instanceof CustomNPCEntity npc) {
+                if (npc.getNpcData().getNpcUUID().equals(npcUUID)) {
+                    return npc.getNpcName();
+                }
+            }
+        }
+
+        // Fallback: Zeige gekürzte UUID
+        return npcUUID.toString().substring(0, 8) + "...";
     }
 }
