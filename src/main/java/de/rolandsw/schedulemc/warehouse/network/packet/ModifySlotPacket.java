@@ -1,0 +1,84 @@
+package de.rolandsw.schedulemc.warehouse.network.packet;
+
+import de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity;
+import de.rolandsw.schedulemc.warehouse.WarehouseSlot;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.network.NetworkEvent;
+
+import java.util.function.Supplier;
+
+/**
+ * Packet zum Hinzufügen/Entfernen von Items in einem Slot
+ */
+public class ModifySlotPacket {
+
+    private final BlockPos pos;
+    private final int slotIndex;
+    private final int amount; // Positive = Hinzufügen, Negative = Entfernen
+
+    public ModifySlotPacket(BlockPos pos, int slotIndex, int amount) {
+        this.pos = pos;
+        this.slotIndex = slotIndex;
+        this.amount = amount;
+    }
+
+    public static void encode(ModifySlotPacket msg, FriendlyByteBuf buffer) {
+        buffer.writeBlockPos(msg.pos);
+        buffer.writeInt(msg.slotIndex);
+        buffer.writeInt(msg.amount);
+    }
+
+    public static ModifySlotPacket decode(FriendlyByteBuf buffer) {
+        return new ModifySlotPacket(
+            buffer.readBlockPos(),
+            buffer.readInt(),
+            buffer.readInt()
+        );
+    }
+
+    public static void handle(ModifySlotPacket msg, Supplier<NetworkEvent.Context> ctx) {
+        ctx.get().enqueueWork(() -> {
+            ServerPlayer player = ctx.get().getSender();
+            if (player == null) return;
+
+            // Admin check
+            if (!player.hasPermissions(2)) {
+                player.sendSystemMessage(Component.literal("§cNur Admins können das Warehouse bearbeiten!"));
+                return;
+            }
+
+            BlockEntity be = player.level().getBlockEntity(msg.pos);
+            if (!(be instanceof WarehouseBlockEntity warehouse)) return;
+
+            WarehouseSlot[] slots = warehouse.getSlots();
+            if (msg.slotIndex < 0 || msg.slotIndex >= slots.length) return;
+
+            WarehouseSlot slot = slots[msg.slotIndex];
+            if (slot.isEmpty() || slot.getAllowedItem() == null) {
+                player.sendSystemMessage(Component.literal("§cSlot ist leer!"));
+                return;
+            }
+
+            if (msg.amount > 0) {
+                // Hinzufügen
+                int added = slot.addStock(slot.getAllowedItem(), msg.amount);
+                warehouse.setChanged();
+                player.sendSystemMessage(Component.literal(
+                    "§a" + added + "x " + slot.getAllowedItem().getDescription().getString() + " hinzugefügt"
+                ));
+            } else if (msg.amount < 0) {
+                // Entfernen
+                int removed = slot.removeStock(-msg.amount);
+                warehouse.setChanged();
+                player.sendSystemMessage(Component.literal(
+                    "§a" + removed + "x " + slot.getAllowedItem().getDescription().getString() + " entfernt"
+                ));
+            }
+        });
+        ctx.get().setPacketHandled(true);
+    }
+}

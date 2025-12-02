@@ -1,11 +1,16 @@
 package de.rolandsw.schedulemc.warehouse;
 
 import de.rolandsw.schedulemc.warehouse.items.WarehouseTool;
+import de.rolandsw.schedulemc.warehouse.menu.WarehouseMenu;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
@@ -14,6 +19,7 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -62,7 +68,7 @@ public class WarehouseBlock extends Block implements EntityBlock {
         if (player instanceof ServerPlayer serverPlayer) {
             if (!serverPlayer.hasPermissions(2)) {
                 player.displayClientMessage(
-                    net.minecraft.network.chat.Component.literal("§cNur Admins können Warehouses verwalten!"),
+                    Component.literal("§cNur Admins können Warehouses verwalten!"),
                     true
                 );
                 return InteractionResult.FAIL;
@@ -70,22 +76,18 @@ public class WarehouseBlock extends Block implements EntityBlock {
 
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof WarehouseBlockEntity warehouse) {
-                // TODO: Öffne GUI
-                player.displayClientMessage(
-                    net.minecraft.network.chat.Component.literal("§eWarehouse GUI (TODO)"),
-                    false
-                );
+                // Öffne GUI
+                NetworkHooks.openScreen(serverPlayer, new MenuProvider() {
+                    @Override
+                    public Component getDisplayName() {
+                        return Component.literal("Warehouse Management");
+                    }
 
-                // Zeige Info
-                player.sendSystemMessage(
-                    net.minecraft.network.chat.Component.literal(
-                        "§e§l=== Warehouse Info ===\n" +
-                        "§7Slots belegt: §e" + warehouse.getUsedSlots() + " §7/ §e" + warehouse.getSlots().length + "\n" +
-                        "§7Total Items: §e" + warehouse.getTotalItems() + "\n" +
-                        "§7Shop-ID: §e" + (warehouse.getShopId() != null ? warehouse.getShopId() : "Nicht verknüpft") + "\n" +
-                        "§7Verkäufer: §e" + warehouse.getLinkedSellers().size()
-                    )
-                );
+                    @Override
+                    public AbstractContainerMenu createMenu(int id, Inventory playerInventory, Player player) {
+                        return new WarehouseMenu(id, playerInventory, warehouse, pos);
+                    }
+                }, pos);
             }
         }
 
