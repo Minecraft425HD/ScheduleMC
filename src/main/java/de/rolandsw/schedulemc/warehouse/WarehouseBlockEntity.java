@@ -158,8 +158,17 @@ public class WarehouseBlockEntity extends BlockEntity {
 
         long currentTime = level.getGameTime();
         long intervalTicks = WarehouseConfig.DELIVERY_INTERVAL_DAYS.get() * 24000L;
+        long timeSinceLastDelivery = currentTime - be.lastDeliveryTime;
 
-        if (currentTime - be.lastDeliveryTime >= intervalTicks) {
+        // Debug-Logging alle 5 Sekunden (100 ticks)
+        if (currentTime % 100 == 0) {
+            LOGGER.debug("Warehouse @ {}: currentTime={}, lastDelivery={}, timeSince={}, interval={}, shopId={}",
+                pos.toShortString(), currentTime, be.lastDeliveryTime, timeSinceLastDelivery, intervalTicks, be.shopId);
+        }
+
+        if (timeSinceLastDelivery >= intervalTicks) {
+            LOGGER.info("Warehouse @ {}: Triggering auto-delivery (timeSince={} >= interval={})",
+                pos.toShortString(), timeSinceLastDelivery, intervalTicks);
             be.performDelivery(level);
             be.lastDeliveryTime = currentTime;
             be.setChanged();
@@ -177,21 +186,42 @@ public class WarehouseBlockEntity extends BlockEntity {
      * Staatskasse zahlt, Shop-Konto registriert Ausgaben
      */
     private void performDelivery(Level level) {
+        LOGGER.info("Warehouse @ {}: performDelivery() aufgerufen, shopId={}", worldPosition.toShortString(), shopId);
+
         // Berechne Lieferkosten
         int totalCost = 0;
         Map<Item, Integer> toDeliver = new HashMap<>();
+        int slotsWithItems = 0;
+        int emptySlots = 0;
+        int fullSlots = 0;
 
         for (WarehouseSlot slot : slots) {
             int restockAmount = slot.getRestockAmount();
+            if (slot.getAllowedItem() != null) {
+                slotsWithItems++;
+                if (restockAmount == 0) {
+                    fullSlots++;
+                }
+            } else {
+                emptySlots++;
+            }
+
             if (restockAmount > 0 && slot.getAllowedItem() != null) {
                 Item item = slot.getAllowedItem();
                 int pricePerItem = DeliveryPriceConfig.getPrice(item);
                 totalCost += restockAmount * pricePerItem;
                 toDeliver.put(item, restockAmount);
+                LOGGER.debug("  Slot needs restock: item={}, amount={}, price={}",
+                    item.getDescription().getString(), restockAmount, pricePerItem);
             }
         }
 
+        LOGGER.info("Warehouse @ {}: Analysis - slotsWithItems={}, emptySlots={}, fullSlots={}, toDeliver={}, totalCost={}",
+            worldPosition.toShortString(), slotsWithItems, emptySlots, fullSlots, toDeliver.size(), totalCost);
+
         if (totalCost == 0 || toDeliver.isEmpty()) {
+            LOGGER.info("Warehouse @ {}: Keine Lieferung notwendig (totalCost={}, toDeliver={})",
+                worldPosition.toShortString(), totalCost, toDeliver.size());
             return; // Nichts zu liefern
         }
 
@@ -234,6 +264,17 @@ public class WarehouseBlockEntity extends BlockEntity {
                     Component.literal("§c[Warehouse] Lieferung fehlgeschlagen! Staatskasse leer.")
                 ));
         }
+    }
+
+    /**
+     * Manuelle Lieferung für Debugging (Admin-Command)
+     */
+    public void performManualDelivery(Level level) {
+        LOGGER.info("=== MANUELLE LIEFERUNG GESTARTET ===");
+        performDelivery(level);
+        setChanged();
+        syncToClient();
+        LOGGER.info("=== MANUELLE LIEFERUNG BEENDET ===");
     }
 
     // ═══════════════════════════════════════════════════════════

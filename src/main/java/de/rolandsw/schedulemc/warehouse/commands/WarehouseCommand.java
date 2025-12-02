@@ -69,6 +69,10 @@ public class WarehouseCommand {
                         .executes(WarehouseCommand::setShopId)
                     )
                 )
+
+                .then(Commands.literal("deliver")
+                    .executes(WarehouseCommand::manualDelivery)
+                )
         );
     }
 
@@ -247,6 +251,41 @@ public class WarehouseCommand {
             return 1;
         } catch (Exception e) {
             LOGGER.error("Fehler bei /warehouse setshop", e);
+            return 0;
+        }
+    }
+
+    private static int manualDelivery(CommandContext<CommandSourceStack> ctx) {
+        try {
+            ServerPlayer player = ctx.getSource().getPlayerOrException();
+            WarehouseBlockEntity warehouse = findWarehouse(player);
+
+            if (warehouse == null) {
+                ctx.getSource().sendFailure(Component.literal("§cKein Warehouse gefunden! Schaue auf einen Warehouse-Block oder stehe direkt darauf."));
+                return 0;
+            }
+
+            long currentTime = player.level().getGameTime();
+            long lastDelivery = warehouse.getLastDeliveryTime();
+            long timeSince = currentTime - lastDelivery;
+
+            LOGGER.info("Manual delivery triggered by {} at warehouse {}", player.getName().getString(), warehouse.getBlockPos());
+
+            ctx.getSource().sendSuccess(() -> Component.literal(
+                "§e=== Manuelle Lieferung ausgelöst ===\n" +
+                "§7Current Time: §e" + currentTime + "\n" +
+                "§7Last Delivery: §e" + lastDelivery + "\n" +
+                "§7Time Since: §e" + timeSince + " §7ticks (§e" + (timeSince / 24000) + " §7Tage)\n" +
+                "§7Prüfe Server-Logs für Details..."
+            ), false);
+
+            // Rufe manuelle Lieferung auf
+            warehouse.performManualDelivery(player.level());
+
+            return 1;
+        } catch (Exception e) {
+            LOGGER.error("Fehler bei /warehouse deliver", e);
+            ctx.getSource().sendFailure(Component.literal("§cFehler: " + e.getMessage()));
             return 0;
         }
     }
