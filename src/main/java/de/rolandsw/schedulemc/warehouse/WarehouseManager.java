@@ -85,17 +85,34 @@ public class WarehouseManager {
 
         // Prüfe nur jede Sekunde (20 ticks) statt jeden Tick
         tickCounter++;
+
+        // DEBUG: Log every second to verify this is running
+        if (tickCounter == 1) {
+            LOGGER.info("★★★ [WarehouseManager] TICK! Warehouses registered: {}, players online: {}",
+                warehouses.size(), server.getPlayerCount());
+            for (Map.Entry<String, Set<BlockPos>> entry : warehouses.entrySet()) {
+                LOGGER.info("  → Level {}: {} warehouses", entry.getKey(), entry.getValue().size());
+            }
+        }
+
         if (tickCounter < CHECK_INTERVAL) return;
         tickCounter = 0;
+
+        LOGGER.info("★★★ [WarehouseManager] Checking {} warehouse groups for delivery", warehouses.size());
 
         // Prüfe alle registrierten Warehouses
         for (Map.Entry<String, Set<BlockPos>> entry : warehouses.entrySet()) {
             String levelKey = entry.getKey();
             ServerLevel level = getLevelByKey(server, levelKey);
 
-            if (level == null) continue;
+            if (level == null) {
+                LOGGER.warn("[WarehouseManager] Level {} not found!", levelKey);
+                continue;
+            }
 
             long currentTime = level.getGameTime();
+            LOGGER.info("[WarehouseManager] Checking level {} at time {}, {} warehouses",
+                levelKey, currentTime, entry.getValue().size());
 
             for (BlockPos pos : new ArrayList<>(entry.getValue())) {
                 checkWarehouseDelivery(level, pos, currentTime);
@@ -179,9 +196,12 @@ public class WarehouseManager {
      * Lädt Warehouse-Positionen beim Server-Start
      */
     public static void load(MinecraftServer server) {
+        LOGGER.info("★★★ [WarehouseManager] load() aufgerufen! ★★★");
         File dataFile = getDataFile(server);
+        LOGGER.info("[WarehouseManager] Data file: {}, exists: {}", dataFile.getAbsolutePath(), dataFile.exists());
+
         if (!dataFile.exists()) {
-            LOGGER.info("Keine Warehouse-Daten gefunden (erste Server-Start)");
+            LOGGER.info("★★★ [WarehouseManager] Keine Warehouse-Daten gefunden - warehouses map ist leer! ★★★");
             return;
         }
 
