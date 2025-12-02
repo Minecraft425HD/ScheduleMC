@@ -166,9 +166,10 @@ public class WarehouseTool extends Item {
             Component.literal("§bVerknüpfte Verkäufer: §e" + warehouse.getLinkedSellers().size())
         );
 
-        long daysSinceDelivery = (player.level().getDayTime() - warehouse.getLastDeliveryTime()) / 24000;
+        long currentDay = player.level().getDayTime() / 24000L;
+        long daysSinceDelivery = currentDay - warehouse.getLastDeliveryDay();
         player.sendSystemMessage(
-            Component.literal("§bLetzter Delivery: §e" + daysSinceDelivery + " Tage her")
+            Component.literal("§bLetzter Delivery: §e" + daysSinceDelivery + " Tage her (Tag " + warehouse.getLastDeliveryDay() + ")")
         );
     }
 

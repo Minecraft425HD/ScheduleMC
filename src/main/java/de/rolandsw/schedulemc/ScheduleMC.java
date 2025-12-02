@@ -37,7 +37,10 @@ import de.rolandsw.schedulemc.economy.blocks.EconomyBlocks;
 import de.rolandsw.schedulemc.economy.menu.EconomyMenuTypes;
 import de.rolandsw.schedulemc.warehouse.WarehouseBlocks;
 import de.rolandsw.schedulemc.warehouse.WarehouseConfig;
+import de.rolandsw.schedulemc.warehouse.WarehouseManager;
 import de.rolandsw.schedulemc.warehouse.items.WarehouseItems;
+import de.rolandsw.schedulemc.warehouse.menu.WarehouseMenuTypes;
+import de.rolandsw.schedulemc.warehouse.network.WarehouseNetworkHandler;
 import de.rolandsw.schedulemc.economy.StateAccount;
 import de.rolandsw.schedulemc.economy.ShopAccountManager;
 import de.rolandsw.schedulemc.npc.entity.NPCEntities;
@@ -94,6 +97,7 @@ public class ScheduleMC {
         WarehouseItems.ITEMS.register(modEventBus);
         ModMenuTypes.MENUS.register(modEventBus);
         EconomyMenuTypes.MENUS.register(modEventBus);
+        WarehouseMenuTypes.MENUS.register(modEventBus);
         ModEntities.ENTITIES.register(modEventBus);
         NPCItems.ITEMS.register(modEventBus);
         NPCEntities.ENTITIES.register(modEventBus);
@@ -118,6 +122,7 @@ public class ScheduleMC {
         MinecraftForge.EVENT_BUS.register(de.rolandsw.schedulemc.npc.events.NPCNameSyncHandler.class);
         MinecraftForge.EVENT_BUS.register(RespawnHandler.class);
         MinecraftForge.EVENT_BUS.register(BusinessMetricsUpdateHandler.class);
+        MinecraftForge.EVENT_BUS.register(WarehouseManager.class);
 
 
         LOGGER.info("ScheduleMC initialized");
@@ -130,6 +135,7 @@ public class ScheduleMC {
             ModNetworking.register();
             SmartphoneNetworkHandler.register();
             MessageNetworkHandler.register();
+            WarehouseNetworkHandler.register();
         });
     }
 
@@ -163,6 +169,7 @@ public class ScheduleMC {
         // NEU: Warehouse & Shop System initialisieren
         StateAccount.load();
         MinecraftForge.EVENT_BUS.register(ShopAccountManager.class);
+        WarehouseManager.load(event.getServer());
     }
 
     @SubscribeEvent
@@ -189,6 +196,7 @@ public class ScheduleMC {
         WalletManager.save();
         NPCNameRegistry.saveRegistry();
         MessageManager.saveMessages();
+        WarehouseManager.save(event.getServer());
     }
 
     @SubscribeEvent

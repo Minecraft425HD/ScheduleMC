@@ -7,7 +7,9 @@ import de.rolandsw.schedulemc.economy.ShopAccount;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -29,12 +31,14 @@ import java.util.*;
 public class WarehouseBlockEntity extends BlockEntity {
 
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static final int EXPENSE_RETENTION_DAYS = 30; // Behalte Ausgaben für 30 Tage
 
     private WarehouseSlot[] slots;
     private List<UUID> linkedSellers = new ArrayList<>();
-    private long lastDeliveryTime = 0;
+    private long lastDeliveryDay = -1; // Tag der letzten Lieferung (nicht absolute ticks!)
     @Nullable
     private String shopId; // Referenz zum Shop-Konto
+    private List<ExpenseEntry> expenses = new ArrayList<>(); // Ausgaben-Historie
 
     public WarehouseBlockEntity(BlockPos pos, BlockState state) {
         super(WarehouseBlocks.WAREHOUSE_BLOCK_ENTITY.get(), pos, state);
@@ -46,6 +50,16 @@ public class WarehouseBlockEntity extends BlockEntity {
         for (int i = 0; i < slotCount; i++) {
             slots[i] = new WarehouseSlot(capacity);
         }
+    }
+
+    /**
+     * Initialisiert das Warehouse nach dem Platzieren
+     * Setzt lastDeliveryDay auf aktuellen Tag, damit erste Lieferung nach Interval erfolgt
+     */
+    public void initializeOnPlace(Level level) {
+        this.lastDeliveryDay = level.getDayTime() / 24000L;
+        LOGGER.info("Warehouse initialized at {}, lastDeliveryDay set to {}", worldPosition.toShortString(), lastDeliveryDay);
+        setChanged();
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -61,6 +75,7 @@ public class WarehouseBlockEntity extends BlockEntity {
                 int added = slot.addStock(item, amount);
                 if (added > 0) {
                     setChanged();
+                    syncToClient();
                     return added;
                 }
             }
@@ -77,6 +92,7 @@ public class WarehouseBlockEntity extends BlockEntity {
                 int removed = slot.removeStock(amount);
                 if (removed > 0) {
                     setChanged();
+                    syncToClient();
                     return removed;
                 }
             }
@@ -111,12 +127,14 @@ public class WarehouseBlockEntity extends BlockEntity {
         if (!linkedSellers.contains(sellerId)) {
             linkedSellers.add(sellerId);
             setChanged();
+            syncToClient();
         }
     }
 
     public void removeSeller(UUID sellerId) {
         linkedSellers.remove(sellerId);
         setChanged();
+        syncToClient();
     }
 
     public List<UUID> getLinkedSellers() {
@@ -135,6 +153,7 @@ public class WarehouseBlockEntity extends BlockEntity {
     public void setShopId(String shopId) {
         this.shopId = shopId;
         setChanged();
+        syncToClient();
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -142,18 +161,17 @@ public class WarehouseBlockEntity extends BlockEntity {
     // ═══════════════════════════════════════════════════════════
 
     /**
-     * Tick-Methode (muss von Block aufgerufen werden)
+     * Tick-Methode - NUR für Expense Cleanup
+     * Auto-Delivery wird vom WarehouseManager gehandhabt!
      */
     public static void tick(Level level, BlockPos pos, BlockState state, WarehouseBlockEntity be) {
         if (level.isClientSide) return;
 
         long currentTime = level.getGameTime();
-        long intervalTicks = WarehouseConfig.DELIVERY_INTERVAL_DAYS.get() * 24000L;
 
-        if (currentTime - be.lastDeliveryTime >= intervalTicks) {
-            be.performDelivery(level);
-            be.lastDeliveryTime = currentTime;
-            be.setChanged();
+        // Bereinige alte Ausgaben alle 10 Minuten (12000 ticks)
+        if (currentTime % 12000 == 0) {
+            be.cleanupOldExpenses(currentTime);
         }
     }
 
@@ -161,22 +179,43 @@ public class WarehouseBlockEntity extends BlockEntity {
      * Führt Warehouse-Lieferung durch
      * Staatskasse zahlt, Shop-Konto registriert Ausgaben
      */
-    private void performDelivery(Level level) {
+    public void performDelivery(Level level) {
+        LOGGER.info("Warehouse @ {}: performDelivery() aufgerufen, shopId={}", worldPosition.toShortString(), shopId);
+
         // Berechne Lieferkosten
         int totalCost = 0;
         Map<Item, Integer> toDeliver = new HashMap<>();
+        int slotsWithItems = 0;
+        int emptySlots = 0;
+        int fullSlots = 0;
 
         for (WarehouseSlot slot : slots) {
             int restockAmount = slot.getRestockAmount();
+            if (slot.getAllowedItem() != null) {
+                slotsWithItems++;
+                if (restockAmount == 0) {
+                    fullSlots++;
+                }
+            } else {
+                emptySlots++;
+            }
+
             if (restockAmount > 0 && slot.getAllowedItem() != null) {
                 Item item = slot.getAllowedItem();
                 int pricePerItem = DeliveryPriceConfig.getPrice(item);
                 totalCost += restockAmount * pricePerItem;
                 toDeliver.put(item, restockAmount);
+                LOGGER.debug("  Slot needs restock: item={}, amount={}, price={}",
+                    item.getDescription().getString(), restockAmount, pricePerItem);
             }
         }
 
+        LOGGER.info("Warehouse @ {}: Analysis - slotsWithItems={}, emptySlots={}, fullSlots={}, toDeliver={}, totalCost={}",
+            worldPosition.toShortString(), slotsWithItems, emptySlots, fullSlots, toDeliver.size(), totalCost);
+
         if (totalCost == 0 || toDeliver.isEmpty()) {
+            LOGGER.info("Warehouse @ {}: Keine Lieferung notwendig (totalCost={}, toDeliver={})",
+                worldPosition.toShortString(), totalCost, toDeliver.size());
             return; // Nichts zu liefern
         }
 
@@ -194,6 +233,9 @@ public class WarehouseBlockEntity extends BlockEntity {
                     account.addExpense(level, totalCost, "Warehouse-Lieferung");
                 }
             }
+
+            // EXPENSE TRACKING: Füge Ausgabe zur Historie hinzu
+            addExpense(level.getGameTime(), totalCost, "Auto-Lieferung (" + toDeliver.size() + " Items)");
 
             LOGGER.info("Warehouse-Lieferung erfolgreich @ {}: {}€ (Staatskasse), {} Items",
                 worldPosition.toShortString(), totalCost, toDeliver.size());
@@ -216,6 +258,18 @@ public class WarehouseBlockEntity extends BlockEntity {
                     Component.literal("§c[Warehouse] Lieferung fehlgeschlagen! Staatskasse leer.")
                 ));
         }
+    }
+
+    /**
+     * Manuelle Lieferung (Admin-Command)
+     */
+    public void performManualDelivery(Level level) {
+        performDelivery(level);
+
+        long currentDay = level.getDayTime() / 24000L;
+        lastDeliveryDay = currentDay;
+        setChanged();
+        syncToClient();
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -250,8 +304,13 @@ public class WarehouseBlockEntity extends BlockEntity {
         return count;
     }
 
-    public long getLastDeliveryTime() {
-        return lastDeliveryTime;
+    public long getLastDeliveryDay() {
+        return lastDeliveryDay;
+    }
+
+    public void setLastDeliveryDay(long day) {
+        this.lastDeliveryDay = day;
+        setChanged();
     }
 
     /**
@@ -262,6 +321,72 @@ public class WarehouseBlockEntity extends BlockEntity {
             slot.clear();
         }
         setChanged();
+        syncToClient();
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // EXPENSE TRACKING
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Fügt eine Ausgabe zur Historie hinzu
+     */
+    public void addExpense(long timestamp, int amount, String description) {
+        expenses.add(new ExpenseEntry(timestamp, amount, description));
+        setChanged();
+        syncToClient();
+    }
+
+    /**
+     * Bereinigt alte Ausgaben (älter als EXPENSE_RETENTION_DAYS)
+     */
+    public void cleanupOldExpenses(long currentTime) {
+        expenses.removeIf(entry -> entry.isOlderThan(currentTime, EXPENSE_RETENTION_DAYS));
+    }
+
+    /**
+     * Gibt alle Ausgaben zurück
+     */
+    public List<ExpenseEntry> getExpenses() {
+        return new ArrayList<>(expenses);
+    }
+
+    /**
+     * Berechnet Gesamtausgaben über die letzten X Tage
+     */
+    public int getTotalExpenses(long currentTime, int days) {
+        return expenses.stream()
+            .filter(entry -> !entry.isOlderThan(currentTime, days))
+            .mapToInt(ExpenseEntry::getAmount)
+            .sum();
+    }
+
+    /**
+     * Berechnet durchschnittliche Ausgaben pro Lieferung
+     */
+    public double getAverageExpensePerDelivery(long currentTime, int days) {
+        List<ExpenseEntry> recentExpenses = expenses.stream()
+            .filter(entry -> !entry.isOlderThan(currentTime, days))
+            .toList();
+
+        if (recentExpenses.isEmpty()) {
+            return 0.0;
+        }
+
+        int total = recentExpenses.stream()
+            .mapToInt(ExpenseEntry::getAmount)
+            .sum();
+
+        return (double) total / recentExpenses.size();
+    }
+
+    /**
+     * Gibt Anzahl der Lieferungen in den letzten X Tagen zurück
+     */
+    public int getDeliveryCount(long currentTime, int days) {
+        return (int) expenses.stream()
+            .filter(entry -> !entry.isOlderThan(currentTime, days))
+            .count();
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -290,10 +415,21 @@ public class WarehouseBlockEntity extends BlockEntity {
             tag.putString("Sellers", String.join(",", uuids));
         }
 
-        tag.putLong("LastDelivery", lastDeliveryTime);
+        tag.putLong("LastDeliveryDay", lastDeliveryDay);
 
         if (shopId != null) {
             tag.putString("ShopId", shopId);
+        }
+
+        // Speichere Ausgaben
+        if (!expenses.isEmpty()) {
+            ListTag expensesList = new ListTag();
+            for (ExpenseEntry expense : expenses) {
+                CompoundTag expenseTag = new CompoundTag();
+                expense.save(expenseTag);
+                expensesList.add(expenseTag);
+            }
+            tag.put("Expenses", expensesList);
         }
     }
 
@@ -328,10 +464,72 @@ public class WarehouseBlockEntity extends BlockEntity {
             }
         }
 
-        lastDeliveryTime = tag.getLong("LastDelivery");
+        // Lade lastDeliveryDay (mit Backwards-Compatibility für alte Saves)
+        if (tag.contains("LastDeliveryDay")) {
+            lastDeliveryDay = tag.getLong("LastDeliveryDay");
+        } else if (tag.contains("LastDelivery")) {
+            // Alte Saves: Konvertiere absolute Zeit zu Tag
+            long oldTime = tag.getLong("LastDelivery");
+            lastDeliveryDay = oldTime / 24000L;
+            LOGGER.info("Converted old lastDeliveryTime {} to lastDeliveryDay {}", oldTime, lastDeliveryDay);
+        } else {
+            lastDeliveryDay = -1; // Keine Daten vorhanden
+        }
 
         if (tag.contains("ShopId")) {
             shopId = tag.getString("ShopId");
+        }
+
+        // Lade Ausgaben
+        if (tag.contains("Expenses")) {
+            ListTag expensesList = tag.getList("Expenses", 10);
+            expenses.clear();
+            for (int i = 0; i < expensesList.size(); i++) {
+                CompoundTag expenseTag = expensesList.getCompound(i);
+                expenses.add(ExpenseEntry.load(expenseTag));
+            }
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // CLIENT-SERVER SYNCHRONISATION
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Erstellt Sync-Packet für Client-Updates
+     */
+    @Override
+    public ClientboundBlockEntityDataPacket getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    /**
+     * Daten für initiales Chunk-Loading
+     */
+    @Override
+    public CompoundTag getUpdateTag() {
+        CompoundTag tag = new CompoundTag();
+        saveAdditional(tag);
+        return tag;
+    }
+
+    /**
+     * Empfängt Sync-Packet vom Server
+     */
+    @Override
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
+        CompoundTag tag = pkt.getTag();
+        if (tag != null) {
+            load(tag);
+        }
+    }
+
+    /**
+     * Synchronisiert Änderungen zum Client
+     */
+    public void syncToClient() {
+        if (level != null && !level.isClientSide) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
     }
 }

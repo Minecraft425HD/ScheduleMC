@@ -6,6 +6,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity;
+import de.rolandsw.schedulemc.warehouse.WarehouseConfig;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -69,6 +70,14 @@ public class WarehouseCommand {
                         .executes(WarehouseCommand::setShopId)
                     )
                 )
+
+                .then(Commands.literal("deliver")
+                    .executes(WarehouseCommand::manualDelivery)
+                )
+
+                .then(Commands.literal("reset")
+                    .executes(WarehouseCommand::resetTimer)
+                )
         );
     }
 
@@ -124,6 +133,18 @@ public class WarehouseCommand {
             }
 
             BlockPos pos = warehouse.getBlockPos();
+            long currentDay = player.level().getDayTime() / 24000L;
+            long lastDeliveryDay = warehouse.getLastDeliveryDay();
+            long daysSinceLastDelivery = currentDay - lastDeliveryDay;
+            long intervalDays = WarehouseConfig.DELIVERY_INTERVAL_DAYS.get();
+            long daysUntilNext = (lastDeliveryDay + intervalDays) - currentDay;
+
+            String nextDeliveryStr;
+            if (daysUntilNext <= 0) {
+                nextDeliveryStr = "§aÜBERFÄLLIG! Sollte jeden Moment erfolgen...";
+            } else {
+                nextDeliveryStr = "§e" + daysUntilNext + " Tage";
+            }
 
             ctx.getSource().sendSuccess(() -> Component.literal(
                 "§e§l=== Warehouse Info ===\n" +
@@ -132,7 +153,13 @@ public class WarehouseCommand {
                 "§7Total Items: §e" + warehouse.getTotalItems() + "\n" +
                 "§7Shop-ID: §e" + (warehouse.getShopId() != null ? warehouse.getShopId() : "Nicht verknüpft") + "\n" +
                 "§7Verkäufer: §e" + warehouse.getLinkedSellers().size() + "\n" +
-                "§7Letzter Delivery: §e" + (warehouse.getLastDeliveryTime() / 24000) + " Tage"
+                "§7\n" +
+                "§6=== Lieferungs-Status (Tag-basiert wie NPCs!) ===\n" +
+                "§7Aktueller Tag: §e" + currentDay + "\n" +
+                "§7Letzte Lieferung: §eTag " + lastDeliveryDay + "\n" +
+                "§7Tage seit letzter: §e" + daysSinceLastDelivery + " Tage\n" +
+                "§7Lieferungs-Interval: §e" + intervalDays + " Tage\n" +
+                "§7Nächste Lieferung in: " + nextDeliveryStr
             ), false);
             return 1;
         } catch (Exception e) {
@@ -247,6 +274,78 @@ public class WarehouseCommand {
             return 1;
         } catch (Exception e) {
             LOGGER.error("Fehler bei /warehouse setshop", e);
+            return 0;
+        }
+    }
+
+    private static int manualDelivery(CommandContext<CommandSourceStack> ctx) {
+        try {
+            ServerPlayer player = ctx.getSource().getPlayerOrException();
+            WarehouseBlockEntity warehouse = findWarehouse(player);
+
+            if (warehouse == null) {
+                ctx.getSource().sendFailure(Component.literal("§cKein Warehouse gefunden! Schaue auf einen Warehouse-Block oder stehe direkt darauf."));
+                return 0;
+            }
+
+            long currentDay = player.level().getDayTime() / 24000L;
+            long lastDeliveryDay = warehouse.getLastDeliveryDay();
+            long daysSince = currentDay - lastDeliveryDay;
+
+            LOGGER.info("Manual delivery triggered by {} at warehouse {}", player.getName().getString(), warehouse.getBlockPos());
+
+            ctx.getSource().sendSuccess(() -> Component.literal(
+                "§e=== Manuelle Lieferung ausgelöst ===\n" +
+                "§7Current Day: §e" + currentDay + "\n" +
+                "§7Last Delivery Day: §e" + lastDeliveryDay + "\n" +
+                "§7Days Since: §e" + daysSince + " Tage\n" +
+                "§7Prüfe Server-Logs für Details..."
+            ), false);
+
+            // Rufe manuelle Lieferung auf
+            warehouse.performManualDelivery(player.level());
+
+            return 1;
+        } catch (Exception e) {
+            LOGGER.error("Fehler bei /warehouse deliver", e);
+            ctx.getSource().sendFailure(Component.literal("§cFehler: " + e.getMessage()));
+            return 0;
+        }
+    }
+
+    private static int resetTimer(CommandContext<CommandSourceStack> ctx) {
+        try {
+            ServerPlayer player = ctx.getSource().getPlayerOrException();
+            WarehouseBlockEntity warehouse = findWarehouse(player);
+
+            if (warehouse == null) {
+                ctx.getSource().sendFailure(Component.literal("§cKein Warehouse gefunden! Schaue auf einen Warehouse-Block oder stehe direkt darauf."));
+                return 0;
+            }
+
+            long currentDay = player.level().getDayTime() / 24000L;
+            long oldLastDeliveryDay = warehouse.getLastDeliveryDay();
+            long intervalDays = WarehouseConfig.DELIVERY_INTERVAL_DAYS.get();
+
+            // Reset lastDeliveryDay to current day
+            warehouse.setLastDeliveryDay(currentDay);
+            warehouse.setChanged();
+            warehouse.syncToClient();
+
+            LOGGER.info("Warehouse delivery timer reset by {} at warehouse {} (old: Tag {}, new: Tag {})",
+                player.getName().getString(), warehouse.getBlockPos(), oldLastDeliveryDay, currentDay);
+
+            ctx.getSource().sendSuccess(() -> Component.literal(
+                "§a✓ Lieferungs-Timer zurückgesetzt!\n" +
+                "§7Alter Tag: §eTag " + oldLastDeliveryDay + "\n" +
+                "§7Neuer Tag: §eTag " + currentDay + "\n" +
+                "§7Nächste Lieferung in " + intervalDays + " Tagen"
+            ), false);
+
+            return 1;
+        } catch (Exception e) {
+            LOGGER.error("Fehler bei /warehouse reset", e);
+            ctx.getSource().sendFailure(Component.literal("§cFehler: " + e.getMessage()));
             return 0;
         }
     }

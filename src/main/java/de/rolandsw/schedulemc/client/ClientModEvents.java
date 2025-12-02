@@ -8,6 +8,8 @@ import de.rolandsw.schedulemc.tobacco.screen.SmallPackagingTableScreen;
 import de.rolandsw.schedulemc.tobacco.screen.MediumPackagingTableScreen;
 import de.rolandsw.schedulemc.tobacco.screen.LargePackagingTableScreen;
 import de.rolandsw.schedulemc.tobacco.screen.TobaccoNegotiationScreen;
+import de.rolandsw.schedulemc.warehouse.menu.WarehouseMenuTypes;
+import de.rolandsw.schedulemc.warehouse.screen.WarehouseScreen;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -28,6 +30,7 @@ public class ClientModEvents {
             MenuScreens.register(ModMenuTypes.MEDIUM_PACKAGING_TABLE_MENU.get(), MediumPackagingTableScreen::new);
             MenuScreens.register(ModMenuTypes.LARGE_PACKAGING_TABLE_MENU.get(), LargePackagingTableScreen::new);
             MenuScreens.register(ModMenuTypes.TOBACCO_NEGOTIATION_MENU.get(), TobaccoNegotiationScreen::new);
+            MenuScreens.register(WarehouseMenuTypes.WAREHOUSE_MENU.get(), WarehouseScreen::new);
         });
     }
 }
