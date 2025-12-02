@@ -59,6 +59,7 @@ public class AutoFillPacket {
             }
 
             warehouse.setChanged();
+            warehouse.syncToClient(); // Synchronisiere zum Client für GUI-Update
 
             player.sendSystemMessage(Component.literal(
                 "§aAuto-Fill abgeschlossen: " + totalAdded + " Items in " + slotsFilled + " Slots aufgefüllt"

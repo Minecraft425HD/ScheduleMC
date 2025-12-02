@@ -163,6 +163,7 @@ public class WarehouseBlockEntity extends BlockEntity {
             be.performDelivery(level);
             be.lastDeliveryTime = currentTime;
             be.setChanged();
+            be.syncToClient(); // Sync nach Auto-Delivery
         }
 
         // Bereinige alte Ausgaben alle 10 Minuten (12000 ticks)
@@ -475,7 +476,7 @@ public class WarehouseBlockEntity extends BlockEntity {
     /**
      * Synchronisiert Änderungen zum Client
      */
-    private void syncToClient() {
+    public void syncToClient() {
         if (level != null && !level.isClientSide) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }

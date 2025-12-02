@@ -64,16 +64,14 @@ public class ModifySlotPacket {
             }
 
             if (msg.amount > 0) {
-                // Hinzufügen
-                int added = slot.addStock(slot.getAllowedItem(), msg.amount);
-                warehouse.setChanged();
+                // Hinzufügen - verwende warehouse.addItem() für korrekte Synchronisation
+                int added = warehouse.addItem(slot.getAllowedItem(), msg.amount);
                 player.sendSystemMessage(Component.literal(
                     "§a" + added + "x " + slot.getAllowedItem().getDescription().getString() + " hinzugefügt"
                 ));
             } else if (msg.amount < 0) {
-                // Entfernen
-                int removed = slot.removeStock(-msg.amount);
-                warehouse.setChanged();
+                // Entfernen - verwende warehouse.removeItem() für korrekte Synchronisation
+                int removed = warehouse.removeItem(slot.getAllowedItem(), -msg.amount);
                 player.sendSystemMessage(Component.literal(
                     "§a" + removed + "x " + slot.getAllowedItem().getDescription().getString() + " entfernt"
                 ));

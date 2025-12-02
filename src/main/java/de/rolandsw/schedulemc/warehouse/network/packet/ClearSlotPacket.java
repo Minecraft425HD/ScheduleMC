@@ -59,6 +59,7 @@ public class ClearSlotPacket {
 
             slot.clear();
             warehouse.setChanged();
+            warehouse.syncToClient(); // Synchronisiere zum Client für GUI-Update
 
             player.sendSystemMessage(Component.literal("§aSlot geleert: " + itemName));
         });
