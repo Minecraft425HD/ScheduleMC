@@ -38,7 +38,9 @@ public class WarehouseManager {
     private static final Map<String, Set<BlockPos>> warehouses = new ConcurrentHashMap<>();
     private static boolean dirty = false;
     private static int tickCounter = 0;
+    private static long lastCheckGameTime = -1; // Track last checked game time
     private static final int CHECK_INTERVAL = 100; // Prüfe alle 5 Sekunden (100 ticks)
+    private static final long TIME_JUMP_THRESHOLD = 1000; // Detect time jumps > 1000 ticks
 
     /**
      * Registriert ein Warehouse
@@ -68,19 +70,36 @@ public class WarehouseManager {
 
     /**
      * Server Tick Event - Prüft alle Warehouses auf Auto-Delivery
+     * Erkennt Zeit-Sprünge (z.B. /time add) und prüft sofort!
      */
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
 
-        tickCounter++;
-        if (tickCounter < CHECK_INTERVAL) return;
-        tickCounter = 0;
-
         MinecraftServer server = event.getServer();
         if (server == null) return;
 
         long currentTime = server.overworld().getGameTime();
+
+        // Detect time jumps (e.g. /time add command)
+        boolean forceCheck = false;
+        if (lastCheckGameTime != -1) {
+            long gameTimeDiff = currentTime - lastCheckGameTime;
+            // If game time jumped more than threshold, force immediate check
+            if (gameTimeDiff > TIME_JUMP_THRESHOLD) {
+                forceCheck = true;
+                LOGGER.info("Zeit-Sprung erkannt! GameTime sprang um {} ticks. Erzwinge Warehouse-Prüfung.", gameTimeDiff);
+            }
+        }
+
+        // Normal interval check OR forced check due to time jump
+        tickCounter++;
+        boolean shouldCheck = tickCounter >= CHECK_INTERVAL || forceCheck;
+
+        if (!shouldCheck) return;
+
+        tickCounter = 0;
+        lastCheckGameTime = currentTime;
 
         // Prüfe alle registrierten Warehouses
         for (Map.Entry<String, Set<BlockPos>> entry : warehouses.entrySet()) {
