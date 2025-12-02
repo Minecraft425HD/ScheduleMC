@@ -161,38 +161,13 @@ public class WarehouseBlockEntity extends BlockEntity {
     // ═══════════════════════════════════════════════════════════
 
     /**
-     * Tick-Methode (muss von Block aufgerufen werden)
+     * Tick-Methode - NUR für Expense Cleanup
+     * Auto-Delivery wird vom WarehouseManager gehandhabt!
      */
     public static void tick(Level level, BlockPos pos, BlockState state, WarehouseBlockEntity be) {
         if (level.isClientSide) return;
 
         long currentTime = level.getGameTime();
-
-        // Initialize lastDeliveryTime for existing warehouses (backwards compatibility)
-        if (be.lastDeliveryTime == 0 && currentTime > 0) {
-            be.lastDeliveryTime = currentTime;
-            be.setChanged();
-            LOGGER.info("Warehouse @ {}: Initialized lastDeliveryTime to {} (existing warehouse)",
-                pos.toShortString(), currentTime);
-        }
-
-        long intervalTicks = WarehouseConfig.DELIVERY_INTERVAL_DAYS.get() * 24000L;
-        long timeSinceLastDelivery = currentTime - be.lastDeliveryTime;
-
-        // Debug-Logging alle 5 Sekunden (100 ticks)
-        if (currentTime % 100 == 0) {
-            LOGGER.debug("Warehouse @ {}: currentTime={}, lastDelivery={}, timeSince={}, interval={}, shopId={}",
-                pos.toShortString(), currentTime, be.lastDeliveryTime, timeSinceLastDelivery, intervalTicks, be.shopId);
-        }
-
-        if (timeSinceLastDelivery >= intervalTicks) {
-            LOGGER.info("Warehouse @ {}: Triggering auto-delivery (timeSince={} >= interval={})",
-                pos.toShortString(), timeSinceLastDelivery, intervalTicks);
-            be.performDelivery(level);
-            be.lastDeliveryTime = currentTime;
-            be.setChanged();
-            be.syncToClient(); // Sync nach Auto-Delivery
-        }
 
         // Bereinige alte Ausgaben alle 10 Minuten (12000 ticks)
         if (currentTime % 12000 == 0) {
