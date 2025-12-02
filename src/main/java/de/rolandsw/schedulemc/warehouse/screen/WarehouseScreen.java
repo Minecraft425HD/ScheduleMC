@@ -80,6 +80,11 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
     private int sellerScrollOffset = 0;
     private static final int SELLER_VISIBLE_ROWS = 8;
 
+    // Stats Tab - Scrolling
+    private int statsScrollOffset = 0;
+    private static final int STATS_CONTENT_HEIGHT = 400; // Geschätzte Höhe des gesamten Inhalts
+    private static final int STATS_VISIBLE_HEIGHT = 180; // Sichtbare Höhe im Tab
+
     // Input fields
     private EditBox slotCapacityInput;
     private EditBox deliveryIntervalInput;
@@ -302,7 +307,20 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
     // ═══════════════════════════════════════════════════════════
 
     private void initStatsTab(int x, int y) {
-        // Keine Buttons für Stats Tab (nur Anzeige)
+        // Scroll Buttons nur anzeigen wenn Content größer als sichtbare Höhe
+        int maxScrollOffset = Math.max(0, STATS_CONTENT_HEIGHT - STATS_VISIBLE_HEIGHT);
+
+        if (maxScrollOffset > 0) {
+            // Scroll Up Button
+            addRenderableWidget(Button.builder(Component.literal("▲"), button -> {
+                statsScrollOffset = Math.max(0, statsScrollOffset - 20);
+            }).bounds(x + imageWidth - 25, y + 35, 20, 20).build());
+
+            // Scroll Down Button
+            addRenderableWidget(Button.builder(Component.literal("▼"), button -> {
+                statsScrollOffset = Math.min(maxScrollOffset, statsScrollOffset + 20);
+            }).bounds(x + imageWidth - 25, y + imageHeight - 30, 20, 20).build());
+        }
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -583,7 +601,15 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         WarehouseBlockEntity warehouse = menu.getWarehouse();
         if (warehouse == null) return;
 
-        int contentY = y + 40;
+        // Apply clipping to content area
+        int clipX = x + 5;
+        int clipY = y + 35;
+        int clipWidth = imageWidth - 35; // Leave space for scroll buttons
+        int clipHeight = STATS_VISIBLE_HEIGHT;
+
+        graphics.enableScissor(clipX, clipY, clipX + clipWidth, clipY + clipHeight);
+
+        int contentY = y + 40 - statsScrollOffset; // Apply scroll offset
 
         // === LAGERBESTAND ÜBERSICHT ===
         graphics.drawString(this.font, "§l§e📊 LAGERBESTAND ÜBERSICHT", x + 10, contentY, COLOR_TEXT, false);
@@ -721,6 +747,9 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         graphics.drawString(this.font,
             "Interval: alle " + de.rolandsw.schedulemc.warehouse.WarehouseConfig.DELIVERY_INTERVAL_DAYS.get() + " Tage",
             x + 15, contentY, COLOR_TEXT_GRAY, false);
+
+        // Disable scissor after rendering
+        graphics.disableScissor();
     }
 
     // ═══════════════════════════════════════════════════════════
