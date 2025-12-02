@@ -38,9 +38,7 @@ public class WarehouseManager {
     private static final Map<String, Set<BlockPos>> warehouses = new ConcurrentHashMap<>();
     private static boolean dirty = false;
     private static int tickCounter = 0;
-    private static long lastCheckGameTime = -1; // Track last checked game time
-    private static final int CHECK_INTERVAL = 100; // Prüfe alle 5 Sekunden (100 ticks)
-    private static final long TIME_JUMP_THRESHOLD = 1000; // Detect time jumps > 1000 ticks
+    private static final int CHECK_INTERVAL = 20; // Prüfe jede Sekunde (20 ticks) für schnelle Reaktion
 
     /**
      * Registriert ein Warehouse
@@ -70,7 +68,10 @@ public class WarehouseManager {
 
     /**
      * Server Tick Event - Prüft alle Warehouses auf Auto-Delivery
-     * Erkennt Zeit-Sprünge (z.B. /time add) und prüft sofort!
+     *
+     * WICHTIG: Verwendet die gleiche Logik wie NPCDailySalaryHandler!
+     * Prüft einfach für jedes Warehouse ob genug Zeit vergangen ist.
+     * Funktioniert mit /time add, /time set, Schlafen, etc.
      */
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
@@ -79,53 +80,22 @@ public class WarehouseManager {
         MinecraftServer server = event.getServer();
         if (server == null) return;
 
-        long currentTime = server.overworld().getGameTime();
+        // Überspringe wenn keine Spieler online sind
+        if (server.getPlayerCount() == 0) return;
 
-        // DEBUG: Log every 100 ticks to verify this method is being called
-        if (tickCounter == 0) {
-            LOGGER.info("[WarehouseManager] Tick check: currentTime={}, lastCheck={}, warehouses={}",
-                currentTime, lastCheckGameTime, warehouses.size());
-        }
-
-        // Detect time jumps (e.g. /time add command)
-        boolean forceCheck = false;
-        if (lastCheckGameTime != -1) {
-            long gameTimeDiff = currentTime - lastCheckGameTime;
-
-            // DEBUG: Log time difference
-            if (tickCounter % 20 == 0) {
-                LOGGER.debug("[WarehouseManager] GameTimeDiff: {} (threshold: {})", gameTimeDiff, TIME_JUMP_THRESHOLD);
-            }
-
-            // If game time jumped more than threshold, force immediate check
-            if (gameTimeDiff > TIME_JUMP_THRESHOLD) {
-                forceCheck = true;
-                LOGGER.info("★★★ Zeit-Sprung erkannt! GameTime sprang um {} ticks. Erzwinge Warehouse-Prüfung. ★★★", gameTimeDiff);
-            }
-        }
-
-        // Normal interval check OR forced check due to time jump
+        // Prüfe nur jede Sekunde (20 ticks) statt jeden Tick
         tickCounter++;
-        boolean shouldCheck = tickCounter >= CHECK_INTERVAL || forceCheck;
-
-        if (!shouldCheck) return;
-
+        if (tickCounter < CHECK_INTERVAL) return;
         tickCounter = 0;
-        lastCheckGameTime = currentTime;
-
-        LOGGER.info("[WarehouseManager] Starting warehouse check - Time: {}, Warehouses: {}", currentTime, warehouses.size());
 
         // Prüfe alle registrierten Warehouses
         for (Map.Entry<String, Set<BlockPos>> entry : warehouses.entrySet()) {
             String levelKey = entry.getKey();
             ServerLevel level = getLevelByKey(server, levelKey);
 
-            if (level == null) {
-                LOGGER.warn("[WarehouseManager] Level not found: {}", levelKey);
-                continue;
-            }
+            if (level == null) continue;
 
-            LOGGER.debug("[WarehouseManager] Checking {} warehouses in level {}", entry.getValue().size(), levelKey);
+            long currentTime = level.getGameTime();
 
             for (BlockPos pos : new ArrayList<>(entry.getValue())) {
                 checkWarehouseDelivery(level, pos, currentTime);
