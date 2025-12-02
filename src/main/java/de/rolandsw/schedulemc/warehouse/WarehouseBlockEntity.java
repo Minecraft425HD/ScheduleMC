@@ -7,7 +7,9 @@ import de.rolandsw.schedulemc.economy.ShopAccount;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -63,6 +65,7 @@ public class WarehouseBlockEntity extends BlockEntity {
                 int added = slot.addStock(item, amount);
                 if (added > 0) {
                     setChanged();
+                    syncToClient();
                     return added;
                 }
             }
@@ -79,6 +82,7 @@ public class WarehouseBlockEntity extends BlockEntity {
                 int removed = slot.removeStock(amount);
                 if (removed > 0) {
                     setChanged();
+                    syncToClient();
                     return removed;
                 }
             }
@@ -113,12 +117,14 @@ public class WarehouseBlockEntity extends BlockEntity {
         if (!linkedSellers.contains(sellerId)) {
             linkedSellers.add(sellerId);
             setChanged();
+            syncToClient();
         }
     }
 
     public void removeSeller(UUID sellerId) {
         linkedSellers.remove(sellerId);
         setChanged();
+        syncToClient();
     }
 
     public List<UUID> getLinkedSellers() {
@@ -137,6 +143,7 @@ public class WarehouseBlockEntity extends BlockEntity {
     public void setShopId(String shopId) {
         this.shopId = shopId;
         setChanged();
+        syncToClient();
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -272,6 +279,7 @@ public class WarehouseBlockEntity extends BlockEntity {
             slot.clear();
         }
         setChanged();
+        syncToClient();
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -284,6 +292,7 @@ public class WarehouseBlockEntity extends BlockEntity {
     public void addExpense(long timestamp, int amount, String description) {
         expenses.add(new ExpenseEntry(timestamp, amount, description));
         setChanged();
+        syncToClient();
     }
 
     /**
@@ -427,6 +436,48 @@ public class WarehouseBlockEntity extends BlockEntity {
                 CompoundTag expenseTag = expensesList.getCompound(i);
                 expenses.add(ExpenseEntry.load(expenseTag));
             }
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // CLIENT-SERVER SYNCHRONISATION
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Erstellt Sync-Packet für Client-Updates
+     */
+    @Override
+    public ClientboundBlockEntityDataPacket getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    /**
+     * Daten für initiales Chunk-Loading
+     */
+    @Override
+    public CompoundTag getUpdateTag() {
+        CompoundTag tag = new CompoundTag();
+        saveAdditional(tag);
+        return tag;
+    }
+
+    /**
+     * Empfängt Sync-Packet vom Server
+     */
+    @Override
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
+        CompoundTag tag = pkt.getTag();
+        if (tag != null) {
+            load(tag);
+        }
+    }
+
+    /**
+     * Synchronisiert Änderungen zum Client
+     */
+    private void syncToClient() {
+        if (level != null && !level.isClientSide) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
     }
 }
