@@ -27,7 +27,6 @@ import de.rolandsw.schedulemc.managers.*;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.items.ModItems;
 import de.rolandsw.schedulemc.items.PlotSelectionTool;
-import de.rolandsw.schedulemc.tobacco.TobaccoShopIntegration;
 import de.rolandsw.schedulemc.tobacco.items.TobaccoItems;
 import de.rolandsw.schedulemc.tobacco.business.BusinessMetricsUpdateHandler;
 import de.rolandsw.schedulemc.tobacco.blocks.TobaccoBlocks;
@@ -143,7 +142,6 @@ public class ScheduleMC {
         PlotCommand.register(event.getDispatcher());
         MoneyCommand.register(event.getDispatcher());
         DailyCommand.register(event.getDispatcher());
-        ShopCommand.register(event.getDispatcher());
         TobaccoCommand.register(event.getDispatcher());
         HospitalCommand.register(event.getDispatcher());
         NPCCommand.register(event.getDispatcher(), event.getBuildContext());
@@ -157,8 +155,6 @@ public class ScheduleMC {
         PlotManager.loadPlots();
         EconomyManager.loadAccounts();
         DailyRewardManager.load();
-        ShopManager.load();
-        TobaccoShopIntegration.registerShopItems();
         WalletManager.load();
         de.rolandsw.schedulemc.npc.crime.CrimeManager.load();
         NPCNameRegistry.loadRegistry();
@@ -178,7 +174,6 @@ public class ScheduleMC {
             PlotManager.saveIfNeeded();
             EconomyManager.saveIfNeeded();
             DailyRewardManager.saveIfNeeded();
-            ShopManager.saveIfNeeded();
             RentManager.checkExpiredRents();
             WalletManager.saveIfNeeded();
             NPCNameRegistry.saveIfNeeded();
@@ -191,7 +186,6 @@ public class ScheduleMC {
         PlotManager.savePlots();
         EconomyManager.saveAccounts();
         DailyRewardManager.save();
-        ShopManager.save();
         WalletManager.save();
         NPCNameRegistry.saveRegistry();
         MessageManager.saveMessages();

@@ -151,7 +151,6 @@ de.rolandsw.schedulemc/
 │   ├── PlotCommand.java
 │   ├── MoneyCommand.java
 │   ├── DailyCommand.java
-│   ├── ShopCommand.java
 │   └── ...
 │
 ├── config/                       # Configuration
@@ -202,8 +201,7 @@ de.rolandsw.schedulemc/
 │
 ├── managers/                     # Manager Classes
 │   ├── DailyRewardManager.java
-│   ├── RentManager.java
-│   └── ShopManager.java
+│   └── RentManager.java
 │
 ├── items/                        # Item Registry
 │   └── ModItems.java
@@ -724,7 +722,6 @@ public class ScheduleMC {
                 EconomyManager.getInstance().save();
                 PlotManager.getInstance().save();
                 DailyRewardManager.getInstance().save();
-                ShopManager.getInstance().save();
                 CrimeManager.getInstance().save();
 
                 tickCounter = 0;

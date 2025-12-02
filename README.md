@@ -318,8 +318,6 @@ Vollständige Dokumentation findest du in den folgenden Dateien:
 |--------|--------------|
 | `/money` | Zeige deinen Kontostand |
 | `/pay <spieler> <betrag>` | Sende Geld an Spieler |
-| `/shop buy <item> <anzahl>` | Kaufe Items im Shop |
-| `/shop sell <item> <anzahl>` | Verkaufe Items im Shop |
 | `/shopinvest buy <shopId> <shares>` | Kaufe Shop-Anteile |
 | `/shopinvest myshares` | Zeige deine Investments |
 | `/daily` | Hole tägliche Belohnung |
