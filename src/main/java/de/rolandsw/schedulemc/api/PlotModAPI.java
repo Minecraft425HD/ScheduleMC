@@ -2,7 +2,6 @@ package de.rolandsw.schedulemc.api;
 
 import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.managers.DailyRewardManager;
-import de.rolandsw.schedulemc.managers.ShopManager;
 import de.rolandsw.schedulemc.region.PlotManager;
 import de.rolandsw.schedulemc.region.PlotRegion;
 import net.minecraft.core.BlockPos;
@@ -160,44 +159,6 @@ public class PlotModAPI {
         public static double getPlotRating(BlockPos pos) {
             PlotRegion plot = getPlotAt(pos);
             return plot != null ? plot.getAverageRating() : 0.0;
-        }
-    }
-
-    // ═══════════════════════════════════════════════════════════
-    // SHOP API
-    // ═══════════════════════════════════════════════════════════
-    
-    public static class Shop {
-        
-        /**
-         * Gibt Kaufpreis eines Items zurück
-         */
-        public static double getBuyPrice(String itemId, int amount) {
-            return ShopManager.calculateBuyPrice(itemId, amount);
-        }
-        
-        /**
-         * Gibt Verkaufspreis eines Items zurück
-         */
-        public static double getSellPrice(String itemId, int amount) {
-            return ShopManager.calculateSellPrice(itemId, amount);
-        }
-        
-        /**
-         * Prüft ob Item im Shop ist
-         */
-        public static boolean isInShop(String itemId) {
-            return ShopManager.hasItem(itemId);
-        }
-        
-        /**
-         * Fügt Item zum Shop hinzu (für Custom Items)
-         */
-        public static void addItemToShop(String itemId, double buyPrice, double sellPrice) {
-            if (!ShopManager.hasItem(itemId)) {
-                ShopManager.addItem(itemId, buyPrice, sellPrice);
-                ShopManager.save();
-            }
         }
     }
 
