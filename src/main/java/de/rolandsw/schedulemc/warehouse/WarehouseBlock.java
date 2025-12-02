@@ -5,6 +5,7 @@ import de.rolandsw.schedulemc.region.PlotRegion;
 import de.rolandsw.schedulemc.warehouse.items.WarehouseTool;
 import de.rolandsw.schedulemc.warehouse.menu.WarehouseMenu;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -53,11 +54,14 @@ public class WarehouseBlock extends Block implements EntityBlock {
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack);
 
-        if (!level.isClientSide) {
+        if (!level.isClientSide && level instanceof ServerLevel serverLevel) {
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof WarehouseBlockEntity warehouse) {
                 // Initialize warehouse with current game time
                 warehouse.initializeOnPlace(level);
+
+                // Register with WarehouseManager for global delivery system
+                WarehouseManager.registerWarehouse(serverLevel, pos);
 
                 // Prüfe ob Warehouse in einem Plot liegt
                 PlotRegion plot = PlotManager.getPlotAt(pos);
@@ -136,6 +140,10 @@ public class WarehouseBlock extends Block implements EntityBlock {
         if (!state.is(newState.getBlock())) {
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof WarehouseBlockEntity) {
+                // Unregister from WarehouseManager
+                if (!level.isClientSide && level instanceof ServerLevel serverLevel) {
+                    WarehouseManager.unregisterWarehouse(serverLevel, pos);
+                }
                 // TODO: Drop items wenn gewünscht
             }
         }

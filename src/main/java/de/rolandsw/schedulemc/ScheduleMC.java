@@ -37,6 +37,7 @@ import de.rolandsw.schedulemc.economy.blocks.EconomyBlocks;
 import de.rolandsw.schedulemc.economy.menu.EconomyMenuTypes;
 import de.rolandsw.schedulemc.warehouse.WarehouseBlocks;
 import de.rolandsw.schedulemc.warehouse.WarehouseConfig;
+import de.rolandsw.schedulemc.warehouse.WarehouseManager;
 import de.rolandsw.schedulemc.warehouse.items.WarehouseItems;
 import de.rolandsw.schedulemc.warehouse.menu.WarehouseMenuTypes;
 import de.rolandsw.schedulemc.warehouse.network.WarehouseNetworkHandler;
@@ -121,6 +122,7 @@ public class ScheduleMC {
         MinecraftForge.EVENT_BUS.register(de.rolandsw.schedulemc.npc.events.NPCNameSyncHandler.class);
         MinecraftForge.EVENT_BUS.register(RespawnHandler.class);
         MinecraftForge.EVENT_BUS.register(BusinessMetricsUpdateHandler.class);
+        MinecraftForge.EVENT_BUS.register(WarehouseManager.class);
 
 
         LOGGER.info("ScheduleMC initialized");
@@ -167,6 +169,7 @@ public class ScheduleMC {
         // NEU: Warehouse & Shop System initialisieren
         StateAccount.load();
         MinecraftForge.EVENT_BUS.register(ShopAccountManager.class);
+        WarehouseManager.load(event.getServer());
     }
 
     @SubscribeEvent
@@ -193,6 +196,7 @@ public class ScheduleMC {
         WalletManager.save();
         NPCNameRegistry.saveRegistry();
         MessageManager.saveMessages();
+        WarehouseManager.save(event.getServer());
     }
 
     @SubscribeEvent

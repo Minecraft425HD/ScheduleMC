@@ -204,7 +204,7 @@ public class WarehouseBlockEntity extends BlockEntity {
      * Führt Warehouse-Lieferung durch
      * Staatskasse zahlt, Shop-Konto registriert Ausgaben
      */
-    private void performDelivery(Level level) {
+    public void performDelivery(Level level) {
         LOGGER.info("Warehouse @ {}: performDelivery() aufgerufen, shopId={}", worldPosition.toShortString(), shopId);
 
         // Berechne Lieferkosten
