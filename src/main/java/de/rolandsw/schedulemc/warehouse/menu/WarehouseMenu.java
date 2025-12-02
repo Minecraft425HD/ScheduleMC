@@ -61,7 +61,7 @@ public class WarehouseMenu extends AbstractContainerMenu {
         return stillValid(
             ContainerLevelAccess.create(level, pos),
             player,
-            WarehouseBlocks.WAREHOUSE_BLOCK.get()
+            WarehouseBlocks.WAREHOUSE.get()
         );
     }
 }

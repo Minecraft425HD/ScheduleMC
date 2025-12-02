@@ -174,6 +174,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         }
 
         // Scroll Buttons (wenn mehr als ITEMS_VISIBLE_ROWS)
+        final int finalNonEmptySlots = nonEmptySlots;
         if (nonEmptySlots > ITEMS_VISIBLE_ROWS) {
             addRenderableWidget(Button.builder(Component.literal("▲"), button -> {
                 if (itemScrollOffset > 0) {
@@ -183,7 +184,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
             }).bounds(x + 250, y + 35, 15, 15).build());
 
             addRenderableWidget(Button.builder(Component.literal("▼"), button -> {
-                if (itemScrollOffset < nonEmptySlots - ITEMS_VISIBLE_ROWS) {
+                if (itemScrollOffset < finalNonEmptySlots - ITEMS_VISIBLE_ROWS) {
                     itemScrollOffset++;
                     initTabComponents();
                 }
