@@ -57,7 +57,15 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         ITEMS("Items", "📦"),
         SELLERS("Seller", "👥"),
         STATS("Stats", "📊"),
-        SETTINGS("Einstellungen", "⚙")
+        SETTINGS("Einstellungen", "⚙");
+
+        final String name;
+        final String icon;
+
+        Tab(String name, String icon) {
+            this.name = name;
+            this.icon = icon;
+        }
     }
 
     private Tab currentTab = Tab.ITEMS;
@@ -600,9 +608,9 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         if (shopId != null) {
             ShopAccount account = ShopAccountManager.getAccount(shopId);
             if (account != null) {
-                double balance = account.getBalance();
-                graphics.drawString(this.font, "Kontostand: " + String.format("%.2f€", balance),
-                    x + 15, contentY, balance >= 0 ? COLOR_SUCCESS : COLOR_DANGER, false);
+                int netRevenue7Days = account.get7DayNetRevenue();
+                graphics.drawString(this.font, "Nettoumsatz (7 Tage): " + String.format("%d€", netRevenue7Days),
+                    x + 15, contentY, netRevenue7Days >= 0 ? COLOR_SUCCESS : COLOR_DANGER, false);
                 contentY += 12;
 
                 // Expense tracking über 30 Tage
@@ -747,25 +755,5 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
     @Override
     public boolean isPauseScreen() {
         return false;
-    }
-
-    // Inner class for Tab definition
-    private static class Tab {
-        final String name;
-        final String icon;
-
-        static final Tab ITEMS = new Tab("Items", "📦");
-        static final Tab SELLERS = new Tab("Seller", "👥");
-        static final Tab STATS = new Tab("Stats", "📊");
-        static final Tab SETTINGS = new Tab("Einstellungen", "⚙");
-
-        Tab(String name, String icon) {
-            this.name = name;
-            this.icon = icon;
-        }
-
-        static Tab[] values() {
-            return new Tab[]{ITEMS, SELLERS, STATS, SETTINGS};
-        }
     }
 }
