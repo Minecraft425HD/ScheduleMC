@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.region;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.logging.LogUtils;
+import de.rolandsw.schedulemc.economy.ShopAccountManager;
 import de.rolandsw.schedulemc.util.GsonHelper;
 import net.minecraft.core.BlockPos;
 import org.slf4j.Logger;
@@ -83,6 +84,12 @@ public class PlotManager {
 
         plots.put(plotId, plot);
         spatialIndex.addPlot(plot);
+
+        // Automatisch ShopAccount erstellen für Shop-Plots
+        if (type.isShop()) {
+            ShopAccountManager.getOrCreateAccount(plotId);
+            LOGGER.info("ShopAccount automatisch erstellt für Shop-Plot: {}", plotId);
+        }
 
         dirty = true;
 

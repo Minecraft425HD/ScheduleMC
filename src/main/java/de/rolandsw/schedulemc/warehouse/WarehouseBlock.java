@@ -1,5 +1,7 @@
 package de.rolandsw.schedulemc.warehouse;
 
+import de.rolandsw.schedulemc.region.PlotManager;
+import de.rolandsw.schedulemc.region.PlotRegion;
 import de.rolandsw.schedulemc.warehouse.items.WarehouseTool;
 import de.rolandsw.schedulemc.warehouse.menu.WarehouseMenu;
 import net.minecraft.core.BlockPos;
@@ -8,9 +10,11 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
@@ -39,6 +43,34 @@ public class WarehouseBlock extends Block implements EntityBlock {
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new WarehouseBlockEntity(pos, state);
+    }
+
+    /**
+     * Wird aufgerufen, wenn der Block platziert wird
+     * Setzt automatisch die Shop-ID, wenn Warehouse in einem Shop-Plot platziert wird
+     */
+    @Override
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
+        super.setPlacedBy(level, pos, state, placer, stack);
+
+        if (!level.isClientSide) {
+            BlockEntity be = level.getBlockEntity(pos);
+            if (be instanceof WarehouseBlockEntity warehouse) {
+                // Prüfe ob Warehouse in einem Plot liegt
+                PlotRegion plot = PlotManager.getPlotAt(pos);
+                if (plot != null && plot.getType().isShop()) {
+                    // Setze Shop-ID automatisch auf Plot-ID
+                    warehouse.setShopId(plot.getPlotId());
+
+                    if (placer instanceof Player player) {
+                        player.displayClientMessage(
+                            Component.literal("§a✓ Warehouse mit Shop-Plot verknüpft: §e" + plot.getPlotId()),
+                            true
+                        );
+                    }
+                }
+            }
+        }
     }
 
     @Nullable
