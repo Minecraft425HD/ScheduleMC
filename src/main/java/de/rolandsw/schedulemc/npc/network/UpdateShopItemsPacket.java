@@ -107,6 +107,7 @@ public class UpdateShopItemsPacket {
 
     /**
      * Synchronisiert die Shop-Items des NPCs mit dem verknüpften Warehouse
+     * WICHTIG: Nur Lager-Items (unlimited=false) werden ins Warehouse übernommen!
      */
     private static void syncShopToWarehouse(CustomNPCEntity npc, ServerPlayer player) {
         BlockPos warehousePos = npc.getNpcData().getAssignedWarehouse();
@@ -119,37 +120,47 @@ public class UpdateShopItemsPacket {
             return; // Warehouse nicht gefunden
         }
 
-        // Hole Shop-Items
+        // Hole Shop-Items - unterscheide zwischen Lager-Items und unlimited Items
         List<NPCData.ShopEntry> shopEntries = npc.getNpcData().getBuyShop().getEntries();
-        List<Item> shopItems = new ArrayList<>();
+        List<Item> stockItems = new ArrayList<>(); // Nur Lager-Items (unlimited=false)
+        List<Item> unlimitedItems = new ArrayList<>(); // Nur unlimited Items
+
         for (NPCData.ShopEntry entry : shopEntries) {
             if (!entry.getItem().isEmpty()) {
-                shopItems.add(entry.getItem().getItem());
+                if (entry.isUnlimited()) {
+                    unlimitedItems.add(entry.getItem().getItem());
+                } else {
+                    stockItems.add(entry.getItem().getItem());
+                }
             }
         }
 
         // Warehouse-Slots durchgehen
         WarehouseSlot[] slots = warehouse.getSlots();
 
-        // 1. Entferne Items aus dem Warehouse, die nicht mehr im Shop sind
+        // 1. Entferne Items aus dem Warehouse, die:
+        //    - nicht mehr im Shop sind ODER
+        //    - jetzt auf unlimited gesetzt wurden
         for (int i = 0; i < slots.length; i++) {
             WarehouseSlot slot = slots[i];
             if (!slot.isEmpty()) {
                 Item slotItem = slot.getAllowedItem();
-                if (!shopItems.contains(slotItem)) {
-                    // Item nicht mehr im Shop -> entfernen
+
+                // Entfernen wenn nicht mehr im Shop oder jetzt unlimited
+                if (!stockItems.contains(slotItem)) {
                     slot.clear();
                 }
             }
         }
 
-        // 2. Füge neue Shop-Items zum Warehouse hinzu (mit Stock 0)
-        for (Item shopItem : shopItems) {
+        // 2. Füge neue Lager-Items zum Warehouse hinzu (unlimited Items NICHT!)
+        int itemsAdded = 0;
+        for (Item stockItem : stockItems) {
             boolean existsInWarehouse = false;
 
             // Prüfe ob Item schon im Warehouse ist
             for (WarehouseSlot slot : slots) {
-                if (!slot.isEmpty() && slot.getAllowedItem() == shopItem) {
+                if (!slot.isEmpty() && slot.getAllowedItem() == stockItem) {
                     existsInWarehouse = true;
                     break;
                 }
@@ -159,7 +170,8 @@ public class UpdateShopItemsPacket {
             if (!existsInWarehouse) {
                 for (WarehouseSlot slot : slots) {
                     if (slot.isEmpty()) {
-                        slot.addStock(shopItem, 0); // Füge mit 0 Stock hinzu
+                        slot.addStock(stockItem, 0); // Füge mit 0 Stock hinzu
+                        itemsAdded++;
                         break;
                     }
                 }
@@ -171,6 +183,7 @@ public class UpdateShopItemsPacket {
         warehouse.syncToClient();
 
         player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
-            "§aWarehouse synchronisiert: " + shopItems.size() + " Items."));
+            "§aWarehouse synchronisiert: " + stockItems.size() + " Lager-Items, " +
+            unlimitedItems.size() + " unlimited Items."));
     }
 }
