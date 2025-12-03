@@ -120,17 +120,17 @@ public class UpdateShopItemsPacket {
             return; // Warehouse nicht gefunden
         }
 
-        // Hole Shop-Items - unterscheide zwischen Lager-Items und unlimited Items
+        // Hole Shop-Items mit unlimited Status
         List<NPCData.ShopEntry> shopEntries = npc.getNpcData().getBuyShop().getEntries();
-        List<Item> stockItems = new ArrayList<>(); // Nur Lager-Items (unlimited=false)
-        List<Item> unlimitedItems = new ArrayList<>(); // Nur unlimited Items
+        List<Item> allShopItems = new ArrayList<>();
+        List<Item> unlimitedItems = new ArrayList<>();
 
         for (NPCData.ShopEntry entry : shopEntries) {
             if (!entry.getItem().isEmpty()) {
+                Item item = entry.getItem().getItem();
+                allShopItems.add(item);
                 if (entry.isUnlimited()) {
-                    unlimitedItems.add(entry.getItem().getItem());
-                } else {
-                    stockItems.add(entry.getItem().getItem());
+                    unlimitedItems.add(item);
                 }
             }
         }
@@ -138,41 +138,45 @@ public class UpdateShopItemsPacket {
         // Warehouse-Slots durchgehen
         WarehouseSlot[] slots = warehouse.getSlots();
 
-        // 1. Entferne Items aus dem Warehouse, die:
-        //    - nicht mehr im Shop sind ODER
-        //    - jetzt auf unlimited gesetzt wurden
+        // 1. Entferne Items die nicht mehr im Shop sind
         for (int i = 0; i < slots.length; i++) {
             WarehouseSlot slot = slots[i];
             if (!slot.isEmpty()) {
                 Item slotItem = slot.getAllowedItem();
-
-                // Entfernen wenn nicht mehr im Shop oder jetzt unlimited
-                if (!stockItems.contains(slotItem)) {
-                    slot.clear();
+                if (!allShopItems.contains(slotItem)) {
+                    slot.clear(); // Item nicht mehr im Shop
                 }
             }
         }
 
-        // 2. Füge neue Lager-Items zum Warehouse hinzu (unlimited Items NICHT!)
+        // 2. Synchronisiere alle Shop-Items mit Warehouse
         int itemsAdded = 0;
-        for (Item stockItem : stockItems) {
-            boolean existsInWarehouse = false;
+        for (NPCData.ShopEntry entry : shopEntries) {
+            if (!entry.getItem().isEmpty()) {
+                Item item = entry.getItem().getItem();
+                boolean isUnlimited = entry.isUnlimited();
 
-            // Prüfe ob Item schon im Warehouse ist
-            for (WarehouseSlot slot : slots) {
-                if (!slot.isEmpty() && slot.getAllowedItem() == stockItem) {
-                    existsInWarehouse = true;
-                    break;
-                }
-            }
-
-            // Wenn nicht vorhanden: Füge zu einem leeren Slot hinzu
-            if (!existsInWarehouse) {
+                // Finde Slot für dieses Item
+                WarehouseSlot targetSlot = null;
                 for (WarehouseSlot slot : slots) {
-                    if (slot.isEmpty()) {
-                        slot.addStock(stockItem, 0); // Füge mit 0 Stock hinzu
-                        itemsAdded++;
+                    if (!slot.isEmpty() && slot.getAllowedItem() == item) {
+                        targetSlot = slot;
                         break;
+                    }
+                }
+
+                if (targetSlot != null) {
+                    // Item existiert - aktualisiere unlimited Flag
+                    targetSlot.setUnlimited(isUnlimited);
+                } else if (!isUnlimited) {
+                    // Nur Lager-Items werden neu hinzugefügt
+                    for (WarehouseSlot slot : slots) {
+                        if (slot.isEmpty()) {
+                            slot.addStock(item, 0);
+                            slot.setUnlimited(false);
+                            itemsAdded++;
+                            break;
+                        }
                     }
                 }
             }
@@ -182,8 +186,9 @@ public class UpdateShopItemsPacket {
         warehouse.setChanged();
         warehouse.syncToClient();
 
+        int stockItemCount = allShopItems.size() - unlimitedItems.size();
         player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
-            "§aWarehouse synchronisiert: " + stockItems.size() + " Lager-Items, " +
+            "§aWarehouse synchronisiert: " + stockItemCount + " Lager-Items, " +
             unlimitedItems.size() + " unlimited Items."));
     }
 }

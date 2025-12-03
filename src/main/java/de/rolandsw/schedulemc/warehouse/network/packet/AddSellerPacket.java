@@ -124,41 +124,46 @@ public class AddSellerPacket {
         // Erstelle Kopie der Entries
         List<NPCData.ShopEntry> entriesToProcess = new ArrayList<>(originalEntries);
 
-        // Liste für Warehouse-Items (nur Lager-Items, keine unlimited!)
-        List<Item> warehouseItems = new ArrayList<>();
-
-        // Verarbeite jedes Item - behalte unlimited Flag bei!
-        for (NPCData.ShopEntry entry : entriesToProcess) {
-            if (!entry.getItem().isEmpty()) {
-                // Nur Lager-Items (unlimited=false) sollen zum Warehouse hinzugefügt werden
-                if (!entry.isUnlimited()) {
-                    warehouseItems.add(entry.getItem().getItem());
-                }
-            }
-        }
-
         WarehouseSlot[] slots = warehouse.getSlots();
         int itemsAdded = 0;
 
-        // Füge nur Lager-Items zum Warehouse hinzu (unlimited Items NICHT!)
-        for (Item warehouseItem : warehouseItems) {
-            boolean existsInWarehouse = false;
+        // Verarbeite jedes Item - synchronisiere mit Warehouse
+        for (NPCData.ShopEntry entry : entriesToProcess) {
+            if (!entry.getItem().isEmpty()) {
+                Item item = entry.getItem().getItem();
+                boolean isUnlimited = entry.isUnlimited();
 
-            // Prüfe ob Item schon im Warehouse ist
-            for (WarehouseSlot slot : slots) {
-                if (!slot.isEmpty() && slot.getAllowedItem() == warehouseItem) {
-                    existsInWarehouse = true;
-                    break;
-                }
-            }
-
-            // Wenn nicht vorhanden: Füge zu einem leeren Slot hinzu
-            if (!existsInWarehouse) {
+                // Finde oder erstelle Slot für dieses Item
+                WarehouseSlot targetSlot = null;
                 for (WarehouseSlot slot : slots) {
-                    if (slot.isEmpty()) {
-                        slot.addStock(warehouseItem, 0); // Füge mit 0 Stock hinzu
-                        itemsAdded++;
+                    if (!slot.isEmpty() && slot.getAllowedItem() == item) {
+                        targetSlot = slot;
                         break;
+                    }
+                }
+
+                // Wenn Item unlimited ist, entferne es aus Warehouse oder setze Flag
+                if (isUnlimited) {
+                    if (targetSlot != null) {
+                        // Item existiert im Warehouse - markiere als unlimited
+                        targetSlot.setUnlimited(true);
+                    }
+                    // Unlimited Items werden NICHT zum Warehouse hinzugefügt wenn sie nicht existieren
+                } else {
+                    // Lager-Item
+                    if (targetSlot != null) {
+                        // Aktualisiere Flag
+                        targetSlot.setUnlimited(false);
+                    } else {
+                        // Füge neues Lager-Item hinzu
+                        for (WarehouseSlot slot : slots) {
+                            if (slot.isEmpty()) {
+                                slot.addStock(item, 0);
+                                slot.setUnlimited(false);
+                                itemsAdded++;
+                                break;
+                            }
+                        }
                     }
                 }
             }

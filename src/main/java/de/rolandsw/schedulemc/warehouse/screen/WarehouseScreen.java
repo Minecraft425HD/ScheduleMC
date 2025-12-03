@@ -504,8 +504,13 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
                 slot.getAllowedItem().getDescription().getString() : "Leer";
             graphics.drawString(this.font, itemName, x + 32, renderY + 4, COLOR_TEXT, false);
 
-            // Stock Info
-            String stockInfo = slot.getStock() + " / " + slot.getMaxCapacity();
+            // Stock Info - Unlimited als ∞ anzeigen
+            String stockInfo;
+            if (slot.isUnlimited()) {
+                stockInfo = slot.getStock() + " / §a∞";
+            } else {
+                stockInfo = slot.getStock() + " / " + slot.getMaxCapacity();
+            }
             int stockColor = slot.isFull() ? COLOR_SUCCESS :
                             slot.getStock() < slot.getMaxCapacity() / 4 ? COLOR_DANGER : COLOR_TEXT;
             graphics.drawString(this.font, stockInfo, x + 180, renderY + 4, stockColor, false);
