@@ -71,5 +71,12 @@ public class WarehouseNetworkHandler {
             .encoder(AddSellerPacket::encode)
             .consumerMainThread(AddSellerPacket::handle)
             .add();
+
+        // Add Item to Slot
+        INSTANCE.messageBuilder(AddItemToSlotPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(AddItemToSlotPacket::decode)
+            .encoder(AddItemToSlotPacket::encode)
+            .consumerMainThread(AddItemToSlotPacket::handle)
+            .add();
     }
 }
