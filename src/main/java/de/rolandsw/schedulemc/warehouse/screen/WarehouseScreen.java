@@ -661,11 +661,18 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         List<CustomNPCEntity> availableNpcs = new ArrayList<>();
         if (minecraft.level == null) return availableNpcs;
 
+        WarehouseBlockEntity warehouse = menu.getWarehouse();
+        if (warehouse == null) return availableNpcs;
+
+        // Hole die Liste der bereits verknüpften Seller
+        List<UUID> linkedSellers = warehouse.getLinkedSellers();
+
         // Sammle alle Custom NPCs in der Welt
         for (var entity : minecraft.level.entitiesForRendering()) {
             if (entity instanceof CustomNPCEntity npc) {
-                // Prüfe ob NPC bereits mit einem Warehouse verknüpft ist
-                if (npc.getNpcData().getAssignedWarehouse() == null) {
+                // Prüfe ob NPC bereits mit DIESEM Warehouse verknüpft ist
+                // Verwende die Warehouse-Liste als Source of Truth, nicht die NPC-Daten
+                if (!linkedSellers.contains(npc.getUUID())) {
                     availableNpcs.add(npc);
                 }
             }
@@ -925,6 +932,8 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
                                 net.minecraft.sounds.SoundEvents.UI_BUTTON_CLICK, 1.0F
                             )
                         );
+                        // Refresh GUI after short delay to allow server sync
+                        scheduleRefresh();
                     } else {
                         // Add seller
                         sendAddSellerPacket(clickable.npcId);
@@ -934,6 +943,8 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
                                 net.minecraft.sounds.SoundEvents.UI_BUTTON_CLICK, 1.0F
                             )
                         );
+                        // Refresh GUI after short delay to allow server sync
+                        scheduleRefresh();
                     }
                     return true;
                 }
@@ -941,6 +952,26 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         }
 
         return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    /**
+     * Plant ein GUI-Refresh nach kurzer Zeit ein, damit Server-Daten synchronisiert werden können
+     */
+    private void scheduleRefresh() {
+        // Schedule refresh after 5 ticks to allow server sync
+        new Thread(() -> {
+            try {
+                Thread.sleep(250); // 250ms delay for server sync
+            } catch (InterruptedException e) {
+                // Ignore
+            }
+            // Execute on main thread
+            minecraft.execute(() -> {
+                if (this.menu != null && this.menu.getWarehouse() != null) {
+                    initTabComponents();
+                }
+            });
+        }).start();
     }
 
     // ═══════════════════════════════════════════════════════════

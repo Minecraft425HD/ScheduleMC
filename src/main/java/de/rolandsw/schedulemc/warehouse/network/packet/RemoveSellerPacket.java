@@ -1,10 +1,13 @@
 package de.rolandsw.schedulemc.warehouse.network.packet;
 
+import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.network.NetworkEvent;
 
@@ -47,11 +50,24 @@ public class RemoveSellerPacket {
                 return;
             }
 
-            BlockEntity be = player.level().getBlockEntity(msg.pos);
+            ServerLevel level = player.serverLevel();
+            BlockEntity be = level.getBlockEntity(msg.pos);
             if (!(be instanceof WarehouseBlockEntity warehouse)) return;
 
+            // Entferne die Verknüpfung vom Warehouse
             warehouse.removeSeller(msg.sellerId);
             warehouse.setChanged();
+            warehouse.syncToClient(); // Wichtig: Synchronisiere zum Client
+
+            // Finde den NPC und entferne auch seine Warehouse-Zuweisung
+            for (Entity entity : level.getAllEntities()) {
+                if (entity instanceof CustomNPCEntity customNpc) {
+                    if (customNpc.getUUID().equals(msg.sellerId)) {
+                        customNpc.getNpcData().setAssignedWarehouse(null);
+                        break;
+                    }
+                }
+            }
 
             player.sendSystemMessage(Component.literal("§aVerkäufer entfernt!"));
         });

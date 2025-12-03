@@ -57,10 +57,19 @@ public class AddSellerPacket {
                 return;
             }
 
-            // Finde den NPC
-            Entity entity = level.getEntity(msg.sellerId);
-            if (!(entity instanceof CustomNPCEntity npc)) {
-                player.sendSystemMessage(Component.literal("§cNPC nicht gefunden!"));
+            // Finde den NPC - durchsuche alle Entities in der Welt
+            CustomNPCEntity npc = null;
+            for (Entity entity : level.getAllEntities()) {
+                if (entity instanceof CustomNPCEntity customNpc) {
+                    if (customNpc.getUUID().equals(msg.sellerId)) {
+                        npc = customNpc;
+                        break;
+                    }
+                }
+            }
+
+            if (npc == null) {
+                player.sendSystemMessage(Component.literal("§cNPC nicht gefunden! (UUID: " + msg.sellerId + ")"));
                 return;
             }
 
@@ -79,6 +88,7 @@ public class AddSellerPacket {
             npc.getNpcData().setAssignedWarehouse(msg.pos);
             warehouse.addSeller(msg.sellerId);
             warehouse.setChanged();
+            warehouse.syncToClient(); // Wichtig: Synchronisiere zum Client damit GUI sich aktualisiert
 
             player.sendSystemMessage(
                 Component.literal("§a✓ NPC mit Warehouse verknüpft!")
