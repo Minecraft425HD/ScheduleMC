@@ -115,15 +115,30 @@ public class AddSellerPacket {
      */
     private static int syncNPCShopToWarehouse(CustomNPCEntity npc, WarehouseBlockEntity warehouse) {
         // Hole Shop-Items des NPCs
-        List<NPCData.ShopEntry> shopEntries = npc.getNpcData().getBuyShop().getEntries();
-        if (shopEntries.isEmpty()) {
+        NPCData.ShopInventory shop = npc.getNpcData().getBuyShop();
+        List<NPCData.ShopEntry> originalEntries = shop.getEntries();
+        if (originalEntries.isEmpty()) {
             return 0;
         }
 
+        // WICHTIG: Konvertiere ALLE Shop-Items zu Lager-Items (unlimited=false)
+        // Erstelle Kopie der Entries, dann baue Shop neu auf
+        List<NPCData.ShopEntry> entriesToConvert = new ArrayList<>(originalEntries);
+        shop.clear();
+
         List<Item> shopItems = new ArrayList<>();
-        for (NPCData.ShopEntry entry : shopEntries) {
+
+        for (NPCData.ShopEntry entry : entriesToConvert) {
             if (!entry.getItem().isEmpty()) {
                 shopItems.add(entry.getItem().getItem());
+
+                // Füge Item als Lager-Item wieder hinzu
+                shop.addEntry(new NPCData.ShopEntry(
+                    entry.getItem(),
+                    entry.getPrice(),
+                    false, // unlimited=false -> Lager-Item!
+                    0      // stock=0 (wird vom Warehouse verwaltet)
+                ));
             }
         }
 
