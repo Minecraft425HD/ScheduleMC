@@ -92,6 +92,28 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
     private EditBox deliveryIntervalInput;
     private EditBox shopIdInput;
 
+    // Clickable areas for NPCs
+    private static class ClickableNPC {
+        UUID npcId;
+        int x, y, width, height;
+        boolean isRemove; // true = remove button, false = add button
+
+        ClickableNPC(UUID npcId, int x, int y, int width, int height, boolean isRemove) {
+            this.npcId = npcId;
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+            this.isRemove = isRemove;
+        }
+
+        boolean contains(int mouseX, int mouseY) {
+            return mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
+        }
+    }
+
+    private List<ClickableNPC> clickableNPCs = new ArrayList<>();
+
     public WarehouseScreen(WarehouseMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.imageWidth = GUI_WIDTH;
@@ -534,6 +556,9 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         WarehouseBlockEntity warehouse = menu.getWarehouse();
         if (warehouse == null) return;
 
+        // Clear clickable areas at start of render
+        clickableNPCs.clear();
+
         // Left Panel: Verknüpfte Verkäufer
         graphics.drawString(this.font, "§lVERKNÜPFTE VERKÄUFER", x + 10, y + 35, COLOR_TEXT, false);
 
@@ -552,17 +577,18 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
             // Remove button area
             int removeX = x + 160;
             int removeY = renderY - 2;
-            if (mouseX >= removeX && mouseX <= removeX + 30 &&
-                mouseY >= removeY && mouseY <= removeY + 12) {
+            boolean isHovered = mouseX >= removeX && mouseX <= removeX + 30 &&
+                               mouseY >= removeY && mouseY <= removeY + 12;
+
+            if (isHovered) {
                 graphics.fill(removeX, removeY, removeX + 30, removeY + 12, COLOR_DANGER);
                 graphics.drawString(this.font, "[X]", removeX + 8, renderY, COLOR_TEXT, false);
-
-                if (minecraft.mouseHandler.isLeftPressed()) {
-                    sendRemoveSellerPacket(sellerId);
-                }
             } else {
                 graphics.drawString(this.font, "[X]", removeX + 8, renderY, COLOR_DANGER, false);
             }
+
+            // Register clickable area
+            clickableNPCs.add(new ClickableNPC(sellerId, removeX, removeY, 30, 12, true));
 
             renderY += 18;
             visibleCount++;
@@ -587,22 +613,18 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
             // Add button area
             int addX = x + 215;
             int addY = renderY - 2;
-            if (mouseX >= addX && mouseX <= addX + 160 &&
-                mouseY >= addY && mouseY <= addY + 12) {
+            boolean isHovered = mouseX >= addX && mouseX <= addX + 160 &&
+                               mouseY >= addY && mouseY <= addY + 12;
+
+            if (isHovered) {
                 graphics.fill(addX, addY, addX + 160, addY + 12, COLOR_ACCENT);
                 graphics.drawString(this.font, "+ " + npcName, addX + 5, renderY, COLOR_TEXT, false);
-
-                if (minecraft.mouseHandler.isLeftPressed()) {
-                    sendAddSellerPacket(npc.getUUID());
-                    // Reset scroll and reinit after short delay
-                    minecraft.tell(() -> {
-                        availableNpcScrollOffset = 0;
-                        initTabComponents();
-                    });
-                }
             } else {
                 graphics.drawString(this.font, "+ " + npcName, addX + 5, renderY, COLOR_TEXT, false);
             }
+
+            // Register clickable area
+            clickableNPCs.add(new ClickableNPC(npc.getUUID(), addX, addY, 160, 12, false));
 
             renderY += 18;
             visibleCount++;
@@ -881,6 +903,44 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
     @Override
     public boolean isPauseScreen() {
         return false;
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        // Only handle left clicks
+        if (button != 0) {
+            return super.mouseClicked(mouseX, mouseY, button);
+        }
+
+        // Check if we're in the SELLERS tab
+        if (currentTab == Tab.SELLERS) {
+            // Check all clickable NPC areas
+            for (ClickableNPC clickable : clickableNPCs) {
+                if (clickable.contains((int) mouseX, (int) mouseY)) {
+                    if (clickable.isRemove) {
+                        // Remove seller
+                        sendRemoveSellerPacket(clickable.npcId);
+                        minecraft.getSoundManager().play(
+                            net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(
+                                net.minecraft.sounds.SoundEvents.UI_BUTTON_CLICK, 1.0F
+                            )
+                        );
+                    } else {
+                        // Add seller
+                        sendAddSellerPacket(clickable.npcId);
+                        availableNpcScrollOffset = 0;
+                        minecraft.getSoundManager().play(
+                            net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(
+                                net.minecraft.sounds.SoundEvents.UI_BUTTON_CLICK, 1.0F
+                            )
+                        );
+                    }
+                    return true;
+                }
+            }
+        }
+
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 
     // ═══════════════════════════════════════════════════════════
