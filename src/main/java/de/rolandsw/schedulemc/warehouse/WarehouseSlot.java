@@ -16,6 +16,7 @@ public class WarehouseSlot {
     private Item allowedItem = null;
     private int currentStock = 0;
     private int maxCapacity;
+    private boolean unlimited = false; // Neues Flag für unlimited Items
 
     public WarehouseSlot(int maxCapacity) {
         this.maxCapacity = maxCapacity;
@@ -65,7 +66,7 @@ public class WarehouseSlot {
     // === STATUS ===
 
     public boolean isEmpty() {
-        return currentStock == 0;
+        return allowedItem == null;
     }
 
     public boolean isFull() {
@@ -89,12 +90,21 @@ public class WarehouseSlot {
         return maxCapacity;
     }
 
+    public boolean isUnlimited() {
+        return unlimited;
+    }
+
+    public void setUnlimited(boolean unlimited) {
+        this.unlimited = unlimited;
+    }
+
     /**
      * Wie viel muss nachgeliefert werden um voll zu sein?
+     * Unlimited Items werden NICHT aufgefüllt!
      */
     public int getRestockAmount() {
-        if (allowedItem == null) {
-            return 0;
+        if (allowedItem == null || unlimited) {
+            return 0; // Keine Lieferung für unlimited Items!
         }
         return maxCapacity - currentStock;
     }
@@ -105,6 +115,7 @@ public class WarehouseSlot {
     public void clear() {
         this.allowedItem = null;
         this.currentStock = 0;
+        this.unlimited = false;
     }
 
     // === SERIALISIERUNG ===
@@ -114,6 +125,7 @@ public class WarehouseSlot {
             ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(allowedItem);
             tag.putString("Item", itemId.toString());
             tag.putInt("Stock", currentStock);
+            tag.putBoolean("Unlimited", unlimited);
         }
         tag.putInt("MaxCapacity", maxCapacity);
         return tag;
@@ -125,6 +137,7 @@ public class WarehouseSlot {
             ResourceLocation itemId = new ResourceLocation(itemIdStr);
             this.allowedItem = BuiltInRegistries.ITEM.get(itemId);
             this.currentStock = tag.getInt("Stock");
+            this.unlimited = tag.getBoolean("Unlimited");
         }
         if (tag.contains("MaxCapacity")) {
             this.maxCapacity = tag.getInt("MaxCapacity");

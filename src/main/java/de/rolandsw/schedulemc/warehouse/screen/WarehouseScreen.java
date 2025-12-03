@@ -3,9 +3,11 @@ package de.rolandsw.schedulemc.warehouse.screen;
 import com.mojang.blaze3d.systems.RenderSystem;
 import de.rolandsw.schedulemc.economy.ShopAccountManager;
 import de.rolandsw.schedulemc.economy.ShopAccount;
+import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity;
 import de.rolandsw.schedulemc.warehouse.WarehouseSlot;
+import de.rolandsw.schedulemc.warehouse.client.ClientWarehouseNPCCache;
 import de.rolandsw.schedulemc.warehouse.menu.WarehouseMenu;
 import de.rolandsw.schedulemc.warehouse.network.WarehouseNetworkHandler;
 import de.rolandsw.schedulemc.warehouse.network.packet.*;
@@ -15,8 +17,10 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -79,6 +83,8 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
     // Seller Tab - Scrolling
     private int sellerScrollOffset = 0;
     private static final int SELLER_VISIBLE_ROWS = 8;
+    private int availableNpcScrollOffset = 0;
+    private static final int AVAILABLE_NPC_VISIBLE_ROWS = 6;
 
     // Stats Tab - Scrolling
     private int statsScrollOffset = 0;
@@ -90,10 +96,50 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
     private EditBox deliveryIntervalInput;
     private EditBox shopIdInput;
 
+    // Item selection overlay
+    private boolean showItemSelection = false;
+    private List<Item> allItems = new ArrayList<>();
+    private List<Item> filteredItems = new ArrayList<>();
+    private int itemSelectionScrollOffset = 0;
+    private static final int ITEM_SELECTION_VISIBLE_ROWS = 10;
+    private EditBox itemSearchField;
+
+    // Clickable areas for NPCs
+    private static class ClickableNPC {
+        UUID npcId;
+        int x, y, width, height;
+        boolean isRemove; // true = remove button, false = add button
+
+        ClickableNPC(UUID npcId, int x, int y, int width, int height, boolean isRemove) {
+            this.npcId = npcId;
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+            this.isRemove = isRemove;
+        }
+
+        boolean contains(int mouseX, int mouseY) {
+            return mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
+        }
+    }
+
+    private List<ClickableNPC> clickableNPCs = new ArrayList<>();
+
     public WarehouseScreen(WarehouseMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.imageWidth = GUI_WIDTH;
         this.imageHeight = GUI_HEIGHT;
+
+        // Lade alle Items
+        BuiltInRegistries.ITEM.forEach(item -> {
+            if (item != net.minecraft.world.item.Items.AIR) {
+                allItems.add(item);
+            }
+        });
+        // Sortiere alphabetisch
+        allItems.sort((a, b) -> a.getDescription().getString().compareToIgnoreCase(b.getDescription().getString()));
+        filteredItems = new ArrayList<>(allItems);
     }
 
     @Override
@@ -241,8 +287,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
 
         // Neuer Slot Button
         addRenderableWidget(Button.builder(Component.literal("+ Neuer Slot"), button -> {
-            // TODO: Öffne Item-Auswahl Dialog
-            minecraft.player.sendSystemMessage(Component.literal("§eItem-Auswahl noch nicht implementiert"));
+            openItemSelection();
         }).bounds(x + 10, y + 210, 100, 20).build());
 
         // Auto-Fill Button
@@ -279,27 +324,42 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
 
         List<UUID> sellers = warehouse.getLinkedSellers();
 
-        // Scroll Buttons
+        // Scroll Buttons für verknüpfte Seller
         if (sellers.size() > SELLER_VISIBLE_ROWS) {
             addRenderableWidget(Button.builder(Component.literal("▲"), button -> {
                 if (sellerScrollOffset > 0) {
                     sellerScrollOffset--;
                     initTabComponents();
                 }
-            }).bounds(x + imageWidth - 25, y + 35, 15, 15).build());
+            }).bounds(x + 185, y + 35, 15, 15).build());
 
             addRenderableWidget(Button.builder(Component.literal("▼"), button -> {
                 if (sellerScrollOffset < sellers.size() - SELLER_VISIBLE_ROWS) {
                     sellerScrollOffset++;
                     initTabComponents();
                 }
-            }).bounds(x + imageWidth - 25, y + 165, 15, 15).build());
+            }).bounds(x + 185, y + 165, 15, 15).build());
         }
 
-        // Add Seller Button
-        addRenderableWidget(Button.builder(Component.literal("+ Seller hinzufügen"), button -> {
-            minecraft.player.sendSystemMessage(Component.literal("§eUse /warehouse addseller <player>"));
-        }).bounds(x + 10, y + 210, 150, 20).build());
+        // Get available NPCs
+        List<CustomNPCEntity> availableNpcs = getAvailableNPCs();
+
+        // Scroll Buttons für verfügbare NPCs
+        if (availableNpcs.size() > AVAILABLE_NPC_VISIBLE_ROWS) {
+            addRenderableWidget(Button.builder(Component.literal("▲"), button -> {
+                if (availableNpcScrollOffset > 0) {
+                    availableNpcScrollOffset--;
+                    initTabComponents();
+                }
+            }).bounds(x + imageWidth - 25, y + 35, 15, 15).build());
+
+            addRenderableWidget(Button.builder(Component.literal("▼"), button -> {
+                if (availableNpcScrollOffset < availableNpcs.size() - AVAILABLE_NPC_VISIBLE_ROWS) {
+                    availableNpcScrollOffset++;
+                    initTabComponents();
+                }
+            }).bounds(x + imageWidth - 25, y + 165, 15, 15).build());
+        }
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -394,6 +454,11 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         renderBackground(graphics);
         super.render(graphics, mouseX, mouseY, partialTick);
         renderTooltip(graphics, mouseX, mouseY);
+
+        // Render item selection overlay on top
+        if (showItemSelection) {
+            renderItemSelectionOverlay(graphics, mouseX, mouseY);
+        }
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -439,8 +504,13 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
                 slot.getAllowedItem().getDescription().getString() : "Leer";
             graphics.drawString(this.font, itemName, x + 32, renderY + 4, COLOR_TEXT, false);
 
-            // Stock Info
-            String stockInfo = slot.getStock() + " / " + slot.getMaxCapacity();
+            // Stock Info - Unlimited als ∞ anzeigen
+            String stockInfo;
+            if (slot.isUnlimited()) {
+                stockInfo = slot.getStock() + " / §a∞";
+            } else {
+                stockInfo = slot.getStock() + " / " + slot.getMaxCapacity();
+            }
             int stockColor = slot.isFull() ? COLOR_SUCCESS :
                             slot.getStock() < slot.getMaxCapacity() / 4 ? COLOR_DANGER : COLOR_TEXT;
             graphics.drawString(this.font, stockInfo, x + 180, renderY + 4, stockColor, false);
@@ -499,6 +569,48 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
             }
         }
 
+        // NPC Shop Items Section (unten rechts)
+        int npcShopY = y + 160;
+        graphics.drawString(this.font, "§l§eNPC SHOP", x + 270, npcShopY, COLOR_WARNING, false);
+        npcShopY += 12;
+
+        List<NPCData.ShopEntry> shopItems = getLinkedNPCShopItems();
+        if (shopItems != null && !shopItems.isEmpty()) {
+            // Zeige erste 3 Shop-Items als Beispiel
+            int shown = 0;
+            for (NPCData.ShopEntry entry : shopItems) {
+                if (shown >= 3) break;
+
+                ItemStack item = entry.getItem();
+                if (!item.isEmpty()) {
+                    // Render icon
+                    graphics.renderItem(item, x + 270, npcShopY - 2);
+
+                    // Item name (gekürzt)
+                    String itemName = item.getHoverName().getString();
+                    if (itemName.length() > 10) {
+                        itemName = itemName.substring(0, 10) + "...";
+                    }
+                    graphics.drawString(this.font, itemName, x + 290, npcShopY + 2, COLOR_TEXT_GRAY, false);
+
+                    // Status: Unlimited oder Stock
+                    String status = entry.isUnlimited() ?
+                        "§a∞" : "§e" + entry.getStock();
+                    graphics.drawString(this.font, status, x + 365, npcShopY + 2, COLOR_TEXT, false);
+
+                    npcShopY += 14;
+                    shown++;
+                }
+            }
+
+            if (shopItems.size() > 3) {
+                graphics.drawString(this.font, "§7+" + (shopItems.size() - 3) + " mehr...",
+                    x + 270, npcShopY, COLOR_TEXT_GRAY, false);
+            }
+        } else {
+            graphics.drawString(this.font, "§7Kein NPC Shop", x + 270, npcShopY, COLOR_TEXT_GRAY, false);
+        }
+
         // Bottom Info
         int usedSlots = warehouse.getUsedSlots();
         int totalSlots = slots.length;
@@ -517,6 +629,10 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         WarehouseBlockEntity warehouse = menu.getWarehouse();
         if (warehouse == null) return;
 
+        // Clear clickable areas at start of render
+        clickableNPCs.clear();
+
+        // Left Panel: Verknüpfte Verkäufer
         graphics.drawString(this.font, "§lVERKNÜPFTE VERKÄUFER", x + 10, y + 35, COLOR_TEXT, false);
 
         List<UUID> sellers = warehouse.getLinkedSellers();
@@ -531,26 +647,21 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
 
             graphics.drawString(this.font, "✓ " + npcName, x + 15, renderY, COLOR_SUCCESS, false);
 
-            // Zeige UUID nur wenn Name nicht gefunden
-            if (npcName.contains("...")) {
-                graphics.drawString(this.font, "(UUID: " + npcName + ")",
-                    x + 150, renderY, COLOR_TEXT_GRAY, false);
-            }
-
             // Remove button area
-            int removeX = x + 350;
+            int removeX = x + 160;
             int removeY = renderY - 2;
-            if (mouseX >= removeX && mouseX <= removeX + 40 &&
-                mouseY >= removeY && mouseY <= removeY + 12) {
-                graphics.fill(removeX, removeY, removeX + 40, removeY + 12, COLOR_DANGER);
-                graphics.drawString(this.font, "[X]", removeX + 12, renderY, COLOR_TEXT, false);
+            boolean isHovered = mouseX >= removeX && mouseX <= removeX + 30 &&
+                               mouseY >= removeY && mouseY <= removeY + 12;
 
-                if (minecraft.mouseHandler.isLeftPressed()) {
-                    sendRemoveSellerPacket(sellerId);
-                }
+            if (isHovered) {
+                graphics.fill(removeX, removeY, removeX + 30, removeY + 12, COLOR_DANGER);
+                graphics.drawString(this.font, "[X]", removeX + 8, renderY, COLOR_TEXT, false);
             } else {
-                graphics.drawString(this.font, "[X]", removeX + 12, renderY, COLOR_DANGER, false);
+                graphics.drawString(this.font, "[X]", removeX + 8, renderY, COLOR_DANGER, false);
             }
+
+            // Register clickable area
+            clickableNPCs.add(new ClickableNPC(sellerId, removeX, removeY, 30, 12, true));
 
             renderY += 18;
             visibleCount++;
@@ -559,38 +670,94 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         if (sellers.isEmpty()) {
             graphics.drawString(this.font, "Keine Verkäufer verknüpft",
                 x + 15, y + 50, COLOR_TEXT_GRAY, false);
-            int helpY = y + 70;
+        }
 
-            // Anleitung zum Verknüpfen
-            graphics.drawString(this.font, "§7So verknüpfen Sie einen NPC-Verkäufer:",
-                x + 15, helpY, COLOR_TEXT_GRAY, false);
-            helpY += 12;
+        // Right Panel: Verfügbare NPCs
+        graphics.drawString(this.font, "§lVERFÜGBARE NPCS", x + 210, y + 35, COLOR_TEXT, false);
 
-            graphics.drawString(this.font, "§71. Nimm das §eWarehouse Tool §7aus dem Creative-Inventar",
-                x + 15, helpY, COLOR_TEXT_GRAY, false);
-            helpY += 12;
+        List<CustomNPCEntity> availableNpcs = getAvailableNPCs();
+        renderY = y + 50;
+        visibleCount = 0;
 
-            graphics.drawString(this.font, "§72. §eRechtsklick §7auf diesen Warehouse-Block",
-                x + 15, helpY, COLOR_TEXT_GRAY, false);
-            helpY += 12;
+        for (int i = availableNpcScrollOffset; i < availableNpcs.size() && visibleCount < AVAILABLE_NPC_VISIBLE_ROWS; i++) {
+            CustomNPCEntity npc = availableNpcs.get(i);
+            String npcName = npc.getNpcName();
 
-            graphics.drawString(this.font, "§73. §eLinksklick §7auf den NPC den Sie verknüpfen möchten",
-                x + 15, helpY, COLOR_TEXT_GRAY, false);
-            helpY += 12;
+            // Add button area
+            int addX = x + 215;
+            int addY = renderY - 2;
+            boolean isHovered = mouseX >= addX && mouseX <= addX + 160 &&
+                               mouseY >= addY && mouseY <= addY + 12;
 
-            graphics.drawString(this.font, "§74. Der NPC verkauft dann Items aus diesem Warehouse",
-                x + 15, helpY, COLOR_TEXT_GRAY, false);
+            if (isHovered) {
+                graphics.fill(addX, addY, addX + 160, addY + 12, COLOR_ACCENT);
+                graphics.drawString(this.font, "+ " + npcName, addX + 5, renderY, COLOR_TEXT, false);
+            } else {
+                graphics.drawString(this.font, "+ " + npcName, addX + 5, renderY, COLOR_TEXT, false);
+            }
+
+            // Register clickable area
+            clickableNPCs.add(new ClickableNPC(npc.getUUID(), addX, addY, 160, 12, false));
+
+            renderY += 18;
+            visibleCount++;
+        }
+
+        if (availableNpcs.isEmpty()) {
+            graphics.drawString(this.font, "Alle NPCs sind verknüpft",
+                x + 215, y + 50, COLOR_TEXT_GRAY, false);
         }
 
         // Bottom info
-        graphics.drawString(this.font, "Verkäufer: " + sellers.size(),
-            x + 300, y + 215, COLOR_TEXT_GRAY, false);
+        graphics.drawString(this.font, "Verknüpft: " + sellers.size(),
+            x + 10, y + 215, COLOR_TEXT_GRAY, false);
+        graphics.drawString(this.font, "Verfügbar: " + availableNpcs.size(),
+            x + 210, y + 215, COLOR_TEXT_GRAY, false);
     }
 
     private void sendRemoveSellerPacket(UUID sellerId) {
         WarehouseNetworkHandler.INSTANCE.sendToServer(
             new RemoveSellerPacket(menu.getBlockPos(), sellerId)
         );
+    }
+
+    private void sendAddSellerPacket(UUID sellerId) {
+        WarehouseNetworkHandler.INSTANCE.sendToServer(
+            new AddSellerPacket(menu.getBlockPos(), sellerId)
+        );
+    }
+
+    /**
+     * Gibt alle verfügbaren NPCs zurück, die nicht mit einem Warehouse verknüpft sind
+     */
+    private List<CustomNPCEntity> getAvailableNPCs() {
+        List<CustomNPCEntity> availableNpcs = new ArrayList<>();
+        if (minecraft.level == null) return availableNpcs;
+
+        WarehouseBlockEntity warehouse = menu.getWarehouse();
+        if (warehouse == null) return availableNpcs;
+
+        // Hole die Liste der bereits verknüpften Seller
+        List<UUID> linkedSellers = warehouse.getLinkedSellers();
+
+        // Sammle alle Custom NPCs in der Welt
+        for (var entity : minecraft.level.entitiesForRendering()) {
+            if (entity instanceof CustomNPCEntity npc) {
+                // Cache den NPC-Namen für spätere Verwendung
+                ClientWarehouseNPCCache.putNPC(npc.getUUID(), npc.getNpcName());
+
+                // Prüfe ob NPC bereits mit DIESEM Warehouse verknüpft ist
+                // Verwende die Warehouse-Liste als Source of Truth, nicht die NPC-Daten
+                if (!linkedSellers.contains(npc.getUUID())) {
+                    availableNpcs.add(npc);
+                }
+            }
+        }
+
+        // Sortiere nach Namen für bessere Übersicht
+        availableNpcs.sort((a, b) -> a.getNpcName().compareToIgnoreCase(b.getNpcName()));
+
+        return availableNpcs;
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -821,9 +988,344 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         return false;
     }
 
+    /**
+     * Plant ein GUI-Refresh nach kurzer Zeit ein, damit Server-Daten synchronisiert werden können
+     */
+    private void scheduleRefresh() {
+        // Schedule refresh after 5 ticks to allow server sync
+        new Thread(() -> {
+            try {
+                Thread.sleep(250); // 250ms delay for server sync
+            } catch (InterruptedException e) {
+                // Ignore
+            }
+            // Execute on main thread
+            minecraft.execute(() -> {
+                if (this.menu != null && this.menu.getWarehouse() != null) {
+                    initTabComponents();
+                }
+            });
+        }).start();
+    }
+
+    /**
+     * Spezielle Refresh-Methode für Item-Hinzufügung mit längerer Verzögerung
+     */
+    private void scheduleRefreshForItemAddition() {
+        new Thread(() -> {
+            try {
+                Thread.sleep(500); // Längere Verzögerung für Item-Addition
+            } catch (InterruptedException e) {
+                // Ignore
+            }
+            // Execute on main thread - kompletter Refresh
+            minecraft.execute(() -> {
+                if (this.menu != null && this.menu.getWarehouse() != null) {
+                    // Deselektiere aktuellen Slot
+                    selectedSlotIndex = -1;
+                    // Setze Scroll-Offset zurück
+                    itemScrollOffset = 0;
+                    // Reinitialize components
+                    init();
+                }
+            });
+        }).start();
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // ITEM SELECTION OVERLAY
+    // ═══════════════════════════════════════════════════════════
+
+    private void openItemSelection() {
+        WarehouseBlockEntity warehouse = menu.getWarehouse();
+        if (warehouse == null) return;
+
+        // Prüfe ob mindestens ein Verkäufer verknüpft ist
+        if (warehouse.getLinkedSellers().isEmpty()) {
+            minecraft.player.sendSystemMessage(Component.literal(
+                "§cFehler: Es muss mindestens ein Verkäufer-NPC verknüpft sein, bevor Items hinzugefügt werden können!"));
+            return;
+        }
+
+        showItemSelection = true;
+        itemSelectionScrollOffset = 0;
+        filteredItems = new ArrayList<>(allItems);
+
+        // Create search field
+        int x = (width - 300) / 2;
+        int y = (height - 400) / 2;
+        itemSearchField = new EditBox(this.font, x + 10, y + 38, 280, 20, Component.literal("Suche"));
+        itemSearchField.setMaxLength(50);
+        itemSearchField.setValue("");
+        itemSearchField.setResponder(this::filterItems);
+        itemSearchField.setBordered(true);
+        itemSearchField.setTextColor(0xFFFFFFFF);
+        itemSearchField.setTextColorUneditable(0xFFAAAAAA);
+        // Set focus on search field
+        this.setFocused(itemSearchField);
+    }
+
+    private void closeItemSelection() {
+        showItemSelection = false;
+        itemSearchField = null;
+    }
+
+    private void filterItems(String searchText) {
+        if (searchText == null || searchText.trim().isEmpty()) {
+            filteredItems = new ArrayList<>(allItems);
+        } else {
+            String search = searchText.toLowerCase();
+            filteredItems = allItems.stream()
+                .filter(item -> item.getDescription().getString().toLowerCase().contains(search))
+                .toList();
+        }
+        itemSelectionScrollOffset = 0;
+    }
+
+    private void renderItemSelectionOverlay(GuiGraphics graphics, int mouseX, int mouseY) {
+        // Dark overlay
+        graphics.fill(0, 0, width, height, 0xAA000000);
+
+        // Dialog box
+        int dialogWidth = 300;
+        int dialogHeight = 400;
+        int x = (width - dialogWidth) / 2;
+        int y = (height - dialogHeight) / 2;
+
+        // Background
+        graphics.fill(x, y, x + dialogWidth, y + dialogHeight, COLOR_BG);
+        graphics.fill(x, y, x + dialogWidth, y + 1, COLOR_BORDER);
+        graphics.fill(x, y + dialogHeight - 1, x + dialogWidth, y + dialogHeight, COLOR_BORDER);
+        graphics.fill(x, y, x + 1, y + dialogHeight, COLOR_BORDER);
+        graphics.fill(x + dialogWidth - 1, y, x + dialogWidth, y + dialogHeight, COLOR_BORDER);
+
+        // Title
+        graphics.drawString(this.font, "§lItem auswählen", x + 10, y + 10, COLOR_TEXT, false);
+
+        // "Suche:" Label
+        graphics.drawString(this.font, "Suche:", x + 10, y + 25, COLOR_TEXT_GRAY, false);
+
+        // Search field
+        if (itemSearchField != null) {
+            itemSearchField.render(graphics, mouseX, mouseY, 0);
+        }
+
+        // Item list
+        int listY = y + 55;
+        int listHeight = dialogHeight - 115;
+        int itemHeight = 20;
+        int visibleRows = listHeight / itemHeight;
+
+        graphics.enableScissor(x + 5, listY, x + dialogWidth - 5, listY + listHeight);
+
+        for (int i = itemSelectionScrollOffset; i < Math.min(itemSelectionScrollOffset + visibleRows, filteredItems.size()); i++) {
+            Item item = filteredItems.get(i);
+            int itemY = listY + ((i - itemSelectionScrollOffset) * itemHeight);
+
+            boolean isHovered = mouseX >= x + 10 && mouseX <= x + dialogWidth - 10 &&
+                               mouseY >= itemY && mouseY <= itemY + itemHeight;
+
+            if (isHovered) {
+                graphics.fill(x + 10, itemY, x + dialogWidth - 10, itemY + itemHeight, COLOR_ACCENT);
+            }
+
+            // Render item icon
+            graphics.renderItem(new ItemStack(item), x + 12, itemY + 2);
+
+            // Render item name
+            graphics.drawString(this.font, item.getDescription().getString(), x + 32, itemY + 6, COLOR_TEXT, false);
+        }
+
+        graphics.disableScissor();
+
+        // Scroll indicators
+        if (itemSelectionScrollOffset > 0) {
+            graphics.drawString(this.font, "▲", x + dialogWidth - 20, listY + 5, COLOR_TEXT, false);
+        }
+        if (itemSelectionScrollOffset + visibleRows < filteredItems.size()) {
+            graphics.drawString(this.font, "▼", x + dialogWidth - 20, listY + listHeight - 15, COLOR_TEXT, false);
+        }
+
+        // Close button
+        int closeX = x + dialogWidth - 60;
+        int closeY = y + dialogHeight - 35;
+        boolean closeHovered = mouseX >= closeX && mouseX <= closeX + 50 && mouseY >= closeY && mouseY <= closeY + 20;
+        if (closeHovered) {
+            graphics.fill(closeX, closeY, closeX + 50, closeY + 20, COLOR_DANGER);
+        }
+        graphics.drawString(this.font, "Abbrechen", closeX + 5, closeY + 6, COLOR_TEXT, false);
+
+        // Item count
+        graphics.drawString(this.font, filteredItems.size() + " Items", x + 10, y + dialogHeight - 25, COLOR_TEXT_GRAY, false);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        // Handle item selection overlay clicks
+        if (showItemSelection) {
+            if (itemSearchField != null && itemSearchField.mouseClicked(mouseX, mouseY, button)) {
+                return true;
+            }
+
+            int dialogWidth = 300;
+            int dialogHeight = 400;
+            int x = (width - dialogWidth) / 2;
+            int y = (height - dialogHeight) / 2;
+
+            // Close button
+            int closeX = x + dialogWidth - 60;
+            int closeY = y + dialogHeight - 35;
+            if (mouseX >= closeX && mouseX <= closeX + 50 && mouseY >= closeY && mouseY <= closeY + 20) {
+                closeItemSelection();
+                return true;
+            }
+
+            // Item list clicks
+            int listY = y + 55;
+            int listHeight = dialogHeight - 115;
+            int itemHeight = 20;
+            int visibleRows = listHeight / itemHeight;
+
+            for (int i = itemSelectionScrollOffset; i < Math.min(itemSelectionScrollOffset + visibleRows, filteredItems.size()); i++) {
+                Item item = filteredItems.get(i);
+                int itemY = listY + ((i - itemSelectionScrollOffset) * itemHeight);
+
+                if (mouseX >= x + 10 && mouseX <= x + dialogWidth - 10 &&
+                    mouseY >= itemY && mouseY <= itemY + itemHeight) {
+                    // Item selected!
+                    sendAddItemPacket(item);
+                    closeItemSelection();
+                    // Force GUI refresh with longer delay for item addition
+                    scheduleRefreshForItemAddition();
+                    return true;
+                }
+            }
+
+            return true; // Consume all clicks when overlay is open
+        }
+
+        // Only handle left clicks for normal GUI
+        if (button != 0) {
+            return super.mouseClicked(mouseX, mouseY, button);
+        }
+
+        // Check if we're in the SELLERS tab
+        if (currentTab == Tab.SELLERS) {
+            // Check all clickable NPC areas
+            for (ClickableNPC clickable : clickableNPCs) {
+                if (clickable.contains((int) mouseX, (int) mouseY)) {
+                    if (clickable.isRemove) {
+                        // Remove seller
+                        sendRemoveSellerPacket(clickable.npcId);
+                        minecraft.getSoundManager().play(
+                            net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(
+                                net.minecraft.sounds.SoundEvents.UI_BUTTON_CLICK, 1.0F
+                            )
+                        );
+                        // Refresh GUI after short delay to allow server sync
+                        scheduleRefresh();
+                    } else {
+                        // Add seller
+                        sendAddSellerPacket(clickable.npcId);
+                        availableNpcScrollOffset = 0;
+                        minecraft.getSoundManager().play(
+                            net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(
+                                net.minecraft.sounds.SoundEvents.UI_BUTTON_CLICK, 1.0F
+                            )
+                        );
+                        // Refresh GUI after short delay to allow server sync
+                        scheduleRefresh();
+                    }
+                    return true;
+                }
+            }
+        }
+
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        if (showItemSelection) {
+            int dialogWidth = 300;
+            int dialogHeight = 400;
+            int x = (width - dialogWidth) / 2;
+            int y = (height - dialogHeight) / 2;
+            int listY = y + 55;
+            int listHeight = dialogHeight - 115;
+            int itemHeight = 20;
+            int visibleRows = listHeight / itemHeight;
+
+            if (mouseX >= x && mouseX <= x + dialogWidth && mouseY >= listY && mouseY <= listY + listHeight) {
+                if (delta > 0 && itemSelectionScrollOffset > 0) {
+                    itemSelectionScrollOffset--;
+                } else if (delta < 0 && itemSelectionScrollOffset < filteredItems.size() - visibleRows) {
+                    itemSelectionScrollOffset++;
+                }
+                return true;
+            }
+        }
+        return super.mouseScrolled(mouseX, mouseY, delta);
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (showItemSelection && itemSearchField != null) {
+            if (keyCode == 256) { // ESC
+                closeItemSelection();
+                return true;
+            }
+            if (itemSearchField.keyPressed(keyCode, scanCode, modifiers)) {
+                return true;
+            }
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public boolean charTyped(char codePoint, int modifiers) {
+        if (showItemSelection && itemSearchField != null) {
+            if (itemSearchField.charTyped(codePoint, modifiers)) {
+                return true;
+            }
+        }
+        return super.charTyped(codePoint, modifiers);
+    }
+
+    private void sendAddItemPacket(Item item) {
+        String itemId = BuiltInRegistries.ITEM.getKey(item).toString();
+        WarehouseNetworkHandler.INSTANCE.sendToServer(
+            new AddItemToSlotPacket(menu.getBlockPos(), itemId)
+        );
+    }
+
     // ═══════════════════════════════════════════════════════════
     // HELPER METHODS
     // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Gibt die Shop-Entries des ersten verknüpften Verkäufer-NPCs zurück
+     */
+    @Nullable
+    private List<NPCData.ShopEntry> getLinkedNPCShopItems() {
+        WarehouseBlockEntity warehouse = menu.getWarehouse();
+        if (warehouse == null || minecraft.level == null) return null;
+
+        List<UUID> sellers = warehouse.getLinkedSellers();
+        if (sellers.isEmpty()) return null;
+
+        // Hole ersten Verkäufer-NPC
+        UUID firstSeller = sellers.get(0);
+        for (var entity : minecraft.level.entitiesForRendering()) {
+            if (entity instanceof CustomNPCEntity npc) {
+                if (npc.getUUID().equals(firstSeller)) {
+                    return npc.getNpcData().getBuyShop().getEntries();
+                }
+            }
+        }
+
+        return null;
+    }
 
     /**
      * Versucht den NPC-Namen aus einer UUID abzurufen
@@ -831,9 +1333,18 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
     private String getNPCName(UUID npcUUID) {
         if (minecraft.level == null) return "Unknown";
 
-        // Suche alle Custom NPCs in der Welt
+        // Versuche zuerst aus dem Cache
+        String cachedName = ClientWarehouseNPCCache.getNPCName(npcUUID);
+        if (cachedName != null) {
+            return cachedName;
+        }
+
+        // Suche alle Custom NPCs in der Welt und cache sie
         for (var entity : minecraft.level.entitiesForRendering()) {
             if (entity instanceof CustomNPCEntity npc) {
+                // Cache alle NPCs die wir finden
+                ClientWarehouseNPCCache.putNPC(npc.getUUID(), npc.getNpcName());
+
                 if (npc.getNpcData().getNpcUUID().equals(npcUUID)) {
                     return npc.getNpcName();
                 }
