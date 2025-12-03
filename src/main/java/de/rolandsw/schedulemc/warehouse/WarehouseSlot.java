@@ -65,7 +65,7 @@ public class WarehouseSlot {
     // === STATUS ===
 
     public boolean isEmpty() {
-        return currentStock == 0;
+        return allowedItem == null;
     }
 
     public boolean isFull() {
