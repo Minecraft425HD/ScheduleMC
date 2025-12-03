@@ -960,6 +960,30 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         }).start();
     }
 
+    /**
+     * Spezielle Refresh-Methode für Item-Hinzufügung mit längerer Verzögerung
+     */
+    private void scheduleRefreshForItemAddition() {
+        new Thread(() -> {
+            try {
+                Thread.sleep(500); // Längere Verzögerung für Item-Addition
+            } catch (InterruptedException e) {
+                // Ignore
+            }
+            // Execute on main thread - kompletter Refresh
+            minecraft.execute(() -> {
+                if (this.menu != null && this.menu.getWarehouse() != null) {
+                    // Deselektiere aktuellen Slot
+                    selectedSlotIndex = -1;
+                    // Setze Scroll-Offset zurück
+                    itemScrollOffset = 0;
+                    // Reinitialize components
+                    init();
+                }
+            });
+        }).start();
+    }
+
     // ═══════════════════════════════════════════════════════════
     // ITEM SELECTION OVERLAY
     // ═══════════════════════════════════════════════════════════
@@ -972,10 +996,15 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         // Create search field
         int x = (width - 300) / 2;
         int y = (height - 400) / 2;
-        itemSearchField = new EditBox(this.font, x + 10, y + 30, 280, 20, Component.literal("Search"));
+        itemSearchField = new EditBox(this.font, x + 10, y + 38, 280, 20, Component.literal("Suche"));
         itemSearchField.setMaxLength(50);
         itemSearchField.setValue("");
         itemSearchField.setResponder(this::filterItems);
+        itemSearchField.setBordered(true);
+        itemSearchField.setTextColor(0xFFFFFFFF);
+        itemSearchField.setTextColorUneditable(0xFFAAAAAA);
+        // Set focus on search field
+        this.setFocused(itemSearchField);
     }
 
     private void closeItemSelection() {
@@ -1014,6 +1043,9 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
 
         // Title
         graphics.drawString(this.font, "§lItem auswählen", x + 10, y + 10, COLOR_TEXT, false);
+
+        // "Suche:" Label
+        graphics.drawString(this.font, "Suche:", x + 10, y + 25, COLOR_TEXT_GRAY, false);
 
         // Search field
         if (itemSearchField != null) {
@@ -1105,7 +1137,8 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
                     // Item selected!
                     sendAddItemPacket(item);
                     closeItemSelection();
-                    scheduleRefresh();
+                    // Force GUI refresh with longer delay for item addition
+                    scheduleRefreshForItemAddition();
                     return true;
                 }
             }
