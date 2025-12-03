@@ -99,7 +99,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
     private boolean showItemSelection = false;
     private List<Item> allItems = new ArrayList<>();
     private List<Item> filteredItems = new ArrayList<>();
-    private int itemScrollOffset = 0;
+    private int itemSelectionScrollOffset = 0;
     private static final int ITEM_SELECTION_VISIBLE_ROWS = 10;
     private EditBox itemSearchField;
 
@@ -966,7 +966,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
 
     private void openItemSelection() {
         showItemSelection = true;
-        itemScrollOffset = 0;
+        itemSelectionScrollOffset = 0;
         filteredItems = new ArrayList<>(allItems);
 
         // Create search field
@@ -992,7 +992,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
                 .filter(item -> item.getDescription().getString().toLowerCase().contains(search))
                 .toList();
         }
-        itemScrollOffset = 0;
+        itemSelectionScrollOffset = 0;
     }
 
     private void renderItemSelectionOverlay(GuiGraphics graphics, int mouseX, int mouseY) {
@@ -1028,9 +1028,9 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
 
         graphics.enableScissor(x + 5, listY, x + dialogWidth - 5, listY + listHeight);
 
-        for (int i = itemScrollOffset; i < Math.min(itemScrollOffset + visibleRows, filteredItems.size()); i++) {
+        for (int i = itemSelectionScrollOffset; i < Math.min(itemSelectionScrollOffset + visibleRows, filteredItems.size()); i++) {
             Item item = filteredItems.get(i);
-            int itemY = listY + ((i - itemScrollOffset) * itemHeight);
+            int itemY = listY + ((i - itemSelectionScrollOffset) * itemHeight);
 
             boolean isHovered = mouseX >= x + 10 && mouseX <= x + dialogWidth - 10 &&
                                mouseY >= itemY && mouseY <= itemY + itemHeight;
@@ -1049,10 +1049,10 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         graphics.disableScissor();
 
         // Scroll indicators
-        if (itemScrollOffset > 0) {
+        if (itemSelectionScrollOffset > 0) {
             graphics.drawString(this.font, "▲", x + dialogWidth - 20, listY + 5, COLOR_TEXT, false);
         }
-        if (itemScrollOffset + visibleRows < filteredItems.size()) {
+        if (itemSelectionScrollOffset + visibleRows < filteredItems.size()) {
             graphics.drawString(this.font, "▼", x + dialogWidth - 20, listY + listHeight - 15, COLOR_TEXT, false);
         }
 
@@ -1096,9 +1096,9 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
             int itemHeight = 20;
             int visibleRows = listHeight / itemHeight;
 
-            for (int i = itemScrollOffset; i < Math.min(itemScrollOffset + visibleRows, filteredItems.size()); i++) {
+            for (int i = itemSelectionScrollOffset; i < Math.min(itemSelectionScrollOffset + visibleRows, filteredItems.size()); i++) {
                 Item item = filteredItems.get(i);
-                int itemY = listY + ((i - itemScrollOffset) * itemHeight);
+                int itemY = listY + ((i - itemSelectionScrollOffset) * itemHeight);
 
                 if (mouseX >= x + 10 && mouseX <= x + dialogWidth - 10 &&
                     mouseY >= itemY && mouseY <= itemY + itemHeight) {
@@ -1166,10 +1166,10 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
             int visibleRows = listHeight / itemHeight;
 
             if (mouseX >= x && mouseX <= x + dialogWidth && mouseY >= listY && mouseY <= listY + listHeight) {
-                if (delta > 0 && itemScrollOffset > 0) {
-                    itemScrollOffset--;
-                } else if (delta < 0 && itemScrollOffset < filteredItems.size() - visibleRows) {
-                    itemScrollOffset++;
+                if (delta > 0 && itemSelectionScrollOffset > 0) {
+                    itemSelectionScrollOffset--;
+                } else if (delta < 0 && itemSelectionScrollOffset < filteredItems.size() - visibleRows) {
+                    itemSelectionScrollOffset++;
                 }
                 return true;
             }

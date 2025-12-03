@@ -81,8 +81,8 @@ public class AddItemToSlotPacket {
                 return;
             }
 
-            // Setze das Item im Slot
-            slots[emptySlotIndex].setAllowedItem(item);
+            // Setze das Item im Slot (mit 0 Stock, nur um das allowed item zu setzen)
+            slots[emptySlotIndex].addStock(item, 0);
             warehouse.setChanged();
             warehouse.syncToClient();
 
