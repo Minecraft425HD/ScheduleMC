@@ -121,37 +121,32 @@ public class AddSellerPacket {
             return 0;
         }
 
-        // WICHTIG: Konvertiere ALLE Shop-Items zu Lager-Items (unlimited=false)
-        // Erstelle Kopie der Entries, dann baue Shop neu auf
-        List<NPCData.ShopEntry> entriesToConvert = new ArrayList<>(originalEntries);
-        shop.clear();
+        // Erstelle Kopie der Entries
+        List<NPCData.ShopEntry> entriesToProcess = new ArrayList<>(originalEntries);
 
-        List<Item> shopItems = new ArrayList<>();
+        // Liste für Warehouse-Items (nur Lager-Items, keine unlimited!)
+        List<Item> warehouseItems = new ArrayList<>();
 
-        for (NPCData.ShopEntry entry : entriesToConvert) {
+        // Verarbeite jedes Item - behalte unlimited Flag bei!
+        for (NPCData.ShopEntry entry : entriesToProcess) {
             if (!entry.getItem().isEmpty()) {
-                shopItems.add(entry.getItem().getItem());
-
-                // Füge Item als Lager-Item wieder hinzu
-                shop.addEntry(new NPCData.ShopEntry(
-                    entry.getItem(),
-                    entry.getPrice(),
-                    false, // unlimited=false -> Lager-Item!
-                    0      // stock=0 (wird vom Warehouse verwaltet)
-                ));
+                // Nur Lager-Items (unlimited=false) sollen zum Warehouse hinzugefügt werden
+                if (!entry.isUnlimited()) {
+                    warehouseItems.add(entry.getItem().getItem());
+                }
             }
         }
 
         WarehouseSlot[] slots = warehouse.getSlots();
         int itemsAdded = 0;
 
-        // Füge alle Shop-Items zum Warehouse hinzu (mit Stock 0)
-        for (Item shopItem : shopItems) {
+        // Füge nur Lager-Items zum Warehouse hinzu (unlimited Items NICHT!)
+        for (Item warehouseItem : warehouseItems) {
             boolean existsInWarehouse = false;
 
             // Prüfe ob Item schon im Warehouse ist
             for (WarehouseSlot slot : slots) {
-                if (!slot.isEmpty() && slot.getAllowedItem() == shopItem) {
+                if (!slot.isEmpty() && slot.getAllowedItem() == warehouseItem) {
                     existsInWarehouse = true;
                     break;
                 }
@@ -161,7 +156,7 @@ public class AddSellerPacket {
             if (!existsInWarehouse) {
                 for (WarehouseSlot slot : slots) {
                     if (slot.isEmpty()) {
-                        slot.addStock(shopItem, 0); // Füge mit 0 Stock hinzu
+                        slot.addStock(warehouseItem, 0); // Füge mit 0 Stock hinzu
                         itemsAdded++;
                         break;
                     }
