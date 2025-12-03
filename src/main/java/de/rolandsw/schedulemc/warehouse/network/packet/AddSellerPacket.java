@@ -1,16 +1,21 @@
 package de.rolandsw.schedulemc.warehouse.network.packet;
 
+import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity;
+import de.rolandsw.schedulemc.warehouse.WarehouseSlot;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.network.NetworkEvent;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -88,14 +93,71 @@ public class AddSellerPacket {
             npc.getNpcData().setAssignedWarehouse(msg.pos);
             warehouse.addSeller(msg.sellerId);
             warehouse.setChanged();
+
+            // WICHTIG: Synchronisiere Shop-Items zum Warehouse
+            int itemsAdded = syncNPCShopToWarehouse(npc, warehouse);
+
             warehouse.syncToClient(); // Wichtig: Synchronisiere zum Client damit GUI sich aktualisiert
 
             player.sendSystemMessage(
                 Component.literal("§a✓ NPC mit Warehouse verknüpft!")
                     .append(Component.literal("\n§7NPC: §e" + npc.getNpcName()))
                     .append(Component.literal("\n§7Warehouse: §f" + msg.pos.toShortString()))
+                    .append(Component.literal("\n§7Shop-Items hinzugefügt: §e" + itemsAdded))
             );
         });
         ctx.get().setPacketHandled(true);
+    }
+
+    /**
+     * Synchronisiert die Shop-Items des NPCs zum Warehouse
+     * @return Anzahl der hinzugefügten Items
+     */
+    private static int syncNPCShopToWarehouse(CustomNPCEntity npc, WarehouseBlockEntity warehouse) {
+        // Hole Shop-Items des NPCs
+        List<NPCData.ShopEntry> shopEntries = npc.getNpcData().getBuyShop().getEntries();
+        if (shopEntries.isEmpty()) {
+            return 0;
+        }
+
+        List<Item> shopItems = new ArrayList<>();
+        for (NPCData.ShopEntry entry : shopEntries) {
+            if (!entry.getItem().isEmpty()) {
+                shopItems.add(entry.getItem().getItem());
+            }
+        }
+
+        WarehouseSlot[] slots = warehouse.getSlots();
+        int itemsAdded = 0;
+
+        // Füge alle Shop-Items zum Warehouse hinzu (mit Stock 0)
+        for (Item shopItem : shopItems) {
+            boolean existsInWarehouse = false;
+
+            // Prüfe ob Item schon im Warehouse ist
+            for (WarehouseSlot slot : slots) {
+                if (!slot.isEmpty() && slot.getAllowedItem() == shopItem) {
+                    existsInWarehouse = true;
+                    break;
+                }
+            }
+
+            // Wenn nicht vorhanden: Füge zu einem leeren Slot hinzu
+            if (!existsInWarehouse) {
+                for (WarehouseSlot slot : slots) {
+                    if (slot.isEmpty()) {
+                        slot.addStock(shopItem, 0); // Füge mit 0 Stock hinzu
+                        itemsAdded++;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (itemsAdded > 0) {
+            warehouse.setChanged();
+        }
+
+        return itemsAdded;
     }
 }
