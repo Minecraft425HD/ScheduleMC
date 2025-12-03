@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.warehouse.screen;
 import com.mojang.blaze3d.systems.RenderSystem;
 import de.rolandsw.schedulemc.economy.ShopAccountManager;
 import de.rolandsw.schedulemc.economy.ShopAccount;
+import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity;
 import de.rolandsw.schedulemc.warehouse.WarehouseSlot;
@@ -563,6 +564,48 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
             }
         }
 
+        // NPC Shop Items Section (unten rechts)
+        int npcShopY = y + 160;
+        graphics.drawString(this.font, "§l§eNPC SHOP", x + 270, npcShopY, COLOR_WARNING, false);
+        npcShopY += 12;
+
+        List<NPCData.ShopEntry> shopItems = getLinkedNPCShopItems();
+        if (shopItems != null && !shopItems.isEmpty()) {
+            // Zeige erste 3 Shop-Items als Beispiel
+            int shown = 0;
+            for (NPCData.ShopEntry entry : shopItems) {
+                if (shown >= 3) break;
+
+                ItemStack item = entry.getItem();
+                if (!item.isEmpty()) {
+                    // Render icon
+                    graphics.renderItem(item, x + 270, npcShopY - 2);
+
+                    // Item name (gekürzt)
+                    String itemName = item.getDescription().getString();
+                    if (itemName.length() > 10) {
+                        itemName = itemName.substring(0, 10) + "...";
+                    }
+                    graphics.drawString(this.font, itemName, x + 290, npcShopY + 2, COLOR_TEXT_GRAY, false);
+
+                    // Status: Unlimited oder Stock
+                    String status = entry.isUnlimited() ?
+                        "§a∞" : "§e" + entry.getStock();
+                    graphics.drawString(this.font, status, x + 365, npcShopY + 2, COLOR_TEXT, false);
+
+                    npcShopY += 14;
+                    shown++;
+                }
+            }
+
+            if (shopItems.size() > 3) {
+                graphics.drawString(this.font, "§7+" + (shopItems.size() - 3) + " mehr...",
+                    x + 270, npcShopY, COLOR_TEXT_GRAY, false);
+            }
+        } else {
+            graphics.drawString(this.font, "§7Kein NPC Shop", x + 270, npcShopY, COLOR_TEXT_GRAY, false);
+        }
+
         // Bottom Info
         int usedSlots = warehouse.getUsedSlots();
         int totalSlots = slots.length;
@@ -989,6 +1032,16 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
     // ═══════════════════════════════════════════════════════════
 
     private void openItemSelection() {
+        WarehouseBlockEntity warehouse = menu.getWarehouse();
+        if (warehouse == null) return;
+
+        // Prüfe ob mindestens ein Verkäufer verknüpft ist
+        if (warehouse.getLinkedSellers().isEmpty()) {
+            minecraft.player.sendSystemMessage(Component.literal(
+                "§cFehler: Es muss mindestens ein Verkäufer-NPC verknüpft sein, bevor Items hinzugefügt werden können!"));
+            return;
+        }
+
         showItemSelection = true;
         itemSelectionScrollOffset = 0;
         filteredItems = new ArrayList<>(allItems);
@@ -1244,6 +1297,30 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
     // ═══════════════════════════════════════════════════════════
     // HELPER METHODS
     // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Gibt die Shop-Entries des ersten verknüpften Verkäufer-NPCs zurück
+     */
+    @Nullable
+    private List<NPCData.ShopEntry> getLinkedNPCShopItems() {
+        WarehouseBlockEntity warehouse = menu.getWarehouse();
+        if (warehouse == null || minecraft.level == null) return null;
+
+        List<UUID> sellers = warehouse.getLinkedSellers();
+        if (sellers.isEmpty()) return null;
+
+        // Hole ersten Verkäufer-NPC
+        UUID firstSeller = sellers.get(0);
+        for (var entity : minecraft.level.getAllEntities()) {
+            if (entity instanceof CustomNPCEntity npc) {
+                if (npc.getUUID().equals(firstSeller)) {
+                    return npc.getNpcData().getBuyShop().getEntries();
+                }
+            }
+        }
+
+        return null;
+    }
 
     /**
      * Versucht den NPC-Namen aus einer UUID abzurufen
