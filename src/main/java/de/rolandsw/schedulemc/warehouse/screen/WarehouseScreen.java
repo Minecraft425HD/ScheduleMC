@@ -79,6 +79,8 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
     // Seller Tab - Scrolling
     private int sellerScrollOffset = 0;
     private static final int SELLER_VISIBLE_ROWS = 8;
+    private int availableNpcScrollOffset = 0;
+    private static final int AVAILABLE_NPC_VISIBLE_ROWS = 6;
 
     // Stats Tab - Scrolling
     private int statsScrollOffset = 0;
@@ -279,27 +281,42 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
 
         List<UUID> sellers = warehouse.getLinkedSellers();
 
-        // Scroll Buttons
+        // Scroll Buttons für verknüpfte Seller
         if (sellers.size() > SELLER_VISIBLE_ROWS) {
             addRenderableWidget(Button.builder(Component.literal("▲"), button -> {
                 if (sellerScrollOffset > 0) {
                     sellerScrollOffset--;
                     initTabComponents();
                 }
-            }).bounds(x + imageWidth - 25, y + 35, 15, 15).build());
+            }).bounds(x + 185, y + 35, 15, 15).build());
 
             addRenderableWidget(Button.builder(Component.literal("▼"), button -> {
                 if (sellerScrollOffset < sellers.size() - SELLER_VISIBLE_ROWS) {
                     sellerScrollOffset++;
                     initTabComponents();
                 }
-            }).bounds(x + imageWidth - 25, y + 165, 15, 15).build());
+            }).bounds(x + 185, y + 165, 15, 15).build());
         }
 
-        // Add Seller Button
-        addRenderableWidget(Button.builder(Component.literal("+ Seller hinzufügen"), button -> {
-            minecraft.player.sendSystemMessage(Component.literal("§eUse /warehouse addseller <player>"));
-        }).bounds(x + 10, y + 210, 150, 20).build());
+        // Get available NPCs
+        List<CustomNPCEntity> availableNpcs = getAvailableNPCs();
+
+        // Scroll Buttons für verfügbare NPCs
+        if (availableNpcs.size() > AVAILABLE_NPC_VISIBLE_ROWS) {
+            addRenderableWidget(Button.builder(Component.literal("▲"), button -> {
+                if (availableNpcScrollOffset > 0) {
+                    availableNpcScrollOffset--;
+                    initTabComponents();
+                }
+            }).bounds(x + imageWidth - 25, y + 35, 15, 15).build());
+
+            addRenderableWidget(Button.builder(Component.literal("▼"), button -> {
+                if (availableNpcScrollOffset < availableNpcs.size() - AVAILABLE_NPC_VISIBLE_ROWS) {
+                    availableNpcScrollOffset++;
+                    initTabComponents();
+                }
+            }).bounds(x + imageWidth - 25, y + 165, 15, 15).build());
+        }
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -517,6 +534,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         WarehouseBlockEntity warehouse = menu.getWarehouse();
         if (warehouse == null) return;
 
+        // Left Panel: Verknüpfte Verkäufer
         graphics.drawString(this.font, "§lVERKNÜPFTE VERKÄUFER", x + 10, y + 35, COLOR_TEXT, false);
 
         List<UUID> sellers = warehouse.getLinkedSellers();
@@ -531,25 +549,19 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
 
             graphics.drawString(this.font, "✓ " + npcName, x + 15, renderY, COLOR_SUCCESS, false);
 
-            // Zeige UUID nur wenn Name nicht gefunden
-            if (npcName.contains("...")) {
-                graphics.drawString(this.font, "(UUID: " + npcName + ")",
-                    x + 150, renderY, COLOR_TEXT_GRAY, false);
-            }
-
             // Remove button area
-            int removeX = x + 350;
+            int removeX = x + 160;
             int removeY = renderY - 2;
-            if (mouseX >= removeX && mouseX <= removeX + 40 &&
+            if (mouseX >= removeX && mouseX <= removeX + 30 &&
                 mouseY >= removeY && mouseY <= removeY + 12) {
-                graphics.fill(removeX, removeY, removeX + 40, removeY + 12, COLOR_DANGER);
-                graphics.drawString(this.font, "[X]", removeX + 12, renderY, COLOR_TEXT, false);
+                graphics.fill(removeX, removeY, removeX + 30, removeY + 12, COLOR_DANGER);
+                graphics.drawString(this.font, "[X]", removeX + 8, renderY, COLOR_TEXT, false);
 
                 if (minecraft.mouseHandler.isLeftPressed()) {
                     sendRemoveSellerPacket(sellerId);
                 }
             } else {
-                graphics.drawString(this.font, "[X]", removeX + 12, renderY, COLOR_DANGER, false);
+                graphics.drawString(this.font, "[X]", removeX + 8, renderY, COLOR_DANGER, false);
             }
 
             renderY += 18;
@@ -559,38 +571,88 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         if (sellers.isEmpty()) {
             graphics.drawString(this.font, "Keine Verkäufer verknüpft",
                 x + 15, y + 50, COLOR_TEXT_GRAY, false);
-            int helpY = y + 70;
+        }
 
-            // Anleitung zum Verknüpfen
-            graphics.drawString(this.font, "§7So verknüpfen Sie einen NPC-Verkäufer:",
-                x + 15, helpY, COLOR_TEXT_GRAY, false);
-            helpY += 12;
+        // Right Panel: Verfügbare NPCs
+        graphics.drawString(this.font, "§lVERFÜGBARE NPCS", x + 210, y + 35, COLOR_TEXT, false);
 
-            graphics.drawString(this.font, "§71. Nimm das §eWarehouse Tool §7aus dem Creative-Inventar",
-                x + 15, helpY, COLOR_TEXT_GRAY, false);
-            helpY += 12;
+        List<CustomNPCEntity> availableNpcs = getAvailableNPCs();
+        renderY = y + 50;
+        visibleCount = 0;
 
-            graphics.drawString(this.font, "§72. §eRechtsklick §7auf diesen Warehouse-Block",
-                x + 15, helpY, COLOR_TEXT_GRAY, false);
-            helpY += 12;
+        for (int i = availableNpcScrollOffset; i < availableNpcs.size() && visibleCount < AVAILABLE_NPC_VISIBLE_ROWS; i++) {
+            CustomNPCEntity npc = availableNpcs.get(i);
+            String npcName = npc.getNpcName();
 
-            graphics.drawString(this.font, "§73. §eLinksklick §7auf den NPC den Sie verknüpfen möchten",
-                x + 15, helpY, COLOR_TEXT_GRAY, false);
-            helpY += 12;
+            // Add button area
+            int addX = x + 215;
+            int addY = renderY - 2;
+            if (mouseX >= addX && mouseX <= addX + 160 &&
+                mouseY >= addY && mouseY <= addY + 12) {
+                graphics.fill(addX, addY, addX + 160, addY + 12, COLOR_ACCENT);
+                graphics.drawString(this.font, "+ " + npcName, addX + 5, renderY, COLOR_TEXT, false);
 
-            graphics.drawString(this.font, "§74. Der NPC verkauft dann Items aus diesem Warehouse",
-                x + 15, helpY, COLOR_TEXT_GRAY, false);
+                if (minecraft.mouseHandler.isLeftPressed()) {
+                    sendAddSellerPacket(npc.getUUID());
+                    // Reset scroll and reinit after short delay
+                    minecraft.tell(() -> {
+                        availableNpcScrollOffset = 0;
+                        initTabComponents();
+                    });
+                }
+            } else {
+                graphics.drawString(this.font, "+ " + npcName, addX + 5, renderY, COLOR_TEXT, false);
+            }
+
+            renderY += 18;
+            visibleCount++;
+        }
+
+        if (availableNpcs.isEmpty()) {
+            graphics.drawString(this.font, "Alle NPCs sind verknüpft",
+                x + 215, y + 50, COLOR_TEXT_GRAY, false);
         }
 
         // Bottom info
-        graphics.drawString(this.font, "Verkäufer: " + sellers.size(),
-            x + 300, y + 215, COLOR_TEXT_GRAY, false);
+        graphics.drawString(this.font, "Verknüpft: " + sellers.size(),
+            x + 10, y + 215, COLOR_TEXT_GRAY, false);
+        graphics.drawString(this.font, "Verfügbar: " + availableNpcs.size(),
+            x + 210, y + 215, COLOR_TEXT_GRAY, false);
     }
 
     private void sendRemoveSellerPacket(UUID sellerId) {
         WarehouseNetworkHandler.INSTANCE.sendToServer(
             new RemoveSellerPacket(menu.getBlockPos(), sellerId)
         );
+    }
+
+    private void sendAddSellerPacket(UUID sellerId) {
+        WarehouseNetworkHandler.INSTANCE.sendToServer(
+            new AddSellerPacket(menu.getBlockPos(), sellerId)
+        );
+    }
+
+    /**
+     * Gibt alle verfügbaren NPCs zurück, die nicht mit einem Warehouse verknüpft sind
+     */
+    private List<CustomNPCEntity> getAvailableNPCs() {
+        List<CustomNPCEntity> availableNpcs = new ArrayList<>();
+        if (minecraft.level == null) return availableNpcs;
+
+        // Sammle alle Custom NPCs in der Welt
+        for (var entity : minecraft.level.entitiesForRendering()) {
+            if (entity instanceof CustomNPCEntity npc) {
+                // Prüfe ob NPC bereits mit einem Warehouse verknüpft ist
+                if (npc.getNpcData().getAssignedWarehouse() == null) {
+                    availableNpcs.add(npc);
+                }
+            }
+        }
+
+        // Sortiere nach Namen für bessere Übersicht
+        availableNpcs.sort((a, b) -> a.getNpcName().compareToIgnoreCase(b.getNpcName()));
+
+        return availableNpcs;
     }
 
     // ═══════════════════════════════════════════════════════════

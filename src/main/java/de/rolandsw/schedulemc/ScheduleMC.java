@@ -38,7 +38,6 @@ import de.rolandsw.schedulemc.economy.menu.EconomyMenuTypes;
 import de.rolandsw.schedulemc.warehouse.WarehouseBlocks;
 import de.rolandsw.schedulemc.warehouse.WarehouseConfig;
 import de.rolandsw.schedulemc.warehouse.WarehouseManager;
-import de.rolandsw.schedulemc.warehouse.items.WarehouseItems;
 import de.rolandsw.schedulemc.warehouse.menu.WarehouseMenuTypes;
 import de.rolandsw.schedulemc.warehouse.network.WarehouseNetworkHandler;
 import de.rolandsw.schedulemc.economy.StateAccount;
@@ -94,7 +93,6 @@ public class ScheduleMC {
         WarehouseBlocks.BLOCKS.register(modEventBus);
         WarehouseBlocks.ITEMS.register(modEventBus);
         WarehouseBlocks.BLOCK_ENTITIES.register(modEventBus);
-        WarehouseItems.ITEMS.register(modEventBus);
         ModMenuTypes.MENUS.register(modEventBus);
         EconomyMenuTypes.MENUS.register(modEventBus);
         WarehouseMenuTypes.MENUS.register(modEventBus);
