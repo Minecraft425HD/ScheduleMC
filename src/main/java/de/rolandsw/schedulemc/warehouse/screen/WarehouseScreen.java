@@ -582,7 +582,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
                     graphics.renderItem(item, x + 270, npcShopY - 2);
 
                     // Item name (gekürzt)
-                    String itemName = item.getDescription().getString();
+                    String itemName = item.getHoverName().getString();
                     if (itemName.length() > 10) {
                         itemName = itemName.substring(0, 10) + "...";
                     }
@@ -1311,7 +1311,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
 
         // Hole ersten Verkäufer-NPC
         UUID firstSeller = sellers.get(0);
-        for (var entity : minecraft.level.getAllEntities()) {
+        for (var entity : minecraft.level.entitiesForRendering()) {
             if (entity instanceof CustomNPCEntity npc) {
                 if (npc.getUUID().equals(firstSeller)) {
                     return npc.getNpcData().getBuyShop().getEntries();
