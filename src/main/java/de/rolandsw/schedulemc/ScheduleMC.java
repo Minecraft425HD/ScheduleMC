@@ -143,10 +143,7 @@ public class ScheduleMC {
             WarehouseNetworkHandler.register();
         });
 
-        // Car Mod common setup
-        if (carMod != null) {
-            carMod.commonSetup(event);
-        }
+        // Car Mod handles its own setup via event bus (registered in Main constructor)
     }
 
     private void onEntityAttributeCreation(EntityAttributeCreationEvent event) {
@@ -165,10 +162,7 @@ public class ScheduleMC {
         ShopInvestCommand.register(event.getDispatcher());
         StateCommand.register(event.getDispatcher());
 
-        // Car Mod commands
-        if (carMod != null) {
-            carMod.onRegisterCommands(event);
-        }
+        // Car Mod handles its own commands via event bus (registered in Main.commonSetup)
     }
 
     @SubscribeEvent
