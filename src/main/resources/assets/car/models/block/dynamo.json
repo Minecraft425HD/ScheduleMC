@@ -1,0 +1,8 @@
+{
+    "parent": "block/orientable",
+    "textures": {
+        "top": "car:block/dynamo_top",
+        "front": "car:block/dynamo",
+        "side": "car:block/dynamo"
+    }
+}

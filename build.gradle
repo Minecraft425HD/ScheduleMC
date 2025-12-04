@@ -121,6 +121,11 @@ repositories {
     maven { url = 'https://maven.minecraftforge.net' }
     maven { url = 'https://maven.enginehub.org/repo/' }
     maven { url = 'https://jitpack.io' }
+    maven { url = 'https://maven.maxhenkel.de/repository/public' }
+    maven {
+        name = 'Modrinth'
+        url = 'https://api.modrinth.com/maven'
+    }
     flatDir {
         dirs 'libs'
     }
@@ -129,6 +134,15 @@ repositories {
 dependencies {
     minecraft 'net.minecraftforge:forge:1.20.1-47.4.0'
     implementation 'com.google.code.gson:gson:2.10.1'
+
+    // CoreLib for Ultimate Car Mod integration (includes tools like EntityTools, BlockPosList)
+    implementation fg.deobf('de.maxhenkel.corelib:corelib:1.20.1-1.1.1')
+
+    // Optional integrations for Car Mod - compileOnly means they're not required at runtime
+    // Users can optionally install these mods for additional features
+    compileOnly fg.deobf('maven.modrinth:jei:15.2.0.27') // JEI for 1.20.1
+    compileOnly fg.deobf('maven.modrinth:jade:11.8.0') // Jade for 1.20.1
+    compileOnly fg.deobf('maven.modrinth:the-one-probe:1.20.1-10.0.2-forge') // The One Probe for 1.20.1
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

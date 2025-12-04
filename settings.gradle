@@ -9,5 +9,6 @@ pluginManagement {
 }
 
 plugins {
-    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.7.0'
+    // Temporarily disabled for offline build
+    // id 'org.gradle.toolchains.foojay-resolver-convention' version '0.7.0'
 }

@@ -1,0 +1,12 @@
+{
+  "type": "car:blast_furnace",
+  "ingredient": {
+    "tag": "minecraft:logs"
+  },
+  "result": {
+    "item": "minecraft:charcoal"
+  },
+  "fluidamount": 100,
+  "energy": 10,
+  "duration": 200
+}
