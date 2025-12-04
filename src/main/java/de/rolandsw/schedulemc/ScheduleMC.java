@@ -47,6 +47,7 @@ import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.items.NPCItems;
 import de.rolandsw.schedulemc.npc.menu.NPCMenuTypes;
 import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
+import de.rolandsw.schedulemc.car.Main;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
@@ -75,10 +76,16 @@ public class ScheduleMC {
     private static final int SAVE_INTERVAL = 6000;
     private int tickCounter = 0;
 
+    // Car Mod integration
+    private static Main carMod;
+
     public ScheduleMC() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::onEntityAttributeCreation);
+
+        // Initialize Car Mod
+        carMod = new Main();
 
         ModItems.ITEMS.register(modEventBus);
         TobaccoItems.ITEMS.register(modEventBus);
@@ -135,6 +142,11 @@ public class ScheduleMC {
             MessageNetworkHandler.register();
             WarehouseNetworkHandler.register();
         });
+
+        // Car Mod common setup
+        if (carMod != null) {
+            carMod.commonSetup(event);
+        }
     }
 
     private void onEntityAttributeCreation(EntityAttributeCreationEvent event) {
@@ -152,6 +164,11 @@ public class ScheduleMC {
         WarehouseCommand.register(event.getDispatcher(), event.getBuildContext());
         ShopInvestCommand.register(event.getDispatcher());
         StateCommand.register(event.getDispatcher());
+
+        // Car Mod commands
+        if (carMod != null) {
+            carMod.onRegisterCommands(event);
+        }
     }
 
     @SubscribeEvent

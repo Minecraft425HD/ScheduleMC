@@ -121,6 +121,7 @@ repositories {
     maven { url = 'https://maven.minecraftforge.net' }
     maven { url = 'https://maven.enginehub.org/repo/' }
     maven { url = 'https://jitpack.io' }
+    maven { url = 'https://maven.maxhenkel.de/repository/public' }
     flatDir {
         dirs 'libs'
     }
@@ -129,6 +130,9 @@ repositories {
 dependencies {
     minecraft 'net.minecraftforge:forge:1.20.1-47.4.0'
     implementation 'com.google.code.gson:gson:2.10.1'
+
+    // CoreLib for Ultimate Car Mod integration
+    implementation fg.deobf('de.maxhenkel.corelib:corelib:1.20.1-1.1.1')
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

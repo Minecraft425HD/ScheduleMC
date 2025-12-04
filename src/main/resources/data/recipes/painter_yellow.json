@@ -1,0 +1,20 @@
+{
+  "type": "crafting_shaped",
+  "pattern": [
+    " B ",
+    " SB",
+    "S  "
+  ],
+  "key": {
+    "S": {
+      "tag": "forge:rods/wooden"
+    },
+    "B": {
+      "tag": "forge:dyes/yellow"
+    }
+  },
+  "result": {
+    "item": "car:painter_yellow",
+    "count": 1
+  }
+}

@@ -1,0 +1,7 @@
+{
+    "parent": "block/crop",
+    "render_type": "cutout",
+    "textures": {
+        "crop": "car:block/canola_stage3"
+    }
+}
