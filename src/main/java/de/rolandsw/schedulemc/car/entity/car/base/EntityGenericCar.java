@@ -3,8 +3,6 @@ package de.rolandsw.schedulemc.car.entity.car.base;
 import de.rolandsw.schedulemc.car.Main;
 import de.rolandsw.schedulemc.car.config.Fuel;
 import de.rolandsw.schedulemc.car.entity.car.parts.*;
-import de.rolandsw.schedulemc.car.integration.jei.CarRecipe;
-import de.rolandsw.schedulemc.car.integration.jei.CarRecipeBuilder;
 import de.rolandsw.schedulemc.car.items.ICarPart;
 import de.rolandsw.schedulemc.car.items.ItemKey;
 import de.rolandsw.schedulemc.car.sounds.ModSounds;
@@ -345,7 +343,8 @@ public class EntityGenericCar extends EntityCarLicensePlateBase {
         super.readAdditionalSaveData(compound);
 
         if (compound.getAllKeys().stream().allMatch(s -> s.equals("id"))) {
-            randomizeParts();
+            // DISABLED: JEI integration removed
+            // randomizeParts();
             setItem(0, ItemKey.getKeyForCar(getUUID()));
             setItem(1, ItemKey.getKeyForCar(getUUID()));
             setFuelAmount(100);
@@ -357,6 +356,7 @@ public class EntityGenericCar extends EntityCarLicensePlateBase {
         tryInitPartsAndModel();
     }
 
+    /* DISABLED DUE TO JEI INTEGRATION REMOVAL
     protected void randomizeParts() {
         List<CarRecipe> allRecipes = CarRecipeBuilder.getAllRecipes();
         CarRecipe recipe = allRecipes.get(new Random().nextInt(allRecipes.size()));
@@ -367,6 +367,7 @@ public class EntityGenericCar extends EntityCarLicensePlateBase {
             partInventory.setItem(i, inputs.get(i));
         }
     }
+    */
 
     private boolean isInitialized;
     private boolean isSpawned = true;

@@ -7,7 +7,6 @@ import de.rolandsw.schedulemc.car.blocks.tileentity.render.TileEntitySpecialRend
 import de.rolandsw.schedulemc.car.blocks.tileentity.render.TileEntitySpecialRendererSplitTank;
 import de.rolandsw.schedulemc.car.blocks.tileentity.render.TileEntitySpecialRendererTank;
 import de.rolandsw.schedulemc.car.blocks.tileentity.render.TileentitySpecialRendererGasStation;
-import de.rolandsw.schedulemc.car.commands.CommandCarDemo;
 import de.rolandsw.schedulemc.car.config.ClientConfig;
 import de.rolandsw.schedulemc.car.config.FuelConfig;
 import de.rolandsw.schedulemc.car.config.ServerConfig;
@@ -151,7 +150,8 @@ public class Main {
 
     @SubscribeEvent
     public void onRegisterCommands(RegisterCommandsEvent event) {
-        CommandCarDemo.register(event.getDispatcher());
+        // DISABLED: CommandCarDemo requires JEI integration which was removed
+        // CommandCarDemo.register(event.getDispatcher());
     }
 
     @SubscribeEvent
