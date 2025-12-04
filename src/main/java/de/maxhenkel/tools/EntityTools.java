@@ -1,8 +1,8 @@
 package de.maxhenkel.tools;
 
 import com.mojang.math.Axis;
-import de.maxhenkel.car.entity.car.base.EntityCarBase;
-import de.maxhenkel.car.entity.car.base.EntityGenericCar;
+import de.rolandsw.schedulemc.car.entity.car.base.EntityCarBase;
+import de.rolandsw.schedulemc.car.entity.car.base.EntityGenericCar;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
