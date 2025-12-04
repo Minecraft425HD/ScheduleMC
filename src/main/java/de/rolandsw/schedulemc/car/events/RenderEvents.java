@@ -31,9 +31,13 @@ public class RenderEvents {
 
     @SubscribeEvent
     public void onRender(ViewportEvent.ComputeCameraAngles evt) {
+        // DISABLED: Camera.move() and getMaxZoom() are private/protected in 1.20.1
+        // This feature provided custom camera zoom when riding cars, but is not critical
+        /* DISABLED DUE TO API CHANGE IN 1.20.1
         if (getCar() != null && !mc.options.getCameraType().isFirstPerson()) {
             evt.getCamera().move(-evt.getCamera().getMaxZoom(Main.CLIENT_CONFIG.carZoom.get() - 4D), 0D, 0D);
         }
+        */
     }
 
     @SubscribeEvent

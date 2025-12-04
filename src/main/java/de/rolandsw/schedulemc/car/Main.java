@@ -184,11 +184,15 @@ public class Main {
         ComposterBlock.COMPOSTABLES.put(ModItems.CANOLA_CAKE.get(), 0.5F);
         ComposterBlock.COMPOSTABLES.put(ModItems.CANOLA.get(), 0.65F);
 
+        // Note: Villager.WANTED_ITEMS is private in 1.20.1, so we cannot add canola items to villager trades
+        // This is a minor feature loss but doesn't affect core functionality
+        /* DISABLED DUE TO API CHANGE IN 1.20.1
         Villager.WANTED_ITEMS = ImmutableSet.<Item>builder()
                 .addAll(Villager.WANTED_ITEMS)
                 .add(ModItems.CANOLA_SEEDS.get())
                 .add(ModItems.CANOLA.get())
                 .build();
+        */
     }
 
     public static KeyMapping FORWARD_KEY;
