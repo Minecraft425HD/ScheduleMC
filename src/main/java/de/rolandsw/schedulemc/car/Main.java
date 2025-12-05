@@ -15,11 +15,9 @@ import de.rolandsw.schedulemc.car.gui.*;
 import de.rolandsw.schedulemc.car.integration.IMC;
 import de.rolandsw.schedulemc.car.items.ItemLicensePlate;
 import de.rolandsw.schedulemc.car.items.ModItems;
-import de.rolandsw.schedulemc.car.loottable.CopyFluid;
 import de.rolandsw.schedulemc.car.net.*;
 import de.rolandsw.schedulemc.car.recipes.*;
 import de.rolandsw.schedulemc.car.sounds.ModSounds;
-import de.rolandsw.schedulemc.car.villagers.VillagerEvents;
 import de.maxhenkel.corelib.ClientRegistry;
 import de.maxhenkel.corelib.CommonRegistry;
 import de.maxhenkel.corelib.config.DynamicConfig;
@@ -87,8 +85,6 @@ public class Main {
     private static final DeferredRegister<EntityType<?>> ENTITY_REGISTER = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, Main.MODID);
     public static final RegistryObject<EntityType<EntityGenericCar>> CAR_ENTITY_TYPE = ENTITY_REGISTER.register("car", Main::createCarEntityType);
 
-    public static LootItemFunctionType COPY_FLUID;
-
     private static final DeferredRegister<EntityDataSerializer<?>> ENTITY_DATA_SERIALIZER_REGISTER = DeferredRegister.create(ForgeRegistries.Keys.ENTITY_DATA_SERIALIZERS, Main.MODID);
     public static final RegistryObject<EntityDataSerializer<NonNullList<ItemStack>>> ITEM_LIST = ENTITY_DATA_SERIALIZER_REGISTER.register("serializer_item_list", () -> DataSerializerItemList.create());
 
@@ -132,8 +128,6 @@ public class Main {
     public void commonSetup(FMLCommonSetupEvent event) {
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(new BlockEvents());
-
-        COPY_FLUID = Registry.register(BuiltInRegistries.LOOT_FUNCTION_TYPE, new ResourceLocation(Main.MODID, "copy_fluid"), new LootItemFunctionType(new CopyFluid.Serializer()));
 
         SIMPLE_CHANNEL = CommonRegistry.registerChannel(Main.MODID, "default");
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 0, MessageControlCar.class);

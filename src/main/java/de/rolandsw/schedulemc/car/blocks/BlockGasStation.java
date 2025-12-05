@@ -97,7 +97,7 @@ public class BlockGasStation extends BlockOrientableHorizontal {
             FluidStack fluidStack = FluidUtil.getFluidContained(stack).orElse(FluidStack.EMPTY);
 
             if (!fluidStack.isEmpty()) {
-                boolean success = BlockTank.handleEmpty(stack, worldIn, pos, player, handIn);
+                boolean success = FluidUtil.interactWithFluidHandler(player, handIn, station);
                 if (success) {
                     return InteractionResult.SUCCESS;
                 }
@@ -105,7 +105,7 @@ public class BlockGasStation extends BlockOrientableHorizontal {
             IFluidHandler handler = FluidUtil.getFluidHandler(stack).orElse(null);
 
             if (handler != null) {
-                boolean success1 = BlockTank.handleFill(stack, worldIn, pos, player, handIn);
+                boolean success1 = FluidUtil.interactWithFluidHandler(player, handIn, station);
                 if (success1) {
                     return InteractionResult.SUCCESS;
                 }

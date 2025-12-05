@@ -17,53 +17,23 @@ public class ModCreativeTabs {
 
     public static final RegistryObject<CreativeModeTab> TAB_CAR = TAB_REGISTER.register("car", () -> {
         return CreativeModeTab.builder()
-                .icon(() -> new ItemStack(ModBlocks.ASPHALT.get()))
+                .icon(() -> new ItemStack(ModBlocks.GAS_STATION.get()))
                 .displayItems((param, output) -> {
-                    output.accept(new ItemStack(ModBlocks.ASPHALT.get()));
-                    output.accept(new ItemStack(ModBlocks.ASPHALT_SLOPE.get()));
-                    output.accept(new ItemStack(ModBlocks.ASPHALT_SLOPE_FLAT_UPPER.get()));
-                    output.accept(new ItemStack(ModBlocks.ASPHALT_SLOPE_FLAT_LOWER.get()));
-                    output.accept(new ItemStack(ModBlocks.ASPHALT_SLAB.get()));
                     output.accept(new ItemStack(ModBlocks.GAS_STATION.get()));
-                    output.accept(new ItemStack(ModBlocks.CANOLA_CROP.get()));
-                    output.accept(new ItemStack(ModBlocks.OIL_MILL.get()));
-                    output.accept(new ItemStack(ModBlocks.BLAST_FURNACE.get()));
-                    output.accept(new ItemStack(ModBlocks.BACKMIX_REACTOR.get()));
-                    output.accept(new ItemStack(ModBlocks.GENERATOR.get()));
-                    output.accept(new ItemStack(ModBlocks.SPLIT_TANK.get()));
-                    output.accept(new ItemStack(ModBlocks.TANK.get()));
                     output.accept(new ItemStack(ModBlocks.CAR_WORKSHOP.get()));
                     output.accept(new ItemStack(ModBlocks.CAR_WORKSHOP_OUTTER.get()));
-                    output.accept(new ItemStack(ModBlocks.CABLE.get()));
-                    output.accept(new ItemStack(ModBlocks.FLUID_EXTRACTOR.get()));
-                    output.accept(new ItemStack(ModBlocks.FLUID_PIPE.get()));
-                    output.accept(new ItemStack(ModBlocks.DYNAMO.get()));
-                    output.accept(new ItemStack(ModBlocks.CRANK.get()));
-                    output.accept(new ItemStack(ModBlocks.SIGN.get()));
-                    output.accept(new ItemStack(ModBlocks.SIGN_POST.get()));
                     output.accept(new ItemStack(ModBlocks.CAR_PRESSURE_PLATE.get()));
-                    output.accept(new ItemStack(ModItems.CANOLA_OIL_BUCKET.get()));
-                    output.accept(new ItemStack(ModItems.METHANOL_BUCKET.get()));
-                    output.accept(new ItemStack(ModItems.CANOLA_METHANOL_MIX_BUCKET.get()));
-                    output.accept(new ItemStack(ModItems.GLYCERIN_BUCKET.get()));
                     output.accept(new ItemStack(ModItems.BIO_DIESEL_BUCKET.get()));
 
                     output.accept(new ItemStack(ModItems.PAINTER.get()));
                     output.accept(new ItemStack(ModItems.PAINTER_YELLOW.get()));
-                    output.accept(new ItemStack(ModItems.CANOLA_SEEDS.get()));
-                    output.accept(new ItemStack(ModItems.CANOLA.get()));
-                    output.accept(new ItemStack(ModItems.CANOLA_CAKE.get()));
-                    output.accept(new ItemStack(ModItems.IRON_STICK.get()));
-                    output.accept(new ItemStack(ModItems.ENGINE_PISTON.get()));
                     output.accept(new ItemStack(ModItems.CANISTER.get()));
                     output.accept(new ItemStack(ModItems.REPAIR_KIT.get()));
                     output.accept(new ItemStack(ModItems.WRENCH.get()));
                     output.accept(new ItemStack(ModItems.SCREW_DRIVER.get()));
                     output.accept(new ItemStack(ModItems.HAMMER.get()));
-                    output.accept(new ItemStack(ModItems.CABLE_INSULATOR.get()));
                     output.accept(new ItemStack(ModItems.KEY.get()));
                     output.accept(new ItemStack(ModItems.BATTERY.get()));
-                    output.accept(new ItemStack(ModItems.GUARD_RAIL.get()));
                     output.accept(new ItemStack(ModItems.LICENSE_PLATE.get()));
                 })
                 .title(Component.translatable("itemGroup.car"))
