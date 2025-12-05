@@ -25,11 +25,11 @@ public class MessageSpawnCar implements Message<MessageSpawnCar> {
 
     @Override
     public void executeServerSide(NetworkEvent.Context context) {
+        // NOTE: TileEntityCarWorkshop was removed in a previous cleanup
+        // This message handler is currently non-functional and may need to be reimplemented
+        // if car workshop functionality is restored in the future
         BlockEntity te = context.getSender().level().getBlockEntity(pos);
-
-        if (te instanceof TileEntityCarWorkshop) {
-            ((TileEntityCarWorkshop) te).spawnCar(context.getSender());
-        }
+        // TODO: Implement car spawning functionality when workshop block is added
     }
 
     @Override
