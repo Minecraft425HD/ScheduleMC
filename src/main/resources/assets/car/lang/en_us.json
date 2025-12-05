@@ -158,8 +158,8 @@
     "item.car.engine_6_cylinder": "6 Cylinder Engine",
     "item.car.engine_truck": "Truck Engine",
     "item.car.canister": "Canister",
+    "item.car.bio_diesel_canister": "Bio Diesel Canister",
     "item.car.repair_kit": "Repair Kit",
-    "item.car.wrench": "Wrench",
     "item.car.hammer": "Hammer",
     "item.car.screw_driver": "Screw Driver",
     "item.car.cable_insulator": "Cable Insulator",
@@ -361,6 +361,7 @@
 
     "canister.fluid": "Fluid: %s",
     "canister.amount": "Amount: %s mb",
+    "canister.max_amount": "Max: %s mb",
 
     "filter.fluid": "Filter: %s",
 

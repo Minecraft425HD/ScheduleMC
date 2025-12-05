@@ -30,8 +30,8 @@ public class ModCreativeTabs {
                     output.accept(new ItemStack(ModItems.SPAWN_CAR_WHITE_SPORT.get()));
 
                     output.accept(new ItemStack(ModItems.CANISTER.get()));
+                    output.accept(ItemBioDieselCanister.createPreFilledStack());
                     output.accept(new ItemStack(ModItems.REPAIR_KIT.get()));
-                    output.accept(new ItemStack(ModItems.WRENCH.get()));
                     output.accept(new ItemStack(ModItems.KEY.get()));
                     output.accept(new ItemStack(ModItems.BATTERY.get()));
                     output.accept(new ItemStack(ModItems.LICENSE_PLATE.get()));

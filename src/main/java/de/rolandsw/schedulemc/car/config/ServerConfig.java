@@ -39,6 +39,8 @@ public class ServerConfig extends ConfigBase {
 
     public final ForgeConfigSpec.IntValue gasStationTransferRate;
     public final ForgeConfigSpec.ConfigValue<List<? extends String>> gasStationValidFuels;
+    public final ForgeConfigSpec.IntValue gasStationMorningPricePer10mb;
+    public final ForgeConfigSpec.IntValue gasStationEveningPricePer10mb;
 
     public final ForgeConfigSpec.IntValue generatorEnergyStorage;
     public final ForgeConfigSpec.IntValue generatorFluidStorage;
@@ -133,6 +135,8 @@ public class ServerConfig extends ConfigBase {
 
         gasStationTransferRate = builder.defineInRange("machines.gas_station.transfer_rate", 5, 1, Short.MAX_VALUE);
         gasStationValidFuels = builder.comment("If it starts with '#' it is a tag").defineList("machines.gas_station.valid_fuels", Collections.singletonList("#car:gas_station"), Objects::nonNull);
+        gasStationMorningPricePer10mb = builder.comment("Price per 10 mb of fuel during morning (0-12000 ticks, 6:00-18:00)").defineInRange("machines.gas_station.morning_price_per_10mb", 10, 0, Integer.MAX_VALUE);
+        gasStationEveningPricePer10mb = builder.comment("Price per 10 mb of fuel during evening (12000-24000 ticks, 18:00-6:00)").defineInRange("machines.gas_station.evening_price_per_10mb", 5, 0, Integer.MAX_VALUE);
 
         generatorEnergyStorage = builder.defineInRange("machines.generator.energy_storage", 30000, 1000, Short.MAX_VALUE);
         generatorFluidStorage = builder.defineInRange("machines.generator.fluid_storage", 3000, 1000, Short.MAX_VALUE);
