@@ -16,7 +16,7 @@
       "item": "minecraft:redstone"
     },
     "T": {
-      "item": "car:tank"
+      "item": "car:small_tank"
     },
     "S": {
       "item": "minecraft:smooth_stone_slab"
