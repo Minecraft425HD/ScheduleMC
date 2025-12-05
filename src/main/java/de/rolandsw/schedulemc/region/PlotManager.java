@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.region;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.logging.LogUtils;
+import de.rolandsw.schedulemc.economy.ShopAccountManager;
 import de.rolandsw.schedulemc.util.GsonHelper;
 import net.minecraft.core.BlockPos;
 import org.slf4j.Logger;
@@ -43,13 +44,27 @@ public class PlotManager {
     
     /**
      * Erstellt Plot aus zwei BlockPos (für Selection Tool)
-     * 
+     *
      * @param pos1 Erste Position
      * @param pos2 Zweite Position
      * @param price Preis des Plots
      * @return Der erstellte Plot
      */
     public static PlotRegion createPlot(BlockPos pos1, BlockPos pos2, double price) {
+        return createPlot(pos1, pos2, null, PlotType.RESIDENTIAL, price);
+    }
+
+    /**
+     * Erstellt Plot mit Namen und Typ
+     *
+     * @param pos1 Erste Position
+     * @param pos2 Zweite Position
+     * @param customName Optionaler Name (wenn null, wird auto-generiert)
+     * @param type Plot-Typ
+     * @param price Preis des Plots (0 für nicht-kaufbare Typen)
+     * @return Der erstellte Plot
+     */
+    public static PlotRegion createPlot(BlockPos pos1, BlockPos pos2, String customName, PlotType type, double price) {
         // Finde min/max Koordinaten
         BlockPos min = new BlockPos(
             Math.min(pos1.getX(), pos2.getX()),
@@ -63,15 +78,23 @@ public class PlotManager {
             Math.max(pos1.getZ(), pos2.getZ())
         );
 
-        String plotId = generatePlotId();
+        String plotId = (customName != null && !customName.isEmpty()) ? customName : generatePlotId();
         PlotRegion plot = new PlotRegion(plotId, min, max, price);
+        plot.setType(type);
+
         plots.put(plotId, plot);
         spatialIndex.addPlot(plot);
 
+        // Automatisch ShopAccount erstellen für Shop-Plots
+        if (type.isShop()) {
+            ShopAccountManager.getOrCreateAccount(plotId);
+            LOGGER.info("ShopAccount automatisch erstellt für Shop-Plot: {}", plotId);
+        }
+
         dirty = true;
 
-        LOGGER.info("Plot erstellt: {} von {} bis {} ({}€)",
-            plotId, min.toShortString(), max.toShortString(), price);
+        LOGGER.info("Plot erstellt: {} ({}) von {} bis {} ({}€)",
+            plotId, type.getDisplayName(), min.toShortString(), max.toShortString(), price);
 
         return plot;
     }

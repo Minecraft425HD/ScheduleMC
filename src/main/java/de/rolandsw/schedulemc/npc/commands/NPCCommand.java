@@ -14,6 +14,7 @@ import de.rolandsw.schedulemc.managers.NPCNameRegistry;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.npc.items.NPCLocationTool;
+import de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
@@ -24,10 +25,16 @@ import net.minecraft.commands.arguments.item.ItemInput;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -147,6 +154,17 @@ public class NPCCommand {
                             .then(Commands.argument("amount", IntegerArgumentType.integer(1))
                                 .executes(NPCCommand::removeWallet)
                             )
+                        )
+                    )
+                    .then(Commands.literal("warehouse")
+                        .then(Commands.literal("set")
+                            .executes(NPCCommand::setWarehouse)
+                        )
+                        .then(Commands.literal("clear")
+                            .executes(NPCCommand::clearWarehouse)
+                        )
+                        .then(Commands.literal("info")
+                            .executes(NPCCommand::warehouseInfo)
                         )
                     )
                 )
@@ -1053,5 +1071,157 @@ public class NPCCommand {
      */
     private static CustomNPCEntity getNPCByName(String npcName, ServerLevel level) {
         return NPCNameRegistry.findNPCByName(npcName, level);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // WAREHOUSE COMMANDS
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Findet die Position des Warehouse-Blocks, auf den der Spieler schaut
+     */
+    private static BlockPos findWarehouseBlockPos(ServerPlayer player) {
+        // Zuerst: Prüfe Block, auf den der Spieler schaut (Raycast)
+        Vec3 eyePos = player.getEyePosition(1.0F);
+        Vec3 lookVec = player.getLookAngle();
+        Vec3 endPos = eyePos.add(lookVec.scale(5.0)); // 5 Blöcke Reichweite
+
+        BlockHitResult hitResult = player.level().clip(new ClipContext(
+            eyePos, endPos,
+            ClipContext.Block.OUTLINE,
+            ClipContext.Fluid.NONE,
+            player
+        ));
+
+        if (hitResult.getType() == HitResult.Type.BLOCK) {
+            BlockEntity be = player.level().getBlockEntity(hitResult.getBlockPos());
+            if (be instanceof WarehouseBlockEntity) {
+                return hitResult.getBlockPos();
+            }
+        }
+
+        // Fallback: Prüfe Position unter dem Spieler
+        BlockPos playerPos = player.blockPosition();
+        BlockEntity be = player.level().getBlockEntity(playerPos.below());
+        if (be instanceof WarehouseBlockEntity) {
+            return playerPos.below();
+        }
+
+        // Prüfe Position des Spielers selbst
+        be = player.level().getBlockEntity(playerPos);
+        if (be instanceof WarehouseBlockEntity) {
+            return playerPos;
+        }
+
+        return null;
+    }
+
+    private static int setWarehouse(CommandContext<CommandSourceStack> context) {
+        try {
+            String npcName = StringArgumentType.getString(context, "npcName");
+            ServerLevel level = context.getSource().getLevel();
+            ServerPlayer player = context.getSource().getPlayerOrException();
+
+            CustomNPCEntity npc = getNPCByName(npcName, level);
+            if (npc == null) {
+                context.getSource().sendFailure(
+                    Component.literal("§cNPC '§e" + npcName + "§c' nicht gefunden!")
+                );
+                return 0;
+            }
+
+            BlockPos warehousePos = findWarehouseBlockPos(player);
+            if (warehousePos == null) {
+                context.getSource().sendFailure(
+                    Component.literal("§cKein Warehouse gefunden! Schaue auf einen Warehouse-Block oder stehe direkt darauf.")
+                );
+                return 0;
+            }
+
+            npc.getNpcData().setAssignedWarehouse(warehousePos);
+
+            context.getSource().sendSuccess(() ->
+                Component.literal("§a✓ Warehouse verknüpft!\n" +
+                    "§7NPC: §e" + npc.getNpcName() + "\n" +
+                    "§7Position: §f" + warehousePos.getX() + ", " + warehousePos.getY() + ", " + warehousePos.getZ()
+                ), false
+            );
+            return 1;
+        } catch (Exception e) {
+            context.getSource().sendFailure(Component.literal("§cFehler beim Verknüpfen des Warehouses!"));
+            return 0;
+        }
+    }
+
+    private static int clearWarehouse(CommandContext<CommandSourceStack> context) {
+        try {
+            String npcName = StringArgumentType.getString(context, "npcName");
+            ServerLevel level = context.getSource().getLevel();
+
+            CustomNPCEntity npc = getNPCByName(npcName, level);
+            if (npc == null) {
+                context.getSource().sendFailure(
+                    Component.literal("§cNPC '§e" + npcName + "§c' nicht gefunden!")
+                );
+                return 0;
+            }
+
+            npc.getNpcData().setAssignedWarehouse(null);
+
+            context.getSource().sendSuccess(() ->
+                Component.literal("§a✓ Warehouse-Verknüpfung entfernt!\n" +
+                    "§7NPC: §e" + npc.getNpcName()
+                ), false
+            );
+            return 1;
+        } catch (Exception e) {
+            context.getSource().sendFailure(Component.literal("§cFehler beim Entfernen der Warehouse-Verknüpfung!"));
+            return 0;
+        }
+    }
+
+    private static int warehouseInfo(CommandContext<CommandSourceStack> context) {
+        try {
+            String npcName = StringArgumentType.getString(context, "npcName");
+            ServerLevel level = context.getSource().getLevel();
+
+            CustomNPCEntity npc = getNPCByName(npcName, level);
+            if (npc == null) {
+                context.getSource().sendFailure(
+                    Component.literal("§cNPC '§e" + npcName + "§c' nicht gefunden!")
+                );
+                return 0;
+            }
+
+            BlockPos warehousePos = npc.getNpcData().getAssignedWarehouse();
+            if (warehousePos == null) {
+                context.getSource().sendSuccess(() ->
+                    Component.literal("§e=== Warehouse Info ===\n" +
+                        "§7NPC: §e" + npc.getNpcName() + "\n" +
+                        "§7Status: §cKein Warehouse verknüpft"
+                    ), false
+                );
+            } else {
+                de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity warehouse =
+                    npc.getNpcData().getWarehouseEntity(level);
+                String info = "§e=== Warehouse Info ===\n" +
+                    "§7NPC: §e" + npc.getNpcName() + "\n" +
+                    "§7Position: §f" + warehousePos.getX() + ", " + warehousePos.getY() + ", " + warehousePos.getZ() + "\n";
+
+                if (warehouse != null) {
+                    info += "§7Slots belegt: §e" + warehouse.getUsedSlots() + "§7/§e" + warehouse.getSlots().length + "\n" +
+                            "§7Total Items: §e" + warehouse.getTotalItems();
+                } else {
+                    info += "§7Status: §cWarehouse-Block nicht gefunden!";
+                }
+
+                final String finalInfo = info;
+                context.getSource().sendSuccess(() -> Component.literal(finalInfo), false);
+            }
+            return 1;
+        } catch (Exception e) {
+            context.getSource().sendFailure(Component.literal("§cFehler beim Abrufen der Warehouse-Info!"));
+            return 0;
+        }
     }
 }

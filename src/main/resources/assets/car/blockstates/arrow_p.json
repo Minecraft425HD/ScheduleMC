@@ -1,0 +1,8 @@
+{
+    "variants": {
+        "facing=north": { "model": "car:block/arrow_p" },
+        "facing=south": { "model": "car:block/arrow_p", "y": 180 },
+        "facing=west":  { "model": "car:block/arrow_p", "y": 270 },
+        "facing=east":  { "model": "car:block/arrow_p", "y": 90 }
+    }
+}

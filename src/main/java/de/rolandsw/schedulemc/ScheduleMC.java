@@ -3,8 +3,11 @@ package de.rolandsw.schedulemc;
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.commands.*;
 import de.rolandsw.schedulemc.economy.commands.HospitalCommand;
+import de.rolandsw.schedulemc.economy.commands.ShopInvestCommand;
+import de.rolandsw.schedulemc.economy.commands.StateCommand;
 import de.rolandsw.schedulemc.npc.commands.NPCCommand;
 import de.rolandsw.schedulemc.tobacco.commands.TobaccoCommand;
+import de.rolandsw.schedulemc.warehouse.commands.WarehouseCommand;
 import de.rolandsw.schedulemc.economy.PlayerJoinHandler;
 import de.rolandsw.schedulemc.events.BlockProtectionHandler;
 import de.rolandsw.schedulemc.events.InventoryRestrictionHandler;
@@ -24,7 +27,6 @@ import de.rolandsw.schedulemc.managers.*;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.items.ModItems;
 import de.rolandsw.schedulemc.items.PlotSelectionTool;
-import de.rolandsw.schedulemc.tobacco.TobaccoShopIntegration;
 import de.rolandsw.schedulemc.tobacco.items.TobaccoItems;
 import de.rolandsw.schedulemc.tobacco.business.BusinessMetricsUpdateHandler;
 import de.rolandsw.schedulemc.tobacco.blocks.TobaccoBlocks;
@@ -33,11 +35,19 @@ import de.rolandsw.schedulemc.tobacco.menu.ModMenuTypes;
 import de.rolandsw.schedulemc.tobacco.entity.ModEntities;
 import de.rolandsw.schedulemc.economy.blocks.EconomyBlocks;
 import de.rolandsw.schedulemc.economy.menu.EconomyMenuTypes;
+import de.rolandsw.schedulemc.warehouse.WarehouseBlocks;
+import de.rolandsw.schedulemc.warehouse.WarehouseConfig;
+import de.rolandsw.schedulemc.warehouse.WarehouseManager;
+import de.rolandsw.schedulemc.warehouse.menu.WarehouseMenuTypes;
+import de.rolandsw.schedulemc.warehouse.network.WarehouseNetworkHandler;
+import de.rolandsw.schedulemc.economy.StateAccount;
+import de.rolandsw.schedulemc.economy.ShopAccountManager;
 import de.rolandsw.schedulemc.npc.entity.NPCEntities;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.items.NPCItems;
 import de.rolandsw.schedulemc.npc.menu.NPCMenuTypes;
 import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
+import de.rolandsw.schedulemc.car.Main;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
@@ -66,10 +76,16 @@ public class ScheduleMC {
     private static final int SAVE_INTERVAL = 6000;
     private int tickCounter = 0;
 
+    // Car Mod integration
+    private static Main carMod;
+
     public ScheduleMC() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::onEntityAttributeCreation);
+
+        // Initialize Car Mod
+        carMod = new Main();
 
         ModItems.ITEMS.register(modEventBus);
         TobaccoItems.ITEMS.register(modEventBus);
@@ -81,15 +97,22 @@ public class ScheduleMC {
         de.rolandsw.schedulemc.region.blocks.PlotBlocks.ITEMS.register(modEventBus);
         TobaccoBlockEntities.BLOCK_ENTITIES.register(modEventBus);
         EconomyBlocks.BLOCK_ENTITIES.register(modEventBus);
+        WarehouseBlocks.BLOCKS.register(modEventBus);
+        WarehouseBlocks.ITEMS.register(modEventBus);
+        WarehouseBlocks.BLOCK_ENTITIES.register(modEventBus);
         ModMenuTypes.MENUS.register(modEventBus);
         EconomyMenuTypes.MENUS.register(modEventBus);
+        WarehouseMenuTypes.MENUS.register(modEventBus);
         ModEntities.ENTITIES.register(modEventBus);
         NPCItems.ITEMS.register(modEventBus);
         NPCEntities.ENTITIES.register(modEventBus);
         NPCMenuTypes.MENUS.register(modEventBus);
         ModCreativeTabs.CREATIVE_MODE_TABS.register(modEventBus);
-        
+
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ModConfigHandler.SPEC);
+
+        // Initialize warehouse config after main config is registered
+        WarehouseConfig.init();
 
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(new BlockProtectionHandler());
@@ -104,6 +127,7 @@ public class ScheduleMC {
         MinecraftForge.EVENT_BUS.register(de.rolandsw.schedulemc.npc.events.NPCNameSyncHandler.class);
         MinecraftForge.EVENT_BUS.register(RespawnHandler.class);
         MinecraftForge.EVENT_BUS.register(BusinessMetricsUpdateHandler.class);
+        MinecraftForge.EVENT_BUS.register(WarehouseManager.class);
 
 
         LOGGER.info("ScheduleMC initialized");
@@ -116,7 +140,10 @@ public class ScheduleMC {
             ModNetworking.register();
             SmartphoneNetworkHandler.register();
             MessageNetworkHandler.register();
+            WarehouseNetworkHandler.register();
         });
+
+        // Car Mod handles its own setup via event bus (registered in Main constructor)
     }
 
     private void onEntityAttributeCreation(EntityAttributeCreationEvent event) {
@@ -128,10 +155,14 @@ public class ScheduleMC {
         PlotCommand.register(event.getDispatcher());
         MoneyCommand.register(event.getDispatcher());
         DailyCommand.register(event.getDispatcher());
-        ShopCommand.register(event.getDispatcher());
         TobaccoCommand.register(event.getDispatcher());
         HospitalCommand.register(event.getDispatcher());
         NPCCommand.register(event.getDispatcher(), event.getBuildContext());
+        WarehouseCommand.register(event.getDispatcher(), event.getBuildContext());
+        ShopInvestCommand.register(event.getDispatcher());
+        StateCommand.register(event.getDispatcher());
+
+        // Car Mod handles its own commands via event bus (registered in Main.commonSetup)
     }
 
     @SubscribeEvent
@@ -139,12 +170,15 @@ public class ScheduleMC {
         PlotManager.loadPlots();
         EconomyManager.loadAccounts();
         DailyRewardManager.load();
-        ShopManager.load();
-        TobaccoShopIntegration.registerShopItems();
         WalletManager.load();
         de.rolandsw.schedulemc.npc.crime.CrimeManager.load();
         NPCNameRegistry.loadRegistry();
         MessageManager.loadMessages();
+
+        // NEU: Warehouse & Shop System initialisieren
+        StateAccount.load();
+        MinecraftForge.EVENT_BUS.register(ShopAccountManager.class);
+        WarehouseManager.load(event.getServer());
     }
 
     @SubscribeEvent
@@ -156,7 +190,6 @@ public class ScheduleMC {
             PlotManager.saveIfNeeded();
             EconomyManager.saveIfNeeded();
             DailyRewardManager.saveIfNeeded();
-            ShopManager.saveIfNeeded();
             RentManager.checkExpiredRents();
             WalletManager.saveIfNeeded();
             NPCNameRegistry.saveIfNeeded();
@@ -169,10 +202,10 @@ public class ScheduleMC {
         PlotManager.savePlots();
         EconomyManager.saveAccounts();
         DailyRewardManager.save();
-        ShopManager.save();
         WalletManager.save();
         NPCNameRegistry.saveRegistry();
         MessageManager.saveMessages();
+        WarehouseManager.save(event.getServer());
     }
 
     @SubscribeEvent

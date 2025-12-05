@@ -25,42 +25,57 @@ public class TobaccoBlockEntities {
                 TobaccoBlocks.GOLDEN_POT.get()
             ).build(null));
     
-    // Trocknungsgestell BlockEntity
-    public static final RegistryObject<BlockEntityType<DryingRackBlockEntity>> DRYING_RACK = 
-        BLOCK_ENTITIES.register("drying_rack", () -> 
-            BlockEntityType.Builder.of(DryingRackBlockEntity::new,
-                TobaccoBlocks.DRYING_RACK.get()
-            ).build(null));
-    
-    // Fermentierungsfass BlockEntity
-    public static final RegistryObject<BlockEntityType<FermentationBarrelBlockEntity>> FERMENTATION_BARREL =
-        BLOCK_ENTITIES.register("fermentation_barrel", () ->
-            BlockEntityType.Builder.of(FermentationBarrelBlockEntity::new,
-                TobaccoBlocks.FERMENTATION_BARREL.get()
+    // Trocknungsgestelle BlockEntities (3 Größen)
+    public static final RegistryObject<BlockEntityType<SmallDryingRackBlockEntity>> SMALL_DRYING_RACK =
+        BLOCK_ENTITIES.register("small_drying_rack", () ->
+            BlockEntityType.Builder.of(SmallDryingRackBlockEntity::new,
+                TobaccoBlocks.SMALL_DRYING_RACK.get()
             ).build(null));
 
-    // Packtisch BlockEntity
-    public static final RegistryObject<BlockEntityType<PackagingTableBlockEntity>> PACKAGING_TABLE =
-        BLOCK_ENTITIES.register("packaging_table", () ->
-            BlockEntityType.Builder.of(PackagingTableBlockEntity::new,
-                TobaccoBlocks.PACKAGING_TABLE.get()
+    public static final RegistryObject<BlockEntityType<MediumDryingRackBlockEntity>> MEDIUM_DRYING_RACK =
+        BLOCK_ENTITIES.register("medium_drying_rack", () ->
+            BlockEntityType.Builder.of(MediumDryingRackBlockEntity::new,
+                TobaccoBlocks.MEDIUM_DRYING_RACK.get()
             ).build(null));
 
-    // Small Packtisch BlockEntity (1g, 5g)
+    public static final RegistryObject<BlockEntityType<BigDryingRackBlockEntity>> BIG_DRYING_RACK =
+        BLOCK_ENTITIES.register("big_drying_rack", () ->
+            BlockEntityType.Builder.of(BigDryingRackBlockEntity::new,
+                TobaccoBlocks.BIG_DRYING_RACK.get()
+            ).build(null));
+
+    // Fermentierungsfass BlockEntities (3 Größen)
+    public static final RegistryObject<BlockEntityType<SmallFermentationBarrelBlockEntity>> SMALL_FERMENTATION_BARREL =
+        BLOCK_ENTITIES.register("small_fermentation_barrel", () ->
+            BlockEntityType.Builder.of(SmallFermentationBarrelBlockEntity::new,
+                TobaccoBlocks.SMALL_FERMENTATION_BARREL.get()
+            ).build(null));
+
+    public static final RegistryObject<BlockEntityType<MediumFermentationBarrelBlockEntity>> MEDIUM_FERMENTATION_BARREL =
+        BLOCK_ENTITIES.register("medium_fermentation_barrel", () ->
+            BlockEntityType.Builder.of(MediumFermentationBarrelBlockEntity::new,
+                TobaccoBlocks.MEDIUM_FERMENTATION_BARREL.get()
+            ).build(null));
+
+    public static final RegistryObject<BlockEntityType<BigFermentationBarrelBlockEntity>> BIG_FERMENTATION_BARREL =
+        BLOCK_ENTITIES.register("big_fermentation_barrel", () ->
+            BlockEntityType.Builder.of(BigFermentationBarrelBlockEntity::new,
+                TobaccoBlocks.BIG_FERMENTATION_BARREL.get()
+            ).build(null));
+
+    // Packtische BlockEntities (3 Größen)
     public static final RegistryObject<BlockEntityType<SmallPackagingTableBlockEntity>> SMALL_PACKAGING_TABLE =
         BLOCK_ENTITIES.register("small_packaging_table", () ->
             BlockEntityType.Builder.of(SmallPackagingTableBlockEntity::new,
                 TobaccoBlocks.SMALL_PACKAGING_TABLE.get()
             ).build(null));
 
-    // Medium Packtisch BlockEntity (10g)
     public static final RegistryObject<BlockEntityType<MediumPackagingTableBlockEntity>> MEDIUM_PACKAGING_TABLE =
         BLOCK_ENTITIES.register("medium_packaging_table", () ->
             BlockEntityType.Builder.of(MediumPackagingTableBlockEntity::new,
                 TobaccoBlocks.MEDIUM_PACKAGING_TABLE.get()
             ).build(null));
 
-    // Large Packtisch BlockEntity (20g)
     public static final RegistryObject<BlockEntityType<LargePackagingTableBlockEntity>> LARGE_PACKAGING_TABLE =
         BLOCK_ENTITIES.register("large_packaging_table", () ->
             BlockEntityType.Builder.of(LargePackagingTableBlockEntity::new,

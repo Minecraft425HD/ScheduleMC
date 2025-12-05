@@ -68,9 +68,18 @@ public class PurchaseItemPacket {
         NPCData.ShopEntry entry = shopItems.get(itemIndex);
         int totalPrice = entry.getPrice() * quantity;
 
-        // Prüfe Lagerbestand
-        if (!entry.hasStock(quantity)) {
-            int available = entry.getStock();
+        // Prüfe Lagerbestand (nutze Warehouse-Integration)
+        if (!merchant.getNpcData().canSellItemFromWarehouse(player.level(), entry, quantity)) {
+            // Hole verfügbare Menge für Fehlermeldung
+            int available;
+            if (entry.isUnlimited()) {
+                available = Integer.MAX_VALUE;
+            } else if (merchant.getNpcData().hasWarehouse()) {
+                var warehouse = merchant.getNpcData().getWarehouseEntity(player.level());
+                available = warehouse != null ? warehouse.getStock(entry.getItem().getItem()) : entry.getStock();
+            } else {
+                available = entry.getStock();
+            }
             player.sendSystemMessage(Component.literal("§cNicht genug auf Lager! Verfügbar: " + available));
             return;
         }
@@ -95,8 +104,8 @@ public class PurchaseItemPacket {
         if (EconomyManager.withdraw(player.getUUID(), totalPrice)) {
             player.getInventory().add(itemToGive);
 
-            // Reduziere Lagerbestand (nur wenn nicht unlimited)
-            entry.reduceStock(quantity);
+            // Reduziere Lagerbestand (nutze Warehouse-Integration)
+            merchant.getNpcData().onItemSoldFromWarehouse(player.level(), entry, quantity, totalPrice);
 
             player.sendSystemMessage(Component.literal("§aGekauft: " + quantity + "x " +
                 entry.getItem().getHoverName().getString() + " für " + totalPrice + "$"));

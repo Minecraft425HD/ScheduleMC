@@ -11,9 +11,13 @@
 7. [Polizei & Verbrechen](#polizei--verbrechen)
 8. [Diebstahl-Minigame](#diebstahl-minigame)
 9. [Shop-System](#shop-system)
-10. [Tägliche Belohnungen](#tägliche-belohnungen)
-11. [Admin-Befehle](#admin-befehle)
-12. [FAQ](#faq)
+10. [Shop-Investment System](#shop-investment-system)
+11. [Warehouse-System](#warehouse-system)
+12. [Messaging-System](#messaging-system)
+13. [Smartphone-System](#smartphone-system)
+14. [Tägliche Belohnungen](#tägliche-belohnungen)
+15. [Admin-Befehle](#admin-befehle)
+16. [FAQ](#faq)
 
 ---
 
@@ -974,70 +978,561 @@ Bei erfolgreichem Diebstahl:
 
 ---
 
-## Shop-System
+## Shop-Investment System
 
-### Shop-Kategorien
+### Übersicht
 
-- **BAUMARKT**: Blöcke, Werkzeuge, Baumaterialien
-- **LEBENSMITTEL**: Nahrung, Getränke
-- **WAFFEN**: Waffen, Rüstung, Pfeile
-- **SONSTIGES**: Verschiedenes, seltene Items
+Das Shop-Investment System erlaubt es Spielern, Anteile an NPC-Shops zu kaufen und dadurch an den Einnahmen beteiligt zu werden.
 
-### Items kaufen
+### Wie funktioniert es?
+
+#### Shares (Anteile)
+
+- Jeder Shop hat **100 Anteile** insgesamt
+- Maximal **2 Aktionäre** pro Shop
+- **1000€ pro Anteil**
+- Automatische Ausschüttung alle 7 Tage
+
+#### Rendite-Berechnung
 
 ```
-/shop list [kategorie]
+Deine Ausschüttung = (Deine Anteile / 100) × Netto-Umsatz (7 Tage)
 ```
-Zeigt alle verfügbaren Shop-Items an.
+
+**Beispiel**:
+- Du besitzt: 40 Anteile (40%)
+- Shop-Umsatz (7 Tage): 10.000€
+- Shop-Ausgaben (7 Tage): 3.000€
+- Netto-Umsatz: 7.000€
+- **Deine Ausschüttung: 2.800€** (40% von 7.000€)
+
+### Befehle
+
+#### Shops auflisten
+
+```
+/shopinvest list
+```
+Zeigt alle verfügbaren Shops mit:
+- Shop-ID
+- Verfügbare Anteile
+- 7-Tage Netto-Umsatz
+- Aktuelle Aktionäre
+
+#### Shop-Details anzeigen
+
+```
+/shopinvest info <shopId>
+```
 
 **Beispiel**:
 ```
-/shop list
-/shop list baumarkt
+/shopinvest info baumarkt_1
 ```
 
+**Ausgabe**:
 ```
-/shop buy <item_id> [anzahl]
+Shop: Baumarkt (ID: baumarkt_1)
+Verfügbare Anteile: 60/100
+7-Tage Netto-Umsatz: 5.250€
+Aktionäre:
+  - Steve: 30 Anteile (30%)
+  - Alex: 10 Anteile (10%)
 ```
-Kauft ein Item aus dem Shop.
+
+#### Anteile kaufen
+
+```
+/shopinvest buy <shopId> <anzahl>
+```
+
+**Parameter**:
+- `anzahl`: 1-99 Anteile
 
 **Beispiel**:
 ```
-/shop buy dirt 64
-/shop buy diamond_sword
+/shopinvest buy baumarkt_1 25
 ```
 
-### Items verkaufen
+**Kosten**: 25.000€ (25 Anteile × 1.000€)
+
+**Einschränkungen**:
+- Maximal 99 Anteile pro Spieler
+- Maximal 2 Aktionäre pro Shop
+- Ausreichend verfügbare Anteile
+
+#### Anteile verkaufen
 
 ```
-/shop sell <item> [anzahl]
+/shopinvest sell <shopId> <anzahl>
 ```
-Verkauft ein Item aus deinem Inventar.
+
+**Rückerstattung**: 75% des Kaufpreises (750€ pro Anteil)
 
 **Beispiel**:
 ```
-/shop sell dirt 64
-/shop sell diamond
+/shopinvest sell baumarkt_1 10
 ```
 
-### Preise
+**Rückerstattung**: 7.500€ (10 Anteile × 750€)
 
-- **Kaufpreis**: Basispreis × 1.5
-- **Verkaufspreis**: Basispreis × 0.5
+#### Deine Investments anzeigen
+
+```
+/shopinvest myshares
+```
+
+**Ausgabe**:
+```
+Deine Shop-Investments:
+  - Baumarkt: 25 Anteile (25%)
+  - Lebensmittel: 40 Anteile (40%)
+  - Gesamt investiert: 65.000€
+  - 7-Tage Ausschüttung: 3.200€
+```
+
+### Strategien
+
+#### Profitable Shops identifizieren
+
+- Schaue auf **7-Tage Netto-Umsatz**
+- Höherer Umsatz = höhere Rendite
+- Shops in frequentierten Bereichen sind profitabler
+
+#### Diversifikation
+
+- Investiere in mehrere Shops
+- Reduziert Risiko
+- Stabilere Einnahmen
+
+#### Maximale Beteiligung
+
+- Kaufe viele Anteile in einem profitablen Shop
+- Höhere Rendite, aber riskanter
+- Beobachte Umsatz-Entwicklung
+
+### Risiken
+
+- **Umsatzrückgang**: Weniger Kunden = weniger Rendite
+- **Ausgaben**: Hohe Warehouse-Kosten reduzieren Netto-Umsatz
+- **Wiederverkauf**: Nur 75% Rückerstattung
+
+---
+
+## Warehouse-System
+
+### Übersicht
+
+Das Warehouse-System ermöglicht es, Lagerbestände für NPC-Händler zu verwalten. Händler verkaufen Items aus dem Warehouse-Inventar.
+
+### Was ist ein Warehouse?
+
+Ein Warehouse (Lager) ist ein Block, der:
+- **Inventar** speichert (32 Slots, je 1024 Items)
+- An einen **Shop-Plot** gebunden ist
+- Mit **NPC-Händlern** verknüpft werden kann
+- Automatische **Lieferungen** alle 3 Tage erhält
+
+### Warehouse-Befehle
+
+#### Warehouse-Info anzeigen
+
+```
+/warehouse info
+```
+
+**Verwendung**: Schaue auf oder stehe auf einem Warehouse-Block
+
+**Ausgabe**:
+```
+Warehouse-Informationen:
+Position: (100, 64, -200)
+Belegte Slots: 18/32
+Gesamt Items: 8.450
+Verknüpfte Shop-ID: baumarkt_1
+Verknüpfte Verkäufer: 2
+Tage seit letzter Lieferung: 1
+```
+
+#### Items hinzufügen (Admin)
+
+```
+/warehouse add <item> <anzahl>
+```
 
 **Beispiel**:
-- Dirt (Basispreis: 1€)
-  - Kaufpreis: 1.50€
-  - Verkaufspreis: 0.50€
+```
+/warehouse add minecraft:stone 500
+/warehouse add minecraft:diamond 64
+```
 
-### NPC-Shops vs. Command-Shops
+**Limits**:
+- Max. 1-10.000 Items pro Befehl
+- Max. 1.024 Items pro Slot
 
-| Feature | NPC-Shop | Command-Shop |
-|---------|----------|--------------|
-| Zugriff | Rechtsklick auf NPC | `/shop` Befehle |
-| Preise | Dynamisch (NPC-abhängig) | Fix (Multiplikatoren) |
-| Verhandlung | Ja (Tabak) | Nein |
-| Verfügbarkeit | NPC-abhängig | Immer |
+#### Items entfernen (Admin)
+
+```
+/warehouse remove <item> <anzahl>
+```
+
+**Beispiel**:
+```
+/warehouse remove minecraft:stone 200
+```
+
+#### Warehouse leeren (Admin)
+
+```
+/warehouse clear
+```
+
+**Warnung**: Löscht alle Items unwiderruflich!
+
+#### Shop verknüpfen (Admin)
+
+```
+/warehouse setshop <shopId>
+```
+
+**Beispiel**:
+```
+/warehouse setshop baumarkt_1
+```
+
+Verknüpft das Warehouse mit einem Shop-Account für:
+- Umsatz-Tracking
+- Ausgaben-Tracking
+- Investment-Auszahlungen
+
+### Plot-Warehouse Integration
+
+#### Warehouse zu Plot hinzufügen
+
+```
+/plot warehouse set
+```
+
+**Verwendung**: Schaue auf oder stehe auf einem Warehouse-Block
+
+**Effekt**: Verknüpft Warehouse mit aktuellem Plot
+
+#### Warehouse-Verknüpfung entfernen
+
+```
+/plot warehouse clear
+```
+
+Entfernt Warehouse-Verknüpfung vom Plot.
+
+#### Warehouse-Info für Plot
+
+```
+/plot warehouse info
+```
+
+Zeigt Warehouse-Details für aktuellen Plot.
+
+### NPC-Warehouse Integration
+
+#### NPC mit Warehouse verbinden
+
+```
+/npc <npcName> warehouse set
+```
+
+**Verwendung**: Schaue auf oder stehe auf einem Warehouse-Block
+
+**Effekt**: NPC verkauft Items aus diesem Warehouse
+
+#### Warehouse-Verknüpfung entfernen
+
+```
+/npc <npcName> warehouse clear
+```
+
+#### Warehouse-Info für NPC
+
+```
+/npc <npcName> warehouse info
+```
+
+Zeigt Warehouse-Details für diesen NPC.
+
+### Automatische Lieferungen
+
+#### Wie funktioniert es?
+
+- **Intervall**: Alle 3 Tage (konfigurierbar)
+- **Kosten**: Vom State Account bezahlt
+- **Inhalt**: Basierend auf Shop-Kategorie
+- **Menge**: Füllt Lagerbestand auf
+
+#### Beispiel-Lieferung (Baumarkt)
+
+```
+Neue Lieferung erhalten:
+  - Stone: +500
+  - Oak Planks: +300
+  - Glass: +200
+  - Iron Ingot: +100
+Kosten: 2.500€ (State Account)
+```
+
+### Warehouse-Mechaniken
+
+#### Verkauf aus Warehouse
+
+1. Spieler kauft bei NPC
+2. NPC prüft Warehouse-Inventar
+3. Item wird aus Warehouse entnommen
+4. Geld geht an Shop-Account
+5. Umsatz wird getrackt
+
+#### Lagerbestand-Management
+
+- **Automatisch**: Lieferungen alle 3 Tage
+- **Manuell**: Admin kann Items hinzufügen/entfernen
+- **Warnung**: Bei niedrigem Bestand (< 10% Kapazität)
+
+#### Shop-Account Integration
+
+- Einnahmen aus Verkäufen
+- Ausgaben für Lieferungen
+- Netto-Umsatz für Investment-Auszahlungen
+
+---
+
+## Messaging-System
+
+### Übersicht
+
+Das Messaging-System ermöglicht Kommunikation zwischen Spielern und NPCs.
+
+### Features
+
+- **Player-to-Player** Nachrichten
+- **Player-to-NPC** Nachrichten
+- **Konversations-Historie**
+- **Ungelesene Nachrichten**
+- **Zeitstempel**
+
+### Nachrichten senden
+
+#### Via Smartphone-App
+
+1. Öffne Smartphone (Taste **P**)
+2. Wähle **Messages App** (§3Cyan)
+3. Wähle Konversation oder starte neue
+4. Schreibe Nachricht
+5. Sende
+
+#### Via Command (wenn implementiert)
+
+```
+/msg <spieler> <nachricht>
+```
+
+**Beispiel**:
+```
+/msg Steve Hallo, wie geht's?
+```
+
+### Nachrichten lesen
+
+#### Smartphone Messages App
+
+- Zeigt alle Konversationen
+- Sortiert nach neuesten Nachrichten
+- Ungelesene Nachrichten hervorgehoben
+- Vollständige Historie
+
+#### Notification Overlay
+
+- Erscheint automatisch bei neuer Nachricht
+- Zeigt Absender und Vorschau
+- Verschwindet nach 5 Sekunden
+- Klicken öffnet Messages App
+
+### Konversationen
+
+#### Konversations-Liste
+
+Zeigt:
+- **Kontakt-Name**
+- **Letzte Nachricht** (Vorschau)
+- **Zeitstempel**
+- **Ungelesene Anzahl**
+
+#### Konversations-Ansicht
+
+Zeigt:
+- Vollständige Nachrichtenhistorie
+- Timestamps für jede Nachricht
+- Eingabefeld für neue Nachricht
+- Sende-Button
+
+### NPC-Nachrichten
+
+#### NPC-Templates
+
+NPCs senden automatische Nachrichten bei:
+- Shop-Angeboten
+- Event-Einladungen
+- Quests (wenn implementiert)
+- Persönlichkeits-basierte Grüße
+
+**Beispiel**:
+```
+Von: Händler Karl
+"Hallo! Neue Ware eingetroffen! Komm vorbei!"
+```
+
+#### Antworten auf NPCs
+
+Du kannst auf NPC-Nachrichten antworten. NPCs können:
+- Mit vordefinierten Templates antworten
+- Basierend auf Persönlichkeit reagieren
+- Quests oder Aufgaben geben
+
+---
+
+## Smartphone-System
+
+### Übersicht
+
+Das Smartphone ist ein ingame Werkzeug mit mehreren Apps für verschiedene Features.
+
+### Smartphone öffnen
+
+**Tastenbelegung**: Taste **P** (Standard)
+
+**Ändern**: Minecraft Optionen → Steuerung → ScheduleMC → "Open Smartphone"
+
+### Apps
+
+#### 1. MAP APP (§9Blau)
+
+**Features**:
+- Karten-Ansicht
+- Aktuelle Position
+- Plot-Markierungen
+- Waypoints (geplant)
+
+**Verwendung**:
+- Klicke auf Map-Icon
+- Zoome mit Scroll-Rad
+- Klicke für Details
+
+#### 2. DEALER APP (§cRot)
+
+**Features**:
+- Finde Tabak-Händler
+- NPC-Standorte
+- Preisvergleiche
+- Beste Angebote
+
+**Verwendung**:
+- Liste aller Händler
+- Filtern nach Entfernung
+- Navigation zu Händler
+
+#### 3. PRODUCTS APP (§aGrün)
+
+**Features**:
+- Shop-Katalog
+- Item-Browsing
+- Preislisten
+- Verfügbarkeit
+
+**Verwendung**:
+- Durchsuche alle Shop-Items
+- Vergleiche Preise
+- Finde billigste Angebote
+
+#### 4. ORDER APP (§eGelb)
+
+**Features**:
+- Bestellverwaltung (geplant)
+- Lieferungstracking (geplant)
+- Kaufhistorie
+
+**Verwendung**:
+- Zeige offene Bestellungen
+- Tracke Lieferungen
+- Historie ansehen
+
+#### 5. CONTACTS APP (§5Lila)
+
+**Features**:
+- Spieler-Kontakte
+- NPC-Kontakte
+- Schnellwahl für Messages
+- Kontakt-Details
+
+**Verwendung**:
+- Liste aller Kontakte
+- Klicke für Nachricht
+- Hinzufügen/Entfernen
+
+#### 6. MESSAGES APP (§3Cyan)
+
+**Features**:
+- Inbox
+- Konversations-Management
+- Nachrichtenhistorie
+- Ungelesene Nachrichten
+
+**Verwendung**:
+- Siehe [Messaging-System](#messaging-system)
+
+### Smartphone-Schutz
+
+#### Was ist Smartphone-Schutz?
+
+Wenn du dein Smartphone offen hast, bist du:
+- **Immun gegen Schaden**
+- Andere Spieler können dich nicht angreifen
+- NPCs können dich nicht angreifen
+- Fallschaden ist deaktiviert
+
+#### Angreifer-Strafe
+
+Wenn jemand versucht, dich anzugreifen während Smartphone offen:
+- Angreifer erhält **+1 Wanted-Level** ⭐
+- Du erhältst Benachrichtigung
+- Angreifer erhält Warnung
+
+**Nachricht**:
+```
+§c[NAME] hat versucht dich anzugreifen während du am Smartphone warst!
+§c[NAME] erhält +1 Wanted-Level!
+```
+
+#### Einschränkungen
+
+- Kein Movement während Smartphone offen
+- Keine Block-Interaktionen
+- Keine Item-Nutzung
+- Automatisch schließen bei Damage (ohne Smartphone)
+
+### Smartphone-Einstellungen
+
+#### Tastenbelegung ändern
+
+1. Minecraft Optionen
+2. Steuerung
+3. Kategorie: **ScheduleMC**
+4. **Open Smartphone**
+5. Neue Taste zuweisen
+
+**Empfohlene Tasten**: P, I, K, O
+
+#### Deaktivieren
+
+Wenn du Smartphone nicht nutzen willst:
+- Weise keine Taste zu
+- Oder verwende Command (wenn implementiert)
 
 ---
 
@@ -1147,9 +1642,9 @@ Nimmt einem Spieler Geld weg.
 ```
 
 **NPC-Typen**:
-- `resident`: Bewohner
-- `merchant`: Händler
-- `police`: Polizist
+- `resident` oder `bewohner`: Bewohner
+- `merchant` oder `verkaeufer`: Händler
+- `police` oder `polizei`: Polizist
 
 **Beispiel**:
 ```
@@ -1158,39 +1653,288 @@ Nimmt einem Spieler Geld weg.
 /npc spawn resident Anna_Müller
 ```
 
-#### NPC entfernen
+#### NPC-Informationen anzeigen
 
 ```
-/npc remove <uuid>
+/npc <npcName> info
 ```
-Entfernt einen NPC permanent.
+
+Zeigt vollständige NPC-Daten:
+- Typ, Bewegungsstatus, Geschwindigkeit
+- Home & Work Locations
+- Zeitplan (workstart, workend, hometime)
+- Leisure Locations
+- Inventar (für Bewohner & Händler)
+- Wallet (für Bewohner & Händler)
+- Warehouse-Verknüpfung
 
 **Beispiel**:
 ```
-/npc remove 123e4567-e89b-12d3-a456-426614174000
+/npc Händler_Karl info
 ```
 
-**UUID finden**:
-- Verwende F3+H im Spiel
-- Schaue auf den NPC
-- UUID wird im Tooltip angezeigt
+#### Bewegung aktivieren/deaktivieren
 
-#### NPC-Shop konfigurieren
+```
+/npc <npcName> movement <true|false>
+```
+
+**Beispiel**:
+```
+/npc Händler_Karl movement true
+/npc Officer_Schmidt movement false
+```
+
+#### Bewegungsgeschwindigkeit setzen
+
+```
+/npc <npcName> speed <wert>
+```
+
+**Parameter**: `wert` = 0.1 bis 1.0
+
+**Beispiel**:
+```
+/npc Händler_Karl speed 0.8
+```
+
+### NPC-Zeitplan konfigurieren
+
+#### Arbeitszeit Beginn
+
+```
+/npc <npcName> schedule workstart <HHMM>
+```
+
+**Beispiel**:
+```
+/npc Händler_Karl schedule workstart 0800
+```
+(NPC geht um 8:00 Uhr zur Arbeit)
+
+#### Arbeitszeit Ende
+
+```
+/npc <npcName> schedule workend <HHMM>
+```
+
+**Beispiel**:
+```
+/npc Händler_Karl schedule workend 1700
+```
+(NPC verlässt Arbeit um 17:00 Uhr)
+
+#### Schlafenszeit
+
+```
+/npc <npcName> schedule home <HHMM>
+```
+
+**Beispiel**:
+```
+/npc Anna_Müller schedule home 2200
+```
+(NPC geht um 22:00 Uhr schlafen)
+
+### NPC-Leisure Locations
+
+#### Leisure Location hinzufügen
+
+```
+/npc <npcName> leisure add
+```
+
+Fügt aktuelle Position als Leisure Location hinzu (max. 10)
+
+**Beispiel**:
+```
+/npc Anna_Müller leisure add
+```
+
+#### Leisure Location entfernen
+
+```
+/npc <npcName> leisure remove <index>
+```
+
+**Parameter**: `index` = 0 bis 9
+
+**Beispiel**:
+```
+/npc Anna_Müller leisure remove 2
+```
+
+#### Alle Leisure Locations auflisten
+
+```
+/npc <npcName> leisure list
+```
+
+**Ausgabe**:
+```
+Leisure Locations für Anna_Müller:
+0: (100, 64, 200)
+1: (150, 65, 180)
+2: (120, 64, 220)
+```
+
+#### Alle Leisure Locations löschen
+
+```
+/npc <npcName> leisure clear
+```
+
+Entfernt alle Leisure Locations von diesem NPC.
+
+### NPC-Inventar (Bewohner & Händler)
+
+#### Inventar anzeigen
+
+```
+/npc <npcName> inventory
+```
+
+Zeigt alle 9 Slots des NPC-Inventars.
+
+**Ausgabe**:
+```
+Inventar von Händler_Karl:
+Slot 0: Stone x64
+Slot 1: Oak Planks x32
+Slot 2: (leer)
+...
+```
+
+#### Item geben
+
+```
+/npc <npcName> inventory give <slot> <item>
+```
+
+**Parameter**:
+- `slot`: 0-8
+- `item`: Minecraft Item-ID
+
+**Beispiel**:
+```
+/npc Händler_Karl inventory give 0 minecraft:diamond
+/npc Anna_Müller inventory give 5 minecraft:bread 16
+```
+
+#### Inventar leeren
+
+```
+/npc <npcName> inventory clear [slot]
+```
+
+**Ohne Slot**: Leert gesamtes Inventar
+
+**Mit Slot**: Leert nur diesen Slot
+
+**Beispiel**:
+```
+/npc Händler_Karl inventory clear
+/npc Anna_Müller inventory clear 3
+```
+
+### NPC-Wallet (Bewohner & Händler)
+
+#### Wallet anzeigen
+
+```
+/npc <npcName> wallet
+```
+
+Zeigt aktuellen Cash-Bestand des NPCs.
+
+**Ausgabe**:
+```
+Händler_Karl Wallet: 450.00€
+```
+
+#### Wallet-Betrag setzen
+
+```
+/npc <npcName> wallet set <betrag>
+```
+
+**Beispiel**:
+```
+/npc Händler_Karl wallet set 1000
+```
+
+#### Geld hinzufügen
+
+```
+/npc <npcName> wallet add <betrag>
+```
+
+**Beispiel**:
+```
+/npc Anna_Müller wallet add 500
+```
+
+#### Geld entfernen
+
+```
+/npc <npcName> wallet remove <betrag>
+```
+
+**Beispiel**:
+```
+/npc Händler_Karl wallet remove 200
+```
+
+### NPC-Warehouse Verknüpfung
+
+#### Warehouse setzen
+
+```
+/npc <npcName> warehouse set
+```
+
+**Verwendung**: Schaue auf oder stehe auf Warehouse-Block
+
+#### Warehouse entfernen
+
+```
+/npc <npcName> warehouse clear
+```
+
+#### Warehouse-Info
+
+```
+/npc <npcName> warehouse info
+```
+
+### NPC-Shop konfigurieren
 
 ```
 /npc setshop <uuid> <kategorie>
 ```
 
 **Kategorien**:
-- `baumarkt`
-- `lebensmittel`
-- `waffen`
-- `sonstiges`
+- `baumarkt` - Hardware Store
+- `waffenhaendler` - Gun Shop
+- `tankstelle` - Gas Station
+- `lebensmittel` - Grocery
+- `personalmanagement` - HR
+- `illegaler_haendler` - Black Market
 
 **Beispiel**:
 ```
 /npc setshop 123e4567-e89b-12d3-a456-426614174000 baumarkt
 ```
+
+### NPC entfernen
+
+```
+/npc remove <uuid>
+```
+
+Entfernt NPC permanent.
+
+**UUID finden**: F3+H aktivieren, auf NPC schauen
 
 ### Plot-Admin
 
@@ -1199,6 +1943,183 @@ Die meisten Plot-Befehle sind bereits für normale Spieler verfügbar. Admins ha
 - Können **jeden Plot** bearbeiten (nicht nur eigene)
 - Können Plots **löschen** ohne Rückerstattung
 - Können Spieler aus **jedem Plot** entfernen
+
+#### Plot-Typ ändern
+
+```
+/plot settype <type>
+```
+
+**Typen**:
+- `RESIDENTIAL` - Wohngebiet (kaufbar)
+- `COMMERCIAL` - Gewerbefläche (kaufbar)
+- `SHOP` - Laden (Regierung, nicht kaufbar)
+- `PUBLIC` - Öffentlich (Regierung, nicht kaufbar)
+- `GOVERNMENT` - Regierung (nicht kaufbar)
+
+**Verwendung**: Stehe auf Plot
+
+**Beispiel**:
+```
+/plot settype COMMERCIAL
+/plot settype SHOP
+```
+
+#### Plot-Besitzer setzen
+
+```
+/plot setowner <player>
+```
+
+Setzt Besitzer des Plots, auf dem du stehst.
+
+**Beispiel**:
+```
+/plot setowner Steve
+```
+
+#### Plot entfernen
+
+```
+/plot remove
+```
+
+Entfernt Plot permanent (keine Rückerstattung).
+
+**Warnung**: Unwiderruflich!
+
+#### Spatial Index neu aufbauen
+
+```
+/plot reindex
+```
+
+Baut Spatial Index für alle Plots neu auf.
+
+**Verwendung**: Bei Performance-Problemen oder nach Datenbank-Korruption.
+
+#### Plot-Debug-Info
+
+```
+/plot debug
+```
+
+Zeigt Debug-Informationen für aktuelle Position:
+- Chunk-Koordinaten
+- Spatial Index Buckets
+- Plot-Lookups
+- Performance-Metriken
+
+### State-Account Admin
+
+#### Kontostand anzeigen
+
+```
+/state balance
+```
+
+Zeigt State-Account Balance.
+
+**Ausgabe**:
+```
+State Account: 125.450€
+```
+
+#### Geld einzahlen
+
+```
+/state deposit <betrag>
+```
+
+Zahlt Geld vom eigenen Konto in State Account ein.
+
+**Beispiel**:
+```
+/state deposit 10000
+```
+
+#### Geld abheben
+
+```
+/state withdraw <betrag>
+```
+
+Hebt Geld aus State Account ab (zu eigenem Konto).
+
+**Beispiel**:
+```
+/state withdraw 5000
+```
+
+**Hinweis**: State Account zahlt für Warehouse-Lieferungen.
+
+### Hospital-Admin
+
+#### Hospital-Spawn setzen
+
+```
+/hospital setspawn
+```
+
+Setzt Hospital Respawn-Point auf aktuelle Position.
+
+**Verwendung**: Spieler spawnen hier nach Verhaftung.
+
+#### Kaution-Gebühr setzen
+
+```
+/hospital setfee <betrag>
+```
+
+Setzt Basis-Kautionsgebühr.
+
+**Standard**: 100€ pro Wanted-Star
+
+**Beispiel**:
+```
+/hospital setfee 200
+```
+(200€ pro Stern)
+
+#### Hospital-Info
+
+```
+/hospital info
+```
+
+Zeigt:
+- Hospital Spawn Location
+- Kautions-Gebühr
+- Anzahl Verhaftungen (gesamt)
+
+### Warehouse-Admin
+
+Alle Warehouse-Befehle erfordern Admin-Rechte. Siehe [Warehouse-System](#warehouse-system) für Details:
+
+- `/warehouse info` - Info anzeigen
+- `/warehouse add <item> <anzahl>` - Items hinzufügen
+- `/warehouse remove <item> <anzahl>` - Items entfernen
+- `/warehouse clear` - Komplett leeren
+- `/warehouse setshop <shopId>` - Shop verknüpfen
+
+### Tabak-Admin
+
+#### Items geben
+
+```
+/tobacco give <item>
+```
+
+**Items**:
+- Seeds: `virginia_seeds`, `burley_seeds`, `oriental_seeds`, `havana_seeds`
+- Boosters: `fertilizer`, `growth_booster`, `quality_booster`
+- Tools: `watering_can`
+
+**Beispiel**:
+```
+/tobacco give havana_seeds
+/tobacco give growth_booster
+```
 
 ---
 

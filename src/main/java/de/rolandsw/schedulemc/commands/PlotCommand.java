@@ -11,7 +11,9 @@ import de.rolandsw.schedulemc.items.ModItems;
 import de.rolandsw.schedulemc.items.PlotSelectionTool;
 import de.rolandsw.schedulemc.region.PlotManager;
 import de.rolandsw.schedulemc.region.PlotRegion;
+import de.rolandsw.schedulemc.region.PlotType;
 import de.rolandsw.schedulemc.region.blocks.PlotBlocks;
+import de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -19,6 +21,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -39,13 +46,36 @@ public class PlotCommand {
                 .then(Commands.literal("wand")
                         .executes(PlotCommand::giveWand))
                 
-                // /plot create <preis> [public]
+                // /plot create <type> <name> [price]
                 .then(Commands.literal("create")
                         .requires(source -> source.hasPermission(2))
-                        .then(Commands.argument("price", DoubleArgumentType.doubleArg(0.01))
-                                .executes(PlotCommand::createPlot)
-                                .then(Commands.literal("public")
-                                        .executes(PlotCommand::createPublicPlot))))
+
+                        // /plot create residential <name> <price>
+                        .then(Commands.literal("residential")
+                                .then(Commands.argument("name", StringArgumentType.string())
+                                        .then(Commands.argument("price", DoubleArgumentType.doubleArg(0.01))
+                                                .executes(ctx -> createPlotWithType(ctx, PlotType.RESIDENTIAL)))))
+
+                        // /plot create commercial <name> <price>
+                        .then(Commands.literal("commercial")
+                                .then(Commands.argument("name", StringArgumentType.string())
+                                        .then(Commands.argument("price", DoubleArgumentType.doubleArg(0.01))
+                                                .executes(ctx -> createPlotWithType(ctx, PlotType.COMMERCIAL)))))
+
+                        // /plot create shop <name>
+                        .then(Commands.literal("shop")
+                                .then(Commands.argument("name", StringArgumentType.string())
+                                        .executes(ctx -> createPlotWithType(ctx, PlotType.SHOP))))
+
+                        // /plot create public <name>
+                        .then(Commands.literal("public")
+                                .then(Commands.argument("name", StringArgumentType.string())
+                                        .executes(ctx -> createPlotWithType(ctx, PlotType.PUBLIC))))
+
+                        // /plot create government <name>
+                        .then(Commands.literal("government")
+                                .then(Commands.argument("name", StringArgumentType.string())
+                                        .executes(ctx -> createPlotWithType(ctx, PlotType.GOVERNMENT)))))
                 
                 // /plot setowner <player>
                 .then(Commands.literal("setowner")
@@ -203,6 +233,22 @@ public class PlotCommand {
                                 .then(Commands.argument("apartmentId", StringArgumentType.string())
                                         .executes(PlotCommand::evictTenant)))
                 )
+
+                // /plot settype <type>
+                .then(Commands.literal("settype")
+                        .requires(source -> source.hasPermission(2))
+                        .then(Commands.argument("type", StringArgumentType.string())
+                                .executes(PlotCommand::setPlotType)))
+
+                // /plot warehouse set
+                .then(Commands.literal("warehouse")
+                        .requires(source -> source.hasPermission(2))
+                        .then(Commands.literal("set")
+                                .executes(PlotCommand::setWarehouseLocation))
+                        .then(Commands.literal("clear")
+                                .executes(PlotCommand::clearWarehouseLocation))
+                        .then(Commands.literal("info")
+                                .executes(PlotCommand::warehouseInfo)))
         );
     }
 
@@ -210,13 +256,13 @@ public class PlotCommand {
         try {
             ServerPlayer player = ctx.getSource().getPlayerOrException();
             ItemStack wand = new ItemStack(ModItems.PLOT_SELECTION_TOOL.get());
-            
+
             if (player.getInventory().add(wand)) {
                 ctx.getSource().sendSuccess(() -> Component.literal(
                     "§a✓ Plot-Auswahl-Werkzeug erhalten!\n" +
                     "§7Linksklick: §ePosition 1\n" +
                     "§7Rechtsklick auf Block: §ePosition 2\n" +
-                    "§7Dann: §e/plot create <preis>"
+                    "§7Dann: §e/plot create <type> <name> [price]"
                 ), false);
             } else {
                 ctx.getSource().sendFailure(Component.literal("§cInventar ist voll!"));
@@ -228,14 +274,31 @@ public class PlotCommand {
         }
     }
 
-    private static int createPlot(CommandContext<CommandSourceStack> ctx) {
+    /**
+     * Erstellt einen Plot mit spezifischem Typ
+     */
+    private static int createPlotWithType(CommandContext<CommandSourceStack> ctx, PlotType type) {
         try {
             ServerPlayer player = ctx.getSource().getPlayerOrException();
-            double price = DoubleArgumentType.getDouble(ctx, "price");
-            
+            String name = StringArgumentType.getString(ctx, "name");
+
+            // Preis nur für kaufbare Typen erforderlich
+            double price = 0.0;
+            if (type.canBePurchased()) {
+                try {
+                    price = DoubleArgumentType.getDouble(ctx, "price");
+                } catch (IllegalArgumentException e) {
+                    ctx.getSource().sendFailure(Component.literal(
+                        "§cFehler: " + type.getDisplayName() + " benötigt einen Preis!\n" +
+                        "§7Verwendung: §e/plot create " + type.name().toLowerCase() + " <name> <price>"
+                    ));
+                    return 0;
+                }
+            }
+
             BlockPos pos1 = PlotSelectionTool.getPosition1(player.getUUID());
             BlockPos pos2 = PlotSelectionTool.getPosition2(player.getUUID());
-            
+
             if (pos1 == null || pos2 == null) {
                 ctx.getSource().sendFailure(Component.literal(
                     "§cKeine Auswahl vorhanden!\n" +
@@ -243,57 +306,28 @@ public class PlotCommand {
                 ));
                 return 0;
             }
-            
-            PlotRegion plot = PlotManager.createPlot(pos1, pos2, price);
+
+            // Erstelle Plot mit Namen und Typ
+            PlotRegion plot = PlotManager.createPlot(pos1, pos2, name, type, price);
             PlotSelectionTool.clearSelection(player.getUUID());
-            
+
+            // Erfolgs-Nachricht basierend auf Typ
+            String priceInfo = type.canBePurchased() ?
+                "\n§7Preis: §e" + String.format("%.2f", price) + "€" :
+                "\n§7Staatseigentum (nicht kaufbar)";
+
             ctx.getSource().sendSuccess(() -> Component.literal(
-                "§a✓ Plot erstellt!\n" +
-                "§7ID: §e" + plot.getPlotId() + "\n" +
-                "§7Preis: §e" + String.format("%.2f", price) + "€\n" +
+                "§a✓ " + type.getDisplayName() + " erstellt!\n" +
+                "§7Name: §e" + plot.getPlotId() + "\n" +
+                "§7Typ: §b" + type.getDisplayName() +
+                priceInfo + "\n" +
                 "§7Größe: §e" + plot.getVolume() + " Blöcke"
             ), true);
-            
-            return 1;
-        } catch (Exception e) {
-            LOGGER.error("Fehler bei /plot create", e);
-            ctx.getSource().sendFailure(Component.literal("§cFehler beim Erstellen des Plots!"));
-            return 0;
-        }
-    }
 
-    private static int createPublicPlot(CommandContext<CommandSourceStack> ctx) {
-        try {
-            ServerPlayer player = ctx.getSource().getPlayerOrException();
-            double price = DoubleArgumentType.getDouble(ctx, "price");
-            
-            BlockPos pos1 = PlotSelectionTool.getPosition1(player.getUUID());
-            BlockPos pos2 = PlotSelectionTool.getPosition2(player.getUUID());
-            
-            if (pos1 == null || pos2 == null) {
-                ctx.getSource().sendFailure(Component.literal(
-                    "§cKeine Auswahl vorhanden!\n" +
-                    "§7Benutze das Selection Tool um zwei Positionen zu markieren."
-                ));
-                return 0;
-            }
-            
-            PlotRegion plot = PlotManager.createPlot(pos1, pos2, price);
-            plot.setPublic(true);
-            PlotSelectionTool.clearSelection(player.getUUID());
-            PlotManager.markDirty();
-            
-            ctx.getSource().sendSuccess(() -> Component.literal(
-                "§a✓ Öffentlicher Plot erstellt!\n" +
-                "§7ID: §e" + plot.getPlotId() + "\n" +
-                "§d§lÖFFENTLICH\n" +
-                "§7Jeder kann Objekte benutzen\n" +
-                "§7Niemand kann bauen/abbauen"
-            ), true);
-            
             return 1;
         } catch (Exception e) {
-            LOGGER.error("Fehler bei /plot create public", e);
+            LOGGER.error("Fehler bei /plot create " + type.name(), e);
+            ctx.getSource().sendFailure(Component.literal("§cFehler beim Erstellen des Plots!"));
             return 0;
         }
     }
@@ -1628,5 +1662,168 @@ public class PlotCommand {
         }
 
         return apartment;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // WAREHOUSE & PLOT TYPE COMMANDS
+    // ═══════════════════════════════════════════════════════════
+
+    private static int setPlotType(CommandContext<CommandSourceStack> ctx) {
+        try {
+            ServerPlayer player = ctx.getSource().getPlayerOrException();
+            String typeStr = StringArgumentType.getString(ctx, "type").toUpperCase();
+
+            PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
+            if (plot == null) {
+                ctx.getSource().sendFailure(Component.literal("§cDu stehst nicht in einem Plot!"));
+                return 0;
+            }
+
+            try {
+                de.rolandsw.schedulemc.region.PlotType type = de.rolandsw.schedulemc.region.PlotType.valueOf(typeStr);
+                plot.setType(type);
+                PlotManager.markDirty();
+
+                ctx.getSource().sendSuccess(() -> Component.literal(
+                    "§a✓ Plot-Typ geändert!\n" +
+                    "§7Neuer Typ: §e" + type.getDisplayName()
+                ), false);
+                return 1;
+            } catch (IllegalArgumentException e) {
+                ctx.getSource().sendFailure(Component.literal(
+                    "§cUngültiger Plot-Typ!\n" +
+                    "§7Verfügbar: §eRESIDENTIAL, COMMERCIAL, SHOP, PUBLIC, GOVERNMENT"
+                ));
+                return 0;
+            }
+        } catch (Exception e) {
+            LOGGER.error("Fehler bei /plot settype", e);
+            return 0;
+        }
+    }
+
+    /**
+     * Findet die Position des Warehouse-Blocks, auf den der Spieler schaut
+     */
+    private static BlockPos findWarehouseBlockPos(ServerPlayer player) {
+        // Zuerst: Prüfe Block, auf den der Spieler schaut (Raycast)
+        Vec3 eyePos = player.getEyePosition(1.0F);
+        Vec3 lookVec = player.getLookAngle();
+        Vec3 endPos = eyePos.add(lookVec.scale(5.0)); // 5 Blöcke Reichweite
+
+        BlockHitResult hitResult = player.level().clip(new ClipContext(
+            eyePos, endPos,
+            ClipContext.Block.OUTLINE,
+            ClipContext.Fluid.NONE,
+            player
+        ));
+
+        if (hitResult.getType() == HitResult.Type.BLOCK) {
+            BlockEntity be = player.level().getBlockEntity(hitResult.getBlockPos());
+            if (be instanceof WarehouseBlockEntity) {
+                return hitResult.getBlockPos();
+            }
+        }
+
+        // Fallback: Prüfe Position unter dem Spieler
+        BlockPos playerPos = player.blockPosition();
+        BlockEntity be = player.level().getBlockEntity(playerPos.below());
+        if (be instanceof WarehouseBlockEntity) {
+            return playerPos.below();
+        }
+
+        // Prüfe Position des Spielers selbst
+        be = player.level().getBlockEntity(playerPos);
+        if (be instanceof WarehouseBlockEntity) {
+            return playerPos;
+        }
+
+        return null;
+    }
+
+    private static int setWarehouseLocation(CommandContext<CommandSourceStack> ctx) {
+        try {
+            ServerPlayer player = ctx.getSource().getPlayerOrException();
+
+            BlockPos warehousePos = findWarehouseBlockPos(player);
+            if (warehousePos == null) {
+                ctx.getSource().sendFailure(Component.literal("§cKein Warehouse gefunden! Schaue auf einen Warehouse-Block oder stehe direkt darauf."));
+                return 0;
+            }
+
+            PlotRegion plot = PlotManager.getPlotAt(warehousePos);
+            if (plot == null) {
+                ctx.getSource().sendFailure(Component.literal("§cDas Warehouse befindet sich nicht in einem Plot!"));
+                return 0;
+            }
+
+            plot.setWarehouseLocation(warehousePos);
+            PlotManager.markDirty();
+
+            ctx.getSource().sendSuccess(() -> Component.literal(
+                "§a✓ Warehouse-Position gesetzt!\n" +
+                "§7Plot: §e" + plot.getPlotId() + "\n" +
+                "§7Position: §f" + warehousePos.getX() + ", " + warehousePos.getY() + ", " + warehousePos.getZ()
+            ), false);
+            return 1;
+        } catch (Exception e) {
+            LOGGER.error("Fehler bei /plot warehouse set", e);
+            return 0;
+        }
+    }
+
+    private static int clearWarehouseLocation(CommandContext<CommandSourceStack> ctx) {
+        try {
+            ServerPlayer player = ctx.getSource().getPlayerOrException();
+
+            PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
+            if (plot == null) {
+                ctx.getSource().sendFailure(Component.literal("§cDu stehst nicht in einem Plot!"));
+                return 0;
+            }
+
+            plot.setWarehouseLocation(null);
+            PlotManager.markDirty();
+
+            ctx.getSource().sendSuccess(() -> Component.literal(
+                "§a✓ Warehouse-Position entfernt!\n" +
+                "§7Plot: §e" + plot.getPlotId()
+            ), false);
+            return 1;
+        } catch (Exception e) {
+            LOGGER.error("Fehler bei /plot warehouse clear", e);
+            return 0;
+        }
+    }
+
+    private static int warehouseInfo(CommandContext<CommandSourceStack> ctx) {
+        try {
+            ServerPlayer player = ctx.getSource().getPlayerOrException();
+
+            PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
+            if (plot == null) {
+                ctx.getSource().sendFailure(Component.literal("§cDu stehst nicht in einem Plot!"));
+                return 0;
+            }
+
+            BlockPos warehousePos = plot.getWarehouseLocation();
+            if (warehousePos == null) {
+                ctx.getSource().sendSuccess(() -> Component.literal(
+                    "§e=== Warehouse Info ===\n" +
+                    "§7Plot: §e" + plot.getPlotId() + "\n" +
+                    "§7Status: §cKein Warehouse verknüpft"
+                ), false);
+            } else {
+                ctx.getSource().sendSuccess(() -> Component.literal(
+                    "§e=== Warehouse Info ===\n" +
+                    "§7Plot: §e" + plot.getPlotId() + "\n" +
+                    "§7Position: §f" + warehousePos.getX() + ", " + warehousePos.getY() + ", " + warehousePos.getZ()
+                ), false);
+            }
+            return 1;
+        } catch (Exception e) {
+            LOGGER.error("Fehler bei /plot warehouse info", e);
+            return 0;
+        }
     }
 }

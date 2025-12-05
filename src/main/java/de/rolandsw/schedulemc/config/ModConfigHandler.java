@@ -107,6 +107,13 @@ public class ModConfigHandler {
         public final ForgeConfigSpec.DoubleValue STEALING_MIN_ZONE_SIZE;
         public final ForgeConfigSpec.DoubleValue STEALING_MAX_ZONE_SIZE;
 
+        // ═══════════════════════════════════════════════════════════
+        // WAREHOUSE SYSTEM
+        // ═══════════════════════════════════════════════════════════
+        public final ForgeConfigSpec.IntValue WAREHOUSE_SLOT_COUNT;
+        public final ForgeConfigSpec.IntValue WAREHOUSE_MAX_CAPACITY_PER_SLOT;
+        public final ForgeConfigSpec.IntValue WAREHOUSE_DELIVERY_INTERVAL_DAYS;
+
         public Common(ForgeConfigSpec.Builder builder) {
             
             builder.comment("ScheduleMC 3.0 - Economy Settings")
@@ -362,6 +369,23 @@ public class ModConfigHandler {
             STEALING_MAX_ZONE_SIZE = builder
                     .comment("Maximale Größe der Erfolgszone (einfach, niedriger Wert, 0.15 = 15%)")
                     .defineInRange("max_zone_size", 0.15, 0.01, 0.5);
+
+            builder.pop();
+
+            builder.comment("Warehouse System Settings")
+                    .push("warehouse");
+
+            WAREHOUSE_SLOT_COUNT = builder
+                    .comment("Anzahl verschiedener Item-Slots pro Warehouse")
+                    .defineInRange("slot_count", 32, 8, 128);
+
+            WAREHOUSE_MAX_CAPACITY_PER_SLOT = builder
+                    .comment("Maximale Item-Menge pro Slot (16 Stacks = 1024)")
+                    .defineInRange("max_capacity_per_slot", 1024, 64, 10000);
+
+            WAREHOUSE_DELIVERY_INTERVAL_DAYS = builder
+                    .comment("Lieferungs-Intervall in Minecraft-Tagen")
+                    .defineInRange("delivery_interval_days", 3, 1, 30);
 
             builder.pop();
         }

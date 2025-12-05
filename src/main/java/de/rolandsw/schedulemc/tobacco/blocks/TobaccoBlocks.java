@@ -77,26 +77,66 @@ public class TobaccoBlocks {
     // ═══════════════════════════════════════════════════════════
     // VERARBEITUNGS-BLÖCKE
     // ═══════════════════════════════════════════════════════════
-    
-    public static final RegistryObject<Block> DRYING_RACK = registerBlockWithItem(
-        "drying_rack",
-        () -> new DryingRackBlock(
+
+    // Trocknungsgestelle (3 Größen)
+    public static final RegistryObject<Block> SMALL_DRYING_RACK = registerBlockWithItem(
+        "small_drying_rack",
+        () -> new SmallDryingRackBlock(
             BlockBehaviour.Properties.of()
                 .strength(2.0f)
                 .sound(SoundType.WOOD)
                 .noOcclusion()
         )
     );
-    
-    public static final RegistryObject<Block> FERMENTATION_BARREL = registerBlockWithItem(
-        "fermentation_barrel",
-        () -> new FermentationBarrelBlock(
+
+    public static final RegistryObject<Block> MEDIUM_DRYING_RACK = registerBlockWithItem(
+        "medium_drying_rack",
+        () -> new MediumDryingRackBlock(
+            BlockBehaviour.Properties.of()
+                .strength(2.0f)
+                .sound(SoundType.WOOD)
+                .noOcclusion()
+        )
+    );
+
+    public static final RegistryObject<Block> BIG_DRYING_RACK = registerBlockWithItem(
+        "big_drying_rack",
+        () -> new BigDryingRackBlock(
+            BlockBehaviour.Properties.of()
+                .strength(2.0f)
+                .sound(SoundType.WOOD)
+                .noOcclusion()
+        )
+    );
+
+    // Fermentierungsfässer (3 Größen)
+    public static final RegistryObject<Block> SMALL_FERMENTATION_BARREL = registerBlockWithItem(
+        "small_fermentation_barrel",
+        () -> new SmallFermentationBarrelBlock(
             BlockBehaviour.Properties.of()
                 .strength(2.5f)
                 .sound(SoundType.WOOD)
         )
     );
-    
+
+    public static final RegistryObject<Block> MEDIUM_FERMENTATION_BARREL = registerBlockWithItem(
+        "medium_fermentation_barrel",
+        () -> new MediumFermentationBarrelBlock(
+            BlockBehaviour.Properties.of()
+                .strength(2.5f)
+                .sound(SoundType.WOOD)
+        )
+    );
+
+    public static final RegistryObject<Block> BIG_FERMENTATION_BARREL = registerBlockWithItem(
+        "big_fermentation_barrel",
+        () -> new BigFermentationBarrelBlock(
+            BlockBehaviour.Properties.of()
+                .strength(2.5f)
+                .sound(SoundType.WOOD)
+        )
+    );
+
     public static final RegistryObject<Block> SINK = registerBlockWithItem(
         "sink",
         () -> new SinkBlock(
@@ -107,15 +147,7 @@ public class TobaccoBlocks {
         )
     );
 
-    public static final RegistryObject<Block> PACKAGING_TABLE = registerBlockWithItem(
-        "packaging_table",
-        () -> new PackagingTableBlock(
-            BlockBehaviour.Properties.of()
-                .strength(2.5f)
-                .sound(SoundType.WOOD)
-        )
-    );
-
+    // Packtische (3 Größen)
     public static final RegistryObject<Block> SMALL_PACKAGING_TABLE = registerBlockWithItem(
         "small_packaging_table",
         () -> new SmallPackagingTableBlock(

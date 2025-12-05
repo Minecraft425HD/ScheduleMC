@@ -12,7 +12,17 @@ public class TobaccoConfig {
     public final ForgeConfigSpec.IntValue TOBACCO_DRYING_TIME;
     public final ForgeConfigSpec.IntValue TOBACCO_FERMENTING_TIME;
     public final ForgeConfigSpec.DoubleValue FERMENTATION_QUALITY_CHANCE;
-    
+
+    // Trocknungsgestell-Kapazitäten
+    public final ForgeConfigSpec.IntValue SMALL_DRYING_RACK_CAPACITY;
+    public final ForgeConfigSpec.IntValue MEDIUM_DRYING_RACK_CAPACITY;
+    public final ForgeConfigSpec.IntValue BIG_DRYING_RACK_CAPACITY;
+
+    // Fermentierungsfass-Kapazitäten
+    public final ForgeConfigSpec.IntValue SMALL_FERMENTATION_BARREL_CAPACITY;
+    public final ForgeConfigSpec.IntValue MEDIUM_FERMENTATION_BARREL_CAPACITY;
+    public final ForgeConfigSpec.IntValue BIG_FERMENTATION_BARREL_CAPACITY;
+
     // Topf-Kapazitäten
     public final ForgeConfigSpec.IntValue TERRACOTTA_WATER_CAPACITY;
     public final ForgeConfigSpec.IntValue CERAMIC_WATER_CAPACITY;
@@ -62,7 +72,43 @@ public class TobaccoConfig {
         FERMENTATION_QUALITY_CHANCE = builder
                 .comment("Chance auf Qualitätsverbesserung bei Fermentierung (0.3 = 30%)")
                 .defineInRange("fermentation_quality_chance", 0.3, 0.0, 1.0);
-        
+
+        builder.pop();
+
+        // Trocknungsgestell-Kapazitäten
+        builder.comment("Drying Rack Capacities")
+                .push("drying_rack_capacities");
+
+        SMALL_DRYING_RACK_CAPACITY = builder
+                .comment("Kapazität des kleinen Trocknungsgestells")
+                .defineInRange("small_capacity", 6, 1, 64);
+
+        MEDIUM_DRYING_RACK_CAPACITY = builder
+                .comment("Kapazität des mittleren Trocknungsgestells")
+                .defineInRange("medium_capacity", 8, 1, 64);
+
+        BIG_DRYING_RACK_CAPACITY = builder
+                .comment("Kapazität des großen Trocknungsgestells")
+                .defineInRange("big_capacity", 10, 1, 64);
+
+        builder.pop();
+
+        // Fermentierungsfass-Kapazitäten
+        builder.comment("Fermentation Barrel Capacities")
+                .push("fermentation_barrel_capacities");
+
+        SMALL_FERMENTATION_BARREL_CAPACITY = builder
+                .comment("Kapazität des kleinen Fermentierungsfasses")
+                .defineInRange("small_capacity", 6, 1, 64);
+
+        MEDIUM_FERMENTATION_BARREL_CAPACITY = builder
+                .comment("Kapazität des mittleren Fermentierungsfasses")
+                .defineInRange("medium_capacity", 8, 1, 64);
+
+        BIG_FERMENTATION_BARREL_CAPACITY = builder
+                .comment("Kapazität des großen Fermentierungsfasses")
+                .defineInRange("big_capacity", 10, 1, 64);
+
         builder.pop();
         
         // Topf-Kapazitäten

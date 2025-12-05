@@ -6,6 +6,7 @@ import de.rolandsw.schedulemc.tobacco.items.TobaccoItems;
 import de.rolandsw.schedulemc.economy.blocks.EconomyBlocks;
 import de.rolandsw.schedulemc.npc.items.NPCItems;
 import de.rolandsw.schedulemc.region.blocks.PlotBlocks;
+import de.rolandsw.schedulemc.warehouse.WarehouseBlocks;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -120,10 +121,20 @@ public class ModCreativeTabs {
                 // ═══════════════════════════════════════════════════════════
                 // VERARBEITUNGS-BLÖCKE
                 // ═══════════════════════════════════════════════════════════
-                output.accept(TobaccoBlocks.DRYING_RACK.get());
-                output.accept(TobaccoBlocks.FERMENTATION_BARREL.get());
+                // Trocknungsgestelle (3 Größen)
+                output.accept(TobaccoBlocks.SMALL_DRYING_RACK.get());
+                output.accept(TobaccoBlocks.MEDIUM_DRYING_RACK.get());
+                output.accept(TobaccoBlocks.BIG_DRYING_RACK.get());
+
+                // Fermentierungsfässer (3 Größen)
+                output.accept(TobaccoBlocks.SMALL_FERMENTATION_BARREL.get());
+                output.accept(TobaccoBlocks.MEDIUM_FERMENTATION_BARREL.get());
+                output.accept(TobaccoBlocks.BIG_FERMENTATION_BARREL.get());
+
+                // Weitere Verarbeitungsblöcke
                 output.accept(TobaccoBlocks.SINK.get());
-                output.accept(TobaccoBlocks.PACKAGING_TABLE.get());
+
+                // Packtische (3 Größen)
                 output.accept(TobaccoBlocks.SMALL_PACKAGING_TABLE.get());
                 output.accept(TobaccoBlocks.MEDIUM_PACKAGING_TABLE.get());
                 output.accept(TobaccoBlocks.LARGE_PACKAGING_TABLE.get());
@@ -140,6 +151,11 @@ public class ModCreativeTabs {
                 // ═══════════════════════════════════════════════════════════
                 output.accept(EconomyBlocks.CASH_BLOCK.get());
                 output.accept(EconomyBlocks.ATM_BLOCK.get());
+
+                // ═══════════════════════════════════════════════════════════
+                // WAREHOUSE BLOCKS
+                // ═══════════════════════════════════════════════════════════
+                output.accept(WarehouseBlocks.WAREHOUSE_ITEM.get());
             })
             .build()
     );

@@ -5,7 +5,7 @@
 ![Minecraft](https://img.shields.io/badge/Minecraft-1.20.1-green?style=for-the-badge)
 ![Forge](https://img.shields.io/badge/Forge-47.4.0-orange?style=for-the-badge)
 ![Java](https://img.shields.io/badge/Java-17-blue?style=for-the-badge)
-![Version](https://img.shields.io/badge/Version-1.0.0--alpha-red?style=for-the-badge)
+![Version](https://img.shields.io/badge/Version-1.8.0--alpha-red?style=for-the-badge)
 
 **Minecraft Schedule Mod**
 
@@ -37,10 +37,14 @@ Schedule in Minecraft!
 - ✅ **Plot-Management** - Kaufe, verkaufe und vermiete Grundstücke
 - ✅ **Apartment-System** - Erstelle Untervermietungen mit Kautionssystem
 - ✅ **Wirtschaftssystem** - Spieler-Konten, Geldtransfer und Shops
+- ✅ **Shop-Investment** - Kaufe Anteile an Shops und erhalte Auszahlungen
+- ✅ **Warehouse-System** - Lagerbestandsverwaltung für NPC-Händler
 - ✅ **NPC-System** - Intelligente NPCs mit KI, Zeitplänen und Skins
 - ✅ **Polizei & Verbrechen** - Wanted-Level System mit Verfolgungsjagden
 - ✅ **Tabak-Anbau** - Kompletter Anbauzyklus von der Saat bis zur Verpackung
 - ✅ **Diebstahl-Minigame** - Interaktives Gameplay-Element
+- ✅ **Messaging-System** - Player-to-Player und Player-to-NPC Kommunikation
+- ✅ **Smartphone** - Ingame-Smartphone mit 6 Apps (Map, Dealer, Products, etc.)
 - ✅ **Tägliche Belohnungen** - Login-Belohnungen mit Streak-System
 - ✅ **Rating-System** - Bewerte Plots von anderen Spielern
 - ✅ **Mehrsprachig** - Deutsch und Englisch
@@ -138,10 +142,65 @@ Login-Belohnungen mit Streak-System:
 
 NPC-basierte Shops mit dynamischen Preisen:
 
-- Kategorien (Baumarkt, Lebensmittel, etc.)
+- Kategorien (Baumarkt, Lebensmittel, Waffen, etc.)
 - Kauf- und Verkaufsmultiplikatoren
 - NPC-Händler Integration
-- Admin-Shop-Editor
+- Admin-Shop-Editor (SHIFT + Left-Click)
+
+### 📊 Shop-Investment System
+
+Investiere in NPC-Shops und verdiene Geld:
+
+- **100 Anteile** pro Shop (1.000€ pro Anteil)
+- **Automatische Auszahlungen** alle 7 Tage
+- **Netto-Umsatz** basierte Rendite
+- Max. **2 Aktionäre** pro Shop
+- Wiederverkauf mit 75% Rückerstattung
+
+**Beispiel**: 40 Anteile (40.000€) in profitablem Shop → 2.800€ Wochenrendite
+
+### 📦 Warehouse-System
+
+Lagerbestandsverwaltung für NPC-Händler:
+
+- **32 Slots**, je 1.024 Items Kapazität
+- **Automatische Lieferungen** alle 3 Tage
+- Verknüpfung mit Shop-Plots
+- Verknüpfung mit NPC-Händlern
+- State Account zahlt Lieferungskosten
+- Umsatz- und Ausgaben-Tracking
+
+**Verwendung**: NPCs verkaufen Items aus Warehouse-Inventar
+
+### 💬 Messaging-System
+
+Kommunikation zwischen Spielern und NPCs:
+
+- **Player-to-Player** Nachrichten
+- **Player-to-NPC** Nachrichten
+- Konversationshistorie mit Timestamps
+- Ungelesene Nachrichten-Tracking
+- NPC-Templates für automatische Antworten
+- Notification Overlay bei neuen Nachrichten
+
+### 📱 Smartphone-System
+
+Ingame-Smartphone mit 6 funktionalen Apps:
+
+**Apps**:
+1. **MAP** (§9Blau) - Karten-Ansicht mit Plot-Markierungen
+2. **DEALER** (§cRot) - Finde Tabak-Händler und vergleiche Preise
+3. **PRODUCTS** (§aGrün) - Shop-Katalog durchsuchen
+4. **ORDER** (§eGelb) - Bestellverwaltung (geplant)
+5. **CONTACTS** (§5Lila) - Spieler & NPC Kontakte
+6. **MESSAGES** (§3Cyan) - Inbox und Chat
+
+**Schutz-Feature**:
+- Immun gegen Schaden während Smartphone offen
+- Angreifer erhalten +1 Wanted-Level ⭐
+- Verhindert unfaire PvP-Situationen
+
+**Tastenbelegung**: Standard Taste **P** (konfigurierbar)
 
 ### 🔔 Update-Benachrichtigungen
 
@@ -242,17 +301,56 @@ Vollständige Dokumentation findest du in den folgenden Dateien:
 
 ### Wichtige Befehle (Übersicht)
 
+#### Plot-System
 | Befehl | Beschreibung |
 |--------|--------------|
 | `/plot wand` | Erhalte das Plot-Selection-Tool |
-| `/plot create <preis>` | Erstelle einen Plot |
+| `/plot create <type> <name> [preis]` | Erstelle einen Plot |
 | `/plot buy [id]` | Kaufe einen Plot |
-| `/money` | Zeige deinen Kontostand |
-| `/daily` | Hole deine tägliche Belohnung |
-| `/shop list` | Zeige verfügbare Shop-Items |
-| `/npc spawn <type> <name>` | Spawne einen NPC |
+| `/plot sell <preis>` | Biete Plot zum Verkauf an |
+| `/plot rent <preis_pro_tag>` | Biete Plot zur Miete an |
+| `/plot trust <spieler>` | Erlaube Spieler zu bauen |
+| `/plot rate <1-5>` | Bewerte einen Plot |
+| `/plot apartment create <name> <miete>` | Erstelle Apartment |
 
-Vollständige Befehlsliste: [Benutzer-Anleitung](docs/BENUTZER_ANLEITUNG.md)
+#### Wirtschaft
+| Befehl | Beschreibung |
+|--------|--------------|
+| `/money` | Zeige deinen Kontostand |
+| `/pay <spieler> <betrag>` | Sende Geld an Spieler |
+| `/shopinvest buy <shopId> <shares>` | Kaufe Shop-Anteile |
+| `/shopinvest myshares` | Zeige deine Investments |
+| `/daily` | Hole tägliche Belohnung |
+
+#### NPC-System (Admin)
+| Befehl | Beschreibung |
+|--------|--------------|
+| `/npc spawn <type> <name>` | Spawne einen NPC |
+| `/npc <name> info` | Zeige NPC-Informationen |
+| `/npc <name> schedule workstart <HHMM>` | Setze Arbeitszeit |
+| `/npc <name> inventory give <slot> <item>` | Gebe Item an NPC |
+| `/npc <name> wallet set <betrag>` | Setze NPC-Wallet |
+
+#### Warehouse-System (Admin)
+| Befehl | Beschreibung |
+|--------|--------------|
+| `/warehouse info` | Zeige Warehouse-Informationen |
+| `/warehouse add <item> <anzahl>` | Füge Items hinzu |
+| `/warehouse setshop <shopId>` | Verknüpfe mit Shop |
+
+#### Tabak-System
+| Befehl | Beschreibung |
+|--------|--------------|
+| `/tobacco info` | Zeige Tabak-Info (auf Topf) |
+| `/tobacco give <item>` | Gebe Tabak-Items (Admin) |
+
+#### Weitere
+| Befehl | Beschreibung |
+|--------|--------------|
+| `/state balance` | Zeige State-Account (Admin) |
+| `/hospital setspawn` | Setze Hospital-Spawn (Admin) |
+
+**Vollständige Befehlsliste mit über 100 Commands**: [Benutzer-Anleitung](docs/BENUTZER_ANLEITUNG.md)
 
 ---
 
