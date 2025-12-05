@@ -1,8 +1,0 @@
-{
-    "parent": "block/orientable",
-    "textures": {
-        "top": "car:block/oilmill_side",
-        "front": "car:block/oilmill_front",
-        "side": "car:block/oilmill_side"
-    }
-}
