@@ -17,20 +17,13 @@ public class ModItems {
 
     public static final RegistryObject<ItemPainter> PAINTER = ITEM_REGISTER.register("painter", () -> new ItemPainter(false));
     public static final RegistryObject<ItemPainter> PAINTER_YELLOW = ITEM_REGISTER.register("painter_yellow", () -> new ItemPainter(true));
-    public static final RegistryObject<ItemCanolaSeed> CANOLA_SEEDS = ITEM_REGISTER.register("canola_seeds", () -> new ItemCanolaSeed());
-    public static final RegistryObject<ItemCanola> CANOLA = ITEM_REGISTER.register("canola", () -> new ItemCanola());
-    public static final RegistryObject<ItemCanolaCake> CANOLA_CAKE = ITEM_REGISTER.register("canola_cake", () -> new ItemCanolaCake());
-    public static final RegistryObject<ItemCraftingComponent> IRON_STICK = ITEM_REGISTER.register("iron_stick", () -> new ItemCraftingComponent());
-    public static final RegistryObject<ItemCraftingComponent> ENGINE_PISTON = ITEM_REGISTER.register("engine_piston", () -> new ItemCraftingComponent());
     public static final RegistryObject<ItemCanister> CANISTER = ITEM_REGISTER.register("canister", () -> new ItemCanister());
     public static final RegistryObject<ItemRepairKit> REPAIR_KIT = ITEM_REGISTER.register("repair_kit", () -> new ItemRepairKit());
     public static final RegistryObject<ItemRepairTool> WRENCH = ITEM_REGISTER.register("wrench", () -> new ItemRepairTool());
     public static final RegistryObject<ItemRepairTool> SCREW_DRIVER = ITEM_REGISTER.register("screw_driver", () -> new ItemRepairTool());
     public static final RegistryObject<ItemRepairTool> HAMMER = ITEM_REGISTER.register("hammer", () -> new ItemRepairTool());
-    public static final RegistryObject<ItemCraftingComponent> CABLE_INSULATOR = ITEM_REGISTER.register("cable_insulator", () -> new ItemCraftingComponent());
     public static final RegistryObject<ItemKey> KEY = ITEM_REGISTER.register("key", () -> new ItemKey());
     public static final RegistryObject<ItemBattery> BATTERY = ITEM_REGISTER.register("battery", () -> new ItemBattery());
-    public static final RegistryObject<ItemGuardRail> GUARD_RAIL = ITEM_REGISTER.register("guard_rail", () -> new ItemGuardRail());
 
     public static final RegistryObject<ItemLicensePlate> LICENSE_PLATE = ITEM_REGISTER.register("license_plate", () -> new ItemLicensePlate());
 
@@ -218,33 +211,11 @@ public class ModItems {
     public static final RegistryObject<ItemCarPart> MEDIUM_TANK = ITEM_REGISTER.register("medium_tank", () -> new ItemCarPart(PartRegistry.MEDIUM_TANK));
     public static final RegistryObject<ItemCarPart> LARGE_TANK = ITEM_REGISTER.register("large_tank", () -> new ItemCarPart(PartRegistry.LARGE_TANK));
 
-    public static final RegistryObject<CarBucketItem> CANOLA_OIL_BUCKET = ITEM_REGISTER.register("canola_oil_bucket", () -> new CarBucketItem(ModFluids.CANOLA_OIL.get()));
-    public static final RegistryObject<CarBucketItem> METHANOL_BUCKET = ITEM_REGISTER.register("methanol_bucket", () -> new CarBucketItem(ModFluids.METHANOL.get()));
-    public static final RegistryObject<CarBucketItem> CANOLA_METHANOL_MIX_BUCKET = ITEM_REGISTER.register("canola_methanol_mix_bucket", () -> new CarBucketItem(ModFluids.CANOLA_METHANOL_MIX.get()));
-    public static final RegistryObject<CarBucketItem> GLYCERIN_BUCKET = ITEM_REGISTER.register("glycerin_bucket", () -> new CarBucketItem(ModFluids.GLYCERIN.get()));
     public static final RegistryObject<CarBucketItem> BIO_DIESEL_BUCKET = ITEM_REGISTER.register("bio_diesel_bucket", () -> new CarBucketItem(ModFluids.BIO_DIESEL.get()));
 
-    public static final RegistryObject<Item> ASPHALT = ITEM_REGISTER.register("asphalt", () -> ModBlocks.ASPHALT.get().toItem());
-    public static final RegistryObject<Item> ASPHALT_SLOPE = ITEM_REGISTER.register("asphalt_slope", () -> ModBlocks.ASPHALT_SLOPE.get().toItem());
-    public static final RegistryObject<Item> ASPHALT_SLOPE_FLAT_UPPER = ITEM_REGISTER.register("asphalt_slope_flat_upper", () -> ModBlocks.ASPHALT_SLOPE_FLAT_UPPER.get().toItem());
-    public static final RegistryObject<Item> ASPHALT_SLOPE_FLAT_LOWER = ITEM_REGISTER.register("asphalt_slope_flat_lower", () -> ModBlocks.ASPHALT_SLOPE_FLAT_LOWER.get().toItem());
-    public static final RegistryObject<Item> ASPHALT_SLAB = ITEM_REGISTER.register("asphalt_slab", () -> ModBlocks.ASPHALT_SLAB.get().toItem());
     public static final RegistryObject<Item> GAS_STATION = ITEM_REGISTER.register("gas_station", () -> ModBlocks.GAS_STATION.get().toItem());
-    public static final RegistryObject<Item> OIL_MILL = ITEM_REGISTER.register("oilmill", () -> ModBlocks.OIL_MILL.get().toItem());
-    public static final RegistryObject<Item> BLAST_FURNACE = ITEM_REGISTER.register("blastfurnace", () -> ModBlocks.BLAST_FURNACE.get().toItem());
-    public static final RegistryObject<Item> BACKMIX_REACTOR = ITEM_REGISTER.register("backmix_reactor", () -> ModBlocks.BACKMIX_REACTOR.get().toItem());
-    public static final RegistryObject<Item> GENERATOR = ITEM_REGISTER.register("generator", () -> ModBlocks.GENERATOR.get().toItem());
-    public static final RegistryObject<Item> SPLIT_TANK = ITEM_REGISTER.register("split_tank", () -> ModBlocks.SPLIT_TANK.get().toItem());
-    public static final RegistryObject<Item> TANK = ITEM_REGISTER.register("tank", () -> ModBlocks.TANK.get().toItem());
     public static final RegistryObject<Item> CAR_WORKSHOP = ITEM_REGISTER.register("car_workshop", () -> ModBlocks.CAR_WORKSHOP.get().toItem());
     public static final RegistryObject<Item> CAR_WORKSHOP_OUTTER = ITEM_REGISTER.register("car_workshop_outter", () -> ModBlocks.CAR_WORKSHOP_OUTTER.get().toItem());
-    public static final RegistryObject<Item> CABLE = ITEM_REGISTER.register("cable", () -> ModBlocks.CABLE.get().toItem());
-    public static final RegistryObject<Item> FLUID_EXTRACTOR = ITEM_REGISTER.register("fluid_extractor", () -> ModBlocks.FLUID_EXTRACTOR.get().toItem());
-    public static final RegistryObject<Item> FLUID_PIPE = ITEM_REGISTER.register("fluid_pipe", () -> ModBlocks.FLUID_PIPE.get().toItem());
-    public static final RegistryObject<Item> DYNAMO = ITEM_REGISTER.register("dynamo", () -> ModBlocks.DYNAMO.get().toItem());
-    public static final RegistryObject<Item> CRANK = ITEM_REGISTER.register("crank", () -> ModBlocks.CRANK.get().toItem());
-    public static final RegistryObject<Item> SIGN = ITEM_REGISTER.register("sign", () -> ModBlocks.SIGN.get().toItem());
-    public static final RegistryObject<Item> SIGN_POST = ITEM_REGISTER.register("sign_post", () -> ModBlocks.SIGN_POST.get().toItem());
     public static final RegistryObject<Item> CAR_PRESSURE_PLATE = ITEM_REGISTER.register("car_pressure_plate", () -> ModBlocks.CAR_PRESSURE_PLATE.get().toItem());
 
     public static final RegistryObject<Item>[] PAINTS;

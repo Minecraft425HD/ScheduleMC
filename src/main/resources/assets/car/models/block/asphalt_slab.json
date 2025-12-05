@@ -1,8 +1,0 @@
-{
-    "parent": "block/slab",
-    "textures": {
-        "side": "car:block/asphalt",
-        "bottom": "car:block/asphalt",
-        "top": "car:block/asphalt"
-    }
-}
