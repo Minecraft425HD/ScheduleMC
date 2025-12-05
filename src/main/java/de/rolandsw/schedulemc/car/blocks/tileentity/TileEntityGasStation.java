@@ -5,10 +5,12 @@ import de.rolandsw.schedulemc.car.blocks.BlockGasStation;
 import de.rolandsw.schedulemc.car.blocks.BlockGasStationTop;
 import de.rolandsw.schedulemc.car.blocks.BlockOrientableHorizontal;
 import de.rolandsw.schedulemc.car.blocks.ModBlocks;
+import de.rolandsw.schedulemc.car.fluids.ModFluids;
 import de.rolandsw.schedulemc.car.net.MessageStartFuel;
 import de.rolandsw.schedulemc.car.sounds.ModSounds;
 import de.rolandsw.schedulemc.car.sounds.SoundLoopTileentity;
 import de.rolandsw.schedulemc.car.sounds.SoundLoopTileentity.ISoundLoopable;
+import de.rolandsw.schedulemc.economy.WalletManager;
 import de.maxhenkel.corelib.CachedValue;
 import de.maxhenkel.corelib.blockentity.ITickableBlockEntity;
 import de.maxhenkel.corelib.item.ItemUtils;
@@ -155,9 +157,7 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
             return;
         }
 
-        if (storage.isEmpty()) {
-            return;
-        }
+        // Gas station now has unlimited Bio-Diesel, no storage check needed
 
         FluidStack s = FluidUtil.tryFluidTransfer(fluidHandlerInFront, this, transferRate, false);
         int amountCarCanTake = 0;
@@ -170,9 +170,36 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
         }
 
         if (freeAmountLeft <= 0) {
+            // Calculate price based on time of day
+            int pricePerUnit = getCurrentPrice();
+
             if (tradeAmount <= 0) {
-                freeAmountLeft = transferRate;
-                setChanged();
+                // If no trade amount set, check wallet payment
+                if (pricePerUnit > 0) {
+                    // Find the player who owns the fueling entity
+                    UUID playerUUID = findPlayerForFueling();
+                    if (playerUUID != null) {
+                        // Calculate cost for 10 mB
+                        double cost = pricePerUnit;
+                        if (WalletManager.removeMoney(playerUUID, cost)) {
+                            freeAmountLeft = 10; // Allow 10 mB per payment
+                            setChanged();
+                        } else {
+                            // Not enough money, stop fueling
+                            isFueling = false;
+                            synchronize();
+                            return;
+                        }
+                    } else {
+                        // No player found, allow free fueling
+                        freeAmountLeft = transferRate;
+                        setChanged();
+                    }
+                } else {
+                    // Free fueling
+                    freeAmountLeft = transferRate;
+                    setChanged();
+                }
             } else if (removeTradeItem()) {
                 freeAmountLeft = tradeAmount;
                 setChanged();
@@ -201,6 +228,42 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
             }
             wasFueling = false;
         }
+    }
+
+    /**
+     * Gets the current price per 10 mB based on time of day
+     * Morning (0-12000 ticks / 6:00-18:00): higher price
+     * Evening (12000-24000 ticks / 18:00-6:00): lower price
+     */
+    private int getCurrentPrice() {
+        long dayTime = level.getDayTime() % 24000;
+
+        if (dayTime >= 0 && dayTime < 12000) {
+            // Morning/Day time
+            return Main.SERVER_CONFIG.gasStationMorningPricePer10mb.get();
+        } else {
+            // Evening/Night time
+            return Main.SERVER_CONFIG.gasStationEveningPricePer10mb.get();
+        }
+    }
+
+    /**
+     * Tries to find the player UUID for the entity being fueled
+     */
+    private UUID findPlayerForFueling() {
+        // Search for entities in the detection box
+        return level.getEntitiesOfClass(Entity.class, getDetectionBox())
+                .stream()
+                .filter(entity -> entity.getCapability(ForgeCapabilities.FLUID_HANDLER).isPresent())
+                .findFirst()
+                .map(entity -> {
+                    // Try to get the controlling player
+                    if (entity.getControllingPassenger() instanceof Player) {
+                        return ((Player) entity.getControllingPassenger()).getUUID();
+                    }
+                    return null;
+                })
+                .orElse(null);
     }
 
     /**
@@ -533,26 +596,15 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
     @Nonnull
     @Override
     public FluidStack drain(FluidStack resource, FluidAction action) {
-        if (storage.isEmpty()) {
-            return FluidStack.EMPTY;
-        }
-
-        if (storage.getFluid().equals(resource.getFluid())) {
-            int amount = Math.min(resource.getAmount(), storage.getAmount());
-
-            Fluid f = storage.getFluid();
+        // Always return unlimited Bio-Diesel
+        if (resource.getFluid().equals(ModFluids.BIO_DIESEL.get())) {
+            int amount = resource.getAmount();
 
             if (action.execute()) {
-                storage.setAmount(storage.getAmount() - amount);
-                if (storage.getAmount() <= 0) {
-                    storage = FluidStack.EMPTY;
-                    synchronize();
-                }
-
                 setChanged();
             }
 
-            return new FluidStack(f, amount);
+            return new FluidStack(ModFluids.BIO_DIESEL.get(), amount);
         }
 
         return FluidStack.EMPTY;
@@ -561,24 +613,13 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
     @Nonnull
     @Override
     public FluidStack drain(int maxDrain, FluidAction action) {
-        if (storage.isEmpty()) {
-            return FluidStack.EMPTY;
-        }
-
-        int amount = Math.min(maxDrain, storage.getAmount());
-
-        Fluid f = storage.getFluid();
+        // Always return unlimited Bio-Diesel
+        int amount = maxDrain;
 
         if (action.execute()) {
-            storage.setAmount(storage.getAmount() - amount);
-            if (storage.getAmount() <= 0) {
-                storage = FluidStack.EMPTY;
-                synchronize();
-            }
-
             setChanged();
         }
 
-        return new FluidStack(f, amount);
+        return new FluidStack(ModFluids.BIO_DIESEL.get(), amount);
     }
 }
