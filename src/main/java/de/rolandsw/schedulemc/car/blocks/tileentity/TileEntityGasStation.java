@@ -6,6 +6,7 @@ import de.rolandsw.schedulemc.car.blocks.BlockGasStationTop;
 import de.rolandsw.schedulemc.car.blocks.BlockOrientableHorizontal;
 import de.rolandsw.schedulemc.car.blocks.ModBlocks;
 import de.rolandsw.schedulemc.car.fluids.ModFluids;
+import de.rolandsw.schedulemc.car.fuel.FuelBillManager;
 import de.rolandsw.schedulemc.car.net.MessageStartFuel;
 import de.rolandsw.schedulemc.car.sounds.ModSounds;
 import de.rolandsw.schedulemc.car.sounds.SoundLoopTileentity;
@@ -62,6 +63,9 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
 
     private UUID owner;
 
+    // Gas Station ID for billing
+    private UUID gasStationId;
+
     // Tracking for billing
     private double totalCostThisSession;
     private int totalFueledThisSession;
@@ -79,6 +83,15 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
         this.owner = new UUID(0L, 0L);
         this.storage = FluidStack.EMPTY;
         this.tradeAmount = 1000;
+
+        // Registriere Zapfsäule
+        if (this.gasStationId == null) {
+            this.gasStationId = GasStationRegistry.registerGasStation(pos);
+        }
+    }
+
+    public UUID getGasStationId() {
+        return gasStationId;
     }
 
     public final ContainerData FIELDS = new ContainerData() {
@@ -286,21 +299,28 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
     }
 
     /**
-     * Sends a fuel bill to the player
+     * Sends a fuel bill to the player and creates a fuel bill record
      */
     private void sendFuelBillToPlayer(UUID playerUUID, int totalFueled, double totalCost) {
+        // Erstelle Fuel Bill für spätere Bezahlung am Tankstellen-NPC
+        FuelBillManager.createBill(playerUUID, gasStationId, totalFueled, totalCost);
+        FuelBillManager.saveIfNeeded();
+
         Player player = level.getPlayerByUUID(playerUUID);
         if (player != null) {
             player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
             player.sendSystemMessage(Component.literal("📄 ").withStyle(ChatFormatting.YELLOW)
                 .append(Component.literal("TANKRECHNUNG").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)));
+            player.sendSystemMessage(Component.literal("Zapfsäule: ").withStyle(ChatFormatting.GRAY)
+                .append(Component.literal(GasStationRegistry.getDisplayName(gasStationId)).withStyle(ChatFormatting.AQUA)));
             player.sendSystemMessage(Component.literal("Getankt: ").withStyle(ChatFormatting.GRAY)
                 .append(Component.literal(totalFueled + " mB").withStyle(ChatFormatting.AQUA))
                 .append(Component.literal(" Bio-Diesel").withStyle(ChatFormatting.GREEN)));
             player.sendSystemMessage(Component.literal("Kosten: ").withStyle(ChatFormatting.GRAY)
                 .append(Component.literal(String.format("%.2f€", totalCost)).withStyle(ChatFormatting.GOLD)));
-            player.sendSystemMessage(Component.literal("Restguthaben: ").withStyle(ChatFormatting.GRAY)
-                .append(Component.literal(String.format("%.2f€", WalletManager.getBalance(playerUUID))).withStyle(ChatFormatting.YELLOW)));
+            player.sendSystemMessage(Component.literal("Offener Betrag: ").withStyle(ChatFormatting.GRAY)
+                .append(Component.literal(String.format("%.2f€", FuelBillManager.getTotalUnpaidAmount(playerUUID))).withStyle(ChatFormatting.RED, ChatFormatting.BOLD)));
+            player.sendSystemMessage(Component.literal("Bitte bezahlen Sie am Tankstellen-NPC!").withStyle(ChatFormatting.YELLOW));
             player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
         }
     }
@@ -448,6 +468,10 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
         compound.putInt("free_amount", freeAmountLeft);
 
         compound.putUUID("owner", owner);
+
+        if (gasStationId != null) {
+            compound.putUUID("gas_station_id", gasStationId);
+        }
     }
 
     @Override
@@ -464,6 +488,13 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
 
         tradeAmount = compound.getInt("trade_amount");
         freeAmountLeft = compound.getInt("free_amount");
+
+        if (compound.contains("gas_station_id")) {
+            gasStationId = compound.getUUID("gas_station_id");
+        } else {
+            // Fallback: Registriere falls noch nicht vorhanden
+            gasStationId = GasStationRegistry.registerGasStation(worldPosition);
+        }
 
         if (compound.contains("owner")) {
             owner = compound.getUUID("owner");
