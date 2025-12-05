@@ -15,6 +15,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -449,6 +450,16 @@ public class EntityGenericCar extends EntityCarLicensePlateBase {
         super.tick();
 
         tryInitPartsAndModel();
+    }
+
+    @Override
+    public void remove(RemovalReason reason) {
+        super.remove(reason);
+
+        // Wenn Fahrzeug zerstört wird, gib Spawn-Punkt frei
+        if (!level().isClientSide() && vehicleUUID != null) {
+            de.rolandsw.schedulemc.car.vehicle.VehiclePurchaseHandler.onVehicleDestroyed(vehicleUUID);
+        }
     }
 
     public void tryInitPartsAndModel() {

@@ -226,6 +226,8 @@ public class ScheduleMC {
         if (event.getLevel().isClientSide) return;
         Player player = event.getEntity();
         ItemStack heldItem = event.getItemStack();
+
+        // Plot Selection Tool
         if (heldItem.getItem() instanceof PlotSelectionTool) {
             BlockPos pos = event.getPos();
             PlotSelectionTool.setPosition1(player.getUUID(), pos);
@@ -233,6 +235,12 @@ public class ScheduleMC {
                 "§a✓ Position 1 gesetzt!\n§7Koordinaten: §f" + pos.getX() + ", " + pos.getY() + ", " + pos.getZ()
             ), true);
             player.playSound(net.minecraft.sounds.SoundEvents.EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
+            event.setCanceled(true);
+        }
+
+        // Vehicle Spawn Tool (Linksklick)
+        if (heldItem.getItem() instanceof de.rolandsw.schedulemc.car.items.VehicleSpawnTool) {
+            de.rolandsw.schedulemc.car.items.VehicleSpawnTool.handleLeftClick(player, heldItem, event.getPos().above());
             event.setCanceled(true);
         }
     }

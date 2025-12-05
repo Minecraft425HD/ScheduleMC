@@ -26,8 +26,6 @@ public class VehicleSpawnTool extends Item {
     @Override
     public InteractionResult useOn(UseOnContext context) {
         Player player = context.getPlayer();
-        Level level = context.getLevel();
-        BlockPos pos = context.getClickedPos().above();
 
         if (player == null) {
             return InteractionResult.FAIL;
@@ -36,7 +34,7 @@ public class VehicleSpawnTool extends Item {
         ItemStack stack = context.getItemInHand();
         CompoundTag tag = stack.getOrCreateTag();
 
-        // Rechtsklick + Shift = Speichere Händler-UUID
+        // Rechtsklick + Shift = Entferne Händler-Verknüpfung
         if (player.isShiftKeyDown()) {
             if (tag.contains("DealerId")) {
                 tag.remove("DealerId");
@@ -47,30 +45,41 @@ public class VehicleSpawnTool extends Item {
             return InteractionResult.SUCCESS;
         }
 
-        // Normaler Rechtsklick = Setze Spawn-Punkt
+        // Rechtsklick auf Block = Info-Nachricht
+        player.sendSystemMessage(Component.literal("Linksklick auf Block = Spawn-Punkt setzen").withStyle(ChatFormatting.GOLD));
+        player.sendSystemMessage(Component.literal("Rechtsklick auf Autohändler-NPC = Tool verknüpfen").withStyle(ChatFormatting.GRAY));
+
+        return InteractionResult.SUCCESS;
+    }
+
+    /**
+     * Handler für Linksklick auf Block (wird von ScheduleMC.java aufgerufen)
+     */
+    public static void handleLeftClick(Player player, ItemStack stack, BlockPos pos) {
+        Level level = player.level();
+        CompoundTag tag = stack.getOrCreateTag();
+
+        // Prüfe ob Händler verknüpft ist
         if (!tag.contains("DealerId")) {
-            player.sendSystemMessage(Component.literal("⚠ Kein Händler verknüpft! Shift+Rechtsklick auf einen Autohändler-NPC").withStyle(ChatFormatting.RED));
-            return InteractionResult.FAIL;
+            player.sendSystemMessage(Component.literal("⚠ Kein Händler verknüpft! Rechtsklick auf einen Autohändler-NPC").withStyle(ChatFormatting.RED));
+            return;
         }
 
         UUID dealerId = tag.getUUID("DealerId");
         float yaw = player.getYRot();
 
-        if (!level.isClientSide()) {
-            VehicleSpawnRegistry.addSpawnPoint(dealerId, pos, yaw);
-            VehicleSpawnRegistry.saveIfNeeded();
+        // Setze Spawn-Punkt
+        VehicleSpawnRegistry.addSpawnPoint(dealerId, pos, yaw);
+        VehicleSpawnRegistry.saveIfNeeded();
 
-            player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
-            player.sendSystemMessage(Component.literal("🚗 ").withStyle(ChatFormatting.YELLOW)
-                .append(Component.literal("FAHRZEUG-SPAWN-PUNKT").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)));
-            player.sendSystemMessage(Component.literal("Position: ").withStyle(ChatFormatting.GRAY)
-                .append(Component.literal(pos.toShortString()).withStyle(ChatFormatting.AQUA)));
-            player.sendSystemMessage(Component.literal("Rotation: ").withStyle(ChatFormatting.GRAY)
-                .append(Component.literal(String.format("%.1f°", yaw)).withStyle(ChatFormatting.AQUA)));
-            player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
-        }
-
-        return InteractionResult.SUCCESS;
+        player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
+        player.sendSystemMessage(Component.literal("🚗 ").withStyle(ChatFormatting.YELLOW)
+            .append(Component.literal("FAHRZEUG-SPAWN-PUNKT").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)));
+        player.sendSystemMessage(Component.literal("Position: ").withStyle(ChatFormatting.GRAY)
+            .append(Component.literal(pos.toShortString()).withStyle(ChatFormatting.AQUA)));
+        player.sendSystemMessage(Component.literal("Rotation: ").withStyle(ChatFormatting.GRAY)
+            .append(Component.literal(String.format("%.1f°", yaw)).withStyle(ChatFormatting.AQUA)));
+        player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
     }
 
     /**
