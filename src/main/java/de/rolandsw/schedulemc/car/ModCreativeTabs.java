@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.car;
 
 import de.rolandsw.schedulemc.car.blocks.ModBlocks;
+import de.rolandsw.schedulemc.car.items.ItemBioDieselCanister;
 import de.rolandsw.schedulemc.car.items.ItemCarPart;
 import de.rolandsw.schedulemc.car.items.ModItems;
 import net.minecraft.core.registries.Registries;
