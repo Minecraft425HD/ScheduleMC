@@ -25,6 +25,13 @@ public class ModCreativeTabs {
                     output.accept(new ItemStack(ModBlocks.CAR_PRESSURE_PLATE.get()));
                     output.accept(new ItemStack(ModItems.BIO_DIESEL_BUCKET.get()));
 
+                    // Pre-built cars
+                    output.accept(new ItemStack(ModItems.SPAWN_CAR_OAK.get()));
+                    output.accept(new ItemStack(ModItems.SPAWN_CAR_BIG_OAK.get()));
+                    output.accept(new ItemStack(ModItems.SPAWN_CAR_WHITE_TRANSPORTER.get()));
+                    output.accept(new ItemStack(ModItems.SPAWN_CAR_WHITE_SUV.get()));
+                    output.accept(new ItemStack(ModItems.SPAWN_CAR_WHITE_SPORT.get()));
+
                     output.accept(new ItemStack(ModItems.PAINTER.get()));
                     output.accept(new ItemStack(ModItems.PAINTER_YELLOW.get()));
                     output.accept(new ItemStack(ModItems.CANISTER.get()));

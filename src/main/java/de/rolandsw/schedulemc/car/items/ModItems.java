@@ -91,6 +91,13 @@ public class ModItems {
     public static final RegistryObject<ItemCarPart> MEDIUM_TANK = ITEM_REGISTER.register("medium_tank", () -> new ItemCarPart(PartRegistry.MEDIUM_TANK));
     public static final RegistryObject<ItemCarPart> LARGE_TANK = ITEM_REGISTER.register("large_tank", () -> new ItemCarPart(PartRegistry.LARGE_TANK));
 
+    // Pre-built cars
+    public static final RegistryObject<ItemSpawnCar> SPAWN_CAR_OAK = ITEM_REGISTER.register("spawn_car_oak", () -> new ItemSpawnCar(PartRegistry.OAK_BODY));
+    public static final RegistryObject<ItemSpawnCar> SPAWN_CAR_BIG_OAK = ITEM_REGISTER.register("spawn_car_big_oak", () -> new ItemSpawnCar(PartRegistry.BIG_OAK_BODY));
+    public static final RegistryObject<ItemSpawnCar> SPAWN_CAR_WHITE_TRANSPORTER = ITEM_REGISTER.register("spawn_car_white_transporter", () -> new ItemSpawnCar(PartRegistry.WHITE_TRANSPORTER_BODY));
+    public static final RegistryObject<ItemSpawnCar> SPAWN_CAR_WHITE_SUV = ITEM_REGISTER.register("spawn_car_white_suv", () -> new ItemSpawnCar(PartRegistry.WHITE_SUV_BODY));
+    public static final RegistryObject<ItemSpawnCar> SPAWN_CAR_WHITE_SPORT = ITEM_REGISTER.register("spawn_car_white_sport", () -> new ItemSpawnCar(PartRegistry.WHITE_SPORT_BODY));
+
     public static final RegistryObject<CarBucketItem> BIO_DIESEL_BUCKET = ITEM_REGISTER.register("bio_diesel_bucket", () -> new CarBucketItem(ModFluids.BIO_DIESEL.get()));
 
     public static final RegistryObject<Item> GAS_STATION = ITEM_REGISTER.register("gas_station", () -> ModBlocks.GAS_STATION.get().toItem());
