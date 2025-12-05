@@ -1,7 +1,5 @@
 package de.rolandsw.schedulemc.car.items;
 
-import de.rolandsw.schedulemc.car.blocks.ModBlocks;
-import de.maxhenkel.corelib.energy.EnergyUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -43,21 +41,7 @@ public class ItemBattery extends Item {
 
     @Override
     public InteractionResult useOn(UseOnContext context) {
-        if (context.getLevel().getBlockState(context.getClickedPos()).getBlock().equals(ModBlocks.GENERATOR.get())) {
-            IEnergyStorage storage = EnergyUtils.getEnergyStorage(context.getLevel(), context.getClickedPos(), context.getClickedFace());
-            if (storage != null) {
-                ItemStack stack = context.getPlayer().getItemInHand(context.getHand());
-
-                int energyToFill = stack.getDamageValue();
-
-                int amount = storage.extractEnergy(energyToFill, false);
-
-                stack.setDamageValue(energyToFill - amount);
-                context.getPlayer().setItemInHand(context.getHand(), stack);
-                return InteractionResult.SUCCESS;
-            }
-        }
-
+        // Generator was removed - battery can no longer be charged via right-click
         return super.useOn(context);
     }
 
