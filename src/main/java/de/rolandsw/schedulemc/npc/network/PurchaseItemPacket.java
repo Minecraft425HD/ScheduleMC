@@ -1,8 +1,14 @@
 package de.rolandsw.schedulemc.npc.network;
 
+import de.rolandsw.schedulemc.car.fuel.FuelBillManager;
+import de.rolandsw.schedulemc.car.fuel.GasStationRegistry;
+import de.rolandsw.schedulemc.car.items.ItemSpawnCar;
+import de.rolandsw.schedulemc.car.vehicle.VehiclePurchaseHandler;
 import de.rolandsw.schedulemc.economy.EconomyManager;
+import de.rolandsw.schedulemc.npc.data.MerchantCategory;
 import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -11,6 +17,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.network.NetworkEvent;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 /**
@@ -91,7 +98,36 @@ public class PurchaseItemPacket {
             return;
         }
 
-        // Prüfe ob Spieler genug Platz im Inventar hat
+        // Spezialbehandlung für Tankrechnungen (Tankstelle)
+        if (merchant.getMerchantCategory() == MerchantCategory.TANKSTELLE &&
+            entry.getItem().hasTag() &&
+            "FuelBill".equals(entry.getItem().getTag().getString("BillType"))) {
+
+            // Rechnung bezahlen
+            processFuelBillPayment(player, entry.getItem(), totalPrice);
+            return;
+        }
+
+        // Spezialbehandlung für Fahrzeuge (Autohändler)
+        if (merchant.getMerchantCategory() == MerchantCategory.AUTOHAENDLER &&
+            entry.getItem().getItem() instanceof ItemSpawnCar) {
+
+            // Fahrzeug-Kauf über VehiclePurchaseHandler
+            boolean success = VehiclePurchaseHandler.purchaseVehicle(
+                player,
+                merchant.getNpcData().getNpcUUID(),
+                entry.getItem(),
+                totalPrice
+            );
+
+            if (success) {
+                // Reduziere Lagerbestand (nutze Warehouse-Integration)
+                merchant.getNpcData().onItemSoldFromWarehouse(player.level(), entry, quantity, totalPrice);
+            }
+            return;
+        }
+
+        // Normale Items: Prüfe ob Spieler genug Platz im Inventar hat
         ItemStack itemToGive = entry.getItem().copy();
         itemToGive.setCount(quantity);
 
@@ -132,5 +168,40 @@ public class PurchaseItemPacket {
             }
         }
         return emptySlots > 0;
+    }
+
+    /**
+     * Verarbeitet die Bezahlung einer Tankrechnung
+     */
+    private void processFuelBillPayment(ServerPlayer player, ItemStack billItem, int price) {
+        // Lese Daten aus dem Bill-Item
+        UUID gasStationId = billItem.getTag().getUUID("GasStationId");
+        int totalFueled = billItem.getTag().getInt("TotalFueled");
+        double totalCost = billItem.getTag().getDouble("TotalCost");
+
+        // Prüfe ob Spieler genug Geld hat (bereits vorher geprüft, aber sicherheitshalber nochmal)
+        if (!EconomyManager.withdraw(player.getUUID(), price)) {
+            player.sendSystemMessage(Component.literal("§cFehler beim Abbuchung! Zahlung abgebrochen."));
+            return;
+        }
+
+        // Markiere alle Rechnungen für diese Zapfsäule als bezahlt
+        FuelBillManager.payBills(player.getUUID(), gasStationId);
+        FuelBillManager.save();
+
+        // Erfolgs-Nachricht
+        String stationName = GasStationRegistry.getDisplayName(gasStationId);
+        player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GREEN));
+        player.sendSystemMessage(Component.literal("⛽ ").withStyle(ChatFormatting.YELLOW)
+            .append(Component.literal("RECHNUNG BEZAHLT").withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)));
+        player.sendSystemMessage(Component.literal("Zapfsäule: ").withStyle(ChatFormatting.GRAY)
+            .append(Component.literal(stationName).withStyle(ChatFormatting.AQUA)));
+        player.sendSystemMessage(Component.literal("Getankt: ").withStyle(ChatFormatting.GRAY)
+            .append(Component.literal(totalFueled + " mB Bio-Diesel").withStyle(ChatFormatting.YELLOW)));
+        player.sendSystemMessage(Component.literal("Gezahlt: ").withStyle(ChatFormatting.GRAY)
+            .append(Component.literal(String.format("%.2f€", totalCost)).withStyle(ChatFormatting.GOLD)));
+        player.sendSystemMessage(Component.literal("Restguthaben: ").withStyle(ChatFormatting.GRAY)
+            .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID()))).withStyle(ChatFormatting.YELLOW)));
+        player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GREEN));
     }
 }

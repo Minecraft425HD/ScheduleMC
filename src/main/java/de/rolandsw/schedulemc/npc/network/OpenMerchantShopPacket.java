@@ -1,16 +1,27 @@
 package de.rolandsw.schedulemc.npc.network;
 
+import de.rolandsw.schedulemc.car.fuel.FuelBillManager;
+import de.rolandsw.schedulemc.car.fuel.GasStationRegistry;
+import de.rolandsw.schedulemc.npc.data.MerchantCategory;
+import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.menu.MerchantShopMenu;
+import net.minecraft.ChatFormatting;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.NetworkHooks;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 /**
@@ -40,7 +51,14 @@ public class OpenMerchantShopPacket {
                     // Prüfe ob es ein Verkäufer ist
                     if (npc.getNpcType() == NPCType.VERKAEUFER) {
                         // Öffne Shop-GUI und sende Shop-Items zum Client
-                        var shopItems = npc.getNpcData().getBuyShop().getEntries();
+                        List<NPCData.ShopEntry> shopItems = new ArrayList<>(npc.getNpcData().getBuyShop().getEntries());
+
+                        // Spezialbehandlung für Tankstelle: Füge unbezahlte Rechnungen hinzu
+                        if (npc.getMerchantCategory() == MerchantCategory.TANKSTELLE) {
+                            List<NPCData.ShopEntry> billEntries = createBillEntries(player);
+                            shopItems.addAll(0, billEntries); // Am Anfang einfügen
+                        }
+
                         NetworkHooks.openScreen(player, new SimpleMenuProvider(
                             (id, playerInventory, p) -> new MerchantShopMenu(id, playerInventory, npc),
                             Component.literal(npc.getMerchantCategory().getDisplayName())
@@ -76,5 +94,53 @@ public class OpenMerchantShopPacket {
             }
         });
         ctx.get().setPacketHandled(true);
+    }
+
+    /**
+     * Erstellt Shop-Einträge für unbezahlte Rechnungen
+     */
+    private List<NPCData.ShopEntry> createBillEntries(ServerPlayer player) {
+        List<NPCData.ShopEntry> billEntries = new ArrayList<>();
+
+        // Alle Tankstellen durchgehen
+        for (UUID gasStationId : GasStationRegistry.getAllGasStationIds()) {
+            List<FuelBillManager.UnpaidBill> unpaidBills = FuelBillManager.getUnpaidBills(player.getUUID(), gasStationId);
+
+            if (!unpaidBills.isEmpty()) {
+                // Summiere alle unbezahlten Rechnungen für diese Tankstelle
+                int totalFueled = 0;
+                double totalCost = 0.0;
+
+                for (FuelBillManager.UnpaidBill bill : unpaidBills) {
+                    totalFueled += bill.amountFueled;
+                    totalCost += bill.totalCost;
+                }
+
+                // Erstelle Bill-Item
+                String stationName = GasStationRegistry.getDisplayName(gasStationId);
+                ItemStack billItem = new ItemStack(Items.PAPER);
+                CompoundTag tag = billItem.getOrCreateTag();
+                tag.putString("BillType", "FuelBill");
+                tag.putUUID("GasStationId", gasStationId);
+                tag.putInt("TotalFueled", totalFueled);
+                tag.putDouble("TotalCost", totalCost);
+
+                // Setze Namen mit Formatierung
+                billItem.setHoverName(Component.literal("⛽ Tankrechnung - " + stationName)
+                    .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
+
+                // Erstelle Shop-Entry (Preis ist die Rechnungssumme)
+                NPCData.ShopEntry billEntry = new NPCData.ShopEntry(
+                    billItem,
+                    (int) Math.ceil(totalCost), // Preis aufgerundet
+                    true, // Unbegrenzt verfügbar (ist ja eine Rechnung)
+                    1     // Stock: 1
+                );
+
+                billEntries.add(billEntry);
+            }
+        }
+
+        return billEntries;
     }
 }

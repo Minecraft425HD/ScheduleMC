@@ -179,6 +179,11 @@ public class ScheduleMC {
         StateAccount.load();
         MinecraftForge.EVENT_BUS.register(ShopAccountManager.class);
         WarehouseManager.load(event.getServer());
+
+        // Car System - Vehicle Spawn Registry, Gas Station Registry, Fuel Bills
+        de.rolandsw.schedulemc.car.vehicle.VehicleSpawnRegistry.load();
+        de.rolandsw.schedulemc.car.fuel.GasStationRegistry.load();
+        de.rolandsw.schedulemc.car.fuel.FuelBillManager.load();
     }
 
     @SubscribeEvent
@@ -194,6 +199,10 @@ public class ScheduleMC {
             WalletManager.saveIfNeeded();
             NPCNameRegistry.saveIfNeeded();
             MessageManager.saveIfNeeded();
+            // Car System periodic saves
+            de.rolandsw.schedulemc.car.vehicle.VehicleSpawnRegistry.save();
+            de.rolandsw.schedulemc.car.fuel.GasStationRegistry.save();
+            de.rolandsw.schedulemc.car.fuel.FuelBillManager.save();
         }
     }
 
@@ -206,6 +215,10 @@ public class ScheduleMC {
         NPCNameRegistry.saveRegistry();
         MessageManager.saveMessages();
         WarehouseManager.save(event.getServer());
+        // Car System final saves
+        de.rolandsw.schedulemc.car.vehicle.VehicleSpawnRegistry.save();
+        de.rolandsw.schedulemc.car.fuel.GasStationRegistry.save();
+        de.rolandsw.schedulemc.car.fuel.FuelBillManager.save();
     }
 
     @SubscribeEvent
@@ -213,6 +226,8 @@ public class ScheduleMC {
         if (event.getLevel().isClientSide) return;
         Player player = event.getEntity();
         ItemStack heldItem = event.getItemStack();
+
+        // Plot Selection Tool
         if (heldItem.getItem() instanceof PlotSelectionTool) {
             BlockPos pos = event.getPos();
             PlotSelectionTool.setPosition1(player.getUUID(), pos);
@@ -220,6 +235,12 @@ public class ScheduleMC {
                 "§a✓ Position 1 gesetzt!\n§7Koordinaten: §f" + pos.getX() + ", " + pos.getY() + ", " + pos.getZ()
             ), true);
             player.playSound(net.minecraft.sounds.SoundEvents.EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
+            event.setCanceled(true);
+        }
+
+        // Vehicle Spawn Tool (Linksklick)
+        if (heldItem.getItem() instanceof de.rolandsw.schedulemc.car.items.VehicleSpawnTool) {
+            de.rolandsw.schedulemc.car.items.VehicleSpawnTool.handleLeftClick(player, heldItem, event.getPos().above());
             event.setCanceled(true);
         }
     }

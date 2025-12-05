@@ -22,6 +22,8 @@ public class ModItems {
 
     public static final RegistryObject<ItemLicensePlate> LICENSE_PLATE = ITEM_REGISTER.register("license_plate", () -> new ItemLicensePlate());
 
+    public static final RegistryObject<VehicleSpawnTool> VEHICLE_SPAWN_TOOL = ITEM_REGISTER.register("vehicle_spawn_tool", () -> new VehicleSpawnTool());
+
     public static final RegistryObject<ItemCarPart> ENGINE_3_CYLINDER = ITEM_REGISTER.register("engine_3_cylinder", () -> new ItemCarPart(PartRegistry.ENGINE_3_CYLINDER));
     public static final RegistryObject<ItemCarPart> ENGINE_6_CYLINDER = ITEM_REGISTER.register("engine_6_cylinder", () -> new ItemCarPart(PartRegistry.ENGINE_6_CYLINDER));
     public static final RegistryObject<ItemCarPart> ENGINE_TRUCK = ITEM_REGISTER.register("engine_truck", () -> new ItemCarPart(PartRegistry.ENGINE_TRUCK));

@@ -7,6 +7,7 @@ import de.rolandsw.schedulemc.car.items.ICarPart;
 import de.rolandsw.schedulemc.car.items.ItemKey;
 import de.rolandsw.schedulemc.car.sounds.ModSounds;
 import de.maxhenkel.corelib.client.obj.OBJModelInstance;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -14,6 +15,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -25,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 public class EntityGenericCar extends EntityCarLicensePlateBase {
 
@@ -32,12 +35,42 @@ public class EntityGenericCar extends EntityCarLicensePlateBase {
 
     private List<Part> parts;
 
+    // Vehicle ownership and tracking
+    private UUID ownerId;
+    private UUID vehicleUUID;
+    private BlockPos homeSpawnPoint;
+
     public EntityGenericCar(EntityType type, Level worldIn) {
         super(type, worldIn);
     }
 
     public EntityGenericCar(Level worldIn) {
         this(Main.CAR_ENTITY_TYPE.get(), worldIn);
+    }
+
+    // Owner tracking methods
+    public void setOwnerId(UUID ownerId) {
+        this.ownerId = ownerId;
+    }
+
+    public UUID getOwnerId() {
+        return ownerId;
+    }
+
+    public void setVehicleUUID(UUID vehicleUUID) {
+        this.vehicleUUID = vehicleUUID;
+    }
+
+    public UUID getVehicleUUID() {
+        return vehicleUUID;
+    }
+
+    public void setHomeSpawnPoint(BlockPos homeSpawnPoint) {
+        this.homeSpawnPoint = homeSpawnPoint;
+    }
+
+    public BlockPos getHomeSpawnPoint() {
+        return homeSpawnPoint;
     }
 
     private List<Part> getCarParts() {
@@ -342,6 +375,20 @@ public class EntityGenericCar extends EntityCarLicensePlateBase {
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
 
+        // Load owner tracking data
+        if (compound.contains("OwnerId")) {
+            this.ownerId = compound.getUUID("OwnerId");
+        }
+        if (compound.contains("VehicleUUID")) {
+            this.vehicleUUID = compound.getUUID("VehicleUUID");
+        }
+        if (compound.contains("HomeSpawnX")) {
+            int x = compound.getInt("HomeSpawnX");
+            int y = compound.getInt("HomeSpawnY");
+            int z = compound.getInt("HomeSpawnZ");
+            this.homeSpawnPoint = new BlockPos(x, y, z);
+        }
+
         if (compound.getAllKeys().stream().allMatch(s -> s.equals("id"))) {
             // DISABLED: JEI integration removed
             // randomizeParts();
@@ -354,6 +401,24 @@ public class EntityGenericCar extends EntityCarLicensePlateBase {
 
         setPartSerializer();
         tryInitPartsAndModel();
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundTag compound) {
+        super.addAdditionalSaveData(compound);
+
+        // Save owner tracking data
+        if (this.ownerId != null) {
+            compound.putUUID("OwnerId", this.ownerId);
+        }
+        if (this.vehicleUUID != null) {
+            compound.putUUID("VehicleUUID", this.vehicleUUID);
+        }
+        if (this.homeSpawnPoint != null) {
+            compound.putInt("HomeSpawnX", this.homeSpawnPoint.getX());
+            compound.putInt("HomeSpawnY", this.homeSpawnPoint.getY());
+            compound.putInt("HomeSpawnZ", this.homeSpawnPoint.getZ());
+        }
     }
 
     /* DISABLED DUE TO JEI INTEGRATION REMOVAL
@@ -385,6 +450,16 @@ public class EntityGenericCar extends EntityCarLicensePlateBase {
         super.tick();
 
         tryInitPartsAndModel();
+    }
+
+    @Override
+    public void remove(RemovalReason reason) {
+        super.remove(reason);
+
+        // Wenn Fahrzeug zerstört wird, gib Spawn-Punkt frei
+        if (!level().isClientSide() && vehicleUUID != null) {
+            de.rolandsw.schedulemc.car.vehicle.VehiclePurchaseHandler.onVehicleDestroyed(vehicleUUID);
+        }
     }
 
     public void tryInitPartsAndModel() {

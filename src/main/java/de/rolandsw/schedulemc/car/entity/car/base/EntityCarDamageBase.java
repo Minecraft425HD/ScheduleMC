@@ -114,6 +114,7 @@ public abstract class EntityCarDamageBase extends EntityCarBatteryBase {
         }
 
 
+        // Wrench functionality removed
         ItemStack stack = player.getMainHandItem();
 
         if (stack.getItem() instanceof ItemRepairKit) {
