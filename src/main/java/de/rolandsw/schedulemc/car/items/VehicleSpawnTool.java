@@ -40,14 +40,18 @@ public class VehicleSpawnTool extends Item {
                 tag.remove("DealerId");
                 player.sendSystemMessage(Component.literal("Händler-Verknüpfung entfernt").withStyle(ChatFormatting.YELLOW));
             } else {
-                player.sendSystemMessage(Component.literal("Rechtsklicke einen Autohändler-NPC, um ihn zu verknüpfen").withStyle(ChatFormatting.GOLD));
+                player.sendSystemMessage(Component.literal("Linksklick auf Autohändler-NPC, um ihn zu verknüpfen").withStyle(ChatFormatting.GOLD));
             }
             return InteractionResult.SUCCESS;
         }
 
         // Rechtsklick auf Block = Info-Nachricht
-        player.sendSystemMessage(Component.literal("Linksklick auf Block = Spawn-Punkt setzen").withStyle(ChatFormatting.GOLD));
-        player.sendSystemMessage(Component.literal("Rechtsklick auf Autohändler-NPC = Tool verknüpfen").withStyle(ChatFormatting.GRAY));
+        player.sendSystemMessage(Component.literal("══════════════════════════════").withStyle(ChatFormatting.GOLD));
+        player.sendSystemMessage(Component.literal("🚗 Vehicle Spawn Tool").withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD));
+        player.sendSystemMessage(Component.literal("Linksklick auf AUTOHAENDLER = Tool verknüpfen").withStyle(ChatFormatting.GRAY));
+        player.sendSystemMessage(Component.literal("Linksklick auf Block = Spawn-Punkt setzen").withStyle(ChatFormatting.GRAY));
+        player.sendSystemMessage(Component.literal("Shift+Rechtsklick = Verknüpfung entfernen").withStyle(ChatFormatting.GRAY));
+        player.sendSystemMessage(Component.literal("══════════════════════════════").withStyle(ChatFormatting.GOLD));
 
         return InteractionResult.SUCCESS;
     }
@@ -83,14 +87,16 @@ public class VehicleSpawnTool extends Item {
     }
 
     /**
-     * Verknüpft das Tool mit einem Händler-NPC
+     * Verknüpft das Tool mit einem Händler-NPC (wird von CustomNPCEntity.hurt() aufgerufen)
      */
     public static void linkToDealer(ItemStack stack, UUID dealerId, Player player) {
         CompoundTag tag = stack.getOrCreateTag();
         tag.putUUID("DealerId", dealerId);
 
+        player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GREEN));
         player.sendSystemMessage(Component.literal("✓ ").withStyle(ChatFormatting.GREEN)
-            .append(Component.literal("Tool mit Autohändler verknüpft").withStyle(ChatFormatting.GOLD)));
-        player.sendSystemMessage(Component.literal("Rechtsklicke nun auf den Boden, um Spawn-Punkte zu setzen").withStyle(ChatFormatting.GRAY));
+            .append(Component.literal("TOOL VERKNÜPFT").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)));
+        player.sendSystemMessage(Component.literal("Linksklicke nun auf den Boden, um Spawn-Punkte zu setzen").withStyle(ChatFormatting.GRAY));
+        player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GREEN));
     }
 }
