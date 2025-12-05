@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.car.items;
 
+import de.rolandsw.schedulemc.car.entity.car.CarFactory;
 import de.rolandsw.schedulemc.car.entity.car.base.EntityGenericCar;
 import de.rolandsw.schedulemc.car.entity.car.parts.Part;
 import de.rolandsw.schedulemc.car.entity.car.parts.PartRegistry;
@@ -93,8 +94,8 @@ public class ItemSpawnCar extends Item {
         // Add iron license plate holder
         parts.add(new ItemStack(ModItems.IRON_LICENSE_PLATE_HOLDER.get()));
 
-        // Create the car using the workshop's static method
-        EntityGenericCar car = TileEntityCarWorkshop.createCar(world, parts);
+        // Create the car using the factory's static method
+        EntityGenericCar car = CarFactory.createCar(world, parts);
 
         if (car == null) {
             return InteractionResult.FAIL;

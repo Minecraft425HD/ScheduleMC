@@ -37,11 +37,11 @@ public class MessageRepairCar implements Message<MessageRepairCar> {
             return;
         }
 
+        // NOTE: TileEntityCarWorkshop was removed in a previous cleanup
+        // This message handler is currently non-functional and may need to be reimplemented
+        // if car workshop functionality is restored in the future
         BlockEntity te = context.getSender().level().getBlockEntity(pos);
-
-        if (te instanceof TileEntityCarWorkshop) {
-            ((TileEntityCarWorkshop) te).repairCar(context.getSender());
-        }
+        // TODO: Implement car repair functionality when workshop block is added
     }
 
     @Override
