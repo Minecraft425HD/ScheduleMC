@@ -62,13 +62,23 @@ public class ItemSpawnCar extends Item {
         // Add engine (3 Cylinder)
         parts.add(new ItemStack(ModItems.ENGINE_3_CYLINDER.get()));
 
-        // Add wheels - big bodies need big wheels, regular bodies need small wheels
-        if (bodyPart == PartRegistry.BIG_OAK_BODY || bodyPart == PartRegistry.WHITE_TRANSPORTER_BODY) {
+        // Add wheels - different bodies have different wheel requirements
+        if (bodyPart == PartRegistry.WHITE_SUV_BODY) {
+            // SUV needs 4 big wheels
             parts.add(new ItemStack(ModItems.BIG_WHEEL.get()));
             parts.add(new ItemStack(ModItems.BIG_WHEEL.get()));
             parts.add(new ItemStack(ModItems.BIG_WHEEL.get()));
             parts.add(new ItemStack(ModItems.BIG_WHEEL.get()));
+        } else if (bodyPart == PartRegistry.WHITE_TRANSPORTER_BODY) {
+            // Transporter needs 6 regular wheels
+            parts.add(new ItemStack(ModItems.WHEEL.get()));
+            parts.add(new ItemStack(ModItems.WHEEL.get()));
+            parts.add(new ItemStack(ModItems.WHEEL.get()));
+            parts.add(new ItemStack(ModItems.WHEEL.get()));
+            parts.add(new ItemStack(ModItems.WHEEL.get()));
+            parts.add(new ItemStack(ModItems.WHEEL.get()));
         } else {
+            // Oak, Big Oak, and Sport bodies need 4 regular wheels
             parts.add(new ItemStack(ModItems.WHEEL.get()));
             parts.add(new ItemStack(ModItems.WHEEL.get()));
             parts.add(new ItemStack(ModItems.WHEEL.get()));
