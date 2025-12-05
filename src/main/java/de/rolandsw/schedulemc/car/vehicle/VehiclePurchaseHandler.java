@@ -3,7 +3,7 @@ package de.rolandsw.schedulemc.car.vehicle;
 import de.rolandsw.schedulemc.car.entity.car.base.EntityGenericCar;
 import de.rolandsw.schedulemc.car.entity.car.parts.PartRegistry;
 import de.rolandsw.schedulemc.car.items.ItemSpawnCar;
-import de.rolandsw.schedulemc.economy.WalletManager;
+import de.rolandsw.schedulemc.economy.EconomyManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -37,12 +37,19 @@ public class VehiclePurchaseHandler {
         }
 
         // Prüfe ob Spieler genug Geld hat
-        if (!WalletManager.removeMoney(player.getUUID(), price)) {
+        double playerBalance = EconomyManager.getBalance(player.getUUID());
+        if (playerBalance < price) {
             player.sendSystemMessage(Component.literal("⚠ Nicht genug Geld!").withStyle(ChatFormatting.RED));
             player.sendSystemMessage(Component.literal("Preis: ").withStyle(ChatFormatting.GRAY)
                 .append(Component.literal(price + "€").withStyle(ChatFormatting.GOLD))
                 .append(Component.literal(" | Dein Guthaben: ").withStyle(ChatFormatting.GRAY))
-                .append(Component.literal(String.format("%.2f€", WalletManager.getBalance(player.getUUID()))).withStyle(ChatFormatting.YELLOW)));
+                .append(Component.literal(String.format("%.2f€", playerBalance)).withStyle(ChatFormatting.YELLOW)));
+            return false;
+        }
+
+        // Ziehe Geld ab
+        if (!EconomyManager.withdraw(player.getUUID(), price)) {
+            player.sendSystemMessage(Component.literal("⚠ Fehler beim Abbuchung!").withStyle(ChatFormatting.RED));
             return false;
         }
 
@@ -51,7 +58,7 @@ public class VehiclePurchaseHandler {
 
         if (spawnPoint == null) {
             // Geld zurückgeben
-            WalletManager.addMoney(player.getUUID(), price);
+            EconomyManager.deposit(player.getUUID(), price);
             player.sendSystemMessage(Component.literal("⚠ Kein freier Parkplatz verfügbar!").withStyle(ChatFormatting.RED));
             player.sendSystemMessage(Component.literal("Bitte warten Sie, bis ein Parkplatz frei wird.").withStyle(ChatFormatting.GRAY));
             return false;
@@ -62,7 +69,7 @@ public class VehiclePurchaseHandler {
 
         if (vehicle == null) {
             // Geld zurückgeben
-            WalletManager.addMoney(player.getUUID(), price);
+            EconomyManager.deposit(player.getUUID(), price);
             player.sendSystemMessage(Component.literal("⚠ Fehler beim Spawnen des Fahrzeugs!").withStyle(ChatFormatting.RED));
             return false;
         }
@@ -90,7 +97,7 @@ public class VehiclePurchaseHandler {
         player.sendSystemMessage(Component.literal("Fahrzeug-ID: ").withStyle(ChatFormatting.GRAY)
             .append(Component.literal(vehicleUUID.toString().substring(0, 8) + "...").withStyle(ChatFormatting.DARK_GRAY)));
         player.sendSystemMessage(Component.literal("Restguthaben: ").withStyle(ChatFormatting.GRAY)
-            .append(Component.literal(String.format("%.2f€", WalletManager.getBalance(player.getUUID()))).withStyle(ChatFormatting.YELLOW)));
+            .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID()))).withStyle(ChatFormatting.YELLOW)));
         player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
 
         return true;
