@@ -14,6 +14,7 @@ import de.rolandsw.schedulemc.economy.WalletManager;
 import de.maxhenkel.corelib.CachedValue;
 import de.maxhenkel.corelib.blockentity.ITickableBlockEntity;
 import de.maxhenkel.corelib.item.ItemUtils;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -60,6 +61,11 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
     private int freeAmountLeft;
 
     private UUID owner;
+
+    // Tracking for billing
+    private double totalCostThisSession;
+    private int totalFueledThisSession;
+    private UUID currentFuelingPlayer;
 
     @Nullable
     private IFluidHandler fluidHandlerInFront;
@@ -145,8 +151,16 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
 
         if (fluidHandlerInFront == null) {
             if (fuelCounter > 0 || isFueling) {
+                // Send final bill if there was a fueling session
+                if (currentFuelingPlayer != null && totalFueledThisSession > 0) {
+                    sendFuelBillToPlayer(currentFuelingPlayer, totalFueledThisSession, totalCostThisSession);
+                }
+
                 fuelCounter = 0;
                 isFueling = false;
+                totalCostThisSession = 0;
+                totalFueledThisSession = 0;
+                currentFuelingPlayer = null;
                 synchronize();
                 setChanged();
             }
@@ -177,23 +191,63 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
                 // If no trade amount set, check wallet payment
                 if (pricePerUnit > 0) {
                     // Find the player who owns the fueling entity
-                    UUID playerUUID = findPlayerForFueling();
-                    if (playerUUID != null) {
+                    Player player = findPlayerForFueling();
+                    if (player != null) {
+                        UUID playerUUID = player.getUUID();
+
+                        // Initialize session if new player
+                        if (currentFuelingPlayer == null) {
+                            currentFuelingPlayer = playerUUID;
+                            totalCostThisSession = 0;
+                            totalFueledThisSession = 0;
+
+                            // Send welcome message with price
+                            String timeOfDay = getCurrentPrice() == Main.SERVER_CONFIG.gasStationMorningPricePer10mb.get() ? "Tag" : "Nacht";
+                            player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
+                            player.sendSystemMessage(Component.literal("⛽ ").withStyle(ChatFormatting.YELLOW)
+                                .append(Component.literal("TANKSTELLE").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)));
+                            player.sendSystemMessage(Component.literal("Aktueller Preis (").withStyle(ChatFormatting.GRAY)
+                                .append(Component.literal(timeOfDay).withStyle(ChatFormatting.AQUA))
+                                .append(Component.literal("): ").withStyle(ChatFormatting.GRAY))
+                                .append(Component.literal(String.format("%.2f€", (double)pricePerUnit)).withStyle(ChatFormatting.GREEN))
+                                .append(Component.literal(" pro 10 mB").withStyle(ChatFormatting.GRAY)));
+                            player.sendSystemMessage(Component.literal("Guthaben: ").withStyle(ChatFormatting.GRAY)
+                                .append(Component.literal(String.format("%.2f€", WalletManager.getBalance(playerUUID))).withStyle(ChatFormatting.YELLOW)));
+                            player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
+                        }
+
                         // Calculate cost for 10 mB
                         double cost = pricePerUnit;
                         if (WalletManager.removeMoney(playerUUID, cost)) {
                             freeAmountLeft = 10; // Allow 10 mB per payment
+                            totalCostThisSession += cost;
                             setChanged();
                         } else {
-                            // Not enough money, stop fueling
+                            // Not enough money, stop fueling and send message
+                            player.sendSystemMessage(Component.literal("⚠ ").withStyle(ChatFormatting.RED)
+                                .append(Component.literal("Nicht genug Geld! Tanken gestoppt.").withStyle(ChatFormatting.RED)));
+                            player.sendSystemMessage(Component.literal("Benötigt: ").withStyle(ChatFormatting.GRAY)
+                                .append(Component.literal(String.format("%.2f€", cost)).withStyle(ChatFormatting.RED))
+                                .append(Component.literal(" | Verfügbar: ").withStyle(ChatFormatting.GRAY))
+                                .append(Component.literal(String.format("%.2f€", WalletManager.getBalance(playerUUID))).withStyle(ChatFormatting.YELLOW)));
+
+                            // Send final bill
+                            if (totalFueledThisSession > 0) {
+                                sendFuelBillToPlayer(playerUUID, totalFueledThisSession, totalCostThisSession);
+                            }
+
                             isFueling = false;
+                            totalCostThisSession = 0;
+                            totalFueledThisSession = 0;
+                            currentFuelingPlayer = null;
                             synchronize();
                             return;
                         }
                     } else {
-                        // No player found, allow free fueling
-                        freeAmountLeft = transferRate;
-                        setChanged();
+                        // No player found, cannot fuel without payment
+                        isFueling = false;
+                        synchronize();
+                        return;
                     }
                 } else {
                     // Free fueling
@@ -215,6 +269,7 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
         if (!result.isEmpty()) {
             fuelCounter += result.getAmount();
             freeAmountLeft -= result.getAmount();
+            totalFueledThisSession += result.getAmount();
             synchronize(100);
 
             setChanged();
@@ -227,6 +282,26 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
                 synchronize();
             }
             wasFueling = false;
+        }
+    }
+
+    /**
+     * Sends a fuel bill to the player
+     */
+    private void sendFuelBillToPlayer(UUID playerUUID, int totalFueled, double totalCost) {
+        Player player = level.getPlayerByUUID(playerUUID);
+        if (player != null) {
+            player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
+            player.sendSystemMessage(Component.literal("📄 ").withStyle(ChatFormatting.YELLOW)
+                .append(Component.literal("TANKRECHNUNG").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)));
+            player.sendSystemMessage(Component.literal("Getankt: ").withStyle(ChatFormatting.GRAY)
+                .append(Component.literal(totalFueled + " mB").withStyle(ChatFormatting.AQUA))
+                .append(Component.literal(" Bio-Diesel").withStyle(ChatFormatting.GREEN)));
+            player.sendSystemMessage(Component.literal("Kosten: ").withStyle(ChatFormatting.GRAY)
+                .append(Component.literal(String.format("%.2f€", totalCost)).withStyle(ChatFormatting.GOLD)));
+            player.sendSystemMessage(Component.literal("Restguthaben: ").withStyle(ChatFormatting.GRAY)
+                .append(Component.literal(String.format("%.2f€", WalletManager.getBalance(playerUUID))).withStyle(ChatFormatting.YELLOW)));
+            player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
         }
     }
 
@@ -248,22 +323,29 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
     }
 
     /**
-     * Tries to find the player UUID for the entity being fueled
+     * Tries to find the player for the entity being fueled
      */
-    private UUID findPlayerForFueling() {
+    private Player findPlayerForFueling() {
         // Search for entities in the detection box
-        return level.getEntitiesOfClass(Entity.class, getDetectionBox())
-                .stream()
-                .filter(entity -> entity.getCapability(ForgeCapabilities.FLUID_HANDLER).isPresent())
-                .findFirst()
-                .map(entity -> {
-                    // Try to get the controlling player
-                    if (entity.getControllingPassenger() instanceof Player) {
-                        return ((Player) entity.getControllingPassenger()).getUUID();
+        List<Entity> entities = level.getEntitiesOfClass(Entity.class, getDetectionBox());
+
+        for (Entity entity : entities) {
+            if (entity.getCapability(ForgeCapabilities.FLUID_HANDLER).isPresent()) {
+                // First try to get the controlling passenger
+                if (entity.getControllingPassenger() instanceof Player) {
+                    return (Player) entity.getControllingPassenger();
+                }
+
+                // Then try all passengers
+                for (Entity passenger : entity.getPassengers()) {
+                    if (passenger instanceof Player) {
+                        return (Player) passenger;
                     }
-                    return null;
-                })
-                .orElse(null);
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
