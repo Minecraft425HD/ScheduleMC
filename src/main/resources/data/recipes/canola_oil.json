@@ -1,0 +1,12 @@
+{
+  "type": "car:oil_mill",
+  "ingredient": {
+    "tag": "forge:crops/canola"
+  },
+  "result": {
+    "item": "car:canola_cake"
+  },
+  "fluidamount": 100,
+  "energy": 10,
+  "duration": 200
+}

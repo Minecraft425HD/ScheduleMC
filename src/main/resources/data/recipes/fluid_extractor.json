@@ -1,0 +1,20 @@
+{
+  "type": "crafting_shaped",
+  "pattern": [
+    "I  ",
+    "IPP",
+    "I  "
+  ],
+  "key": {
+    "I": {
+      "tag": "forge:ingots/iron"
+    },
+    "P": {
+      "item": "car:fluid_pipe"
+    }
+  },
+  "result": {
+    "item": "car:fluid_extractor",
+    "count": 4
+  }
+}
