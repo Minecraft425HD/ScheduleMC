@@ -1,6 +1,0 @@
-{
-    "variants": {
-        "valid=true": { "model": "car:block/car_workshop_center" },
-        "valid=false": { "model": "car:block/car_workshop" }
-    }
-}
