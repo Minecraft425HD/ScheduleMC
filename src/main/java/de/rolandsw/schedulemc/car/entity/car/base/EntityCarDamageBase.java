@@ -1,6 +1,5 @@
 package de.rolandsw.schedulemc.car.entity.car.base;
 
-import de.rolandsw.schedulemc.car.items.ItemRepairTool;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -114,20 +113,7 @@ public abstract class EntityCarDamageBase extends EntityCarBatteryBase {
         }
 
 
-        ItemStack stack = player.getMainHandItem();
-
-        if (stack.getItem() instanceof ItemRepairTool) {
-            long time = player.level().getGameTime();
-            if (time - lastDamage < 10L) {
-                destroyCar(player, true);
-                stack.hurtAndBreak(50, player, playerEntity -> playerEntity.broadcastBreakEvent(InteractionHand.MAIN_HAND));
-            } else {
-                lastDamage = time;
-            }
-
-            return true;
-        }
-
+        // Wrench functionality removed
         return false;
     }
 
