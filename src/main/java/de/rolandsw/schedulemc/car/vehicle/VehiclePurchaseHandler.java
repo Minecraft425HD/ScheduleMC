@@ -1,8 +1,10 @@
 package de.rolandsw.schedulemc.car.vehicle;
 
+import de.rolandsw.schedulemc.car.entity.car.CarFactory;
 import de.rolandsw.schedulemc.car.entity.car.base.EntityGenericCar;
 import de.rolandsw.schedulemc.car.entity.car.parts.PartRegistry;
 import de.rolandsw.schedulemc.car.items.ItemSpawnCar;
+import de.rolandsw.schedulemc.car.items.ModItems;
 import de.rolandsw.schedulemc.economy.EconomyManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -12,6 +14,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -111,16 +115,77 @@ public class VehiclePurchaseHandler {
             return null;
         }
 
+        // Bestimme den Body-Type basierend auf dem Item
         ItemSpawnCar spawnCarItem = (ItemSpawnCar) vehicleItem.getItem();
-        EntityGenericCar vehicle = new EntityGenericCar(level);
+
+        // Erstelle Teile-Liste (wie in ItemSpawnCar)
+        List<ItemStack> parts = new ArrayList<>();
+
+        // Bestimme Body basierend auf dem SPAWN_CAR Item
+        if (spawnCarItem == ModItems.SPAWN_CAR_OAK.get()) {
+            parts.add(new ItemStack(ModItems.OAK_BODY.get()));
+            parts.add(new ItemStack(ModItems.ENGINE_3_CYLINDER.get()));
+            parts.add(new ItemStack(ModItems.WHEEL.get()));
+            parts.add(new ItemStack(ModItems.WHEEL.get()));
+            parts.add(new ItemStack(ModItems.WHEEL.get()));
+            parts.add(new ItemStack(ModItems.WHEEL.get()));
+        } else if (spawnCarItem == ModItems.SPAWN_CAR_BIG_OAK.get()) {
+            parts.add(new ItemStack(ModItems.BIG_OAK_BODY.get()));
+            parts.add(new ItemStack(ModItems.ENGINE_3_CYLINDER.get()));
+            parts.add(new ItemStack(ModItems.WHEEL.get()));
+            parts.add(new ItemStack(ModItems.WHEEL.get()));
+            parts.add(new ItemStack(ModItems.WHEEL.get()));
+            parts.add(new ItemStack(ModItems.WHEEL.get()));
+        } else if (spawnCarItem == ModItems.SPAWN_CAR_WHITE_TRANSPORTER.get()) {
+            parts.add(new ItemStack(ModItems.WHITE_TRANSPORTER_BODY.get()));
+            parts.add(new ItemStack(ModItems.ENGINE_3_CYLINDER.get()));
+            parts.add(new ItemStack(ModItems.WHEEL.get()));
+            parts.add(new ItemStack(ModItems.WHEEL.get()));
+            parts.add(new ItemStack(ModItems.WHEEL.get()));
+            parts.add(new ItemStack(ModItems.WHEEL.get()));
+            parts.add(new ItemStack(ModItems.WHEEL.get()));
+            parts.add(new ItemStack(ModItems.WHEEL.get()));
+        } else if (spawnCarItem == ModItems.SPAWN_CAR_WHITE_SUV.get()) {
+            parts.add(new ItemStack(ModItems.WHITE_SUV_BODY.get()));
+            parts.add(new ItemStack(ModItems.ENGINE_3_CYLINDER.get()));
+            parts.add(new ItemStack(ModItems.BIG_WHEEL.get()));
+            parts.add(new ItemStack(ModItems.BIG_WHEEL.get()));
+            parts.add(new ItemStack(ModItems.BIG_WHEEL.get()));
+            parts.add(new ItemStack(ModItems.BIG_WHEEL.get()));
+        } else if (spawnCarItem == ModItems.SPAWN_CAR_WHITE_SPORT.get()) {
+            parts.add(new ItemStack(ModItems.WHITE_SPORT_BODY.get()));
+            parts.add(new ItemStack(ModItems.ENGINE_3_CYLINDER.get()));
+            parts.add(new ItemStack(ModItems.WHEEL.get()));
+            parts.add(new ItemStack(ModItems.WHEEL.get()));
+            parts.add(new ItemStack(ModItems.WHEEL.get()));
+            parts.add(new ItemStack(ModItems.WHEEL.get()));
+        } else {
+            return null; // Unbekanntes Fahrzeug
+        }
+
+        // Füge Tank und Lizenzplatte hinzu
+        parts.add(new ItemStack(ModItems.SMALL_TANK.get()));
+        parts.add(new ItemStack(ModItems.LICENSE_PLATE.get()));
+        parts.add(new ItemStack(ModItems.IRON_LICENSE_PLATE_HOLDER.get()));
+
+        // Erstelle Auto mit CarFactory (wie in ItemSpawnCar)
+        EntityGenericCar vehicle = CarFactory.createCar(level, parts);
+
+        if (vehicle == null) {
+            return null;
+        }
 
         // Position und Rotation setzen
         vehicle.setPos(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
         vehicle.setYRot(yaw);
         vehicle.yRotO = yaw;
+        vehicle.setFuelAmount(100);
+        vehicle.setBatteryLevel(500);
 
         // Spawn das Fahrzeug in der Welt
         level.addFreshEntity(vehicle);
+        vehicle.setIsSpawned(true);
+        vehicle.initTemperature();
 
         return vehicle;
     }
