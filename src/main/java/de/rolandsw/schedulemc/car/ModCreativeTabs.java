@@ -77,25 +77,7 @@ public class ModCreativeTabs {
                     for (RegistryObject<ItemCarPart> part : ModItems.BUMPERS) {
                         output.accept(new ItemStack(part.get()));
                     }
-                    for (RegistryObject<ItemCarPart> part : ModItems.WOODEN_LICENSE_PLATE_HOLDERS) {
-                        output.accept(new ItemStack(part.get()));
-                    }
                     output.accept(new ItemStack(ModItems.IRON_LICENSE_PLATE_HOLDER.get()));
-                    output.accept(new ItemStack(ModItems.DIAMOND_LICENSE_PLATE_HOLDER.get()));
-                    output.accept(new ItemStack(ModItems.GOLD_LICENSE_PLATE_HOLDER.get()));
-                    output.accept(new ItemStack(ModItems.EMERALD_LICENSE_PLATE_HOLDER.get()));
-                    for (RegistryObject<ItemCarPart> part : ModItems.WOODEN_LICENSE_PLATE_HOLDERS) {
-                        output.accept(new ItemStack(part.get()));
-                    }
-                    for (RegistryObject<ItemCarPart> part : ModItems.WOODEN_LICENSE_PLATE_HOLDERS) {
-                        output.accept(new ItemStack(part.get()));
-                    }
-                    for (RegistryObject<ItemCarPart> part : ModItems.WOODEN_LICENSE_PLATE_HOLDERS) {
-                        output.accept(new ItemStack(part.get()));
-                    }
-                    for (RegistryObject<ItemCarPart> part : ModItems.WOODEN_LICENSE_PLATE_HOLDERS) {
-                        output.accept(new ItemStack(part.get()));
-                    }
                 })
                 .title(Component.translatable("itemGroup.car_parts"))
                 .build();
