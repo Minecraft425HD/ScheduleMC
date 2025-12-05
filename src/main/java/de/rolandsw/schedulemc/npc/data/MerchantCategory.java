@@ -10,7 +10,8 @@ public enum MerchantCategory {
     TANKSTELLE("Tankstelle", "Gas Station"),
     LEBENSMITTEL("Lebensmittel", "Grocery Store"),
     PERSONALMANAGEMENT("Personalmanagement", "HR Management"),
-    ILLEGALER_HAENDLER("Illegaler Händler", "Black Market");
+    ILLEGALER_HAENDLER("Illegaler Händler", "Black Market"),
+    AUTOHAENDLER("Autohändler", "Car Dealer");
 
     private final String displayNameDE;
     private final String displayNameEN;
