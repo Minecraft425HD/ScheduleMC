@@ -1,8 +1,0 @@
-{
-    "variants": {
-        "facing=north": { "model": "car:block/arrow_zebras_yellow" },
-        "facing=south": { "model": "car:block/arrow_zebras_yellow", "y": 180 },
-        "facing=west":  { "model": "car:block/arrow_zebras_yellow", "y": 270 },
-        "facing=east":  { "model": "car:block/arrow_zebras_yellow", "y": 90 }
-    }
-}
