@@ -65,7 +65,14 @@ public class PurchaseItemPacket {
      * Verarbeitet den Kauf
      */
     private void processPurchase(ServerPlayer player, CustomNPCEntity merchant, int itemIndex, int quantity) {
-        List<NPCData.ShopEntry> shopItems = merchant.getNpcData().getBuyShop().getEntries();
+        // WICHTIG: Für Tankstellen müssen wir die Bill-Items auch hier hinzufügen, damit die Indizes stimmen!
+        List<NPCData.ShopEntry> shopItems = new ArrayList<>(merchant.getNpcData().getBuyShop().getEntries());
+
+        // Spezialbehandlung für Tankstelle: Füge unbezahlte Rechnungen hinzu (wie in OpenMerchantShopPacket)
+        if (merchant.getMerchantCategory() == MerchantCategory.TANKSTELLE) {
+            List<NPCData.ShopEntry> billEntries = createBillEntries(player);
+            shopItems.addAll(0, billEntries); // Am Anfang einfügen - GLEICHE LOGIK WIE BEIM ÖFFNEN!
+        }
 
         if (itemIndex < 0 || itemIndex >= shopItems.size()) {
             player.sendSystemMessage(Component.literal("§cUngültiges Item!"));
@@ -203,5 +210,53 @@ public class PurchaseItemPacket {
         player.sendSystemMessage(Component.literal("Restguthaben: ").withStyle(ChatFormatting.GRAY)
             .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID()))).withStyle(ChatFormatting.YELLOW)));
         player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GREEN));
+    }
+
+    /**
+     * Erstellt Shop-Einträge für unbezahlte Rechnungen (kopiert von OpenMerchantShopPacket)
+     */
+    private List<NPCData.ShopEntry> createBillEntries(ServerPlayer player) {
+        List<NPCData.ShopEntry> billEntries = new ArrayList<>();
+
+        // Alle Tankstellen durchgehen
+        for (UUID gasStationId : GasStationRegistry.getAllGasStationIds()) {
+            List<FuelBillManager.UnpaidBill> unpaidBills = FuelBillManager.getUnpaidBills(player.getUUID(), gasStationId);
+
+            if (!unpaidBills.isEmpty()) {
+                // Summiere alle unbezahlten Rechnungen für diese Tankstelle
+                int totalFueled = 0;
+                double totalCost = 0.0;
+
+                for (FuelBillManager.UnpaidBill bill : unpaidBills) {
+                    totalFueled += bill.amountFueled;
+                    totalCost += bill.totalCost;
+                }
+
+                // Erstelle Bill-Item
+                String stationName = GasStationRegistry.getDisplayName(gasStationId);
+                ItemStack billItem = new ItemStack(net.minecraft.world.item.Items.PAPER);
+                net.minecraft.nbt.CompoundTag tag = billItem.getOrCreateTag();
+                tag.putString("BillType", "FuelBill");
+                tag.putUUID("GasStationId", gasStationId);
+                tag.putInt("TotalFueled", totalFueled);
+                tag.putDouble("TotalCost", totalCost);
+
+                // Setze Namen mit Formatierung
+                billItem.setHoverName(net.minecraft.network.chat.Component.literal("⛽ Tankrechnung - " + stationName)
+                    .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
+
+                // Erstelle Shop-Entry (Preis ist die Rechnungssumme)
+                NPCData.ShopEntry billEntry = new NPCData.ShopEntry(
+                    billItem,
+                    (int) Math.ceil(totalCost), // Preis aufgerundet
+                    true, // Unbegrenzt verfügbar (ist ja eine Rechnung)
+                    1     // Stock: 1
+                );
+
+                billEntries.add(billEntry);
+            }
+        }
+
+        return billEntries;
     }
 }
