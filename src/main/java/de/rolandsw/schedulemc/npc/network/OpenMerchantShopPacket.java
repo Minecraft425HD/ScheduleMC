@@ -141,6 +141,28 @@ public class OpenMerchantShopPacket {
             }
         }
 
+        // WICHTIG: Wenn keine Rechnungen vorhanden, zeige trotzdem ein Papier-Item
+        if (billEntries.isEmpty()) {
+            ItemStack noBillItem = new ItemStack(Items.PAPER);
+            CompoundTag tag = noBillItem.getOrCreateTag();
+            tag.putString("BillType", "NoBill");
+            tag.putDouble("TotalCost", 0.0);
+
+            // Setze Namen: Keine offenen Rechnungen
+            noBillItem.setHoverName(Component.literal("📄 Keine offenen Rechnungen")
+                .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD));
+
+            // Erstelle Shop-Entry mit Preis 0
+            NPCData.ShopEntry noBillEntry = new NPCData.ShopEntry(
+                noBillItem,
+                0, // Preis: 0€
+                true,
+                1
+            );
+
+            billEntries.add(noBillEntry);
+        }
+
         return billEntries;
     }
 }
