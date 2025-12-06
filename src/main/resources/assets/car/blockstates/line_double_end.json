@@ -1,8 +1,0 @@
-{
-    "variants": {
-        "facing=north": { "model": "car:block/line_double_end" },
-        "facing=south": { "model": "car:block/line_double_end", "y": 180 },
-        "facing=west":  { "model": "car:block/line_double_end", "y": 270 },
-        "facing=east":  { "model": "car:block/line_double_end", "y": 90 }
-    }
-}

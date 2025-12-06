@@ -1,8 +1,0 @@
-{
-    "variants": {
-        "facing=north": { "model": "car:block/arrow_no_parking" },
-        "facing=south": { "model": "car:block/arrow_no_parking", "y": 180 },
-        "facing=west":  { "model": "car:block/arrow_no_parking", "y": 270 },
-        "facing=east":  { "model": "car:block/arrow_no_parking", "y": 90 }
-    }
-}
