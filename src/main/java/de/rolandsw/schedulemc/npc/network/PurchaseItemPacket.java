@@ -9,13 +9,16 @@ import de.rolandsw.schedulemc.npc.data.MerchantCategory;
 import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import net.minecraft.ChatFormatting;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.network.NetworkEvent;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -234,15 +237,15 @@ public class PurchaseItemPacket {
 
                 // Erstelle Bill-Item
                 String stationName = GasStationRegistry.getDisplayName(gasStationId);
-                ItemStack billItem = new ItemStack(net.minecraft.world.item.Items.PAPER);
-                net.minecraft.nbt.CompoundTag tag = billItem.getOrCreateTag();
+                ItemStack billItem = new ItemStack(Items.PAPER);
+                CompoundTag tag = billItem.getOrCreateTag();
                 tag.putString("BillType", "FuelBill");
                 tag.putUUID("GasStationId", gasStationId);
                 tag.putInt("TotalFueled", totalFueled);
                 tag.putDouble("TotalCost", totalCost);
 
                 // Setze Namen mit Formatierung
-                billItem.setHoverName(net.minecraft.network.chat.Component.literal("⛽ Tankrechnung - " + stationName)
+                billItem.setHoverName(Component.literal("⛽ Tankrechnung - " + stationName)
                     .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
 
                 // Erstelle Shop-Entry (Preis ist die Rechnungssumme)
