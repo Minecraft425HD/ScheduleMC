@@ -124,7 +124,7 @@ public class PurchaseItemPacket {
             // Prüfe ob es eine echte Rechnung ist
             if ("FuelBill".equals(billType)) {
                 // Rechnung bezahlen
-                processFuelBillPayment(player, entry.getItem(), totalPrice);
+                processFuelBillPayment(player, merchant, entry, totalPrice);
                 return;
             }
         }
@@ -194,7 +194,9 @@ public class PurchaseItemPacket {
     /**
      * Verarbeitet die Bezahlung einer Tankrechnung
      */
-    private void processFuelBillPayment(ServerPlayer player, ItemStack billItem, int price) {
+    private void processFuelBillPayment(ServerPlayer player, CustomNPCEntity merchant, NPCData.ShopEntry entry, int price) {
+        ItemStack billItem = entry.getItem();
+
         // Lese Daten aus dem Bill-Item
         UUID gasStationId = billItem.getTag().getUUID("GasStationId");
         int totalFueled = billItem.getTag().getInt("TotalFueled");
@@ -209,6 +211,10 @@ public class PurchaseItemPacket {
         // Markiere alle Rechnungen für diese Zapfsäule als bezahlt
         FuelBillManager.payBills(player.getUUID(), gasStationId);
         FuelBillManager.save();
+
+        // WICHTIG: Füge Umsatz zum Warehouse hinzu (7-Tage-Statistik)
+        // Menge ist immer 1 (eine Rechnung), Preis ist der Rechnungsbetrag
+        merchant.getNpcData().onItemSoldFromWarehouse(player.level(), entry, 1, price);
 
         // Erfolgs-Nachricht
         String stationName = GasStationRegistry.getDisplayName(gasStationId);

@@ -177,18 +177,7 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
 
         if (fluidHandlerInFront == null) {
             if (fuelCounter > 0 || isFueling) {
-                // Send final bill if there was a fueling session
-                if (currentFuelingPlayer != null && totalFueledThisSession > 0) {
-                    sendFuelBillToPlayer(currentFuelingPlayer, totalFueledThisSession, totalCostThisSession);
-                }
-
-                fuelCounter = 0;
-                isFueling = false;
-                totalCostThisSession = 0;
-                totalFueledThisSession = 0;
-                currentFuelingPlayer = null;
-                synchronize();
-                setChanged();
+                finalizeFuelingSession();
             }
             return;
         }
@@ -334,6 +323,27 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
             player.sendSystemMessage(Component.literal("Bitte bezahlen Sie am Tankstellen-NPC!").withStyle(ChatFormatting.YELLOW));
             player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
         }
+    }
+
+    /**
+     * Finalisiert die Tanksitzung und erstellt die Rechnung
+     * Wird aufgerufen wenn:
+     * - Der STOP-Button gedrückt wird
+     * - Das Fahrzeug wegfährt (fluidHandlerInFront == null)
+     */
+    public void finalizeFuelingSession() {
+        // Send final bill if there was a fueling session
+        if (currentFuelingPlayer != null && totalFueledThisSession > 0) {
+            sendFuelBillToPlayer(currentFuelingPlayer, totalFueledThisSession, totalCostThisSession);
+        }
+
+        fuelCounter = 0;
+        isFueling = false;
+        totalCostThisSession = 0;
+        totalFueledThisSession = 0;
+        currentFuelingPlayer = null;
+        synchronize();
+        setChanged();
     }
 
     /**

@@ -32,6 +32,12 @@ public class MessageStartFuel implements Message<MessageStartFuel> {
 
         if (te instanceof TileEntityGasStation) {
             TileEntityGasStation tank = (TileEntityGasStation) te;
+
+            // Wenn STOP gedrückt wird, erstelle sofort die Rechnung
+            if (!start && tank.isFueling()) {
+                tank.finalizeFuelingSession();
+            }
+
             tank.setFueling(start);
             tank.synchronize();
         }
