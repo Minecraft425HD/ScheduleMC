@@ -80,8 +80,6 @@ public class ServerConfig extends ConfigBase {
     public ServerConfig(ForgeConfigSpec.Builder builder) {
         super(builder);
 
-        fluidExtractorDrainSpeed = builder.defineInRange("machines.fluid_extractor.drain_speed", 25, 5, Short.MAX_VALUE);
-
         gasStationTransferRate = builder.defineInRange("machines.gas_station.transfer_rate", 5, 1, Short.MAX_VALUE);
         gasStationValidFuels = builder.comment("If it starts with '#' it is a tag").defineList("machines.gas_station.valid_fuels", Collections.singletonList("#car:gas_station"), Objects::nonNull);
         gasStationMorningPricePer10mb = builder.comment("Price per 10 mb of fuel during morning (0-12000 ticks, 6:00-18:00)").defineInRange("machines.gas_station.morning_price_per_10mb", 10, 0, Integer.MAX_VALUE);
