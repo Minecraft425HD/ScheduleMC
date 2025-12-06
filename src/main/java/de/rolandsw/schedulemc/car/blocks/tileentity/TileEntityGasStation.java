@@ -7,6 +7,7 @@ import de.rolandsw.schedulemc.car.blocks.BlockOrientableHorizontal;
 import de.rolandsw.schedulemc.car.blocks.ModBlocks;
 import de.rolandsw.schedulemc.car.fluids.ModFluids;
 import de.rolandsw.schedulemc.car.fuel.FuelBillManager;
+import de.rolandsw.schedulemc.car.fuel.GasStationRegistry;
 import de.rolandsw.schedulemc.car.net.MessageStartFuel;
 import de.rolandsw.schedulemc.car.sounds.ModSounds;
 import de.rolandsw.schedulemc.car.sounds.SoundLoopTileentity;
@@ -212,6 +213,9 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
             // Calculate price based on time of day
             int pricePerUnit = getCurrentPrice();
 
+            // DEBUG: Log price
+            Main.LOGGER.info("[GasStation] Current price: {}€ per 10mB (tradeAmount: {})", pricePerUnit, tradeAmount);
+
             if (tradeAmount <= 0) {
                 // If no trade amount set, fuel on credit (bill payment system)
                 if (pricePerUnit > 0) {
@@ -228,9 +232,14 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
 
                             // Send welcome message with price
                             String timeOfDay = getCurrentPrice() == Main.SERVER_CONFIG.gasStationMorningPricePer10mb.get() ? "Tag" : "Nacht";
+                            String stationName = GasStationRegistry.getDisplayName(gasStationId);
                             player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
                             player.sendSystemMessage(Component.literal("⛽ ").withStyle(ChatFormatting.YELLOW)
                                 .append(Component.literal("TANKSTELLE").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)));
+                            player.sendSystemMessage(Component.literal("Zapfsäule: ").withStyle(ChatFormatting.GRAY)
+                                .append(Component.literal(stationName).withStyle(ChatFormatting.AQUA)));
+                            player.sendSystemMessage(Component.literal("ID: ").withStyle(ChatFormatting.GRAY)
+                                .append(Component.literal(gasStationId.toString().substring(0, 8) + "...").withStyle(ChatFormatting.DARK_GRAY)));
                             player.sendSystemMessage(Component.literal("Aktueller Preis (").withStyle(ChatFormatting.GRAY)
                                 .append(Component.literal(timeOfDay).withStyle(ChatFormatting.AQUA))
                                 .append(Component.literal("): ").withStyle(ChatFormatting.GRAY))
@@ -238,6 +247,11 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
                                 .append(Component.literal(" pro 10 mB").withStyle(ChatFormatting.GRAY)));
                             player.sendSystemMessage(Component.literal("💳 Tanken auf Rechnung aktiviert").withStyle(ChatFormatting.AQUA));
                             player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
+
+                            // DEBUG LOGGING
+                            Main.LOGGER.info("[GasStation] Player {} started fueling at station {} ({})",
+                                player.getName().getString(), stationName, gasStationId);
+                            Main.LOGGER.info("[GasStation] Price: {}€ per 10mB ({})", pricePerUnit, timeOfDay);
                         }
 
                         // Calculate cost for 10 mB and add to bill (no immediate payment)
@@ -291,9 +305,17 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
      * Sends a fuel bill to the player and creates a fuel bill record
      */
     private void sendFuelBillToPlayer(UUID playerUUID, int totalFueled, double totalCost) {
+        // DEBUG LOGGING
+        String stationName = GasStationRegistry.getDisplayName(gasStationId);
+        Main.LOGGER.info("[GasStation] Creating bill for player {} at station {} ({})",
+            playerUUID, stationName, gasStationId);
+        Main.LOGGER.info("[GasStation] Bill details: {} mB fueled, total cost: {}€", totalFueled, totalCost);
+
         // Erstelle Fuel Bill für spätere Bezahlung am Tankstellen-NPC
         FuelBillManager.createBill(playerUUID, gasStationId, totalFueled, totalCost);
         FuelBillManager.saveIfNeeded();
+
+        Main.LOGGER.info("[GasStation] Bill created and saved successfully");
 
         Player player = level.getPlayerByUUID(playerUUID);
         if (player != null) {

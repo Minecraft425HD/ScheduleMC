@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.car.blocks;
 
 import de.rolandsw.schedulemc.car.blocks.tileentity.TileEntityGasStation;
+import de.rolandsw.schedulemc.car.fuel.GasStationRegistry;
 import de.rolandsw.schedulemc.car.gui.ContainerGasStation;
 import de.rolandsw.schedulemc.car.gui.ContainerGasStationAdmin;
 import de.rolandsw.schedulemc.car.gui.TileEntityContainerProvider;
@@ -150,6 +151,29 @@ public class BlockGasStation extends BlockOrientableHorizontal {
             PlotRegion plot = PlotManager.getPlotAt(pos);
             if (plot != null && plot.getType().isShop()) {
                 station.setShopPlotId(plot.getPlotId());
+
+                // Benachrichtige Spieler über Gas Station ID
+                String stationName = GasStationRegistry.getDisplayName(station.getGasStationId());
+                placer.sendSystemMessage(net.minecraft.network.chat.Component.literal("═══════════════════════════════")
+                    .withStyle(net.minecraft.ChatFormatting.GREEN));
+                placer.sendSystemMessage(net.minecraft.network.chat.Component.literal("⛽ ")
+                    .withStyle(net.minecraft.ChatFormatting.YELLOW)
+                    .append(net.minecraft.network.chat.Component.literal("TANKSTELLE REGISTRIERT")
+                        .withStyle(net.minecraft.ChatFormatting.GREEN, net.minecraft.ChatFormatting.BOLD)));
+                placer.sendSystemMessage(net.minecraft.network.chat.Component.literal("Zapfsäule: ")
+                    .withStyle(net.minecraft.ChatFormatting.GRAY)
+                    .append(net.minecraft.network.chat.Component.literal(stationName)
+                        .withStyle(net.minecraft.ChatFormatting.AQUA)));
+                placer.sendSystemMessage(net.minecraft.network.chat.Component.literal("ID: ")
+                    .withStyle(net.minecraft.ChatFormatting.GRAY)
+                    .append(net.minecraft.network.chat.Component.literal(station.getGasStationId().toString())
+                        .withStyle(net.minecraft.ChatFormatting.DARK_GRAY)));
+                placer.sendSystemMessage(net.minecraft.network.chat.Component.literal("Shop-Plot: ")
+                    .withStyle(net.minecraft.ChatFormatting.GRAY)
+                    .append(net.minecraft.network.chat.Component.literal(plot.getPlotId())
+                        .withStyle(net.minecraft.ChatFormatting.GOLD)));
+                placer.sendSystemMessage(net.minecraft.network.chat.Component.literal("═══════════════════════════════")
+                    .withStyle(net.minecraft.ChatFormatting.GREEN));
             }
         }
 
