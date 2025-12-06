@@ -7,6 +7,7 @@ import de.rolandsw.schedulemc.car.blocks.BlockOrientableHorizontal;
 import de.rolandsw.schedulemc.car.blocks.ModBlocks;
 import de.rolandsw.schedulemc.car.fluids.ModFluids;
 import de.rolandsw.schedulemc.car.fuel.FuelBillManager;
+import de.rolandsw.schedulemc.car.fuel.GasStationRegistry;
 import de.rolandsw.schedulemc.car.net.MessageStartFuel;
 import de.rolandsw.schedulemc.car.sounds.ModSounds;
 import de.rolandsw.schedulemc.car.sounds.SoundLoopTileentity;
@@ -66,6 +67,9 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
     // Gas Station ID for billing
     private UUID gasStationId;
 
+    // Shop Plot ID (wenn die Gasstation in einem Shop-Plot ist)
+    private String shopPlotId;
+
     // Tracking for billing
     private double totalCostThisSession;
     private int totalFueledThisSession;
@@ -92,6 +96,15 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
 
     public UUID getGasStationId() {
         return gasStationId;
+    }
+
+    public String getShopPlotId() {
+        return shopPlotId;
+    }
+
+    public void setShopPlotId(String shopPlotId) {
+        this.shopPlotId = shopPlotId;
+        setChanged();
     }
 
     public final ContainerData FIELDS = new ContainerData() {
@@ -164,18 +177,7 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
 
         if (fluidHandlerInFront == null) {
             if (fuelCounter > 0 || isFueling) {
-                // Send final bill if there was a fueling session
-                if (currentFuelingPlayer != null && totalFueledThisSession > 0) {
-                    sendFuelBillToPlayer(currentFuelingPlayer, totalFueledThisSession, totalCostThisSession);
-                }
-
-                fuelCounter = 0;
-                isFueling = false;
-                totalCostThisSession = 0;
-                totalFueledThisSession = 0;
-                currentFuelingPlayer = null;
-                synchronize();
-                setChanged();
+                finalizeFuelingSession();
             }
             return;
         }
@@ -200,8 +202,11 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
             // Calculate price based on time of day
             int pricePerUnit = getCurrentPrice();
 
+            // DEBUG: Log price
+            Main.LOGGER.info("[GasStation] Current price: {}€ per 10mB (tradeAmount: {})", pricePerUnit, tradeAmount);
+
             if (tradeAmount <= 0) {
-                // If no trade amount set, check wallet payment
+                // If no trade amount set, fuel on credit (bill payment system)
                 if (pricePerUnit > 0) {
                     // Find the player who owns the fueling entity
                     Player player = findPlayerForFueling();
@@ -216,48 +221,35 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
 
                             // Send welcome message with price
                             String timeOfDay = getCurrentPrice() == Main.SERVER_CONFIG.gasStationMorningPricePer10mb.get() ? "Tag" : "Nacht";
+                            String stationName = GasStationRegistry.getDisplayName(gasStationId);
                             player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
                             player.sendSystemMessage(Component.literal("⛽ ").withStyle(ChatFormatting.YELLOW)
                                 .append(Component.literal("TANKSTELLE").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)));
+                            player.sendSystemMessage(Component.literal("Zapfsäule: ").withStyle(ChatFormatting.GRAY)
+                                .append(Component.literal(stationName).withStyle(ChatFormatting.AQUA)));
+                            player.sendSystemMessage(Component.literal("ID: ").withStyle(ChatFormatting.GRAY)
+                                .append(Component.literal(gasStationId.toString().substring(0, 8) + "...").withStyle(ChatFormatting.DARK_GRAY)));
                             player.sendSystemMessage(Component.literal("Aktueller Preis (").withStyle(ChatFormatting.GRAY)
                                 .append(Component.literal(timeOfDay).withStyle(ChatFormatting.AQUA))
                                 .append(Component.literal("): ").withStyle(ChatFormatting.GRAY))
                                 .append(Component.literal(String.format("%.2f€", (double)pricePerUnit)).withStyle(ChatFormatting.GREEN))
                                 .append(Component.literal(" pro 10 mB").withStyle(ChatFormatting.GRAY)));
-                            player.sendSystemMessage(Component.literal("Guthaben: ").withStyle(ChatFormatting.GRAY)
-                                .append(Component.literal(String.format("%.2f€", WalletManager.getBalance(playerUUID))).withStyle(ChatFormatting.YELLOW)));
+                            player.sendSystemMessage(Component.literal("💳 Tanken auf Rechnung aktiviert").withStyle(ChatFormatting.AQUA));
                             player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
+
+                            // DEBUG LOGGING
+                            Main.LOGGER.info("[GasStation] Player {} started fueling at station {} ({})",
+                                player.getName().getString(), stationName, gasStationId);
+                            Main.LOGGER.info("[GasStation] Price: {}€ per 10mB ({})", pricePerUnit, timeOfDay);
                         }
 
-                        // Calculate cost for 10 mB
+                        // Calculate cost for 10 mB and add to bill (no immediate payment)
                         double cost = pricePerUnit;
-                        if (WalletManager.removeMoney(playerUUID, cost)) {
-                            freeAmountLeft = 10; // Allow 10 mB per payment
-                            totalCostThisSession += cost;
-                            setChanged();
-                        } else {
-                            // Not enough money, stop fueling and send message
-                            player.sendSystemMessage(Component.literal("⚠ ").withStyle(ChatFormatting.RED)
-                                .append(Component.literal("Nicht genug Geld! Tanken gestoppt.").withStyle(ChatFormatting.RED)));
-                            player.sendSystemMessage(Component.literal("Benötigt: ").withStyle(ChatFormatting.GRAY)
-                                .append(Component.literal(String.format("%.2f€", cost)).withStyle(ChatFormatting.RED))
-                                .append(Component.literal(" | Verfügbar: ").withStyle(ChatFormatting.GRAY))
-                                .append(Component.literal(String.format("%.2f€", WalletManager.getBalance(playerUUID))).withStyle(ChatFormatting.YELLOW)));
-
-                            // Send final bill
-                            if (totalFueledThisSession > 0) {
-                                sendFuelBillToPlayer(playerUUID, totalFueledThisSession, totalCostThisSession);
-                            }
-
-                            isFueling = false;
-                            totalCostThisSession = 0;
-                            totalFueledThisSession = 0;
-                            currentFuelingPlayer = null;
-                            synchronize();
-                            return;
-                        }
+                        freeAmountLeft = 10; // Allow 10 mB per pricing cycle
+                        totalCostThisSession += cost;
+                        setChanged();
                     } else {
-                        // No player found, cannot fuel without payment
+                        // No player found, stop fueling
                         isFueling = false;
                         synchronize();
                         return;
@@ -302,9 +294,17 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
      * Sends a fuel bill to the player and creates a fuel bill record
      */
     private void sendFuelBillToPlayer(UUID playerUUID, int totalFueled, double totalCost) {
+        // DEBUG LOGGING
+        String stationName = GasStationRegistry.getDisplayName(gasStationId);
+        Main.LOGGER.info("[GasStation] Creating bill for player {} at station {} ({})",
+            playerUUID, stationName, gasStationId);
+        Main.LOGGER.info("[GasStation] Bill details: {} mB fueled, total cost: {}€", totalFueled, totalCost);
+
         // Erstelle Fuel Bill für spätere Bezahlung am Tankstellen-NPC
         FuelBillManager.createBill(playerUUID, gasStationId, totalFueled, totalCost);
         FuelBillManager.saveIfNeeded();
+
+        Main.LOGGER.info("[GasStation] Bill created and saved successfully");
 
         Player player = level.getPlayerByUUID(playerUUID);
         if (player != null) {
@@ -323,6 +323,27 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
             player.sendSystemMessage(Component.literal("Bitte bezahlen Sie am Tankstellen-NPC!").withStyle(ChatFormatting.YELLOW));
             player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
         }
+    }
+
+    /**
+     * Finalisiert die Tanksitzung und erstellt die Rechnung
+     * Wird aufgerufen wenn:
+     * - Der STOP-Button gedrückt wird
+     * - Das Fahrzeug wegfährt (fluidHandlerInFront == null)
+     */
+    public void finalizeFuelingSession() {
+        // Send final bill if there was a fueling session
+        if (currentFuelingPlayer != null && totalFueledThisSession > 0) {
+            sendFuelBillToPlayer(currentFuelingPlayer, totalFueledThisSession, totalCostThisSession);
+        }
+
+        fuelCounter = 0;
+        isFueling = false;
+        totalCostThisSession = 0;
+        totalFueledThisSession = 0;
+        currentFuelingPlayer = null;
+        synchronize();
+        setChanged();
     }
 
     /**
@@ -349,22 +370,49 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
         // Search for entities in the detection box
         List<Entity> entities = level.getEntitiesOfClass(Entity.class, getDetectionBox());
 
+        // DEBUG: Log what entities we found
+        Main.LOGGER.info("[GasStation] Searching for player in detection box. Found {} entities", entities.size());
+
+        Entity vehicleWithFluidHandler = null;
+
         for (Entity entity : entities) {
             if (entity.getCapability(ForgeCapabilities.FLUID_HANDLER).isPresent()) {
+                vehicleWithFluidHandler = entity;
+                Main.LOGGER.info("[GasStation] Found vehicle with fluid handler: {}", entity.getClass().getSimpleName());
+
                 // First try to get the controlling passenger
                 if (entity.getControllingPassenger() instanceof Player) {
-                    return (Player) entity.getControllingPassenger();
+                    Player player = (Player) entity.getControllingPassenger();
+                    Main.LOGGER.info("[GasStation] Found controlling passenger: {}", player.getName().getString());
+                    return player;
                 }
 
                 // Then try all passengers
                 for (Entity passenger : entity.getPassengers()) {
                     if (passenger instanceof Player) {
-                        return (Player) passenger;
+                        Player player = (Player) passenger;
+                        Main.LOGGER.info("[GasStation] Found passenger: {}", player.getName().getString());
+                        return player;
                     }
                 }
             }
         }
 
+        // If no player in vehicle, search for nearby players who might have just exited
+        if (vehicleWithFluidHandler != null) {
+            Main.LOGGER.info("[GasStation] No player in vehicle, searching for nearby players...");
+            List<Player> nearbyPlayers = level.getEntitiesOfClass(Player.class,
+                getDetectionBox().inflate(3.0D), // 3 block radius around detection box
+                p -> !p.isSpectator());
+
+            if (!nearbyPlayers.isEmpty()) {
+                Player nearestPlayer = nearbyPlayers.get(0);
+                Main.LOGGER.info("[GasStation] Found nearby player: {}", nearestPlayer.getName().getString());
+                return nearestPlayer;
+            }
+        }
+
+        Main.LOGGER.info("[GasStation] No player found for fueling!");
         return null;
     }
 
@@ -472,6 +520,10 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
         if (gasStationId != null) {
             compound.putUUID("gas_station_id", gasStationId);
         }
+
+        if (shopPlotId != null && !shopPlotId.isEmpty()) {
+            compound.putString("shop_plot_id", shopPlotId);
+        }
     }
 
     @Override
@@ -494,6 +546,10 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
         } else {
             // Fallback: Registriere falls noch nicht vorhanden
             gasStationId = GasStationRegistry.registerGasStation(worldPosition);
+        }
+
+        if (compound.contains("shop_plot_id")) {
+            shopPlotId = compound.getString("shop_plot_id");
         }
 
         if (compound.contains("owner")) {

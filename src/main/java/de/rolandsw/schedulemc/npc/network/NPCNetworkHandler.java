@@ -86,6 +86,12 @@ public class NPCNetworkHandler {
             .encoder(SyncNPCNamesPacket::encode)
             .consumerMainThread(SyncNPCNamesPacket::handle)
             .add();
+
+        INSTANCE.messageBuilder(PayFuelBillPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(PayFuelBillPacket::decode)
+            .encoder(PayFuelBillPacket::encode)
+            .consumerMainThread(PayFuelBillPacket::handle)
+            .add();
     }
 
     public static <MSG> void sendToServer(MSG message) {

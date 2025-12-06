@@ -53,6 +53,8 @@ public class GuiGasStation extends ScreenBase<ContainerGasStation> {
         buttonStop = addRenderableWidget(Button.builder(Component.translatable("button.car.stop"), button -> {
             gasStation.setFueling(false);
             gasStation.sendStartFuelPacket(false);
+            // Schließe GUI automatisch nach STOP
+            minecraft.setScreen(null);
         }).bounds(leftPos + imageWidth - 40 - 7, topPos + 100, 40, 20).build());
     }
 
@@ -162,6 +164,35 @@ public class GuiGasStation extends ScreenBase<ContainerGasStation> {
     @Override
     public boolean isPauseScreen() {
         return false;
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        // Blockiere ESC (256) und Inventar-Taste (E = 69) während des Tankens
+        if (gasStation.isFueling()) {
+            if (keyCode == 256 || keyCode == 69) { // ESC oder E
+                // Zeige Nachricht dass nur STOP-Button erlaubt ist
+                if (minecraft.player != null) {
+                    minecraft.player.displayClientMessage(
+                        Component.literal("⚠ Bitte beenden Sie den Tankvorgang mit dem STOP-Button!")
+                            .withStyle(ChatFormatting.RED),
+                        true // actionBar
+                    );
+                }
+                return true; // Event blockieren
+            }
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public void onClose() {
+        // Wenn GUI geschlossen wird während das Tanken läuft, automatisch STOP triggern
+        if (gasStation.isFueling()) {
+            gasStation.setFueling(false);
+            gasStation.sendStartFuelPacket(false);
+        }
+        super.onClose();
     }
 
 }

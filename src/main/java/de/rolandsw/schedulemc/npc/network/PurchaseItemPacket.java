@@ -9,13 +9,16 @@ import de.rolandsw.schedulemc.npc.data.MerchantCategory;
 import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import net.minecraft.ChatFormatting;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.network.NetworkEvent;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -65,7 +68,14 @@ public class PurchaseItemPacket {
      * Verarbeitet den Kauf
      */
     private void processPurchase(ServerPlayer player, CustomNPCEntity merchant, int itemIndex, int quantity) {
-        List<NPCData.ShopEntry> shopItems = merchant.getNpcData().getBuyShop().getEntries();
+        // WICHTIG: Für Tankstellen müssen wir die Bill-Items auch hier hinzufügen, damit die Indizes stimmen!
+        List<NPCData.ShopEntry> shopItems = new ArrayList<>(merchant.getNpcData().getBuyShop().getEntries());
+
+        // Spezialbehandlung für Tankstelle: Füge unbezahlte Rechnungen hinzu (wie in OpenMerchantShopPacket)
+        if (merchant.getMerchantCategory() == MerchantCategory.TANKSTELLE) {
+            List<NPCData.ShopEntry> billEntries = createBillEntries(player);
+            shopItems.addAll(0, billEntries); // Am Anfang einfügen - GLEICHE LOGIK WIE BEIM ÖFFNEN!
+        }
 
         if (itemIndex < 0 || itemIndex >= shopItems.size()) {
             player.sendSystemMessage(Component.literal("§cUngültiges Item!"));
@@ -100,12 +110,23 @@ public class PurchaseItemPacket {
 
         // Spezialbehandlung für Tankrechnungen (Tankstelle)
         if (merchant.getMerchantCategory() == MerchantCategory.TANKSTELLE &&
-            entry.getItem().hasTag() &&
-            "FuelBill".equals(entry.getItem().getTag().getString("BillType"))) {
+            entry.getItem().hasTag()) {
 
-            // Rechnung bezahlen
-            processFuelBillPayment(player, entry.getItem(), totalPrice);
-            return;
+            String billType = entry.getItem().getTag().getString("BillType");
+
+            // Prüfe ob es "Keine Rechnungen" ist
+            if ("NoBill".equals(billType)) {
+                player.sendSystemMessage(Component.literal("✓ Sie haben keine offenen Rechnungen!")
+                    .withStyle(ChatFormatting.GREEN));
+                return;
+            }
+
+            // Prüfe ob es eine echte Rechnung ist
+            if ("FuelBill".equals(billType)) {
+                // Rechnung bezahlen
+                processFuelBillPayment(player, merchant, entry, totalPrice);
+                return;
+            }
         }
 
         // Spezialbehandlung für Fahrzeuge (Autohändler)
@@ -173,7 +194,9 @@ public class PurchaseItemPacket {
     /**
      * Verarbeitet die Bezahlung einer Tankrechnung
      */
-    private void processFuelBillPayment(ServerPlayer player, ItemStack billItem, int price) {
+    private void processFuelBillPayment(ServerPlayer player, CustomNPCEntity merchant, NPCData.ShopEntry entry, int price) {
+        ItemStack billItem = entry.getItem();
+
         // Lese Daten aus dem Bill-Item
         UUID gasStationId = billItem.getTag().getUUID("GasStationId");
         int totalFueled = billItem.getTag().getInt("TotalFueled");
@@ -189,6 +212,10 @@ public class PurchaseItemPacket {
         FuelBillManager.payBills(player.getUUID(), gasStationId);
         FuelBillManager.save();
 
+        // WICHTIG: Füge Umsatz zum Warehouse hinzu (7-Tage-Statistik)
+        // Menge ist immer 1 (eine Rechnung), Preis ist der Rechnungsbetrag
+        merchant.getNpcData().onItemSoldFromWarehouse(player.level(), entry, 1, price);
+
         // Erfolgs-Nachricht
         String stationName = GasStationRegistry.getDisplayName(gasStationId);
         player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GREEN));
@@ -203,5 +230,75 @@ public class PurchaseItemPacket {
         player.sendSystemMessage(Component.literal("Restguthaben: ").withStyle(ChatFormatting.GRAY)
             .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID()))).withStyle(ChatFormatting.YELLOW)));
         player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GREEN));
+    }
+
+    /**
+     * Erstellt Shop-Einträge für unbezahlte Rechnungen (kopiert von OpenMerchantShopPacket)
+     */
+    private List<NPCData.ShopEntry> createBillEntries(ServerPlayer player) {
+        List<NPCData.ShopEntry> billEntries = new ArrayList<>();
+
+        // Alle Tankstellen durchgehen
+        for (UUID gasStationId : GasStationRegistry.getAllGasStationIds()) {
+            List<FuelBillManager.UnpaidBill> unpaidBills = FuelBillManager.getUnpaidBills(player.getUUID(), gasStationId);
+
+            if (!unpaidBills.isEmpty()) {
+                // Summiere alle unbezahlten Rechnungen für diese Tankstelle
+                int totalFueled = 0;
+                double totalCost = 0.0;
+
+                for (FuelBillManager.UnpaidBill bill : unpaidBills) {
+                    totalFueled += bill.amountFueled;
+                    totalCost += bill.totalCost;
+                }
+
+                // Erstelle Bill-Item
+                String stationName = GasStationRegistry.getDisplayName(gasStationId);
+                ItemStack billItem = new ItemStack(Items.PAPER);
+                CompoundTag tag = billItem.getOrCreateTag();
+                tag.putString("BillType", "FuelBill");
+                tag.putUUID("GasStationId", gasStationId);
+                tag.putInt("TotalFueled", totalFueled);
+                tag.putDouble("TotalCost", totalCost);
+
+                // Setze Namen mit Formatierung
+                billItem.setHoverName(Component.literal("⛽ Tankrechnung - " + stationName)
+                    .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
+
+                // Erstelle Shop-Entry (Preis ist die Rechnungssumme)
+                NPCData.ShopEntry billEntry = new NPCData.ShopEntry(
+                    billItem,
+                    (int) Math.ceil(totalCost), // Preis aufgerundet
+                    true, // Unbegrenzt verfügbar (ist ja eine Rechnung)
+                    1     // Stock: 1
+                );
+
+                billEntries.add(billEntry);
+            }
+        }
+
+        // WICHTIG: Wenn keine Rechnungen vorhanden, zeige trotzdem ein Papier-Item
+        if (billEntries.isEmpty()) {
+            ItemStack noBillItem = new ItemStack(Items.PAPER);
+            CompoundTag tag = noBillItem.getOrCreateTag();
+            tag.putString("BillType", "NoBill");
+            tag.putDouble("TotalCost", 0.0);
+
+            // Setze Namen: Keine offenen Rechnungen
+            noBillItem.setHoverName(Component.literal("📄 Keine offenen Rechnungen")
+                .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD));
+
+            // Erstelle Shop-Entry mit Preis 0
+            NPCData.ShopEntry noBillEntry = new NPCData.ShopEntry(
+                noBillItem,
+                0, // Preis: 0€
+                true,
+                1
+            );
+
+            billEntries.add(noBillEntry);
+        }
+
+        return billEntries;
     }
 }
