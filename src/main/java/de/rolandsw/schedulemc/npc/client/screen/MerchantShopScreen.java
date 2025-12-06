@@ -89,14 +89,24 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
             // Menge Eingabe-Feld
             EditBox quantityInput = new EditBox(this.font, x + 230, y + 30 + i * 22, 35, 16, Component.literal("Menge"));
             quantityInput.setMaxLength(4);
-            quantityInput.setValue(row.savedQuantity);
-            quantityInput.setFilter(s -> s.matches("\\d*")); // Nur Zahlen
 
-            // Speichere Werte beim Tippen
-            final int finalRowIndex = rowIndex;
-            quantityInput.setResponder(value -> {
-                shopItemRows.get(finalRowIndex).savedQuantity = value;
-            });
+            // SPEZIALBEHANDLUNG: Rechnungs-Items immer auf "1" fixieren
+            boolean isBillItem = row.item.hasTag() && row.item.getTag().contains("BillType");
+            if (isBillItem) {
+                quantityInput.setValue("1");
+                quantityInput.setEditable(false); // Nicht editierbar
+                quantityInput.setTextColor(0xAAAAAA); // Grau = disabled
+                row.savedQuantity = "1"; // Fixiere auf 1
+            } else {
+                quantityInput.setValue(row.savedQuantity);
+                quantityInput.setFilter(s -> s.matches("\\d*")); // Nur Zahlen
+
+                // Speichere Werte beim Tippen (nur für normale Items)
+                final int finalRowIndex = rowIndex;
+                quantityInput.setResponder(value -> {
+                    shopItemRows.get(finalRowIndex).savedQuantity = value;
+                });
+            }
 
             row.quantityInput = quantityInput;
             addRenderableWidget(quantityInput);
@@ -116,6 +126,13 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
             row.pricePerItem = entry.getPrice();
             row.unlimited = entry.isUnlimited();
             row.availableQuantity = entry.isUnlimited() ? Integer.MAX_VALUE : entry.getStock();
+
+            // SPEZIALBEHANDLUNG: Rechnungs-Items automatisch auf "1" setzen
+            boolean isBillItem = row.item.hasTag() && row.item.getTag().contains("BillType");
+            if (isBillItem) {
+                row.savedQuantity = "1"; // Rechnungen immer Menge 1
+            }
+
             shopItemRows.add(row);
         }
 
