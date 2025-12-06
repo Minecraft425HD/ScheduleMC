@@ -9,11 +9,9 @@ import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.menu.NPCInteractionMenu;
 import de.rolandsw.schedulemc.npc.data.NPCType;
-import de.rolandsw.schedulemc.npc.data.MerchantCategory;
 import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
 import de.rolandsw.schedulemc.npc.network.NPCActionPacket;
 import de.rolandsw.schedulemc.npc.network.OpenMerchantShopPacket;
-import de.rolandsw.schedulemc.npc.network.PayFuelBillPacket;
 import de.rolandsw.schedulemc.tobacco.network.ModNetworking;
 import de.rolandsw.schedulemc.tobacco.network.OpenTobaccoNegotiationPacket;
 import net.minecraft.client.gui.GuiGraphics;
@@ -57,28 +55,15 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
         boolean canMessage = npc != null &&
             (npc.getNpcType() == NPCType.BEWOHNER || npc.getNpcType() == NPCType.VERKAEUFER);
 
-        // Prüfe ob NPC ein Tankstellenverkäufer ist
-        boolean isGasStationMerchant = npc != null &&
-            npc.getNpcType() == NPCType.VERKAEUFER &&
-            npc.getMerchantCategory() == MerchantCategory.TANKSTELLE;
-
-        // Slot 0: Dialog/Chat/Rechnung-Button
-        if (isGasStationMerchant) {
-            // Tankstellenverkäufer: "💰 Rechnung bezahlen" Button
-            dialogButton = addRenderableWidget(Button.builder(Component.literal("💰 Rechnung bezahlen"), button -> {
-                payFuelBill();
-            }).bounds(x + 8, y + 30, 160, 20).build());
-        } else {
-            // Normal: Dialog/Chat Button - opens chat for BEWOHNER and VERKAEUFER, dialog for others
-            String buttonLabel = canMessage ? "📱 Chat" : "Dialog";
-            dialogButton = addRenderableWidget(Button.builder(Component.literal(buttonLabel), button -> {
-                if (canMessage) {
-                    openMessage();
-                } else {
-                    openDialog();
-                }
-            }).bounds(x + 8, y + 30, 160, 20).build());
-        }
+        // Dialog/Chat Button - opens chat for BEWOHNER and VERKAEUFER, dialog for others
+        String buttonLabel = canMessage ? "📱 Chat" : "Dialog";
+        dialogButton = addRenderableWidget(Button.builder(Component.literal(buttonLabel), button -> {
+            if (canMessage) {
+                openMessage();
+            } else {
+                openDialog();
+            }
+        }).bounds(x + 8, y + 30, 160, 20).build());
 
         // Shop Verkaufen Button
         shopSellButton = addRenderableWidget(Button.builder(Component.literal("Verkaufen"), button -> {
@@ -159,16 +144,6 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
                 minecraft.player.sendSystemMessage(Component.literal("§cDieser NPC ist kein Verkäufer!"));
             }
         }
-    }
-
-    /**
-     * Bezahlt alle offenen Tankrechnungen
-     */
-    private void payFuelBill() {
-        // Sende Packet an Server um Rechnungen zu bezahlen
-        NPCNetworkHandler.sendToServer(new PayFuelBillPacket());
-        // Schließe GUI nach Zahlung
-        this.onClose();
     }
 
     @Override

@@ -213,7 +213,7 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
             int pricePerUnit = getCurrentPrice();
 
             if (tradeAmount <= 0) {
-                // If no trade amount set, check wallet payment
+                // If no trade amount set, fuel on credit (bill payment system)
                 if (pricePerUnit > 0) {
                     // Find the player who owns the fueling entity
                     Player player = findPlayerForFueling();
@@ -236,40 +236,17 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
                                 .append(Component.literal("): ").withStyle(ChatFormatting.GRAY))
                                 .append(Component.literal(String.format("%.2f€", (double)pricePerUnit)).withStyle(ChatFormatting.GREEN))
                                 .append(Component.literal(" pro 10 mB").withStyle(ChatFormatting.GRAY)));
-                            player.sendSystemMessage(Component.literal("Guthaben: ").withStyle(ChatFormatting.GRAY)
-                                .append(Component.literal(String.format("%.2f€", WalletManager.getBalance(playerUUID))).withStyle(ChatFormatting.YELLOW)));
+                            player.sendSystemMessage(Component.literal("💳 Tanken auf Rechnung aktiviert").withStyle(ChatFormatting.AQUA));
                             player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
                         }
 
-                        // Calculate cost for 10 mB
+                        // Calculate cost for 10 mB and add to bill (no immediate payment)
                         double cost = pricePerUnit;
-                        if (WalletManager.removeMoney(playerUUID, cost)) {
-                            freeAmountLeft = 10; // Allow 10 mB per payment
-                            totalCostThisSession += cost;
-                            setChanged();
-                        } else {
-                            // Not enough money, stop fueling and send message
-                            player.sendSystemMessage(Component.literal("⚠ ").withStyle(ChatFormatting.RED)
-                                .append(Component.literal("Nicht genug Geld! Tanken gestoppt.").withStyle(ChatFormatting.RED)));
-                            player.sendSystemMessage(Component.literal("Benötigt: ").withStyle(ChatFormatting.GRAY)
-                                .append(Component.literal(String.format("%.2f€", cost)).withStyle(ChatFormatting.RED))
-                                .append(Component.literal(" | Verfügbar: ").withStyle(ChatFormatting.GRAY))
-                                .append(Component.literal(String.format("%.2f€", WalletManager.getBalance(playerUUID))).withStyle(ChatFormatting.YELLOW)));
-
-                            // Send final bill
-                            if (totalFueledThisSession > 0) {
-                                sendFuelBillToPlayer(playerUUID, totalFueledThisSession, totalCostThisSession);
-                            }
-
-                            isFueling = false;
-                            totalCostThisSession = 0;
-                            totalFueledThisSession = 0;
-                            currentFuelingPlayer = null;
-                            synchronize();
-                            return;
-                        }
+                        freeAmountLeft = 10; // Allow 10 mB per pricing cycle
+                        totalCostThisSession += cost;
+                        setChanged();
                     } else {
-                        // No player found, cannot fuel without payment
+                        // No player found, stop fueling
                         isFueling = false;
                         synchronize();
                         return;
