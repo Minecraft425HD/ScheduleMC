@@ -360,22 +360,49 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
         // Search for entities in the detection box
         List<Entity> entities = level.getEntitiesOfClass(Entity.class, getDetectionBox());
 
+        // DEBUG: Log what entities we found
+        Main.LOGGER.info("[GasStation] Searching for player in detection box. Found {} entities", entities.size());
+
+        Entity vehicleWithFluidHandler = null;
+
         for (Entity entity : entities) {
             if (entity.getCapability(ForgeCapabilities.FLUID_HANDLER).isPresent()) {
+                vehicleWithFluidHandler = entity;
+                Main.LOGGER.info("[GasStation] Found vehicle with fluid handler: {}", entity.getClass().getSimpleName());
+
                 // First try to get the controlling passenger
                 if (entity.getControllingPassenger() instanceof Player) {
-                    return (Player) entity.getControllingPassenger();
+                    Player player = (Player) entity.getControllingPassenger();
+                    Main.LOGGER.info("[GasStation] Found controlling passenger: {}", player.getName().getString());
+                    return player;
                 }
 
                 // Then try all passengers
                 for (Entity passenger : entity.getPassengers()) {
                     if (passenger instanceof Player) {
-                        return (Player) passenger;
+                        Player player = (Player) passenger;
+                        Main.LOGGER.info("[GasStation] Found passenger: {}", player.getName().getString());
+                        return player;
                     }
                 }
             }
         }
 
+        // If no player in vehicle, search for nearby players who might have just exited
+        if (vehicleWithFluidHandler != null) {
+            Main.LOGGER.info("[GasStation] No player in vehicle, searching for nearby players...");
+            List<Player> nearbyPlayers = level.getEntitiesOfClass(Player.class,
+                getDetectionBox().inflate(3.0D), // 3 block radius around detection box
+                p -> !p.isSpectator());
+
+            if (!nearbyPlayers.isEmpty()) {
+                Player nearestPlayer = nearbyPlayers.get(0);
+                Main.LOGGER.info("[GasStation] Found nearby player: {}", nearestPlayer.getName().getString());
+                return nearestPlayer;
+            }
+        }
+
+        Main.LOGGER.info("[GasStation] No player found for fueling!");
         return null;
     }
 
