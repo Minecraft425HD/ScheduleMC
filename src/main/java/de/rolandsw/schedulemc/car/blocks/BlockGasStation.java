@@ -4,6 +4,8 @@ import de.rolandsw.schedulemc.car.blocks.tileentity.TileEntityGasStation;
 import de.rolandsw.schedulemc.car.gui.ContainerGasStation;
 import de.rolandsw.schedulemc.car.gui.ContainerGasStationAdmin;
 import de.rolandsw.schedulemc.car.gui.TileEntityContainerProvider;
+import de.rolandsw.schedulemc.region.PlotManager;
+import de.rolandsw.schedulemc.region.PlotRegion;
 import de.maxhenkel.corelib.block.DirectionalVoxelShape;
 import de.maxhenkel.corelib.blockentity.SimpleBlockEntityTicker;
 import net.minecraft.core.BlockPos;
@@ -143,6 +145,12 @@ public class BlockGasStation extends BlockOrientableHorizontal {
         if (te instanceof TileEntityGasStation && placer instanceof Player) {
             TileEntityGasStation station = (TileEntityGasStation) te;
             station.setOwner((Player) placer);
+
+            // Prüfe ob die Gasstation in einem Shop-Plot platziert wurde
+            PlotRegion plot = PlotManager.getPlotAt(pos);
+            if (plot != null && plot.getType().isShop()) {
+                station.setShopPlotId(plot.getPlotId());
+            }
         }
 
         super.setPlacedBy(worldIn, pos, state, placer, stack);

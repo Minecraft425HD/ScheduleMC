@@ -66,6 +66,9 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
     // Gas Station ID for billing
     private UUID gasStationId;
 
+    // Shop Plot ID (wenn die Gasstation in einem Shop-Plot ist)
+    private String shopPlotId;
+
     // Tracking for billing
     private double totalCostThisSession;
     private int totalFueledThisSession;
@@ -92,6 +95,15 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
 
     public UUID getGasStationId() {
         return gasStationId;
+    }
+
+    public String getShopPlotId() {
+        return shopPlotId;
+    }
+
+    public void setShopPlotId(String shopPlotId) {
+        this.shopPlotId = shopPlotId;
+        setChanged();
     }
 
     public final ContainerData FIELDS = new ContainerData() {
@@ -472,6 +484,10 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
         if (gasStationId != null) {
             compound.putUUID("gas_station_id", gasStationId);
         }
+
+        if (shopPlotId != null && !shopPlotId.isEmpty()) {
+            compound.putString("shop_plot_id", shopPlotId);
+        }
     }
 
     @Override
@@ -494,6 +510,10 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
         } else {
             // Fallback: Registriere falls noch nicht vorhanden
             gasStationId = GasStationRegistry.registerGasStation(worldPosition);
+        }
+
+        if (compound.contains("shop_plot_id")) {
+            shopPlotId = compound.getString("shop_plot_id");
         }
 
         if (compound.contains("owner")) {
