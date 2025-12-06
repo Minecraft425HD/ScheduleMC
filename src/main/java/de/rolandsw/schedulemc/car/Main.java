@@ -56,11 +56,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.glfw.GLFW;
 
-/**
- * Car Mod initialization - integrated into ScheduleMC
- * Original mod by Max Henkel (henkelmax)
- * Repository: https://github.com/henkelmax/ultimate-car-mod
- */
 public class Main {
 
     public static final String MODID = "car";

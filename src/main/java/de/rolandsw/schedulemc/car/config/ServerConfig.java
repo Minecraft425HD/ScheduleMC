@@ -16,42 +16,10 @@ import java.util.stream.Collectors;
 
 public class ServerConfig extends ConfigBase {
 
-    public final ForgeConfigSpec.IntValue backmixReactorEnergyStorage;
-    public final ForgeConfigSpec.IntValue backmixReactorEnergyUsage;
-    public final ForgeConfigSpec.IntValue backmixReactorFluidStorage;
-    public final ForgeConfigSpec.IntValue backmixReactorGeneratingTime;
-    public final ForgeConfigSpec.IntValue backmixReactorMixGeneration;
-    public final ForgeConfigSpec.IntValue backmixReactorMethanolUsage;
-    public final ForgeConfigSpec.IntValue backmixReactorCanolaUsage;
-
-    public final ForgeConfigSpec.IntValue blastFurnaceEnergyStorage;
-    public final ForgeConfigSpec.IntValue blastFurnaceFluidStorage;
-
-    public final ForgeConfigSpec.IntValue oilMillEnergyStorage;
-    public final ForgeConfigSpec.IntValue oilMillFluidStorage;
-
-    public final ForgeConfigSpec.IntValue cableTransferRate;
-
-    public final ForgeConfigSpec.IntValue dynamoEnergyStorage;
-    public final ForgeConfigSpec.IntValue dynamoEnergyGeneration;
-
-    public final ForgeConfigSpec.IntValue fluidExtractorDrainSpeed;
-
     public final ForgeConfigSpec.IntValue gasStationTransferRate;
     public final ForgeConfigSpec.ConfigValue<List<? extends String>> gasStationValidFuels;
     public final ForgeConfigSpec.IntValue gasStationMorningPricePer10mb;
     public final ForgeConfigSpec.IntValue gasStationEveningPricePer10mb;
-
-    public final ForgeConfigSpec.IntValue generatorEnergyStorage;
-    public final ForgeConfigSpec.IntValue generatorFluidStorage;
-    public final ForgeConfigSpec.IntValue generatorEnergyGeneration;
-    public final ForgeConfigSpec.ConfigValue<List<? extends String>> generatorValidFuels;
-
-    public final ForgeConfigSpec.IntValue splitTankFluidStorage;
-    public final ForgeConfigSpec.IntValue splitTankGeneratingTime;
-    public final ForgeConfigSpec.IntValue splitTankMixUsage;
-    public final ForgeConfigSpec.IntValue splitTankGlycerinGeneration;
-    public final ForgeConfigSpec.IntValue splitTankBioDieselGeneration;
 
     public final ForgeConfigSpec.DoubleValue repairKitRepairAmount;
 
@@ -107,47 +75,15 @@ public class ServerConfig extends ConfigBase {
     public final ForgeConfigSpec.DoubleValue bodyTransporterMaxSpeed;
 
     public List<Tag<Fluid>> gasStationValidFuelList = new ArrayList<>();
-    public List<Tag<Fluid>> generatorValidFuelList = new ArrayList<>();
     public List<Tag<Block>> carDriveBlockList = new ArrayList<>();
 
     public ServerConfig(ForgeConfigSpec.Builder builder) {
         super(builder);
-        backmixReactorEnergyStorage = builder.defineInRange("machines.backmix_reactor.energy_storage", 10000, 100, Short.MAX_VALUE);
-        backmixReactorEnergyUsage = builder.defineInRange("machines.backmix_reactor.energy_usage", 10, 1, Short.MAX_VALUE);
-        backmixReactorFluidStorage = builder.defineInRange("machines.backmix_reactor.fluid_storage", 3000, 1000, Short.MAX_VALUE);
-        backmixReactorGeneratingTime = builder.defineInRange("machines.backmix_reactor.generating_time", 200, 10, Short.MAX_VALUE);
-        backmixReactorMixGeneration = builder.defineInRange("machines.backmix_reactor.mix_generation", 100, 1, Short.MAX_VALUE);
-        backmixReactorMethanolUsage = builder.defineInRange("machines.backmix_reactor.methanol_usage", 50, 1, Short.MAX_VALUE);
-        backmixReactorCanolaUsage = builder.defineInRange("machines.backmix_reactor.canola_usage", 50, 1, Short.MAX_VALUE);
-
-        blastFurnaceEnergyStorage = builder.defineInRange("machines.blast_furnace.energy_storage", 10000, 1000, Short.MAX_VALUE);
-        blastFurnaceFluidStorage = builder.defineInRange("machines.blast_furnace.fluid_storage", 3000, 1000, Short.MAX_VALUE);
-
-        oilMillEnergyStorage = builder.defineInRange("machines.oil_mill.energy_storage", 10000, 1000, Short.MAX_VALUE);
-        oilMillFluidStorage = builder.defineInRange("machines.oil_mill.fluid_storage", 3000, 1000, Short.MAX_VALUE);
-
-        cableTransferRate = builder.defineInRange("machines.cable.transfer_rate", 256, 64, Short.MAX_VALUE);
-
-        dynamoEnergyStorage = builder.defineInRange("machines.dynamo.energy_storage", 1000, 100, Short.MAX_VALUE);
-        dynamoEnergyGeneration = builder.defineInRange("machines.dynamo.energy_generation", 25, 1, Short.MAX_VALUE);
-
-        fluidExtractorDrainSpeed = builder.defineInRange("machines.fluid_extractor.drain_speed", 25, 5, Short.MAX_VALUE);
 
         gasStationTransferRate = builder.defineInRange("machines.gas_station.transfer_rate", 5, 1, Short.MAX_VALUE);
         gasStationValidFuels = builder.comment("If it starts with '#' it is a tag").defineList("machines.gas_station.valid_fuels", Collections.singletonList("#car:gas_station"), Objects::nonNull);
         gasStationMorningPricePer10mb = builder.comment("Price per 10 mb of fuel during morning (0-12000 ticks, 6:00-18:00)").defineInRange("machines.gas_station.morning_price_per_10mb", 10, 0, Integer.MAX_VALUE);
         gasStationEveningPricePer10mb = builder.comment("Price per 10 mb of fuel during evening (12000-24000 ticks, 18:00-6:00)").defineInRange("machines.gas_station.evening_price_per_10mb", 5, 0, Integer.MAX_VALUE);
-
-        generatorEnergyStorage = builder.defineInRange("machines.generator.energy_storage", 30000, 1000, Short.MAX_VALUE);
-        generatorFluidStorage = builder.defineInRange("machines.generator.fluid_storage", 3000, 1000, Short.MAX_VALUE);
-        generatorEnergyGeneration = builder.defineInRange("machines.generator.energy_generation", 500, 1, Short.MAX_VALUE);
-        generatorValidFuels = builder.comment("If it starts with '#' it is a tag").defineList("machines.generator.valid_fuels", Collections.singletonList("#car:generator"), Objects::nonNull);
-
-        splitTankFluidStorage = builder.defineInRange("machines.split_tank.fluid_storage", 3000, 1000, Short.MAX_VALUE);
-        splitTankGeneratingTime = builder.defineInRange("machines.split_tank.generating_time", 800, 10, Short.MAX_VALUE);
-        splitTankMixUsage = builder.defineInRange("machines.split_tank.mix_usage", 100, 1, Short.MAX_VALUE);
-        splitTankGlycerinGeneration = builder.defineInRange("machines.split_tank.glycerin_generation", 10, 1, Short.MAX_VALUE);
-        splitTankBioDieselGeneration = builder.defineInRange("machines.split_tank.bio_diesel_generation", 100, 1, Short.MAX_VALUE);
 
         repairKitRepairAmount = builder.defineInRange("items.repair_kit.repair_amount", 5F, 0.1F, 100F);
 
@@ -200,7 +136,6 @@ public class ServerConfig extends ConfigBase {
     public void onReload(ModConfigEvent event) {
         super.onReload(event);
         gasStationValidFuelList = gasStationValidFuels.get().stream().map(TagUtils::getFluid).filter(Objects::nonNull).collect(Collectors.toList());
-        generatorValidFuelList = generatorValidFuels.get().stream().map(TagUtils::getFluid).filter(Objects::nonNull).collect(Collectors.toList());
         carDriveBlockList = carDriveBlocks.get().stream().map(TagUtils::getBlock).filter(Objects::nonNull).collect(Collectors.toList());
     }
 

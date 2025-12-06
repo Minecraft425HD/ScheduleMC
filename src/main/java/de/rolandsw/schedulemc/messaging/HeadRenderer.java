@@ -101,14 +101,4 @@ public class HeadRenderer {
         poseStack.popPose();
     }
 
-    /**
-     * Draws a circular border around the head (WhatsApp style)
-     */
-    public static void drawCircularBorder(GuiGraphics guiGraphics, int x, int y, int size, int color) {
-        // Simple square border for now (circular borders are complex in Minecraft GUI)
-        guiGraphics.fill(x - 1, y - 1, x + size + 1, y, color); // Top
-        guiGraphics.fill(x - 1, y + size, x + size + 1, y + size + 1, color); // Bottom
-        guiGraphics.fill(x - 1, y - 1, x, y + size + 1, color); // Left
-        guiGraphics.fill(x + size, y - 1, x + size + 1, y + size + 1, color); // Right
-    }
 }

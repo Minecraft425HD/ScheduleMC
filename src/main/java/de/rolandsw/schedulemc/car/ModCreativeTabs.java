@@ -36,51 +36,9 @@ public class ModCreativeTabs {
                     output.accept(new ItemStack(ModItems.KEY.get()));
                     output.accept(new ItemStack(ModItems.BATTERY.get()));
                     output.accept(new ItemStack(ModItems.LICENSE_PLATE.get()));
+                    output.accept(new ItemStack(ModItems.VEHICLE_SPAWN_TOOL.get()));
                 })
                 .title(Component.translatable("itemGroup.car"))
-                .build();
-    });
-
-    public static final RegistryObject<CreativeModeTab> TAB_CAR_PARTS = TAB_REGISTER.register("car_parts", () -> {
-        return CreativeModeTab.builder()
-                .icon(() -> new ItemStack(ModItems.OAK_BODY.get()))
-                .displayItems((param, output) -> {
-                    output.accept(new ItemStack(ModItems.ENGINE_3_CYLINDER.get()));
-                    output.accept(new ItemStack(ModItems.ENGINE_6_CYLINDER.get()));
-                    output.accept(new ItemStack(ModItems.ENGINE_TRUCK.get()));
-                    output.accept(new ItemStack(ModItems.WHEEL.get()));
-                    output.accept(new ItemStack(ModItems.BIG_WHEEL.get()));
-                    output.accept(new ItemStack(ModItems.SMALL_TANK.get()));
-                    output.accept(new ItemStack(ModItems.MEDIUM_TANK.get()));
-                    output.accept(new ItemStack(ModItems.LARGE_TANK.get()));
-
-                    for (RegistryObject<ItemCarPart> part : ModItems.WOOD_BODIES) {
-                        output.accept(new ItemStack(part.get()));
-                    }
-                    for (RegistryObject<ItemCarPart> part : ModItems.BIG_WOOD_BODIES) {
-                        output.accept(new ItemStack(part.get()));
-                    }
-                    for (RegistryObject<ItemCarPart> part : ModItems.TRANSPORTER_BODIES) {
-                        output.accept(new ItemStack(part.get()));
-                    }
-                    for (RegistryObject<ItemCarPart> part : ModItems.SUV_BODIES) {
-                        output.accept(new ItemStack(part.get()));
-                    }
-                    for (RegistryObject<ItemCarPart> part : ModItems.SPORT_BODIES) {
-                        output.accept(new ItemStack(part.get()));
-                    }
-                    for (RegistryObject<ItemCarPart> part : ModItems.CONTAINERS) {
-                        output.accept(new ItemStack(part.get()));
-                    }
-                    for (RegistryObject<ItemCarPart> part : ModItems.TANK_CONTAINERS) {
-                        output.accept(new ItemStack(part.get()));
-                    }
-                    for (RegistryObject<ItemCarPart> part : ModItems.BUMPERS) {
-                        output.accept(new ItemStack(part.get()));
-                    }
-                    output.accept(new ItemStack(ModItems.IRON_LICENSE_PLATE_HOLDER.get()));
-                })
-                .title(Component.translatable("itemGroup.car_parts"))
                 .build();
     });
 
