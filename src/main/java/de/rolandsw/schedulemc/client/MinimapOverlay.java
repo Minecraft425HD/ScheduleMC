@@ -201,7 +201,7 @@ public class MinimapOverlay {
      */
     private static void renderPlayerTriangle(GuiGraphics guiGraphics, int centerX, int centerY, float yaw) {
         // Dreieck-Größe
-        int size = 5;
+        int size = 2;
 
         // Yaw zu Radians (0° = Süden in Minecraft, -90° = Osten, 90° = Westen, 180° = Norden)
         // Wir wollen dass 0° nach Norden zeigt, also addieren wir 180°
