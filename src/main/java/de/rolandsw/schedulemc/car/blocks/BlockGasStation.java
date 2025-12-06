@@ -152,6 +152,9 @@ public class BlockGasStation extends BlockOrientableHorizontal {
             if (plot != null && plot.getType().isShop()) {
                 station.setShopPlotId(plot.getPlotId());
 
+                // WICHTIG: Setze tradeAmount auf 0 für Rechnungssystem
+                station.setTradeAmount(0);
+
                 // Benachrichtige Spieler über Gas Station ID
                 String stationName = GasStationRegistry.getDisplayName(station.getGasStationId());
                 placer.sendSystemMessage(net.minecraft.network.chat.Component.literal("═══════════════════════════════")
@@ -172,6 +175,10 @@ public class BlockGasStation extends BlockOrientableHorizontal {
                     .withStyle(net.minecraft.ChatFormatting.GRAY)
                     .append(net.minecraft.network.chat.Component.literal(plot.getPlotId())
                         .withStyle(net.minecraft.ChatFormatting.GOLD)));
+                placer.sendSystemMessage(net.minecraft.network.chat.Component.literal("💳 Rechnungssystem: ")
+                    .withStyle(net.minecraft.ChatFormatting.GRAY)
+                    .append(net.minecraft.network.chat.Component.literal("AKTIVIERT")
+                        .withStyle(net.minecraft.ChatFormatting.GREEN, net.minecraft.ChatFormatting.BOLD)));
                 placer.sendSystemMessage(net.minecraft.network.chat.Component.literal("═══════════════════════════════")
                     .withStyle(net.minecraft.ChatFormatting.GREEN));
             }
