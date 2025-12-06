@@ -7,7 +7,6 @@ import de.rolandsw.schedulemc.npc.data.MerchantCategory;
 import de.rolandsw.schedulemc.npc.menu.MerchantShopMenu;
 import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
 import de.rolandsw.schedulemc.npc.network.PurchaseItemPacket;
-import de.rolandsw.schedulemc.npc.network.PayFuelBillPacket;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -36,7 +35,6 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
     private int scrollOffset = 0;
     private static final int VISIBLE_ROWS = 6; // Wie viele Items gleichzeitig sichtbar sind
     private Button buyButton; // Einziger Kaufen-Button unten rechts
-    private Button payBillButton; // Rechnung bezahlen Button (nur für Tankstellen)
 
     public MerchantShopScreen(MerchantShopMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -73,13 +71,6 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
         buyButton = addRenderableWidget(Button.builder(Component.literal("Kaufen"), button -> {
             purchaseAllItems();
         }).bounds(x + imageWidth - 70, y + imageHeight - 25, 60, 20).build());
-
-        // Rechnung bezahlen Button (Slot 0# - nur für Tankstellen)
-        if (menu.getCategory() == MerchantCategory.TANKSTELLE) {
-            payBillButton = addRenderableWidget(Button.builder(Component.literal("💰 Rechnung"), button -> {
-                payFuelBill();
-            }).bounds(x + 8, y + imageHeight - 25, 80, 20).build());
-        }
     }
 
     /**
@@ -159,16 +150,6 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
             }
         }
         // Schließe GUI nach Kauf
-        this.onClose();
-    }
-
-    /**
-     * Bezahlt alle offenen Tankrechnungen
-     */
-    private void payFuelBill() {
-        // Sende Packet an Server um Rechnungen zu bezahlen
-        NPCNetworkHandler.sendToServer(new PayFuelBillPacket());
-        // Schließe GUI nach Zahlung
         this.onClose();
     }
 
