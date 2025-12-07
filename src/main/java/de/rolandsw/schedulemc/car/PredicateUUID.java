@@ -1,0 +1,21 @@
+package de.rolandsw.schedulemc.car;
+
+import java.util.UUID;
+
+import com.google.common.base.Predicate;
+import de.rolandsw.schedulemc.car.entity.car.base.EntityCarBase;
+
+public class PredicateUUID implements Predicate<EntityCarBase> {
+
+    private UUID uuid;
+
+    public PredicateUUID(UUID uuid) {
+        this.uuid = uuid;
+    }
+
+    @Override
+    public boolean apply(EntityCarBase input) {
+        return input.getUUID().equals(uuid);
+    }
+
+}
