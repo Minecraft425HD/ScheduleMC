@@ -31,10 +31,6 @@
         "subtitle": "sound.car.gas_station",
         "sounds": [ "car:gas_station" ]
     },
-    "generator": {
-        "subtitle": "sound.car.generator",
-        "sounds": [ "car:generator" ]
-    },
     "sport_engine_idle": {
         "subtitle": "sound.car.sport_engine_idle",
         "sounds": [ "car:sport_engine_idle" ]

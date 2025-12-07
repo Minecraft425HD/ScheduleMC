@@ -552,27 +552,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         } else {
             graphics.drawString(this.font, "Kein Slot ausgewählt",
                 x + 270, y + 120, COLOR_TEXT_GRAY, false);
-
-            // Zeige Hilfetext wenn keine Items vorhanden
-            if (warehouse.getUsedSlots() == 0) {
-                int helpY = y + 140;
-                graphics.drawString(this.font, "§7So fügen Sie Items hinzu:",
-                    x + 270, helpY, COLOR_TEXT_GRAY, false);
-                helpY += 12;
-
-                graphics.drawString(this.font, "§7Verwenden Sie den Command:",
-                    x + 270, helpY, COLOR_TEXT_GRAY, false);
-                helpY += 12;
-
-                graphics.drawString(this.font, "§e/warehouse add <item> <amount>",
-                    x + 270, helpY, COLOR_WARNING, false);
-            }
         }
-
-        // NPC Shop Items Section (unten rechts)
-        int npcShopY = y + 160;
-        graphics.drawString(this.font, "§l§eNPC SHOP", x + 270, npcShopY, COLOR_WARNING, false);
-        npcShopY += 12;
 
         List<NPCData.ShopEntry> shopItems = getLinkedNPCShopItems();
         if (shopItems != null && !shopItems.isEmpty()) {
@@ -582,33 +562,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
                 if (shown >= 3) break;
 
                 ItemStack item = entry.getItem();
-                if (!item.isEmpty()) {
-                    // Render icon
-                    graphics.renderItem(item, x + 270, npcShopY - 2);
-
-                    // Item name (gekürzt)
-                    String itemName = item.getHoverName().getString();
-                    if (itemName.length() > 10) {
-                        itemName = itemName.substring(0, 10) + "...";
-                    }
-                    graphics.drawString(this.font, itemName, x + 290, npcShopY + 2, COLOR_TEXT_GRAY, false);
-
-                    // Status: Unlimited oder Stock
-                    String status = entry.isUnlimited() ?
-                        "§a∞" : "§e" + entry.getStock();
-                    graphics.drawString(this.font, status, x + 365, npcShopY + 2, COLOR_TEXT, false);
-
-                    npcShopY += 14;
-                    shown++;
-                }
             }
-
-            if (shopItems.size() > 3) {
-                graphics.drawString(this.font, "§7+" + (shopItems.size() - 3) + " mehr...",
-                    x + 270, npcShopY, COLOR_TEXT_GRAY, false);
-            }
-        } else {
-            graphics.drawString(this.font, "§7Kein NPC Shop", x + 270, npcShopY, COLOR_TEXT_GRAY, false);
         }
 
         // Bottom Info
