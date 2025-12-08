@@ -47,7 +47,6 @@ import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.items.NPCItems;
 import de.rolandsw.schedulemc.npc.menu.NPCMenuTypes;
 import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
-import de.rolandsw.schedulemc.car.Main;
 import de.rolandsw.schedulemc.vehicle.VehicleMod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -77,16 +76,10 @@ public class ScheduleMC {
     private static final int SAVE_INTERVAL = 6000;
     private int tickCounter = 0;
 
-    // Car Mod integration
-    private static Main carMod;
-
     public ScheduleMC() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::onEntityAttributeCreation);
-
-        // Initialize Car Mod (old)
-        carMod = new Main();
 
         // Initialize Vehicle Mod (new ECS)
         VehicleMod.init();
@@ -184,10 +177,7 @@ public class ScheduleMC {
         MinecraftForge.EVENT_BUS.register(ShopAccountManager.class);
         WarehouseManager.load(event.getServer());
 
-        // Car System - Vehicle Spawn Registry, Gas Station Registry, Fuel Bills
-        de.rolandsw.schedulemc.car.vehicle.VehicleSpawnRegistry.load();
-        de.rolandsw.schedulemc.car.fuel.GasStationRegistry.load();
-        de.rolandsw.schedulemc.car.fuel.FuelBillManager.load();
+        // TODO: Re-implement vehicle spawn registry, gas station registry, and fuel bills for new vehicle system
     }
 
     @SubscribeEvent
@@ -203,10 +193,7 @@ public class ScheduleMC {
             WalletManager.saveIfNeeded();
             NPCNameRegistry.saveIfNeeded();
             MessageManager.saveIfNeeded();
-            // Car System periodic saves
-            de.rolandsw.schedulemc.car.vehicle.VehicleSpawnRegistry.save();
-            de.rolandsw.schedulemc.car.fuel.GasStationRegistry.save();
-            de.rolandsw.schedulemc.car.fuel.FuelBillManager.save();
+            // TODO: Periodic saves for vehicle system
         }
     }
 
@@ -219,10 +206,7 @@ public class ScheduleMC {
         NPCNameRegistry.saveRegistry();
         MessageManager.saveMessages();
         WarehouseManager.save(event.getServer());
-        // Car System final saves
-        de.rolandsw.schedulemc.car.vehicle.VehicleSpawnRegistry.save();
-        de.rolandsw.schedulemc.car.fuel.GasStationRegistry.save();
-        de.rolandsw.schedulemc.car.fuel.FuelBillManager.save();
+        // TODO: Final saves for vehicle system
     }
 
     @SubscribeEvent
@@ -242,10 +226,6 @@ public class ScheduleMC {
             event.setCanceled(true);
         }
 
-        // Vehicle Spawn Tool (Linksklick)
-        if (heldItem.getItem() instanceof de.rolandsw.schedulemc.car.items.VehicleSpawnTool) {
-            de.rolandsw.schedulemc.car.items.VehicleSpawnTool.handleLeftClick(player, heldItem, event.getPos().above());
-            event.setCanceled(true);
-        }
+        // TODO: Re-implement vehicle spawn tool for new vehicle system
     }
 }

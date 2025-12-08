@@ -1,6 +1,5 @@
 package de.rolandsw.schedulemc.npc.data;
 
-import de.rolandsw.schedulemc.car.items.ModItems;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
@@ -117,12 +116,7 @@ public class MerchantShopDefaults {
     }
 
     private static void setupAutohaendlerShop(NPCData.ShopInventory shop) {
-        // Fahrzeuge - ALLE als Lager-Items (unlimited=false)
-        // Diese werden NICHT ins Inventar gegeben, sondern direkt gespawnt
-        shop.addEntry(new NPCData.ShopEntry(new ItemStack(ModItems.SPAWN_CAR_OAK.get(), 1), 5000, false, 0));
-        shop.addEntry(new NPCData.ShopEntry(new ItemStack(ModItems.SPAWN_CAR_BIG_OAK.get(), 1), 7500, false, 0));
-        shop.addEntry(new NPCData.ShopEntry(new ItemStack(ModItems.SPAWN_CAR_WHITE_TRANSPORTER.get(), 1), 12000, false, 0));
-        shop.addEntry(new NPCData.ShopEntry(new ItemStack(ModItems.SPAWN_CAR_WHITE_SUV.get(), 1), 10000, false, 0));
-        shop.addEntry(new NPCData.ShopEntry(new ItemStack(ModItems.SPAWN_CAR_WHITE_SPORT.get(), 1), 15000, false, 0));
+        // TODO: Re-add vehicle items for new ECS-based vehicle system
+        // Fahrzeuge temporarily disabled until new vehicle system is fully integrated
     }
 }
