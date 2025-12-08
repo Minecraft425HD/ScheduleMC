@@ -48,6 +48,7 @@ import de.rolandsw.schedulemc.npc.items.NPCItems;
 import de.rolandsw.schedulemc.npc.menu.NPCMenuTypes;
 import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
 import de.rolandsw.schedulemc.car.Main;
+import de.rolandsw.schedulemc.vehicle.VehicleMod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
@@ -84,8 +85,11 @@ public class ScheduleMC {
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::onEntityAttributeCreation);
 
-        // Initialize Car Mod
+        // Initialize Car Mod (old)
         carMod = new Main();
+
+        // Initialize Vehicle Mod (new ECS)
+        VehicleMod.init();
 
         ModItems.ITEMS.register(modEventBus);
         TobaccoItems.ITEMS.register(modEventBus);
