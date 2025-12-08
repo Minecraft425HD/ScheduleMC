@@ -22,10 +22,9 @@ public class RepairKitItem extends Item {
     }
 
     @Override
-    public InteractionResult interactLivingEntity(ItemStack stack, Player player,
-                                                 net.minecraft.world.entity.LivingEntity entity,
-                                                 InteractionHand hand) {
-        if (entity instanceof VehicleEntity vehicle) {
+    public InteractionResult use(net.minecraft.world.level.Level world, Player player, InteractionHand hand) {
+        // Check if player is looking at a vehicle
+        if (!world.isClientSide() && player.getVehicle() instanceof VehicleEntity vehicle) {
             DurabilityComponent durability = vehicle.getComponent(
                     ComponentType.DURABILITY, DurabilityComponent.class);
 
@@ -52,8 +51,10 @@ public class RepairKitItem extends Item {
                     return InteractionResult.FAIL;
                 }
             }
+
+            return InteractionResult.PASS;
         }
 
-        return super.interactLivingEntity(stack, player, entity, hand);
+        return InteractionResult.SUCCESS;
     }
 }

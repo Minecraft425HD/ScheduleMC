@@ -27,10 +27,11 @@ public class VehicleKeyItem extends Item {
     }
 
     @Override
-    public InteractionResult interactLivingEntity(ItemStack stack, Player player,
-                                                 net.minecraft.world.entity.LivingEntity entity,
-                                                 InteractionHand hand) {
-        if (entity instanceof VehicleEntity vehicle) {
+    public InteractionResult use(net.minecraft.world.level.Level world, Player player, InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
+
+        // Check if player is in/near a vehicle
+        if (!world.isClientSide() && player.getVehicle() instanceof VehicleEntity vehicle) {
             OwnershipComponent ownership = vehicle.getComponent(
                     ComponentType.SECURITY, OwnershipComponent.class);
 
@@ -58,9 +59,11 @@ public class VehicleKeyItem extends Item {
                     return InteractionResult.FAIL;
                 }
             }
+
+            return InteractionResult.SUCCESS;
         }
 
-        return super.interactLivingEntity(stack, player, entity, hand);
+        return InteractionResult.PASS;
     }
 
     @Override

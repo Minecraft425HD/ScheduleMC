@@ -37,7 +37,7 @@ public class VehicleHornPacket {
                 if (entity instanceof VehicleEntity vehicle) {
                     // Play horn sound
                     vehicle.level().playSound(null, vehicle.blockPosition(),
-                            SoundEvents.GOAT_HORN_SOUND_0, // Placeholder sound
+                            SoundEvents.NOTE_BLOCK_BELL.get(), // Placeholder sound
                             SoundSource.PLAYERS, 1.0f, 1.0f);
                 }
             }

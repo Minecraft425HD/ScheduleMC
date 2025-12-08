@@ -79,7 +79,7 @@ public class SystemManager {
     private static List<VehicleEntity> getVehiclesInWorld(Level world) {
         List<VehicleEntity> vehicles = new ArrayList<>();
 
-        for (net.minecraft.world.entity.Entity entity : world.getAllEntities()) {
+        for (net.minecraft.world.entity.Entity entity : world.getEntities().getAll()) {
             if (entity instanceof VehicleEntity) {
                 vehicles.add((VehicleEntity) entity);
             }
