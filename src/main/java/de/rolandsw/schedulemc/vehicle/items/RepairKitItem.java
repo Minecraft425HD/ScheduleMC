@@ -5,10 +5,11 @@ import de.rolandsw.schedulemc.vehicle.core.component.ComponentType;
 import de.rolandsw.schedulemc.vehicle.core.entity.VehicleEntity;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 
 /**
  * Item for repairing damaged vehicles.
@@ -22,8 +23,10 @@ public class RepairKitItem extends Item {
     }
 
     @Override
-    public InteractionResult use(net.minecraft.world.level.Level world, Player player, InteractionHand hand) {
-        // Check if player is looking at a vehicle
+    public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
+
+        // Check if player is riding a vehicle
         if (!world.isClientSide() && player.getVehicle() instanceof VehicleEntity vehicle) {
             DurabilityComponent durability = vehicle.getComponent(
                     ComponentType.DURABILITY, DurabilityComponent.class);
@@ -37,24 +40,24 @@ public class RepairKitItem extends Item {
 
                     player.displayClientMessage(
                             Component.translatable("message.vehicle.repaired",
-                                    (int) durability.getDurabilityPercentage() * 100),
+                                    (int) (durability.getDurabilityPercentage() * 100)),
                             true);
 
                     if (!player.isCreative()) {
                         stack.shrink(1);
                     }
 
-                    return InteractionResult.SUCCESS;
+                    return InteractionResultHolder.success(stack);
                 } else {
                     player.displayClientMessage(
                             Component.translatable("message.vehicle.already_repaired"), true);
-                    return InteractionResult.FAIL;
+                    return InteractionResultHolder.fail(stack);
                 }
             }
 
-            return InteractionResult.PASS;
+            return InteractionResultHolder.pass(stack);
         }
 
-        return InteractionResult.SUCCESS;
+        return InteractionResultHolder.pass(stack);
     }
 }

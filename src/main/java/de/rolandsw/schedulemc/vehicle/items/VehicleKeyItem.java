@@ -6,7 +6,7 @@ import de.rolandsw.schedulemc.vehicle.core.entity.VehicleEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -27,7 +27,7 @@ public class VehicleKeyItem extends Item {
     }
 
     @Override
-    public InteractionResult use(net.minecraft.world.level.Level world, Player player, InteractionHand hand) {
+    public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
 
         // Check if player is in/near a vehicle
@@ -42,7 +42,7 @@ public class VehicleKeyItem extends Item {
                     setLinkedVehicleId(stack, vehicle.getUUID());
                     player.displayClientMessage(
                             Component.translatable("message.vehicle.key_linked"), true);
-                    return InteractionResult.SUCCESS;
+                    return InteractionResultHolder.success(stack);
                 }
 
                 // Toggle lock if key matches vehicle
@@ -52,18 +52,18 @@ public class VehicleKeyItem extends Item {
                             Component.translatable(ownership.isLocked() ?
                                     "message.vehicle.locked" : "message.vehicle.unlocked"),
                             true);
-                    return InteractionResult.SUCCESS;
+                    return InteractionResultHolder.success(stack);
                 } else {
                     player.displayClientMessage(
                             Component.translatable("message.vehicle.wrong_key"), true);
-                    return InteractionResult.FAIL;
+                    return InteractionResultHolder.fail(stack);
                 }
             }
 
-            return InteractionResult.SUCCESS;
+            return InteractionResultHolder.success(stack);
         }
 
-        return InteractionResult.PASS;
+        return InteractionResultHolder.pass(stack);
     }
 
     @Override

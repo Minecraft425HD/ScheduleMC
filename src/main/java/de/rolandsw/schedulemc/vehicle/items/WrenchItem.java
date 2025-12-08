@@ -3,10 +3,11 @@ package de.rolandsw.schedulemc.vehicle.items;
 import de.rolandsw.schedulemc.vehicle.core.entity.VehicleEntity;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 
 /**
  * Wrench for modifying and customizing vehicles.
@@ -19,14 +20,16 @@ public class WrenchItem extends Item {
     }
 
     @Override
-    public InteractionResult use(net.minecraft.world.level.Level world, Player player, InteractionHand hand) {
+    public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
+
         if (!world.isClientSide() && player.getVehicle() instanceof VehicleEntity vehicle) {
             // TODO: Open vehicle customization GUI
             player.displayClientMessage(
                     Component.translatable("message.vehicle.wrench_used"), true);
-            return InteractionResult.SUCCESS;
+            return InteractionResultHolder.success(stack);
         }
 
-        return InteractionResult.PASS;
+        return InteractionResultHolder.pass(stack);
     }
 }

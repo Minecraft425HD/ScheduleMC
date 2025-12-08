@@ -77,15 +77,14 @@ public class SystemManager {
      * Gets all vehicles in the world.
      */
     private static List<VehicleEntity> getVehiclesInWorld(Level world) {
-        List<VehicleEntity> vehicles = new ArrayList<>();
-
-        for (net.minecraft.world.entity.Entity entity : world.getEntities().getAll()) {
-            if (entity instanceof VehicleEntity) {
-                vehicles.add((VehicleEntity) entity);
-            }
-        }
-
-        return vehicles;
+        // Get all entities of VehicleEntity class in the world
+        return new ArrayList<>(world.getEntitiesOfClass(
+                VehicleEntity.class,
+                new net.minecraft.world.phys.AABB(
+                        Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY,
+                        Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY
+                )
+        ));
     }
 
     /**
