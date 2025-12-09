@@ -52,6 +52,15 @@ public class VehicleRenderer extends EntityRenderer<VehicleEntity> {
         if (body != null && body.getSpecification() != null) {
             poseStack.pushPose();
 
+            // Rotate model to face the correct direction
+            poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - entityYaw));
+
+            // Scale: flip Y axis (Blockbench models are upside down)
+            poseStack.scale(1.0F, -1.0F, 1.0F);
+
+            // Translate: model origin is at Y=24 in Blockbench (1.5 blocks), move it down
+            poseStack.translate(0.0, -1.5, 0.0);
+
             // Get the appropriate model for this body type
             EntityModel<VehicleEntity> model = getModelForBody(body.getSpecification());
 
@@ -63,7 +72,7 @@ public class VehicleRenderer extends EntityRenderer<VehicleEntity> {
                 ResourceLocation texture = getTextureLocation(vehicle);
                 VertexConsumer vertexConsumer = buffer.getBuffer(RenderType.entityCutout(texture));
 
-                // Render the model - NO color tinting, use white (1.0F) for all channels
+                // Render the model
                 model.renderToBuffer(poseStack, vertexConsumer, packedLight,
                     net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY,
                     1.0F, 1.0F, 1.0F, 1.0F);
