@@ -17,7 +17,11 @@ public class BodySpecification {
     public static final BodySpecification SEDAN = register("sedan",
             new BodySpecification("sedan", 4, 1.0f, 0.85f,
                     new ResourceLocation("schedulemc", "models/entity/body_sedan.obj"),
-                    new ResourceLocation("schedulemc", "textures/entity/body_sedan.png")));
+                    new ResourceLocation("schedulemc", "textures/entity/body_sedan.png"),
+                    1.625f,  // Width: 26 pixels / 16 = 1.625 blocks (wings at ±13)
+                    1.375f,  // Height: 22 pixels / 16 = 1.375 blocks (y: 2 to 24)
+                    2.9375f  // Length: 47 pixels / 16 = 2.9375 blocks (z: -24 to +23)
+            ));
 
     public static final BodySpecification SPORT = register("sport",
             new BodySpecification("sport", 2, 0.8f, 0.95f,
@@ -45,16 +49,29 @@ public class BodySpecification {
     private final float aerodynamics; // 0.0 to 1.0, higher is better
     private final ResourceLocation modelPath;
     private final ResourceLocation texturePath;
+    private final float hitboxWidth;  // Width (X-axis) in blocks
+    private final float hitboxHeight; // Height (Y-axis) in blocks
+    private final float hitboxLength; // Length (Z-axis) in blocks
 
     public BodySpecification(String identifier, int passengerSeats, float weight,
                             float aerodynamics, ResourceLocation modelPath,
                             ResourceLocation texturePath) {
+        this(identifier, passengerSeats, weight, aerodynamics, modelPath, texturePath, 2.0f, 1.5f, 2.0f);
+    }
+
+    public BodySpecification(String identifier, int passengerSeats, float weight,
+                            float aerodynamics, ResourceLocation modelPath,
+                            ResourceLocation texturePath, float hitboxWidth,
+                            float hitboxHeight, float hitboxLength) {
         this.identifier = identifier;
         this.passengerSeats = passengerSeats;
         this.weight = weight;
         this.aerodynamics = aerodynamics;
         this.modelPath = modelPath;
         this.texturePath = texturePath;
+        this.hitboxWidth = hitboxWidth;
+        this.hitboxHeight = hitboxHeight;
+        this.hitboxLength = hitboxLength;
     }
 
     public String getIdentifier() {
@@ -81,6 +98,18 @@ public class BodySpecification {
         return texturePath;
     }
 
+    public float getHitboxWidth() {
+        return hitboxWidth;
+    }
+
+    public float getHitboxHeight() {
+        return hitboxHeight;
+    }
+
+    public float getHitboxLength() {
+        return hitboxLength;
+    }
+
     // Registry methods
     public static BodySpecification register(String id, BodySpecification spec) {
         REGISTRY.put(id, spec);
@@ -95,5 +124,13 @@ public class BodySpecification {
                                           float aero, ResourceLocation model,
                                           ResourceLocation texture) {
         return register(id, new BodySpecification(id, seats, weight, aero, model, texture));
+    }
+
+    public static BodySpecification custom(String id, int seats, float weight,
+                                          float aero, ResourceLocation model,
+                                          ResourceLocation texture, float hitboxWidth,
+                                          float hitboxHeight, float hitboxLength) {
+        return register(id, new BodySpecification(id, seats, weight, aero, model, texture,
+                hitboxWidth, hitboxHeight, hitboxLength));
     }
 }
