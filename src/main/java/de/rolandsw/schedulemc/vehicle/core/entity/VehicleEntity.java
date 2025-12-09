@@ -65,22 +65,25 @@ public class VehicleEntity extends Entity {
 
     @Override
     protected AABB makeBoundingBox() {
-        // Get dimensions from body component if available
-        BodyComponent body = getComponent(ComponentType.BODY, BodyComponent.class);
-        if (body != null && body.getSpecification() != null) {
-            float width = body.getSpecification().getHitboxWidth();
-            float height = body.getSpecification().getHitboxHeight();
-            float length = body.getSpecification().getHitboxLength();
+        // Components might be null during entity construction
+        if (components != null) {
+            // Get dimensions from body component if available
+            BodyComponent body = getComponent(ComponentType.BODY, BodyComponent.class);
+            if (body != null && body.getSpecification() != null) {
+                float width = body.getSpecification().getHitboxWidth();
+                float height = body.getSpecification().getHitboxHeight();
+                float length = body.getSpecification().getHitboxLength();
 
-            float halfWidth = width / 2.0F;
-            float halfLength = length / 2.0F;
+                float halfWidth = width / 2.0F;
+                float halfLength = length / 2.0F;
 
-            return new AABB(
-                this.getX() - halfWidth, this.getY(), this.getZ() - halfLength,
-                this.getX() + halfWidth, this.getY() + height, this.getZ() + halfLength
-            );
+                return new AABB(
+                    this.getX() - halfWidth, this.getY(), this.getZ() - halfLength,
+                    this.getX() + halfWidth, this.getY() + height, this.getZ() + halfLength
+                );
+            }
         }
-        // Default bounding box
+        // Default bounding box (used during construction or if no body component)
         return new AABB(
             this.getX() - 1.0, this.getY(), this.getZ() - 1.5,
             this.getX() + 1.0, this.getY() + 1.5, this.getZ() + 1.5
