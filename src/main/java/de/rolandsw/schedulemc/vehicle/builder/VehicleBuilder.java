@@ -17,6 +17,7 @@ import de.rolandsw.schedulemc.vehicle.component.mobility.WheelSpecification;
 import de.rolandsw.schedulemc.vehicle.component.storage.InventoryComponent;
 import de.rolandsw.schedulemc.vehicle.core.component.IVehicleComponent;
 import de.rolandsw.schedulemc.vehicle.core.entity.VehicleEntity;
+import de.rolandsw.schedulemc.vehicle.VehicleMod;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
@@ -182,8 +183,8 @@ public class VehicleBuilder {
      * Builds and returns the configured vehicle.
      */
     public VehicleEntity build() {
-        // Create entity (would need proper entity type registration)
-        VehicleEntity vehicle = new VehicleEntity(null, world); // TODO: Use registered entity type
+        // Create entity using the registered entity type
+        VehicleEntity vehicle = new VehicleEntity(VehicleMod.VEHICLE_ENTITY.get(), world);
         vehicle.setVehicleType(vehicleTypeId);
 
         // Add core components
