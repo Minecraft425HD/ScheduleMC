@@ -141,7 +141,7 @@ public class OBJVehicleModel extends Model {
         if (fv.texIndex > 0 && fv.texIndex <= texCoords.size()) {
             Vector3f tex = texCoords.get(fv.texIndex - 1);
             u = tex.x;
-            v = tex.y;  // No flip - use UVs directly as exported from Blockbench
+            v = 1.0f - tex.y;  // V-flip IS needed for correct rendering
         }
 
         // Get normal
