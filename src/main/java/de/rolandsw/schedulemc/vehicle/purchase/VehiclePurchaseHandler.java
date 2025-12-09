@@ -3,7 +3,7 @@ package de.rolandsw.schedulemc.vehicle.purchase;
 import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.vehicle.VehicleMod;
-import de.rolandsw.schedulemc.vehicle.api.VehiclePresets;
+import de.rolandsw.schedulemc.vehicle.builder.VehiclePresets;
 import de.rolandsw.schedulemc.vehicle.component.body.BodySpecification;
 import de.rolandsw.schedulemc.vehicle.component.engine.EngineSpecification;
 import de.rolandsw.schedulemc.vehicle.component.fuel.FuelTankSpecification;
