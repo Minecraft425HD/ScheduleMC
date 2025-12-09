@@ -1,5 +1,5 @@
 # Made in Blockbench 5.0.4
-mtllib car.mtl
+mtllib sedan.mtl
 
 o cube
 v 0.75 0.375 -0.75

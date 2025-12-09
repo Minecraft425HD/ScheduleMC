@@ -109,36 +109,60 @@ public class OBJVehicleModel extends Model {
         PoseStack.Pose pose = poseStack.last();
 
         for (Face face : faces) {
-            // Convert quads to triangles
-            if (face.indices.length == 4) {
-                // Quad: split into two triangles [0,1,2] and [0,2,3]
-                renderTriangle(pose, buffer, face.indices, new int[]{0, 1, 2}, packedLight, packedOverlay, red, green, blue, alpha);
-                renderTriangle(pose, buffer, face.indices, new int[]{0, 2, 3}, packedLight, packedOverlay, red, green, blue, alpha);
-            } else if (face.indices.length == 3) {
-                // Already a triangle
-                renderTriangle(pose, buffer, face.indices, new int[]{0, 1, 2}, packedLight, packedOverlay, red, green, blue, alpha);
+            FaceVertex[] fv = face.indices;
+
+            // Render each face as-is from Blockbench OBJ export
+            if (fv.length >= 3) {
+                // For triangles and quads, render directly without additional triangulation
+                // OpenGL/Minecraft will handle the primitive assembly
+                renderVertex(pose, buffer, fv[0], packedLight, packedOverlay, red, green, blue, alpha);
+                renderVertex(pose, buffer, fv[1], packedLight, packedOverlay, red, green, blue, alpha);
+                renderVertex(pose, buffer, fv[2], packedLight, packedOverlay, red, green, blue, alpha);
+
+                if (fv.length == 4) {
+                    // For quads, add second triangle [0,2,3]
+                    renderVertex(pose, buffer, fv[0], packedLight, packedOverlay, red, green, blue, alpha);
+                    renderVertex(pose, buffer, fv[2], packedLight, packedOverlay, red, green, blue, alpha);
+                    renderVertex(pose, buffer, fv[3], packedLight, packedOverlay, red, green, blue, alpha);
+                }
             }
         }
     }
 
-    private void renderTriangle(PoseStack.Pose pose, VertexConsumer buffer, FaceVertex[] faceVertices,
-                               int[] indices, int packedLight, int packedOverlay,
-                               float red, float green, float blue, float alpha) {
-        for (int i : indices) {
-            FaceVertex fv = faceVertices[i];
+    private void renderVertex(PoseStack.Pose pose, VertexConsumer buffer, FaceVertex fv,
+                             int packedLight, int packedOverlay,
+                             float red, float green, float blue, float alpha) {
+        // Get vertex position
+        Vector3f pos = vertices.get(fv.vertexIndex - 1);
 
-            Vector3f pos = vertices.get(fv.vertexIndex - 1);
-            Vector3f normal = fv.normalIndex > 0 ? normals.get(fv.normalIndex - 1) : new Vector3f(0, 1, 0);
-            Vector3f tex = fv.texIndex > 0 ? texCoords.get(fv.texIndex - 1) : new Vector3f(0, 0, 0);
-
-            buffer.vertex(pose.pose(), pos.x, pos.y, pos.z)
-                .color(red, green, blue, alpha)
-                .uv(tex.x, 1.0f - tex.y)  // Flip V coordinate
-                .overlayCoords(packedOverlay)
-                .uv2(packedLight)
-                .normal(pose.normal(), normal.x, normal.y, normal.z)
-                .endVertex();
+        // Get texture coordinates (OBJ uses 1-based indexing)
+        float u = 0.0f;
+        float v = 0.0f;
+        if (fv.texIndex > 0 && fv.texIndex <= texCoords.size()) {
+            Vector3f tex = texCoords.get(fv.texIndex - 1);
+            u = tex.x;
+            v = 1.0f - tex.y;  // Flip V: OBJ uses bottom-left origin, OpenGL uses top-left
         }
+
+        // Get normal
+        float nx = 0.0f;
+        float ny = 1.0f;
+        float nz = 0.0f;
+        if (fv.normalIndex > 0 && fv.normalIndex <= normals.size()) {
+            Vector3f normal = normals.get(fv.normalIndex - 1);
+            nx = normal.x;
+            ny = normal.y;
+            nz = normal.z;
+        }
+
+        // Add vertex to buffer
+        buffer.vertex(pose.pose(), pos.x, pos.y, pos.z)
+            .color(red, green, blue, alpha)
+            .uv(u, v)
+            .overlayCoords(packedOverlay)
+            .uv2(packedLight)
+            .normal(pose.normal(), nx, ny, nz)
+            .endVertex();
     }
 
     private static class Face {
