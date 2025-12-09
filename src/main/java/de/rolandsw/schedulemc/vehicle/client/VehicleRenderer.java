@@ -78,13 +78,8 @@ public class VehicleRenderer extends EntityRenderer<VehicleEntity> {
                     1.0F, 1.0F, 1.0F, 1.0F);
             }
 
-        // Offset to center the vehicle
-        poseStack.translate(-1.0, 0.0, -0.75);
-
-        // Render a simple colored box representing the vehicle
-        // Dimensions: 2.0 wide, 1.5 tall, 1.5 deep (typical car size)
-        VertexConsumer vertexConsumer = buffer.getBuffer(RenderType.lines());
-        renderBox(poseStack, vertexConsumer, 0, 0, 0, 2.0f, 1.5f, 1.5f, red, green, blue, 1.0f);
+            poseStack.popPose();
+        }
 
         poseStack.popPose();
     }
