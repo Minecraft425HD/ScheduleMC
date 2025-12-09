@@ -24,6 +24,7 @@ public class OBJVehicleModel extends Model {
     private final List<Vector3f> texCoords = new ArrayList<>();
     private final List<Vector3f> normals = new ArrayList<>();
     private final List<Face> faces = new ArrayList<>();
+    private final List<Vector3f> smoothNormals = new ArrayList<>();  // Computed smooth normals
 
     // Texture dimensions
     private int textureWidth = 64;
@@ -97,9 +98,49 @@ public class OBJVehicleModel extends Model {
 
             System.out.println("Loaded OBJ: " + vertices.size() + " vertices, " + faces.size() + " faces");
 
+            // Compute smooth normals for better shading
+            computeSmoothNormals();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void computeSmoothNormals() {
+        // Initialize smooth normals with zeros
+        for (int i = 0; i < vertices.size(); i++) {
+            smoothNormals.add(new Vector3f(0, 0, 0));
+        }
+
+        // For each face, compute face normal and add to vertex normals
+        for (Face face : faces) {
+            if (face.indices.length >= 3) {
+                // Get first 3 vertices to compute face normal
+                Vector3f v0 = vertices.get(face.indices[0].vertexIndex - 1);
+                Vector3f v1 = vertices.get(face.indices[1].vertexIndex - 1);
+                Vector3f v2 = vertices.get(face.indices[2].vertexIndex - 1);
+
+                // Compute face normal using cross product
+                Vector3f edge1 = new Vector3f(v1.x - v0.x, v1.y - v0.y, v1.z - v0.z);
+                Vector3f edge2 = new Vector3f(v2.x - v0.x, v2.y - v0.y, v2.z - v0.z);
+                Vector3f faceNormal = new Vector3f();
+                edge1.cross(edge2, faceNormal);
+
+                // Add this face normal to all vertices of the face
+                for (FaceVertex fv : face.indices) {
+                    int vertexIndex = fv.vertexIndex - 1;
+                    Vector3f vn = smoothNormals.get(vertexIndex);
+                    vn.add(faceNormal);
+                }
+            }
+        }
+
+        // Normalize all smooth normals
+        for (Vector3f normal : smoothNormals) {
+            normal.normalize();
+        }
+
+        System.out.println("Computed smooth normals for " + smoothNormals.size() + " vertices");
     }
 
     @Override
@@ -141,15 +182,18 @@ public class OBJVehicleModel extends Model {
         if (fv.texIndex > 0 && fv.texIndex <= texCoords.size()) {
             Vector3f tex = texCoords.get(fv.texIndex - 1);
             u = tex.x;
-            v = tex.y;  // No flip - use UVs directly as exported from Blockbench
+            v = 1.0f - tex.y;  // V-flip IS needed for correct rendering
         }
 
-        // Get normal
+        // Get normal - use smooth normals for better shading
         float nx = 0.0f;
         float ny = 1.0f;
         float nz = 0.0f;
-        if (fv.normalIndex > 0 && fv.normalIndex <= normals.size()) {
-            Vector3f normal = normals.get(fv.normalIndex - 1);
+
+        // Use computed smooth normals based on vertex position
+        int vertexIndex = fv.vertexIndex - 1;
+        if (vertexIndex >= 0 && vertexIndex < smoothNormals.size()) {
+            Vector3f normal = smoothNormals.get(vertexIndex);
             nx = normal.x;
             ny = normal.y;
             nz = normal.z;
