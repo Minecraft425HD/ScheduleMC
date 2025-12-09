@@ -49,40 +49,24 @@ public class VehicleRenderer extends EntityRenderer<VehicleEntity> {
         BodyComponent body = vehicle.getComponent(ComponentType.BODY, BodyComponent.class);
         int color = body != null ? body.getColor() : 0xFFFFFF;
 
-        // DEBUG: Always render wireframe to visualize entity bounds
-        VertexConsumer lineConsumer = buffer.getBuffer(RenderType.lines());
-        float red = ((color >> 16) & 0xFF) / 255.0F;
-        float green = ((color >> 8) & 0xFF) / 255.0F;
-        float blue = (color & 0xFF) / 255.0F;
-        renderBox(poseStack, lineConsumer, -1.0f, 0.0f, -1.5f, 2.0f, 1.5f, 3.0f, red, green, blue, 1.0f);
-
         if (body != null && body.getSpecification() != null) {
             poseStack.pushPose();
-
-            // Rotate to face correct direction
-            poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - entityYaw));
-
-            // Flip model upright (Blockbench models are created upside down)
-            poseStack.scale(1.0F, -1.0F, 1.0F);
-
-            // Translate to correct position (model root is at Y=24 in Blockbench, which equals Y=1.5 blocks)
-            poseStack.translate(0.0, -1.5, 0.0);
 
             // Get the appropriate model for this body type
             EntityModel<VehicleEntity> model = getModelForBody(body.getSpecification());
 
             if (model != null) {
-                // Setup animation (limbSwing, limbSwingAmount, ageInTicks, headYaw, headPitch)
+                // Setup animation
                 model.setupAnim(vehicle, 0.0F, 0.0F, vehicle.tickCount + partialTicks, 0.0F, 0.0F);
 
                 // Get texture
                 ResourceLocation texture = getTextureLocation(vehicle);
                 VertexConsumer vertexConsumer = buffer.getBuffer(RenderType.entityCutout(texture));
 
-                // Render the model with proper color values
+                // Render the model - NO color tinting, use white (1.0F) for all channels
                 model.renderToBuffer(poseStack, vertexConsumer, packedLight,
                     net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY,
-                    red, green, blue, 1.0F);
+                    1.0F, 1.0F, 1.0F, 1.0F);
             }
 
             poseStack.popPose();
