@@ -3,7 +3,7 @@ package de.rolandsw.schedulemc.vehicle.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import de.rolandsw.schedulemc.vehicle.client.model.SedanModel;
+import de.rolandsw.schedulemc.vehicle.client.model.OBJVehicleModel;
 import de.rolandsw.schedulemc.vehicle.component.body.BodyComponent;
 import de.rolandsw.schedulemc.vehicle.core.component.ComponentType;
 import de.rolandsw.schedulemc.vehicle.core.entity.VehicleEntity;
@@ -14,15 +14,16 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 
 /**
- * Renderer for vehicles.
+ * Renderer for vehicles using OBJ models
  */
 public class VehicleRenderer extends EntityRenderer<VehicleEntity> {
 
-    private final SedanModel<VehicleEntity> model;
+    private final OBJVehicleModel objModel;
 
     public VehicleRenderer(EntityRendererProvider.Context context) {
         super(context);
-        this.model = new SedanModel<>(context.bakeLayer(SedanModel.LAYER_LOCATION));
+        // Load the OBJ model
+        this.objModel = new OBJVehicleModel(new ResourceLocation("schedulemc", "models/entity/sedan.obj"));
     }
 
     @Override
@@ -35,18 +36,15 @@ public class VehicleRenderer extends EntityRenderer<VehicleEntity> {
         // Rotate to face the correct direction
         poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - entityYaw));
 
-        // Scale down and flip (Blockbench models: 16 pixels = 1 block)
+        // Flip for correct orientation
         poseStack.scale(-1.0F, -1.0F, 1.0F);
-
-        // Translate: model origin is at Y=24 pixels = 1.5 blocks
-        poseStack.translate(0.0, -1.5, 0.0);
 
         // Get texture and create vertex consumer
         ResourceLocation texture = getTextureLocation(entity);
         VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(texture));
 
-        // Render the model
-        model.renderToBuffer(poseStack, vertexConsumer, packedLight,
+        // Render the OBJ model
+        objModel.renderToBuffer(poseStack, vertexConsumer, packedLight,
             net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY,
             1.0F, 1.0F, 1.0F, 1.0F);
 
