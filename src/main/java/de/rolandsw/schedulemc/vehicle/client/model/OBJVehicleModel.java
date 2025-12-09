@@ -111,23 +111,20 @@ public class OBJVehicleModel extends Model {
         for (Face face : faces) {
             FaceVertex[] fv = face.indices;
 
-            // Render faces - keep original winding order from Blockbench
-            if (fv.length == 3) {
-                // Triangle - render as exported from Blockbench
-                renderVertex(pose, buffer, fv[0], packedLight, packedOverlay, red, green, blue, alpha);
-                renderVertex(pose, buffer, fv[1], packedLight, packedOverlay, red, green, blue, alpha);
-                renderVertex(pose, buffer, fv[2], packedLight, packedOverlay, red, green, blue, alpha);
-            } else if (fv.length == 4) {
-                // Quad - standard fan triangulation [0,1,2] and [0,2,3]
-                // Triangle 1: [0, 1, 2]
+            // Render each face as-is from Blockbench OBJ export
+            if (fv.length >= 3) {
+                // For triangles and quads, render directly without additional triangulation
+                // OpenGL/Minecraft will handle the primitive assembly
                 renderVertex(pose, buffer, fv[0], packedLight, packedOverlay, red, green, blue, alpha);
                 renderVertex(pose, buffer, fv[1], packedLight, packedOverlay, red, green, blue, alpha);
                 renderVertex(pose, buffer, fv[2], packedLight, packedOverlay, red, green, blue, alpha);
 
-                // Triangle 2: [0, 2, 3]
-                renderVertex(pose, buffer, fv[0], packedLight, packedOverlay, red, green, blue, alpha);
-                renderVertex(pose, buffer, fv[2], packedLight, packedOverlay, red, green, blue, alpha);
-                renderVertex(pose, buffer, fv[3], packedLight, packedOverlay, red, green, blue, alpha);
+                if (fv.length == 4) {
+                    // For quads, add second triangle [0,2,3]
+                    renderVertex(pose, buffer, fv[0], packedLight, packedOverlay, red, green, blue, alpha);
+                    renderVertex(pose, buffer, fv[2], packedLight, packedOverlay, red, green, blue, alpha);
+                    renderVertex(pose, buffer, fv[3], packedLight, packedOverlay, red, green, blue, alpha);
+                }
             }
         }
     }
@@ -144,8 +141,7 @@ public class OBJVehicleModel extends Model {
         if (fv.texIndex > 0 && fv.texIndex <= texCoords.size()) {
             Vector3f tex = texCoords.get(fv.texIndex - 1);
             u = tex.x;
-            // Try V-flip: OBJ standard has origin at bottom-left, OpenGL/Minecraft at top-left
-            v = 1.0f - tex.y;
+            v = tex.y;  // Blockbench exports UVs ready for Minecraft - no flip
         }
 
         // Get normal
