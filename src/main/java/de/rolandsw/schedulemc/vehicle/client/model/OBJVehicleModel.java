@@ -141,7 +141,7 @@ public class OBJVehicleModel extends Model {
         if (fv.texIndex > 0 && fv.texIndex <= texCoords.size()) {
             Vector3f tex = texCoords.get(fv.texIndex - 1);
             u = tex.x;
-            v = tex.y;  // Blockbench exports UVs ready for Minecraft - no flip
+            v = 1.0f - tex.y;  // Flip V: OBJ uses bottom-left origin, OpenGL uses top-left
         }
 
         // Get normal
