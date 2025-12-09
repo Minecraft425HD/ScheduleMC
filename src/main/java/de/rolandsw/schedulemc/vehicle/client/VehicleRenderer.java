@@ -49,6 +49,13 @@ public class VehicleRenderer extends EntityRenderer<VehicleEntity> {
         BodyComponent body = vehicle.getComponent(ComponentType.BODY, BodyComponent.class);
         int color = body != null ? body.getColor() : 0xFFFFFF;
 
+        // DEBUG: Always render wireframe to visualize entity bounds
+        VertexConsumer lineConsumer = buffer.getBuffer(RenderType.lines());
+        float red = ((color >> 16) & 0xFF) / 255.0F;
+        float green = ((color >> 8) & 0xFF) / 255.0F;
+        float blue = (color & 0xFF) / 255.0F;
+        renderBox(poseStack, lineConsumer, -1.0f, 0.0f, -1.5f, 2.0f, 1.5f, 3.0f, red, green, blue, 1.0f);
+
         if (body != null && body.getSpecification() != null) {
             poseStack.pushPose();
 
@@ -73,10 +80,6 @@ public class VehicleRenderer extends EntityRenderer<VehicleEntity> {
                 VertexConsumer vertexConsumer = buffer.getBuffer(RenderType.entityCutout(texture));
 
                 // Render the model with proper color values
-                float red = ((color >> 16) & 0xFF) / 255.0F;
-                float green = ((color >> 8) & 0xFF) / 255.0F;
-                float blue = (color & 0xFF) / 255.0F;
-
                 model.renderToBuffer(poseStack, vertexConsumer, packedLight,
                     net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY,
                     red, green, blue, 1.0F);
