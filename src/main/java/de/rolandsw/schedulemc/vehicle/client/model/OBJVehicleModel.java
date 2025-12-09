@@ -111,20 +111,23 @@ public class OBJVehicleModel extends Model {
         for (Face face : faces) {
             FaceVertex[] fv = face.indices;
 
-            // Render each face directly as it appears in the OBJ file
-            if (fv.length >= 3) {
-                // For triangles, render as is
-                // For quads, triangulate as [0,1,2] and [2,3,0]
-                for (int i = 0; i < 3; i++) {
-                    renderVertex(pose, buffer, fv[i], packedLight, packedOverlay, red, green, blue, alpha);
-                }
+            // Render faces with proper triangulation
+            if (fv.length == 3) {
+                // Triangle - render directly
+                renderVertex(pose, buffer, fv[0], packedLight, packedOverlay, red, green, blue, alpha);
+                renderVertex(pose, buffer, fv[1], packedLight, packedOverlay, red, green, blue, alpha);
+                renderVertex(pose, buffer, fv[2], packedLight, packedOverlay, red, green, blue, alpha);
+            } else if (fv.length == 4) {
+                // Quad - split into two triangles with consistent winding order
+                // Triangle 1: [0, 1, 2]
+                renderVertex(pose, buffer, fv[0], packedLight, packedOverlay, red, green, blue, alpha);
+                renderVertex(pose, buffer, fv[1], packedLight, packedOverlay, red, green, blue, alpha);
+                renderVertex(pose, buffer, fv[2], packedLight, packedOverlay, red, green, blue, alpha);
 
-                if (fv.length == 4) {
-                    // Second triangle of quad
-                    renderVertex(pose, buffer, fv[2], packedLight, packedOverlay, red, green, blue, alpha);
-                    renderVertex(pose, buffer, fv[3], packedLight, packedOverlay, red, green, blue, alpha);
-                    renderVertex(pose, buffer, fv[0], packedLight, packedOverlay, red, green, blue, alpha);
-                }
+                // Triangle 2: [0, 2, 3] - maintains winding order
+                renderVertex(pose, buffer, fv[0], packedLight, packedOverlay, red, green, blue, alpha);
+                renderVertex(pose, buffer, fv[2], packedLight, packedOverlay, red, green, blue, alpha);
+                renderVertex(pose, buffer, fv[3], packedLight, packedOverlay, red, green, blue, alpha);
             }
         }
     }
@@ -137,11 +140,11 @@ public class OBJVehicleModel extends Model {
 
         // Get texture coordinates (OBJ uses 1-based indexing)
         float u = 0.0f;
-        float v = 0.0f;
+        float v = 1.0f;
         if (fv.texIndex > 0 && fv.texIndex <= texCoords.size()) {
             Vector3f tex = texCoords.get(fv.texIndex - 1);
             u = tex.x;
-            v = tex.y;  // Don't flip - Blockbench exports correct coordinates
+            v = 1.0f - tex.y;  // Flip V: OBJ has origin bottom-left, Minecraft has origin top-left
         }
 
         // Get normal
