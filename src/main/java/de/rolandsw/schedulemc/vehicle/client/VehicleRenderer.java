@@ -36,8 +36,8 @@ public class VehicleRenderer extends EntityRenderer<VehicleEntity> {
         // Rotate to face the correct direction
         poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - entityYaw));
 
-        // Scale: positive X to flip horizontally
-        poseStack.scale(1.0F, -1.0F, 1.0F);
+        // No scale - render as-is from OBJ
+        poseStack.scale(1.0F, 1.0F, 1.0F);
 
         // Get texture and create vertex consumer
         ResourceLocation texture = getTextureLocation(entity);
