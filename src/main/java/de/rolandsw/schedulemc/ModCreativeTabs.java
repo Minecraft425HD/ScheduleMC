@@ -7,6 +7,8 @@ import de.rolandsw.schedulemc.economy.blocks.EconomyBlocks;
 import de.rolandsw.schedulemc.npc.items.NPCItems;
 import de.rolandsw.schedulemc.region.blocks.PlotBlocks;
 import de.rolandsw.schedulemc.warehouse.WarehouseBlocks;
+import de.rolandsw.schedulemc.vehicle.items.VehicleItems;
+import de.rolandsw.schedulemc.vehicle.blocks.VehicleBlocks;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -156,6 +158,70 @@ public class ModCreativeTabs {
                 // WAREHOUSE BLOCKS
                 // ═══════════════════════════════════════════════════════════
                 output.accept(WarehouseBlocks.WAREHOUSE_ITEM.get());
+
+                // ═══════════════════════════════════════════════════════════
+                // VEHICLE SPAWN ITEMS
+                // ═══════════════════════════════════════════════════════════
+                output.accept(VehicleItems.SEDAN_SPAWN_ITEM.get());
+                output.accept(VehicleItems.SPORT_SPAWN_ITEM.get());
+                output.accept(VehicleItems.SUV_SPAWN_ITEM.get());
+                output.accept(VehicleItems.TRUCK_SPAWN_ITEM.get());
+                output.accept(VehicleItems.TRANSPORTER_SPAWN_ITEM.get());
+
+                // ═══════════════════════════════════════════════════════════
+                // VEHICLE SPAWN TOOLS (Dealer)
+                // ═══════════════════════════════════════════════════════════
+                output.accept(VehicleItems.VEHICLE_SPAWN_SEDAN.get());
+                output.accept(VehicleItems.VEHICLE_SPAWN_SPORT.get());
+                output.accept(VehicleItems.VEHICLE_SPAWN_SUV.get());
+                output.accept(VehicleItems.VEHICLE_SPAWN_TRUCK.get());
+                output.accept(VehicleItems.VEHICLE_SPAWN_TRANSPORTER.get());
+
+                // ═══════════════════════════════════════════════════════════
+                // VEHICLE COMPONENTS - ENGINES
+                // ═══════════════════════════════════════════════════════════
+                output.accept(VehicleItems.ENGINE_INLINE_THREE.get());
+                output.accept(VehicleItems.ENGINE_INLINE_SIX.get());
+                output.accept(VehicleItems.ENGINE_TRUCK_V8.get());
+
+                // ═══════════════════════════════════════════════════════════
+                // VEHICLE COMPONENTS - WHEELS
+                // ═══════════════════════════════════════════════════════════
+                output.accept(VehicleItems.WHEELS_STANDARD.get());
+                output.accept(VehicleItems.WHEELS_SPORT.get());
+                output.accept(VehicleItems.WHEELS_OFFROAD.get());
+                output.accept(VehicleItems.WHEELS_TRUCK.get());
+
+                // ═══════════════════════════════════════════════════════════
+                // VEHICLE COMPONENTS - BODIES
+                // ═══════════════════════════════════════════════════════════
+                output.accept(VehicleItems.BODY_SEDAN.get());
+                output.accept(VehicleItems.BODY_SPORT.get());
+                output.accept(VehicleItems.BODY_SUV.get());
+                output.accept(VehicleItems.BODY_TRUCK.get());
+                output.accept(VehicleItems.BODY_TRANSPORTER.get());
+
+                // ═══════════════════════════════════════════════════════════
+                // VEHICLE COMPONENTS - FUEL TANKS
+                // ═══════════════════════════════════════════════════════════
+                output.accept(VehicleItems.TANK_SMALL.get());
+                output.accept(VehicleItems.TANK_MEDIUM.get());
+                output.accept(VehicleItems.TANK_LARGE.get());
+                output.accept(VehicleItems.TANK_TRUCK.get());
+
+                // ═══════════════════════════════════════════════════════════
+                // VEHICLE UTILITY ITEMS
+                // ═══════════════════════════════════════════════════════════
+                output.accept(VehicleItems.VEHICLE_KEY.get());
+                output.accept(VehicleItems.LICENSE_PLATE.get());
+                output.accept(VehicleItems.REPAIR_KIT.get());
+                output.accept(VehicleItems.BATTERY.get());
+                output.accept(VehicleItems.WRENCH.get());
+
+                // ═══════════════════════════════════════════════════════════
+                // VEHICLE BLOCKS
+                // ═══════════════════════════════════════════════════════════
+                output.accept(VehicleBlocks.GAS_STATION.get());
             })
             .build()
     );

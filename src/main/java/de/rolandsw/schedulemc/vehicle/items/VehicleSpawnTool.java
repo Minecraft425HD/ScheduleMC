@@ -1,6 +1,6 @@
 package de.rolandsw.schedulemc.vehicle.items;
 
-import de.rolandsw.schedulemc.vehicle.api.VehiclePresets;
+import de.rolandsw.schedulemc.vehicle.builder.VehiclePresets;
 import de.rolandsw.schedulemc.vehicle.core.entity.VehicleEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
