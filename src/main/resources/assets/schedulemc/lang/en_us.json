@@ -394,5 +394,67 @@
   "death.attack.schedulemc.police.player": "%s was arrested by the police while fighting %s",
 
   "key.categories.schedulemc": "ScheduleMC",
-  "key.schedulemc.open_smartphone": "Open Smartphone"
+  "key.schedulemc.open_smartphone": "Open Smartphone",
+
+  "_comment_vehicles": "=== VEHICLE SYSTEM ===",
+  "item.schedulemc.vehicle_sedan": "Sedan Vehicle",
+  "item.schedulemc.vehicle_sport": "Sport Vehicle",
+  "item.schedulemc.vehicle_suv": "SUV Vehicle",
+  "item.schedulemc.vehicle_truck": "Truck Vehicle",
+  "item.schedulemc.vehicle_transporter": "Transporter Vehicle",
+
+  "item.schedulemc.vehicle_spawn_tool_sedan": "Sedan Spawn Tool",
+  "item.schedulemc.vehicle_spawn_tool_sport": "Sport Spawn Tool",
+  "item.schedulemc.vehicle_spawn_tool_suv": "SUV Spawn Tool",
+  "item.schedulemc.vehicle_spawn_tool_truck": "Truck Spawn Tool",
+  "item.schedulemc.vehicle_spawn_tool_transporter": "Transporter Spawn Tool",
+
+  "item.schedulemc.engine_inline_three": "Inline-3 Engine",
+  "item.schedulemc.engine_inline_six": "Inline-6 Engine",
+  "item.schedulemc.engine_truck_v8": "V8 Truck Engine",
+
+  "item.schedulemc.wheels_standard": "Standard Wheels",
+  "item.schedulemc.wheels_sport": "Sport Wheels",
+  "item.schedulemc.wheels_offroad": "Off-road Wheels",
+  "item.schedulemc.wheels_truck": "Truck Wheels",
+
+  "item.schedulemc.body_sedan": "Sedan Body",
+  "item.schedulemc.body_sport": "Sport Body",
+  "item.schedulemc.body_suv": "SUV Body",
+  "item.schedulemc.body_truck": "Truck Body",
+  "item.schedulemc.body_transporter": "Transporter Body",
+
+  "item.schedulemc.fuel_tank_small": "Small Fuel Tank",
+  "item.schedulemc.fuel_tank_medium": "Medium Fuel Tank",
+  "item.schedulemc.fuel_tank_large": "Large Fuel Tank",
+  "item.schedulemc.fuel_tank_truck": "Truck Fuel Tank",
+
+  "item.schedulemc.vehicle_key": "Vehicle Key",
+  "item.schedulemc.license_plate": "License Plate",
+  "item.schedulemc.repair_kit": "Vehicle Repair Kit",
+  "item.schedulemc.vehicle_battery": "Vehicle Battery",
+  "item.schedulemc.vehicle_wrench": "Vehicle Wrench",
+
+  "block.schedulemc.gas_station": "Gas Station",
+  "block.schedulemc.gas_station_top": "Gas Station (Top)",
+
+  "entity.schedulemc.vehicle": "Vehicle",
+
+  "message.schedulemc.gas_station.not_owner": "You are not the owner of this gas station!",
+  "message.schedulemc.gas_station.no_fuel_tank": "This vehicle has no fuel tank!",
+  "message.schedulemc.gas_station.tank_full": "Vehicle fuel tank is already full!",
+  "message.schedulemc.gas_station.out_of_fuel": "Gas station is out of fuel!",
+
+  "message.schedulemc.vehicle.locked": "This vehicle is locked!",
+  "message.schedulemc.vehicle.no_key": "You need the vehicle key!",
+  "message.schedulemc.vehicle.engine_start": "Engine started",
+  "message.schedulemc.vehicle.engine_stop": "Engine stopped",
+  "message.schedulemc.vehicle.out_of_fuel": "Out of fuel!",
+  "message.schedulemc.vehicle.low_battery": "Battery is low!",
+  "message.schedulemc.vehicle.damaged": "Vehicle is damaged!",
+
+  "gui.schedulemc.gas_station.title": "Gas Station",
+
+  "itemGroup.schedulemc.vehicles": "Vehicles",
+  "itemGroup.schedulemc.vehicle_parts": "Vehicle Parts"
 }

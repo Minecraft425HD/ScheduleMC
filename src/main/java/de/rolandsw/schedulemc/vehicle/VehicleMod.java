@@ -16,6 +16,8 @@ import de.rolandsw.schedulemc.vehicle.core.entity.VehicleEntity;
 import de.rolandsw.schedulemc.vehicle.core.registry.ComponentRegistry;
 import de.rolandsw.schedulemc.vehicle.core.registry.SystemRegistry;
 import de.rolandsw.schedulemc.vehicle.core.system.SystemManager;
+import de.rolandsw.schedulemc.vehicle.blocks.VehicleBlocks;
+import de.rolandsw.schedulemc.vehicle.blocks.entity.VehicleBlockEntities;
 import de.rolandsw.schedulemc.vehicle.items.VehicleItems;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.RegistryObject;
@@ -73,6 +75,11 @@ public class VehicleMod {
 
         // Register entities
         ENTITIES.register(FMLJavaModLoadingContext.get().getModEventBus());
+
+        // Register blocks and block entities
+        VehicleBlocks.BLOCKS.register(FMLJavaModLoadingContext.get().getModEventBus());
+        VehicleBlocks.BLOCK_ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
+        VehicleBlockEntities.BLOCK_ENTITIES.register(FMLJavaModLoadingContext.get().getModEventBus());
 
         // Register items
         VehicleItems.ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());

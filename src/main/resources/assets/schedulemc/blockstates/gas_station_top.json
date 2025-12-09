@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "schedulemc:block/gas_station_top" },
+    "facing=south": { "model": "schedulemc:block/gas_station_top", "y": 180 },
+    "facing=west": { "model": "schedulemc:block/gas_station_top", "y": 270 },
+    "facing=east": { "model": "schedulemc:block/gas_station_top", "y": 90 }
+  }
+}

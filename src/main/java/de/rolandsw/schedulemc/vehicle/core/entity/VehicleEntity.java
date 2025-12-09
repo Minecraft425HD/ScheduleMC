@@ -1,18 +1,26 @@
 package de.rolandsw.schedulemc.vehicle.core.entity;
 
 import de.rolandsw.schedulemc.vehicle.core.component.IVehicleComponent;
+import de.rolandsw.schedulemc.vehicle.core.component.ComponentType;
+import de.rolandsw.schedulemc.vehicle.component.control.OwnershipComponent;
+import de.rolandsw.schedulemc.vehicle.component.body.BodyComponent;
 import de.rolandsw.schedulemc.vehicle.core.registry.ComponentRegistry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -166,5 +174,106 @@ public class VehicleEntity extends Entity {
     public void tick() {
         super.tick();
         // System ticking is handled by SystemManager, not here
+    }
+
+    // ========== PASSENGER/RIDING SUPPORT ==========
+
+    @Override
+    public InteractionResult interact(Player player, InteractionHand hand) {
+        if (!this.level().isClientSide) {
+            // Check if vehicle is locked
+            OwnershipComponent ownership = getComponent(ComponentType.SECURITY, OwnershipComponent.class);
+            if (ownership != null && ownership.isLocked() && !ownership.canAccess(player.getUUID())) {
+                player.displayClientMessage(Component.literal("§cDieses Fahrzeug ist abgeschlossen!"), true);
+                return InteractionResult.FAIL;
+            }
+
+            // Add player as passenger
+            if (!player.isPassenger()) {
+                player.startRiding(this);
+                return InteractionResult.SUCCESS;
+            }
+        }
+        return InteractionResult.sidedSuccess(this.level().isClientSide);
+    }
+
+    @Override
+    protected boolean canAddPassenger(Entity passenger) {
+        // Get body component to check max passengers
+        BodyComponent body = getComponent(ComponentType.BODY, BodyComponent.class);
+        int maxPassengers = body != null ? body.getMaxPassengers() : 1;
+
+        return this.getPassengers().size() < maxPassengers;
+    }
+
+    @Override
+    public void positionRider(Entity passenger, MoveFunction moveFunction) {
+        if (this.hasPassenger(passenger)) {
+            // Get passenger index (driver is 0, others are 1, 2, etc.)
+            int passengerIndex = this.getPassengers().indexOf(passenger);
+
+            // Calculate position based on index
+            Vec3 offset = getPassengerOffset(passengerIndex);
+            Vec3 position = this.position().add(offset);
+
+            moveFunction.accept(passenger, position.x, position.y, position.z);
+        }
+    }
+
+    /**
+     * Get passenger offset based on their index
+     */
+    private Vec3 getPassengerOffset(int index) {
+        // Driver sits in the center
+        if (index == 0) {
+            return new Vec3(0, 0.6, 0);
+        }
+        // Additional passengers sit to the side
+        else if (index == 1) {
+            return new Vec3(0.5, 0.6, 0);
+        }
+        else if (index == 2) {
+            return new Vec3(-0.5, 0.6, 0);
+        }
+        else {
+            return new Vec3(0, 0.6, -0.5 * (index - 2));
+        }
+    }
+
+    @Override
+    public Vec3 getDismountLocationForPassenger(Entity passenger) {
+        // Dismount to the side of the vehicle
+        Vec3 direction = this.getViewVector(1.0F);
+        Vec3 perpendicular = new Vec3(-direction.z, 0, direction.x).normalize();
+        return this.position().add(perpendicular.scale(2.0));
+    }
+
+    // ========== OWNER MANAGEMENT ==========
+
+    /**
+     * Set the owner of this vehicle
+     */
+    public void setOwner(UUID ownerUUID) {
+        OwnershipComponent ownership = getComponent(ComponentType.SECURITY, OwnershipComponent.class);
+        if (ownership != null) {
+            ownership.setOwner(ownerUUID);
+        }
+    }
+
+    /**
+     * Get the owner UUID
+     */
+    @Nullable
+    public UUID getOwnerUUID() {
+        OwnershipComponent ownership = getComponent(ComponentType.SECURITY, OwnershipComponent.class);
+        return ownership != null ? ownership.getOwner() : null;
+    }
+
+    /**
+     * Check if this vehicle is locked
+     */
+    public boolean isLocked() {
+        OwnershipComponent ownership = getComponent(ComponentType.SECURITY, OwnershipComponent.class);
+        return ownership != null && ownership.isLocked();
     }
 }
