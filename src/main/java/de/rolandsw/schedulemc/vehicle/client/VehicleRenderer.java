@@ -32,14 +32,14 @@ public class VehicleRenderer extends EntityRenderer<VehicleEntity> {
 
         poseStack.pushPose();
 
-        // Rotate to face the right direction
+        // Step 1: Translate to entity position (model origin Y=24 pixels = 1.5 blocks up)
+        poseStack.translate(0.0, 1.5, 0.0);
+
+        // Step 2: Rotate to face the correct direction
         poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - entityYaw));
 
-        // Flip Y (Blockbench models are upside down)
+        // Step 3: Flip Y axis (Blockbench models are created upside down for Java Edition)
         poseStack.scale(1.0F, -1.0F, 1.0F);
-
-        // Move model down (origin at Y=24 in Blockbench = 1.5 blocks)
-        poseStack.translate(0.0, -1.5, 0.0);
 
         // Get texture and create vertex consumer
         ResourceLocation texture = getTextureLocation(entity);
