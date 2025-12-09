@@ -90,21 +90,35 @@ public class OBJVehicleModel extends Model {
         PoseStack.Pose pose = poseStack.last();
 
         for (Face face : faces) {
-            for (int i = 0; i < face.indices.length; i++) {
-                FaceVertex fv = face.indices[i];
-
-                Vector3f pos = vertices.get(fv.vertexIndex - 1);
-                Vector3f normal = fv.normalIndex > 0 ? normals.get(fv.normalIndex - 1) : new Vector3f(0, 1, 0);
-                Vector3f tex = fv.texIndex > 0 ? texCoords.get(fv.texIndex - 1) : new Vector3f(0, 0, 0);
-
-                buffer.vertex(pose.pose(), pos.x, pos.y, pos.z)
-                    .color(red, green, blue, alpha)
-                    .uv(tex.x, 1.0f - tex.y)  // Flip V coordinate
-                    .overlayCoords(packedOverlay)
-                    .uv2(packedLight)
-                    .normal(pose.normal(), normal.x, normal.y, normal.z)
-                    .endVertex();
+            // Convert quads to triangles
+            if (face.indices.length == 4) {
+                // Quad: split into two triangles [0,1,2] and [0,2,3]
+                renderTriangle(pose, buffer, face.indices, new int[]{0, 1, 2}, packedLight, packedOverlay, red, green, blue, alpha);
+                renderTriangle(pose, buffer, face.indices, new int[]{0, 2, 3}, packedLight, packedOverlay, red, green, blue, alpha);
+            } else if (face.indices.length == 3) {
+                // Already a triangle
+                renderTriangle(pose, buffer, face.indices, new int[]{0, 1, 2}, packedLight, packedOverlay, red, green, blue, alpha);
             }
+        }
+    }
+
+    private void renderTriangle(PoseStack.Pose pose, VertexConsumer buffer, FaceVertex[] faceVertices,
+                               int[] indices, int packedLight, int packedOverlay,
+                               float red, float green, float blue, float alpha) {
+        for (int i : indices) {
+            FaceVertex fv = faceVertices[i];
+
+            Vector3f pos = vertices.get(fv.vertexIndex - 1);
+            Vector3f normal = fv.normalIndex > 0 ? normals.get(fv.normalIndex - 1) : new Vector3f(0, 1, 0);
+            Vector3f tex = fv.texIndex > 0 ? texCoords.get(fv.texIndex - 1) : new Vector3f(0, 0, 0);
+
+            buffer.vertex(pose.pose(), pos.x, pos.y, pos.z)
+                .color(red, green, blue, alpha)
+                .uv(tex.x, 1.0f - tex.y)  // Flip V coordinate
+                .overlayCoords(packedOverlay)
+                .uv2(packedLight)
+                .normal(pose.normal(), normal.x, normal.y, normal.z)
+                .endVertex();
         }
     }
 
