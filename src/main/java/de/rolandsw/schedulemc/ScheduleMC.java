@@ -177,7 +177,11 @@ public class ScheduleMC {
         MinecraftForge.EVENT_BUS.register(ShopAccountManager.class);
         WarehouseManager.load(event.getServer());
 
-        // TODO: Re-implement vehicle spawn registry, gas station registry, and fuel bills for new vehicle system
+        // Initialize vehicle system managers
+        de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager.init(event.getServer().getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT).toFile());
+        de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager.load();
+        de.rolandsw.schedulemc.vehicle.fuel.GasStationRegistry.init(event.getServer().getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT).toFile());
+        de.rolandsw.schedulemc.vehicle.fuel.GasStationRegistry.load();
     }
 
     @SubscribeEvent
@@ -193,7 +197,9 @@ public class ScheduleMC {
             WalletManager.saveIfNeeded();
             NPCNameRegistry.saveIfNeeded();
             MessageManager.saveIfNeeded();
-            // TODO: Periodic saves for vehicle system
+            // Periodic saves for vehicle system
+            de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager.saveIfNeeded();
+            de.rolandsw.schedulemc.vehicle.fuel.GasStationRegistry.saveIfNeeded();
         }
     }
 
@@ -206,7 +212,9 @@ public class ScheduleMC {
         NPCNameRegistry.saveRegistry();
         MessageManager.saveMessages();
         WarehouseManager.save(event.getServer());
-        // TODO: Final saves for vehicle system
+        // Final saves for vehicle system
+        de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager.save();
+        de.rolandsw.schedulemc.vehicle.fuel.GasStationRegistry.save();
     }
 
     @SubscribeEvent
@@ -226,6 +234,10 @@ public class ScheduleMC {
             event.setCanceled(true);
         }
 
-        // TODO: Re-implement vehicle spawn tool for new vehicle system
+        // Vehicle Spawn Tool - Handle left click
+        if (heldItem.getItem() instanceof de.rolandsw.schedulemc.vehicle.items.VehicleSpawnTool) {
+            de.rolandsw.schedulemc.vehicle.items.VehicleSpawnTool.handleLeftClick(player, heldItem, event.getPos());
+            event.setCanceled(true);
+        }
     }
 }

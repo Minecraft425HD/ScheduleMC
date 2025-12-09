@@ -14,7 +14,7 @@ public class VehicleItems {
     public static final DeferredRegister<Item> ITEMS =
             DeferredRegister.create(ForgeRegistries.ITEMS, VehicleMod.MOD_ID);
 
-    // Spawn items for vehicles
+    // Spawn items for vehicles (simple spawn items)
     public static final RegistryObject<Item> SEDAN_SPAWN_ITEM = ITEMS.register("vehicle_sedan",
             () -> new VehicleSpawnItem("sedan", new Item.Properties()));
 
@@ -29,6 +29,22 @@ public class VehicleItems {
 
     public static final RegistryObject<Item> TRANSPORTER_SPAWN_ITEM = ITEMS.register("vehicle_transporter",
             () -> new VehicleSpawnItem("transporter", new Item.Properties()));
+
+    // Vehicle Spawn Tools (for dealer shops)
+    public static final RegistryObject<Item> VEHICLE_SPAWN_SEDAN = ITEMS.register("vehicle_spawn_tool_sedan",
+            () -> new VehicleSpawnTool(new Item.Properties().stacksTo(1), VehicleSpawnTool.VehicleType.SEDAN));
+
+    public static final RegistryObject<Item> VEHICLE_SPAWN_SPORT = ITEMS.register("vehicle_spawn_tool_sport",
+            () -> new VehicleSpawnTool(new Item.Properties().stacksTo(1), VehicleSpawnTool.VehicleType.SPORT));
+
+    public static final RegistryObject<Item> VEHICLE_SPAWN_SUV = ITEMS.register("vehicle_spawn_tool_suv",
+            () -> new VehicleSpawnTool(new Item.Properties().stacksTo(1), VehicleSpawnTool.VehicleType.SUV));
+
+    public static final RegistryObject<Item> VEHICLE_SPAWN_TRUCK = ITEMS.register("vehicle_spawn_tool_truck",
+            () -> new VehicleSpawnTool(new Item.Properties().stacksTo(1), VehicleSpawnTool.VehicleType.TRUCK));
+
+    public static final RegistryObject<Item> VEHICLE_SPAWN_TRANSPORTER = ITEMS.register("vehicle_spawn_tool_transporter",
+            () -> new VehicleSpawnTool(new Item.Properties().stacksTo(1), VehicleSpawnTool.VehicleType.TRANSPORTER));
 
     // Component items - Engines
     public static final RegistryObject<Item> ENGINE_INLINE_THREE = ITEMS.register("engine_inline_three",

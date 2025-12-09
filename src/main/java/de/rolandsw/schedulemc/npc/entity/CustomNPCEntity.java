@@ -127,8 +127,16 @@ public class CustomNPCEntity extends PathfinderMob {
         if (!this.level().isClientSide && source.getEntity() instanceof ServerPlayer serverPlayer) {
             ItemStack heldItem = serverPlayer.getMainHandItem();
 
-            // TODO: Re-implement Vehicle Spawn Tool for new ECS-based vehicle system
-            // Vehicle spawn tool temporarily disabled
+            // Vehicle Spawn Tool: Link to dealer (Auto-Händler only)
+            if (heldItem.getItem() instanceof de.rolandsw.schedulemc.vehicle.items.VehicleSpawnTool) {
+                if (getMerchantCategory() == de.rolandsw.schedulemc.npc.data.MerchantCategory.AUTOHAENDLER) {
+                    de.rolandsw.schedulemc.vehicle.items.VehicleSpawnTool.linkToDealer(heldItem, this.getUUID(), serverPlayer);
+                    return false; // Verhindere Schaden
+                } else {
+                    serverPlayer.sendSystemMessage(Component.literal("§cDieser NPC ist kein Autohändler!"));
+                    return false;
+                }
+            }
 
             // Shop-Editor für Admins
             if (serverPlayer.isShiftKeyDown() && serverPlayer.hasPermissions(2)) {

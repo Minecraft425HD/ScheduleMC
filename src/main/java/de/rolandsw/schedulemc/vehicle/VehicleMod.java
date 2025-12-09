@@ -17,6 +17,8 @@ import de.rolandsw.schedulemc.vehicle.core.registry.ComponentRegistry;
 import de.rolandsw.schedulemc.vehicle.core.registry.SystemRegistry;
 import de.rolandsw.schedulemc.vehicle.core.system.SystemManager;
 import de.rolandsw.schedulemc.vehicle.items.VehicleItems;
+import net.minecraft.world.item.Item;
+import net.minecraftforge.registries.RegistryObject;
 import de.rolandsw.schedulemc.vehicle.network.VehicleNetwork;
 import de.rolandsw.schedulemc.vehicle.system.*;
 import net.minecraft.world.entity.EntityType;
@@ -55,6 +57,13 @@ public class VehicleMod {
                     .setShouldReceiveVelocityUpdates(true)
                     .build("vehicle")
     );
+
+    // Public accessors for vehicle spawn tools (for merchant shops)
+    public static final RegistryObject<Item> VEHICLE_SPAWN_SEDAN = VehicleItems.VEHICLE_SPAWN_SEDAN;
+    public static final RegistryObject<Item> VEHICLE_SPAWN_SPORT = VehicleItems.VEHICLE_SPAWN_SPORT;
+    public static final RegistryObject<Item> VEHICLE_SPAWN_SUV = VehicleItems.VEHICLE_SPAWN_SUV;
+    public static final RegistryObject<Item> VEHICLE_SPAWN_TRUCK = VehicleItems.VEHICLE_SPAWN_TRUCK;
+    public static final RegistryObject<Item> VEHICLE_SPAWN_TRANSPORTER = VehicleItems.VEHICLE_SPAWN_TRANSPORTER;
 
     /**
      * Initializes the vehicle mod.
