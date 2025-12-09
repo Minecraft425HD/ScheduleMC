@@ -22,8 +22,8 @@ public class VehicleRenderer extends EntityRenderer<VehicleEntity> {
 
     public VehicleRenderer(EntityRendererProvider.Context context) {
         super(context);
-        // Load the OBJ model
-        this.objModel = new OBJVehicleModel(new ResourceLocation("schedulemc", "models/entity/sedan.obj"));
+        // Load the OBJ model with 256x256 texture size for the sedan
+        this.objModel = new OBJVehicleModel(new ResourceLocation("schedulemc", "models/entity/sedan.obj"), 256, 256);
     }
 
     @Override
