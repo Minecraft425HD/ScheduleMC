@@ -25,9 +25,28 @@ public class OBJVehicleModel extends Model {
     private final List<Vector3f> normals = new ArrayList<>();
     private final List<Face> faces = new ArrayList<>();
 
+    // Texture dimensions
+    private int textureWidth = 64;
+    private int textureHeight = 64;
+
     public OBJVehicleModel(ResourceLocation objLocation) {
         super(RenderType::entityCutoutNoCull);
         loadOBJ(objLocation);
+    }
+
+    public OBJVehicleModel(ResourceLocation objLocation, int textureWidth, int textureHeight) {
+        super(RenderType::entityCutoutNoCull);
+        this.textureWidth = textureWidth;
+        this.textureHeight = textureHeight;
+        loadOBJ(objLocation);
+    }
+
+    public int getTextureWidth() {
+        return textureWidth;
+    }
+
+    public int getTextureHeight() {
+        return textureHeight;
     }
 
     private void loadOBJ(ResourceLocation location) {
