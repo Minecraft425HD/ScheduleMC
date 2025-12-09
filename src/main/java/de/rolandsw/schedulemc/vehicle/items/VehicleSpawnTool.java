@@ -78,7 +78,7 @@ public class VehicleSpawnTool extends Item {
 
         if (vehicle != null) {
             vehicle.setPos(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
-            vehicle.setOwner(player.getUUID());
+            vehicle.setOwner(player.getUUID(), player.getName().getString());
             context.getLevel().addFreshEntity(vehicle);
 
             player.sendSystemMessage(Component.literal("✓ ").withStyle(ChatFormatting.GREEN)

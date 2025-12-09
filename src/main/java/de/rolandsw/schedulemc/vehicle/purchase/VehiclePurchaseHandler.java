@@ -70,7 +70,7 @@ public class VehiclePurchaseHandler {
             vehicle.setPos(playerPos.x, playerPos.y + 1, playerPos.z);
 
             // Set owner
-            vehicle.setOwner(player.getUUID());
+            vehicle.setOwner(player.getUUID(), player.getName().getString());
 
             // Spawn vehicle in world
             player.serverLevel().addFreshEntity(vehicle);

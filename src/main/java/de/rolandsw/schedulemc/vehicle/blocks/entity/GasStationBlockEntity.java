@@ -133,7 +133,7 @@ public class GasStationBlockEntity extends BlockEntity implements MenuProvider {
         }
     }
 
-    public String getDisplayName() {
+    public String getStationDisplayName() {
         return displayName;
     }
 

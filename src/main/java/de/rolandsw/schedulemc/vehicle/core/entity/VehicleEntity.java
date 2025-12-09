@@ -183,7 +183,7 @@ public class VehicleEntity extends Entity {
         if (!this.level().isClientSide) {
             // Check if vehicle is locked
             OwnershipComponent ownership = getComponent(ComponentType.SECURITY, OwnershipComponent.class);
-            if (ownership != null && ownership.isLocked() && !ownership.canAccess(player.getUUID())) {
+            if (ownership != null && ownership.isLocked() && !ownership.canAccess(player)) {
                 player.displayClientMessage(Component.literal("§cDieses Fahrzeug ist abgeschlossen!"), true);
                 return InteractionResult.FAIL;
             }
@@ -201,7 +201,7 @@ public class VehicleEntity extends Entity {
     protected boolean canAddPassenger(Entity passenger) {
         // Get body component to check max passengers
         BodyComponent body = getComponent(ComponentType.BODY, BodyComponent.class);
-        int maxPassengers = body != null ? body.getMaxPassengers() : 1;
+        int maxPassengers = body != null ? body.getPassengerCapacity() : 1;
 
         return this.getPassengers().size() < maxPassengers;
     }
@@ -240,7 +240,6 @@ public class VehicleEntity extends Entity {
         }
     }
 
-    @Override
     public Vec3 getDismountLocationForPassenger(Entity passenger) {
         // Dismount to the side of the vehicle
         Vec3 direction = this.getViewVector(1.0F);
@@ -253,10 +252,10 @@ public class VehicleEntity extends Entity {
     /**
      * Set the owner of this vehicle
      */
-    public void setOwner(UUID ownerUUID) {
+    public void setOwner(UUID ownerUUID, String ownerName) {
         OwnershipComponent ownership = getComponent(ComponentType.SECURITY, OwnershipComponent.class);
         if (ownership != null) {
-            ownership.setOwner(ownerUUID);
+            ownership.setOwner(ownerUUID, ownerName);
         }
     }
 
@@ -266,7 +265,7 @@ public class VehicleEntity extends Entity {
     @Nullable
     public UUID getOwnerUUID() {
         OwnershipComponent ownership = getComponent(ComponentType.SECURITY, OwnershipComponent.class);
-        return ownership != null ? ownership.getOwner() : null;
+        return ownership != null ? ownership.getOwnerId() : null;
     }
 
     /**

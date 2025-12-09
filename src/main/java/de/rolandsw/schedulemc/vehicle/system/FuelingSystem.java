@@ -9,6 +9,7 @@ import de.rolandsw.schedulemc.vehicle.fuel.GasStationRegistry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.material.Fluids;
 
 import java.util.UUID;
 
@@ -39,8 +40,8 @@ public class FuelingSystem {
         }
 
         // Check if vehicle needs fuel
-        float currentFuel = fuelTank.getCurrentFuel();
-        float maxFuel = fuelTank.getCapacity();
+        float currentFuel = fuelTank.getCurrentAmount();
+        float maxFuel = fuelTank.getSpecification().getCapacity();
 
         if (currentFuel >= maxFuel) {
             player.sendSystemMessage(Component.literal("Vehicle fuel tank is already full!"));
@@ -63,7 +64,7 @@ public class FuelingSystem {
 
         // Transfer fuel
         gasStation.removeFuel(fuelToTransfer);
-        fuelTank.fill(fuelToTransfer / 1000.0f); // Convert back to liters
+        fuelTank.fill(Fluids.WATER, fuelToTransfer / 1000.0f); // Convert back to liters (using WATER as fuel placeholder)
 
         // Calculate cost and create bill
         double cost = gasStation.calculateCost(fuelToTransfer);
@@ -74,7 +75,7 @@ public class FuelingSystem {
         }
 
         // Notify player
-        String stationName = gasStation.getDisplayName();
+        String stationName = gasStation.getStationDisplayName();
         double liters = fuelToTransfer / 1000.0;
         player.sendSystemMessage(Component.literal(
             String.format("Fueled %.2f L at %s. Cost: %.2f€ (added to bill)",
@@ -122,6 +123,6 @@ public class FuelingSystem {
         if (fuelTank == null) {
             return -1;
         }
-        return fuelTank.getCurrentFuel() / fuelTank.getCapacity();
+        return fuelTank.getCurrentAmount() / fuelTank.getSpecification().getCapacity();
     }
 }
