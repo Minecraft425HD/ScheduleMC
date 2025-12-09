@@ -52,14 +52,14 @@ public class VehicleRenderer extends EntityRenderer<VehicleEntity> {
         if (body != null && body.getSpecification() != null) {
             poseStack.pushPose();
 
-            // Position model at entity center
-            poseStack.translate(0.0, 1.5, 0.0);
-
-            // Rotate to face correct direction (Minecraft entities face south by default)
+            // Rotate to face correct direction
             poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - entityYaw));
 
-            // Scale if needed
-            poseStack.scale(-1.0F, -1.0F, 1.0F);
+            // Flip model upright (Blockbench models are created upside down)
+            poseStack.scale(1.0F, -1.0F, 1.0F);
+
+            // Translate to correct position (model root is at Y=24 in Blockbench, which equals Y=1.5 blocks)
+            poseStack.translate(0.0, -1.5, 0.0);
 
             // Get the appropriate model for this body type
             EntityModel<VehicleEntity> model = getModelForBody(body.getSpecification());
@@ -72,10 +72,14 @@ public class VehicleRenderer extends EntityRenderer<VehicleEntity> {
                 ResourceLocation texture = getTextureLocation(vehicle);
                 VertexConsumer vertexConsumer = buffer.getBuffer(RenderType.entityCutout(texture));
 
-                // Render the model
+                // Render the model with proper color values
+                float red = ((color >> 16) & 0xFF) / 255.0F;
+                float green = ((color >> 8) & 0xFF) / 255.0F;
+                float blue = (color & 0xFF) / 255.0F;
+
                 model.renderToBuffer(poseStack, vertexConsumer, packedLight,
                     net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY,
-                    1.0F, 1.0F, 1.0F, 1.0F);
+                    red, green, blue, 1.0F);
             }
 
             poseStack.popPose();
