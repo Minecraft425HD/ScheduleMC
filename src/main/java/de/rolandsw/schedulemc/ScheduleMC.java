@@ -47,7 +47,7 @@ import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.items.NPCItems;
 import de.rolandsw.schedulemc.npc.menu.NPCMenuTypes;
 import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
-import de.rolandsw.schedulemc.car.Main;
+import de.rolandsw.schedulemc.vehicle.VehicleMod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
@@ -76,16 +76,13 @@ public class ScheduleMC {
     private static final int SAVE_INTERVAL = 6000;
     private int tickCounter = 0;
 
-    // Car Mod integration
-    private static Main carMod;
-
     public ScheduleMC() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::onEntityAttributeCreation);
 
-        // Initialize Car Mod
-        carMod = new Main();
+        // Initialize Vehicle Mod (new ECS)
+        VehicleMod.init();
 
         ModItems.ITEMS.register(modEventBus);
         TobaccoItems.ITEMS.register(modEventBus);
@@ -180,10 +177,11 @@ public class ScheduleMC {
         MinecraftForge.EVENT_BUS.register(ShopAccountManager.class);
         WarehouseManager.load(event.getServer());
 
-        // Car System - Vehicle Spawn Registry, Gas Station Registry, Fuel Bills
-        de.rolandsw.schedulemc.car.vehicle.VehicleSpawnRegistry.load();
-        de.rolandsw.schedulemc.car.fuel.GasStationRegistry.load();
-        de.rolandsw.schedulemc.car.fuel.FuelBillManager.load();
+        // Initialize vehicle system managers
+        de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager.init(event.getServer().getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT).toFile());
+        de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager.load();
+        de.rolandsw.schedulemc.vehicle.fuel.GasStationRegistry.init(event.getServer().getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT).toFile());
+        de.rolandsw.schedulemc.vehicle.fuel.GasStationRegistry.load();
     }
 
     @SubscribeEvent
@@ -199,10 +197,9 @@ public class ScheduleMC {
             WalletManager.saveIfNeeded();
             NPCNameRegistry.saveIfNeeded();
             MessageManager.saveIfNeeded();
-            // Car System periodic saves
-            de.rolandsw.schedulemc.car.vehicle.VehicleSpawnRegistry.save();
-            de.rolandsw.schedulemc.car.fuel.GasStationRegistry.save();
-            de.rolandsw.schedulemc.car.fuel.FuelBillManager.save();
+            // Periodic saves for vehicle system
+            de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager.saveIfNeeded();
+            de.rolandsw.schedulemc.vehicle.fuel.GasStationRegistry.saveIfNeeded();
         }
     }
 
@@ -215,10 +212,9 @@ public class ScheduleMC {
         NPCNameRegistry.saveRegistry();
         MessageManager.saveMessages();
         WarehouseManager.save(event.getServer());
-        // Car System final saves
-        de.rolandsw.schedulemc.car.vehicle.VehicleSpawnRegistry.save();
-        de.rolandsw.schedulemc.car.fuel.GasStationRegistry.save();
-        de.rolandsw.schedulemc.car.fuel.FuelBillManager.save();
+        // Final saves for vehicle system
+        de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager.save();
+        de.rolandsw.schedulemc.vehicle.fuel.GasStationRegistry.save();
     }
 
     @SubscribeEvent
@@ -238,9 +234,9 @@ public class ScheduleMC {
             event.setCanceled(true);
         }
 
-        // Vehicle Spawn Tool (Linksklick)
-        if (heldItem.getItem() instanceof de.rolandsw.schedulemc.car.items.VehicleSpawnTool) {
-            de.rolandsw.schedulemc.car.items.VehicleSpawnTool.handleLeftClick(player, heldItem, event.getPos().above());
+        // Vehicle Spawn Tool - Handle left click
+        if (heldItem.getItem() instanceof de.rolandsw.schedulemc.vehicle.items.VehicleSpawnTool) {
+            de.rolandsw.schedulemc.vehicle.items.VehicleSpawnTool.handleLeftClick(player, heldItem, event.getPos());
             event.setCanceled(true);
         }
     }

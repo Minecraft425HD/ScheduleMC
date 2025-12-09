@@ -1,0 +1,63 @@
+package de.rolandsw.schedulemc.vehicle.items;
+
+import de.rolandsw.schedulemc.vehicle.component.attribute.DurabilityComponent;
+import de.rolandsw.schedulemc.vehicle.core.component.ComponentType;
+import de.rolandsw.schedulemc.vehicle.core.entity.VehicleEntity;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+
+/**
+ * Item for repairing damaged vehicles.
+ */
+public class RepairKitItem extends Item {
+
+    private static final float REPAIR_AMOUNT = 25.0f;
+
+    public RepairKitItem(Properties properties) {
+        super(properties);
+    }
+
+    @Override
+    public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
+
+        // Check if player is riding a vehicle
+        if (!world.isClientSide() && player.getVehicle() instanceof VehicleEntity vehicle) {
+            DurabilityComponent durability = vehicle.getComponent(
+                    ComponentType.DURABILITY, DurabilityComponent.class);
+
+            if (durability != null) {
+                float currentDurability = durability.getCurrentDurability();
+                float maxDurability = durability.getMaxDurability();
+
+                if (currentDurability < maxDurability) {
+                    durability.repair(REPAIR_AMOUNT);
+
+                    player.displayClientMessage(
+                            Component.translatable("message.vehicle.repaired",
+                                    (int) (durability.getDurabilityPercentage() * 100)),
+                            true);
+
+                    if (!player.isCreative()) {
+                        stack.shrink(1);
+                    }
+
+                    return InteractionResultHolder.success(stack);
+                } else {
+                    player.displayClientMessage(
+                            Component.translatable("message.vehicle.already_repaired"), true);
+                    return InteractionResultHolder.fail(stack);
+                }
+            }
+
+            return InteractionResultHolder.pass(stack);
+        }
+
+        return InteractionResultHolder.pass(stack);
+    }
+}

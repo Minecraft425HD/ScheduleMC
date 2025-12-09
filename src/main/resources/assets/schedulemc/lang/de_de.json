@@ -394,5 +394,67 @@
   "death.attack.schedulemc.police.player": "%s wurde von der Polizei verhaftet, während er gegen %s kämpfte",
 
   "key.categories.schedulemc": "ScheduleMC",
-  "key.schedulemc.open_smartphone": "Smartphone öffnen"
+  "key.schedulemc.open_smartphone": "Smartphone öffnen",
+
+  "_comment_vehicles": "=== FAHRZEUGSYSTEM ===",
+  "item.schedulemc.vehicle_sedan": "Limousine",
+  "item.schedulemc.vehicle_sport": "Sportwagen",
+  "item.schedulemc.vehicle_suv": "SUV",
+  "item.schedulemc.vehicle_truck": "LKW",
+  "item.schedulemc.vehicle_transporter": "Transporter",
+
+  "item.schedulemc.vehicle_spawn_tool_sedan": "Limousinen-Spawn-Werkzeug",
+  "item.schedulemc.vehicle_spawn_tool_sport": "Sportwagen-Spawn-Werkzeug",
+  "item.schedulemc.vehicle_spawn_tool_suv": "SUV-Spawn-Werkzeug",
+  "item.schedulemc.vehicle_spawn_tool_truck": "LKW-Spawn-Werkzeug",
+  "item.schedulemc.vehicle_spawn_tool_transporter": "Transporter-Spawn-Werkzeug",
+
+  "item.schedulemc.engine_inline_three": "Reihen-3-Motor",
+  "item.schedulemc.engine_inline_six": "Reihen-6-Motor",
+  "item.schedulemc.engine_truck_v8": "V8-LKW-Motor",
+
+  "item.schedulemc.wheels_standard": "Standard-Räder",
+  "item.schedulemc.wheels_sport": "Sport-Räder",
+  "item.schedulemc.wheels_offroad": "Geländeräder",
+  "item.schedulemc.wheels_truck": "LKW-Räder",
+
+  "item.schedulemc.body_sedan": "Limousinen-Karosserie",
+  "item.schedulemc.body_sport": "Sportwagen-Karosserie",
+  "item.schedulemc.body_suv": "SUV-Karosserie",
+  "item.schedulemc.body_truck": "LKW-Karosserie",
+  "item.schedulemc.body_transporter": "Transporter-Karosserie",
+
+  "item.schedulemc.fuel_tank_small": "Kleiner Kraftstofftank",
+  "item.schedulemc.fuel_tank_medium": "Mittlerer Kraftstofftank",
+  "item.schedulemc.fuel_tank_large": "Großer Kraftstofftank",
+  "item.schedulemc.fuel_tank_truck": "LKW-Kraftstofftank",
+
+  "item.schedulemc.vehicle_key": "Fahrzeugschlüssel",
+  "item.schedulemc.license_plate": "Kennzeichen",
+  "item.schedulemc.repair_kit": "Fahrzeug-Reparaturset",
+  "item.schedulemc.vehicle_battery": "Fahrzeugbatterie",
+  "item.schedulemc.vehicle_wrench": "Fahrzeugschraubenschlüssel",
+
+  "block.schedulemc.gas_station": "Tankstelle",
+  "block.schedulemc.gas_station_top": "Tankstelle (Oben)",
+
+  "entity.schedulemc.vehicle": "Fahrzeug",
+
+  "message.schedulemc.gas_station.not_owner": "Du bist nicht der Besitzer dieser Tankstelle!",
+  "message.schedulemc.gas_station.no_fuel_tank": "Dieses Fahrzeug hat keinen Kraftstofftank!",
+  "message.schedulemc.gas_station.tank_full": "Der Kraftstofftank des Fahrzeugs ist bereits voll!",
+  "message.schedulemc.gas_station.out_of_fuel": "Tankstelle hat keinen Kraftstoff mehr!",
+
+  "message.schedulemc.vehicle.locked": "Dieses Fahrzeug ist verschlossen!",
+  "message.schedulemc.vehicle.no_key": "Du benötigst den Fahrzeugschlüssel!",
+  "message.schedulemc.vehicle.engine_start": "Motor gestartet",
+  "message.schedulemc.vehicle.engine_stop": "Motor gestoppt",
+  "message.schedulemc.vehicle.out_of_fuel": "Kein Kraftstoff mehr!",
+  "message.schedulemc.vehicle.low_battery": "Batterie ist schwach!",
+  "message.schedulemc.vehicle.damaged": "Fahrzeug ist beschädigt!",
+
+  "gui.schedulemc.gas_station.title": "Tankstelle",
+
+  "itemGroup.schedulemc.vehicles": "Fahrzeuge",
+  "itemGroup.schedulemc.vehicle_parts": "Fahrzeugteile"
 }

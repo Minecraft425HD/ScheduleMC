@@ -1,12 +1,12 @@
 package de.rolandsw.schedulemc.npc.network;
 
-import de.rolandsw.schedulemc.car.fuel.FuelBillManager;
-import de.rolandsw.schedulemc.car.fuel.GasStationRegistry;
 import de.rolandsw.schedulemc.npc.data.MerchantCategory;
 import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.menu.MerchantShopMenu;
+import de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager;
+import de.rolandsw.schedulemc.vehicle.fuel.GasStationRegistry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -20,7 +20,9 @@ import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.NetworkHooks;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -102,65 +104,47 @@ public class OpenMerchantShopPacket {
     private List<NPCData.ShopEntry> createBillEntries(ServerPlayer player) {
         List<NPCData.ShopEntry> billEntries = new ArrayList<>();
 
-        // Alle Tankstellen durchgehen
-        for (UUID gasStationId : GasStationRegistry.getAllGasStationIds()) {
-            List<FuelBillManager.UnpaidBill> unpaidBills = FuelBillManager.getUnpaidBills(player.getUUID(), gasStationId);
+        // Get all unpaid bills for this player
+        List<FuelBillManager.UnpaidBill> unpaidBills = FuelBillManager.getUnpaidBills(player.getUUID());
 
-            if (!unpaidBills.isEmpty()) {
-                // Summiere alle unbezahlten Rechnungen für diese Tankstelle
-                int totalFueled = 0;
-                double totalCost = 0.0;
-
-                for (FuelBillManager.UnpaidBill bill : unpaidBills) {
-                    totalFueled += bill.amountFueled;
-                    totalCost += bill.totalCost;
-                }
-
-                // Erstelle Bill-Item
-                String stationName = GasStationRegistry.getDisplayName(gasStationId);
-                ItemStack billItem = new ItemStack(Items.PAPER);
-                CompoundTag tag = billItem.getOrCreateTag();
-                tag.putString("BillType", "FuelBill");
-                tag.putUUID("GasStationId", gasStationId);
-                tag.putInt("TotalFueled", totalFueled);
-                tag.putDouble("TotalCost", totalCost);
-
-                // Setze Namen mit Formatierung
-                billItem.setHoverName(Component.literal("⛽ Tankrechnung - " + stationName)
-                    .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
-
-                // Erstelle Shop-Entry (Preis ist die Rechnungssumme)
-                NPCData.ShopEntry billEntry = new NPCData.ShopEntry(
-                    billItem,
-                    (int) Math.ceil(totalCost), // Preis aufgerundet
-                    true, // Unbegrenzt verfügbar (ist ja eine Rechnung)
-                    1     // Stock: 1
-                );
-
-                billEntries.add(billEntry);
-            }
-        }
-
-        // WICHTIG: Wenn keine Rechnungen vorhanden, zeige trotzdem ein Papier-Item
-        if (billEntries.isEmpty()) {
+        if (unpaidBills.isEmpty()) {
+            // Show "Keine Rechnungen" entry
             ItemStack noBillItem = new ItemStack(Items.PAPER);
             CompoundTag tag = noBillItem.getOrCreateTag();
             tag.putString("BillType", "NoBill");
-            tag.putDouble("TotalCost", 0.0);
+            noBillItem.setHoverName(Component.literal("✓ Keine offenen Rechnungen")
+                .withStyle(ChatFormatting.GREEN));
+            billEntries.add(new NPCData.ShopEntry(noBillItem, 0, true, Integer.MAX_VALUE));
+        } else {
+            // Group bills by gas station
+            Map<UUID, List<FuelBillManager.UnpaidBill>> billsByStation = new HashMap<>();
+            for (FuelBillManager.UnpaidBill bill : unpaidBills) {
+                billsByStation.computeIfAbsent(bill.gasStationId, k -> new ArrayList<>()).add(bill);
+            }
 
-            // Setze Namen: Keine offenen Rechnungen
-            noBillItem.setHoverName(Component.literal("📄 Keine offenen Rechnungen")
-                .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD));
+            // Create an entry for each gas station
+            for (Map.Entry<UUID, List<FuelBillManager.UnpaidBill>> entry : billsByStation.entrySet()) {
+                UUID stationId = entry.getKey();
+                List<FuelBillManager.UnpaidBill> stationBills = entry.getValue();
 
-            // Erstelle Shop-Entry mit Preis 0
-            NPCData.ShopEntry noBillEntry = new NPCData.ShopEntry(
-                noBillItem,
-                0, // Preis: 0€
-                true,
-                1
-            );
+                // Calculate total amount for this station
+                double totalAmount = stationBills.stream()
+                    .mapToDouble(bill -> bill.totalCost)
+                    .sum();
 
-            billEntries.add(noBillEntry);
+                // Get station name
+                String stationName = GasStationRegistry.getDisplayName(stationId);
+
+                // Create bill item
+                ItemStack billItem = new ItemStack(Items.PAPER);
+                CompoundTag tag = billItem.getOrCreateTag();
+                tag.putString("BillType", "FuelBill");
+                tag.putUUID("GasStationId", stationId);
+                billItem.setHoverName(Component.literal("Tankrechnung - " + stationName)
+                    .withStyle(ChatFormatting.YELLOW));
+
+                billEntries.add(new NPCData.ShopEntry(billItem, (int) Math.ceil(totalAmount), true, Integer.MAX_VALUE));
+            }
         }
 
         return billEntries;

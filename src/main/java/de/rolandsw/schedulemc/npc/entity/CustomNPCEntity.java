@@ -127,14 +127,13 @@ public class CustomNPCEntity extends PathfinderMob {
         if (!this.level().isClientSide && source.getEntity() instanceof ServerPlayer serverPlayer) {
             ItemStack heldItem = serverPlayer.getMainHandItem();
 
-            // Vehicle Spawn Tool: Linksklick auf AUTOHAENDLER NPC verknüpft das Tool
-            if (heldItem.getItem() instanceof de.rolandsw.schedulemc.car.items.VehicleSpawnTool) {
+            // Vehicle Spawn Tool: Link to dealer (Auto-Händler only)
+            if (heldItem.getItem() instanceof de.rolandsw.schedulemc.vehicle.items.VehicleSpawnTool) {
                 if (getMerchantCategory() == de.rolandsw.schedulemc.npc.data.MerchantCategory.AUTOHAENDLER) {
-                    de.rolandsw.schedulemc.car.items.VehicleSpawnTool.linkToDealer(heldItem, getNpcData().getNpcUUID(), serverPlayer);
+                    de.rolandsw.schedulemc.vehicle.items.VehicleSpawnTool.linkToDealer(heldItem, this.getUUID(), serverPlayer);
                     return false; // Verhindere Schaden
                 } else {
-                    serverPlayer.sendSystemMessage(net.minecraft.network.chat.Component.literal("⚠ Dieser NPC ist kein Autohändler!")
-                        .withStyle(net.minecraft.ChatFormatting.RED));
+                    serverPlayer.sendSystemMessage(Component.literal("§cDieser NPC ist kein Autohändler!"));
                     return false;
                 }
             }

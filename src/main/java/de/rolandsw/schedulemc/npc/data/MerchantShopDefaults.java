@@ -1,6 +1,6 @@
 package de.rolandsw.schedulemc.npc.data;
 
-import de.rolandsw.schedulemc.car.items.ModItems;
+import de.rolandsw.schedulemc.vehicle.VehicleMod;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
@@ -117,12 +117,11 @@ public class MerchantShopDefaults {
     }
 
     private static void setupAutohaendlerShop(NPCData.ShopInventory shop) {
-        // Fahrzeuge - ALLE als Lager-Items (unlimited=false)
-        // Diese werden NICHT ins Inventar gegeben, sondern direkt gespawnt
-        shop.addEntry(new NPCData.ShopEntry(new ItemStack(ModItems.SPAWN_CAR_OAK.get(), 1), 5000, false, 0));
-        shop.addEntry(new NPCData.ShopEntry(new ItemStack(ModItems.SPAWN_CAR_BIG_OAK.get(), 1), 7500, false, 0));
-        shop.addEntry(new NPCData.ShopEntry(new ItemStack(ModItems.SPAWN_CAR_WHITE_TRANSPORTER.get(), 1), 12000, false, 0));
-        shop.addEntry(new NPCData.ShopEntry(new ItemStack(ModItems.SPAWN_CAR_WHITE_SUV.get(), 1), 10000, false, 0));
-        shop.addEntry(new NPCData.ShopEntry(new ItemStack(ModItems.SPAWN_CAR_WHITE_SPORT.get(), 1), 15000, false, 0));
+        // Fahrzeuge - Vehicle Spawn Tools from new ECS-based vehicle system
+        shop.addEntry(new NPCData.ShopEntry(new ItemStack(VehicleMod.VEHICLE_SPAWN_SEDAN.get(), 1), 5000, false, 0));
+        shop.addEntry(new NPCData.ShopEntry(new ItemStack(VehicleMod.VEHICLE_SPAWN_SPORT.get(), 1), 15000, false, 0));
+        shop.addEntry(new NPCData.ShopEntry(new ItemStack(VehicleMod.VEHICLE_SPAWN_SUV.get(), 1), 12000, false, 0));
+        shop.addEntry(new NPCData.ShopEntry(new ItemStack(VehicleMod.VEHICLE_SPAWN_TRUCK.get(), 1), 18000, false, 0));
+        shop.addEntry(new NPCData.ShopEntry(new ItemStack(VehicleMod.VEHICLE_SPAWN_TRANSPORTER.get(), 1), 10000, false, 0));
     }
 }
