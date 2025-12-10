@@ -3,7 +3,7 @@ package de.rolandsw.schedulemc.vehicle.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import de.rolandsw.schedulemc.vehicle.client.model.OBJVehicleModel;
+import de.rolandsw.schedulemc.vehicle.client.model.SedanModel;
 import de.rolandsw.schedulemc.vehicle.component.body.BodyComponent;
 import de.rolandsw.schedulemc.vehicle.core.component.ComponentType;
 import de.rolandsw.schedulemc.vehicle.core.entity.VehicleEntity;
@@ -11,19 +11,20 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 
 /**
- * Renderer for vehicles using OBJ models
+ * Renderer for vehicles using native Minecraft model system (Blockbench Java export)
  */
 public class VehicleRenderer extends EntityRenderer<VehicleEntity> {
 
-    private final OBJVehicleModel objModel;
+    private final SedanModel<VehicleEntity> sedanModel;
 
     public VehicleRenderer(EntityRendererProvider.Context context) {
         super(context);
-        // Load the OBJ model with 256x256 texture size for the sedan
-        this.objModel = new OBJVehicleModel(new ResourceLocation("schedulemc", "models/entity/sedan.obj"), 256, 256);
+        // Load the baked model from the registered layer
+        this.sedanModel = new SedanModel<>(context.bakeLayer(SedanModel.LAYER_LOCATION));
     }
 
     @Override
@@ -36,17 +37,13 @@ public class VehicleRenderer extends EntityRenderer<VehicleEntity> {
         // Rotate to face the correct direction
         poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - entityYaw));
 
-        // No scale - render as-is from OBJ
-        poseStack.scale(1.0F, 1.0F, 1.0F);
-
         // Get texture and create vertex consumer
         ResourceLocation texture = getTextureLocation(entity);
         VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(texture));
 
-        // Render the OBJ model
-        objModel.renderToBuffer(poseStack, vertexConsumer, packedLight,
-            net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY,
-            1.0F, 1.0F, 1.0F, 1.0F);
+        // Render the model
+        sedanModel.renderToBuffer(poseStack, vertexConsumer, packedLight,
+            OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
 
         poseStack.popPose();
     }
