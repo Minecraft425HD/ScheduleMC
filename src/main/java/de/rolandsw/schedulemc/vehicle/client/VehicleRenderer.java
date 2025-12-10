@@ -34,6 +34,9 @@ public class VehicleRenderer extends EntityRenderer<VehicleEntity> {
 
         poseStack.pushPose();
 
+        // Flip model right-side up (Blockbench exports upside down)
+        poseStack.mulPose(Axis.XP.rotationDegrees(180.0F));
+
         // Rotate to face the correct direction
         poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - entityYaw));
 
