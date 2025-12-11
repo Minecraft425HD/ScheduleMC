@@ -15,9 +15,9 @@ import net.minecraft.world.entity.Entity;
 // Paste this class into your mod and generate all required imports
 
 
-public class car<T extends Entity> extends EntityModel<T> {
+public class SedanModel<T extends Entity> extends EntityModel<T> {
 	// This layer location should be baked with EntityRendererProvider.Context in the entity renderer and passed into this model's constructor
-	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation("modid", "car"), "main");
+	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation("schedulemc", "sedan"), "main");
 	private final ModelPart body;
 	private final ModelPart bottom;
 	private final ModelPart left;
