@@ -40,7 +40,7 @@ public class SedanModel<T extends Entity> extends EntityModel<T> {
 	private final ModelPart wheel_left2;
 	private final ModelPart wheel_right2;
 
-	public car(ModelPart root) {
+	public SedanModel(ModelPart root) {
 		this.body = root.getChild("body");
 		this.bottom = this.body.getChild("bottom");
 		this.left = this.body.getChild("left");
