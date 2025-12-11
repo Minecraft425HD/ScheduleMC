@@ -119,6 +119,7 @@ public class MerchantShopDefaults {
     private static void setupAutohaendlerShop(NPCData.ShopInventory shop) {
         // Fahrzeuge - All available vehicle models with automatic inventory
         // Vehicle vouchers represent the vehicles that will be spawned at the player's spawn marker
+        // Note: Vehicle spawn marker is an admin tool and not sold in shops
         shop.addEntry(new NPCData.ShopEntry(
             de.rolandsw.schedulemc.vehicle.items.VehicleVoucher.create(
                 de.rolandsw.schedulemc.vehicle.items.VehicleVoucher.VehicleType.SEDAN
@@ -143,9 +144,5 @@ public class MerchantShopDefaults {
             de.rolandsw.schedulemc.vehicle.items.VehicleVoucher.create(
                 de.rolandsw.schedulemc.vehicle.items.VehicleVoucher.VehicleType.TRANSPORTER
             ), 10000, true, -1));
-
-        // Add spawn marker to shop so players can set their spawn point
-        shop.addEntry(new NPCData.ShopEntry(
-            new ItemStack(VehicleMod.VEHICLE_SPAWN_MARKER.get(), 1), 100, true, -1));
     }
 }

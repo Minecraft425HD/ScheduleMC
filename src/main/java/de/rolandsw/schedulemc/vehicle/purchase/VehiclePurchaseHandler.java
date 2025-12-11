@@ -42,7 +42,7 @@ public class VehiclePurchaseHandler {
             player.sendSystemMessage(Component.literal("✗ ").withStyle(ChatFormatting.RED)
                 .append(Component.literal("KEIN SPAWNPUNKT GESETZT").withStyle(ChatFormatting.RED, ChatFormatting.BOLD)));
             player.sendSystemMessage(Component.literal("Bitte setze zuerst einen Fahrzeug-Spawnpunkt!").withStyle(ChatFormatting.GRAY));
-            player.sendSystemMessage(Component.literal("Verwende den Fahrzeug-Spawnpunkt-Marker.").withStyle(ChatFormatting.YELLOW));
+            player.sendSystemMessage(Component.literal("Ein Admin muss dir den Fahrzeug-Spawnpunkt-Marker geben.").withStyle(ChatFormatting.YELLOW));
             player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.RED));
             return false;
         }

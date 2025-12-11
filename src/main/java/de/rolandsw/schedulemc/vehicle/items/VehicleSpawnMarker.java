@@ -69,6 +69,8 @@ public class VehicleSpawnMarker extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+        tooltip.add(Component.literal("⚠ ADMIN TOOL").withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
+        tooltip.add(Component.literal(""));
         tooltip.add(Component.literal("Rechtsklick auf Block: ").withStyle(ChatFormatting.GRAY)
             .append(Component.literal("Spawnpunkt setzen").withStyle(ChatFormatting.AQUA)));
         tooltip.add(Component.literal("Gekaufte Fahrzeuge spawnen hier").withStyle(ChatFormatting.GRAY));
