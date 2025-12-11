@@ -40,7 +40,7 @@ public class SedanModel<T extends Entity> extends EntityModel<T> {
 	private final ModelPart wheel_left2;
 	private final ModelPart wheel_right2;
 
-	public SedanModel(ModelPart root) {
+	public car(ModelPart root) {
 		this.body = root.getChild("body");
 		this.bottom = this.body.getChild("bottom");
 		this.left = this.body.getChild("left");
@@ -254,8 +254,8 @@ public class SedanModel<T extends Entity> extends EntityModel<T> {
 	}
 
 	@Override
-	public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-		// Animation logic can be added here (e.g., rotating wheels)
+	public void setupAnim(Entity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+
 	}
 
 	@Override
