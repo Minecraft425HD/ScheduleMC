@@ -14,37 +14,13 @@ public class VehicleItems {
     public static final DeferredRegister<Item> ITEMS =
             DeferredRegister.create(ForgeRegistries.ITEMS, VehicleMod.MOD_ID);
 
-    // Spawn items for vehicles (simple spawn items)
-    public static final RegistryObject<Item> SEDAN_SPAWN_ITEM = ITEMS.register("vehicle_sedan",
-            () -> new VehicleSpawnItem("sedan", new Item.Properties()));
+    // Vehicle spawn marker - single item for setting spawn point
+    public static final RegistryObject<Item> VEHICLE_SPAWN_MARKER = ITEMS.register("vehicle_spawn_marker",
+            () -> new VehicleSpawnMarker(new Item.Properties().stacksTo(1)));
 
-    public static final RegistryObject<Item> SPORT_SPAWN_ITEM = ITEMS.register("vehicle_sport",
-            () -> new VehicleSpawnItem("sport", new Item.Properties()));
-
-    public static final RegistryObject<Item> SUV_SPAWN_ITEM = ITEMS.register("vehicle_suv",
-            () -> new VehicleSpawnItem("suv", new Item.Properties()));
-
-    public static final RegistryObject<Item> TRUCK_SPAWN_ITEM = ITEMS.register("vehicle_truck",
-            () -> new VehicleSpawnItem("truck", new Item.Properties()));
-
-    public static final RegistryObject<Item> TRANSPORTER_SPAWN_ITEM = ITEMS.register("vehicle_transporter",
-            () -> new VehicleSpawnItem("transporter", new Item.Properties()));
-
-    // Vehicle Spawn Tools (for dealer shops)
-    public static final RegistryObject<Item> VEHICLE_SPAWN_SEDAN = ITEMS.register("vehicle_spawn_tool_sedan",
-            () -> new VehicleSpawnTool(new Item.Properties().stacksTo(1), VehicleSpawnTool.VehicleType.SEDAN));
-
-    public static final RegistryObject<Item> VEHICLE_SPAWN_SPORT = ITEMS.register("vehicle_spawn_tool_sport",
-            () -> new VehicleSpawnTool(new Item.Properties().stacksTo(1), VehicleSpawnTool.VehicleType.SPORT));
-
-    public static final RegistryObject<Item> VEHICLE_SPAWN_SUV = ITEMS.register("vehicle_spawn_tool_suv",
-            () -> new VehicleSpawnTool(new Item.Properties().stacksTo(1), VehicleSpawnTool.VehicleType.SUV));
-
-    public static final RegistryObject<Item> VEHICLE_SPAWN_TRUCK = ITEMS.register("vehicle_spawn_tool_truck",
-            () -> new VehicleSpawnTool(new Item.Properties().stacksTo(1), VehicleSpawnTool.VehicleType.TRUCK));
-
-    public static final RegistryObject<Item> VEHICLE_SPAWN_TRANSPORTER = ITEMS.register("vehicle_spawn_tool_transporter",
-            () -> new VehicleSpawnTool(new Item.Properties().stacksTo(1), VehicleSpawnTool.VehicleType.TRANSPORTER));
+    // Vehicle voucher - represents purchasable vehicles
+    public static final RegistryObject<Item> VEHICLE_VOUCHER = ITEMS.register("vehicle_voucher",
+            () -> new VehicleVoucher(new Item.Properties().stacksTo(1)));
 
     // Component items - Engines
     public static final RegistryObject<Item> ENGINE_INLINE_THREE = ITEMS.register("engine_inline_three",

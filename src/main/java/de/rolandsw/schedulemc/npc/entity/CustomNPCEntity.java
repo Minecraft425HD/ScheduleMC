@@ -125,19 +125,6 @@ public class CustomNPCEntity extends PathfinderMob {
     public boolean hurt(net.minecraft.world.damagesource.DamageSource source, float amount) {
         // Admin: SHIFT + Linksklick öffnet Shop-Editor (nur für Verkäufer)
         if (!this.level().isClientSide && source.getEntity() instanceof ServerPlayer serverPlayer) {
-            ItemStack heldItem = serverPlayer.getMainHandItem();
-
-            // Vehicle Spawn Tool: Link to dealer (Auto-Händler only)
-            if (heldItem.getItem() instanceof de.rolandsw.schedulemc.vehicle.items.VehicleSpawnTool) {
-                if (getMerchantCategory() == de.rolandsw.schedulemc.npc.data.MerchantCategory.AUTOHAENDLER) {
-                    de.rolandsw.schedulemc.vehicle.items.VehicleSpawnTool.linkToDealer(heldItem, this.getUUID(), serverPlayer);
-                    return false; // Verhindere Schaden
-                } else {
-                    serverPlayer.sendSystemMessage(Component.literal("§cDieser NPC ist kein Autohändler!"));
-                    return false;
-                }
-            }
-
             // Shop-Editor für Admins
             if (serverPlayer.isShiftKeyDown() && serverPlayer.hasPermissions(2)) {
                 if (getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.VERKAEUFER) {
