@@ -6,7 +6,7 @@ import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager;
 import de.rolandsw.schedulemc.vehicle.fuel.GasStationRegistry;
-import de.rolandsw.schedulemc.vehicle.items.VehicleSpawnTool;
+import de.rolandsw.schedulemc.vehicle.items.VehicleVoucher;
 import de.rolandsw.schedulemc.vehicle.purchase.VehiclePurchaseHandler;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
@@ -133,12 +133,14 @@ public class PurchaseItemPacket {
 
         // Spezialbehandlung für Fahrzeuge (Autohändler)
         if (merchant.getMerchantCategory() == MerchantCategory.AUTOHAENDLER &&
-            entry.getItem().getItem() instanceof VehicleSpawnTool) {
+            VehicleVoucher.isVehicleVoucher(entry.getItem())) {
 
             // Handle vehicle purchase
             if (VehiclePurchaseHandler.purchaseVehicle(player, merchant.getUUID(), entry.getItem(), totalPrice)) {
-                // Update warehouse/shop accounting
-                merchant.getNpcData().onItemSoldFromWarehouse(player.level(), entry, quantity, totalPrice);
+                // Update warehouse/shop accounting (don't reduce stock for unlimited items)
+                if (!entry.isUnlimited()) {
+                    merchant.getNpcData().onItemSoldFromWarehouse(player.level(), entry, quantity, totalPrice);
+                }
             }
             return;
         }

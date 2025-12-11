@@ -160,22 +160,9 @@ public class ModCreativeTabs {
                 output.accept(WarehouseBlocks.WAREHOUSE_ITEM.get());
 
                 // ═══════════════════════════════════════════════════════════
-                // VEHICLE SPAWN ITEMS
+                // VEHICLE SYSTEM
                 // ═══════════════════════════════════════════════════════════
-                output.accept(VehicleItems.SEDAN_SPAWN_ITEM.get());
-                output.accept(VehicleItems.SPORT_SPAWN_ITEM.get());
-                output.accept(VehicleItems.SUV_SPAWN_ITEM.get());
-                output.accept(VehicleItems.TRUCK_SPAWN_ITEM.get());
-                output.accept(VehicleItems.TRANSPORTER_SPAWN_ITEM.get());
-
-                // ═══════════════════════════════════════════════════════════
-                // VEHICLE SPAWN TOOLS (Dealer)
-                // ═══════════════════════════════════════════════════════════
-                output.accept(VehicleItems.VEHICLE_SPAWN_SEDAN.get());
-                output.accept(VehicleItems.VEHICLE_SPAWN_SPORT.get());
-                output.accept(VehicleItems.VEHICLE_SPAWN_SUV.get());
-                output.accept(VehicleItems.VEHICLE_SPAWN_TRUCK.get());
-                output.accept(VehicleItems.VEHICLE_SPAWN_TRANSPORTER.get());
+                output.accept(VehicleItems.VEHICLE_SPAWN_MARKER.get());
 
                 // ═══════════════════════════════════════════════════════════
                 // VEHICLE COMPONENTS - ENGINES

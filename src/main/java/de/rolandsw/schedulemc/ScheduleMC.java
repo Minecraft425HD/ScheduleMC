@@ -233,11 +233,5 @@ public class ScheduleMC {
             player.playSound(net.minecraft.sounds.SoundEvents.EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
             event.setCanceled(true);
         }
-
-        // Vehicle Spawn Tool - Handle left click
-        if (heldItem.getItem() instanceof de.rolandsw.schedulemc.vehicle.items.VehicleSpawnTool) {
-            de.rolandsw.schedulemc.vehicle.items.VehicleSpawnTool.handleLeftClick(player, heldItem, event.getPos());
-            event.setCanceled(true);
-        }
     }
 }

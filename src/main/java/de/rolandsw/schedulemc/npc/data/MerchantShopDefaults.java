@@ -117,11 +117,35 @@ public class MerchantShopDefaults {
     }
 
     private static void setupAutohaendlerShop(NPCData.ShopInventory shop) {
-        // Fahrzeuge - Vehicle Spawn Tools from new ECS-based vehicle system
-        shop.addEntry(new NPCData.ShopEntry(new ItemStack(VehicleMod.VEHICLE_SPAWN_SEDAN.get(), 1), 5000, false, 0));
-        shop.addEntry(new NPCData.ShopEntry(new ItemStack(VehicleMod.VEHICLE_SPAWN_SPORT.get(), 1), 15000, false, 0));
-        shop.addEntry(new NPCData.ShopEntry(new ItemStack(VehicleMod.VEHICLE_SPAWN_SUV.get(), 1), 12000, false, 0));
-        shop.addEntry(new NPCData.ShopEntry(new ItemStack(VehicleMod.VEHICLE_SPAWN_TRUCK.get(), 1), 18000, false, 0));
-        shop.addEntry(new NPCData.ShopEntry(new ItemStack(VehicleMod.VEHICLE_SPAWN_TRANSPORTER.get(), 1), 10000, false, 0));
+        // Fahrzeuge - All available vehicle models with automatic inventory
+        // Vehicle vouchers represent the vehicles that will be spawned at the player's spawn marker
+        shop.addEntry(new NPCData.ShopEntry(
+            de.rolandsw.schedulemc.vehicle.items.VehicleVoucher.create(
+                de.rolandsw.schedulemc.vehicle.items.VehicleVoucher.VehicleType.SEDAN
+            ), 5000, true, -1)); // unlimited=true for auto-availability
+
+        shop.addEntry(new NPCData.ShopEntry(
+            de.rolandsw.schedulemc.vehicle.items.VehicleVoucher.create(
+                de.rolandsw.schedulemc.vehicle.items.VehicleVoucher.VehicleType.SPORT
+            ), 15000, true, -1));
+
+        shop.addEntry(new NPCData.ShopEntry(
+            de.rolandsw.schedulemc.vehicle.items.VehicleVoucher.create(
+                de.rolandsw.schedulemc.vehicle.items.VehicleVoucher.VehicleType.SUV
+            ), 12000, true, -1));
+
+        shop.addEntry(new NPCData.ShopEntry(
+            de.rolandsw.schedulemc.vehicle.items.VehicleVoucher.create(
+                de.rolandsw.schedulemc.vehicle.items.VehicleVoucher.VehicleType.TRUCK
+            ), 18000, true, -1));
+
+        shop.addEntry(new NPCData.ShopEntry(
+            de.rolandsw.schedulemc.vehicle.items.VehicleVoucher.create(
+                de.rolandsw.schedulemc.vehicle.items.VehicleVoucher.VehicleType.TRANSPORTER
+            ), 10000, true, -1));
+
+        // Add spawn marker to shop so players can set their spawn point
+        shop.addEntry(new NPCData.ShopEntry(
+            new ItemStack(VehicleMod.VEHICLE_SPAWN_MARKER.get(), 1), 100, true, -1));
     }
 }

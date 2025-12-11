@@ -60,12 +60,9 @@ public class VehicleMod {
                     .build("vehicle")
     );
 
-    // Public accessors for vehicle spawn tools (for merchant shops)
-    public static final RegistryObject<Item> VEHICLE_SPAWN_SEDAN = VehicleItems.VEHICLE_SPAWN_SEDAN;
-    public static final RegistryObject<Item> VEHICLE_SPAWN_SPORT = VehicleItems.VEHICLE_SPAWN_SPORT;
-    public static final RegistryObject<Item> VEHICLE_SPAWN_SUV = VehicleItems.VEHICLE_SPAWN_SUV;
-    public static final RegistryObject<Item> VEHICLE_SPAWN_TRUCK = VehicleItems.VEHICLE_SPAWN_TRUCK;
-    public static final RegistryObject<Item> VEHICLE_SPAWN_TRANSPORTER = VehicleItems.VEHICLE_SPAWN_TRANSPORTER;
+    // Public accessors for vehicle items (for merchant shops)
+    public static final RegistryObject<Item> VEHICLE_SPAWN_MARKER = VehicleItems.VEHICLE_SPAWN_MARKER;
+    public static final RegistryObject<Item> VEHICLE_VOUCHER = VehicleItems.VEHICLE_VOUCHER;
 
     /**
      * Initializes the vehicle mod.
