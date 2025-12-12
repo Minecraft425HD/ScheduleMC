@@ -104,7 +104,11 @@ public class GuiCar extends ScreenBase<ContainerCar> {
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY) {
         super.renderBg(guiGraphics, partialTicks, mouseX, mouseY);
-        // Visual bars removed - using text-based display instead
+
+        // Cover old bar graphics from the background texture with a solid rectangle
+        // This rectangle covers the status area where old bars were displayed
+        int bgColor = 0xFFC6C6C6; // Light gray matching GUI background
+        guiGraphics.fill(leftPos + 7, topPos + 5, leftPos + 169, topPos + 80, bgColor);
     }
 
 }
