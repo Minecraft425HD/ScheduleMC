@@ -52,7 +52,9 @@ public class FuelComponent extends CarComponent implements IFluidHandler {
         int fuel = getFuelAmount();
         int tickFuel = getEfficiency(getFluid());
         if (tickFuel <= 0) {
-            System.out.println("[FuelComponent] tickFuel <= 0, skipping fuel consumption. tickFuel=" + tickFuel);
+            if (car.tickCount % 100 == 0) {
+                System.out.println("[FuelComponent] WARNING: tickFuel <= 0, fuel consumption disabled. tickFuel=" + tickFuel);
+            }
             return;
         }
 
@@ -60,22 +62,22 @@ public class FuelComponent extends CarComponent implements IFluidHandler {
         boolean isAccelerating = physics != null && physics.isAccelerating();
         boolean isStarted = physics != null && physics.isStarted();
 
-        // Log every 100 ticks (5 seconds) to avoid spam
+        // Log every 100 ticks (5 seconds) to show status
         if (car.tickCount % 100 == 0) {
-            System.out.println("[FuelComponent] Status check - fuel=" + fuel + ", tickFuel=" + tickFuel + ", isStarted=" + isStarted + ", isAccelerating=" + isAccelerating);
+            System.out.println("[FuelComponent] fuel=" + fuel + "/500, tickFuel=" + tickFuel + ", started=" + isStarted + ", accelerating=" + isAccelerating);
         }
 
         if (fuel > 0 && physics != null && isAccelerating) {
             if (car.tickCount % tickFuel == 0) {
-                System.out.println("[FuelComponent] Accelerating - consuming fuel. Before: " + fuel + ", tickFuel: " + tickFuel);
+                int before = fuel;
                 acceleratingFuelTick();
-                System.out.println("[FuelComponent] After: " + getFuelAmount());
+                System.out.println("[FuelComponent] ACCELERATING - Fuel consumed: " + before + " → " + getFuelAmount() + " (every " + tickFuel + " ticks = " + (tickFuel/20.0) + "s)");
             }
         } else if (fuel > 0 && physics != null && isStarted) {
             if (car.tickCount % (tickFuel * 100) == 0) {
-                System.out.println("[FuelComponent] Idling - consuming fuel. Before: " + fuel);
+                int before = fuel;
                 idleFuelTick();
-                System.out.println("[FuelComponent] After: " + getFuelAmount());
+                System.out.println("[FuelComponent] IDLING - Fuel consumed: " + before + " → " + getFuelAmount() + " (every " + (tickFuel*100) + " ticks = " + (tickFuel*100/20.0) + "s)");
             }
         }
     }
@@ -151,9 +153,6 @@ public class FuelComponent extends CarComponent implements IFluidHandler {
 
         float engineEfficiency = car.getCarFuelEfficiency();
         int result = (int) Math.ceil(engineEfficiency * (float) fluidEfficiency);
-
-        // Debug logging
-        System.out.println("[FuelComponent.getEfficiency] fluid=" + fluid + ", fluidEff=" + fluidEfficiency + ", engineEff=" + engineEfficiency + ", result=" + result);
 
         return result;
     }
