@@ -1,7 +1,7 @@
 package de.rolandsw.schedulemc.npc.network;
 
-import de.rolandsw.schedulemc.car.fuel.FuelBillManager;
-import de.rolandsw.schedulemc.car.fuel.GasStationRegistry;
+import de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager;
+import de.rolandsw.schedulemc.vehicle.fuel.GasStationRegistry;
 import de.rolandsw.schedulemc.npc.data.MerchantCategory;
 import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.data.NPCType;

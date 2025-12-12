@@ -1,6 +1,6 @@
 package de.rolandsw.schedulemc.npc.data;
 
-import de.rolandsw.schedulemc.car.items.ModItems;
+import de.rolandsw.schedulemc.vehicle.items.ModItems;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 

@@ -128,9 +128,9 @@ public class CustomNPCEntity extends PathfinderMob {
             ItemStack heldItem = serverPlayer.getMainHandItem();
 
             // Vehicle Spawn Tool: Linksklick auf AUTOHAENDLER NPC verknüpft das Tool
-            if (heldItem.getItem() instanceof de.rolandsw.schedulemc.car.items.VehicleSpawnTool) {
+            if (heldItem.getItem() instanceof de.rolandsw.schedulemc.vehicle.items.VehicleSpawnTool) {
                 if (getMerchantCategory() == de.rolandsw.schedulemc.npc.data.MerchantCategory.AUTOHAENDLER) {
-                    de.rolandsw.schedulemc.car.items.VehicleSpawnTool.linkToDealer(heldItem, getNpcData().getNpcUUID(), serverPlayer);
+                    de.rolandsw.schedulemc.vehicle.items.VehicleSpawnTool.linkToDealer(heldItem, getNpcData().getNpcUUID(), serverPlayer);
                     return false; // Verhindere Schaden
                 } else {
                     serverPlayer.sendSystemMessage(net.minecraft.network.chat.Component.literal("⚠ Dieser NPC ist kein Autohändler!")

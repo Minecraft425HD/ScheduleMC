@@ -47,7 +47,7 @@ import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.items.NPCItems;
 import de.rolandsw.schedulemc.npc.menu.NPCMenuTypes;
 import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
-import de.rolandsw.schedulemc.car.Main;
+import de.rolandsw.schedulemc.vehicle.Main;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
@@ -76,7 +76,7 @@ public class ScheduleMC {
     private static final int SAVE_INTERVAL = 6000;
     private int tickCounter = 0;
 
-    // Car Mod integration
+    // Vehicle Mod integration
     private static Main carMod;
 
     public ScheduleMC() {
@@ -84,7 +84,7 @@ public class ScheduleMC {
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::onEntityAttributeCreation);
 
-        // Initialize Car Mod
+        // Initialize Vehicle Mod
         carMod = new Main();
 
         ModItems.ITEMS.register(modEventBus);
@@ -144,7 +144,7 @@ public class ScheduleMC {
             WarehouseNetworkHandler.register();
         });
 
-        // Car Mod handles its own setup via event bus (registered in Main constructor)
+        // Vehicle Mod handles its own setup via event bus (registered in Main constructor)
     }
 
     private void onEntityAttributeCreation(EntityAttributeCreationEvent event) {
@@ -163,7 +163,7 @@ public class ScheduleMC {
         ShopInvestCommand.register(event.getDispatcher());
         StateCommand.register(event.getDispatcher());
 
-        // Car Mod handles its own commands via event bus (registered in Main.commonSetup)
+        // Vehicle Mod handles its own commands via event bus (registered in Main.commonSetup)
     }
 
     @SubscribeEvent
@@ -181,10 +181,10 @@ public class ScheduleMC {
         MinecraftForge.EVENT_BUS.register(ShopAccountManager.class);
         WarehouseManager.load(event.getServer());
 
-        // Car System - Vehicle Spawn Registry, Gas Station Registry, Fuel Bills
-        de.rolandsw.schedulemc.car.vehicle.VehicleSpawnRegistry.load();
-        de.rolandsw.schedulemc.car.fuel.GasStationRegistry.load();
-        de.rolandsw.schedulemc.car.fuel.FuelBillManager.load();
+        // Vehicle System - Vehicle Spawn Registry, Gas Station Registry, Fuel Bills
+        de.rolandsw.schedulemc.vehicle.vehicle.VehicleSpawnRegistry.load();
+        de.rolandsw.schedulemc.vehicle.fuel.GasStationRegistry.load();
+        de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager.load();
     }
 
     @SubscribeEvent
@@ -200,10 +200,10 @@ public class ScheduleMC {
             WalletManager.saveIfNeeded();
             NPCNameRegistry.saveIfNeeded();
             MessageManager.saveIfNeeded();
-            // Car System periodic saves
-            de.rolandsw.schedulemc.car.vehicle.VehicleSpawnRegistry.save();
-            de.rolandsw.schedulemc.car.fuel.GasStationRegistry.save();
-            de.rolandsw.schedulemc.car.fuel.FuelBillManager.save();
+            // Vehicle System periodic saves
+            de.rolandsw.schedulemc.vehicle.vehicle.VehicleSpawnRegistry.save();
+            de.rolandsw.schedulemc.vehicle.fuel.GasStationRegistry.save();
+            de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager.save();
         }
     }
 
@@ -216,10 +216,10 @@ public class ScheduleMC {
         NPCNameRegistry.saveRegistry();
         MessageManager.saveMessages();
         WarehouseManager.save(event.getServer());
-        // Car System final saves
-        de.rolandsw.schedulemc.car.vehicle.VehicleSpawnRegistry.save();
-        de.rolandsw.schedulemc.car.fuel.GasStationRegistry.save();
-        de.rolandsw.schedulemc.car.fuel.FuelBillManager.save();
+        // Vehicle System final saves
+        de.rolandsw.schedulemc.vehicle.vehicle.VehicleSpawnRegistry.save();
+        de.rolandsw.schedulemc.vehicle.fuel.GasStationRegistry.save();
+        de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager.save();
     }
 
     @SubscribeEvent
@@ -240,8 +240,8 @@ public class ScheduleMC {
         }
 
         // Vehicle Spawn Tool (Linksklick)
-        if (heldItem.getItem() instanceof de.rolandsw.schedulemc.car.items.VehicleSpawnTool) {
-            de.rolandsw.schedulemc.car.items.VehicleSpawnTool.handleLeftClick(player, heldItem, event.getPos().above());
+        if (heldItem.getItem() instanceof de.rolandsw.schedulemc.vehicle.items.VehicleSpawnTool) {
+            de.rolandsw.schedulemc.vehicle.items.VehicleSpawnTool.handleLeftClick(player, heldItem, event.getPos().above());
             event.setCanceled(true);
         }
     }

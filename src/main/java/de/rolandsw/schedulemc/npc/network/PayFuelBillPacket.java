@@ -1,6 +1,6 @@
 package de.rolandsw.schedulemc.npc.network;
 
-import de.rolandsw.schedulemc.car.fuel.FuelBillManager;
+import de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager;
 import de.rolandsw.schedulemc.economy.WalletManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.FriendlyByteBuf;

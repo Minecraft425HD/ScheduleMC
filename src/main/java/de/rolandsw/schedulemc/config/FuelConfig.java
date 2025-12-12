@@ -1,6 +1,6 @@
 package de.rolandsw.schedulemc.config;
 
-import de.rolandsw.schedulemc.car.fluids.ModFluids;
+import de.rolandsw.schedulemc.vehicle.fluids.ModFluids;
 import de.maxhenkel.corelib.config.DynamicConfig;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
