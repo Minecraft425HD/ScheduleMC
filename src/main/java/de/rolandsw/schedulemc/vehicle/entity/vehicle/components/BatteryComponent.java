@@ -112,7 +112,7 @@ public class BatteryComponent extends VehicleComponent {
      * Simulates alternator charging - faster when driving, slower when idle
      */
     private void rechargeBattery(PhysicsComponent physics) {
-        int baseRechargeRate = ModConfigHandler.CAR_SERVER.idleBatteryRechargeRate.get();
+        int baseRechargeRate = ModConfigHandler.VEHICLE_SERVER.idleBatteryRechargeRate.get();
 
         if (baseRechargeRate <= 0) {
             return; // Charging disabled
@@ -123,7 +123,7 @@ public class BatteryComponent extends VehicleComponent {
 
         if (physics.isAccelerating() && speed > 0.01F) {
             // Driving: alternator generates more power at higher RPM
-            double multiplier = ModConfigHandler.CAR_SERVER.drivingBatteryRechargeMultiplier.get();
+            double multiplier = ModConfigHandler.VEHICLE_SERVER.drivingBatteryRechargeMultiplier.get();
             chargeAmount = (int) Math.ceil(baseRechargeRate * speed * multiplier);
         } else {
             // Idling: alternator generates minimal power
@@ -224,7 +224,7 @@ public class BatteryComponent extends VehicleComponent {
     }
 
     public int getBatteryUsage() {
-        if (!ModConfigHandler.CAR_SERVER.useBattery.get()) {
+        if (!ModConfigHandler.VEHICLE_SERVER.useBattery.get()) {
             return 0;
         }
 

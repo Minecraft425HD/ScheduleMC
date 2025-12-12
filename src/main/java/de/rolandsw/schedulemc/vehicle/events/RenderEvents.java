@@ -36,7 +36,7 @@ public class RenderEvents {
         // This feature provided custom camera zoom when riding vehicles, but is not critical
         /* DISABLED DUE TO API CHANGE IN 1.20.1
         if (getVehicle() != null && !mc.options.getCameraType().isFirstPerson()) {
-            evt.getCamera().move(-evt.getCamera().getMaxZoom(ModConfigHandler.CAR_CLIENT.carZoom.get() - 4D), 0D, 0D);
+            evt.getCamera().move(-evt.getCamera().getMaxZoom(ModConfigHandler.VEHICLE_CLIENT.vehicleZoom.get() - 4D), 0D, 0D);
         }
         */
     }
@@ -44,8 +44,8 @@ public class RenderEvents {
     @SubscribeEvent
     public void onRender(InputEvent.MouseScrollingEvent evt) {
         if (getVehicle() != null && !mc.options.getCameraType().isFirstPerson()) {
-            ModConfigHandler.CAR_CLIENT.carZoom.set(Math.max(1D, Math.min(20D, ModConfigHandler.CAR_CLIENT.carZoom.get() - evt.getScrollDelta())));
-            ModConfigHandler.CAR_CLIENT.carZoom.save();
+            ModConfigHandler.VEHICLE_CLIENT.vehicleZoom.set(Math.max(1D, Math.min(20D, ModConfigHandler.VEHICLE_CLIENT.vehicleZoom.get() - evt.getScrollDelta())));
+            ModConfigHandler.VEHICLE_CLIENT.vehicleZoom.save();
             evt.setCanceled(true);
         }
     }

@@ -49,7 +49,7 @@ public class PlayerEvents {
     }
 
     private void setThirdPerson(boolean third) {
-        if (!ModConfigHandler.CAR_CLIENT.thirdPersonEnter.get()) {
+        if (!ModConfigHandler.VEHICLE_CLIENT.thirdPersonEnter.get()) {
             return;
         }
 

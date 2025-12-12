@@ -33,7 +33,7 @@ public class SlotRepairKit extends Slot {
 
             stack.shrink(1);
 
-            float damage = vehicle.getDamageComponent().getDamage() - ModConfigHandler.CAR_SERVER.repairKitRepairAmount.get().floatValue();
+            float damage = vehicle.getDamageComponent().getDamage() - ModConfigHandler.VEHICLE_SERVER.repairKitRepairAmount.get().floatValue();
             if (damage >= 0) {
                 vehicle.getDamageComponent().setDamage(damage);
             }

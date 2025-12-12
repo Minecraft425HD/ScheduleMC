@@ -64,7 +64,7 @@ public class FuelComponent extends VehicleComponent implements IFluidHandler {
             }
         } else if (fuel > 0 && physics != null && physics.isStarted()) {
             // Fuel consumption while idling (configurable interval)
-            int idleInterval = ModConfigHandler.CAR_SERVER.idleFuelConsumptionInterval.get();
+            int idleInterval = ModConfigHandler.VEHICLE_SERVER.idleFuelConsumptionInterval.get();
             if (vehicle.tickCount % idleInterval == 0) {
                 idleFuelTick();
             }

@@ -8,10 +8,10 @@ import net.minecraft.sounds.SoundEvent;
 public class PartEngine6Cylinder extends PartEngine {
 
     public PartEngine6Cylinder() {
-        this.maxSpeed = () -> ModConfigHandler.CAR_SERVER.engine6CylinderMaxSpeed.get().floatValue();
-        this.maxReverseSpeed = () -> ModConfigHandler.CAR_SERVER.engine6CylinderMaxReverseSpeed.get().floatValue();
-        this.acceleration = () -> ModConfigHandler.CAR_SERVER.engine6CylinderAcceleration.get().floatValue();
-        this.fuelEfficiency = () -> ModConfigHandler.CAR_SERVER.engine6CylinderFuelEfficiency.get().floatValue();
+        this.maxSpeed = () -> ModConfigHandler.VEHICLE_SERVER.engine6CylinderMaxSpeed.get().floatValue();
+        this.maxReverseSpeed = () -> ModConfigHandler.VEHICLE_SERVER.engine6CylinderMaxReverseSpeed.get().floatValue();
+        this.acceleration = () -> ModConfigHandler.VEHICLE_SERVER.engine6CylinderAcceleration.get().floatValue();
+        this.fuelEfficiency = () -> ModConfigHandler.VEHICLE_SERVER.engine6CylinderFuelEfficiency.get().floatValue();
     }
 
     @Override

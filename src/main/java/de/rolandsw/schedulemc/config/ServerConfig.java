@@ -25,9 +25,9 @@ public class ServerConfig extends ConfigBase {
 
     public final ForgeConfigSpec.IntValue canisterMaxFuel;
 
-    public final ForgeConfigSpec.DoubleValue carOffroadSpeed;
-    public final ForgeConfigSpec.DoubleValue carOnroadSpeed;
-    public final ForgeConfigSpec.ConfigValue<List<? extends String>> carDriveBlocks;
+    public final ForgeConfigSpec.DoubleValue vehicleOffroadSpeed;
+    public final ForgeConfigSpec.DoubleValue vehicleOnroadSpeed;
+    public final ForgeConfigSpec.ConfigValue<List<? extends String>> vehicleDriveBlocks;
 
     public final ForgeConfigSpec.BooleanValue collideWithEntities;
     public final ForgeConfigSpec.BooleanValue damageEntities;
@@ -81,7 +81,7 @@ public class ServerConfig extends ConfigBase {
     public final ForgeConfigSpec.DoubleValue bodyTransporterMaxSpeed;
 
     public List<Tag<Fluid>> gasStationValidFuelList = new ArrayList<>();
-    public List<Tag<Block>> carDriveBlockList = new ArrayList<>();
+    public List<Tag<Block>> vehicleDriveBlockList = new ArrayList<>();
 
     public ServerConfig(ForgeConfigSpec.Builder builder) {
         super(builder);
@@ -105,9 +105,9 @@ public class ServerConfig extends ConfigBase {
         idleBatteryRechargeRate = builder.comment("How much battery is recharged per tick while idling (with engine running)").defineInRange("vehicle.idle_battery_recharge_rate", 1, 0, 100);
         drivingBatteryRechargeMultiplier = builder.comment("Battery recharge rate multiplier based on speed while driving. Recharge = idleRate * speed * multiplier").defineInRange("vehicle.driving_battery_recharge_multiplier", 20.0D, 0.0D, 1000.0D);
 
-        carOffroadSpeed = builder.comment("The speed modifier for vehicles on non road blocks").defineInRange("vehicle.offroad_speed_modifier", 1D, 0.001D, 10D);
-        carOnroadSpeed = builder.comment("The speed modifier for vehicles on road blocks", "On road blocks are defined in the config section 'road_blocks'").defineInRange("vehicle.onroad_speed_modifier", 1D, 0.001D, 10D);
-        carDriveBlocks = builder.comment("If it starts with '#' it is a tag").defineList("vehicle.road_blocks.blocks", Collections.singletonList("#vehicle:drivable_blocks"), Objects::nonNull);
+        vehicleOffroadSpeed = builder.comment("The speed modifier for vehicles on non road blocks").defineInRange("vehicle.offroad_speed_modifier", 1D, 0.001D, 10D);
+        vehicleOnroadSpeed = builder.comment("The speed modifier for vehicles on road blocks", "On road blocks are defined in the config section 'road_blocks'").defineInRange("vehicle.onroad_speed_modifier", 1D, 0.001D, 10D);
+        vehicleDriveBlocks = builder.comment("If it starts with '#' it is a tag").defineList("vehicle.road_blocks.blocks", Collections.singletonList("#vehicle:drivable_blocks"), Objects::nonNull);
 
         tankSmallMaxFuel = builder.defineInRange("vehicle.parts.small_tank.max_fuel", 500, 100, 100_000);
         tankMediumMaxFuel = builder.defineInRange("vehicle.parts.medium_tank.max_fuel", 1000, 100, 100_000);
@@ -147,7 +147,7 @@ public class ServerConfig extends ConfigBase {
     public void onReload(ModConfigEvent event) {
         super.onReload(event);
         gasStationValidFuelList = gasStationValidFuels.get().stream().map(TagUtils::getFluid).filter(Objects::nonNull).collect(Collectors.toList());
-        carDriveBlockList = carDriveBlocks.get().stream().map(TagUtils::getBlock).filter(Objects::nonNull).collect(Collectors.toList());
+        vehicleDriveBlockList = vehicleDriveBlocks.get().stream().map(TagUtils::getBlock).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
 }

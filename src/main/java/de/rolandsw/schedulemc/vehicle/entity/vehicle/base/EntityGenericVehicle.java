@@ -165,7 +165,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
 
     @Override
     public boolean canCollideWith(Entity entityIn) {
-        if (!ModConfigHandler.CAR_SERVER.collideWithEntities.get()) {
+        if (!ModConfigHandler.VEHICLE_SERVER.collideWithEntities.get()) {
             if (!(entityIn instanceof EntityVehicleBase)) {
                 return false;
             }

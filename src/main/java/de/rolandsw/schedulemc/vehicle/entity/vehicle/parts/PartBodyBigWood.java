@@ -27,9 +27,9 @@ public class PartBodyBigWood extends PartBodyWoodBase {
         this.height = 1.6F;
         this.minRotationSpeed = 2F;
         this.maxRotationSpeed = 5F;
-        this.fuelEfficiency = () -> ModConfigHandler.CAR_SERVER.bodyBigWoodFuelEfficiency.get().floatValue();
-        this.acceleration = () -> ModConfigHandler.CAR_SERVER.bodyBigWoodAcceleration.get().floatValue();
-        this.maxSpeed = () -> ModConfigHandler.CAR_SERVER.bodyBigWoodMaxSpeed.get().floatValue();
+        this.fuelEfficiency = () -> ModConfigHandler.VEHICLE_SERVER.bodyBigWoodFuelEfficiency.get().floatValue();
+        this.acceleration = () -> ModConfigHandler.VEHICLE_SERVER.bodyBigWoodAcceleration.get().floatValue();
+        this.maxSpeed = () -> ModConfigHandler.VEHICLE_SERVER.bodyBigWoodMaxSpeed.get().floatValue();
     }
 
 }

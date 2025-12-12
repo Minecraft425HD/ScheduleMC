@@ -28,9 +28,9 @@ public class PartRegistry {
 
     public static final Part OAK_BUMPER = new PartBumper(new ResourceLocation("textures/block/oak_planks.png"));
 
-    public static final Part SMALL_TANK = new PartTank(() -> ModConfigHandler.CAR_SERVER.tankSmallMaxFuel.get());
-    public static final Part MEDIUM_TANK = new PartTank(() -> ModConfigHandler.CAR_SERVER.tankMediumMaxFuel.get());
-    public static final Part LARGE_TANK = new PartTank(() -> ModConfigHandler.CAR_SERVER.tankLargeMaxFuel.get());
+    public static final Part SMALL_TANK = new PartTank(() -> ModConfigHandler.VEHICLE_SERVER.tankSmallMaxFuel.get());
+    public static final Part MEDIUM_TANK = new PartTank(() -> ModConfigHandler.VEHICLE_SERVER.tankMediumMaxFuel.get());
+    public static final Part LARGE_TANK = new PartTank(() -> ModConfigHandler.VEHICLE_SERVER.tankLargeMaxFuel.get());
 
     public static final Part WHEEL = new PartWheel(
             new OBJModel(new ResourceLocation(Main.MODID, "models/entity/wheel.obj")),

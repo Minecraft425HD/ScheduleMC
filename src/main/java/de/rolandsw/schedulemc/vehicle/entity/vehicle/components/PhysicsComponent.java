@@ -113,7 +113,7 @@ public class PhysicsComponent extends VehicleComponent {
     }
 
     public boolean canCollideWith(Entity entityIn) {
-        if (!vehicle.level().isClientSide && ModConfigHandler.CAR_SERVER.damageEntities.get() && entityIn instanceof LivingEntity && !vehicle.getPassengers().contains(entityIn)) {
+        if (!vehicle.level().isClientSide && ModConfigHandler.VEHICLE_SERVER.damageEntities.get() && entityIn instanceof LivingEntity && !vehicle.getPassengers().contains(entityIn)) {
             if (entityIn.getBoundingBox().intersects(vehicle.getBoundingBox())) {
                 float speed = getSpeed();
                 if (speed > 0.35F) {
@@ -273,10 +273,10 @@ public class PhysicsComponent extends VehicleComponent {
         BlockPos pos = new BlockPos((int) vehicle.getX(), (int) (vehicle.getY() - 0.1D), (int) vehicle.getZ());
         BlockState state = vehicle.level().getBlockState(pos);
 
-        if (state.isAir() || ModConfigHandler.CAR_SERVER.carDriveBlockList.stream().anyMatch(tag -> tag.contains(state.getBlock()))) {
-            return ModConfigHandler.CAR_SERVER.carOnroadSpeed.get().floatValue();
+        if (state.isAir() || ModConfigHandler.VEHICLE_SERVER.vehicleDriveBlockList.stream().anyMatch(tag -> tag.contains(state.getBlock()))) {
+            return ModConfigHandler.VEHICLE_SERVER.vehicleOnroadSpeed.get().floatValue();
         } else {
-            return ModConfigHandler.CAR_SERVER.carOffroadSpeed.get().floatValue();
+            return ModConfigHandler.VEHICLE_SERVER.vehicleOffroadSpeed.get().floatValue();
         }
     }
 
@@ -334,7 +334,7 @@ public class PhysicsComponent extends VehicleComponent {
             // Consume fuel when starting the engine
             FuelComponent fuel = vehicle.getFuelComponent();
             if (fuel != null) {
-                int startFuelCost = ModConfigHandler.CAR_SERVER.engineStartFuelConsumption.get();
+                int startFuelCost = ModConfigHandler.VEHICLE_SERVER.engineStartFuelConsumption.get();
                 fuel.removeFuel(startFuelCost);
             }
         }
@@ -544,12 +544,12 @@ public class PhysicsComponent extends VehicleComponent {
                 if (battery.getBatteryLevel() < 10) {
                     return;
                 }
-                if (ModConfigHandler.CAR_SERVER.useBattery.get()) {
+                if (ModConfigHandler.VEHICLE_SERVER.useBattery.get()) {
                     battery.setBatteryLevel(battery.getBatteryLevel() - 10);
                 }
             }
             playHornSound();
-            if (ModConfigHandler.CAR_SERVER.hornFlee.get()) {
+            if (ModConfigHandler.VEHICLE_SERVER.hornFlee.get()) {
                 double radius = 15;
                 List<Monster> list = vehicle.level().getEntitiesOfClass(Monster.class, new AABB(vehicle.getX() - radius, vehicle.getY() - radius, vehicle.getZ() - radius, vehicle.getX() + radius, vehicle.getY() + radius, vehicle.getZ() + radius));
                 for (Monster ent : list) {

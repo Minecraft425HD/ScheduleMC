@@ -19,7 +19,7 @@ public abstract class SoundLoopVehicle extends AbstractTickableSoundInstance {
         this.vehicle = vehicle;
         this.looping = true;
         this.delay = 0;
-        this.volume = ModConfigHandler.CAR_CLIENT.carVolume.get().floatValue();
+        this.volume = ModConfigHandler.VEHICLE_CLIENT.vehicleVolume.get().floatValue();
         this.pitch = 1F;
         this.relative = false;
         this.attenuation = Attenuation.LINEAR;

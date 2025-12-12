@@ -81,7 +81,7 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
 
     public TileEntityGasStation(BlockPos pos, BlockState state) {
         super(Main.GAS_STATION_TILE_ENTITY_TYPE.get(), pos, state);
-        this.transferRate = ModConfigHandler.CAR_SERVER.gasStationTransferRate.get();
+        this.transferRate = ModConfigHandler.VEHICLE_SERVER.gasStationTransferRate.get();
         this.fuelCounter = 0;
         this.inventory = new SimpleContainer(27);
         this.trading = new SimpleContainer(2);
@@ -221,7 +221,7 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
                             totalFueledThisSession = 0;
 
                             // Send welcome message with price
-                            String timeOfDay = getCurrentPrice() == ModConfigHandler.CAR_SERVER.gasStationMorningPricePer10mb.get() ? "Tag" : "Nacht";
+                            String timeOfDay = getCurrentPrice() == ModConfigHandler.VEHICLE_SERVER.gasStationMorningPricePer10mb.get() ? "Tag" : "Nacht";
                             String stationName = GasStationRegistry.getDisplayName(gasStationId);
                             player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
                             player.sendSystemMessage(Component.literal("⛽ ").withStyle(ChatFormatting.YELLOW)
@@ -357,10 +357,10 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
 
         if (dayTime >= 0 && dayTime < 12000) {
             // Morning/Day time
-            return ModConfigHandler.CAR_SERVER.gasStationMorningPricePer10mb.get();
+            return ModConfigHandler.VEHICLE_SERVER.gasStationMorningPricePer10mb.get();
         } else {
             // Evening/Night time
-            return ModConfigHandler.CAR_SERVER.gasStationEveningPricePer10mb.get();
+            return ModConfigHandler.VEHICLE_SERVER.gasStationEveningPricePer10mb.get();
         }
     }
 
@@ -465,7 +465,7 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
     }
 
     public boolean isValidFluid(Fluid f) {
-        return ModConfigHandler.CAR_SERVER.gasStationValidFuelList.stream().anyMatch(fluidTag -> fluidTag.contains(f));
+        return ModConfigHandler.VEHICLE_SERVER.gasStationValidFuelList.stream().anyMatch(fluidTag -> fluidTag.contains(f));
     }
 
     public void setOwner(UUID owner) {

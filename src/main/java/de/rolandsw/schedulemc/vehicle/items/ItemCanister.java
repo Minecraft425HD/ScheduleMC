@@ -115,10 +115,10 @@ public class ItemCanister extends Item {
             fluid = FluidStack.loadFluidStackFromNBT(comp.getCompound("fuel"));
         }
 
-        int maxAmount = ModConfigHandler.CAR_SERVER.canisterMaxFuel.get();
+        int maxAmount = ModConfigHandler.VEHICLE_SERVER.canisterMaxFuel.get();
 
         if (fluid != null) {
-            maxAmount = ModConfigHandler.CAR_SERVER.canisterMaxFuel.get() - fluid.getAmount();
+            maxAmount = ModConfigHandler.VEHICLE_SERVER.canisterMaxFuel.get() - fluid.getAmount();
         }
 
         if (maxAmount <= 0) {

@@ -160,7 +160,7 @@ public abstract class EntityVehicleBase extends Entity {
 
     @Override
     public boolean canCollideWith(Entity entity) {
-        if (!ModConfigHandler.CAR_SERVER.collideWithEntities.get()) {
+        if (!ModConfigHandler.VEHICLE_SERVER.collideWithEntities.get()) {
             if (!(entity instanceof EntityVehicleBase)) {
                 return false;
             }

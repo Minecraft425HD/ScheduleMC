@@ -77,7 +77,7 @@ public class ScheduleMC {
     private int tickCounter = 0;
 
     // Vehicle Mod integration
-    private static Main carMod;
+    private static Main vehicleMod;
 
     public ScheduleMC() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -85,7 +85,7 @@ public class ScheduleMC {
         modEventBus.addListener(this::onEntityAttributeCreation);
 
         // Initialize Vehicle Mod
-        carMod = new Main();
+        vehicleMod = new Main();
 
         ModItems.ITEMS.register(modEventBus);
         TobaccoItems.ITEMS.register(modEventBus);
