@@ -33,9 +33,9 @@ public class SecurityComponent extends CarComponent {
     }
 
     @Override
-    public void defineSynchedData(SynchedEntityData.Builder builder) {
-        builder.define(LOCKED, Boolean.FALSE);
-        builder.define(LICENSE_PLATE, "");
+    public void defineSynchedData() {
+        car.getEntityData().define(LOCKED, Boolean.FALSE);
+        car.getEntityData().define(LICENSE_PLATE, "");
     }
 
     @Override

@@ -74,13 +74,13 @@ public class PhysicsComponent extends CarComponent {
     }
 
     @Override
-    public void defineSynchedData(SynchedEntityData.Builder builder) {
-        builder.define(STARTED, false);
-        builder.define(SPEED, 0F);
-        builder.define(FORWARD, false);
-        builder.define(BACKWARD, false);
-        builder.define(LEFT, false);
-        builder.define(RIGHT, false);
+    public void defineSynchedData() {
+        car.getEntityData().define(STARTED, false);
+        car.getEntityData().define(SPEED, 0F);
+        car.getEntityData().define(FORWARD, false);
+        car.getEntityData().define(BACKWARD, false);
+        car.getEntityData().define(LEFT, false);
+        car.getEntityData().define(RIGHT, false);
     }
 
     @Override
@@ -223,20 +223,20 @@ public class PhysicsComponent extends CarComponent {
             rotationSpeed = Mth.clamp(rotationSpeed, car.getMinRotationSpeed(), car.getMaxRotationSpeed());
         }
 
-        car.deltaRotation = 0;
+        car.setDeltaRotation(0);
 
         if (speed < 0) {
             rotationSpeed = -rotationSpeed;
         }
 
         if (isLeft()) {
-            car.deltaRotation -= rotationSpeed;
+            car.setDeltaRotation(car.getDeltaRotation() - rotationSpeed);
         }
         if (isRight()) {
-            car.deltaRotation += rotationSpeed;
+            car.setDeltaRotation(car.getDeltaRotation() + rotationSpeed);
         }
 
-        car.setYRot(car.getYRot() + car.deltaRotation);
+        car.setYRot(car.getYRot() + car.getDeltaRotation());
         float delta = Math.abs(car.getYRot() - car.yRotO);
         while (car.getYRot() > 180F) {
             car.setYRot(car.getYRot() - 360F);

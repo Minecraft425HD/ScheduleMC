@@ -26,9 +26,9 @@ public class DamageComponent extends CarComponent {
     }
 
     @Override
-    public void defineSynchedData(SynchedEntityData.Builder builder) {
-        builder.define(DAMAGE, 0F);
-        builder.define(TEMPERATURE, 0F);
+    public void defineSynchedData() {
+        car.getEntityData().define(DAMAGE, 0F);
+        car.getEntityData().define(TEMPERATURE, 0F);
     }
 
     @Override
@@ -61,7 +61,7 @@ public class DamageComponent extends CarComponent {
             tempRate = 5;
         }
 
-        float rate = tempRate * 0.2F + (car.random.nextFloat() - 0.5F) * 0.1F;
+        float rate = tempRate * 0.2F + (car.getRandom().nextFloat() - 0.5F) * 0.1F;
         float temp = getTemperature();
         float tempToReach = getTemperatureToReach();
 
@@ -114,12 +114,12 @@ public class DamageComponent extends CarComponent {
         int damage = (int) getDamage();
 
         if (damage < 70) {
-            if (car.random.nextInt(10) != 0) {
+            if (car.getRandom().nextInt(10) != 0) {
                 return;
             }
             amount = 1;
         } else if (damage < 80) {
-            if (car.random.nextInt(5) != 0) {
+            if (car.getRandom().nextInt(5) != 0) {
                 return;
             }
             amount = 1;
@@ -131,9 +131,9 @@ public class DamageComponent extends CarComponent {
 
         for (int i = 0; i < amount; i++) {
             car.level().addParticle(ParticleTypes.LARGE_SMOKE,
-                    car.getX() + (car.random.nextDouble() - 0.5D) * car.getCarWidth(),
-                    car.getY() + car.random.nextDouble() * car.getCarHeight(),
-                    car.getZ() + (car.random.nextDouble() - 0.5D) * car.getCarWidth(),
+                    car.getX() + (car.getRandom().nextDouble() - 0.5D) * car.getCarWidth(),
+                    car.getY() + car.getRandom().nextDouble() * car.getCarHeight(),
+                    car.getZ() + (car.getRandom().nextDouble() - 0.5D) * car.getCarWidth(),
                     0.0D, 0.0D, 0.0D);
         }
     }
@@ -210,13 +210,13 @@ public class DamageComponent extends CarComponent {
         int value = 0;
 
         if (getDamage() >= 95) {
-            value += car.random.nextInt(25) + 50;
+            value += car.getRandom().nextInt(25) + 50;
         } else if (getDamage() >= 90) {
-            value += car.random.nextInt(15) + 30;
+            value += car.getRandom().nextInt(15) + 30;
         } else if (getDamage() >= 80) {
-            value += car.random.nextInt(15) + 10;
+            value += car.getRandom().nextInt(15) + 10;
         } else if (getDamage() >= 50) {
-            value += car.random.nextInt(10) + 5;
+            value += car.getRandom().nextInt(10) + 5;
         }
 
         return value;

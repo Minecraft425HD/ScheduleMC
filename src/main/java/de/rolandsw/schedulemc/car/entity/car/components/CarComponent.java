@@ -39,7 +39,7 @@ public abstract class CarComponent {
     /**
      * Define synched entity data. Called during entity initialization.
      */
-    public void defineSynchedData(SynchedEntityData.Builder builder) {
+    public void defineSynchedData() {
     }
 
     /**

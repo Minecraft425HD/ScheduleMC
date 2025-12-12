@@ -108,16 +108,16 @@ public class EntityGenericCar extends EntityVehicleBase implements Container, IF
     }
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.Builder builder) {
-        super.defineSynchedData(builder);
-        builder.define(PARTS, NonNullList.create());
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(PARTS, NonNullList.create());
 
         // Initialize all components
-        physicsComponent.defineSynchedData(builder);
-        fuelComponent.defineSynchedData(builder);
-        batteryComponent.defineSynchedData(builder);
-        damageComponent.defineSynchedData(builder);
-        securityComponent.defineSynchedData(builder);
+        physicsComponent.defineSynchedData();
+        fuelComponent.defineSynchedData();
+        batteryComponent.defineSynchedData();
+        damageComponent.defineSynchedData();
+        securityComponent.defineSynchedData();
     }
 
     @Override
@@ -817,5 +817,84 @@ public class EntityGenericCar extends EntityVehicleBase implements Container, IF
                 setYRot(90F);
                 break;
         }
+    }
+
+    // Additional delegation methods for compatibility
+
+    // Battery component delegates
+    public float getBatterySoundPitchLevel() {
+        return batteryComponent.getBatterySoundPitchLevel();
+    }
+
+    public boolean isStarting() {
+        return batteryComponent.isStarting();
+    }
+
+    public void setBatteryLevel(int level) {
+        batteryComponent.setBatteryLevel(level);
+    }
+
+    // Physics component delegates
+    public boolean isStarted() {
+        return physicsComponent.isStarted();
+    }
+
+    public float getSpeed() {
+        return physicsComponent.getSpeed();
+    }
+
+    public float getKilometerPerHour() {
+        return physicsComponent.getKilometerPerHour();
+    }
+
+    public float getWheelRotation(float partialTicks) {
+        return physicsComponent.getWheelRotation(partialTicks);
+    }
+
+    public void updateControls(boolean forward, boolean backward, boolean left, boolean right, Player player) {
+        physicsComponent.updateControls(forward, backward, left, right);
+    }
+
+    public void updateControls(boolean forward, boolean backward, boolean left, boolean right, net.minecraft.server.level.ServerPlayer player) {
+        physicsComponent.updateControls(forward, backward, left, right);
+    }
+
+    public void openCarGUI(Player player) {
+        inventoryComponent.openCarGUI(player);
+    }
+
+    public void openCarGUI(net.minecraft.server.level.ServerPlayer player) {
+        inventoryComponent.openCarGUI(player);
+    }
+
+    // Damage component delegates
+    public void onCollision(float speed) {
+        damageComponent.onCollision(speed);
+    }
+
+    public void initTemperature() {
+        damageComponent.initTemperature();
+    }
+
+    // Fuel component delegates
+    public void setFuelAmount(int amount) {
+        fuelComponent.setFuelAmount(amount);
+    }
+
+    public int getFuelAmount() {
+        return fuelComponent.getFuelAmount();
+    }
+
+    // Security component delegates
+    public String getLicensePlate() {
+        return securityComponent.getLicensePlate();
+    }
+
+    public boolean isLocked() {
+        return securityComponent.isLocked();
+    }
+
+    public void setLocked(boolean locked, boolean playSound) {
+        securityComponent.setLocked(locked, playSound);
     }
 }

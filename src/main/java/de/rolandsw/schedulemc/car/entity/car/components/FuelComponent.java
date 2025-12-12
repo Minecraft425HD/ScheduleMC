@@ -30,9 +30,9 @@ public class FuelComponent extends CarComponent implements IFluidHandler {
     }
 
     @Override
-    public void defineSynchedData(SynchedEntityData.Builder builder) {
-        builder.define(FUEL_AMOUNT, 0);
-        builder.define(FUEL_TYPE, "");
+    public void defineSynchedData() {
+        car.getEntityData().define(FUEL_AMOUNT, 0);
+        car.getEntityData().define(FUEL_TYPE, "");
     }
 
     @Override

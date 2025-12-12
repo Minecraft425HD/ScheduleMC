@@ -41,10 +41,10 @@ public class BatteryComponent extends CarComponent {
     }
 
     @Override
-    public void defineSynchedData(SynchedEntityData.Builder builder) {
-        builder.define(BATTERY_LEVEL, getMaxBatteryLevel());
-        builder.define(STARTING_TIME, 0);
-        builder.define(STARTING, Boolean.FALSE);
+    public void defineSynchedData() {
+        car.getEntityData().define(BATTERY_LEVEL, getMaxBatteryLevel());
+        car.getEntityData().define(STARTING_TIME, 0);
+        car.getEntityData().define(STARTING, Boolean.FALSE);
     }
 
     @Override
@@ -160,9 +160,9 @@ public class BatteryComponent extends CarComponent {
 
     private void spawnParticle(ParticleOptions particleTypes, double offX, double offY, double offZ, double speedX, double speedZ, double r) {
         car.level().addParticle(particleTypes,
-                car.getX() + offX + (car.random.nextDouble() * r - r / 2D),
-                car.getY() + offY + (car.random.nextDouble() * r - r / 2D) + car.getCarHeight() / 8F,
-                car.getZ() + offZ + (car.random.nextDouble() * r - r / 2D),
+                car.getX() + offX + (car.getRandom().nextDouble() * r - r / 2D),
+                car.getY() + offY + (car.getRandom().nextDouble() * r - r / 2D) + car.getCarHeight() / 8F,
+                car.getZ() + offZ + (car.getRandom().nextDouble() * r - r / 2D),
                 speedX, 0.0D, speedZ);
     }
 
@@ -172,7 +172,7 @@ public class BatteryComponent extends CarComponent {
 
     public int getTimeToStart() {
         DamageComponent damage = car.getDamageComponent();
-        int time = car.random.nextInt(10) + 5;
+        int time = car.getRandom().nextInt(10) + 5;
 
         if (damage != null) {
             float temp = damage.getTemperature();
@@ -190,9 +190,9 @@ public class BatteryComponent extends CarComponent {
         float batteryPerc = getBatteryPercentage();
 
         if (batteryPerc < 0.5F) {
-            time += 20 + car.random.nextInt(10);
+            time += 20 + car.getRandom().nextInt(10);
         } else if (batteryPerc < 0.75F) {
-            time += 10 + car.random.nextInt(10);
+            time += 10 + car.getRandom().nextInt(10);
         }
 
         return time;
