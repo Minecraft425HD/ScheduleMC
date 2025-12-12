@@ -18,11 +18,11 @@ public class PartRegistry {
 
     public static final Part IRON_LICENSE_PLATE_HOLDER = new PartLicensePlateHolder(new ResourceLocation("textures/block/iron_block.png"));
 
-    public static final Part OAK_BODY = new PartBodyWood(new ResourceLocation(Main.MODID, "textures/entity/car_wood_oak.png"), "oak");
-    public static final Part BIG_OAK_BODY = new PartBodyBigWood(new ResourceLocation(Main.MODID, "textures/entity/car_big_wood_oak.png"), "oak");
-    public static final Part WHITE_SPORT_BODY = new PartBodySport(new ResourceLocation(Main.MODID, "textures/entity/car_sport_white.png"), "white");
-    public static final Part WHITE_TRANSPORTER_BODY = new PartBodyTransporter(new ResourceLocation(Main.MODID, "textures/entity/car_transporter_white.png"), "white");
-    public static final Part WHITE_SUV_BODY = new PartBodySUV(new ResourceLocation(Main.MODID, "textures/entity/car_suv_white.png"), "white");
+    public static final Part OAK_BODY = new PartBodyWood(new ResourceLocation(Main.MODID, "textures/entity/vehicle_wood_oak.png"), "oak");
+    public static final Part BIG_OAK_BODY = new PartBodyBigWood(new ResourceLocation(Main.MODID, "textures/entity/vehicle_big_wood_oak.png"), "oak");
+    public static final Part WHITE_SPORT_BODY = new PartBodySport(new ResourceLocation(Main.MODID, "textures/entity/vehicle_sport_white.png"), "white");
+    public static final Part WHITE_TRANSPORTER_BODY = new PartBodyTransporter(new ResourceLocation(Main.MODID, "textures/entity/vehicle_transporter_white.png"), "white");
+    public static final Part WHITE_SUV_BODY = new PartBodySUV(new ResourceLocation(Main.MODID, "textures/entity/vehicle_suv_white.png"), "white");
     public static final Part WHITE_CONTAINER = new PartContainer(new ResourceLocation(Main.MODID, "textures/entity/container_white.png"));
     public static final Part WHITE_TANK_CONTAINER = new PartTankContainer(new ResourceLocation(Main.MODID, "textures/entity/tank_container_white.png"));
 

@@ -20,7 +20,7 @@ public class VehicleFactory {
      * @return The created EntityGenericVehicle, or null if creation failed
      */
     @Nullable
-    public static EntityGenericVehicle createCar(Level world, List<ItemStack> parts) {
+    public static EntityGenericVehicle createVehicle(Level world, List<ItemStack> parts) {
         if (world == null || parts == null || parts.isEmpty()) {
             return null;
         }
