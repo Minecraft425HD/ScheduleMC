@@ -57,13 +57,21 @@ public class FuelComponent extends CarComponent implements IFluidHandler {
         }
 
         PhysicsComponent physics = car.getPhysicsComponent();
-        if (fuel > 0 && physics != null && physics.isAccelerating()) {
+        boolean isAccelerating = physics != null && physics.isAccelerating();
+        boolean isStarted = physics != null && physics.isStarted();
+
+        // Log every 100 ticks (5 seconds) to avoid spam
+        if (car.tickCount % 100 == 0) {
+            System.out.println("[FuelComponent] Status check - fuel=" + fuel + ", tickFuel=" + tickFuel + ", isStarted=" + isStarted + ", isAccelerating=" + isAccelerating);
+        }
+
+        if (fuel > 0 && physics != null && isAccelerating) {
             if (car.tickCount % tickFuel == 0) {
                 System.out.println("[FuelComponent] Accelerating - consuming fuel. Before: " + fuel + ", tickFuel: " + tickFuel);
                 acceleratingFuelTick();
                 System.out.println("[FuelComponent] After: " + getFuelAmount());
             }
-        } else if (fuel > 0 && physics != null && physics.isStarted()) {
+        } else if (fuel > 0 && physics != null && isStarted) {
             if (car.tickCount % (tickFuel * 100) == 0) {
                 System.out.println("[FuelComponent] Idling - consuming fuel. Before: " + fuel);
                 idleFuelTick();
