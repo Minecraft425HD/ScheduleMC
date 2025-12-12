@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.car.events;
 
 import de.rolandsw.schedulemc.car.Main;
 import de.rolandsw.schedulemc.car.entity.car.base.EntityGenericCar;
+import de.rolandsw.schedulemc.car.net.MessageCarGui;
 import de.rolandsw.schedulemc.car.net.MessageCenterCar;
 import de.rolandsw.schedulemc.car.net.MessageStarting;
 import net.minecraft.network.chat.Component;
@@ -78,10 +79,10 @@ public class KeyEvents {
             }
         }
 
-        // Open car GUI with I key
+        // Open car GUI with I key - send network message to server
         if (Main.CAR_GUI_KEY.isDown()) {
             if (!wasGuiPressed) {
-                car.openCarGUI(player);
+                Main.SIMPLE_CHANNEL.sendToServer(new MessageCarGui(player));
                 wasGuiPressed = true;
             }
         } else {
