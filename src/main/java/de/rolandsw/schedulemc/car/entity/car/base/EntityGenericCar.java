@@ -449,7 +449,15 @@ public class EntityGenericCar extends EntityVehicleBase implements Container, IF
             return 1.0F; // Default efficiency when no parts installed
         }
 
-        return chassis.getFuelEfficiency() * engine.getFuelEfficiency();
+        float efficiency = chassis.getFuelEfficiency() * engine.getFuelEfficiency();
+
+        // Ensure efficiency is never 0 or negative, which would prevent fuel consumption
+        if (efficiency <= 0.0F) {
+            System.out.println("[EntityGenericCar] WARNING: Fuel efficiency is " + efficiency + ", using default 1.0F");
+            return 1.0F;
+        }
+
+        return efficiency;
     }
 
     public float getRotationModifier() {

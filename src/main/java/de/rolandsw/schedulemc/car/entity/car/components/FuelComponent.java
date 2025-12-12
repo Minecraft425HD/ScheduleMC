@@ -142,7 +142,12 @@ public class FuelComponent extends CarComponent implements IFluidHandler {
         }
 
         float engineEfficiency = car.getCarFuelEfficiency();
-        return (int) Math.ceil(engineEfficiency * (float) fluidEfficiency);
+        int result = (int) Math.ceil(engineEfficiency * (float) fluidEfficiency);
+
+        // Debug logging
+        System.out.println("[FuelComponent.getEfficiency] fluid=" + fluid + ", fluidEff=" + fluidEfficiency + ", engineEff=" + engineEfficiency + ", result=" + result);
+
+        return result;
     }
 
     @Override
