@@ -159,8 +159,8 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         return super.interact(player, hand);
     }
 
-    public boolean canPlayerEnterCar(Player player) {
-        return securityComponent.canPlayerEnterCar(player);
+    public boolean canPlayerEnterVehicle(Player player) {
+        return securityComponent.canPlayerEnterVehicle(player);
     }
 
     @Override
@@ -174,8 +174,8 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         return (entityIn.canBeCollidedWith() || entityIn.isPushable()) && !isPassengerOfSameVehicle(entityIn);
     }
 
-    public void destroyCar(Player player, boolean dropParts) {
-        if (!securityComponent.canDestroyCar(player)) {
+    public void destroyVehicle(Player player, boolean dropParts) {
+        if (!securityComponent.canDestroyVehicle(player)) {
             return;
         }
 
@@ -229,7 +229,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     }
 
     // Parts system
-    private List<Part> getCarParts() {
+    private List<Part> getVehicleParts() {
         if (parts == null) {
             parts = new ArrayList<>();
         }
@@ -237,7 +237,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     }
 
     public <T extends Part> T getPartByClass(Class<T> clazz) {
-        for (Part part : getCarParts()) {
+        for (Part part : getVehicleParts()) {
             if (clazz.isInstance(part)) {
                 return (T) part;
             }
@@ -267,7 +267,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     }
 
     public void initParts() {
-        getCarParts().clear();
+        getVehicleParts().clear();
 
         Container partInv = inventoryComponent.getPartInventory();
         for (int i = 0; i < partInv.getContainerSize(); i++) {
@@ -277,14 +277,14 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
                 continue;
             }
 
-            IVehiclePart itemCarPart = (IVehiclePart) stack.getItem();
-            Part part = itemCarPart.getPart(stack);
+            IVehiclePart itemVehiclePart = (IVehiclePart) stack.getItem();
+            Part part = itemVehiclePart.getPart(stack);
 
             if (part == null) {
                 continue;
             }
 
-            getCarParts().add(part);
+            getVehicleParts().add(part);
         }
 
         checkInitializing();
@@ -332,7 +332,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     }
 
     public List<Part> getModelParts() {
-        return Collections.unmodifiableList(getCarParts());
+        return Collections.unmodifiableList(getVehicleParts());
     }
 
     // Model rendering (client-side)
@@ -342,7 +342,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         modelInstances.clear();
 
         boolean addedWheels = false;
-        for (Part part : getCarParts()) {
+        for (Part part : getVehicleParts()) {
             if (part instanceof PartModel) {
                 if (part instanceof PartWheelBase) {
                     if (!addedWheels) {
@@ -441,7 +441,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         return tank.getSize();
     }
 
-    public float getCarFuelEfficiency() {
+    public float getVehicleFuelEfficiency() {
         PartEngine engine = getPartByClass(PartEngine.class);
         PartBody chassis = getPartByClass(PartBody.class);
 
@@ -600,21 +600,21 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     }
 
     @Override
-    public double getCarWidth() {
+    public double getVehicleWidth() {
         PartBody body = getPartByClass(PartBody.class);
         if (body != null) {
             return body.getWidth();
         }
-        return super.getCarWidth();
+        return super.getVehicleWidth();
     }
 
     @Override
-    public double getCarHeight() {
+    public double getVehicleHeight() {
         PartBody body = getPartByClass(PartBody.class);
         if (body != null) {
             return body.getHeight();
         }
-        return super.getCarHeight();
+        return super.getVehicleHeight();
     }
 
     // NBT serialization
@@ -861,12 +861,12 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         physicsComponent.updateControls(forward, backward, left, right);
     }
 
-    public void openCarGUI(Player player) {
-        inventoryComponent.openCarGUI(player);
+    public void openVehicleGUI(Player player) {
+        inventoryComponent.openVehicleGUI(player);
     }
 
-    public void openCarGUI(net.minecraft.server.level.ServerPlayer player) {
-        inventoryComponent.openCarGUI(player);
+    public void openVehicleGUI(net.minecraft.server.level.ServerPlayer player) {
+        inventoryComponent.openVehicleGUI(player);
     }
 
     // Damage component delegates

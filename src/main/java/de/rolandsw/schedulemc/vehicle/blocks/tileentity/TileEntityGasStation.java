@@ -190,12 +190,12 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
         // Gas station now has unlimited Bio-Diesel, no storage check needed
 
         FluidStack s = FluidUtil.tryFluidTransfer(fluidHandlerInFront, this, transferRate, false);
-        int amountCarCanTake = 0;
+        int amountVehicleCanTake = 0;
         if (!s.isEmpty()) {
-            amountCarCanTake = s.getAmount();
+            amountVehicleCanTake = s.getAmount();
         }
 
-        if (amountCarCanTake <= 0) {
+        if (amountVehicleCanTake <= 0) {
             return;
         }
 

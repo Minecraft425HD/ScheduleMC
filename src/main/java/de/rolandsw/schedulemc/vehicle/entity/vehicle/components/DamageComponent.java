@@ -135,9 +135,9 @@ public class DamageComponent extends VehicleComponent {
 
         for (int i = 0; i < amount; i++) {
             vehicle.level().addParticle(ParticleTypes.LARGE_SMOKE,
-                    vehicle.getX() + (vehicle.getRandom().nextDouble() - 0.5D) * vehicle.getCarWidth(),
-                    vehicle.getY() + vehicle.getRandom().nextDouble() * vehicle.getCarHeight(),
-                    vehicle.getZ() + (vehicle.getRandom().nextDouble() - 0.5D) * vehicle.getCarWidth(),
+                    vehicle.getX() + (vehicle.getRandom().nextDouble() - 0.5D) * vehicle.getVehicleWidth(),
+                    vehicle.getY() + vehicle.getRandom().nextDouble() * vehicle.getVehicleHeight(),
+                    vehicle.getZ() + (vehicle.getRandom().nextDouble() - 0.5D) * vehicle.getVehicleWidth(),
                     0.0D, 0.0D, 0.0D);
         }
     }
@@ -180,7 +180,7 @@ public class DamageComponent extends VehicleComponent {
         if (stack.getItem() instanceof ItemRepairKit) {
             long time = player.level().getGameTime();
             if (time - lastDamage < 10L) {
-                vehicle.destroyCar(player, true);
+                vehicle.destroyVehicle(player, true);
                 stack.hurtAndBreak(50, player, playerEntity -> playerEntity.broadcastBreakEvent(InteractionHand.MAIN_HAND));
             } else {
                 lastDamage = time;
@@ -195,7 +195,7 @@ public class DamageComponent extends VehicleComponent {
         setDamage(getDamage() + val);
     }
 
-    public boolean canStartCarEngine() {
+    public boolean canStartVehicleEngine() {
         return getDamage() < 100F;
     }
 

@@ -75,16 +75,16 @@ public abstract class EntityVehicleBase extends Entity {
     }
 
     public void recalculateBoundingBox() {
-        double width = getCarWidth();
-        double height = getCarHeight();
+        double width = getVehicleWidth();
+        double height = getVehicleHeight();
         setBoundingBox(new AABB(getX() - width / 2D, getY(), getZ() - width / 2D, getX() + width / 2D, getY() + height, getZ() + width / 2D));
     }
 
-    public double getCarWidth() {
+    public double getVehicleWidth() {
         return 1.3D;
     }
 
-    public double getCarHeight() {
+    public double getVehicleHeight() {
         return 1.6D;
     }
 

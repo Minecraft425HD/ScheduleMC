@@ -100,7 +100,7 @@ public class PhysicsComponent extends VehicleComponent {
         }
 
         updateGravity();
-        controlCar();
+        controlVehicle();
         checkPush();
 
         vehicle.move(MoverType.SELF, vehicle.getDeltaMovement());
@@ -193,7 +193,7 @@ public class PhysicsComponent extends VehicleComponent {
         return Minecraft.getInstance().getSoundManager().isActive(sound);
     }
 
-    private void controlCar() {
+    private void controlVehicle() {
         if (!vehicle.isVehicle()) {
             setForward(false);
             setBackward(false);
@@ -326,9 +326,9 @@ public class PhysicsComponent extends VehicleComponent {
         }
     }
 
-    public void startCarEngine() {
+    public void startVehicleEngine() {
         Player player = vehicle.getDriver();
-        if (player != null && canStartCarEngine(player)) {
+        if (player != null && canStartVehicleEngine(player)) {
             setStarted(true);
 
             // Consume fuel when starting the engine
@@ -340,7 +340,7 @@ public class PhysicsComponent extends VehicleComponent {
         }
     }
 
-    public boolean canStartCarEngine(Player player) {
+    public boolean canStartVehicleEngine(Player player) {
         if (vehicle.isInWater() || vehicle.isInLava()) {
             return false;
         }
@@ -351,14 +351,14 @@ public class PhysicsComponent extends VehicleComponent {
         }
 
         DamageComponent damage = vehicle.getDamageComponent();
-        if (damage != null && !damage.canStartCarEngine()) {
+        if (damage != null && !damage.canStartVehicleEngine()) {
             return false;
         }
 
         return true;
     }
 
-    public boolean canPlayerDriveCar(Player player) {
+    public boolean canPlayerDriveVehicle(Player player) {
         if (player.equals(vehicle.getDriver()) && isStarted()) {
             FuelComponent fuel = vehicle.getFuelComponent();
             if (fuel != null && !fuel.hasFuel()) {
@@ -430,7 +430,7 @@ public class PhysicsComponent extends VehicleComponent {
     }
 
     public boolean isForward() {
-        if (vehicle.getDriver() == null || !canPlayerDriveCar(vehicle.getDriver())) {
+        if (vehicle.getDriver() == null || !canPlayerDriveVehicle(vehicle.getDriver())) {
             return false;
         }
         return vehicle.getEntityData().get(FORWARD);
@@ -441,7 +441,7 @@ public class PhysicsComponent extends VehicleComponent {
     }
 
     public boolean isBackward() {
-        if (vehicle.getDriver() == null || !canPlayerDriveCar(vehicle.getDriver())) {
+        if (vehicle.getDriver() == null || !canPlayerDriveVehicle(vehicle.getDriver())) {
             return false;
         }
         return vehicle.getEntityData().get(BACKWARD);
@@ -561,9 +561,9 @@ public class PhysicsComponent extends VehicleComponent {
 
     public void fleeEntity(Monster entity) {
         double fleeDistance = 10;
-        Vec3 vecCar = new Vec3(vehicle.getX(), vehicle.getY(), vehicle.getZ());
+        Vec3 vecVehicle = new Vec3(vehicle.getX(), vehicle.getY(), vehicle.getZ());
         Vec3 vecEntity = new Vec3(entity.getX(), entity.getY(), entity.getZ());
-        Vec3 fleeDir = vecEntity.subtract(vecCar);
+        Vec3 fleeDir = vecEntity.subtract(vecVehicle);
         fleeDir = fleeDir.normalize();
         entity.getNavigation().moveTo(vecEntity.x + fleeDir.x * fleeDistance, vecEntity.y + fleeDir.y * fleeDistance, vecEntity.z + fleeDir.z * fleeDistance, 2.5);
     }

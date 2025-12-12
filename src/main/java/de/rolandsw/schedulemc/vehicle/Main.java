@@ -98,8 +98,8 @@ public class Main {
 
     @SubscribeEvent
     public void onRegisterCommands(RegisterCommandsEvent event) {
-        // DISABLED: CommandCarDemo requires JEI integration which was removed
-        // CommandCarDemo.register(event.getDispatcher());
+        // DISABLED: CommandVehicleDemo requires JEI integration which was removed
+        // CommandVehicleDemo.register(event.getDispatcher());
     }
 
     @SubscribeEvent

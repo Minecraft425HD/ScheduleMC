@@ -37,7 +37,7 @@ public class MessageRepairVehicle implements Message<MessageRepairVehicle> {
             return;
         }
 
-        // NOTE: TileEntityCarWorkshop was removed in a previous cleanup
+        // NOTE: TileEntityVehicleWorkshop was removed in a previous cleanup
         // This message handler is currently non-functional and may need to be reimplemented
         // if vehicle workshop functionality is restored in the future
         BlockEntity te = context.getSender().level().getBlockEntity(pos);

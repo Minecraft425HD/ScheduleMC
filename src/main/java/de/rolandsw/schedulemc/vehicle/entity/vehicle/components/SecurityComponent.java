@@ -73,7 +73,7 @@ public class SecurityComponent extends VehicleComponent {
         return false;
     }
 
-    public boolean canPlayerEnterCar(Player player) {
+    public boolean canPlayerEnterVehicle(Player player) {
         if (isLocked()) {
             player.displayClientMessage(Component.translatable("message.vehicle_locked"), true);
             return false;
@@ -81,7 +81,7 @@ public class SecurityComponent extends VehicleComponent {
         return true;
     }
 
-    public boolean canDestroyCar(Player player) {
+    public boolean canDestroyVehicle(Player player) {
         if (isLocked() && !player.hasPermissions(2)) {
             player.displayClientMessage(Component.translatable("message.vehicle_locked"), true);
             return false;

@@ -107,7 +107,7 @@ public class InventoryComponent extends VehicleComponent {
         // Inv
         if (!vehicle.level().isClientSide) {
             if (externalInventory.getContainerSize() <= 0) {
-                openCarGUI(player);
+                openVehicleGUI(player);
             } else {
                 NetworkHooks.openScreen((ServerPlayer) player, new MenuProvider() {
                     @Override
@@ -154,7 +154,7 @@ public class InventoryComponent extends VehicleComponent {
         return false;
     }
 
-    public void openCarGUI(Player player) {
+    public void openVehicleGUI(Player player) {
         if (!vehicle.level().isClientSide && player instanceof ServerPlayer) {
             NetworkHooks.openScreen((ServerPlayer) player, new MenuProvider() {
                 @Override

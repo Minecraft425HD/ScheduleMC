@@ -93,7 +93,7 @@ public class BatteryComponent extends VehicleComponent {
             }
 
             if (time > getTimeToStart()) {
-                physics.startCarEngine();
+                physics.startVehicleEngine();
                 timeToStart = 0;
             }
         }
@@ -186,7 +186,7 @@ public class BatteryComponent extends VehicleComponent {
     private void spawnParticle(ParticleOptions particleTypes, double offX, double offY, double offZ, double speedX, double speedZ, double r) {
         vehicle.level().addParticle(particleTypes,
                 vehicle.getX() + offX + (vehicle.getRandom().nextDouble() * r - r / 2D),
-                vehicle.getY() + offY + (vehicle.getRandom().nextDouble() * r - r / 2D) + vehicle.getCarHeight() / 8F,
+                vehicle.getY() + offY + (vehicle.getRandom().nextDouble() * r - r / 2D) + vehicle.getVehicleHeight() / 8F,
                 vehicle.getZ() + offZ + (vehicle.getRandom().nextDouble() * r - r / 2D),
                 speedX, 0.0D, speedZ);
     }

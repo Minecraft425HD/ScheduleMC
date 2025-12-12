@@ -72,11 +72,11 @@ public class GuiGasStation extends ScreenBase<ContainerGasStation> {
         IFluidHandler fluidHandler = gasStation.getFluidHandlerInFront();
 
         if (fluidHandler instanceof Entity) {
-            drawCarName(guiGraphics, (Entity) fluidHandler);
+            drawVehicleName(guiGraphics, (Entity) fluidHandler);
         }
 
 
-        drawCarFuel(guiGraphics, fluidHandler);
+        drawVehicleFuel(guiGraphics, fluidHandler);
         drawRefueled(guiGraphics);
         drawBuffer(guiGraphics);
 
@@ -102,7 +102,7 @@ public class GuiGasStation extends ScreenBase<ContainerGasStation> {
         }
     }
 
-    private void drawCarName(GuiGraphics guiGraphics, Entity entity) {
+    private void drawVehicleName(GuiGraphics guiGraphics, Entity entity) {
         String name;
         if (entity instanceof EntityGenericVehicle) {
             name = ((EntityGenericVehicle) entity).getShortName().getString();
@@ -112,7 +112,7 @@ public class GuiGasStation extends ScreenBase<ContainerGasStation> {
         guiGraphics.drawString(font, Component.translatable("gas_station.vehicle_info", Component.literal(name).withStyle(ChatFormatting.WHITE)).getVisualOrderText(), leftPos + 63, topPos + 20, FONT_COLOR, false);
     }
 
-    private void drawCarFuel(GuiGraphics guiGraphics, IFluidHandler handler) {
+    private void drawVehicleFuel(GuiGraphics guiGraphics, IFluidHandler handler) {
         if (handler == null) {
             guiGraphics.drawString(font, Component.translatable("gas_station.no_vehicle").getVisualOrderText(), leftPos + 63, topPos + 30, FONT_COLOR, false);
             return;

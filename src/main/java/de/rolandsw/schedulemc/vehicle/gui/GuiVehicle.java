@@ -18,10 +18,10 @@ public class GuiVehicle extends ScreenBase<ContainerVehicle> {
     private Inventory playerInv;
     private EntityGenericVehicle vehicle;
 
-    public GuiVehicle(ContainerVehicle containerCar, Inventory playerInv, Component title) {
-        super(VEHICLE_GUI_TEXTURE, containerCar, playerInv, title);
+    public GuiVehicle(ContainerVehicle containerVehicle, Inventory playerInv, Component title) {
+        super(VEHICLE_GUI_TEXTURE, containerVehicle, playerInv, title);
         this.playerInv = playerInv;
-        this.vehicle = containerCar.getVehicle();
+        this.vehicle = containerVehicle.getVehicle();
 
         imageWidth = 176;
         // Reduced height - no player inventory needed

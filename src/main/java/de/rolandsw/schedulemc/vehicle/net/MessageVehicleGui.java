@@ -38,7 +38,7 @@ public class MessageVehicleGui implements Message<MessageVehicleGui> {
 
         Entity e = context.getSender().getVehicle();
         if (e instanceof EntityGenericVehicle) {
-            ((EntityGenericVehicle) e).openCarGUI(context.getSender());
+            ((EntityGenericVehicle) e).openVehicleGUI(context.getSender());
         }
     }
 
