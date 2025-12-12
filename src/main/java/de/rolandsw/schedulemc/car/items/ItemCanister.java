@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.car.items;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 
 import de.rolandsw.schedulemc.car.Main;
 import de.rolandsw.schedulemc.car.blocks.ModBlocks;
@@ -114,10 +115,10 @@ public class ItemCanister extends Item {
             fluid = FluidStack.loadFluidStackFromNBT(comp.getCompound("fuel"));
         }
 
-        int maxAmount = Main.SERVER_CONFIG.canisterMaxFuel.get();
+        int maxAmount = ModConfigHandler.CAR_SERVER.canisterMaxFuel.get();
 
         if (fluid != null) {
-            maxAmount = Main.SERVER_CONFIG.canisterMaxFuel.get() - fluid.getAmount();
+            maxAmount = ModConfigHandler.CAR_SERVER.canisterMaxFuel.get() - fluid.getAmount();
         }
 
         if (maxAmount <= 0) {

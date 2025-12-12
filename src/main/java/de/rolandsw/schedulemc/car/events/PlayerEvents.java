@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.car.events;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 
 import de.rolandsw.schedulemc.car.Main;
 import de.rolandsw.schedulemc.car.entity.car.base.EntityVehicleBase;
@@ -48,7 +49,7 @@ public class PlayerEvents {
     }
 
     private void setThirdPerson(boolean third) {
-        if (!Main.CLIENT_CONFIG.thirdPersonEnter.get()) {
+        if (!ModConfigHandler.CAR_CLIENT.thirdPersonEnter.get()) {
             return;
         }
 

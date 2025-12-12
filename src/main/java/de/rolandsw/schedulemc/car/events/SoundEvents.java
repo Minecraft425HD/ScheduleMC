@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.car.events;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 
 import de.rolandsw.schedulemc.car.Main;
 import de.rolandsw.schedulemc.car.sounds.ModSounds;
@@ -13,14 +14,14 @@ public class SoundEvents {
     @SubscribeEvent
     public void onSound(PlayLevelSoundEvent.AtEntity event) {
         if (event.getSound() != null && ModSounds.isCarSoundCategory(event.getSound().get())) {
-            event.setNewVolume(Main.CLIENT_CONFIG.carVolume.get().floatValue());
+            event.setNewVolume(ModConfigHandler.CAR_CLIENT.carVolume.get().floatValue());
         }
     }
 
     @SubscribeEvent
     public void onSound(PlayLevelSoundEvent.AtPosition event) {
         if (event.getSound() != null && ModSounds.isCarSoundCategory(event.getSound().get())) {
-            event.setNewVolume(Main.CLIENT_CONFIG.carVolume.get().floatValue());
+            event.setNewVolume(ModConfigHandler.CAR_CLIENT.carVolume.get().floatValue());
         }
     }
 

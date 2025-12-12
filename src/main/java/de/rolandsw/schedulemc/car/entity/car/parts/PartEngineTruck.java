@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.car.entity.car.parts;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 
 import de.rolandsw.schedulemc.car.Main;
 import de.rolandsw.schedulemc.car.sounds.ModSounds;
@@ -7,10 +8,10 @@ import net.minecraft.sounds.SoundEvent;
 public class PartEngineTruck extends PartEngine {
 
     public PartEngineTruck() {
-        this.maxSpeed = () -> Main.SERVER_CONFIG.engineTruckMaxSpeed.get().floatValue();
-        this.maxReverseSpeed = () -> Main.SERVER_CONFIG.engineTruckMaxReverseSpeed.get().floatValue();
-        this.acceleration = () -> Main.SERVER_CONFIG.engineTruckAcceleration.get().floatValue();
-        this.fuelEfficiency = () -> Main.SERVER_CONFIG.engineTruckFuelEfficiency.get().floatValue();
+        this.maxSpeed = () -> ModConfigHandler.CAR_SERVER.engineTruckMaxSpeed.get().floatValue();
+        this.maxReverseSpeed = () -> ModConfigHandler.CAR_SERVER.engineTruckMaxReverseSpeed.get().floatValue();
+        this.acceleration = () -> ModConfigHandler.CAR_SERVER.engineTruckAcceleration.get().floatValue();
+        this.fuelEfficiency = () -> ModConfigHandler.CAR_SERVER.engineTruckFuelEfficiency.get().floatValue();
     }
 
     @Override

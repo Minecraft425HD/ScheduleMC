@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.car.mixins;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 
 import de.rolandsw.schedulemc.car.Main;
 import net.minecraft.client.OptionInstance;
@@ -31,9 +32,9 @@ public class SoundOptionsScreenMixin extends OptionsSubScreen {
                     Component.translatable("options.generic_value", component, CommonComponents.OPTION_OFF)
                     :
                     Component.translatable("options.percent_value", component, (int) (volume * 100D));
-        }, OptionInstance.UnitDouble.INSTANCE, Main.CLIENT_CONFIG.carVolume.get(), (value) -> {
-            Main.CLIENT_CONFIG.carVolume.set(value);
-            Main.CLIENT_CONFIG.carVolume.save();
+        }, OptionInstance.UnitDouble.INSTANCE, ModConfigHandler.CAR_CLIENT.carVolume.get(), (value) -> {
+            ModConfigHandler.CAR_CLIENT.carVolume.set(value);
+            ModConfigHandler.CAR_CLIENT.carVolume.save();
         });
 
         cir.setReturnValue(newReturnValue);

@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.car.entity.car.components;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 
 import de.rolandsw.schedulemc.car.DamageSourceCar;
 import de.rolandsw.schedulemc.car.Main;
@@ -112,7 +113,7 @@ public class PhysicsComponent extends CarComponent {
     }
 
     public boolean canCollideWith(Entity entityIn) {
-        if (!car.level().isClientSide && Main.SERVER_CONFIG.damageEntities.get() && entityIn instanceof LivingEntity && !car.getPassengers().contains(entityIn)) {
+        if (!car.level().isClientSide && ModConfigHandler.CAR_SERVER.damageEntities.get() && entityIn instanceof LivingEntity && !car.getPassengers().contains(entityIn)) {
             if (entityIn.getBoundingBox().intersects(car.getBoundingBox())) {
                 float speed = getSpeed();
                 if (speed > 0.35F) {
@@ -272,10 +273,10 @@ public class PhysicsComponent extends CarComponent {
         BlockPos pos = new BlockPos((int) car.getX(), (int) (car.getY() - 0.1D), (int) car.getZ());
         BlockState state = car.level().getBlockState(pos);
 
-        if (state.isAir() || Main.SERVER_CONFIG.carDriveBlockList.stream().anyMatch(tag -> tag.contains(state.getBlock()))) {
-            return Main.SERVER_CONFIG.carOnroadSpeed.get().floatValue();
+        if (state.isAir() || ModConfigHandler.CAR_SERVER.carDriveBlockList.stream().anyMatch(tag -> tag.contains(state.getBlock()))) {
+            return ModConfigHandler.CAR_SERVER.carOnroadSpeed.get().floatValue();
         } else {
-            return Main.SERVER_CONFIG.carOffroadSpeed.get().floatValue();
+            return ModConfigHandler.CAR_SERVER.carOffroadSpeed.get().floatValue();
         }
     }
 
@@ -333,7 +334,7 @@ public class PhysicsComponent extends CarComponent {
             // Consume fuel when starting the engine
             FuelComponent fuel = car.getFuelComponent();
             if (fuel != null) {
-                int startFuelCost = Main.SERVER_CONFIG.engineStartFuelConsumption.get();
+                int startFuelCost = ModConfigHandler.CAR_SERVER.engineStartFuelConsumption.get();
                 fuel.removeFuel(startFuelCost);
             }
         }
@@ -543,12 +544,12 @@ public class PhysicsComponent extends CarComponent {
                 if (battery.getBatteryLevel() < 10) {
                     return;
                 }
-                if (Main.SERVER_CONFIG.useBattery.get()) {
+                if (ModConfigHandler.CAR_SERVER.useBattery.get()) {
                     battery.setBatteryLevel(battery.getBatteryLevel() - 10);
                 }
             }
             playHornSound();
-            if (Main.SERVER_CONFIG.hornFlee.get()) {
+            if (ModConfigHandler.CAR_SERVER.hornFlee.get()) {
                 double radius = 15;
                 List<Monster> list = car.level().getEntitiesOfClass(Monster.class, new AABB(car.getX() - radius, car.getY() - radius, car.getZ() - radius, car.getX() + radius, car.getY() + radius, car.getZ() + radius));
                 for (Monster ent : list) {

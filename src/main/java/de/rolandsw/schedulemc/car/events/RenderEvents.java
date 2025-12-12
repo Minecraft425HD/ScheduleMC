@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.car.events;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import de.rolandsw.schedulemc.car.Main;
@@ -35,7 +36,7 @@ public class RenderEvents {
         // This feature provided custom camera zoom when riding cars, but is not critical
         /* DISABLED DUE TO API CHANGE IN 1.20.1
         if (getCar() != null && !mc.options.getCameraType().isFirstPerson()) {
-            evt.getCamera().move(-evt.getCamera().getMaxZoom(Main.CLIENT_CONFIG.carZoom.get() - 4D), 0D, 0D);
+            evt.getCamera().move(-evt.getCamera().getMaxZoom(ModConfigHandler.CAR_CLIENT.carZoom.get() - 4D), 0D, 0D);
         }
         */
     }
@@ -43,8 +44,8 @@ public class RenderEvents {
     @SubscribeEvent
     public void onRender(InputEvent.MouseScrollingEvent evt) {
         if (getCar() != null && !mc.options.getCameraType().isFirstPerson()) {
-            Main.CLIENT_CONFIG.carZoom.set(Math.max(1D, Math.min(20D, Main.CLIENT_CONFIG.carZoom.get() - evt.getScrollDelta())));
-            Main.CLIENT_CONFIG.carZoom.save();
+            ModConfigHandler.CAR_CLIENT.carZoom.set(Math.max(1D, Math.min(20D, ModConfigHandler.CAR_CLIENT.carZoom.get() - evt.getScrollDelta())));
+            ModConfigHandler.CAR_CLIENT.carZoom.save();
             evt.setCanceled(true);
         }
     }

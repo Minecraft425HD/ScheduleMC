@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.car.entity.car.parts;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 
 import de.rolandsw.schedulemc.car.Main;
 import de.rolandsw.schedulemc.car.entity.car.base.EntityGenericCar;
@@ -27,9 +28,9 @@ public class PartRegistry {
 
     public static final Part OAK_BUMPER = new PartBumper(new ResourceLocation("textures/block/oak_planks.png"));
 
-    public static final Part SMALL_TANK = new PartTank(() -> Main.SERVER_CONFIG.tankSmallMaxFuel.get());
-    public static final Part MEDIUM_TANK = new PartTank(() -> Main.SERVER_CONFIG.tankMediumMaxFuel.get());
-    public static final Part LARGE_TANK = new PartTank(() -> Main.SERVER_CONFIG.tankLargeMaxFuel.get());
+    public static final Part SMALL_TANK = new PartTank(() -> ModConfigHandler.CAR_SERVER.tankSmallMaxFuel.get());
+    public static final Part MEDIUM_TANK = new PartTank(() -> ModConfigHandler.CAR_SERVER.tankMediumMaxFuel.get());
+    public static final Part LARGE_TANK = new PartTank(() -> ModConfigHandler.CAR_SERVER.tankLargeMaxFuel.get());
 
     public static final Part WHEEL = new PartWheel(
             new OBJModel(new ResourceLocation(Main.MODID, "models/entity/wheel.obj")),

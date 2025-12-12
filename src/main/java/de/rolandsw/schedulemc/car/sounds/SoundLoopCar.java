@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.car.sounds;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 
 import de.rolandsw.schedulemc.car.Main;
 import de.rolandsw.schedulemc.car.entity.car.base.EntityGenericCar;
@@ -18,7 +19,7 @@ public abstract class SoundLoopCar extends AbstractTickableSoundInstance {
         this.car = car;
         this.looping = true;
         this.delay = 0;
-        this.volume = Main.CLIENT_CONFIG.carVolume.get().floatValue();
+        this.volume = ModConfigHandler.CAR_CLIENT.carVolume.get().floatValue();
         this.pitch = 1F;
         this.relative = false;
         this.attenuation = Attenuation.LINEAR;

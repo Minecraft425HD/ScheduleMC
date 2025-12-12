@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.car.gui;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 
 import de.rolandsw.schedulemc.car.Main;
 import de.rolandsw.schedulemc.car.entity.car.base.EntityGenericCar;
@@ -32,7 +33,7 @@ public class SlotRepairKit extends Slot {
 
             stack.shrink(1);
 
-            float damage = car.getDamageComponent().getDamage() - Main.SERVER_CONFIG.repairKitRepairAmount.get().floatValue();
+            float damage = car.getDamageComponent().getDamage() - ModConfigHandler.CAR_SERVER.repairKitRepairAmount.get().floatValue();
             if (damage >= 0) {
                 car.getDamageComponent().setDamage(damage);
             }

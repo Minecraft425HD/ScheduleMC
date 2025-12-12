@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.car.entity.car.base;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraftforge.common.capabilities.Capability;
@@ -159,7 +160,7 @@ public abstract class EntityVehicleBase extends Entity {
 
     @Override
     public boolean canCollideWith(Entity entity) {
-        if (!Main.SERVER_CONFIG.collideWithEntities.get()) {
+        if (!ModConfigHandler.CAR_SERVER.collideWithEntities.get()) {
             if (!(entity instanceof EntityVehicleBase)) {
                 return false;
             }

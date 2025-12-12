@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.car.entity.car.base;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 
 import de.rolandsw.schedulemc.car.Main;
 import de.rolandsw.schedulemc.config.Fuel;
@@ -164,7 +165,7 @@ public class EntityGenericCar extends EntityVehicleBase implements Container, IF
 
     @Override
     public boolean canCollideWith(Entity entityIn) {
-        if (!Main.SERVER_CONFIG.collideWithEntities.get()) {
+        if (!ModConfigHandler.CAR_SERVER.collideWithEntities.get()) {
             if (!(entityIn instanceof EntityVehicleBase)) {
                 return false;
             }

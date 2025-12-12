@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.car.entity.car.parts;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 
 import org.joml.Vector3d;
 import de.rolandsw.schedulemc.car.Main;
@@ -29,9 +30,9 @@ public class PartBodyTransporter extends PartBody {
         this.height = 1.51F;
         this.minRotationSpeed = 2.0F;
         this.maxRotationSpeed = 5F;
-        this.fuelEfficiency = () -> Main.SERVER_CONFIG.bodyTransporterFuelEfficiency.get().floatValue();
-        this.acceleration = () -> Main.SERVER_CONFIG.bodyTransporterAcceleration.get().floatValue();
-        this.maxSpeed = () -> Main.SERVER_CONFIG.bodyTransporterMaxSpeed.get().floatValue();
+        this.fuelEfficiency = () -> ModConfigHandler.CAR_SERVER.bodyTransporterFuelEfficiency.get().floatValue();
+        this.acceleration = () -> ModConfigHandler.CAR_SERVER.bodyTransporterAcceleration.get().floatValue();
+        this.maxSpeed = () -> ModConfigHandler.CAR_SERVER.bodyTransporterMaxSpeed.get().floatValue();
     }
 
     @Override

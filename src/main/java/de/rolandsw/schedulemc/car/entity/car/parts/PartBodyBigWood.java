@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.car.entity.car.parts;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 
 import org.joml.Vector3d;
 import de.rolandsw.schedulemc.car.Main;
@@ -26,9 +27,9 @@ public class PartBodyBigWood extends PartBodyWoodBase {
         this.height = 1.6F;
         this.minRotationSpeed = 2F;
         this.maxRotationSpeed = 5F;
-        this.fuelEfficiency = () -> Main.SERVER_CONFIG.bodyBigWoodFuelEfficiency.get().floatValue();
-        this.acceleration = () -> Main.SERVER_CONFIG.bodyBigWoodAcceleration.get().floatValue();
-        this.maxSpeed = () -> Main.SERVER_CONFIG.bodyBigWoodMaxSpeed.get().floatValue();
+        this.fuelEfficiency = () -> ModConfigHandler.CAR_SERVER.bodyBigWoodFuelEfficiency.get().floatValue();
+        this.acceleration = () -> ModConfigHandler.CAR_SERVER.bodyBigWoodAcceleration.get().floatValue();
+        this.maxSpeed = () -> ModConfigHandler.CAR_SERVER.bodyBigWoodMaxSpeed.get().floatValue();
     }
 
 }

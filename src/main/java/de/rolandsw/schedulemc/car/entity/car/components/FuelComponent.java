@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.car.entity.car.components;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 
 import de.rolandsw.schedulemc.car.Main;
 import de.rolandsw.schedulemc.config.Fuel;
@@ -63,7 +64,7 @@ public class FuelComponent extends CarComponent implements IFluidHandler {
             }
         } else if (fuel > 0 && physics != null && physics.isStarted()) {
             // Fuel consumption while idling (configurable interval)
-            int idleInterval = Main.SERVER_CONFIG.idleFuelConsumptionInterval.get();
+            int idleInterval = ModConfigHandler.CAR_SERVER.idleFuelConsumptionInterval.get();
             if (car.tickCount % idleInterval == 0) {
                 idleFuelTick();
             }

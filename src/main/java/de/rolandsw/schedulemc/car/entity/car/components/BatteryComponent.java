@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.car.entity.car.components;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 
 import de.rolandsw.schedulemc.car.Main;
 import de.rolandsw.schedulemc.car.entity.car.base.EntityGenericCar;
@@ -111,7 +112,7 @@ public class BatteryComponent extends CarComponent {
      * Simulates alternator charging - faster when driving, slower when idle
      */
     private void rechargeBattery(PhysicsComponent physics) {
-        int baseRechargeRate = Main.SERVER_CONFIG.idleBatteryRechargeRate.get();
+        int baseRechargeRate = ModConfigHandler.CAR_SERVER.idleBatteryRechargeRate.get();
 
         if (baseRechargeRate <= 0) {
             return; // Charging disabled
@@ -122,7 +123,7 @@ public class BatteryComponent extends CarComponent {
 
         if (physics.isAccelerating() && speed > 0.01F) {
             // Driving: alternator generates more power at higher RPM
-            double multiplier = Main.SERVER_CONFIG.drivingBatteryRechargeMultiplier.get();
+            double multiplier = ModConfigHandler.CAR_SERVER.drivingBatteryRechargeMultiplier.get();
             chargeAmount = (int) Math.ceil(baseRechargeRate * speed * multiplier);
         } else {
             // Idling: alternator generates minimal power
@@ -223,7 +224,7 @@ public class BatteryComponent extends CarComponent {
     }
 
     public int getBatteryUsage() {
-        if (!Main.SERVER_CONFIG.useBattery.get()) {
+        if (!ModConfigHandler.CAR_SERVER.useBattery.get()) {
             return 0;
         }
 

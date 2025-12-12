@@ -9,14 +9,22 @@ import net.minecraftforge.common.ForgeConfigSpec;
 public class ModConfigHandler {
 
     public static final ForgeConfigSpec SPEC;
+    public static final ForgeConfigSpec CLIENT_SPEC;
     public static final Common COMMON;
     public static final TobaccoConfig TOBACCO;
+    public static final ServerConfig CAR_SERVER;
+    public static final ClientConfig CAR_CLIENT;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
         COMMON = new Common(builder);
         TOBACCO = new TobaccoConfig(builder);
+        CAR_SERVER = new ServerConfig(builder);
         SPEC = builder.build();
+
+        ForgeConfigSpec.Builder clientBuilder = new ForgeConfigSpec.Builder();
+        CAR_CLIENT = new ClientConfig(clientBuilder);
+        CLIENT_SPEC = clientBuilder.build();
     }
 
     public static class Common {
