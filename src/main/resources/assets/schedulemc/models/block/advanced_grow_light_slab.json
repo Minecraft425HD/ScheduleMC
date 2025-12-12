@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab",
+  "textures": {
+    "bottom": "schedulemc:block/advanced_grow_light_slab",
+    "top": "schedulemc:block/advanced_grow_light_slab",
+    "side": "schedulemc:block/advanced_grow_light_slab"
+  }
+}

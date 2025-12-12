@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "schedulemc:block/oriental_plant_stage5"
+  }
+}
