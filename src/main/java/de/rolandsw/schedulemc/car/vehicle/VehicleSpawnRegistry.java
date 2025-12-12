@@ -19,7 +19,7 @@ public class VehicleSpawnRegistry {
 
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final File SPAWN_FILE = new File("vehicle_spawns.json");
+    private static final File SPAWN_FILE = new File("config/vehicle_spawns.json");
 
     // UUID (Dealer NPC ID) → List<VehicleSpawnPoint>
     private static Map<UUID, List<VehicleSpawnPoint>> dealerSpawnPoints = new HashMap<>();
@@ -54,6 +54,7 @@ public class VehicleSpawnRegistry {
      * Speichert Spawn-Punkte auf Disk
      */
     public static void save() {
+        SPAWN_FILE.getParentFile().mkdirs(); // Erstelle config-Ordner falls nicht vorhanden
         try (FileWriter writer = new FileWriter(SPAWN_FILE)) {
             Map<String, List<VehicleSpawnPoint>> toSave = new HashMap<>();
             for (Map.Entry<UUID, List<VehicleSpawnPoint>> entry : dealerSpawnPoints.entrySet()) {

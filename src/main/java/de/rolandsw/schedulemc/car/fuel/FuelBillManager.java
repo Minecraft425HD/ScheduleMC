@@ -19,7 +19,7 @@ public class FuelBillManager {
 
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final File BILLS_FILE = new File("fuel_bills.json");
+    private static final File BILLS_FILE = new File("config/fuel_bills.json");
 
     // PlayerUUID → List<UnpaidBill>
     private static Map<UUID, List<UnpaidBill>> playerBills = new HashMap<>();
@@ -54,6 +54,7 @@ public class FuelBillManager {
      * Speichert Rechnungen auf Disk
      */
     public static void save() {
+        BILLS_FILE.getParentFile().mkdirs(); // Erstelle config-Ordner falls nicht vorhanden
         try (FileWriter writer = new FileWriter(BILLS_FILE)) {
             Map<String, List<UnpaidBill>> toSave = new HashMap<>();
             for (Map.Entry<UUID, List<UnpaidBill>> entry : playerBills.entrySet()) {

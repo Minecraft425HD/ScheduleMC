@@ -24,7 +24,7 @@ public class CrimeManager {
 
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final File CRIME_FILE = new File("plotmod_crimes.json");
+    private static final File CRIME_FILE = new File("config/plotmod_crimes.json");
     private static final int MAX_WANTED_LEVEL = 5;
 
     // Escape Timer: 30 Sekunden verstecken = Polizei gibt auf
@@ -78,6 +78,7 @@ public class CrimeManager {
      * Speichert Crime-Daten auf Disk
      */
     public static void save() {
+        CRIME_FILE.getParentFile().mkdirs(); // Erstelle config-Ordner falls nicht vorhanden
         try (FileWriter writer = new FileWriter(CRIME_FILE)) {
             CrimeData data = new CrimeData();
 

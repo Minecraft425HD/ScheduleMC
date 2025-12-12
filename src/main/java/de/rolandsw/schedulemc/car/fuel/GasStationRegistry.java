@@ -19,7 +19,7 @@ public class GasStationRegistry {
 
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final File REGISTRY_FILE = new File("gas_station_registry.json");
+    private static final File REGISTRY_FILE = new File("config/gas_station_registry.json");
 
     // UUID → GasStationEntry
     private static Map<UUID, GasStationEntry> gasStations = new HashMap<>();
@@ -58,6 +58,7 @@ public class GasStationRegistry {
      * Speichert Registry auf Disk
      */
     public static void save() {
+        REGISTRY_FILE.getParentFile().mkdirs(); // Erstelle config-Ordner falls nicht vorhanden
         try (FileWriter writer = new FileWriter(REGISTRY_FILE)) {
             List<GasStationEntry> toSave = new ArrayList<>(gasStations.values());
             GSON.toJson(toSave, writer);
