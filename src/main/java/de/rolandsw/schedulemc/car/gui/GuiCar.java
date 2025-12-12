@@ -36,7 +36,7 @@ public class GuiCar extends ScreenBase<ContainerCar> {
         guiGraphics.drawString(font, playerInv.getDisplayName().getVisualOrderText(), 8, this.imageHeight - 96 + 2, fontColor, false);
 
         // Status Header with decorative line
-        String header = "=== STATUS ===";
+        String header = "==== FAHRZEUG STATUS ====";
         int headerX = (imageWidth - font.width(header)) / 2;
         guiGraphics.drawString(font, header, headerX, 6, fontColor, false);
 
@@ -86,19 +86,19 @@ public class GuiCar extends ScreenBase<ContainerCar> {
     // ===== Display String Methods =====
 
     public String getFuelDisplayString() {
-        return String.format("Fuel: %4.1f%% | %4.1fL", getFuelPercent(), getFuelLiters());
+        return String.format("Treibstoff:  %5.1f%% | %5.1f Liter", getFuelPercent(), getFuelLiters());
     }
 
     public String getBatteryDisplayString() {
-        return String.format("Batt: %4.1f%% | %4.1fV", getBatteryPercent(), getBatteryVolts());
+        return String.format("Batterie:    %5.1f%% | %4.1f Volt", getBatteryPercent(), getBatteryVolts());
     }
 
     public String getDamageDisplayString() {
-        return String.format("Dmg:  %4.1f%%", getDamagePercent());
+        return String.format("Schaden:     %5.1f%%", getDamagePercent());
     }
 
     public String getTempDisplayString() {
-        return String.format("Temp: %5.1f°C", getTemperatureCelsius());
+        return String.format("Temperatur:  %5.1f°C", getTemperatureCelsius());
     }
 
     @Override
