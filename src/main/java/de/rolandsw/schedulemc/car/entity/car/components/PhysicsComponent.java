@@ -73,14 +73,18 @@ public class PhysicsComponent extends CarComponent {
         super(car);
     }
 
+    public static void defineData(SynchedEntityData entityData) {
+        entityData.define(STARTED, false);
+        entityData.define(SPEED, 0F);
+        entityData.define(FORWARD, false);
+        entityData.define(BACKWARD, false);
+        entityData.define(LEFT, false);
+        entityData.define(RIGHT, false);
+    }
+
     @Override
     public void defineSynchedData() {
-        car.getEntityData().define(STARTED, false);
-        car.getEntityData().define(SPEED, 0F);
-        car.getEntityData().define(FORWARD, false);
-        car.getEntityData().define(BACKWARD, false);
-        car.getEntityData().define(LEFT, false);
-        car.getEntityData().define(RIGHT, false);
+        defineData(car.getEntityData());
     }
 
     @Override

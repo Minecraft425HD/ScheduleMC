@@ -32,10 +32,14 @@ public class SecurityComponent extends CarComponent {
         super(car);
     }
 
+    public static void defineData(SynchedEntityData entityData) {
+        entityData.define(LOCKED, Boolean.FALSE);
+        entityData.define(LICENSE_PLATE, "");
+    }
+
     @Override
     public void defineSynchedData() {
-        car.getEntityData().define(LOCKED, Boolean.FALSE);
-        car.getEntityData().define(LICENSE_PLATE, "");
+        defineData(car.getEntityData());
     }
 
     @Override

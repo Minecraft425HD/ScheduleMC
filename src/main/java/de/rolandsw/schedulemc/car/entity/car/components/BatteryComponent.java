@@ -40,11 +40,15 @@ public class BatteryComponent extends CarComponent {
         super(car);
     }
 
+    public static void defineData(SynchedEntityData entityData) {
+        entityData.define(BATTERY_LEVEL, 1000); // getMaxBatteryLevel() returns 1000
+        entityData.define(STARTING_TIME, 0);
+        entityData.define(STARTING, Boolean.FALSE);
+    }
+
     @Override
     public void defineSynchedData() {
-        car.getEntityData().define(BATTERY_LEVEL, getMaxBatteryLevel());
-        car.getEntityData().define(STARTING_TIME, 0);
-        car.getEntityData().define(STARTING, Boolean.FALSE);
+        defineData(car.getEntityData());
     }
 
     @Override

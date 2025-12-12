@@ -25,10 +25,14 @@ public class DamageComponent extends CarComponent {
         super(car);
     }
 
+    public static void defineData(SynchedEntityData entityData) {
+        entityData.define(DAMAGE, 0F);
+        entityData.define(TEMPERATURE, 0F);
+    }
+
     @Override
     public void defineSynchedData() {
-        car.getEntityData().define(DAMAGE, 0F);
-        car.getEntityData().define(TEMPERATURE, 0F);
+        defineData(car.getEntityData());
     }
 
     @Override
