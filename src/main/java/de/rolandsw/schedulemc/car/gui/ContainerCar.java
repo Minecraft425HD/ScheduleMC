@@ -27,16 +27,11 @@ public class ContainerCar extends ContainerBase {
 
         addSlot(new SlotRepairKit(car, 0, 134, 66, playerInv.player));
 
-        addPlayerInventorySlots();
+        // Player inventory removed - not needed for car GUI
     }
 
     public EntityGenericCar getCar() {
         return car;
-    }
-
-    @Override
-    public int getInvOffset() {
-        return 82;
     }
 
 }

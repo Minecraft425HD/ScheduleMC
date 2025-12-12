@@ -24,30 +24,45 @@ public class GuiCar extends ScreenBase<ContainerCar> {
         this.car = containerCar.getCar();
 
         imageWidth = 176;
-        imageHeight = 248;
+        // Reduced height - no player inventory needed
+        int numRows = car.getContainerSize() / 9;
+        imageHeight = 98 + numRows * 18 + 18; // Status area + car inventory + bottom margin
     }
 
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         super.renderLabels(guiGraphics, mouseX, mouseY);
 
-        // Title
-        guiGraphics.drawString(font, car.getDisplayName().getVisualOrderText(), 7, 87, fontColor, false);
-        guiGraphics.drawString(font, playerInv.getDisplayName().getVisualOrderText(), 8, this.imageHeight - 96 + 2, fontColor, false);
-
-        // Status Header with decorative line
+        // Status Header centered
         String header = "==== FAHRZEUG STATUS ====";
         int headerX = (imageWidth - font.width(header)) / 2;
         guiGraphics.drawString(font, header, headerX, 6, fontColor, false);
 
-        // Status values in list format
+        // Status values in two-column format
         int startY = 18;
         int lineHeight = 12;
+        int leftColX = 8;
+        int rightColX = 90; // Right-aligned values start here
 
-        guiGraphics.drawString(font, getFuelDisplayString(), 8, startY, fontColor, false);
-        guiGraphics.drawString(font, getBatteryDisplayString(), 8, startY + lineHeight, fontColor, false);
-        guiGraphics.drawString(font, getDamageDisplayString(), 8, startY + lineHeight * 2, fontColor, false);
-        guiGraphics.drawString(font, getTempDisplayString(), 8, startY + lineHeight * 3, fontColor, false);
+        // Draw labels (left column)
+        guiGraphics.drawString(font, "Treibstoff:", leftColX, startY, fontColor, false);
+        guiGraphics.drawString(font, "Batterie:", leftColX, startY + lineHeight, fontColor, false);
+        guiGraphics.drawString(font, "Schaden:", leftColX, startY + lineHeight * 2, fontColor, false);
+        guiGraphics.drawString(font, "Temperatur:", leftColX, startY + lineHeight * 3, fontColor, false);
+
+        // Draw values (right column, right-aligned)
+        drawRightAlignedString(guiGraphics, getFuelValueString(), rightColX, startY);
+        drawRightAlignedString(guiGraphics, getBatteryValueString(), rightColX, startY + lineHeight);
+        drawRightAlignedString(guiGraphics, getDamageValueString(), rightColX, startY + lineHeight * 2);
+        drawRightAlignedString(guiGraphics, getTempValueString(), rightColX, startY + lineHeight * 3);
+
+        // Car name at bottom of status area
+        guiGraphics.drawString(font, car.getDisplayName().getVisualOrderText(), 8, 87, fontColor, false);
+    }
+
+    private void drawRightAlignedString(GuiGraphics guiGraphics, String text, int rightX, int y) {
+        int width = font.width(text);
+        guiGraphics.drawString(font, text, rightX - width, y, fontColor, false);
     }
 
     // ===== Calculation Methods =====
@@ -85,20 +100,20 @@ public class GuiCar extends ScreenBase<ContainerCar> {
 
     // ===== Display String Methods =====
 
-    public String getFuelDisplayString() {
-        return String.format("Treibstoff:  %5.1f%% | %5.1f Liter", getFuelPercent(), getFuelLiters());
+    public String getFuelValueString() {
+        return String.format("%.1f%% | %.1f Liter", getFuelPercent(), getFuelLiters());
     }
 
-    public String getBatteryDisplayString() {
-        return String.format("Batterie:    %5.1f%% | %4.1f Volt", getBatteryPercent(), getBatteryVolts());
+    public String getBatteryValueString() {
+        return String.format("%.1f%% | %.1f Volt", getBatteryPercent(), getBatteryVolts());
     }
 
-    public String getDamageDisplayString() {
-        return String.format("Schaden:     %5.1f%%", getDamagePercent());
+    public String getDamageValueString() {
+        return String.format("%.1f%%", getDamagePercent());
     }
 
-    public String getTempDisplayString() {
-        return String.format("Temperatur:  %5.1f°C", getTemperatureCelsius());
+    public String getTempValueString() {
+        return String.format("%.1f°C", getTemperatureCelsius());
     }
 
     @Override
@@ -107,8 +122,9 @@ public class GuiCar extends ScreenBase<ContainerCar> {
 
         // Cover old bar graphics from the background texture with a solid rectangle
         // This rectangle covers the status area where old bars were displayed
+        // Stops before the 3 special slots (fuel, battery, repair) at Y=66
         int bgColor = 0xFFC6C6C6; // Light gray matching GUI background
-        guiGraphics.fill(leftPos + 7, topPos + 5, leftPos + 169, topPos + 80, bgColor);
+        guiGraphics.fill(leftPos + 7, topPos + 5, leftPos + 169, topPos + 62, bgColor);
     }
 
 }
