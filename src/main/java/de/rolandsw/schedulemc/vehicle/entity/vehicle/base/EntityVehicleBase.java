@@ -254,9 +254,9 @@ public abstract class EntityVehicleBase extends Entity {
         }
         int[][] offsets = DismountHelper.offsetsForDirection(direction);
         AABB bb = entity.getLocalBoundsForPose(Pose.STANDING);
-        AABB carBB = getBoundingBox();
+        AABB vehicleBB = getBoundingBox();
         for (int[] offset : offsets) {
-            Vec3 dismountPos = new Vec3(getX() + (double) offset[0] * (carBB.getXsize() / 2D + bb.getXsize() / 2D + 1D / 16D), getY(), getZ() + (double) offset[1] * (carBB.getXsize() / 2D + bb.getXsize() / 2D + 1D / 16D));
+            Vec3 dismountPos = new Vec3(getX() + (double) offset[0] * (vehicleBB.getXsize() / 2D + bb.getXsize() / 2D + 1D / 16D), getY(), getZ() + (double) offset[1] * (vehicleBB.getXsize() / 2D + bb.getXsize() / 2D + 1D / 16D));
             double y = level().getBlockFloorHeight(new BlockPos((int) dismountPos.x, (int) dismountPos.y, (int) dismountPos.z));
             if (DismountHelper.isBlockFloorValid(y)) {
                 if (DismountHelper.canDismountTo(level(), entity, bb.move(dismountPos))) {

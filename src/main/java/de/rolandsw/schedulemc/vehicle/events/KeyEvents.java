@@ -79,7 +79,7 @@ public class KeyEvents {
             if (Main.CENTER_KEY.isDown()) {
                 if (!wasCenterPressed) {
                     Main.SIMPLE_CHANNEL.sendToServer(new MessageCenterVehicle(player));
-                    player.displayClientMessage(Component.translatable("message.center_car"), true);
+                    player.displayClientMessage(Component.translatable("message.center_vehicle"), true);
                     wasCenterPressed = true;
                 }
             } else {

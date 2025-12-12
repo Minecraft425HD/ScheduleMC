@@ -30,8 +30,8 @@ public class BatteryComponent extends VehicleComponent {
     private SoundLoopStarting startingLoop;
 
     // Server side
-    private boolean carStopped;
-    private boolean carStarted;
+    private boolean vehicleStopped;
+    private boolean vehicleStarted;
 
     // Client side
     private int timeSinceStarted;
@@ -100,7 +100,7 @@ public class BatteryComponent extends VehicleComponent {
 
         if (physics.isStarted()) {
             setStartingTime(0);
-            carStarted = true;
+            vehicleStarted = true;
 
             // Realistic battery charging simulation
             rechargeBattery(physics);
@@ -251,13 +251,13 @@ public class BatteryComponent extends VehicleComponent {
             }
             if (physics.isStarted()) {
                 physics.setStarted(false, true, false);
-                carStopped = true;
+                vehicleStopped = true;
                 return;
             }
         } else {
-            if (carStarted || carStopped) {
-                carStopped = false;
-                carStarted = false;
+            if (vehicleStarted || vehicleStopped) {
+                vehicleStopped = false;
+                vehicleStarted = false;
                 return;
             }
             if (playFailSound) {

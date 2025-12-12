@@ -588,7 +588,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         if (body == null) {
             return super.getTypeName();
         }
-        return Component.translatable("car_name." + body.getTranslationKey(), Component.translatable("car_variant." + body.getMaterialTranslationKey()));
+        return Component.translatable("vehicle_name." + body.getTranslationKey(), Component.translatable("vehicle_variant." + body.getMaterialTranslationKey()));
     }
 
     public Component getShortName() {
@@ -596,7 +596,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         if (body == null) {
             return getTypeName();
         }
-        return Component.translatable("car_short_name." + body.getTranslationKey());
+        return Component.translatable("vehicle_short_name." + body.getTranslationKey());
     }
 
     @Override

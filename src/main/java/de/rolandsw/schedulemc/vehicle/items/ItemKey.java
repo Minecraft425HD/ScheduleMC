@@ -25,9 +25,9 @@ public class ItemKey extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand handIn) {
         ItemStack stack = playerIn.getItemInHand(handIn);
-        UUID carUUID = getVehicle(stack);
+        UUID vehicleUUID = getVehicle(stack);
 
-        if (carUUID == null) {
+        if (vehicleUUID == null) {
             if (worldIn.isClientSide) {
                 playerIn.displayClientMessage(Component.translatable("message.key_no_vehicle"), true);
             }
@@ -36,7 +36,7 @@ public class ItemKey extends Item {
             return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);
         }
 
-        List<EntityGenericVehicle> vehicles = worldIn.getEntitiesOfClass(EntityGenericVehicle.class, new AABB(playerIn.getX() - 25D, playerIn.getY() - 25D, playerIn.getZ() - 25D, playerIn.getX() + 25D, playerIn.getY() + 25D, playerIn.getZ() + 25D), new PredicateUUID(carUUID));
+        List<EntityGenericVehicle> vehicles = worldIn.getEntitiesOfClass(EntityGenericVehicle.class, new AABB(playerIn.getX() - 25D, playerIn.getY() - 25D, playerIn.getZ() - 25D, playerIn.getX() + 25D, playerIn.getY() + 25D, playerIn.getZ() + 25D), new PredicateUUID(vehicleUUID));
 
         if (vehicles.isEmpty()) {
             playerIn.displayClientMessage(Component.translatable("message.vehicle_out_of_range"), true);
@@ -54,14 +54,14 @@ public class ItemKey extends Item {
         return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);
     }
 
-    public static void setVehicle(ItemStack stack, UUID carUUID) {
+    public static void setVehicle(ItemStack stack, UUID vehicleUUID) {
         if (!stack.hasTag()) {
             stack.setTag(new CompoundTag());
         }
 
         CompoundTag comp = stack.getTag();
 
-        comp.putUUID("vehicle", carUUID);
+        comp.putUUID("vehicle", vehicleUUID);
     }
 
     public static UUID getVehicle(ItemStack stack) {

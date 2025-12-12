@@ -109,7 +109,7 @@ public class GuiGasStation extends ScreenBase<ContainerGasStation> {
         } else {
             name = entity.getDisplayName().getString();
         }
-        guiGraphics.drawString(font, Component.translatable("gas_station.car_info", Component.literal(name).withStyle(ChatFormatting.WHITE)).getVisualOrderText(), leftPos + 63, topPos + 20, FONT_COLOR, false);
+        guiGraphics.drawString(font, Component.translatable("gas_station.vehicle_info", Component.literal(name).withStyle(ChatFormatting.WHITE)).getVisualOrderText(), leftPos + 63, topPos + 20, FONT_COLOR, false);
     }
 
     private void drawCarFuel(GuiGraphics guiGraphics, IFluidHandler handler) {
@@ -122,14 +122,14 @@ public class GuiGasStation extends ScreenBase<ContainerGasStation> {
             return;
         }
         FluidStack tank = handler.getFluidInTank(0);
-        Component fuelText = Component.translatable("gas_station.car_fuel_amount",
+        Component fuelText = Component.translatable("gas_station.vehicle_fuel_amount",
                 Component.literal(String.valueOf(tank.getAmount())).withStyle(ChatFormatting.WHITE),
                 Component.literal(String.valueOf(handler.getTankCapacity(0))).withStyle(ChatFormatting.WHITE)
         );
         guiGraphics.drawString(font, fuelText.getVisualOrderText(), leftPos + 63, topPos + 30, FONT_COLOR, false);
 
         if (!tank.isEmpty()) {
-            guiGraphics.drawString(font, Component.translatable("gas_station.car_fuel_type", Component.literal(tank.getDisplayName().getString()).withStyle(ChatFormatting.WHITE)).getVisualOrderText(), leftPos + 63, topPos + 40, FONT_COLOR, false);
+            guiGraphics.drawString(font, Component.translatable("gas_station.vehicle_fuel_type", Component.literal(tank.getDisplayName().getString()).withStyle(ChatFormatting.WHITE)).getVisualOrderText(), leftPos + 63, topPos + 40, FONT_COLOR, false);
         }
     }
 

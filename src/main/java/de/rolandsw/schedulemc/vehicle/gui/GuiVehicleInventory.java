@@ -15,12 +15,12 @@ public class GuiVehicleInventory extends ScreenBase<ContainerVehicleInventory> {
     private EntityGenericVehicle vehicle;
     private Inventory playerInventory;
 
-    public GuiVehicleInventory(ContainerVehicleInventory carInventory, Inventory playerInventory, Component title) {
-        super(carInventory.getRows() == 3 ? GUI_TEXTURE_3 : GUI_TEXTURE_6, carInventory, playerInventory, title);
-        this.vehicle = carInventory.getVehicle();
+    public GuiVehicleInventory(ContainerVehicleInventory vehicleInventory, Inventory playerInventory, Component title) {
+        super(vehicleInventory.getRows() == 3 ? GUI_TEXTURE_3 : GUI_TEXTURE_6, vehicleInventory, playerInventory, title);
+        this.vehicle = vehicleInventory.getVehicle();
         this.playerInventory = playerInventory;
         imageWidth = 176;
-        imageHeight = carInventory.getRows() == 3 ? 166 : 222;
+        imageHeight = vehicleInventory.getRows() == 3 ? 166 : 222;
     }
 
     @Override
