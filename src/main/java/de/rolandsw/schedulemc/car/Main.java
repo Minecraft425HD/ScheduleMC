@@ -79,7 +79,7 @@ public class Main {
 
         SERVER_CONFIG = CommonRegistry.registerConfig(ModConfig.Type.COMMON, ServerConfig.class, true);
         FUEL_CONFIG = CommonRegistry.registerDynamicConfig(DynamicConfig.DynamicConfigType.SERVER, Main.MODID, "fuel", FuelConfig.class);
-        CLIENT_CONFIG = CommonRegistry.registerConfig(ModConfig.Type.COMMON, ClientConfig.class);
+        CLIENT_CONFIG = CommonRegistry.registerConfig(ModConfig.Type.CLIENT, ClientConfig.class);
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             FMLJavaModLoadingContext.get().getModEventBus().addListener(Main.this::clientSetup);
