@@ -78,8 +78,8 @@ public class KeyEvents {
             }
         }
 
-        // Open car GUI only when holding Shift + I (to not conflict with normal inventory)
-        if (Main.CAR_GUI_KEY.isDown() && player.isShiftKeyDown()) {
+        // Open car GUI with I key
+        if (Main.CAR_GUI_KEY.isDown()) {
             if (!wasGuiPressed) {
                 car.openCarGUI(player);
                 wasGuiPressed = true;
