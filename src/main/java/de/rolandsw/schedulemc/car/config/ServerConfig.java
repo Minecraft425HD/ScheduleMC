@@ -34,6 +34,12 @@ public class ServerConfig extends ConfigBase {
     public final ForgeConfigSpec.BooleanValue hornFlee;
     public final ForgeConfigSpec.BooleanValue useBattery;
 
+    // Realistic car simulation settings
+    public final ForgeConfigSpec.IntValue engineStartFuelConsumption;
+    public final ForgeConfigSpec.IntValue idleFuelConsumptionInterval;
+    public final ForgeConfigSpec.IntValue idleBatteryRechargeRate;
+    public final ForgeConfigSpec.DoubleValue drivingBatteryRechargeMultiplier;
+
     public final ForgeConfigSpec.IntValue tankSmallMaxFuel;
     public final ForgeConfigSpec.IntValue tankMediumMaxFuel;
     public final ForgeConfigSpec.IntValue tankLargeMaxFuel;
@@ -93,6 +99,11 @@ public class ServerConfig extends ConfigBase {
         damageEntities = builder.comment("Whether the cars should damage other entities on collision").define("car.damage_entities", true);
         hornFlee = builder.comment("Whether animals flee from the car when the horn is activted").define("car.horn_flee", true);
         useBattery = builder.comment("True if starting the car should use battery").define("car.use_battery", true);
+
+        engineStartFuelConsumption = builder.comment("How much fuel is consumed when starting the engine (in mb)").defineInRange("car.engine_start_fuel_consumption", 5, 0, 100);
+        idleFuelConsumptionInterval = builder.comment("How often fuel is consumed while idling (in ticks). 600 ticks = 30 seconds. Lower = more frequent consumption.").defineInRange("car.idle_fuel_consumption_interval", 600, 20, 12000);
+        idleBatteryRechargeRate = builder.comment("How much battery is recharged per tick while idling (with engine running)").defineInRange("car.idle_battery_recharge_rate", 1, 0, 100);
+        drivingBatteryRechargeMultiplier = builder.comment("Battery recharge rate multiplier based on speed while driving. Recharge = idleRate * speed * multiplier").defineInRange("car.driving_battery_recharge_multiplier", 20.0D, 0.0D, 1000.0D);
 
         carOffroadSpeed = builder.comment("The speed modifier for cars on non road blocks").defineInRange("car.offroad_speed_modifier", 1D, 0.001D, 10D);
         carOnroadSpeed = builder.comment("The speed modifier for cars on road blocks", "On road blocks are defined in the config section 'road_blocks'").defineInRange("car.onroad_speed_modifier", 1D, 0.001D, 10D);

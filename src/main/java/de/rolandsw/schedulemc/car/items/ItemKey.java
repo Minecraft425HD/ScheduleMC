@@ -1,7 +1,7 @@
 package de.rolandsw.schedulemc.car.items;
 
 import de.rolandsw.schedulemc.car.PredicateUUID;
-import de.rolandsw.schedulemc.car.entity.car.base.EntityCarLockBase;
+import de.rolandsw.schedulemc.car.entity.car.base.EntityGenericCar;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -36,14 +36,14 @@ public class ItemKey extends Item {
             return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);
         }
 
-        List<EntityCarLockBase> cars = worldIn.getEntitiesOfClass(EntityCarLockBase.class, new AABB(playerIn.getX() - 25D, playerIn.getY() - 25D, playerIn.getZ() - 25D, playerIn.getX() + 25D, playerIn.getY() + 25D, playerIn.getZ() + 25D), new PredicateUUID(carUUID));
+        List<EntityGenericCar> cars = worldIn.getEntitiesOfClass(EntityGenericCar.class, new AABB(playerIn.getX() - 25D, playerIn.getY() - 25D, playerIn.getZ() - 25D, playerIn.getX() + 25D, playerIn.getY() + 25D, playerIn.getZ() + 25D), new PredicateUUID(carUUID));
 
         if (cars.isEmpty()) {
             playerIn.displayClientMessage(Component.translatable("message.car_out_of_range"), true);
             return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);
         }
 
-        EntityCarLockBase car = cars.get(0);
+        EntityGenericCar car = cars.get(0);
 
         if (car.getPassengers().stream().anyMatch(entity -> entity == playerIn)) {
             return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);

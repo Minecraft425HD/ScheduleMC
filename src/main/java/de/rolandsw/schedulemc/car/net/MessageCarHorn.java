@@ -3,7 +3,7 @@ package de.rolandsw.schedulemc.car.net;
 import java.util.UUID;
 
 import de.rolandsw.schedulemc.car.Main;
-import de.rolandsw.schedulemc.car.entity.car.base.EntityCarBase;
+import de.rolandsw.schedulemc.car.entity.car.base.EntityGenericCar;
 import de.maxhenkel.corelib.net.Message;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
@@ -43,13 +43,13 @@ public class MessageCarHorn implements Message<MessageCarHorn> {
 
         Entity riding = context.getSender().getVehicle();
 
-        if (!(riding instanceof EntityCarBase)) {
+        if (!(riding instanceof EntityGenericCar)) {
             return;
         }
 
-        EntityCarBase car = (EntityCarBase) riding;
+        EntityGenericCar car = (EntityGenericCar) riding;
         if (context.getSender().equals(car.getDriver())) {
-            car.onHornPressed(context.getSender());
+            car.getPhysicsComponent().onHornPressed(context.getSender());
         }
     }
 

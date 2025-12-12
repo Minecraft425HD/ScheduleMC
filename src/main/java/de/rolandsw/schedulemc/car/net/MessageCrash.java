@@ -2,7 +2,7 @@ package de.rolandsw.schedulemc.car.net;
 
 import java.util.UUID;
 
-import de.rolandsw.schedulemc.car.entity.car.base.EntityCarBase;
+import de.rolandsw.schedulemc.car.entity.car.base.EntityGenericCar;
 import de.maxhenkel.corelib.net.Message;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
@@ -18,7 +18,7 @@ public class MessageCrash implements Message<MessageCrash> {
 
     }
 
-    public MessageCrash(float speed, EntityCarBase car) {
+    public MessageCrash(float speed, EntityGenericCar car) {
         this.speed = speed;
         this.uuid = car.getUUID();
     }
@@ -32,11 +32,11 @@ public class MessageCrash implements Message<MessageCrash> {
     public void executeServerSide(NetworkEvent.Context context) {
         Entity riding = context.getSender().getVehicle();
 
-        if (!(riding instanceof EntityCarBase)) {
+        if (!(riding instanceof EntityGenericCar)) {
             return;
         }
 
-        EntityCarBase car = (EntityCarBase) riding;
+        EntityGenericCar car = (EntityGenericCar) riding;
 
         if (!car.getUUID().equals(uuid)) {
             return;

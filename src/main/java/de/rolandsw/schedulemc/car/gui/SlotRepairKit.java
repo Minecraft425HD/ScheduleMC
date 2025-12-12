@@ -1,7 +1,7 @@
 package de.rolandsw.schedulemc.car.gui;
 
 import de.rolandsw.schedulemc.car.Main;
-import de.rolandsw.schedulemc.car.entity.car.base.EntityCarDamageBase;
+import de.rolandsw.schedulemc.car.entity.car.base.EntityGenericCar;
 import de.rolandsw.schedulemc.car.items.ModItems;
 import de.rolandsw.schedulemc.car.sounds.ModSounds;
 import net.minecraft.sounds.SoundSource;
@@ -13,10 +13,10 @@ import net.minecraft.world.item.ItemStack;
 
 public class SlotRepairKit extends Slot {
 
-    private EntityCarDamageBase car;
+    private EntityGenericCar car;
     private Player player;
 
-    public SlotRepairKit(EntityCarDamageBase car, int index, int xPosition, int yPosition, Player player) {
+    public SlotRepairKit(EntityGenericCar car, int index, int xPosition, int yPosition, Player player) {
         super(new SimpleContainer(1), index, xPosition, yPosition);
         this.car = car;
         this.player = player;
@@ -28,13 +28,13 @@ public class SlotRepairKit extends Slot {
             return;
         }
 
-        if (car.getDamage() >= 90) {
+        if (car.getDamageComponent().getDamage() >= 90) {
 
             stack.shrink(1);
 
-            float damage = car.getDamage() - Main.SERVER_CONFIG.repairKitRepairAmount.get().floatValue();
+            float damage = car.getDamageComponent().getDamage() - Main.SERVER_CONFIG.repairKitRepairAmount.get().floatValue();
             if (damage >= 0) {
-                car.setDamage(damage);
+                car.getDamageComponent().setDamage(damage);
             }
             ModSounds.playSound(ModSounds.RATCHET.get(), car.level(), car.blockPosition(), null, SoundSource.BLOCKS);
         }

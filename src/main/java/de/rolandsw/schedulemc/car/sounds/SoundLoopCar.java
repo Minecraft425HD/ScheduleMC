@@ -1,7 +1,7 @@
 package de.rolandsw.schedulemc.car.sounds;
 
 import de.rolandsw.schedulemc.car.Main;
-import de.rolandsw.schedulemc.car.entity.car.base.EntityCarBase;
+import de.rolandsw.schedulemc.car.entity.car.base.EntityGenericCar;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
@@ -11,9 +11,9 @@ import net.minecraft.sounds.SoundSource;
 
 public abstract class SoundLoopCar extends AbstractTickableSoundInstance {
 
-    protected EntityCarBase car;
+    protected EntityGenericCar car;
 
-    public SoundLoopCar(EntityCarBase car, SoundEvent event, SoundSource category) {
+    public SoundLoopCar(EntityGenericCar car, SoundEvent event, SoundSource category) {
         super(event, category, SoundInstance.createUnseededRandom());
         this.car = car;
         this.looping = true;

@@ -43,6 +43,14 @@ public abstract class EntityVehicleBase extends Entity {
 
     protected float deltaRotation;
 
+    public float getDeltaRotation() {
+        return deltaRotation;
+    }
+
+    public void setDeltaRotation(float deltaRotation) {
+        this.deltaRotation = deltaRotation;
+    }
+
     public EntityVehicleBase(EntityType type, Level worldIn) {
         super(type, worldIn);
         this.blocksBuilding = true;

@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.car.entity.car.base;
 
 import de.rolandsw.schedulemc.car.Main;
 import de.rolandsw.schedulemc.car.config.Fuel;
+import de.rolandsw.schedulemc.car.entity.car.components.*;
 import de.rolandsw.schedulemc.car.entity.car.parts.*;
 import de.rolandsw.schedulemc.car.items.ICarPart;
 import de.rolandsw.schedulemc.car.items.ItemKey;
@@ -14,24 +15,44 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.Container;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3d;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 import java.util.UUID;
 
-public class EntityGenericCar extends EntityCarLicensePlateBase {
+/**
+ * Main car entity using component-based architecture.
+ * Inherits directly from EntityVehicleBase, eliminating 8 intermediate classes.
+ */
+public class EntityGenericCar extends EntityVehicleBase implements Container, IFluidHandler {
 
     private static final EntityDataAccessor<NonNullList<ItemStack>> PARTS = SynchedEntityData.defineId(EntityGenericCar.class, Main.ITEM_LIST.get());
+
+    // Components - lazy initialization to avoid issues with Entity constructor
+    private PhysicsComponent physicsComponent;
+    private FuelComponent fuelComponent;
+    private BatteryComponent batteryComponent;
+    private DamageComponent damageComponent;
+    private InventoryComponent inventoryComponent;
+    private SecurityComponent securityComponent;
 
     private List<Part> parts;
 
@@ -40,12 +61,145 @@ public class EntityGenericCar extends EntityCarLicensePlateBase {
     private UUID vehicleUUID;
     private BlockPos homeSpawnPoint;
 
+    private boolean isInitialized;
+    private boolean isSpawned = true;
+
     public EntityGenericCar(EntityType type, Level worldIn) {
         super(type, worldIn);
+        initializeComponents();
     }
 
     public EntityGenericCar(Level worldIn) {
         this(Main.CAR_ENTITY_TYPE.get(), worldIn);
+    }
+
+    private void initializeComponents() {
+        this.physicsComponent = new PhysicsComponent(this);
+        this.fuelComponent = new FuelComponent(this);
+        this.batteryComponent = new BatteryComponent(this);
+        this.damageComponent = new DamageComponent(this);
+        this.inventoryComponent = new InventoryComponent(this);
+        this.securityComponent = new SecurityComponent(this);
+    }
+
+    // Component getters
+    public PhysicsComponent getPhysicsComponent() {
+        return physicsComponent;
+    }
+
+    public FuelComponent getFuelComponent() {
+        return fuelComponent;
+    }
+
+    public BatteryComponent getBatteryComponent() {
+        return batteryComponent;
+    }
+
+    public DamageComponent getDamageComponent() {
+        return damageComponent;
+    }
+
+    public InventoryComponent getInventoryComponent() {
+        return inventoryComponent;
+    }
+
+    public SecurityComponent getSecurityComponent() {
+        return securityComponent;
+    }
+
+    @Override
+    protected void defineSynchedData() {
+        this.entityData.define(PARTS, NonNullList.create());
+
+        // Define component data directly (components not yet initialized at this point)
+        PhysicsComponent.defineData(this.entityData);
+        FuelComponent.defineData(this.entityData);
+        BatteryComponent.defineData(this.entityData);
+        DamageComponent.defineData(this.entityData);
+        SecurityComponent.defineData(this.entityData);
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+
+        // Tick all components
+        physicsComponent.tick();
+        fuelComponent.tick();
+        damageComponent.tick();
+
+        if (level().isClientSide) {
+            batteryComponent.clientTick();
+        } else {
+            batteryComponent.serverTick();
+        }
+
+        tryInitPartsAndModel();
+    }
+
+    @Override
+    public InteractionResult interact(Player player, InteractionHand hand) {
+        // Security check first
+        if (securityComponent.onInteract(player, hand)) {
+            return InteractionResult.CONSUME;
+        }
+
+        // Damage/repair check
+        if (damageComponent.onInteract(player, hand)) {
+            return InteractionResult.CONSUME;
+        }
+
+        // Inventory interaction
+        if (inventoryComponent.onInteract(player, hand)) {
+            return InteractionResult.SUCCESS;
+        }
+
+        // Default vehicle interaction (entering)
+        return super.interact(player, hand);
+    }
+
+    public boolean canPlayerEnterCar(Player player) {
+        return securityComponent.canPlayerEnterCar(player);
+    }
+
+    @Override
+    public boolean canCollideWith(Entity entityIn) {
+        if (!Main.SERVER_CONFIG.collideWithEntities.get()) {
+            if (!(entityIn instanceof EntityVehicleBase)) {
+                return false;
+            }
+        }
+        physicsComponent.canCollideWith(entityIn);
+        return (entityIn.canBeCollidedWith() || entityIn.isPushable()) && !isPassengerOfSameVehicle(entityIn);
+    }
+
+    public void destroyCar(Player player, boolean dropParts) {
+        if (!securityComponent.canDestroyCar(player)) {
+            return;
+        }
+
+        inventoryComponent.dropInventoryContents();
+        if (dropParts) {
+            inventoryComponent.dropPartInventory();
+        }
+        kill();
+    }
+
+    @Override
+    public void remove(RemovalReason reason) {
+        super.remove(reason);
+
+        if (!level().isClientSide() && vehicleUUID != null) {
+            de.rolandsw.schedulemc.car.vehicle.VehiclePurchaseHandler.onVehicleDestroyed(vehicleUUID);
+        }
+
+        // Notify all components
+        physicsComponent.onRemove();
+        fuelComponent.onRemove();
+        batteryComponent.onRemove();
+        damageComponent.onRemove();
+        inventoryComponent.onRemove();
+        securityComponent.onRemove();
     }
 
     // Owner tracking methods
@@ -73,6 +227,7 @@ public class EntityGenericCar extends EntityCarLicensePlateBase {
         return homeSpawnPoint;
     }
 
+    // Parts system
     private List<Part> getCarParts() {
         if (parts == null) {
             parts = new ArrayList<>();
@@ -80,16 +235,139 @@ public class EntityGenericCar extends EntityCarLicensePlateBase {
         return parts;
     }
 
-    @Override
+    public <T extends Part> T getPartByClass(Class<T> clazz) {
+        for (Part part : getCarParts()) {
+            if (clazz.isInstance(part)) {
+                return (T) part;
+            }
+        }
+        return null;
+    }
+
+    public void setPartSerializer() {
+        Container partInv = inventoryComponent.getPartInventory();
+        NonNullList<ItemStack> stacks = NonNullList.withSize(partInv.getContainerSize(), ItemStack.EMPTY);
+        for (int i = 0; i < partInv.getContainerSize(); i++) {
+            stacks.set(i, partInv.getItem(i));
+        }
+        entityData.set(PARTS, stacks);
+    }
+
+    private boolean updateClientSideItems() {
+        NonNullList<ItemStack> stacks = entityData.get(PARTS);
+        if (stacks.isEmpty()) {
+            return false;
+        }
+        Container partInv = inventoryComponent.getPartInventory();
+        for (int i = 0; i < stacks.size(); i++) {
+            partInv.setItem(i, stacks.get(i));
+        }
+        return true;
+    }
+
+    public void initParts() {
+        getCarParts().clear();
+
+        Container partInv = inventoryComponent.getPartInventory();
+        for (int i = 0; i < partInv.getContainerSize(); i++) {
+            ItemStack stack = partInv.getItem(i);
+
+            if (!(stack.getItem() instanceof ICarPart)) {
+                continue;
+            }
+
+            ICarPart itemCarPart = (ICarPart) stack.getItem();
+            Part part = itemCarPart.getPart(stack);
+
+            if (part == null) {
+                continue;
+            }
+
+            getCarParts().add(part);
+        }
+
+        checkInitializing();
+    }
+
+    private void checkInitializing() {
+        PartBody body = getPartByClass(PartBody.class);
+
+        if (body instanceof PartBodyTransporter) {
+            PartContainer container = getPartByClass(PartContainer.class);
+            if (container != null) {
+                inventoryComponent.setExternalInventorySize(54);
+            } else {
+                inventoryComponent.setExternalInventorySize(27);
+            }
+        }
+
+        PartWheelBase partWheels = getPartByClass(PartWheelBase.class);
+        if (partWheels != null) {
+            setMaxUpStep(partWheels.getStepHeight());
+        }
+    }
+
+    public void tryInitPartsAndModel() {
+        if (!isInitialized) {
+            if (level().isClientSide) {
+                if (!isSpawned || updateClientSideItems()) {
+                    initParts();
+                    initModel();
+                    isInitialized = true;
+                }
+            } else {
+                initParts();
+                isInitialized = true;
+            }
+        }
+    }
+
+    public void setIsSpawned(boolean isSpawned) {
+        this.isSpawned = isSpawned;
+    }
+
+    public boolean isSpawned() {
+        return isSpawned;
+    }
+
+    public List<Part> getModelParts() {
+        return Collections.unmodifiableList(getCarParts());
+    }
+
+    // Model rendering (client-side)
+    private List<OBJModelInstance<EntityGenericCar>> modelInstances = new ArrayList<>();
+
+    protected void initModel() {
+        modelInstances.clear();
+
+        boolean addedWheels = false;
+        for (Part part : getCarParts()) {
+            if (part instanceof PartModel) {
+                if (part instanceof PartWheelBase) {
+                    if (!addedWheels) {
+                        addedWheels = true;
+                    } else {
+                        continue;
+                    }
+                }
+                modelInstances.addAll(((PartModel) part).getInstances(this));
+            }
+        }
+    }
+
+    public List<OBJModelInstance<EntityGenericCar>> getModels() {
+        return modelInstances;
+    }
+
+    // Properties delegated to parts
     public float getWheelRotationAmount() {
         PartWheelBase wheel = getPartByClass(PartWheelBase.class);
         if (wheel == null) {
-            return super.getWheelRotationAmount();
+            return 120F * (physicsComponent != null ? physicsComponent.getSpeed() : 0);
         }
-        return wheel.getRotationModifier() * getSpeed();
+        return wheel.getRotationModifier() * (physicsComponent != null ? physicsComponent.getSpeed() : 0);
     }
 
-    @Override
     public int getFluidInventorySize() {
         PartTankContainer tank = getPartByClass(PartTankContainer.class);
         if (tank == null) {
@@ -98,7 +376,6 @@ public class EntityGenericCar extends EntityCarLicensePlateBase {
         return tank.getFluidAmount();
     }
 
-    @Override
     public float getMaxSpeed() {
         PartEngine engine = getPartByClass(PartEngine.class);
         if (engine == null) {
@@ -111,7 +388,6 @@ public class EntityGenericCar extends EntityCarLicensePlateBase {
         return engine.getMaxSpeed() * chassis.getMaxSpeed();
     }
 
-    @Override
     public float getMaxReverseSpeed() {
         PartEngine engine = getPartByClass(PartEngine.class);
         if (engine == null) {
@@ -120,7 +396,6 @@ public class EntityGenericCar extends EntityCarLicensePlateBase {
         return engine.getMaxReverseSpeed();
     }
 
-    @Override
     public float getAcceleration() {
         PartEngine engine = getPartByClass(PartEngine.class);
         if (engine == null) {
@@ -133,7 +408,6 @@ public class EntityGenericCar extends EntityCarLicensePlateBase {
         return engine.getAcceleration() * chassis.getAcceleration();
     }
 
-    @Override
     public float getMaxRotationSpeed() {
         PartBody chassis = getPartByClass(PartBody.class);
         if (chassis == null) {
@@ -142,7 +416,6 @@ public class EntityGenericCar extends EntityCarLicensePlateBase {
         return chassis.getMaxRotationSpeed();
     }
 
-    @Override
     public float getMinRotationSpeed() {
         PartBody chassis = getPartByClass(PartBody.class);
         if (chassis == null) {
@@ -151,66 +424,56 @@ public class EntityGenericCar extends EntityCarLicensePlateBase {
         return chassis.getMinRotationSpeed();
     }
 
-    @Override
     public float getRollResistance() {
         return 0.02F;
     }
 
-    @Override
     public float getOptimalTemperature() {
         return 90F;
     }
 
-    @Override
     public int getMaxFuel() {
         PartTank tank = getPartByClass(PartTank.class);
         if (tank == null) {
-            return 0;
+            return 500; // Default small tank size when no tank part is installed
         }
         return tank.getSize();
     }
 
-    @Override
-    public int getEfficiency(@Nullable Fluid fluid) {
+    public float getCarFuelEfficiency() {
         PartEngine engine = getPartByClass(PartEngine.class);
-        if (engine == null) {
-            return 0;
-        }
-
         PartBody chassis = getPartByClass(PartBody.class);
-        if (chassis == null) {
-            return 0;
+
+        // If no parts are installed yet, use default efficiency
+        if (engine == null || chassis == null) {
+            return 1.0F; // Default efficiency when no parts installed
         }
 
-        int fluidEfficiency = 0;
+        float efficiency = chassis.getFuelEfficiency() * engine.getFuelEfficiency();
 
-        if (fluid == null) {
-            fluidEfficiency = 100;
-        } else {
-            Fuel fuel = Main.FUEL_CONFIG.getFuels().getOrDefault(fluid, null);
-            if (fuel != null) {
-                fluidEfficiency = fuel.getEfficiency();
-            }
+        // Ensure efficiency is never 0 or negative, which would prevent fuel consumption
+        if (efficiency <= 0.0F) {
+            return 1.0F;
         }
 
-        return (int) Math.ceil(chassis.getFuelEfficiency() * engine.getFuelEfficiency() * (float) fluidEfficiency);
+        return efficiency;
     }
 
-    @Override
     public float getRotationModifier() {
         return 0.5F;
     }
 
-    @Override
     public float getPitch() {
+        if (physicsComponent == null) {
+            return 0F;
+        }
         PartEngine engine = getPartByClass(PartEngine.class);
         if (engine instanceof PartEngineTruck) {
-            return 1F + 0.35F * Math.abs(getSpeed()) / getMaxSpeed();
+            return 1F + 0.35F * Math.abs(physicsComponent.getSpeed()) / getMaxSpeed();
         }
-        return Math.abs(getSpeed()) / getMaxSpeed();
+        return Math.abs(physicsComponent.getSpeed()) / getMaxSpeed();
     }
 
-    @Override
     public double getPlayerYOffset() {
         return 0.2D;
     }
@@ -233,7 +496,6 @@ public class EntityGenericCar extends EntityCarLicensePlateBase {
         return chassis.getPlayerOffsets().length;
     }
 
-    @Override
     public Vector3d getLicensePlateOffset() {
         PartBody chassis = getPartByClass(PartBody.class);
         if (chassis == null) {
@@ -254,6 +516,7 @@ public class EntityGenericCar extends EntityCarLicensePlateBase {
         return true;
     }
 
+    // Sound events
     public SoundEvent getStopSound() {
         PartEngine engine = getPartByClass(PartEngine.class);
         if (engine == null) {
@@ -336,196 +599,6 @@ public class EntityGenericCar extends EntityCarLicensePlateBase {
     }
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(PARTS, NonNullList.create());
-    }
-
-    public <T extends Part> T getPartByClass(Class<T> clazz) {
-        for (Part part : getCarParts()) {
-            if (clazz.isInstance(part)) {
-                return (T) part;
-            }
-        }
-
-        return null;
-    }
-
-    public void setPartSerializer() {
-        NonNullList<ItemStack> stacks = NonNullList.withSize(partInventory.getContainerSize(), ItemStack.EMPTY);
-        for (int i = 0; i < partInventory.getContainerSize(); i++) {
-            stacks.set(i, partInventory.getItem(i));
-        }
-
-        entityData.set(PARTS, stacks);
-    }
-
-    private boolean updateClientSideItems() {
-        NonNullList<ItemStack> stacks = entityData.get(PARTS);
-        if (stacks.isEmpty()) {
-            return false;
-        }
-        for (int i = 0; i < stacks.size(); i++) {
-            partInventory.setItem(i, stacks.get(i));
-        }
-        return true;
-    }
-
-    @Override
-    public void readAdditionalSaveData(CompoundTag compound) {
-        super.readAdditionalSaveData(compound);
-
-        // Load owner tracking data
-        if (compound.contains("OwnerId")) {
-            this.ownerId = compound.getUUID("OwnerId");
-        }
-        if (compound.contains("VehicleUUID")) {
-            this.vehicleUUID = compound.getUUID("VehicleUUID");
-        }
-        if (compound.contains("HomeSpawnX")) {
-            int x = compound.getInt("HomeSpawnX");
-            int y = compound.getInt("HomeSpawnY");
-            int z = compound.getInt("HomeSpawnZ");
-            this.homeSpawnPoint = new BlockPos(x, y, z);
-        }
-
-        if (compound.getAllKeys().stream().allMatch(s -> s.equals("id"))) {
-            // DISABLED: JEI integration removed
-            // randomizeParts();
-            setItem(0, ItemKey.getKeyForCar(getUUID()));
-            setItem(1, ItemKey.getKeyForCar(getUUID()));
-            setFuelAmount(100);
-            setBatteryLevel(500);
-            initTemperature();
-        }
-
-        setPartSerializer();
-        tryInitPartsAndModel();
-    }
-
-    @Override
-    public void addAdditionalSaveData(CompoundTag compound) {
-        super.addAdditionalSaveData(compound);
-
-        // Save owner tracking data
-        if (this.ownerId != null) {
-            compound.putUUID("OwnerId", this.ownerId);
-        }
-        if (this.vehicleUUID != null) {
-            compound.putUUID("VehicleUUID", this.vehicleUUID);
-        }
-        if (this.homeSpawnPoint != null) {
-            compound.putInt("HomeSpawnX", this.homeSpawnPoint.getX());
-            compound.putInt("HomeSpawnY", this.homeSpawnPoint.getY());
-            compound.putInt("HomeSpawnZ", this.homeSpawnPoint.getZ());
-        }
-    }
-
-    /* DISABLED DUE TO JEI INTEGRATION REMOVAL
-    protected void randomizeParts() {
-        List<CarRecipe> allRecipes = CarRecipeBuilder.getAllRecipes();
-        CarRecipe recipe = allRecipes.get(new Random().nextInt(allRecipes.size()));
-        getCarParts().clear();
-        partInventory.clearContent();
-        List<ItemStack> inputs = recipe.getInputs();
-        for (int i = 0; i < inputs.size(); i++) {
-            partInventory.setItem(i, inputs.get(i));
-        }
-    }
-    */
-
-    private boolean isInitialized;
-    private boolean isSpawned = true;
-
-    public void setIsSpawned(boolean isSpawned) {
-        this.isSpawned = isSpawned;
-    }
-
-    public boolean isSpawned() {
-        return isSpawned;
-    }
-
-    @Override
-    public void tick() {
-        super.tick();
-
-        tryInitPartsAndModel();
-    }
-
-    @Override
-    public void remove(RemovalReason reason) {
-        super.remove(reason);
-
-        // Wenn Fahrzeug zerstört wird, gib Spawn-Punkt frei
-        if (!level().isClientSide() && vehicleUUID != null) {
-            de.rolandsw.schedulemc.car.vehicle.VehiclePurchaseHandler.onVehicleDestroyed(vehicleUUID);
-        }
-    }
-
-    public void tryInitPartsAndModel() {
-        if (!isInitialized) {
-            if (level().isClientSide) {
-                if (!isSpawned || updateClientSideItems()) {
-                    initParts();
-                    initModel();
-                    isInitialized = true;
-                }
-            } else {
-                initParts();
-                isInitialized = true;
-            }
-        }
-    }
-
-    public List<Part> getModelParts() {
-        return Collections.unmodifiableList(getCarParts());
-    }
-
-    public void initParts() {
-        getCarParts().clear();
-
-        for (int i = 0; i < partInventory.getContainerSize(); i++) {
-            ItemStack stack = partInventory.getItem(i);
-
-            if (!(stack.getItem() instanceof ICarPart)) {
-                continue;
-            }
-
-            ICarPart itemCarPart = (ICarPart) stack.getItem();
-
-            Part part = itemCarPart.getPart(stack);
-
-            if (part == null) {
-                continue;
-            }
-
-            getCarParts().add(part);
-        }
-
-        checkInitializing();
-    }
-
-    private void checkInitializing() {
-        PartBody body = getPartByClass(PartBody.class);
-
-        if (body instanceof PartBodyTransporter) {
-            PartContainer container = getPartByClass(PartContainer.class);
-            if (externalInventory.getContainerSize() <= 0) {
-                if (container != null) {
-                    externalInventory = new SimpleContainer(54);
-                } else {
-                    externalInventory = new SimpleContainer(27);
-                }
-            }
-        }
-
-        PartWheelBase partWheels = getPartByClass(PartWheelBase.class);
-        if (partWheels != null) {
-            setMaxUpStep(partWheels.getStepHeight());
-        }
-    }
-
-    @Override
     public double getCarWidth() {
         PartBody body = getPartByClass(PartBody.class);
         if (body != null) {
@@ -543,30 +616,291 @@ public class EntityGenericCar extends EntityCarLicensePlateBase {
         return super.getCarHeight();
     }
 
-    //---------------CLIENT---------------------------------
+    // NBT serialization
+    @Override
+    public void readAdditionalSaveData(CompoundTag compound) {
+        // Load owner tracking data
+        if (compound.contains("OwnerId")) {
+            this.ownerId = compound.getUUID("OwnerId");
+        }
+        if (compound.contains("VehicleUUID")) {
+            this.vehicleUUID = compound.getUUID("VehicleUUID");
+        }
+        if (compound.contains("HomeSpawnX")) {
+            int x = compound.getInt("HomeSpawnX");
+            int y = compound.getInt("HomeSpawnY");
+            int z = compound.getInt("HomeSpawnZ");
+            this.homeSpawnPoint = new BlockPos(x, y, z);
+        }
 
-    private List<OBJModelInstance<EntityGenericCar>> modelInstances = new ArrayList<>();
+        // Initialize default items if this is a new car
+        if (compound.getAllKeys().stream().allMatch(s -> s.equals("id"))) {
+            Container internal = inventoryComponent.getInternalInventory();
+            internal.setItem(0, ItemKey.getKeyForCar(getUUID()));
+            internal.setItem(1, ItemKey.getKeyForCar(getUUID()));
+            fuelComponent.setFuelAmount(100);
+            batteryComponent.setBatteryLevel(500);
+            damageComponent.initTemperature();
+        }
 
-    protected void initModel() {
-        modelInstances.clear();
+        // Load all component data
+        physicsComponent.readAdditionalData(compound);
+        fuelComponent.readAdditionalData(compound);
+        batteryComponent.readAdditionalData(compound);
+        damageComponent.readAdditionalData(compound);
+        inventoryComponent.readAdditionalData(compound);
+        securityComponent.readAdditionalData(compound);
 
-        boolean addedWheels = false;
-        for (Part part : getCarParts()) {
-            if (part instanceof PartModel) {
-                if (part instanceof PartWheelBase) {
-                    if (!addedWheels) {
-                        addedWheels = true;
-                    } else {
-                        continue;
-                    }
-                }
-                modelInstances.addAll(((PartModel) part).getInstances(this));
-            }
+        setPartSerializer();
+        tryInitPartsAndModel();
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundTag compound) {
+        // Save owner tracking data
+        if (this.ownerId != null) {
+            compound.putUUID("OwnerId", this.ownerId);
+        }
+        if (this.vehicleUUID != null) {
+            compound.putUUID("VehicleUUID", this.vehicleUUID);
+        }
+        if (this.homeSpawnPoint != null) {
+            compound.putInt("HomeSpawnX", this.homeSpawnPoint.getX());
+            compound.putInt("HomeSpawnY", this.homeSpawnPoint.getY());
+            compound.putInt("HomeSpawnZ", this.homeSpawnPoint.getZ());
+        }
+
+        // Save all component data
+        physicsComponent.saveAdditionalData(compound);
+        fuelComponent.saveAdditionalData(compound);
+        batteryComponent.saveAdditionalData(compound);
+        damageComponent.saveAdditionalData(compound);
+        inventoryComponent.saveAdditionalData(compound);
+        securityComponent.saveAdditionalData(compound);
+    }
+
+    // Container implementation (delegates to InventoryComponent)
+    @Override
+    public int getContainerSize() {
+        return inventoryComponent.getInternalInventory().getContainerSize();
+    }
+
+    @Override
+    public ItemStack getItem(int index) {
+        return inventoryComponent.getInternalInventory().getItem(index);
+    }
+
+    @Override
+    public ItemStack removeItem(int index, int count) {
+        return inventoryComponent.getInternalInventory().removeItem(index, count);
+    }
+
+    @Override
+    public ItemStack removeItemNoUpdate(int index) {
+        return inventoryComponent.getInternalInventory().removeItemNoUpdate(index);
+    }
+
+    @Override
+    public void setItem(int index, ItemStack stack) {
+        inventoryComponent.getInternalInventory().setItem(index, stack);
+    }
+
+    @Override
+    public int getMaxStackSize() {
+        return inventoryComponent.getInternalInventory().getMaxStackSize();
+    }
+
+    @Override
+    public void setChanged() {
+        inventoryComponent.getInternalInventory().setChanged();
+    }
+
+    @Override
+    public boolean stillValid(Player player) {
+        return inventoryComponent.getInternalInventory().stillValid(player);
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return inventoryComponent.getInternalInventory().isEmpty();
+    }
+
+    @Override
+    public void startOpen(Player player) {
+        inventoryComponent.getInternalInventory().startOpen(player);
+    }
+
+    @Override
+    public void stopOpen(Player player) {
+        inventoryComponent.getInternalInventory().stopOpen(player);
+    }
+
+    @Override
+    public boolean canPlaceItem(int index, ItemStack stack) {
+        return inventoryComponent.getInternalInventory().canPlaceItem(index, stack);
+    }
+
+    @Override
+    public void clearContent() {
+        inventoryComponent.getInternalInventory().clearContent();
+    }
+
+    public Container getExternalInventory() {
+        return inventoryComponent.getExternalInventory();
+    }
+
+    public Container getPartInventory() {
+        return inventoryComponent.getPartInventory();
+    }
+
+    // IFluidHandler implementation (delegates to FuelComponent)
+    @Override
+    public int getTanks() {
+        return fuelComponent.getTanks();
+    }
+
+    @Override
+    @NotNull
+    public net.minecraftforge.fluids.FluidStack getFluidInTank(int tank) {
+        return fuelComponent.getFluidInTank(tank);
+    }
+
+    @Override
+    public int getTankCapacity(int tank) {
+        return fuelComponent.getTankCapacity(tank);
+    }
+
+    @Override
+    public boolean isFluidValid(int tank, @NotNull net.minecraftforge.fluids.FluidStack stack) {
+        return fuelComponent.isFluidValid(tank, stack);
+    }
+
+    @Override
+    public int fill(net.minecraftforge.fluids.FluidStack resource, IFluidHandler.FluidAction action) {
+        return fuelComponent.fill(resource, action);
+    }
+
+    @Override
+    @NotNull
+    public net.minecraftforge.fluids.FluidStack drain(net.minecraftforge.fluids.FluidStack resource, IFluidHandler.FluidAction action) {
+        return fuelComponent.drain(resource, action);
+    }
+
+    @Override
+    @NotNull
+    public net.minecraftforge.fluids.FluidStack drain(int maxDrain, IFluidHandler.FluidAction action) {
+        return fuelComponent.drain(maxDrain, action);
+    }
+
+    // Capability support
+    @Override
+    @NotNull
+    public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @org.jetbrains.annotations.Nullable net.minecraft.core.Direction side) {
+        if (cap.equals(ForgeCapabilities.FLUID_HANDLER)) {
+            return LazyOptional.of(() -> (T) fuelComponent);
+        }
+        return super.getCapability(cap, side);
+    }
+
+    public void centerCar() {
+        net.minecraft.core.Direction facing = getDirection();
+        switch (facing) {
+            case SOUTH:
+                setYRot(0F);
+                break;
+            case NORTH:
+                setYRot(180F);
+                break;
+            case EAST:
+                setYRot(-90F);
+                break;
+            case WEST:
+                setYRot(90F);
+                break;
         }
     }
 
-    public List<OBJModelInstance<EntityGenericCar>> getModels() {
-        return modelInstances;
+    // Additional delegation methods for compatibility
+
+    // Battery component delegates
+    public float getBatterySoundPitchLevel() {
+        return batteryComponent.getBatterySoundPitchLevel();
     }
 
+    public boolean isStarting() {
+        return batteryComponent.isStarting();
+    }
+
+    public void setBatteryLevel(int level) {
+        batteryComponent.setBatteryLevel(level);
+    }
+
+    // Physics component delegates
+    public boolean isStarted() {
+        return physicsComponent.isStarted();
+    }
+
+    public float getSpeed() {
+        return physicsComponent.getSpeed();
+    }
+
+    public float getKilometerPerHour() {
+        return physicsComponent.getKilometerPerHour();
+    }
+
+    public float getWheelRotation(float partialTicks) {
+        return physicsComponent.getWheelRotation(partialTicks);
+    }
+
+    public void updateControls(boolean forward, boolean backward, boolean left, boolean right, Player player) {
+        physicsComponent.updateControls(forward, backward, left, right);
+    }
+
+    public void updateControls(boolean forward, boolean backward, boolean left, boolean right, net.minecraft.server.level.ServerPlayer player) {
+        physicsComponent.updateControls(forward, backward, left, right);
+    }
+
+    public void openCarGUI(Player player) {
+        inventoryComponent.openCarGUI(player);
+    }
+
+    public void openCarGUI(net.minecraft.server.level.ServerPlayer player) {
+        inventoryComponent.openCarGUI(player);
+    }
+
+    // Damage component delegates
+    public void onCollision(float speed) {
+        damageComponent.onCollision(speed);
+    }
+
+    public void initTemperature() {
+        damageComponent.initTemperature();
+    }
+
+    // Fuel component delegates
+    public void setFuelAmount(int amount) {
+        fuelComponent.setFuelAmount(amount);
+    }
+
+    public int getFuelAmount() {
+        return fuelComponent.getFuelAmount();
+    }
+
+    // Security component delegates
+    public String getLicensePlate() {
+        return securityComponent.getLicensePlate();
+    }
+
+    public boolean isLocked() {
+        return securityComponent.isLocked();
+    }
+
+    public void setLocked(boolean locked, boolean playSound) {
+        securityComponent.setLocked(locked, playSound);
+    }
+
+    // Utility methods for component access to protected fields
+    public net.minecraft.util.RandomSource getRandom() {
+        return this.random;
+    }
 }

@@ -1,7 +1,7 @@
 package de.rolandsw.schedulemc.car.gui;
 
 import de.rolandsw.schedulemc.car.Main;
-import de.rolandsw.schedulemc.car.entity.car.base.EntityCarInventoryBase;
+import de.rolandsw.schedulemc.car.entity.car.base.EntityGenericCar;
 import de.maxhenkel.corelib.inventory.ScreenBase;
 import de.maxhenkel.corelib.math.MathUtils;
 import net.minecraft.client.gui.GuiGraphics;
@@ -16,7 +16,7 @@ public class GuiCar extends ScreenBase<ContainerCar> {
     private static final int fontColor = 4210752;
 
     private Inventory playerInv;
-    private EntityCarInventoryBase car;
+    private EntityGenericCar car;
 
     public GuiCar(ContainerCar containerCar, Inventory playerInv, Component title) {
         super(CAR_GUI_TEXTURE, containerCar, playerInv, title);
@@ -24,117 +24,107 @@ public class GuiCar extends ScreenBase<ContainerCar> {
         this.car = containerCar.getCar();
 
         imageWidth = 176;
-        imageHeight = 248;
+        // Reduced height - no player inventory needed
+        int numRows = car.getContainerSize() / 9;
+        imageHeight = 98 + numRows * 18 + 18; // Status area + car inventory + bottom margin
     }
 
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         super.renderLabels(guiGraphics, mouseX, mouseY);
 
-        //Titles
-        guiGraphics.drawString(font, car.getDisplayName().getVisualOrderText(), 7, 87, fontColor, false);
-        guiGraphics.drawString(font, playerInv.getDisplayName().getVisualOrderText(), 8, this.imageHeight - 96 + 2, fontColor, false);
+        // Status Header centered
+        String header = "==== FAHRZEUG STATUS ====";
+        int headerX = (imageWidth - font.width(header)) / 2;
+        guiGraphics.drawString(font, header, headerX, 6, fontColor, false);
 
-        guiGraphics.drawString(font, getFuelString().getVisualOrderText(), 7, 9, fontColor, false);
-        guiGraphics.drawString(font, getDamageString().getVisualOrderText(), 7, 35, fontColor, false);
-        guiGraphics.drawString(font, getBatteryString().getVisualOrderText(), 95, 9, fontColor, false);
-        guiGraphics.drawString(font, getTempString().getVisualOrderText(), 95, 35, fontColor, false);
+        // Status values in two-column format
+        int startY = 18;
+        int lineHeight = 12;
+        int leftColX = 8;
+        int rightColX = 90; // Right-aligned values start here
+
+        // Draw labels (left column)
+        guiGraphics.drawString(font, "Treibstoff:", leftColX, startY, fontColor, false);
+        guiGraphics.drawString(font, "Batterie:", leftColX, startY + lineHeight, fontColor, false);
+        guiGraphics.drawString(font, "Schaden:", leftColX, startY + lineHeight * 2, fontColor, false);
+        guiGraphics.drawString(font, "Temperatur:", leftColX, startY + lineHeight * 3, fontColor, false);
+
+        // Draw values (right column, right-aligned)
+        drawRightAlignedString(guiGraphics, getFuelValueString(), rightColX, startY);
+        drawRightAlignedString(guiGraphics, getBatteryValueString(), rightColX, startY + lineHeight);
+        drawRightAlignedString(guiGraphics, getDamageValueString(), rightColX, startY + lineHeight * 2);
+        drawRightAlignedString(guiGraphics, getTempValueString(), rightColX, startY + lineHeight * 3);
+
+        // Car name at bottom of status area
+        guiGraphics.drawString(font, car.getDisplayName().getVisualOrderText(), 8, 87, fontColor, false);
     }
 
+    private void drawRightAlignedString(GuiGraphics guiGraphics, String text, int rightX, int y) {
+        int width = font.width(text);
+        guiGraphics.drawString(font, text, rightX - width, y, fontColor, false);
+    }
+
+    // ===== Calculation Methods =====
+
     public float getFuelPercent() {
-        float fuelPerc = ((float) car.getFuelAmount()) / ((float) car.getMaxFuel()) * 100F;
+        float fuelPerc = ((float) car.getFuelComponent().getFuelAmount()) / ((float) car.getMaxFuel()) * 100F;
         return MathUtils.round(fuelPerc, 2);
     }
 
-    public int getBatteryPercent() {
-        return (int) (car.getBatteryPercentage() * 100F);
+    public float getFuelLiters() {
+        float liters = car.getFuelComponent().getFuelAmount() / 1000.0F;
+        return MathUtils.round(liters, 1);
+    }
+
+    public float getBatteryPercent() {
+        return MathUtils.round(car.getBatteryComponent().getBatteryPercentage() * 100F, 1);
+    }
+
+    public float getBatteryVolts() {
+        // Battery voltage range: 11.0V (0%) to 12.5V (100%)
+        float percentage = car.getBatteryComponent().getBatteryPercentage();
+        float volts = 11.0F + (percentage * 1.5F);
+        return MathUtils.round(volts, 1);
     }
 
     public float getTemperatureCelsius() {
-        return MathUtils.round(car.getTemperature(), 2);
-    }
-
-    public float getTemperatureFarenheit() {
-        return MathUtils.round((car.getTemperature() * 1.8F) + 32F, 2);
-    }
-
-    public float getTemperaturePercent() {
-        float temp = car.getTemperature();
-        if (temp > 100F) {
-            temp = 100F;
-        }
-        if (temp < 0F) {
-            temp = 0F;
-        }
-        return temp / 100F;
+        return MathUtils.round(car.getDamageComponent().getTemperature(), 1);
     }
 
     public float getDamagePercent() {
-        float dmg = car.getDamage();
+        float dmg = car.getDamageComponent().getDamage();
         dmg = Math.min(dmg, 100);
-        return MathUtils.round(dmg, 2);
+        return MathUtils.round(dmg, 1);
     }
 
-    public Component getFuelString() {
-        return Component.translatable("gui.car_fuel", String.valueOf(getFuelPercent()));
+    // ===== Display String Methods =====
+
+    public String getFuelValueString() {
+        return String.format("%.1f%% | %.1f Liter", getFuelPercent(), getFuelLiters());
     }
 
-    public Component getDamageString() {
-        return Component.translatable("gui.car_damage", String.valueOf(getDamagePercent()));
+    public String getBatteryValueString() {
+        return String.format("%.1f%% | %.1f Volt", getBatteryPercent(), getBatteryVolts());
     }
 
-    public Component getBatteryString() {
-        return Component.translatable("gui.car_battery", String.valueOf(getBatteryPercent()));
+    public String getDamageValueString() {
+        return String.format("%.1f%%", getDamagePercent());
     }
 
-    public Component getTempString() {
-        if (Main.CLIENT_CONFIG.tempInFarenheit.get()) {
-            return Component.translatable("gui.car_temperature_farenheit", String.valueOf(getTemperatureFarenheit()));
-        } else {
-            return Component.translatable("gui.car_temperature_celsius", String.valueOf(getTemperatureCelsius()));
-        }
+    public String getTempValueString() {
+        return String.format("%.1f°C", getTemperatureCelsius());
     }
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY) {
         super.renderBg(guiGraphics, partialTicks, mouseX, mouseY);
-        drawFuel(guiGraphics, getFuelPercent());
-        drawDamage(guiGraphics, 100F - getDamagePercent());
-        drawBattery(guiGraphics, car.getBatteryPercentage());
-        drawTemp(guiGraphics, getTemperaturePercent());
-    }
 
-    public void drawFuel(GuiGraphics guiGraphics, float percent) {
-        percent = Math.min(100F, percent);
-        //72x10
-        int scaled = (int) (72F * percent / 100D);
-        int i = this.leftPos;
-        int j = this.topPos;
-        guiGraphics.blit(CAR_GUI_TEXTURE, i + 8, j + 20, 176, 0, scaled, 10);
-    }
-
-    public void drawDamage(GuiGraphics guiGraphics, float percent) {
-        percent = Math.min(100F, percent);
-        int scaled = (int) (72F * percent / 100D);
-        int i = this.leftPos;
-        int j = this.topPos;
-        guiGraphics.blit(CAR_GUI_TEXTURE, i + 8, j + 46, 176, 10, scaled, 10);
-    }
-
-    public void drawTemp(GuiGraphics guiGraphics, float percent) {
-        percent = Math.min(100F, percent);
-        int scaled = (int) (72F * percent);
-        int i = this.leftPos;
-        int j = this.topPos;
-        guiGraphics.blit(CAR_GUI_TEXTURE, i + 96, j + 46, 176, 30, scaled, 10);
-    }
-
-    public void drawBattery(GuiGraphics guiGraphics, float percent) {
-        percent = Math.min(100F, percent);
-        int scaled = (int) (72F * percent);
-        int i = this.leftPos;
-        int j = this.topPos;
-        guiGraphics.blit(CAR_GUI_TEXTURE, i + 96, j + 20, 176, 20, scaled, 10);
+        // Cover old bar graphics from the background texture with a solid rectangle
+        // This rectangle covers the status area where old bars were displayed
+        // Stops before the 3 special slots (fuel, battery, repair) at Y=66
+        int bgColor = 0xFFC6C6C6; // Light gray matching GUI background
+        guiGraphics.fill(leftPos + 7, topPos + 5, leftPos + 169, topPos + 62, bgColor);
     }
 
 }

@@ -1,6 +1,6 @@
 package de.rolandsw.schedulemc.car.gui;
 
-import de.rolandsw.schedulemc.car.entity.car.base.EntityCarFuelBase;
+import de.rolandsw.schedulemc.car.entity.car.base.EntityGenericCar;
 import de.rolandsw.schedulemc.car.items.ItemCanister;
 import de.rolandsw.schedulemc.car.items.ModItems;
 import de.rolandsw.schedulemc.car.sounds.ModSounds;
@@ -14,10 +14,10 @@ import net.minecraft.world.item.ItemStack;
 
 public class SlotFuel extends Slot {
 
-    private EntityCarFuelBase car;
+    private EntityGenericCar car;
     private Player player;
 
-    public SlotFuel(EntityCarFuelBase car, int index, int xPosition, int yPosition, Player player) {
+    public SlotFuel(EntityGenericCar car, int index, int xPosition, int yPosition, Player player) {
         super(new SimpleContainer(1), index, xPosition, yPosition);
         this.car = car;
         this.player = player;

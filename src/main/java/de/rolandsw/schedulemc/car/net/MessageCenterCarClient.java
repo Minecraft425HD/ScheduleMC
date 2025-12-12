@@ -1,6 +1,6 @@
 package de.rolandsw.schedulemc.car.net;
 
-import de.rolandsw.schedulemc.car.entity.car.base.EntityCarBase;
+import de.rolandsw.schedulemc.car.entity.car.base.EntityGenericCar;
 import de.maxhenkel.corelib.net.Message;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
@@ -34,11 +34,11 @@ public class MessageCenterCarClient implements Message<MessageCenterCarClient> {
         Player ridingPlayer = player.level().getPlayerByUUID(uuid);
         Entity riding = ridingPlayer.getVehicle();
 
-        if (!(riding instanceof EntityCarBase)) {
+        if (!(riding instanceof EntityGenericCar)) {
             return;
         }
 
-        EntityCarBase car = (EntityCarBase) riding;
+        EntityGenericCar car = (EntityGenericCar) riding;
         if (ridingPlayer.equals(car.getDriver())) {
             car.centerCar();
         }

@@ -1,7 +1,6 @@
 package de.maxhenkel.tools;
 
 import com.mojang.math.Axis;
-import de.rolandsw.schedulemc.car.entity.car.base.EntityCarBase;
 import de.rolandsw.schedulemc.car.entity.car.base.EntityGenericCar;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -28,7 +27,7 @@ public class EntityTools {
         return player.level().getEntitiesOfClass(EntityGenericCar.class, new AABB(player.getX() - distance, player.getY() - distance, player.getZ() - distance, player.getX() + distance, player.getY() + distance, player.getZ() + distance), entity -> entity.getUUID().equals(uuid)).stream().findAny().orElse(null);
     }
 
-    public static void drawCarOnScreen(GuiGraphics graphics, EntityCarBase car, int posX, int posY, float scale, float rotation) {
+    public static void drawCarOnScreen(GuiGraphics graphics, EntityGenericCar car, int posX, int posY, float scale, float rotation) {
         graphics.pose().pushPose();
         graphics.pose().translate(posX, posY, 100D);
         graphics.pose().scale(1F, 1F, -1F);
@@ -67,7 +66,7 @@ public class EntityTools {
             }
         }
 
-        public void render(GuiGraphics guiGraphics, EntityCarBase car, int posX, int posY, int scale) {
+        public void render(GuiGraphics guiGraphics, EntityGenericCar car, int posX, int posY, int scale) {
             EntityTools.drawCarOnScreen(guiGraphics, car, posX, posY, scale, rotation + rotationPerTick * minecraft.getFrameTime());
         }
     }
@@ -86,7 +85,7 @@ public class EntityTools {
             this(3.6F);
         }
 
-        public void render(GuiGraphics guiGraphics, EntityCarBase car, int posX, int posY, int scale) {
+        public void render(GuiGraphics guiGraphics, EntityGenericCar car, int posX, int posY, int scale) {
             ticker.render(new Renderer() {
                 @Override
                 public void render(float partialTicks) {

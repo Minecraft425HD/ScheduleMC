@@ -1,7 +1,7 @@
 package de.rolandsw.schedulemc.car.net;
 
 import de.rolandsw.schedulemc.car.Main;
-import de.rolandsw.schedulemc.car.entity.car.base.EntityCarBatteryBase;
+import de.rolandsw.schedulemc.car.entity.car.base.EntityGenericCar;
 import de.maxhenkel.corelib.net.Message;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
@@ -41,13 +41,13 @@ public class MessageStarting implements Message<MessageStarting> {
 
         Entity riding = context.getSender().getVehicle();
 
-        if (!(riding instanceof EntityCarBatteryBase)) {
+        if (!(riding instanceof EntityGenericCar)) {
             return;
         }
 
-        EntityCarBatteryBase car = (EntityCarBatteryBase) riding;
+        EntityGenericCar car = (EntityGenericCar) riding;
         if (context.getSender().equals(car.getDriver())) {
-            car.setStarting(start, playSound);
+            car.getBatteryComponent().setStarting(start, playSound);
         }
     }
 
