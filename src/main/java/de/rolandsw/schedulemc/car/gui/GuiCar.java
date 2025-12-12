@@ -41,23 +41,42 @@ public class GuiCar extends ScreenBase<ContainerCar> {
         // Status values in two-column format
         int startY = 18;
         int lineHeight = 12;
-        int leftColX = 8;
-        int rightColX = 90; // Right-aligned values start here
+        int labelX = 8;
 
-        // Draw labels (left column)
-        guiGraphics.drawString(font, "Treibstoff:", leftColX, startY, fontColor, false);
-        guiGraphics.drawString(font, "Batterie:", leftColX, startY + lineHeight, fontColor, false);
-        guiGraphics.drawString(font, "Schaden:", leftColX, startY + lineHeight * 2, fontColor, false);
-        guiGraphics.drawString(font, "Temperatur:", leftColX, startY + lineHeight * 3, fontColor, false);
+        int valueX = 72; // Values start here (after longest label "Temperatur:")
 
-        // Draw values (right column, right-aligned)
-        drawRightAlignedString(guiGraphics, getFuelValueString(), rightColX, startY);
-        drawRightAlignedString(guiGraphics, getBatteryValueString(), rightColX, startY + lineHeight);
-        drawRightAlignedString(guiGraphics, getDamageValueString(), rightColX, startY + lineHeight * 2);
-        drawRightAlignedString(guiGraphics, getTempValueString(), rightColX, startY + lineHeight * 3);
+ 
+
+        // Draw labels and values
+
+        guiGraphics.drawString(font, "Treibstoff:", labelX, startY, fontColor, false);
+
+        guiGraphics.drawString(font, getFuelValueString(), valueX, startY, fontColor, false);
+
+ 
+
+        guiGraphics.drawString(font, "Batterie:", labelX, startY + lineHeight, fontColor, false);
+
+        guiGraphics.drawString(font, getBatteryValueString(), valueX, startY + lineHeight, fontColor, false);
+
+ 
+
+        guiGraphics.drawString(font, "Schaden:", labelX, startY + lineHeight * 2, fontColor, false);
+
+        guiGraphics.drawString(font, getDamageValueString(), valueX, startY + lineHeight * 2, fontColor, false);
+
+ 
+
+        guiGraphics.drawString(font, "Temperatur:", labelX, startY + lineHeight * 3, fontColor, false);
+
+        guiGraphics.drawString(font, getTempValueString(), valueX, startY + lineHeight * 3, fontColor, false);
+
+ 
 
         // Car name at bottom of status area
+
         guiGraphics.drawString(font, car.getDisplayName().getVisualOrderText(), 8, 87, fontColor, false);
+
     }
 
     private void drawRightAlignedString(GuiGraphics guiGraphics, String text, int rightX, int y) {
