@@ -52,32 +52,17 @@ public class FuelComponent extends CarComponent implements IFluidHandler {
         int fuel = getFuelAmount();
         int tickFuel = getEfficiency(getFluid());
         if (tickFuel <= 0) {
-            if (car.tickCount % 100 == 0) {
-                System.out.println("[FuelComponent] WARNING: tickFuel <= 0, fuel consumption disabled. tickFuel=" + tickFuel);
-            }
             return;
         }
 
         PhysicsComponent physics = car.getPhysicsComponent();
-        boolean isAccelerating = physics != null && physics.isAccelerating();
-        boolean isStarted = physics != null && physics.isStarted();
-
-        // Log every 100 ticks (5 seconds) to show status
-        if (car.tickCount % 100 == 0) {
-            System.out.println("[FuelComponent] fuel=" + fuel + "/500, tickFuel=" + tickFuel + ", started=" + isStarted + ", accelerating=" + isAccelerating);
-        }
-
-        if (fuel > 0 && physics != null && isAccelerating) {
+        if (fuel > 0 && physics != null && physics.isAccelerating()) {
             if (car.tickCount % tickFuel == 0) {
-                int before = fuel;
                 acceleratingFuelTick();
-                System.out.println("[FuelComponent] ACCELERATING - Fuel consumed: " + before + " → " + getFuelAmount() + " (every " + tickFuel + " ticks = " + (tickFuel/20.0) + "s)");
             }
-        } else if (fuel > 0 && physics != null && isStarted) {
+        } else if (fuel > 0 && physics != null && physics.isStarted()) {
             if (car.tickCount % (tickFuel * 100) == 0) {
-                int before = fuel;
                 idleFuelTick();
-                System.out.println("[FuelComponent] IDLING - Fuel consumed: " + before + " → " + getFuelAmount() + " (every " + (tickFuel*100) + " ticks = " + (tickFuel*100/20.0) + "s)");
             }
         }
     }

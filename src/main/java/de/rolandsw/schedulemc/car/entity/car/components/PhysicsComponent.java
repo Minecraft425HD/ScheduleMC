@@ -307,13 +307,11 @@ public class PhysicsComponent extends CarComponent {
         if (isForward() != forward) {
             setForward(forward);
             needsUpdate = true;
-            System.out.println("[PhysicsComponent] FORWARD changed to: " + forward);
         }
 
         if (isBackward() != backward) {
             setBackward(backward);
             needsUpdate = true;
-            System.out.println("[PhysicsComponent] BACKWARD changed to: " + backward);
         }
 
         if (isLeft() != left) {
