@@ -48,7 +48,7 @@ public class MessageControlCar implements Message<MessageControlCar> {
 
         EntityGenericCar car = (EntityGenericCar) e;
 
-        car.getPhysicsComponent().updateControls(forward, backward, left, right, context.getSender());
+        car.getPhysicsComponent().updateControls(forward, backward, left, right);
     }
 
     @Override

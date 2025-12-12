@@ -109,7 +109,6 @@ public class EntityGenericCar extends EntityVehicleBase implements Container, IF
 
     @Override
     protected void defineSynchedData() {
-        super.defineSynchedData();
         this.entityData.define(PARTS, NonNullList.create());
 
         // Initialize all components
@@ -159,7 +158,6 @@ public class EntityGenericCar extends EntityVehicleBase implements Container, IF
         return super.interact(player, hand);
     }
 
-    @Override
     public boolean canPlayerEnterCar(Player player) {
         return securityComponent.canPlayerEnterCar(player);
     }
@@ -362,7 +360,6 @@ public class EntityGenericCar extends EntityVehicleBase implements Container, IF
     }
 
     // Properties delegated to parts
-    @Override
     public float getWheelRotationAmount() {
         PartWheelBase wheel = getPartByClass(PartWheelBase.class);
         if (wheel == null) {
@@ -472,7 +469,6 @@ public class EntityGenericCar extends EntityVehicleBase implements Container, IF
         return Math.abs(physicsComponent.getSpeed()) / getMaxSpeed();
     }
 
-    @Override
     public double getPlayerYOffset() {
         return 0.2D;
     }
@@ -896,5 +892,10 @@ public class EntityGenericCar extends EntityVehicleBase implements Container, IF
 
     public void setLocked(boolean locked, boolean playSound) {
         securityComponent.setLocked(locked, playSound);
+    }
+
+    // Utility methods for component access to protected fields
+    public net.minecraft.util.RandomSource getRandom() {
+        return this.random;
     }
 }
