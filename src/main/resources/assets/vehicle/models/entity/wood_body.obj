@@ -1,7 +1,7 @@
 # Blender v2.81 (sub 16) OBJ File: 'vehicle_wood.blend'
 # www.blender.org
 mtllib wood_body.mtl
-o Car_Plane.001
+o Vehicle_Plane.001
 v -0.500000 -0.812500 0.062500
 v 0.500000 -0.812500 0.062500
 v -0.500000 0.812500 0.062500
