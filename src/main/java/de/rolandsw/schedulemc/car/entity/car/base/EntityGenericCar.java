@@ -46,13 +46,13 @@ public class EntityGenericCar extends EntityVehicleBase implements Container, IF
 
     private static final EntityDataAccessor<NonNullList<ItemStack>> PARTS = SynchedEntityData.defineId(EntityGenericCar.class, Main.ITEM_LIST.get());
 
-    // Components
-    private PhysicsComponent physicsComponent;
-    private FuelComponent fuelComponent;
-    private BatteryComponent batteryComponent;
-    private DamageComponent damageComponent;
-    private InventoryComponent inventoryComponent;
-    private SecurityComponent securityComponent;
+    // Components - initialized directly to avoid NPE in defineSynchedData()
+    private final PhysicsComponent physicsComponent = new PhysicsComponent(this);
+    private final FuelComponent fuelComponent = new FuelComponent(this);
+    private final BatteryComponent batteryComponent = new BatteryComponent(this);
+    private final DamageComponent damageComponent = new DamageComponent(this);
+    private final InventoryComponent inventoryComponent = new InventoryComponent(this);
+    private final SecurityComponent securityComponent = new SecurityComponent(this);
 
     private List<Part> parts;
 
@@ -66,20 +66,10 @@ public class EntityGenericCar extends EntityVehicleBase implements Container, IF
 
     public EntityGenericCar(EntityType type, Level worldIn) {
         super(type, worldIn);
-        initializeComponents();
     }
 
     public EntityGenericCar(Level worldIn) {
         this(Main.CAR_ENTITY_TYPE.get(), worldIn);
-    }
-
-    private void initializeComponents() {
-        this.physicsComponent = new PhysicsComponent(this);
-        this.fuelComponent = new FuelComponent(this);
-        this.batteryComponent = new BatteryComponent(this);
-        this.damageComponent = new DamageComponent(this);
-        this.inventoryComponent = new InventoryComponent(this);
-        this.securityComponent = new SecurityComponent(this);
     }
 
     // Component getters
