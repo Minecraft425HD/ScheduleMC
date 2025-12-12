@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.warehouse;
 
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.config.DeliveryPriceConfig;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.economy.StateAccount;
 import de.rolandsw.schedulemc.economy.ShopAccountManager;
 import de.rolandsw.schedulemc.economy.ShopAccount;
@@ -44,8 +45,8 @@ public class WarehouseBlockEntity extends BlockEntity {
     public WarehouseBlockEntity(BlockPos pos, BlockState state) {
         super(WarehouseBlocks.WAREHOUSE_BLOCK_ENTITY.get(), pos, state);
 
-        int slotCount = WarehouseConfig.SLOT_COUNT.get();
-        int capacity = WarehouseConfig.MAX_CAPACITY_PER_SLOT.get();
+        int slotCount = ModConfigHandler.COMMON.WAREHOUSE_SLOT_COUNT.get();
+        int capacity = ModConfigHandler.COMMON.WAREHOUSE_MAX_CAPACITY_PER_SLOT.get();
 
         this.slots = new WarehouseSlot[slotCount];
         for (int i = 0; i < slotCount; i++) {

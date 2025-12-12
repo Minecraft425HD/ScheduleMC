@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.warehouse.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.economy.ShopAccountManager;
 import de.rolandsw.schedulemc.economy.ShopAccount;
 import de.rolandsw.schedulemc.npc.data.NPCData;
@@ -902,7 +903,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
 
         long lastDeliveryDay = warehouse.getLastDeliveryDay();
         long currentDay = minecraft.level != null ? minecraft.level.getDayTime() / 24000L : 0;
-        long intervalDays = de.rolandsw.schedulemc.warehouse.WarehouseConfig.DELIVERY_INTERVAL_DAYS.get();
+        long intervalDays = ModConfigHandler.COMMON.WAREHOUSE_DELIVERY_INTERVAL_DAYS.get();
         long daysUntilNext = (lastDeliveryDay + intervalDays) - currentDay;
 
         graphics.drawString(this.font,
@@ -911,7 +912,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         contentY += 12;
 
         graphics.drawString(this.font,
-            "Interval: alle " + de.rolandsw.schedulemc.warehouse.WarehouseConfig.DELIVERY_INTERVAL_DAYS.get() + " Tage",
+            "Interval: alle " + ModConfigHandler.COMMON.WAREHOUSE_DELIVERY_INTERVAL_DAYS.get() + " Tage",
             x + 15, contentY, COLOR_TEXT_GRAY, false);
 
         // Disable scissor after rendering
@@ -946,7 +947,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         contentY += 12;
 
         graphics.drawString(this.font,
-            "  Interval: " + de.rolandsw.schedulemc.warehouse.WarehouseConfig.DELIVERY_INTERVAL_DAYS.get() + " Tage",
+            "  Interval: " + ModConfigHandler.COMMON.WAREHOUSE_DELIVERY_INTERVAL_DAYS.get() + " Tage",
             x + 20, contentY, COLOR_TEXT_GRAY, false);
         contentY += 20;
 
@@ -961,7 +962,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         contentY += 12;
 
         graphics.drawString(this.font,
-            "  Max Kapazität/Slot: " + de.rolandsw.schedulemc.warehouse.WarehouseConfig.MAX_CAPACITY_PER_SLOT.get(),
+            "  Max Kapazität/Slot: " + ModConfigHandler.COMMON.WAREHOUSE_MAX_CAPACITY_PER_SLOT.get(),
             x + 20, contentY, COLOR_TEXT_GRAY, false);
         contentY += 20;
 

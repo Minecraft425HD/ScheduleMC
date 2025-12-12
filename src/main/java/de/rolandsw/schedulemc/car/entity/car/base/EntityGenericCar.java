@@ -1,7 +1,7 @@
 package de.rolandsw.schedulemc.car.entity.car.base;
 
 import de.rolandsw.schedulemc.car.Main;
-import de.rolandsw.schedulemc.car.config.Fuel;
+import de.rolandsw.schedulemc.config.Fuel;
 import de.rolandsw.schedulemc.car.entity.car.components.*;
 import de.rolandsw.schedulemc.car.entity.car.parts.*;
 import de.rolandsw.schedulemc.car.items.ICarPart;
