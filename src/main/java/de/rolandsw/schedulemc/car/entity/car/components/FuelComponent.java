@@ -57,11 +57,14 @@ public class FuelComponent extends CarComponent implements IFluidHandler {
 
         PhysicsComponent physics = car.getPhysicsComponent();
         if (fuel > 0 && physics != null && physics.isAccelerating()) {
+            // Fuel consumption while accelerating (based on efficiency)
             if (car.tickCount % tickFuel == 0) {
                 acceleratingFuelTick();
             }
         } else if (fuel > 0 && physics != null && physics.isStarted()) {
-            if (car.tickCount % (tickFuel * 100) == 0) {
+            // Fuel consumption while idling (configurable interval)
+            int idleInterval = Main.SERVER_CONFIG.idleFuelConsumptionInterval.get();
+            if (car.tickCount % idleInterval == 0) {
                 idleFuelTick();
             }
         }
@@ -75,7 +78,7 @@ public class FuelComponent extends CarComponent implements IFluidHandler {
         removeFuel(1);
     }
 
-    private void removeFuel(int amount) {
+    public void removeFuel(int amount) {
         int fuel = getFuelAmount();
         int newFuel = fuel - amount;
         setFuelAmount(Math.max(newFuel, 0));

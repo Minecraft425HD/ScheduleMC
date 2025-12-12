@@ -100,17 +100,37 @@ public class BatteryComponent extends CarComponent {
         if (physics.isStarted()) {
             setStartingTime(0);
             carStarted = true;
-            float speedPerc = physics.getSpeed() / car.getMaxSpeed();
 
-            int chargingRate = (int) (speedPerc * 7F);
-            if (chargingRate < 5) {
-                chargingRate = 1;
-            }
-
-            if (car.tickCount % 20 == 0) {
-                setBatteryLevel(getBatteryLevel() + chargingRate);
-            }
+            // Realistic battery charging simulation
+            rechargeBattery(physics);
         }
+    }
+
+    /**
+     * Recharges battery based on engine state and speed
+     * Simulates alternator charging - faster when driving, slower when idle
+     */
+    private void rechargeBattery(PhysicsComponent physics) {
+        int baseRechargeRate = Main.SERVER_CONFIG.idleBatteryRechargeRate.get();
+
+        if (baseRechargeRate <= 0) {
+            return; // Charging disabled
+        }
+
+        int chargeAmount;
+        float speed = physics.getSpeed();
+
+        if (physics.isAccelerating() && speed > 0.01F) {
+            // Driving: alternator generates more power at higher RPM
+            double multiplier = Main.SERVER_CONFIG.drivingBatteryRechargeMultiplier.get();
+            chargeAmount = (int) Math.ceil(baseRechargeRate * speed * multiplier);
+        } else {
+            // Idling: alternator generates minimal power
+            chargeAmount = baseRechargeRate;
+        }
+
+        // Recharge battery
+        setBatteryLevel(getBatteryLevel() + chargeAmount);
     }
 
     public void spawnParticles(boolean driving) {

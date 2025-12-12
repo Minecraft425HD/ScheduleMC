@@ -329,6 +329,13 @@ public class PhysicsComponent extends CarComponent {
         Player player = car.getDriver();
         if (player != null && canStartCarEngine(player)) {
             setStarted(true);
+
+            // Consume fuel when starting the engine
+            FuelComponent fuel = car.getFuelComponent();
+            if (fuel != null) {
+                int startFuelCost = Main.SERVER_CONFIG.engineStartFuelConsumption.get();
+                fuel.removeFuel(startFuelCost);
+            }
         }
     }
 
