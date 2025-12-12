@@ -26,7 +26,7 @@ public class PartEngine6Cylinder extends PartEngine {
 
     @Override
     public SoundEvent getCrashSound() {
-        return ModSounds.CAR_CRASH.get();
+        return ModSounds.VEHICLE_CRASH.get();
     }
 
     @Override
@@ -51,7 +51,7 @@ public class PartEngine6Cylinder extends PartEngine {
 
     @Override
     public SoundEvent getHornSound() {
-        return ModSounds.CAR_HORN.get();
+        return ModSounds.VEHICLE_HORN.get();
     }
 
 }

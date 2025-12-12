@@ -128,11 +128,11 @@ public class SecurityComponent extends VehicleComponent {
     }
 
     public SoundEvent getLockSound() {
-        return ModSounds.CAR_LOCK.get();
+        return ModSounds.VEHICLE_LOCK.get();
     }
 
     public SoundEvent getUnLockSound() {
-        return ModSounds.CAR_UNLOCK.get();
+        return ModSounds.VEHICLE_UNLOCK.get();
     }
 
     @Override

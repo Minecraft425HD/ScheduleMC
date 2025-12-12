@@ -121,7 +121,7 @@ public class VehiclePurchaseHandler {
         // Erstelle Teile-Liste (wie in ItemSpawnVehicle)
         List<ItemStack> parts = new ArrayList<>();
 
-        // Bestimme Body basierend auf dem SPAWN_CAR Item
+        // Bestimme Body basierend auf dem SPAWN_VEHICLE Item
         if (spawnVehicleItem == ModItems.SPAWN_VEHICLE_OAK.get()) {
             parts.add(new ItemStack(ModItems.OAK_BODY.get()));
             parts.add(new ItemStack(ModItems.ENGINE_3_CYLINDER.get()));

@@ -10,7 +10,7 @@ public class ContainerVehicleInventory extends ContainerBase {
     private EntityGenericVehicle vehicle;
 
     public ContainerVehicleInventory(int id, EntityGenericVehicle vehicle, Inventory playerInventory) {
-        super(Main.CAR_INVENTORY_CONTAINER_TYPE.get(), id, playerInventory, vehicle.getExternalInventory());
+        super(Main.VEHICLE_INVENTORY_CONTAINER_TYPE.get(), id, playerInventory, vehicle.getExternalInventory());
         this.vehicle = vehicle;
 
         int rows = getRows();

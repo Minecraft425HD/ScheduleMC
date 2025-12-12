@@ -120,7 +120,7 @@ public class PhysicsComponent extends VehicleComponent {
                     float damage = speed * 10;
                     tasks.add(() -> {
                         ServerLevel serverLevel = (ServerLevel) vehicle.level();
-                        Optional<Holder.Reference<DamageType>> holder = serverLevel.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolder(DamageSourceVehicle.DAMAGE_CAR_TYPE);
+                        Optional<Holder.Reference<DamageType>> holder = serverLevel.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolder(DamageSourceVehicle.DAMAGE_VEHICLE_TYPE);
                         holder.ifPresent(damageTypeReference -> entityIn.hurt(new DamageSource(damageTypeReference, vehicle), damage));
                     });
                 }

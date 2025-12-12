@@ -139,7 +139,7 @@ public class Main {
         BlockEntityRenderers.register(GAS_STATION_TILE_ENTITY_TYPE.get(), TileentitySpecialRendererGasStation::new);
 
         ClientRegistry.<ContainerVehicle, GuiVehicle>registerScreen(Main.VEHICLE_CONTAINER_TYPE.get(), GuiVehicle::new);
-        ClientRegistry.<ContainerVehicleInventory, GuiVehicleInventory>registerScreen(Main.CAR_INVENTORY_CONTAINER_TYPE.get(), GuiVehicleInventory::new);
+        ClientRegistry.<ContainerVehicleInventory, GuiVehicleInventory>registerScreen(Main.VEHICLE_INVENTORY_CONTAINER_TYPE.get(), GuiVehicleInventory::new);
         ClientRegistry.<ContainerGasStation, GuiGasStation>registerScreen(Main.GAS_STATION_CONTAINER_TYPE.get(), GuiGasStation::new);
         ClientRegistry.<ContainerGasStationAdmin, GuiGasStationAdmin>registerScreen(Main.GAS_STATION_ADMIN_CONTAINER_TYPE.get(), GuiGasStationAdmin::new);
         ClientRegistry.<ContainerLicensePlate, GuiLicensePlate>registerScreen(Main.LICENSE_PLATE_CONTAINER_TYPE.get(), GuiLicensePlate::new);
@@ -198,7 +198,7 @@ public class Main {
                 return new ContainerVehicle(windowId, vehicle, inv);
             })
     );
-    public static final RegistryObject<MenuType<ContainerVehicleInventory>> CAR_INVENTORY_CONTAINER_TYPE = MENU_TYPE_REGISTER.register("car_inventory", () ->
+    public static final RegistryObject<MenuType<ContainerVehicleInventory>> VEHICLE_INVENTORY_CONTAINER_TYPE = MENU_TYPE_REGISTER.register("vehicle_inventory", () ->
             IForgeMenuType.create((IContainerFactory<ContainerVehicleInventory>) (windowId, inv, data) -> {
                 EntityGenericVehicle vehicle = EntityTools.getVehicleByUUID(inv.player, data.readUUID());
                 if (vehicle == null) {

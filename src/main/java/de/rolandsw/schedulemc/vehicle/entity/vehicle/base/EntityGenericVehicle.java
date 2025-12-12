@@ -537,7 +537,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     public SoundEvent getCrashSound() {
         PartEngine engine = getPartByClass(PartEngine.class);
         if (engine == null) {
-            return ModSounds.CAR_CRASH.get();
+            return ModSounds.VEHICLE_CRASH.get();
         }
         return engine.getCrashSound();
     }
@@ -577,7 +577,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     public SoundEvent getHornSound() {
         PartEngine engine = getPartByClass(PartEngine.class);
         if (engine == null) {
-            return ModSounds.CAR_HORN.get();
+            return ModSounds.VEHICLE_HORN.get();
         }
         return engine.getHornSound();
     }

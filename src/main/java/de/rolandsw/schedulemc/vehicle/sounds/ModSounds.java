@@ -38,12 +38,12 @@ public class ModSounds {
     public static RegistryObject<SoundEvent> TRUCK_ENGINE_IDLE = addSound("truck_engine_idle");
     public static RegistryObject<SoundEvent> TRUCK_ENGINE_HIGH = addSound("truck_engine_high");
     public static RegistryObject<SoundEvent> TRUCK_ENGINE_FAIL = addSound("truck_engine_fail");
-    public static RegistryObject<SoundEvent> CAR_CRASH = addSound("car_crash");
+    public static RegistryObject<SoundEvent> VEHICLE_CRASH = addSound("vehicle_crash");
     public static RegistryObject<SoundEvent> GAS_STATION = addSound("gas_station");
     public static RegistryObject<SoundEvent> GENERATOR = addSound("generator");
-    public static RegistryObject<SoundEvent> CAR_HORN = addSound("car_horn");
-    public static RegistryObject<SoundEvent> CAR_LOCK = addSound("car_lock");
-    public static RegistryObject<SoundEvent> CAR_UNLOCK = addSound("car_unlock");
+    public static RegistryObject<SoundEvent> VEHICLE_HORN = addSound("vehicle_horn");
+    public static RegistryObject<SoundEvent> VEHICLE_LOCK = addSound("vehicle_lock");
+    public static RegistryObject<SoundEvent> VEHICLE_UNLOCK = addSound("vehicle_unlock");
     public static RegistryObject<SoundEvent> RATCHET = addSound("ratchet");
     public static RegistryObject<SoundEvent> GAS_STATION_ATTENDANT = addSound("gas_station_attendant");
 
@@ -73,7 +73,7 @@ public class ModSounds {
         playSound(evt, world, pos, entity, category, 0.15F);
     }
 
-    public static boolean isCarSoundCategory(SoundEvent event) {
+    public static boolean isVehicleSoundCategory(SoundEvent event) {
         if (event == null) {
             return false;
         }
@@ -95,10 +95,10 @@ public class ModSounds {
                 event.equals(TRUCK_ENGINE_IDLE.get()) ||
                 event.equals(TRUCK_ENGINE_HIGH.get()) ||
                 event.equals(TRUCK_ENGINE_FAIL.get()) ||
-                event.equals(CAR_CRASH.get()) ||
-                event.equals(CAR_HORN.get()) ||
-                event.equals(CAR_LOCK.get()) ||
-                event.equals(CAR_UNLOCK.get());
+                event.equals(VEHICLE_CRASH.get()) ||
+                event.equals(VEHICLE_HORN.get()) ||
+                event.equals(VEHICLE_LOCK.get()) ||
+                event.equals(VEHICLE_UNLOCK.get());
 
     }
 

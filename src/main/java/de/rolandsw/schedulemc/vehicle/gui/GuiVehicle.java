@@ -11,7 +11,7 @@ import net.minecraft.world.entity.player.Inventory;
 
 public class GuiVehicle extends ScreenBase<ContainerVehicle> {
 
-    private static final ResourceLocation CAR_GUI_TEXTURE = new ResourceLocation(Main.MODID, "textures/gui/gui_vehicle.png");
+    private static final ResourceLocation VEHICLE_GUI_TEXTURE = new ResourceLocation(Main.MODID, "textures/gui/gui_vehicle.png");
 
     private static final int fontColor = 4210752;
 
@@ -19,7 +19,7 @@ public class GuiVehicle extends ScreenBase<ContainerVehicle> {
     private EntityGenericVehicle vehicle;
 
     public GuiVehicle(ContainerVehicle containerCar, Inventory playerInv, Component title) {
-        super(CAR_GUI_TEXTURE, containerCar, playerInv, title);
+        super(VEHICLE_GUI_TEXTURE, containerCar, playerInv, title);
         this.playerInv = playerInv;
         this.vehicle = containerCar.getVehicle();
 
