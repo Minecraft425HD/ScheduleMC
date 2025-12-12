@@ -111,9 +111,6 @@ public class ScheduleMC {
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ModConfigHandler.SPEC);
 
-        // Initialize delivery price config from main config
-        DeliveryPriceConfig.setDefaultPrice(ModConfigHandler.COMMON.WAREHOUSE_DEFAULT_DELIVERY_PRICE.get());
-
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(new BlockProtectionHandler());
         MinecraftForge.EVENT_BUS.register(new PlayerJoinHandler());
@@ -135,6 +132,9 @@ public class ScheduleMC {
     
     private void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
+            // Initialize delivery price config from main config (after config is loaded)
+            DeliveryPriceConfig.setDefaultPrice(ModConfigHandler.COMMON.WAREHOUSE_DEFAULT_DELIVERY_PRICE.get());
+
             EconomyNetworkHandler.register();
             NPCNetworkHandler.register();
             ModNetworking.register();
