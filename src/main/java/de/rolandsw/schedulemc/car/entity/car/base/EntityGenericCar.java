@@ -442,13 +442,11 @@ public class EntityGenericCar extends EntityVehicleBase implements Container, IF
 
     public float getCarFuelEfficiency() {
         PartEngine engine = getPartByClass(PartEngine.class);
-        if (engine == null) {
-            return 0F;
-        }
-
         PartBody chassis = getPartByClass(PartBody.class);
-        if (chassis == null) {
-            return 0F;
+
+        // If no parts are installed yet, use default efficiency
+        if (engine == null || chassis == null) {
+            return 1.0F; // Default efficiency when no parts installed
         }
 
         return chassis.getFuelEfficiency() * engine.getFuelEfficiency();
