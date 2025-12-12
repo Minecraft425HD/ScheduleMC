@@ -52,17 +52,22 @@ public class FuelComponent extends CarComponent implements IFluidHandler {
         int fuel = getFuelAmount();
         int tickFuel = getEfficiency(getFluid());
         if (tickFuel <= 0) {
+            System.out.println("[FuelComponent] tickFuel <= 0, skipping fuel consumption. tickFuel=" + tickFuel);
             return;
         }
 
         PhysicsComponent physics = car.getPhysicsComponent();
         if (fuel > 0 && physics != null && physics.isAccelerating()) {
             if (car.tickCount % tickFuel == 0) {
+                System.out.println("[FuelComponent] Accelerating - consuming fuel. Before: " + fuel + ", tickFuel: " + tickFuel);
                 acceleratingFuelTick();
+                System.out.println("[FuelComponent] After: " + getFuelAmount());
             }
         } else if (fuel > 0 && physics != null && physics.isStarted()) {
             if (car.tickCount % (tickFuel * 100) == 0) {
+                System.out.println("[FuelComponent] Idling - consuming fuel. Before: " + fuel);
                 idleFuelTick();
+                System.out.println("[FuelComponent] After: " + getFuelAmount());
             }
         }
     }

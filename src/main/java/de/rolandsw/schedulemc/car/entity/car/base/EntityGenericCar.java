@@ -435,7 +435,7 @@ public class EntityGenericCar extends EntityVehicleBase implements Container, IF
     public int getMaxFuel() {
         PartTank tank = getPartByClass(PartTank.class);
         if (tank == null) {
-            return 1000; // Default tank size when no tank part is installed
+            return 500; // Default small tank size when no tank part is installed
         }
         return tank.getSize();
     }
