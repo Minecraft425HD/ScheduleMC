@@ -26,7 +26,7 @@ public class GuiCar extends ScreenBase<ContainerCar> {
         imageWidth = 176;
         // Reduced height - no player inventory needed
         int numRows = car.getContainerSize() / 9;
-        imageHeight = 98 + numRows * 18 + 18; // Status area + car inventory + bottom margin
+        imageHeight = 90 + numRows * 18 + 18; // Status area + car inventory + bottom margin
     }
 
     @Override
