@@ -4,6 +4,7 @@ import de.rolandsw.schedulemc.car.Main;
 import de.rolandsw.schedulemc.car.entity.car.base.EntityGenericCar;
 import de.rolandsw.schedulemc.car.net.MessageCarGui;
 import de.rolandsw.schedulemc.car.net.MessageCenterCar;
+import de.rolandsw.schedulemc.car.net.MessageControlCar;
 import de.rolandsw.schedulemc.car.net.MessageStarting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
@@ -45,7 +46,14 @@ public class KeyEvents {
         EntityGenericCar car = (EntityGenericCar) riding;
 
         if (player.equals(car.getDriver())) {
-            car.updateControls(Main.FORWARD_KEY.isDown(), Main.BACK_KEY.isDown(), Main.LEFT_KEY.isDown(), Main.RIGHT_KEY.isDown(), player);
+            // Send control inputs to server
+            Main.SIMPLE_CHANNEL.sendToServer(new MessageControlCar(
+                Main.FORWARD_KEY.isDown(),
+                Main.BACK_KEY.isDown(),
+                Main.LEFT_KEY.isDown(),
+                Main.RIGHT_KEY.isDown(),
+                player
+            ));
 
             if (Main.START_KEY.isDown()) {
                 if (!wasStartPressed) {
