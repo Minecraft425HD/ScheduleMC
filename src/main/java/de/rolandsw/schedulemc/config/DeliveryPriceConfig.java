@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.warehouse;
+package de.rolandsw.schedulemc.config;
 
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -13,6 +13,7 @@ import java.util.Map;
 public class DeliveryPriceConfig {
 
     private static final Map<Item, Integer> PRICES = new HashMap<>();
+    private static int defaultPrice = 5;
 
     static {
         // Grundnahrungsmittel - billig
@@ -60,15 +61,20 @@ public class DeliveryPriceConfig {
         PRICES.put(Items.IRON_PICKAXE, 60);
         PRICES.put(Items.DIAMOND_SWORD, 300);
         PRICES.put(Items.DIAMOND_PICKAXE, 400);
+    }
 
-        // Default für alles andere: 5€
+    /**
+     * Setzt den Default-Preis aus der Config
+     */
+    public static void setDefaultPrice(int price) {
+        defaultPrice = price;
     }
 
     /**
      * Gibt Lieferpreis für ein Item zurück
      */
     public static int getPrice(Item item) {
-        return PRICES.getOrDefault(item, 5); // Default: 5€
+        return PRICES.getOrDefault(item, defaultPrice);
     }
 
     /**

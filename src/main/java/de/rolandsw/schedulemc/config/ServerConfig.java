@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.car.config;
+package de.rolandsw.schedulemc.config;
 
 import de.maxhenkel.corelib.config.ConfigBase;
 import de.maxhenkel.corelib.tag.Tag;

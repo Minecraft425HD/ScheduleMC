@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.warehouse;
 
 import com.mojang.logging.LogUtils;
+import de.rolandsw.schedulemc.config.DeliveryPriceConfig;
 import de.rolandsw.schedulemc.economy.StateAccount;
 import de.rolandsw.schedulemc.economy.ShopAccountManager;
 import de.rolandsw.schedulemc.economy.ShopAccount;

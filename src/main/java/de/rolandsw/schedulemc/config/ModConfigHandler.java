@@ -1,6 +1,6 @@
 package de.rolandsw.schedulemc.config;
 
-import de.rolandsw.schedulemc.tobacco.config.TobaccoConfig;
+import de.rolandsw.schedulemc.config.TobaccoConfig;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 /**
@@ -113,6 +113,7 @@ public class ModConfigHandler {
         public final ForgeConfigSpec.IntValue WAREHOUSE_SLOT_COUNT;
         public final ForgeConfigSpec.IntValue WAREHOUSE_MAX_CAPACITY_PER_SLOT;
         public final ForgeConfigSpec.IntValue WAREHOUSE_DELIVERY_INTERVAL_DAYS;
+        public final ForgeConfigSpec.IntValue WAREHOUSE_DEFAULT_DELIVERY_PRICE;
 
         public Common(ForgeConfigSpec.Builder builder) {
             
@@ -386,6 +387,10 @@ public class ModConfigHandler {
             WAREHOUSE_DELIVERY_INTERVAL_DAYS = builder
                     .comment("Lieferungs-Intervall in Minecraft-Tagen")
                     .defineInRange("delivery_interval_days", 3, 1, 30);
+
+            WAREHOUSE_DEFAULT_DELIVERY_PRICE = builder
+                    .comment("Standard-Lieferpreis für Items ohne spezifischen Preis")
+                    .defineInRange("default_delivery_price", 5, 1, 10000);
 
             builder.pop();
         }

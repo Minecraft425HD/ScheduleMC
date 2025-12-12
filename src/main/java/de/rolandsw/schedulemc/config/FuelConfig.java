@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.car.config;
+package de.rolandsw.schedulemc.config;
 
 import de.rolandsw.schedulemc.car.fluids.ModFluids;
 import de.maxhenkel.corelib.config.DynamicConfig;

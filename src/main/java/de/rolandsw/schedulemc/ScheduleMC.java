@@ -36,8 +36,8 @@ import de.rolandsw.schedulemc.tobacco.entity.ModEntities;
 import de.rolandsw.schedulemc.economy.blocks.EconomyBlocks;
 import de.rolandsw.schedulemc.economy.menu.EconomyMenuTypes;
 import de.rolandsw.schedulemc.warehouse.WarehouseBlocks;
-import de.rolandsw.schedulemc.warehouse.WarehouseConfig;
 import de.rolandsw.schedulemc.warehouse.WarehouseManager;
+import de.rolandsw.schedulemc.config.DeliveryPriceConfig;
 import de.rolandsw.schedulemc.warehouse.menu.WarehouseMenuTypes;
 import de.rolandsw.schedulemc.warehouse.network.WarehouseNetworkHandler;
 import de.rolandsw.schedulemc.economy.StateAccount;
@@ -111,8 +111,8 @@ public class ScheduleMC {
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ModConfigHandler.SPEC);
 
-        // Initialize warehouse config after main config is registered
-        WarehouseConfig.init();
+        // Initialize delivery price config from main config
+        DeliveryPriceConfig.setDefaultPrice(ModConfigHandler.COMMON.WAREHOUSE_DEFAULT_DELIVERY_PRICE.get());
 
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(new BlockProtectionHandler());

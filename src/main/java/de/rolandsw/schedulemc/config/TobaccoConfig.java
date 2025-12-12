@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.tobacco.config;
+package de.rolandsw.schedulemc.config;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 

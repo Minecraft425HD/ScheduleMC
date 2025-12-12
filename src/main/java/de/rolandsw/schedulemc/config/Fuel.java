@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.car.config;
+package de.rolandsw.schedulemc.config;
 
 import com.electronwill.nightconfig.core.conversion.Path;
 import com.electronwill.nightconfig.core.conversion.SpecIntInRange;
