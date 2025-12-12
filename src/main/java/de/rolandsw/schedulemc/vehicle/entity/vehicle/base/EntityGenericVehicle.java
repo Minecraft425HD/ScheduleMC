@@ -637,8 +637,8 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         // Initialize default items if this is a new vehicle
         if (compound.getAllKeys().stream().allMatch(s -> s.equals("id"))) {
             Container internal = inventoryComponent.getInternalInventory();
-            internal.setItem(0, ItemKey.getKeyForCar(getUUID()));
-            internal.setItem(1, ItemKey.getKeyForCar(getUUID()));
+            internal.setItem(0, ItemKey.getKeyForVehicle(getUUID()));
+            internal.setItem(1, ItemKey.getKeyForVehicle(getUUID()));
             fuelComponent.setFuelAmount(100);
             batteryComponent.setBatteryLevel(500);
             damageComponent.initTemperature();

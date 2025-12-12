@@ -29,7 +29,7 @@ public class VehiclePurchaseHandler {
      *
      * @param player Der Käufer
      * @param dealerId UUID des Autohändler-NPCs
-     * @param vehicleItem Das Fahrzeug-Item (SPAWN_CAR_*)
+     * @param vehicleItem Das Fahrzeug-Item (SPAWN_VEHICLE_*)
      * @param price Preis des Fahrzeugs
      * @return true wenn erfolgreich, false sonst
      */
@@ -116,27 +116,27 @@ public class VehiclePurchaseHandler {
         }
 
         // Bestimme den Body-Type basierend auf dem Item
-        ItemSpawnVehicle spawnCarItem = (ItemSpawnVehicle) vehicleItem.getItem();
+        ItemSpawnVehicle spawnVehicleItem = (ItemSpawnVehicle) vehicleItem.getItem();
 
         // Erstelle Teile-Liste (wie in ItemSpawnVehicle)
         List<ItemStack> parts = new ArrayList<>();
 
         // Bestimme Body basierend auf dem SPAWN_CAR Item
-        if (spawnCarItem == ModItems.SPAWN_CAR_OAK.get()) {
+        if (spawnVehicleItem == ModItems.SPAWN_VEHICLE_OAK.get()) {
             parts.add(new ItemStack(ModItems.OAK_BODY.get()));
             parts.add(new ItemStack(ModItems.ENGINE_3_CYLINDER.get()));
             parts.add(new ItemStack(ModItems.WHEEL.get()));
             parts.add(new ItemStack(ModItems.WHEEL.get()));
             parts.add(new ItemStack(ModItems.WHEEL.get()));
             parts.add(new ItemStack(ModItems.WHEEL.get()));
-        } else if (spawnCarItem == ModItems.SPAWN_CAR_BIG_OAK.get()) {
+        } else if (spawnVehicleItem == ModItems.SPAWN_VEHICLE_BIG_OAK.get()) {
             parts.add(new ItemStack(ModItems.BIG_OAK_BODY.get()));
             parts.add(new ItemStack(ModItems.ENGINE_3_CYLINDER.get()));
             parts.add(new ItemStack(ModItems.WHEEL.get()));
             parts.add(new ItemStack(ModItems.WHEEL.get()));
             parts.add(new ItemStack(ModItems.WHEEL.get()));
             parts.add(new ItemStack(ModItems.WHEEL.get()));
-        } else if (spawnCarItem == ModItems.SPAWN_CAR_WHITE_TRANSPORTER.get()) {
+        } else if (spawnVehicleItem == ModItems.SPAWN_VEHICLE_WHITE_TRANSPORTER.get()) {
             parts.add(new ItemStack(ModItems.WHITE_TRANSPORTER_BODY.get()));
             parts.add(new ItemStack(ModItems.ENGINE_3_CYLINDER.get()));
             parts.add(new ItemStack(ModItems.WHEEL.get()));
@@ -145,14 +145,14 @@ public class VehiclePurchaseHandler {
             parts.add(new ItemStack(ModItems.WHEEL.get()));
             parts.add(new ItemStack(ModItems.WHEEL.get()));
             parts.add(new ItemStack(ModItems.WHEEL.get()));
-        } else if (spawnCarItem == ModItems.SPAWN_CAR_WHITE_SUV.get()) {
+        } else if (spawnVehicleItem == ModItems.SPAWN_VEHICLE_WHITE_SUV.get()) {
             parts.add(new ItemStack(ModItems.WHITE_SUV_BODY.get()));
             parts.add(new ItemStack(ModItems.ENGINE_3_CYLINDER.get()));
             parts.add(new ItemStack(ModItems.BIG_WHEEL.get()));
             parts.add(new ItemStack(ModItems.BIG_WHEEL.get()));
             parts.add(new ItemStack(ModItems.BIG_WHEEL.get()));
             parts.add(new ItemStack(ModItems.BIG_WHEEL.get()));
-        } else if (spawnCarItem == ModItems.SPAWN_CAR_WHITE_SPORT.get()) {
+        } else if (spawnVehicleItem == ModItems.SPAWN_VEHICLE_WHITE_SPORT.get()) {
             parts.add(new ItemStack(ModItems.WHITE_SPORT_BODY.get()));
             parts.add(new ItemStack(ModItems.ENGINE_3_CYLINDER.get()));
             parts.add(new ItemStack(ModItems.WHEEL.get()));
@@ -169,7 +169,7 @@ public class VehiclePurchaseHandler {
         parts.add(new ItemStack(ModItems.IRON_LICENSE_PLATE_HOLDER.get()));
 
         // Erstelle Auto mit VehicleFactory (wie in ItemSpawnVehicle)
-        EntityGenericVehicle vehicle = VehicleFactory.createCar(level, parts);
+        EntityGenericVehicle vehicle = VehicleFactory.createVehicle(level, parts);
 
         if (vehicle == null) {
             return null;

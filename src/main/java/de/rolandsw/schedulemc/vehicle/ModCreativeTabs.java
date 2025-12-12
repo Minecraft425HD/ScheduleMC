@@ -24,11 +24,11 @@ public class ModCreativeTabs {
                     output.accept(new ItemStack(ModItems.BIO_DIESEL_BUCKET.get()));
 
                     // Pre-built vehicles
-                    output.accept(new ItemStack(ModItems.SPAWN_CAR_OAK.get()));
-                    output.accept(new ItemStack(ModItems.SPAWN_CAR_BIG_OAK.get()));
-                    output.accept(new ItemStack(ModItems.SPAWN_CAR_WHITE_TRANSPORTER.get()));
-                    output.accept(new ItemStack(ModItems.SPAWN_CAR_WHITE_SUV.get()));
-                    output.accept(new ItemStack(ModItems.SPAWN_CAR_WHITE_SPORT.get()));
+                    output.accept(new ItemStack(ModItems.SPAWN_VEHICLE_OAK.get()));
+                    output.accept(new ItemStack(ModItems.SPAWN_VEHICLE_BIG_OAK.get()));
+                    output.accept(new ItemStack(ModItems.SPAWN_VEHICLE_WHITE_TRANSPORTER.get()));
+                    output.accept(new ItemStack(ModItems.SPAWN_VEHICLE_WHITE_SUV.get()));
+                    output.accept(new ItemStack(ModItems.SPAWN_VEHICLE_WHITE_SPORT.get()));
 
                     output.accept(new ItemStack(ModItems.CANISTER.get()));
                     output.accept(ItemBioDieselCanister.createPreFilledStack());

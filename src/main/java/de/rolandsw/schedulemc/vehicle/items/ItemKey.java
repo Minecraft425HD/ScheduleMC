@@ -25,11 +25,11 @@ public class ItemKey extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand handIn) {
         ItemStack stack = playerIn.getItemInHand(handIn);
-        UUID carUUID = getCar(stack);
+        UUID carUUID = getVehicle(stack);
 
         if (carUUID == null) {
             if (worldIn.isClientSide) {
-                playerIn.displayClientMessage(Component.translatable("message.key_no_car"), true);
+                playerIn.displayClientMessage(Component.translatable("message.key_no_vehicle"), true);
             }
             return new InteractionResultHolder<>(InteractionResult.PASS, stack);
         } else if (worldIn.isClientSide) {
@@ -39,7 +39,7 @@ public class ItemKey extends Item {
         List<EntityGenericVehicle> vehicles = worldIn.getEntitiesOfClass(EntityGenericVehicle.class, new AABB(playerIn.getX() - 25D, playerIn.getY() - 25D, playerIn.getZ() - 25D, playerIn.getX() + 25D, playerIn.getY() + 25D, playerIn.getZ() + 25D), new PredicateUUID(carUUID));
 
         if (vehicles.isEmpty()) {
-            playerIn.displayClientMessage(Component.translatable("message.car_out_of_range"), true);
+            playerIn.displayClientMessage(Component.translatable("message.vehicle_out_of_range"), true);
             return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);
         }
 
@@ -54,7 +54,7 @@ public class ItemKey extends Item {
         return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);
     }
 
-    public static void setCar(ItemStack stack, UUID carUUID) {
+    public static void setVehicle(ItemStack stack, UUID carUUID) {
         if (!stack.hasTag()) {
             stack.setTag(new CompoundTag());
         }
@@ -64,7 +64,7 @@ public class ItemKey extends Item {
         comp.putUUID("vehicle", carUUID);
     }
 
-    public static UUID getCar(ItemStack stack) {
+    public static UUID getVehicle(ItemStack stack) {
         if (stack == null) {
             return null;
         }
@@ -82,10 +82,10 @@ public class ItemKey extends Item {
         return comp.getUUID("vehicle");
     }
 
-    public static ItemStack getKeyForCar(UUID vehicle) {
+    public static ItemStack getKeyForVehicle(UUID vehicle) {
         ItemStack stack = new ItemStack(ModItems.KEY.get());
 
-        setCar(stack, vehicle);
+        setVehicle(stack, vehicle);
 
         return stack;
     }

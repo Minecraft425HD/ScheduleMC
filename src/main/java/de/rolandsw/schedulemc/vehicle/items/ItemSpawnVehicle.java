@@ -95,7 +95,7 @@ public class ItemSpawnVehicle extends Item {
         parts.add(new ItemStack(ModItems.IRON_LICENSE_PLATE_HOLDER.get()));
 
         // Create the vehicle using the factory's static method
-        EntityGenericVehicle vehicle = VehicleFactory.createCar(world, parts);
+        EntityGenericVehicle vehicle = VehicleFactory.createVehicle(world, parts);
 
         if (vehicle == null) {
             return InteractionResult.FAIL;

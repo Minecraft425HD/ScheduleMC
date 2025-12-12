@@ -86,11 +86,11 @@ public class ModItems {
     public static final RegistryObject<ItemVehiclePart> LARGE_TANK = ITEM_REGISTER.register("large_tank", () -> new ItemVehiclePart(PartRegistry.LARGE_TANK));
 
     // Pre-built vehicles
-    public static final RegistryObject<ItemSpawnVehicle> SPAWN_CAR_OAK = ITEM_REGISTER.register("spawn_car_oak", () -> new ItemSpawnVehicle(PartRegistry.OAK_BODY));
-    public static final RegistryObject<ItemSpawnVehicle> SPAWN_CAR_BIG_OAK = ITEM_REGISTER.register("spawn_car_big_oak", () -> new ItemSpawnVehicle(PartRegistry.BIG_OAK_BODY));
-    public static final RegistryObject<ItemSpawnVehicle> SPAWN_CAR_WHITE_TRANSPORTER = ITEM_REGISTER.register("spawn_car_white_transporter", () -> new ItemSpawnVehicle(PartRegistry.WHITE_TRANSPORTER_BODY));
-    public static final RegistryObject<ItemSpawnVehicle> SPAWN_CAR_WHITE_SUV = ITEM_REGISTER.register("spawn_car_white_suv", () -> new ItemSpawnVehicle(PartRegistry.WHITE_SUV_BODY));
-    public static final RegistryObject<ItemSpawnVehicle> SPAWN_CAR_WHITE_SPORT = ITEM_REGISTER.register("spawn_car_white_sport", () -> new ItemSpawnVehicle(PartRegistry.WHITE_SPORT_BODY));
+    public static final RegistryObject<ItemSpawnVehicle> SPAWN_VEHICLE_OAK = ITEM_REGISTER.register("spawn_car_oak", () -> new ItemSpawnVehicle(PartRegistry.OAK_BODY));
+    public static final RegistryObject<ItemSpawnVehicle> SPAWN_VEHICLE_BIG_OAK = ITEM_REGISTER.register("spawn_car_big_oak", () -> new ItemSpawnVehicle(PartRegistry.BIG_OAK_BODY));
+    public static final RegistryObject<ItemSpawnVehicle> SPAWN_VEHICLE_WHITE_TRANSPORTER = ITEM_REGISTER.register("spawn_car_white_transporter", () -> new ItemSpawnVehicle(PartRegistry.WHITE_TRANSPORTER_BODY));
+    public static final RegistryObject<ItemSpawnVehicle> SPAWN_VEHICLE_WHITE_SUV = ITEM_REGISTER.register("spawn_car_white_suv", () -> new ItemSpawnVehicle(PartRegistry.WHITE_SUV_BODY));
+    public static final RegistryObject<ItemSpawnVehicle> SPAWN_VEHICLE_WHITE_SPORT = ITEM_REGISTER.register("spawn_car_white_sport", () -> new ItemSpawnVehicle(PartRegistry.WHITE_SPORT_BODY));
 
     public static final RegistryObject<VehicleBucketItem> BIO_DIESEL_BUCKET = ITEM_REGISTER.register("bio_diesel_bucket", () -> new VehicleBucketItem(ModFluids.BIO_DIESEL.get()));
 

@@ -63,9 +63,9 @@ public class SecurityComponent extends VehicleComponent {
 
         // Key binding
         if (!isLocked() && player.isShiftKeyDown() && player.getAbilities().instabuild && !stack.isEmpty() && stack.getItem().equals(ModItems.KEY.get())) {
-            UUID uuid = ItemKey.getCar(stack);
+            UUID uuid = ItemKey.getVehicle(stack);
             if (uuid == null) {
-                ItemKey.setCar(stack, vehicle.getUUID());
+                ItemKey.setVehicle(stack, vehicle.getUUID());
                 return true;
             }
         }
