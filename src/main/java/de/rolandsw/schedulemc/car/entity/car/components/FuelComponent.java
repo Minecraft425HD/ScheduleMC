@@ -1,36 +1,45 @@
-package de.rolandsw.schedulemc.car.entity.car.base;
+package de.rolandsw.schedulemc.car.entity.car.components;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
+import de.rolandsw.schedulemc.car.Main;
+import de.rolandsw.schedulemc.car.config.Fuel;
+import de.rolandsw.schedulemc.car.entity.car.base.EntityGenericCar;
 import de.rolandsw.schedulemc.car.fluids.ModFluids;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.registries.ForgeRegistries;
 
-public abstract class EntityCarFuelBase extends EntityCarDamageBase implements IFluidHandler {
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-    private static final EntityDataAccessor<Integer> FUEL_AMOUNT = SynchedEntityData.defineId(EntityCarFuelBase.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<String> FUEL_TYPE = SynchedEntityData.defineId(EntityCarFuelBase.class, EntityDataSerializers.STRING);
+/**
+ * Manages fuel storage and consumption for the car
+ */
+public class FuelComponent extends CarComponent implements IFluidHandler {
 
-    public EntityCarFuelBase(EntityType type, Level worldIn) {
-        super(type, worldIn);
+    private static final EntityDataAccessor<Integer> FUEL_AMOUNT = SynchedEntityData.defineId(EntityGenericCar.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<String> FUEL_TYPE = SynchedEntityData.defineId(EntityGenericCar.class, EntityDataSerializers.STRING);
+
+    public FuelComponent(EntityGenericCar car) {
+        super(car);
     }
 
-    public abstract int getMaxFuel();
+    @Override
+    public void defineSynchedData(SynchedEntityData.Builder builder) {
+        builder.define(FUEL_AMOUNT, 0);
+        builder.define(FUEL_TYPE, "");
+    }
 
     @Override
     public void tick() {
-        super.tick();
+        if (car.level().isClientSide) {
+            return;
+        }
 
         fuelTick();
     }
@@ -41,12 +50,14 @@ public abstract class EntityCarFuelBase extends EntityCarDamageBase implements I
         if (tickFuel <= 0) {
             return;
         }
-        if (fuel > 0 && isAccelerating()) {
-            if (tickCount % tickFuel == 0) {
+
+        PhysicsComponent physics = car.getPhysicsComponent();
+        if (fuel > 0 && physics != null && physics.isAccelerating()) {
+            if (car.tickCount % tickFuel == 0) {
                 acceleratingFuelTick();
             }
-        } else if (fuel > 0 && isStarted()) {
-            if (tickCount % (tickFuel * 100) == 0) {
+        } else if (fuel > 0 && physics != null && physics.isStarted()) {
+            if (car.tickCount % (tickFuel * 100) == 0) {
                 idleFuelTick();
             }
         }
@@ -66,49 +77,19 @@ public abstract class EntityCarFuelBase extends EntityCarDamageBase implements I
         setFuelAmount(Math.max(newFuel, 0));
     }
 
-    @Override
-    public boolean canPlayerDriveCar(Player player) {
-
-        if (getFuelAmount() <= 0) {
-            return false;
-        }
-
-        return super.canPlayerDriveCar(player);
-    }
-
-    @Override
-    public boolean canStartCarEngine(Player player) {
-        if (getFuelAmount() <= 0) {
-            return false;
-        }
-
-        return super.canStartCarEngine(player);
-    }
-
-    public boolean canEngineStayOn() {
-        if (getFuelAmount() <= 0) {
-            return false;
-        }
-
-        return super.canEngineStayOn();
-    }
-
-    @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        entityData.define(FUEL_AMOUNT, 0);
-        entityData.define(FUEL_TYPE, "");
+    public boolean hasFuel() {
+        return getFuelAmount() > 0;
     }
 
     public void setFuelAmount(int fuel) {
-        this.entityData.set(FUEL_AMOUNT, fuel);
+        car.getEntityData().set(FUEL_AMOUNT, fuel);
     }
 
     public void setFuelType(String fluid) {
         if (fluid == null) {
             fluid = "";
         }
-        entityData.set(FUEL_TYPE, fluid);
+        car.getEntityData().set(FUEL_TYPE, fluid);
     }
 
     public void setFuelType(Fluid fluid) {
@@ -116,7 +97,7 @@ public abstract class EntityCarFuelBase extends EntityCarDamageBase implements I
     }
 
     public String getFuelType() {
-        return this.entityData.get(FUEL_TYPE);
+        return car.getEntityData().get(FUEL_TYPE);
     }
 
     @Nullable
@@ -125,12 +106,11 @@ public abstract class EntityCarFuelBase extends EntityCarDamageBase implements I
         if (fuelType == null || fuelType.isEmpty()) {
             return null;
         }
-
         return ForgeRegistries.FLUIDS.getValue(new ResourceLocation(fuelType));
     }
 
     public int getFuelAmount() {
-        return this.entityData.get(FUEL_AMOUNT);
+        return car.getEntityData().get(FUEL_AMOUNT);
     }
 
     public boolean isValidFuel(Fluid fluid) {
@@ -140,24 +120,37 @@ public abstract class EntityCarFuelBase extends EntityCarDamageBase implements I
         return getEfficiency(fluid) > 0;
     }
 
-    public abstract int getEfficiency(@Nullable Fluid fluid);
+    public int getEfficiency(@Nullable Fluid fluid) {
+        int fluidEfficiency = 0;
+
+        if (fluid == null) {
+            fluidEfficiency = 100;
+        } else {
+            Fuel fuel = Main.FUEL_CONFIG.getFuels().getOrDefault(fluid, null);
+            if (fuel != null) {
+                fluidEfficiency = fuel.getEfficiency();
+            }
+        }
+
+        float engineEfficiency = car.getCarFuelEfficiency();
+        return (int) Math.ceil(engineEfficiency * (float) fluidEfficiency);
+    }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag compound) {
-        super.addAdditionalSaveData(compound);
+    public void saveAdditionalData(CompoundTag compound) {
         compound.putInt("fuel", getFuelAmount());
         compound.putString("fuel_type", getFuelType());
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag compound) {
-        super.readAdditionalSaveData(compound);
+    public void readAdditionalData(CompoundTag compound) {
         setFuelAmount(compound.getInt("fuel"));
         if (compound.contains("fuel_type")) {
             setFuelType(compound.getString("fuel_type"));
         }
     }
 
+    // IFluidHandler implementation
     @Override
     public int getTanks() {
         return 1;
@@ -176,7 +169,7 @@ public abstract class EntityCarFuelBase extends EntityCarDamageBase implements I
 
     @Override
     public int getTankCapacity(int tank) {
-        return getMaxFuel();
+        return car.getMaxFuel();
     }
 
     @Override
@@ -194,12 +187,12 @@ public abstract class EntityCarFuelBase extends EntityCarDamageBase implements I
             return 0;
         }
 
-        int amount = Math.min(resource.getAmount(), getMaxFuel() - getFuelAmount());
+        int amount = Math.min(resource.getAmount(), car.getMaxFuel() - getFuelAmount());
 
         if (action.execute()) {
             int i = getFuelAmount() + amount;
-            if (i > getMaxFuel()) {
-                i = getMaxFuel();
+            if (i > car.getMaxFuel()) {
+                i = car.getMaxFuel();
             }
             setFuelAmount(i);
             setFuelType(resource.getFluid());
@@ -234,10 +227,8 @@ public abstract class EntityCarFuelBase extends EntityCarDamageBase implements I
 
         int amount = Math.min(maxDrain, totalAmount);
 
-
         if (action.execute()) {
             int newAmount = totalAmount - amount;
-
 
             if (newAmount <= 0) {
                 setFuelType((String) null);
@@ -249,5 +240,4 @@ public abstract class EntityCarFuelBase extends EntityCarDamageBase implements I
 
         return new FluidStack(fluid, amount);
     }
-
 }

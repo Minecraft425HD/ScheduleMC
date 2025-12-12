@@ -3,7 +3,7 @@ package de.rolandsw.schedulemc.car.net;
 import java.util.UUID;
 
 import de.rolandsw.schedulemc.car.Main;
-import de.rolandsw.schedulemc.car.entity.car.base.EntityCarBase;
+import de.rolandsw.schedulemc.car.entity.car.base.EntityGenericCar;
 import de.maxhenkel.corelib.net.Message;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
@@ -37,8 +37,8 @@ public class MessageCarGui implements Message<MessageCarGui> {
         }
 
         Entity e = context.getSender().getVehicle();
-        if (e instanceof EntityCarBase) {
-            ((EntityCarBase) e).openCarGUI(context.getSender());
+        if (e instanceof EntityGenericCar) {
+            ((EntityGenericCar) e).openCarGUI(context.getSender());
         }
     }
 

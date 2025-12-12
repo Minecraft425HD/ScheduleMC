@@ -1,6 +1,6 @@
 package de.rolandsw.schedulemc.car.sounds;
 
-import de.rolandsw.schedulemc.car.entity.car.base.EntityCarBase;
+import de.rolandsw.schedulemc.car.entity.car.base.EntityGenericCar;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 
@@ -8,7 +8,7 @@ public class SoundLoopIdle extends SoundLoopCar {
 
     private float volumeToReach;
 
-    public SoundLoopIdle(EntityCarBase car, SoundEvent event, SoundSource category) {
+    public SoundLoopIdle(EntityGenericCar car, SoundEvent event, SoundSource category) {
         super(car, event, category);
         volumeToReach = volume;
         volume = volume / 2.5F;

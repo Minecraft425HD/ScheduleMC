@@ -1,6 +1,6 @@
 package de.rolandsw.schedulemc.car.gui;
 
-import de.rolandsw.schedulemc.car.entity.car.base.EntityCarInventoryBase;
+import de.rolandsw.schedulemc.car.entity.car.base.EntityGenericCar;
 import de.maxhenkel.corelib.inventory.ScreenBase;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -12,7 +12,7 @@ public class GuiCarInventory extends ScreenBase<ContainerCarInventory> {
     private static final ResourceLocation GUI_TEXTURE_3 = new ResourceLocation("textures/gui/container/shulker_box.png");
     private static final ResourceLocation GUI_TEXTURE_6 = new ResourceLocation("textures/gui/container/generic_54.png");
 
-    private EntityCarInventoryBase car;
+    private EntityGenericCar car;
     private Inventory playerInventory;
 
     public GuiCarInventory(ContainerCarInventory carInventory, Inventory playerInventory, Component title) {

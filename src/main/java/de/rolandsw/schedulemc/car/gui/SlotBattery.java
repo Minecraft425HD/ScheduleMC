@@ -1,6 +1,6 @@
 package de.rolandsw.schedulemc.car.gui;
 
-import de.rolandsw.schedulemc.car.entity.car.base.EntityCarBatteryBase;
+import de.rolandsw.schedulemc.car.entity.car.base.EntityGenericCar;
 import de.rolandsw.schedulemc.car.items.ModItems;
 import net.minecraft.world.Containers;
 import net.minecraft.world.SimpleContainer;
@@ -10,10 +10,10 @@ import net.minecraft.world.item.ItemStack;
 
 public class SlotBattery extends Slot {
 
-    private EntityCarBatteryBase car;
+    private EntityGenericCar car;
     private Player player;
 
-    public SlotBattery(EntityCarBatteryBase car, int index, int xPosition, int yPosition, Player player) {
+    public SlotBattery(EntityGenericCar car, int index, int xPosition, int yPosition, Player player) {
         super(new SimpleContainer(1), index, xPosition, yPosition);
         this.car = car;
         this.player = player;
@@ -27,13 +27,13 @@ public class SlotBattery extends Slot {
 
         int energy = stack.getMaxDamage() - stack.getDamageValue();
 
-        int energyToFill = car.getMaxBatteryLevel() - car.getBatteryLevel();
+        int energyToFill = car.getBatteryComponent().getMaxBatteryLevel() - car.getBatteryComponent().getBatteryLevel();
 
         int fill = Math.min(energy, energyToFill);
 
         stack.setDamageValue(stack.getMaxDamage() - (energy - fill));
 
-        car.setBatteryLevel(car.getBatteryLevel() + fill);
+        car.getBatteryComponent().setBatteryLevel(car.getBatteryComponent().getBatteryLevel() + fill);
 
         if (!player.getInventory().add(stack)) {
             Containers.dropItemStack(car.level(), car.getX(), car.getY(), car.getZ(), stack);

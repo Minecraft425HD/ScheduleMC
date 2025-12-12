@@ -1,7 +1,7 @@
 package de.rolandsw.schedulemc.car.events;
 
 import de.rolandsw.schedulemc.car.Main;
-import de.rolandsw.schedulemc.car.entity.car.base.EntityCarBatteryBase;
+import de.rolandsw.schedulemc.car.entity.car.base.EntityGenericCar;
 import de.rolandsw.schedulemc.car.net.MessageCenterCar;
 import de.rolandsw.schedulemc.car.net.MessageStarting;
 import net.minecraft.network.chat.Component;
@@ -37,11 +37,11 @@ public class KeyEvents {
 
         Entity riding = player.getVehicle();
 
-        if (!(riding instanceof EntityCarBatteryBase)) {
+        if (!(riding instanceof EntityGenericCar)) {
             return;
         }
 
-        EntityCarBatteryBase car = (EntityCarBatteryBase) riding;
+        EntityGenericCar car = (EntityGenericCar) riding;
 
         if (player.equals(car.getDriver())) {
             car.updateControls(Main.FORWARD_KEY.isDown(), Main.BACK_KEY.isDown(), Main.LEFT_KEY.isDown(), Main.RIGHT_KEY.isDown(), player);
@@ -60,7 +60,7 @@ public class KeyEvents {
 
             if (Main.HORN_KEY.isDown()) {
                 if (!wasHornPressed) {
-                    car.onHornPressed(player);
+                    car.getPhysicsComponent().onHornPressed(player);
                     wasHornPressed = true;
                 }
             } else {

@@ -3,9 +3,9 @@ package de.rolandsw.schedulemc.car;
 import java.util.UUID;
 
 import com.google.common.base.Predicate;
-import de.rolandsw.schedulemc.car.entity.car.base.EntityCarBase;
+import de.rolandsw.schedulemc.car.entity.car.base.EntityGenericCar;
 
-public class PredicateUUID implements Predicate<EntityCarBase> {
+public class PredicateUUID implements Predicate<EntityGenericCar> {
 
     private UUID uuid;
 
@@ -14,7 +14,7 @@ public class PredicateUUID implements Predicate<EntityCarBase> {
     }
 
     @Override
-    public boolean apply(EntityCarBase input) {
+    public boolean apply(EntityGenericCar input) {
         return input.getUUID().equals(uuid);
     }
 

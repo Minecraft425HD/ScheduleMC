@@ -1,7 +1,7 @@
 package de.rolandsw.schedulemc.car.gui;
 
 import de.rolandsw.schedulemc.car.Main;
-import de.rolandsw.schedulemc.car.entity.car.base.EntityCarInventoryBase;
+import de.rolandsw.schedulemc.car.entity.car.base.EntityGenericCar;
 import de.maxhenkel.corelib.inventory.ScreenBase;
 import de.maxhenkel.corelib.math.MathUtils;
 import net.minecraft.client.gui.GuiGraphics;
@@ -16,7 +16,7 @@ public class GuiCar extends ScreenBase<ContainerCar> {
     private static final int fontColor = 4210752;
 
     private Inventory playerInv;
-    private EntityCarInventoryBase car;
+    private EntityGenericCar car;
 
     public GuiCar(ContainerCar containerCar, Inventory playerInv, Component title) {
         super(CAR_GUI_TEXTURE, containerCar, playerInv, title);
@@ -42,24 +42,24 @@ public class GuiCar extends ScreenBase<ContainerCar> {
     }
 
     public float getFuelPercent() {
-        float fuelPerc = ((float) car.getFuelAmount()) / ((float) car.getMaxFuel()) * 100F;
+        float fuelPerc = ((float) car.getFuelComponent().getFuelAmount()) / ((float) car.getMaxFuel()) * 100F;
         return MathUtils.round(fuelPerc, 2);
     }
 
     public int getBatteryPercent() {
-        return (int) (car.getBatteryPercentage() * 100F);
+        return (int) (car.getBatteryComponent().getBatteryPercentage() * 100F);
     }
 
     public float getTemperatureCelsius() {
-        return MathUtils.round(car.getTemperature(), 2);
+        return MathUtils.round(car.getDamageComponent().getTemperature(), 2);
     }
 
     public float getTemperatureFarenheit() {
-        return MathUtils.round((car.getTemperature() * 1.8F) + 32F, 2);
+        return MathUtils.round((car.getDamageComponent().getTemperature() * 1.8F) + 32F, 2);
     }
 
     public float getTemperaturePercent() {
-        float temp = car.getTemperature();
+        float temp = car.getDamageComponent().getTemperature();
         if (temp > 100F) {
             temp = 100F;
         }
@@ -70,7 +70,7 @@ public class GuiCar extends ScreenBase<ContainerCar> {
     }
 
     public float getDamagePercent() {
-        float dmg = car.getDamage();
+        float dmg = car.getDamageComponent().getDamage();
         dmg = Math.min(dmg, 100);
         return MathUtils.round(dmg, 2);
     }
@@ -100,7 +100,7 @@ public class GuiCar extends ScreenBase<ContainerCar> {
         super.renderBg(guiGraphics, partialTicks, mouseX, mouseY);
         drawFuel(guiGraphics, getFuelPercent());
         drawDamage(guiGraphics, 100F - getDamagePercent());
-        drawBattery(guiGraphics, car.getBatteryPercentage());
+        drawBattery(guiGraphics, car.getBatteryComponent().getBatteryPercentage());
         drawTemp(guiGraphics, getTemperaturePercent());
     }
 

@@ -1,15 +1,15 @@
 package de.rolandsw.schedulemc.car.gui;
 
 import de.rolandsw.schedulemc.car.Main;
-import de.rolandsw.schedulemc.car.entity.car.base.EntityCarInventoryBase;
+import de.rolandsw.schedulemc.car.entity.car.base.EntityGenericCar;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 
 public class ContainerCarInventory extends ContainerBase {
 
-    private EntityCarInventoryBase car;
+    private EntityGenericCar car;
 
-    public ContainerCarInventory(int id, EntityCarInventoryBase car, Inventory playerInventory) {
+    public ContainerCarInventory(int id, EntityGenericCar car, Inventory playerInventory) {
         super(Main.CAR_INVENTORY_CONTAINER_TYPE.get(), id, playerInventory, car.getExternalInventory());
         this.car = car;
 
@@ -33,7 +33,7 @@ public class ContainerCarInventory extends ContainerBase {
         return getRows() != 3 ? 56 : 0;
     }
 
-    public EntityCarInventoryBase getCar() {
+    public EntityGenericCar getCar() {
         return car;
     }
 
