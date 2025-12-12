@@ -95,7 +95,7 @@ public class ServerConfig extends ConfigBase {
 
         canisterMaxFuel = builder.defineInRange("items.canister.max_fuel", 100, 1, 1000);
 
-        collideWithEntities = builder.comment("Whether the cars should collide with other entities (except cars)").define("car.collide_with_entities", false);
+        collideWithEntities = builder.comment("Whether the cars should collide with other entities (except cars)").define("car.collide_with_entities", true);
         damageEntities = builder.comment("Whether the cars should damage other entities on collision").define("car.damage_entities", true);
         hornFlee = builder.comment("Whether animals flee from the car when the horn is activted").define("car.horn_flee", true);
         useBattery = builder.comment("True if starting the car should use battery").define("car.use_battery", true);
