@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.warehouse;
 
 import com.mojang.logging.LogUtils;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -126,7 +127,7 @@ public class WarehouseManager {
                 return;
             }
 
-            long intervalDays = WarehouseConfig.DELIVERY_INTERVAL_DAYS.get();
+            long intervalDays = ModConfigHandler.COMMON.WAREHOUSE_DELIVERY_INTERVAL_DAYS.get();
             long lastDeliveryDay = warehouse.getLastDeliveryDay();
 
             // Prüfe ob genug Tage vergangen sind

@@ -6,7 +6,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity;
-import de.rolandsw.schedulemc.warehouse.WarehouseConfig;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -136,7 +136,7 @@ public class WarehouseCommand {
             long currentDay = player.level().getDayTime() / 24000L;
             long lastDeliveryDay = warehouse.getLastDeliveryDay();
             long daysSinceLastDelivery = currentDay - lastDeliveryDay;
-            long intervalDays = WarehouseConfig.DELIVERY_INTERVAL_DAYS.get();
+            long intervalDays = ModConfigHandler.COMMON.WAREHOUSE_DELIVERY_INTERVAL_DAYS.get();
             long daysUntilNext = (lastDeliveryDay + intervalDays) - currentDay;
 
             String nextDeliveryStr;
@@ -325,7 +325,7 @@ public class WarehouseCommand {
 
             long currentDay = player.level().getDayTime() / 24000L;
             long oldLastDeliveryDay = warehouse.getLastDeliveryDay();
-            long intervalDays = WarehouseConfig.DELIVERY_INTERVAL_DAYS.get();
+            long intervalDays = ModConfigHandler.COMMON.WAREHOUSE_DELIVERY_INTERVAL_DAYS.get();
 
             // Reset lastDeliveryDay to current day
             warehouse.setLastDeliveryDay(currentDay);

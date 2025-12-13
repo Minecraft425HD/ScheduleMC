@@ -1,7 +1,7 @@
 package de.maxhenkel.tools;
 
 import com.mojang.math.Axis;
-import de.rolandsw.schedulemc.car.entity.car.base.EntityGenericCar;
+import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -15,19 +15,19 @@ import java.util.UUID;
 public class EntityTools {
 
     /**
-     * Gets the first car in the range of 10 blocks of the player
+     * Gets the first vehicle in the range of 10 blocks of the player
      *
      * @param player the player
-     * @param uuid   the UUID of the car
-     * @return the car or null
+     * @param uuid   the UUID of the vehicle
+     * @return the vehicle or null
      */
     @Nullable
-    public static EntityGenericCar getCarByUUID(Player player, UUID uuid) {
+    public static EntityGenericVehicle getVehicleByUUID(Player player, UUID uuid) {
         double distance = 10D;
-        return player.level().getEntitiesOfClass(EntityGenericCar.class, new AABB(player.getX() - distance, player.getY() - distance, player.getZ() - distance, player.getX() + distance, player.getY() + distance, player.getZ() + distance), entity -> entity.getUUID().equals(uuid)).stream().findAny().orElse(null);
+        return player.level().getEntitiesOfClass(EntityGenericVehicle.class, new AABB(player.getX() - distance, player.getY() - distance, player.getZ() - distance, player.getX() + distance, player.getY() + distance, player.getZ() + distance), entity -> entity.getUUID().equals(uuid)).stream().findAny().orElse(null);
     }
 
-    public static void drawCarOnScreen(GuiGraphics graphics, EntityGenericCar car, int posX, int posY, float scale, float rotation) {
+    public static void drawVehicleOnScreen(GuiGraphics graphics, EntityGenericVehicle vehicle, int posX, int posY, float scale, float rotation) {
         graphics.pose().pushPose();
         graphics.pose().translate(posX, posY, 100D);
         graphics.pose().scale(1F, 1F, -1F);
@@ -39,23 +39,23 @@ public class EntityTools {
         entityrenderermanager.setRenderShadow(false);
 
         MultiBufferSource.BufferSource buffer = Minecraft.getInstance().renderBuffers().bufferSource();
-        entityrenderermanager.render(car, 0D, 0D, 0D, 0F, 1F, graphics.pose(), buffer, 0xF000F0);
+        entityrenderermanager.render(vehicle, 0D, 0D, 0D, 0F, 1F, graphics.pose(), buffer, 0xF000F0);
         buffer.endBatch();
         entityrenderermanager.setRenderShadow(true);
         graphics.pose().popPose();
     }
 
-    public static class CarRenderer {
+    public static class VehicleRenderer {
         private float rotation;
         private float rotationPerTick;
         private Minecraft minecraft;
 
-        public CarRenderer(float rotationPerTick) {
+        public VehicleRenderer(float rotationPerTick) {
             this.rotationPerTick = rotationPerTick;
             this.minecraft = Minecraft.getInstance();
         }
 
-        public CarRenderer() {
+        public VehicleRenderer() {
             this(3.6F);
         }
 
@@ -66,30 +66,30 @@ public class EntityTools {
             }
         }
 
-        public void render(GuiGraphics guiGraphics, EntityGenericCar car, int posX, int posY, int scale) {
-            EntityTools.drawCarOnScreen(guiGraphics, car, posX, posY, scale, rotation + rotationPerTick * minecraft.getFrameTime());
+        public void render(GuiGraphics guiGraphics, EntityGenericVehicle vehicle, int posX, int posY, int scale) {
+            EntityTools.drawVehicleOnScreen(guiGraphics, vehicle, posX, posY, scale, rotation + rotationPerTick * minecraft.getFrameTime());
         }
     }
 
-    public static class SimulatedCarRenderer {
+    public static class SimulatedVehicleRenderer {
         private float rotation;
         private float rotationPerTick;
         private SimulatedTicker ticker;
 
-        public SimulatedCarRenderer(float rotationPerTick) {
+        public SimulatedVehicleRenderer(float rotationPerTick) {
             this.rotationPerTick = rotationPerTick;
             ticker = new SimulatedTicker();
         }
 
-        public SimulatedCarRenderer() {
+        public SimulatedVehicleRenderer() {
             this(3.6F);
         }
 
-        public void render(GuiGraphics guiGraphics, EntityGenericCar car, int posX, int posY, int scale) {
+        public void render(GuiGraphics guiGraphics, EntityGenericVehicle vehicle, int posX, int posY, int scale) {
             ticker.render(new Renderer() {
                 @Override
                 public void render(float partialTicks) {
-                    EntityTools.drawCarOnScreen(guiGraphics, car, posX, posY, scale, rotation + rotationPerTick * partialTicks);
+                    EntityTools.drawVehicleOnScreen(guiGraphics, vehicle, posX, posY, scale, rotation + rotationPerTick * partialTicks);
                 }
 
                 @Override

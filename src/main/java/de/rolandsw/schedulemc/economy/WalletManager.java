@@ -21,7 +21,7 @@ public class WalletManager {
     
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final File WALLET_FILE = new File("plotmod_wallets.json");
+    private static final File WALLET_FILE = new File("config/plotmod_wallets.json");
     
     // UUID -> Geldbörsen-Guthaben
     private static Map<UUID, Double> wallets = new HashMap<>();
@@ -56,6 +56,7 @@ public class WalletManager {
      * Speichert Geldbörsen auf Disk
      */
     public static void save() {
+        WALLET_FILE.getParentFile().mkdirs(); // Erstelle config-Ordner falls nicht vorhanden
         try (FileWriter writer = new FileWriter(WALLET_FILE)) {
             Map<String, Double> toSave = new HashMap<>();
             for (Map.Entry<UUID, Double> entry : wallets.entrySet()) {

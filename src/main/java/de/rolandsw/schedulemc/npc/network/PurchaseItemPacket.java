@@ -1,9 +1,9 @@
 package de.rolandsw.schedulemc.npc.network;
 
-import de.rolandsw.schedulemc.car.fuel.FuelBillManager;
-import de.rolandsw.schedulemc.car.fuel.GasStationRegistry;
-import de.rolandsw.schedulemc.car.items.ItemSpawnCar;
-import de.rolandsw.schedulemc.car.vehicle.VehiclePurchaseHandler;
+import de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager;
+import de.rolandsw.schedulemc.vehicle.fuel.GasStationRegistry;
+import de.rolandsw.schedulemc.vehicle.items.ItemSpawnVehicle;
+import de.rolandsw.schedulemc.vehicle.vehicle.VehiclePurchaseHandler;
 import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.npc.data.MerchantCategory;
 import de.rolandsw.schedulemc.npc.data.NPCData;
@@ -131,7 +131,7 @@ public class PurchaseItemPacket {
 
         // Spezialbehandlung für Fahrzeuge (Autohändler)
         if (merchant.getMerchantCategory() == MerchantCategory.AUTOHAENDLER &&
-            entry.getItem().getItem() instanceof ItemSpawnCar) {
+            entry.getItem().getItem() instanceof ItemSpawnVehicle) {
 
             // Fahrzeug-Kauf über VehiclePurchaseHandler
             boolean success = VehiclePurchaseHandler.purchaseVehicle(
