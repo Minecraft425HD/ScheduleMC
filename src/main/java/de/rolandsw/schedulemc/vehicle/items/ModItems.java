@@ -81,9 +81,9 @@ public class ModItems {
 
     public static final RegistryObject<ItemVehiclePart> LICENSE_PLATE_HOLDER = ITEM_REGISTER.register("iron_license_plate_holder", () -> new ItemVehiclePart(PartRegistry.LICENSE_PLATE_HOLDER));
 
-    public static final RegistryObject<ItemVehiclePart> STANDARD_TANK = ITEM_REGISTER.register("small_tank", () -> new ItemVehiclePart(PartRegistry.STANDARD_TANK));
-    public static final RegistryObject<ItemVehiclePart> MEDIUM_TANK = ITEM_REGISTER.register("medium_tank", () -> new ItemVehiclePart(PartRegistry.MEDIUM_TANK));
-    public static final RegistryObject<ItemVehiclePart> LARGE_TANK = ITEM_REGISTER.register("large_tank", () -> new ItemVehiclePart(PartRegistry.LARGE_TANK));
+    public static final RegistryObject<ItemVehiclePart> TANK_15L = ITEM_REGISTER.register("small_tank", () -> new ItemVehiclePart(PartRegistry.TANK_15L));
+    public static final RegistryObject<ItemVehiclePart> TANK_30L = ITEM_REGISTER.register("medium_tank", () -> new ItemVehiclePart(PartRegistry.TANK_30L));
+    public static final RegistryObject<ItemVehiclePart> TANK_50L = ITEM_REGISTER.register("large_tank", () -> new ItemVehiclePart(PartRegistry.TANK_50L));
 
     // Pre-built vehicles
     public static final RegistryObject<ItemSpawnVehicle> SPAWN_VEHICLE_OAK = ITEM_REGISTER.register("spawn_vehicle_oak", () -> new ItemSpawnVehicle(PartRegistry.LIMOUSINE_CHASSIS));

@@ -40,9 +40,9 @@ public class PartRegistry {
     );
 
     // Fuel Tanks
-    public static final Part STANDARD_TANK = new PartTank(() -> ModConfigHandler.VEHICLE_SERVER.tankSmallMaxFuel.get());
-    public static final Part MEDIUM_TANK = new PartTank(() -> ModConfigHandler.VEHICLE_SERVER.tankMediumMaxFuel.get());
-    public static final Part LARGE_TANK = new PartTank(() -> ModConfigHandler.VEHICLE_SERVER.tankLargeMaxFuel.get());
+    public static final Part TANK_15L = new PartTank(() -> ModConfigHandler.VEHICLE_SERVER.tankSmallMaxFuel.get());
+    public static final Part TANK_30L = new PartTank(() -> ModConfigHandler.VEHICLE_SERVER.tankMediumMaxFuel.get());
+    public static final Part TANK_50L = new PartTank(() -> ModConfigHandler.VEHICLE_SERVER.tankLargeMaxFuel.get());
 
     // Modules & Accessories
     public static final Part CARGO_MODULE = new PartContainer(new ResourceLocation(Main.MODID, "textures/entity/container_white.png"));

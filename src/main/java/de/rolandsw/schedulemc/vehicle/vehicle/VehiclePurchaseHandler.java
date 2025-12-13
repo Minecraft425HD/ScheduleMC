@@ -164,7 +164,7 @@ public class VehiclePurchaseHandler {
         }
 
         // Füge Tank und Lizenzplatte hinzu
-        parts.add(new ItemStack(ModItems.STANDARD_TANK.get()));
+        parts.add(new ItemStack(ModItems.TANK_15L.get()));
         parts.add(new ItemStack(ModItems.LICENSE_PLATE.get()));
         parts.add(new ItemStack(ModItems.LICENSE_PLATE_HOLDER.get()));
 

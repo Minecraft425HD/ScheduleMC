@@ -85,8 +85,8 @@ public class ItemSpawnVehicle extends Item {
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
         }
 
-        // Add standard tank
-        parts.add(new ItemStack(ModItems.STANDARD_TANK.get()));
+        // Add 15L tank
+        parts.add(new ItemStack(ModItems.TANK_15L.get()));
 
         // Add license plate
         parts.add(new ItemStack(ModItems.LICENSE_PLATE.get()));
