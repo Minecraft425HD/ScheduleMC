@@ -172,10 +172,6 @@ public class DamageComponent extends VehicleComponent {
             return false;
         }
 
-        if (!(player instanceof Player)) {
-            return false;
-        }
-
         if (player.equals(vehicle.getDriver())) {
             return false;
         }

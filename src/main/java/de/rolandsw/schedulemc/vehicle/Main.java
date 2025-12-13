@@ -114,8 +114,6 @@ public class Main {
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 3, MessageCrash.class);
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 4, MessageStartFuel.class);
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 6, MessageSyncTileEntity.class);
-        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 7, MessageSpawnVehicle.class);
-        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 9, MessageRepairVehicle.class);
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 10, MessageVehicleHorn.class);
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 12, MessageGasStationAdminAmount.class);
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 13, MessageCenterVehicle.class);

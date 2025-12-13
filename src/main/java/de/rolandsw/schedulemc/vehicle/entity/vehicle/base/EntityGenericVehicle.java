@@ -35,7 +35,6 @@ import org.joml.Vector3d;
 
 import javax.annotation.Nullable;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Main vehicle entity using component-based architecture.
