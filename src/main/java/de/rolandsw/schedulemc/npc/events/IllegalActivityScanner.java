@@ -105,7 +105,7 @@ public class IllegalActivityScanner {
         // 2. Wenn illegale Aktivitäten gefunden wurden, scanne angrenzende Räume
         if (result.hasIllegalActivity()) {
             // Polizei darf weitere Räume durchsuchen, da Konterband gefunden wurde
-            int maxAdditionalRooms = 3; // Max 3 weitere Räume
+            int maxAdditionalRooms = ModConfigHandler.COMMON.POLICE_ROOM_SCAN_MAX_ADDITIONAL_ROOMS.get();
             Set<BlockPos> connectedRooms = RoomScanner.scanConnectedRooms(level, initialRoom, maxAdditionalRooms);
 
             int additionalBlocks = connectedRooms.size() - initialRoom.size();

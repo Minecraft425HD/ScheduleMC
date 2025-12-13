@@ -293,16 +293,31 @@ public class PoliceAIHandler {
         }
 
         // ═══════════════════════════════════════════════════════════
-        // POLIZEI RAID - Scanne NUR gesehene Räume nach illegalen Items
-        // NEUE LOGIK: Nur Raum scannen, in dem Festnahme stattfand
-        //             Wenn Konterband gefunden → weitere Räume durchsuchen
-        //             Wenn nichts gefunden → KEINE Durchsuchung des ganzen Gebäudes
+        // POLIZEI RAID - Scanne nach illegalen Items
+        // Modus wird über Config gesteuert (POLICE_ROOM_SCAN_ENABLED):
+        //   TRUE  = Intelligentes Raum-Scannen (nur gesehene Räume)
+        //   FALSE = Klassisches Radius-Scannen (komplette Umgebung)
         // ═══════════════════════════════════════════════════════════
-        IllegalActivityScanner.ScanResult scanResult = IllegalActivityScanner.scanRoomBased(
-            player.level(),
-            player.blockPosition(),
-            player
-        );
+        boolean useRoomScan = ModConfigHandler.COMMON.POLICE_ROOM_SCAN_ENABLED.get();
+
+        IllegalActivityScanner.ScanResult scanResult;
+        if (useRoomScan) {
+            // NEUE LOGIK: Nur Raum scannen, in dem Festnahme stattfand
+            //             Wenn Konterband gefunden → weitere Räume durchsuchen
+            //             Wenn nichts gefunden → KEINE Durchsuchung des ganzen Gebäudes
+            scanResult = IllegalActivityScanner.scanRoomBased(
+                player.level(),
+                player.blockPosition(),
+                player
+            );
+        } else {
+            // ALTE LOGIK: Kompletter Radius wird gescannt (deprecated)
+            scanResult = IllegalActivityScanner.scanArea(
+                player.level(),
+                player.blockPosition(),
+                player
+            );
+        }
 
         if (scanResult.hasIllegalActivity()) {
             // Illegale Aktivitäten gefunden!

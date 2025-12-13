@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.npc.events;
 
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -11,11 +12,10 @@ import java.util.*;
  *
  * Verwendet Flood-Fill Algorithmus um zusammenhängende Räume zu erkennen.
  * Polizei scannt nur Räume, die sie "gesehen" hat.
+ *
+ * Alle Werte sind in der Config konfigurierbar!
  */
 public class RoomScanner {
-
-    private static final int MAX_ROOM_SIZE = 500; // Max Blöcke pro Raum (Sicherheits-Limit)
-    private static final int MAX_SEARCH_DEPTH = 50; // Max Y-Tiefe für Raum-Suche
 
     /**
      * Ergebnis eines Raum-Scans
@@ -48,11 +48,15 @@ public class RoomScanner {
         Set<BlockPos> adjacentRoomDoors = new HashSet<>();
         Queue<BlockPos> queue = new LinkedList<>();
 
+        // Lade Config-Werte
+        int maxRoomSize = ModConfigHandler.COMMON.POLICE_ROOM_SCAN_MAX_SIZE.get();
+        int maxSearchDepth = ModConfigHandler.COMMON.POLICE_ROOM_SCAN_MAX_DEPTH.get();
+
         queue.add(start);
         visited.add(start);
 
         // Flood-Fill: Finde alle zusammenhängenden Luft-Blöcke
-        while (!queue.isEmpty() && roomBlocks.size() < MAX_ROOM_SIZE) {
+        while (!queue.isEmpty() && roomBlocks.size() < maxRoomSize) {
             BlockPos current = queue.poll();
 
             // Prüfe ob dieser Block zum Raum gehört
@@ -81,7 +85,7 @@ public class RoomScanner {
                 // Prüfe ob Nachbar passierbar ist
                 else if (isPassableBlock(level, neighbor)) {
                     // Sicherheits-Check: Nicht zu weit vom Start entfernen (Y-Achse)
-                    if (Math.abs(neighbor.getY() - start.getY()) <= MAX_SEARCH_DEPTH) {
+                    if (Math.abs(neighbor.getY() - start.getY()) <= maxSearchDepth) {
                         queue.add(neighbor);
                     }
                 }
