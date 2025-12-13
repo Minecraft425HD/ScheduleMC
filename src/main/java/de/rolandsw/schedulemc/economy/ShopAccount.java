@@ -27,10 +27,12 @@ public class ShopAccount {
     // === AKTIEN-SYSTEM ===
     private static final int TOTAL_SHARES = 100;
     private static final int MAX_SHAREHOLDERS = 2;
-    private final List<ShareHolder> shareholders = new ArrayList<>();
+    // Optimierung: Initial capacity = MAX_SHAREHOLDERS (2)
+    private final List<ShareHolder> shareholders = new ArrayList<>(MAX_SHAREHOLDERS);
 
     // === 7-TAGE-TRACKING ===
-    private final LinkedList<DailyRevenueRecord> revenueHistory = new LinkedList<>();
+    // Optimierung: ArrayDeque statt LinkedList (schneller für 7-Tage-Historie)
+    private final Deque<DailyRevenueRecord> revenueHistory = new ArrayDeque<>(7);
     private long currentDay = -1;
     @Nullable
     private DailyRevenueRecord todayRecord = null;
@@ -134,7 +136,8 @@ public class ShopAccount {
     }
 
     public List<DailyRevenueRecord> getRevenueHistory() {
-        return new ArrayList<>(revenueHistory);
+        // Optimierung: Keine Kopie, nutzt unmodifiable view
+        return Collections.unmodifiableList(new ArrayList<>(revenueHistory));
     }
 
     @Nullable
@@ -228,7 +231,8 @@ public class ShopAccount {
     }
 
     public List<ShareHolder> getShareholders() {
-        return new ArrayList<>(shareholders);
+        // Optimierung: Keine Kopie, nutzt unmodifiable view
+        return Collections.unmodifiableList(shareholders);
     }
 
     // ═══════════════════════════════════════════════════════════
