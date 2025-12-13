@@ -284,26 +284,18 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         partCache = new HashMap<>(8); // Typisch ~8 verschiedene Part-Typen
 
         Container partInv = inventoryComponent.getPartInventory();
-        for (int i = 0; i < partInv.getContainerSize(); i++) {
-            ItemStack stack = partInv.getItem(i);
 
-            if (!(stack.getItem() instanceof IVehiclePart)) {
-                continue;
-            }
-
-            IVehiclePart itemVehiclePart = (IVehiclePart) stack.getItem();
-            Part part = itemVehiclePart.getPart(stack);
-
-            if (part == null) {
-                continue;
-            }
-
-            getVehicleParts().add(part);
-
-            // Optimierung: Fülle Cache für schnelle Lookups
-            // Nutze die exakte Klasse des Parts als Key
-            partCache.put(part.getClass(), part);
-        }
+        // Optimierung: Stream-API für funktionalen Stil
+        java.util.stream.IntStream.range(0, partInv.getContainerSize())
+            .mapToObj(partInv::getItem)
+            .filter(stack -> stack.getItem() instanceof IVehiclePart)
+            .map(stack -> ((IVehiclePart) stack.getItem()).getPart(stack))
+            .filter(Objects::nonNull)
+            .forEach(part -> {
+                getVehicleParts().add(part);
+                // Optimierung: Fülle Cache für schnelle Lookups
+                partCache.put(part.getClass(), part);
+            });
 
         checkInitializing();
     }
@@ -360,19 +352,21 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     protected void initModel() {
         modelInstances.clear();
 
-        boolean addedWheels = false;
-        for (Part part : getVehicleParts()) {
-            if (part instanceof PartModel) {
+        // Optimierung: Stream-API mit State für Wheel-Deduplication
+        final boolean[] addedWheels = {false};
+        getVehicleParts().stream()
+            .filter(part -> part instanceof PartModel)
+            .filter(part -> {
+                // Nur erste PartWheelBase hinzufügen (Duplikate überspringen)
                 if (part instanceof PartWheelBase) {
-                    if (!addedWheels) {
-                        addedWheels = true;
-                    } else {
-                        continue;
+                    if (addedWheels[0]) {
+                        return false;
                     }
+                    addedWheels[0] = true;
                 }
-                modelInstances.addAll(((PartModel) part).getInstances(this));
-            }
-        }
+                return true;
+            })
+            .forEach(part -> modelInstances.addAll(((PartModel) part).getInstances(this)));
     }
 
     public List<OBJModelInstance<EntityGenericVehicle>> getModels() {

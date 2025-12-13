@@ -563,10 +563,11 @@ public class PhysicsComponent extends VehicleComponent {
             playHornSound();
             if (ModConfigHandler.VEHICLE_SERVER.hornFlee.get()) {
                 double radius = VehicleConstants.HORN_FLEE_RADIUS;
-                List<Monster> list = vehicle.level().getEntitiesOfClass(Monster.class, new AABB(vehicle.getX() - radius, vehicle.getY() - radius, vehicle.getZ() - radius, vehicle.getX() + radius, vehicle.getY() + radius, vehicle.getZ() + radius));
-                for (Monster ent : list) {
-                    fleeEntity(ent);
-                }
+                // Optimierung: Stream-API statt for-Schleife
+                vehicle.level().getEntitiesOfClass(Monster.class,
+                    new AABB(vehicle.getX() - radius, vehicle.getY() - radius, vehicle.getZ() - radius,
+                             vehicle.getX() + radius, vehicle.getY() + radius, vehicle.getZ() + radius))
+                    .forEach(this::fleeEntity);
             }
         }
     }
