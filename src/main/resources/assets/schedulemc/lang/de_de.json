@@ -425,6 +425,8 @@
   "message.vehicle_out_of_range": "Schlüssel außer Reichweite",
   "message.key_no_vehicle": "Dieser Schlüssel gehört zu keinem Fahrzeug",
   "message.center_vehicle": "Fahrzeugrotation zentriert",
+  "message.schedulemc.garage.no_vehicle": "Kein Fahrzeug in Reichweite!",
+  "message.schedulemc.garage.vehicle_locked": "Fahrzeug in Garage gesperrt",
 
   "gui.vehicle_fuel": "%s %% Kraftstoff",
   "gui.vehicle_damage": "%s %% Schaden",
@@ -439,7 +441,10 @@
 
   "block.vehicle.fuel_station": "Tankstelle",
   "block.vehicle.fuel_station_top": "Tankstelle",
+  "block.schedulemc.garage": "Fahrzeug-Werkstatt",
   "block.vehicle.diesel": "Diesel",
+
+  "container.schedulemc.garage": "Fahrzeug-Werkstatt",
 
   "item.vehicle.normal_motor": "Normal-Motor",
   "item.vehicle.performance_motor": "Performance-Motor",

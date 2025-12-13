@@ -61,6 +61,11 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     private UUID vehicleUUID;
     private BlockPos homeSpawnPoint;
 
+    // Garage locking system
+    private boolean isLockedInGarage;
+    @Nullable
+    private BlockPos garagePosition;
+
     private boolean isInitialized;
     private boolean isSpawned = true;
 
@@ -559,6 +564,32 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
             .orElseGet(() -> ModSounds.VEHICLE_HORN.get());
     }
 
+    // Garage locking system methods
+    public void lockInGarage(BlockPos garagePos) {
+        this.isLockedInGarage = true;
+        this.garagePosition = garagePos;
+        // Stop all movement
+        this.setDeltaMovement(Vec3.ZERO);
+    }
+
+    public void unlockFromGarage() {
+        this.isLockedInGarage = false;
+        this.garagePosition = null;
+    }
+
+    public boolean isLockedInGarage() {
+        return isLockedInGarage;
+    }
+
+    @Nullable
+    public BlockPos getGaragePosition() {
+        return garagePosition;
+    }
+
+    public boolean canMove() {
+        return !isLockedInGarage;
+    }
+
     @Override
     protected Component getTypeName() {
         PartBody body = getPartByClass(PartBody.class);
@@ -612,6 +643,17 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
             this.homeSpawnPoint = new BlockPos(x, y, z);
         }
 
+        // Load garage locking data
+        if (compound.contains("IsLockedInGarage")) {
+            this.isLockedInGarage = compound.getBoolean("IsLockedInGarage");
+        }
+        if (compound.contains("GarageX")) {
+            int x = compound.getInt("GarageX");
+            int y = compound.getInt("GarageY");
+            int z = compound.getInt("GarageZ");
+            this.garagePosition = new BlockPos(x, y, z);
+        }
+
         // Initialize default items if this is a new vehicle
         if (compound.getAllKeys().stream().allMatch(s -> s.equals("id"))) {
             Container internal = inventoryComponent.getInternalInventory();
@@ -647,6 +689,14 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
             compound.putInt("HomeSpawnX", this.homeSpawnPoint.getX());
             compound.putInt("HomeSpawnY", this.homeSpawnPoint.getY());
             compound.putInt("HomeSpawnZ", this.homeSpawnPoint.getZ());
+        }
+
+        // Save garage locking data
+        compound.putBoolean("IsLockedInGarage", this.isLockedInGarage);
+        if (this.garagePosition != null) {
+            compound.putInt("GarageX", this.garagePosition.getX());
+            compound.putInt("GarageY", this.garagePosition.getY());
+            compound.putInt("GarageZ", this.garagePosition.getZ());
         }
 
         // Save all component data

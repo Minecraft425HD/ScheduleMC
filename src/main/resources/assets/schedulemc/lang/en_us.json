@@ -425,6 +425,8 @@
   "message.vehicle_out_of_range": "Key out of range",
   "message.key_no_vehicle": "This key does not belong to a Vehicle",
   "message.center_vehicle": "Centered Vehicle rotation",
+  "message.schedulemc.garage.no_vehicle": "No vehicle in range!",
+  "message.schedulemc.garage.vehicle_locked": "Vehicle locked in garage",
 
   "gui.vehicle_fuel": "%s %% Fuel",
   "gui.vehicle_damage": "%s %% Damage",
@@ -439,7 +441,10 @@
 
   "block.vehicle.fuel_station": "Fuel Station",
   "block.vehicle.fuel_station_top": "Fuel Station",
+  "block.schedulemc.garage": "Vehicle Garage",
   "block.vehicle.diesel": "Diesel",
+
+  "container.schedulemc.garage": "Vehicle Garage",
 
   "item.vehicle.normal_motor": "Normal Motor",
   "item.vehicle.performance_motor": "Performance Motor",

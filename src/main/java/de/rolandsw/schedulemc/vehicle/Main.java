@@ -212,6 +212,10 @@ public class Main {
     public static final RegistryObject<MenuType<ContainerGasStationAdmin>> GAS_STATION_ADMIN_CONTAINER_TYPE = MENU_TYPE_REGISTER.register("fuel_station_admin", () ->
             IForgeMenuType.create(new ContainerFactoryTileEntity((ContainerFactoryTileEntity.ContainerCreator<ContainerGasStationAdmin, TileEntityGasStation>) ContainerGasStationAdmin::new))
     );
+    public static final RegistryObject<MenuType<ContainerGarage>> GARAGE_CONTAINER_TYPE = MENU_TYPE_REGISTER.register("garage", () ->
+            IForgeMenuType.create(new ContainerFactoryTileEntity((ContainerFactoryTileEntity.ContainerCreator<ContainerGarage, TileEntityGarage>)
+                    (windowId, garage, playerInventory) -> new ContainerGarage(windowId, garage.getTrackedVehicle(), garage, playerInventory)))
+    );
     public static final RegistryObject<MenuType<ContainerLicensePlate>> LICENSE_PLATE_CONTAINER_TYPE = MENU_TYPE_REGISTER.register("license_plate", () ->
             IForgeMenuType.create((windowId, inv, data) -> {
                 ItemStack licensePlate = null;
