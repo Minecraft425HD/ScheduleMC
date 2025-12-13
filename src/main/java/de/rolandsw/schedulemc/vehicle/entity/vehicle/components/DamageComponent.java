@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.vehicle.entity.vehicle.components;
 
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.vehicle.VehicleConstants;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import de.rolandsw.schedulemc.vehicle.items.ItemRepairKit;
@@ -48,8 +49,9 @@ public class DamageComponent extends VehicleComponent {
             spawnDamageParticles();
         }
 
-        // Temperature logic
-        if (!vehicle.level().isClientSide && vehicle.tickCount % VehicleConstants.TEMPERATURE_UPDATE_INTERVAL == 0) {
+        // Temperature logic (konfigurierbar via Config)
+        int tempUpdateInterval = ModConfigHandler.VEHICLE_SERVER.temperatureUpdateInterval.get();
+        if (!vehicle.level().isClientSide && vehicle.tickCount % tempUpdateInterval == 0) {
             updateTemperature();
         }
     }
