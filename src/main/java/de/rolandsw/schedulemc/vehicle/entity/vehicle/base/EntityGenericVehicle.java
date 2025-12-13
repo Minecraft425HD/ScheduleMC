@@ -375,67 +375,58 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
 
     // Properties delegated to parts
     public float getWheelRotationAmount() {
-        PartWheelBase wheel = getPartByClass(PartWheelBase.class);
-        if (wheel == null) {
-            return 120F * (physicsComponent != null ? physicsComponent.getSpeed() : 0);
-        }
-        return wheel.getRotationModifier() * (physicsComponent != null ? physicsComponent.getSpeed() : 0);
+        // Optimierung: Optional statt null-checks
+        float speed = Optional.ofNullable(physicsComponent)
+            .map(PhysicsComponent::getSpeed)
+            .orElse(0F);
+
+        return Optional.ofNullable(getPartByClass(PartWheelBase.class))
+            .map(PartWheelBase::getRotationModifier)
+            .orElse(120F) * speed;
     }
 
     public int getFluidInventorySize() {
-        PartTankContainer tank = getPartByClass(PartTankContainer.class);
-        if (tank == null) {
-            return 0;
-        }
-        return tank.getFluidAmount();
+        // Optimierung: Optional statt null-check
+        return Optional.ofNullable(getPartByClass(PartTankContainer.class))
+            .map(PartTankContainer::getFluidAmount)
+            .orElse(0);
     }
 
     public float getMaxSpeed() {
-        PartEngine engine = getPartByClass(PartEngine.class);
-        if (engine == null) {
-            return 0F;
-        }
-        PartBody chassis = getPartByClass(PartBody.class);
-        if (chassis == null) {
-            return 0F;
-        }
-        return engine.getMaxSpeed() * chassis.getMaxSpeed();
+        // Optimierung: Optional flatMap für kombinierte Parts
+        return Optional.ofNullable(getPartByClass(PartEngine.class))
+            .flatMap(engine -> Optional.ofNullable(getPartByClass(PartBody.class))
+                .map(body -> engine.getMaxSpeed() * body.getMaxSpeed()))
+            .orElse(0F);
     }
 
     public float getMaxReverseSpeed() {
-        PartEngine engine = getPartByClass(PartEngine.class);
-        if (engine == null) {
-            return 0F;
-        }
-        return engine.getMaxReverseSpeed();
+        // Optimierung: Optional statt null-check
+        return Optional.ofNullable(getPartByClass(PartEngine.class))
+            .map(PartEngine::getMaxReverseSpeed)
+            .orElse(0F);
     }
 
     public float getAcceleration() {
-        PartEngine engine = getPartByClass(PartEngine.class);
-        if (engine == null) {
-            return 0F;
-        }
-        PartBody chassis = getPartByClass(PartBody.class);
-        if (chassis == null) {
-            return 0F;
-        }
-        return engine.getAcceleration() * chassis.getAcceleration();
+        // Optimierung: Optional flatMap für kombinierte Parts
+        return Optional.ofNullable(getPartByClass(PartEngine.class))
+            .flatMap(engine -> Optional.ofNullable(getPartByClass(PartBody.class))
+                .map(body -> engine.getAcceleration() * body.getAcceleration()))
+            .orElse(0F);
     }
 
     public float getMaxRotationSpeed() {
-        PartBody chassis = getPartByClass(PartBody.class);
-        if (chassis == null) {
-            return 5.0F;
-        }
-        return chassis.getMaxRotationSpeed();
+        // Optimierung: Optional statt null-check
+        return Optional.ofNullable(getPartByClass(PartBody.class))
+            .map(PartBody::getMaxRotationSpeed)
+            .orElse(5.0F);
     }
 
     public float getMinRotationSpeed() {
-        PartBody chassis = getPartByClass(PartBody.class);
-        if (chassis == null) {
-            return 2.0F;
-        }
-        return chassis.getMinRotationSpeed();
+        // Optimierung: Optional statt null-check
+        return Optional.ofNullable(getPartByClass(PartBody.class))
+            .map(PartBody::getMinRotationSpeed)
+            .orElse(2.0F);
     }
 
     public float getRollResistance() {
@@ -447,30 +438,21 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     }
 
     public int getMaxFuel() {
-        PartTank tank = getPartByClass(PartTank.class);
-        if (tank == null) {
-            return 500; // Default small tank size when no tank part is installed
-        }
-        return tank.getSize();
+        // Optimierung: Optional mit Default-Wert
+        return Optional.ofNullable(getPartByClass(PartTank.class))
+            .map(PartTank::getSize)
+            .orElse(500); // Default small tank size when no tank part is installed
     }
 
     public float getVehicleFuelEfficiency() {
-        PartEngine engine = getPartByClass(PartEngine.class);
-        PartBody chassis = getPartByClass(PartBody.class);
+        // Optimierung: Optional flatMap mit Validierung
+        float efficiency = Optional.ofNullable(getPartByClass(PartEngine.class))
+            .flatMap(engine -> Optional.ofNullable(getPartByClass(PartBody.class))
+                .map(body -> body.getFuelEfficiency() * engine.getFuelEfficiency()))
+            .orElse(1.0F); // Default efficiency when no parts installed
 
-        // If no parts are installed yet, use default efficiency
-        if (engine == null || chassis == null) {
-            return 1.0F; // Default efficiency when no parts installed
-        }
-
-        float efficiency = chassis.getFuelEfficiency() * engine.getFuelEfficiency();
-
-        // Ensure efficiency is never 0 or negative, which would prevent fuel consumption
-        if (efficiency <= 0.0F) {
-            return 1.0F;
-        }
-
-        return efficiency;
+        // Ensure efficiency is never 0 or negative
+        return efficiency <= 0.0F ? 1.0F : efficiency;
     }
 
     public float getRotationModifier() {
@@ -478,14 +460,14 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     }
 
     public float getPitch() {
-        if (physicsComponent == null) {
-            return 0F;
-        }
-        PartEngine engine = getPartByClass(PartEngine.class);
-        if (engine instanceof PartEngineTruck) {
-            return 1F + 0.35F * Math.abs(physicsComponent.getSpeed()) / getMaxSpeed();
-        }
-        return Math.abs(physicsComponent.getSpeed()) / getMaxSpeed();
+        // Optimierung: Optional mit Pattern-Check
+        return Optional.ofNullable(physicsComponent)
+            .map(physics -> {
+                float speed = Math.abs(physics.getSpeed()) / getMaxSpeed();
+                PartEngine engine = getPartByClass(PartEngine.class);
+                return engine instanceof PartEngineTruck ? 1F + 0.35F * speed : speed;
+            })
+            .orElse(0F);
     }
 
     public double getPlayerYOffset() {
@@ -494,20 +476,19 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
 
     @Override
     public Vector3d[] getPlayerOffsets() {
-        PartBody chassis = getPartByClass(PartBody.class);
-        if (chassis == null) {
-            return new Vector3d[]{new Vector3d(0.55D, 0D, -0.38D), new Vector3d(0.55D, 0D, 0.38D)};
-        }
-        return chassis.getPlayerOffsets();
+        // Optimierung: Optional mit Default-Array
+        return Optional.ofNullable(getPartByClass(PartBody.class))
+            .map(PartBody::getPlayerOffsets)
+            .orElse(new Vector3d[]{new Vector3d(0.55D, 0D, -0.38D), new Vector3d(0.55D, 0D, 0.38D)});
     }
 
     @Override
     public int getPassengerSize() {
-        PartBody chassis = getPartByClass(PartBody.class);
-        if (chassis == null) {
-            return 0;
-        }
-        return chassis.getPlayerOffsets().length;
+        // Optimierung: Optional-Kette
+        return Optional.ofNullable(getPartByClass(PartBody.class))
+            .map(PartBody::getPlayerOffsets)
+            .map(offsets -> offsets.length)
+            .orElse(0);
     }
 
     public Vector3d getLicensePlateOffset() {
@@ -530,104 +511,85 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         return true;
     }
 
-    // Sound events
+    // Sound events - Optimierung: Optional statt repetitive null-checks
     public SoundEvent getStopSound() {
-        PartEngine engine = getPartByClass(PartEngine.class);
-        if (engine == null) {
-            return ModSounds.ENGINE_STOP.get();
-        }
-        return engine.getStopSound();
+        return Optional.ofNullable(getPartByClass(PartEngine.class))
+            .map(PartEngine::getStopSound)
+            .orElseGet(() -> ModSounds.ENGINE_STOP.get());
     }
 
     public SoundEvent getFailSound() {
-        PartEngine engine = getPartByClass(PartEngine.class);
-        if (engine == null) {
-            return ModSounds.ENGINE_FAIL.get();
-        }
-        return engine.getFailSound();
+        return Optional.ofNullable(getPartByClass(PartEngine.class))
+            .map(PartEngine::getFailSound)
+            .orElseGet(() -> ModSounds.ENGINE_FAIL.get());
     }
 
     public SoundEvent getCrashSound() {
-        PartEngine engine = getPartByClass(PartEngine.class);
-        if (engine == null) {
-            return ModSounds.VEHICLE_CRASH.get();
-        }
-        return engine.getCrashSound();
+        return Optional.ofNullable(getPartByClass(PartEngine.class))
+            .map(PartEngine::getCrashSound)
+            .orElseGet(() -> ModSounds.VEHICLE_CRASH.get());
     }
 
     public SoundEvent getStartSound() {
-        PartEngine engine = getPartByClass(PartEngine.class);
-        if (engine == null) {
-            return ModSounds.ENGINE_START.get();
-        }
-        return engine.getStartSound();
+        return Optional.ofNullable(getPartByClass(PartEngine.class))
+            .map(PartEngine::getStartSound)
+            .orElseGet(() -> ModSounds.ENGINE_START.get());
     }
 
     public SoundEvent getStartingSound() {
-        PartEngine engine = getPartByClass(PartEngine.class);
-        if (engine == null) {
-            return ModSounds.ENGINE_STARTING.get();
-        }
-        return engine.getStartingSound();
+        return Optional.ofNullable(getPartByClass(PartEngine.class))
+            .map(PartEngine::getStartingSound)
+            .orElseGet(() -> ModSounds.ENGINE_STARTING.get());
     }
 
     public SoundEvent getIdleSound() {
-        PartEngine engine = getPartByClass(PartEngine.class);
-        if (engine == null) {
-            return ModSounds.ENGINE_IDLE.get();
-        }
-        return engine.getIdleSound();
+        return Optional.ofNullable(getPartByClass(PartEngine.class))
+            .map(PartEngine::getIdleSound)
+            .orElseGet(() -> ModSounds.ENGINE_IDLE.get());
     }
 
     public SoundEvent getHighSound() {
-        PartEngine engine = getPartByClass(PartEngine.class);
-        if (engine == null) {
-            return ModSounds.ENGINE_HIGH.get();
-        }
-        return engine.getHighSound();
+        return Optional.ofNullable(getPartByClass(PartEngine.class))
+            .map(PartEngine::getHighSound)
+            .orElseGet(() -> ModSounds.ENGINE_HIGH.get());
     }
 
     public SoundEvent getHornSound() {
-        PartEngine engine = getPartByClass(PartEngine.class);
-        if (engine == null) {
-            return ModSounds.VEHICLE_HORN.get();
-        }
-        return engine.getHornSound();
+        return Optional.ofNullable(getPartByClass(PartEngine.class))
+            .map(PartEngine::getHornSound)
+            .orElseGet(() -> ModSounds.VEHICLE_HORN.get());
     }
 
     @Override
     protected Component getTypeName() {
-        PartBody body = getPartByClass(PartBody.class);
-        if (body == null) {
-            return super.getTypeName();
-        }
-        return Component.translatable("vehicle_name." + body.getTranslationKey(), Component.translatable("vehicle_variant." + body.getMaterialTranslationKey()));
+        // Optimierung: Optional mit Fallback
+        return Optional.ofNullable(getPartByClass(PartBody.class))
+            .map(body -> Component.translatable("vehicle_name." + body.getTranslationKey(),
+                Component.translatable("vehicle_variant." + body.getMaterialTranslationKey())))
+            .orElseGet(super::getTypeName);
     }
 
     public Component getShortName() {
-        PartBody body = getPartByClass(PartBody.class);
-        if (body == null) {
-            return getTypeName();
-        }
-        return Component.translatable("vehicle_short_name." + body.getTranslationKey());
+        // Optimierung: Optional mit Fallback
+        return Optional.ofNullable(getPartByClass(PartBody.class))
+            .map(body -> Component.translatable("vehicle_short_name." + body.getTranslationKey()))
+            .orElseGet(this::getTypeName);
     }
 
     @Override
     public double getVehicleWidth() {
-        PartBody body = getPartByClass(PartBody.class);
-        if (body != null) {
-            return body.getWidth();
-        }
-        return super.getVehicleWidth();
+        // Optimierung: Optional mit Fallback
+        return Optional.ofNullable(getPartByClass(PartBody.class))
+            .map(PartBody::getWidth)
+            .orElseGet(super::getVehicleWidth);
     }
 
     @Override
     public double getVehicleHeight() {
-        PartBody body = getPartByClass(PartBody.class);
-        if (body != null) {
-            return body.getHeight();
-        }
-        return super.getVehicleHeight();
+        // Optimierung: Optional mit Fallback
+        return Optional.ofNullable(getPartByClass(PartBody.class))
+            .map(PartBody::getHeight)
+            .orElseGet(super::getVehicleHeight);
     }
 
     // NBT serialization
