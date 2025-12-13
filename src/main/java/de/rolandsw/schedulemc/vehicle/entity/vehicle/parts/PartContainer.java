@@ -17,7 +17,7 @@ public class PartContainer extends PartTransporterBack {
 
     @Override
     public boolean validate(List<Part> parts, List<Component> messages) {
-        if (Part.getAmount(parts, part -> part instanceof PartBodyTransporter) != 1) {
+        if (Part.getAmount(parts, part -> part instanceof PartLkwChassis) != 1) {
             messages.add(Component.translatable("message.parts.no_body_for_container"));
             return false;
         }

@@ -6,9 +6,9 @@ import de.rolandsw.schedulemc.vehicle.Main;
 import de.maxhenkel.corelib.client.obj.OBJModel;
 import net.minecraft.resources.ResourceLocation;
 
-public class PartBodyWood extends PartBodyWoodBase {
+public class PartLimousineChassis extends PartChassisBase {
 
-    public PartBodyWood(ResourceLocation texture, String materialTranslationKey) {
+    public PartLimousineChassis(ResourceLocation texture, String materialTranslationKey) {
         super(new OBJModel(new ResourceLocation(Main.MODID, "models/entity/wood_body.obj")), texture, new Vector3d(0D, 4D / 16D, 0D), "wood", materialTranslationKey);
 
         this.bumperOffset = new Vector3d(0D, 6D / 16D, -14.5D / 16D);

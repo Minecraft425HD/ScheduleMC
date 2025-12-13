@@ -3,9 +3,9 @@ package de.rolandsw.schedulemc.vehicle.entity.vehicle.parts;
 import de.maxhenkel.corelib.client.obj.OBJModel;
 import net.minecraft.resources.ResourceLocation;
 
-public class PartWheelBig extends PartWheelBase {
+public class PartStandardTire extends PartTireBase {
 
-    public PartWheelBig(OBJModel model, ResourceLocation texture, float rotationModifier, float stepHeight) {
+    public PartStandardTire(OBJModel model, ResourceLocation texture, float rotationModifier, float stepHeight) {
         super(model, texture, rotationModifier, stepHeight);
     }
 

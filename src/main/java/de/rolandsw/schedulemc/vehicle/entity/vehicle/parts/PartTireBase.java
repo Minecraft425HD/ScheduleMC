@@ -12,12 +12,12 @@ import org.joml.Vector3d;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PartWheelBase extends PartModel {
+public class PartTireBase extends PartModel {
 
     protected float rotationModifier;
     protected float stepHeight;
 
-    public PartWheelBase(OBJModel model, ResourceLocation texture, float rotationModifier, float stepHeight) {
+    public PartTireBase(OBJModel model, ResourceLocation texture, float rotationModifier, float stepHeight) {
         super(model, texture);
         this.rotationModifier = rotationModifier;
         this.stepHeight = stepHeight;
@@ -58,11 +58,11 @@ public class PartWheelBase extends PartModel {
             }
         }
 
-        List<PartWheelBase> wheels = new ArrayList<>();
+        List<PartTireBase> wheels = new ArrayList<>();
 
         for (Part part : vehicle.getModelParts()) {
-            if (part instanceof PartWheelBase) {
-                wheels.add((PartWheelBase) part);
+            if (part instanceof PartTireBase) {
+                wheels.add((PartTireBase) part);
             }
         }
 

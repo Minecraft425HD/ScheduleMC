@@ -5,9 +5,9 @@ import de.rolandsw.schedulemc.vehicle.Main;
 import de.rolandsw.schedulemc.vehicle.sounds.ModSounds;
 import net.minecraft.sounds.SoundEvent;
 
-public class PartEngine6Cylinder extends PartEngine {
+public class PartPerformanceMotor extends PartEngine {
 
-    public PartEngine6Cylinder() {
+    public PartPerformanceMotor() {
         this.maxSpeed = () -> ModConfigHandler.VEHICLE_SERVER.engine6CylinderMaxSpeed.get().floatValue();
         this.maxReverseSpeed = () -> ModConfigHandler.VEHICLE_SERVER.engine6CylinderMaxReverseSpeed.get().floatValue();
         this.acceleration = () -> ModConfigHandler.VEHICLE_SERVER.engine6CylinderAcceleration.get().floatValue();

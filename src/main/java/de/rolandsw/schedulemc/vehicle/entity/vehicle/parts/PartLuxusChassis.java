@@ -6,9 +6,9 @@ import de.rolandsw.schedulemc.vehicle.Main;
 import de.maxhenkel.corelib.client.obj.OBJModel;
 import net.minecraft.resources.ResourceLocation;
 
-public class PartBodySport extends PartBody {
+public class PartLuxusChassis extends PartBody {
 
-    public PartBodySport(ResourceLocation texture, String materialTranslationKey) {
+    public PartLuxusChassis(ResourceLocation texture, String materialTranslationKey) {
         super(new OBJModel(new ResourceLocation(Main.MODID, "models/entity/sport_body.obj")), texture, new Vector3d(0D, 4D / 16D, 0D), "sport", materialTranslationKey);
         this.wheelOffsets = new Vector3d[]{
                 new Vector3d(9.5F / 16F, 4F / 16F, 8F / 16F),

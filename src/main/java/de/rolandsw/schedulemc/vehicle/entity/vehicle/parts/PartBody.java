@@ -81,13 +81,13 @@ public class PartBody extends PartModel {
         return materialTranslationKey;
     }
 
-    public boolean canFitWheel(PartWheelBase wheel) {
-        return wheel instanceof PartWheel;
+    public boolean canFitWheel(PartTireBase wheel) {
+        return wheel instanceof PartStandardTire;
     }
 
     @Override
     public boolean validate(List<Part> parts, List<Component> messages) {
-        int wheelAmount = getAmount(parts, part -> part instanceof PartWheelBase);
+        int wheelAmount = getAmount(parts, part -> part instanceof PartTireBase);
         if (wheelAmount < getWheelAmount()) {
             messages.add(Component.translatable("message.parts.too_few_wheels", getWheelAmount()));
         } else if (wheelAmount > getWheelAmount()) {

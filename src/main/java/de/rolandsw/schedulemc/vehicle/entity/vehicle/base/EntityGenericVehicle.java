@@ -302,7 +302,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     private void checkInitializing() {
         PartBody body = getPartByClass(PartBody.class);
 
-        if (body instanceof PartBodyTransporter) {
+        if (body instanceof PartLkwChassis) {
             PartContainer container = getPartByClass(PartContainer.class);
             if (container != null) {
                 inventoryComponent.setExternalInventorySize(54);
@@ -311,7 +311,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
             }
         }
 
-        PartWheelBase partWheels = getPartByClass(PartWheelBase.class);
+        PartTireBase partWheels = getPartByClass(PartTireBase.class);
         if (partWheels != null) {
             setMaxUpStep(partWheels.getStepHeight());
         }
@@ -356,8 +356,8 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         getVehicleParts().stream()
             .filter(part -> part instanceof PartModel)
             .filter(part -> {
-                // Nur erste PartWheelBase hinzufügen (Duplikate überspringen)
-                if (part instanceof PartWheelBase) {
+                // Nur erste PartTireBase hinzufügen (Duplikate überspringen)
+                if (part instanceof PartTireBase) {
                     if (addedWheels[0]) {
                         return false;
                     }
@@ -379,8 +379,8 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
             .map(PhysicsComponent::getSpeed)
             .orElse(0F);
 
-        return Optional.ofNullable(getPartByClass(PartWheelBase.class))
-            .map(PartWheelBase::getRotationModifier)
+        return Optional.ofNullable(getPartByClass(PartTireBase.class))
+            .map(PartTireBase::getRotationModifier)
             .orElse(120F) * speed;
     }
 
@@ -464,7 +464,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
             .map(physics -> {
                 float speed = Math.abs(physics.getSpeed()) / getMaxSpeed();
                 PartEngine engine = getPartByClass(PartEngine.class);
-                return engine instanceof PartEngineTruck ? 1F + 0.35F * speed : speed;
+                return engine instanceof PartIndustrialMotor ? 1F + 0.35F * speed : speed;
             })
             .orElse(0F);
     }

@@ -13,26 +13,26 @@ import java.util.List;
 public class PartRegistry {
 
     // Engines (Motors)
-    public static final Part NORMAL_MOTOR = new PartEngine3Cylinder();
-    public static final Part PERFORMANCE_MOTOR = new PartEngine6Cylinder();
-    public static final Part INDUSTRIAL_MOTOR = new PartEngineTruck();
+    public static final Part NORMAL_MOTOR = new PartNormalMotor();
+    public static final Part PERFORMANCE_MOTOR = new PartPerformanceMotor();
+    public static final Part INDUSTRIAL_MOTOR = new PartIndustrialMotor();
 
     // Bodies (Chassis)
-    public static final Part LIMOUSINE_CHASSIS = new PartBodyWood(new ResourceLocation(Main.MODID, "textures/entity/vehicle_wood_oak.png"), "oak");
-    public static final Part VAN_CHASSIS = new PartBodyBigWood(new ResourceLocation(Main.MODID, "textures/entity/vehicle_big_wood_oak.png"), "oak");
-    public static final Part LUXUS_CHASSIS = new PartBodySport(new ResourceLocation(Main.MODID, "textures/entity/vehicle_sport_white.png"), "white");
-    public static final Part LKW_CHASSIS = new PartBodyTransporter(new ResourceLocation(Main.MODID, "textures/entity/vehicle_transporter_white.png"), "white");
-    public static final Part OFFROAD_CHASSIS = new PartBodySUV(new ResourceLocation(Main.MODID, "textures/entity/vehicle_suv_white.png"), "white");
+    public static final Part LIMOUSINE_CHASSIS = new PartLimousineChassis(new ResourceLocation(Main.MODID, "textures/entity/vehicle_wood_oak.png"), "oak");
+    public static final Part VAN_CHASSIS = new PartVanChassis(new ResourceLocation(Main.MODID, "textures/entity/vehicle_big_wood_oak.png"), "oak");
+    public static final Part LUXUS_CHASSIS = new PartLuxusChassis(new ResourceLocation(Main.MODID, "textures/entity/vehicle_sport_white.png"), "white");
+    public static final Part LKW_CHASSIS = new PartLkwChassis(new ResourceLocation(Main.MODID, "textures/entity/vehicle_transporter_white.png"), "white");
+    public static final Part OFFROAD_CHASSIS = new PartOffroadChassis(new ResourceLocation(Main.MODID, "textures/entity/vehicle_suv_white.png"), "white");
 
     // Wheels (Tires)
-    public static final Part STANDARD_TIRE = new PartWheel(
+    public static final Part STANDARD_TIRE = new PartStandardTire(
             new OBJModel(new ResourceLocation(Main.MODID, "models/entity/wheel.obj")),
             new ResourceLocation(Main.MODID, "textures/entity/wheel.png"),
             120F,
             0.5F
     );
 
-    public static final Part OFFROAD_TIRE = new PartWheelBig(
+    public static final Part OFFROAD_TIRE = new PartOffroadTire(
             new OBJModel(new ResourceLocation(Main.MODID, "models/entity/big_wheel.obj")),
             new ResourceLocation(Main.MODID, "textures/entity/big_wheel.png"),
             105F,
