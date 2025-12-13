@@ -565,14 +565,14 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         return Optional.ofNullable(getPartByClass(PartBody.class))
             .map(body -> Component.translatable("vehicle_name." + body.getTranslationKey(),
                 Component.translatable("vehicle_variant." + body.getMaterialTranslationKey())))
-            .orElseGet(super::getTypeName);
+            .orElseGet(() -> super.getTypeName());
     }
 
     public Component getShortName() {
         // Optimierung: Optional mit Fallback
         return Optional.ofNullable(getPartByClass(PartBody.class))
             .map(body -> Component.translatable("vehicle_short_name." + body.getTranslationKey()))
-            .orElseGet(this::getTypeName);
+            .orElseGet(() -> this.getTypeName());
     }
 
     @Override
@@ -580,7 +580,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         // Optimierung: Optional mit Fallback
         return Optional.ofNullable(getPartByClass(PartBody.class))
             .map(PartBody::getWidth)
-            .orElseGet(super::getVehicleWidth);
+            .orElseGet(() -> super.getVehicleWidth());
     }
 
     @Override
@@ -588,7 +588,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         // Optimierung: Optional mit Fallback
         return Optional.ofNullable(getPartByClass(PartBody.class))
             .map(PartBody::getHeight)
-            .orElseGet(super::getVehicleHeight);
+            .orElseGet(() -> super.getVehicleHeight());
     }
 
     // NBT serialization

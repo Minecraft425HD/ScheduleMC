@@ -15,6 +15,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Scannt Umgebung nach illegalen Aktivitäten
