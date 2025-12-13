@@ -41,6 +41,7 @@ public class DamageComponent extends VehicleComponent {
             addDamage(1);
         }
 
+        // Optimierung: Cache Component-Getter
         PhysicsComponent physics = vehicle.getPhysicsComponent();
         if ((physics != null && physics.isStarted()) || getDamage() > 99F) {
             spawnDamageParticles();
@@ -143,6 +144,7 @@ public class DamageComponent extends VehicleComponent {
     }
 
     public void onCollision(float speed) {
+        // Optimierung: Cache Component-Getter
         PhysicsComponent physics = vehicle.getPhysicsComponent();
         if (physics == null) {
             return;

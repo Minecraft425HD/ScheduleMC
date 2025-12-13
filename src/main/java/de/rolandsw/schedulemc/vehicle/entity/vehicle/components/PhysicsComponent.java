@@ -145,11 +145,13 @@ public class PhysicsComponent extends VehicleComponent {
             return false;
         }
 
+        // Optimierung: Cache Component-Getter (nur 1 Aufruf statt 2)
         FuelComponent fuel = vehicle.getFuelComponent();
         if (fuel != null && !fuel.hasFuel()) {
             return false;
         }
 
+        // Optimierung: Cache Component-Getter (nur 1 Aufruf statt 2)
         DamageComponent damage = vehicle.getDamageComponent();
         if (damage != null && !damage.canEngineStayOn()) {
             return false;
@@ -175,6 +177,7 @@ public class PhysicsComponent extends VehicleComponent {
             checkHighLoop();
         }
 
+        // Optimierung: Cache Component-Getter
         BatteryComponent battery = vehicle.getBatteryComponent();
         if (battery != null && !isStarted() && battery.isStarting()) {
             battery.checkStartingLoop();
@@ -283,6 +286,7 @@ public class PhysicsComponent extends VehicleComponent {
             Main.SIMPLE_CHANNEL.sendToServer(new MessageCrash(speed, vehicle));
         }
 
+        // Optimierung: Cache Component-Getter
         DamageComponent damage = vehicle.getDamageComponent();
         if (damage != null) {
             damage.onCollision(speed);
@@ -330,6 +334,7 @@ public class PhysicsComponent extends VehicleComponent {
             setStarted(true);
 
             // Consume fuel when starting the engine
+            // Optimierung: Cache Component-Getter
             FuelComponent fuel = vehicle.getFuelComponent();
             if (fuel != null) {
                 int startFuelCost = ModConfigHandler.VEHICLE_SERVER.engineStartFuelConsumption.get();
@@ -343,11 +348,13 @@ public class PhysicsComponent extends VehicleComponent {
             return false;
         }
 
+        // Optimierung: Cache Component-Getter (nur 1 Aufruf statt 2)
         FuelComponent fuel = vehicle.getFuelComponent();
         if (fuel != null && !fuel.hasFuel()) {
             return false;
         }
 
+        // Optimierung: Cache Component-Getter (nur 1 Aufruf statt 2)
         DamageComponent damage = vehicle.getDamageComponent();
         if (damage != null && !damage.canStartVehicleEngine()) {
             return false;
@@ -413,6 +420,7 @@ public class PhysicsComponent extends VehicleComponent {
         }
         vehicle.getEntityData().set(STARTED, started);
 
+        // Optimierung: Cache Component-Getter
         BatteryComponent battery = vehicle.getBatteryComponent();
         if (battery != null) {
             battery.setStarting(false, false);
@@ -537,6 +545,7 @@ public class PhysicsComponent extends VehicleComponent {
         if (vehicle.level().isClientSide) {
             Main.SIMPLE_CHANNEL.sendToServer(new MessageVehicleHorn(true, player));
         } else {
+            // Optimierung: Cache Component-Getter
             BatteryComponent battery = vehicle.getBatteryComponent();
             if (battery != null) {
                 if (battery.getBatteryLevel() < 10) {
