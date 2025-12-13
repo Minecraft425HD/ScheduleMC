@@ -39,6 +39,7 @@ public class ServerConfig extends ConfigBase {
     public final ForgeConfigSpec.IntValue idleFuelConsumptionInterval;
     public final ForgeConfigSpec.IntValue idleBatteryRechargeRate;
     public final ForgeConfigSpec.DoubleValue drivingBatteryRechargeMultiplier;
+    public final ForgeConfigSpec.IntValue temperatureUpdateInterval;
 
     public final ForgeConfigSpec.IntValue tankSmallMaxFuel;
     public final ForgeConfigSpec.IntValue tankMediumMaxFuel;
@@ -104,6 +105,7 @@ public class ServerConfig extends ConfigBase {
         idleFuelConsumptionInterval = builder.comment("How often fuel is consumed while idling (in ticks). 600 ticks = 30 seconds. Lower = more frequent consumption.").defineInRange("vehicle.idle_fuel_consumption_interval", 600, 20, 12000);
         idleBatteryRechargeRate = builder.comment("How much battery is recharged per tick while idling (with engine running)").defineInRange("vehicle.idle_battery_recharge_rate", 1, 0, 100);
         drivingBatteryRechargeMultiplier = builder.comment("Battery recharge rate multiplier based on speed while driving. Recharge = idleRate * speed * multiplier").defineInRange("vehicle.driving_battery_recharge_multiplier", 20.0D, 0.0D, 1000.0D);
+        temperatureUpdateInterval = builder.comment("How often vehicle temperature is updated (in ticks). 20 ticks = 1 second. Lower = more accurate simulation but higher CPU usage.").defineInRange("vehicle.temperature_update_interval", 20, 1, 200);
 
         vehicleOffroadSpeed = builder.comment("The speed modifier for vehicles on non road blocks").defineInRange("vehicle.offroad_speed_modifier", 1D, 0.001D, 10D);
         vehicleOnroadSpeed = builder.comment("The speed modifier for vehicles on road blocks", "On road blocks are defined in the config section 'road_blocks'").defineInRange("vehicle.onroad_speed_modifier", 1D, 0.001D, 10D);

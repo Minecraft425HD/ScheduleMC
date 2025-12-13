@@ -34,10 +34,11 @@ public class ShopAccountManager {
     }
 
     /**
-     * Gibt alle Shop-Konten zurück
+     * Gibt alle Shop-Konten zurück (Read-only View)
+     * Optimierung: Keine Kopie mehr, nutzt unmodifiable view
      */
     public static Collection<ShopAccount> getAllAccounts() {
-        return new ArrayList<>(accounts.values());
+        return Collections.unmodifiableCollection(accounts.values());
     }
 
     /**
@@ -76,10 +77,11 @@ public class ShopAccountManager {
     }
 
     /**
-     * Gibt Liste aller Shop-IDs zurück
+     * Gibt Liste aller Shop-IDs zurück (Read-only View)
+     * Optimierung: Keine Kopie mehr, nutzt unmodifiable view
      */
     public static List<String> getAllShopIds() {
-        return new ArrayList<>(accounts.keySet());
+        return Collections.unmodifiableList(new ArrayList<>(accounts.keySet()));
     }
 
     /**

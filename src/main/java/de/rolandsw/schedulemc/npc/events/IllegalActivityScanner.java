@@ -15,6 +15,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Scannt Umgebung nach illegalen Aktivitäten
@@ -74,8 +75,72 @@ public class IllegalActivityScanner {
     }
 
     /**
-     * Scannt Umgebung nach illegalen Items
+     * NEUE METHODE: Intelligenter Raum-basierter Scan
+     * Scannt nur Räume, die die Polizei "gesehen" hat
+     *
+     * @param level Die Welt
+     * @param arrestPos Position der Festnahme
+     * @param player Der Spieler
+     * @return ScanResult mit Fund-Informationen
      */
+    public static ScanResult scanRoomBased(Level level, BlockPos arrestPos, ServerPlayer player) {
+        ScanResult result = new ScanResult();
+
+        // 1. Scanne den Raum, in dem die Festnahme stattfand
+        RoomScanner.RoomScanResult initialRoom = RoomScanner.scanRoom(level, arrestPos);
+
+        com.mojang.logging.LogUtils.getLogger().info(
+            "[ROOM-SCAN] Scanne initialen Raum für Spieler {} - {} Blöcke gefunden",
+            player.getName().getString(),
+            initialRoom.size()
+        );
+
+        // Scanne alle Blöcke im initialen Raum
+        for (BlockPos pos : initialRoom.roomBlocks) {
+            scanBlock(level, pos, result);
+        }
+
+        // Scanne Spieler-Inventar
+        scanPlayerInventory(player, result);
+
+        // 2. Wenn illegale Aktivitäten gefunden wurden, scanne angrenzende Räume
+        if (result.hasIllegalActivity()) {
+            // Polizei darf weitere Räume durchsuchen, da Konterband gefunden wurde
+            int maxAdditionalRooms = ModConfigHandler.COMMON.POLICE_ROOM_SCAN_MAX_ADDITIONAL_ROOMS.get();
+            Set<BlockPos> connectedRooms = RoomScanner.scanConnectedRooms(level, initialRoom, maxAdditionalRooms);
+
+            int additionalBlocks = connectedRooms.size() - initialRoom.size();
+
+            com.mojang.logging.LogUtils.getLogger().info(
+                "[ROOM-SCAN] Konterband gefunden! Erweitere Suche - {} zusätzliche Blöcke in angrenzenden Räumen",
+                additionalBlocks
+            );
+
+            // Scanne alle zusätzlichen Räume
+            for (BlockPos pos : connectedRooms) {
+                // Überspringe Blöcke, die bereits im ersten Raum gescannt wurden
+                if (!initialRoom.roomBlocks.contains(pos)) {
+                    scanBlock(level, pos, result);
+                }
+            }
+
+            // Füge Info hinzu, dass erweiterte Suche durchgeführt wurde
+            result.foundIllegalItems.add("§e[Erweiterte Durchsuchung: " + additionalBlocks + " weitere Blöcke]");
+        } else {
+            com.mojang.logging.LogUtils.getLogger().info(
+                "[ROOM-SCAN] Kein Konterband im initialen Raum gefunden - Durchsuchung beendet"
+            );
+        }
+
+        return result;
+    }
+
+    /**
+     * ALTE METHODE: Radius-basierter Scan (deprecated, aber für Rückwärtskompatibilität beibehalten)
+     *
+     * @deprecated Verwende stattdessen {@link #scanRoomBased(Level, BlockPos, ServerPlayer)}
+     */
+    @Deprecated
     public static ScanResult scanArea(Level level, BlockPos center, ServerPlayer player) {
         ScanResult result = new ScanResult();
 

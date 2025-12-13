@@ -101,6 +101,12 @@ public class ModConfigHandler {
         public final ForgeConfigSpec.DoubleValue POLICE_RAID_ACCOUNT_PERCENTAGE;
         public final ForgeConfigSpec.DoubleValue POLICE_RAID_MIN_FINE;
 
+        // Police Room-Based Scanning (Smart Search)
+        public final ForgeConfigSpec.BooleanValue POLICE_ROOM_SCAN_ENABLED;
+        public final ForgeConfigSpec.IntValue POLICE_ROOM_SCAN_MAX_SIZE;
+        public final ForgeConfigSpec.IntValue POLICE_ROOM_SCAN_MAX_DEPTH;
+        public final ForgeConfigSpec.IntValue POLICE_ROOM_SCAN_MAX_ADDITIONAL_ROOMS;
+
         // Police Patrol System
         public final ForgeConfigSpec.IntValue POLICE_STATION_WAIT_MINUTES;
         public final ForgeConfigSpec.IntValue POLICE_STATION_RADIUS;
@@ -341,6 +347,22 @@ public class ModConfigHandler {
             POLICE_RAID_MIN_FINE = builder
                     .comment("Mindest-Geldstrafe bei Raid in Euro")
                     .defineInRange("raid_min_fine", 1000.0, 100.0, 50000.0);
+
+            POLICE_ROOM_SCAN_ENABLED = builder
+                    .comment("Aktiviert intelligentes Raum-basiertes Scannen (true = nur gesehene Räume, false = kompletter Radius)")
+                    .define("room_scan_enabled", true);
+
+            POLICE_ROOM_SCAN_MAX_SIZE = builder
+                    .comment("Maximale Raum-Größe in Blöcken (Sicherheits-Limit gegen Performance-Probleme)")
+                    .defineInRange("room_scan_max_size", 500, 50, 2000);
+
+            POLICE_ROOM_SCAN_MAX_DEPTH = builder
+                    .comment("Maximale Y-Achsen Tiefe für Raum-Suche (verhindert vertikale Explosionen)")
+                    .defineInRange("room_scan_max_depth", 50, 10, 100);
+
+            POLICE_ROOM_SCAN_MAX_ADDITIONAL_ROOMS = builder
+                    .comment("Maximale Anzahl zusätzlicher Räume, die durchsucht werden wenn Konterband gefunden wurde")
+                    .defineInRange("room_scan_max_additional_rooms", 3, 0, 10);
 
             POLICE_STATION_WAIT_MINUTES = builder
                     .comment("Wartezeit in Minuten, die Polizisten an der Polizeistation bleiben")

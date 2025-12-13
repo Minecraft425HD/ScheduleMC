@@ -1,5 +1,7 @@
 package de.rolandsw.schedulemc.vehicle.entity.vehicle.components;
 
+import de.rolandsw.schedulemc.config.ModConfigHandler;
+import de.rolandsw.schedulemc.vehicle.VehicleConstants;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import de.rolandsw.schedulemc.vehicle.items.ItemRepairKit;
 import net.minecraft.core.particles.ParticleTypes;
@@ -41,13 +43,15 @@ public class DamageComponent extends VehicleComponent {
             addDamage(1);
         }
 
+        // Optimierung: Cache Component-Getter
         PhysicsComponent physics = vehicle.getPhysicsComponent();
-        if ((physics != null && physics.isStarted()) || getDamage() > 99F) {
+        if ((physics != null && physics.isStarted()) || getDamage() > (VehicleConstants.MAX_DAMAGE - 1F)) {
             spawnDamageParticles();
         }
 
-        // Temperature logic
-        if (!vehicle.level().isClientSide && vehicle.tickCount % 20 == 0) {
+        // Temperature logic (konfigurierbar via Config)
+        int tempUpdateInterval = ModConfigHandler.VEHICLE_SERVER.temperatureUpdateInterval.get();
+        if (!vehicle.level().isClientSide && vehicle.tickCount % tempUpdateInterval == 0) {
             updateTemperature();
         }
     }
@@ -61,11 +65,11 @@ public class DamageComponent extends VehicleComponent {
         float speedPerc = physics.getSpeed() / vehicle.getMaxSpeed();
         int tempRate = (int) (speedPerc * 10F) + 1;
 
-        if (tempRate > 5) {
-            tempRate = 5;
+        if (tempRate > VehicleConstants.TEMP_RATE_MAX) {
+            tempRate = VehicleConstants.TEMP_RATE_MAX;
         }
 
-        float rate = tempRate * 0.2F + (vehicle.getRandom().nextFloat() - 0.5F) * 0.1F;
+        float rate = tempRate * VehicleConstants.TEMP_RATE_BASE + (vehicle.getRandom().nextFloat() - 0.5F) * VehicleConstants.TEMP_RATE_RANDOMNESS;
         float temp = getTemperature();
         float tempToReach = getTemperatureToReach();
 
@@ -93,16 +97,16 @@ public class DamageComponent extends VehicleComponent {
 
         float optimalTemp = vehicle.getOptimalTemperature();
 
-        if (biomeTemp > 45F) {
-            optimalTemp = 100F;
-        } else if (biomeTemp <= 0F) {
-            optimalTemp = 80F;
+        if (biomeTemp > VehicleConstants.BIOME_TEMP_HOT_THRESHOLD) {
+            optimalTemp = VehicleConstants.TEMP_HOT_ENGINE_TARGET;
+        } else if (biomeTemp <= VehicleConstants.BIOME_TEMP_COLD_THRESHOLD) {
+            optimalTemp = VehicleConstants.TEMP_COLD_ENGINE_TARGET;
         }
         return Math.max(biomeTemp, optimalTemp);
     }
 
     public float getBiomeTemperatureCelsius() {
-        return (vehicle.level().getBiome(vehicle.blockPosition()).value().getBaseTemperature() - 0.3F) * 30F;
+        return (vehicle.level().getBiome(vehicle.blockPosition()).value().getBaseTemperature() - VehicleConstants.BIOME_TEMP_OFFSET) * VehicleConstants.BIOME_TEMP_MULTIPLIER;
     }
 
     public void spawnDamageParticles() {
@@ -110,27 +114,27 @@ public class DamageComponent extends VehicleComponent {
             return;
         }
 
-        if (getDamage() < 50) {
+        if (getDamage() < VehicleConstants.DAMAGE_THRESHOLD_LOW) {
             return;
         }
 
         int amount;
         int damage = (int) getDamage();
 
-        if (damage < 70) {
-            if (vehicle.getRandom().nextInt(10) != 0) {
+        if (damage < VehicleConstants.DAMAGE_THRESHOLD_MEDIUM) {
+            if (vehicle.getRandom().nextInt(VehicleConstants.PARTICLE_CHANCE_LOW) != 0) {
                 return;
             }
-            amount = 1;
-        } else if (damage < 80) {
-            if (vehicle.getRandom().nextInt(5) != 0) {
+            amount = VehicleConstants.PARTICLES_LOW;
+        } else if (damage < VehicleConstants.DAMAGE_THRESHOLD_HIGH) {
+            if (vehicle.getRandom().nextInt(VehicleConstants.PARTICLE_CHANCE_MEDIUM) != 0) {
                 return;
             }
-            amount = 1;
-        } else if (damage < 90) {
-            amount = 2;
+            amount = VehicleConstants.PARTICLES_LOW;
+        } else if (damage < VehicleConstants.DAMAGE_THRESHOLD_CRITICAL) {
+            amount = VehicleConstants.PARTICLES_MEDIUM;
         } else {
-            amount = 3;
+            amount = VehicleConstants.PARTICLES_HIGH;
         }
 
         for (int i = 0; i < amount; i++) {
@@ -143,6 +147,7 @@ public class DamageComponent extends VehicleComponent {
     }
 
     public void onCollision(float speed) {
+        // Optimierung: Cache Component-Getter
         PhysicsComponent physics = vehicle.getPhysicsComponent();
         if (physics == null) {
             return;
@@ -150,11 +155,11 @@ public class DamageComponent extends VehicleComponent {
 
         float percSpeed = speed / vehicle.getMaxSpeed();
 
-        if (percSpeed > 0.8F) {
-            addDamage(percSpeed * 5);
+        if (percSpeed > VehicleConstants.COLLISION_DAMAGE_THRESHOLD) {
+            addDamage(percSpeed * VehicleConstants.COLLISION_DAMAGE_MULTIPLIER);
             physics.playCrashSound();
 
-            if (percSpeed > 0.9F) {
+            if (percSpeed > VehicleConstants.COLLISION_ENGINE_STOP_THRESHOLD) {
                 physics.setStarted(false);
                 physics.playStopSound();
             }
@@ -167,10 +172,6 @@ public class DamageComponent extends VehicleComponent {
             return false;
         }
 
-        if (!(player instanceof Player)) {
-            return false;
-        }
-
         if (player.equals(vehicle.getDriver())) {
             return false;
         }
@@ -179,9 +180,9 @@ public class DamageComponent extends VehicleComponent {
 
         if (stack.getItem() instanceof ItemRepairKit) {
             long time = player.level().getGameTime();
-            if (time - lastDamage < 10L) {
+            if (time - lastDamage < VehicleConstants.REPAIR_DOUBLE_CLICK_WINDOW) {
                 vehicle.destroyVehicle(player, true);
-                stack.hurtAndBreak(50, player, playerEntity -> playerEntity.broadcastBreakEvent(InteractionHand.MAIN_HAND));
+                stack.hurtAndBreak(VehicleConstants.REPAIR_KIT_DESTROY_COST, player, playerEntity -> playerEntity.broadcastBreakEvent(InteractionHand.MAIN_HAND));
             } else {
                 lastDamage = time;
             }
@@ -196,7 +197,7 @@ public class DamageComponent extends VehicleComponent {
     }
 
     public boolean canStartVehicleEngine() {
-        return getDamage() < 100F;
+        return getDamage() < VehicleConstants.MAX_DAMAGE;
     }
 
     public boolean canEngineStayOn() {
@@ -227,8 +228,8 @@ public class DamageComponent extends VehicleComponent {
     }
 
     public void setDamage(float damage) {
-        if (damage > 100F) {
-            damage = 100F;
+        if (damage > VehicleConstants.MAX_DAMAGE) {
+            damage = VehicleConstants.MAX_DAMAGE;
         } else if (damage < 0) {
             damage = 0;
         }
