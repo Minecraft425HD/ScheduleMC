@@ -1,6 +1,6 @@
 {
     "parent": "item/generated",
     "textures": {
-        "layer0": "vehicle:item/battery"
+        "layer0": "vehicle:item/license_sign_mount"
     }
 }

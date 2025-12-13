@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "vehicle:item/spawn_vehicle_white_sport"
+    "layer0": "vehicle:item/sports_car"
   }
 }

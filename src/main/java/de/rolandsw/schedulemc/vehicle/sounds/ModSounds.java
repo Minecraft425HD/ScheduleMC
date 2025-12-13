@@ -39,13 +39,13 @@ public class ModSounds {
     public static RegistryObject<SoundEvent> TRUCK_ENGINE_HIGH = addSound("truck_engine_high");
     public static RegistryObject<SoundEvent> TRUCK_ENGINE_FAIL = addSound("truck_engine_fail");
     public static RegistryObject<SoundEvent> VEHICLE_CRASH = addSound("vehicle_crash");
-    public static RegistryObject<SoundEvent> GAS_STATION = addSound("gas_station");
+    public static RegistryObject<SoundEvent> GAS_STATION = addSound("fuel_station");
     public static RegistryObject<SoundEvent> GENERATOR = addSound("generator");
     public static RegistryObject<SoundEvent> VEHICLE_HORN = addSound("vehicle_horn");
     public static RegistryObject<SoundEvent> VEHICLE_LOCK = addSound("vehicle_lock");
     public static RegistryObject<SoundEvent> VEHICLE_UNLOCK = addSound("vehicle_unlock");
     public static RegistryObject<SoundEvent> RATCHET = addSound("ratchet");
-    public static RegistryObject<SoundEvent> GAS_STATION_ATTENDANT = addSound("gas_station_attendant");
+    public static RegistryObject<SoundEvent> GAS_STATION_ATTENDANT = addSound("fuel_station_attendant");
 
     public static RegistryObject<SoundEvent> addSound(String soundName) {
         return SOUND_REGISTER.register(soundName, () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(Main.MODID, soundName)));

@@ -13,13 +13,13 @@ public class ModFluids {
 
     private static final DeferredRegister<Fluid> FLUID_REGISTER = DeferredRegister.create(ForgeRegistries.FLUIDS, Main.MODID);
 
-    public static final RegistryObject<FluidBioDiesel> BIO_DIESEL = FLUID_REGISTER.register("bio_diesel", () -> new FluidBioDiesel());
-    public static final RegistryObject<FluidBioDieselFlowing> BIO_DIESEL_FLOWING = FLUID_REGISTER.register("bio_diesel_flowing", () -> new FluidBioDieselFlowing());
+    public static final RegistryObject<FluidBioDiesel> BIO_DIESEL = FLUID_REGISTER.register("diesel", () -> new FluidBioDiesel());
+    public static final RegistryObject<FluidBioDieselFlowing> BIO_DIESEL_FLOWING = FLUID_REGISTER.register("diesel_flowing", () -> new FluidBioDieselFlowing());
 
     private static final DeferredRegister<FluidType> FLUID_TYPE_REGISTER = DeferredRegister.create(ForgeRegistries.Keys.FLUID_TYPES, Main.MODID);
 
-    public static final RegistryObject<FluidType> BIO_DIESEL_TYPE = FLUID_TYPE_REGISTER.register("bio_diesel", () ->
-            new FluidTypeVehicle("block.vehicle.bio_diesel", new ResourceLocation(Main.MODID, "block/bio_diesel_still"), new ResourceLocation(Main.MODID, "block/bio_diesel_flowing"))
+    public static final RegistryObject<FluidType> BIO_DIESEL_TYPE = FLUID_TYPE_REGISTER.register("diesel", () ->
+            new FluidTypeVehicle("block.vehicle.diesel", new ResourceLocation(Main.MODID, "block/diesel_still"), new ResourceLocation(Main.MODID, "block/diesel_flowing"))
     );
 
     public static void init() {

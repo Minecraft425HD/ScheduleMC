@@ -27,7 +27,7 @@
         "subtitle": "sound.vehicle.vehicle_crash",
         "sounds": [ "vehicle:vehicle_crash" ]
     },
-    "gas_station": {
+    "fuel_station": {
         "subtitle": "sound.vehicle.gas_station",
         "sounds": [ "vehicle:gas_station" ]
     },
@@ -99,8 +99,8 @@
         "subtitle": "sound.vehicle.ratchet",
         "sounds": [ "vehicle:ratchet_1", "vehicle:ratchet_2", "vehicle:ratchet_3" ]
     },
-    "gas_station_attendant": {
-        "subtitle": "sound.vehicle.gas_station_attendant",
-        "sounds": [ "vehicle:gas_station_attendant_1", "vehicle:gas_station_attendant_2", "vehicle:gas_station_attendant_3" ]
+    "fuel_station_attendant": {
+        "subtitle": "sound.vehicle.fuel_station_attendant",
+        "sounds": [ "vehicle:fuel_station_attendant_1", "vehicle:fuel_station_attendant_2", "vehicle:fuel_station_attendant_3" ]
     }
 }
