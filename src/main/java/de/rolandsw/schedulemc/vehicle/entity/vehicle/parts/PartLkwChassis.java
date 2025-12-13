@@ -30,9 +30,9 @@ public class PartLkwChassis extends PartBody {
         this.height = 1.51F;
         this.minRotationSpeed = 2.0F;
         this.maxRotationSpeed = 5F;
-        this.fuelEfficiency = () -> ModConfigHandler.VEHICLE_SERVER.bodyTransporterFuelEfficiency.get().floatValue();
-        this.acceleration = () -> ModConfigHandler.VEHICLE_SERVER.bodyTransporterAcceleration.get().floatValue();
-        this.maxSpeed = () -> ModConfigHandler.VEHICLE_SERVER.bodyTransporterMaxSpeed.get().floatValue();
+        this.fuelEfficiency = () -> ModConfigHandler.VEHICLE_SERVER.lkwChassisFuelEfficiency.get().floatValue();
+        this.acceleration = () -> ModConfigHandler.VEHICLE_SERVER.lkwChassisAcceleration.get().floatValue();
+        this.maxSpeed = () -> ModConfigHandler.VEHICLE_SERVER.lkwChassisMaxSpeed.get().floatValue();
     }
 
     @Override

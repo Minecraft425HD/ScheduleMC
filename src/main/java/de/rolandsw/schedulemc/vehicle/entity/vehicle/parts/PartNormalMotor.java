@@ -8,10 +8,10 @@ import net.minecraft.sounds.SoundEvent;
 public class PartNormalMotor extends PartEngine {
 
     public PartNormalMotor() {
-        this.maxSpeed = () -> ModConfigHandler.VEHICLE_SERVER.engine3CylinderMaxSpeed.get().floatValue();
-        this.maxReverseSpeed = () -> ModConfigHandler.VEHICLE_SERVER.engine3CylinderMaxReverseSpeed.get().floatValue();
-        this.acceleration = () -> ModConfigHandler.VEHICLE_SERVER.engine3CylinderAcceleration.get().floatValue();
-        this.fuelEfficiency = () -> ModConfigHandler.VEHICLE_SERVER.engine3CylinderFuelEfficiency.get().floatValue();
+        this.maxSpeed = () -> ModConfigHandler.VEHICLE_SERVER.normalMotorMaxSpeed.get().floatValue();
+        this.maxReverseSpeed = () -> ModConfigHandler.VEHICLE_SERVER.normalMotorMaxReverseSpeed.get().floatValue();
+        this.acceleration = () -> ModConfigHandler.VEHICLE_SERVER.normalMotorAcceleration.get().floatValue();
+        this.fuelEfficiency = () -> ModConfigHandler.VEHICLE_SERVER.normalMotorFuelEfficiency.get().floatValue();
     }
 
     @Override

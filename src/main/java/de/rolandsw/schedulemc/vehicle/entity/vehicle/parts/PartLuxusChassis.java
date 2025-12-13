@@ -24,9 +24,9 @@ public class PartLuxusChassis extends PartBody {
         this.height = 1.2F;
         this.minRotationSpeed = 1.1F;
         this.maxRotationSpeed = 5F;
-        this.fuelEfficiency = () -> ModConfigHandler.VEHICLE_SERVER.bodySportFuelEfficiency.get().floatValue();
-        this.acceleration = () -> ModConfigHandler.VEHICLE_SERVER.bodySportAcceleration.get().floatValue();
-        this.maxSpeed = () -> ModConfigHandler.VEHICLE_SERVER.bodySportMaxSpeed.get().floatValue();
+        this.fuelEfficiency = () -> ModConfigHandler.VEHICLE_SERVER.luxusChassisFuelEfficiency.get().floatValue();
+        this.acceleration = () -> ModConfigHandler.VEHICLE_SERVER.luxusChassisAcceleration.get().floatValue();
+        this.maxSpeed = () -> ModConfigHandler.VEHICLE_SERVER.luxusChassisMaxSpeed.get().floatValue();
     }
 
 }

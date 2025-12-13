@@ -27,9 +27,9 @@ public class PartVanChassis extends PartChassisBase {
         this.height = 1.6F;
         this.minRotationSpeed = 2F;
         this.maxRotationSpeed = 5F;
-        this.fuelEfficiency = () -> ModConfigHandler.VEHICLE_SERVER.bodyBigWoodFuelEfficiency.get().floatValue();
-        this.acceleration = () -> ModConfigHandler.VEHICLE_SERVER.bodyBigWoodAcceleration.get().floatValue();
-        this.maxSpeed = () -> ModConfigHandler.VEHICLE_SERVER.bodyBigWoodMaxSpeed.get().floatValue();
+        this.fuelEfficiency = () -> ModConfigHandler.VEHICLE_SERVER.vanChassisFuelEfficiency.get().floatValue();
+        this.acceleration = () -> ModConfigHandler.VEHICLE_SERVER.vanChassisAcceleration.get().floatValue();
+        this.maxSpeed = () -> ModConfigHandler.VEHICLE_SERVER.vanChassisMaxSpeed.get().floatValue();
     }
 
 }
