@@ -1,6 +1,6 @@
 {
     "parent": "item/generated",
     "textures": {
-        "layer0": "vehicle:item/white_tank_container"
+        "layer0": "vehicle:item/limousine_chassis"
     }
 }

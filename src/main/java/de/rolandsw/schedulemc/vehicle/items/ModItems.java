@@ -24,56 +24,56 @@ public class ModItems {
 
     public static final RegistryObject<VehicleSpawnTool> VEHICLE_SPAWN_TOOL = ITEM_REGISTER.register("vehicle_spawn_tool", () -> new VehicleSpawnTool());
 
-    public static final RegistryObject<ItemVehiclePart> NORMAL_MOTOR = ITEM_REGISTER.register("engine_3_cylinder", () -> new ItemVehiclePart(PartRegistry.NORMAL_MOTOR));
-    public static final RegistryObject<ItemVehiclePart> PERFORMANCE_MOTOR = ITEM_REGISTER.register("engine_6_cylinder", () -> new ItemVehiclePart(PartRegistry.PERFORMANCE_MOTOR));
-    public static final RegistryObject<ItemVehiclePart> INDUSTRIAL_MOTOR = ITEM_REGISTER.register("engine_truck", () -> new ItemVehiclePart(PartRegistry.INDUSTRIAL_MOTOR));
+    public static final RegistryObject<ItemVehiclePart> NORMAL_MOTOR = ITEM_REGISTER.register("normal_motor", () -> new ItemVehiclePart(PartRegistry.NORMAL_MOTOR));
+    public static final RegistryObject<ItemVehiclePart> PERFORMANCE_MOTOR = ITEM_REGISTER.register("performance_motor", () -> new ItemVehiclePart(PartRegistry.PERFORMANCE_MOTOR));
+    public static final RegistryObject<ItemVehiclePart> INDUSTRIAL_MOTOR = ITEM_REGISTER.register("industrial_motor", () -> new ItemVehiclePart(PartRegistry.INDUSTRIAL_MOTOR));
 
-    public static final RegistryObject<ItemVehiclePart> STANDARD_TIRE = ITEM_REGISTER.register("wheel", () -> new ItemVehiclePart(PartRegistry.STANDARD_TIRE));
-    public static final RegistryObject<ItemVehiclePart> OFFROAD_TIRE = ITEM_REGISTER.register("big_wheel", () -> new ItemVehiclePart(PartRegistry.OFFROAD_TIRE));
+    public static final RegistryObject<ItemVehiclePart> STANDARD_TIRE = ITEM_REGISTER.register("standard_tire", () -> new ItemVehiclePart(PartRegistry.STANDARD_TIRE));
+    public static final RegistryObject<ItemVehiclePart> OFFROAD_TIRE = ITEM_REGISTER.register("offroad_tire", () -> new ItemVehiclePart(PartRegistry.OFFROAD_TIRE));
 
-    public static final RegistryObject<ItemVehiclePart> LIMOUSINE_CHASSIS = ITEM_REGISTER.register("oak_body", () -> new ItemVehiclePart(PartRegistry.LIMOUSINE_CHASSIS));
+    public static final RegistryObject<ItemVehiclePart> LIMOUSINE_CHASSIS = ITEM_REGISTER.register("limousine_chassis", () -> new ItemVehiclePart(PartRegistry.LIMOUSINE_CHASSIS));
 
     public static final RegistryObject<ItemVehiclePart>[] WOOD_BODIES = new RegistryObject[]{
             LIMOUSINE_CHASSIS
     };
 
-    public static final RegistryObject<ItemVehiclePart> VAN_CHASSIS = ITEM_REGISTER.register("big_oak_body", () -> new ItemVehiclePart(PartRegistry.VAN_CHASSIS));
+    public static final RegistryObject<ItemVehiclePart> VAN_CHASSIS = ITEM_REGISTER.register("van_chassis", () -> new ItemVehiclePart(PartRegistry.VAN_CHASSIS));
 
     public static final RegistryObject<ItemVehiclePart>[] BIG_WOOD_BODIES = new RegistryObject[]{
             VAN_CHASSIS
     };
 
-    public static final RegistryObject<ItemVehiclePart> LKW_CHASSIS = ITEM_REGISTER.register("white_transporter_body", () -> new ItemVehiclePart(PartRegistry.LKW_CHASSIS));
+    public static final RegistryObject<ItemVehiclePart> LKW_CHASSIS = ITEM_REGISTER.register("lkw_chassis", () -> new ItemVehiclePart(PartRegistry.LKW_CHASSIS));
 
     public static final RegistryObject<ItemVehiclePart>[] TRANSPORTER_BODIES = new RegistryObject[]{
             LKW_CHASSIS
     };
 
-    public static final RegistryObject<ItemVehiclePart> OFFROAD_CHASSIS = ITEM_REGISTER.register("white_suv_body", () -> new ItemVehiclePart(PartRegistry.OFFROAD_CHASSIS));
+    public static final RegistryObject<ItemVehiclePart> OFFROAD_CHASSIS = ITEM_REGISTER.register("offroad_chassis", () -> new ItemVehiclePart(PartRegistry.OFFROAD_CHASSIS));
 
     public static final RegistryObject<ItemVehiclePart>[] SUV_BODIES = new RegistryObject[]{
             OFFROAD_CHASSIS
     };
 
-    public static final RegistryObject<ItemVehiclePart> LUXUS_CHASSIS = ITEM_REGISTER.register("white_sport_body", () -> new ItemVehiclePart(PartRegistry.LUXUS_CHASSIS));
+    public static final RegistryObject<ItemVehiclePart> LUXUS_CHASSIS = ITEM_REGISTER.register("luxus_chassis", () -> new ItemVehiclePart(PartRegistry.LUXUS_CHASSIS));
 
     public static final RegistryObject<ItemVehiclePart>[] SPORT_BODIES = new RegistryObject[]{
             LUXUS_CHASSIS
     };
 
-    public static final RegistryObject<ItemVehiclePart> CARGO_MODULE = ITEM_REGISTER.register("white_container", () -> new ItemVehiclePart(PartRegistry.CARGO_MODULE));
+    public static final RegistryObject<ItemVehiclePart> CARGO_MODULE = ITEM_REGISTER.register("cargo_module", () -> new ItemVehiclePart(PartRegistry.CARGO_MODULE));
 
     public static final RegistryObject<ItemVehiclePart>[] CONTAINERS = new RegistryObject[]{
             CARGO_MODULE
     };
 
-    public static final RegistryObject<ItemVehiclePart> FLUID_MODULE = ITEM_REGISTER.register("white_tank_container", () -> new ItemVehiclePart(PartRegistry.FLUID_MODULE));
+    public static final RegistryObject<ItemVehiclePart> FLUID_MODULE = ITEM_REGISTER.register("fluid_module", () -> new ItemVehiclePart(PartRegistry.FLUID_MODULE));
 
     public static final RegistryObject<ItemVehiclePart>[] TANK_CONTAINERS = new RegistryObject[]{
             FLUID_MODULE
     };
 
-    public static final RegistryObject<ItemVehiclePart> STANDARD_FRONT_FENDER = ITEM_REGISTER.register("oak_bumper", () -> new ItemVehiclePart(PartRegistry.STANDARD_FRONT_FENDER));
+    public static final RegistryObject<ItemVehiclePart> STANDARD_FRONT_FENDER = ITEM_REGISTER.register("standard_front_fender", () -> new ItemVehiclePart(PartRegistry.STANDARD_FRONT_FENDER));
 
     public static final RegistryObject<ItemVehiclePart>[] BUMPERS = new RegistryObject[]{
             STANDARD_FRONT_FENDER
@@ -81,9 +81,9 @@ public class ModItems {
 
     public static final RegistryObject<ItemVehiclePart> LICENSE_PLATE_HOLDER = ITEM_REGISTER.register("iron_license_plate_holder", () -> new ItemVehiclePart(PartRegistry.LICENSE_PLATE_HOLDER));
 
-    public static final RegistryObject<ItemVehiclePart> TANK_15L = ITEM_REGISTER.register("small_tank", () -> new ItemVehiclePart(PartRegistry.TANK_15L));
-    public static final RegistryObject<ItemVehiclePart> TANK_30L = ITEM_REGISTER.register("medium_tank", () -> new ItemVehiclePart(PartRegistry.TANK_30L));
-    public static final RegistryObject<ItemVehiclePart> TANK_50L = ITEM_REGISTER.register("large_tank", () -> new ItemVehiclePart(PartRegistry.TANK_50L));
+    public static final RegistryObject<ItemVehiclePart> TANK_15L = ITEM_REGISTER.register("tank_15l", () -> new ItemVehiclePart(PartRegistry.TANK_15L));
+    public static final RegistryObject<ItemVehiclePart> TANK_30L = ITEM_REGISTER.register("tank_30l", () -> new ItemVehiclePart(PartRegistry.TANK_30L));
+    public static final RegistryObject<ItemVehiclePart> TANK_50L = ITEM_REGISTER.register("tank_50l", () -> new ItemVehiclePart(PartRegistry.TANK_50L));
 
     // Pre-built vehicles
     public static final RegistryObject<ItemSpawnVehicle> SPAWN_VEHICLE_OAK = ITEM_REGISTER.register("spawn_vehicle_oak", () -> new ItemSpawnVehicle(PartRegistry.LIMOUSINE_CHASSIS));
