@@ -163,7 +163,11 @@ public class PhysicsComponent extends VehicleComponent {
 
     @OnlyIn(Dist.CLIENT)
     public void updateSounds() {
-        if (getSpeed() == 0 && isStarted()) {
+        // Optimierung: Cache Zustandsprüfungen
+        float currentSpeed = getSpeed();
+        boolean started = isStarted();
+
+        if (currentSpeed == 0 && started) {
             if (!startedLast) {
                 checkStartLoop();
             } else if (!isSoundPlaying(startLoop)) {
@@ -174,17 +178,17 @@ public class PhysicsComponent extends VehicleComponent {
                 checkIdleLoop();
             }
         }
-        if (getSpeed() != 0 && isStarted()) {
+        if (currentSpeed != 0 && started) {
             checkHighLoop();
         }
 
         // Optimierung: Cache Component-Getter
         BatteryComponent battery = vehicle.getBatteryComponent();
-        if (battery != null && !isStarted() && battery.isStarting()) {
+        if (battery != null && !started && battery.isStarting()) {
             battery.checkStartingLoop();
         }
 
-        startedLast = isStarted();
+        startedLast = started;
     }
 
     @OnlyIn(Dist.CLIENT)
