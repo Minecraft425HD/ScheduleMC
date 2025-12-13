@@ -561,34 +561,38 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
 
     @Override
     protected Component getTypeName() {
-        // Optimierung: Optional mit Fallback
-        return Optional.ofNullable(getPartByClass(PartBody.class))
-            .map(body -> Component.translatable("vehicle_name." + body.getTranslationKey(),
-                Component.translatable("vehicle_variant." + body.getMaterialTranslationKey())))
-            .orElseGet(() -> super.getTypeName());
+        PartBody body = getPartByClass(PartBody.class);
+        if (body == null) {
+            return super.getTypeName();
+        }
+        return Component.translatable("vehicle_name." + body.getTranslationKey(),
+            Component.translatable("vehicle_variant." + body.getMaterialTranslationKey()));
     }
 
     public Component getShortName() {
-        // Optimierung: Optional mit Fallback
-        return Optional.ofNullable(getPartByClass(PartBody.class))
-            .map(body -> Component.translatable("vehicle_short_name." + body.getTranslationKey()))
-            .orElseGet(() -> this.getTypeName());
+        PartBody body = getPartByClass(PartBody.class);
+        if (body == null) {
+            return this.getTypeName();
+        }
+        return Component.translatable("vehicle_short_name." + body.getTranslationKey());
     }
 
     @Override
     public double getVehicleWidth() {
-        // Optimierung: Optional mit Fallback
-        return Optional.ofNullable(getPartByClass(PartBody.class))
-            .map(PartBody::getWidth)
-            .orElseGet(() -> super.getVehicleWidth());
+        PartBody body = getPartByClass(PartBody.class);
+        if (body == null) {
+            return super.getVehicleWidth();
+        }
+        return body.getWidth();
     }
 
     @Override
     public double getVehicleHeight() {
-        // Optimierung: Optional mit Fallback
-        return Optional.ofNullable(getPartByClass(PartBody.class))
-            .map(PartBody::getHeight)
-            .orElseGet(() -> super.getVehicleHeight());
+        PartBody body = getPartByClass(PartBody.class);
+        if (body == null) {
+            return super.getVehicleHeight();
+        }
+        return body.getHeight();
     }
 
     // NBT serialization
