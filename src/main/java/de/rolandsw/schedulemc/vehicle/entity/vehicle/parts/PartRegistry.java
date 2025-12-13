@@ -18,11 +18,11 @@ public class PartRegistry {
     public static final Part INDUSTRIAL_MOTOR = new PartEngineTruck();
 
     // Bodies (Chassis)
-    public static final Part VAN_CHASSIS = new PartBodyWood(new ResourceLocation(Main.MODID, "textures/entity/vehicle_wood_oak.png"), "oak");
-    public static final Part OFFROAD_CHASSIS = new PartBodyBigWood(new ResourceLocation(Main.MODID, "textures/entity/vehicle_big_wood_oak.png"), "oak");
-    public static final Part LIMOUSINE_CHASSIS = new PartBodySport(new ResourceLocation(Main.MODID, "textures/entity/vehicle_sport_white.png"), "white");
+    public static final Part LIMOUSINE_CHASSIS = new PartBodyWood(new ResourceLocation(Main.MODID, "textures/entity/vehicle_wood_oak.png"), "oak");
+    public static final Part VAN_CHASSIS = new PartBodyBigWood(new ResourceLocation(Main.MODID, "textures/entity/vehicle_big_wood_oak.png"), "oak");
+    public static final Part LUXUS_CHASSIS = new PartBodySport(new ResourceLocation(Main.MODID, "textures/entity/vehicle_sport_white.png"), "white");
     public static final Part LKW_CHASSIS = new PartBodyTransporter(new ResourceLocation(Main.MODID, "textures/entity/vehicle_transporter_white.png"), "white");
-    public static final Part LUXUS_CHASSIS = new PartBodySUV(new ResourceLocation(Main.MODID, "textures/entity/vehicle_suv_white.png"), "white");
+    public static final Part OFFROAD_CHASSIS = new PartBodySUV(new ResourceLocation(Main.MODID, "textures/entity/vehicle_suv_white.png"), "white");
 
     // Wheels (Tires)
     public static final Part STANDARD_TIRE = new PartWheel(
