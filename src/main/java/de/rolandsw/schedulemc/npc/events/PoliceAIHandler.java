@@ -293,9 +293,12 @@ public class PoliceAIHandler {
         }
 
         // ═══════════════════════════════════════════════════════════
-        // POLIZEI RAID - Scanne Umgebung nach illegalen Items
+        // POLIZEI RAID - Scanne NUR gesehene Räume nach illegalen Items
+        // NEUE LOGIK: Nur Raum scannen, in dem Festnahme stattfand
+        //             Wenn Konterband gefunden → weitere Räume durchsuchen
+        //             Wenn nichts gefunden → KEINE Durchsuchung des ganzen Gebäudes
         // ═══════════════════════════════════════════════════════════
-        IllegalActivityScanner.ScanResult scanResult = IllegalActivityScanner.scanArea(
+        IllegalActivityScanner.ScanResult scanResult = IllegalActivityScanner.scanRoomBased(
             player.level(),
             player.blockPosition(),
             player
