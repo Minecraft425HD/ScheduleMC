@@ -34,10 +34,8 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3d;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Main vehicle entity using component-based architecture.
@@ -56,6 +54,8 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     private SecurityComponent securityComponent;
 
     private List<Part> parts;
+    // Optimierung: Cache für Part-Lookups (vermeidet 30+ Iterationen pro Tick)
+    private Map<Class<? extends Part>, Part> partCache;
 
     // Vehicle ownership and tracking
     private UUID ownerId;
@@ -231,12 +231,23 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     // Parts system
     private List<Part> getVehicleParts() {
         if (parts == null) {
-            parts = new ArrayList<>();
+            // Optimierung: Initial capacity = 15 (max Part-Inventory Größe)
+            parts = new ArrayList<>(15);
         }
         return parts;
     }
 
     public <T extends Part> T getPartByClass(Class<T> clazz) {
+        // Optimierung: Nutze Cache für schnelle Lookups
+        if (partCache != null) {
+            @SuppressWarnings("unchecked")
+            T cached = (T) partCache.get(clazz);
+            if (cached != null) {
+                return cached;
+            }
+        }
+
+        // Fallback: Suche in Parts-Liste (sollte nur bei Cache-Miss passieren)
         for (Part part : getVehicleParts()) {
             if (clazz.isInstance(part)) {
                 return (T) part;
@@ -269,6 +280,9 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     public void initParts() {
         getVehicleParts().clear();
 
+        // Optimierung: Initialisiere Cache mit geschätzter Größe
+        partCache = new HashMap<>(8); // Typisch ~8 verschiedene Part-Typen
+
         Container partInv = inventoryComponent.getPartInventory();
         for (int i = 0; i < partInv.getContainerSize(); i++) {
             ItemStack stack = partInv.getItem(i);
@@ -285,6 +299,10 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
             }
 
             getVehicleParts().add(part);
+
+            // Optimierung: Fülle Cache für schnelle Lookups
+            // Nutze die exakte Klasse des Parts als Key
+            partCache.put(part.getClass(), part);
         }
 
         checkInitializing();
@@ -336,7 +354,8 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     }
 
     // Model rendering (client-side)
-    private List<OBJModelInstance<EntityGenericVehicle>> modelInstances = new ArrayList<>();
+    // Optimierung: Initial capacity = 8 (typisch ~8 Model-Parts pro Vehicle)
+    private List<OBJModelInstance<EntityGenericVehicle>> modelInstances = new ArrayList<>(8);
 
     protected void initModel() {
         modelInstances.clear();
