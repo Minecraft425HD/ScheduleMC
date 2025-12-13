@@ -1,4 +1,4 @@
-package de.maxhenkel.tools;
+package de.rolandsw.schedulemc.vehicle.util;
 
 import com.mojang.math.Axis;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
@@ -12,7 +12,7 @@ import net.minecraft.world.phys.AABB;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
-public class EntityTools {
+public class VehicleUtils {
 
     /**
      * Gets the first vehicle in the range of 10 blocks of the player
@@ -67,7 +67,7 @@ public class EntityTools {
         }
 
         public void render(GuiGraphics guiGraphics, EntityGenericVehicle vehicle, int posX, int posY, int scale) {
-            EntityTools.drawVehicleOnScreen(guiGraphics, vehicle, posX, posY, scale, rotation + rotationPerTick * minecraft.getFrameTime());
+            VehicleUtils.drawVehicleOnScreen(guiGraphics, vehicle, posX, posY, scale, rotation + rotationPerTick * minecraft.getFrameTime());
         }
     }
 
@@ -89,7 +89,7 @@ public class EntityTools {
             ticker.render(new Renderer() {
                 @Override
                 public void render(float partialTicks) {
-                    EntityTools.drawVehicleOnScreen(guiGraphics, vehicle, posX, posY, scale, rotation + rotationPerTick * partialTicks);
+                    VehicleUtils.drawVehicleOnScreen(guiGraphics, vehicle, posX, posY, scale, rotation + rotationPerTick * partialTicks);
                 }
 
                 @Override

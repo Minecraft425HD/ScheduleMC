@@ -1,15 +1,15 @@
-package de.maxhenkel.tools;
+package de.rolandsw.schedulemc.vehicle.util;
 
 import net.minecraft.core.BlockPos;
 
 import java.util.LinkedList;
 import java.util.List;
 
-public class BlockPosList {
+public class UniqueBlockPosList {
 
     private List<BlockPos> positions;
 
-    public BlockPosList() {
+    public UniqueBlockPosList() {
         this.positions = new LinkedList<>();
     }
 
