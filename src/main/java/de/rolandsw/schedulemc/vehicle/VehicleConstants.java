@@ -42,12 +42,6 @@ public final class VehicleConstants {
     // ═══════════════════════════════════════════════════════════
 
     /**
-     * Update-Intervall für Temperatur-System (in Ticks)
-     * 20 Ticks = 1 Sekunde
-     */
-    public static final int TEMPERATURE_UPDATE_INTERVAL = 20;
-
-    /**
      * Schaden-Schwellwerte für Partikel-Effekte
      */
     public static final int DAMAGE_THRESHOLD_LOW = 50;
