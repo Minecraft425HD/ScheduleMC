@@ -36,10 +36,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.*;
 
 /**
  * Manages physics, movement, controls, and sounds for the vehicle
@@ -68,7 +65,8 @@ public class PhysicsComponent extends VehicleComponent {
     @OnlyIn(Dist.CLIENT)
     private boolean startedLast;
 
-    private final BlockingQueue<Runnable> tasks = new LinkedBlockingQueue<>();
+    // Optimierung: ArrayDeque statt LinkedBlockingQueue (single-threaded, kein Sync-Overhead)
+    private final Deque<Runnable> tasks = new ArrayDeque<>(4);
 
     public PhysicsComponent(EntityGenericVehicle vehicle) {
         super(vehicle);
