@@ -3,6 +3,7 @@ import de.rolandsw.schedulemc.config.ModConfigHandler;
 
 import de.rolandsw.schedulemc.vehicle.DamageSourceVehicle;
 import de.rolandsw.schedulemc.vehicle.Main;
+import de.rolandsw.schedulemc.vehicle.VehicleConstants;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import de.rolandsw.schedulemc.vehicle.net.MessageVehicleHorn;
 import de.rolandsw.schedulemc.vehicle.net.MessageCrash;
@@ -114,8 +115,8 @@ public class PhysicsComponent extends VehicleComponent {
         if (!vehicle.level().isClientSide && ModConfigHandler.VEHICLE_SERVER.damageEntities.get() && entityIn instanceof LivingEntity && !vehicle.getPassengers().contains(entityIn)) {
             if (entityIn.getBoundingBox().intersects(vehicle.getBoundingBox())) {
                 float speed = getSpeed();
-                if (speed > 0.35F) {
-                    float damage = speed * 10;
+                if (speed > VehicleConstants.MIN_DAMAGE_SPEED) {
+                    float damage = speed * VehicleConstants.DAMAGE_MULTIPLIER;
                     tasks.add(() -> {
                         ServerLevel serverLevel = (ServerLevel) vehicle.level();
                         Optional<Holder.Reference<DamageType>> holder = serverLevel.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolder(DamageSourceVehicle.DAMAGE_VEHICLE_TYPE);
@@ -224,7 +225,7 @@ public class PhysicsComponent extends VehicleComponent {
         setSpeed(speed);
 
         float rotationSpeed = 0;
-        if (Math.abs(speed) > 0.02F) {
+        if (Math.abs(speed) > VehicleConstants.MIN_ROTATION_THRESHOLD) {
             rotationSpeed = Mth.abs(vehicle.getRotationModifier() / (float) Math.pow(speed, 2));
             rotationSpeed = Mth.clamp(rotationSpeed, vehicle.getMinRotationSpeed(), vehicle.getMaxRotationSpeed());
         }
@@ -292,7 +293,7 @@ public class PhysicsComponent extends VehicleComponent {
             damage.onCollision(speed);
         }
 
-        setSpeed(0.01F);
+        setSpeed(VehicleConstants.POST_COLLISION_SPEED);
         vehicle.setDeltaMovement(0D, vehicle.getDeltaMovement().y, 0D);
     }
 
@@ -548,16 +549,16 @@ public class PhysicsComponent extends VehicleComponent {
             // Optimierung: Cache Component-Getter
             BatteryComponent battery = vehicle.getBatteryComponent();
             if (battery != null) {
-                if (battery.getBatteryLevel() < 10) {
+                if (battery.getBatteryLevel() < VehicleConstants.MIN_BATTERY_FOR_HORN) {
                     return;
                 }
                 if (ModConfigHandler.VEHICLE_SERVER.useBattery.get()) {
-                    battery.setBatteryLevel(battery.getBatteryLevel() - 10);
+                    battery.setBatteryLevel(battery.getBatteryLevel() - VehicleConstants.HORN_BATTERY_COST);
                 }
             }
             playHornSound();
             if (ModConfigHandler.VEHICLE_SERVER.hornFlee.get()) {
-                double radius = 15;
+                double radius = VehicleConstants.HORN_FLEE_RADIUS;
                 List<Monster> list = vehicle.level().getEntitiesOfClass(Monster.class, new AABB(vehicle.getX() - radius, vehicle.getY() - radius, vehicle.getZ() - radius, vehicle.getX() + radius, vehicle.getY() + radius, vehicle.getZ() + radius));
                 for (Monster ent : list) {
                     fleeEntity(ent);
@@ -567,12 +568,16 @@ public class PhysicsComponent extends VehicleComponent {
     }
 
     public void fleeEntity(Monster entity) {
-        double fleeDistance = 10;
         Vec3 vecVehicle = new Vec3(vehicle.getX(), vehicle.getY(), vehicle.getZ());
         Vec3 vecEntity = new Vec3(entity.getX(), entity.getY(), entity.getZ());
         Vec3 fleeDir = vecEntity.subtract(vecVehicle);
         fleeDir = fleeDir.normalize();
-        entity.getNavigation().moveTo(vecEntity.x + fleeDir.x * fleeDistance, vecEntity.y + fleeDir.y * fleeDistance, vecEntity.z + fleeDir.z * fleeDistance, 2.5);
+        entity.getNavigation().moveTo(
+            vecEntity.x + fleeDir.x * VehicleConstants.FLEE_DISTANCE,
+            vecEntity.y + fleeDir.y * VehicleConstants.FLEE_DISTANCE,
+            vecEntity.z + fleeDir.z * VehicleConstants.FLEE_DISTANCE,
+            VehicleConstants.FLEE_SPEED
+        );
     }
 
     @Override
