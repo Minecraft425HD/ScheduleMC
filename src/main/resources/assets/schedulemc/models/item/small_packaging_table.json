@@ -1,3 +1,6 @@
 {
-  "parent": "schedulemc:block/small_packaging_table"
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "schedulemc:item/small_packaging_table"
+  }
 }

@@ -1,3 +1,6 @@
 {
-  "parent": "schedulemc:block/basic_grow_light_slab"
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "schedulemc:item/basic_grow_light_slab"
+  }
 }
