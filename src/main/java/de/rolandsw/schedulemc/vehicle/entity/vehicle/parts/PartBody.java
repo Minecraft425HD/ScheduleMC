@@ -1,10 +1,15 @@
 package de.rolandsw.schedulemc.vehicle.entity.vehicle.parts;
 
+import de.rolandsw.schedulemc.vehicle.Main;
+import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import de.maxhenkel.corelib.client.obj.OBJModel;
+import de.maxhenkel.corelib.client.obj.OBJModelInstance;
+import de.maxhenkel.corelib.client.obj.OBJModelOptions;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.joml.Vector3d;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -27,6 +32,35 @@ public class PartBody extends PartModel {
         super(model, texture, offset);
         this.translationKey = translationKey;
         this.materialTranslationKey = materialTranslationKey;
+    }
+
+    @Override
+    public List<OBJModelInstance<EntityGenericVehicle>> getInstances(EntityGenericVehicle vehicle) {
+        // Get the vehicle's paint color and build dynamic texture path
+        String colorName = vehicle.getPaintColorName();
+
+        // Only use dynamic textures for non-white colors (white is the default/original texture)
+        ResourceLocation textureToUse;
+        if (colorName.equals("white")) {
+            // Use original texture for white (default)
+            textureToUse = texture;
+        } else {
+            // Try to use colored texture, but this will fall back to missing texture if not available
+            // TODO: Create texture files: vehicle_{translationKey}_{colorName}.png
+            // For now, just use the original texture as fallback
+            textureToUse = texture;
+
+            // Uncomment when textures are available:
+            // textureToUse = new ResourceLocation(
+            //     Main.MODID,
+            //     "textures/entity/vehicle_" + translationKey + "_" + colorName + ".png"
+            // );
+        }
+
+        List<OBJModelInstance<EntityGenericVehicle>> list = new ArrayList<>();
+        list.add(new OBJModelInstance<>(model, new OBJModelOptions<>(textureToUse, offset, rotation)));
+        onPartAdd(list);
+        return list;
     }
 
     public Vector3d[] getWheelOffsets() {

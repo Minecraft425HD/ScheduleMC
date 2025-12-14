@@ -28,8 +28,15 @@ public class ModItems {
     public static final RegistryObject<ItemVehiclePart> PERFORMANCE_MOTOR = ITEM_REGISTER.register("performance_motor", () -> new ItemVehiclePart(PartRegistry.PERFORMANCE_MOTOR));
     public static final RegistryObject<ItemVehiclePart> INDUSTRIAL_MOTOR = ITEM_REGISTER.register("industrial_motor", () -> new ItemVehiclePart(PartRegistry.INDUSTRIAL_MOTOR));
 
+    // Normal vehicle tires
     public static final RegistryObject<ItemVehiclePart> STANDARD_TIRE = ITEM_REGISTER.register("standard_tire", () -> new ItemVehiclePart(PartRegistry.STANDARD_TIRE));
+    public static final RegistryObject<ItemVehiclePart> SPORT_TIRE = ITEM_REGISTER.register("sport_tire", () -> new ItemVehiclePart(PartRegistry.SPORT_TIRE));
+    public static final RegistryObject<ItemVehiclePart> PREMIUM_TIRE = ITEM_REGISTER.register("premium_tire", () -> new ItemVehiclePart(PartRegistry.PREMIUM_TIRE));
+
+    // Truck tires
     public static final RegistryObject<ItemVehiclePart> OFFROAD_TIRE = ITEM_REGISTER.register("offroad_tire", () -> new ItemVehiclePart(PartRegistry.OFFROAD_TIRE));
+    public static final RegistryObject<ItemVehiclePart> ALLTERRAIN_TIRE = ITEM_REGISTER.register("allterrain_tire", () -> new ItemVehiclePart(PartRegistry.ALLTERRAIN_TIRE));
+    public static final RegistryObject<ItemVehiclePart> HEAVY_DUTY_TIRE = ITEM_REGISTER.register("heavyduty_tire", () -> new ItemVehiclePart(PartRegistry.HEAVY_DUTY_TIRE));
 
     public static final RegistryObject<ItemVehiclePart> LIMOUSINE_CHASSIS = ITEM_REGISTER.register("limousine_chassis", () -> new ItemVehiclePart(PartRegistry.LIMOUSINE_CHASSIS));
 
@@ -73,10 +80,13 @@ public class ModItems {
             FLUID_MODULE
     };
 
-    public static final RegistryObject<ItemVehiclePart> STANDARD_FRONT_FENDER = ITEM_REGISTER.register("standard_front_fender", () -> new ItemVehiclePart(PartRegistry.STANDARD_FRONT_FENDER));
+    // Fenders (Bumpers)
+    public static final RegistryObject<ItemVehiclePart> FENDER_BASIC = ITEM_REGISTER.register("fender_basic", () -> new ItemVehiclePart(PartRegistry.FENDER_BASIC));
+    public static final RegistryObject<ItemVehiclePart> FENDER_CHROME = ITEM_REGISTER.register("fender_chrome", () -> new ItemVehiclePart(PartRegistry.FENDER_CHROME));
+    public static final RegistryObject<ItemVehiclePart> FENDER_SPORT = ITEM_REGISTER.register("fender_sport", () -> new ItemVehiclePart(PartRegistry.FENDER_SPORT));
 
     public static final RegistryObject<ItemVehiclePart>[] BUMPERS = new RegistryObject[]{
-            STANDARD_FRONT_FENDER
+            FENDER_BASIC, FENDER_CHROME, FENDER_SPORT
     };
 
     public static final RegistryObject<ItemVehiclePart> LICENSE_PLATE_HOLDER = ITEM_REGISTER.register("license_sign_mount", () -> new ItemVehiclePart(PartRegistry.LICENSE_PLATE_HOLDER));

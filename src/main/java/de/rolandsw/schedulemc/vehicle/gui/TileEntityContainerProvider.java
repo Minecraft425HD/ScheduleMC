@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.vehicle.gui;
 
 import de.rolandsw.schedulemc.vehicle.blocks.tileentity.TileEntityBase;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
@@ -30,6 +31,13 @@ public class TileEntityContainerProvider implements MenuProvider {
         NetworkHooks.openScreen(player, new TileEntityContainerProvider(containerCreator, tileEntity), packetBuffer -> packetBuffer.writeBlockPos(tileEntity.getBlockPos()));
     }
 
+    public static void openGui(ServerPlayer player, TileEntityBase tileEntity, ExtraDataWriter extraDataWriter, ContainerCreator containerCreator) {
+        NetworkHooks.openScreen(player, new TileEntityContainerProvider(containerCreator, tileEntity), packetBuffer -> {
+            packetBuffer.writeBlockPos(tileEntity.getBlockPos());
+            extraDataWriter.writeData(packetBuffer);
+        });
+    }
+
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int i, Inventory playerInventory, Player playerEntity) {
@@ -38,5 +46,9 @@ public class TileEntityContainerProvider implements MenuProvider {
 
     public interface ContainerCreator {
         AbstractContainerMenu create(int i, Inventory playerInventory, Player playerEntity);
+    }
+
+    public interface ExtraDataWriter {
+        void writeData(FriendlyByteBuf buffer);
     }
 }

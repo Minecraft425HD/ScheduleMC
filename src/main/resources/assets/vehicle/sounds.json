@@ -1,27 +1,27 @@
 {
     "motor_idle": {
         "subtitle": "sound.vehicle.engine_idle",
-        "sounds": [ "vehicle:engine_idle" ]
+        "sounds": [ "vehicle:motor_idle" ]
     },
     "motor_start": {
         "subtitle": "sound.vehicle.engine_start",
-        "sounds": [ "vehicle:engine_start" ]
+        "sounds": [ "vehicle:motor_start" ]
     },
     "motor_starting": {
         "subtitle": "sound.vehicle.engine_starting",
-        "sounds": [ "vehicle:engine_starting" ]
+        "sounds": [ "vehicle:motor_starting" ]
     },
     "motor_stop": {
         "subtitle": "sound.vehicle.engine_stop",
-        "sounds": [ "vehicle:engine_stop" ]
+        "sounds": [ "vehicle:motor_stop" ]
     },
     "motor_high": {
         "subtitle": "sound.vehicle.engine_high",
-        "sounds": [ "vehicle:engine_high" ]
+        "sounds": [ "vehicle:motor_high" ]
     },
     "motor_fail": {
         "subtitle": "sound.vehicle.engine_fail",
-        "sounds": [ "vehicle:engine_fail" ]
+        "sounds": [ "vehicle:motor_fail" ]
     },
     "vehicle_crash": {
         "subtitle": "sound.vehicle.vehicle_crash",
@@ -37,51 +37,51 @@
     },
     "performance_motor_idle": {
         "subtitle": "sound.vehicle.sport_engine_idle",
-        "sounds": [ "vehicle:sport_engine_idle" ]
+        "sounds": [ "vehicle:performance_motor_idle" ]
     },
     "performance_motor_start": {
         "subtitle": "sound.vehicle.sport_engine_start",
-        "sounds": [ "vehicle:sport_engine_start" ]
+        "sounds": [ "vehicle:performance_motor_start" ]
     },
     "performance_motor_starting": {
         "subtitle": "sound.vehicle.sport_engine_starting",
-        "sounds": [ "vehicle:sport_engine_starting" ]
+        "sounds": [ "vehicle:performance_motor_starting" ]
     },
     "performance_motor_stop": {
         "subtitle": "sound.vehicle.sport_engine_stop",
-        "sounds": [ "vehicle:sport_engine_stop" ]
+        "sounds": [ "vehicle:performance_motor_stop" ]
     },
     "performance_motor_high": {
         "subtitle": "sound.vehicle.sport_engine_high",
-        "sounds": [ "vehicle:sport_engine_high" ]
+        "sounds": [ "vehicle:performance_motor_high" ]
     },
     "performance_motor_fail": {
         "subtitle": "sound.vehicle.sport_engine_fail",
-        "sounds": [ "vehicle:sport_engine_fail" ]
+        "sounds": [ "vehicle:performance_motor_fail" ]
     },
     "industrial_motor_idle": {
         "subtitle": "sound.vehicle.truck_engine_idle",
-        "sounds": [ "vehicle:truck_engine_idle" ]
+        "sounds": [ "vehicle:industrial_motor_idle" ]
     },
     "industrial_motor_start": {
         "subtitle": "sound.vehicle.truck_engine_start",
-        "sounds": [ "vehicle:truck_engine_start" ]
+        "sounds": [ "vehicle:industrial_motor_start" ]
     },
     "industrial_motor_starting": {
         "subtitle": "sound.vehicle.truck_engine_starting",
-        "sounds": [ "vehicle:truck_engine_starting" ]
+        "sounds": [ "vehicle:industrial_motor_starting" ]
     },
     "industrial_motor_stop": {
         "subtitle": "sound.vehicle.truck_engine_stop",
-        "sounds": [ "vehicle:truck_engine_stop" ]
+        "sounds": [ "vehicle:industrial_motor_stop" ]
     },
     "industrial_motor_high": {
         "subtitle": "sound.vehicle.truck_engine_high",
-        "sounds": [ "vehicle:truck_engine_high" ]
+        "sounds": [ "vehicle:industrial_motor_high" ]
     },
     "industrial_motor_fail": {
         "subtitle": "sound.vehicle.truck_engine_fail",
-        "sounds": [ "vehicle:truck_engine_fail" ]
+        "sounds": [ "vehicle:industrial_motor_fail" ]
     },
     "vehicle_horn": {
         "subtitle": "sound.vehicle.vehicle_horn",
