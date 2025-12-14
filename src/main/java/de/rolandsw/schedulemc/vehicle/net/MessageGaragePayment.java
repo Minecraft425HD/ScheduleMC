@@ -1,6 +1,6 @@
 package de.rolandsw.schedulemc.vehicle.net;
 
-import de.rolandsw.schedulemc.economy.WalletManager;
+import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import de.maxhenkel.corelib.net.Message;
 import net.minecraft.ChatFormatting;
@@ -64,8 +64,8 @@ public class MessageGaragePayment implements Message<MessageGaragePayment> {
         // Calculate total service cost
         double totalCost = calculateServiceCost(vehicle);
 
-        // Check if player has enough money
-        double playerBalance = WalletManager.getBalance(player.getUUID());
+        // Check if player has enough money in bank account
+        double playerBalance = EconomyManager.getBalance(player.getUUID());
 
         if (playerBalance < totalCost) {
             player.displayClientMessage(
@@ -82,8 +82,8 @@ public class MessageGaragePayment implements Message<MessageGaragePayment> {
             return;
         }
 
-        // Deduct money
-        if (WalletManager.removeMoney(player.getUUID(), totalCost)) {
+        // Deduct money from bank account
+        if (EconomyManager.withdraw(player.getUUID(), totalCost)) {
             // Apply repairs/services
             applyServices(vehicle);
 
