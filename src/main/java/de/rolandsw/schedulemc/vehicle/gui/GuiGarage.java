@@ -10,13 +10,9 @@ import de.maxhenkel.corelib.inventory.ScreenBase;
 import de.maxhenkel.corelib.math.MathUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class GuiGarage extends ScreenBase<ContainerGarage> {
 
@@ -43,11 +39,17 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
     private enum Tab { REPAIR, UPGRADE }
     private Tab currentTab = Tab.REPAIR;
 
-    // Repair checkboxes
-    private Checkbox repairDamageCheckbox;
-    private Checkbox chargeBatteryCheckbox;
-    private Checkbox refuelCheckbox;
-    private Checkbox changeOilCheckbox;
+    // Repair toggle buttons (acting as checkboxes)
+    private Button repairDamageCheckbox;
+    private Button chargeBatteryCheckbox;
+    private Button refuelCheckbox;
+    private Button changeOilCheckbox;
+
+    // Repair selection state
+    private boolean repairDamageSelected = true;
+    private boolean chargeBatterySelected = true;
+    private boolean refuelSelected = true;
+    private boolean changeOilSelected = true;
 
     // Upgrade options
     private Button upgradeEngineButton;
@@ -110,33 +112,57 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
         int checkX = leftPos + 140;
         int checkY = topPos + 90;
         int lineHeight = 20;
+        int checkboxWidth = 12;
+        int checkboxHeight = 12;
 
-        repairDamageCheckbox = addRenderableWidget(
-            Checkbox.builder(Component.literal("Reparatur"), font)
-                .pos(checkX, checkY)
-                .selected(getDamagePercent() > 0)
-                .build()
+        // Initialize selection state
+        repairDamageSelected = getDamagePercent() > 0;
+        chargeBatterySelected = getBatteryPercent() < 50;
+        refuelSelected = getFuelPercent() < 100;
+        changeOilSelected = true;
+
+        repairDamageCheckbox = addRenderableWidget(Button.builder(
+            Component.literal(repairDamageSelected ? "☑" : "☐"),
+            button -> {
+                repairDamageSelected = !repairDamageSelected;
+                button.setMessage(Component.literal(repairDamageSelected ? "☑" : "☐"));
+                updatePayButton();
+            })
+            .bounds(checkX, checkY, checkboxWidth, checkboxHeight)
+            .build()
         );
 
-        chargeBatteryCheckbox = addRenderableWidget(
-            Checkbox.builder(Component.literal("Batterie"), font)
-                .pos(checkX, checkY + lineHeight)
-                .selected(getBatteryPercent() < 50)
-                .build()
+        chargeBatteryCheckbox = addRenderableWidget(Button.builder(
+            Component.literal(chargeBatterySelected ? "☑" : "☐"),
+            button -> {
+                chargeBatterySelected = !chargeBatterySelected;
+                button.setMessage(Component.literal(chargeBatterySelected ? "☑" : "☐"));
+                updatePayButton();
+            })
+            .bounds(checkX, checkY + lineHeight, checkboxWidth, checkboxHeight)
+            .build()
         );
 
-        refuelCheckbox = addRenderableWidget(
-            Checkbox.builder(Component.literal("Tanken"), font)
-                .pos(checkX, checkY + lineHeight * 2)
-                .selected(getFuelPercent() < 100)
-                .build()
+        refuelCheckbox = addRenderableWidget(Button.builder(
+            Component.literal(refuelSelected ? "☑" : "☐"),
+            button -> {
+                refuelSelected = !refuelSelected;
+                button.setMessage(Component.literal(refuelSelected ? "☑" : "☐"));
+                updatePayButton();
+            })
+            .bounds(checkX, checkY + lineHeight * 2, checkboxWidth, checkboxHeight)
+            .build()
         );
 
-        changeOilCheckbox = addRenderableWidget(
-            Checkbox.builder(Component.literal("Ölwechsel"), font)
-                .pos(checkX, checkY + lineHeight * 3)
-                .selected(true)
-                .build()
+        changeOilCheckbox = addRenderableWidget(Button.builder(
+            Component.literal(changeOilSelected ? "☑" : "☐"),
+            button -> {
+                changeOilSelected = !changeOilSelected;
+                button.setMessage(Component.literal(changeOilSelected ? "☑" : "☐"));
+                updatePayButton();
+            })
+            .bounds(checkX, checkY + lineHeight * 3, checkboxWidth, checkboxHeight)
+            .build()
         );
     }
 
@@ -328,21 +354,28 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
         int checkY = 90;
         guiGraphics.drawString(font, "=== SERVICES ===", rightX, checkY - 5, fontColor, false);
 
-        // Show prices next to checkboxes
+        // Show labels and prices next to checkboxes
+        int labelX = rightX + 15;
         int priceX = rightX + 70;
         int priceY = checkY + 3;
-        if (repairDamageCheckbox != null && getDamagePercent() > 0) {
+
+        guiGraphics.drawString(font, "Reparatur", labelX, priceY, partColor, false);
+        if (getDamagePercent() > 0) {
             guiGraphics.drawString(font, String.format("%.2f€", getDamagePercent() * 2.0), priceX, priceY, costColor, false);
         }
-        if (chargeBatteryCheckbox != null && getBatteryPercent() < 50) {
+
+        guiGraphics.drawString(font, "Batterie", labelX, priceY + 20, partColor, false);
+        if (getBatteryPercent() < 50) {
             guiGraphics.drawString(font, String.format("%.2f€", (50 - getBatteryPercent()) * 0.5), priceX, priceY + 20, costColor, false);
         }
-        if (refuelCheckbox != null && getFuelPercent() < 100) {
+
+        guiGraphics.drawString(font, "Tanken", labelX, priceY + 40, partColor, false);
+        if (getFuelPercent() < 100) {
             guiGraphics.drawString(font, String.format("%.2f€", (100 - getFuelPercent()) * 0.3), priceX, priceY + 40, costColor, false);
         }
-        if (changeOilCheckbox != null) {
-            guiGraphics.drawString(font, "15.00€", priceX, priceY + 60, costColor, false);
-        }
+
+        guiGraphics.drawString(font, "Ölwechsel", labelX, priceY + 60, partColor, false);
+        guiGraphics.drawString(font, "15.00€", priceX, priceY + 60, costColor, false);
 
         // Total cost
         int totalY = checkY + 90;
@@ -434,28 +467,28 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
         double cost = 10.0; // Base inspection
 
         // Add costs only for selected checkboxes
-        if (repairDamageCheckbox != null && repairDamageCheckbox.selected()) {
+        if (repairDamageSelected) {
             float damage = getDamagePercent();
             if (damage > 0) {
                 cost += damage * 2.0;
             }
         }
 
-        if (chargeBatteryCheckbox != null && chargeBatteryCheckbox.selected()) {
+        if (chargeBatterySelected) {
             float batteryPercent = getBatteryPercent();
             if (batteryPercent < 50) {
                 cost += (50 - batteryPercent) * 0.5;
             }
         }
 
-        if (refuelCheckbox != null && refuelCheckbox.selected()) {
+        if (refuelSelected) {
             float fuelPercent = getFuelPercent();
             if (fuelPercent < 100) {
                 cost += (100 - fuelPercent) * 0.3;
             }
         }
 
-        if (changeOilCheckbox != null && changeOilCheckbox.selected()) {
+        if (changeOilSelected) {
             cost += 15.0;
         }
 
