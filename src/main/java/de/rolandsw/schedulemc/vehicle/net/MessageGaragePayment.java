@@ -38,17 +38,19 @@ public class MessageGaragePayment implements Message<MessageGaragePayment> {
             return;
         }
 
-        // Find the vehicle
-        Entity entity = player.level().getEntity(vehicleUuid.hashCode());
-        EntityGenericVehicle vehicle = null;
+        // Find the vehicle by UUID in a large radius around the player
+        double searchRadius = 50.0;
+        net.minecraft.world.phys.Vec3 playerPos = player.position();
+        net.minecraft.world.phys.AABB searchBox = new net.minecraft.world.phys.AABB(
+            playerPos.subtract(searchRadius, searchRadius, searchRadius),
+            playerPos.add(searchRadius, searchRadius, searchRadius)
+        );
 
-        // Search for vehicle in the world
-        for (Entity e : player.level().getAllEntities()) {
-            if (e instanceof EntityGenericVehicle v && v.getUUID().equals(vehicleUuid)) {
-                vehicle = v;
-                break;
-            }
-        }
+        EntityGenericVehicle vehicle = player.level().getEntitiesOfClass(
+            EntityGenericVehicle.class,
+            searchBox,
+            v -> v.getUUID().equals(vehicleUuid)
+        ).stream().findFirst().orElse(null);
 
         if (vehicle == null) {
             player.displayClientMessage(
@@ -125,7 +127,7 @@ public class MessageGaragePayment implements Message<MessageGaragePayment> {
         vehicle.getDamageComponent().setDamage(0);
 
         // Charge battery to full
-        vehicle.getBatteryComponent().setBatteryPercentage(1.0F);
+        vehicle.getBatteryComponent().setBatteryLevel(vehicle.getBatteryComponent().getMaxBatteryLevel());
 
         // Reset temperature
         vehicle.getDamageComponent().setTemperature(20.0F);
