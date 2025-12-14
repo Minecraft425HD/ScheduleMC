@@ -42,13 +42,11 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
     // Repair toggle buttons (acting as checkboxes)
     private Button repairDamageCheckbox;
     private Button chargeBatteryCheckbox;
-    private Button refuelCheckbox;
     private Button changeOilCheckbox;
 
     // Repair selection state
     private boolean repairDamageSelected = true;
     private boolean chargeBatterySelected = true;
-    private boolean refuelSelected = true;
     private boolean changeOilSelected = true;
 
     // Upgrade options
@@ -118,7 +116,6 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
         // Initialize selection state
         repairDamageSelected = getDamagePercent() > 0;
         chargeBatterySelected = getBatteryPercent() < 50;
-        refuelSelected = getFuelPercent() < 100;
         changeOilSelected = true;
 
         repairDamageCheckbox = addRenderableWidget(Button.builder(
@@ -143,17 +140,6 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
             .build()
         );
 
-        refuelCheckbox = addRenderableWidget(Button.builder(
-            Component.literal(refuelSelected ? "☑" : "☐"),
-            button -> {
-                refuelSelected = !refuelSelected;
-                button.setMessage(Component.literal(refuelSelected ? "☑" : "☐"));
-                updatePayButton();
-            })
-            .bounds(checkX, checkY + lineHeight * 2, checkboxWidth, checkboxHeight)
-            .build()
-        );
-
         changeOilCheckbox = addRenderableWidget(Button.builder(
             Component.literal(changeOilSelected ? "☑" : "☐"),
             button -> {
@@ -161,7 +147,7 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
                 button.setMessage(Component.literal(changeOilSelected ? "☑" : "☐"));
                 updatePayButton();
             })
-            .bounds(checkX, checkY + lineHeight * 3, checkboxWidth, checkboxHeight)
+            .bounds(checkX, checkY + lineHeight * 2, checkboxWidth, checkboxHeight)
             .build()
         );
     }
@@ -222,7 +208,10 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
                 if (vehicle != null && minecraft != null && minecraft.player != null) {
                     Main.SIMPLE_CHANNEL.sendToServer(new MessageGaragePayment(
                         minecraft.player.getUUID(),
-                        vehicle.getUUID()
+                        vehicle.getUUID(),
+                        repairDamageSelected,
+                        chargeBatterySelected,
+                        changeOilSelected
                     ));
                 }
             })
@@ -243,7 +232,6 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
 
         if (repairDamageCheckbox != null) repairDamageCheckbox.visible = isRepair;
         if (chargeBatteryCheckbox != null) chargeBatteryCheckbox.visible = isRepair;
-        if (refuelCheckbox != null) refuelCheckbox.visible = isRepair;
         if (changeOilCheckbox != null) changeOilCheckbox.visible = isRepair;
 
         if (upgradeEngineButton != null) upgradeEngineButton.visible = !isRepair;
@@ -375,15 +363,9 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
             guiGraphics.drawString(font, String.format("%.2f€", (50 - getBatteryPercent()) * 0.5), priceX, checkY + lineSpacing, costColor, false);
         }
 
-        // Tanken
-        guiGraphics.drawString(font, "Tanken", labelX, checkY + lineSpacing * 2, partColor, false);
-        if (getFuelPercent() < 100) {
-            guiGraphics.drawString(font, String.format("%.2f€", (100 - getFuelPercent()) * 0.3), priceX, checkY + lineSpacing * 2, costColor, false);
-        }
-
         // Ölwechsel
-        guiGraphics.drawString(font, "Ölwechsel", labelX, checkY + lineSpacing * 3, partColor, false);
-        guiGraphics.drawString(font, "15.00€", priceX, checkY + lineSpacing * 3, costColor, false);
+        guiGraphics.drawString(font, "Ölwechsel", labelX, checkY + lineSpacing * 2, partColor, false);
+        guiGraphics.drawString(font, "15.00€", priceX, checkY + lineSpacing * 2, costColor, false);
     }
 
     private void renderUpgradeTab(GuiGraphics guiGraphics, int mouseX, int mouseY) {
@@ -465,7 +447,7 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
     private double calculateSelectedCost() {
         if (vehicle == null) return 0.0;
 
-        double cost = 10.0; // Base inspection
+        double cost = 0.0;
 
         // Add costs only for selected checkboxes
         if (repairDamageSelected) {
@@ -479,13 +461,6 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
             float batteryPercent = getBatteryPercent();
             if (batteryPercent < 50) {
                 cost += (50 - batteryPercent) * 0.5;
-            }
-        }
-
-        if (refuelSelected) {
-            float fuelPercent = getFuelPercent();
-            if (fuelPercent < 100) {
-                cost += (100 - fuelPercent) * 0.3;
             }
         }
 

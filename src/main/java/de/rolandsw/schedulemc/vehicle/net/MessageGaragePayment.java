@@ -17,13 +17,19 @@ public class MessageGaragePayment implements Message<MessageGaragePayment> {
 
     private UUID playerUuid;
     private UUID vehicleUuid;
+    private boolean repairDamage;
+    private boolean chargeBattery;
+    private boolean changeOil;
 
     public MessageGaragePayment() {
     }
 
-    public MessageGaragePayment(UUID playerUuid, UUID vehicleUuid) {
+    public MessageGaragePayment(UUID playerUuid, UUID vehicleUuid, boolean repairDamage, boolean chargeBattery, boolean changeOil) {
         this.playerUuid = playerUuid;
         this.vehicleUuid = vehicleUuid;
+        this.repairDamage = repairDamage;
+        this.chargeBattery = chargeBattery;
+        this.changeOil = changeOil;
     }
 
     @Override
@@ -61,8 +67,8 @@ public class MessageGaragePayment implements Message<MessageGaragePayment> {
             return;
         }
 
-        // Calculate total service cost
-        double totalCost = calculateServiceCost(vehicle);
+        // Calculate total service cost based on selected services
+        double totalCost = calculateServiceCost(vehicle, repairDamage, chargeBattery, changeOil);
 
         // Check if player has enough money in bank account
         double playerBalance = EconomyManager.getBalance(player.getUUID());
@@ -84,8 +90,8 @@ public class MessageGaragePayment implements Message<MessageGaragePayment> {
 
         // Deduct money from bank account
         if (EconomyManager.withdraw(player.getUUID(), totalCost)) {
-            // Apply repairs/services
-            applyServices(vehicle);
+            // Apply selected repairs/services
+            applyServices(vehicle, repairDamage, chargeBattery, changeOil);
 
             player.displayClientMessage(
                 Component.translatable("message.garage.payment_success", String.format("%.2f€", totalCost))
@@ -101,42 +107,58 @@ public class MessageGaragePayment implements Message<MessageGaragePayment> {
         }
     }
 
-    private double calculateServiceCost(EntityGenericVehicle vehicle) {
+    private double calculateServiceCost(EntityGenericVehicle vehicle, boolean repairDamage, boolean chargeBattery, boolean changeOil) {
         double cost = 0.0;
 
-        // Base inspection fee
-        cost += 10.0;
-
         // Repair cost based on damage
-        float damage = vehicle.getDamageComponent().getDamage();
-        if (damage > 0) {
-            cost += damage * 2.0; // 2€ per damage point
+        if (repairDamage) {
+            float damage = vehicle.getDamageComponent().getDamage();
+            if (damage > 0) {
+                cost += damage * 2.0; // 2€ per damage point
+            }
         }
 
-        // Battery service if low
-        float batteryPercent = vehicle.getBatteryComponent().getBatteryPercentage() * 100F;
-        if (batteryPercent < 50) {
-            cost += (50 - batteryPercent) * 0.5; // 0.5€ per percent to charge
+        // Battery charging cost
+        if (chargeBattery) {
+            float batteryPercent = vehicle.getBatteryComponent().getBatteryPercentage() * 100F;
+            if (batteryPercent < 50) {
+                cost += (50 - batteryPercent) * 0.5; // 0.5€ per percent to charge
+            }
+        }
+
+        // Oil change cost
+        if (changeOil) {
+            cost += 15.0;
         }
 
         return cost;
     }
 
-    private void applyServices(EntityGenericVehicle vehicle) {
-        // Repair damage
-        vehicle.getDamageComponent().setDamage(0);
+    private void applyServices(EntityGenericVehicle vehicle, boolean repairDamage, boolean chargeBattery, boolean changeOil) {
+        // Repair damage if selected
+        if (repairDamage) {
+            vehicle.getDamageComponent().setDamage(0);
+            vehicle.getDamageComponent().setTemperature(20.0F); // Reset temperature
+        }
 
-        // Charge battery to full
-        vehicle.getBatteryComponent().setBatteryLevel(vehicle.getBatteryComponent().getMaxBatteryLevel());
+        // Charge battery if selected
+        if (chargeBattery) {
+            vehicle.getBatteryComponent().setBatteryLevel(vehicle.getBatteryComponent().getMaxBatteryLevel());
+        }
 
-        // Reset temperature
-        vehicle.getDamageComponent().setTemperature(20.0F);
+        // Oil change if selected
+        if (changeOil) {
+            // TODO: Implement oil change logic when oil system is added
+        }
     }
 
     @Override
     public MessageGaragePayment fromBytes(FriendlyByteBuf buf) {
         playerUuid = buf.readUUID();
         vehicleUuid = buf.readUUID();
+        repairDamage = buf.readBoolean();
+        chargeBattery = buf.readBoolean();
+        changeOil = buf.readBoolean();
         return this;
     }
 
@@ -144,5 +166,8 @@ public class MessageGaragePayment implements Message<MessageGaragePayment> {
     public void toBytes(FriendlyByteBuf buf) {
         buf.writeUUID(playerUuid);
         buf.writeUUID(vehicleUuid);
+        buf.writeBoolean(repairDamage);
+        buf.writeBoolean(chargeBattery);
+        buf.writeBoolean(changeOil);
     }
 }
