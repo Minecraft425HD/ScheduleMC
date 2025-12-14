@@ -43,10 +43,10 @@ public class ModItems {
             VAN_CHASSIS
     };
 
-    public static final RegistryObject<ItemVehiclePart> LKW_CHASSIS = ITEM_REGISTER.register("lkw_chassis", () -> new ItemVehiclePart(PartRegistry.LKW_CHASSIS));
+    public static final RegistryObject<ItemVehiclePart> TRUCK_CHASSIS = ITEM_REGISTER.register("truck_chassis", () -> new ItemVehiclePart(PartRegistry.TRUCK_CHASSIS));
 
     public static final RegistryObject<ItemVehiclePart>[] TRANSPORTER_BODIES = new RegistryObject[]{
-            LKW_CHASSIS
+            TRUCK_CHASSIS
     };
 
     public static final RegistryObject<ItemVehiclePart> OFFROAD_CHASSIS = ITEM_REGISTER.register("offroad_chassis", () -> new ItemVehiclePart(PartRegistry.OFFROAD_CHASSIS));
@@ -88,13 +88,14 @@ public class ModItems {
     // Pre-built vehicles
     public static final RegistryObject<ItemSpawnVehicle> SPAWN_VEHICLE_OAK = ITEM_REGISTER.register("limousine", () -> new ItemSpawnVehicle(PartRegistry.LIMOUSINE_CHASSIS));
     public static final RegistryObject<ItemSpawnVehicle> SPAWN_VEHICLE_BIG_OAK = ITEM_REGISTER.register("van", () -> new ItemSpawnVehicle(PartRegistry.VAN_CHASSIS));
-    public static final RegistryObject<ItemSpawnVehicle> SPAWN_VEHICLE_WHITE_TRANSPORTER = ITEM_REGISTER.register("truck", () -> new ItemSpawnVehicle(PartRegistry.LKW_CHASSIS));
+    public static final RegistryObject<ItemSpawnVehicle> SPAWN_VEHICLE_WHITE_TRANSPORTER = ITEM_REGISTER.register("truck", () -> new ItemSpawnVehicle(PartRegistry.TRUCK_CHASSIS));
     public static final RegistryObject<ItemSpawnVehicle> SPAWN_VEHICLE_WHITE_SUV = ITEM_REGISTER.register("suv", () -> new ItemSpawnVehicle(PartRegistry.OFFROAD_CHASSIS));
     public static final RegistryObject<ItemSpawnVehicle> SPAWN_VEHICLE_WHITE_SPORT = ITEM_REGISTER.register("sports_car", () -> new ItemSpawnVehicle(PartRegistry.LUXUS_CHASSIS));
 
     public static final RegistryObject<VehicleBucketItem> BIO_DIESEL_BUCKET = ITEM_REGISTER.register("diesel_bucket", () -> new VehicleBucketItem(ModFluids.BIO_DIESEL.get()));
 
-    public static final RegistryObject<Item> GAS_STATION = ITEM_REGISTER.register("fuel_station", () -> ModBlocks.GAS_STATION.get().toItem());
+    public static final RegistryObject<Item> FUEL_STATION = ITEM_REGISTER.register("fuel_station", () -> ModBlocks.FUEL_STATION.get().toItem());
+    public static final RegistryObject<Item> GARAGE = ITEM_REGISTER.register("garage", () -> ModBlocks.GARAGE.get().toItem());
 
     public static void init() {
         ITEM_REGISTER.register(FMLJavaModLoadingContext.get().getModEventBus());

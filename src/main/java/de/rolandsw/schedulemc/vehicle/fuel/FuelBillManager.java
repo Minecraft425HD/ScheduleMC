@@ -80,15 +80,15 @@ public class FuelBillManager {
     /**
      * Erstellt eine neue Rechnung
      */
-    public static void createBill(UUID playerUUID, UUID gasStationId, int amountFueled, double totalCost) {
-        UnpaidBill bill = new UnpaidBill(gasStationId, playerUUID, amountFueled, totalCost, System.currentTimeMillis());
+    public static void createBill(UUID playerUUID, UUID fuelStationId, int amountFueled, double totalCost) {
+        UnpaidBill bill = new UnpaidBill(fuelStationId, playerUUID, amountFueled, totalCost, System.currentTimeMillis());
 
         List<UnpaidBill> bills = playerBills.computeIfAbsent(playerUUID, k -> new ArrayList<>());
         bills.add(bill);
         isDirty = true;
 
         LOGGER.info("Rechnung erstellt: Player={}, Station={}, Amount={} mB, Cost={}€",
-            playerUUID, gasStationId, amountFueled, totalCost);
+            playerUUID, fuelStationId, amountFueled, totalCost);
     }
 
     /**
@@ -104,10 +104,10 @@ public class FuelBillManager {
     /**
      * Gibt alle unbezahlten Rechnungen für eine bestimmte Zapfsäule zurück
      */
-    public static List<UnpaidBill> getUnpaidBills(UUID playerUUID, UUID gasStationId) {
+    public static List<UnpaidBill> getUnpaidBills(UUID playerUUID, UUID fuelStationId) {
         return getUnpaidBills(playerUUID)
             .stream()
-            .filter(b -> b.gasStationId.equals(gasStationId))
+            .filter(b -> b.fuelStationId.equals(fuelStationId))
             .collect(Collectors.toList());
     }
 
@@ -124,8 +124,8 @@ public class FuelBillManager {
     /**
      * Berechnet die Gesamtsumme für eine bestimmte Zapfsäule
      */
-    public static double getTotalUnpaidAmount(UUID playerUUID, UUID gasStationId) {
-        return getUnpaidBills(playerUUID, gasStationId)
+    public static double getTotalUnpaidAmount(UUID playerUUID, UUID fuelStationId) {
+        return getUnpaidBills(playerUUID, fuelStationId)
             .stream()
             .mapToDouble(b -> b.totalCost)
             .sum();
@@ -134,11 +134,11 @@ public class FuelBillManager {
     /**
      * Markiert alle Rechnungen eines Spielers für eine Zapfsäule als bezahlt
      */
-    public static void payBills(UUID playerUUID, UUID gasStationId) {
+    public static void payBills(UUID playerUUID, UUID fuelStationId) {
         List<UnpaidBill> bills = playerBills.get(playerUUID);
         if (bills != null) {
             bills.stream()
-                .filter(b -> b.gasStationId.equals(gasStationId) && !b.paid)
+                .filter(b -> b.fuelStationId.equals(fuelStationId) && !b.paid)
                 .forEach(b -> b.paid = true);
             isDirty = true;
         }
@@ -160,15 +160,15 @@ public class FuelBillManager {
      * Repräsentiert eine Tankrechnung
      */
     public static class UnpaidBill {
-        public UUID gasStationId;
+        public UUID fuelStationId;
         public UUID playerUUID;
         public int amountFueled;  // mB
         public double totalCost;
         public long timestamp;
         public boolean paid;
 
-        public UnpaidBill(UUID gasStationId, UUID playerUUID, int amountFueled, double totalCost, long timestamp) {
-            this.gasStationId = gasStationId;
+        public UnpaidBill(UUID fuelStationId, UUID playerUUID, int amountFueled, double totalCost, long timestamp) {
+            this.fuelStationId = fuelStationId;
             this.playerUUID = playerUUID;
             this.amountFueled = amountFueled;
             this.totalCost = totalCost;

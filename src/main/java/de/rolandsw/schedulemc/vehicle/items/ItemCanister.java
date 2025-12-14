@@ -3,7 +3,7 @@ import de.rolandsw.schedulemc.config.ModConfigHandler;
 
 import de.rolandsw.schedulemc.vehicle.Main;
 import de.rolandsw.schedulemc.vehicle.blocks.ModBlocks;
-import de.rolandsw.schedulemc.vehicle.blocks.tileentity.TileEntityGasStation;
+import de.rolandsw.schedulemc.vehicle.blocks.tileentity.TileEntityFuelStation;
 import de.rolandsw.schedulemc.vehicle.sounds.ModSounds;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
@@ -40,7 +40,7 @@ public class ItemCanister extends Item {
 
         BlockEntity te;
 
-        if (state.getBlock().equals(ModBlocks.GAS_STATION_TOP.get())) {
+        if (state.getBlock().equals(ModBlocks.FUEL_STATION_TOP.get())) {
             te = context.getLevel().getBlockEntity(context.getClickedPos().below());
         } else {
             te = context.getLevel().getBlockEntity(context.getClickedPos());
@@ -50,11 +50,11 @@ public class ItemCanister extends Item {
             return super.useOn(context);
         }
 
-        if (te instanceof TileEntityGasStation gasStation) {
-            if (gasStation.hasTrade()) {
+        if (te instanceof TileEntityFuelStation fuelStation) {
+            if (fuelStation.hasTrade()) {
                 return super.useOn(context);
             }
-            boolean success = fillCanister(context.getPlayer().getItemInHand(context.getHand()), gasStation);
+            boolean success = fillCanister(context.getPlayer().getItemInHand(context.getHand()), fuelStation);
             if (success) {
                 ModSounds.playSound(SoundEvents.BREWING_STAND_BREW, context.getLevel(), context.getClickedPos(), null, SoundSource.BLOCKS);
             }

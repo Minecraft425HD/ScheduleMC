@@ -137,7 +137,7 @@ public class VehiclePurchaseHandler {
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
         } else if (spawnVehicleItem == ModItems.SPAWN_VEHICLE_WHITE_TRANSPORTER.get()) {
-            parts.add(new ItemStack(ModItems.LKW_CHASSIS.get()));
+            parts.add(new ItemStack(ModItems.TRUCK_CHASSIS.get()));
             parts.add(new ItemStack(ModItems.NORMAL_MOTOR.get()));
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));

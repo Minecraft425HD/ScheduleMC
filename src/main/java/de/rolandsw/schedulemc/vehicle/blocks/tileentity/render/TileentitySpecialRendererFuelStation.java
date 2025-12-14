@@ -2,7 +2,7 @@ package de.rolandsw.schedulemc.vehicle.blocks.tileentity.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import de.rolandsw.schedulemc.vehicle.blocks.tileentity.TileEntityGasStation;
+import de.rolandsw.schedulemc.vehicle.blocks.tileentity.TileEntityFuelStation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -13,18 +13,18 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.AABB;
 
-public class TileentitySpecialRendererGasStation implements BlockEntityRenderer<TileEntityGasStation> {
+public class TileentitySpecialRendererFuelStation implements BlockEntityRenderer<TileEntityFuelStation> {
 
     private Minecraft minecraft;
     protected BlockEntityRendererProvider.Context renderer;
 
-    public TileentitySpecialRendererGasStation(BlockEntityRendererProvider.Context renderer) {
+    public TileentitySpecialRendererFuelStation(BlockEntityRendererProvider.Context renderer) {
         this.renderer = renderer;
         minecraft = Minecraft.getInstance();
     }
 
     @Override
-    public void render(TileEntityGasStation target, float partialTicks, PoseStack matrixStack, MultiBufferSource buffer, int combinedLightIn, int combinedOverlayIn) {
+    public void render(TileEntityFuelStation target, float partialTicks, PoseStack matrixStack, MultiBufferSource buffer, int combinedLightIn, int combinedOverlayIn) {
         if (!target.hasLevel()) {
             return;
         }
@@ -65,7 +65,7 @@ public class TileentitySpecialRendererGasStation implements BlockEntityRenderer<
         }
     }
 
-    public void renderBoundingBox(TileEntityGasStation target, float partialTicks, PoseStack matrixStack, MultiBufferSource buffer, int combinedLightIn, int combinedOverlayIn) {
+    public void renderBoundingBox(TileEntityFuelStation target, float partialTicks, PoseStack matrixStack, MultiBufferSource buffer, int combinedLightIn, int combinedOverlayIn) {
         AABB axisalignedbb = target.getDetectionBox().move(-target.getBlockPos().getX(), -target.getBlockPos().getY(), -target.getBlockPos().getZ());
         LevelRenderer.renderLineBox(matrixStack, buffer.getBuffer(RenderType.lines()), axisalignedbb, 0F, 0F, 1F, 1F);
     }

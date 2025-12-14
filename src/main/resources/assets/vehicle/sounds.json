@@ -28,8 +28,8 @@
         "sounds": [ "vehicle:vehicle_crash" ]
     },
     "fuel_station": {
-        "subtitle": "sound.vehicle.gas_station",
-        "sounds": [ "vehicle:gas_station" ]
+        "subtitle": "sound.vehicle.fuel_station",
+        "sounds": [ "vehicle:fuel_station" ]
     },
     "generator": {
         "subtitle": "sound.vehicle.generator",

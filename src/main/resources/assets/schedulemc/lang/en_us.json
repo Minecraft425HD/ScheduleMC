@@ -427,6 +427,9 @@
   "message.center_vehicle": "Centered Vehicle rotation",
   "message.schedulemc.garage.no_vehicle": "No vehicle in range!",
   "message.schedulemc.garage.vehicle_locked": "Vehicle locked in garage",
+  "message.garage.vehicle_not_found": "Vehicle not found!",
+  "message.garage.insufficient_funds": "Not enough money! Cost: %s, Balance: %s",
+  "message.garage.payment_success": "Payment successful! %s deducted",
 
   "gui.vehicle_fuel": "%s %% Fuel",
   "gui.vehicle_damage": "%s %% Damage",
@@ -460,7 +463,7 @@
   "item.vehicle.limousine_chassis": "Limousine Chassis",
   "item.vehicle.van_chassis": "Van Chassis",
   "item.vehicle.standard_front_fender": "Standard Front Fender",
-  "item.vehicle.lkw_chassis": "LKW Chassis",
+  "item.vehicle.truck_chassis": "Truck Chassis",
   "item.vehicle.offroad_chassis": "Offroad Chassis",
   "item.vehicle.standard_tire": "Standard Tire",
   "item.vehicle.offroad_tire": "Offroad Tire",
@@ -581,6 +584,6 @@
   "sound.vehicle.vehicle_lock": "Vehicle locking",
   "sound.vehicle.vehicle_unlock": "Vehicle unlocking",
   "sound.vehicle.ratchet": "Ratchet",
-  "sound.vehicle.gas_station_attendant": "Fuel Station Attendant working"
+  "sound.vehicle.fuel_station_attendant": "Fuel Station Attendant working"
 
 }

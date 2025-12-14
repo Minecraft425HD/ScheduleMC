@@ -308,7 +308,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     private void checkInitializing() {
         PartBody body = getPartByClass(PartBody.class);
 
-        if (body instanceof PartLkwChassis) {
+        if (body instanceof PartTruckChassis) {
             PartContainer container = getPartByClass(PartContainer.class);
             if (container != null) {
                 inventoryComponent.setExternalInventorySize(54);

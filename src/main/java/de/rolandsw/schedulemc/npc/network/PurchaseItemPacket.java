@@ -1,7 +1,7 @@
 package de.rolandsw.schedulemc.npc.network;
 
 import de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager;
-import de.rolandsw.schedulemc.vehicle.fuel.GasStationRegistry;
+import de.rolandsw.schedulemc.vehicle.fuel.FuelStationRegistry;
 import de.rolandsw.schedulemc.vehicle.items.ItemSpawnVehicle;
 import de.rolandsw.schedulemc.vehicle.vehicle.VehiclePurchaseHandler;
 import de.rolandsw.schedulemc.economy.EconomyManager;
@@ -198,7 +198,7 @@ public class PurchaseItemPacket {
         ItemStack billItem = entry.getItem();
 
         // Lese Daten aus dem Bill-Item
-        UUID gasStationId = billItem.getTag().getUUID("GasStationId");
+        UUID fuelStationId = billItem.getTag().getUUID("FuelStationId");
         int totalFueled = billItem.getTag().getInt("TotalFueled");
         double totalCost = billItem.getTag().getDouble("TotalCost");
 
@@ -209,7 +209,7 @@ public class PurchaseItemPacket {
         }
 
         // Markiere alle Rechnungen für diese Zapfsäule als bezahlt
-        FuelBillManager.payBills(player.getUUID(), gasStationId);
+        FuelBillManager.payBills(player.getUUID(), fuelStationId);
         FuelBillManager.save();
 
         // WICHTIG: Füge Umsatz zum Warehouse hinzu (7-Tage-Statistik)
@@ -217,7 +217,7 @@ public class PurchaseItemPacket {
         merchant.getNpcData().onItemSoldFromWarehouse(player.level(), entry, 1, price);
 
         // Erfolgs-Nachricht
-        String stationName = GasStationRegistry.getDisplayName(gasStationId);
+        String stationName = FuelStationRegistry.getDisplayName(fuelStationId);
         player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GREEN));
         player.sendSystemMessage(Component.literal("⛽ ").withStyle(ChatFormatting.YELLOW)
             .append(Component.literal("RECHNUNG BEZAHLT").withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)));
@@ -239,8 +239,8 @@ public class PurchaseItemPacket {
         List<NPCData.ShopEntry> billEntries = new ArrayList<>();
 
         // Alle Tankstellen durchgehen
-        for (UUID gasStationId : GasStationRegistry.getAllGasStationIds()) {
-            List<FuelBillManager.UnpaidBill> unpaidBills = FuelBillManager.getUnpaidBills(player.getUUID(), gasStationId);
+        for (UUID fuelStationId : FuelStationRegistry.getAllFuelStationIds()) {
+            List<FuelBillManager.UnpaidBill> unpaidBills = FuelBillManager.getUnpaidBills(player.getUUID(), fuelStationId);
 
             if (!unpaidBills.isEmpty()) {
                 // Summiere alle unbezahlten Rechnungen für diese Tankstelle
@@ -253,11 +253,11 @@ public class PurchaseItemPacket {
                 }
 
                 // Erstelle Bill-Item
-                String stationName = GasStationRegistry.getDisplayName(gasStationId);
+                String stationName = FuelStationRegistry.getDisplayName(fuelStationId);
                 ItemStack billItem = new ItemStack(Items.PAPER);
                 CompoundTag tag = billItem.getOrCreateTag();
                 tag.putString("BillType", "FuelBill");
-                tag.putUUID("GasStationId", gasStationId);
+                tag.putUUID("FuelStationId", fuelStationId);
                 tag.putInt("TotalFueled", totalFueled);
                 tag.putDouble("TotalCost", totalCost);
 

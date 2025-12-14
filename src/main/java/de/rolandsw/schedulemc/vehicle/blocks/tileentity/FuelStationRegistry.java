@@ -16,14 +16,14 @@ import java.util.*;
  * Registry für alle Zapfsäulen auf dem Server
  * Verwaltet Zapfsäulen-IDs und deren Positionen
  */
-public class GasStationRegistry {
+public class FuelStationRegistry {
 
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final File REGISTRY_FILE = new File("gas_station_registry.json");
+    private static final File REGISTRY_FILE = new File("fuel_station_registry.json");
 
     // UUID (Gas Station ID) → BlockPos
-    private static Map<UUID, BlockPos> gasStations = new HashMap<>();
+    private static Map<UUID, BlockPos> fuelStations = new HashMap<>();
     // BlockPos → UUID (for reverse lookup)
     private static Map<String, UUID> positionToId = new HashMap<>();
     private static boolean isDirty = false;
@@ -33,7 +33,7 @@ public class GasStationRegistry {
      */
     public static void load() {
         if (!REGISTRY_FILE.exists()) {
-            LOGGER.info("Keine Gas Station Registry gefunden, starte mit leerer Datenbank");
+            LOGGER.info("Keine Fuel Station Registry gefunden, starte mit leerer Datenbank");
             return;
         }
 
@@ -42,20 +42,20 @@ public class GasStationRegistry {
                 new TypeToken<Map<String, String>>(){}.getType());
 
             if (loaded != null) {
-                gasStations.clear();
+                fuelStations.clear();
                 positionToId.clear();
 
                 for (Map.Entry<String, String> entry : loaded.entrySet()) {
                     UUID id = UUID.fromString(entry.getKey());
                     BlockPos pos = parseBlockPos(entry.getValue());
-                    gasStations.put(id, pos);
+                    fuelStations.put(id, pos);
                     positionToId.put(posToString(pos), id);
                 }
 
-                LOGGER.info("Gas Station Registry geladen: {} Zapfsäulen", gasStations.size());
+                LOGGER.info("Fuel Station Registry geladen: {} Zapfsäulen", fuelStations.size());
             }
         } catch (Exception e) {
-            LOGGER.error("Fehler beim Laden der Gas Station Registry!", e);
+            LOGGER.error("Fehler beim Laden der Fuel Station Registry!", e);
         }
     }
 
@@ -65,14 +65,14 @@ public class GasStationRegistry {
     public static void save() {
         try (FileWriter writer = new FileWriter(REGISTRY_FILE)) {
             Map<String, String> toSave = new HashMap<>();
-            for (Map.Entry<UUID, BlockPos> entry : gasStations.entrySet()) {
+            for (Map.Entry<UUID, BlockPos> entry : fuelStations.entrySet()) {
                 toSave.put(entry.getKey().toString(), posToString(entry.getValue()));
             }
             GSON.toJson(toSave, writer);
             isDirty = false;
-            LOGGER.info("Gas Station Registry gespeichert");
+            LOGGER.info("Fuel Station Registry gespeichert");
         } catch (Exception e) {
-            LOGGER.error("Fehler beim Speichern der Gas Station Registry!", e);
+            LOGGER.error("Fehler beim Speichern der Fuel Station Registry!", e);
         }
     }
 
@@ -88,7 +88,7 @@ public class GasStationRegistry {
     /**
      * Registriert eine neue Zapfsäule
      */
-    public static UUID registerGasStation(BlockPos pos) {
+    public static UUID registerFuelStation(BlockPos pos) {
         String posKey = posToString(pos);
 
         // Prüfe ob schon registriert
@@ -98,7 +98,7 @@ public class GasStationRegistry {
 
         // Erstelle neue ID
         UUID id = UUID.randomUUID();
-        gasStations.put(id, pos);
+        fuelStations.put(id, pos);
         positionToId.put(posKey, id);
         isDirty = true;
 
@@ -109,8 +109,8 @@ public class GasStationRegistry {
     /**
      * Entfernt eine Zapfsäule aus der Registry
      */
-    public static void unregisterGasStation(UUID id) {
-        BlockPos pos = gasStations.remove(id);
+    public static void unregisterFuelStation(UUID id) {
+        BlockPos pos = fuelStations.remove(id);
         if (pos != null) {
             positionToId.remove(posToString(pos));
             isDirty = true;
@@ -129,28 +129,28 @@ public class GasStationRegistry {
      * Gibt die Position für eine ID zurück
      */
     public static BlockPos getPositionById(UUID id) {
-        return gasStations.get(id);
+        return fuelStations.get(id);
     }
 
     /**
      * Gibt alle registrierten Zapfsäulen zurück
      */
-    public static Set<UUID> getAllGasStationIds() {
-        return new HashSet<>(gasStations.keySet());
+    public static Set<UUID> getAllFuelStationIds() {
+        return new HashSet<>(fuelStations.keySet());
     }
 
     /**
      * Prüft ob eine ID existiert
      */
     public static boolean isRegistered(UUID id) {
-        return gasStations.containsKey(id);
+        return fuelStations.containsKey(id);
     }
 
     /**
      * Gibt einen lesbaren Namen für eine Zapfsäule zurück
      */
     public static String getDisplayName(UUID id) {
-        BlockPos pos = gasStations.get(id);
+        BlockPos pos = fuelStations.get(id);
         if (pos == null) {
             return "Unbekannte Zapfsäule";
         }

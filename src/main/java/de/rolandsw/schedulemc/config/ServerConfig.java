@@ -16,10 +16,10 @@ import java.util.stream.Collectors;
 
 public class ServerConfig extends ConfigBase {
 
-    public final ForgeConfigSpec.IntValue gasStationTransferRate;
-    public final ForgeConfigSpec.ConfigValue<List<? extends String>> gasStationValidFuels;
-    public final ForgeConfigSpec.IntValue gasStationMorningPricePer10mb;
-    public final ForgeConfigSpec.IntValue gasStationEveningPricePer10mb;
+    public final ForgeConfigSpec.IntValue fuelStationTransferRate;
+    public final ForgeConfigSpec.ConfigValue<List<? extends String>> fuelStationValidFuels;
+    public final ForgeConfigSpec.IntValue fuelStationMorningPricePer10mb;
+    public final ForgeConfigSpec.IntValue fuelStationEveningPricePer10mb;
 
     public final ForgeConfigSpec.DoubleValue repairKitRepairAmount;
 
@@ -77,20 +77,20 @@ public class ServerConfig extends ConfigBase {
     public final ForgeConfigSpec.DoubleValue offroadChassisAcceleration;
     public final ForgeConfigSpec.DoubleValue offroadChassisMaxSpeed;
 
-    public final ForgeConfigSpec.DoubleValue lkwChassisFuelEfficiency;
-    public final ForgeConfigSpec.DoubleValue lkwChassisAcceleration;
-    public final ForgeConfigSpec.DoubleValue lkwChassisMaxSpeed;
+    public final ForgeConfigSpec.DoubleValue truckChassisFuelEfficiency;
+    public final ForgeConfigSpec.DoubleValue truckChassisAcceleration;
+    public final ForgeConfigSpec.DoubleValue truckChassisMaxSpeed;
 
-    public List<Tag<Fluid>> gasStationValidFuelList = new ArrayList<>();
+    public List<Tag<Fluid>> fuelStationValidFuelList = new ArrayList<>();
     public List<Tag<Block>> vehicleDriveBlockList = new ArrayList<>();
 
     public ServerConfig(ForgeConfigSpec.Builder builder) {
         super(builder);
 
-        gasStationTransferRate = builder.defineInRange("machines.gas_station.transfer_rate", 5, 1, Short.MAX_VALUE);
-        gasStationValidFuels = builder.comment("If it starts with '#' it is a tag").defineList("machines.gas_station.valid_fuels", Collections.singletonList("#vehicle:gas_station"), Objects::nonNull);
-        gasStationMorningPricePer10mb = builder.comment("Price per 10 mb of fuel during morning (0-12000 ticks, 6:00-18:00)").defineInRange("machines.gas_station.morning_price_per_10mb", 10, 0, Integer.MAX_VALUE);
-        gasStationEveningPricePer10mb = builder.comment("Price per 10 mb of fuel during evening (12000-24000 ticks, 18:00-6:00)").defineInRange("machines.gas_station.evening_price_per_10mb", 5, 0, Integer.MAX_VALUE);
+        fuelStationTransferRate = builder.defineInRange("machines.fuel_station.transfer_rate", 5, 1, Short.MAX_VALUE);
+        fuelStationValidFuels = builder.comment("If it starts with '#' it is a tag").defineList("machines.fuel_station.valid_fuels", Collections.singletonList("#vehicle:fuel_station"), Objects::nonNull);
+        fuelStationMorningPricePer10mb = builder.comment("Price per 10 mb of fuel during morning (0-12000 ticks, 6:00-18:00)").defineInRange("machines.fuel_station.morning_price_per_10mb", 10, 0, Integer.MAX_VALUE);
+        fuelStationEveningPricePer10mb = builder.comment("Price per 10 mb of fuel during evening (12000-24000 ticks, 18:00-6:00)").defineInRange("machines.fuel_station.evening_price_per_10mb", 5, 0, Integer.MAX_VALUE);
 
         repairKitRepairAmount = builder.defineInRange("items.repair_kit.repair_amount", 5F, 0.1F, 100F);
 
@@ -140,15 +140,15 @@ public class ServerConfig extends ConfigBase {
         offroadChassisFuelEfficiency = builder.defineInRange("vehicle.parts.offroad_chassis.fuel_efficiency", 0.6D, 0.001D, 10D);
         offroadChassisAcceleration = builder.defineInRange("vehicle.parts.offroad_chassis.acceleration", 0.8D, 0.001D, 10D);
         offroadChassisMaxSpeed = builder.defineInRange("vehicle.parts.offroad_chassis.max_speed", 0.7D, 0.001D, 10D);
-        lkwChassisFuelEfficiency = builder.defineInRange("vehicle.parts.lkw_chassis.fuel_efficiency", 0.6D, 0.001D, 10D);
-        lkwChassisAcceleration = builder.defineInRange("vehicle.parts.lkw_chassis.acceleration", 0.8D, 0.001D, 10D);
-        lkwChassisMaxSpeed = builder.defineInRange("vehicle.parts.lkw_chassis.max_speed", 0.765D, 0.001D, 10D);
+        truckChassisFuelEfficiency = builder.defineInRange("vehicle.parts.truck_chassis.fuel_efficiency", 0.6D, 0.001D, 10D);
+        truckChassisAcceleration = builder.defineInRange("vehicle.parts.truck_chassis.acceleration", 0.8D, 0.001D, 10D);
+        truckChassisMaxSpeed = builder.defineInRange("vehicle.parts.truck_chassis.max_speed", 0.765D, 0.001D, 10D);
     }
 
     @Override
     public void onReload(ModConfigEvent event) {
         super.onReload(event);
-        gasStationValidFuelList = gasStationValidFuels.get().stream().map(TagUtils::getFluid).filter(Objects::nonNull).collect(Collectors.toList());
+        fuelStationValidFuelList = fuelStationValidFuels.get().stream().map(TagUtils::getFluid).filter(Objects::nonNull).collect(Collectors.toList());
         vehicleDriveBlockList = vehicleDriveBlocks.get().stream().map(TagUtils::getBlock).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
