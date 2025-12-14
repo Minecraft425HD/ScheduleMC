@@ -110,8 +110,8 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
 
     private void initRepairCheckboxes() {
         int checkX = leftPos + 140;
-        int checkY = topPos + 90;
-        int lineHeight = 20;
+        int checkY = topPos + 105; // Verschoben nach unten für mehr Platz
+        int lineHeight = 22; // Mehr Abstand zwischen Zeilen
         int checkboxWidth = 12;
         int checkboxHeight = 12;
 
@@ -168,10 +168,10 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
 
     private void initUpgradeButtons() {
         int btnX = leftPos + 140;
-        int btnY = topPos + 50;
+        int btnY = topPos + 55;
         int btnWidth = 100;
-        int btnHeight = 20;
-        int lineHeight = 25;
+        int btnHeight = 18;
+        int lineHeight = 32; // Mehr Platz zwischen Buttons
 
         upgradeEngineButton = addRenderableWidget(Button.builder(
             Component.literal("Motor: 250€"),
@@ -343,75 +343,73 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
 
     private void renderRepairTab(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         int rightX = 140;
-        int startY = 45;
-        int lineHeight = 10;
+        int startY = 40;
 
         // Parts status with colored bars
         guiGraphics.drawString(font, "=== TEILEZUSTAND ===", rightX, startY, fontColor, false);
 
-        int barY = startY + 12;
+        int barY = startY + 10;
         renderPartStatusBar(guiGraphics, rightX, barY, "Motor", 100 - getDamagePercent(), mouseX, mouseY);
-        renderPartStatusBar(guiGraphics, rightX, barY + 18, "Reifen", 85.0f, mouseX, mouseY);
-        renderPartStatusBar(guiGraphics, rightX, barY + 36, "Karosserie", 100 - getDamagePercent() * 0.5f, mouseX, mouseY);
+        renderPartStatusBar(guiGraphics, rightX, barY + 16, "Reifen", 85.0f, mouseX, mouseY);
+        renderPartStatusBar(guiGraphics, rightX, barY + 32, "Karosserie", 100 - getDamagePercent() * 0.5f, mouseX, mouseY);
 
         // Repair options with checkboxes (already rendered by widgets)
-        int checkY = 90;
-        guiGraphics.drawString(font, "=== SERVICES ===", rightX, checkY - 5, fontColor, false);
+        int checkY = 105;
+        guiGraphics.drawString(font, "=== SERVICES ===", rightX, checkY - 8, fontColor, false);
 
         // Show labels and prices next to checkboxes
         int labelX = rightX + 15;
-        int priceX = rightX + 70;
-        int priceY = checkY + 3;
+        int priceX = rightX + 80;
+        int lineSpacing = 22; // Entspricht lineHeight in initRepairCheckboxes
 
-        guiGraphics.drawString(font, "Reparatur", labelX, priceY, partColor, false);
+        // Reparatur
+        guiGraphics.drawString(font, "Reparatur", labelX, checkY, partColor, false);
         if (getDamagePercent() > 0) {
-            guiGraphics.drawString(font, String.format("%.2f€", getDamagePercent() * 2.0), priceX, priceY, costColor, false);
+            guiGraphics.drawString(font, String.format("%.2f€", getDamagePercent() * 2.0), priceX, checkY, costColor, false);
         }
 
-        guiGraphics.drawString(font, "Batterie", labelX, priceY + 20, partColor, false);
+        // Batterie
+        guiGraphics.drawString(font, "Batterie", labelX, checkY + lineSpacing, partColor, false);
         if (getBatteryPercent() < 50) {
-            guiGraphics.drawString(font, String.format("%.2f€", (50 - getBatteryPercent()) * 0.5), priceX, priceY + 20, costColor, false);
+            guiGraphics.drawString(font, String.format("%.2f€", (50 - getBatteryPercent()) * 0.5), priceX, checkY + lineSpacing, costColor, false);
         }
 
-        guiGraphics.drawString(font, "Tanken", labelX, priceY + 40, partColor, false);
+        // Tanken
+        guiGraphics.drawString(font, "Tanken", labelX, checkY + lineSpacing * 2, partColor, false);
         if (getFuelPercent() < 100) {
-            guiGraphics.drawString(font, String.format("%.2f€", (100 - getFuelPercent()) * 0.3), priceX, priceY + 40, costColor, false);
+            guiGraphics.drawString(font, String.format("%.2f€", (100 - getFuelPercent()) * 0.3), priceX, checkY + lineSpacing * 2, costColor, false);
         }
 
-        guiGraphics.drawString(font, "Ölwechsel", labelX, priceY + 60, partColor, false);
-        guiGraphics.drawString(font, "15.00€", priceX, priceY + 60, costColor, false);
-
-        // Total cost
-        int totalY = checkY + 90;
-        guiGraphics.drawString(font, "Inspektion:", rightX, totalY, partColor, false);
-        guiGraphics.drawString(font, "10.00€", priceX, totalY, costColor, false);
+        // Ölwechsel
+        guiGraphics.drawString(font, "Ölwechsel", labelX, checkY + lineSpacing * 3, partColor, false);
+        guiGraphics.drawString(font, "15.00€", priceX, checkY + lineSpacing * 3, costColor, false);
     }
 
     private void renderUpgradeTab(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         int rightX = 140;
-        int startY = 45;
+        int startY = 40;
 
         guiGraphics.drawString(font, "=== UPGRADES ===", rightX, startY, fontColor, false);
 
         // Show comparison stats for upgrades
         int upgradeY = 55;
         guiGraphics.drawString(font, "Motor Upgrade:", rightX, upgradeY, partColor, false);
-        guiGraphics.drawString(font, "120 -> 150 km/h", rightX, upgradeY + 10, fontColor, false);
-        guiGraphics.drawString(font, "+25% Leistung", rightX, upgradeY + 20, 0x00FF00, false);
+        guiGraphics.drawString(font, "120 -> 150 km/h", rightX + 2, upgradeY + 10, fontColor, false);
+        guiGraphics.drawString(font, "+25% Leistung", rightX + 2, upgradeY + 18, 0x00FF00, false);
 
-        upgradeY += 35;
+        upgradeY += 32;
         guiGraphics.drawString(font, "Reifen Upgrade:", rightX, upgradeY, partColor, false);
-        guiGraphics.drawString(font, "Handling +30%", rightX, upgradeY + 10, fontColor, false);
-        guiGraphics.drawString(font, "Grip +20%", rightX, upgradeY + 20, 0x00FF00, false);
+        guiGraphics.drawString(font, "Handling +30%", rightX + 2, upgradeY + 10, fontColor, false);
+        guiGraphics.drawString(font, "Grip +20%", rightX + 2, upgradeY + 18, 0x00FF00, false);
 
-        upgradeY += 35;
+        upgradeY += 32;
         guiGraphics.drawString(font, "Lackierung:", rightX, upgradeY, partColor, false);
 
         // Show current color preview
-        int colorX = rightX + 60;
-        int colorY = upgradeY;
-        guiGraphics.fill(colorX, colorY, colorX + 40, colorY + 10, 0xFF000000 | selectedColor);
-        guiGraphics.drawString(font, "Farbe", rightX, upgradeY + 10, fontColor, false);
+        int colorX = rightX + 2;
+        int colorY = upgradeY + 10;
+        guiGraphics.fill(colorX, colorY, colorX + 40, colorY + 8, 0xFF000000 | selectedColor);
+        guiGraphics.drawString(font, "Farbe", rightX + 45, upgradeY + 10, fontColor, false);
     }
 
     private void renderPartStatusBar(GuiGraphics guiGraphics, int x, int y, String partName, float percent, int mouseX, int mouseY) {
