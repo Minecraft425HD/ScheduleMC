@@ -35,6 +35,11 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
     protected void init() {
         super.init();
 
+        // Null check for vehicle
+        if (vehicle == null) {
+            return;
+        }
+
         // Add "Bezahlen" button centered at bottom
         int buttonWidth = 120;
         int buttonHeight = 20;
@@ -44,11 +49,13 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
         payButton = addRenderableWidget(Button.builder(
             Component.literal("Bezahlen (" + String.format("%.2f€", calculateTotalCost()) + ")"),
             button -> {
-                // Send payment packet to server
-                Main.SIMPLE_CHANNEL.sendToServer(new MessageGaragePayment(
-                    minecraft.player.getUUID(),
-                    vehicle.getUUID()
-                ));
+                // Null check before accessing vehicle
+                if (vehicle != null && minecraft != null && minecraft.player != null) {
+                    Main.SIMPLE_CHANNEL.sendToServer(new MessageGaragePayment(
+                        minecraft.player.getUUID(),
+                        vehicle.getUUID()
+                    ));
+                }
             })
             .bounds(buttonX, buttonY, buttonWidth, buttonHeight)
             .build()
