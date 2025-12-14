@@ -1,3 +1,6 @@
 {
-  "parent": "schedulemc:block/plot_info_block"
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "schedulemc:item/plot_info_block"
+  }
 }

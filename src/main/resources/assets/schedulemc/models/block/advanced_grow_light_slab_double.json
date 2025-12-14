@@ -1,6 +1,7 @@
 {
-  "parent": "minecraft:block/cube_all",
+  "parent": "minecraft:block/cube_column",
   "textures": {
-    "all": "schedulemc:block/advanced_grow_light_slab"
+    "end": "schedulemc:block/advanced_grow_light_slab",
+    "side": "schedulemc:block/advanced_grow_light_slab"
   }
 }
