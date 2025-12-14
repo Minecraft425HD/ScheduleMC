@@ -15,14 +15,14 @@ import java.util.*;
 /**
  * Verwaltet Registrierung und IDs aller Zapfsäulen
  */
-public class GasStationRegistry {
+public class FuelStationRegistry {
 
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final File REGISTRY_FILE = new File("config/gas_station_registry.json");
+    private static final File REGISTRY_FILE = new File("config/fuel_station_registry.json");
 
-    // UUID → GasStationEntry
-    private static Map<UUID, GasStationEntry> gasStations = new HashMap<>();
+    // UUID → FuelStationEntry
+    private static Map<UUID, FuelStationEntry> fuelStations = new HashMap<>();
     // BlockPos → UUID (für schnelle Lookup)
     private static Map<BlockPos, UUID> positionToId = new HashMap<>();
     private static boolean isDirty = false;
@@ -37,17 +37,17 @@ public class GasStationRegistry {
         }
 
         try (FileReader reader = new FileReader(REGISTRY_FILE)) {
-            List<GasStationEntry> loaded = GSON.fromJson(reader,
-                new TypeToken<List<GasStationEntry>>(){}.getType());
+            List<FuelStationEntry> loaded = GSON.fromJson(reader,
+                new TypeToken<List<FuelStationEntry>>(){}.getType());
 
             if (loaded != null) {
-                gasStations.clear();
+                fuelStations.clear();
                 positionToId.clear();
-                for (GasStationEntry entry : loaded) {
-                    gasStations.put(entry.id, entry);
+                for (FuelStationEntry entry : loaded) {
+                    fuelStations.put(entry.id, entry);
                     positionToId.put(entry.position, entry.id);
                 }
-                LOGGER.info("Zapfsäulen-Registry geladen: {} Zapfsäulen", gasStations.size());
+                LOGGER.info("Zapfsäulen-Registry geladen: {} Zapfsäulen", fuelStations.size());
             }
         } catch (Exception e) {
             LOGGER.error("Fehler beim Laden der Zapfsäulen-Registry!", e);
@@ -60,7 +60,7 @@ public class GasStationRegistry {
     public static void save() {
         REGISTRY_FILE.getParentFile().mkdirs(); // Erstelle config-Ordner falls nicht vorhanden
         try (FileWriter writer = new FileWriter(REGISTRY_FILE)) {
-            List<GasStationEntry> toSave = new ArrayList<>(gasStations.values());
+            List<FuelStationEntry> toSave = new ArrayList<>(fuelStations.values());
             GSON.toJson(toSave, writer);
             isDirty = false;
             LOGGER.info("Zapfsäulen-Registry gespeichert");
@@ -81,7 +81,7 @@ public class GasStationRegistry {
     /**
      * Registriert eine neue Zapfsäule oder gibt existierende ID zurück
      */
-    public static UUID registerGasStation(BlockPos position) {
+    public static UUID registerFuelStation(BlockPos position) {
         // Prüfe ob bereits registriert
         UUID existing = positionToId.get(position);
         if (existing != null) {
@@ -90,10 +90,10 @@ public class GasStationRegistry {
 
         // Erstelle neue Zapfsäule
         UUID id = UUID.randomUUID();
-        String displayName = "Zapfsäule #" + (gasStations.size() + 1);
+        String displayName = "Zapfsäule #" + (fuelStations.size() + 1);
 
-        GasStationEntry entry = new GasStationEntry(id, position, displayName);
-        gasStations.put(id, entry);
+        FuelStationEntry entry = new FuelStationEntry(id, position, displayName);
+        fuelStations.put(id, entry);
         positionToId.put(position, id);
         isDirty = true;
 
@@ -112,29 +112,29 @@ public class GasStationRegistry {
      * Gibt den Anzeigenamen einer Zapfsäule zurück
      */
     public static String getDisplayName(UUID id) {
-        GasStationEntry entry = gasStations.get(id);
+        FuelStationEntry entry = fuelStations.get(id);
         return entry != null ? entry.displayName : "Unbekannte Zapfsäule";
     }
 
     /**
      * Gibt alle Zapfsäulen-IDs zurück
      */
-    public static Set<UUID> getAllGasStationIds() {
-        return new HashSet<>(gasStations.keySet());
+    public static Set<UUID> getAllFuelStationIds() {
+        return new HashSet<>(fuelStations.keySet());
     }
 
     /**
      * Gibt alle Zapfsäulen zurück
      */
-    public static Collection<GasStationEntry> getAllGasStations() {
-        return new ArrayList<>(gasStations.values());
+    public static Collection<FuelStationEntry> getAllFuelStations() {
+        return new ArrayList<>(fuelStations.values());
     }
 
     /**
      * Setzt einen benutzerdefinierten Namen für eine Zapfsäule
      */
     public static void setDisplayName(UUID id, String displayName) {
-        GasStationEntry entry = gasStations.get(id);
+        FuelStationEntry entry = fuelStations.get(id);
         if (entry != null) {
             entry.displayName = displayName;
             isDirty = true;
@@ -144,10 +144,10 @@ public class GasStationRegistry {
     /**
      * Entfernt eine Zapfsäule aus der Registry
      */
-    public static void unregisterGasStation(BlockPos position) {
+    public static void unregisterFuelStation(BlockPos position) {
         UUID id = positionToId.remove(position);
         if (id != null) {
-            gasStations.remove(id);
+            fuelStations.remove(id);
             isDirty = true;
             LOGGER.info("Zapfsäule entfernt: {}", position);
         }
@@ -156,19 +156,19 @@ public class GasStationRegistry {
     /**
      * Repräsentiert eine registrierte Zapfsäule
      */
-    public static class GasStationEntry {
+    public static class FuelStationEntry {
         public UUID id;
         public BlockPos position;
         public String displayName;
 
-        public GasStationEntry(UUID id, BlockPos position, String displayName) {
+        public FuelStationEntry(UUID id, BlockPos position, String displayName) {
             this.id = id;
             this.position = position;
             this.displayName = displayName;
         }
 
         // No-arg constructor für GSON
-        public GasStationEntry() {
+        public FuelStationEntry() {
         }
     }
 }

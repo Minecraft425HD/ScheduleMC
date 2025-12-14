@@ -18,9 +18,9 @@ public class ModCreativeTabs {
 
     public static final RegistryObject<CreativeModeTab> TAB_VEHICLE = TAB_REGISTER.register("vehicle", () -> {
         return CreativeModeTab.builder()
-                .icon(() -> new ItemStack(ModBlocks.GAS_STATION.get()))
+                .icon(() -> new ItemStack(ModBlocks.FUEL_STATION.get()))
                 .displayItems((param, output) -> {
-                    output.accept(new ItemStack(ModBlocks.GAS_STATION.get()));
+                    output.accept(new ItemStack(ModBlocks.FUEL_STATION.get()));
                     output.accept(new ItemStack(ModItems.BIO_DIESEL_BUCKET.get()));
 
                     // Pre-built vehicles

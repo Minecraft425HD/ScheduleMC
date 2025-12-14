@@ -1,6 +1,6 @@
 package de.rolandsw.schedulemc.vehicle.net;
 
-import de.rolandsw.schedulemc.vehicle.blocks.tileentity.TileEntityGasStation;
+import de.rolandsw.schedulemc.vehicle.blocks.tileentity.TileEntityFuelStation;
 import de.maxhenkel.corelib.net.Message;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
@@ -8,16 +8,16 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.network.NetworkEvent;
 
-public class MessageGasStationAdminAmount implements Message<MessageGasStationAdminAmount> {
+public class MessageFuelStationAdminAmount implements Message<MessageFuelStationAdminAmount> {
 
     private BlockPos pos;
     private int amount;
 
-    public MessageGasStationAdminAmount() {
+    public MessageFuelStationAdminAmount() {
 
     }
 
-    public MessageGasStationAdminAmount(BlockPos pos, int amount) {
+    public MessageFuelStationAdminAmount(BlockPos pos, int amount) {
         this.pos = pos;
         this.amount = amount;
     }
@@ -31,13 +31,13 @@ public class MessageGasStationAdminAmount implements Message<MessageGasStationAd
     public void executeServerSide(NetworkEvent.Context context) {
         BlockEntity te = context.getSender().level().getBlockEntity(pos);
 
-        if (te instanceof TileEntityGasStation) {
-            ((TileEntityGasStation) te).setTradeAmount(amount);
+        if (te instanceof TileEntityFuelStation) {
+            ((TileEntityFuelStation) te).setTradeAmount(amount);
         }
     }
 
     @Override
-    public MessageGasStationAdminAmount fromBytes(FriendlyByteBuf buf) {
+    public MessageFuelStationAdminAmount fromBytes(FriendlyByteBuf buf) {
         this.pos = buf.readBlockPos();
         this.amount = buf.readInt();
 

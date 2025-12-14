@@ -9,9 +9,9 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
 
-public class PartLkwChassis extends PartBody {
+public class PartTruckChassis extends PartBody {
 
-    public PartLkwChassis(ResourceLocation texture, String materialTranslationKey) {
+    public PartTruckChassis(ResourceLocation texture, String materialTranslationKey) {
         super(new OBJModel(new ResourceLocation(Main.MODID, "models/entity/transporter_body.obj")), texture, new Vector3d(0D, 4D / 16D, 0D), "transporter", materialTranslationKey);
         this.wheelOffsets = new Vector3d[]{
                 new Vector3d(14.5F / 16F, 4F / 16F, 12F / 16F),
@@ -30,9 +30,9 @@ public class PartLkwChassis extends PartBody {
         this.height = 1.51F;
         this.minRotationSpeed = 2.0F;
         this.maxRotationSpeed = 5F;
-        this.fuelEfficiency = () -> ModConfigHandler.VEHICLE_SERVER.lkwChassisFuelEfficiency.get().floatValue();
-        this.acceleration = () -> ModConfigHandler.VEHICLE_SERVER.lkwChassisAcceleration.get().floatValue();
-        this.maxSpeed = () -> ModConfigHandler.VEHICLE_SERVER.lkwChassisMaxSpeed.get().floatValue();
+        this.fuelEfficiency = () -> ModConfigHandler.VEHICLE_SERVER.truckChassisFuelEfficiency.get().floatValue();
+        this.acceleration = () -> ModConfigHandler.VEHICLE_SERVER.truckChassisAcceleration.get().floatValue();
+        this.maxSpeed = () -> ModConfigHandler.VEHICLE_SERVER.truckChassisMaxSpeed.get().floatValue();
     }
 
     @Override

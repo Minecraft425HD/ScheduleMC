@@ -1,9 +1,9 @@
 package de.rolandsw.schedulemc.vehicle.blocks;
 
-import de.rolandsw.schedulemc.vehicle.blocks.tileentity.TileEntityGasStation;
-import de.rolandsw.schedulemc.vehicle.fuel.GasStationRegistry;
-import de.rolandsw.schedulemc.vehicle.gui.ContainerGasStation;
-import de.rolandsw.schedulemc.vehicle.gui.ContainerGasStationAdmin;
+import de.rolandsw.schedulemc.vehicle.blocks.tileentity.TileEntityFuelStation;
+import de.rolandsw.schedulemc.vehicle.fuel.FuelStationRegistry;
+import de.rolandsw.schedulemc.vehicle.gui.ContainerFuelStation;
+import de.rolandsw.schedulemc.vehicle.gui.ContainerFuelStationAdmin;
 import de.rolandsw.schedulemc.vehicle.gui.TileEntityContainerProvider;
 import de.rolandsw.schedulemc.region.PlotManager;
 import de.rolandsw.schedulemc.region.PlotRegion;
@@ -39,7 +39,7 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 
 import javax.annotation.Nullable;
 
-public class BlockGasStation extends BlockOrientableHorizontal {
+public class BlockFuelStation extends BlockOrientableHorizontal {
 
     public static VoxelShape SHAPE_NORTH_SOUTH = Block.box(2D, 0D, 5D, 14D, 31D, 11D);
     public static VoxelShape SHAPE_EAST_WEST = Block.box(5D, 0D, 2D, 11D, 31D, 14D);
@@ -63,7 +63,7 @@ public class BlockGasStation extends BlockOrientableHorizontal {
                     SHAPE_SLAB
             ).build();
 
-    public BlockGasStation() {
+    public BlockFuelStation() {
         super(MapColor.METAL, SoundType.METAL, 4F, 50F);
     }
 
@@ -90,7 +90,7 @@ public class BlockGasStation extends BlockOrientableHorizontal {
     public InteractionResult use(BlockState state, Level worldIn, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult hit) {
         BlockEntity te = worldIn.getBlockEntity(pos);
 
-        if (!(te instanceof TileEntityGasStation station)) {
+        if (!(te instanceof TileEntityFuelStation station)) {
             return InteractionResult.FAIL;
         }
 
@@ -117,12 +117,12 @@ public class BlockGasStation extends BlockOrientableHorizontal {
 
         if (!player.isShiftKeyDown()) {
             if (player instanceof ServerPlayer) {
-                TileEntityContainerProvider.openGui((ServerPlayer) player, station, (i, playerInventory, playerEntity) -> new ContainerGasStation(i, station, playerInventory));
+                TileEntityContainerProvider.openGui((ServerPlayer) player, station, (i, playerInventory, playerEntity) -> new ContainerFuelStation(i, station, playerInventory));
             }
             return InteractionResult.SUCCESS;
         } else if (station.isOwner(player)) {
             if (player instanceof ServerPlayer) {
-                TileEntityContainerProvider.openGui((ServerPlayer) player, station, (i, playerInventory, playerEntity) -> new ContainerGasStationAdmin(i, station, playerInventory));
+                TileEntityContainerProvider.openGui((ServerPlayer) player, station, (i, playerInventory, playerEntity) -> new ContainerFuelStationAdmin(i, station, playerInventory));
             }
             return InteractionResult.SUCCESS;
         }
@@ -138,13 +138,13 @@ public class BlockGasStation extends BlockOrientableHorizontal {
     @Override
     public void setPlacedBy(Level worldIn, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
         if (worldIn.isEmptyBlock(pos.above())) {
-            worldIn.setBlockAndUpdate(pos.above(), ModBlocks.GAS_STATION_TOP.get().defaultBlockState().setValue(ModBlocks.GAS_STATION_TOP.get().FACING, state.getValue(FACING)));
+            worldIn.setBlockAndUpdate(pos.above(), ModBlocks.FUEL_STATION_TOP.get().defaultBlockState().setValue(ModBlocks.FUEL_STATION_TOP.get().FACING, state.getValue(FACING)));
         }
 
         BlockEntity te = worldIn.getBlockEntity(pos);
 
-        if (te instanceof TileEntityGasStation && placer instanceof Player) {
-            TileEntityGasStation station = (TileEntityGasStation) te;
+        if (te instanceof TileEntityFuelStation && placer instanceof Player) {
+            TileEntityFuelStation station = (TileEntityFuelStation) te;
             station.setOwner((Player) placer);
 
             // Prüfe ob die Gasstation in einem Shop-Plot platziert wurde
@@ -156,7 +156,7 @@ public class BlockGasStation extends BlockOrientableHorizontal {
                 station.setTradeAmount(0);
 
                 // Benachrichtige Spieler über Gas Station ID
-                String stationName = GasStationRegistry.getDisplayName(station.getGasStationId());
+                String stationName = FuelStationRegistry.getDisplayName(station.getFuelStationId());
                 placer.sendSystemMessage(net.minecraft.network.chat.Component.literal("═══════════════════════════════")
                     .withStyle(net.minecraft.ChatFormatting.GREEN));
                 placer.sendSystemMessage(net.minecraft.network.chat.Component.literal("⛽ ")
@@ -169,7 +169,7 @@ public class BlockGasStation extends BlockOrientableHorizontal {
                         .withStyle(net.minecraft.ChatFormatting.AQUA)));
                 placer.sendSystemMessage(net.minecraft.network.chat.Component.literal("ID: ")
                     .withStyle(net.minecraft.ChatFormatting.GRAY)
-                    .append(net.minecraft.network.chat.Component.literal(station.getGasStationId().toString())
+                    .append(net.minecraft.network.chat.Component.literal(station.getFuelStationId().toString())
                         .withStyle(net.minecraft.ChatFormatting.DARK_GRAY)));
                 placer.sendSystemMessage(net.minecraft.network.chat.Component.literal("Shop-Plot: ")
                     .withStyle(net.minecraft.ChatFormatting.GRAY)
@@ -193,7 +193,7 @@ public class BlockGasStation extends BlockOrientableHorizontal {
 
         BlockState stateUp = worldIn.getBlockState(pos.above());
         stateUp.getBlock();
-        if (stateUp.getBlock().equals(ModBlocks.GAS_STATION_TOP.get())) {
+        if (stateUp.getBlock().equals(ModBlocks.FUEL_STATION_TOP.get())) {
             worldIn.destroyBlock(pos.above(), false);
         }
 
@@ -203,8 +203,8 @@ public class BlockGasStation extends BlockOrientableHorizontal {
     public static void dropItems(Level worldIn, BlockPos pos) {
         BlockEntity te = worldIn.getBlockEntity(pos);
 
-        if (te instanceof TileEntityGasStation) {
-            TileEntityGasStation station = (TileEntityGasStation) te;
+        if (te instanceof TileEntityFuelStation) {
+            TileEntityFuelStation station = (TileEntityFuelStation) te;
             Containers.dropContents(worldIn, pos, station.getInventory());
             Containers.dropContents(worldIn, pos, station.getTradingInventory());
         }
@@ -213,7 +213,7 @@ public class BlockGasStation extends BlockOrientableHorizontal {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
-        return new TileEntityGasStation(blockPos, blockState);
+        return new TileEntityFuelStation(blockPos, blockState);
     }
 
 }

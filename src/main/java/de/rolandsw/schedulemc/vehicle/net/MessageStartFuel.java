@@ -1,6 +1,6 @@
 package de.rolandsw.schedulemc.vehicle.net;
 
-import de.rolandsw.schedulemc.vehicle.blocks.tileentity.TileEntityGasStation;
+import de.rolandsw.schedulemc.vehicle.blocks.tileentity.TileEntityFuelStation;
 import de.maxhenkel.corelib.net.Message;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
@@ -30,8 +30,8 @@ public class MessageStartFuel implements Message<MessageStartFuel> {
     public void executeServerSide(NetworkEvent.Context context) {
         BlockEntity te = context.getSender().level().getBlockEntity(pos);
 
-        if (te instanceof TileEntityGasStation) {
-            TileEntityGasStation tank = (TileEntityGasStation) te;
+        if (te instanceof TileEntityFuelStation) {
+            TileEntityFuelStation tank = (TileEntityFuelStation) te;
 
             // Wenn STOP gedrückt wird, erstelle sofort die Rechnung
             if (!start && tank.isFueling()) {

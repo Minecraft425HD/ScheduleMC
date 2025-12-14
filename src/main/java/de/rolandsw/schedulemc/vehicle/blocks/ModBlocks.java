@@ -19,8 +19,8 @@ public class ModBlocks {
     private static final DeferredRegister<Block> BLOCK_REGISTER = DeferredRegister.create(ForgeRegistries.BLOCKS, Main.MODID);
     private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_REGISTER = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, Main.MODID);
 
-    public static final RegistryObject<BlockGasStation> GAS_STATION = BLOCK_REGISTER.register("fuel_station", () -> new BlockGasStation());
-    public static final RegistryObject<BlockGasStationTop> GAS_STATION_TOP = BLOCK_REGISTER.register("fuel_station_top", () -> new BlockGasStationTop());
+    public static final RegistryObject<BlockFuelStation> FUEL_STATION = BLOCK_REGISTER.register("fuel_station", () -> new BlockFuelStation());
+    public static final RegistryObject<BlockFuelStationTop> FUEL_STATION_TOP = BLOCK_REGISTER.register("fuel_station_top", () -> new BlockFuelStationTop());
     public static final RegistryObject<BlockGarage> GARAGE = BLOCK_REGISTER.register("garage", () -> new BlockGarage());
     public static final RegistryObject<LiquidBlock> BIO_DIESEL = BLOCK_REGISTER.register("diesel", () -> new VehicleFluidBlock(() -> ModFluids.BIO_DIESEL.get()));
 

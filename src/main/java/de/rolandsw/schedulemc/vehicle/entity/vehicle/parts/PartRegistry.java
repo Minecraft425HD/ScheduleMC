@@ -21,7 +21,7 @@ public class PartRegistry {
     public static final Part LIMOUSINE_CHASSIS = new PartLimousineChassis(new ResourceLocation(Main.MODID, "textures/entity/vehicle_wood_oak.png"), "oak");
     public static final Part VAN_CHASSIS = new PartVanChassis(new ResourceLocation(Main.MODID, "textures/entity/vehicle_big_wood_oak.png"), "oak");
     public static final Part LUXUS_CHASSIS = new PartLuxusChassis(new ResourceLocation(Main.MODID, "textures/entity/vehicle_sport_white.png"), "white");
-    public static final Part LKW_CHASSIS = new PartLkwChassis(new ResourceLocation(Main.MODID, "textures/entity/vehicle_transporter_white.png"), "white");
+    public static final Part TRUCK_CHASSIS = new PartTruckChassis(new ResourceLocation(Main.MODID, "textures/entity/vehicle_transporter_white.png"), "white");
     public static final Part OFFROAD_CHASSIS = new PartOffroadChassis(new ResourceLocation(Main.MODID, "textures/entity/vehicle_suv_white.png"), "white");
 
     // Wheels (Tires)

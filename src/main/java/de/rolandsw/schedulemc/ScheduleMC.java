@@ -183,7 +183,7 @@ public class ScheduleMC {
 
         // Vehicle System - Vehicle Spawn Registry, Gas Station Registry, Fuel Bills
         de.rolandsw.schedulemc.vehicle.vehicle.VehicleSpawnRegistry.load();
-        de.rolandsw.schedulemc.vehicle.fuel.GasStationRegistry.load();
+        de.rolandsw.schedulemc.vehicle.fuel.FuelStationRegistry.load();
         de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager.load();
     }
 
@@ -202,7 +202,7 @@ public class ScheduleMC {
             MessageManager.saveIfNeeded();
             // Vehicle System periodic saves
             de.rolandsw.schedulemc.vehicle.vehicle.VehicleSpawnRegistry.save();
-            de.rolandsw.schedulemc.vehicle.fuel.GasStationRegistry.save();
+            de.rolandsw.schedulemc.vehicle.fuel.FuelStationRegistry.save();
             de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager.save();
         }
     }
@@ -218,7 +218,7 @@ public class ScheduleMC {
         WarehouseManager.save(event.getServer());
         // Vehicle System final saves
         de.rolandsw.schedulemc.vehicle.vehicle.VehicleSpawnRegistry.save();
-        de.rolandsw.schedulemc.vehicle.fuel.GasStationRegistry.save();
+        de.rolandsw.schedulemc.vehicle.fuel.FuelStationRegistry.save();
         de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager.save();
     }
 

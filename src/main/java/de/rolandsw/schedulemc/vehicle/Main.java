@@ -3,7 +3,7 @@ package de.rolandsw.schedulemc.vehicle;
 import com.google.common.collect.ImmutableSet;
 import de.rolandsw.schedulemc.vehicle.blocks.ModBlocks;
 import de.rolandsw.schedulemc.vehicle.blocks.tileentity.*;
-import de.rolandsw.schedulemc.vehicle.blocks.tileentity.render.TileentitySpecialRendererGasStation;
+import de.rolandsw.schedulemc.vehicle.blocks.tileentity.render.TileentitySpecialRendererFuelStation;
 import de.rolandsw.schedulemc.config.ClientConfig;
 import de.rolandsw.schedulemc.config.FuelConfig;
 import de.rolandsw.schedulemc.config.ServerConfig;
@@ -115,7 +115,7 @@ public class Main {
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 4, MessageStartFuel.class);
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 6, MessageSyncTileEntity.class);
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 10, MessageVehicleHorn.class);
-        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 12, MessageGasStationAdminAmount.class);
+        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 12, MessageFuelStationAdminAmount.class);
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 13, MessageCenterVehicle.class);
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 14, MessageCenterVehicleClient.class);
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 15, MessageEditLicensePlate.class);
@@ -134,12 +134,12 @@ public class Main {
     @SubscribeEvent
     @OnlyIn(Dist.CLIENT)
     public void clientSetup(FMLClientSetupEvent event) {
-        BlockEntityRenderers.register(GAS_STATION_TILE_ENTITY_TYPE.get(), TileentitySpecialRendererGasStation::new);
+        BlockEntityRenderers.register(FUEL_STATION_TILE_ENTITY_TYPE.get(), TileentitySpecialRendererFuelStation::new);
 
         ClientRegistry.<ContainerVehicle, GuiVehicle>registerScreen(Main.VEHICLE_CONTAINER_TYPE.get(), GuiVehicle::new);
         ClientRegistry.<ContainerVehicleInventory, GuiVehicleInventory>registerScreen(Main.VEHICLE_INVENTORY_CONTAINER_TYPE.get(), GuiVehicleInventory::new);
-        ClientRegistry.<ContainerGasStation, GuiGasStation>registerScreen(Main.GAS_STATION_CONTAINER_TYPE.get(), GuiGasStation::new);
-        ClientRegistry.<ContainerGasStationAdmin, GuiGasStationAdmin>registerScreen(Main.GAS_STATION_ADMIN_CONTAINER_TYPE.get(), GuiGasStationAdmin::new);
+        ClientRegistry.<ContainerFuelStation, GuiFuelStation>registerScreen(Main.FUEL_STATION_CONTAINER_TYPE.get(), GuiFuelStation::new);
+        ClientRegistry.<ContainerFuelStationAdmin, GuiFuelStationAdmin>registerScreen(Main.FUEL_STATION_ADMIN_CONTAINER_TYPE.get(), GuiFuelStationAdmin::new);
         ClientRegistry.<ContainerLicensePlate, GuiLicensePlate>registerScreen(Main.LICENSE_PLATE_CONTAINER_TYPE.get(), GuiLicensePlate::new);
 
         MinecraftForge.EVENT_BUS.register(new RenderEvents());
@@ -206,11 +206,11 @@ public class Main {
             })
     );
 
-    public static final RegistryObject<MenuType<ContainerGasStation>> GAS_STATION_CONTAINER_TYPE = MENU_TYPE_REGISTER.register("fuel_station", () ->
-            IForgeMenuType.create(new ContainerFactoryTileEntity((ContainerFactoryTileEntity.ContainerCreator<ContainerGasStation, TileEntityGasStation>) ContainerGasStation::new))
+    public static final RegistryObject<MenuType<ContainerFuelStation>> FUEL_STATION_CONTAINER_TYPE = MENU_TYPE_REGISTER.register("fuel_station", () ->
+            IForgeMenuType.create(new ContainerFactoryTileEntity((ContainerFactoryTileEntity.ContainerCreator<ContainerFuelStation, TileEntityFuelStation>) ContainerFuelStation::new))
     );
-    public static final RegistryObject<MenuType<ContainerGasStationAdmin>> GAS_STATION_ADMIN_CONTAINER_TYPE = MENU_TYPE_REGISTER.register("fuel_station_admin", () ->
-            IForgeMenuType.create(new ContainerFactoryTileEntity((ContainerFactoryTileEntity.ContainerCreator<ContainerGasStationAdmin, TileEntityGasStation>) ContainerGasStationAdmin::new))
+    public static final RegistryObject<MenuType<ContainerFuelStationAdmin>> FUEL_STATION_ADMIN_CONTAINER_TYPE = MENU_TYPE_REGISTER.register("fuel_station_admin", () ->
+            IForgeMenuType.create(new ContainerFactoryTileEntity((ContainerFactoryTileEntity.ContainerCreator<ContainerFuelStationAdmin, TileEntityFuelStation>) ContainerFuelStationAdmin::new))
     );
     public static final RegistryObject<MenuType<ContainerGarage>> GARAGE_CONTAINER_TYPE = MENU_TYPE_REGISTER.register("garage", () ->
             IForgeMenuType.create(new ContainerFactoryTileEntity((ContainerFactoryTileEntity.ContainerCreator<ContainerGarage, TileEntityGarage>)
@@ -235,8 +235,8 @@ public class Main {
 
     private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_REGISTER = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, Main.MODID);
 
-    public static final RegistryObject<BlockEntityType<TileEntityGasStation>> GAS_STATION_TILE_ENTITY_TYPE = BLOCK_ENTITY_REGISTER.register("fuel_station", () ->
-            BlockEntityType.Builder.of(TileEntityGasStation::new, ModBlocks.GAS_STATION.get()).build(null)
+    public static final RegistryObject<BlockEntityType<TileEntityFuelStation>> FUEL_STATION_TILE_ENTITY_TYPE = BLOCK_ENTITY_REGISTER.register("fuel_station", () ->
+            BlockEntityType.Builder.of(TileEntityFuelStation::new, ModBlocks.FUEL_STATION.get()).build(null)
     );
 
     private static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZER_REGISTER = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, Main.MODID);

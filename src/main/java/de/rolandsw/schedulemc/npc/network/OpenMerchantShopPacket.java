@@ -1,7 +1,7 @@
 package de.rolandsw.schedulemc.npc.network;
 
 import de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager;
-import de.rolandsw.schedulemc.vehicle.fuel.GasStationRegistry;
+import de.rolandsw.schedulemc.vehicle.fuel.FuelStationRegistry;
 import de.rolandsw.schedulemc.npc.data.MerchantCategory;
 import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.data.NPCType;
@@ -103,8 +103,8 @@ public class OpenMerchantShopPacket {
         List<NPCData.ShopEntry> billEntries = new ArrayList<>();
 
         // Alle Tankstellen durchgehen
-        for (UUID gasStationId : GasStationRegistry.getAllGasStationIds()) {
-            List<FuelBillManager.UnpaidBill> unpaidBills = FuelBillManager.getUnpaidBills(player.getUUID(), gasStationId);
+        for (UUID fuelStationId : FuelStationRegistry.getAllFuelStationIds()) {
+            List<FuelBillManager.UnpaidBill> unpaidBills = FuelBillManager.getUnpaidBills(player.getUUID(), fuelStationId);
 
             if (!unpaidBills.isEmpty()) {
                 // Summiere alle unbezahlten Rechnungen für diese Tankstelle
@@ -117,11 +117,11 @@ public class OpenMerchantShopPacket {
                 }
 
                 // Erstelle Bill-Item
-                String stationName = GasStationRegistry.getDisplayName(gasStationId);
+                String stationName = FuelStationRegistry.getDisplayName(fuelStationId);
                 ItemStack billItem = new ItemStack(Items.PAPER);
                 CompoundTag tag = billItem.getOrCreateTag();
                 tag.putString("BillType", "FuelBill");
-                tag.putUUID("GasStationId", gasStationId);
+                tag.putUUID("FuelStationId", fuelStationId);
                 tag.putInt("TotalFueled", totalFueled);
                 tag.putDouble("TotalCost", totalCost);
 

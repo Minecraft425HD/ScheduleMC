@@ -2,13 +2,13 @@ package de.rolandsw.schedulemc.vehicle.blocks.tileentity;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 
 import de.rolandsw.schedulemc.vehicle.Main;
-import de.rolandsw.schedulemc.vehicle.blocks.BlockGasStation;
-import de.rolandsw.schedulemc.vehicle.blocks.BlockGasStationTop;
+import de.rolandsw.schedulemc.vehicle.blocks.BlockFuelStation;
+import de.rolandsw.schedulemc.vehicle.blocks.BlockFuelStationTop;
 import de.rolandsw.schedulemc.vehicle.blocks.BlockOrientableHorizontal;
 import de.rolandsw.schedulemc.vehicle.blocks.ModBlocks;
 import de.rolandsw.schedulemc.vehicle.fluids.ModFluids;
 import de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager;
-import de.rolandsw.schedulemc.vehicle.fuel.GasStationRegistry;
+import de.rolandsw.schedulemc.vehicle.fuel.FuelStationRegistry;
 import de.rolandsw.schedulemc.vehicle.net.MessageStartFuel;
 import de.rolandsw.schedulemc.vehicle.sounds.ModSounds;
 import de.rolandsw.schedulemc.vehicle.sounds.SoundLoopTileentity;
@@ -45,7 +45,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 
-public class TileEntityGasStation extends TileEntityBase implements ITickableBlockEntity, IFluidHandler, ISoundLoopable {
+public class TileEntityFuelStation extends TileEntityBase implements ITickableBlockEntity, IFluidHandler, ISoundLoopable {
 
     private FluidStack storage;
 
@@ -65,10 +65,10 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
 
     private UUID owner;
 
-    // Gas Station ID for billing
-    private UUID gasStationId;
+    // Fuel Station ID for billing
+    private UUID fuelStationId;
 
-    // Shop Plot ID (wenn die Gasstation in einem Shop-Plot ist)
+    // Shop Plot ID (wenn die Fuelstation in einem Shop-Plot ist)
     private String shopPlotId;
 
     // Tracking for billing
@@ -79,9 +79,9 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
     @Nullable
     private IFluidHandler fluidHandlerInFront;
 
-    public TileEntityGasStation(BlockPos pos, BlockState state) {
-        super(Main.GAS_STATION_TILE_ENTITY_TYPE.get(), pos, state);
-        this.transferRate = ModConfigHandler.VEHICLE_SERVER.gasStationTransferRate.get();
+    public TileEntityFuelStation(BlockPos pos, BlockState state) {
+        super(Main.FUEL_STATION_TILE_ENTITY_TYPE.get(), pos, state);
+        this.transferRate = ModConfigHandler.VEHICLE_SERVER.fuelStationTransferRate.get();
         this.fuelCounter = 0;
         this.inventory = new SimpleContainer(27);
         this.trading = new SimpleContainer(2);
@@ -90,13 +90,13 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
         this.tradeAmount = 1000;
 
         // Registriere Zapfsäule
-        if (this.gasStationId == null) {
-            this.gasStationId = GasStationRegistry.registerGasStation(pos);
+        if (this.fuelStationId == null) {
+            this.fuelStationId = FuelStationRegistry.registerFuelStation(pos);
         }
     }
 
-    public UUID getGasStationId() {
-        return gasStationId;
+    public UUID getFuelStationId() {
+        return fuelStationId;
     }
 
     public String getShopPlotId() {
@@ -158,12 +158,12 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
         BlockState top = level.getBlockState(worldPosition.above());
         BlockState bottom = getBlockState();
         Direction facing = bottom.getValue(BlockOrientableHorizontal.FACING);
-        if (top.getBlock().equals(ModBlocks.GAS_STATION_TOP.get())) {
-            if (!top.getValue(BlockGasStationTop.FACING).equals(facing)) {
-                level.setBlockAndUpdate(worldPosition.above(), ModBlocks.GAS_STATION_TOP.get().defaultBlockState().setValue(BlockGasStationTop.FACING, facing));
+        if (top.getBlock().equals(ModBlocks.FUEL_STATION_TOP.get())) {
+            if (!top.getValue(BlockFuelStationTop.FACING).equals(facing)) {
+                level.setBlockAndUpdate(worldPosition.above(), ModBlocks.FUEL_STATION_TOP.get().defaultBlockState().setValue(BlockFuelStationTop.FACING, facing));
             }
         } else if (level.isEmptyBlock(worldPosition.above())) {
-            level.setBlockAndUpdate(worldPosition.above(), ModBlocks.GAS_STATION_TOP.get().defaultBlockState().setValue(BlockGasStationTop.FACING, facing));
+            level.setBlockAndUpdate(worldPosition.above(), ModBlocks.FUEL_STATION_TOP.get().defaultBlockState().setValue(BlockFuelStationTop.FACING, facing));
         }
 
     }
@@ -204,7 +204,7 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
             int pricePerUnit = getCurrentPrice();
 
             // DEBUG: Log price
-            Main.LOGGER.info("[GasStation] Current price: {}€ per 10mB (tradeAmount: {})", pricePerUnit, tradeAmount);
+            Main.LOGGER.info("[FuelStation] Current price: {}€ per 10mB (tradeAmount: {})", pricePerUnit, tradeAmount);
 
             if (tradeAmount <= 0) {
                 // If no trade amount set, fuel on credit (bill payment system)
@@ -221,15 +221,15 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
                             totalFueledThisSession = 0;
 
                             // Send welcome message with price
-                            String timeOfDay = getCurrentPrice() == ModConfigHandler.VEHICLE_SERVER.gasStationMorningPricePer10mb.get() ? "Tag" : "Nacht";
-                            String stationName = GasStationRegistry.getDisplayName(gasStationId);
+                            String timeOfDay = getCurrentPrice() == ModConfigHandler.VEHICLE_SERVER.fuelStationMorningPricePer10mb.get() ? "Tag" : "Nacht";
+                            String stationName = FuelStationRegistry.getDisplayName(fuelStationId);
                             player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
                             player.sendSystemMessage(Component.literal("⛽ ").withStyle(ChatFormatting.YELLOW)
                                 .append(Component.literal("TANKSTELLE").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)));
                             player.sendSystemMessage(Component.literal("Zapfsäule: ").withStyle(ChatFormatting.GRAY)
                                 .append(Component.literal(stationName).withStyle(ChatFormatting.AQUA)));
                             player.sendSystemMessage(Component.literal("ID: ").withStyle(ChatFormatting.GRAY)
-                                .append(Component.literal(gasStationId.toString().substring(0, 8) + "...").withStyle(ChatFormatting.DARK_GRAY)));
+                                .append(Component.literal(fuelStationId.toString().substring(0, 8) + "...").withStyle(ChatFormatting.DARK_GRAY)));
                             player.sendSystemMessage(Component.literal("Aktueller Preis (").withStyle(ChatFormatting.GRAY)
                                 .append(Component.literal(timeOfDay).withStyle(ChatFormatting.AQUA))
                                 .append(Component.literal("): ").withStyle(ChatFormatting.GRAY))
@@ -239,9 +239,9 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
                             player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
 
                             // DEBUG LOGGING
-                            Main.LOGGER.info("[GasStation] Player {} started fueling at station {} ({})",
-                                player.getName().getString(), stationName, gasStationId);
-                            Main.LOGGER.info("[GasStation] Price: {}€ per 10mB ({})", pricePerUnit, timeOfDay);
+                            Main.LOGGER.info("[FuelStation] Player {} started fueling at station {} ({})",
+                                player.getName().getString(), stationName, fuelStationId);
+                            Main.LOGGER.info("[FuelStation] Price: {}€ per 10mB ({})", pricePerUnit, timeOfDay);
                         }
 
                         // Calculate cost for 10 mB and add to bill (no immediate payment)
@@ -296,16 +296,16 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
      */
     private void sendFuelBillToPlayer(UUID playerUUID, int totalFueled, double totalCost) {
         // DEBUG LOGGING
-        String stationName = GasStationRegistry.getDisplayName(gasStationId);
-        Main.LOGGER.info("[GasStation] Creating bill for player {} at station {} ({})",
-            playerUUID, stationName, gasStationId);
-        Main.LOGGER.info("[GasStation] Bill details: {} mB fueled, total cost: {}€", totalFueled, totalCost);
+        String stationName = FuelStationRegistry.getDisplayName(fuelStationId);
+        Main.LOGGER.info("[FuelStation] Creating bill for player {} at station {} ({})",
+            playerUUID, stationName, fuelStationId);
+        Main.LOGGER.info("[FuelStation] Bill details: {} mB fueled, total cost: {}€", totalFueled, totalCost);
 
         // Erstelle Fuel Bill für spätere Bezahlung am Tankstellen-NPC
-        FuelBillManager.createBill(playerUUID, gasStationId, totalFueled, totalCost);
+        FuelBillManager.createBill(playerUUID, fuelStationId, totalFueled, totalCost);
         FuelBillManager.saveIfNeeded();
 
-        Main.LOGGER.info("[GasStation] Bill created and saved successfully");
+        Main.LOGGER.info("[FuelStation] Bill created and saved successfully");
 
         Player player = level.getPlayerByUUID(playerUUID);
         if (player != null) {
@@ -313,7 +313,7 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
             player.sendSystemMessage(Component.literal("📄 ").withStyle(ChatFormatting.YELLOW)
                 .append(Component.literal("TANKRECHNUNG").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)));
             player.sendSystemMessage(Component.literal("Zapfsäule: ").withStyle(ChatFormatting.GRAY)
-                .append(Component.literal(GasStationRegistry.getDisplayName(gasStationId)).withStyle(ChatFormatting.AQUA)));
+                .append(Component.literal(FuelStationRegistry.getDisplayName(fuelStationId)).withStyle(ChatFormatting.AQUA)));
             player.sendSystemMessage(Component.literal("Getankt: ").withStyle(ChatFormatting.GRAY)
                 .append(Component.literal(totalFueled + " mB").withStyle(ChatFormatting.AQUA))
                 .append(Component.literal(" Bio-Diesel").withStyle(ChatFormatting.GREEN)));
@@ -357,10 +357,10 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
 
         if (dayTime >= 0 && dayTime < 12000) {
             // Morning/Day time
-            return ModConfigHandler.VEHICLE_SERVER.gasStationMorningPricePer10mb.get();
+            return ModConfigHandler.VEHICLE_SERVER.fuelStationMorningPricePer10mb.get();
         } else {
             // Evening/Night time
-            return ModConfigHandler.VEHICLE_SERVER.gasStationEveningPricePer10mb.get();
+            return ModConfigHandler.VEHICLE_SERVER.fuelStationEveningPricePer10mb.get();
         }
     }
 
@@ -372,19 +372,19 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
         List<Entity> entities = level.getEntitiesOfClass(Entity.class, getDetectionBox());
 
         // DEBUG: Log what entities we found
-        Main.LOGGER.info("[GasStation] Searching for player in detection box. Found {} entities", entities.size());
+        Main.LOGGER.info("[FuelStation] Searching for player in detection box. Found {} entities", entities.size());
 
         Entity vehicleWithFluidHandler = null;
 
         for (Entity entity : entities) {
             if (entity.getCapability(ForgeCapabilities.FLUID_HANDLER).isPresent()) {
                 vehicleWithFluidHandler = entity;
-                Main.LOGGER.info("[GasStation] Found vehicle with fluid handler: {}", entity.getClass().getSimpleName());
+                Main.LOGGER.info("[FuelStation] Found vehicle with fluid handler: {}", entity.getClass().getSimpleName());
 
                 // First try to get the controlling passenger
                 if (entity.getControllingPassenger() instanceof Player) {
                     Player player = (Player) entity.getControllingPassenger();
-                    Main.LOGGER.info("[GasStation] Found controlling passenger: {}", player.getName().getString());
+                    Main.LOGGER.info("[FuelStation] Found controlling passenger: {}", player.getName().getString());
                     return player;
                 }
 
@@ -392,7 +392,7 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
                 for (Entity passenger : entity.getPassengers()) {
                     if (passenger instanceof Player) {
                         Player player = (Player) passenger;
-                        Main.LOGGER.info("[GasStation] Found passenger: {}", player.getName().getString());
+                        Main.LOGGER.info("[FuelStation] Found passenger: {}", player.getName().getString());
                         return player;
                     }
                 }
@@ -401,19 +401,19 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
 
         // If no player in vehicle, search for nearby players who might have just exited
         if (vehicleWithFluidHandler != null) {
-            Main.LOGGER.info("[GasStation] No player in vehicle, searching for nearby players...");
+            Main.LOGGER.info("[FuelStation] No player in vehicle, searching for nearby players...");
             List<Player> nearbyPlayers = level.getEntitiesOfClass(Player.class,
                 getDetectionBox().inflate(3.0D), // 3 block radius around detection box
                 p -> !p.isSpectator());
 
             if (!nearbyPlayers.isEmpty()) {
                 Player nearestPlayer = nearbyPlayers.get(0);
-                Main.LOGGER.info("[GasStation] Found nearby player: {}", nearestPlayer.getName().getString());
+                Main.LOGGER.info("[FuelStation] Found nearby player: {}", nearestPlayer.getName().getString());
                 return nearestPlayer;
             }
         }
 
-        Main.LOGGER.info("[GasStation] No player found for fueling!");
+        Main.LOGGER.info("[FuelStation] No player found for fueling!");
         return null;
     }
 
@@ -465,7 +465,7 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
     }
 
     public boolean isValidFluid(Fluid f) {
-        return ModConfigHandler.VEHICLE_SERVER.gasStationValidFuelList.stream().anyMatch(fluidTag -> fluidTag.contains(f));
+        return ModConfigHandler.VEHICLE_SERVER.fuelStationValidFuelList.stream().anyMatch(fluidTag -> fluidTag.contains(f));
     }
 
     public void setOwner(UUID owner) {
@@ -518,8 +518,8 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
 
         compound.putUUID("owner", owner);
 
-        if (gasStationId != null) {
-            compound.putUUID("gas_station_id", gasStationId);
+        if (fuelStationId != null) {
+            compound.putUUID("fuel_station_id", fuelStationId);
         }
 
         if (shopPlotId != null && !shopPlotId.isEmpty()) {
@@ -542,11 +542,11 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
         tradeAmount = compound.getInt("trade_amount");
         freeAmountLeft = compound.getInt("free_amount");
 
-        if (compound.contains("gas_station_id")) {
-            gasStationId = compound.getUUID("gas_station_id");
+        if (compound.contains("fuel_station_id")) {
+            fuelStationId = compound.getUUID("fuel_station_id");
         } else {
             // Fallback: Registriere falls noch nicht vorhanden
-            gasStationId = GasStationRegistry.registerGasStation(worldPosition);
+            fuelStationId = FuelStationRegistry.registerFuelStation(worldPosition);
         }
 
         if (compound.contains("shop_plot_id")) {
@@ -601,11 +601,11 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
 
     public String getRenderText() {
         if (fluidHandlerInFront == null) {
-            return Component.translatable("gas_station.no_vehicle").getString();
+            return Component.translatable("fuel_station.no_vehicle").getString();
         } else if (fuelCounter <= 0) {
-            return Component.translatable("gas_station.ready").getString();
+            return Component.translatable("fuel_station.ready").getString();
         } else {
-            return Component.translatable("gas_station.fuel_amount", fuelCounter).getString();
+            return Component.translatable("fuel_station.fuel_amount", fuelCounter).getString();
         }
     }
 
@@ -635,10 +635,10 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
     private AABB createDetectionBox() {
         BlockState ownState = level.getBlockState(worldPosition);
 
-        if (!ownState.getBlock().equals(ModBlocks.GAS_STATION.get())) {
+        if (!ownState.getBlock().equals(ModBlocks.FUEL_STATION.get())) {
             return null;
         }
-        Direction facing = ownState.getValue(BlockGasStation.FACING);
+        Direction facing = ownState.getValue(BlockFuelStation.FACING);
         BlockPos start = worldPosition.relative(facing);
         return new AABB(start.getX(), start.getY(), start.getZ(), start.getX() + 1D, start.getY() + 2.5D, start.getZ() + 1D)
                 .expandTowards(facing.getStepX(), 0D, facing.getStepZ())
@@ -658,7 +658,7 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
     }
 
     public Direction getDirection() {
-        return getBlockState().getValue(BlockGasStation.FACING);
+        return getBlockState().getValue(BlockFuelStation.FACING);
     }
 
     public void sendStartFuelPacket(boolean start) {
@@ -678,7 +678,7 @@ public class TileEntityGasStation extends TileEntityBase implements ITickableBlo
 
     @OnlyIn(Dist.CLIENT)
     public void playSound() {
-        ModSounds.playSoundLoop(new SoundLoopTileentity(ModSounds.GAS_STATION.get(), SoundSource.BLOCKS, this), level);
+        ModSounds.playSoundLoop(new SoundLoopTileentity(ModSounds.FUEL_STATION.get(), SoundSource.BLOCKS, this), level);
     }
 
     @Override

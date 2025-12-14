@@ -24,7 +24,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nullable;
 
-public class BlockGasStationTop extends BlockBase {
+public class BlockFuelStationTop extends BlockBase {
 
     public static VoxelShape SHAPE_NORTH_SOUTH = Block.box(2D, -16D, 5D, 14D, 15D, 11D);
     public static VoxelShape SHAPE_NEAST_WEST = Block.box(5D, -16D, 2D, 11D, 15D, 14D);
@@ -50,14 +50,14 @@ public class BlockGasStationTop extends BlockBase {
 
     public static final DirectionProperty FACING = DirectionProperty.create("facing", Direction.Plane.HORIZONTAL);
 
-    public BlockGasStationTop() {
+    public BlockFuelStationTop() {
         super(Properties.of().mapColor(MapColor.METAL).strength(4F).sound(SoundType.METAL).pushReaction(PushReaction.BLOCK));
         registerDefaultState(stateDefinition.any().setValue(FACING, Direction.NORTH));
     }
 
     @Override
     public InteractionResult use(BlockState state, Level worldIn, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult hit) {
-        return ModBlocks.GAS_STATION.get().use(worldIn.getBlockState(pos.below()), worldIn, pos.below(), player, handIn, hit);
+        return ModBlocks.FUEL_STATION.get().use(worldIn.getBlockState(pos.below()), worldIn, pos.below(), player, handIn, hit);
     }
 
     @Override
@@ -97,7 +97,7 @@ public class BlockGasStationTop extends BlockBase {
             super.onRemove(state, worldIn, pos, newState, isMoving);
 
             BlockState stateDown = worldIn.getBlockState(pos.below());
-            if (stateDown.getBlock().equals(ModBlocks.GAS_STATION.get())) {
+            if (stateDown.getBlock().equals(ModBlocks.FUEL_STATION.get())) {
                 worldIn.destroyBlock(pos.below(), false);
             }
         }
@@ -108,8 +108,8 @@ public class BlockGasStationTop extends BlockBase {
     public boolean onDestroyedByPlayer(BlockState state, Level world, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
         BlockState stateDown = world.getBlockState(pos.below());
         stateDown.getBlock();
-        if (stateDown.getBlock().equals(ModBlocks.GAS_STATION.get()) && !player.getAbilities().instabuild) {
-            ModBlocks.GAS_STATION.get().playerDestroy(world, player, pos.below(), world.getBlockState(pos.below()), world.getBlockEntity(pos.below()), player.getMainHandItem());
+        if (stateDown.getBlock().equals(ModBlocks.FUEL_STATION.get()) && !player.getAbilities().instabuild) {
+            ModBlocks.FUEL_STATION.get().playerDestroy(world, player, pos.below(), world.getBlockState(pos.below()), world.getBlockEntity(pos.below()), player.getMainHandItem());
         }
         return super.onDestroyedByPlayer(state, world, pos, player, willHarvest, fluid);
     }
@@ -118,8 +118,8 @@ public class BlockGasStationTop extends BlockBase {
     public ItemStack getCloneItemStack(BlockState state, HitResult target, BlockGetter world, BlockPos pos, Player player) {
         BlockState stateDown = world.getBlockState(pos.below());
         stateDown.getBlock();
-        if (stateDown.getBlock().equals(ModBlocks.GAS_STATION.get())) {
-            return ModBlocks.GAS_STATION.get().getCloneItemStack(stateDown, target, world, pos.below(), player);
+        if (stateDown.getBlock().equals(ModBlocks.FUEL_STATION.get())) {
+            return ModBlocks.FUEL_STATION.get().getCloneItemStack(stateDown, target, world, pos.below(), player);
         }
         return super.getCloneItemStack(state, target, world, pos, player);
     }

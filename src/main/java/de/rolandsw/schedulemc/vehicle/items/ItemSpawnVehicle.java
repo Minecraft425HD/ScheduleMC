@@ -51,8 +51,8 @@ public class ItemSpawnVehicle extends Item {
             parts.set(0, new ItemStack(ModItems.LIMOUSINE_CHASSIS.get()));
         } else if (bodyPart == PartRegistry.VAN_CHASSIS) {
             parts.set(0, new ItemStack(ModItems.VAN_CHASSIS.get()));
-        } else if (bodyPart == PartRegistry.LKW_CHASSIS) {
-            parts.set(0, new ItemStack(ModItems.LKW_CHASSIS.get()));
+        } else if (bodyPart == PartRegistry.TRUCK_CHASSIS) {
+            parts.set(0, new ItemStack(ModItems.TRUCK_CHASSIS.get()));
         } else if (bodyPart == PartRegistry.OFFROAD_CHASSIS) {
             parts.set(0, new ItemStack(ModItems.OFFROAD_CHASSIS.get()));
         } else if (bodyPart == PartRegistry.LUXUS_CHASSIS) {
@@ -69,8 +69,8 @@ public class ItemSpawnVehicle extends Item {
             parts.add(new ItemStack(ModItems.OFFROAD_TIRE.get()));
             parts.add(new ItemStack(ModItems.OFFROAD_TIRE.get()));
             parts.add(new ItemStack(ModItems.OFFROAD_TIRE.get()));
-        } else if (bodyPart == PartRegistry.LKW_CHASSIS) {
-            // LKW chassis needs 6 standard tires
+        } else if (bodyPart == PartRegistry.TRUCK_CHASSIS) {
+            // Truck chassis needs 6 standard tires
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
