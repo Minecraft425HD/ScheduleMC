@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "schedulemc:block/big_drying_rack"
+  }
+}
