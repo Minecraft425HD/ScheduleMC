@@ -64,7 +64,7 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
         this.vehicleRenderer = new VehicleUtils.VehicleRenderer(2.0F); // Slow rotation
 
         imageWidth = 256;
-        imageHeight = 200; // Reduced height since no inventory
+        imageHeight = 215; // Etwas höher für besseren Platz
     }
 
     @Override
@@ -110,7 +110,7 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
 
     private void initRepairCheckboxes() {
         int checkX = leftPos + 140;
-        int checkY = topPos + 105; // Verschoben nach unten für mehr Platz
+        int checkY = topPos + 110; // Angepasst an renderRepairTab
         int lineHeight = 22; // Mehr Abstand zwischen Zeilen
         int checkboxWidth = 12;
         int checkboxHeight = 12;
@@ -168,10 +168,10 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
 
     private void initUpgradeButtons() {
         int btnX = leftPos + 140;
-        int btnY = topPos + 55;
+        int btnY = topPos + 71; // Nach dem Text für Motor (55 + 8 + 8 = 71)
         int btnWidth = 100;
         int btnHeight = 18;
-        int lineHeight = 32; // Mehr Platz zwischen Buttons
+        int lineHeight = 40; // Entspricht dem Abstand im renderUpgradeTab
 
         upgradeEngineButton = addRenderableWidget(Button.builder(
             Component.literal("Motor: 250€"),
@@ -350,11 +350,11 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
 
         int barY = startY + 10;
         renderPartStatusBar(guiGraphics, rightX, barY, "Motor", 100 - getDamagePercent(), mouseX, mouseY);
-        renderPartStatusBar(guiGraphics, rightX, barY + 16, "Reifen", 85.0f, mouseX, mouseY);
-        renderPartStatusBar(guiGraphics, rightX, barY + 32, "Karosserie", 100 - getDamagePercent() * 0.5f, mouseX, mouseY);
+        renderPartStatusBar(guiGraphics, rightX, barY + 14, "Reifen", 85.0f, mouseX, mouseY);
+        renderPartStatusBar(guiGraphics, rightX, barY + 28, "Karosserie", 100 - getDamagePercent() * 0.5f, mouseX, mouseY);
 
         // Repair options with checkboxes (already rendered by widgets)
-        int checkY = 105;
+        int checkY = 110;
         guiGraphics.drawString(font, "=== SERVICES ===", rightX, checkY - 8, fontColor, false);
 
         // Show labels and prices next to checkboxes
@@ -391,25 +391,22 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
 
         guiGraphics.drawString(font, "=== UPGRADES ===", rightX, startY, fontColor, false);
 
-        // Show comparison stats for upgrades
+        // Motor Upgrade - Text über Button
         int upgradeY = 55;
-        guiGraphics.drawString(font, "Motor Upgrade:", rightX, upgradeY, partColor, false);
-        guiGraphics.drawString(font, "120 -> 150 km/h", rightX + 2, upgradeY + 10, fontColor, false);
-        guiGraphics.drawString(font, "+25% Leistung", rightX + 2, upgradeY + 18, 0x00FF00, false);
+        guiGraphics.drawString(font, "120 -> 150 km/h", rightX + 2, upgradeY, fontColor, false);
+        guiGraphics.drawString(font, "+25% Leistung", rightX + 2, upgradeY + 8, 0x00FF00, false);
 
-        upgradeY += 32;
-        guiGraphics.drawString(font, "Reifen Upgrade:", rightX, upgradeY, partColor, false);
-        guiGraphics.drawString(font, "Handling +30%", rightX + 2, upgradeY + 10, fontColor, false);
-        guiGraphics.drawString(font, "Grip +20%", rightX + 2, upgradeY + 18, 0x00FF00, false);
+        // Reifen Upgrade - Text über Button
+        upgradeY += 40;
+        guiGraphics.drawString(font, "Handling +30%", rightX + 2, upgradeY, fontColor, false);
+        guiGraphics.drawString(font, "Grip +20%", rightX + 2, upgradeY + 8, 0x00FF00, false);
 
-        upgradeY += 32;
-        guiGraphics.drawString(font, "Lackierung:", rightX, upgradeY, partColor, false);
-
-        // Show current color preview
+        // Lackierung - Text über Button
+        upgradeY += 40;
         int colorX = rightX + 2;
-        int colorY = upgradeY + 10;
+        int colorY = upgradeY;
         guiGraphics.fill(colorX, colorY, colorX + 40, colorY + 8, 0xFF000000 | selectedColor);
-        guiGraphics.drawString(font, "Farbe", rightX + 45, upgradeY + 10, fontColor, false);
+        guiGraphics.drawString(font, "Farbe", rightX + 45, upgradeY, fontColor, false);
     }
 
     private void renderPartStatusBar(GuiGraphics guiGraphics, int x, int y, String partName, float percent, int mouseX, int mouseY) {
