@@ -129,6 +129,14 @@ public class ModConfigHandler {
         public final ForgeConfigSpec.IntValue WAREHOUSE_DELIVERY_INTERVAL_DAYS;
         public final ForgeConfigSpec.IntValue WAREHOUSE_DEFAULT_DELIVERY_PRICE;
 
+        // ═══════════════════════════════════════════════════════════
+        // GARAGE SYSTEM
+        // ═══════════════════════════════════════════════════════════
+        public final ForgeConfigSpec.DoubleValue GARAGE_BASE_INSPECTION_FEE;
+        public final ForgeConfigSpec.DoubleValue GARAGE_REPAIR_COST_PER_PERCENT;
+        public final ForgeConfigSpec.DoubleValue GARAGE_BATTERY_COST_PER_PERCENT;
+        public final ForgeConfigSpec.DoubleValue GARAGE_OIL_CHANGE_COST;
+
         public Common(ForgeConfigSpec.Builder builder) {
             
             builder.comment("ScheduleMC 3.0 - Economy Settings")
@@ -421,6 +429,27 @@ public class ModConfigHandler {
             WAREHOUSE_DEFAULT_DELIVERY_PRICE = builder
                     .comment("Standard-Lieferpreis für Items ohne spezifischen Preis")
                     .defineInRange("default_delivery_price", 5, 1, 10000);
+
+            builder.pop();
+
+            builder.comment("Garage System Settings")
+                    .push("garage");
+
+            GARAGE_BASE_INSPECTION_FEE = builder
+                    .comment("Basis-Inspektionsgebühr in Euro (wird immer berechnet)")
+                    .defineInRange("base_inspection_fee", 25.0, 0.0, 1000.0);
+
+            GARAGE_REPAIR_COST_PER_PERCENT = builder
+                    .comment("Reparaturkosten pro Prozent Schaden in Euro")
+                    .defineInRange("repair_cost_per_percent", 2.0, 0.1, 100.0);
+
+            GARAGE_BATTERY_COST_PER_PERCENT = builder
+                    .comment("Batterieladungskosten pro Prozent in Euro")
+                    .defineInRange("battery_cost_per_percent", 0.5, 0.1, 50.0);
+
+            GARAGE_OIL_CHANGE_COST = builder
+                    .comment("Ölwechsel-Kosten in Euro")
+                    .defineInRange("oil_change_cost", 15.0, 1.0, 500.0);
 
             builder.pop();
         }

@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.vehicle.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.vehicle.Main;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.Part;
@@ -59,7 +60,7 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
         super(GARAGE_GUI_TEXTURE, containerGarage, playerInv, title);
         this.playerInv = playerInv;
         this.vehicle = containerGarage.getVehicle();
-        this.vehicleRenderer = new VehicleUtils.VehicleRenderer(2.0F); // Slow rotation
+        this.vehicleRenderer = new VehicleUtils.VehicleRenderer(1.0F); // Slower rotation (50% speed)
 
         imageWidth = 290; // Breiter für besseren Platz
         imageHeight = 250; // Höher für mehr Platz zwischen Elementen
@@ -339,7 +340,7 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
         int barY = startY + 12;
         int barSpacing = 16; // Mehr Abstand zwischen Balken
         renderPartStatusBar(guiGraphics, rightX, barY, "Motor", 100 - getDamagePercent(), mouseX, mouseY);
-        renderPartStatusBar(guiGraphics, rightX, barY + barSpacing, "Reifen", 85.0f, mouseX, mouseY);
+        renderPartStatusBar(guiGraphics, rightX, barY + barSpacing, "Reifen", 100.0f, mouseX, mouseY);
         renderPartStatusBar(guiGraphics, rightX, barY + barSpacing * 2, "Karosserie", 100 - getDamagePercent() * 0.5f, mouseX, mouseY);
 
         // Repair options with checkboxes (already rendered by widgets)
@@ -354,18 +355,20 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
         // Reparatur
         guiGraphics.drawString(font, "Reparatur", labelX, checkY, partColor, false);
         if (getDamagePercent() > 0) {
-            guiGraphics.drawString(font, String.format("%.2f€", getDamagePercent() * 2.0), priceX, checkY, costColor, false);
+            double repairCost = getDamagePercent() * ModConfigHandler.COMMON.GARAGE_REPAIR_COST_PER_PERCENT.get();
+            guiGraphics.drawString(font, String.format("%.2f€", repairCost), priceX, checkY, costColor, false);
         }
 
         // Batterie
         guiGraphics.drawString(font, "Batterie", labelX, checkY + lineSpacing, partColor, false);
         if (getBatteryPercent() < 50) {
-            guiGraphics.drawString(font, String.format("%.2f€", (50 - getBatteryPercent()) * 0.5), priceX, checkY + lineSpacing, costColor, false);
+            double batteryCost = (50 - getBatteryPercent()) * ModConfigHandler.COMMON.GARAGE_BATTERY_COST_PER_PERCENT.get();
+            guiGraphics.drawString(font, String.format("%.2f€", batteryCost), priceX, checkY + lineSpacing, costColor, false);
         }
 
         // Ölwechsel
         guiGraphics.drawString(font, "Ölwechsel", labelX, checkY + lineSpacing * 2, partColor, false);
-        guiGraphics.drawString(font, "15.00€", priceX, checkY + lineSpacing * 2, costColor, false);
+        guiGraphics.drawString(font, String.format("%.2f€", ModConfigHandler.COMMON.GARAGE_OIL_CHANGE_COST.get()), priceX, checkY + lineSpacing * 2, costColor, false);
     }
 
     private void renderUpgradeTab(GuiGraphics guiGraphics, int mouseX, int mouseY) {
@@ -447,25 +450,26 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
     private double calculateSelectedCost() {
         if (vehicle == null) return 0.0;
 
-        double cost = 0.0;
+        // Base inspection fee (always charged)
+        double cost = ModConfigHandler.COMMON.GARAGE_BASE_INSPECTION_FEE.get();
 
         // Add costs only for selected checkboxes
         if (repairDamageSelected) {
             float damage = getDamagePercent();
             if (damage > 0) {
-                cost += damage * 2.0;
+                cost += damage * ModConfigHandler.COMMON.GARAGE_REPAIR_COST_PER_PERCENT.get();
             }
         }
 
         if (chargeBatterySelected) {
             float batteryPercent = getBatteryPercent();
             if (batteryPercent < 50) {
-                cost += (50 - batteryPercent) * 0.5;
+                cost += (50 - batteryPercent) * ModConfigHandler.COMMON.GARAGE_BATTERY_COST_PER_PERCENT.get();
             }
         }
 
         if (changeOilSelected) {
-            cost += 15.0;
+            cost += ModConfigHandler.COMMON.GARAGE_OIL_CHANGE_COST.get();
         }
 
         return cost;

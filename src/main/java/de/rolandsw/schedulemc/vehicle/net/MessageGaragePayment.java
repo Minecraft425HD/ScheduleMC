@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.vehicle.net;
 
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import de.maxhenkel.corelib.net.Message;
@@ -108,13 +109,14 @@ public class MessageGaragePayment implements Message<MessageGaragePayment> {
     }
 
     private double calculateServiceCost(EntityGenericVehicle vehicle, boolean repairDamage, boolean chargeBattery, boolean changeOil) {
-        double cost = 0.0;
+        // Base inspection fee (always charged)
+        double cost = ModConfigHandler.COMMON.GARAGE_BASE_INSPECTION_FEE.get();
 
         // Repair cost based on damage
         if (repairDamage) {
             float damage = vehicle.getDamageComponent().getDamage();
             if (damage > 0) {
-                cost += damage * 2.0; // 2€ per damage point
+                cost += damage * ModConfigHandler.COMMON.GARAGE_REPAIR_COST_PER_PERCENT.get();
             }
         }
 
@@ -122,13 +124,13 @@ public class MessageGaragePayment implements Message<MessageGaragePayment> {
         if (chargeBattery) {
             float batteryPercent = vehicle.getBatteryComponent().getBatteryPercentage() * 100F;
             if (batteryPercent < 50) {
-                cost += (50 - batteryPercent) * 0.5; // 0.5€ per percent to charge
+                cost += (50 - batteryPercent) * ModConfigHandler.COMMON.GARAGE_BATTERY_COST_PER_PERCENT.get();
             }
         }
 
         // Oil change cost
         if (changeOil) {
-            cost += 15.0;
+            cost += ModConfigHandler.COMMON.GARAGE_OIL_CHANGE_COST.get();
         }
 
         return cost;
