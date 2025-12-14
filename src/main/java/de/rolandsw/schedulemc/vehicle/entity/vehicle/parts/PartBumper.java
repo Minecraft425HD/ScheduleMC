@@ -19,7 +19,7 @@ public class PartBumper extends PartModel {
 
     @Override
     public List<OBJModelInstance<EntityGenericVehicle>> getInstances(EntityGenericVehicle vehicle) {
-        PartBodyWoodBase chassis = vehicle.getPartByClass(PartBodyWoodBase.class);
+        PartChassisBase chassis = vehicle.getPartByClass(PartChassisBase.class);
 
         if (chassis == null) {
             return super.getInstances(vehicle);
@@ -34,7 +34,7 @@ public class PartBumper extends PartModel {
     @Override
     public boolean validate(List<Part> parts, List<Component> messages) {
 
-        if (Part.getAmount(parts, part -> part instanceof PartBodyWoodBase) != 1) {
+        if (Part.getAmount(parts, part -> part instanceof PartChassisBase) != 1) {
             messages.add(Component.translatable("message.parts.no_body_for_bumper"));
             return false;
         }

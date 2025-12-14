@@ -20,7 +20,7 @@ import de.maxhenkel.corelib.ClientRegistry;
 import de.maxhenkel.corelib.CommonRegistry;
 import de.maxhenkel.corelib.config.DynamicConfig;
 import de.maxhenkel.corelib.dataserializers.DataSerializerItemList;
-import de.maxhenkel.tools.EntityTools;
+import de.rolandsw.schedulemc.vehicle.util.VehicleUtils;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
@@ -189,7 +189,7 @@ public class Main {
 
     public static final RegistryObject<MenuType<ContainerVehicle>> VEHICLE_CONTAINER_TYPE = MENU_TYPE_REGISTER.register("vehicle", () ->
             IForgeMenuType.create((IContainerFactory<ContainerVehicle>) (windowId, inv, data) -> {
-                EntityGenericVehicle vehicle = EntityTools.getVehicleByUUID(inv.player, data.readUUID());
+                EntityGenericVehicle vehicle = VehicleUtils.getVehicleByUUID(inv.player, data.readUUID());
                 if (vehicle == null) {
                     return null;
                 }
@@ -198,7 +198,7 @@ public class Main {
     );
     public static final RegistryObject<MenuType<ContainerVehicleInventory>> VEHICLE_INVENTORY_CONTAINER_TYPE = MENU_TYPE_REGISTER.register("vehicle_inventory", () ->
             IForgeMenuType.create((IContainerFactory<ContainerVehicleInventory>) (windowId, inv, data) -> {
-                EntityGenericVehicle vehicle = EntityTools.getVehicleByUUID(inv.player, data.readUUID());
+                EntityGenericVehicle vehicle = VehicleUtils.getVehicleByUUID(inv.player, data.readUUID());
                 if (vehicle == null) {
                     return null;
                 }
@@ -206,11 +206,15 @@ public class Main {
             })
     );
 
-    public static final RegistryObject<MenuType<ContainerGasStation>> GAS_STATION_CONTAINER_TYPE = MENU_TYPE_REGISTER.register("gas_station", () ->
+    public static final RegistryObject<MenuType<ContainerGasStation>> GAS_STATION_CONTAINER_TYPE = MENU_TYPE_REGISTER.register("fuel_station", () ->
             IForgeMenuType.create(new ContainerFactoryTileEntity((ContainerFactoryTileEntity.ContainerCreator<ContainerGasStation, TileEntityGasStation>) ContainerGasStation::new))
     );
-    public static final RegistryObject<MenuType<ContainerGasStationAdmin>> GAS_STATION_ADMIN_CONTAINER_TYPE = MENU_TYPE_REGISTER.register("gas_station_admin", () ->
+    public static final RegistryObject<MenuType<ContainerGasStationAdmin>> GAS_STATION_ADMIN_CONTAINER_TYPE = MENU_TYPE_REGISTER.register("fuel_station_admin", () ->
             IForgeMenuType.create(new ContainerFactoryTileEntity((ContainerFactoryTileEntity.ContainerCreator<ContainerGasStationAdmin, TileEntityGasStation>) ContainerGasStationAdmin::new))
+    );
+    public static final RegistryObject<MenuType<ContainerGarage>> GARAGE_CONTAINER_TYPE = MENU_TYPE_REGISTER.register("garage", () ->
+            IForgeMenuType.create(new ContainerFactoryTileEntity((ContainerFactoryTileEntity.ContainerCreator<ContainerGarage, TileEntityGarage>)
+                    (windowId, garage, playerInventory) -> new ContainerGarage(windowId, garage.getTrackedVehicle(), garage, playerInventory)))
     );
     public static final RegistryObject<MenuType<ContainerLicensePlate>> LICENSE_PLATE_CONTAINER_TYPE = MENU_TYPE_REGISTER.register("license_plate", () ->
             IForgeMenuType.create((windowId, inv, data) -> {
@@ -231,7 +235,7 @@ public class Main {
 
     private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_REGISTER = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, Main.MODID);
 
-    public static final RegistryObject<BlockEntityType<TileEntityGasStation>> GAS_STATION_TILE_ENTITY_TYPE = BLOCK_ENTITY_REGISTER.register("gas_station", () ->
+    public static final RegistryObject<BlockEntityType<TileEntityGasStation>> GAS_STATION_TILE_ENTITY_TYPE = BLOCK_ENTITY_REGISTER.register("fuel_station", () ->
             BlockEntityType.Builder.of(TileEntityGasStation::new, ModBlocks.GAS_STATION.get()).build(null)
     );
 

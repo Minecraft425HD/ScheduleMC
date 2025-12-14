@@ -61,6 +61,11 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     private UUID vehicleUUID;
     private BlockPos homeSpawnPoint;
 
+    // Garage locking system
+    private boolean isLockedInGarage;
+    @Nullable
+    private BlockPos garagePosition;
+
     private boolean isInitialized;
     private boolean isSpawned = true;
 
@@ -302,7 +307,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     private void checkInitializing() {
         PartBody body = getPartByClass(PartBody.class);
 
-        if (body instanceof PartBodyTransporter) {
+        if (body instanceof PartLkwChassis) {
             PartContainer container = getPartByClass(PartContainer.class);
             if (container != null) {
                 inventoryComponent.setExternalInventorySize(54);
@@ -311,7 +316,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
             }
         }
 
-        PartWheelBase partWheels = getPartByClass(PartWheelBase.class);
+        PartTireBase partWheels = getPartByClass(PartTireBase.class);
         if (partWheels != null) {
             setMaxUpStep(partWheels.getStepHeight());
         }
@@ -356,8 +361,8 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         getVehicleParts().stream()
             .filter(part -> part instanceof PartModel)
             .filter(part -> {
-                // Nur erste PartWheelBase hinzufügen (Duplikate überspringen)
-                if (part instanceof PartWheelBase) {
+                // Nur erste PartTireBase hinzufügen (Duplikate überspringen)
+                if (part instanceof PartTireBase) {
                     if (addedWheels[0]) {
                         return false;
                     }
@@ -379,8 +384,8 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
             .map(PhysicsComponent::getSpeed)
             .orElse(0F);
 
-        return Optional.ofNullable(getPartByClass(PartWheelBase.class))
-            .map(PartWheelBase::getRotationModifier)
+        return Optional.ofNullable(getPartByClass(PartTireBase.class))
+            .map(PartTireBase::getRotationModifier)
             .orElse(120F) * speed;
     }
 
@@ -464,7 +469,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
             .map(physics -> {
                 float speed = Math.abs(physics.getSpeed()) / getMaxSpeed();
                 PartEngine engine = getPartByClass(PartEngine.class);
-                return engine instanceof PartEngineTruck ? 1F + 0.35F * speed : speed;
+                return engine instanceof PartIndustrialMotor ? 1F + 0.35F * speed : speed;
             })
             .orElse(0F);
     }
@@ -559,6 +564,32 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
             .orElseGet(() -> ModSounds.VEHICLE_HORN.get());
     }
 
+    // Garage locking system methods
+    public void lockInGarage(BlockPos garagePos) {
+        this.isLockedInGarage = true;
+        this.garagePosition = garagePos;
+        // Stop all movement
+        this.setDeltaMovement(Vec3.ZERO);
+    }
+
+    public void unlockFromGarage() {
+        this.isLockedInGarage = false;
+        this.garagePosition = null;
+    }
+
+    public boolean isLockedInGarage() {
+        return isLockedInGarage;
+    }
+
+    @Nullable
+    public BlockPos getGaragePosition() {
+        return garagePosition;
+    }
+
+    public boolean canMove() {
+        return !isLockedInGarage;
+    }
+
     @Override
     protected Component getTypeName() {
         PartBody body = getPartByClass(PartBody.class);
@@ -612,6 +643,17 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
             this.homeSpawnPoint = new BlockPos(x, y, z);
         }
 
+        // Load garage locking data
+        if (compound.contains("IsLockedInGarage")) {
+            this.isLockedInGarage = compound.getBoolean("IsLockedInGarage");
+        }
+        if (compound.contains("GarageX")) {
+            int x = compound.getInt("GarageX");
+            int y = compound.getInt("GarageY");
+            int z = compound.getInt("GarageZ");
+            this.garagePosition = new BlockPos(x, y, z);
+        }
+
         // Initialize default items if this is a new vehicle
         if (compound.getAllKeys().stream().allMatch(s -> s.equals("id"))) {
             Container internal = inventoryComponent.getInternalInventory();
@@ -647,6 +689,14 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
             compound.putInt("HomeSpawnX", this.homeSpawnPoint.getX());
             compound.putInt("HomeSpawnY", this.homeSpawnPoint.getY());
             compound.putInt("HomeSpawnZ", this.homeSpawnPoint.getZ());
+        }
+
+        // Save garage locking data
+        compound.putBoolean("IsLockedInGarage", this.isLockedInGarage);
+        if (this.garagePosition != null) {
+            compound.putInt("GarageX", this.garagePosition.getX());
+            compound.putInt("GarageY", this.garagePosition.getY());
+            compound.putInt("GarageZ", this.garagePosition.getZ());
         }
 
         // Save all component data

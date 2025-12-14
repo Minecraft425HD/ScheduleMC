@@ -123,50 +123,50 @@ public class VehiclePurchaseHandler {
 
         // Bestimme Body basierend auf dem SPAWN_VEHICLE Item
         if (spawnVehicleItem == ModItems.SPAWN_VEHICLE_OAK.get()) {
-            parts.add(new ItemStack(ModItems.OAK_BODY.get()));
-            parts.add(new ItemStack(ModItems.ENGINE_3_CYLINDER.get()));
-            parts.add(new ItemStack(ModItems.WHEEL.get()));
-            parts.add(new ItemStack(ModItems.WHEEL.get()));
-            parts.add(new ItemStack(ModItems.WHEEL.get()));
-            parts.add(new ItemStack(ModItems.WHEEL.get()));
+            parts.add(new ItemStack(ModItems.LIMOUSINE_CHASSIS.get()));
+            parts.add(new ItemStack(ModItems.NORMAL_MOTOR.get()));
+            parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
+            parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
+            parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
+            parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
         } else if (spawnVehicleItem == ModItems.SPAWN_VEHICLE_BIG_OAK.get()) {
-            parts.add(new ItemStack(ModItems.BIG_OAK_BODY.get()));
-            parts.add(new ItemStack(ModItems.ENGINE_3_CYLINDER.get()));
-            parts.add(new ItemStack(ModItems.WHEEL.get()));
-            parts.add(new ItemStack(ModItems.WHEEL.get()));
-            parts.add(new ItemStack(ModItems.WHEEL.get()));
-            parts.add(new ItemStack(ModItems.WHEEL.get()));
+            parts.add(new ItemStack(ModItems.VAN_CHASSIS.get()));
+            parts.add(new ItemStack(ModItems.NORMAL_MOTOR.get()));
+            parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
+            parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
+            parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
+            parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
         } else if (spawnVehicleItem == ModItems.SPAWN_VEHICLE_WHITE_TRANSPORTER.get()) {
-            parts.add(new ItemStack(ModItems.WHITE_TRANSPORTER_BODY.get()));
-            parts.add(new ItemStack(ModItems.ENGINE_3_CYLINDER.get()));
-            parts.add(new ItemStack(ModItems.WHEEL.get()));
-            parts.add(new ItemStack(ModItems.WHEEL.get()));
-            parts.add(new ItemStack(ModItems.WHEEL.get()));
-            parts.add(new ItemStack(ModItems.WHEEL.get()));
-            parts.add(new ItemStack(ModItems.WHEEL.get()));
-            parts.add(new ItemStack(ModItems.WHEEL.get()));
+            parts.add(new ItemStack(ModItems.LKW_CHASSIS.get()));
+            parts.add(new ItemStack(ModItems.NORMAL_MOTOR.get()));
+            parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
+            parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
+            parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
+            parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
+            parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
+            parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
         } else if (spawnVehicleItem == ModItems.SPAWN_VEHICLE_WHITE_SUV.get()) {
-            parts.add(new ItemStack(ModItems.WHITE_SUV_BODY.get()));
-            parts.add(new ItemStack(ModItems.ENGINE_3_CYLINDER.get()));
-            parts.add(new ItemStack(ModItems.BIG_WHEEL.get()));
-            parts.add(new ItemStack(ModItems.BIG_WHEEL.get()));
-            parts.add(new ItemStack(ModItems.BIG_WHEEL.get()));
-            parts.add(new ItemStack(ModItems.BIG_WHEEL.get()));
+            parts.add(new ItemStack(ModItems.OFFROAD_CHASSIS.get()));
+            parts.add(new ItemStack(ModItems.NORMAL_MOTOR.get()));
+            parts.add(new ItemStack(ModItems.OFFROAD_TIRE.get()));
+            parts.add(new ItemStack(ModItems.OFFROAD_TIRE.get()));
+            parts.add(new ItemStack(ModItems.OFFROAD_TIRE.get()));
+            parts.add(new ItemStack(ModItems.OFFROAD_TIRE.get()));
         } else if (spawnVehicleItem == ModItems.SPAWN_VEHICLE_WHITE_SPORT.get()) {
-            parts.add(new ItemStack(ModItems.WHITE_SPORT_BODY.get()));
-            parts.add(new ItemStack(ModItems.ENGINE_3_CYLINDER.get()));
-            parts.add(new ItemStack(ModItems.WHEEL.get()));
-            parts.add(new ItemStack(ModItems.WHEEL.get()));
-            parts.add(new ItemStack(ModItems.WHEEL.get()));
-            parts.add(new ItemStack(ModItems.WHEEL.get()));
+            parts.add(new ItemStack(ModItems.LUXUS_CHASSIS.get()));
+            parts.add(new ItemStack(ModItems.NORMAL_MOTOR.get()));
+            parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
+            parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
+            parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
+            parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
         } else {
             return null; // Unbekanntes Fahrzeug
         }
 
         // Füge Tank und Lizenzplatte hinzu
-        parts.add(new ItemStack(ModItems.SMALL_TANK.get()));
+        parts.add(new ItemStack(ModItems.TANK_15L.get()));
         parts.add(new ItemStack(ModItems.LICENSE_PLATE.get()));
-        parts.add(new ItemStack(ModItems.IRON_LICENSE_PLATE_HOLDER.get()));
+        parts.add(new ItemStack(ModItems.LICENSE_PLATE_HOLDER.get()));
 
         // Erstelle Auto mit VehicleFactory (wie in ItemSpawnVehicle)
         EntityGenericVehicle vehicle = VehicleFactory.createVehicle(level, parts);

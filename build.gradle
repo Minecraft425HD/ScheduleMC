@@ -135,10 +135,10 @@ dependencies {
     minecraft 'net.minecraftforge:forge:1.20.1-47.4.0'
     implementation 'com.google.code.gson:gson:2.10.1'
 
-    // CoreLib for Ultimate Car Mod integration (includes tools like EntityTools, BlockPosList)
+    // CoreLib for core functionality (networking, config, OBJ models, GUI system)
     implementation fg.deobf('de.maxhenkel.corelib:corelib:1.20.1-1.1.1')
 
-    // Optional integrations for Car Mod - compileOnly means they're not required at runtime
+    // Optional integrations for Vehicle Mod - compileOnly means they're not required at runtime
     // Users can optionally install these mods for additional features
     compileOnly fg.deobf('maven.modrinth:jei:15.2.0.27') // JEI for 1.20.1
     compileOnly fg.deobf('maven.modrinth:jade:11.8.0') // Jade for 1.20.1
