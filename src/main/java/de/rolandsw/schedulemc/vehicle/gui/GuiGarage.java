@@ -10,9 +10,13 @@ import de.maxhenkel.corelib.inventory.ScreenBase;
 import de.maxhenkel.corelib.math.MathUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class GuiGarage extends ScreenBase<ContainerGarage> {
 
@@ -23,11 +27,33 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
     private static final int costColor = 0x00AA00;
     private static final int titleColor = 0xFFFFFF;
     private static final int partColor = 0x555555;
+    private static final int barGoodColor = 0x00FF00;
+    private static final int barMediumColor = 0xFFFF00;
+    private static final int barBadColor = 0xFF0000;
+    private static final int barBackgroundColor = 0x333333;
 
     private Inventory playerInv;
     private EntityGenericVehicle vehicle;
     private Button payButton;
+    private Button repairTabButton;
+    private Button upgradeTabButton;
     private VehicleUtils.VehicleRenderer vehicleRenderer;
+
+    // Tab system
+    private enum Tab { REPAIR, UPGRADE }
+    private Tab currentTab = Tab.REPAIR;
+
+    // Repair checkboxes
+    private Checkbox repairDamageCheckbox;
+    private Checkbox chargeBatteryCheckbox;
+    private Checkbox refuelCheckbox;
+    private Checkbox changeOilCheckbox;
+
+    // Upgrade options
+    private Button upgradeEngineButton;
+    private Button upgradeTiresButton;
+    private Button paintButton;
+    private int selectedColor = 0xFFFFFF;
 
     public GuiGarage(ContainerGarage containerGarage, Inventory playerInv, Component title) {
         super(GARAGE_GUI_TEXTURE, containerGarage, playerInv, title);
@@ -36,7 +62,7 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
         this.vehicleRenderer = new VehicleUtils.VehicleRenderer(2.0F); // Slow rotation
 
         imageWidth = 256;
-        imageHeight = 220;
+        imageHeight = 240;
     }
 
     @Override
@@ -48,14 +74,124 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
             return;
         }
 
-        // Add "Bezahlen" button centered at bottom
+        // Tab buttons at top
+        int tabWidth = 80;
+        int tabHeight = 20;
+        int tabY = topPos + 5;
+
+        repairTabButton = addRenderableWidget(Button.builder(
+            Component.literal("Reparatur"),
+            button -> switchTab(Tab.REPAIR))
+            .bounds(leftPos + 10, tabY, tabWidth, tabHeight)
+            .build()
+        );
+
+        upgradeTabButton = addRenderableWidget(Button.builder(
+            Component.literal("Upgrades"),
+            button -> switchTab(Tab.UPGRADE))
+            .bounds(leftPos + 95, tabY, tabWidth, tabHeight)
+            .build()
+        );
+
+        // Initialize repair checkboxes
+        initRepairCheckboxes();
+
+        // Initialize upgrade buttons
+        initUpgradeButtons();
+
+        // Set initial widget visibility based on current tab
+        updateWidgetVisibility();
+
+        // Add "Bezahlen/Kaufen" button at bottom
+        updatePayButton();
+    }
+
+    private void initRepairCheckboxes() {
+        int checkX = leftPos + 140;
+        int checkY = topPos + 90;
+        int lineHeight = 20;
+
+        repairDamageCheckbox = addRenderableWidget(
+            Checkbox.builder(Component.literal("Reparatur"), font)
+                .pos(checkX, checkY)
+                .selected(getDamagePercent() > 0)
+                .build()
+        );
+
+        chargeBatteryCheckbox = addRenderableWidget(
+            Checkbox.builder(Component.literal("Batterie"), font)
+                .pos(checkX, checkY + lineHeight)
+                .selected(getBatteryPercent() < 50)
+                .build()
+        );
+
+        refuelCheckbox = addRenderableWidget(
+            Checkbox.builder(Component.literal("Tanken"), font)
+                .pos(checkX, checkY + lineHeight * 2)
+                .selected(getFuelPercent() < 100)
+                .build()
+        );
+
+        changeOilCheckbox = addRenderableWidget(
+            Checkbox.builder(Component.literal("Ölwechsel"), font)
+                .pos(checkX, checkY + lineHeight * 3)
+                .selected(true)
+                .build()
+        );
+    }
+
+    private void initUpgradeButtons() {
+        int btnX = leftPos + 140;
+        int btnY = topPos + 50;
+        int btnWidth = 100;
+        int btnHeight = 20;
+        int lineHeight = 25;
+
+        upgradeEngineButton = addRenderableWidget(Button.builder(
+            Component.literal("Motor: 250€"),
+            button -> {
+                // TODO: Upgrade engine logic
+            })
+            .bounds(btnX, btnY, btnWidth, btnHeight)
+            .build()
+        );
+
+        upgradeTiresButton = addRenderableWidget(Button.builder(
+            Component.literal("Reifen: 150€"),
+            button -> {
+                // TODO: Upgrade tires logic
+            })
+            .bounds(btnX, btnY + lineHeight, btnWidth, btnHeight)
+            .build()
+        );
+
+        paintButton = addRenderableWidget(Button.builder(
+            Component.literal("Lackierung: 50€"),
+            button -> {
+                // Cycle through colors
+                selectedColor = getNextColor(selectedColor);
+            })
+            .bounds(btnX, btnY + lineHeight * 2, btnWidth, btnHeight)
+            .build()
+        );
+    }
+
+    private void updatePayButton() {
+        if (payButton != null) {
+            removeWidget(payButton);
+        }
+
         int buttonWidth = 140;
         int buttonHeight = 20;
         int buttonX = leftPos + (imageWidth - buttonWidth) / 2;
         int buttonY = topPos + imageHeight - 26;
 
+        String buttonText = currentTab == Tab.REPAIR ?
+            "Bezahlen: " + String.format("%.2f€", calculateSelectedCost()) :
+            "Kaufen: " + String.format("%.2f€", calculateUpgradeCost());
+
         payButton = addRenderableWidget(Button.builder(
-            Component.literal("Service bezahlen: " + String.format("%.2f€", calculateTotalCost())),
+            Component.literal(buttonText),
             button -> {
                 if (vehicle != null && minecraft != null && minecraft.player != null) {
                     Main.SIMPLE_CHANNEL.sendToServer(new MessageGaragePayment(
@@ -67,6 +203,36 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
             .bounds(buttonX, buttonY, buttonWidth, buttonHeight)
             .build()
         );
+    }
+
+    private void switchTab(Tab newTab) {
+        currentTab = newTab;
+        updateWidgetVisibility();
+        updatePayButton();
+    }
+
+    private void updateWidgetVisibility() {
+        // Show/hide widgets based on current tab
+        boolean isRepair = currentTab == Tab.REPAIR;
+
+        if (repairDamageCheckbox != null) repairDamageCheckbox.visible = isRepair;
+        if (chargeBatteryCheckbox != null) chargeBatteryCheckbox.visible = isRepair;
+        if (refuelCheckbox != null) refuelCheckbox.visible = isRepair;
+        if (changeOilCheckbox != null) changeOilCheckbox.visible = isRepair;
+
+        if (upgradeEngineButton != null) upgradeEngineButton.visible = !isRepair;
+        if (upgradeTiresButton != null) upgradeTiresButton.visible = !isRepair;
+        if (paintButton != null) paintButton.visible = !isRepair;
+    }
+
+    private int getNextColor(int currentColor) {
+        int[] colors = {0xFFFFFF, 0xFF0000, 0x00FF00, 0x0000FF, 0xFFFF00, 0xFF00FF, 0x00FFFF, 0x000000};
+        for (int i = 0; i < colors.length; i++) {
+            if (colors[i] == currentColor) {
+                return colors[(i + 1) % colors.length];
+            }
+        }
+        return colors[0];
     }
 
     @Override
@@ -106,16 +272,20 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
             return;
         }
 
-        // Title
+        // Title - below tabs
         String title = "== FAHRZEUG-WERKSTATT ==";
         int titleX = (imageWidth - font.width(title)) / 2;
-        guiGraphics.drawString(font, title, titleX, 8, titleColor, true);
+        guiGraphics.drawString(font, title, titleX, 30, titleColor, true);
 
-        // Left side: Vehicle visualization and info
+        // Left side: Vehicle visualization
         renderVehicleDisplay(guiGraphics);
 
-        // Right side: Parts, status, and costs
-        renderVehicleInfo(guiGraphics);
+        // Right side: Render based on current tab
+        if (currentTab == Tab.REPAIR) {
+            renderRepairTab(guiGraphics, mouseX, mouseY);
+        } else {
+            renderUpgradeTab(guiGraphics, mouseX, mouseY);
+        }
     }
 
     private void renderVehicleDisplay(GuiGraphics guiGraphics) {
@@ -141,106 +311,161 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
         guiGraphics.drawString(font, "Gesperrt", 10, statusY + 10, 0xFFAA00, false);
     }
 
-    private void renderVehicleInfo(GuiGraphics guiGraphics) {
+    private void renderRepairTab(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         int rightX = 140;
-        int startY = 20;
+        int startY = 45;
         int lineHeight = 10;
 
-        // Vehicle stats
-        guiGraphics.drawString(font, "=== ZUSTAND ===", rightX, startY, fontColor, false);
+        // Parts status with colored bars
+        guiGraphics.drawString(font, "=== TEILEZUSTAND ===", rightX, startY, fontColor, false);
 
-        guiGraphics.drawString(font, "Treibstoff:", rightX, startY + lineHeight * 2, partColor, false);
-        guiGraphics.drawString(font, String.format("%.1f%%", getFuelPercent()), rightX + 60, startY + lineHeight * 2, fontColor, false);
+        int barY = startY + 12;
+        renderPartStatusBar(guiGraphics, rightX, barY, "Motor", 100 - getDamagePercent(), mouseX, mouseY);
+        renderPartStatusBar(guiGraphics, rightX, barY + 18, "Reifen", 85.0f, mouseX, mouseY);
+        renderPartStatusBar(guiGraphics, rightX, barY + 36, "Karosserie", 100 - getDamagePercent() * 0.5f, mouseX, mouseY);
 
-        guiGraphics.drawString(font, "Batterie:", rightX, startY + lineHeight * 3, partColor, false);
-        guiGraphics.drawString(font, String.format("%.1f%%", getBatteryPercent()), rightX + 60, startY + lineHeight * 3, fontColor, false);
+        // Repair options with checkboxes (already rendered by widgets)
+        int checkY = 90;
+        guiGraphics.drawString(font, "=== SERVICES ===", rightX, checkY - 5, fontColor, false);
 
-        guiGraphics.drawString(font, "Schaden:", rightX, startY + lineHeight * 4, partColor, false);
-        guiGraphics.drawString(font, String.format("%.1f%%", getDamagePercent()), rightX + 60, startY + lineHeight * 4, fontColor, false);
+        // Show prices next to checkboxes
+        int priceX = rightX + 70;
+        int priceY = checkY + 3;
+        if (repairDamageCheckbox != null && getDamagePercent() > 0) {
+            guiGraphics.drawString(font, String.format("%.2f€", getDamagePercent() * 2.0), priceX, priceY, costColor, false);
+        }
+        if (chargeBatteryCheckbox != null && getBatteryPercent() < 50) {
+            guiGraphics.drawString(font, String.format("%.2f€", (50 - getBatteryPercent()) * 0.5), priceX, priceY + 20, costColor, false);
+        }
+        if (refuelCheckbox != null && getFuelPercent() < 100) {
+            guiGraphics.drawString(font, String.format("%.2f€", (100 - getFuelPercent()) * 0.3), priceX, priceY + 40, costColor, false);
+        }
+        if (changeOilCheckbox != null) {
+            guiGraphics.drawString(font, "15.00€", priceX, priceY + 60, costColor, false);
+        }
 
-        guiGraphics.drawString(font, "Temp:", rightX, startY + lineHeight * 5, partColor, false);
-        guiGraphics.drawString(font, String.format("%.1f°C", getTemperatureCelsius()), rightX + 60, startY + lineHeight * 5, fontColor, false);
-
-        // Installed parts
-        int partsY = startY + lineHeight * 7;
-        guiGraphics.drawString(font, "=== TEILE ===", rightX, partsY, fontColor, false);
-        renderInstalledParts(guiGraphics, rightX, partsY + lineHeight);
-
-        // Service costs
-        int costY = partsY + lineHeight * 7;
-        guiGraphics.drawString(font, "=== KOSTEN ===", rightX, costY, fontColor, false);
-        renderCostBreakdown(guiGraphics, rightX, costY + lineHeight);
+        // Total cost
+        int totalY = checkY + 90;
+        guiGraphics.drawString(font, "Inspektion:", rightX, totalY, partColor, false);
+        guiGraphics.drawString(font, "10.00€", priceX, totalY, costColor, false);
     }
 
-    private void renderInstalledParts(GuiGraphics guiGraphics, int x, int y) {
-        int line = 0;
+    private void renderUpgradeTab(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        int rightX = 140;
+        int startY = 45;
 
-        // Show installed parts
-        Part chassis = vehicle.getPartByClass(de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartBody.class);
-        if (chassis != null) {
-            guiGraphics.drawString(font, "Karosserie", x, y + line * 10, partColor, false);
-            line++;
-        }
+        guiGraphics.drawString(font, "=== UPGRADES ===", rightX, startY, fontColor, false);
 
-        Part engine = vehicle.getPartByClass(de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartEngine.class);
-        if (engine != null) {
-            guiGraphics.drawString(font, "Motor", x, y + line * 10, partColor, false);
-            line++;
-        }
+        // Show comparison stats for upgrades
+        int upgradeY = 55;
+        guiGraphics.drawString(font, "Motor Upgrade:", rightX, upgradeY, partColor, false);
+        guiGraphics.drawString(font, "120 -> 150 km/h", rightX, upgradeY + 10, fontColor, false);
+        guiGraphics.drawString(font, "+25% Leistung", rightX, upgradeY + 20, 0x00FF00, false);
 
-        Part wheels = vehicle.getPartByClass(de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartTireBase.class);
-        if (wheels != null) {
-            guiGraphics.drawString(font, "Reifen", x, y + line * 10, partColor, false);
-            line++;
+        upgradeY += 35;
+        guiGraphics.drawString(font, "Reifen Upgrade:", rightX, upgradeY, partColor, false);
+        guiGraphics.drawString(font, "Handling +30%", rightX, upgradeY + 10, fontColor, false);
+        guiGraphics.drawString(font, "Grip +20%", rightX, upgradeY + 20, 0x00FF00, false);
+
+        upgradeY += 35;
+        guiGraphics.drawString(font, "Lackierung:", rightX, upgradeY, partColor, false);
+
+        // Show current color preview
+        int colorX = rightX + 60;
+        int colorY = upgradeY;
+        guiGraphics.fill(colorX, colorY, colorX + 40, colorY + 10, 0xFF000000 | selectedColor);
+        guiGraphics.drawString(font, "Farbe", rightX, upgradeY + 10, fontColor, false);
+    }
+
+    private void renderPartStatusBar(GuiGraphics guiGraphics, int x, int y, String partName, float percent, int mouseX, int mouseY) {
+        // Draw part name
+        guiGraphics.drawString(font, partName + ":", x, y, partColor, false);
+
+        // Draw status bar
+        int barX = x;
+        int barY = y + 10;
+        int barWidth = 100;
+        int barHeight = 6;
+
+        // Background
+        guiGraphics.fill(barX, barY, barX + barWidth, barY + barHeight, 0xFF000000 | barBackgroundColor);
+
+        // Foreground based on percentage
+        int fillWidth = (int) (barWidth * (percent / 100.0f));
+        int barColor = getBarColor(percent);
+        guiGraphics.fill(barX, barY, barX + fillWidth, barY + barHeight, 0xFF000000 | barColor);
+
+        // Percentage text
+        guiGraphics.drawString(font, String.format("%.0f%%", percent), barX + barWidth + 5, y, fontColor, false);
+
+        // Tooltip on hover
+        if (mouseX >= leftPos + barX && mouseX <= leftPos + barX + barWidth &&
+            mouseY >= topPos + barY && mouseY <= topPos + barY + barHeight) {
+
+            int tooltipX = mouseX - leftPos;
+            int tooltipY = mouseY - topPos - 15;
+            String tooltip = String.format("%s: %.1f%% - ", partName, percent);
+
+            if (percent > 75) {
+                tooltip += "Gut";
+            } else if (percent > 40) {
+                tooltip += "Mittel";
+            } else {
+                tooltip += "Schlecht";
+            }
+
+            guiGraphics.drawString(font, tooltip, tooltipX, tooltipY, 0xFFFFFF, true);
         }
     }
 
-    private void renderCostBreakdown(GuiGraphics guiGraphics, int x, int y) {
-        int line = 0;
-
-        // Inspection fee
-        guiGraphics.drawString(font, "Inspektion:", x, y + line * 10, partColor, false);
-        guiGraphics.drawString(font, "10.00€", x + 60, y + line * 10, costColor, false);
-        line++;
-
-        // Damage repair
-        float damage = getDamagePercent();
-        if (damage > 0) {
-            guiGraphics.drawString(font, "Reparatur:", x, y + line * 10, partColor, false);
-            guiGraphics.drawString(font, String.format("%.2f€", damage * 2.0), x + 60, y + line * 10, costColor, false);
-            line++;
+    private int getBarColor(float percent) {
+        if (percent > 75) {
+            return barGoodColor;
+        } else if (percent > 40) {
+            return barMediumColor;
+        } else {
+            return barBadColor;
         }
-
-        // Battery service
-        float batteryPercent = getBatteryPercent();
-        if (batteryPercent < 50) {
-            guiGraphics.drawString(font, "Batterie:", x, y + line * 10, partColor, false);
-            guiGraphics.drawString(font, String.format("%.2f€", (50 - batteryPercent) * 0.5), x + 60, y + line * 10, costColor, false);
-            line++;
-        }
-
-        line++; // Empty line
-        // Total
-        guiGraphics.drawString(font, "GESAMT:", x, y + line * 10, fontColor, true);
-        guiGraphics.drawString(font, String.format("%.2f€", calculateTotalCost()), x + 60, y + line * 10, costColor, true);
     }
 
-    private double calculateTotalCost() {
+    private double calculateSelectedCost() {
         if (vehicle == null) return 0.0;
 
         double cost = 10.0; // Base inspection
 
-        float damage = getDamagePercent();
-        if (damage > 0) {
-            cost += damage * 2.0;
+        // Add costs only for selected checkboxes
+        if (repairDamageCheckbox != null && repairDamageCheckbox.selected()) {
+            float damage = getDamagePercent();
+            if (damage > 0) {
+                cost += damage * 2.0;
+            }
         }
 
-        float batteryPercent = getBatteryPercent();
-        if (batteryPercent < 50) {
-            cost += (50 - batteryPercent) * 0.5;
+        if (chargeBatteryCheckbox != null && chargeBatteryCheckbox.selected()) {
+            float batteryPercent = getBatteryPercent();
+            if (batteryPercent < 50) {
+                cost += (50 - batteryPercent) * 0.5;
+            }
+        }
+
+        if (refuelCheckbox != null && refuelCheckbox.selected()) {
+            float fuelPercent = getFuelPercent();
+            if (fuelPercent < 100) {
+                cost += (100 - fuelPercent) * 0.3;
+            }
+        }
+
+        if (changeOilCheckbox != null && changeOilCheckbox.selected()) {
+            cost += 15.0;
         }
 
         return cost;
+    }
+
+    private double calculateUpgradeCost() {
+        // Calculate total cost of selected upgrades
+        // For now, return 0 as upgrades need to be selected individually
+        return 0.0;
     }
 
     // === Calculation Methods ===
