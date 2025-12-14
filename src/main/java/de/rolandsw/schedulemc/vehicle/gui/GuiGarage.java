@@ -176,19 +176,20 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
         int line = 0;
 
         // Show installed parts
-        Part chassis = vehicle.getBodyPart();
+        Part chassis = vehicle.getPartByClass(de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartBody.class);
         if (chassis != null) {
             guiGraphics.drawString(font, "Karosserie", x, y + line * 10, partColor, false);
             line++;
         }
 
-        Part engine = vehicle.getEngine();
+        Part engine = vehicle.getPartByClass(de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartEngine.class);
         if (engine != null) {
             guiGraphics.drawString(font, "Motor", x, y + line * 10, partColor, false);
             line++;
         }
 
-        if (vehicle.getWheels() != null && !vehicle.getWheels().isEmpty()) {
+        Part wheels = vehicle.getPartByClass(de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartTireBase.class);
+        if (wheels != null) {
             guiGraphics.drawString(font, "Reifen", x, y + line * 10, partColor, false);
             line++;
         }
