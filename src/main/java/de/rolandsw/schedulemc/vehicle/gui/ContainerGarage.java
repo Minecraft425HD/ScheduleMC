@@ -11,9 +11,12 @@ public class ContainerGarage extends ContainerBase {
     private final TileEntityGarage garage;
 
     public ContainerGarage(int id, EntityGenericVehicle vehicle, TileEntityGarage garage, Inventory playerInv) {
-        super(Main.GARAGE_CONTAINER_TYPE.get(), id, playerInv, garage);
+        super(Main.GARAGE_CONTAINER_TYPE.get(), id, playerInv, null);
         this.vehicle = vehicle;
         this.garage = garage;
+
+        // Add garage data slots
+        addDataSlots(garage.getFields());
 
         // Add player inventory slots
         addPlayerInventorySlots();
