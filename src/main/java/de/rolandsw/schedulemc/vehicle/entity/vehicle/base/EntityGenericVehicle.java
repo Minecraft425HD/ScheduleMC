@@ -44,6 +44,7 @@ import java.util.*;
 public class EntityGenericVehicle extends EntityVehicleBase implements Container, IFluidHandler {
 
     private static final EntityDataAccessor<NonNullList<ItemStack>> PARTS = SynchedEntityData.defineId(EntityGenericVehicle.class, Main.ITEM_LIST.get());
+    private static final EntityDataAccessor<Integer> PAINT_COLOR = SynchedEntityData.defineId(EntityGenericVehicle.class, EntityDataSerializers.INT);
 
     // Components - lazy initialization to avoid issues with Entity constructor
     private PhysicsComponent physicsComponent;
@@ -116,6 +117,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     @Override
     protected void defineSynchedData() {
         this.entityData.define(PARTS, NonNullList.create());
+        this.entityData.define(PAINT_COLOR, 0); // Default: 0 = white
 
         // Define component data directly (components not yet initialized at this point)
         PhysicsComponent.defineData(this.entityData);
@@ -655,6 +657,11 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
             this.garagePosition = new BlockPos(x, y, z);
         }
 
+        // Load paint color
+        if (compound.contains("PaintColor")) {
+            setPaintColor(compound.getInt("PaintColor"));
+        }
+
         // Initialize default items if this is a new vehicle
         if (compound.getAllKeys().stream().allMatch(s -> s.equals("id"))) {
             Container internal = inventoryComponent.getInternalInventory();
@@ -699,6 +706,9 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
             compound.putInt("GarageY", this.garagePosition.getY());
             compound.putInt("GarageZ", this.garagePosition.getZ());
         }
+
+        // Save paint color
+        compound.putInt("PaintColor", getPaintColor());
 
         // Save all component data
         physicsComponent.saveAdditionalData(compound);
@@ -927,6 +937,27 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
 
     public void setLocked(boolean locked, boolean playSound) {
         securityComponent.setLocked(locked, playSound);
+    }
+
+    // Paint color system (0=white, 1=black, 2=red, 3=blue, 4=yellow)
+    public int getPaintColor() {
+        return this.entityData.get(PAINT_COLOR);
+    }
+
+    public void setPaintColor(int color) {
+        if (color >= 0 && color <= 4) {
+            this.entityData.set(PAINT_COLOR, color);
+        }
+    }
+
+    public String getPaintColorName() {
+        return switch (getPaintColor()) {
+            case 1 -> "black";
+            case 2 -> "red";
+            case 3 -> "blue";
+            case 4 -> "yellow";
+            default -> "white";
+        };
     }
 
     // Utility methods for component access to protected fields
