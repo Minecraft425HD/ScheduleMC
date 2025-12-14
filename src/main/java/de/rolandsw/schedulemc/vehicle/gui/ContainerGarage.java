@@ -46,6 +46,9 @@ public class ContainerGarage extends ContainerBase {
         // Get garage tile entity
         this.garage = null; // Garage reference not needed on client
 
+        // Add dummy data slots to match server-side (1 slot for isActive)
+        addDataSlots(new net.minecraft.world.inventory.SimpleContainerData(1));
+
         // Add player inventory slots
         addPlayerInventorySlots();
     }
