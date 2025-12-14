@@ -95,6 +95,7 @@ public class ModItems {
     public static final RegistryObject<VehicleBucketItem> BIO_DIESEL_BUCKET = ITEM_REGISTER.register("diesel_bucket", () -> new VehicleBucketItem(ModFluids.BIO_DIESEL.get()));
 
     public static final RegistryObject<Item> FUEL_STATION = ITEM_REGISTER.register("fuel_station", () -> ModBlocks.FUEL_STATION.get().toItem());
+    public static final RegistryObject<Item> GARAGE = ITEM_REGISTER.register("garage", () -> ModBlocks.GARAGE.get().toItem());
 
     public static void init() {
         ITEM_REGISTER.register(FMLJavaModLoadingContext.get().getModEventBus());

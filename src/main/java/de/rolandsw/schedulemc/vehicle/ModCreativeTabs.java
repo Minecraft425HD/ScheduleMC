@@ -21,6 +21,7 @@ public class ModCreativeTabs {
                 .icon(() -> new ItemStack(ModBlocks.FUEL_STATION.get()))
                 .displayItems((param, output) -> {
                     output.accept(new ItemStack(ModBlocks.FUEL_STATION.get()));
+                    output.accept(new ItemStack(ModBlocks.GARAGE.get()));
                     output.accept(new ItemStack(ModItems.BIO_DIESEL_BUCKET.get()));
 
                     // Pre-built vehicles
