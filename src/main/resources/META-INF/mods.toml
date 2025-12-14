@@ -1,0 +1,39 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="schedulemc"
+version="${mod_version}"
+displayName="ScheduleMC"
+updateJSONURL="https://raw.githubusercontent.com/Minecraft425HD/ScheduleMC/main/update.json"
+authors="Luckas R. Schneider (Minecraft425HD)"
+displayURL="https://github.com/Minecraft425HD/ScheduleMC"
+credits="Erstellt mit ♥ für die Minecraft Community. Besonderer Dank an Forge."
+description='''
+ScheduleMC - Ein umfassendes Server-Management System
+
+§6Features:§r
+• §bPlot-Verwaltung§r mit dynamischer Größenanpassung
+• §eWirtschaftssystem§r mit Geld, Banken und Lagerhaus
+• §aNPC-System§r für Arbeiter und automatische Ressourcen
+• Einfache Plot-Erstellung
+• §cRangbasiertes Berechtigungssystem§r
+• §9MySQL Datenbank§r für persistente Speicherung
+
+§7Perfekt für Roleplay- und Economy-Server!§r
+'''
+
+[[dependencies.schedulemc]]
+modId="forge"
+mandatory=true
+versionRange="[47,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.schedulemc]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.21)"
+ordering="NONE"
+side="BOTH"

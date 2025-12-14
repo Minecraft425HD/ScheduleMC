@@ -1,0 +1,106 @@
+{
+    "motor_idle": {
+        "subtitle": "sound.vehicle.engine_idle",
+        "sounds": [ "vehicle:motor_idle" ]
+    },
+    "motor_start": {
+        "subtitle": "sound.vehicle.engine_start",
+        "sounds": [ "vehicle:motor_start" ]
+    },
+    "motor_starting": {
+        "subtitle": "sound.vehicle.engine_starting",
+        "sounds": [ "vehicle:motor_starting" ]
+    },
+    "motor_stop": {
+        "subtitle": "sound.vehicle.engine_stop",
+        "sounds": [ "vehicle:motor_stop" ]
+    },
+    "motor_high": {
+        "subtitle": "sound.vehicle.engine_high",
+        "sounds": [ "vehicle:motor_high" ]
+    },
+    "motor_fail": {
+        "subtitle": "sound.vehicle.engine_fail",
+        "sounds": [ "vehicle:motor_fail" ]
+    },
+    "vehicle_crash": {
+        "subtitle": "sound.vehicle.vehicle_crash",
+        "sounds": [ "vehicle:vehicle_crash" ]
+    },
+    "fuel_station": {
+        "subtitle": "sound.vehicle.fuel_station",
+        "sounds": [ "vehicle:fuel_station" ]
+    },
+    "generator": {
+        "subtitle": "sound.vehicle.generator",
+        "sounds": [ "vehicle:generator" ]
+    },
+    "performance_motor_idle": {
+        "subtitle": "sound.vehicle.sport_engine_idle",
+        "sounds": [ "vehicle:performance_motor_idle" ]
+    },
+    "performance_motor_start": {
+        "subtitle": "sound.vehicle.sport_engine_start",
+        "sounds": [ "vehicle:performance_motor_start" ]
+    },
+    "performance_motor_starting": {
+        "subtitle": "sound.vehicle.sport_engine_starting",
+        "sounds": [ "vehicle:performance_motor_starting" ]
+    },
+    "performance_motor_stop": {
+        "subtitle": "sound.vehicle.sport_engine_stop",
+        "sounds": [ "vehicle:performance_motor_stop" ]
+    },
+    "performance_motor_high": {
+        "subtitle": "sound.vehicle.sport_engine_high",
+        "sounds": [ "vehicle:performance_motor_high" ]
+    },
+    "performance_motor_fail": {
+        "subtitle": "sound.vehicle.sport_engine_fail",
+        "sounds": [ "vehicle:performance_motor_fail" ]
+    },
+    "industrial_motor_idle": {
+        "subtitle": "sound.vehicle.truck_engine_idle",
+        "sounds": [ "vehicle:industrial_motor_idle" ]
+    },
+    "industrial_motor_start": {
+        "subtitle": "sound.vehicle.truck_engine_start",
+        "sounds": [ "vehicle:industrial_motor_start" ]
+    },
+    "industrial_motor_starting": {
+        "subtitle": "sound.vehicle.truck_engine_starting",
+        "sounds": [ "vehicle:industrial_motor_starting" ]
+    },
+    "industrial_motor_stop": {
+        "subtitle": "sound.vehicle.truck_engine_stop",
+        "sounds": [ "vehicle:industrial_motor_stop" ]
+    },
+    "industrial_motor_high": {
+        "subtitle": "sound.vehicle.truck_engine_high",
+        "sounds": [ "vehicle:industrial_motor_high" ]
+    },
+    "industrial_motor_fail": {
+        "subtitle": "sound.vehicle.truck_engine_fail",
+        "sounds": [ "vehicle:industrial_motor_fail" ]
+    },
+    "vehicle_horn": {
+        "subtitle": "sound.vehicle.vehicle_horn",
+        "sounds": [ "vehicle:vehicle_horn" ]
+    },
+    "vehicle_lock": {
+        "subtitle": "sound.vehicle.vehicle_lock",
+        "sounds": [ "vehicle:vehicle_lock" ]
+    },
+    "vehicle_unlock": {
+        "subtitle": "sound.vehicle.vehicle_unlock",
+        "sounds": [ "vehicle:vehicle_unlock" ]
+    },
+    "ratchet": {
+        "subtitle": "sound.vehicle.ratchet",
+        "sounds": [ "vehicle:ratchet_1", "vehicle:ratchet_2", "vehicle:ratchet_3" ]
+    },
+    "fuel_station_attendant": {
+        "subtitle": "sound.vehicle.fuel_station_attendant",
+        "sounds": [ "vehicle:fuel_station_attendant_1", "vehicle:fuel_station_attendant_2", "vehicle:fuel_station_attendant_3" ]
+    }
+}

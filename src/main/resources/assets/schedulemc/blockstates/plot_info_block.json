@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "schedulemc:block/plot_info_block"
+    }
+  }
+}

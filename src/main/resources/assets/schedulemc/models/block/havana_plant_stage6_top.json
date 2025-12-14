@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "schedulemc:block/havana_plant_stage6_top"
+  }
+}
