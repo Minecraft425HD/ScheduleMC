@@ -24,7 +24,7 @@ public class PartRegistry {
     public static final Part TRUCK_CHASSIS = new PartTruckChassis(new ResourceLocation(Main.MODID, "textures/entity/vehicle_transporter_white.png"), "white");
     public static final Part OFFROAD_CHASSIS = new PartOffroadChassis(new ResourceLocation(Main.MODID, "textures/entity/vehicle_suv_white.png"), "white");
 
-    // Wheels (Tires)
+    // Wheels (Tires) - Normal Vehicles
     public static final Part STANDARD_TIRE = new PartStandardTire(
             new OBJModel(new ResourceLocation(Main.MODID, "models/entity/wheel.obj")),
             new ResourceLocation(Main.MODID, "textures/entity/wheel.png"),
@@ -32,11 +32,40 @@ public class PartRegistry {
             0.5F
     );
 
+    public static final Part SPORT_TIRE = new PartSportTire(
+            new OBJModel(new ResourceLocation(Main.MODID, "models/entity/wheel.obj")),
+            new ResourceLocation(Main.MODID, "textures/entity/sport_wheel.png"),
+            130F,
+            0.6F
+    );
+
+    public static final Part PREMIUM_TIRE = new PartPremiumTire(
+            new OBJModel(new ResourceLocation(Main.MODID, "models/entity/wheel.obj")),
+            new ResourceLocation(Main.MODID, "textures/entity/premium_wheel.png"),
+            140F,
+            0.7F
+    );
+
+    // Wheels (Tires) - Trucks
     public static final Part OFFROAD_TIRE = new PartOffroadTire(
             new OBJModel(new ResourceLocation(Main.MODID, "models/entity/big_wheel.obj")),
             new ResourceLocation(Main.MODID, "textures/entity/big_wheel.png"),
             105F,
             1F
+    );
+
+    public static final Part ALLTERRAIN_TIRE = new PartAllterrainTire(
+            new OBJModel(new ResourceLocation(Main.MODID, "models/entity/big_wheel.obj")),
+            new ResourceLocation(Main.MODID, "textures/entity/allterrain_wheel.png"),
+            115F,
+            1.2F
+    );
+
+    public static final Part HEAVY_DUTY_TIRE = new PartHeavyDutyTire(
+            new OBJModel(new ResourceLocation(Main.MODID, "models/entity/big_wheel.obj")),
+            new ResourceLocation(Main.MODID, "textures/entity/heavyduty_wheel.png"),
+            125F,
+            1.4F
     );
 
     // Fuel Tanks
@@ -47,8 +76,12 @@ public class PartRegistry {
     // Modules & Accessories
     public static final Part CARGO_MODULE = new PartContainer(new ResourceLocation(Main.MODID, "textures/entity/container_white.png"));
     public static final Part FLUID_MODULE = new PartTankContainer(new ResourceLocation(Main.MODID, "textures/entity/tank_container_white.png"));
-    public static final Part STANDARD_FRONT_FENDER = new PartBumper(new ResourceLocation("textures/block/oak_planks.png"));
     public static final Part LICENSE_PLATE_HOLDER = new PartLicensePlateHolder(new ResourceLocation("textures/block/iron_block.png"));
+
+    // Front Fenders (Bumpers)
+    public static final Part FENDER_BASIC = new PartBumper(new ResourceLocation("textures/block/oak_planks.png"));
+    public static final Part FENDER_CHROME = new PartChromeBumper(new ResourceLocation(Main.MODID, "textures/parts/fender_chrome.png"));
+    public static final Part FENDER_SPORT = new PartSportBumper(new ResourceLocation(Main.MODID, "textures/parts/fender_sport.png"));
 
     public static boolean isValid(EntityGenericVehicle vehicle, List<Component> messages) {
         return isValid(vehicle.getModelParts(), messages);
