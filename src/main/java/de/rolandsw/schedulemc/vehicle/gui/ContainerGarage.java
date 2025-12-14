@@ -52,7 +52,9 @@ public class ContainerGarage extends ContainerBase {
 
     @Nullable
     private EntityGenericVehicle findVehicleByUUID(Level level, UUID uuid) {
-        for (Entity entity : level.entitiesForRendering()) {
+        // Iterate through all entities in the level
+        Iterable<Entity> entities = level.getAllEntities();
+        for (Entity entity : entities) {
             if (entity instanceof EntityGenericVehicle genericVehicle) {
                 if (genericVehicle.getUUID().equals(uuid)) {
                     return genericVehicle;
