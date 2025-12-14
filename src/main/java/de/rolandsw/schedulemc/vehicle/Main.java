@@ -119,6 +119,7 @@ public class Main {
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 13, MessageCenterVehicle.class);
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 14, MessageCenterVehicleClient.class);
         CommonRegistry.registerMessage(SIMPLE_CHANNEL, 15, MessageEditLicensePlate.class);
+        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 16, MessageGaragePayment.class);
     }
 
     public static KeyMapping FORWARD_KEY;

@@ -427,6 +427,9 @@
   "message.center_vehicle": "Centered Vehicle rotation",
   "message.schedulemc.garage.no_vehicle": "No vehicle in range!",
   "message.schedulemc.garage.vehicle_locked": "Vehicle locked in garage",
+  "message.garage.vehicle_not_found": "Vehicle not found!",
+  "message.garage.insufficient_funds": "Not enough money! Cost: %s, Balance: %s",
+  "message.garage.payment_success": "Payment successful! %s deducted",
 
   "gui.vehicle_fuel": "%s %% Fuel",
   "gui.vehicle_damage": "%s %% Damage",

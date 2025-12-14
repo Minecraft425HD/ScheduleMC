@@ -2,9 +2,11 @@ package de.rolandsw.schedulemc.vehicle.gui;
 
 import de.rolandsw.schedulemc.vehicle.Main;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
+import de.rolandsw.schedulemc.vehicle.net.MessageGaragePayment;
 import de.maxhenkel.corelib.inventory.ScreenBase;
 import de.maxhenkel.corelib.math.MathUtils;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -14,9 +16,11 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
     private static final ResourceLocation GARAGE_GUI_TEXTURE = new ResourceLocation(Main.MODID, "textures/gui/gui_vehicle.png");
 
     private static final int fontColor = 4210752;
+    private static final int costColor = 0x00AA00; // Green for cost
 
     private Inventory playerInv;
     private EntityGenericVehicle vehicle;
+    private Button payButton;
 
     public GuiGarage(ContainerGarage containerGarage, Inventory playerInv, Component title) {
         super(GARAGE_GUI_TEXTURE, containerGarage, playerInv, title);
@@ -25,6 +29,45 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
 
         imageWidth = 176;
         imageHeight = 166;
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+
+        // Add "Bezahlen" button centered at bottom
+        int buttonWidth = 120;
+        int buttonHeight = 20;
+        int buttonX = leftPos + (imageWidth - buttonWidth) / 2;
+        int buttonY = topPos + imageHeight - 28;
+
+        payButton = addRenderableWidget(Button.builder(
+            Component.literal("Bezahlen (" + String.format("%.2f€", calculateTotalCost()) + ")"),
+            button -> {
+                // Send payment packet to server
+                Main.SIMPLE_CHANNEL.sendToServer(new MessageGaragePayment(
+                    minecraft.player.getUUID(),
+                    vehicle.getUUID()
+                ));
+            })
+            .bounds(buttonX, buttonY, buttonWidth, buttonHeight)
+            .build()
+        );
+    }
+
+    @Override
+    public void onClose() {
+        // Prevent closing via ESC/E - only allow closing via payment button
+        // We don't call super.onClose() to prevent normal closing behavior
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        // Block ESC key (keyCode 256) and inventory key
+        if (keyCode == 256 || this.minecraft.options.keyInventory.matches(keyCode, scanCode)) {
+            return true; // Consume the event without closing
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     @Override
@@ -39,12 +82,11 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
         if (vehicle != null && !vehicle.isRemoved()) {
             // Vehicle status display
             int startY = 20;
-            int lineHeight = 12;
+            int lineHeight = 10;
             int labelX = 8;
             int valueX = 72;
 
             guiGraphics.drawString(font, "Fahrzeug:", labelX, startY, fontColor, false);
-            guiGraphics.drawString(font, vehicle.getDisplayName().getString(), valueX, startY, fontColor, false);
 
             guiGraphics.drawString(font, "Treibstoff:", labelX, startY + lineHeight, fontColor, false);
             guiGraphics.drawString(font, getFuelValueString(), valueX, startY + lineHeight, fontColor, false);
@@ -55,12 +97,53 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
             guiGraphics.drawString(font, "Schaden:", labelX, startY + lineHeight * 3, fontColor, false);
             guiGraphics.drawString(font, getDamageValueString(), valueX, startY + lineHeight * 3, fontColor, false);
 
-            // Status message
-            String status = vehicle.isLockedInGarage() ? "Status: GESPERRT" : "Status: Aktiv";
-            guiGraphics.drawString(font, status, labelX, startY + lineHeight * 5, fontColor, false);
+            // Cost breakdown
+            int costY = startY + lineHeight * 5;
+            guiGraphics.drawString(font, "--- KOSTEN ---", labelX, costY, fontColor, false);
+
+            guiGraphics.drawString(font, "Inspektion:", labelX, costY + lineHeight, fontColor, false);
+            guiGraphics.drawString(font, "10.00€", valueX, costY + lineHeight, costColor, false);
+
+            float damage = getDamagePercent();
+            if (damage > 0) {
+                guiGraphics.drawString(font, "Reparatur:", labelX, costY + lineHeight * 2, fontColor, false);
+                guiGraphics.drawString(font, String.format("%.2f€", damage * 2.0), valueX, costY + lineHeight * 2, costColor, false);
+            }
+
+            float batteryPercent = getBatteryPercent();
+            if (batteryPercent < 50) {
+                int line = damage > 0 ? 3 : 2;
+                guiGraphics.drawString(font, "Batterie:", labelX, costY + lineHeight * line, fontColor, false);
+                guiGraphics.drawString(font, String.format("%.2f€", (50 - batteryPercent) * 0.5), valueX, costY + lineHeight * line, costColor, false);
+            }
+
+            // Total
+            int totalLine = costY + lineHeight * 5;
+            guiGraphics.drawString(font, "GESAMT:", labelX, totalLine, fontColor, false);
+            guiGraphics.drawString(font, String.format("%.2f€", calculateTotalCost()), valueX, totalLine, costColor, false);
         } else {
             guiGraphics.drawString(font, "Kein Fahrzeug!", 8, 20, 0xFF0000, false);
         }
+    }
+
+    private double calculateTotalCost() {
+        if (vehicle == null) return 0.0;
+
+        double cost = 10.0; // Base inspection fee
+
+        // Repair cost
+        float damage = getDamagePercent();
+        if (damage > 0) {
+            cost += damage * 2.0;
+        }
+
+        // Battery service
+        float batteryPercent = getBatteryPercent();
+        if (batteryPercent < 50) {
+            cost += (50 - batteryPercent) * 0.5;
+        }
+
+        return cost;
     }
 
     // ===== Calculation Methods =====
