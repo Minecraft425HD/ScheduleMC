@@ -1,10 +1,15 @@
 package de.rolandsw.schedulemc.vehicle.entity.vehicle.parts;
 
+import de.rolandsw.schedulemc.vehicle.Main;
+import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import de.maxhenkel.corelib.client.obj.OBJModel;
+import de.maxhenkel.corelib.client.obj.OBJModelInstance;
+import de.maxhenkel.corelib.client.obj.OBJModelOptions;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.joml.Vector3d;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -27,6 +32,21 @@ public class PartBody extends PartModel {
         super(model, texture, offset);
         this.translationKey = translationKey;
         this.materialTranslationKey = materialTranslationKey;
+    }
+
+    @Override
+    public List<OBJModelInstance<EntityGenericVehicle>> getInstances(EntityGenericVehicle vehicle) {
+        // Get the vehicle's paint color and build dynamic texture path
+        String colorName = vehicle.getPaintColorName();
+        ResourceLocation dynamicTexture = new ResourceLocation(
+            Main.MODID,
+            "textures/entity/vehicle_" + translationKey + "_" + colorName + ".png"
+        );
+
+        List<OBJModelInstance<EntityGenericVehicle>> list = new ArrayList<>();
+        list.add(new OBJModelInstance<>(model, new OBJModelOptions<>(dynamicTexture, offset, rotation)));
+        onPartAdd(list);
+        return list;
     }
 
     public Vector3d[] getWheelOffsets() {
