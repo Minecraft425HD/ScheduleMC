@@ -25,8 +25,7 @@ public class ContainerGarage extends ContainerBase {
         // Add garage data slots
         addDataSlots(garage.getFields());
 
-        // Add player inventory slots
-        addPlayerInventorySlots();
+        // No player inventory slots needed in garage GUI
     }
 
     // Client-side constructor
@@ -49,8 +48,7 @@ public class ContainerGarage extends ContainerBase {
         // Add dummy data slots to match server-side (1 slot for isActive)
         addDataSlots(new net.minecraft.world.inventory.SimpleContainerData(1));
 
-        // Add player inventory slots
-        addPlayerInventorySlots();
+        // No player inventory slots needed in garage GUI
     }
 
     @Nullable
@@ -78,6 +76,6 @@ public class ContainerGarage extends ContainerBase {
 
     @Override
     public int getInvOffset() {
-        return 84; // Offset for player inventory in GUI
+        return 0; // No inventory in garage GUI
     }
 }

@@ -64,7 +64,7 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
         this.vehicleRenderer = new VehicleUtils.VehicleRenderer(2.0F); // Slow rotation
 
         imageWidth = 256;
-        imageHeight = 240;
+        imageHeight = 200; // Reduced height since no inventory
     }
 
     @Override
@@ -210,7 +210,7 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
         int buttonWidth = 140;
         int buttonHeight = 20;
         int buttonX = leftPos + (imageWidth - buttonWidth) / 2;
-        int buttonY = topPos + imageHeight - 26;
+        int buttonY = topPos + imageHeight - 30; // Adjusted for smaller GUI
 
         String buttonText = currentTab == Tab.REPAIR ?
             "Bezahlen: " + String.format("%.2f€", calculateSelectedCost()) :

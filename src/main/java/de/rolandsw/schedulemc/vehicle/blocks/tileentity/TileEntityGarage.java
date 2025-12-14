@@ -35,6 +35,7 @@ public class TileEntityGarage extends TileEntityBase implements ITickableBlockEn
     private boolean isActive;
     private int tickCounter;
     private boolean wasVehicleNearby;
+    private boolean guiOpenedForCurrentVehicle = false; // Track if GUI was already opened
 
     private final ContainerData fields = new ContainerData() {
         @Override
@@ -102,11 +103,20 @@ public class TileEntityGarage extends TileEntityBase implements ITickableBlockEn
                 .orElse(null);
 
             if (nearestVehicle != null) {
+                // Check if this is a new vehicle
+                boolean isNewVehicle = trackedVehicleUUID == null || !trackedVehicleUUID.equals(nearestVehicle.getUUID());
+
                 // Lock the vehicle if it has a driver and isn't already locked
                 if (nearestVehicle.getControllingPassenger() instanceof Player driver) {
                     if (!nearestVehicle.isLockedInGarage()) {
                         lockVehicle(nearestVehicle, driver);
+                        guiOpenedForCurrentVehicle = true; // Mark that GUI was opened for this vehicle
                     }
+                }
+
+                // If new vehicle, reset GUI opened flag
+                if (isNewVehicle) {
+                    guiOpenedForCurrentVehicle = false;
                 }
 
                 // Track this vehicle
@@ -126,6 +136,7 @@ public class TileEntityGarage extends TileEntityBase implements ITickableBlockEn
                 // Vehicle left the area
                 unlockTrackedVehicle();
                 isActive = false;
+                guiOpenedForCurrentVehicle = false; // Reset flag when vehicle leaves
             }
             trackedVehicleUUID = null;
         }
@@ -151,8 +162,8 @@ public class TileEntityGarage extends TileEntityBase implements ITickableBlockEn
             true
         );
 
-        // Open GUI automatically
-        if (driver instanceof ServerPlayer serverPlayer) {
+        // Open GUI automatically ONLY if it hasn't been opened for this vehicle yet
+        if (driver instanceof ServerPlayer serverPlayer && !guiOpenedForCurrentVehicle) {
             openGarageGUI(serverPlayer, vehicle);
         }
     }
@@ -241,6 +252,7 @@ public class TileEntityGarage extends TileEntityBase implements ITickableBlockEn
             compound.putUUID("TrackedVehicle", trackedVehicleUUID);
         }
         compound.putBoolean("Active", isActive);
+        compound.putBoolean("GuiOpened", guiOpenedForCurrentVehicle);
     }
 
     @Override
@@ -251,5 +263,6 @@ public class TileEntityGarage extends TileEntityBase implements ITickableBlockEn
             trackedVehicleUUID = compound.getUUID("TrackedVehicle");
         }
         isActive = compound.getBoolean("Active");
+        guiOpenedForCurrentVehicle = compound.getBoolean("GuiOpened");
     }
 }
