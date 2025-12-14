@@ -38,13 +38,27 @@ public class PartBody extends PartModel {
     public List<OBJModelInstance<EntityGenericVehicle>> getInstances(EntityGenericVehicle vehicle) {
         // Get the vehicle's paint color and build dynamic texture path
         String colorName = vehicle.getPaintColorName();
-        ResourceLocation dynamicTexture = new ResourceLocation(
-            Main.MODID,
-            "textures/entity/vehicle_" + translationKey + "_" + colorName + ".png"
-        );
+
+        // Only use dynamic textures for non-white colors (white is the default/original texture)
+        ResourceLocation textureToUse;
+        if (colorName.equals("white")) {
+            // Use original texture for white (default)
+            textureToUse = texture;
+        } else {
+            // Try to use colored texture, but this will fall back to missing texture if not available
+            // TODO: Create texture files: vehicle_{translationKey}_{colorName}.png
+            // For now, just use the original texture as fallback
+            textureToUse = texture;
+
+            // Uncomment when textures are available:
+            // textureToUse = new ResourceLocation(
+            //     Main.MODID,
+            //     "textures/entity/vehicle_" + translationKey + "_" + colorName + ".png"
+            // );
+        }
 
         List<OBJModelInstance<EntityGenericVehicle>> list = new ArrayList<>();
-        list.add(new OBJModelInstance<>(model, new OBJModelOptions<>(dynamicTexture, offset, rotation)));
+        list.add(new OBJModelInstance<>(model, new OBJModelOptions<>(textureToUse, offset, rotation)));
         onPartAdd(list);
         return list;
     }
