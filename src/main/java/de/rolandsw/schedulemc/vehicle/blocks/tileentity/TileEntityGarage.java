@@ -215,7 +215,10 @@ public class TileEntityGarage extends TileEntityBase implements ITickableBlockEn
     }
 
     public void openGarageGUI(ServerPlayer player, EntityGenericVehicle vehicle) {
-        TileEntityContainerProvider.openGui(player, this, (i, playerInventory, playerEntity) ->
+        TileEntityContainerProvider.openGui(player, this, packetBuffer -> {
+            // Send vehicle UUID to client
+            packetBuffer.writeUUID(vehicle.getUUID());
+        }, (i, playerInventory, playerEntity) ->
             new ContainerGarage(i, vehicle, this, playerInventory)
         );
     }

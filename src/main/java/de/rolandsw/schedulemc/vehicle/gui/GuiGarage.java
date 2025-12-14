@@ -279,14 +279,18 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
     protected void renderBg(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY) {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
-        // Try to use custom texture, fall back to vehicle texture if not found
-        try {
-            guiGraphics.blit(GARAGE_GUI_TEXTURE, leftPos, topPos, 0, 0, imageWidth, imageHeight);
-        } catch (Exception e) {
-            // Fallback: draw a simple background
-            guiGraphics.fill(leftPos, topPos, leftPos + imageWidth, topPos + imageHeight, 0xFFC6C6C6);
-            guiGraphics.fill(leftPos + 1, topPos + 1, leftPos + imageWidth - 1, topPos + imageHeight - 1, 0xFF8B8B8B);
-        }
+        // Draw a simple custom background (no texture needed)
+        // Outer border - dark gray
+        guiGraphics.fill(leftPos, topPos, leftPos + imageWidth, topPos + imageHeight, 0xFF404040);
+
+        // Main background - light gray
+        guiGraphics.fill(leftPos + 2, topPos + 2, leftPos + imageWidth - 2, topPos + imageHeight - 2, 0xFFC6C6C6);
+
+        // Top bar for tabs - darker
+        guiGraphics.fill(leftPos + 2, topPos + 2, leftPos + imageWidth - 2, topPos + 28, 0xFF8B8B8B);
+
+        // Right panel separator
+        guiGraphics.fill(leftPos + 135, topPos + 30, leftPos + 137, topPos + imageHeight - 2, 0xFF666666);
     }
 
     @Override

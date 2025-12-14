@@ -215,8 +215,7 @@ public class Main {
             IForgeMenuType.create(new ContainerFactoryTileEntity((ContainerFactoryTileEntity.ContainerCreator<ContainerFuelStationAdmin, TileEntityFuelStation>) ContainerFuelStationAdmin::new))
     );
     public static final RegistryObject<MenuType<ContainerGarage>> GARAGE_CONTAINER_TYPE = MENU_TYPE_REGISTER.register("garage", () ->
-            IForgeMenuType.create(new ContainerFactoryTileEntity((ContainerFactoryTileEntity.ContainerCreator<ContainerGarage, TileEntityGarage>)
-                    (windowId, garage, playerInventory) -> new ContainerGarage(windowId, garage.getTrackedVehicle(), garage, playerInventory)))
+            IForgeMenuType.create((windowId, inv, data) -> new ContainerGarage(windowId, inv, data))
     );
     public static final RegistryObject<MenuType<ContainerLicensePlate>> LICENSE_PLATE_CONTAINER_TYPE = MENU_TYPE_REGISTER.register("license_plate", () ->
             IForgeMenuType.create((windowId, inv, data) -> {
