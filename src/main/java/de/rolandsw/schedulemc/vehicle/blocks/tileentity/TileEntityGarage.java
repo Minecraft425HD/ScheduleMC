@@ -103,20 +103,17 @@ public class TileEntityGarage extends TileEntityBase implements ITickableBlockEn
                 .orElse(null);
 
             if (nearestVehicle != null) {
-                // Check if this is a new vehicle
-                boolean isNewVehicle = trackedVehicleUUID == null || !trackedVehicleUUID.equals(nearestVehicle.getUUID());
+                // Check if this is a different vehicle (different UUID)
+                if (trackedVehicleUUID != null && !trackedVehicleUUID.equals(nearestVehicle.getUUID())) {
+                    // Different vehicle detected, reset GUI flag
+                    guiOpenedForCurrentVehicle = false;
+                }
 
                 // Lock the vehicle if it has a driver and isn't already locked
                 if (nearestVehicle.getControllingPassenger() instanceof Player driver) {
                     if (!nearestVehicle.isLockedInGarage()) {
                         lockVehicle(nearestVehicle, driver);
-                        guiOpenedForCurrentVehicle = true; // Mark that GUI was opened for this vehicle
                     }
-                }
-
-                // If new vehicle, reset GUI opened flag
-                if (isNewVehicle) {
-                    guiOpenedForCurrentVehicle = false;
                 }
 
                 // Track this vehicle
@@ -164,6 +161,7 @@ public class TileEntityGarage extends TileEntityBase implements ITickableBlockEn
 
         // Open GUI automatically ONLY if it hasn't been opened for this vehicle yet
         if (driver instanceof ServerPlayer serverPlayer && !guiOpenedForCurrentVehicle) {
+            guiOpenedForCurrentVehicle = true; // Set flag BEFORE opening GUI
             openGarageGUI(serverPlayer, vehicle);
         }
     }

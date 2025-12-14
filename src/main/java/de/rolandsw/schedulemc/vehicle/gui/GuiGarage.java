@@ -64,7 +64,7 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
         this.vehicleRenderer = new VehicleUtils.VehicleRenderer(2.0F); // Slow rotation
 
         imageWidth = 290; // Breiter für besseren Platz
-        imageHeight = 220; // Etwas höher
+        imageHeight = 250; // Höher für mehr Platz zwischen Elementen
     }
 
     @Override
