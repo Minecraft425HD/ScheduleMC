@@ -52,16 +52,17 @@ public class ContainerGarage extends ContainerBase {
 
     @Nullable
     private EntityGenericVehicle findVehicleByUUID(Level level, UUID uuid) {
-        // Iterate through all entities in the level
-        Iterable<Entity> entities = level.getAllEntities();
-        for (Entity entity : entities) {
-            if (entity instanceof EntityGenericVehicle genericVehicle) {
-                if (genericVehicle.getUUID().equals(uuid)) {
-                    return genericVehicle;
-                }
-            }
-        }
-        return null;
+        // Search in a large area around the player for the vehicle
+        // Use a large AABB to ensure we find the vehicle
+        net.minecraft.world.phys.AABB searchBox = new net.minecraft.world.phys.AABB(
+            -30000, -500, -30000,
+            30000, 500, 30000
+        );
+
+        return level.getEntitiesOfClass(EntityGenericVehicle.class, searchBox).stream()
+            .filter(v -> v.getUUID().equals(uuid))
+            .findFirst()
+            .orElse(null);
     }
 
     public EntityGenericVehicle getVehicle() {
