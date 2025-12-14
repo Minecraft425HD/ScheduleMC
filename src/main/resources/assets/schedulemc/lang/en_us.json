@@ -581,6 +581,6 @@
   "sound.vehicle.vehicle_lock": "Vehicle locking",
   "sound.vehicle.vehicle_unlock": "Vehicle unlocking",
   "sound.vehicle.ratchet": "Ratchet",
-  "sound.vehicle.gas_station_attendant": "Fuel Station Attendant working"
+  "sound.vehicle.fuel_station_attendant": "Fuel Station Attendant working"
 
 }

@@ -2,12 +2,12 @@
   "type": "minecraft:block",
   "pools": [
     {
-      "name": "gas_station",
+      "name": "fuel_station",
       "rolls": 1,
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "vehicle:gas_station",
+          "name": "vehicle:fuel_station",
           "functions": [
             {
               "function": "minecraft:copy_name",

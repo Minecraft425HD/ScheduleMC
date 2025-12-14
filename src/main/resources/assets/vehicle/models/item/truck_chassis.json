@@ -1,6 +1,6 @@
 {
     "parent": "item/generated",
     "textures": {
-        "layer0": "vehicle:item/lkw_chassis"
+        "layer0": "vehicle:item/truck_chassis"
     }
 }
