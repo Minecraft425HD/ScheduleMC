@@ -143,16 +143,15 @@ public class MessageGarageUpgrade implements Message<MessageGarageUpgrade> {
         try {
             switch (type) {
                 case MOTOR -> {
-                    // TODO: Replace motor part in part inventory
-                    // Need to find motor slot in partInventory and replace ItemStack
+                    // Replace motor part in part inventory
                     return replacePartInInventory(vehicle, PartEngine.class, getMotorByLevel(value));
                 }
                 case TANK -> {
-                    // TODO: Replace tank part in part inventory
+                    // Replace tank part in part inventory
                     return replacePartInInventory(vehicle, PartTank.class, getTankByLevel(value));
                 }
                 case TIRE -> {
-                    // TODO: Replace all tire parts in part inventory
+                    // Replace all tire parts in part inventory
                     return replacePartInInventory(vehicle, PartTireBase.class, getTireByIndex(value, vehicle));
                 }
                 case PAINT -> {
@@ -164,7 +163,7 @@ public class MessageGarageUpgrade implements Message<MessageGarageUpgrade> {
                     return false;
                 }
                 case FENDER -> {
-                    // TODO: Replace fender part in part inventory
+                    // Replace fender part in part inventory
                     return replacePartInInventory(vehicle, PartBumper.class, getFenderByLevel(value));
                 }
             }
@@ -176,12 +175,73 @@ public class MessageGarageUpgrade implements Message<MessageGarageUpgrade> {
 
     /**
      * Helper method to replace a part in the vehicle's part inventory
-     * TODO: Implement proper part replacement logic when part-to-item conversion is clarified
      */
     private boolean replacePartInInventory(EntityGenericVehicle vehicle, Class<? extends Part> partClass, Part newPart) {
-        // Placeholder: Currently only paint changes are fully implemented
-        // Part inventory manipulation will be added in the GUI implementation phase
-        return false;
+        if (newPart == null) {
+            return false;
+        }
+
+        net.minecraft.world.Container partInventory = vehicle.getInventoryComponent().getPartInventory();
+
+        // Find and replace the part(s) in the inventory
+        boolean replacedAny = false;
+        for (int i = 0; i < partInventory.getContainerSize(); i++) {
+            ItemStack stack = partInventory.getItem(i);
+
+            if (!stack.isEmpty() && stack.getItem() instanceof de.rolandsw.schedulemc.vehicle.items.IVehiclePart partItem) {
+                Part existingPart = partItem.getPart(stack);
+
+                // Check if this part matches the class we want to replace
+                if (partClass.isInstance(existingPart)) {
+                    // Create new ItemStack for the new part
+                    ItemStack newStack = getItemStackForPart(newPart);
+                    if (!newStack.isEmpty()) {
+                        partInventory.setItem(i, newStack);
+                        replacedAny = true;
+
+                        // For tires, we need to replace all of them, so continue
+                        // For motors/tanks/fenders, just replace the first one and break
+                        if (!PartTireBase.class.isAssignableFrom(partClass)) {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Update the vehicle's serialized parts data
+        if (replacedAny) {
+            vehicle.setPartSerializer();
+        }
+
+        return replacedAny;
+    }
+
+    /**
+     * Get the ItemStack for a given Part
+     */
+    private ItemStack getItemStackForPart(Part part) {
+        // Map parts to their items
+        if (part == PartRegistry.NORMAL_MOTOR) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.NORMAL_MOTOR.get());
+        if (part == PartRegistry.PERFORMANCE_MOTOR) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.PERFORMANCE_MOTOR.get());
+        if (part == PartRegistry.INDUSTRIAL_MOTOR) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.INDUSTRIAL_MOTOR.get());
+
+        if (part == PartRegistry.TANK_15L) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.TANK_15L.get());
+        if (part == PartRegistry.TANK_30L) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.TANK_30L.get());
+        if (part == PartRegistry.TANK_50L) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.TANK_50L.get());
+
+        if (part == PartRegistry.STANDARD_TIRE) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.STANDARD_TIRE.get());
+        if (part == PartRegistry.SPORT_TIRE) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.SPORT_TIRE.get());
+        if (part == PartRegistry.PREMIUM_TIRE) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.PREMIUM_TIRE.get());
+        if (part == PartRegistry.OFFROAD_TIRE) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.OFFROAD_TIRE.get());
+        if (part == PartRegistry.ALLTERRAIN_TIRE) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.ALLTERRAIN_TIRE.get());
+        if (part == PartRegistry.HEAVY_DUTY_TIRE) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.HEAVY_DUTY_TIRE.get());
+
+        if (part == PartRegistry.FENDER_BASIC) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.FENDER_BASIC.get());
+        if (part == PartRegistry.FENDER_CHROME) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.FENDER_CHROME.get());
+        if (part == PartRegistry.FENDER_SPORT) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.FENDER_SPORT.get());
+
+        return ItemStack.EMPTY;
     }
 
     private Part getMotorByLevel(int level) {

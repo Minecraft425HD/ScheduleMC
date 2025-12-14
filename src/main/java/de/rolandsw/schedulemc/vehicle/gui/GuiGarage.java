@@ -4,8 +4,11 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.vehicle.Main;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
-import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.Part;
+import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.*;
+import de.rolandsw.schedulemc.vehicle.items.IVehiclePart;
 import de.rolandsw.schedulemc.vehicle.net.MessageGaragePayment;
+import de.rolandsw.schedulemc.vehicle.net.MessageGarageUpgrade;
+import de.rolandsw.schedulemc.vehicle.net.UpgradeType;
 import de.rolandsw.schedulemc.vehicle.util.VehicleUtils;
 import de.maxhenkel.corelib.inventory.ScreenBase;
 import de.maxhenkel.corelib.math.MathUtils;
@@ -13,7 +16,12 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class GuiGarage extends ScreenBase<ContainerGarage> {
 
@@ -51,10 +59,12 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
     private boolean changeOilSelected = true;
 
     // Upgrade options
-    private Button upgradeEngineButton;
-    private Button upgradeTiresButton;
-    private Button paintButton;
-    private int selectedColor = 0xFFFFFF;
+    private Button upgradeMotorButton;
+    private Button upgradeTankButton;
+    private Button upgradeTireButton;
+    private Button upgradeFenderButton;
+    private List<Button> paintColorButtons = new ArrayList<>();
+    private int selectedPaintColor = 0; // 0-4: white, black, red, blue, yellow
 
     public GuiGarage(ContainerGarage containerGarage, Inventory playerInv, Component title) {
         super(GARAGE_GUI_TEXTURE, containerGarage, playerInv, title);
@@ -154,39 +164,96 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
     }
 
     private void initUpgradeButtons() {
-        int btnX = leftPos + 145; // Angepasst an neue rightX Position
-        int btnY = topPos + 76; // Nach dem Text für Motor (58 + 10 + 8)
-        int btnWidth = 110; // Etwas breiter
+        int btnX = leftPos + 145;
+        int btnY = topPos + 60;
+        int btnWidth = 125;
         int btnHeight = 18;
-        int lineHeight = 45; // Mehr Abstand zwischen Buttons
+        int spacing = 30;
 
-        upgradeEngineButton = addRenderableWidget(Button.builder(
-            Component.literal("Motor: 250€"),
-            button -> {
-                // TODO: Upgrade engine logic
-            })
-            .bounds(btnX, btnY, btnWidth, btnHeight)
-            .build()
-        );
+        // Initialize selected paint color from vehicle
+        if (vehicle != null) {
+            selectedPaintColor = vehicle.getPaintColor();
+        }
 
-        upgradeTiresButton = addRenderableWidget(Button.builder(
-            Component.literal("Reifen: 150€"),
-            button -> {
-                // TODO: Upgrade tires logic
-            })
-            .bounds(btnX, btnY + lineHeight, btnWidth, btnHeight)
-            .build()
-        );
+        // Motor upgrade button
+        int motorLevel = getCurrentMotorLevel();
+        if (motorLevel < 3) {
+            double motorCost = motorLevel == 1 ?
+                ModConfigHandler.COMMON.GARAGE_MOTOR_UPGRADE_COST_LVL2.get() :
+                ModConfigHandler.COMMON.GARAGE_MOTOR_UPGRADE_COST_LVL3.get();
+            upgradeMotorButton = addRenderableWidget(Button.builder(
+                Component.literal(String.format("Motor Lvl %d: %.0f€", motorLevel + 1, motorCost)),
+                button -> sendUpgrade(UpgradeType.MOTOR, motorLevel + 1))
+                .bounds(btnX, btnY, btnWidth, btnHeight)
+                .build()
+            );
+        }
 
-        paintButton = addRenderableWidget(Button.builder(
-            Component.literal("Lackierung: 50€"),
-            button -> {
-                // Cycle through colors
-                selectedColor = getNextColor(selectedColor);
-            })
-            .bounds(btnX, btnY + lineHeight * 2, btnWidth, btnHeight)
-            .build()
-        );
+        // Tank upgrade button
+        btnY += spacing;
+        int tankLevel = getCurrentTankLevel();
+        if (tankLevel < 3) {
+            double tankCost = tankLevel == 1 ?
+                ModConfigHandler.COMMON.GARAGE_TANK_UPGRADE_COST_LVL2.get() :
+                ModConfigHandler.COMMON.GARAGE_TANK_UPGRADE_COST_LVL3.get();
+            upgradeTankButton = addRenderableWidget(Button.builder(
+                Component.literal(String.format("Tank Lvl %d: %.0f€", tankLevel + 1, tankCost)),
+                button -> sendUpgrade(UpgradeType.TANK, tankLevel + 1))
+                .bounds(btnX, btnY, btnWidth, btnHeight)
+                .build()
+            );
+        }
+
+        // Tire upgrade button
+        btnY += spacing;
+        int currentTire = getCurrentTireIndex();
+        if (currentTire < 2) {
+            upgradeTireButton = addRenderableWidget(Button.builder(
+                Component.literal(String.format("Reifen Lvl %d: %.0f€", currentTire + 2,
+                    ModConfigHandler.COMMON.GARAGE_TIRE_UPGRADE_COST.get())),
+                button -> sendUpgrade(UpgradeType.TIRE, currentTire + 1))
+                .bounds(btnX, btnY, btnWidth, btnHeight)
+                .build()
+            );
+        }
+
+        // Fender upgrade button
+        btnY += spacing;
+        int fenderLevel = getCurrentFenderLevel();
+        if (fenderLevel < 3) {
+            double fenderCost = fenderLevel == 1 ?
+                ModConfigHandler.COMMON.GARAGE_FENDER_UPGRADE_COST_LVL2.get() :
+                ModConfigHandler.COMMON.GARAGE_FENDER_UPGRADE_COST_LVL3.get();
+            upgradeFenderButton = addRenderableWidget(Button.builder(
+                Component.literal(String.format("Fender Lvl %d: %.0f€", fenderLevel + 1, fenderCost)),
+                button -> sendUpgrade(UpgradeType.FENDER, fenderLevel + 1))
+                .bounds(btnX, btnY, btnWidth, btnHeight)
+                .build()
+            );
+        }
+
+        // Paint color buttons (5 colors in a row)
+        btnY += spacing;
+        int colorBtnSize = 20;
+        int colorSpacing = 25;
+        int colorStartX = btnX + 5;
+
+        String[] colorNames = {"Weiß", "Schwarz", "Rot", "Blau", "Gelb"};
+        int[] colorHex = {0xFFFFFF, 0x000000, 0xFF0000, 0x0000FF, 0xFFFF00};
+
+        for (int i = 0; i < 5; i++) {
+            final int colorIndex = i;
+            Button colorBtn = addRenderableWidget(Button.builder(
+                Component.literal(""),
+                button -> {
+                    selectedPaintColor = colorIndex;
+                    sendUpgrade(UpgradeType.PAINT, colorIndex);
+                })
+                .bounds(colorStartX + i * colorSpacing, btnY, colorBtnSize, colorBtnSize)
+                .build()
+            );
+            paintColorButtons.add(colorBtn);
+        }
     }
 
     private void updatePayButton() {
@@ -231,23 +298,20 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
         // Show/hide widgets based on current tab
         boolean isRepair = currentTab == Tab.REPAIR;
 
+        // Repair tab widgets
         if (repairDamageCheckbox != null) repairDamageCheckbox.visible = isRepair;
         if (chargeBatteryCheckbox != null) chargeBatteryCheckbox.visible = isRepair;
         if (changeOilCheckbox != null) changeOilCheckbox.visible = isRepair;
 
-        if (upgradeEngineButton != null) upgradeEngineButton.visible = !isRepair;
-        if (upgradeTiresButton != null) upgradeTiresButton.visible = !isRepair;
-        if (paintButton != null) paintButton.visible = !isRepair;
-    }
+        // Upgrade tab widgets
+        if (upgradeMotorButton != null) upgradeMotorButton.visible = !isRepair;
+        if (upgradeTankButton != null) upgradeTankButton.visible = !isRepair;
+        if (upgradeTireButton != null) upgradeTireButton.visible = !isRepair;
+        if (upgradeFenderButton != null) upgradeFenderButton.visible = !isRepair;
 
-    private int getNextColor(int currentColor) {
-        int[] colors = {0xFFFFFF, 0xFF0000, 0x00FF00, 0x0000FF, 0xFFFF00, 0xFF00FF, 0x00FFFF, 0x000000};
-        for (int i = 0; i < colors.length; i++) {
-            if (colors[i] == currentColor) {
-                return colors[(i + 1) % colors.length];
-            }
+        for (Button colorBtn : paintColorButtons) {
+            colorBtn.visible = !isRepair;
         }
-        return colors[0];
     }
 
     @Override
@@ -372,28 +436,77 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
     }
 
     private void renderUpgradeTab(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        int rightX = 145; // Angepasst wie bei renderRepairTab
+        int rightX = 145;
         int startY = 42;
 
         guiGraphics.drawString(font, "=== UPGRADES ===", rightX, startY, fontColor, false);
 
-        // Motor Upgrade - Text über Button
-        int upgradeY = 58;
-        int textSpacing = 10; // Abstand zwischen Textzeilen
-        guiGraphics.drawString(font, "120 -> 150 km/h", rightX + 2, upgradeY, fontColor, false);
-        guiGraphics.drawString(font, "+25% Leistung", rightX + 2, upgradeY + textSpacing, 0x00FF00, false);
+        int labelY = 48;
+        int spacing = 30;
 
-        // Reifen Upgrade - Text über Button
-        upgradeY += 45; // Mehr Abstand zwischen Upgrades
-        guiGraphics.drawString(font, "Handling +30%", rightX + 2, upgradeY, fontColor, false);
-        guiGraphics.drawString(font, "Grip +20%", rightX + 2, upgradeY + textSpacing, 0x00FF00, false);
+        // Motor
+        int motorLevel = getCurrentMotorLevel();
+        if (motorLevel < 3) {
+            guiGraphics.drawString(font, "Motor Lvl " + motorLevel, rightX + 2, labelY, partColor, false);
+        } else {
+            guiGraphics.drawString(font, "Motor: MAX", rightX + 2, labelY, 0x00FF00, false);
+        }
 
-        // Lackierung - Text über Button
-        upgradeY += 45;
-        int colorX = rightX + 2;
-        int colorY = upgradeY;
-        guiGraphics.fill(colorX, colorY, colorX + 40, colorY + 8, 0xFF000000 | selectedColor);
-        guiGraphics.drawString(font, "Farbe", rightX + 45, upgradeY, fontColor, false);
+        // Tank
+        labelY += spacing;
+        int tankLevel = getCurrentTankLevel();
+        if (tankLevel < 3) {
+            guiGraphics.drawString(font, "Tank Lvl " + tankLevel, rightX + 2, labelY, partColor, false);
+        } else {
+            guiGraphics.drawString(font, "Tank: MAX", rightX + 2, labelY, 0x00FF00, false);
+        }
+
+        // Tire
+        labelY += spacing;
+        int tireIdx = getCurrentTireIndex();
+        if (tireIdx < 2) {
+            guiGraphics.drawString(font, "Reifen Lvl " + (tireIdx + 1), rightX + 2, labelY, partColor, false);
+        } else {
+            guiGraphics.drawString(font, "Reifen: MAX", rightX + 2, labelY, 0x00FF00, false);
+        }
+
+        // Fender
+        labelY += spacing;
+        int fenderLevel = getCurrentFenderLevel();
+        if (fenderLevel < 3) {
+            guiGraphics.drawString(font, "Fender Lvl " + fenderLevel, rightX + 2, labelY, partColor, false);
+        } else {
+            guiGraphics.drawString(font, "Fender: MAX", rightX + 2, labelY, 0x00FF00, false);
+        }
+
+        // Paint colors - render colored squares for the buttons
+        labelY += spacing + 2;
+        guiGraphics.drawString(font, "Lackierung:", rightX, labelY - 12, fontColor, false);
+
+        int[] colorHex = {0xFFFFFF, 0x000000, 0xFF0000, 0x0000FF, 0xFFFF00};
+        int colorBtnSize = 20;
+        int colorSpacing = 25;
+        int colorStartX = rightX + 5;
+
+        for (int i = 0; i < paintColorButtons.size() && i < colorHex.length; i++) {
+            Button btn = paintColorButtons.get(i);
+            if (btn.visible) {
+                int btnX = colorStartX + i * colorSpacing;
+                int btnY = labelY;
+
+                // Draw colored square
+                guiGraphics.fill(btnX, btnY, btnX + colorBtnSize, btnY + colorBtnSize, 0xFF000000 | colorHex[i]);
+
+                // Draw border
+                if (selectedPaintColor == i) {
+                    // Selected color - thick border
+                    guiGraphics.fill(btnX - 2, btnY - 2, btnX + colorBtnSize + 2, btnY, 0xFFFFFFFF);
+                    guiGraphics.fill(btnX - 2, btnY + colorBtnSize, btnX + colorBtnSize + 2, btnY + colorBtnSize + 2, 0xFFFFFFFF);
+                    guiGraphics.fill(btnX - 2, btnY, btnX, btnY + colorBtnSize, 0xFFFFFFFF);
+                    guiGraphics.fill(btnX + colorBtnSize, btnY, btnX + colorBtnSize + 2, btnY + colorBtnSize, 0xFFFFFFFF);
+                }
+            }
+        }
     }
 
     private void renderPartStatusBar(GuiGraphics guiGraphics, int x, int y, String partName, float percent, int mouseX, int mouseY) {
@@ -504,5 +617,100 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
     public float getTemperatureCelsius() {
         if (vehicle == null) return 0;
         return MathUtils.round(vehicle.getDamageComponent().getTemperature(), 1);
+    }
+
+    // === Upgrade Helper Methods ===
+
+    private void sendUpgrade(UpgradeType type, int value) {
+        if (vehicle != null && minecraft != null && minecraft.player != null) {
+            Main.SIMPLE_CHANNEL.sendToServer(new MessageGarageUpgrade(
+                minecraft.player.getUUID(),
+                vehicle.getUUID(),
+                type,
+                value
+            ));
+        }
+    }
+
+    private int getCurrentMotorLevel() {
+        if (vehicle == null) return 1;
+        Container partInv = vehicle.getInventoryComponent().getPartInventory();
+
+        for (int i = 0; i < partInv.getContainerSize(); i++) {
+            ItemStack stack = partInv.getItem(i);
+            if (!stack.isEmpty() && stack.getItem() instanceof IVehiclePart partItem) {
+                Part part = partItem.getPart(stack);
+                if (part instanceof PartEngine) {
+                    if (part == PartRegistry.INDUSTRIAL_MOTOR) return 3;
+                    if (part == PartRegistry.PERFORMANCE_MOTOR) return 2;
+                    return 1;
+                }
+            }
+        }
+        return 1;
+    }
+
+    private int getCurrentTankLevel() {
+        if (vehicle == null) return 1;
+        Container partInv = vehicle.getInventoryComponent().getPartInventory();
+
+        for (int i = 0; i < partInv.getContainerSize(); i++) {
+            ItemStack stack = partInv.getItem(i);
+            if (!stack.isEmpty() && stack.getItem() instanceof IVehiclePart partItem) {
+                Part part = partItem.getPart(stack);
+                if (part instanceof PartTank) {
+                    if (part == PartRegistry.TANK_50L) return 3;
+                    if (part == PartRegistry.TANK_30L) return 2;
+                    return 1;
+                }
+            }
+        }
+        return 1;
+    }
+
+    private int getCurrentTireIndex() {
+        if (vehicle == null) return 0;
+        Container partInv = vehicle.getInventoryComponent().getPartInventory();
+
+        PartBody body = vehicle.getPartByClass(PartBody.class);
+        boolean isTruck = body != null && (body.getTranslationKey().contains("transporter")
+                                         || body.getTranslationKey().contains("delivery"));
+
+        for (int i = 0; i < partInv.getContainerSize(); i++) {
+            ItemStack stack = partInv.getItem(i);
+            if (!stack.isEmpty() && stack.getItem() instanceof IVehiclePart partItem) {
+                Part part = partItem.getPart(stack);
+                if (part instanceof PartTireBase) {
+                    if (isTruck) {
+                        if (part == PartRegistry.HEAVY_DUTY_TIRE) return 2;
+                        if (part == PartRegistry.ALLTERRAIN_TIRE) return 1;
+                        return 0; // OFFROAD
+                    } else {
+                        if (part == PartRegistry.PREMIUM_TIRE) return 2;
+                        if (part == PartRegistry.SPORT_TIRE) return 1;
+                        return 0; // STANDARD
+                    }
+                }
+            }
+        }
+        return 0;
+    }
+
+    private int getCurrentFenderLevel() {
+        if (vehicle == null) return 1;
+        Container partInv = vehicle.getInventoryComponent().getPartInventory();
+
+        for (int i = 0; i < partInv.getContainerSize(); i++) {
+            ItemStack stack = partInv.getItem(i);
+            if (!stack.isEmpty() && stack.getItem() instanceof IVehiclePart partItem) {
+                Part part = partItem.getPart(stack);
+                if (part instanceof PartBumper || part instanceof PartChromeBumper || part instanceof PartSportBumper) {
+                    if (part == PartRegistry.FENDER_SPORT) return 3;
+                    if (part == PartRegistry.FENDER_CHROME) return 2;
+                    return 1;
+                }
+            }
+        }
+        return 1;
     }
 }
