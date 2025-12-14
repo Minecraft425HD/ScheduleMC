@@ -141,6 +141,7 @@ public class Main {
         ClientRegistry.<ContainerFuelStation, GuiFuelStation>registerScreen(Main.FUEL_STATION_CONTAINER_TYPE.get(), GuiFuelStation::new);
         ClientRegistry.<ContainerFuelStationAdmin, GuiFuelStationAdmin>registerScreen(Main.FUEL_STATION_ADMIN_CONTAINER_TYPE.get(), GuiFuelStationAdmin::new);
         ClientRegistry.<ContainerLicensePlate, GuiLicensePlate>registerScreen(Main.LICENSE_PLATE_CONTAINER_TYPE.get(), GuiLicensePlate::new);
+        ClientRegistry.<ContainerGarage, GuiGarage>registerScreen(Main.GARAGE_CONTAINER_TYPE.get(), GuiGarage::new);
 
         MinecraftForge.EVENT_BUS.register(new RenderEvents());
         MinecraftForge.EVENT_BUS.register(new SoundEvents());
