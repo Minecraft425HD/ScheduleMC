@@ -183,7 +183,14 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
                 ModConfigHandler.COMMON.GARAGE_MOTOR_UPGRADE_COST_LVL3.get();
             upgradeMotorButton = addRenderableWidget(Button.builder(
                 Component.literal(String.format("Motor Lvl %d: %.0f€", motorLevel + 1, motorCost)),
-                button -> sendUpgrade(UpgradeType.MOTOR, motorLevel + 1))
+                button -> {
+                    sendUpgrade(UpgradeType.MOTOR, motorLevel + 1);
+                    // Refresh GUI after upgrade
+                    minecraft.execute(() -> {
+                        try { Thread.sleep(100); } catch (InterruptedException e) {}
+                        this.rebuildWidgets();
+                    });
+                })
                 .bounds(btnX, btnY, btnWidth, btnHeight)
                 .build()
             );
@@ -198,7 +205,14 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
                 ModConfigHandler.COMMON.GARAGE_TANK_UPGRADE_COST_LVL3.get();
             upgradeTankButton = addRenderableWidget(Button.builder(
                 Component.literal(String.format("Tank Lvl %d: %.0f€", tankLevel + 1, tankCost)),
-                button -> sendUpgrade(UpgradeType.TANK, tankLevel + 1))
+                button -> {
+                    sendUpgrade(UpgradeType.TANK, tankLevel + 1);
+                    // Refresh GUI after upgrade
+                    minecraft.execute(() -> {
+                        try { Thread.sleep(100); } catch (InterruptedException e) {}
+                        this.rebuildWidgets();
+                    });
+                })
                 .bounds(btnX, btnY, btnWidth, btnHeight)
                 .build()
             );
@@ -211,7 +225,14 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
             upgradeTireButton = addRenderableWidget(Button.builder(
                 Component.literal(String.format("Reifen Lvl %d: %.0f€", currentTire + 2,
                     ModConfigHandler.COMMON.GARAGE_TIRE_UPGRADE_COST.get())),
-                button -> sendUpgrade(UpgradeType.TIRE, currentTire + 1))
+                button -> {
+                    sendUpgrade(UpgradeType.TIRE, currentTire + 1);
+                    // Refresh GUI after upgrade
+                    minecraft.execute(() -> {
+                        try { Thread.sleep(100); } catch (InterruptedException e) {}
+                        this.rebuildWidgets();
+                    });
+                })
                 .bounds(btnX, btnY, btnWidth, btnHeight)
                 .build()
             );
@@ -226,14 +247,21 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
                 ModConfigHandler.COMMON.GARAGE_FENDER_UPGRADE_COST_LVL3.get();
             upgradeFenderButton = addRenderableWidget(Button.builder(
                 Component.literal(String.format("Fender Lvl %d: %.0f€", fenderLevel + 1, fenderCost)),
-                button -> sendUpgrade(UpgradeType.FENDER, fenderLevel + 1))
+                button -> {
+                    sendUpgrade(UpgradeType.FENDER, fenderLevel + 1);
+                    // Refresh GUI after upgrade
+                    minecraft.execute(() -> {
+                        try { Thread.sleep(100); } catch (InterruptedException e) {}
+                        this.rebuildWidgets();
+                    });
+                })
                 .bounds(btnX, btnY, btnWidth, btnHeight)
                 .build()
             );
         }
 
-        // Paint color buttons (5 colors in a row)
-        btnY += spacing;
+        // Paint color buttons (5 colors in a row) - WEITER NACH UNTEN verschoben
+        btnY += spacing + 15; // Extra Abstand für Lackierung
         int colorBtnSize = 20;
         int colorSpacing = 25;
         int colorStartX = btnX + 5;
@@ -479,8 +507,8 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
             guiGraphics.drawString(font, "Fender: MAX", rightX + 2, labelY, 0x00FF00, false);
         }
 
-        // Paint colors - render colored squares for the buttons
-        labelY += spacing + 2;
+        // Paint colors - render colored squares for the buttons - WEITER NACH UNTEN
+        labelY += spacing + 17; // Extra Abstand für Lackierung (spacing + 15 + 2)
         guiGraphics.drawString(font, "Lackierung:", rightX, labelY - 12, fontColor, false);
 
         int[] colorHex = {0xFFFFFF, 0x000000, 0xFF0000, 0x0000FF, 0xFFFF00};
