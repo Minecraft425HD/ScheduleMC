@@ -63,8 +63,8 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
         this.vehicle = containerGarage.getVehicle();
         this.vehicleRenderer = new VehicleUtils.VehicleRenderer(2.0F); // Slow rotation
 
-        imageWidth = 256;
-        imageHeight = 215; // Etwas höher für besseren Platz
+        imageWidth = 290; // Breiter für besseren Platz
+        imageHeight = 220; // Etwas höher
     }
 
     @Override
@@ -109,9 +109,9 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
     }
 
     private void initRepairCheckboxes() {
-        int checkX = leftPos + 140;
-        int checkY = topPos + 110; // Angepasst an renderRepairTab
-        int lineHeight = 22; // Mehr Abstand zwischen Zeilen
+        int checkX = leftPos + 145; // Angepasst an neue rightX Position
+        int checkY = topPos + 115; // Angepasst an renderRepairTab
+        int lineHeight = 24; // Mehr Abstand zwischen Zeilen
         int checkboxWidth = 12;
         int checkboxHeight = 12;
 
@@ -167,11 +167,11 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
     }
 
     private void initUpgradeButtons() {
-        int btnX = leftPos + 140;
-        int btnY = topPos + 71; // Nach dem Text für Motor (55 + 8 + 8 = 71)
-        int btnWidth = 100;
+        int btnX = leftPos + 145; // Angepasst an neue rightX Position
+        int btnY = topPos + 76; // Nach dem Text für Motor (58 + 10 + 8)
+        int btnWidth = 110; // Etwas breiter
         int btnHeight = 18;
-        int lineHeight = 40; // Entspricht dem Abstand im renderUpgradeTab
+        int lineHeight = 45; // Mehr Abstand zwischen Buttons
 
         upgradeEngineButton = addRenderableWidget(Button.builder(
             Component.literal("Motor: 250€"),
@@ -342,25 +342,26 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
     }
 
     private void renderRepairTab(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        int rightX = 140;
-        int startY = 40;
+        int rightX = 145; // Etwas mehr nach rechts
+        int startY = 42;
 
         // Parts status with colored bars
         guiGraphics.drawString(font, "=== TEILEZUSTAND ===", rightX, startY, fontColor, false);
 
-        int barY = startY + 10;
+        int barY = startY + 12;
+        int barSpacing = 16; // Mehr Abstand zwischen Balken
         renderPartStatusBar(guiGraphics, rightX, barY, "Motor", 100 - getDamagePercent(), mouseX, mouseY);
-        renderPartStatusBar(guiGraphics, rightX, barY + 14, "Reifen", 85.0f, mouseX, mouseY);
-        renderPartStatusBar(guiGraphics, rightX, barY + 28, "Karosserie", 100 - getDamagePercent() * 0.5f, mouseX, mouseY);
+        renderPartStatusBar(guiGraphics, rightX, barY + barSpacing, "Reifen", 85.0f, mouseX, mouseY);
+        renderPartStatusBar(guiGraphics, rightX, barY + barSpacing * 2, "Karosserie", 100 - getDamagePercent() * 0.5f, mouseX, mouseY);
 
         // Repair options with checkboxes (already rendered by widgets)
-        int checkY = 110;
-        guiGraphics.drawString(font, "=== SERVICES ===", rightX, checkY - 8, fontColor, false);
+        int checkY = 115; // Mehr Abstand nach unten
+        guiGraphics.drawString(font, "=== SERVICES ===", rightX, checkY - 10, fontColor, false);
 
         // Show labels and prices next to checkboxes
-        int labelX = rightX + 15;
-        int priceX = rightX + 80;
-        int lineSpacing = 22; // Entspricht lineHeight in initRepairCheckboxes
+        int labelX = rightX + 16;
+        int priceX = rightX + 95; // Mehr Platz für Preise
+        int lineSpacing = 24; // Mehr Abstand zwischen Zeilen
 
         // Reparatur
         guiGraphics.drawString(font, "Reparatur", labelX, checkY, partColor, false);
@@ -386,23 +387,24 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
     }
 
     private void renderUpgradeTab(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        int rightX = 140;
-        int startY = 40;
+        int rightX = 145; // Angepasst wie bei renderRepairTab
+        int startY = 42;
 
         guiGraphics.drawString(font, "=== UPGRADES ===", rightX, startY, fontColor, false);
 
         // Motor Upgrade - Text über Button
-        int upgradeY = 55;
+        int upgradeY = 58;
+        int textSpacing = 10; // Abstand zwischen Textzeilen
         guiGraphics.drawString(font, "120 -> 150 km/h", rightX + 2, upgradeY, fontColor, false);
-        guiGraphics.drawString(font, "+25% Leistung", rightX + 2, upgradeY + 8, 0x00FF00, false);
+        guiGraphics.drawString(font, "+25% Leistung", rightX + 2, upgradeY + textSpacing, 0x00FF00, false);
 
         // Reifen Upgrade - Text über Button
-        upgradeY += 40;
+        upgradeY += 45; // Mehr Abstand zwischen Upgrades
         guiGraphics.drawString(font, "Handling +30%", rightX + 2, upgradeY, fontColor, false);
-        guiGraphics.drawString(font, "Grip +20%", rightX + 2, upgradeY + 8, 0x00FF00, false);
+        guiGraphics.drawString(font, "Grip +20%", rightX + 2, upgradeY + textSpacing, 0x00FF00, false);
 
         // Lackierung - Text über Button
-        upgradeY += 40;
+        upgradeY += 45;
         int colorX = rightX + 2;
         int colorY = upgradeY;
         guiGraphics.fill(colorX, colorY, colorX + 40, colorY + 8, 0xFF000000 | selectedColor);
@@ -416,7 +418,7 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
         // Draw status bar
         int barX = x;
         int barY = y + 10;
-        int barWidth = 100;
+        int barWidth = 110; // Etwas breiter
         int barHeight = 6;
 
         // Background
