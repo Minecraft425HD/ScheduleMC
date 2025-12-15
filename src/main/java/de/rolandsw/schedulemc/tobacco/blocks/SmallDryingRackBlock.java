@@ -3,14 +3,13 @@ package de.rolandsw.schedulemc.tobacco.blocks;
 import de.rolandsw.schedulemc.tobacco.blockentity.SmallDryingRackBlockEntity;
 import de.rolandsw.schedulemc.tobacco.items.FreshTobaccoLeafItem;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -19,10 +18,10 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Kleines Trocknungsgestell
+ * Kleines Trocknungsgestell (3 Blöcke breit: links, mitte, rechts)
  * Kapazität: 6 Tabakblätter
  */
-public class SmallDryingRackBlock extends Block implements EntityBlock {
+public class SmallDryingRackBlock extends AbstractDryingRackBlock {
 
     public SmallDryingRackBlock(Properties properties) {
         super(properties);
@@ -31,13 +30,20 @@ public class SmallDryingRackBlock extends Block implements EntityBlock {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new SmallDryingRackBlockEntity(pos, state);
+        // Nur der CENTER-Block hat ein BlockEntity
+        if (isMasterBlock(state)) {
+            return new SmallDryingRackBlockEntity(pos, state);
+        }
+        return null;
     }
 
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return level.isClientSide ? null : (lvl, pos, st, be) -> {
+        if (level.isClientSide || !isMasterBlock(state)) {
+            return null;
+        }
+        return (lvl, pos, st, be) -> {
             if (be instanceof SmallDryingRackBlockEntity rackBE) {
                 rackBE.tick();
             }
@@ -49,7 +55,12 @@ public class SmallDryingRackBlock extends Block implements EntityBlock {
                                  InteractionHand hand, BlockHitResult hit) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
 
-        BlockEntity be = level.getBlockEntity(pos);
+        // Finde das Master-BlockEntity (CENTER)
+        RackPart part = state.getValue(PART);
+        Direction facing = state.getValue(FACING);
+        BlockPos masterPos = getMasterPos(pos, part, facing);
+
+        BlockEntity be = level.getBlockEntity(masterPos);
         if (!(be instanceof SmallDryingRackBlockEntity rackBE)) {
             return InteractionResult.PASS;
         }
