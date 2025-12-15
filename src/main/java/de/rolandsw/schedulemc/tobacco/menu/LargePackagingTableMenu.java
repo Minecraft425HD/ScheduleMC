@@ -59,7 +59,7 @@ public class LargePackagingTableMenu extends AbstractContainerMenu {
 
         // Player Hotbar
         for (int i = 0; i < 9; i++) {
-            this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 86));
+            this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 116));  // Angepasst an neue GUI-Höhe
         }
     }
 

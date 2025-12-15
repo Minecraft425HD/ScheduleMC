@@ -17,8 +17,8 @@ public class SmallPackagingTableScreen extends AbstractContainerScreen<SmallPack
 
     public SmallPackagingTableScreen(SmallPackagingTableMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
-        this.imageHeight = 164;
-        this.inventoryLabelY = this.imageHeight - 10;
+        this.imageHeight = 190;  // Erhöht für mehr Platz
+        this.inventoryLabelY = this.imageHeight - 94;
     }
 
     @Override
@@ -28,7 +28,7 @@ public class SmallPackagingTableScreen extends AbstractContainerScreen<SmallPack
         int buttonWidth = 50;
         int buttonHeight = 18;
         int centerX = this.leftPos + this.imageWidth / 2;
-        int buttonY = this.topPos + 125;
+        int buttonY = this.topPos + 145;  // Unter den Slots
 
         // 3 Buttons: 1g, 5g, Unpack
         // 1g Button
@@ -104,7 +104,7 @@ public class SmallPackagingTableScreen extends AbstractContainerScreen<SmallPack
 
         // Player Hotbar (nur Schnellzugriffsleiste)
         for (int i = 0; i < 9; i++) {
-            drawSlot(graphics, x + 8 + i * 18, y + 140);
+            drawSlot(graphics, x + 8 + i * 18, y + 168);  // Weiter nach unten
         }
     }
 

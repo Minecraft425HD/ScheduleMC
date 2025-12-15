@@ -17,7 +17,7 @@ public class LargePackagingTableScreen extends AbstractContainerScreen<LargePack
 
     public LargePackagingTableScreen(LargePackagingTableMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
-        this.imageHeight = 110;
+        this.imageHeight = 140;  // Erhöht für mehr Platz
         this.inventoryLabelY = this.imageHeight - 94;
     }
 
@@ -28,7 +28,7 @@ public class LargePackagingTableScreen extends AbstractContainerScreen<LargePack
         int buttonWidth = 50;
         int buttonHeight = 20;
         int startX = this.leftPos + 8;
-        int startY = this.topPos + 60;
+        int startY = this.topPos + 90;  // Unter den Slots
 
         // 20g Button
         this.addRenderableWidget(
@@ -80,7 +80,7 @@ public class LargePackagingTableScreen extends AbstractContainerScreen<LargePack
 
         // Player Hotbar
         for (int i = 0; i < 9; i++) {
-            drawSlot(graphics, x + 8 + i * 18, y + 86);
+            drawSlot(graphics, x + 8 + i * 18, y + 116);  // Weiter nach unten
         }
     }
 
