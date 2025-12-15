@@ -14,7 +14,7 @@ public class BigDryingRackScreen extends AbstractContainerScreen<BigDryingRackMe
 
     public BigDryingRackScreen(BigDryingRackMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
-        this.imageHeight = 166;
+        this.imageHeight = 108;
         this.inventoryLabelY = this.imageHeight - 94;
     }
 
@@ -52,16 +52,9 @@ public class BigDryingRackScreen extends AbstractContainerScreen<BigDryingRackMe
             graphics.fill(x + 76, y + 35, x + 76 + progressWidth, y + 51, 0xFFF44336);
         }
 
-        // Player Inventory Slots
-        for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 9; col++) {
-                drawSlot(graphics, x + 8 + col * 18, y + 84 + row * 18);
-            }
-        }
-
         // Player Hotbar
         for (int i = 0; i < 9; i++) {
-            drawSlot(graphics, x + 8 + i * 18, y + 142);
+            drawSlot(graphics, x + 8 + i * 18, y + 84);
         }
     }
 
