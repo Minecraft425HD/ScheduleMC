@@ -59,7 +59,7 @@ public class MediumPackagingTableMenu extends AbstractContainerMenu {
 
         // Player Hotbar (nur Schnellzugriffsleiste)
         for (int i = 0; i < 9; i++) {
-            this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 140));
+            this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 168));  // Angepasst an neue GUI-Höhe
         }
     }
 
