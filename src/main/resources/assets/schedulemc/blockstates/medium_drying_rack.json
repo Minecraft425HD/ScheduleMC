@@ -1,7 +1,20 @@
 {
   "variants": {
-    "": {
-      "model": "schedulemc:block/medium_drying_rack"
-    }
+    "facing=north,part=bottom_left": { "model": "schedulemc:block/medium_drying_rack", "y": 180 },
+    "facing=north,part=bottom_right": { "model": "schedulemc:block/drying_rack_empty" },
+    "facing=north,part=top_left": { "model": "schedulemc:block/drying_rack_empty" },
+    "facing=north,part=top_right": { "model": "schedulemc:block/drying_rack_empty" },
+    "facing=south,part=bottom_left": { "model": "schedulemc:block/medium_drying_rack", "y": 0 },
+    "facing=south,part=bottom_right": { "model": "schedulemc:block/drying_rack_empty" },
+    "facing=south,part=top_left": { "model": "schedulemc:block/drying_rack_empty" },
+    "facing=south,part=top_right": { "model": "schedulemc:block/drying_rack_empty" },
+    "facing=west,part=bottom_left": { "model": "schedulemc:block/medium_drying_rack", "y": 90 },
+    "facing=west,part=bottom_right": { "model": "schedulemc:block/drying_rack_empty" },
+    "facing=west,part=top_left": { "model": "schedulemc:block/drying_rack_empty" },
+    "facing=west,part=top_right": { "model": "schedulemc:block/drying_rack_empty" },
+    "facing=east,part=bottom_left": { "model": "schedulemc:block/medium_drying_rack", "y": 270 },
+    "facing=east,part=bottom_right": { "model": "schedulemc:block/drying_rack_empty" },
+    "facing=east,part=top_left": { "model": "schedulemc:block/drying_rack_empty" },
+    "facing=east,part=top_right": { "model": "schedulemc:block/drying_rack_empty" }
   }
 }
