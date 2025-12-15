@@ -30,4 +30,16 @@ public class ModMenuTypes {
     public static final RegistryObject<MenuType<LargePackagingTableMenu>> LARGE_PACKAGING_TABLE_MENU =
         MENUS.register("large_packaging_table_menu", () ->
             IForgeMenuType.create(LargePackagingTableMenu::new));
+
+    public static final RegistryObject<MenuType<SmallDryingRackMenu>> SMALL_DRYING_RACK_MENU =
+        MENUS.register("small_drying_rack_menu", () ->
+            IForgeMenuType.create(SmallDryingRackMenu::new));
+
+    public static final RegistryObject<MenuType<MediumDryingRackMenu>> MEDIUM_DRYING_RACK_MENU =
+        MENUS.register("medium_drying_rack_menu", () ->
+            IForgeMenuType.create(MediumDryingRackMenu::new));
+
+    public static final RegistryObject<MenuType<BigDryingRackMenu>> BIG_DRYING_RACK_MENU =
+        MENUS.register("big_drying_rack_menu", () ->
+            IForgeMenuType.create(BigDryingRackMenu::new));
 }
