@@ -39,7 +39,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Großes Trocknungsgestell (3 Blöcke breit: links, mitte, rechts)
+ * Großes Trocknungsgestell (3 Blöcke breit: links, mitte, rechts; 2 Blöcke hoch)
+ * Master-Block: BOTTOM_CENTER (mittlerer Block unten)
  * Kapazität: 10 Tabakblätter
  */
 public class BigDryingRackBlock extends Block implements EntityBlock {
@@ -58,7 +59,7 @@ public class BigDryingRackBlock extends Block implements EntityBlock {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any()
                 .setValue(FACING, Direction.NORTH)
-                .setValue(PART, RackPart.BOTTOM_LEFT));
+                .setValue(PART, RackPart.BOTTOM_CENTER));
     }
 
     @Override
@@ -89,22 +90,22 @@ public class BigDryingRackBlock extends Block implements EntityBlock {
         Level level = context.getLevel();
         Direction facing = context.getHorizontalDirection().getOpposite();
 
-        // Prüfe ob alle 6 Positionen frei sind (2x3 Grid) - nach LINKS vom Facing
-        BlockPos bottomCenter = pos.relative(facing.getCounterClockWise());
-        BlockPos bottomRight = pos.relative(facing.getCounterClockWise()).relative(facing.getCounterClockWise());
-        BlockPos topLeft = pos.above();
-        BlockPos topCenter = pos.above().relative(facing.getCounterClockWise());
-        BlockPos topRight = pos.above().relative(facing.getCounterClockWise()).relative(facing.getCounterClockWise());
+        // Prüfe ob alle 6 Positionen frei sind (2x3 Grid) - MITTE ist Master, links + rechts davon
+        BlockPos bottomLeft = pos.relative(facing.getCounterClockWise());
+        BlockPos bottomRight = pos.relative(facing.getClockWise());
+        BlockPos topCenter = pos.above();
+        BlockPos topLeft = pos.above().relative(facing.getCounterClockWise());
+        BlockPos topRight = pos.above().relative(facing.getClockWise());
 
         if (level.getBlockState(pos).canBeReplaced(context) &&
-            level.getBlockState(bottomCenter).canBeReplaced(context) &&
+            level.getBlockState(bottomLeft).canBeReplaced(context) &&
             level.getBlockState(bottomRight).canBeReplaced(context) &&
-            level.getBlockState(topLeft).canBeReplaced(context) &&
             level.getBlockState(topCenter).canBeReplaced(context) &&
+            level.getBlockState(topLeft).canBeReplaced(context) &&
             level.getBlockState(topRight).canBeReplaced(context)) {
             return this.defaultBlockState()
                     .setValue(FACING, facing)
-                    .setValue(PART, RackPart.BOTTOM_LEFT);
+                    .setValue(PART, RackPart.BOTTOM_CENTER);
         }
         return null;
     }
@@ -116,18 +117,18 @@ public class BigDryingRackBlock extends Block implements EntityBlock {
         if (!level.isClientSide) {
             Direction facing = state.getValue(FACING);
 
-            // Positionen der anderen 5 Blöcke (2x3 Grid) - nach LINKS vom Facing
-            BlockPos bottomCenter = pos.relative(facing.getCounterClockWise());
-            BlockPos bottomRight = pos.relative(facing.getCounterClockWise()).relative(facing.getCounterClockWise());
-            BlockPos topLeft = pos.above();
-            BlockPos topCenter = pos.above().relative(facing.getCounterClockWise());
-            BlockPos topRight = pos.above().relative(facing.getCounterClockWise()).relative(facing.getCounterClockWise());
+            // Positionen der anderen 5 Blöcke (2x3 Grid) - MITTE ist Master, links + rechts davon
+            BlockPos bottomLeft = pos.relative(facing.getCounterClockWise());
+            BlockPos bottomRight = pos.relative(facing.getClockWise());
+            BlockPos topCenter = pos.above();
+            BlockPos topLeft = pos.above().relative(facing.getCounterClockWise());
+            BlockPos topRight = pos.above().relative(facing.getClockWise());
 
             // Setze die anderen 5 Teile
-            level.setBlock(bottomCenter, state.setValue(PART, RackPart.BOTTOM_CENTER), 3);
+            level.setBlock(bottomLeft, state.setValue(PART, RackPart.BOTTOM_LEFT), 3);
             level.setBlock(bottomRight, state.setValue(PART, RackPart.BOTTOM_RIGHT), 3);
-            level.setBlock(topLeft, state.setValue(PART, RackPart.TOP_LEFT), 3);
             level.setBlock(topCenter, state.setValue(PART, RackPart.TOP_CENTER), 3);
+            level.setBlock(topLeft, state.setValue(PART, RackPart.TOP_LEFT), 3);
             level.setBlock(topRight, state.setValue(PART, RackPart.TOP_RIGHT), 3);
         }
     }
@@ -142,7 +143,7 @@ public class BigDryingRackBlock extends Block implements EntityBlock {
         BlockPos masterPos = getMasterPos(pos, part, facing);
         if (!masterPos.equals(pos)) {
             BlockState masterState = level.getBlockState(masterPos);
-            if (!masterState.is(this) || masterState.getValue(PART) != RackPart.BOTTOM_LEFT) {
+            if (!masterState.is(this) || masterState.getValue(PART) != RackPart.BOTTOM_CENTER) {
                 return Blocks.AIR.defaultBlockState();
             }
         }
@@ -167,16 +168,16 @@ public class BigDryingRackBlock extends Block implements EntityBlock {
     }
 
     /**
-     * Berechnet die Position des Master-Blocks (BOTTOM_LEFT) basierend auf dem aktuellen Teil
+     * Berechnet die Position des Master-Blocks (BOTTOM_CENTER) basierend auf dem aktuellen Teil
      */
     protected BlockPos getMasterPos(BlockPos pos, RackPart part, Direction facing) {
         return switch (part) {
-            case BOTTOM_LEFT -> pos;
-            case BOTTOM_CENTER -> pos.relative(facing.getClockWise());
-            case BOTTOM_RIGHT -> pos.relative(facing.getClockWise()).relative(facing.getClockWise());
-            case TOP_LEFT -> pos.below();
-            case TOP_CENTER -> pos.below().relative(facing.getClockWise());
-            case TOP_RIGHT -> pos.below().relative(facing.getClockWise()).relative(facing.getClockWise());
+            case BOTTOM_CENTER -> pos;
+            case BOTTOM_LEFT -> pos.relative(facing.getClockWise());
+            case BOTTOM_RIGHT -> pos.relative(facing.getCounterClockWise());
+            case TOP_CENTER -> pos.below();
+            case TOP_LEFT -> pos.below().relative(facing.getClockWise());
+            case TOP_RIGHT -> pos.below().relative(facing.getCounterClockWise());
         };
     }
 
@@ -184,18 +185,18 @@ public class BigDryingRackBlock extends Block implements EntityBlock {
      * Entfernt alle 6 Teile des Gestells (2x3 Grid)
      */
     protected void removeAllParts(Level level, BlockPos masterPos, Direction facing) {
-        BlockPos bottomCenter = masterPos.relative(facing.getCounterClockWise());
-        BlockPos bottomRight = masterPos.relative(facing.getCounterClockWise()).relative(facing.getCounterClockWise());
-        BlockPos topLeft = masterPos.above();
-        BlockPos topCenter = masterPos.above().relative(facing.getCounterClockWise());
-        BlockPos topRight = masterPos.above().relative(facing.getCounterClockWise()).relative(facing.getCounterClockWise());
+        BlockPos bottomLeft = masterPos.relative(facing.getCounterClockWise());
+        BlockPos bottomRight = masterPos.relative(facing.getClockWise());
+        BlockPos topCenter = masterPos.above();
+        BlockPos topLeft = masterPos.above().relative(facing.getCounterClockWise());
+        BlockPos topRight = masterPos.above().relative(facing.getClockWise());
 
         // Entferne die Blöcke
         removePartIfPresent(level, masterPos);
-        removePartIfPresent(level, bottomCenter);
+        removePartIfPresent(level, bottomLeft);
         removePartIfPresent(level, bottomRight);
-        removePartIfPresent(level, topLeft);
         removePartIfPresent(level, topCenter);
+        removePartIfPresent(level, topLeft);
         removePartIfPresent(level, topRight);
     }
 
@@ -207,16 +208,16 @@ public class BigDryingRackBlock extends Block implements EntityBlock {
     }
 
     /**
-     * Nur der Master-Block (BOTTOM_LEFT) hat ein BlockEntity
+     * Nur der Master-Block (BOTTOM_CENTER) hat ein BlockEntity
      */
     protected boolean isMasterBlock(BlockState state) {
-        return state.getValue(PART) == RackPart.BOTTOM_LEFT;
+        return state.getValue(PART) == RackPart.BOTTOM_CENTER;
     }
 
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        // Nur der BOTTOM_LEFT-Block hat ein BlockEntity
+        // Nur der BOTTOM_CENTER-Block hat ein BlockEntity
         if (isMasterBlock(state)) {
             return new BigDryingRackBlockEntity(pos, state);
         }
@@ -241,7 +242,7 @@ public class BigDryingRackBlock extends Block implements EntityBlock {
                                  InteractionHand hand, BlockHitResult hit) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
 
-        // Finde das Master-BlockEntity (BOTTOM_LEFT)
+        // Finde das Master-BlockEntity (BOTTOM_CENTER)
         RackPart part = state.getValue(PART);
         Direction facing = state.getValue(FACING);
         BlockPos masterPos = getMasterPos(pos, part, facing);
