@@ -63,10 +63,10 @@ public abstract class AbstractPackagingTableBlock extends Block implements Entit
         Level level = context.getLevel();
         Direction facing = context.getHorizontalDirection().getOpposite();
 
-        // Prüfe ob alle 4 Positionen frei sind
-        BlockPos rightPos = pos.relative(facing.getClockWise());
+        // Prüfe ob alle 4 Positionen frei sind (Tisch erstreckt sich nach rechts)
+        BlockPos rightPos = pos.relative(facing.getCounterClockWise());
         BlockPos upperPos = pos.above();
-        BlockPos upperRightPos = upperPos.relative(facing.getClockWise());
+        BlockPos upperRightPos = upperPos.relative(facing.getCounterClockWise());
 
         if (pos.getY() < level.getMaxBuildHeight() - 1 &&
             level.getBlockState(pos).canBeReplaced(context) &&
@@ -87,10 +87,10 @@ public abstract class AbstractPackagingTableBlock extends Block implements Entit
         if (!level.isClientSide) {
             Direction facing = state.getValue(FACING);
 
-            // Positionen der anderen 3 Blöcke
-            BlockPos rightPos = pos.relative(facing.getClockWise());
+            // Positionen der anderen 3 Blöcke (Tisch erstreckt sich nach rechts)
+            BlockPos rightPos = pos.relative(facing.getCounterClockWise());
             BlockPos upperPos = pos.above();
-            BlockPos upperRightPos = upperPos.relative(facing.getClockWise());
+            BlockPos upperRightPos = upperPos.relative(facing.getCounterClockWise());
 
             // Setze die anderen 3 Teile
             level.setBlock(rightPos, state.setValue(PART, TablePart.LOWER_RIGHT), 3);
@@ -139,9 +139,9 @@ public abstract class AbstractPackagingTableBlock extends Block implements Entit
     protected BlockPos getMasterPos(BlockPos pos, TablePart part, Direction facing) {
         return switch (part) {
             case LOWER_LEFT -> pos;
-            case LOWER_RIGHT -> pos.relative(facing.getCounterClockWise());
+            case LOWER_RIGHT -> pos.relative(facing.getClockWise());
             case UPPER_LEFT -> pos.below();
-            case UPPER_RIGHT -> pos.below().relative(facing.getCounterClockWise());
+            case UPPER_RIGHT -> pos.below().relative(facing.getClockWise());
         };
     }
 
@@ -149,9 +149,9 @@ public abstract class AbstractPackagingTableBlock extends Block implements Entit
      * Entfernt alle 4 Teile des Tisches
      */
     protected void removeAllParts(Level level, BlockPos masterPos, Direction facing, Player player) {
-        BlockPos rightPos = masterPos.relative(facing.getClockWise());
+        BlockPos rightPos = masterPos.relative(facing.getCounterClockWise());
         BlockPos upperPos = masterPos.above();
-        BlockPos upperRightPos = upperPos.relative(facing.getClockWise());
+        BlockPos upperRightPos = upperPos.relative(facing.getCounterClockWise());
 
         // Entferne die Blöcke (außer dem gerade zerstörten)
         removePartIfPresent(level, masterPos);
