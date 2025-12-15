@@ -1,7 +1,12 @@
 {
   "variants": {
-    "": {
-      "model": "schedulemc:block/medium_drying_rack"
-    }
+    "facing=north,part=left": { "model": "schedulemc:block/medium_drying_rack", "y": 90 },
+    "facing=north,part=right": { "model": "schedulemc:block/drying_rack_empty" },
+    "facing=south,part=left": { "model": "schedulemc:block/medium_drying_rack", "y": 270 },
+    "facing=south,part=right": { "model": "schedulemc:block/drying_rack_empty" },
+    "facing=west,part=left": { "model": "schedulemc:block/medium_drying_rack", "y": 0 },
+    "facing=west,part=right": { "model": "schedulemc:block/drying_rack_empty" },
+    "facing=east,part=left": { "model": "schedulemc:block/medium_drying_rack", "y": 180 },
+    "facing=east,part=right": { "model": "schedulemc:block/drying_rack_empty" }
   }
 }
