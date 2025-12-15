@@ -60,16 +60,9 @@ public class BigDryingRackMenu extends AbstractContainerMenu {
         // Output Slot (Slot 1) - Rechts
         this.addSlot(new SlotItemHandler(handler, 1, 116, 35));
 
-        // Player Inventory (3 Reihen)
-        for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 9; col++) {
-                this.addSlot(new Slot(playerInventory, col + row * 9 + 9, 8 + col * 18, 84 + row * 18));
-            }
-        }
-
-        // Player Hotbar
+        // Player Hotbar (nur Schnellzugriffsleiste)
         for (int i = 0; i < 9; i++) {
-            this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 142));
+            this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 84));
         }
     }
 
