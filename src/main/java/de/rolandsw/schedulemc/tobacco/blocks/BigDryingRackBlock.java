@@ -89,12 +89,12 @@ public class BigDryingRackBlock extends Block implements EntityBlock {
         Level level = context.getLevel();
         Direction facing = context.getHorizontalDirection().getOpposite();
 
-        // Prüfe ob alle 6 Positionen frei sind (2x3 Grid) - nach RECHTS vom Facing
-        BlockPos bottomCenter = pos.relative(facing.getClockWise());
-        BlockPos bottomRight = pos.relative(facing.getClockWise()).relative(facing.getClockWise());
+        // Prüfe ob alle 6 Positionen frei sind (2x3 Grid) - nach LINKS vom Facing
+        BlockPos bottomCenter = pos.relative(facing.getCounterClockWise());
+        BlockPos bottomRight = pos.relative(facing.getCounterClockWise()).relative(facing.getCounterClockWise());
         BlockPos topLeft = pos.above();
-        BlockPos topCenter = pos.above().relative(facing.getClockWise());
-        BlockPos topRight = pos.above().relative(facing.getClockWise()).relative(facing.getClockWise());
+        BlockPos topCenter = pos.above().relative(facing.getCounterClockWise());
+        BlockPos topRight = pos.above().relative(facing.getCounterClockWise()).relative(facing.getCounterClockWise());
 
         if (level.getBlockState(pos).canBeReplaced(context) &&
             level.getBlockState(bottomCenter).canBeReplaced(context) &&
@@ -116,12 +116,12 @@ public class BigDryingRackBlock extends Block implements EntityBlock {
         if (!level.isClientSide) {
             Direction facing = state.getValue(FACING);
 
-            // Positionen der anderen 5 Blöcke (2x3 Grid) - nach RECHTS vom Facing
-            BlockPos bottomCenter = pos.relative(facing.getClockWise());
-            BlockPos bottomRight = pos.relative(facing.getClockWise()).relative(facing.getClockWise());
+            // Positionen der anderen 5 Blöcke (2x3 Grid) - nach LINKS vom Facing
+            BlockPos bottomCenter = pos.relative(facing.getCounterClockWise());
+            BlockPos bottomRight = pos.relative(facing.getCounterClockWise()).relative(facing.getCounterClockWise());
             BlockPos topLeft = pos.above();
-            BlockPos topCenter = pos.above().relative(facing.getClockWise());
-            BlockPos topRight = pos.above().relative(facing.getClockWise()).relative(facing.getClockWise());
+            BlockPos topCenter = pos.above().relative(facing.getCounterClockWise());
+            BlockPos topRight = pos.above().relative(facing.getCounterClockWise()).relative(facing.getCounterClockWise());
 
             // Setze die anderen 5 Teile
             level.setBlock(bottomCenter, state.setValue(PART, RackPart.BOTTOM_CENTER), 3);
@@ -172,11 +172,11 @@ public class BigDryingRackBlock extends Block implements EntityBlock {
     protected BlockPos getMasterPos(BlockPos pos, RackPart part, Direction facing) {
         return switch (part) {
             case BOTTOM_LEFT -> pos;
-            case BOTTOM_CENTER -> pos.relative(facing.getCounterClockWise());
-            case BOTTOM_RIGHT -> pos.relative(facing.getCounterClockWise()).relative(facing.getCounterClockWise());
+            case BOTTOM_CENTER -> pos.relative(facing.getClockWise());
+            case BOTTOM_RIGHT -> pos.relative(facing.getClockWise()).relative(facing.getClockWise());
             case TOP_LEFT -> pos.below();
-            case TOP_CENTER -> pos.below().relative(facing.getCounterClockWise());
-            case TOP_RIGHT -> pos.below().relative(facing.getCounterClockWise()).relative(facing.getCounterClockWise());
+            case TOP_CENTER -> pos.below().relative(facing.getClockWise());
+            case TOP_RIGHT -> pos.below().relative(facing.getClockWise()).relative(facing.getClockWise());
         };
     }
 
@@ -184,11 +184,11 @@ public class BigDryingRackBlock extends Block implements EntityBlock {
      * Entfernt alle 6 Teile des Gestells (2x3 Grid)
      */
     protected void removeAllParts(Level level, BlockPos masterPos, Direction facing) {
-        BlockPos bottomCenter = masterPos.relative(facing.getClockWise());
-        BlockPos bottomRight = masterPos.relative(facing.getClockWise()).relative(facing.getClockWise());
+        BlockPos bottomCenter = masterPos.relative(facing.getCounterClockWise());
+        BlockPos bottomRight = masterPos.relative(facing.getCounterClockWise()).relative(facing.getCounterClockWise());
         BlockPos topLeft = masterPos.above();
-        BlockPos topCenter = masterPos.above().relative(facing.getClockWise());
-        BlockPos topRight = masterPos.above().relative(facing.getClockWise()).relative(facing.getClockWise());
+        BlockPos topCenter = masterPos.above().relative(facing.getCounterClockWise());
+        BlockPos topRight = masterPos.above().relative(facing.getCounterClockWise()).relative(facing.getCounterClockWise());
 
         // Entferne die Blöcke
         removePartIfPresent(level, masterPos);
