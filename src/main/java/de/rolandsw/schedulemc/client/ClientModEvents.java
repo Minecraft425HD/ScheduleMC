@@ -8,6 +8,9 @@ import de.rolandsw.schedulemc.tobacco.screen.SmallPackagingTableScreen;
 import de.rolandsw.schedulemc.tobacco.screen.MediumPackagingTableScreen;
 import de.rolandsw.schedulemc.tobacco.screen.LargePackagingTableScreen;
 import de.rolandsw.schedulemc.tobacco.screen.TobaccoNegotiationScreen;
+import de.rolandsw.schedulemc.tobacco.screen.SmallDryingRackScreen;
+import de.rolandsw.schedulemc.tobacco.screen.MediumDryingRackScreen;
+import de.rolandsw.schedulemc.tobacco.screen.BigDryingRackScreen;
 import de.rolandsw.schedulemc.warehouse.menu.WarehouseMenuTypes;
 import de.rolandsw.schedulemc.warehouse.screen.WarehouseScreen;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -31,6 +34,9 @@ public class ClientModEvents {
             MenuScreens.register(ModMenuTypes.LARGE_PACKAGING_TABLE_MENU.get(), LargePackagingTableScreen::new);
             MenuScreens.register(ModMenuTypes.TOBACCO_NEGOTIATION_MENU.get(), TobaccoNegotiationScreen::new);
             MenuScreens.register(WarehouseMenuTypes.WAREHOUSE_MENU.get(), WarehouseScreen::new);
+            MenuScreens.register(ModMenuTypes.SMALL_DRYING_RACK_MENU.get(), SmallDryingRackScreen::new);
+            MenuScreens.register(ModMenuTypes.MEDIUM_DRYING_RACK_MENU.get(), MediumDryingRackScreen::new);
+            MenuScreens.register(ModMenuTypes.BIG_DRYING_RACK_MENU.get(), BigDryingRackScreen::new);
         });
     }
 }

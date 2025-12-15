@@ -5,6 +5,7 @@ import de.rolandsw.schedulemc.tobacco.TobaccoType;
 import de.rolandsw.schedulemc.tobacco.items.DriedTobaccoLeafItem;
 import de.rolandsw.schedulemc.tobacco.items.FreshTobaccoLeafItem;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -13,47 +14,110 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemStackHandler;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * Abstrakte Basisklasse für Trocknungsgestelle
- * Eliminiert Code-Duplikation zwischen Small/Medium/Big Varianten
+ * Ein Input-Slot und ein Output-Slot mit variabler Kapazität
  */
 public abstract class AbstractDryingRackBlockEntity extends BlockEntity {
 
-    private ItemStack[] inputs;
-    private ItemStack[] outputs;
-    private int[] dryingProgress;
-    private TobaccoType[] tobaccoTypes;
-    private TobaccoQuality[] qualities;
+    // Input und Output als einzelne Stacks
+    private ItemStack inputStack = ItemStack.EMPTY;
+    private ItemStack outputStack = ItemStack.EMPTY;
+    private int dryingProgress = 0;
+    private TobaccoType tobaccoType;
+    private TobaccoQuality quality;
+
+    // ItemHandler für GUI-Zugriff (Slot 0 = Input, Slot 1 = Output)
+    protected ItemStackHandler itemHandler;
+    private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
 
     protected AbstractDryingRackBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
-        initArrays();
+        createItemHandler();
     }
 
     /**
-     * Muss von Subklassen implementiert werden - gibt die Kapazität zurück
+     * Muss von Subklassen implementiert werden - gibt die maximale Blätteranzahl zurück
      */
     protected abstract int getCapacity();
 
     /**
-     * Muss von Subklassen implementiert werden - gibt die Trocknungszeit zurück
+     * Muss von Subklassen implementiert werden - gibt die Trocknungszeit pro Blatt zurück
      */
     protected abstract int getDryingTime();
 
-    private void initArrays() {
-        int capacity = getCapacity();
-        inputs = new ItemStack[capacity];
-        outputs = new ItemStack[capacity];
-        dryingProgress = new int[capacity];
-        tobaccoTypes = new TobaccoType[capacity];
-        qualities = new TobaccoQuality[capacity];
-        for (int i = 0; i < capacity; i++) {
-            inputs[i] = ItemStack.EMPTY;
-            outputs[i] = ItemStack.EMPTY;
-            dryingProgress[i] = 0;
+    private void createItemHandler() {
+        int maxLeaves = getCapacity();
+        itemHandler = new ItemStackHandler(2) {
+            @Override
+            protected void onContentsChanged(int slot) {
+                setChanged();
+                if (slot == 0) {
+                    syncInputFromHandler();
+                }
+            }
+
+            @Override
+            public int getSlotLimit(int slot) {
+                return slot == 0 ? maxLeaves : 64;
+            }
+
+            @Override
+            public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+                if (slot == 0) {
+                    return stack.getItem() instanceof FreshTobaccoLeafItem;
+                }
+                return false; // Output slot ist read-only
+            }
+
+            @Override
+            public @NotNull ItemStack extractItem(int slot, int amount, boolean simulate) {
+                if (slot == 1) {
+                    return super.extractItem(slot, amount, simulate);
+                }
+                // Input kann nur extrahiert werden wenn noch nicht getrocknet
+                if (slot == 0 && dryingProgress == 0) {
+                    return super.extractItem(slot, amount, simulate);
+                }
+                return ItemStack.EMPTY;
+            }
+        };
+    }
+
+    public ItemStackHandler getItemHandler() {
+        return itemHandler;
+    }
+
+    private void syncInputFromHandler() {
+        ItemStack handlerInput = itemHandler.getStackInSlot(0);
+        if (!handlerInput.isEmpty() && inputStack.isEmpty()) {
+            inputStack = handlerInput.copy();
+            if (handlerInput.getItem() instanceof FreshTobaccoLeafItem) {
+                tobaccoType = FreshTobaccoLeafItem.getType(handlerInput);
+                quality = FreshTobaccoLeafItem.getQuality(handlerInput);
+            }
+            dryingProgress = 0;
+        } else if (handlerInput.isEmpty()) {
+            inputStack = ItemStack.EMPTY;
+            tobaccoType = null;
+            quality = null;
+            dryingProgress = 0;
+        } else {
+            inputStack = handlerInput.copy();
         }
+    }
+
+    private void syncToHandler() {
+        itemHandler.setStackInSlot(0, inputStack.copy());
+        itemHandler.setStackInSlot(1, outputStack.copy());
     }
 
     public boolean addFreshLeaves(ItemStack stack) {
@@ -61,14 +125,23 @@ public abstract class AbstractDryingRackBlockEntity extends BlockEntity {
             return false;
         }
 
-        // Finde leeren Slot
-        for (int i = 0; i < getCapacity(); i++) {
-            if (inputs[i].isEmpty() && outputs[i].isEmpty()) {
-                inputs[i] = stack.copy();
-                inputs[i].setCount(1);
-                tobaccoTypes[i] = FreshTobaccoLeafItem.getType(stack);
-                qualities[i] = FreshTobaccoLeafItem.getQuality(stack);
-                dryingProgress[i] = 0;
+        if (inputStack.isEmpty() && outputStack.isEmpty()) {
+            inputStack = stack.copy();
+            inputStack.setCount(Math.min(stack.getCount(), getCapacity()));
+            tobaccoType = FreshTobaccoLeafItem.getType(stack);
+            quality = FreshTobaccoLeafItem.getQuality(stack);
+            dryingProgress = 0;
+            syncToHandler();
+            setChanged();
+            return true;
+        } else if (!inputStack.isEmpty() && inputStack.getCount() < getCapacity() && outputStack.isEmpty()) {
+            // Blätter hinzufügen wenn gleicher Typ
+            TobaccoType newType = FreshTobaccoLeafItem.getType(stack);
+            TobaccoQuality newQuality = FreshTobaccoLeafItem.getQuality(stack);
+            if (newType == tobaccoType && newQuality == quality) {
+                int canAdd = Math.min(stack.getCount(), getCapacity() - inputStack.getCount());
+                inputStack.grow(canAdd);
+                syncToHandler();
                 setChanged();
                 return true;
             }
@@ -77,85 +150,52 @@ public abstract class AbstractDryingRackBlockEntity extends BlockEntity {
     }
 
     public ItemStack extractAllDriedLeaves() {
-        int totalCount = 0;
-        TobaccoType type = null;
-        TobaccoQuality quality = null;
-
-        // Sammle alle fertigen Blätter
-        for (int i = 0; i < getCapacity(); i++) {
-            if (!outputs[i].isEmpty()) {
-                if (type == null) {
-                    type = DriedTobaccoLeafItem.getType(outputs[i]);
-                    quality = DriedTobaccoLeafItem.getQuality(outputs[i]);
-                }
-                totalCount += outputs[i].getCount();
-                outputs[i] = ItemStack.EMPTY;
-                inputs[i] = ItemStack.EMPTY;
-                dryingProgress[i] = 0;
-                tobaccoTypes[i] = null;
-                qualities[i] = null;
-            }
+        if (!outputStack.isEmpty()) {
+            ItemStack result = outputStack.copy();
+            outputStack = ItemStack.EMPTY;
+            inputStack = ItemStack.EMPTY;
+            dryingProgress = 0;
+            tobaccoType = null;
+            quality = null;
+            syncToHandler();
+            setChanged();
+            return result;
         }
-
-        setChanged();
-        return totalCount > 0 ? DriedTobaccoLeafItem.create(type, quality, totalCount) : ItemStack.EMPTY;
+        return ItemStack.EMPTY;
     }
 
     public boolean isFull() {
-        for (int i = 0; i < getCapacity(); i++) {
-            if (inputs[i].isEmpty() && outputs[i].isEmpty()) {
-                return false;
-            }
-        }
-        return true;
+        return inputStack.getCount() >= getCapacity() || !outputStack.isEmpty();
     }
 
     public boolean hasInput() {
-        for (int i = 0; i < getCapacity(); i++) {
-            if (!inputs[i].isEmpty()) {
-                return true;
-            }
-        }
-        return false;
+        return !inputStack.isEmpty();
     }
 
     public boolean hasOutput() {
-        for (int i = 0; i < getCapacity(); i++) {
-            if (!outputs[i].isEmpty()) {
-                return true;
-            }
-        }
-        return false;
+        return !outputStack.isEmpty();
     }
 
     public int getInputCount() {
-        int count = 0;
-        for (int i = 0; i < getCapacity(); i++) {
-            if (!inputs[i].isEmpty()) count++;
-        }
-        return count;
+        return inputStack.getCount();
     }
 
     public int getOutputCount() {
-        int count = 0;
-        for (int i = 0; i < getCapacity(); i++) {
-            if (!outputs[i].isEmpty()) count++;
-        }
-        return count;
+        return outputStack.getCount();
     }
 
     public float getAverageDryingPercentage() {
-        int activeSlots = 0;
-        float totalProgress = 0;
+        if (inputStack.isEmpty()) return 0;
+        int totalTime = getDryingTime() * inputStack.getCount();
+        return (float) dryingProgress / totalTime;
+    }
 
-        for (int i = 0; i < getCapacity(); i++) {
-            if (!inputs[i].isEmpty()) {
-                activeSlots++;
-                totalProgress += (float) dryingProgress[i] / getDryingTime();
-            }
-        }
+    public int getDryingProgressValue() {
+        return dryingProgress;
+    }
 
-        return activeSlots > 0 ? totalProgress / activeSlots : 0;
+    public int getTotalDryingTime() {
+        return getDryingTime() * Math.max(1, inputStack.getCount());
     }
 
     public void tick() {
@@ -163,56 +203,71 @@ public abstract class AbstractDryingRackBlockEntity extends BlockEntity {
 
         boolean changed = false;
 
-        for (int i = 0; i < getCapacity(); i++) {
-            if (!inputs[i].isEmpty() && outputs[i].isEmpty()) {
-                dryingProgress[i]++;
+        if (!inputStack.isEmpty() && outputStack.isEmpty()) {
+            dryingProgress++;
 
-                if (dryingProgress[i] >= getDryingTime()) {
-                    // Trocknung abgeschlossen
-                    outputs[i] = DriedTobaccoLeafItem.create(tobaccoTypes[i], qualities[i], 1);
-                    changed = true;
-                }
+            int totalTime = getDryingTime() * inputStack.getCount();
+            if (dryingProgress >= totalTime) {
+                // Trocknung abgeschlossen
+                outputStack = DriedTobaccoLeafItem.create(tobaccoType, quality, inputStack.getCount());
+                changed = true;
+            }
 
-                if (dryingProgress[i] % 20 == 0) {
-                    changed = true;
-                }
+            if (dryingProgress % 20 == 0) {
+                changed = true;
             }
         }
 
         if (changed) {
+            syncToHandler();
             setChanged();
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
     }
 
     @Override
+    public void onLoad() {
+        super.onLoad();
+        lazyItemHandler = LazyOptional.of(() -> itemHandler);
+    }
+
+    @Override
+    public void invalidateCaps() {
+        super.invalidateCaps();
+        lazyItemHandler.invalidate();
+    }
+
+    @Override
+    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
+        if (cap == ForgeCapabilities.ITEM_HANDLER) {
+            return lazyItemHandler.cast();
+        }
+        return super.getCapability(cap, side);
+    }
+
+    @Override
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
 
-        int capacity = getCapacity();
-        tag.putInt("Capacity", capacity);
+        if (!inputStack.isEmpty()) {
+            CompoundTag inputTag = new CompoundTag();
+            inputStack.save(inputTag);
+            tag.put("Input", inputTag);
+        }
 
-        for (int i = 0; i < capacity; i++) {
-            if (!inputs[i].isEmpty()) {
-                CompoundTag inputTag = new CompoundTag();
-                inputs[i].save(inputTag);
-                tag.put("Input" + i, inputTag);
-            }
+        if (!outputStack.isEmpty()) {
+            CompoundTag outputTag = new CompoundTag();
+            outputStack.save(outputTag);
+            tag.put("Output", outputTag);
+        }
 
-            if (!outputs[i].isEmpty()) {
-                CompoundTag outputTag = new CompoundTag();
-                outputs[i].save(outputTag);
-                tag.put("Output" + i, outputTag);
-            }
+        tag.putInt("Progress", dryingProgress);
 
-            tag.putInt("Progress" + i, dryingProgress[i]);
-
-            if (tobaccoTypes[i] != null) {
-                tag.putString("Type" + i, tobaccoTypes[i].name());
-            }
-            if (qualities[i] != null) {
-                tag.putString("Quality" + i, qualities[i].name());
-            }
+        if (tobaccoType != null) {
+            tag.putString("Type", tobaccoType.name());
+        }
+        if (quality != null) {
+            tag.putString("Quality", quality.name());
         }
     }
 
@@ -220,25 +275,22 @@ public abstract class AbstractDryingRackBlockEntity extends BlockEntity {
     public void load(CompoundTag tag) {
         super.load(tag);
 
-        // Initialisiere Arrays wenn nötig
-        if (inputs == null) {
-            initArrays();
+        if (itemHandler == null) {
+            createItemHandler();
         }
 
-        int savedCapacity = tag.contains("Capacity") ? tag.getInt("Capacity") : getCapacity();
+        inputStack = tag.contains("Input") ? ItemStack.of(tag.getCompound("Input")) : ItemStack.EMPTY;
+        outputStack = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
+        dryingProgress = tag.getInt("Progress");
 
-        for (int i = 0; i < Math.min(savedCapacity, getCapacity()); i++) {
-            inputs[i] = tag.contains("Input" + i) ? ItemStack.of(tag.getCompound("Input" + i)) : ItemStack.EMPTY;
-            outputs[i] = tag.contains("Output" + i) ? ItemStack.of(tag.getCompound("Output" + i)) : ItemStack.EMPTY;
-            dryingProgress[i] = tag.getInt("Progress" + i);
-
-            if (tag.contains("Type" + i)) {
-                tobaccoTypes[i] = TobaccoType.valueOf(tag.getString("Type" + i));
-            }
-            if (tag.contains("Quality" + i)) {
-                qualities[i] = TobaccoQuality.valueOf(tag.getString("Quality" + i));
-            }
+        if (tag.contains("Type")) {
+            tobaccoType = TobaccoType.valueOf(tag.getString("Type"));
         }
+        if (tag.contains("Quality")) {
+            quality = TobaccoQuality.valueOf(tag.getString("Quality"));
+        }
+
+        syncToHandler();
     }
 
     @Nullable
