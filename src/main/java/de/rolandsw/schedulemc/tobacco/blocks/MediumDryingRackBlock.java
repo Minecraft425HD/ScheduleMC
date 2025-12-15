@@ -47,8 +47,12 @@ public class MediumDryingRackBlock extends Block implements EntityBlock {
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
     public static final EnumProperty<RackPart> PART = EnumProperty.create("part", RackPart.class);
 
-    // Collision Shape (voller Block)
-    private static final VoxelShape SHAPE = Shapes.block();
+    // Collision Shapes basierend auf Modellkoordinaten (Z: 3-14 Pixel = 0.1875-0.875 Blöcke)
+    // Die Modelle sind 2 Blöcke hoch (Y: 0-31 Pixel = 0-1.9375 Blöcke)
+    private static final VoxelShape SHAPE_NORTH = Block.box(0, 0, 2, 16, 16, 14);
+    private static final VoxelShape SHAPE_SOUTH = Block.box(0, 0, 2, 16, 16, 14);
+    private static final VoxelShape SHAPE_WEST = Block.box(2, 0, 0, 14, 16, 16);
+    private static final VoxelShape SHAPE_EAST = Block.box(2, 0, 0, 14, 16, 16);
 
     public MediumDryingRackBlock(Properties properties) {
         super(properties);
@@ -64,12 +68,18 @@ public class MediumDryingRackBlock extends Block implements EntityBlock {
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return SHAPE;
+        return switch (state.getValue(FACING)) {
+            case NORTH -> SHAPE_NORTH;
+            case SOUTH -> SHAPE_SOUTH;
+            case WEST -> SHAPE_WEST;
+            case EAST -> SHAPE_EAST;
+            default -> SHAPE_NORTH;
+        };
     }
 
     @Override
     public VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return SHAPE;
+        return getShape(state, level, pos, context);
     }
 
     @Nullable

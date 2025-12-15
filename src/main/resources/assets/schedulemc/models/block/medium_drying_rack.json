@@ -3,7 +3,8 @@
 	"credit": "Made with Blockbench",
 	"texture_size": [128, 128],
 	"textures": {
-		"1": "medium_drying_rack"
+		"1": "schedulemc:block/medium_drying_rack",
+		"particle": "schedulemc:block/medium_drying_rack"
 	},
 	"elements": [
 		{
