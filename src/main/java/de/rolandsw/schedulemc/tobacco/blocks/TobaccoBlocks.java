@@ -147,13 +147,14 @@ public class TobaccoBlocks {
         )
     );
 
-    // Packtische (3 Größen)
+    // Packtische (3 Größen) - Multi-Block 2x2
     public static final RegistryObject<Block> SMALL_PACKAGING_TABLE = registerBlockWithItem(
         "small_packaging_table",
         () -> new SmallPackagingTableBlock(
             BlockBehaviour.Properties.of()
                 .strength(2.5f)
                 .sound(SoundType.WOOD)
+                .noOcclusion()
         )
     );
 
@@ -163,6 +164,7 @@ public class TobaccoBlocks {
             BlockBehaviour.Properties.of()
                 .strength(2.5f)
                 .sound(SoundType.WOOD)
+                .noOcclusion()
         )
     );
 
@@ -172,6 +174,7 @@ public class TobaccoBlocks {
             BlockBehaviour.Properties.of()
                 .strength(2.5f)
                 .sound(SoundType.WOOD)
+                .noOcclusion()
         )
     );
 

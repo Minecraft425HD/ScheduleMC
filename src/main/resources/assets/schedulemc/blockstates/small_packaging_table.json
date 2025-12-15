@@ -1,7 +1,20 @@
 {
   "variants": {
-    "": {
-      "model": "schedulemc:block/small_packaging_table"
-    }
+    "facing=north,part=lower_left": { "model": "schedulemc:block/small_packaging_table" },
+    "facing=north,part=lower_right": { "model": "schedulemc:block/packaging_table_empty" },
+    "facing=north,part=upper_left": { "model": "schedulemc:block/packaging_table_empty" },
+    "facing=north,part=upper_right": { "model": "schedulemc:block/packaging_table_empty" },
+    "facing=south,part=lower_left": { "model": "schedulemc:block/small_packaging_table", "y": 180 },
+    "facing=south,part=lower_right": { "model": "schedulemc:block/packaging_table_empty" },
+    "facing=south,part=upper_left": { "model": "schedulemc:block/packaging_table_empty" },
+    "facing=south,part=upper_right": { "model": "schedulemc:block/packaging_table_empty" },
+    "facing=west,part=lower_left": { "model": "schedulemc:block/small_packaging_table", "y": 270 },
+    "facing=west,part=lower_right": { "model": "schedulemc:block/packaging_table_empty" },
+    "facing=west,part=upper_left": { "model": "schedulemc:block/packaging_table_empty" },
+    "facing=west,part=upper_right": { "model": "schedulemc:block/packaging_table_empty" },
+    "facing=east,part=lower_left": { "model": "schedulemc:block/small_packaging_table", "y": 90 },
+    "facing=east,part=lower_right": { "model": "schedulemc:block/packaging_table_empty" },
+    "facing=east,part=upper_left": { "model": "schedulemc:block/packaging_table_empty" },
+    "facing=east,part=upper_right": { "model": "schedulemc:block/packaging_table_empty" }
   }
 }
