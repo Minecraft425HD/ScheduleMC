@@ -1,7 +1,10 @@
 {
+	"format_version": "1.9.0",
+	"credit": "Made with Blockbench",
+	"texture_size": [128, 128],
 	"textures": {
-		"0": "schedulemc:block/large_packaging_table",
-		"particle": "schedulemc:block/large_packaging_table"
+		"0": "block/werktischtexture3",
+		"particle": "block/werktischtexture3"
 	},
 	"elements": [
 		{
@@ -106,19 +109,6 @@
 				"west": {"uv": [8.625, 4.5, 8.75, 6.25], "texture": "#0"},
 				"up": {"uv": [8.625, 4.5, 8.375, 4.375], "texture": "#0"},
 				"down": {"uv": [8.875, 4.375, 8.625, 4.5], "texture": "#0"}
-			}
-		},
-		{
-			"from": [-16, 14, 0],
-			"to": [16, 14, 17],
-			"rotation": {"angle": 0, "axis": "y", "origin": [-16, 0, 0]},
-			"faces": {
-				"north": {"uv": [2.125, 2.125, 6.125, 2.125], "texture": "#0"},
-				"east": {"uv": [0, 2.125, 2.125, 2.125], "texture": "#0"},
-				"south": {"uv": [8.25, 2.125, 12.25, 2.125], "texture": "#0"},
-				"west": {"uv": [6.125, 2.125, 8.25, 2.125], "texture": "#0"},
-				"up": {"uv": [6.125, 2.125, 2.125, 0], "texture": "#0"},
-				"down": {"uv": [10.125, 0, 6.125, 2.125], "texture": "#0"}
 			}
 		},
 		{
