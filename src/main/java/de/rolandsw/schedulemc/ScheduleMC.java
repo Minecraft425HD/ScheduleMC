@@ -37,6 +37,9 @@ import de.rolandsw.schedulemc.coca.blockentity.CocaBlockEntities;
 import de.rolandsw.schedulemc.poppy.items.PoppyItems;
 import de.rolandsw.schedulemc.poppy.blocks.PoppyBlocks;
 import de.rolandsw.schedulemc.poppy.blockentity.PoppyBlockEntities;
+import de.rolandsw.schedulemc.mushroom.items.MushroomItems;
+import de.rolandsw.schedulemc.mushroom.blocks.MushroomBlocks;
+import de.rolandsw.schedulemc.mushroom.blockentity.MushroomBlockEntities;
 import de.rolandsw.schedulemc.tobacco.menu.ModMenuTypes;
 import de.rolandsw.schedulemc.tobacco.entity.ModEntities;
 import de.rolandsw.schedulemc.economy.blocks.EconomyBlocks;
@@ -109,6 +112,12 @@ public class ScheduleMC {
         PoppyBlocks.BLOCKS.register(modEventBus);
         PoppyBlocks.ITEMS.register(modEventBus);
         PoppyBlockEntities.BLOCK_ENTITIES.register(modEventBus);
+
+        // Pilz-System registrieren
+        MushroomItems.ITEMS.register(modEventBus);
+        MushroomBlocks.BLOCKS.register(modEventBus);
+        MushroomBlocks.ITEMS.register(modEventBus);
+        MushroomBlockEntities.BLOCK_ENTITIES.register(modEventBus);
 
         EconomyBlocks.BLOCKS.register(modEventBus);
         EconomyBlocks.ITEMS.register(modEventBus);

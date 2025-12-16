@@ -3,6 +3,9 @@ package de.rolandsw.schedulemc.tobacco.blocks;
 import de.rolandsw.schedulemc.coca.blocks.CocaPlantBlock;
 import de.rolandsw.schedulemc.coca.items.CocaSeedItem;
 import de.rolandsw.schedulemc.coca.items.FreshCocaLeafItem;
+import de.rolandsw.schedulemc.mushroom.items.FreshMushroomItem;
+import de.rolandsw.schedulemc.mushroom.items.MistBagItem;
+import de.rolandsw.schedulemc.mushroom.items.SporeSyringeItem;
 import de.rolandsw.schedulemc.poppy.blocks.PoppyPlantBlock;
 import de.rolandsw.schedulemc.poppy.items.PoppyPodItem;
 import de.rolandsw.schedulemc.poppy.items.PoppySeedItem;
@@ -115,7 +118,54 @@ public class TobaccoPotBlock extends Block implements EntityBlock {
                 return InteractionResult.FAIL;
             }
         }
-        
+
+        // ═══════════════════════════════════════════════════════════
+        // 1b. MIST BEFÜLLEN (für Pilze)
+        // ═══════════════════════════════════════════════════════════
+        if (handStack.getItem() instanceof MistBagItem mistBagItem) {
+            if (potData.hasPlant()) {
+                player.displayClientMessage(Component.literal(
+                    "§c✗ Entferne zuerst die Pflanze!"
+                ), true);
+                return InteractionResult.FAIL;
+            }
+
+            if (potData.hasSoil()) {
+                player.displayClientMessage(Component.literal(
+                    "§c✗ Topf enthält bereits Erde! Verwende einen leeren Topf für Pilze."
+                ), true);
+                return InteractionResult.FAIL;
+            }
+
+            if (potData.getSoilLevel() >= potData.getMaxSoil()) {
+                player.displayClientMessage(Component.literal(
+                    "§c✗ Topf ist bereits voll mit Substrat!"
+                ), true);
+                return InteractionResult.FAIL;
+            }
+
+            if (MistBagItem.consumeUnits(handStack, 1)) {
+                int plantsPerBag = mistBagItem.getPlantsPerBag();
+                potData.addMistForPlants(plantsPerBag);
+                potBE.setChanged();
+                level.sendBlockUpdated(pos, state, state, 3);
+
+                player.displayClientMessage(Component.literal(
+                    "§2✓ Mist eingefüllt!\n" +
+                    "§7Substrat: §6" + potData.getSoilLevel() + "/" + potData.getMaxSoil() + "\n" +
+                    "§7Reicht für: §e~" + plantsPerBag + " Pilzkulturen"
+                ), true);
+
+                player.playSound(net.minecraft.sounds.SoundEvents.GRAVEL_PLACE, 1.0f, 0.8f);
+                return InteractionResult.SUCCESS;
+            } else {
+                player.displayClientMessage(Component.literal(
+                    "§c✗ Mist-Sack ist leer!"
+                ), true);
+                return InteractionResult.FAIL;
+            }
+        }
+
         // ═══════════════════════════════════════════════════════════
         // 2. GIEßEN (FIXED!)
         // ═══════════════════════════════════════════════════════════
@@ -293,6 +343,40 @@ public class TobaccoPotBlock extends Block implements EntityBlock {
         }
 
         // ═══════════════════════════════════════════════════════════
+        // 3d. PILZE IMPFEN (Sporen-Spritze)
+        // ═══════════════════════════════════════════════════════════
+        if (handStack.getItem() instanceof SporeSyringeItem syringeItem) {
+            if (!potData.hasMist()) {
+                player.displayClientMessage(Component.literal(
+                    "§c✗ Topf braucht zuerst Mist-Substrat!"
+                ), true);
+                return InteractionResult.FAIL;
+            }
+
+            if (potData.hasPlant()) {
+                player.displayClientMessage(Component.literal(
+                    "§c✗ Topf hat bereits eine Kultur!"
+                ), true);
+                return InteractionResult.FAIL;
+            }
+
+            // Impfe mit Sporen
+            potData.plantMushroomSpore(syringeItem.getMushroomType());
+            potBE.setChanged();
+            level.sendBlockUpdated(pos, state, state, 3);
+            handStack.shrink(1);
+
+            player.displayClientMessage(Component.literal(
+                "§2✓ Substrat mit Sporen geimpft!\n" +
+                "§7Sorte: " + syringeItem.getMushroomType().getColoredName() + "\n" +
+                "§7Phase: §eInkubation (dunkel halten!)"
+            ), true);
+
+            player.playSound(net.minecraft.sounds.SoundEvents.BREWING_STAND_BREW, 1.0f, 1.5f);
+            return InteractionResult.SUCCESS;
+        }
+
+        // ═══════════════════════════════════════════════════════════
         // 4. ERNTEN (Tabak)
         // ═══════════════════════════════════════════════════════════
         if (handStack.isEmpty() && player.isShiftKeyDown() && potData.hasTobaccoPlant()) {
@@ -411,6 +495,60 @@ public class TobaccoPotBlock extends Block implements EntityBlock {
                 ), true);
 
                 player.playSound(net.minecraft.sounds.SoundEvents.CROP_BREAK, 1.0f, 1.0f);
+                return InteractionResult.SUCCESS;
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // 4d. ERNTEN (Pilze)
+        // ═══════════════════════════════════════════════════════════
+        if (handStack.isEmpty() && player.isShiftKeyDown() && potData.hasMushroomPlant()) {
+            var mushroom = potData.getMushroomPlant();
+
+            if (!mushroom.canHarvest()) {
+                if (!mushroom.isFullyGrown()) {
+                    String phase = mushroom.isIncubating() ? "Inkubation" : "Fruchtung";
+                    player.displayClientMessage(Component.literal(
+                        "§c✗ Pilze sind noch nicht erntereif!\n" +
+                        "§7Phase: §e" + phase + "\n" +
+                        "§7Wachstum: §e" + (mushroom.getGrowthStage() * 100 / 7) + "%"
+                    ), true);
+                } else {
+                    player.displayClientMessage(Component.literal(
+                        "§c✗ Substrat erschöpft - keine weiteren Ernten möglich!"
+                    ), true);
+                }
+                return InteractionResult.FAIL;
+            }
+
+            // Ernte Pilze
+            int yield = mushroom.getHarvestYield();
+            int remainingFlushes = mushroom.getRemainingFlushes() - 1;
+            var harvested = potData.harvestMushroom();
+
+            if (harvested != null) {
+                ItemStack freshMushrooms = FreshMushroomItem.create(
+                    harvested.getType(),
+                    harvested.getQuality(),
+                    yield
+                );
+
+                player.getInventory().add(freshMushrooms);
+                potBE.setChanged();
+                level.sendBlockUpdated(pos, state, state, 3);
+
+                String flushInfo = remainingFlushes > 0 ?
+                    "§7Verbleibende Ernten: §e" + remainingFlushes :
+                    "§c(Letzte Ernte!)";
+
+                player.displayClientMessage(Component.literal(
+                    "§2✓ Pilze geerntet!\n" +
+                    "§7Ertrag: §e" + yield + " Pilze\n" +
+                    "§7Qualität: " + harvested.getQuality().getColoredName() + "\n" +
+                    flushInfo
+                ), true);
+
+                player.playSound(net.minecraft.sounds.SoundEvents.FUNGUS_BREAK, 1.0f, 1.0f);
                 return InteractionResult.SUCCESS;
             }
         }

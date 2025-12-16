@@ -25,8 +25,47 @@ public class MushroomPlantData {
         this.hasFertilizer = false;
         this.hasGrowthBooster = false;
         this.hasQualityBooster = false;
-        this.flushCount = 4; // 4 Ernten möglich
+        this.flushCount = type.getMaxFlushes();
         this.currentFlush = 0;
+    }
+
+    /**
+     * Prüft ob Inkubations-Phase (Stage 0-3)
+     */
+    public boolean isIncubating() {
+        return growthStage < 4;
+    }
+
+    /**
+     * Prüft ob Fruchtungs-Phase (Stage 4-7)
+     */
+    public boolean isFruiting() {
+        return growthStage >= 4 && growthStage < 8;
+    }
+
+    /**
+     * Prüft ob das Lichtlevel passend ist
+     */
+    public boolean isLightLevelValid(int lightLevel) {
+        if (isIncubating()) {
+            return lightLevel < type.getMaxLightIncubation();
+        } else {
+            return lightLevel < type.getMaxLightFruiting();
+        }
+    }
+
+    /**
+     * Gibt benötigtes maximales Lichtlevel zurück
+     */
+    public int getRequiredMaxLight() {
+        return isIncubating() ? type.getMaxLightIncubation() : type.getMaxLightFruiting();
+    }
+
+    /**
+     * Prüft ob in dieser Phase Wasser benötigt wird
+     */
+    public boolean needsWater() {
+        return isFruiting(); // Nur während Fruchtung
     }
 
     public void tick() {

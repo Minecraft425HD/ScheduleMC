@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.tobacco.blockentity;
 import de.rolandsw.schedulemc.coca.CocaType;
 import de.rolandsw.schedulemc.coca.blocks.CocaPlantBlock;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
+import de.rolandsw.schedulemc.mushroom.MushroomType;
 import de.rolandsw.schedulemc.poppy.PoppyType;
 import de.rolandsw.schedulemc.poppy.blocks.PoppyPlantBlock;
 import de.rolandsw.schedulemc.tobacco.PotType;
@@ -127,8 +128,52 @@ public class TobaccoPotBlockEntity extends BlockEntity {
                         level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
                     }
                 }
+
+                // Pilzkultur wachsen lassen (braucht Dunkelheit!)
+                if (potData.hasMushroomPlant()) {
+                    var mushroom = potData.getMushroomPlant();
+
+                    // Prüfe Lichtlevel (Pilze brauchen Dunkelheit)
+                    if (!isLightLevelValidForMushroom()) {
+                        return; // Zu hell!
+                    }
+
+                    int oldStage = mushroom.getGrowthStage();
+
+                    if (plantGrowthCounter >= ticksNeeded) {
+                        plantGrowthCounter = 0;
+                        mushroom.tick();
+                    }
+
+                    int newStage = mushroom.getGrowthStage();
+
+                    if (oldStage != newStage) {
+                        // Pilze verbrauchen nur während Fruchtung Wasser
+                        if (mushroom.needsWater()) {
+                            consumeResourcesForGrowth(newStage);
+                        } else {
+                            // Nur Substrat verbrauchen
+                            potData.consumeSoil(15.0 / 7.0);
+                        }
+                        setChanged();
+                        level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+                    }
+                }
             }
         }
+    }
+
+    /**
+     * Prüft ob das Lichtlevel für Pilzwachstum geeignet ist
+     */
+    private boolean isLightLevelValidForMushroom() {
+        if (level == null || !potData.hasMushroomPlant()) return false;
+
+        var mushroom = potData.getMushroomPlant();
+        BlockPos checkPos = worldPosition.above();
+        int lightLevel = level.getBrightness(LightLayer.BLOCK, checkPos);
+
+        return mushroom.isLightLevelValid(lightLevel);
     }
 
     /**
@@ -207,6 +252,26 @@ public class TobaccoPotBlockEntity extends BlockEntity {
 
             tag.put("PoppyPlant", poppyTag);
         }
+
+        // Pilzkultur speichern
+        if (potData.hasMushroomPlant()) {
+            CompoundTag mushroomTag = new CompoundTag();
+            var mushroom = potData.getMushroomPlant();
+
+            mushroomTag.putString("Type", mushroom.getType().name());
+            mushroomTag.putString("Quality", mushroom.getQuality().name());
+            mushroomTag.putInt("GrowthStage", mushroom.getGrowthStage());
+            mushroomTag.putInt("TicksGrown", mushroom.getTicksGrown());
+            mushroomTag.putInt("CurrentFlush", mushroom.getCurrentFlush());
+            mushroomTag.putBoolean("HasFertilizer", mushroom.hasFertilizer());
+            mushroomTag.putBoolean("HasGrowthBooster", mushroom.hasGrowthBooster());
+            mushroomTag.putBoolean("HasQualityBooster", mushroom.hasQualityBooster());
+
+            tag.put("MushroomPlant", mushroomTag);
+        }
+
+        // Mist-Status speichern
+        tag.putBoolean("HasMist", potData.hasMist());
     }
     
     @Override
@@ -307,8 +372,43 @@ public class TobaccoPotBlockEntity extends BlockEntity {
             }
         }
 
+        // Pilzkultur-Daten laden
+        if (tag.contains("MushroomPlant")) {
+            CompoundTag mushroomTag = tag.getCompound("MushroomPlant");
+
+            MushroomType type = MushroomType.valueOf(mushroomTag.getString("Type"));
+
+            // Setze Mist-Status vor dem Pflanzen
+            potData.setMist(true);
+
+            if (!potData.hasMushroomPlant()) {
+                potData.plantMushroomSpore(type);
+            }
+
+            var mushroom = potData.getMushroomPlant();
+            if (mushroom != null) {
+                mushroom.setQuality(TobaccoQuality.valueOf(mushroomTag.getString("Quality")));
+                mushroom.setGrowthStage(mushroomTag.getInt("GrowthStage"));
+                mushroom.setCurrentFlush(mushroomTag.getInt("CurrentFlush"));
+
+                int ticksGrown = mushroomTag.getInt("TicksGrown");
+                while (mushroom.getTicksGrown() < ticksGrown) {
+                    mushroom.incrementTicks();
+                }
+
+                if (mushroomTag.getBoolean("HasFertilizer")) mushroom.applyFertilizer();
+                if (mushroomTag.getBoolean("HasGrowthBooster")) mushroom.applyGrowthBooster();
+                if (mushroomTag.getBoolean("HasQualityBooster")) mushroom.applyQualityBooster();
+            }
+        }
+
+        // Mist-Status laden (falls nicht durch Pilz gesetzt)
+        if (tag.contains("HasMist") && !potData.hasMushroomPlant()) {
+            potData.setMist(tag.getBoolean("HasMist"));
+        }
+
         // Keine Pflanzen-Tags -> Pflanze entfernen falls vorhanden
-        if (!tag.contains("Plant") && !tag.contains("CocaPlant") && !tag.contains("PoppyPlant")) {
+        if (!tag.contains("Plant") && !tag.contains("CocaPlant") && !tag.contains("PoppyPlant") && !tag.contains("MushroomPlant")) {
             if (potData.hasPlant()) {
                 potData.clearPlant();
             }
