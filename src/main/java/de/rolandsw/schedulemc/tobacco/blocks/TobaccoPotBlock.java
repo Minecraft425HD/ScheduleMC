@@ -1,5 +1,8 @@
 package de.rolandsw.schedulemc.tobacco.blocks;
 
+import de.rolandsw.schedulemc.coca.blocks.CocaPlantBlock;
+import de.rolandsw.schedulemc.coca.items.CocaSeedItem;
+import de.rolandsw.schedulemc.coca.items.FreshCocaLeafItem;
 import de.rolandsw.schedulemc.tobacco.PotType;
 import de.rolandsw.schedulemc.tobacco.blockentity.TobaccoPotBlockEntity;
 import de.rolandsw.schedulemc.tobacco.items.SoilBagItem;
@@ -199,13 +202,56 @@ public class TobaccoPotBlock extends Block implements EntityBlock {
             player.playSound(net.minecraft.sounds.SoundEvents.CROP_PLANTED, 1.0f, 1.0f);
             return InteractionResult.SUCCESS;
         }
-        
+
         // ═══════════════════════════════════════════════════════════
-        // 4. ERNTEN
+        // 3b. KOKA PFLANZEN
         // ═══════════════════════════════════════════════════════════
-        if (handStack.isEmpty() && player.isShiftKeyDown() && potData.hasPlant()) {
+        if (handStack.getItem() instanceof CocaSeedItem cocaSeedItem) {
+            if (!potData.hasSoil()) {
+                player.displayClientMessage(Component.literal(
+                    "§c✗ Topf braucht zuerst Erde!"
+                ), true);
+                return InteractionResult.FAIL;
+            }
+
+            if (potData.hasPlant()) {
+                player.displayClientMessage(Component.literal(
+                    "§c✗ Topf hat bereits eine Pflanze!"
+                ), true);
+                return InteractionResult.FAIL;
+            }
+
+            if (potData.getWaterLevel() < 10) {
+                player.displayClientMessage(Component.literal(
+                    "§c✗ Zu wenig Wasser zum Pflanzen!"
+                ), true);
+                return InteractionResult.FAIL;
+            }
+
+            // Pflanze Koka-Samen
+            potData.plantCocaSeed(cocaSeedItem.getCocaType());
+            potBE.setChanged();
+            level.sendBlockUpdated(pos, state, state, 3);
+            handStack.shrink(1);
+
+            // Platziere Koka-Pflanzen-Block oberhalb des Topfes
+            CocaPlantBlock.growToStage(level, pos, 0, cocaSeedItem.getCocaType());
+
+            player.displayClientMessage(Component.literal(
+                "§a✓ Koka-Samen gepflanzt!\n" +
+                "§7Sorte: " + cocaSeedItem.getCocaType().getColoredName()
+            ), true);
+
+            player.playSound(net.minecraft.sounds.SoundEvents.CROP_PLANTED, 1.0f, 1.0f);
+            return InteractionResult.SUCCESS;
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // 4. ERNTEN (Tabak)
+        // ═══════════════════════════════════════════════════════════
+        if (handStack.isEmpty() && player.isShiftKeyDown() && potData.hasTobaccoPlant()) {
             var plant = potData.getPlant();
-            
+
             if (!plant.isFullyGrown()) {
                 player.displayClientMessage(Component.literal(
                     "§c✗ Pflanze ist noch nicht ausgewachsen!\n" +
@@ -213,8 +259,8 @@ public class TobaccoPotBlock extends Block implements EntityBlock {
                 ), true);
                 return InteractionResult.FAIL;
             }
-            
-            // Ernte
+
+            // Ernte Tabak
             var harvested = potData.harvest();
             if (harvested != null) {
                 ItemStack leaves = de.rolandsw.schedulemc.tobacco.items.FreshTobaccoLeafItem.create(
@@ -225,13 +271,54 @@ public class TobaccoPotBlock extends Block implements EntityBlock {
 
                 player.getInventory().add(leaves);
                 potBE.setChanged();
-                level.sendBlockUpdated(pos, state, state, 3); // Client-Update!
+                level.sendBlockUpdated(pos, state, state, 3);
 
                 // Entferne Pflanzen-Block
                 TobaccoPlantBlock.removePlant(level, pos);
 
                 player.displayClientMessage(Component.literal(
-                    "§a✓ Geerntet!\n" +
+                    "§a✓ Tabak geerntet!\n" +
+                    "§7Ertrag: §e" + harvested.getHarvestYield() + " Blätter\n" +
+                    "§7Qualität: " + harvested.getQuality().getColoredName()
+                ), true);
+
+                player.playSound(net.minecraft.sounds.SoundEvents.CROP_BREAK, 1.0f, 1.0f);
+                return InteractionResult.SUCCESS;
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // 4b. ERNTEN (Koka)
+        // ═══════════════════════════════════════════════════════════
+        if (handStack.isEmpty() && player.isShiftKeyDown() && potData.hasCocaPlant()) {
+            var cocaPlant = potData.getCocaPlant();
+
+            if (!cocaPlant.isFullyGrown()) {
+                player.displayClientMessage(Component.literal(
+                    "§c✗ Koka-Pflanze ist noch nicht ausgewachsen!\n" +
+                    "§7Wachstum: §e" + (cocaPlant.getGrowthStage() * 100 / 7) + "%"
+                ), true);
+                return InteractionResult.FAIL;
+            }
+
+            // Ernte Koka
+            var harvested = potData.harvestCoca();
+            if (harvested != null) {
+                ItemStack leaves = FreshCocaLeafItem.create(
+                    harvested.getType(),
+                    harvested.getQuality(),
+                    harvested.getHarvestYield()
+                );
+
+                player.getInventory().add(leaves);
+                potBE.setChanged();
+                level.sendBlockUpdated(pos, state, state, 3);
+
+                // Entferne Koka-Pflanzen-Block
+                CocaPlantBlock.removePlant(level, pos);
+
+                player.displayClientMessage(Component.literal(
+                    "§a✓ Koka geerntet!\n" +
                     "§7Ertrag: §e" + harvested.getHarvestYield() + " Blätter\n" +
                     "§7Qualität: " + harvested.getQuality().getColoredName()
                 ), true);

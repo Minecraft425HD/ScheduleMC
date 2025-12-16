@@ -1,17 +1,20 @@
 package de.rolandsw.schedulemc.tobacco.data;
 
+import de.rolandsw.schedulemc.coca.CocaType;
+import de.rolandsw.schedulemc.coca.data.CocaPlantData;
 import de.rolandsw.schedulemc.tobacco.PotType;
 import de.rolandsw.schedulemc.tobacco.TobaccoType;
 
 /**
- * Speichert Daten eines Tabak-Topfes
+ * Speichert Daten eines Tabak-Topfes (unterstützt auch Koka-Pflanzen)
  */
 public class TobaccoPotData {
-    
+
     private PotType potType;
     private double waterLevel; // Aktuelles Wasser (als double für präzisen Verbrauch)
     private double soilLevel; // Aktuelle Erde (als double für präzisen Verbrauch)
     private TobaccoPlantData plant; // Gepflanzte Tabakpflanze (null wenn leer)
+    private CocaPlantData cocaPlant; // Gepflanzte Koka-Pflanze (null wenn leer)
     private boolean hasSoil; // Wurde Erde hinzugefügt?
     
     public TobaccoPotData(PotType potType) {
@@ -19,6 +22,7 @@ public class TobaccoPotData {
         this.waterLevel = 0;
         this.soilLevel = 0;
         this.plant = null;
+        this.cocaPlant = null;
         this.hasSoil = false;
     }
     
@@ -59,9 +63,21 @@ public class TobaccoPotData {
     public TobaccoPlantData getPlant() {
         return plant;
     }
-    
+
+    public CocaPlantData getCocaPlant() {
+        return cocaPlant;
+    }
+
     public boolean hasPlant() {
+        return plant != null || cocaPlant != null;
+    }
+
+    public boolean hasTobaccoPlant() {
         return plant != null;
+    }
+
+    public boolean hasCocaPlant() {
+        return cocaPlant != null;
     }
     
     public boolean hasSoil() {
@@ -148,19 +164,31 @@ public class TobaccoPotData {
     }
     
     /**
-     * Pflanzt Samen
+     * Pflanzt Tabak-Samen
      */
     public boolean plantSeed(TobaccoType type) {
         if (!hasSoil || hasPlant()) {
             return false;
         }
-        
+
         this.plant = new TobaccoPlantData(type);
         return true;
     }
-    
+
     /**
-     * Erntet die Pflanze
+     * Pflanzt Koka-Samen
+     */
+    public boolean plantCocaSeed(CocaType type) {
+        if (!hasSoil || hasPlant()) {
+            return false;
+        }
+
+        this.cocaPlant = new CocaPlantData(type);
+        return true;
+    }
+
+    /**
+     * Erntet die Tabak-Pflanze
      */
     public TobaccoPlantData harvest() {
         if (plant == null || !plant.isFullyGrown()) {
@@ -173,20 +201,47 @@ public class TobaccoPotData {
     }
 
     /**
+     * Erntet die Koka-Pflanze
+     */
+    public CocaPlantData harvestCoca() {
+        if (cocaPlant == null || !cocaPlant.isFullyGrown()) {
+            return null;
+        }
+
+        CocaPlantData harvested = cocaPlant;
+        cocaPlant = null;
+        return harvested;
+    }
+
+    /**
      * Entfernt die Pflanze (ohne Ernte-Bedingungen)
      */
     public void clearPlant() {
         this.plant = null;
+        this.cocaPlant = null;
     }
     
     /**
-     * Prüft ob die Pflanze wachsen kann
+     * Prüft ob die Pflanze wachsen kann (Tabak oder Koka)
      */
     public boolean canGrow() {
-        if (plant == null || plant.isFullyGrown()) {
-            return false;
+        // Prüfe Tabak-Pflanze
+        if (plant != null && !plant.isFullyGrown()) {
+            return checkResourcesForGrowth();
         }
 
+        // Prüfe Koka-Pflanze
+        if (cocaPlant != null && !cocaPlant.isFullyGrown()) {
+            return checkResourcesForGrowth();
+        }
+
+        return false;
+    }
+
+    /**
+     * Prüft ob genug Ressourcen für Wachstum vorhanden sind
+     */
+    private boolean checkResourcesForGrowth() {
         // Ressourcen-Anforderungen für einen Wachstumsschritt
         // 7 Wachstumsschritte (0→1, 1→2, ... 6→7)
         // Verbrauche 1/7 der Topfkapazität pro Schritt
@@ -194,11 +249,10 @@ public class TobaccoPotData {
         double soilNeeded = 15.0 / 7.0;
 
         // Kleine Toleranz (0.5) für Floating-Point-Rundungsfehler
-        // Nach 6 Schritten können Rundungsfehler dazu führen, dass 2.1426 < 2.1429
         double tolerance = 0.5;
 
         return waterLevel >= (potType.calculateWaterConsumption(waterNeeded) - tolerance) &&
-               soilLevel >= (potType.calculateSoilConsumption(soilNeeded) - tolerance);
+                soilLevel >= (potType.calculateSoilConsumption(soilNeeded) - tolerance);
     }
     
     /**

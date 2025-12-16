@@ -31,6 +31,9 @@ import de.rolandsw.schedulemc.tobacco.items.TobaccoItems;
 import de.rolandsw.schedulemc.tobacco.business.BusinessMetricsUpdateHandler;
 import de.rolandsw.schedulemc.tobacco.blocks.TobaccoBlocks;
 import de.rolandsw.schedulemc.tobacco.blockentity.TobaccoBlockEntities;
+import de.rolandsw.schedulemc.coca.items.CocaItems;
+import de.rolandsw.schedulemc.coca.blocks.CocaBlocks;
+import de.rolandsw.schedulemc.coca.blockentity.CocaBlockEntities;
 import de.rolandsw.schedulemc.tobacco.menu.ModMenuTypes;
 import de.rolandsw.schedulemc.tobacco.entity.ModEntities;
 import de.rolandsw.schedulemc.economy.blocks.EconomyBlocks;
@@ -91,6 +94,13 @@ public class ScheduleMC {
         TobaccoItems.ITEMS.register(modEventBus);
         TobaccoBlocks.BLOCKS.register(modEventBus);
         TobaccoBlocks.ITEMS.register(modEventBus);
+
+        // Koka-System registrieren
+        CocaItems.ITEMS.register(modEventBus);
+        CocaBlocks.BLOCKS.register(modEventBus);
+        CocaBlocks.ITEMS.register(modEventBus);
+        CocaBlockEntities.BLOCK_ENTITIES.register(modEventBus);
+
         EconomyBlocks.BLOCKS.register(modEventBus);
         EconomyBlocks.ITEMS.register(modEventBus);
         de.rolandsw.schedulemc.region.blocks.PlotBlocks.BLOCKS.register(modEventBus);

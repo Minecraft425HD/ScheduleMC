@@ -1,7 +1,10 @@
 package de.rolandsw.schedulemc.tobacco.blockentity;
 
+import de.rolandsw.schedulemc.coca.CocaType;
+import de.rolandsw.schedulemc.coca.blocks.CocaPlantBlock;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.tobacco.PotType;
+import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
 import de.rolandsw.schedulemc.tobacco.TobaccoType;
 import de.rolandsw.schedulemc.tobacco.blocks.GrowLightSlabBlock;
 import de.rolandsw.schedulemc.tobacco.data.TobaccoPotData;
@@ -56,66 +59,89 @@ public class TobaccoPotBlockEntity extends BlockEntity {
                     return;  // Kein Wachstum ohne Licht
                 }
 
-                int oldStage = potData.getPlant().getGrowthStage();
-
                 // Wachstumsgeschwindigkeit basierend auf Licht
                 double lightSpeedMultiplier = getLightSpeedMultiplier();
                 int ticksNeeded = (int) Math.max(1, 4 / lightSpeedMultiplier);
 
-                // Pflanze wachsen lassen (mit Licht-Multiplikator)
-                if (plantGrowthCounter >= ticksNeeded) {
-                    plantGrowthCounter = 0;
-                    potData.getPlant().tick();
-                }
+                // Tabak-Pflanze wachsen lassen
+                if (potData.hasTobaccoPlant()) {
+                    int oldStage = potData.getPlant().getGrowthStage();
 
-                int newStage = potData.getPlant().getGrowthStage();
-
-                // Ressourcen BEIM WACHSTUM verbrauchen (bei jedem Wachstumsschritt)
-                if (oldStage != newStage) {
-                    // 7 Wachstumsschritte (0→1, 1→2, ... 6→7)
-                    // Beim letzten Schritt (6→7): Verbrauche ALLE verbleibenden Ressourcen
-                    // Sonst: Verbrauche 1/7 der Kapazität
-                    double waterToConsume, soilToConsume;
-
-                    if (newStage == 7) {
-                        // Letzter Schritt: Verbrauche alles was noch da ist
-                        waterToConsume = potData.getWaterLevelExact();
-                        soilToConsume = potData.getSoilLevelExact();
-                    } else {
-                        // Normale Schritte: 1/7 der Kapazität
-                        waterToConsume = potData.getMaxWater() / 7.0;
-                        soilToConsume = 15.0 / 7.0;
+                    if (plantGrowthCounter >= ticksNeeded) {
+                        plantGrowthCounter = 0;
+                        potData.getPlant().tick();
                     }
 
-                    potData.consumeWater(waterToConsume);
-                    potData.consumeSoil(soilToConsume);
+                    int newStage = potData.getPlant().getGrowthStage();
 
-                    // Update Pflanzen-Block
-                    de.rolandsw.schedulemc.tobacco.blocks.TobaccoPlantBlock.growToStage(
-                        level, worldPosition, newStage, potData.getPlant().getType()
-                    );
+                    if (oldStage != newStage) {
+                        consumeResourcesForGrowth(newStage);
+                        de.rolandsw.schedulemc.tobacco.blocks.TobaccoPlantBlock.growToStage(
+                            level, worldPosition, newStage, potData.getPlant().getType()
+                        );
+                        setChanged();
+                        level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+                    }
+                }
 
-                    setChanged();
-                    // Client-Update senden (nur bei tatsächlichem Wachstum)
-                    level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+                // Koka-Pflanze wachsen lassen
+                if (potData.hasCocaPlant()) {
+                    int oldStage = potData.getCocaPlant().getGrowthStage();
+
+                    if (plantGrowthCounter >= ticksNeeded) {
+                        plantGrowthCounter = 0;
+                        potData.getCocaPlant().tick();
+                    }
+
+                    int newStage = potData.getCocaPlant().getGrowthStage();
+
+                    if (oldStage != newStage) {
+                        consumeResourcesForGrowth(newStage);
+                        CocaPlantBlock.growToStage(
+                            level, worldPosition, newStage, potData.getCocaPlant().getType()
+                        );
+                        setChanged();
+                        level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+                    }
                 }
             }
         }
+    }
+
+    /**
+     * Verbraucht Ressourcen beim Wachstum
+     */
+    private void consumeResourcesForGrowth(int newStage) {
+        double waterToConsume, soilToConsume;
+
+        if (newStage == 7) {
+            // Letzter Schritt: Verbrauche alles was noch da ist
+            waterToConsume = potData.getWaterLevelExact();
+            soilToConsume = potData.getSoilLevelExact();
+        } else {
+            // Normale Schritte: 1/7 der Kapazität
+            waterToConsume = potData.getMaxWater() / 7.0;
+            soilToConsume = 15.0 / 7.0;
+        }
+
+        potData.consumeWater(waterToConsume);
+        potData.consumeSoil(soilToConsume);
     }
     
     @Override
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
-        
+
         tag.putString("PotType", potData.getPotType().name());
-        tag.putDouble("WaterLevel", potData.getWaterLevelExact()); // Speichere exakte Werte
-        tag.putDouble("SoilLevel", potData.getSoilLevelExact()); // Speichere exakte Werte
+        tag.putDouble("WaterLevel", potData.getWaterLevelExact());
+        tag.putDouble("SoilLevel", potData.getSoilLevelExact());
         tag.putBoolean("HasSoil", potData.hasSoil());
-        
-        if (potData.hasPlant()) {
+
+        // Tabak-Pflanze speichern
+        if (potData.hasTobaccoPlant()) {
             CompoundTag plantTag = new CompoundTag();
             var plant = potData.getPlant();
-            
+
             plantTag.putString("Type", plant.getType().name());
             plantTag.putString("Quality", plant.getQuality().name());
             plantTag.putInt("GrowthStage", plant.getGrowthStage());
@@ -123,8 +149,24 @@ public class TobaccoPotBlockEntity extends BlockEntity {
             plantTag.putBoolean("HasFertilizer", plant.hasFertilizer());
             plantTag.putBoolean("HasGrowthBooster", plant.hasGrowthBooster());
             plantTag.putBoolean("HasQualityBooster", plant.hasQualityBooster());
-            
+
             tag.put("Plant", plantTag);
+        }
+
+        // Koka-Pflanze speichern
+        if (potData.hasCocaPlant()) {
+            CompoundTag cocaTag = new CompoundTag();
+            var cocaPlant = potData.getCocaPlant();
+
+            cocaTag.putString("Type", cocaPlant.getType().name());
+            cocaTag.putString("Quality", cocaPlant.getQuality().name());
+            cocaTag.putInt("GrowthStage", cocaPlant.getGrowthStage());
+            cocaTag.putInt("TicksGrown", cocaPlant.getTicksGrown());
+            cocaTag.putBoolean("HasFertilizer", cocaPlant.hasFertilizer());
+            cocaTag.putBoolean("HasGrowthBooster", cocaPlant.hasGrowthBooster());
+            cocaTag.putBoolean("HasQualityBooster", cocaPlant.hasQualityBooster());
+
+            tag.put("CocaPlant", cocaTag);
         }
     }
     
@@ -142,29 +184,27 @@ public class TobaccoPotBlockEntity extends BlockEntity {
 
         // WICHTIG: Werte direkt setzen, nicht addieren!
         if (tag.contains("WaterLevel")) {
-            potData.setWaterLevel(tag.getDouble("WaterLevel")); // Lade als double
+            potData.setWaterLevel(tag.getDouble("WaterLevel"));
         }
         if (tag.contains("SoilLevel")) {
-            potData.setSoilLevel(tag.getDouble("SoilLevel")); // Lade als double
+            potData.setSoilLevel(tag.getDouble("SoilLevel"));
         }
 
-        // Pflanzen-Daten laden (oder Pflanze entfernen wenn nicht im Tag)
+        // Tabak-Pflanzen-Daten laden
         if (tag.contains("Plant")) {
             CompoundTag plantTag = tag.getCompound("Plant");
 
             TobaccoType type = TobaccoType.valueOf(plantTag.getString("Type"));
 
-            // Nur Samen pflanzen wenn noch keine Pflanze da ist
-            if (!potData.hasPlant()) {
+            if (!potData.hasTobaccoPlant()) {
                 potData.plantSeed(type);
             }
 
             var plant = potData.getPlant();
             if (plant != null) {
-                plant.setQuality(de.rolandsw.schedulemc.tobacco.TobaccoQuality.valueOf(plantTag.getString("Quality")));
+                plant.setQuality(TobaccoQuality.valueOf(plantTag.getString("Quality")));
                 plant.setGrowthStage(plantTag.getInt("GrowthStage"));
 
-                // Ticks rekonstruieren
                 int ticksGrown = plantTag.getInt("TicksGrown");
                 while (plant.getTicksGrown() < ticksGrown) {
                     plant.incrementTicks();
@@ -174,8 +214,36 @@ public class TobaccoPotBlockEntity extends BlockEntity {
                 if (plantTag.getBoolean("HasGrowthBooster")) plant.applyGrowthBooster();
                 if (plantTag.getBoolean("HasQualityBooster")) plant.applyQualityBooster();
             }
-        } else {
-            // Kein Plant-Tag -> Pflanze entfernen falls vorhanden
+        }
+
+        // Koka-Pflanzen-Daten laden
+        if (tag.contains("CocaPlant")) {
+            CompoundTag cocaTag = tag.getCompound("CocaPlant");
+
+            CocaType type = CocaType.valueOf(cocaTag.getString("Type"));
+
+            if (!potData.hasCocaPlant()) {
+                potData.plantCocaSeed(type);
+            }
+
+            var cocaPlant = potData.getCocaPlant();
+            if (cocaPlant != null) {
+                cocaPlant.setQuality(TobaccoQuality.valueOf(cocaTag.getString("Quality")));
+                cocaPlant.setGrowthStage(cocaTag.getInt("GrowthStage"));
+
+                int ticksGrown = cocaTag.getInt("TicksGrown");
+                while (cocaPlant.getTicksGrown() < ticksGrown) {
+                    cocaPlant.incrementTicks();
+                }
+
+                if (cocaTag.getBoolean("HasFertilizer")) cocaPlant.applyFertilizer();
+                if (cocaTag.getBoolean("HasGrowthBooster")) cocaPlant.applyGrowthBooster();
+                if (cocaTag.getBoolean("HasQualityBooster")) cocaPlant.applyQualityBooster();
+            }
+        }
+
+        // Keine Pflanzen-Tags -> Pflanze entfernen falls vorhanden
+        if (!tag.contains("Plant") && !tag.contains("CocaPlant")) {
             if (potData.hasPlant()) {
                 potData.clearPlant();
             }
