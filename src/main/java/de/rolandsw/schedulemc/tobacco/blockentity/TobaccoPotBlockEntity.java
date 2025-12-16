@@ -3,6 +3,8 @@ package de.rolandsw.schedulemc.tobacco.blockentity;
 import de.rolandsw.schedulemc.coca.CocaType;
 import de.rolandsw.schedulemc.coca.blocks.CocaPlantBlock;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
+import de.rolandsw.schedulemc.poppy.PoppyType;
+import de.rolandsw.schedulemc.poppy.blocks.PoppyPlantBlock;
 import de.rolandsw.schedulemc.tobacco.PotType;
 import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
 import de.rolandsw.schedulemc.tobacco.TobaccoType;
@@ -104,6 +106,27 @@ public class TobaccoPotBlockEntity extends BlockEntity {
                         level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
                     }
                 }
+
+                // Mohn-Pflanze wachsen lassen
+                if (potData.hasPoppyPlant()) {
+                    int oldStage = potData.getPoppyPlant().getGrowthStage();
+
+                    if (plantGrowthCounter >= ticksNeeded) {
+                        plantGrowthCounter = 0;
+                        potData.getPoppyPlant().tick();
+                    }
+
+                    int newStage = potData.getPoppyPlant().getGrowthStage();
+
+                    if (oldStage != newStage) {
+                        consumeResourcesForGrowth(newStage);
+                        PoppyPlantBlock.growToStage(
+                            level, worldPosition, newStage, potData.getPoppyPlant().getType()
+                        );
+                        setChanged();
+                        level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+                    }
+                }
             }
         }
     }
@@ -167,6 +190,22 @@ public class TobaccoPotBlockEntity extends BlockEntity {
             cocaTag.putBoolean("HasQualityBooster", cocaPlant.hasQualityBooster());
 
             tag.put("CocaPlant", cocaTag);
+        }
+
+        // Mohn-Pflanze speichern
+        if (potData.hasPoppyPlant()) {
+            CompoundTag poppyTag = new CompoundTag();
+            var poppyPlant = potData.getPoppyPlant();
+
+            poppyTag.putString("Type", poppyPlant.getType().name());
+            poppyTag.putString("Quality", poppyPlant.getQuality().name());
+            poppyTag.putInt("GrowthStage", poppyPlant.getGrowthStage());
+            poppyTag.putInt("TicksGrown", poppyPlant.getTicksGrown());
+            poppyTag.putBoolean("HasFertilizer", poppyPlant.hasFertilizer());
+            poppyTag.putBoolean("HasGrowthBooster", poppyPlant.hasGrowthBooster());
+            poppyTag.putBoolean("HasQualityBooster", poppyPlant.hasQualityBooster());
+
+            tag.put("PoppyPlant", poppyTag);
         }
     }
     
@@ -242,8 +281,34 @@ public class TobaccoPotBlockEntity extends BlockEntity {
             }
         }
 
+        // Mohn-Pflanzen-Daten laden
+        if (tag.contains("PoppyPlant")) {
+            CompoundTag poppyTag = tag.getCompound("PoppyPlant");
+
+            PoppyType type = PoppyType.valueOf(poppyTag.getString("Type"));
+
+            if (!potData.hasPoppyPlant()) {
+                potData.plantPoppySeed(type);
+            }
+
+            var poppyPlant = potData.getPoppyPlant();
+            if (poppyPlant != null) {
+                poppyPlant.setQuality(TobaccoQuality.valueOf(poppyTag.getString("Quality")));
+                poppyPlant.setGrowthStage(poppyTag.getInt("GrowthStage"));
+
+                int ticksGrown = poppyTag.getInt("TicksGrown");
+                while (poppyPlant.getTicksGrown() < ticksGrown) {
+                    poppyPlant.incrementTicks();
+                }
+
+                if (poppyTag.getBoolean("HasFertilizer")) poppyPlant.applyFertilizer();
+                if (poppyTag.getBoolean("HasGrowthBooster")) poppyPlant.applyGrowthBooster();
+                if (poppyTag.getBoolean("HasQualityBooster")) poppyPlant.applyQualityBooster();
+            }
+        }
+
         // Keine Pflanzen-Tags -> Pflanze entfernen falls vorhanden
-        if (!tag.contains("Plant") && !tag.contains("CocaPlant")) {
+        if (!tag.contains("Plant") && !tag.contains("CocaPlant") && !tag.contains("PoppyPlant")) {
             if (potData.hasPlant()) {
                 potData.clearPlant();
             }

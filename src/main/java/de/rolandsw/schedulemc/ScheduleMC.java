@@ -34,6 +34,9 @@ import de.rolandsw.schedulemc.tobacco.blockentity.TobaccoBlockEntities;
 import de.rolandsw.schedulemc.coca.items.CocaItems;
 import de.rolandsw.schedulemc.coca.blocks.CocaBlocks;
 import de.rolandsw.schedulemc.coca.blockentity.CocaBlockEntities;
+import de.rolandsw.schedulemc.poppy.items.PoppyItems;
+import de.rolandsw.schedulemc.poppy.blocks.PoppyBlocks;
+import de.rolandsw.schedulemc.poppy.blockentity.PoppyBlockEntities;
 import de.rolandsw.schedulemc.tobacco.menu.ModMenuTypes;
 import de.rolandsw.schedulemc.tobacco.entity.ModEntities;
 import de.rolandsw.schedulemc.economy.blocks.EconomyBlocks;
@@ -100,6 +103,12 @@ public class ScheduleMC {
         CocaBlocks.BLOCKS.register(modEventBus);
         CocaBlocks.ITEMS.register(modEventBus);
         CocaBlockEntities.BLOCK_ENTITIES.register(modEventBus);
+
+        // Mohn-System registrieren
+        PoppyItems.ITEMS.register(modEventBus);
+        PoppyBlocks.BLOCKS.register(modEventBus);
+        PoppyBlocks.ITEMS.register(modEventBus);
+        PoppyBlockEntities.BLOCK_ENTITIES.register(modEventBus);
 
         EconomyBlocks.BLOCKS.register(modEventBus);
         EconomyBlocks.ITEMS.register(modEventBus);

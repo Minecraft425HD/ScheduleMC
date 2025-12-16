@@ -1,0 +1,61 @@
+package de.rolandsw.schedulemc.poppy;
+
+/**
+ * Mohn-Sorten mit unterschiedlichen Eigenschaften
+ */
+public enum PoppyType {
+    AFGHANISCH("Afghanisch", "§4", 50.0, 160, 1.2, 25, 1.5),  // Höchste Potenz, langsam
+    TUERKISCH("Türkisch", "§6", 35.0, 120, 1.0, 20, 1.0),     // Ausgewogen
+    INDISCH("Indisch", "§5", 20.0, 80, 0.8, 15, 0.8);         // Schnell, niedrige Potenz
+
+    private final String displayName;
+    private final String colorCode;
+    private final double seedPrice;
+    private final int growthTicks;
+    private final double waterConsumption;
+    private final int baseYield;
+    private final double potencyMultiplier;
+
+    PoppyType(String displayName, String colorCode, double seedPrice, int growthTicks,
+              double waterConsumption, int baseYield, double potencyMultiplier) {
+        this.displayName = displayName;
+        this.colorCode = colorCode;
+        this.seedPrice = seedPrice;
+        this.growthTicks = growthTicks;
+        this.waterConsumption = waterConsumption;
+        this.baseYield = baseYield;
+        this.potencyMultiplier = potencyMultiplier;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public String getColorCode() {
+        return colorCode;
+    }
+
+    public String getColoredName() {
+        return colorCode + displayName;
+    }
+
+    public double getSeedPrice() {
+        return seedPrice;
+    }
+
+    public int getGrowthTicks() {
+        return growthTicks;
+    }
+
+    public double getWaterConsumption() {
+        return waterConsumption;
+    }
+
+    public int getBaseYield() {
+        return baseYield;
+    }
+
+    public double getPotencyMultiplier() {
+        return potencyMultiplier;
+    }
+}

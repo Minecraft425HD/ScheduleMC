@@ -3,6 +3,9 @@ package de.rolandsw.schedulemc.tobacco.blocks;
 import de.rolandsw.schedulemc.coca.blocks.CocaPlantBlock;
 import de.rolandsw.schedulemc.coca.items.CocaSeedItem;
 import de.rolandsw.schedulemc.coca.items.FreshCocaLeafItem;
+import de.rolandsw.schedulemc.poppy.blocks.PoppyPlantBlock;
+import de.rolandsw.schedulemc.poppy.items.PoppyPodItem;
+import de.rolandsw.schedulemc.poppy.items.PoppySeedItem;
 import de.rolandsw.schedulemc.tobacco.PotType;
 import de.rolandsw.schedulemc.tobacco.blockentity.TobaccoPotBlockEntity;
 import de.rolandsw.schedulemc.tobacco.items.SoilBagItem;
@@ -247,6 +250,49 @@ public class TobaccoPotBlock extends Block implements EntityBlock {
         }
 
         // ═══════════════════════════════════════════════════════════
+        // 3c. MOHN PFLANZEN
+        // ═══════════════════════════════════════════════════════════
+        if (handStack.getItem() instanceof PoppySeedItem poppySeedItem) {
+            if (!potData.hasSoil()) {
+                player.displayClientMessage(Component.literal(
+                    "§c✗ Topf braucht zuerst Erde!"
+                ), true);
+                return InteractionResult.FAIL;
+            }
+
+            if (potData.hasPlant()) {
+                player.displayClientMessage(Component.literal(
+                    "§c✗ Topf hat bereits eine Pflanze!"
+                ), true);
+                return InteractionResult.FAIL;
+            }
+
+            if (potData.getWaterLevel() < 10) {
+                player.displayClientMessage(Component.literal(
+                    "§c✗ Zu wenig Wasser zum Pflanzen!"
+                ), true);
+                return InteractionResult.FAIL;
+            }
+
+            // Pflanze Mohn-Samen
+            potData.plantPoppySeed(poppySeedItem.getPoppyType());
+            potBE.setChanged();
+            level.sendBlockUpdated(pos, state, state, 3);
+            handStack.shrink(1);
+
+            // Platziere Mohn-Pflanzen-Block oberhalb des Topfes
+            PoppyPlantBlock.growToStage(level, pos, 0, poppySeedItem.getPoppyType());
+
+            player.displayClientMessage(Component.literal(
+                "§a✓ Mohn-Samen gepflanzt!\n" +
+                "§7Sorte: " + poppySeedItem.getPoppyType().getColoredName()
+            ), true);
+
+            player.playSound(net.minecraft.sounds.SoundEvents.CROP_PLANTED, 1.0f, 1.0f);
+            return InteractionResult.SUCCESS;
+        }
+
+        // ═══════════════════════════════════════════════════════════
         // 4. ERNTEN (Tabak)
         // ═══════════════════════════════════════════════════════════
         if (handStack.isEmpty() && player.isShiftKeyDown() && potData.hasTobaccoPlant()) {
@@ -320,6 +366,47 @@ public class TobaccoPotBlock extends Block implements EntityBlock {
                 player.displayClientMessage(Component.literal(
                     "§a✓ Koka geerntet!\n" +
                     "§7Ertrag: §e" + harvested.getHarvestYield() + " Blätter\n" +
+                    "§7Qualität: " + harvested.getQuality().getColoredName()
+                ), true);
+
+                player.playSound(net.minecraft.sounds.SoundEvents.CROP_BREAK, 1.0f, 1.0f);
+                return InteractionResult.SUCCESS;
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // 4c. ERNTEN (Mohn)
+        // ═══════════════════════════════════════════════════════════
+        if (handStack.isEmpty() && player.isShiftKeyDown() && potData.hasPoppyPlant()) {
+            var poppyPlant = potData.getPoppyPlant();
+
+            if (!poppyPlant.isFullyGrown()) {
+                player.displayClientMessage(Component.literal(
+                    "§c✗ Mohn-Pflanze ist noch nicht ausgewachsen!\n" +
+                    "§7Wachstum: §e" + (poppyPlant.getGrowthStage() * 100 / 7) + "%"
+                ), true);
+                return InteractionResult.FAIL;
+            }
+
+            // Ernte Mohn
+            var harvested = potData.harvestPoppy();
+            if (harvested != null) {
+                ItemStack pods = PoppyPodItem.create(
+                    harvested.getType(),
+                    harvested.getQuality(),
+                    harvested.getHarvestYield()
+                );
+
+                player.getInventory().add(pods);
+                potBE.setChanged();
+                level.sendBlockUpdated(pos, state, state, 3);
+
+                // Entferne Mohn-Pflanzen-Block
+                PoppyPlantBlock.removePlant(level, pos);
+
+                player.displayClientMessage(Component.literal(
+                    "§a✓ Mohn geerntet!\n" +
+                    "§7Ertrag: §e" + harvested.getHarvestYield() + " Kapseln\n" +
                     "§7Qualität: " + harvested.getQuality().getColoredName()
                 ), true);
 

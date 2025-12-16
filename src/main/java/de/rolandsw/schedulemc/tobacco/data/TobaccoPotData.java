@@ -2,11 +2,13 @@ package de.rolandsw.schedulemc.tobacco.data;
 
 import de.rolandsw.schedulemc.coca.CocaType;
 import de.rolandsw.schedulemc.coca.data.CocaPlantData;
+import de.rolandsw.schedulemc.poppy.PoppyType;
+import de.rolandsw.schedulemc.poppy.data.PoppyPlantData;
 import de.rolandsw.schedulemc.tobacco.PotType;
 import de.rolandsw.schedulemc.tobacco.TobaccoType;
 
 /**
- * Speichert Daten eines Tabak-Topfes (unterstützt auch Koka-Pflanzen)
+ * Speichert Daten eines Tabak-Topfes (unterstützt auch Koka- und Mohn-Pflanzen)
  */
 public class TobaccoPotData {
 
@@ -15,6 +17,7 @@ public class TobaccoPotData {
     private double soilLevel; // Aktuelle Erde (als double für präzisen Verbrauch)
     private TobaccoPlantData plant; // Gepflanzte Tabakpflanze (null wenn leer)
     private CocaPlantData cocaPlant; // Gepflanzte Koka-Pflanze (null wenn leer)
+    private PoppyPlantData poppyPlant; // Gepflanzte Mohn-Pflanze (null wenn leer)
     private boolean hasSoil; // Wurde Erde hinzugefügt?
     
     public TobaccoPotData(PotType potType) {
@@ -23,6 +26,7 @@ public class TobaccoPotData {
         this.soilLevel = 0;
         this.plant = null;
         this.cocaPlant = null;
+        this.poppyPlant = null;
         this.hasSoil = false;
     }
     
@@ -68,8 +72,12 @@ public class TobaccoPotData {
         return cocaPlant;
     }
 
+    public PoppyPlantData getPoppyPlant() {
+        return poppyPlant;
+    }
+
     public boolean hasPlant() {
-        return plant != null || cocaPlant != null;
+        return plant != null || cocaPlant != null || poppyPlant != null;
     }
 
     public boolean hasTobaccoPlant() {
@@ -79,7 +87,11 @@ public class TobaccoPotData {
     public boolean hasCocaPlant() {
         return cocaPlant != null;
     }
-    
+
+    public boolean hasPoppyPlant() {
+        return poppyPlant != null;
+    }
+
     public boolean hasSoil() {
         return hasSoil;
     }
@@ -188,6 +200,18 @@ public class TobaccoPotData {
     }
 
     /**
+     * Pflanzt Mohn-Samen
+     */
+    public boolean plantPoppySeed(PoppyType type) {
+        if (!hasSoil || hasPlant()) {
+            return false;
+        }
+
+        this.poppyPlant = new PoppyPlantData(type);
+        return true;
+    }
+
+    /**
      * Erntet die Tabak-Pflanze
      */
     public TobaccoPlantData harvest() {
@@ -214,15 +238,29 @@ public class TobaccoPotData {
     }
 
     /**
+     * Erntet die Mohn-Pflanze
+     */
+    public PoppyPlantData harvestPoppy() {
+        if (poppyPlant == null || !poppyPlant.isFullyGrown()) {
+            return null;
+        }
+
+        PoppyPlantData harvested = poppyPlant;
+        poppyPlant = null;
+        return harvested;
+    }
+
+    /**
      * Entfernt die Pflanze (ohne Ernte-Bedingungen)
      */
     public void clearPlant() {
         this.plant = null;
         this.cocaPlant = null;
+        this.poppyPlant = null;
     }
     
     /**
-     * Prüft ob die Pflanze wachsen kann (Tabak oder Koka)
+     * Prüft ob die Pflanze wachsen kann (Tabak, Koka oder Mohn)
      */
     public boolean canGrow() {
         // Prüfe Tabak-Pflanze
@@ -232,6 +270,11 @@ public class TobaccoPotData {
 
         // Prüfe Koka-Pflanze
         if (cocaPlant != null && !cocaPlant.isFullyGrown()) {
+            return checkResourcesForGrowth();
+        }
+
+        // Prüfe Mohn-Pflanze
+        if (poppyPlant != null && !poppyPlant.isFullyGrown()) {
             return checkResourcesForGrowth();
         }
 
