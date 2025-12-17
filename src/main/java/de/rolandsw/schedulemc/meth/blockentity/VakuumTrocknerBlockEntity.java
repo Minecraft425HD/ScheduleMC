@@ -13,14 +13,17 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
+import de.rolandsw.schedulemc.utility.IUtilityConsumer;
+import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 
 /**
  * Vakuum-Trockner - Vierter und letzter Schritt der Meth-Herstellung
  * Trocknet Kristall-Meth (feucht) zu fertigem Meth
  * Passiver Prozess - keine aktive Interaktion nötig
  */
-public class VakuumTrocknerBlockEntity extends BlockEntity {
+public class VakuumTrocknerBlockEntity extends BlockEntity implements IUtilityConsumer {
 
+    private boolean lastActiveState = false;
     private static final int DRYING_TIME = 600; // 30 Sekunden
     private static final int CAPACITY = 6; // Kann 6 Batches gleichzeitig verarbeiten
 
@@ -126,6 +129,13 @@ public class VakuumTrocknerBlockEntity extends BlockEntity {
             setChanged();
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
+
+        // Utility-Status nur bei Änderung melden
+        boolean currentActive = isActivelyConsuming();
+        if (currentActive != lastActiveState) {
+            lastActiveState = currentActive;
+            UtilityEventHandler.reportBlockEntityActivity(this, currentActive);
+        }
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -191,6 +201,11 @@ public class VakuumTrocknerBlockEntity extends BlockEntity {
             }
         }
         return best;
+    }
+
+    @Override
+    public boolean isActivelyConsuming() {
+        return isActive;
     }
 
     // ═══════════════════════════════════════════════════════════

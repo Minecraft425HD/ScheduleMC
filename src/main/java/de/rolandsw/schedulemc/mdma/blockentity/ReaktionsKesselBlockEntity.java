@@ -4,6 +4,8 @@ import de.rolandsw.schedulemc.mdma.MDMAQuality;
 import de.rolandsw.schedulemc.mdma.items.MDMABaseItem;
 import de.rolandsw.schedulemc.mdma.items.MDMAItems;
 import de.rolandsw.schedulemc.mdma.items.SafrolItem;
+import de.rolandsw.schedulemc.utility.IUtilityConsumer;
+import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -19,7 +21,9 @@ import org.jetbrains.annotations.Nullable;
  * Synthetisiert Safrol zu MDMA-Base
  * Passiver Prozess - keine aktive Interaktion nötig
  */
-public class ReaktionsKesselBlockEntity extends BlockEntity {
+public class ReaktionsKesselBlockEntity extends BlockEntity implements IUtilityConsumer {
+
+    private boolean lastActiveState = false;
 
     private static final int SYNTHESIS_TIME = 1000; // 50 Sekunden
     private static final int CAPACITY = 8;
@@ -86,6 +90,13 @@ public class ReaktionsKesselBlockEntity extends BlockEntity {
         } else {
             isActive = false;
         }
+
+        // Utility-Status nur bei Änderung melden
+        boolean currentActive = isActivelyConsuming();
+        if (currentActive != lastActiveState) {
+            lastActiveState = currentActive;
+            UtilityEventHandler.reportBlockEntityActivity(this, currentActive);
+        }
     }
 
     // Getter
@@ -94,6 +105,11 @@ public class ReaktionsKesselBlockEntity extends BlockEntity {
     public int getSafrolCount() { return safrolCount; }
     public int getOutputCount() { return outputCount; }
     public float getProgress() { return (float) synthesisProgress / SYNTHESIS_TIME; }
+
+    @Override
+    public boolean isActivelyConsuming() {
+        return isActive;
+    }
 
     @Override
     protected void saveAdditional(CompoundTag tag) {

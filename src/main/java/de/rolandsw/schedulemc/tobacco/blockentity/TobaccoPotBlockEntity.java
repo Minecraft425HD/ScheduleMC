@@ -6,6 +6,8 @@ import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.mushroom.MushroomType;
 import de.rolandsw.schedulemc.poppy.PoppyType;
 import de.rolandsw.schedulemc.poppy.blocks.PoppyPlantBlock;
+import de.rolandsw.schedulemc.utility.IUtilityConsumer;
+import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import de.rolandsw.schedulemc.tobacco.PotType;
 import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
 import de.rolandsw.schedulemc.tobacco.TobaccoType;
@@ -26,8 +28,10 @@ import org.jetbrains.annotations.Nullable;
  * TileEntity für Tabak-Töpfe
  * Speichert: Wasser, Erde, Pflanzendaten
  */
-public class TobaccoPotBlockEntity extends BlockEntity {
-    
+public class TobaccoPotBlockEntity extends BlockEntity implements IUtilityConsumer {
+
+    private boolean lastActiveState = false;
+
     private TobaccoPotData potData;
     private int tickCounter = 0;
     private int plantGrowthCounter = 0;
@@ -161,6 +165,19 @@ public class TobaccoPotBlockEntity extends BlockEntity {
                 }
             }
         }
+
+        // Utility-Status nur bei Änderung melden
+        boolean currentActive = isActivelyConsuming();
+        if (currentActive != lastActiveState) {
+            lastActiveState = currentActive;
+            UtilityEventHandler.reportBlockEntityActivity(this, currentActive);
+        }
+    }
+
+    @Override
+    public boolean isActivelyConsuming() {
+        // Aktiv wenn eine Pflanze vorhanden ist und wachsen kann
+        return potData.hasPlant() && potData.canGrow();
     }
 
     /**

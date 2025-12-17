@@ -6,6 +6,8 @@ import de.rolandsw.schedulemc.lsd.items.BlotterItem;
 import de.rolandsw.schedulemc.lsd.items.BlotterPapierItem;
 import de.rolandsw.schedulemc.lsd.items.LSDItems;
 import de.rolandsw.schedulemc.lsd.items.LSDLoesungItem;
+import de.rolandsw.schedulemc.utility.IUtilityConsumer;
+import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -20,11 +22,12 @@ import org.jetbrains.annotations.Nullable;
  * Perforations-Presse - Vierter und letzter Schritt der LSD-Herstellung
  * Träufelt LSD-Lösung auf Blotter-Papier und stanzt in Tabs
  */
-public class PerforationsPresseBlockEntity extends BlockEntity {
+public class PerforationsPresseBlockEntity extends BlockEntity implements IUtilityConsumer {
 
     private static final int PRESS_TIME = 100; // 5 Sekunden pro Batch
     private static final int TABS_PER_PAPER = 9; // 9 Tabs pro Blotter-Papier (3x3)
 
+    private boolean lastActiveState = false;
     private ItemStack lsdLoesung = ItemStack.EMPTY;
     private int blotterPapierCount = 0;
     private BlotterDesign selectedDesign = BlotterDesign.TOTENKOPF;
@@ -156,6 +159,13 @@ public class PerforationsPresseBlockEntity extends BlockEntity {
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
             }
         }
+
+        // Utility-Status nur bei Änderung melden
+        boolean currentActive = isActivelyConsuming();
+        if (currentActive != lastActiveState) {
+            lastActiveState = currentActive;
+            UtilityEventHandler.reportBlockEntityActivity(this, currentActive);
+        }
     }
 
     // Getter
@@ -173,6 +183,11 @@ public class PerforationsPresseBlockEntity extends BlockEntity {
         int fromPaper = blotterPapierCount * TABS_PER_PAPER;
         int fromCharges = LSDLoesungItem.getCharges(lsdLoesung);
         return Math.min(fromPaper, fromCharges);
+    }
+
+    @Override
+    public boolean isActivelyConsuming() {
+        return isPressing;
     }
 
     @Override

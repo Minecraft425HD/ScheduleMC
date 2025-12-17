@@ -6,6 +6,8 @@ import de.rolandsw.schedulemc.cannabis.items.TrimmedBudItem;
 import de.rolandsw.schedulemc.cannabis.items.TrimItem;
 import de.rolandsw.schedulemc.cannabis.items.CannabisOilItem;
 import de.rolandsw.schedulemc.cannabis.items.CannabisItems;
+import de.rolandsw.schedulemc.utility.IUtilityConsumer;
+import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -20,7 +22,9 @@ import org.jetbrains.annotations.Nullable;
  * Öl-Extraktor - extrahiert Cannabis-Öl aus Blüten oder Trim
  * Benötigt Lösungsmittel (Extraction Solvent)
  */
-public class OelExtraktortBlockEntity extends BlockEntity {
+public class OelExtraktortBlockEntity extends BlockEntity implements IUtilityConsumer {
+
+    private boolean lastActiveState = false;
 
     public static final int EXTRACTION_TICKS = 12000;  // 10 Minuten
     public static final int MIN_MATERIAL_WEIGHT = 10;
@@ -107,6 +111,18 @@ public class OelExtraktortBlockEntity extends BlockEntity {
 
             setChanged();
         }
+
+        // Utility-Status nur bei Änderung melden
+        boolean currentActive = isActivelyConsuming();
+        if (currentActive != lastActiveState) {
+            lastActiveState = currentActive;
+            UtilityEventHandler.reportBlockEntityActivity(this, currentActive);
+        }
+    }
+
+    @Override
+    public boolean isActivelyConsuming() {
+        return isExtracting;
     }
 
     private void finishExtraction() {

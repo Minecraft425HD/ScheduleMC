@@ -13,14 +13,17 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
+import de.rolandsw.schedulemc.utility.IUtilityConsumer;
+import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 
 /**
  * Kristallisator - Dritter Schritt der Meth-Herstellung
  * Wandelt Roh-Meth in Kristall-Meth (feucht) um
  * Passiver Prozess - keine aktive Interaktion nötig
  */
-public class KristallisatorBlockEntity extends BlockEntity {
+public class KristallisatorBlockEntity extends BlockEntity implements IUtilityConsumer {
 
+    private boolean lastActiveState = false;
     private static final int CRYSTALLIZATION_TIME = 800; // 40 Sekunden
     private static final int CAPACITY = 4; // Kann 4 Batches gleichzeitig verarbeiten
 
@@ -132,6 +135,13 @@ public class KristallisatorBlockEntity extends BlockEntity {
             setChanged();
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
+
+        // Utility-Status nur bei Änderung melden
+        boolean currentActive = isActivelyConsuming();
+        if (currentActive != lastActiveState) {
+            lastActiveState = currentActive;
+            UtilityEventHandler.reportBlockEntityActivity(this, currentActive);
+        }
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -184,6 +194,11 @@ public class KristallisatorBlockEntity extends BlockEntity {
         }
 
         return activeSlots > 0 ? totalProgress / activeSlots : 0;
+    }
+
+    @Override
+    public boolean isActivelyConsuming() {
+        return isActive;
     }
 
     // ═══════════════════════════════════════════════════════════

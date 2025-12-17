@@ -4,6 +4,8 @@ import de.rolandsw.schedulemc.mdma.MDMAQuality;
 import de.rolandsw.schedulemc.mdma.items.MDMABaseItem;
 import de.rolandsw.schedulemc.mdma.items.MDMAItems;
 import de.rolandsw.schedulemc.mdma.items.MDMAKristallItem;
+import de.rolandsw.schedulemc.utility.IUtilityConsumer;
+import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -19,7 +21,9 @@ import org.jetbrains.annotations.Nullable;
  * Trocknet MDMA-Base zu reinen Kristallen
  * Passiver Prozess
  */
-public class TrocknungsOfenBlockEntity extends BlockEntity {
+public class TrocknungsOfenBlockEntity extends BlockEntity implements IUtilityConsumer {
+
+    private boolean lastActiveState = false;
 
     private static final int DRYING_TIME = 600; // 30 Sekunden
     private static final int CAPACITY = 8;
@@ -79,6 +83,13 @@ public class TrocknungsOfenBlockEntity extends BlockEntity {
         } else {
             isActive = false;
         }
+
+        // Utility-Status nur bei Änderung melden
+        boolean currentActive = isActivelyConsuming();
+        if (currentActive != lastActiveState) {
+            lastActiveState = currentActive;
+            UtilityEventHandler.reportBlockEntityActivity(this, currentActive);
+        }
     }
 
     // Getter
@@ -87,6 +98,11 @@ public class TrocknungsOfenBlockEntity extends BlockEntity {
     public int getInputCount() { return inputCount; }
     public int getOutputCount() { return outputCount; }
     public float getProgress() { return (float) dryingProgress / DRYING_TIME; }
+
+    @Override
+    public boolean isActivelyConsuming() {
+        return isActive;
+    }
 
     @Override
     protected void saveAdditional(CompoundTag tag) {

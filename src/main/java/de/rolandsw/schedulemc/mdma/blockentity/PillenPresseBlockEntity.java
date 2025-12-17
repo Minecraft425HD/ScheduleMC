@@ -8,6 +8,8 @@ import de.rolandsw.schedulemc.mdma.items.EcstasyPillItem;
 import de.rolandsw.schedulemc.mdma.items.FarbstoffItem;
 import de.rolandsw.schedulemc.mdma.items.MDMAItems;
 import de.rolandsw.schedulemc.mdma.items.MDMAKristallItem;
+import de.rolandsw.schedulemc.utility.IUtilityConsumer;
+import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -29,7 +31,9 @@ import java.util.UUID;
  * - Perfekt = Beste Qualität
  * - Zu spät = Pille ungleichmäßig (mittlere Qualität)
  */
-public class PillenPresseBlockEntity extends BlockEntity {
+public class PillenPresseBlockEntity extends BlockEntity implements IUtilityConsumer {
+
+    private boolean lastActiveState = false;
 
     // Timing-Konstanten
     public static final int PRESS_CYCLE_TICKS = 60; // 3 Sekunden pro Zyklus
@@ -216,6 +220,13 @@ public class PillenPresseBlockEntity extends BlockEntity {
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
             }
         }
+
+        // Utility-Status nur bei Änderung melden
+        boolean currentActive = isActivelyConsuming();
+        if (currentActive != lastActiveState) {
+            lastActiveState = currentActive;
+            UtilityEventHandler.reportBlockEntityActivity(this, currentActive);
+        }
     }
 
     public void cancelMinigame() {
@@ -251,6 +262,11 @@ public class PillenPresseBlockEntity extends BlockEntity {
         if (minigameTick >= GOOD_WINDOW_START && minigameTick <= GOOD_WINDOW_END) return 1;
         if (minigameTick < GOOD_WINDOW_START) return 0;
         return 3;
+    }
+
+    @Override
+    public boolean isActivelyConsuming() {
+        return isMinigameActive && waitingForPress;
     }
 
     @Override

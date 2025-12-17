@@ -4,6 +4,8 @@ import de.rolandsw.schedulemc.poppy.PoppyType;
 import de.rolandsw.schedulemc.poppy.items.HeroinItem;
 import de.rolandsw.schedulemc.poppy.items.MorphineItem;
 import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
+import de.rolandsw.schedulemc.utility.IUtilityConsumer;
+import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -18,8 +20,9 @@ import org.jetbrains.annotations.Nullable;
  * Heroin-Raffinerie - raffiniert Morphin zu Heroin
  * Benötigt Brennstoff und Chemikalien (simuliert durch Brennstoff)
  */
-public class HeroinRaffinerieBlockEntity extends BlockEntity {
+public class HeroinRaffinerieBlockEntity extends BlockEntity implements IUtilityConsumer {
 
+    private boolean lastActiveState = false;
     private static final int CAPACITY = 8;
     private static final int REFINE_TIME = 300; // 15 Sekunden
     private static final int MAX_FUEL = 800;
@@ -209,6 +212,26 @@ public class HeroinRaffinerieBlockEntity extends BlockEntity {
             setChanged();
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
+
+        // Utility-Status nur bei Änderung melden
+        boolean currentActive = isActivelyConsuming();
+        if (currentActive != lastActiveState) {
+            lastActiveState = currentActive;
+            UtilityEventHandler.reportBlockEntityActivity(this, currentActive);
+        }
+    }
+
+    @Override
+    public boolean isActivelyConsuming() {
+        // Aktiv wenn Brennstoff vorhanden und Inputs zu verarbeiten sind
+        if (fuelLevel < 1) return false;
+
+        for (int i = 0; i < CAPACITY; i++) {
+            if (!inputs[i].isEmpty() && outputs[i].isEmpty()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private TobaccoQuality calculateFinalQuality(TobaccoQuality quality) {

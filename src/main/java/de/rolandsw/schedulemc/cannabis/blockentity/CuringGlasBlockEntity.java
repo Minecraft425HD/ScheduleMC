@@ -4,6 +4,8 @@ import de.rolandsw.schedulemc.cannabis.CannabisStrain;
 import de.rolandsw.schedulemc.cannabis.CannabisQuality;
 import de.rolandsw.schedulemc.cannabis.items.TrimmedBudItem;
 import de.rolandsw.schedulemc.cannabis.items.CuredBudItem;
+import de.rolandsw.schedulemc.utility.IUtilityConsumer;
+import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -19,7 +21,9 @@ import org.jetbrains.annotations.Nullable;
  * Je länger das Curing, desto besser die Qualität
  * Minimum: 14 Tage, Optimal: 28+ Tage
  */
-public class CuringGlasBlockEntity extends BlockEntity {
+public class CuringGlasBlockEntity extends BlockEntity implements IUtilityConsumer {
+
+    private boolean lastActiveState = false;
 
     public static final int TICKS_PER_DAY = 24000;
     public static final int MIN_CURING_DAYS = 14;
@@ -84,6 +88,18 @@ public class CuringGlasBlockEntity extends BlockEntity {
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
             }
         }
+
+        // Utility-Status nur bei Änderung melden
+        boolean currentActive = isActivelyConsuming();
+        if (currentActive != lastActiveState) {
+            lastActiveState = currentActive;
+            UtilityEventHandler.reportBlockEntityActivity(this, currentActive);
+        }
+    }
+
+    @Override
+    public boolean isActivelyConsuming() {
+        return !storedItem.isEmpty();
     }
 
     // Getter

@@ -4,6 +4,8 @@ import de.rolandsw.schedulemc.lsd.LSDDosage;
 import de.rolandsw.schedulemc.lsd.items.LSDItems;
 import de.rolandsw.schedulemc.lsd.items.LSDLoesungItem;
 import de.rolandsw.schedulemc.lsd.items.LysergsaeureItem;
+import de.rolandsw.schedulemc.utility.IUtilityConsumer;
+import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -19,10 +21,11 @@ import org.jetbrains.annotations.Nullable;
  * Präzise Dosierung der Lysergsäure zu LSD-Lösung
  * Hat GUI mit Dosierungs-Slider (50-300 μg)
  */
-public class MikroDosiererBlockEntity extends BlockEntity {
+public class MikroDosiererBlockEntity extends BlockEntity implements IUtilityConsumer {
 
     private static final int PROCESS_TIME = 200; // 10 Sekunden
 
+    private boolean lastActiveState = false;
     private int lysergsaeureCount = 0;
     private int dosageSlider = 50; // 0-100, default 50% = 175μg
     private int processProgress = 0;
@@ -110,6 +113,13 @@ public class MikroDosiererBlockEntity extends BlockEntity {
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
             }
         }
+
+        // Utility-Status nur bei Änderung melden
+        boolean currentActive = isActivelyConsuming();
+        if (currentActive != lastActiveState) {
+            lastActiveState = currentActive;
+            UtilityEventHandler.reportBlockEntityActivity(this, currentActive);
+        }
     }
 
     // Getter
@@ -121,6 +131,11 @@ public class MikroDosiererBlockEntity extends BlockEntity {
     public int getCurrentMicrograms() { return LSDDosage.getMicrogramsFromSlider(dosageSlider); }
     public LSDDosage getCurrentDosage() { return LSDDosage.fromSliderValue(dosageSlider); }
     public float getProgress() { return (float) processProgress / PROCESS_TIME; }
+
+    @Override
+    public boolean isActivelyConsuming() {
+        return isProcessing;
+    }
 
     @Override
     protected void saveAdditional(CompoundTag tag) {

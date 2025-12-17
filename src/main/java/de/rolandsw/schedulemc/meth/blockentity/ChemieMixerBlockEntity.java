@@ -16,13 +16,16 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
+import de.rolandsw.schedulemc.utility.IUtilityConsumer;
+import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 
 /**
  * Chemie-Mixer - Erster Schritt der Meth-Herstellung
  * Kombiniert: Ephedrin/Pseudoephedrin + Roter Phosphor + Jod → Meth-Paste
  */
-public class ChemieMixerBlockEntity extends BlockEntity {
+public class ChemieMixerBlockEntity extends BlockEntity implements IUtilityConsumer {
 
+    private boolean lastActiveState = false;
     private static final int MIXING_TIME = 600; // 30 Sekunden (600 Ticks)
     private static final int CAPACITY = 4; // Kann 4 Batches gleichzeitig verarbeiten
 
@@ -182,6 +185,13 @@ public class ChemieMixerBlockEntity extends BlockEntity {
             setChanged();
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
+
+        // Utility-Status nur bei Änderung melden
+        boolean currentActive = isActivelyConsuming();
+        if (currentActive != lastActiveState) {
+            lastActiveState = currentActive;
+            UtilityEventHandler.reportBlockEntityActivity(this, currentActive);
+        }
     }
 
     private MethQuality calculateQuality(int slot) {
@@ -254,6 +264,11 @@ public class ChemieMixerBlockEntity extends BlockEntity {
             if (!jodSlots[i].isEmpty()) jod++;
         }
         return "E:" + ephedrin + " P:" + phosphor + " J:" + jod;
+    }
+
+    @Override
+    public boolean isActivelyConsuming() {
+        return isActive;
     }
 
     @Override

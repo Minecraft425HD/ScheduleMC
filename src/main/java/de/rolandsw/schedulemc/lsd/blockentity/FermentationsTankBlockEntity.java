@@ -3,6 +3,8 @@ package de.rolandsw.schedulemc.lsd.blockentity;
 import de.rolandsw.schedulemc.lsd.items.ErgotKulturItem;
 import de.rolandsw.schedulemc.lsd.items.LSDItems;
 import de.rolandsw.schedulemc.lsd.items.MutterkornItem;
+import de.rolandsw.schedulemc.utility.IUtilityConsumer;
+import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -17,11 +19,12 @@ import org.jetbrains.annotations.Nullable;
  * Fermentations-Tank - Erster Schritt der LSD-Herstellung
  * Fermentiert Mutterkorn zu Ergot-Kultur
  */
-public class FermentationsTankBlockEntity extends BlockEntity {
+public class FermentationsTankBlockEntity extends BlockEntity implements IUtilityConsumer {
 
     private static final int FERMENTATION_TIME = 1200; // 60 Sekunden
     private static final int CAPACITY = 8;
 
+    private boolean lastActiveState = false;
     private int mutterkornCount = 0;
     private int fermentationProgress = 0;
     private int outputCount = 0;
@@ -85,6 +88,13 @@ public class FermentationsTankBlockEntity extends BlockEntity {
         } else {
             isActive = false;
         }
+
+        // Utility-Status nur bei Änderung melden
+        boolean currentActive = isActivelyConsuming();
+        if (currentActive != lastActiveState) {
+            lastActiveState = currentActive;
+            UtilityEventHandler.reportBlockEntityActivity(this, currentActive);
+        }
     }
 
     // Getter
@@ -93,6 +103,11 @@ public class FermentationsTankBlockEntity extends BlockEntity {
     public int getMutterkornCount() { return mutterkornCount; }
     public int getOutputCount() { return outputCount; }
     public float getProgress() { return (float) fermentationProgress / FERMENTATION_TIME; }
+
+    @Override
+    public boolean isActivelyConsuming() {
+        return isActive;
+    }
 
     @Override
     protected void saveAdditional(CompoundTag tag) {

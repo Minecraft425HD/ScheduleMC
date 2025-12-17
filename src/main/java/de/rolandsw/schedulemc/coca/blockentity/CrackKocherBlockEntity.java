@@ -6,6 +6,8 @@ import de.rolandsw.schedulemc.coca.items.CocaineItem;
 import de.rolandsw.schedulemc.coca.items.CrackRockItem;
 import de.rolandsw.schedulemc.coca.items.CocaItems;
 import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
+import de.rolandsw.schedulemc.utility.IUtilityConsumer;
+import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -28,7 +30,9 @@ import java.util.UUID;
  * - Perfekt = Fishscale (glänzt, beste Qualität)
  * - Zu spät = schlecht (überkokt, verbrannt)
  */
-public class CrackKocherBlockEntity extends BlockEntity {
+public class CrackKocherBlockEntity extends BlockEntity implements IUtilityConsumer {
+
+    private boolean lastActiveState = false;
 
     // Timing-Konstanten
     public static final int COOK_CYCLE_TICKS = 80;  // 4 Sekunden
@@ -191,6 +195,19 @@ public class CrackKocherBlockEntity extends BlockEntity {
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
             }
         }
+
+        // Utility-Status nur bei Änderung melden
+        boolean currentActive = isActivelyConsuming();
+        if (currentActive != lastActiveState) {
+            lastActiveState = currentActive;
+            UtilityEventHandler.reportBlockEntityActivity(this, currentActive);
+        }
+    }
+
+    @Override
+    public boolean isActivelyConsuming() {
+        // Aktiv wenn das Minigame läuft
+        return isMinigameActive;
     }
 
     public void cancelCooking() {

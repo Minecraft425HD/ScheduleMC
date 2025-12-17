@@ -4,6 +4,8 @@ import de.rolandsw.schedulemc.poppy.PoppyType;
 import de.rolandsw.schedulemc.poppy.items.MorphineItem;
 import de.rolandsw.schedulemc.poppy.items.RawOpiumItem;
 import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
+import de.rolandsw.schedulemc.utility.IUtilityConsumer;
+import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -18,8 +20,9 @@ import org.jetbrains.annotations.Nullable;
  * Kochstation - kocht Rohopium zu Morphin-Base
  * Benötigt Wasser und Brennstoff
  */
-public class KochstationBlockEntity extends BlockEntity {
+public class KochstationBlockEntity extends BlockEntity implements IUtilityConsumer {
 
+    private boolean lastActiveState = false;
     private static final int CAPACITY = 8;
     private static final int COOK_TIME = 200; // 10 Sekunden
     private static final int MAX_WATER = 1000;
@@ -221,6 +224,26 @@ public class KochstationBlockEntity extends BlockEntity {
             setChanged();
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
+
+        // Utility-Status nur bei Änderung melden
+        boolean currentActive = isActivelyConsuming();
+        if (currentActive != lastActiveState) {
+            lastActiveState = currentActive;
+            UtilityEventHandler.reportBlockEntityActivity(this, currentActive);
+        }
+    }
+
+    @Override
+    public boolean isActivelyConsuming() {
+        // Aktiv wenn Wasser und Brennstoff vorhanden und Inputs zu verarbeiten sind
+        if (waterLevel < 1 || fuelLevel < 1) return false;
+
+        for (int i = 0; i < CAPACITY; i++) {
+            if (!inputs[i].isEmpty() && outputs[i].isEmpty()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

@@ -1,6 +1,8 @@
 package de.rolandsw.schedulemc.mushroom.blockentity;
 
 import de.rolandsw.schedulemc.tobacco.blockentity.TobaccoPotBlockEntity;
+import de.rolandsw.schedulemc.utility.IUtilityConsumer;
+import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -14,8 +16,9 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Wassertank-BlockEntity - gibt automatisch Wasser an benachbarte Töpfe
  */
-public class WassertankBlockEntity extends BlockEntity {
+public class WassertankBlockEntity extends BlockEntity implements IUtilityConsumer {
 
+    private boolean lastActiveState = false;
     private static final int MAX_WATER = 10000; // 10 Eimer
     private static final int WATER_PER_TICK = 1; // Wasser pro Tick an Topf
 
@@ -39,6 +42,13 @@ public class WassertankBlockEntity extends BlockEntity {
 
         // Finde benachbarten Topf zum Bewässern
         waterNeighborPot();
+
+        // Utility-Status nur bei Änderung melden
+        boolean currentActive = isActivelyConsuming();
+        if (currentActive != lastActiveState) {
+            lastActiveState = currentActive;
+            UtilityEventHandler.reportBlockEntityActivity(this, currentActive);
+        }
     }
 
     /**
@@ -96,6 +106,12 @@ public class WassertankBlockEntity extends BlockEntity {
 
     public int getMaxWater() {
         return MAX_WATER;
+    }
+
+    @Override
+    public boolean isActivelyConsuming() {
+        // Tank verbraucht Wasser, wenn er Wasser hat (kann dann bewässern)
+        return waterLevel > 0;
     }
 
     @Override

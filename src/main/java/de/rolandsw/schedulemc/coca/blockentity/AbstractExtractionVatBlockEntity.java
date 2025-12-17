@@ -4,6 +4,8 @@ import de.rolandsw.schedulemc.coca.CocaType;
 import de.rolandsw.schedulemc.coca.items.CocaPasteItem;
 import de.rolandsw.schedulemc.coca.items.FreshCocaLeafItem;
 import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
+import de.rolandsw.schedulemc.utility.IUtilityConsumer;
+import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -19,7 +21,9 @@ import org.jetbrains.annotations.Nullable;
  * Abstrakte Basisklasse für Extraktionswannen
  * Verarbeitet Koka-Blätter + Diesel zu Koka-Paste
  */
-public abstract class AbstractExtractionVatBlockEntity extends BlockEntity {
+public abstract class AbstractExtractionVatBlockEntity extends BlockEntity implements IUtilityConsumer {
+
+    private boolean lastActiveState = false;
 
     private ItemStack[] inputs;
     private ItemStack[] outputs;
@@ -216,6 +220,26 @@ public abstract class AbstractExtractionVatBlockEntity extends BlockEntity {
             setChanged();
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
+
+        // Utility-Status nur bei Änderung melden
+        boolean currentActive = isActivelyConsuming();
+        if (currentActive != lastActiveState) {
+            lastActiveState = currentActive;
+            UtilityEventHandler.reportBlockEntityActivity(this, currentActive);
+        }
+    }
+
+    @Override
+    public boolean isActivelyConsuming() {
+        // Aktiv wenn Blätter verarbeitet werden und genug Diesel vorhanden ist
+        for (int i = 0; i < getCapacity(); i++) {
+            if (!inputs[i].isEmpty() && outputs[i].isEmpty()) {
+                if (dieselLevel >= getDieselPerLeaf()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Override

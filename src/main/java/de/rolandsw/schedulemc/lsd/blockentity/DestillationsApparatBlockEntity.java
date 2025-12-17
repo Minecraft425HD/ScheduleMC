@@ -2,6 +2,8 @@ package de.rolandsw.schedulemc.lsd.blockentity;
 
 import de.rolandsw.schedulemc.lsd.items.ErgotKulturItem;
 import de.rolandsw.schedulemc.lsd.items.LSDItems;
+import de.rolandsw.schedulemc.utility.IUtilityConsumer;
+import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -16,11 +18,12 @@ import org.jetbrains.annotations.Nullable;
  * Destillations-Apparat - Zweiter Schritt der LSD-Herstellung
  * Destilliert Ergot-Kultur zu reiner Lysergsäure
  */
-public class DestillationsApparatBlockEntity extends BlockEntity {
+public class DestillationsApparatBlockEntity extends BlockEntity implements IUtilityConsumer {
 
     private static final int DISTILLATION_TIME = 800; // 40 Sekunden
     private static final int CAPACITY = 4;
 
+    private boolean lastActiveState = false;
     private int ergotCount = 0;
     private int distillationProgress = 0;
     private int outputCount = 0;
@@ -84,6 +87,13 @@ public class DestillationsApparatBlockEntity extends BlockEntity {
         } else {
             isActive = false;
         }
+
+        // Utility-Status nur bei Änderung melden
+        boolean currentActive = isActivelyConsuming();
+        if (currentActive != lastActiveState) {
+            lastActiveState = currentActive;
+            UtilityEventHandler.reportBlockEntityActivity(this, currentActive);
+        }
     }
 
     // Getter
@@ -92,6 +102,11 @@ public class DestillationsApparatBlockEntity extends BlockEntity {
     public int getErgotCount() { return ergotCount; }
     public int getOutputCount() { return outputCount; }
     public float getProgress() { return (float) distillationProgress / DISTILLATION_TIME; }
+
+    @Override
+    public boolean isActivelyConsuming() {
+        return isActive;
+    }
 
     @Override
     protected void saveAdditional(CompoundTag tag) {

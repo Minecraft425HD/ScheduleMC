@@ -5,6 +5,8 @@ import de.rolandsw.schedulemc.mushroom.blocks.KlimalampeBlock;
 import de.rolandsw.schedulemc.mushroom.blocks.KlimalampeTier;
 import de.rolandsw.schedulemc.mushroom.blocks.TemperatureMode;
 import de.rolandsw.schedulemc.tobacco.blockentity.TobaccoPotBlockEntity;
+import de.rolandsw.schedulemc.utility.IUtilityConsumer;
+import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -14,8 +16,9 @@ import net.minecraft.world.level.block.state.BlockState;
 /**
  * BlockEntity für Klimalampe - reguliert Temperatur für benachbarte Töpfe
  */
-public class KlimalampeBlockEntity extends BlockEntity {
+public class KlimalampeBlockEntity extends BlockEntity implements IUtilityConsumer {
 
+    private boolean lastActiveState = false;
     private final KlimalampeTier tier;
     private int tickCounter = 0;
 
@@ -44,6 +47,13 @@ public class KlimalampeBlockEntity extends BlockEntity {
         // Bei automatischen Lampen: Modus basierend auf benachbarten Pilzen anpassen
         if (tier.isAutomatic()) {
             autoAdjustMode();
+        }
+
+        // Utility-Status nur bei Änderung melden
+        boolean currentActive = isActivelyConsuming();
+        if (currentActive != lastActiveState) {
+            lastActiveState = currentActive;
+            UtilityEventHandler.reportBlockEntityActivity(this, currentActive);
         }
     }
 
@@ -121,6 +131,12 @@ public class KlimalampeBlockEntity extends BlockEntity {
      */
     public double getQualityBonus() {
         return tier.getQualityBonus();
+    }
+
+    @Override
+    public boolean isActivelyConsuming() {
+        // Lampe verbraucht Strom, wenn sie nicht im OFF-Modus ist
+        return getCurrentMode() != TemperatureMode.OFF;
     }
 
     @Override

@@ -6,6 +6,8 @@ import de.rolandsw.schedulemc.cannabis.items.DriedBudItem;
 import de.rolandsw.schedulemc.cannabis.items.TrimmedBudItem;
 import de.rolandsw.schedulemc.cannabis.items.TrimItem;
 import de.rolandsw.schedulemc.cannabis.items.CannabisItems;
+import de.rolandsw.schedulemc.utility.IUtilityConsumer;
+import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -22,7 +24,9 @@ import java.util.UUID;
  * Trimm-Station mit Minigame
  * Spieler muss Blätter entfernen - je besser, desto höhere Qualität
  */
-public class TrimmStationBlockEntity extends BlockEntity {
+public class TrimmStationBlockEntity extends BlockEntity implements IUtilityConsumer {
+
+    private boolean lastActiveState = false;
 
     // Minigame Konstanten
     public static final int TRIM_CYCLE_TICKS = 100; // 5 Sekunden pro Zyklus
@@ -172,6 +176,18 @@ public class TrimmStationBlockEntity extends BlockEntity {
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
             }
         }
+
+        // Utility-Status nur bei Änderung melden
+        boolean currentActive = isActivelyConsuming();
+        if (currentActive != lastActiveState) {
+            lastActiveState = currentActive;
+            UtilityEventHandler.reportBlockEntityActivity(this, currentActive);
+        }
+    }
+
+    @Override
+    public boolean isActivelyConsuming() {
+        return isMinigameActive;
     }
 
     public void cancelMinigame() {

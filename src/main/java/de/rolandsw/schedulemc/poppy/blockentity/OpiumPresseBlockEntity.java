@@ -4,6 +4,8 @@ import de.rolandsw.schedulemc.poppy.PoppyType;
 import de.rolandsw.schedulemc.poppy.items.PoppyPodItem;
 import de.rolandsw.schedulemc.poppy.items.RawOpiumItem;
 import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
+import de.rolandsw.schedulemc.utility.IUtilityConsumer;
+import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -18,8 +20,9 @@ import org.jetbrains.annotations.Nullable;
  * Opium-Presse - presst Mohnkapseln automatisch zu Rohopium
  * Benötigt Diesel als Brennstoff, höherer Ertrag als Ritzmaschine
  */
-public class OpiumPresseBlockEntity extends BlockEntity {
+public class OpiumPresseBlockEntity extends BlockEntity implements IUtilityConsumer {
 
+    private boolean lastActiveState = false;
     private static final int CAPACITY = 16;
     private static final int PROCESS_TIME = 80; // 4 Sekunden (schneller)
     private static final int MAX_DIESEL = 1000;
@@ -209,6 +212,26 @@ public class OpiumPresseBlockEntity extends BlockEntity {
             setChanged();
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
+
+        // Utility-Status nur bei Änderung melden
+        boolean currentActive = isActivelyConsuming();
+        if (currentActive != lastActiveState) {
+            lastActiveState = currentActive;
+            UtilityEventHandler.reportBlockEntityActivity(this, currentActive);
+        }
+    }
+
+    @Override
+    public boolean isActivelyConsuming() {
+        // Aktiv wenn Diesel vorhanden und Inputs zu verarbeiten sind
+        if (dieselLevel < 1) return false;
+
+        for (int i = 0; i < CAPACITY; i++) {
+            if (!inputs[i].isEmpty() && outputs[i].isEmpty()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

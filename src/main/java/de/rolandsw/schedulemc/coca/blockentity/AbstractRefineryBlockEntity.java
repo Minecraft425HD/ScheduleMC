@@ -4,6 +4,8 @@ import de.rolandsw.schedulemc.coca.CocaType;
 import de.rolandsw.schedulemc.coca.items.CocaineItem;
 import de.rolandsw.schedulemc.coca.items.CocaPasteItem;
 import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
+import de.rolandsw.schedulemc.utility.IUtilityConsumer;
+import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -19,7 +21,9 @@ import org.jetbrains.annotations.Nullable;
  * Abstrakte Basisklasse für Raffinerien
  * Verarbeitet Koka-Paste zu Kokain (weiß) mit Brennstoff
  */
-public abstract class AbstractRefineryBlockEntity extends BlockEntity {
+public abstract class AbstractRefineryBlockEntity extends BlockEntity implements IUtilityConsumer {
+
+    private boolean lastActiveState = false;
 
     private ItemStack[] inputs;
     private ItemStack[] outputs;
@@ -228,6 +232,26 @@ public abstract class AbstractRefineryBlockEntity extends BlockEntity {
             setChanged();
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
+
+        // Utility-Status nur bei Änderung melden
+        boolean currentActive = isActivelyConsuming();
+        if (currentActive != lastActiveState) {
+            lastActiveState = currentActive;
+            UtilityEventHandler.reportBlockEntityActivity(this, currentActive);
+        }
+    }
+
+    @Override
+    public boolean isActivelyConsuming() {
+        // Aktiv wenn Paste raffiniert wird und Brennstoff vorhanden ist
+        for (int i = 0; i < getCapacity(); i++) {
+            if (!inputs[i].isEmpty() && outputs[i].isEmpty()) {
+                if (fuelLevel >= 1) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private TobaccoQuality calculateFinalQuality(TobaccoQuality quality) {

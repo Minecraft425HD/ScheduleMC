@@ -5,6 +5,8 @@ import de.rolandsw.schedulemc.cannabis.CannabisQuality;
 import de.rolandsw.schedulemc.cannabis.items.TrimItem;
 import de.rolandsw.schedulemc.cannabis.items.HashItem;
 import de.rolandsw.schedulemc.cannabis.items.CannabisItems;
+import de.rolandsw.schedulemc.utility.IUtilityConsumer;
+import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -19,7 +21,9 @@ import org.jetbrains.annotations.Nullable;
  * Hash-Presse - presst Trim zu Haschisch
  * Benötigt mindestens 20g Trim für 5g Hash
  */
-public class HashPresseBlockEntity extends BlockEntity {
+public class HashPresseBlockEntity extends BlockEntity implements IUtilityConsumer {
+
+    private boolean lastActiveState = false;
 
     public static final int PRESS_TICKS = 6000;  // 5 Minuten
     public static final int MIN_TRIM_WEIGHT = 20; // Minimum 20g Trim
@@ -81,6 +85,18 @@ public class HashPresseBlockEntity extends BlockEntity {
 
             setChanged();
         }
+
+        // Utility-Status nur bei Änderung melden
+        boolean currentActive = isActivelyConsuming();
+        if (currentActive != lastActiveState) {
+            lastActiveState = currentActive;
+            UtilityEventHandler.reportBlockEntityActivity(this, currentActive);
+        }
+    }
+
+    @Override
+    public boolean isActivelyConsuming() {
+        return isPressing;
     }
 
     private void finishPressing() {
