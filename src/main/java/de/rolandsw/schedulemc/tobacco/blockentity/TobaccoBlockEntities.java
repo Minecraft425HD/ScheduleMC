@@ -90,4 +90,11 @@ public class TobaccoBlockEntities {
                 TobaccoBlocks.ADVANCED_GROW_LIGHT_SLAB.get(),
                 TobaccoBlocks.PREMIUM_GROW_LIGHT_SLAB.get()
             ).build(null));
+
+    // Waschbecken BlockEntity
+    public static final RegistryObject<BlockEntityType<SinkBlockEntity>> SINK =
+        BLOCK_ENTITIES.register("sink", () ->
+            BlockEntityType.Builder.of(SinkBlockEntity::new,
+                TobaccoBlocks.SINK.get()
+            ).build(null));
 }
