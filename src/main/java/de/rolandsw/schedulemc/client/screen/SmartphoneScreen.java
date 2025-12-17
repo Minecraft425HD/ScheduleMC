@@ -22,16 +22,16 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class SmartphoneScreen extends Screen {
 
     // Layout-Konstanten (kompakter für ALLE Bildschirmgrößen)
-    private static final int PHONE_WIDTH = 200;
-    private static final int PHONE_HEIGHT = 300; // Erhöht für bessere Platzierung
-    private static final int APP_ICON_SIZE = 36; // Etwas kleiner für mehr Platz
-    private static final int APP_SPACING = 18; // Mehr Abstand zwischen Apps
+    private static final int PHONE_WIDTH = 220; // Etwas breiter für mehr Label-Platz
+    private static final int PHONE_HEIGHT = 260; // Kompakt genug für alle Bildschirme
+    private static final int APP_ICON_SIZE = 42; // Größer für bessere Lesbarkeit
+    private static final int APP_SPACING = 15; // Guter Abstand zwischen Apps
     private static final int CLOSE_BUTTON_SIZE = 20;
     private static final int BORDER_SIZE = 5; // Rahmen um das Smartphone
-    private static final int MARGIN_TOP = 20; // Mindestabstand vom oberen Bildschirmrand
-    private static final int MARGIN_BOTTOM = 45; // Genug Platz für Hotbar
+    private static final int MARGIN_TOP = 15; // Mindestabstand vom oberen Bildschirmrand
+    private static final int MARGIN_BOTTOM = 35; // Genug Platz für Hotbar
     private static final int SCROLLBAR_WIDTH = 8; // Etwas breiter für bessere Klickbarkeit
-    private static final int SCROLLBAR_MARGIN = 15; // Abstand zwischen Apps und Scrollbar
+    private static final int SCROLLBAR_MARGIN = 10; // Abstand zwischen Apps und Scrollbar
     private static final int VISIBLE_ROWS = 3; // Nur 3 Reihen sichtbar (6 Apps)
     private static final int TOTAL_ROWS = 4; // Insgesamt 4 Reihen (8 Apps)
 
@@ -375,7 +375,7 @@ public class SmartphoneScreen extends Screen {
 
         // Label unter dem Icon mit Ellipsis wenn zu lang
         String displayLabel = label;
-        int maxLabelWidth = APP_ICON_SIZE + 10; // Etwas mehr Platz für Labels
+        int maxLabelWidth = APP_ICON_SIZE + 15; // Mehr Platz für Labels
         int labelWidth = this.font.width(label);
 
         // Kürze Label wenn zu lang
