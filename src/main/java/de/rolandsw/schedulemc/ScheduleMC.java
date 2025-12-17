@@ -44,6 +44,14 @@ import de.rolandsw.schedulemc.meth.items.MethItems;
 import de.rolandsw.schedulemc.meth.blocks.MethBlocks;
 import de.rolandsw.schedulemc.meth.blockentity.MethBlockEntities;
 import de.rolandsw.schedulemc.meth.menu.MethMenuTypes;
+import de.rolandsw.schedulemc.lsd.items.LSDItems;
+import de.rolandsw.schedulemc.lsd.blocks.LSDBlocks;
+import de.rolandsw.schedulemc.lsd.blockentity.LSDBlockEntities;
+import de.rolandsw.schedulemc.lsd.menu.LSDMenuTypes;
+import de.rolandsw.schedulemc.mdma.items.MDMAItems;
+import de.rolandsw.schedulemc.mdma.blocks.MDMABlocks;
+import de.rolandsw.schedulemc.mdma.blockentity.MDMABlockEntities;
+import de.rolandsw.schedulemc.mdma.menu.MDMAMenuTypes;
 import de.rolandsw.schedulemc.tobacco.menu.ModMenuTypes;
 import de.rolandsw.schedulemc.tobacco.entity.ModEntities;
 import de.rolandsw.schedulemc.economy.blocks.EconomyBlocks;
@@ -129,6 +137,20 @@ public class ScheduleMC {
         MethBlocks.ITEMS.register(modEventBus);
         MethBlockEntities.BLOCK_ENTITIES.register(modEventBus);
         MethMenuTypes.MENUS.register(modEventBus);
+
+        // LSD-System registrieren
+        LSDItems.ITEMS.register(modEventBus);
+        LSDBlocks.BLOCKS.register(modEventBus);
+        LSDBlocks.ITEMS.register(modEventBus);
+        LSDBlockEntities.BLOCK_ENTITIES.register(modEventBus);
+        LSDMenuTypes.MENUS.register(modEventBus);
+
+        // MDMA-System registrieren
+        MDMAItems.ITEMS.register(modEventBus);
+        MDMABlocks.BLOCKS.register(modEventBus);
+        MDMABlocks.ITEMS.register(modEventBus);
+        MDMABlockEntities.BLOCK_ENTITIES.register(modEventBus);
+        MDMAMenuTypes.MENUS.register(modEventBus);
 
         EconomyBlocks.BLOCKS.register(modEventBus);
         EconomyBlocks.ITEMS.register(modEventBus);

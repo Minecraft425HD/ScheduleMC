@@ -7,6 +7,10 @@ import de.rolandsw.schedulemc.economy.blocks.EconomyBlocks;
 import de.rolandsw.schedulemc.npc.items.NPCItems;
 import de.rolandsw.schedulemc.region.blocks.PlotBlocks;
 import de.rolandsw.schedulemc.warehouse.WarehouseBlocks;
+import de.rolandsw.schedulemc.lsd.items.LSDItems;
+import de.rolandsw.schedulemc.lsd.blocks.LSDBlocks;
+import de.rolandsw.schedulemc.mdma.items.MDMAItems;
+import de.rolandsw.schedulemc.mdma.blocks.MDMABlocks;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -156,6 +160,41 @@ public class ModCreativeTabs {
                 // WAREHOUSE BLOCKS
                 // ═══════════════════════════════════════════════════════════
                 output.accept(WarehouseBlocks.WAREHOUSE_ITEM.get());
+
+                // ═══════════════════════════════════════════════════════════
+                // LSD ITEMS (Präzisions-Labor)
+                // ═══════════════════════════════════════════════════════════
+                output.accept(LSDItems.MUTTERKORN.get());
+                output.accept(LSDItems.ERGOT_KULTUR.get());
+                output.accept(LSDItems.LYSERGSAEURE.get());
+                output.accept(LSDItems.LSD_LOESUNG.get());
+                output.accept(LSDItems.BLOTTER_PAPIER.get());
+                output.accept(LSDItems.BLOTTER.get());
+
+                // ═══════════════════════════════════════════════════════════
+                // LSD BLOCKS
+                // ═══════════════════════════════════════════════════════════
+                output.accept(LSDBlocks.FERMENTATIONS_TANK.get());
+                output.accept(LSDBlocks.DESTILLATIONS_APPARAT.get());
+                output.accept(LSDBlocks.MIKRO_DOSIERER.get());
+                output.accept(LSDBlocks.PERFORATIONS_PRESSE.get());
+
+                // ═══════════════════════════════════════════════════════════
+                // MDMA ITEMS (Arcade-Style Pillen-Presse)
+                // ═══════════════════════════════════════════════════════════
+                output.accept(MDMAItems.SAFROL.get());
+                output.accept(MDMAItems.MDMA_BASE.get());
+                output.accept(MDMAItems.MDMA_KRISTALL.get());
+                output.accept(MDMAItems.BINDEMITTEL.get());
+                output.accept(MDMAItems.FARBSTOFF.get());
+                output.accept(MDMAItems.ECSTASY_PILL.get());
+
+                // ═══════════════════════════════════════════════════════════
+                // MDMA BLOCKS
+                // ═══════════════════════════════════════════════════════════
+                output.accept(MDMABlocks.REAKTIONS_KESSEL.get());
+                output.accept(MDMABlocks.TROCKNUNGS_OFEN.get());
+                output.accept(MDMABlocks.PILLEN_PRESSE.get());
             })
             .build()
     );

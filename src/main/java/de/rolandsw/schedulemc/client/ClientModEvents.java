@@ -15,6 +15,10 @@ import de.rolandsw.schedulemc.warehouse.menu.WarehouseMenuTypes;
 import de.rolandsw.schedulemc.warehouse.screen.WarehouseScreen;
 import de.rolandsw.schedulemc.meth.menu.MethMenuTypes;
 import de.rolandsw.schedulemc.meth.screen.ReduktionskesselScreen;
+import de.rolandsw.schedulemc.lsd.menu.LSDMenuTypes;
+import de.rolandsw.schedulemc.lsd.screen.MikroDosiererScreen;
+import de.rolandsw.schedulemc.mdma.menu.MDMAMenuTypes;
+import de.rolandsw.schedulemc.mdma.screen.PillenPresseScreen;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -42,6 +46,12 @@ public class ClientModEvents {
 
             // Meth-System
             MenuScreens.register(MethMenuTypes.REDUKTIONSKESSEL_MENU.get(), ReduktionskesselScreen::new);
+
+            // LSD-System
+            MenuScreens.register(LSDMenuTypes.MIKRO_DOSIERER_MENU.get(), MikroDosiererScreen::new);
+
+            // MDMA-System
+            MenuScreens.register(MDMAMenuTypes.PILLEN_PRESSE_MENU.get(), PillenPresseScreen::new);
         });
     }
 }
