@@ -15,17 +15,17 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 /**
- * Haupt-Smartphone-GUI mit 6 Apps
- * Symmetrisch angeordnet (3x2 Grid)
+ * Haupt-Smartphone-GUI mit 8 Apps
+ * Symmetrisch angeordnet (4x2 Grid)
  */
 @OnlyIn(Dist.CLIENT)
 public class SmartphoneScreen extends Screen {
 
     // Layout-Konstanten (kompakter für ALLE Bildschirmgrößen)
     private static final int PHONE_WIDTH = 200;
-    private static final int PHONE_HEIGHT = 240; // Nochmal reduziert von 288 für bessere Passform
-    private static final int APP_ICON_SIZE = 40; // Reduziert von 43
-    private static final int APP_SPACING = 12; // Reduziert von 14
+    private static final int PHONE_HEIGHT = 280; // Erhöht für 4. Reihe
+    private static final int APP_ICON_SIZE = 36; // Etwas kleiner für mehr Platz
+    private static final int APP_SPACING = 10; // Reduziert für 4 Reihen
     private static final int CLOSE_BUTTON_SIZE = 20;
     private static final int BORDER_SIZE = 5; // Rahmen um das Smartphone
     private static final int MARGIN_TOP = 15; // Mindestabstand vom oberen Bildschirmrand
@@ -38,6 +38,7 @@ public class SmartphoneScreen extends Screen {
     private static final ResourceLocation APP_ORDER = new ResourceLocation(ScheduleMC.MOD_ID, "textures/gui/apps/app_order.png");
     private static final ResourceLocation APP_CONTACTS = new ResourceLocation(ScheduleMC.MOD_ID, "textures/gui/apps/app_contacts.png");
     private static final ResourceLocation APP_MESSAGES = new ResourceLocation(ScheduleMC.MOD_ID, "textures/gui/apps/app_messages.png");
+    private static final ResourceLocation APP_PLOT = new ResourceLocation(ScheduleMC.MOD_ID, "textures/gui/apps/app_plot.png");
     private static final ResourceLocation CLOSE_ICON = new ResourceLocation(ScheduleMC.MOD_ID, "textures/gui/apps/close.png");
 
     private int leftPos;
@@ -77,11 +78,11 @@ public class SmartphoneScreen extends Screen {
 
         // Berechne Start-Position für App-Grid (zentriert im Smartphone)
         int gridWidth = (APP_ICON_SIZE * 2) + APP_SPACING;
-        int gridHeight = (APP_ICON_SIZE * 3) + (APP_SPACING * 2);
+        int gridHeight = (APP_ICON_SIZE * 4) + (APP_SPACING * 3);
         int gridStartX = leftPos + (PHONE_WIDTH - gridWidth) / 2;
-        int gridStartY = topPos + 50; // Abstand von oben
+        int gridStartY = topPos + 45; // Abstand von oben
 
-        // === APP BUTTONS (3 Reihen x 2 Spalten) ===
+        // === APP BUTTONS (4 Reihen x 2 Spalten) ===
 
         // Reihe 1: Map, Dealer
         createAppButton(gridStartX, gridStartY, "Map", () -> openApp(new MapAppScreen(this)));
@@ -99,6 +100,12 @@ public class SmartphoneScreen extends Screen {
             () -> openApp(new ContactsAppScreen(this)));
         createAppButton(gridStartX + APP_ICON_SIZE + APP_SPACING, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 2,
             "Nachrichten", () -> openApp(new MessagesAppScreen(this)));
+
+        // Reihe 4: Immobilien (Plot App), Einstellungen (Platzhalter)
+        createAppButton(gridStartX, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 3, "Immobilien",
+            () -> openApp(new PlotAppScreen(this)));
+        createAppButton(gridStartX + APP_ICON_SIZE + APP_SPACING, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 3,
+            "Settings", () -> {}); // TODO: Settings App
 
         // === SCHLIESSEN-BUTTON (oben rechts) ===
         addRenderableWidget(Button.builder(Component.literal("X"), button -> {
@@ -147,9 +154,9 @@ public class SmartphoneScreen extends Screen {
         // Berechne Grid-Position für App-Labels
         int gridWidth = (APP_ICON_SIZE * 2) + APP_SPACING;
         int gridStartX = leftPos + (PHONE_WIDTH - gridWidth) / 2;
-        int gridStartY = topPos + 50;
+        int gridStartY = topPos + 45;
 
-        // App-Icons rendern
+        // App-Icons rendern (4 Reihen x 2 Spalten)
         renderAppIcon(guiGraphics, gridStartX, gridStartY, APP_MAP, "Map");
         renderAppIcon(guiGraphics, gridStartX + APP_ICON_SIZE + APP_SPACING, gridStartY, APP_DEALER, "Dealer");
 
@@ -160,6 +167,10 @@ public class SmartphoneScreen extends Screen {
         renderAppIcon(guiGraphics, gridStartX, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 2, APP_CONTACTS, "Kontakte");
         renderAppIcon(guiGraphics, gridStartX + APP_ICON_SIZE + APP_SPACING, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 2,
             APP_MESSAGES, "Nachrichten");
+
+        renderAppIcon(guiGraphics, gridStartX, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 3, APP_PLOT, "Immobilien");
+        renderAppIcon(guiGraphics, gridStartX + APP_ICON_SIZE + APP_SPACING, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 3,
+            null, "Settings");
 
         // Buttons rendern
         super.render(guiGraphics, mouseX, mouseY, partialTick);
@@ -172,11 +183,20 @@ public class SmartphoneScreen extends Screen {
         // Icon-Hintergrund
         guiGraphics.fill(x, y, x + APP_ICON_SIZE, y + APP_ICON_SIZE, 0xFF3A3A3A);
 
+        boolean iconRendered = false;
+
         // Versuche Icon zu laden, falls nicht vorhanden zeige Platzhalter
-        try {
-            RenderSystem.setShaderTexture(0, iconTexture);
-            guiGraphics.blit(iconTexture, x, y, 0, 0, APP_ICON_SIZE, APP_ICON_SIZE, APP_ICON_SIZE, APP_ICON_SIZE);
-        } catch (Exception e) {
+        if (iconTexture != null) {
+            try {
+                RenderSystem.setShaderTexture(0, iconTexture);
+                guiGraphics.blit(iconTexture, x, y, 0, 0, APP_ICON_SIZE, APP_ICON_SIZE, APP_ICON_SIZE, APP_ICON_SIZE);
+                iconRendered = true;
+            } catch (Exception e) {
+                // Icon konnte nicht geladen werden
+            }
+        }
+
+        if (!iconRendered) {
             // Platzhalter wenn Bild nicht gefunden
             guiGraphics.fill(x + 2, y + 2, x + APP_ICON_SIZE - 2, y + APP_ICON_SIZE - 2, 0xFF505050);
 
