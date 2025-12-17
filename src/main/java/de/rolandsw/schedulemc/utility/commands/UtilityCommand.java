@@ -86,7 +86,7 @@ public class UtilityCommand {
             return 0;
         }
 
-        return showPlot(source, plot.getId());
+        return showPlot(source, plot.getPlotId());
     }
 
     private static int showPlot(CommandSourceStack source, String plotId) {
@@ -193,12 +193,12 @@ public class UtilityCommand {
             return 0;
         }
 
-        source.sendSuccess(() -> Component.literal("§7Scanne Plot " + plot.getId() + "..."), false);
+        source.sendSuccess(() -> Component.literal("§7Scanne Plot " + plot.getPlotId() + "..."), false);
 
         ServerLevel level = player.serverLevel();
         PlotUtilityManager.scanPlotForConsumers(level, plot);
 
-        Optional<PlotUtilityData> dataOpt = PlotUtilityManager.getPlotData(plot.getId());
+        Optional<PlotUtilityData> dataOpt = PlotUtilityManager.getPlotData(plot.getPlotId());
         int count = dataOpt.map(PlotUtilityData::getConsumerCount).orElse(0);
 
         source.sendSuccess(() -> Component.literal("§aScan abgeschlossen! " + count + " Verbraucher gefunden."), false);

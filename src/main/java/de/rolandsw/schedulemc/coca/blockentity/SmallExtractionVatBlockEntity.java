@@ -13,7 +13,7 @@ public class SmallExtractionVatBlockEntity extends AbstractExtractionVatBlockEnt
     }
 
     @Override
-    protected int getCapacity() {
+    public int getCapacity() {
         return 6;
     }
 

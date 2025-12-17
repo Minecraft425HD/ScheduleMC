@@ -111,7 +111,7 @@ public class PlotAppScreen extends Screen {
         // Aktueller Plot
         currentPlot = PlotManager.getPlotAt(playerPos);
         if (currentPlot != null) {
-            Optional<PlotUtilityData> dataOpt = PlotUtilityManager.getPlotData(currentPlot.getId());
+            Optional<PlotUtilityData> dataOpt = PlotUtilityManager.getPlotData(currentPlot.getPlotId());
             utilityData = dataOpt.orElse(null);
         } else {
             utilityData = null;
@@ -119,7 +119,7 @@ public class PlotAppScreen extends Screen {
 
         // Verfügbare Plots (zum Verkauf oder ohne Besitzer)
         availablePlots = new ArrayList<>();
-        for (PlotRegion plot : PlotManager.getAllPlots()) {
+        for (PlotRegion plot : PlotManager.getPlots()) {
             if (!plot.hasOwner() || plot.isForSale() || plot.isForRent()) {
                 availablePlots.add(plot);
             }
@@ -127,7 +127,7 @@ public class PlotAppScreen extends Screen {
 
         // Meine Plots
         myPlots = new ArrayList<>();
-        for (PlotRegion plot : PlotManager.getAllPlots()) {
+        for (PlotRegion plot : PlotManager.getPlots()) {
             if (playerUUID.equals(plot.getOwnerUUID())) {
                 myPlots.add(plot);
             }
@@ -399,7 +399,7 @@ public class PlotAppScreen extends Screen {
                 guiGraphics.drawString(this.font, "§6§l" + plot.getPlotName(), leftPos + 15, y + 3, 0xFFAA00);
 
                 // Utility-Verbrauch
-                Optional<PlotUtilityData> dataOpt = PlotUtilityManager.getPlotData(plot.getId());
+                Optional<PlotUtilityData> dataOpt = PlotUtilityManager.getPlotData(plot.getPlotId());
                 if (dataOpt.isPresent()) {
                     PlotUtilityData data = dataOpt.get();
                     guiGraphics.drawString(this.font, "§e⚡ " + PlotUtilityManager.formatElectricity(data.getCurrentElectricity()), leftPos + 15, y + 15, 0xFFFFFF);
@@ -449,7 +449,7 @@ public class PlotAppScreen extends Screen {
         double totalWater = 0;
 
         for (PlotRegion plot : myPlots) {
-            Optional<PlotUtilityData> dataOpt = PlotUtilityManager.getPlotData(plot.getId());
+            Optional<PlotUtilityData> dataOpt = PlotUtilityManager.getPlotData(plot.getPlotId());
             if (dataOpt.isPresent()) {
                 PlotUtilityData data = dataOpt.get();
                 totalElectricity += data.get7DayAverageElectricity();
@@ -523,7 +523,7 @@ public class PlotAppScreen extends Screen {
             contentHeight += 12;
 
             for (PlotRegion plot : myPlots) {
-                Optional<PlotUtilityData> dataOpt = PlotUtilityManager.getPlotData(plot.getId());
+                Optional<PlotUtilityData> dataOpt = PlotUtilityManager.getPlotData(plot.getPlotId());
                 if (dataOpt.isPresent()) {
                     PlotUtilityData data = dataOpt.get();
                     double elec = data.get7DayAverageElectricity();
@@ -565,7 +565,7 @@ public class PlotAppScreen extends Screen {
         double[] totalDailyWater = new double[7];
 
         for (PlotRegion plot : myPlots) {
-            Optional<PlotUtilityData> dataOpt = PlotUtilityManager.getPlotData(plot.getId());
+            Optional<PlotUtilityData> dataOpt = PlotUtilityManager.getPlotData(plot.getPlotId());
             if (dataOpt.isPresent()) {
                 PlotUtilityData data = dataOpt.get();
                 double[] dailyElec = data.getDailyElectricity();

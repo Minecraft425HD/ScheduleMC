@@ -133,7 +133,7 @@ public class PlotUtilityManager {
             return; // Block nicht in einem Plot
         }
 
-        String plotId = plot.getId();
+        String plotId = plot.getPlotId();
 
         // Erstelle oder hole PlotUtilityData
         PlotUtilityData data = plotData.computeIfAbsent(plotId, PlotUtilityData::new);
@@ -160,7 +160,7 @@ public class PlotUtilityManager {
             // Versuche Plot direkt zu finden
             PlotRegion plot = PlotManager.getPlotAt(pos);
             if (plot != null) {
-                plotId = plot.getId();
+                plotId = plot.getPlotId();
             }
         }
 
@@ -186,7 +186,7 @@ public class PlotUtilityManager {
             // Versuche Plot zu finden und cache zu updaten
             PlotRegion plot = PlotManager.getPlotAt(pos);
             if (plot != null) {
-                plotId = plot.getId();
+                plotId = plot.getPlotId();
                 positionCache.put(pos, plotId);
             }
         }
@@ -272,7 +272,7 @@ public class PlotUtilityManager {
     public static Optional<PlotUtilityData> getPlotDataAt(BlockPos pos) {
         PlotRegion plot = PlotManager.getPlotAt(pos);
         if (plot == null) return Optional.empty();
-        return getPlotData(plot.getId());
+        return getPlotData(plot.getPlotId());
     }
 
     /**
@@ -366,7 +366,7 @@ public class PlotUtilityManager {
      * Nützlich beim ersten Setup oder nach Welt-Migration
      */
     public static void scanPlotForConsumers(ServerLevel level, PlotRegion plot) {
-        String plotId = plot.getId();
+        String plotId = plot.getPlotId();
         PlotUtilityData data = plotData.computeIfAbsent(plotId, PlotUtilityData::new);
 
         BlockPos min = plot.getMin();

@@ -40,7 +40,7 @@ public abstract class AbstractExtractionVatBlockEntity extends BlockEntity imple
     /**
      * Kapazität (Anzahl Blätter gleichzeitig)
      */
-    protected abstract int getCapacity();
+    public abstract int getCapacity();
 
     /**
      * Extraktionszeit in Ticks

@@ -40,7 +40,7 @@ public abstract class AbstractRefineryBlockEntity extends BlockEntity implements
     /**
      * Kapazität (Anzahl Pasten gleichzeitig)
      */
-    protected abstract int getCapacity();
+    public abstract int getCapacity();
 
     /**
      * Raffinierungszeit in Ticks

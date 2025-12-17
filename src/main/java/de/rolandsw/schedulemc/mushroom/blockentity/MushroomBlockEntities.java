@@ -13,7 +13,7 @@ import net.minecraftforge.registries.RegistryObject;
 public class MushroomBlockEntities {
 
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
-            DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, ScheduleMC.MODID);
+            DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, ScheduleMC.MOD_ID);
 
     // Klimalampe (alle 3 Stufen)
     public static final RegistryObject<BlockEntityType<KlimalampeBlockEntity>> KLIMALAMPE =
