@@ -111,7 +111,7 @@ public class PlotAppScreen extends Screen {
         // Aktueller Plot
         currentPlot = PlotManager.getPlotAt(playerPos);
         if (currentPlot != null) {
-            Optional<PlotUtilityData> dataOpt = PlotUtilityManager.getPlotData(currentPlot.getId());
+            Optional<PlotUtilityData> dataOpt = PlotUtilityManager.getPlotData(currentPlot.getPlotId());
             utilityData = dataOpt.orElse(null);
         } else {
             utilityData = null;
