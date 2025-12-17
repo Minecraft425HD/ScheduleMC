@@ -31,6 +31,31 @@ import de.rolandsw.schedulemc.tobacco.items.TobaccoItems;
 import de.rolandsw.schedulemc.tobacco.business.BusinessMetricsUpdateHandler;
 import de.rolandsw.schedulemc.tobacco.blocks.TobaccoBlocks;
 import de.rolandsw.schedulemc.tobacco.blockentity.TobaccoBlockEntities;
+import de.rolandsw.schedulemc.coca.items.CocaItems;
+import de.rolandsw.schedulemc.coca.blocks.CocaBlocks;
+import de.rolandsw.schedulemc.coca.blockentity.CocaBlockEntities;
+import de.rolandsw.schedulemc.poppy.items.PoppyItems;
+import de.rolandsw.schedulemc.poppy.blocks.PoppyBlocks;
+import de.rolandsw.schedulemc.poppy.blockentity.PoppyBlockEntities;
+import de.rolandsw.schedulemc.mushroom.items.MushroomItems;
+import de.rolandsw.schedulemc.mushroom.blocks.MushroomBlocks;
+import de.rolandsw.schedulemc.mushroom.blockentity.MushroomBlockEntities;
+import de.rolandsw.schedulemc.meth.items.MethItems;
+import de.rolandsw.schedulemc.meth.blocks.MethBlocks;
+import de.rolandsw.schedulemc.meth.blockentity.MethBlockEntities;
+import de.rolandsw.schedulemc.meth.menu.MethMenuTypes;
+import de.rolandsw.schedulemc.lsd.items.LSDItems;
+import de.rolandsw.schedulemc.lsd.blocks.LSDBlocks;
+import de.rolandsw.schedulemc.lsd.blockentity.LSDBlockEntities;
+import de.rolandsw.schedulemc.lsd.menu.LSDMenuTypes;
+import de.rolandsw.schedulemc.mdma.items.MDMAItems;
+import de.rolandsw.schedulemc.mdma.blocks.MDMABlocks;
+import de.rolandsw.schedulemc.mdma.blockentity.MDMABlockEntities;
+import de.rolandsw.schedulemc.mdma.menu.MDMAMenuTypes;
+import de.rolandsw.schedulemc.cannabis.items.CannabisItems;
+import de.rolandsw.schedulemc.cannabis.blocks.CannabisBlocks;
+import de.rolandsw.schedulemc.cannabis.blockentity.CannabisBlockEntities;
+import de.rolandsw.schedulemc.cannabis.menu.CannabisMenuTypes;
 import de.rolandsw.schedulemc.tobacco.menu.ModMenuTypes;
 import de.rolandsw.schedulemc.tobacco.entity.ModEntities;
 import de.rolandsw.schedulemc.economy.blocks.EconomyBlocks;
@@ -48,6 +73,10 @@ import de.rolandsw.schedulemc.npc.items.NPCItems;
 import de.rolandsw.schedulemc.npc.menu.NPCMenuTypes;
 import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
 import de.rolandsw.schedulemc.vehicle.Main;
+import de.rolandsw.schedulemc.utility.UtilityRegistry;
+import de.rolandsw.schedulemc.utility.PlotUtilityManager;
+import de.rolandsw.schedulemc.utility.UtilityEventHandler;
+import de.rolandsw.schedulemc.utility.commands.UtilityCommand;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
@@ -91,6 +120,53 @@ public class ScheduleMC {
         TobaccoItems.ITEMS.register(modEventBus);
         TobaccoBlocks.BLOCKS.register(modEventBus);
         TobaccoBlocks.ITEMS.register(modEventBus);
+
+        // Koka-System registrieren
+        CocaItems.ITEMS.register(modEventBus);
+        CocaBlocks.BLOCKS.register(modEventBus);
+        CocaBlocks.ITEMS.register(modEventBus);
+        CocaBlockEntities.BLOCK_ENTITIES.register(modEventBus);
+
+        // Mohn-System registrieren
+        PoppyItems.ITEMS.register(modEventBus);
+        PoppyBlocks.BLOCKS.register(modEventBus);
+        PoppyBlocks.ITEMS.register(modEventBus);
+        PoppyBlockEntities.BLOCK_ENTITIES.register(modEventBus);
+
+        // Pilz-System registrieren
+        MushroomItems.ITEMS.register(modEventBus);
+        MushroomBlocks.BLOCKS.register(modEventBus);
+        MushroomBlocks.ITEMS.register(modEventBus);
+        MushroomBlockEntities.BLOCK_ENTITIES.register(modEventBus);
+
+        // Meth-System registrieren
+        MethItems.ITEMS.register(modEventBus);
+        MethBlocks.BLOCKS.register(modEventBus);
+        MethBlocks.ITEMS.register(modEventBus);
+        MethBlockEntities.BLOCK_ENTITIES.register(modEventBus);
+        MethMenuTypes.MENUS.register(modEventBus);
+
+        // LSD-System registrieren
+        LSDItems.ITEMS.register(modEventBus);
+        LSDBlocks.BLOCKS.register(modEventBus);
+        LSDBlocks.ITEMS.register(modEventBus);
+        LSDBlockEntities.BLOCK_ENTITIES.register(modEventBus);
+        LSDMenuTypes.MENUS.register(modEventBus);
+
+        // MDMA-System registrieren
+        MDMAItems.ITEMS.register(modEventBus);
+        MDMABlocks.BLOCKS.register(modEventBus);
+        MDMABlocks.ITEMS.register(modEventBus);
+        MDMABlockEntities.BLOCK_ENTITIES.register(modEventBus);
+        MDMAMenuTypes.MENUS.register(modEventBus);
+
+        // Cannabis-System registrieren
+        CannabisItems.ITEMS.register(modEventBus);
+        CannabisBlocks.BLOCKS.register(modEventBus);
+        CannabisBlocks.ITEMS.register(modEventBus);
+        CannabisBlockEntities.BLOCK_ENTITIES.register(modEventBus);
+        CannabisMenuTypes.MENUS.register(modEventBus);
+
         EconomyBlocks.BLOCKS.register(modEventBus);
         EconomyBlocks.ITEMS.register(modEventBus);
         de.rolandsw.schedulemc.region.blocks.PlotBlocks.BLOCKS.register(modEventBus);
@@ -126,7 +202,7 @@ public class ScheduleMC {
         MinecraftForge.EVENT_BUS.register(RespawnHandler.class);
         MinecraftForge.EVENT_BUS.register(BusinessMetricsUpdateHandler.class);
         MinecraftForge.EVENT_BUS.register(WarehouseManager.class);
-
+        MinecraftForge.EVENT_BUS.register(UtilityEventHandler.class);
 
         LOGGER.info("ScheduleMC initialized");
     }
@@ -142,6 +218,11 @@ public class ScheduleMC {
             SmartphoneNetworkHandler.register();
             MessageNetworkHandler.register();
             WarehouseNetworkHandler.register();
+
+            // Utility-System initialisieren
+            UtilityRegistry.registerDefaults();
+            UtilityRegistry.resolveBlockReferences();
+            LOGGER.info("Utility-System initialisiert");
         });
 
         // Vehicle Mod handles its own setup via event bus (registered in Main constructor)
@@ -162,6 +243,7 @@ public class ScheduleMC {
         WarehouseCommand.register(event.getDispatcher(), event.getBuildContext());
         ShopInvestCommand.register(event.getDispatcher());
         StateCommand.register(event.getDispatcher());
+        UtilityCommand.register(event.getDispatcher());
 
         // Vehicle Mod handles its own commands via event bus (registered in Main.commonSetup)
     }
@@ -185,6 +267,9 @@ public class ScheduleMC {
         de.rolandsw.schedulemc.vehicle.vehicle.VehicleSpawnRegistry.load();
         de.rolandsw.schedulemc.vehicle.fuel.FuelStationRegistry.load();
         de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager.load();
+
+        // Utility-System laden
+        PlotUtilityManager.load();
     }
 
     @SubscribeEvent
@@ -220,6 +305,9 @@ public class ScheduleMC {
         de.rolandsw.schedulemc.vehicle.vehicle.VehicleSpawnRegistry.save();
         de.rolandsw.schedulemc.vehicle.fuel.FuelStationRegistry.save();
         de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager.save();
+
+        // Utility-System speichern
+        PlotUtilityManager.save();
     }
 
     @SubscribeEvent

@@ -1,6 +1,8 @@
 package de.rolandsw.schedulemc.tobacco.blocks;
 
 import de.rolandsw.schedulemc.config.ModConfigHandler;
+import de.rolandsw.schedulemc.tobacco.blockentity.GrowLightSlabBlockEntity;
+import de.rolandsw.schedulemc.tobacco.blockentity.TobaccoBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
@@ -8,11 +10,16 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Grow Light Slab - Lichtquelle für Indoor-Pflanzenanbau
@@ -23,8 +30,9 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  * - Wachstumsgeschwindigkeits-Boni
  * - Premium: Qualitätsbonus
  * - Partikeleffekte
+ * - Utility-System Integration (Stromverbrauch)
  */
-public class GrowLightSlabBlock extends SlabBlock {
+public class GrowLightSlabBlock extends SlabBlock implements EntityBlock {
 
     private final GrowLightTier tier;
 
@@ -69,6 +77,25 @@ public class GrowLightSlabBlock extends SlabBlock {
                 0.0, -0.05, 0.0  // Velocity: langsam nach unten
             );
         }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // EntityBlock Implementation
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    @Nullable
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return new GrowLightSlabBlockEntity(pos, state);
+    }
+
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        if (level.isClientSide) return null;
+        return type == TobaccoBlockEntities.GROW_LIGHT_SLAB.get()
+            ? (lvl, pos, st, be) -> ((GrowLightSlabBlockEntity) be).tick()
+            : null;
     }
 
     /**

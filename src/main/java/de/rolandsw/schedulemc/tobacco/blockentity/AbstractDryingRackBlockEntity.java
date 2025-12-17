@@ -4,6 +4,8 @@ import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
 import de.rolandsw.schedulemc.tobacco.TobaccoType;
 import de.rolandsw.schedulemc.tobacco.items.DriedTobaccoLeafItem;
 import de.rolandsw.schedulemc.tobacco.items.FreshTobaccoLeafItem;
+import de.rolandsw.schedulemc.utility.IUtilityConsumer;
+import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -26,7 +28,9 @@ import org.jetbrains.annotations.Nullable;
  * Abstrakte Basisklasse für Trocknungsgestelle
  * Ein Input-Slot und ein Output-Slot mit variabler Kapazität
  */
-public abstract class AbstractDryingRackBlockEntity extends BlockEntity {
+public abstract class AbstractDryingRackBlockEntity extends BlockEntity implements IUtilityConsumer {
+
+    private boolean lastActiveState = false;
 
     // Input und Output als einzelne Stacks
     private ItemStack inputStack = ItemStack.EMPTY;
@@ -223,6 +227,19 @@ public abstract class AbstractDryingRackBlockEntity extends BlockEntity {
             setChanged();
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
+
+        // Utility-Status nur bei Änderung melden
+        boolean currentActive = isActivelyConsuming();
+        if (currentActive != lastActiveState) {
+            lastActiveState = currentActive;
+            UtilityEventHandler.reportBlockEntityActivity(this, currentActive);
+        }
+    }
+
+    @Override
+    public boolean isActivelyConsuming() {
+        // Aktiv wenn Input vorhanden ist und noch nicht fertig (Output leer)
+        return !inputStack.isEmpty() && outputStack.isEmpty();
     }
 
     @Override

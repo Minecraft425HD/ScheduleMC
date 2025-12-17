@@ -81,4 +81,20 @@ public class TobaccoBlockEntities {
             BlockEntityType.Builder.of(LargePackagingTableBlockEntity::new,
                 TobaccoBlocks.LARGE_PACKAGING_TABLE.get()
             ).build(null));
+
+    // Grow Light Slabs BlockEntity (alle 3 Tiers teilen sich einen Typ)
+    public static final RegistryObject<BlockEntityType<GrowLightSlabBlockEntity>> GROW_LIGHT_SLAB =
+        BLOCK_ENTITIES.register("grow_light_slab", () ->
+            BlockEntityType.Builder.of(GrowLightSlabBlockEntity::new,
+                TobaccoBlocks.BASIC_GROW_LIGHT_SLAB.get(),
+                TobaccoBlocks.ADVANCED_GROW_LIGHT_SLAB.get(),
+                TobaccoBlocks.PREMIUM_GROW_LIGHT_SLAB.get()
+            ).build(null));
+
+    // Waschbecken BlockEntity
+    public static final RegistryObject<BlockEntityType<SinkBlockEntity>> SINK =
+        BLOCK_ENTITIES.register("sink", () ->
+            BlockEntityType.Builder.of(SinkBlockEntity::new,
+                TobaccoBlocks.SINK.get()
+            ).build(null));
 }

@@ -13,6 +13,14 @@ import de.rolandsw.schedulemc.tobacco.screen.MediumDryingRackScreen;
 import de.rolandsw.schedulemc.tobacco.screen.BigDryingRackScreen;
 import de.rolandsw.schedulemc.warehouse.menu.WarehouseMenuTypes;
 import de.rolandsw.schedulemc.warehouse.screen.WarehouseScreen;
+import de.rolandsw.schedulemc.meth.menu.MethMenuTypes;
+import de.rolandsw.schedulemc.meth.screen.ReduktionskesselScreen;
+import de.rolandsw.schedulemc.lsd.menu.LSDMenuTypes;
+import de.rolandsw.schedulemc.lsd.screen.MikroDosiererScreen;
+import de.rolandsw.schedulemc.mdma.menu.MDMAMenuTypes;
+import de.rolandsw.schedulemc.mdma.screen.PillenPresseScreen;
+import de.rolandsw.schedulemc.cannabis.menu.CannabisMenuTypes;
+import de.rolandsw.schedulemc.cannabis.screen.TrimmStationScreen;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -37,6 +45,18 @@ public class ClientModEvents {
             MenuScreens.register(ModMenuTypes.SMALL_DRYING_RACK_MENU.get(), SmallDryingRackScreen::new);
             MenuScreens.register(ModMenuTypes.MEDIUM_DRYING_RACK_MENU.get(), MediumDryingRackScreen::new);
             MenuScreens.register(ModMenuTypes.BIG_DRYING_RACK_MENU.get(), BigDryingRackScreen::new);
+
+            // Meth-System
+            MenuScreens.register(MethMenuTypes.REDUKTIONSKESSEL_MENU.get(), ReduktionskesselScreen::new);
+
+            // LSD-System
+            MenuScreens.register(LSDMenuTypes.MIKRO_DOSIERER_MENU.get(), MikroDosiererScreen::new);
+
+            // MDMA-System
+            MenuScreens.register(MDMAMenuTypes.PILLEN_PRESSE_MENU.get(), PillenPresseScreen::new);
+
+            // Cannabis-System
+            MenuScreens.register(CannabisMenuTypes.TRIMM_STATION_MENU.get(), TrimmStationScreen::new);
         });
     }
 }

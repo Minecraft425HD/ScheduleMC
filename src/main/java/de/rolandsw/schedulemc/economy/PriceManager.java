@@ -1,9 +1,16 @@
 package de.rolandsw.schedulemc.economy;
 
+import de.rolandsw.schedulemc.cannabis.items.CannabisItems;
+import de.rolandsw.schedulemc.coca.items.CocaItems;
+import de.rolandsw.schedulemc.lsd.items.LSDItems;
+import de.rolandsw.schedulemc.mdma.items.MDMAItems;
+import de.rolandsw.schedulemc.meth.items.MethItems;
+import de.rolandsw.schedulemc.mushroom.items.MushroomItems;
+import de.rolandsw.schedulemc.poppy.items.PoppyItems;
+import de.rolandsw.schedulemc.tobacco.items.TobaccoItems;
 import net.minecraft.world.item.Item;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Verwaltet dynamische Preise für Shop-Items
@@ -114,10 +121,188 @@ public class PriceManager {
     }
 
     /**
-     * Triggert zufälliges Event
+     * Triggert zufälliges Event aus dem Event-Pool
      */
     private static void triggerRandomEvent() {
-        // TODO: Implementiere Event-Pool
-        // Beispiele siehe Vorschlag 2 Dokumentation
+        Random random = new Random();
+        int eventType = random.nextInt(12);
+
+        EconomicEvent event = switch (eventType) {
+            // ═══════════════════════════════════════════════════════════
+            // PREIS-BOOM EVENTS (Preise steigen)
+            // ═══════════════════════════════════════════════════════════
+            case 0 -> createEvent("Polizei-Razzia: Cannabis",
+                    "Cannabis knapp - Preise steigen!",
+                    getCannabisItems(), 1.5f, 3);
+
+            case 1 -> createEvent("Polizei-Razzia: Kokain",
+                    "Kokain knapp - Preise steigen!",
+                    getCocaItems(), 1.6f, 3);
+
+            case 2 -> createEvent("Festival-Saison",
+                    "Party-Drogen sehr gefragt!",
+                    getPartyDrugs(), 1.4f, 5);
+
+            case 3 -> createEvent("Chemikalien-Knappheit",
+                    "Synthetische Drogen teurer!",
+                    getSyntheticDrugs(), 1.45f, 4);
+
+            case 4 -> createEvent("Dürre",
+                    "Pflanzen-basierte Produkte knapp!",
+                    getPlantBasedDrugs(), 1.35f, 4);
+
+            // ═══════════════════════════════════════════════════════════
+            // PREIS-CRASH EVENTS (Preise fallen)
+            // ═══════════════════════════════════════════════════════════
+            case 5 -> createEvent("Überproduktion: Cannabis",
+                    "Markt überschwemmt - Preise fallen!",
+                    getCannabisItems(), 0.7f, 3);
+
+            case 6 -> createEvent("Überproduktion: Meth",
+                    "Zu viel Meth auf dem Markt!",
+                    getMethItems(), 0.65f, 3);
+
+            case 7 -> createEvent("Neue Konkurrenz",
+                    "Alle Preise unter Druck!",
+                    getAllDrugs(), 0.8f, 2);
+
+            // ═══════════════════════════════════════════════════════════
+            // SPEZIAL-EVENTS
+            // ═══════════════════════════════════════════════════════════
+            case 8 -> createEvent("VIP-Nachfrage",
+                    "Reiche Kunden zahlen mehr für Kokain!",
+                    getCocaItems(), 1.8f, 2);
+
+            case 9 -> createEvent("Uni-Prüfungen",
+                    "Studenten brauchen Aufputschmittel!",
+                    getStimulants(), 1.3f, 3);
+
+            case 10 -> createEvent("Techno-Festival",
+                    "MDMA & LSD extrem gefragt!",
+                    List.of(
+                            MDMAItems.ECSTASY_PILL.get(),
+                            MDMAItems.MDMA_KRISTALL.get(),
+                            LSDItems.BLOTTER.get()
+                    ), 1.7f, 2);
+
+            case 11 -> createEvent("Grenzkontrollen",
+                    "Import schwierig - lokale Ware teurer!",
+                    getAllDrugs(), 1.25f, 5);
+
+            default -> null;
+        };
+
+        if (event != null) {
+            addEvent(event);
+        }
+    }
+
+    /**
+     * Erstellt ein Event mit einheitlichem Multiplikator für alle Items
+     */
+    private static EconomicEvent createEvent(String name, String description, List<Item> items, float multiplier, int days) {
+        Map<Item, Float> multipliers = new HashMap<>();
+        for (Item item : items) {
+            if (item != null) {
+                multipliers.put(item, multiplier);
+            }
+        }
+        return new EconomicEvent(name, multipliers, days);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // ITEM-GRUPPEN
+    // ═══════════════════════════════════════════════════════════
+
+    private static List<Item> getCannabisItems() {
+        return List.of(
+                CannabisItems.CURED_BUD.get(),
+                CannabisItems.HASH.get(),
+                CannabisItems.CANNABIS_OIL.get(),
+                CannabisItems.DRIED_BUD.get()
+        );
+    }
+
+    private static List<Item> getCocaItems() {
+        return List.of(
+                CocaItems.COCAINE.get(),
+                CocaItems.PACKAGED_COCAINE.get(),
+                CocaItems.CRACK_ROCK.get(),
+                CocaItems.COCA_PASTE.get()
+        );
+    }
+
+    private static List<Item> getMethItems() {
+        return List.of(
+                MethItems.METH.get(),
+                MethItems.KRISTALL_METH.get(),
+                MethItems.PACKAGED_METH_1G.get(),
+                MethItems.PACKAGED_METH_3_5G.get(),
+                MethItems.PACKAGED_METH_7G.get(),
+                MethItems.PACKAGED_METH_14G.get(),
+                MethItems.PACKAGED_METH_28G.get()
+        );
+    }
+
+    private static List<Item> getPartyDrugs() {
+        List<Item> items = new ArrayList<>();
+        items.add(MDMAItems.ECSTASY_PILL.get());
+        items.add(MDMAItems.MDMA_KRISTALL.get());
+        items.add(LSDItems.BLOTTER.get());
+        items.add(CocaItems.COCAINE.get());
+        items.addAll(getCannabisItems());
+        return items;
+    }
+
+    private static List<Item> getSyntheticDrugs() {
+        List<Item> items = new ArrayList<>();
+        items.addAll(getMethItems());
+        items.add(MDMAItems.ECSTASY_PILL.get());
+        items.add(MDMAItems.MDMA_KRISTALL.get());
+        items.add(LSDItems.BLOTTER.get());
+        items.add(LSDItems.LSD_LOESUNG.get());
+        return items;
+    }
+
+    private static List<Item> getPlantBasedDrugs() {
+        List<Item> items = new ArrayList<>();
+        items.addAll(getCannabisItems());
+        items.add(TobaccoItems.PACKAGED_TOBACCO.get());
+        items.add(PoppyItems.PACKAGED_HEROIN_50G.get());
+        items.add(PoppyItems.PACKAGED_HEROIN_100G.get());
+        items.add(MushroomItems.PACKAGED_1G.get());
+        items.add(MushroomItems.PACKAGED_3_5G.get());
+        items.addAll(getCocaItems());
+        return items;
+    }
+
+    private static List<Item> getStimulants() {
+        List<Item> items = new ArrayList<>();
+        items.addAll(getMethItems());
+        items.addAll(getCocaItems());
+        return items;
+    }
+
+    private static List<Item> getAllDrugs() {
+        List<Item> items = new ArrayList<>();
+        items.addAll(getCannabisItems());
+        items.addAll(getCocaItems());
+        items.addAll(getMethItems());
+        items.add(MDMAItems.ECSTASY_PILL.get());
+        items.add(MDMAItems.MDMA_KRISTALL.get());
+        items.add(LSDItems.BLOTTER.get());
+        items.add(TobaccoItems.PACKAGED_TOBACCO.get());
+        items.add(PoppyItems.PACKAGED_HEROIN_50G.get());
+        items.add(PoppyItems.PACKAGED_HEROIN_100G.get());
+        items.add(MushroomItems.PACKAGED_1G.get());
+        items.add(MushroomItems.PACKAGED_3_5G.get());
+        return items;
+    }
+
+    /**
+     * Manuell ein Event triggern (für Admin-Commands)
+     */
+    public static void triggerEventManually() {
+        triggerRandomEvent();
     }
 }

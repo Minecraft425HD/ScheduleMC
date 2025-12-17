@@ -50,6 +50,9 @@ public class MessageManager {
                                     data.isPlayerParticipant
                                 );
 
+                                // Load reputation (default 0 for old data)
+                                conv.setReputation(data.reputation);
+
                                 data.messages.forEach(msgData -> {
                                     Message msg = new Message(
                                         UUID.fromString(msgData.senderUUID),
@@ -96,6 +99,7 @@ public class MessageManager {
                         ConversationData data = new ConversationData();
                         data.participantName = conv.getParticipantName();
                         data.isPlayerParticipant = conv.isPlayerParticipant();
+                        data.reputation = conv.getReputation();
                         data.messages = new ArrayList<>();
 
                         conv.getMessages().forEach(msg -> {
@@ -214,6 +218,7 @@ public class MessageManager {
     private static class ConversationData {
         String participantName;
         boolean isPlayerParticipant;
+        int reputation;
         List<MessageData> messages;
     }
 

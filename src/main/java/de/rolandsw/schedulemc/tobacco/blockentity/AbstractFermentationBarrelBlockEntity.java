@@ -4,6 +4,8 @@ import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
 import de.rolandsw.schedulemc.tobacco.TobaccoType;
 import de.rolandsw.schedulemc.tobacco.items.DriedTobaccoLeafItem;
 import de.rolandsw.schedulemc.tobacco.items.FermentedTobaccoLeafItem;
+import de.rolandsw.schedulemc.utility.IUtilityConsumer;
+import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -19,7 +21,9 @@ import org.jetbrains.annotations.Nullable;
  * Abstrakte Basisklasse für Fermentierungsfässer
  * Eliminiert Code-Duplikation zwischen Small/Medium/Big Varianten
  */
-public abstract class AbstractFermentationBarrelBlockEntity extends BlockEntity {
+public abstract class AbstractFermentationBarrelBlockEntity extends BlockEntity implements IUtilityConsumer {
+
+    private boolean lastActiveState = false;
 
     private ItemStack[] inputs;
     private ItemStack[] outputs;
@@ -184,6 +188,24 @@ public abstract class AbstractFermentationBarrelBlockEntity extends BlockEntity 
             setChanged();
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
+
+        // Utility-Status nur bei Änderung melden
+        boolean currentActive = isActivelyConsuming();
+        if (currentActive != lastActiveState) {
+            lastActiveState = currentActive;
+            UtilityEventHandler.reportBlockEntityActivity(this, currentActive);
+        }
+    }
+
+    @Override
+    public boolean isActivelyConsuming() {
+        // Aktiv wenn mindestens ein Slot Input hat und noch nicht fertig ist (Output leer)
+        for (int i = 0; i < getCapacity(); i++) {
+            if (!inputs[i].isEmpty() && outputs[i].isEmpty()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private TobaccoQuality calculateFinalQuality(TobaccoQuality quality) {

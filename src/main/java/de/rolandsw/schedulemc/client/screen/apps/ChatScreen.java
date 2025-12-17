@@ -57,9 +57,8 @@ public class ChatScreen extends Screen {
 
         // Check if chatting with NPC to show message templates
         if (!conversation.isPlayerParticipant()) {
-            // NPC chat - show 3 message options
-            // TODO: Get actual reputation from NPCBusinessMetrics
-            int reputation = 50; // Default neutral reputation
+            // NPC chat - show 3 message options based on reputation with this NPC
+            int reputation = conversation.getReputation();
             npcMessageOptions = NPCMessageTemplates.getMessagesForReputation(reputation);
 
             int buttonY = topPos + HEIGHT - 95;

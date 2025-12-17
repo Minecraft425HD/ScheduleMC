@@ -1,5 +1,14 @@
 package de.rolandsw.schedulemc.tobacco.blocks;
 
+import de.rolandsw.schedulemc.coca.blocks.CocaPlantBlock;
+import de.rolandsw.schedulemc.coca.items.CocaSeedItem;
+import de.rolandsw.schedulemc.coca.items.FreshCocaLeafItem;
+import de.rolandsw.schedulemc.mushroom.items.FreshMushroomItem;
+import de.rolandsw.schedulemc.mushroom.items.MistBagItem;
+import de.rolandsw.schedulemc.mushroom.items.SporeSyringeItem;
+import de.rolandsw.schedulemc.poppy.blocks.PoppyPlantBlock;
+import de.rolandsw.schedulemc.poppy.items.PoppyPodItem;
+import de.rolandsw.schedulemc.poppy.items.PoppySeedItem;
 import de.rolandsw.schedulemc.tobacco.PotType;
 import de.rolandsw.schedulemc.tobacco.blockentity.TobaccoPotBlockEntity;
 import de.rolandsw.schedulemc.tobacco.items.SoilBagItem;
@@ -109,7 +118,54 @@ public class TobaccoPotBlock extends Block implements EntityBlock {
                 return InteractionResult.FAIL;
             }
         }
-        
+
+        // ═══════════════════════════════════════════════════════════
+        // 1b. MIST BEFÜLLEN (für Pilze)
+        // ═══════════════════════════════════════════════════════════
+        if (handStack.getItem() instanceof MistBagItem mistBagItem) {
+            if (potData.hasPlant()) {
+                player.displayClientMessage(Component.literal(
+                    "§c✗ Entferne zuerst die Pflanze!"
+                ), true);
+                return InteractionResult.FAIL;
+            }
+
+            if (potData.hasSoil()) {
+                player.displayClientMessage(Component.literal(
+                    "§c✗ Topf enthält bereits Erde! Verwende einen leeren Topf für Pilze."
+                ), true);
+                return InteractionResult.FAIL;
+            }
+
+            if (potData.getSoilLevel() >= potData.getMaxSoil()) {
+                player.displayClientMessage(Component.literal(
+                    "§c✗ Topf ist bereits voll mit Substrat!"
+                ), true);
+                return InteractionResult.FAIL;
+            }
+
+            if (MistBagItem.consumeUnits(handStack, 1)) {
+                int plantsPerBag = mistBagItem.getPlantsPerBag();
+                potData.addMistForPlants(plantsPerBag);
+                potBE.setChanged();
+                level.sendBlockUpdated(pos, state, state, 3);
+
+                player.displayClientMessage(Component.literal(
+                    "§2✓ Mist eingefüllt!\n" +
+                    "§7Substrat: §6" + potData.getSoilLevel() + "/" + potData.getMaxSoil() + "\n" +
+                    "§7Reicht für: §e~" + plantsPerBag + " Pilzkulturen"
+                ), true);
+
+                player.playSound(net.minecraft.sounds.SoundEvents.GRAVEL_PLACE, 1.0f, 0.8f);
+                return InteractionResult.SUCCESS;
+            } else {
+                player.displayClientMessage(Component.literal(
+                    "§c✗ Mist-Sack ist leer!"
+                ), true);
+                return InteractionResult.FAIL;
+            }
+        }
+
         // ═══════════════════════════════════════════════════════════
         // 2. GIEßEN (FIXED!)
         // ═══════════════════════════════════════════════════════════
@@ -199,13 +255,133 @@ public class TobaccoPotBlock extends Block implements EntityBlock {
             player.playSound(net.minecraft.sounds.SoundEvents.CROP_PLANTED, 1.0f, 1.0f);
             return InteractionResult.SUCCESS;
         }
-        
+
         // ═══════════════════════════════════════════════════════════
-        // 4. ERNTEN
+        // 3b. KOKA PFLANZEN
         // ═══════════════════════════════════════════════════════════
-        if (handStack.isEmpty() && player.isShiftKeyDown() && potData.hasPlant()) {
+        if (handStack.getItem() instanceof CocaSeedItem cocaSeedItem) {
+            if (!potData.hasSoil()) {
+                player.displayClientMessage(Component.literal(
+                    "§c✗ Topf braucht zuerst Erde!"
+                ), true);
+                return InteractionResult.FAIL;
+            }
+
+            if (potData.hasPlant()) {
+                player.displayClientMessage(Component.literal(
+                    "§c✗ Topf hat bereits eine Pflanze!"
+                ), true);
+                return InteractionResult.FAIL;
+            }
+
+            if (potData.getWaterLevel() < 10) {
+                player.displayClientMessage(Component.literal(
+                    "§c✗ Zu wenig Wasser zum Pflanzen!"
+                ), true);
+                return InteractionResult.FAIL;
+            }
+
+            // Pflanze Koka-Samen
+            potData.plantCocaSeed(cocaSeedItem.getCocaType());
+            potBE.setChanged();
+            level.sendBlockUpdated(pos, state, state, 3);
+            handStack.shrink(1);
+
+            // Platziere Koka-Pflanzen-Block oberhalb des Topfes
+            CocaPlantBlock.growToStage(level, pos, 0, cocaSeedItem.getCocaType());
+
+            player.displayClientMessage(Component.literal(
+                "§a✓ Koka-Samen gepflanzt!\n" +
+                "§7Sorte: " + cocaSeedItem.getCocaType().getColoredName()
+            ), true);
+
+            player.playSound(net.minecraft.sounds.SoundEvents.CROP_PLANTED, 1.0f, 1.0f);
+            return InteractionResult.SUCCESS;
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // 3c. MOHN PFLANZEN
+        // ═══════════════════════════════════════════════════════════
+        if (handStack.getItem() instanceof PoppySeedItem poppySeedItem) {
+            if (!potData.hasSoil()) {
+                player.displayClientMessage(Component.literal(
+                    "§c✗ Topf braucht zuerst Erde!"
+                ), true);
+                return InteractionResult.FAIL;
+            }
+
+            if (potData.hasPlant()) {
+                player.displayClientMessage(Component.literal(
+                    "§c✗ Topf hat bereits eine Pflanze!"
+                ), true);
+                return InteractionResult.FAIL;
+            }
+
+            if (potData.getWaterLevel() < 10) {
+                player.displayClientMessage(Component.literal(
+                    "§c✗ Zu wenig Wasser zum Pflanzen!"
+                ), true);
+                return InteractionResult.FAIL;
+            }
+
+            // Pflanze Mohn-Samen
+            potData.plantPoppySeed(poppySeedItem.getPoppyType());
+            potBE.setChanged();
+            level.sendBlockUpdated(pos, state, state, 3);
+            handStack.shrink(1);
+
+            // Platziere Mohn-Pflanzen-Block oberhalb des Topfes
+            PoppyPlantBlock.growToStage(level, pos, 0, poppySeedItem.getPoppyType());
+
+            player.displayClientMessage(Component.literal(
+                "§a✓ Mohn-Samen gepflanzt!\n" +
+                "§7Sorte: " + poppySeedItem.getPoppyType().getColoredName()
+            ), true);
+
+            player.playSound(net.minecraft.sounds.SoundEvents.CROP_PLANTED, 1.0f, 1.0f);
+            return InteractionResult.SUCCESS;
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // 3d. PILZE IMPFEN (Sporen-Spritze)
+        // ═══════════════════════════════════════════════════════════
+        if (handStack.getItem() instanceof SporeSyringeItem syringeItem) {
+            if (!potData.hasMist()) {
+                player.displayClientMessage(Component.literal(
+                    "§c✗ Topf braucht zuerst Mist-Substrat!"
+                ), true);
+                return InteractionResult.FAIL;
+            }
+
+            if (potData.hasPlant()) {
+                player.displayClientMessage(Component.literal(
+                    "§c✗ Topf hat bereits eine Kultur!"
+                ), true);
+                return InteractionResult.FAIL;
+            }
+
+            // Impfe mit Sporen
+            potData.plantMushroomSpore(syringeItem.getMushroomType());
+            potBE.setChanged();
+            level.sendBlockUpdated(pos, state, state, 3);
+            handStack.shrink(1);
+
+            player.displayClientMessage(Component.literal(
+                "§2✓ Substrat mit Sporen geimpft!\n" +
+                "§7Sorte: " + syringeItem.getMushroomType().getColoredName() + "\n" +
+                "§7Phase: §eInkubation (dunkel halten!)"
+            ), true);
+
+            player.playSound(net.minecraft.sounds.SoundEvents.BREWING_STAND_BREW, 1.0f, 1.5f);
+            return InteractionResult.SUCCESS;
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // 4. ERNTEN (Tabak)
+        // ═══════════════════════════════════════════════════════════
+        if (handStack.isEmpty() && player.isShiftKeyDown() && potData.hasTobaccoPlant()) {
             var plant = potData.getPlant();
-            
+
             if (!plant.isFullyGrown()) {
                 player.displayClientMessage(Component.literal(
                     "§c✗ Pflanze ist noch nicht ausgewachsen!\n" +
@@ -213,8 +389,8 @@ public class TobaccoPotBlock extends Block implements EntityBlock {
                 ), true);
                 return InteractionResult.FAIL;
             }
-            
-            // Ernte
+
+            // Ernte Tabak
             var harvested = potData.harvest();
             if (harvested != null) {
                 ItemStack leaves = de.rolandsw.schedulemc.tobacco.items.FreshTobaccoLeafItem.create(
@@ -225,18 +401,154 @@ public class TobaccoPotBlock extends Block implements EntityBlock {
 
                 player.getInventory().add(leaves);
                 potBE.setChanged();
-                level.sendBlockUpdated(pos, state, state, 3); // Client-Update!
+                level.sendBlockUpdated(pos, state, state, 3);
 
                 // Entferne Pflanzen-Block
                 TobaccoPlantBlock.removePlant(level, pos);
 
                 player.displayClientMessage(Component.literal(
-                    "§a✓ Geerntet!\n" +
+                    "§a✓ Tabak geerntet!\n" +
                     "§7Ertrag: §e" + harvested.getHarvestYield() + " Blätter\n" +
                     "§7Qualität: " + harvested.getQuality().getColoredName()
                 ), true);
 
                 player.playSound(net.minecraft.sounds.SoundEvents.CROP_BREAK, 1.0f, 1.0f);
+                return InteractionResult.SUCCESS;
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // 4b. ERNTEN (Koka)
+        // ═══════════════════════════════════════════════════════════
+        if (handStack.isEmpty() && player.isShiftKeyDown() && potData.hasCocaPlant()) {
+            var cocaPlant = potData.getCocaPlant();
+
+            if (!cocaPlant.isFullyGrown()) {
+                player.displayClientMessage(Component.literal(
+                    "§c✗ Koka-Pflanze ist noch nicht ausgewachsen!\n" +
+                    "§7Wachstum: §e" + (cocaPlant.getGrowthStage() * 100 / 7) + "%"
+                ), true);
+                return InteractionResult.FAIL;
+            }
+
+            // Ernte Koka
+            var harvested = potData.harvestCoca();
+            if (harvested != null) {
+                ItemStack leaves = FreshCocaLeafItem.create(
+                    harvested.getType(),
+                    harvested.getQuality(),
+                    harvested.getHarvestYield()
+                );
+
+                player.getInventory().add(leaves);
+                potBE.setChanged();
+                level.sendBlockUpdated(pos, state, state, 3);
+
+                // Entferne Koka-Pflanzen-Block
+                CocaPlantBlock.removePlant(level, pos);
+
+                player.displayClientMessage(Component.literal(
+                    "§a✓ Koka geerntet!\n" +
+                    "§7Ertrag: §e" + harvested.getHarvestYield() + " Blätter\n" +
+                    "§7Qualität: " + harvested.getQuality().getColoredName()
+                ), true);
+
+                player.playSound(net.minecraft.sounds.SoundEvents.CROP_BREAK, 1.0f, 1.0f);
+                return InteractionResult.SUCCESS;
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // 4c. ERNTEN (Mohn)
+        // ═══════════════════════════════════════════════════════════
+        if (handStack.isEmpty() && player.isShiftKeyDown() && potData.hasPoppyPlant()) {
+            var poppyPlant = potData.getPoppyPlant();
+
+            if (!poppyPlant.isFullyGrown()) {
+                player.displayClientMessage(Component.literal(
+                    "§c✗ Mohn-Pflanze ist noch nicht ausgewachsen!\n" +
+                    "§7Wachstum: §e" + (poppyPlant.getGrowthStage() * 100 / 7) + "%"
+                ), true);
+                return InteractionResult.FAIL;
+            }
+
+            // Ernte Mohn
+            var harvested = potData.harvestPoppy();
+            if (harvested != null) {
+                ItemStack pods = PoppyPodItem.create(
+                    harvested.getType(),
+                    harvested.getQuality(),
+                    harvested.getHarvestYield()
+                );
+
+                player.getInventory().add(pods);
+                potBE.setChanged();
+                level.sendBlockUpdated(pos, state, state, 3);
+
+                // Entferne Mohn-Pflanzen-Block
+                PoppyPlantBlock.removePlant(level, pos);
+
+                player.displayClientMessage(Component.literal(
+                    "§a✓ Mohn geerntet!\n" +
+                    "§7Ertrag: §e" + harvested.getHarvestYield() + " Kapseln\n" +
+                    "§7Qualität: " + harvested.getQuality().getColoredName()
+                ), true);
+
+                player.playSound(net.minecraft.sounds.SoundEvents.CROP_BREAK, 1.0f, 1.0f);
+                return InteractionResult.SUCCESS;
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // 4d. ERNTEN (Pilze)
+        // ═══════════════════════════════════════════════════════════
+        if (handStack.isEmpty() && player.isShiftKeyDown() && potData.hasMushroomPlant()) {
+            var mushroom = potData.getMushroomPlant();
+
+            if (!mushroom.canHarvest()) {
+                if (!mushroom.isFullyGrown()) {
+                    String phase = mushroom.isIncubating() ? "Inkubation" : "Fruchtung";
+                    player.displayClientMessage(Component.literal(
+                        "§c✗ Pilze sind noch nicht erntereif!\n" +
+                        "§7Phase: §e" + phase + "\n" +
+                        "§7Wachstum: §e" + (mushroom.getGrowthStage() * 100 / 7) + "%"
+                    ), true);
+                } else {
+                    player.displayClientMessage(Component.literal(
+                        "§c✗ Substrat erschöpft - keine weiteren Ernten möglich!"
+                    ), true);
+                }
+                return InteractionResult.FAIL;
+            }
+
+            // Ernte Pilze
+            int yield = mushroom.getHarvestYield();
+            int remainingFlushes = mushroom.getRemainingFlushes() - 1;
+            var harvested = potData.harvestMushroom();
+
+            if (harvested != null) {
+                ItemStack freshMushrooms = FreshMushroomItem.create(
+                    harvested.getType(),
+                    harvested.getQuality(),
+                    yield
+                );
+
+                player.getInventory().add(freshMushrooms);
+                potBE.setChanged();
+                level.sendBlockUpdated(pos, state, state, 3);
+
+                String flushInfo = remainingFlushes > 0 ?
+                    "§7Verbleibende Ernten: §e" + remainingFlushes :
+                    "§c(Letzte Ernte!)";
+
+                player.displayClientMessage(Component.literal(
+                    "§2✓ Pilze geerntet!\n" +
+                    "§7Ertrag: §e" + yield + " Pilze\n" +
+                    "§7Qualität: " + harvested.getQuality().getColoredName() + "\n" +
+                    flushInfo
+                ), true);
+
+                player.playSound(net.minecraft.sounds.SoundEvents.FUNGUS_BREAK, 1.0f, 1.0f);
                 return InteractionResult.SUCCESS;
             }
         }

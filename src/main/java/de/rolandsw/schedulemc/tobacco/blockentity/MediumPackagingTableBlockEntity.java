@@ -22,6 +22,7 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import de.rolandsw.schedulemc.utility.IUtilityConsumer;
 
 /**
  * BlockEntity für Medium Packaging Table (10g)
@@ -29,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
  * - Slot 0: Input (fermentierter Tabak)
  * - Slots 1-10: Schachteln (5 leer, 5 voll)
  */
-public class MediumPackagingTableBlockEntity extends BlockEntity implements MenuProvider {
+public class MediumPackagingTableBlockEntity extends BlockEntity implements MenuProvider, IUtilityConsumer {
 
     // Inventar: 1 Input + 10 Schachteln = 11 Slots
     private final ItemStackHandler itemHandler = new ItemStackHandler(11) {
@@ -257,5 +258,15 @@ public class MediumPackagingTableBlockEntity extends BlockEntity implements Menu
             inventory.setItem(i, itemHandler.getStackInSlot(i));
         }
         Containers.dropContents(this.level, this.worldPosition, inventory);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // IUtilityConsumer Implementation
+    // ═══════════════════════════════════════════════════════════
+
+    @Override
+    public boolean isActivelyConsuming() {
+        // Packtisch verbraucht keinen Strom (manuelle Arbeit)
+        return false;
     }
 }

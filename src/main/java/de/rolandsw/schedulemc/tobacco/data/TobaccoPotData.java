@@ -1,25 +1,39 @@
 package de.rolandsw.schedulemc.tobacco.data;
 
+import de.rolandsw.schedulemc.coca.CocaType;
+import de.rolandsw.schedulemc.coca.data.CocaPlantData;
+import de.rolandsw.schedulemc.mushroom.MushroomType;
+import de.rolandsw.schedulemc.mushroom.data.MushroomPlantData;
+import de.rolandsw.schedulemc.poppy.PoppyType;
+import de.rolandsw.schedulemc.poppy.data.PoppyPlantData;
 import de.rolandsw.schedulemc.tobacco.PotType;
 import de.rolandsw.schedulemc.tobacco.TobaccoType;
 
 /**
- * Speichert Daten eines Tabak-Topfes
+ * Speichert Daten eines Tabak-Topfes (unterstützt Tabak, Koka, Mohn und Pilze)
  */
 public class TobaccoPotData {
-    
+
     private PotType potType;
     private double waterLevel; // Aktuelles Wasser (als double für präzisen Verbrauch)
     private double soilLevel; // Aktuelle Erde (als double für präzisen Verbrauch)
     private TobaccoPlantData plant; // Gepflanzte Tabakpflanze (null wenn leer)
+    private CocaPlantData cocaPlant; // Gepflanzte Koka-Pflanze (null wenn leer)
+    private PoppyPlantData poppyPlant; // Gepflanzte Mohn-Pflanze (null wenn leer)
+    private MushroomPlantData mushroomPlant; // Gepflanzte Pilzkultur (null wenn leer)
     private boolean hasSoil; // Wurde Erde hinzugefügt?
-    
+    private boolean hasMist; // Wurde Mist hinzugefügt? (für Pilze)
+
     public TobaccoPotData(PotType potType) {
         this.potType = potType;
         this.waterLevel = 0;
         this.soilLevel = 0;
         this.plant = null;
+        this.cocaPlant = null;
+        this.poppyPlant = null;
+        this.mushroomPlant = null;
         this.hasSoil = false;
+        this.hasMist = false;
     }
     
     public PotType getPotType() {
@@ -59,13 +73,59 @@ public class TobaccoPotData {
     public TobaccoPlantData getPlant() {
         return plant;
     }
-    
+
+    public CocaPlantData getCocaPlant() {
+        return cocaPlant;
+    }
+
+    public PoppyPlantData getPoppyPlant() {
+        return poppyPlant;
+    }
+
+    public MushroomPlantData getMushroomPlant() {
+        return mushroomPlant;
+    }
+
     public boolean hasPlant() {
+        return plant != null || cocaPlant != null || poppyPlant != null || mushroomPlant != null;
+    }
+
+    public boolean hasTobaccoPlant() {
         return plant != null;
     }
-    
+
+    public boolean hasCocaPlant() {
+        return cocaPlant != null;
+    }
+
+    public boolean hasPoppyPlant() {
+        return poppyPlant != null;
+    }
+
+    public boolean hasMushroomPlant() {
+        return mushroomPlant != null;
+    }
+
     public boolean hasSoil() {
         return hasSoil;
+    }
+
+    public boolean hasMist() {
+        return hasMist;
+    }
+
+    public void setMist(boolean hasMist) {
+        this.hasMist = hasMist;
+    }
+
+    /**
+     * Fügt Mist für eine bestimmte Anzahl von Pilzkulturen hinzu
+     */
+    public void addMistForPlants(int plantsPerBag) {
+        this.hasMist = true;
+        int baseMistPerPlant = 15;
+        int targetMist = (int) (baseMistPerPlant * plantsPerBag / potType.getConsumptionMultiplier());
+        this.soilLevel = Math.min(soilLevel + targetMist, potType.getSoilCapacity());
     }
     
     public void setSoil(boolean hasSoil) {
@@ -148,19 +208,55 @@ public class TobaccoPotData {
     }
     
     /**
-     * Pflanzt Samen
+     * Pflanzt Tabak-Samen
      */
     public boolean plantSeed(TobaccoType type) {
         if (!hasSoil || hasPlant()) {
             return false;
         }
-        
+
         this.plant = new TobaccoPlantData(type);
         return true;
     }
-    
+
     /**
-     * Erntet die Pflanze
+     * Pflanzt Koka-Samen
+     */
+    public boolean plantCocaSeed(CocaType type) {
+        if (!hasSoil || hasPlant()) {
+            return false;
+        }
+
+        this.cocaPlant = new CocaPlantData(type);
+        return true;
+    }
+
+    /**
+     * Pflanzt Mohn-Samen
+     */
+    public boolean plantPoppySeed(PoppyType type) {
+        if (!hasSoil || hasPlant()) {
+            return false;
+        }
+
+        this.poppyPlant = new PoppyPlantData(type);
+        return true;
+    }
+
+    /**
+     * Impft Mist mit Pilzsporen
+     */
+    public boolean plantMushroomSpore(MushroomType type) {
+        if (!hasMist || hasPlant()) {
+            return false;
+        }
+
+        this.mushroomPlant = new MushroomPlantData(type);
+        return true;
+    }
+
+    /**
+     * Erntet die Tabak-Pflanze
      */
     public TobaccoPlantData harvest() {
         if (plant == null || !plant.isFullyGrown()) {
@@ -173,20 +269,117 @@ public class TobaccoPotData {
     }
 
     /**
+     * Erntet die Koka-Pflanze
+     */
+    public CocaPlantData harvestCoca() {
+        if (cocaPlant == null || !cocaPlant.isFullyGrown()) {
+            return null;
+        }
+
+        CocaPlantData harvested = cocaPlant;
+        cocaPlant = null;
+        return harvested;
+    }
+
+    /**
+     * Erntet die Mohn-Pflanze
+     */
+    public PoppyPlantData harvestPoppy() {
+        if (poppyPlant == null || !poppyPlant.isFullyGrown()) {
+            return null;
+        }
+
+        PoppyPlantData harvested = poppyPlant;
+        poppyPlant = null;
+        return harvested;
+    }
+
+    /**
+     * Erntet Pilze (mit Flush-System)
+     * @return MushroomPlantData oder null wenn nicht erntbar
+     */
+    public MushroomPlantData harvestMushroom() {
+        if (mushroomPlant == null || !mushroomPlant.canHarvest()) {
+            return null;
+        }
+
+        // Speichere Daten vor der Ernte
+        MushroomPlantData harvested = new MushroomPlantData(mushroomPlant.getType());
+        harvested.setQuality(mushroomPlant.getQuality());
+        harvested.setGrowthStage(mushroomPlant.getGrowthStage());
+
+        // Führe Ernte durch (startet nächsten Flush oder beendet)
+        boolean moreFlushes = mushroomPlant.harvest();
+
+        if (!moreFlushes) {
+            // Substrat erschöpft - Pflanze entfernen
+            mushroomPlant = null;
+            hasMist = false;
+        }
+
+        return harvested;
+    }
+
+    /**
      * Entfernt die Pflanze (ohne Ernte-Bedingungen)
      */
     public void clearPlant() {
         this.plant = null;
+        this.cocaPlant = null;
+        this.poppyPlant = null;
+        this.mushroomPlant = null;
     }
     
     /**
-     * Prüft ob die Pflanze wachsen kann
+     * Prüft ob die Pflanze wachsen kann (Tabak, Koka, Mohn oder Pilze)
      */
     public boolean canGrow() {
-        if (plant == null || plant.isFullyGrown()) {
-            return false;
+        // Prüfe Tabak-Pflanze
+        if (plant != null && !plant.isFullyGrown()) {
+            return checkResourcesForGrowth();
         }
 
+        // Prüfe Koka-Pflanze
+        if (cocaPlant != null && !cocaPlant.isFullyGrown()) {
+            return checkResourcesForGrowth();
+        }
+
+        // Prüfe Mohn-Pflanze
+        if (poppyPlant != null && !poppyPlant.isFullyGrown()) {
+            return checkResourcesForGrowth();
+        }
+
+        // Prüfe Pilzkultur (spezielle Regeln)
+        if (mushroomPlant != null && !mushroomPlant.isFullyGrown()) {
+            return checkResourcesForMushroomGrowth();
+        }
+
+        return false;
+    }
+
+    /**
+     * Prüft ob Ressourcen für Pilzwachstum vorhanden sind
+     * Pilze brauchen nur Wasser während Fruchtung (Stage 4-7)
+     */
+    private boolean checkResourcesForMushroomGrowth() {
+        // Während Inkubation: Kein Wasser nötig
+        if (mushroomPlant.isIncubating()) {
+            return soilLevel > 0.5; // Nur Substrat nötig
+        }
+
+        // Während Fruchtung: Wasser nötig
+        double waterNeeded = getMaxWater() / 7.0;
+        double soilNeeded = 15.0 / 7.0;
+        double tolerance = 0.5;
+
+        return waterLevel >= (potType.calculateWaterConsumption(waterNeeded) - tolerance) &&
+                soilLevel >= (potType.calculateSoilConsumption(soilNeeded) - tolerance);
+    }
+
+    /**
+     * Prüft ob genug Ressourcen für Wachstum vorhanden sind
+     */
+    private boolean checkResourcesForGrowth() {
         // Ressourcen-Anforderungen für einen Wachstumsschritt
         // 7 Wachstumsschritte (0→1, 1→2, ... 6→7)
         // Verbrauche 1/7 der Topfkapazität pro Schritt
@@ -194,11 +387,10 @@ public class TobaccoPotData {
         double soilNeeded = 15.0 / 7.0;
 
         // Kleine Toleranz (0.5) für Floating-Point-Rundungsfehler
-        // Nach 6 Schritten können Rundungsfehler dazu führen, dass 2.1426 < 2.1429
         double tolerance = 0.5;
 
         return waterLevel >= (potType.calculateWaterConsumption(waterNeeded) - tolerance) &&
-               soilLevel >= (potType.calculateSoilConsumption(soilNeeded) - tolerance);
+                soilLevel >= (potType.calculateSoilConsumption(soilNeeded) - tolerance);
     }
     
     /**
