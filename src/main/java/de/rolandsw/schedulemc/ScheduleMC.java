@@ -40,6 +40,10 @@ import de.rolandsw.schedulemc.poppy.blockentity.PoppyBlockEntities;
 import de.rolandsw.schedulemc.mushroom.items.MushroomItems;
 import de.rolandsw.schedulemc.mushroom.blocks.MushroomBlocks;
 import de.rolandsw.schedulemc.mushroom.blockentity.MushroomBlockEntities;
+import de.rolandsw.schedulemc.meth.items.MethItems;
+import de.rolandsw.schedulemc.meth.blocks.MethBlocks;
+import de.rolandsw.schedulemc.meth.blockentity.MethBlockEntities;
+import de.rolandsw.schedulemc.meth.menu.MethMenuTypes;
 import de.rolandsw.schedulemc.tobacco.menu.ModMenuTypes;
 import de.rolandsw.schedulemc.tobacco.entity.ModEntities;
 import de.rolandsw.schedulemc.economy.blocks.EconomyBlocks;
@@ -118,6 +122,13 @@ public class ScheduleMC {
         MushroomBlocks.BLOCKS.register(modEventBus);
         MushroomBlocks.ITEMS.register(modEventBus);
         MushroomBlockEntities.BLOCK_ENTITIES.register(modEventBus);
+
+        // Meth-System registrieren
+        MethItems.ITEMS.register(modEventBus);
+        MethBlocks.BLOCKS.register(modEventBus);
+        MethBlocks.ITEMS.register(modEventBus);
+        MethBlockEntities.BLOCK_ENTITIES.register(modEventBus);
+        MethMenuTypes.MENUS.register(modEventBus);
 
         EconomyBlocks.BLOCKS.register(modEventBus);
         EconomyBlocks.ITEMS.register(modEventBus);
