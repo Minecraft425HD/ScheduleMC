@@ -21,11 +21,11 @@ import java.util.Optional;
  * Plot App - Immobilien-Verwaltung auf dem Smartphone
  *
  * Features:
- * - 4 Tabs mit horizontalem Scrollen
+ * - 4 Tabs mit Scroll-Support
  * - Tab 1: Aktueller Plot (Info + Verbrauch wenn Besitzer)
- * - Tab 2: Verfügbare Immobilien
- * - Tab 3: Meine Plots
- * - Tab 4: Finanzen (TODO)
+ * - Tab 2: Verfügbare Immobilien (Markt)
+ * - Tab 3: Meine Plots (Übersicht eigener Grundstücke)
+ * - Tab 4: Finanzen (Rechnungen, Warnungen, 7-Tage-Verlauf)
  */
 @OnlyIn(Dist.CLIENT)
 public class PlotAppScreen extends Screen {
@@ -428,22 +428,189 @@ public class PlotAppScreen extends Screen {
     // TAB 4: FINANZEN
     // ═══════════════════════════════════════════════════════════════════════════
 
+    // Preiskonstanten (pro Einheit)
+    private static final double ELECTRICITY_PRICE_PER_KWH = 0.35; // €/kWh
+    private static final double WATER_PRICE_PER_LITER = 0.005; // €/L
+
     private void renderFinanceTab(GuiGraphics guiGraphics, int startY, int endY) {
         int y = startY - scrollOffset;
+        int contentHeight = 0;
 
-        guiGraphics.drawCenteredString(this.font, "§6§l💰 FINANZEN", leftPos + WIDTH / 2, y + 10, 0xFFAA00);
-        y += 30;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) return;
 
-        guiGraphics.drawCenteredString(this.font, "§7Coming Soon!", leftPos + WIDTH / 2, y, 0xAAAAAA);
-        y += 20;
+        String playerUUID = mc.player.getUUID().toString();
 
-        guiGraphics.drawCenteredString(this.font, "§8Hier werden bald", leftPos + WIDTH / 2, y, 0x666666);
+        // ═══════════════════════════════════════════════════════════════════════════
+        // MAHNUNGEN / WARNUNGEN
+        // ═══════════════════════════════════════════════════════════════════════════
+        boolean hasWarnings = false;
+        double totalElectricity = 0;
+        double totalWater = 0;
+
+        for (PlotRegion plot : myPlots) {
+            Optional<PlotUtilityData> dataOpt = PlotUtilityManager.getPlotData(plot.getId());
+            if (dataOpt.isPresent()) {
+                PlotUtilityData data = dataOpt.get();
+                totalElectricity += data.get7DayAverageElectricity();
+                totalWater += data.get7DayAverageWater();
+
+                // Warnung bei hohem Verbrauch (>100 kWh oder >500 L)
+                if (data.get7DayAverageElectricity() > 100 || data.get7DayAverageWater() > 500) {
+                    hasWarnings = true;
+                }
+            }
+        }
+
+        // Warnungs-Bereich
+        if (hasWarnings) {
+            if (y >= startY - 10 && y < endY) {
+                guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 25, 0x66AA0000);
+                guiGraphics.drawString(this.font, "§c§l⚠ WARNUNG", leftPos + 15, y + 3, 0xFF5555);
+                guiGraphics.drawString(this.font, "§7Hoher Verbrauch erkannt!", leftPos + 15, y + 14, 0xFFFFFF);
+            }
+            y += 30;
+            contentHeight += 30;
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════
+        // AKTUELLE RECHNUNGEN
+        // ═══════════════════════════════════════════════════════════════════════════
+        if (y >= startY - 10 && y < endY) {
+            guiGraphics.drawString(this.font, "§6§l💰 RECHNUNGEN", leftPos + 15, y, 0xFFAA00);
+        }
+        y += 15;
+        contentHeight += 15;
+
+        if (myPlots.isEmpty()) {
+            if (y >= startY - 10 && y < endY) {
+                guiGraphics.drawString(this.font, "§8Keine Grundstücke", leftPos + 15, y, 0x666666);
+            }
+            y += 15;
+            contentHeight += 15;
+        } else {
+            // Berechne Gesamtkosten
+            double totalElecCost = totalElectricity * ELECTRICITY_PRICE_PER_KWH;
+            double totalWaterCost = totalWater * WATER_PRICE_PER_LITER;
+            double totalCost = totalElecCost + totalWaterCost;
+
+            // Gesamt-Box
+            if (y >= startY - 10 && y < endY) {
+                guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 50, 0x44333333);
+                guiGraphics.drawString(this.font, "§fGesamt (7-Tage-Ø/Tag)", leftPos + 15, y + 3, 0xFFFFFF);
+
+                // Strom
+                guiGraphics.drawString(this.font, "§e⚡ " + PlotUtilityManager.formatElectricity(totalElectricity), leftPos + 15, y + 15, 0xFFFFFF);
+                guiGraphics.drawString(this.font, String.format("§a%.2f€", totalElecCost), leftPos + 130, y + 15, 0x55FF55);
+
+                // Wasser
+                guiGraphics.drawString(this.font, "§b💧 " + PlotUtilityManager.formatWater(totalWater), leftPos + 15, y + 27, 0xFFFFFF);
+                guiGraphics.drawString(this.font, String.format("§a%.2f€", totalWaterCost), leftPos + 130, y + 27, 0x55FF55);
+
+                // Gesamtsumme
+                guiGraphics.fill(leftPos + 15, y + 38, leftPos + WIDTH - 15, y + 39, 0x44FFFFFF);
+                guiGraphics.drawString(this.font, "§f§lSUMME:", leftPos + 15, y + 41, 0xFFFFFF);
+                guiGraphics.drawString(this.font, String.format("§e§l%.2f€/Tag", totalCost), leftPos + 100, y + 41, 0xFFAA00);
+            }
+            y += 55;
+            contentHeight += 55;
+
+            // Pro-Plot Aufschlüsselung
+            if (y >= startY - 10 && y < endY) {
+                guiGraphics.drawString(this.font, "§8Pro Grundstück:", leftPos + 15, y, 0x888888);
+            }
+            y += 12;
+            contentHeight += 12;
+
+            for (PlotRegion plot : myPlots) {
+                Optional<PlotUtilityData> dataOpt = PlotUtilityManager.getPlotData(plot.getId());
+                if (dataOpt.isPresent()) {
+                    PlotUtilityData data = dataOpt.get();
+                    double elec = data.get7DayAverageElectricity();
+                    double water = data.get7DayAverageWater();
+                    double cost = (elec * ELECTRICITY_PRICE_PER_KWH) + (water * WATER_PRICE_PER_LITER);
+
+                    if (y >= startY - 30 && y < endY) {
+                        guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 25, 0x33333333);
+                        guiGraphics.drawString(this.font, "§7" + plot.getPlotName(), leftPos + 15, y + 3, 0xAAAAAA);
+                        guiGraphics.drawString(this.font, String.format("§e%.2f€", cost), leftPos + 140, y + 3, 0xFFAA00);
+                        guiGraphics.drawString(this.font, String.format("§8⚡%.0f kWh  💧%.0f L", elec, water), leftPos + 15, y + 14, 0x666666);
+                    }
+                    y += 28;
+                    contentHeight += 28;
+                }
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════
+        // 7-TAGE VERLAUF
+        // ═══════════════════════════════════════════════════════════════════════════
+        y += 5;
+        contentHeight += 5;
+
+        if (y >= startY - 10 && y < endY) {
+            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
+        }
+        y += 8;
+        contentHeight += 8;
+
+        if (y >= startY - 10 && y < endY) {
+            guiGraphics.drawString(this.font, "§6§l📊 7-TAGE VERLAUF", leftPos + 15, y, 0xFFAA00);
+        }
+        y += 15;
+        contentHeight += 15;
+
+        // Sammle Historie für alle Plots
+        double[] totalDailyElec = new double[7];
+        double[] totalDailyWater = new double[7];
+
+        for (PlotRegion plot : myPlots) {
+            Optional<PlotUtilityData> dataOpt = PlotUtilityManager.getPlotData(plot.getId());
+            if (dataOpt.isPresent()) {
+                PlotUtilityData data = dataOpt.get();
+                double[] dailyElec = data.getDailyElectricity();
+                double[] dailyWater = data.getDailyWater();
+                for (int i = 0; i < 7; i++) {
+                    totalDailyElec[i] += dailyElec[i];
+                    totalDailyWater[i] += dailyWater[i];
+                }
+            }
+        }
+
+        // Tages-Anzeige (0 = Heute, 6 = Vor 6 Tagen)
+        String[] dayLabels = {"Heute", "Gestern", "Vor 2d", "Vor 3d", "Vor 4d", "Vor 5d", "Vor 6d"};
+
+        for (int i = 0; i < 7; i++) {
+            double elec = totalDailyElec[i];
+            double water = totalDailyWater[i];
+            double cost = (elec * ELECTRICITY_PRICE_PER_KWH) + (water * WATER_PRICE_PER_LITER);
+
+            if (y >= startY - 15 && y < endY) {
+                // Hintergrund für jeden Tag
+                int bgColor = (i == 0) ? 0x44228B22 : 0x22333333;
+                guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 14, bgColor);
+
+                guiGraphics.drawString(this.font, "§7" + dayLabels[i], leftPos + 15, y + 3, 0xAAAAAA);
+                guiGraphics.drawString(this.font, String.format("§e%.2f€", cost), leftPos + 80, y + 3, 0xFFAA00);
+                guiGraphics.drawString(this.font, String.format("§8%.0fkWh", elec), leftPos + 130, y + 3, 0x666666);
+            }
+            y += 16;
+            contentHeight += 16;
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════
+        // HINWEIS
+        // ═══════════════════════════════════════════════════════════════════════════
+        y += 10;
+        contentHeight += 10;
+
+        if (y >= startY - 10 && y < endY) {
+            guiGraphics.drawCenteredString(this.font, "§8Preise: 0.35€/kWh, 0.50€/100L", leftPos + WIDTH / 2, y, 0x666666);
+        }
         y += 12;
-        guiGraphics.drawCenteredString(this.font, "§8Rechnungen & Zahlungen", leftPos + WIDTH / 2, y, 0x666666);
-        y += 12;
-        guiGraphics.drawCenteredString(this.font, "§8angezeigt.", leftPos + WIDTH / 2, y, 0x666666);
+        contentHeight += 12;
 
-        maxScroll = 0;
+        maxScroll = Math.max(0, contentHeight - CONTENT_HEIGHT);
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
