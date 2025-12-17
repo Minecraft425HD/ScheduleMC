@@ -275,7 +275,7 @@ public class SmartphoneScreen extends Screen {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
         // Scroll nur, wenn Maus über dem App-Bereich ist
         int gridWidth = (APP_ICON_SIZE * 2) + APP_SPACING;
         int gridStartX = leftPos + (PHONE_WIDTH - gridWidth - SCROLLBAR_WIDTH - 5) / 2;
@@ -285,11 +285,11 @@ public class SmartphoneScreen extends Screen {
         if (mouseX >= gridStartX && mouseX <= gridStartX + gridWidth + SCROLLBAR_WIDTH + 10 &&
             mouseY >= gridStartY && mouseY <= gridStartY + visibleContentHeight) {
 
-            int scrollAmount = (int) (scrollY * 10); // Scroll-Geschwindigkeit
+            int scrollAmount = (int) (delta * 10); // Scroll-Geschwindigkeit
             scrollOffset = Math.max(0, Math.min(maxScrollOffset, scrollOffset - scrollAmount));
             return true;
         }
-        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+        return super.mouseScrolled(mouseX, mouseY, delta);
     }
 
     @Override
