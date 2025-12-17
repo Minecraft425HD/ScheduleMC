@@ -23,13 +23,13 @@ public class SmartphoneScreen extends Screen {
 
     // Layout-Konstanten (kompakter für ALLE Bildschirmgrößen)
     private static final int PHONE_WIDTH = 200;
-    private static final int PHONE_HEIGHT = 280; // Angepasst für 3 sichtbare Reihen + Controls
+    private static final int PHONE_HEIGHT = 300; // Erhöht für bessere Platzierung
     private static final int APP_ICON_SIZE = 36; // Etwas kleiner für mehr Platz
-    private static final int APP_SPACING = 10; // Reduziert für 4 Reihen
+    private static final int APP_SPACING = 18; // Mehr Abstand zwischen Apps
     private static final int CLOSE_BUTTON_SIZE = 20;
     private static final int BORDER_SIZE = 5; // Rahmen um das Smartphone
-    private static final int MARGIN_TOP = 15; // Mindestabstand vom oberen Bildschirmrand
-    private static final int MARGIN_BOTTOM = 60; // Erhöht von 35 - genug Platz für Hotbar!
+    private static final int MARGIN_TOP = 20; // Mindestabstand vom oberen Bildschirmrand
+    private static final int MARGIN_BOTTOM = 45; // Genug Platz für Hotbar
     private static final int SCROLLBAR_WIDTH = 8; // Etwas breiter für bessere Klickbarkeit
     private static final int SCROLLBAR_MARGIN = 15; // Abstand zwischen Apps und Scrollbar
     private static final int VISIBLE_ROWS = 3; // Nur 3 Reihen sichtbar (6 Apps)
@@ -108,7 +108,7 @@ public class SmartphoneScreen extends Screen {
         // === ZURÜCK-BUTTON (unten zentriert) ===
         addRenderableWidget(Button.builder(Component.literal("Zurück"), button -> {
             this.onClose();
-        }).bounds(leftPos + (PHONE_WIDTH - 80) / 2, topPos + PHONE_HEIGHT - 35, 80, 20).build());
+        }).bounds(leftPos + (PHONE_WIDTH - 80) / 2, topPos + PHONE_HEIGHT - 30, 80, 20).build());
     }
 
     /**
@@ -216,7 +216,7 @@ public class SmartphoneScreen extends Screen {
 
         // Berechne Grid-Position für App-Labels
         int gridWidth = (APP_ICON_SIZE * 2) + APP_SPACING;
-        int gridStartX = leftPos + (PHONE_WIDTH - gridWidth - SCROLLBAR_WIDTH - 5) / 2;
+        int gridStartX = leftPos + (PHONE_WIDTH - gridWidth - SCROLLBAR_WIDTH - SCROLLBAR_MARGIN) / 2;
         int gridStartY = topPos + 45;
         int visibleContentHeight = (APP_ICON_SIZE * VISIBLE_ROWS) + (APP_SPACING * (VISIBLE_ROWS - 1));
 
@@ -395,7 +395,7 @@ public class SmartphoneScreen extends Screen {
 
         guiGraphics.drawString(this.font, "§7" + displayLabel,
             x + (APP_ICON_SIZE - labelWidth) / 2,
-            y + APP_ICON_SIZE + 4,
+            y + APP_ICON_SIZE + 8,
             0xFFFFFF);
     }
 
