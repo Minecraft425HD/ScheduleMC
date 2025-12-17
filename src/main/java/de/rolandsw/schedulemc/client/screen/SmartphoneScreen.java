@@ -39,6 +39,7 @@ public class SmartphoneScreen extends Screen {
     private static final ResourceLocation APP_CONTACTS = new ResourceLocation(ScheduleMC.MOD_ID, "textures/gui/apps/app_contacts.png");
     private static final ResourceLocation APP_MESSAGES = new ResourceLocation(ScheduleMC.MOD_ID, "textures/gui/apps/app_messages.png");
     private static final ResourceLocation APP_PLOT = new ResourceLocation(ScheduleMC.MOD_ID, "textures/gui/apps/app_plot.png");
+    private static final ResourceLocation APP_SETTINGS = new ResourceLocation(ScheduleMC.MOD_ID, "textures/gui/apps/app_settings.png");
     private static final ResourceLocation CLOSE_ICON = new ResourceLocation(ScheduleMC.MOD_ID, "textures/gui/apps/close.png");
 
     private int leftPos;
@@ -101,11 +102,11 @@ public class SmartphoneScreen extends Screen {
         createAppButton(gridStartX + APP_ICON_SIZE + APP_SPACING, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 2,
             "Nachrichten", () -> openApp(new MessagesAppScreen(this)));
 
-        // Reihe 4: Immobilien (Plot App), Einstellungen (Platzhalter)
+        // Reihe 4: Immobilien (Plot App), Einstellungen
         createAppButton(gridStartX, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 3, "Immobilien",
             () -> openApp(new PlotAppScreen(this)));
         createAppButton(gridStartX + APP_ICON_SIZE + APP_SPACING, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 3,
-            "Settings", () -> {}); // TODO: Settings App
+            "Settings", () -> openApp(new SettingsAppScreen(this)));
 
         // === SCHLIESSEN-BUTTON (oben rechts) ===
         addRenderableWidget(Button.builder(Component.literal("X"), button -> {
@@ -170,7 +171,7 @@ public class SmartphoneScreen extends Screen {
 
         renderAppIcon(guiGraphics, gridStartX, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 3, APP_PLOT, "Immobilien");
         renderAppIcon(guiGraphics, gridStartX + APP_ICON_SIZE + APP_SPACING, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 3,
-            null, "Settings");
+            APP_SETTINGS, "Settings");
 
         // Buttons rendern
         super.render(guiGraphics, mouseX, mouseY, partialTick);
