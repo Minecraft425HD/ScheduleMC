@@ -16,9 +16,7 @@ public class NPCActionPacket {
     private final Action action;
 
     public enum Action {
-        NEXT_DIALOG,
-        OPEN_SHOP_BUY,
-        OPEN_SHOP_SELL
+        NEXT_DIALOG
     }
 
     public NPCActionPacket(int entityId, Action action) {
@@ -44,16 +42,8 @@ public class NPCActionPacket {
             if (player != null) {
                 Entity entity = player.level().getEntity(entityId);
                 if (entity instanceof CustomNPCEntity npc) {
-                    switch (action) {
-                        case NEXT_DIALOG:
-                            npc.getNpcData().nextDialog();
-                            break;
-                        case OPEN_SHOP_BUY:
-                            // TODO: Implementiere Shop Buy Logic
-                            break;
-                        case OPEN_SHOP_SELL:
-                            // TODO: Implementiere Shop Sell Logic
-                            break;
+                    if (action == Action.NEXT_DIALOG) {
+                        npc.getNpcData().nextDialog();
                     }
                 }
             }

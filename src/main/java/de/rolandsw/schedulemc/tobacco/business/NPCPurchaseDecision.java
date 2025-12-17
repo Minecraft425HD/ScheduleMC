@@ -1,10 +1,14 @@
 package de.rolandsw.schedulemc.tobacco.business;
 
+import de.rolandsw.schedulemc.messaging.Conversation;
+import de.rolandsw.schedulemc.messaging.MessageManager;
 import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.data.NPCPersonality;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
+
+import java.util.List;
 
 /**
  * Zentrale Klasse für NPC-Kaufentscheidungen mit Weighted-Scoring
@@ -250,12 +254,32 @@ public class NPCPurchaseDecision {
     }
 
     /**
-     * Holt die globale Spieler-Reputation (wenn implementiert)
-     * Placeholder: 50 (neutral)
+     * Berechnet die globale Spieler-Reputation als Durchschnitt aller NPC-Konversationen
+     * @return Durchschnittliche Reputation (0-100), oder 50 wenn keine Daten vorhanden
      */
     private float getGlobalPlayerReputation() {
-        // TODO: Implement global player reputation system
-        return 50.0f;
+        List<Conversation> conversations = MessageManager.getConversations(player.getUUID());
+
+        if (conversations == null || conversations.isEmpty()) {
+            return 50.0f; // Neutral für neue Spieler
+        }
+
+        // Nur NPC-Konversationen zählen (keine Player-zu-Player Chats)
+        int totalReputation = 0;
+        int npcConversationCount = 0;
+
+        for (Conversation conv : conversations) {
+            if (!conv.isPlayerParticipant()) {
+                totalReputation += conv.getReputation();
+                npcConversationCount++;
+            }
+        }
+
+        if (npcConversationCount == 0) {
+            return 50.0f; // Neutral wenn keine NPC-Kontakte
+        }
+
+        return (float) totalReputation / npcConversationCount;
     }
 
     // ═══════════════════════════════════════════════════════════
