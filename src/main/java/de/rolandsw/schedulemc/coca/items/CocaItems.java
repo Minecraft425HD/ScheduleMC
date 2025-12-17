@@ -62,4 +62,14 @@ public class CocaItems {
 
     public static final RegistryObject<Item> DIESEL_CANISTER =
             ITEMS.register("diesel_canister", DieselCanisterItem::new);
+
+    // ═══════════════════════════════════════════════════════════
+    // CRACK (Gekochtes Kokain)
+    // ═══════════════════════════════════════════════════════════
+
+    public static final RegistryObject<Item> CRACK_ROCK =
+            ITEMS.register("crack_rock", CrackRockItem::new);
+
+    public static final RegistryObject<Item> BACKPULVER =
+            ITEMS.register("backpulver", BackpulverItem::new);
 }

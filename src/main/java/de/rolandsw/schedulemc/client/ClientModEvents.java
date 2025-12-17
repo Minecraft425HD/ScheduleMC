@@ -19,6 +19,8 @@ import de.rolandsw.schedulemc.lsd.menu.LSDMenuTypes;
 import de.rolandsw.schedulemc.lsd.screen.MikroDosiererScreen;
 import de.rolandsw.schedulemc.mdma.menu.MDMAMenuTypes;
 import de.rolandsw.schedulemc.mdma.screen.PillenPresseScreen;
+import de.rolandsw.schedulemc.cannabis.menu.CannabisMenuTypes;
+import de.rolandsw.schedulemc.cannabis.screen.TrimmStationScreen;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -52,6 +54,9 @@ public class ClientModEvents {
 
             // MDMA-System
             MenuScreens.register(MDMAMenuTypes.PILLEN_PRESSE_MENU.get(), PillenPresseScreen::new);
+
+            // Cannabis-System
+            MenuScreens.register(CannabisMenuTypes.TRIMM_STATION_MENU.get(), TrimmStationScreen::new);
         });
     }
 }

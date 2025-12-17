@@ -110,6 +110,21 @@ public class CocaBlocks {
     );
 
     // ═══════════════════════════════════════════════════════════
+    // CRACK-KOCHER
+    // ═══════════════════════════════════════════════════════════
+
+    public static final RegistryObject<Block> CRACK_KOCHER = registerBlockWithItem(
+            "crack_kocher",
+            () -> new CrackKocherBlock(
+                    BlockBehaviour.Properties.of()
+                            .strength(2.5f)
+                            .sound(SoundType.METAL)
+                            .noOcclusion()
+                            .lightLevel(state -> 6)
+            )
+    );
+
+    // ═══════════════════════════════════════════════════════════
     // HELPER METHODE
     // ═══════════════════════════════════════════════════════════
 

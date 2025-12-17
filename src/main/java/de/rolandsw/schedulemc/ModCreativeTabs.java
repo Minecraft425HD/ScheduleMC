@@ -11,6 +11,10 @@ import de.rolandsw.schedulemc.lsd.items.LSDItems;
 import de.rolandsw.schedulemc.lsd.blocks.LSDBlocks;
 import de.rolandsw.schedulemc.mdma.items.MDMAItems;
 import de.rolandsw.schedulemc.mdma.blocks.MDMABlocks;
+import de.rolandsw.schedulemc.cannabis.items.CannabisItems;
+import de.rolandsw.schedulemc.cannabis.blocks.CannabisBlocks;
+import de.rolandsw.schedulemc.coca.items.CocaItems;
+import de.rolandsw.schedulemc.coca.blocks.CocaBlocks;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -195,6 +199,36 @@ public class ModCreativeTabs {
                 output.accept(MDMABlocks.REAKTIONS_KESSEL.get());
                 output.accept(MDMABlocks.TROCKNUNGS_OFEN.get());
                 output.accept(MDMABlocks.PILLEN_PRESSE.get());
+
+                // ═══════════════════════════════════════════════════════════
+                // CANNABIS ITEMS
+                // ═══════════════════════════════════════════════════════════
+                output.accept(CannabisItems.CANNABIS_SEED.get());
+                output.accept(CannabisItems.FRESH_BUD.get());
+                output.accept(CannabisItems.DRIED_BUD.get());
+                output.accept(CannabisItems.TRIMMED_BUD.get());
+                output.accept(CannabisItems.CURED_BUD.get());
+                output.accept(CannabisItems.TRIM.get());
+                output.accept(CannabisItems.HASH.get());
+                output.accept(CannabisItems.CANNABIS_OIL.get());
+                output.accept(CannabisItems.POLLEN_PRESS_MOLD.get());
+                output.accept(CannabisItems.EXTRACTION_SOLVENT.get());
+
+                // ═══════════════════════════════════════════════════════════
+                // CANNABIS BLOCKS
+                // ═══════════════════════════════════════════════════════════
+                output.accept(CannabisBlocks.TROCKNUNGSNETZ_ITEM.get());
+                output.accept(CannabisBlocks.TRIMM_STATION_ITEM.get());
+                output.accept(CannabisBlocks.CURING_GLAS_ITEM.get());
+                output.accept(CannabisBlocks.HASH_PRESSE_ITEM.get());
+                output.accept(CannabisBlocks.OEL_EXTRAKTOR_ITEM.get());
+
+                // ═══════════════════════════════════════════════════════════
+                // CRACK-KOKAIN (Coca-Erweiterung)
+                // ═══════════════════════════════════════════════════════════
+                output.accept(CocaItems.CRACK_ROCK.get());
+                output.accept(CocaItems.BACKPULVER.get());
+                output.accept(CocaBlocks.CRACK_KOCHER.get());
             })
             .build()
     );

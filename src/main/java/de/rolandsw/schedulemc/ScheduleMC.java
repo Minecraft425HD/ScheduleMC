@@ -52,6 +52,10 @@ import de.rolandsw.schedulemc.mdma.items.MDMAItems;
 import de.rolandsw.schedulemc.mdma.blocks.MDMABlocks;
 import de.rolandsw.schedulemc.mdma.blockentity.MDMABlockEntities;
 import de.rolandsw.schedulemc.mdma.menu.MDMAMenuTypes;
+import de.rolandsw.schedulemc.cannabis.items.CannabisItems;
+import de.rolandsw.schedulemc.cannabis.blocks.CannabisBlocks;
+import de.rolandsw.schedulemc.cannabis.blockentity.CannabisBlockEntities;
+import de.rolandsw.schedulemc.cannabis.menu.CannabisMenuTypes;
 import de.rolandsw.schedulemc.tobacco.menu.ModMenuTypes;
 import de.rolandsw.schedulemc.tobacco.entity.ModEntities;
 import de.rolandsw.schedulemc.economy.blocks.EconomyBlocks;
@@ -151,6 +155,13 @@ public class ScheduleMC {
         MDMABlocks.ITEMS.register(modEventBus);
         MDMABlockEntities.BLOCK_ENTITIES.register(modEventBus);
         MDMAMenuTypes.MENUS.register(modEventBus);
+
+        // Cannabis-System registrieren
+        CannabisItems.ITEMS.register(modEventBus);
+        CannabisBlocks.BLOCKS.register(modEventBus);
+        CannabisBlocks.ITEMS.register(modEventBus);
+        CannabisBlockEntities.BLOCK_ENTITIES.register(modEventBus);
+        CannabisMenuTypes.MENUS.register(modEventBus);
 
         EconomyBlocks.BLOCKS.register(modEventBus);
         EconomyBlocks.ITEMS.register(modEventBus);
