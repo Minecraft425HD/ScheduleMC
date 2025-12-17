@@ -13,7 +13,7 @@ import net.minecraftforge.registries.RegistryObject;
 public class MushroomItems {
 
     public static final DeferredRegister<Item> ITEMS =
-            DeferredRegister.create(ForgeRegistries.ITEMS, ScheduleMC.MODID);
+            DeferredRegister.create(ForgeRegistries.ITEMS, ScheduleMC.MOD_ID);
 
     // ═══════════════════════════════════════════════════════════
     // MIST-SÄCKE (3 Stufen)

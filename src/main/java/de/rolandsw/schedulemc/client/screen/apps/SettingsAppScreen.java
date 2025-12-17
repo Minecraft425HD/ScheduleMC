@@ -16,6 +16,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Settings App - Einstellungen auf dem Smartphone
@@ -118,7 +119,7 @@ public class SettingsAppScreen extends Screen {
 
         // Meine Plots
         myPlots = new ArrayList<>();
-        for (PlotRegion plot : PlotManager.getAllPlots()) {
+        for (PlotRegion plot : PlotManager.getPlots()) {
             if (playerUUID.equals(plot.getOwnerUUID())) {
                 myPlots.add(plot);
             }
@@ -270,7 +271,7 @@ public class SettingsAppScreen extends Screen {
         contentHeight += 15;
 
         // Zeige Trusted Players
-        List<String> trustedPlayers = currentPlot.getTrustedPlayers();
+        Set<String> trustedPlayers = currentPlot.getTrustedPlayers();
         if (trustedPlayers.isEmpty()) {
             if (y >= startY - 10 && y < endY) {
                 guiGraphics.drawString(this.font, "§8Keine vertrauenswürdigen Spieler", leftPos + 15, y, 0x666666);
@@ -502,7 +503,7 @@ public class SettingsAppScreen extends Screen {
         double totalDailyWater = 0;
 
         for (PlotRegion plot : myPlots) {
-            Optional<PlotUtilityData> dataOpt = PlotUtilityManager.getPlotData(plot.getId());
+            Optional<PlotUtilityData> dataOpt = PlotUtilityManager.getPlotData(plot.getPlotId());
             if (dataOpt.isPresent()) {
                 PlotUtilityData data = dataOpt.get();
                 totalDailyElec += data.get7DayAverageElectricity();

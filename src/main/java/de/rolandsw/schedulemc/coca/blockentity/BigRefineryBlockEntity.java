@@ -13,7 +13,7 @@ public class BigRefineryBlockEntity extends AbstractRefineryBlockEntity {
     }
 
     @Override
-    protected int getCapacity() {
+    public int getCapacity() {
         return 24;
     }
 

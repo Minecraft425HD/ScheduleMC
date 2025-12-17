@@ -36,7 +36,14 @@ public enum TobaccoQuality {
     public double getPriceMultiplier() {
         return priceMultiplier;
     }
-    
+
+    /**
+     * Returns the yield multiplier (same as price multiplier)
+     */
+    public double getYieldMultiplier() {
+        return priceMultiplier;
+    }
+
     public String getColoredName() {
         return colorCode + displayName;
     }
