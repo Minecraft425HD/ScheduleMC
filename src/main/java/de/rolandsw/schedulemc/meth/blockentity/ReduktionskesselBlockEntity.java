@@ -4,6 +4,8 @@ import de.rolandsw.schedulemc.meth.MethQuality;
 import de.rolandsw.schedulemc.meth.items.MethItems;
 import de.rolandsw.schedulemc.meth.items.MethPasteItem;
 import de.rolandsw.schedulemc.meth.items.RohMethItem;
+import de.rolandsw.schedulemc.utility.IUtilityConsumer;
+import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -29,7 +31,9 @@ import java.util.UUID;
  * 120-150°C = gefährlich, niedrigere Qualität
  * > 150°C = EXPLOSION!
  */
-public class ReduktionskesselBlockEntity extends BlockEntity {
+public class ReduktionskesselBlockEntity extends BlockEntity implements IUtilityConsumer {
+
+    private boolean lastActiveState = false;
 
     // Temperatur-Konstanten
     public static final int TEMP_MIN = 20;          // Raumtemperatur
@@ -209,6 +213,23 @@ public class ReduktionskesselBlockEntity extends BlockEntity {
             setChanged();
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
+
+        // Utility-Status nur bei Änderung melden
+        boolean currentActive = isActivelyConsuming();
+        if (currentActive != lastActiveState) {
+            lastActiveState = currentActive;
+            UtilityEventHandler.reportBlockEntityActivity(this, currentActive);
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // IUtilityConsumer Implementation
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    @Override
+    public boolean isActivelyConsuming() {
+        // Aktiv wenn Heizung an oder Prozess läuft (hoher Stromverbrauch!)
+        return isHeating || isProcessing;
     }
 
     /**

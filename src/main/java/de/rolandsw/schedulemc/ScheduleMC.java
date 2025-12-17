@@ -73,6 +73,10 @@ import de.rolandsw.schedulemc.npc.items.NPCItems;
 import de.rolandsw.schedulemc.npc.menu.NPCMenuTypes;
 import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
 import de.rolandsw.schedulemc.vehicle.Main;
+import de.rolandsw.schedulemc.utility.UtilityRegistry;
+import de.rolandsw.schedulemc.utility.PlotUtilityManager;
+import de.rolandsw.schedulemc.utility.UtilityEventHandler;
+import de.rolandsw.schedulemc.utility.commands.UtilityCommand;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
@@ -198,7 +202,7 @@ public class ScheduleMC {
         MinecraftForge.EVENT_BUS.register(RespawnHandler.class);
         MinecraftForge.EVENT_BUS.register(BusinessMetricsUpdateHandler.class);
         MinecraftForge.EVENT_BUS.register(WarehouseManager.class);
-
+        MinecraftForge.EVENT_BUS.register(UtilityEventHandler.class);
 
         LOGGER.info("ScheduleMC initialized");
     }
@@ -214,6 +218,11 @@ public class ScheduleMC {
             SmartphoneNetworkHandler.register();
             MessageNetworkHandler.register();
             WarehouseNetworkHandler.register();
+
+            // Utility-System initialisieren
+            UtilityRegistry.registerDefaults();
+            UtilityRegistry.resolveBlockReferences();
+            LOGGER.info("Utility-System initialisiert");
         });
 
         // Vehicle Mod handles its own setup via event bus (registered in Main constructor)
@@ -234,6 +243,7 @@ public class ScheduleMC {
         WarehouseCommand.register(event.getDispatcher(), event.getBuildContext());
         ShopInvestCommand.register(event.getDispatcher());
         StateCommand.register(event.getDispatcher());
+        UtilityCommand.register(event.getDispatcher());
 
         // Vehicle Mod handles its own commands via event bus (registered in Main.commonSetup)
     }
@@ -257,6 +267,9 @@ public class ScheduleMC {
         de.rolandsw.schedulemc.vehicle.vehicle.VehicleSpawnRegistry.load();
         de.rolandsw.schedulemc.vehicle.fuel.FuelStationRegistry.load();
         de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager.load();
+
+        // Utility-System laden
+        PlotUtilityManager.load();
     }
 
     @SubscribeEvent
@@ -292,6 +305,9 @@ public class ScheduleMC {
         de.rolandsw.schedulemc.vehicle.vehicle.VehicleSpawnRegistry.save();
         de.rolandsw.schedulemc.vehicle.fuel.FuelStationRegistry.save();
         de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager.save();
+
+        // Utility-System speichern
+        PlotUtilityManager.save();
     }
 
     @SubscribeEvent

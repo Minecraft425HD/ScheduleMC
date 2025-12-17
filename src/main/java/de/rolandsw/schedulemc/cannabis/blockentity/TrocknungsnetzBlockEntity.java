@@ -5,6 +5,8 @@ import de.rolandsw.schedulemc.cannabis.CannabisQuality;
 import de.rolandsw.schedulemc.cannabis.items.FreshBudItem;
 import de.rolandsw.schedulemc.cannabis.items.DriedBudItem;
 import de.rolandsw.schedulemc.cannabis.items.CannabisItems;
+import de.rolandsw.schedulemc.utility.IUtilityConsumer;
+import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -19,7 +21,9 @@ import org.jetbrains.annotations.Nullable;
  * Trocknungsnetz für Cannabis-Blüten
  * Trocknet frische Blüten über 3-5 Minecraft-Tage
  */
-public class TrocknungsnetzBlockEntity extends BlockEntity {
+public class TrocknungsnetzBlockEntity extends BlockEntity implements IUtilityConsumer {
+
+    private boolean lastActiveState = false;
 
     public static final int DRYING_TICKS = 72000; // 3 Tage (24000 Ticks pro Tag)
     public static final int MAX_CAPACITY = 4; // 4 Slots
@@ -91,6 +95,28 @@ public class TrocknungsnetzBlockEntity extends BlockEntity {
         if (changed) {
             setChanged();
         }
+
+        // Utility-Status nur bei Änderung melden
+        boolean currentActive = isActivelyConsuming();
+        if (currentActive != lastActiveState) {
+            lastActiveState = currentActive;
+            UtilityEventHandler.reportBlockEntityActivity(this, currentActive);
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // IUtilityConsumer Implementation
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    @Override
+    public boolean isActivelyConsuming() {
+        // Aktiv wenn mindestens ein Item zum Trocknen vorhanden ist
+        for (int i = 0; i < MAX_CAPACITY; i++) {
+            if (!dryingItems[i].isEmpty() && dryingProgress[i] < DRYING_TICKS) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // Getter
