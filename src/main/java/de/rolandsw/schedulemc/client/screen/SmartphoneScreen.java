@@ -22,15 +22,16 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class SmartphoneScreen extends Screen {
 
     // Layout-Konstanten (kompakter für ALLE Bildschirmgrößen)
-    private static final int PHONE_WIDTH = 200;
-    private static final int PHONE_HEIGHT = 280; // Angepasst für 3 sichtbare Reihen + Controls
-    private static final int APP_ICON_SIZE = 36; // Etwas kleiner für mehr Platz
-    private static final int APP_SPACING = 10; // Reduziert für 4 Reihen
+    private static final int PHONE_WIDTH = 220; // Etwas breiter für mehr Label-Platz
+    private static final int PHONE_HEIGHT = 260; // Kompakt genug für alle Bildschirme
+    private static final int APP_ICON_SIZE = 42; // Größer für bessere Lesbarkeit
+    private static final int APP_SPACING = 15; // Guter Abstand zwischen Apps
     private static final int CLOSE_BUTTON_SIZE = 20;
     private static final int BORDER_SIZE = 5; // Rahmen um das Smartphone
     private static final int MARGIN_TOP = 15; // Mindestabstand vom oberen Bildschirmrand
-    private static final int MARGIN_BOTTOM = 60; // Erhöht von 35 - genug Platz für Hotbar!
-    private static final int SCROLLBAR_WIDTH = 6;
+    private static final int MARGIN_BOTTOM = 35; // Genug Platz für Hotbar
+    private static final int SCROLLBAR_WIDTH = 8; // Etwas breiter für bessere Klickbarkeit
+    private static final int SCROLLBAR_MARGIN = 10; // Abstand zwischen Apps und Scrollbar
     private static final int VISIBLE_ROWS = 3; // Nur 3 Reihen sichtbar (6 Apps)
     private static final int TOTAL_ROWS = 4; // Insgesamt 4 Reihen (8 Apps)
 
@@ -49,6 +50,10 @@ public class SmartphoneScreen extends Screen {
     private int topPos;
     private int scrollOffset = 0; // Scroll-Offset in Pixeln
     private int maxScrollOffset; // Maximaler Scroll-Offset
+    private int hoveredAppIndex = -1; // Welche App wird gerade gehovered (-1 = keine)
+    private boolean isDraggingScrollbar = false; // Wird die Scrollbar gerade gezogen?
+    private int dragStartY = 0; // Y-Position beim Start des Draggens
+    private int dragStartScrollOffset = 0; // Scroll-Offset beim Start des Draggens
 
     public SmartphoneScreen() {
         super(Component.literal("Smartphone"));
@@ -90,7 +95,7 @@ public class SmartphoneScreen extends Screen {
 
         // Berechne Start-Position für App-Grid (zentriert im Smartphone)
         int gridWidth = (APP_ICON_SIZE * 2) + APP_SPACING;
-        int gridStartX = leftPos + (PHONE_WIDTH - gridWidth - SCROLLBAR_WIDTH - 5) / 2;
+        int gridStartX = leftPos + (PHONE_WIDTH - gridWidth - SCROLLBAR_WIDTH - SCROLLBAR_MARGIN) / 2;
         int gridStartY = topPos + 45; // Abstand von oben
 
         // Keine App-Buttons mehr - Klick-Handling erfolgt manuell in mouseClicked()
@@ -100,10 +105,14 @@ public class SmartphoneScreen extends Screen {
             this.onClose();
         }).bounds(leftPos + PHONE_WIDTH - CLOSE_BUTTON_SIZE - 10, topPos + 10, CLOSE_BUTTON_SIZE, CLOSE_BUTTON_SIZE).build());
 
-        // === ZURÜCK-BUTTON (unten zentriert) ===
+        // === ZURÜCK-BUTTON (zentriert zwischen Apps und unterem Rand) ===
+        // Berechne Position in der Mitte zwischen Apps und unterem Rand
+        int appsEndY = gridStartY + visibleContentHeight + 10; // Ende der Apps + etwas Puffer
+        int phoneBottomY = PHONE_HEIGHT - 5; // Unterer Rand minus Padding
+        int buttonY = topPos + (appsEndY - topPos + phoneBottomY) / 2 - 10; // Mittig positioniert
         addRenderableWidget(Button.builder(Component.literal("Zurück"), button -> {
             this.onClose();
-        }).bounds(leftPos + (PHONE_WIDTH - 80) / 2, topPos + PHONE_HEIGHT - 35, 80, 20).build());
+        }).bounds(leftPos + (PHONE_WIDTH - 80) / 2, buttonY, 80, 20).build());
     }
 
     /**
@@ -119,8 +128,38 @@ public class SmartphoneScreen extends Screen {
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button == 0) { // Linksklick
             int gridWidth = (APP_ICON_SIZE * 2) + APP_SPACING;
-            int gridStartX = leftPos + (PHONE_WIDTH - gridWidth - SCROLLBAR_WIDTH - 5) / 2;
+            int gridStartX = leftPos + (PHONE_WIDTH - gridWidth - SCROLLBAR_WIDTH - SCROLLBAR_MARGIN) / 2;
             int gridStartY = topPos + 45;
+            int visibleContentHeight = (APP_ICON_SIZE * VISIBLE_ROWS) + (APP_SPACING * (VISIBLE_ROWS - 1));
+
+            // === PRÜFE OB AUF SCROLLBAR GEKLICKT WURDE ===
+            int scrollbarX = gridStartX + gridWidth + SCROLLBAR_MARGIN;
+            int scrollbarY = gridStartY;
+
+            if (mouseX >= scrollbarX && mouseX <= scrollbarX + SCROLLBAR_WIDTH &&
+                mouseY >= scrollbarY && mouseY <= scrollbarY + visibleContentHeight) {
+
+                // Berechne Scrollbar-Handle Position
+                if (maxScrollOffset > 0) {
+                    float scrollPercentage = (float) scrollOffset / maxScrollOffset;
+                    int handleHeight = Math.max(20, visibleContentHeight * visibleContentHeight /
+                        ((APP_ICON_SIZE * TOTAL_ROWS) + (APP_SPACING * (TOTAL_ROWS - 1))));
+                    int handleY = scrollbarY + (int) ((visibleContentHeight - handleHeight) * scrollPercentage);
+
+                    // Prüfe ob auf Handle geklickt wurde
+                    if (mouseY >= handleY && mouseY <= handleY + handleHeight) {
+                        isDraggingScrollbar = true;
+                        dragStartY = (int) mouseY;
+                        dragStartScrollOffset = scrollOffset;
+                        return true;
+                    }
+
+                    // Klick auf Track (außerhalb Handle) - springe zu der Position
+                    float clickPercentage = (float) (mouseY - scrollbarY) / visibleContentHeight;
+                    scrollOffset = Math.max(0, Math.min(maxScrollOffset, (int) (clickPercentage * maxScrollOffset)));
+                    return true;
+                }
+            }
 
             // Berechne welche App-Position angeklickt wurde (mit scrollOffset)
             int relativeX = (int) mouseX - gridStartX;
@@ -181,39 +220,95 @@ public class SmartphoneScreen extends Screen {
 
         // Berechne Grid-Position für App-Labels
         int gridWidth = (APP_ICON_SIZE * 2) + APP_SPACING;
-        int gridStartX = leftPos + (PHONE_WIDTH - gridWidth - SCROLLBAR_WIDTH - 5) / 2;
+        int gridStartX = leftPos + (PHONE_WIDTH - gridWidth - SCROLLBAR_WIDTH - SCROLLBAR_MARGIN) / 2;
         int gridStartY = topPos + 45;
         int visibleContentHeight = (APP_ICON_SIZE * VISIBLE_ROWS) + (APP_SPACING * (VISIBLE_ROWS - 1));
 
+        // === HOVER-ERKENNUNG ===
+        // Berechne welche App gehovered wird
+        hoveredAppIndex = -1;
+        int relativeX = mouseX - gridStartX;
+        int relativeY = mouseY - gridStartY + scrollOffset;
+
+        if (mouseX >= gridStartX && mouseX <= gridStartX + gridWidth &&
+            mouseY >= gridStartY && mouseY <= gridStartY + visibleContentHeight) {
+
+            // Berechne Spalte (0 oder 1)
+            int col = -1;
+            if (relativeX >= 0 && relativeX < APP_ICON_SIZE) {
+                col = 0;
+            } else if (relativeX >= APP_ICON_SIZE + APP_SPACING && relativeX < APP_ICON_SIZE * 2 + APP_SPACING) {
+                col = 1;
+            }
+
+            if (col >= 0) {
+                // Berechne Reihe (0-3)
+                int row = relativeY / (APP_ICON_SIZE + APP_SPACING);
+                int rowOffset = relativeY % (APP_ICON_SIZE + APP_SPACING);
+
+                // Prüfe ob Hover auf einem Icon ist (nicht im Spacing)
+                if (rowOffset >= 0 && rowOffset < APP_ICON_SIZE && row >= 0 && row < TOTAL_ROWS) {
+                    hoveredAppIndex = row * 2 + col;
+                }
+            }
+        }
+
         // Aktiviere Scissor (Clipping) für den scrollbaren Bereich
+        // Erweitere den Bereich um Platz für Labels unter der letzten Reihe
+        int scissorHeight = visibleContentHeight + 12; // +12 für Label-Platz
         guiGraphics.enableScissor(
             gridStartX,
             gridStartY,
             gridStartX + gridWidth,
-            gridStartY + visibleContentHeight
+            gridStartY + scissorHeight
         );
 
         // App-Icons rendern mit scrollOffset (4 Reihen x 2 Spalten)
-        renderAppIcon(guiGraphics, gridStartX, gridStartY - scrollOffset, APP_MAP, "Map");
-        renderAppIcon(guiGraphics, gridStartX + APP_ICON_SIZE + APP_SPACING, gridStartY - scrollOffset, APP_DEALER, "Dealer");
+        renderAppIcon(guiGraphics, gridStartX, gridStartY - scrollOffset, APP_MAP, "Map", 0);
+        renderAppIcon(guiGraphics, gridStartX + APP_ICON_SIZE + APP_SPACING, gridStartY - scrollOffset, APP_DEALER, "Dealer", 1);
 
-        renderAppIcon(guiGraphics, gridStartX, gridStartY + APP_ICON_SIZE + APP_SPACING - scrollOffset, APP_PRODUCTS, "Produkte");
+        renderAppIcon(guiGraphics, gridStartX, gridStartY + APP_ICON_SIZE + APP_SPACING - scrollOffset, APP_PRODUCTS, "Produkte", 2);
         renderAppIcon(guiGraphics, gridStartX + APP_ICON_SIZE + APP_SPACING, gridStartY + APP_ICON_SIZE + APP_SPACING - scrollOffset,
-            APP_ORDER, "Bestellung");
+            APP_ORDER, "Bestellung", 3);
 
-        renderAppIcon(guiGraphics, gridStartX, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 2 - scrollOffset, APP_CONTACTS, "Kontakte");
+        renderAppIcon(guiGraphics, gridStartX, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 2 - scrollOffset, APP_CONTACTS, "Kontakte", 4);
         renderAppIcon(guiGraphics, gridStartX + APP_ICON_SIZE + APP_SPACING, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 2 - scrollOffset,
-            APP_MESSAGES, "Nachrichten");
+            APP_MESSAGES, "Nachrichten", 5);
 
-        renderAppIcon(guiGraphics, gridStartX, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 3 - scrollOffset, APP_PLOT, "Immobilien");
+        renderAppIcon(guiGraphics, gridStartX, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 3 - scrollOffset, APP_PLOT, "Immobilien", 6);
         renderAppIcon(guiGraphics, gridStartX + APP_ICON_SIZE + APP_SPACING, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 3 - scrollOffset,
-            APP_SETTINGS, "Settings");
+            APP_SETTINGS, "Settings", 7);
 
         // Deaktiviere Scissor
         guiGraphics.disableScissor();
 
+        // === SCROLL-INDIKATOREN (Fade-Effekte) ===
+        // Oberer Fade-Gradient wenn nach unten gescrollt wurde
+        if (scrollOffset > 0) {
+            guiGraphics.fillGradient(
+                gridStartX,
+                gridStartY,
+                gridStartX + gridWidth,
+                gridStartY + 15,
+                0xAA2A2A2A,
+                0x002A2A2A
+            );
+        }
+
+        // Unterer Fade-Gradient wenn noch mehr Content verfügbar ist
+        if (scrollOffset < maxScrollOffset) {
+            guiGraphics.fillGradient(
+                gridStartX,
+                gridStartY + visibleContentHeight - 15,
+                gridStartX + gridWidth,
+                gridStartY + visibleContentHeight,
+                0x002A2A2A,
+                0xAA2A2A2A
+            );
+        }
+
         // Zeichne Scrollbar
-        int scrollbarX = gridStartX + gridWidth + 5;
+        int scrollbarX = gridStartX + gridWidth + SCROLLBAR_MARGIN;
         int scrollbarY = gridStartY;
         int scrollbarHeight = visibleContentHeight;
 
@@ -226,7 +321,14 @@ public class SmartphoneScreen extends Screen {
             int handleHeight = Math.max(20, scrollbarHeight * visibleContentHeight /
                 ((APP_ICON_SIZE * TOTAL_ROWS) + (APP_SPACING * (TOTAL_ROWS - 1))));
             int handleY = scrollbarY + (int) ((scrollbarHeight - handleHeight) * scrollPercentage);
-            guiGraphics.fill(scrollbarX, handleY, scrollbarX + SCROLLBAR_WIDTH, handleY + handleHeight, 0xFF888888);
+
+            // Prüfe ob Scrollbar gehovered oder gedraggt wird
+            boolean isScrollbarHovered = (mouseX >= scrollbarX && mouseX <= scrollbarX + SCROLLBAR_WIDTH &&
+                                          mouseY >= handleY && mouseY <= handleY + handleHeight);
+
+            // Handle-Farbe (heller wenn gehovered oder gedraggt)
+            int handleColor = (isDraggingScrollbar || isScrollbarHovered) ? 0xFFAAAAAA : 0xFF888888;
+            guiGraphics.fill(scrollbarX, handleY, scrollbarX + SCROLLBAR_WIDTH, handleY + handleHeight, handleColor);
         }
 
         // Buttons rendern
@@ -236,9 +338,20 @@ public class SmartphoneScreen extends Screen {
     /**
      * Rendert ein App-Icon mit Label
      */
-    private void renderAppIcon(GuiGraphics guiGraphics, int x, int y, ResourceLocation iconTexture, String label) {
-        // Icon-Hintergrund
-        guiGraphics.fill(x, y, x + APP_ICON_SIZE, y + APP_ICON_SIZE, 0xFF3A3A3A);
+    private void renderAppIcon(GuiGraphics guiGraphics, int x, int y, ResourceLocation iconTexture, String label, int appIndex) {
+        // Icon-Hintergrund (heller wenn gehovered)
+        boolean isHovered = (hoveredAppIndex == appIndex);
+        int backgroundColor = isHovered ? 0xFF4A4A4A : 0xFF3A3A3A;
+        guiGraphics.fill(x, y, x + APP_ICON_SIZE, y + APP_ICON_SIZE, backgroundColor);
+
+        // Hover-Rahmen (subtiler Glow-Effekt)
+        if (isHovered) {
+            // Äußerer Rahmen
+            guiGraphics.fill(x - 1, y - 1, x + APP_ICON_SIZE + 1, y, 0xFF6A6A6A); // Oben
+            guiGraphics.fill(x - 1, y + APP_ICON_SIZE, x + APP_ICON_SIZE + 1, y + APP_ICON_SIZE + 1, 0xFF6A6A6A); // Unten
+            guiGraphics.fill(x - 1, y, x, y + APP_ICON_SIZE, 0xFF6A6A6A); // Links
+            guiGraphics.fill(x + APP_ICON_SIZE, y, x + APP_ICON_SIZE + 1, y + APP_ICON_SIZE, 0xFF6A6A6A); // Rechts
+        }
 
         boolean iconRendered = false;
 
@@ -266,23 +379,77 @@ public class SmartphoneScreen extends Screen {
                 0xFFFFFF);
         }
 
-        // Label unter dem Icon
+        // Label unter dem Icon mit Ellipsis wenn zu lang
+        String displayLabel = label;
+        int maxLabelWidth = APP_ICON_SIZE + 15; // Mehr Platz für Labels
         int labelWidth = this.font.width(label);
-        guiGraphics.drawString(this.font, "§7" + label,
+
+        // Kürze Label wenn zu lang
+        if (labelWidth > maxLabelWidth) {
+            // Finde die maximale Länge die passt
+            StringBuilder truncated = new StringBuilder();
+            for (int i = 0; i < label.length(); i++) {
+                String test = label.substring(0, i) + "...";
+                if (this.font.width(test) > maxLabelWidth) {
+                    break;
+                }
+                truncated = new StringBuilder(label.substring(0, i));
+            }
+            displayLabel = truncated.toString() + "...";
+            labelWidth = this.font.width(displayLabel);
+        }
+
+        // Label direkt unter dem Icon
+        guiGraphics.drawString(this.font, "§7" + displayLabel,
             x + (APP_ICON_SIZE - labelWidth) / 2,
             y + APP_ICON_SIZE + 4,
             0xFFFFFF);
     }
 
     @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        if (isDraggingScrollbar && button == 0) {
+            int gridWidth = (APP_ICON_SIZE * 2) + APP_SPACING;
+            int gridStartX = leftPos + (PHONE_WIDTH - gridWidth - SCROLLBAR_WIDTH - SCROLLBAR_MARGIN) / 2;
+            int gridStartY = topPos + 45;
+            int visibleContentHeight = (APP_ICON_SIZE * VISIBLE_ROWS) + (APP_SPACING * (VISIBLE_ROWS - 1));
+
+            // Berechne wie viel die Maus bewegt wurde
+            int deltaY = (int) mouseY - dragStartY;
+
+            // Berechne Handle-Höhe
+            int handleHeight = Math.max(20, visibleContentHeight * visibleContentHeight /
+                ((APP_ICON_SIZE * TOTAL_ROWS) + (APP_SPACING * (TOTAL_ROWS - 1))));
+
+            // Konvertiere deltaY zu scrollOffset-Änderung
+            // deltaY / (visibleContentHeight - handleHeight) = scrollOffsetDelta / maxScrollOffset
+            float scrollPercentageDelta = (float) deltaY / (visibleContentHeight - handleHeight);
+            int scrollOffsetDelta = (int) (scrollPercentageDelta * maxScrollOffset);
+
+            scrollOffset = Math.max(0, Math.min(maxScrollOffset, dragStartScrollOffset + scrollOffsetDelta));
+            return true;
+        }
+        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        if (button == 0 && isDraggingScrollbar) {
+            isDraggingScrollbar = false;
+            return true;
+        }
+        return super.mouseReleased(mouseX, mouseY, button);
+    }
+
+    @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
         // Scroll nur, wenn Maus über dem App-Bereich ist
         int gridWidth = (APP_ICON_SIZE * 2) + APP_SPACING;
-        int gridStartX = leftPos + (PHONE_WIDTH - gridWidth - SCROLLBAR_WIDTH - 5) / 2;
+        int gridStartX = leftPos + (PHONE_WIDTH - gridWidth - SCROLLBAR_WIDTH - SCROLLBAR_MARGIN) / 2;
         int gridStartY = topPos + 45;
         int visibleContentHeight = (APP_ICON_SIZE * VISIBLE_ROWS) + (APP_SPACING * (VISIBLE_ROWS - 1));
 
-        if (mouseX >= gridStartX && mouseX <= gridStartX + gridWidth + SCROLLBAR_WIDTH + 10 &&
+        if (mouseX >= gridStartX && mouseX <= gridStartX + gridWidth + SCROLLBAR_WIDTH + SCROLLBAR_MARGIN &&
             mouseY >= gridStartY && mouseY <= gridStartY + visibleContentHeight) {
 
             int scrollAmount = (int) (delta * 10); // Scroll-Geschwindigkeit
