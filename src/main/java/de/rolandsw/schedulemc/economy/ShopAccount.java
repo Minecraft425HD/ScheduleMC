@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.economy;
 
 import com.mojang.logging.LogUtils;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -17,6 +18,7 @@ import java.util.*;
  * - 100 Aktien total
  * - Max 2 Aktionäre
  * - Gewinnausschüttung basierend auf 7-Tage-Nettoumsatz
+ * - 19% Umsatzsteuer (MwSt) wird automatisch abgeführt
  */
 public class ShopAccount {
 
@@ -75,11 +77,26 @@ public class ShopAccount {
 
     /**
      * Registriert Einnahmen (Verkaufserlös)
+     * - 19% MwSt werden automatisch abgeführt
      */
     public void addRevenue(Level level, int amount, String source) {
         updateDayIfNeeded(level);
-        todayRecord.addRevenue(amount);
-        LOGGER.debug("Shop {}: +{}€ Einnahmen ({})", shopId, amount, source);
+
+        // Berechne und ziehe MwSt ab
+        double salesTaxRate = ModConfigHandler.COMMON.TAX_SALES_RATE.get();
+        int salesTax = (int) (amount * salesTaxRate);
+        int netRevenue = amount - salesTax;
+
+        // Registriere nur den Netto-Umsatz
+        todayRecord.addRevenue(netRevenue);
+
+        // Führe MwSt an Staatskasse ab
+        if (salesTax > 0 && level.getServer() != null) {
+            StateAccount.getInstance(level.getServer()).deposit(salesTax, "MwSt Shop " + shopId);
+        }
+
+        LOGGER.debug("Shop {}: +{}€ Einnahmen ({}) - MwSt: {}€, Netto: {}€",
+            shopId, amount, source, salesTax, netRevenue);
     }
 
     /**
@@ -292,8 +309,8 @@ public class ShopAccount {
                 .getPlayer(holder.getPlayerUUID());
 
             if (player != null) {
-                // Geld hinzufügen (TODO: Integration mit Economy-System)
-                // EconomyManager.addMoney(player, payout);
+                // Geld zum Konto hinzufügen
+                EconomyManager.getInstance().deposit(holder.getPlayerUUID(), payout);
 
                 player.sendSystemMessage(
                     Component.literal("§a§l[Shop Investment]§r\n" +

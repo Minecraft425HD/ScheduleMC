@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.economy;
 
 import com.google.gson.*;
 import com.mojang.logging.LogUtils;
+import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
 
 import java.io.*;
@@ -16,11 +17,24 @@ import java.io.*;
  * Einnahmen:
  * - Admin-Einzahlungen
  * - Steuern (zukünftig)
+ * - ATM-Gebühren
+ * - Transfer-Gebühren
  */
 public class StateAccount {
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static StateAccount instance;
     private static int balance = 100000; // Start: 100,000€
     private static final File SAVE_FILE = new File("config/state_account.json");
+
+    /**
+     * Singleton-Instanz für Kompatibilität mit neuen Managern
+     */
+    public static StateAccount getInstance(MinecraftServer server) {
+        if (instance == null) {
+            instance = new StateAccount();
+        }
+        return instance;
+    }
 
     public static int getBalance() {
         return balance;
@@ -47,6 +61,13 @@ public class StateAccount {
         balance += amount;
         LOGGER.info("Staatskasse: +{}€ ({}), gesamt: {}€", amount, reason, balance);
         save();
+    }
+
+    /**
+     * Zahlt Geld in die Staatskasse ein (double Überladung für FeeManager)
+     */
+    public void deposit(double amount, String reason) {
+        deposit((int) Math.round(amount), reason);
     }
 
     /**

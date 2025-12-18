@@ -1,6 +1,8 @@
 package de.rolandsw.schedulemc.economy.blockentity;
 
 import de.rolandsw.schedulemc.economy.EconomyManager;
+import de.rolandsw.schedulemc.economy.FeeManager;
+import de.rolandsw.schedulemc.economy.TransactionType;
 import de.rolandsw.schedulemc.economy.items.CashItem;
 import de.rolandsw.schedulemc.economy.menu.ATMMenu;
 import net.minecraft.core.BlockPos;
@@ -28,16 +30,20 @@ public class ATMBlockEntity extends BlockEntity implements MenuProvider {
      */
     public boolean withdraw(Player player, double amount) {
         if (amount <= 0) return false;
-        
+
+        double atmFee = FeeManager.getATMFee();
+        double totalCost = amount + atmFee;
         double balance = EconomyManager.getBalance(player.getUUID());
-        if (balance < amount) {
+
+        if (balance < totalCost) {
             player.displayClientMessage(Component.literal(
                 "§c✗ Nicht genug Geld auf dem Konto!\n" +
-                "§7Kontostand: §e" + String.format("%.2f€", balance)
+                "§7Kontostand: §e" + String.format("%.2f€", balance) + "\n" +
+                "§7Benötigt: §e" + String.format("%.2f€", amount) + " §7+ §c" + String.format("%.2f€", atmFee) + " §7Gebühr"
             ), false);
             return false;
         }
-        
+
         // Finde Geldbörse in Slot 8
         ItemStack wallet = player.getInventory().getItem(8);
         if (!(wallet.getItem() instanceof CashItem)) {
@@ -46,21 +52,27 @@ public class ATMBlockEntity extends BlockEntity implements MenuProvider {
             ), false);
             return false;
         }
-        
+
         // Transaktion durchführen - withdraw gibt boolean zurück!
-        if (EconomyManager.withdraw(player.getUUID(), amount)) {
+        if (EconomyManager.withdraw(player.getUUID(), amount, TransactionType.ATM_WITHDRAW, "ATM-Auszahlung")) {
             CashItem.addValue(wallet, amount);
-            
+
+            // Gebühr abziehen
+            if (level != null && !level.isClientSide()) {
+                FeeManager.chargeATMFee(player.getUUID(), level.getServer());
+            }
+
             player.displayClientMessage(Component.literal(
                 "§a✓ Auszahlung erfolgreich!\n" +
                 "§7Ausgezahlt: §e" + String.format("%.2f€", amount) + "\n" +
+                "§7ATM-Gebühr: §c-" + String.format("%.2f€", atmFee) + "\n" +
                 "§7Neuer Kontostand: §e" + String.format("%.2f€", EconomyManager.getBalance(player.getUUID()))
             ), false);
-            
+
             player.playSound(net.minecraft.sounds.SoundEvents.EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
             return true;
         }
-        
+
         return false;
     }
     
@@ -69,7 +81,7 @@ public class ATMBlockEntity extends BlockEntity implements MenuProvider {
      */
     public boolean deposit(Player player, double amount) {
         if (amount <= 0) return false;
-        
+
         // Finde Geldbörse in Slot 8
         ItemStack wallet = player.getInventory().getItem(8);
         if (!(wallet.getItem() instanceof CashItem)) {
@@ -78,7 +90,8 @@ public class ATMBlockEntity extends BlockEntity implements MenuProvider {
             ), false);
             return false;
         }
-        
+
+        double atmFee = FeeManager.getATMFee();
         double walletBalance = CashItem.getValue(wallet);
         if (walletBalance < amount) {
             player.displayClientMessage(Component.literal(
@@ -87,17 +100,33 @@ public class ATMBlockEntity extends BlockEntity implements MenuProvider {
             ), false);
             return false;
         }
-        
+
+        // Prüfe ob genug Geld für Gebühr auf Konto vorhanden ist
+        if (!FeeManager.canAffordATMFee(player.getUUID())) {
+            player.displayClientMessage(Component.literal(
+                "§c✗ Nicht genug Geld für ATM-Gebühr auf dem Konto!\n" +
+                "§7Kontostand: §e" + String.format("%.2f€", EconomyManager.getBalance(player.getUUID())) + "\n" +
+                "§7Gebühr: §c" + String.format("%.2f€", atmFee)
+            ), false);
+            return false;
+        }
+
         // Transaktion durchführen - deposit gibt void zurück
         CashItem.removeValue(wallet, amount);
-        EconomyManager.deposit(player.getUUID(), amount);
-        
+        EconomyManager.deposit(player.getUUID(), amount, TransactionType.ATM_DEPOSIT, "ATM-Einzahlung");
+
+        // Gebühr abziehen
+        if (level != null && !level.isClientSide()) {
+            FeeManager.chargeATMFee(player.getUUID(), level.getServer());
+        }
+
         player.displayClientMessage(Component.literal(
             "§a✓ Einzahlung erfolgreich!\n" +
             "§7Eingezahlt: §e" + String.format("%.2f€", amount) + "\n" +
+            "§7ATM-Gebühr: §c-" + String.format("%.2f€", atmFee) + "\n" +
             "§7Neuer Kontostand: §e" + String.format("%.2f€", EconomyManager.getBalance(player.getUUID()))
         ), false);
-        
+
         player.playSound(net.minecraft.sounds.SoundEvents.EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
         return true;
     }
