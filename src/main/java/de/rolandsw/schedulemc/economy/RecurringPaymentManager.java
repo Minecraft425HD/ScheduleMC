@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.logging.LogUtils;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
@@ -25,8 +26,6 @@ import java.util.stream.Collectors;
 public class RecurringPaymentManager {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static RecurringPaymentManager instance;
-
-    private static final int MAX_PAYMENTS_PER_PLAYER = 10;
 
     private final Map<UUID, List<RecurringPayment>> payments = new ConcurrentHashMap<>();
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -64,7 +63,8 @@ public class RecurringPaymentManager {
 
         // Prüfe Limit
         List<RecurringPayment> playerPayments = payments.get(fromPlayer);
-        if (playerPayments != null && playerPayments.size() >= MAX_PAYMENTS_PER_PLAYER) {
+        int maxPerPlayer = ModConfigHandler.COMMON.RECURRING_MAX_PER_PLAYER.get();
+        if (playerPayments != null && playerPayments.size() >= maxPerPlayer) {
             return false;
         }
 

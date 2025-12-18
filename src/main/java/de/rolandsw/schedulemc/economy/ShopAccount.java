@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.economy;
 
 import com.mojang.logging.LogUtils;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -22,7 +23,6 @@ import java.util.*;
 public class ShopAccount {
 
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final double SALES_TAX_RATE = 0.19; // 19% MwSt
 
     private final String shopId;
 
@@ -83,7 +83,8 @@ public class ShopAccount {
         updateDayIfNeeded(level);
 
         // Berechne und ziehe MwSt ab
-        int salesTax = (int) (amount * SALES_TAX_RATE);
+        double salesTaxRate = ModConfigHandler.COMMON.TAX_SALES_RATE.get();
+        int salesTax = (int) (amount * salesTaxRate);
         int netRevenue = amount - salesTax;
 
         // Registriere nur den Netto-Umsatz

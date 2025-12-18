@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.logging.LogUtils;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
@@ -19,17 +20,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Verwaltet Überziehungskredite (Dispo)
- * - Max -5.000€ Überziehung
- * - 25% Zinsen pro Woche
+ * - Konfigurierbare Überziehung
+ * - Konfigurierbare Zinsen pro Woche
  * - Automatische Pfändung bei Limit
  */
 public class OverdraftManager {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static OverdraftManager instance;
-
-    public static final double MAX_OVERDRAFT = -5000.0;
-    private static final double WARNING_THRESHOLD = -2500.0;
-    private static final double OVERDRAFT_INTEREST_RATE = 0.25; // 25% pro Woche
 
     private final Map<UUID, Long> lastWarningDay = new ConcurrentHashMap<>();
     private final Map<UUID, Long> lastInterestDay = new ConcurrentHashMap<>();
@@ -57,7 +54,8 @@ public class OverdraftManager {
      * Prüft ob Überziehung erlaubt ist
      */
     public static boolean canOverdraft(double newBalance) {
-        return newBalance >= MAX_OVERDRAFT;
+        double maxLimit = ModConfigHandler.COMMON.OVERDRAFT_MAX_LIMIT.get();
+        return newBalance >= maxLimit;
     }
 
     /**
@@ -93,8 +91,11 @@ public class OverdraftManager {
             double balance = entry.getValue();
 
             if (balance < 0) {
-                // Warnung bei -2.500€
-                if (balance <= WARNING_THRESHOLD) {
+                double warningThreshold = ModConfigHandler.COMMON.OVERDRAFT_WARNING_THRESHOLD.get();
+                double maxLimit = ModConfigHandler.COMMON.OVERDRAFT_MAX_LIMIT.get();
+
+                // Warnung bei Schwelle
+                if (balance <= warningThreshold) {
                     sendWarning(playerUUID, balance);
                 }
 
@@ -102,7 +103,7 @@ public class OverdraftManager {
                 chargeOverdraftInterest(playerUUID, balance);
 
                 // Pfändung bei Limit
-                if (balance <= MAX_OVERDRAFT) {
+                if (balance <= maxLimit) {
                     executeSeizure(playerUUID, balance);
                 }
             }
@@ -118,13 +119,16 @@ public class OverdraftManager {
             return; // Max 1 Warnung pro Woche
         }
 
+        double maxLimit = ModConfigHandler.COMMON.OVERDRAFT_MAX_LIMIT.get();
+        double interestRate = ModConfigHandler.COMMON.OVERDRAFT_INTEREST_RATE.get();
+
         ServerPlayer player = server.getPlayerList().getPlayer(playerUUID);
         if (player != null) {
             player.sendSystemMessage(Component.literal(
                 "§c§l⚠ WARNUNG: KONTO ÜBERZOGEN!\n" +
                 "§7Kontostand: §c" + String.format("%.2f€", balance) + "\n" +
-                "§7Limit: §c-5.000€\n" +
-                "§7Überziehungszinsen: §c25% pro Woche\n" +
+                "§7Limit: §c" + String.format("%.2f€", maxLimit) + "\n" +
+                "§7Überziehungszinsen: §c" + String.format("%.0f%%", interestRate * 100) + " pro Woche\n" +
                 "§cBitte zahle Geld ein um Pfändung zu vermeiden!"
             ));
         }
@@ -141,8 +145,9 @@ public class OverdraftManager {
             return; // Nur 1x pro Woche
         }
 
+        double interestRate = ModConfigHandler.COMMON.OVERDRAFT_INTEREST_RATE.get();
         double overdraftAmount = getOverdraftAmount(balance);
-        double interest = overdraftAmount * OVERDRAFT_INTEREST_RATE;
+        double interest = overdraftAmount * interestRate;
 
         // Ziehe Zinsen ab (macht Balance noch negativer)
         EconomyManager.setBalance(playerUUID, balance - interest, TransactionType.OVERDRAFT_FEE,
@@ -153,7 +158,7 @@ public class OverdraftManager {
             player.sendSystemMessage(Component.literal(
                 "§c§l[DISPO] Überziehungszinsen\n" +
                 "§7Überzogen: §c" + String.format("%.2f€", overdraftAmount) + "\n" +
-                "§7Zinssatz: §c25%\n" +
+                "§7Zinssatz: §c" + String.format("%.0f%%", interestRate * 100) + "\n" +
                 "§7Zinsen: §c-" + String.format("%.2f€", interest) + "\n" +
                 "§7Neuer Kontostand: §c" + String.format("%.2f€", balance - interest)
             ));
@@ -167,14 +172,15 @@ public class OverdraftManager {
      * Führt Pfändung durch
      */
     private void executeSeizure(UUID playerUUID, double balance) {
+        double maxLimit = ModConfigHandler.COMMON.OVERDRAFT_MAX_LIMIT.get();
         ServerPlayer player = server.getPlayerList().getPlayer(playerUUID);
 
         if (player != null) {
             // Leere Geldbörse
             WalletManager.setBalance(playerUUID, 0.0);
 
-            // Setze Konto auf -5000€ (nicht weiter verschlimmern)
-            EconomyManager.setBalance(playerUUID, MAX_OVERDRAFT, TransactionType.OTHER,
+            // Setze Konto auf Limit (nicht weiter verschlimmern)
+            EconomyManager.setBalance(playerUUID, maxLimit, TransactionType.OTHER,
                 "Pfändung durchgeführt");
 
             player.sendSystemMessage(Component.literal(
@@ -183,7 +189,7 @@ public class OverdraftManager {
                 "§7Grund: Überziehungslimit erreicht\n" +
                 "§7Alte Schulden: §c" + String.format("%.2f€", balance) + "\n" +
                 "§7Geldbörse geleert\n" +
-                "§7Konto auf §c-5.000€ §7gesetzt\n" +
+                "§7Konto auf §c" + String.format("%.2f€", maxLimit) + " §7gesetzt\n" +
                 "§eZahle Schulden ab um wieder handlungsfähig zu sein!"
             ));
 
@@ -197,21 +203,23 @@ public class OverdraftManager {
     public String getOverdraftInfo(UUID playerUUID) {
         double balance = EconomyManager.getBalance(playerUUID);
         double overdraft = getOverdraftAmount(balance);
+        double maxLimit = ModConfigHandler.COMMON.OVERDRAFT_MAX_LIMIT.get();
+        double interestRate = ModConfigHandler.COMMON.OVERDRAFT_INTEREST_RATE.get();
 
         if (overdraft == 0) {
             return "§aDein Konto ist nicht überzogen.\n" +
-                "§7Dispo-Limit: §e5.000€\n" +
-                "§7Überziehungszinsen: §c25% pro Woche";
+                "§7Dispo-Limit: §e" + String.format("%.2f€", Math.abs(maxLimit)) + "\n" +
+                "§7Überziehungszinsen: §c" + String.format("%.0f%%", interestRate * 100) + " pro Woche";
         }
 
-        double available = MAX_OVERDRAFT - balance;
+        double available = maxLimit - balance;
 
         return "§c§lKONTO ÜBERZOGEN!\n" +
             "§7Kontostand: §c" + String.format("%.2f€", balance) + "\n" +
             "§7Überzogen um: §c" + String.format("%.2f€", overdraft) + "\n" +
             "§7Verfügbar bis Limit: §e" + String.format("%.2f€", available) + "\n" +
-            "§7Dispo-Limit: §c-5.000€\n" +
-            "§7Überziehungszinsen: §c25% pro Woche";
+            "§7Dispo-Limit: §c" + String.format("%.2f€", maxLimit) + "\n" +
+            "§7Überziehungszinsen: §c" + String.format("%.0f%%", interestRate * 100) + " pro Woche";
     }
 
     // Persistence

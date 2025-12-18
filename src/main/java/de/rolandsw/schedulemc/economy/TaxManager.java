@@ -36,9 +36,6 @@ public class TaxManager {
     private static final double TAX_BRACKET_2 = 100000.0; // 15%
     // Darüber: 20%
 
-    // Grundsteuer
-    private static final double PROPERTY_TAX_PER_CHUNK = 100.0;
-
     private static final int TAX_PERIOD_DAYS = 7; // 1 Woche
 
     private final Map<UUID, Long> lastTaxDay = new ConcurrentHashMap<>();
@@ -127,7 +124,8 @@ public class TaxManager {
             totalChunks += chunks;
         }
 
-        return totalChunks * PROPERTY_TAX_PER_CHUNK;
+        double taxPerChunk = ModConfigHandler.COMMON.TAX_PROPERTY_PER_CHUNK.get();
+        return totalChunks * taxPerChunk;
     }
 
     /**
@@ -179,7 +177,8 @@ public class TaxManager {
                 }
 
                 if (propertyTax > 0) {
-                    int chunks = (int)(propertyTax / PROPERTY_TAX_PER_CHUNK);
+                    double taxPerChunk = ModConfigHandler.COMMON.TAX_PROPERTY_PER_CHUNK.get();
+                    int chunks = (int)(propertyTax / taxPerChunk);
                     message.append("§7Grundsteuer: §c-").append(String.format("%.2f€", propertyTax))
                            .append(" §7(").append(chunks).append(" Chunks)\n");
                 }

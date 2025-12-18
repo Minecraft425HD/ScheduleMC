@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.logging.LogUtils;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
@@ -25,9 +26,6 @@ import java.util.stream.Collectors;
 public class SavingsAccountManager {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static SavingsAccountManager instance;
-
-    private static final double MAX_SAVINGS_PER_PLAYER = 50000.0;
-    private static final double MIN_DEPOSIT = 1000.0;
 
     private final Map<UUID, List<SavingsAccount>> accounts = new ConcurrentHashMap<>();
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -54,13 +52,15 @@ public class SavingsAccountManager {
      * Erstellt ein neues Sparkonto
      */
     public boolean createSavingsAccount(UUID playerUUID, double initialDeposit) {
-        if (initialDeposit < MIN_DEPOSIT) {
+        double minDeposit = ModConfigHandler.COMMON.SAVINGS_MIN_DEPOSIT.get();
+        if (initialDeposit < minDeposit) {
             return false;
         }
 
         // Prüfe Gesamtsumme aller Sparkonten
         double totalSavings = getTotalSavings(playerUUID);
-        if (totalSavings + initialDeposit > MAX_SAVINGS_PER_PLAYER) {
+        double maxPerPlayer = ModConfigHandler.COMMON.SAVINGS_MAX_PER_PLAYER.get();
+        if (totalSavings + initialDeposit > maxPerPlayer) {
             return false;
         }
 
@@ -100,7 +100,8 @@ public class SavingsAccountManager {
 
         // Prüfe Limit
         double totalSavings = getTotalSavings(playerUUID);
-        if (totalSavings + amount > MAX_SAVINGS_PER_PLAYER) {
+        double maxPerPlayer = ModConfigHandler.COMMON.SAVINGS_MAX_PER_PLAYER.get();
+        if (totalSavings + amount > maxPerPlayer) {
             return false;
         }
 
@@ -331,10 +332,10 @@ public class SavingsAccountManager {
     }
 
     public static double getMaxSavingsPerPlayer() {
-        return MAX_SAVINGS_PER_PLAYER;
+        return ModConfigHandler.COMMON.SAVINGS_MAX_PER_PLAYER.get();
     }
 
     public static double getMinDeposit() {
-        return MIN_DEPOSIT;
+        return ModConfigHandler.COMMON.SAVINGS_MIN_DEPOSIT.get();
     }
 }

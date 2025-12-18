@@ -34,6 +34,25 @@ public class ModConfigHandler {
         // ═══════════════════════════════════════════════════════════
         public final ForgeConfigSpec.DoubleValue START_BALANCE;
         public final ForgeConfigSpec.IntValue SAVE_INTERVAL_MINUTES;
+
+        // Savings Accounts (Sparkonten)
+        public final ForgeConfigSpec.DoubleValue SAVINGS_MAX_PER_PLAYER;
+        public final ForgeConfigSpec.DoubleValue SAVINGS_MIN_DEPOSIT;
+        public final ForgeConfigSpec.DoubleValue SAVINGS_INTEREST_RATE;
+        public final ForgeConfigSpec.IntValue SAVINGS_LOCK_PERIOD_WEEKS;
+        public final ForgeConfigSpec.DoubleValue SAVINGS_EARLY_WITHDRAWAL_PENALTY;
+
+        // Overdraft (Dispo)
+        public final ForgeConfigSpec.DoubleValue OVERDRAFT_MAX_LIMIT;
+        public final ForgeConfigSpec.DoubleValue OVERDRAFT_WARNING_THRESHOLD;
+        public final ForgeConfigSpec.DoubleValue OVERDRAFT_INTEREST_RATE;
+
+        // Recurring Payments (Daueraufträge)
+        public final ForgeConfigSpec.IntValue RECURRING_MAX_PER_PLAYER;
+
+        // Tax System
+        public final ForgeConfigSpec.DoubleValue TAX_PROPERTY_PER_CHUNK;
+        public final ForgeConfigSpec.DoubleValue TAX_SALES_RATE;
         
         // ═══════════════════════════════════════════════════════════
         // PLOTS
@@ -159,6 +178,70 @@ public class ModConfigHandler {
             SAVE_INTERVAL_MINUTES = builder
                     .comment("Auto-Save Intervall in Minuten")
                     .defineInRange("save_interval_minutes", 5, 1, 60);
+
+            builder.pop();
+
+            builder.comment("Savings Accounts Settings (Sparkonten)")
+                    .push("savings");
+
+            SAVINGS_MAX_PER_PLAYER = builder
+                    .comment("Maximale Spareinlagen pro Spieler")
+                    .defineInRange("max_per_player", 50000.0, 1000.0, 10000000.0);
+
+            SAVINGS_MIN_DEPOSIT = builder
+                    .comment("Mindesteinlage für neues Sparkonto")
+                    .defineInRange("min_deposit", 1000.0, 100.0, 100000.0);
+
+            SAVINGS_INTEREST_RATE = builder
+                    .comment("Zinssatz pro Woche (0.05 = 5%)")
+                    .defineInRange("interest_rate", 0.05, 0.0, 0.5);
+
+            SAVINGS_LOCK_PERIOD_WEEKS = builder
+                    .comment("Sperrfrist in Wochen")
+                    .defineInRange("lock_period_weeks", 4, 1, 52);
+
+            SAVINGS_EARLY_WITHDRAWAL_PENALTY = builder
+                    .comment("Strafe für vorzeitige Abhebung (0.10 = 10%)")
+                    .defineInRange("early_withdrawal_penalty", 0.10, 0.0, 0.5);
+
+            builder.pop();
+
+            builder.comment("Overdraft Settings (Dispo)")
+                    .push("overdraft");
+
+            OVERDRAFT_MAX_LIMIT = builder
+                    .comment("Maximales Dispo-Limit (negativ, z.B. -5000)")
+                    .defineInRange("max_limit", -5000.0, -100000.0, 0.0);
+
+            OVERDRAFT_WARNING_THRESHOLD = builder
+                    .comment("Warnschwelle (negativ, z.B. -2500)")
+                    .defineInRange("warning_threshold", -2500.0, -100000.0, 0.0);
+
+            OVERDRAFT_INTEREST_RATE = builder
+                    .comment("Dispo-Zinssatz pro Woche (0.25 = 25%)")
+                    .defineInRange("interest_rate", 0.25, 0.0, 1.0);
+
+            builder.pop();
+
+            builder.comment("Recurring Payments Settings (Daueraufträge)")
+                    .push("recurring");
+
+            RECURRING_MAX_PER_PLAYER = builder
+                    .comment("Maximale Daueraufträge pro Spieler")
+                    .defineInRange("max_per_player", 10, 1, 100);
+
+            builder.pop();
+
+            builder.comment("Tax System Settings")
+                    .push("tax");
+
+            TAX_PROPERTY_PER_CHUNK = builder
+                    .comment("Grundsteuer pro Chunk pro Monat")
+                    .defineInRange("property_per_chunk", 100.0, 0.0, 10000.0);
+
+            TAX_SALES_RATE = builder
+                    .comment("Umsatzsteuer / MwSt (0.19 = 19%)")
+                    .defineInRange("sales_rate", 0.19, 0.0, 1.0);
 
             builder.pop();
 

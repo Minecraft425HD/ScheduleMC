@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.economy;
 
 import com.google.gson.annotations.SerializedName;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 
 import java.util.UUID;
 
@@ -16,12 +17,6 @@ public class SavingsAccount {
 
     @SerializedName("balance")
     private double balance;
-
-    @SerializedName("interestRate")
-    private static final double INTEREST_RATE = 0.05; // 5% pro Woche
-
-    @SerializedName("lockPeriodWeeks")
-    private static final int LOCK_PERIOD_WEEKS = 4; // 4 Wochen gesperrt
 
     @SerializedName("createdDay")
     private final long createdDay;
@@ -47,7 +42,8 @@ public class SavingsAccount {
      */
     public boolean isUnlocked(long currentDay) {
         long daysElapsed = currentDay - createdDay;
-        return daysElapsed >= (LOCK_PERIOD_WEEKS * 7);
+        int lockPeriodWeeks = ModConfigHandler.COMMON.SAVINGS_LOCK_PERIOD_WEEKS.get();
+        return daysElapsed >= (lockPeriodWeeks * 7);
     }
 
     /**
@@ -58,7 +54,8 @@ public class SavingsAccount {
             return 0;
         }
         long daysElapsed = currentDay - createdDay;
-        return (int) ((LOCK_PERIOD_WEEKS * 7) - daysElapsed);
+        int lockPeriodWeeks = ModConfigHandler.COMMON.SAVINGS_LOCK_PERIOD_WEEKS.get();
+        return (int) ((lockPeriodWeeks * 7) - daysElapsed);
     }
 
     /**
@@ -78,9 +75,10 @@ public class SavingsAccount {
             return false;
         }
 
-        // Wenn gesperrt und erzwungen: 10% Strafe
+        // Wenn gesperrt und erzwungen: Strafe aus Config
         if (!isUnlocked(currentDay) && forcedWithdrawal) {
-            double penalty = amount * 0.10;
+            double penaltyRate = ModConfigHandler.COMMON.SAVINGS_EARLY_WITHDRAWAL_PENALTY.get();
+            double penalty = amount * penaltyRate;
             balance -= amount;
             return true; // Strafe wird extern verarbeitet
         }
@@ -101,7 +99,8 @@ public class SavingsAccount {
         long daysSinceLastInterest = currentDay - lastInterestDay;
 
         if (daysSinceLastInterest >= 7) {
-            double interest = balance * INTEREST_RATE;
+            double interestRate = ModConfigHandler.COMMON.SAVINGS_INTEREST_RATE.get();
+            double interest = balance * interestRate;
             balance += interest;
             lastInterestDay = currentDay;
             return interest;
@@ -115,8 +114,9 @@ public class SavingsAccount {
      */
     public double close(long currentDay) {
         if (!isUnlocked(currentDay)) {
-            // Frühe Schließung: 10% Strafe
-            double penalty = balance * 0.10;
+            // Frühe Schließung: Strafe aus Config
+            double penaltyRate = ModConfigHandler.COMMON.SAVINGS_EARLY_WITHDRAWAL_PENALTY.get();
+            double penalty = balance * penaltyRate;
             double remaining = balance - penalty;
             balance = 0;
             return remaining;
@@ -128,10 +128,10 @@ public class SavingsAccount {
     }
 
     public static double getInterestRate() {
-        return INTEREST_RATE;
+        return ModConfigHandler.COMMON.SAVINGS_INTEREST_RATE.get();
     }
 
     public static int getLockPeriodWeeks() {
-        return LOCK_PERIOD_WEEKS;
+        return ModConfigHandler.COMMON.SAVINGS_LOCK_PERIOD_WEEKS.get();
     }
 }
