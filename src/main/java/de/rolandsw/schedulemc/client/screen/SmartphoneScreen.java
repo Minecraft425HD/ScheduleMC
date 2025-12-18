@@ -105,10 +105,14 @@ public class SmartphoneScreen extends Screen {
             this.onClose();
         }).bounds(leftPos + PHONE_WIDTH - CLOSE_BUTTON_SIZE - 10, topPos + 10, CLOSE_BUTTON_SIZE, CLOSE_BUTTON_SIZE).build());
 
-        // === ZURÜCK-BUTTON (unten zentriert) ===
+        // === ZURÜCK-BUTTON (zentriert zwischen Apps und unterem Rand) ===
+        // Berechne Position in der Mitte zwischen Apps und unterem Rand
+        int appsEndY = gridStartY + visibleContentHeight + 10; // Ende der Apps + etwas Puffer
+        int phoneBottomY = PHONE_HEIGHT - 5; // Unterer Rand minus Padding
+        int buttonY = topPos + (appsEndY - topPos + phoneBottomY) / 2 - 10; // Mittig positioniert
         addRenderableWidget(Button.builder(Component.literal("Zurück"), button -> {
             this.onClose();
-        }).bounds(leftPos + (PHONE_WIDTH - 80) / 2, topPos + PHONE_HEIGHT - 25, 80, 20).build());
+        }).bounds(leftPos + (PHONE_WIDTH - 80) / 2, buttonY, 80, 20).build());
     }
 
     /**
