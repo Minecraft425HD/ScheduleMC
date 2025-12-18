@@ -292,8 +292,8 @@ public class ShopAccount {
                 .getPlayer(holder.getPlayerUUID());
 
             if (player != null) {
-                // Geld hinzufügen (TODO: Integration mit Economy-System)
-                // EconomyManager.addMoney(player, payout);
+                // Geld zum Konto hinzufügen
+                EconomyManager.getInstance().deposit(holder.getPlayerUUID(), payout);
 
                 player.sendSystemMessage(
                     Component.literal("§a§l[Shop Investment]§r\n" +

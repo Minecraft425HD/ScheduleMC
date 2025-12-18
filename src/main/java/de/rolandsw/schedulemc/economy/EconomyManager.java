@@ -5,8 +5,10 @@ import com.google.gson.reflect.TypeToken;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.util.GsonHelper;
 import com.mojang.logging.LogUtils;
+import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
 
+import javax.annotation.Nullable;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,10 +20,36 @@ import java.util.concurrent.ConcurrentHashMap;
 public class EconomyManager {
 
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static EconomyManager instance;
     private static final Map<UUID, Double> balances = new ConcurrentHashMap<>();
     private static final File file = new File("config/plotmod_economy.json");
     private static final Gson gson = GsonHelper.get();
     private static boolean needsSave = false;
+
+    @Nullable
+    private MinecraftServer server;
+
+    private EconomyManager() {}
+
+    /**
+     * Initialisiert den EconomyManager mit dem Server
+     */
+    public static void initialize(MinecraftServer server) {
+        if (instance == null) {
+            instance = new EconomyManager();
+        }
+        instance.server = server;
+    }
+
+    /**
+     * Gibt die Singleton-Instanz zurück
+     */
+    public static EconomyManager getInstance() {
+        if (instance == null) {
+            instance = new EconomyManager();
+        }
+        return instance;
+    }
 
     /**
      * Lädt alle Konten aus der JSON-Datei
@@ -75,6 +103,13 @@ public class EconomyManager {
         if (needsSave) {
             saveAccounts();
         }
+        // Speichere auch Transaction History
+        if (instance != null && instance.server != null) {
+            TransactionHistory history = TransactionHistory.getInstance(instance.server);
+            if (history != null) {
+                history.save();
+            }
+        }
     }
 
     /**
@@ -112,15 +147,26 @@ public class EconomyManager {
      * Zahlt Geld auf ein Konto ein
      */
     public static void deposit(UUID uuid, double amount) {
+        deposit(uuid, amount, TransactionType.OTHER, null);
+    }
+
+    /**
+     * Zahlt Geld auf ein Konto ein mit Transaktions-Logging
+     */
+    public static void deposit(UUID uuid, double amount, TransactionType type, @Nullable String description) {
         if (amount < 0) {
             LOGGER.warn("Versuch, negativen Betrag einzuzahlen: {}", amount);
             return;
         }
 
         double currentBalance = balances.getOrDefault(uuid, 0.0);
-        balances.put(uuid, currentBalance + amount);
+        double newBalance = currentBalance + amount;
+        balances.put(uuid, newBalance);
         markDirty();
-        LOGGER.debug("Einzahlung: {} € für {}", amount, uuid);
+        LOGGER.debug("Einzahlung: {} € für {} ({})", amount, uuid, type);
+
+        // Transaction History
+        logTransaction(uuid, type, null, uuid, amount, description, newBalance);
     }
 
     /**
@@ -128,6 +174,14 @@ public class EconomyManager {
      * @return true wenn erfolgreich, false wenn nicht genug Guthaben
      */
     public static boolean withdraw(UUID uuid, double amount) {
+        return withdraw(uuid, amount, TransactionType.OTHER, null);
+    }
+
+    /**
+     * Hebt Geld von einem Konto ab mit Transaktions-Logging
+     * @return true wenn erfolgreich, false wenn nicht genug Guthaben
+     */
+    public static boolean withdraw(UUID uuid, double amount, TransactionType type, @Nullable String description) {
         if (amount < 0) {
             LOGGER.warn("Versuch, negativen Betrag abzuheben: {}", amount);
             return false;
@@ -135,9 +189,13 @@ public class EconomyManager {
 
         double currentBalance = balances.getOrDefault(uuid, 0.0);
         if (currentBalance >= amount) {
-            balances.put(uuid, currentBalance - amount);
+            double newBalance = currentBalance - amount;
+            balances.put(uuid, newBalance);
             markDirty();
-            LOGGER.debug("Abbuchung: {} € von {}", amount, uuid);
+            LOGGER.debug("Abbuchung: {} € von {} ({})", amount, uuid, type);
+
+            // Transaction History
+            logTransaction(uuid, type, uuid, null, -amount, description, newBalance);
             return true;
         }
         return false;
@@ -147,12 +205,24 @@ public class EconomyManager {
      * Setzt das Guthaben eines Spielers (Admin-Funktion)
      */
     public static void setBalance(UUID uuid, double amount) {
+        setBalance(uuid, amount, TransactionType.ADMIN_SET, null);
+    }
+
+    /**
+     * Setzt das Guthaben eines Spielers mit Transaktions-Logging
+     */
+    public static void setBalance(UUID uuid, double amount, TransactionType type, @Nullable String description) {
         if (amount < 0) {
             amount = 0;
         }
+        double oldBalance = balances.getOrDefault(uuid, 0.0);
+        double difference = amount - oldBalance;
         balances.put(uuid, amount);
         markDirty();
-        LOGGER.info("Guthaben gesetzt: {} auf {} €", uuid, amount);
+        LOGGER.info("Guthaben gesetzt: {} auf {} € ({})", uuid, amount, type);
+
+        // Transaction History
+        logTransaction(uuid, type, null, uuid, difference, description, amount);
     }
 
     /**
@@ -176,5 +246,40 @@ public class EconomyManager {
         balances.remove(uuid);
         markDirty();
         LOGGER.info("Konto gelöscht: {}", uuid);
+    }
+
+    /**
+     * Loggt eine Transaktion in die History
+     */
+    private static void logTransaction(UUID playerUUID, TransactionType type,
+                                      @Nullable UUID from, @Nullable UUID to,
+                                      double amount, @Nullable String description,
+                                      double balanceAfter) {
+        if (instance != null && instance.server != null) {
+            TransactionHistory history = TransactionHistory.getInstance(instance.server);
+            Transaction transaction = new Transaction(type, from, to, amount, description, balanceAfter);
+            history.addTransaction(playerUUID, transaction);
+        }
+    }
+
+    /**
+     * Transfer zwischen zwei Spielern
+     */
+    public static boolean transfer(UUID from, UUID to, double amount, @Nullable String description) {
+        if (withdraw(from, amount)) {
+            deposit(to, amount, TransactionType.TRANSFER, description);
+
+            // Separate Logging für beide Seiten
+            double fromBalance = getBalance(from);
+            double toBalance = getBalance(to);
+
+            logTransaction(from, TransactionType.TRANSFER, from, to, -amount,
+                description != null ? "An " + to : null, fromBalance);
+            logTransaction(to, TransactionType.TRANSFER, from, to, amount,
+                description != null ? "Von " + from : null, toBalance);
+
+            return true;
+        }
+        return false;
     }
 }
