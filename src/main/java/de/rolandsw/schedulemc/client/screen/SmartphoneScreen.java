@@ -254,11 +254,13 @@ public class SmartphoneScreen extends Screen {
         }
 
         // Aktiviere Scissor (Clipping) für den scrollbaren Bereich
+        // Erweitere den Bereich um Platz für Labels unter der letzten Reihe
+        int scissorHeight = visibleContentHeight + 12; // +12 für Label-Platz
         guiGraphics.enableScissor(
             gridStartX,
             gridStartY,
             gridStartX + gridWidth,
-            gridStartY + visibleContentHeight
+            gridStartY + scissorHeight
         );
 
         // App-Icons rendern mit scrollOffset (4 Reihen x 2 Spalten)
@@ -397,11 +399,10 @@ public class SmartphoneScreen extends Screen {
             labelWidth = this.font.width(displayLabel);
         }
 
-        // Label zwischen den Reihen zentrieren (in der Mitte des Spacings)
-        int labelY = y + APP_ICON_SIZE + (APP_SPACING / 2) - 3;
+        // Label direkt unter dem Icon
         guiGraphics.drawString(this.font, "§7" + displayLabel,
             x + (APP_ICON_SIZE - labelWidth) / 2,
-            labelY,
+            y + APP_ICON_SIZE + 4,
             0xFFFFFF);
     }
 
