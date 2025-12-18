@@ -22,6 +22,9 @@ import de.rolandsw.schedulemc.economy.TransactionHistory;
 import de.rolandsw.schedulemc.economy.InterestManager;
 import de.rolandsw.schedulemc.economy.LoanManager;
 import de.rolandsw.schedulemc.economy.TaxManager;
+import de.rolandsw.schedulemc.economy.SavingsAccountManager;
+import de.rolandsw.schedulemc.economy.OverdraftManager;
+import de.rolandsw.schedulemc.economy.RecurringPaymentManager;
 import de.rolandsw.schedulemc.client.network.SmartphoneNetworkHandler;
 import de.rolandsw.schedulemc.messaging.MessageManager;
 import de.rolandsw.schedulemc.messaging.network.MessageNetworkHandler;
@@ -241,6 +244,8 @@ public class ScheduleMC {
         PlotCommand.register(event.getDispatcher());
         MoneyCommand.register(event.getDispatcher());
         LoanCommand.register(event.getDispatcher());
+        SavingsCommand.register(event.getDispatcher());
+        AutopayCommand.register(event.getDispatcher());
         DailyCommand.register(event.getDispatcher());
         TobaccoCommand.register(event.getDispatcher());
         HospitalCommand.register(event.getDispatcher());
@@ -274,7 +279,10 @@ public class ScheduleMC {
         InterestManager.getInstance(event.getServer());
         LoanManager.getInstance(event.getServer());
         TaxManager.getInstance(event.getServer());
-        LOGGER.info("Advanced Economy Systems initialized (Transaction History, Interest, Loans, Taxes)");
+        SavingsAccountManager.getInstance(event.getServer());
+        OverdraftManager.getInstance(event.getServer());
+        RecurringPaymentManager.getInstance(event.getServer());
+        LOGGER.info("Advanced Economy Systems initialized (Transaction History, Interest, Loans, Taxes, Savings, Overdraft, Recurring Payments)");
 
         // Vehicle System - Vehicle Spawn Registry, Gas Station Registry, Fuel Bills
         de.rolandsw.schedulemc.vehicle.vehicle.VehicleSpawnRegistry.load();
@@ -296,6 +304,9 @@ public class ScheduleMC {
             InterestManager.getInstance(event.getServer()).tick(dayTime);
             LoanManager.getInstance(event.getServer()).tick(dayTime);
             TaxManager.getInstance(event.getServer()).tick(dayTime);
+            SavingsAccountManager.getInstance(event.getServer()).tick(dayTime);
+            OverdraftManager.getInstance(event.getServer()).tick(dayTime);
+            RecurringPaymentManager.getInstance(event.getServer()).tick(dayTime);
         }
 
         if (tickCounter >= SAVE_INTERVAL) {
@@ -317,6 +328,9 @@ public class ScheduleMC {
                 InterestManager.getInstance(event.getServer()).save();
                 LoanManager.getInstance(event.getServer()).save();
                 TaxManager.getInstance(event.getServer()).save();
+                SavingsAccountManager.getInstance(event.getServer()).save();
+                OverdraftManager.getInstance(event.getServer()).save();
+                RecurringPaymentManager.getInstance(event.getServer()).save();
             }
         }
     }
@@ -335,11 +349,14 @@ public class ScheduleMC {
         InterestManager.getInstance(event.getServer()).save();
         LoanManager.getInstance(event.getServer()).save();
         TaxManager.getInstance(event.getServer()).save();
+        SavingsAccountManager.getInstance(event.getServer()).save();
+        OverdraftManager.getInstance(event.getServer()).save();
+        RecurringPaymentManager.getInstance(event.getServer()).save();
         TransactionHistory history = TransactionHistory.getInstance();
         if (history != null) {
             history.save();
         }
-        LOGGER.info("Advanced Economy Systems saved");
+        LOGGER.info("Advanced Economy Systems saved (including Savings, Overdraft, and Recurring Payments)");
 
         // Vehicle System final saves
         de.rolandsw.schedulemc.vehicle.vehicle.VehicleSpawnRegistry.save();

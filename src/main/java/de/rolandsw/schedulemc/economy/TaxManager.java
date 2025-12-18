@@ -4,6 +4,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.logging.LogUtils;
+import de.rolandsw.schedulemc.region.PlotManager;
+import de.rolandsw.schedulemc.region.PlotRegion;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
@@ -20,6 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Steuersystem für ScheduleMC
  * - Einkommenssteuer: Progressiv (0%, 10%, 15%, 20%)
+ * - Grundsteuer: 100€ pro Chunk pro Monat
  * - Monatliche Abrechnung (alle 7 MC-Tage)
  */
 public class TaxManager {
@@ -31,6 +35,9 @@ public class TaxManager {
     private static final double TAX_BRACKET_1 = 50000.0; // 10%
     private static final double TAX_BRACKET_2 = 100000.0; // 15%
     // Darüber: 20%
+
+    // Grundsteuer
+    private static final double PROPERTY_TAX_PER_CHUNK = 100.0;
 
     private static final int TAX_PERIOD_DAYS = 7; // 1 Woche
 
@@ -97,6 +104,33 @@ public class TaxManager {
     }
 
     /**
+     * Berechnet Grundsteuer basierend auf Grundbesitz
+     */
+    public double calculatePropertyTax(UUID playerUUID) {
+        List<PlotRegion> plots = PlotManager.getPlotsByOwner(playerUUID);
+
+        if (plots.isEmpty()) {
+            return 0.0;
+        }
+
+        int totalChunks = 0;
+        for (PlotRegion plot : plots) {
+            // Berechne horizontale Fläche (X * Z)
+            BlockPos min = plot.getMin();
+            BlockPos max = plot.getMax();
+            long width = max.getX() - min.getX() + 1;
+            long depth = max.getZ() - min.getZ() + 1;
+            long area = width * depth;
+
+            // Ein Chunk ist 16x16 = 256 Blöcke
+            int chunks = (int) Math.ceil(area / 256.0);
+            totalChunks += chunks;
+        }
+
+        return totalChunks * PROPERTY_TAX_PER_CHUNK;
+    }
+
+    /**
      * Verarbeitet Steuern
      */
     private void processTaxes() {
@@ -122,37 +156,54 @@ public class TaxManager {
      * Zieht Steuern ab
      */
     private void chargeTax(UUID playerUUID, double balance) {
-        double tax = calculateIncomeTax(balance);
+        double incomeTax = calculateIncomeTax(balance);
+        double propertyTax = calculatePropertyTax(playerUUID);
+        double totalTax = incomeTax + propertyTax;
 
-        if (tax <= 0) {
+        if (totalTax <= 0) {
             return;
         }
 
         // Versuche Abbuchung
-        if (EconomyManager.withdraw(playerUUID, tax, TransactionType.TAX_INCOME, "Einkommenssteuer")) {
-            StateAccount.getInstance(server).deposit(tax, "Einkommenssteuer");
+        if (EconomyManager.withdraw(playerUUID, totalTax, TransactionType.TAX_INCOME, "Monatliche Steuern")) {
+            StateAccount.getInstance(server).deposit(totalTax, "Steuern (Einkommen + Grundsteuer)");
 
             ServerPlayer player = server.getPlayerList().getPlayer(playerUUID);
             if (player != null) {
-                player.sendSystemMessage(Component.literal(
-                    "§e§l[STEUERN] Monatliche Abrechnung\n" +
-                    "§7Kontostand: §6" + String.format("%.2f€", balance) + "\n" +
-                    "§7Steuern: §c-" + String.format("%.2f€", tax) + "\n" +
-                    "§7Neuer Kontostand: §6" + String.format("%.2f€", EconomyManager.getBalance(playerUUID))
-                ));
+                StringBuilder message = new StringBuilder();
+                message.append("§e§l[STEUERN] Monatliche Abrechnung\n");
+                message.append("§7Kontostand: §6").append(String.format("%.2f€", balance)).append("\n");
+
+                if (incomeTax > 0) {
+                    message.append("§7Einkommenssteuer: §c-").append(String.format("%.2f€", incomeTax)).append("\n");
+                }
+
+                if (propertyTax > 0) {
+                    int chunks = (int)(propertyTax / PROPERTY_TAX_PER_CHUNK);
+                    message.append("§7Grundsteuer: §c-").append(String.format("%.2f€", propertyTax))
+                           .append(" §7(").append(chunks).append(" Chunks)\n");
+                }
+
+                message.append("§7Gesamt: §c-").append(String.format("%.2f€", totalTax)).append("\n");
+                message.append("§7Neuer Kontostand: §6").append(String.format("%.2f€", EconomyManager.getBalance(playerUUID)));
+
+                player.sendSystemMessage(Component.literal(message.toString()));
             }
 
-            LOGGER.info("Tax collected: {} € from {}", tax, playerUUID);
+            LOGGER.info("Tax collected: {} € (Income: {}, Property: {}) from {}",
+                totalTax, incomeTax, propertyTax, playerUUID);
         } else {
             // Schulden aufbauen
-            double debt = taxDebt.getOrDefault(playerUUID, 0.0) + tax;
+            double debt = taxDebt.getOrDefault(playerUUID, 0.0) + totalTax;
             taxDebt.put(playerUUID, debt);
 
             ServerPlayer player = server.getPlayerList().getPlayer(playerUUID);
             if (player != null) {
                 player.sendSystemMessage(Component.literal(
                     "§c§l[STEUERN] Zahlung fehlgeschlagen!\n" +
-                    "§7Fällig: §c" + String.format("%.2f€", tax) + "\n" +
+                    "§7Fällig: §c" + String.format("%.2f€", totalTax) + "\n" +
+                    "§7(Einkommen: " + String.format("%.2f€", incomeTax) +
+                    ", Grundsteuer: " + String.format("%.2f€", propertyTax) + ")\n" +
                     "§7Steuerschuld: §c" + String.format("%.2f€", debt) + "\n" +
                     "§cZahle innerhalb von 3 Tagen!"
                 ));

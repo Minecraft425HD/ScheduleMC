@@ -17,10 +17,12 @@ import java.util.*;
  * - 100 Aktien total
  * - Max 2 Aktionäre
  * - Gewinnausschüttung basierend auf 7-Tage-Nettoumsatz
+ * - 19% Umsatzsteuer (MwSt) wird automatisch abgeführt
  */
 public class ShopAccount {
 
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static final double SALES_TAX_RATE = 0.19; // 19% MwSt
 
     private final String shopId;
 
@@ -75,11 +77,25 @@ public class ShopAccount {
 
     /**
      * Registriert Einnahmen (Verkaufserlös)
+     * - 19% MwSt werden automatisch abgeführt
      */
     public void addRevenue(Level level, int amount, String source) {
         updateDayIfNeeded(level);
-        todayRecord.addRevenue(amount);
-        LOGGER.debug("Shop {}: +{}€ Einnahmen ({})", shopId, amount, source);
+
+        // Berechne und ziehe MwSt ab
+        int salesTax = (int) (amount * SALES_TAX_RATE);
+        int netRevenue = amount - salesTax;
+
+        // Registriere nur den Netto-Umsatz
+        todayRecord.addRevenue(netRevenue);
+
+        // Führe MwSt an Staatskasse ab
+        if (salesTax > 0 && level.getServer() != null) {
+            StateAccount.getInstance(level.getServer()).deposit(salesTax, "MwSt Shop " + shopId);
+        }
+
+        LOGGER.debug("Shop {}: +{}€ Einnahmen ({}) - MwSt: {}€, Netto: {}€",
+            shopId, amount, source, salesTax, netRevenue);
     }
 
     /**

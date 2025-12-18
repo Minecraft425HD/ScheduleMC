@@ -179,7 +179,7 @@ public class EconomyManager {
 
     /**
      * Hebt Geld von einem Konto ab mit Transaktions-Logging
-     * @return true wenn erfolgreich, false wenn nicht genug Guthaben
+     * @return true wenn erfolgreich, false wenn nicht genug Guthaben (oder Dispo-Limit erreicht)
      */
     public static boolean withdraw(UUID uuid, double amount, TransactionType type, @Nullable String description) {
         if (amount < 0) {
@@ -188,11 +188,13 @@ public class EconomyManager {
         }
 
         double currentBalance = balances.getOrDefault(uuid, 0.0);
-        if (currentBalance >= amount) {
-            double newBalance = currentBalance - amount;
+        double newBalance = currentBalance - amount;
+
+        // Prüfe ob genug Guthaben ODER Dispo-Limit nicht überschritten
+        if (currentBalance >= amount || de.rolandsw.schedulemc.economy.OverdraftManager.canOverdraft(newBalance)) {
             balances.put(uuid, newBalance);
             markDirty();
-            LOGGER.debug("Abbuchung: {} € von {} ({})", amount, uuid, type);
+            LOGGER.debug("Abbuchung: {} € von {} ({}) - Neuer Stand: {}", amount, uuid, type, newBalance);
 
             // Transaction History
             logTransaction(uuid, type, uuid, null, -amount, description, newBalance);
