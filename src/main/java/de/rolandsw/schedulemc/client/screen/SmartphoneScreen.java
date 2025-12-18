@@ -108,7 +108,7 @@ public class SmartphoneScreen extends Screen {
         // === ZURÜCK-BUTTON (unten zentriert) ===
         addRenderableWidget(Button.builder(Component.literal("Zurück"), button -> {
             this.onClose();
-        }).bounds(leftPos + (PHONE_WIDTH - 80) / 2, topPos + PHONE_HEIGHT - 30, 80, 20).build());
+        }).bounds(leftPos + (PHONE_WIDTH - 80) / 2, topPos + PHONE_HEIGHT - 25, 80, 20).build());
     }
 
     /**
@@ -393,9 +393,11 @@ public class SmartphoneScreen extends Screen {
             labelWidth = this.font.width(displayLabel);
         }
 
+        // Label zwischen den Reihen zentrieren (in der Mitte des Spacings)
+        int labelY = y + APP_ICON_SIZE + (APP_SPACING / 2) - 3;
         guiGraphics.drawString(this.font, "§7" + displayLabel,
             x + (APP_ICON_SIZE - labelWidth) / 2,
-            y + APP_ICON_SIZE + 8,
+            labelY,
             0xFFFFFF);
     }
 
