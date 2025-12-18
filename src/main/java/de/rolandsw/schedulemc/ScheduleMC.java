@@ -18,6 +18,10 @@ import de.rolandsw.schedulemc.economy.network.EconomyNetworkHandler;
 import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.tobacco.network.ModNetworking;
 import de.rolandsw.schedulemc.economy.WalletManager;
+import de.rolandsw.schedulemc.economy.TransactionHistory;
+import de.rolandsw.schedulemc.economy.InterestManager;
+import de.rolandsw.schedulemc.economy.LoanManager;
+import de.rolandsw.schedulemc.economy.TaxManager;
 import de.rolandsw.schedulemc.client.network.SmartphoneNetworkHandler;
 import de.rolandsw.schedulemc.messaging.MessageManager;
 import de.rolandsw.schedulemc.messaging.network.MessageNetworkHandler;
@@ -236,6 +240,7 @@ public class ScheduleMC {
     public void onRegisterCommands(RegisterCommandsEvent event) {
         PlotCommand.register(event.getDispatcher());
         MoneyCommand.register(event.getDispatcher());
+        LoanCommand.register(event.getDispatcher());
         DailyCommand.register(event.getDispatcher());
         TobaccoCommand.register(event.getDispatcher());
         HospitalCommand.register(event.getDispatcher());
@@ -263,6 +268,14 @@ public class ScheduleMC {
         MinecraftForge.EVENT_BUS.register(ShopAccountManager.class);
         WarehouseManager.load(event.getServer());
 
+        // Economy System - Advanced Features
+        EconomyManager.initialize(event.getServer());
+        TransactionHistory.getInstance(event.getServer());
+        InterestManager.getInstance(event.getServer());
+        LoanManager.getInstance(event.getServer());
+        TaxManager.getInstance(event.getServer());
+        LOGGER.info("Advanced Economy Systems initialized (Transaction History, Interest, Loans, Taxes)");
+
         // Vehicle System - Vehicle Spawn Registry, Gas Station Registry, Fuel Bills
         de.rolandsw.schedulemc.vehicle.vehicle.VehicleSpawnRegistry.load();
         de.rolandsw.schedulemc.vehicle.fuel.FuelStationRegistry.load();
@@ -276,6 +289,15 @@ public class ScheduleMC {
     public void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
         tickCounter++;
+
+        // Economy Systems - Tick every server tick for day tracking
+        if (event.getServer() != null && event.getServer().overworld() != null) {
+            long dayTime = event.getServer().overworld().getDayTime();
+            InterestManager.getInstance(event.getServer()).tick(dayTime);
+            LoanManager.getInstance(event.getServer()).tick(dayTime);
+            TaxManager.getInstance(event.getServer()).tick(dayTime);
+        }
+
         if (tickCounter >= SAVE_INTERVAL) {
             tickCounter = 0;
             PlotManager.saveIfNeeded();
@@ -289,6 +311,13 @@ public class ScheduleMC {
             de.rolandsw.schedulemc.vehicle.vehicle.VehicleSpawnRegistry.save();
             de.rolandsw.schedulemc.vehicle.fuel.FuelStationRegistry.save();
             de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager.save();
+
+            // Economy Systems periodic saves
+            if (event.getServer() != null) {
+                InterestManager.getInstance(event.getServer()).save();
+                LoanManager.getInstance(event.getServer()).save();
+                TaxManager.getInstance(event.getServer()).save();
+            }
         }
     }
 
@@ -301,6 +330,17 @@ public class ScheduleMC {
         NPCNameRegistry.saveRegistry();
         MessageManager.saveMessages();
         WarehouseManager.save(event.getServer());
+
+        // Economy Systems final saves
+        InterestManager.getInstance(event.getServer()).save();
+        LoanManager.getInstance(event.getServer()).save();
+        TaxManager.getInstance(event.getServer()).save();
+        TransactionHistory history = TransactionHistory.getInstance();
+        if (history != null) {
+            history.save();
+        }
+        LOGGER.info("Advanced Economy Systems saved");
+
         // Vehicle System final saves
         de.rolandsw.schedulemc.vehicle.vehicle.VehicleSpawnRegistry.save();
         de.rolandsw.schedulemc.vehicle.fuel.FuelStationRegistry.save();

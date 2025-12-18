@@ -360,46 +360,50 @@ LARGE:  100.000€, 20%, 56 Tage
 
 ## 🚀 INSTALLATION & AKTIVIERUNG
 
-### 1. Server-Integration erforderlich
+### ✅ VOLLSTÄNDIG INTEGRIERT!
 
-**Die Manager müssen initialisiert werden!**
+**Alle Manager sind bereits vollständig integriert in `ScheduleMC.java`!**
 
-Füge in deiner Server-Startup-Logik hinzu:
-
+#### ✅ Server-Start (onServerStarted):
 ```java
-// Bei Server-Start
-EconomyManager.initialize(server);
-TransactionHistory.getInstance(server);
-InterestManager.getInstance(server);
-LoanManager.getInstance(server);
-TaxManager.getInstance(server);
-
-// Bei Server-Stop
-EconomyManager.saveIfNeeded();
-InterestManager.getInstance(server).save();
-LoanManager.getInstance(server).save();
-TaxManager.getInstance(server).save();
+EconomyManager.initialize(event.getServer());
+TransactionHistory.getInstance(event.getServer());
+InterestManager.getInstance(event.getServer());
+LoanManager.getInstance(event.getServer());
+TaxManager.getInstance(event.getServer());
+LOGGER.info("Advanced Economy Systems initialized");
 ```
 
-### 2. Tick-Integration erforderlich
-
-Füge in deine tägliche Tick-Logik hinzu:
-
+#### ✅ Server-Tick (onServerTick):
 ```java
-long dayTime = level.getDayTime();
-
-InterestManager.getInstance(server).tick(dayTime);
-LoanManager.getInstance(server).tick(dayTime);
-TaxManager.getInstance(server).tick(dayTime);
+long dayTime = event.getServer().overworld().getDayTime();
+InterestManager.getInstance(event.getServer()).tick(dayTime);
+LoanManager.getInstance(event.getServer()).tick(dayTime);
+TaxManager.getInstance(event.getServer()).tick(dayTime);
 ```
 
-### 3. Command-Registrierung
-
-Füge in deine Command-Registrierung hinzu:
-
+#### ✅ Periodisches Speichern (alle 6000 Ticks):
 ```java
-LoanCommand.register(dispatcher);
+InterestManager.getInstance(event.getServer()).save();
+LoanManager.getInstance(event.getServer()).save();
+TaxManager.getInstance(event.getServer()).save();
 ```
+
+#### ✅ Server-Stop (onServerStopping):
+```java
+InterestManager.getInstance(event.getServer()).save();
+LoanManager.getInstance(event.getServer()).save();
+TaxManager.getInstance(event.getServer()).save();
+TransactionHistory.getInstance().save();
+LOGGER.info("Advanced Economy Systems saved");
+```
+
+#### ✅ Command-Registrierung (onRegisterCommands):
+```java
+LoanCommand.register(event.getDispatcher());
+```
+
+**🎉 KEINE WEITEREN SCHRITTE ERFORDERLICH - EINFACH STARTEN!**
 
 ---
 
