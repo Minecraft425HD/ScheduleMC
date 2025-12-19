@@ -1,9 +1,11 @@
 package de.rolandsw.schedulemc.mdma;
 
+import de.rolandsw.schedulemc.production.core.ProductionQuality;
+
 /**
  * MDMA/Ecstasy-Qualitätsstufen
  */
-public enum MDMAQuality {
+public enum MDMAQuality implements ProductionQuality {
     SCHLECHT("Schlecht", "§7", 0, 0.5, "Verunreinigt"),
     STANDARD("Standard", "§f", 1, 1.0, "Normale Qualität"),
     GUT("Gut", "§e", 2, 2.0, "Hohe Reinheit"),
@@ -30,7 +32,8 @@ public enum MDMAQuality {
     public String getDescription() { return description; }
     public String getColoredName() { return colorCode + displayName; }
 
-    public MDMAQuality upgrade() {
+    @Override
+    public ProductionQuality upgrade() {
         return switch (this) {
             case SCHLECHT -> STANDARD;
             case STANDARD -> GUT;
@@ -38,7 +41,8 @@ public enum MDMAQuality {
         };
     }
 
-    public MDMAQuality downgrade() {
+    @Override
+    public ProductionQuality downgrade() {
         return switch (this) {
             case SCHLECHT, STANDARD -> SCHLECHT;
             case GUT -> STANDARD;

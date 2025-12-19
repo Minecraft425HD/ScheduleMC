@@ -1,10 +1,12 @@
 package de.rolandsw.schedulemc.coca;
 
+import de.rolandsw.schedulemc.production.core.ProductionQuality;
+
 /**
  * Crack-Qualitätsstufen
  * Abhängig vom Kochprozess
  */
-public enum CrackQuality {
+public enum CrackQuality implements ProductionQuality {
     SCHLECHT("Schlecht", "§c", 0, 0.6),        // Überkokt oder unterkokt
     STANDARD("Standard", "§7", 1, 1.0),        // Normaler Cook
     GUT("Gut", "§a", 2, 1.5),                  // Guter Cook
@@ -27,6 +29,34 @@ public enum CrackQuality {
     public String getColoredName() { return colorCode + displayName; }
     public int getLevel() { return level; }
     public double getPriceMultiplier() { return priceMultiplier; }
+
+    @Override
+    public String getDescription() {
+        return switch (this) {
+            case SCHLECHT -> "Überkokt oder unterkokt";
+            case STANDARD -> "Normaler Cook";
+            case GUT -> "Guter Cook";
+            case FISHSCALE -> "Perfekter Cook, glänzend";
+        };
+    }
+
+    @Override
+    public ProductionQuality upgrade() {
+        return switch (this) {
+            case SCHLECHT -> STANDARD;
+            case STANDARD -> GUT;
+            case GUT, FISHSCALE -> FISHSCALE;
+        };
+    }
+
+    @Override
+    public ProductionQuality downgrade() {
+        return switch (this) {
+            case SCHLECHT, STANDARD -> SCHLECHT;
+            case GUT -> STANDARD;
+            case FISHSCALE -> GUT;
+        };
+    }
 
     /**
      * Berechnet Qualität basierend auf Kochzeit-Präzision

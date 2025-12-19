@@ -1,9 +1,11 @@
 package de.rolandsw.schedulemc.meth;
 
+import de.rolandsw.schedulemc.production.core.ProductionQuality;
+
 /**
  * Meth-Qualitätsstufen (Breaking Bad inspiriert)
  */
-public enum MethQuality {
+public enum MethQuality implements ProductionQuality {
     STANDARD("Standard", "§f", 0, 1.0, "Weiß"),      // Weißes Meth (niedrigste Qualität)
     GUT("Gut", "§e", 1, 2.0, "Gelblich"),            // Gelbliches Meth
     BLUE_SKY("Blue Sky", "§b§l", 2, 5.0, "Blau");   // Blaues Meth (höchste Qualität - Heisenberg Style)
@@ -46,10 +48,16 @@ public enum MethQuality {
         return colorCode + displayName;
     }
 
+    @Override
+    public String getDescription() {
+        return colorDescription + " Meth";
+    }
+
     /**
      * Verbessert die Qualität um eine Stufe
      */
-    public MethQuality upgrade() {
+    @Override
+    public ProductionQuality upgrade() {
         return switch (this) {
             case STANDARD -> GUT;
             case GUT, BLUE_SKY -> BLUE_SKY;
@@ -59,7 +67,8 @@ public enum MethQuality {
     /**
      * Verschlechtert die Qualität um eine Stufe
      */
-    public MethQuality downgrade() {
+    @Override
+    public ProductionQuality downgrade() {
         return switch (this) {
             case STANDARD, GUT -> STANDARD;
             case BLUE_SKY -> GUT;

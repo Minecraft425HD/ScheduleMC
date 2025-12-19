@@ -1,9 +1,12 @@
 package de.rolandsw.schedulemc.cannabis;
 
+import de.rolandsw.schedulemc.production.core.ProductionType;
+import de.rolandsw.schedulemc.production.core.ProductionQuality;
+
 /**
  * Cannabis-Sorten mit unterschiedlichen Eigenschaften
  */
-public enum CannabisStrain {
+public enum CannabisStrain implements ProductionType {
     // Name, Farbe, Preis, Wachstum, THC%, CBD%, Ertrag, BlüteZeit
     INDICA("Indica", "§5", 25.0, 120, 22.0, 1.0, 35, 56),           // Entspannend, hoher Ertrag
     SATIVA("Sativa", "§a", 30.0, 160, 18.0, 0.5, 25, 70),           // Energetisch, länger
@@ -43,6 +46,11 @@ public enum CannabisStrain {
     public int getFloweringDays() { return floweringDays; }
     public String getRegistryName() { return name().toLowerCase(); }
 
+    @Override
+    public double getBasePrice() {
+        return seedPrice / 10.0; // Base price per gram
+    }
+
     /**
      * Berechnet den Preis basierend auf THC-Gehalt und Qualität
      */
@@ -50,6 +58,13 @@ public enum CannabisStrain {
         double basePrice = seedPrice * 2; // Verkaufspreis höher als Einkauf
         double thcBonus = thcContent / 10.0; // THC beeinflusst Preis
         return basePrice * thcBonus * quality.getPriceMultiplier();
+    }
+
+    @Override
+    public double calculatePrice(ProductionQuality quality, int amount) {
+        double basePrice = seedPrice * 2;
+        double thcBonus = thcContent / 10.0;
+        return basePrice * thcBonus * quality.getPriceMultiplier() * amount;
     }
 
     /**

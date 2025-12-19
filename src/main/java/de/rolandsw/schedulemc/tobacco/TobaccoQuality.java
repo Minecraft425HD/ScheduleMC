@@ -1,9 +1,11 @@
 package de.rolandsw.schedulemc.tobacco;
 
+import de.rolandsw.schedulemc.production.core.ProductionQuality;
+
 /**
  * Tabak-Qualitätsstufen
  */
-public enum TobaccoQuality {
+public enum TobaccoQuality implements ProductionQuality {
     SCHLECHT("Schlecht", "§c", 0, 1.0),
     GUT("Gut", "§e", 1, 1.5),
     SEHR_GUT("Sehr Gut", "§a", 2, 2.5),
@@ -47,11 +49,22 @@ public enum TobaccoQuality {
     public String getColoredName() {
         return colorCode + displayName;
     }
-    
+
+    @Override
+    public String getDescription() {
+        return switch (this) {
+            case SCHLECHT -> "Niedrige Qualität";
+            case GUT -> "Gute Qualität";
+            case SEHR_GUT -> "Sehr gute Qualität";
+            case LEGENDAER -> "Legendäre Qualität";
+        };
+    }
+
     /**
      * Verbessert die Qualität um eine Stufe
      */
-    public TobaccoQuality upgrade() {
+    @Override
+    public ProductionQuality upgrade() {
         return switch (this) {
             case SCHLECHT -> GUT;
             case GUT -> SEHR_GUT;
@@ -62,7 +75,8 @@ public enum TobaccoQuality {
     /**
      * Verschlechtert die Qualität um eine Stufe
      */
-    public TobaccoQuality downgrade() {
+    @Override
+    public ProductionQuality downgrade() {
         return switch (this) {
             case SCHLECHT, GUT -> SCHLECHT;
             case SEHR_GUT -> GUT;
