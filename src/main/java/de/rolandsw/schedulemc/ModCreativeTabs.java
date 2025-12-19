@@ -124,7 +124,6 @@ public class ModCreativeTabs {
                 output.accept(TobaccoItems.PACKAGING_BAG.get());
                 output.accept(TobaccoItems.PACKAGING_JAR.get());
                 output.accept(TobaccoItems.PACKAGING_BOX.get());
-                output.accept(TobaccoItems.PACKAGED_TOBACCO.get());
 
                 // ═══════════════════════════════════════════════════════════
                 // TÖPFE
@@ -243,7 +242,6 @@ public class ModCreativeTabs {
                 output.accept(CocaItems.FRESH_KOLUMBIANISCH_LEAF.get());
                 output.accept(CocaItems.COCA_PASTE.get());
                 output.accept(CocaItems.COCAINE.get());
-                output.accept(CocaItems.PACKAGED_COCAINE.get());
                 output.accept(CocaItems.DIESEL_CANISTER.get());
                 output.accept(CocaItems.CRACK_ROCK.get());
                 output.accept(CocaItems.BACKPULVER.get());
@@ -269,10 +267,6 @@ public class ModCreativeTabs {
                 output.accept(PoppyItems.RAW_OPIUM.get());
                 output.accept(PoppyItems.MORPHINE.get());
                 output.accept(PoppyItems.HEROIN.get());
-                output.accept(PoppyItems.PACKAGED_HEROIN_50G.get());
-                output.accept(PoppyItems.PACKAGED_HEROIN_100G.get());
-                output.accept(PoppyItems.PACKAGED_HEROIN_250G.get());
-                output.accept(PoppyItems.PACKAGED_HEROIN_500G.get());
                 output.accept(PoppyItems.SCORING_KNIFE.get());
 
                 // ═══════════════════════════════════════════════════════════
@@ -298,10 +292,6 @@ public class ModCreativeTabs {
                 output.accept(MushroomItems.DRIED_CUBENSIS.get());
                 output.accept(MushroomItems.DRIED_AZURESCENS.get());
                 output.accept(MushroomItems.DRIED_MEXICANA.get());
-                output.accept(MushroomItems.PACKAGED_1G.get());
-                output.accept(MushroomItems.PACKAGED_3_5G.get());
-                output.accept(MushroomItems.PACKAGED_7G.get());
-                output.accept(MushroomItems.PACKAGED_14G.get());
 
                 // ═══════════════════════════════════════════════════════════
                 // MUSHROOM BLOCKS
@@ -322,11 +312,12 @@ public class ModCreativeTabs {
                 output.accept(MethItems.ROH_METH.get());
                 output.accept(MethItems.KRISTALL_METH.get());
                 output.accept(MethItems.METH.get());
-                output.accept(MethItems.PACKAGED_METH_1G.get());
-                output.accept(MethItems.PACKAGED_METH_3_5G.get());
-                output.accept(MethItems.PACKAGED_METH_7G.get());
-                output.accept(MethItems.PACKAGED_METH_14G.get());
-                output.accept(MethItems.PACKAGED_METH_28G.get());
+
+                // ═══════════════════════════════════════════════════════════
+                // UNIVERSELLES PACKAGING-SYSTEM (Alle Drogen)
+                // ═══════════════════════════════════════════════════════════
+                // Zeige ein Beispiel für jeden DrugType (1g)
+                output.accept(ModItems.PACKAGED_DRUG.get());
 
                 // ═══════════════════════════════════════════════════════════
                 // METH BLOCKS

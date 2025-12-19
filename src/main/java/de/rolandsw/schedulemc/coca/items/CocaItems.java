@@ -50,13 +50,6 @@ public class CocaItems {
             ITEMS.register("cocaine", CocaineItem::new);
 
     // ═══════════════════════════════════════════════════════════
-    // VERPACKTES KOKAIN (für Verkauf an NPCs)
-    // ═══════════════════════════════════════════════════════════
-
-    public static final RegistryObject<Item> PACKAGED_COCAINE =
-            ITEMS.register("packaged_cocaine", PackagedCocaineItem::new);
-
-    // ═══════════════════════════════════════════════════════════
     // DIESEL-KANISTER (für Extraktionswanne)
     // ═══════════════════════════════════════════════════════════
 

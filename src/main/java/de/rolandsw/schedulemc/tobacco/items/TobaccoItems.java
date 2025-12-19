@@ -124,11 +124,4 @@ public class TobaccoItems {
 
     public static final RegistryObject<Item> PACKAGING_BOX =
         ITEMS.register("packaging_box", PackagingBoxItem::new);
-
-    // ═══════════════════════════════════════════════════════════
-    // VERPACKTER TABAK (für Verkauf an NPCs)
-    // ═══════════════════════════════════════════════════════════
-
-    public static final RegistryObject<Item> PACKAGED_TOBACCO =
-        ITEMS.register("packaged_tobacco", PackagedTobaccoItem::new);
 }

@@ -39,16 +39,6 @@ public class PoppyItems {
     public static final RegistryObject<Item> HEROIN = ITEMS.register("heroin",
             HeroinItem::new);
 
-    // Verpacktes Heroin
-    public static final RegistryObject<Item> PACKAGED_HEROIN_50G = ITEMS.register("packaged_heroin_50g",
-            () -> new PackagedHeroinItem(50));
-    public static final RegistryObject<Item> PACKAGED_HEROIN_100G = ITEMS.register("packaged_heroin_100g",
-            () -> new PackagedHeroinItem(100));
-    public static final RegistryObject<Item> PACKAGED_HEROIN_250G = ITEMS.register("packaged_heroin_250g",
-            () -> new PackagedHeroinItem(250));
-    public static final RegistryObject<Item> PACKAGED_HEROIN_500G = ITEMS.register("packaged_heroin_500g",
-            () -> new PackagedHeroinItem(500));
-
     // Ritzmesser (Tool)
     public static final RegistryObject<Item> SCORING_KNIFE = ITEMS.register("scoring_knife",
             ScoringKnifeItem::new);
