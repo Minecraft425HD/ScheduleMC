@@ -112,11 +112,13 @@ public class SmallPackagingTableBlockEntity extends BlockEntity implements MenuP
         final DrugType drugType;
         final ProductionQuality quality;
         final ProductionType variant;
+        final String itemType;
 
-        PackagingData(DrugType drugType, ProductionQuality quality, ProductionType variant) {
+        PackagingData(DrugType drugType, ProductionQuality quality, ProductionType variant, String itemType) {
             this.drugType = drugType;
             this.quality = quality;
             this.variant = variant;
+            this.itemType = itemType;
         }
     }
 
@@ -130,49 +132,57 @@ public class SmallPackagingTableBlockEntity extends BlockEntity implements MenuP
             return new PackagingData(
                 DrugType.TOBACCO,
                 FermentedTobaccoLeafItem.getQuality(input),
-                FermentedTobaccoLeafItem.getType(input)
+                FermentedTobaccoLeafItem.getType(input),
+                "TOBACCO"
             );
         } else if (item instanceof CocaineItem) {
             return new PackagingData(
                 DrugType.COCAINE,
                 CocaineItem.getQuality(input),
-                CocaineItem.getType(input)
+                CocaineItem.getType(input),
+                "COCAINE"
             );
         } else if (item instanceof CrackRockItem) {
             return new PackagingData(
                 DrugType.COCAINE, // Crack is COCAINE drug type
                 CrackRockItem.getQuality(input),
-                CrackRockItem.getType(input)
+                CrackRockItem.getType(input),
+                "CRACK"
             );
         } else if (item instanceof HeroinItem) {
             return new PackagingData(
                 DrugType.HEROIN,
                 HeroinItem.getQuality(input),
-                HeroinItem.getType(input)
+                HeroinItem.getType(input),
+                "HEROIN"
             );
         } else if (item instanceof MethItem) {
             return new PackagingData(
                 DrugType.METH,
                 MethItem.getQuality(input),
-                null // Meth has no variant/type
+                null, // Meth has no variant/type
+                "METH"
             );
         } else if (item instanceof DriedMushroomItem driedMushroom) {
             return new PackagingData(
                 DrugType.MUSHROOM,
                 DriedMushroomItem.getQuality(input),
-                driedMushroom.getMushroomType()
+                driedMushroom.getMushroomType(),
+                "MUSHROOM"
             );
         } else if (item instanceof TrimmedBudItem) {
             return new PackagingData(
                 DrugType.CANNABIS,
                 TrimmedBudItem.getQuality(input),
-                TrimmedBudItem.getStrain(input)
+                TrimmedBudItem.getStrain(input),
+                "TRIMMED_CANNABIS"
             );
         } else if (item instanceof CuredBudItem) {
             return new PackagingData(
                 DrugType.CANNABIS,
                 CuredBudItem.getQuality(input),
-                CuredBudItem.getStrain(input)
+                CuredBudItem.getStrain(input),
+                "CURED_CANNABIS"
             );
         }
 
@@ -238,7 +248,7 @@ public class SmallPackagingTableBlockEntity extends BlockEntity implements MenuP
             }
 
             // Erstelle 1g Paket mit universellem System
-            ItemStack packagedDrug = PackagedDrugItem.create(data.drugType, 1, data.quality, data.variant, currentDay);
+            ItemStack packagedDrug = PackagedDrugItem.create(data.drugType, 1, data.quality, data.variant, currentDay, data.itemType);
             itemHandler.setStackInSlot(slot, packagedDrug);
             created++;
         }
@@ -306,7 +316,7 @@ public class SmallPackagingTableBlockEntity extends BlockEntity implements MenuP
                 break;
             }
 
-            ItemStack packagedDrug = PackagedDrugItem.create(data.drugType, 5, data.quality, data.variant, currentDay);
+            ItemStack packagedDrug = PackagedDrugItem.create(data.drugType, 5, data.quality, data.variant, currentDay, data.itemType);
             itemHandler.setStackInSlot(slot, packagedDrug);
             created++;
         }

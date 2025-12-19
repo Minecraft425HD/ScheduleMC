@@ -52,6 +52,7 @@ public class MethItem extends Item {
 
         tooltip.add(Component.literal("§7Qualität: " + quality.getColoredName()));
         tooltip.add(Component.literal("§7Reinheit: §f" + getPurityPercent(quality) + "%"));
+        tooltip.add(Component.literal("§7Gewicht: §f" + stack.getCount() + "g §8(" + stack.getCount() + "x 1g)"));
         tooltip.add(Component.literal(""));
 
         String colorDesc = switch (quality) {

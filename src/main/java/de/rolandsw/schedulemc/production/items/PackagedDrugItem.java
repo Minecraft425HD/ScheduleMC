@@ -33,6 +33,7 @@ import java.util.List;
  * Universelles verpacktes Drogen-Item
  * Speichert alle Informationen in NBT:
  * - DrugType (TOBACCO, COCAINE, HEROIN, METH, MUSHROOM, CANNABIS)
+ * - ItemType (COCAINE, CRACK, TRIMMED_CANNABIS, CURED_CANNABIS, etc.)
  * - Weight (1g, 5g, 10g, 20g)
  * - Quality (als String, da verschiedene Enum-Typen)
  * - Variant (als String, z.B. Virginia, Bolivianisch, etc.)
@@ -65,9 +66,9 @@ public class PackagedDrugItem extends Item {
     // ═══════════════════════════════════════════════════════════
 
     /**
-     * Erstellt verpackte Droge mit allen Eigenschaften
+     * Erstellt verpackte Droge mit allen Eigenschaften (mit ItemType)
      */
-    public static ItemStack create(DrugType drugType, int weight, String quality, @Nullable String variant, long packageDate) {
+    public static ItemStack create(DrugType drugType, int weight, String quality, @Nullable String variant, long packageDate, @Nullable String itemType) {
         ItemStack stack = new ItemStack(de.rolandsw.schedulemc.items.ModItems.PACKAGED_DRUG.get(), 1);
         CompoundTag tag = stack.getOrCreateTag();
         tag.putString("DrugType", drugType.name());
@@ -77,16 +78,33 @@ public class PackagedDrugItem extends Item {
             tag.putString("Variant", variant);
         }
         tag.putLong("PackageDate", packageDate);
+        if (itemType != null) {
+            tag.putString("ItemType", itemType);
+        }
         return stack;
     }
 
     /**
-     * Vereinfachte create-Methode mit ProductionType und ProductionQuality
+     * Erstellt verpackte Droge mit allen Eigenschaften (ohne ItemType - für Backwards Compatibility)
      */
-    public static ItemStack create(DrugType drugType, int weight, ProductionQuality quality, @Nullable ProductionType type, long packageDate) {
+    public static ItemStack create(DrugType drugType, int weight, String quality, @Nullable String variant, long packageDate) {
+        return create(drugType, weight, quality, variant, packageDate, null);
+    }
+
+    /**
+     * Vereinfachte create-Methode mit ProductionType und ProductionQuality (mit ItemType)
+     */
+    public static ItemStack create(DrugType drugType, int weight, ProductionQuality quality, @Nullable ProductionType type, long packageDate, @Nullable String itemType) {
         String qualityStr = quality.getClass().getSimpleName() + "." + ((Enum<?>) quality).name();
         String variantStr = type != null ? (type.getClass().getSimpleName() + "." + ((Enum<?>) type).name()) : null;
-        return create(drugType, weight, qualityStr, variantStr, packageDate);
+        return create(drugType, weight, qualityStr, variantStr, packageDate, itemType);
+    }
+
+    /**
+     * Vereinfachte create-Methode mit ProductionType und ProductionQuality (ohne ItemType - für Backwards Compatibility)
+     */
+    public static ItemStack create(DrugType drugType, int weight, ProductionQuality quality, @Nullable ProductionType type, long packageDate) {
+        return create(drugType, weight, quality, type, packageDate, null);
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -122,6 +140,15 @@ public class PackagedDrugItem extends Item {
         CompoundTag tag = stack.getTag();
         if (tag != null && tag.contains("Variant")) {
             return tag.getString("Variant");
+        }
+        return null;
+    }
+
+    @Nullable
+    public static String getItemType(ItemStack stack) {
+        CompoundTag tag = stack.getTag();
+        if (tag != null && tag.contains("ItemType")) {
+            return tag.getString("ItemType");
         }
         return null;
     }
@@ -233,10 +260,36 @@ public class PackagedDrugItem extends Item {
         DrugType drugType = getDrugType(stack);
         int weight = getWeight(stack);
         ProductionType variant = parseVariant(getVariant(stack));
+        String itemType = getItemType(stack);
 
         String name = drugType.getColoredName();
-        if (variant != null) {
-            name = variant.getColoredName() + " " + drugType.getDisplayName();
+
+        // Spezielle Anzeige basierend auf ItemType
+        if (itemType != null) {
+            switch (itemType) {
+                case "CRACK":
+                    name = variant != null ? (variant.getColoredName() + " Crack") : "Crack";
+                    break;
+                case "COCAINE":
+                    name = variant != null ? (variant.getColoredName() + " Kokain") : "Kokain";
+                    break;
+                case "CURED_CANNABIS":
+                    name = variant != null ? (variant.getColoredName() + " Cannabis §7(Cured)") : "Cannabis §7(Cured)";
+                    break;
+                case "TRIMMED_CANNABIS":
+                    name = variant != null ? (variant.getColoredName() + " Cannabis") : "Cannabis";
+                    break;
+                default:
+                    // Fallback auf Standard-Logik
+                    if (variant != null) {
+                        name = variant.getColoredName() + " " + drugType.getDisplayName();
+                    }
+            }
+        } else {
+            // Alte Logik für Items ohne ItemType (Backwards Compatibility)
+            if (variant != null) {
+                name = variant.getColoredName() + " " + drugType.getDisplayName();
+            }
         }
 
         return Component.literal(name + " §7(" + weight + "g)");
