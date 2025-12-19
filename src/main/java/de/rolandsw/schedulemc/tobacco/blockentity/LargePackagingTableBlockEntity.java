@@ -1,5 +1,7 @@
 package de.rolandsw.schedulemc.tobacco.blockentity;
 
+import de.rolandsw.schedulemc.production.core.DrugType;
+import de.rolandsw.schedulemc.production.items.PackagedDrugItem;
 import de.rolandsw.schedulemc.tobacco.items.FermentedTobaccoLeafItem;
 import de.rolandsw.schedulemc.tobacco.items.PackagedTobaccoItem;
 import de.rolandsw.schedulemc.tobacco.menu.LargePackagingTableMenu;
@@ -47,7 +49,7 @@ public class LargePackagingTableBlockEntity extends BlockEntity implements MenuP
                 return stack.getItem() instanceof FermentedTobaccoLeafItem;
             }
             if (slot >= 1 && slot <= 9) {
-                return stack.getItem() instanceof PackagedTobaccoItem;
+                return stack.getItem() instanceof PackagedDrugItem;
             }
             return false;
         }
@@ -113,7 +115,7 @@ public class LargePackagingTableBlockEntity extends BlockEntity implements MenuP
                 break; // Kein Platz mehr
             }
 
-            ItemStack packagedTobacco = PackagedTobaccoItem.create(type, quality, 20, currentDay);
+            ItemStack packagedTobacco = PackagedDrugItem.create(DrugType.TOBACCO, 20, quality, type, currentDay);
             itemHandler.setStackInSlot(slot, packagedTobacco);
             created++;
         }
@@ -137,8 +139,8 @@ public class LargePackagingTableBlockEntity extends BlockEntity implements MenuP
 
         for (int i = 1; i <= 9; i++) {
             ItemStack stack = itemHandler.getStackInSlot(i);
-            if (stack.getItem() instanceof PackagedTobaccoItem) {
-                int weight = PackagedTobaccoItem.getWeight(stack);
+            if (stack.getItem() instanceof PackagedDrugItem) {
+                int weight = PackagedDrugItem.getWeight(stack);
                 totalWeight += weight;
 
                 // Entferne das Paket (kein Material zurückgeben)

@@ -1,5 +1,7 @@
 package de.rolandsw.schedulemc.tobacco.blockentity;
 
+import de.rolandsw.schedulemc.production.core.DrugType;
+import de.rolandsw.schedulemc.production.items.PackagedDrugItem;
 import de.rolandsw.schedulemc.tobacco.items.*;
 import de.rolandsw.schedulemc.tobacco.menu.SmallPackagingTableMenu;
 import net.minecraft.core.BlockPos;
@@ -49,12 +51,12 @@ public class SmallPackagingTableBlockEntity extends BlockEntity implements MenuP
             // Slots 1-10: Nur Tüten (leer oder voll)
             if (slot >= 1 && slot <= 10) {
                 return stack.getItem() instanceof PackagingBagItem ||
-                       (stack.getItem() instanceof PackagedTobaccoItem && PackagedTobaccoItem.getWeight(stack) == 1);
+                       (stack.getItem() instanceof PackagedDrugItem && PackagedDrugItem.getWeight(stack) == 1);
             }
             // Slots 11-20: Nur Gläser (leer oder voll)
             if (slot >= 11 && slot <= 20) {
                 return stack.getItem() instanceof PackagingJarItem ||
-                       (stack.getItem() instanceof PackagedTobaccoItem && PackagedTobaccoItem.getWeight(stack) == 5);
+                       (stack.getItem() instanceof PackagedDrugItem && PackagedDrugItem.getWeight(stack) == 5);
             }
             return false;
         }
@@ -144,8 +146,8 @@ public class SmallPackagingTableBlockEntity extends BlockEntity implements MenuP
                 break; // Kein Platz mehr
             }
 
-            // Erstelle 1g Paket
-            ItemStack packagedTobacco = PackagedTobaccoItem.create(type, quality, 1, currentDay);
+            // Erstelle 1g Paket mit universellem System
+            ItemStack packagedTobacco = PackagedDrugItem.create(DrugType.TOBACCO, 1, quality, type, currentDay);
             itemHandler.setStackInSlot(slot, packagedTobacco);
             created++;
         }
@@ -209,7 +211,7 @@ public class SmallPackagingTableBlockEntity extends BlockEntity implements MenuP
                 break;
             }
 
-            ItemStack packagedTobacco = PackagedTobaccoItem.create(type, quality, 5, currentDay);
+            ItemStack packagedTobacco = PackagedDrugItem.create(DrugType.TOBACCO, 5, quality, type, currentDay);
             itemHandler.setStackInSlot(slot, packagedTobacco);
             created++;
         }
@@ -237,8 +239,8 @@ public class SmallPackagingTableBlockEntity extends BlockEntity implements MenuP
         // Durchsuche alle Slots nach vollen Paketen
         for (int i = 1; i <= 20; i++) {
             ItemStack stack = itemHandler.getStackInSlot(i);
-            if (stack.getItem() instanceof PackagedTobaccoItem) {
-                int weight = PackagedTobaccoItem.getWeight(stack);
+            if (stack.getItem() instanceof PackagedDrugItem) {
+                int weight = PackagedDrugItem.getWeight(stack);
                 totalWeight += weight;
 
                 // Gib leeres Material zurück
