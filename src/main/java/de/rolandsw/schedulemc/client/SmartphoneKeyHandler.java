@@ -1,3 +1,4 @@
+import de.rolandsw.schedulemc.util.EventHelper;
 package de.rolandsw.schedulemc.client;
 
 import de.rolandsw.schedulemc.ScheduleMC;
@@ -22,7 +23,9 @@ public class SmartphoneKeyHandler {
     public static class ModEventHandler {
         @SubscribeEvent
         public static void onRegisterKeyMappings(RegisterKeyMappingsEvent event) {
-            event.register(KeyBindings.OPEN_SMARTPHONE);
+            EventHelper.handleEvent(() -> {
+                event.register(KeyBindings.OPEN_SMARTPHONE);
+            }, "onRegisterKeyMappings");
         }
     }
 
@@ -31,15 +34,17 @@ public class SmartphoneKeyHandler {
      */
     @SubscribeEvent
     public static void onKeyInput(InputEvent.Key event) {
-        Minecraft mc = Minecraft.getInstance();
+        EventHelper.handleEvent(() -> {
+            Minecraft mc = Minecraft.getInstance();
 
-        // Nur verarbeiten wenn im Spiel und kein anderes GUI offen ist
-        if (mc.screen == null && KeyBindings.OPEN_SMARTPHONE.consumeClick()) {
-            mc.setScreen(new SmartphoneScreen());
-        }
-        // Wenn Smartphone bereits offen ist, schließen
-        else if (mc.screen instanceof SmartphoneScreen && KeyBindings.OPEN_SMARTPHONE.consumeClick()) {
-            mc.setScreen(null);
-        }
+            // Nur verarbeiten wenn im Spiel und kein anderes GUI offen ist
+            if (mc.screen == null && KeyBindings.OPEN_SMARTPHONE.consumeClick()) {
+                mc.setScreen(new SmartphoneScreen());
+            }
+            // Wenn Smartphone bereits offen ist, schließen
+            else if (mc.screen instanceof SmartphoneScreen && KeyBindings.OPEN_SMARTPHONE.consumeClick()) {
+                mc.setScreen(null);
+            }
+        }, "onKeyInput");
     }
 }

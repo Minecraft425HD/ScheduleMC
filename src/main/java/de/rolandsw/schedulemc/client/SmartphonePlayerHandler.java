@@ -1,3 +1,4 @@
+import de.rolandsw.schedulemc.util.EventHelper;
 package de.rolandsw.schedulemc.client;
 
 import de.rolandsw.schedulemc.ScheduleMC;
@@ -16,6 +17,8 @@ public class SmartphonePlayerHandler {
      */
     @SubscribeEvent
     public static void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
-        SmartphoneTracker.removePlayer(event.getEntity().getUUID());
+        EventHelper.handleEvent(() -> {
+            SmartphoneTracker.removePlayer(event.getEntity().getUUID());
+        }, "onPlayerLogout");
     }
 }

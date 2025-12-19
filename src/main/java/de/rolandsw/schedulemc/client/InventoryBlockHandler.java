@@ -1,3 +1,4 @@
+import de.rolandsw.schedulemc.util.EventHelper;
 package de.rolandsw.schedulemc.client;
 
 import net.minecraft.client.Minecraft;
@@ -19,25 +20,27 @@ public class InventoryBlockHandler {
      */
     @SubscribeEvent
     public static void onGuiOpen(ScreenEvent.Opening event) {
-        // Prüfe ob das Inventar-GUI geöffnet werden soll
-        if (event.getNewScreen() instanceof InventoryScreen) {
-            Minecraft mc = Minecraft.getInstance();
+        EventHelper.handleEvent(() -> {
+            // Prüfe ob das Inventar-GUI geöffnet werden soll
+            if (event.getNewScreen() instanceof InventoryScreen) {
+                Minecraft mc = Minecraft.getInstance();
 
-            // Admins (OP) dürfen weiterhin auf Inventar zugreifen
-            if (mc.player != null && mc.player.hasPermissions(2)) {
-                return; // Admin bypass
+                // Admins (OP) dürfen weiterhin auf Inventar zugreifen
+                if (mc.player != null && mc.player.hasPermissions(2)) {
+                    return; // Admin bypass
+                }
+
+                // Blockiere das Öffnen für normale Spieler
+                event.setCanceled(true);
+
+                // Zeige Nachricht
+                if (mc.player != null) {
+                    mc.player.displayClientMessage(
+                        Component.literal("§c⚠ Inventar ist gesperrt! Nutze nur die Schnellzugriffsleiste (1-9)."),
+                        true
+                    );
+                }
             }
-
-            // Blockiere das Öffnen für normale Spieler
-            event.setCanceled(true);
-
-            // Zeige Nachricht
-            if (mc.player != null) {
-                mc.player.displayClientMessage(
-                    Component.literal("§c⚠ Inventar ist gesperrt! Nutze nur die Schnellzugriffsleiste (1-9)."),
-                    true
-                );
-            }
-        }
+        }, "onGuiOpen");
     }
 }

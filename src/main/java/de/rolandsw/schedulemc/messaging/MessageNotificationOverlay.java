@@ -1,3 +1,4 @@
+import de.rolandsw.schedulemc.util.EventHelper;
 package de.rolandsw.schedulemc.messaging;
 
 import com.mojang.blaze3d.systems.RenderSystem;
