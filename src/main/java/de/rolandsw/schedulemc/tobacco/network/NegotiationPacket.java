@@ -117,7 +117,7 @@ public class NegotiationPacket {
                 String qualityStr = PackagedDrugItem.getQuality(playerItem);
                 TobaccoQuality quality = qualityStr != null ? TobaccoQuality.valueOf(qualityStr.split("\\.")[1]) : TobaccoQuality.GUT;
 
-                long packagedDate = PackagedDrugItem.getPackagedDate(playerItem);
+                long packagedDate = PackagedDrugItem.getPackageDate(playerItem);
 
                 // Erstelle verkauftes Item (komplettes Päckchen, da offeredGrams == availableGrams)
                 ItemStack soldItem = PackagedDrugItem.create(
