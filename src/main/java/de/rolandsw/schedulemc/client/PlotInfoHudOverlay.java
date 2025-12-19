@@ -31,24 +31,26 @@ public class PlotInfoHudOverlay {
 
     @SubscribeEvent
     public static void onRenderGuiOverlay(RenderGuiOverlayEvent.Post event) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.level == null) return;
+        EventHelper.handleEvent(() -> {
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.player == null || mc.level == null) return;
 
-        HitResult hitResult = mc.hitResult;
-        if (hitResult == null || hitResult.getType() != HitResult.Type.BLOCK) return;
+            HitResult hitResult = mc.hitResult;
+            if (hitResult == null || hitResult.getType() != HitResult.Type.BLOCK) return;
 
-        BlockHitResult blockHitResult = (BlockHitResult) hitResult;
-        BlockPos targetPos = blockHitResult.getBlockPos();
-        BlockState state = mc.level.getBlockState(targetPos);
+            BlockHitResult blockHitResult = (BlockHitResult) hitResult;
+            BlockPos targetPos = blockHitResult.getBlockPos();
+            BlockState state = mc.level.getBlockState(targetPos);
 
-        // Prüfe ob Spieler auf PlotInfoBlock schaut
-        if (state.getBlock() instanceof PlotInfoBlock) {
-            PlotRegion plot = PlotManager.getPlotAt(targetPos);
+            // Prüfe ob Spieler auf PlotInfoBlock schaut
+            if (state.getBlock() instanceof PlotInfoBlock) {
+                PlotRegion plot = PlotManager.getPlotAt(targetPos);
 
-            if (plot != null) {
-                renderPlotHud(event.getGuiGraphics(), mc, plot);
+                if (plot != null) {
+                    renderPlotHud(event.getGuiGraphics(), mc, plot);
+                }
             }
-        }
+        }, "onRenderGuiOverlay");
     }
 
     /**

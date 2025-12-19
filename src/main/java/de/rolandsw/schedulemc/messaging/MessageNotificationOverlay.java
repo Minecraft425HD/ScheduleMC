@@ -29,8 +29,9 @@ public class MessageNotificationOverlay {
 
     @SubscribeEvent
     public static void onRenderOverlay(RenderGuiOverlayEvent.Post event) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null) return;
+        EventHelper.handleEvent(() -> {
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.player == null) return;
 
         long currentTime = System.currentTimeMillis();
 
@@ -95,6 +96,7 @@ public class MessageNotificationOverlay {
         guiGraphics.drawString(mc.font, title, x + 10, y + 8, 0xFFFFFF | (alphaValue << 24));
         guiGraphics.drawString(mc.font, message, x + 10, y + 22, 0xFFFFFF | (alphaValue << 24));
         RenderSystem.disableBlend();
+        }, "onRenderOverlay");
     }
 
     private static class Notification {

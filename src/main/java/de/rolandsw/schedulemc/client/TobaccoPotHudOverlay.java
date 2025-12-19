@@ -35,41 +35,43 @@ public class TobaccoPotHudOverlay {
 
     @SubscribeEvent
     public static void onRenderGuiOverlay(RenderGuiOverlayEvent.Post event) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.level == null) return;
+        EventHelper.handleEvent(() -> {
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.player == null || mc.level == null) return;
 
-        HitResult hitResult = mc.hitResult;
-        if (hitResult == null || hitResult.getType() != HitResult.Type.BLOCK) return;
+            HitResult hitResult = mc.hitResult;
+            if (hitResult == null || hitResult.getType() != HitResult.Type.BLOCK) return;
 
-        BlockHitResult blockHitResult = (BlockHitResult) hitResult;
-        BlockPos targetPos = blockHitResult.getBlockPos();
-        BlockState state = mc.level.getBlockState(targetPos);
+            BlockHitResult blockHitResult = (BlockHitResult) hitResult;
+            BlockPos targetPos = blockHitResult.getBlockPos();
+            BlockState state = mc.level.getBlockState(targetPos);
 
-        GuiGraphics guiGraphics = event.getGuiGraphics();
+            GuiGraphics guiGraphics = event.getGuiGraphics();
 
-        // Fall 1: Spieler schaut auf Pflanze - zeige Topf darunter
-        if (state.getBlock() instanceof TobaccoPlantBlock) {
-            if (state.getValue(TobaccoPlantBlock.HALF) == DoubleBlockHalf.UPPER) {
-                targetPos = targetPos.below(); // Gehe zum unteren Teil
+            // Fall 1: Spieler schaut auf Pflanze - zeige Topf darunter
+            if (state.getBlock() instanceof TobaccoPlantBlock) {
+                if (state.getValue(TobaccoPlantBlock.HALF) == DoubleBlockHalf.UPPER) {
+                    targetPos = targetPos.below(); // Gehe zum unteren Teil
+                }
+                // Topf ist unter der Pflanze
+                BlockPos potPos = targetPos.below();
+                BlockEntity be = mc.level.getBlockEntity(potPos);
+                BlockState potState = mc.level.getBlockState(potPos);
+
+                if (be instanceof PlantPotBlockEntity potBE && potState.getBlock() instanceof PlantPotBlock potBlock) {
+                    renderUnifiedHud(guiGraphics, mc, potBlock, potBE, true);
+                }
+                return;
             }
-            // Topf ist unter der Pflanze
-            BlockPos potPos = targetPos.below();
-            BlockEntity be = mc.level.getBlockEntity(potPos);
-            BlockState potState = mc.level.getBlockState(potPos);
 
-            if (be instanceof PlantPotBlockEntity potBE && potState.getBlock() instanceof PlantPotBlock potBlock) {
-                renderUnifiedHud(guiGraphics, mc, potBlock, potBE, true);
+            // Fall 2: Spieler schaut direkt auf Topf
+            if (state.getBlock() instanceof PlantPotBlock potBlock) {
+                BlockEntity be = mc.level.getBlockEntity(targetPos);
+                if (be instanceof PlantPotBlockEntity potBE) {
+                    renderUnifiedHud(guiGraphics, mc, potBlock, potBE, false);
+                }
             }
-            return;
-        }
-
-        // Fall 2: Spieler schaut direkt auf Topf
-        if (state.getBlock() instanceof PlantPotBlock potBlock) {
-            BlockEntity be = mc.level.getBlockEntity(targetPos);
-            if (be instanceof PlantPotBlockEntity potBE) {
-                renderUnifiedHud(guiGraphics, mc, potBlock, potBE, false);
-            }
-        }
+        }, "onRenderGuiOverlay");
     }
 
     /**
