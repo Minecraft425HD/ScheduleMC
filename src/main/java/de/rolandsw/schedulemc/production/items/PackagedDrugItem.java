@@ -179,26 +179,26 @@ public class PackagedDrugItem extends Item {
         ProductionQuality quality = parseQuality(getQuality(stack));
         ProductionType variant = parseVariant(getVariant(stack));
 
-        // Basis-Preis pro Gramm
-        double basePricePerGram = switch (drugType) {
-            case TOBACCO -> 0.50;
-            case COCAINE -> 80.0;
-            case HEROIN -> 100.0;
-            case METH -> 120.0;
-            case MUSHROOM -> 15.0;
-            case CANNABIS -> 10.0;
-        };
-
-        // Varianten-Multiplikator
-        double variantMultiplier = 1.0;
+        // Basis-Preis pro Gramm (vom Variant, falls vorhanden)
+        double basePricePerGram;
         if (variant != null) {
-            variantMultiplier = variant.getPriceMultiplier();
+            basePricePerGram = variant.getBasePrice();
+        } else {
+            // Fallback wenn kein Variant vorhanden
+            basePricePerGram = switch (drugType) {
+                case TOBACCO -> 0.50;
+                case COCAINE -> 80.0;
+                case HEROIN -> 100.0;
+                case METH -> 120.0;
+                case MUSHROOM -> 15.0;
+                case CANNABIS -> 10.0;
+            };
         }
 
         // Qualitäts-Multiplikator
         double qualityMultiplier = quality.getPriceMultiplier();
 
-        return basePricePerGram * weight * variantMultiplier * qualityMultiplier;
+        return basePricePerGram * weight * qualityMultiplier;
     }
 
     // ═══════════════════════════════════════════════════════════
