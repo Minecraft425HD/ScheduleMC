@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.npc.client;
+import de.rolandsw.schedulemc.util.EventHelper;
 
 import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.npc.client.model.CustomNPCModel;
@@ -26,21 +27,25 @@ public class NPCClientEvents {
 
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
-        event.enqueueWork(() -> {
-            // Register Screens
-            MenuScreens.register(NPCMenuTypes.NPC_SPAWNER_MENU.get(), NPCSpawnerScreen::new);
-            MenuScreens.register(NPCMenuTypes.NPC_INTERACTION_MENU.get(), NPCInteractionScreen::new);
-            MenuScreens.register(NPCMenuTypes.MERCHANT_SHOP_MENU.get(), MerchantShopScreen::new);
-            MenuScreens.register(NPCMenuTypes.SHOP_EDITOR_MENU.get(), ShopEditorScreen::new);
-            MenuScreens.register(NPCMenuTypes.STEALING_MENU.get(), StealingScreen::new);
+        EventHelper.handleEvent(() -> {
+            event.enqueueWork(() -> {
+                // Register Screens
+                MenuScreens.register(NPCMenuTypes.NPC_SPAWNER_MENU.get(), NPCSpawnerScreen::new);
+                MenuScreens.register(NPCMenuTypes.NPC_INTERACTION_MENU.get(), NPCInteractionScreen::new);
+                MenuScreens.register(NPCMenuTypes.MERCHANT_SHOP_MENU.get(), MerchantShopScreen::new);
+                MenuScreens.register(NPCMenuTypes.SHOP_EDITOR_MENU.get(), ShopEditorScreen::new);
+                MenuScreens.register(NPCMenuTypes.STEALING_MENU.get(), StealingScreen::new);
 
-            // Register Entity Renderer
-            EntityRenderers.register(NPCEntities.CUSTOM_NPC.get(), CustomNPCRenderer::new);
-        });
+                // Register Entity Renderer
+                EntityRenderers.register(NPCEntities.CUSTOM_NPC.get(), CustomNPCRenderer::new);
+            });
+        }, "onClientSetup");
     }
 
     @SubscribeEvent
     public static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
-        event.registerLayerDefinition(CustomNPCModel.LAYER_LOCATION, CustomNPCModel::createBodyLayer);
+        EventHelper.handleEvent(() -> {
+            event.registerLayerDefinition(CustomNPCModel.LAYER_LOCATION, CustomNPCModel::createBodyLayer);
+        }, "registerLayerDefinitions");
     }
 }

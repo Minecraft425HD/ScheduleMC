@@ -1,80 +1,59 @@
 package de.rolandsw.schedulemc.vehicle.fuel;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.mojang.logging.LogUtils;
-import org.slf4j.Logger;
+import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
+import de.rolandsw.schedulemc.util.GsonHelper;
 
+import javax.annotation.Nullable;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * Verwaltet alle Tankrechnungen
+ *
+ * Nutzt AbstractPersistenceManager für robuste Datenpersistenz
  */
 public class FuelBillManager {
 
-    private static final Logger LOGGER = LogUtils.getLogger();
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private static final Gson GSON = GsonHelper.get();
     private static final File BILLS_FILE = new File("config/fuel_bills.json");
 
     // PlayerUUID → List<UnpaidBill>
     private static Map<UUID, List<UnpaidBill>> playerBills = new HashMap<>();
-    private static boolean isDirty = false;
+
+    // Persistence-Manager (eliminiert ~80 Zeilen Duplikation)
+    private static final FuelBillPersistenceManager persistence =
+        new FuelBillPersistenceManager(BILLS_FILE, GSON);
 
     /**
      * Lädt Rechnungen vom Disk
      */
     public static void load() {
-        if (!BILLS_FILE.exists()) {
-            LOGGER.info("Keine Tankrechnungen gefunden, starte mit leerer Datenbank");
-            return;
-        }
-
-        try (FileReader reader = new FileReader(BILLS_FILE)) {
-            Map<String, List<UnpaidBill>> loaded = GSON.fromJson(reader,
-                new TypeToken<Map<String, List<UnpaidBill>>>(){}.getType());
-
-            if (loaded != null) {
-                playerBills.clear();
-                for (Map.Entry<String, List<UnpaidBill>> entry : loaded.entrySet()) {
-                    playerBills.put(UUID.fromString(entry.getKey()), entry.getValue());
-                }
-                LOGGER.info("Tankrechnungen geladen: {} Spieler", playerBills.size());
-            }
-        } catch (Exception e) {
-            LOGGER.error("Fehler beim Laden der Tankrechnungen!", e);
-        }
+        persistence.load();
     }
 
     /**
      * Speichert Rechnungen auf Disk
      */
     public static void save() {
-        BILLS_FILE.getParentFile().mkdirs(); // Erstelle config-Ordner falls nicht vorhanden
-        try (FileWriter writer = new FileWriter(BILLS_FILE)) {
-            Map<String, List<UnpaidBill>> toSave = new HashMap<>();
-            for (Map.Entry<UUID, List<UnpaidBill>> entry : playerBills.entrySet()) {
-                toSave.put(entry.getKey().toString(), entry.getValue());
-            }
-            GSON.toJson(toSave, writer);
-            isDirty = false;
-            LOGGER.info("Tankrechnungen gespeichert");
-        } catch (Exception e) {
-            LOGGER.error("Fehler beim Speichern der Tankrechnungen!", e);
-        }
+        persistence.save();
     }
 
     /**
      * Speichert nur wenn Änderungen vorhanden
      */
     public static void saveIfNeeded() {
-        if (isDirty) {
-            save();
-        }
+        persistence.saveIfNeeded();
+    }
+
+    /**
+     * Markiert als geändert
+     */
+    private static void markDirty() {
+        persistence.markDirty();
     }
 
     /**
@@ -85,10 +64,7 @@ public class FuelBillManager {
 
         List<UnpaidBill> bills = playerBills.computeIfAbsent(playerUUID, k -> new ArrayList<>());
         bills.add(bill);
-        isDirty = true;
-
-        LOGGER.info("Rechnung erstellt: Player={}, Station={}, Amount={} mB, Cost={}€",
-            playerUUID, fuelStationId, amountFueled, totalCost);
+        markDirty();
     }
 
     /**
@@ -140,7 +116,7 @@ public class FuelBillManager {
             bills.stream()
                 .filter(b -> b.fuelStationId.equals(fuelStationId) && !b.paid)
                 .forEach(b -> b.paid = true);
-            isDirty = true;
+            markDirty();
         }
     }
 
@@ -153,7 +129,79 @@ public class FuelBillManager {
         for (List<UnpaidBill> bills : playerBills.values()) {
             bills.removeIf(b -> b.paid && b.timestamp < weekAgo);
         }
-        isDirty = true;
+        markDirty();
+    }
+
+    // ========== HEALTH MONITORING ==========
+
+    /**
+     * Gibt Health-Status zurück
+     */
+    public static boolean isHealthy() {
+        return persistence.isHealthy();
+    }
+
+    /**
+     * Gibt letzte Fehlermeldung zurück
+     */
+    @Nullable
+    public static String getLastError() {
+        return persistence.getLastError();
+    }
+
+    /**
+     * Gibt Health-Info zurück
+     */
+    public static String getHealthInfo() {
+        return persistence.getHealthInfo();
+    }
+
+    /**
+     * Innere Persistence-Manager-Klasse
+     */
+    private static class FuelBillPersistenceManager extends AbstractPersistenceManager<Map<String, List<UnpaidBill>>> {
+
+        public FuelBillPersistenceManager(File dataFile, Gson gson) {
+            super(dataFile, gson);
+        }
+
+        @Override
+        protected Type getDataType() {
+            return new TypeToken<Map<String, List<UnpaidBill>>>(){}.getType();
+        }
+
+        @Override
+        protected void onDataLoaded(Map<String, List<UnpaidBill>> data) {
+            playerBills.clear();
+            for (Map.Entry<String, List<UnpaidBill>> entry : data.entrySet()) {
+                playerBills.put(UUID.fromString(entry.getKey()), entry.getValue());
+            }
+        }
+
+        @Override
+        protected Map<String, List<UnpaidBill>> getCurrentData() {
+            Map<String, List<UnpaidBill>> toSave = new HashMap<>();
+            for (Map.Entry<UUID, List<UnpaidBill>> entry : playerBills.entrySet()) {
+                toSave.put(entry.getKey().toString(), entry.getValue());
+            }
+            return toSave;
+        }
+
+        @Override
+        protected String getComponentName() {
+            return "Fuel Bill System";
+        }
+
+        @Override
+        protected String getHealthDetails() {
+            int totalBills = playerBills.values().stream().mapToInt(List::size).sum();
+            return String.format("%d Players, %d Bills", playerBills.size(), totalBills);
+        }
+
+        @Override
+        protected void onCriticalLoadFailure() {
+            playerBills.clear();
+        }
     }
 
     /**

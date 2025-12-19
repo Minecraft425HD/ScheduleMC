@@ -3,9 +3,9 @@ package de.rolandsw.schedulemc.economy.events;
 import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.economy.WalletManager;
 import de.rolandsw.schedulemc.economy.items.CashItem;
+import de.rolandsw.schedulemc.util.EventHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -57,19 +57,19 @@ public class RespawnHandler {
      */
     @SubscribeEvent
     public static void onPlayerDeath(LivingDeathEvent event) {
-        if (!(event.getEntity() instanceof ServerPlayer player)) return;
-        
-        // Speichere Geldbörsen-Wert in WalletManager (überlebt Tod!)
-        ItemStack wallet = player.getInventory().getItem(8); // Slot 9
-        if (wallet.getItem() instanceof CashItem) {
-            double walletValue = CashItem.getValue(wallet);
-            WalletManager.setBalance(player.getUUID(), walletValue);
-        }
-        
-        player.displayClientMessage(Component.literal(
-            "§c☠ Du bist gestorben!\n" +
-            "§7Du wirst ins Krankenhaus gebracht..."
-        ), false);
+        EventHelper.handleServerPlayerLivingEvent(event, player -> {
+            // Speichere Geldbörsen-Wert in WalletManager (überlebt Tod!)
+            ItemStack wallet = player.getInventory().getItem(8); // Slot 9
+            if (wallet.getItem() instanceof CashItem) {
+                double walletValue = CashItem.getValue(wallet);
+                WalletManager.setBalance(player.getUUID(), walletValue);
+            }
+
+            player.displayClientMessage(Component.literal(
+                "§c☠ Du bist gestorben!\n" +
+                "§7Du wirst ins Krankenhaus gebracht..."
+            ), false);
+        });
     }
     
     /**
@@ -77,8 +77,8 @@ public class RespawnHandler {
      */
     @SubscribeEvent
     public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
-        if (!(event.getEntity() instanceof ServerPlayer player)) return;
-        if (event.isEndConquered()) return; // Nicht bei End-Sieg
+        EventHelper.handleServerPlayerOnly(event, player -> {
+            if (event.isEndConquered()) return; // Nicht bei End-Sieg
         
         // Teleportiere zum Krankenhaus (1 Tick später damit Welt geladen ist)
         player.getServer().execute(() -> {
@@ -129,7 +129,8 @@ public class RespawnHandler {
                 "§7Du wurdest trotzdem behandelt..."
             ), false);
         }
-        
-        player.playSound(net.minecraft.sounds.SoundEvents.PLAYER_LEVELUP, 1.0f, 0.5f);
+
+            player.playSound(net.minecraft.sounds.SoundEvents.PLAYER_LEVELUP, 1.0f, 0.5f);
+        });
     }
 }

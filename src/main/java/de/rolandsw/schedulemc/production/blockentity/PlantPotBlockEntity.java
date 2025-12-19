@@ -11,6 +11,10 @@ import de.rolandsw.schedulemc.poppy.PoppyType;
 import de.rolandsw.schedulemc.poppy.blocks.PoppyPlantBlock;
 import de.rolandsw.schedulemc.production.core.PotType;
 import de.rolandsw.schedulemc.production.data.PlantPotData;
+import de.rolandsw.schedulemc.production.growth.PlantGrowthHandler;
+import de.rolandsw.schedulemc.production.growth.PlantGrowthHandlerFactory;
+import de.rolandsw.schedulemc.production.nbt.PlantSerializer;
+import de.rolandsw.schedulemc.production.nbt.PlantSerializerFactory;
 import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
 import de.rolandsw.schedulemc.tobacco.TobaccoType;
 import de.rolandsw.schedulemc.tobacco.blockentity.TobaccoBlockEntities;
@@ -65,125 +69,50 @@ public class PlantPotBlockEntity extends BlockEntity implements IUtilityConsumer
             plantGrowthCounter++;
 
             if (potData.hasPlant() && potData.canGrow()) {
-                // Licht-Prüfung
-                if (!hasEnoughLight()) {
-                    return;  // Kein Wachstum ohne Licht
-                }
+                // Hole den passenden Handler für diese Pflanze
+                PlantGrowthHandler handler = PlantGrowthHandlerFactory.getHandler(potData);
 
-                // Wachstumsgeschwindigkeit basierend auf Licht
-                double lightSpeedMultiplier = getLightSpeedMultiplier();
-                int ticksNeeded = (int) Math.max(1, 4 / lightSpeedMultiplier);
+                if (handler != null) {
+                    // Prüfe ob Pflanze wachsen kann (Licht, spezielle Bedingungen)
+                    if (!handler.canGrow(level, worldPosition, potData)) {
+                        return;  // Bedingungen nicht erfüllt
+                    }
 
-                // Tabak-Pflanze wachsen lassen
-                if (potData.hasTobaccoPlant()) {
-                    int oldStage = potData.getPlant().getGrowthStage();
+                    // Wachstumsgeschwindigkeit basierend auf Licht
+                    double lightSpeedMultiplier = getLightSpeedMultiplier();
+                    int ticksNeeded = (int) Math.max(1, 4 / lightSpeedMultiplier);
 
+                    // Hole aktuelles Stadium
+                    int oldStage = handler.getCurrentStage(potData);
+
+                    // Führe Wachstums-Tick aus
                     if (plantGrowthCounter >= ticksNeeded) {
                         plantGrowthCounter = 0;
-                        potData.getPlant().tick();
+                        handler.tick(potData);
                     }
 
-                    int newStage = potData.getPlant().getGrowthStage();
+                    // Hole neues Stadium
+                    int newStage = handler.getCurrentStage(potData);
 
+                    // Wenn gewachsen → Ressourcen verbrauchen & Block aktualisieren
                     if (oldStage != newStage) {
-                        consumeResourcesForGrowth(newStage);
-                        de.rolandsw.schedulemc.tobacco.blocks.TobaccoPlantBlock.growToStage(
-                            level, worldPosition, newStage, potData.getPlant().getType()
-                        );
-                        setChanged();
-                        level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-                    }
-                }
-
-                // Cannabis-Pflanze wachsen lassen
-                if (potData.hasCannabisPlant()) {
-                    int oldStage = potData.getCannabisPlant().getGrowthStage();
-
-                    if (plantGrowthCounter >= ticksNeeded) {
-                        plantGrowthCounter = 0;
-                        potData.getCannabisPlant().tick();
-                    }
-
-                    int newStage = potData.getCannabisPlant().getGrowthStage();
-
-                    if (oldStage != newStage) {
-                        consumeResourcesForGrowth(newStage);
-                        CannabisPlantBlock.growToStage(
-                            level, worldPosition, newStage, potData.getCannabisPlant().getStrain()
-                        );
-                        setChanged();
-                        level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-                    }
-                }
-
-                // Koka-Pflanze wachsen lassen
-                if (potData.hasCocaPlant()) {
-                    int oldStage = potData.getCocaPlant().getGrowthStage();
-
-                    if (plantGrowthCounter >= ticksNeeded) {
-                        plantGrowthCounter = 0;
-                        potData.getCocaPlant().tick();
-                    }
-
-                    int newStage = potData.getCocaPlant().getGrowthStage();
-
-                    if (oldStage != newStage) {
-                        consumeResourcesForGrowth(newStage);
-                        CocaPlantBlock.growToStage(
-                            level, worldPosition, newStage, potData.getCocaPlant().getType()
-                        );
-                        setChanged();
-                        level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-                    }
-                }
-
-                // Mohn-Pflanze wachsen lassen
-                if (potData.hasPoppyPlant()) {
-                    int oldStage = potData.getPoppyPlant().getGrowthStage();
-
-                    if (plantGrowthCounter >= ticksNeeded) {
-                        plantGrowthCounter = 0;
-                        potData.getPoppyPlant().tick();
-                    }
-
-                    int newStage = potData.getPoppyPlant().getGrowthStage();
-
-                    if (oldStage != newStage) {
-                        consumeResourcesForGrowth(newStage);
-                        PoppyPlantBlock.growToStage(
-                            level, worldPosition, newStage, potData.getPoppyPlant().getType()
-                        );
-                        setChanged();
-                        level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-                    }
-                }
-
-                // Pilzkultur wachsen lassen (braucht Dunkelheit!)
-                if (potData.hasMushroomPlant()) {
-                    var mushroom = potData.getMushroomPlant();
-
-                    // Prüfe Lichtlevel (Pilze brauchen Dunkelheit)
-                    if (!isLightLevelValidForMushroom()) {
-                        return; // Zu hell!
-                    }
-
-                    int oldStage = mushroom.getGrowthStage();
-
-                    if (plantGrowthCounter >= ticksNeeded) {
-                        plantGrowthCounter = 0;
-                        mushroom.tick();
-                    }
-
-                    int newStage = mushroom.getGrowthStage();
-
-                    if (oldStage != newStage) {
-                        // Pilze verbrauchen nur während Fruchtung Wasser
-                        if (mushroom.needsWater()) {
-                            consumeResourcesForGrowth(newStage);
+                        // Spezielle Logik für Pilze (verbrauchen nur bei Fruchtung Wasser)
+                        if (potData.hasMushroomPlant()) {
+                            var mushroom = potData.getMushroomPlant();
+                            if (mushroom.needsWater()) {
+                                consumeResourcesForGrowth(newStage);
+                            } else {
+                                // Nur Substrat verbrauchen
+                                potData.consumeSoil(15.0 / 7.0);
+                            }
                         } else {
-                            // Nur Substrat verbrauchen
-                            potData.consumeSoil(15.0 / 7.0);
+                            // Standard-Ressourcen-Verbrauch für alle anderen Pflanzen
+                            consumeResourcesForGrowth(newStage);
                         }
+
+                        // Block-State aktualisieren
+                        handler.updateBlockState(level, worldPosition, newStage, potData);
+
                         setChanged();
                         level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
                     }
@@ -205,18 +134,6 @@ public class PlantPotBlockEntity extends BlockEntity implements IUtilityConsumer
         return potData.hasPlant() && potData.canGrow();
     }
 
-    /**
-     * Prüft ob das Lichtlevel für Pilzwachstum geeignet ist
-     */
-    private boolean isLightLevelValidForMushroom() {
-        if (level == null || !potData.hasMushroomPlant()) return false;
-
-        var mushroom = potData.getMushroomPlant();
-        BlockPos checkPos = worldPosition.above();
-        int lightLevel = level.getBrightness(LightLayer.BLOCK, checkPos);
-
-        return mushroom.isLightLevelValid(lightLevel);
-    }
 
     /**
      * Verbraucht Ressourcen beim Wachstum
@@ -247,85 +164,9 @@ public class PlantPotBlockEntity extends BlockEntity implements IUtilityConsumer
         tag.putDouble("SoilLevel", potData.getSoilLevelExact());
         tag.putBoolean("HasSoil", potData.hasSoil());
 
-        // Tabak-Pflanze speichern
-        if (potData.hasTobaccoPlant()) {
-            CompoundTag plantTag = new CompoundTag();
-            var plant = potData.getPlant();
-
-            plantTag.putString("Type", plant.getType().name());
-            plantTag.putString("Quality", plant.getQuality().name());
-            plantTag.putInt("GrowthStage", plant.getGrowthStage());
-            plantTag.putInt("TicksGrown", plant.getTicksGrown());
-            plantTag.putBoolean("HasFertilizer", plant.hasFertilizer());
-            plantTag.putBoolean("HasGrowthBooster", plant.hasGrowthBooster());
-            plantTag.putBoolean("HasQualityBooster", plant.hasQualityBooster());
-
-            tag.put("Plant", plantTag);
-        }
-
-        // Cannabis-Pflanze speichern
-        if (potData.hasCannabisPlant()) {
-            CompoundTag cannabisTag = new CompoundTag();
-            var cannabisPlant = potData.getCannabisPlant();
-
-            cannabisTag.putString("Strain", cannabisPlant.getStrain().name());
-            cannabisTag.putString("Quality", cannabisPlant.getQuality().name());
-            cannabisTag.putInt("GrowthStage", cannabisPlant.getGrowthStage());
-            cannabisTag.putInt("TicksGrown", cannabisPlant.getTicksGrown());
-            cannabisTag.putBoolean("HasFertilizer", cannabisPlant.hasFertilizer());
-            cannabisTag.putBoolean("HasGrowthBooster", cannabisPlant.hasGrowthBooster());
-            cannabisTag.putBoolean("HasQualityBooster", cannabisPlant.hasQualityBooster());
-
-            tag.put("CannabisPlant", cannabisTag);
-        }
-
-        // Koka-Pflanze speichern
-        if (potData.hasCocaPlant()) {
-            CompoundTag cocaTag = new CompoundTag();
-            var cocaPlant = potData.getCocaPlant();
-
-            cocaTag.putString("Type", cocaPlant.getType().name());
-            cocaTag.putString("Quality", cocaPlant.getQuality().name());
-            cocaTag.putInt("GrowthStage", cocaPlant.getGrowthStage());
-            cocaTag.putInt("TicksGrown", cocaPlant.getTicksGrown());
-            cocaTag.putBoolean("HasFertilizer", cocaPlant.hasFertilizer());
-            cocaTag.putBoolean("HasGrowthBooster", cocaPlant.hasGrowthBooster());
-            cocaTag.putBoolean("HasQualityBooster", cocaPlant.hasQualityBooster());
-
-            tag.put("CocaPlant", cocaTag);
-        }
-
-        // Mohn-Pflanze speichern
-        if (potData.hasPoppyPlant()) {
-            CompoundTag poppyTag = new CompoundTag();
-            var poppyPlant = potData.getPoppyPlant();
-
-            poppyTag.putString("Type", poppyPlant.getType().name());
-            poppyTag.putString("Quality", poppyPlant.getQuality().name());
-            poppyTag.putInt("GrowthStage", poppyPlant.getGrowthStage());
-            poppyTag.putInt("TicksGrown", poppyPlant.getTicksGrown());
-            poppyTag.putBoolean("HasFertilizer", poppyPlant.hasFertilizer());
-            poppyTag.putBoolean("HasGrowthBooster", poppyPlant.hasGrowthBooster());
-            poppyTag.putBoolean("HasQualityBooster", poppyPlant.hasQualityBooster());
-
-            tag.put("PoppyPlant", poppyTag);
-        }
-
-        // Pilzkultur speichern
-        if (potData.hasMushroomPlant()) {
-            CompoundTag mushroomTag = new CompoundTag();
-            var mushroom = potData.getMushroomPlant();
-
-            mushroomTag.putString("Type", mushroom.getType().name());
-            mushroomTag.putString("Quality", mushroom.getQuality().name());
-            mushroomTag.putInt("GrowthStage", mushroom.getGrowthStage());
-            mushroomTag.putInt("TicksGrown", mushroom.getTicksGrown());
-            mushroomTag.putInt("CurrentFlush", mushroom.getCurrentFlush());
-            mushroomTag.putBoolean("HasFertilizer", mushroom.hasFertilizer());
-            mushroomTag.putBoolean("HasGrowthBooster", mushroom.hasGrowthBooster());
-            mushroomTag.putBoolean("HasQualityBooster", mushroom.hasQualityBooster());
-
-            tag.put("MushroomPlant", mushroomTag);
+        // Pflanzen-Daten speichern (Strategy Pattern - eliminiert ~80 Zeilen Duplikation)
+        for (PlantSerializer serializer : PlantSerializerFactory.getAllSerializers()) {
+            serializer.savePlant(potData, tag);
         }
 
         // Mist-Status speichern
@@ -352,138 +193,9 @@ public class PlantPotBlockEntity extends BlockEntity implements IUtilityConsumer
             potData.setSoilLevel(tag.getDouble("SoilLevel"));
         }
 
-        // Tabak-Pflanzen-Daten laden
-        if (tag.contains("Plant")) {
-            CompoundTag plantTag = tag.getCompound("Plant");
-
-            TobaccoType type = TobaccoType.valueOf(plantTag.getString("Type"));
-
-            if (!potData.hasTobaccoPlant()) {
-                potData.plantSeed(type);
-            }
-
-            var plant = potData.getPlant();
-            if (plant != null) {
-                plant.setQuality(TobaccoQuality.valueOf(plantTag.getString("Quality")));
-                plant.setGrowthStage(plantTag.getInt("GrowthStage"));
-
-                int ticksGrown = plantTag.getInt("TicksGrown");
-                while (plant.getTicksGrown() < ticksGrown) {
-                    plant.incrementTicks();
-                }
-
-                if (plantTag.getBoolean("HasFertilizer")) plant.applyFertilizer();
-                if (plantTag.getBoolean("HasGrowthBooster")) plant.applyGrowthBooster();
-                if (plantTag.getBoolean("HasQualityBooster")) plant.applyQualityBooster();
-            }
-        }
-
-        // Cannabis-Pflanzen-Daten laden
-        if (tag.contains("CannabisPlant")) {
-            CompoundTag cannabisTag = tag.getCompound("CannabisPlant");
-
-            CannabisStrain strain = CannabisStrain.valueOf(cannabisTag.getString("Strain"));
-
-            if (!potData.hasCannabisPlant()) {
-                potData.plantCannabisSeed(strain);
-            }
-
-            var cannabisPlant = potData.getCannabisPlant();
-            if (cannabisPlant != null) {
-                cannabisPlant.setQuality(CannabisQuality.valueOf(cannabisTag.getString("Quality")));
-                cannabisPlant.setGrowthStage(cannabisTag.getInt("GrowthStage"));
-
-                int ticksGrown = cannabisTag.getInt("TicksGrown");
-                while (cannabisPlant.getTicksGrown() < ticksGrown) {
-                    cannabisPlant.incrementTicks();
-                }
-
-                if (cannabisTag.getBoolean("HasFertilizer")) cannabisPlant.applyFertilizer();
-                if (cannabisTag.getBoolean("HasGrowthBooster")) cannabisPlant.applyGrowthBooster();
-                if (cannabisTag.getBoolean("HasQualityBooster")) cannabisPlant.applyQualityBooster();
-            }
-        }
-
-        // Koka-Pflanzen-Daten laden
-        if (tag.contains("CocaPlant")) {
-            CompoundTag cocaTag = tag.getCompound("CocaPlant");
-
-            CocaType type = CocaType.valueOf(cocaTag.getString("Type"));
-
-            if (!potData.hasCocaPlant()) {
-                potData.plantCocaSeed(type);
-            }
-
-            var cocaPlant = potData.getCocaPlant();
-            if (cocaPlant != null) {
-                cocaPlant.setQuality(TobaccoQuality.valueOf(cocaTag.getString("Quality")));
-                cocaPlant.setGrowthStage(cocaTag.getInt("GrowthStage"));
-
-                int ticksGrown = cocaTag.getInt("TicksGrown");
-                while (cocaPlant.getTicksGrown() < ticksGrown) {
-                    cocaPlant.incrementTicks();
-                }
-
-                if (cocaTag.getBoolean("HasFertilizer")) cocaPlant.applyFertilizer();
-                if (cocaTag.getBoolean("HasGrowthBooster")) cocaPlant.applyGrowthBooster();
-                if (cocaTag.getBoolean("HasQualityBooster")) cocaPlant.applyQualityBooster();
-            }
-        }
-
-        // Mohn-Pflanzen-Daten laden
-        if (tag.contains("PoppyPlant")) {
-            CompoundTag poppyTag = tag.getCompound("PoppyPlant");
-
-            PoppyType type = PoppyType.valueOf(poppyTag.getString("Type"));
-
-            if (!potData.hasPoppyPlant()) {
-                potData.plantPoppySeed(type);
-            }
-
-            var poppyPlant = potData.getPoppyPlant();
-            if (poppyPlant != null) {
-                poppyPlant.setQuality(TobaccoQuality.valueOf(poppyTag.getString("Quality")));
-                poppyPlant.setGrowthStage(poppyTag.getInt("GrowthStage"));
-
-                int ticksGrown = poppyTag.getInt("TicksGrown");
-                while (poppyPlant.getTicksGrown() < ticksGrown) {
-                    poppyPlant.incrementTicks();
-                }
-
-                if (poppyTag.getBoolean("HasFertilizer")) poppyPlant.applyFertilizer();
-                if (poppyTag.getBoolean("HasGrowthBooster")) poppyPlant.applyGrowthBooster();
-                if (poppyTag.getBoolean("HasQualityBooster")) poppyPlant.applyQualityBooster();
-            }
-        }
-
-        // Pilzkultur-Daten laden
-        if (tag.contains("MushroomPlant")) {
-            CompoundTag mushroomTag = tag.getCompound("MushroomPlant");
-
-            MushroomType type = MushroomType.valueOf(mushroomTag.getString("Type"));
-
-            // Setze Mist-Status vor dem Pflanzen
-            potData.setMist(true);
-
-            if (!potData.hasMushroomPlant()) {
-                potData.plantMushroomSpore(type);
-            }
-
-            var mushroom = potData.getMushroomPlant();
-            if (mushroom != null) {
-                mushroom.setQuality(TobaccoQuality.valueOf(mushroomTag.getString("Quality")));
-                mushroom.setGrowthStage(mushroomTag.getInt("GrowthStage"));
-                mushroom.setCurrentFlush(mushroomTag.getInt("CurrentFlush"));
-
-                int ticksGrown = mushroomTag.getInt("TicksGrown");
-                while (mushroom.getTicksGrown() < ticksGrown) {
-                    mushroom.incrementTicks();
-                }
-
-                if (mushroomTag.getBoolean("HasFertilizer")) mushroom.applyFertilizer();
-                if (mushroomTag.getBoolean("HasGrowthBooster")) mushroom.applyGrowthBooster();
-                if (mushroomTag.getBoolean("HasQualityBooster")) mushroom.applyQualityBooster();
-            }
+        // Pflanzen-Daten laden (Strategy Pattern - eliminiert ~130 Zeilen Duplikation)
+        for (PlantSerializer serializer : PlantSerializerFactory.getAllSerializers()) {
+            serializer.loadPlant(potData, tag);
         }
 
         // Mist-Status laden (falls nicht durch Pilz gesetzt)
@@ -500,26 +212,6 @@ public class PlantPotBlockEntity extends BlockEntity implements IUtilityConsumer
         }
     }
 
-    /**
-     * Prüft ob genug Licht für Wachstum vorhanden ist
-     */
-    private boolean hasEnoughLight() {
-        if (level == null) return false;
-
-        // Config: Ist Licht-Anforderung aktiviert?
-        if (!ModConfigHandler.TOBACCO.REQUIRE_LIGHT_FOR_GROWTH.get()) {
-            return true;  // Kein Licht benötigt
-        }
-
-        // Prüfe Lichtlevel über der Pflanze (2 Blöcke über Topf)
-        BlockPos plantPos = worldPosition.above(2);
-        int lightLevel = level.getBrightness(LightLayer.BLOCK, plantPos);
-
-        // Minimales Lichtlevel aus Config
-        int minLight = ModConfigHandler.TOBACCO.MIN_LIGHT_LEVEL.get();
-
-        return lightLevel >= minLight;
-    }
 
     /**
      * Berechnet Wachstumsgeschwindigkeits-Multiplikator basierend auf Licht

@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.client;
+import de.rolandsw.schedulemc.util.EventHelper;
 
 import de.rolandsw.schedulemc.ScheduleMC;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -16,6 +17,8 @@ public class SmartphonePlayerHandler {
      */
     @SubscribeEvent
     public static void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
-        SmartphoneTracker.removePlayer(event.getEntity().getUUID());
+        EventHelper.handleEvent(() -> {
+            SmartphoneTracker.removePlayer(event.getEntity().getUUID());
+        }, "onPlayerLogout");
     }
 }

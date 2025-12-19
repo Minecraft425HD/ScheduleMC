@@ -3,40 +3,36 @@ package de.rolandsw.schedulemc.economy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
+import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
-import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.File;
 import java.lang.reflect.Type;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 /**
  * Verwaltet Daueraufträge
+ * Refactored mit AbstractPersistenceManager
  */
-public class RecurringPaymentManager {
-    private static final Logger LOGGER = LogUtils.getLogger();
+public class RecurringPaymentManager extends AbstractPersistenceManager<Map<UUID, List<RecurringPayment>>> {
     private static RecurringPaymentManager instance;
 
     private final Map<UUID, List<RecurringPayment>> payments = new ConcurrentHashMap<>();
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    private final Path savePath;
     private MinecraftServer server;
 
     private long currentDay = 0;
 
     private RecurringPaymentManager(MinecraftServer server) {
+        super(
+            server.getServerDirectory().toPath().resolve("config").resolve("plotmod_recurring.json").toFile(),
+            new GsonBuilder().setPrettyPrinting().create()
+        );
         this.server = server;
-        this.savePath = server.getServerDirectory().toPath().resolve("config").resolve("plotmod_recurring.json");
         load();
     }
 
@@ -257,33 +253,37 @@ public class RecurringPaymentManager {
             .orElse(null);
     }
 
-    // Persistence
-    private void load() {
-        if (!Files.exists(savePath)) {
-            return;
-        }
+    // ========== AbstractPersistenceManager Implementation ==========
 
-        try (Reader reader = Files.newBufferedReader(savePath)) {
-            Type type = new TypeToken<Map<UUID, List<RecurringPayment>>>(){}.getType();
-            Map<UUID, List<RecurringPayment>> loaded = gson.fromJson(reader, type);
-            if (loaded != null) {
-                payments.putAll(loaded);
-                LOGGER.info("Loaded {} recurring payments", loaded.values().stream()
-                    .mapToInt(List::size).sum());
-            }
-        } catch (Exception e) {
-            LOGGER.error("Failed to load recurring payments", e);
-        }
+    @Override
+    protected Type getDataType() {
+        return new TypeToken<Map<UUID, List<RecurringPayment>>>(){}.getType();
     }
 
-    public void save() {
-        try {
-            Files.createDirectories(savePath.getParent());
-            try (Writer writer = Files.newBufferedWriter(savePath)) {
-                gson.toJson(payments, writer);
-            }
-        } catch (Exception e) {
-            LOGGER.error("Failed to save recurring payments", e);
-        }
+    @Override
+    protected void onDataLoaded(Map<UUID, List<RecurringPayment>> data) {
+        payments.clear();
+        payments.putAll(data);
+    }
+
+    @Override
+    protected Map<UUID, List<RecurringPayment>> getCurrentData() {
+        return new HashMap<>(payments);
+    }
+
+    @Override
+    protected String getComponentName() {
+        return "RecurringPaymentManager";
+    }
+
+    @Override
+    protected String getHealthDetails() {
+        int totalPayments = payments.values().stream().mapToInt(List::size).sum();
+        return totalPayments + " Daueraufträge aktiv";
+    }
+
+    @Override
+    protected void onCriticalLoadFailure() {
+        payments.clear();
     }
 }

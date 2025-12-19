@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.events;
 
+import de.rolandsw.schedulemc.util.EventHelper;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -24,10 +25,7 @@ public class InventoryRestrictionHandler {
      */
     @SubscribeEvent
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
-        if (event.phase != TickEvent.Phase.END) return;
-        if (event.player.level().isClientSide) return;
-
-        Player player = event.player;
+        EventHelper.handlePlayerTickEnd(event, player -> {
 
         // Admins (OP) dürfen volles Inventar nutzen
         if (player.hasPermissions(2)) {
@@ -77,5 +75,6 @@ public class InventoryRestrictionHandler {
                 }
             }
         }
+        });
     }
 }

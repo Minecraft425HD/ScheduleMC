@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.vehicle.events;
+import de.rolandsw.schedulemc.util.EventHelper;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -32,22 +33,26 @@ public class RenderEvents {
 
     @SubscribeEvent
     public void onRender(ViewportEvent.ComputeCameraAngles evt) {
-        // DISABLED: Camera.move() and getMaxZoom() are private/protected in 1.20.1
-        // This feature provided custom camera zoom when riding vehicles, but is not critical
-        /* DISABLED DUE TO API CHANGE IN 1.20.1
-        if (getVehicle() != null && !mc.options.getCameraType().isFirstPerson()) {
-            evt.getCamera().move(-evt.getCamera().getMaxZoom(ModConfigHandler.VEHICLE_CLIENT.vehicleZoom.get() - 4D), 0D, 0D);
-        }
-        */
+        EventHelper.handleEvent(() -> {
+            // DISABLED: Camera.move() and getMaxZoom() are private/protected in 1.20.1
+            // This feature provided custom camera zoom when riding vehicles, but is not critical
+            /* DISABLED DUE TO API CHANGE IN 1.20.1
+            if (getVehicle() != null && !mc.options.getCameraType().isFirstPerson()) {
+                evt.getCamera().move(-evt.getCamera().getMaxZoom(ModConfigHandler.VEHICLE_CLIENT.vehicleZoom.get() - 4D), 0D, 0D);
+            }
+            */
+        }, "onRender");
     }
 
     @SubscribeEvent
     public void onRender(InputEvent.MouseScrollingEvent evt) {
-        if (getVehicle() != null && !mc.options.getCameraType().isFirstPerson()) {
-            ModConfigHandler.VEHICLE_CLIENT.vehicleZoom.set(Math.max(1D, Math.min(20D, ModConfigHandler.VEHICLE_CLIENT.vehicleZoom.get() - evt.getScrollDelta())));
-            ModConfigHandler.VEHICLE_CLIENT.vehicleZoom.save();
-            evt.setCanceled(true);
-        }
+        EventHelper.handleEvent(() -> {
+            if (getVehicle() != null && !mc.options.getCameraType().isFirstPerson()) {
+                ModConfigHandler.VEHICLE_CLIENT.vehicleZoom.set(Math.max(1D, Math.min(20D, ModConfigHandler.VEHICLE_CLIENT.vehicleZoom.get() - evt.getScrollDelta())));
+                ModConfigHandler.VEHICLE_CLIENT.vehicleZoom.save();
+                evt.setCanceled(true);
+            }
+        }, "onRender");
     }
 
     private static EntityGenericVehicle getVehicle() {
@@ -108,33 +113,39 @@ public class RenderEvents {
 
     @SubscribeEvent
     public void renderToolTip(RenderTooltipEvent.Pre event) {
-        ItemStack stack = event.getItemStack();
+        EventHelper.handleEvent(() -> {
+            ItemStack stack = event.getItemStack();
 
-        if (!stack.hasTag()) {
-            return;
-        }
-        CompoundTag compound = stack.getTag();
-        if (!compound.contains("trading_item") && !compound.getBoolean("trading_item")) {
-            return;
-        }
-        event.setCanceled(true);
+            if (!stack.hasTag()) {
+                return;
+            }
+            CompoundTag compound = stack.getTag();
+            if (!compound.contains("trading_item") && !compound.getBoolean("trading_item")) {
+                return;
+            }
+            event.setCanceled(true);
+        }, "renderToolTip");
     }
 
     @SubscribeEvent
     public void renderPlayerPre(RenderPlayerEvent.Pre event) {
-        EntityGenericVehicle vehicle = getVehicle();
-        if (vehicle != null) {
-            event.getPoseStack().pushPose();
-            event.getPoseStack().scale(EntityVehicleBase.SCALE_FACTOR, EntityVehicleBase.SCALE_FACTOR, EntityVehicleBase.SCALE_FACTOR);
-            event.getPoseStack().translate(0D, (event.getEntity().getBbHeight() - (event.getEntity().getBbHeight() * EntityVehicleBase.SCALE_FACTOR)) / 1.5D + vehicle.getPlayerYOffset(), 0D);
-        }
+        EventHelper.handleEvent(() -> {
+            EntityGenericVehicle vehicle = getVehicle();
+            if (vehicle != null) {
+                event.getPoseStack().pushPose();
+                event.getPoseStack().scale(EntityVehicleBase.SCALE_FACTOR, EntityVehicleBase.SCALE_FACTOR, EntityVehicleBase.SCALE_FACTOR);
+                event.getPoseStack().translate(0D, (event.getEntity().getBbHeight() - (event.getEntity().getBbHeight() * EntityVehicleBase.SCALE_FACTOR)) / 1.5D + vehicle.getPlayerYOffset(), 0D);
+            }
+        }, "renderPlayerPre");
     }
 
     @SubscribeEvent
     public void renderPlayerPost(RenderPlayerEvent.Post event) {
-        if (getVehicle() != null) {
-            event.getPoseStack().popPose();
-        }
+        EventHelper.handleEvent(() -> {
+            if (getVehicle() != null) {
+                event.getPoseStack().popPose();
+            }
+        }, "renderPlayerPost");
     }
 
 }

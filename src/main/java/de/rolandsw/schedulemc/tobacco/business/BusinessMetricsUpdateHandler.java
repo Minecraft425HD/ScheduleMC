@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.tobacco.business;
 
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
+import de.rolandsw.schedulemc.util.EventHelper;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.event.TickEvent;
@@ -18,28 +19,26 @@ public class BusinessMetricsUpdateHandler {
 
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
-        if (event.side != LogicalSide.SERVER || event.phase != TickEvent.Phase.END) {
-            return;
-        }
-
-        // Überspringe wenn keine Spieler online sind (Zeit läuft nicht)
-        if (event.getServer().getPlayerCount() == 0) {
-            return;
-        }
-
-        ServerLevel level = event.getServer().overworld();
-        long dayTime = level.getDayTime() % 24000;
-
-        // Um Mitternacht (Zeit 0)
-        if (dayTime == 0) {
-            long currentDay = level.getDayTime() / 24000;
-
-            // Nur einmal pro Tag
-            if (currentDay != lastUpdateDay) {
-                lastUpdateDay = currentDay;
-                updateAllNPCMetrics(level, currentDay);
+        EventHelper.handleServerTickEnd(event, server -> {
+            // Überspringe wenn keine Spieler online sind (Zeit läuft nicht)
+            if (server.getPlayerCount() == 0) {
+                return;
             }
-        }
+
+            ServerLevel level = server.overworld();
+            long dayTime = level.getDayTime() % 24000;
+
+            // Um Mitternacht (Zeit 0)
+            if (dayTime == 0) {
+                long currentDay = level.getDayTime() / 24000;
+
+                // Nur einmal pro Tag
+                if (currentDay != lastUpdateDay) {
+                    lastUpdateDay = currentDay;
+                    updateAllNPCMetrics(level, currentDay);
+                }
+            }
+        });
     }
 
     private static void updateAllNPCMetrics(ServerLevel level, long currentDay) {

@@ -7,6 +7,7 @@ import de.rolandsw.schedulemc.npc.items.NPCPatrolTool;
 import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.region.PlotManager;
 import de.rolandsw.schedulemc.region.PlotRegion;
+import de.rolandsw.schedulemc.util.EventHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
@@ -45,18 +46,19 @@ public class BlockProtectionHandler {
      */
     @SubscribeEvent
     public void onBlockBreak(BlockEvent.BreakEvent event) {
-        Player player = event.getPlayer();
-        BlockPos pos = event.getPos();
+        EventHelper.handleBlockBreak(event, player -> {
+            BlockPos pos = event.getPos();
 
-        // Prüfe ob Block ein NPC Arbeitsort ist
-        if (isNPCWorkLocation(player, pos)) {
-            event.setCanceled(true);
-            return;
-        }
+            // Prüfe ob Block ein NPC Arbeitsort ist
+            if (isNPCWorkLocation(player, pos)) {
+                event.setCanceled(true);
+                return;
+            }
 
-        if (!checkPlotPermission(player, pos, "abbauen")) {
-            event.setCanceled(true);
-        }
+            if (!checkPlotPermission(player, pos, "abbauen")) {
+                event.setCanceled(true);
+            }
+        });
     }
 
     /**
@@ -64,17 +66,17 @@ public class BlockProtectionHandler {
      */
     @SubscribeEvent
     public void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
-        Player player = event.getEntity();
-        ItemStack stack = player.getItemInHand(event.getHand());
+        EventHelper.handleLeftClickBlock(event, player -> {
+            ItemStack stack = player.getItemInHand(event.getHand());
 
-        // Prüfe ob Spieler das LocationTool hält
-        if (!(stack.getItem() instanceof NPCLocationTool)) {
-            return;
-        }
+            // Prüfe ob Spieler das LocationTool hält
+            if (!(stack.getItem() instanceof NPCLocationTool)) {
+                return;
+            }
 
-        BlockPos clickedPos = event.getPos();
+            BlockPos clickedPos = event.getPos();
 
-        if (!player.level().isClientSide) {
+            if (!player.level().isClientSide) {
             // Prüfe ob ein NPC ausgewählt wurde
             Integer npcId = NPCLocationTool.getSelectedNPC(player.getUUID());
             if (npcId == null) {
@@ -133,7 +135,8 @@ public class BlockProtectionHandler {
             event.setCanceled(true);
             event.setUseBlock(Event.Result.DENY);
             event.setUseItem(Event.Result.DENY);
-        }
+            }
+        });
     }
 
     /**
@@ -141,30 +144,30 @@ public class BlockProtectionHandler {
      */
     @SubscribeEvent
     public void onAttackEntity(AttackEntityEvent event) {
-        Player player = event.getEntity();
-        Entity target = event.getTarget();
+        EventHelper.handleAttackEntity(event, player -> {
+            Entity target = event.getTarget();
 
-        // Prüfe ob Spieler das LocationTool, LeisureTool oder PatrolTool hält
-        ItemStack mainHandItem = player.getMainHandItem();
-        ItemStack offHandItem = player.getOffhandItem();
+            // Prüfe ob Spieler das LocationTool, LeisureTool oder PatrolTool hält
+            ItemStack mainHandItem = player.getMainHandItem();
+            ItemStack offHandItem = player.getOffhandItem();
 
-        boolean holdsLocationTool = (mainHandItem.getItem() instanceof NPCLocationTool) ||
-                                   (offHandItem.getItem() instanceof NPCLocationTool);
-        boolean holdsLeisureTool = (mainHandItem.getItem() instanceof NPCLeisureTool) ||
-                                  (offHandItem.getItem() instanceof NPCLeisureTool);
-        boolean holdsPatrolTool = (mainHandItem.getItem() instanceof NPCPatrolTool) ||
-                                 (offHandItem.getItem() instanceof NPCPatrolTool);
+            boolean holdsLocationTool = (mainHandItem.getItem() instanceof NPCLocationTool) ||
+                                       (offHandItem.getItem() instanceof NPCLocationTool);
+            boolean holdsLeisureTool = (mainHandItem.getItem() instanceof NPCLeisureTool) ||
+                                      (offHandItem.getItem() instanceof NPCLeisureTool);
+            boolean holdsPatrolTool = (mainHandItem.getItem() instanceof NPCPatrolTool) ||
+                                     (offHandItem.getItem() instanceof NPCPatrolTool);
 
-        if (!holdsLocationTool && !holdsLeisureTool && !holdsPatrolTool) {
-            return;
-        }
+            if (!holdsLocationTool && !holdsLeisureTool && !holdsPatrolTool) {
+                return;
+            }
 
-        // Prüfe ob Ziel ein CustomNPC ist
-        if (!(target instanceof CustomNPCEntity npc)) {
-            return;
-        }
+            // Prüfe ob Ziel ein CustomNPC ist
+            if (!(target instanceof CustomNPCEntity npc)) {
+                return;
+            }
 
-        if (!player.level().isClientSide) {
+            if (!player.level().isClientSide) {
             // Handle LocationTool
             if (holdsLocationTool) {
                 NPCLocationTool.setSelectedNPC(player.getUUID(), npc.getId());
@@ -285,10 +288,11 @@ public class BlockProtectionHandler {
                     }
                 }
             }
-        }
+            }
 
-        // Verhindere Schaden am NPC
-        event.setCanceled(true);
+            // Verhindere Schaden am NPC
+            event.setCanceled(true);
+        });
     }
 
     /**
@@ -359,15 +363,13 @@ public class BlockProtectionHandler {
      */
     @SubscribeEvent
     public void onBlockPlace(BlockEvent.EntityPlaceEvent event) {
-        if (!(event.getEntity() instanceof Player player)) {
-            return;
-        }
+        EventHelper.handleBlockPlace(event, player -> {
+            BlockPos pos = event.getPos();
 
-        BlockPos pos = event.getPos();
-
-        if (!checkPlotPermission(player, pos, "platzieren")) {
-            event.setCanceled(true);
-        }
+            if (!checkPlotPermission(player, pos, "platzieren")) {
+                event.setCanceled(true);
+            }
+        });
     }
 
     /**
@@ -443,38 +445,39 @@ public class BlockProtectionHandler {
      */
     @SubscribeEvent
     public void onBlockInteract(PlayerInteractEvent.RightClickBlock event) {
-        Player player = event.getEntity();
-        BlockPos pos = event.getPos();
+        EventHelper.handleRightClickBlock(event, player -> {
+            BlockPos pos = event.getPos();
 
-        // Admin darf immer!
-        if (player.hasPermissions(2)) {
-            return;
-        }
+            // Admin darf immer!
+            if (player.hasPermissions(2)) {
+                return;
+            }
 
-        // OPTIMIERT: Direkter Lookup statt Iteration
-        PlotRegion plot = PlotManager.getPlotAt(pos);
+            // OPTIMIERT: Direkter Lookup statt Iteration
+            PlotRegion plot = PlotManager.getPlotAt(pos);
 
-        // Nicht in einem Plot = erlaubt
-        if (plot == null) {
-            return;
-        }
+            // Nicht in einem Plot = erlaubt
+            if (plot == null) {
+                return;
+            }
 
-        // Öffentlicher Plot: Interaktion ERLAUBT!
-        if (plot.isPublic()) {
-            return;
-        }
+            // Öffentlicher Plot: Interaktion ERLAUBT!
+            if (plot.isPublic()) {
+                return;
+            }
 
-        // Privater Plot ohne Besitzer: Erlauben
-        if (!plot.hasOwner()) {
-            return;
-        }
+            // Privater Plot ohne Besitzer: Erlauben
+            if (!plot.hasOwner()) {
+                return;
+            }
 
-        // Privater Plot: Nur Besitzer + Trusted
-        if (!plot.hasAccess(player.getUUID())) {
-            event.setCanceled(true);
-            player.displayClientMessage(Component.literal(
-                "§c✗ Du darfst hier nichts benutzen!"
-            ), true);
-        }
+            // Privater Plot: Nur Besitzer + Trusted
+            if (!plot.hasAccess(player.getUUID())) {
+                event.setCanceled(true);
+                player.displayClientMessage(Component.literal(
+                    "§c✗ Du darfst hier nichts benutzen!"
+                ), true);
+            }
+        });
     }
 }

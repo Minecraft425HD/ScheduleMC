@@ -3,41 +3,38 @@ package de.rolandsw.schedulemc.economy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.mojang.logging.LogUtils;
+import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
-import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.File;
 import java.lang.reflect.Type;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Verwaltet Kredite für Spieler
+ * Refactored mit AbstractPersistenceManager
  */
-public class LoanManager {
-    private static final Logger LOGGER = LogUtils.getLogger();
+public class LoanManager extends AbstractPersistenceManager<Map<UUID, Loan>> {
     private static LoanManager instance;
 
     private static final double MIN_BALANCE_FOR_LOAN = 1000.0;
     private static final int MIN_PLAYTIME_DAYS = 7;
 
     private final Map<UUID, Loan> activeLoans = new ConcurrentHashMap<>();
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    private final Path savePath;
     private MinecraftServer server;
 
     private long currentDay = 0;
 
     private LoanManager(MinecraftServer server) {
+        super(
+            server.getServerDirectory().toPath().resolve("config").resolve("plotmod_loans.json").toFile(),
+            new GsonBuilder().setPrettyPrinting().create()
+        );
         this.server = server;
-        this.savePath = server.getServerDirectory().toPath().resolve("config").resolve("plotmod_loans.json");
         load();
     }
 
@@ -196,32 +193,36 @@ public class LoanManager {
         return activeLoans.get(playerUUID);
     }
 
-    // Persistence
-    private void load() {
-        if (!Files.exists(savePath)) {
-            return;
-        }
+    // ========== AbstractPersistenceManager Implementation ==========
 
-        try (Reader reader = Files.newBufferedReader(savePath)) {
-            Type type = new TypeToken<Map<UUID, Loan>>(){}.getType();
-            Map<UUID, Loan> loaded = gson.fromJson(reader, type);
-            if (loaded != null) {
-                activeLoans.putAll(loaded);
-                LOGGER.info("Loaded {} active loans", loaded.size());
-            }
-        } catch (Exception e) {
-            LOGGER.error("Failed to load loan data", e);
-        }
+    @Override
+    protected Type getDataType() {
+        return new TypeToken<Map<UUID, Loan>>(){}.getType();
     }
 
-    public void save() {
-        try {
-            Files.createDirectories(savePath.getParent());
-            try (Writer writer = Files.newBufferedWriter(savePath)) {
-                gson.toJson(activeLoans, writer);
-            }
-        } catch (Exception e) {
-            LOGGER.error("Failed to save loan data", e);
-        }
+    @Override
+    protected void onDataLoaded(Map<UUID, Loan> data) {
+        activeLoans.clear();
+        activeLoans.putAll(data);
+    }
+
+    @Override
+    protected Map<UUID, Loan> getCurrentData() {
+        return new HashMap<>(activeLoans);
+    }
+
+    @Override
+    protected String getComponentName() {
+        return "LoanManager";
+    }
+
+    @Override
+    protected String getHealthDetails() {
+        return activeLoans.size() + " aktive Kredite";
+    }
+
+    @Override
+    protected void onCriticalLoadFailure() {
+        activeLoans.clear();
     }
 }

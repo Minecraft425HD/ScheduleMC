@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.client;
+import de.rolandsw.schedulemc.util.EventHelper;
 
 import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.economy.menu.EconomyMenuTypes;
@@ -35,28 +36,30 @@ public class ClientModEvents {
 
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
-        event.enqueueWork(() -> {
-            MenuScreens.register(EconomyMenuTypes.ATM_MENU.get(), ATMScreen::new);
-            MenuScreens.register(ModMenuTypes.SMALL_PACKAGING_TABLE_MENU.get(), SmallPackagingTableScreen::new);
-            MenuScreens.register(ModMenuTypes.MEDIUM_PACKAGING_TABLE_MENU.get(), MediumPackagingTableScreen::new);
-            MenuScreens.register(ModMenuTypes.LARGE_PACKAGING_TABLE_MENU.get(), LargePackagingTableScreen::new);
-            MenuScreens.register(ModMenuTypes.TOBACCO_NEGOTIATION_MENU.get(), TobaccoNegotiationScreen::new);
-            MenuScreens.register(WarehouseMenuTypes.WAREHOUSE_MENU.get(), WarehouseScreen::new);
-            MenuScreens.register(ModMenuTypes.SMALL_DRYING_RACK_MENU.get(), SmallDryingRackScreen::new);
-            MenuScreens.register(ModMenuTypes.MEDIUM_DRYING_RACK_MENU.get(), MediumDryingRackScreen::new);
-            MenuScreens.register(ModMenuTypes.BIG_DRYING_RACK_MENU.get(), BigDryingRackScreen::new);
+        EventHelper.handleEvent(() -> {
+            event.enqueueWork(() -> {
+                MenuScreens.register(EconomyMenuTypes.ATM_MENU.get(), ATMScreen::new);
+                MenuScreens.register(ModMenuTypes.SMALL_PACKAGING_TABLE_MENU.get(), SmallPackagingTableScreen::new);
+                MenuScreens.register(ModMenuTypes.MEDIUM_PACKAGING_TABLE_MENU.get(), MediumPackagingTableScreen::new);
+                MenuScreens.register(ModMenuTypes.LARGE_PACKAGING_TABLE_MENU.get(), LargePackagingTableScreen::new);
+                MenuScreens.register(ModMenuTypes.TOBACCO_NEGOTIATION_MENU.get(), TobaccoNegotiationScreen::new);
+                MenuScreens.register(WarehouseMenuTypes.WAREHOUSE_MENU.get(), WarehouseScreen::new);
+                MenuScreens.register(ModMenuTypes.SMALL_DRYING_RACK_MENU.get(), SmallDryingRackScreen::new);
+                MenuScreens.register(ModMenuTypes.MEDIUM_DRYING_RACK_MENU.get(), MediumDryingRackScreen::new);
+                MenuScreens.register(ModMenuTypes.BIG_DRYING_RACK_MENU.get(), BigDryingRackScreen::new);
 
-            // Meth-System
-            MenuScreens.register(MethMenuTypes.REDUKTIONSKESSEL_MENU.get(), ReduktionskesselScreen::new);
+                // Meth-System
+                MenuScreens.register(MethMenuTypes.REDUKTIONSKESSEL_MENU.get(), ReduktionskesselScreen::new);
 
-            // LSD-System
-            MenuScreens.register(LSDMenuTypes.MIKRO_DOSIERER_MENU.get(), MikroDosiererScreen::new);
+                // LSD-System
+                MenuScreens.register(LSDMenuTypes.MIKRO_DOSIERER_MENU.get(), MikroDosiererScreen::new);
 
-            // MDMA-System
-            MenuScreens.register(MDMAMenuTypes.PILLEN_PRESSE_MENU.get(), PillenPresseScreen::new);
+                // MDMA-System
+                MenuScreens.register(MDMAMenuTypes.PILLEN_PRESSE_MENU.get(), PillenPresseScreen::new);
 
-            // Cannabis-System
-            MenuScreens.register(CannabisMenuTypes.TRIMM_STATION_MENU.get(), TrimmStationScreen::new);
-        });
+                // Cannabis-System
+                MenuScreens.register(CannabisMenuTypes.TRIMM_STATION_MENU.get(), TrimmStationScreen::new);
+            });
+        }, "onClientSetup");
     }
 }

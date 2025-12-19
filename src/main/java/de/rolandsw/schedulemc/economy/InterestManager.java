@@ -3,16 +3,13 @@ package de.rolandsw.schedulemc.economy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.mojang.logging.LogUtils;
+import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
-import org.slf4j.Logger;
 
-import java.io.*;
+import java.io.File;
 import java.lang.reflect.Type;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -22,8 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * - Sparkonten: 5% pro Woche (separate Manager)
  * - Max 10.000€ Zinsen pro Woche (verhindert Inflation)
  */
-public class InterestManager {
-    private static final Logger LOGGER = LogUtils.getLogger();
+public class InterestManager extends AbstractPersistenceManager<Map<UUID, Long>> {
     private static InterestManager instance;
 
     private static final double INTEREST_RATE = 0.02; // 2% pro Woche
@@ -31,16 +27,33 @@ public class InterestManager {
     private static final long WEEK_IN_DAYS = 7;
 
     private final Map<UUID, Long> lastInterestPayout = new ConcurrentHashMap<>();
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    private final Path savePath;
     private MinecraftServer server;
 
     private long currentDay = 0;
 
     private InterestManager(MinecraftServer server) {
+        super(
+            new File(server.getServerDirectory().toPath().resolve("config").resolve("plotmod_interest.json").toString()),
+            new GsonBuilder().setPrettyPrinting().create()
+        );
         this.server = server;
-        this.savePath = server.getServerDirectory().toPath().resolve("config").resolve("plotmod_interest.json");
         load();
+    }
+
+    @Override
+    protected Type getDataType() {
+        return new TypeToken<Map<UUID, Long>>(){}.getType();
+    }
+
+    @Override
+    protected void onDataLoaded(Map<UUID, Long> data) {
+        lastInterestPayout.clear();
+        lastInterestPayout.putAll(data);
+    }
+
+    @Override
+    protected Map<UUID, Long> getCurrentData() {
+        return new HashMap<>(lastInterestPayout);
     }
 
     public static InterestManager getInstance(MinecraftServer server) {
@@ -81,6 +94,24 @@ public class InterestManager {
                 lastInterestPayout.put(playerUUID, currentDay);
             }
         }
+
+        save();
+    }
+
+    @Override
+    protected String getComponentName() {
+        return "InterestManager";
+    }
+
+    @Override
+    protected String getHealthDetails() {
+        return lastInterestPayout.size() + " accounts tracked";
+    }
+
+    @Override
+    protected void onCriticalLoadFailure() {
+        lastInterestPayout.clear();
+        LOGGER.warn("InterestManager: Gestartet mit leeren Daten nach kritischem Fehler");
     }
 
     /**
@@ -96,8 +127,6 @@ public class InterestManager {
 
         EconomyManager.deposit(playerUUID, interest, TransactionType.INTEREST,
             String.format("Wöchentliche Zinsen (%.1f%%)", INTEREST_RATE * 100));
-
-        LOGGER.info("Zinsen ausgezahlt: {} € an {}", interest, playerUUID);
 
         // Benachrichtige Spieler wenn online
         ServerPlayer player = server.getPlayerList().getPlayer(playerUUID);
@@ -127,34 +156,5 @@ public class InterestManager {
         double balance = EconomyManager.getBalance(playerUUID);
         double interest = balance * INTEREST_RATE;
         return Math.min(interest, MAX_INTEREST_PER_WEEK);
-    }
-
-    // Persistence
-    private void load() {
-        if (!Files.exists(savePath)) {
-            return;
-        }
-
-        try (Reader reader = Files.newBufferedReader(savePath)) {
-            Type type = new TypeToken<Map<UUID, Long>>(){}.getType();
-            Map<UUID, Long> loaded = gson.fromJson(reader, type);
-            if (loaded != null) {
-                lastInterestPayout.putAll(loaded);
-                LOGGER.info("Loaded interest data for {} players", loaded.size());
-            }
-        } catch (Exception e) {
-            LOGGER.error("Failed to load interest data", e);
-        }
-    }
-
-    public void save() {
-        try {
-            Files.createDirectories(savePath.getParent());
-            try (Writer writer = Files.newBufferedWriter(savePath)) {
-                gson.toJson(lastInterestPayout, writer);
-            }
-        } catch (Exception e) {
-            LOGGER.error("Failed to save interest data", e);
-        }
     }
 }

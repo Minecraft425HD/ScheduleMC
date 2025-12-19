@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.npc.network;
 
+import de.rolandsw.schedulemc.util.PacketHandler;
 import de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager;
 import de.rolandsw.schedulemc.vehicle.fuel.FuelStationRegistry;
 import de.rolandsw.schedulemc.vehicle.items.ItemSpawnVehicle;
@@ -52,16 +53,12 @@ public class PurchaseItemPacket {
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            ServerPlayer player = ctx.get().getSender();
-            if (player != null) {
-                Entity entity = player.level().getEntity(merchantEntityId);
-                if (entity instanceof CustomNPCEntity merchant) {
-                    processPurchase(player, merchant, itemIndex, quantity);
-                }
+        PacketHandler.handleServerPacket(ctx, player -> {
+            Entity entity = player.level().getEntity(merchantEntityId);
+            if (entity instanceof CustomNPCEntity merchant) {
+                processPurchase(player, merchant, itemIndex, quantity);
             }
         });
-        ctx.get().setPacketHandled(true);
     }
 
     /**

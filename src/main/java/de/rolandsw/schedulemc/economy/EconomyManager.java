@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.util.GsonHelper;
+import de.rolandsw.schedulemc.util.BackupManager;
 import com.mojang.logging.LogUtils;
 import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
@@ -25,6 +26,8 @@ public class EconomyManager {
     private static final File file = new File("config/plotmod_economy.json");
     private static final Gson gson = GsonHelper.get();
     private static boolean needsSave = false;
+    private static boolean isHealthy = true;
+    private static String lastError = null;
 
     @Nullable
     private MinecraftServer server;
@@ -52,47 +55,180 @@ public class EconomyManager {
     }
 
     /**
-     * Lädt alle Konten aus der JSON-Datei
+     * Lädt alle Konten aus der JSON-Datei mit Backup-Wiederherstellung
      */
     public static void loadAccounts() {
         if (!file.exists()) {
             LOGGER.info("Keine Economy-Datei gefunden, starte mit leerer Datenbank");
+            isHealthy = true;
             return;
         }
-        
-        try (FileReader reader = new FileReader(file)) {
-            Map<String, Double> loaded = gson.fromJson(reader, new TypeToken<Map<String, Double>>(){}.getType());
-            if (loaded != null) {
-                loaded.forEach((k, v) -> {
-                    try {
-                        balances.put(UUID.fromString(k), v);
-                    } catch (IllegalArgumentException e) {
-                        LOGGER.error("Ungültige UUID in Economy-Datei: {}", k, e);
-                    }
-                });
-                LOGGER.info("Economy-Daten geladen: {} Konten", balances.size());
-            }
-        } catch (IOException e) {
+
+        try {
+            loadAccountsFromFile(file);
+            isHealthy = true;
+            lastError = null;
+            LOGGER.info("Economy-Daten erfolgreich geladen: {} Konten", balances.size());
+        } catch (Exception e) {
             LOGGER.error("Fehler beim Laden der Economy-Daten", e);
+            lastError = "Failed to load: " + e.getMessage();
+
+            // Versuch Backup wiederherzustellen
+            if (BackupManager.restoreFromBackup(file)) {
+                LOGGER.warn("Economy-Datei korrupt, versuche Backup wiederherzustellen...");
+                try {
+                    loadAccountsFromFile(file);
+                    LOGGER.info("Economy-Daten erfolgreich von Backup wiederhergestellt: {} Konten", balances.size());
+                    isHealthy = true;
+                    lastError = "Recovered from backup";
+                } catch (Exception backupError) {
+                    LOGGER.error("KRITISCH: Backup-Wiederherstellung fehlgeschlagen!", backupError);
+                    handleCriticalLoadFailure();
+                }
+            } else {
+                LOGGER.error("KRITISCH: Kein Backup verfügbar für Wiederherstellung!");
+                handleCriticalLoadFailure();
+            }
         }
     }
 
     /**
-     * Speichert alle Konten in die JSON-Datei
+     * Lädt Konten aus einer spezifischen Datei
+     */
+    private static void loadAccountsFromFile(File sourceFile) throws IOException {
+        try (FileReader reader = new FileReader(sourceFile)) {
+            Map<String, Double> loaded = gson.fromJson(reader, new TypeToken<Map<String, Double>>(){}.getType());
+
+            if (loaded == null) {
+                throw new IOException("Geladene Daten sind null");
+            }
+
+            balances.clear();
+            int invalidUUIDs = 0;
+
+            for (Map.Entry<String, Double> entry : loaded.entrySet()) {
+                try {
+                    UUID uuid = UUID.fromString(entry.getKey());
+                    Double balance = entry.getValue();
+
+                    // Validierung
+                    if (balance == null) {
+                        LOGGER.warn("Null-Balance für UUID {}, überspringe", entry.getKey());
+                        invalidUUIDs++;
+                        continue;
+                    }
+
+                    balances.put(uuid, balance);
+                } catch (IllegalArgumentException e) {
+                    LOGGER.error("Ungültige UUID in Economy-Datei: {}", entry.getKey());
+                    invalidUUIDs++;
+                }
+            }
+
+            if (invalidUUIDs > 0) {
+                LOGGER.warn("{} ungültige Einträge beim Laden übersprungen", invalidUUIDs);
+            }
+        }
+    }
+
+    /**
+     * Behandelt kritischen Ladefehler mit Graceful Degradation
+     */
+    private static void handleCriticalLoadFailure() {
+        LOGGER.error("KRITISCH: Economy-System konnte nicht geladen werden!");
+        LOGGER.error("Starte mit leerem Economy-System als Fallback");
+
+        balances.clear();
+        isHealthy = false;
+        lastError = "Critical load failure - running with empty data";
+
+        // Erstelle Notfall-Backup der korrupten Datei für forensische Analyse
+        if (file.exists()) {
+            File corruptBackup = new File(file.getParent(), file.getName() + ".CORRUPT_" + System.currentTimeMillis());
+            try {
+                java.nio.file.Files.copy(file.toPath(), corruptBackup.toPath());
+                LOGGER.info("Korrupte Datei gesichert nach: {}", corruptBackup.getName());
+            } catch (IOException e) {
+                LOGGER.error("Konnte korrupte Datei nicht sichern", e);
+            }
+        }
+    }
+
+    /**
+     * Speichert alle Konten in die JSON-Datei mit Backup
      */
     public static void saveAccounts() {
         try {
             file.getParentFile().mkdirs(); // Erstelle config-Ordner falls nicht vorhanden
-            
-            try (FileWriter writer = new FileWriter(file)) {
+
+            // Erstelle Backup vor dem Speichern (falls Datei existiert)
+            if (file.exists() && file.length() > 0) {
+                BackupManager.createBackup(file);
+            }
+
+            // Temporäre Datei für atomares Schreiben
+            File tempFile = new File(file.getParent(), file.getName() + ".tmp");
+
+            try (FileWriter writer = new FileWriter(tempFile)) {
                 Map<String, Double> saveMap = new HashMap<>();
                 balances.forEach((k, v) -> saveMap.put(k.toString(), v));
                 gson.toJson(saveMap, writer);
-                needsSave = false;
-                LOGGER.debug("Economy-Daten gespeichert: {} Konten", saveMap.size());
+                writer.flush();
             }
+
+            // Atomares Ersetzen (verhindert Datenverlust bei Absturz während Schreibvorgang)
+            java.nio.file.Files.move(tempFile.toPath(), file.toPath(),
+                java.nio.file.StandardCopyOption.REPLACE_EXISTING,
+                java.nio.file.StandardCopyOption.ATOMIC_MOVE);
+
+            needsSave = false;
+            isHealthy = true;
+            lastError = null;
+            LOGGER.debug("Economy-Daten gespeichert: {} Konten", balances.size());
+
         } catch (IOException e) {
-            LOGGER.error("Fehler beim Speichern der Economy-Daten", e);
+            LOGGER.error("KRITISCH: Fehler beim Speichern der Economy-Daten", e);
+            isHealthy = false;
+            lastError = "Save failed: " + e.getMessage();
+
+            // Versuche erneut nach kurzer Wartezeit
+            try {
+                Thread.sleep(100);
+                retrySave();
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    /**
+     * Retry-Mechanismus für fehlgeschlagene Saves
+     */
+    private static void retrySave() {
+        LOGGER.warn("Versuche erneut zu speichern...");
+        try {
+            File tempFile = new File(file.getParent(), file.getName() + ".tmp");
+
+            try (FileWriter writer = new FileWriter(tempFile)) {
+                Map<String, Double> saveMap = new HashMap<>();
+                balances.forEach((k, v) -> saveMap.put(k.toString(), v));
+                gson.toJson(saveMap, writer);
+                writer.flush();
+            }
+
+            java.nio.file.Files.move(tempFile.toPath(), file.toPath(),
+                java.nio.file.StandardCopyOption.REPLACE_EXISTING,
+                java.nio.file.StandardCopyOption.ATOMIC_MOVE);
+
+            LOGGER.info("Retry erfolgreich - Daten gespeichert");
+            isHealthy = true;
+            lastError = null;
+            needsSave = false;
+
+        } catch (IOException retryError) {
+            LOGGER.error("KRITISCH: Retry fehlgeschlagen - Daten konnten nicht gespeichert werden!", retryError);
+            // Markiere als needs save für nächsten Versuch
+            needsSave = true;
         }
     }
 
@@ -283,5 +419,33 @@ public class EconomyManager {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Gibt den Health-Status des Economy-Systems zurück
+     */
+    public static boolean isHealthy() {
+        return isHealthy;
+    }
+
+    /**
+     * Gibt die letzte Fehlermeldung zurück (oder null wenn gesund)
+     */
+    @Nullable
+    public static String getLastError() {
+        return lastError;
+    }
+
+    /**
+     * Gibt detaillierte Health-Informationen zurück
+     */
+    public static String getHealthInfo() {
+        if (isHealthy) {
+            return String.format("§aGESUND§r - %d Konten, %d Backups verfügbar",
+                balances.size(), BackupManager.getBackupCount(file));
+        } else {
+            return String.format("§cUNGESUND§r - Letzter Fehler: %s, %d Konten geladen",
+                lastError != null ? lastError : "Unknown", balances.size());
+        }
     }
 }

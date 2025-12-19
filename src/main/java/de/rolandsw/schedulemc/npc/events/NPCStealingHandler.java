@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.npc.events;
 import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.menu.StealingMenu;
+import de.rolandsw.schedulemc.util.EventHelper;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -21,19 +22,15 @@ public class NPCStealingHandler {
 
     @SubscribeEvent
     public void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
-        // Nur Server-Side
-        if (event.getLevel().isClientSide) return;
+        EventHelper.handleEntityInteract(event, player -> {
+            // Prüfe ob Spieler schleicht
+            if (!player.isCrouching()) return;
 
-        Player player = event.getEntity();
+            // Prüfe ob Links-Klick (MAIN_HAND)
+            if (event.getHand() != InteractionHand.MAIN_HAND) return;
 
-        // Prüfe ob Spieler schleicht
-        if (!player.isCrouching()) return;
-
-        // Prüfe ob Links-Klick (MAIN_HAND)
-        if (event.getHand() != InteractionHand.MAIN_HAND) return;
-
-        // Prüfe ob Target ein CustomNPC ist
-        if (event.getTarget() instanceof CustomNPCEntity npc) {
+            // Prüfe ob Target ein CustomNPC ist
+            if (event.getTarget() instanceof CustomNPCEntity npc) {
             // Prüfe ob es kein Polizist ist
             if (npc.getNpcType() == NPCType.POLIZEI) {
                 player.displayClientMessage(Component.literal("§c✗ Du kannst keine Polizisten bestehlen!"), true);
@@ -84,6 +81,7 @@ public class NPCStealingHandler {
             }
 
             event.setCanceled(true);
-        }
+            }
+        });
     }
 }

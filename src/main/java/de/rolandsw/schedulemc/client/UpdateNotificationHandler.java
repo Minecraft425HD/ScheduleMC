@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.client;
+import de.rolandsw.schedulemc.util.EventHelper;
 
 import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.util.VersionChecker;
@@ -36,81 +37,85 @@ public class UpdateNotificationHandler {
 
     @SubscribeEvent
     public static void onClientTick(TickEvent.ClientTickEvent event) {
-        if (event.phase != TickEvent.Phase.END || hasChecked) {
-            return;
-        }
+        EventHelper.handleEvent(() -> {
+            if (event.phase != TickEvent.Phase.END || hasChecked) {
+                return;
+            }
 
-        tickCounter++;
-        if (tickCounter >= CHECK_DELAY) {
-            hasChecked = true;
-            VersionChecker.checkForUpdates();
-            ScheduleMC.LOGGER.info("Started version check");
-        }
+            tickCounter++;
+            if (tickCounter >= CHECK_DELAY) {
+                hasChecked = true;
+                VersionChecker.checkForUpdates();
+                ScheduleMC.LOGGER.info("Started version check");
+            }
+        }, "onClientTick");
     }
 
     @SubscribeEvent
     public static void onScreenInit(ScreenEvent.Init.Post event) {
-        Screen screen = event.getScreen();
+        EventHelper.handleEvent(() -> {
+            Screen screen = event.getScreen();
 
-        // Prüfe ob wir auf dem Hauptmenü oder Multiplayer-Menü sind
-        if (!(screen instanceof TitleScreen) && !(screen instanceof JoinMultiplayerScreen)) {
-            return;
-        }
-
-        // Nur anzeigen wenn Update verfügbar ist
-        if (!VersionChecker.isUpdateAvailable()) {
-            return;
-        }
-
-        int width = screen.width;
-        int height = screen.height;
-
-        // Position für den Update-Button (oben rechts)
-        int buttonWidth = 120;
-        int buttonHeight = 20;
-        int buttonX = width - buttonWidth - 5;
-        int buttonY = 5;
-
-        // Erstelle Update-Button
-        Component buttonText = Component.literal("§6§l⚠ Update §r§ev" + VersionChecker.getLatestVersion());
-
-        Button updateButton = Button.builder(buttonText, button -> {
-            // Öffne Download-URL im Browser
-            try {
-                String url = VersionChecker.getDownloadUrl();
-                Minecraft.getInstance().keyboardHandler.setClipboard(url);
-
-                // Zeige Nachricht
-                if (Minecraft.getInstance().player != null) {
-                    Minecraft.getInstance().player.displayClientMessage(
-                        Component.literal("§aDownload-Link in Zwischenablage kopiert!"),
-                        false
-                    );
-                }
-
-                // Versuche Browser zu öffnen
-                java.awt.Desktop.getDesktop().browse(new java.net.URI(url));
-            } catch (Exception e) {
-                ScheduleMC.LOGGER.error("Failed to open update URL", e);
-                if (Minecraft.getInstance().player != null) {
-                    Minecraft.getInstance().player.displayClientMessage(
-                        Component.literal("§cFehler beim Öffnen des Links. URL wurde in Zwischenablage kopiert."),
-                        false
-                    );
-                }
+            // Prüfe ob wir auf dem Hauptmenü oder Multiplayer-Menü sind
+            if (!(screen instanceof TitleScreen) && !(screen instanceof JoinMultiplayerScreen)) {
+                return;
             }
-        })
-        .bounds(buttonX, buttonY, buttonWidth, buttonHeight)
-        .build();
 
-        event.addListener(updateButton);
+            // Nur anzeigen wenn Update verfügbar ist
+            if (!VersionChecker.isUpdateAvailable()) {
+                return;
+            }
 
-        // Füge auch einen Info-Text hinzu
-        if (screen instanceof TitleScreen) {
-            ScheduleMC.LOGGER.info("Added update notification to title screen");
-        } else if (screen instanceof JoinMultiplayerScreen) {
-            ScheduleMC.LOGGER.info("Added update notification to multiplayer screen");
-        }
+            int width = screen.width;
+            int height = screen.height;
+
+            // Position für den Update-Button (oben rechts)
+            int buttonWidth = 120;
+            int buttonHeight = 20;
+            int buttonX = width - buttonWidth - 5;
+            int buttonY = 5;
+
+            // Erstelle Update-Button
+            Component buttonText = Component.literal("§6§l⚠ Update §r§ev" + VersionChecker.getLatestVersion());
+
+            Button updateButton = Button.builder(buttonText, button -> {
+                // Öffne Download-URL im Browser
+                try {
+                    String url = VersionChecker.getDownloadUrl();
+                    Minecraft.getInstance().keyboardHandler.setClipboard(url);
+
+                    // Zeige Nachricht
+                    if (Minecraft.getInstance().player != null) {
+                        Minecraft.getInstance().player.displayClientMessage(
+                            Component.literal("§aDownload-Link in Zwischenablage kopiert!"),
+                            false
+                        );
+                    }
+
+                    // Versuche Browser zu öffnen
+                    java.awt.Desktop.getDesktop().browse(new java.net.URI(url));
+                } catch (Exception e) {
+                    ScheduleMC.LOGGER.error("Failed to open update URL", e);
+                    if (Minecraft.getInstance().player != null) {
+                        Minecraft.getInstance().player.displayClientMessage(
+                            Component.literal("§cFehler beim Öffnen des Links. URL wurde in Zwischenablage kopiert."),
+                            false
+                        );
+                    }
+                }
+            })
+            .bounds(buttonX, buttonY, buttonWidth, buttonHeight)
+            .build();
+
+            event.addListener(updateButton);
+
+            // Füge auch einen Info-Text hinzu
+            if (screen instanceof TitleScreen) {
+                ScheduleMC.LOGGER.info("Added update notification to title screen");
+            } else if (screen instanceof JoinMultiplayerScreen) {
+                ScheduleMC.LOGGER.info("Added update notification to multiplayer screen");
+            }
+        }, "onScreenInit");
     }
 
     /**
@@ -118,38 +123,40 @@ public class UpdateNotificationHandler {
      */
     @SubscribeEvent
     public static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
-        Player player = event.getEntity();
+        EventHelper.handleEvent(() -> {
+            Player player = event.getEntity();
 
-        // Prüfe ob Spieler schon benachrichtigt wurde
-        if (notifiedPlayers.contains(player.getUUID())) {
-            return;
-        }
+            // Prüfe ob Spieler schon benachrichtigt wurde
+            if (notifiedPlayers.contains(player.getUUID())) {
+                return;
+            }
 
-        // Prüfe ob Spieler OP ist oder kreativ Mode hat (für Singleplayer)
-        if (!player.hasPermissions(2) && !player.isCreative()) {
-            return;
-        }
+            // Prüfe ob Spieler OP ist oder kreativ Mode hat (für Singleplayer)
+            if (!player.hasPermissions(2) && !player.isCreative()) {
+                return;
+            }
 
-        // Prüfe ob Update verfügbar ist
-        if (!VersionChecker.isUpdateAvailable()) {
-            return;
-        }
+            // Prüfe ob Update verfügbar ist
+            if (!VersionChecker.isUpdateAvailable()) {
+                return;
+            }
 
-        // Markiere als benachrichtigt
-        notifiedPlayers.add(player.getUUID());
+            // Markiere als benachrichtigt
+            notifiedPlayers.add(player.getUUID());
 
-        // Sende Update-Benachrichtigung
-        Component message = Component.literal("\n§6§l[ScheduleMC]§r §eUpdate verfügbar!§r\n")
-            .append(Component.literal("§7Aktuelle Version: §f" + VersionChecker.getCurrentVersion() + "\n"))
-            .append(Component.literal("§7Neue Version: §a" + VersionChecker.getLatestVersion() + "\n"))
-            .append(Component.literal("§b[Hier klicken zum Download]§r\n")
-                .setStyle(Style.EMPTY
-                    .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, VersionChecker.getDownloadUrl()))
-                    .withUnderlined(true)
-                )
-            );
+            // Sende Update-Benachrichtigung
+            Component message = Component.literal("\n§6§l[ScheduleMC]§r §eUpdate verfügbar!§r\n")
+                .append(Component.literal("§7Aktuelle Version: §f" + VersionChecker.getCurrentVersion() + "\n"))
+                .append(Component.literal("§7Neue Version: §a" + VersionChecker.getLatestVersion() + "\n"))
+                .append(Component.literal("§b[Hier klicken zum Download]§r\n")
+                    .setStyle(Style.EMPTY
+                        .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, VersionChecker.getDownloadUrl()))
+                        .withUnderlined(true)
+                    )
+                );
 
-        player.sendSystemMessage(message);
-        ScheduleMC.LOGGER.info("Sent update notification to player: " + player.getName().getString());
+            player.sendSystemMessage(message);
+            ScheduleMC.LOGGER.info("Sent update notification to player: " + player.getName().getString());
+        }, "onPlayerLogin");
     }
 }

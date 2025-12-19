@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.vehicle.events;
+import de.rolandsw.schedulemc.util.EventHelper;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 
 import de.rolandsw.schedulemc.vehicle.Main;
@@ -26,26 +27,28 @@ public class PlayerEvents {
 
     @SubscribeEvent
     public void onPlayerTick(TickEvent.PlayerTickEvent evt) {
-        if (evt.side.equals(LogicalSide.SERVER)) {
-            return;
-        }
-
-        if (!evt.player.equals(getPlayer())) {
-            return;
-        }
-
-        EntityVehicleBase vehicle = getRidingVehicle();
-
-        if (vehicle != null && lastVehicle == null) {
-            if (vehicle.doesEnterThirdPerson()) {
-                setThirdPerson(true);
+        EventHelper.handleEvent(() -> {
+            if (evt.side.equals(LogicalSide.SERVER)) {
+                return;
             }
-        } else if (vehicle == null && lastVehicle != null) {
-            if (lastVehicle.doesEnterThirdPerson()) {
-                setThirdPerson(false);
+
+            if (!evt.player.equals(getPlayer())) {
+                return;
             }
-        }
-        lastVehicle = vehicle;
+
+            EntityVehicleBase vehicle = getRidingVehicle();
+
+            if (vehicle != null && lastVehicle == null) {
+                if (vehicle.doesEnterThirdPerson()) {
+                    setThirdPerson(true);
+                }
+            } else if (vehicle == null && lastVehicle != null) {
+                if (lastVehicle.doesEnterThirdPerson()) {
+                    setThirdPerson(false);
+                }
+            }
+            lastVehicle = vehicle;
+        }, "onPlayerTick");
     }
 
     private void setThirdPerson(boolean third) {

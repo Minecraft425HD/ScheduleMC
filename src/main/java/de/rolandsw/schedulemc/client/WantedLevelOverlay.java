@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.client;
+import de.rolandsw.schedulemc.util.EventHelper;
 
 import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.npc.crime.CrimeManager;
@@ -23,72 +24,74 @@ public class WantedLevelOverlay {
 
     @SubscribeEvent
     public static void onRenderGuiOverlay(RenderGuiOverlayEvent.Post event) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.level == null) return;
+        EventHelper.handleEvent(() -> {
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.player == null || mc.level == null) return;
 
-        int wantedLevel = CrimeManager.getClientWantedLevel();
-        long escapeTime = CrimeManager.getClientEscapeTime();
+            int wantedLevel = CrimeManager.getClientWantedLevel();
+            long escapeTime = CrimeManager.getClientEscapeTime();
 
-        // Nur anzeigen wenn Wanted-Level > 0
-        if (wantedLevel <= 0 && escapeTime <= 0) return;
+            // Nur anzeigen wenn Wanted-Level > 0
+            if (wantedLevel <= 0 && escapeTime <= 0) return;
 
-        GuiGraphics guiGraphics = event.getGuiGraphics();
+            GuiGraphics guiGraphics = event.getGuiGraphics();
 
-        int currentY = HUD_Y;
+            int currentY = HUD_Y;
 
-        // Berechne Hintergrund-Größe
-        int bgWidth = 150;
-        int bgHeight = escapeTime > 0 ? 40 : 20;
+            // Berechne Hintergrund-Größe
+            int bgWidth = 150;
+            int bgHeight = escapeTime > 0 ? 40 : 20;
 
-        // Halbtransparenter Hintergrund
-        guiGraphics.fill(HUD_X - 5, currentY - 5, HUD_X + bgWidth, currentY + bgHeight, 0x88000000);
+            // Halbtransparenter Hintergrund
+            guiGraphics.fill(HUD_X - 5, currentY - 5, HUD_X + bgWidth, currentY + bgHeight, 0x88000000);
 
-        // === WANTED LEVEL STERNE ===
-        if (wantedLevel > 0) {
-            String stars = getStarString(wantedLevel);
-            String wantedText = "§cGesucht: " + stars;
+            // === WANTED LEVEL STERNE ===
+            if (wantedLevel > 0) {
+                String stars = getStarString(wantedLevel);
+                String wantedText = "§cGesucht: " + stars;
 
-            guiGraphics.pose().pushPose();
-            guiGraphics.pose().scale(SCALE, SCALE, 1.0f);
-            guiGraphics.drawString(mc.font, wantedText, (int)(HUD_X / SCALE), (int)(currentY / SCALE), 0xFF0000);
-            guiGraphics.pose().popPose();
+                guiGraphics.pose().pushPose();
+                guiGraphics.pose().scale(SCALE, SCALE, 1.0f);
+                guiGraphics.drawString(mc.font, wantedText, (int)(HUD_X / SCALE), (int)(currentY / SCALE), 0xFF0000);
+                guiGraphics.pose().popPose();
 
-            currentY += 18;
-        }
-
-        // === ESCAPE TIMER ===
-        if (escapeTime > 0) {
-            // Konvertiere Ticks zu Sekunden
-            int secondsRemaining = (int) Math.ceil(escapeTime / 20.0);
-            String escapeText = "§eVersteckt: §f" + secondsRemaining + "s";
-
-            // Fortschrittsbalken
-            float progress = (float) escapeTime / CrimeManager.ESCAPE_DURATION;
-            int barWidth = 120;
-            int barHeight = 6;
-
-            // Balken-Hintergrund
-            guiGraphics.fill(HUD_X, currentY + 12, HUD_X + barWidth, currentY + 12 + barHeight, 0xFF1A1A1A);
-
-            // Gefüllter Teil (grün → gelb → rot je nach verbleibender Zeit)
-            int filledWidth = (int) (barWidth * progress);
-            int barColor = getProgressColor(progress);
-            if (filledWidth > 0) {
-                guiGraphics.fill(HUD_X, currentY + 12, HUD_X + filledWidth, currentY + 12 + barHeight, barColor);
+                currentY += 18;
             }
 
-            // Rahmen
-            guiGraphics.fill(HUD_X - 1, currentY + 11, HUD_X + barWidth + 1, currentY + 12, 0xAAFFFFFF);
-            guiGraphics.fill(HUD_X - 1, currentY + 12 + barHeight, HUD_X + barWidth + 1, currentY + 12 + barHeight + 1, 0xAAFFFFFF);
-            guiGraphics.fill(HUD_X - 1, currentY + 12, HUD_X, currentY + 12 + barHeight, 0xAAFFFFFF);
-            guiGraphics.fill(HUD_X + barWidth, currentY + 12, HUD_X + barWidth + 1, currentY + 12 + barHeight, 0xAAFFFFFF);
+            // === ESCAPE TIMER ===
+            if (escapeTime > 0) {
+                // Konvertiere Ticks zu Sekunden
+                int secondsRemaining = (int) Math.ceil(escapeTime / 20.0);
+                String escapeText = "§eVersteckt: §f" + secondsRemaining + "s";
 
-            // Text
-            guiGraphics.pose().pushPose();
-            guiGraphics.pose().scale(0.9f, 0.9f, 1.0f);
-            guiGraphics.drawString(mc.font, escapeText, (int)(HUD_X / 0.9f), (int)(currentY / 0.9f), 0xFFFFFF);
-            guiGraphics.pose().popPose();
-        }
+                // Fortschrittsbalken
+                float progress = (float) escapeTime / CrimeManager.ESCAPE_DURATION;
+                int barWidth = 120;
+                int barHeight = 6;
+
+                // Balken-Hintergrund
+                guiGraphics.fill(HUD_X, currentY + 12, HUD_X + barWidth, currentY + 12 + barHeight, 0xFF1A1A1A);
+
+                // Gefüllter Teil (grün → gelb → rot je nach verbleibender Zeit)
+                int filledWidth = (int) (barWidth * progress);
+                int barColor = getProgressColor(progress);
+                if (filledWidth > 0) {
+                    guiGraphics.fill(HUD_X, currentY + 12, HUD_X + filledWidth, currentY + 12 + barHeight, barColor);
+                }
+
+                // Rahmen
+                guiGraphics.fill(HUD_X - 1, currentY + 11, HUD_X + barWidth + 1, currentY + 12, 0xAAFFFFFF);
+                guiGraphics.fill(HUD_X - 1, currentY + 12 + barHeight, HUD_X + barWidth + 1, currentY + 12 + barHeight + 1, 0xAAFFFFFF);
+                guiGraphics.fill(HUD_X - 1, currentY + 12, HUD_X, currentY + 12 + barHeight, 0xAAFFFFFF);
+                guiGraphics.fill(HUD_X + barWidth, currentY + 12, HUD_X + barWidth + 1, currentY + 12 + barHeight, 0xAAFFFFFF);
+
+                // Text
+                guiGraphics.pose().pushPose();
+                guiGraphics.pose().scale(0.9f, 0.9f, 1.0f);
+                guiGraphics.drawString(mc.font, escapeText, (int)(HUD_X / 0.9f), (int)(currentY / 0.9f), 0xFFFFFF);
+                guiGraphics.pose().popPose();
+            }
+        }, "onRenderGuiOverlay");
     }
 
     /**

@@ -5,9 +5,9 @@ import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.tobacco.business.NPCBusinessMetrics;
 import de.rolandsw.schedulemc.tobacco.business.NPCPurchaseDecision;
 import de.rolandsw.schedulemc.tobacco.menu.TobaccoNegotiationMenu;
+import de.rolandsw.schedulemc.util.PacketHandler;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
@@ -39,10 +39,7 @@ public class OpenTobaccoNegotiationPacket {
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            ServerPlayer player = ctx.get().getSender();
-            if (player == null) return;
-
+        PacketHandler.handleServerPacket(ctx, player -> {
             Entity entity = player.level().getEntity(npcEntityId);
             if (!(entity instanceof CustomNPCEntity npc)) return;
 
@@ -82,6 +79,5 @@ public class OpenTobaccoNegotiationPacket {
                 ModNetworking.sendToClient(syncPacket, player);
             }
         });
-        ctx.get().setPacketHandled(true);
     }
 }

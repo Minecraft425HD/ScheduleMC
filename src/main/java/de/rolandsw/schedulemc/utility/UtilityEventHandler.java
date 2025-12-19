@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.utility;
+import de.rolandsw.schedulemc.util.EventHelper;
 
 import de.rolandsw.schedulemc.ScheduleMC;
 import net.minecraft.core.BlockPos;
@@ -36,14 +37,14 @@ public class UtilityEventHandler {
      */
     @SubscribeEvent
     public static void onBlockPlace(BlockEvent.EntityPlaceEvent event) {
-        if (event.getLevel().isClientSide()) return;
+        EventHelper.handleBlockPlace(event, player -> {
+            BlockPos pos = event.getPos();
+            Block block = event.getPlacedBlock().getBlock();
+            Level level = (Level) event.getLevel();
 
-        BlockPos pos = event.getPos();
-        Block block = event.getPlacedBlock().getBlock();
-        Level level = (Level) event.getLevel();
-
-        // Registriere Block im Utility-System
-        PlotUtilityManager.onBlockPlaced(pos, block, level);
+            // Registriere Block im Utility-System
+            PlotUtilityManager.onBlockPlaced(pos, block, level);
+        });
     }
 
     /**
@@ -51,13 +52,13 @@ public class UtilityEventHandler {
      */
     @SubscribeEvent
     public static void onBlockBreak(BlockEvent.BreakEvent event) {
-        if (event.getLevel().isClientSide()) return;
+        EventHelper.handleBlockBreak(event, player -> {
+            BlockPos pos = event.getPos();
+            Block block = event.getState().getBlock();
 
-        BlockPos pos = event.getPos();
-        Block block = event.getState().getBlock();
-
-        // Entferne Block aus Utility-System
-        PlotUtilityManager.onBlockRemoved(pos, block);
+            // Entferne Block aus Utility-System
+            PlotUtilityManager.onBlockRemoved(pos, block);
+        });
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -69,15 +70,11 @@ public class UtilityEventHandler {
      */
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
-        if (event.phase != TickEvent.Phase.END) return;
+        EventHelper.handleServerTickEnd(event, server -> {
+            tickCounter++;
 
-        tickCounter++;
-
-        // Periodisches Update der Verbrauchswerte
-        if (tickCounter % UPDATE_INTERVAL == 0) {
-            // Hole erste ServerLevel für Updates
-            var server = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer();
-            if (server != null) {
+            // Periodisches Update der Verbrauchswerte
+            if (tickCounter % UPDATE_INTERVAL == 0) {
                 ServerLevel overworld = server.overworld();
                 if (overworld != null) {
                     // Tageswechsel-Check
@@ -87,17 +84,17 @@ public class UtilityEventHandler {
                     PlotUtilityManager.updateAllConsumption(overworld);
                 }
             }
-        }
 
-        // Periodisches Speichern
-        if (tickCounter % SAVE_INTERVAL == 0) {
-            PlotUtilityManager.saveIfNeeded();
-        }
+            // Periodisches Speichern
+            if (tickCounter % SAVE_INTERVAL == 0) {
+                PlotUtilityManager.saveIfNeeded();
+            }
 
-        // Counter Reset (verhindert Overflow)
-        if (tickCounter >= Integer.MAX_VALUE - 10000) {
-            tickCounter = 0;
-        }
+            // Counter Reset (verhindert Overflow)
+            if (tickCounter >= Integer.MAX_VALUE - 10000) {
+                tickCounter = 0;
+            }
+        });
     }
 
     // ═══════════════════════════════════════════════════════════════════════════

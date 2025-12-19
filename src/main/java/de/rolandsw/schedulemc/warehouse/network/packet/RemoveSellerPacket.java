@@ -1,12 +1,12 @@
 package de.rolandsw.schedulemc.warehouse.network.packet;
 
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
+import de.rolandsw.schedulemc.util.PacketHandler;
 import de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.network.NetworkEvent;
@@ -40,16 +40,7 @@ public class RemoveSellerPacket {
     }
 
     public static void handle(RemoveSellerPacket msg, Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            ServerPlayer player = ctx.get().getSender();
-            if (player == null) return;
-
-            // Admin check
-            if (!player.hasPermissions(2)) {
-                player.sendSystemMessage(Component.literal("§cNur Admins können Verkäufer entfernen!"));
-                return;
-            }
-
+        PacketHandler.handleAdminPacket(ctx, 2, player -> {
             ServerLevel level = player.serverLevel();
             BlockEntity be = level.getBlockEntity(msg.pos);
             if (!(be instanceof WarehouseBlockEntity warehouse)) return;
@@ -71,6 +62,5 @@ public class RemoveSellerPacket {
 
             player.sendSystemMessage(Component.literal("§aVerkäufer entfernt!"));
         });
-        ctx.get().setPacketHandled(true);
     }
 }

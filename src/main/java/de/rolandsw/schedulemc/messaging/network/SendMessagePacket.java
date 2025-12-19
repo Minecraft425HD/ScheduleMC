@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.messaging.network;
 
 import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.messaging.MessageManager;
+import de.rolandsw.schedulemc.util.PacketHandler;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
@@ -42,41 +43,37 @@ public class SendMessagePacket {
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            ServerPlayer sender = ctx.get().getSender();
-            if (sender != null) {
-                // Send message on server side
-                MessageManager.sendMessage(
-                    sender.getUUID(),
-                    sender.getName().getString(),
-                    true, // sender is always a player
-                    recipientUUID,
-                    recipientName,
-                    isRecipientPlayer,
-                    content
-                );
+        PacketHandler.handleServerPacket(ctx, sender -> {
+            // Send message on server side
+            MessageManager.sendMessage(
+                sender.getUUID(),
+                sender.getName().getString(),
+                true, // sender is always a player
+                recipientUUID,
+                recipientName,
+                isRecipientPlayer,
+                content
+            );
 
-                ScheduleMC.LOGGER.debug("Message from {} to {}: {}",
-                    sender.getName().getString(), recipientName, content);
+            ScheduleMC.LOGGER.debug("Message from {} to {}: {}",
+                sender.getName().getString(), recipientName, content);
 
-                // If recipient is online player, send notification
-                if (isRecipientPlayer) {
-                    ServerPlayer recipient = sender.getServer().getPlayerList().getPlayer(recipientUUID);
-                    if (recipient != null) {
-                        // Send notification packet to recipient
-                        MessageNetworkHandler.sendToClient(
-                            new ReceiveMessagePacket(
-                                sender.getUUID(),
-                                sender.getName().getString(),
-                                true,
-                                content
-                            ),
-                            recipient
-                        );
-                    }
+            // If recipient is online player, send notification
+            if (isRecipientPlayer) {
+                ServerPlayer recipient = sender.getServer().getPlayerList().getPlayer(recipientUUID);
+                if (recipient != null) {
+                    // Send notification packet to recipient
+                    MessageNetworkHandler.sendToClient(
+                        new ReceiveMessagePacket(
+                            sender.getUUID(),
+                            sender.getName().getString(),
+                            true,
+                            content
+                        ),
+                        recipient
+                    );
                 }
             }
         });
-        ctx.get().setPacketHandled(true);
     }
 }

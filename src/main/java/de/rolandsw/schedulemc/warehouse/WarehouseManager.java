@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.warehouse;
+import de.rolandsw.schedulemc.util.EventHelper;
 
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
@@ -75,35 +76,32 @@ public class WarehouseManager {
      */
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
-        if (event.phase != TickEvent.Phase.END) return;
+        EventHelper.handleServerTickEnd(event, server -> {
+            // Überspringe wenn keine Spieler online sind
+            if (server.getPlayerCount() == 0) return;
 
-        MinecraftServer server = event.getServer();
-        if (server == null) return;
+            // Prüfe nur jede Sekunde (20 ticks) statt jeden Tick
+            tickCounter++;
+            if (tickCounter < CHECK_INTERVAL) return;
+            tickCounter = 0;
 
-        // Überspringe wenn keine Spieler online sind
-        if (server.getPlayerCount() == 0) return;
+            // Prüfe alle registrierten Warehouses
+            for (Map.Entry<String, Set<BlockPos>> entry : warehouses.entrySet()) {
+                String levelKey = entry.getKey();
+                ServerLevel level = getLevelByKey(server, levelKey);
 
-        // Prüfe nur jede Sekunde (20 ticks) statt jeden Tick
-        tickCounter++;
-        if (tickCounter < CHECK_INTERVAL) return;
-        tickCounter = 0;
+                if (level == null) {
+                    LOGGER.warn("[WarehouseManager] Level {} not found!", levelKey);
+                    continue;
+                }
 
-        // Prüfe alle registrierten Warehouses
-        for (Map.Entry<String, Set<BlockPos>> entry : warehouses.entrySet()) {
-            String levelKey = entry.getKey();
-            ServerLevel level = getLevelByKey(server, levelKey);
+                long currentDay = level.getDayTime() / 24000L;
 
-            if (level == null) {
-                LOGGER.warn("[WarehouseManager] Level {} not found!", levelKey);
-                continue;
+                for (BlockPos pos : new ArrayList<>(entry.getValue())) {
+                    checkWarehouseDelivery(level, pos, currentDay);
+                }
             }
-
-            long currentDay = level.getDayTime() / 24000L;
-
-            for (BlockPos pos : new ArrayList<>(entry.getValue())) {
-                checkWarehouseDelivery(level, pos, currentDay);
-            }
-        }
+        });
     }
 
     /**
@@ -148,13 +146,14 @@ public class WarehouseManager {
      */
     @SubscribeEvent
     public static void onBlockPlace(BlockEvent.EntityPlaceEvent event) {
-        if (event.getLevel().isClientSide()) return;
-        if (!(event.getLevel() instanceof ServerLevel level)) return;
+        EventHelper.handleBlockPlace(event, player -> {
+            if (!(event.getLevel() instanceof ServerLevel level)) return;
 
-        BlockEntity be = level.getBlockEntity(event.getPos());
-        if (be instanceof WarehouseBlockEntity) {
-            registerWarehouse(level, event.getPos());
-        }
+            BlockEntity be = level.getBlockEntity(event.getPos());
+            if (be instanceof WarehouseBlockEntity) {
+                registerWarehouse(level, event.getPos());
+            }
+        });
     }
 
     /**
@@ -162,13 +161,14 @@ public class WarehouseManager {
      */
     @SubscribeEvent
     public static void onBlockBreak(BlockEvent.BreakEvent event) {
-        if (event.getLevel().isClientSide()) return;
-        if (!(event.getLevel() instanceof ServerLevel level)) return;
+        EventHelper.handleBlockBreak(event, player -> {
+            if (!(event.getLevel() instanceof ServerLevel level)) return;
 
-        BlockEntity be = level.getBlockEntity(event.getPos());
-        if (be instanceof WarehouseBlockEntity) {
-            unregisterWarehouse(level, event.getPos());
-        }
+            BlockEntity be = level.getBlockEntity(event.getPos());
+            if (be instanceof WarehouseBlockEntity) {
+                unregisterWarehouse(level, event.getPos());
+            }
+        });
     }
 
     // ═══════════════════════════════════════════════════════════

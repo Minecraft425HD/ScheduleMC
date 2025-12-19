@@ -5,23 +5,22 @@ import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.economy.RecurringPayment;
 import de.rolandsw.schedulemc.economy.RecurringPaymentManager;
+import de.rolandsw.schedulemc.commands.CommandExecutor;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import org.slf4j.Logger;
 
 import java.util.List;
 
 /**
  * Dauerauftrags-Befehle
+ * Refactored mit CommandExecutor
  */
 public class AutopayCommand {
-    private static final Logger LOGGER = LogUtils.getLogger();
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(
@@ -59,141 +58,105 @@ public class AutopayCommand {
     }
 
     private static int addPayment(CommandContext<CommandSourceStack> ctx) {
-        try {
-            ServerPlayer player = ctx.getSource().getPlayerOrException();
-            ServerPlayer target = EntityArgument.getPlayer(ctx, "target");
-            double amount = DoubleArgumentType.getDouble(ctx, "amount");
-            int intervalDays = IntegerArgumentType.getInteger(ctx, "intervalDays");
-            String description = StringArgumentType.getString(ctx, "description");
+        return CommandExecutor.executePlayerCommand(ctx, "Fehler beim Erstellen des Dauerauftrags",
+            player -> {
+                ServerPlayer target = EntityArgument.getPlayer(ctx, "target");
+                double amount = DoubleArgumentType.getDouble(ctx, "amount");
+                int intervalDays = IntegerArgumentType.getInteger(ctx, "intervalDays");
+                String description = StringArgumentType.getString(ctx, "description");
 
-            RecurringPaymentManager manager = RecurringPaymentManager.getInstance(player.getServer());
+                RecurringPaymentManager manager = RecurringPaymentManager.getInstance(player.getServer());
 
-            if (manager.createRecurringPayment(player.getUUID(), target.getUUID(),
-                    amount, intervalDays, description)) {
-                return 1;
-            } else {
-                ctx.getSource().sendFailure(Component.literal(
-                    "§cDauerauftrag konnte nicht erstellt werden!\n" +
-                    "§7Max. 10 Daueraufträge pro Spieler"
-                ));
-                return 0;
-            }
-        } catch (Exception e) {
-            LOGGER.error("Error adding autopay", e);
-            ctx.getSource().sendFailure(Component.literal("§cFehler beim Erstellen des Dauerauftrags!"));
-            return 0;
-        }
+                if (manager.createRecurringPayment(player.getUUID(), target.getUUID(),
+                        amount, intervalDays, description)) {
+                    // Success message wird vom Manager gesendet
+                } else {
+                    CommandExecutor.sendFailure(ctx.getSource(),
+                        "Dauerauftrag konnte nicht erstellt werden!\n" +
+                        "Max. 10 Daueraufträge pro Spieler"
+                    );
+                }
+            });
     }
 
     private static int listPayments(CommandContext<CommandSourceStack> ctx) {
-        try {
-            ServerPlayer player = ctx.getSource().getPlayerOrException();
-            RecurringPaymentManager manager = RecurringPaymentManager.getInstance(player.getServer());
+        return CommandExecutor.executePlayerCommand(ctx, "Fehler beim Abrufen der Daueraufträge",
+            player -> {
+                RecurringPaymentManager manager = RecurringPaymentManager.getInstance(player.getServer());
+                List<RecurringPayment> payments = manager.getPayments(player.getUUID());
 
-            List<RecurringPayment> payments = manager.getPayments(player.getUUID());
+                if (payments.isEmpty()) {
+                    player.sendSystemMessage(Component.literal(
+                        "§e§l[DAUERAUFTRÄGE]\n" +
+                        "§7Du hast keine Daueraufträge.\n\n" +
+                        "§aErstelle einen Dauerauftrag:\n" +
+                        "§7/autopay add <spieler> <betrag> <tage> <beschreibung>"
+                    ));
+                } else {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("§a§l━━━━ DAUERAUFTRÄGE ━━━━\n\n");
 
-            if (payments.isEmpty()) {
-                player.sendSystemMessage(Component.literal(
-                    "§e§l[DAUERAUFTRÄGE]\n" +
-                    "§7Du hast keine Daueraufträge.\n\n" +
-                    "§aErstelle einen Dauerauftrag:\n" +
-                    "§7/autopay add <spieler> <betrag> <tage> <beschreibung>"
-                ));
-            } else {
-                StringBuilder sb = new StringBuilder();
-                sb.append("§a§l━━━━ DAUERAUFTRÄGE ━━━━\n\n");
+                    long day = player.getServer().overworld().getDayTime() / 24000L;
 
-                long day = player.getServer().overworld().getDayTime() / 24000L;
+                    for (RecurringPayment payment : payments) {
+                        sb.append("§7ID: §f").append(payment.getPaymentId().substring(0, 8)).append("\n");
+                        sb.append("§7An: §e").append(payment.getToPlayer()).append("\n");
+                        sb.append("§7Betrag: §c-").append(String.format("%.2f€", payment.getAmount())).append("\n");
+                        sb.append("§7Interval: §e").append(payment.getIntervalDays()).append(" Tage\n");
+                        sb.append("§7Beschreibung: §f").append(payment.getDescription()).append("\n");
 
-                for (RecurringPayment payment : payments) {
-                    sb.append("§7ID: §f").append(payment.getPaymentId().substring(0, 8)).append("\n");
-                    sb.append("§7An: §e").append(payment.getToPlayer()).append("\n");
-                    sb.append("§7Betrag: §c-").append(String.format("%.2f€", payment.getAmount())).append("\n");
-                    sb.append("§7Interval: §e").append(payment.getIntervalDays()).append(" Tage\n");
-                    sb.append("§7Beschreibung: §f").append(payment.getDescription()).append("\n");
+                        if (payment.isActive()) {
+                            int daysUntil = payment.getDaysUntilNext(day);
+                            sb.append("§7Status: §aAktiv §7(nächste Zahlung in ").append(daysUntil).append(" Tagen)\n");
+                        } else {
+                            sb.append("§7Status: §cPausiert\n");
+                        }
 
-                    if (payment.isActive()) {
-                        int daysUntil = payment.getDaysUntilNext(day);
-                        sb.append("§7Status: §aAktiv §7(nächste Zahlung in ").append(daysUntil).append(" Tagen)\n");
-                    } else {
-                        sb.append("§7Status: §cPausiert\n");
+                        if (payment.getFailureCount() > 0) {
+                            sb.append("§cFehlversuche: ").append(payment.getFailureCount()).append("/3\n");
+                        }
+
+                        sb.append("\n");
                     }
 
-                    if (payment.getFailureCount() > 0) {
-                        sb.append("§cFehlversuche: ").append(payment.getFailureCount()).append("/3\n");
-                    }
-
-                    sb.append("\n");
+                    player.sendSystemMessage(Component.literal(sb.toString()));
                 }
-
-                player.sendSystemMessage(Component.literal(sb.toString()));
-            }
-
-            return 1;
-        } catch (Exception e) {
-            LOGGER.error("Error listing autopay", e);
-            ctx.getSource().sendFailure(Component.literal("§cFehler beim Abrufen der Daueraufträge!"));
-            return 0;
-        }
+            });
     }
 
     private static int pausePayment(CommandContext<CommandSourceStack> ctx) {
-        try {
-            ServerPlayer player = ctx.getSource().getPlayerOrException();
-            String paymentId = StringArgumentType.getString(ctx, "paymentId");
+        return CommandExecutor.executePlayerCommand(ctx, "Fehler beim Pausieren",
+            player -> {
+                String paymentId = StringArgumentType.getString(ctx, "paymentId");
+                RecurringPaymentManager manager = RecurringPaymentManager.getInstance(player.getServer());
 
-            RecurringPaymentManager manager = RecurringPaymentManager.getInstance(player.getServer());
-
-            if (manager.pauseRecurringPayment(player.getUUID(), paymentId)) {
-                return 1;
-            } else {
-                ctx.getSource().sendFailure(Component.literal("§cDauerauftrag nicht gefunden!"));
-                return 0;
-            }
-        } catch (Exception e) {
-            LOGGER.error("Error pausing autopay", e);
-            ctx.getSource().sendFailure(Component.literal("§cFehler beim Pausieren!"));
-            return 0;
-        }
+                if (!manager.pauseRecurringPayment(player.getUUID(), paymentId)) {
+                    CommandExecutor.sendFailure(ctx.getSource(), "Dauerauftrag nicht gefunden!");
+                }
+            });
     }
 
     private static int resumePayment(CommandContext<CommandSourceStack> ctx) {
-        try {
-            ServerPlayer player = ctx.getSource().getPlayerOrException();
-            String paymentId = StringArgumentType.getString(ctx, "paymentId");
+        return CommandExecutor.executePlayerCommand(ctx, "Fehler beim Aktivieren",
+            player -> {
+                String paymentId = StringArgumentType.getString(ctx, "paymentId");
+                RecurringPaymentManager manager = RecurringPaymentManager.getInstance(player.getServer());
 
-            RecurringPaymentManager manager = RecurringPaymentManager.getInstance(player.getServer());
-
-            if (manager.resumeRecurringPayment(player.getUUID(), paymentId)) {
-                return 1;
-            } else {
-                ctx.getSource().sendFailure(Component.literal("§cDauerauftrag nicht gefunden!"));
-                return 0;
-            }
-        } catch (Exception e) {
-            LOGGER.error("Error resuming autopay", e);
-            ctx.getSource().sendFailure(Component.literal("§cFehler beim Aktivieren!"));
-            return 0;
-        }
+                if (!manager.resumeRecurringPayment(player.getUUID(), paymentId)) {
+                    CommandExecutor.sendFailure(ctx.getSource(), "Dauerauftrag nicht gefunden!");
+                }
+            });
     }
 
     private static int deletePayment(CommandContext<CommandSourceStack> ctx) {
-        try {
-            ServerPlayer player = ctx.getSource().getPlayerOrException();
-            String paymentId = StringArgumentType.getString(ctx, "paymentId");
+        return CommandExecutor.executePlayerCommand(ctx, "Fehler beim Löschen",
+            player -> {
+                String paymentId = StringArgumentType.getString(ctx, "paymentId");
+                RecurringPaymentManager manager = RecurringPaymentManager.getInstance(player.getServer());
 
-            RecurringPaymentManager manager = RecurringPaymentManager.getInstance(player.getServer());
-
-            if (manager.deleteRecurringPayment(player.getUUID(), paymentId)) {
-                return 1;
-            } else {
-                ctx.getSource().sendFailure(Component.literal("§cDauerauftrag nicht gefunden!"));
-                return 0;
-            }
-        } catch (Exception e) {
-            LOGGER.error("Error deleting autopay", e);
-            ctx.getSource().sendFailure(Component.literal("§cFehler beim Löschen!"));
-            return 0;
-        }
+                if (!manager.deleteRecurringPayment(player.getUUID(), paymentId)) {
+                    CommandExecutor.sendFailure(ctx.getSource(), "Dauerauftrag nicht gefunden!");
+                }
+            });
     }
 }

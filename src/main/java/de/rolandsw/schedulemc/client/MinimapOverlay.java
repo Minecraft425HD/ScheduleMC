@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.client;
+import de.rolandsw.schedulemc.util.EventHelper;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -45,23 +46,25 @@ public class MinimapOverlay {
 
     @SubscribeEvent
     public static void onRenderGuiOverlay(RenderGuiOverlayEvent.Post event) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.level == null) return;
+        EventHelper.handleEvent(() -> {
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.player == null || mc.level == null) return;
 
-        // Initialisiere Texture beim ersten Aufruf
-        if (minimapTexture == null) {
-            initMinimapTexture(mc);
-        }
+            // Initialisiere Texture beim ersten Aufruf
+            if (minimapTexture == null) {
+                initMinimapTexture(mc);
+            }
 
-        // Update Texture nur alle 20 Ticks (1 Sekunde) - PERFORMANCE-TRICK!
-        textureUpdateCounter++;
-        if (textureUpdateCounter >= TEXTURE_UPDATE_INTERVAL) {
-            updateMinimapTexture(mc.player.blockPosition());
-            textureUpdateCounter = 0;
-        }
+            // Update Texture nur alle 20 Ticks (1 Sekunde) - PERFORMANCE-TRICK!
+            textureUpdateCounter++;
+            if (textureUpdateCounter >= TEXTURE_UPDATE_INTERVAL) {
+                updateMinimapTexture(mc.player.blockPosition());
+                textureUpdateCounter = 0;
+            }
 
-        // Rendere Minimap (zeichnet nur die gecachte Texture - SEHR SCHNELL!)
-        renderMinimap(event.getGuiGraphics(), mc);
+            // Rendere Minimap (zeichnet nur die gecachte Texture - SEHR SCHNELL!)
+            renderMinimap(event.getGuiGraphics(), mc);
+        }, "onRenderGuiOverlay");
     }
 
     /**
@@ -69,21 +72,23 @@ public class MinimapOverlay {
      */
     @SubscribeEvent
     public static void onClientTick(TickEvent.ClientTickEvent event) {
-        if (event.phase != TickEvent.Phase.END) return;
+        EventHelper.handleEvent(() -> {
+            if (event.phase != TickEvent.Phase.END) return;
 
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.level == null) return;
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.player == null || mc.level == null) return;
 
-        // Update Map alle 40 Ticks (2 Sekunden)
-        mapUpdateCounter++;
-        if (mapUpdateCounter >= MAP_UPDATE_INTERVAL) {
-            try {
-                MapAppScreen.updateMapDataStatic(mc.level, mc.player.blockPosition());
-            } catch (Exception e) {
-                // Fehler silent ignorieren - Map-Update ist nicht kritisch
+            // Update Map alle 40 Ticks (2 Sekunden)
+            mapUpdateCounter++;
+            if (mapUpdateCounter >= MAP_UPDATE_INTERVAL) {
+                try {
+                    MapAppScreen.updateMapDataStatic(mc.level, mc.player.blockPosition());
+                } catch (Exception e) {
+                    // Fehler silent ignorieren - Map-Update ist nicht kritisch
+                }
+                mapUpdateCounter = 0;
             }
-            mapUpdateCounter = 0;
-        }
+        }, "onClientTick");
     }
 
     /**

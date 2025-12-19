@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.messaging;
+import de.rolandsw.schedulemc.util.EventHelper;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
@@ -28,8 +29,9 @@ public class MessageNotificationOverlay {
 
     @SubscribeEvent
     public static void onRenderOverlay(RenderGuiOverlayEvent.Post event) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null) return;
+        EventHelper.handleEvent(() -> {
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.player == null) return;
 
         long currentTime = System.currentTimeMillis();
 
@@ -58,6 +60,7 @@ public class MessageNotificationOverlay {
 
             renderNotification(event.getGuiGraphics(), mc, currentNotification, alpha);
         }
+        }, "onRenderOverlay");
     }
 
     private static void renderNotification(GuiGraphics guiGraphics, Minecraft mc,

@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.tobacco.network;
 
 import de.rolandsw.schedulemc.tobacco.screen.TobaccoNegotiationScreen;
+import de.rolandsw.schedulemc.util.PacketHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
@@ -50,13 +51,12 @@ public class PurchaseDecisionSyncPacket {
      * Behandelt das Packet auf der Client-Seite
      */
     public void handle(Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
+        PacketHandler.handleClientPacket(ctx, () -> {
             // Client-Side: Update Screen
             if (Minecraft.getInstance().screen instanceof TobaccoNegotiationScreen screen) {
                 screen.updatePurchaseDecision(totalScore, willingToBuy, desiredAmount, npcWallet);
             }
         });
-        ctx.get().setPacketHandled(true);
     }
 
     // Getters für Debugging

@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.client;
+import de.rolandsw.schedulemc.util.EventHelper;
 
 import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.client.screen.SmartphoneScreen;
@@ -24,43 +25,45 @@ public class SmartphoneProtectionHandler {
      */
     @SubscribeEvent
     public static void onLivingAttack(LivingAttackEvent event) {
-        // Nur für Spieler relevant
-        if (!(event.getEntity() instanceof Player victim)) {
-            return;
-        }
-
-        // Prüfe ob der angegriffene Spieler ein Server-Spieler ist
-        if (!(victim instanceof ServerPlayer serverVictim)) {
-            return;
-        }
-
-        // Prüfe ob Angreifer ein Spieler ist
-        if (event.getSource().getEntity() instanceof ServerPlayer attacker) {
-
-            // Prüfe ob Opfer das Smartphone-GUI offen hat
-            // Da wir server-side sind, müssen wir eine andere Methode verwenden
-            // Wir erstellen ein System, das trackt, wer das GUI offen hat
-            if (SmartphoneTracker.hasSmartphoneOpen(serverVictim.getUUID())) {
-
-                // Verhindere den Schaden
-                event.setCanceled(true);
-
-                // Gebe dem Angreifer einen Wanted-Stern
-                long currentDay = serverVictim.getServer().overworld().getDayTime() / 24000L;
-                CrimeManager.addWantedLevel(attacker.getUUID(), 1, currentDay);
-
-                // Benachrichtige beide Spieler
-                attacker.sendSystemMessage(
-                    Component.literal("§c§l⚠ Du hast einen geschützten Spieler angegriffen! +1 Wanted-Stern")
-                );
-
-                serverVictim.sendSystemMessage(
-                    Component.literal("§a§l✓ Smartphone-Schutz: Du bist geschützt während du dein Smartphone benutzt!")
-                );
-
-                ScheduleMC.LOGGER.info("Player {} attacked protected player {} (Smartphone active). +1 Wanted-Level",
-                    attacker.getName().getString(), serverVictim.getName().getString());
+        EventHelper.handleEvent(() -> {
+            // Nur für Spieler relevant
+            if (!(event.getEntity() instanceof Player victim)) {
+                return;
             }
-        }
+
+            // Prüfe ob der angegriffene Spieler ein Server-Spieler ist
+            if (!(victim instanceof ServerPlayer serverVictim)) {
+                return;
+            }
+
+            // Prüfe ob Angreifer ein Spieler ist
+            if (event.getSource().getEntity() instanceof ServerPlayer attacker) {
+
+                // Prüfe ob Opfer das Smartphone-GUI offen hat
+                // Da wir server-side sind, müssen wir eine andere Methode verwenden
+                // Wir erstellen ein System, das trackt, wer das GUI offen hat
+                if (SmartphoneTracker.hasSmartphoneOpen(serverVictim.getUUID())) {
+
+                    // Verhindere den Schaden
+                    event.setCanceled(true);
+
+                    // Gebe dem Angreifer einen Wanted-Stern
+                    long currentDay = serverVictim.getServer().overworld().getDayTime() / 24000L;
+                    CrimeManager.addWantedLevel(attacker.getUUID(), 1, currentDay);
+
+                    // Benachrichtige beide Spieler
+                    attacker.sendSystemMessage(
+                        Component.literal("§c§l⚠ Du hast einen geschützten Spieler angegriffen! +1 Wanted-Stern")
+                    );
+
+                    serverVictim.sendSystemMessage(
+                        Component.literal("§a§l✓ Smartphone-Schutz: Du bist geschützt während du dein Smartphone benutzt!")
+                    );
+
+                    ScheduleMC.LOGGER.info("Player {} attacked protected player {} (Smartphone active). +1 Wanted-Level",
+                        attacker.getName().getString(), serverVictim.getName().getString());
+                }
+            }
+        }, "onLivingAttack");
     }
 }

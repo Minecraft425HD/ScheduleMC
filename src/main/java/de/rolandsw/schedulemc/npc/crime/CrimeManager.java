@@ -4,11 +4,13 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.logging.LogUtils;
+import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
+import de.rolandsw.schedulemc.util.GsonHelper;
 import org.slf4j.Logger;
 
+import javax.annotation.Nullable;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -19,11 +21,13 @@ import java.util.UUID;
  * 1-2 Sterne = Kleinkriminalität
  * 3-4 Sterne = Schwere Straftaten
  * 5 Sterne = Höchste Fahndungsstufe
+ *
+ * Nutzt AbstractPersistenceManager für robuste Datenpersistenz
  */
 public class CrimeManager {
 
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private static final Gson GSON = GsonHelper.get();
     private static final File CRIME_FILE = new File("config/plotmod_crimes.json");
     private static final int MAX_WANTED_LEVEL = 5;
 
@@ -36,65 +40,43 @@ public class CrimeManager {
     private static Map<UUID, Integer> wantedLevels = new HashMap<>();
     // UUID -> Last Crime Day (für automatischen Abbau)
     private static Map<UUID, Long> lastCrimeDay = new HashMap<>();
-    // UUID -> Escape Timer Start (in Ticks)
+    // UUID -> Escape Timer Start (in Ticks) - NOT PERSISTED
     private static Map<UUID, Long> escapeTimers = new HashMap<>();
 
     // Client-side data (nur für HUD Overlay)
     private static int clientWantedLevel = 0;
     private static long clientEscapeTime = 0;
 
+    // Persistence-Manager (eliminiert ~100 Zeilen Duplikation)
+    private static final CrimePersistenceManager persistence =
+        new CrimePersistenceManager(CRIME_FILE, GSON);
+
     /**
      * Lädt Crime-Daten vom Disk
      */
     public static void load() {
-        if (!CRIME_FILE.exists()) {
-            LOGGER.info("Keine Crime-Daten gefunden, starte mit leerer Datenbank");
-            return;
-        }
-
-        try (FileReader reader = new FileReader(CRIME_FILE)) {
-            CrimeData data = GSON.fromJson(reader, CrimeData.class);
-
-            if (data != null) {
-                wantedLevels.clear();
-                lastCrimeDay.clear();
-
-                for (Map.Entry<String, Integer> entry : data.wantedLevels.entrySet()) {
-                    wantedLevels.put(UUID.fromString(entry.getKey()), entry.getValue());
-                }
-
-                for (Map.Entry<String, Long> entry : data.lastCrimeDay.entrySet()) {
-                    lastCrimeDay.put(UUID.fromString(entry.getKey()), entry.getValue());
-                }
-
-                LOGGER.info("Crime-Daten geladen: {} Spieler", wantedLevels.size());
-            }
-        } catch (Exception e) {
-            LOGGER.error("Fehler beim Laden der Crime-Daten!", e);
-        }
+        persistence.load();
     }
 
     /**
      * Speichert Crime-Daten auf Disk
      */
     public static void save() {
-        CRIME_FILE.getParentFile().mkdirs(); // Erstelle config-Ordner falls nicht vorhanden
-        try (FileWriter writer = new FileWriter(CRIME_FILE)) {
-            CrimeData data = new CrimeData();
+        persistence.save();
+    }
 
-            for (Map.Entry<UUID, Integer> entry : wantedLevels.entrySet()) {
-                data.wantedLevels.put(entry.getKey().toString(), entry.getValue());
-            }
+    /**
+     * Speichert nur wenn Änderungen vorhanden
+     */
+    public static void saveIfNeeded() {
+        persistence.saveIfNeeded();
+    }
 
-            for (Map.Entry<UUID, Long> entry : lastCrimeDay.entrySet()) {
-                data.lastCrimeDay.put(entry.getKey().toString(), entry.getValue());
-            }
-
-            GSON.toJson(data, writer);
-            LOGGER.info("Crime-Daten gespeichert: {} Spieler", wantedLevels.size());
-        } catch (Exception e) {
-            LOGGER.error("Fehler beim Speichern der Crime-Daten!", e);
-        }
+    /**
+     * Markiert als geändert
+     */
+    private static void markDirty() {
+        persistence.markDirty();
     }
 
     /**
@@ -114,10 +96,7 @@ public class CrimeManager {
         wantedLevels.put(playerUUID, newLevel);
         lastCrimeDay.put(playerUUID, currentDay);
 
-        save();
-
-        LOGGER.info("Player {} Wanted-Level: {} -> {} (Verbrechen an Tag {})",
-            playerUUID, current, newLevel, currentDay);
+        markDirty();
     }
 
     /**
@@ -126,9 +105,7 @@ public class CrimeManager {
     public static void clearWantedLevel(UUID playerUUID) {
         wantedLevels.remove(playerUUID);
         lastCrimeDay.remove(playerUUID);
-        save();
-
-        LOGGER.info("Player {} Wanted-Level gelöscht", playerUUID);
+        markDirty();
     }
 
     /**
@@ -152,11 +129,8 @@ public class CrimeManager {
             } else {
                 wantedLevels.put(playerUUID, newLevel);
                 lastCrimeDay.put(playerUUID, currentDay);
-                save();
+                markDirty();
             }
-
-            LOGGER.info("Player {} Wanted-Level Decay: {} -> {} ({} Tage vergangen)",
-                playerUUID, current, newLevel, daysPassed);
         }
     }
 
@@ -214,15 +188,38 @@ public class CrimeManager {
                 clearWantedLevel(playerUUID);
             } else {
                 wantedLevels.put(playerUUID, newLevel);
-                save();
+                markDirty();
             }
 
             stopEscapeTimer(playerUUID);
-            LOGGER.info("Player {} Escape erfolgreich! Wanted-Level: {} -> {}", playerUUID, current, newLevel);
             return true;
         }
 
         return false;
+    }
+
+    // ========== HEALTH MONITORING ==========
+
+    /**
+     * Gibt Health-Status zurück
+     */
+    public static boolean isHealthy() {
+        return persistence.isHealthy();
+    }
+
+    /**
+     * Gibt letzte Fehlermeldung zurück
+     */
+    @Nullable
+    public static String getLastError() {
+        return persistence.getLastError();
+    }
+
+    /**
+     * Gibt Health-Info zurück
+     */
+    public static String getHealthInfo() {
+        return persistence.getHealthInfo();
     }
 
     // ========== CLIENT-SIDE METHODS (nur für HUD) ==========
@@ -253,6 +250,66 @@ public class CrimeManager {
      */
     public static long getClientEscapeTime() {
         return clientEscapeTime;
+    }
+
+    /**
+     * Innere Persistence-Manager-Klasse
+     */
+    private static class CrimePersistenceManager extends AbstractPersistenceManager<CrimeData> {
+
+        public CrimePersistenceManager(File dataFile, Gson gson) {
+            super(dataFile, gson);
+        }
+
+        @Override
+        protected Type getDataType() {
+            return CrimeData.class;
+        }
+
+        @Override
+        protected void onDataLoaded(CrimeData data) {
+            wantedLevels.clear();
+            lastCrimeDay.clear();
+
+            for (Map.Entry<String, Integer> entry : data.wantedLevels.entrySet()) {
+                wantedLevels.put(UUID.fromString(entry.getKey()), entry.getValue());
+            }
+
+            for (Map.Entry<String, Long> entry : data.lastCrimeDay.entrySet()) {
+                lastCrimeDay.put(UUID.fromString(entry.getKey()), entry.getValue());
+            }
+        }
+
+        @Override
+        protected CrimeData getCurrentData() {
+            CrimeData data = new CrimeData();
+
+            for (Map.Entry<UUID, Integer> entry : wantedLevels.entrySet()) {
+                data.wantedLevels.put(entry.getKey().toString(), entry.getValue());
+            }
+
+            for (Map.Entry<UUID, Long> entry : lastCrimeDay.entrySet()) {
+                data.lastCrimeDay.put(entry.getKey().toString(), entry.getValue());
+            }
+
+            return data;
+        }
+
+        @Override
+        protected String getComponentName() {
+            return "Crime System";
+        }
+
+        @Override
+        protected String getHealthDetails() {
+            return String.format("%d Wanted Players", wantedLevels.size());
+        }
+
+        @Override
+        protected void onCriticalLoadFailure() {
+            wantedLevels.clear();
+            lastCrimeDay.clear();
+        }
     }
 
     /**
