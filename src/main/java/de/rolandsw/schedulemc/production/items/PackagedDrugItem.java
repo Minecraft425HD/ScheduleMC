@@ -1,7 +1,9 @@
 package de.rolandsw.schedulemc.production.items;
 
 import de.rolandsw.schedulemc.cannabis.items.CuredBudItem;
+import de.rolandsw.schedulemc.cannabis.items.TrimmedBudItem;
 import de.rolandsw.schedulemc.coca.items.CocaineItem;
+import de.rolandsw.schedulemc.coca.items.CrackRockItem;
 import de.rolandsw.schedulemc.meth.items.MethItem;
 import de.rolandsw.schedulemc.mushroom.items.DriedMushroomItem;
 import de.rolandsw.schedulemc.poppy.items.HeroinItem;
@@ -50,9 +52,11 @@ public class PackagedDrugItem extends Item {
         Item item = stack.getItem();
         return item instanceof FermentedTobaccoLeafItem ||
                item instanceof CocaineItem ||
+               item instanceof CrackRockItem ||
                item instanceof HeroinItem ||
                item instanceof MethItem ||
                item instanceof DriedMushroomItem ||
+               item instanceof TrimmedBudItem ||
                item instanceof CuredBudItem;
     }
 
