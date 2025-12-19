@@ -2,6 +2,9 @@ package de.rolandsw.schedulemc.util;
 
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.economy.EconomyManager;
+import de.rolandsw.schedulemc.economy.WalletManager;
+import de.rolandsw.schedulemc.managers.DailyRewardManager;
+import de.rolandsw.schedulemc.messaging.MessageManager;
 import de.rolandsw.schedulemc.region.PlotManager;
 import org.slf4j.Logger;
 
@@ -87,6 +90,15 @@ public class HealthCheckManager {
         // Plot System
         results.put("plot", checkPlotSystem());
 
+        // Wallet System
+        results.put("wallet", checkWalletSystem());
+
+        // Message System
+        results.put("message", checkMessageSystem());
+
+        // Daily Reward System
+        results.put("daily", checkDailyRewardSystem());
+
         // Weitere Systeme können hier hinzugefügt werden
         // results.put("warehouse", checkWarehouseSystem());
         // results.put("vehicle", checkVehicleSystem());
@@ -154,6 +166,105 @@ public class HealthCheckManager {
             LOGGER.error("Fehler bei Plot Health-Check", e);
             return new ComponentHealth(
                 "Plot System",
+                SystemHealth.UNHEALTHY,
+                "Health-Check fehlgeschlagen: " + e.getMessage()
+            );
+        }
+    }
+
+    /**
+     * Prüft Wallet-System
+     */
+    private static ComponentHealth checkWalletSystem() {
+        try {
+            if (WalletManager.isHealthy()) {
+                return new ComponentHealth(
+                    "Wallet System",
+                    SystemHealth.HEALTHY,
+                    WalletManager.getHealthInfo()
+                );
+            } else {
+                String error = WalletManager.getLastError();
+                SystemHealth status = error != null && error.contains("backup")
+                    ? SystemHealth.DEGRADED
+                    : SystemHealth.UNHEALTHY;
+
+                return new ComponentHealth(
+                    "Wallet System",
+                    status,
+                    WalletManager.getHealthInfo()
+                );
+            }
+        } catch (Exception e) {
+            LOGGER.error("Fehler bei Wallet Health-Check", e);
+            return new ComponentHealth(
+                "Wallet System",
+                SystemHealth.UNHEALTHY,
+                "Health-Check fehlgeschlagen: " + e.getMessage()
+            );
+        }
+    }
+
+    /**
+     * Prüft Message-System
+     */
+    private static ComponentHealth checkMessageSystem() {
+        try {
+            if (MessageManager.isHealthy()) {
+                return new ComponentHealth(
+                    "Message System",
+                    SystemHealth.HEALTHY,
+                    MessageManager.getHealthInfo()
+                );
+            } else {
+                String error = MessageManager.getLastError();
+                SystemHealth status = error != null && error.contains("backup")
+                    ? SystemHealth.DEGRADED
+                    : SystemHealth.UNHEALTHY;
+
+                return new ComponentHealth(
+                    "Message System",
+                    status,
+                    MessageManager.getHealthInfo()
+                );
+            }
+        } catch (Exception e) {
+            LOGGER.error("Fehler bei Message Health-Check", e);
+            return new ComponentHealth(
+                "Message System",
+                SystemHealth.UNHEALTHY,
+                "Health-Check fehlgeschlagen: " + e.getMessage()
+            );
+        }
+    }
+
+    /**
+     * Prüft Daily Reward-System
+     */
+    private static ComponentHealth checkDailyRewardSystem() {
+        try {
+            if (DailyRewardManager.isHealthy()) {
+                return new ComponentHealth(
+                    "Daily Reward System",
+                    SystemHealth.HEALTHY,
+                    DailyRewardManager.getHealthInfo()
+                );
+            } else {
+                String error = DailyRewardManager.getLastError();
+                SystemHealth status = error != null && error.contains("backup")
+                    ? SystemHealth.DEGRADED
+                    : SystemHealth.UNHEALTHY;
+
+                return new ComponentHealth(
+                    "Daily Reward System",
+                    status,
+                    DailyRewardManager.getHealthInfo()
+                );
+            }
+        } catch (Exception e) {
+            LOGGER.error("Fehler bei Daily Reward Health-Check", e);
+            return new ComponentHealth(
+                "Daily Reward System",
                 SystemHealth.UNHEALTHY,
                 "Health-Check fehlgeschlagen: " + e.getMessage()
             );
