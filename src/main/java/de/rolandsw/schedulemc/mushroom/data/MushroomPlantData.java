@@ -122,9 +122,9 @@ public class MushroomPlantData {
         // Qualitätsbonus
         baseYield = (int) (baseYield * quality.getYieldMultiplier());
 
-        // Dünger-Bonus
+        // Dünger-Bonus (angepasst für max 10 Gramm)
         if (hasFertilizer) {
-            baseYield = (int) (baseYield * 1.25);
+            baseYield = (int) (baseYield * 1.67);
         }
 
         // Flush-Reduktion (spätere Flushes geben weniger)
@@ -135,7 +135,7 @@ public class MushroomPlantData {
         int variation = (int) (baseYield * 0.2);
         baseYield += (int) (Math.random() * variation * 2) - variation;
 
-        return Math.max(1, baseYield);
+        return Math.min(10, Math.max(1, baseYield));
     }
 
     private void upgradeQuality() {

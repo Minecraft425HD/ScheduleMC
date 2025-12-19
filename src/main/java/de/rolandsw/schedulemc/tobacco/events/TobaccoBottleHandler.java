@@ -78,7 +78,7 @@ public class TobaccoBottleHandler {
             
             player.displayClientMessage(Component.literal(
                 "§a✓ Dünger angewendet!\n" +
-                "§7Effekt: §e+50% Ertrag\n" +
+                "§7Effekt: §eMehr Ertrag (max 10g)\n" +
                 "§7Nachteil: §c-1 Qualität"
             ), true);
         }

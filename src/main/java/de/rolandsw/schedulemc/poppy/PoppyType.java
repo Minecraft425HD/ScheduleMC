@@ -7,9 +7,9 @@ import de.rolandsw.schedulemc.production.core.ProductionQuality;
  * Mohn-Sorten mit unterschiedlichen Eigenschaften
  */
 public enum PoppyType implements ProductionType {
-    AFGHANISCH("Afghanisch", "§4", 50.0, 160, 1.2, 25, 1.5),  // Höchste Potenz, langsam
-    TUERKISCH("Türkisch", "§6", 35.0, 120, 1.0, 20, 1.0),     // Ausgewogen
-    INDISCH("Indisch", "§5", 20.0, 80, 0.8, 15, 0.8);         // Schnell, niedrige Potenz
+    AFGHANISCH("Afghanisch", "§4", 50.0, 160, 1.2, 6, 1.5),  // Höchste Potenz, langsam
+    TUERKISCH("Türkisch", "§6", 35.0, 120, 1.0, 6, 1.0),     // Ausgewogen
+    INDISCH("Indisch", "§5", 20.0, 80, 0.8, 6, 0.8);         // Schnell, niedrige Potenz
 
     private final String displayName;
     private final String colorCode;

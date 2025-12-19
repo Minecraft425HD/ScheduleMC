@@ -111,7 +111,7 @@ public class TobaccoPlantData {
     public int getHarvestYield() {
         int baseYield = type.getBaseYield();
         if (hasFertilizer) {
-            return (int) (baseYield * 1.5); // 50% mehr Ertrag
+            return Math.min(10, (int) Math.ceil(baseYield * 1.67)); // Max 10 Gramm mit Fertilizer
         }
         return baseYield;
     }

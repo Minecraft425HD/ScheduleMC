@@ -136,9 +136,9 @@ public class PoppyPlantData {
         };
 
         if (hasFertilizer) {
-            qualityMultiplier += 0.2;
+            qualityMultiplier += 0.67; // Angepasst für max 10 Gramm
         }
 
-        return (int) Math.ceil(baseYield * qualityMultiplier);
+        return Math.min(10, (int) Math.ceil(baseYield * qualityMultiplier));
     }
 }

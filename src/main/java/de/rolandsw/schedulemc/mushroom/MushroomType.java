@@ -8,9 +8,9 @@ import de.rolandsw.schedulemc.production.core.ProductionQuality;
  */
 public enum MushroomType implements ProductionType {
     // Name, Farbe, Preis, Wachstum, Wasser, Ertrag, Potenz, Flushes, MaxLicht(Inkub), MaxLicht(Frucht)
-    CUBENSIS("Psilocybe Cubensis", "§6", 30.0, 100, 1.0, 20, 1.0, 4, 4, 7),       // Klassiker, ausgewogen
-    AZURESCENS("Psilocybe Azurescens", "§9", 60.0, 180, 1.5, 12, 2.0, 3, 3, 5),   // Höchste Potenz, schwer
-    MEXICANA("Psilocybe Mexicana", "§e", 20.0, 60, 0.7, 16, 0.6, 5, 5, 8);        // Schnell, tolerant
+    CUBENSIS("Psilocybe Cubensis", "§6", 30.0, 100, 1.0, 6, 1.0, 4, 4, 7),       // Klassiker, ausgewogen
+    AZURESCENS("Psilocybe Azurescens", "§9", 60.0, 180, 1.5, 6, 2.0, 3, 3, 5),   // Höchste Potenz, schwer
+    MEXICANA("Psilocybe Mexicana", "§e", 20.0, 60, 0.7, 6, 0.6, 5, 5, 8);        // Schnell, tolerant
 
     private final String displayName;
     private final String colorCode;
