@@ -565,6 +565,7 @@ public class PoliceAIHandler {
                 lastSyncedWantedLevel.put(player.getUUID(), 0);
                 lastSyncedEscapeTime.put(player.getUUID(), 0L);
             }
+        }
         });
     }
 }

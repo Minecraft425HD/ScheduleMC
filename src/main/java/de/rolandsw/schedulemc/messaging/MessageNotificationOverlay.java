@@ -60,6 +60,7 @@ public class MessageNotificationOverlay {
 
             renderNotification(event.getGuiGraphics(), mc, currentNotification, alpha);
         }
+        }, "onRenderOverlay");
     }
 
     private static void renderNotification(GuiGraphics guiGraphics, Minecraft mc,
@@ -96,7 +97,6 @@ public class MessageNotificationOverlay {
         guiGraphics.drawString(mc.font, title, x + 10, y + 8, 0xFFFFFF | (alphaValue << 24));
         guiGraphics.drawString(mc.font, message, x + 10, y + 22, 0xFFFFFF | (alphaValue << 24));
         RenderSystem.disableBlend();
-        }, "onRenderOverlay");
     }
 
     private static class Notification {
