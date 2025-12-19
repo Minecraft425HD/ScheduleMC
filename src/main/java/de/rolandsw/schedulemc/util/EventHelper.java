@@ -67,7 +67,7 @@ public class EventHelper {
      * @param handler Handler-Logic
      */
     public static void handlePlayerEvent(PlayerEvent event, Consumer<Player> handler) {
-        if (!(event.getEntity() instanceof Player player)) return;
+        Player player = event.getEntity();
         safeExecute(() -> handler.accept(player), "handlePlayerEvent");
     }
 
@@ -78,9 +78,9 @@ public class EventHelper {
      * @param phase Gewünschte Phase (START oder END)
      * @param handler Handler-Logic
      */
-    public static void handleServerTick(TickEvent.ServerTickEvent event, TickEvent.Phase phase, Runnable handler) {
+    public static void handleServerTick(TickEvent.ServerTickEvent event, TickEvent.Phase phase, Consumer<net.minecraft.server.MinecraftServer> handler) {
         if (event.side != LogicalSide.SERVER || event.phase != phase) return;
-        safeExecute(handler, "handleServerTick");
+        safeExecute(() -> handler.accept(event.getServer()), "handleServerTick");
     }
 
     /**
@@ -89,7 +89,7 @@ public class EventHelper {
      * @param event TickEvent
      * @param handler Handler-Logic
      */
-    public static void handleServerTickEnd(TickEvent.ServerTickEvent event, Runnable handler) {
+    public static void handleServerTickEnd(TickEvent.ServerTickEvent event, Consumer<net.minecraft.server.MinecraftServer> handler) {
         handleServerTick(event, TickEvent.Phase.END, handler);
     }
 
