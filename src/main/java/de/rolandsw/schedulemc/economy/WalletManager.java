@@ -3,15 +3,11 @@ package de.rolandsw.schedulemc.economy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.mojang.logging.LogUtils;
-import de.rolandsw.schedulemc.util.BackupManager;
-import org.slf4j.Logger;
+import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
 
 import javax.annotation.Nullable;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -19,141 +15,40 @@ import java.util.UUID;
 /**
  * Verwaltet Geldbörsen-Guthaben per UUID
  * Überlebt Serverneustarts und Spielertod!
+ *
+ * Nutzt AbstractPersistenceManager für robuste Datenpersistenz
  */
 public class WalletManager {
 
-    private static final Logger LOGGER = LogUtils.getLogger();
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final File WALLET_FILE = new File("config/plotmod_wallets.json");
 
     // UUID -> Geldbörsen-Guthaben
     private static Map<UUID, Double> wallets = new HashMap<>();
-    private static boolean isDirty = false;
-    private static boolean isHealthy = true;
-    private static String lastError = null;
+
+    // Persistence-Manager (eliminiert ~150 Zeilen Duplikation)
+    private static final WalletPersistenceManager persistence =
+        new WalletPersistenceManager(WALLET_FILE, GSON);
 
     /**
-     * Lädt Geldbörsen vom Disk mit Backup-Wiederherstellung
+     * Lädt Geldbörsen vom Disk
      */
     public static void load() {
-        if (!WALLET_FILE.exists()) {
-            LOGGER.info("Keine Wallet-Daten gefunden, starte mit leerer Datenbank");
-            isHealthy = true;
-            return;
-        }
-
-        try {
-            loadFromFile(WALLET_FILE);
-            isHealthy = true;
-            lastError = null;
-            LOGGER.info("Geldbörsen erfolgreich geladen: {} Spieler", wallets.size());
-        } catch (Exception e) {
-            LOGGER.error("Fehler beim Laden der Geldbörsen!", e);
-            lastError = "Failed to load: " + e.getMessage();
-
-            // Backup-Wiederherstellung
-            if (BackupManager.restoreFromBackup(WALLET_FILE)) {
-                LOGGER.warn("Wallet-Datei korrupt, versuche Backup wiederherzustellen...");
-                try {
-                    loadFromFile(WALLET_FILE);
-                    LOGGER.info("Wallets erfolgreich von Backup wiederhergestellt: {} Spieler", wallets.size());
-                    isHealthy = true;
-                    lastError = "Recovered from backup";
-                } catch (Exception backupError) {
-                    LOGGER.error("KRITISCH: Backup-Wiederherstellung fehlgeschlagen!", backupError);
-                    handleCriticalLoadFailure();
-                }
-            } else {
-                LOGGER.error("KRITISCH: Kein Backup verfügbar!");
-                handleCriticalLoadFailure();
-            }
-        }
-    }
-
-    private static void loadFromFile(File file) throws Exception {
-        try (FileReader reader = new FileReader(file)) {
-            Map<String, Double> loaded = GSON.fromJson(reader,
-                new TypeToken<Map<String, Double>>(){}.getType());
-
-            if (loaded == null) {
-                throw new IOException("Geladene Wallet-Daten sind null");
-            }
-
-            wallets.clear();
-            for (Map.Entry<String, Double> entry : loaded.entrySet()) {
-                wallets.put(UUID.fromString(entry.getKey()), entry.getValue());
-            }
-        }
-    }
-
-    private static void handleCriticalLoadFailure() {
-        LOGGER.error("KRITISCH: Wallet-System konnte nicht geladen werden!");
-        LOGGER.error("Starte mit leerem Wallet-System als Fallback");
-        wallets.clear();
-        isHealthy = false;
-        lastError = "Critical load failure - running with empty data";
-
-        if (WALLET_FILE.exists()) {
-            File corruptBackup = new File(WALLET_FILE.getParent(),
-                WALLET_FILE.getName() + ".CORRUPT_" + System.currentTimeMillis());
-            try {
-                java.nio.file.Files.copy(WALLET_FILE.toPath(), corruptBackup.toPath());
-                LOGGER.info("Korrupte Datei gesichert nach: {}", corruptBackup.getName());
-            } catch (IOException e) {
-                LOGGER.error("Konnte korrupte Datei nicht sichern", e);
-            }
-        }
+        persistence.load();
     }
 
     /**
-     * Speichert Geldbörsen auf Disk mit Backup
+     * Speichert Geldbörsen auf Disk
      */
     public static void save() {
-        try {
-            WALLET_FILE.getParentFile().mkdirs();
-
-            // Backup erstellen
-            if (WALLET_FILE.exists() && WALLET_FILE.length() > 0) {
-                BackupManager.createBackup(WALLET_FILE);
-            }
-
-            // Temporäre Datei für atomares Schreiben
-            File tempFile = new File(WALLET_FILE.getParent(), WALLET_FILE.getName() + ".tmp");
-
-            try (FileWriter writer = new FileWriter(tempFile)) {
-                Map<String, Double> toSave = new HashMap<>();
-                for (Map.Entry<UUID, Double> entry : wallets.entrySet()) {
-                    toSave.put(entry.getKey().toString(), entry.getValue());
-                }
-                GSON.toJson(toSave, writer);
-                writer.flush();
-            }
-
-            // Atomares Ersetzen
-            java.nio.file.Files.move(tempFile.toPath(), WALLET_FILE.toPath(),
-                java.nio.file.StandardCopyOption.REPLACE_EXISTING,
-                java.nio.file.StandardCopyOption.ATOMIC_MOVE);
-
-            isDirty = false;
-            isHealthy = true;
-            lastError = null;
-            LOGGER.info("Geldbörsen gespeichert: {} Spieler", wallets.size());
-
-        } catch (Exception e) {
-            LOGGER.error("KRITISCH: Fehler beim Speichern der Geldbörsen!", e);
-            isHealthy = false;
-            lastError = "Save failed: " + e.getMessage();
-            isDirty = true;
-        }
+        persistence.save();
     }
 
     /**
      * Speichert nur wenn Änderungen vorhanden
      */
     public static void saveIfNeeded() {
-        if (isDirty) {
-            save();
-        }
+        persistence.saveIfNeeded();
     }
 
     /**
@@ -168,7 +63,7 @@ public class WalletManager {
      */
     public static void setBalance(UUID playerUUID, double amount) {
         wallets.put(playerUUID, Math.max(0, amount));
-        isDirty = true;
+        persistence.markDirty();
     }
 
     /**
@@ -195,7 +90,7 @@ public class WalletManager {
      * Gibt Health-Status zurück
      */
     public static boolean isHealthy() {
-        return isHealthy;
+        return persistence.isHealthy();
     }
 
     /**
@@ -203,19 +98,61 @@ public class WalletManager {
      */
     @Nullable
     public static String getLastError() {
-        return lastError;
+        return persistence.getLastError();
     }
 
     /**
      * Gibt Health-Info zurück
      */
     public static String getHealthInfo() {
-        if (isHealthy) {
-            return String.format("§aGESUND§r - %d Wallets, %d Backups verfügbar",
-                wallets.size(), BackupManager.getBackupCount(WALLET_FILE));
-        } else {
-            return String.format("§cUNGESUND§r - Letzter Fehler: %s, %d Wallets geladen",
-                lastError != null ? lastError : "Unknown", wallets.size());
+        return persistence.getHealthInfo();
+    }
+
+    /**
+     * Innere Persistence-Manager-Klasse
+     * Implementiert die abstrakten Methoden für Wallet-spezifische Logik
+     */
+    private static class WalletPersistenceManager extends AbstractPersistenceManager<Map<String, Double>> {
+
+        public WalletPersistenceManager(File dataFile, Gson gson) {
+            super(dataFile, gson);
+        }
+
+        @Override
+        protected Type getDataType() {
+            return new TypeToken<Map<String, Double>>(){}.getType();
+        }
+
+        @Override
+        protected void onDataLoaded(Map<String, Double> data) {
+            wallets.clear();
+            for (Map.Entry<String, Double> entry : data.entrySet()) {
+                wallets.put(UUID.fromString(entry.getKey()), entry.getValue());
+            }
+        }
+
+        @Override
+        protected Map<String, Double> getCurrentData() {
+            Map<String, Double> toSave = new HashMap<>();
+            for (Map.Entry<UUID, Double> entry : wallets.entrySet()) {
+                toSave.put(entry.getKey().toString(), entry.getValue());
+            }
+            return toSave;
+        }
+
+        @Override
+        protected String getComponentName() {
+            return "Wallet System";
+        }
+
+        @Override
+        protected String getHealthDetails() {
+            return String.format("%d Wallets", wallets.size());
+        }
+
+        @Override
+        protected void onCriticalLoadFailure() {
+            wallets.clear();
         }
     }
 }
