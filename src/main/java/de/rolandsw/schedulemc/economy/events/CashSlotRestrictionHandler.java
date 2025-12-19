@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.economy.events;
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.economy.WalletManager;
 import de.rolandsw.schedulemc.economy.items.CashItem;
+import de.rolandsw.schedulemc.util.EventHelper;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -37,7 +38,7 @@ public class CashSlotRestrictionHandler {
      */
     @SubscribeEvent
     public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
-        Player player = event.getEntity();
+        EventHelper.handlePlayerEvent(event, player -> {
 
         // Prüfe ob Geldbörse in Slot 8 existiert
         ItemStack slot8 = player.getInventory().getItem(CASH_SLOT);
@@ -63,6 +64,7 @@ public class CashSlotRestrictionHandler {
                 ), false);
             }
         }
+        });
     }
     
     /**
@@ -70,21 +72,22 @@ public class CashSlotRestrictionHandler {
      */
     @SubscribeEvent
     public void onPlayerInteract(PlayerInteractEvent event) {
-        Player player = event.getEntity();
-        ItemStack heldItem = event.getItemStack();
-        
-        // Prüfe ob Bargeld gehalten wird
-        if (heldItem.getItem() instanceof CashItem) {
-            // Prüfe ob es in Slot 8 ist
-            int slot = player.getInventory().selected; // Aktuell ausgewählter Hotbar-Slot
-            
-            if (slot != CASH_SLOT) {
-                event.setCanceled(true);
-                player.displayClientMessage(Component.literal(
-                    "§c✗ Geldbörse kann nur in Slot 9 verwendet werden!"
-                ), true);
+        EventHelper.handlePlayerInteract(event, player -> {
+            ItemStack heldItem = event.getItemStack();
+
+            // Prüfe ob Bargeld gehalten wird
+            if (heldItem.getItem() instanceof CashItem) {
+                // Prüfe ob es in Slot 8 ist
+                int slot = player.getInventory().selected; // Aktuell ausgewählter Hotbar-Slot
+
+                if (slot != CASH_SLOT) {
+                    event.setCanceled(true);
+                    player.displayClientMessage(Component.literal(
+                        "§c✗ Geldbörse kann nur in Slot 9 verwendet werden!"
+                    ), true);
+                }
             }
-        }
+        });
     }
     
     /**
@@ -92,11 +95,8 @@ public class CashSlotRestrictionHandler {
      */
     @SubscribeEvent
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
-        if (event.phase != TickEvent.Phase.END) return;
-        if (event.player.level().isClientSide) return;
-        
-        Player player = event.player;
-        ItemStack slot8 = player.getInventory().getItem(CASH_SLOT);
+        EventHelper.handlePlayerTickEnd(event, player -> {
+            ItemStack slot8 = player.getInventory().getItem(CASH_SLOT);
         
         // Prüfe ob Slot 8 leer ist oder kein Cash-Item
         if (slot8.isEmpty() || !(slot8.getItem() instanceof CashItem)) {
@@ -147,6 +147,7 @@ public class CashSlotRestrictionHandler {
                     player.getName().getString(), savedBalance);
             }
         }
+        });
     }
     
     /**
@@ -154,25 +155,26 @@ public class CashSlotRestrictionHandler {
      */
     @SubscribeEvent
     public void onItemPickup(EntityItemPickupEvent event) {
-        ItemStack stack = event.getItem().getItem();
+        EventHelper.handleItemPickup(event, player -> {
+            ItemStack stack = event.getItem().getItem();
 
-        if (stack.getItem() instanceof CashItem) {
-            Player player = event.getEntity();
-            ItemStack slot8 = player.getInventory().getItem(CASH_SLOT);
+            if (stack.getItem() instanceof CashItem) {
+                ItemStack slot8 = player.getInventory().getItem(CASH_SLOT);
 
-            if (slot8.getItem() instanceof CashItem) {
-                // Merge mit existierender Geldbörse
-                double value = CashItem.getValue(stack);
-                CashItem.addValue(slot8, value);
+                if (slot8.getItem() instanceof CashItem) {
+                    // Merge mit existierender Geldbörse
+                    double value = CashItem.getValue(stack);
+                    CashItem.addValue(slot8, value);
 
-                player.displayClientMessage(Component.literal(
-                    "§a+ " + String.format("%.2f€", value) + " §7zur Geldbörse hinzugefügt"
-                ), true);
+                    player.displayClientMessage(Component.literal(
+                        "§a+ " + String.format("%.2f€", value) + " §7zur Geldbörse hinzugefügt"
+                    ), true);
 
-                event.setCanceled(true);
-                event.getItem().discard();
+                    event.setCanceled(true);
+                    event.getItem().discard();
+                }
             }
-        }
+        });
     }
 
     /**
@@ -180,26 +182,26 @@ public class CashSlotRestrictionHandler {
      */
     @SubscribeEvent
     public void onItemToss(ItemTossEvent event) {
-        ItemStack stack = event.getEntity().getItem();
+        EventHelper.handleItemToss(event, player -> {
+            ItemStack stack = event.getEntity().getItem();
 
-        if (stack.getItem() instanceof CashItem) {
-            Player player = event.getPlayer();
+            if (stack.getItem() instanceof CashItem) {
+                // Verhindere das Werfen komplett
+                event.setCanceled(true);
 
-            // Verhindere das Werfen komplett
-            event.setCanceled(true);
+                // Gebe Item zurück zum Spieler (in Slot 8)
+                player.getInventory().setItem(CASH_SLOT, stack);
 
-            // Gebe Item zurück zum Spieler (in Slot 8)
-            player.getInventory().setItem(CASH_SLOT, stack);
+                player.displayClientMessage(Component.literal(
+                    "§c✗ Die Geldbörse kann nicht geworfen werden!\n" +
+                    "§7Sie ist fest in Slot 9 gesperrt."
+                ), true);
 
-            player.displayClientMessage(Component.literal(
-                "§c✗ Die Geldbörse kann nicht geworfen werden!\n" +
-                "§7Sie ist fest in Slot 9 gesperrt."
-            ), true);
-
-            // Log für Anti-Cheat Monitoring
-            LOGGER.info("[ANTI-CHEAT] Prevented wallet toss for player: {}",
-                player.getName().getString());
-        }
+                // Log für Anti-Cheat Monitoring
+                LOGGER.info("[ANTI-CHEAT] Prevented wallet toss for player: {}",
+                    player.getName().getString());
+            }
+        });
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -212,26 +214,26 @@ public class CashSlotRestrictionHandler {
      */
     @SubscribeEvent
     public void onLivingDrops(LivingDropsEvent event) {
-        if (!(event.getEntity() instanceof Player)) return;
-        
-        // Entferne ALLE Geldbörsen aus Drops
-        List<ItemEntity> toRemove = new ArrayList<>();
-        
-        for (ItemEntity itemEntity : event.getDrops()) {
-            ItemStack stack = itemEntity.getItem();
-            if (stack.getItem() instanceof CashItem) {
-                toRemove.add(itemEntity);
+        EventHelper.handlePlayerDrops(event, player -> {
+            // Entferne ALLE Geldbörsen aus Drops
+            List<ItemEntity> toRemove = new ArrayList<>();
+
+            for (ItemEntity itemEntity : event.getDrops()) {
+                ItemStack stack = itemEntity.getItem();
+                if (stack.getItem() instanceof CashItem) {
+                    toRemove.add(itemEntity);
+                }
             }
-        }
-        
-        // Entferne alle gefundenen Geldbörsen
-        event.getDrops().removeAll(toRemove);
-        
-        // Log für Anti-Cheat Monitoring
-        if (!toRemove.isEmpty()) {
-            LOGGER.info("[ANTI-CHEAT] Prevented {} wallet drop(s) on death for player: {}", 
-                toRemove.size(),
-                event.getEntity().getName().getString());
-        }
+
+            // Entferne alle gefundenen Geldbörsen
+            event.getDrops().removeAll(toRemove);
+
+            // Log für Anti-Cheat Monitoring
+            if (!toRemove.isEmpty()) {
+                LOGGER.info("[ANTI-CHEAT] Prevented {} wallet drop(s) on death for player: {}",
+                    toRemove.size(),
+                    event.getEntity().getName().getString());
+            }
+        });
     }
 }

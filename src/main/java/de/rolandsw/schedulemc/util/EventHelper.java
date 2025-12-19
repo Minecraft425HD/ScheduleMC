@@ -5,7 +5,15 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.event.entity.living.LivingDamageEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.entity.player.AttackEntityEvent;
+import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+import net.minecraftforge.event.entity.item.ItemTossEvent;
+import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.fml.LogicalSide;
 
 import java.util.function.Consumer;
@@ -136,5 +144,160 @@ public class EventHelper {
      */
     public static boolean isEndPhase(TickEvent event) {
         return event.phase == TickEvent.Phase.END;
+    }
+
+    // =========================================================================
+    // BLOCK EVENTS
+    // =========================================================================
+
+    /**
+     * Block-Break Event mit Player-Check
+     */
+    public static void handleBlockBreak(BlockEvent.BreakEvent event, Consumer<Player> handler) {
+        safeExecute(() -> handler.accept(event.getPlayer()), "handleBlockBreak");
+    }
+
+    /**
+     * Block-Place Event mit Player-Check
+     */
+    public static void handleBlockPlace(BlockEvent.EntityPlaceEvent event, Consumer<Player> handler) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        safeExecute(() -> handler.accept(player), "handleBlockPlace");
+    }
+
+    // =========================================================================
+    // PLAYER INTERACT EVENTS
+    // =========================================================================
+
+    /**
+     * Right-Click Block mit Server-Check
+     */
+    public static void handleRightClickBlock(PlayerInteractEvent.RightClickBlock event, Consumer<Player> handler) {
+        safeExecute(() -> handler.accept(event.getEntity()), "handleRightClickBlock");
+    }
+
+    /**
+     * Left-Click Block mit Server-Check
+     */
+    public static void handleLeftClickBlock(PlayerInteractEvent.LeftClickBlock event, Consumer<Player> handler) {
+        safeExecute(() -> handler.accept(event.getEntity()), "handleLeftClickBlock");
+    }
+
+    /**
+     * Entity Interact mit Server-Check
+     */
+    public static void handleEntityInteract(PlayerInteractEvent.EntityInteract event, Consumer<Player> handler) {
+        if (event.getLevel().isClientSide) return;
+        safeExecute(() -> handler.accept(event.getEntity()), "handleEntityInteract");
+    }
+
+    /**
+     * Generic Player Interact mit Server-Check
+     */
+    public static void handlePlayerInteract(PlayerInteractEvent event, Consumer<Player> handler) {
+        safeExecute(() -> handler.accept(event.getEntity()), "handlePlayerInteract");
+    }
+
+    // =========================================================================
+    // COMBAT EVENTS
+    // =========================================================================
+
+    /**
+     * Attack Entity Event mit Server-Check
+     */
+    public static void handleAttackEntity(AttackEntityEvent event, Consumer<Player> handler) {
+        if (event.getEntity().level().isClientSide) return;
+        safeExecute(() -> handler.accept(event.getEntity()), "handleAttackEntity");
+    }
+
+    /**
+     * Living Damage Event
+     */
+    public static void handleLivingDamage(LivingDamageEvent event, Runnable handler) {
+        if (event.getEntity().level().isClientSide) return;
+        safeExecute(handler, "handleLivingDamage");
+    }
+
+    /**
+     * Living Death Event mit Player-Check
+     */
+    public static void handlePlayerDeath(LivingDeathEvent event, Consumer<ServerPlayer> handler) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        safeExecute(() -> handler.accept(player), "handlePlayerDeath");
+    }
+
+    /**
+     * Living Drops Event mit Player-Check
+     */
+    public static void handlePlayerDrops(LivingDropsEvent event, Consumer<Player> handler) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        safeExecute(() -> handler.accept(player), "handlePlayerDrops");
+    }
+
+    // =========================================================================
+    // ITEM EVENTS
+    // =========================================================================
+
+    /**
+     * Item Pickup Event
+     */
+    public static void handleItemPickup(EntityItemPickupEvent event, Consumer<Player> handler) {
+        safeExecute(() -> handler.accept(event.getEntity()), "handleItemPickup");
+    }
+
+    /**
+     * Item Toss Event
+     */
+    public static void handleItemToss(ItemTossEvent event, Consumer<Player> handler) {
+        safeExecute(() -> handler.accept(event.getPlayer()), "handleItemToss");
+    }
+
+    // =========================================================================
+    // TICK EVENTS
+    // =========================================================================
+
+    /**
+     * Player Tick Event (nur Server, nur END-Phase)
+     */
+    public static void handlePlayerTickEnd(TickEvent.PlayerTickEvent event, Consumer<Player> handler) {
+        if (event.phase != TickEvent.Phase.END) return;
+        if (event.player.level().isClientSide) return;
+        safeExecute(() -> handler.accept(event.player), "handlePlayerTickEnd");
+    }
+
+    /**
+     * Living Tick Event (Generic)
+     */
+    public static void handleLivingTick(LivingEvent.LivingTickEvent event, Runnable handler) {
+        if (event.getEntity().level().isClientSide) return;
+        safeExecute(handler, "handleLivingTick");
+    }
+
+    // =========================================================================
+    // LOGIN/LOGOUT EVENTS
+    // =========================================================================
+
+    /**
+     * Player Join Event
+     */
+    public static void handlePlayerJoin(PlayerEvent.PlayerLoggedInEvent event, Consumer<ServerPlayer> handler) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        safeExecute(() -> handler.accept(player), "handlePlayerJoin");
+    }
+
+    /**
+     * Player Logout Event
+     */
+    public static void handlePlayerLogout(PlayerEvent.PlayerLoggedOutEvent event, Consumer<ServerPlayer> handler) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        safeExecute(() -> handler.accept(player), "handlePlayerLogout");
+    }
+
+    /**
+     * Player Respawn Event
+     */
+    public static void handlePlayerRespawn(PlayerEvent.PlayerRespawnEvent event, Consumer<ServerPlayer> handler) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        safeExecute(() -> handler.accept(player), "handlePlayerRespawn");
     }
 }

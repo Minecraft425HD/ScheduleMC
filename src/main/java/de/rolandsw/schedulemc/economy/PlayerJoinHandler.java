@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.economy;
 
+import de.rolandsw.schedulemc.util.EventHelper;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameRules;
@@ -41,26 +42,26 @@ public class PlayerJoinHandler {
      */
     @SubscribeEvent
     public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
-        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        EventHelper.handlePlayerJoin(event, player -> {
+            UUID uuid = player.getUUID();
 
-        UUID uuid = player.getUUID();
+            // Konto erstellen falls noch nicht vorhanden
+            // createAccount setzt bereits das Startguthaben - kein zusätzlicher deposit nötig!
+            if (!EconomyManager.hasAccount(uuid)) {
+                EconomyManager.createAccount(uuid);
+                LOGGER.info("Neuer Spieler: " + player.getName().getString() + " - Konto erstellt mit "
+                    + EconomyManager.getStartBalance() + " €");
+            }
 
-        // Konto erstellen falls noch nicht vorhanden
-        // createAccount setzt bereits das Startguthaben - kein zusätzlicher deposit nötig!
-        if (!EconomyManager.hasAccount(uuid)) {
-            EconomyManager.createAccount(uuid);
-            LOGGER.info("Neuer Spieler: " + player.getName().getString() + " - Konto erstellt mit "
-                + EconomyManager.getStartBalance() + " €");
-        }
+            // Prüfe ob das der erste Spieler ist
+            ServerLevel level = (ServerLevel) player.level();
+            int playerCount = level.getServer().getPlayerCount();
 
-        // Prüfe ob das der erste Spieler ist
-        ServerLevel level = (ServerLevel) player.level();
-        int playerCount = level.getServer().getPlayerCount();
-
-        // Wenn das der erste Spieler ist, ENTFRIER die Welt komplett
-        if (playerCount == 1) {
-            unfreezeWorld(level);
-        }
+            // Wenn das der erste Spieler ist, ENTFRIER die Welt komplett
+            if (playerCount == 1) {
+                unfreezeWorld(level);
+            }
+        });
     }
 
     /**
@@ -69,20 +70,20 @@ public class PlayerJoinHandler {
      */
     @SubscribeEvent
     public void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
-        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        EventHelper.handlePlayerLogout(event, player -> {
+            // Prüfe ob das der letzte Spieler war
+            ServerLevel level = (ServerLevel) player.level();
+            int playerCount = level.getServer().getPlayerCount();
 
-        // Prüfe ob das der letzte Spieler war
-        ServerLevel level = (ServerLevel) player.level();
-        int playerCount = level.getServer().getPlayerCount();
+            // playerCount ist noch der alte Wert (bevor der Spieler entfernt wird)
+            // Wenn nur noch 1 Spieler da ist, ist nach dem Logout keiner mehr da
+            if (playerCount == 1) {
+                freezeWorld(level);
+            }
 
-        // playerCount ist noch der alte Wert (bevor der Spieler entfernt wird)
-        // Wenn nur noch 1 Spieler da ist, ist nach dem Logout keiner mehr da
-        if (playerCount == 1) {
-            freezeWorld(level);
-        }
-
-        // Könnte hier zusätzlich speichern für mehr Datensicherheit
-        // EconomyManager.saveIfNeeded();
+            // Könnte hier zusätzlich speichern für mehr Datensicherheit
+            // EconomyManager.saveIfNeeded();
+        });
     }
 
     /**

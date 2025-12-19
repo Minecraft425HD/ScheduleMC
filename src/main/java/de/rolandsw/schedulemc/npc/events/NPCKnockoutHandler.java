@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.npc.events;
 import de.rolandsw.schedulemc.npc.crime.CrimeManager;
 import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
+import de.rolandsw.schedulemc.util.EventHelper;
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
 import net.minecraft.network.chat.Component;
@@ -30,8 +31,8 @@ public class NPCKnockoutHandler {
 
     @SubscribeEvent
     public void onNPCDamage(LivingDamageEvent event) {
-        if (!(event.getEntity() instanceof CustomNPCEntity npc)) return;
-        if (npc.level().isClientSide) return;
+        EventHelper.handleLivingDamage(event, () -> {
+            if (!(event.getEntity() instanceof CustomNPCEntity npc)) return;
 
         // Prüfe ob Angreifer ein Spieler ist
         Player attacker = null;
@@ -156,15 +157,16 @@ public class NPCKnockoutHandler {
                 }
             }
         }
+        });
     }
 
     @SubscribeEvent
     public void onNPCTick(LivingEvent.LivingTickEvent event) {
-        if (!(event.getEntity() instanceof CustomNPCEntity npc)) return;
-        if (npc.level().isClientSide) return;
+        EventHelper.handleLivingTick(event, () -> {
+            if (!(event.getEntity() instanceof CustomNPCEntity npc)) return;
 
-        // Nur alle 20 Ticks (1 Sekunde) prüfen
-        if (npc.tickCount % 20 != 0) return;
+            // Nur alle 20 Ticks (1 Sekunde) prüfen
+            if (npc.tickCount % 20 != 0) return;
 
         if (npc.getPersistentData().getBoolean("IsKnockedOut")) {
             long knockoutDay = npc.getPersistentData().getLong("KnockoutDay");
@@ -194,5 +196,6 @@ public class NPCKnockoutHandler {
                 npc.setTarget(null); // Kein Kampf während knockout
             }
         }
+        });
     }
 }
