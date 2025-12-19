@@ -19,13 +19,13 @@ public class BusinessMetricsUpdateHandler {
 
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
-        EventHelper.handleServerTickEnd(event, () -> {
+        EventHelper.handleServerTickEnd(event, server -> {
             // Überspringe wenn keine Spieler online sind (Zeit läuft nicht)
-            if (event.getServer().getPlayerCount() == 0) {
+            if (server.getPlayerCount() == 0) {
                 return;
             }
 
-            ServerLevel level = event.getServer().overworld();
+            ServerLevel level = server.overworld();
             long dayTime = level.getDayTime() % 24000;
 
             // Um Mitternacht (Zeit 0)
