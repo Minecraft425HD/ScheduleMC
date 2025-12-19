@@ -1,8 +1,8 @@
 package de.rolandsw.schedulemc.npc.network;
 
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
+import de.rolandsw.schedulemc.util.PacketHandler;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.network.NetworkEvent;
 
@@ -37,17 +37,13 @@ public class NPCActionPacket {
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            ServerPlayer player = ctx.get().getSender();
-            if (player != null) {
-                Entity entity = player.level().getEntity(entityId);
-                if (entity instanceof CustomNPCEntity npc) {
-                    if (action == Action.NEXT_DIALOG) {
-                        npc.getNpcData().nextDialog();
-                    }
+        PacketHandler.handleServerPacket(ctx, player -> {
+            Entity entity = player.level().getEntity(entityId);
+            if (entity instanceof CustomNPCEntity npc) {
+                if (action == Action.NEXT_DIALOG) {
+                    npc.getNpcData().nextDialog();
                 }
             }
         });
-        ctx.get().setPacketHandled(true);
     }
 }
