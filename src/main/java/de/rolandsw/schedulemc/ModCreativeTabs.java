@@ -12,7 +12,9 @@ import de.rolandsw.schedulemc.lsd.blocks.LSDBlocks;
 import de.rolandsw.schedulemc.mdma.items.MDMAItems;
 import de.rolandsw.schedulemc.mdma.blocks.MDMABlocks;
 import de.rolandsw.schedulemc.cannabis.items.CannabisItems;
+import de.rolandsw.schedulemc.cannabis.items.CannabisSeedItem;
 import de.rolandsw.schedulemc.cannabis.blocks.CannabisBlocks;
+import de.rolandsw.schedulemc.cannabis.CannabisStrain;
 import de.rolandsw.schedulemc.coca.items.CocaItems;
 import de.rolandsw.schedulemc.coca.blocks.CocaBlocks;
 import de.rolandsw.schedulemc.poppy.items.PoppyItems;
@@ -209,7 +211,10 @@ public class ModCreativeTabs {
                 // ═══════════════════════════════════════════════════════════
                 // CANNABIS ITEMS
                 // ═══════════════════════════════════════════════════════════
-                output.accept(CannabisItems.CANNABIS_SEED.get());
+                output.accept(CannabisSeedItem.create(CannabisStrain.INDICA, 1));
+                output.accept(CannabisSeedItem.create(CannabisStrain.SATIVA, 1));
+                output.accept(CannabisSeedItem.create(CannabisStrain.HYBRID, 1));
+                output.accept(CannabisSeedItem.create(CannabisStrain.AUTOFLOWER, 1));
                 output.accept(CannabisItems.FRESH_BUD.get());
                 output.accept(CannabisItems.DRIED_BUD.get());
                 output.accept(CannabisItems.TRIMMED_BUD.get());
