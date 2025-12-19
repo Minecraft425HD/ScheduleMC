@@ -5,12 +5,14 @@ import com.google.gson.reflect.TypeToken;
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.economy.ShopAccountManager;
 import de.rolandsw.schedulemc.util.GsonHelper;
+import de.rolandsw.schedulemc.util.BackupManager;
 import net.minecraft.core.BlockPos;
 import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,6 +39,8 @@ public class PlotManager {
 
     private static boolean dirty = false;
     private static int plotCounter = 1;
+    private static boolean isHealthy = true;
+    private static String lastError = null;
     
     // ═══════════════════════════════════════════════════════════
     // PLOT ERSTELLEN
@@ -294,73 +298,181 @@ public class PlotManager {
     // ═══════════════════════════════════════════════════════════
     
     /**
-     * Lädt alle Plots aus der Datei
+     * Lädt alle Plots aus der Datei mit Backup-Wiederherstellung
      */
     public static void loadPlots() {
+        if (!PLOTS_FILE.exists()) {
+            LOGGER.info("Plots-Datei existiert nicht, erstelle neue");
+            PLOTS_FILE.getParentFile().mkdirs();
+            savePlots();
+            isHealthy = true;
+            return;
+        }
+
         try {
-            if (!PLOTS_FILE.exists()) {
-                LOGGER.info("Plots-Datei existiert nicht, erstelle neue");
-                PLOTS_FILE.getParentFile().mkdirs();
-                savePlots();
-                return;
-            }
-            
-            Type mapType = new TypeToken<Map<String, PlotRegion>>(){}.getType();
-            
-            try (FileReader reader = new FileReader(PLOTS_FILE)) {
-                Map<String, PlotRegion> loaded = GSON.fromJson(reader, mapType);
-                
-                if (loaded != null) {
-                    plots.clear();
-                    plots.putAll(loaded);
-                    
-                    // Finde höchste Plot-Nummer für Counter
-                    int maxId = plots.keySet().stream()
-                        .filter(id -> id.startsWith("plot_"))
-                        .map(id -> id.substring(5))
-                        .mapToInt(s -> {
-                            try {
-                                return Integer.parseInt(s);
-                            } catch (NumberFormatException e) {
-                                return 0;
-                            }
-                        })
-                        .max()
-                        .orElse(0);
-
-                    plotCounter = maxId + 1;
-
-                    // Spatial Index neu aufbauen
-                    spatialIndex.rebuild(plots.values());
-
-                    LOGGER.info("Plots geladen: {} Plots", plots.size());
-                    LOGGER.info("Spatial Index: {}", spatialIndex.getStats());
-                }
-            }
-
+            loadPlotsFromFile(PLOTS_FILE);
+            isHealthy = true;
+            lastError = null;
             dirty = false;
-            
+            LOGGER.info("Plots erfolgreich geladen: {} Plots", plots.size());
+            LOGGER.info("Spatial Index: {}", spatialIndex.getStats());
         } catch (Exception e) {
             LOGGER.error("Fehler beim Laden der Plots", e);
+            lastError = "Failed to load: " + e.getMessage();
+
+            // Versuch Backup wiederherzustellen
+            if (BackupManager.restoreFromBackup(PLOTS_FILE)) {
+                LOGGER.warn("Plots-Datei korrupt, versuche Backup wiederherzustellen...");
+                try {
+                    loadPlotsFromFile(PLOTS_FILE);
+                    LOGGER.info("Plots erfolgreich von Backup wiederhergestellt: {} Plots", plots.size());
+                    isHealthy = true;
+                    lastError = "Recovered from backup";
+                    dirty = false;
+                } catch (Exception backupError) {
+                    LOGGER.error("KRITISCH: Backup-Wiederherstellung fehlgeschlagen!", backupError);
+                    handleCriticalLoadFailure();
+                }
+            } else {
+                LOGGER.error("KRITISCH: Kein Backup verfügbar für Wiederherstellung!");
+                handleCriticalLoadFailure();
+            }
+        }
+    }
+
+    /**
+     * Lädt Plots aus einer spezifischen Datei
+     */
+    private static void loadPlotsFromFile(File sourceFile) throws Exception {
+        Type mapType = new TypeToken<Map<String, PlotRegion>>(){}.getType();
+
+        try (FileReader reader = new FileReader(sourceFile)) {
+            Map<String, PlotRegion> loaded = GSON.fromJson(reader, mapType);
+
+            if (loaded == null) {
+                throw new IOException("Geladene Plot-Daten sind null");
+            }
+
+            plots.clear();
+            plots.putAll(loaded);
+
+            // Finde höchste Plot-Nummer für Counter
+            int maxId = plots.keySet().stream()
+                .filter(id -> id.startsWith("plot_"))
+                .map(id -> id.substring(5))
+                .mapToInt(s -> {
+                    try {
+                        return Integer.parseInt(s);
+                    } catch (NumberFormatException e) {
+                        return 0;
+                    }
+                })
+                .max()
+                .orElse(0);
+
+            plotCounter = maxId + 1;
+
+            // Spatial Index neu aufbauen
+            spatialIndex.rebuild(plots.values());
+        }
+    }
+
+    /**
+     * Behandelt kritischen Ladefehler mit Graceful Degradation
+     */
+    private static void handleCriticalLoadFailure() {
+        LOGGER.error("KRITISCH: Plot-System konnte nicht geladen werden!");
+        LOGGER.error("Starte mit leerem Plot-System als Fallback");
+
+        plots.clear();
+        spatialIndex.clear();
+        plotCounter = 1;
+        isHealthy = false;
+        lastError = "Critical load failure - running with empty data";
+
+        // Erstelle Notfall-Backup der korrupten Datei
+        if (PLOTS_FILE.exists()) {
+            File corruptBackup = new File(PLOTS_FILE.getParent(),
+                PLOTS_FILE.getName() + ".CORRUPT_" + System.currentTimeMillis());
+            try {
+                java.nio.file.Files.copy(PLOTS_FILE.toPath(), corruptBackup.toPath());
+                LOGGER.info("Korrupte Datei gesichert nach: {}", corruptBackup.getName());
+            } catch (IOException e) {
+                LOGGER.error("Konnte korrupte Datei nicht sichern", e);
+            }
         }
     }
     
     /**
-     * Speichert alle Plots in die Datei
+     * Speichert alle Plots in die Datei mit Backup
      */
     public static void savePlots() {
         try {
             PLOTS_FILE.getParentFile().mkdirs();
-            
-            try (FileWriter writer = new FileWriter(PLOTS_FILE)) {
-                GSON.toJson(plots, writer);
+
+            // Erstelle Backup vor dem Speichern (falls Datei existiert)
+            if (PLOTS_FILE.exists() && PLOTS_FILE.length() > 0) {
+                BackupManager.createBackup(PLOTS_FILE);
             }
-            
+
+            // Temporäre Datei für atomares Schreiben
+            File tempFile = new File(PLOTS_FILE.getParent(), PLOTS_FILE.getName() + ".tmp");
+
+            try (FileWriter writer = new FileWriter(tempFile)) {
+                GSON.toJson(plots, writer);
+                writer.flush();
+            }
+
+            // Atomares Ersetzen
+            java.nio.file.Files.move(tempFile.toPath(), PLOTS_FILE.toPath(),
+                java.nio.file.StandardCopyOption.REPLACE_EXISTING,
+                java.nio.file.StandardCopyOption.ATOMIC_MOVE);
+
             dirty = false;
+            isHealthy = true;
+            lastError = null;
             LOGGER.info("Plots gespeichert: {} Plots", plots.size());
-            
+
         } catch (Exception e) {
-            LOGGER.error("Fehler beim Speichern der Plots", e);
+            LOGGER.error("KRITISCH: Fehler beim Speichern der Plots", e);
+            isHealthy = false;
+            lastError = "Save failed: " + e.getMessage();
+
+            // Retry-Mechanismus
+            try {
+                Thread.sleep(100);
+                retrySavePlots();
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    /**
+     * Retry-Mechanismus für fehlgeschlagene Saves
+     */
+    private static void retrySavePlots() {
+        LOGGER.warn("Versuche erneut Plots zu speichern...");
+        try {
+            File tempFile = new File(PLOTS_FILE.getParent(), PLOTS_FILE.getName() + ".tmp");
+
+            try (FileWriter writer = new FileWriter(tempFile)) {
+                GSON.toJson(plots, writer);
+                writer.flush();
+            }
+
+            java.nio.file.Files.move(tempFile.toPath(), PLOTS_FILE.toPath(),
+                java.nio.file.StandardCopyOption.REPLACE_EXISTING,
+                java.nio.file.StandardCopyOption.ATOMIC_MOVE);
+
+            LOGGER.info("Retry erfolgreich - Plots gespeichert");
+            isHealthy = true;
+            lastError = null;
+            dirty = false;
+
+        } catch (Exception retryError) {
+            LOGGER.error("KRITISCH: Retry fehlgeschlagen - Plots konnten nicht gespeichert werden!", retryError);
+            dirty = true;
         }
     }
     
@@ -481,7 +593,7 @@ public class PlotManager {
         LOGGER.info("Dirty Flag: {}", dirty);
         LOGGER.info("Plot Counter: {}", plotCounter);
         LOGGER.info("Datei: {}", PLOTS_FILE.getAbsolutePath());
-        
+
         PlotStatistics stats = getStatistics();
         LOGGER.info("Statistiken:");
         LOGGER.info("  - Besessen: {}", stats.ownedPlots);
@@ -491,5 +603,32 @@ public class PlotManager {
         LOGGER.info("  - Vermietet: {}", stats.rented);
         LOGGER.info("  - Gesamtvolumen: {} Blöcke", stats.totalVolume);
         LOGGER.info("═══════════════════════════════");
+    }
+
+    /**
+     * Gibt den Health-Status des Plot-Systems zurück
+     */
+    public static boolean isHealthy() {
+        return isHealthy;
+    }
+
+    /**
+     * Gibt die letzte Fehlermeldung zurück (oder null wenn gesund)
+     */
+    public static String getLastError() {
+        return lastError;
+    }
+
+    /**
+     * Gibt detaillierte Health-Informationen zurück
+     */
+    public static String getHealthInfo() {
+        if (isHealthy) {
+            return String.format("§aGESUND§r - %d Plots, %d Backups verfügbar",
+                plots.size(), BackupManager.getBackupCount(PLOTS_FILE));
+        } else {
+            return String.format("§cUNGESUND§r - Letzter Fehler: %s, %d Plots geladen",
+                lastError != null ? lastError : "Unknown", plots.size());
+        }
     }
 }

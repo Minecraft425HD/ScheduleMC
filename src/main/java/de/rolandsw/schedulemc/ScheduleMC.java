@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc;
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.commands.*;
 import de.rolandsw.schedulemc.economy.commands.HospitalCommand;
+import de.rolandsw.schedulemc.util.HealthCheckManager;
 import de.rolandsw.schedulemc.economy.commands.ShopInvestCommand;
 import de.rolandsw.schedulemc.economy.commands.StateCommand;
 import de.rolandsw.schedulemc.npc.commands.NPCCommand;
@@ -254,6 +255,7 @@ public class ScheduleMC {
         ShopInvestCommand.register(event.getDispatcher());
         StateCommand.register(event.getDispatcher());
         UtilityCommand.register(event.getDispatcher());
+        HealthCommand.register(event.getDispatcher());
 
         // Vehicle Mod handles its own commands via event bus (registered in Main.commonSetup)
     }
@@ -291,6 +293,10 @@ public class ScheduleMC {
 
         // Utility-System laden
         PlotUtilityManager.load();
+
+        // Health-Check nach Start
+        LOGGER.info("Performing initial health check...");
+        HealthCheckManager.logHealthCheck();
     }
 
     @SubscribeEvent
