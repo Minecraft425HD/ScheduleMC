@@ -1,5 +1,5 @@
-import de.rolandsw.schedulemc.util.EventHelper;
 package de.rolandsw.schedulemc.client;
+import de.rolandsw.schedulemc.util.EventHelper;
 
 import de.rolandsw.schedulemc.ScheduleMC;
 import net.minecraftforge.event.entity.player.PlayerEvent;

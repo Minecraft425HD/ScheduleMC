@@ -1,5 +1,5 @@
-import de.rolandsw.schedulemc.util.EventHelper;
 package de.rolandsw.schedulemc.warehouse;
+import de.rolandsw.schedulemc.util.EventHelper;
 
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.config.ModConfigHandler;

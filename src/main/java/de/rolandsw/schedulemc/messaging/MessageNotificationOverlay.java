@@ -1,5 +1,5 @@
-import de.rolandsw.schedulemc.util.EventHelper;
 package de.rolandsw.schedulemc.messaging;
+import de.rolandsw.schedulemc.util.EventHelper;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;

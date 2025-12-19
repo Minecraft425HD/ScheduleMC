@@ -1,5 +1,5 @@
-import de.rolandsw.schedulemc.util.EventHelper;
 package de.rolandsw.schedulemc.tobacco.events;
+import de.rolandsw.schedulemc.util.EventHelper;
 
 import de.rolandsw.schedulemc.production.blockentity.PlantPotBlockEntity;
 import de.rolandsw.schedulemc.tobacco.items.TobaccoBottleItem;

@@ -1,5 +1,5 @@
-import de.rolandsw.schedulemc.util.EventHelper;
 package de.rolandsw.schedulemc.npc.client;
+import de.rolandsw.schedulemc.util.EventHelper;
 
 import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.npc.client.model.CustomNPCModel;

@@ -1,5 +1,5 @@
-import de.rolandsw.schedulemc.util.EventHelper;
 package de.rolandsw.schedulemc.economy;
+import de.rolandsw.schedulemc.util.EventHelper;
 
 import net.minecraft.world.level.Level;
 import net.minecraftforge.event.TickEvent;

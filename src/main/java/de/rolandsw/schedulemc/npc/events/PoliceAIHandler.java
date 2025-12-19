@@ -278,6 +278,7 @@ public class PoliceAIHandler {
                 // Cleanup arrestTimers falls vorhanden
                 arrestTimers.remove(lastTarget);
             }
+        }
         });
     }
 
