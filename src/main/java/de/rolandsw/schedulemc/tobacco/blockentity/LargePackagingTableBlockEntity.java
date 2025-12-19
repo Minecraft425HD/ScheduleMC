@@ -44,9 +44,11 @@ public class LargePackagingTableBlockEntity extends BlockEntity implements MenuP
 
         @Override
         public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+            // Slot 0: Verpackbare Drug-Items (fermentiert/verarbeitet)
             if (slot == 0) {
-                return stack.getItem() instanceof FermentedTobaccoLeafItem;
+                return PackagedDrugItem.isPackageableItem(stack);
             }
+            // Slots 1-9: Output (nur verpackte 20g Pakete)
             if (slot >= 1 && slot <= 9) {
                 return stack.getItem() instanceof PackagedDrugItem;
             }
