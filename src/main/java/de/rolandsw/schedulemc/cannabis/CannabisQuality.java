@@ -42,7 +42,7 @@ public enum CannabisQuality implements ProductionQuality {
     }
 
     @Override
-    public ProductionQuality upgrade() {
+    public CannabisQuality upgrade() {
         return switch (this) {
             case SCHWAG -> MIDS;
             case MIDS -> DANK;
@@ -52,7 +52,7 @@ public enum CannabisQuality implements ProductionQuality {
     }
 
     @Override
-    public ProductionQuality downgrade() {
+    public CannabisQuality downgrade() {
         return switch (this) {
             case SCHWAG, MIDS -> SCHWAG;
             case DANK -> MIDS;

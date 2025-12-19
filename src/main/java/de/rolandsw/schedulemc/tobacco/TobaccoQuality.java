@@ -64,19 +64,19 @@ public enum TobaccoQuality implements ProductionQuality {
      * Verbessert die Qualität um eine Stufe
      */
     @Override
-    public ProductionQuality upgrade() {
+    public TobaccoQuality upgrade() {
         return switch (this) {
             case SCHLECHT -> GUT;
             case GUT -> SEHR_GUT;
             case SEHR_GUT, LEGENDAER -> LEGENDAER;
         };
     }
-    
+
     /**
      * Verschlechtert die Qualität um eine Stufe
      */
     @Override
-    public ProductionQuality downgrade() {
+    public TobaccoQuality downgrade() {
         return switch (this) {
             case SCHLECHT, GUT -> SCHLECHT;
             case SEHR_GUT -> GUT;

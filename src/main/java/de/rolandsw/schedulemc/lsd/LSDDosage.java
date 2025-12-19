@@ -61,7 +61,7 @@ public enum LSDDosage implements ProductionQuality {
     }
 
     @Override
-    public ProductionQuality upgrade() {
+    public LSDDosage upgrade() {
         return switch (this) {
             case SCHWACH -> STANDARD;
             case STANDARD -> STARK;
@@ -70,7 +70,7 @@ public enum LSDDosage implements ProductionQuality {
     }
 
     @Override
-    public ProductionQuality downgrade() {
+    public LSDDosage downgrade() {
         return switch (this) {
             case SCHWACH, STANDARD -> SCHWACH;
             case STARK -> STANDARD;

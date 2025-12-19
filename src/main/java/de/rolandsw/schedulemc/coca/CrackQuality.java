@@ -41,7 +41,7 @@ public enum CrackQuality implements ProductionQuality {
     }
 
     @Override
-    public ProductionQuality upgrade() {
+    public CrackQuality upgrade() {
         return switch (this) {
             case SCHLECHT -> STANDARD;
             case STANDARD -> GUT;
@@ -50,7 +50,7 @@ public enum CrackQuality implements ProductionQuality {
     }
 
     @Override
-    public ProductionQuality downgrade() {
+    public CrackQuality downgrade() {
         return switch (this) {
             case SCHLECHT, STANDARD -> SCHLECHT;
             case GUT -> STANDARD;

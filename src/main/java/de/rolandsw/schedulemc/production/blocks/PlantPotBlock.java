@@ -286,17 +286,17 @@ public class PlantPotBlock extends Block implements EntityBlock {
             }
 
             // Pflanze Cannabis-Samen
-            potData.plantCannabisSeed(cannabisSeedItem.getStrain());
+            potData.plantCannabisSeed(CannabisSeedItem.getStrain(handStack));
             potBE.setChanged();
             level.sendBlockUpdated(pos, state, state, 3);
             handStack.shrink(1);
 
             // Platziere Cannabis-Pflanzen-Block oberhalb des Topfes
-            CannabisPlantBlock.growToStage(level, pos, 0, cannabisSeedItem.getStrain());
+            CannabisPlantBlock.growToStage(level, pos, 0, CannabisSeedItem.getStrain(handStack));
 
             player.displayClientMessage(Component.literal(
                 "§a✓ Cannabis-Samen gepflanzt!\n" +
-                "§7Strain: " + cannabisSeedItem.getStrain().getColoredName()
+                "§7Strain: " + CannabisSeedItem.getStrain(handStack).getColoredName()
             ), true);
 
             player.playSound(net.minecraft.sounds.SoundEvents.CROP_PLANTED, 1.0f, 1.0f);

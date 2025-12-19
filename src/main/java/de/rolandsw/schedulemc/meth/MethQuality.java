@@ -57,7 +57,7 @@ public enum MethQuality implements ProductionQuality {
      * Verbessert die Qualität um eine Stufe
      */
     @Override
-    public ProductionQuality upgrade() {
+    public MethQuality upgrade() {
         return switch (this) {
             case STANDARD -> GUT;
             case GUT, BLUE_SKY -> BLUE_SKY;
@@ -68,7 +68,7 @@ public enum MethQuality implements ProductionQuality {
      * Verschlechtert die Qualität um eine Stufe
      */
     @Override
-    public ProductionQuality downgrade() {
+    public MethQuality downgrade() {
         return switch (this) {
             case STANDARD, GUT -> STANDARD;
             case BLUE_SKY -> GUT;

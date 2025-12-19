@@ -33,7 +33,7 @@ public enum MDMAQuality implements ProductionQuality {
     public String getColoredName() { return colorCode + displayName; }
 
     @Override
-    public ProductionQuality upgrade() {
+    public MDMAQuality upgrade() {
         return switch (this) {
             case SCHLECHT -> STANDARD;
             case STANDARD -> GUT;
@@ -42,7 +42,7 @@ public enum MDMAQuality implements ProductionQuality {
     }
 
     @Override
-    public ProductionQuality downgrade() {
+    public MDMAQuality downgrade() {
         return switch (this) {
             case SCHLECHT, STANDARD -> SCHLECHT;
             case GUT -> STANDARD;

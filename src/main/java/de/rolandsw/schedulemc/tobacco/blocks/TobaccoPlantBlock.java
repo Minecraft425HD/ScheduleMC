@@ -108,10 +108,10 @@ public class TobaccoPlantBlock extends Block {
             return below.is(this) && below.getValue(HALF) == DoubleBlockHalf.LOWER;
         }
 
-        // Unterer Block: muss auf TobaccoPotBlock stehen!
+        // Unterer Block: muss auf PlantPotBlock stehen!
         BlockPos belowPos = pos.below();
         BlockState belowState = level.getBlockState(belowPos);
-        return belowState.getBlock() instanceof TobaccoPotBlock;
+        return belowState.getBlock() instanceof de.rolandsw.schedulemc.production.blocks.PlantPotBlock;
     }
 
     /**
@@ -211,7 +211,7 @@ public class TobaccoPlantBlock extends Block {
             }
 
             var be = level.getBlockEntity(potPos);
-            if (be instanceof de.rolandsw.schedulemc.tobacco.blockentity.TobaccoPotBlockEntity potBE) {
+            if (be instanceof de.rolandsw.schedulemc.production.blockentity.PlantPotBlockEntity potBE) {
                 var potData = potBE.getPotData();
                 if (potData.hasPlant()) {
                     // Entferne Pflanze aus Topf
