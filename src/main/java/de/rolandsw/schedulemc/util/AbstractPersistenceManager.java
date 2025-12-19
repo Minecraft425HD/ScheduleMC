@@ -28,7 +28,7 @@ import java.nio.file.StandardCopyOption;
  */
 public abstract class AbstractPersistenceManager<T> {
 
-    private static final Logger LOGGER = LogUtils.getLogger();
+    protected static final Logger LOGGER = LogUtils.getLogger();
 
     private final File dataFile;
     private final Gson gson;
@@ -179,7 +179,7 @@ public abstract class AbstractPersistenceManager<T> {
     /**
      * Markiert die Daten als geändert
      */
-    protected void markDirty() {
+    public void markDirty() {
         needsSave = true;
     }
 

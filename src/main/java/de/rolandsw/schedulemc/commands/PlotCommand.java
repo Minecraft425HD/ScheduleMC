@@ -980,8 +980,8 @@ public class PlotCommand {
     }
 
     private static int reindexPlots(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.execute(ctx, "Fehler bei /plot reindex",
-            () -> {
+        return CommandExecutor.executeSourceCommand(ctx, "Fehler bei /plot reindex",
+            source -> {
                 PlotManager.rebuildSpatialIndex();
 
                 ctx.getSource().sendSuccess(() -> Component.literal(

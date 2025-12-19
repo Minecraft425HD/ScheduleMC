@@ -272,7 +272,6 @@ public abstract class AbstractPackagingTableBlockEntity extends BlockEntity impl
     // UTILITY CONSUMER INTERFACE
     // ═══════════════════════════════════════════════════════════
 
-    @Override
     public BlockPos getConsumerPos() {
         return this.worldPosition;
     }

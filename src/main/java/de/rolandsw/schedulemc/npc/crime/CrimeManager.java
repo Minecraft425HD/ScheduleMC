@@ -3,8 +3,10 @@ package de.rolandsw.schedulemc.npc.crime;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
 import de.rolandsw.schedulemc.util.GsonHelper;
+import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -24,6 +26,7 @@ import java.util.UUID;
  */
 public class CrimeManager {
 
+    private static final Logger LOGGER = LogUtils.getLogger();
     private static final Gson GSON = GsonHelper.get();
     private static final File CRIME_FILE = new File("config/plotmod_crimes.json");
     private static final int MAX_WANTED_LEVEL = 5;

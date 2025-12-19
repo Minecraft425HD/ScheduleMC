@@ -1,7 +1,7 @@
 package de.rolandsw.schedulemc.production.nbt;
 
 import de.rolandsw.schedulemc.production.data.PlantPotData;
-import de.rolandsw.schedulemc.production.data.TobaccoPlant;
+import de.rolandsw.schedulemc.tobacco.data.TobaccoPlantData;
 import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
 import de.rolandsw.schedulemc.tobacco.TobaccoType;
 import net.minecraft.nbt.CompoundTag;
@@ -16,7 +16,7 @@ public class TobaccoPlantSerializer implements PlantSerializer {
         if (!potData.hasTobaccoPlant()) return;
 
         CompoundTag plantTag = new CompoundTag();
-        TobaccoPlant plant = potData.getPlant();
+        TobaccoPlantData plant = potData.getPlant();
 
         plantTag.putString("Type", plant.getType().name());
         plantTag.putString("Quality", plant.getQuality().name());
@@ -40,7 +40,7 @@ public class TobaccoPlantSerializer implements PlantSerializer {
             potData.plantSeed(type);
         }
 
-        TobaccoPlant plant = potData.getPlant();
+        TobaccoPlantData plant = potData.getPlant();
         if (plant != null) {
             plant.setQuality(TobaccoQuality.valueOf(plantTag.getString("Quality")));
             plant.setGrowthStage(plantTag.getInt("GrowthStage"));

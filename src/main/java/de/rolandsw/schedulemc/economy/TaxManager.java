@@ -1,5 +1,7 @@
 package de.rolandsw.schedulemc.economy;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.region.PlotManager;
@@ -10,6 +12,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
 
+import java.io.File;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,9 +41,12 @@ public class TaxManager extends AbstractPersistenceManager<Map<String, Object>> 
     private long currentDay = 0;
 
     private TaxManager(MinecraftServer server) {
-        super(server.getServerDirectory().toPath().resolve("config").resolve("plotmod_taxes.json"));
+        super(
+            new File(server.getServerDirectory().toPath().resolve("config").resolve("plotmod_taxes.json").toString()),
+            new GsonBuilder().setPrettyPrinting().create()
+        );
         this.server = server;
-        loadData();
+        load();
     }
 
     @Override
@@ -81,6 +87,23 @@ public class TaxManager extends AbstractPersistenceManager<Map<String, Object>> 
         data.put("taxDebt", debtMap);
 
         return data;
+    }
+
+    @Override
+    protected String getComponentName() {
+        return "TaxManager";
+    }
+
+    @Override
+    protected String getHealthDetails() {
+        return lastTaxDay.size() + " players tracked, " + taxDebt.size() + " debts";
+    }
+
+    @Override
+    protected void onCriticalLoadFailure() {
+        lastTaxDay.clear();
+        taxDebt.clear();
+        LOGGER.warn("TaxManager: Gestartet mit leeren Daten nach kritischem Fehler");
     }
 
     public static TaxManager getInstance(MinecraftServer server) {
@@ -178,7 +201,7 @@ public class TaxManager extends AbstractPersistenceManager<Map<String, Object>> 
             }
         }
 
-        saveData();
+        save();
     }
 
     /**
@@ -257,7 +280,7 @@ public class TaxManager extends AbstractPersistenceManager<Map<String, Object>> 
         if (EconomyManager.withdraw(playerUUID, debt, TransactionType.TAX_INCOME, "Steuerschuld-Zahlung")) {
             StateAccount.getInstance(server).deposit(debt, "Steuerschuld");
             taxDebt.remove(playerUUID);
-            saveData();
+            save();
             return true;
         }
 

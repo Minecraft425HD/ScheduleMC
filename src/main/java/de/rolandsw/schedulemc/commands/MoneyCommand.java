@@ -113,10 +113,10 @@ public class MoneyCommand {
                         .then(Commands.literal("history")
                                 .then(Commands.argument("target", EntityArgument.player())
                                         .requires(source -> source.hasPermission(2))
-                                        .executes(ctx -> showHistoryFor(ctx, EntityArgument.getPlayer(ctx, "target"), 10))
+                                        .executes(ctx -> { showHistoryFor(ctx, EntityArgument.getPlayer(ctx, "target"), 10); return 1; })
                                         .then(Commands.argument("limit", IntegerArgumentType.integer(1, 100))
-                                                .executes(ctx -> showHistoryFor(ctx, EntityArgument.getPlayer(ctx, "target"),
-                                                        IntegerArgumentType.getInteger(ctx, "limit")))
+                                                .executes(ctx -> { showHistoryFor(ctx, EntityArgument.getPlayer(ctx, "target"),
+                                                        IntegerArgumentType.getInteger(ctx, "limit")); return 1; })
                                         )
                                 )
                         )
@@ -235,7 +235,7 @@ public class MoneyCommand {
                 CommandExecutor.sendSuccess(source,
                     "Guthaben gesetzt!\n" +
                     "Spieler: " + target.getName().getString() + "\n" +
-                    "Neues Guthaben: " + String.format("%.2f", amount) + " €", true
+                    "Neues Guthaben: " + String.format("%.2f", amount) + " €"
                 );
 
                 target.sendSystemMessage(Component.literal(
@@ -261,7 +261,7 @@ public class MoneyCommand {
                     "Geld hinzugefügt!\n" +
                     "Spieler: " + target.getName().getString() + "\n" +
                     "Betrag: +" + String.format("%.2f", amount) + " €\n" +
-                    "Neues Guthaben: " + String.format("%.2f", EconomyManager.getBalance(target.getUUID())) + " €", true
+                    "Neues Guthaben: " + String.format("%.2f", EconomyManager.getBalance(target.getUUID())) + " €"
                 );
 
                 target.sendSystemMessage(Component.literal(
@@ -288,7 +288,7 @@ public class MoneyCommand {
                         "Geld abgezogen!\n" +
                         "Spieler: " + target.getName().getString() + "\n" +
                         "Betrag: -" + String.format("%.2f", amount) + " €\n" +
-                        "Neues Guthaben: " + String.format("%.2f", EconomyManager.getBalance(target.getUUID())) + " €", true
+                        "Neues Guthaben: " + String.format("%.2f", EconomyManager.getBalance(target.getUUID())) + " €"
                     );
 
                     target.sendSystemMessage(Component.literal(

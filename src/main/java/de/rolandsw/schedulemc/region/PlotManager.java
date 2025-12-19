@@ -251,7 +251,7 @@ public class PlotManager {
         spatialIndex.addPlot(plot);
 
         // Invalidiere Cache-Einträge in der Plot-Region
-        plotCache.invalidateRegion(plot.getMinPos(), plot.getMaxPos());
+        plotCache.invalidateRegion(plot.getMin(), plot.getMax());
 
         dirty = true;
     }

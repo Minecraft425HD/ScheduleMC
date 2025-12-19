@@ -1,11 +1,14 @@
 package de.rolandsw.schedulemc.economy;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
 
+import java.io.File;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,9 +32,12 @@ public class InterestManager extends AbstractPersistenceManager<Map<UUID, Long>>
     private long currentDay = 0;
 
     private InterestManager(MinecraftServer server) {
-        super(server.getServerDirectory().toPath().resolve("config").resolve("plotmod_interest.json"));
+        super(
+            new File(server.getServerDirectory().toPath().resolve("config").resolve("plotmod_interest.json").toString()),
+            new GsonBuilder().setPrettyPrinting().create()
+        );
         this.server = server;
-        loadData();
+        load();
     }
 
     @Override
@@ -89,7 +95,23 @@ public class InterestManager extends AbstractPersistenceManager<Map<UUID, Long>>
             }
         }
 
-        saveData();
+        save();
+    }
+
+    @Override
+    protected String getComponentName() {
+        return "InterestManager";
+    }
+
+    @Override
+    protected String getHealthDetails() {
+        return lastInterestPayout.size() + " accounts tracked";
+    }
+
+    @Override
+    protected void onCriticalLoadFailure() {
+        lastInterestPayout.clear();
+        LOGGER.warn("InterestManager: Gestartet mit leeren Daten nach kritischem Fehler");
     }
 
     /**
