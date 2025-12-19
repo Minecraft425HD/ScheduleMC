@@ -1,75 +1,59 @@
 package de.rolandsw.schedulemc.tobacco.blockentity;
 
-import de.rolandsw.schedulemc.production.core.DrugType;
-import de.rolandsw.schedulemc.production.core.ProductionQuality;
-import de.rolandsw.schedulemc.production.core.ProductionType;
 import de.rolandsw.schedulemc.production.items.PackagedDrugItem;
 import de.rolandsw.schedulemc.tobacco.items.*;
 import de.rolandsw.schedulemc.tobacco.menu.MediumPackagingTableMenu;
-import de.rolandsw.schedulemc.coca.items.CocaineItem;
-import de.rolandsw.schedulemc.coca.items.CrackRockItem;
-import de.rolandsw.schedulemc.poppy.items.HeroinItem;
-import de.rolandsw.schedulemc.meth.items.MethItem;
-import de.rolandsw.schedulemc.mushroom.items.DriedMushroomItem;
-import de.rolandsw.schedulemc.cannabis.items.TrimmedBudItem;
-import de.rolandsw.schedulemc.cannabis.items.CuredBudItem;
-import net.minecraft.world.item.Item;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.Containers;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import de.rolandsw.schedulemc.utility.IUtilityConsumer;
 
 /**
  * BlockEntity für Medium Packaging Table (10g)
+ *
+ * Erweitert AbstractPackagingTableBlockEntity für geteilte Funktionalität
+ *
  * Inventar:
  * - Slot 0: Input (fermentierter Tabak)
- * - Slots 1-10: Schachteln (5 leer, 5 voll)
+ * - Slots 1-10: Schachteln (leer und voll gemischt, für 10g)
  */
-public class MediumPackagingTableBlockEntity extends BlockEntity implements MenuProvider, IUtilityConsumer {
-
-    // Inventar: 1 Input + 10 Schachteln = 11 Slots
-    private final ItemStackHandler itemHandler = new ItemStackHandler(11) {
-        @Override
-        protected void onContentsChanged(int slot) {
-            setChanged();
-        }
-
-        @Override
-        public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-            // Slot 0: Verpackbare Drug-Items (fermentiert/verarbeitet)
-            if (slot == 0) {
-                return PackagedDrugItem.isPackageableItem(stack);
-            }
-            // Slots 1-10: Schachteln (leer oder voll)
-            if (slot >= 1 && slot <= 10) {
-                return stack.getItem() instanceof PackagingBoxItem ||
-                       (stack.getItem() instanceof PackagedDrugItem && PackagedDrugItem.getWeight(stack) == 10);
-            }
-            return false;
-        }
-    };
-
-    private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
+public class MediumPackagingTableBlockEntity extends AbstractPackagingTableBlockEntity {
 
     public MediumPackagingTableBlockEntity(BlockPos pos, BlockState state) {
-        super(TobaccoBlockEntities.MEDIUM_PACKAGING_TABLE.get(), pos, state);
+        super(TobaccoBlockEntities.MEDIUM_PACKAGING_TABLE.get(), pos, state, 11);
+    }
+
+    /**
+     * Custom ItemStackHandler mit Slot-Validierung für Medium Packaging Table
+     */
+    @Override
+    protected ItemStackHandler createItemHandler(int slots) {
+        return new ItemStackHandler(slots) {
+            @Override
+            protected void onContentsChanged(int slot) {
+                setChanged();
+            }
+
+            @Override
+            public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+                // Slot 0: Verpackbare Drug-Items (fermentiert/verarbeitet)
+                if (slot == 0) {
+                    return PackagedDrugItem.isPackageableItem(stack);
+                }
+                // Slots 1-10: Schachteln (leer oder voll)
+                if (slot >= 1 && slot <= 10) {
+                    return stack.getItem() instanceof PackagingBoxItem ||
+                           (stack.getItem() instanceof PackagedDrugItem && PackagedDrugItem.getWeight(stack) == 10);
+                }
+                return false;
+            }
+        };
     }
 
     @Override
@@ -83,110 +67,14 @@ public class MediumPackagingTableBlockEntity extends BlockEntity implements Menu
         return new MediumPackagingTableMenu(containerId, playerInventory, this);
     }
 
-    public ItemStackHandler getItemHandler() {
-        return itemHandler;
-    }
-
-    public ItemStack getInputStack() {
-        return itemHandler.getStackInSlot(0);
-    }
-
-    public void setInputStack(ItemStack stack) {
-        itemHandler.setStackInSlot(0, stack);
-    }
-
-    // ═══════════════════════════════════════════════════════════
-    // HELPER CLASSES & METHODS FOR GENERIC DRUG PACKAGING
-    // ═══════════════════════════════════════════════════════════
-
-    /**
-     * Helper class to store drug packaging data
-     */
-    private static class PackagingData {
-        final DrugType drugType;
-        final ProductionQuality quality;
-        final ProductionType variant;
-        final String itemType;
-
-        PackagingData(DrugType drugType, ProductionQuality quality, ProductionType variant, String itemType) {
-            this.drugType = drugType;
-            this.quality = quality;
-            this.variant = variant;
-            this.itemType = itemType;
-        }
-    }
-
-    /**
-     * Extracts DrugType, Quality, and Variant from any packageable drug item
-     */
-    private PackagingData extractPackagingData(ItemStack input) {
-        Item item = input.getItem();
-
-        if (item instanceof FermentedTobaccoLeafItem) {
-            return new PackagingData(
-                DrugType.TOBACCO,
-                FermentedTobaccoLeafItem.getQuality(input),
-                FermentedTobaccoLeafItem.getType(input),
-                "TOBACCO"
-            );
-        } else if (item instanceof CocaineItem) {
-            return new PackagingData(
-                DrugType.COCAINE,
-                CocaineItem.getQuality(input),
-                CocaineItem.getType(input),
-                "COCAINE"
-            );
-        } else if (item instanceof CrackRockItem) {
-            return new PackagingData(
-                DrugType.COCAINE, // Crack is COCAINE drug type
-                CrackRockItem.getQuality(input),
-                CrackRockItem.getType(input),
-                "CRACK"
-            );
-        } else if (item instanceof HeroinItem) {
-            return new PackagingData(
-                DrugType.HEROIN,
-                HeroinItem.getQuality(input),
-                HeroinItem.getType(input),
-                "HEROIN"
-            );
-        } else if (item instanceof MethItem) {
-            return new PackagingData(
-                DrugType.METH,
-                MethItem.getQuality(input),
-                null, // Meth has no variant/type
-                "METH"
-            );
-        } else if (item instanceof DriedMushroomItem driedMushroom) {
-            return new PackagingData(
-                DrugType.MUSHROOM,
-                DriedMushroomItem.getQuality(input),
-                driedMushroom.getMushroomType(),
-                "MUSHROOM"
-            );
-        } else if (item instanceof TrimmedBudItem) {
-            return new PackagingData(
-                DrugType.CANNABIS,
-                TrimmedBudItem.getQuality(input),
-                TrimmedBudItem.getStrain(input),
-                "TRIMMED_CANNABIS"
-            );
-        } else if (item instanceof CuredBudItem) {
-            return new PackagingData(
-                DrugType.CANNABIS,
-                CuredBudItem.getQuality(input),
-                CuredBudItem.getStrain(input),
-                "CURED_CANNABIS"
-            );
-        }
-
-        return null; // Item not packageable
-    }
-
     // ═══════════════════════════════════════════════════════════
     // PACK-LOGIK (10g mit Schachteln)
     // ═══════════════════════════════════════════════════════════
 
+    /**
+     * Packt Drug-Items in 10g Schachteln ab
+     * @return Anzahl erstellter Pakete
+     */
     public int packageTobacco10g() {
         ItemStack input = getInputStack();
 
@@ -205,7 +93,7 @@ public class MediumPackagingTableBlockEntity extends BlockEntity implements Menu
         int totalWeight = input.getCount();
         int packagesCount = totalWeight / 10; // Für 10g Pakete
 
-        // Zähle leere Schachteln
+        // Zähle verfügbare leere Schachteln (Slots 1-10)
         int emptyBoxes = 0;
         for (int i = 1; i <= 10; i++) {
             ItemStack stack = itemHandler.getStackInSlot(i);
@@ -251,19 +139,24 @@ public class MediumPackagingTableBlockEntity extends BlockEntity implements Menu
     // UNPACK-LOGIK
     // ═══════════════════════════════════════════════════════════
 
+    /**
+     * Entpackt alle vollen Pakete zurück zu Tabak + leeres Material
+     */
     public void unpackAll() {
         ItemStack input = getInputStack();
         int totalWeight = 0;
 
+        // Durchsuche alle Slots nach vollen Paketen
         for (int i = 1; i <= 10; i++) {
             ItemStack stack = itemHandler.getStackInSlot(i);
             if (stack.getItem() instanceof PackagedDrugItem) {
                 int weight = PackagedDrugItem.getWeight(stack);
                 totalWeight += weight;
 
-                // Gib leere Schachtel zurück
+                // Gib Schachtel zurück
                 addItemToSlots(new ItemStack(TobaccoItems.PACKAGING_BOX.get(), 1), 1, 10);
 
+                // Entferne das volle Paket
                 itemHandler.setStackInSlot(i, ItemStack.EMPTY);
             }
         }
@@ -281,7 +174,7 @@ public class MediumPackagingTableBlockEntity extends BlockEntity implements Menu
     }
 
     // ═══════════════════════════════════════════════════════════
-    // HELPER METHODEN
+    // HELPER METHODEN (Table-specific)
     // ═══════════════════════════════════════════════════════════
 
     private boolean consumeEmptyBox() {
@@ -293,77 +186,6 @@ public class MediumPackagingTableBlockEntity extends BlockEntity implements Menu
             }
         }
         return false;
-    }
-
-    private int findFreeSlot(int start, int end) {
-        for (int i = start; i <= end; i++) {
-            if (itemHandler.getStackInSlot(i).isEmpty()) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    private void addItemToSlots(ItemStack itemToAdd, int start, int end) {
-        for (int i = start; i <= end; i++) {
-            ItemStack stack = itemHandler.getStackInSlot(i);
-            if (stack.isEmpty()) {
-                itemHandler.setStackInSlot(i, itemToAdd.copy());
-                return;
-            } else if (ItemStack.isSameItemSameTags(stack, itemToAdd) && stack.getCount() < stack.getMaxStackSize()) {
-                int space = stack.getMaxStackSize() - stack.getCount();
-                int toAdd = Math.min(space, itemToAdd.getCount());
-                stack.grow(toAdd);
-                itemToAdd.shrink(toAdd);
-                if (itemToAdd.isEmpty()) {
-                    return;
-                }
-            }
-        }
-    }
-
-    // ═══════════════════════════════════════════════════════════
-    // CAPABILITIES
-    // ═══════════════════════════════════════════════════════════
-
-    @Override
-    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        if (cap == ForgeCapabilities.ITEM_HANDLER) {
-            return lazyItemHandler.cast();
-        }
-        return super.getCapability(cap, side);
-    }
-
-    @Override
-    public void onLoad() {
-        super.onLoad();
-        lazyItemHandler = LazyOptional.of(() -> itemHandler);
-    }
-
-    @Override
-    public void invalidateCaps() {
-        super.invalidateCaps();
-        lazyItemHandler.invalidate();
-    }
-
-    @Override
-    protected void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
-        tag.put("Inventory", itemHandler.serializeNBT());
-    }
-
-    @Override
-    public void load(CompoundTag tag) {
-        super.load(tag);
-        itemHandler.deserializeNBT(tag.getCompound("Inventory"));
-    }
-
-    public void drops() {
-        SimpleContainer inventory = new SimpleContainer(itemHandler.getSlots());
-        for (int i = 0; i < itemHandler.getSlots(); i++) {
-            inventory.setItem(i, itemHandler.getStackInSlot(i));
-        }
-        Containers.dropContents(this.level, this.worldPosition, inventory);
     }
 
     // ═══════════════════════════════════════════════════════════
