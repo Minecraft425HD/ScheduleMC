@@ -1,11 +1,11 @@
 package de.rolandsw.schedulemc.warehouse.network.packet;
 
+import de.rolandsw.schedulemc.util.PacketHandler;
 import de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity;
 import de.rolandsw.schedulemc.warehouse.WarehouseSlot;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.network.NetworkEvent;
 
@@ -37,16 +37,7 @@ public class ClearSlotPacket {
     }
 
     public static void handle(ClearSlotPacket msg, Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            ServerPlayer player = ctx.get().getSender();
-            if (player == null) return;
-
-            // Admin check
-            if (!player.hasPermissions(2)) {
-                player.sendSystemMessage(Component.literal("§cNur Admins können das Warehouse bearbeiten!"));
-                return;
-            }
-
+        PacketHandler.handleAdminPacket(ctx, 2, player -> {
             BlockEntity be = player.level().getBlockEntity(msg.pos);
             if (!(be instanceof WarehouseBlockEntity warehouse)) return;
 
@@ -63,6 +54,5 @@ public class ClearSlotPacket {
 
             player.sendSystemMessage(Component.literal("§aSlot geleert: " + itemName));
         });
-        ctx.get().setPacketHandled(true);
     }
 }

@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.npc.network;
 
 import de.rolandsw.schedulemc.npc.client.ClientNPCNameCache;
+import de.rolandsw.schedulemc.util.PacketHandler;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 
@@ -36,10 +37,9 @@ public class SyncNPCNamesPacket {
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
+        PacketHandler.handleClientPacket(ctx, () -> {
             // Client-Seite: Update den lokalen Cache
             ClientNPCNameCache.setNPCNames(npcNames);
         });
-        ctx.get().setPacketHandled(true);
     }
 }

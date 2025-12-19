@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.npc.network;
 
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
+import de.rolandsw.schedulemc.util.PacketHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -34,7 +35,7 @@ public class SyncNPCDataPacket {
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
+        PacketHandler.handleClientPacket(ctx, () -> {
             Minecraft minecraft = Minecraft.getInstance();
             if (minecraft.level != null) {
                 Entity entity = minecraft.level.getEntity(entityId);
@@ -43,6 +44,5 @@ public class SyncNPCDataPacket {
                 }
             }
         });
-        ctx.get().setPacketHandled(true);
     }
 }

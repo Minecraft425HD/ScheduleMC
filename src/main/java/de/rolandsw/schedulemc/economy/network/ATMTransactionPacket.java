@@ -1,9 +1,9 @@
 package de.rolandsw.schedulemc.economy.network;
 
 import de.rolandsw.schedulemc.economy.blockentity.ATMBlockEntity;
+import de.rolandsw.schedulemc.util.PacketHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.network.NetworkEvent;
 
@@ -47,13 +47,10 @@ public class ATMTransactionPacket {
      * Handle - Verarbeitet Packet auf Server-Seite
      */
     public static void handle(ATMTransactionPacket msg, Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            ServerPlayer player = ctx.get().getSender();
-            if (player == null) return;
-            
+        PacketHandler.handleServerPacket(ctx, player -> {
             BlockEntity be = player.level().getBlockEntity(msg.pos);
             if (!(be instanceof ATMBlockEntity atmBE)) return;
-            
+
             // Führe Transaktion aus
             if (msg.isDeposit) {
                 atmBE.deposit(player, msg.amount);
@@ -61,6 +58,5 @@ public class ATMTransactionPacket {
                 atmBE.withdraw(player, msg.amount);
             }
         });
-        ctx.get().setPacketHandled(true);
     }
 }

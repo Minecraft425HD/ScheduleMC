@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.messaging.network;
 
 import de.rolandsw.schedulemc.messaging.MessageNotificationOverlay;
+import de.rolandsw.schedulemc.util.PacketHandler;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
@@ -42,13 +43,12 @@ public class ReceiveMessagePacket {
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
+        PacketHandler.handleClientPacket(ctx, () -> {
             // Client-side only
             DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
                 // Show notification overlay
                 MessageNotificationOverlay.showNotification(senderName, content);
             });
         });
-        ctx.get().setPacketHandled(true);
     }
 }

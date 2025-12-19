@@ -2,13 +2,13 @@ package de.rolandsw.schedulemc.npc.events;
 
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
+import de.rolandsw.schedulemc.util.EventHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 import org.slf4j.Logger;
 
@@ -31,24 +31,22 @@ public class NPCDailySalaryHandler {
 
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
-        if (event.side != LogicalSide.SERVER || event.phase != TickEvent.Phase.END) {
-            return;
-        }
+        EventHelper.handleServerTickEnd(event, () -> {
+            // Überspringe wenn keine Spieler online sind (Zeit läuft nicht)
+            if (event.getServer().getPlayerCount() == 0) {
+                return;
+            }
 
-        // Überspringe wenn keine Spieler online sind (Zeit läuft nicht)
-        if (event.getServer().getPlayerCount() == 0) {
-            return;
-        }
+            ServerLevel level = event.getServer().overworld();
+            long currentDay = level.getDayTime() / 24000L;
 
-        ServerLevel level = event.getServer().overworld();
-        long currentDay = level.getDayTime() / 24000L;
-
-        // Prüfe ob ein neuer Tag begonnen hat
-        // Dies funktioniert auch wenn Zeit übersprungen wird (z.B. durch Schlafen)
-        if (currentDay > lastSalaryDay) {
-            lastSalaryDay = currentDay;
-            payAllNPCSalaries(level, currentDay);
-        }
+            // Prüfe ob ein neuer Tag begonnen hat
+            // Dies funktioniert auch wenn Zeit übersprungen wird (z.B. durch Schlafen)
+            if (currentDay > lastSalaryDay) {
+                lastSalaryDay = currentDay;
+                payAllNPCSalaries(level, currentDay);
+            }
+        });
     }
 
     /**

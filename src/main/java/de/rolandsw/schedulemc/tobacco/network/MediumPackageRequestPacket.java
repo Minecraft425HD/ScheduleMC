@@ -1,9 +1,9 @@
 package de.rolandsw.schedulemc.tobacco.network;
 
 import de.rolandsw.schedulemc.tobacco.blockentity.MediumPackagingTableBlockEntity;
+import de.rolandsw.schedulemc.util.PacketHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.network.NetworkEvent;
 
@@ -32,19 +32,15 @@ public class MediumPackageRequestPacket {
     }
 
     public static void handle(MediumPackageRequestPacket packet, Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            ServerPlayer player = ctx.get().getSender();
-            if (player != null) {
-                BlockEntity be = player.level().getBlockEntity(packet.pos);
-                if (be instanceof MediumPackagingTableBlockEntity packagingTable) {
-                    if (packet.weight == -1) {
-                        packagingTable.unpackAll();
-                    } else if (packet.weight == 10) {
-                        packagingTable.packageTobacco10g();
-                    }
+        PacketHandler.handleServerPacket(ctx, player -> {
+            BlockEntity be = player.level().getBlockEntity(packet.pos);
+            if (be instanceof MediumPackagingTableBlockEntity packagingTable) {
+                if (packet.weight == -1) {
+                    packagingTable.unpackAll();
+                } else if (packet.weight == 10) {
+                    packagingTable.packageTobacco10g();
                 }
             }
         });
-        ctx.get().setPacketHandled(true);
     }
 }

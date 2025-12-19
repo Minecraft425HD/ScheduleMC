@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.npc.network;
 
 import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
+import de.rolandsw.schedulemc.util.PacketHandler;
 import de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity;
 import de.rolandsw.schedulemc.warehouse.WarehouseSlot;
 import net.minecraft.core.BlockPos;
@@ -67,42 +68,33 @@ public class UpdateShopItemsPacket {
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            ServerPlayer player = ctx.get().getSender();
-            if (player != null && player.hasPermissions(2)) { // Admin-Check!
-                Entity entity = player.level().getEntity(merchantEntityId);
-                if (entity instanceof CustomNPCEntity npc) {
-                    // Lösche alte Shop-Items
-                    npc.getNpcData().getBuyShop().clear();
+        PacketHandler.handleAdminPacket(ctx, 2, player -> {
+            Entity entity = player.level().getEntity(merchantEntityId);
+            if (entity instanceof CustomNPCEntity npc) {
+                // Lösche alte Shop-Items
+                npc.getNpcData().getBuyShop().clear();
 
-                    // Füge neue Items hinzu
-                    for (int i = 0; i < items.size(); i++) {
-                        ItemStack item = items.get(i);
-                        int price = prices.get(i);
-                        boolean isUnlimited = unlimited.get(i);
-                        int itemStock = stock.get(i);
-                        if (!item.isEmpty() && price > 0) {
-                            npc.getNpcData().getBuyShop().addEntry(
-                                new NPCData.ShopEntry(item, price, isUnlimited, itemStock));
-                        }
+                // Füge neue Items hinzu
+                for (int i = 0; i < items.size(); i++) {
+                    ItemStack item = items.get(i);
+                    int price = prices.get(i);
+                    boolean isUnlimited = unlimited.get(i);
+                    int itemStock = stock.get(i);
+                    if (!item.isEmpty() && price > 0) {
+                        npc.getNpcData().getBuyShop().addEntry(
+                            new NPCData.ShopEntry(item, price, isUnlimited, itemStock));
                     }
-
-                    // NPC-Daten werden automatisch über NBT persistiert
-
-                    // WAREHOUSE SYNCHRONISATION
-                    syncShopToWarehouse(npc, player);
-
-                    player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
-                        "§aShop erfolgreich aktualisiert! " + items.size() + " Items hinzugefügt."));
                 }
-            } else {
-                if (player != null) {
-                    player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
-                        "§cFehler: Keine Berechtigung!"));
-                }
+
+                // NPC-Daten werden automatisch über NBT persistiert
+
+                // WAREHOUSE SYNCHRONISATION
+                syncShopToWarehouse(npc, player);
+
+                player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+                    "§aShop erfolgreich aktualisiert! " + items.size() + " Items hinzugefügt."));
             }
         });
-        ctx.get().setPacketHandled(true);
     }
 
     /**

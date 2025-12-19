@@ -2,8 +2,8 @@ package de.rolandsw.schedulemc.client.network;
 
 import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.client.SmartphoneTracker;
+import de.rolandsw.schedulemc.util.PacketHandler;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
@@ -27,16 +27,12 @@ public class SmartphoneStatePacket {
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            ServerPlayer player = ctx.get().getSender();
-            if (player != null) {
-                // Aktualisiere den Server-seitigen Tracker
-                SmartphoneTracker.setSmartphoneOpen(player.getUUID(), isOpen);
+        PacketHandler.handleServerPacket(ctx, player -> {
+            // Aktualisiere den Server-seitigen Tracker
+            SmartphoneTracker.setSmartphoneOpen(player.getUUID(), isOpen);
 
-                ScheduleMC.LOGGER.debug("Player {} smartphone state: {}",
-                    player.getName().getString(), isOpen ? "OPEN" : "CLOSED");
-            }
+            ScheduleMC.LOGGER.debug("Player {} smartphone state: {}",
+                player.getName().getString(), isOpen ? "OPEN" : "CLOSED");
         });
-        ctx.get().setPacketHandled(true);
     }
 }

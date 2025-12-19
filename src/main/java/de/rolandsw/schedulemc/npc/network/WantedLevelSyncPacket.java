@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.npc.network;
 
 import de.rolandsw.schedulemc.npc.crime.CrimeManager;
+import de.rolandsw.schedulemc.util.PacketHandler;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 
@@ -31,11 +32,9 @@ public class WantedLevelSyncPacket {
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            // Client-seitig speichern
+        PacketHandler.handleClientPacket(ctx, () -> {
             CrimeManager.setClientWantedLevel(wantedLevel);
             CrimeManager.setClientEscapeTime(escapeTimeRemaining);
         });
-        ctx.get().setPacketHandled(true);
     }
 }

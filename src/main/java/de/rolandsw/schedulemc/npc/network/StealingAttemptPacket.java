@@ -4,11 +4,11 @@ import de.rolandsw.schedulemc.economy.WalletManager;
 import de.rolandsw.schedulemc.economy.items.CashItem;
 import de.rolandsw.schedulemc.npc.crime.CrimeManager;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
+import de.rolandsw.schedulemc.util.PacketHandler;
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
@@ -46,9 +46,7 @@ public class StealingAttemptPacket {
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            ServerPlayer player = ctx.get().getSender();
-            if (player != null) {
+        PacketHandler.handleServerPacket(ctx, player -> {
                 Entity entity = player.level().getEntity(npcEntityId);
                 if (entity instanceof CustomNPCEntity npc) {
                     long currentDay = player.level().getDayTime() / 24000;
@@ -251,8 +249,6 @@ public class StealingAttemptPacket {
                         }
                     }
                 }
-            }
         });
-        ctx.get().setPacketHandled(true);
     }
 }

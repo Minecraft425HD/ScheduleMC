@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.warehouse.network.packet;
 
 import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
+import de.rolandsw.schedulemc.util.PacketHandler;
 import de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity;
 import de.rolandsw.schedulemc.warehouse.WarehouseSlot;
 import net.minecraft.core.BlockPos;
@@ -10,7 +11,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -47,19 +47,10 @@ public class AddItemToSlotPacket {
     }
 
     public static void handle(AddItemToSlotPacket msg, Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            ServerPlayer player = ctx.get().getSender();
-            if (player == null) return;
-
-            // Admin check
-            if (!player.hasPermissions(2)) {
-                player.sendSystemMessage(Component.literal("§cNur Admins können Items hinzufügen!"));
-                return;
-            }
-
+        PacketHandler.handleAdminPacket(ctx, 2, player -> {
             BlockEntity be = player.level().getBlockEntity(msg.pos);
             if (!(be instanceof WarehouseBlockEntity warehouse)) {
-                player.sendSystemMessage(Component.literal("§cWarehouse nicht gefunden!"));
+                PacketHandler.sendError(player, "Warehouse nicht gefunden!");
                 return;
             }
 
@@ -68,7 +59,7 @@ public class AddItemToSlotPacket {
             Item item = BuiltInRegistries.ITEM.get(itemLoc);
 
             if (item == null || item == net.minecraft.world.item.Items.AIR) {
-                player.sendSystemMessage(Component.literal("§cUngültiges Item: " + msg.itemId));
+                PacketHandler.sendError(player, "Ungültiges Item: " + msg.itemId);
                 return;
             }
 
@@ -84,7 +75,7 @@ public class AddItemToSlotPacket {
             }
 
             if (emptySlotIndex == -1) {
-                player.sendSystemMessage(Component.literal("§cKein leerer Slot verfügbar!"));
+                PacketHandler.sendError(player, "Kein leerer Slot verfügbar!");
                 return;
             }
 
@@ -105,15 +96,9 @@ public class AddItemToSlotPacket {
                         .append(Component.literal("\n§7Status: §eLager (Stock-basiert)"))
                 );
             } else {
-                player.sendSystemMessage(
-                    Component.literal("§a✓ Item zum Warehouse hinzugefügt!")
-                        .append(Component.literal("\n§7Item: §e" + item.getDescription().getString()))
-                        .append(Component.literal("\n§7Slot: §e#" + emptySlotIndex))
-                        .append(Component.literal("\n§cWarnung: Kein NPC-Shop aktualisiert!"))
-                );
+                PacketHandler.sendWarning(player, "Item zum Warehouse hinzugefügt, aber kein NPC-Shop aktualisiert!");
             }
         });
-        ctx.get().setPacketHandled(true);
     }
 
     /**
