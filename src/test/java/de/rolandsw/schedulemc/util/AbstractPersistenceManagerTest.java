@@ -100,7 +100,7 @@ class AbstractPersistenceManagerTest {
 
     @Test
     @DisplayName("Should only save when dirty flag is set")
-    void testSaveIfNeeded() throws IOException {
+    void testSaveIfNeeded() throws IOException, InterruptedException {
         // Arrange
         manager.data.put("key", "value");
         manager.markDirty();
