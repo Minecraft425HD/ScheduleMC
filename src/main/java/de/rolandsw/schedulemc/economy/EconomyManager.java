@@ -23,11 +23,27 @@ public class EconomyManager {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static EconomyManager instance;
     private static final Map<UUID, Double> balances = new ConcurrentHashMap<>();
-    private static final File file = new File("config/plotmod_economy.json");
+    private static File file = new File("config/plotmod_economy.json");
     private static final Gson gson = GsonHelper.get();
     private static boolean needsSave = false;
     private static boolean isHealthy = true;
     private static String lastError = null;
+
+    /**
+     * Set the file location for economy data. Package-private for testing.
+     * @param newFile the new file location
+     */
+    static void setFile(File newFile) {
+        file = newFile;
+    }
+
+    /**
+     * Get the current file location. Package-private for testing.
+     * @return the current file location
+     */
+    static File getFile() {
+        return file;
+    }
 
     @Nullable
     private MinecraftServer server;

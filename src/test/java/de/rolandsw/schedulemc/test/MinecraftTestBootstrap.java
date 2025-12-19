@@ -1,45 +1,49 @@
 package de.rolandsw.schedulemc.test;
 
-import net.minecraft.SharedConstants;
-import net.minecraft.server.Bootstrap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Utility class to bootstrap Minecraft for unit tests.
+ * Utility class to configure Mockito for testing Minecraft classes.
  *
- * This is necessary because Minecraft classes require the Bootstrap to be called
- * before they can be instantiated or mocked. Without this, you'll get errors like:
- * "Not bootstrapped (called from registry ResourceKey[minecraft:root / minecraft:root])"
+ * This class ensures that Mockito is properly configured to mock Minecraft classes
+ * without requiring full Minecraft Bootstrap initialization.
+ *
+ * Note: With Mockito's inline mock maker (configured in mockito-extensions),
+ * we can mock final classes and methods without bootstrapping Minecraft.
  */
 public class MinecraftTestBootstrap {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MinecraftTestBootstrap.class);
-    private static boolean bootstrapped = false;
+    private static boolean initialized = false;
 
     /**
-     * Initialize Minecraft bootstrap for testing.
+     * Initialize test environment for Minecraft classes.
      * This method is idempotent - it can be called multiple times safely.
+     *
+     * Currently this is a no-op, as Mockito's inline mock maker handles
+     * mocking Minecraft classes automatically. This method exists to maintain
+     * API compatibility and for potential future initialization needs.
      */
     public static synchronized void init() {
-        if (!bootstrapped) {
+        if (!initialized) {
             try {
-                SharedConstants.tryDetectVersion();
-                Bootstrap.bootStrap();
-                bootstrapped = true;
-                LOGGER.info("Minecraft Bootstrap initialized for testing");
+                // Mockito inline mock maker handles everything automatically
+                // No need to bootstrap Minecraft for unit tests
+                initialized = true;
+                LOGGER.debug("Test environment initialized for Minecraft classes");
             } catch (Exception e) {
-                LOGGER.error("Failed to bootstrap Minecraft for tests", e);
-                throw new RuntimeException("Failed to bootstrap Minecraft", e);
+                LOGGER.error("Failed to initialize test environment", e);
+                throw new RuntimeException("Failed to initialize test environment", e);
             }
         }
     }
 
     /**
-     * Check if Minecraft has been bootstrapped.
-     * @return true if bootstrapped, false otherwise
+     * Check if test environment has been initialized.
+     * @return true if initialized, false otherwise
      */
     public static boolean isBootstrapped() {
-        return bootstrapped;
+        return initialized;
     }
 }
