@@ -12,7 +12,7 @@ import de.rolandsw.schedulemc.region.PlotManager;
 import de.rolandsw.schedulemc.region.PlotRegion;
 import de.rolandsw.schedulemc.region.PlotType;
 import de.rolandsw.schedulemc.region.blocks.PlotBlocks;
-import de.rolandsw.schedulemc.util.CommandExecutor;
+import de.rolandsw.schedulemc.commands.CommandExecutor;
 import de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;

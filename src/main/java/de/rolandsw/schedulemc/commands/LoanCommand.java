@@ -5,7 +5,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import de.rolandsw.schedulemc.economy.Loan;
 import de.rolandsw.schedulemc.economy.LoanManager;
-import de.rolandsw.schedulemc.util.CommandExecutor;
+import de.rolandsw.schedulemc.commands.CommandExecutor;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;

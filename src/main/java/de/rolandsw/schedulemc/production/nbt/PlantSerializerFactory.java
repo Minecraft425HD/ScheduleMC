@@ -17,10 +17,11 @@ public class PlantSerializerFactory {
 
     static {
         SERIALIZERS.add(new TobaccoPlantSerializer());
-        SERIALIZERS.add(new CannabisPlantSerializer());
-        SERIALIZERS.add(new CocaPlantSerializer());
-        SERIALIZERS.add(new PoppyPlantSerializer());
-        SERIALIZERS.add(new MushroomPlantSerializer());
+        // TODO: Aktivieren wenn implementiert
+        // SERIALIZERS.add(new CannabisPlantSerializer());
+        // SERIALIZERS.add(new CocaPlantSerializer());
+        // SERIALIZERS.add(new PoppyPlantSerializer());
+        // SERIALIZERS.add(new MushroomPlantSerializer());
     }
 
     /**

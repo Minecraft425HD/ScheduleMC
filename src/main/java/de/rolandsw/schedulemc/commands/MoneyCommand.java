@@ -10,7 +10,7 @@ import de.rolandsw.schedulemc.economy.RateLimiter;
 import de.rolandsw.schedulemc.economy.Transaction;
 import de.rolandsw.schedulemc.economy.TransactionHistory;
 import de.rolandsw.schedulemc.economy.TransactionType;
-import de.rolandsw.schedulemc.util.CommandExecutor;
+import de.rolandsw.schedulemc.commands.CommandExecutor;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
