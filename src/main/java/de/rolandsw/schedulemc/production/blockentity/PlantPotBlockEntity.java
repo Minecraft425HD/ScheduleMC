@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.production.blockentity;
 
+import de.rolandsw.schedulemc.cannabis.CannabisQuality;
 import de.rolandsw.schedulemc.cannabis.CannabisStrain;
 import de.rolandsw.schedulemc.cannabis.blocks.CannabisPlantBlock;
 import de.rolandsw.schedulemc.coca.CocaType;
@@ -10,7 +11,6 @@ import de.rolandsw.schedulemc.poppy.PoppyType;
 import de.rolandsw.schedulemc.poppy.blocks.PoppyPlantBlock;
 import de.rolandsw.schedulemc.production.core.PotType;
 import de.rolandsw.schedulemc.production.data.PlantPotData;
-import de.rolandsw.schedulemc.tobacco.CannabisQuality;
 import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
 import de.rolandsw.schedulemc.tobacco.TobaccoType;
 import de.rolandsw.schedulemc.tobacco.blockentity.TobaccoBlockEntities;
