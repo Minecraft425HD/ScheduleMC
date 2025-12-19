@@ -1,9 +1,12 @@
 package de.rolandsw.schedulemc.poppy;
 
+import de.rolandsw.schedulemc.production.core.ProductionType;
+import de.rolandsw.schedulemc.production.core.ProductionQuality;
+
 /**
  * Mohn-Sorten mit unterschiedlichen Eigenschaften
  */
-public enum PoppyType {
+public enum PoppyType implements ProductionType {
     AFGHANISCH("Afghanisch", "§4", 50.0, 160, 1.2, 25, 1.5),  // Höchste Potenz, langsam
     TUERKISCH("Türkisch", "§6", 35.0, 120, 1.0, 20, 1.0),     // Ausgewogen
     INDISCH("Indisch", "§5", 20.0, 80, 0.8, 15, 0.8);         // Schnell, niedrige Potenz
@@ -57,5 +60,16 @@ public enum PoppyType {
 
     public double getPotencyMultiplier() {
         return potencyMultiplier;
+    }
+
+    @Override
+    public double getBasePrice() {
+        return seedPrice / 10.0;
+    }
+
+    @Override
+    public double calculatePrice(ProductionQuality quality, int amount) {
+        double basePrice = seedPrice * 3.5;
+        return basePrice * potencyMultiplier * quality.getPriceMultiplier() * amount;
     }
 }

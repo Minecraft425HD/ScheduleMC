@@ -1,9 +1,11 @@
 package de.rolandsw.schedulemc.cannabis;
 
+import de.rolandsw.schedulemc.production.core.ProductionQuality;
+
 /**
  * Cannabis-Qualitätsstufen
  */
-public enum CannabisQuality {
+public enum CannabisQuality implements ProductionQuality {
     SCHWAG("Schwag", "§8", 0, 0.5),              // Schlechte Qualität, viele Samen
     MIDS("Mids", "§7", 1, 1.0),                  // Durchschnitt
     DANK("Dank", "§a", 2, 2.0),                  // Gute Qualität
@@ -28,6 +30,18 @@ public enum CannabisQuality {
     public int getLevel() { return level; }
     public double getPriceMultiplier() { return priceMultiplier; }
 
+    @Override
+    public String getDescription() {
+        return switch (this) {
+            case SCHWAG -> "Schlechte Qualität mit Samen";
+            case MIDS -> "Durchschnittliche Qualität";
+            case DANK -> "Gute Qualität";
+            case TOP_SHELF -> "Premium Qualität";
+            case EXOTIC -> "Beste Qualität";
+        };
+    }
+
+    @Override
     public CannabisQuality upgrade() {
         return switch (this) {
             case SCHWAG -> MIDS;
@@ -37,6 +51,7 @@ public enum CannabisQuality {
         };
     }
 
+    @Override
     public CannabisQuality downgrade() {
         return switch (this) {
             case SCHWAG, MIDS -> SCHWAG;

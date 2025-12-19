@@ -1,5 +1,7 @@
 package de.rolandsw.schedulemc.tobacco.blockentity;
 
+import de.rolandsw.schedulemc.production.core.DrugType;
+import de.rolandsw.schedulemc.production.items.PackagedDrugItem;
 import de.rolandsw.schedulemc.tobacco.items.*;
 import de.rolandsw.schedulemc.tobacco.menu.MediumPackagingTableMenu;
 import net.minecraft.core.BlockPos;
@@ -41,12 +43,14 @@ public class MediumPackagingTableBlockEntity extends BlockEntity implements Menu
 
         @Override
         public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+            // Slot 0: Verpackbare Drug-Items (fermentiert/verarbeitet)
             if (slot == 0) {
-                return stack.getItem() instanceof FermentedTobaccoLeafItem;
+                return PackagedDrugItem.isPackageableItem(stack);
             }
+            // Slots 1-10: Schachteln (leer oder voll)
             if (slot >= 1 && slot <= 10) {
                 return stack.getItem() instanceof PackagingBoxItem ||
-                       (stack.getItem() instanceof PackagedTobaccoItem && PackagedTobaccoItem.getWeight(stack) == 10);
+                       (stack.getItem() instanceof PackagedDrugItem && PackagedDrugItem.getWeight(stack) == 10);
             }
             return false;
         }
@@ -127,7 +131,7 @@ public class MediumPackagingTableBlockEntity extends BlockEntity implements Menu
                 break;
             }
 
-            ItemStack packagedTobacco = PackagedTobaccoItem.create(type, quality, 10, currentDay);
+            ItemStack packagedTobacco = PackagedDrugItem.create(DrugType.TOBACCO, 10, quality, type, currentDay);
             itemHandler.setStackInSlot(slot, packagedTobacco);
             created++;
         }
@@ -151,8 +155,8 @@ public class MediumPackagingTableBlockEntity extends BlockEntity implements Menu
 
         for (int i = 1; i <= 10; i++) {
             ItemStack stack = itemHandler.getStackInSlot(i);
-            if (stack.getItem() instanceof PackagedTobaccoItem) {
-                int weight = PackagedTobaccoItem.getWeight(stack);
+            if (stack.getItem() instanceof PackagedDrugItem) {
+                int weight = PackagedDrugItem.getWeight(stack);
                 totalWeight += weight;
 
                 // Gib leere Schachtel zurück

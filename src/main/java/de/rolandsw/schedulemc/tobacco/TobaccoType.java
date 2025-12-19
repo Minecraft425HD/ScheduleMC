@@ -1,9 +1,12 @@
 package de.rolandsw.schedulemc.tobacco;
 
+import de.rolandsw.schedulemc.production.core.ProductionType;
+import de.rolandsw.schedulemc.production.core.ProductionQuality;
+
 /**
  * Tabaksorten mit unterschiedlichen Eigenschaften
  */
-public enum TobaccoType {
+public enum TobaccoType implements ProductionType {
     VIRGINIA("Virginia", "§e", 10.0, 100, 0.8, 20),
     BURLEY("Burley", "§6", 15.0, 120, 0.9, 25),
     ORIENTAL("Oriental", "§d", 20.0, 140, 1.0, 30),
@@ -59,6 +62,15 @@ public enum TobaccoType {
      */
     public double calculatePrice(TobaccoQuality quality, int amount) {
         double basePrice = seedPrice * 2.0; // Basis = 2x Saatgutpreis
+        return basePrice * quality.getPriceMultiplier() * amount;
+    }
+
+    /**
+     * Implementiert ProductionType.calculatePrice()
+     */
+    @Override
+    public double calculatePrice(ProductionQuality quality, int amount) {
+        double basePrice = seedPrice * 2.0;
         return basePrice * quality.getPriceMultiplier() * amount;
     }
 

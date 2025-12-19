@@ -12,9 +12,17 @@ import de.rolandsw.schedulemc.lsd.blocks.LSDBlocks;
 import de.rolandsw.schedulemc.mdma.items.MDMAItems;
 import de.rolandsw.schedulemc.mdma.blocks.MDMABlocks;
 import de.rolandsw.schedulemc.cannabis.items.CannabisItems;
+import de.rolandsw.schedulemc.cannabis.items.CannabisSeedItem;
 import de.rolandsw.schedulemc.cannabis.blocks.CannabisBlocks;
+import de.rolandsw.schedulemc.cannabis.CannabisStrain;
 import de.rolandsw.schedulemc.coca.items.CocaItems;
 import de.rolandsw.schedulemc.coca.blocks.CocaBlocks;
+import de.rolandsw.schedulemc.poppy.items.PoppyItems;
+import de.rolandsw.schedulemc.poppy.blocks.PoppyBlocks;
+import de.rolandsw.schedulemc.mushroom.items.MushroomItems;
+import de.rolandsw.schedulemc.mushroom.blocks.MushroomBlocks;
+import de.rolandsw.schedulemc.meth.items.MethItems;
+import de.rolandsw.schedulemc.meth.blocks.MethBlocks;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -116,7 +124,6 @@ public class ModCreativeTabs {
                 output.accept(TobaccoItems.PACKAGING_BAG.get());
                 output.accept(TobaccoItems.PACKAGING_JAR.get());
                 output.accept(TobaccoItems.PACKAGING_BOX.get());
-                output.accept(TobaccoItems.PACKAGED_TOBACCO.get());
 
                 // ═══════════════════════════════════════════════════════════
                 // TÖPFE
@@ -203,7 +210,10 @@ public class ModCreativeTabs {
                 // ═══════════════════════════════════════════════════════════
                 // CANNABIS ITEMS
                 // ═══════════════════════════════════════════════════════════
-                output.accept(CannabisItems.CANNABIS_SEED.get());
+                output.accept(CannabisSeedItem.create(CannabisStrain.INDICA, 1));
+                output.accept(CannabisSeedItem.create(CannabisStrain.SATIVA, 1));
+                output.accept(CannabisSeedItem.create(CannabisStrain.HYBRID, 1));
+                output.accept(CannabisSeedItem.create(CannabisStrain.AUTOFLOWER, 1));
                 output.accept(CannabisItems.FRESH_BUD.get());
                 output.accept(CannabisItems.DRIED_BUD.get());
                 output.accept(CannabisItems.TRIMMED_BUD.get());
@@ -224,11 +234,98 @@ public class ModCreativeTabs {
                 output.accept(CannabisBlocks.OEL_EXTRAKTOR_ITEM.get());
 
                 // ═══════════════════════════════════════════════════════════
-                // CRACK-KOKAIN (Coca-Erweiterung)
+                // COCA ITEMS
                 // ═══════════════════════════════════════════════════════════
+                output.accept(CocaItems.BOLIVIANISCH_SEEDS.get());
+                output.accept(CocaItems.KOLUMBIANISCH_SEEDS.get());
+                output.accept(CocaItems.FRESH_BOLIVIANISCH_LEAF.get());
+                output.accept(CocaItems.FRESH_KOLUMBIANISCH_LEAF.get());
+                output.accept(CocaItems.COCA_PASTE.get());
+                output.accept(CocaItems.COCAINE.get());
+                output.accept(CocaItems.DIESEL_CANISTER.get());
                 output.accept(CocaItems.CRACK_ROCK.get());
                 output.accept(CocaItems.BACKPULVER.get());
+
+                // ═══════════════════════════════════════════════════════════
+                // COCA BLOCKS
+                // ═══════════════════════════════════════════════════════════
+                output.accept(CocaBlocks.SMALL_EXTRACTION_VAT.get());
+                output.accept(CocaBlocks.MEDIUM_EXTRACTION_VAT.get());
+                output.accept(CocaBlocks.BIG_EXTRACTION_VAT.get());
+                output.accept(CocaBlocks.SMALL_REFINERY.get());
+                output.accept(CocaBlocks.MEDIUM_REFINERY.get());
+                output.accept(CocaBlocks.BIG_REFINERY.get());
                 output.accept(CocaBlocks.CRACK_KOCHER.get());
+
+                // ═══════════════════════════════════════════════════════════
+                // POPPY ITEMS
+                // ═══════════════════════════════════════════════════════════
+                output.accept(PoppyItems.AFGHANISCH_SEEDS.get());
+                output.accept(PoppyItems.TUERKISCH_SEEDS.get());
+                output.accept(PoppyItems.INDISCH_SEEDS.get());
+                output.accept(PoppyItems.POPPY_POD.get());
+                output.accept(PoppyItems.RAW_OPIUM.get());
+                output.accept(PoppyItems.MORPHINE.get());
+                output.accept(PoppyItems.HEROIN.get());
+                output.accept(PoppyItems.SCORING_KNIFE.get());
+
+                // ═══════════════════════════════════════════════════════════
+                // POPPY BLOCKS
+                // ═══════════════════════════════════════════════════════════
+                output.accept(PoppyBlocks.RITZMASCHINE.get());
+                output.accept(PoppyBlocks.OPIUM_PRESSE.get());
+                output.accept(PoppyBlocks.KOCHSTATION.get());
+                output.accept(PoppyBlocks.HEROIN_RAFFINERIE.get());
+
+                // ═══════════════════════════════════════════════════════════
+                // MUSHROOM ITEMS
+                // ═══════════════════════════════════════════════════════════
+                output.accept(MushroomItems.MIST_BAG_SMALL.get());
+                output.accept(MushroomItems.MIST_BAG_MEDIUM.get());
+                output.accept(MushroomItems.MIST_BAG_LARGE.get());
+                output.accept(MushroomItems.SPORE_SYRINGE_CUBENSIS.get());
+                output.accept(MushroomItems.SPORE_SYRINGE_AZURESCENS.get());
+                output.accept(MushroomItems.SPORE_SYRINGE_MEXICANA.get());
+                output.accept(MushroomItems.FRESH_CUBENSIS.get());
+                output.accept(MushroomItems.FRESH_AZURESCENS.get());
+                output.accept(MushroomItems.FRESH_MEXICANA.get());
+                output.accept(MushroomItems.DRIED_CUBENSIS.get());
+                output.accept(MushroomItems.DRIED_AZURESCENS.get());
+                output.accept(MushroomItems.DRIED_MEXICANA.get());
+
+                // ═══════════════════════════════════════════════════════════
+                // MUSHROOM BLOCKS
+                // ═══════════════════════════════════════════════════════════
+                output.accept(MushroomBlocks.KLIMALAMPE_SMALL_ITEM.get());
+                output.accept(MushroomBlocks.KLIMALAMPE_MEDIUM_ITEM.get());
+                output.accept(MushroomBlocks.KLIMALAMPE_LARGE_ITEM.get());
+                output.accept(MushroomBlocks.WASSERTANK_ITEM.get());
+
+                // ═══════════════════════════════════════════════════════════
+                // METH ITEMS
+                // ═══════════════════════════════════════════════════════════
+                output.accept(MethItems.EPHEDRIN.get());
+                output.accept(MethItems.PSEUDOEPHEDRIN.get());
+                output.accept(MethItems.ROTER_PHOSPHOR.get());
+                output.accept(MethItems.JOD.get());
+                output.accept(MethItems.METH_PASTE.get());
+                output.accept(MethItems.ROH_METH.get());
+                output.accept(MethItems.KRISTALL_METH.get());
+                output.accept(MethItems.METH.get());
+
+                // ═══════════════════════════════════════════════════════════
+                // UNIVERSELLES PACKAGING-SYSTEM (Alle Drogen)
+                // ═══════════════════════════════════════════════════════════
+                // Zeige ein Beispiel für jeden DrugType (1g)
+                output.accept(ModItems.PACKAGED_DRUG.get());
+
+                // ═══════════════════════════════════════════════════════════
+                // METH BLOCKS
+                // ═══════════════════════════════════════════════════════════
+                output.accept(MethBlocks.CHEMIE_MIXER.get());
+                output.accept(MethBlocks.REDUKTIONSKESSEL.get());
+                output.accept(MethBlocks.KRISTALLISATOR.get());
+                output.accept(MethBlocks.VAKUUM_TROCKNER.get());
             })
             .build()
     );

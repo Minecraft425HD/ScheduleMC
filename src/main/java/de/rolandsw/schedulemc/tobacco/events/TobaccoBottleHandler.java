@@ -1,6 +1,6 @@
 package de.rolandsw.schedulemc.tobacco.events;
 
-import de.rolandsw.schedulemc.tobacco.blockentity.TobaccoPotBlockEntity;
+import de.rolandsw.schedulemc.production.blockentity.PlantPotBlockEntity;
 import de.rolandsw.schedulemc.tobacco.items.TobaccoBottleItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -35,7 +35,7 @@ public class TobaccoBottleHandler {
         
         // Prüfen ob es ein Topf ist
         BlockEntity be = level.getBlockEntity(pos);
-        if (!(be instanceof TobaccoPotBlockEntity potBE)) {
+        if (!(be instanceof PlantPotBlockEntity potBE)) {
             return;
         }
         

@@ -1,11 +1,13 @@
 package de.rolandsw.schedulemc.coca;
 
+import de.rolandsw.schedulemc.production.core.ProductionType;
+import de.rolandsw.schedulemc.production.core.ProductionQuality;
 import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
 
 /**
  * Koka-Sorten mit unterschiedlichen Eigenschaften
  */
-public enum CocaType {
+public enum CocaType implements ProductionType {
     BOLIVIANISCH("Bolivianisch", "§a", 20.0, 100, 0.8, 20),
     KOLUMBIANISCH("Kolumbianisch", "§2", 35.0, 140, 1.0, 30);
 
@@ -65,9 +67,16 @@ public enum CocaType {
     /**
      * Gibt den Basispreis pro Gramm für verpacktes Kokain zurück
      */
+    @Override
     public double getBasePrice() {
         // Bolivianisch: 20.0 / 10 = 2.00€/g
         // Kolumbianisch: 35.0 / 10 = 3.50€/g
         return seedPrice / 10.0;
+    }
+
+    @Override
+    public double calculatePrice(ProductionQuality quality, int amount) {
+        double basePrice = seedPrice * 3.0;
+        return basePrice * quality.getPriceMultiplier() * amount;
     }
 }

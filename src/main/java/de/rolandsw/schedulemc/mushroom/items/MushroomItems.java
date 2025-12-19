@@ -54,16 +54,4 @@ public class MushroomItems {
             () -> new DriedMushroomItem(MushroomType.AZURESCENS));
     public static final RegistryObject<Item> DRIED_MEXICANA = ITEMS.register("dried_mexicana",
             () -> new DriedMushroomItem(MushroomType.MEXICANA));
-
-    // ═══════════════════════════════════════════════════════════
-    // VERPACKTE PILZE (verschiedene Größen)
-    // ═══════════════════════════════════════════════════════════
-    public static final RegistryObject<Item> PACKAGED_1G = ITEMS.register("packaged_mushroom_1g",
-            () -> new PackagedMushroomItem(1));
-    public static final RegistryObject<Item> PACKAGED_3_5G = ITEMS.register("packaged_mushroom_3_5g",
-            () -> new PackagedMushroomItem(4)); // 3.5g = "Eighth"
-    public static final RegistryObject<Item> PACKAGED_7G = ITEMS.register("packaged_mushroom_7g",
-            () -> new PackagedMushroomItem(7));
-    public static final RegistryObject<Item> PACKAGED_14G = ITEMS.register("packaged_mushroom_14g",
-            () -> new PackagedMushroomItem(14));
 }

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "schedulemc:block/cannabis_autoflower_plant_stage7"
+  }
+}

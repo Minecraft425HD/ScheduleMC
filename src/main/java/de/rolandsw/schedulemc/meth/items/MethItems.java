@@ -49,23 +49,4 @@ public class MethItems {
 
     public static final RegistryObject<Item> METH =
             ITEMS.register("meth", MethItem::new);
-
-    // ═══════════════════════════════════════════════════════════
-    // VERPACKTES METH (für Verkauf)
-    // ═══════════════════════════════════════════════════════════
-
-    public static final RegistryObject<Item> PACKAGED_METH_1G =
-            ITEMS.register("packaged_meth_1g", () -> new PackagedMethItem(1));
-
-    public static final RegistryObject<Item> PACKAGED_METH_3_5G =
-            ITEMS.register("packaged_meth_3_5g", () -> new PackagedMethItem(3)); // 3.5g abgerundet
-
-    public static final RegistryObject<Item> PACKAGED_METH_7G =
-            ITEMS.register("packaged_meth_7g", () -> new PackagedMethItem(7));
-
-    public static final RegistryObject<Item> PACKAGED_METH_14G =
-            ITEMS.register("packaged_meth_14g", () -> new PackagedMethItem(14));
-
-    public static final RegistryObject<Item> PACKAGED_METH_28G =
-            ITEMS.register("packaged_meth_28g", () -> new PackagedMethItem(28)); // 1 Unze
 }

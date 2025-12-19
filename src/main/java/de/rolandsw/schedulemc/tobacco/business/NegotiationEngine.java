@@ -1,9 +1,10 @@
 package de.rolandsw.schedulemc.tobacco.business;
 
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
+import de.rolandsw.schedulemc.production.core.DrugType;
+import de.rolandsw.schedulemc.production.items.PackagedDrugItem;
 import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
 import de.rolandsw.schedulemc.tobacco.TobaccoType;
-import de.rolandsw.schedulemc.tobacco.items.PackagedTobaccoItem;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 
@@ -122,9 +123,14 @@ public class NegotiationEngine {
                                                 ItemStack tobaccoItem, double offeredPrice) {
         NPCBusinessMetrics metrics = new NPCBusinessMetrics(npc);
 
-        TobaccoType type = PackagedTobaccoItem.getType(tobaccoItem);
-        TobaccoQuality quality = PackagedTobaccoItem.getQuality(tobaccoItem);
-        int weight = PackagedTobaccoItem.getWeight(tobaccoItem);
+        // Parse from PackagedDrugItem
+        String variantStr = PackagedDrugItem.getVariant(tobaccoItem);
+        TobaccoType type = variantStr != null ? TobaccoType.valueOf(variantStr.split("\\.")[1]) : TobaccoType.VIRGINIA;
+
+        String qualityStr = PackagedDrugItem.getQuality(tobaccoItem);
+        TobaccoQuality quality = qualityStr != null ? TobaccoQuality.valueOf(qualityStr.split("\\.")[1]) : TobaccoQuality.GUT;
+
+        int weight = PackagedDrugItem.getWeight(tobaccoItem);
 
         NegotiationEngine engine = new NegotiationEngine(type, quality, weight, metrics, player.getStringUUID());
         return engine.calculateResponse(offeredPrice, 1);

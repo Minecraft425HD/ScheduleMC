@@ -226,7 +226,6 @@ public class PriceManager {
     private static List<Item> getCocaItems() {
         return List.of(
                 CocaItems.COCAINE.get(),
-                CocaItems.PACKAGED_COCAINE.get(),
                 CocaItems.CRACK_ROCK.get(),
                 CocaItems.COCA_PASTE.get()
         );
@@ -235,12 +234,7 @@ public class PriceManager {
     private static List<Item> getMethItems() {
         return List.of(
                 MethItems.METH.get(),
-                MethItems.KRISTALL_METH.get(),
-                MethItems.PACKAGED_METH_1G.get(),
-                MethItems.PACKAGED_METH_3_5G.get(),
-                MethItems.PACKAGED_METH_7G.get(),
-                MethItems.PACKAGED_METH_14G.get(),
-                MethItems.PACKAGED_METH_28G.get()
+                MethItems.KRISTALL_METH.get()
         );
     }
 
@@ -267,11 +261,6 @@ public class PriceManager {
     private static List<Item> getPlantBasedDrugs() {
         List<Item> items = new ArrayList<>();
         items.addAll(getCannabisItems());
-        items.add(TobaccoItems.PACKAGED_TOBACCO.get());
-        items.add(PoppyItems.PACKAGED_HEROIN_50G.get());
-        items.add(PoppyItems.PACKAGED_HEROIN_100G.get());
-        items.add(MushroomItems.PACKAGED_1G.get());
-        items.add(MushroomItems.PACKAGED_3_5G.get());
         items.addAll(getCocaItems());
         return items;
     }
@@ -291,11 +280,6 @@ public class PriceManager {
         items.add(MDMAItems.ECSTASY_PILL.get());
         items.add(MDMAItems.MDMA_KRISTALL.get());
         items.add(LSDItems.BLOTTER.get());
-        items.add(TobaccoItems.PACKAGED_TOBACCO.get());
-        items.add(PoppyItems.PACKAGED_HEROIN_50G.get());
-        items.add(PoppyItems.PACKAGED_HEROIN_100G.get());
-        items.add(MushroomItems.PACKAGED_1G.get());
-        items.add(MushroomItems.PACKAGED_3_5G.get());
         return items;
     }
 

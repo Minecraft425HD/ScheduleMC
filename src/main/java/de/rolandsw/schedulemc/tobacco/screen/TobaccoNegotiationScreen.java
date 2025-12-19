@@ -1,10 +1,13 @@
 package de.rolandsw.schedulemc.tobacco.screen;
 
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
+import de.rolandsw.schedulemc.production.core.DrugType;
+import de.rolandsw.schedulemc.production.items.PackagedDrugItem;
+import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
+import de.rolandsw.schedulemc.tobacco.TobaccoType;
 import de.rolandsw.schedulemc.tobacco.business.DemandLevel;
 import de.rolandsw.schedulemc.tobacco.business.NPCBusinessMetrics;
 import de.rolandsw.schedulemc.tobacco.business.PriceCalculator;
-import de.rolandsw.schedulemc.tobacco.items.PackagedTobaccoItem;
 import de.rolandsw.schedulemc.tobacco.menu.TobaccoNegotiationMenu;
 import de.rolandsw.schedulemc.tobacco.network.ModNetworking;
 import de.rolandsw.schedulemc.tobacco.network.NegotiationPacket;
@@ -87,9 +90,10 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
 
     private void selectSlot(int slot) {
         ItemStack stack = minecraft.player.getInventory().getItem(slot);
-        if (stack.getItem() instanceof PackagedTobaccoItem) {
+        if (stack.getItem() instanceof PackagedDrugItem &&
+            PackagedDrugItem.getDrugType(stack) == DrugType.TOBACCO) {
             selectedSlot = slot;
-            maxGramsAvailable = PackagedTobaccoItem.getWeight(stack);
+            maxGramsAvailable = PackagedDrugItem.getWeight(stack);
             gramsInput.setValue(String.valueOf(Math.min(desiredGrams > 0 ? desiredGrams : 1, maxGramsAvailable)));
             calculateFairPrice();
             calculateDealProbability();
@@ -130,12 +134,20 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
         if (npc == null || minecraft.player == null) return;
 
         ItemStack stack = minecraft.player.getInventory().getItem(selectedSlot);
-        if (!(stack.getItem() instanceof PackagedTobaccoItem)) return;
+        if (!(stack.getItem() instanceof PackagedDrugItem) ||
+            PackagedDrugItem.getDrugType(stack) != DrugType.TOBACCO) return;
+
+        // Parse Type und Quality aus PackagedDrugItem
+        String variantStr = PackagedDrugItem.getVariant(stack);
+        TobaccoType type = variantStr != null ? TobaccoType.valueOf(variantStr.split("\\.")[1]) : TobaccoType.VIRGINIA;
+
+        String qualityStr = PackagedDrugItem.getQuality(stack);
+        TobaccoQuality quality = qualityStr != null ? TobaccoQuality.valueOf(qualityStr.split("\\.")[1]) : TobaccoQuality.GUT;
 
         fairPrice = PriceCalculator.calculateFairPrice(
-            PackagedTobaccoItem.getType(stack),
-            PackagedTobaccoItem.getQuality(stack),
-            PackagedTobaccoItem.getWeight(stack),
+            type,
+            quality,
+            PackagedDrugItem.getWeight(stack),
             demand,
             reputation,
             satisfaction

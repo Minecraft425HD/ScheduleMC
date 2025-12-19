@@ -1,9 +1,12 @@
 package de.rolandsw.schedulemc.mushroom;
 
+import de.rolandsw.schedulemc.production.core.ProductionType;
+import de.rolandsw.schedulemc.production.core.ProductionQuality;
+
 /**
  * Pilz-Sorten mit unterschiedlichen Eigenschaften
  */
-public enum MushroomType {
+public enum MushroomType implements ProductionType {
     // Name, Farbe, Preis, Wachstum, Wasser, Ertrag, Potenz, Flushes, MaxLicht(Inkub), MaxLicht(Frucht)
     CUBENSIS("Psilocybe Cubensis", "§6", 30.0, 100, 1.0, 20, 1.0, 4, 4, 7),       // Klassiker, ausgewogen
     AZURESCENS("Psilocybe Azurescens", "§9", 60.0, 180, 1.5, 12, 2.0, 3, 3, 5),   // Höchste Potenz, schwer
@@ -81,5 +84,16 @@ public enum MushroomType {
 
     public String getRegistryName() {
         return name().toLowerCase();
+    }
+
+    @Override
+    public double getBasePrice() {
+        return sporePrice / 10.0;
+    }
+
+    @Override
+    public double calculatePrice(ProductionQuality quality, int amount) {
+        double basePrice = sporePrice * 2.5;
+        return basePrice * potencyMultiplier * quality.getPriceMultiplier() * amount;
     }
 }

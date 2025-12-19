@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.cannabis.blocks;
 
 import de.rolandsw.schedulemc.ScheduleMC;
+import de.rolandsw.schedulemc.cannabis.CannabisStrain;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -20,6 +21,26 @@ public class CannabisBlocks {
 
     public static final DeferredRegister<Item> ITEMS =
             DeferredRegister.create(ForgeRegistries.ITEMS, ScheduleMC.MOD_ID);
+
+    // ═══════════════════════════════════════════════════════════
+    // CANNABIS-PFLANZEN (4 Strains) - KEIN BlockItem!
+    // ═══════════════════════════════════════════════════════════
+
+    public static final RegistryObject<Block> INDICA_PLANT = BLOCKS.register("cannabis_indica_plant",
+            () -> new CannabisPlantBlock(CannabisStrain.INDICA));
+
+    public static final RegistryObject<Block> SATIVA_PLANT = BLOCKS.register("cannabis_sativa_plant",
+            () -> new CannabisPlantBlock(CannabisStrain.SATIVA));
+
+    public static final RegistryObject<Block> HYBRID_PLANT = BLOCKS.register("cannabis_hybrid_plant",
+            () -> new CannabisPlantBlock(CannabisStrain.HYBRID));
+
+    public static final RegistryObject<Block> AUTOFLOWER_PLANT = BLOCKS.register("cannabis_autoflower_plant",
+            () -> new CannabisPlantBlock(CannabisStrain.AUTOFLOWER));
+
+    // ═══════════════════════════════════════════════════════════
+    // VERARBEITUNGS-BLÖCKE
+    // ═══════════════════════════════════════════════════════════
 
     // Trocknungsnetz
     public static final RegistryObject<Block> TROCKNUNGSNETZ = BLOCKS.register("cannabis_trocknungsnetz",

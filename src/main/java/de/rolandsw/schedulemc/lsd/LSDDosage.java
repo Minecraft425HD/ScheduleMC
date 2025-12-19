@@ -1,10 +1,12 @@
 package de.rolandsw.schedulemc.lsd;
 
+import de.rolandsw.schedulemc.production.core.ProductionQuality;
+
 /**
  * LSD-Dosierungsstufen
  * Mikrogramm-basiert für realistische Dosierung
  */
-public enum LSDDosage {
+public enum LSDDosage implements ProductionQuality {
     SCHWACH("Schwach", "§7", 0, 50, 1.0, "Leichte Effekte"),
     STANDARD("Standard", "§a", 1, 100, 2.0, "Normale Dosis"),
     STARK("Stark", "§e", 2, 200, 3.5, "Intensive Erfahrung"),
@@ -56,6 +58,24 @@ public enum LSDDosage {
 
     public String getDosageString() {
         return micrograms + "μg";
+    }
+
+    @Override
+    public LSDDosage upgrade() {
+        return switch (this) {
+            case SCHWACH -> STANDARD;
+            case STANDARD -> STARK;
+            case STARK, BICYCLE_DAY -> BICYCLE_DAY;
+        };
+    }
+
+    @Override
+    public LSDDosage downgrade() {
+        return switch (this) {
+            case SCHWACH, STANDARD -> SCHWACH;
+            case STARK -> STANDARD;
+            case BICYCLE_DAY -> STARK;
+        };
     }
 
     public static LSDDosage fromLevel(int level) {

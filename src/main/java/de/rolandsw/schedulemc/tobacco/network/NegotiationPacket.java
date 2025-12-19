@@ -3,10 +3,13 @@ package de.rolandsw.schedulemc.tobacco.network;
 import de.rolandsw.schedulemc.economy.WalletManager;
 import de.rolandsw.schedulemc.economy.items.CashItem;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
+import de.rolandsw.schedulemc.production.core.DrugType;
+import de.rolandsw.schedulemc.production.items.PackagedDrugItem;
+import de.rolandsw.schedulemc.tobacco.TobaccoType;
+import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
 import de.rolandsw.schedulemc.tobacco.business.NPCBusinessMetrics;
 import de.rolandsw.schedulemc.tobacco.business.NPCResponse;
 import de.rolandsw.schedulemc.tobacco.business.NegotiationEngine;
-import de.rolandsw.schedulemc.tobacco.items.PackagedTobaccoItem;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -57,10 +60,11 @@ public class NegotiationPacket {
             if (!(entity instanceof CustomNPCEntity npc)) return;
 
             ItemStack playerItem = player.getInventory().getItem(playerSlot);
-            if (!(playerItem.getItem() instanceof PackagedTobaccoItem)) return;
+            if (!(playerItem.getItem() instanceof PackagedDrugItem) ||
+                PackagedDrugItem.getDrugType(playerItem) != DrugType.TOBACCO) return;
 
             // Validierung der Gramm-Anzahl
-            int availableGrams = PackagedTobaccoItem.getWeight(playerItem);
+            int availableGrams = PackagedDrugItem.getWeight(playerItem);
             if (offeredGrams <= 0 || offeredGrams > availableGrams) {
                 player.sendSystemMessage(Component.literal("§cUngültige Grammzahl!"));
                 return;
@@ -106,12 +110,22 @@ public class NegotiationPacket {
                 double price = offeredPrice;
                 long currentDay = player.level().getDayTime() / 24000;
 
+                // Parse Type und Quality aus PackagedDrugItem
+                String variantStr = PackagedDrugItem.getVariant(playerItem);
+                TobaccoType type = variantStr != null ? TobaccoType.valueOf(variantStr.split("\\.")[1]) : TobaccoType.VIRGINIA;
+
+                String qualityStr = PackagedDrugItem.getQuality(playerItem);
+                TobaccoQuality quality = qualityStr != null ? TobaccoQuality.valueOf(qualityStr.split("\\.")[1]) : TobaccoQuality.GUT;
+
+                long packagedDate = PackagedDrugItem.getPackageDate(playerItem);
+
                 // Erstelle verkauftes Item (komplettes Päckchen, da offeredGrams == availableGrams)
-                ItemStack soldItem = PackagedTobaccoItem.create(
-                    PackagedTobaccoItem.getType(playerItem),
-                    PackagedTobaccoItem.getQuality(playerItem),
+                ItemStack soldItem = PackagedDrugItem.create(
+                    DrugType.TOBACCO,
                     offeredGrams,
-                    PackagedTobaccoItem.getPackagedDate(playerItem)  // Behalte Original-Datum
+                    quality,
+                    type,
+                    packagedDate  // Behalte Original-Datum
                 );
 
                 // Entferne das komplette Päckchen aus dem Inventar
@@ -145,8 +159,8 @@ public class NegotiationPacket {
                 // Metriken aktualisieren (mit den tatsächlich verkauften Gramm)
                 metrics.recordPurchase(
                     player.getStringUUID(),
-                    PackagedTobaccoItem.getType(soldItem),
-                    PackagedTobaccoItem.getQuality(soldItem),
+                    type,
+                    quality,
                     offeredGrams,  // Die tatsächlich verkauften Gramm
                     price,
                     player.level().getDayTime() / 24000
