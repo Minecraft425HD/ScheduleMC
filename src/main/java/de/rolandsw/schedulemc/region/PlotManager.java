@@ -37,6 +37,9 @@ public class PlotManager {
     // Spatial Index für schnelle Lookups
     private static final PlotSpatialIndex spatialIndex = new PlotSpatialIndex();
 
+    // Plot-Cache für Performance-Optimierung
+    private static final PlotCache plotCache = new PlotCache(1000);
+
     private static boolean dirty = false;
     private static int plotCounter = 1;
     private static boolean isHealthy = true;
@@ -121,24 +124,34 @@ public class PlotManager {
     /**
      * Gibt Plot an einer Position zurück
      *
-     * OPTIMIERT: Nutzt Spatial Index für O(1) statt O(n) Lookup
-     * Mit Fallback zur linearen Suche als Sicherheitsnetz
+     * OPTIMIERT:
+     * 1. LRU-Cache für häufige Positionen (O(1))
+     * 2. Spatial Index für Cache-Misses (O(1))
+     * 3. Fallback zur linearen Suche als Sicherheitsnetz (O(n))
      *
      * @param pos Die Position
      * @return Der Plot oder null
      */
     public static PlotRegion getPlotAt(BlockPos pos) {
-        // Nutze Spatial Index um nur relevante Plots zu prüfen
+        // 1. Cache-Lookup (schnellster Pfad)
+        PlotRegion cached = plotCache.get(pos);
+        if (cached != null) {
+            return cached;
+        }
+
+        // 2. Spatial Index um nur relevante Plots zu prüfen
         Set<String> candidatePlotIds = spatialIndex.getPlotsNear(pos);
 
         for (String plotId : candidatePlotIds) {
             PlotRegion plot = plots.get(plotId);
             if (plot != null && plot.contains(pos)) {
+                // In Cache einfügen für zukünftige Lookups
+                plotCache.put(pos, plot);
                 return plot;
             }
         }
 
-        // Fallback: Wenn Spatial Index nichts findet, prüfe alle Plots
+        // 3. Fallback: Wenn Spatial Index nichts findet, prüfe alle Plots
         // Dies fängt Edge-Cases ab und wird nur selten ausgeführt
         for (PlotRegion plot : plots.values()) {
             if (plot.contains(pos)) {
@@ -146,6 +159,8 @@ public class PlotManager {
                            plot.getPlotId(), pos);
                 // Re-indexiere diesen Plot
                 spatialIndex.addPlot(plot);
+                // In Cache einfügen
+                plotCache.put(pos, plot);
                 return plot;
             }
         }
@@ -234,9 +249,13 @@ public class PlotManager {
     public static void addPlot(PlotRegion plot) {
         plots.put(plot.getPlotId(), plot);
         spatialIndex.addPlot(plot);
+
+        // Invalidiere Cache-Einträge in der Plot-Region
+        plotCache.invalidateRegion(plot.getMinPos(), plot.getMaxPos());
+
         dirty = true;
     }
-    
+
     /**
      * Entfernt einen Plot
      */
@@ -244,6 +263,10 @@ public class PlotManager {
         PlotRegion removed = plots.remove(plotId);
         if (removed != null) {
             spatialIndex.removePlot(plotId);
+
+            // Invalidiere alle Cache-Einträge für diesen Plot
+            plotCache.invalidatePlot(plotId);
+
             dirty = true;
             LOGGER.info("Plot entfernt: {}", plotId);
             return true;
@@ -579,6 +602,7 @@ public class PlotManager {
     public static void clearAllPlots() {
         plots.clear();
         spatialIndex.clear();
+        plotCache.clear();
         dirty = true;
         plotCounter = 1;
         LOGGER.warn("Alle Plots gelöscht!");
@@ -624,11 +648,26 @@ public class PlotManager {
      */
     public static String getHealthInfo() {
         if (isHealthy) {
-            return String.format("§aGESUND§r - %d Plots, %d Backups verfügbar",
-                plots.size(), BackupManager.getBackupCount(PLOTS_FILE));
+            PlotCache.CacheStatistics cacheStats = plotCache.getStatistics();
+            return String.format("§aGESUND§r - %d Plots, %d Backups, Cache: %.1f%% Hit-Rate",
+                plots.size(), BackupManager.getBackupCount(PLOTS_FILE), cacheStats.hitRate);
         } else {
             return String.format("§cUNGESUND§r - Letzter Fehler: %s, %d Plots geladen",
                 lastError != null ? lastError : "Unknown", plots.size());
         }
+    }
+
+    /**
+     * Gibt Cache-Statistiken zurück
+     */
+    public static PlotCache.CacheStatistics getCacheStatistics() {
+        return plotCache.getStatistics();
+    }
+
+    /**
+     * Setzt Cache-Statistiken zurück
+     */
+    public static void resetCacheStatistics() {
+        plotCache.resetStatistics();
     }
 }

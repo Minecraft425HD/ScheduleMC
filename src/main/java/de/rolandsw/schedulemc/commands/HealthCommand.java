@@ -104,6 +104,11 @@ public class HealthCommand {
                 Component.literal("§c⚠ Letzte Fehler: " + PlotManager.getLastError()), false);
         }
 
+        // Cache-Statistiken
+        var cacheStats = PlotManager.getCacheStatistics();
+        context.getSource().sendSuccess(() ->
+            Component.literal(cacheStats.toDisplayString()), false);
+
         // Backup-Info
         File plotFile = new File("config/plotmod_plots.json");
         int backupCount = BackupManager.getBackupCount(plotFile);
