@@ -196,7 +196,7 @@ class EconomyManagerTest {
         double initialBalance = EconomyManager.getBalance(testPlayer1);
 
         // Act
-        EconomyManager.deposit(testPlayer1, 250.0, TransactionType.DEPOSIT, "Test deposit");
+        EconomyManager.deposit(testPlayer1, 250.0, TransactionType.ATM_DEPOSIT, "Test deposit");
 
         // Assert
         assertThat(EconomyManager.getBalance(testPlayer1)).isEqualTo(initialBalance + 250.0);
@@ -260,7 +260,7 @@ class EconomyManagerTest {
         double balanceBeforeWithdraw = EconomyManager.getBalance(testPlayer1);
 
         // Act
-        boolean success = EconomyManager.withdraw(testPlayer1, 200.0, TransactionType.WITHDRAW, "Test withdrawal");
+        boolean success = EconomyManager.withdraw(testPlayer1, 200.0, TransactionType.ATM_WITHDRAW, "Test withdrawal");
 
         // Assert
         assertThat(success).isTrue();
@@ -289,7 +289,7 @@ class EconomyManagerTest {
         EconomyManager.createAccount(testPlayer1);
 
         // Act
-        EconomyManager.setBalance(testPlayer1, 2500.0, TransactionType.ADMIN, "Admin set balance");
+        EconomyManager.setBalance(testPlayer1, 2500.0, TransactionType.ADMIN_SET, "Admin set balance");
 
         // Assert
         assertThat(EconomyManager.getBalance(testPlayer1)).isEqualTo(2500.0);

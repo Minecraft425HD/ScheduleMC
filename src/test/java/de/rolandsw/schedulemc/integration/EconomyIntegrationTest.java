@@ -57,10 +57,10 @@ class EconomyIntegrationTest {
         double startBalance = EconomyManager.getBalance(player1);
 
         // Player receives welcome bonus
-        EconomyManager.deposit(player1, 500.0, TransactionType.DEPOSIT, "Welcome bonus");
+        EconomyManager.deposit(player1, 500.0, TransactionType.ATM_DEPOSIT, "Welcome bonus");
 
         // Player buys something
-        boolean success = EconomyManager.withdraw(player1, 100.0, TransactionType.PURCHASE, "Bought plot");
+        boolean success = EconomyManager.withdraw(player1, 100.0, TransactionType.NPC_PURCHASE, "Bought plot");
 
         // Assert
         assertThat(EconomyManager.hasAccount(player1)).isTrue();
@@ -103,9 +103,9 @@ class EconomyIntegrationTest {
         EconomyManager.createAccount(player2); // Medium player
         EconomyManager.createAccount(player3); // Poor player
 
-        EconomyManager.deposit(player1, 10000.0, TransactionType.ADMIN, "Admin gift");
-        EconomyManager.deposit(player2, 5000.0, TransactionType.DEPOSIT, "Salary");
-        EconomyManager.deposit(player3, 100.0, TransactionType.DEPOSIT, "Start bonus");
+        EconomyManager.deposit(player1, 10000.0, TransactionType.ADMIN_GIVE, "Admin gift");
+        EconomyManager.deposit(player2, 5000.0, TransactionType.ATM_DEPOSIT, "Salary");
+        EconomyManager.deposit(player3, 100.0, TransactionType.ATM_DEPOSIT, "Start bonus");
 
         // Act - Complex transaction chain
         // Player1 buys from Player2
@@ -118,7 +118,7 @@ class EconomyIntegrationTest {
         EconomyManager.transfer(player3, player1, 50.0, "Item purchase");
 
         // Player1 withdraws cash
-        EconomyManager.withdraw(player1, 1000.0, TransactionType.WITHDRAW, "ATM withdrawal");
+        EconomyManager.withdraw(player1, 1000.0, TransactionType.ATM_WITHDRAW, "ATM withdrawal");
 
         // Assert - Verify all balances
         assertThat(EconomyManager.getBalance(player1)).isEqualTo(10000.0 - 500.0 + 50.0 - 1000.0);
@@ -213,13 +213,13 @@ class EconomyIntegrationTest {
         EconomyManager.createAccount(player1);
 
         // Act - Admin sets balance directly
-        EconomyManager.setBalance(player1, 5000.0, TransactionType.ADMIN, "Admin correction");
+        EconomyManager.setBalance(player1, 5000.0, TransactionType.ADMIN_SET, "Admin correction");
 
         // Admin gives bonus
-        EconomyManager.deposit(player1, 1000.0, TransactionType.ADMIN, "Event reward");
+        EconomyManager.deposit(player1, 1000.0, TransactionType.ADMIN_GIVE, "Event reward");
 
         // Admin removes funds (penalty)
-        EconomyManager.withdraw(player1, 500.0, TransactionType.ADMIN, "Rule violation penalty");
+        EconomyManager.withdraw(player1, 500.0, TransactionType.ADMIN_TAKE, "Rule violation penalty");
 
         // Assert
         assertThat(EconomyManager.getBalance(player1)).isEqualTo(5500.0);

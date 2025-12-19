@@ -147,8 +147,9 @@ class EventHelperTest {
         // Arrange
         TickEvent.ServerTickEvent event = mock(TickEvent.ServerTickEvent.class);
         MinecraftServer mockServer = mock(MinecraftServer.class);
-        event.side = LogicalSide.SERVER;
-        event.phase = TickEvent.Phase.END;
+        // Use field access instead of assignment for final fields
+        when(event.side).thenReturn(LogicalSide.SERVER);
+        when(event.phase).thenReturn(TickEvent.Phase.END);
         when(event.getServer()).thenReturn(mockServer);
         boolean[] executed = {false};
 
@@ -167,8 +168,8 @@ class EventHelperTest {
     void testHandleServerTickSkipsWrongPhase() {
         // Arrange
         TickEvent.ServerTickEvent event = mock(TickEvent.ServerTickEvent.class);
-        event.side = LogicalSide.SERVER;
-        event.phase = TickEvent.Phase.START;
+        when(event.side).thenReturn(LogicalSide.SERVER);
+        when(event.phase).thenReturn(TickEvent.Phase.START);
 
         // Act
         EventHelper.handleServerTick(event, TickEvent.Phase.END, server ->
@@ -181,8 +182,8 @@ class EventHelperTest {
     void testHandleServerTickSkipsClientSide() {
         // Arrange
         TickEvent.ServerTickEvent event = mock(TickEvent.ServerTickEvent.class);
-        event.side = LogicalSide.CLIENT;
-        event.phase = TickEvent.Phase.END;
+        when(event.side).thenReturn(LogicalSide.CLIENT);
+        when(event.phase).thenReturn(TickEvent.Phase.END);
 
         // Act
         EventHelper.handleServerTick(event, TickEvent.Phase.END, server ->
@@ -196,8 +197,8 @@ class EventHelperTest {
         // Arrange
         TickEvent.ServerTickEvent event = mock(TickEvent.ServerTickEvent.class);
         MinecraftServer mockServer = mock(MinecraftServer.class);
-        event.side = LogicalSide.SERVER;
-        event.phase = TickEvent.Phase.END;
+        when(event.side).thenReturn(LogicalSide.SERVER);
+        when(event.phase).thenReturn(TickEvent.Phase.END);
         when(event.getServer()).thenReturn(mockServer);
         boolean[] executed = {false};
 
@@ -487,10 +488,10 @@ class EventHelperTest {
     void testIsServerSide() {
         // Arrange
         TickEvent.ServerTickEvent serverEvent = mock(TickEvent.ServerTickEvent.class);
-        serverEvent.side = LogicalSide.SERVER;
+        when(serverEvent.side).thenReturn(LogicalSide.SERVER);
 
         TickEvent.ServerTickEvent clientEvent = mock(TickEvent.ServerTickEvent.class);
-        clientEvent.side = LogicalSide.CLIENT;
+        when(clientEvent.side).thenReturn(LogicalSide.CLIENT);
 
         // Assert
         assertThat(EventHelper.isServerSide(serverEvent)).isTrue();
@@ -502,10 +503,10 @@ class EventHelperTest {
     void testIsEndPhase() {
         // Arrange
         TickEvent.ServerTickEvent endEvent = mock(TickEvent.ServerTickEvent.class);
-        endEvent.phase = TickEvent.Phase.END;
+        when(endEvent.phase).thenReturn(TickEvent.Phase.END);
 
         TickEvent.ServerTickEvent startEvent = mock(TickEvent.ServerTickEvent.class);
-        startEvent.phase = TickEvent.Phase.START;
+        when(startEvent.phase).thenReturn(TickEvent.Phase.START);
 
         // Assert
         assertThat(EventHelper.isEndPhase(endEvent)).isTrue();
@@ -519,8 +520,8 @@ class EventHelperTest {
     void testHandlePlayerTickEnd() {
         // Arrange
         TickEvent.PlayerTickEvent event = mock(TickEvent.PlayerTickEvent.class);
-        event.phase = TickEvent.Phase.END;
-        event.player = mockPlayer;
+        when(event.phase).thenReturn(TickEvent.Phase.END);
+        when(event.player).thenReturn(mockPlayer);
         when(mockPlayer.level()).thenReturn(mockLevel);
         when(mockLevel.isClientSide()).thenReturn(false);
         boolean[] executed = {false};
@@ -537,8 +538,8 @@ class EventHelperTest {
     void testHandlePlayerTickEndSkipsStartPhase() {
         // Arrange
         TickEvent.PlayerTickEvent event = mock(TickEvent.PlayerTickEvent.class);
-        event.phase = TickEvent.Phase.START;
-        event.player = mockPlayer;
+        when(event.phase).thenReturn(TickEvent.Phase.START);
+        when(event.player).thenReturn(mockPlayer);
 
         // Act
         EventHelper.handlePlayerTickEnd(event, player ->
