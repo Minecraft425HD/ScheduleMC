@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.region;
 
 import de.rolandsw.schedulemc.ScheduleMC;
+import de.rolandsw.schedulemc.util.EventHelper;
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
 import net.minecraft.core.BlockPos;

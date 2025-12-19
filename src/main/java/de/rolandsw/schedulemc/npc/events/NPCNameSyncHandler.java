@@ -4,6 +4,7 @@ import de.rolandsw.schedulemc.managers.NPCNameRegistry;
 import de.rolandsw.schedulemc.npc.client.ClientNPCNameCache;
 import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
 import de.rolandsw.schedulemc.npc.network.SyncNPCNamesPacket;
+import de.rolandsw.schedulemc.util.EventHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -20,11 +21,11 @@ public class NPCNameSyncHandler {
      */
     @SubscribeEvent
     public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
-        if (event.getEntity() instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+        EventHelper.handlePlayerJoin(event, serverPlayer -> {
             // Sende die aktuelle Liste aller NPC-Namen an den Client
             SyncNPCNamesPacket packet = new SyncNPCNamesPacket(NPCNameRegistry.getAllNames());
             NPCNetworkHandler.sendToPlayer(packet, serverPlayer);
-        }
+        });
     }
 
     /**
@@ -32,10 +33,12 @@ public class NPCNameSyncHandler {
      */
     @SubscribeEvent
     public static void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
-        // Nur auf Client-Seite
-        if (FMLEnvironment.dist == Dist.CLIENT) {
-            ClientNPCNameCache.clear();
-        }
+        EventHelper.handleEvent(() -> {
+            // Nur auf Client-Seite
+            if (FMLEnvironment.dist == Dist.CLIENT) {
+                ClientNPCNameCache.clear();
+            }
+        }, "onPlayerLogout");
     }
 
     /**
