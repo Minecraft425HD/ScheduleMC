@@ -1,3 +1,4 @@
+import de.rolandsw.schedulemc.util.EventHelper;
 package de.rolandsw.schedulemc.economy;
 
 import net.minecraft.world.level.Level;
@@ -69,11 +70,13 @@ public class ShopAccountManager {
      */
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
-        if (event.phase == TickEvent.Phase.END && event.getServer().getTickCount() % 20 == 0) {
-            // Nur jede Sekunde ticken (20 ticks)
-            Level overworld = event.getServer().overworld();
-            tickAll(overworld);
-        }
+        EventHelper.handleServerTickEnd(event, server -> {
+            if (server.getTickCount() % 20 == 0) {
+                // Nur jede Sekunde ticken (20 ticks)
+                Level overworld = server.overworld();
+                tickAll(overworld);
+            }
+        });
     }
 
     /**

@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.npc.events;
 
+import de.rolandsw.schedulemc.util.EventHelper;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.economy.items.CashItem;
 import de.rolandsw.schedulemc.npc.crime.CrimeManager;
@@ -71,9 +72,9 @@ public class PoliceAIHandler {
      */
     @SubscribeEvent
     public void onPoliceAI(LivingEvent.LivingTickEvent event) {
-        if (!(event.getEntity() instanceof CustomNPCEntity npc)) return;
-        if (npc.level().isClientSide) return;
-        if (npc.getNpcType() != NPCType.POLIZEI) return;
+        EventHelper.handleLivingTick(event, () -> {
+            if (!(event.getEntity() instanceof CustomNPCEntity npc)) return;
+            if (npc.getNpcType() != NPCType.POLIZEI) return;
 
         // Prüfe ob Polizei knockout ist
         if (npc.getPersistentData().getBoolean("IsKnockedOut")) {
@@ -277,7 +278,7 @@ public class PoliceAIHandler {
                 // Cleanup arrestTimers falls vorhanden
                 arrestTimers.remove(lastTarget);
             }
-        }
+        });
     }
 
     /**
@@ -413,10 +414,11 @@ public class PoliceAIHandler {
      */
     @SubscribeEvent
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
-        if (event.phase != TickEvent.Phase.END) return;
-        if (!(event.player instanceof ServerPlayer player)) return;
+        EventHelper.handlePlayerTickEnd(event, p -> {
+            if (!(p instanceof ServerPlayer)) return;
+            ServerPlayer player = (ServerPlayer) p;
 
-        long releaseTime = player.getPersistentData().getLong("JailReleaseTime");
+            long releaseTime = player.getPersistentData().getLong("JailReleaseTime");
 
         if (releaseTime > 0) {
             long currentTime = player.level().getGameTime();
@@ -562,6 +564,6 @@ public class PoliceAIHandler {
                 lastSyncedWantedLevel.put(player.getUUID(), 0);
                 lastSyncedEscapeTime.put(player.getUUID(), 0L);
             }
-        }
+        });
     }
 }

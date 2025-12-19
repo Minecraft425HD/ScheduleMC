@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc;
 
 import com.mojang.logging.LogUtils;
+import de.rolandsw.schedulemc.util.EventHelper;
 import de.rolandsw.schedulemc.commands.*;
 import de.rolandsw.schedulemc.economy.commands.HospitalCommand;
 import de.rolandsw.schedulemc.util.HealthCheckManager;
@@ -242,158 +243,163 @@ public class ScheduleMC {
 
     @SubscribeEvent
     public void onRegisterCommands(RegisterCommandsEvent event) {
-        PlotCommand.register(event.getDispatcher());
-        MoneyCommand.register(event.getDispatcher());
-        LoanCommand.register(event.getDispatcher());
-        SavingsCommand.register(event.getDispatcher());
-        AutopayCommand.register(event.getDispatcher());
-        DailyCommand.register(event.getDispatcher());
-        TobaccoCommand.register(event.getDispatcher());
-        HospitalCommand.register(event.getDispatcher());
-        NPCCommand.register(event.getDispatcher(), event.getBuildContext());
-        WarehouseCommand.register(event.getDispatcher(), event.getBuildContext());
-        ShopInvestCommand.register(event.getDispatcher());
-        StateCommand.register(event.getDispatcher());
-        UtilityCommand.register(event.getDispatcher());
-        HealthCommand.register(event.getDispatcher());
+        EventHelper.handleEvent(() -> {
+            PlotCommand.register(event.getDispatcher());
+            MoneyCommand.register(event.getDispatcher());
+            LoanCommand.register(event.getDispatcher());
+            SavingsCommand.register(event.getDispatcher());
+            AutopayCommand.register(event.getDispatcher());
+            DailyCommand.register(event.getDispatcher());
+            TobaccoCommand.register(event.getDispatcher());
+            HospitalCommand.register(event.getDispatcher());
+            NPCCommand.register(event.getDispatcher(), event.getBuildContext());
+            WarehouseCommand.register(event.getDispatcher(), event.getBuildContext());
+            ShopInvestCommand.register(event.getDispatcher());
+            StateCommand.register(event.getDispatcher());
+            UtilityCommand.register(event.getDispatcher());
+            HealthCommand.register(event.getDispatcher());
 
-        // Vehicle Mod handles its own commands via event bus (registered in Main.commonSetup)
+            // Vehicle Mod handles its own commands via event bus (registered in Main.commonSetup)
+        }, "onRegisterCommands");
     }
 
     @SubscribeEvent
     public void onServerStarted(ServerStartedEvent event) {
-        PlotManager.loadPlots();
-        EconomyManager.loadAccounts();
-        DailyRewardManager.load();
-        WalletManager.load();
-        de.rolandsw.schedulemc.npc.crime.CrimeManager.load();
-        NPCNameRegistry.loadRegistry();
-        MessageManager.loadMessages();
+        EventHelper.handleEvent(() -> {
+            PlotManager.loadPlots();
+            EconomyManager.loadAccounts();
+            DailyRewardManager.load();
+            WalletManager.load();
+            de.rolandsw.schedulemc.npc.crime.CrimeManager.load();
+            NPCNameRegistry.loadRegistry();
+            MessageManager.loadMessages();
 
-        // NEU: Warehouse & Shop System initialisieren
-        StateAccount.load();
-        MinecraftForge.EVENT_BUS.register(ShopAccountManager.class);
-        WarehouseManager.load(event.getServer());
+            // NEU: Warehouse & Shop System initialisieren
+            StateAccount.load();
+            MinecraftForge.EVENT_BUS.register(ShopAccountManager.class);
+            WarehouseManager.load(event.getServer());
 
-        // Economy System - Advanced Features
-        EconomyManager.initialize(event.getServer());
-        TransactionHistory.getInstance(event.getServer());
-        InterestManager.getInstance(event.getServer());
-        LoanManager.getInstance(event.getServer());
-        TaxManager.getInstance(event.getServer());
-        SavingsAccountManager.getInstance(event.getServer());
-        OverdraftManager.getInstance(event.getServer());
-        RecurringPaymentManager.getInstance(event.getServer());
-        LOGGER.info("Advanced Economy Systems initialized (Transaction History, Interest, Loans, Taxes, Savings, Overdraft, Recurring Payments)");
+            // Economy System - Advanced Features
+            EconomyManager.initialize(event.getServer());
+            TransactionHistory.getInstance(event.getServer());
+            InterestManager.getInstance(event.getServer());
+            LoanManager.getInstance(event.getServer());
+            TaxManager.getInstance(event.getServer());
+            SavingsAccountManager.getInstance(event.getServer());
+            OverdraftManager.getInstance(event.getServer());
+            RecurringPaymentManager.getInstance(event.getServer());
+            LOGGER.info("Advanced Economy Systems initialized (Transaction History, Interest, Loans, Taxes, Savings, Overdraft, Recurring Payments)");
 
-        // Vehicle System - Vehicle Spawn Registry, Gas Station Registry, Fuel Bills
-        de.rolandsw.schedulemc.vehicle.vehicle.VehicleSpawnRegistry.load();
-        de.rolandsw.schedulemc.vehicle.fuel.FuelStationRegistry.load();
-        de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager.load();
+            // Vehicle System - Vehicle Spawn Registry, Gas Station Registry, Fuel Bills
+            de.rolandsw.schedulemc.vehicle.vehicle.VehicleSpawnRegistry.load();
+            de.rolandsw.schedulemc.vehicle.fuel.FuelStationRegistry.load();
+            de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager.load();
 
-        // Utility-System laden
-        PlotUtilityManager.load();
+            // Utility-System laden
+            PlotUtilityManager.load();
 
-        // Health-Check nach Start
-        LOGGER.info("Performing initial health check...");
-        HealthCheckManager.logHealthCheck();
+            // Health-Check nach Start
+            LOGGER.info("Performing initial health check...");
+            HealthCheckManager.logHealthCheck();
+        }, "onServerStarted");
     }
 
     @SubscribeEvent
     public void onServerTick(TickEvent.ServerTickEvent event) {
-        if (event.phase != TickEvent.Phase.END) return;
-        tickCounter++;
+        EventHelper.handleServerTickEnd(event, server -> {
+            tickCounter++;
 
-        // Economy Systems - Tick every server tick for day tracking
-        if (event.getServer() != null && event.getServer().overworld() != null) {
-            long dayTime = event.getServer().overworld().getDayTime();
-            InterestManager.getInstance(event.getServer()).tick(dayTime);
-            LoanManager.getInstance(event.getServer()).tick(dayTime);
-            TaxManager.getInstance(event.getServer()).tick(dayTime);
-            SavingsAccountManager.getInstance(event.getServer()).tick(dayTime);
-            OverdraftManager.getInstance(event.getServer()).tick(dayTime);
-            RecurringPaymentManager.getInstance(event.getServer()).tick(dayTime);
-        }
-
-        if (tickCounter >= SAVE_INTERVAL) {
-            tickCounter = 0;
-            PlotManager.saveIfNeeded();
-            EconomyManager.saveIfNeeded();
-            DailyRewardManager.saveIfNeeded();
-            RentManager.checkExpiredRents();
-            WalletManager.saveIfNeeded();
-            NPCNameRegistry.saveIfNeeded();
-            MessageManager.saveIfNeeded();
-            // Vehicle System periodic saves
-            de.rolandsw.schedulemc.vehicle.vehicle.VehicleSpawnRegistry.save();
-            de.rolandsw.schedulemc.vehicle.fuel.FuelStationRegistry.save();
-            de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager.save();
-
-            // Economy Systems periodic saves
-            if (event.getServer() != null) {
-                InterestManager.getInstance(event.getServer()).save();
-                LoanManager.getInstance(event.getServer()).save();
-                TaxManager.getInstance(event.getServer()).save();
-                SavingsAccountManager.getInstance(event.getServer()).save();
-                OverdraftManager.getInstance(event.getServer()).save();
-                RecurringPaymentManager.getInstance(event.getServer()).save();
+            // Economy Systems - Tick every server tick for day tracking
+            if (server.overworld() != null) {
+                long dayTime = server.overworld().getDayTime();
+                InterestManager.getInstance(server).tick(dayTime);
+                LoanManager.getInstance(server).tick(dayTime);
+                TaxManager.getInstance(server).tick(dayTime);
+                SavingsAccountManager.getInstance(server).tick(dayTime);
+                OverdraftManager.getInstance(server).tick(dayTime);
+                RecurringPaymentManager.getInstance(server).tick(dayTime);
             }
-        }
+
+            if (tickCounter >= SAVE_INTERVAL) {
+                tickCounter = 0;
+                PlotManager.saveIfNeeded();
+                EconomyManager.saveIfNeeded();
+                DailyRewardManager.saveIfNeeded();
+                RentManager.checkExpiredRents();
+                WalletManager.saveIfNeeded();
+                NPCNameRegistry.saveIfNeeded();
+                MessageManager.saveIfNeeded();
+                // Vehicle System periodic saves
+                de.rolandsw.schedulemc.vehicle.vehicle.VehicleSpawnRegistry.save();
+                de.rolandsw.schedulemc.vehicle.fuel.FuelStationRegistry.save();
+                de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager.save();
+
+                // Economy Systems periodic saves
+                InterestManager.getInstance(server).save();
+                LoanManager.getInstance(server).save();
+                TaxManager.getInstance(server).save();
+                SavingsAccountManager.getInstance(server).save();
+                OverdraftManager.getInstance(server).save();
+                RecurringPaymentManager.getInstance(server).save();
+            }
+        });
     }
 
     @SubscribeEvent
     public void onServerStopping(ServerStoppingEvent event) {
-        PlotManager.savePlots();
-        EconomyManager.saveAccounts();
-        DailyRewardManager.save();
-        WalletManager.save();
-        NPCNameRegistry.saveRegistry();
-        MessageManager.saveMessages();
-        WarehouseManager.save(event.getServer());
+        EventHelper.handleEvent(() -> {
+            PlotManager.savePlots();
+            EconomyManager.saveAccounts();
+            DailyRewardManager.save();
+            WalletManager.save();
+            NPCNameRegistry.saveRegistry();
+            MessageManager.saveMessages();
+            WarehouseManager.save(event.getServer());
 
-        // Economy Systems final saves
-        InterestManager.getInstance(event.getServer()).save();
-        LoanManager.getInstance(event.getServer()).save();
-        TaxManager.getInstance(event.getServer()).save();
-        SavingsAccountManager.getInstance(event.getServer()).save();
-        OverdraftManager.getInstance(event.getServer()).save();
-        RecurringPaymentManager.getInstance(event.getServer()).save();
-        TransactionHistory history = TransactionHistory.getInstance();
-        if (history != null) {
-            history.save();
-        }
-        LOGGER.info("Advanced Economy Systems saved (including Savings, Overdraft, and Recurring Payments)");
+            // Economy Systems final saves
+            InterestManager.getInstance(event.getServer()).save();
+            LoanManager.getInstance(event.getServer()).save();
+            TaxManager.getInstance(event.getServer()).save();
+            SavingsAccountManager.getInstance(event.getServer()).save();
+            OverdraftManager.getInstance(event.getServer()).save();
+            RecurringPaymentManager.getInstance(event.getServer()).save();
+            TransactionHistory history = TransactionHistory.getInstance();
+            if (history != null) {
+                history.save();
+            }
+            LOGGER.info("Advanced Economy Systems saved (including Savings, Overdraft, and Recurring Payments)");
 
-        // Vehicle System final saves
-        de.rolandsw.schedulemc.vehicle.vehicle.VehicleSpawnRegistry.save();
-        de.rolandsw.schedulemc.vehicle.fuel.FuelStationRegistry.save();
-        de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager.save();
+            // Vehicle System final saves
+            de.rolandsw.schedulemc.vehicle.vehicle.VehicleSpawnRegistry.save();
+            de.rolandsw.schedulemc.vehicle.fuel.FuelStationRegistry.save();
+            de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager.save();
 
-        // Utility-System speichern
-        PlotUtilityManager.save();
+            // Utility-System speichern
+            PlotUtilityManager.save();
+        }, "onServerStopping");
     }
 
     @SubscribeEvent
     public void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
-        if (event.getLevel().isClientSide) return;
-        Player player = event.getEntity();
-        ItemStack heldItem = event.getItemStack();
+        EventHelper.handleLeftClickBlock(event, player -> {
+            ItemStack heldItem = event.getItemStack();
 
-        // Plot Selection Tool
-        if (heldItem.getItem() instanceof PlotSelectionTool) {
-            BlockPos pos = event.getPos();
-            PlotSelectionTool.setPosition1(player.getUUID(), pos);
-            player.displayClientMessage(Component.literal(
-                "§a✓ Position 1 gesetzt!\n§7Koordinaten: §f" + pos.getX() + ", " + pos.getY() + ", " + pos.getZ()
-            ), true);
-            player.playSound(net.minecraft.sounds.SoundEvents.EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
-            event.setCanceled(true);
-        }
+            // Plot Selection Tool
+            if (heldItem.getItem() instanceof PlotSelectionTool) {
+                BlockPos pos = event.getPos();
+                PlotSelectionTool.setPosition1(player.getUUID(), pos);
+                player.displayClientMessage(Component.literal(
+                    "§a✓ Position 1 gesetzt!\n§7Koordinaten: §f" + pos.getX() + ", " + pos.getY() + ", " + pos.getZ()
+                ), true);
+                player.playSound(net.minecraft.sounds.SoundEvents.EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
+                event.setCanceled(true);
+            }
 
-        // Vehicle Spawn Tool (Linksklick)
-        if (heldItem.getItem() instanceof de.rolandsw.schedulemc.vehicle.items.VehicleSpawnTool) {
-            de.rolandsw.schedulemc.vehicle.items.VehicleSpawnTool.handleLeftClick(player, heldItem, event.getPos().above());
-            event.setCanceled(true);
-        }
+            // Vehicle Spawn Tool (Linksklick)
+            if (heldItem.getItem() instanceof de.rolandsw.schedulemc.vehicle.items.VehicleSpawnTool) {
+                de.rolandsw.schedulemc.vehicle.items.VehicleSpawnTool.handleLeftClick(player, heldItem, event.getPos().above());
+                event.setCanceled(true);
+            }
+        });
     }
 }

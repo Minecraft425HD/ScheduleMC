@@ -39,15 +39,16 @@ public class PlotProtectionHandler {
      */
     @SubscribeEvent
     public static void onBlockBreak(BlockEvent.BreakEvent event) {
-        if (!ENABLE_WORLD_PROTECTION) return;
-        if (!(event.getPlayer() instanceof ServerPlayer player)) return;
+        EventHelper.handleBlockBreak(event, player -> {
+            if (!ENABLE_WORLD_PROTECTION) return;
+            if (!(player instanceof ServerPlayer serverPlayer)) return;
 
-        // OPs dürfen immer
-        if (player.hasPermissions(2)) {
-            return;
-        }
+            // OPs dürfen immer
+            if (serverPlayer.hasPermissions(2)) {
+                return;
+            }
 
-        BlockPos pos = event.getPos();
+            BlockPos pos = event.getPos();
         PlotRegion plot = PlotManager.getPlotAt(pos);
 
         if (plot == null) {
@@ -100,9 +101,10 @@ public class PlotProtectionHandler {
                 }
 
                 LOGGER.debug("[PLOT-PROTECTION] {} versuchte ohne Rechte in Plot {} (Besitzer: {}) abzubauen",
-                    player.getName().getString(), plot.getPlotId(), ownerName);
+                    serverPlayer.getName().getString(), plot.getPlotId(), ownerName);
             }
         }
+        });
     }
 
     /**
@@ -110,46 +112,47 @@ public class PlotProtectionHandler {
      */
     @SubscribeEvent
     public static void onBlockPlace(BlockEvent.EntityPlaceEvent event) {
-        if (!ENABLE_WORLD_PROTECTION) return;
+        EventHelper.handleBlockPlace(event, player -> {
+            if (!ENABLE_WORLD_PROTECTION) return;
 
-        Entity entity = event.getEntity();
-        if (!(entity instanceof ServerPlayer player)) return;
+            if (!(player instanceof ServerPlayer serverPlayer)) return;
 
-        // OPs dürfen immer
-        if (player.hasPermissions(2)) {
-            return;
-        }
-
-        BlockPos pos = event.getPos();
-        PlotRegion plot = PlotManager.getPlotAt(pos);
-
-        if (plot == null) {
-            // Kein Plot → Weltschutz aktiv
-            event.setCanceled(true);
-            player.sendSystemMessage(Component.literal(
-                "§c✗ Du kannst hier nicht bauen! Kaufe einen Plot mit /plot buy"
-            ));
-            return;
-        }
-
-        // Prüfe Rechte im Plot (mit Apartment-Unterstützung)
-        if (!plot.hasAccess(player.getUUID(), pos)) {
-            event.setCanceled(true);
-
-            // Prüfe ob Position in Apartment liegt
-            PlotArea apartment = plot.getSubAreaAt(pos);
-
-            if (apartment != null) {
-                player.sendSystemMessage(Component.literal(
-                    "§c✗ Du hast keine Rechte in dieser Wohnung!"
-                ));
-            } else {
-                String ownerName = plot.getOwnerName();
-                player.sendSystemMessage(Component.literal(
-                    "§c✗ Dieser Plot gehört §e" + ownerName + "§c! Du hast keine Rechte hier."
-                ));
+            // OPs dürfen immer
+            if (serverPlayer.hasPermissions(2)) {
+                return;
             }
-        }
+
+            BlockPos pos = event.getPos();
+            PlotRegion plot = PlotManager.getPlotAt(pos);
+
+            if (plot == null) {
+                // Kein Plot → Weltschutz aktiv
+                event.setCanceled(true);
+                serverPlayer.sendSystemMessage(Component.literal(
+                    "§c✗ Du kannst hier nicht bauen! Kaufe einen Plot mit /plot buy"
+                ));
+                return;
+            }
+
+            // Prüfe Rechte im Plot (mit Apartment-Unterstützung)
+            if (!plot.hasAccess(serverPlayer.getUUID(), pos)) {
+                event.setCanceled(true);
+
+                // Prüfe ob Position in Apartment liegt
+                PlotArea apartment = plot.getSubAreaAt(pos);
+
+                if (apartment != null) {
+                    serverPlayer.sendSystemMessage(Component.literal(
+                        "§c✗ Du hast keine Rechte in dieser Wohnung!"
+                    ));
+                } else {
+                    String ownerName = plot.getOwnerName();
+                    serverPlayer.sendSystemMessage(Component.literal(
+                        "§c✗ Dieser Plot gehört §e" + ownerName + "§c! Du hast keine Rechte hier."
+                    ));
+                }
+            }
+        });
     }
 
     /**
@@ -158,47 +161,49 @@ public class PlotProtectionHandler {
      */
     @SubscribeEvent
     public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
-        if (!ENABLE_WORLD_PROTECTION) return;
-        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        EventHelper.handleRightClickBlock(event, player -> {
+            if (!ENABLE_WORLD_PROTECTION) return;
+            if (!(player instanceof ServerPlayer serverPlayer)) return;
 
-        // OPs dürfen immer
-        if (player.hasPermissions(2)) {
-            return;
-        }
-
-        BlockPos pos = event.getPos();
-        PlotRegion plot = PlotManager.getPlotAt(pos);
-
-        // Wenn kein Plot → Öffentlicher Bereich, Interaktion erlaubt
-        // (z.B. Shops, Spawn-NPCs)
-        if (plot == null) {
-            return;
-        }
-
-        // Wenn Plot öffentlich → Interaktion erlaubt
-        if (plot.isPublic()) {
-            return;
-        }
-
-        // Prüfe Rechte im Plot
-        if (!plot.hasAccess(player.getUUID())) {
-            // Nur bei bestimmten Blöcken blocken (Türen, Truhen, etc.)
-            String blockName = event.getLevel().getBlockState(pos).getBlock().getDescriptionId();
-
-            if (blockName.contains("door") ||
-                blockName.contains("chest") ||
-                blockName.contains("furnace") ||
-                blockName.contains("button") ||
-                blockName.contains("lever") ||
-                blockName.contains("trapdoor") ||
-                blockName.contains("fence_gate")) {
-
-                event.setCanceled(true);
-                player.sendSystemMessage(Component.literal(
-                    "§c✗ Dieser Plot gehört §e" + plot.getOwnerName() + "§c!"
-                ));
+            // OPs dürfen immer
+            if (serverPlayer.hasPermissions(2)) {
+                return;
             }
-        }
+
+            BlockPos pos = event.getPos();
+            PlotRegion plot = PlotManager.getPlotAt(pos);
+
+            // Wenn kein Plot → Öffentlicher Bereich, Interaktion erlaubt
+            // (z.B. Shops, Spawn-NPCs)
+            if (plot == null) {
+                return;
+            }
+
+            // Wenn Plot öffentlich → Interaktion erlaubt
+            if (plot.isPublic()) {
+                return;
+            }
+
+            // Prüfe Rechte im Plot
+            if (!plot.hasAccess(serverPlayer.getUUID())) {
+                // Nur bei bestimmten Blöcken blocken (Türen, Truhen, etc.)
+                String blockName = event.getLevel().getBlockState(pos).getBlock().getDescriptionId();
+
+                if (blockName.contains("door") ||
+                    blockName.contains("chest") ||
+                    blockName.contains("furnace") ||
+                    blockName.contains("button") ||
+                    blockName.contains("lever") ||
+                    blockName.contains("trapdoor") ||
+                    blockName.contains("fence_gate")) {
+
+                    event.setCanceled(true);
+                    serverPlayer.sendSystemMessage(Component.literal(
+                        "§c✗ Dieser Plot gehört §e" + plot.getOwnerName() + "§c!"
+                    ));
+                }
+            }
+        });
     }
 
     /**
@@ -206,18 +211,20 @@ public class PlotProtectionHandler {
      */
     @SubscribeEvent
     public static void onExplosion(ExplosionEvent.Detonate event) {
-        if (!ENABLE_WORLD_PROTECTION) return;
+        EventHelper.handleEvent(() -> {
+            if (!ENABLE_WORLD_PROTECTION) return;
 
-        BlockPos explosionPos = BlockPos.containing(event.getExplosion().getPosition());
-        PlotRegion plot = PlotManager.getPlotAt(explosionPos);
+            BlockPos explosionPos = BlockPos.containing(event.getExplosion().getPosition());
+            PlotRegion plot = PlotManager.getPlotAt(explosionPos);
 
-        if (plot != null) {
-            // Explosion in Plot → Verhindere Block-Schaden
-            event.getAffectedBlocks().clear();
+            if (plot != null) {
+                // Explosion in Plot → Verhindere Block-Schaden
+                event.getAffectedBlocks().clear();
 
-            LOGGER.debug("[PLOT-PROTECTION] Explosion in Plot {} verhindert bei {}",
-                plot.getPlotId(), explosionPos.toShortString());
-        }
+                LOGGER.debug("[PLOT-PROTECTION] Explosion in Plot {} verhindert bei {}",
+                    plot.getPlotId(), explosionPos.toShortString());
+            }
+        }, "onExplosion");
     }
 
     /**
