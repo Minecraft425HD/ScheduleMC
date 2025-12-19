@@ -35,10 +35,6 @@ jobs:
       run: ./gradlew test --tests "*.integration.*" --no-daemon
       continue-on-error: true
 
-    - name: Generate Test Report
-      if: always()
-      run: ./gradlew testReport --no-daemon
-
     - name: Upload Test Results
       if: always()
       uses: actions/upload-artifact@v4
@@ -71,48 +67,22 @@ jobs:
         path: build/libs/*.jar
         retention-days: 7
 
-  code-quality:
-    runs-on: ubuntu-latest
+  # Code quality checks can be added later when plugins are configured
+  # Uncomment and configure these jobs when adding checkstyle, spotbugs, etc.
 
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: 'gradle'
-
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-
-    - name: Check Code Style
-      run: ./gradlew checkstyleMain checkstyleTest --no-daemon
-      continue-on-error: true
-
-    - name: Run Static Analysis
-      run: ./gradlew spotbugsMain --no-daemon
-      continue-on-error: true
-
-  dependency-check:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: 'gradle'
-
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-
-    - name: Check for Dependency Updates
-      run: ./gradlew dependencyUpdates --no-daemon
-      continue-on-error: true
+  # code-quality:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: Checkout code
+  #     uses: actions/checkout@v4
+  #   - name: Set up JDK 17
+  #     uses: actions/setup-java@v4
+  #     with:
+  #       java-version: '17'
+  #       distribution: 'temurin'
+  #       cache: 'gradle'
+  #   - name: Grant execute permission for gradlew
+  #     run: chmod +x gradlew
+  #   - name: Check Code Style
+  #     run: ./gradlew checkstyleMain checkstyleTest --no-daemon
+  #     continue-on-error: true
