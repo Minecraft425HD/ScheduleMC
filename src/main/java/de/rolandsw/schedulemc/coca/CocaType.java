@@ -8,8 +8,8 @@ import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
  * Koka-Sorten mit unterschiedlichen Eigenschaften
  */
 public enum CocaType implements ProductionType {
-    BOLIVIANISCH("Bolivianisch", "§a", 20.0, 100, 0.8, 20),
-    KOLUMBIANISCH("Kolumbianisch", "§2", 35.0, 140, 1.0, 30);
+    BOLIVIANISCH("Bolivianisch", "§a", 20.0, 100, 0.8, 6),
+    KOLUMBIANISCH("Kolumbianisch", "§2", 35.0, 140, 1.0, 6);
 
     private final String displayName;
     private final String colorCode;

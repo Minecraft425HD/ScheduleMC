@@ -8,10 +8,10 @@ import de.rolandsw.schedulemc.production.core.ProductionQuality;
  */
 public enum CannabisStrain implements ProductionType {
     // Name, Farbe, Preis, Wachstum, THC%, CBD%, Ertrag, BlüteZeit
-    INDICA("Indica", "§5", 25.0, 120, 22.0, 1.0, 35, 56),           // Entspannend, hoher Ertrag
-    SATIVA("Sativa", "§a", 30.0, 160, 18.0, 0.5, 25, 70),           // Energetisch, länger
-    HYBRID("Hybrid", "§e", 35.0, 140, 20.0, 2.0, 30, 63),           // Ausgewogen
-    AUTOFLOWER("Autoflower", "§b", 20.0, 70, 15.0, 3.0, 20, 42);    // Schnell, weniger Ertrag
+    INDICA("Indica", "§5", 25.0, 120, 22.0, 1.0, 6, 56),           // Entspannend, hoher Ertrag
+    SATIVA("Sativa", "§a", 30.0, 160, 18.0, 0.5, 6, 70),           // Energetisch, länger
+    HYBRID("Hybrid", "§e", 35.0, 140, 20.0, 2.0, 6, 63),           // Ausgewogen
+    AUTOFLOWER("Autoflower", "§b", 20.0, 70, 15.0, 3.0, 6, 42);    // Schnell, weniger Ertrag
 
     private final String displayName;
     private final String colorCode;

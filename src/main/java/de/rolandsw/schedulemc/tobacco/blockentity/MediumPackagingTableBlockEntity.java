@@ -1,9 +1,19 @@
 package de.rolandsw.schedulemc.tobacco.blockentity;
 
 import de.rolandsw.schedulemc.production.core.DrugType;
+import de.rolandsw.schedulemc.production.core.ProductionQuality;
+import de.rolandsw.schedulemc.production.core.ProductionType;
 import de.rolandsw.schedulemc.production.items.PackagedDrugItem;
 import de.rolandsw.schedulemc.tobacco.items.*;
 import de.rolandsw.schedulemc.tobacco.menu.MediumPackagingTableMenu;
+import de.rolandsw.schedulemc.coca.items.CocaineItem;
+import de.rolandsw.schedulemc.coca.items.CrackRockItem;
+import de.rolandsw.schedulemc.poppy.items.HeroinItem;
+import de.rolandsw.schedulemc.meth.items.MethItem;
+import de.rolandsw.schedulemc.mushroom.items.DriedMushroomItem;
+import de.rolandsw.schedulemc.cannabis.items.TrimmedBudItem;
+import de.rolandsw.schedulemc.cannabis.items.CuredBudItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -86,17 +96,112 @@ public class MediumPackagingTableBlockEntity extends BlockEntity implements Menu
     }
 
     // ═══════════════════════════════════════════════════════════
+    // HELPER CLASSES & METHODS FOR GENERIC DRUG PACKAGING
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Helper class to store drug packaging data
+     */
+    private static class PackagingData {
+        final DrugType drugType;
+        final ProductionQuality quality;
+        final ProductionType variant;
+        final String itemType;
+
+        PackagingData(DrugType drugType, ProductionQuality quality, ProductionType variant, String itemType) {
+            this.drugType = drugType;
+            this.quality = quality;
+            this.variant = variant;
+            this.itemType = itemType;
+        }
+    }
+
+    /**
+     * Extracts DrugType, Quality, and Variant from any packageable drug item
+     */
+    private PackagingData extractPackagingData(ItemStack input) {
+        Item item = input.getItem();
+
+        if (item instanceof FermentedTobaccoLeafItem) {
+            return new PackagingData(
+                DrugType.TOBACCO,
+                FermentedTobaccoLeafItem.getQuality(input),
+                FermentedTobaccoLeafItem.getType(input),
+                "TOBACCO"
+            );
+        } else if (item instanceof CocaineItem) {
+            return new PackagingData(
+                DrugType.COCAINE,
+                CocaineItem.getQuality(input),
+                CocaineItem.getType(input),
+                "COCAINE"
+            );
+        } else if (item instanceof CrackRockItem) {
+            return new PackagingData(
+                DrugType.COCAINE, // Crack is COCAINE drug type
+                CrackRockItem.getQuality(input),
+                CrackRockItem.getType(input),
+                "CRACK"
+            );
+        } else if (item instanceof HeroinItem) {
+            return new PackagingData(
+                DrugType.HEROIN,
+                HeroinItem.getQuality(input),
+                HeroinItem.getType(input),
+                "HEROIN"
+            );
+        } else if (item instanceof MethItem) {
+            return new PackagingData(
+                DrugType.METH,
+                MethItem.getQuality(input),
+                null, // Meth has no variant/type
+                "METH"
+            );
+        } else if (item instanceof DriedMushroomItem driedMushroom) {
+            return new PackagingData(
+                DrugType.MUSHROOM,
+                DriedMushroomItem.getQuality(input),
+                driedMushroom.getMushroomType(),
+                "MUSHROOM"
+            );
+        } else if (item instanceof TrimmedBudItem) {
+            return new PackagingData(
+                DrugType.CANNABIS,
+                TrimmedBudItem.getQuality(input),
+                TrimmedBudItem.getStrain(input),
+                "TRIMMED_CANNABIS"
+            );
+        } else if (item instanceof CuredBudItem) {
+            return new PackagingData(
+                DrugType.CANNABIS,
+                CuredBudItem.getQuality(input),
+                CuredBudItem.getStrain(input),
+                "CURED_CANNABIS"
+            );
+        }
+
+        return null; // Item not packageable
+    }
+
+    // ═══════════════════════════════════════════════════════════
     // PACK-LOGIK (10g mit Schachteln)
     // ═══════════════════════════════════════════════════════════
 
     public int packageTobacco10g() {
         ItemStack input = getInputStack();
 
-        if (!(input.getItem() instanceof FermentedTobaccoLeafItem)) {
+        // Check if item is packageable
+        if (!PackagedDrugItem.isPackageableItem(input)) {
             return 0;
         }
 
-        // Berechne verfügbares Gewicht (1 Blatt = 1g)
+        // Extract packaging data from input item
+        PackagingData data = extractPackagingData(input);
+        if (data == null) {
+            return 0;
+        }
+
+        // Berechne verfügbares Gewicht (1 item = 1g)
         int totalWeight = input.getCount();
         int packagesCount = totalWeight / 10; // Für 10g Pakete
 
@@ -115,10 +220,7 @@ public class MediumPackagingTableBlockEntity extends BlockEntity implements Menu
             return 0;
         }
 
-        var type = FermentedTobaccoLeafItem.getType(input);
-        var quality = FermentedTobaccoLeafItem.getQuality(input);
         long currentDay = level != null ? level.getDayTime() / 24000L : 0;
-
         int created = 0;
 
         for (int i = 0; i < packagesCount; i++) {
@@ -131,13 +233,13 @@ public class MediumPackagingTableBlockEntity extends BlockEntity implements Menu
                 break;
             }
 
-            ItemStack packagedTobacco = PackagedDrugItem.create(DrugType.TOBACCO, 10, quality, type, currentDay);
-            itemHandler.setStackInSlot(slot, packagedTobacco);
+            ItemStack packagedDrug = PackagedDrugItem.create(data.drugType, 10, data.quality, data.variant, currentDay, data.itemType);
+            itemHandler.setStackInSlot(slot, packagedDrug);
             created++;
         }
 
-        // Verbrauche Input (1 Blatt = 1g)
-        int itemsUsed = created * 10; // Jedes 10g Paket braucht 10 Blätter
+        // Verbrauche Input (1 item = 1g)
+        int itemsUsed = created * 10; // Jedes 10g Paket braucht 10 items
         input.shrink(itemsUsed);
         setInputStack(input);
 

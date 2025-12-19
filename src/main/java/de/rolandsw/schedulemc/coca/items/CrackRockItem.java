@@ -22,12 +22,12 @@ public class CrackRockItem extends Item {
         super(new Properties().stacksTo(32));
     }
 
-    public static ItemStack create(CocaType type, CrackQuality quality, int weight) {
-        ItemStack stack = new ItemStack(CocaItems.CRACK_ROCK.get(), 1);
+    public static ItemStack create(CocaType type, CrackQuality quality, int count) {
+        ItemStack stack = new ItemStack(CocaItems.CRACK_ROCK.get(), count);
         CompoundTag tag = stack.getOrCreateTag();
         tag.putString("CocaType", type.name());
         tag.putString("Quality", quality.name());
-        tag.putInt("Weight", weight); // Gramm
+        tag.putInt("Weight", 1); // Jedes Item = 1g
         return stack;
     }
 
@@ -54,20 +54,18 @@ public class CrackRockItem extends Item {
     }
 
     public static int getWeight(ItemStack stack) {
-        if (stack.hasTag()) {
-            return stack.getTag().getInt("Weight");
-        }
-        return 5;
+        // Jedes Item = 1g, Gesamtgewicht = Stack-Count
+        return 1;
     }
 
     public static double calculatePrice(ItemStack stack) {
         CocaType type = getType(stack);
         CrackQuality quality = getQuality(stack);
-        int weight = getWeight(stack);
 
         // Crack ist pro Gramm günstiger als Kokain, aber schnellerer Umsatz
+        // Preis pro Gramm * Anzahl Items
         double basePrice = type.getBasePrice() * 0.8;
-        return basePrice * quality.getPriceMultiplier() * (weight / 10.0);
+        return basePrice * quality.getPriceMultiplier() * stack.getCount() / 10.0;
     }
 
     @Override
@@ -88,7 +86,7 @@ public class CrackRockItem extends Item {
 
         tooltip.add(Component.literal("§7Sorte: " + type.getColoredName()));
         tooltip.add(Component.literal("§7Qualität: " + quality.getColoredName()));
-        tooltip.add(Component.literal("§7Gewicht: §f" + weight + "g"));
+        tooltip.add(Component.literal("§7Gewicht: §f" + (weight * stack.getCount()) + "g §8(" + stack.getCount() + "x 1g)"));
         tooltip.add(Component.empty());
         tooltip.add(Component.literal("§6💰 Wert: §f" + String.format("%.2f", price) + "€"));
         tooltip.add(Component.empty());

@@ -40,7 +40,7 @@ public abstract class TobaccoBottleItem extends Item {
  */
 class FertilizerBottleItem extends TobaccoBottleItem {
     public FertilizerBottleItem() {
-        super("+50% Ertrag, -1 Qualität", 50.0);
+        super("Mehr Ertrag (max 10g), -1 Qualität", 50.0);
     }
     
     @Override

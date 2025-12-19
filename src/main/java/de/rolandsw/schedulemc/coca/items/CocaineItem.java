@@ -62,6 +62,7 @@ public class CocaineItem extends Item {
 
         tooltip.add(Component.literal("§7Sorte: " + type.getColoredName()));
         tooltip.add(Component.literal("§7Qualität: " + quality.getColoredName()));
+        tooltip.add(Component.literal("§7Gewicht: §f" + stack.getCount() + "g §8(" + stack.getCount() + "x 1g)"));
         tooltip.add(Component.literal(""));
         tooltip.add(Component.literal("§fWeißes Pulver"));
         tooltip.add(Component.literal("§8Kann verpackt und verkauft werden"));

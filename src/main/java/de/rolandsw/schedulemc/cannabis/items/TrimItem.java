@@ -21,11 +21,11 @@ public class TrimItem extends Item {
         super(properties);
     }
 
-    public static ItemStack create(CannabisStrain strain, int weight) {
-        ItemStack stack = new ItemStack(CannabisItems.TRIM.get(), 1);
+    public static ItemStack create(CannabisStrain strain, int count) {
+        ItemStack stack = new ItemStack(CannabisItems.TRIM.get(), count);
         CompoundTag tag = stack.getOrCreateTag();
         tag.putString("Strain", strain.name());
-        tag.putInt("Weight", weight);
+        tag.putInt("Weight", 1); // Jedes Item = 1g
         return stack;
     }
 
@@ -41,10 +41,8 @@ public class TrimItem extends Item {
     }
 
     public static int getWeight(ItemStack stack) {
-        if (stack.hasTag()) {
-            return stack.getTag().getInt("Weight");
-        }
-        return 5;
+        // Jedes Item = 1g, Gesamtgewicht = Stack-Count
+        return 1;
     }
 
     @Override
@@ -59,7 +57,7 @@ public class TrimItem extends Item {
         int weight = getWeight(stack);
 
         tooltip.add(Component.literal("§7Sorte: " + strain.getColoredName()));
-        tooltip.add(Component.literal("§7Gewicht: §f" + weight + "g"));
+        tooltip.add(Component.literal("§7Gewicht: §f" + (weight * stack.getCount()) + "g §8(" + stack.getCount() + "x 1g)"));
         tooltip.add(Component.empty());
         tooltip.add(Component.literal("§8Blätterreste vom Trimmen"));
         tooltip.add(Component.literal("§a→ Kann zu Hash gepresst werden"));

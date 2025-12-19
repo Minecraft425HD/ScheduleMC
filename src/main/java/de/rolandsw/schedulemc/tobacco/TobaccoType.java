@@ -7,10 +7,10 @@ import de.rolandsw.schedulemc.production.core.ProductionQuality;
  * Tabaksorten mit unterschiedlichen Eigenschaften
  */
 public enum TobaccoType implements ProductionType {
-    VIRGINIA("Virginia", "§e", 10.0, 100, 0.8, 20),
-    BURLEY("Burley", "§6", 15.0, 120, 0.9, 25),
-    ORIENTAL("Oriental", "§d", 20.0, 140, 1.0, 30),
-    HAVANA("Havana", "§c§l", 30.0, 160, 1.2, 40);
+    VIRGINIA("Virginia", "§e", 10.0, 100, 0.8, 6),
+    BURLEY("Burley", "§6", 15.0, 120, 0.9, 6),
+    ORIENTAL("Oriental", "§d", 20.0, 140, 1.0, 6),
+    HAVANA("Havana", "§c§l", 30.0, 160, 1.2, 6);
     
     private final String displayName;
     private final String colorCode;
