@@ -24,9 +24,21 @@ public enum NPCType {
         return displayNameEN;
     }
 
+    /**
+     * Gibt den Display-Name basierend auf der Client-Locale zurück
+     * Falls Client-Side: Automatische Sprachwahl
+     * Falls Server-Side: Deutsch (Standard)
+     *
+     * @return Lokalisierter Display-Name
+     */
     public String getDisplayName() {
-        // TODO: Kann später auf Client-Locale basieren
-        return displayNameDE;
+        try {
+            // Versuche Client-Locale zu verwenden
+            return de.rolandsw.schedulemc.util.LocaleHelper.selectClientLocalized(displayNameDE, displayNameEN);
+        } catch (Exception e) {
+            // Server-Side Fallback: Deutsch
+            return de.rolandsw.schedulemc.util.LocaleHelper.selectServerLocalized(displayNameDE, displayNameEN);
+        }
     }
 
     public static NPCType fromOrdinal(int ordinal) {
