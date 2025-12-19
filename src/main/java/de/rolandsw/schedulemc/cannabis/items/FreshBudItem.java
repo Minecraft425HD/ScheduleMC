@@ -27,7 +27,7 @@ public class FreshBudItem extends Item {
         CompoundTag tag = stack.getOrCreateTag();
         tag.putString("Strain", strain.name());
         tag.putString("Quality", quality.name());
-        tag.putInt("Weight", strain.getBaseYield()); // Gramm
+        tag.putInt("Weight", 1); // Jedes Item = 1g
         return stack;
     }
 
@@ -54,10 +54,8 @@ public class FreshBudItem extends Item {
     }
 
     public static int getWeight(ItemStack stack) {
-        if (stack.hasTag()) {
-            return stack.getTag().getInt("Weight");
-        }
-        return 10;
+        // Jedes Item = 1g, Gesamtgewicht = Stack-Count
+        return 1;
     }
 
     @Override
@@ -74,7 +72,7 @@ public class FreshBudItem extends Item {
 
         tooltip.add(Component.literal("§7Sorte: " + strain.getColoredName()));
         tooltip.add(Component.literal("§7Qualität: " + quality.getColoredName()));
-        tooltip.add(Component.literal("§7Gewicht: §f" + weight + "g"));
+        tooltip.add(Component.literal("§7Gewicht: §f" + (weight * stack.getCount()) + "g §8(" + stack.getCount() + "x 1g)"));
         tooltip.add(Component.empty());
         tooltip.add(Component.literal("§c⚠ Muss getrocknet werden!"));
         tooltip.add(Component.literal("§8Verwende ein Trocknungsnetz"));

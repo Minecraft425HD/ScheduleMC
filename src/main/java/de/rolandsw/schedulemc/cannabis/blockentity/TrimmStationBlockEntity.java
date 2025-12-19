@@ -59,7 +59,7 @@ public class TrimmStationBlockEntity extends BlockEntity implements IUtilityCons
 
         strain = DriedBudItem.getStrain(stack);
         baseQuality = DriedBudItem.getQuality(stack);
-        weight = DriedBudItem.getWeight(stack);
+        weight = stack.getCount(); // Anzahl Items = Gramm (jedes Item = 1g)
         inputItem = stack.copy();
 
         setChanged();
@@ -133,11 +133,12 @@ public class TrimmStationBlockEntity extends BlockEntity implements IUtilityCons
         }
 
         // Erstelle Output
-        int trimmedWeight = (int) (weight * 0.8); // 20% Verlust durch Trimmen
-        int trimWeight = weight - trimmedWeight;
+        // Jedes Item = 1g: X Items Input → X Items Trimmed + X/2 Items Trim
+        int trimmedCount = weight; // Gleiche Anzahl wie Input
+        int trimCount = weight / 2; // 0,5g Trim pro 1g Input
 
-        outputBud = TrimmedBudItem.create(strain, finalQuality, trimmedWeight);
-        outputTrim = TrimItem.create(strain, trimWeight);
+        outputBud = TrimmedBudItem.create(strain, finalQuality, trimmedCount);
+        outputTrim = TrimItem.create(strain, trimCount);
 
         inputItem = ItemStack.EMPTY;
         isMinigameActive = false;

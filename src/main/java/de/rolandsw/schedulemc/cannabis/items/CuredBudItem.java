@@ -22,12 +22,12 @@ public class CuredBudItem extends Item {
         super(properties);
     }
 
-    public static ItemStack create(CannabisStrain strain, CannabisQuality quality, int weight, int curingDays) {
-        ItemStack stack = new ItemStack(CannabisItems.CURED_BUD.get(), 1);
+    public static ItemStack create(CannabisStrain strain, CannabisQuality quality, int count, int curingDays) {
+        ItemStack stack = new ItemStack(CannabisItems.CURED_BUD.get(), count);
         CompoundTag tag = stack.getOrCreateTag();
         tag.putString("Strain", strain.name());
         tag.putString("Quality", quality.name());
-        tag.putInt("Weight", weight);
+        tag.putInt("Weight", 1); // Jedes Item = 1g
         tag.putInt("CuringDays", curingDays);
         return stack;
     }
@@ -55,10 +55,8 @@ public class CuredBudItem extends Item {
     }
 
     public static int getWeight(ItemStack stack) {
-        if (stack.hasTag()) {
-            return stack.getTag().getInt("Weight");
-        }
-        return 10;
+        // Jedes Item = 1g, Gesamtgewicht = Stack-Count
+        return 1;
     }
 
     public static int getCuringDays(ItemStack stack) {
@@ -71,10 +69,10 @@ public class CuredBudItem extends Item {
     public static double calculatePrice(ItemStack stack) {
         CannabisStrain strain = getStrain(stack);
         CannabisQuality quality = getQuality(stack);
-        int weight = getWeight(stack);
         int curingDays = getCuringDays(stack);
 
-        double basePrice = strain.calculatePrice(quality) * (weight / 10.0);
+        // Preis pro Gramm * Anzahl Items
+        double basePrice = strain.calculatePrice(quality) * stack.getCount() / 10.0;
         // Bonus für längeres Curing (max +50% bei 30+ Tagen)
         double curingBonus = Math.min(curingDays / 60.0, 0.5);
         return basePrice * (1.0 + curingBonus);
@@ -98,7 +96,7 @@ public class CuredBudItem extends Item {
         tooltip.add(Component.literal("§7Sorte: " + strain.getColoredName()));
         tooltip.add(Component.literal("§7Qualität: " + quality.getColoredName()));
         tooltip.add(Component.literal("§7THC: §f" + strain.getThcContent() + "%"));
-        tooltip.add(Component.literal("§7Gewicht: §f" + weight + "g"));
+        tooltip.add(Component.literal("§7Gewicht: §f" + (weight * stack.getCount()) + "g §8(" + stack.getCount() + "x 1g)"));
         tooltip.add(Component.literal("§7Curing-Zeit: §f" + curingDays + " Tage"));
         tooltip.add(Component.empty());
         tooltip.add(Component.literal("§6💰 Wert: §f" + String.format("%.2f", price) + "€"));

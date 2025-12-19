@@ -22,12 +22,12 @@ public class TrimmedBudItem extends Item {
         super(properties);
     }
 
-    public static ItemStack create(CannabisStrain strain, CannabisQuality quality, int weight) {
-        ItemStack stack = new ItemStack(CannabisItems.TRIMMED_BUD.get(), 1);
+    public static ItemStack create(CannabisStrain strain, CannabisQuality quality, int count) {
+        ItemStack stack = new ItemStack(CannabisItems.TRIMMED_BUD.get(), count);
         CompoundTag tag = stack.getOrCreateTag();
         tag.putString("Strain", strain.name());
         tag.putString("Quality", quality.name());
-        tag.putInt("Weight", weight);
+        tag.putInt("Weight", 1); // Jedes Item = 1g
         return stack;
     }
 
@@ -54,17 +54,15 @@ public class TrimmedBudItem extends Item {
     }
 
     public static int getWeight(ItemStack stack) {
-        if (stack.hasTag()) {
-            return stack.getTag().getInt("Weight");
-        }
-        return 10;
+        // Jedes Item = 1g, Gesamtgewicht = Stack-Count
+        return 1;
     }
 
     public static double calculatePrice(ItemStack stack) {
         CannabisStrain strain = getStrain(stack);
         CannabisQuality quality = getQuality(stack);
-        int weight = getWeight(stack);
-        return strain.calculatePrice(quality) * (weight / 10.0);
+        // Preis pro Gramm * Anzahl Items
+        return strain.calculatePrice(quality) * stack.getCount() / 10.0;
     }
 
     @Override
@@ -84,7 +82,7 @@ public class TrimmedBudItem extends Item {
         tooltip.add(Component.literal("§7Sorte: " + strain.getColoredName()));
         tooltip.add(Component.literal("§7Qualität: " + quality.getColoredName()));
         tooltip.add(Component.literal("§7THC: §f" + strain.getThcContent() + "%"));
-        tooltip.add(Component.literal("§7Gewicht: §f" + weight + "g"));
+        tooltip.add(Component.literal("§7Gewicht: §f" + (weight * stack.getCount()) + "g §8(" + stack.getCount() + "x 1g)"));
         tooltip.add(Component.empty());
         tooltip.add(Component.literal("§6💰 Wert: §f" + String.format("%.2f", price) + "€"));
         tooltip.add(Component.empty());
