@@ -153,7 +153,8 @@ class EventHelperTest {
     void testHandleServerTickCorrectSideAndPhase() {
         // Arrange
         MinecraftServer mockServer = mock(MinecraftServer.class);
-        TickEvent.ServerTickEvent event = new TickEvent.ServerTickEvent(TickEvent.Phase.END, LogicalSide.SERVER, mockServer);
+        // ServerTickEvent takes (Phase, BooleanSupplier hasServer, MinecraftServer)
+        TickEvent.ServerTickEvent event = new TickEvent.ServerTickEvent(TickEvent.Phase.END, () -> true, mockServer);
         boolean[] executed = {false};
 
         // Act
@@ -171,7 +172,7 @@ class EventHelperTest {
     void testHandleServerTickSkipsWrongPhase() {
         // Arrange
         MinecraftServer mockServer = mock(MinecraftServer.class);
-        TickEvent.ServerTickEvent event = new TickEvent.ServerTickEvent(TickEvent.Phase.START, LogicalSide.SERVER, mockServer);
+        TickEvent.ServerTickEvent event = new TickEvent.ServerTickEvent(TickEvent.Phase.START, () -> true, mockServer);
 
         // Act
         EventHelper.handleServerTick(event, TickEvent.Phase.END, server ->
@@ -184,7 +185,8 @@ class EventHelperTest {
     void testHandleServerTickSkipsClientSide() {
         // Arrange
         MinecraftServer mockServer = mock(MinecraftServer.class);
-        TickEvent.ServerTickEvent event = new TickEvent.ServerTickEvent(TickEvent.Phase.END, LogicalSide.CLIENT, mockServer);
+        // Use () -> false to simulate client side (no server)
+        TickEvent.ServerTickEvent event = new TickEvent.ServerTickEvent(TickEvent.Phase.END, () -> false, mockServer);
 
         // Act
         EventHelper.handleServerTick(event, TickEvent.Phase.END, server ->
@@ -197,7 +199,7 @@ class EventHelperTest {
     void testHandleServerTickEnd() {
         // Arrange
         MinecraftServer mockServer = mock(MinecraftServer.class);
-        TickEvent.ServerTickEvent event = new TickEvent.ServerTickEvent(TickEvent.Phase.END, LogicalSide.SERVER, mockServer);
+        TickEvent.ServerTickEvent event = new TickEvent.ServerTickEvent(TickEvent.Phase.END, () -> true, mockServer);
         boolean[] executed = {false};
 
         // Act
@@ -471,8 +473,8 @@ class EventHelperTest {
     void testIsServerSide() {
         // Arrange
         MinecraftServer mockServer = mock(MinecraftServer.class);
-        TickEvent.ServerTickEvent serverEvent = new TickEvent.ServerTickEvent(TickEvent.Phase.END, LogicalSide.SERVER, mockServer);
-        TickEvent.ServerTickEvent clientEvent = new TickEvent.ServerTickEvent(TickEvent.Phase.END, LogicalSide.CLIENT, mockServer);
+        TickEvent.ServerTickEvent serverEvent = new TickEvent.ServerTickEvent(TickEvent.Phase.END, () -> true, mockServer);
+        TickEvent.ServerTickEvent clientEvent = new TickEvent.ServerTickEvent(TickEvent.Phase.END, () -> false, mockServer);
 
         // Assert
         assertThat(EventHelper.isServerSide(serverEvent)).isTrue();
@@ -484,8 +486,8 @@ class EventHelperTest {
     void testIsEndPhase() {
         // Arrange
         MinecraftServer mockServer = mock(MinecraftServer.class);
-        TickEvent.ServerTickEvent endEvent = new TickEvent.ServerTickEvent(TickEvent.Phase.END, LogicalSide.SERVER, mockServer);
-        TickEvent.ServerTickEvent startEvent = new TickEvent.ServerTickEvent(TickEvent.Phase.START, LogicalSide.SERVER, mockServer);
+        TickEvent.ServerTickEvent endEvent = new TickEvent.ServerTickEvent(TickEvent.Phase.END, () -> true, mockServer);
+        TickEvent.ServerTickEvent startEvent = new TickEvent.ServerTickEvent(TickEvent.Phase.START, () -> true, mockServer);
 
         // Assert
         assertThat(EventHelper.isEndPhase(endEvent)).isTrue();
