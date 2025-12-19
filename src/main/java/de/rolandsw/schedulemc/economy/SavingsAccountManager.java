@@ -3,40 +3,36 @@ package de.rolandsw.schedulemc.economy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
+import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
-import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.File;
 import java.lang.reflect.Type;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 /**
  * Verwaltet Sparkonten aller Spieler
+ * Refactored mit AbstractPersistenceManager
  */
-public class SavingsAccountManager {
-    private static final Logger LOGGER = LogUtils.getLogger();
+public class SavingsAccountManager extends AbstractPersistenceManager<Map<UUID, List<SavingsAccount>>> {
     private static SavingsAccountManager instance;
 
     private final Map<UUID, List<SavingsAccount>> accounts = new ConcurrentHashMap<>();
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    private final Path savePath;
     private MinecraftServer server;
 
     private long currentDay = 0;
 
     private SavingsAccountManager(MinecraftServer server) {
+        super(
+            server.getServerDirectory().toPath().resolve("config").resolve("plotmod_savings.json").toFile(),
+            new GsonBuilder().setPrettyPrinting().create()
+        );
         this.server = server;
-        this.savePath = server.getServerDirectory().toPath().resolve("config").resolve("plotmod_savings.json");
         load();
     }
 
@@ -301,35 +297,41 @@ public class SavingsAccountManager {
             .sum();
     }
 
-    // Persistence
-    private void load() {
-        if (!Files.exists(savePath)) {
-            return;
-        }
+    // ========== AbstractPersistenceManager Implementation ==========
 
-        try (Reader reader = Files.newBufferedReader(savePath)) {
-            Type type = new TypeToken<Map<UUID, List<SavingsAccount>>>(){}.getType();
-            Map<UUID, List<SavingsAccount>> loaded = gson.fromJson(reader, type);
-            if (loaded != null) {
-                accounts.putAll(loaded);
-                LOGGER.info("Loaded {} savings accounts", loaded.values().stream()
-                    .mapToInt(List::size).sum());
-            }
-        } catch (Exception e) {
-            LOGGER.error("Failed to load savings accounts", e);
-        }
+    @Override
+    protected Type getDataType() {
+        return new TypeToken<Map<UUID, List<SavingsAccount>>>(){}.getType();
     }
 
-    public void save() {
-        try {
-            Files.createDirectories(savePath.getParent());
-            try (Writer writer = Files.newBufferedWriter(savePath)) {
-                gson.toJson(accounts, writer);
-            }
-        } catch (Exception e) {
-            LOGGER.error("Failed to save savings accounts", e);
-        }
+    @Override
+    protected void onDataLoaded(Map<UUID, List<SavingsAccount>> data) {
+        accounts.clear();
+        accounts.putAll(data);
     }
+
+    @Override
+    protected Map<UUID, List<SavingsAccount>> getCurrentData() {
+        return new HashMap<>(accounts);
+    }
+
+    @Override
+    protected String getComponentName() {
+        return "SavingsAccountManager";
+    }
+
+    @Override
+    protected String getHealthDetails() {
+        int totalAccounts = accounts.values().stream().mapToInt(List::size).sum();
+        return totalAccounts + " Sparkonten aktiv";
+    }
+
+    @Override
+    protected void onCriticalLoadFailure() {
+        accounts.clear();
+    }
+
+    // ========== Public API ==========
 
     public static double getMaxSavingsPerPlayer() {
         return ModConfigHandler.COMMON.SAVINGS_MAX_PER_PLAYER.get();

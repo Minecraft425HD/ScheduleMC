@@ -3,18 +3,14 @@ package de.rolandsw.schedulemc.economy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
+import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
-import org.slf4j.Logger;
 
-import java.io.Reader;
-import java.io.Writer;
+import java.io.File;
 import java.lang.reflect.Type;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -23,22 +19,23 @@ import java.util.concurrent.ConcurrentHashMap;
  * - Konfigurierbare Überziehung
  * - Konfigurierbare Zinsen pro Woche
  * - Automatische Pfändung bei Limit
+ * Refactored mit AbstractPersistenceManager
  */
-public class OverdraftManager {
-    private static final Logger LOGGER = LogUtils.getLogger();
+public class OverdraftManager extends AbstractPersistenceManager<Map<String, Object>> {
     private static OverdraftManager instance;
 
     private final Map<UUID, Long> lastWarningDay = new ConcurrentHashMap<>();
     private final Map<UUID, Long> lastInterestDay = new ConcurrentHashMap<>();
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    private final Path savePath;
     private MinecraftServer server;
 
     private long currentDay = 0;
 
     private OverdraftManager(MinecraftServer server) {
+        super(
+            server.getServerDirectory().toPath().resolve("config").resolve("plotmod_overdraft.json").toFile(),
+            new GsonBuilder().setPrettyPrinting().create()
+        );
         this.server = server;
-        this.savePath = server.getServerDirectory().toPath().resolve("config").resolve("plotmod_overdraft.json");
         load();
     }
 
@@ -222,54 +219,60 @@ public class OverdraftManager {
             "§7Überziehungszinsen: §c" + String.format("%.0f%%", interestRate * 100) + " pro Woche";
     }
 
-    // Persistence
-    private void load() {
-        if (!Files.exists(savePath)) {
-            return;
+    // ========== AbstractPersistenceManager Implementation ==========
+
+    @Override
+    protected Type getDataType() {
+        return new TypeToken<Map<String, Object>>(){}.getType();
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    protected void onDataLoaded(Map<String, Object> data) {
+        lastWarningDay.clear();
+        lastInterestDay.clear();
+
+        Object warningObj = data.get("lastWarningDay");
+        if (warningObj instanceof Map) {
+            ((Map<String, Number>) warningObj).forEach((k, v) ->
+                lastWarningDay.put(UUID.fromString(k), v.longValue()));
         }
 
-        try (Reader reader = Files.newBufferedReader(savePath)) {
-            Type type = new TypeToken<Map<String, Object>>(){}.getType();
-            Map<String, Object> data = gson.fromJson(reader, type);
-
-            if (data != null) {
-                Object warningObj = data.get("lastWarningDay");
-                if (warningObj instanceof Map) {
-                    ((Map<String, Number>) warningObj).forEach((k, v) ->
-                        lastWarningDay.put(UUID.fromString(k), v.longValue()));
-                }
-
-                Object interestObj = data.get("lastInterestDay");
-                if (interestObj instanceof Map) {
-                    ((Map<String, Number>) interestObj).forEach((k, v) ->
-                        lastInterestDay.put(UUID.fromString(k), v.longValue()));
-                }
-
-                LOGGER.info("Loaded overdraft data");
-            }
-        } catch (Exception e) {
-            LOGGER.error("Failed to load overdraft data", e);
+        Object interestObj = data.get("lastInterestDay");
+        if (interestObj instanceof Map) {
+            ((Map<String, Number>) interestObj).forEach((k, v) ->
+                lastInterestDay.put(UUID.fromString(k), v.longValue()));
         }
     }
 
-    public void save() {
-        try {
-            Files.createDirectories(savePath.getParent());
-            try (Writer writer = Files.newBufferedWriter(savePath)) {
-                Map<String, Object> data = new HashMap<>();
+    @Override
+    protected Map<String, Object> getCurrentData() {
+        Map<String, Object> data = new HashMap<>();
 
-                Map<String, Long> warningMap = new HashMap<>();
-                lastWarningDay.forEach((k, v) -> warningMap.put(k.toString(), v));
-                data.put("lastWarningDay", warningMap);
+        Map<String, Long> warningMap = new HashMap<>();
+        lastWarningDay.forEach((k, v) -> warningMap.put(k.toString(), v));
+        data.put("lastWarningDay", warningMap);
 
-                Map<String, Long> interestMap = new HashMap<>();
-                lastInterestDay.forEach((k, v) -> interestMap.put(k.toString(), v));
-                data.put("lastInterestDay", interestMap);
+        Map<String, Long> interestMap = new HashMap<>();
+        lastInterestDay.forEach((k, v) -> interestMap.put(k.toString(), v));
+        data.put("lastInterestDay", interestMap);
 
-                gson.toJson(data, writer);
-            }
-        } catch (Exception e) {
-            LOGGER.error("Failed to save overdraft data", e);
-        }
+        return data;
+    }
+
+    @Override
+    protected String getComponentName() {
+        return "OverdraftManager";
+    }
+
+    @Override
+    protected String getHealthDetails() {
+        return lastWarningDay.size() + " Spieler mit Überziehung";
+    }
+
+    @Override
+    protected void onCriticalLoadFailure() {
+        lastWarningDay.clear();
+        lastInterestDay.clear();
     }
 }
