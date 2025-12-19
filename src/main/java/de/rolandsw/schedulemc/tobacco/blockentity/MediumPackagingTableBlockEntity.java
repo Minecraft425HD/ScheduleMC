@@ -43,9 +43,11 @@ public class MediumPackagingTableBlockEntity extends BlockEntity implements Menu
 
         @Override
         public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+            // Slot 0: Verpackbare Drug-Items (fermentiert/verarbeitet)
             if (slot == 0) {
-                return stack.getItem() instanceof FermentedTobaccoLeafItem;
+                return PackagedDrugItem.isPackageableItem(stack);
             }
+            // Slots 1-10: Schachteln (leer oder voll)
             if (slot >= 1 && slot <= 10) {
                 return stack.getItem() instanceof PackagingBoxItem ||
                        (stack.getItem() instanceof PackagedDrugItem && PackagedDrugItem.getWeight(stack) == 10);

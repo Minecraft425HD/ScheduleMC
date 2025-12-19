@@ -1,5 +1,11 @@
 package de.rolandsw.schedulemc.production.items;
 
+import de.rolandsw.schedulemc.cannabis.items.CuredBudItem;
+import de.rolandsw.schedulemc.coca.items.CocaineItem;
+import de.rolandsw.schedulemc.meth.items.MethItem;
+import de.rolandsw.schedulemc.mushroom.items.DriedMushroomItem;
+import de.rolandsw.schedulemc.poppy.items.HeroinItem;
+import de.rolandsw.schedulemc.tobacco.items.FermentedTobaccoLeafItem;
 import de.rolandsw.schedulemc.production.core.DrugType;
 import de.rolandsw.schedulemc.production.core.ProductionQuality;
 import de.rolandsw.schedulemc.production.core.ProductionType;
@@ -35,6 +41,19 @@ public class PackagedDrugItem extends Item {
     public PackagedDrugItem() {
         super(new Properties()
                 .stacksTo(1)); // Verpackte Ware nicht stapelbar
+    }
+
+    /**
+     * Prüft ob ein Item verpackbar ist (verarbeitetes Drug-Item)
+     */
+    public static boolean isPackageableItem(ItemStack stack) {
+        Item item = stack.getItem();
+        return item instanceof FermentedTobaccoLeafItem ||
+               item instanceof CocaineItem ||
+               item instanceof HeroinItem ||
+               item instanceof MethItem ||
+               item instanceof DriedMushroomItem ||
+               item instanceof CuredBudItem;
     }
 
     // ═══════════════════════════════════════════════════════════

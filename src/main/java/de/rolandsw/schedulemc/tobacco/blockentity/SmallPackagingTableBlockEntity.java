@@ -44,9 +44,9 @@ public class SmallPackagingTableBlockEntity extends BlockEntity implements MenuP
 
         @Override
         public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-            // Slot 0: Nur fermentierter Tabak
+            // Slot 0: Verpackbare Drug-Items (fermentiert/verarbeitet)
             if (slot == 0) {
-                return stack.getItem() instanceof FermentedTobaccoLeafItem;
+                return PackagedDrugItem.isPackageableItem(stack);
             }
             // Slots 1-10: Nur Tüten (leer oder voll)
             if (slot >= 1 && slot <= 10) {
