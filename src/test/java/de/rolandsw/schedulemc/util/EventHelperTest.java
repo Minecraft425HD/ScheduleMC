@@ -467,7 +467,7 @@ class EventHelperTest {
         // Act - Should not throw
         assertThatCode(() ->
             EventHelper.handleEvent(() -> {
-                throw new Exception("Generic event error");
+                throw new RuntimeException("Generic event error");
             }, "TestEvent")
         ).doesNotThrowAnyException();
     }
