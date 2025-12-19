@@ -152,12 +152,8 @@ class EventHelperTest {
     @DisplayName("handleServerTick should execute on correct side and phase")
     void testHandleServerTickCorrectSideAndPhase() {
         // Arrange
-        TickEvent.ServerTickEvent event = mock(TickEvent.ServerTickEvent.class);
         MinecraftServer mockServer = mock(MinecraftServer.class);
-        // Use field access instead of assignment for final fields
-        when(event.side).thenReturn(LogicalSide.SERVER);
-        when(event.phase).thenReturn(TickEvent.Phase.END);
-        when(event.getServer()).thenReturn(mockServer);
+        TickEvent.ServerTickEvent event = new TickEvent.ServerTickEvent(LogicalSide.SERVER, TickEvent.Phase.END, mockServer);
         boolean[] executed = {false};
 
         // Act
@@ -174,9 +170,8 @@ class EventHelperTest {
     @DisplayName("handleServerTick should skip wrong phase")
     void testHandleServerTickSkipsWrongPhase() {
         // Arrange
-        TickEvent.ServerTickEvent event = mock(TickEvent.ServerTickEvent.class);
-        when(event.side).thenReturn(LogicalSide.SERVER);
-        when(event.phase).thenReturn(TickEvent.Phase.START);
+        MinecraftServer mockServer = mock(MinecraftServer.class);
+        TickEvent.ServerTickEvent event = new TickEvent.ServerTickEvent(LogicalSide.SERVER, TickEvent.Phase.START, mockServer);
 
         // Act
         EventHelper.handleServerTick(event, TickEvent.Phase.END, server ->
@@ -188,9 +183,8 @@ class EventHelperTest {
     @DisplayName("handleServerTick should skip client side")
     void testHandleServerTickSkipsClientSide() {
         // Arrange
-        TickEvent.ServerTickEvent event = mock(TickEvent.ServerTickEvent.class);
-        when(event.side).thenReturn(LogicalSide.CLIENT);
-        when(event.phase).thenReturn(TickEvent.Phase.END);
+        MinecraftServer mockServer = mock(MinecraftServer.class);
+        TickEvent.ServerTickEvent event = new TickEvent.ServerTickEvent(LogicalSide.CLIENT, TickEvent.Phase.END, mockServer);
 
         // Act
         EventHelper.handleServerTick(event, TickEvent.Phase.END, server ->
@@ -202,11 +196,8 @@ class EventHelperTest {
     @DisplayName("handleServerTickEnd should use END phase")
     void testHandleServerTickEnd() {
         // Arrange
-        TickEvent.ServerTickEvent event = mock(TickEvent.ServerTickEvent.class);
         MinecraftServer mockServer = mock(MinecraftServer.class);
-        when(event.side).thenReturn(LogicalSide.SERVER);
-        when(event.phase).thenReturn(TickEvent.Phase.END);
-        when(event.getServer()).thenReturn(mockServer);
+        TickEvent.ServerTickEvent event = new TickEvent.ServerTickEvent(LogicalSide.SERVER, TickEvent.Phase.END, mockServer);
         boolean[] executed = {false};
 
         // Act
@@ -301,8 +292,10 @@ class EventHelperTest {
     void testHandleEntityInteractSkipsClient() {
         // Arrange
         PlayerInteractEvent.EntityInteract event = mock(PlayerInteractEvent.EntityInteract.class);
-        when(event.getLevel()).thenReturn(mockLevel);
-        when(mockLevel.isClientSide()).thenReturn(true);
+        // Setup client-side level
+        Level clientLevel = mock(Level.class);
+        clientLevel.isClientSide = true;
+        when(event.getLevel()).thenReturn(clientLevel);
 
         // Act
         EventHelper.handleEntityInteract(event, player ->
@@ -316,8 +309,8 @@ class EventHelperTest {
         // Arrange
         PlayerInteractEvent.EntityInteract event = mock(PlayerInteractEvent.EntityInteract.class);
         when(event.getEntity()).thenReturn(mockPlayer);
+        mockLevel.isClientSide = false;
         when(event.getLevel()).thenReturn(mockLevel);
-        when(mockLevel.isClientSide()).thenReturn(false);
         boolean[] executed = {false};
 
         // Act
@@ -494,11 +487,9 @@ class EventHelperTest {
     @DisplayName("isServerSide should correctly identify server side")
     void testIsServerSide() {
         // Arrange
-        TickEvent.ServerTickEvent serverEvent = mock(TickEvent.ServerTickEvent.class);
-        when(serverEvent.side).thenReturn(LogicalSide.SERVER);
-
-        TickEvent.ServerTickEvent clientEvent = mock(TickEvent.ServerTickEvent.class);
-        when(clientEvent.side).thenReturn(LogicalSide.CLIENT);
+        MinecraftServer mockServer = mock(MinecraftServer.class);
+        TickEvent.ServerTickEvent serverEvent = new TickEvent.ServerTickEvent(LogicalSide.SERVER, TickEvent.Phase.END, mockServer);
+        TickEvent.ServerTickEvent clientEvent = new TickEvent.ServerTickEvent(LogicalSide.CLIENT, TickEvent.Phase.END, mockServer);
 
         // Assert
         assertThat(EventHelper.isServerSide(serverEvent)).isTrue();
@@ -509,11 +500,9 @@ class EventHelperTest {
     @DisplayName("isEndPhase should correctly identify END phase")
     void testIsEndPhase() {
         // Arrange
-        TickEvent.ServerTickEvent endEvent = mock(TickEvent.ServerTickEvent.class);
-        when(endEvent.phase).thenReturn(TickEvent.Phase.END);
-
-        TickEvent.ServerTickEvent startEvent = mock(TickEvent.ServerTickEvent.class);
-        when(startEvent.phase).thenReturn(TickEvent.Phase.START);
+        MinecraftServer mockServer = mock(MinecraftServer.class);
+        TickEvent.ServerTickEvent endEvent = new TickEvent.ServerTickEvent(LogicalSide.SERVER, TickEvent.Phase.END, mockServer);
+        TickEvent.ServerTickEvent startEvent = new TickEvent.ServerTickEvent(LogicalSide.SERVER, TickEvent.Phase.START, mockServer);
 
         // Assert
         assertThat(EventHelper.isEndPhase(endEvent)).isTrue();
@@ -526,11 +515,9 @@ class EventHelperTest {
     @DisplayName("handlePlayerTickEnd should execute on END phase server-side")
     void testHandlePlayerTickEnd() {
         // Arrange
-        TickEvent.PlayerTickEvent event = mock(TickEvent.PlayerTickEvent.class);
-        when(event.phase).thenReturn(TickEvent.Phase.END);
-        when(event.player).thenReturn(mockPlayer);
         when(mockPlayer.level()).thenReturn(mockLevel);
         when(mockLevel.isClientSide()).thenReturn(false);
+        TickEvent.PlayerTickEvent event = new TickEvent.PlayerTickEvent(LogicalSide.SERVER, TickEvent.Phase.END, mockPlayer);
         boolean[] executed = {false};
 
         // Act
@@ -544,9 +531,7 @@ class EventHelperTest {
     @DisplayName("handlePlayerTickEnd should skip START phase")
     void testHandlePlayerTickEndSkipsStartPhase() {
         // Arrange
-        TickEvent.PlayerTickEvent event = mock(TickEvent.PlayerTickEvent.class);
-        when(event.phase).thenReturn(TickEvent.Phase.START);
-        when(event.player).thenReturn(mockPlayer);
+        TickEvent.PlayerTickEvent event = new TickEvent.PlayerTickEvent(LogicalSide.SERVER, TickEvent.Phase.START, mockPlayer);
 
         // Act
         EventHelper.handlePlayerTickEnd(event, player ->
