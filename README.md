@@ -5,7 +5,7 @@
 ![Minecraft](https://img.shields.io/badge/Minecraft-1.20.1-green?style=for-the-badge)
 ![Forge](https://img.shields.io/badge/Forge-47.4.0-orange?style=for-the-badge)
 ![Java](https://img.shields.io/badge/Java-17-blue?style=for-the-badge)
-![Version](https://img.shields.io/badge/Version-2.3.0--beta-red?style=for-the-badge)
+![Version](https://img.shields.io/badge/Version-2.7.0--beta-red?style=for-the-badge)
 
 **Minecraft Schedule Mod**
 
