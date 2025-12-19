@@ -17,7 +17,8 @@ public class PlantSerializerFactory {
 
     static {
         SERIALIZERS.add(new TobaccoPlantSerializer());
-        // TODO: Aktivieren wenn implementiert
+        // Note: Additional plant serializers can be added here as they are implemented
+        // Template for new serializers:
         // SERIALIZERS.add(new CannabisPlantSerializer());
         // SERIALIZERS.add(new CocaPlantSerializer());
         // SERIALIZERS.add(new PoppyPlantSerializer());

@@ -3,6 +3,7 @@ plugins {
     id 'idea'
     id 'maven-publish'
     id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id 'jacoco'
 }
 
 version = mod_version
@@ -226,3 +227,58 @@ test {
     // Increase memory for tests
     maxHeapSize = '2G'
 }
+
+
+// ==================== JaCoCo Code Coverage Configuration ====================
+
+jacoco {
+    toolVersion = '0.8.11'
+}
+
+jacocoTestReport {
+    dependsOn test // Tests müssen zuerst ausgeführt werden
+    
+    reports {
+        xml.required = true
+        html.required = true
+        csv.required = false
+    }
+
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                // Exclude generated code
+                '**/generated/**',
+                // Exclude Minecraft event handlers (hard to test in unit tests)
+                '**/*Event*.class',
+                // Exclude GUI classes (require game world)
+                '**/client/gui/**',
+                // Exclude block entities (require game world)
+                '**/blockentity/**'
+            ])
+        }))
+    }
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.60 // 60% minimum coverage
+            }
+        }
+        
+        rule {
+            element = 'CLASS'
+            includes = ['de.rolandsw.schedulemc.util.*']
+            
+            limit {
+                counter = 'LINE'
+                minimum = 0.80 // 80% for utilities
+            }
+        }
+    }
+}
+
+check.dependsOn jacocoTestCoverageVerification
+
