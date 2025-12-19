@@ -43,22 +43,17 @@ class EconomyManagerTest {
         // Reset EconomyManager state before each test
         resetEconomyManager();
 
-        // Redirect file location to temp directory
-        Field fileField = EconomyManager.class.getDeclaredField("file");
-        fileField.setAccessible(true);
-        originalConfigFile = (File) fileField.get(null);
-
+        // Redirect file location to temp directory using setter method
+        originalConfigFile = EconomyManager.getFile();
         File tempFile = tempDir.resolve("test_economy.json").toFile();
-        fileField.set(null, tempFile);
+        EconomyManager.setFile(tempFile);
     }
 
     @AfterEach
     void tearDown() throws Exception {
         // Restore original file location
         if (originalConfigFile != null) {
-            Field fileField = EconomyManager.class.getDeclaredField("file");
-            fileField.setAccessible(true);
-            fileField.set(null, originalConfigFile);
+            EconomyManager.setFile(originalConfigFile);
         }
 
         // Clean up

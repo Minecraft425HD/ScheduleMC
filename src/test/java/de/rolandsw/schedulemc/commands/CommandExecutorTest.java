@@ -2,9 +2,11 @@ package de.rolandsw.schedulemc.commands;
 
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import de.rolandsw.schedulemc.test.MinecraftTestBootstrap;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,6 +33,11 @@ class CommandExecutorTest {
     private CommandContext<CommandSourceStack> mockContext;
     private CommandSourceStack mockSource;
     private ServerPlayer mockPlayer;
+
+    @BeforeAll
+    static void initMinecraft() {
+        MinecraftTestBootstrap.init();
+    }
 
     @BeforeEach
     void setUp() {
