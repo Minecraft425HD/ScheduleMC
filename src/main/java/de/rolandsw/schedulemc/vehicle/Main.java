@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.vehicle;
 
 import com.google.common.collect.ImmutableSet;
+import de.rolandsw.schedulemc.util.EventHelper;
 import de.rolandsw.schedulemc.vehicle.blocks.ModBlocks;
 import de.rolandsw.schedulemc.vehicle.blocks.tileentity.*;
 import de.rolandsw.schedulemc.vehicle.blocks.tileentity.render.TileentitySpecialRendererFuelStation;
@@ -98,29 +99,33 @@ public class Main {
 
     @SubscribeEvent
     public void onRegisterCommands(RegisterCommandsEvent event) {
-        // DISABLED: CommandVehicleDemo requires JEI integration which was removed
-        // CommandVehicleDemo.register(event.getDispatcher());
+        EventHelper.handleEvent(() -> {
+            // DISABLED: CommandVehicleDemo requires JEI integration which was removed
+            // CommandVehicleDemo.register(event.getDispatcher());
+        }, "onRegisterCommands");
     }
 
     @SubscribeEvent
     public void commonSetup(FMLCommonSetupEvent event) {
-        MinecraftForge.EVENT_BUS.register(this);
-        MinecraftForge.EVENT_BUS.register(new BlockEvents());
+        EventHelper.handleEvent(() -> {
+            MinecraftForge.EVENT_BUS.register(this);
+            MinecraftForge.EVENT_BUS.register(new BlockEvents());
 
-        SIMPLE_CHANNEL = CommonRegistry.registerChannel(Main.MODID, "default");
-        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 0, MessageControlVehicle.class);
-        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 1, MessageVehicleGui.class);
-        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 2, MessageStarting.class);
-        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 3, MessageCrash.class);
-        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 4, MessageStartFuel.class);
-        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 6, MessageSyncTileEntity.class);
-        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 10, MessageVehicleHorn.class);
-        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 12, MessageFuelStationAdminAmount.class);
-        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 13, MessageCenterVehicle.class);
-        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 14, MessageCenterVehicleClient.class);
-        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 15, MessageEditLicensePlate.class);
-        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 16, MessageGaragePayment.class);
-        CommonRegistry.registerMessage(SIMPLE_CHANNEL, 17, MessageGarageUpgrade.class);
+            SIMPLE_CHANNEL = CommonRegistry.registerChannel(Main.MODID, "default");
+            CommonRegistry.registerMessage(SIMPLE_CHANNEL, 0, MessageControlVehicle.class);
+            CommonRegistry.registerMessage(SIMPLE_CHANNEL, 1, MessageVehicleGui.class);
+            CommonRegistry.registerMessage(SIMPLE_CHANNEL, 2, MessageStarting.class);
+            CommonRegistry.registerMessage(SIMPLE_CHANNEL, 3, MessageCrash.class);
+            CommonRegistry.registerMessage(SIMPLE_CHANNEL, 4, MessageStartFuel.class);
+            CommonRegistry.registerMessage(SIMPLE_CHANNEL, 6, MessageSyncTileEntity.class);
+            CommonRegistry.registerMessage(SIMPLE_CHANNEL, 10, MessageVehicleHorn.class);
+            CommonRegistry.registerMessage(SIMPLE_CHANNEL, 12, MessageFuelStationAdminAmount.class);
+            CommonRegistry.registerMessage(SIMPLE_CHANNEL, 13, MessageCenterVehicle.class);
+            CommonRegistry.registerMessage(SIMPLE_CHANNEL, 14, MessageCenterVehicleClient.class);
+            CommonRegistry.registerMessage(SIMPLE_CHANNEL, 15, MessageEditLicensePlate.class);
+            CommonRegistry.registerMessage(SIMPLE_CHANNEL, 16, MessageGaragePayment.class);
+            CommonRegistry.registerMessage(SIMPLE_CHANNEL, 17, MessageGarageUpgrade.class);
+        }, "commonSetup");
     }
 
     public static KeyMapping FORWARD_KEY;
@@ -136,46 +141,50 @@ public class Main {
     @SubscribeEvent
     @OnlyIn(Dist.CLIENT)
     public void clientSetup(FMLClientSetupEvent event) {
-        BlockEntityRenderers.register(FUEL_STATION_TILE_ENTITY_TYPE.get(), TileentitySpecialRendererFuelStation::new);
+        EventHelper.handleEvent(() -> {
+            BlockEntityRenderers.register(FUEL_STATION_TILE_ENTITY_TYPE.get(), TileentitySpecialRendererFuelStation::new);
 
-        ClientRegistry.<ContainerVehicle, GuiVehicle>registerScreen(Main.VEHICLE_CONTAINER_TYPE.get(), GuiVehicle::new);
-        ClientRegistry.<ContainerVehicleInventory, GuiVehicleInventory>registerScreen(Main.VEHICLE_INVENTORY_CONTAINER_TYPE.get(), GuiVehicleInventory::new);
-        ClientRegistry.<ContainerFuelStation, GuiFuelStation>registerScreen(Main.FUEL_STATION_CONTAINER_TYPE.get(), GuiFuelStation::new);
-        ClientRegistry.<ContainerFuelStationAdmin, GuiFuelStationAdmin>registerScreen(Main.FUEL_STATION_ADMIN_CONTAINER_TYPE.get(), GuiFuelStationAdmin::new);
-        ClientRegistry.<ContainerLicensePlate, GuiLicensePlate>registerScreen(Main.LICENSE_PLATE_CONTAINER_TYPE.get(), GuiLicensePlate::new);
-        ClientRegistry.<ContainerGarage, GuiGarage>registerScreen(Main.GARAGE_CONTAINER_TYPE.get(), GuiGarage::new);
+            ClientRegistry.<ContainerVehicle, GuiVehicle>registerScreen(Main.VEHICLE_CONTAINER_TYPE.get(), GuiVehicle::new);
+            ClientRegistry.<ContainerVehicleInventory, GuiVehicleInventory>registerScreen(Main.VEHICLE_INVENTORY_CONTAINER_TYPE.get(), GuiVehicleInventory::new);
+            ClientRegistry.<ContainerFuelStation, GuiFuelStation>registerScreen(Main.FUEL_STATION_CONTAINER_TYPE.get(), GuiFuelStation::new);
+            ClientRegistry.<ContainerFuelStationAdmin, GuiFuelStationAdmin>registerScreen(Main.FUEL_STATION_ADMIN_CONTAINER_TYPE.get(), GuiFuelStationAdmin::new);
+            ClientRegistry.<ContainerLicensePlate, GuiLicensePlate>registerScreen(Main.LICENSE_PLATE_CONTAINER_TYPE.get(), GuiLicensePlate::new);
+            ClientRegistry.<ContainerGarage, GuiGarage>registerScreen(Main.GARAGE_CONTAINER_TYPE.get(), GuiGarage::new);
 
-        MinecraftForge.EVENT_BUS.register(new RenderEvents());
-        MinecraftForge.EVENT_BUS.register(new SoundEvents());
-        MinecraftForge.EVENT_BUS.register(new KeyEvents());
-        MinecraftForge.EVENT_BUS.register(new PlayerEvents());
+            MinecraftForge.EVENT_BUS.register(new RenderEvents());
+            MinecraftForge.EVENT_BUS.register(new SoundEvents());
+            MinecraftForge.EVENT_BUS.register(new KeyEvents());
+            MinecraftForge.EVENT_BUS.register(new PlayerEvents());
 
-        EntityRenderers.register(VEHICLE_ENTITY_TYPE.get(), GenericVehicleModel::new);
+            EntityRenderers.register(VEHICLE_ENTITY_TYPE.get(), GenericVehicleModel::new);
 
-        ItemBlockRenderTypes.setRenderLayer(ModFluids.BIO_DIESEL.get(), RenderType.translucent());
-        ItemBlockRenderTypes.setRenderLayer(ModFluids.BIO_DIESEL_FLOWING.get(), RenderType.translucent());
+            ItemBlockRenderTypes.setRenderLayer(ModFluids.BIO_DIESEL.get(), RenderType.translucent());
+            ItemBlockRenderTypes.setRenderLayer(ModFluids.BIO_DIESEL_FLOWING.get(), RenderType.translucent());
+        }, "clientSetup");
     }
 
     @SubscribeEvent
     @OnlyIn(Dist.CLIENT)
     public void onRegisterKeyBinds(RegisterKeyMappingsEvent event) {
-        FORWARD_KEY = new KeyMapping("key.vehicle_forward", GLFW.GLFW_KEY_W, "category.vehicle");
-        BACK_KEY = new KeyMapping("key.vehicle_back", GLFW.GLFW_KEY_S, "category.vehicle");
-        LEFT_KEY = new KeyMapping("key.vehicle_left", GLFW.GLFW_KEY_A, "category.vehicle");
-        RIGHT_KEY = new KeyMapping("key.vehicle_right", GLFW.GLFW_KEY_D, "category.vehicle");
-        VEHICLE_GUI_KEY = new KeyMapping("key.vehicle_gui", GLFW.GLFW_KEY_I, "category.vehicle");
-        START_KEY = new KeyMapping("key.vehicle_start", GLFW.GLFW_KEY_R, "category.vehicle");
-        HORN_KEY = new KeyMapping("key.vehicle_horn", GLFW.GLFW_KEY_H, "category.vehicle");
-        CENTER_KEY = new KeyMapping("key.center_vehicle", GLFW.GLFW_KEY_SPACE, "category.vehicle");
+        EventHelper.handleEvent(() -> {
+            FORWARD_KEY = new KeyMapping("key.vehicle_forward", GLFW.GLFW_KEY_W, "category.vehicle");
+            BACK_KEY = new KeyMapping("key.vehicle_back", GLFW.GLFW_KEY_S, "category.vehicle");
+            LEFT_KEY = new KeyMapping("key.vehicle_left", GLFW.GLFW_KEY_A, "category.vehicle");
+            RIGHT_KEY = new KeyMapping("key.vehicle_right", GLFW.GLFW_KEY_D, "category.vehicle");
+            VEHICLE_GUI_KEY = new KeyMapping("key.vehicle_gui", GLFW.GLFW_KEY_I, "category.vehicle");
+            START_KEY = new KeyMapping("key.vehicle_start", GLFW.GLFW_KEY_R, "category.vehicle");
+            HORN_KEY = new KeyMapping("key.vehicle_horn", GLFW.GLFW_KEY_H, "category.vehicle");
+            CENTER_KEY = new KeyMapping("key.center_vehicle", GLFW.GLFW_KEY_SPACE, "category.vehicle");
 
-        event.register(FORWARD_KEY);
-        event.register(BACK_KEY);
-        event.register(LEFT_KEY);
-        event.register(RIGHT_KEY);
-        event.register(VEHICLE_GUI_KEY);
-        event.register(START_KEY);
-        event.register(HORN_KEY);
-        event.register(CENTER_KEY);
+            event.register(FORWARD_KEY);
+            event.register(BACK_KEY);
+            event.register(LEFT_KEY);
+            event.register(RIGHT_KEY);
+            event.register(VEHICLE_GUI_KEY);
+            event.register(START_KEY);
+            event.register(HORN_KEY);
+            event.register(CENTER_KEY);
+        }, "onRegisterKeyBinds");
     }
 
     private static EntityType<EntityGenericVehicle> createVehicleEntityType() {

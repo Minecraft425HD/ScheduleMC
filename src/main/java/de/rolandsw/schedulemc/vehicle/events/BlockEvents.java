@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.vehicle.events;
 
+import de.rolandsw.schedulemc.util.EventHelper;
 import de.rolandsw.schedulemc.vehicle.Main;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -19,23 +20,25 @@ public class BlockEvents {
 
     @SubscribeEvent
     public void breakEvent(BlockEvent.BreakEvent event) {
-        if (!event.getState().getBlock().equals(Blocks.GRASS)) {
-            return;
-        }
+        EventHelper.handleBlockBreak(event, player -> {
+            if (!event.getState().getBlock().equals(Blocks.GRASS)) {
+                return;
+            }
 
-        if (event.getPlayer().level() instanceof ServerLevel level) {
-            LootParams.Builder builder = new LootParams.Builder(level)
-                    .withParameter(LootContextParams.ORIGIN, new Vec3(event.getPos().getX(), event.getPos().getY(), event.getPos().getZ()))
-                    .withParameter(LootContextParams.TOOL, event.getPlayer().getMainHandItem())
-                    .withParameter(LootContextParams.THIS_ENTITY, event.getPlayer())
-                    .withParameter(LootContextParams.BLOCK_STATE, event.getState());
+            if (player.level() instanceof ServerLevel level) {
+                LootParams.Builder builder = new LootParams.Builder(level)
+                        .withParameter(LootContextParams.ORIGIN, new Vec3(event.getPos().getX(), event.getPos().getY(), event.getPos().getZ()))
+                        .withParameter(LootContextParams.TOOL, player.getMainHandItem())
+                        .withParameter(LootContextParams.THIS_ENTITY, player)
+                        .withParameter(LootContextParams.BLOCK_STATE, event.getState());
 
-            LootParams lootContext = builder.create(LootContextParamSets.BLOCK);
+                LootParams lootContext = builder.create(LootContextParamSets.BLOCK);
 
-            LootTable lootTable = level.getServer().getLootData().getLootTable(GRASS_LOOT_TABLE);
+                LootTable lootTable = level.getServer().getLootData().getLootTable(GRASS_LOOT_TABLE);
 
-            lootTable.getRandomItems(lootContext).forEach((stack) -> Block.popResource(level, event.getPos(), stack));
-        }
+                lootTable.getRandomItems(lootContext).forEach((stack) -> Block.popResource(level, event.getPos(), stack));
+            }
+        });
     }
 
 }

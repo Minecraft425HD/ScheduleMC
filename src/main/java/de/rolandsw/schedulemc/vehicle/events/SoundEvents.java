@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.vehicle.events;
+import de.rolandsw.schedulemc.util.EventHelper;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 
 import de.rolandsw.schedulemc.vehicle.Main;
@@ -13,16 +14,20 @@ public class SoundEvents {
 
     @SubscribeEvent
     public void onSound(PlayLevelSoundEvent.AtEntity event) {
-        if (event.getSound() != null && ModSounds.isVehicleSoundCategory(event.getSound().get())) {
-            event.setNewVolume(ModConfigHandler.VEHICLE_CLIENT.vehicleVolume.get().floatValue());
-        }
+        EventHelper.handleEvent(() -> {
+            if (event.getSound() != null && ModSounds.isVehicleSoundCategory(event.getSound().get())) {
+                event.setNewVolume(ModConfigHandler.VEHICLE_CLIENT.vehicleVolume.get().floatValue());
+            }
+        }, "onSound");
     }
 
     @SubscribeEvent
     public void onSound(PlayLevelSoundEvent.AtPosition event) {
-        if (event.getSound() != null && ModSounds.isVehicleSoundCategory(event.getSound().get())) {
-            event.setNewVolume(ModConfigHandler.VEHICLE_CLIENT.vehicleVolume.get().floatValue());
-        }
+        EventHelper.handleEvent(() -> {
+            if (event.getSound() != null && ModSounds.isVehicleSoundCategory(event.getSound().get())) {
+                event.setNewVolume(ModConfigHandler.VEHICLE_CLIENT.vehicleVolume.get().floatValue());
+            }
+        }, "onSound");
     }
 
 }
