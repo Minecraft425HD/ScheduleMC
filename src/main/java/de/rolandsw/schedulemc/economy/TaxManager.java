@@ -1,23 +1,16 @@
 package de.rolandsw.schedulemc.economy;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.region.PlotManager;
 import de.rolandsw.schedulemc.region.PlotRegion;
+import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
-import org.slf4j.Logger;
 
-import java.io.Reader;
-import java.io.Writer;
 import java.lang.reflect.Type;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -27,8 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * - Grundsteuer: 100€ pro Chunk pro Monat
  * - Monatliche Abrechnung (alle 7 MC-Tage)
  */
-public class TaxManager {
-    private static final Logger LOGGER = LogUtils.getLogger();
+public class TaxManager extends AbstractPersistenceManager<Map<String, Object>> {
     private static TaxManager instance;
 
     // Steuerstufen
@@ -41,16 +33,54 @@ public class TaxManager {
 
     private final Map<UUID, Long> lastTaxDay = new ConcurrentHashMap<>();
     private final Map<UUID, Double> taxDebt = new ConcurrentHashMap<>();
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    private final Path savePath;
     private MinecraftServer server;
 
     private long currentDay = 0;
 
     private TaxManager(MinecraftServer server) {
+        super(server.getServerDirectory().toPath().resolve("config").resolve("plotmod_taxes.json"));
         this.server = server;
-        this.savePath = server.getServerDirectory().toPath().resolve("config").resolve("plotmod_taxes.json");
-        load();
+        loadData();
+    }
+
+    @Override
+    protected Type getDataType() {
+        return new TypeToken<Map<String, Object>>(){}.getType();
+    }
+
+    @Override
+    protected void onDataLoaded(Map<String, Object> data) {
+        lastTaxDay.clear();
+        taxDebt.clear();
+
+        // Load lastTaxDay
+        Object lastTaxObj = data.get("lastTaxDay");
+        if (lastTaxObj instanceof Map) {
+            ((Map<String, Number>) lastTaxObj).forEach((k, v) ->
+                lastTaxDay.put(UUID.fromString(k), v.longValue()));
+        }
+
+        // Load taxDebt
+        Object debtObj = data.get("taxDebt");
+        if (debtObj instanceof Map) {
+            ((Map<String, Number>) debtObj).forEach((k, v) ->
+                taxDebt.put(UUID.fromString(k), v.doubleValue()));
+        }
+    }
+
+    @Override
+    protected Map<String, Object> getCurrentData() {
+        Map<String, Object> data = new HashMap<>();
+
+        Map<String, Long> lastTaxMap = new HashMap<>();
+        lastTaxDay.forEach((k, v) -> lastTaxMap.put(k.toString(), v));
+        data.put("lastTaxDay", lastTaxMap);
+
+        Map<String, Double> debtMap = new HashMap<>();
+        taxDebt.forEach((k, v) -> debtMap.put(k.toString(), v));
+        data.put("taxDebt", debtMap);
+
+        return data;
     }
 
     public static TaxManager getInstance(MinecraftServer server) {
@@ -148,7 +178,7 @@ public class TaxManager {
             }
         }
 
-        save();
+        saveData();
     }
 
     /**
@@ -189,9 +219,6 @@ public class TaxManager {
 
                 player.sendSystemMessage(Component.literal(message.toString()));
             }
-
-            LOGGER.info("Tax collected: {} € (Income: {}, Property: {}) from {}",
-                totalTax, incomeTax, propertyTax, playerUUID);
         } else {
             // Schulden aufbauen
             double debt = taxDebt.getOrDefault(playerUUID, 0.0) + totalTax;
@@ -230,63 +257,10 @@ public class TaxManager {
         if (EconomyManager.withdraw(playerUUID, debt, TransactionType.TAX_INCOME, "Steuerschuld-Zahlung")) {
             StateAccount.getInstance(server).deposit(debt, "Steuerschuld");
             taxDebt.remove(playerUUID);
-            save();
+            saveData();
             return true;
         }
 
         return false;
-    }
-
-    // Persistence
-    private void load() {
-        if (!Files.exists(savePath)) {
-            return;
-        }
-
-        try (Reader reader = Files.newBufferedReader(savePath)) {
-            Type type = new TypeToken<Map<String, Object>>(){}.getType();
-            Map<String, Object> data = gson.fromJson(reader, type);
-
-            if (data != null) {
-                // Load lastTaxDay
-                Object lastTaxObj = data.get("lastTaxDay");
-                if (lastTaxObj instanceof Map) {
-                    ((Map<String, Number>) lastTaxObj).forEach((k, v) ->
-                        lastTaxDay.put(UUID.fromString(k), v.longValue()));
-                }
-
-                // Load taxDebt
-                Object debtObj = data.get("taxDebt");
-                if (debtObj instanceof Map) {
-                    ((Map<String, Number>) debtObj).forEach((k, v) ->
-                        taxDebt.put(UUID.fromString(k), v.doubleValue()));
-                }
-
-                LOGGER.info("Loaded tax data");
-            }
-        } catch (Exception e) {
-            LOGGER.error("Failed to load tax data", e);
-        }
-    }
-
-    public void save() {
-        try {
-            Files.createDirectories(savePath.getParent());
-            try (Writer writer = Files.newBufferedWriter(savePath)) {
-                Map<String, Object> data = new HashMap<>();
-
-                Map<String, Long> lastTaxMap = new HashMap<>();
-                lastTaxDay.forEach((k, v) -> lastTaxMap.put(k.toString(), v));
-                data.put("lastTaxDay", lastTaxMap);
-
-                Map<String, Double> debtMap = new HashMap<>();
-                taxDebt.forEach((k, v) -> debtMap.put(k.toString(), v));
-                data.put("taxDebt", debtMap);
-
-                gson.toJson(data, writer);
-            }
-        } catch (Exception e) {
-            LOGGER.error("Failed to save tax data", e);
-        }
     }
 }
