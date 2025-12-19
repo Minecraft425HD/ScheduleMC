@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.tobacco.blockentity;
 
 import de.rolandsw.schedulemc.ScheduleMC;
+import de.rolandsw.schedulemc.production.blockentity.PlantPotBlockEntity;
 import de.rolandsw.schedulemc.tobacco.blocks.TobaccoBlocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.registries.DeferredRegister;
@@ -15,10 +16,10 @@ public class TobaccoBlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = 
         DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, ScheduleMC.MOD_ID);
     
-    // Topf BlockEntity
-    public static final RegistryObject<BlockEntityType<TobaccoPotBlockEntity>> TOBACCO_POT = 
-        BLOCK_ENTITIES.register("tobacco_pot", () -> 
-            BlockEntityType.Builder.of(TobaccoPotBlockEntity::new,
+    // Topf BlockEntity (jetzt universell für alle Pflanzen)
+    public static final RegistryObject<BlockEntityType<PlantPotBlockEntity>> TOBACCO_POT =
+        BLOCK_ENTITIES.register("tobacco_pot", () ->
+            BlockEntityType.Builder.of(PlantPotBlockEntity::new,
                 TobaccoBlocks.TERRACOTTA_POT.get(),
                 TobaccoBlocks.CERAMIC_POT.get(),
                 TobaccoBlocks.IRON_POT.get(),

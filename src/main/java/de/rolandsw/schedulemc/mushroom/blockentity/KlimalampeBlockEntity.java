@@ -4,7 +4,7 @@ import de.rolandsw.schedulemc.mushroom.MushroomType;
 import de.rolandsw.schedulemc.mushroom.blocks.KlimalampeBlock;
 import de.rolandsw.schedulemc.mushroom.blocks.KlimalampeTier;
 import de.rolandsw.schedulemc.mushroom.blocks.TemperatureMode;
-import de.rolandsw.schedulemc.tobacco.blockentity.TobaccoPotBlockEntity;
+import de.rolandsw.schedulemc.production.blockentity.PlantPotBlockEntity;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;
 import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
@@ -86,7 +86,7 @@ public class KlimalampeBlockEntity extends BlockEntity implements IUtilityConsum
             BlockPos neighborPos = worldPosition.relative(dir);
             BlockEntity be = level.getBlockEntity(neighborPos);
 
-            if (be instanceof TobaccoPotBlockEntity potBE) {
+            if (be instanceof PlantPotBlockEntity potBE) {
                 var potData = potBE.getPotData();
 
                 // Prüfe ob Pilz im Topf

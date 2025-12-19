@@ -3,9 +3,9 @@ package de.rolandsw.schedulemc.tobacco.commands;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import de.rolandsw.schedulemc.tobacco.PotType;
+import de.rolandsw.schedulemc.production.core.PotType;
 import de.rolandsw.schedulemc.tobacco.TobaccoType;
-import de.rolandsw.schedulemc.tobacco.blockentity.TobaccoPotBlockEntity;
+import de.rolandsw.schedulemc.production.blockentity.PlantPotBlockEntity;
 import de.rolandsw.schedulemc.tobacco.items.TobaccoItems;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -48,7 +48,7 @@ public class TobaccoCommand {
             BlockPos pos = player.blockPosition().below();
             
             BlockEntity be = player.level().getBlockEntity(pos);
-            if (!(be instanceof TobaccoPotBlockEntity potBE)) {
+            if (!(be instanceof PlantPotBlockEntity potBE)) {
                 ctx.getSource().sendFailure(Component.literal(
                     "§c✗ Du stehst nicht auf einem Tabak-Topf!"
                 ));

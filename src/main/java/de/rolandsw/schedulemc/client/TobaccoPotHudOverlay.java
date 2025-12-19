@@ -1,11 +1,11 @@
 package de.rolandsw.schedulemc.client;
 
 import de.rolandsw.schedulemc.ScheduleMC;
-import de.rolandsw.schedulemc.tobacco.blockentity.TobaccoPotBlockEntity;
-import de.rolandsw.schedulemc.tobacco.blocks.TobaccoPotBlock;
+import de.rolandsw.schedulemc.production.blockentity.PlantPotBlockEntity;
+import de.rolandsw.schedulemc.production.blocks.PlantPotBlock;
 import de.rolandsw.schedulemc.tobacco.blocks.TobaccoPlantBlock;
 import de.rolandsw.schedulemc.tobacco.data.TobaccoPlantData;
-import de.rolandsw.schedulemc.tobacco.data.TobaccoPotData;
+import de.rolandsw.schedulemc.production.data.PlantPotData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
@@ -56,16 +56,16 @@ public class TobaccoPotHudOverlay {
             BlockEntity be = mc.level.getBlockEntity(potPos);
             BlockState potState = mc.level.getBlockState(potPos);
 
-            if (be instanceof TobaccoPotBlockEntity potBE && potState.getBlock() instanceof TobaccoPotBlock potBlock) {
+            if (be instanceof PlantPotBlockEntity potBE && potState.getBlock() instanceof PlantPotBlock potBlock) {
                 renderUnifiedHud(guiGraphics, mc, potBlock, potBE, true);
             }
             return;
         }
 
         // Fall 2: Spieler schaut direkt auf Topf
-        if (state.getBlock() instanceof TobaccoPotBlock potBlock) {
+        if (state.getBlock() instanceof PlantPotBlock potBlock) {
             BlockEntity be = mc.level.getBlockEntity(targetPos);
-            if (be instanceof TobaccoPotBlockEntity potBE) {
+            if (be instanceof PlantPotBlockEntity potBE) {
                 renderUnifiedHud(guiGraphics, mc, potBlock, potBE, false);
             }
         }
@@ -74,9 +74,9 @@ public class TobaccoPotHudOverlay {
     /**
      * Vereinheitlichtes HUD am oberen Bildschirmrand
      */
-    private static void renderUnifiedHud(GuiGraphics guiGraphics, Minecraft mc, TobaccoPotBlock potBlock,
-                                         TobaccoPotBlockEntity potBE, boolean lookingAtPlant) {
-        TobaccoPotData potData = potBE.getPotData();
+    private static void renderUnifiedHud(GuiGraphics guiGraphics, Minecraft mc, PlantPotBlock potBlock,
+                                         PlantPotBlockEntity potBE, boolean lookingAtPlant) {
+        PlantPotData potData = potBE.getPotData();
         if (potData == null) return;
 
         int currentY = HUD_Y;

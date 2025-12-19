@@ -2,7 +2,8 @@ package de.rolandsw.schedulemc.tobacco.blocks;
 
 import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
-import de.rolandsw.schedulemc.tobacco.PotType;
+import de.rolandsw.schedulemc.production.blocks.PlantPotBlock;
+import de.rolandsw.schedulemc.production.core.PotType;
 import de.rolandsw.schedulemc.tobacco.TobaccoType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -32,7 +33,7 @@ public class TobaccoBlocks {
     
     public static final RegistryObject<Block> TERRACOTTA_POT = registerBlockWithItem(
         "terracotta_pot",
-        () -> new TobaccoPotBlock(
+        () -> new PlantPotBlock(
             PotType.TERRACOTTA,
             BlockBehaviour.Properties.of()
                 .strength(2.0f)
@@ -40,10 +41,10 @@ public class TobaccoBlocks {
                 .noOcclusion()
         )
     );
-    
+
     public static final RegistryObject<Block> CERAMIC_POT = registerBlockWithItem(
         "ceramic_pot",
-        () -> new TobaccoPotBlock(
+        () -> new PlantPotBlock(
             PotType.CERAMIC,
             BlockBehaviour.Properties.of()
                 .strength(2.0f)
@@ -51,10 +52,10 @@ public class TobaccoBlocks {
                 .noOcclusion()
         )
     );
-    
+
     public static final RegistryObject<Block> IRON_POT = registerBlockWithItem(
         "iron_pot",
-        () -> new TobaccoPotBlock(
+        () -> new PlantPotBlock(
             PotType.IRON,
             BlockBehaviour.Properties.of()
                 .strength(3.0f)
@@ -62,10 +63,10 @@ public class TobaccoBlocks {
                 .noOcclusion()
         )
     );
-    
+
     public static final RegistryObject<Block> GOLDEN_POT = registerBlockWithItem(
         "golden_pot",
-        () -> new TobaccoPotBlock(
+        () -> new PlantPotBlock(
             PotType.GOLDEN,
             BlockBehaviour.Properties.of()
                 .strength(2.0f)

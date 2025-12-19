@@ -3,7 +3,7 @@ package de.rolandsw.schedulemc.poppy.blocks;
 import de.rolandsw.schedulemc.poppy.PoppyType;
 import de.rolandsw.schedulemc.poppy.items.PoppyPodItem;
 import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
-import de.rolandsw.schedulemc.tobacco.blocks.TobaccoPotBlock;
+import de.rolandsw.schedulemc.production.blocks.PlantPotBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
@@ -109,7 +109,7 @@ public class PoppyPlantBlock extends Block {
 
         BlockPos belowPos = pos.below();
         BlockState belowState = level.getBlockState(belowPos);
-        return belowState.getBlock() instanceof TobaccoPotBlock;
+        return belowState.getBlock() instanceof PlantPotBlock;
     }
 
     @Override
@@ -132,7 +132,7 @@ public class PoppyPlantBlock extends Block {
     }
 
     /**
-     * Wächst zur nächsten Stufe (wird vom TobaccoPotBlockEntity aufgerufen)
+     * Wächst zur nächsten Stufe (wird vom PlantPotBlockEntity aufgerufen)
      */
     public static void growToStage(Level level, BlockPos potPos, int newAge, PoppyType type) {
         BlockPos plantPos = potPos.above();
@@ -191,7 +191,7 @@ public class PoppyPlantBlock extends Block {
             }
 
             var be = level.getBlockEntity(potPos);
-            if (be instanceof de.rolandsw.schedulemc.tobacco.blockentity.TobaccoPotBlockEntity potBE) {
+            if (be instanceof de.rolandsw.schedulemc.production.blockentity.PlantPotBlockEntity potBE) {
                 var potData = potBE.getPotData();
                 if (potData.hasPlant()) {
                     potData.clearPlant();
