@@ -1,0 +1,438 @@
+# ═══════════════════════════════════════════════════════════
+# ScheduleMC Server Configuration
+# Version: 3.0.0
+# ═══════════════════════════════════════════════════════════
+
+# ───────────────────────────────────────────────────────────
+# ECONOMY SYSTEM
+# ───────────────────────────────────────────────────────────
+[economy]
+
+# Start Balance für neue Spieler (€)
+start_balance = 10000.0
+
+# Automatisches Speichern
+auto_save_enabled = true
+auto_save_interval = 6000  # Ticks (6000 = 5 Minuten)
+
+# Batch Transaction System
+enable_batch_transactions = true
+batch_transaction_size = 100
+
+# Overdraft System (Dispo)
+enable_overdraft = true
+overdraft_limit = -1000.0   # Max negativer Kontostand
+overdraft_interest_rate = 0.15  # 15% Zinsen pro Tag
+
+# Zinsen System
+enable_interest = true
+interest_rate = 0.05        # 5% Zinsen pro Tag (auf positive Balances)
+interest_interval = 24000   # Ticks (24000 = 1 Tag)
+
+# Transaction Fees
+enable_transaction_fees = false
+transfer_fee_percentage = 0.01   # 1% Gebühr bei Transfers
+min_transfer_fee = 1.0
+max_transfer_fee = 100.0
+
+# Rate Limiting (Anti-Spam)
+enable_rate_limiting = true
+max_transactions_per_minute = 60
+
+# ───────────────────────────────────────────────────────────
+# PLOT SYSTEM
+# ───────────────────────────────────────────────────────────
+[plots]
+
+# Plot Limits
+max_plots_per_player = 10
+allow_plot_merging = true
+enable_plot_protection = true
+
+# Plot Pricing
+base_plot_price_per_block = 0.5  # €0.50 pro Block
+plot_price_multiplier_residential = 1.0
+plot_price_multiplier_commercial = 1.5
+plot_price_multiplier_industrial = 2.0
+
+# Rent System
+enable_rent_system = true
+rent_payment_interval = 24000  # Ticks (1 Tag)
+auto_evict_on_missed_payment = true
+grace_period_days = 3
+
+# Plot Cache
+enable_chunk_cache = true
+chunk_cache_size = 1000   # Max Chunks im Cache
+chunk_cache_preload_radius = 5  # Chunks rund um Spieler preloaden
+
+# ───────────────────────────────────────────────────────────
+# PRODUCTION SYSTEM
+# ───────────────────────────────────────────────────────────
+[production]
+
+# Global Settings
+global_growth_multiplier = 1.0  # 1.0 = normal, 2.0 = doppelt so schnell
+enable_quality_system = true
+quality_affects_price = true
+
+# Light Requirements
+require_light_for_growth = true
+min_light_level = 8
+allow_artificial_light = true
+
+# Booster System
+enable_growth_boosters = true
+growth_booster_multiplier = 0.7  # 30% schneller
+enable_quality_boosters = true
+quality_booster_upgrade_chance = 0.25
+
+# ─── TOBACCO ───
+[production.tobacco]
+growth_time_virginia = 3600
+growth_time_burley = 4200
+growth_time_oriental = 4800
+growth_time_havana = 6000
+
+yield_min = 2
+yield_max = 5
+
+price_virginia = 15.0
+price_burley = 18.0
+price_oriental = 25.0
+price_havana = 35.0
+
+# ─── CANNABIS ───
+[production.cannabis]
+growth_time_indica = 2400
+growth_time_sativa = 3200
+growth_time_hybrid = 2800
+growth_time_autoflower = 1400
+
+yield_min = 4
+yield_max = 8
+
+price_indica = 25.0
+price_sativa = 30.0
+price_hybrid = 35.0
+price_autoflower = 20.0
+
+# THC/CBD Content (affects price)
+enable_cannabinoid_system = true
+thc_price_bonus_per_percent = 0.5
+cbd_price_bonus_per_percent = 0.3
+
+# ─── COCA ───
+[production.coca]
+growth_time_colombian = 3000
+growth_time_bolivian = 3600
+
+yield_min = 3
+yield_max = 6
+
+price_colombian = 30.0
+price_bolivian = 35.0
+
+# Resource Requirements
+diesel_per_extraction = 100  # mB
+fuel_per_refinement = 50
+
+# ─── POPPY ───
+[production.poppy]
+growth_time_afghan = 4000
+growth_time_turkish = 4800
+growth_time_indian = 3600
+
+yield_min = 2
+yield_max = 5
+
+price_afghan = 40.0
+price_turkish = 45.0
+price_indian = 38.0
+
+# Quality Upgrade System
+enable_probabilistic_upgrades = true
+base_upgrade_chance = 0.25
+fertilizer_upgrade_bonus = 0.15
+quality_booster_upgrade_bonus = 0.20
+
+# ─── MUSHROOM ───
+[production.mushroom]
+growth_time_cubensis = 2400
+growth_time_golden_teacher = 2800
+
+yield_min = 3
+yield_max = 7
+
+price_cubensis = 50.0
+price_golden_teacher = 60.0
+
+# Flush System
+max_flushes = 4
+flush_yield_reduction = 0.15  # 15% weniger pro Flush
+
+# ─── MDMA ───
+[production.mdma]
+synthesis_time = 4800
+crystallization_time = 2400
+pressing_time = 1200
+
+price_base = 80.0
+
+# ─── LSD ───
+[production.lsd]
+fermentation_time = 6000
+distillation_time = 4800
+blotting_time = 1200
+
+price_base = 100.0
+
+# ─── METH ───
+[production.meth]
+cooking_time = 7200
+
+price_base = 120.0
+
+# ───────────────────────────────────────────────────────────
+# NPC SYSTEM
+# ───────────────────────────────────────────────────────────
+[npc]
+
+# AI Behavior
+enable_npc_ai = true
+npc_pathfinding_range = 64
+npc_movement_speed = 0.3
+
+# Schedules
+default_work_start = 0      # 6:00 Uhr (Minecraft time)
+default_work_end = 13000    # 19:00 Uhr
+default_home_time = 23000   # 5:00 Uhr
+
+# Income System
+enable_npc_income = true
+npc_daily_income_resident = 100
+npc_daily_income_merchant = 500
+npc_daily_income_police = 300
+
+# Inventory & Wallet
+npc_inventory_slots = 9
+npc_starting_wallet = 500
+
+# ───────────────────────────────────────────────────────────
+# POLICE & CRIME SYSTEM
+# ───────────────────────────────────────────────────────────
+[police]
+
+# Wanted System
+enable_wanted_system = true
+max_wanted_level = 5
+wanted_reduction_interval = 24000  # 1 Stern pro Tag
+wanted_reduction_amount = 1
+
+# Police AI
+police_chase_speed = 1.5
+police_detection_range = 32
+police_backup_delay = 100  # Ticks (5 Sekunden)
+max_police_backup = 3
+
+# Prison System
+enable_prison_system = true
+base_sentence_minutes = 5
+sentence_per_wanted_star = 2  # +2 Minuten pro Stern
+enable_bail_system = true
+bail_cost_per_star = 1000
+
+# Work System (Vorzeitige Entlassung)
+enable_prison_work = true
+work_points_per_block_mined = 1
+work_time_reduction_per_100_points = 60  # 1 Minute
+
+# Crime Detection
+enable_illegal_activity_scanner = true
+scan_interval = 200  # Ticks (10 Sekunden)
+scan_radius = 16
+
+# ───────────────────────────────────────────────────────────
+# WAREHOUSE SYSTEM
+# ───────────────────────────────────────────────────────────
+[warehouse]
+
+# Capacity
+warehouse_capacity = 32
+
+# Delivery System
+enable_deliveries = true
+delivery_cost_per_km = 10.0
+delivery_time_per_km = 100  # Ticks
+
+# Automatic Routes
+enable_automatic_routes = false
+route_interval = 6000  # Ticks (5 Minuten)
+
+# ───────────────────────────────────────────────────────────
+# SMARTPHONE SYSTEM
+# ───────────────────────────────────────────────────────────
+[smartphone]
+
+# General
+enable_smartphone = true
+smartphone_keybind = "P"
+
+# Damage Immunity
+damage_immunity_while_using = true
+wanted_star_on_attack_while_using = true
+
+# Apps
+enable_map_app = true
+enable_dealer_app = true
+enable_products_app = true
+enable_order_app = true
+enable_contacts_app = true
+enable_messages_app = true
+enable_bank_app = true    # NEU
+enable_plot_app = true    # NEU
+enable_crime_app = true   # NEU
+
+# ───────────────────────────────────────────────────────────
+# DAILY REWARDS SYSTEM
+# ───────────────────────────────────────────────────────────
+[daily_rewards]
+
+enable_daily_rewards = true
+
+# Streak Rewards (Tag → Belohnung)
+reward_day_1 = 100
+reward_day_2 = 150
+reward_day_3 = 200
+reward_day_5 = 500
+reward_day_7 = 1000
+reward_day_14 = 2500
+reward_day_30 = 10000
+
+# Streak Reset
+streak_reset_days = 2  # Streak resetted nach 2 Tagen Inaktivität
+
+# ───────────────────────────────────────────────────────────
+# MESSAGES & COMMUNICATION
+# ───────────────────────────────────────────────────────────
+[messaging]
+
+enable_messaging = true
+max_message_length = 256
+message_history_limit = 100
+
+# Spam Protection
+enable_spam_protection = true
+max_messages_per_minute = 10
+
+# ───────────────────────────────────────────────────────────
+# VEHICLE SYSTEM
+# ───────────────────────────────────────────────────────────
+[vehicles]
+
+enable_vehicles = true
+
+# Fuel System
+enable_fuel_system = true
+fuel_consumption_per_km = 0.5  # Liter
+tank_capacity_default = 50     # Liter
+
+# Garage
+garage_repair_cost_per_damage = 10
+garage_refuel_cost_per_liter = 2
+
+# ───────────────────────────────────────────────────────────
+# PERFORMANCE & OPTIMIZATION
+# ───────────────────────────────────────────────────────────
+[performance]
+
+# Incremental Saving
+enable_incremental_save = true
+incremental_save_interval = 20   # Ticks (1 Sekunde)
+incremental_save_batch_size = 5  # Komponenten pro Tick
+
+# Chunk Cache
+enable_plot_chunk_cache = true
+plot_chunk_cache_size = 1000
+
+# Batch Transactions
+enable_batch_transactions = true
+batch_transaction_threshold = 10  # Ab 10 Transaktionen Batch nutzen
+
+# Async Processing
+enable_async_npc_pathfinding = false  # EXPERIMENTAL
+async_npc_pathfinding_threads = 2
+
+# ───────────────────────────────────────────────────────────
+# DEBUG & ADMIN
+# ───────────────────────────────────────────────────────────
+[debug]
+
+# Logging
+enable_debug_logging = false
+log_transactions = true
+log_plot_lookups = false
+log_npc_pathfinding = false
+
+# Admin Commands
+enable_admin_commands = true
+admin_permission_level = 4
+
+# Statistics
+enable_statistics_tracking = true
+statistics_save_interval = 12000  # Ticks (10 Minuten)
+
+# ───────────────────────────────────────────────────────────
+# TUTORIAL SYSTEM
+# ───────────────────────────────────────────────────────────
+[tutorial]
+
+enable_tutorial = true
+auto_start_for_new_players = true
+
+# Rewards
+tutorial_completion_reward = 10000  # €10.000 nach Tutorial
+
+# Steps
+enable_step_welcome = true
+enable_step_economy = true
+enable_step_plots = true
+enable_step_production = true
+enable_step_npc = true
+enable_step_smartphone = true
+
+# ───────────────────────────────────────────────────────────
+# ACHIEVEMENTS
+# ───────────────────────────────────────────────────────────
+[achievements]
+
+enable_achievements = true
+
+# Rewards per Achievement
+achievement_reward_first_plot = 1000
+achievement_reward_drug_lord = 10000
+achievement_reward_millionaire = 50000
+achievement_reward_untouchable = 5000
+achievement_reward_shop_tycoon = 25000
+achievement_reward_prison_breaker = 0  # Kein Reward (shame)
+achievement_reward_smartphone_addict = 500
+achievement_reward_master_grower = 15000
+
+# ───────────────────────────────────────────────────────────
+# DYNAMIC MARKET ECONOMY
+# ───────────────────────────────────────────────────────────
+[market]
+
+enable_dynamic_market = false  # EXPERIMENTAL
+
+# Price Calculation
+supply_demand_factor = 0.3  # 0-1, wie stark S&D Preise beeinflusst
+price_update_interval = 6000  # Ticks (5 Minuten)
+
+# Price Bounds
+min_price_multiplier = 0.5   # Min 50% des Base Price
+max_price_multiplier = 3.0   # Max 300% des Base Price
+
+# Supply/Demand Decay
+supply_decay_rate = 0.1   # 10% pro Interval
+demand_decay_rate = 0.1   # 10% pro Interval
