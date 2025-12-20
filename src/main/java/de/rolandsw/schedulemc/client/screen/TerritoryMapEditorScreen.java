@@ -4,6 +4,8 @@ import com.mojang.blaze3d.platform.InputConstants;
 import de.rolandsw.schedulemc.territory.Territory;
 import de.rolandsw.schedulemc.territory.TerritoryManager;
 import de.rolandsw.schedulemc.territory.TerritoryType;
+import de.rolandsw.schedulemc.territory.network.SetTerritoryPacket;
+import de.rolandsw.schedulemc.territory.network.TerritoryNetworkHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -193,7 +195,9 @@ public class TerritoryMapEditorScreen extends Screen {
         int startChunkX = centerChunkX - chunksWide / 2;
         int startChunkZ = centerChunkZ - chunksHigh / 2;
 
-        // Render chunks
+        int pixelsPerChunk = (int) (CHUNK_SIZE * currentZoom);
+
+        // Render chunks with fallback background
         for (int cz = 0; cz < chunksHigh; cz++) {
             for (int cx = 0; cx < chunksWide; cx++) {
                 int chunkX = startChunkX + cx;
@@ -202,8 +206,16 @@ public class TerritoryMapEditorScreen extends Screen {
                 long chunkKey = getChunkKey(chunkX, chunkZ);
                 byte[] chunkData = exploredChunks.get(chunkKey);
 
+                int screenX = mapX + cx * pixelsPerChunk;
+                int screenY = mapY + cz * pixelsPerChunk;
+
                 if (chunkData != null) {
                     renderChunk(guiGraphics, chunkData, cx, cz, mapX, mapY, currentZoom);
+                } else {
+                    // Fallback: Render gray background for unexplored chunks
+                    guiGraphics.fill(screenX, screenY,
+                        screenX + pixelsPerChunk, screenY + pixelsPerChunk,
+                        0xFF3a3a3a);
                 }
             }
         }
@@ -258,12 +270,16 @@ public class TerritoryMapEditorScreen extends Screen {
                     int screenY = mapY + cz * pixelsPerChunk;
 
                     int color = territory.getType().getColor();
-                    int alpha = 0x80; // 50% transparency
+                    int alpha = 0xCC; // 80% opacity (more visible)
                     int overlayColor = (alpha << 24) | color;
 
                     guiGraphics.fill(screenX, screenY,
                         screenX + pixelsPerChunk, screenY + pixelsPerChunk,
                         overlayColor);
+
+                    // Border for better visibility
+                    guiGraphics.fill(screenX, screenY, screenX + pixelsPerChunk, screenY + 1, 0xFFFFFFFF); // Top
+                    guiGraphics.fill(screenX, screenY, screenX + 1, screenY + pixelsPerChunk, 0xFFFFFFFF); // Left
                 }
             }
         }
@@ -444,9 +460,6 @@ public class TerritoryMapEditorScreen extends Screen {
     }
 
     private void paintTerritoryAt(double mouseX, double mouseY, int mapX, int mapY, int mapWidth, int mapHeight) {
-        TerritoryManager manager = TerritoryManager.getInstance();
-        if (manager == null) return;
-
         // Convert mouse to chunk coordinates
         int pixelsPerChunk = (int) (CHUNK_SIZE * currentZoom);
         int chunksWide = (int) Math.ceil(mapWidth / (CHUNK_SIZE * currentZoom));
@@ -464,11 +477,17 @@ public class TerritoryMapEditorScreen extends Screen {
         int chunkX = startChunkX + relativeX / pixelsPerChunk;
         int chunkZ = startChunkZ + relativeY / pixelsPerChunk;
 
-        // Paint or clear territory
+        // Send packet to server to set/remove territory
         if (selectedType == null) {
-            manager.removeTerritory(chunkX, chunkZ);
+            TerritoryNetworkHandler.sendToServer(new SetTerritoryPacket(chunkX, chunkZ));
+            if (minecraft != null && minecraft.player != null) {
+                minecraft.player.sendSystemMessage(Component.literal("§7Territory entfernt: [" + chunkX + ", " + chunkZ + "]"));
+            }
         } else {
-            manager.setTerritory(chunkX, chunkZ, selectedType, currentTerritoryName, null);
+            TerritoryNetworkHandler.sendToServer(new SetTerritoryPacket(chunkX, chunkZ, selectedType, currentTerritoryName));
+            if (minecraft != null && minecraft.player != null) {
+                minecraft.player.sendSystemMessage(Component.literal("§aTerritory gesetzt: [" + chunkX + ", " + chunkZ + "] - " + selectedType.getDisplayName()));
+            }
         }
     }
 

@@ -32,6 +32,12 @@ public class TerritoryNetworkHandler {
             .encoder(OpenMapEditorPacket::encode)
             .consumerMainThread(OpenMapEditorPacket::handle)
             .add();
+
+        INSTANCE.messageBuilder(SetTerritoryPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(SetTerritoryPacket::decode)
+            .encoder(SetTerritoryPacket::encode)
+            .consumerMainThread(SetTerritoryPacket::handle)
+            .add();
     }
 
     public static <MSG> void sendToServer(MSG message) {
