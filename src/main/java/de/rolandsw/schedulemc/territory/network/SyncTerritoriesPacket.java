@@ -15,7 +15,7 @@ import java.util.function.Supplier;
  */
 public class SyncTerritoriesPacket {
 
-    private final Map<Long, TerritoryData> territories;
+    private Map<Long, TerritoryData> territories;
 
     public SyncTerritoriesPacket(Map<Long, Territory> territories) {
         this.territories = new HashMap<>();
@@ -27,8 +27,8 @@ public class SyncTerritoriesPacket {
         }
     }
 
-    private SyncTerritoriesPacket(Map<Long, TerritoryData> territories) {
-        this.territories = territories;
+    private SyncTerritoriesPacket() {
+        this.territories = new HashMap<>();
     }
 
     public static void encode(SyncTerritoriesPacket msg, FriendlyByteBuf buf) {
@@ -44,8 +44,8 @@ public class SyncTerritoriesPacket {
     }
 
     public static SyncTerritoriesPacket decode(FriendlyByteBuf buf) {
+        SyncTerritoriesPacket packet = new SyncTerritoriesPacket();
         int size = buf.readInt();
-        Map<Long, TerritoryData> territories = new HashMap<>();
 
         for (int i = 0; i < size; i++) {
             long key = buf.readLong();
@@ -54,10 +54,10 @@ public class SyncTerritoriesPacket {
             TerritoryType type = buf.readEnum(TerritoryType.class);
             String name = buf.readUtf();
 
-            territories.put(key, new TerritoryData(chunkX, chunkZ, type, name));
+            packet.territories.put(key, new TerritoryData(chunkX, chunkZ, type, name));
         }
 
-        return new SyncTerritoriesPacket(territories);
+        return packet;
     }
 
     public static void handle(SyncTerritoriesPacket msg, Supplier<NetworkEvent.Context> ctx) {
