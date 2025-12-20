@@ -11,6 +11,7 @@ import de.rolandsw.schedulemc.economy.Transaction;
 import de.rolandsw.schedulemc.economy.TransactionHistory;
 import de.rolandsw.schedulemc.economy.TransactionType;
 import de.rolandsw.schedulemc.commands.CommandExecutor;
+import de.rolandsw.schedulemc.util.InputValidation;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -167,9 +168,12 @@ public class MoneyCommand {
                     return;
                 }
 
-                // Betrag validieren
-                if (amount <= 0) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Der Betrag muss größer als 0 sein!");
+                // ✅ INPUT VALIDATION: Betrag validieren
+                InputValidation.ValidationResult amountValidation = InputValidation.validateAmount(amount);
+                if (amountValidation.isFailure()) {
+                    CommandExecutor.sendFailure(ctx.getSource(),
+                        "§c❌ Ungültiger Betrag: §f" + amountValidation.getErrorMessage()
+                    );
                     return;
                 }
 
@@ -228,6 +232,18 @@ public class MoneyCommand {
                 ServerPlayer target = EntityArgument.getPlayer(ctx, "target");
                 double amount = DoubleArgumentType.getDouble(ctx, "amount");
 
+                // ✅ INPUT VALIDATION: Betrag validieren (erlaubt 0, aber nicht negativ)
+                if (amount < 0) {
+                    CommandExecutor.sendFailure(source, "§c❌ Betrag darf nicht negativ sein!");
+                    return;
+                }
+                if (amount > InputValidation.MAX_AMOUNT) {
+                    CommandExecutor.sendFailure(source,
+                        "§c❌ Betrag zu hoch! Maximum: " + InputValidation.MAX_AMOUNT
+                    );
+                    return;
+                }
+
                 String adminName = source.getTextName();
                 EconomyManager.setBalance(target.getUUID(), amount, TransactionType.ADMIN_SET,
                     "Admin: " + adminName);
@@ -252,6 +268,15 @@ public class MoneyCommand {
             source -> {
                 ServerPlayer target = EntityArgument.getPlayer(ctx, "target");
                 double amount = DoubleArgumentType.getDouble(ctx, "amount");
+
+                // ✅ INPUT VALIDATION: Betrag validieren
+                InputValidation.ValidationResult validation = InputValidation.validateAmount(amount);
+                if (validation.isFailure()) {
+                    CommandExecutor.sendFailure(source,
+                        "§c❌ Ungültiger Betrag: §f" + validation.getErrorMessage()
+                    );
+                    return;
+                }
 
                 String adminName = source.getTextName();
                 EconomyManager.deposit(target.getUUID(), amount, TransactionType.ADMIN_GIVE,
@@ -278,6 +303,15 @@ public class MoneyCommand {
             source -> {
                 ServerPlayer target = EntityArgument.getPlayer(ctx, "target");
                 double amount = DoubleArgumentType.getDouble(ctx, "amount");
+
+                // ✅ INPUT VALIDATION: Betrag validieren
+                InputValidation.ValidationResult validation = InputValidation.validateAmount(amount);
+                if (validation.isFailure()) {
+                    CommandExecutor.sendFailure(source,
+                        "§c❌ Ungültiger Betrag: §f" + validation.getErrorMessage()
+                    );
+                    return;
+                }
 
                 String adminName = source.getTextName();
                 boolean success = EconomyManager.withdraw(target.getUUID(), amount, TransactionType.ADMIN_TAKE,

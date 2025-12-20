@@ -7,6 +7,7 @@ import com.mojang.brigadier.context.CommandContext;
 import de.rolandsw.schedulemc.economy.SavingsAccount;
 import de.rolandsw.schedulemc.economy.SavingsAccountManager;
 import de.rolandsw.schedulemc.commands.CommandExecutor;
+import de.rolandsw.schedulemc.util.InputValidation;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -63,6 +64,15 @@ public class SavingsCommand {
         return CommandExecutor.executePlayerCommand(ctx, "Fehler beim Erstellen des Sparkontos",
             player -> {
                 double amount = DoubleArgumentType.getDouble(ctx, "amount");
+
+                // ✅ INPUT VALIDATION
+                InputValidation.ValidationResult validation = InputValidation.validateAmount(amount);
+                if (validation.isFailure()) {
+                    CommandExecutor.sendFailure(ctx.getSource(),
+                        "§c❌ Ungültiger Betrag: §f" + validation.getErrorMessage());
+                    return;
+                }
+
                 SavingsAccountManager manager = SavingsAccountManager.getInstance(player.getServer());
 
                 if (!manager.createSavingsAccount(player.getUUID(), amount)) {
@@ -128,6 +138,15 @@ public class SavingsCommand {
             player -> {
                 String accountId = StringArgumentType.getString(ctx, "accountId");
                 double amount = DoubleArgumentType.getDouble(ctx, "amount");
+
+                // ✅ INPUT VALIDATION
+                InputValidation.ValidationResult validation = InputValidation.validateAmount(amount);
+                if (validation.isFailure()) {
+                    CommandExecutor.sendFailure(ctx.getSource(),
+                        "§c❌ Ungültiger Betrag: §f" + validation.getErrorMessage());
+                    return;
+                }
+
                 SavingsAccountManager manager = SavingsAccountManager.getInstance(player.getServer());
 
                 if (!manager.depositToSavings(player.getUUID(), accountId, amount)) {
@@ -141,6 +160,15 @@ public class SavingsCommand {
             player -> {
                 String accountId = StringArgumentType.getString(ctx, "accountId");
                 double amount = DoubleArgumentType.getDouble(ctx, "amount");
+
+                // ✅ INPUT VALIDATION
+                InputValidation.ValidationResult validation = InputValidation.validateAmount(amount);
+                if (validation.isFailure()) {
+                    CommandExecutor.sendFailure(ctx.getSource(),
+                        "§c❌ Ungültiger Betrag: §f" + validation.getErrorMessage());
+                    return;
+                }
+
                 SavingsAccountManager manager = SavingsAccountManager.getInstance(player.getServer());
 
                 if (!manager.withdrawFromSavings(player.getUUID(), accountId, amount, forced)) {

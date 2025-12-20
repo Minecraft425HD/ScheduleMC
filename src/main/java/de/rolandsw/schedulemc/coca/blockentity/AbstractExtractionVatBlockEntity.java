@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.coca.blockentity;
 import de.rolandsw.schedulemc.coca.CocaType;
 import de.rolandsw.schedulemc.coca.items.CocaPasteItem;
 import de.rolandsw.schedulemc.coca.items.FreshCocaLeafItem;
+import de.rolandsw.schedulemc.production.ProductionSize;
 import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;
 import de.rolandsw.schedulemc.utility.UtilityEventHandler;
@@ -32,15 +33,29 @@ public abstract class AbstractExtractionVatBlockEntity extends BlockEntity imple
     private TobaccoQuality[] qualities;
     private int dieselLevel = 0;
 
+    // Optional: ProductionSize für vereinfachte Subklassen
+    protected final ProductionSize size;
+
     protected AbstractExtractionVatBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        this(type, pos, state, null);
+    }
+
+    protected AbstractExtractionVatBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, ProductionSize size) {
         super(type, pos, state);
+        this.size = size;
         initArrays();
     }
 
     /**
      * Kapazität (Anzahl Blätter gleichzeitig)
      */
-    public abstract int getCapacity();
+    public int getCapacity() {
+        return size != null ? size.getCapacity() : getDefaultCapacity();
+    }
+
+    protected int getDefaultCapacity() {
+        return 6; // Fallback
+    }
 
     /**
      * Extraktionszeit in Ticks
@@ -50,7 +65,13 @@ public abstract class AbstractExtractionVatBlockEntity extends BlockEntity imple
     /**
      * Maximale Diesel-Menge in mB
      */
-    public abstract int getMaxDiesel();
+    public int getMaxDiesel() {
+        return size != null ? size.getMaxFuel() : getDefaultMaxDiesel();
+    }
+
+    protected int getDefaultMaxDiesel() {
+        return 1000; // Fallback
+    }
 
     /**
      * Diesel-Verbrauch pro Blatt in mB
