@@ -38,6 +38,12 @@ public class TerritoryNetworkHandler {
             .encoder(SetTerritoryPacket::encode)
             .consumerMainThread(SetTerritoryPacket::handle)
             .add();
+
+        INSTANCE.messageBuilder(SyncTerritoriesPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+            .decoder(SyncTerritoriesPacket::decode)
+            .encoder(SyncTerritoriesPacket::encode)
+            .consumerMainThread(SyncTerritoriesPacket::handle)
+            .add();
     }
 
     public static <MSG> void sendToServer(MSG message) {

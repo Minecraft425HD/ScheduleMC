@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.territory;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import de.rolandsw.schedulemc.territory.network.OpenMapEditorPacket;
+import de.rolandsw.schedulemc.territory.network.SyncTerritoriesPacket;
 import de.rolandsw.schedulemc.territory.network.TerritoryNetworkHandler;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -35,6 +36,12 @@ public class MapCommand {
         if (!(context.getSource().getEntity() instanceof ServerPlayer player)) {
             context.getSource().sendFailure(Component.literal("§cNur Spieler können diesen Command nutzen!"));
             return 0;
+        }
+
+        // Syncronisiere Territories zum Client
+        TerritoryManager manager = TerritoryManager.getInstance(player.server);
+        if (manager != null) {
+            TerritoryNetworkHandler.sendToPlayer(new SyncTerritoriesPacket(manager.getTerritoriesMap()), player);
         }
 
         // Sende Packet an Client zum Öffnen des Editors

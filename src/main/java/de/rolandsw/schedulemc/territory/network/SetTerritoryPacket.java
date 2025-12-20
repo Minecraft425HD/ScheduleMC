@@ -77,6 +77,9 @@ public class SetTerritoryPacket {
                 } else {
                     manager.setTerritory(msg.chunkX, msg.chunkZ, msg.type, msg.name, null);
                 }
+
+                // Sync territories back to client
+                TerritoryNetworkHandler.sendToPlayer(new SyncTerritoriesPacket(manager.getTerritoriesMap()), player);
             }
         });
         ctx.get().setPacketHandled(true);

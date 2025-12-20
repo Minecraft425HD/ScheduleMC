@@ -5,6 +5,7 @@ import de.rolandsw.schedulemc.territory.Territory;
 import de.rolandsw.schedulemc.territory.TerritoryManager;
 import de.rolandsw.schedulemc.territory.TerritoryType;
 import de.rolandsw.schedulemc.territory.network.SetTerritoryPacket;
+import de.rolandsw.schedulemc.territory.network.SyncTerritoriesPacket;
 import de.rolandsw.schedulemc.territory.network.TerritoryNetworkHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -241,10 +242,8 @@ public class TerritoryMapEditorScreen extends Screen {
     }
 
     private void renderTerritoryOverlay(GuiGraphics guiGraphics, int mapX, int mapY, int mapWidth, int mapHeight) {
-        TerritoryManager manager = TerritoryManager.getInstance();
-        if (manager == null) return;
-
-        Map<Long, Territory> territories = manager.getTerritoriesMap();
+        // Use client-side territory cache
+        Map<Long, SyncTerritoriesPacket.TerritoryData> territories = SyncTerritoriesPacket.TerritoryClientCache.getCache();
 
         int chunksWide = (int) Math.ceil(mapWidth / (CHUNK_SIZE * currentZoom));
         int chunksHigh = (int) Math.ceil(mapHeight / (CHUNK_SIZE * currentZoom));
@@ -263,13 +262,13 @@ public class TerritoryMapEditorScreen extends Screen {
                 int chunkZ = startChunkZ + cz;
 
                 long chunkKey = getChunkKey(chunkX, chunkZ);
-                Territory territory = territories.get(chunkKey);
+                SyncTerritoriesPacket.TerritoryData territory = territories.get(chunkKey);
 
                 if (territory != null) {
                     int screenX = mapX + cx * pixelsPerChunk;
                     int screenY = mapY + cz * pixelsPerChunk;
 
-                    int color = territory.getType().getColor();
+                    int color = territory.type.getColor();
                     int alpha = 0xCC; // 80% opacity (more visible)
                     int overlayColor = (alpha << 24) | color;
 
@@ -329,18 +328,18 @@ public class TerritoryMapEditorScreen extends Screen {
         int chunkX = startChunkX + relativeX / pixelsPerChunk;
         int chunkZ = startChunkZ + relativeY / pixelsPerChunk;
 
-        // Get territory info
-        TerritoryManager manager = TerritoryManager.getInstance();
+        // Get territory info from client cache
         String info = String.format("Chunk: [%d, %d]", chunkX, chunkZ);
 
-        if (manager != null) {
-            Territory territory = manager.getTerritory(chunkX, chunkZ);
-            if (territory != null) {
-                if (territory.getName() != null && !territory.getName().isEmpty()) {
-                    info += "\n" + territory.getName();
-                } else {
-                    info += "\n" + territory.getType().getDisplayName();
-                }
+        Map<Long, SyncTerritoriesPacket.TerritoryData> territories = SyncTerritoriesPacket.TerritoryClientCache.getCache();
+        long chunkKey = getChunkKey(chunkX, chunkZ);
+        SyncTerritoriesPacket.TerritoryData territory = territories.get(chunkKey);
+
+        if (territory != null) {
+            if (territory.name != null && !territory.name.isEmpty()) {
+                info += "\n" + territory.name;
+            } else {
+                info += "\n" + territory.type.getDisplayName();
             }
         }
 
