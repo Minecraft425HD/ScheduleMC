@@ -45,6 +45,9 @@ public class PlayerJoinHandler {
         EventHelper.handlePlayerJoin(event, player -> {
             UUID uuid = player.getUUID();
 
+            // ✅ MEMORY LEAK PREVENTION: Entferne Offline-Markierung bei Reconnect
+            MemoryCleanupManager.markPlayerOnline(uuid);
+
             // Konto erstellen falls noch nicht vorhanden
             // createAccount setzt bereits das Startguthaben - kein zusätzlicher deposit nötig!
             if (!EconomyManager.hasAccount(uuid)) {
@@ -71,6 +74,11 @@ public class PlayerJoinHandler {
     @SubscribeEvent
     public void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
         EventHelper.handlePlayerLogout(event, player -> {
+            UUID uuid = player.getUUID();
+
+            // ✅ MEMORY LEAK PREVENTION: Markiere Spieler für Cleanup
+            MemoryCleanupManager.markPlayerOffline(uuid);
+
             // Prüfe ob das der letzte Spieler war
             ServerLevel level = (ServerLevel) player.level();
             int playerCount = level.getServer().getPlayerCount();
@@ -81,8 +89,8 @@ public class PlayerJoinHandler {
                 freezeWorld(level);
             }
 
-            // Könnte hier zusätzlich speichern für mehr Datensicherheit
-            // EconomyManager.saveIfNeeded();
+            // Speichere Economy-Daten beim Logout für Datensicherheit
+            EconomyManager.saveAccounts();
         });
     }
 

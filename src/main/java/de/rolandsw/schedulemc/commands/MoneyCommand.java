@@ -11,6 +11,7 @@ import de.rolandsw.schedulemc.economy.Transaction;
 import de.rolandsw.schedulemc.economy.TransactionHistory;
 import de.rolandsw.schedulemc.economy.TransactionType;
 import de.rolandsw.schedulemc.commands.CommandExecutor;
+import de.rolandsw.schedulemc.util.InputValidation;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
