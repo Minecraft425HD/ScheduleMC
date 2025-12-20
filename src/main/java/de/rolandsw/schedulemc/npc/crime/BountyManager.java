@@ -109,7 +109,7 @@ public class BountyManager extends AbstractPersistenceManager<Map<UUID, BountyDa
         }
 
         // Prüfe Kontostand
-        if (!EconomyManager.withdraw(placerUUID, amount, TransactionType.BOUNTY_PLACEMENT,
+        if (!EconomyManager.withdraw(placerUUID, amount, TransactionType.OTHER,
                 "Kopfgeld auf: " + targetUUID)) {
             return false; // Nicht genug Geld
         }
@@ -158,7 +158,7 @@ public class BountyManager extends AbstractPersistenceManager<Map<UUID, BountyDa
 
         // Belohnung auszahlen
         double reward = bounty.getAmount();
-        EconomyManager.deposit(hunterUUID, reward, TransactionType.BOUNTY_REWARD,
+        EconomyManager.deposit(hunterUUID, reward, TransactionType.OTHER,
             "Kopfgeld: " + targetUUID);
 
         // Zu Historie hinzufügen

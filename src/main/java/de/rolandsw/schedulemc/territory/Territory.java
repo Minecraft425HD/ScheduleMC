@@ -88,7 +88,7 @@ public class Territory {
             "%s§f %s\n" +
             "§7Chunk: (%d, %d)\n" +
             "§7Owner: %s",
-            type.getFormattedName(),
+            type.getDisplayName(),
             name,
             chunkX,
             chunkZ,

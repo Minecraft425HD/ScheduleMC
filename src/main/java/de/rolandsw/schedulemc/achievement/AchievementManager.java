@@ -378,7 +378,7 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
         double reward = achievement.getTier().getRewardMoney();
         if (playerAch.unlock(achievementId, reward)) {
             // Belohnung auszahlen
-            EconomyManager.deposit(playerUUID, reward, TransactionType.ACHIEVEMENT_REWARD,
+            EconomyManager.deposit(playerUUID, reward, TransactionType.OTHER,
                 "Achievement: " + achievement.getName());
 
             // Spieler benachrichtigen

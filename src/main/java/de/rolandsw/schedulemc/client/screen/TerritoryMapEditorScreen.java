@@ -38,7 +38,7 @@ public class TerritoryMapEditorScreen extends Screen {
 
     // Editor state
     @Nullable
-    private TerritoryType selectedType = TerritoryType.GANG_TERRITORY;
+    private TerritoryType selectedType = TerritoryType.COLOR_RED;
     private float currentZoom = 1.0f;
     private int offsetX = 0;
     private int offsetZ = 0;
@@ -412,15 +412,15 @@ public class TerritoryMapEditorScreen extends Screen {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-        if (scrollY > 0 && currentZoom < 4.0f) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        if (delta > 0 && currentZoom < 4.0f) {
             currentZoom *= 2.0f;
             return true;
-        } else if (scrollY < 0 && currentZoom > 0.5f) {
+        } else if (delta < 0 && currentZoom > 0.5f) {
             currentZoom /= 2.0f;
             return true;
         }
-        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+        return super.mouseScrolled(mouseX, mouseY, delta);
     }
 
     @Override
@@ -531,11 +531,9 @@ public class TerritoryMapEditorScreen extends Screen {
 
     private static int getMaterialColor(byte colorId) {
         int id = colorId & 0xFF;
-        if (id >= 0 && id < MapColor.MATERIAL_COLORS.length) {
-            MapColor mapColor = MapColor.MATERIAL_COLORS[id];
-            if (mapColor != null) {
-                return mapColor.col;
-            }
+        MapColor mapColor = MapColor.byId(id);
+        if (mapColor != null) {
+            return mapColor.col;
         }
         return 0x000000;
     }

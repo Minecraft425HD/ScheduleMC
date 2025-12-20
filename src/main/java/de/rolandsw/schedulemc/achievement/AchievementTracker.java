@@ -18,7 +18,7 @@ import java.util.UUID;
  * Trackt automatisch Achievement-Fortschritte
  * @Mod.EventBusSubscriber für automatische Event-Registrierung
  */
-@Mod.EventBusSubscriber(modid = ScheduleMC.MODID)
+@Mod.EventBusSubscriber(modid = ScheduleMC.MOD_ID)
 public class AchievementTracker {
 
     private static AchievementManager achievementManager;
@@ -81,29 +81,25 @@ public class AchievementTracker {
         achievementManager.setProgress(uuid, "MILLIONAIRE", balance);
 
         // ========== CRIME ACHIEVEMENTS ==========
-        if (CrimeManager.getInstance() != null) {
-            int wantedLevel = CrimeManager.getWantedLevel(uuid);
+        int wantedLevel = CrimeManager.getWantedLevel(uuid);
 
-            if (wantedLevel > 0) {
-                achievementManager.setProgress(uuid, "FIRST_CRIME", 1.0);
-            }
-            if (wantedLevel >= 3) {
-                achievementManager.setProgress(uuid, "WANTED", 3.0);
-            }
-            if (wantedLevel >= 5) {
-                achievementManager.setProgress(uuid, "MOST_WANTED", 5.0);
-            }
+        if (wantedLevel > 0) {
+            achievementManager.setProgress(uuid, "FIRST_CRIME", 1.0);
+        }
+        if (wantedLevel >= 3) {
+            achievementManager.setProgress(uuid, "WANTED", 3.0);
+        }
+        if (wantedLevel >= 5) {
+            achievementManager.setProgress(uuid, "MOST_WANTED", 5.0);
         }
 
         // ========== SOCIAL ACHIEVEMENTS ==========
-        if (PlotManager.getInstance() != null) {
-            int plotCount = PlotManager.getPlotsByOwner(uuid).size();
+        int plotCount = PlotManager.getPlotsByOwner(uuid).size();
 
-            if (plotCount > 0) {
-                achievementManager.setProgress(uuid, "FIRST_PLOT", 1.0);
-            }
-            achievementManager.setProgress(uuid, "PROPERTY_MOGUL", plotCount);
+        if (plotCount > 0) {
+            achievementManager.setProgress(uuid, "FIRST_PLOT", 1.0);
         }
+        achievementManager.setProgress(uuid, "PROPERTY_MOGUL", plotCount);
     }
 
     /**
