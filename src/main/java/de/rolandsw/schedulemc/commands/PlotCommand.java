@@ -13,6 +13,7 @@ import de.rolandsw.schedulemc.region.PlotRegion;
 import de.rolandsw.schedulemc.region.PlotType;
 import de.rolandsw.schedulemc.region.blocks.PlotBlocks;
 import de.rolandsw.schedulemc.commands.CommandExecutor;
+import de.rolandsw.schedulemc.util.InputValidation;
 import de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -276,11 +277,29 @@ public class PlotCommand {
             player -> {
                 String name = StringArgumentType.getString(ctx, "name");
 
+                // ✅ INPUT VALIDATION: Name validieren
+                InputValidation.ValidationResult nameValidation = InputValidation.validateName(name);
+                if (nameValidation.isFailure()) {
+                    CommandExecutor.sendFailure(ctx.getSource(),
+                        "§c❌ Ungültiger Name: §f" + nameValidation.getErrorMessage()
+                    );
+                    return;
+                }
+
                 // Preis nur für kaufbare Typen erforderlich
                 double price = 0.0;
                 if (type.canBePurchased()) {
                     try {
                         price = DoubleArgumentType.getDouble(ctx, "price");
+
+                        // ✅ INPUT VALIDATION: Preis validieren
+                        InputValidation.ValidationResult priceValidation = InputValidation.validatePrice(price);
+                        if (priceValidation.isFailure()) {
+                            CommandExecutor.sendFailure(ctx.getSource(),
+                                "§c❌ Ungültiger Preis: §f" + priceValidation.getErrorMessage()
+                            );
+                            return;
+                        }
                     } catch (IllegalArgumentException e) {
                         CommandExecutor.sendFailure(ctx.getSource(),
                             "Fehler: " + type.getDisplayName() + " benötigt einen Preis!\n" +

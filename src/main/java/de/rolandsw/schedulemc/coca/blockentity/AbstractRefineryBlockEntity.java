@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.coca.blockentity;
 import de.rolandsw.schedulemc.coca.CocaType;
 import de.rolandsw.schedulemc.coca.items.CocaineItem;
 import de.rolandsw.schedulemc.coca.items.CocaPasteItem;
+import de.rolandsw.schedulemc.production.ProductionSize;
 import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;
 import de.rolandsw.schedulemc.utility.UtilityEventHandler;
@@ -32,15 +33,33 @@ public abstract class AbstractRefineryBlockEntity extends BlockEntity implements
     private TobaccoQuality[] qualities;
     private int fuelLevel = 0;
 
+    // Optional: ProductionSize für vereinfachte Subklassen
+    protected final ProductionSize size;
+
     protected AbstractRefineryBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        this(type, pos, state, null);
+    }
+
+    protected AbstractRefineryBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, ProductionSize size) {
         super(type, pos, state);
+        this.size = size;
         initArrays();
     }
 
     /**
      * Kapazität (Anzahl Pasten gleichzeitig)
+     * Kann von Subklassen überschrieben werden, nutzt standardmäßig ProductionSize
      */
-    public abstract int getCapacity();
+    public int getCapacity() {
+        return size != null ? size.getCapacity() : getDefaultCapacity();
+    }
+
+    /**
+     * Standard-Kapazität für Legacy-Subklassen ohne ProductionSize
+     */
+    protected int getDefaultCapacity() {
+        return 6; // Fallback
+    }
 
     /**
      * Raffinierungszeit in Ticks
@@ -49,8 +68,18 @@ public abstract class AbstractRefineryBlockEntity extends BlockEntity implements
 
     /**
      * Maximaler Brennstoff-Level
+     * Kann von Subklassen überschrieben werden, nutzt standardmäßig ProductionSize
      */
-    public abstract int getMaxFuel();
+    public int getMaxFuel() {
+        return size != null ? size.getMaxFuel() : getDefaultMaxFuel();
+    }
+
+    /**
+     * Standard-MaxFuel für Legacy-Subklassen ohne ProductionSize
+     */
+    protected int getDefaultMaxFuel() {
+        return 500; // Fallback
+    }
 
     /**
      * Brennstoff-Verbrauch pro Paste
