@@ -33,7 +33,7 @@ public class SmartphoneScreen extends Screen {
     private static final int SCROLLBAR_WIDTH = 8; // Etwas breiter für bessere Klickbarkeit
     private static final int SCROLLBAR_MARGIN = 10; // Abstand zwischen Apps und Scrollbar
     private static final int VISIBLE_ROWS = 3; // Nur 3 Reihen sichtbar (6 Apps)
-    private static final int TOTAL_ROWS = 4; // Insgesamt 4 Reihen (8 Apps)
+    private static final int TOTAL_ROWS = 5; // Insgesamt 5 Reihen (10 Apps)
 
     // App-Icons (konfigurierbar über Ressourcen)
     private static final ResourceLocation APP_MAP = new ResourceLocation(ScheduleMC.MOD_ID, "textures/gui/apps/app_map.png");
@@ -44,6 +44,8 @@ public class SmartphoneScreen extends Screen {
     private static final ResourceLocation APP_MESSAGES = new ResourceLocation(ScheduleMC.MOD_ID, "textures/gui/apps/app_messages.png");
     private static final ResourceLocation APP_PLOT = new ResourceLocation(ScheduleMC.MOD_ID, "textures/gui/apps/app_plot.png");
     private static final ResourceLocation APP_SETTINGS = new ResourceLocation(ScheduleMC.MOD_ID, "textures/gui/apps/app_settings.png");
+    private static final ResourceLocation APP_BANK = new ResourceLocation(ScheduleMC.MOD_ID, "textures/gui/apps/app_bank.png");
+    private static final ResourceLocation APP_CRIME = new ResourceLocation(ScheduleMC.MOD_ID, "textures/gui/apps/app_crime.png");
     private static final ResourceLocation CLOSE_ICON = new ResourceLocation(ScheduleMC.MOD_ID, "textures/gui/apps/close.png");
 
     private int leftPos;
@@ -194,6 +196,8 @@ public class SmartphoneScreen extends Screen {
                             case 5: openApp(new MessagesAppScreen(this)); return true;
                             case 6: openApp(new PlotAppScreen(this)); return true;
                             case 7: openApp(new SettingsAppScreen(this)); return true;
+                            case 8: openApp(new BankAppScreen(this)); return true;
+                            case 9: openApp(new CrimeStatsAppScreen(this)); return true;
                         }
                     }
                 }
@@ -278,6 +282,10 @@ public class SmartphoneScreen extends Screen {
         renderAppIcon(guiGraphics, gridStartX, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 3 - scrollOffset, APP_PLOT, "Immobilien", 6);
         renderAppIcon(guiGraphics, gridStartX + APP_ICON_SIZE + APP_SPACING, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 3 - scrollOffset,
             APP_SETTINGS, "Settings", 7);
+
+        renderAppIcon(guiGraphics, gridStartX, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 4 - scrollOffset, APP_BANK, "Bank", 8);
+        renderAppIcon(guiGraphics, gridStartX + APP_ICON_SIZE + APP_SPACING, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 4 - scrollOffset,
+            APP_CRIME, "Polizei", 9);
 
         // Deaktiviere Scissor
         guiGraphics.disableScissor();
