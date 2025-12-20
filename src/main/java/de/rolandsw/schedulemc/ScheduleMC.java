@@ -227,6 +227,8 @@ public class ScheduleMC {
             SmartphoneNetworkHandler.register();
             MessageNetworkHandler.register();
             WarehouseNetworkHandler.register();
+            de.rolandsw.schedulemc.npc.crime.prison.network.PrisonNetworkHandler.register();
+            de.rolandsw.schedulemc.npc.crime.prison.PrisonManager.init();
 
             // Utility-System initialisieren
             UtilityRegistry.registerDefaults();
@@ -258,6 +260,7 @@ public class ScheduleMC {
             StateCommand.register(event.getDispatcher());
             UtilityCommand.register(event.getDispatcher());
             HealthCommand.register(event.getDispatcher());
+            de.rolandsw.schedulemc.npc.crime.prison.PrisonCommand.register(event.getDispatcher());
 
             // Vehicle Mod handles its own commands via event bus (registered in Main.commonSetup)
         }, "onRegisterCommands");
