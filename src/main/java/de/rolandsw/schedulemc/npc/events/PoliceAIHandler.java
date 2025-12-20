@@ -375,36 +375,41 @@ public class PoliceAIHandler {
             }
         }
 
-        // Teleportiere zu Gefängnis (Spawn-Punkt als Platzhalter)
-        BlockPos jailPos = player.getRespawnPosition() != null ?
-            player.getRespawnPosition() : BlockPos.ZERO;
+        // Nutze PrisonManager für Inhaftierung
+        de.rolandsw.schedulemc.npc.crime.prison.PrisonManager prisonManager =
+            de.rolandsw.schedulemc.npc.crime.prison.PrisonManager.getInstance();
 
-        player.teleportTo(jailPos.getX(), jailPos.getY(), jailPos.getZ());
+        // Versuche Spieler ins Gefängnis zu bringen
+        boolean imprisoned = prisonManager.imprisonPlayer(player, wantedLevel);
 
-        // Setze Gefängnis-Timer
-        long releaseTime = player.level().getGameTime() + (jailTimeSeconds * 20L); // Ticks
-        player.getPersistentData().putLong("JailReleaseTime", releaseTime);
-        player.getPersistentData().putInt("JailX", jailPos.getX());
-        player.getPersistentData().putInt("JailY", jailPos.getY());
-        player.getPersistentData().putInt("JailZ", jailPos.getZ());
+        if (!imprisoned) {
+            // Fallback: Alte Logik wenn kein Gefängnis verfügbar
+            BlockPos jailPos = player.getRespawnPosition() != null ?
+                player.getRespawnPosition() : BlockPos.ZERO;
 
-        // Gefängnis-Effekte
-        player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 40, 0));
-        player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, jailTimeSeconds * 20, 2));
-        player.addEffect(new MobEffectInstance(MobEffects.JUMP, jailTimeSeconds * 20, 250)); // Kein Springen
+            player.teleportTo(jailPos.getX(), jailPos.getY(), jailPos.getZ());
 
-        // Reset Wanted-Level
-        CrimeManager.clearWantedLevel(player.getUUID());
+            long releaseTime = player.level().getGameTime() + (jailTimeSeconds * 20L);
+            player.getPersistentData().putLong("JailReleaseTime", releaseTime);
+            player.getPersistentData().putInt("JailX", jailPos.getX());
+            player.getPersistentData().putInt("JailY", jailPos.getY());
+            player.getPersistentData().putInt("JailZ", jailPos.getZ());
+
+            player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 40, 0));
+            player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, jailTimeSeconds * 20, 2));
+            player.addEffect(new MobEffectInstance(MobEffects.JUMP, jailTimeSeconds * 20, 250));
+
+            CrimeManager.clearWantedLevel(player.getUUID());
+
+            player.sendSystemMessage(Component.literal("§7Haftzeit: §e" + jailTimeSeconds + " Sekunden"));
+            player.sendSystemMessage(Component.literal("§7Fahndungsstufe zurückgesetzt"));
+        }
 
         // Reset Arrest-Timer
         arrestTimers.remove(player.getUUID());
 
         // Cleanup Backup-System
         PoliceBackupSystem.cleanup(player.getUUID());
-
-        // Meldungen
-        player.sendSystemMessage(Component.literal("§7Haftzeit: §e" + jailTimeSeconds + " Sekunden"));
-        player.sendSystemMessage(Component.literal("§7Fahndungsstufe zurückgesetzt"));
 
         LOGGER.info("[POLICE] {} arrested {} - Jail time: {}s",
             police.getNpcName(), player.getName().getString(), jailTimeSeconds);

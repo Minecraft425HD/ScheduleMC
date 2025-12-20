@@ -10,7 +10,8 @@ public enum PlotType {
     COMMERCIAL("Gewerbefläche", true, true),
     SHOP("Laden", false, false),           // Nicht kaufbar, Staatseigentum
     PUBLIC("Öffentlich", false, false),
-    GOVERNMENT("Regierung", false, false);
+    GOVERNMENT("Regierung", false, false),
+    PRISON("Gefängnis", false, false);     // Gefängnis-Plot
 
     private final String displayName;
     private final boolean canBePurchased;
@@ -36,5 +37,9 @@ public enum PlotType {
 
     public boolean isShop() {
         return this == SHOP;
+    }
+
+    public boolean isPrison() {
+        return this == PRISON;
     }
 }

@@ -109,6 +109,18 @@ public class CrimeManager {
     }
 
     /**
+     * Setzt Wanted-Level auf einen bestimmten Wert
+     */
+    public static void setWantedLevel(UUID playerUUID, int level) {
+        if (level <= 0) {
+            clearWantedLevel(playerUUID);
+        } else {
+            wantedLevels.put(playerUUID, Math.min(MAX_WANTED_LEVEL, level));
+            markDirty();
+        }
+    }
+
+    /**
      * Reduziert Wanted-Level über Zeit
      * Sollte täglich aufgerufen werden (pro Minecraft-Tag)
      */
