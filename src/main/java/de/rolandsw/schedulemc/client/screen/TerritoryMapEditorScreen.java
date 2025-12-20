@@ -74,7 +74,7 @@ public class TerritoryMapEditorScreen extends Screen {
         int buttonY = 10;
         for (TerritoryType type : TerritoryType.values()) {
             Button button = Button.builder(
-                Component.literal(type.getEmoji() + " " + type.getDisplayName()),
+                Component.literal(type.getDisplayName()),
                 btn -> selectedType = type
             )
             .bounds(10, buttonY, PALETTE_WIDTH, PALETTE_BUTTON_HEIGHT)
@@ -87,7 +87,7 @@ public class TerritoryMapEditorScreen extends Screen {
 
         // Add Clear Territory button
         addRenderableWidget(Button.builder(
-            Component.literal("🗑 Clear Territory"),
+            Component.literal("Clear Territory"),
             btn -> selectedType = null
         )
         .bounds(10, buttonY, PALETTE_WIDTH, PALETTE_BUTTON_HEIGHT)
@@ -97,7 +97,7 @@ public class TerritoryMapEditorScreen extends Screen {
 
         // Add Zoom buttons
         addRenderableWidget(Button.builder(
-            Component.literal("🔍+ Zoom In"),
+            Component.literal("+ Zoom In"),
             btn -> {
                 if (currentZoom < 4.0f) {
                     currentZoom *= 2.0f;
@@ -108,7 +108,7 @@ public class TerritoryMapEditorScreen extends Screen {
         .build());
 
         addRenderableWidget(Button.builder(
-            Component.literal("🔍- Zoom Out"),
+            Component.literal("- Zoom Out"),
             btn -> {
                 if (currentZoom > 0.5f) {
                     currentZoom /= 2.0f;
@@ -131,7 +131,7 @@ public class TerritoryMapEditorScreen extends Screen {
 
         // Add Close button
         addRenderableWidget(Button.builder(
-            Component.literal("✓ Close & Save"),
+            Component.literal("Close & Save"),
             btn -> onClose()
         )
         .bounds(this.width - 120, this.height - 30, 110, 20)
@@ -320,9 +320,10 @@ public class TerritoryMapEditorScreen extends Screen {
         if (manager != null) {
             Territory territory = manager.getTerritory(chunkX, chunkZ);
             if (territory != null) {
-                info += "\n" + territory.getType().getEmoji() + " " + territory.getType().getDisplayName();
                 if (territory.getName() != null && !territory.getName().isEmpty()) {
                     info += "\n" + territory.getName();
+                } else {
+                    info += "\n" + territory.getType().getDisplayName();
                 }
             }
         }

@@ -97,11 +97,13 @@ public class TerritoryTracker {
 
         if (to != null) {
             // Territory betreten
-            title = to.getType().getEmoji() + " " + to.getType().getDisplayName();
-
             if (to.getName() != null && !to.getName().isEmpty()) {
-                subtitle = "§7" + to.getName();
+                // Custom Name vorhanden -> zeige Namen
+                title = to.getName();
+                subtitle = "§7" + to.getType().getDisplayName();
             } else {
+                // Kein Name -> zeige nur Farbe
+                title = to.getType().getDisplayName();
                 subtitle = "§7Unbenanntes Gebiet";
             }
 
