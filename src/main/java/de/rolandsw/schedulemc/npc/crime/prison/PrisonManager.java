@@ -97,7 +97,7 @@ public class PrisonManager {
 
     private void loadPrisonPlots() {
         prisonPlotIds.clear();
-        for (PlotRegion plot : PlotManager.getAllPlots()) {
+        for (PlotRegion plot : PlotManager.getPlots()) {
             if (plot.getType() == PlotType.PRISON) {
                 prisonPlotIds.add(plot.getPlotId());
             }

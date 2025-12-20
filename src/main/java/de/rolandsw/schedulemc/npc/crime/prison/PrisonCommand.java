@@ -165,7 +165,7 @@ public class PrisonCommand {
         source.sendSuccess(() -> Component.literal("§6═══ GEFÄNGNISSE ═══"), false);
 
         int count = 0;
-        for (PlotRegion plot : PlotManager.getAllPlots()) {
+        for (PlotRegion plot : PlotManager.getPlots()) {
             if (plot.getType() == PlotType.PRISON) {
                 int cellCount = (int) plot.getSubAreas().stream()
                     .filter(a -> a instanceof PrisonCell).count();
