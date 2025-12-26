@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.mapview.service.data;
 
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
+import de.rolandsw.schedulemc.mapview.util.DimensionContainer;
 import java.util.ArrayList;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;

@@ -1,6 +1,8 @@
 package de.rolandsw.schedulemc.mapview.presentation.renderer;
 
 import de.rolandsw.schedulemc.mapview.config.MapOption;
+import de.rolandsw.schedulemc.mapview.config.MapViewConfiguration;
+import de.rolandsw.schedulemc.mapview.service.render.ColorCalculationService;
 import de.rolandsw.schedulemc.mapview.core.model.AbstractMapData;
 import de.rolandsw.schedulemc.mapview.core.event.MapChangeListener;
 import de.rolandsw.schedulemc.mapview.presentation.screen.WorldMapScreen;

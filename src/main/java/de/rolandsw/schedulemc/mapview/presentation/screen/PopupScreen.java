@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.mapview.presentation.screen;
 
+import de.rolandsw.schedulemc.mapview.presentation.component.PopupComponent;
 import java.util.ArrayList;
 import net.minecraft.client.gui.GuiGraphics;
 

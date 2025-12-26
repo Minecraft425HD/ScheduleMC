@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.mapview.data.cache;
 
+import de.rolandsw.schedulemc.mapview.util.MutableBlockPos;
 import java.util.concurrent.ArrayBlockingQueue;
 
 public class BlockPositionCache {

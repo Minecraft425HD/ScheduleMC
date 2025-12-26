@@ -10,6 +10,7 @@ import de.rolandsw.schedulemc.mapview.service.coordination.RenderCoordinationSer
 import de.rolandsw.schedulemc.mapview.service.coordination.WorldStateService;
 import de.rolandsw.schedulemc.mapview.service.coordination.LifecycleService;
 import de.rolandsw.schedulemc.mapview.service.render.ColorCalculationService;
+import de.rolandsw.schedulemc.mapview.presentation.renderer.MapViewRenderer;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import de.rolandsw.schedulemc.mapview.integration.minecraft.MinecraftAccessor;
 import de.rolandsw.schedulemc.mapview.util.MapViewHelper;

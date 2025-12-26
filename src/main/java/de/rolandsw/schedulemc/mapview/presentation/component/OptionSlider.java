@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.mapview.presentation.component;
 
+import de.rolandsw.schedulemc.mapview.config.MapOption;
 import de.rolandsw.schedulemc.mapview.core.event.SettingsManager;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.network.chat.Component;

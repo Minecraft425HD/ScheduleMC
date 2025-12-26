@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.mapview.util;
 
 import de.rolandsw.schedulemc.mapview.config.MapViewConfiguration;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
+import de.rolandsw.schedulemc.mapview.service.render.ColorUtils;
 import java.util.Objects;
 import java.util.Random;
 import net.minecraft.client.multiplayer.ClientLevel;

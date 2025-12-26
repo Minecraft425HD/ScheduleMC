@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.mapview.data.cache;
 
 import de.rolandsw.schedulemc.mapview.service.data.ConfigNotificationService;
+import de.rolandsw.schedulemc.mapview.data.persistence.CompressedMapData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.chunk.LevelChunk;
 

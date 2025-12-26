@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.mapview.presentation.component;
 
+import de.rolandsw.schedulemc.mapview.presentation.screen.PopupScreen;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import de.rolandsw.schedulemc.mapview.util.MapViewGuiGraphics;
 import net.minecraft.client.gui.Font;
