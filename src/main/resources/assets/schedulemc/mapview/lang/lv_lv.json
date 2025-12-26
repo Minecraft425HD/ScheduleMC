@@ -1,0 +1,17 @@
+{
+  "mapview.ui.zoomLevel": "Pietuvināšanas līmenis: ",
+  "options.mapview.title": "Minimapes uzstādijumi ",
+  "options.mapview.location": "Atrašanās vieta ",
+  "options.mapview.location.topLeft": "Augšējā kreisajā ",
+  "options.mapview.location.topRight": "Augšējā labajā",
+  "options.mapview.location.bottomRight": "Apakšējā labajā ",
+  "options.mapview.location.bottomLeft": "Apakšējā kreisajā",
+  "options.mapview.size": "Izmērs ",
+  "options.mapview.size.small": "Mazs",
+  "options.mapview.size.medium": "Vidējs ",
+  "options.mapview.size.large": "Liels ",
+  "key.mapview.zoom": "Pietuvināt ",
+  "key.mapview.toggleFullscreen": "Iespējot pilnekrāna karti ",
+  "key.mapview.menu": "Izvēlne ",
+  "mapview.waypoints.teleportTo": "Teleportēt uz "
+}

@@ -1,0 +1,23 @@
+{
+  "mapview.ui.zoomLevel": "Zoom Level:",
+  "options.mapview.title": "Map View Options",
+  "options.mapview.location": "Location",
+  "options.mapview.location.topLeft": "Top Left",
+  "options.mapview.location.topRight": "Top Right",
+  "options.mapview.location.bottomRight": "Bottom Right",
+  "options.mapview.location.bottomLeft": "Bottom Left",
+  "options.mapview.size": "Size",
+  "options.mapview.size.small": "Small",
+  "options.mapview.size.medium": "Regular",
+  "options.mapview.size.large": "Large",
+  "options.mapview.size.xl": "XL",
+  "options.mapview.size.xxl": "XXL",
+  "options.mapview.size.xxxl": "XXXL",
+  "key.mapview.zoom": "Zoom",
+  "key.mapview.toggleFullscreen": "Toggle Fullscreen Map",
+  "key.mapview.menu": "Map View Menu",
+  "key.categories.mapview": "Map View",
+  "mapview.waypoints.teleportTo": "Teleport To",
+  "worldmap.title": "World Map",
+  "worldmap.disabled": "The Worldmap is disabled on this server."
+}

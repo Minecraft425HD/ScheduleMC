@@ -489,14 +489,4 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
     public int getPriority() {
         return 0; // Höchste Priorität - Economy-Daten sind kritisch
     }
-
-    /**
-     * Gibt die Singleton-Instanz zurück (für IncrementalSaveManager Registration)
-     */
-    public static EconomyManager getInstance() {
-        if (instance == null) {
-            instance = new EconomyManager();
-        }
-        return instance;
-    }
 }

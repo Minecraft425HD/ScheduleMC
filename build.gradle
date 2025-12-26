@@ -146,7 +146,7 @@ dependencies {
     compileOnly fg.deobf('maven.modrinth:jade:11.8.0') // Jade for 1.20.1
     compileOnly fg.deobf('maven.modrinth:the-one-probe:1.20.1-10.0.2-forge') // The One Probe for 1.20.1
 
-    // LightMapmod dependencies - required for compilation
+    // MapView dependencies - required for compilation
     compileOnly 'org.spongepowered:mixin:0.8.5'
     compileOnly 'io.github.llamalad7:mixinextras-common:0.5.0'
     annotationProcessor 'io.github.llamalad7:mixinextras-common:0.5.0'

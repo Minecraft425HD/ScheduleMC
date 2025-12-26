@@ -1,0 +1,17 @@
+{
+  "mapview.ui.zoomLevel": "Nagyítási szint",
+  "options.mapview.title": "Minitérkép beállítások",
+  "options.mapview.location": "Elhelyezés",
+  "options.mapview.location.topLeft": "Bal felső",
+  "options.mapview.location.topRight": "Jobb felső",
+  "options.mapview.location.bottomRight": "Jobb alsó",
+  "options.mapview.location.bottomLeft": "Bal alsó",
+  "options.mapview.size": "Méret",
+  "options.mapview.size.small": "Kicsi",
+  "options.mapview.size.medium": "Közepes",
+  "options.mapview.size.large": "Nagy",
+  "key.mapview.zoom": "Nagyítás",
+  "key.mapview.toggleFullscreen": "Teljes képernyős térkép",
+  "key.mapview.menu": "Menü",
+  "mapview.waypoints.teleportTo": "Teleportálás ide"
+}

@@ -1,0 +1,17 @@
+{
+  "mapview.ui.zoomLevel": "مستوى التكبير:",
+  "options.mapview.title": "خيارات الخريطة",
+  "options.mapview.location": "موقع الخريطة",
+  "options.mapview.location.topLeft": "أعلى اليسار",
+  "options.mapview.location.topRight": "أعلى اليمين",
+  "options.mapview.location.bottomRight": "أسفل اليمين",
+  "options.mapview.location.bottomLeft": "أسفل اليسار",
+  "options.mapview.size": "حجم الخريطة",
+  "options.mapview.size.small": "صغير",
+  "options.mapview.size.medium": "متوسط",
+  "options.mapview.size.large": "كبير",
+  "key.mapview.zoom": "تكبير",
+  "key.mapview.toggleFullscreen": "تبديل الخريطة كامل الشاشة.",
+  "key.mapview.menu": "القائمة",
+  "mapview.waypoints.teleportTo": "انتقال فوري ل"
+}

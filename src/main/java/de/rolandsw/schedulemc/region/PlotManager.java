@@ -513,13 +513,6 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
         }
     }
     
-    /**
-     * Prüft ob ungespeicherte Änderungen vorhanden sind
-     */
-    public static boolean isDirty() {
-        return dirty;
-    }
-    
     // ═══════════════════════════════════════════════════════════
     // STATISTIKEN
     // ═══════════════════════════════════════════════════════════
