@@ -5,6 +5,9 @@ import de.rolandsw.schedulemc.mapview.config.WorldMapConfiguration;
 import de.rolandsw.schedulemc.mapview.data.persistence.AsyncPersistenceManager;
 import de.rolandsw.schedulemc.mapview.util.BiomeColors;
 import de.rolandsw.schedulemc.mapview.service.data.DimensionService;
+import de.rolandsw.schedulemc.mapview.service.coordination.RenderCoordinationService;
+import de.rolandsw.schedulemc.mapview.service.coordination.WorldStateService;
+import de.rolandsw.schedulemc.mapview.service.coordination.LifecycleService;
 import de.rolandsw.schedulemc.mapview.integration.minecraft.MinecraftAccessor;
 import de.rolandsw.schedulemc.mapview.util.MapViewHelper;
 import de.rolandsw.schedulemc.mapview.util.TextUtils;
@@ -21,20 +24,38 @@ import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.Unit;
 
+/**
+ * Orchestrator for map data management operations.
+ * Coordinates multiple specialized services to handle rendering, world state,
+ * lifecycle, and data management in a modular architecture.
+ *
+ * Phase 2 refactoring: Reduced god-class anti-pattern by delegating
+ * responsibilities to specialized service classes.
+ */
 public class MapDataManager implements PreparableReloadListener {
     public static MapViewConfiguration mapOptions;
     private WorldMapConfiguration persistentMapOptions;
-    private MapViewRenderer map;
+
+    // Specialized coordination services (Phase 2)
+    private final RenderCoordinationService renderService;
+    private final WorldStateService worldStateService;
+    private LifecycleService lifecycleServiceInstance;
+
+    // Data and business logic services
     private WorldMapData persistentMap;
     private ConfigNotificationService settingsAndLightingChangeNotifier;
     private WorldUpdateListener worldUpdateListener;
     private ColorCalculationService colorManager;
     private DimensionService dimensionManager;
-    private ClientLevel world;
-    private static String passMessage;
+
     private ArrayDeque<Runnable> runOnWorldSet = new ArrayDeque<>();
-    private String worldSeed = "";
-    MapDataManager() {}
+
+    MapDataManager() {
+        // Initialize coordination services
+        this.renderService = new RenderCoordinationService();
+        this.worldStateService = new WorldStateService();
+        this.lifecycleServiceInstance = null; // Initialized in lateInit when config is ready
+    }
 
     public void lateInit(boolean showUnderMenus, boolean isFair) {
         mapOptions = new MapViewConfiguration();
@@ -47,11 +68,13 @@ public class MapDataManager implements PreparableReloadListener {
         this.persistentMap = new WorldMapData();
         mapOptions.loadAll();
 
+        // Initialize lifecycle service with configuration
+        this.lifecycleServiceInstance = new LifecycleService(mapOptions);
+
         // Event listeners are now registered separately during mod construction
-        this.map = new MapViewRenderer();
         this.settingsAndLightingChangeNotifier = new ConfigNotificationService();
         this.worldUpdateListener = new WorldUpdateListener();
-        this.worldUpdateListener.addListener(this.map);
+        this.worldUpdateListener.addListener(this.renderService.getRenderer());
         this.worldUpdateListener.addListener(this.persistentMap);
         ReloadableResourceManager resourceManager = (ReloadableResourceManager) MapViewConstants.getMinecraft().getResourceManager();
         resourceManager.registerReloadListener(this);
@@ -68,24 +91,20 @@ public class MapDataManager implements PreparableReloadListener {
     }
 
     public void onTickInGame(GuiGraphics guiGraphics) {
-        if (this.map != null) {
-            this.map.onTickInGame(guiGraphics);
-        }
-        if (passMessage != null) {
-            MapViewConstants.getMinecraft().gui.getChat().addMessage(Component.literal(passMessage));
-            passMessage = null;
-        }
+        // Delegate to render coordination service
+        this.renderService.onTickInGame(guiGraphics);
     }
 
     public void onTick() {
         ClientLevel newWorld = MinecraftAccessor.getWorld();
-        if (this.world != newWorld) {
-            this.world = newWorld;
-            this.persistentMap.newWorld(this.world);
-            if (this.world != null) {
+
+        // Delegate world change detection to worldStateService
+        if (this.worldStateService.hasWorldChanged(newWorld)) {
+            this.persistentMap.newWorld(newWorld);
+            if (newWorld != null) {
                 MapViewHelper.reset();
                 MapViewConstants.getPacketBridge().sendWorldIDPacket();
-                this.map.newWorld(this.world);
+                this.renderService.onWorldChanged(newWorld);
                 while (!runOnWorldSet.isEmpty()) {
                     runOnWorldSet.removeFirst().run();
                 }
@@ -109,7 +128,7 @@ public class MapDataManager implements PreparableReloadListener {
     }
 
     public MapViewRenderer getMap() {
-        return this.map;
+        return this.renderService.getRenderer();
     }
 
     public ConfigNotificationService getSettingsAndLightingChangeNotifier() {
@@ -129,11 +148,13 @@ public class MapDataManager implements PreparableReloadListener {
     }
 
     public void setPermissions(boolean hasCavemodePermission) {
-        // Cave mode removed - no permissions to set
+        // Delegate to lifecycle service
+        this.lifecycleServiceInstance.setPermissions(hasCavemodePermission);
     }
 
     public void sendPlayerMessageOnMainThread(String s) {
-        passMessage = s;
+        // Delegate to render service
+        this.renderService.sendMessageOnMainThread(s);
     }
 
     public WorldUpdateListener getWorldUpdateListener() {
@@ -141,30 +162,35 @@ public class MapDataManager implements PreparableReloadListener {
     }
 
     public void clearServerSettings() {
-        mapOptions.serverTeleportCommand = null;
-        mapOptions.worldmapAllowed = true;
-        mapOptions.minimapAllowed = true;
+        // Delegate to lifecycle service
+        this.lifecycleServiceInstance.clearServerSettings();
     }
 
     public void onPlayInit() {
-        // registries are ready, but no world
+        // Delegate to lifecycle service
+        this.lifecycleServiceInstance.onPlayInit();
     }
 
     public void onJoinServer() {
-        // No-op after radar removal
+        // Delegate to lifecycle service
+        this.lifecycleServiceInstance.onJoinServer();
     }
 
     public void onDisconnect() {
-        clearServerSettings();
+        // Delegate to lifecycle service
+        this.lifecycleServiceInstance.onDisconnect();
+        // Also reset world state
+        this.worldStateService.reset();
     }
 
     public void onConfigurationInit() {
-        clearServerSettings();
+        // Delegate to lifecycle service
+        this.lifecycleServiceInstance.onConfigurationInit();
     }
 
     public void onClientStopping() {
-        MapViewConstants.onShutDown();
-        AsyncPersistenceManager.flushSaveQueue();
+        // Delegate to lifecycle service
+        this.lifecycleServiceInstance.onClientStopping();
     }
 
     /**
@@ -172,21 +198,8 @@ public class MapDataManager implements PreparableReloadListener {
      * Returns the singleplayer world name or multiplayer server name.
      */
     public String getCurrentWorldName() {
-        if (MapViewConstants.isSinglePlayer()) {
-            return MapViewConstants.getIntegratedServer()
-                    .map(server -> server.getWorldData().getLevelName())
-                    .filter(name -> name != null && !name.isBlank())
-                    .orElse("Singleplayer World");
-        } else {
-            ServerData info = MapViewConstants.getMinecraft().getCurrentServer();
-            if (info != null && info.name != null && !info.name.isBlank()) {
-                return info.name;
-            }
-            if (MapViewConstants.isRealmServer()) {
-                return "Realms";
-            }
-            return "Multiplayer Server";
-        }
+        // Delegate to world state service
+        return this.worldStateService.getCurrentWorldName();
     }
 
     /**
@@ -202,18 +215,15 @@ public class MapDataManager implements PreparableReloadListener {
      * For singleplayer, automatically retrieves from server.
      */
     public String getWorldSeed() {
-        if (MapViewConstants.isSinglePlayer()) {
-            return MapViewConstants.getIntegratedServer()
-                    .map(server -> String.valueOf(server.getWorldData().worldGenOptions().seed()))
-                    .orElse("");
-        }
-        return this.worldSeed;
+        // Delegate to world state service
+        return this.worldStateService.getWorldSeed();
     }
 
     /**
      * Sets the world seed for multiplayer slime chunk calculation.
      */
     public void setWorldSeed(String seed) {
-        this.worldSeed = seed != null ? seed : "";
+        // Delegate to world state service
+        this.worldStateService.setWorldSeed(seed);
     }
 }
