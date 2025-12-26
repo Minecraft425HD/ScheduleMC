@@ -97,7 +97,6 @@ public class NPCDailySalaryHandler {
                     }
                 }
             }
-        }
 
         if (paidCount > 0) {
             LOGGER.info("Tägliche Gehälter ausgezahlt: {} NPCs erhielten insgesamt {}€ (Tag {})",
