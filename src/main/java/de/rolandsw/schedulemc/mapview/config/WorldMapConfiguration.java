@@ -1,6 +1,6 @@
-package de.rolandsw.schedulemc.mapview.persistent;
+package de.rolandsw.schedulemc.mapview.config;
 
-import de.rolandsw.schedulemc.mapview.gui.overridden.EnumOptionsMapView;
+import de.rolandsw.schedulemc.mapview.config.MapOption;
 import de.rolandsw.schedulemc.mapview.core.event.SubSettingsManager;
 import java.io.BufferedReader;
 import java.io.File;
@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import net.minecraft.client.resources.language.I18n;
 
-public class WorldMapSettings implements SubSettingsManager {
+public class WorldMapConfiguration implements SubSettingsManager {
     protected int mapX;
     protected int mapZ;
     protected float zoom = 4.0F;
@@ -63,21 +63,21 @@ public class WorldMapSettings implements SubSettingsManager {
     }
 
     @Override
-    public String getKeyText(EnumOptionsMapView options) {
+    public String getKeyText(MapOption options) {
         return I18n.get(options.getName()) + ": ";
     }
 
     @Override
-    public float getOptionFloatValue(EnumOptionsMapView options) {
+    public float getOptionFloatValue(MapOption options) {
         return 0.0F;
     }
 
     @Override
-    public void setOptionFloatValue(EnumOptionsMapView options, float value) {
+    public void setOptionFloatValue(MapOption options, float value) {
         // No configurable float options - zoom settings are fixed
     }
 
-    public void setOptionValue(EnumOptionsMapView par1EnumOptions) {
+    public void setOptionValue(MapOption par1EnumOptions) {
         // No boolean options remain after waypoint removal
     }
 

@@ -1,6 +1,6 @@
 package de.rolandsw.schedulemc.mapview.gui.overridden;
 
-import de.rolandsw.schedulemc.mapview.MapConfiguration;
+import de.rolandsw.schedulemc.mapview.config.MapViewConfiguration;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -20,7 +20,7 @@ public class GuiScreenMapView extends Screen {
     }
 
     @Override
-    public void removed() { MapConfiguration.instance.saveAll(); }
+    public void removed() { MapViewConfiguration.instance.saveAll(); }
 
     public void renderTooltip(GuiGraphics drawContext, Component text, int x, int y) {
         if (!(text != null && text.getString() != null && !text.getString().isEmpty())) {

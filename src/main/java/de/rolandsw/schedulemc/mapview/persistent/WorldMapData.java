@@ -1,7 +1,7 @@
 package de.rolandsw.schedulemc.mapview.persistent;
 
 import de.rolandsw.schedulemc.mapview.BlockColorCache;
-import de.rolandsw.schedulemc.mapview.MapConfiguration;
+import de.rolandsw.schedulemc.mapview.config.MapViewConfiguration;
 import de.rolandsw.schedulemc.mapview.ConfigurationChangeNotifier;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import de.rolandsw.schedulemc.mapview.MapCore;
@@ -48,8 +48,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 public class WorldMapData implements MapChangeListener {
     final MutableBlockPos blockPos = new MutableBlockPos(0, 0, 0);
     final BlockColorCache colorManager;
-    final MapConfiguration mapOptions;
-    WorldMapSettings options;
+    final MapViewConfiguration mapOptions;
+    WorldMapConfiguration options;
     final int[] lightmapColors;
     ClientLevel world;
     String subworldName = "";
@@ -166,7 +166,7 @@ public class WorldMapData implements MapChangeListener {
 
     }
 
-    public WorldMapSettings getOptions() {
+    public WorldMapConfiguration getOptions() {
         return this.options;
     }
 

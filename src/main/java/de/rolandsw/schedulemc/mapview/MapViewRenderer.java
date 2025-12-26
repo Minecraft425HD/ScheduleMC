@@ -1,6 +1,6 @@
 package de.rolandsw.schedulemc.mapview;
 
-import de.rolandsw.schedulemc.mapview.gui.overridden.EnumOptionsMapView;
+import de.rolandsw.schedulemc.mapview.config.MapOption;
 import de.rolandsw.schedulemc.mapview.core.model.AbstractMapData;
 import de.rolandsw.schedulemc.mapview.core.event.MapChangeListener;
 import de.rolandsw.schedulemc.mapview.persistent.WorldMapScreen;
@@ -86,7 +86,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     private final ResourceLocation squareStencil = new ResourceLocation("schedulemc", "mapview/images/square.png");
     private final ResourceLocation circleStencil = new ResourceLocation("schedulemc", "mapview/images/circle.png");
     private ClientLevel world;
-    private final MapConfiguration options;
+    private final MapViewConfiguration options;
     private final LayoutVariables layoutVariables;
     private final BlockColorCache colorManager;
     private final int availableProcessors = Runtime.getRuntime().availableProcessors();

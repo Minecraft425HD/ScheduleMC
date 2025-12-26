@@ -1,11 +1,11 @@
 package de.rolandsw.schedulemc.mapview.core.event;
 
-import de.rolandsw.schedulemc.mapview.gui.overridden.EnumOptionsMapView;
+import de.rolandsw.schedulemc.mapview.config.MapOption;
 
 public interface SettingsManager {
-    String getKeyText(EnumOptionsMapView options);
+    String getKeyText(MapOption options);
 
-    void setOptionFloatValue(EnumOptionsMapView options, float value);
+    void setOptionFloatValue(MapOption options, float value);
 
-    float getOptionFloatValue(EnumOptionsMapView options);
+    float getOptionFloatValue(MapOption options);
 }

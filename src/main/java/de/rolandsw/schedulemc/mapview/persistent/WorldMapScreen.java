@@ -1,6 +1,6 @@
 package de.rolandsw.schedulemc.mapview.persistent;
 
-import de.rolandsw.schedulemc.mapview.MapConfiguration;
+import de.rolandsw.schedulemc.mapview.config.MapViewConfiguration;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import de.rolandsw.schedulemc.mapview.MapCore;
 import de.rolandsw.schedulemc.mapview.gui.GuiMapViewOptions;
@@ -45,8 +45,8 @@ public class WorldMapScreen extends PopupGuiScreen {
     private final Random generator = new Random();
     private final WorldMapData persistentMap;
     private final Screen parent;
-    private final MapConfiguration mapOptions;
-    private final WorldMapSettings options;
+    private final MapViewConfiguration mapOptions;
+    private final WorldMapConfiguration options;
     protected String screenTitle = "World MapViewRenderer";
     protected String worldNameDisplay = "";
     protected int worldNameDisplayLength;

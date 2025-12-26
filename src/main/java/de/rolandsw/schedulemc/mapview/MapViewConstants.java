@@ -136,7 +136,7 @@ public final class MapViewConstants {
     }
 
     public static void playerRunTeleportCommand(double x, double y, double z) {
-        MapConfiguration mapSettingsManager = MapViewConstants.getLightMapInstance().getMapOptions();
+        MapViewConfiguration mapSettingsManager = MapViewConstants.getLightMapInstance().getMapOptions();
         String cmd = mapSettingsManager.serverTeleportCommand == null ? mapSettingsManager.teleportCommand : mapSettingsManager.serverTeleportCommand;
         cmd = cmd.replace("%p", MapViewConstants.getPlayer().getName().getString()).replace("%x", String.valueOf(x + 0.5)).replace("%y", String.valueOf(y)).replace("%z", String.valueOf(z + 0.5));
         MapViewConstants.getPlayer().connection.sendCommand(cmd);

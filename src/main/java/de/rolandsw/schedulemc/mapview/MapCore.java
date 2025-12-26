@@ -1,7 +1,7 @@
 package de.rolandsw.schedulemc.mapview;
 
 import de.rolandsw.schedulemc.mapview.persistent.WorldMapData;
-import de.rolandsw.schedulemc.mapview.persistent.WorldMapSettings;
+import de.rolandsw.schedulemc.mapview.config.WorldMapConfiguration;
 import de.rolandsw.schedulemc.mapview.persistent.ThreadManager;
 import de.rolandsw.schedulemc.mapview.util.BiomeColors;
 import de.rolandsw.schedulemc.mapview.util.DimensionManager;
@@ -22,8 +22,8 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.Unit;
 
 public class MapCore implements PreparableReloadListener {
-    public static MapConfiguration mapOptions;
-    private WorldMapSettings persistentMapOptions;
+    public static MapViewConfiguration mapOptions;
+    private WorldMapConfiguration persistentMapOptions;
     private MapViewRenderer map;
     private WorldMapData persistentMap;
     private ConfigurationChangeNotifier settingsAndLightingChangeNotifier;
@@ -37,9 +37,9 @@ public class MapCore implements PreparableReloadListener {
     MapCore() {}
 
     public void lateInit(boolean showUnderMenus, boolean isFair) {
-        mapOptions = new MapConfiguration();
+        mapOptions = new MapViewConfiguration();
         mapOptions.showUnderMenus = showUnderMenus;
-        this.persistentMapOptions = new WorldMapSettings();
+        this.persistentMapOptions = new WorldMapConfiguration();
         mapOptions.addSecondaryOptionsManager(this.persistentMapOptions);
         BiomeColors.loadBiomeColors();
         this.colorManager = new BlockColorCache();
@@ -100,11 +100,11 @@ public class MapCore implements PreparableReloadListener {
         // Cave mode removed - no permission messages to check
     }
 
-    public MapConfiguration getMapOptions() {
+    public MapViewConfiguration getMapOptions() {
         return mapOptions;
     }
 
-    public WorldMapSettings getWorldMapDataOptions() {
+    public WorldMapConfiguration getWorldMapDataOptions() {
         return this.persistentMapOptions;
     }
 

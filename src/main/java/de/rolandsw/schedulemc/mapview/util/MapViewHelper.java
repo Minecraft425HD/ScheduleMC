@@ -1,13 +1,13 @@
 package de.rolandsw.schedulemc.mapview.util;
 
-import de.rolandsw.schedulemc.mapview.MapConfiguration;
+import de.rolandsw.schedulemc.mapview.config.MapViewConfiguration;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import java.util.Objects;
 import java.util.Random;
 import net.minecraft.client.multiplayer.ClientLevel;
 
 public class MapViewHelper {
-    private static MapConfiguration options;
+    private static MapViewConfiguration options;
     private static Random slimeRandom = new Random();
     private static String lastSeed;
     private static long lastSeedLong;

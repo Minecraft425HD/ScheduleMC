@@ -1,6 +1,6 @@
-package de.rolandsw.schedulemc.mapview;
+package de.rolandsw.schedulemc.mapview.config;
 
-import de.rolandsw.schedulemc.mapview.gui.overridden.EnumOptionsMapView;
+import de.rolandsw.schedulemc.mapview.config.MapOption;
 import de.rolandsw.schedulemc.mapview.core.event.SettingsManager;
 import de.rolandsw.schedulemc.mapview.core.event.SubSettingsManager;
 import de.rolandsw.schedulemc.mapview.util.MessageUtils;
@@ -23,7 +23,7 @@ import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
-public class MapConfiguration implements SettingsManager {
+public class MapViewConfiguration implements SettingsManager {
     private File settingsFile;
     public boolean showUnderMenus;
     private final int availableProcessors = Runtime.getRuntime().availableProcessors();
@@ -57,13 +57,13 @@ public class MapConfiguration implements SettingsManager {
     public KeyMapping keyBindMenu;
     public final KeyMapping[] keyBindings;
     private boolean somethingChanged;
-    public static MapConfiguration instance;
+    public static MapViewConfiguration instance;
     private final List<SubSettingsManager> subSettingsManagers = new ArrayList<>();
 
     public String teleportCommand = "tp %p %x %y %z";
     public String serverTeleportCommand;
 
-    public MapConfiguration() {
+    public MapViewConfiguration() {
         instance = this;
         String category = "key.categories.mapview";
 
@@ -150,11 +150,11 @@ public class MapConfiguration implements SettingsManager {
     }
 
     @Override
-    public String getKeyText(EnumOptionsMapView options) {
+    public String getKeyText(MapOption options) {
         String s = I18n.get(options.getName()) + ": ";
         if (options.isFloat()) {
             float f = this.getOptionFloatValue(options);
-            if (options == EnumOptionsMapView.ZOOM) {
+            if (options == MapOption.ZOOM) {
                 return s + (int) f;
             } else {
                 return f == 0.0F ? s + I18n.get("options.off") : s + (int) f + "%";
@@ -171,22 +171,22 @@ public class MapConfiguration implements SettingsManager {
     }
 
     @Override
-    public float getOptionFloatValue(EnumOptionsMapView options) {
-        if (options == EnumOptionsMapView.ZOOM) {
+    public float getOptionFloatValue(MapOption options) {
+        if (options == MapOption.ZOOM) {
             return this.zoom;
         } else {
             return 0.0F;
         }
     }
 
-    public boolean getOptionBooleanValue(EnumOptionsMapView par1EnumOptions) {
+    public boolean getOptionBooleanValue(MapOption par1EnumOptions) {
         return switch (par1EnumOptions) {
             case OLD_NORTH -> this.oldNorth;
             default -> throw new IllegalArgumentException("Add code to handle EnumOptionMinimap: " + par1EnumOptions.getName() + ". (possibly not a boolean applicable to minimap)");
         };
     }
 
-    public String getOptionListValue(EnumOptionsMapView par1EnumOptions) {
+    public String getOptionListValue(MapOption par1EnumOptions) {
         switch (par1EnumOptions) {
             case LOCATION -> {
                 if (this.mapCorner == 0) {
@@ -228,11 +228,11 @@ public class MapConfiguration implements SettingsManager {
     }
 
     @Override
-    public void setOptionFloatValue(EnumOptionsMapView options, float value) {
+    public void setOptionFloatValue(MapOption options, float value) {
         this.somethingChanged = true;
     }
 
-    public void setOptionValue(EnumOptionsMapView par1EnumOptions) {
+    public void setOptionValue(MapOption par1EnumOptions) {
         switch (par1EnumOptions) {
             case OLD_NORTH -> this.oldNorth = !this.oldNorth;
             case LOCATION -> this.mapCorner = this.mapCorner >= 3 ? 0 : this.mapCorner + 1;
