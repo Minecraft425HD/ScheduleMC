@@ -8,6 +8,8 @@ import de.rolandsw.schedulemc.mapview.util.BiomeColors;
 import de.rolandsw.schedulemc.mapview.util.BlockDatabase;
 import de.rolandsw.schedulemc.mapview.service.render.LightingCalculator;
 import de.rolandsw.schedulemc.mapview.service.render.ColorUtils;
+import de.rolandsw.schedulemc.mapview.service.render.strategy.ChunkScanStrategy;
+import de.rolandsw.schedulemc.mapview.service.render.strategy.ChunkScanStrategyFactory;
 import de.rolandsw.schedulemc.mapview.util.DimensionContainer;
 import de.rolandsw.schedulemc.mapview.util.DynamicMoveableTexture;
 import de.rolandsw.schedulemc.mapview.data.repository.MapDataRepository;
@@ -856,14 +858,28 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         right = Math.min(32 * multi - 1, right);
         top = Math.max(0, top);
         bottom = Math.min(32 * multi - 1, bottom);
-        int color24;
 
-        for (int imageY = bottom; imageY >= top; --imageY) {
-            for (int imageX = left; imageX <= right; ++imageX) {
-                color24 = this.getPixelColor(true, true, true, true, nether, caves, world, zoom, multi, startX, startZ, imageX, imageY);
-                this.mapImages[zoom].setRGB(imageX, imageY, color24);
-            }
-        }
+        // Phase 2B: Use Strategy Pattern for flexible scanning algorithms
+        // Replaces hardcoded nested loop with configurable strategy
+        ChunkScanStrategy scanStrategy = ChunkScanStrategyFactory.getDefault();
+
+        final int finalLeft = left;
+        final int finalTop = top;
+        final int finalRight = right;
+        final int finalBottom = bottom;
+        final int finalZoom = zoom;
+        final int finalMulti = multi;
+        final int finalStartX = startX;
+        final int finalStartZ = startZ;
+        final ClientLevel finalWorld = world;
+        final boolean finalNether = nether;
+        final boolean finalCaves = caves;
+
+        scanStrategy.scan(finalLeft, finalTop, finalRight, finalBottom, (imageX, imageY) -> {
+            int color24 = this.getPixelColor(true, true, true, true, finalNether, finalCaves,
+                    finalWorld, finalZoom, finalMulti, finalStartX, finalStartZ, imageX, imageY);
+            this.mapImages[finalZoom].setRGB(imageX, imageY, color24);
+        });
 
         this.imageChanged = true;
     }
