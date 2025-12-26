@@ -44,6 +44,21 @@ public class TerritoryNetworkHandler {
             .encoder(SyncTerritoriesPacket::encode)
             .consumerMainThread(SyncTerritoriesPacket::handle)
             .add();
+
+        // Performance-Optimierung: Delta-Updates für einzelne Territory-Änderungen
+        INSTANCE.messageBuilder(SyncTerritoryDeltaPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+            .decoder(SyncTerritoryDeltaPacket::decode)
+            .encoder(SyncTerritoryDeltaPacket::encode)
+            .consumerMainThread(SyncTerritoryDeltaPacket::handle)
+            .add();
+    }
+
+    /**
+     * Sendet Delta-Update an alle Spieler
+     * Performance-Optimierung: Nur einzelne Territory-Änderung statt Full Sync
+     */
+    public static void broadcastDeltaUpdate(SyncTerritoryDeltaPacket packet) {
+        INSTANCE.send(PacketDistributor.ALL.noArg(), packet);
     }
 
     public static <MSG> void sendToServer(MSG message) {

@@ -87,12 +87,32 @@ public class SyncTerritoriesPacket {
 
     /**
      * Client-seitiger Cache für Territories
+     * Unterstützt sowohl Full Sync als auch Delta Updates
      */
     public static class TerritoryClientCache {
         private static Map<Long, TerritoryData> cache = new HashMap<>();
 
+        /**
+         * Full Sync: Ersetzt kompletten Cache
+         */
         public static void updateCache(Map<Long, TerritoryData> territories) {
             cache = new HashMap<>(territories);
+        }
+
+        /**
+         * Delta Update: Aktualisiert einzelnes Territory
+         * Performance-Optimierung für SyncTerritoryDeltaPacket
+         */
+        public static void updateSingle(long chunkKey, TerritoryData territory) {
+            cache.put(chunkKey, territory);
+        }
+
+        /**
+         * Delta Update: Entfernt einzelnes Territory
+         * Performance-Optimierung für SyncTerritoryDeltaPacket
+         */
+        public static void removeSingle(long chunkKey) {
+            cache.remove(chunkKey);
         }
 
         public static Map<Long, TerritoryData> getCache() {
