@@ -3,6 +3,8 @@ package de.rolandsw.schedulemc.mapview.core.model;
 import de.rolandsw.schedulemc.mapview.integration.DebugRenderState;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import de.rolandsw.schedulemc.mapview.core.event.MapChangeListener;
+import de.rolandsw.schedulemc.mapview.core.event.ChunkProcessEvent;
+import de.rolandsw.schedulemc.mapview.core.event.EventBridgeAdapter;
 import net.minecraft.world.level.chunk.LevelChunk;
 
 public class MapChunk {
@@ -27,7 +29,16 @@ public class MapChunk {
             DebugRenderState.checkChunkX = x;
             DebugRenderState.checkChunkZ = z;
             DebugRenderState.chunksChanged++;
+
+            // Phase 2C: Dual dispatch - both legacy observer and new event bus
             changeObserver.processChunk(this.chunk);
+
+            // Post event to EventBus for new event-based listeners
+            ChunkProcessEvent.ProcessReason reason = this.isChanged ?
+                    ChunkProcessEvent.ProcessReason.CHUNK_MODIFIED :
+                    ChunkProcessEvent.ProcessReason.CHUNK_LOADED;
+            EventBridgeAdapter.postChunkProcess(this.chunk, reason);
+
             this.isChanged = false;
         }
 
@@ -56,7 +67,12 @@ public class MapChunk {
             boolean formerSurroundedByLoaded = this.isSurroundedByLoaded;
             this.isSurroundedByLoaded = this.isSurroundedByLoaded();
             if (!formerSurroundedByLoaded && this.isSurroundedByLoaded) {
+                // Phase 2C: Dual dispatch - both legacy observer and new event bus
                 changeObserver.processChunk(this.chunk);
+
+                // Post event to EventBus
+                EventBridgeAdapter.postChunkProcess(this.chunk,
+                        ChunkProcessEvent.ProcessReason.SURROUNDING_LOADED);
             }
         } else {
             this.isSurroundedByLoaded = false;
