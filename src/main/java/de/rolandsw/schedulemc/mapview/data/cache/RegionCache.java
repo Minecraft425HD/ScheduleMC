@@ -774,7 +774,7 @@ public class RegionCache {
         }
 
         this.saveData(true);
-        if (this.persistentMap.getOptions().outputImages) {
+        if (this.persistentMap.getOptions().isOutputImages()) {
             this.saveImage();
         }
 

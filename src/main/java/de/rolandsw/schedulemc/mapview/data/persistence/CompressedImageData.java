@@ -38,7 +38,7 @@ public class CompressedImageData {
         this.width = width;
         this.height = height;
         this.bytes = new byte[width * height * 4];
-        this.compressNotDelete = MapViewConstants.getLightMapInstance().getWorldMapDataOptions().outputImages;
+        this.compressNotDelete = MapViewConstants.getLightMapInstance().getWorldMapDataOptions().isOutputImages();
     }
 
     public byte[] getData() {

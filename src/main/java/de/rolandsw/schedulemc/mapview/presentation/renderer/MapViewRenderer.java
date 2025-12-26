@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.mapview.presentation.renderer;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import de.rolandsw.schedulemc.mapview.config.MapOption;
 import de.rolandsw.schedulemc.mapview.config.MapViewConfiguration;
+import de.rolandsw.schedulemc.mapview.service.data.MapDataManager;
 import de.rolandsw.schedulemc.mapview.service.render.ColorCalculationService;
 import de.rolandsw.schedulemc.mapview.core.model.AbstractMapData;
 import de.rolandsw.schedulemc.mapview.core.event.MapChangeListener;
@@ -490,7 +491,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     public void calculateCurrentLightAndSkyColor() {
         try {
             if (this.world != null) {
-                if (this.needLightmapRefresh && MapViewConstants.getElapsedTicks() != this.tickWithLightChange && !minecraft.isPaused() || this.options.realTimeTorches) {
+                if (this.needLightmapRefresh && MapViewConstants.getElapsedTicks() != this.tickWithLightChange && !minecraft.isPaused() || this.options.isRealTimeTorches()) {
                     this.needLightmapRefresh = false;
                     LightingCalculator lightmap = LightingCalculator.getInstance();
                     lightmap.setup();
@@ -705,7 +706,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         }
 
         if (this.options.lightmap) {
-            int torchOffset = this.options.realTimeTorches ? 8 : 0;
+            int torchOffset = this.options.isRealTimeTorches() ? 8 : 0;
             for (int t = 0; t < 16; ++t) {
                 int newValue = getLightmapColor(t, torchOffset);
                 if (this.lastLightmapValues[t] != newValue) {

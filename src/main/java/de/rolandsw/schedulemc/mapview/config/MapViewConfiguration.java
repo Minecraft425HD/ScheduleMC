@@ -271,4 +271,9 @@ public class MapViewConfiguration implements SettingsManager {
             return false;
         }
     }
+
+    // Public getter for protected field
+    public boolean isRealTimeTorches() {
+        return realTimeTorches;
+    }
 }

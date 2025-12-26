@@ -4,6 +4,7 @@ import de.rolandsw.schedulemc.mapview.config.MapViewConfiguration;
 import de.rolandsw.schedulemc.mapview.config.WorldMapConfiguration;
 import de.rolandsw.schedulemc.mapview.service.data.WorldMapData;
 import de.rolandsw.schedulemc.mapview.data.cache.RegionCache;
+import de.rolandsw.schedulemc.mapview.data.persistence.AsyncPersistenceManager;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import de.rolandsw.schedulemc.mapview.service.data.MapDataManager;
 import de.rolandsw.schedulemc.mapview.presentation.screen.MapOptionsScreen;
