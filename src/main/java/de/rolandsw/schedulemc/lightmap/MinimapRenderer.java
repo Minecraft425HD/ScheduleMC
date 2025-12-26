@@ -80,11 +80,11 @@ public class MinimapRenderer implements Runnable, IChangeObserver {
     private final Minecraft minecraft = Minecraft.getInstance();
     // private final float[] lastLightBrightnessTable = new float[16];
     private final Object coordinateLock = new Object();
-    private final ResourceLocation resourceArrow = new ResourceLocation("lightmap", "images/mmarrow.png");
-    private final ResourceLocation resourceSquareMap = new ResourceLocation("lightmap", "images/squaremap.png");
-    private final ResourceLocation resourceRoundMap = new ResourceLocation("lightmap", "images/roundmap.png");
-    private final ResourceLocation squareStencil = new ResourceLocation("lightmap", "images/square.png");
-    private final ResourceLocation circleStencil = new ResourceLocation("lightmap", "images/circle.png");
+    private final ResourceLocation resourceArrow = new ResourceLocation("schedulemc", "lightmap/images/mmarrow.png");
+    private final ResourceLocation resourceSquareMap = new ResourceLocation("schedulemc", "lightmap/images/squaremap.png");
+    private final ResourceLocation resourceRoundMap = new ResourceLocation("schedulemc", "lightmap/images/roundmap.png");
+    private final ResourceLocation squareStencil = new ResourceLocation("schedulemc", "lightmap/images/square.png");
+    private final ResourceLocation circleStencil = new ResourceLocation("schedulemc", "lightmap/images/circle.png");
     private ClientLevel world;
     private final MinimapSettings options;
     private final LayoutVariables layoutVariables;
@@ -159,16 +159,16 @@ public class MinimapRenderer implements Runnable, IChangeObserver {
     private LightMapCachedOrthoProjectionMatrixBuffer projection;
 
     public MinimapRenderer() {
-        resourceMapImageFiltered[0] = new ResourceLocation("lightmap", "map/filtered/0");
-        resourceMapImageFiltered[1] = new ResourceLocation("lightmap", "map/filtered/1");
-        resourceMapImageFiltered[2] = new ResourceLocation("lightmap", "map/filtered/2");
-        resourceMapImageFiltered[3] = new ResourceLocation("lightmap", "map/filtered/3");
-        resourceMapImageFiltered[4] = new ResourceLocation("lightmap", "map/filtered/4");
-        resourceMapImageUnfiltered[0] = new ResourceLocation("lightmap", "map/unfiltered/0");
-        resourceMapImageUnfiltered[1] = new ResourceLocation("lightmap", "map/unfiltered/1");
-        resourceMapImageUnfiltered[2] = new ResourceLocation("lightmap", "map/unfiltered/2");
-        resourceMapImageUnfiltered[3] = new ResourceLocation("lightmap", "map/unfiltered/3");
-        resourceMapImageUnfiltered[4] = new ResourceLocation("lightmap", "map/unfiltered/4");
+        resourceMapImageFiltered[0] = new ResourceLocation("schedulemc", "lightmap/map/filtered/0");
+        resourceMapImageFiltered[1] = new ResourceLocation("schedulemc", "lightmap/map/filtered/1");
+        resourceMapImageFiltered[2] = new ResourceLocation("schedulemc", "lightmap/map/filtered/2");
+        resourceMapImageFiltered[3] = new ResourceLocation("schedulemc", "lightmap/map/filtered/3");
+        resourceMapImageFiltered[4] = new ResourceLocation("schedulemc", "lightmap/map/filtered/4");
+        resourceMapImageUnfiltered[0] = new ResourceLocation("schedulemc", "lightmap/map/unfiltered/0");
+        resourceMapImageUnfiltered[1] = new ResourceLocation("schedulemc", "lightmap/map/unfiltered/1");
+        resourceMapImageUnfiltered[2] = new ResourceLocation("schedulemc", "lightmap/map/unfiltered/2");
+        resourceMapImageUnfiltered[3] = new ResourceLocation("schedulemc", "lightmap/map/unfiltered/3");
+        resourceMapImageUnfiltered[4] = new ResourceLocation("schedulemc", "lightmap/map/unfiltered/4");
 
         this.options = LightMapConstants.getLightMapInstance().getMapOptions();
         this.colorManager = LightMapConstants.getLightMapInstance().getColorManager();

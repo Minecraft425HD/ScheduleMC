@@ -31,7 +31,7 @@ public class CompressedGLImage {
     private final Object bufferLock = new Object();
     private boolean isCompressed;
     private final boolean compressNotDelete;
-    private final ResourceLocation location = new ResourceLocation("lightmap", "mapimage/" + UUID.randomUUID());
+    private final ResourceLocation location = new ResourceLocation("schedulemc", "lightmap/mapimage/" + UUID.randomUUID());
     private DynamicTexture texture;
 
     public CompressedGLImage(int width, int height, int imageType) {

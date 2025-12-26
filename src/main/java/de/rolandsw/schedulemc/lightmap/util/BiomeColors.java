@@ -61,7 +61,7 @@ public final class BiomeColors {
         }
 
         // Load default biome colors from mod resources (optional - won't exist until resources are built)
-        var resourceOptional = LightMapConstants.getMinecraft().getResourceManager().getResource(new ResourceLocation("lightmap", "conf/biomecolors.txt"));
+        var resourceOptional = LightMapConstants.getMinecraft().getResourceManager().getResource(new ResourceLocation("schedulemc", "lightmap/conf/biomecolors.txt"));
         if (resourceOptional.isPresent()) {
             try {
                 InputStream is = resourceOptional.get().open();

@@ -101,7 +101,7 @@ public class WorldMapScreen extends PopupGuiScreen {
     int buttonWidth = 66;
     public boolean passEvents;
     private final Minecraft minecraft = Minecraft.getInstance();
-    private final ResourceLocation lightmapSkinLocation = new ResourceLocation("lightmap", "persistentmap/playerskin");
+    private final ResourceLocation lightmapSkinLocation = new ResourceLocation("schedulemc", "lightmap/persistentmap/playerskin");
     private final ResourceLocation crosshairResource = new ResourceLocation("textures/gui/sprites/hud/crosshair.png");
     private boolean currentDragging;
     private boolean keySprintPressed;

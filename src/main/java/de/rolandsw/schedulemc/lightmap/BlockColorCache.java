@@ -202,7 +202,7 @@ public class BlockColorCache {
 
     private void loadColorPicker() {
         try {
-            InputStream is = LightMapConstants.getMinecraft().getResourceManager().getResource(new ResourceLocation("lightmap", "images/colorpicker.png")).get().open();
+            InputStream is = LightMapConstants.getMinecraft().getResourceManager().getResource(new ResourceLocation("schedulemc", "lightmap/images/colorpicker.png")).get().open();
             Image picker = ImageIO.read(is);
             is.close();
             this.colorPicker = new BufferedImage(picker.getWidth(null), picker.getHeight(null), 2);
