@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.mapview.interfaces;
+package de.rolandsw.schedulemc.mapview.core.model;
 
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import de.rolandsw.schedulemc.mapview.util.BiomeColors;

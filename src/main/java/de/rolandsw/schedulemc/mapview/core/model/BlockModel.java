@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.mapview.util;
+package de.rolandsw.schedulemc.mapview.core.model;
 
 import java.awt.Color;
 import java.awt.Graphics2D;

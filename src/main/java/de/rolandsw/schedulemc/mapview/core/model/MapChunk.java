@@ -1,11 +1,11 @@
-package de.rolandsw.schedulemc.mapview.util;
+package de.rolandsw.schedulemc.mapview.core.model;
 
 import de.rolandsw.schedulemc.mapview.DebugRenderState;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import de.rolandsw.schedulemc.mapview.interfaces.IChangeObserver;
 import net.minecraft.world.level.chunk.LevelChunk;
 
-public class ChunkData {
+public class MapChunk {
     private final int x;
     private final int z;
     private LevelChunk chunk;
