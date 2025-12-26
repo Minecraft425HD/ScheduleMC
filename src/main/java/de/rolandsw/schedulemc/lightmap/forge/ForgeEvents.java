@@ -33,7 +33,7 @@ public class ForgeEvents implements Events {
             PROTOCOL_VERSION::equals
     );
 
-    ForgeEvents() {
+    public ForgeEvents() {
     }
 
     @Override

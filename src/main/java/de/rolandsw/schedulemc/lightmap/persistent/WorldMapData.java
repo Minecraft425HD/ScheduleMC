@@ -219,7 +219,7 @@ public class WorldMapData implements IChangeObserver {
         BlockState transparentBlockState = BlockDatabase.air.defaultBlockState();
         BlockState foliageBlockState = BlockDatabase.air.defaultBlockState();
         BlockState seafloorBlockState = BlockDatabase.air.defaultBlockState();
-        pos = pos.withXYZ(startX + imageX, 64, startZ + imageY);
+        pos.setXYZ(startX + imageX, 64, startZ + imageY);
         Biome biome;
         if (!chunk.isEmpty()) {
             biome = world.getBiome(pos).value();
@@ -433,7 +433,7 @@ public class WorldMapData implements IChangeObserver {
         int seafloorColor = 0;
         int transparentColor = 0;
         int foliageColor = 0;
-        blockPos = blockPos.withXYZ(mcX, 0, mcZ);
+        blockPos.setXYZ(mcX, 0, mcZ);
         int color24;
         Biome biome = mapData.getBiome(imageX, imageY);
         surfaceBlockState = mapData.getBlockstate(imageX, imageY);

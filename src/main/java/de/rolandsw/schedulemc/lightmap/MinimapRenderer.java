@@ -1047,7 +1047,8 @@ public class MinimapRenderer implements Runnable, IChangeObserver {
                 if (!needTint && !surfaceBlockChangeForcedTint) {
                     tint = this.mapData[zoom].getBiomeTint(imageX, imageY);
                 } else {
-                    tint = this.colorManager.getBiomeTint(this.mapData[zoom], world, this.surfaceBlockState, surfaceBlockStateID, blockPos.withXYZ(startX + imageX, surfaceHeight - 1, startZ + imageY), tempBlockPos, startX, startZ);
+                    blockPos.setXYZ(startX + imageX, surfaceHeight - 1, startZ + imageY);
+                    tint = this.colorManager.getBiomeTint(this.mapData[zoom], world, this.surfaceBlockState, surfaceBlockStateID, blockPos, tempBlockPos, startX, startZ);
                     this.mapData[zoom].setBiomeTint(imageX, imageY, tint);
                 }
 
@@ -1082,7 +1083,8 @@ public class MinimapRenderer implements Runnable, IChangeObserver {
                     if (!needTint && !seafloorBlockChangeForcedTint) {
                         tint = this.mapData[zoom].getOceanFloorBiomeTint(imageX, imageY);
                     } else {
-                        tint = this.colorManager.getBiomeTint(this.mapData[zoom], world, seafloorBlockState, seafloorBlockStateID, blockPos.withXYZ(startX + imageX, seafloorHeight - 1, startZ + imageY), tempBlockPos, startX, startZ);
+                        blockPos.setXYZ(startX + imageX, seafloorHeight - 1, startZ + imageY);
+                        tint = this.colorManager.getBiomeTint(this.mapData[zoom], world, seafloorBlockState, seafloorBlockStateID, blockPos, tempBlockPos, startX, startZ);
                         this.mapData[zoom].setOceanFloorBiomeTint(imageX, imageY, tint);
                     }
 
@@ -1123,7 +1125,8 @@ public class MinimapRenderer implements Runnable, IChangeObserver {
                         if (!needTint && !transparentBlockChangeForcedTint) {
                             tint = this.mapData[zoom].getTransparentBiomeTint(imageX, imageY);
                         } else {
-                            tint = this.colorManager.getBiomeTint(this.mapData[zoom], world, this.transparentBlockState, transparentBlockStateID, blockPos.withXYZ(startX + imageX, transparentHeight - 1, startZ + imageY), tempBlockPos, startX, startZ);
+                            blockPos.setXYZ(startX + imageX, transparentHeight - 1, startZ + imageY);
+                            tint = this.colorManager.getBiomeTint(this.mapData[zoom], world, this.transparentBlockState, transparentBlockStateID, blockPos, tempBlockPos, startX, startZ);
                             this.mapData[zoom].setTransparentBiomeTint(imageX, imageY, tint);
                         }
 
@@ -1159,7 +1162,8 @@ public class MinimapRenderer implements Runnable, IChangeObserver {
                         if (!needTint && !foliageBlockChangeForcedTint) {
                             tint = this.mapData[zoom].getFoliageBiomeTint(imageX, imageY);
                         } else {
-                            tint = this.colorManager.getBiomeTint(this.mapData[zoom], world, foliageBlockState, foliageBlockStateID, blockPos.withXYZ(startX + imageX, foliageHeight - 1, startZ + imageY), tempBlockPos, startX, startZ);
+                            blockPos.setXYZ(startX + imageX, foliageHeight - 1, startZ + imageY);
+                            tint = this.colorManager.getBiomeTint(this.mapData[zoom], world, foliageBlockState, foliageBlockStateID, blockPos, tempBlockPos, startX, startZ);
                             this.mapData[zoom].setFoliageBiomeTint(imageX, imageY, tint);
                         }
 
