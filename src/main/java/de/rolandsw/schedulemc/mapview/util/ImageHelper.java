@@ -1,6 +1,6 @@
-package de.rolandsw.schedulemc.lightmap.util;
+package de.rolandsw.schedulemc.mapview.util;
 
-import de.rolandsw.schedulemc.lightmap.LightMapConstants;
+import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.NativeImage.Format;
 import com.mojang.blaze3d.platform.TextureUtil;
@@ -60,7 +60,7 @@ public class ImageHelper {
 
     public static NativeImage nativeImageFromBufferedImage(BufferedImage image) {
         if (image == null) {
-            LightMapConstants.getLogger().warn("Cannot convert null BufferedImage to NativeImage");
+            MapViewConstants.getLogger().warn("Cannot convert null BufferedImage to NativeImage");
             return null;
         }
         int width = image.getWidth();
@@ -105,7 +105,7 @@ public class ImageHelper {
 
     public static BufferedImage blankImage(ResourceLocation Identifier, int w, int h, int imageWidth, int imageHeight, int r, int g, int b, int a) {
         try {
-            InputStream is = LightMapConstants.getMinecraft().getResourceManager().getResource(Identifier).get().open();
+            InputStream is = MapViewConstants.getMinecraft().getResourceManager().getResource(Identifier).get().open();
             BufferedImage mobSkin = ImageIO.read(is);
             is.close();
             BufferedImage temp = new BufferedImage(w * mobSkin.getWidth() / imageWidth, h * mobSkin.getWidth() / imageWidth, 6);
@@ -115,7 +115,7 @@ public class ImageHelper {
             g2.dispose();
             return temp;
         } catch (Exception var13) {
-            LightMapConstants.getLogger().error("Failed getting mob: " + Identifier.toString() + " - " + var13.getLocalizedMessage(), var13);
+            MapViewConstants.getLogger().error("Failed getting mob: " + Identifier.toString() + " - " + var13.getLocalizedMessage(), var13);
             return null;
         }
     }
@@ -176,7 +176,7 @@ public class ImageHelper {
         if (mobSkin != null) {
             return loadImage(mobSkin, x, y, w, h, imageWidth, imageHeight);
         } else {
-            LightMapConstants.getLogger().warn("Failed getting image: " + Identifier.toString());
+            MapViewConstants.getLogger().warn("Failed getting image: " + Identifier.toString());
             return null;
         }
     }

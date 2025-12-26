@@ -1,6 +1,6 @@
-package de.rolandsw.schedulemc.lightmap.util;
+package de.rolandsw.schedulemc.mapview.util;
 
-import de.rolandsw.schedulemc.lightmap.LightMapConstants;
+import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.util.Mth;
@@ -23,18 +23,18 @@ public class GameVariableAccessShim {
     }
 
     public static double xCoordDouble() {
-        return LightMapConstants.getMinecraft().screen != null && LightMapConstants.getMinecraft().screen.isPauseScreen() ? LightMapConstants.getMinecraft().getCameraEntity().getX() : LightMapConstants.getMinecraft().getCameraEntity().xo + (LightMapConstants.getMinecraft().getCameraEntity().getX() - LightMapConstants.getMinecraft().getCameraEntity().xo) * LightMapConstants.getMinecraft().getFrameTime();
+        return MapViewConstants.getMinecraft().screen != null && MapViewConstants.getMinecraft().screen.isPauseScreen() ? MapViewConstants.getMinecraft().getCameraEntity().getX() : MapViewConstants.getMinecraft().getCameraEntity().xo + (MapViewConstants.getMinecraft().getCameraEntity().getX() - MapViewConstants.getMinecraft().getCameraEntity().xo) * MapViewConstants.getMinecraft().getFrameTime();
     }
 
     public static double zCoordDouble() {
-        return LightMapConstants.getMinecraft().screen != null && LightMapConstants.getMinecraft().screen.isPauseScreen() ? LightMapConstants.getMinecraft().getCameraEntity().getZ() : LightMapConstants.getMinecraft().getCameraEntity().zo + (LightMapConstants.getMinecraft().getCameraEntity().getZ() - LightMapConstants.getMinecraft().getCameraEntity().zo) * LightMapConstants.getMinecraft().getFrameTime();
+        return MapViewConstants.getMinecraft().screen != null && MapViewConstants.getMinecraft().screen.isPauseScreen() ? MapViewConstants.getMinecraft().getCameraEntity().getZ() : MapViewConstants.getMinecraft().getCameraEntity().zo + (MapViewConstants.getMinecraft().getCameraEntity().getZ() - MapViewConstants.getMinecraft().getCameraEntity().zo) * MapViewConstants.getMinecraft().getFrameTime();
     }
 
     public static double yCoordDouble() {
-        return LightMapConstants.getMinecraft().screen != null && LightMapConstants.getMinecraft().screen.isPauseScreen() ? LightMapConstants.getMinecraft().getCameraEntity().getY() : LightMapConstants.getMinecraft().getCameraEntity().yo + (LightMapConstants.getMinecraft().getCameraEntity().getY() - LightMapConstants.getMinecraft().getCameraEntity().yo) * LightMapConstants.getMinecraft().getFrameTime();
+        return MapViewConstants.getMinecraft().screen != null && MapViewConstants.getMinecraft().screen.isPauseScreen() ? MapViewConstants.getMinecraft().getCameraEntity().getY() : MapViewConstants.getMinecraft().getCameraEntity().yo + (MapViewConstants.getMinecraft().getCameraEntity().getY() - MapViewConstants.getMinecraft().getCameraEntity().yo) * MapViewConstants.getMinecraft().getFrameTime();
     }
 
     public static float rotationYaw() {
-        return LightMapConstants.getMinecraft().getCameraEntity().yRotO + (LightMapConstants.getMinecraft().getCameraEntity().getYRot() - LightMapConstants.getMinecraft().getCameraEntity().yRotO) * LightMapConstants.getMinecraft().getFrameTime();
+        return MapViewConstants.getMinecraft().getCameraEntity().yRotO + (MapViewConstants.getMinecraft().getCameraEntity().getYRot() - MapViewConstants.getMinecraft().getCameraEntity().yRotO) * MapViewConstants.getMinecraft().getFrameTime();
     }
 }

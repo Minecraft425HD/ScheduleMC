@@ -1,14 +1,14 @@
-package de.rolandsw.schedulemc.lightmap.persistent;
+package de.rolandsw.schedulemc.mapview.persistent;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import de.rolandsw.schedulemc.lightmap.LightMapConstants;
-import de.rolandsw.schedulemc.lightmap.util.BiomeParser;
-import de.rolandsw.schedulemc.lightmap.util.BlockStateParser;
-import de.rolandsw.schedulemc.lightmap.util.HeightUtils;
-import de.rolandsw.schedulemc.lightmap.util.MessageUtils;
-import de.rolandsw.schedulemc.lightmap.util.MutableBlockPos;
-import de.rolandsw.schedulemc.lightmap.util.TextUtils;
+import de.rolandsw.schedulemc.mapview.MapViewConstants;
+import de.rolandsw.schedulemc.mapview.util.BiomeParser;
+import de.rolandsw.schedulemc.mapview.util.BlockStateParser;
+import de.rolandsw.schedulemc.mapview.util.HeightUtils;
+import de.rolandsw.schedulemc.mapview.util.MessageUtils;
+import de.rolandsw.schedulemc.mapview.util.MutableBlockPos;
+import de.rolandsw.schedulemc.mapview.util.TextUtils;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -53,7 +53,7 @@ public class ComparisonRegionCache {
         if (!Objects.equals(subworldName, "")) {
             this.subworldNamePathPart = TextUtils.scrubNameFile(subworldName) + "/";
         }
-        String dimensionName = LightMapConstants.getLightMapInstance().getDimensionManager().getDimensionContainerByWorld(world).getStorageName();
+        String dimensionName = MapViewConstants.getLightMapInstance().getDimensionManager().getDimensionContainerByWorld(world).getStorageName();
         this.dimensionNamePathPart = TextUtils.scrubNameFile(dimensionName);
         this.underground = !world.dimensionType().hasSkyLight() || world.dimensionType().hasCeiling();
         this.x = x;
@@ -91,7 +91,7 @@ public class ComparisonRegionCache {
 
     public void loadStored() {
         try {
-            File cachedRegionFileDir = new File(LightMapConstants.getMinecraft().gameDirectory, "/lightmap/cache/" + this.worldNamePathPart + "/" + this.subworldNamePathPart + this.dimensionNamePathPart);
+            File cachedRegionFileDir = new File(MapViewConstants.getMinecraft().gameDirectory, "/mapview/cache/" + this.worldNamePathPart + "/" + this.subworldNamePathPart + this.dimensionNamePathPart);
             cachedRegionFileDir.mkdirs();
             File cachedRegionFile = new File(cachedRegionFileDir, "/" + this.key + ".zip");
             if (cachedRegionFile.exists()) {
@@ -144,13 +144,13 @@ public class ComparisonRegionCache {
                         this.empty = false;
                         this.loaded = true;
                     } else {
-                        LightMapConstants.getLogger().warn("failed to load data from " + cachedRegionFile.getPath());
+                        MapViewConstants.getLogger().warn("failed to load data from " + cachedRegionFile.getPath());
                     }
 
                 }
             }
         } catch (IOException var15) {
-            LightMapConstants.getLogger().error("Failed to load region file for " + this.x + "," + this.z + " in " + this.worldNamePathPart + "/" + this.subworldNamePathPart + this.dimensionNamePathPart, var15);
+            MapViewConstants.getLogger().error("Failed to load region file for " + this.x + "," + this.z + " in " + this.worldNamePathPart + "/" + this.subworldNamePathPart + this.dimensionNamePathPart, var15);
         }
 
     }

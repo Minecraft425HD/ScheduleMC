@@ -1,7 +1,7 @@
-package de.rolandsw.schedulemc.lightmap.mixins;
+package de.rolandsw.schedulemc.mapview.mixins;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import de.rolandsw.schedulemc.lightmap.LightMapConstants;
+import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import net.minecraft.client.gui.Gui;
 
 // @Mixin(Gui.class)
@@ -14,6 +14,6 @@ public class MixinInGameHud {
 
     // @ModifyVariable(method = "displayScoreboardSidebar(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/world/scores/Objective;)V", at = @At("STORE"), ordinal = 6, require = 0)
     private int injected(int bottomX, @Local(ordinal = 5) int entriesHeight) {
-        return LightMapConstants.moveScoreboard(bottomX, entriesHeight);
+        return MapViewConstants.moveScoreboard(bottomX, entriesHeight);
     }
 }

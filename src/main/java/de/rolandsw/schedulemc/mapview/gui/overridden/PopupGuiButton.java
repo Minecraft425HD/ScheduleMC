@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.lightmap.gui.overridden;
+package de.rolandsw.schedulemc.mapview.gui.overridden;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;

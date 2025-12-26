@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.lightmap.util;
+package de.rolandsw.schedulemc.mapview.util;
 
 /**
  * Compatibility class for ARGB color operations

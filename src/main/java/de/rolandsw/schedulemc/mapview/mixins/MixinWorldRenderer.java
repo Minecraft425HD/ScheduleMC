@@ -1,6 +1,6 @@
-package de.rolandsw.schedulemc.lightmap.mixins;
+package de.rolandsw.schedulemc.mapview.mixins;
 
-import de.rolandsw.schedulemc.lightmap.LightMapConstants;
+import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.GameRenderer;
@@ -19,8 +19,8 @@ public abstract class MixinWorldRenderer {
 
     // @Inject(method = "setSectionDirty(IIIZ)V", at = @At("RETURN"), require = 0)
     public void postScheduleChunkRender(int x, int y, int z, boolean important, CallbackInfo ci) {
-        if (LightMapConstants.getLightMapInstance().getWorldUpdateListener() != null) {
-            LightMapConstants.getLightMapInstance().getWorldUpdateListener().notifyObservers(x, z);
+        if (MapViewConstants.getLightMapInstance().getWorldUpdateListener() != null) {
+            MapViewConstants.getLightMapInstance().getWorldUpdateListener().notifyObservers(x, z);
         }
     }
 }

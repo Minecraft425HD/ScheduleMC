@@ -1,7 +1,7 @@
-package de.rolandsw.schedulemc.lightmap.entityrender.variants;
+package de.rolandsw.schedulemc.mapview.entityrender.variants;
 
-import de.rolandsw.schedulemc.lightmap.entityrender.EntityVariantData;
-import de.rolandsw.schedulemc.lightmap.entityrender.EntityVariantDataFactory;
+import de.rolandsw.schedulemc.mapview.entityrender.EntityVariantData;
+import de.rolandsw.schedulemc.mapview.entityrender.EntityVariantDataFactory;
 import net.minecraft.client.renderer.entity.EnderDragonRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;

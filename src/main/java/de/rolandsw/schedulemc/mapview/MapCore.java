@@ -1,14 +1,14 @@
-package de.rolandsw.schedulemc.lightmap;
+package de.rolandsw.schedulemc.mapview;
 
-import de.rolandsw.schedulemc.lightmap.persistent.WorldMapData;
-import de.rolandsw.schedulemc.lightmap.persistent.WorldMapSettings;
-import de.rolandsw.schedulemc.lightmap.persistent.ThreadManager;
-import de.rolandsw.schedulemc.lightmap.util.BiomeColors;
-import de.rolandsw.schedulemc.lightmap.util.DimensionManager;
-import de.rolandsw.schedulemc.lightmap.util.GameVariableAccessShim;
-import de.rolandsw.schedulemc.lightmap.util.MinimapHelper;
-import de.rolandsw.schedulemc.lightmap.util.TextUtils;
-import de.rolandsw.schedulemc.lightmap.util.WorldUpdateListener;
+import de.rolandsw.schedulemc.mapview.persistent.WorldMapData;
+import de.rolandsw.schedulemc.mapview.persistent.WorldMapSettings;
+import de.rolandsw.schedulemc.mapview.persistent.ThreadManager;
+import de.rolandsw.schedulemc.mapview.util.BiomeColors;
+import de.rolandsw.schedulemc.mapview.util.DimensionManager;
+import de.rolandsw.schedulemc.mapview.util.GameVariableAccessShim;
+import de.rolandsw.schedulemc.mapview.util.MapViewHelper;
+import de.rolandsw.schedulemc.mapview.util.TextUtils;
+import de.rolandsw.schedulemc.mapview.util.WorldUpdateListener;
 import java.util.ArrayDeque;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -21,12 +21,12 @@ import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.Unit;
 
-public class LightMap implements PreparableReloadListener {
-    public static MinimapSettings mapOptions;
+public class MapCore implements PreparableReloadListener {
+    public static MapConfiguration mapOptions;
     private WorldMapSettings persistentMapOptions;
-    private MinimapRenderer map;
+    private MapViewRenderer map;
     private WorldMapData persistentMap;
-    private SettingsAndLightingChangeNotifier settingsAndLightingChangeNotifier;
+    private ConfigurationChangeNotifier settingsAndLightingChangeNotifier;
     private WorldUpdateListener worldUpdateListener;
     private BlockColorCache colorManager;
     private DimensionManager dimensionManager;
@@ -34,10 +34,10 @@ public class LightMap implements PreparableReloadListener {
     private static String passMessage;
     private ArrayDeque<Runnable> runOnWorldSet = new ArrayDeque<>();
     private String worldSeed = "";
-    LightMap() {}
+    MapCore() {}
 
     public void lateInit(boolean showUnderMenus, boolean isFair) {
-        mapOptions = new MinimapSettings();
+        mapOptions = new MapConfiguration();
         mapOptions.showUnderMenus = showUnderMenus;
         this.persistentMapOptions = new WorldMapSettings();
         mapOptions.addSecondaryOptionsManager(this.persistentMapOptions);
@@ -48,12 +48,12 @@ public class LightMap implements PreparableReloadListener {
         mapOptions.loadAll();
 
         // Event listeners are now registered separately during mod construction
-        this.map = new MinimapRenderer();
-        this.settingsAndLightingChangeNotifier = new SettingsAndLightingChangeNotifier();
+        this.map = new MapViewRenderer();
+        this.settingsAndLightingChangeNotifier = new ConfigurationChangeNotifier();
         this.worldUpdateListener = new WorldUpdateListener();
         this.worldUpdateListener.addListener(this.map);
         this.worldUpdateListener.addListener(this.persistentMap);
-        ReloadableResourceManager resourceManager = (ReloadableResourceManager) LightMapConstants.getMinecraft().getResourceManager();
+        ReloadableResourceManager resourceManager = (ReloadableResourceManager) MapViewConstants.getMinecraft().getResourceManager();
         resourceManager.registerReloadListener(this);
         this.apply(resourceManager);
     }
@@ -72,7 +72,7 @@ public class LightMap implements PreparableReloadListener {
             this.map.onTickInGame(guiGraphics);
         }
         if (passMessage != null) {
-            LightMapConstants.getMinecraft().gui.getChat().addMessage(Component.literal(passMessage));
+            MapViewConstants.getMinecraft().gui.getChat().addMessage(Component.literal(passMessage));
             passMessage = null;
         }
     }
@@ -83,8 +83,8 @@ public class LightMap implements PreparableReloadListener {
             this.world = newWorld;
             this.persistentMap.newWorld(this.world);
             if (this.world != null) {
-                MinimapHelper.reset();
-                LightMapConstants.getPacketBridge().sendWorldIDPacket();
+                MapViewHelper.reset();
+                MapViewConstants.getPacketBridge().sendWorldIDPacket();
                 this.map.newWorld(this.world);
                 while (!runOnWorldSet.isEmpty()) {
                     runOnWorldSet.removeFirst().run();
@@ -92,7 +92,7 @@ public class LightMap implements PreparableReloadListener {
             }
         }
 
-        LightMapConstants.tick();
+        MapViewConstants.tick();
         this.persistentMap.onTick();
     }
 
@@ -100,7 +100,7 @@ public class LightMap implements PreparableReloadListener {
         // Cave mode removed - no permission messages to check
     }
 
-    public MinimapSettings getMapOptions() {
+    public MapConfiguration getMapOptions() {
         return mapOptions;
     }
 
@@ -108,11 +108,11 @@ public class LightMap implements PreparableReloadListener {
         return this.persistentMapOptions;
     }
 
-    public MinimapRenderer getMap() {
+    public MapViewRenderer getMap() {
         return this.map;
     }
 
-    public SettingsAndLightingChangeNotifier getSettingsAndLightingChangeNotifier() {
+    public ConfigurationChangeNotifier getSettingsAndLightingChangeNotifier() {
         return this.settingsAndLightingChangeNotifier;
     }
 
@@ -163,7 +163,7 @@ public class LightMap implements PreparableReloadListener {
     }
 
     public void onClientStopping() {
-        LightMapConstants.onShutDown();
+        MapViewConstants.onShutDown();
         ThreadManager.flushSaveQueue();
     }
 
@@ -172,17 +172,17 @@ public class LightMap implements PreparableReloadListener {
      * Returns the singleplayer world name or multiplayer server name.
      */
     public String getCurrentWorldName() {
-        if (LightMapConstants.isSinglePlayer()) {
-            return LightMapConstants.getIntegratedServer()
+        if (MapViewConstants.isSinglePlayer()) {
+            return MapViewConstants.getIntegratedServer()
                     .map(server -> server.getWorldData().getLevelName())
                     .filter(name -> name != null && !name.isBlank())
                     .orElse("Singleplayer World");
         } else {
-            ServerData info = LightMapConstants.getMinecraft().getCurrentServer();
+            ServerData info = MapViewConstants.getMinecraft().getCurrentServer();
             if (info != null && info.name != null && !info.name.isBlank()) {
                 return info.name;
             }
-            if (LightMapConstants.isRealmServer()) {
+            if (MapViewConstants.isRealmServer()) {
                 return "Realms";
             }
             return "Multiplayer Server";
@@ -202,8 +202,8 @@ public class LightMap implements PreparableReloadListener {
      * For singleplayer, automatically retrieves from server.
      */
     public String getWorldSeed() {
-        if (LightMapConstants.isSinglePlayer()) {
-            return LightMapConstants.getIntegratedServer()
+        if (MapViewConstants.isSinglePlayer()) {
+            return MapViewConstants.getIntegratedServer()
                     .map(server -> String.valueOf(server.getWorldData().worldGenOptions().seed()))
                     .orElse("");
         }

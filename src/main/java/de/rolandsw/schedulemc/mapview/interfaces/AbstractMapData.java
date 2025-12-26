@@ -1,7 +1,7 @@
-package de.rolandsw.schedulemc.lightmap.interfaces;
+package de.rolandsw.schedulemc.mapview.interfaces;
 
-import de.rolandsw.schedulemc.lightmap.LightMapConstants;
-import de.rolandsw.schedulemc.lightmap.util.BiomeColors;
+import de.rolandsw.schedulemc.mapview.MapViewConstants;
+import de.rolandsw.schedulemc.mapview.util.BiomeColors;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.world.level.biome.Biome;
@@ -43,14 +43,14 @@ public abstract class AbstractMapData {
                     if (!this.points[x][z].inSegment) {
                         long startTime = System.nanoTime();
                         if (this.points[x][z].biomeID == null) {
-                            LightMapConstants.getLogger().warn("no biome segment!");
+                            MapViewConstants.getLogger().warn("no biome segment!");
                         }
 
                         Segment segment = new Segment(this.points[x][z]);
                         this.segments.add(segment);
                         segment.flood();
                         if (this.points[x][z].biomeID == null) {
-                            LightMapConstants.getLogger().warn("created in " + (System.nanoTime() - startTime));
+                            MapViewConstants.getLogger().warn("created in " + (System.nanoTime() - startTime));
                         }
                     }
                 }
@@ -327,7 +327,7 @@ public abstract class AbstractMapData {
         }
 
         public void morphologicallyErode(boolean horizontalBias) {
-            float labelWidth = (LightMapConstants.getMinecraft().font.width(this.name) + 8);
+            float labelWidth = (MapViewConstants.getMinecraft().font.width(this.name) + 8);
             float multi = (AbstractMapData.this.width / 32f);
             float shellWidth = 2.0F;
             float labelPadding = labelWidth / 16.0F * multi / shellWidth;

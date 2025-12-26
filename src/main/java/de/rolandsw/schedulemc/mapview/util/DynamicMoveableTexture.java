@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.lightmap.util;
+package de.rolandsw.schedulemc.mapview.util;
 
 // GlTexture doesn't exist in 1.20.1
 import com.mojang.blaze3d.platform.NativeImage;
@@ -19,7 +19,7 @@ public class DynamicMoveableTexture extends DynamicTexture {
             pixelsField.setAccessible(true);
             pixelsFieldInitialized = true;
         } catch (Exception e) {
-            System.err.println("[LightMap] Warning: Could not access NativeImage.pixels field, using slower fallback");
+            System.err.println("[MapCore] Warning: Could not access NativeImage.pixels field, using slower fallback");
             pixelsFieldInitialized = true;
         }
     }

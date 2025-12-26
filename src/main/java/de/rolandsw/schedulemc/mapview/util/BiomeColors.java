@@ -1,6 +1,6 @@
-package de.rolandsw.schedulemc.lightmap.util;
+package de.rolandsw.schedulemc.mapview.util;
 
-import de.rolandsw.schedulemc.lightmap.LightMapConstants;
+import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -29,7 +29,7 @@ public final class BiomeColors {
     private BiomeColors() {}
 
     public static void loadBiomeColors() {
-        File saveDir = new File(LightMapConstants.getMinecraft().gameDirectory, "/lightmap/");
+        File saveDir = new File(MapViewConstants.getMinecraft().gameDirectory, "/mapview/");
         File settingsFile = new File(saveDir, "biomecolors.txt");
         if (settingsFile.exists()) {
             try {
@@ -45,7 +45,7 @@ public final class BiomeColors {
                         try {
                             color = Integer.decode(curLine[1]);
                         } catch (NumberFormatException var10) {
-                            LightMapConstants.getLogger().warn("Error decoding integer string for biome colors; " + curLine[1]);
+                            MapViewConstants.getLogger().warn("Error decoding integer string for biome colors; " + curLine[1]);
                         }
 
                         if (nameToColor.put(name, color) != null) {
@@ -56,12 +56,12 @@ public final class BiomeColors {
 
                 br.close();
             } catch (IOException var12) {
-                LightMapConstants.getLogger().error("biome load error: " + var12.getLocalizedMessage(), var12);
+                MapViewConstants.getLogger().error("biome load error: " + var12.getLocalizedMessage(), var12);
             }
         }
 
         // Load default biome colors from mod resources (optional - won't exist until resources are built)
-        var resourceOptional = LightMapConstants.getMinecraft().getResourceManager().getResource(new ResourceLocation("schedulemc", "lightmap/conf/biomecolors.txt"));
+        var resourceOptional = MapViewConstants.getMinecraft().getResourceManager().getResource(new ResourceLocation("schedulemc", "mapview/conf/biomecolors.txt"));
         if (resourceOptional.isPresent()) {
             try {
                 InputStream is = resourceOptional.get().open();
@@ -77,7 +77,7 @@ public final class BiomeColors {
                         try {
                             color = Integer.decode(curLine[1]);
                         } catch (NumberFormatException var9) {
-                            LightMapConstants.getLogger().warn("Error decoding integer string for biome colors; " + curLine[1]);
+                            MapViewConstants.getLogger().warn("Error decoding integer string for biome colors; " + curLine[1]);
                             color = 0;
                         }
 
@@ -91,17 +91,17 @@ public final class BiomeColors {
                 br.close();
                 is.close();
             } catch (IOException var11) {
-                LightMapConstants.getLogger().error("Error loading biome color config file from mod resources!", var11);
+                MapViewConstants.getLogger().error("Error loading biome color config file from mod resources!", var11);
             }
         } else {
-            LightMapConstants.getLogger().debug("Biome color config file not found in mod resources, will use defaults");
+            MapViewConstants.getLogger().debug("Biome color config file not found in mod resources, will use defaults");
         }
 
     }
 
     public static void saveBiomeColors() {
         if (dirty) {
-            File saveDir = new File(LightMapConstants.getMinecraft().gameDirectory, "/lightmap/");
+            File saveDir = new File(MapViewConstants.getMinecraft().gameDirectory, "/mapview/");
             if (!saveDir.exists()) {
                 saveDir.mkdirs();
             }
@@ -126,7 +126,7 @@ public final class BiomeColors {
 
                 out.close();
             } catch (IOException var8) {
-                LightMapConstants.getLogger().error("biome save error: " + var8.getLocalizedMessage(), var8);
+                MapViewConstants.getLogger().error("biome save error: " + var8.getLocalizedMessage(), var8);
             }
         }
 
@@ -141,12 +141,12 @@ public final class BiomeColors {
         }
 
         if (biome == null) {
-            LightMapConstants.getLogger().warn("non biome");
+            MapViewConstants.getLogger().warn("non biome");
 
             return 0;
         }
 
-        String identifier = LightMapConstants.getPlayer().level().registryAccess().registryOrThrow(Registries.BIOME).getKey(biome).toString();
+        String identifier = MapViewConstants.getPlayer().level().registryAccess().registryOrThrow(Registries.BIOME).getKey(biome).toString();
         color = nameToColor.get(identifier);
 
         if (color == null) {
@@ -177,7 +177,7 @@ public final class BiomeColors {
 
     @NotNull
     public static String getName(Biome biome) {
-        ResourceLocation ResourceLocation = LightMapConstants.getPlayer().level().registryAccess().registryOrThrow(Registries.BIOME).getKey(biome);
+        ResourceLocation ResourceLocation = MapViewConstants.getPlayer().level().registryAccess().registryOrThrow(Registries.BIOME).getKey(biome);
         String translationKey = Util.makeDescriptionId("biome", ResourceLocation);
 
         String name = I18n.get(translationKey);
@@ -190,7 +190,7 @@ public final class BiomeColors {
 
     @NotNull
     public static String getName(int biomeID) {
-        Biome biome = LightMapConstants.getPlayer().level().registryAccess().registryOrThrow(Registries.BIOME).byId(biomeID);
+        Biome biome = MapViewConstants.getPlayer().level().registryAccess().registryOrThrow(Registries.BIOME).byId(biomeID);
 
         if (biome != null) {
             return getName(biome);

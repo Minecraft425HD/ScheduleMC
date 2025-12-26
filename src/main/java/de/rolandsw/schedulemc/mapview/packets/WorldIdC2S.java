@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.lightmap.packets;
+package de.rolandsw.schedulemc.mapview.packets;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;

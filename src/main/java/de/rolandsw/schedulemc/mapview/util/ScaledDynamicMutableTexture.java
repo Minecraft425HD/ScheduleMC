@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.lightmap.util;
+package de.rolandsw.schedulemc.mapview.util;
 
 public class ScaledDynamicMutableTexture extends DynamicMoveableTexture {
     private final int scale;

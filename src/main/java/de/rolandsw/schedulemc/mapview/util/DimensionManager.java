@@ -1,6 +1,6 @@
-package de.rolandsw.schedulemc.lightmap.util;
+package de.rolandsw.schedulemc.mapview.util;
 
-import de.rolandsw.schedulemc.lightmap.LightMapConstants;
+import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import java.util.ArrayList;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
@@ -26,7 +26,7 @@ public class DimensionManager {
 
     public void populateDimensions(Level world) {
         this.dimensions.clear();
-        Registry<DimensionType> dimensionTypeRegistry = LightMapConstants.getMinecraft().getConnection().registryAccess().registryOrThrow(Registries.DIMENSION_TYPE);
+        Registry<DimensionType> dimensionTypeRegistry = MapViewConstants.getMinecraft().getConnection().registryAccess().registryOrThrow(Registries.DIMENSION_TYPE);
 
         for (ResourceKey<Level> vanillaWorldKey : this.vanillaWorlds) {
             ResourceKey<DimensionType> typeKey = ResourceKey.create(Registries.DIMENSION_TYPE, vanillaWorldKey.location());

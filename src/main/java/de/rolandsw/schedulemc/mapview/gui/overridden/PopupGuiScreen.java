@@ -1,9 +1,9 @@
-package de.rolandsw.schedulemc.lightmap.gui.overridden;
+package de.rolandsw.schedulemc.mapview.gui.overridden;
 
 import java.util.ArrayList;
 import net.minecraft.client.gui.GuiGraphics;
 
-public abstract class PopupGuiScreen extends GuiScreenMinimap implements IPopupGuiScreen {
+public abstract class PopupGuiScreen extends GuiScreenMapView implements IPopupGuiScreen {
     private final ArrayList<Popup> popups = new ArrayList<>();
 
     @Override

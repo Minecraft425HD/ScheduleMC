@@ -1,13 +1,13 @@
-package de.rolandsw.schedulemc.lightmap.util;
+package de.rolandsw.schedulemc.mapview.util;
 
 import net.minecraft.client.Minecraft;
-import de.rolandsw.schedulemc.lightmap.util.ARGBCompat;
+import de.rolandsw.schedulemc.mapview.util.ARGBCompat;
 
 /**
- * from lightmap.fsh + net.minecraft.client.renderer.LightTexture
+ * from map lighting shader + net.minecraft.client.renderer.LightTexture
  */
-public class CPULightmap {
-    private static final CPULightmap INSTANCE = new CPULightmap();
+public class CPUMapRenderer {
+    private static final CPUMapRenderer INSTANCE = new CPUMapRenderer();
     private static final Minecraft MINECRAFT = Minecraft.getInstance();
 
     private float blockLightRedFlicker = 0.0f;
@@ -20,7 +20,7 @@ public class CPULightmap {
     private float SkyLightColorB = 1.0f;
     private float BrightnessFactor = 0.0f;
 
-    public static CPULightmap getInstance() {
+    public static CPUMapRenderer getInstance() {
         return INSTANCE;
     }
 

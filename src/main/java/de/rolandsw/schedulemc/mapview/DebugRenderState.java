@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.lightmap;
+package de.rolandsw.schedulemc.mapview;
 
 public class DebugRenderState {
 
@@ -11,7 +11,7 @@ public class DebugRenderState {
     public static int chunksTotal;
 
     public static void print() {
-        LightMapConstants.getLogger().error("LightMap:DebugRenderState -> Chunk: " + checkChunkX + " " + checkChunkZ + " Block: " + blockX + " " + blockY + " " + blockZ);
-        LightMapConstants.getLogger().error("LightMap:DebugRenderState -> Changed: " + chunksChanged + "/" + chunksTotal);
+        MapViewConstants.getLogger().error("MapCore:DebugRenderState -> Chunk: " + checkChunkX + " " + checkChunkZ + " Block: " + blockX + " " + blockY + " " + blockZ);
+        MapViewConstants.getLogger().error("MapCore:DebugRenderState -> Changed: " + chunksChanged + "/" + chunksTotal);
     }
 }

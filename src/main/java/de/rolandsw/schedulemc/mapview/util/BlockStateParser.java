@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.lightmap.util;
+package de.rolandsw.schedulemc.mapview.util;
 
 import com.google.common.collect.BiMap;
 import java.util.Optional;

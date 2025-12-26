@@ -1,6 +1,6 @@
-package de.rolandsw.schedulemc.lightmap.mixins;
+package de.rolandsw.schedulemc.mapview.mixins;
 
-import de.rolandsw.schedulemc.lightmap.LightMapConstants;
+import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
@@ -9,7 +9,7 @@ public class APIMixinMinecraftClient {
 
     // @Inject(method = "tick()V", at = @At("RETURN"), require = 0)
     private void onTick(CallbackInfo ci) {
-        LightMapConstants.clientTick();
+        MapViewConstants.clientTick();
     }
 
 }

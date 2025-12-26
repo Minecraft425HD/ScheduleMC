@@ -1,6 +1,6 @@
-package de.rolandsw.schedulemc.lightmap.mixins;
+package de.rolandsw.schedulemc.mapview.mixins;
 
-import de.rolandsw.schedulemc.lightmap.LightMapConstants;
+import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import org.spongepowered.asm.mixin.Unique;
@@ -26,7 +26,7 @@ public abstract class APIMixinNetHandlerPlayClient {
 
     @Unique
     private boolean lightmap$parseCommand(String command) {
-        LightMapConstants.getLogger().info("Command: " + command);
-        return !LightMapConstants.onSendChatMessage(command);
+        MapViewConstants.getLogger().info("Command: " + command);
+        return !MapViewConstants.onSendChatMessage(command);
     }
 }

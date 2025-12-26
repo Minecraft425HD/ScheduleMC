@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.lightmap.util;
+package de.rolandsw.schedulemc.mapview.util;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;

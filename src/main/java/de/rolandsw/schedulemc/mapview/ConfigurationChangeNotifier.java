@@ -1,9 +1,9 @@
-package de.rolandsw.schedulemc.lightmap;
+package de.rolandsw.schedulemc.mapview;
 
-import de.rolandsw.schedulemc.lightmap.persistent.RegionCache;
+import de.rolandsw.schedulemc.mapview.persistent.RegionCache;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-public class SettingsAndLightingChangeNotifier {
+public class ConfigurationChangeNotifier {
     private final CopyOnWriteArraySet<RegionCache> listeners = new CopyOnWriteArraySet<>();
 
     public final void addObserver(RegionCache listener) {

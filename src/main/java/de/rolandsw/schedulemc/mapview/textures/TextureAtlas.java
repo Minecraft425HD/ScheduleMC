@@ -1,8 +1,8 @@
-package de.rolandsw.schedulemc.lightmap.textures;
+package de.rolandsw.schedulemc.mapview.textures;
 
 import com.google.common.collect.Maps;
-import de.rolandsw.schedulemc.lightmap.LightMapConstants;
-import de.rolandsw.schedulemc.lightmap.util.ImageHelper;
+import de.rolandsw.schedulemc.mapview.MapViewConstants;
+import de.rolandsw.schedulemc.mapview.util.ImageHelper;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.awt.image.BufferedImage;
@@ -93,7 +93,7 @@ public class TextureAtlas extends AbstractTexture {
 
         this.stitcher.doStitch();
 
-        LightMapConstants.getLogger().info("Created: {}x{} {}-atlas", new Object[] { this.stitcher.getCurrentImageWidth(), this.stitcher.getCurrentImageHeight(), this.basePath });
+        MapViewConstants.getLogger().info("Created: {}x{} {}-atlas", new Object[] { this.stitcher.getCurrentImageWidth(), this.stitcher.getCurrentImageHeight(), this.basePath });
 
         HashMap<Object, Sprite> tempMapRegisteredSprites = Maps.newHashMap(this.mapRegisteredSprites);
         for (Sprite icon : this.stitcher.getStitchSlots()) {
@@ -122,7 +122,7 @@ public class TextureAtlas extends AbstractTexture {
 
         this.missingImage.initSprite(this.getHeight(), this.getWidth(), 0, 0);
         this.failedImage.initSprite(this.getHeight(), this.getWidth(), 0, 0);
-        if (LightMapConstants.DEBUG) {
+        if (MapViewConstants.DEBUG) {
             saveDebugImage();
         }
     }
@@ -158,7 +158,7 @@ public class TextureAtlas extends AbstractTexture {
 
         this.missingImage.initSprite(this.getHeight(), this.getWidth(), 0, 0);
         this.failedImage.initSprite(this.getHeight(), this.getWidth(), 0, 0);
-        if (LightMapConstants.DEBUG) {
+        if (MapViewConstants.DEBUG) {
             if (oldWidth != this.stitcher.getCurrentImageWidth() || oldHeight != this.stitcher.getCurrentImageHeight()) {
                 saveDebugImage();
             }
@@ -209,12 +209,12 @@ public class TextureAtlas extends AbstractTexture {
                         NativeImage image = NativeImage.read(resourceOpt.get().open());
                         icon.setTextureData(image);
                     } else {
-                        LightMapConstants.getLogger().warn("Texture resource not found: " + resourceLocation);
+                        MapViewConstants.getLogger().warn("Texture resource not found: " + resourceLocation);
                     }
                 } catch (RuntimeException var6) {
-                    LightMapConstants.getLogger().error("Unable to parse metadata from " + resourceLocation, var6);
+                    MapViewConstants.getLogger().error("Unable to parse metadata from " + resourceLocation, var6);
                 } catch (IOException var7) {
-                    LightMapConstants.getLogger().error("Using missing texture, unable to load " + resourceLocation, var7);
+                    MapViewConstants.getLogger().error("Using missing texture, unable to load " + resourceLocation, var7);
                 }
 
                 this.mapRegisteredSprites.put(resourceLocation.toString(), icon);
@@ -226,7 +226,7 @@ public class TextureAtlas extends AbstractTexture {
 
     public Sprite registerIconForBufferedImage(Object name, BufferedImage bufferedImage) {
         if (bufferedImage == null) {
-            LightMapConstants.getLogger().warn("Cannot register icon for null BufferedImage: " + name);
+            MapViewConstants.getLogger().warn("Cannot register icon for null BufferedImage: " + name);
             return null;
         }
         NativeImage img = ImageHelper.nativeImageFromBufferedImage(bufferedImage);

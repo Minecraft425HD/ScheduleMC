@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.lightmap;
+package de.rolandsw.schedulemc.mapview;
 
 public interface PacketBridge {
     public void sendWorldIDPacket();

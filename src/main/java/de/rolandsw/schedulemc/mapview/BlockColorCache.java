@@ -1,13 +1,13 @@
-package de.rolandsw.schedulemc.lightmap;
+package de.rolandsw.schedulemc.mapview;
 
 import com.google.common.collect.UnmodifiableIterator;
-import de.rolandsw.schedulemc.lightmap.interfaces.AbstractMapData;
-import de.rolandsw.schedulemc.lightmap.util.BlockModel;
-import de.rolandsw.schedulemc.lightmap.util.BlockDatabase;
-import de.rolandsw.schedulemc.lightmap.util.ColorUtils;
-import de.rolandsw.schedulemc.lightmap.util.GLUtils;
-import de.rolandsw.schedulemc.lightmap.util.MessageUtils;
-import de.rolandsw.schedulemc.lightmap.util.MutableBlockPos;
+import de.rolandsw.schedulemc.mapview.interfaces.AbstractMapData;
+import de.rolandsw.schedulemc.mapview.util.BlockModel;
+import de.rolandsw.schedulemc.mapview.util.BlockDatabase;
+import de.rolandsw.schedulemc.mapview.util.ColorUtils;
+import de.rolandsw.schedulemc.mapview.util.GLUtils;
+import de.rolandsw.schedulemc.mapview.util.MessageUtils;
+import de.rolandsw.schedulemc.mapview.util.MutableBlockPos;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.client.Options;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -27,7 +27,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.Registry;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
-import de.rolandsw.schedulemc.lightmap.util.ARGBCompat;
+import de.rolandsw.schedulemc.mapview.util.ARGBCompat;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.FoliageColor;
@@ -142,8 +142,8 @@ public class BlockColorCache {
     public boolean checkForChanges() {
         boolean biomesChanged = false;
 
-        if (LightMapConstants.getClientWorld() != this.world) {
-            this.world = LightMapConstants.getClientWorld();
+        if (MapViewConstants.getClientWorld() != this.world) {
+            this.world = MapViewConstants.getClientWorld();
             int largestBiomeID = 0;
 
             Registry<Biome> biomeRegistry = this.world.registryAccess().registryOrThrow(Registries.BIOME);
@@ -175,7 +175,7 @@ public class BlockColorCache {
         BlockDatabase.getBlocks();
         this.loadColorPicker();
         this.loadTexturePackTerrainImage();
-        TextureAtlasSprite missing = LightMapConstants.getMinecraft().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(new ResourceLocation("missingno"));
+        TextureAtlasSprite missing = MapViewConstants.getMinecraft().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(new ResourceLocation("missingno"));
         this.failedToLoadX = missing.getU0();
         this.failedToLoadY = missing.getV0();
         this.loaded = false;
@@ -192,19 +192,19 @@ public class BlockColorCache {
                 try {
                     this.processCTM();
                 } catch (Exception var4) {
-                    LightMapConstants.getLogger().error("error loading CTM " + var4.getLocalizedMessage(), var4);
+                    MapViewConstants.getLogger().error("error loading CTM " + var4.getLocalizedMessage(), var4);
                 }
 
                 try {
                     this.processColorProperties();
                 } catch (Exception var3) {
-                    LightMapConstants.getLogger().error("error loading custom color properties " + var3.getLocalizedMessage(), var3);
+                    MapViewConstants.getLogger().error("error loading custom color properties " + var3.getLocalizedMessage(), var3);
                 }
             }
 
-            LightMapConstants.getLightMapInstance().getMap().forceFullRender(true);
+            MapViewConstants.getLightMapInstance().getMap().forceFullRender(true);
         } catch (Exception var5) {
-            LightMapConstants.getLogger().error("error loading pack", var5);
+            MapViewConstants.getLogger().error("error loading pack", var5);
         }
 
         this.loaded = true;
@@ -212,7 +212,7 @@ public class BlockColorCache {
 
     private void loadColorPicker() {
         try {
-            InputStream is = LightMapConstants.getMinecraft().getResourceManager().getResource(new ResourceLocation("schedulemc", "lightmap/images/colorpicker.png")).get().open();
+            InputStream is = MapViewConstants.getMinecraft().getResourceManager().getResource(new ResourceLocation("schedulemc", "mapview/images/colorpicker.png")).get().open();
             Image picker = ImageIO.read(is);
             is.close();
             this.colorPicker = new BufferedImage(picker.getWidth(null), picker.getHeight(null), 2);
@@ -220,7 +220,7 @@ public class BlockColorCache {
             gfx.drawImage(picker, 0, 0, null);
             gfx.dispose();
         } catch (Exception var4) {
-            LightMapConstants.getLogger().error("Error loading color picker: " + var4.getLocalizedMessage());
+            MapViewConstants.getLogger().error("Error loading color picker: " + var4.getLocalizedMessage());
         }
 
     }
@@ -232,7 +232,7 @@ public class BlockColorCache {
     }
 
     private void loadTexturePackTerrainImage() {
-        GLUtils.readTextureContentsToBufferedImage(LightMapConstants.getMinecraft().getTextureManager().getTexture(TextureAtlas.LOCATION_BLOCKS).getId(), image -> {
+        GLUtils.readTextureContentsToBufferedImage(MapViewConstants.getMinecraft().getTextureManager().getTexture(TextureAtlas.LOCATION_BLOCKS).getId(), image -> {
             terrainBuff = image;
             loadedTerrainImage = true;
         });
@@ -324,7 +324,7 @@ public class BlockColorCache {
         try {
             int color = this.getColorForBlockPosBlockStateAndFacing(blockPos, state, Direction.UP);
             if (color == 0x1B000000) {
-                BlockRenderDispatcher blockRendererDispatcher = LightMapConstants.getMinecraft().getBlockRenderer();
+                BlockRenderDispatcher blockRendererDispatcher = MapViewConstants.getMinecraft().getBlockRenderer();
                 color = this.getColorForTerrainSprite(state, blockRendererDispatcher);
             }
 
@@ -334,7 +334,7 @@ public class BlockColorCache {
             }
 
             if (block == BlockDatabase.redstone) {
-                color = ColorUtils.colorMultiplier(color, LightMapConstants.getMinecraft().getBlockColors().getColor(state, null, null, 0) | 0xFF000000);
+                color = ColorUtils.colorMultiplier(color, MapViewConstants.getMinecraft().getBlockColors().getColor(state, null, null, 0) | 0xFF000000);
             }
 
             if (BlockDatabase.biomeBlocks.contains(block)) {
@@ -352,7 +352,7 @@ public class BlockColorCache {
             }
             return color;
         } catch (Exception var5) {
-            LightMapConstants.getLogger().error("failed getting color: " + state.getBlock().getName().getString(), var5);
+            MapViewConstants.getLogger().error("failed getting color: " + state.getBlock().getName().getString(), var5);
             return 0x1B000000;
         }
     }
@@ -362,7 +362,7 @@ public class BlockColorCache {
 
         try {
             RenderShape blockRenderType = blockState.getRenderShape();
-            BlockRenderDispatcher blockRendererDispatcher = LightMapConstants.getMinecraft().getBlockRenderer();
+            BlockRenderDispatcher blockRendererDispatcher = MapViewConstants.getMinecraft().getBlockRenderer();
             if (blockRenderType == RenderShape.MODEL) {
                 BakedModel iBakedModel = blockRendererDispatcher.getBlockModel(blockState);
                 List<BakedQuad> quads = new ArrayList<>();
@@ -375,12 +375,12 @@ public class BlockColorCache {
                     if (modelImage != null) {
                         color = this.getColorForCoordinatesAndImage(new float[]{0.0F, 1.0F, 0.0F, 1.0F}, modelImage);
                     } else {
-                        LightMapConstants.getLogger().warn(String.format("Block texture for block %s is missing!", BuiltInRegistries.BLOCK.getKey(blockState.getBlock())));
+                        MapViewConstants.getLogger().warn(String.format("Block texture for block %s is missing!", BuiltInRegistries.BLOCK.getKey(blockState.getBlock())));
                     }
                 }
             }
         } catch (Exception var11) {
-            LightMapConstants.getLogger().error(var11.getMessage(), var11);
+            MapViewConstants.getLogger().error(var11.getMessage(), var11);
         }
 
         return color;
@@ -394,14 +394,14 @@ public class BlockColorCache {
             Block material = blockState.getBlock();
             if (block instanceof LiquidBlock) {
                 if (material == Blocks.WATER) {
-                    icon = LightMapConstants.getMinecraft().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(new ResourceLocation("minecraft:blocks/water_flow"));
+                    icon = MapViewConstants.getMinecraft().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(new ResourceLocation("minecraft:blocks/water_flow"));
                 } else if (material == Blocks.LAVA) {
-                    icon = LightMapConstants.getMinecraft().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(new ResourceLocation("minecraft:blocks/lava_flow"));
+                    icon = MapViewConstants.getMinecraft().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(new ResourceLocation("minecraft:blocks/lava_flow"));
                 }
             } else if (material == Blocks.WATER) {
-                icon = LightMapConstants.getMinecraft().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(new ResourceLocation("minecraft:blocks/water_still"));
+                icon = MapViewConstants.getMinecraft().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(new ResourceLocation("minecraft:blocks/water_still"));
             } else if (material == Blocks.LAVA) {
-                icon = LightMapConstants.getMinecraft().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(new ResourceLocation("minecraft:blocks/lava_still"));
+                icon = MapViewConstants.getMinecraft().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(new ResourceLocation("minecraft:blocks/lava_still"));
             }
         }
 
@@ -438,8 +438,8 @@ public class BlockColorCache {
                 gfx.dispose();
                 color = singlePixelBuff.getRGB(0, 0);
             } catch (RasterFormatException var12) {
-                LightMapConstants.getLogger().warn("error getting color");
-                LightMapConstants.getLogger().warn(IntStream.of(left, right, top, bottom).mapToObj(String::valueOf).collect(Collectors.joining(" ")));
+                MapViewConstants.getLogger().warn("error getting color");
+                MapViewConstants.getLogger().warn(IntStream.of(left, right, top, bottom).mapToObj(String::valueOf).collect(Collectors.joining(" ")));
             }
         }
 
@@ -453,7 +453,7 @@ public class BlockColorCache {
             if (block == BlockDatabase.water) {
                 this.blockColorsWithDefaultTint[blockStateID] = ColorUtils.colorMultiplier(color, 0xFF3F76E4);
             } else {
-                this.blockColorsWithDefaultTint[blockStateID] = ColorUtils.colorMultiplier(color, LightMapConstants.getMinecraft().getBlockColors().getColor(blockState, null, null, 0) | 0xFF000000);
+                this.blockColorsWithDefaultTint[blockStateID] = ColorUtils.colorMultiplier(color, MapViewConstants.getMinecraft().getBlockColors().getColor(blockState, null, null, 0) | 0xFF000000);
             }
         } else {
             this.blockColorsWithDefaultTint[blockStateID] = ColorUtils.colorMultiplier(color, GrassColor.get(0.7, 0.8) | 0xFF000000);
@@ -471,11 +471,11 @@ public class BlockColorCache {
                 if (blockPos == this.dummyBlockPos) {
                     tint = this.tintFromFakePlacedBlock(blockState, tempBlockPos, null); // Biome 4?
                 } else {
-                    ClientLevel clientWorld = LightMapConstants.getClientWorld();
+                    ClientLevel clientWorld = MapViewConstants.getClientWorld();
 
                     ChunkAccess chunk = clientWorld.getChunk(blockPos);
                     if (chunk != null && !((LevelChunk) chunk).isEmpty() && clientWorld.hasChunk(blockPos.getX() >> 4, blockPos.getZ() >> 4)) {
-                        tint = LightMapConstants.getMinecraft().getBlockColors().getColor(blockState, clientWorld, blockPos, 1) | 0xFF000000;
+                        tint = MapViewConstants.getMinecraft().getBlockColors().getColor(blockState, clientWorld, blockPos, 1) | 0xFF000000;
                     } else {
                         tint = this.tintFromFakePlacedBlock(blockState, tempBlockPos, null); // Biome 4?
                     }
@@ -508,7 +508,7 @@ public class BlockColorCache {
         }
 
         ChunkAccess chunk = world.getChunk(blockPos);
-        boolean live = chunk != null && !((LevelChunk) chunk).isEmpty() && LightMapConstants.getPlayer().level().hasChunk(blockPos.getX() >> 4, blockPos.getZ() >> 4);
+        boolean live = chunk != null && !((LevelChunk) chunk).isEmpty() && MapViewConstants.getPlayer().level().hasChunk(blockPos.getX() >> 4, blockPos.getZ() >> 4);
         int tint = -2;
         if (this.optifineInstalled || !live && this.biomeTintsAvailable.contains(blockStateID)) {
             try {
@@ -569,7 +569,7 @@ public class BlockColorCache {
                     DebugRenderState.blockX = blockPos.x;
                     DebugRenderState.blockY = blockPos.y;
                     DebugRenderState.blockZ = blockPos.z;
-                    tint = LightMapConstants.getMinecraft().getBlockColors().getColor(blockState, world, blockPos, 0) | 0xFF000000;
+                    tint = MapViewConstants.getMinecraft().getBlockColors().getColor(blockState, world, blockPos, 0) | 0xFF000000;
                 } catch (Exception ignored) {
                 }
             }
@@ -684,7 +684,7 @@ public class BlockColorCache {
         ResourceLocation propertiesFile = new ResourceLocation("minecraft", "optifine/renderpass.properties");
 
         try {
-            InputStream input = LightMapConstants.getMinecraft().getResourceManager().getResource(propertiesFile).get().open();
+            InputStream input = MapViewConstants.getMinecraft().getResourceManager().getResource(propertiesFile).get().open();
             if (input != null) {
                 properties.load(input);
                 input.close();
@@ -717,12 +717,12 @@ public class BlockColorCache {
 
     private void loadCTM(ResourceLocation propertiesFile) {
         if (propertiesFile != null) {
-            BlockRenderDispatcher blockRendererDispatcher = LightMapConstants.getMinecraft().getBlockRenderer();
+            BlockRenderDispatcher blockRendererDispatcher = MapViewConstants.getMinecraft().getBlockRenderer();
             BlockModelShaper blockModelShapes = blockRendererDispatcher.getBlockModelShaper();
             Properties properties = new Properties();
 
             try {
-                InputStream input = LightMapConstants.getMinecraft().getResourceManager().getResource(propertiesFile).get().open();
+                InputStream input = MapViewConstants.getMinecraft().getResourceManager().getResource(propertiesFile).get().open();
                 if (input != null) {
                     properties.load(input);
                     input.close();
@@ -784,7 +784,7 @@ public class BlockColorCache {
                     }
 
                     ResourceLocation matchID = new ResourceLocation(matchTiles);
-                    TextureAtlasSprite compareIcon = LightMapConstants.getMinecraft().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(matchID);
+                    TextureAtlasSprite compareIcon = MapViewConstants.getMinecraft().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(matchID);
                     if (compareIcon.atlasLocation() != MissingTextureAtlasSprite.getLocation()) {
                         ArrayList<BlockState> tmpList = new ArrayList<>();
 
@@ -826,7 +826,7 @@ public class BlockColorCache {
                 if (!method.equals("horizontal") && !method.startsWith("overlay") && (method.equals("sandstone") || method.equals("top") || faces.contains("top") || faces.contains("all") || faces.isEmpty())) {
                     try {
                         ResourceLocation pngResource = new ResourceLocation(propertiesFile.getNamespace(), tilePath);
-                        InputStream is = LightMapConstants.getMinecraft().getResourceManager().getResource(pngResource).get().open();
+                        InputStream is = MapViewConstants.getMinecraft().getResourceManager().getResource(pngResource).get().open();
                         Image top = ImageIO.read(is);
                         is.close();
                         top = top.getScaledInstance(1, 1, 4);
@@ -873,7 +873,7 @@ public class BlockColorCache {
                             }
                         }
                     } catch (IOException var40) {
-                        LightMapConstants.getLogger().error("error getting CTM block from " + propertiesFile.getPath() + ": " + filePath + " " + BuiltInRegistries.BLOCK.getKey(blockStates.iterator().next().getBlock()) + " " + tilePath, var40);
+                        MapViewConstants.getLogger().error("error getting CTM block from " + propertiesFile.getPath() + ": " + filePath + " " + BuiltInRegistries.BLOCK.getKey(blockStates.iterator().next().getBlock()) + " " + tilePath, var40);
                     }
                 }
 
@@ -1033,7 +1033,7 @@ public class BlockColorCache {
         String suffix = suffixMaybeNull == null ? "" : suffixMaybeNull;
         ArrayList<ResourceLocation> resources;
 
-        Map<ResourceLocation, Resource> resourceMap = LightMapConstants.getMinecraft().getResourceManager().listResources(startingPath, asset -> asset.getPath().endsWith(suffix));
+        Map<ResourceLocation, Resource> resourceMap = MapViewConstants.getMinecraft().getResourceManager().listResources(startingPath, asset -> asset.getPath().endsWith(suffix));
         resources = resourceMap.keySet().stream().filter(candidate -> candidate.getNamespace().equals(namespace)).collect(Collectors.toCollection(ArrayList::new));
 
         if (sortByFilename) {
@@ -1054,13 +1054,13 @@ public class BlockColorCache {
         Properties properties = new Properties();
 
         try {
-            InputStream input = LightMapConstants.getMinecraft().getResourceManager().getResource(new ResourceLocation("optifine/color.properties")).get().open();
+            InputStream input = MapViewConstants.getMinecraft().getResourceManager().getResource(new ResourceLocation("optifine/color.properties")).get().open();
             if (input != null) {
                 properties.load(input);
                 input.close();
             }
         } catch (IOException exception) {
-            LightMapConstants.getLogger().error(exception);
+            MapViewConstants.getLogger().error(exception);
         }
 
         BlockState blockState = BlockDatabase.lilypad.defaultBlockState();
@@ -1095,7 +1095,7 @@ public class BlockColorCache {
             Properties colorProperties = new Properties();
 
             try {
-                InputStream input = LightMapConstants.getMinecraft().getResourceManager().getResource(resource).get().open();
+                InputStream input = MapViewConstants.getMinecraft().getResourceManager().getResource(resource).get().open();
                 if (input != null) {
                     colorProperties.load(input);
                     input.close();
@@ -1116,7 +1116,7 @@ public class BlockColorCache {
             if (source != null) {
                 resourcePNG = new ResourceLocation(resource.getNamespace(), source);
 
-                LightMapConstants.getMinecraft().getResourceManager().getResource(resourcePNG);
+                MapViewConstants.getMinecraft().getResourceManager().getResource(resourcePNG);
             } else {
                 resourcePNG = new ResourceLocation(resource.getNamespace(), resource.getPath().replace(".properties", ".png"));
             }
@@ -1156,7 +1156,7 @@ public class BlockColorCache {
         int yOffset = 0;
 
         try {
-            InputStream input = LightMapConstants.getMinecraft().getResourceManager().getResource(resourceProperties).get().open();
+            InputStream input = MapViewConstants.getMinecraft().getResourceManager().getResource(resourceProperties).get().open();
             if (input != null) {
                 colorProperties.load(input);
                 input.close();
@@ -1188,7 +1188,7 @@ public class BlockColorCache {
         Image tintColors;
 
         try {
-            InputStream is = LightMapConstants.getMinecraft().getResourceManager().getResource(resource).get().open();
+            InputStream is = MapViewConstants.getMinecraft().getResourceManager().getResource(resource).get().open();
             tintColors = ImageIO.read(is);
             is.close();
         } catch (IOException var21) {

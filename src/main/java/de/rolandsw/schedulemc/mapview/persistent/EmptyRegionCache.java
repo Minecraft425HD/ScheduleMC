@@ -1,12 +1,12 @@
-package de.rolandsw.schedulemc.lightmap.persistent;
+package de.rolandsw.schedulemc.mapview.persistent;
 
-import de.rolandsw.schedulemc.lightmap.SettingsAndLightingChangeNotifier;
+import de.rolandsw.schedulemc.mapview.ConfigurationChangeNotifier;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.chunk.LevelChunk;
 
 public class EmptyRegionCache extends RegionCache {
     @Override
-    public void notifyOfActionableChange(SettingsAndLightingChangeNotifier notifier) {
+    public void notifyOfActionableChange(ConfigurationChangeNotifier notifier) {
     }
 
     @Override

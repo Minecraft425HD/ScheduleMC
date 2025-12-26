@@ -1,7 +1,7 @@
-package de.rolandsw.schedulemc.lightmap.persistent;
+package de.rolandsw.schedulemc.mapview.persistent;
 
-import de.rolandsw.schedulemc.lightmap.gui.overridden.EnumOptionsMinimap;
-import de.rolandsw.schedulemc.lightmap.interfaces.ISubSettingsManager;
+import de.rolandsw.schedulemc.mapview.gui.overridden.EnumOptionsMapView;
+import de.rolandsw.schedulemc.mapview.interfaces.ISubSettingsManager;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -63,21 +63,21 @@ public class WorldMapSettings implements ISubSettingsManager {
     }
 
     @Override
-    public String getKeyText(EnumOptionsMinimap options) {
+    public String getKeyText(EnumOptionsMapView options) {
         return I18n.get(options.getName()) + ": ";
     }
 
     @Override
-    public float getOptionFloatValue(EnumOptionsMinimap options) {
+    public float getOptionFloatValue(EnumOptionsMapView options) {
         return 0.0F;
     }
 
     @Override
-    public void setOptionFloatValue(EnumOptionsMinimap options, float value) {
+    public void setOptionFloatValue(EnumOptionsMapView options, float value) {
         // No configurable float options - zoom settings are fixed
     }
 
-    public void setOptionValue(EnumOptionsMinimap par1EnumOptions) {
+    public void setOptionValue(EnumOptionsMapView par1EnumOptions) {
         // No boolean options remain after waypoint removal
     }
 

@@ -1,11 +1,11 @@
-package de.rolandsw.schedulemc.lightmap.interfaces;
+package de.rolandsw.schedulemc.mapview.interfaces;
 
-import de.rolandsw.schedulemc.lightmap.gui.overridden.EnumOptionsMinimap;
+import de.rolandsw.schedulemc.mapview.gui.overridden.EnumOptionsMapView;
 
 public interface ISettingsManager {
-    String getKeyText(EnumOptionsMinimap options);
+    String getKeyText(EnumOptionsMapView options);
 
-    void setOptionFloatValue(EnumOptionsMinimap options, float value);
+    void setOptionFloatValue(EnumOptionsMapView options, float value);
 
-    float getOptionFloatValue(EnumOptionsMinimap options);
+    float getOptionFloatValue(EnumOptionsMapView options);
 }

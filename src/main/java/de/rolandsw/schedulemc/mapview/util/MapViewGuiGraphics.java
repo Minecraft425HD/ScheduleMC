@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.lightmap.util;
+package de.rolandsw.schedulemc.mapview.util;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
@@ -15,7 +15,7 @@ import org.joml.Matrix4f;
 
 import java.util.function.Function;
 
-public class LightMapGuiGraphics {
+public class MapViewGuiGraphics {
 
     // Renders a textured quad with gradient colors using 1.20.1 API
     public static void blitFloatGradient(GuiGraphics graphics, Object pipelineObj, AbstractTexture texture,

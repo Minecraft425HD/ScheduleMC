@@ -1,6 +1,6 @@
-package de.rolandsw.schedulemc.lightmap.textures;
+package de.rolandsw.schedulemc.mapview.textures;
 
-import de.rolandsw.schedulemc.lightmap.util.LightMapGuiGraphics;
+import de.rolandsw.schedulemc.mapview.util.MapViewGuiGraphics;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
@@ -123,7 +123,7 @@ public class Sprite {
     }
 
     public void blit(GuiGraphics guiGraphics, Object renderTypeMap, float x, float y, float w, float h, int color) {
-        LightMapGuiGraphics.blitFloat(guiGraphics, renderTypeMap, getIdentifier(), x, y, w, h, minU, maxU, minV, maxV, color);
+        MapViewGuiGraphics.blitFloat(guiGraphics, renderTypeMap, getIdentifier(), x, y, w, h, minU, maxU, minV, maxV, color);
     }
 
     public ResourceLocation getIdentifier() {

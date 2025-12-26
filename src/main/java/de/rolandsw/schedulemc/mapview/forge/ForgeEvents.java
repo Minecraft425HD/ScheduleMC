@@ -1,11 +1,11 @@
-package de.rolandsw.schedulemc.lightmap.forge;
+package de.rolandsw.schedulemc.mapview.forge;
 
-import de.rolandsw.schedulemc.lightmap.Events;
-import de.rolandsw.schedulemc.lightmap.LightMapConstants;
-import de.rolandsw.schedulemc.lightmap.LightMap;
-import de.rolandsw.schedulemc.lightmap.packets.LightMapSettingsS2C;
-import de.rolandsw.schedulemc.lightmap.packets.WorldIdC2S;
-import de.rolandsw.schedulemc.lightmap.packets.WorldIdS2C;
+import de.rolandsw.schedulemc.mapview.Events;
+import de.rolandsw.schedulemc.mapview.MapViewConstants;
+import de.rolandsw.schedulemc.mapview.MapCore;
+import de.rolandsw.schedulemc.mapview.packets.MapViewSettingsS2C;
+import de.rolandsw.schedulemc.mapview.packets.WorldIdC2S;
+import de.rolandsw.schedulemc.mapview.packets.WorldIdS2C;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
@@ -24,7 +24,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 public class ForgeEvents implements Events {
-    private LightMap map;
+    private MapCore map;
     private static final String PROTOCOL_VERSION = "1";
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
             new ResourceLocation("schedulemc", "lightmap_main"),
@@ -37,7 +37,7 @@ public class ForgeEvents implements Events {
     }
 
     @Override
-    public void initEvents(LightMap map) {
+    public void initEvents(MapCore map) {
         this.map = map;
         // Event listeners are now registered from ClientModEvents in ScheduleMC
         MinecraftForge.EVENT_BUS.register(new ForgeEventListener(map));
@@ -45,7 +45,7 @@ public class ForgeEvents implements Events {
 
     // Public method to be called from ClientModEvents
     public void preInitClientPublic() {
-        LightMapConstants.lateInit();
+        MapViewConstants.lateInit();
         if (map != null) {
             map.onConfigurationInit();
         }
@@ -57,25 +57,25 @@ public class ForgeEvents implements Events {
     }
 
     private void preInitClient(final FMLClientSetupEvent event) {
-        // Initialize LightMap on the main thread (required for texture creation)
+        // Initialize MapCore on the main thread (required for texture creation)
         event.enqueueWork(() -> {
-            LightMapConstants.lateInit();
+            MapViewConstants.lateInit();
             map.onConfigurationInit();
         });
     }
 
     public void registerPackets(final FMLClientSetupEvent event) {
         int id = 0;
-        CHANNEL.registerMessage(id++, LightMapSettingsS2C.class,
-            LightMapSettingsS2C::write,
-            LightMapSettingsS2C::new,
-            (msg, ctx) -> LightMapSettingsChannelHandlerForge.handleDataOnMain(msg, ctx),
+        CHANNEL.registerMessage(id++, MapViewSettingsS2C.class,
+            MapViewSettingsS2C::write,
+            MapViewSettingsS2C::new,
+            (msg, ctx) -> MapViewSettingsChannelHandlerForge.handleDataOnMain(msg, ctx),
             Optional.of(NetworkDirection.PLAY_TO_CLIENT)
         );
         CHANNEL.registerMessage(id++, WorldIdS2C.class,
             WorldIdS2C::write,
             WorldIdS2C::new,
-            (msg, ctx) -> LightMapWorldIdChannelHandlerForge.handleDataOnMain(msg, ctx),
+            (msg, ctx) -> MapViewWorldIdChannelHandlerForge.handleDataOnMain(msg, ctx),
             Optional.of(NetworkDirection.PLAY_TO_CLIENT)
         );
         CHANNEL.registerMessage(id++, WorldIdC2S.class,
@@ -87,16 +87,16 @@ public class ForgeEvents implements Events {
     }
 
     private static class ForgeEventListener {
-        private final LightMap map;
+        private final MapCore map;
 
-        public ForgeEventListener(LightMap map) {
+        public ForgeEventListener(MapCore map) {
             this.map = map;
         }
 
         @SubscribeEvent
         public void onClientTick(TickEvent.ClientTickEvent event) {
             if (event.phase == TickEvent.Phase.END) {
-                LightMapConstants.clientTick();
+                MapViewConstants.clientTick();
             }
         }
 
@@ -104,7 +104,7 @@ public class ForgeEvents implements Events {
         public void onRenderGui(RenderGuiOverlayEvent.Post event) {
             // In 1.20.1, only render after the hotbar to avoid rendering multiple times per frame
             if (event.getOverlay().id().equals(VanillaGuiOverlay.HOTBAR.id())) {
-                LightMapConstants.renderOverlay(event.getGuiGraphics());
+                MapViewConstants.renderOverlay(event.getGuiGraphics());
             }
         }
 

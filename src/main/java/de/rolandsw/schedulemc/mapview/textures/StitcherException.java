@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.lightmap.textures;
+package de.rolandsw.schedulemc.mapview.textures;
 
 import java.io.Serial;
 

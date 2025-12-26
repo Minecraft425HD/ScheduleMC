@@ -1,7 +1,7 @@
-package de.rolandsw.schedulemc.lightmap;
+package de.rolandsw.schedulemc.mapview;
 
-import de.rolandsw.schedulemc.lightmap.persistent.ThreadManager;
-import de.rolandsw.schedulemc.lightmap.util.BiomeColors;
+import de.rolandsw.schedulemc.mapview.persistent.ThreadManager;
+import de.rolandsw.schedulemc.mapview.util.BiomeColors;
 import java.util.Optional;
 import net.minecraft.client.GuiMessageTag;
 import net.minecraft.client.Minecraft;
@@ -19,9 +19,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
-public final class LightMapConstants {
-    private static final Logger LOGGER = LogManager.getLogger("LightMap");
-    private static final LightMap LIGHTMAP_INSTANCE = new LightMap();
+public final class MapViewConstants {
+    private static final Logger LOGGER = LogManager.getLogger("MapCore");
+    private static final MapCore LIGHTMAP_INSTANCE = new MapCore();
     private static int elapsedTicks;
     private static final ResourceLocation OPTIONS_BACKGROUND_TEXTURE = new ResourceLocation("textures/block/dirt.png");
     public static final boolean DEBUG = false;
@@ -30,7 +30,7 @@ public final class LightMapConstants {
     private static PacketBridge packetBridge;
     private static ModApiBridge modApiBridge;
 
-    private LightMapConstants() {}
+    private MapViewConstants() {}
 
     @NotNull
     public static Minecraft getMinecraft() { return Minecraft.getInstance(); }
@@ -73,7 +73,7 @@ public final class LightMapConstants {
     }
 
     @NotNull
-    public static LightMap getLightMapInstance() { return LIGHTMAP_INSTANCE; }
+    public static MapCore getLightMapInstance() { return LIGHTMAP_INSTANCE; }
 
     static void tick() { elapsedTicks = elapsedTicks == Integer.MAX_VALUE ? 1 : elapsedTicks + 1; }
 
@@ -87,7 +87,7 @@ public final class LightMapConstants {
 
     public static void lateInit() {
         initialized = true;
-        LightMapConstants.getLightMapInstance().lateInit(true, false);
+        MapViewConstants.getLightMapInstance().lateInit(true, false);
     }
 
     public static void clientTick() {
@@ -96,7 +96,7 @@ public final class LightMapConstants {
         }
 
         if (initialized) {
-            LightMapConstants.getLightMapInstance().onTick();
+            MapViewConstants.getLightMapInstance().onTick();
         }
 
     }
@@ -108,9 +108,9 @@ public final class LightMapConstants {
 
         if (initialized) {
             try {
-                LightMapConstants.getLightMapInstance().onTickInGame(guiGraphics);
+                MapViewConstants.getLightMapInstance().onTickInGame(guiGraphics);
             } catch (RuntimeException e) {
-                LightMapConstants.getLogger().log(org.apache.logging.log4j.Level.ERROR, "Error while render overlay", e);
+                MapViewConstants.getLogger().log(org.apache.logging.log4j.Level.ERROR, "Error while render overlay", e);
             }
         }
     }
@@ -124,9 +124,9 @@ public final class LightMapConstants {
     }
 
     public static void onShutDown() {
-        LightMapConstants.getLogger().info("Saving all world maps");
-        LightMapConstants.getLightMapInstance().getWorldMapData().purgeRegionCaches();
-        LightMapConstants.getLightMapInstance().getMapOptions().saveAll();
+        MapViewConstants.getLogger().info("Saving all world maps");
+        MapViewConstants.getLightMapInstance().getWorldMapData().purgeRegionCaches();
+        MapViewConstants.getLightMapInstance().getMapOptions().saveAll();
         BiomeColors.saveBiomeColors();
         long shutdownTime = System.currentTimeMillis();
 
@@ -136,22 +136,22 @@ public final class LightMapConstants {
     }
 
     public static void playerRunTeleportCommand(double x, double y, double z) {
-        MinimapSettings mapSettingsManager = LightMapConstants.getLightMapInstance().getMapOptions();
+        MapConfiguration mapSettingsManager = MapViewConstants.getLightMapInstance().getMapOptions();
         String cmd = mapSettingsManager.serverTeleportCommand == null ? mapSettingsManager.teleportCommand : mapSettingsManager.serverTeleportCommand;
-        cmd = cmd.replace("%p", LightMapConstants.getPlayer().getName().getString()).replace("%x", String.valueOf(x + 0.5)).replace("%y", String.valueOf(y)).replace("%z", String.valueOf(z + 0.5));
-        LightMapConstants.getPlayer().connection.sendCommand(cmd);
+        cmd = cmd.replace("%p", MapViewConstants.getPlayer().getName().getString()).replace("%x", String.valueOf(x + 0.5)).replace("%y", String.valueOf(y)).replace("%z", String.valueOf(z + 0.5));
+        MapViewConstants.getPlayer().connection.sendCommand(cmd);
     }
 
     public static int moveScoreboard(int bottomX, int entriesHeight) {
-        double unscaledHeight = MinimapRenderer.getMinTablistOffset(); // / scaleFactor;
-        if (!LightMap.mapOptions.minimapAllowed || LightMap.mapOptions.mapCorner != 1 || !LightMap.mapOptions.moveScoreBoardDown || !Double.isFinite(unscaledHeight)) {
+        double unscaledHeight = MapViewRenderer.getMinTablistOffset(); // / scaleFactor;
+        if (!MapCore.mapOptions.minimapAllowed || MapCore.mapOptions.mapCorner != 1 || !MapCore.mapOptions.moveScoreBoardDown || !Double.isFinite(unscaledHeight)) {
             return bottomX;
         }
         double scaleFactor = Minecraft.getInstance().getWindow().getGuiScale(); // 1x 2x 3x, ...
         double mapHeightScaled = unscaledHeight * 1.37 / scaleFactor; // * 1.37 because unscaledHeight is just the map without the text around it
 
         int fontHeight = Minecraft.getInstance().font.lineHeight; // height of the title line
-        float statusIconOffset = MinimapRenderer.getStatusIconOffset();
+        float statusIconOffset = MapViewRenderer.getStatusIconOffset();
         int statusIconOffsetInt = Float.isFinite(statusIconOffset) ? (int) statusIconOffset : 0;
         int minBottom = (int) (mapHeightScaled + entriesHeight + fontHeight + statusIconOffsetInt);
 
@@ -159,7 +159,7 @@ public final class LightMapConstants {
     }
 
     public static void setEvents(Events events) {
-        LightMapConstants.events = events;
+        MapViewConstants.events = events;
     }
 
     public static Events getEvents() {
@@ -171,11 +171,11 @@ public final class LightMapConstants {
     }
 
     public static void setPacketBridge(PacketBridge packetBridge) {
-        LightMapConstants.packetBridge = packetBridge;
+        MapViewConstants.packetBridge = packetBridge;
     }
 
     public static void setModApiBride(ModApiBridge modApiBridge) {
-        LightMapConstants.modApiBridge = modApiBridge;
+        MapViewConstants.modApiBridge = modApiBridge;
     }
 
     public static ModApiBridge getModApiBridge() {

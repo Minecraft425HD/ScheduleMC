@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.lightmap.util;
+package de.rolandsw.schedulemc.mapview.util;
 
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.core.registries.BuiltInRegistries;

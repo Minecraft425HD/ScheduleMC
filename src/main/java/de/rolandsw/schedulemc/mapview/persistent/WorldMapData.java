@@ -1,20 +1,20 @@
-package de.rolandsw.schedulemc.lightmap.persistent;
+package de.rolandsw.schedulemc.mapview.persistent;
 
-import de.rolandsw.schedulemc.lightmap.BlockColorCache;
-import de.rolandsw.schedulemc.lightmap.MinimapSettings;
-import de.rolandsw.schedulemc.lightmap.SettingsAndLightingChangeNotifier;
-import de.rolandsw.schedulemc.lightmap.LightMapConstants;
-import de.rolandsw.schedulemc.lightmap.LightMap;
-import de.rolandsw.schedulemc.lightmap.interfaces.AbstractMapData;
-import de.rolandsw.schedulemc.lightmap.interfaces.IChangeObserver;
-import de.rolandsw.schedulemc.lightmap.util.BiomeColors;
-import de.rolandsw.schedulemc.lightmap.util.BlockDatabase;
-import de.rolandsw.schedulemc.lightmap.util.ColorUtils;
-import de.rolandsw.schedulemc.lightmap.util.GameVariableAccessShim;
-import de.rolandsw.schedulemc.lightmap.util.ChunkCache;
-import de.rolandsw.schedulemc.lightmap.util.MinimapHelper;
-import de.rolandsw.schedulemc.lightmap.util.MutableBlockPos;
-import de.rolandsw.schedulemc.lightmap.util.TextUtils;
+import de.rolandsw.schedulemc.mapview.BlockColorCache;
+import de.rolandsw.schedulemc.mapview.MapConfiguration;
+import de.rolandsw.schedulemc.mapview.ConfigurationChangeNotifier;
+import de.rolandsw.schedulemc.mapview.MapViewConstants;
+import de.rolandsw.schedulemc.mapview.MapCore;
+import de.rolandsw.schedulemc.mapview.interfaces.AbstractMapData;
+import de.rolandsw.schedulemc.mapview.interfaces.IChangeObserver;
+import de.rolandsw.schedulemc.mapview.util.BiomeColors;
+import de.rolandsw.schedulemc.mapview.util.BlockDatabase;
+import de.rolandsw.schedulemc.mapview.util.ColorUtils;
+import de.rolandsw.schedulemc.mapview.util.GameVariableAccessShim;
+import de.rolandsw.schedulemc.mapview.util.ChunkCache;
+import de.rolandsw.schedulemc.mapview.util.MapViewHelper;
+import de.rolandsw.schedulemc.mapview.util.MutableBlockPos;
+import de.rolandsw.schedulemc.mapview.util.TextUtils;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,7 +28,7 @@ import java.util.stream.IntStream;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
-import de.rolandsw.schedulemc.lightmap.util.ARGBCompat;
+import de.rolandsw.schedulemc.mapview.util.ARGBCompat;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.biome.Biome;
@@ -48,7 +48,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 public class WorldMapData implements IChangeObserver {
     final MutableBlockPos blockPos = new MutableBlockPos(0, 0, 0);
     final BlockColorCache colorManager;
-    final MinimapSettings mapOptions;
+    final MapConfiguration mapOptions;
     WorldMapSettings options;
     final int[] lightmapColors;
     ClientLevel world;
@@ -83,9 +83,9 @@ public class WorldMapData implements IChangeObserver {
     private final ConcurrentLinkedQueue<ChunkWithAge> chunkUpdateQueue = new ConcurrentLinkedQueue<>();
 
     public WorldMapData() {
-        this.colorManager = LightMapConstants.getLightMapInstance().getColorManager();
-        mapOptions = LightMapConstants.getLightMapInstance().getMapOptions();
-        this.options = LightMapConstants.getLightMapInstance().getWorldMapDataOptions();
+        this.colorManager = MapViewConstants.getLightMapInstance().getColorManager();
+        mapOptions = MapViewConstants.getLightMapInstance().getMapOptions();
+        this.options = MapViewConstants.getLightMapInstance().getWorldMapDataOptions();
         this.lightmapColors = new int[256];
         Arrays.fill(this.lightmapColors, -16777216);
     }
@@ -100,13 +100,13 @@ public class WorldMapData implements IChangeObserver {
         if (world != null) {
             this.newWorldStuff();
         } else {
-            Thread pauseForSubworldNamesThread = new Thread(null, null, "LightMap Pause for Subworld Name Thread") {
+            Thread pauseForSubworldNamesThread = new Thread(null, null, "MapCore Pause for Subworld Name Thread") {
                 @Override
                 public void run() {
                     try {
                         Thread.sleep(2000L);
                     } catch (InterruptedException var2) {
-                        LightMapConstants.getLogger().error(var2);
+                        MapViewConstants.getLogger().error(var2);
                     }
 
                     if (WorldMapData.this.world != null) {
@@ -121,16 +121,16 @@ public class WorldMapData implements IChangeObserver {
     }
 
     private void newWorldStuff() {
-        String worldName = TextUtils.scrubNameFile(LightMapConstants.getLightMapInstance().getCurrentWorldName());
-        File oldCacheDir = new File(LightMapConstants.getMinecraft().gameDirectory, "/mods/lightmap/cache/" + worldName + "/");
+        String worldName = TextUtils.scrubNameFile(MapViewConstants.getLightMapInstance().getCurrentWorldName());
+        File oldCacheDir = new File(MapViewConstants.getMinecraft().gameDirectory, "/mods/mapview/cache/" + worldName + "/");
         if (oldCacheDir.exists() && oldCacheDir.isDirectory()) {
-            File newCacheDir = new File(LightMapConstants.getMinecraft().gameDirectory, "/lightmap/cache/" + worldName + "/");
+            File newCacheDir = new File(MapViewConstants.getMinecraft().gameDirectory, "/mapview/cache/" + worldName + "/");
             newCacheDir.getParentFile().mkdirs();
             boolean success = oldCacheDir.renameTo(newCacheDir);
             if (!success) {
-                LightMapConstants.getLogger().warn("Failed moving LightMap cache files.  Please move " + oldCacheDir.getPath() + " to " + newCacheDir.getPath());
+                MapViewConstants.getLogger().warn("Failed moving MapCore cache files.  Please move " + oldCacheDir.getPath() + " to " + newCacheDir.getPath());
             } else {
-                LightMapConstants.getLogger().warn("Moved LightMap cache files from " + oldCacheDir.getPath() + " to " + newCacheDir.getPath());
+                MapViewConstants.getLogger().warn("Moved MapCore cache files from " + oldCacheDir.getPath() + " to " + newCacheDir.getPath());
             }
         }
 
@@ -140,10 +140,10 @@ public class WorldMapData implements IChangeObserver {
     }
 
     public void onTick() {
-        if (LightMapConstants.getMinecraft().getCameraEntity() == null) {
+        if (MapViewConstants.getMinecraft().getCameraEntity() == null) {
             return;
         }
-        if (LightMapConstants.getMinecraft().screen == null) {
+        if (MapViewConstants.getMinecraft().screen == null) {
             this.options.mapX = GameVariableAccessShim.xCoord();
             this.options.mapZ = GameVariableAccessShim.zCoord();
         }
@@ -159,7 +159,7 @@ public class WorldMapData implements IChangeObserver {
             this.chunkCache.centerChunks(this.blockPos.withXYZ(GameVariableAccessShim.xCoord(), 0, GameVariableAccessShim.zCoord()));
             this.chunkCache.checkIfChunksBecameSurroundedByLoaded();
 
-            while (!this.chunkUpdateQueue.isEmpty() && Math.abs(LightMapConstants.getElapsedTicks() - this.chunkUpdateQueue.peek().tick) >= 20) {
+            while (!this.chunkUpdateQueue.isEmpty() && Math.abs(MapViewConstants.getElapsedTicks() - this.chunkUpdateQueue.peek().tick) >= 20) {
                 this.doProcessChunk(this.chunkUpdateQueue.remove().chunk);
             }
         }
@@ -191,8 +191,8 @@ public class WorldMapData implements IChangeObserver {
         }
     }
 
-    public SettingsAndLightingChangeNotifier getSettingsAndLightingChangeNotifier() {
-        return LightMapConstants.getLightMapInstance().getSettingsAndLightingChangeNotifier();
+    public ConfigurationChangeNotifier getSettingsAndLightingChangeNotifier() {
+        return MapViewConstants.getLightMapInstance().getSettingsAndLightingChangeNotifier();
     }
 
     public void setLightMapArray(int[] lights) {
@@ -594,7 +594,7 @@ public class WorldMapData implements IChangeObserver {
                 }
 
             }
-            return MinimapHelper.doSlimeAndGrid(ARGBCompat.toABGR(color24), world, mcX, mcZ);
+            return MapViewHelper.doSlimeAndGrid(ARGBCompat.toABGR(color24), world, mcX, mcZ);
         } else {
             return 0;
         }
@@ -724,7 +724,7 @@ public class WorldMapData implements IChangeObserver {
         } else {
             ThreadManager.emptyQueue();
             RegionCache[] visibleRegionCachesArray = new RegionCache[(right - left + 1) * (bottom - top + 1)];
-            String worldName = LightMapConstants.getLightMapInstance().getCurrentWorldName();
+            String worldName = MapViewConstants.getLightMapInstance().getCurrentWorldName();
             String subWorldName = "";
             List<RegionCoordinates> regionsToDisplay = new ArrayList<>();
 
@@ -824,8 +824,8 @@ public class WorldMapData implements IChangeObserver {
 
     @Override
     public void processChunk(LevelChunk chunk) {
-        if (LightMap.mapOptions.worldmapAllowed) {
-            this.chunkUpdateQueue.add(new ChunkWithAge(chunk, LightMapConstants.getElapsedTicks()));
+        if (MapCore.mapOptions.worldmapAllowed) {
+            this.chunkUpdateQueue.add(new ChunkWithAge(chunk, MapViewConstants.getElapsedTicks()));
         }
     }
 
@@ -850,7 +850,7 @@ public class WorldMapData implements IChangeObserver {
             synchronized (this.cachedRegions) {
                 cachedRegion = this.cachedRegions.get(key);
                 if (cachedRegion == null || cachedRegion == RegionCache.emptyRegion) {
-                    String worldName = LightMapConstants.getLightMapInstance().getCurrentWorldName();
+                    String worldName = MapViewConstants.getLightMapInstance().getCurrentWorldName();
                     String subWorldName = "";
                     cachedRegion = new RegionCache(this, key, this.world, worldName, subWorldName, regionX, regionZ);
                     this.cachedRegions.put(key, cachedRegion);
@@ -866,14 +866,14 @@ public class WorldMapData implements IChangeObserver {
                 }
             }
 
-            if (LightMapConstants.getMinecraft().screen != null && LightMapConstants.getMinecraft().screen instanceof WorldMapScreen) {
+            if (MapViewConstants.getMinecraft().screen != null && MapViewConstants.getMinecraft().screen instanceof WorldMapScreen) {
                 cachedRegion.registerChangeAt(chunkX, chunkZ);
                 cachedRegion.refresh(false);
             } else {
                 cachedRegion.handleChangedChunk(chunk);
             }
         } catch (Exception var19) {
-            LightMapConstants.getLogger().error(var19.getMessage(), var19);
+            MapViewConstants.getLogger().error(var19.getMessage(), var19);
         }
 
     }
@@ -908,20 +908,20 @@ public class WorldMapData implements IChangeObserver {
         int z = (int) Math.floor(blockZ / 256.0F);
         RegionCache cachedRegion = this.cachedRegions.get(x + "," + z);
         if (cachedRegion == null) {
-            LightMapConstants.getLogger().info("No Region " + x + "," + z + " at " + blockX + "," + blockZ);
+            MapViewConstants.getLogger().info("No Region " + x + "," + z + " at " + blockX + "," + blockZ);
         } else {
-            LightMapConstants.getLogger().info("Info for region " + x + "," + z + " block " + blockX + "," + blockZ);
+            MapViewConstants.getLogger().info("Info for region " + x + "," + z + " block " + blockX + "," + blockZ);
             int localx = blockX - x * 256;
             int localz = blockZ - z * 256;
             CompressedMapData data = cachedRegion.getMapData();
             if (data == null) {
-                LightMapConstants.getLogger().info("  No map data!");
+                MapViewConstants.getLogger().info("  No map data!");
             } else {
-                LightMapConstants.getLogger().info("  Base: " + data.getHeight(localx, localz) + " Block: " + data.getBlockstate(localx, localz) + " Light: " + Integer.toHexString(data.getLight(localx, localz)));
-                LightMapConstants.getLogger().info("  Foilage: " + data.getFoliageHeight(localx, localz) + " Block: " + data.getFoliageBlockstate(localx, localz) + " Light: " + Integer.toHexString(data.getFoliageLight(localx, localz)));
-                LightMapConstants.getLogger().info("  Ocean Floor: " + data.getOceanFloorHeight(localx, localz) + " Block: " + data.getOceanFloorBlockstate(localx, localz) + " Light: " + Integer.toHexString(data.getOceanFloorLight(localx, localz)));
-                LightMapConstants.getLogger().info("  Transparent: " + data.getTransparentHeight(localx, localz) + " Block: " + data.getTransparentBlockstate(localx, localz) + " Light: " + Integer.toHexString(data.getTransparentLight(localx, localz)));
-                LightMapConstants.getLogger().info("  Biome: " + world.registryAccess().registryOrThrow(Registries.BIOME).getKey(data.getBiome(localx, localz)) + " (" + data.getBiomeId(localx, localz) + ")");
+                MapViewConstants.getLogger().info("  Base: " + data.getHeight(localx, localz) + " Block: " + data.getBlockstate(localx, localz) + " Light: " + Integer.toHexString(data.getLight(localx, localz)));
+                MapViewConstants.getLogger().info("  Foilage: " + data.getFoliageHeight(localx, localz) + " Block: " + data.getFoliageBlockstate(localx, localz) + " Light: " + Integer.toHexString(data.getFoliageLight(localx, localz)));
+                MapViewConstants.getLogger().info("  Ocean Floor: " + data.getOceanFloorHeight(localx, localz) + " Block: " + data.getOceanFloorBlockstate(localx, localz) + " Light: " + Integer.toHexString(data.getOceanFloorLight(localx, localz)));
+                MapViewConstants.getLogger().info("  Transparent: " + data.getTransparentHeight(localx, localz) + " Block: " + data.getTransparentBlockstate(localx, localz) + " Light: " + Integer.toHexString(data.getTransparentLight(localx, localz)));
+                MapViewConstants.getLogger().info("  Biome: " + world.registryAccess().registryOrThrow(Registries.BIOME).getKey(data.getBiome(localx, localz)) + " (" + data.getBiomeId(localx, localz) + ")");
             }
         }
     }

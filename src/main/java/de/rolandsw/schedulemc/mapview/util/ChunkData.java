@@ -1,8 +1,8 @@
-package de.rolandsw.schedulemc.lightmap.util;
+package de.rolandsw.schedulemc.mapview.util;
 
-import de.rolandsw.schedulemc.lightmap.DebugRenderState;
-import de.rolandsw.schedulemc.lightmap.LightMapConstants;
-import de.rolandsw.schedulemc.lightmap.interfaces.IChangeObserver;
+import de.rolandsw.schedulemc.mapview.DebugRenderState;
+import de.rolandsw.schedulemc.mapview.MapViewConstants;
+import de.rolandsw.schedulemc.mapview.interfaces.IChangeObserver;
 import net.minecraft.world.level.chunk.LevelChunk;
 
 public class ChunkData {
@@ -16,8 +16,8 @@ public class ChunkData {
     public ChunkData(int x, int z) {
         this.x = x;
         this.z = z;
-        this.chunk = LightMapConstants.getPlayer().level().getChunk(x, z);
-        this.isLoaded = this.chunk != null && !this.chunk.isEmpty() && LightMapConstants.getPlayer().level().hasChunk(x, z);
+        this.chunk = MapViewConstants.getPlayer().level().getChunk(x, z);
+        this.isLoaded = this.chunk != null && !this.chunk.isEmpty() && MapViewConstants.getPlayer().level().hasChunk(x, z);
         this.isSurroundedByLoaded = false;
         this.isChanged = true;
     }
@@ -36,12 +36,12 @@ public class ChunkData {
     private boolean hasChunkLoadedOrUnloaded() {
         boolean hasChanged = false;
         if (!this.isLoaded) {
-            this.chunk = LightMapConstants.getPlayer().level().getChunk(this.x, this.z);
-            if (this.chunk != null && !this.chunk.isEmpty() && LightMapConstants.getPlayer().level().hasChunk(this.x, this.z)) {
+            this.chunk = MapViewConstants.getPlayer().level().getChunk(this.x, this.z);
+            if (this.chunk != null && !this.chunk.isEmpty() && MapViewConstants.getPlayer().level().hasChunk(this.x, this.z)) {
                 this.isLoaded = true;
                 hasChanged = true;
             }
-        } else if (this.chunk == null || this.chunk.isEmpty() || !LightMapConstants.getPlayer().level().hasChunk(this.x, this.z)) {
+        } else if (this.chunk == null || this.chunk.isEmpty() || !MapViewConstants.getPlayer().level().hasChunk(this.x, this.z)) {
             this.isLoaded = false;
             hasChanged = true;
         }
@@ -50,8 +50,8 @@ public class ChunkData {
     }
 
     public void checkIfChunkBecameSurroundedByLoaded(IChangeObserver changeObserver) {
-        this.chunk = LightMapConstants.getPlayer().level().getChunk(this.x, this.z);
-        this.isLoaded = this.chunk != null && !this.chunk.isEmpty() && LightMapConstants.getPlayer().level().hasChunk(this.x, this.z);
+        this.chunk = MapViewConstants.getPlayer().level().getChunk(this.x, this.z);
+        this.isLoaded = this.chunk != null && !this.chunk.isEmpty() && MapViewConstants.getPlayer().level().hasChunk(this.x, this.z);
         if (this.isLoaded) {
             boolean formerSurroundedByLoaded = this.isSurroundedByLoaded;
             this.isSurroundedByLoaded = this.isSurroundedByLoaded();
@@ -65,14 +65,14 @@ public class ChunkData {
     }
 
     public boolean isSurroundedByLoaded() {
-        this.chunk = LightMapConstants.getPlayer().level().getChunk(this.x, this.z);
-        this.isLoaded = this.chunk != null && !this.chunk.isEmpty() && LightMapConstants.getPlayer().level().hasChunk(this.x, this.z);
+        this.chunk = MapViewConstants.getPlayer().level().getChunk(this.x, this.z);
+        this.isLoaded = this.chunk != null && !this.chunk.isEmpty() && MapViewConstants.getPlayer().level().hasChunk(this.x, this.z);
         boolean neighborsLoaded = this.isLoaded;
 
         for (int t = this.x - 1; t <= this.x + 1 && neighborsLoaded; ++t) {
             for (int s = this.z - 1; s <= this.z + 1 && neighborsLoaded; ++s) {
-                LevelChunk neighborChunk = LightMapConstants.getPlayer().level().getChunk(t, s);
-                neighborsLoaded = neighborChunk != null && !neighborChunk.isEmpty() && LightMapConstants.getPlayer().level().hasChunk(t, s);
+                LevelChunk neighborChunk = MapViewConstants.getPlayer().level().getChunk(t, s);
+                neighborsLoaded = neighborChunk != null && !neighborChunk.isEmpty() && MapViewConstants.getPlayer().level().hasChunk(t, s);
             }
         }
 

@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.lightmap.mixins;
+package de.rolandsw.schedulemc.mapview.mixins;
 
 // The model is likely a nested class or doesn't exist with this structure
 // Entity rendering is disabled for now, so this accessor is not needed

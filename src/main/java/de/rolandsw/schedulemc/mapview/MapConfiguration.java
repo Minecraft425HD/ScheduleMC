@@ -1,9 +1,9 @@
-package de.rolandsw.schedulemc.lightmap;
+package de.rolandsw.schedulemc.mapview;
 
-import de.rolandsw.schedulemc.lightmap.gui.overridden.EnumOptionsMinimap;
-import de.rolandsw.schedulemc.lightmap.interfaces.ISettingsManager;
-import de.rolandsw.schedulemc.lightmap.interfaces.ISubSettingsManager;
-import de.rolandsw.schedulemc.lightmap.util.MessageUtils;
+import de.rolandsw.schedulemc.mapview.gui.overridden.EnumOptionsMapView;
+import de.rolandsw.schedulemc.mapview.interfaces.ISettingsManager;
+import de.rolandsw.schedulemc.mapview.interfaces.ISubSettingsManager;
+import de.rolandsw.schedulemc.mapview.util.MessageUtils;
 import com.mojang.blaze3d.platform.InputConstants;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -23,7 +23,7 @@ import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
-public class MinimapSettings implements ISettingsManager {
+public class MapConfiguration implements ISettingsManager {
     private File settingsFile;
     public boolean showUnderMenus;
     private final int availableProcessors = Runtime.getRuntime().availableProcessors();
@@ -57,19 +57,19 @@ public class MinimapSettings implements ISettingsManager {
     public KeyMapping keyBindMenu;
     public final KeyMapping[] keyBindings;
     private boolean somethingChanged;
-    public static MinimapSettings instance;
+    public static MapConfiguration instance;
     private final List<ISubSettingsManager> subSettingsManagers = new ArrayList<>();
 
     public String teleportCommand = "tp %p %x %y %z";
     public String serverTeleportCommand;
 
-    public MinimapSettings() {
+    public MapConfiguration() {
         instance = this;
-        String category = "key.categories.lightmap";
+        String category = "key.categories.mapview";
 
-        keyBindZoom = new KeyMapping("key.minimap.zoom", InputConstants.getKey("key.keyboard.z").getValue(), category);
-        keyBindFullscreen = new KeyMapping("key.minimap.toggleFullscreen", InputConstants.getKey("key.keyboard.x").getValue(), category);
-        keyBindMenu = new KeyMapping("key.minimap.lightmapMenu", InputConstants.getKey("key.keyboard.m").getValue(), category);
+        keyBindZoom = new KeyMapping("key.mapview.zoom", InputConstants.getKey("key.keyboard.z").getValue(), category);
+        keyBindFullscreen = new KeyMapping("key.mapview.toggleFullscreen", InputConstants.getKey("key.keyboard.x").getValue(), category);
+        keyBindMenu = new KeyMapping("key.mapview.menu", InputConstants.getKey("key.keyboard.m").getValue(), category);
 
         this.keyBindings = new KeyMapping[]{this.keyBindMenu, this.keyBindZoom, this.keyBindFullscreen};
     }
@@ -79,7 +79,7 @@ public class MinimapSettings implements ISettingsManager {
     }
 
     public void loadAll() {
-        this.settingsFile = new File(LightMapConstants.getMinecraft().gameDirectory, "config/lightmap.properties");
+        this.settingsFile = new File(MapViewConstants.getMinecraft().gameDirectory, "config/mapview.properties");
 
         try {
             if (this.settingsFile.exists()) {
@@ -90,8 +90,8 @@ public class MinimapSettings implements ISettingsManager {
                     switch (curLine[0]) {
                         case "Zoom Level" -> this.zoom = Math.max(0, Math.min(4, Integer.parseInt(curLine[1])));
                         case "Old North" -> this.oldNorth = Boolean.parseBoolean(curLine[1]);
-                        case "MinimapRenderer Corner" -> this.mapCorner = Math.max(0, Math.min(3, Integer.parseInt(curLine[1])));
-                        case "MinimapRenderer Size" -> this.sizeModifier = Math.max(-1, Math.min(4, Integer.parseInt(curLine[1])));
+                        case "MapViewRenderer Corner" -> this.mapCorner = Math.max(0, Math.min(3, Integer.parseInt(curLine[1])));
+                        case "MapViewRenderer Size" -> this.sizeModifier = Math.max(-1, Math.min(4, Integer.parseInt(curLine[1])));
                         case "Zoom Key" -> this.bindKey(this.keyBindZoom, curLine[1]);
                         case "Fullscreen Key" -> this.bindKey(this.keyBindFullscreen, curLine[1]);
                         case "Menu Key" -> this.bindKey(this.keyBindMenu, curLine[1]);
@@ -107,7 +107,7 @@ public class MinimapSettings implements ISettingsManager {
 
             this.saveAll();
         } catch (IOException exception) {
-            LightMapConstants.getLogger().error(exception);
+            MapViewConstants.getLogger().error(exception);
         }
 
     }
@@ -116,25 +116,25 @@ public class MinimapSettings implements ISettingsManager {
         try {
             keyBinding.setKey(InputConstants.getKey(id));
         } catch (RuntimeException var4) {
-            LightMapConstants.getLogger().warn(id + " is not a valid keybinding");
+            MapViewConstants.getLogger().warn(id + " is not a valid keybinding");
         }
 
     }
 
     public void saveAll() {
-        File settingsFileDir = new File(LightMapConstants.getMinecraft().gameDirectory, "/config/");
+        File settingsFileDir = new File(MapViewConstants.getMinecraft().gameDirectory, "/config/");
         if (!settingsFileDir.exists()) {
             settingsFileDir.mkdirs();
         }
 
-        this.settingsFile = new File(settingsFileDir, "lightmap.properties");
+        this.settingsFile = new File(settingsFileDir, "mapview.properties");
 
         try {
             PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(this.settingsFile), StandardCharsets.UTF_8.newEncoder())));
             out.println("Zoom Level:" + this.zoom);
             out.println("Old North:" + this.oldNorth);
-            out.println("MinimapRenderer Corner:" + this.mapCorner);
-            out.println("MinimapRenderer Size:" + this.sizeModifier);
+            out.println("MapViewRenderer Corner:" + this.mapCorner);
+            out.println("MapViewRenderer Size:" + this.sizeModifier);
             out.println("Zoom Key:" + this.keyBindZoom.saveString());
             out.println("Fullscreen Key:" + this.keyBindFullscreen.saveString());
             out.println("Menu Key:" + this.keyBindMenu.saveString());
@@ -150,11 +150,11 @@ public class MinimapSettings implements ISettingsManager {
     }
 
     @Override
-    public String getKeyText(EnumOptionsMinimap options) {
+    public String getKeyText(EnumOptionsMapView options) {
         String s = I18n.get(options.getName()) + ": ";
         if (options.isFloat()) {
             float f = this.getOptionFloatValue(options);
-            if (options == EnumOptionsMinimap.ZOOM) {
+            if (options == EnumOptionsMapView.ZOOM) {
                 return s + (int) f;
             } else {
                 return f == 0.0F ? s + I18n.get("options.off") : s + (int) f + "%";
@@ -171,22 +171,22 @@ public class MinimapSettings implements ISettingsManager {
     }
 
     @Override
-    public float getOptionFloatValue(EnumOptionsMinimap options) {
-        if (options == EnumOptionsMinimap.ZOOM) {
+    public float getOptionFloatValue(EnumOptionsMapView options) {
+        if (options == EnumOptionsMapView.ZOOM) {
             return this.zoom;
         } else {
             return 0.0F;
         }
     }
 
-    public boolean getOptionBooleanValue(EnumOptionsMinimap par1EnumOptions) {
+    public boolean getOptionBooleanValue(EnumOptionsMapView par1EnumOptions) {
         return switch (par1EnumOptions) {
             case OLD_NORTH -> this.oldNorth;
             default -> throw new IllegalArgumentException("Add code to handle EnumOptionMinimap: " + par1EnumOptions.getName() + ". (possibly not a boolean applicable to minimap)");
         };
     }
 
-    public String getOptionListValue(EnumOptionsMinimap par1EnumOptions) {
+    public String getOptionListValue(EnumOptionsMapView par1EnumOptions) {
         switch (par1EnumOptions) {
             case LOCATION -> {
                 if (this.mapCorner == 0) {
@@ -228,11 +228,11 @@ public class MinimapSettings implements ISettingsManager {
     }
 
     @Override
-    public void setOptionFloatValue(EnumOptionsMinimap options, float value) {
+    public void setOptionFloatValue(EnumOptionsMapView options, float value) {
         this.somethingChanged = true;
     }
 
-    public void setOptionValue(EnumOptionsMinimap par1EnumOptions) {
+    public void setOptionValue(EnumOptionsMapView par1EnumOptions) {
         switch (par1EnumOptions) {
             case OLD_NORTH -> this.oldNorth = !this.oldNorth;
             case LOCATION -> this.mapCorner = this.mapCorner >= 3 ? 0 : this.mapCorner + 1;
@@ -245,7 +245,7 @@ public class MinimapSettings implements ISettingsManager {
     }
 
     public String getKeyBindingDescription(int keybindIndex) {
-        return this.keyBindings[keybindIndex].getName().equals("key.minimap.lightmapMenu") ? I18n.get("key.minimap.menu") : I18n.get(this.keyBindings[keybindIndex].getName());
+        return this.keyBindings[keybindIndex].getName().equals("key.mapview.menu") ? I18n.get("key.mapview.menu") : I18n.get(this.keyBindings[keybindIndex].getName());
     }
 
     public Component getKeybindDisplayString(int keybindIndex) {

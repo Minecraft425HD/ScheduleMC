@@ -1,16 +1,16 @@
-package de.rolandsw.schedulemc.lightmap.persistent;
+package de.rolandsw.schedulemc.mapview.persistent;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import de.rolandsw.schedulemc.lightmap.SettingsAndLightingChangeNotifier;
-import de.rolandsw.schedulemc.lightmap.LightMapConstants;
-import de.rolandsw.schedulemc.lightmap.util.BiomeParser;
-import de.rolandsw.schedulemc.lightmap.util.BlockStateParser;
-import de.rolandsw.schedulemc.lightmap.util.GameVariableAccessShim;
-import de.rolandsw.schedulemc.lightmap.util.HeightUtils;
-import de.rolandsw.schedulemc.lightmap.util.MutableBlockPos;
-import de.rolandsw.schedulemc.lightmap.util.ReflectionUtils;
-import de.rolandsw.schedulemc.lightmap.util.TextUtils;
+import de.rolandsw.schedulemc.mapview.ConfigurationChangeNotifier;
+import de.rolandsw.schedulemc.mapview.MapViewConstants;
+import de.rolandsw.schedulemc.mapview.util.BiomeParser;
+import de.rolandsw.schedulemc.mapview.util.BlockStateParser;
+import de.rolandsw.schedulemc.mapview.util.GameVariableAccessShim;
+import de.rolandsw.schedulemc.mapview.util.HeightUtils;
+import de.rolandsw.schedulemc.mapview.util.MutableBlockPos;
+import de.rolandsw.schedulemc.mapview.util.ReflectionUtils;
+import de.rolandsw.schedulemc.mapview.util.TextUtils;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.File;
@@ -110,22 +110,22 @@ public class RegionCache {
             this.subworldNamePathPart = TextUtils.scrubNameFile(subworldName) + "/";
         }
 
-        String dimensionName = LightMapConstants.getLightMapInstance().getDimensionManager().getDimensionContainerByWorld(world).getStorageName();
+        String dimensionName = MapViewConstants.getLightMapInstance().getDimensionManager().getDimensionContainerByWorld(world).getStorageName();
         this.dimensionNamePathPart = TextUtils.scrubNameFile(dimensionName);
         boolean knownUnderground;
         knownUnderground = dimensionName.toLowerCase().contains("erebus");
         this.underground = !world.dimensionType().hasSkyLight() || world.dimensionType().hasCeiling() || knownUnderground;
-        this.remoteWorld = !LightMapConstants.getMinecraft().hasSingleplayerServer();
+        this.remoteWorld = !MapViewConstants.getMinecraft().hasSingleplayerServer();
         persistentMap.getSettingsAndLightingChangeNotifier().addObserver(this);
         this.x = x;
         this.z = z;
         if (!this.remoteWorld) {
-            Optional<net.minecraft.world.level.Level> optionalWorld = LightMapConstants.getWorldByKey(world.dimension());
+            Optional<net.minecraft.world.level.Level> optionalWorld = MapViewConstants.getWorldByKey(world.dimension());
 
             if (optionalWorld.isEmpty()) {
                 String error = "Attempted to fetch World, but none was found!";
 
-                LightMapConstants.getLogger().fatal(error);
+                MapViewConstants.getLogger().fatal(error);
                 throw new IllegalStateException(error);
             }
 
@@ -167,7 +167,7 @@ public class RegionCache {
         this.liveChunkUpdateQueued[index] = true;
     }
 
-    public void notifyOfActionableChange(SettingsAndLightingChangeNotifier notifier) {
+    public void notifyOfActionableChange(ConfigurationChangeNotifier notifier) {
         this.displayOptionsChanged = true;
     }
 
@@ -280,12 +280,12 @@ public class RegionCache {
     public boolean isSurroundedByLoaded(LevelChunk chunk) {
         int chunkX = chunk.getPos().x;
         int chunkZ = chunk.getPos().z;
-        boolean neighborsLoaded = !chunk.isEmpty() && LightMapConstants.getPlayer().level().hasChunk(chunkX, chunkZ);
+        boolean neighborsLoaded = !chunk.isEmpty() && MapViewConstants.getPlayer().level().hasChunk(chunkX, chunkZ);
 
         for (int t = chunkX - 1; t <= chunkX + 1 && neighborsLoaded; ++t) {
             for (int s = chunkZ - 1; s <= chunkZ + 1 && neighborsLoaded; ++s) {
-                LevelChunk neighborChunk = LightMapConstants.getPlayer().level().getChunk(t, s);
-                neighborsLoaded = neighborChunk != null && !neighborChunk.isEmpty() && LightMapConstants.getPlayer().level().hasChunk(t, s);
+                LevelChunk neighborChunk = MapViewConstants.getPlayer().level().getChunk(t, s);
+                neighborsLoaded = neighborChunk != null && !neighborChunk.isEmpty() && MapViewConstants.getPlayer().level().hasChunk(t, s);
             }
         }
 
@@ -319,7 +319,7 @@ public class RegionCache {
                     try {
                         synchronized (anvilLock) {
                             if (debug) {
-                                LightMapConstants.getLogger().warn(Thread.currentThread().getName() + " starting load");
+                                MapViewConstants.getLogger().warn(Thread.currentThread().getName() + " starting load");
                             }
 
                             long loadTime = System.currentTimeMillis();
@@ -370,12 +370,12 @@ public class RegionCache {
 
                             loadFuture.cancel(false);
                             if (debug) {
-                                LightMapConstants.getLogger().warn(Thread.currentThread().getName() + " finished load after " + (System.currentTimeMillis() - loadTime) + " milliseconds");
+                                MapViewConstants.getLogger().warn(Thread.currentThread().getName() + " finished load after " + (System.currentTimeMillis() - loadTime) + " milliseconds");
                             }
                         }
 
                         if (debug) {
-                            LightMapConstants.getLogger().warn(Thread.currentThread().getName() + " starting calculation");
+                            MapViewConstants.getLogger().warn(Thread.currentThread().getName() + " starting calculation");
                         }
 
                         long calcTime = System.currentTimeMillis();
@@ -390,7 +390,7 @@ public class RegionCache {
                                     if (chunks[index] instanceof LevelChunk) {
                                         loadedChunk = (LevelChunk) chunks[index];
                                     } else {
-                                        LightMapConstants.getLogger().warn("non world chunk at " + chunks[index].getPos().x + "," + chunks[index].getPos().z);
+                                        MapViewConstants.getLogger().warn("non world chunk at " + chunks[index].getPos().x + "," + chunks[index].getPos().z);
                                     }
 
                                     if (!this.closed && loadedChunk != null && loadedChunk.getStatus().isOrAfter(ChunkStatus.FULL)) {
@@ -413,10 +413,10 @@ public class RegionCache {
                         }
 
                         if (debug) {
-                            LightMapConstants.getLogger().warn(Thread.currentThread().getName() + " finished calculating after " + (System.currentTimeMillis() - calcTime) + " milliseconds");
+                            MapViewConstants.getLogger().warn(Thread.currentThread().getName() + " finished calculating after " + (System.currentTimeMillis() - calcTime) + " milliseconds");
                         }
                     } catch (Exception var41) {
-                        LightMapConstants.getLogger().warn("error in anvil loading");
+                        MapViewConstants.getLogger().warn("error in anvil loading");
                     } finally {
                         tickLock.readLock().unlock();
                     }
@@ -433,7 +433,7 @@ public class RegionCache {
                             CompletableFuture<Void> tickFuture = CompletableFuture.runAsync(() -> this.chunkProvider.tick(() -> true, executor.isSameThread()));
                             long tickTime = System.currentTimeMillis();
                             if (debug) {
-                                LightMapConstants.getLogger().warn(Thread.currentThread().getName() + " starting chunk GC tick");
+                                MapViewConstants.getLogger().warn(Thread.currentThread().getName() + " starting chunk GC tick");
                             }
 
                             while (!this.closed && !tickFuture.isDone()) {
@@ -441,10 +441,10 @@ public class RegionCache {
                             }
 
                             if (debug) {
-                                LightMapConstants.getLogger().warn(Thread.currentThread().getName() + " finished chunk GC tick after " + (System.currentTimeMillis() - tickTime) + " milliseconds");
+                                MapViewConstants.getLogger().warn(Thread.currentThread().getName() + " finished chunk GC tick after " + (System.currentTimeMillis() - tickTime) + " milliseconds");
                             }
                         } catch (RuntimeException var38) {
-                            LightMapConstants.getLogger().warn("error ticking from anvil loading");
+                            MapViewConstants.getLogger().warn("error ticking from anvil loading");
                         } finally {
                             tickLock.writeLock().unlock();
                         }
@@ -457,7 +457,7 @@ public class RegionCache {
 
     private void loadCachedData() {
         try {
-            File cachedRegionFileDir = new File(LightMapConstants.getMinecraft().gameDirectory, "/lightmap/cache/" + this.worldNamePathPart + "/" + this.subworldNamePathPart + this.dimensionNamePathPart);
+            File cachedRegionFileDir = new File(MapViewConstants.getMinecraft().gameDirectory, "/mapview/cache/" + this.worldNamePathPart + "/" + this.subworldNamePathPart + this.dimensionNamePathPart);
             cachedRegionFileDir.mkdirs();
             File cachedRegionFile = new File(cachedRegionFileDir, "/" + this.key + ".zip");
             if (cachedRegionFile.exists()) {
@@ -515,7 +515,7 @@ public class RegionCache {
                     this.empty = false;
                     this.dataUpdated = true;
                 } else {
-                    LightMapConstants.getLogger().warn("failed to load data from " + cachedRegionFile.getPath());
+                    MapViewConstants.getLogger().warn("failed to load data from " + cachedRegionFile.getPath());
                 }
 
                 if (version < 2) {
@@ -523,7 +523,7 @@ public class RegionCache {
                 }
             }
         } catch (Exception ex) {
-            LightMapConstants.getLogger().error("Failed to load region file for " + this.x + "," + this.z + " in " + this.worldNamePathPart + "/" + this.subworldNamePathPart + this.dimensionNamePathPart, ex);
+            MapViewConstants.getLogger().error("Failed to load region file for " + this.x + "," + this.z + " in " + this.worldNamePathPart + "/" + this.subworldNamePathPart + this.dimensionNamePathPart, ex);
         }
 
     }
@@ -532,20 +532,20 @@ public class RegionCache {
         if (this.liveChunksUpdated && !this.worldNamePathPart.isEmpty()) {
             if (newThread) {
                 ThreadManager.saveExecutorService.execute(() -> {
-                    if (LightMapConstants.DEBUG) {
-                        LightMapConstants.getLogger().info("Saving region file for " + RegionCache.this.x + "," + RegionCache.this.z + " in " + RegionCache.this.worldNamePathPart + "/" + RegionCache.this.subworldNamePathPart + RegionCache.this.dimensionNamePathPart);
+                    if (MapViewConstants.DEBUG) {
+                        MapViewConstants.getLogger().info("Saving region file for " + RegionCache.this.x + "," + RegionCache.this.z + " in " + RegionCache.this.worldNamePathPart + "/" + RegionCache.this.subworldNamePathPart + RegionCache.this.dimensionNamePathPart);
                     }
                     RegionCache.this.threadLock.lock();
 
                     try {
                         RegionCache.this.doSave();
                     } catch (Exception ex) {
-                        LightMapConstants.getLogger().error("Failed to save region file for " + RegionCache.this.x + "," + RegionCache.this.z + " in " + RegionCache.this.worldNamePathPart + "/" + RegionCache.this.subworldNamePathPart + RegionCache.this.dimensionNamePathPart, ex);
+                        MapViewConstants.getLogger().error("Failed to save region file for " + RegionCache.this.x + "," + RegionCache.this.z + " in " + RegionCache.this.worldNamePathPart + "/" + RegionCache.this.subworldNamePathPart + RegionCache.this.dimensionNamePathPart, ex);
                     } finally {
                         RegionCache.this.threadLock.unlock();
                     }
-                    if (LightMapConstants.DEBUG) {
-                        LightMapConstants.getLogger().info("Finished saving region file for " + RegionCache.this.x + "," + RegionCache.this.z + " in " + RegionCache.this.worldNamePathPart + "/" + RegionCache.this.subworldNamePathPart + RegionCache.this.dimensionNamePathPart + " ("
+                    if (MapViewConstants.DEBUG) {
+                        MapViewConstants.getLogger().info("Finished saving region file for " + RegionCache.this.x + "," + RegionCache.this.z + " in " + RegionCache.this.worldNamePathPart + "/" + RegionCache.this.subworldNamePathPart + RegionCache.this.dimensionNamePathPart + " ("
                                 + ThreadManager.saveExecutorService.getQueue().size() + ")");
                     }
                 });
@@ -553,7 +553,7 @@ public class RegionCache {
                 try {
                     this.doSave();
                 } catch (Exception ex) {
-                    LightMapConstants.getLogger().error(ex);
+                    MapViewConstants.getLogger().error(ex);
                 }
             }
 
@@ -567,7 +567,7 @@ public class RegionCache {
         BiMap<Biome, Integer> biomeToInt = this.data.getBiomeToInt();
         byte[] byteArray = this.data.getData();
         if (byteArray.length == this.data.getExpectedDataLength(CompressedMapData.DATA_VERSION)) {
-            File cachedRegionFileDir = new File(LightMapConstants.getMinecraft().gameDirectory, "/lightmap/cache/" + this.worldNamePathPart + "/" + this.subworldNamePathPart + this.dimensionNamePathPart);
+            File cachedRegionFileDir = new File(MapViewConstants.getMinecraft().gameDirectory, "/mapview/cache/" + this.worldNamePathPart + "/" + this.subworldNamePathPart + this.dimensionNamePathPart);
             cachedRegionFileDir.mkdirs();
             File cachedRegionFile = new File(cachedRegionFileDir, "/" + this.key + ".zip");
             FileOutputStream fos = new FileOutputStream(cachedRegionFile);
@@ -600,7 +600,7 @@ public class RegionCache {
                         String nextLine = entry.getValue() + " " + world.registryAccess().registryOrThrow(Registries.BIOME).getKey(entry.getKey()).toString() + "\r\n";
                         stringBuffer.append(nextLine);
                     } catch (NullPointerException ex) {
-                        LightMapConstants.getLogger().warn("Nullpointer for Biome: " + entry.getValue() + " at " + this.x + "," + this.z + " in " + this.worldNamePathPart + "/" + this.subworldNamePathPart + this.dimensionNamePathPart);
+                        MapViewConstants.getLogger().warn("Nullpointer for Biome: " + entry.getValue() + " at " + this.x + "," + this.z + " in " + this.worldNamePathPart + "/" + this.subworldNamePathPart + this.dimensionNamePathPart);
                     }
                 }
 
@@ -622,7 +622,7 @@ public class RegionCache {
             zos.close();
             fos.close();
         } else {
-            LightMapConstants.getLogger().warn("Data array wrong size: " + byteArray.length + "for " + this.x + "," + this.z + " in " + this.worldNamePathPart + "/" + this.subworldNamePathPart + this.dimensionNamePathPart);
+            MapViewConstants.getLogger().warn("Data array wrong size: " + byteArray.length + "for " + this.x + "," + this.z + " in " + this.worldNamePathPart + "/" + this.subworldNamePathPart + this.dimensionNamePathPart);
         }
 
     }
@@ -638,7 +638,7 @@ public class RegionCache {
 
     private void saveImage() {
         if (!this.empty) {
-            File imageFileDir = new File(LightMapConstants.getMinecraft().gameDirectory, "/lightmap/cache/" + this.worldNamePathPart + "/" + this.subworldNamePathPart + this.dimensionNamePathPart + "/images/z1");
+            File imageFileDir = new File(MapViewConstants.getMinecraft().gameDirectory, "/mapview/cache/" + this.worldNamePathPart + "/" + this.subworldNamePathPart + this.dimensionNamePathPart + "/images/z1");
             imageFileDir.mkdirs();
             final File imageFile = new File(imageFileDir, this.key + ".png");
             if (this.liveChunksUpdated || !imageFile.exists()) {
@@ -651,7 +651,7 @@ public class RegionCache {
                         System.arraycopy(RegionCache.this.image.getData(), 0, dstArray, 0, this.image.getData().length);
                         ImageIO.write(realBufferedImage, "png", imageFile);
                     } catch (IOException var6) {
-                        LightMapConstants.getLogger().error(var6);
+                        MapViewConstants.getLogger().error(var6);
                     } finally {
                         this.threadLock.unlock();
                     }
@@ -800,7 +800,7 @@ public class RegionCache {
                 int chunkZ = this.chunk.getPos().z - RegionCache.this.z * 16;
                 RegionCache.this.loadChunkData(this.chunk, chunkX, chunkZ);
             } catch (Exception ex) {
-                LightMapConstants.getLogger().log(Level.ERROR, "Error in FillChunkRunnable", ex);
+                MapViewConstants.getLogger().log(Level.ERROR, "Error in FillChunkRunnable", ex);
             } finally {
                 RegionCache.this.threadLock.unlock();
                 RegionCache.this.chunkUpdateQueued[this.index] = false;
@@ -843,7 +843,7 @@ public class RegionCache {
                     RegionCache.this.compressData();
                 }
             } catch (Exception var8) {
-                LightMapConstants.getLogger().error("Exception loading region: " + var8.getLocalizedMessage(), var8);
+                MapViewConstants.getLogger().error("Exception loading region: " + var8.getLocalizedMessage(), var8);
             } finally {
                 RegionCache.this.threadLock.unlock();
                 RegionCache.this.refreshQueued = false;

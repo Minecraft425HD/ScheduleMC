@@ -1,7 +1,7 @@
-package de.rolandsw.schedulemc.lightmap.forge;
+package de.rolandsw.schedulemc.mapview.forge;
 
-import de.rolandsw.schedulemc.lightmap.PacketBridge;
-import de.rolandsw.schedulemc.lightmap.packets.WorldIdC2S;
+import de.rolandsw.schedulemc.mapview.PacketBridge;
+import de.rolandsw.schedulemc.mapview.packets.WorldIdC2S;
 
 public class ForgePacketBridge implements PacketBridge {
     @Override

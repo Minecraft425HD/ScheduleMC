@@ -1,6 +1,6 @@
-package de.rolandsw.schedulemc.lightmap.forge;
+package de.rolandsw.schedulemc.mapview.forge;
 
-import de.rolandsw.schedulemc.lightmap.ModApiBridge;
+import de.rolandsw.schedulemc.mapview.ModApiBridge;
 import net.minecraftforge.fml.ModList;
 
 public class ForgeModApiBridge implements ModApiBridge {

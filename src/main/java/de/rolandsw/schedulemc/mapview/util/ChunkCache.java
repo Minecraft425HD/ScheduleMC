@@ -1,8 +1,8 @@
-package de.rolandsw.schedulemc.lightmap.util;
+package de.rolandsw.schedulemc.mapview.util;
 
-import de.rolandsw.schedulemc.lightmap.DebugRenderState;
-import de.rolandsw.schedulemc.lightmap.LightMapConstants;
-import de.rolandsw.schedulemc.lightmap.interfaces.IChangeObserver;
+import de.rolandsw.schedulemc.mapview.DebugRenderState;
+import de.rolandsw.schedulemc.mapview.MapViewConstants;
+import de.rolandsw.schedulemc.mapview.interfaces.IChangeObserver;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -34,7 +34,7 @@ public class ChunkCache {
     }
 
     public void centerChunks(BlockPos blockPos) {
-        LevelChunk currentChunk = LightMapConstants.getPlayer().level().getChunkAt(blockPos);
+        LevelChunk currentChunk = MapViewConstants.getPlayer().level().getChunkAt(blockPos);
         if (currentChunk != this.lastCenterChunk) {
             if (this.lastCenterChunk == null) {
                 this.fillAllChunks(blockPos);
@@ -80,7 +80,7 @@ public class ChunkCache {
     }
 
     private void fillAllChunks(BlockPos blockPos) {
-        ChunkAccess currentChunk = LightMapConstants.getPlayer().level().getChunk(blockPos);
+        ChunkAccess currentChunk = MapViewConstants.getPlayer().level().getChunk(blockPos);
         int middleX = this.width / 2;
         int middleZ = this.height / 2;
 
@@ -193,7 +193,7 @@ public class ChunkCache {
                 dirtyChunks.add(index);
             }
         } catch (RuntimeException e) {
-            LightMapConstants.getLogger().error(e);
+            MapViewConstants.getLogger().error(e);
         }
     }
 

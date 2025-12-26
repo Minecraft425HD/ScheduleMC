@@ -1,26 +1,26 @@
-package de.rolandsw.schedulemc.lightmap;
+package de.rolandsw.schedulemc.mapview;
 
-import de.rolandsw.schedulemc.lightmap.gui.overridden.EnumOptionsMinimap;
-import de.rolandsw.schedulemc.lightmap.interfaces.AbstractMapData;
-import de.rolandsw.schedulemc.lightmap.interfaces.IChangeObserver;
-import de.rolandsw.schedulemc.lightmap.persistent.WorldMapScreen;
-import de.rolandsw.schedulemc.lightmap.util.BiomeColors;
-import de.rolandsw.schedulemc.lightmap.util.BlockDatabase;
-import de.rolandsw.schedulemc.lightmap.util.CPULightmap;
-import de.rolandsw.schedulemc.lightmap.util.ColorUtils;
-import de.rolandsw.schedulemc.lightmap.util.DimensionContainer;
-import de.rolandsw.schedulemc.lightmap.util.DynamicMoveableTexture;
-import de.rolandsw.schedulemc.lightmap.util.MapDataStore;
-import de.rolandsw.schedulemc.lightmap.util.GameVariableAccessShim;
-import de.rolandsw.schedulemc.lightmap.util.LayoutVariables;
-import de.rolandsw.schedulemc.lightmap.util.ChunkCache;
-import de.rolandsw.schedulemc.lightmap.util.MinimapHelper;
-import de.rolandsw.schedulemc.lightmap.util.MutableBlockPos;
-import de.rolandsw.schedulemc.lightmap.util.MutableBlockPosCache;
-import de.rolandsw.schedulemc.lightmap.util.ScaledDynamicMutableTexture;
-import de.rolandsw.schedulemc.lightmap.util.LightMapCachedOrthoProjectionMatrixBuffer;
-import de.rolandsw.schedulemc.lightmap.util.LightMapGuiGraphics;
-import de.rolandsw.schedulemc.lightmap.util.LightMapPipelines;
+import de.rolandsw.schedulemc.mapview.gui.overridden.EnumOptionsMapView;
+import de.rolandsw.schedulemc.mapview.interfaces.AbstractMapData;
+import de.rolandsw.schedulemc.mapview.interfaces.IChangeObserver;
+import de.rolandsw.schedulemc.mapview.persistent.WorldMapScreen;
+import de.rolandsw.schedulemc.mapview.util.BiomeColors;
+import de.rolandsw.schedulemc.mapview.util.BlockDatabase;
+import de.rolandsw.schedulemc.mapview.util.CPUMapRenderer;
+import de.rolandsw.schedulemc.mapview.util.ColorUtils;
+import de.rolandsw.schedulemc.mapview.util.DimensionContainer;
+import de.rolandsw.schedulemc.mapview.util.DynamicMoveableTexture;
+import de.rolandsw.schedulemc.mapview.util.MapDataStore;
+import de.rolandsw.schedulemc.mapview.util.GameVariableAccessShim;
+import de.rolandsw.schedulemc.mapview.util.LayoutVariables;
+import de.rolandsw.schedulemc.mapview.util.ChunkCache;
+import de.rolandsw.schedulemc.mapview.util.MapViewHelper;
+import de.rolandsw.schedulemc.mapview.util.MutableBlockPos;
+import de.rolandsw.schedulemc.mapview.util.MutableBlockPosCache;
+import de.rolandsw.schedulemc.mapview.util.ScaledDynamicMutableTexture;
+import de.rolandsw.schedulemc.mapview.util.MapViewCachedOrthoProjectionMatrixBuffer;
+import de.rolandsw.schedulemc.mapview.util.MapViewGuiGraphics;
+import de.rolandsw.schedulemc.mapview.util.MapViewPipelines;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
@@ -44,7 +44,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import de.rolandsw.schedulemc.lightmap.util.ARGBCompat;
+import de.rolandsw.schedulemc.mapview.util.ARGBCompat;
 import net.minecraft.util.Mth;
 // EnvironmentAttributes doesn't exist in 1.20.1
 import net.minecraft.world.effect.MobEffectInstance;
@@ -76,17 +76,17 @@ import java.util.OptionalInt;
 import java.util.Random;
 import java.util.TreeSet;
 
-public class MinimapRenderer implements Runnable, IChangeObserver {
+public class MapViewRenderer implements Runnable, IChangeObserver {
     private final Minecraft minecraft = Minecraft.getInstance();
     // private final float[] lastLightBrightnessTable = new float[16];
     private final Object coordinateLock = new Object();
-    private final ResourceLocation resourceArrow = new ResourceLocation("schedulemc", "lightmap/images/mmarrow.png");
-    private final ResourceLocation resourceSquareMap = new ResourceLocation("schedulemc", "lightmap/images/squaremap.png");
-    private final ResourceLocation resourceRoundMap = new ResourceLocation("schedulemc", "lightmap/images/roundmap.png");
-    private final ResourceLocation squareStencil = new ResourceLocation("schedulemc", "lightmap/images/square.png");
-    private final ResourceLocation circleStencil = new ResourceLocation("schedulemc", "lightmap/images/circle.png");
+    private final ResourceLocation resourceArrow = new ResourceLocation("schedulemc", "mapview/images/mmarrow.png");
+    private final ResourceLocation resourceSquareMap = new ResourceLocation("schedulemc", "mapview/images/squaremap.png");
+    private final ResourceLocation resourceRoundMap = new ResourceLocation("schedulemc", "mapview/images/roundmap.png");
+    private final ResourceLocation squareStencil = new ResourceLocation("schedulemc", "mapview/images/square.png");
+    private final ResourceLocation circleStencil = new ResourceLocation("schedulemc", "mapview/images/circle.png");
     private ClientLevel world;
-    private final MinimapSettings options;
+    private final MapConfiguration options;
     private final LayoutVariables layoutVariables;
     private final BlockColorCache colorManager;
     private final int availableProcessors = Runtime.getRuntime().availableProcessors();
@@ -149,7 +149,7 @@ public class MinimapRenderer implements Runnable, IChangeObserver {
     private float percentX;
     private float percentY;
     private int northRotate;
-    private Thread zCalc = new Thread(this, "LightMap LiveMap Calculation Thread");
+    private Thread zCalc = new Thread(this, "MapCore LiveMap Calculation Thread");
     private int zCalcTicker;
     private int[] lightmapColors = new int[256];
     private double zoomScale = 1.0;
@@ -162,22 +162,22 @@ public class MinimapRenderer implements Runnable, IChangeObserver {
     // private GpuTexture fboTexture;
     // private GpuTextureView fboTextureView;
     private Tesselator fboTessellator = new Tesselator(4096);
-    private LightMapCachedOrthoProjectionMatrixBuffer projection;
+    private MapViewCachedOrthoProjectionMatrixBuffer projection;
 
-    public MinimapRenderer() {
-        resourceMapImageFiltered[0] = new ResourceLocation("schedulemc", "lightmap/map/filtered/0");
-        resourceMapImageFiltered[1] = new ResourceLocation("schedulemc", "lightmap/map/filtered/1");
-        resourceMapImageFiltered[2] = new ResourceLocation("schedulemc", "lightmap/map/filtered/2");
-        resourceMapImageFiltered[3] = new ResourceLocation("schedulemc", "lightmap/map/filtered/3");
-        resourceMapImageFiltered[4] = new ResourceLocation("schedulemc", "lightmap/map/filtered/4");
-        resourceMapImageUnfiltered[0] = new ResourceLocation("schedulemc", "lightmap/map/unfiltered/0");
-        resourceMapImageUnfiltered[1] = new ResourceLocation("schedulemc", "lightmap/map/unfiltered/1");
-        resourceMapImageUnfiltered[2] = new ResourceLocation("schedulemc", "lightmap/map/unfiltered/2");
-        resourceMapImageUnfiltered[3] = new ResourceLocation("schedulemc", "lightmap/map/unfiltered/3");
-        resourceMapImageUnfiltered[4] = new ResourceLocation("schedulemc", "lightmap/map/unfiltered/4");
+    public MapViewRenderer() {
+        resourceMapImageFiltered[0] = new ResourceLocation("schedulemc", "mapview/map/filtered/0");
+        resourceMapImageFiltered[1] = new ResourceLocation("schedulemc", "mapview/map/filtered/1");
+        resourceMapImageFiltered[2] = new ResourceLocation("schedulemc", "mapview/map/filtered/2");
+        resourceMapImageFiltered[3] = new ResourceLocation("schedulemc", "mapview/map/filtered/3");
+        resourceMapImageFiltered[4] = new ResourceLocation("schedulemc", "mapview/map/filtered/4");
+        resourceMapImageUnfiltered[0] = new ResourceLocation("schedulemc", "mapview/map/unfiltered/0");
+        resourceMapImageUnfiltered[1] = new ResourceLocation("schedulemc", "mapview/map/unfiltered/1");
+        resourceMapImageUnfiltered[2] = new ResourceLocation("schedulemc", "mapview/map/unfiltered/2");
+        resourceMapImageUnfiltered[3] = new ResourceLocation("schedulemc", "mapview/map/unfiltered/3");
+        resourceMapImageUnfiltered[4] = new ResourceLocation("schedulemc", "mapview/map/unfiltered/4");
 
-        this.options = LightMapConstants.getLightMapInstance().getMapOptions();
-        this.colorManager = LightMapConstants.getLightMapInstance().getColorManager();
+        this.options = MapViewConstants.getLightMapInstance().getMapOptions();
+        this.colorManager = MapViewConstants.getLightMapInstance().getColorManager();
         this.layoutVariables = new LayoutVariables();
         ArrayList<KeyMapping> tempBindings = new ArrayList<>();
         tempBindings.addAll(Arrays.asList(minecraft.options.keyMappings));
@@ -227,7 +227,7 @@ public class MinimapRenderer implements Runnable, IChangeObserver {
         this.zoom = this.options.zoom;
         this.setZoomScale();
 
-        this.projection = new LightMapCachedOrthoProjectionMatrixBuffer("LightMap MinimapRenderer To Screen Proj", -256.0F, 256.0F, 256.0F, -256.0F, 1000.0F, 21000.0F);
+        this.projection = new MapViewCachedOrthoProjectionMatrixBuffer("MapCore MapViewRenderer To Screen Proj", -256.0F, 256.0F, 256.0F, -256.0F, 1000.0F, 21000.0F);
 
         try {
             var arrowResourceOpt = Minecraft.getInstance().getResourceManager().getResource(resourceArrow);
@@ -235,7 +235,7 @@ public class MinimapRenderer implements Runnable, IChangeObserver {
                 DynamicTexture arrowTexture = new DynamicTexture(NativeImage.read(arrowResourceOpt.get().open()));
                 minecraft.getTextureManager().register(resourceArrow, arrowTexture);
             } else {
-                LightMapConstants.getLogger().warn("Arrow texture not found: " + resourceArrow);
+                MapViewConstants.getLogger().warn("Arrow texture not found: " + resourceArrow);
             }
 
             var squareMapResourceOpt = Minecraft.getInstance().getResourceManager().getResource(resourceSquareMap);
@@ -243,7 +243,7 @@ public class MinimapRenderer implements Runnable, IChangeObserver {
                 DynamicTexture squareMapTexture = new DynamicTexture(NativeImage.read(squareMapResourceOpt.get().open()));
                 minecraft.getTextureManager().register(resourceSquareMap, squareMapTexture);
             } else {
-                LightMapConstants.getLogger().warn("Square map texture not found: " + resourceSquareMap);
+                MapViewConstants.getLogger().warn("Square map texture not found: " + resourceSquareMap);
             }
 
             var roundMapResourceOpt = Minecraft.getInstance().getResourceManager().getResource(resourceRoundMap);
@@ -251,16 +251,16 @@ public class MinimapRenderer implements Runnable, IChangeObserver {
                 DynamicTexture roundMapTexture = new DynamicTexture(NativeImage.read(roundMapResourceOpt.get().open()));
                 minecraft.getTextureManager().register(resourceRoundMap, roundMapTexture);
             } else {
-                LightMapConstants.getLogger().warn("Round map texture not found: " + resourceRoundMap);
+                MapViewConstants.getLogger().warn("Round map texture not found: " + resourceRoundMap);
             }
         } catch (Exception exception) {
-            LightMapConstants.getLogger().error("Failed getting map images " + exception.getLocalizedMessage(), exception);
+            MapViewConstants.getLogger().error("Failed getting map images " + exception.getLocalizedMessage(), exception);
         }
     }
 
     public void forceFullRender(boolean forceFullRender) {
         this.doFullRender = forceFullRender;
-        LightMapConstants.getLightMapInstance().getSettingsAndLightingChangeNotifier().notifyOfChanges();
+        MapViewConstants.getLightMapInstance().getSettingsAndLightingChangeNotifier().notifyOfChanges();
     }
 
     public float getPercentX() {
@@ -286,7 +286,7 @@ public class MinimapRenderer implements Runnable, IChangeObserver {
                                 this.chunkCache[this.zoom].checkIfChunksChanged();
                             }
                         } catch (Exception exception) {
-                            LightMapConstants.getLogger().error("LightMap LiveMap Calculation Thread", exception);
+                            MapViewConstants.getLogger().error("MapCore LiveMap Calculation Thread", exception);
                         }
                     }
 
@@ -299,7 +299,7 @@ public class MinimapRenderer implements Runnable, IChangeObserver {
                     try {
                         this.zCalc.wait(0L);
                     } catch (InterruptedException exception) {
-                        LightMapConstants.getLogger().error("LightMap LiveMap Calculation Thread", exception);
+                        MapViewConstants.getLogger().error("MapCore LiveMap Calculation Thread", exception);
                     }
                 }
             }
@@ -312,7 +312,7 @@ public class MinimapRenderer implements Runnable, IChangeObserver {
         this.lightmapTexture = this.getLightmapTexture();
         this.mapData[this.zoom].blank();
         this.doFullRender = true;
-        LightMapConstants.getLightMapInstance().getSettingsAndLightingChangeNotifier().notifyOfChanges();
+        MapViewConstants.getLightMapInstance().getSettingsAndLightingChangeNotifier().notifyOfChanges();
     }
 
     public void newWorldName() {
@@ -338,15 +338,15 @@ public class MinimapRenderer implements Runnable, IChangeObserver {
         if (minecraft.screen == null && this.options.keyBindFullscreen.consumeClick()) {
             this.fullscreenMap = !this.fullscreenMap;
             if (this.zoom == 4) {
-                this.error = I18n.get("minimap.ui.zoomLevel") + " (0.25x)";
+                this.error = I18n.get("mapview.ui.zoomLevel") + " (0.25x)";
             } else if (this.zoom == 3) {
-                this.error = I18n.get("minimap.ui.zoomLevel") + " (0.5x)";
+                this.error = I18n.get("mapview.ui.zoomLevel") + " (0.5x)";
             } else if (this.zoom == 2) {
-                this.error = I18n.get("minimap.ui.zoomLevel") + " (1.0x)";
+                this.error = I18n.get("mapview.ui.zoomLevel") + " (1.0x)";
             } else if (this.zoom == 1) {
-                this.error = I18n.get("minimap.ui.zoomLevel") + " (2.0x)";
+                this.error = I18n.get("mapview.ui.zoomLevel") + " (2.0x)";
             } else {
-                this.error = I18n.get("minimap.ui.zoomLevel") + " (4.0x)";
+                this.error = I18n.get("mapview.ui.zoomLevel") + " (4.0x)";
             }
         }
 
@@ -375,7 +375,7 @@ public class MinimapRenderer implements Runnable, IChangeObserver {
 
         if (this.threading) {
             if (!this.zCalc.isAlive()) {
-                this.zCalc = new Thread(this, "LightMap LiveMap Calculation Thread");
+                this.zCalc = new Thread(this, "MapCore LiveMap Calculation Thread");
                 this.zCalc.start();
                 this.zCalcTicker = 0;
             }
@@ -387,7 +387,7 @@ public class MinimapRenderer implements Runnable, IChangeObserver {
                     Exception ex = new Exception();
                     ex.setStackTrace(this.zCalc.getStackTrace());
                     DebugRenderState.print();
-                    LightMapConstants.getLogger().error("LightMap LiveMap Calculation Thread is hanging?", ex);
+                    MapViewConstants.getLogger().error("MapCore LiveMap Calculation Thread is hanging?", ex);
                 }
                 // Performance-Optimierung: Notify nur wenn Update nötig
                 if (shouldUpdate) {
@@ -435,7 +435,7 @@ public class MinimapRenderer implements Runnable, IChangeObserver {
             this.error = "";
         }
 
-        if (enabled && LightMap.mapOptions.minimapAllowed) {
+        if (enabled && MapCore.mapOptions.minimapAllowed) {
             this.drawMinimap(drawContext);
         }
 
@@ -445,19 +445,19 @@ public class MinimapRenderer implements Runnable, IChangeObserver {
     private void cycleZoomLevel() {
         if (this.options.zoom == 4) {
             this.options.zoom = 3;
-            this.error = I18n.get("minimap.ui.zoomLevel") + " (0.5x)";
+            this.error = I18n.get("mapview.ui.zoomLevel") + " (0.5x)";
         } else if (this.options.zoom == 3) {
             this.options.zoom = 2;
-            this.error = I18n.get("minimap.ui.zoomLevel") + " (1.0x)";
+            this.error = I18n.get("mapview.ui.zoomLevel") + " (1.0x)";
         } else if (this.options.zoom == 2) {
             this.options.zoom = 1;
-            this.error = I18n.get("minimap.ui.zoomLevel") + " (2.0x)";
+            this.error = I18n.get("mapview.ui.zoomLevel") + " (2.0x)";
         } else if (this.options.zoom == 1) {
             this.options.zoom = 0;
-            this.error = I18n.get("minimap.ui.zoomLevel") + " (4.0x)";
+            this.error = I18n.get("mapview.ui.zoomLevel") + " (4.0x)";
         } else if (this.options.zoom == 0) {
             this.options.zoom = 4;
-            this.error = I18n.get("minimap.ui.zoomLevel") + " (0.25x)";
+            this.error = I18n.get("mapview.ui.zoomLevel") + " (0.25x)";
         }
 
         this.options.saveAll();
@@ -484,9 +484,9 @@ public class MinimapRenderer implements Runnable, IChangeObserver {
     public void calculateCurrentLightAndSkyColor() {
         try {
             if (this.world != null) {
-                if (this.needLightmapRefresh && LightMapConstants.getElapsedTicks() != this.tickWithLightChange && !minecraft.isPaused() || this.options.realTimeTorches) {
+                if (this.needLightmapRefresh && MapViewConstants.getElapsedTicks() != this.tickWithLightChange && !minecraft.isPaused() || this.options.realTimeTorches) {
                     this.needLightmapRefresh = false;
-                    CPULightmap lightmap = CPULightmap.getInstance();
+                    CPUMapRenderer lightmap = CPUMapRenderer.getInstance();
                     lightmap.setup();
                     for (int blockLight = 0; blockLight < 16; blockLight++) {
                         for (int skyLight = 0; skyLight < 16; skyLight++) {
@@ -509,8 +509,8 @@ public class MinimapRenderer implements Runnable, IChangeObserver {
                 }
 
                 float potionEffect = 0.0F;
-                if (LightMapConstants.getPlayer().hasEffect(MobEffects.NIGHT_VISION)) {
-                    int duration = LightMapConstants.getPlayer().getEffect(MobEffects.NIGHT_VISION).getDuration();
+                if (MapViewConstants.getPlayer().hasEffect(MobEffects.NIGHT_VISION)) {
+                    int duration = MapViewConstants.getPlayer().getEffect(MobEffects.NIGHT_VISION).getDuration();
                     potionEffect = duration > 200 ? 1.0F : 0.7F + Mth.sin((duration - 1.0F) * (float) Math.PI * 0.2F) * 0.3F;
                 }
 
@@ -532,11 +532,11 @@ public class MinimapRenderer implements Runnable, IChangeObserver {
 
                 boolean scheduledUpdate = (this.timer - 50) % 50 == 0;
                 if (lightChanged || scheduledUpdate) {
-                    this.tickWithLightChange = LightMapConstants.getElapsedTicks();
+                    this.tickWithLightChange = MapViewConstants.getElapsedTicks();
                     this.needLightmapRefresh = true;
                 }
 
-                boolean aboveHorizon = LightMapConstants.getPlayer().getEyePosition(0.0F).y >= this.world.getLevelData().getHorizonHeight(this.world);
+                boolean aboveHorizon = MapViewConstants.getPlayer().getEyePosition(0.0F).y >= this.world.getLevelData().getHorizonHeight(this.world);
                 if (this.world.dimension().location().toString().toLowerCase().contains("ether")) {
                     aboveHorizon = true;
                 }
@@ -623,10 +623,10 @@ public class MinimapRenderer implements Runnable, IChangeObserver {
         }
 
         float statusIconOffset = 0.0F;
-        if (LightMap.mapOptions.moveMapDownWhileStatusEffect) {
-            if (this.options.mapCorner == 1 && !LightMapConstants.getPlayer().getActiveEffects().isEmpty()) {
+        if (MapCore.mapOptions.moveMapDownWhileStatusEffect) {
+            if (this.options.mapCorner == 1 && !MapViewConstants.getPlayer().getActiveEffects().isEmpty()) {
 
-                for (MobEffectInstance statusEffectInstance : LightMapConstants.getPlayer().getActiveEffects()) {
+                for (MobEffectInstance statusEffectInstance : MapViewConstants.getPlayer().getActiveEffects()) {
                     if (statusEffectInstance.showIcon()) {
                         if (statusEffectInstance.getEffect().isBeneficial()) {
                             statusIconOffset = Math.max(statusIconOffset, 24.0F);
@@ -640,7 +640,7 @@ public class MinimapRenderer implements Runnable, IChangeObserver {
                 mapY += (int) (statusIconOffset * resFactor);
             }
         }
-        MinimapRenderer.statusIconOffset = statusIconOffset;
+        MapViewRenderer.statusIconOffset = statusIconOffset;
 
         if (this.fullscreenMap) {
             this.renderMapFull(drawContext, this.scWidth, this.scHeight, scaleProj);
@@ -673,7 +673,7 @@ public class MinimapRenderer implements Runnable, IChangeObserver {
 
         if (changed) {
             this.doFullRender = true;
-            LightMapConstants.getLightMapInstance().getSettingsAndLightingChangeNotifier().notifyOfChanges();
+            MapViewConstants.getLightMapInstance().getSettingsAndLightingChangeNotifier().notifyOfChanges();
         }
 
     }
@@ -818,7 +818,7 @@ public class MinimapRenderer implements Runnable, IChangeObserver {
         }
 
         if (needLight || skyColorChanged) {
-            LightMapConstants.getLightMapInstance().getSettingsAndLightingChangeNotifier().notifyOfChanges();
+            MapViewConstants.getLightMapInstance().getSettingsAndLightingChangeNotifier().notifyOfChanges();
         }
 
     }
@@ -828,7 +828,7 @@ public class MinimapRenderer implements Runnable, IChangeObserver {
         try {
             this.chunkCache[this.zoom].registerChangeAt(chunkX, chunkZ);
         } catch (Exception e) {
-            LightMapConstants.getLogger().warn(e);
+            MapViewConstants.getLogger().warn(e);
         }
     }
 
@@ -1256,7 +1256,7 @@ public class MinimapRenderer implements Runnable, IChangeObserver {
         MutableBlockPosCache.release(blockPos);
         MutableBlockPosCache.release(tempBlockPos);
         // ColorUtils methods output ARGB format, convert to ABGR for NativeImage
-        return MinimapHelper.doSlimeAndGrid(ARGBCompat.toABGR(color24), world, startX + imageX, startZ + imageY);
+        return MapViewHelper.doSlimeAndGrid(ARGBCompat.toABGR(color24), world, startX + imageX, startZ + imageY);
     }
 
     private int getBlockHeight(boolean nether, boolean caves, Level world, int x, int z) {
@@ -1550,7 +1550,7 @@ public class MinimapRenderer implements Runnable, IChangeObserver {
                         new Vector3f(),
                         new Matrix4f());
 
-        Object renderPipeline = LightMapPipelines.GUI_TEXTURED_ANY_DEPTH_PIPELINE;
+        Object renderPipeline = MapViewPipelines.GUI_TEXTURED_ANY_DEPTH_PIPELINE;
         try (MeshData meshData = bufferBuilder.build()) {
             GpuBuffer vertexBuffer = null;
             GpuBuffer indexBuffer;
@@ -1571,7 +1571,7 @@ public class MinimapRenderer implements Runnable, IChangeObserver {
                 stencilTexture = Minecraft.getInstance().getTextureManager().getTexture(circleStencil);
             }
 
-            try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(() -> "LightMap: MinimapRenderer to screen", fboTextureView, OptionalInt.of(0x00000000))) {
+            try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(() -> "MapCore: MapViewRenderer to screen", fboTextureView, OptionalInt.of(0x00000000))) {
                 renderPass.setPipeline(renderPipeline);
                 RenderSystem.bindDefaultUniforms(renderPass);
                 renderPass.setUniform("DynamicTransforms", gpuBufferSlice);
@@ -1579,7 +1579,7 @@ public class MinimapRenderer implements Runnable, IChangeObserver {
                 renderPass.setIndexBuffer(indexBuffer, indexType);
 
                 renderPass.drawIndexed(0, 0, meshData.drawState().indexCount() / 2, 1);
-                renderPass.setPipeline(LightMapPipelines.GUI_TEXTURED_ANY_DEPTH_DST_ALPHA_PIPELINE);
+                renderPass.setPipeline(MapViewPipelines.GUI_TEXTURED_ANY_DEPTH_DST_ALPHA_PIPELINE);
 
                 renderPass.drawIndexed(0, meshData.drawState().indexCount() / 2, meshData.drawState().indexCount() / 2, 1);
             }

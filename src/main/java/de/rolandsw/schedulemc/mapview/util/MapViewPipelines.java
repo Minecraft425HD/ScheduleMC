@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.lightmap.util;
+package de.rolandsw.schedulemc.mapview.util;
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -8,15 +8,15 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.function.Function;
 
 // 1.20.1 Port - Replaced RenderPipeline with RenderType
-// These are now simple references to LightMapRenderTypes or inline RenderType definitions
-public class LightMapPipelines extends RenderStateShard {
-    private LightMapPipelines(String p_173178_, Runnable p_173179_, Runnable p_173180_) {
+// These are now simple references to MapViewRenderTypes or inline RenderType definitions
+public class MapViewPipelines extends RenderStateShard {
+    private MapViewPipelines(String p_173178_, Runnable p_173179_, Runnable p_173180_) {
         super(p_173178_, p_173179_, p_173180_);
     }
 
     // GUI textured with no depth test - standard GUI rendering
     public static final Function<ResourceLocation, RenderType> GUI_TEXTURED_ANY_DEPTH_PIPELINE =
-            LightMapRenderTypes.GUI_TEXTURED;
+            MapViewRenderTypes.GUI_TEXTURED;
 
     // GUI textured with DST_ALPHA blending
     public static final Function<ResourceLocation, RenderType> GUI_TEXTURED_ANY_DEPTH_DST_ALPHA_PIPELINE =
@@ -67,8 +67,8 @@ public class LightMapPipelines extends RenderStateShard {
                             .createCompositeState(false)
             ));
 
-    // General GUI and GUI_TEXTURED - reference LightMapRenderTypes
-    public static final RenderType GUI = LightMapRenderTypes.GUI;
-    public static final Function<ResourceLocation, RenderType> GUI_TEXTURED = LightMapRenderTypes.GUI_TEXTURED;
-    public static final Function<ResourceLocation, RenderType> GUI_TEXTURED_UNFILTERED = LightMapRenderTypes.GUI_TEXTURED_UNFILTERED;
+    // General GUI and GUI_TEXTURED - reference MapViewRenderTypes
+    public static final RenderType GUI = MapViewRenderTypes.GUI;
+    public static final Function<ResourceLocation, RenderType> GUI_TEXTURED = MapViewRenderTypes.GUI_TEXTURED;
+    public static final Function<ResourceLocation, RenderType> GUI_TEXTURED_UNFILTERED = MapViewRenderTypes.GUI_TEXTURED_UNFILTERED;
 }

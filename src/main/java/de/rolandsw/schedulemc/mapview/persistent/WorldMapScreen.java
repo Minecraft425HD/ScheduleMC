@@ -1,23 +1,23 @@
-package de.rolandsw.schedulemc.lightmap.persistent;
+package de.rolandsw.schedulemc.mapview.persistent;
 
-import de.rolandsw.schedulemc.lightmap.MinimapSettings;
-import de.rolandsw.schedulemc.lightmap.LightMapConstants;
-import de.rolandsw.schedulemc.lightmap.LightMap;
-import de.rolandsw.schedulemc.lightmap.gui.GuiMinimapOptions;
-import de.rolandsw.schedulemc.lightmap.gui.overridden.Popup;
-import de.rolandsw.schedulemc.lightmap.gui.overridden.PopupGuiButton;
-import de.rolandsw.schedulemc.lightmap.gui.overridden.PopupGuiScreen;
-import de.rolandsw.schedulemc.lightmap.interfaces.AbstractMapData;
-import de.rolandsw.schedulemc.lightmap.textures.Sprite;
-import de.rolandsw.schedulemc.lightmap.textures.TextureAtlas;
-import de.rolandsw.schedulemc.lightmap.util.BackgroundImageInfo;
-import de.rolandsw.schedulemc.lightmap.util.BiomeMapData;
-import de.rolandsw.schedulemc.lightmap.util.DimensionContainer;
-import de.rolandsw.schedulemc.lightmap.util.EasingUtils;
-import de.rolandsw.schedulemc.lightmap.util.GameVariableAccessShim;
-import de.rolandsw.schedulemc.lightmap.util.ImageHelper;
-import de.rolandsw.schedulemc.lightmap.util.LightMapGuiGraphics;
-import de.rolandsw.schedulemc.lightmap.util.LightMapPipelines;
+import de.rolandsw.schedulemc.mapview.MapConfiguration;
+import de.rolandsw.schedulemc.mapview.MapViewConstants;
+import de.rolandsw.schedulemc.mapview.MapCore;
+import de.rolandsw.schedulemc.mapview.gui.GuiMapViewOptions;
+import de.rolandsw.schedulemc.mapview.gui.overridden.Popup;
+import de.rolandsw.schedulemc.mapview.gui.overridden.PopupGuiButton;
+import de.rolandsw.schedulemc.mapview.gui.overridden.PopupGuiScreen;
+import de.rolandsw.schedulemc.mapview.interfaces.AbstractMapData;
+import de.rolandsw.schedulemc.mapview.textures.Sprite;
+import de.rolandsw.schedulemc.mapview.textures.TextureAtlas;
+import de.rolandsw.schedulemc.mapview.util.BackgroundImageInfo;
+import de.rolandsw.schedulemc.mapview.util.BiomeMapData;
+import de.rolandsw.schedulemc.mapview.util.DimensionContainer;
+import de.rolandsw.schedulemc.mapview.util.EasingUtils;
+import de.rolandsw.schedulemc.mapview.util.GameVariableAccessShim;
+import de.rolandsw.schedulemc.mapview.util.ImageHelper;
+import de.rolandsw.schedulemc.mapview.util.MapViewGuiGraphics;
+import de.rolandsw.schedulemc.mapview.util.MapViewPipelines;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -45,9 +45,9 @@ public class WorldMapScreen extends PopupGuiScreen {
     private final Random generator = new Random();
     private final WorldMapData persistentMap;
     private final Screen parent;
-    private final MinimapSettings mapOptions;
+    private final MapConfiguration mapOptions;
     private final WorldMapSettings options;
-    protected String screenTitle = "World MinimapRenderer";
+    protected String screenTitle = "World MapViewRenderer";
     protected String worldNameDisplay = "";
     protected int worldNameDisplayLength;
     protected int maxWorldNameDisplayLength;
@@ -101,7 +101,7 @@ public class WorldMapScreen extends PopupGuiScreen {
     int buttonWidth = 66;
     public boolean passEvents;
     private final Minecraft minecraft = Minecraft.getInstance();
-    private final ResourceLocation lightmapSkinLocation = new ResourceLocation("schedulemc", "lightmap/persistentmap/playerskin");
+    private final ResourceLocation lightmapSkinLocation = new ResourceLocation("schedulemc", "mapview/persistentmap/playerskin");
     private final ResourceLocation crosshairResource = new ResourceLocation("textures/gui/sprites/hud/crosshair.png");
     private boolean currentDragging;
     private boolean keySprintPressed;
@@ -116,13 +116,13 @@ public class WorldMapScreen extends PopupGuiScreen {
         this.parent = parent;
         this.setParentScreen(this.parent);
 
-        mapOptions = LightMapConstants.getLightMapInstance().getMapOptions();
-        this.persistentMap = LightMapConstants.getLightMapInstance().getWorldMapData();
-        this.options = LightMapConstants.getLightMapInstance().getWorldMapDataOptions();
+        mapOptions = MapViewConstants.getLightMapInstance().getMapOptions();
+        this.persistentMap = MapViewConstants.getLightMapInstance().getWorldMapData();
+        this.options = MapViewConstants.getLightMapInstance().getWorldMapDataOptions();
         this.zoom = this.options.zoom;
         this.zoomStart = this.options.zoom;
         this.zoomGoal = this.options.zoom;
-        this.persistentMap.setLightMapArray(LightMapConstants.getLightMapInstance().getMap().getLightmapArray());
+        this.persistentMap.setLightMapArray(MapViewConstants.getLightMapInstance().getMap().getLightmapArray());
         if (!gotSkin) {
             this.getSkin();
         }
@@ -131,23 +131,23 @@ public class WorldMapScreen extends PopupGuiScreen {
 
     private void getSkin() {
         java.util.Map<com.mojang.authlib.minecraft.MinecraftProfileTexture.Type, com.mojang.authlib.minecraft.MinecraftProfileTexture> skinMap =
-            LightMapConstants.getMinecraft().getSkinManager().getInsecureSkinInformation(LightMapConstants.getPlayer().getGameProfile());
+            MapViewConstants.getMinecraft().getSkinManager().getInsecureSkinInformation(MapViewConstants.getPlayer().getGameProfile());
         com.mojang.authlib.minecraft.MinecraftProfileTexture skinTexture = skinMap.get(com.mojang.authlib.minecraft.MinecraftProfileTexture.Type.SKIN);
         ResourceLocation skinLocation = skinTexture != null ?
-            LightMapConstants.getMinecraft().getSkinManager().registerTexture(skinTexture, com.mojang.authlib.minecraft.MinecraftProfileTexture.Type.SKIN) : null;
+            MapViewConstants.getMinecraft().getSkinManager().registerTexture(skinTexture, com.mojang.authlib.minecraft.MinecraftProfileTexture.Type.SKIN) : null;
 
         BufferedImage skinImage = ImageHelper.createBufferedImageFromIdentifier(skinLocation);
 
         if (skinImage == null) {
-            if (LightMapConstants.DEBUG) {
-                LightMapConstants.getLogger().warn("Got no player skin!");
+            if (MapViewConstants.DEBUG) {
+                MapViewConstants.getLogger().warn("Got no player skin!");
             }
             return;
         }
 
         gotSkin = true;
 
-        boolean showHat = LightMapConstants.getPlayer().isModelPartShown(PlayerModelPart.HAT);
+        boolean showHat = MapViewConstants.getPlayer().isModelPartShown(PlayerModelPart.HAT);
         if (showHat) {
             skinImage = ImageHelper.addImages(ImageHelper.loadImage(skinImage, 8, 8, 8, 8), ImageHelper.loadImage(skinImage, 40, 8, 8, 8), 0.0F, 0.0F, 8, 8);
         } else {
@@ -177,7 +177,7 @@ public class WorldMapScreen extends PopupGuiScreen {
         this.buttonCount = 3;
         this.buttonSeparation = 4;
         this.buttonWidth = (this.width - this.sideMargin * 2 - this.buttonSeparation * (this.buttonCount - 1)) / this.buttonCount;
-        this.addRenderableWidget(new PopupGuiButton(this.sideMargin + 1 * (this.buttonWidth + this.buttonSeparation), this.getHeight() - 28, this.buttonWidth, 20, Component.translatable("menu.options"), button -> minecraft.setScreen(new GuiMinimapOptions(this)), this));
+        this.addRenderableWidget(new PopupGuiButton(this.sideMargin + 1 * (this.buttonWidth + this.buttonSeparation), this.getHeight() - 28, this.buttonWidth, 20, Component.translatable("menu.options"), button -> minecraft.setScreen(new GuiMapViewOptions(this)), this));
         this.addRenderableWidget(new PopupGuiButton(this.sideMargin + 2 * (this.buttonWidth + this.buttonSeparation), this.getHeight() - 28, this.buttonWidth, 20, Component.translatable("gui.done"), button -> minecraft.setScreen(parent), this));
         this.coordinates = new EditBox(this.font, this.sideMargin, 10, 140, 20, null);
         this.top = 32;
@@ -211,7 +211,7 @@ public class WorldMapScreen extends PopupGuiScreen {
     private void buildWorldName() {
         final AtomicReference<String> worldName = new AtomicReference<>();
 
-        LightMapConstants.getIntegratedServer().ifPresentOrElse(integratedServer -> {
+        MapViewConstants.getIntegratedServer().ifPresentOrElse(integratedServer -> {
             worldName.set(integratedServer.getWorldData().getLevelName());
 
             if (worldName.get() == null || worldName.get().isBlank()) {
@@ -226,7 +226,7 @@ public class WorldMapScreen extends PopupGuiScreen {
             if (worldName.get() == null || worldName.get().isBlank()) {
                 worldName.set("Multiplayer Server");
             }
-            if (LightMapConstants.isRealmServer()) {
+            if (MapViewConstants.isRealmServer()) {
                 worldName.set("Realms");
             }
         });
@@ -302,7 +302,7 @@ public class WorldMapScreen extends PopupGuiScreen {
             this.timeOfLastKBInput = 0L;
             int mouseDirectX = (int) minecraft.mouseHandler.xpos();
             int mouseDirectY = (int) minecraft.mouseHandler.ypos();
-            if (LightMap.mapOptions.worldmapAllowed) {
+            if (MapCore.mapOptions.worldmapAllowed) {
                 this.createPopup((int) mouseX, (int) mouseY, mouseDirectX, mouseDirectY);
             }
         }
@@ -377,7 +377,7 @@ public class WorldMapScreen extends PopupGuiScreen {
             }
         }
 
-        if (LightMapConstants.getLightMapInstance().getMapOptions().keyBindMenu.matches(keyCode, scanCode)) {
+        if (MapViewConstants.getLightMapInstance().getMapOptions().keyBindMenu.matches(keyCode, scanCode)) {
             keyCode = GLFW.GLFW_KEY_ESCAPE;
             scanCode = -1;
         }
@@ -598,7 +598,7 @@ public class WorldMapScreen extends PopupGuiScreen {
         float cursorCoordZ = 0.0f;
         float cursorCoordX = 0.0f;
         guiGraphics.pose().scale(this.mapToGui, this.mapToGui, 1.0f);
-        if (LightMap.mapOptions.worldmapAllowed) {
+        if (MapCore.mapOptions.worldmapAllowed) {
             for (RegionCache region : this.regions) {
                 ResourceLocation resource = region.getTextureLocation();
                 if (resource != null) {
@@ -606,7 +606,7 @@ public class WorldMapScreen extends PopupGuiScreen {
                 }
             }
 
-            if (LightMap.mapOptions.worldborder) {
+            if (MapCore.mapOptions.worldborder) {
                 WorldBorder worldBorder = minecraft.level.getWorldBorder();
                 float scale = 1.0f / (float) minecraft.getWindow().getGuiScale() / mapToGui;
 
@@ -615,11 +615,11 @@ public class WorldMapScreen extends PopupGuiScreen {
                 float x2 = (float) (worldBorder.getMaxX());
                 float z2 = (float) (worldBorder.getMaxZ());
 
-                LightMapGuiGraphics.fillGradient(guiGraphics, x1 - scale, z1 - scale, x2 + scale, z1 + scale, 0xffff0000, 0xffff0000, 0xffff0000, 0xffff0000);
-                LightMapGuiGraphics.fillGradient(guiGraphics, x1 - scale, z2 - scale, x2 + scale, z2 + scale, 0xffff0000, 0xffff0000, 0xffff0000, 0xffff0000);
+                MapViewGuiGraphics.fillGradient(guiGraphics, x1 - scale, z1 - scale, x2 + scale, z1 + scale, 0xffff0000, 0xffff0000, 0xffff0000, 0xffff0000);
+                MapViewGuiGraphics.fillGradient(guiGraphics, x1 - scale, z2 - scale, x2 + scale, z2 + scale, 0xffff0000, 0xffff0000, 0xffff0000, 0xffff0000);
 
-                LightMapGuiGraphics.fillGradient(guiGraphics, x1 - scale, z1 - scale, x1 + scale, z2 + scale, 0xffff0000, 0xffff0000, 0xffff0000, 0xffff0000);
-                LightMapGuiGraphics.fillGradient(guiGraphics, x2 - scale, z1 - scale, x2 + scale, z2 + scale, 0xffff0000, 0xffff0000, 0xffff0000, 0xffff0000);
+                MapViewGuiGraphics.fillGradient(guiGraphics, x1 - scale, z1 - scale, x1 + scale, z2 + scale, 0xffff0000, 0xffff0000, 0xffff0000, 0xffff0000);
+                MapViewGuiGraphics.fillGradient(guiGraphics, x2 - scale, z1 - scale, x2 + scale, z2 + scale, 0xffff0000, 0xffff0000, 0xffff0000, 0xffff0000);
             }
 
             float cursorX;
@@ -753,7 +753,7 @@ public class WorldMapScreen extends PopupGuiScreen {
             guiGraphics.pose().mulPose(com.mojang.math.Axis.ZP.rotationDegrees(locate * Mth.RAD_TO_DEG));
             guiGraphics.pose().translate(-x, -y, 0.0f);
 
-            LightMapGuiGraphics.blitFloat(guiGraphics, LightMapPipelines.GUI_TEXTURED_LESS_OR_EQUAL_DEPTH_PIPELINE, lightmapSkinLocation, x - width / 2, y - height / 2, width, height, 0, 1, 0, 1, 0xFFFFFFFF);
+            MapViewGuiGraphics.blitFloat(guiGraphics, MapViewPipelines.GUI_TEXTURED_LESS_OR_EQUAL_DEPTH_PIPELINE, lightmapSkinLocation, x - width / 2, y - height / 2, width, height, 0, 1, 0, 1, 0xFFFFFFFF);
 
             guiGraphics.pose().popPose();
         }
@@ -769,7 +769,7 @@ public class WorldMapScreen extends PopupGuiScreen {
 
         this.overlayBackground(guiGraphics, 0, this.top, 255, 255);
         this.overlayBackground(guiGraphics, this.bottom, this.getHeight(), 255, 255);
-        if (LightMap.mapOptions.worldmapAllowed) {
+        if (MapCore.mapOptions.worldmapAllowed) {
             guiGraphics.drawCenteredString(this.font, this.screenTitle, this.getWidth() / 2, 16, 0xFFFFFFFF);
             int x = (int) Math.floor(cursorCoordX);
             int z = (int) Math.floor(cursorCoordZ);
@@ -820,7 +820,7 @@ public class WorldMapScreen extends PopupGuiScreen {
         int colorEnd = (endAlpha << 24) | colorBase;
         float renderedTextureSize = 32.0F;
 
-        LightMapGuiGraphics.blitFloatGradient(guiGraphics, null, LightMapConstants.getOptionsBackgroundTexture(), 0, startY, this.getWidth(), endY, 0, this.width / renderedTextureSize, 0, endY / renderedTextureSize, colorStart, colorEnd);
+        MapViewGuiGraphics.blitFloatGradient(guiGraphics, null, MapViewConstants.getOptionsBackgroundTexture(), 0, startY, this.getWidth(), endY, 0, this.width / renderedTextureSize, 0, endY / renderedTextureSize, colorStart, colorEnd);
     }
 
     @Override
@@ -851,11 +851,11 @@ public class WorldMapScreen extends PopupGuiScreen {
         }
 
         Popup.PopupEntry entry;
-        entry = new Popup.PopupEntry(I18n.get("minimap.waypoints.teleportTo"), 3, true, true);
+        entry = new Popup.PopupEntry(I18n.get("mapview.waypoints.teleportTo"), 3, true, true);
         entries.add(entry);
 
         this.createPopup(x, y, directX, directY, 60, entries);
-        if (LightMapConstants.DEBUG) {
+        if (MapViewConstants.DEBUG) {
             persistentMap.debugLog((int) cursorCoordX, (int) cursorCoordZ);
         }
     }
@@ -881,12 +881,12 @@ public class WorldMapScreen extends PopupGuiScreen {
         int y = this.persistentMap.getHeightAt(x, z);
         switch (action) {
             case 3 -> {
-                if (y < LightMapConstants.getPlayer().level().getMinBuildHeight()) {
-                    y = (!(LightMapConstants.getPlayer().level().dimensionType().hasCeiling()) ? LightMapConstants.getPlayer().level().getMaxBuildHeight() : 64);
+                if (y < MapViewConstants.getPlayer().level().getMinBuildHeight()) {
+                    y = (!(MapViewConstants.getPlayer().level().dimensionType().hasCeiling()) ? MapViewConstants.getPlayer().level().getMaxBuildHeight() : 64);
                 }
-                LightMapConstants.playerRunTeleportCommand(x, y, z);
+                MapViewConstants.playerRunTeleportCommand(x, y, z);
             }
-            default -> LightMapConstants.getLogger().warn("unimplemented command");
+            default -> MapViewConstants.getLogger().warn("unimplemented command");
         }
 
     }

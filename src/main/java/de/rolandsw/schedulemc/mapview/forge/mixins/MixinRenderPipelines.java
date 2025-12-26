@@ -1,7 +1,7 @@
-package de.rolandsw.schedulemc.lightmap.forge.mixins;
+package de.rolandsw.schedulemc.mapview.forge.mixins;
 
-import de.rolandsw.schedulemc.lightmap.LightMapConstants;
-import de.rolandsw.schedulemc.lightmap.forge.ForgeModApiBridge;
+import de.rolandsw.schedulemc.mapview.MapViewConstants;
+import de.rolandsw.schedulemc.mapview.forge.ForgeModApiBridge;
 // This entire mixin needs to be disabled or replaced with a 1.20.1 alternative
 // For now, commenting out to allow compilation
 /*
@@ -16,7 +16,7 @@ public class MixinRenderPipelines {
 
     @Inject(method = "<clinit>", at = @At("HEAD"))
     private static void onRegisterPipelines(CallbackInfo ci) {
-        LightMapConstants.setModApiBride(new ForgeModApiBridge());
+        MapViewConstants.setModApiBride(new ForgeModApiBridge());
     }
 }
 */

@@ -1,7 +1,7 @@
-package de.rolandsw.schedulemc.lightmap.gui.overridden;
+package de.rolandsw.schedulemc.mapview.gui.overridden;
 
-import de.rolandsw.schedulemc.lightmap.LightMapConstants;
-import de.rolandsw.schedulemc.lightmap.util.LightMapGuiGraphics;
+import de.rolandsw.schedulemc.mapview.MapViewConstants;
+import de.rolandsw.schedulemc.mapview.util.MapViewGuiGraphics;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 
@@ -21,7 +21,7 @@ public class Popup {
     private final int padding = 6;
 
     public Popup(int x, int y, int directX, int directY, int minWidth, ArrayList<PopupEntry> entries, PopupGuiScreen parentGui) {
-        this.fontRendererObj = LightMapConstants.getMinecraft().font;
+        this.fontRendererObj = MapViewConstants.getMinecraft().font;
         this.parentGui = parentGui;
         this.clickedDirectX = directX;
         this.clickedDirectY = directY;
@@ -92,12 +92,12 @@ public class Popup {
         float vmin = this.y / renderedTextureSize;
         float vmax = (this.y + this.h) / renderedTextureSize;
 
-        LightMapGuiGraphics.blitFloat(guiGraphics, null, LightMapConstants.getOptionsBackgroundTexture(), x, y, w, h, umin, umax, vmin, vmax, 0xff404040);
-        LightMapGuiGraphics.fillGradient(guiGraphics, x, y, x + w, y + 4, 0xff000000, 0xff000000, 0x00000000, 0x00000000);
-        LightMapGuiGraphics.fillGradient(guiGraphics, x, y + h - 4, x + w, y + h, 0x00000000, 0x00000000, 0xff000000, 0xff000000);
+        MapViewGuiGraphics.blitFloat(guiGraphics, null, MapViewConstants.getOptionsBackgroundTexture(), x, y, w, h, umin, umax, vmin, vmax, 0xff404040);
+        MapViewGuiGraphics.fillGradient(guiGraphics, x, y, x + w, y + 4, 0xff000000, 0xff000000, 0x00000000, 0x00000000);
+        MapViewGuiGraphics.fillGradient(guiGraphics, x, y + h - 4, x + w, y + h, 0x00000000, 0x00000000, 0xff000000, 0xff000000);
 
-        LightMapGuiGraphics.fillGradient(guiGraphics, x, y, x + 4, y + h, 0xff000000, 0x00000000, 0xff000000, 0x00000000);
-        LightMapGuiGraphics.fillGradient(guiGraphics, x + w - 4, y, x + w, y + h, 0x00000000, 0xff000000, 0x00000000, 0xff000000);
+        MapViewGuiGraphics.fillGradient(guiGraphics, x, y, x + 4, y + h, 0xff000000, 0x00000000, 0xff000000, 0x00000000);
+        MapViewGuiGraphics.fillGradient(guiGraphics, x + w - 4, y, x + w, y + h, 0x00000000, 0xff000000, 0x00000000, 0xff000000);
 
 
         for (int t = 0; t < this.entries.length; ++t) {

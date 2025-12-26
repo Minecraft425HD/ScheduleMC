@@ -1,7 +1,7 @@
-package de.rolandsw.schedulemc.lightmap.persistent;
+package de.rolandsw.schedulemc.mapview.persistent;
 
-import de.rolandsw.schedulemc.lightmap.LightMapConstants;
-import de.rolandsw.schedulemc.lightmap.util.CompressionUtils;
+import de.rolandsw.schedulemc.mapview.MapViewConstants;
+import de.rolandsw.schedulemc.mapview.util.CompressionUtils;
 // GlTexture doesn't exist in 1.20.1
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.NativeImage.Format;
@@ -31,14 +31,14 @@ public class CompressedGLImage {
     private final Object bufferLock = new Object();
     private boolean isCompressed;
     private final boolean compressNotDelete;
-    private final ResourceLocation location = new ResourceLocation("schedulemc", "lightmap/mapimage/" + UUID.randomUUID());
+    private final ResourceLocation location = new ResourceLocation("schedulemc", "mapview/mapimage/" + UUID.randomUUID());
     private DynamicTexture texture;
 
     public CompressedGLImage(int width, int height, int imageType) {
         this.width = width;
         this.height = height;
         this.bytes = new byte[width * height * 4];
-        this.compressNotDelete = LightMapConstants.getLightMapInstance().getWorldMapDataOptions().outputImages;
+        this.compressNotDelete = MapViewConstants.getLightMapInstance().getWorldMapDataOptions().outputImages;
     }
 
     public byte[] getData() {
@@ -63,7 +63,7 @@ public class CompressedGLImage {
 
     public void deleteTexture() {
         if (!RenderSystem.isOnRenderThread()) {
-            LightMapConstants.getLogger().log(Level.WARN, "Texture unload call from wrong thread", new Exception());
+            MapViewConstants.getLogger().log(Level.WARN, "Texture unload call from wrong thread", new Exception());
             return;
         }
         if (this.texture != null) {
@@ -74,7 +74,7 @@ public class CompressedGLImage {
 
     public void uploadToTexture() {
         if (!RenderSystem.isOnRenderThread()) {
-            LightMapConstants.getLogger().log(Level.WARN, "Texture upload call from wrong thread", new Exception());
+            MapViewConstants.getLogger().log(Level.WARN, "Texture upload call from wrong thread", new Exception());
             return;
         }
 

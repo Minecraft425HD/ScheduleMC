@@ -1,8 +1,8 @@
-package de.rolandsw.schedulemc.lightmap.textures;
+package de.rolandsw.schedulemc.mapview.textures;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import de.rolandsw.schedulemc.lightmap.LightMapConstants;
+import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -169,7 +169,7 @@ public class Stitcher {
 
                 if (!slot.addSlot(holder)) {
                     String errorString = String.format("Unable to fit: %s - size: %dx%d - Maybe try a lower resolution resourcepack?", holder.getAtlasSprite().getIconName(), holder.getAtlasSprite().getIconWidth(), holder.getAtlasSprite().getIconHeight());
-                    LightMapConstants.getLogger().warn(errorString);
+                    MapViewConstants.getLogger().warn(errorString);
                 }
 
                 this.stitchSlots.add(slot);

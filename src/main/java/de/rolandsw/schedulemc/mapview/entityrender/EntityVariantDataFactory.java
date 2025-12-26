@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.lightmap.entityrender;
+package de.rolandsw.schedulemc.mapview.entityrender;
 
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.world.entity.Entity;

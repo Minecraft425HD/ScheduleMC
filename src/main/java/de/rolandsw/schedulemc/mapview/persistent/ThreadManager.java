@@ -1,6 +1,6 @@
-package de.rolandsw.schedulemc.lightmap.persistent;
+package de.rolandsw.schedulemc.mapview.persistent;
 
-import de.rolandsw.schedulemc.lightmap.LightMapConstants;
+import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
@@ -38,20 +38,20 @@ public final class ThreadManager {
         saveExecutorService.shutdown();
         try {
             while (!saveExecutorService.awaitTermination(240, TimeUnit.SECONDS)) {
-                LightMapConstants.getLogger().info("Waiting for map save... (" + saveExecutorService.getQueue().size() + ")");
+                MapViewConstants.getLogger().info("Waiting for map save... (" + saveExecutorService.getQueue().size() + ")");
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
         // Performance-Optimierung: Nutze optimierte ThreadPool-Parameter
         saveExecutorService = new ThreadPoolExecutor(coreThreads, concurrentThreads, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(10000));
-        saveExecutorService.setThreadFactory(new NamedThreadFactory("LightMap WorldMap Saver Thread"));
-        LightMapConstants.getLogger().info("Save queue flushed!");
+        saveExecutorService.setThreadFactory(new NamedThreadFactory("MapCore WorldMap Saver Thread"));
+        MapViewConstants.getLogger().info("Save queue flushed!");
     }
 
     static {
-        executorService.setThreadFactory(new NamedThreadFactory("LightMap WorldMap Calculation Thread"));
-        saveExecutorService.setThreadFactory(new NamedThreadFactory("LightMap WorldMap Saver Thread"));
+        executorService.setThreadFactory(new NamedThreadFactory("MapCore WorldMap Calculation Thread"));
+        saveExecutorService.setThreadFactory(new NamedThreadFactory("MapCore WorldMap Saver Thread"));
     }
 
     private static final class NamedThreadFactory implements ThreadFactory {

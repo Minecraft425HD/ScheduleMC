@@ -1,6 +1,6 @@
-package de.rolandsw.schedulemc.lightmap.packets;
+package de.rolandsw.schedulemc.mapview.packets;
 
-import de.rolandsw.schedulemc.lightmap.LightMapConstants;
+import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import java.nio.charset.StandardCharsets;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -21,11 +21,11 @@ public record WorldIdS2C(String worldName) {
             length = buf.readUnsignedByte();
         } else if (b == 0) {
             // length == 0 ?
-            LightMapConstants.getLogger().warn("Received unknown world_id packet");
+            MapViewConstants.getLogger().warn("Received unknown world_id packet");
             return null;
         } else {
             // probably "legacy" packet
-            LightMapConstants.getLogger().warn("Assuming legacy world_id packet. " +
+            MapViewConstants.getLogger().warn("Assuming legacy world_id packet. " +
                     "The support might be removed in the future versions.");
             length = b;
         }
@@ -42,9 +42,9 @@ public record WorldIdS2C(String worldName) {
 
     public static void updateWorld(WorldIdS2C packet) {
         String worldName = packet.worldName;
-        LightMapConstants.getLogger().info("Received world_id: " + worldName);
+        MapViewConstants.getLogger().info("Received world_id: " + worldName);
         if (worldName != null) {
-            LightMapConstants.getLightMapInstance().newSubWorldName(worldName, true);
+            MapViewConstants.getLightMapInstance().newSubWorldName(worldName, true);
         }
     }
 }

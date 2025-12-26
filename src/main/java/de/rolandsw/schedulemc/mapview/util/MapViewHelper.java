@@ -1,13 +1,13 @@
-package de.rolandsw.schedulemc.lightmap.util;
+package de.rolandsw.schedulemc.mapview.util;
 
-import de.rolandsw.schedulemc.lightmap.MinimapSettings;
-import de.rolandsw.schedulemc.lightmap.LightMapConstants;
+import de.rolandsw.schedulemc.mapview.MapConfiguration;
+import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import java.util.Objects;
 import java.util.Random;
 import net.minecraft.client.multiplayer.ClientLevel;
 
-public class MinimapHelper {
-    private static MinimapSettings options;
+public class MapViewHelper {
+    private static MapConfiguration options;
     private static Random slimeRandom = new Random();
     private static String lastSeed;
     private static long lastSeedLong;
@@ -16,7 +16,7 @@ public class MinimapHelper {
     private static boolean isSlimeChunk;
 
     public static void reset() {
-        options = LightMapConstants.getLightMapInstance().getMapOptions();
+        options = MapViewConstants.getLightMapInstance().getMapOptions();
     }
 
     public static int doSlimeAndGrid(int color24, ClientLevel world, int mcX, int mcZ) {
@@ -40,7 +40,7 @@ public class MinimapHelper {
     public synchronized static boolean isSlimeChunk(int mcX, int mcZ) {
         int xPosition = mcX >> 4;
         int zPosition = mcZ >> 4;
-        String seedString = LightMapConstants.getLightMapInstance().getWorldSeed();
+        String seedString = MapViewConstants.getLightMapInstance().getWorldSeed();
         if (seedString.isEmpty()) {
             return false;
         }

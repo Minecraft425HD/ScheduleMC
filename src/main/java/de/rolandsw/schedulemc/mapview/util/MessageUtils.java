@@ -1,15 +1,15 @@
-package de.rolandsw.schedulemc.lightmap.util;
+package de.rolandsw.schedulemc.mapview.util;
 
-import de.rolandsw.schedulemc.lightmap.LightMapConstants;
+import de.rolandsw.schedulemc.mapview.MapViewConstants;
 
 public final class MessageUtils {
     private static final boolean debug = false;
 
     private MessageUtils() {}
 
-    public static void chatInfo(String s) { LightMapConstants.getLightMapInstance().sendPlayerMessageOnMainThread(s); }
+    public static void chatInfo(String s) { MapViewConstants.getLightMapInstance().sendPlayerMessageOnMainThread(s); }
 
     public static void printDebug(String line) { if (debug) {
-        LightMapConstants.getLogger().warn(line);
+        MapViewConstants.getLogger().warn(line);
     } }
 }

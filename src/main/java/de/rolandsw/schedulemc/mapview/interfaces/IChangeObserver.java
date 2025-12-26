@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.lightmap.interfaces;
+package de.rolandsw.schedulemc.mapview.interfaces;
 
 import net.minecraft.world.level.chunk.LevelChunk;
 

@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.lightmap.util;
+package de.rolandsw.schedulemc.mapview.util;
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -8,8 +8,8 @@ import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 
-public class LightMapRenderTypes extends RenderStateShard {
-    private LightMapRenderTypes(String p_173178_, Runnable p_173179_, Runnable p_173180_) {
+public class MapViewRenderTypes extends RenderStateShard {
+    private MapViewRenderTypes(String p_173178_, Runnable p_173179_, Runnable p_173180_) {
         super(p_173178_, p_173179_, p_173180_);
     }
 

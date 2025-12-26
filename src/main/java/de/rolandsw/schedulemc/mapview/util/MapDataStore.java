@@ -1,6 +1,6 @@
-package de.rolandsw.schedulemc.lightmap.util;
+package de.rolandsw.schedulemc.mapview.util;
 
-import de.rolandsw.schedulemc.lightmap.interfaces.AbstractMapData;
+import de.rolandsw.schedulemc.mapview.interfaces.AbstractMapData;
 import java.util.Arrays;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;

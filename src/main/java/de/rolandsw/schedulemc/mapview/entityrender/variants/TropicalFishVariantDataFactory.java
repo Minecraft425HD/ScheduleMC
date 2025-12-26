@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.lightmap.entityrender.variants;
+package de.rolandsw.schedulemc.mapview.entityrender.variants;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;

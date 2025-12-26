@@ -1,6 +1,6 @@
-package de.rolandsw.schedulemc.lightmap.entityrender.variants;
+package de.rolandsw.schedulemc.mapview.entityrender.variants;
 
-import de.rolandsw.schedulemc.lightmap.entityrender.EntityVariantData;
+import de.rolandsw.schedulemc.mapview.entityrender.EntityVariantData;
 import java.util.Objects;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;

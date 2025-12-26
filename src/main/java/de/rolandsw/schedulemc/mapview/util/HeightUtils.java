@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.lightmap.util;
+package de.rolandsw.schedulemc.mapview.util;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;

@@ -1,5 +1,5 @@
-package de.rolandsw.schedulemc.lightmap;
+package de.rolandsw.schedulemc.mapview;
 
 public interface Events {
-    void initEvents(LightMap map);
+    void initEvents(MapCore map);
 }

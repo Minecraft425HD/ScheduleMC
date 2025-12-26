@@ -1,6 +1,6 @@
-package de.rolandsw.schedulemc.lightmap.gui.overridden;
+package de.rolandsw.schedulemc.mapview.gui.overridden;
 
-public enum EnumOptionsMinimap {
+public enum EnumOptionsMapView {
     OLD_NORTH("options.minimap.oldNorth", false, true, false),
     ZOOM("option.minimapZoom", false, true, false),
     LOCATION("options.minimap.location", false, false, true),
@@ -11,7 +11,7 @@ public enum EnumOptionsMinimap {
     private final boolean isList;
     private final String name;
 
-    EnumOptionsMinimap(String name, boolean isFloat, boolean isBoolean, boolean isList) {
+    EnumOptionsMapView(String name, boolean isFloat, boolean isBoolean, boolean isList) {
         this.name = name;
         this.isFloat = isFloat;
         this.isBoolean = isBoolean;
