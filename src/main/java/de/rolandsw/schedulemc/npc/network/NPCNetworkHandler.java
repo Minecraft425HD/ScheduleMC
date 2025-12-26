@@ -45,6 +45,13 @@ public class NPCNetworkHandler {
             .consumerMainThread(SyncNPCDataPacket::handle)
             .add();
 
+        // Performance-optimized: Balance-only sync (12 bytes vs 500-2000 bytes)
+        INSTANCE.messageBuilder(SyncNPCBalancePacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+            .decoder(SyncNPCBalancePacket::decode)
+            .encoder(SyncNPCBalancePacket::encode)
+            .consumerMainThread(SyncNPCBalancePacket::handle)
+            .add();
+
         INSTANCE.messageBuilder(PurchaseItemPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
             .decoder(PurchaseItemPacket::decode)
             .encoder(PurchaseItemPacket::encode)

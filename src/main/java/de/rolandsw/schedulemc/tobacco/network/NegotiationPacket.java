@@ -143,6 +143,9 @@ public class NegotiationPacket {
                 // NPC bezahlt: Ziehe Geld vom NPC-Wallet ab
                 npc.getNpcData().removeMoney((int)price);
 
+                // Performance-Optimierung: Sync nur Wallet statt Full NPC Data
+                npc.syncWalletToClient();
+
                 // Geld zum Wallet-Item hinzufügen (Slot 8 = Slot 9 im UI)
                 ItemStack walletItem = player.getInventory().getItem(8);
                 if (walletItem.getItem() instanceof CashItem) {

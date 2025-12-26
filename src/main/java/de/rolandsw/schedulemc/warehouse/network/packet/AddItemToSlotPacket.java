@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.warehouse.network.packet;
 
+import de.rolandsw.schedulemc.managers.NPCEntityRegistry;
 import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.util.PacketHandler;
@@ -115,16 +116,8 @@ public class AddItemToSlotPacket {
         int defaultPrice = 100; // Standard-Preis für neue Items
 
         for (UUID sellerId : sellers) {
-            // Finde den NPC
-            CustomNPCEntity npc = null;
-            for (Entity entity : level.getAllEntities()) {
-                if (entity instanceof CustomNPCEntity customNpc) {
-                    if (customNpc.getUUID().equals(sellerId)) {
-                        npc = customNpc;
-                        break;
-                    }
-                }
-            }
+            // Performance-Optimierung: O(1) UUID Lookup statt O(n) getAllEntities() Iteration
+            CustomNPCEntity npc = NPCEntityRegistry.getNPCByUUID(sellerId, level);
 
             if (npc != null) {
                 NPCData.ShopInventory shop = npc.getNpcData().getBuyShop();

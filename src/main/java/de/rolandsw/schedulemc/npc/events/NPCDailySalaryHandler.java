@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.npc.events;
 
 import com.mojang.logging.LogUtils;
+import de.rolandsw.schedulemc.managers.NPCEntityRegistry;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.util.EventHelper;
 import net.minecraft.ChatFormatting;
@@ -51,15 +52,17 @@ public class NPCDailySalaryHandler {
 
     /**
      * Zahlt allen NPCs ihr tägliches Gehalt aus
+     * Performance-Optimierung: Nutze NPCEntityRegistry statt getAllEntities() (O(1) vs O(n))
      */
     private static void payAllNPCSalaries(ServerLevel level, long currentDay) {
         int paidCount = 0;
         int totalAmount = 0;
 
-        // Durchlaufe ALLE Entities in ALLEN geladenen Welten
+        // Performance-Optimierung: Durchlaufe nur registrierte NPCs (O(n) wo n = Anzahl NPCs)
+        // VORHER: getAllEntities() durchläuft ALLE Entities (kann 1000+ sein)
+        // NACHHER: Nur NPCs durchlaufen (typisch 10-100)
         for (ServerLevel serverLevel : level.getServer().getAllLevels()) {
-            for (Entity entity : serverLevel.getAllEntities()) {
-                if (entity instanceof CustomNPCEntity npc) {
+            for (CustomNPCEntity npc : NPCEntityRegistry.getAllNPCs(serverLevel)) {
                     // Nur BEWOHNER und VERKAEUFER (nicht Polizei)
                     if (!npc.getNpcData().hasInventoryAndWallet()) {
                         continue;
@@ -73,6 +76,9 @@ public class NPCDailySalaryHandler {
 
                         npc.getNpcData().addMoney(income);
                         npc.getNpcData().setLastDailyIncome(currentDay);
+
+                        // Performance-Optimierung: Sync nur Wallet statt Full NPC Data
+                        npc.syncWalletToClient();
 
                         paidCount++;
                         totalAmount += income;

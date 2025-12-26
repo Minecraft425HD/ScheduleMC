@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.npc.entity;
 
+import de.rolandsw.schedulemc.managers.NPCEntityRegistry;
 import de.rolandsw.schedulemc.managers.NPCNameRegistry;
 import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.data.NPCPersonality;
@@ -230,6 +231,20 @@ public class CustomNPCEntity extends PathfinderMob {
     }
 
     /**
+     * Called when entity is added to the world
+     * Performance-Optimierung: Registriere im NPCEntityRegistry für O(1) UUID Lookups
+     */
+    @Override
+    public void onAddedToWorld() {
+        super.onAddedToWorld();
+
+        // Nur Server-Side registrieren
+        if (!this.level().isClientSide && this.level() instanceof ServerLevel) {
+            NPCEntityRegistry.registerNPC(this);
+        }
+    }
+
+    /**
      * Synchronisiert wichtige Daten zum Client
      */
     private void syncToClient() {
@@ -242,6 +257,19 @@ public class CustomNPCEntity extends PathfinderMob {
         String personalityStr = npcData.getCustomData().getString("personality");
         if (!personalityStr.isEmpty()) {
             this.entityData.set(PERSONALITY, personalityStr);
+        }
+    }
+
+    /**
+     * Synchronisiert nur Wallet zum Client (Performance-Optimierung)
+     * Nutzt leichtgewichtiges SyncNPCBalancePacket (2-10 Bytes) statt Full Sync (500-2000 Bytes)
+     */
+    public void syncWalletToClient() {
+        if (!level().isClientSide && level() instanceof net.minecraft.server.level.ServerLevel) {
+            de.rolandsw.schedulemc.npc.network.NPCNetworkHandler.INSTANCE.send(
+                net.minecraftforge.network.PacketDistributor.TRACKING_ENTITY.with(() -> this),
+                new de.rolandsw.schedulemc.npc.network.SyncNPCBalancePacket(this.getId(), npcData.getWallet())
+            );
         }
     }
 
@@ -354,6 +382,11 @@ public class CustomNPCEntity extends PathfinderMob {
     @Override
     public void remove(RemovalReason reason) {
         super.remove(reason);
+
+        // Performance-Optimierung: Unregistriere aus NPCEntityRegistry
+        if (!this.level().isClientSide) {
+            NPCEntityRegistry.unregisterNPC(this);
+        }
 
         // Unregistriere Namen aus dem Registry nur auf Server-Seite
         if (!this.level().isClientSide) {

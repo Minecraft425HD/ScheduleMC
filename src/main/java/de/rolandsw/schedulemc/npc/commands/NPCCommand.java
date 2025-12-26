@@ -914,6 +914,9 @@ public class NPCCommand {
 
         npc.getNpcData().setWallet(amount);
 
+        // Performance-Optimierung: Sync nur Wallet statt Full NPC Data
+        npc.syncWalletToClient();
+
         context.getSource().sendSuccess(
             () -> Component.literal("Geldbörse gesetzt auf ").withStyle(ChatFormatting.GREEN)
                 .append(Component.literal(amount + " Bargeld")
@@ -956,6 +959,9 @@ public class NPCCommand {
         }
 
         npc.getNpcData().addMoney(amount);
+
+        // Performance-Optimierung: Sync nur Wallet statt Full NPC Data
+        npc.syncWalletToClient();
 
         context.getSource().sendSuccess(
             () -> Component.literal(amount + " Bargeld hinzugefügt. Neue Geldbörse: ")
@@ -1000,6 +1006,11 @@ public class NPCCommand {
         }
 
         boolean success = npc.getNpcData().removeMoney(amount);
+
+        // Performance-Optimierung: Sync nur Wallet statt Full NPC Data (nur bei Erfolg)
+        if (success) {
+            npc.syncWalletToClient();
+        }
 
         if (!success) {
             context.getSource().sendFailure(
