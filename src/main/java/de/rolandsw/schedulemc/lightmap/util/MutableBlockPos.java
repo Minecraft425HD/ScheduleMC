@@ -14,7 +14,7 @@ public class MutableBlockPos extends BlockPos.MutableBlockPos {
         this.z = z;
     }
 
-    public com.lightmap.util.MutableBlockPos withXYZ(int x, int y, int z) {
+    public MutableBlockPos withXYZ(int x, int y, int z) {
         this.x = x;
         this.y = y;
         this.z = z;
