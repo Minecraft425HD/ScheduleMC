@@ -4,6 +4,7 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import de.rolandsw.schedulemc.mapview.service.data.ConfigNotificationService;
 import de.rolandsw.schedulemc.mapview.service.data.WorldMapData;
+import de.rolandsw.schedulemc.mapview.data.persistence.AsyncPersistenceManager;
 import de.rolandsw.schedulemc.mapview.data.persistence.CompressedMapData;
 import de.rolandsw.schedulemc.mapview.data.persistence.CompressedImageData;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;

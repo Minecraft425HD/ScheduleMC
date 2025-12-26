@@ -90,4 +90,55 @@ public class WorldMapConfiguration implements SubSettingsManager {
         this.zoom = Math.max(this.zoom, this.minZoom);
         this.zoom = Math.min(this.zoom, this.maxZoom);
     }
+
+    // Public getters and setters for protected fields
+    public int getMapX() {
+        return mapX;
+    }
+
+    public void setMapX(int mapX) {
+        this.mapX = mapX;
+    }
+
+    public int getMapZ() {
+        return mapZ;
+    }
+
+    public void setMapZ(int mapZ) {
+        this.mapZ = mapZ;
+    }
+
+    public float getZoom() {
+        return zoom;
+    }
+
+    public void setZoom(float zoom) {
+        this.zoom = zoom;
+        this.bindZoom();
+    }
+
+    public float getMinZoom() {
+        return minZoom;
+    }
+
+    public float getMaxZoom() {
+        return maxZoom;
+    }
+
+    public int getCacheSize() {
+        return cacheSize;
+    }
+
+    public void setCacheSize(int cacheSize) {
+        this.cacheSize = cacheSize;
+        this.bindCacheSize();
+    }
+
+    public boolean isOutputImages() {
+        return outputImages;
+    }
+
+    public void setOutputImages(boolean outputImages) {
+        this.outputImages = outputImages;
+    }
 }

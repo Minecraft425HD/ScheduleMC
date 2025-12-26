@@ -4,6 +4,7 @@ import com.google.common.collect.UnmodifiableIterator;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import de.rolandsw.schedulemc.mapview.core.model.AbstractMapData;
 import de.rolandsw.schedulemc.mapview.core.model.BlockModel;
+import de.rolandsw.schedulemc.mapview.integration.DebugRenderState;
 import de.rolandsw.schedulemc.mapview.util.BlockDatabase;
 import de.rolandsw.schedulemc.mapview.service.render.ColorUtils;
 import de.rolandsw.schedulemc.mapview.util.GLUtils;

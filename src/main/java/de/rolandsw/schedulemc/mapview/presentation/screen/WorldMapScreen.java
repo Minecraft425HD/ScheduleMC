@@ -122,9 +122,9 @@ public class WorldMapScreen extends PopupScreen {
         mapOptions = MapViewConstants.getLightMapInstance().getMapOptions();
         this.persistentMap = MapViewConstants.getLightMapInstance().getWorldMapData();
         this.options = MapViewConstants.getLightMapInstance().getWorldMapDataOptions();
-        this.zoom = this.options.zoom;
-        this.zoomStart = this.options.zoom;
-        this.zoomGoal = this.options.zoom;
+        this.zoom = this.options.getZoom();
+        this.zoomStart = this.options.getZoom();
+        this.zoomGoal = this.options.getZoom();
         this.persistentMap.setLightMapArray(MapViewConstants.getLightMapInstance().getMap().getLightmapArray());
         if (!gotSkin) {
             this.getSkin();
@@ -168,7 +168,7 @@ public class WorldMapScreen extends PopupScreen {
     public void init() {
         this.passEvents = true;
         this.oldNorth = mapOptions.oldNorth;
-        this.centerAt(this.options.mapX, this.options.mapZ);
+        this.centerAt(this.options.getMapX(), this.options.getMapZ());
         if (minecraft.screen == this) {
             this.closed = false;
         }
@@ -271,8 +271,8 @@ public class WorldMapScreen extends PopupScreen {
     }
 
     private float bindZoom(float zoom) {
-        zoom = Math.max(this.options.minZoom, zoom);
-        return Math.min(this.options.maxZoom, zoom);
+        zoom = Math.max(this.options.getMinZoom(), zoom);
+        return Math.min(this.options.getMaxZoom(), zoom);
     }
 
     @Override
@@ -486,7 +486,7 @@ public class WorldMapScreen extends PopupScreen {
             this.mapCenterZ += zoomDeltaY / scaledZoom;
         }
 
-        this.options.zoom = this.zoomGoal;
+        this.options.setZoom(this.zoomGoal);
         float scaledZoom = this.zoom;
         if (minecraft.getWindow().getScreenWidth() > 1600) {
             scaledZoom = this.zoom * minecraft.getWindow().getScreenWidth() / 1600.0F;
@@ -560,11 +560,11 @@ public class WorldMapScreen extends PopupScreen {
         this.mapCenterX += this.deltaX;
         this.mapCenterZ += this.deltaY;
         if (this.oldNorth) {
-            this.options.mapX = (int) this.mapCenterZ;
-            this.options.mapZ = -((int) this.mapCenterX);
+            this.options.setMapX((int) this.mapCenterZ);
+            this.options.setMapZ(-((int) this.mapCenterX));
         } else {
-            this.options.mapX = (int) this.mapCenterX;
-            this.options.mapZ = (int) this.mapCenterZ;
+            this.options.setMapX((int) this.mapCenterX);
+            this.options.setMapZ((int) this.mapCenterZ);
         }
 
         this.centerX = this.getWidth() / 2;

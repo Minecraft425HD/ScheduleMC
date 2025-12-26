@@ -73,14 +73,14 @@ public class WorldMapData implements MapChangeListener {
         } else if (mostRecentAccess1 > mostRecentAccess2) {
             return -1;
         } else {
-            double distance1sq = (region1.getX() * 256 + region1.getWidth() / 2f - WorldMapData.this.options.mapX) * (region1.getX() * 256 + region1.getWidth() / 2f - WorldMapData.this.options.mapX) + (region1.getZ() * 256 + region1.getWidth() / 2f - WorldMapData.this.options.mapZ) * (region1.getZ() * 256 + region1.getWidth() / 2f - WorldMapData.this.options.mapZ);
-            double distance2sq = (region2.getX() * 256 + region2.getWidth() / 2f - WorldMapData.this.options.mapX) * (region2.getX() * 256 + region2.getWidth() / 2f - WorldMapData.this.options.mapX) + (region2.getZ() * 256 + region2.getWidth() / 2f - WorldMapData.this.options.mapZ) * (region2.getZ() * 256 + region2.getWidth() / 2f - WorldMapData.this.options.mapZ);
+            double distance1sq = (region1.getX() * 256 + region1.getWidth() / 2f - WorldMapData.this.options.getMapX()) * (region1.getX() * 256 + region1.getWidth() / 2f - WorldMapData.this.options.getMapX()) + (region1.getZ() * 256 + region1.getWidth() / 2f - WorldMapData.this.options.getMapZ()) * (region1.getZ() * 256 + region1.getWidth() / 2f - WorldMapData.this.options.getMapZ());
+            double distance2sq = (region2.getX() * 256 + region2.getWidth() / 2f - WorldMapData.this.options.getMapX()) * (region2.getX() * 256 + region2.getWidth() / 2f - WorldMapData.this.options.getMapX()) + (region2.getZ() * 256 + region2.getWidth() / 2f - WorldMapData.this.options.getMapZ()) * (region2.getZ() * 256 + region2.getWidth() / 2f - WorldMapData.this.options.getMapZ());
             return Double.compare(distance1sq, distance2sq);
         }
     };
     final Comparator<RegionCoordinates> distanceSorter = (coordinates1, coordinates2) -> {
-        double distance1sq = (coordinates1.x * 256 + 128 - WorldMapData.this.options.mapX) * (coordinates1.x * 256 + 128 - WorldMapData.this.options.mapX) + (coordinates1.z * 256 + 128 - WorldMapData.this.options.mapZ) * (coordinates1.z * 256 + 128 - WorldMapData.this.options.mapZ);
-        double distance2sq = (coordinates2.x * 256 + 128 - WorldMapData.this.options.mapX) * (coordinates2.x * 256 + 128 - WorldMapData.this.options.mapX) + (coordinates2.z * 256 + 128 - WorldMapData.this.options.mapZ) * (coordinates2.z * 256 + 128 - WorldMapData.this.options.mapZ);
+        double distance1sq = (coordinates1.x * 256 + 128 - WorldMapData.this.options.getMapX()) * (coordinates1.x * 256 + 128 - WorldMapData.this.options.getMapX()) + (coordinates1.z * 256 + 128 - WorldMapData.this.options.getMapZ()) * (coordinates1.z * 256 + 128 - WorldMapData.this.options.getMapZ());
+        double distance2sq = (coordinates2.x * 256 + 128 - WorldMapData.this.options.getMapX()) * (coordinates2.x * 256 + 128 - WorldMapData.this.options.getMapX()) + (coordinates2.z * 256 + 128 - WorldMapData.this.options.getMapZ()) * (coordinates2.z * 256 + 128 - WorldMapData.this.options.getMapZ());
         return Double.compare(distance1sq, distance2sq);
     };
     private boolean queuedChangedChunks;
@@ -149,8 +149,8 @@ public class WorldMapData implements MapChangeListener {
             return;
         }
         if (MapViewConstants.getMinecraft().screen == null) {
-            this.options.mapX = MinecraftAccessor.xCoord();
-            this.options.mapZ = MinecraftAccessor.zCoord();
+            this.options.setMapX(MinecraftAccessor.xCoord());
+            this.options.setMapZ(MinecraftAccessor.zCoord());
         }
 
         // Subworld detection removed with waypoint system
@@ -787,9 +787,9 @@ public class WorldMapData implements MapChangeListener {
                 }
             }
 
-            if (this.cachedRegionsPool.size() > this.options.cacheSize) {
+            if (this.cachedRegionsPool.size() > this.options.getCacheSize()) {
                 this.cachedRegionsPool.sort(this.ageThenDistanceSorter);
-                List<RegionCache> toRemove = this.cachedRegionsPool.subList(this.options.cacheSize, this.cachedRegionsPool.size());
+                List<RegionCache> toRemove = this.cachedRegionsPool.subList(this.options.getCacheSize(), this.cachedRegionsPool.size());
 
                 for (RegionCache cachedRegion : toRemove) {
                     this.cachedRegions.remove(cachedRegion.getKey());

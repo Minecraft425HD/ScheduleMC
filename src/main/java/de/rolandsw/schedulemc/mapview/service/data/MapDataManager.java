@@ -54,7 +54,7 @@ public class MapDataManager implements PreparableReloadListener {
 
     private ArrayDeque<Runnable> runOnWorldSet = new ArrayDeque<>();
 
-    MapDataManager() {
+    public MapDataManager() {
         // Initialize coordination services
         this.renderService = new RenderCoordinationService();
         this.worldStateService = new WorldStateService();
