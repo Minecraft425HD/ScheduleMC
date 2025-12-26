@@ -652,7 +652,7 @@ public class WorldMapScreen extends PopupGuiScreen {
                 boolean still = !this.leftMouseButtonDown;
                 still = still && this.zoom == this.zoomGoal;
                 still = still && this.deltaX == 0.0F && this.deltaY == 0.0F;
-                still = still && ThreadManager.executorService.getActiveCount() == 0;
+                still = still && AsyncPersistenceManager.executorService.getActiveCount() == 0;
                 if (still && !this.lastStill) {
                     int column;
                     if (this.oldNorth) {

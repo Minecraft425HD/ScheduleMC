@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.mapview.persistent;
+package de.rolandsw.schedulemc.mapview.data.cache;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;

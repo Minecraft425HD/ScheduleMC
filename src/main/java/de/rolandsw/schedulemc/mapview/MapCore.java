@@ -2,7 +2,7 @@ package de.rolandsw.schedulemc.mapview;
 
 import de.rolandsw.schedulemc.mapview.persistent.WorldMapData;
 import de.rolandsw.schedulemc.mapview.config.WorldMapConfiguration;
-import de.rolandsw.schedulemc.mapview.persistent.ThreadManager;
+import de.rolandsw.schedulemc.mapview.data.persistence.AsyncPersistenceManager;
 import de.rolandsw.schedulemc.mapview.util.BiomeColors;
 import de.rolandsw.schedulemc.mapview.util.DimensionManager;
 import de.rolandsw.schedulemc.mapview.util.GameVariableAccessShim;
@@ -164,7 +164,7 @@ public class MapCore implements PreparableReloadListener {
 
     public void onClientStopping() {
         MapViewConstants.onShutDown();
-        ThreadManager.flushSaveQueue();
+        AsyncPersistenceManager.flushSaveQueue();
     }
 
     /**

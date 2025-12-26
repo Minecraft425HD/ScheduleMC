@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.mapview.persistent;
+package de.rolandsw.schedulemc.mapview.data.cache;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
@@ -75,7 +75,7 @@ public class RegionCache {
     boolean remoteWorld;
     private final boolean[] liveChunkUpdateQueued = new boolean[256];
     private final boolean[] chunkUpdateQueued = new boolean[256];
-    private CompressedGLImage image;
+    private CompressedImageData image;
     private CompressedMapData data;
     final MutableBlockPos blockPos = new MutableBlockPos(0, 0, 0);
     final MutableBlockPos loopBlockPos = new MutableBlockPos(0, 0, 0);
@@ -183,7 +183,7 @@ public class RegionCache {
                 this.refreshQueued = false;
             } else {
                 RefreshRunnable regionProcessingRunnable = new RefreshRunnable(forceCompress);
-                this.future = ThreadManager.executorService.submit(regionProcessingRunnable);
+                this.future = AsyncPersistenceManager.executorService.submit(regionProcessingRunnable);
             }
 
         }
@@ -198,13 +198,13 @@ public class RegionCache {
             this.mostRecentView = System.currentTimeMillis();
             this.mostRecentChange = this.mostRecentView;
             FillChunkRunnable fillChunkRunnable = new FillChunkRunnable(chunk);
-            ThreadManager.executorService.execute(fillChunkRunnable);
+            AsyncPersistenceManager.executorService.execute(fillChunkRunnable);
         }
     }
 
     private void load() {
         this.data = new CompressedMapData(world);
-        this.image = new CompressedGLImage(256, 256, 6);
+        this.image = new CompressedImageData(256, 256, 6);
         this.loadCachedData();
         this.loadCurrentData(this.world);
         if (!this.remoteWorld) {
@@ -531,7 +531,7 @@ public class RegionCache {
     private void saveData(boolean newThread) {
         if (this.liveChunksUpdated && !this.worldNamePathPart.isEmpty()) {
             if (newThread) {
-                ThreadManager.saveExecutorService.execute(() -> {
+                AsyncPersistenceManager.saveExecutorService.execute(() -> {
                     if (MapViewConstants.DEBUG) {
                         MapViewConstants.getLogger().info("Saving region file for " + RegionCache.this.x + "," + RegionCache.this.z + " in " + RegionCache.this.worldNamePathPart + "/" + RegionCache.this.subworldNamePathPart + RegionCache.this.dimensionNamePathPart);
                     }
@@ -546,7 +546,7 @@ public class RegionCache {
                     }
                     if (MapViewConstants.DEBUG) {
                         MapViewConstants.getLogger().info("Finished saving region file for " + RegionCache.this.x + "," + RegionCache.this.z + " in " + RegionCache.this.worldNamePathPart + "/" + RegionCache.this.subworldNamePathPart + RegionCache.this.dimensionNamePathPart + " ("
-                                + ThreadManager.saveExecutorService.getQueue().size() + ")");
+                                + AsyncPersistenceManager.saveExecutorService.getQueue().size() + ")");
                     }
                 });
             } else {
@@ -642,7 +642,7 @@ public class RegionCache {
             imageFileDir.mkdirs();
             final File imageFile = new File(imageFileDir, this.key + ".png");
             if (this.liveChunksUpdated || !imageFile.exists()) {
-                ThreadManager.executorService.execute(() -> {
+                AsyncPersistenceManager.executorService.execute(() -> {
                     RegionCache.this.threadLock.lock();
 
                     try {
@@ -733,7 +733,7 @@ public class RegionCache {
     public void compress() {
         if (this.data != null && !this.isCompressed() && !this.queuedToCompress) {
             this.queuedToCompress = true;
-            ThreadManager.executorService.execute(() -> {
+            AsyncPersistenceManager.executorService.execute(() -> {
                 if (this.threadLock.tryLock()) {
                     try {
                         this.compressData();

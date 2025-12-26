@@ -1,9 +1,9 @@
-package de.rolandsw.schedulemc.mapview.persistent;
+package de.rolandsw.schedulemc.mapview.data.persistence;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import de.rolandsw.schedulemc.mapview.core.model.AbstractMapData;
-import de.rolandsw.schedulemc.mapview.util.CompressionUtils;
+import de.rolandsw.schedulemc.mapview.data.persistence.CompressionUtils;
 import java.util.Arrays;
 import java.util.zip.DataFormatException;
 import net.minecraft.client.Minecraft;

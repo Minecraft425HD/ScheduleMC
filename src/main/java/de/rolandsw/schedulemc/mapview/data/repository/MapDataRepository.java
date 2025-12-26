@@ -1,17 +1,17 @@
-package de.rolandsw.schedulemc.mapview.util;
+package de.rolandsw.schedulemc.mapview.data.repository;
 
 import de.rolandsw.schedulemc.mapview.core.model.AbstractMapData;
 import java.util.Arrays;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class MapDataStore extends AbstractMapData {
+public class MapDataRepository extends AbstractMapData {
     private final static int LAYERS = 17;
 
     private int[] data;
     private Biome[] biomes;
 
-    public MapDataStore(int width, int height) {
+    public MapDataRepository(int width, int height) {
         this.width = width;
         this.height = height;
         this.data = new int[width * height * LAYERS];

@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.mapview.persistent;
+package de.rolandsw.schedulemc.mapview.data.cache;
 
 import de.rolandsw.schedulemc.mapview.ConfigurationChangeNotifier;
 import net.minecraft.resources.ResourceLocation;

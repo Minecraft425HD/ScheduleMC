@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.mapview.persistent;
+package de.rolandsw.schedulemc.mapview.data.persistence;
 
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import java.util.concurrent.FutureTask;
@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.jetbrains.annotations.NotNull;
 
-public final class ThreadManager {
+public final class AsyncPersistenceManager {
     // Performance-Optimierung: Nutze bis zu 75% der CPU-Cores (min 2, max 16)
     // Vorher: Hard-Cap bei 4 Threads → unterausgelastet auf modernen CPUs
     static final int concurrentThreads = Math.min(Math.max(Runtime.getRuntime().availableProcessors() * 3 / 4, 2), 16);
@@ -22,7 +22,7 @@ public final class ThreadManager {
     // Performance-Optimierung: Bounded queue für Save-Operations (10000 Tasks max)
     public static ThreadPoolExecutor saveExecutorService = new ThreadPoolExecutor(coreThreads, concurrentThreads, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(10000));
 
-    private ThreadManager() {}
+    private AsyncPersistenceManager() {}
 
     public static void emptyQueue() {
         for (Runnable runnable : queue) {

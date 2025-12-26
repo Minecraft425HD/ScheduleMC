@@ -722,7 +722,7 @@ public class WorldMapData implements MapChangeListener {
         if (left == this.lastLeft && right == this.lastRight && top == this.lastTop && bottom == this.lastBottom) {
             return this.lastRegionsArray;
         } else {
-            ThreadManager.emptyQueue();
+            AsyncPersistenceManager.emptyQueue();
             RegionCache[] visibleRegionCachesArray = new RegionCache[(right - left + 1) * (bottom - top + 1)];
             String worldName = MapViewConstants.getLightMapInstance().getCurrentWorldName();
             String subWorldName = "";

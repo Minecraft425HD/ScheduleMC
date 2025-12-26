@@ -10,13 +10,13 @@ import de.rolandsw.schedulemc.mapview.util.CPUMapRenderer;
 import de.rolandsw.schedulemc.mapview.util.ColorUtils;
 import de.rolandsw.schedulemc.mapview.util.DimensionContainer;
 import de.rolandsw.schedulemc.mapview.util.DynamicMoveableTexture;
-import de.rolandsw.schedulemc.mapview.util.MapDataStore;
+import de.rolandsw.schedulemc.mapview.data.repository.MapDataRepository;
 import de.rolandsw.schedulemc.mapview.util.GameVariableAccessShim;
 import de.rolandsw.schedulemc.mapview.util.LayoutVariables;
 import de.rolandsw.schedulemc.mapview.util.ChunkCache;
 import de.rolandsw.schedulemc.mapview.util.MapViewHelper;
 import de.rolandsw.schedulemc.mapview.util.MutableBlockPos;
-import de.rolandsw.schedulemc.mapview.util.MutableBlockPosCache;
+import de.rolandsw.schedulemc.mapview.data.cache.BlockPositionCache;
 import de.rolandsw.schedulemc.mapview.util.ScaledDynamicMutableTexture;
 import de.rolandsw.schedulemc.mapview.util.MapViewCachedOrthoProjectionMatrixBuffer;
 import de.rolandsw.schedulemc.mapview.util.MapViewGuiGraphics;
@@ -94,7 +94,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     private final int heightMapResetHeight = this.multicore ? 2 : 5;
     private final int heightMapResetTime = this.multicore ? 300 : 3000;
     private final boolean threading = this.multicore;
-    private final MapDataStore[] mapData = new MapDataStore[5];
+    private final MapDataRepository[] mapData = new MapDataRepository[5];
     private final ChunkCache[] chunkCache = new ChunkCache[5];
     private DynamicMoveableTexture[] mapImages;
     private ResourceLocation[] mapResources;
@@ -185,11 +185,11 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         minecraft.options.keyMappings = tempBindings.toArray(new KeyMapping[0]);
 
         this.zCalc.start();
-        this.mapData[0] = new MapDataStore(32, 32);
-        this.mapData[1] = new MapDataStore(64, 64);
-        this.mapData[2] = new MapDataStore(128, 128);
-        this.mapData[3] = new MapDataStore(256, 256);
-        this.mapData[4] = new MapDataStore(512, 512);
+        this.mapData[0] = new MapDataRepository(32, 32);
+        this.mapData[1] = new MapDataRepository(64, 64);
+        this.mapData[2] = new MapDataRepository(128, 128);
+        this.mapData[3] = new MapDataRepository(256, 256);
+        this.mapData[4] = new MapDataRepository(512, 512);
         this.chunkCache[0] = new ChunkCache(3, 3, this);
         this.chunkCache[1] = new ChunkCache(5, 5, this);
         this.chunkCache[2] = new ChunkCache(9, 9, this);
@@ -280,9 +280,9 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
                         try {
                             this.mapCalc(this.doFullRender);
                             if (!this.doFullRender) {
-                                MutableBlockPos blockPos = MutableBlockPosCache.get();
+                                MutableBlockPos blockPos = BlockPositionCache.get();
                                 this.chunkCache[this.zoom].centerChunks(blockPos.withXYZ(this.lastX, 0, this.lastZ));
-                                MutableBlockPosCache.release(blockPos);
+                                BlockPositionCache.release(blockPos);
                                 this.chunkCache[this.zoom].checkIfChunksChanged();
                             }
                         } catch (Exception exception) {
@@ -401,9 +401,9 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
             if (shouldUpdate && this.options.minimapAllowed && this.world != null) {
                 this.mapCalc(this.doFullRender);
                 if (!this.doFullRender) {
-                    MutableBlockPos blockPos = MutableBlockPosCache.get();
+                    MutableBlockPos blockPos = BlockPositionCache.get();
                     this.chunkCache[this.zoom].centerChunks(blockPos.withXYZ(this.lastX, 0, this.lastZ));
-                    MutableBlockPosCache.release(blockPos);
+                    BlockPositionCache.release(blockPos);
                     this.chunkCache[this.zoom].checkIfChunksChanged();
                 }
             }
@@ -546,9 +546,9 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
                     this.lastAboveHorizon = aboveHorizon;
                 }
 
-                MutableBlockPos blockPos = MutableBlockPosCache.get();
+                MutableBlockPos blockPos = BlockPositionCache.get();
                 int biomeID = this.world.registryAccess().registryOrThrow(Registries.BIOME).getId(this.world.getBiome(blockPos.withXYZ(GameVariableAccessShim.xCoord(), GameVariableAccessShim.yCoord(), GameVariableAccessShim.zCoord())).value());
-                MutableBlockPosCache.release(blockPos);
+                BlockPositionCache.release(blockPos);
                 if (biomeID != this.lastBiome) {
                     this.needSkyColor = true;
                     this.lastBiome = biomeID;
@@ -889,8 +889,8 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         int transparentBlockStateID;
         int foliageBlockStateID;
         int seafloorBlockStateID;
-        MutableBlockPos blockPos = MutableBlockPosCache.get();
-        MutableBlockPos tempBlockPos = MutableBlockPosCache.get();
+        MutableBlockPos blockPos = BlockPositionCache.get();
+        MutableBlockPos tempBlockPos = BlockPositionCache.get();
         blockPos.withXYZ(startX + imageX, 64, startZ + imageY);
         int color24;
         Biome biome;
@@ -1253,14 +1253,14 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
             }
 
         }
-        MutableBlockPosCache.release(blockPos);
-        MutableBlockPosCache.release(tempBlockPos);
+        BlockPositionCache.release(blockPos);
+        BlockPositionCache.release(tempBlockPos);
         // ColorUtils methods output ARGB format, convert to ABGR for NativeImage
         return MapViewHelper.doSlimeAndGrid(ARGBCompat.toABGR(color24), world, startX + imageX, startZ + imageY);
     }
 
     private int getBlockHeight(boolean nether, boolean caves, Level world, int x, int z) {
-        MutableBlockPos blockPos = MutableBlockPosCache.get();
+        MutableBlockPos blockPos = BlockPositionCache.get();
         int playerHeight = GameVariableAccessShim.yCoord();
         blockPos.setXYZ(x, playerHeight, z);
         LevelChunk chunk = (LevelChunk) world.getChunk(blockPos);
@@ -1279,12 +1279,12 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
                 blockState = fluidState.createLegacyBlock();
             }
         }
-        MutableBlockPosCache.release(blockPos);
+        BlockPositionCache.release(blockPos);
         return (nether || caves) && height > playerHeight ? this.getNetherHeight(x, z) : height;
     }
 
     private int getNetherHeight(int x, int z) {
-        MutableBlockPos blockPos = MutableBlockPosCache.get();
+        MutableBlockPos blockPos = BlockPositionCache.get();
         int y = this.lastY;
         blockPos.setXYZ(x, y, z);
         BlockState blockState = this.world.getBlockState(blockPos);
@@ -1294,11 +1294,11 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
                 blockPos.setXYZ(x, y, z);
                 blockState = this.world.getBlockState(blockPos);
                 if (blockState.getLightBlock(this.world, blockPos) > 0 || blockState.getBlock() == Blocks.LAVA) {
-                    MutableBlockPosCache.release(blockPos);
+                    BlockPositionCache.release(blockPos);
                     return y + 1;
                 }
             }
-            MutableBlockPosCache.release(blockPos);
+            BlockPositionCache.release(blockPos);
             return y;
         } else {
             while (y <= this.lastY + 10 && y < world.getMaxBuildHeight()) {
@@ -1306,26 +1306,26 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
                 blockPos.setXYZ(x, y, z);
                 blockState = this.world.getBlockState(blockPos);
                 if (blockState.getLightBlock(this.world, blockPos) == 0 && blockState.getBlock() != Blocks.LAVA) {
-                    MutableBlockPosCache.release(blockPos);
+                    BlockPositionCache.release(blockPos);
                     return y;
                 }
             }
-            MutableBlockPosCache.release(blockPos);
+            BlockPositionCache.release(blockPos);
             return this.world.getMinBuildHeight() - 1;
         }
     }
 
     private int getSeafloorHeight(Level world, int x, int z, int height) {
-        MutableBlockPos blockPos = MutableBlockPosCache.get();
+        MutableBlockPos blockPos = BlockPositionCache.get();
         for (BlockState blockState = world.getBlockState(blockPos.withXYZ(x, height - 1, z)); blockState.getLightBlock(world, blockPos.withXYZ(x, height - 1, z)) < 5 && !(blockState.getBlock() instanceof LeavesBlock) && height > world.getMinBuildHeight() + 1; blockState = world.getBlockState(blockPos.withXYZ(x, height - 1, z))) {
             --height;
         }
-        MutableBlockPosCache.release(blockPos);
+        BlockPositionCache.release(blockPos);
         return height;
     }
 
     private int getTransparentHeight(boolean nether, boolean caves, Level world, int x, int z, int height) {
-        MutableBlockPos blockPos = MutableBlockPosCache.get();
+        MutableBlockPos blockPos = BlockPositionCache.get();
         int transHeight;
         if (!caves && !nether) {
             transHeight = world.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, blockPos.withXYZ(x, height, z)).getY();
@@ -1350,7 +1350,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
                 transHeight = Short.MIN_VALUE;
             }
         }
-        MutableBlockPosCache.release(blockPos);
+        BlockPositionCache.release(blockPos);
         return transHeight;
     }
 
@@ -1406,9 +1406,9 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
                         int baseHeight = this.getBlockHeight(nether, caves, world, startX + imageX - 1, startZ + imageY + 1);
                         heightComp = this.getTransparentHeight(nether, caves, world, startX + imageX - 1, startZ + imageY + 1, baseHeight);
                         if (heightComp == Short.MIN_VALUE) {
-                            MutableBlockPos blockPos = MutableBlockPosCache.get();
+                            MutableBlockPos blockPos = BlockPositionCache.get();
                             BlockState blockState = world.getBlockState(blockPos.withXYZ(startX + imageX, height - 1, startZ + imageY));
-                            MutableBlockPosCache.release(blockPos);
+                            BlockPositionCache.release(blockPos);
                             Block block = blockState.getBlock();
                             if (block == Blocks.GLASS || block instanceof StainedGlassBlock) {
                                 heightComp = baseHeight;
@@ -1460,14 +1460,14 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         if (solid) {
             combinedLight = 0;
         } else if (color24 != this.colorManager.getAirColor() && color24 != 0 && this.options.lightmap) {
-            MutableBlockPos blockPos = MutableBlockPosCache.get();
+            MutableBlockPos blockPos = BlockPositionCache.get();
             blockPos.setXYZ(x, Math.max(Math.min(height, world.getMaxBuildHeight()), world.getMinBuildHeight()), z);
             int blockLight = world.getBrightness(LightLayer.BLOCK, blockPos);
             int skyLight = world.getBrightness(LightLayer.SKY, blockPos);
             if (blockState.getBlock() == Blocks.LAVA || blockState.getBlock() == Blocks.MAGMA_BLOCK) {
                 blockLight = 14;
             }
-            MutableBlockPosCache.release(blockPos);
+            BlockPositionCache.release(blockPos);
             combinedLight = getLightmapColor(skyLight, blockLight);
         }
 

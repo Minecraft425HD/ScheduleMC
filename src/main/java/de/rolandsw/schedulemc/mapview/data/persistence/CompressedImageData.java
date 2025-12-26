@@ -1,7 +1,7 @@
-package de.rolandsw.schedulemc.mapview.persistent;
+package de.rolandsw.schedulemc.mapview.data.persistence;
 
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
-import de.rolandsw.schedulemc.mapview.util.CompressionUtils;
+import de.rolandsw.schedulemc.mapview.data.persistence.CompressionUtils;
 // GlTexture doesn't exist in 1.20.1
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.NativeImage.Format;
@@ -20,7 +20,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryUtil;
 
-public class CompressedGLImage {
+public class CompressedImageData {
     private static final HashMap<Integer, ByteBuffer> byteBuffers = new HashMap<>(4);
     private static final int DEFAULT_SIZE = 256;
     private static final ByteBuffer defaultSizeBuffer = ByteBuffer.allocateDirect(DEFAULT_SIZE * DEFAULT_SIZE * 4).order(ByteOrder.nativeOrder());
@@ -34,7 +34,7 @@ public class CompressedGLImage {
     private final ResourceLocation location = new ResourceLocation("schedulemc", "mapview/mapimage/" + UUID.randomUUID());
     private DynamicTexture texture;
 
-    public CompressedGLImage(int width, int height, int imageType) {
+    public CompressedImageData(int width, int height, int imageType) {
         this.width = width;
         this.height = height;
         this.bytes = new byte[width * height * 4];

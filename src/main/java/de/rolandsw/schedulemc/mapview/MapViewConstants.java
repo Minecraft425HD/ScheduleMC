@@ -1,6 +1,6 @@
 package de.rolandsw.schedulemc.mapview;
 
-import de.rolandsw.schedulemc.mapview.persistent.ThreadManager;
+import de.rolandsw.schedulemc.mapview.data.persistence.AsyncPersistenceManager;
 import de.rolandsw.schedulemc.mapview.util.BiomeColors;
 import java.util.Optional;
 import net.minecraft.client.GuiMessageTag;
@@ -130,7 +130,7 @@ public final class MapViewConstants {
         BiomeColors.saveBiomeColors();
         long shutdownTime = System.currentTimeMillis();
 
-        while (ThreadManager.executorService.getQueue().size() + ThreadManager.executorService.getActiveCount() > 0 && System.currentTimeMillis() - shutdownTime < 10000L) {
+        while (AsyncPersistenceManager.executorService.getQueue().size() + AsyncPersistenceManager.executorService.getActiveCount() > 0 && System.currentTimeMillis() - shutdownTime < 10000L) {
             Thread.onSpinWait();
         }
     }

@@ -1,6 +1,6 @@
 package de.rolandsw.schedulemc.mapview;
 
-import de.rolandsw.schedulemc.mapview.persistent.RegionCache;
+import de.rolandsw.schedulemc.mapview.data.cache.RegionCache;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 public class ConfigurationChangeNotifier {

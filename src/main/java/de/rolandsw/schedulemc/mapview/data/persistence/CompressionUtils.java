@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.mapview.util;
+package de.rolandsw.schedulemc.mapview.data.persistence;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
