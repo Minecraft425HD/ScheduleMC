@@ -13,11 +13,22 @@ import net.minecraft.network.chat.Component;
  */
 public class RenderCoordinationService {
 
-    private final MapViewRenderer renderer;
+    private MapViewRenderer renderer;
     private String pendingMessage;
 
     public RenderCoordinationService() {
-        this.renderer = new MapViewRenderer();
+        // Delay renderer initialization to avoid circular dependency during static initialization
+        this.renderer = null;
+    }
+
+    /**
+     * Lazily initializes the renderer on first access.
+     * This avoids circular dependency issues during static initialization.
+     */
+    private void ensureRendererInitialized() {
+        if (this.renderer == null) {
+            this.renderer = new MapViewRenderer();
+        }
     }
 
     /**
@@ -25,6 +36,7 @@ public class RenderCoordinationService {
      * Delegates to the renderer and handles pending chat messages.
      */
     public void onTickInGame(GuiGraphics guiGraphics) {
+        ensureRendererInitialized();
         if (this.renderer != null) {
             this.renderer.onTickInGame(guiGraphics);
         }
@@ -49,6 +61,7 @@ public class RenderCoordinationService {
      * Gets the managed renderer instance.
      */
     public MapViewRenderer getRenderer() {
+        ensureRendererInitialized();
         return this.renderer;
     }
 
@@ -56,6 +69,7 @@ public class RenderCoordinationService {
      * Notifies the renderer of a new world being loaded.
      */
     public void onWorldChanged(net.minecraft.client.multiplayer.ClientLevel world) {
+        ensureRendererInitialized();
         if (this.renderer != null && world != null) {
             this.renderer.newWorld(world);
         }
