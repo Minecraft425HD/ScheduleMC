@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.mapview.config;
 
+import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import de.rolandsw.schedulemc.mapview.config.MapOption;
 import de.rolandsw.schedulemc.mapview.core.event.SettingsManager;
 import de.rolandsw.schedulemc.mapview.core.event.SubSettingsManager;

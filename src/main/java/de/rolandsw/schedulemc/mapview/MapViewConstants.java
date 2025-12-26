@@ -1,5 +1,11 @@
 package de.rolandsw.schedulemc.mapview;
 
+import de.rolandsw.schedulemc.mapview.service.data.MapDataManager;
+import de.rolandsw.schedulemc.mapview.integration.Events;
+import de.rolandsw.schedulemc.mapview.integration.PacketBridge;
+import de.rolandsw.schedulemc.mapview.integration.ModApiBridge;
+import de.rolandsw.schedulemc.mapview.config.MapViewConfiguration;
+import de.rolandsw.schedulemc.mapview.presentation.renderer.MapViewRenderer;
 import de.rolandsw.schedulemc.mapview.data.persistence.AsyncPersistenceManager;
 import de.rolandsw.schedulemc.mapview.util.BiomeColors;
 import java.util.Optional;
@@ -75,7 +81,7 @@ public final class MapViewConstants {
     @NotNull
     public static MapDataManager getLightMapInstance() { return LIGHTMAP_INSTANCE; }
 
-    static void tick() { elapsedTicks = elapsedTicks == Integer.MAX_VALUE ? 1 : elapsedTicks + 1; }
+    public static void tick() { elapsedTicks = elapsedTicks == Integer.MAX_VALUE ? 1 : elapsedTicks + 1; }
 
     public static int getElapsedTicks() { return elapsedTicks; }
 

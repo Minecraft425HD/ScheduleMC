@@ -1,5 +1,7 @@
 package de.rolandsw.schedulemc.mapview.integration;
 
+import de.rolandsw.schedulemc.mapview.MapViewConstants;
+
 public class DebugRenderState {
 
     public static int checkChunkX;
