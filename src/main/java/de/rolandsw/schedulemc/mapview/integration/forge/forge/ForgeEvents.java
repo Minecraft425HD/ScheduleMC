@@ -1,11 +1,11 @@
-package de.rolandsw.schedulemc.mapview.forge;
+package de.rolandsw.schedulemc.mapview.integration.forge;
 
-import de.rolandsw.schedulemc.mapview.Events;
+import de.rolandsw.schedulemc.mapview.integration.Events;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import de.rolandsw.schedulemc.mapview.service.data.MapDataManager;
-import de.rolandsw.schedulemc.mapview.packets.MapViewSettingsS2C;
-import de.rolandsw.schedulemc.mapview.packets.WorldIdC2S;
-import de.rolandsw.schedulemc.mapview.packets.WorldIdS2C;
+import de.rolandsw.schedulemc.mapview.integration.network.MapViewSettingsS2C;
+import de.rolandsw.schedulemc.mapview.integration.network.WorldIdC2S;
+import de.rolandsw.schedulemc.mapview.integration.network.WorldIdS2C;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;

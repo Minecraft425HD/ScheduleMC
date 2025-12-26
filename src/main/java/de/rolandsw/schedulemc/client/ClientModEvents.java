@@ -3,8 +3,8 @@ import de.rolandsw.schedulemc.util.EventHelper;
 
 import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
-import de.rolandsw.schedulemc.mapview.forge.ForgeEvents;
-import de.rolandsw.schedulemc.mapview.forge.ForgePacketBridge;
+import de.rolandsw.schedulemc.mapview.integration.forge.ForgeEvents;
+import de.rolandsw.schedulemc.mapview.integration.forge.ForgePacketBridge;
 import de.rolandsw.schedulemc.economy.menu.EconomyMenuTypes;
 import de.rolandsw.schedulemc.economy.screen.ATMScreen;
 import de.rolandsw.schedulemc.tobacco.menu.ModMenuTypes;

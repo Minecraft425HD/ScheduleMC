@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.mapview.packets;
+package de.rolandsw.schedulemc.mapview.integration.network;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;

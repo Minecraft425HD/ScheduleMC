@@ -1,11 +1,11 @@
-package de.rolandsw.schedulemc.mapview.util;
+package de.rolandsw.schedulemc.mapview.integration.minecraft;
 
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.util.Mth;
 
-public class GameVariableAccessShim {
+public class MinecraftAccessor {
     public static ClientLevel getWorld() {
         return Minecraft.getInstance().level;
     }

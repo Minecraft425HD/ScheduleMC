@@ -5,7 +5,7 @@ import de.rolandsw.schedulemc.mapview.config.WorldMapConfiguration;
 import de.rolandsw.schedulemc.mapview.data.persistence.AsyncPersistenceManager;
 import de.rolandsw.schedulemc.mapview.util.BiomeColors;
 import de.rolandsw.schedulemc.mapview.service.data.DimensionService;
-import de.rolandsw.schedulemc.mapview.util.GameVariableAccessShim;
+import de.rolandsw.schedulemc.mapview.integration.minecraft.MinecraftAccessor;
 import de.rolandsw.schedulemc.mapview.util.MapViewHelper;
 import de.rolandsw.schedulemc.mapview.util.TextUtils;
 import de.rolandsw.schedulemc.mapview.util.WorldUpdateListener;
@@ -78,7 +78,7 @@ public class MapDataManager implements PreparableReloadListener {
     }
 
     public void onTick() {
-        ClientLevel newWorld = GameVariableAccessShim.getWorld();
+        ClientLevel newWorld = MinecraftAccessor.getWorld();
         if (this.world != newWorld) {
             this.world = newWorld;
             this.persistentMap.newWorld(this.world);

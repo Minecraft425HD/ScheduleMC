@@ -14,7 +14,7 @@ import de.rolandsw.schedulemc.mapview.util.BackgroundImageInfo;
 import de.rolandsw.schedulemc.mapview.core.model.BiomeData;
 import de.rolandsw.schedulemc.mapview.util.DimensionContainer;
 import de.rolandsw.schedulemc.mapview.util.EasingUtils;
-import de.rolandsw.schedulemc.mapview.util.GameVariableAccessShim;
+import de.rolandsw.schedulemc.mapview.integration.minecraft.MinecraftAccessor;
 import de.rolandsw.schedulemc.mapview.util.ImageHelper;
 import de.rolandsw.schedulemc.mapview.util.MapViewGuiGraphics;
 import de.rolandsw.schedulemc.mapview.util.MapViewPipelines;
@@ -727,15 +727,15 @@ public class WorldMapScreen extends PopupScreen {
         guiGraphics.pose().popPose();
 
         if (gotSkin) {
-            float playerX = (float) GameVariableAccessShim.xCoordDouble();
-            float playerZ = (float) GameVariableAccessShim.zCoordDouble();
+            float playerX = (float) MinecraftAccessor.xCoordDouble();
+            float playerZ = (float) MinecraftAccessor.zCoordDouble();
 
             float width = iconsWidth * 0.75F;
             float height = iconsHeight * 0.75F;
 
             boolean hover = cursorCoordX >= playerX - width / 2 * guiToMap && cursorCoordX <= playerX + width / 2 * guiToMap && cursorCoordZ >= playerZ - height / 2 * guiToMap && cursorCoordZ <= playerZ + height / 2 * guiToMap;
             if (hover) {
-                renderTooltip(guiGraphics, Component.literal("X: " + GameVariableAccessShim.xCoord() + ", Y: " + GameVariableAccessShim.yCoord() + ", Z: " + GameVariableAccessShim.zCoord()), this.mouseX, this.mouseY);
+                renderTooltip(guiGraphics, Component.literal("X: " + MinecraftAccessor.xCoord() + ", Y: " + MinecraftAccessor.yCoord() + ", Z: " + MinecraftAccessor.zCoord()), this.mouseX, this.mouseY);
             }
 
             int x = this.width / 2;

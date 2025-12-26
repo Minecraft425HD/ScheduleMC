@@ -6,7 +6,7 @@ import de.rolandsw.schedulemc.mapview.service.data.ConfigNotificationService;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import de.rolandsw.schedulemc.mapview.service.scan.BiomeScanner;
 import de.rolandsw.schedulemc.mapview.service.scan.BlockStateAnalyzer;
-import de.rolandsw.schedulemc.mapview.util.GameVariableAccessShim;
+import de.rolandsw.schedulemc.mapview.integration.minecraft.MinecraftAccessor;
 import de.rolandsw.schedulemc.mapview.service.scan.HeightCalculator;
 import de.rolandsw.schedulemc.mapview.util.MutableBlockPos;
 import de.rolandsw.schedulemc.mapview.util.ReflectionUtils;
@@ -244,14 +244,14 @@ public class RegionCache {
     private void loadChunkData(LevelChunk chunk, int chunkX, int chunkZ) {
         boolean isEmpty = this.isChunkEmptyOrUnlit(chunk);
         boolean isSurroundedByLoaded = this.isSurroundedByLoaded(chunk);
-        if (!this.closed && this.world == GameVariableAccessShim.getWorld() && !isEmpty && isSurroundedByLoaded) {
+        if (!this.closed && this.world == MinecraftAccessor.getWorld() && !isEmpty && isSurroundedByLoaded) {
             this.doLoadChunkData(chunk, chunkX, chunkZ);
         }
 
     }
 
     private void loadChunkDataSkipLightCheck(LevelChunk chunk, int chunkX, int chunkZ) {
-        if (!this.closed && this.world == GameVariableAccessShim.getWorld() && !this.isChunkEmpty(chunk)) {
+        if (!this.closed && this.world == MinecraftAccessor.getWorld() && !this.isChunkEmpty(chunk)) {
             this.doLoadChunkData(chunk, chunkX, chunkZ);
         }
 

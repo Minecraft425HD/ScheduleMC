@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.mapview.packets;
+package de.rolandsw.schedulemc.mapview.integration.network;
 
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import java.nio.charset.StandardCharsets;

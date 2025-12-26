@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.mapview.packets;
+package de.rolandsw.schedulemc.mapview.integration.network;
 
 import com.google.gson.Gson;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;

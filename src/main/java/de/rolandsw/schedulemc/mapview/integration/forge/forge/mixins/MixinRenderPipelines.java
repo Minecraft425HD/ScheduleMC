@@ -1,7 +1,7 @@
-package de.rolandsw.schedulemc.mapview.forge.mixins;
+package de.rolandsw.schedulemc.mapview.integration.forge.mixins;
 
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
-import de.rolandsw.schedulemc.mapview.forge.ForgeModApiBridge;
+import de.rolandsw.schedulemc.mapview.integration.forge.ForgeModApiBridge;
 // This entire mixin needs to be disabled or replaced with a 1.20.1 alternative
 // For now, commenting out to allow compilation
 /*

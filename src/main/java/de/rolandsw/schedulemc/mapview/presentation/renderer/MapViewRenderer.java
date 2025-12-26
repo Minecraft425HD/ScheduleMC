@@ -11,7 +11,7 @@ import de.rolandsw.schedulemc.mapview.service.render.ColorUtils;
 import de.rolandsw.schedulemc.mapview.util.DimensionContainer;
 import de.rolandsw.schedulemc.mapview.util.DynamicMoveableTexture;
 import de.rolandsw.schedulemc.mapview.data.repository.MapDataRepository;
-import de.rolandsw.schedulemc.mapview.util.GameVariableAccessShim;
+import de.rolandsw.schedulemc.mapview.integration.minecraft.MinecraftAccessor;
 import de.rolandsw.schedulemc.mapview.util.LayoutVariables;
 import de.rolandsw.schedulemc.mapview.util.ChunkCache;
 import de.rolandsw.schedulemc.mapview.util.MapViewHelper;
@@ -358,9 +358,9 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         this.calculateCurrentLightAndSkyColor();
 
         // Performance-Optimierung: Throttle map updates - nur wenn sich Player bewegt hat oder throttle-Intervall erreicht
-        int currentX = GameVariableAccessShim.xCoord();
-        int currentY = GameVariableAccessShim.yCoord();
-        int currentZ = GameVariableAccessShim.zCoord();
+        int currentX = MinecraftAccessor.xCoord();
+        int currentY = MinecraftAccessor.yCoord();
+        int currentZ = MinecraftAccessor.zCoord();
         boolean playerMoved = currentX != lastPlayerX || currentY != lastPlayerY || currentZ != lastPlayerZ;
         ticksSinceLastUpdate++;
 
@@ -413,7 +413,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
 
         boolean enabled = !minecraft.options.hideGui && (this.options.showUnderMenus || minecraft.screen == null) && !minecraft.options.renderDebug;
 
-        this.direction = GameVariableAccessShim.rotationYaw() + 180.0F;
+        this.direction = MinecraftAccessor.rotationYaw() + 180.0F;
 
         while (this.direction >= 360.0F) {
             this.direction -= 360.0F;
@@ -547,7 +547,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
                 }
 
                 MutableBlockPos blockPos = BlockPositionCache.get();
-                int biomeID = this.world.registryAccess().registryOrThrow(Registries.BIOME).getId(this.world.getBiome(blockPos.withXYZ(GameVariableAccessShim.xCoord(), GameVariableAccessShim.yCoord(), GameVariableAccessShim.zCoord())).value());
+                int biomeID = this.world.registryAccess().registryOrThrow(Registries.BIOME).getId(this.world.getBiome(blockPos.withXYZ(MinecraftAccessor.xCoord(), MinecraftAccessor.yCoord(), MinecraftAccessor.zCoord())).value());
                 BlockPositionCache.release(blockPos);
                 if (biomeID != this.lastBiome) {
                     this.needSkyColor = true;
@@ -679,9 +679,9 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     }
 
     private void mapCalc(boolean full) {
-        int currentX = GameVariableAccessShim.xCoord();
-        int currentZ = GameVariableAccessShim.zCoord();
-        int currentY = GameVariableAccessShim.yCoord();
+        int currentX = MinecraftAccessor.xCoord();
+        int currentZ = MinecraftAccessor.zCoord();
+        int currentY = MinecraftAccessor.yCoord();
         int offsetX = currentX - this.lastX;
         int offsetZ = currentZ - this.lastZ;
         int offsetY = currentY - this.lastY;
@@ -1261,7 +1261,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
 
     private int getBlockHeight(boolean nether, boolean caves, Level world, int x, int z) {
         MutableBlockPos blockPos = BlockPositionCache.get();
-        int playerHeight = GameVariableAccessShim.yCoord();
+        int playerHeight = MinecraftAccessor.yCoord();
         blockPos.setXYZ(x, playerHeight, z);
         LevelChunk chunk = (LevelChunk) world.getChunk(blockPos);
         int height = chunk.getHeight(Heightmap.Types.MOTION_BLOCKING, blockPos.getX() & 15, blockPos.getZ() & 15) + 1;
@@ -1493,8 +1493,8 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         }
         //
         float multi = (float) (1.0 / this.zoomScale);
-        this.percentX = (float) (GameVariableAccessShim.xCoordDouble() - this.lastImageX);
-        this.percentY = (float) (GameVariableAccessShim.zCoordDouble() - this.lastImageZ);
+        this.percentX = (float) (MinecraftAccessor.xCoordDouble() - this.lastImageX);
+        this.percentY = (float) (MinecraftAccessor.zCoordDouble() - this.lastImageZ);
         this.percentX *= multi;
         this.percentY *= multi;
 

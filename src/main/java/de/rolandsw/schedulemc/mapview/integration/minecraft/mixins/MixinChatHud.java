@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.mapview.mixins;
+package de.rolandsw.schedulemc.mapview.integration.minecraft;
 
 import de.rolandsw.schedulemc.mapview.service.data.MapDataManager;
 import net.minecraft.client.gui.components.ChatComponent;

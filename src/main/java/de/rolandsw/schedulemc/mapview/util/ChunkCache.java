@@ -1,6 +1,6 @@
 package de.rolandsw.schedulemc.mapview.util;
 
-import de.rolandsw.schedulemc.mapview.DebugRenderState;
+import de.rolandsw.schedulemc.mapview.integration.DebugRenderState;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import de.rolandsw.schedulemc.mapview.core.event.MapChangeListener;
 import net.minecraft.core.BlockPos;

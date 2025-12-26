@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.mapview;
+package de.rolandsw.schedulemc.mapview.integration;
 
 public class DebugRenderState {
 

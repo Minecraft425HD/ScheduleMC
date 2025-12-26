@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.mapview.mixins;
+package de.rolandsw.schedulemc.mapview.integration.minecraft;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;

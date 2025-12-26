@@ -10,7 +10,7 @@ import de.rolandsw.schedulemc.mapview.core.event.MapChangeListener;
 import de.rolandsw.schedulemc.mapview.util.BiomeColors;
 import de.rolandsw.schedulemc.mapview.util.BlockDatabase;
 import de.rolandsw.schedulemc.mapview.service.render.ColorUtils;
-import de.rolandsw.schedulemc.mapview.util.GameVariableAccessShim;
+import de.rolandsw.schedulemc.mapview.integration.minecraft.MinecraftAccessor;
 import de.rolandsw.schedulemc.mapview.util.ChunkCache;
 import de.rolandsw.schedulemc.mapview.util.MapViewHelper;
 import de.rolandsw.schedulemc.mapview.util.MutableBlockPos;
@@ -144,8 +144,8 @@ public class WorldMapData implements MapChangeListener {
             return;
         }
         if (MapViewConstants.getMinecraft().screen == null) {
-            this.options.mapX = GameVariableAccessShim.xCoord();
-            this.options.mapZ = GameVariableAccessShim.zCoord();
+            this.options.mapX = MinecraftAccessor.xCoord();
+            this.options.mapZ = MinecraftAccessor.zCoord();
         }
 
         // Subworld detection removed with waypoint system
@@ -156,7 +156,7 @@ public class WorldMapData implements MapChangeListener {
         }
 
         if (this.world != null) {
-            this.chunkCache.centerChunks(this.blockPos.withXYZ(GameVariableAccessShim.xCoord(), 0, GameVariableAccessShim.zCoord()));
+            this.chunkCache.centerChunks(this.blockPos.withXYZ(MinecraftAccessor.xCoord(), 0, MinecraftAccessor.zCoord()));
             this.chunkCache.checkIfChunksBecameSurroundedByLoaded();
 
             while (!this.chunkUpdateQueue.isEmpty() && Math.abs(MapViewConstants.getElapsedTicks() - this.chunkUpdateQueue.peek().tick) >= 20) {
