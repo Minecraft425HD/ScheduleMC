@@ -168,17 +168,27 @@ public class WarehouseBlockEntity extends BlockEntity {
     // ═══════════════════════════════════════════════════════════
 
     /**
-     * Tick-Methode - NUR für Expense Cleanup
+     * Tick-Methode für Expense Cleanup und batched synchronization (statisch für BlockEntityTicker)
      * Auto-Delivery wird vom WarehouseManager gehandhabt!
      */
     public static void tick(Level level, BlockPos pos, BlockState state, WarehouseBlockEntity be) {
-        if (level.isClientSide) return;
+        if (level == null || level.isClientSide) return;
 
         long currentTime = level.getGameTime();
 
         // Bereinige alte Ausgaben alle 10 Minuten (12000 ticks)
         if (currentTime % 12000 == 0) {
             be.cleanupOldExpenses(currentTime);
+        }
+
+        // Batched synchronization
+        be.syncCounter++;
+        if (be.syncCounter >= SYNC_INTERVAL) {
+            be.syncCounter = 0;
+            if (be.needsSync) {
+                level.sendBlockUpdated(pos, state, state, 3);
+                be.needsSync = false;
+            }
         }
     }
 
@@ -539,22 +549,4 @@ public class WarehouseBlockEntity extends BlockEntity {
         needsSync = true;
     }
 
-    /**
-     * Tick-Methode für batched synchronization (statisch für BlockEntityTicker)
-     */
-    public static void tick(Level level, BlockPos pos, BlockState state, WarehouseBlockEntity warehouse) {
-        if (level == null || level.isClientSide) return;
-
-        warehouse.syncCounter++;
-
-        // Nur alle SYNC_INTERVAL Ticks synchronisieren
-        if (warehouse.syncCounter >= SYNC_INTERVAL) {
-            warehouse.syncCounter = 0;
-
-            if (warehouse.needsSync) {
-                level.sendBlockUpdated(pos, state, state, 3);
-                warehouse.needsSync = false;
-            }
-        }
-    }
 }
