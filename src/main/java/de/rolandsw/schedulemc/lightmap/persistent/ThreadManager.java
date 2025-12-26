@@ -10,10 +10,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.jetbrains.annotations.NotNull;
 
 public final class ThreadManager {
-    static final int concurrentThreads = Math.min(Math.max(Runtime.getRuntime().availableProcessors() / 2, 1), 4);
+    // Performance-Optimierung: Nutze bis zu 75% der CPU-Cores (min 2, max 16)
+    // Vorher: Hard-Cap bei 4 Threads → unterausgelastet auf modernen CPUs
+    static final int concurrentThreads = Math.min(Math.max(Runtime.getRuntime().availableProcessors() * 3 / 4, 2), 16);
+    // Performance-Optimierung: Core-Threads für bessere Responsiveness (50% der max Threads)
+    static final int coreThreads = Math.max(concurrentThreads / 2, 1);
+
     static final LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
-    public static final ThreadPoolExecutor executorService = new ThreadPoolExecutor(0, concurrentThreads, 60L, TimeUnit.SECONDS, queue);
-    public static ThreadPoolExecutor saveExecutorService = new ThreadPoolExecutor(0, concurrentThreads, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
+    // Performance-Optimierung: corePoolSize > 0 für sofortige Verfügbarkeit (vorher: 0)
+    public static final ThreadPoolExecutor executorService = new ThreadPoolExecutor(coreThreads, concurrentThreads, 60L, TimeUnit.SECONDS, queue);
+    // Performance-Optimierung: Bounded queue für Save-Operations (10000 Tasks max)
+    public static ThreadPoolExecutor saveExecutorService = new ThreadPoolExecutor(coreThreads, concurrentThreads, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(10000));
 
     private ThreadManager() {}
 
@@ -36,7 +43,9 @@ public final class ThreadManager {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-        saveExecutorService = new ThreadPoolExecutor(0, concurrentThreads, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
+        // Performance-Optimierung: Nutze optimierte ThreadPool-Parameter
+        saveExecutorService = new ThreadPoolExecutor(coreThreads, concurrentThreads, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(10000));
+        saveExecutorService.setThreadFactory(new NamedThreadFactory("LightMap WorldMap Saver Thread"));
         LightMapConstants.getLogger().info("Save queue flushed!");
     }
 

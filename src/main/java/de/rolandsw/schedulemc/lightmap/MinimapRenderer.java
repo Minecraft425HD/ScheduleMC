@@ -134,6 +134,12 @@ public class MinimapRenderer implements Runnable, IChangeObserver {
     private int lastImageX;
     private int lastImageZ;
     private boolean lastFullscreen;
+    // Performance-Optimierung: Movement-Throttling
+    private int lastPlayerX = Integer.MIN_VALUE;
+    private int lastPlayerY = Integer.MIN_VALUE;
+    private int lastPlayerZ = Integer.MIN_VALUE;
+    private int ticksSinceLastUpdate = 0;
+    private static final int UPDATE_THROTTLE_TICKS = 2; // Update nur alle 2 Ticks (10 FPS statt 20 FPS)
     private int biomeSegmentationCounter = 0;
     // Chunk cache to avoid redundant getChunkAt() calls
     private LevelChunk cachedChunk = null;
@@ -344,9 +350,29 @@ public class MinimapRenderer implements Runnable, IChangeObserver {
             }
         }
 
-        this.checkForChanges();
+        // Performance-Optimierung: Throttle checkForChanges - nur alle 20 Ticks (1x/Sek)
+        if (this.timer % 20 == 0) {
+            this.checkForChanges();
+        }
         this.lastGuiScreen = minecraft.screen;
         this.calculateCurrentLightAndSkyColor();
+
+        // Performance-Optimierung: Throttle map updates - nur wenn sich Player bewegt hat oder throttle-Intervall erreicht
+        int currentX = GameVariableAccessShim.xCoord();
+        int currentY = GameVariableAccessShim.yCoord();
+        int currentZ = GameVariableAccessShim.zCoord();
+        boolean playerMoved = currentX != lastPlayerX || currentY != lastPlayerY || currentZ != lastPlayerZ;
+        ticksSinceLastUpdate++;
+
+        boolean shouldUpdate = playerMoved || ticksSinceLastUpdate >= UPDATE_THROTTLE_TICKS;
+
+        if (shouldUpdate) {
+            lastPlayerX = currentX;
+            lastPlayerY = currentY;
+            lastPlayerZ = currentZ;
+            ticksSinceLastUpdate = 0;
+        }
+
         if (this.threading) {
             if (!this.zCalc.isAlive()) {
                 this.zCalc = new Thread(this, "LightMap LiveMap Calculation Thread");
@@ -363,12 +389,16 @@ public class MinimapRenderer implements Runnable, IChangeObserver {
                     DebugRenderState.print();
                     LightMapConstants.getLogger().error("LightMap LiveMap Calculation Thread is hanging?", ex);
                 }
-                synchronized (this.zCalc) {
-                    this.zCalc.notify();
+                // Performance-Optimierung: Notify nur wenn Update nötig
+                if (shouldUpdate) {
+                    synchronized (this.zCalc) {
+                        this.zCalc.notify();
+                    }
                 }
             }
         } else {
-            if (this.options.minimapAllowed && this.world != null) {
+            // Performance-Optimierung: Nur recalculieren wenn Update nötig
+            if (shouldUpdate && this.options.minimapAllowed && this.world != null) {
                 this.mapCalc(this.doFullRender);
                 if (!this.doFullRender) {
                     MutableBlockPos blockPos = MutableBlockPosCache.get();
