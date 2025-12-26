@@ -154,12 +154,30 @@ public class ChunkCache {
 
     public void checkIfChunksBecameSurroundedByLoaded() {
         if (this.loaded) {
-            for (int z = this.height - 1; z >= 0; --z) {
-                for (int x = 0; x < this.width; ++x) {
-                    this.mapChunks[x + z * this.width].checkIfChunkBecameSurroundedByLoaded(this.changeObserver);
+            // Performance-Optimierung: Parallel processing für große Chunk-Arrays
+            // Bei zoom=4 (33x33=1089 Chunks) kann Parallelverarbeitung 2-4x schneller sein
+            int totalChunks = this.width * this.height;
+            if (totalChunks > 100) { // Nur bei >100 Chunks parallel (ab zoom=2)
+                // Parallele Verarbeitung mit ThreadManager
+                java.util.concurrent.CompletableFuture<?>[] futures = new java.util.concurrent.CompletableFuture<?>[totalChunks];
+                for (int z = this.height - 1, idx = 0; z >= 0; --z) {
+                    for (int x = 0; x < this.width; ++x, ++idx) {
+                        final int index = x + z * this.width;
+                        futures[idx] = java.util.concurrent.CompletableFuture.runAsync(() -> {
+                            this.mapChunks[index].checkIfChunkBecameSurroundedByLoaded(this.changeObserver);
+                        }, de.rolandsw.schedulemc.lightmap.persistent.ThreadManager.executorService);
+                    }
+                }
+                // Warte auf alle Tasks
+                java.util.concurrent.CompletableFuture.allOf(futures).join();
+            } else {
+                // Sequential processing für kleine Arrays (overhead würde nicht lohnen)
+                for (int z = this.height - 1; z >= 0; --z) {
+                    for (int x = 0; x < this.width; ++x) {
+                        this.mapChunks[x + z * this.width].checkIfChunkBecameSurroundedByLoaded(this.changeObserver);
+                    }
                 }
             }
-
         }
     }
 
