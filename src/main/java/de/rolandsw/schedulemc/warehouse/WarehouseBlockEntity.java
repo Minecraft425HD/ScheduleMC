@@ -42,6 +42,11 @@ public class WarehouseBlockEntity extends BlockEntity {
     private String shopId; // Referenz zum Shop-Konto
     private List<ExpenseEntry> expenses = new ArrayList<>(); // Ausgaben-Historie
 
+    // Performance-Optimierung: Batched Sync
+    private boolean needsSync = false;
+    private int syncCounter = 0;
+    private static final int SYNC_INTERVAL = 20; // Sync alle 20 Ticks (1 Sekunde)
+
     public WarehouseBlockEntity(BlockPos pos, BlockState state) {
         super(WarehouseBlocks.WAREHOUSE_BLOCK_ENTITY.get(), pos, state);
 
@@ -527,11 +532,29 @@ public class WarehouseBlockEntity extends BlockEntity {
     }
 
     /**
-     * Synchronisiert Änderungen zum Client
+     * Markiert Warehouse für Synchronisation (Batched)
+     * Performance-Optimierung: Sammelt Änderungen und synchronisiert gebündelt
      */
     public void syncToClient() {
-        if (level != null && !level.isClientSide) {
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        needsSync = true;
+    }
+
+    /**
+     * Tick-Methode für batched synchronization (statisch für BlockEntityTicker)
+     */
+    public static void tick(Level level, BlockPos pos, BlockState state, WarehouseBlockEntity warehouse) {
+        if (level == null || level.isClientSide) return;
+
+        warehouse.syncCounter++;
+
+        // Nur alle SYNC_INTERVAL Ticks synchronisieren
+        if (warehouse.syncCounter >= SYNC_INTERVAL) {
+            warehouse.syncCounter = 0;
+
+            if (warehouse.needsSync) {
+                level.sendBlockUpdated(pos, state, state, 3);
+                warehouse.needsSync = false;
+            }
         }
     }
 }
