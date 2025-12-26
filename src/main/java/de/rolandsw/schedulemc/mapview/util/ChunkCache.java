@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.mapview.util;
 import de.rolandsw.schedulemc.mapview.integration.DebugRenderState;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import de.rolandsw.schedulemc.mapview.core.event.MapChangeListener;
+import de.rolandsw.schedulemc.mapview.core.model.MapChunk;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -165,7 +166,7 @@ public class ChunkCache {
                         final int index = x + z * this.width;
                         futures[idx] = java.util.concurrent.CompletableFuture.runAsync(() -> {
                             this.mapChunks[index].checkIfChunkBecameSurroundedByLoaded(this.changeObserver);
-                        }, de.rolandsw.schedulemc.lightmap.persistent.AsyncPersistenceManager.executorService);
+                        }, de.rolandsw.schedulemc.mapview.data.persistence.AsyncPersistenceManager.executorService);
                     }
                 }
                 // Warte auf alle Tasks

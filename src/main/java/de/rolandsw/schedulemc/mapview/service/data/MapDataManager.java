@@ -1,13 +1,16 @@
 package de.rolandsw.schedulemc.mapview.service.data;
 
-import de.rolandsw.schedulemc.mapview.service.data.WorldMapService;
+import de.rolandsw.schedulemc.mapview.service.data.WorldMapData;
 import de.rolandsw.schedulemc.mapview.config.WorldMapConfiguration;
+import de.rolandsw.schedulemc.mapview.config.MapViewConfiguration;
 import de.rolandsw.schedulemc.mapview.data.persistence.AsyncPersistenceManager;
 import de.rolandsw.schedulemc.mapview.util.BiomeColors;
 import de.rolandsw.schedulemc.mapview.service.data.DimensionService;
 import de.rolandsw.schedulemc.mapview.service.coordination.RenderCoordinationService;
 import de.rolandsw.schedulemc.mapview.service.coordination.WorldStateService;
 import de.rolandsw.schedulemc.mapview.service.coordination.LifecycleService;
+import de.rolandsw.schedulemc.mapview.service.render.ColorCalculationService;
+import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import de.rolandsw.schedulemc.mapview.integration.minecraft.MinecraftAccessor;
 import de.rolandsw.schedulemc.mapview.util.MapViewHelper;
 import de.rolandsw.schedulemc.mapview.util.TextUtils;

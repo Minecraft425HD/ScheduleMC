@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.mapview.data.cache;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import de.rolandsw.schedulemc.mapview.service.data.ConfigNotificationService;
+import de.rolandsw.schedulemc.mapview.service.data.WorldMapData;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import de.rolandsw.schedulemc.mapview.service.scan.BiomeScanner;
 import de.rolandsw.schedulemc.mapview.service.scan.BlockStateAnalyzer;
