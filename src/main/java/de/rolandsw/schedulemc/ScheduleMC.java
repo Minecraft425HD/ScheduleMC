@@ -34,6 +34,7 @@ import de.rolandsw.schedulemc.economy.events.RespawnHandler;
 import de.rolandsw.schedulemc.region.PlotManager;
 import de.rolandsw.schedulemc.managers.*;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
+import de.rolandsw.schedulemc.util.IncrementalSaveManager;
 import de.rolandsw.schedulemc.items.ModItems;
 import de.rolandsw.schedulemc.items.PlotSelectionTool;
 import de.rolandsw.schedulemc.tobacco.items.TobaccoItems;
@@ -108,11 +109,14 @@ import org.slf4j.Logger;
 
 @Mod(ScheduleMC.MOD_ID)
 public class ScheduleMC {
-    
+
     public static final String MOD_ID = "schedulemc";
     public static final Logger LOGGER = LogUtils.getLogger();
-    private static final int SAVE_INTERVAL = 6000;
+    private static final int SAVE_INTERVAL = 6000; // Wird durch IncrementalSaveManager ersetzt
     private int tickCounter = 0;
+
+    // Incremental Save Manager - Optimized Data Persistence
+    private IncrementalSaveManager saveManager;
 
     // Vehicle Mod integration
     private static Main vehicleMod;
@@ -303,6 +307,20 @@ public class ScheduleMC {
             // Utility-System laden
             PlotUtilityManager.load();
 
+            // ═══════════════════════════════════════════════════════════
+            // INCREMENTAL SAVE MANAGER - Performance Optimization
+            // ═══════════════════════════════════════════════════════════
+            LOGGER.info("Initializing IncrementalSaveManager...");
+            saveManager = new IncrementalSaveManager();
+
+            // Kritische Manager registrieren (Priority 0-2)
+            saveManager.register(EconomyManager.getInstance());
+            saveManager.register(PlotManager.getInstance());
+
+            // SaveManager starten
+            saveManager.start();
+            LOGGER.info("IncrementalSaveManager started - automatic background saves active");
+
             // Health-Check nach Start
             LOGGER.info("Performing initial health check...");
             HealthCheckManager.logHealthCheck();
@@ -327,8 +345,8 @@ public class ScheduleMC {
 
             if (tickCounter >= SAVE_INTERVAL) {
                 tickCounter = 0;
-                PlotManager.saveIfNeeded();
-                EconomyManager.saveIfNeeded();
+                // PlotManager.saveIfNeeded();  // Jetzt via IncrementalSaveManager
+                // EconomyManager.saveIfNeeded();  // Jetzt via IncrementalSaveManager
                 DailyRewardManager.saveIfNeeded();
                 RentManager.checkExpiredRents();
                 WalletManager.saveIfNeeded();
@@ -353,8 +371,19 @@ public class ScheduleMC {
     @SubscribeEvent
     public void onServerStopping(ServerStoppingEvent event) {
         EventHelper.handleEvent(() -> {
-            PlotManager.savePlots();
-            EconomyManager.saveAccounts();
+            // ═══════════════════════════════════════════════════════════
+            // INCREMENTAL SAVE MANAGER - Final Save & Shutdown
+            // ═══════════════════════════════════════════════════════════
+            if (saveManager != null) {
+                LOGGER.info("Stopping IncrementalSaveManager and performing final save...");
+                saveManager.saveAll(); // Finaler Save aller registrierten Manager
+                saveManager.stop();
+                LOGGER.info("IncrementalSaveManager stopped successfully");
+            }
+
+            // Manuelle Saves für noch nicht migrierte Manager
+            // PlotManager.savePlots();  // Jetzt via IncrementalSaveManager
+            // EconomyManager.saveAccounts();  // Jetzt via IncrementalSaveManager
             DailyRewardManager.save();
             WalletManager.save();
             NPCNameRegistry.saveRegistry();

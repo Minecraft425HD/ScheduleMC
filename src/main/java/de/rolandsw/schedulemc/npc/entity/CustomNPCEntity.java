@@ -63,6 +63,10 @@ public class CustomNPCEntity extends PathfinderMob {
     // NPC Daten (Server-Side)
     private NPCData npcData;
 
+    // Performance-Optimierung: Player-Lookup Throttling
+    private int playerLookupCounter = 0;
+    private static final int PLAYER_LOOKUP_INTERVAL = 20; // Alle 20 Ticks (1 Sekunde)
+
     public CustomNPCEntity(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);
         this.npcData = new NPCData();
@@ -192,11 +196,16 @@ public class CustomNPCEntity extends PathfinderMob {
         if (!this.level().isClientSide) {
             // Server-Side Logic
 
-            // Look at nearest player
-            if (npcData.getBehavior().shouldLookAtPlayer()) {
-                Player nearestPlayer = this.level().getNearestPlayer(this, 8.0D);
-                if (nearestPlayer != null) {
-                    this.getLookControl().setLookAt(nearestPlayer, 10.0F, 10.0F);
+            // Look at nearest player (Throttled für Performance)
+            playerLookupCounter++;
+            if (playerLookupCounter >= PLAYER_LOOKUP_INTERVAL) {
+                playerLookupCounter = 0;
+
+                if (npcData.getBehavior().shouldLookAtPlayer()) {
+                    Player nearestPlayer = this.level().getNearestPlayer(this, 8.0D);
+                    if (nearestPlayer != null) {
+                        this.getLookControl().setLookAt(nearestPlayer, 10.0F, 10.0F);
+                    }
                 }
             }
 

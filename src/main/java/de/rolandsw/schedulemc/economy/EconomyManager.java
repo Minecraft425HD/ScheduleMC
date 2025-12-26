@@ -5,6 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.util.GsonHelper;
 import de.rolandsw.schedulemc.util.BackupManager;
+import de.rolandsw.schedulemc.util.IncrementalSaveManager;
 import com.mojang.logging.LogUtils;
 import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
@@ -18,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Zentrales Economy-System für ScheduleMC
  * Verwaltet Spieler-Guthaben mit Thread-Safety und Batch-Saving
  */
-public class EconomyManager {
+public class EconomyManager implements IncrementalSaveManager.ISaveable {
 
     private static final Logger LOGGER = LogUtils.getLogger();
     private static EconomyManager instance;
@@ -463,5 +464,39 @@ public class EconomyManager {
             return String.format("§cUNGESUND§r - Letzter Fehler: %s, %d Konten geladen",
                 lastError != null ? lastError : "Unknown", balances.size());
         }
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // INCREMENTAL SAVE MANAGER INTEGRATION
+    // ═══════════════════════════════════════════════════════════
+
+    @Override
+    public boolean isDirty() {
+        return needsSave;
+    }
+
+    @Override
+    public void save() {
+        saveAccounts();
+    }
+
+    @Override
+    public String getName() {
+        return "EconomyManager";
+    }
+
+    @Override
+    public int getPriority() {
+        return 0; // Höchste Priorität - Economy-Daten sind kritisch
+    }
+
+    /**
+     * Gibt die Singleton-Instanz zurück (für IncrementalSaveManager Registration)
+     */
+    public static EconomyManager getInstance() {
+        if (instance == null) {
+            instance = new EconomyManager();
+        }
+        return instance;
     }
 }
