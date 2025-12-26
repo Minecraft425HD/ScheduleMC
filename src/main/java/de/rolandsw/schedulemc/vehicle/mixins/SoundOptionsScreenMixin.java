@@ -14,14 +14,16 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(SoundOptionsScreen.class)
+// Temporarily disabled - method may be private or signature changed in 1.20.1
+// TODO: Find correct method name/signature for getAllSoundOptionsExceptMaster in Minecraft 1.20.1
+//@Mixin(SoundOptionsScreen.class)
 public class SoundOptionsScreenMixin extends OptionsSubScreen {
 
     public SoundOptionsScreenMixin(Screen screen, Options options, Component component) {
         super(screen, options, component);
     }
 
-    @Inject(method = "getAllSoundOptionsExceptMaster", at = @At("RETURN"), cancellable = true)
+    //@Inject(method = "getAllSoundOptionsExceptMaster", at = @At("RETURN"), cancellable = true, require = 0)
     private void getAllSoundOptionsExceptMaster(CallbackInfoReturnable<OptionInstance<?>[]> cir) {
         OptionInstance<?>[] returnValue = cir.getReturnValue();
         OptionInstance<?>[] newReturnValue = new OptionInstance<?>[returnValue.length + 1];
