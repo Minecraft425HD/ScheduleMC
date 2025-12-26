@@ -1,8 +1,8 @@
 package de.rolandsw.schedulemc.mapview;
 
 import com.google.common.collect.UnmodifiableIterator;
-import de.rolandsw.schedulemc.mapview.interfaces.AbstractMapData;
-import de.rolandsw.schedulemc.mapview.util.BlockModel;
+import de.rolandsw.schedulemc.mapview.core.model.AbstractMapData;
+import de.rolandsw.schedulemc.mapview.core.model.BlockModel;
 import de.rolandsw.schedulemc.mapview.util.BlockDatabase;
 import de.rolandsw.schedulemc.mapview.util.ColorUtils;
 import de.rolandsw.schedulemc.mapview.util.GLUtils;

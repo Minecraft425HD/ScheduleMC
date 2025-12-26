@@ -1,8 +1,8 @@
 package de.rolandsw.schedulemc.mapview;
 
 import de.rolandsw.schedulemc.mapview.gui.overridden.EnumOptionsMapView;
-import de.rolandsw.schedulemc.mapview.interfaces.ISettingsManager;
-import de.rolandsw.schedulemc.mapview.interfaces.ISubSettingsManager;
+import de.rolandsw.schedulemc.mapview.core.event.SettingsManager;
+import de.rolandsw.schedulemc.mapview.core.event.SubSettingsManager;
 import de.rolandsw.schedulemc.mapview.util.MessageUtils;
 import com.mojang.blaze3d.platform.InputConstants;
 import java.io.BufferedReader;
@@ -23,7 +23,7 @@ import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
-public class MapConfiguration implements ISettingsManager {
+public class MapConfiguration implements SettingsManager {
     private File settingsFile;
     public boolean showUnderMenus;
     private final int availableProcessors = Runtime.getRuntime().availableProcessors();
@@ -58,7 +58,7 @@ public class MapConfiguration implements ISettingsManager {
     public final KeyMapping[] keyBindings;
     private boolean somethingChanged;
     public static MapConfiguration instance;
-    private final List<ISubSettingsManager> subSettingsManagers = new ArrayList<>();
+    private final List<SubSettingsManager> subSettingsManagers = new ArrayList<>();
 
     public String teleportCommand = "tp %p %x %y %z";
     public String serverTeleportCommand;
@@ -74,7 +74,7 @@ public class MapConfiguration implements ISettingsManager {
         this.keyBindings = new KeyMapping[]{this.keyBindMenu, this.keyBindZoom, this.keyBindFullscreen};
     }
 
-    public void addSecondaryOptionsManager(ISubSettingsManager secondarySettingsManager) {
+    public void addSecondaryOptionsManager(SubSettingsManager secondarySettingsManager) {
         this.subSettingsManagers.add(secondarySettingsManager);
     }
 
@@ -98,7 +98,7 @@ public class MapConfiguration implements ISettingsManager {
                     }
                 }
                 KeyMapping.resetMapping();
-                for (ISubSettingsManager subSettingsManager : this.subSettingsManagers) {
+                for (SubSettingsManager subSettingsManager : this.subSettingsManagers) {
                     subSettingsManager.loadSettings(this.settingsFile);
                 }
 
@@ -139,7 +139,7 @@ public class MapConfiguration implements ISettingsManager {
             out.println("Fullscreen Key:" + this.keyBindFullscreen.saveString());
             out.println("Menu Key:" + this.keyBindMenu.saveString());
 
-            for (ISubSettingsManager subSettingsManager : this.subSettingsManagers) {
+            for (SubSettingsManager subSettingsManager : this.subSettingsManagers) {
                 subSettingsManager.saveAll(out);
             }
 

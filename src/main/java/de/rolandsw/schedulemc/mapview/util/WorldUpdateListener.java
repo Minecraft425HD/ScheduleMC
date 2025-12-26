@@ -1,20 +1,20 @@
 package de.rolandsw.schedulemc.mapview.util;
 
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
-import de.rolandsw.schedulemc.mapview.interfaces.IChangeObserver;
+import de.rolandsw.schedulemc.mapview.core.event.MapChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 
 public class WorldUpdateListener {
-    private final List<IChangeObserver> chunkProcessors = new ArrayList<>();
+    private final List<MapChangeListener> chunkProcessors = new ArrayList<>();
 
-    public void addListener(IChangeObserver chunkProcessor) {
+    public void addListener(MapChangeListener chunkProcessor) {
         chunkProcessors.add(chunkProcessor);
     }
 
     public void notifyObservers(int chunkX, int chunkZ) {
         try {
-            for (IChangeObserver chunkProcessor : this.chunkProcessors) {
+            for (MapChangeListener chunkProcessor : this.chunkProcessors) {
                 chunkProcessor.handleChangeInWorld(chunkX, chunkZ);
             }
         } catch (RuntimeException exception) {

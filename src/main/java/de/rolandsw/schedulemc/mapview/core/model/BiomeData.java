@@ -1,13 +1,13 @@
 package de.rolandsw.schedulemc.mapview.core.model;
 
-import de.rolandsw.schedulemc.mapview.interfaces.AbstractMapData;
+import de.rolandsw.schedulemc.mapview.core.model.AbstractMapData;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class BiomeData extends AbstractMapData {
     private Biome[] data;
 
-    public BiomeMapData(int width, int height) {
+    public BiomeData(int width, int height) {
         this.width = width;
         this.height = height;
         this.data = new Biome[width * height];

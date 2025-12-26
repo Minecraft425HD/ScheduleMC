@@ -1,8 +1,8 @@
 package de.rolandsw.schedulemc.mapview;
 
 import de.rolandsw.schedulemc.mapview.gui.overridden.EnumOptionsMapView;
-import de.rolandsw.schedulemc.mapview.interfaces.AbstractMapData;
-import de.rolandsw.schedulemc.mapview.interfaces.IChangeObserver;
+import de.rolandsw.schedulemc.mapview.core.model.AbstractMapData;
+import de.rolandsw.schedulemc.mapview.core.event.MapChangeListener;
 import de.rolandsw.schedulemc.mapview.persistent.WorldMapScreen;
 import de.rolandsw.schedulemc.mapview.util.BiomeColors;
 import de.rolandsw.schedulemc.mapview.util.BlockDatabase;
@@ -76,7 +76,7 @@ import java.util.OptionalInt;
 import java.util.Random;
 import java.util.TreeSet;
 
-public class MapViewRenderer implements Runnable, IChangeObserver {
+public class MapViewRenderer implements Runnable, MapChangeListener {
     private final Minecraft minecraft = Minecraft.getInstance();
     // private final float[] lastLightBrightnessTable = new float[16];
     private final Object coordinateLock = new Object();

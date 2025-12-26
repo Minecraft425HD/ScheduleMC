@@ -1,7 +1,7 @@
 package de.rolandsw.schedulemc.mapview.persistent;
 
 import de.rolandsw.schedulemc.mapview.gui.overridden.EnumOptionsMapView;
-import de.rolandsw.schedulemc.mapview.interfaces.ISubSettingsManager;
+import de.rolandsw.schedulemc.mapview.core.event.SubSettingsManager;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import net.minecraft.client.resources.language.I18n;
 
-public class WorldMapSettings implements ISubSettingsManager {
+public class WorldMapSettings implements SubSettingsManager {
     protected int mapX;
     protected int mapZ;
     protected float zoom = 4.0F;

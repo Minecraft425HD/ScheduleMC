@@ -2,7 +2,7 @@ package de.rolandsw.schedulemc.mapview.util;
 
 import de.rolandsw.schedulemc.mapview.DebugRenderState;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
-import de.rolandsw.schedulemc.mapview.interfaces.IChangeObserver;
+import de.rolandsw.schedulemc.mapview.core.event.MapChangeListener;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -15,21 +15,21 @@ public class ChunkCache {
     private final int width;
     private final int height;
     private LevelChunk lastCenterChunk;
-    private final ChunkData[] mapChunks;
+    private final MapChunk[] mapChunks;
     private int left;
     private int right;
     private int top;
     private int bottom;
     private boolean loaded;
-    private final IChangeObserver changeObserver;
+    private final MapChangeListener changeObserver;
     // Performance-Optimierung: Dirty-Flag System - nur modified Chunks tracken
     private final Set<Integer> dirtyChunks = new HashSet<>();
     private boolean fullCheckNeeded = false;
 
-    public ChunkCache(int width, int height, IChangeObserver changeObserver) {
+    public ChunkCache(int width, int height, MapChangeListener changeObserver) {
         this.width = width;
         this.height = height;
-        this.mapChunks = new ChunkData[width * height];
+        this.mapChunks = new MapChunk[width * height];
         this.changeObserver = changeObserver;
     }
 
@@ -54,7 +54,7 @@ public class ChunkCache {
                 for (int z = movedZ > 0 ? this.height - movedZ : 0; z < (movedZ > 0 ? this.height : -movedZ); ++z) {
                     for (int x = 0; x < this.width; ++x) {
                         int index = x + z * this.width;
-                        this.mapChunks[index] = new ChunkData(currentChunk.getPos().x - (middleX - x), currentChunk.getPos().z - (middleZ - z));
+                        this.mapChunks[index] = new MapChunk(currentChunk.getPos().x - (middleX - x), currentChunk.getPos().z - (middleZ - z));
                         dirtyChunks.add(index); // Neue Chunks sind dirty
                     }
                 }
@@ -62,7 +62,7 @@ public class ChunkCache {
                 for (int z = 0; z < this.height; ++z) {
                     for (int x = movedX > 0 ? this.width - movedX : 0; x < (movedX > 0 ? this.width : -movedX); ++x) {
                         int index = x + z * this.width;
-                        this.mapChunks[index] = new ChunkData(currentChunk.getPos().x - (middleX - x), currentChunk.getPos().z - (middleZ - z));
+                        this.mapChunks[index] = new MapChunk(currentChunk.getPos().x - (middleX - x), currentChunk.getPos().z - (middleZ - z));
                         dirtyChunks.add(index); // Neue Chunks sind dirty
                     }
                 }
@@ -89,7 +89,7 @@ public class ChunkCache {
         for (int z = 0; z < this.height; ++z) {
             for (int x = 0; x < this.width; ++x) {
                 int index = x + z * this.width;
-                this.mapChunks[index] = new ChunkData(currentChunk.getPos().x - (middleX - x), currentChunk.getPos().z - (middleZ - z));
+                this.mapChunks[index] = new MapChunk(currentChunk.getPos().x - (middleX - x), currentChunk.getPos().z - (middleZ - z));
                 dirtyChunks.add(index); // Alle neuen Chunks sind dirty
             }
         }
@@ -187,7 +187,7 @@ public class ChunkCache {
                 int arrayX = chunkX - this.left;
                 int arrayZ = chunkZ - this.top;
                 int index = arrayX + arrayZ * this.width;
-                ChunkData mapChunk = this.mapChunks[index];
+                MapChunk mapChunk = this.mapChunks[index];
                 mapChunk.setModified(true);
                 // Performance-Optimierung: Chunk zur Dirty-List hinzufügen
                 dirtyChunks.add(index);
@@ -201,7 +201,7 @@ public class ChunkCache {
         if (this.lastCenterChunk != null && chunkX >= this.left && chunkX <= this.right && chunkZ >= this.top && chunkZ <= this.bottom) {
             int arrayX = chunkX - this.left;
             int arrayZ = chunkZ - this.top;
-            ChunkData mapChunk = this.mapChunks[arrayX + arrayZ * this.width];
+            MapChunk mapChunk = this.mapChunks[arrayX + arrayZ * this.width];
             return mapChunk.isSurroundedByLoaded();
         } else {
             return false;

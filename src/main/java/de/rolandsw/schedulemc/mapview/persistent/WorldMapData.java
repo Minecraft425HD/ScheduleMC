@@ -5,8 +5,8 @@ import de.rolandsw.schedulemc.mapview.MapConfiguration;
 import de.rolandsw.schedulemc.mapview.ConfigurationChangeNotifier;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import de.rolandsw.schedulemc.mapview.MapCore;
-import de.rolandsw.schedulemc.mapview.interfaces.AbstractMapData;
-import de.rolandsw.schedulemc.mapview.interfaces.IChangeObserver;
+import de.rolandsw.schedulemc.mapview.core.model.AbstractMapData;
+import de.rolandsw.schedulemc.mapview.core.event.MapChangeListener;
 import de.rolandsw.schedulemc.mapview.util.BiomeColors;
 import de.rolandsw.schedulemc.mapview.util.BlockDatabase;
 import de.rolandsw.schedulemc.mapview.util.ColorUtils;
@@ -45,7 +45,7 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class WorldMapData implements IChangeObserver {
+public class WorldMapData implements MapChangeListener {
     final MutableBlockPos blockPos = new MutableBlockPos(0, 0, 0);
     final BlockColorCache colorManager;
     final MapConfiguration mapOptions;

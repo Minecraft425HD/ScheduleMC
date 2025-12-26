@@ -2,7 +2,7 @@ package de.rolandsw.schedulemc.mapview.core.model;
 
 import de.rolandsw.schedulemc.mapview.DebugRenderState;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
-import de.rolandsw.schedulemc.mapview.interfaces.IChangeObserver;
+import de.rolandsw.schedulemc.mapview.core.event.MapChangeListener;
 import net.minecraft.world.level.chunk.LevelChunk;
 
 public class MapChunk {
@@ -13,7 +13,7 @@ public class MapChunk {
     private boolean isLoaded;
     private boolean isSurroundedByLoaded;
 
-    public ChunkData(int x, int z) {
+    public MapChunk(int x, int z) {
         this.x = x;
         this.z = z;
         this.chunk = MapViewConstants.getPlayer().level().getChunk(x, z);
@@ -22,7 +22,7 @@ public class MapChunk {
         this.isChanged = true;
     }
 
-    public void checkIfChunkChanged(IChangeObserver changeObserver) {
+    public void checkIfChunkChanged(MapChangeListener changeObserver) {
         if (this.hasChunkLoadedOrUnloaded() || this.isChanged) {
             DebugRenderState.checkChunkX = x;
             DebugRenderState.checkChunkZ = z;
@@ -49,7 +49,7 @@ public class MapChunk {
         return hasChanged;
     }
 
-    public void checkIfChunkBecameSurroundedByLoaded(IChangeObserver changeObserver) {
+    public void checkIfChunkBecameSurroundedByLoaded(MapChangeListener changeObserver) {
         this.chunk = MapViewConstants.getPlayer().level().getChunk(this.x, this.z);
         this.isLoaded = this.chunk != null && !this.chunk.isEmpty() && MapViewConstants.getPlayer().level().hasChunk(this.x, this.z);
         if (this.isLoaded) {
