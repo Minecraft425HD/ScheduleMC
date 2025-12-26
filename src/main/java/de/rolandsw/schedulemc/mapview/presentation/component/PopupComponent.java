@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.mapview.gui.overridden;
+package de.rolandsw.schedulemc.mapview.presentation.component;
 
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import de.rolandsw.schedulemc.mapview.util.MapViewGuiGraphics;
@@ -7,7 +7,7 @@ import net.minecraft.client.gui.GuiGraphics;
 
 import java.util.ArrayList;
 
-public class Popup {
+public class PopupComponent {
     private final Font fontRendererObj;
     private int x;
     private int y;
@@ -17,10 +17,10 @@ public class Popup {
     private final int clickedDirectX;
     private final int clickedDirectY;
     private boolean shouldClose;
-    private final PopupGuiScreen parentGui;
+    private final PopupScreen parentGui;
     private final int padding = 6;
 
-    public Popup(int x, int y, int directX, int directY, int minWidth, ArrayList<PopupEntry> entries, PopupGuiScreen parentGui) {
+    public PopupComponent(int x, int y, int directX, int directY, int minWidth, ArrayList<PopupEntry> entries, PopupScreen parentGui) {
         this.fontRendererObj = MapViewConstants.getMinecraft().font;
         this.parentGui = parentGui;
         this.clickedDirectX = directX;

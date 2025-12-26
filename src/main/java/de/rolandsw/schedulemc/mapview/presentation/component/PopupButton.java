@@ -1,14 +1,14 @@
-package de.rolandsw.schedulemc.mapview.gui.overridden;
+package de.rolandsw.schedulemc.mapview.presentation.component;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
-public class PopupGuiButton extends Button {
-    final IPopupGuiScreen parentScreen;
+public class PopupButton extends Button {
+    final IPopupScreen parentScreen;
 
-    public PopupGuiButton(int x, int y, int width, int height, Component message, OnPress onPress, IPopupGuiScreen parentScreen) {
+    public PopupButton(int x, int y, int width, int height, Component message, OnPress onPress, IPopupScreen parentScreen) {
         super(x, y, width, height, message, onPress, DEFAULT_NARRATION);
         this.parentScreen = parentScreen;
     }

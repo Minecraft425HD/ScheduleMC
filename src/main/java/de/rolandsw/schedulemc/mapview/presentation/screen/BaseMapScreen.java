@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.mapview.gui.overridden;
+package de.rolandsw.schedulemc.mapview.presentation.screen;
 
 import de.rolandsw.schedulemc.mapview.config.MapViewConfiguration;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
@@ -12,10 +12,10 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 
-public class GuiScreenMapView extends Screen {
-    protected GuiScreenMapView() { this (Component.literal("")); }
+public class BaseMapScreen extends Screen {
+    protected BaseMapScreen() { this (Component.literal("")); }
 
-    protected GuiScreenMapView(Component title) {
+    protected BaseMapScreen(Component title) {
         super (title);
     }
 

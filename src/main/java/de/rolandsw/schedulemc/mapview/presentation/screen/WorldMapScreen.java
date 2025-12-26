@@ -1,12 +1,12 @@
-package de.rolandsw.schedulemc.mapview.persistent;
+package de.rolandsw.schedulemc.mapview.presentation.screen;
 
 import de.rolandsw.schedulemc.mapview.config.MapViewConfiguration;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import de.rolandsw.schedulemc.mapview.service.data.MapDataManager;
-import de.rolandsw.schedulemc.mapview.gui.GuiMapViewOptions;
-import de.rolandsw.schedulemc.mapview.gui.overridden.Popup;
-import de.rolandsw.schedulemc.mapview.gui.overridden.PopupGuiButton;
-import de.rolandsw.schedulemc.mapview.gui.overridden.PopupGuiScreen;
+import de.rolandsw.schedulemc.mapview.presentation.screen.MapOptionsScreen;
+import de.rolandsw.schedulemc.mapview.presentation.component.PopupComponent;
+import de.rolandsw.schedulemc.mapview.presentation.component.PopupButton;
+import de.rolandsw.schedulemc.mapview.presentation.screen.PopupScreen;
 import de.rolandsw.schedulemc.mapview.core.model.AbstractMapData;
 import de.rolandsw.schedulemc.mapview.textures.Sprite;
 import de.rolandsw.schedulemc.mapview.textures.TextureAtlas;
@@ -41,7 +41,7 @@ import java.util.Random;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class WorldMapScreen extends PopupGuiScreen {
+public class WorldMapScreen extends PopupScreen {
     private final Random generator = new Random();
     private final WorldMapData persistentMap;
     private final Screen parent;
@@ -177,8 +177,8 @@ public class WorldMapScreen extends PopupGuiScreen {
         this.buttonCount = 3;
         this.buttonSeparation = 4;
         this.buttonWidth = (this.width - this.sideMargin * 2 - this.buttonSeparation * (this.buttonCount - 1)) / this.buttonCount;
-        this.addRenderableWidget(new PopupGuiButton(this.sideMargin + 1 * (this.buttonWidth + this.buttonSeparation), this.getHeight() - 28, this.buttonWidth, 20, Component.translatable("menu.options"), button -> minecraft.setScreen(new GuiMapViewOptions(this)), this));
-        this.addRenderableWidget(new PopupGuiButton(this.sideMargin + 2 * (this.buttonWidth + this.buttonSeparation), this.getHeight() - 28, this.buttonWidth, 20, Component.translatable("gui.done"), button -> minecraft.setScreen(parent), this));
+        this.addRenderableWidget(new PopupButton(this.sideMargin + 1 * (this.buttonWidth + this.buttonSeparation), this.getHeight() - 28, this.buttonWidth, 20, Component.translatable("menu.options"), button -> minecraft.setScreen(new MapOptionsScreen(this)), this));
+        this.addRenderableWidget(new PopupButton(this.sideMargin + 2 * (this.buttonWidth + this.buttonSeparation), this.getHeight() - 28, this.buttonWidth, 20, Component.translatable("gui.done"), button -> minecraft.setScreen(parent), this));
         this.coordinates = new EditBox(this.font, this.sideMargin, 10, 140, 20, null);
         this.top = 32;
         this.bottom = this.getHeight() - 32;
@@ -837,7 +837,7 @@ public class WorldMapScreen extends PopupGuiScreen {
     }
 
     private void createPopup(int x, int y, int directX, int directY) {
-        ArrayList<Popup.PopupEntry> entries = new ArrayList<>();
+        ArrayList<PopupComponent.PopupEntry> entries = new ArrayList<>();
         float cursorX = directX;
         float cursorY = directY - this.top * this.guiToDirectMouse;
         float cursorCoordX;
@@ -850,8 +850,8 @@ public class WorldMapScreen extends PopupGuiScreen {
             cursorCoordZ = cursorY * this.mouseDirectToMap + (this.mapCenterZ - this.centerY * this.guiToMap);
         }
 
-        Popup.PopupEntry entry;
-        entry = new Popup.PopupEntry(I18n.get("mapview.waypoints.teleportTo"), 3, true, true);
+        PopupComponent.PopupEntry entry;
+        entry = new PopupComponent.PopupEntry(I18n.get("mapview.waypoints.teleportTo"), 3, true, true);
         entries.add(entry);
 
         this.createPopup(x, y, directX, directY, 60, entries);
@@ -861,7 +861,7 @@ public class WorldMapScreen extends PopupGuiScreen {
     }
 
     @Override
-    public void popupAction(Popup popup, int action) {
+    public void popupAction(PopupComponent popup, int action) {
         int mouseDirectX = popup.getClickedDirectX();
         int mouseDirectY = popup.getClickedDirectY();
         float cursorX = mouseDirectX;

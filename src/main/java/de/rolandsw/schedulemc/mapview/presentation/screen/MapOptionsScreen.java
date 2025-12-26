@@ -1,22 +1,22 @@
-package de.rolandsw.schedulemc.mapview.gui;
+package de.rolandsw.schedulemc.mapview.presentation.screen;
 
 import de.rolandsw.schedulemc.mapview.config.MapViewConfiguration;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import de.rolandsw.schedulemc.mapview.config.MapOption;
-import de.rolandsw.schedulemc.mapview.gui.overridden.GuiOptionButtonMapView;
-import de.rolandsw.schedulemc.mapview.gui.overridden.GuiScreenMapView;
+import de.rolandsw.schedulemc.mapview.presentation.component.OptionButton;
+import de.rolandsw.schedulemc.mapview.presentation.screen.BaseMapScreen;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 
-public class GuiMapViewOptions extends GuiScreenMapView {
+public class MapOptionsScreen extends BaseMapScreen {
     private final Screen parent;
     private final MapViewConfiguration options;
     protected String screenTitle = "Minimap Options";
 
-    public GuiMapViewOptions(Screen parent) {
+    public MapOptionsScreen(Screen parent) {
         this.parent = parent;
         this.setParentScreen(this.parent);
 
@@ -30,7 +30,7 @@ public class GuiMapViewOptions extends GuiScreenMapView {
 
         for (int i = 0; i < relevantOptions.length; i++) {
             MapOption option = relevantOptions[i];
-            GuiOptionButtonMapView optionButton = new GuiOptionButtonMapView(getWidth() / 2 - 155 + i % 2 * 160, getHeight() / 6 + 24 * (i >> 1), option, Component.literal(options.getKeyText(option)), this::optionClicked);
+            OptionButton optionButton = new OptionButton(getWidth() / 2 - 155 + i % 2 * 160, getHeight() / 6 + 24 * (i >> 1), option, Component.literal(options.getKeyText(option)), this::optionClicked);
             this.addRenderableWidget(optionButton);
         }
 
@@ -38,7 +38,7 @@ public class GuiMapViewOptions extends GuiScreenMapView {
     }
 
     protected void optionClicked(Button par1GuiButton) {
-        MapOption option = ((GuiOptionButtonMapView) par1GuiButton).returnEnumOptions();
+        MapOption option = ((OptionButton) par1GuiButton).returnEnumOptions();
         this.options.setOptionValue(option);
         par1GuiButton.setMessage(Component.literal(this.options.getKeyText(option)));
     }

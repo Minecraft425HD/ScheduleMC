@@ -1,17 +1,17 @@
-package de.rolandsw.schedulemc.mapview.gui.overridden;
+package de.rolandsw.schedulemc.mapview.presentation.screen;
 
 import java.util.ArrayList;
 import net.minecraft.client.gui.GuiGraphics;
 
-public abstract class PopupGuiScreen extends GuiScreenMapView implements IPopupGuiScreen {
-    private final ArrayList<Popup> popups = new ArrayList<>();
+public abstract class PopupScreen extends BaseMapScreen implements IPopupScreen {
+    private final ArrayList<PopupComponent> popups = new ArrayList<>();
 
     @Override
     public void removed() {
     }
 
-    public void createPopup(int x, int y, int directX, int directY, int minWidth, ArrayList<Popup.PopupEntry> entries) {
-        popups.add(new Popup(x, y, directX, directY, minWidth, entries, this));
+    public void createPopup(int x, int y, int directX, int directY, int minWidth, ArrayList<PopupComponent.PopupEntry> entries) {
+        popups.add(new PopupComponent(x, y, directX, directY, minWidth, entries, this));
     }
 
     public void clearPopups() {
@@ -20,9 +20,9 @@ public abstract class PopupGuiScreen extends GuiScreenMapView implements IPopupG
 
     public boolean clickedPopup(double x, double y) {
         boolean clicked = false;
-        ArrayList<Popup> deadPopups = new ArrayList<>();
+        ArrayList<PopupComponent> deadPopups = new ArrayList<>();
 
-        for (Popup popup : this.popups) {
+        for (PopupComponent popup : this.popups) {
             boolean clickedPopup = popup.clickedMe(x, y);
             if (!clickedPopup) {
                 deadPopups.add(popup);
@@ -41,7 +41,7 @@ public abstract class PopupGuiScreen extends GuiScreenMapView implements IPopupG
     public boolean overPopup(int mouseX, int mouseY) {
         boolean over = false;
 
-        for (Popup popup : this.popups) {
+        for (PopupComponent popup : this.popups) {
             boolean overPopup = popup.overMe(mouseX, mouseY);
             over = over || overPopup;
         }
@@ -58,7 +58,7 @@ public abstract class PopupGuiScreen extends GuiScreenMapView implements IPopupG
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
         super.render(guiGraphics, mouseX, mouseY, delta);
 
-        for (Popup popup : this.popups) {
+        for (PopupComponent popup : this.popups) {
             popup.drawPopup(guiGraphics, mouseX, mouseY);
         }
     }

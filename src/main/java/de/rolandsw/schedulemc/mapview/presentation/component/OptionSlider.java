@@ -1,14 +1,14 @@
-package de.rolandsw.schedulemc.mapview.gui.overridden;
+package de.rolandsw.schedulemc.mapview.presentation.component;
 
 import de.rolandsw.schedulemc.mapview.core.event.SettingsManager;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.network.chat.Component;
 
-public class GuiOptionSliderMapView extends AbstractSliderButton {
+public class OptionSlider extends AbstractSliderButton {
     private final SettingsManager options;
     private final MapOption option;
 
-    public GuiOptionSliderMapView(int x, int y, MapOption optionIn, float value, SettingsManager options) {
+    public OptionSlider(int x, int y, MapOption optionIn, float value, SettingsManager options) {
         super (x, y, 150, 20, Component.literal(options.getKeyText(optionIn)), value);
         this.options = options;
         this.option = optionIn;

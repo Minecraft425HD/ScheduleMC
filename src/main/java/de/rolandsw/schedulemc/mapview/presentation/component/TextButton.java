@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.mapview.gui.overridden;
+package de.rolandsw.schedulemc.mapview.presentation.component;
 
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -6,11 +6,11 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 
-public class GuiButtonText extends Button {
+public class TextButton extends Button {
     private boolean editing;
     private final EditBox textField;
 
-    public GuiButtonText(Font fontRenderer, int x, int y, int width, int height, Component message, OnPress onPress) {
+    public TextButton(Font fontRenderer, int x, int y, int width, int height, Component message, OnPress onPress) {
         super (x, y, width, height, message, onPress, DEFAULT_NARRATION);
         this.textField = new EditBox(fontRenderer, x + 1, y + 1, width - 2, height - 2, null);
     }

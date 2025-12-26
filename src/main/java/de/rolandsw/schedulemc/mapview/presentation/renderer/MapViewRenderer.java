@@ -1,9 +1,9 @@
-package de.rolandsw.schedulemc.mapview;
+package de.rolandsw.schedulemc.mapview.presentation.renderer;
 
 import de.rolandsw.schedulemc.mapview.config.MapOption;
 import de.rolandsw.schedulemc.mapview.core.model.AbstractMapData;
 import de.rolandsw.schedulemc.mapview.core.event.MapChangeListener;
-import de.rolandsw.schedulemc.mapview.persistent.WorldMapScreen;
+import de.rolandsw.schedulemc.mapview.presentation.screen.WorldMapScreen;
 import de.rolandsw.schedulemc.mapview.util.BiomeColors;
 import de.rolandsw.schedulemc.mapview.util.BlockDatabase;
 import de.rolandsw.schedulemc.mapview.service.render.LightingCalculator;
