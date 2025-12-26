@@ -1,0 +1,23 @@
+{
+  "minimap.ui.zoomLevel": "Zoom Level:",
+  "options.minimap.title": "Minimap Options",
+  "options.minimap.location": "Location",
+  "options.minimap.location.topLeft": "Top Left",
+  "options.minimap.location.topRight": "Top Right",
+  "options.minimap.location.bottomRight": "Bottom Right",
+  "options.minimap.location.bottomLeft": "Bottom Left",
+  "options.minimap.size": "Size",
+  "options.minimap.size.small": "Small",
+  "options.minimap.size.medium": "Regular",
+  "options.minimap.size.large": "Large",
+  "options.minimap.size.xl": "XL",
+  "options.minimap.size.xxl": "XXL",
+  "options.minimap.size.xxxl": "XXXL",
+  "key.minimap.zoom": "Zoom",
+  "key.minimap.toggleFullscreen": "Toggle Fullscreen Map",
+  "key.minimap.lightmapMenu": "LightMap Menu",
+  "key.minimap.menu": "Menu",
+  "minimap.waypoints.teleportTo": "Teleport To",
+  "worldmap.title": "LightMap",
+  "worldmap.disabled": "The Worldmap is disabled on this server."
+}

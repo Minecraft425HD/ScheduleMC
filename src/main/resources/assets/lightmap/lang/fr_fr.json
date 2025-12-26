@@ -1,0 +1,17 @@
+{
+  "minimap.ui.zoomLevel": "Niveau de zoom:",
+  "options.minimap.title": "Options concernant la minimap",
+  "options.minimap.location": "Locasilation",
+  "options.minimap.location.topLeft": "En haut à gauche",
+  "options.minimap.location.topRight": "En haut à droite",
+  "options.minimap.location.bottomRight": "En bas à droite",
+  "options.minimap.location.bottomLeft": "En haut à gauche",
+  "options.minimap.size": "Taille",
+  "options.minimap.size.small": "Petite",
+  "options.minimap.size.medium": "Normale",
+  "options.minimap.size.large": "Grande",
+  "key.minimap.zoom": "Zoom",
+  "key.minimap.toggleFullscreen": "Mettre la map en plein écran",
+  "key.minimap.menu": "Menu",
+  "minimap.waypoints.teleportTo": "Aller à"
+}

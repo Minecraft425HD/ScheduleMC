@@ -1,0 +1,23 @@
+{
+  "minimap.ui.zoomLevel": "Zoomstufe:",
+  "options.minimap.title": "Kartenoptionen",
+  "options.minimap.location": "Lage",
+  "options.minimap.location.topLeft": "Oben Links",
+  "options.minimap.location.topRight": "Oben Rechts",
+  "options.minimap.location.bottomRight": "Unten Rechts",
+  "options.minimap.location.bottomLeft": "Unten Links",
+  "options.minimap.size": "Größe",
+  "options.minimap.size.small": "Kleiner",
+  "options.minimap.size.medium": "Normal",
+  "options.minimap.size.large": "Größer",
+  "options.minimap.size.xl": "Sehr Groß",
+  "options.minimap.size.xxl": "Übergroß",
+  "options.minimap.size.xxxl": "Riesengroß",
+  "key.minimap.zoom": "Zoom",
+  "key.minimap.toggleFullscreen": "Vollbildkarte Schalten",
+  "key.minimap.lightmapMenu": "LightMap Menü",
+  "key.minimap.menu": "Menü",
+  "minimap.waypoints.teleportTo": "Teleportieren",
+  "worldmap.title": "LightMap",
+  "worldmap.disabled": "Die Weltkarte ist auf diesem Server deaktiviert."
+}

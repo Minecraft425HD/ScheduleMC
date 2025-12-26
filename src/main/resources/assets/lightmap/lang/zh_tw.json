@@ -1,0 +1,23 @@
+{
+  "minimap.ui.zoomLevel": "縮放等級：",
+  "options.minimap.title": "小地圖選項",
+  "options.minimap.location": "位置",
+  "options.minimap.location.topLeft": "左上角",
+  "options.minimap.location.topRight": "右上角",
+  "options.minimap.location.bottomRight": "右下角",
+  "options.minimap.location.bottomLeft": "左下角",
+  "options.minimap.size": "地圖大小",
+  "options.minimap.size.small": "小型",
+  "options.minimap.size.medium": "普通",
+  "options.minimap.size.large": "大型",
+  "options.minimap.size.xl": "XL",
+  "options.minimap.size.xxl": "XXL",
+  "options.minimap.size.xxxl": "XXXL",
+  "key.minimap.zoom": "縮放",
+  "key.minimap.toggleFullscreen": "全螢幕地圖",
+  "key.minimap.lightmapMenu": "LightMap 選單",
+  "key.minimap.menu": "選單",
+  "minimap.waypoints.teleportTo": "瞬移到選擇的記錄點",
+  "worldmap.title": "LightMap",
+  "worldmap.disabled": "此伺服器已停用世界地圖。"
+}

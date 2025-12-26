@@ -1,0 +1,17 @@
+{
+  "minimap.ui.zoomLevel": "Pietuvināšanas līmenis: ",
+  "options.minimap.title": "Minimapes uzstādijumi ",
+  "options.minimap.location": "Atrašanās vieta ",
+  "options.minimap.location.topLeft": "Augšējā kreisajā ",
+  "options.minimap.location.topRight": "Augšējā labajā",
+  "options.minimap.location.bottomRight": "Apakšējā labajā ",
+  "options.minimap.location.bottomLeft": "Apakšējā kreisajā",
+  "options.minimap.size": "Izmērs ",
+  "options.minimap.size.small": "Mazs",
+  "options.minimap.size.medium": "Vidējs ",
+  "options.minimap.size.large": "Liels ",
+  "key.minimap.zoom": "Pietuvināt ",
+  "key.minimap.toggleFullscreen": "Iespējot pilnekrāna karti ",
+  "key.minimap.menu": "Izvēlne ",
+  "minimap.waypoints.teleportTo": "Teleportēt uz "
+}

@@ -1,0 +1,17 @@
+{
+  "minimap.ui.zoomLevel": "Priblíženie:",
+  "options.minimap.title": "Možnosti Minimapy",
+  "options.minimap.location": "Umiestnenie",
+  "options.minimap.location.topLeft": "Vľavo Hore",
+  "options.minimap.location.topRight": "Vpravo Hore",
+  "options.minimap.location.bottomRight": "Vpravo Dole",
+  "options.minimap.location.bottomLeft": "Vľavo Dole",
+  "options.minimap.size": "Veľkosť",
+  "options.minimap.size.small": "Malá",
+  "options.minimap.size.medium": "Stredná",
+  "options.minimap.size.large": "Veľká",
+  "key.minimap.zoom": "Priblíženie",
+  "key.minimap.toggleFullscreen": "Prepnúť mapu na celú obrazovku",
+  "key.minimap.menu": "Menu",
+  "minimap.waypoints.teleportTo": "Teleportovať"
+}

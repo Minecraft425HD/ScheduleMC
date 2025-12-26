@@ -1,0 +1,17 @@
+{
+  "minimap.ui.zoomLevel": "Zoom Level:",
+  "options.minimap.title": "Minimap-Instillinger",
+  "options.minimap.location": "Plassering",
+  "options.minimap.location.topLeft": "Topp Venstre",
+  "options.minimap.location.topRight": "Topp Høyre",
+  "options.minimap.location.bottomRight": "Bunn Høyre",
+  "options.minimap.location.bottomLeft": "Bunn Venstre",
+  "options.minimap.size": "Størrelse",
+  "options.minimap.size.small": "Liten",
+  "options.minimap.size.medium": "Standard",
+  "options.minimap.size.large": "Stor",
+  "key.minimap.zoom": "Zoom",
+  "key.minimap.toggleFullscreen": "Fullskjermkart av/på",
+  "key.minimap.menu": "Meny",
+  "minimap.waypoints.teleportTo": "Teleporter Til"
+}

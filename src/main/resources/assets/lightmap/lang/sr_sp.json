@@ -1,0 +1,17 @@
+{
+  "minimap.ui.zoomLevel": "Ниво зумирања:",
+  "options.minimap.title": "Подешавања Минимапе",
+  "options.minimap.location": "Локација",
+  "options.minimap.location.topLeft": "Горе Лево",
+  "options.minimap.location.topRight": "Горе Десно",
+  "options.minimap.location.bottomRight": "Доле Десно",
+  "options.minimap.location.bottomLeft": "Доле Лево",
+  "options.minimap.size": "Bеличина",
+  "options.minimap.size.small": "Мало",
+  "options.minimap.size.medium": "Нормално",
+  "options.minimap.size.large": "Велико",
+  "key.minimap.zoom": "Зумирај",
+  "key.minimap.toggleFullscreen": "Омогући мапу преко целог екрана",
+  "key.minimap.menu": "Мени",
+  "minimap.waypoints.teleportTo": "Телепортуј се"
+}

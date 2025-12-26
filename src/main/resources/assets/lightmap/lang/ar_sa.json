@@ -1,0 +1,17 @@
+{
+  "minimap.ui.zoomLevel": "مستوى التكبير:",
+  "options.minimap.title": "خيارات الخريطة",
+  "options.minimap.location": "موقع الخريطة",
+  "options.minimap.location.topLeft": "أعلى اليسار",
+  "options.minimap.location.topRight": "أعلى اليمين",
+  "options.minimap.location.bottomRight": "أسفل اليمين",
+  "options.minimap.location.bottomLeft": "أسفل اليسار",
+  "options.minimap.size": "حجم الخريطة",
+  "options.minimap.size.small": "صغير",
+  "options.minimap.size.medium": "متوسط",
+  "options.minimap.size.large": "كبير",
+  "key.minimap.zoom": "تكبير",
+  "key.minimap.toggleFullscreen": "تبديل الخريطة كامل الشاشة.",
+  "key.minimap.menu": "القائمة",
+  "minimap.waypoints.teleportTo": "انتقال فوري ل"
+}

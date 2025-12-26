@@ -1,0 +1,17 @@
+{
+  "minimap.ui.zoomLevel": "Velikost zooma:",
+  "options.minimap.title": "Nastavitve Mini-zemljevida",
+  "options.minimap.location": "Lokacija",
+  "options.minimap.location.topLeft": "Zgoraj Levo",
+  "options.minimap.location.topRight": "Zgoraj Desno",
+  "options.minimap.location.bottomRight": "Spodaj Desno",
+  "options.minimap.location.bottomLeft": "Zgoraj Levo",
+  "options.minimap.size": "Velikost",
+  "options.minimap.size.small": "Majhna",
+  "options.minimap.size.medium": "Standardna",
+  "options.minimap.size.large": "Velika",
+  "key.minimap.zoom": "Približaj",
+  "key.minimap.toggleFullscreen": "Priključi ali izključi celozaslonski zemljevid",
+  "key.minimap.menu": "Meni",
+  "minimap.waypoints.teleportTo": "Teleportiraj se do"
+}

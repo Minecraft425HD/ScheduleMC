@@ -1,0 +1,17 @@
+{
+  "minimap.ui.zoomLevel": "Zoom seviyesi:",
+  "options.minimap.title": "Miniharita Ayarları",
+  "options.minimap.location": "Konum",
+  "options.minimap.location.topLeft": "Sol Üst",
+  "options.minimap.location.topRight": "Sağ Üst",
+  "options.minimap.location.bottomRight": "Sağ Alt",
+  "options.minimap.location.bottomLeft": "Sol Alt",
+  "options.minimap.size": "Boyut",
+  "options.minimap.size.small": "Küçük",
+  "options.minimap.size.medium": "Orta",
+  "options.minimap.size.large": "Büyük",
+  "key.minimap.zoom": "Zoom",
+  "key.minimap.toggleFullscreen": "Tam Ekran Haritayı Aç/Kapa",
+  "key.minimap.menu": "Menü",
+  "minimap.waypoints.teleportTo": "Şuna ışınlan"
+}

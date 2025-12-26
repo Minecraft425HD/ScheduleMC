@@ -1,0 +1,17 @@
+{
+  "minimap.ui.zoomLevel": "Tingkat Perbesaran:",
+  "options.minimap.title": "Pengaturan Minimap",
+  "options.minimap.location": "Lokasi",
+  "options.minimap.location.topLeft": "Kiri Atas",
+  "options.minimap.location.topRight": "Kanan Atas",
+  "options.minimap.location.bottomRight": "Kanan Bawah",
+  "options.minimap.location.bottomLeft": "Kiri Bawah",
+  "options.minimap.size": "Ukuran",
+  "options.minimap.size.small": "Kecil",
+  "options.minimap.size.medium": "Biasa",
+  "options.minimap.size.large": "Besar",
+  "key.minimap.zoom": "Perbesar",
+  "key.minimap.toggleFullscreen": "Beralih ke Peta Layar Penuh",
+  "key.minimap.menu": "Menu",
+  "minimap.waypoints.teleportTo": "Berpindah Ke"
+}

@@ -2,6 +2,9 @@ package de.rolandsw.schedulemc.client;
 import de.rolandsw.schedulemc.util.EventHelper;
 
 import de.rolandsw.schedulemc.ScheduleMC;
+import de.rolandsw.schedulemc.lightmap.LightMapConstants;
+import de.rolandsw.schedulemc.lightmap.forge.ForgeEvents;
+import de.rolandsw.schedulemc.lightmap.forge.ForgePacketBridge;
 import de.rolandsw.schedulemc.economy.menu.EconomyMenuTypes;
 import de.rolandsw.schedulemc.economy.screen.ATMScreen;
 import de.rolandsw.schedulemc.tobacco.menu.ModMenuTypes;
@@ -37,7 +40,17 @@ public class ClientModEvents {
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
         EventHelper.handleEvent(() -> {
+            // Initialize LightMapmod
+            ForgeEvents forgeEvents = new ForgeEvents();
+            LightMapConstants.setEvents(forgeEvents);
+            LightMapConstants.setPacketBridge(new ForgePacketBridge());
+            forgeEvents.initEvents(LightMapConstants.getLightMapInstance());
+
             event.enqueueWork(() -> {
+                // Initialize LightMap on the main thread (required for texture creation)
+                forgeEvents.preInitClientPublic();
+                forgeEvents.registerPacketsPublic();
+
                 MenuScreens.register(EconomyMenuTypes.ATM_MENU.get(), ATMScreen::new);
                 MenuScreens.register(ModMenuTypes.SMALL_PACKAGING_TABLE_MENU.get(), SmallPackagingTableScreen::new);
                 MenuScreens.register(ModMenuTypes.MEDIUM_PACKAGING_TABLE_MENU.get(), MediumPackagingTableScreen::new);

@@ -1,0 +1,18 @@
+{
+  "minimap.ui.zoomLevel": "Nivel de Zoom:",
+  "options.minimap.title": "Opciones de Mapa",
+  "options.minimap.location": "Ubicación",
+  "options.minimap.location.topLeft": "Superior Izquierdo",
+  "options.minimap.location.topRight": "Superior Derecho",
+  "options.minimap.location.bottomRight": "Inferior Derecho",
+  "options.minimap.location.bottomLeft": "Inferior Izquierdo",
+  "options.minimap.size": "Tamaño",
+  "options.minimap.size.small": "Pequeño",
+  "options.minimap.size.medium": "Medio",
+  "options.minimap.size.large": "Grande",
+  "key.minimap.zoom": "Zoom de Minimapa",
+  "key.minimap.toggleFullscreen": "Mostrar mapa en pantalla completa",
+  "key.minimap.lightmapMenu": "Menú de Minimapa",
+  "key.minimap.menu": "Menú",
+  "minimap.waypoints.teleportTo": "Teletransportar a"
+}

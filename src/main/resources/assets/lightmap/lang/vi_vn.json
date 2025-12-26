@@ -1,0 +1,18 @@
+{
+  "minimap.ui.zoomLevel": "Mức độ phóng đại:",
+  "options.minimap.title": "Tùy chọn cho bản đồ",
+  "options.minimap.location": "Vị trí",
+  "options.minimap.location.topLeft": "Trên - Trái",
+  "options.minimap.location.topRight": "Trên - Phải",
+  "options.minimap.location.bottomRight": "Dưới - Phải",
+  "options.minimap.location.bottomLeft": "Dưới - Trái",
+  "options.minimap.size": "Kích cỡ",
+  "options.minimap.size.small": "Nhỏ",
+  "options.minimap.size.medium": "Thường",
+  "options.minimap.size.large": "Lớn",
+  "key.minimap.zoom": "Phóng đại",
+  "key.minimap.toggleFullscreen": "Chuyển đổi bản đồ toàn màn hình",
+  "key.minimap.lightmapMenu": "LightMap Menu",
+  "key.minimap.menu": "Menu",
+  "minimap.waypoints.teleportTo": "Dịch chuyển đến"
+}
