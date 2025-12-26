@@ -19,7 +19,7 @@ public class DynamicMoveableTexture extends DynamicTexture {
             pixelsField.setAccessible(true);
             pixelsFieldInitialized = true;
         } catch (Exception e) {
-            System.err.println("[MapCore] Warning: Could not access NativeImage.pixels field, using slower fallback");
+            System.err.println("[MapDataManager] Warning: Could not access NativeImage.pixels field, using slower fallback");
             pixelsFieldInitialized = true;
         }
     }
@@ -169,7 +169,7 @@ public class DynamicMoveableTexture extends DynamicTexture {
     }
 
     public void setRGB(int x, int y, int color24) {
-        // Input is ABGR format (from BlockColorCache): 0xAABBGGRR
+        // Input is ABGR format (from ColorCalculationService): 0xAABBGGRR
         // NativeImage.setPixelRGBA also expects ABGR format
         // So we just pass through with full alpha
         int color = 0xFF000000 | (color24 & 0x00FFFFFF);

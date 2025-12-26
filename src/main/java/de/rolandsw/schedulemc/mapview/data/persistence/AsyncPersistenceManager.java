@@ -45,13 +45,13 @@ public final class AsyncPersistenceManager {
         }
         // Performance-Optimierung: Nutze optimierte ThreadPool-Parameter
         saveExecutorService = new ThreadPoolExecutor(coreThreads, concurrentThreads, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(10000));
-        saveExecutorService.setThreadFactory(new NamedThreadFactory("MapCore WorldMap Saver Thread"));
+        saveExecutorService.setThreadFactory(new NamedThreadFactory("MapDataManager WorldMap Saver Thread"));
         MapViewConstants.getLogger().info("Save queue flushed!");
     }
 
     static {
-        executorService.setThreadFactory(new NamedThreadFactory("MapCore WorldMap Calculation Thread"));
-        saveExecutorService.setThreadFactory(new NamedThreadFactory("MapCore WorldMap Saver Thread"));
+        executorService.setThreadFactory(new NamedThreadFactory("MapDataManager WorldMap Calculation Thread"));
+        saveExecutorService.setThreadFactory(new NamedThreadFactory("MapDataManager WorldMap Saver Thread"));
     }
 
     private static final class NamedThreadFactory implements ThreadFactory {

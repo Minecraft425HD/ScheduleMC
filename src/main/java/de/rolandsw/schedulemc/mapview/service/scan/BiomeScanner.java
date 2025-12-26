@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.mapview.util;
+package de.rolandsw.schedulemc.mapview.service.scan;
 
 import com.google.common.collect.BiMap;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -9,8 +9,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 
-public class BiomeParser {
-    private BiomeParser() {
+public class BiomeScanner {
+    private BiomeScanner() {
     }
 
     public static void parseLine(Level world, String line, BiMap<Biome, Integer> map) {

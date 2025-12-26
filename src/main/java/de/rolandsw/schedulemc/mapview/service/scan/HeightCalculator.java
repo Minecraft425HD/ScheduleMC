@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.mapview.util;
+package de.rolandsw.schedulemc.mapview.service.scan;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -8,8 +8,8 @@ import net.minecraft.world.level.block.state.BlockState;
 /**
  * Utility class for height-related calculations.
  */
-public final class HeightUtils {
-    private HeightUtils() {}
+public final class HeightCalculator {
+    private HeightCalculator() {}
 
     /**
      * Finds a safe height at the given coordinates by searching downward from startY.

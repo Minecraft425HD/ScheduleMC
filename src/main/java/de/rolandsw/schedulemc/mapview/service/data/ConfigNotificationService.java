@@ -1,9 +1,9 @@
-package de.rolandsw.schedulemc.mapview;
+package de.rolandsw.schedulemc.mapview.service.data;
 
 import de.rolandsw.schedulemc.mapview.data.cache.RegionCache;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-public class ConfigurationChangeNotifier {
+public class ConfigNotificationService {
     private final CopyOnWriteArraySet<RegionCache> listeners = new CopyOnWriteArraySet<>();
 
     public final void addObserver(RegionCache listener) {

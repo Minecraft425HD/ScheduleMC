@@ -2,7 +2,7 @@ package de.rolandsw.schedulemc.mapview.forge;
 
 import de.rolandsw.schedulemc.mapview.Events;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
-import de.rolandsw.schedulemc.mapview.MapCore;
+import de.rolandsw.schedulemc.mapview.service.data.MapDataManager;
 import de.rolandsw.schedulemc.mapview.packets.MapViewSettingsS2C;
 import de.rolandsw.schedulemc.mapview.packets.WorldIdC2S;
 import de.rolandsw.schedulemc.mapview.packets.WorldIdS2C;
@@ -24,7 +24,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 public class ForgeEvents implements Events {
-    private MapCore map;
+    private MapDataManager map;
     private static final String PROTOCOL_VERSION = "1";
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
             new ResourceLocation("schedulemc", "lightmap_main"),
@@ -37,7 +37,7 @@ public class ForgeEvents implements Events {
     }
 
     @Override
-    public void initEvents(MapCore map) {
+    public void initEvents(MapDataManager map) {
         this.map = map;
         // Event listeners are now registered from ClientModEvents in ScheduleMC
         MinecraftForge.EVENT_BUS.register(new ForgeEventListener(map));
@@ -57,7 +57,7 @@ public class ForgeEvents implements Events {
     }
 
     private void preInitClient(final FMLClientSetupEvent event) {
-        // Initialize MapCore on the main thread (required for texture creation)
+        // Initialize MapDataManager on the main thread (required for texture creation)
         event.enqueueWork(() -> {
             MapViewConstants.lateInit();
             map.onConfigurationInit();
@@ -87,9 +87,9 @@ public class ForgeEvents implements Events {
     }
 
     private static class ForgeEventListener {
-        private final MapCore map;
+        private final MapDataManager map;
 
-        public ForgeEventListener(MapCore map) {
+        public ForgeEventListener(MapDataManager map) {
             this.map = map;
         }
 

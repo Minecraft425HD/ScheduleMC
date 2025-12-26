@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.mapview.util;
+package de.rolandsw.schedulemc.mapview.service.render;
 
 public final class ColorUtils {
     private ColorUtils() {}

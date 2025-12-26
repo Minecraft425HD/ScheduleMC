@@ -20,8 +20,8 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 public final class MapViewConstants {
-    private static final Logger LOGGER = LogManager.getLogger("MapCore");
-    private static final MapCore LIGHTMAP_INSTANCE = new MapCore();
+    private static final Logger LOGGER = LogManager.getLogger("MapDataManager");
+    private static final MapDataManager LIGHTMAP_INSTANCE = new MapDataManager();
     private static int elapsedTicks;
     private static final ResourceLocation OPTIONS_BACKGROUND_TEXTURE = new ResourceLocation("textures/block/dirt.png");
     public static final boolean DEBUG = false;
@@ -73,7 +73,7 @@ public final class MapViewConstants {
     }
 
     @NotNull
-    public static MapCore getLightMapInstance() { return LIGHTMAP_INSTANCE; }
+    public static MapDataManager getLightMapInstance() { return LIGHTMAP_INSTANCE; }
 
     static void tick() { elapsedTicks = elapsedTicks == Integer.MAX_VALUE ? 1 : elapsedTicks + 1; }
 
@@ -144,7 +144,7 @@ public final class MapViewConstants {
 
     public static int moveScoreboard(int bottomX, int entriesHeight) {
         double unscaledHeight = MapViewRenderer.getMinTablistOffset(); // / scaleFactor;
-        if (!MapCore.mapOptions.minimapAllowed || MapCore.mapOptions.mapCorner != 1 || !MapCore.mapOptions.moveScoreBoardDown || !Double.isFinite(unscaledHeight)) {
+        if (!MapDataManager.mapOptions.minimapAllowed || MapDataManager.mapOptions.mapCorner != 1 || !MapDataManager.mapOptions.moveScoreBoardDown || !Double.isFinite(unscaledHeight)) {
             return bottomX;
         }
         double scaleFactor = Minecraft.getInstance().getWindow().getGuiScale(); // 1x 2x 3x, ...

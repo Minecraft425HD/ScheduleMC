@@ -11,7 +11,7 @@ public class DebugRenderState {
     public static int chunksTotal;
 
     public static void print() {
-        MapViewConstants.getLogger().error("MapCore:DebugRenderState -> Chunk: " + checkChunkX + " " + checkChunkZ + " Block: " + blockX + " " + blockY + " " + blockZ);
-        MapViewConstants.getLogger().error("MapCore:DebugRenderState -> Changed: " + chunksChanged + "/" + chunksTotal);
+        MapViewConstants.getLogger().error("MapDataManager:DebugRenderState -> Chunk: " + checkChunkX + " " + checkChunkZ + " Block: " + blockX + " " + blockY + " " + blockZ);
+        MapViewConstants.getLogger().error("MapDataManager:DebugRenderState -> Changed: " + chunksChanged + "/" + chunksTotal);
     }
 }

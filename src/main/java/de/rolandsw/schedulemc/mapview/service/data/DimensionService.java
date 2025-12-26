@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.mapview.util;
+package de.rolandsw.schedulemc.mapview.service.data;
 
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import java.util.ArrayList;
@@ -9,11 +9,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.DimensionType;
 
-public class DimensionManager {
+public class DimensionService {
     public final ArrayList<DimensionContainer> dimensions;
     private final ArrayList<ResourceKey<Level>> vanillaWorlds = new ArrayList<>();
 
-    public DimensionManager() {
+    public DimensionService() {
         this.dimensions = new ArrayList<>();
         this.vanillaWorlds.add(Level.OVERWORLD);
         this.vanillaWorlds.add(Level.NETHER);

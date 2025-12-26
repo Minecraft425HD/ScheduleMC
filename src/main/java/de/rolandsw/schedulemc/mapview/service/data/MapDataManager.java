@@ -1,10 +1,10 @@
-package de.rolandsw.schedulemc.mapview;
+package de.rolandsw.schedulemc.mapview.service.data;
 
-import de.rolandsw.schedulemc.mapview.persistent.WorldMapData;
+import de.rolandsw.schedulemc.mapview.service.data.WorldMapService;
 import de.rolandsw.schedulemc.mapview.config.WorldMapConfiguration;
 import de.rolandsw.schedulemc.mapview.data.persistence.AsyncPersistenceManager;
 import de.rolandsw.schedulemc.mapview.util.BiomeColors;
-import de.rolandsw.schedulemc.mapview.util.DimensionManager;
+import de.rolandsw.schedulemc.mapview.service.data.DimensionService;
 import de.rolandsw.schedulemc.mapview.util.GameVariableAccessShim;
 import de.rolandsw.schedulemc.mapview.util.MapViewHelper;
 import de.rolandsw.schedulemc.mapview.util.TextUtils;
@@ -21,20 +21,20 @@ import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.Unit;
 
-public class MapCore implements PreparableReloadListener {
+public class MapDataManager implements PreparableReloadListener {
     public static MapViewConfiguration mapOptions;
     private WorldMapConfiguration persistentMapOptions;
     private MapViewRenderer map;
     private WorldMapData persistentMap;
-    private ConfigurationChangeNotifier settingsAndLightingChangeNotifier;
+    private ConfigNotificationService settingsAndLightingChangeNotifier;
     private WorldUpdateListener worldUpdateListener;
-    private BlockColorCache colorManager;
-    private DimensionManager dimensionManager;
+    private ColorCalculationService colorManager;
+    private DimensionService dimensionManager;
     private ClientLevel world;
     private static String passMessage;
     private ArrayDeque<Runnable> runOnWorldSet = new ArrayDeque<>();
     private String worldSeed = "";
-    MapCore() {}
+    MapDataManager() {}
 
     public void lateInit(boolean showUnderMenus, boolean isFair) {
         mapOptions = new MapViewConfiguration();
@@ -42,14 +42,14 @@ public class MapCore implements PreparableReloadListener {
         this.persistentMapOptions = new WorldMapConfiguration();
         mapOptions.addSecondaryOptionsManager(this.persistentMapOptions);
         BiomeColors.loadBiomeColors();
-        this.colorManager = new BlockColorCache();
-        this.dimensionManager = new DimensionManager();
+        this.colorManager = new ColorCalculationService();
+        this.dimensionManager = new DimensionService();
         this.persistentMap = new WorldMapData();
         mapOptions.loadAll();
 
         // Event listeners are now registered separately during mod construction
         this.map = new MapViewRenderer();
-        this.settingsAndLightingChangeNotifier = new ConfigurationChangeNotifier();
+        this.settingsAndLightingChangeNotifier = new ConfigNotificationService();
         this.worldUpdateListener = new WorldUpdateListener();
         this.worldUpdateListener.addListener(this.map);
         this.worldUpdateListener.addListener(this.persistentMap);
@@ -112,15 +112,15 @@ public class MapCore implements PreparableReloadListener {
         return this.map;
     }
 
-    public ConfigurationChangeNotifier getSettingsAndLightingChangeNotifier() {
+    public ConfigNotificationService getSettingsAndLightingChangeNotifier() {
         return this.settingsAndLightingChangeNotifier;
     }
 
-    public BlockColorCache getColorManager() {
+    public ColorCalculationService getColorManager() {
         return this.colorManager;
     }
 
-    public DimensionManager getDimensionManager() {
+    public DimensionService getDimensionManager() {
         return this.dimensionManager;
     }
 

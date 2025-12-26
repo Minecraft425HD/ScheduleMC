@@ -2,7 +2,7 @@ package de.rolandsw.schedulemc.mapview.persistent;
 
 import de.rolandsw.schedulemc.mapview.config.MapViewConfiguration;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
-import de.rolandsw.schedulemc.mapview.MapCore;
+import de.rolandsw.schedulemc.mapview.service.data.MapDataManager;
 import de.rolandsw.schedulemc.mapview.gui.GuiMapViewOptions;
 import de.rolandsw.schedulemc.mapview.gui.overridden.Popup;
 import de.rolandsw.schedulemc.mapview.gui.overridden.PopupGuiButton;
@@ -302,7 +302,7 @@ public class WorldMapScreen extends PopupGuiScreen {
             this.timeOfLastKBInput = 0L;
             int mouseDirectX = (int) minecraft.mouseHandler.xpos();
             int mouseDirectY = (int) minecraft.mouseHandler.ypos();
-            if (MapCore.mapOptions.worldmapAllowed) {
+            if (MapDataManager.mapOptions.worldmapAllowed) {
                 this.createPopup((int) mouseX, (int) mouseY, mouseDirectX, mouseDirectY);
             }
         }
@@ -598,7 +598,7 @@ public class WorldMapScreen extends PopupGuiScreen {
         float cursorCoordZ = 0.0f;
         float cursorCoordX = 0.0f;
         guiGraphics.pose().scale(this.mapToGui, this.mapToGui, 1.0f);
-        if (MapCore.mapOptions.worldmapAllowed) {
+        if (MapDataManager.mapOptions.worldmapAllowed) {
             for (RegionCache region : this.regions) {
                 ResourceLocation resource = region.getTextureLocation();
                 if (resource != null) {
@@ -606,7 +606,7 @@ public class WorldMapScreen extends PopupGuiScreen {
                 }
             }
 
-            if (MapCore.mapOptions.worldborder) {
+            if (MapDataManager.mapOptions.worldborder) {
                 WorldBorder worldBorder = minecraft.level.getWorldBorder();
                 float scale = 1.0f / (float) minecraft.getWindow().getGuiScale() / mapToGui;
 
@@ -769,7 +769,7 @@ public class WorldMapScreen extends PopupGuiScreen {
 
         this.overlayBackground(guiGraphics, 0, this.top, 255, 255);
         this.overlayBackground(guiGraphics, this.bottom, this.getHeight(), 255, 255);
-        if (MapCore.mapOptions.worldmapAllowed) {
+        if (MapDataManager.mapOptions.worldmapAllowed) {
             guiGraphics.drawCenteredString(this.font, this.screenTitle, this.getWidth() / 2, 16, 0xFFFFFFFF);
             int x = (int) Math.floor(cursorCoordX);
             int z = (int) Math.floor(cursorCoordZ);

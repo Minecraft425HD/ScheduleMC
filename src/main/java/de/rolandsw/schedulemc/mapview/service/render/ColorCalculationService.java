@@ -1,10 +1,10 @@
-package de.rolandsw.schedulemc.mapview;
+package de.rolandsw.schedulemc.mapview.service.render;
 
 import com.google.common.collect.UnmodifiableIterator;
 import de.rolandsw.schedulemc.mapview.core.model.AbstractMapData;
 import de.rolandsw.schedulemc.mapview.core.model.BlockModel;
 import de.rolandsw.schedulemc.mapview.util.BlockDatabase;
-import de.rolandsw.schedulemc.mapview.util.ColorUtils;
+import de.rolandsw.schedulemc.mapview.service.render.ColorUtils;
 import de.rolandsw.schedulemc.mapview.util.GLUtils;
 import de.rolandsw.schedulemc.mapview.util.MessageUtils;
 import de.rolandsw.schedulemc.mapview.util.MutableBlockPos;
@@ -72,7 +72,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class BlockColorCache {
+public class ColorCalculationService {
     private boolean resourcePacksChanged;
     private ClientLevel world;
     private BufferedImage terrainBuff;
@@ -110,7 +110,7 @@ public class BlockColorCache {
     };
     private final ColorResolver redstoneColorResolver = (blockState, biomex, blockPos) -> RedStoneWireBlock.getColorForPower(blockState.getValue(RedStoneWireBlock.POWER));
 
-    public BlockColorCache() {
+    public ColorCalculationService() {
         this.optifineInstalled = false;
         Field ofProfiler = null;
 

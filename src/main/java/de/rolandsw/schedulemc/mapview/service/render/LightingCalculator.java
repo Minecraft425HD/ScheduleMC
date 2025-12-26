@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.mapview.util;
+package de.rolandsw.schedulemc.mapview.service.render;
 
 import net.minecraft.client.Minecraft;
 import de.rolandsw.schedulemc.mapview.util.ARGBCompat;
@@ -6,8 +6,8 @@ import de.rolandsw.schedulemc.mapview.util.ARGBCompat;
 /**
  * from map lighting shader + net.minecraft.client.renderer.LightTexture
  */
-public class CPUMapRenderer {
-    private static final CPUMapRenderer INSTANCE = new CPUMapRenderer();
+public class LightingCalculator {
+    private static final LightingCalculator INSTANCE = new LightingCalculator();
     private static final Minecraft MINECRAFT = Minecraft.getInstance();
 
     private float blockLightRedFlicker = 0.0f;
@@ -20,7 +20,7 @@ public class CPUMapRenderer {
     private float SkyLightColorB = 1.0f;
     private float BrightnessFactor = 0.0f;
 
-    public static CPUMapRenderer getInstance() {
+    public static LightingCalculator getInstance() {
         return INSTANCE;
     }
 

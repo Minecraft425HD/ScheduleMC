@@ -1,12 +1,12 @@
 package de.rolandsw.schedulemc.mapview.data.cache;
 
-import de.rolandsw.schedulemc.mapview.ConfigurationChangeNotifier;
+import de.rolandsw.schedulemc.mapview.service.data.ConfigNotificationService;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.chunk.LevelChunk;
 
 public class EmptyRegionCache extends RegionCache {
     @Override
-    public void notifyOfActionableChange(ConfigurationChangeNotifier notifier) {
+    public void notifyOfActionableChange(ConfigNotificationService notifier) {
     }
 
     @Override

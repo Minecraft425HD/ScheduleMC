@@ -3,9 +3,9 @@ package de.rolandsw.schedulemc.mapview.data.cache;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
-import de.rolandsw.schedulemc.mapview.util.BiomeParser;
-import de.rolandsw.schedulemc.mapview.util.BlockStateParser;
-import de.rolandsw.schedulemc.mapview.util.HeightUtils;
+import de.rolandsw.schedulemc.mapview.service.scan.BiomeScanner;
+import de.rolandsw.schedulemc.mapview.service.scan.BlockStateAnalyzer;
+import de.rolandsw.schedulemc.mapview.service.scan.HeightCalculator;
 import de.rolandsw.schedulemc.mapview.util.MessageUtils;
 import de.rolandsw.schedulemc.mapview.util.MutableBlockPos;
 import de.rolandsw.schedulemc.mapview.util.TextUtils;
@@ -111,14 +111,14 @@ public class ComparisonRegionCache {
                             stateToInt = HashBiMap.create();
 
                             while (sc.hasNextLine()) {
-                                BlockStateParser.parseLine(sc.nextLine(), stateToInt);
+                                BlockStateAnalyzer.parseLine(sc.nextLine(), stateToInt);
                             }
                         }
 
                         if (ze.getName().equals("biomes")) {
                             biomeMap = HashBiMap.create();
                             while (sc.hasNextLine()) {
-                                BiomeParser.parseLine(world, sc.nextLine(), biomeMap);
+                                BiomeScanner.parseLine(world, sc.nextLine(), biomeMap);
                             }
                         }
 
@@ -138,7 +138,7 @@ public class ComparisonRegionCache {
                     if (decompressedByteData != null && decompressedByteData.length == this.data.getExpectedDataLength(version) && stateToInt != null) {
                         if (biomeMap == null) {
                             biomeMap = HashBiMap.create();
-                            BiomeParser.populateLegacyBiomeMap(world, biomeMap);
+                            BiomeScanner.populateLegacyBiomeMap(world, biomeMap);
                         }
                         this.data.setData(decompressedByteData, stateToInt, biomeMap, version);
                         this.empty = false;
@@ -188,7 +188,7 @@ public class ComparisonRegionCache {
         int z = blockZ - this.z * 256;
         int y = this.data.getHeight(x, z);
         if (this.underground && y == 255) {
-            y = HeightUtils.getSafeHeight(blockX, 64, blockZ, this.world);
+            y = HeightCalculator.getSafeHeight(blockX, 64, blockZ, this.world);
         }
 
         return y;

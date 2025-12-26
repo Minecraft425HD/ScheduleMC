@@ -1,15 +1,15 @@
-package de.rolandsw.schedulemc.mapview.persistent;
+package de.rolandsw.schedulemc.mapview.service.data;
 
-import de.rolandsw.schedulemc.mapview.BlockColorCache;
+import de.rolandsw.schedulemc.mapview.service.render.ColorCalculationService;
 import de.rolandsw.schedulemc.mapview.config.MapViewConfiguration;
-import de.rolandsw.schedulemc.mapview.ConfigurationChangeNotifier;
+import de.rolandsw.schedulemc.mapview.service.data.ConfigNotificationService;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
-import de.rolandsw.schedulemc.mapview.MapCore;
+import de.rolandsw.schedulemc.mapview.service.data.MapDataManager;
 import de.rolandsw.schedulemc.mapview.core.model.AbstractMapData;
 import de.rolandsw.schedulemc.mapview.core.event.MapChangeListener;
 import de.rolandsw.schedulemc.mapview.util.BiomeColors;
 import de.rolandsw.schedulemc.mapview.util.BlockDatabase;
-import de.rolandsw.schedulemc.mapview.util.ColorUtils;
+import de.rolandsw.schedulemc.mapview.service.render.ColorUtils;
 import de.rolandsw.schedulemc.mapview.util.GameVariableAccessShim;
 import de.rolandsw.schedulemc.mapview.util.ChunkCache;
 import de.rolandsw.schedulemc.mapview.util.MapViewHelper;
@@ -47,7 +47,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class WorldMapData implements MapChangeListener {
     final MutableBlockPos blockPos = new MutableBlockPos(0, 0, 0);
-    final BlockColorCache colorManager;
+    final ColorCalculationService colorManager;
     final MapViewConfiguration mapOptions;
     WorldMapConfiguration options;
     final int[] lightmapColors;
@@ -100,7 +100,7 @@ public class WorldMapData implements MapChangeListener {
         if (world != null) {
             this.newWorldStuff();
         } else {
-            Thread pauseForSubworldNamesThread = new Thread(null, null, "MapCore Pause for Subworld Name Thread") {
+            Thread pauseForSubworldNamesThread = new Thread(null, null, "MapDataManager Pause for Subworld Name Thread") {
                 @Override
                 public void run() {
                     try {
@@ -128,9 +128,9 @@ public class WorldMapData implements MapChangeListener {
             newCacheDir.getParentFile().mkdirs();
             boolean success = oldCacheDir.renameTo(newCacheDir);
             if (!success) {
-                MapViewConstants.getLogger().warn("Failed moving MapCore cache files.  Please move " + oldCacheDir.getPath() + " to " + newCacheDir.getPath());
+                MapViewConstants.getLogger().warn("Failed moving MapDataManager cache files.  Please move " + oldCacheDir.getPath() + " to " + newCacheDir.getPath());
             } else {
-                MapViewConstants.getLogger().warn("Moved MapCore cache files from " + oldCacheDir.getPath() + " to " + newCacheDir.getPath());
+                MapViewConstants.getLogger().warn("Moved MapDataManager cache files from " + oldCacheDir.getPath() + " to " + newCacheDir.getPath());
             }
         }
 
@@ -191,7 +191,7 @@ public class WorldMapData implements MapChangeListener {
         }
     }
 
-    public ConfigurationChangeNotifier getSettingsAndLightingChangeNotifier() {
+    public ConfigNotificationService getSettingsAndLightingChangeNotifier() {
         return MapViewConstants.getLightMapInstance().getSettingsAndLightingChangeNotifier();
     }
 
@@ -824,7 +824,7 @@ public class WorldMapData implements MapChangeListener {
 
     @Override
     public void processChunk(LevelChunk chunk) {
-        if (MapCore.mapOptions.worldmapAllowed) {
+        if (MapDataManager.mapOptions.worldmapAllowed) {
             this.chunkUpdateQueue.add(new ChunkWithAge(chunk, MapViewConstants.getElapsedTicks()));
         }
     }

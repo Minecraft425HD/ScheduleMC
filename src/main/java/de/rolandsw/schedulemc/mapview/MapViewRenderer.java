@@ -6,8 +6,8 @@ import de.rolandsw.schedulemc.mapview.core.event.MapChangeListener;
 import de.rolandsw.schedulemc.mapview.persistent.WorldMapScreen;
 import de.rolandsw.schedulemc.mapview.util.BiomeColors;
 import de.rolandsw.schedulemc.mapview.util.BlockDatabase;
-import de.rolandsw.schedulemc.mapview.util.CPUMapRenderer;
-import de.rolandsw.schedulemc.mapview.util.ColorUtils;
+import de.rolandsw.schedulemc.mapview.service.render.LightingCalculator;
+import de.rolandsw.schedulemc.mapview.service.render.ColorUtils;
 import de.rolandsw.schedulemc.mapview.util.DimensionContainer;
 import de.rolandsw.schedulemc.mapview.util.DynamicMoveableTexture;
 import de.rolandsw.schedulemc.mapview.data.repository.MapDataRepository;
@@ -88,7 +88,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     private ClientLevel world;
     private final MapViewConfiguration options;
     private final LayoutVariables layoutVariables;
-    private final BlockColorCache colorManager;
+    private final ColorCalculationService colorManager;
     private final int availableProcessors = Runtime.getRuntime().availableProcessors();
     private final boolean multicore = this.availableProcessors > 1;
     private final int heightMapResetHeight = this.multicore ? 2 : 5;
@@ -149,7 +149,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     private float percentX;
     private float percentY;
     private int northRotate;
-    private Thread zCalc = new Thread(this, "MapCore LiveMap Calculation Thread");
+    private Thread zCalc = new Thread(this, "MapDataManager LiveMap Calculation Thread");
     private int zCalcTicker;
     private int[] lightmapColors = new int[256];
     private double zoomScale = 1.0;
@@ -227,7 +227,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         this.zoom = this.options.zoom;
         this.setZoomScale();
 
-        this.projection = new MapViewCachedOrthoProjectionMatrixBuffer("MapCore MapViewRenderer To Screen Proj", -256.0F, 256.0F, 256.0F, -256.0F, 1000.0F, 21000.0F);
+        this.projection = new MapViewCachedOrthoProjectionMatrixBuffer("MapDataManager MapViewRenderer To Screen Proj", -256.0F, 256.0F, 256.0F, -256.0F, 1000.0F, 21000.0F);
 
         try {
             var arrowResourceOpt = Minecraft.getInstance().getResourceManager().getResource(resourceArrow);
@@ -286,7 +286,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
                                 this.chunkCache[this.zoom].checkIfChunksChanged();
                             }
                         } catch (Exception exception) {
-                            MapViewConstants.getLogger().error("MapCore LiveMap Calculation Thread", exception);
+                            MapViewConstants.getLogger().error("MapDataManager LiveMap Calculation Thread", exception);
                         }
                     }
 
@@ -299,7 +299,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
                     try {
                         this.zCalc.wait(0L);
                     } catch (InterruptedException exception) {
-                        MapViewConstants.getLogger().error("MapCore LiveMap Calculation Thread", exception);
+                        MapViewConstants.getLogger().error("MapDataManager LiveMap Calculation Thread", exception);
                     }
                 }
             }
@@ -375,7 +375,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
 
         if (this.threading) {
             if (!this.zCalc.isAlive()) {
-                this.zCalc = new Thread(this, "MapCore LiveMap Calculation Thread");
+                this.zCalc = new Thread(this, "MapDataManager LiveMap Calculation Thread");
                 this.zCalc.start();
                 this.zCalcTicker = 0;
             }
@@ -387,7 +387,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
                     Exception ex = new Exception();
                     ex.setStackTrace(this.zCalc.getStackTrace());
                     DebugRenderState.print();
-                    MapViewConstants.getLogger().error("MapCore LiveMap Calculation Thread is hanging?", ex);
+                    MapViewConstants.getLogger().error("MapDataManager LiveMap Calculation Thread is hanging?", ex);
                 }
                 // Performance-Optimierung: Notify nur wenn Update nötig
                 if (shouldUpdate) {
@@ -435,7 +435,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
             this.error = "";
         }
 
-        if (enabled && MapCore.mapOptions.minimapAllowed) {
+        if (enabled && MapDataManager.mapOptions.minimapAllowed) {
             this.drawMinimap(drawContext);
         }
 
@@ -486,7 +486,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
             if (this.world != null) {
                 if (this.needLightmapRefresh && MapViewConstants.getElapsedTicks() != this.tickWithLightChange && !minecraft.isPaused() || this.options.realTimeTorches) {
                     this.needLightmapRefresh = false;
-                    CPUMapRenderer lightmap = CPUMapRenderer.getInstance();
+                    LightingCalculator lightmap = LightingCalculator.getInstance();
                     lightmap.setup();
                     for (int blockLight = 0; blockLight < 16; blockLight++) {
                         for (int skyLight = 0; skyLight < 16; skyLight++) {
@@ -623,7 +623,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         }
 
         float statusIconOffset = 0.0F;
-        if (MapCore.mapOptions.moveMapDownWhileStatusEffect) {
+        if (MapDataManager.mapOptions.moveMapDownWhileStatusEffect) {
             if (this.options.mapCorner == 1 && !MapViewConstants.getPlayer().getActiveEffects().isEmpty()) {
 
                 for (MobEffectInstance statusEffectInstance : MapViewConstants.getPlayer().getActiveEffects()) {
@@ -1571,7 +1571,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
                 stencilTexture = Minecraft.getInstance().getTextureManager().getTexture(circleStencil);
             }
 
-            try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(() -> "MapCore: MapViewRenderer to screen", fboTextureView, OptionalInt.of(0x00000000))) {
+            try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(() -> "MapDataManager: MapViewRenderer to screen", fboTextureView, OptionalInt.of(0x00000000))) {
                 renderPass.setPipeline(renderPipeline);
                 RenderSystem.bindDefaultUniforms(renderPass);
                 renderPass.setUniform("DynamicTransforms", gpuBufferSlice);

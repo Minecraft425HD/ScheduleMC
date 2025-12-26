@@ -2,12 +2,12 @@ package de.rolandsw.schedulemc.mapview.data.cache;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import de.rolandsw.schedulemc.mapview.ConfigurationChangeNotifier;
+import de.rolandsw.schedulemc.mapview.service.data.ConfigNotificationService;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
-import de.rolandsw.schedulemc.mapview.util.BiomeParser;
-import de.rolandsw.schedulemc.mapview.util.BlockStateParser;
+import de.rolandsw.schedulemc.mapview.service.scan.BiomeScanner;
+import de.rolandsw.schedulemc.mapview.service.scan.BlockStateAnalyzer;
 import de.rolandsw.schedulemc.mapview.util.GameVariableAccessShim;
-import de.rolandsw.schedulemc.mapview.util.HeightUtils;
+import de.rolandsw.schedulemc.mapview.service.scan.HeightCalculator;
 import de.rolandsw.schedulemc.mapview.util.MutableBlockPos;
 import de.rolandsw.schedulemc.mapview.util.ReflectionUtils;
 import de.rolandsw.schedulemc.mapview.util.TextUtils;
@@ -167,7 +167,7 @@ public class RegionCache {
         this.liveChunkUpdateQueued[index] = true;
     }
 
-    public void notifyOfActionableChange(ConfigurationChangeNotifier notifier) {
+    public void notifyOfActionableChange(ConfigNotificationService notifier) {
         this.displayOptionsChanged = true;
     }
 
@@ -472,7 +472,7 @@ public class RegionCache {
                 Scanner sc = new Scanner(is);
 
                 while (sc.hasNextLine()) {
-                    BlockStateParser.parseLine(sc.nextLine(), blockstateMap);
+                    BlockStateAnalyzer.parseLine(sc.nextLine(), blockstateMap);
                 }
                 sc.close();
                 is.close();
@@ -484,10 +484,10 @@ public class RegionCache {
                     sc = new Scanner(is);
 
                     while (sc.hasNextLine()) {
-                        BiomeParser.parseLine(world, sc.nextLine(), biomeMap);
+                        BiomeScanner.parseLine(world, sc.nextLine(), biomeMap);
                     }
                 } else {
-                    BiomeParser.populateLegacyBiomeMap(world, biomeMap);
+                    BiomeScanner.populateLegacyBiomeMap(world, biomeMap);
                 }
 
                 sc.close();
@@ -724,7 +724,7 @@ public class RegionCache {
         int z = blockZ - this.z * 256;
         int y = this.data == null ? Short.MIN_VALUE : this.data.getHeight(x, z);
         if (this.underground && y == 255) {
-            y = HeightUtils.getSafeHeight(blockX, 64, blockZ, this.world);
+            y = HeightCalculator.getSafeHeight(blockX, 64, blockZ, this.world);
         }
 
         return y;

@@ -47,7 +47,7 @@ public class ClientModEvents {
             forgeEvents.initEvents(MapViewConstants.getLightMapInstance());
 
             event.enqueueWork(() -> {
-                // Initialize MapCore on the main thread (required for texture creation)
+                // Initialize MapDataManager on the main thread (required for texture creation)
                 forgeEvents.preInitClientPublic();
                 forgeEvents.registerPacketsPublic();
 

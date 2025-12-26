@@ -1,4 +1,4 @@
-package de.rolandsw.schedulemc.mapview.util;
+package de.rolandsw.schedulemc.mapview.service.scan;
 
 import com.google.common.collect.BiMap;
 import java.util.Optional;
@@ -10,8 +10,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import org.jetbrains.annotations.Nullable;
 
-public final class BlockStateParser {
-    private BlockStateParser() {}
+public final class BlockStateAnalyzer {
+    private BlockStateAnalyzer() {}
 
     public static void parseLine(String line, BiMap<BlockState, Integer> map) {
         String[] lineParts = line.split(" ");
