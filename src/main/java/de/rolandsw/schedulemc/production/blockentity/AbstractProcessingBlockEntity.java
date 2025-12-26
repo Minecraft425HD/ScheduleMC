@@ -44,6 +44,11 @@ public abstract class AbstractProcessingBlockEntity<T extends ProductionType, Q 
     protected T productionType;
     protected Q quality;
 
+    // Performance-Optimierung: Tick-Throttling
+    private int tickCounter = 0;
+    private static final int TICK_INTERVAL = 5; // Alle 5 Ticks statt jeden Tick
+    private int lastSyncedProgress = 0; // Für Progressive setChanged()
+
     // Forge ItemHandler
     protected ItemStackHandler itemHandler;
     private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
@@ -91,28 +96,42 @@ public abstract class AbstractProcessingBlockEntity<T extends ProductionType, Q 
 
     /**
      * Tick-Methode - wird jedes Tick aufgerufen
+     * Performance-Optimierung: Throttled processing
      */
     public void tick() {
         if (level == null || level.isClientSide) {
             return;
         }
 
-        // Wenn Input vorhanden und Output-Platz frei
-        if (canProcess()) {
-            processingProgress++;
+        tickCounter++;
 
-            if (processingProgress >= getProcessingTime()) {
-                // Verarbeitung abschließen
-                finishProcessing();
-                processingProgress = 0;
-            }
+        // Nur alle TICK_INTERVAL Ticks verarbeiten (statt jeden Tick)
+        if (tickCounter >= TICK_INTERVAL) {
+            tickCounter = 0;
 
-            setChanged();
-        } else {
-            // Reset progress wenn Bedingungen nicht erfüllt
-            if (processingProgress > 0) {
-                processingProgress = 0;
-                setChanged();
+            // Wenn Input vorhanden und Output-Platz frei
+            if (canProcess()) {
+                processingProgress += TICK_INTERVAL; // Erhöhe um Intervall
+
+                if (processingProgress >= getProcessingTime()) {
+                    // Verarbeitung abschließen
+                    finishProcessing();
+                    processingProgress = 0;
+                    lastSyncedProgress = 0;
+                }
+
+                // Nur alle 20 Ticks synchronisieren (nicht jeden Processing-Tick)
+                if (Math.abs(processingProgress - lastSyncedProgress) >= 20) {
+                    setChanged();
+                    lastSyncedProgress = processingProgress;
+                }
+            } else {
+                // Reset progress wenn Bedingungen nicht erfüllt
+                if (processingProgress > 0) {
+                    processingProgress = 0;
+                    lastSyncedProgress = 0;
+                    setChanged();
+                }
             }
         }
     }

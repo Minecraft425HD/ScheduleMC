@@ -62,6 +62,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -98,6 +99,15 @@ public class BlockColorCache {
     private final ColorResolver foliageColorResolver = (blockState, biomex, blockPos) -> biomex.getFoliageColor();
     private final ColorResolver dryFoliageColorResolver = (blockState, biomex, blockPos) -> biomex.getFoliageColor();
     private final ColorResolver waterColorResolver = (blockState, biomex, blockPos) -> biomex.getWaterColor();
+
+    // Performance-Optimierung: LRU Cache für Biome Tints (reduziert 9 Biome-Lookups pro Block)
+    // Cache-Size: 4096 Einträge = ~32KB Memory (genug für typische Spieler-Umgebung)
+    private final Map<Long, Integer> biomeTintCache = new LinkedHashMap<Long, Integer>(4096, 0.75f, true) {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<Long, Integer> eldest) {
+            return size() > 4096;
+        }
+    };
     private final ColorResolver redstoneColorResolver = (blockState, biomex, blockPos) -> RedStoneWireBlock.getColorForPower(blockState.getValue(RedStoneWireBlock.POWER));
 
     public BlockColorCache() {
@@ -294,8 +304,12 @@ public class BlockColorCache {
 
     private synchronized void resizeColorArrays(int queriedID) {
         if (queriedID >= this.blockColors.length) {
-            int[] newBlockColors = new int[this.blockColors.length * 2];
-            int[] newBlockColorsWithDefaultTint = new int[this.blockColors.length * 2];
+            // Performance-Optimierung: Wachse direkt auf benötigte Größe + Puffer
+            // Vorher: Verdoppelte Größe jedes Mal → mehrere Resizes nötig
+            // Jetzt: Wachse auf queriedID + 1024 Puffer → weniger Resizes
+            int newSize = Math.max(queriedID + 1024, this.blockColors.length * 2);
+            int[] newBlockColors = new int[newSize];
+            int[] newBlockColorsWithDefaultTint = new int[newSize];
             System.arraycopy(this.blockColors, 0, newBlockColors, 0, this.blockColors.length);
             System.arraycopy(this.blockColorsWithDefaultTint, 0, newBlockColorsWithDefaultTint, 0, this.blockColorsWithDefaultTint.length);
             Arrays.fill(newBlockColors, this.blockColors.length, newBlockColors.length, 0xFEFF00FF);
@@ -485,6 +499,14 @@ public class BlockColorCache {
     }
 
     public int getBiomeTint(AbstractMapData mapData, Level world, BlockState blockState, int blockStateID, MutableBlockPos blockPos, MutableBlockPos loopBlockPos, int startX, int startZ) {
+        // Performance-Optimierung: LRU Cache für Biome Tints
+        // Cache-Key: ChunkX (16 bit) | ChunkZ (16 bit) | BlockStateID (32 bit)
+        long cacheKey = ((long)(blockPos.getX() >> 4) << 48) | ((long)(blockPos.getZ() >> 4) << 32) | (blockStateID & 0xFFFFFFFFL);
+        Integer cachedTint = biomeTintCache.get(cacheKey);
+        if (cachedTint != null) {
+            return cachedTint; // Cache Hit - spart 9 Biome-Lookups!
+        }
+
         ChunkAccess chunk = world.getChunk(blockPos);
         boolean live = chunk != null && !((LevelChunk) chunk).isEmpty() && LightMapConstants.getPlayer().level().hasChunk(blockPos.getX() >> 4, blockPos.getZ() >> 4);
         int tint = -2;
@@ -532,7 +554,10 @@ public class BlockColorCache {
             tint = this.getBuiltInBiomeTint(mapData, world, blockState, blockStateID, blockPos, loopBlockPos, startX, startZ, live);
         }
 
-        return ARGBCompat.toABGR(tint);
+        // Performance-Optimierung: Speichere berechneten Wert im Cache
+        int result = ARGBCompat.toABGR(tint);
+        biomeTintCache.put(cacheKey, result);
+        return result;
     }
 
     private int getBuiltInBiomeTint(AbstractMapData mapData, Level world, BlockState blockState, int blockStateID, MutableBlockPos blockPos, MutableBlockPos loopBlockPos, int startX, int startZ, boolean live) {

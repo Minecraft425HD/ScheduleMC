@@ -31,6 +31,11 @@ public abstract class AbstractFermentationBarrelBlockEntity extends BlockEntity 
     private TobaccoType[] tobaccoTypes;
     private TobaccoQuality[] qualities;
 
+    // Performance-Optimierung: Tick-Throttling
+    private int tickCounter = 0;
+    private static final int TICK_INTERVAL = 5; // Alle 5 Ticks statt jeden Tick
+    private int lastSyncTick = 0;
+
     protected AbstractFermentationBarrelBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
         initArrays();
@@ -165,35 +170,50 @@ public abstract class AbstractFermentationBarrelBlockEntity extends BlockEntity 
     public void tick() {
         if (level == null || level.isClientSide) return;
 
-        boolean changed = false;
+        tickCounter++;
 
-        for (int i = 0; i < getCapacity(); i++) {
-            if (!inputs[i].isEmpty() && outputs[i].isEmpty()) {
-                fermentationProgress[i]++;
+        // Performance-Optimierung: Nur alle TICK_INTERVAL Ticks verarbeiten
+        if (tickCounter >= TICK_INTERVAL) {
+            tickCounter = 0;
 
-                if (fermentationProgress[i] >= getFermentationTime()) {
-                    // Fermentierung abgeschlossen - mit 30% Chance auf Qualitätsverbesserung
-                    TobaccoQuality finalQuality = calculateFinalQuality(qualities[i]);
-                    outputs[i] = FermentedTobaccoLeafItem.create(tobaccoTypes[i], finalQuality, 1);
-                    changed = true;
-                }
+            boolean changed = false;
+            boolean needsSync = false;
 
-                if (fermentationProgress[i] % 20 == 0) {
-                    changed = true;
+            // Nur aktive Slots verarbeiten
+            for (int i = 0; i < getCapacity(); i++) {
+                if (!inputs[i].isEmpty() && outputs[i].isEmpty()) {
+                    fermentationProgress[i] += TICK_INTERVAL; // Erhöhe um Intervall
+
+                    if (fermentationProgress[i] >= getFermentationTime()) {
+                        // Fermentierung abgeschlossen - mit 30% Chance auf Qualitätsverbesserung
+                        TobaccoQuality finalQuality = calculateFinalQuality(qualities[i]);
+                        outputs[i] = FermentedTobaccoLeafItem.create(tobaccoTypes[i], finalQuality, 1);
+                        changed = true;
+                        needsSync = true;
+                    }
+
+                    // Nur alle 40 Ticks (2 Sekunden) synchronisieren
+                    if (fermentationProgress[i] - lastSyncTick >= 40) {
+                        needsSync = true;
+                    }
                 }
             }
-        }
 
-        if (changed) {
-            setChanged();
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-        }
+            if (changed) {
+                setChanged();
+            }
 
-        // Utility-Status nur bei Änderung melden
-        boolean currentActive = isActivelyConsuming();
-        if (currentActive != lastActiveState) {
-            lastActiveState = currentActive;
-            UtilityEventHandler.reportBlockEntityActivity(this, currentActive);
+            if (needsSync) {
+                level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+                lastSyncTick = fermentationProgress[0]; // Track anhand erstem Slot
+            }
+
+            // Utility-Status nur bei Änderung melden
+            boolean currentActive = isActivelyConsuming();
+            if (currentActive != lastActiveState) {
+                lastActiveState = currentActive;
+                UtilityEventHandler.reportBlockEntityActivity(this, currentActive);
+            }
         }
     }
 

@@ -23,9 +23,12 @@ public class PolicePatrolGoal extends Goal {
     private BlockPos currentTarget;
     private BlockPos wanderTarget;
     private static final double ARRIVAL_THRESHOLD = 2.0D;
+    private static final double ARRIVAL_THRESHOLD_SQR = ARRIVAL_THRESHOLD * ARRIVAL_THRESHOLD; // Performance: Distance squared
     private static final int RECALCULATE_INTERVAL = 100; // Alle 5 Sekunden neu berechnen
+    private static final int DISTANCE_CHECK_INTERVAL = 20; // Performance: Distanz-Check nur 1x/Sek statt jeden Tick
     private int tickCounter = 0;
     private int wanderTickCounter = 0;
+    private int distanceCheckCounter = 0;
     private static final int WANDER_INTERVAL = 200; // Alle 10 Sekunden neues Wander-Ziel
     private final Random random = new Random();
     private boolean hasArrived = false;
@@ -125,6 +128,7 @@ public class PolicePatrolGoal extends Goal {
             hasArrived = false;
             tickCounter = 0;
             wanderTickCounter = 0;
+            distanceCheckCounter = 0;
             wanderTarget = null;
 
             // Gehe zum Patrouillenpunkt
@@ -145,17 +149,23 @@ public class PolicePatrolGoal extends Goal {
 
         tickCounter++;
         wanderTickCounter++;
+        distanceCheckCounter++;
 
-        // Prüfe ob am Ziel angekommen
-        double distanceToTarget = npc.position().distanceTo(
-            new Vec3(currentTarget.getX() + 0.5, currentTarget.getY(), currentTarget.getZ() + 0.5)
-        );
+        // Performance-Optimierung: Distanz-Check nur alle 20 Ticks (1x/Sek) statt jeden Tick
+        if (distanceCheckCounter >= DISTANCE_CHECK_INTERVAL) {
+            distanceCheckCounter = 0;
 
-        if (!hasArrived && distanceToTarget <= ARRIVAL_THRESHOLD) {
-            // Gerade angekommen - speichere Ankunftszeit (DayTime für /time add Kompatibilität)
-            hasArrived = true;
-            npc.getNpcData().setPatrolArrivalTime(npc.level().getDayTime());
-            npc.getNavigation().stop();
+            // Performance-Optimierung: Verwende distanceToSqr (keine Wurzelberechnung)
+            double distanceToTargetSqr = npc.position().distanceToSqr(
+                currentTarget.getX() + 0.5, currentTarget.getY(), currentTarget.getZ() + 0.5
+            );
+
+            if (!hasArrived && distanceToTargetSqr <= ARRIVAL_THRESHOLD_SQR) {
+                // Gerade angekommen - speichere Ankunftszeit (DayTime für /time add Kompatibilität)
+                hasArrived = true;
+                npc.getNpcData().setPatrolArrivalTime(npc.level().getDayTime());
+                npc.getNavigation().stop();
+            }
         }
 
         if (hasArrived) {
@@ -165,8 +175,18 @@ public class PolicePatrolGoal extends Goal {
                 setNewWanderTarget();
             }
         } else {
-            // Noch unterwegs zum Punkt - Pfad regelmäßig neu berechnen
-            if (tickCounter >= RECALCULATE_INTERVAL) {
+            // Performance-Optimierung: Pfad nur neu berechnen wenn Navigation failed ist
+            // Statt blind alle 100 Ticks neu zu berechnen
+            if (npc.getNavigation().isDone()) {
+                // Navigation ist fertig/failed - neu berechnen
+                npc.getNavigation().moveTo(
+                    currentTarget.getX() + 0.5,
+                    currentTarget.getY(),
+                    currentTarget.getZ() + 0.5,
+                    npc.getNpcData().getBehavior().getMovementSpeed()
+                );
+            } else if (tickCounter >= RECALCULATE_INTERVAL) {
+                // Fallback: Alle 100 Ticks neu berechnen (für stuck-Prevention)
                 tickCounter = 0;
                 npc.getNavigation().moveTo(
                     currentTarget.getX() + 0.5,
@@ -185,6 +205,7 @@ public class PolicePatrolGoal extends Goal {
         // Reset state (Index wird jetzt in canContinueToUse() inkrementiert)
         tickCounter = 0;
         wanderTickCounter = 0;
+        distanceCheckCounter = 0;
         currentTarget = null;
         wanderTarget = null;
         hasArrived = false;

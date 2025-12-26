@@ -6,6 +6,7 @@ import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.economy.ShopAccountManager;
 import de.rolandsw.schedulemc.util.GsonHelper;
 import de.rolandsw.schedulemc.util.BackupManager;
+import de.rolandsw.schedulemc.util.IncrementalSaveManager;
 import net.minecraft.core.BlockPos;
 import org.slf4j.Logger;
 
@@ -20,14 +21,18 @@ import java.util.stream.Collectors;
 
 /**
  * PlotManager - Verwaltet alle Plots
- * 
+ *
  * Features:
  * - Laden/Speichern von Plots
  * - Plot-Erstellung aus BlockPos (für Selection Tool)
  * - Plot-Suche nach Position
  * - Auto-Save mit dirty-Flag
  */
-public class PlotManager {
+public class PlotManager implements IncrementalSaveManager.ISaveable {
+
+    private static PlotManager instance;
+
+    private PlotManager() {}
 
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Map<String, PlotRegion> plots = new ConcurrentHashMap<>();
@@ -669,5 +674,39 @@ public class PlotManager {
      */
     public static void resetCacheStatistics() {
         plotCache.resetStatistics();
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // INCREMENTAL SAVE MANAGER INTEGRATION
+    // ═══════════════════════════════════════════════════════════
+
+    @Override
+    public boolean isDirty() {
+        return dirty;
+    }
+
+    @Override
+    public void save() {
+        savePlots();
+    }
+
+    @Override
+    public String getName() {
+        return "PlotManager";
+    }
+
+    @Override
+    public int getPriority() {
+        return 1; // Hohe Priorität - Plot-Daten sind wichtig
+    }
+
+    /**
+     * Gibt die Singleton-Instanz zurück (für IncrementalSaveManager Registration)
+     */
+    public static PlotManager getInstance() {
+        if (instance == null) {
+            instance = new PlotManager();
+        }
+        return instance;
     }
 }

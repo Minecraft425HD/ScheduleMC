@@ -84,6 +84,9 @@ public class StealingAttemptPacket {
                                     LOGGER.debug("[STEALING] Geld vom NPC entfernt: {}€", stolenAmount);
                                 }
 
+                                // Performance-Optimierung: Sync nur Wallet statt Full NPC Data
+                                npc.syncWalletToClient();
+
                                 // Geld zum Wallet-Item hinzufügen
                                 ItemStack walletItem = player.getInventory().getItem(8);
                                 if (walletItem.getItem() instanceof CashItem) {

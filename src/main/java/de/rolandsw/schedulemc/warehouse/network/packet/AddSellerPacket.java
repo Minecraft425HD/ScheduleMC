@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.warehouse.network.packet;
 
+import de.rolandsw.schedulemc.managers.NPCEntityRegistry;
 import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.util.PacketHandler;
@@ -53,16 +54,8 @@ public class AddSellerPacket {
                 return;
             }
 
-            // Finde den NPC - durchsuche alle Entities in der Welt
-            CustomNPCEntity npc = null;
-            for (Entity entity : level.getAllEntities()) {
-                if (entity instanceof CustomNPCEntity customNpc) {
-                    if (customNpc.getUUID().equals(msg.sellerId)) {
-                        npc = customNpc;
-                        break;
-                    }
-                }
-            }
+            // Performance-Optimierung: O(1) UUID Lookup statt O(n) getAllEntities() Iteration
+            CustomNPCEntity npc = NPCEntityRegistry.getNPCByUUID(msg.sellerId, level);
 
             if (npc == null) {
                 player.sendSystemMessage(Component.literal("§cNPC nicht gefunden! (UUID: " + msg.sellerId + ")"));

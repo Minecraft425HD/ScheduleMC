@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.tobacco.business;
 
+import de.rolandsw.schedulemc.managers.NPCEntityRegistry;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.util.EventHelper;
 import net.minecraft.server.level.ServerLevel;
@@ -41,12 +42,14 @@ public class BusinessMetricsUpdateHandler {
         });
     }
 
+    /**
+     * Performance-Optimierung: Nutze NPCEntityRegistry statt getAllEntities()
+     */
     private static void updateAllNPCMetrics(ServerLevel level, long currentDay) {
-        for (Entity entity : level.getAllEntities()) {
-            if (entity instanceof CustomNPCEntity npc) {
-                if (!npc.getNpcData().hasInventoryAndWallet()) {
-                    continue; // Nur BEWOHNER und VERKÄUFER
-                }
+        for (CustomNPCEntity npc : NPCEntityRegistry.getAllNPCs(level)) {
+            if (!npc.getNpcData().hasInventoryAndWallet()) {
+                continue; // Nur BEWOHNER und VERKÄUFER
+            }
 
                 NPCBusinessMetrics metrics = new NPCBusinessMetrics(npc);
 
@@ -63,9 +66,8 @@ public class BusinessMetricsUpdateHandler {
                     metrics.regenerateDemand();
                 }
 
-                // 3. Speichern
-                metrics.save();
-            }
+            // 3. Speichern
+            metrics.save();
         }
     }
 }

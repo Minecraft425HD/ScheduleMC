@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.warehouse.network.packet;
 
+import de.rolandsw.schedulemc.managers.NPCEntityRegistry;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.util.PacketHandler;
 import de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity;
@@ -50,14 +51,10 @@ public class RemoveSellerPacket {
             warehouse.setChanged();
             warehouse.syncToClient(); // Wichtig: Synchronisiere zum Client
 
-            // Finde den NPC und entferne auch seine Warehouse-Zuweisung
-            for (Entity entity : level.getAllEntities()) {
-                if (entity instanceof CustomNPCEntity customNpc) {
-                    if (customNpc.getUUID().equals(msg.sellerId)) {
-                        customNpc.getNpcData().setAssignedWarehouse(null);
-                        break;
-                    }
-                }
+            // Performance-Optimierung: O(1) UUID Lookup statt O(n) getAllEntities() Iteration
+            CustomNPCEntity customNpc = NPCEntityRegistry.getNPCByUUID(msg.sellerId, level);
+            if (customNpc != null) {
+                customNpc.getNpcData().setAssignedWarehouse(null);
             }
 
             player.sendSystemMessage(Component.literal("§aVerkäufer entfernt!"));

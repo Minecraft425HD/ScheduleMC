@@ -53,22 +53,38 @@ public class TerritoryManager extends AbstractPersistenceManager<Map<Long, Terri
 
     /**
      * Setzt Territory für Chunk
+     * Performance-Optimierung: Sendet Delta-Update statt Full Sync
      */
     public void setTerritory(int chunkX, int chunkZ, TerritoryType type, String name, @Nullable UUID ownerUUID) {
         long key = Territory.getChunkKey(chunkX, chunkZ);
         Territory territory = new Territory(chunkX, chunkZ, type, name, ownerUUID);
         territories.put(key, territory);
         save();
+
+        // Performance-Optimierung: Delta-Update an alle Clients senden
+        if (server != null) {
+            de.rolandsw.schedulemc.territory.network.TerritoryNetworkHandler.broadcastDeltaUpdate(
+                de.rolandsw.schedulemc.territory.network.SyncTerritoryDeltaPacket.update(territory)
+            );
+        }
     }
 
     /**
      * Entfernt Territory von Chunk
+     * Performance-Optimierung: Sendet Delta-Update statt Full Sync
      */
     public boolean removeTerritory(int chunkX, int chunkZ) {
         long key = Territory.getChunkKey(chunkX, chunkZ);
         boolean removed = territories.remove(key) != null;
         if (removed) {
             save();
+
+            // Performance-Optimierung: Delta-Update an alle Clients senden
+            if (server != null) {
+                de.rolandsw.schedulemc.territory.network.TerritoryNetworkHandler.broadcastDeltaUpdate(
+                    de.rolandsw.schedulemc.territory.network.SyncTerritoryDeltaPacket.remove(chunkX, chunkZ)
+                );
+            }
         }
         return removed;
     }

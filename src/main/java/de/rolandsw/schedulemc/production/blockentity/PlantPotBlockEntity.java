@@ -63,8 +63,9 @@ public class PlantPotBlockEntity extends BlockEntity implements IUtilityConsumer
 
         tickCounter++;
 
-        // Pflanzen-Wachstum prüfen (alle 5 Ticks = 4x pro Sekunde)
-        if (tickCounter >= 5) {
+        // Pflanzen-Wachstum prüfen (alle 20 Ticks = 1x pro Sekunde)
+        // Performance-Optimierung: Reduziert von 4x/Sekunde auf 1x/Sekunde
+        if (tickCounter >= 20) {
             tickCounter = 0;
             plantGrowthCounter++;
 

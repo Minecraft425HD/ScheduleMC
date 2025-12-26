@@ -8,10 +8,15 @@ import javax.annotation.Nullable;
  * Factory für PlantGrowthHandler
  *
  * Wählt den richtigen Handler basierend auf Pflanzentyp
+ *
+ * Performance-Optimierung:
+ * - Handler sind stateless und können wiederverwendet werden
+ * - Singleton-Instanzen statt neue Instanzen pro Aufruf
+ * - Eliminiert Objekt-Allokation und Garbage Collection Overhead
  */
 public class PlantGrowthHandlerFactory {
 
-    // Singleton-Instanzen der Handler (stateless)
+    // Performance-Optimierung: Singleton-Instanzen der Handler (stateless)
     private static final TobaccoGrowthHandler TOBACCO_HANDLER = new TobaccoGrowthHandler();
     private static final CannabisGrowthHandler CANNABIS_HANDLER = new CannabisGrowthHandler();
     private static final CocaGrowthHandler COCA_HANDLER = new CocaGrowthHandler();
