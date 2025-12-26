@@ -34,7 +34,7 @@ public class TerritoryMapEditorScreen extends Screen {
     private static final int PALETTE_BUTTON_HEIGHT = 30;
     private static final int PALETTE_PADDING = 5;
 
-    // Map data (shared with MapAppScreen)
+    // Map data (independent from LightMapmod - Territory Editor uses its own map rendering)
     private static final Map<Long, byte[]> exploredChunks = new HashMap<>();
     private static int viewCenterWorldX = Integer.MAX_VALUE;
     private static int viewCenterWorldZ = Integer.MAX_VALUE;
@@ -491,7 +491,7 @@ public class TerritoryMapEditorScreen extends Screen {
     }
 
     // ═══════════════════════════════════════════════════════════
-    // MAP EXPLORATION (from MapAppScreen)
+    // MAP EXPLORATION (independent implementation for Territory Editor)
     // ═══════════════════════════════════════════════════════════
 
     private static void exploreChunksAround(Level level, int centerX, int centerZ, int radius) {

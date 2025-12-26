@@ -1,0 +1,17 @@
+{
+  "minimap.ui.zoomLevel": "Poziom przybliżenia:",
+  "options.minimap.title": "Opcje minimapy",
+  "options.minimap.location": "Pozycja mapy",
+  "options.minimap.location.topLeft": "Górny lewy róg",
+  "options.minimap.location.topRight": "Górny prawy róg",
+  "options.minimap.location.bottomRight": "Dolny prawy róg",
+  "options.minimap.location.bottomLeft": "Dolny lewy róg",
+  "options.minimap.size": "Rozmiar",
+  "options.minimap.size.small": "Mały",
+  "options.minimap.size.medium": "Średni",
+  "options.minimap.size.large": "Duży",
+  "key.minimap.zoom": "Przybliżanie",
+  "key.minimap.toggleFullscreen": "Tryb pełnoekranowy",
+  "key.minimap.menu": "Menu",
+  "minimap.waypoints.teleportTo": "Teleportuj do..."
+}

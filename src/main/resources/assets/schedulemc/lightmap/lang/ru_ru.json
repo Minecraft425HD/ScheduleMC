@@ -1,0 +1,23 @@
+{
+  "minimap.ui.zoomLevel": "Масштаб",
+  "options.minimap.title": "Настройки карты",
+  "options.minimap.location": "Положение",
+  "options.minimap.location.topLeft": "Сверху слева",
+  "options.minimap.location.topRight": "Сверху справа",
+  "options.minimap.location.bottomRight": "Снизу справа",
+  "options.minimap.location.bottomLeft": "Снизу слева",
+  "options.minimap.size": "Размер",
+  "options.minimap.size.small": "Маленькая",
+  "options.minimap.size.medium": "Средняя",
+  "options.minimap.size.large": "Большая",
+  "options.minimap.size.xl": "XL",
+  "options.minimap.size.xxl": "XXL",
+  "options.minimap.size.xxxl": "XXXL",
+  "key.minimap.zoom": "Увеличение",
+  "key.minimap.toggleFullscreen": "Полноэкранный режим карты",
+  "key.minimap.lightmapMenu": "Меню LightMap",
+  "key.minimap.menu": "Меню",
+  "minimap.waypoints.teleportTo": "Телепортироваться",
+  "worldmap.title": "LightMap",
+  "worldmap.disabled": "Карта мира отключена на этом сервере."
+}

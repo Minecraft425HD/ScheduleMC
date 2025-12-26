@@ -188,7 +188,7 @@ public class SmartphoneScreen extends Screen {
                         int appIndex = row * 2 + col;
 
                         switch (appIndex) {
-                            case 0: openApp(new MapAppScreen(this)); return true;
+                            case 0: openApp(new de.rolandsw.schedulemc.lightmap.persistent.WorldMapScreen(this)); return true;
                             case 1: openApp(new DealerAppScreen(this)); return true;
                             case 2: openApp(new ProductsAppScreen(this)); return true;
                             case 3: openApp(new OrderAppScreen(this)); return true;

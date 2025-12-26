@@ -1,0 +1,22 @@
+{
+  "minimap.ui.zoomLevel": "缩放等级:",
+  "options.minimap.title": "小地图选项",
+  "options.minimap.location": "地图位置",
+  "options.minimap.location.topLeft": "左上角",
+  "options.minimap.location.topRight": "右上角",
+  "options.minimap.location.bottomRight": "右下角",
+  "options.minimap.location.bottomLeft": "左下角",
+  "options.minimap.size": "地图尺寸",
+  "options.minimap.size.small": "小",
+  "options.minimap.size.medium": "中",
+  "options.minimap.size.large": "大",
+  "options.minimap.size.xl": "XL",
+  "options.minimap.size.xxl": "XXL",
+  "options.minimap.size.xxxl": "XXXL",
+  "key.minimap.zoom": "缩放",
+  "key.minimap.toggleFullscreen": "切换大地图",
+  "key.minimap.lightmapMenu": "LightMap菜单",
+  "key.minimap.menu": "菜单",
+  "minimap.waypoints.teleportTo": "传送到该导航点",
+  "worldmap.title": "LightMap"
+}

@@ -1,0 +1,17 @@
+{
+  "minimap.ui.zoomLevel": "Nivo zumiranja:",
+  "options.minimap.title": "Podešavanja Minimape",
+  "options.minimap.location": "Lokacija",
+  "options.minimap.location.topLeft": "Gore Levo",
+  "options.minimap.location.topRight": "Gore Desno",
+  "options.minimap.location.bottomRight": "Dole Desno",
+  "options.minimap.location.bottomLeft": "Dole Levo",
+  "options.minimap.size": "Veličina",
+  "options.minimap.size.small": "Malo",
+  "options.minimap.size.medium": "Normalno",
+  "options.minimap.size.large": "Veliko",
+  "key.minimap.zoom": "Zumiraj",
+  "key.minimap.toggleFullscreen": "Omogući Mapu Preko Celog Ekrana",
+  "key.minimap.menu": "Meni",
+  "minimap.waypoints.teleportTo": "Teleportuj se"
+}

@@ -1,0 +1,17 @@
+{
+  "minimap.ui.zoomLevel": "Nivelul maririi:",
+  "options.minimap.title": "Optiunile Minihartii",
+  "options.minimap.location": "Locatie",
+  "options.minimap.location.topLeft": "Coltul din Stânga Sus",
+  "options.minimap.location.topRight": "Coltul din Dreapta Sus",
+  "options.minimap.location.bottomRight": "Coltul din Dreapta Jos",
+  "options.minimap.location.bottomLeft": "Coltul din Stânga Jos",
+  "options.minimap.size": "Marime",
+  "options.minimap.size.small": "Mic",
+  "options.minimap.size.medium": "Regulat",
+  "options.minimap.size.large": "Larg",
+  "key.minimap.zoom": "Mareste",
+  "key.minimap.toggleFullscreen": "Arata Harta pe tot Ecranul",
+  "key.minimap.menu": "Meniu",
+  "minimap.waypoints.teleportTo": "Teleportare la"
+}

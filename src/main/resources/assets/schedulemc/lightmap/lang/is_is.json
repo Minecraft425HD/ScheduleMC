@@ -1,0 +1,17 @@
+{
+  "minimap.ui.zoomLevel": "Zoom Level:",
+  "options.minimap.title": "minimap Valkostir",
+  "options.minimap.location": "Staðsetning",
+  "options.minimap.location.topLeft": "Top Vinstri",
+  "options.minimap.location.topRight": "Top Right",
+  "options.minimap.location.bottomRight": "Bottom Right",
+  "options.minimap.location.bottomLeft": "Bottom Left",
+  "options.minimap.size": "stærð",
+  "options.minimap.size.small": "Small",
+  "options.minimap.size.medium": "Venjulegur",
+  "options.minimap.size.large": "Large",
+  "key.minimap.zoom": "Zoom",
+  "key.minimap.toggleFullscreen": "Víxla Fullscreen Kort",
+  "key.minimap.menu": "Valmynd",
+  "minimap.waypoints.teleportTo": "teleport til"
+}

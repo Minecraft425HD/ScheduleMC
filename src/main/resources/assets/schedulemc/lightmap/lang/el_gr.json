@@ -1,0 +1,17 @@
+{
+  "minimap.ui.zoomLevel": "Επίπεδο Ζουμ:",
+  "options.minimap.title": "Μικρός Επιλογές",
+  "options.minimap.location": "Τοποθεσία",
+  "options.minimap.location.topLeft": "Top Αριστερά",
+  "options.minimap.location.topRight": "Πάνωδεξιά",
+  "options.minimap.location.bottomRight": "Δεξιά Κάτω",
+  "options.minimap.location.bottomLeft": "Κάτω αριστερά",
+  "options.minimap.size": "Μέγεθος",
+  "options.minimap.size.small": "Μικρό",
+  "options.minimap.size.medium": "τακτική",
+  "options.minimap.size.large": "Large",
+  "key.minimap.zoom": "Zoom",
+  "key.minimap.toggleFullscreen": "Εναλλαγή Fullscreen Χάρτης",
+  "key.minimap.menu": "Μενού",
+  "minimap.waypoints.teleportTo": "teleport σε"
+}

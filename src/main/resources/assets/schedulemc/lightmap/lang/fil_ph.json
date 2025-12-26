@@ -1,0 +1,17 @@
+{
+  "minimap.ui.zoomLevel": "Antas ng zoom:",
+  "options.minimap.title": "I-edit ang mapa",
+  "options.minimap.location": "Kinaroroonan",
+  "options.minimap.location.topLeft": "Kaliwang tuktok ",
+  "options.minimap.location.topRight": "Kanang tuktok",
+  "options.minimap.location.bottomRight": "Bottom Right ",
+  "options.minimap.location.bottomLeft": "Bottom Left ",
+  "options.minimap.size": "Sukat ",
+  "options.minimap.size.small": "Maliit",
+  "options.minimap.size.medium": "Katamtaman",
+  "options.minimap.size.large": "Malaki",
+  "key.minimap.zoom": "Zoom ",
+  "key.minimap.toggleFullscreen": "Ipalaki ang mapa ",
+  "key.minimap.menu": "Menu ",
+  "minimap.waypoints.teleportTo": "Teleport To "
+}

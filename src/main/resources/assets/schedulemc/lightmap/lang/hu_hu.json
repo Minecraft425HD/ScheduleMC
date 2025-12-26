@@ -1,0 +1,17 @@
+{
+  "minimap.ui.zoomLevel": "Nagyítási szint",
+  "options.minimap.title": "Minitérkép beállítások",
+  "options.minimap.location": "Elhelyezés",
+  "options.minimap.location.topLeft": "Bal felső",
+  "options.minimap.location.topRight": "Jobb felső",
+  "options.minimap.location.bottomRight": "Jobb alsó",
+  "options.minimap.location.bottomLeft": "Bal alsó",
+  "options.minimap.size": "Méret",
+  "options.minimap.size.small": "Kicsi",
+  "options.minimap.size.medium": "Közepes",
+  "options.minimap.size.large": "Nagy",
+  "key.minimap.zoom": "Nagyítás",
+  "key.minimap.toggleFullscreen": "Teljes képernyős térkép",
+  "key.minimap.menu": "Menü",
+  "minimap.waypoints.teleportTo": "Teleportálás ide"
+}

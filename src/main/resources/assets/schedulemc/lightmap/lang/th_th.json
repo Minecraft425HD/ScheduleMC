@@ -1,0 +1,17 @@
+{
+  "minimap.ui.zoomLevel": "ระดับการซูม: ",
+  "options.minimap.title": "ตัวเลือกแผนที่ขนาดย่อ ",
+  "options.minimap.location": "ตำแหน่ง",
+  "options.minimap.location.topLeft": "บนซ้าย ",
+  "options.minimap.location.topRight": "บนขวา ",
+  "options.minimap.location.bottomRight": "ล่างขวา ",
+  "options.minimap.location.bottomLeft": "ล่างซ้าย ",
+  "options.minimap.size": "ขนาด ",
+  "options.minimap.size.small": "เล็ก ",
+  "options.minimap.size.medium": "ปกติ ",
+  "options.minimap.size.large": "ใหม่ ",
+  "key.minimap.zoom": "ซูม ",
+  "key.minimap.toggleFullscreen": "สลับเป็นแผนที่เต็มหน้าจอ ",
+  "key.minimap.menu": "เมนู ",
+  "minimap.waypoints.teleportTo": "วาร์ปไป "
+}

@@ -1,0 +1,17 @@
+{
+  "minimap.ui.zoomLevel": "Ниво на zoom:",
+  "options.minimap.title": "Опции на минимапа",
+  "options.minimap.location": "Местоположение",
+  "options.minimap.location.topLeft": "Горно ляво",
+  "options.minimap.location.topRight": "Горно дясно",
+  "options.minimap.location.bottomRight": "Долен десен",
+  "options.minimap.location.bottomLeft": "Долен ляв",
+  "options.minimap.size": "Размер",
+  "options.minimap.size.small": "Малък",
+  "options.minimap.size.medium": "Нормален",
+  "options.minimap.size.large": "Голям",
+  "key.minimap.zoom": "Zoom",
+  "key.minimap.toggleFullscreen": "Голяма карта",
+  "key.minimap.menu": "Меню",
+  "minimap.waypoints.teleportTo": "Телепортирай в ..."
+}

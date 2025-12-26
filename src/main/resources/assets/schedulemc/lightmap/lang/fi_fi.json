@@ -1,0 +1,17 @@
+{
+  "minimap.ui.zoomLevel": "Zoomin taso:",
+  "options.minimap.title": "Kartan asetukset",
+  "options.minimap.location": "Sijainti",
+  "options.minimap.location.topLeft": "Ylä-Vasen",
+  "options.minimap.location.topRight": "Ylä-Oikea",
+  "options.minimap.location.bottomRight": "Ala-Oikea",
+  "options.minimap.location.bottomLeft": "Ala-Vasen",
+  "options.minimap.size": "Koko",
+  "options.minimap.size.small": "Pieni",
+  "options.minimap.size.medium": "Tavallinen",
+  "options.minimap.size.large": "Suuri",
+  "key.minimap.zoom": "Zoomaus",
+  "key.minimap.toggleFullscreen": "Vaihda koko-ruudun karttaan",
+  "key.minimap.menu": "Valikko",
+  "minimap.waypoints.teleportTo": "Teleporttaa"
+}

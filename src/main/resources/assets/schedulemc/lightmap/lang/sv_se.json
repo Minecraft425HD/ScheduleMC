@@ -1,0 +1,17 @@
+{
+  "minimap.ui.zoomLevel": "Zoom nivå:",
+  "options.minimap.title": "Minimap Inställningar",
+  "options.minimap.location": "Plats",
+  "options.minimap.location.topLeft": "Övre Vänstra",
+  "options.minimap.location.topRight": "Övre Högra",
+  "options.minimap.location.bottomRight": "Bottersta Högra",
+  "options.minimap.location.bottomLeft": "Bottersta Vänstra",
+  "options.minimap.size": "Storlek",
+  "options.minimap.size.small": "Liten",
+  "options.minimap.size.medium": "Medium",
+  "options.minimap.size.large": "Stor",
+  "key.minimap.zoom": "Zooma",
+  "key.minimap.toggleFullscreen": "Aktivera helskärmskarta",
+  "key.minimap.menu": "Meny",
+  "minimap.waypoints.teleportTo": "Teleportera till"
+}

@@ -1,0 +1,17 @@
+{
+  "minimap.ui.zoomLevel": "Zoomniveau:",
+  "options.minimap.title": "Minimap Opties",
+  "options.minimap.location": "Plaats",
+  "options.minimap.location.topLeft": "Linksboven",
+  "options.minimap.location.topRight": "Rechtsboven",
+  "options.minimap.location.bottomRight": "Rechtsonder",
+  "options.minimap.location.bottomLeft": "Linksonder",
+  "options.minimap.size": "Grootte",
+  "options.minimap.size.small": "Klein",
+  "options.minimap.size.medium": "Normaal",
+  "options.minimap.size.large": "Groot",
+  "key.minimap.zoom": "Zoom",
+  "key.minimap.toggleFullscreen": "Schakel volledig scerm kaart.",
+  "key.minimap.menu": "Menu",
+  "minimap.waypoints.teleportTo": "Teleporteer Naar"
+}

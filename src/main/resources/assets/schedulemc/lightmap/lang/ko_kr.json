@@ -1,0 +1,23 @@
+{
+  "minimap.ui.zoomLevel": "줌 배율:",
+  "options.minimap.title": "미니맵 설정",
+  "options.minimap.location": "미니맵 위치",
+  "options.minimap.location.topLeft": "왼쪽 위",
+  "options.minimap.location.topRight": "오른쪽 위",
+  "options.minimap.location.bottomRight": "오른쪽 아래",
+  "options.minimap.location.bottomLeft": "왼쪽 아래",
+  "options.minimap.size": "미니맵 크기",
+  "options.minimap.size.small": "작게",
+  "options.minimap.size.medium": "보통",
+  "options.minimap.size.large": "크게",
+  "options.minimap.size.xl": "더 크게",
+  "options.minimap.size.xxl": "조금 더 크게",
+  "options.minimap.size.xxxl": "매우 크게",
+  "key.minimap.zoom": "확대",
+  "key.minimap.toggleFullscreen": "전체 화면 맵",
+  "key.minimap.lightmapMenu": "LightMap 메뉴",
+  "key.minimap.menu": "메뉴",
+  "minimap.waypoints.teleportTo": "순간이동",
+  "worldmap.title": "LightMap",
+  "worldmap.disabled": "이 서버에서 세계지도를 사용할 수 없습니다."
+}

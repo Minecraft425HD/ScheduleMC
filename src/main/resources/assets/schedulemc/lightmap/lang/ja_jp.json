@@ -1,0 +1,22 @@
+{
+  "minimap.ui.zoomLevel": "ズームレベル：",
+  "options.minimap.title": "ミニマップのオプション",
+  "options.minimap.location": "場所",
+  "options.minimap.location.topLeft": "左上",
+  "options.minimap.location.topRight": "右上",
+  "options.minimap.location.bottomRight": "右下",
+  "options.minimap.location.bottomLeft": "左下",
+  "options.minimap.size": "サイズ",
+  "options.minimap.size.small": "小",
+  "options.minimap.size.medium": "通常のサイズ",
+  "options.minimap.size.large": "大",
+  "options.minimap.size.xl": "XL",
+  "options.minimap.size.xxl": "XXL",
+  "options.minimap.size.xxxl": "XXXL",
+  "key.minimap.zoom": "ズーム",
+  "key.minimap.toggleFullscreen": "フルスクリーンマップを切り替える",
+  "key.minimap.lightmapMenu": "LightMap メニュー",
+  "key.minimap.menu": "メニュー",
+  "minimap.waypoints.teleportTo": "にテレポート",
+  "worldmap.title": "LightMap"
+}

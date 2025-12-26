@@ -1,0 +1,17 @@
+{
+  "minimap.ui.zoomLevel": "Pritraukimo Lygis:",
+  "options.minimap.title": "Žemėlapio Parinktys",
+  "options.minimap.location": "Vieta",
+  "options.minimap.location.topLeft": "Viršui kairėje",
+  "options.minimap.location.topRight": "Viršui dešinėje",
+  "options.minimap.location.bottomRight": "Apačioje dešinėje",
+  "options.minimap.location.bottomLeft": "Apačioje kairėje",
+  "options.minimap.size": "Dydis",
+  "options.minimap.size.small": "Mažas",
+  "options.minimap.size.medium": "Įprastas",
+  "options.minimap.size.large": "Didlelis",
+  "key.minimap.zoom": "Pritraukimas",
+  "key.minimap.toggleFullscreen": "Pasirinkti žemėlapi per visą ekraną",
+  "key.minimap.menu": "Menių",
+  "minimap.waypoints.teleportTo": "Teleportuotis į"
+}
