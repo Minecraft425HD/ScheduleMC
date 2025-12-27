@@ -3,6 +3,8 @@ package de.rolandsw.schedulemc.mapview.presentation.renderer;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import de.rolandsw.schedulemc.mapview.config.MapOption;
 import de.rolandsw.schedulemc.mapview.config.MapViewConfiguration;
+import de.rolandsw.schedulemc.mapview.navigation.graph.NavigationOverlay;
+import de.rolandsw.schedulemc.mapview.npc.NPCMapRenderer;
 import de.rolandsw.schedulemc.mapview.service.data.MapDataManager;
 import de.rolandsw.schedulemc.mapview.service.render.ColorCalculationService;
 import de.rolandsw.schedulemc.mapview.core.model.AbstractMapData;
@@ -96,6 +98,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     private final MapViewConfiguration options;
     private final LayoutVariables layoutVariables;
     private final ColorCalculationService colorManager;
+    private final NPCMapRenderer npcMapRenderer = new NPCMapRenderer();
     private final int availableProcessors = Runtime.getRuntime().availableProcessors();
     private final boolean multicore = this.availableProcessors > 1;
     private final int heightMapResetHeight = this.multicore ? 2 : 5;
@@ -651,11 +654,71 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
 
         if (this.fullscreenMap) {
             this.renderMapFull(drawContext, this.scWidth, this.scHeight, scaleProj);
+            // Render Navigation Overlay für Fullscreen
+            renderNavigationOverlay(drawContext, this.scWidth / 2, this.scHeight / 2,
+                    Math.min(this.scWidth, this.scHeight), (float) this.zoomScale, true);
+            // Render NPCs auf Fullscreen-Karte
+            renderNPCMarkers(drawContext, this.scWidth / 2, this.scHeight / 2,
+                    Math.min(this.scWidth, this.scHeight), (float) this.zoomScale, true);
             this.drawArrow(drawContext, this.scWidth / 2, this.scHeight / 2, scaleProj);
         } else {
             this.renderMap(drawContext, mapX, mapY, scScale, scaleProj);
             this.drawDirections(drawContext, mapX, mapY, scaleProj);
+            // Render Navigation Overlay für Minimap
+            renderNavigationOverlay(drawContext, mapX, mapY, 64, (float) this.zoomScale, false);
+            // Render NPCs auf Minimap
+            renderNPCMarkers(drawContext, mapX, mapY, 64, (float) this.zoomScale, false);
             this.drawArrow(drawContext, mapX, mapY, scaleProj);
+        }
+    }
+
+    /**
+     * Rendert das Navigations-Overlay (Pfad zum Ziel) auf der Karte
+     */
+    private void renderNavigationOverlay(GuiGraphics graphics, int mapX, int mapY,
+                                          int mapSize, float zoom, boolean fullscreen) {
+        NavigationOverlay overlay = NavigationOverlay.getInstance();
+
+        if (!overlay.isInitialized() || !overlay.isNavigating()) {
+            return;
+        }
+
+        // Tick für Updates (Position, Pfad-Neuberechnung)
+        overlay.tick();
+
+        // Berechne Kartenrotation
+        float rotation = 0;
+        if (this.options.rotates && !fullscreen) {
+            rotation = this.direction;
+        }
+
+        if (fullscreen) {
+            overlay.renderFullscreen(graphics, this.lastX, this.lastZ,
+                    this.scWidth, this.scHeight, zoom);
+        } else {
+            overlay.render(graphics, this.lastX, this.lastZ,
+                    mapSize, zoom, rotation);
+        }
+    }
+
+    /**
+     * Rendert NPC-Marker auf der Karte
+     * Filtert automatisch Polizei-NPCs und NPCs auf Arbeit/Zuhause
+     */
+    private void renderNPCMarkers(GuiGraphics graphics, int mapX, int mapY,
+                                   int mapSize, float zoom, boolean fullscreen) {
+        // Berechne Kartenrotation (nur für Minimap)
+        float rotation = 0;
+        if (this.options.rotates && !fullscreen) {
+            rotation = this.direction;
+        }
+
+        if (fullscreen) {
+            npcMapRenderer.renderOnWorldmap(graphics, this.lastX, this.lastZ,
+                    this.scWidth, this.scHeight, zoom, 0, 0);
+        } else {
+            npcMapRenderer.renderOnMinimap(graphics, this.lastX, this.lastZ,
+                    mapSize, zoom, mapX, mapY, rotation);
         }
     }
 

@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.npc.entity;
 
 import de.rolandsw.schedulemc.managers.NPCEntityRegistry;
 import de.rolandsw.schedulemc.managers.NPCNameRegistry;
+import de.rolandsw.schedulemc.mapview.npc.NPCActivityStatus;
 import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.data.NPCPersonality;
 import de.rolandsw.schedulemc.npc.data.NPCType;
@@ -60,6 +61,8 @@ public class CustomNPCEntity extends PathfinderMob {
         SynchedEntityData.defineId(CustomNPCEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<String> PERSONALITY =
         SynchedEntityData.defineId(CustomNPCEntity.class, EntityDataSerializers.STRING);
+    private static final EntityDataAccessor<Integer> ACTIVITY_STATUS =
+        SynchedEntityData.defineId(CustomNPCEntity.class, EntityDataSerializers.INT);
 
     // NPC Daten (Server-Side)
     private NPCData npcData;
@@ -67,6 +70,10 @@ public class CustomNPCEntity extends PathfinderMob {
     // Performance-Optimierung: Player-Lookup Throttling
     private int playerLookupCounter = 0;
     private static final int PLAYER_LOOKUP_INTERVAL = 20; // Alle 20 Ticks (1 Sekunde)
+
+    // Activity Status Tracking für Map-Anzeige
+    private int activityStatusUpdateCounter = 0;
+    private static final int ACTIVITY_STATUS_UPDATE_INTERVAL = 100; // Alle 100 Ticks (5 Sekunden)
 
     public CustomNPCEntity(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);
@@ -82,6 +89,7 @@ public class CustomNPCEntity extends PathfinderMob {
         this.entityData.define(NPC_TYPE_ORDINAL, 0); // BEWOHNER
         this.entityData.define(MERCHANT_CATEGORY_ORDINAL, 0); // BAUMARKT
         this.entityData.define(PERSONALITY, NPCPersonality.AUSGEWOGEN.name()); // Standard-Persönlichkeit
+        this.entityData.define(ACTIVITY_STATUS, NPCActivityStatus.ROAMING.ordinal()); // Standard: Unterwegs
     }
 
     @Override
@@ -211,7 +219,105 @@ public class CustomNPCEntity extends PathfinderMob {
             }
 
             // Tägliches Einkommen wird jetzt global durch NPCDailySalaryHandler verwaltet
+
+            // Activity Status Update (throttled für Performance)
+            activityStatusUpdateCounter++;
+            if (activityStatusUpdateCounter >= ACTIVITY_STATUS_UPDATE_INTERVAL) {
+                activityStatusUpdateCounter = 0;
+                updateActivityStatus();
+            }
         }
+    }
+
+    /**
+     * Aktualisiert den Activity-Status basierend auf Zeit und Position
+     * Wird für die Kartenanzeige verwendet
+     */
+    private void updateActivityStatus() {
+        NPCActivityStatus newStatus = calculateActivityStatus();
+        NPCActivityStatus currentStatus = getActivityStatus();
+
+        if (newStatus != currentStatus) {
+            this.entityData.set(ACTIVITY_STATUS, newStatus.ordinal());
+        }
+    }
+
+    /**
+     * Berechnet den aktuellen Activity-Status basierend auf NPC-Typ und Zeitplan
+     */
+    private NPCActivityStatus calculateActivityStatus() {
+        NPCType type = getNpcType();
+
+        // Polizei-NPCs haben spezielle Status
+        if (type == NPCType.POLIZEI) {
+            // Prüfe ob an der Polizeistation oder auf Patrouille
+            if (npcData.getPatrolPoints() != null && !npcData.getPatrolPoints().isEmpty()) {
+                return NPCActivityStatus.ON_PATROL;
+            }
+            return NPCActivityStatus.AT_STATION;
+        }
+
+        // Für normale NPCs: Prüfe Zeitplan
+        if (this.level() instanceof ServerLevel serverLevel) {
+            long dayTime = serverLevel.getDayTime() % 24000;
+            long workStart = npcData.getWorkStartTime();
+            long workEnd = npcData.getWorkEndTime();
+            long homeTime = npcData.getHomeTime();
+
+            // Arbeitszeit-Bereich
+            boolean isWorkTime;
+            if (workStart < workEnd) {
+                isWorkTime = dayTime >= workStart && dayTime < workEnd;
+            } else {
+                // Nachtschicht (z.B. 22000 - 6000)
+                isWorkTime = dayTime >= workStart || dayTime < workEnd;
+            }
+
+            // Heimzeit-Bereich (nach homeTime bis workStart)
+            boolean isHomeTime;
+            if (homeTime < workStart) {
+                isHomeTime = dayTime >= homeTime && dayTime < workStart;
+            } else {
+                isHomeTime = dayTime >= homeTime || dayTime < workStart;
+            }
+
+            // Prüfe ob NPC am Arbeitsort ist
+            if (isWorkTime && isAtWorkLocation()) {
+                return NPCActivityStatus.AT_WORK;
+            }
+
+            // Prüfe ob NPC zuhause ist
+            if (isHomeTime && isAtHomeLocation()) {
+                return NPCActivityStatus.AT_HOME;
+            }
+        }
+
+        // Standard: Unterwegs (auf der Map sichtbar)
+        return NPCActivityStatus.ROAMING;
+    }
+
+    /**
+     * Prüft ob der NPC am Arbeitsort ist
+     */
+    private boolean isAtWorkLocation() {
+        net.minecraft.core.BlockPos workPos = npcData.getWorkLocation();
+        if (workPos == null) {
+            return false;
+        }
+        double distance = this.blockPosition().distSqr(workPos);
+        return distance < 25; // 5 Blöcke Radius
+    }
+
+    /**
+     * Prüft ob der NPC zuhause ist
+     */
+    private boolean isAtHomeLocation() {
+        net.minecraft.core.BlockPos homePos = npcData.getHomeLocation();
+        if (homePos == null) {
+            return false;
+        }
+        double distance = this.blockPosition().distSqr(homePos);
+        return distance < 25; // 5 Blöcke Radius
     }
 
     @Override
@@ -354,6 +460,19 @@ public class CustomNPCEntity extends PathfinderMob {
     public void setPersonality(NPCPersonality personality) {
         npcData.getCustomData().putString("personality", personality.name());
         this.entityData.set(PERSONALITY, personality.name());
+    }
+
+    /**
+     * Gibt den Activity-Status des NPCs zurück (Client-safe via synced data)
+     * Wird für die Kartenanzeige verwendet (Filterung von NPCs auf Arbeit/Zuhause)
+     */
+    public NPCActivityStatus getActivityStatus() {
+        int ordinal = this.entityData.get(ACTIVITY_STATUS);
+        NPCActivityStatus[] values = NPCActivityStatus.values();
+        if (ordinal >= 0 && ordinal < values.length) {
+            return values[ordinal];
+        }
+        return NPCActivityStatus.ROAMING;
     }
 
     // Verhindern von Despawning

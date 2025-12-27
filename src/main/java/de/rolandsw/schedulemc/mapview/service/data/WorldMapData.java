@@ -908,6 +908,21 @@ public class WorldMapData implements MapChangeListener {
         return cachedRegion == null ? Short.MIN_VALUE : cachedRegion.getHeightAt(blockX, blockZ);
     }
 
+    /**
+     * Gibt den BlockState an einer Welt-Position zurück
+     * Für Navigation/Pathfinding auf Straßenblöcken
+     *
+     * @param blockX Welt X-Koordinate
+     * @param blockZ Welt Z-Koordinate
+     * @return BlockState oder null wenn Region nicht geladen
+     */
+    public BlockState getBlockStateAt(int blockX, int blockZ) {
+        int x = (int) Math.floor(blockX / 256.0F);
+        int z = (int) Math.floor(blockZ / 256.0F);
+        RegionCache cachedRegion = this.cachedRegions.get(x + "," + z);
+        return cachedRegion == null ? null : cachedRegion.getBlockStateAt(blockX, blockZ);
+    }
+
     public void debugLog(int blockX, int blockZ) {
         int x = (int) Math.floor(blockX / 256.0F);
         int z = (int) Math.floor(blockZ / 256.0F);

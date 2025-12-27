@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.mapview.presentation.screen;
 import de.rolandsw.schedulemc.mapview.config.MapViewConfiguration;
 import de.rolandsw.schedulemc.mapview.config.WorldMapConfiguration;
 import de.rolandsw.schedulemc.mapview.service.data.WorldMapData;
+import de.rolandsw.schedulemc.mapview.npc.NPCMapRenderer;
 import de.rolandsw.schedulemc.mapview.data.cache.RegionCache;
 import de.rolandsw.schedulemc.mapview.data.persistence.AsyncPersistenceManager;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
@@ -96,6 +97,7 @@ public class WorldMapScreen extends PopupScreen {
     private boolean closed;
     private RegionCache[] regions = new RegionCache[0];
     private final BiomeData biomeMapData = new BiomeData(760, 360);
+    private final NPCMapRenderer npcMapRenderer = new NPCMapRenderer();
     private float mapPixelsX;
     private float mapPixelsY;
     private final Object closedLock = new Object();
@@ -730,6 +732,9 @@ public class WorldMapScreen extends PopupScreen {
         }
         guiGraphics.pose().popPose();
 
+        // Render NPCs auf der Worldmap (gefiltert nach Typ und Status)
+        renderNPCsOnWorldmap(guiGraphics, (int) this.mapCenterX, (int) this.mapCenterZ, this.zoom);
+
         if (gotSkin) {
             float playerX = (float) MinecraftAccessor.xCoordDouble();
             float playerZ = (float) MinecraftAccessor.zCoordDouble();
@@ -909,5 +914,22 @@ public class WorldMapScreen extends PopupScreen {
 
     private void write(GuiGraphics drawContext, String string, float x, float y, int color) {
         drawContext.drawString(this.font, string, (int) x, (int) y, color);
+    }
+
+    /**
+     * Rendert NPCs auf der Worldmap
+     * Filtert automatisch Polizei-NPCs und NPCs auf Arbeit/Zuhause
+     */
+    private void renderNPCsOnWorldmap(GuiGraphics graphics, int centerX, int centerZ, float zoom) {
+        // Berechne Offset für Kartenanzeige
+        int offsetX = (int) ((this.width / 2.0f) - centerX / zoom);
+        int offsetY = (int) ((this.height / 2.0f) - centerZ / zoom);
+
+        npcMapRenderer.renderOnWorldmap(graphics, centerX, centerZ,
+                this.width, this.height, zoom, offsetX, offsetY);
+
+        // Render Tooltip bei Hover
+        npcMapRenderer.renderNPCTooltip(graphics, this.mouseX, this.mouseY,
+                centerX, centerZ, zoom, this.width, this.height);
     }
 }
