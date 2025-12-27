@@ -102,6 +102,14 @@ public class ModConfigHandler {
         public final ForgeConfigSpec.ConfigValue<java.util.List<? extends String>> NPC_WALKABLE_BLOCKS;
 
         // ═══════════════════════════════════════════════════════════
+        // MAP NAVIGATION SYSTEM
+        // ═══════════════════════════════════════════════════════════
+        public final ForgeConfigSpec.ConfigValue<java.util.List<? extends String>> NAVIGATION_ROAD_BLOCKS;
+        public final ForgeConfigSpec.IntValue NAVIGATION_SCAN_RADIUS;
+        public final ForgeConfigSpec.IntValue NAVIGATION_PATH_UPDATE_INTERVAL;
+        public final ForgeConfigSpec.DoubleValue NAVIGATION_ARRIVAL_DISTANCE;
+
+        // ═══════════════════════════════════════════════════════════
         // POLICE SYSTEM
         // ═══════════════════════════════════════════════════════════
         public final ForgeConfigSpec.IntValue POLICE_ARREST_COOLDOWN_SECONDS;
@@ -391,6 +399,43 @@ public class ModConfigHandler {
                             "minecraft:stone_brick_stairs"
                         ),
                         obj -> obj instanceof String);
+
+            builder.pop();
+
+            builder.comment("Map Navigation System Settings - Straßen-Navigation auf der Karte")
+                    .push("navigation");
+
+            NAVIGATION_ROAD_BLOCKS = builder
+                    .comment("Blocktypen, die als Straße für die Karten-Navigation erkannt werden")
+                    .defineList("road_blocks",
+                        java.util.Arrays.asList(
+                            "minecraft:cobblestone",
+                            "minecraft:stone_bricks",
+                            "minecraft:gravel",
+                            "minecraft:dirt_path",
+                            "minecraft:smooth_stone",
+                            "minecraft:polished_andesite",
+                            "minecraft:polished_diorite",
+                            "minecraft:polished_granite",
+                            "minecraft:bricks",
+                            "minecraft:stone",
+                            "minecraft:granite",
+                            "minecraft:andesite",
+                            "minecraft:diorite"
+                        ),
+                        obj -> obj instanceof String);
+
+            NAVIGATION_SCAN_RADIUS = builder
+                    .comment("Radius in Blöcken, in dem Straßen für die Navigation gescannt werden")
+                    .defineInRange("scan_radius", 500, 100, 2000);
+
+            NAVIGATION_PATH_UPDATE_INTERVAL = builder
+                    .comment("Intervall in Millisekunden, wie oft der Pfad bei beweglichen Zielen aktualisiert wird")
+                    .defineInRange("path_update_interval", 2000, 500, 10000);
+
+            NAVIGATION_ARRIVAL_DISTANCE = builder
+                    .comment("Distanz in Blöcken, ab der das Ziel als erreicht gilt")
+                    .defineInRange("arrival_distance", 5.0, 1.0, 50.0);
 
             builder.pop();
 

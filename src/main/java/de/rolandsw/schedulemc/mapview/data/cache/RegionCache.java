@@ -734,6 +734,26 @@ public class RegionCache {
         return y;
     }
 
+    /**
+     * Gibt den BlockState an einer Welt-Position zurück
+     * Für Navigation/Pathfinding auf Straßenblöcken
+     *
+     * @param blockX Welt X-Koordinate
+     * @param blockZ Welt Z-Koordinate
+     * @return BlockState oder null wenn nicht geladen
+     */
+    public BlockState getBlockStateAt(int blockX, int blockZ) {
+        if (this.data == null) {
+            return null;
+        }
+        int localX = blockX - this.x * 256;
+        int localZ = blockZ - this.z * 256;
+        if (localX < 0 || localX >= 256 || localZ < 0 || localZ >= 256) {
+            return null;
+        }
+        return this.data.getBlockstate(localX, localZ);
+    }
+
     public void compress() {
         if (this.data != null && !this.isCompressed() && !this.queuedToCompress) {
             this.queuedToCompress = true;

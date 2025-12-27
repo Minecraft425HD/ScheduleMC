@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.mapview.presentation.renderer;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import de.rolandsw.schedulemc.mapview.config.MapOption;
 import de.rolandsw.schedulemc.mapview.config.MapViewConfiguration;
+import de.rolandsw.schedulemc.mapview.navigation.graph.NavigationOverlay;
 import de.rolandsw.schedulemc.mapview.service.data.MapDataManager;
 import de.rolandsw.schedulemc.mapview.service.render.ColorCalculationService;
 import de.rolandsw.schedulemc.mapview.core.model.AbstractMapData;
@@ -651,11 +652,45 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
 
         if (this.fullscreenMap) {
             this.renderMapFull(drawContext, this.scWidth, this.scHeight, scaleProj);
+            // Render Navigation Overlay für Fullscreen
+            renderNavigationOverlay(drawContext, this.scWidth / 2, this.scHeight / 2,
+                    Math.min(this.scWidth, this.scHeight), (float) this.zoomScale, true);
             this.drawArrow(drawContext, this.scWidth / 2, this.scHeight / 2, scaleProj);
         } else {
             this.renderMap(drawContext, mapX, mapY, scScale, scaleProj);
             this.drawDirections(drawContext, mapX, mapY, scaleProj);
+            // Render Navigation Overlay für Minimap
+            renderNavigationOverlay(drawContext, mapX, mapY, 64, (float) this.zoomScale, false);
             this.drawArrow(drawContext, mapX, mapY, scaleProj);
+        }
+    }
+
+    /**
+     * Rendert das Navigations-Overlay (Pfad zum Ziel) auf der Karte
+     */
+    private void renderNavigationOverlay(GuiGraphics graphics, int mapX, int mapY,
+                                          int mapSize, float zoom, boolean fullscreen) {
+        NavigationOverlay overlay = NavigationOverlay.getInstance();
+
+        if (!overlay.isInitialized() || !overlay.isNavigating()) {
+            return;
+        }
+
+        // Tick für Updates (Position, Pfad-Neuberechnung)
+        overlay.tick();
+
+        // Berechne Kartenrotation
+        float rotation = 0;
+        if (this.options.rotates && !fullscreen) {
+            rotation = this.direction;
+        }
+
+        if (fullscreen) {
+            overlay.renderFullscreen(graphics, this.lastX, this.lastZ,
+                    this.scWidth, this.scHeight, zoom);
+        } else {
+            overlay.render(graphics, this.lastX, this.lastZ,
+                    mapSize, zoom, rotation);
         }
     }
 
