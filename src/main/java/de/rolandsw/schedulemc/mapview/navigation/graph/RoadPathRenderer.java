@@ -80,7 +80,7 @@ public class RoadPathRenderer {
     }
 
     /**
-     * Rendert die Pfadlinie
+     * Rendert die Pfadlinie (1.20.1 API)
      */
     private void renderPathLine(PoseStack poseStack, List<BlockPos> path, int currentIndex,
                                  int mapCenterX, int mapCenterZ, int mapSize, float zoom, float rotation) {
@@ -91,7 +91,8 @@ public class RoadPathRenderer {
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
 
-        BufferBuilder buffer = Tesselator.getInstance().begin(VertexFormat.Mode.TRIANGLE_STRIP, DefaultVertexFormat.POSITION_COLOR);
+        BufferBuilder buffer = Tesselator.getInstance().getBuilder();
+        buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
         Matrix4f matrix = poseStack.last().pose();
 
         float halfSize = mapSize / 2.0f;
@@ -141,13 +142,13 @@ public class RoadPathRenderer {
             float a = ((color >> 24) & 0xFF) / 255.0f;
 
             // Zeichne Liniensegment als Quad
-            buffer.addVertex(matrix, x1 - nx, z1 - nz, 0).setColor(r, g, b, a);
-            buffer.addVertex(matrix, x1 + nx, z1 + nz, 0).setColor(r, g, b, a);
-            buffer.addVertex(matrix, x2 - nx, z2 - nz, 0).setColor(r, g, b, a);
-            buffer.addVertex(matrix, x2 + nx, z2 + nz, 0).setColor(r, g, b, a);
+            buffer.vertex(matrix, x1 - nx, z1 - nz, 0).color(r, g, b, a).endVertex();
+            buffer.vertex(matrix, x1 + nx, z1 + nz, 0).color(r, g, b, a).endVertex();
+            buffer.vertex(matrix, x2 + nx, z2 + nz, 0).color(r, g, b, a).endVertex();
+            buffer.vertex(matrix, x2 - nx, z2 - nz, 0).color(r, g, b, a).endVertex();
         }
 
-        BufferUploader.drawWithShader(buffer.buildOrThrow());
+        Tesselator.getInstance().end();
         RenderSystem.disableBlend();
     }
 
@@ -188,7 +189,7 @@ public class RoadPathRenderer {
     }
 
     /**
-     * Rendert einen einzelnen Pfeil
+     * Rendert einen einzelnen Pfeil (1.20.1 API)
      */
     private void renderArrow(PoseStack poseStack, float x, float y, float angle, float size) {
         poseStack.pushPose();
@@ -196,7 +197,8 @@ public class RoadPathRenderer {
         poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(angle));
 
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
-        BufferBuilder buffer = Tesselator.getInstance().begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR);
+        BufferBuilder buffer = Tesselator.getInstance().getBuilder();
+        buffer.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR);
         Matrix4f matrix = poseStack.last().pose();
 
         float r = ((ARROW_COLOR >> 16) & 0xFF) / 255.0f;
@@ -205,17 +207,17 @@ public class RoadPathRenderer {
         float a = 0.9f;
 
         // Dreieck nach oben
-        buffer.addVertex(matrix, 0, -size / 2, 0).setColor(r, g, b, a);
-        buffer.addVertex(matrix, -size / 3, size / 3, 0).setColor(r, g, b, a);
-        buffer.addVertex(matrix, size / 3, size / 3, 0).setColor(r, g, b, a);
+        buffer.vertex(matrix, 0, -size / 2, 0).color(r, g, b, a).endVertex();
+        buffer.vertex(matrix, -size / 3, size / 3, 0).color(r, g, b, a).endVertex();
+        buffer.vertex(matrix, size / 3, size / 3, 0).color(r, g, b, a).endVertex();
 
-        BufferUploader.drawWithShader(buffer.buildOrThrow());
+        Tesselator.getInstance().end();
 
         poseStack.popPose();
     }
 
     /**
-     * Rendert den Zielmarker
+     * Rendert den Zielmarker (1.20.1 API)
      */
     private void renderTargetMarker(PoseStack poseStack, BlockPos targetPos,
                                      int mapCenterX, int mapCenterZ, int mapSize, float zoom, float rotation) {
@@ -240,7 +242,8 @@ public class RoadPathRenderer {
 
         RenderSystem.enableBlend();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
-        BufferBuilder buffer = Tesselator.getInstance().begin(VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION_COLOR);
+        BufferBuilder buffer = Tesselator.getInstance().getBuilder();
+        buffer.begin(VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION_COLOR);
         Matrix4f matrix = poseStack.last().pose();
 
         float r = ((TARGET_COLOR >> 16) & 0xFF) / 255.0f;
@@ -248,18 +251,18 @@ public class RoadPathRenderer {
         float b = (TARGET_COLOR & 0xFF) / 255.0f;
 
         // Zentrierter Punkt
-        buffer.addVertex(matrix, 0, 0, 0).setColor(r, g, b, 1.0f);
+        buffer.vertex(matrix, 0, 0, 0).color(r, g, b, 1.0f).endVertex();
 
         // Kreis um den Punkt
         int segments = 16;
         for (int i = 0; i <= segments; i++) {
-            float angle = (float) (i * 2 * Math.PI / segments);
-            float px = (float) (Math.cos(angle) * markerSize);
-            float pz = (float) (Math.sin(angle) * markerSize);
-            buffer.addVertex(matrix, px, pz, 0).setColor(r, g, b, 0.5f);
+            float circleAngle = (float) (i * 2 * Math.PI / segments);
+            float px = (float) (Math.cos(circleAngle) * markerSize);
+            float pz = (float) (Math.sin(circleAngle) * markerSize);
+            buffer.vertex(matrix, px, pz, 0).color(r, g, b, 0.5f).endVertex();
         }
 
-        BufferUploader.drawWithShader(buffer.buildOrThrow());
+        Tesselator.getInstance().end();
         RenderSystem.disableBlend();
 
         poseStack.popPose();
@@ -269,7 +272,7 @@ public class RoadPathRenderer {
     }
 
     /**
-     * Rendert einen Ring
+     * Rendert einen Ring (1.20.1 API)
      */
     private void renderRing(PoseStack poseStack, float x, float y, float radius, int color, float alpha) {
         poseStack.pushPose();
@@ -277,7 +280,8 @@ public class RoadPathRenderer {
 
         RenderSystem.enableBlend();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
-        BufferBuilder buffer = Tesselator.getInstance().begin(VertexFormat.Mode.DEBUG_LINE_STRIP, DefaultVertexFormat.POSITION_COLOR);
+        BufferBuilder buffer = Tesselator.getInstance().getBuilder();
+        buffer.begin(VertexFormat.Mode.DEBUG_LINE_STRIP, DefaultVertexFormat.POSITION_COLOR);
         Matrix4f matrix = poseStack.last().pose();
 
         float r = ((color >> 16) & 0xFF) / 255.0f;
@@ -286,13 +290,13 @@ public class RoadPathRenderer {
 
         int segments = 24;
         for (int i = 0; i <= segments; i++) {
-            float angle = (float) (i * 2 * Math.PI / segments);
-            float px = (float) (Math.cos(angle) * radius);
-            float py = (float) (Math.sin(angle) * radius);
-            buffer.addVertex(matrix, px, py, 0).setColor(r, g, b, alpha);
+            float ringAngle = (float) (i * 2 * Math.PI / segments);
+            float px = (float) (Math.cos(ringAngle) * radius);
+            float py = (float) (Math.sin(ringAngle) * radius);
+            buffer.vertex(matrix, px, py, 0).color(r, g, b, alpha).endVertex();
         }
 
-        BufferUploader.drawWithShader(buffer.buildOrThrow());
+        Tesselator.getInstance().end();
         RenderSystem.disableBlend();
 
         poseStack.popPose();

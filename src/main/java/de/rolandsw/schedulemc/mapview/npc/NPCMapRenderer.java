@@ -183,23 +183,21 @@ public class NPCMapRenderer {
         RenderSystem.disableBlend();
 
         poseStack.popPose();
-
-        // Name-Tooltip (optional - bei Hover)
-        // Wird später implementiert wenn gewünscht
     }
 
     /**
-     * Zeichnet einen gefüllten Kreis
+     * Zeichnet einen gefüllten Kreis (1.20.1 API)
      */
     private void drawCircle(Matrix4f matrix, float x, float y, float radius, int color, float alpha) {
         float r = ((color >> 16) & 0xFF) / 255.0f;
         float g = ((color >> 8) & 0xFF) / 255.0f;
         float b = (color & 0xFF) / 255.0f;
 
-        BufferBuilder buffer = Tesselator.getInstance().begin(VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION_COLOR);
+        BufferBuilder buffer = Tesselator.getInstance().getBuilder();
+        buffer.begin(VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION_COLOR);
 
         // Zentrum
-        buffer.addVertex(matrix, x, y, 0).setColor(r, g, b, alpha);
+        buffer.vertex(matrix, x, y, 0).color(r, g, b, alpha).endVertex();
 
         // Kreispunkte
         int segments = 16;
@@ -207,10 +205,10 @@ public class NPCMapRenderer {
             float angle = (float) (i * 2 * Math.PI / segments);
             float px = x + (float) Math.cos(angle) * radius;
             float py = y + (float) Math.sin(angle) * radius;
-            buffer.addVertex(matrix, px, py, 0).setColor(r, g, b, alpha * 0.8f);
+            buffer.vertex(matrix, px, py, 0).color(r, g, b, alpha * 0.8f).endVertex();
         }
 
-        BufferUploader.drawWithShader(buffer.buildOrThrow());
+        Tesselator.getInstance().end();
     }
 
     /**
@@ -250,7 +248,9 @@ public class NPCMapRenderer {
                 centerX + radius, 320, centerZ + radius
         );
 
-        for (Entity entity : level.getEntities(null, searchBox, e -> e instanceof CustomNPCEntity)) {
+        // Explizit casten um Mehrdeutigkeit zu vermeiden
+        Entity nullEntity = null;
+        for (Entity entity : level.getEntities(nullEntity, searchBox, e -> e instanceof CustomNPCEntity)) {
             CustomNPCEntity npc = (CustomNPCEntity) entity;
 
             // Filter: Keine Polizei-NPCs
@@ -286,13 +286,13 @@ public class NPCMapRenderer {
         float worldZ = centerZ + (mouseY - screenHeight / 2.0f) * zoom;
 
         // Suche NPC in der Nähe
-        int searchRadius = (int)(Math.max(screenWidth, screenHeight) * zoom);
         AABB searchBox = new AABB(
                 worldX - 3, -64, worldZ - 3,
                 worldX + 3, 320, worldZ + 3
         );
 
-        for (Entity entity : level.getEntities(null, searchBox, e -> e instanceof CustomNPCEntity)) {
+        Entity nullEntity = null;
+        for (Entity entity : level.getEntities(nullEntity, searchBox, e -> e instanceof CustomNPCEntity)) {
             CustomNPCEntity npc = (CustomNPCEntity) entity;
 
             if (npc.getNpcType() == NPCType.POLIZEI) {
