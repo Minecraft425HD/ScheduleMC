@@ -31,7 +31,7 @@ public class RoadNavigationService {
     private static RoadNavigationService instance;
 
     // Konfiguration
-    private static final int DEFAULT_SCAN_RADIUS = 500;
+    private static final int DEFAULT_SCAN_RADIUS = 150; // Reduziert für bessere Performance
     private static final int PATH_UPDATE_INTERVAL_MS = 2000; // Pfad-Update alle 2 Sekunden
     private static final double MOVEMENT_THRESHOLD = 10.0; // Mindestbewegung für Neuberechnung
     private static final double ARRIVAL_DISTANCE = 5.0; // Distanz für "angekommen"

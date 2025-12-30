@@ -102,27 +102,26 @@ public class RoadGraphBuilder {
 
     /**
      * Scannt den Bereich nach Straßenblöcken
+     * Nutzt sowohl Map-Cache als auch Live-Welt für robuste Erkennung
      */
     private void scanRoadBlocks(int centerX, int centerZ, int radius) {
         int checked = 0;
-        int nullStates = 0;
         int roadBlocks = 0;
 
+        // Scanne in Schritten für bessere Performance
+        // Bei Straßen reicht oft Schritt 1-2, wir scannen mit Schritt 1 für Präzision
         for (int x = centerX - radius; x <= centerX + radius; x++) {
             for (int z = centerZ - radius; z <= centerZ + radius; z++) {
                 checked++;
-                net.minecraft.world.level.block.state.BlockState state = mapData.getBlockStateAt(x, z);
-                if (state == null) {
-                    nullStates++;
-                } else if (RoadBlockDetector.isRoadBlock(state)) {
+                if (RoadBlockDetector.isRoadAt(mapData, x, z)) {
                     roadBlocks++;
                     allRoadBlocks.add(new BlockPos(x, defaultY, z));
                 }
             }
         }
 
-        LOGGER.info("[RoadGraphBuilder] Scan stats: checked={}, nullStates={}, roadBlocks={}",
-                checked, nullStates, roadBlocks);
+        LOGGER.info("[RoadGraphBuilder] Scan stats: checked={}, roadBlocks={} in radius {}",
+                checked, roadBlocks, radius);
     }
 
     /**

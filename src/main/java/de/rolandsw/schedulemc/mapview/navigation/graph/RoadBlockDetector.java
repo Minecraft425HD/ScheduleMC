@@ -2,6 +2,8 @@ package de.rolandsw.schedulemc.mapview.navigation.graph;
 
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.mapview.service.data.WorldMapData;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
@@ -125,7 +127,7 @@ public class RoadBlockDetector {
 
     /**
      * Prüft ob eine Position auf der Karte ein Straßenblock ist
-     * Nutzt gecachte WorldMapData für Performance
+     * Nutzt gecachte WorldMapData für Performance, fällt auf Live-Welt zurück
      *
      * @param mapData Die WorldMapData-Instanz
      * @param x X-Koordinate
@@ -133,12 +135,49 @@ public class RoadBlockDetector {
      * @return true wenn an dieser Position ein Straßenblock ist
      */
     public static boolean isRoadAt(WorldMapData mapData, int x, int z) {
-        if (mapData == null) {
-            return false;
+        BlockState state = null;
+
+        // Versuche zuerst aus dem Map-Cache zu lesen
+        if (mapData != null) {
+            state = mapData.getBlockStateAt(x, z);
         }
 
-        BlockState state = mapData.getBlockStateAt(x, z);
+        // Fallback: Aus der Live-Welt lesen
+        if (state == null) {
+            state = getBlockStateFromWorld(x, z);
+        }
+
         return isRoadBlock(state);
+    }
+
+    /**
+     * Holt den BlockState direkt aus der Minecraft-Welt
+     * Wird als Fallback verwendet wenn die Map-Daten nicht verfügbar sind
+     *
+     * @param x X-Koordinate
+     * @param z Z-Koordinate
+     * @return BlockState oder null wenn Welt nicht geladen
+     */
+    private static BlockState getBlockStateFromWorld(int x, int z) {
+        ClientLevel world = Minecraft.getInstance().level;
+        if (world == null) {
+            return null;
+        }
+
+        BlockPos checkPos = new BlockPos(x, 64, z);
+        if (!world.isLoaded(checkPos)) {
+            return null; // Chunk nicht geladen
+        }
+
+        // Nutze Heightmap für schnellere Suche
+        int y = world.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, x, z);
+        if (y <= world.getMinBuildHeight()) {
+            return null;
+        }
+
+        // Prüfe den Block unter dem höchsten soliden Block
+        BlockPos pos = new BlockPos(x, y - 1, z);
+        return world.getBlockState(pos);
     }
 
     /**
