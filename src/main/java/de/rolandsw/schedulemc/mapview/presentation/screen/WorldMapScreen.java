@@ -4,6 +4,9 @@ import de.rolandsw.schedulemc.mapview.config.MapViewConfiguration;
 import de.rolandsw.schedulemc.mapview.config.WorldMapConfiguration;
 import de.rolandsw.schedulemc.mapview.service.data.WorldMapData;
 import de.rolandsw.schedulemc.mapview.npc.NPCMapRenderer;
+import de.rolandsw.schedulemc.mapview.navigation.graph.RoadNavigationService;
+import de.rolandsw.schedulemc.mapview.navigation.graph.NavigationTarget;
+import net.minecraft.core.BlockPos;
 import de.rolandsw.schedulemc.mapview.data.cache.RegionCache;
 import de.rolandsw.schedulemc.mapview.data.persistence.AsyncPersistenceManager;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
@@ -863,6 +866,16 @@ public class WorldMapScreen extends PopupScreen {
         entry = new PopupComponent.PopupEntry(I18n.get("mapview.waypoints.teleportTo"), 3, true, true);
         entries.add(entry);
 
+        // Navigation Option
+        PopupComponent.PopupEntry navEntry = new PopupComponent.PopupEntry("Hierhin navigieren", 4, true, true);
+        entries.add(navEntry);
+
+        // Navigation stoppen (wenn aktiv)
+        if (RoadNavigationService.getInstance() != null && RoadNavigationService.getInstance().isNavigationActive()) {
+            PopupComponent.PopupEntry stopEntry = new PopupComponent.PopupEntry("Navigation beenden", 5, true, true);
+            entries.add(stopEntry);
+        }
+
         this.createPopup(x, y, directX, directY, 60, entries);
         if (MapViewConstants.DEBUG) {
             persistentMap.debugLog((int) cursorCoordX, (int) cursorCoordZ);
@@ -894,6 +907,23 @@ public class WorldMapScreen extends PopupScreen {
                     y = (!(MapViewConstants.getPlayer().level().dimensionType().hasCeiling()) ? MapViewConstants.getPlayer().level().getMaxBuildHeight() : 64);
                 }
                 MapViewConstants.playerRunTeleportCommand(x, y, z);
+            }
+            case 4 -> {
+                // Navigation starten
+                BlockPos targetPos = new BlockPos(x, y, z);
+                NavigationTarget target = NavigationTarget.atPosition(targetPos, "Kartenziel (" + x + ", " + z + ")");
+                // Initialisiere Service falls nötig
+                RoadNavigationService navService = RoadNavigationService.getInstance();
+                if (navService == null) {
+                    navService = RoadNavigationService.getInstance(this.persistentMap);
+                }
+                navService.startNavigation(target);
+            }
+            case 5 -> {
+                // Navigation beenden
+                if (RoadNavigationService.getInstance() != null) {
+                    RoadNavigationService.getInstance().stopNavigation();
+                }
             }
             default -> MapViewConstants.getLogger().warn("unimplemented command");
         }
