@@ -701,14 +701,20 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         }
 
         if (fullscreen) {
-            overlay.renderFullscreen(graphics, this.lastX, this.lastZ,
-                    this.scWidth, this.scHeight, zoom);
+            // Für Fullscreen: Nutze pixelgenaue Positionierung
+            // screenCenter = Bildschirmmitte, zoom = Pixel pro Block
+            int screenCenterX = this.scWidth / 2;
+            int screenCenterY = this.scHeight / 2;
+            overlay.renderFullscreenAccurate(graphics, this.lastX, this.lastZ,
+                    screenCenterX, screenCenterY, zoom);
         } else {
             // Für Minimap: Nutze pixelgenaue Positionierung
             // mapX, mapY = Bildschirmposition des Kartenzentrums
             // lastX, lastZ = Weltkoordinaten des Kartenzentrums (Spielerposition)
-            // zoom = Blöcke pro Pixel (invertiert für Rendering)
-            float scale = (float) mapSize / (zoom * 2); // Pixel pro Block
+            // zoomScale: Bei 1.0 zeigt die 64px Minimap ca. 64 Blöcke (1 Block = 1 Pixel)
+            // Bei 2.0: 1 Block = 2 Pixel, bei 0.5: 1 Block = 0.5 Pixel
+            // zoom IS already pixels per block (zoomScale)
+            float scale = zoom;
             overlay.renderMinimapAccurate(graphics, this.lastX, this.lastZ,
                     mapX, mapY, mapSize, scale, rotation);
         }
