@@ -188,6 +188,55 @@ public class NavigationOverlay {
     }
 
     /**
+     * Rendert das Overlay für die Minimap mit pixelgenauer Positionierung
+     *
+     * @param graphics GuiGraphics-Kontext
+     * @param worldCenterX Weltzentrum X (Spielerposition)
+     * @param worldCenterZ Weltzentrum Z
+     * @param screenCenterX Bildschirmzentrum X der Minimap
+     * @param screenCenterY Bildschirmzentrum Y der Minimap
+     * @param mapSize Kartengröße in Pixeln
+     * @param scale Pixel pro Block
+     * @param rotation Kartenrotation in Grad
+     */
+    public void renderMinimapAccurate(GuiGraphics graphics, int worldCenterX, int worldCenterZ,
+                                       int screenCenterX, int screenCenterY, int mapSize,
+                                       float scale, float rotation) {
+
+        if (!isInitialized() || !isNavigating()) {
+            return;
+        }
+
+        List<BlockPos> path = navigationService.getSimplifiedPath();
+        int currentIndex = navigationService.getCurrentPathIndex();
+        NavigationTarget target = navigationService.getCurrentTarget();
+
+        if (path.isEmpty()) {
+            return;
+        }
+
+        pathRenderer.renderMinimapAccurate(
+                graphics,
+                path,
+                currentIndex,
+                target,
+                worldCenterX,
+                worldCenterZ,
+                screenCenterX,
+                screenCenterY,
+                mapSize,
+                scale,
+                rotation
+        );
+
+        // Distanzanzeige neben der Minimap
+        double distance = navigationService.getRemainingDistance();
+        int distanceX = screenCenterX - mapSize / 2;
+        int distanceY = screenCenterY + mapSize / 2 + 5;
+        pathRenderer.renderDistanceOverlay(graphics, distance, distanceX, distanceY);
+    }
+
+    /**
      * Rendert das Overlay für die Fullscreen-Worldmap
      */
     public void renderFullscreen(GuiGraphics graphics, int mapCenterX, int mapCenterZ,

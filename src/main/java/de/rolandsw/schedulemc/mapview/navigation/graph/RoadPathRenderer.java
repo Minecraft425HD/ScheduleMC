@@ -331,7 +331,266 @@ public class RoadPathRenderer {
     }
 
     // ═══════════════════════════════════════════════════════════
-    // ACCURATE RENDERING (für WorldMapScreen)
+    // MINIMAP ACCURATE RENDERING
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Rendert den Pfad pixelgenau für die Minimap
+     *
+     * @param graphics GuiGraphics-Kontext
+     * @param path Der zu rendernde Pfad
+     * @param currentIndex Aktueller Fortschritt auf dem Pfad
+     * @param target Das Navigationsziel
+     * @param worldCenterX Weltzentrum X (Spielerposition)
+     * @param worldCenterZ Weltzentrum Z
+     * @param screenCenterX Bildschirmzentrum X der Minimap
+     * @param screenCenterY Bildschirmzentrum Y der Minimap
+     * @param mapSize Kartengröße in Pixeln
+     * @param scale Pixel pro Block
+     * @param rotation Kartenrotation in Grad
+     */
+    public void renderMinimapAccurate(GuiGraphics graphics, List<BlockPos> path, int currentIndex,
+                                       NavigationTarget target, int worldCenterX, int worldCenterZ,
+                                       int screenCenterX, int screenCenterY, int mapSize,
+                                       float scale, float rotation) {
+
+        if (path == null || path.isEmpty()) {
+            return;
+        }
+
+        PoseStack poseStack = graphics.pose();
+
+        // Update Animation
+        targetPulse += TARGET_PULSE_SPEED;
+        if (targetPulse > 1.0f) targetPulse = 0;
+
+        // Rendere Pfadlinie
+        renderPathLineMinimap(poseStack, path, currentIndex, worldCenterX, worldCenterZ,
+                screenCenterX, screenCenterY, mapSize, scale, rotation);
+
+        // Rendere Richtungspfeile
+        renderArrowsMinimap(poseStack, path, currentIndex, worldCenterX, worldCenterZ,
+                screenCenterX, screenCenterY, mapSize, scale, rotation);
+
+        // Rendere Zielmarker
+        if (target != null) {
+            BlockPos targetPos = target.getCurrentPosition();
+            if (targetPos != null) {
+                renderTargetMarkerMinimap(poseStack, targetPos, worldCenterX, worldCenterZ,
+                        screenCenterX, screenCenterY, mapSize, scale, rotation);
+            }
+        }
+    }
+
+    /**
+     * Rendert die Pfadlinie für die Minimap
+     */
+    private void renderPathLineMinimap(PoseStack poseStack, List<BlockPos> path, int currentIndex,
+                                        int worldCenterX, int worldCenterZ,
+                                        int screenCenterX, int screenCenterY, int mapSize,
+                                        float scale, float rotation) {
+
+        if (path.size() < 2) return;
+
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.disableDepthTest();
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+
+        BufferBuilder buffer = Tesselator.getInstance().getBuilder();
+        buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        Matrix4f matrix = poseStack.last().pose();
+
+        float zLevel = 100.0f;
+        float halfMap = mapSize / 2.0f;
+
+        for (int i = 0; i < path.size() - 1; i++) {
+            BlockPos current = path.get(i);
+            BlockPos next = path.get(i + 1);
+
+            // Konvertiere Weltkoordinaten zu Bildschirmkoordinaten
+            float relX1 = (current.getX() - worldCenterX) * scale;
+            float relZ1 = (current.getZ() - worldCenterZ) * scale;
+            float relX2 = (next.getX() - worldCenterX) * scale;
+            float relZ2 = (next.getZ() - worldCenterZ) * scale;
+
+            // Rotation anwenden
+            if (rotation != 0) {
+                float[] rotated1 = rotatePoint(relX1, relZ1, 0, 0, rotation);
+                float[] rotated2 = rotatePoint(relX2, relZ2, 0, 0, rotation);
+                relX1 = rotated1[0];
+                relZ1 = rotated1[1];
+                relX2 = rotated2[0];
+                relZ2 = rotated2[1];
+            }
+
+            // Zu Bildschirmkoordinaten
+            float x1 = screenCenterX + relX1;
+            float z1 = screenCenterY + relZ1;
+            float x2 = screenCenterX + relX2;
+            float z2 = screenCenterY + relZ2;
+
+            // Clipping: Nur rendern wenn innerhalb der Minimap
+            if (Math.abs(relX1) > halfMap && Math.abs(relX2) > halfMap) continue;
+            if (Math.abs(relZ1) > halfMap && Math.abs(relZ2) > halfMap) continue;
+
+            // Farbe basierend auf Fortschritt
+            int color;
+            if (i < currentIndex) {
+                color = PATH_COLOR_PASSED;
+            } else {
+                float progress = (float) (i - currentIndex) / Math.max(1, path.size() - currentIndex);
+                color = interpolateColor(PATH_COLOR_START, PATH_COLOR_END, progress);
+            }
+
+            // Berechne Normale für Linienbreite
+            float dx = x2 - x1;
+            float dz = z2 - z1;
+            float length = (float) Math.sqrt(dx * dx + dz * dz);
+            if (length < 0.001f) continue;
+
+            float lineWidth = PATH_WIDTH * 0.7f; // Etwas dünner für Minimap
+            float nx = -dz / length * lineWidth;
+            float nz = dx / length * lineWidth;
+
+            // Extrahiere RGBA
+            float r = ((color >> 16) & 0xFF) / 255.0f;
+            float g = ((color >> 8) & 0xFF) / 255.0f;
+            float b = (color & 0xFF) / 255.0f;
+            float a = ((color >> 24) & 0xFF) / 255.0f;
+
+            // Zeichne Liniensegment als Quad
+            buffer.vertex(matrix, x1 - nx, z1 - nz, zLevel).color(r, g, b, a).endVertex();
+            buffer.vertex(matrix, x1 + nx, z1 + nz, zLevel).color(r, g, b, a).endVertex();
+            buffer.vertex(matrix, x2 + nx, z2 + nz, zLevel).color(r, g, b, a).endVertex();
+            buffer.vertex(matrix, x2 - nx, z2 - nz, zLevel).color(r, g, b, a).endVertex();
+        }
+
+        Tesselator.getInstance().end();
+        RenderSystem.enableDepthTest();
+        RenderSystem.disableBlend();
+    }
+
+    /**
+     * Rendert Richtungspfeile für die Minimap
+     */
+    private void renderArrowsMinimap(PoseStack poseStack, List<BlockPos> path, int currentIndex,
+                                      int worldCenterX, int worldCenterZ,
+                                      int screenCenterX, int screenCenterY, int mapSize,
+                                      float scale, float rotation) {
+
+        if (path.size() < 2) return;
+
+        float halfMap = mapSize / 2.0f;
+
+        for (int i = currentIndex + 1; i < path.size() - 1; i += ARROW_INTERVAL) {
+            BlockPos prev = path.get(i - 1);
+            BlockPos current = path.get(i);
+            BlockPos next = path.get(i + 1);
+
+            // Position relativ zum Zentrum
+            float relX = (current.getX() - worldCenterX) * scale;
+            float relZ = (current.getZ() - worldCenterZ) * scale;
+
+            // Rotation anwenden
+            if (rotation != 0) {
+                float[] rotated = rotatePoint(relX, relZ, 0, 0, rotation);
+                relX = rotated[0];
+                relZ = rotated[1];
+            }
+
+            // Nur rendern wenn innerhalb der Minimap
+            if (Math.abs(relX) > halfMap || Math.abs(relZ) > halfMap) continue;
+
+            float x = screenCenterX + relX;
+            float z = screenCenterY + relZ;
+
+            // Richtung
+            float dx = (next.getX() - prev.getX()) / 2.0f;
+            float dz = (next.getZ() - prev.getZ()) / 2.0f;
+            float angle = (float) Math.toDegrees(Math.atan2(-dx, dz)) - rotation;
+
+            float arrowSize = ARROW_SIZE * 0.6f; // Kleiner für Minimap
+            renderArrow(poseStack, x, z, angle, arrowSize);
+        }
+    }
+
+    /**
+     * Rendert den Zielmarker für die Minimap
+     */
+    private void renderTargetMarkerMinimap(PoseStack poseStack, BlockPos targetPos,
+                                            int worldCenterX, int worldCenterZ,
+                                            int screenCenterX, int screenCenterY, int mapSize,
+                                            float scale, float rotation) {
+
+        float halfMap = mapSize / 2.0f;
+
+        // Position relativ zum Zentrum
+        float relX = (targetPos.getX() - worldCenterX) * scale;
+        float relZ = (targetPos.getZ() - worldCenterZ) * scale;
+
+        // Rotation anwenden
+        if (rotation != 0) {
+            float[] rotated = rotatePoint(relX, relZ, 0, 0, rotation);
+            relX = rotated[0];
+            relZ = rotated[1];
+        }
+
+        // Prüfe ob außerhalb der Minimap - zeige Richtungsindikator am Rand
+        boolean outsideMap = Math.abs(relX) > halfMap || Math.abs(relZ) > halfMap;
+
+        if (outsideMap) {
+            // Normalisiere auf Rand der Minimap
+            float dist = (float) Math.sqrt(relX * relX + relZ * relZ);
+            if (dist > 0) {
+                float edgeDist = halfMap - 5; // Etwas innerhalb des Randes
+                relX = relX / dist * edgeDist;
+                relZ = relZ / dist * edgeDist;
+            }
+        }
+
+        float x = screenCenterX + relX;
+        float z = screenCenterY + relZ;
+
+        // Pulsierende Animation
+        float pulse = (float) (1.0 + 0.3 * Math.sin(targetPulse * Math.PI * 2));
+        float markerSize = (outsideMap ? 4 : 6) * pulse; // Kleiner wenn außerhalb
+
+        poseStack.pushPose();
+        poseStack.translate(x, z, 100);
+
+        RenderSystem.enableBlend();
+        RenderSystem.disableDepthTest();
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        BufferBuilder buffer = Tesselator.getInstance().getBuilder();
+        buffer.begin(VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION_COLOR);
+        Matrix4f matrix = poseStack.last().pose();
+
+        float r = ((TARGET_COLOR >> 16) & 0xFF) / 255.0f;
+        float g = ((TARGET_COLOR >> 8) & 0xFF) / 255.0f;
+        float b = (TARGET_COLOR & 0xFF) / 255.0f;
+
+        // Zentrierter Punkt
+        buffer.vertex(matrix, 0, 0, 0).color(r, g, b, 1.0f).endVertex();
+
+        // Kreis um den Punkt
+        int segments = 12;
+        for (int i = 0; i <= segments; i++) {
+            float circleAngle = (float) (i * 2 * Math.PI / segments);
+            float px = (float) (Math.cos(circleAngle) * markerSize);
+            float pz = (float) (Math.sin(circleAngle) * markerSize);
+            buffer.vertex(matrix, px, pz, 0).color(r, g, b, 0.5f).endVertex();
+        }
+
+        Tesselator.getInstance().end();
+        RenderSystem.enableDepthTest();
+        RenderSystem.disableBlend();
+
+        poseStack.popPose();
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // WORLDMAP ACCURATE RENDERING
     // ═══════════════════════════════════════════════════════════
 
     /**

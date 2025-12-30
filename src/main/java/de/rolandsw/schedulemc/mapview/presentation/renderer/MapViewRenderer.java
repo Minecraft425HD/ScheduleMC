@@ -704,8 +704,13 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
             overlay.renderFullscreen(graphics, this.lastX, this.lastZ,
                     this.scWidth, this.scHeight, zoom);
         } else {
-            overlay.render(graphics, this.lastX, this.lastZ,
-                    mapSize, zoom, rotation);
+            // Für Minimap: Nutze pixelgenaue Positionierung
+            // mapX, mapY = Bildschirmposition des Kartenzentrums
+            // lastX, lastZ = Weltkoordinaten des Kartenzentrums (Spielerposition)
+            // zoom = Blöcke pro Pixel (invertiert für Rendering)
+            float scale = (float) mapSize / (zoom * 2); // Pixel pro Block
+            overlay.renderMinimapAccurate(graphics, this.lastX, this.lastZ,
+                    mapX, mapY, mapSize, scale, rotation);
         }
     }
 
