@@ -225,6 +225,48 @@ public class NavigationOverlay {
         pathRenderer.renderDistanceOverlay(graphics, distance, 10, 10);
     }
 
+    /**
+     * Rendert das Overlay für die Fullscreen-Worldmap mit pixelgenauer Positionierung
+     *
+     * @param graphics GuiGraphics-Kontext
+     * @param mapCenterX Weltzentrum X (Spielerposition)
+     * @param mapCenterZ Weltzentrum Z
+     * @param screenCenterX Bildschirmzentrum X
+     * @param screenCenterY Bildschirmzentrum Y
+     * @param mapToGui Skalierungsfaktor (Welt -> Bildschirm)
+     */
+    public void renderFullscreenAccurate(GuiGraphics graphics, int mapCenterX, int mapCenterZ,
+                                          int screenCenterX, int screenCenterY, float mapToGui) {
+
+        if (!isInitialized() || !isNavigating()) {
+            return;
+        }
+
+        List<BlockPos> path = navigationService.getSimplifiedPath();
+        int currentIndex = navigationService.getCurrentPathIndex();
+        NavigationTarget target = navigationService.getCurrentTarget();
+
+        if (path.isEmpty()) {
+            return;
+        }
+
+        pathRenderer.renderAccurate(
+                graphics,
+                path,
+                currentIndex,
+                target,
+                mapCenterX,
+                mapCenterZ,
+                screenCenterX,
+                screenCenterY,
+                mapToGui
+        );
+
+        // Distanzanzeige oben links
+        double distance = navigationService.getRemainingDistance();
+        pathRenderer.renderDistanceOverlay(graphics, distance, 10, 40);
+    }
+
     // ═══════════════════════════════════════════════════════════
     // GRAPH MANAGEMENT
     // ═══════════════════════════════════════════════════════════

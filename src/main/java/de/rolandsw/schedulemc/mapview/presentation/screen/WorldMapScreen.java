@@ -986,7 +986,13 @@ public class WorldMapScreen extends PopupScreen {
         // Tick für Updates (Position, Pfad-Neuberechnung)
         overlay.tick();
 
-        // Render auf Fullscreen-Worldmap
-        overlay.renderFullscreen(graphics, centerX, centerZ, this.width, this.height, zoom);
+        // Berechne Bildschirm-Zentrum
+        int screenCenterX = this.width / 2;
+        int screenCenterY = this.top + (this.bottom - this.top) / 2;
+
+        // Render auf Fullscreen-Worldmap mit korrekter Skalierung
+        // mapToGui konvertiert Weltkoordinaten zu Bildschirmkoordinaten
+        overlay.renderFullscreenAccurate(graphics, centerX, centerZ,
+                screenCenterX, screenCenterY, this.mapToGui);
     }
 }

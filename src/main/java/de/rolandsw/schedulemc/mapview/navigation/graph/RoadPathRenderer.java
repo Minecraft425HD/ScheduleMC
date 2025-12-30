@@ -89,6 +89,7 @@ public class RoadPathRenderer {
 
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
+        RenderSystem.disableDepthTest(); // Deaktiviere Tiefentest für Overlay
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
 
         BufferBuilder buffer = Tesselator.getInstance().getBuilder();
@@ -96,6 +97,7 @@ public class RoadPathRenderer {
         Matrix4f matrix = poseStack.last().pose();
 
         float halfSize = mapSize / 2.0f;
+        float zLevel = 100.0f; // Über der Karte rendern
 
         for (int i = 0; i < path.size() - 1; i++) {
             BlockPos current = path.get(i);
@@ -141,14 +143,15 @@ public class RoadPathRenderer {
             float b = (color & 0xFF) / 255.0f;
             float a = ((color >> 24) & 0xFF) / 255.0f;
 
-            // Zeichne Liniensegment als Quad
-            buffer.vertex(matrix, x1 - nx, z1 - nz, 0).color(r, g, b, a).endVertex();
-            buffer.vertex(matrix, x1 + nx, z1 + nz, 0).color(r, g, b, a).endVertex();
-            buffer.vertex(matrix, x2 + nx, z2 + nz, 0).color(r, g, b, a).endVertex();
-            buffer.vertex(matrix, x2 - nx, z2 - nz, 0).color(r, g, b, a).endVertex();
+            // Zeichne Liniensegment als Quad mit höherer Z-Ebene
+            buffer.vertex(matrix, x1 - nx, z1 - nz, zLevel).color(r, g, b, a).endVertex();
+            buffer.vertex(matrix, x1 + nx, z1 + nz, zLevel).color(r, g, b, a).endVertex();
+            buffer.vertex(matrix, x2 + nx, z2 + nz, zLevel).color(r, g, b, a).endVertex();
+            buffer.vertex(matrix, x2 - nx, z2 - nz, zLevel).color(r, g, b, a).endVertex();
         }
 
         Tesselator.getInstance().end();
+        RenderSystem.enableDepthTest(); // Tiefentest wieder aktivieren
         RenderSystem.disableBlend();
     }
 
@@ -193,9 +196,10 @@ public class RoadPathRenderer {
      */
     private void renderArrow(PoseStack poseStack, float x, float y, float angle, float size) {
         poseStack.pushPose();
-        poseStack.translate(x, y, 0);
+        poseStack.translate(x, y, 100); // Höhere Z-Ebene
         poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(angle));
 
+        RenderSystem.disableDepthTest();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
         BufferBuilder buffer = Tesselator.getInstance().getBuilder();
         buffer.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR);
@@ -212,6 +216,7 @@ public class RoadPathRenderer {
         buffer.vertex(matrix, size / 3, size / 3, 0).color(r, g, b, a).endVertex();
 
         Tesselator.getInstance().end();
+        RenderSystem.enableDepthTest();
 
         poseStack.popPose();
     }
@@ -238,9 +243,10 @@ public class RoadPathRenderer {
         float markerSize = 8 * pulse;
 
         poseStack.pushPose();
-        poseStack.translate(x, z, 0);
+        poseStack.translate(x, z, 100); // Höhere Z-Ebene
 
         RenderSystem.enableBlend();
+        RenderSystem.disableDepthTest();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
         BufferBuilder buffer = Tesselator.getInstance().getBuilder();
         buffer.begin(VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION_COLOR);
@@ -263,6 +269,7 @@ public class RoadPathRenderer {
         }
 
         Tesselator.getInstance().end();
+        RenderSystem.enableDepthTest();
         RenderSystem.disableBlend();
 
         poseStack.popPose();
@@ -276,9 +283,10 @@ public class RoadPathRenderer {
      */
     private void renderRing(PoseStack poseStack, float x, float y, float radius, int color, float alpha) {
         poseStack.pushPose();
-        poseStack.translate(x, y, 0);
+        poseStack.translate(x, y, 100); // Höhere Z-Ebene
 
         RenderSystem.enableBlend();
+        RenderSystem.disableDepthTest();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
         BufferBuilder buffer = Tesselator.getInstance().getBuilder();
         buffer.begin(VertexFormat.Mode.DEBUG_LINE_STRIP, DefaultVertexFormat.POSITION_COLOR);
@@ -297,6 +305,7 @@ public class RoadPathRenderer {
         }
 
         Tesselator.getInstance().end();
+        RenderSystem.enableDepthTest();
         RenderSystem.disableBlend();
 
         poseStack.popPose();
@@ -319,6 +328,200 @@ public class RoadPathRenderer {
 
         // Text
         graphics.drawString(Minecraft.getInstance().font, distanceText, x, y, 0xFFFFFFFF, false);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // ACCURATE RENDERING (für WorldMapScreen)
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Rendert den Pfad pixelgenau für die Fullscreen-Worldmap
+     *
+     * @param graphics GuiGraphics-Kontext
+     * @param path Der zu rendernde Pfad
+     * @param currentIndex Aktueller Fortschritt auf dem Pfad
+     * @param target Das Navigationsziel
+     * @param mapCenterX Weltzentrum X
+     * @param mapCenterZ Weltzentrum Z
+     * @param screenCenterX Bildschirmzentrum X
+     * @param screenCenterY Bildschirmzentrum Y
+     * @param mapToGui Skalierungsfaktor (Welt -> Bildschirm)
+     */
+    public void renderAccurate(GuiGraphics graphics, List<BlockPos> path, int currentIndex,
+                                NavigationTarget target, int mapCenterX, int mapCenterZ,
+                                int screenCenterX, int screenCenterY, float mapToGui) {
+
+        if (path == null || path.isEmpty()) {
+            return;
+        }
+
+        PoseStack poseStack = graphics.pose();
+
+        // Update Animation
+        targetPulse += TARGET_PULSE_SPEED;
+        if (targetPulse > 1.0f) targetPulse = 0;
+
+        // Rendere Pfadlinie
+        renderPathLineAccurate(poseStack, path, currentIndex, mapCenterX, mapCenterZ,
+                screenCenterX, screenCenterY, mapToGui);
+
+        // Rendere Richtungspfeile
+        renderArrowsAccurate(poseStack, path, currentIndex, mapCenterX, mapCenterZ,
+                screenCenterX, screenCenterY, mapToGui);
+
+        // Rendere Zielmarker
+        if (target != null) {
+            BlockPos targetPos = target.getCurrentPosition();
+            if (targetPos != null) {
+                renderTargetMarkerAccurate(poseStack, targetPos, mapCenterX, mapCenterZ,
+                        screenCenterX, screenCenterY, mapToGui);
+            }
+        }
+    }
+
+    /**
+     * Rendert die Pfadlinie pixelgenau
+     */
+    private void renderPathLineAccurate(PoseStack poseStack, List<BlockPos> path, int currentIndex,
+                                         int mapCenterX, int mapCenterZ,
+                                         int screenCenterX, int screenCenterY, float mapToGui) {
+
+        if (path.size() < 2) return;
+
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.disableDepthTest();
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+
+        BufferBuilder buffer = Tesselator.getInstance().getBuilder();
+        buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        Matrix4f matrix = poseStack.last().pose();
+
+        float zLevel = 100.0f;
+
+        for (int i = 0; i < path.size() - 1; i++) {
+            BlockPos current = path.get(i);
+            BlockPos next = path.get(i + 1);
+
+            // Konvertiere Weltkoordinaten zu Bildschirmkoordinaten
+            float x1 = screenCenterX + (current.getX() - mapCenterX) * mapToGui;
+            float z1 = screenCenterY + (current.getZ() - mapCenterZ) * mapToGui;
+            float x2 = screenCenterX + (next.getX() - mapCenterX) * mapToGui;
+            float z2 = screenCenterY + (next.getZ() - mapCenterZ) * mapToGui;
+
+            // Farbe basierend auf Fortschritt
+            int color;
+            if (i < currentIndex) {
+                color = PATH_COLOR_PASSED;
+            } else {
+                float progress = (float) (i - currentIndex) / Math.max(1, path.size() - currentIndex);
+                color = interpolateColor(PATH_COLOR_START, PATH_COLOR_END, progress);
+            }
+
+            // Berechne Normale für Linienbreite (skaliert mit mapToGui)
+            float dx = x2 - x1;
+            float dz = z2 - z1;
+            float length = (float) Math.sqrt(dx * dx + dz * dz);
+            if (length < 0.001f) continue;
+
+            float lineWidth = PATH_WIDTH * Math.max(0.5f, mapToGui * 0.5f);
+            float nx = -dz / length * lineWidth;
+            float nz = dx / length * lineWidth;
+
+            // Extrahiere RGBA
+            float r = ((color >> 16) & 0xFF) / 255.0f;
+            float g = ((color >> 8) & 0xFF) / 255.0f;
+            float b = (color & 0xFF) / 255.0f;
+            float a = ((color >> 24) & 0xFF) / 255.0f;
+
+            // Zeichne Liniensegment als Quad
+            buffer.vertex(matrix, x1 - nx, z1 - nz, zLevel).color(r, g, b, a).endVertex();
+            buffer.vertex(matrix, x1 + nx, z1 + nz, zLevel).color(r, g, b, a).endVertex();
+            buffer.vertex(matrix, x2 + nx, z2 + nz, zLevel).color(r, g, b, a).endVertex();
+            buffer.vertex(matrix, x2 - nx, z2 - nz, zLevel).color(r, g, b, a).endVertex();
+        }
+
+        Tesselator.getInstance().end();
+        RenderSystem.enableDepthTest();
+        RenderSystem.disableBlend();
+    }
+
+    /**
+     * Rendert Richtungspfeile pixelgenau
+     */
+    private void renderArrowsAccurate(PoseStack poseStack, List<BlockPos> path, int currentIndex,
+                                       int mapCenterX, int mapCenterZ,
+                                       int screenCenterX, int screenCenterY, float mapToGui) {
+
+        if (path.size() < 2) return;
+
+        for (int i = currentIndex + 1; i < path.size() - 1; i += ARROW_INTERVAL) {
+            BlockPos prev = path.get(i - 1);
+            BlockPos current = path.get(i);
+            BlockPos next = path.get(i + 1);
+
+            // Position in Bildschirmkoordinaten
+            float x = screenCenterX + (current.getX() - mapCenterX) * mapToGui;
+            float z = screenCenterY + (current.getZ() - mapCenterZ) * mapToGui;
+
+            // Richtung
+            float dx = (next.getX() - prev.getX()) / 2.0f;
+            float dz = (next.getZ() - prev.getZ()) / 2.0f;
+            float angle = (float) Math.toDegrees(Math.atan2(-dx, dz));
+
+            float arrowSize = ARROW_SIZE * Math.max(0.5f, mapToGui * 0.5f);
+            renderArrow(poseStack, x, z, angle, arrowSize);
+        }
+    }
+
+    /**
+     * Rendert den Zielmarker pixelgenau
+     */
+    private void renderTargetMarkerAccurate(PoseStack poseStack, BlockPos targetPos,
+                                             int mapCenterX, int mapCenterZ,
+                                             int screenCenterX, int screenCenterY, float mapToGui) {
+
+        float x = screenCenterX + (targetPos.getX() - mapCenterX) * mapToGui;
+        float z = screenCenterY + (targetPos.getZ() - mapCenterZ) * mapToGui;
+
+        // Pulsierende Animation
+        float pulse = (float) (1.0 + 0.3 * Math.sin(targetPulse * Math.PI * 2));
+        float markerSize = 8 * pulse * Math.max(0.5f, mapToGui * 0.3f);
+
+        poseStack.pushPose();
+        poseStack.translate(x, z, 100);
+
+        RenderSystem.enableBlend();
+        RenderSystem.disableDepthTest();
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        BufferBuilder buffer = Tesselator.getInstance().getBuilder();
+        buffer.begin(VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION_COLOR);
+        Matrix4f matrix = poseStack.last().pose();
+
+        float r = ((TARGET_COLOR >> 16) & 0xFF) / 255.0f;
+        float g = ((TARGET_COLOR >> 8) & 0xFF) / 255.0f;
+        float b = (TARGET_COLOR & 0xFF) / 255.0f;
+
+        // Zentrierter Punkt
+        buffer.vertex(matrix, 0, 0, 0).color(r, g, b, 1.0f).endVertex();
+
+        // Kreis um den Punkt
+        int segments = 16;
+        for (int i = 0; i <= segments; i++) {
+            float circleAngle = (float) (i * 2 * Math.PI / segments);
+            float px = (float) (Math.cos(circleAngle) * markerSize);
+            float pz = (float) (Math.sin(circleAngle) * markerSize);
+            buffer.vertex(matrix, px, pz, 0).color(r, g, b, 0.5f).endVertex();
+        }
+
+        Tesselator.getInstance().end();
+        RenderSystem.enableDepthTest();
+        RenderSystem.disableBlend();
+
+        poseStack.popPose();
+
+        // Äußerer Ring
+        renderRing(poseStack, x, z, markerSize * 1.5f, TARGET_COLOR, 0.3f);
     }
 
     // ═══════════════════════════════════════════════════════════
