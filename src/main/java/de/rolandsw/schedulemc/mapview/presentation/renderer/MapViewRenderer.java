@@ -679,6 +679,14 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
                                           int mapSize, float zoom, boolean fullscreen) {
         NavigationOverlay overlay = NavigationOverlay.getInstance();
 
+        // Initialisiere falls nötig
+        if (!overlay.isInitialized()) {
+            var mapData = MapViewConstants.getLightMapInstance().getWorldMapData();
+            if (mapData != null) {
+                overlay.initialize(mapData);
+            }
+        }
+
         if (!overlay.isInitialized() || !overlay.isNavigating()) {
             return;
         }

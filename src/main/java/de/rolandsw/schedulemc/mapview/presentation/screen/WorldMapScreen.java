@@ -6,6 +6,7 @@ import de.rolandsw.schedulemc.mapview.service.data.WorldMapData;
 import de.rolandsw.schedulemc.mapview.npc.NPCMapRenderer;
 import de.rolandsw.schedulemc.mapview.navigation.graph.RoadNavigationService;
 import de.rolandsw.schedulemc.mapview.navigation.graph.NavigationTarget;
+import de.rolandsw.schedulemc.mapview.navigation.graph.NavigationOverlay;
 import net.minecraft.core.BlockPos;
 import de.rolandsw.schedulemc.mapview.data.cache.RegionCache;
 import de.rolandsw.schedulemc.mapview.data.persistence.AsyncPersistenceManager;
@@ -738,6 +739,9 @@ public class WorldMapScreen extends PopupScreen {
         // Render NPCs auf der Worldmap (gefiltert nach Typ und Status)
         renderNPCsOnWorldmap(guiGraphics, (int) this.mapCenterX, (int) this.mapCenterZ, this.zoom);
 
+        // Render Navigations-Overlay auf der Worldmap
+        renderNavigationOverlay(guiGraphics, (int) this.mapCenterX, (int) this.mapCenterZ, this.zoom);
+
         if (gotSkin) {
             float playerX = (float) MinecraftAccessor.xCoordDouble();
             float playerZ = (float) MinecraftAccessor.zCoordDouble();
@@ -961,5 +965,28 @@ public class WorldMapScreen extends PopupScreen {
         // Render Tooltip bei Hover
         npcMapRenderer.renderNPCTooltip(graphics, this.mouseX, this.mouseY,
                 centerX, centerZ, zoom, this.width, this.height);
+    }
+
+    /**
+     * Rendert das Navigations-Overlay auf der Worldmap
+     * Zeigt Pfadlinie, Zielmarker und Distanzanzeige
+     */
+    private void renderNavigationOverlay(GuiGraphics graphics, int centerX, int centerZ, float zoom) {
+        NavigationOverlay overlay = NavigationOverlay.getInstance();
+
+        // Initialisiere falls nötig
+        if (!overlay.isInitialized()) {
+            overlay.initialize(this.persistentMap);
+        }
+
+        if (!overlay.isInitialized() || !overlay.isNavigating()) {
+            return;
+        }
+
+        // Tick für Updates (Position, Pfad-Neuberechnung)
+        overlay.tick();
+
+        // Render auf Fullscreen-Worldmap
+        overlay.renderFullscreen(graphics, centerX, centerZ, this.width, this.height, zoom);
     }
 }

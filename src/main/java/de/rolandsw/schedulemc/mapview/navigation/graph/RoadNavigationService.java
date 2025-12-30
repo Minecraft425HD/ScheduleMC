@@ -169,17 +169,30 @@ public class RoadNavigationService {
     private boolean startNavigationInternal(NavigationTarget target) {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) {
+            LOGGER.warn("[RoadNavigationService] Player is null, cannot start navigation");
             return false;
         }
 
         BlockPos start = player.blockPosition();
         BlockPos end = target.getCurrentPosition();
 
+        LOGGER.info("[RoadNavigationService] Starting navigation from {} to {}", start, end);
+
         if (end == null) {
             LOGGER.warn("[RoadNavigationService] Target position is null");
             notifyListeners(NavigationEvent.PATH_NOT_FOUND);
             return false;
         }
+
+        // Prüfe Graph-Status
+        if (currentGraph == null) {
+            LOGGER.error("[RoadNavigationService] Current graph is null!");
+            notifyListeners(NavigationEvent.PATH_NOT_FOUND);
+            return false;
+        }
+
+        LOGGER.info("[RoadNavigationService] Graph has {} nodes, {} segments",
+                currentGraph.getNodeCount(), currentGraph.getSegmentCount());
 
         // Berechne Pfad
         List<BlockPos> path = currentGraph.findPath(start, end);

@@ -77,9 +77,9 @@ public class RoadGraphBuilder {
         allRoadBlocks.clear();
 
         // Schritt 1: Finde alle Straßenblöcke
-        LOGGER.debug("[RoadGraphBuilder] Scanning area ({}, {}) radius {}", centerX, centerZ, radius);
+        LOGGER.info("[RoadGraphBuilder] Scanning area ({}, {}) radius {}", centerX, centerZ, radius);
         scanRoadBlocks(centerX, centerZ, radius);
-        LOGGER.debug("[RoadGraphBuilder] Found {} road blocks", allRoadBlocks.size());
+        LOGGER.info("[RoadGraphBuilder] Found {} road blocks", allRoadBlocks.size());
 
         if (allRoadBlocks.isEmpty()) {
             return new RoadGraph(Collections.emptyMap(), Collections.emptyList());
@@ -104,13 +104,25 @@ public class RoadGraphBuilder {
      * Scannt den Bereich nach Straßenblöcken
      */
     private void scanRoadBlocks(int centerX, int centerZ, int radius) {
+        int checked = 0;
+        int nullStates = 0;
+        int roadBlocks = 0;
+
         for (int x = centerX - radius; x <= centerX + radius; x++) {
             for (int z = centerZ - radius; z <= centerZ + radius; z++) {
-                if (RoadBlockDetector.isRoadAt(mapData, x, z)) {
+                checked++;
+                net.minecraft.world.level.block.state.BlockState state = mapData.getBlockStateAt(x, z);
+                if (state == null) {
+                    nullStates++;
+                } else if (RoadBlockDetector.isRoadBlock(state)) {
+                    roadBlocks++;
                     allRoadBlocks.add(new BlockPos(x, defaultY, z));
                 }
             }
         }
+
+        LOGGER.info("[RoadGraphBuilder] Scan stats: checked={}, nullStates={}, roadBlocks={}",
+                checked, nullStates, roadBlocks);
     }
 
     /**
