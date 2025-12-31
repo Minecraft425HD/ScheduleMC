@@ -151,6 +151,9 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     private int ticksSinceLastUpdate = 0;
     private static final int UPDATE_THROTTLE_TICKS = 2; // Update nur alle 2 Ticks (10 FPS statt 20 FPS)
     private int biomeSegmentationCounter = 0;
+    // Periodic chunk refresh for detecting block changes (minimap)
+    private long lastPeriodicRefresh = 0;
+    private static final long PERIODIC_REFRESH_INTERVAL_MS = 2000; // Every 2 seconds
     // Chunk cache to avoid redundant getChunkAt() calls
     private LevelChunk cachedChunk = null;
     private int cachedChunkX = Integer.MIN_VALUE;
@@ -364,6 +367,14 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         if (this.timer % 20 == 0) {
             this.checkForChanges();
         }
+
+        // Periodic chunk refresh for minimap to detect block changes
+        long now = System.currentTimeMillis();
+        if (now - lastPeriodicRefresh >= PERIODIC_REFRESH_INTERVAL_MS) {
+            lastPeriodicRefresh = now;
+            refreshNearbyChunks();
+        }
+
         this.lastGuiScreen = minecraft.screen;
         this.calculateCurrentLightAndSkyColor();
 
@@ -918,6 +929,35 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
             this.chunkCache[this.zoom].registerChangeAt(chunkX, chunkZ);
         } catch (Exception e) {
             MapViewConstants.getLogger().warn(e);
+        }
+    }
+
+    /**
+     * Periodically refresh nearby chunks to detect block changes for the minimap.
+     * This is needed because BlockEvents don't fire client-side in Forge.
+     */
+    private void refreshNearbyChunks() {
+        if (this.world == null) {
+            return;
+        }
+        try {
+            int playerChunkX = MinecraftAccessor.xCoord() >> 4;
+            int playerChunkZ = MinecraftAccessor.zCoord() >> 4;
+            int radius = 4; // 4 chunk radius around player
+
+            for (int dx = -radius; dx <= radius; dx++) {
+                for (int dz = -radius; dz <= radius; dz++) {
+                    int chunkX = playerChunkX + dx;
+                    int chunkZ = playerChunkZ + dz;
+                    LevelChunk chunk = this.world.getChunk(chunkX, chunkZ);
+                    if (chunk != null && !chunk.isEmpty() && this.world.hasChunk(chunkX, chunkZ)) {
+                        // Mark chunk as modified and process it
+                        this.chunkCache[this.zoom].registerChangeAt(chunkX, chunkZ);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            MapViewConstants.getLogger().warn("Error in refreshNearbyChunks: " + e.getMessage());
         }
     }
 
