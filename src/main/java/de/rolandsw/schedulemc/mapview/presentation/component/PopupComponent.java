@@ -17,15 +17,19 @@ public class PopupComponent {
     private final int h;
     private final int clickedDirectX;
     private final int clickedDirectY;
+    private final int clickedWorldX;
+    private final int clickedWorldZ;
     private boolean shouldClose;
     private final PopupScreen parentGui;
     private final int padding = 6;
 
-    public PopupComponent(int x, int y, int directX, int directY, int minWidth, ArrayList<PopupEntry> entries, PopupScreen parentGui) {
+    public PopupComponent(int x, int y, int directX, int directY, int worldX, int worldZ, int minWidth, ArrayList<PopupEntry> entries, PopupScreen parentGui) {
         this.fontRendererObj = MapViewConstants.getMinecraft().font;
         this.parentGui = parentGui;
         this.clickedDirectX = directX;
         this.clickedDirectY = directY;
+        this.clickedWorldX = worldX;
+        this.clickedWorldZ = worldZ;
         this.x = x - 1;
         this.y = y - 1;
         this.entries = new PopupEntry[entries.size()];
@@ -57,6 +61,14 @@ public class PopupComponent {
 
     public int getClickedDirectY() {
         return clickedDirectY;
+    }
+
+    public int getClickedWorldX() {
+        return clickedWorldX;
+    }
+
+    public int getClickedWorldZ() {
+        return clickedWorldZ;
     }
 
     public boolean clickedMe(double mouseX, double mouseY) {

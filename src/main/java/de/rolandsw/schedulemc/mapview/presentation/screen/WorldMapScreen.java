@@ -880,30 +880,20 @@ public class WorldMapScreen extends PopupScreen {
             entries.add(stopEntry);
         }
 
-        this.createPopup(x, y, directX, directY, 60, entries);
+        // World-Koordinaten bei Popup-Erstellung speichern (wichtig für korrekte Navigation!)
+        int worldX = (int) Math.floor(cursorCoordX);
+        int worldZ = (int) Math.floor(cursorCoordZ);
+        this.createPopup(x, y, directX, directY, worldX, worldZ, 60, entries);
         if (MapViewConstants.DEBUG) {
-            persistentMap.debugLog((int) cursorCoordX, (int) cursorCoordZ);
+            persistentMap.debugLog(worldX, worldZ);
         }
     }
 
     @Override
     public void popupAction(PopupComponent popup, int action) {
-        int mouseDirectX = popup.getClickedDirectX();
-        int mouseDirectY = popup.getClickedDirectY();
-        float cursorX = mouseDirectX;
-        float cursorY = mouseDirectY - this.top * this.guiToDirectMouse;
-        float cursorCoordX;
-        float cursorCoordZ;
-        if (this.oldNorth) {
-            cursorCoordX = cursorY * this.mouseDirectToMap + (this.mapCenterZ - this.centerY * this.guiToMap);
-            cursorCoordZ = -(cursorX * this.mouseDirectToMap + (this.mapCenterX - this.centerX * this.guiToMap));
-        } else {
-            cursorCoordX = cursorX * this.mouseDirectToMap + (this.mapCenterX - this.centerX * this.guiToMap);
-            cursorCoordZ = cursorY * this.mouseDirectToMap + (this.mapCenterZ - this.centerY * this.guiToMap);
-        }
-
-        int x = (int) Math.floor(cursorCoordX);
-        int z = (int) Math.floor(cursorCoordZ);
+        // Gespeicherte World-Koordinaten verwenden (wurden bei Popup-Erstellung berechnet)
+        int x = popup.getClickedWorldX();
+        int z = popup.getClickedWorldZ();
         int y = this.persistentMap.getHeightAt(x, z);
         switch (action) {
             case 3 -> {
