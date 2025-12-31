@@ -883,6 +883,18 @@ public class WorldMapScreen extends PopupScreen {
         // World-Koordinaten bei Popup-Erstellung speichern (wichtig für korrekte Navigation!)
         int worldX = (int) Math.floor(cursorCoordX);
         int worldZ = (int) Math.floor(cursorCoordZ);
+
+        // Debug-Logging für Koordinaten
+        MapViewConstants.getLogger().info("[WorldMap] Popup created at:");
+        MapViewConstants.getLogger().info("  directX={}, directY={}", directX, directY);
+        MapViewConstants.getLogger().info("  cursorX={}, cursorY={}", cursorX, cursorY);
+        MapViewConstants.getLogger().info("  mouseDirectToMap={}, guiToMap={}", this.mouseDirectToMap, this.guiToMap);
+        MapViewConstants.getLogger().info("  mapCenterX={}, mapCenterZ={}", this.mapCenterX, this.mapCenterZ);
+        MapViewConstants.getLogger().info("  centerX={}, centerY={}, top={}", this.centerX, this.centerY, this.top);
+        MapViewConstants.getLogger().info("  cursorCoordX={}, cursorCoordZ={}", cursorCoordX, cursorCoordZ);
+        MapViewConstants.getLogger().info("  worldX={}, worldZ={}", worldX, worldZ);
+        MapViewConstants.getLogger().info("  Player pos: x={}, z={}", MinecraftAccessor.xCoord(), MinecraftAccessor.zCoord());
+
         this.createPopup(x, y, directX, directY, worldX, worldZ, 60, entries);
         if (MapViewConstants.DEBUG) {
             persistentMap.debugLog(worldX, worldZ);
@@ -904,6 +916,7 @@ public class WorldMapScreen extends PopupScreen {
             }
             case 4 -> {
                 // Navigation starten
+                MapViewConstants.getLogger().info("[Navigation] Target coordinates from popup: x={}, z={}", x, z);
                 BlockPos targetPos = new BlockPos(x, y, z);
                 NavigationTarget target = NavigationTarget.atPosition(targetPos, "Kartenziel (" + x + ", " + z + ")");
                 // Initialisiere Service falls nötig
