@@ -19,6 +19,9 @@ import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.event.GameShuttingDownEvent;
+import net.minecraftforge.event.level.BlockEvent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -121,6 +124,30 @@ public class ForgeEvents implements Events {
         @SubscribeEvent
         public void onClientShutdown(GameShuttingDownEvent event) {
             map.onClientStopping();
+        }
+
+        @SubscribeEvent
+        public void onBlockPlace(BlockEvent.EntityPlaceEvent event) {
+            handleBlockChange(event.getPos(), event.getLevel());
+        }
+
+        @SubscribeEvent
+        public void onBlockBreak(BlockEvent.BreakEvent event) {
+            handleBlockChange(event.getPos(), event.getLevel());
+        }
+
+        private void handleBlockChange(BlockPos pos, net.minecraft.world.level.LevelAccessor level) {
+            if (level != null && level.isClientSide()) {
+                int chunkX = pos.getX() >> 4;
+                int chunkZ = pos.getZ() >> 4;
+                // Trigger map update for this chunk
+                if (map.getWorldMapData() != null) {
+                    map.getWorldMapData().handleChangeInWorld(chunkX, chunkZ);
+                }
+                if (map.getMap() != null) {
+                    map.getMap().handleChangeInWorld(chunkX, chunkZ);
+                }
+            }
         }
     }
 }
