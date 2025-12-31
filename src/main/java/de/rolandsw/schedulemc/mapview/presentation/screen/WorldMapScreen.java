@@ -742,6 +742,40 @@ public class WorldMapScreen extends PopupScreen {
         // Render Navigations-Overlay auf der Worldmap
         renderNavigationOverlay(guiGraphics, (int) this.mapCenterX, (int) this.mapCenterZ, this.zoom);
 
+        // DEBUG: Immer einen Spieler-Marker rendern (unabhängig von Skin)
+        {
+            float playerX = (float) MinecraftAccessor.xCoordDouble();
+            float playerZ = (float) MinecraftAccessor.zCoordDouble();
+
+            // Berechne Bildschirmposition des Spielers direkt (kartesisch, nicht polar)
+            float playerScreenX, playerScreenY;
+            if (this.oldNorth) {
+                // Bei oldNorth: X und Z werden vertauscht und rotiert
+                playerScreenX = this.centerX + (playerZ - this.mapCenterZ) * this.mapToGui;
+                playerScreenY = (this.top + this.centerY) + (-playerX - this.mapCenterX) * this.mapToGui;
+            } else {
+                playerScreenX = this.centerX + (playerX - this.mapCenterX) * this.mapToGui;
+                playerScreenY = (this.top + this.centerY) + (playerZ - this.mapCenterZ) * this.mapToGui;
+            }
+
+            // Zeichne einen einfachen roten Kreis als Spieler-Marker
+            int markerSize = 8;
+            guiGraphics.fill(
+                (int)(playerScreenX - markerSize/2),
+                (int)(playerScreenY - markerSize/2),
+                (int)(playerScreenX + markerSize/2),
+                (int)(playerScreenY + markerSize/2),
+                0xFFFF0000  // Rot
+            );
+
+            // Debug: Zeige Spielerposition als Text
+            guiGraphics.drawString(this.font,
+                "Player: " + MinecraftAccessor.xCoord() + ", " + MinecraftAccessor.zCoord(),
+                (int)playerScreenX + 10,
+                (int)playerScreenY - 5,
+                0xFFFFFF00);  // Gelb
+        }
+
         if (gotSkin) {
             float playerX = (float) MinecraftAccessor.xCoordDouble();
             float playerZ = (float) MinecraftAccessor.zCoordDouble();
