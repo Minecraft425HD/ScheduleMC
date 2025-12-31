@@ -32,9 +32,10 @@ public class RoadNavigationService {
 
     // Konfiguration
     private static final int DEFAULT_SCAN_RADIUS = 150; // Reduziert für bessere Performance
-    private static final int PATH_UPDATE_INTERVAL_MS = 2000; // Pfad-Update alle 2 Sekunden
+    private static final int PATH_UPDATE_INTERVAL_MS = 1000; // Pfad-Update jede Sekunde
     private static final double MOVEMENT_THRESHOLD = 10.0; // Mindestbewegung für Neuberechnung
     private static final double ARRIVAL_DISTANCE = 5.0; // Distanz für "angekommen"
+    private static final double PATH_DEVIATION_THRESHOLD = 15.0; // Pfad-Neuberechnung wenn zu weit vom Pfad
 
     // Services
     private final WorldMapData mapData;
@@ -48,6 +49,7 @@ public class RoadNavigationService {
     private boolean isNavigationActive;
     private long lastPathUpdate;
     private int currentPathIndex;
+    private BlockPos lastPathStartPos; // Letzte Position von der aus der Pfad berechnet wurde
 
     // Listener für UI-Updates
     private final List<NavigationListener> listeners = new ArrayList<>();
@@ -210,6 +212,7 @@ public class RoadNavigationService {
         currentPathIndex = 0;
         isNavigationActive = true;
         lastPathUpdate = System.currentTimeMillis();
+        lastPathStartPos = start; // Merke Startposition für Pfad-Neuberechnung
 
         LOGGER.info("[RoadNavigationService] Navigation started to {}, {} waypoints",
                 target.getDisplayName(), simplifiedPath.size());
@@ -231,6 +234,7 @@ public class RoadNavigationService {
         currentPath = Collections.emptyList();
         simplifiedPath = Collections.emptyList();
         currentPathIndex = 0;
+        lastPathStartPos = null;
 
         LOGGER.info("[RoadNavigationService] Navigation stopped");
         notifyListeners(NavigationEvent.NAVIGATION_STOPPED);
@@ -259,15 +263,31 @@ public class RoadNavigationService {
             return;
         }
 
-        // Für bewegliche Ziele: Pfad aktualisieren
-        if (currentTarget.isMoving()) {
-            long now = System.currentTimeMillis();
-            if (now - lastPathUpdate >= PATH_UPDATE_INTERVAL_MS) {
-                if (currentTarget.hasMovedSignificantly(MOVEMENT_THRESHOLD)) {
-                    recalculatePath(playerPos);
+        // Pfad aktualisieren wenn:
+        // 1. Spieler sich signifikant von der letzten Pfad-Startposition entfernt hat
+        // 2. Oder für bewegliche Ziele wenn das Ziel sich bewegt hat
+        long now = System.currentTimeMillis();
+        if (now - lastPathUpdate >= PATH_UPDATE_INTERVAL_MS) {
+            boolean shouldRecalculate = false;
+
+            // Prüfe ob Spieler sich weit von der letzten Pfad-Startposition entfernt hat
+            if (lastPathStartPos != null) {
+                double distFromStart = distance(playerPos, lastPathStartPos);
+                if (distFromStart >= MOVEMENT_THRESHOLD) {
+                    shouldRecalculate = true;
+                    LOGGER.debug("[RoadNavigationService] Player moved {} blocks from path start, recalculating", distFromStart);
                 }
-                lastPathUpdate = now;
             }
+
+            // Für bewegliche Ziele: Auch prüfen ob Ziel sich bewegt hat
+            if (currentTarget.isMoving() && currentTarget.hasMovedSignificantly(MOVEMENT_THRESHOLD)) {
+                shouldRecalculate = true;
+            }
+
+            if (shouldRecalculate) {
+                recalculatePath(playerPos);
+            }
+            lastPathUpdate = now;
         }
 
         // Aktualisiere aktuellen Pfad-Index basierend auf Spielerposition
@@ -292,8 +312,9 @@ public class RoadNavigationService {
             currentPath = newPath;
             simplifiedPath = RoadGraph.simplifyPath(newPath);
             currentPathIndex = 0;
+            lastPathStartPos = playerPos; // Merke von wo der Pfad berechnet wurde
 
-            LOGGER.debug("[RoadNavigationService] Path recalculated, {} waypoints", simplifiedPath.size());
+            LOGGER.debug("[RoadNavigationService] Path recalculated from {}, {} waypoints", playerPos, simplifiedPath.size());
             notifyListeners(NavigationEvent.PATH_UPDATED);
         }
     }

@@ -9,7 +9,6 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import org.slf4j.Logger;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -144,39 +143,6 @@ public class NavigationOverlay {
     // ═══════════════════════════════════════════════════════════
 
     /**
-     * Erstellt einen Pfad der immer mit der aktuellen Spielerposition beginnt
-     */
-    private List<BlockPos> getPathFromPlayerPosition() {
-        List<BlockPos> originalPath = navigationService.getSimplifiedPath();
-        if (originalPath.isEmpty()) {
-            return originalPath;
-        }
-
-        LocalPlayer player = Minecraft.getInstance().player;
-        if (player == null) {
-            return originalPath;
-        }
-
-        BlockPos playerPos = player.blockPosition();
-        int currentIndex = navigationService.getCurrentPathIndex();
-
-        // Erstelle neuen Pfad mit Spielerposition am Anfang
-        List<BlockPos> pathFromPlayer = new ArrayList<>();
-        pathFromPlayer.add(playerPos);
-
-        // Füge alle Punkte ab dem aktuellen Index hinzu
-        for (int i = currentIndex; i < originalPath.size(); i++) {
-            BlockPos point = originalPath.get(i);
-            // Vermeide Duplikate wenn Spieler genau auf einem Wegpunkt steht
-            if (!point.equals(playerPos)) {
-                pathFromPlayer.add(point);
-            }
-        }
-
-        return pathFromPlayer;
-    }
-
-    /**
      * Rendert das Navigations-Overlay auf der Minimap
      *
      * @param graphics GuiGraphics-Kontext
@@ -193,19 +159,19 @@ public class NavigationOverlay {
             return;
         }
 
-        // Pfad immer von der aktuellen Spielerposition aus
-        List<BlockPos> path = getPathFromPlayerPosition();
+        List<BlockPos> path = navigationService.getSimplifiedPath();
+        int currentIndex = navigationService.getCurrentPathIndex();
         NavigationTarget target = navigationService.getCurrentTarget();
 
         if (path.isEmpty()) {
             return;
         }
 
-        // Rendere Pfad und Zielmarker (currentIndex = 0, da Pfad schon ab Spieler beginnt)
+        // Rendere Pfad und Zielmarker
         pathRenderer.render(
                 graphics,
                 path,
-                0,
+                currentIndex,
                 target,
                 mapCenterX,
                 mapCenterZ,
@@ -241,19 +207,18 @@ public class NavigationOverlay {
             return;
         }
 
-        // Pfad immer von der aktuellen Spielerposition aus
-        List<BlockPos> path = getPathFromPlayerPosition();
+        List<BlockPos> path = navigationService.getSimplifiedPath();
+        int currentIndex = navigationService.getCurrentPathIndex();
         NavigationTarget target = navigationService.getCurrentTarget();
 
         if (path.isEmpty()) {
             return;
         }
 
-        // currentIndex = 0, da Pfad schon ab Spieler beginnt
         pathRenderer.renderMinimapAccurate(
                 graphics,
                 path,
-                0,
+                currentIndex,
                 target,
                 worldCenterX,
                 worldCenterZ,
@@ -281,8 +246,8 @@ public class NavigationOverlay {
             return;
         }
 
-        // Pfad immer von der aktuellen Spielerposition aus
-        List<BlockPos> path = getPathFromPlayerPosition();
+        List<BlockPos> path = navigationService.getSimplifiedPath();
+        int currentIndex = navigationService.getCurrentPathIndex();
         NavigationTarget target = navigationService.getCurrentTarget();
 
         if (path.isEmpty()) {
@@ -292,11 +257,10 @@ public class NavigationOverlay {
         // Für Fullscreen ist die Größe der Screen
         int mapSize = Math.min(screenWidth, screenHeight);
 
-        // currentIndex = 0, da Pfad schon ab Spieler beginnt
         pathRenderer.render(
                 graphics,
                 path,
-                0,
+                currentIndex,
                 target,
                 mapCenterX,
                 mapCenterZ,
@@ -327,19 +291,18 @@ public class NavigationOverlay {
             return;
         }
 
-        // Pfad immer von der aktuellen Spielerposition aus
-        List<BlockPos> path = getPathFromPlayerPosition();
+        List<BlockPos> path = navigationService.getSimplifiedPath();
+        int currentIndex = navigationService.getCurrentPathIndex();
         NavigationTarget target = navigationService.getCurrentTarget();
 
         if (path.isEmpty()) {
             return;
         }
 
-        // currentIndex = 0, da Pfad schon ab Spieler beginnt
         pathRenderer.renderAccurate(
                 graphics,
                 path,
-                0,
+                currentIndex,
                 target,
                 mapCenterX,
                 mapCenterZ,
