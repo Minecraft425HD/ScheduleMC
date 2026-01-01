@@ -648,7 +648,11 @@ public class WorldMapScreen extends PopupScreen {
             {
                 int playerBlockX = MinecraftAccessor.xCoord();
                 int playerBlockZ = MinecraftAccessor.zCoord();
-                guiGraphics.fill(playerBlockX, playerBlockZ, playerBlockX + 1, playerBlockZ + 1, 0xFFFF0000);
+                int markerColor = 0xFFFF0000; // Rot
+                MapViewGuiGraphics.fillGradient(guiGraphics,
+                    playerBlockX, playerBlockZ,
+                    playerBlockX + 1, playerBlockZ + 1,
+                    markerColor, markerColor, markerColor, markerColor);
             }
 
             if (MapDataManager.mapOptions.worldborder) {
