@@ -11,27 +11,36 @@ public class MinecraftAccessor {
     }
 
     public static int xCoord() {
-        return Mth.floor(Minecraft.getInstance().getCameraEntity().getX());
+        return Mth.floor(Minecraft.getInstance().player.getX());
     }
 
     public static int zCoord() {
-        return Mth.floor(Minecraft.getInstance().getCameraEntity().getZ());
+        return Mth.floor(Minecraft.getInstance().player.getZ());
     }
 
     public static int yCoord() {
-        return Mth.floor(Minecraft.getInstance().getCameraEntity().getY());
+        return Mth.floor(Minecraft.getInstance().player.getY());
     }
 
     public static double xCoordDouble() {
-        return MapViewConstants.getMinecraft().screen != null && MapViewConstants.getMinecraft().screen.isPauseScreen() ? MapViewConstants.getMinecraft().getCameraEntity().getX() : MapViewConstants.getMinecraft().getCameraEntity().xo + (MapViewConstants.getMinecraft().getCameraEntity().getX() - MapViewConstants.getMinecraft().getCameraEntity().xo) * MapViewConstants.getMinecraft().getFrameTime();
+        var player = Minecraft.getInstance().player;
+        return MapViewConstants.getMinecraft().screen != null && MapViewConstants.getMinecraft().screen.isPauseScreen()
+            ? player.getX()
+            : player.xo + (player.getX() - player.xo) * MapViewConstants.getMinecraft().getFrameTime();
     }
 
     public static double zCoordDouble() {
-        return MapViewConstants.getMinecraft().screen != null && MapViewConstants.getMinecraft().screen.isPauseScreen() ? MapViewConstants.getMinecraft().getCameraEntity().getZ() : MapViewConstants.getMinecraft().getCameraEntity().zo + (MapViewConstants.getMinecraft().getCameraEntity().getZ() - MapViewConstants.getMinecraft().getCameraEntity().zo) * MapViewConstants.getMinecraft().getFrameTime();
+        var player = Minecraft.getInstance().player;
+        return MapViewConstants.getMinecraft().screen != null && MapViewConstants.getMinecraft().screen.isPauseScreen()
+            ? player.getZ()
+            : player.zo + (player.getZ() - player.zo) * MapViewConstants.getMinecraft().getFrameTime();
     }
 
     public static double yCoordDouble() {
-        return MapViewConstants.getMinecraft().screen != null && MapViewConstants.getMinecraft().screen.isPauseScreen() ? MapViewConstants.getMinecraft().getCameraEntity().getY() : MapViewConstants.getMinecraft().getCameraEntity().yo + (MapViewConstants.getMinecraft().getCameraEntity().getY() - MapViewConstants.getMinecraft().getCameraEntity().yo) * MapViewConstants.getMinecraft().getFrameTime();
+        var player = Minecraft.getInstance().player;
+        return MapViewConstants.getMinecraft().screen != null && MapViewConstants.getMinecraft().screen.isPauseScreen()
+            ? player.getY()
+            : player.yo + (player.getY() - player.yo) * MapViewConstants.getMinecraft().getFrameTime();
     }
 
     public static float rotationYaw() {

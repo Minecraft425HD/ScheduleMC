@@ -1055,23 +1055,25 @@ public class WorldMapScreen extends PopupScreen {
         int minZ = (int) Math.floor(this.mapCenterZ - viewHalfHeight) - 1;
         int maxZ = (int) Math.ceil(this.mapCenterZ + viewHalfHeight) + 1;
 
-        float lineThickness = 0.1f;
-
-        // Block-Raster (Stufe 2 und 3)
+        // Block-Raster (Stufe 2 und 3) - zeichne Linien an Block-Grenzen
         if (currentZoomLevel >= 2) {
-            int blockGridColor = 0x40FFFFFF; // Weiß, halbtransparent
+            int blockGridColor = 0x60FFFFFF; // Weiß, halbtransparent
+            // Vertikale Linien (X-Grenzen)
             for (int x = minX; x <= maxX; x++) {
-                guiGraphics.fill(x, minZ, (int)(x + lineThickness), maxZ, blockGridColor);
+                MapViewGuiGraphics.fillGradient(guiGraphics, x - 0.05f, minZ, x + 0.05f, maxZ,
+                    blockGridColor, blockGridColor, blockGridColor, blockGridColor);
             }
+            // Horizontale Linien (Z-Grenzen)
             for (int z = minZ; z <= maxZ; z++) {
-                guiGraphics.fill(minX, z, maxX, (int)(z + lineThickness), blockGridColor);
+                MapViewGuiGraphics.fillGradient(guiGraphics, minX, z - 0.05f, maxX, z + 0.05f,
+                    blockGridColor, blockGridColor, blockGridColor, blockGridColor);
             }
         }
 
         // Chunk-Raster (Stufe 0, 1 und 2 - aber NICHT Stufe 3)
         if (currentZoomLevel <= 2) {
-            int chunkGridColor = 0x80FFFF00; // Gelb, halbtransparent
-            float chunkLineThickness = (currentZoomLevel == 2) ? 0.3f : 0.5f;
+            int chunkGridColor = 0xC0FFFF00; // Gelb, weniger transparent
+            float thickness = (currentZoomLevel == 2) ? 0.15f : 0.3f;
 
             // Auf Chunk-Grenzen alignen (alle 16 Blöcke)
             int chunkMinX = (minX >> 4) << 4;
@@ -1079,11 +1081,15 @@ public class WorldMapScreen extends PopupScreen {
             int chunkMinZ = (minZ >> 4) << 4;
             int chunkMaxZ = ((maxZ >> 4) + 1) << 4;
 
+            // Vertikale Chunk-Linien
             for (int x = chunkMinX; x <= chunkMaxX; x += 16) {
-                guiGraphics.fill(x, chunkMinZ, (int)(x + chunkLineThickness), chunkMaxZ, chunkGridColor);
+                MapViewGuiGraphics.fillGradient(guiGraphics, x - thickness, chunkMinZ, x + thickness, chunkMaxZ,
+                    chunkGridColor, chunkGridColor, chunkGridColor, chunkGridColor);
             }
+            // Horizontale Chunk-Linien
             for (int z = chunkMinZ; z <= chunkMaxZ; z += 16) {
-                guiGraphics.fill(chunkMinX, z, chunkMaxX, (int)(z + chunkLineThickness), chunkGridColor);
+                MapViewGuiGraphics.fillGradient(guiGraphics, chunkMinX, z - thickness, chunkMaxX, z + thickness,
+                    chunkGridColor, chunkGridColor, chunkGridColor, chunkGridColor);
             }
         }
     }
