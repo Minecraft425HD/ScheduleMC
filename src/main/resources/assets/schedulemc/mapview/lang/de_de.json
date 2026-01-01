@@ -19,5 +19,6 @@
   "key.mapview.menu": "Menü",
   "mapview.waypoints.teleportTo": "Teleportieren",
   "worldmap.title": "World Map",
-  "worldmap.disabled": "Die Weltkarte ist auf diesem Server deaktiviert."
+  "worldmap.disabled": "Die Weltkarte ist auf diesem Server deaktiviert.",
+  "worldmap.center": "Zentrieren"
 }

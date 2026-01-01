@@ -193,6 +193,7 @@ public class WorldMapScreen extends PopupScreen {
         this.buttonCount = 3;
         this.buttonSeparation = 4;
         this.buttonWidth = (this.width - this.sideMargin * 2 - this.buttonSeparation * (this.buttonCount - 1)) / this.buttonCount;
+        this.addRenderableWidget(new PopupButton(this.sideMargin + 0 * (this.buttonWidth + this.buttonSeparation), this.getHeight() - 28, this.buttonWidth, 20, Component.translatable("worldmap.center"), button -> this.centerOnPlayer(), this));
         this.addRenderableWidget(new PopupButton(this.sideMargin + 1 * (this.buttonWidth + this.buttonSeparation), this.getHeight() - 28, this.buttonWidth, 20, Component.translatable("menu.options"), button -> minecraft.setScreen(new MapOptionsScreen(this)), this));
         this.addRenderableWidget(new PopupButton(this.sideMargin + 2 * (this.buttonWidth + this.buttonSeparation), this.getHeight() - 28, this.buttonWidth, 20, Component.translatable("gui.done"), button -> minecraft.setScreen(parent), this));
         this.coordinates = new EditBox(this.font, this.sideMargin, 10, 140, 20, null);
@@ -222,6 +223,15 @@ public class WorldMapScreen extends PopupScreen {
             this.mapCenterZ = z;
         }
 
+    }
+
+    /**
+     * Zentriert die Karte auf die aktuelle Spielerposition
+     */
+    private void centerOnPlayer() {
+        int playerX = MinecraftAccessor.xCoord();
+        int playerZ = MinecraftAccessor.zCoord();
+        this.centerAt(playerX, playerZ);
     }
 
     private void buildWorldName() {
