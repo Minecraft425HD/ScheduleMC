@@ -1,24 +1,19 @@
 package de.rolandsw.schedulemc.mapview.navigation.graph;
 
 import com.mojang.logging.LogUtils;
-import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import de.rolandsw.schedulemc.mapview.service.data.WorldMapData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import org.slf4j.Logger;
 
 import java.util.List;
 
 /**
- * NavigationOverlay - Rendert die Navigation auf der Minimap/Worldmap
+ * NavigationOverlay - Verwaltet die Navigation und aktualisiert das Pfad-Overlay
  *
- * Integriert sich in den MapViewRenderer und zeigt:
- * - Navigationspfad mit Farbverlauf
- * - Zielmarker mit Animation
- * - Distanzanzeige
- * - Richtungspfeile
+ * Der Pfad wird jetzt direkt in die Kartenfarben integriert (via NavigationPathOverlay),
+ * nicht mehr als separates Overlay gerendert. Dadurch bewegt sich der Pfad perfekt mit der Karte.
  */
 public class NavigationOverlay {
 
@@ -29,6 +24,10 @@ public class NavigationOverlay {
     private final RoadPathRenderer pathRenderer;
     private RoadNavigationService navigationService;
     private boolean initialized = false;
+
+    // Letzter bekannter Pfad-Index für Change-Detection
+    private int lastPathIndex = -1;
+    private int lastPathSize = 0;
 
     // ═══════════════════════════════════════════════════════════
     // SINGLETON
@@ -49,10 +48,6 @@ public class NavigationOverlay {
     // INITIALISIERUNG
     // ═══════════════════════════════════════════════════════════
 
-    /**
-     * Initialisiert das Overlay mit WorldMapData
-     * Sollte aufgerufen werden sobald die Welt geladen ist
-     */
     public void initialize(WorldMapData mapData) {
         if (mapData == null) {
             LOGGER.warn("[NavigationOverlay] Cannot initialize with null mapData");
@@ -65,9 +60,6 @@ public class NavigationOverlay {
         LOGGER.info("[NavigationOverlay] Initialized");
     }
 
-    /**
-     * Prüft ob das Overlay initialisiert ist
-     */
     public boolean isInitialized() {
         return initialized && navigationService != null;
     }
@@ -76,57 +68,56 @@ public class NavigationOverlay {
     // NAVIGATION STARTEN/STOPPEN
     // ═══════════════════════════════════════════════════════════
 
-    /**
-     * Startet die Navigation zu einer Position
-     */
     public boolean navigateTo(BlockPos position, String name) {
         if (!isInitialized()) {
             LOGGER.warn("[NavigationOverlay] Not initialized, cannot start navigation");
             return false;
         }
 
-        // Reset path progress when starting new navigation
         pathRenderer.resetProgress();
-
         NavigationTarget target = NavigationTarget.atPosition(position, name);
-        return navigationService.startNavigation(target);
+        boolean result = navigationService.startNavigation(target);
+
+        if (result) {
+            // Pfad-Overlay aktualisieren
+            updatePathOverlay();
+        }
+
+        return result;
     }
 
-    /**
-     * Startet die Navigation zu einer Position
-     */
     public boolean navigateTo(BlockPos position) {
         return navigateTo(position, "Ziel");
     }
 
-    /**
-     * Startet die Navigation zu einem NPC
-     */
     public boolean navigateToNPC(java.util.UUID npcUUID, String name) {
         if (!isInitialized()) {
             LOGGER.warn("[NavigationOverlay] Not initialized, cannot start navigation");
             return false;
         }
 
-        // Reset path progress when starting new navigation
         pathRenderer.resetProgress();
-
         NavigationTarget target = NavigationTarget.forEntity(npcUUID, name);
-        return navigationService.startNavigation(target);
+        boolean result = navigationService.startNavigation(target);
+
+        if (result) {
+            updatePathOverlay();
+        }
+
+        return result;
     }
 
-    /**
-     * Stoppt die Navigation
-     */
     public void stopNavigation() {
         if (navigationService != null) {
             navigationService.stopNavigation();
         }
+
+        // Pfad-Overlay leeren
+        NavigationPathOverlay.getInstance().clearPath();
+        lastPathIndex = -1;
+        lastPathSize = 0;
     }
 
-    /**
-     * Prüft ob Navigation aktiv ist
-     */
     public boolean isNavigating() {
         return navigationService != null && navigationService.isNavigationActive();
     }
@@ -135,76 +126,47 @@ public class NavigationOverlay {
     // TICK UPDATE
     // ═══════════════════════════════════════════════════════════
 
-    /**
-     * Aktualisiert die Navigation (sollte jeden Tick aufgerufen werden)
-     */
     public void tick() {
         if (navigationService != null) {
             navigationService.tick();
+
+            // Prüfe ob sich der Pfad-Fortschritt geändert hat
+            if (isNavigating()) {
+                int currentIndex = navigationService.getCurrentFullPathIndex();
+                List<BlockPos> path = navigationService.getCurrentPath();
+
+                // Wenn sich Index oder Pfadgröße geändert hat -> Overlay aktualisieren
+                if (currentIndex != lastPathIndex || path.size() != lastPathSize) {
+                    updatePathOverlay();
+                    lastPathIndex = currentIndex;
+                    lastPathSize = path.size();
+                }
+            }
         }
     }
 
-    // ═══════════════════════════════════════════════════════════
-    // RENDERING
-    // ═══════════════════════════════════════════════════════════
-
     /**
-     * Rendert das Navigations-Overlay auf der Minimap
-     *
-     * @param graphics GuiGraphics-Kontext
-     * @param mapCenterX Kartenzentrum X (Spielerposition)
-     * @param mapCenterZ Kartenzentrum Z
-     * @param mapSize Kartengröße in Pixeln
-     * @param zoom Zoom-Faktor
-     * @param rotation Kartenrotation (0 wenn Norden oben ist)
+     * Aktualisiert das NavigationPathOverlay mit dem aktuellen Pfad
      */
-    public void render(GuiGraphics graphics, int mapCenterX, int mapCenterZ,
-                       int mapSize, float zoom, float rotation) {
-
-        if (!isInitialized() || !isNavigating()) {
+    private void updatePathOverlay() {
+        if (!isNavigating()) {
+            NavigationPathOverlay.getInstance().clearPath();
             return;
         }
 
-        // Verwende den vollen Pfad für glattes Rendering
         List<BlockPos> path = navigationService.getCurrentPath();
         int currentIndex = navigationService.getCurrentFullPathIndex();
-        NavigationTarget target = navigationService.getCurrentTarget();
 
-        if (path.isEmpty()) {
-            return;
-        }
-
-        // Rendere Pfad und Zielmarker
-        pathRenderer.render(
-                graphics,
-                path,
-                currentIndex,
-                target,
-                mapCenterX,
-                mapCenterZ,
-                mapSize,
-                zoom,
-                rotation
-        );
-
-        // Rendere Distanzanzeige (oben links auf der Karte)
-        double distance = navigationService.getRemainingDistance();
-        int distanceX = (int) (mapCenterX - mapSize / 2.0 + 5);
-        int distanceY = (int) (mapCenterZ - mapSize / 2.0 + 5);
-        pathRenderer.renderDistanceOverlay(graphics, distance, distanceX, distanceY);
+        NavigationPathOverlay.getInstance().setPath(path, currentIndex);
     }
 
+    // ═══════════════════════════════════════════════════════════
+    // RENDERING - Nur noch für Zielmarker und Distanzanzeige
+    // Der Pfad wird jetzt direkt in der Karte gerendert
+    // ═══════════════════════════════════════════════════════════
+
     /**
-     * Rendert das Overlay für die Minimap mit pixelgenauer Positionierung
-     *
-     * @param graphics GuiGraphics-Kontext
-     * @param worldCenterX Weltzentrum X (Spielerposition)
-     * @param worldCenterZ Weltzentrum Z
-     * @param screenCenterX Bildschirmzentrum X der Minimap
-     * @param screenCenterY Bildschirmzentrum Y der Minimap
-     * @param mapSize Kartengröße in Pixeln
-     * @param scale Pixel pro Block
-     * @param rotation Kartenrotation in Grad
+     * Rendert nur den Zielmarker und die Distanzanzeige (Pfad ist in der Karte)
      */
     public void renderMinimapAccurate(GuiGraphics graphics, int worldCenterX, int worldCenterZ,
                                        int screenCenterX, int screenCenterY, int mapSize,
@@ -214,30 +176,19 @@ public class NavigationOverlay {
             return;
         }
 
-        // Verwende den vollen Pfad für glattes Rendering
-        List<BlockPos> path = navigationService.getCurrentPath();
-        int currentIndex = navigationService.getCurrentFullPathIndex();
         NavigationTarget target = navigationService.getCurrentTarget();
-
-        if (path.isEmpty()) {
+        if (target == null) {
             return;
         }
 
-        pathRenderer.renderMinimapAccurate(
-                graphics,
-                path,
-                currentIndex,
-                target,
-                worldCenterX,
-                worldCenterZ,
-                screenCenterX,
-                screenCenterY,
-                mapSize,
-                scale,
-                rotation
-        );
+        // Nur Zielmarker rendern (Pfad ist in der Karte integriert)
+        BlockPos targetPos = target.getCurrentPosition();
+        if (targetPos != null) {
+            pathRenderer.renderFlagMarkerMinimapPublic(graphics.pose(), targetPos, worldCenterX, worldCenterZ,
+                    screenCenterX, screenCenterY, mapSize, scale, rotation);
+        }
 
-        // Distanzanzeige neben der Minimap
+        // Distanzanzeige
         double distance = navigationService.getRemainingDistance();
         int distanceX = screenCenterX - mapSize / 2;
         int distanceY = screenCenterY + mapSize / 2 + 5;
@@ -245,53 +196,7 @@ public class NavigationOverlay {
     }
 
     /**
-     * Rendert das Overlay für die Fullscreen-Worldmap
-     */
-    public void renderFullscreen(GuiGraphics graphics, int mapCenterX, int mapCenterZ,
-                                  int screenWidth, int screenHeight, float zoom) {
-
-        if (!isInitialized() || !isNavigating()) {
-            return;
-        }
-
-        // Verwende den vollen Pfad für glattes Rendering
-        List<BlockPos> path = navigationService.getCurrentPath();
-        int currentIndex = navigationService.getCurrentFullPathIndex();
-        NavigationTarget target = navigationService.getCurrentTarget();
-
-        if (path.isEmpty()) {
-            return;
-        }
-
-        // Für Fullscreen ist die Größe der Screen
-        int mapSize = Math.min(screenWidth, screenHeight);
-
-        pathRenderer.render(
-                graphics,
-                path,
-                currentIndex,
-                target,
-                mapCenterX,
-                mapCenterZ,
-                mapSize,
-                zoom,
-                0 // Keine Rotation in Fullscreen
-        );
-
-        // Distanzanzeige oben links
-        double distance = navigationService.getRemainingDistance();
-        pathRenderer.renderDistanceOverlay(graphics, distance, 10, 10);
-    }
-
-    /**
-     * Rendert das Overlay für die Fullscreen-Worldmap mit pixelgenauer Positionierung
-     *
-     * @param graphics GuiGraphics-Kontext
-     * @param mapCenterX Weltzentrum X (Spielerposition)
-     * @param mapCenterZ Weltzentrum Z
-     * @param screenCenterX Bildschirmzentrum X
-     * @param screenCenterY Bildschirmzentrum Y
-     * @param mapToGui Skalierungsfaktor (Welt -> Bildschirm)
+     * Rendert nur den Zielmarker und die Distanzanzeige für Worldmap
      */
     public void renderFullscreenAccurate(GuiGraphics graphics, int mapCenterX, int mapCenterZ,
                                           int screenCenterX, int screenCenterY, float mapToGui) {
@@ -300,48 +205,44 @@ public class NavigationOverlay {
             return;
         }
 
-        // Verwende den vollen Pfad für glattes Rendering
-        List<BlockPos> path = navigationService.getCurrentPath();
-        int currentIndex = navigationService.getCurrentFullPathIndex();
         NavigationTarget target = navigationService.getCurrentTarget();
-
-        if (path.isEmpty()) {
+        if (target == null) {
             return;
         }
 
-        pathRenderer.renderAccurate(
-                graphics,
-                path,
-                currentIndex,
-                target,
-                mapCenterX,
-                mapCenterZ,
-                screenCenterX,
-                screenCenterY,
-                mapToGui
-        );
+        // Nur Zielmarker rendern
+        BlockPos targetPos = target.getCurrentPosition();
+        if (targetPos != null) {
+            pathRenderer.renderFlagMarkerWorldmapPublic(graphics.pose(), targetPos, mapCenterX, mapCenterZ,
+                    screenCenterX, screenCenterY, mapToGui);
+        }
 
-        // Distanzanzeige oben links
+        // Distanzanzeige
         double distance = navigationService.getRemainingDistance();
         pathRenderer.renderDistanceOverlay(graphics, distance, 10, 40);
+    }
+
+    // Legacy-Methoden für Kompatibilität
+    public void render(GuiGraphics graphics, int mapCenterX, int mapCenterZ,
+                       int mapSize, float zoom, float rotation) {
+        // Nicht mehr benötigt - Pfad ist in Karte integriert
+    }
+
+    public void renderFullscreen(GuiGraphics graphics, int mapCenterX, int mapCenterZ,
+                                  int screenWidth, int screenHeight, float zoom) {
+        // Nicht mehr benötigt - Pfad ist in Karte integriert
     }
 
     // ═══════════════════════════════════════════════════════════
     // GRAPH MANAGEMENT
     // ═══════════════════════════════════════════════════════════
 
-    /**
-     * Baut den Straßen-Graphen für den aktuellen Bereich auf
-     */
     public void buildGraph() {
         if (navigationService != null) {
             navigationService.buildGraph();
         }
     }
 
-    /**
-     * Gibt Statistiken über den Graphen zurück
-     */
     public String getGraphStats() {
         if (navigationService != null && navigationService.hasGraph()) {
             return navigationService.getGraph().getStatistics();
@@ -365,9 +266,6 @@ public class NavigationOverlay {
         return navigationService != null ? navigationService.getRemainingDistance() : 0;
     }
 
-    /**
-     * Gibt die Richtung zum nächsten Wegpunkt zurück
-     */
     public float getDirectionToNextWaypoint() {
         return navigationService != null ? navigationService.getDirectionToNextWaypoint() : 0;
     }
@@ -376,10 +274,9 @@ public class NavigationOverlay {
     // CLEANUP
     // ═══════════════════════════════════════════════════════════
 
-    /**
-     * Gibt Ressourcen frei
-     */
     public void shutdown() {
+        NavigationPathOverlay.getInstance().clearPath();
+
         if (navigationService != null) {
             navigationService.shutdown();
         }

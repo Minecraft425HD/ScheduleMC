@@ -321,6 +321,31 @@ public class RoadPathRenderer {
     }
 
     // ═══════════════════════════════════════════════════════════
+    // PUBLIC FLAG MARKER METHODS (für NavigationOverlay)
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Öffentliche Methode zum Rendern des Minimap-Zielmarkers
+     */
+    public void renderFlagMarkerMinimapPublic(PoseStack poseStack, BlockPos targetPos,
+                                               int worldCenterX, int worldCenterZ,
+                                               int screenCenterX, int screenCenterY, int mapSize,
+                                               float scale, float rotation) {
+        renderFlagMarkerMinimap(poseStack, targetPos, worldCenterX, worldCenterZ,
+                screenCenterX, screenCenterY, mapSize, scale, rotation);
+    }
+
+    /**
+     * Öffentliche Methode zum Rendern des Worldmap-Zielmarkers
+     */
+    public void renderFlagMarkerWorldmapPublic(PoseStack poseStack, BlockPos targetPos,
+                                                int mapCenterX, int mapCenterZ,
+                                                int screenCenterX, int screenCenterY, float mapToGui) {
+        renderFlagMarkerWorldmap(poseStack, targetPos, mapCenterX, mapCenterZ,
+                screenCenterX, screenCenterY, mapToGui);
+    }
+
+    // ═══════════════════════════════════════════════════════════
     // FLAG RENDERING
     // ═══════════════════════════════════════════════════════════
 
