@@ -629,26 +629,16 @@ public class WorldMapScreen extends PopupScreen {
             guiGraphics.pose().mulPose(com.mojang.math.Axis.ZP.rotationDegrees(90.0F));
         }
 
-        // Berechne Cursor-Koordinaten früh für Hover-Highlight
-        float cursorX;
-        float cursorY;
-        if (this.mouseCursorShown) {
-            cursorX = mouseDirectX;
-            cursorY = mouseDirectY;
-        } else {
-            cursorX = (minecraft.getWindow().getWidth() / 2f);
-            cursorY = (minecraft.getWindow().getHeight() / 2f);
-        }
-        float screenX_gui = cursorX / this.guiToDirectMouse;
-        float screenY_gui = cursorY / this.guiToDirectMouse;
+        // Berechne Cursor-Koordinaten für Hover-Highlight
+        // Verwende mouseX/mouseY (bereits in GUI-Koordinaten) statt mouseDirectX/mouseDirectY
         float cursorCoordX;
         float cursorCoordZ;
         if (this.oldNorth) {
-            cursorCoordX = this.mapCenterZ + (screenX_gui - this.centerX) / this.mapToGui;
-            cursorCoordZ = -this.mapCenterX - (screenY_gui - (this.top + this.centerY)) / this.mapToGui;
+            cursorCoordX = this.mapCenterZ + (mouseX - this.centerX) / this.mapToGui;
+            cursorCoordZ = -this.mapCenterX - (mouseY - (this.top + this.centerY)) / this.mapToGui;
         } else {
-            cursorCoordX = this.mapCenterX + (screenX_gui - this.centerX) / this.mapToGui;
-            cursorCoordZ = this.mapCenterZ + (screenY_gui - (this.top + this.centerY)) / this.mapToGui;
+            cursorCoordX = this.mapCenterX + (mouseX - this.centerX) / this.mapToGui;
+            cursorCoordZ = this.mapCenterZ + (mouseY - (this.top + this.centerY)) / this.mapToGui;
         }
 
         guiGraphics.pose().scale(this.mapToGui, this.mapToGui, 1.0f);
@@ -797,6 +787,8 @@ public class WorldMapScreen extends PopupScreen {
         renderNavigationOverlay(guiGraphics, (int) this.mapCenterX, (int) this.mapCenterZ, this.zoom);
 
         // DEBUG: Immer einen Spieler-Marker rendern (unabhängig von Skin)
+        // Player-Marker und Text werden jetzt im Welt-Koordinatensystem gerendert (oben im Code)
+        // Der folgende Block ist nur für den "Player:" Text neben dem Marker
         {
             float playerX = (float) MinecraftAccessor.xCoordDouble();
             float playerZ = (float) MinecraftAccessor.zCoordDouble();
@@ -812,17 +804,7 @@ public class WorldMapScreen extends PopupScreen {
                 playerScreenY = (this.top + this.centerY) + (playerZ - this.mapCenterZ) * this.mapToGui;
             }
 
-            // Zeichne einen einfachen roten Kreis als Spieler-Marker
-            int markerSize = 8;
-            guiGraphics.fill(
-                (int)(playerScreenX - markerSize/2),
-                (int)(playerScreenY - markerSize/2),
-                (int)(playerScreenX + markerSize/2),
-                (int)(playerScreenY + markerSize/2),
-                0xFFFF0000  // Rot
-            );
-
-            // Debug: Zeige Spielerposition als Text
+            // Debug: Zeige Spielerposition als Text (KEIN zweiter Marker mehr!)
             guiGraphics.drawString(this.font,
                 "Player: " + MinecraftAccessor.xCoord() + ", " + MinecraftAccessor.zCoord(),
                 (int)playerScreenX + 10,
@@ -943,21 +925,18 @@ public class WorldMapScreen extends PopupScreen {
     private void createPopup(int x, int y, int directX, int directY) {
         ArrayList<PopupComponent.PopupEntry> entries = new ArrayList<>();
 
-        // Konvertiere Pixel-Koordinaten zu GUI-Koordinaten
-        float screenX_gui = directX / this.guiToDirectMouse;
-        float screenY_gui = directY / this.guiToDirectMouse;
-
-        // Berechne World-Koordinaten durch Invertierung der Player-Marker-Formel:
+        // Berechne World-Koordinaten direkt aus GUI-Koordinaten (x, y)
+        // Invertierung der Player-Marker-Formel:
         // Player marker: screenX = centerX + (worldX - mapCenterX) * mapToGui
         // Invertiert: worldX = mapCenterX + (screenX - centerX) / mapToGui
         float cursorCoordX;
         float cursorCoordZ;
         if (this.oldNorth) {
-            cursorCoordX = this.mapCenterZ + (screenX_gui - this.centerX) / this.mapToGui;
-            cursorCoordZ = -this.mapCenterX - (screenY_gui - (this.top + this.centerY)) / this.mapToGui;
+            cursorCoordX = this.mapCenterZ + (x - this.centerX) / this.mapToGui;
+            cursorCoordZ = -this.mapCenterX - (y - (this.top + this.centerY)) / this.mapToGui;
         } else {
-            cursorCoordX = this.mapCenterX + (screenX_gui - this.centerX) / this.mapToGui;
-            cursorCoordZ = this.mapCenterZ + (screenY_gui - (this.top + this.centerY)) / this.mapToGui;
+            cursorCoordX = this.mapCenterX + (x - this.centerX) / this.mapToGui;
+            cursorCoordZ = this.mapCenterZ + (y - (this.top + this.centerY)) / this.mapToGui;
         }
 
         PopupComponent.PopupEntry entry;
