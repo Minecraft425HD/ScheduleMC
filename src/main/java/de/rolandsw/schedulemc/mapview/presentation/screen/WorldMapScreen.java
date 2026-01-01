@@ -936,24 +936,13 @@ public class WorldMapScreen extends PopupScreen {
         MapViewConstants.getLogger().info("[WorldMap] Popup created at:");
         MapViewConstants.getLogger().info("  oldNorth={}", this.oldNorth);
         MapViewConstants.getLogger().info("  directX={}, directY={}", directX, directY);
-        MapViewConstants.getLogger().info("  cursorX={}, cursorY={}", cursorX, cursorY);
-        MapViewConstants.getLogger().info("  mouseDirectToMap={}, guiToMap={}, guiToDirectMouse={}", this.mouseDirectToMap, this.guiToMap, this.guiToDirectMouse);
+        MapViewConstants.getLogger().info("  screenX_gui={}, screenY_gui={}", screenX_gui, screenY_gui);
+        MapViewConstants.getLogger().info("  mapToGui={}, guiToDirectMouse={}", this.mapToGui, this.guiToDirectMouse);
         MapViewConstants.getLogger().info("  mapCenterX={}, mapCenterZ={}", this.mapCenterX, this.mapCenterZ);
         MapViewConstants.getLogger().info("  centerX={}, centerY={}, top={}", this.centerX, this.centerY, this.top);
-        MapViewConstants.getLogger().info("  Screen center in direct coords: x={}, y={}", this.centerX * this.guiToDirectMouse, (this.top + this.centerY) * this.guiToDirectMouse);
         MapViewConstants.getLogger().info("  cursorCoordX={}, cursorCoordZ={}", cursorCoordX, cursorCoordZ);
         MapViewConstants.getLogger().info("  worldX={}, worldZ={}", worldX, worldZ);
         MapViewConstants.getLogger().info("  Player pos (actual MC): x={}, z={}", MinecraftAccessor.xCoord(), MinecraftAccessor.zCoord());
-        // Berechne was die Koordinaten am Bildschirmzentrum wären
-        float screenCenterWorldX, screenCenterWorldZ;
-        if (this.oldNorth) {
-            screenCenterWorldX = this.mapCenterZ;
-            screenCenterWorldZ = -this.mapCenterX;
-        } else {
-            screenCenterWorldX = this.mapCenterX;
-            screenCenterWorldZ = this.mapCenterZ;
-        }
-        MapViewConstants.getLogger().info("  Map center in world coords: x={}, z={}", screenCenterWorldX, screenCenterWorldZ);
 
         this.createPopup(x, y, directX, directY, worldX, worldZ, 60, entries);
         if (MapViewConstants.DEBUG) {
