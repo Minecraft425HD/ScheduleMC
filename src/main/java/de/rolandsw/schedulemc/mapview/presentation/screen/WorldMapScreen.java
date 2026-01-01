@@ -616,6 +616,26 @@ public class WorldMapScreen extends PopupScreen {
                 }
             }
 
+            // DEBUG: Raster-Overlay für Koordinaten-Debugging
+            renderGridOverlay(guiGraphics);
+
+            // DEBUG: Spieler-Marker im Welt-Koordinatensystem (passt zum Raster)
+            {
+                int playerBlockX = MinecraftAccessor.xCoord();
+                int playerBlockZ = MinecraftAccessor.zCoord();
+
+                // Bei hohem Zoom: Spieler als Block darstellen
+                if (this.zoom >= 4.0f) {
+                    // Fülle den Block in dem der Spieler steht
+                    guiGraphics.fill(playerBlockX, playerBlockZ, playerBlockX + 1, playerBlockZ + 1, 0xFFFF0000);
+                } else {
+                    // Bei niedrigem Zoom: größerer Marker
+                    int markerSize = 2;
+                    guiGraphics.fill(playerBlockX - markerSize, playerBlockZ - markerSize,
+                                     playerBlockX + markerSize + 1, playerBlockZ + markerSize + 1, 0xFFFF0000);
+                }
+            }
+
             if (MapDataManager.mapOptions.worldborder) {
                 WorldBorder worldBorder = minecraft.level.getWorldBorder();
                 float scale = 1.0f / (float) minecraft.getWindow().getGuiScale() / mapToGui;
@@ -1000,6 +1020,71 @@ public class WorldMapScreen extends PopupScreen {
 
     private void write(GuiGraphics drawContext, String string, float x, float y, int color) {
         drawContext.drawString(this.font, string, (int) x, (int) y, color);
+    }
+
+    /**
+     * Rendert ein Raster-Overlay für Koordinaten-Debugging
+     * - Zoom > 8: Block-Raster (jeder Block)
+     * - Zoom 4-8: Block-Raster + Chunk-Raster (16 Blöcke, dicker)
+     * - Zoom < 4: Nur Chunk-Raster
+     */
+    private void renderGridOverlay(GuiGraphics guiGraphics) {
+        // Sichtbarer Bereich in Welt-Koordinaten berechnen
+        float viewHalfWidth = this.centerX / this.mapToGui;
+        float viewHalfHeight = this.centerY / this.mapToGui;
+
+        int minX = (int) Math.floor(this.mapCenterX - viewHalfWidth) - 1;
+        int maxX = (int) Math.ceil(this.mapCenterX + viewHalfWidth) + 1;
+        int minZ = (int) Math.floor(this.mapCenterZ - viewHalfHeight) - 1;
+        int maxZ = (int) Math.ceil(this.mapCenterZ + viewHalfHeight) + 1;
+
+        float lineThickness = 0.1f;
+
+        // Block-Raster (nur bei hohem Zoom)
+        if (this.zoom >= 8.0f) {
+            int blockGridColor = 0x40FFFFFF; // Weiß, halbtransparent
+            for (int x = minX; x <= maxX; x++) {
+                guiGraphics.fill(x, minZ, (int)(x + lineThickness), maxZ, blockGridColor);
+            }
+            for (int z = minZ; z <= maxZ; z++) {
+                guiGraphics.fill(minX, z, maxX, (int)(z + lineThickness), blockGridColor);
+            }
+        }
+
+        // Chunk-Raster (bei mittlerem und hohem Zoom)
+        if (this.zoom >= 4.0f) {
+            int chunkGridColor = 0x80FFFF00; // Gelb, halbtransparent
+            float chunkLineThickness = (this.zoom >= 8.0f) ? 0.3f : 0.2f;
+
+            // Auf Chunk-Grenzen alignen (alle 16 Blöcke)
+            int chunkMinX = (minX >> 4) << 4;
+            int chunkMaxX = ((maxX >> 4) + 1) << 4;
+            int chunkMinZ = (minZ >> 4) << 4;
+            int chunkMaxZ = ((maxZ >> 4) + 1) << 4;
+
+            for (int x = chunkMinX; x <= chunkMaxX; x += 16) {
+                guiGraphics.fill(x, chunkMinZ, (int)(x + chunkLineThickness), chunkMaxZ, chunkGridColor);
+            }
+            for (int z = chunkMinZ; z <= chunkMaxZ; z += 16) {
+                guiGraphics.fill(chunkMinX, z, chunkMaxX, (int)(z + chunkLineThickness), chunkGridColor);
+            }
+        } else {
+            // Nur Chunk-Raster bei niedrigem Zoom
+            int chunkGridColor = 0x60FFFF00; // Gelb, weniger transparent
+            float chunkLineThickness = 0.5f;
+
+            int chunkMinX = (minX >> 4) << 4;
+            int chunkMaxX = ((maxX >> 4) + 1) << 4;
+            int chunkMinZ = (minZ >> 4) << 4;
+            int chunkMaxZ = ((maxZ >> 4) + 1) << 4;
+
+            for (int x = chunkMinX; x <= chunkMaxX; x += 16) {
+                guiGraphics.fill(x, chunkMinZ, (int)(x + chunkLineThickness), chunkMaxZ, chunkGridColor);
+            }
+            for (int z = chunkMinZ; z <= chunkMaxZ; z += 16) {
+                guiGraphics.fill(chunkMinX, z, chunkMaxX, (int)(z + chunkLineThickness), chunkGridColor);
+            }
+        }
     }
 
     /**
