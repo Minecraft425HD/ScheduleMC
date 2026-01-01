@@ -1037,7 +1037,7 @@ public class WorldMapScreen extends PopupScreen {
      * - Stufe 3 (100%, 16.0): Nur Block-Raster
      * - Stufe 2 (66%, 8.0): Block-Raster + Chunk-Raster (dicker)
      * - Stufe 1 (33%, 4.0): Nur Chunk-Raster
-     * - Stufe 0 (0%, 1.0): Nur Chunk-Raster
+     * - Stufe 0 (0%, 1.0): Kein Raster
      */
     private void renderGridOverlay(GuiGraphics guiGraphics) {
         // Sichtbarer Bereich in Welt-Koordinaten berechnen
@@ -1064,8 +1064,8 @@ public class WorldMapScreen extends PopupScreen {
             }
         }
 
-        // Chunk-Raster (Stufe 0, 1 und 2 - aber NICHT Stufe 3)
-        if (currentZoomLevel <= 2) {
+        // Chunk-Raster (Stufe 1 und 2 - aber NICHT Stufe 0 oder 3)
+        if (currentZoomLevel >= 1 && currentZoomLevel <= 2) {
             int chunkGridColor = 0xC0FFFF00; // Gelb, weniger transparent
             float thickness = (currentZoomLevel == 2) ? 0.15f : 0.3f;
 
