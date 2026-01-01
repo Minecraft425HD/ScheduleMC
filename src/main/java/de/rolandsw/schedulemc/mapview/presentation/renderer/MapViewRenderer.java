@@ -4,6 +4,7 @@ import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import de.rolandsw.schedulemc.mapview.config.MapOption;
 import de.rolandsw.schedulemc.mapview.config.MapViewConfiguration;
 import de.rolandsw.schedulemc.mapview.navigation.graph.NavigationOverlay;
+import de.rolandsw.schedulemc.mapview.navigation.graph.NavigationPathOverlay;
 import de.rolandsw.schedulemc.mapview.npc.NPCMapRenderer;
 import de.rolandsw.schedulemc.mapview.service.data.MapDataManager;
 import de.rolandsw.schedulemc.mapview.service.render.ColorCalculationService;
@@ -1411,8 +1412,14 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         }
         BlockPositionCache.release(blockPos);
         BlockPositionCache.release(tempBlockPos);
+
+        // Navigation Pfad in die Kartenfarbe mischen
+        int worldX = startX + imageX;
+        int worldZ = startZ + imageY;
+        color24 = NavigationPathOverlay.getInstance().blendWithPath(color24, worldX, worldZ);
+
         // ColorUtils methods output ARGB format, convert to ABGR for NativeImage
-        return MapViewHelper.doSlimeAndGrid(ARGBCompat.toABGR(color24), world, startX + imageX, startZ + imageY);
+        return MapViewHelper.doSlimeAndGrid(ARGBCompat.toABGR(color24), world, worldX, worldZ);
     }
 
     private int getBlockHeight(boolean nether, boolean caves, Level world, int x, int z) {

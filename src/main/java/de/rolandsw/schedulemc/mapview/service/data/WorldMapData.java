@@ -8,6 +8,7 @@ import de.rolandsw.schedulemc.mapview.data.persistence.AsyncPersistenceManager;
 import de.rolandsw.schedulemc.mapview.data.persistence.CompressedMapData;
 import de.rolandsw.schedulemc.mapview.presentation.screen.WorldMapScreen;
 import de.rolandsw.schedulemc.mapview.service.data.ConfigNotificationService;
+import de.rolandsw.schedulemc.mapview.navigation.graph.NavigationPathOverlay;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import de.rolandsw.schedulemc.mapview.service.data.MapDataManager;
 import de.rolandsw.schedulemc.mapview.core.model.AbstractMapData;
@@ -637,6 +638,10 @@ public class WorldMapData implements MapChangeListener {
                 }
 
             }
+
+            // Navigation Pfad in die Kartenfarbe mischen
+            color24 = NavigationPathOverlay.getInstance().blendWithPath(color24, mcX, mcZ);
+
             return MapViewHelper.doSlimeAndGrid(ARGBCompat.toABGR(color24), world, mcX, mcZ);
         } else {
             return 0;
