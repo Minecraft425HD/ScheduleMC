@@ -85,6 +85,9 @@ public class NavigationOverlay {
             return false;
         }
 
+        // Reset path progress when starting new navigation
+        pathRenderer.resetProgress();
+
         NavigationTarget target = NavigationTarget.atPosition(position, name);
         return navigationService.startNavigation(target);
     }
@@ -104,6 +107,9 @@ public class NavigationOverlay {
             LOGGER.warn("[NavigationOverlay] Not initialized, cannot start navigation");
             return false;
         }
+
+        // Reset path progress when starting new navigation
+        pathRenderer.resetProgress();
 
         NavigationTarget target = NavigationTarget.forEntity(npcUUID, name);
         return navigationService.startNavigation(target);
