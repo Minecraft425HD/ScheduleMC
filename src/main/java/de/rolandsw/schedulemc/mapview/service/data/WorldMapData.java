@@ -989,6 +989,39 @@ public class WorldMapData implements MapChangeListener {
         }
     }
 
+    /**
+     * Invalidiert alle Regions entlang eines Pfades, um ein Neurendern zu erzwingen
+     * Wird benötigt wenn der Navigationspfad gesetzt oder gelöscht wird
+     *
+     * @param path Liste von BlockPos entlang des Pfades
+     */
+    public void invalidateRegionsAlongPath(List<BlockPos> path) {
+        if (path == null || path.isEmpty()) {
+            return;
+        }
+
+        // Sammle alle betroffenen Region-Koordinaten (ohne Duplikate)
+        java.util.Set<String> affectedRegionKeys = new java.util.HashSet<>();
+
+        for (BlockPos pos : path) {
+            int regionX = (int) Math.floor(pos.getX() / 256.0);
+            int regionZ = (int) Math.floor(pos.getZ() / 256.0);
+            String key = regionX + "," + regionZ;
+            affectedRegionKeys.add(key);
+        }
+
+        MapViewConstants.getLogger().info("[WorldMapData] Invalidating {} regions along navigation path", affectedRegionKeys.size());
+
+        // Invalidiere alle betroffenen Regions
+        ConfigNotificationService notifier = new ConfigNotificationService();
+        for (String key : affectedRegionKeys) {
+            RegionCache cachedRegion = this.cachedRegions.get(key);
+            if (cachedRegion != null && cachedRegion != RegionCache.emptyRegion) {
+                cachedRegion.notifyOfActionableChange(notifier);
+            }
+        }
+    }
+
     private record ChunkWithAge(LevelChunk chunk, int tick) {}
     private record RegionCoordinates(int x, int z) {}
 }
