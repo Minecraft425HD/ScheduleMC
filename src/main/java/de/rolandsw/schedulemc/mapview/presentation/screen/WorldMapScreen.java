@@ -629,8 +629,28 @@ public class WorldMapScreen extends PopupScreen {
             guiGraphics.pose().mulPose(com.mojang.math.Axis.ZP.rotationDegrees(90.0F));
         }
 
-        float cursorCoordZ = 0.0f;
-        float cursorCoordX = 0.0f;
+        // Berechne Cursor-Koordinaten früh für Hover-Highlight
+        float cursorX;
+        float cursorY;
+        if (this.mouseCursorShown) {
+            cursorX = mouseDirectX;
+            cursorY = mouseDirectY;
+        } else {
+            cursorX = (minecraft.getWindow().getWidth() / 2f);
+            cursorY = (minecraft.getWindow().getHeight() / 2f);
+        }
+        float screenX_gui = cursorX / this.guiToDirectMouse;
+        float screenY_gui = cursorY / this.guiToDirectMouse;
+        float cursorCoordX;
+        float cursorCoordZ;
+        if (this.oldNorth) {
+            cursorCoordX = this.mapCenterZ + (screenX_gui - this.centerX) / this.mapToGui;
+            cursorCoordZ = -this.mapCenterX - (screenY_gui - (this.top + this.centerY)) / this.mapToGui;
+        } else {
+            cursorCoordX = this.mapCenterX + (screenX_gui - this.centerX) / this.mapToGui;
+            cursorCoordZ = this.mapCenterZ + (screenY_gui - (this.top + this.centerY)) / this.mapToGui;
+        }
+
         guiGraphics.pose().scale(this.mapToGui, this.mapToGui, 1.0f);
         if (MapDataManager.mapOptions.worldmapAllowed) {
             for (RegionCache region : this.regions) {
@@ -655,6 +675,17 @@ public class WorldMapScreen extends PopupScreen {
                     markerColor, markerColor, markerColor, markerColor);
             }
 
+            // Highlight für Block unter Mauszeiger
+            {
+                int hoverBlockX = (int) Math.floor(cursorCoordX);
+                int hoverBlockZ = (int) Math.floor(cursorCoordZ);
+                int hoverColor = 0x8000FF00; // Grün, halbtransparent
+                MapViewGuiGraphics.fillGradient(guiGraphics,
+                    hoverBlockX, hoverBlockZ,
+                    hoverBlockX + 1, hoverBlockZ + 1,
+                    hoverColor, hoverColor, hoverColor, hoverColor);
+            }
+
             if (MapDataManager.mapOptions.worldborder) {
                 WorldBorder worldBorder = minecraft.level.getWorldBorder();
                 float scale = 1.0f / (float) minecraft.getWindow().getGuiScale() / mapToGui;
@@ -671,31 +702,7 @@ public class WorldMapScreen extends PopupScreen {
                 MapViewGuiGraphics.fillGradient(guiGraphics, x2 - scale, z1 - scale, x2 + scale, z2 + scale, 0xffff0000, 0xffff0000, 0xffff0000, 0xffff0000);
             }
 
-            float cursorX;
-            float cursorY;
-            if (this.mouseCursorShown) {
-                cursorX = mouseDirectX;
-                cursorY = mouseDirectY;
-            } else {
-                cursorX = (minecraft.getWindow().getWidth() / 2f);
-                cursorY = (minecraft.getWindow().getHeight() / 2f);
-            }
-
-            // Konvertiere Pixel-Koordinaten zu GUI-Koordinaten
-            float screenX_gui = cursorX / this.guiToDirectMouse;
-            float screenY_gui = cursorY / this.guiToDirectMouse;
-
-            // Berechne World-Koordinaten durch Invertierung der Player-Marker-Formel:
-            // Player marker: screenX = centerX + (worldX - mapCenterX) * mapToGui
-            // Invertiert: worldX = mapCenterX + (screenX - centerX) / mapToGui
-            if (this.oldNorth) {
-                // Bei oldNorth sind X und Z vertauscht/rotiert
-                cursorCoordX = this.mapCenterZ + (screenX_gui - this.centerX) / this.mapToGui;
-                cursorCoordZ = -this.mapCenterX - (screenY_gui - (this.top + this.centerY)) / this.mapToGui;
-            } else {
-                cursorCoordX = this.mapCenterX + (screenX_gui - this.centerX) / this.mapToGui;
-                cursorCoordZ = this.mapCenterZ + (screenY_gui - (this.top + this.centerY)) / this.mapToGui;
-            }
+            // cursorCoordX/Z bereits oben berechnet
 
             if (this.oldNorth) {
                 guiGraphics.pose().mulPose(com.mojang.math.Axis.ZP.rotationDegrees(-90.0F));
