@@ -959,15 +959,11 @@ public class WorldMapScreen extends PopupScreen {
 
         // Debug-Logging für Koordinaten
         MapViewConstants.getLogger().info("[WorldMap] Popup created at:");
-        MapViewConstants.getLogger().info("  oldNorth={}", this.oldNorth);
-        MapViewConstants.getLogger().info("  directX={}, directY={}", directX, directY);
-        MapViewConstants.getLogger().info("  screenX_gui={}, screenY_gui={}", screenX_gui, screenY_gui);
-        MapViewConstants.getLogger().info("  mapToGui={}, guiToDirectMouse={}", this.mapToGui, this.guiToDirectMouse);
+        MapViewConstants.getLogger().info("  guiX={}, guiY={}", x, y);
+        MapViewConstants.getLogger().info("  mapToGui={}", this.mapToGui);
         MapViewConstants.getLogger().info("  mapCenterX={}, mapCenterZ={}", this.mapCenterX, this.mapCenterZ);
-        MapViewConstants.getLogger().info("  centerX={}, centerY={}, top={}", this.centerX, this.centerY, this.top);
         MapViewConstants.getLogger().info("  cursorCoordX={}, cursorCoordZ={}", cursorCoordX, cursorCoordZ);
         MapViewConstants.getLogger().info("  worldX={}, worldZ={}", worldX, worldZ);
-        MapViewConstants.getLogger().info("  Player pos (actual MC): x={}, z={}", MinecraftAccessor.xCoord(), MinecraftAccessor.zCoord());
 
         this.createPopup(x, y, directX, directY, worldX, worldZ, 60, entries);
         if (MapViewConstants.DEBUG) {
