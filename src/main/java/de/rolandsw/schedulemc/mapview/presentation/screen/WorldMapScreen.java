@@ -92,6 +92,9 @@ public class WorldMapScreen extends PopupScreen {
     long timeOfZoom;
     float zoomDirectX;
     float zoomDirectY;
+    // Diskrete Zoom-Stufen: 0% (übersicht), 33%, 66%, 100% (block-level)
+    private static final float[] ZOOM_LEVELS = {1.0f, 4.0f, 8.0f, 16.0f};
+    private int currentZoomLevel = 1; // Start bei 33% (4.0f)
     private float scScale = 1.0F;
     private float guiToMap = 2.0F;
     private float mapToGui = 0.5F;
@@ -129,9 +132,12 @@ public class WorldMapScreen extends PopupScreen {
         mapOptions = MapViewConstants.getLightMapInstance().getMapOptions();
         this.persistentMap = MapViewConstants.getLightMapInstance().getWorldMapData();
         this.options = MapViewConstants.getLightMapInstance().getWorldMapDataOptions();
-        this.zoom = this.options.getZoom();
-        this.zoomStart = this.options.getZoom();
-        this.zoomGoal = this.options.getZoom();
+        // Finde nächste diskrete Zoom-Stufe basierend auf gespeichertem Zoom
+        float savedZoom = this.options.getZoom();
+        this.currentZoomLevel = findNearestZoomLevel(savedZoom);
+        this.zoom = ZOOM_LEVELS[currentZoomLevel];
+        this.zoomStart = ZOOM_LEVELS[currentZoomLevel];
+        this.zoomGoal = ZOOM_LEVELS[currentZoomLevel];
         this.persistentMap.setLightMapArray(MapViewConstants.getLightMapInstance().getMap().getLightmapArray());
         if (!gotSkin) {
             this.getSkin();
@@ -282,6 +288,22 @@ public class WorldMapScreen extends PopupScreen {
         return Math.min(this.options.getMaxZoom(), zoom);
     }
 
+    /**
+     * Findet die nächste diskrete Zoom-Stufe für einen gegebenen Zoom-Wert
+     */
+    private int findNearestZoomLevel(float zoom) {
+        int nearest = 0;
+        float minDiff = Math.abs(ZOOM_LEVELS[0] - zoom);
+        for (int i = 1; i < ZOOM_LEVELS.length; i++) {
+            float diff = Math.abs(ZOOM_LEVELS[i] - zoom);
+            if (diff < minDiff) {
+                minDiff = diff;
+                nearest = i;
+            }
+        }
+        return nearest;
+    }
+
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
         this.timeOfLastMouseInput = System.currentTimeMillis();
@@ -289,14 +311,15 @@ public class WorldMapScreen extends PopupScreen {
         float mouseDirectX = (float) minecraft.mouseHandler.xpos();
         float mouseDirectY = (float) minecraft.mouseHandler.ypos();
         if (amount != 0.0) {
-            if (amount > 0.0) {
-                this.zoomGoal *= 1.26F;
-            } else if (amount < 0.0) {
-                this.zoomGoal /= 1.26F;
+            // Diskrete Zoom-Stufen: hoch oder runter schalten
+            if (amount > 0.0 && currentZoomLevel < ZOOM_LEVELS.length - 1) {
+                currentZoomLevel++;
+            } else if (amount < 0.0 && currentZoomLevel > 0) {
+                currentZoomLevel--;
             }
+            this.zoomGoal = ZOOM_LEVELS[currentZoomLevel];
 
             this.zoomStart = this.zoom;
-            this.zoomGoal = this.bindZoom(this.zoomGoal);
             this.timeOfZoom = System.currentTimeMillis();
             this.zoomDirectX = mouseDirectX;
             this.zoomDirectY = mouseDirectY;
@@ -351,16 +374,17 @@ public class WorldMapScreen extends PopupScreen {
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (!this.editingCoordinates && (minecraft.options.keyJump.matches(keyCode, scanCode) || minecraft.options.keyShift.matches(keyCode, scanCode))) {
-            if (minecraft.options.keyJump.matches(keyCode, scanCode)) {
-                this.zoomGoal /= 1.26F;
+            // Diskrete Zoom-Stufen: hoch oder runter schalten
+            if (minecraft.options.keyJump.matches(keyCode, scanCode) && currentZoomLevel > 0) {
+                currentZoomLevel--;
             }
 
-            if (minecraft.options.keyShift.matches(keyCode, scanCode)) {
-                this.zoomGoal *= 1.26F;
+            if (minecraft.options.keyShift.matches(keyCode, scanCode) && currentZoomLevel < ZOOM_LEVELS.length - 1) {
+                currentZoomLevel++;
             }
+            this.zoomGoal = ZOOM_LEVELS[currentZoomLevel];
 
             this.zoomStart = this.zoom;
-            this.zoomGoal = this.bindZoom(this.zoomGoal);
             this.timeOfZoom = System.currentTimeMillis();
             this.zoomDirectX = (minecraft.getWindow().getWidth() / 2f);
             this.zoomDirectY = (minecraft.getWindow().getHeight() - minecraft.getWindow().getHeight() / 2f);
@@ -620,20 +644,11 @@ public class WorldMapScreen extends PopupScreen {
             renderGridOverlay(guiGraphics);
 
             // DEBUG: Spieler-Marker im Welt-Koordinatensystem (passt zum Raster)
+            // Immer genau 1 Block groß
             {
                 int playerBlockX = MinecraftAccessor.xCoord();
                 int playerBlockZ = MinecraftAccessor.zCoord();
-
-                // Bei hohem Zoom: Spieler als Block darstellen
-                if (this.zoom >= 4.0f) {
-                    // Fülle den Block in dem der Spieler steht
-                    guiGraphics.fill(playerBlockX, playerBlockZ, playerBlockX + 1, playerBlockZ + 1, 0xFFFF0000);
-                } else {
-                    // Bei niedrigem Zoom: größerer Marker
-                    int markerSize = 2;
-                    guiGraphics.fill(playerBlockX - markerSize, playerBlockZ - markerSize,
-                                     playerBlockX + markerSize + 1, playerBlockZ + markerSize + 1, 0xFFFF0000);
-                }
+                guiGraphics.fill(playerBlockX, playerBlockZ, playerBlockX + 1, playerBlockZ + 1, 0xFFFF0000);
             }
 
             if (MapDataManager.mapOptions.worldborder) {
@@ -1024,9 +1039,11 @@ public class WorldMapScreen extends PopupScreen {
 
     /**
      * Rendert ein Raster-Overlay für Koordinaten-Debugging
-     * - Zoom > 8: Block-Raster (jeder Block)
-     * - Zoom 4-8: Block-Raster + Chunk-Raster (16 Blöcke, dicker)
-     * - Zoom < 4: Nur Chunk-Raster
+     * Diskrete Zoom-Stufen:
+     * - Stufe 3 (100%, 16.0): Nur Block-Raster
+     * - Stufe 2 (66%, 8.0): Block-Raster + Chunk-Raster (dicker)
+     * - Stufe 1 (33%, 4.0): Nur Chunk-Raster
+     * - Stufe 0 (0%, 1.0): Nur Chunk-Raster
      */
     private void renderGridOverlay(GuiGraphics guiGraphics) {
         // Sichtbarer Bereich in Welt-Koordinaten berechnen
@@ -1040,8 +1057,8 @@ public class WorldMapScreen extends PopupScreen {
 
         float lineThickness = 0.1f;
 
-        // Block-Raster (nur bei hohem Zoom)
-        if (this.zoom >= 8.0f) {
+        // Block-Raster (Stufe 2 und 3)
+        if (currentZoomLevel >= 2) {
             int blockGridColor = 0x40FFFFFF; // Weiß, halbtransparent
             for (int x = minX; x <= maxX; x++) {
                 guiGraphics.fill(x, minZ, (int)(x + lineThickness), maxZ, blockGridColor);
@@ -1051,28 +1068,12 @@ public class WorldMapScreen extends PopupScreen {
             }
         }
 
-        // Chunk-Raster (bei mittlerem und hohem Zoom)
-        if (this.zoom >= 4.0f) {
+        // Chunk-Raster (Stufe 0, 1 und 2 - aber NICHT Stufe 3)
+        if (currentZoomLevel <= 2) {
             int chunkGridColor = 0x80FFFF00; // Gelb, halbtransparent
-            float chunkLineThickness = (this.zoom >= 8.0f) ? 0.3f : 0.2f;
+            float chunkLineThickness = (currentZoomLevel == 2) ? 0.3f : 0.5f;
 
             // Auf Chunk-Grenzen alignen (alle 16 Blöcke)
-            int chunkMinX = (minX >> 4) << 4;
-            int chunkMaxX = ((maxX >> 4) + 1) << 4;
-            int chunkMinZ = (minZ >> 4) << 4;
-            int chunkMaxZ = ((maxZ >> 4) + 1) << 4;
-
-            for (int x = chunkMinX; x <= chunkMaxX; x += 16) {
-                guiGraphics.fill(x, chunkMinZ, (int)(x + chunkLineThickness), chunkMaxZ, chunkGridColor);
-            }
-            for (int z = chunkMinZ; z <= chunkMaxZ; z += 16) {
-                guiGraphics.fill(chunkMinX, z, chunkMaxX, (int)(z + chunkLineThickness), chunkGridColor);
-            }
-        } else {
-            // Nur Chunk-Raster bei niedrigem Zoom
-            int chunkGridColor = 0x60FFFF00; // Gelb, weniger transparent
-            float chunkLineThickness = 0.5f;
-
             int chunkMinX = (minX >> 4) << 4;
             int chunkMaxX = ((maxX >> 4) + 1) << 4;
             int chunkMinZ = (minZ >> 4) << 4;
