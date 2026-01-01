@@ -24,9 +24,9 @@ public class NavigationPathOverlay {
     private volatile int currentPathIndex = 0;
     private volatile List<BlockPos> currentPath = null;
 
-    // Farben
-    private static final int PATH_COLOR = 0xFF00DDFF;  // Cyan für Pfad
-    private static final float PATH_BLEND_ALPHA = 0.6f; // 60% Pfadfarbe, 40% Originalfarbe
+    // Farben - Grelles Magenta/Pink für maximale Sichtbarkeit
+    private static final int PATH_COLOR = 0xFFFF00FF;  // Magenta für Pfad
+    private static final float PATH_BLEND_ALPHA = 0.75f; // 75% Pfadfarbe, 25% Originalfarbe
 
     // ═══════════════════════════════════════════════════════════
     // SINGLETON
