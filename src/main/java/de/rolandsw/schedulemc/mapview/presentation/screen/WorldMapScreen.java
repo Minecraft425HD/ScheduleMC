@@ -636,18 +636,26 @@ public class WorldMapScreen extends PopupScreen {
             float cursorY;
             if (this.mouseCursorShown) {
                 cursorX = mouseDirectX;
-                cursorY = mouseDirectY - this.top * this.guiToDirectMouse;
+                cursorY = mouseDirectY;
             } else {
                 cursorX = (minecraft.getWindow().getWidth() / 2f);
-                cursorY = (minecraft.getWindow().getHeight() - minecraft.getWindow().getHeight() / 2f) - this.top * this.guiToDirectMouse;
+                cursorY = (minecraft.getWindow().getHeight() / 2f);
             }
 
+            // Konvertiere Pixel-Koordinaten zu GUI-Koordinaten
+            float screenX_gui = cursorX / this.guiToDirectMouse;
+            float screenY_gui = cursorY / this.guiToDirectMouse;
+
+            // Berechne World-Koordinaten durch Invertierung der Player-Marker-Formel:
+            // Player marker: screenX = centerX + (worldX - mapCenterX) * mapToGui
+            // Invertiert: worldX = mapCenterX + (screenX - centerX) / mapToGui
             if (this.oldNorth) {
-                cursorCoordX = cursorY * this.mouseDirectToMap + (this.mapCenterZ - this.centerY * this.guiToMap);
-                cursorCoordZ = -(cursorX * this.mouseDirectToMap + (this.mapCenterX - this.centerX * this.guiToMap));
+                // Bei oldNorth sind X und Z vertauscht/rotiert
+                cursorCoordX = this.mapCenterZ + (screenX_gui - this.centerX) / this.mapToGui;
+                cursorCoordZ = -this.mapCenterX - (screenY_gui - (this.top + this.centerY)) / this.mapToGui;
             } else {
-                cursorCoordX = cursorX * this.mouseDirectToMap + (this.mapCenterX - this.centerX * this.guiToMap);
-                cursorCoordZ = cursorY * this.mouseDirectToMap + (this.mapCenterZ - this.centerY * this.guiToMap);
+                cursorCoordX = this.mapCenterX + (screenX_gui - this.centerX) / this.mapToGui;
+                cursorCoordZ = this.mapCenterZ + (screenY_gui - (this.top + this.centerY)) / this.mapToGui;
             }
 
             if (this.oldNorth) {
@@ -888,16 +896,22 @@ public class WorldMapScreen extends PopupScreen {
 
     private void createPopup(int x, int y, int directX, int directY) {
         ArrayList<PopupComponent.PopupEntry> entries = new ArrayList<>();
-        float cursorX = directX;
-        float cursorY = directY - this.top * this.guiToDirectMouse;
+
+        // Konvertiere Pixel-Koordinaten zu GUI-Koordinaten
+        float screenX_gui = directX / this.guiToDirectMouse;
+        float screenY_gui = directY / this.guiToDirectMouse;
+
+        // Berechne World-Koordinaten durch Invertierung der Player-Marker-Formel:
+        // Player marker: screenX = centerX + (worldX - mapCenterX) * mapToGui
+        // Invertiert: worldX = mapCenterX + (screenX - centerX) / mapToGui
         float cursorCoordX;
         float cursorCoordZ;
         if (this.oldNorth) {
-            cursorCoordX = cursorY * this.mouseDirectToMap + (this.mapCenterZ - this.centerY * this.guiToMap);
-            cursorCoordZ = -(cursorX * this.mouseDirectToMap + (this.mapCenterX - this.centerX * this.guiToMap));
+            cursorCoordX = this.mapCenterZ + (screenX_gui - this.centerX) / this.mapToGui;
+            cursorCoordZ = -this.mapCenterX - (screenY_gui - (this.top + this.centerY)) / this.mapToGui;
         } else {
-            cursorCoordX = cursorX * this.mouseDirectToMap + (this.mapCenterX - this.centerX * this.guiToMap);
-            cursorCoordZ = cursorY * this.mouseDirectToMap + (this.mapCenterZ - this.centerY * this.guiToMap);
+            cursorCoordX = this.mapCenterX + (screenX_gui - this.centerX) / this.mapToGui;
+            cursorCoordZ = this.mapCenterZ + (screenY_gui - (this.top + this.centerY)) / this.mapToGui;
         }
 
         PopupComponent.PopupEntry entry;
