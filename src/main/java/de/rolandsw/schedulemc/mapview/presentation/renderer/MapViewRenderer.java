@@ -667,7 +667,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
             this.renderMapFull(drawContext, this.scWidth, this.scHeight, scaleProj);
             // Render Navigation Overlay für Fullscreen
             renderNavigationOverlay(drawContext, this.scWidth / 2, this.scHeight / 2,
-                    Math.min(this.scWidth, this.scHeight), (float) this.zoomScale, true);
+                    Math.min(this.scWidth, this.scHeight), (float) this.zoomScale, true, scaleProj);
             // Render NPCs auf Fullscreen-Karte
             renderNPCMarkers(drawContext, this.scWidth / 2, this.scHeight / 2,
                     Math.min(this.scWidth, this.scHeight), (float) this.zoomScale, true);
@@ -675,8 +675,8 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         } else {
             this.renderMap(drawContext, mapX, mapY, scScale, scaleProj);
             this.drawDirections(drawContext, mapX, mapY, scaleProj);
-            // Render Navigation Overlay für Minimap
-            renderNavigationOverlay(drawContext, mapX, mapY, 64, (float) this.zoomScale, false);
+            // Render Navigation Overlay für Minimap (mit scaleProj Transformation)
+            renderNavigationOverlay(drawContext, mapX, mapY, 64, (float) this.zoomScale, false, scaleProj);
             // Render NPCs auf Minimap
             renderNPCMarkers(drawContext, mapX, mapY, 64, (float) this.zoomScale, false);
             this.drawArrow(drawContext, mapX, mapY, scaleProj);
@@ -687,7 +687,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
      * Rendert das Navigations-Overlay (Pfad zum Ziel) auf der Karte
      */
     private void renderNavigationOverlay(GuiGraphics graphics, int mapX, int mapY,
-                                          int mapSize, float zoom, boolean fullscreen) {
+                                          int mapSize, float zoom, boolean fullscreen, float scaleProj) {
         NavigationOverlay overlay = NavigationOverlay.getInstance();
 
         // Initialisiere falls nötig
@@ -711,6 +711,10 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
             rotation = this.direction;
         }
 
+        // Wende scaleProj Transformation an (wie bei drawArrow)
+        graphics.pose().pushPose();
+        graphics.pose().scale(scaleProj, scaleProj, 1.0f);
+
         if (fullscreen) {
             // Für Fullscreen: Nutze pixelgenaue Positionierung
             // screenCenter = Bildschirmmitte, zoom = Pixel pro Block
@@ -729,6 +733,8 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
             overlay.renderMinimapAccurate(graphics, this.lastX, this.lastZ,
                     mapX, mapY, mapSize, scale, rotation);
         }
+
+        graphics.pose().popPose();
     }
 
     /**
