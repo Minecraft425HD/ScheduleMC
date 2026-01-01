@@ -18,7 +18,7 @@ import java.util.List;
  * - Cyan Außenrand
  * - 1 Block dick
  * - Fahnen-Symbol am Ziel
- * - Linie verschwindet alle 3 Blöcke hinter dem Spieler
+ * - Linie verschwindet sofort hinter dem Spieler
  */
 public class RoadPathRenderer {
 
@@ -30,41 +30,12 @@ public class RoadPathRenderer {
 
     // Konfiguration
     private static final float LINE_WIDTH_BLOCKS = 1.0f;      // 1 Block breit
-    private static final int FADE_INTERVAL = 3;               // Alle 3 Blöcke verschwindet die Linie
-
-    // Speichert wie viele Blöcke bereits "verbraucht" wurden
-    private int blocksWalked = 0;
-    private int lastPathIndex = 0;
-
-    /**
-     * Aktualisiert den Fortschritt (wird aufgerufen wenn Spieler sich bewegt)
-     */
-    public void updateProgress(int currentPathIndex) {
-        if (currentPathIndex > lastPathIndex) {
-            blocksWalked += (currentPathIndex - lastPathIndex);
-            lastPathIndex = currentPathIndex;
-        } else if (currentPathIndex < lastPathIndex) {
-            // Navigation wurde neu gestartet
-            blocksWalked = 0;
-            lastPathIndex = currentPathIndex;
-        }
-    }
 
     /**
      * Setzt den Fortschritt zurück (bei neuer Navigation)
      */
     public void resetProgress() {
-        blocksWalked = 0;
-        lastPathIndex = 0;
-    }
-
-    /**
-     * Berechnet ab welchem Index die Linie sichtbar sein soll
-     */
-    private int getVisibleStartIndex(int currentIndex) {
-        // Alle 3 Blöcke verschwindet ein Segment
-        int segmentsToHide = blocksWalked / FADE_INTERVAL;
-        return Math.min(currentIndex, segmentsToHide);
+        // Nicht mehr benötigt, aber für API-Kompatibilität beibehalten
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -80,12 +51,10 @@ public class RoadPathRenderer {
             return;
         }
 
-        updateProgress(currentIndex);
         PoseStack poseStack = graphics.pose();
-        int visibleStart = getVisibleStartIndex(currentIndex);
 
-        // Rendere leuchtende Pfadlinie
-        renderGlowingLineMinimap(poseStack, path, visibleStart, worldCenterX, worldCenterZ,
+        // Rendere leuchtende Pfadlinie - startet direkt ab currentIndex (sofort verschwindend)
+        renderGlowingLineMinimap(poseStack, path, currentIndex, worldCenterX, worldCenterZ,
                 screenCenterX, screenCenterY, mapSize, scale, rotation);
 
         // Rendere Fahnen-Zielmarker
@@ -246,12 +215,10 @@ public class RoadPathRenderer {
             return;
         }
 
-        updateProgress(currentIndex);
         PoseStack poseStack = graphics.pose();
-        int visibleStart = getVisibleStartIndex(currentIndex);
 
-        // Rendere leuchtende Pfadlinie
-        renderGlowingLineWorldmap(poseStack, path, visibleStart, mapCenterX, mapCenterZ,
+        // Rendere leuchtende Pfadlinie - startet direkt ab currentIndex (sofort verschwindend)
+        renderGlowingLineWorldmap(poseStack, path, currentIndex, mapCenterX, mapCenterZ,
                 screenCenterX, screenCenterY, mapToGui);
 
         // Rendere Fahnen-Zielmarker

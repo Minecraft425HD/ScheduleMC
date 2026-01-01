@@ -165,8 +165,9 @@ public class NavigationOverlay {
             return;
         }
 
-        List<BlockPos> path = navigationService.getSimplifiedPath();
-        int currentIndex = navigationService.getCurrentPathIndex();
+        // Verwende den vollen Pfad für glattes Rendering
+        List<BlockPos> path = navigationService.getCurrentPath();
+        int currentIndex = navigationService.getCurrentFullPathIndex();
         NavigationTarget target = navigationService.getCurrentTarget();
 
         if (path.isEmpty()) {
@@ -213,8 +214,9 @@ public class NavigationOverlay {
             return;
         }
 
-        List<BlockPos> path = navigationService.getSimplifiedPath();
-        int currentIndex = navigationService.getCurrentPathIndex();
+        // Verwende den vollen Pfad für glattes Rendering
+        List<BlockPos> path = navigationService.getCurrentPath();
+        int currentIndex = navigationService.getCurrentFullPathIndex();
         NavigationTarget target = navigationService.getCurrentTarget();
 
         if (path.isEmpty()) {
@@ -252,8 +254,9 @@ public class NavigationOverlay {
             return;
         }
 
-        List<BlockPos> path = navigationService.getSimplifiedPath();
-        int currentIndex = navigationService.getCurrentPathIndex();
+        // Verwende den vollen Pfad für glattes Rendering
+        List<BlockPos> path = navigationService.getCurrentPath();
+        int currentIndex = navigationService.getCurrentFullPathIndex();
         NavigationTarget target = navigationService.getCurrentTarget();
 
         if (path.isEmpty()) {
@@ -297,8 +300,9 @@ public class NavigationOverlay {
             return;
         }
 
-        List<BlockPos> path = navigationService.getSimplifiedPath();
-        int currentIndex = navigationService.getCurrentPathIndex();
+        // Verwende den vollen Pfad für glattes Rendering
+        List<BlockPos> path = navigationService.getCurrentPath();
+        int currentIndex = navigationService.getCurrentFullPathIndex();
         NavigationTarget target = navigationService.getCurrentTarget();
 
         if (path.isEmpty()) {

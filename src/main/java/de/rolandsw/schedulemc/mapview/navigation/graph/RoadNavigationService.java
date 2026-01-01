@@ -48,8 +48,9 @@ public class RoadNavigationService {
     private List<BlockPos> simplifiedPath;
     private boolean isNavigationActive;
     private long lastPathUpdate;
-    private int currentPathIndex;
-    private BlockPos lastPathStartPos; // Letzte Position von der aus der Pfad berechnet wurde
+    private int currentPathIndex;           // Index auf simplifiedPath
+    private int currentFullPathIndex;       // Index auf currentPath (für Rendering)
+    private BlockPos lastPathStartPos;      // Letzte Position von der aus der Pfad berechnet wurde
 
     // Listener für UI-Updates
     private final List<NavigationListener> listeners = new ArrayList<>();
@@ -210,6 +211,7 @@ public class RoadNavigationService {
         currentPath = path;
         simplifiedPath = RoadGraph.simplifyPath(path);
         currentPathIndex = 0;
+        currentFullPathIndex = 0;
         isNavigationActive = true;
         lastPathUpdate = System.currentTimeMillis();
         lastPathStartPos = start; // Merke Startposition für Pfad-Neuberechnung
@@ -234,6 +236,7 @@ public class RoadNavigationService {
         currentPath = Collections.emptyList();
         simplifiedPath = Collections.emptyList();
         currentPathIndex = 0;
+        currentFullPathIndex = 0;
         lastPathStartPos = null;
 
         LOGGER.info("[RoadNavigationService] Navigation stopped");
@@ -312,6 +315,7 @@ public class RoadNavigationService {
             currentPath = newPath;
             simplifiedPath = RoadGraph.simplifyPath(newPath);
             currentPathIndex = 0;
+            currentFullPathIndex = 0;
             lastPathStartPos = playerPos; // Merke von wo der Pfad berechnet wurde
 
             LOGGER.debug("[RoadNavigationService] Path recalculated from {}, {} waypoints", playerPos, simplifiedPath.size());
@@ -323,27 +327,49 @@ public class RoadNavigationService {
      * Aktualisiert den Fortschritt auf dem Pfad
      */
     private void updatePathProgress(BlockPos playerPos) {
-        if (simplifiedPath.isEmpty()) {
-            return;
-        }
+        // Update für den vollen Pfad (für Rendering)
+        if (!currentPath.isEmpty()) {
+            double minDist = Double.MAX_VALUE;
+            int nearestFullIndex = currentFullPathIndex;
 
-        // Finde den nächsten Punkt, der noch vor dem Spieler liegt
-        double minDist = Double.MAX_VALUE;
-        int nearestIndex = currentPathIndex;
+            // Suche den nächsten Punkt auf dem vollen Pfad
+            for (int i = currentFullPathIndex; i < currentPath.size(); i++) {
+                BlockPos pathPoint = currentPath.get(i);
+                double dist = distance(playerPos, pathPoint);
 
-        for (int i = currentPathIndex; i < simplifiedPath.size(); i++) {
-            BlockPos pathPoint = simplifiedPath.get(i);
-            double dist = distance(playerPos, pathPoint);
+                if (dist < minDist) {
+                    minDist = dist;
+                    nearestFullIndex = i;
+                }
+            }
 
-            if (dist < minDist) {
-                minDist = dist;
-                nearestIndex = i;
+            // Sofort zum nächsten Punkt wechseln wenn nah genug (2 Blöcke)
+            if (minDist < 2 && nearestFullIndex < currentPath.size() - 1) {
+                currentFullPathIndex = nearestFullIndex + 1;
+            } else if (nearestFullIndex > currentFullPathIndex) {
+                // Spieler hat Punkte übersprungen
+                currentFullPathIndex = nearestFullIndex;
             }
         }
 
-        // Wenn Spieler nah genug am nächsten Punkt ist, zum nächsten wechseln
-        if (minDist < 5 && nearestIndex < simplifiedPath.size() - 1) {
-            currentPathIndex = nearestIndex + 1;
+        // Update für simplified path (für Wegpunkt-Navigation)
+        if (!simplifiedPath.isEmpty()) {
+            double minDist = Double.MAX_VALUE;
+            int nearestIndex = currentPathIndex;
+
+            for (int i = currentPathIndex; i < simplifiedPath.size(); i++) {
+                BlockPos pathPoint = simplifiedPath.get(i);
+                double dist = distance(playerPos, pathPoint);
+
+                if (dist < minDist) {
+                    minDist = dist;
+                    nearestIndex = i;
+                }
+            }
+
+            if (minDist < 5 && nearestIndex < simplifiedPath.size() - 1) {
+                currentPathIndex = nearestIndex + 1;
+            }
         }
     }
 
@@ -369,6 +395,13 @@ public class RoadNavigationService {
 
     public int getCurrentPathIndex() {
         return currentPathIndex;
+    }
+
+    /**
+     * Gibt den aktuellen Index auf dem vollen Pfad zurück (für Rendering)
+     */
+    public int getCurrentFullPathIndex() {
+        return currentFullPathIndex;
     }
 
     /**
