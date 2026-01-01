@@ -723,15 +723,22 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
             overlay.renderFullscreenAccurate(graphics, this.lastX, this.lastZ,
                     screenCenterX, screenCenterY, zoom);
         } else {
+            // Für Minimap: Scissor-Clipping aktivieren damit Overlay nicht über Minimap hinausragt
+            int halfSize = mapSize / 2;
+            // Berechne Scissor-Koordinaten in GUI-Koordinaten (scaleProj bereits angewendet)
+            int scissorX1 = (int) ((mapX - halfSize) * scaleProj);
+            int scissorY1 = (int) ((mapY - halfSize) * scaleProj);
+            int scissorX2 = (int) ((mapX + halfSize) * scaleProj);
+            int scissorY2 = (int) ((mapY + halfSize) * scaleProj);
+
+            graphics.enableScissor(scissorX1, scissorY1, scissorX2, scissorY2);
+
             // Für Minimap: Nutze pixelgenaue Positionierung
-            // mapX, mapY = Bildschirmposition des Kartenzentrums
-            // lastX, lastZ = Weltkoordinaten des Kartenzentrums (Spielerposition)
-            // zoomScale: Bei 1.0 zeigt die 64px Minimap ca. 64 Blöcke (1 Block = 1 Pixel)
-            // Bei 2.0: 1 Block = 2 Pixel, bei 0.5: 1 Block = 0.5 Pixel
-            // zoom IS already pixels per block (zoomScale)
             float scale = zoom;
             overlay.renderMinimapAccurate(graphics, this.lastX, this.lastZ,
                     mapX, mapY, mapSize, scale, rotation);
+
+            graphics.disableScissor();
         }
 
         graphics.pose().popPose();
