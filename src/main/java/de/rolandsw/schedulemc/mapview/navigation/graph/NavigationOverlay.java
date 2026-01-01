@@ -141,6 +141,11 @@ public class NavigationOverlay {
                     lastPathIndex = currentIndex;
                     lastPathSize = path.size();
                 }
+            } else if (lastPathSize > 0) {
+                // Navigation wurde beendet (Ziel erreicht) - Pfad komplett löschen
+                NavigationPathOverlay.getInstance().clearPath();
+                lastPathIndex = -1;
+                lastPathSize = 0;
             }
         }
     }
