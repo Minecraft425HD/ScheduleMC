@@ -699,12 +699,15 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
             }
         }
 
+        // Tick für Updates (Position, Pfad-Neuberechnung) - IMMER aufrufen, auch wenn nicht navigiert wird
+        // damit der Pfad gelöscht werden kann wenn Navigation beendet wurde
+        if (overlay.isInitialized()) {
+            overlay.tick();
+        }
+
         if (!overlay.isInitialized() || !overlay.isNavigating()) {
             return;
         }
-
-        // Tick für Updates (Position, Pfad-Neuberechnung)
-        overlay.tick();
 
         // Berechne Kartenrotation
         float rotation = 0;

@@ -1008,9 +1008,7 @@ public class WorldMapScreen extends PopupScreen {
             }
             case 5 -> {
                 // Navigation beenden
-                if (RoadNavigationService.getInstance() != null) {
-                    RoadNavigationService.getInstance().stopNavigation();
-                }
+                NavigationOverlay.getInstance().stopNavigation();
             }
             default -> MapViewConstants.getLogger().warn("unimplemented command");
         }
@@ -1119,12 +1117,15 @@ public class WorldMapScreen extends PopupScreen {
             overlay.initialize(this.persistentMap);
         }
 
+        // Tick für Updates (Position, Pfad-Neuberechnung) - IMMER aufrufen, auch wenn nicht navigiert wird
+        // damit der Pfad gelöscht werden kann wenn Navigation beendet wurde
+        if (overlay.isInitialized()) {
+            overlay.tick();
+        }
+
         if (!overlay.isInitialized() || !overlay.isNavigating()) {
             return;
         }
-
-        // Tick für Updates (Position, Pfad-Neuberechnung)
-        overlay.tick();
 
         // Berechne Bildschirm-Zentrum
         int screenCenterX = this.width / 2;
