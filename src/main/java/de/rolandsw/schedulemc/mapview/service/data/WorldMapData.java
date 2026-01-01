@@ -86,6 +86,8 @@ public class WorldMapData implements MapChangeListener {
     private boolean queuedChangedChunks;
     private ChunkCache chunkCache;
     private final ConcurrentLinkedQueue<ChunkWithAge> chunkUpdateQueue = new ConcurrentLinkedQueue<>();
+    private long lastPeriodicRefresh = 0;
+    private static final long PERIODIC_REFRESH_INTERVAL_MS = 2000; // Alle 2 Sekunden
 
     public WorldMapData() {
         this.colorManager = MapViewConstants.getLightMapInstance().getColorManager();
@@ -164,6 +166,13 @@ public class WorldMapData implements MapChangeListener {
             this.chunkCache.centerChunks(this.blockPos.withXYZ(MinecraftAccessor.xCoord(), 0, MinecraftAccessor.zCoord()));
             this.chunkCache.checkIfChunksBecameSurroundedByLoaded();
 
+            // Periodischer Refresh um Block-Änderungen zu erkennen
+            long now = System.currentTimeMillis();
+            if (now - lastPeriodicRefresh >= PERIODIC_REFRESH_INTERVAL_MS) {
+                lastPeriodicRefresh = now;
+                refreshNearbyChunks();
+            }
+
             while (!this.chunkUpdateQueue.isEmpty() && Math.abs(MapViewConstants.getElapsedTicks() - this.chunkUpdateQueue.peek().tick) >= 20) {
                 this.doProcessChunk(this.chunkUpdateQueue.remove().chunk);
             }
@@ -173,6 +182,35 @@ public class WorldMapData implements MapChangeListener {
 
     public WorldMapConfiguration getOptions() {
         return this.options;
+    }
+
+    /**
+     * Aktualisiert Chunks in der Nähe des Spielers um Block-Änderungen zu erkennen
+     */
+    private void refreshNearbyChunks() {
+        if (this.world == null) {
+            return;
+        }
+
+        int playerChunkX = MinecraftAccessor.xCoord() >> 4;
+        int playerChunkZ = MinecraftAccessor.zCoord() >> 4;
+
+        // Aktualisiere Chunks im Umkreis von 4 Chunks (64 Blöcke)
+        int radius = 4;
+        for (int dx = -radius; dx <= radius; dx++) {
+            for (int dz = -radius; dz <= radius; dz++) {
+                int chunkX = playerChunkX + dx;
+                int chunkZ = playerChunkZ + dz;
+
+                LevelChunk chunk = this.world.getChunk(chunkX, chunkZ);
+                if (chunk != null && !chunk.isEmpty() && this.world.hasChunk(chunkX, chunkZ)) {
+                    // Prüfe ob Chunk von geladenen umgeben ist
+                    if (this.isChunkReady(this.world, chunk)) {
+                        this.processChunk(chunk);
+                    }
+                }
+            }
+        }
     }
 
     public void purgeRegionCaches() {

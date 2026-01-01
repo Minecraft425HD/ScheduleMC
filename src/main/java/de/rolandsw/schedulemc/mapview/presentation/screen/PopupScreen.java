@@ -11,8 +11,8 @@ public abstract class PopupScreen extends BaseMapScreen implements IPopupScreen 
     public void removed() {
     }
 
-    public void createPopup(int x, int y, int directX, int directY, int minWidth, ArrayList<PopupComponent.PopupEntry> entries) {
-        popups.add(new PopupComponent(x, y, directX, directY, minWidth, entries, this));
+    public void createPopup(int x, int y, int directX, int directY, int worldX, int worldZ, int minWidth, ArrayList<PopupComponent.PopupEntry> entries) {
+        popups.add(new PopupComponent(x, y, directX, directY, worldX, worldZ, minWidth, entries, this));
     }
 
     public void clearPopups() {

@@ -151,6 +151,9 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     private int ticksSinceLastUpdate = 0;
     private static final int UPDATE_THROTTLE_TICKS = 2; // Update nur alle 2 Ticks (10 FPS statt 20 FPS)
     private int biomeSegmentationCounter = 0;
+    // Periodic chunk refresh for detecting block changes (minimap)
+    private long lastPeriodicRefresh = 0;
+    private static final long PERIODIC_REFRESH_INTERVAL_MS = 2000; // Every 2 seconds
     // Chunk cache to avoid redundant getChunkAt() calls
     private LevelChunk cachedChunk = null;
     private int cachedChunkX = Integer.MIN_VALUE;
@@ -364,6 +367,14 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         if (this.timer % 20 == 0) {
             this.checkForChanges();
         }
+
+        // Periodic chunk refresh for minimap to detect block changes
+        long now = System.currentTimeMillis();
+        if (now - lastPeriodicRefresh >= PERIODIC_REFRESH_INTERVAL_MS) {
+            lastPeriodicRefresh = now;
+            refreshNearbyChunks();
+        }
+
         this.lastGuiScreen = minecraft.screen;
         this.calculateCurrentLightAndSkyColor();
 
@@ -656,7 +667,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
             this.renderMapFull(drawContext, this.scWidth, this.scHeight, scaleProj);
             // Render Navigation Overlay für Fullscreen
             renderNavigationOverlay(drawContext, this.scWidth / 2, this.scHeight / 2,
-                    Math.min(this.scWidth, this.scHeight), (float) this.zoomScale, true);
+                    Math.min(this.scWidth, this.scHeight), (float) this.zoomScale, true, scaleProj);
             // Render NPCs auf Fullscreen-Karte
             renderNPCMarkers(drawContext, this.scWidth / 2, this.scHeight / 2,
                     Math.min(this.scWidth, this.scHeight), (float) this.zoomScale, true);
@@ -664,8 +675,8 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         } else {
             this.renderMap(drawContext, mapX, mapY, scScale, scaleProj);
             this.drawDirections(drawContext, mapX, mapY, scaleProj);
-            // Render Navigation Overlay für Minimap
-            renderNavigationOverlay(drawContext, mapX, mapY, 64, (float) this.zoomScale, false);
+            // Render Navigation Overlay für Minimap (mit scaleProj Transformation)
+            renderNavigationOverlay(drawContext, mapX, mapY, 64, (float) this.zoomScale, false, scaleProj);
             // Render NPCs auf Minimap
             renderNPCMarkers(drawContext, mapX, mapY, 64, (float) this.zoomScale, false);
             this.drawArrow(drawContext, mapX, mapY, scaleProj);
@@ -676,8 +687,16 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
      * Rendert das Navigations-Overlay (Pfad zum Ziel) auf der Karte
      */
     private void renderNavigationOverlay(GuiGraphics graphics, int mapX, int mapY,
-                                          int mapSize, float zoom, boolean fullscreen) {
+                                          int mapSize, float zoom, boolean fullscreen, float scaleProj) {
         NavigationOverlay overlay = NavigationOverlay.getInstance();
+
+        // Initialisiere falls nötig
+        if (!overlay.isInitialized()) {
+            var mapData = MapViewConstants.getLightMapInstance().getWorldMapData();
+            if (mapData != null) {
+                overlay.initialize(mapData);
+            }
+        }
 
         if (!overlay.isInitialized() || !overlay.isNavigating()) {
             return;
@@ -692,13 +711,37 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
             rotation = this.direction;
         }
 
+        // Wende scaleProj Transformation an (wie bei drawArrow)
+        graphics.pose().pushPose();
+        graphics.pose().scale(scaleProj, scaleProj, 1.0f);
+
         if (fullscreen) {
-            overlay.renderFullscreen(graphics, this.lastX, this.lastZ,
-                    this.scWidth, this.scHeight, zoom);
+            // Für Fullscreen: Nutze pixelgenaue Positionierung
+            // screenCenter = Bildschirmmitte, zoom = Pixel pro Block
+            int screenCenterX = this.scWidth / 2;
+            int screenCenterY = this.scHeight / 2;
+            overlay.renderFullscreenAccurate(graphics, this.lastX, this.lastZ,
+                    screenCenterX, screenCenterY, zoom);
         } else {
-            overlay.render(graphics, this.lastX, this.lastZ,
-                    mapSize, zoom, rotation);
+            // Für Minimap: Scissor-Clipping aktivieren damit Overlay nicht über Minimap hinausragt
+            int halfSize = mapSize / 2;
+            // Berechne Scissor-Koordinaten in GUI-Koordinaten (scaleProj bereits angewendet)
+            int scissorX1 = (int) ((mapX - halfSize) * scaleProj);
+            int scissorY1 = (int) ((mapY - halfSize) * scaleProj);
+            int scissorX2 = (int) ((mapX + halfSize) * scaleProj);
+            int scissorY2 = (int) ((mapY + halfSize) * scaleProj);
+
+            graphics.enableScissor(scissorX1, scissorY1, scissorX2, scissorY2);
+
+            // Für Minimap: Nutze pixelgenaue Positionierung
+            float scale = zoom;
+            overlay.renderMinimapAccurate(graphics, this.lastX, this.lastZ,
+                    mapX, mapY, mapSize, scale, rotation);
+
+            graphics.disableScissor();
         }
+
+        graphics.pose().popPose();
     }
 
     /**
@@ -899,6 +942,35 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
             this.chunkCache[this.zoom].registerChangeAt(chunkX, chunkZ);
         } catch (Exception e) {
             MapViewConstants.getLogger().warn(e);
+        }
+    }
+
+    /**
+     * Periodically refresh nearby chunks to detect block changes for the minimap.
+     * This is needed because BlockEvents don't fire client-side in Forge.
+     */
+    private void refreshNearbyChunks() {
+        if (this.world == null) {
+            return;
+        }
+        try {
+            int playerChunkX = MinecraftAccessor.xCoord() >> 4;
+            int playerChunkZ = MinecraftAccessor.zCoord() >> 4;
+            int radius = 4; // 4 chunk radius around player
+
+            for (int dx = -radius; dx <= radius; dx++) {
+                for (int dz = -radius; dz <= radius; dz++) {
+                    int chunkX = playerChunkX + dx;
+                    int chunkZ = playerChunkZ + dz;
+                    LevelChunk chunk = this.world.getChunk(chunkX, chunkZ);
+                    if (chunk != null && !chunk.isEmpty() && this.world.hasChunk(chunkX, chunkZ)) {
+                        // Mark chunk as modified and process it
+                        this.chunkCache[this.zoom].registerChangeAt(chunkX, chunkZ);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            MapViewConstants.getLogger().warn("Error in refreshNearbyChunks: " + e.getMessage());
         }
     }
 

@@ -85,6 +85,9 @@ public class NavigationOverlay {
             return false;
         }
 
+        // Reset path progress when starting new navigation
+        pathRenderer.resetProgress();
+
         NavigationTarget target = NavigationTarget.atPosition(position, name);
         return navigationService.startNavigation(target);
     }
@@ -104,6 +107,9 @@ public class NavigationOverlay {
             LOGGER.warn("[NavigationOverlay] Not initialized, cannot start navigation");
             return false;
         }
+
+        // Reset path progress when starting new navigation
+        pathRenderer.resetProgress();
 
         NavigationTarget target = NavigationTarget.forEntity(npcUUID, name);
         return navigationService.startNavigation(target);
@@ -159,8 +165,9 @@ public class NavigationOverlay {
             return;
         }
 
-        List<BlockPos> path = navigationService.getSimplifiedPath();
-        int currentIndex = navigationService.getCurrentPathIndex();
+        // Verwende den vollen Pfad für glattes Rendering
+        List<BlockPos> path = navigationService.getCurrentPath();
+        int currentIndex = navigationService.getCurrentFullPathIndex();
         NavigationTarget target = navigationService.getCurrentTarget();
 
         if (path.isEmpty()) {
@@ -188,6 +195,56 @@ public class NavigationOverlay {
     }
 
     /**
+     * Rendert das Overlay für die Minimap mit pixelgenauer Positionierung
+     *
+     * @param graphics GuiGraphics-Kontext
+     * @param worldCenterX Weltzentrum X (Spielerposition)
+     * @param worldCenterZ Weltzentrum Z
+     * @param screenCenterX Bildschirmzentrum X der Minimap
+     * @param screenCenterY Bildschirmzentrum Y der Minimap
+     * @param mapSize Kartengröße in Pixeln
+     * @param scale Pixel pro Block
+     * @param rotation Kartenrotation in Grad
+     */
+    public void renderMinimapAccurate(GuiGraphics graphics, int worldCenterX, int worldCenterZ,
+                                       int screenCenterX, int screenCenterY, int mapSize,
+                                       float scale, float rotation) {
+
+        if (!isInitialized() || !isNavigating()) {
+            return;
+        }
+
+        // Verwende den vollen Pfad für glattes Rendering
+        List<BlockPos> path = navigationService.getCurrentPath();
+        int currentIndex = navigationService.getCurrentFullPathIndex();
+        NavigationTarget target = navigationService.getCurrentTarget();
+
+        if (path.isEmpty()) {
+            return;
+        }
+
+        pathRenderer.renderMinimapAccurate(
+                graphics,
+                path,
+                currentIndex,
+                target,
+                worldCenterX,
+                worldCenterZ,
+                screenCenterX,
+                screenCenterY,
+                mapSize,
+                scale,
+                rotation
+        );
+
+        // Distanzanzeige neben der Minimap
+        double distance = navigationService.getRemainingDistance();
+        int distanceX = screenCenterX - mapSize / 2;
+        int distanceY = screenCenterY + mapSize / 2 + 5;
+        pathRenderer.renderDistanceOverlay(graphics, distance, distanceX, distanceY);
+    }
+
+    /**
      * Rendert das Overlay für die Fullscreen-Worldmap
      */
     public void renderFullscreen(GuiGraphics graphics, int mapCenterX, int mapCenterZ,
@@ -197,8 +254,9 @@ public class NavigationOverlay {
             return;
         }
 
-        List<BlockPos> path = navigationService.getSimplifiedPath();
-        int currentIndex = navigationService.getCurrentPathIndex();
+        // Verwende den vollen Pfad für glattes Rendering
+        List<BlockPos> path = navigationService.getCurrentPath();
+        int currentIndex = navigationService.getCurrentFullPathIndex();
         NavigationTarget target = navigationService.getCurrentTarget();
 
         if (path.isEmpty()) {
@@ -223,6 +281,49 @@ public class NavigationOverlay {
         // Distanzanzeige oben links
         double distance = navigationService.getRemainingDistance();
         pathRenderer.renderDistanceOverlay(graphics, distance, 10, 10);
+    }
+
+    /**
+     * Rendert das Overlay für die Fullscreen-Worldmap mit pixelgenauer Positionierung
+     *
+     * @param graphics GuiGraphics-Kontext
+     * @param mapCenterX Weltzentrum X (Spielerposition)
+     * @param mapCenterZ Weltzentrum Z
+     * @param screenCenterX Bildschirmzentrum X
+     * @param screenCenterY Bildschirmzentrum Y
+     * @param mapToGui Skalierungsfaktor (Welt -> Bildschirm)
+     */
+    public void renderFullscreenAccurate(GuiGraphics graphics, int mapCenterX, int mapCenterZ,
+                                          int screenCenterX, int screenCenterY, float mapToGui) {
+
+        if (!isInitialized() || !isNavigating()) {
+            return;
+        }
+
+        // Verwende den vollen Pfad für glattes Rendering
+        List<BlockPos> path = navigationService.getCurrentPath();
+        int currentIndex = navigationService.getCurrentFullPathIndex();
+        NavigationTarget target = navigationService.getCurrentTarget();
+
+        if (path.isEmpty()) {
+            return;
+        }
+
+        pathRenderer.renderAccurate(
+                graphics,
+                path,
+                currentIndex,
+                target,
+                mapCenterX,
+                mapCenterZ,
+                screenCenterX,
+                screenCenterY,
+                mapToGui
+        );
+
+        // Distanzanzeige oben links
+        double distance = navigationService.getRemainingDistance();
+        pathRenderer.renderDistanceOverlay(graphics, distance, 10, 40);
     }
 
     // ═══════════════════════════════════════════════════════════

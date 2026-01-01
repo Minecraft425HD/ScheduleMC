@@ -77,9 +77,9 @@ public class RoadGraphBuilder {
         allRoadBlocks.clear();
 
         // Schritt 1: Finde alle Straßenblöcke
-        LOGGER.debug("[RoadGraphBuilder] Scanning area ({}, {}) radius {}", centerX, centerZ, radius);
+        LOGGER.info("[RoadGraphBuilder] Scanning area ({}, {}) radius {}", centerX, centerZ, radius);
         scanRoadBlocks(centerX, centerZ, radius);
-        LOGGER.debug("[RoadGraphBuilder] Found {} road blocks", allRoadBlocks.size());
+        LOGGER.info("[RoadGraphBuilder] Found {} road blocks", allRoadBlocks.size());
 
         if (allRoadBlocks.isEmpty()) {
             return new RoadGraph(Collections.emptyMap(), Collections.emptyList());
@@ -102,15 +102,26 @@ public class RoadGraphBuilder {
 
     /**
      * Scannt den Bereich nach Straßenblöcken
+     * Nutzt sowohl Map-Cache als auch Live-Welt für robuste Erkennung
      */
     private void scanRoadBlocks(int centerX, int centerZ, int radius) {
+        int checked = 0;
+        int roadBlocks = 0;
+
+        // Scanne in Schritten für bessere Performance
+        // Bei Straßen reicht oft Schritt 1-2, wir scannen mit Schritt 1 für Präzision
         for (int x = centerX - radius; x <= centerX + radius; x++) {
             for (int z = centerZ - radius; z <= centerZ + radius; z++) {
+                checked++;
                 if (RoadBlockDetector.isRoadAt(mapData, x, z)) {
+                    roadBlocks++;
                     allRoadBlocks.add(new BlockPos(x, defaultY, z));
                 }
             }
         }
+
+        LOGGER.info("[RoadGraphBuilder] Scan stats: checked={}, roadBlocks={} in radius {}",
+                checked, roadBlocks, radius);
     }
 
     /**

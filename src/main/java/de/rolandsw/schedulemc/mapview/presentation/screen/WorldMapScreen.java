@@ -4,6 +4,10 @@ import de.rolandsw.schedulemc.mapview.config.MapViewConfiguration;
 import de.rolandsw.schedulemc.mapview.config.WorldMapConfiguration;
 import de.rolandsw.schedulemc.mapview.service.data.WorldMapData;
 import de.rolandsw.schedulemc.mapview.npc.NPCMapRenderer;
+import de.rolandsw.schedulemc.mapview.navigation.graph.RoadNavigationService;
+import de.rolandsw.schedulemc.mapview.navigation.graph.NavigationTarget;
+import de.rolandsw.schedulemc.mapview.navigation.graph.NavigationOverlay;
+import net.minecraft.core.BlockPos;
 import de.rolandsw.schedulemc.mapview.data.cache.RegionCache;
 import de.rolandsw.schedulemc.mapview.data.persistence.AsyncPersistenceManager;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
@@ -88,6 +92,9 @@ public class WorldMapScreen extends PopupScreen {
     long timeOfZoom;
     float zoomDirectX;
     float zoomDirectY;
+    // Diskrete Zoom-Stufen: 0% (übersicht), 33%, 66%, 100% (block-level)
+    private static final float[] ZOOM_LEVELS = {1.0f, 4.0f, 8.0f, 16.0f};
+    private int currentZoomLevel = 1; // Start bei 33% (4.0f)
     private float scScale = 1.0F;
     private float guiToMap = 2.0F;
     private float mapToGui = 0.5F;
@@ -125,9 +132,12 @@ public class WorldMapScreen extends PopupScreen {
         mapOptions = MapViewConstants.getLightMapInstance().getMapOptions();
         this.persistentMap = MapViewConstants.getLightMapInstance().getWorldMapData();
         this.options = MapViewConstants.getLightMapInstance().getWorldMapDataOptions();
-        this.zoom = this.options.getZoom();
-        this.zoomStart = this.options.getZoom();
-        this.zoomGoal = this.options.getZoom();
+        // Finde nächste diskrete Zoom-Stufe basierend auf gespeichertem Zoom
+        float savedZoom = this.options.getZoom();
+        this.currentZoomLevel = findNearestZoomLevel(savedZoom);
+        this.zoom = ZOOM_LEVELS[currentZoomLevel];
+        this.zoomStart = ZOOM_LEVELS[currentZoomLevel];
+        this.zoomGoal = ZOOM_LEVELS[currentZoomLevel];
         this.persistentMap.setLightMapArray(MapViewConstants.getLightMapInstance().getMap().getLightmapArray());
         if (!gotSkin) {
             this.getSkin();
@@ -278,6 +288,22 @@ public class WorldMapScreen extends PopupScreen {
         return Math.min(this.options.getMaxZoom(), zoom);
     }
 
+    /**
+     * Findet die nächste diskrete Zoom-Stufe für einen gegebenen Zoom-Wert
+     */
+    private int findNearestZoomLevel(float zoom) {
+        int nearest = 0;
+        float minDiff = Math.abs(ZOOM_LEVELS[0] - zoom);
+        for (int i = 1; i < ZOOM_LEVELS.length; i++) {
+            float diff = Math.abs(ZOOM_LEVELS[i] - zoom);
+            if (diff < minDiff) {
+                minDiff = diff;
+                nearest = i;
+            }
+        }
+        return nearest;
+    }
+
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
         this.timeOfLastMouseInput = System.currentTimeMillis();
@@ -285,14 +311,15 @@ public class WorldMapScreen extends PopupScreen {
         float mouseDirectX = (float) minecraft.mouseHandler.xpos();
         float mouseDirectY = (float) minecraft.mouseHandler.ypos();
         if (amount != 0.0) {
-            if (amount > 0.0) {
-                this.zoomGoal *= 1.26F;
-            } else if (amount < 0.0) {
-                this.zoomGoal /= 1.26F;
+            // Diskrete Zoom-Stufen: hoch oder runter schalten
+            if (amount > 0.0 && currentZoomLevel < ZOOM_LEVELS.length - 1) {
+                currentZoomLevel++;
+            } else if (amount < 0.0 && currentZoomLevel > 0) {
+                currentZoomLevel--;
             }
+            this.zoomGoal = ZOOM_LEVELS[currentZoomLevel];
 
             this.zoomStart = this.zoom;
-            this.zoomGoal = this.bindZoom(this.zoomGoal);
             this.timeOfZoom = System.currentTimeMillis();
             this.zoomDirectX = mouseDirectX;
             this.zoomDirectY = mouseDirectY;
@@ -347,16 +374,17 @@ public class WorldMapScreen extends PopupScreen {
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (!this.editingCoordinates && (minecraft.options.keyJump.matches(keyCode, scanCode) || minecraft.options.keyShift.matches(keyCode, scanCode))) {
-            if (minecraft.options.keyJump.matches(keyCode, scanCode)) {
-                this.zoomGoal /= 1.26F;
+            // Diskrete Zoom-Stufen: hoch oder runter schalten
+            if (minecraft.options.keyJump.matches(keyCode, scanCode) && currentZoomLevel > 0) {
+                currentZoomLevel--;
             }
 
-            if (minecraft.options.keyShift.matches(keyCode, scanCode)) {
-                this.zoomGoal *= 1.26F;
+            if (minecraft.options.keyShift.matches(keyCode, scanCode) && currentZoomLevel < ZOOM_LEVELS.length - 1) {
+                currentZoomLevel++;
             }
+            this.zoomGoal = ZOOM_LEVELS[currentZoomLevel];
 
             this.zoomStart = this.zoom;
-            this.zoomGoal = this.bindZoom(this.zoomGoal);
             this.timeOfZoom = System.currentTimeMillis();
             this.zoomDirectX = (minecraft.getWindow().getWidth() / 2f);
             this.zoomDirectY = (minecraft.getWindow().getHeight() - minecraft.getWindow().getHeight() / 2f);
@@ -601,8 +629,18 @@ public class WorldMapScreen extends PopupScreen {
             guiGraphics.pose().mulPose(com.mojang.math.Axis.ZP.rotationDegrees(90.0F));
         }
 
-        float cursorCoordZ = 0.0f;
-        float cursorCoordX = 0.0f;
+        // Berechne Cursor-Koordinaten für Hover-Highlight
+        // Verwende mouseX/mouseY (bereits in GUI-Koordinaten) statt mouseDirectX/mouseDirectY
+        float cursorCoordX;
+        float cursorCoordZ;
+        if (this.oldNorth) {
+            cursorCoordX = this.mapCenterZ + (mouseX - this.centerX) / this.mapToGui;
+            cursorCoordZ = -this.mapCenterX - (mouseY - (this.top + this.centerY)) / this.mapToGui;
+        } else {
+            cursorCoordX = this.mapCenterX + (mouseX - this.centerX) / this.mapToGui;
+            cursorCoordZ = this.mapCenterZ + (mouseY - (this.top + this.centerY)) / this.mapToGui;
+        }
+
         guiGraphics.pose().scale(this.mapToGui, this.mapToGui, 1.0f);
         if (MapDataManager.mapOptions.worldmapAllowed) {
             for (RegionCache region : this.regions) {
@@ -610,6 +648,32 @@ public class WorldMapScreen extends PopupScreen {
                 if (resource != null) {
                     guiGraphics.blit(resource, region.getX() * 256, region.getZ() * 256, 0, 0, region.getWidth(), region.getWidth(), region.getWidth(), region.getWidth());
                 }
+            }
+
+            // DEBUG: Raster-Overlay für Koordinaten-Debugging
+            renderGridOverlay(guiGraphics);
+
+            // DEBUG: Spieler-Marker im Welt-Koordinatensystem (passt zum Raster)
+            // Immer genau 1 Block groß
+            {
+                int playerBlockX = MinecraftAccessor.xCoord();
+                int playerBlockZ = MinecraftAccessor.zCoord();
+                int markerColor = 0xFFFF0000; // Rot
+                MapViewGuiGraphics.fillGradient(guiGraphics,
+                    playerBlockX, playerBlockZ,
+                    playerBlockX + 1, playerBlockZ + 1,
+                    markerColor, markerColor, markerColor, markerColor);
+            }
+
+            // Highlight für Block unter Mauszeiger
+            {
+                int hoverBlockX = (int) Math.floor(cursorCoordX);
+                int hoverBlockZ = (int) Math.floor(cursorCoordZ);
+                int hoverColor = 0x8000FF00; // Grün, halbtransparent
+                MapViewGuiGraphics.fillGradient(guiGraphics,
+                    hoverBlockX, hoverBlockZ,
+                    hoverBlockX + 1, hoverBlockZ + 1,
+                    hoverColor, hoverColor, hoverColor, hoverColor);
             }
 
             if (MapDataManager.mapOptions.worldborder) {
@@ -628,23 +692,7 @@ public class WorldMapScreen extends PopupScreen {
                 MapViewGuiGraphics.fillGradient(guiGraphics, x2 - scale, z1 - scale, x2 + scale, z2 + scale, 0xffff0000, 0xffff0000, 0xffff0000, 0xffff0000);
             }
 
-            float cursorX;
-            float cursorY;
-            if (this.mouseCursorShown) {
-                cursorX = mouseDirectX;
-                cursorY = mouseDirectY - this.top * this.guiToDirectMouse;
-            } else {
-                cursorX = (minecraft.getWindow().getWidth() / 2f);
-                cursorY = (minecraft.getWindow().getHeight() - minecraft.getWindow().getHeight() / 2f) - this.top * this.guiToDirectMouse;
-            }
-
-            if (this.oldNorth) {
-                cursorCoordX = cursorY * this.mouseDirectToMap + (this.mapCenterZ - this.centerY * this.guiToMap);
-                cursorCoordZ = -(cursorX * this.mouseDirectToMap + (this.mapCenterX - this.centerX * this.guiToMap));
-            } else {
-                cursorCoordX = cursorX * this.mouseDirectToMap + (this.mapCenterX - this.centerX * this.guiToMap);
-                cursorCoordZ = cursorY * this.mouseDirectToMap + (this.mapCenterZ - this.centerY * this.guiToMap);
-            }
+            // cursorCoordX/Z bereits oben berechnet
 
             if (this.oldNorth) {
                 guiGraphics.pose().mulPose(com.mojang.math.Axis.ZP.rotationDegrees(-90.0F));
@@ -734,6 +782,35 @@ public class WorldMapScreen extends PopupScreen {
 
         // Render NPCs auf der Worldmap (gefiltert nach Typ und Status)
         renderNPCsOnWorldmap(guiGraphics, (int) this.mapCenterX, (int) this.mapCenterZ, this.zoom);
+
+        // Render Navigations-Overlay auf der Worldmap
+        renderNavigationOverlay(guiGraphics, (int) this.mapCenterX, (int) this.mapCenterZ, this.zoom);
+
+        // DEBUG: Immer einen Spieler-Marker rendern (unabhängig von Skin)
+        // Player-Marker und Text werden jetzt im Welt-Koordinatensystem gerendert (oben im Code)
+        // Der folgende Block ist nur für den "Player:" Text neben dem Marker
+        {
+            float playerX = (float) MinecraftAccessor.xCoordDouble();
+            float playerZ = (float) MinecraftAccessor.zCoordDouble();
+
+            // Berechne Bildschirmposition des Spielers direkt (kartesisch, nicht polar)
+            float playerScreenX, playerScreenY;
+            if (this.oldNorth) {
+                // Bei oldNorth: X und Z werden vertauscht und rotiert
+                playerScreenX = this.centerX + (playerZ - this.mapCenterZ) * this.mapToGui;
+                playerScreenY = (this.top + this.centerY) + (-playerX - this.mapCenterX) * this.mapToGui;
+            } else {
+                playerScreenX = this.centerX + (playerX - this.mapCenterX) * this.mapToGui;
+                playerScreenY = (this.top + this.centerY) + (playerZ - this.mapCenterZ) * this.mapToGui;
+            }
+
+            // Debug: Zeige Spielerposition als Text (KEIN zweiter Marker mehr!)
+            guiGraphics.drawString(this.font,
+                "Player: " + MinecraftAccessor.xCoord() + ", " + MinecraftAccessor.zCoord(),
+                (int)playerScreenX + 10,
+                (int)playerScreenY - 5,
+                0xFFFFFF00);  // Gelb
+        }
 
         if (gotSkin) {
             float playerX = (float) MinecraftAccessor.xCoordDouble();
@@ -847,46 +924,58 @@ public class WorldMapScreen extends PopupScreen {
 
     private void createPopup(int x, int y, int directX, int directY) {
         ArrayList<PopupComponent.PopupEntry> entries = new ArrayList<>();
-        float cursorX = directX;
-        float cursorY = directY - this.top * this.guiToDirectMouse;
+
+        // Berechne World-Koordinaten direkt aus GUI-Koordinaten (x, y)
+        // Invertierung der Player-Marker-Formel:
+        // Player marker: screenX = centerX + (worldX - mapCenterX) * mapToGui
+        // Invertiert: worldX = mapCenterX + (screenX - centerX) / mapToGui
         float cursorCoordX;
         float cursorCoordZ;
         if (this.oldNorth) {
-            cursorCoordX = cursorY * this.mouseDirectToMap + (this.mapCenterZ - this.centerY * this.guiToMap);
-            cursorCoordZ = -(cursorX * this.mouseDirectToMap + (this.mapCenterX - this.centerX * this.guiToMap));
+            cursorCoordX = this.mapCenterZ + (x - this.centerX) / this.mapToGui;
+            cursorCoordZ = -this.mapCenterX - (y - (this.top + this.centerY)) / this.mapToGui;
         } else {
-            cursorCoordX = cursorX * this.mouseDirectToMap + (this.mapCenterX - this.centerX * this.guiToMap);
-            cursorCoordZ = cursorY * this.mouseDirectToMap + (this.mapCenterZ - this.centerY * this.guiToMap);
+            cursorCoordX = this.mapCenterX + (x - this.centerX) / this.mapToGui;
+            cursorCoordZ = this.mapCenterZ + (y - (this.top + this.centerY)) / this.mapToGui;
         }
 
         PopupComponent.PopupEntry entry;
         entry = new PopupComponent.PopupEntry(I18n.get("mapview.waypoints.teleportTo"), 3, true, true);
         entries.add(entry);
 
-        this.createPopup(x, y, directX, directY, 60, entries);
+        // Navigation Option
+        PopupComponent.PopupEntry navEntry = new PopupComponent.PopupEntry("Hierhin navigieren", 4, true, true);
+        entries.add(navEntry);
+
+        // Navigation stoppen (wenn aktiv)
+        if (RoadNavigationService.getInstance() != null && RoadNavigationService.getInstance().isNavigationActive()) {
+            PopupComponent.PopupEntry stopEntry = new PopupComponent.PopupEntry("Navigation beenden", 5, true, true);
+            entries.add(stopEntry);
+        }
+
+        // World-Koordinaten bei Popup-Erstellung speichern (wichtig für korrekte Navigation!)
+        int worldX = (int) Math.floor(cursorCoordX);
+        int worldZ = (int) Math.floor(cursorCoordZ);
+
+        // Debug-Logging für Koordinaten
+        MapViewConstants.getLogger().info("[WorldMap] Popup created at:");
+        MapViewConstants.getLogger().info("  guiX={}, guiY={}", x, y);
+        MapViewConstants.getLogger().info("  mapToGui={}", this.mapToGui);
+        MapViewConstants.getLogger().info("  mapCenterX={}, mapCenterZ={}", this.mapCenterX, this.mapCenterZ);
+        MapViewConstants.getLogger().info("  cursorCoordX={}, cursorCoordZ={}", cursorCoordX, cursorCoordZ);
+        MapViewConstants.getLogger().info("  worldX={}, worldZ={}", worldX, worldZ);
+
+        this.createPopup(x, y, directX, directY, worldX, worldZ, 60, entries);
         if (MapViewConstants.DEBUG) {
-            persistentMap.debugLog((int) cursorCoordX, (int) cursorCoordZ);
+            persistentMap.debugLog(worldX, worldZ);
         }
     }
 
     @Override
     public void popupAction(PopupComponent popup, int action) {
-        int mouseDirectX = popup.getClickedDirectX();
-        int mouseDirectY = popup.getClickedDirectY();
-        float cursorX = mouseDirectX;
-        float cursorY = mouseDirectY - this.top * this.guiToDirectMouse;
-        float cursorCoordX;
-        float cursorCoordZ;
-        if (this.oldNorth) {
-            cursorCoordX = cursorY * this.mouseDirectToMap + (this.mapCenterZ - this.centerY * this.guiToMap);
-            cursorCoordZ = -(cursorX * this.mouseDirectToMap + (this.mapCenterX - this.centerX * this.guiToMap));
-        } else {
-            cursorCoordX = cursorX * this.mouseDirectToMap + (this.mapCenterX - this.centerX * this.guiToMap);
-            cursorCoordZ = cursorY * this.mouseDirectToMap + (this.mapCenterZ - this.centerY * this.guiToMap);
-        }
-
-        int x = (int) Math.floor(cursorCoordX);
-        int z = (int) Math.floor(cursorCoordZ);
+        // Gespeicherte World-Koordinaten verwenden (wurden bei Popup-Erstellung berechnet)
+        int x = popup.getClickedWorldX();
+        int z = popup.getClickedWorldZ();
         int y = this.persistentMap.getHeightAt(x, z);
         switch (action) {
             case 3 -> {
@@ -894,6 +983,24 @@ public class WorldMapScreen extends PopupScreen {
                     y = (!(MapViewConstants.getPlayer().level().dimensionType().hasCeiling()) ? MapViewConstants.getPlayer().level().getMaxBuildHeight() : 64);
                 }
                 MapViewConstants.playerRunTeleportCommand(x, y, z);
+            }
+            case 4 -> {
+                // Navigation starten
+                MapViewConstants.getLogger().info("[Navigation] Target coordinates from popup: x={}, z={}", x, z);
+                BlockPos targetPos = new BlockPos(x, y, z);
+                NavigationTarget target = NavigationTarget.atPosition(targetPos, "Kartenziel (" + x + ", " + z + ")");
+                // Initialisiere Service falls nötig
+                RoadNavigationService navService = RoadNavigationService.getInstance();
+                if (navService == null) {
+                    navService = RoadNavigationService.getInstance(this.persistentMap);
+                }
+                navService.startNavigation(target);
+            }
+            case 5 -> {
+                // Navigation beenden
+                if (RoadNavigationService.getInstance() != null) {
+                    RoadNavigationService.getInstance().stopNavigation();
+                }
             }
             default -> MapViewConstants.getLogger().warn("unimplemented command");
         }
@@ -917,6 +1024,63 @@ public class WorldMapScreen extends PopupScreen {
     }
 
     /**
+     * Rendert ein Raster-Overlay für Koordinaten-Debugging
+     * Diskrete Zoom-Stufen:
+     * - Stufe 3 (100%, 16.0): Nur Block-Raster
+     * - Stufe 2 (66%, 8.0): Block-Raster + Chunk-Raster (dicker)
+     * - Stufe 1 (33%, 4.0): Nur Chunk-Raster
+     * - Stufe 0 (0%, 1.0): Nur Chunk-Raster
+     */
+    private void renderGridOverlay(GuiGraphics guiGraphics) {
+        // Sichtbarer Bereich in Welt-Koordinaten berechnen
+        float viewHalfWidth = this.centerX / this.mapToGui;
+        float viewHalfHeight = this.centerY / this.mapToGui;
+
+        int minX = (int) Math.floor(this.mapCenterX - viewHalfWidth) - 1;
+        int maxX = (int) Math.ceil(this.mapCenterX + viewHalfWidth) + 1;
+        int minZ = (int) Math.floor(this.mapCenterZ - viewHalfHeight) - 1;
+        int maxZ = (int) Math.ceil(this.mapCenterZ + viewHalfHeight) + 1;
+
+        // Block-Raster (Stufe 2 und 3) - zeichne Linien an Block-Grenzen
+        if (currentZoomLevel >= 2) {
+            int blockGridColor = 0x60FFFFFF; // Weiß, halbtransparent
+            // Vertikale Linien (X-Grenzen)
+            for (int x = minX; x <= maxX; x++) {
+                MapViewGuiGraphics.fillGradient(guiGraphics, x - 0.05f, minZ, x + 0.05f, maxZ,
+                    blockGridColor, blockGridColor, blockGridColor, blockGridColor);
+            }
+            // Horizontale Linien (Z-Grenzen)
+            for (int z = minZ; z <= maxZ; z++) {
+                MapViewGuiGraphics.fillGradient(guiGraphics, minX, z - 0.05f, maxX, z + 0.05f,
+                    blockGridColor, blockGridColor, blockGridColor, blockGridColor);
+            }
+        }
+
+        // Chunk-Raster (Stufe 0, 1 und 2 - aber NICHT Stufe 3)
+        if (currentZoomLevel <= 2) {
+            int chunkGridColor = 0xC0FFFF00; // Gelb, weniger transparent
+            float thickness = (currentZoomLevel == 2) ? 0.15f : 0.3f;
+
+            // Auf Chunk-Grenzen alignen (alle 16 Blöcke)
+            int chunkMinX = (minX >> 4) << 4;
+            int chunkMaxX = ((maxX >> 4) + 1) << 4;
+            int chunkMinZ = (minZ >> 4) << 4;
+            int chunkMaxZ = ((maxZ >> 4) + 1) << 4;
+
+            // Vertikale Chunk-Linien
+            for (int x = chunkMinX; x <= chunkMaxX; x += 16) {
+                MapViewGuiGraphics.fillGradient(guiGraphics, x - thickness, chunkMinZ, x + thickness, chunkMaxZ,
+                    chunkGridColor, chunkGridColor, chunkGridColor, chunkGridColor);
+            }
+            // Horizontale Chunk-Linien
+            for (int z = chunkMinZ; z <= chunkMaxZ; z += 16) {
+                MapViewGuiGraphics.fillGradient(guiGraphics, chunkMinX, z - thickness, chunkMaxX, z + thickness,
+                    chunkGridColor, chunkGridColor, chunkGridColor, chunkGridColor);
+            }
+        }
+    }
+
+    /**
      * Rendert NPCs auf der Worldmap
      * Filtert automatisch Polizei-NPCs und NPCs auf Arbeit/Zuhause
      */
@@ -931,5 +1095,34 @@ public class WorldMapScreen extends PopupScreen {
         // Render Tooltip bei Hover
         npcMapRenderer.renderNPCTooltip(graphics, this.mouseX, this.mouseY,
                 centerX, centerZ, zoom, this.width, this.height);
+    }
+
+    /**
+     * Rendert das Navigations-Overlay auf der Worldmap
+     * Zeigt Pfadlinie, Zielmarker und Distanzanzeige
+     */
+    private void renderNavigationOverlay(GuiGraphics graphics, int centerX, int centerZ, float zoom) {
+        NavigationOverlay overlay = NavigationOverlay.getInstance();
+
+        // Initialisiere falls nötig
+        if (!overlay.isInitialized()) {
+            overlay.initialize(this.persistentMap);
+        }
+
+        if (!overlay.isInitialized() || !overlay.isNavigating()) {
+            return;
+        }
+
+        // Tick für Updates (Position, Pfad-Neuberechnung)
+        overlay.tick();
+
+        // Berechne Bildschirm-Zentrum
+        int screenCenterX = this.width / 2;
+        int screenCenterY = this.top + (this.bottom - this.top) / 2;
+
+        // Render auf Fullscreen-Worldmap mit korrekter Skalierung
+        // mapToGui konvertiert Weltkoordinaten zu Bildschirmkoordinaten
+        overlay.renderFullscreenAccurate(graphics, centerX, centerZ,
+                screenCenterX, screenCenterY, this.mapToGui);
     }
 }
