@@ -192,21 +192,22 @@ public class WorldMapScreen extends PopupScreen {
         this.sideMargin = 10;
         this.buttonSeparation = 4;
 
-        // Layout: [−] [+]  [Center] [Options] [Done]
-        // Zoom-Buttons sind 40px breit, die 3 Haupt-Buttons teilen sich den Rest gleichmäßig
+        // Layout: [−] <Zoom%> [+]  [Center] [Options] [Done]
+        // Reserviere Platz für: - Button (40px) + Zoom-Display (50px) + + Button (40px)
         int zoomButtonWidth = 40;
+        int zoomDisplayWidth = 50;
         int totalAvailableWidth = this.width - this.sideMargin * 2;
-        int spaceForZoomButtons = 2 * zoomButtonWidth;
-        int totalSeparations = 4 * this.buttonSeparation; // 4 Lücken zwischen 5 Buttons
-        int spaceForMainButtons = totalAvailableWidth - spaceForZoomButtons - totalSeparations;
+        int spaceForZoomControls = 2 * zoomButtonWidth + zoomDisplayWidth;
+        int totalSeparations = 4 * this.buttonSeparation; // 4 Lücken zwischen 5 Elementen
+        int spaceForMainButtons = totalAvailableWidth - spaceForZoomControls - totalSeparations;
         this.buttonWidth = spaceForMainButtons / 3; // Gleiche Breite für Center, Options, Done
 
-        // Zoom-Buttons links
+        // Zoom-Buttons links mit Platz für Prozentanzeige dazwischen
         this.addRenderableWidget(new PopupButton(this.sideMargin, this.getHeight() - 28, zoomButtonWidth, 20, Component.literal("−"), button -> this.zoomOut(), this));
-        this.addRenderableWidget(new PopupButton(this.sideMargin + zoomButtonWidth + this.buttonSeparation, this.getHeight() - 28, zoomButtonWidth, 20, Component.literal("+"), button -> this.zoomIn(), this));
+        this.addRenderableWidget(new PopupButton(this.sideMargin + zoomButtonWidth + zoomDisplayWidth + this.buttonSeparation, this.getHeight() - 28, zoomButtonWidth, 20, Component.literal("+"), button -> this.zoomIn(), this));
 
         // Haupt-Buttons rechts (alle gleich breit)
-        int mainButtonsStart = this.sideMargin + 2 * zoomButtonWidth + 2 * this.buttonSeparation;
+        int mainButtonsStart = this.sideMargin + spaceForZoomControls + 2 * this.buttonSeparation;
         this.addRenderableWidget(new PopupButton(mainButtonsStart, this.getHeight() - 28, this.buttonWidth, 20, Component.translatable("worldmap.center"), button -> this.centerOnPlayer(), this));
         this.addRenderableWidget(new PopupButton(mainButtonsStart + 1 * (this.buttonWidth + this.buttonSeparation), this.getHeight() - 28, this.buttonWidth, 20, Component.translatable("menu.options"), button -> minecraft.setScreen(new MapOptionsScreen(this)), this));
         this.addRenderableWidget(new PopupButton(mainButtonsStart + 2 * (this.buttonWidth + this.buttonSeparation), this.getHeight() - 28, this.buttonWidth, 20, Component.translatable("gui.done"), button -> minecraft.setScreen(parent), this));
@@ -924,15 +925,17 @@ public class WorldMapScreen extends PopupScreen {
         }
         super.render(guiGraphics, mouseX, mouseY, delta);
 
-        // Rendere Zoom-Stufe zwischen den - und + Buttons
+        // Rendere Zoom-Stufe im reservierten Bereich zwischen - und + Buttons
         int zoomButtonWidth = 40;
-        int zoomTextX = this.sideMargin + zoomButtonWidth + this.buttonSeparation / 2;
+        int zoomDisplayWidth = 50;
+        int zoomDisplayX = this.sideMargin + zoomButtonWidth;
         int zoomTextY = this.getHeight() - 23;
         // Zoom-Prozent: 0%, 33%, 66%, 100%
         int zoomPercent = currentZoomLevel == 3 ? 100 : currentZoomLevel * 33;
         String zoomText = zoomPercent + "%";
         int zoomTextWidth = this.font.width(zoomText);
-        guiGraphics.drawString(this.font, zoomText, zoomTextX + (zoomButtonWidth - zoomTextWidth) / 2, zoomTextY, 0xFFFFFFFF);
+        // Zentriere Text im reservierten Bereich
+        guiGraphics.drawString(this.font, zoomText, zoomDisplayX + (zoomDisplayWidth - zoomTextWidth) / 2, zoomTextY, 0xFFFFFFFF);
     }
 
     public void renderBackground(GuiGraphics context, int mouseX, int mouseY, float delta) {
