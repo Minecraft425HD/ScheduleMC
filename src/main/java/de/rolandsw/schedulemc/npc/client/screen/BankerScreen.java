@@ -408,7 +408,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         // Info
         double depositLimit = ModConfigHandler.COMMON.BANK_DEPOSIT_LIMIT.get();
         guiGraphics.drawString(this.font, "Limit: " + String.format("%.0f€", depositLimit),
-            x + 15, y + 145, 0x606060, false);
+            x + 15, y + 170, 0x606060, false);
     }
 
     /**
@@ -440,9 +440,9 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         guiGraphics.drawString(this.font, "Abheben (zum Girokonto):", x + 15, y + 128, 0x808080, false);
 
         // Info
-        guiGraphics.drawString(this.font, "Zinsen: 5% pro Woche", x + 15, y + 145, 0x606060, false);
-        guiGraphics.drawString(this.font, "Minimum: 1000€", x + 15, y + 155, 0x606060, false);
-        guiGraphics.drawString(this.font, "4-Wochen Sperre", x + 15, y + 165, 0x606060, false);
+        guiGraphics.drawString(this.font, "Zinsen: 5% pro Woche", x + 15, y + 170, 0x606060, false);
+        guiGraphics.drawString(this.font, "Minimum: 1000€", x + 15, y + 182, 0x606060, false);
+        guiGraphics.drawString(this.font, "4-Wochen Sperre", x + 15, y + 194, 0x606060, false);
     }
 
     /**
