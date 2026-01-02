@@ -5,8 +5,6 @@ import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import de.rolandsw.schedulemc.economy.EconomyManager;
-import de.rolandsw.schedulemc.economy.FeeManager;
-import de.rolandsw.schedulemc.economy.RateLimiter;
 import de.rolandsw.schedulemc.economy.Transaction;
 import de.rolandsw.schedulemc.economy.TransactionHistory;
 import de.rolandsw.schedulemc.economy.TransactionType;
@@ -28,26 +26,6 @@ import java.util.UUID;
 public class MoneyCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-        // ───────────────────────────────
-        // /money - Zeigt eigenes Guthaben
-        // ───────────────────────────────
-        dispatcher.register(
-                Commands.literal("money")
-                        .executes(MoneyCommand::showBalance)
-        );
-
-        // ───────────────────────────────
-        // /pay <spieler> <betrag>
-        // ───────────────────────────────
-        dispatcher.register(
-                Commands.literal("pay")
-                        .then(Commands.argument("target", EntityArgument.player())
-                                .then(Commands.argument("amount", DoubleArgumentType.doubleArg(0.01))
-                                        .executes(MoneyCommand::payPlayer)
-                                )
-                        )
-        );
-
         // ───────────────────────────────
         // /money set <spieler> <betrag> (Admin)
         // ───────────────────────────────
@@ -94,19 +72,6 @@ public class MoneyCommand {
         );
 
         // ───────────────────────────────
-        // /money history [limit] - Zeigt Transaktionshistorie
-        // ───────────────────────────────
-        dispatcher.register(
-                Commands.literal("money")
-                        .then(Commands.literal("history")
-                                .executes(ctx -> showHistory(ctx, 10))
-                                .then(Commands.argument("limit", IntegerArgumentType.integer(1, 100))
-                                        .executes(ctx -> showHistory(ctx, IntegerArgumentType.getInteger(ctx, "limit")))
-                                )
-                        )
-        );
-
-        // ───────────────────────────────
         // /money history <spieler> [limit] (Admin)
         // ───────────────────────────────
         dispatcher.register(
@@ -122,105 +87,6 @@ public class MoneyCommand {
                                 )
                         )
         );
-    }
-
-    // ───────────────────────────────
-    // Zeigt das eigene Guthaben
-    // ───────────────────────────────
-    private static int showBalance(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler beim Abrufen des Kontostands",
-            player -> {
-                double balance = EconomyManager.getBalance(player.getUUID());
-                player.sendSystemMessage(Component.literal(
-                    "§a§l━━━━━━━━━━━━━━━━━━\n" +
-                    "§aDein Kontostand:\n" +
-                    "§e" + String.format("%.2f", balance) + " €\n" +
-                    "§a§l━━━━━━━━━━━━━━━━━━"
-                ));
-            });
-    }
-
-    // ───────────────────────────────
-    // Geld an anderen Spieler senden
-    // ───────────────────────────────
-    private static int payPlayer(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler beim Pay-Befehl",
-            sender -> {
-                ServerPlayer target = EntityArgument.getPlayer(ctx, "target");
-                double amount = DoubleArgumentType.getDouble(ctx, "amount");
-
-                UUID senderUUID = sender.getUUID();
-                UUID targetUUID = target.getUUID();
-
-                // Rate-Limiting prüfen
-                if (!RateLimiter.canPerformTransaction(senderUUID)) {
-                    int seconds = RateLimiter.getSecondsUntilNextTransaction(senderUUID);
-                    CommandExecutor.sendFailure(ctx.getSource(),
-                        "✗ Zu viele Transaktionen!\n" +
-                        "Bitte warte " + seconds + " Sekunden bevor du erneut sendest."
-                    );
-                    return;
-                }
-
-                // Prüfen ob Sender = Empfänger
-                if (senderUUID.equals(targetUUID)) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Du kannst dir nicht selbst Geld senden!");
-                    return;
-                }
-
-                // ✅ INPUT VALIDATION: Betrag validieren
-                InputValidation.ValidationResult amountValidation = InputValidation.validateAmount(amount);
-                if (amountValidation.isFailure()) {
-                    CommandExecutor.sendFailure(ctx.getSource(),
-                        "§c❌ Ungültiger Betrag: §f" + amountValidation.getErrorMessage()
-                    );
-                    return;
-                }
-
-                // Berechne Gebühr
-                double transferFee = FeeManager.getTransferFee(amount);
-                double totalCost = amount + transferFee;
-
-                // Guthaben prüfen (inkl. Gebühr)
-                double senderBalance = EconomyManager.getBalance(senderUUID);
-                if (senderBalance < totalCost) {
-                    CommandExecutor.sendFailure(ctx.getSource(),
-                        "Nicht genug Geld!\n" +
-                        "Dein Guthaben: " + String.format("%.2f", senderBalance) + " €\n" +
-                        "Benötigt: " + String.format("%.2f", amount) + " € + " +
-                        String.format("%.2f", transferFee) + " € Gebühr"
-                    );
-                    return;
-                }
-
-                // Transaktion durchführen
-                EconomyManager.withdraw(senderUUID, amount, TransactionType.TRANSFER,
-                    "Transfer an " + target.getName().getString());
-                EconomyManager.deposit(targetUUID, amount, TransactionType.TRANSFER,
-                    "Transfer von " + sender.getName().getString());
-
-                // Gebühr abziehen
-                FeeManager.chargeTransferFee(senderUUID, amount, sender.getServer());
-
-                // Transaktion aufzeichnen
-                RateLimiter.recordTransaction(senderUUID);
-
-                // Benachrichtigungen
-                sender.sendSystemMessage(Component.literal(
-                    "§a✓ Zahlung erfolgreich!\n" +
-                    "§7An: §f" + target.getName().getString() + "\n" +
-                    "§7Betrag: §e" + String.format("%.2f", amount) + " €\n" +
-                    "§7Transfer-Gebühr: §c-" + String.format("%.2f", transferFee) + " €\n" +
-                    "§7Neues Guthaben: §e" + String.format("%.2f", EconomyManager.getBalance(senderUUID)) + " €"
-                ));
-
-                target.sendSystemMessage(Component.literal(
-                    "§a✓ Geld erhalten!\n" +
-                    "§7Von: §f" + sender.getName().getString() + "\n" +
-                    "§7Betrag: §e" + String.format("%.2f", amount) + " €\n" +
-                    "§7Neues Guthaben: §e" + String.format("%.2f", EconomyManager.getBalance(targetUUID)) + " €"
-                ));
-            });
     }
 
     // ───────────────────────────────
@@ -335,13 +201,8 @@ public class MoneyCommand {
     }
 
     // ───────────────────────────────
-    // Zeigt Transaktionshistorie
+    // Admin: Zeigt Transaktionshistorie für Spieler
     // ───────────────────────────────
-    private static int showHistory(CommandContext<CommandSourceStack> ctx, int limit) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler beim Abrufen der Historie",
-            player -> showHistoryFor(ctx, player, limit));
-    }
-
     private static void showHistoryFor(CommandContext<CommandSourceStack> ctx, ServerPlayer target, int limit) {
         TransactionHistory history = TransactionHistory.getInstance();
         if (history == null) {

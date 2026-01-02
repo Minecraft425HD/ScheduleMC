@@ -35,7 +35,7 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu> {
         updateBalances();
         
         // Amount Input Field
-        amountInput = new EditBox(this.font, x + 38, y + 50, 100, 20, Component.literal("Amount"));
+        amountInput = new EditBox(this.font, x + 70, y + 50, 85, 20, Component.literal("Amount"));
         amountInput.setValue("100");
         amountInput.setMaxLength(10);
         addRenderableWidget(amountInput);

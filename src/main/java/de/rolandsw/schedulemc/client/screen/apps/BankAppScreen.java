@@ -98,7 +98,7 @@ public class BankAppScreen extends Screen {
 
         // Transfer Form (nur in Tab 2)
         if (currentTab == 2) {
-            int formY = topPos + 65;
+            int formY = topPos + 78;
 
             // Empfänger
             transferRecipientBox = new EditBox(this.font, leftPos + 15, formY, WIDTH - 30, 18, Component.literal("Empfänger"));
@@ -107,7 +107,7 @@ public class BankAppScreen extends Screen {
             addRenderableWidget(transferRecipientBox);
 
             // Betrag
-            transferAmountBox = new EditBox(this.font, leftPos + 15, formY + 30, WIDTH - 30, 18, Component.literal("Betrag"));
+            transferAmountBox = new EditBox(this.font, leftPos + 15, formY + 38, WIDTH - 30, 18, Component.literal("Betrag"));
             transferAmountBox.setMaxLength(10);
             transferAmountBox.setHint(Component.literal("Betrag in €"));
             addRenderableWidget(transferAmountBox);
@@ -115,7 +115,7 @@ public class BankAppScreen extends Screen {
             // Senden-Button
             addRenderableWidget(Button.builder(Component.literal("Überweisen"), button -> {
                 performTransfer();
-            }).bounds(leftPos + 15, formY + 60, WIDTH - 30, 20).build());
+            }).bounds(leftPos + 15, formY + 67, WIDTH - 30, 20).build());
         }
 
         // Zurück-Button
@@ -393,13 +393,13 @@ public class BankAppScreen extends Screen {
         guiGraphics.drawString(this.font, "§7Verfügbar:", leftPos + 15, startY, 0xAAAAAA);
         guiGraphics.drawString(this.font, String.format("§6%.2f€", balance), leftPos + 110, startY, 0xFFAA00);
 
-        // Labels für Form-Felder
-        guiGraphics.drawString(this.font, "§fEmpfänger:", leftPos + 15, startY + 15, 0xFFFFFF);
-        guiGraphics.drawString(this.font, "§fBetrag:", leftPos + 15, startY + 45, 0xFFFFFF);
+        // Labels für Form-Felder (über den EditBoxen mit ausreichend Abstand)
+        guiGraphics.drawString(this.font, "§fEmpfängername:", leftPos + 15, startY + 13, 0xFFFFFF);
+        guiGraphics.drawString(this.font, "§fBetrag in €:", leftPos + 15, startY + 51, 0xFFFFFF);
 
         // Transfer-Message
         if (!transferMessage.isEmpty()) {
-            int messageY = startY + 90;
+            int messageY = startY + 100;
             // Mehrzeiliger Text wenn zu lang
             String[] lines = transferMessage.split("\n");
             for (String line : lines) {
@@ -409,7 +409,7 @@ public class BankAppScreen extends Screen {
         }
 
         // Info
-        guiGraphics.drawCenteredString(this.font, "§8Überweisung an andere Spieler", leftPos + WIDTH / 2, startY + 110, 0x666666);
+        guiGraphics.drawCenteredString(this.font, "§8Überweisung an andere Spieler", leftPos + WIDTH / 2, startY + 130, 0x666666);
     }
 
     // ═══════════════════════════════════════════════════════════
