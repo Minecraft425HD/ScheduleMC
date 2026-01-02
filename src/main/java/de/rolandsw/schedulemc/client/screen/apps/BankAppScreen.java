@@ -1,7 +1,9 @@
 package de.rolandsw.schedulemc.client.screen.apps;
 
 import de.rolandsw.schedulemc.economy.EconomyManager;
+import de.rolandsw.schedulemc.economy.RecurringPayment;
 import de.rolandsw.schedulemc.economy.RecurringPaymentInterval;
+import de.rolandsw.schedulemc.economy.RecurringPaymentManager;
 import de.rolandsw.schedulemc.economy.Transaction;
 import de.rolandsw.schedulemc.economy.TransactionHistory;
 import de.rolandsw.schedulemc.npc.network.CreateRecurringPaymentPacket;
@@ -536,8 +538,53 @@ public class BankAppScreen extends Screen {
         // Aktive Daueraufträge
         guiGraphics.drawString(this.font, "§fAktive Daueraufträge:", leftPos + 15, startY + 142, 0xFFFFFF);
 
-        // TODO: Liste implementieren
-        guiGraphics.drawCenteredString(this.font, "§7Keine aktiven Daueraufträge", leftPos + WIDTH / 2, startY + 160, 0xAAAAAA);
+        // Liste anzeigen (wenn Server verfügbar)
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player != null && mc.level != null && mc.level.getServer() != null) {
+            RecurringPaymentManager manager = RecurringPaymentManager.getInstance(mc.level.getServer());
+            java.util.List<RecurringPayment> payments = manager.getPayments(mc.player.getUUID());
+
+            if (payments.isEmpty()) {
+                guiGraphics.drawCenteredString(this.font, "§7Keine aktiven Daueraufträge",
+                    leftPos + WIDTH / 2, startY + 160, 0xAAAAAA);
+            } else {
+                // Zeige bis zu 3 Daueraufträge an
+                int yOffset = startY + 158;
+                int maxDisplay = Math.min(3, payments.size());
+
+                for (int i = 0; i < maxDisplay; i++) {
+                    RecurringPayment payment = payments.get(i);
+
+                    // Empfänger (gekürzt)
+                    String recipientStr = payment.getToPlayer().toString().substring(0, 8);
+                    guiGraphics.drawString(this.font, "§f" + recipientStr + "...", leftPos + 15, yOffset, 0xFFFFFF);
+
+                    // Betrag
+                    String amountStr = String.format("%.0f€", payment.getAmount());
+                    guiGraphics.drawString(this.font, "§6" + amountStr, leftPos + 95, yOffset, 0xFFAA00);
+
+                    // Intervall
+                    String intervalStr = payment.getIntervalDays() + "d";
+                    guiGraphics.drawString(this.font, "§b" + intervalStr, leftPos + 145, yOffset, 0x00AAAA);
+
+                    // Status
+                    String statusStr = payment.isActive() ? "§a✓" : "§e⏸";
+                    guiGraphics.drawString(this.font, statusStr, leftPos + 180, yOffset, 0xFFFFFF);
+
+                    yOffset += 11;
+                }
+
+                // Hinweis bei mehr Einträgen
+                if (payments.size() > 3) {
+                    guiGraphics.drawCenteredString(this.font,
+                        "§7+" + (payments.size() - 3) + " weitere...",
+                        leftPos + WIDTH / 2, yOffset + 3, 0xAAAAAA);
+                }
+            }
+        } else {
+            guiGraphics.drawCenteredString(this.font, "§7Keine aktiven Daueraufträge",
+                leftPos + WIDTH / 2, startY + 160, 0xAAAAAA);
+        }
     }
 
     // ═══════════════════════════════════════════════════════════

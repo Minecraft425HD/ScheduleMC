@@ -637,8 +637,43 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
             if (payments.isEmpty()) {
                 guiGraphics.drawString(this.font, "Keine aktiven Daueraufträge", x + 65, y + 192, 0x808080, false);
             } else {
-                // TODO: Liste mit Scroll-Funktionalität implementieren
-                guiGraphics.drawString(this.font, payments.size() + " aktive(r) Dauerauftrag/Daueraufträge", x + 55, y + 192, 0x00AA00, false);
+                // Zeige bis zu 3 Daueraufträge an
+                int yOffset = y + 192;
+                int maxDisplay = Math.min(3, payments.size());
+
+                for (int i = 0; i < maxDisplay; i++) {
+                    RecurringPayment payment = payments.get(i);
+
+                    // Empfänger Name (gekürzt falls zu lang)
+                    String recipientStr = payment.getToPlayer().toString().substring(0, 8);
+                    guiGraphics.drawString(this.font, recipientStr + "...", x + 15, yOffset, 0xFFFFFF, false);
+
+                    // Betrag
+                    String amountStr = String.format("%.0f€", payment.getAmount());
+                    guiGraphics.drawString(this.font, amountStr, x + 80, yOffset, 0xFFAA00, false);
+
+                    // Intervall
+                    String intervalStr = payment.getIntervalDays() + "d";
+                    guiGraphics.drawString(this.font, intervalStr, x + 130, yOffset, 0x00AAAA, false);
+
+                    // Status
+                    String statusStr = payment.isActive() ? "✓" : "⏸";
+                    int statusColor = payment.isActive() ? 0x00FF00 : 0xFFAA00;
+                    guiGraphics.drawString(this.font, statusStr, x + 170, yOffset, statusColor, false);
+
+                    // ID (für manuelle Verwaltung via Commands)
+                    String idStr = payment.getPaymentId().substring(0, 4);
+                    guiGraphics.drawString(this.font, "#" + idStr, x + 190, yOffset, 0x808080, false);
+
+                    yOffset += 11;
+                }
+
+                // Hinweis bei mehr als 3 Einträgen
+                if (payments.size() > 3) {
+                    guiGraphics.drawString(this.font,
+                        "+" + (payments.size() - 3) + " weitere...",
+                        x + 85, yOffset, 0x808080, false);
+                }
             }
         }
     }
