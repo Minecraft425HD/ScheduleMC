@@ -28,4 +28,10 @@ public class NPCMenuTypes {
 
     public static final RegistryObject<MenuType<StealingMenu>> STEALING_MENU =
         MENUS.register("stealing_menu", () -> IForgeMenuType.create(StealingMenu::new));
+
+    public static final RegistryObject<MenuType<BankerMenu>> BANKER_MENU =
+        MENUS.register("banker_menu", () -> IForgeMenuType.create(BankerMenu::new));
+
+    public static final RegistryObject<MenuType<BoerseMenu>> BOERSE_MENU =
+        MENUS.register("boerse_menu", () -> IForgeMenuType.create(BoerseMenu::new));
 }
