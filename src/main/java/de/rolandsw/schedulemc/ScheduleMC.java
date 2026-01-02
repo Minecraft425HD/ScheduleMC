@@ -254,10 +254,7 @@ public class ScheduleMC {
             PlotCommand.register(event.getDispatcher());
             MoneyCommand.register(event.getDispatcher());
             LoanCommand.register(event.getDispatcher());
-            SavingsCommand.register(event.getDispatcher());
-            AutopayCommand.register(event.getDispatcher());
             DailyCommand.register(event.getDispatcher());
-            TobaccoCommand.register(event.getDispatcher());
             HospitalCommand.register(event.getDispatcher());
             NPCCommand.register(event.getDispatcher(), event.getBuildContext());
             WarehouseCommand.register(event.getDispatcher(), event.getBuildContext());

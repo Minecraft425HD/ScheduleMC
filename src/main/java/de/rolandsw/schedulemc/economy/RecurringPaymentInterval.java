@@ -42,4 +42,16 @@ public enum RecurringPaymentInterval {
         }
         return MONTHLY; // Default
     }
+
+    /**
+     * Findet Intervall anhand der Anzahl Tage
+     */
+    public static RecurringPaymentInterval fromDays(int days) {
+        for (RecurringPaymentInterval interval : values()) {
+            if (interval.daysInterval == days) {
+                return interval;
+            }
+        }
+        return MONTHLY; // Default
+    }
 }
