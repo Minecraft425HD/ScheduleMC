@@ -118,19 +118,19 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         }).bounds(x + 72, y + 80, 55, 15).build());
 
         // Überweisen Tab Components
-        transferTargetInput = new EditBox(this.font, x + 10, y + 50, 80, 15, Component.literal("Spielername"));
+        transferTargetInput = new EditBox(this.font, x + 10, y + 55, 145, 15, Component.literal("Spielername"));
         transferTargetInput.setMaxLength(16);
         transferTargetInput.setValue("");
         addRenderableWidget(transferTargetInput);
 
-        transferAmountInput = new EditBox(this.font, x + 10, y + 70, 60, 15, Component.literal("Betrag"));
+        transferAmountInput = new EditBox(this.font, x + 10, y + 87, 85, 15, Component.literal("Betrag"));
         transferAmountInput.setMaxLength(10);
         transferAmountInput.setValue("100");
         addRenderableWidget(transferAmountInput);
 
         transferButton = addRenderableWidget(Button.builder(Component.literal("Überweisen"), button -> {
             handleTransfer();
-        }).bounds(x + 72, y + 70, 65, 15).build());
+        }).bounds(x + 10, y + 107, 145, 18).build());
 
         // Transaktionen Tab Components
         scrollUpButton = addRenderableWidget(Button.builder(Component.literal("▲"), button -> {
@@ -304,25 +304,25 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
     private void renderUeberweisenTab(GuiGraphics guiGraphics, int x, int y) {
         if (minecraft == null || minecraft.player == null) return;
 
-        guiGraphics.drawString(this.font, "Empfänger:", x + 10, y + 40, 0x404040, false);
-        guiGraphics.drawString(this.font, "Betrag:", x + 10, y + 60, 0x404040, false);
+        // Verfügbar Label und Betrag
+        double balance = EconomyManager.getBalance(minecraft.player.getUUID());
+        guiGraphics.drawString(this.font, "Verfügbar:", x + 10, y + 40, 0x404040, false);
+        guiGraphics.drawString(this.font, String.format("%.2f€", balance), x + 80, y + 40, 0xFFD700, false);
+
+        // Empfänger Label (über dem Eingabefeld)
+        guiGraphics.drawString(this.font, "Empfängername:", x + 10, y + 48, 0x808080, false);
+
+        // Betrag Label (über dem Eingabefeld mit mehr Abstand)
+        guiGraphics.drawString(this.font, "Betrag in €:", x + 10, y + 75, 0x808080, false);
 
         // Transfer Limit Info
-        TransferLimitTracker tracker = TransferLimitTracker.getInstance(minecraft.level.getServer());
-        double remaining = tracker.getRemainingLimit(minecraft.player.getUUID());
-        double dailyLimit = ModConfigHandler.COMMON.BANK_TRANSFER_DAILY_LIMIT.get();
+        if (minecraft.level.getServer() != null) {
+            TransferLimitTracker tracker = TransferLimitTracker.getInstance(minecraft.level.getServer());
+            double remaining = tracker.getRemainingLimit(minecraft.player.getUUID());
 
-        guiGraphics.drawString(this.font, "TAGESLIMIT", x + 10, y + 95, 0x404040, false);
-        guiGraphics.drawString(this.font, String.format("Verfügbar: %.2f€", remaining),
-            x + 10, y + 105, remaining > 0 ? 0x00AA00 : 0xFF5555, false);
-        guiGraphics.drawString(this.font, String.format("Maximum: %.2f€", dailyLimit),
-            x + 10, y + 113, 0x808080, false);
-
-        // Girokonto Balance
-        double balance = EconomyManager.getBalance(minecraft.player.getUUID());
-        guiGraphics.drawString(this.font, "Kontostand:", x + 10, y + 123, 0x808080, false);
-        guiGraphics.drawString(this.font, String.format("%.2f€", balance),
-            x + 75, y + 123, 0x00AA00, false);
+            guiGraphics.drawString(this.font, "Überweisung an andere Spieler",
+                x + 10, y + 127, 0x606060, false);
+        }
     }
 
     /**
