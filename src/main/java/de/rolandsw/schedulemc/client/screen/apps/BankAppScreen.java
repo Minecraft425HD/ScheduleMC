@@ -326,12 +326,13 @@ public class BankAppScreen extends Screen {
         guiGraphics.drawCenteredString(this.font, "§6§lBank", leftPos + WIDTH / 2, topPos + 10, 0xFFFFFF);
 
         // Tab-Hintergrund (aktiver Tab hervorheben)
+        int currentX = leftPos + 5;
         for (int i = 0; i < TAB_NAMES.length; i++) {
-            int tabX = leftPos + 5 + (i * TAB_WIDTH);
             int tabY = topPos + 30;
             if (i == currentTab) {
-                guiGraphics.fill(tabX - 1, tabY - 1, tabX + TAB_WIDTH - 1, tabY + TAB_HEIGHT + 1, 0xFF4A90E2);
+                guiGraphics.fill(currentX - 1, tabY - 1, currentX + TAB_WIDTHS[i] - 3, tabY + TAB_HEIGHT + 1, 0xFF4A90E2);
             }
+            currentX += TAB_WIDTHS[i];
         }
 
         // Content-Bereich
