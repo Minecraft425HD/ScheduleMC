@@ -190,12 +190,24 @@ public class WorldMapScreen extends PopupScreen {
         this.buildWorldName();
         this.leftMouseButtonDown = false;
         this.sideMargin = 10;
-        this.buttonCount = 3;
+        this.buttonCount = 5;
         this.buttonSeparation = 4;
-        this.buttonWidth = (this.width - this.sideMargin * 2 - this.buttonSeparation * (this.buttonCount - 1)) / this.buttonCount;
-        this.addRenderableWidget(new PopupButton(this.sideMargin + 0 * (this.buttonWidth + this.buttonSeparation), this.getHeight() - 28, this.buttonWidth, 20, Component.translatable("worldmap.center"), button -> this.centerOnPlayer(), this));
-        this.addRenderableWidget(new PopupButton(this.sideMargin + 1 * (this.buttonWidth + this.buttonSeparation), this.getHeight() - 28, this.buttonWidth, 20, Component.translatable("menu.options"), button -> minecraft.setScreen(new MapOptionsScreen(this)), this));
-        this.addRenderableWidget(new PopupButton(this.sideMargin + 2 * (this.buttonWidth + this.buttonSeparation), this.getHeight() - 28, this.buttonWidth, 20, Component.translatable("gui.done"), button -> minecraft.setScreen(parent), this));
+
+        // Berechne Button-Breiten: - und + sind kleiner (40px), die anderen 3 teilen sich den Rest
+        int zoomButtonWidth = 40;
+        int remainingWidth = this.width - this.sideMargin * 2 - 2 * zoomButtonWidth - this.buttonSeparation * 4;
+        this.buttonWidth = remainingWidth / 3;
+
+        // Zoom-Buttons links
+        this.addRenderableWidget(new PopupButton(this.sideMargin, this.getHeight() - 28, zoomButtonWidth, 20, Component.literal("−"), button -> this.zoomOut(), this));
+        this.addRenderableWidget(new PopupButton(this.sideMargin + zoomButtonWidth + this.buttonSeparation, this.getHeight() - 28, zoomButtonWidth, 20, Component.literal("+"), button -> this.zoomIn(), this));
+
+        // Haupt-Buttons rechts
+        int mainButtonsStart = this.sideMargin + 2 * zoomButtonWidth + 2 * this.buttonSeparation;
+        this.addRenderableWidget(new PopupButton(mainButtonsStart, this.getHeight() - 28, this.buttonWidth, 20, Component.translatable("worldmap.center"), button -> this.centerOnPlayer(), this));
+        this.addRenderableWidget(new PopupButton(mainButtonsStart + 1 * (this.buttonWidth + this.buttonSeparation), this.getHeight() - 28, this.buttonWidth, 20, Component.translatable("menu.options"), button -> minecraft.setScreen(new MapOptionsScreen(this)), this));
+        this.addRenderableWidget(new PopupButton(mainButtonsStart + 2 * (this.buttonWidth + this.buttonSeparation), this.getHeight() - 28, this.buttonWidth, 20, Component.translatable("gui.done"), button -> minecraft.setScreen(parent), this));
+
         this.coordinates = new EditBox(this.font, this.sideMargin, 10, 140, 20, null);
         this.top = 32;
         this.bottom = this.getHeight() - 32;
@@ -232,6 +244,34 @@ public class WorldMapScreen extends PopupScreen {
         int playerX = MinecraftAccessor.xCoord();
         int playerZ = MinecraftAccessor.zCoord();
         this.centerAt(playerX, playerZ);
+    }
+
+    /**
+     * Zoomt herein (erhöht Zoomstufe)
+     */
+    private void zoomIn() {
+        if (currentZoomLevel < ZOOM_LEVELS.length - 1) {
+            currentZoomLevel++;
+            this.zoomGoal = ZOOM_LEVELS[currentZoomLevel];
+            this.zoomStart = this.zoom;
+            this.timeOfZoom = System.currentTimeMillis();
+            this.zoomDirectX = (minecraft.getWindow().getWidth() / 2f);
+            this.zoomDirectY = (minecraft.getWindow().getHeight() - minecraft.getWindow().getHeight() / 2f);
+        }
+    }
+
+    /**
+     * Zoomt heraus (verringert Zoomstufe)
+     */
+    private void zoomOut() {
+        if (currentZoomLevel > 0) {
+            currentZoomLevel--;
+            this.zoomGoal = ZOOM_LEVELS[currentZoomLevel];
+            this.zoomStart = this.zoom;
+            this.timeOfZoom = System.currentTimeMillis();
+            this.zoomDirectX = (minecraft.getWindow().getWidth() / 2f);
+            this.zoomDirectY = (minecraft.getWindow().getHeight() - minecraft.getWindow().getHeight() / 2f);
+        }
     }
 
     private void buildWorldName() {
@@ -880,6 +920,16 @@ public class WorldMapScreen extends PopupScreen {
             guiGraphics.drawString(this.font, Component.translatable("worldmap.disabled"), this.sideMargin, 16, 0xFFFFFFFF);
         }
         super.render(guiGraphics, mouseX, mouseY, delta);
+
+        // Rendere Zoom-Stufe zwischen den - und + Buttons
+        int zoomButtonWidth = 40;
+        int zoomTextX = this.sideMargin + zoomButtonWidth + this.buttonSeparation / 2;
+        int zoomTextY = this.getHeight() - 23;
+        // Zoom-Prozent: 0%, 33%, 66%, 100%
+        int zoomPercent = currentZoomLevel == 3 ? 100 : currentZoomLevel * 33;
+        String zoomText = zoomPercent + "%";
+        int zoomTextWidth = this.font.width(zoomText);
+        guiGraphics.drawString(this.font, zoomText, zoomTextX + (zoomButtonWidth - zoomTextWidth) / 2, zoomTextY, 0xFFFFFFFF);
     }
 
     public void renderBackground(GuiGraphics context, int mouseX, int mouseY, float delta) {
