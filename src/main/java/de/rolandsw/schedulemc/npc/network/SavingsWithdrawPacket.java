@@ -90,7 +90,7 @@ public class SavingsWithdrawPacket {
                 // Prüfe ob Sperrfrist noch aktiv
                 long currentDay = player.getServer().overworld().getDayTime() / 24000L;
                 if (!account.isUnlocked(currentDay)) {
-                    long daysLeft = account.getUnlockDay() - currentDay;
+                    int daysLeft = account.getDaysUntilUnlock(currentDay);
                     player.sendSystemMessage(Component.literal("⚠ Sparkonto ist noch gesperrt!")
                         .withStyle(ChatFormatting.RED));
                     player.sendSystemMessage(Component.literal("Verbleibende Tage: ")
