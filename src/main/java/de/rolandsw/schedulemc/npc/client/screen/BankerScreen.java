@@ -89,7 +89,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
     public BankerScreen(BankerMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.imageWidth = 220;
-        this.imageHeight = 200;
+        this.imageHeight = 230;
     }
 
     @Override
@@ -124,57 +124,57 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         }).bounds(tabStartX + (tabWidth + 1) * 4 + 4, y + 20, tabWidth, 18).build());
 
         // Girokonto Tab Components
-        giroDepositAmountInput = new EditBox(this.font, x + 15, y + 96, 90, 18, Component.literal("Betrag"));
+        giroDepositAmountInput = new EditBox(this.font, x + 15, y + 100, 90, 18, Component.literal("Betrag"));
         giroDepositAmountInput.setMaxLength(10);
         giroDepositAmountInput.setValue("1000");
         addRenderableWidget(giroDepositAmountInput);
 
         giroDepositButton = addRenderableWidget(Button.builder(Component.literal("Einzahlen"), button -> {
             handleGiroDeposit();
-        }).bounds(x + 110, y + 96, 95, 18).build());
+        }).bounds(x + 110, y + 100, 95, 18).build());
 
-        giroWithdrawAmountInput = new EditBox(this.font, x + 15, y + 128, 90, 18, Component.literal("Betrag"));
+        giroWithdrawAmountInput = new EditBox(this.font, x + 15, y + 140, 90, 18, Component.literal("Betrag"));
         giroWithdrawAmountInput.setMaxLength(10);
         giroWithdrawAmountInput.setValue("500");
         addRenderableWidget(giroWithdrawAmountInput);
 
         giroWithdrawButton = addRenderableWidget(Button.builder(Component.literal("Abheben"), button -> {
             handleGiroWithdraw();
-        }).bounds(x + 110, y + 128, 95, 18).build());
+        }).bounds(x + 110, y + 140, 95, 18).build());
 
         // Sparkonto Tab Components
-        savingsDepositAmountInput = new EditBox(this.font, x + 15, y + 96, 90, 18, Component.literal("Betrag"));
+        savingsDepositAmountInput = new EditBox(this.font, x + 15, y + 100, 90, 18, Component.literal("Betrag"));
         savingsDepositAmountInput.setMaxLength(10);
         savingsDepositAmountInput.setValue("1000");
         addRenderableWidget(savingsDepositAmountInput);
 
         savingsDepositButton = addRenderableWidget(Button.builder(Component.literal("Einzahlen"), button -> {
             handleSavingsDeposit();
-        }).bounds(x + 110, y + 96, 95, 18).build());
+        }).bounds(x + 110, y + 100, 95, 18).build());
 
-        savingsWithdrawAmountInput = new EditBox(this.font, x + 15, y + 128, 90, 18, Component.literal("Betrag"));
+        savingsWithdrawAmountInput = new EditBox(this.font, x + 15, y + 140, 90, 18, Component.literal("Betrag"));
         savingsWithdrawAmountInput.setMaxLength(10);
         savingsWithdrawAmountInput.setValue("500");
         addRenderableWidget(savingsWithdrawAmountInput);
 
         savingsWithdrawButton = addRenderableWidget(Button.builder(Component.literal("Abheben"), button -> {
             handleSavingsWithdraw();
-        }).bounds(x + 110, y + 128, 95, 18).build());
+        }).bounds(x + 110, y + 140, 95, 18).build());
 
         // Überweisung Tab Components
-        transferTargetInput = new EditBox(this.font, x + 15, y + 76, 190, 18, Component.literal("Spielername"));
+        transferTargetInput = new EditBox(this.font, x + 15, y + 70, 190, 18, Component.literal("Spielername"));
         transferTargetInput.setMaxLength(16);
         transferTargetInput.setValue("");
         addRenderableWidget(transferTargetInput);
 
-        transferAmountInput = new EditBox(this.font, x + 15, y + 116, 90, 18, Component.literal("Betrag"));
+        transferAmountInput = new EditBox(this.font, x + 15, y + 108, 90, 18, Component.literal("Betrag"));
         transferAmountInput.setMaxLength(10);
         transferAmountInput.setValue("100");
         addRenderableWidget(transferAmountInput);
 
         transferButton = addRenderableWidget(Button.builder(Component.literal("Überweisen"), button -> {
             handleTransfer();
-        }).bounds(x + 15, y + 143, 190, 20).build());
+        }).bounds(x + 15, y + 135, 190, 20).build());
 
         // Historie Tab Components
         scrollUpButton = addRenderableWidget(Button.builder(Component.literal("▲"), button -> {
@@ -190,7 +190,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         // Close Button
         closeButton = addRenderableWidget(Button.builder(Component.literal("Schließen"), button -> {
             this.onClose();
-        }).bounds(x + 60, y + 175, 100, 20).build());
+        }).bounds(x + 60, y + 205, 100, 20).build());
 
         // Initial tab
         updateComponentVisibility();
@@ -399,11 +399,11 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         guiGraphics.drawString(this.font, "Bargeld:", x + 20, y + 72, 0x808080, false);
         guiGraphics.drawString(this.font, String.format("%.2f€", bargeld), x + 125, y + 72, 0xFFAA00, false);
 
-        // Einzahlen Label (18 Pixel über dem Input-Feld bei y+96)
-        guiGraphics.drawString(this.font, "Einzahlen (aus Bargeld):", x + 15, y + 78, 0x808080, false);
+        // Einzahlen Label
+        guiGraphics.drawString(this.font, "Einzahlen (aus Bargeld):", x + 15, y + 85, 0x808080, false);
 
-        // Abheben Label (18 Pixel über dem Input-Feld bei y+128)
-        guiGraphics.drawString(this.font, "Abheben (zu Bargeld):", x + 15, y + 110, 0x808080, false);
+        // Abheben Label
+        guiGraphics.drawString(this.font, "Abheben (zu Bargeld):", x + 15, y + 125, 0x808080, false);
 
         // Info
         double depositLimit = ModConfigHandler.COMMON.BANK_DEPOSIT_LIMIT.get();
@@ -433,11 +433,11 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         guiGraphics.drawString(this.font, "Girokonto:", x + 20, y + 72, 0x808080, false);
         guiGraphics.drawString(this.font, String.format("%.2f€", girokonto), x + 125, y + 72, 0x00AA00, false);
 
-        // Einzahlen Label (18 Pixel über dem Input-Feld bei y+96)
-        guiGraphics.drawString(this.font, "Einzahlen (vom Girokonto):", x + 15, y + 78, 0x808080, false);
+        // Einzahlen Label
+        guiGraphics.drawString(this.font, "Einzahlen (vom Girokonto):", x + 15, y + 85, 0x808080, false);
 
-        // Abheben Label (18 Pixel über dem Input-Feld bei y+128)
-        guiGraphics.drawString(this.font, "Abheben (zum Girokonto):", x + 15, y + 110, 0x808080, false);
+        // Abheben Label
+        guiGraphics.drawString(this.font, "Abheben (zum Girokonto):", x + 15, y + 125, 0x808080, false);
 
         // Info
         guiGraphics.drawString(this.font, "Zinsen: 5% pro Woche", x + 15, y + 145, 0x606060, false);
@@ -453,11 +453,11 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
 
         guiGraphics.drawString(this.font, "ÜBERWEISUNG", x + 70, y + 45, 0x404040, false);
 
-        // Empfänger Label (18 Pixel über dem Input-Feld bei y+76)
+        // Empfänger Label
         guiGraphics.drawString(this.font, "Empfängername:", x + 15, y + 58, 0x808080, false);
 
-        // Betrag Label (18 Pixel über dem Input-Feld bei y+116)
-        guiGraphics.drawString(this.font, "Betrag in €:", x + 15, y + 98, 0x808080, false);
+        // Betrag Label
+        guiGraphics.drawString(this.font, "Betrag in €:", x + 15, y + 96, 0x808080, false);
 
         // Info unten
         if (minecraft.level.getServer() != null) {
