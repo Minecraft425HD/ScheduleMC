@@ -523,24 +523,29 @@ public class BankAppScreen extends Screen {
         // Überschrift
         guiGraphics.drawCenteredString(this.font, "§6§lDaueraufträge", leftPos + WIDTH / 2, startY, 0xFFAA00);
 
-        // Neuer Dauerauftrag
-        guiGraphics.drawString(this.font, "§fNeuer Dauerauftrag:", leftPos + 15, startY + 15, 0xFFFFFF);
+        // Neuer Dauerauftrag Überschrift
+        guiGraphics.drawString(this.font, "§fNeuer Dauerauftrag:", leftPos + 15, startY + 8, 0xFFFFFF);
 
-        // Form Labels (oberhalb der Input-Felder)
-        guiGraphics.drawString(this.font, "§7Empfänger:", leftPos + 15, startY + 13, 0xAAAAAA);
-        guiGraphics.drawString(this.font, "§7Betrag:", leftPos + 15, startY + 43, 0xAAAAAA);
-        guiGraphics.drawString(this.font, "§7Intervall:", leftPos + 15, startY + 73, 0xAAAAAA);
+        // Form Labels (direkt über den Input-Feldern)
+        // EditBox ist bei formY = topPos + 78 = startY + 23
+        guiGraphics.drawString(this.font, "§7Empfänger:", leftPos + 15, startY + 21, 0xAAAAAA);
 
-        // Erfolgsmeldung
+        // EditBox ist bei formY + 30 = startY + 53
+        guiGraphics.drawString(this.font, "§7Betrag:", leftPos + 15, startY + 51, 0xAAAAAA);
+
+        // Intervall Button ist bei formY + 60 = startY + 83
+        guiGraphics.drawString(this.font, "§7Intervall:", leftPos + 15, startY + 81, 0xAAAAAA);
+
+        // Erfolgsmeldung (unter dem Erstellen-Button)
         if (!transferMessage.isEmpty()) {
-            guiGraphics.drawCenteredString(this.font, transferMessage, leftPos + WIDTH / 2, startY + 120, transferMessageColor);
+            guiGraphics.drawCenteredString(this.font, transferMessage, leftPos + WIDTH / 2, startY + 135, transferMessageColor);
         }
 
         // Trennlinie
-        guiGraphics.fill(leftPos + 10, startY + 135, leftPos + WIDTH - 10, startY + 136, 0x44FFFFFF);
+        guiGraphics.fill(leftPos + 10, startY + 145, leftPos + WIDTH - 10, startY + 146, 0x44FFFFFF);
 
         // Aktive Daueraufträge
-        guiGraphics.drawString(this.font, "§fAktive Daueraufträge:", leftPos + 15, startY + 142, 0xFFFFFF);
+        guiGraphics.drawString(this.font, "§fAktive Daueraufträge:", leftPos + 15, startY + 152, 0xFFFFFF);
 
         // Liste anzeigen (wenn Server verfügbar)
         Minecraft mc = Minecraft.getInstance();
@@ -550,10 +555,10 @@ public class BankAppScreen extends Screen {
 
             if (payments.isEmpty()) {
                 guiGraphics.drawCenteredString(this.font, "§7Keine aktiven Daueraufträge",
-                    leftPos + WIDTH / 2, startY + 160, 0xAAAAAA);
+                    leftPos + WIDTH / 2, startY + 170, 0xAAAAAA);
             } else {
                 // Zeige bis zu 3 Daueraufträge an
-                int yOffset = startY + 158;
+                int yOffset = startY + 165;
                 int maxDisplay = Math.min(3, payments.size());
 
                 for (int i = 0; i < maxDisplay; i++) {
@@ -587,7 +592,7 @@ public class BankAppScreen extends Screen {
             }
         } else {
             guiGraphics.drawCenteredString(this.font, "§7Keine aktiven Daueraufträge",
-                leftPos + WIDTH / 2, startY + 160, 0xAAAAAA);
+                leftPos + WIDTH / 2, startY + 170, 0xAAAAAA);
         }
     }
 
