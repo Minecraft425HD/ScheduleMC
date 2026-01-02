@@ -26,8 +26,10 @@ public class MoveToWorkGoal extends Goal {
 
     @Override
     public boolean canUse() {
-        // NUR für Verkäufer-NPCs (Bewohner arbeiten nicht, Polizei hat eigene Goals)
-        if (npc.getNpcData().getNpcType() != de.rolandsw.schedulemc.npc.data.NPCType.VERKAEUFER) {
+        // NUR für Verkäufer und Bank-NPCs (Bewohner arbeiten nicht, Polizei hat eigene Goals)
+        de.rolandsw.schedulemc.npc.data.NPCType type = npc.getNpcData().getNpcType();
+        if (type != de.rolandsw.schedulemc.npc.data.NPCType.VERKAEUFER &&
+            type != de.rolandsw.schedulemc.npc.data.NPCType.BANK) {
             return false;
         }
 
