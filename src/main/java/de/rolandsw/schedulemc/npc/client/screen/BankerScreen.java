@@ -14,6 +14,8 @@ import de.rolandsw.schedulemc.npc.menu.BankerMenu;
 import de.rolandsw.schedulemc.npc.network.BankDepositPacket;
 import de.rolandsw.schedulemc.npc.network.BankTransferPacket;
 import de.rolandsw.schedulemc.npc.network.BankWithdrawPacket;
+import de.rolandsw.schedulemc.npc.network.SavingsDepositPacket;
+import de.rolandsw.schedulemc.npc.network.SavingsWithdrawPacket;
 import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -29,10 +31,12 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import java.util.List;
 
 /**
- * Vollständige Banker GUI mit Tab-Navigation
- * Tab 1: Konten - Anzeige von Girokonto & Sparkonto
- * Tab 2: Überweisen - Transfer zwischen Spielern
- * Tab 3: Transaktionen - History der letzten Transaktionen
+ * Vollständige Banker GUI mit 5-Tab-Navigation
+ * Tab 1: Übersicht - Anzeige aller Konten
+ * Tab 2: Girokonto - Einzahlen/Abheben für Girokonto
+ * Tab 3: Sparkonto - Einzahlen/Abheben für Sparkonto
+ * Tab 4: Überweisung - Transfer zwischen Spielern
+ * Tab 5: Historie - Transaktionshistorie
  */
 @OnlyIn(Dist.CLIENT)
 public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
@@ -41,30 +45,40 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         new ResourceLocation(ScheduleMC.MOD_ID, "textures/gui/npc_interaction.png");
 
     private enum Tab {
-        KONTEN,
-        UEBERWEISEN,
-        TRANSAKTIONEN
+        UEBERSICHT,
+        GIROKONTO,
+        SPARKONTO,
+        UEBERWEISUNG,
+        HISTORIE
     }
 
-    private Tab currentTab = Tab.KONTEN;
+    private Tab currentTab = Tab.UEBERSICHT;
 
     // Tab Buttons
-    private Button kontenTabButton;
-    private Button ueberweisenTabButton;
-    private Button transaktionenTabButton;
+    private Button uebersichtTabButton;
+    private Button girokontoTabButton;
+    private Button sparkontoTabButton;
+    private Button ueberweisungTabButton;
+    private Button historieTabButton;
 
-    // Konten Tab Components
-    private Button depositButton;
-    private Button withdrawButton;
-    private EditBox depositAmountInput;
-    private EditBox withdrawAmountInput;
+    // Girokonto Tab Components
+    private Button giroDepositButton;
+    private Button giroWithdrawButton;
+    private EditBox giroDepositAmountInput;
+    private EditBox giroWithdrawAmountInput;
 
-    // Überweisen Tab Components
+    // Sparkonto Tab Components
+    private Button savingsDepositButton;
+    private Button savingsWithdrawButton;
+    private EditBox savingsDepositAmountInput;
+    private EditBox savingsWithdrawAmountInput;
+
+    // Überweisung Tab Components
     private EditBox transferTargetInput;
     private EditBox transferAmountInput;
     private Button transferButton;
 
-    // Transaktionen Tab Components
+    // Historie Tab Components
     private int transactionScrollOffset = 0;
     private Button scrollUpButton;
     private Button scrollDownButton;
@@ -74,8 +88,8 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
 
     public BankerScreen(BankerMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
-        this.imageWidth = 176;
-        this.imageHeight = 166;
+        this.imageWidth = 220;
+        this.imageHeight = 230;
     }
 
     @Override
@@ -85,68 +99,98 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
 
-        // Tab Buttons
-        kontenTabButton = addRenderableWidget(Button.builder(Component.literal("Konten"), button -> {
-            switchTab(Tab.KONTEN);
-        }).bounds(x + 8, y + 20, 50, 15).build());
+        // Tab Buttons (5 Tabs, volle Namen ohne Abkürzungen)
+        int tabWidth = 42;
+        int tabStartX = x + 5;
 
-        ueberweisenTabButton = addRenderableWidget(Button.builder(Component.literal("Überweis."), button -> {
-            switchTab(Tab.UEBERWEISEN);
-        }).bounds(x + 60, y + 20, 55, 15).build());
+        uebersichtTabButton = addRenderableWidget(Button.builder(Component.literal("Übersicht"), button -> {
+            switchTab(Tab.UEBERSICHT);
+        }).bounds(tabStartX, y + 20, tabWidth, 18).build());
 
-        transaktionenTabButton = addRenderableWidget(Button.builder(Component.literal("Historie"), button -> {
-            switchTab(Tab.TRANSAKTIONEN);
-        }).bounds(x + 117, y + 20, 51, 15).build());
+        girokontoTabButton = addRenderableWidget(Button.builder(Component.literal("Girokonto"), button -> {
+            switchTab(Tab.GIROKONTO);
+        }).bounds(tabStartX + tabWidth + 1, y + 20, tabWidth, 18).build());
 
-        // Konten Tab Components
-        depositAmountInput = new EditBox(this.font, x + 10, y + 60, 60, 15, Component.literal("Betrag"));
-        depositAmountInput.setMaxLength(10);
-        depositAmountInput.setValue("1000");
-        addRenderableWidget(depositAmountInput);
+        sparkontoTabButton = addRenderableWidget(Button.builder(Component.literal("Sparkonto"), button -> {
+            switchTab(Tab.SPARKONTO);
+        }).bounds(tabStartX + (tabWidth + 1) * 2, y + 20, tabWidth, 18).build());
 
-        depositButton = addRenderableWidget(Button.builder(Component.literal("Einzahlen"), button -> {
-            handleDeposit();
-        }).bounds(x + 72, y + 60, 55, 15).build());
+        ueberweisungTabButton = addRenderableWidget(Button.builder(Component.literal("Überweisung"), button -> {
+            switchTab(Tab.UEBERWEISUNG);
+        }).bounds(tabStartX + (tabWidth + 1) * 3, y + 20, tabWidth + 4, 18).build());
 
-        withdrawAmountInput = new EditBox(this.font, x + 10, y + 80, 60, 15, Component.literal("Betrag"));
-        withdrawAmountInput.setMaxLength(10);
-        withdrawAmountInput.setValue("500");
-        addRenderableWidget(withdrawAmountInput);
+        historieTabButton = addRenderableWidget(Button.builder(Component.literal("Historie"), button -> {
+            switchTab(Tab.HISTORIE);
+        }).bounds(tabStartX + (tabWidth + 1) * 4 + 4, y + 20, tabWidth, 18).build());
 
-        withdrawButton = addRenderableWidget(Button.builder(Component.literal("Abheben"), button -> {
-            handleWithdraw();
-        }).bounds(x + 72, y + 80, 55, 15).build());
+        // Girokonto Tab Components
+        giroDepositAmountInput = new EditBox(this.font, x + 15, y + 100, 90, 18, Component.literal("Betrag"));
+        giroDepositAmountInput.setMaxLength(10);
+        giroDepositAmountInput.setValue("1000");
+        addRenderableWidget(giroDepositAmountInput);
 
-        // Überweisen Tab Components
-        transferTargetInput = new EditBox(this.font, x + 10, y + 55, 145, 15, Component.literal("Spielername"));
+        giroDepositButton = addRenderableWidget(Button.builder(Component.literal("Einzahlen"), button -> {
+            handleGiroDeposit();
+        }).bounds(x + 110, y + 100, 95, 18).build());
+
+        giroWithdrawAmountInput = new EditBox(this.font, x + 15, y + 140, 90, 18, Component.literal("Betrag"));
+        giroWithdrawAmountInput.setMaxLength(10);
+        giroWithdrawAmountInput.setValue("500");
+        addRenderableWidget(giroWithdrawAmountInput);
+
+        giroWithdrawButton = addRenderableWidget(Button.builder(Component.literal("Abheben"), button -> {
+            handleGiroWithdraw();
+        }).bounds(x + 110, y + 140, 95, 18).build());
+
+        // Sparkonto Tab Components
+        savingsDepositAmountInput = new EditBox(this.font, x + 15, y + 100, 90, 18, Component.literal("Betrag"));
+        savingsDepositAmountInput.setMaxLength(10);
+        savingsDepositAmountInput.setValue("1000");
+        addRenderableWidget(savingsDepositAmountInput);
+
+        savingsDepositButton = addRenderableWidget(Button.builder(Component.literal("Einzahlen"), button -> {
+            handleSavingsDeposit();
+        }).bounds(x + 110, y + 100, 95, 18).build());
+
+        savingsWithdrawAmountInput = new EditBox(this.font, x + 15, y + 140, 90, 18, Component.literal("Betrag"));
+        savingsWithdrawAmountInput.setMaxLength(10);
+        savingsWithdrawAmountInput.setValue("500");
+        addRenderableWidget(savingsWithdrawAmountInput);
+
+        savingsWithdrawButton = addRenderableWidget(Button.builder(Component.literal("Abheben"), button -> {
+            handleSavingsWithdraw();
+        }).bounds(x + 110, y + 140, 95, 18).build());
+
+        // Überweisung Tab Components
+        transferTargetInput = new EditBox(this.font, x + 15, y + 70, 190, 18, Component.literal("Spielername"));
         transferTargetInput.setMaxLength(16);
         transferTargetInput.setValue("");
         addRenderableWidget(transferTargetInput);
 
-        transferAmountInput = new EditBox(this.font, x + 10, y + 87, 85, 15, Component.literal("Betrag"));
+        transferAmountInput = new EditBox(this.font, x + 15, y + 108, 90, 18, Component.literal("Betrag"));
         transferAmountInput.setMaxLength(10);
         transferAmountInput.setValue("100");
         addRenderableWidget(transferAmountInput);
 
         transferButton = addRenderableWidget(Button.builder(Component.literal("Überweisen"), button -> {
             handleTransfer();
-        }).bounds(x + 10, y + 107, 145, 18).build());
+        }).bounds(x + 15, y + 135, 190, 20).build());
 
-        // Transaktionen Tab Components
+        // Historie Tab Components
         scrollUpButton = addRenderableWidget(Button.builder(Component.literal("▲"), button -> {
             if (transactionScrollOffset > 0) {
                 transactionScrollOffset--;
             }
-        }).bounds(x + 155, y + 40, 15, 15).build());
+        }).bounds(x + 200, y + 45, 15, 18).build());
 
         scrollDownButton = addRenderableWidget(Button.builder(Component.literal("▼"), button -> {
             transactionScrollOffset++;
-        }).bounds(x + 155, y + 120, 15, 15).build());
+        }).bounds(x + 200, y + 155, 15, 18).build());
 
         // Close Button
         closeButton = addRenderableWidget(Button.builder(Component.literal("Schließen"), button -> {
             this.onClose();
-        }).bounds(x + 38, y + 140, 100, 20).build());
+        }).bounds(x + 60, y + 205, 100, 20).build());
 
         // Initial tab
         updateComponentVisibility();
@@ -165,32 +209,39 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
      * Aktualisiert Sichtbarkeit der Tab-spezifischen Components
      */
     private void updateComponentVisibility() {
-        boolean isKonten = currentTab == Tab.KONTEN;
-        boolean isUeberweisen = currentTab == Tab.UEBERWEISEN;
-        boolean isTransaktionen = currentTab == Tab.TRANSAKTIONEN;
+        boolean isGirokonto = currentTab == Tab.GIROKONTO;
+        boolean isSparkonto = currentTab == Tab.SPARKONTO;
+        boolean isUeberweisung = currentTab == Tab.UEBERWEISUNG;
+        boolean isHistorie = currentTab == Tab.HISTORIE;
 
-        // Konten Tab
-        depositAmountInput.visible = isKonten;
-        depositButton.visible = isKonten;
-        withdrawAmountInput.visible = isKonten;
-        withdrawButton.visible = isKonten;
+        // Girokonto Tab
+        giroDepositAmountInput.visible = isGirokonto;
+        giroDepositButton.visible = isGirokonto;
+        giroWithdrawAmountInput.visible = isGirokonto;
+        giroWithdrawButton.visible = isGirokonto;
 
-        // Überweisen Tab
-        transferTargetInput.visible = isUeberweisen;
-        transferAmountInput.visible = isUeberweisen;
-        transferButton.visible = isUeberweisen;
+        // Sparkonto Tab
+        savingsDepositAmountInput.visible = isSparkonto;
+        savingsDepositButton.visible = isSparkonto;
+        savingsWithdrawAmountInput.visible = isSparkonto;
+        savingsWithdrawButton.visible = isSparkonto;
 
-        // Transaktionen Tab
-        scrollUpButton.visible = isTransaktionen;
-        scrollDownButton.visible = isTransaktionen;
+        // Überweisung Tab
+        transferTargetInput.visible = isUeberweisung;
+        transferAmountInput.visible = isUeberweisung;
+        transferButton.visible = isUeberweisung;
+
+        // Historie Tab
+        scrollUpButton.visible = isHistorie;
+        scrollDownButton.visible = isHistorie;
     }
 
     /**
-     * Verarbeitet Einzahlung
+     * Verarbeitet Einzahlung auf Girokonto
      */
-    private void handleDeposit() {
+    private void handleGiroDeposit() {
         try {
-            double amount = Double.parseDouble(depositAmountInput.getValue());
+            double amount = Double.parseDouble(giroDepositAmountInput.getValue());
             if (amount > 0) {
                 NPCNetworkHandler.sendToServer(new BankDepositPacket(amount));
                 this.onClose();
@@ -201,13 +252,43 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
     }
 
     /**
-     * Verarbeitet Abhebung
+     * Verarbeitet Abhebung vom Girokonto
      */
-    private void handleWithdraw() {
+    private void handleGiroWithdraw() {
         try {
-            double amount = Double.parseDouble(withdrawAmountInput.getValue());
+            double amount = Double.parseDouble(giroWithdrawAmountInput.getValue());
             if (amount > 0) {
                 NPCNetworkHandler.sendToServer(new BankWithdrawPacket(amount));
+                this.onClose();
+            }
+        } catch (NumberFormatException e) {
+            // Ignore invalid input
+        }
+    }
+
+    /**
+     * Verarbeitet Einzahlung auf Sparkonto
+     */
+    private void handleSavingsDeposit() {
+        try {
+            double amount = Double.parseDouble(savingsDepositAmountInput.getValue());
+            if (amount > 0) {
+                NPCNetworkHandler.sendToServer(new SavingsDepositPacket(amount));
+                this.onClose();
+            }
+        } catch (NumberFormatException e) {
+            // Ignore invalid input
+        }
+    }
+
+    /**
+     * Verarbeitet Abhebung vom Sparkonto
+     */
+    private void handleSavingsWithdraw() {
+        try {
+            double amount = Double.parseDouble(savingsWithdrawAmountInput.getValue());
+            if (amount > 0) {
+                NPCNetworkHandler.sendToServer(new SavingsWithdrawPacket(amount));
                 this.onClose();
             }
         } catch (NumberFormatException e) {
@@ -246,108 +327,178 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
 
         // Render current tab content
         switch (currentTab) {
-            case KONTEN:
-                renderKontenTab(guiGraphics, x, y);
+            case UEBERSICHT:
+                renderUebersichtTab(guiGraphics, x, y);
                 break;
-            case UEBERWEISEN:
-                renderUeberweisenTab(guiGraphics, x, y);
+            case GIROKONTO:
+                renderGirokontoTab(guiGraphics, x, y);
                 break;
-            case TRANSAKTIONEN:
-                renderTransaktionenTab(guiGraphics, x, y);
+            case SPARKONTO:
+                renderSparkontoTab(guiGraphics, x, y);
+                break;
+            case UEBERWEISUNG:
+                renderUeberweisungTab(guiGraphics, x, y);
+                break;
+            case HISTORIE:
+                renderHistorieTab(guiGraphics, x, y);
                 break;
         }
     }
 
     /**
-     * Rendert Konten Tab
+     * Rendert Übersicht Tab (nur Anzeige)
      */
-    private void renderKontenTab(GuiGraphics guiGraphics, int x, int y) {
+    private void renderUebersichtTab(GuiGraphics guiGraphics, int x, int y) {
         if (minecraft == null || minecraft.player == null) return;
+
+        guiGraphics.drawString(this.font, "KONTEN-ÜBERSICHT", x + 55, y + 45, 0x404040, false);
 
         // Bargeld (Wallet)
         double bargeld = WalletManager.getBalance(minecraft.player.getUUID());
-        guiGraphics.drawString(this.font, "BARGELD", x + 10, y + 40, 0x404040, false);
-        guiGraphics.drawString(this.font, String.format("%.2f€", bargeld), x + 80, y + 40, 0xFFAA00, false);
+        guiGraphics.drawString(this.font, "BARGELD", x + 30, y + 65, 0x808080, false);
+        guiGraphics.drawString(this.font, String.format("%.2f€", bargeld), x + 125, y + 65, 0xFFAA00, false);
 
-        // Girokonto (Hauptkonto)
+        // Girokonto
         double girokonto = EconomyManager.getBalance(minecraft.player.getUUID());
-        guiGraphics.drawString(this.font, "GIROKONTO", x + 10, y + 48, 0x404040, false);
-        guiGraphics.drawString(this.font, String.format("%.2f€", girokonto), x + 80, y + 48, 0x00AA00, false);
+        guiGraphics.drawString(this.font, "GIROKONTO", x + 30, y + 85, 0x808080, false);
+        guiGraphics.drawString(this.font, String.format("%.2f€", girokonto), x + 125, y + 85, 0x00AA00, false);
 
-        // Sparkonto (Gesamt aller Sparkonten)
+        // Sparkonto
         SavingsAccountManager savingsManager = SavingsAccountManager.getInstance(minecraft.level.getServer());
         List<SavingsAccount> savingsAccounts = savingsManager.getAccounts(minecraft.player.getUUID());
         double sparkonto = savingsAccounts.stream()
             .mapToDouble(SavingsAccount::getBalance)
             .sum();
+        guiGraphics.drawString(this.font, "SPARKONTO", x + 30, y + 105, 0x808080, false);
+        guiGraphics.drawString(this.font, String.format("%.2f€", sparkonto), x + 125, y + 105, 0x6666FF, false);
 
-        guiGraphics.drawString(this.font, "SPARKONTO", x + 10, y + 56, 0x404040, false);
-        guiGraphics.drawString(this.font, String.format("%.2f€", sparkonto), x + 80, y + 56, 0x6666FF, false);
+        // Trennlinie
+        guiGraphics.fill(x + 20, y + 120, x + 200, y + 121, 0x44FFFFFF);
 
-        // Einzahlen/Abheben Labels
-        guiGraphics.drawString(this.font, "Einzahlung:", x + 10, y + 68, 0x808080, false);
-        guiGraphics.drawString(this.font, "Abhebung:", x + 10, y + 88, 0x808080, false);
-
-        // Deposit Limit Info
-        double depositLimit = ModConfigHandler.COMMON.BANK_DEPOSIT_LIMIT.get();
-        guiGraphics.drawString(this.font, "Limit: " + String.format("%.0f€", depositLimit),
-            x + 10, y + 108, 0x808080, false);
-
-        // Info
-        guiGraphics.drawString(this.font, "Bargeld aus Wallet wird", x + 10, y + 118, 0x606060, false);
-        guiGraphics.drawString(this.font, "auf Girokonto eingezahlt.", x + 10, y + 126, 0x606060, false);
+        // Gesamt
+        double gesamt = bargeld + girokonto + sparkonto;
+        guiGraphics.drawString(this.font, "GESAMT:", x + 30, y + 130, 0x404040, false);
+        guiGraphics.drawString(this.font, String.format("%.2f€", gesamt), x + 125, y + 130, 0xFFD700, false);
     }
 
     /**
-     * Rendert Überweisen Tab
+     * Rendert Girokonto Tab
      */
-    private void renderUeberweisenTab(GuiGraphics guiGraphics, int x, int y) {
+    private void renderGirokontoTab(GuiGraphics guiGraphics, int x, int y) {
         if (minecraft == null || minecraft.player == null) return;
 
-        // Verfügbar Label und Betrag
-        double balance = EconomyManager.getBalance(minecraft.player.getUUID());
-        guiGraphics.drawString(this.font, "Verfügbar:", x + 10, y + 40, 0x404040, false);
-        guiGraphics.drawString(this.font, String.format("%.2f€", balance), x + 80, y + 40, 0xFFD700, false);
+        guiGraphics.drawString(this.font, "GIROKONTO", x + 75, y + 45, 0x404040, false);
 
-        // Empfänger Label (über dem Eingabefeld)
-        guiGraphics.drawString(this.font, "Empfängername:", x + 10, y + 48, 0x808080, false);
+        // Kontostand
+        double girokonto = EconomyManager.getBalance(minecraft.player.getUUID());
+        guiGraphics.drawString(this.font, "Kontostand:", x + 20, y + 60, 0x808080, false);
+        guiGraphics.drawString(this.font, String.format("%.2f€", girokonto), x + 125, y + 60, 0x00AA00, false);
 
-        // Betrag Label (über dem Eingabefeld mit mehr Abstand)
-        guiGraphics.drawString(this.font, "Betrag in €:", x + 10, y + 75, 0x808080, false);
+        // Bargeld
+        double bargeld = WalletManager.getBalance(minecraft.player.getUUID());
+        guiGraphics.drawString(this.font, "Bargeld:", x + 20, y + 72, 0x808080, false);
+        guiGraphics.drawString(this.font, String.format("%.2f€", bargeld), x + 125, y + 72, 0xFFAA00, false);
 
-        // Transfer Limit Info
+        // Einzahlen Label
+        guiGraphics.drawString(this.font, "Einzahlen (aus Bargeld):", x + 15, y + 85, 0x808080, false);
+
+        // Abheben Label
+        guiGraphics.drawString(this.font, "Abheben (zu Bargeld):", x + 15, y + 128, 0x808080, false);
+
+        // Info
+        double depositLimit = ModConfigHandler.COMMON.BANK_DEPOSIT_LIMIT.get();
+        guiGraphics.drawString(this.font, "Limit: " + String.format("%.0f€", depositLimit),
+            x + 15, y + 170, 0x606060, false);
+    }
+
+    /**
+     * Rendert Sparkonto Tab
+     */
+    private void renderSparkontoTab(GuiGraphics guiGraphics, int x, int y) {
+        if (minecraft == null || minecraft.player == null) return;
+
+        guiGraphics.drawString(this.font, "SPARKONTO", x + 75, y + 45, 0x404040, false);
+
+        // Sparkonto Stand
+        SavingsAccountManager savingsManager = SavingsAccountManager.getInstance(minecraft.level.getServer());
+        List<SavingsAccount> savingsAccounts = savingsManager.getAccounts(minecraft.player.getUUID());
+        double sparkonto = savingsAccounts.stream()
+            .mapToDouble(SavingsAccount::getBalance)
+            .sum();
+        guiGraphics.drawString(this.font, "Kontostand:", x + 20, y + 60, 0x808080, false);
+        guiGraphics.drawString(this.font, String.format("%.2f€", sparkonto), x + 125, y + 60, 0x6666FF, false);
+
+        // Girokonto
+        double girokonto = EconomyManager.getBalance(minecraft.player.getUUID());
+        guiGraphics.drawString(this.font, "Girokonto:", x + 20, y + 72, 0x808080, false);
+        guiGraphics.drawString(this.font, String.format("%.2f€", girokonto), x + 125, y + 72, 0x00AA00, false);
+
+        // Einzahlen Label
+        guiGraphics.drawString(this.font, "Einzahlen (vom Girokonto):", x + 15, y + 85, 0x808080, false);
+
+        // Abheben Label
+        guiGraphics.drawString(this.font, "Abheben (zum Girokonto):", x + 15, y + 128, 0x808080, false);
+
+        // Info
+        guiGraphics.drawString(this.font, "Zinsen: 5% pro Woche", x + 15, y + 170, 0x606060, false);
+        guiGraphics.drawString(this.font, "Minimum: 1000€", x + 15, y + 182, 0x606060, false);
+        guiGraphics.drawString(this.font, "4-Wochen Sperre", x + 15, y + 194, 0x606060, false);
+    }
+
+    /**
+     * Rendert Überweisung Tab
+     */
+    private void renderUeberweisungTab(GuiGraphics guiGraphics, int x, int y) {
+        if (minecraft == null || minecraft.player == null) return;
+
+        guiGraphics.drawString(this.font, "ÜBERWEISUNG", x + 70, y + 45, 0x404040, false);
+
+        // Empfänger Label
+        guiGraphics.drawString(this.font, "Empfängername:", x + 15, y + 58, 0x808080, false);
+
+        // Betrag Label
+        guiGraphics.drawString(this.font, "Betrag in €:", x + 15, y + 96, 0x808080, false);
+
+        // Info unten
         if (minecraft.level.getServer() != null) {
+            double balance = EconomyManager.getBalance(minecraft.player.getUUID());
+            guiGraphics.drawString(this.font, "Verfügbar:",
+                x + 15, y + 145, 0x606060, false);
+            guiGraphics.drawString(this.font, String.format("%.2f€", balance),
+                x + 140, y + 145, 0xFFD700, false);
+
             TransferLimitTracker tracker = TransferLimitTracker.getInstance(minecraft.level.getServer());
             double remaining = tracker.getRemainingLimit(minecraft.player.getUUID());
-
-            guiGraphics.drawString(this.font, "Überweisung an andere Spieler",
-                x + 10, y + 127, 0x606060, false);
+            guiGraphics.drawString(this.font, "Tageslimit:",
+                x + 15, y + 157, 0x606060, false);
+            guiGraphics.drawString(this.font, String.format("%.2f€", remaining),
+                x + 140, y + 157, remaining > 0 ? 0x00AA00 : 0xFF5555, false);
         }
     }
 
     /**
-     * Rendert Transaktionen Tab
+     * Rendert Historie Tab
      */
-    private void renderTransaktionenTab(GuiGraphics guiGraphics, int x, int y) {
+    private void renderHistorieTab(GuiGraphics guiGraphics, int x, int y) {
         if (minecraft == null || minecraft.player == null || minecraft.level.getServer() == null) return;
 
-        guiGraphics.drawString(this.font, "LETZTE TRANSAKTIONEN", x + 10, y + 40, 0x404040, false);
+        guiGraphics.drawString(this.font, "TRANSAKTIONEN", x + 65, y + 45, 0x404040, false);
 
         // Get transaction history
         TransactionHistory history = TransactionHistory.getInstance(minecraft.level.getServer());
         List<Transaction> transactions = history.getAllTransactions(minecraft.player.getUUID());
 
         if (transactions.isEmpty()) {
-            guiGraphics.drawString(this.font, "Keine Transaktionen", x + 20, y + 60, 0x808080, false);
+            guiGraphics.drawString(this.font, "Keine Transaktionen", x + 50, y + 80, 0x808080, false);
             return;
         }
 
         // Display transactions (scrollable)
-        int maxDisplay = 6;
+        int maxDisplay = 8;
         int startIndex = Math.min(transactionScrollOffset, Math.max(0, transactions.size() - maxDisplay));
         int endIndex = Math.min(startIndex + maxDisplay, transactions.size());
 
-        int yOffset = y + 55;
+        int yOffset = y + 65;
         for (int i = startIndex; i < endIndex; i++) {
             Transaction tx = transactions.get(i);
 
@@ -356,25 +507,25 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
             if (typeStr.length() > 12) {
                 typeStr = typeStr.substring(0, 11) + ".";
             }
-            guiGraphics.drawString(this.font, typeStr, x + 10, yOffset, 0x404040, false);
+            guiGraphics.drawString(this.font, typeStr, x + 15, yOffset, 0x404040, false);
 
             // Betrag (+ grün, - rot)
             String amountStr = String.format("%+.0f€", tx.getAmount());
             int color = tx.getAmount() >= 0 ? 0x00AA00 : 0xFF5555;
-            guiGraphics.drawString(this.font, amountStr, x + 85, yOffset, color, false);
+            guiGraphics.drawString(this.font, amountStr, x + 100, yOffset, color, false);
 
             // Balance after
             String balanceStr = String.format("%.0f€", tx.getBalanceAfter());
-            guiGraphics.drawString(this.font, balanceStr, x + 125, yOffset, 0x808080, false);
+            guiGraphics.drawString(this.font, balanceStr, x + 155, yOffset, 0x808080, false);
 
-            yOffset += 10;
+            yOffset += 12;
         }
 
         // Scroll indicator
         if (transactions.size() > maxDisplay) {
             guiGraphics.drawString(this.font,
                 String.format("%d/%d", startIndex + 1, transactions.size()),
-                x + 135, y + 125, 0x808080, false);
+                x + 165, y + 160, 0x808080, false);
         }
     }
 
