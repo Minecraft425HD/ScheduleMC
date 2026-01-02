@@ -5,6 +5,7 @@ import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.client.screen.apps.ChatScreen;
 import de.rolandsw.schedulemc.messaging.Conversation;
 import de.rolandsw.schedulemc.messaging.MessageManager;
+import de.rolandsw.schedulemc.npc.data.BankCategory;
 import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.menu.NPCInteractionMenu;
@@ -12,6 +13,8 @@ import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
 import de.rolandsw.schedulemc.npc.network.NPCActionPacket;
 import de.rolandsw.schedulemc.npc.network.OpenMerchantShopPacket;
+import de.rolandsw.schedulemc.npc.network.OpenBankerMenuPacket;
+import de.rolandsw.schedulemc.npc.network.OpenBoerseMenuPacket;
 import de.rolandsw.schedulemc.tobacco.network.ModNetworking;
 import de.rolandsw.schedulemc.tobacco.network.OpenTobaccoNegotiationPacket;
 import net.minecraft.client.gui.GuiGraphics;
@@ -37,6 +40,8 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
     private Button dialogButton;
     private Button shopBuyButton;
     private Button shopSellButton;
+    private Button bankerButton;
+    private Button boerseButton;
 
     public NPCInteractionScreen(NPCInteractionMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -54,6 +59,7 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
         CustomNPCEntity npc = menu.getNpc();
         boolean canMessage = npc != null &&
             (npc.getNpcType() == NPCType.BEWOHNER || npc.getNpcType() == NPCType.VERKAEUFER);
+        boolean isBank = npc != null && npc.getNpcType() == NPCType.BANK;
 
         // Dialog/Chat Button - opens chat for BEWOHNER and VERKAEUFER, dialog for others
         String buttonLabel = canMessage ? "📱 Chat" : "Dialog";
@@ -65,18 +71,28 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
             }
         }).bounds(x + 8, y + 30, 160, 20).build());
 
-        // TODO: Add Bank-specific buttons for BANK NPCs (Banker/Börse)
-        // For now, Bank NPCs will show Dialog button
+        // Bank-Buttons (nur für BANK NPCs)
+        bankerButton = addRenderableWidget(Button.builder(Component.literal("🏦 Banking"), button -> {
+            openBankerMenu();
+        }).bounds(x + 8, y + 54, 78, 20).build());
+        bankerButton.visible = isBank;
 
-        // Shop Verkaufen Button
+        boerseButton = addRenderableWidget(Button.builder(Component.literal("📈 Börse"), button -> {
+            openBoerseMenu();
+        }).bounds(x + 90, y + 54, 78, 20).build());
+        boerseButton.visible = isBank;
+
+        // Shop Verkaufen Button (nicht für Bank-NPCs)
         shopSellButton = addRenderableWidget(Button.builder(Component.literal("Verkaufen"), button -> {
             openShopSell();
         }).bounds(x + 8, y + 54, 78, 20).build());
+        shopSellButton.visible = !isBank;
 
-        // Shop Kaufen Button
+        // Shop Kaufen Button (nicht für Bank-NPCs)
         shopBuyButton = addRenderableWidget(Button.builder(Component.literal("Kaufen"), button -> {
             openShopBuy();
         }).bounds(x + 90, y + 54, 78, 20).build());
+        shopBuyButton.visible = !isBank;
     }
 
     /**
@@ -146,6 +162,32 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
             if (minecraft != null && minecraft.player != null) {
                 minecraft.player.sendSystemMessage(Component.literal("§cDieser NPC ist kein Verkäufer!"));
             }
+        }
+    }
+
+    /**
+     * Öffnet Banker-Menü
+     */
+    private void openBankerMenu() {
+        CustomNPCEntity npc = menu.getNpc();
+        if (npc != null && npc.getNpcType() == NPCType.BANK) {
+            // Sende Packet an Server um Banker-Menü zu öffnen
+            NPCNetworkHandler.sendToServer(new OpenBankerMenuPacket(menu.getEntityId()));
+            // Schließe aktuelles GUI - das Banker-GUI wird vom Server geöffnet
+            this.onClose();
+        }
+    }
+
+    /**
+     * Öffnet Börsen-Menü
+     */
+    private void openBoerseMenu() {
+        CustomNPCEntity npc = menu.getNpc();
+        if (npc != null && npc.getNpcType() == NPCType.BANK) {
+            // Sende Packet an Server um Börsen-Menü zu öffnen
+            NPCNetworkHandler.sendToServer(new OpenBoerseMenuPacket(menu.getEntityId()));
+            // Schließe aktuelles GUI - das Börsen-GUI wird vom Server geöffnet
+            this.onClose();
         }
     }
 
