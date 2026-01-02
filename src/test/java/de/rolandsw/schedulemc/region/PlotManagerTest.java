@@ -32,7 +32,7 @@ public class PlotManagerTest {
 
         assertThat(plot).isNotNull();
         assertThat(plot.getPrice()).isEqualTo(1000.0);
-        assertThat(plot.getPlotType()).isEqualTo(PlotType.RESIDENTIAL);
+        assertThat(plot.getType()).isEqualTo(PlotType.RESIDENTIAL);
     }
 
     @Test
@@ -41,7 +41,7 @@ public class PlotManagerTest {
 
         assertThat(plot).isNotNull();
         assertThat(plot.getPlotName()).contains("TestPlot");
-        assertThat(plot.getPlotType()).isEqualTo(PlotType.COMMERCIAL);
+        assertThat(plot.getType()).isEqualTo(PlotType.COMMERCIAL);
         assertThat(plot.getPrice()).isEqualTo(5000.0);
     }
 
@@ -115,7 +115,7 @@ public class PlotManagerTest {
         PlotManager.createPlot(new BlockPos(20, 64, 20), new BlockPos(30, 70, 30), 2000.0);
         PlotManager.createPlot(new BlockPos(40, 64, 40), new BlockPos(50, 70, 50), 3000.0);
 
-        assertThat(PlotManager.getAllPlots()).hasSize(3);
+        assertThat(PlotManager.getPlots()).hasSize(3);
     }
 
     @Test
@@ -158,9 +158,9 @@ public class PlotManagerTest {
             0.0
         );
 
-        assertThat(residential.getPlotType()).isEqualTo(PlotType.RESIDENTIAL);
-        assertThat(shop.getPlotType()).isEqualTo(PlotType.SHOP);
-        assertThat(residential.canBePurchased()).isTrue();
-        assertThat(shop.canBePurchased()).isFalse(); // Shops can't be purchased
+        assertThat(residential.getType()).isEqualTo(PlotType.RESIDENTIAL);
+        assertThat(shop.getType()).isEqualTo(PlotType.SHOP);
+        assertThat(residential.getType().canBePurchased()).isTrue();
+        assertThat(shop.getType().canBePurchased()).isFalse(); // Shops can't be purchased
     }
 }
