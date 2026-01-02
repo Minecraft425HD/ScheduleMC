@@ -65,6 +65,9 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
             }
         }).bounds(x + 8, y + 30, 160, 20).build());
 
+        // TODO: Add Bank-specific buttons for BANK NPCs (Banker/Börse)
+        // For now, Bank NPCs will show Dialog button
+
         // Shop Verkaufen Button
         shopSellButton = addRenderableWidget(Button.builder(Component.literal("Verkaufen"), button -> {
             openShopSell();
