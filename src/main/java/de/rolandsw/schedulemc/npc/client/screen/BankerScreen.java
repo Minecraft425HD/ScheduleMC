@@ -4,6 +4,9 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.economy.EconomyManager;
+import de.rolandsw.schedulemc.economy.RecurringPayment;
+import de.rolandsw.schedulemc.economy.RecurringPaymentInterval;
+import de.rolandsw.schedulemc.economy.RecurringPaymentManager;
 import de.rolandsw.schedulemc.economy.SavingsAccount;
 import de.rolandsw.schedulemc.economy.SavingsAccountManager;
 import de.rolandsw.schedulemc.economy.Transaction;
@@ -14,6 +17,7 @@ import de.rolandsw.schedulemc.npc.menu.BankerMenu;
 import de.rolandsw.schedulemc.npc.network.BankDepositPacket;
 import de.rolandsw.schedulemc.npc.network.BankTransferPacket;
 import de.rolandsw.schedulemc.npc.network.BankWithdrawPacket;
+import de.rolandsw.schedulemc.npc.network.CreateRecurringPaymentPacket;
 import de.rolandsw.schedulemc.npc.network.SavingsDepositPacket;
 import de.rolandsw.schedulemc.npc.network.SavingsWithdrawPacket;
 import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
@@ -84,6 +88,13 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
     private int transactionScrollOffset = 0;
     private Button scrollUpButton;
     private Button scrollDownButton;
+
+    // Daueraufträge Tab Components
+    private EditBox recurringRecipientInput;
+    private EditBox recurringAmountInput;
+    private Button recurringIntervalButton;
+    private Button recurringCreateButton;
+    private RecurringPaymentInterval selectedInterval = RecurringPaymentInterval.MONTHLY;
 
     // Close Button
     private Button closeButton;
@@ -198,6 +209,28 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
             transactionScrollOffset++;
         }).bounds(x + 200, y + 155, 15, 18).build());
 
+        // Daueraufträge Tab Components
+        recurringRecipientInput = new EditBox(this.font, x + 15, y + 85, 120, 18, Component.literal("Empfänger"));
+        recurringRecipientInput.setMaxLength(16);
+        recurringRecipientInput.setValue("");
+        addRenderableWidget(recurringRecipientInput);
+
+        recurringAmountInput = new EditBox(this.font, x + 15, y + 115, 80, 18, Component.literal("Betrag"));
+        recurringAmountInput.setMaxLength(10);
+        recurringAmountInput.setValue("");
+        addRenderableWidget(recurringAmountInput);
+
+        recurringIntervalButton = addRenderableWidget(Button.builder(
+            Component.literal(selectedInterval.getDisplayName()), button -> {
+                selectedInterval = selectedInterval.next();
+                recurringIntervalButton.setMessage(Component.literal(selectedInterval.getDisplayName()));
+            }
+        ).bounds(x + 15, y + 145, 120, 18).build());
+
+        recurringCreateButton = addRenderableWidget(Button.builder(Component.literal("Erstellen"), button -> {
+            handleRecurringCreate();
+        }).bounds(x + 145, y + 145, 120, 18).build());
+
         // Close Button
         closeButton = addRenderableWidget(Button.builder(Component.literal("Schließen"), button -> {
             this.onClose();
@@ -224,6 +257,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         boolean isSparkonto = currentTab == Tab.SPARKONTO;
         boolean isUeberweisung = currentTab == Tab.UEBERWEISUNG;
         boolean isHistorie = currentTab == Tab.HISTORIE;
+        boolean isDauerauftraege = currentTab == Tab.DAUERAUFTRAEGE;
 
         // Girokonto Tab
         giroDepositAmountInput.visible = isGirokonto;
@@ -245,6 +279,12 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         // Historie Tab
         scrollUpButton.visible = isHistorie;
         scrollDownButton.visible = isHistorie;
+
+        // Daueraufträge Tab
+        recurringRecipientInput.visible = isDauerauftraege;
+        recurringAmountInput.visible = isDauerauftraege;
+        recurringIntervalButton.visible = isDauerauftraege;
+        recurringCreateButton.visible = isDauerauftraege;
     }
 
     /**
@@ -320,6 +360,26 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
             double amount = Double.parseDouble(transferAmountInput.getValue());
             if (amount > 0) {
                 NPCNetworkHandler.sendToServer(new BankTransferPacket(target, amount));
+                this.onClose();
+            }
+        } catch (NumberFormatException e) {
+            // Ignore invalid input
+        }
+    }
+
+    /**
+     * Verarbeitet Dauerauftrag-Erstellung
+     */
+    private void handleRecurringCreate() {
+        String recipient = recurringRecipientInput.getValue();
+        if (recipient == null || recipient.trim().isEmpty()) {
+            return;
+        }
+
+        try {
+            double amount = Double.parseDouble(recurringAmountInput.getValue());
+            if (amount > 0) {
+                NPCNetworkHandler.sendToServer(new CreateRecurringPaymentPacket(recipient, amount, selectedInterval));
                 this.onClose();
             }
         } catch (NumberFormatException e) {
@@ -554,23 +614,33 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         // Neuer Dauerauftrag erstellen
         guiGraphics.drawString(this.font, "Neuer Dauerauftrag:", x + 15, y + 60, 0x606060, false);
 
-        // Empfänger Label
+        // Empfänger Label (12 Pixel über Input bei y+85)
         guiGraphics.drawString(this.font, "Empfänger:", x + 15, y + 73, 0x808080, false);
 
-        // Betrag Label
+        // Betrag Label (12 Pixel über Input bei y+115)
         guiGraphics.drawString(this.font, "Betrag in €:", x + 15, y + 103, 0x808080, false);
 
-        // Intervall Label
+        // Intervall Label (12 Pixel über Button bei y+145)
         guiGraphics.drawString(this.font, "Intervall:", x + 15, y + 133, 0x808080, false);
 
         // Trennlinie
-        guiGraphics.fill(x + 15, y + 165, x + 265, y + 166, 0x44FFFFFF);
+        guiGraphics.fill(x + 15, y + 168, x + 265, y + 169, 0x44FFFFFF);
 
         // Aktive Daueraufträge
-        guiGraphics.drawString(this.font, "Aktive Daueraufträge:", x + 15, y + 173, 0x606060, false);
+        guiGraphics.drawString(this.font, "Aktive Daueraufträge:", x + 15, y + 175, 0x606060, false);
 
-        // TODO: Liste der Daueraufträge anzeigen (wird später implementiert)
-        guiGraphics.drawString(this.font, "Keine aktiven Daueraufträge", x + 65, y + 190, 0x808080, false);
+        // Liste der Daueraufträge anzeigen
+        if (minecraft.level.getServer() != null) {
+            RecurringPaymentManager manager = RecurringPaymentManager.getInstance(minecraft.level.getServer());
+            java.util.List<RecurringPayment> payments = manager.getPayments(minecraft.player.getUUID());
+
+            if (payments.isEmpty()) {
+                guiGraphics.drawString(this.font, "Keine aktiven Daueraufträge", x + 65, y + 192, 0x808080, false);
+            } else {
+                // TODO: Liste mit Scroll-Funktionalität implementieren
+                guiGraphics.drawString(this.font, payments.size() + " aktive(r) Dauerauftrag/Daueraufträge", x + 55, y + 192, 0x00AA00, false);
+            }
+        }
     }
 
     @Override

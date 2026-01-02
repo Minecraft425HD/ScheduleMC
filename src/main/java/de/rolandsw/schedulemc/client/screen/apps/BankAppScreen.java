@@ -1,8 +1,11 @@
 package de.rolandsw.schedulemc.client.screen.apps;
 
 import de.rolandsw.schedulemc.economy.EconomyManager;
+import de.rolandsw.schedulemc.economy.RecurringPaymentInterval;
 import de.rolandsw.schedulemc.economy.Transaction;
 import de.rolandsw.schedulemc.economy.TransactionHistory;
+import de.rolandsw.schedulemc.npc.network.CreateRecurringPaymentPacket;
+import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -55,6 +58,12 @@ public class BankAppScreen extends Screen {
     private EditBox transferAmountBox;
     private String transferMessage = "";
     private int transferMessageColor = 0xFFFFFF;
+
+    // Recurring Payment Form
+    private EditBox recurringRecipientBox;
+    private EditBox recurringAmountBox;
+    private Button recurringIntervalButton;
+    private RecurringPaymentInterval selectedInterval = RecurringPaymentInterval.MONTHLY;
 
     // Cached Data
     private double balance = 0.0;
@@ -119,6 +128,37 @@ public class BankAppScreen extends Screen {
             addRenderableWidget(Button.builder(Component.literal("Überweisen"), button -> {
                 performTransfer();
             }).bounds(leftPos + 15, formY + 67, WIDTH - 30, 20).build());
+        }
+
+        // Recurring Payment Form (nur in Tab 3)
+        if (currentTab == 3) {
+            int formY = topPos + 78;
+
+            // Empfänger
+            recurringRecipientBox = new EditBox(this.font, leftPos + 15, formY, WIDTH - 30, 18, Component.literal("Empfänger"));
+            recurringRecipientBox.setMaxLength(100);
+            recurringRecipientBox.setHint(Component.literal("Spielername"));
+            addRenderableWidget(recurringRecipientBox);
+
+            // Betrag
+            recurringAmountBox = new EditBox(this.font, leftPos + 15, formY + 30, WIDTH - 30, 18, Component.literal("Betrag"));
+            recurringAmountBox.setMaxLength(10);
+            recurringAmountBox.setHint(Component.literal("Betrag in €"));
+            addRenderableWidget(recurringAmountBox);
+
+            // Intervall-Button
+            recurringIntervalButton = addRenderableWidget(Button.builder(
+                Component.literal(selectedInterval.getDisplayName()),
+                button -> {
+                    selectedInterval = selectedInterval.next();
+                    recurringIntervalButton.setMessage(Component.literal(selectedInterval.getDisplayName()));
+                }
+            ).bounds(leftPos + 15, formY + 60, WIDTH - 30, 18).build());
+
+            // Erstellen-Button
+            addRenderableWidget(Button.builder(Component.literal("Dauerauftrag erstellen"), button -> {
+                performCreateRecurringPayment();
+            }).bounds(leftPos + 15, formY + 87, WIDTH - 30, 20).build());
         }
 
         // Zurück-Button
@@ -213,6 +253,59 @@ public class BankAppScreen extends Screen {
 
         // TODO: Sende Packet an Server für tatsächliche Überweisung
         // TransferPacket.send(recipient, amount);
+    }
+
+    /**
+     * Erstellt Dauerauftrag
+     */
+    private void performCreateRecurringPayment() {
+        if (recurringRecipientBox == null || recurringAmountBox == null) {
+            return;
+        }
+
+        String recipient = recurringRecipientBox.getValue().trim();
+        String amountStr = recurringAmountBox.getValue().trim();
+
+        // Validierung: Empfänger
+        if (recipient.isEmpty()) {
+            transferMessage = "§cBitte Empfänger eingeben!";
+            transferMessageColor = 0xFF5555;
+            return;
+        }
+
+        // Validierung: Betrag
+        if (amountStr.isEmpty()) {
+            transferMessage = "§cBitte Betrag eingeben!";
+            transferMessageColor = 0xFF5555;
+            return;
+        }
+
+        double amount;
+        try {
+            amount = Double.parseDouble(amountStr);
+        } catch (NumberFormatException e) {
+            transferMessage = "§cUngültiger Betrag!";
+            transferMessageColor = 0xFF5555;
+            return;
+        }
+
+        if (amount <= 0) {
+            transferMessage = "§cBetrag muss positiv sein!";
+            transferMessageColor = 0xFF5555;
+            return;
+        }
+
+        // Sende Packet an Server
+        NPCNetworkHandler.sendToServer(new CreateRecurringPaymentPacket(recipient, amount, selectedInterval));
+
+        // Erfolgs-Nachricht
+        transferMessage = String.format("§aDauerauftrag an %s (%.2f€ %s) erstellt!",
+            recipient, amount, selectedInterval.getDisplayName().toLowerCase());
+        transferMessageColor = 0x55FF55;
+
+        // Felder leeren
+        recurringRecipientBox.setValue("");
+        recurringAmountBox.setValue("");
     }
 
     @Override
@@ -427,19 +520,24 @@ public class BankAppScreen extends Screen {
         // Neuer Dauerauftrag
         guiGraphics.drawString(this.font, "§fNeuer Dauerauftrag:", leftPos + 15, startY + 15, 0xFFFFFF);
 
-        // Platzhalter für Formular
-        guiGraphics.drawString(this.font, "§8Empfänger:", leftPos + 15, startY + 30, 0x666666);
-        guiGraphics.drawString(this.font, "§8Betrag:", leftPos + 15, startY + 60, 0x666666);
-        guiGraphics.drawString(this.font, "§8Intervall:", leftPos + 15, startY + 90, 0x666666);
+        // Form Labels (oberhalb der Input-Felder)
+        guiGraphics.drawString(this.font, "§7Empfänger:", leftPos + 15, startY + 13, 0xAAAAAA);
+        guiGraphics.drawString(this.font, "§7Betrag:", leftPos + 15, startY + 43, 0xAAAAAA);
+        guiGraphics.drawString(this.font, "§7Intervall:", leftPos + 15, startY + 73, 0xAAAAAA);
+
+        // Erfolgsmeldung
+        if (!transferMessage.isEmpty()) {
+            guiGraphics.drawCenteredString(this.font, transferMessage, leftPos + WIDTH / 2, startY + 120, transferMessageColor);
+        }
 
         // Trennlinie
-        guiGraphics.fill(leftPos + 10, startY + 115, leftPos + WIDTH - 10, startY + 116, 0x44FFFFFF);
+        guiGraphics.fill(leftPos + 10, startY + 135, leftPos + WIDTH - 10, startY + 136, 0x44FFFFFF);
 
         // Aktive Daueraufträge
-        guiGraphics.drawString(this.font, "§fAktive Daueraufträge:", leftPos + 15, startY + 120, 0xFFFFFF);
+        guiGraphics.drawString(this.font, "§fAktive Daueraufträge:", leftPos + 15, startY + 142, 0xFFFFFF);
 
         // TODO: Liste implementieren
-        guiGraphics.drawCenteredString(this.font, "§7Keine aktiven Daueraufträge", leftPos + WIDTH / 2, startY + 140, 0xAAAAAA);
+        guiGraphics.drawCenteredString(this.font, "§7Keine aktiven Daueraufträge", leftPos + WIDTH / 2, startY + 160, 0xAAAAAA);
     }
 
     // ═══════════════════════════════════════════════════════════

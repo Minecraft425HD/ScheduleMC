@@ -147,6 +147,30 @@ public class NPCNetworkHandler {
             .encoder(OpenBoerseMenuPacket::encode)
             .consumerMainThread(OpenBoerseMenuPacket::handle)
             .add();
+
+        INSTANCE.messageBuilder(CreateRecurringPaymentPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(CreateRecurringPaymentPacket::decode)
+            .encoder(CreateRecurringPaymentPacket::encode)
+            .consumerMainThread(CreateRecurringPaymentPacket::handle)
+            .add();
+
+        INSTANCE.messageBuilder(DeleteRecurringPaymentPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(DeleteRecurringPaymentPacket::decode)
+            .encoder(DeleteRecurringPaymentPacket::encode)
+            .consumerMainThread(DeleteRecurringPaymentPacket::handle)
+            .add();
+
+        INSTANCE.messageBuilder(PauseRecurringPaymentPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(PauseRecurringPaymentPacket::decode)
+            .encoder(PauseRecurringPaymentPacket::encode)
+            .consumerMainThread(PauseRecurringPaymentPacket::handle)
+            .add();
+
+        INSTANCE.messageBuilder(ResumeRecurringPaymentPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(ResumeRecurringPaymentPacket::decode)
+            .encoder(ResumeRecurringPaymentPacket::encode)
+            .consumerMainThread(ResumeRecurringPaymentPacket::handle)
+            .add();
     }
 
     public static <MSG> void sendToServer(MSG message) {
