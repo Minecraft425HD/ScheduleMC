@@ -8,6 +8,7 @@ import de.rolandsw.schedulemc.economy.SavingsAccount;
 import de.rolandsw.schedulemc.economy.SavingsAccountManager;
 import de.rolandsw.schedulemc.economy.Transaction;
 import de.rolandsw.schedulemc.economy.TransactionHistory;
+import de.rolandsw.schedulemc.economy.WalletManager;
 import de.rolandsw.schedulemc.npc.bank.TransferLimitTracker;
 import de.rolandsw.schedulemc.npc.menu.BankerMenu;
 import de.rolandsw.schedulemc.npc.network.BankDepositPacket;
@@ -263,10 +264,15 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
     private void renderKontenTab(GuiGraphics guiGraphics, int x, int y) {
         if (minecraft == null || minecraft.player == null) return;
 
+        // Bargeld (Wallet)
+        double bargeld = WalletManager.getBalance(minecraft.player.getUUID());
+        guiGraphics.drawString(this.font, "BARGELD", x + 10, y + 40, 0x404040, false);
+        guiGraphics.drawString(this.font, String.format("%.2f€", bargeld), x + 80, y + 40, 0xFFAA00, false);
+
         // Girokonto (Hauptkonto)
         double girokonto = EconomyManager.getBalance(minecraft.player.getUUID());
-        guiGraphics.drawString(this.font, "GIROKONTO", x + 10, y + 40, 0x404040, false);
-        guiGraphics.drawString(this.font, String.format("%.2f€", girokonto), x + 80, y + 40, 0x00AA00, false);
+        guiGraphics.drawString(this.font, "GIROKONTO", x + 10, y + 48, 0x404040, false);
+        guiGraphics.drawString(this.font, String.format("%.2f€", girokonto), x + 80, y + 48, 0x00AA00, false);
 
         // Sparkonto (Gesamt aller Sparkonten)
         SavingsAccountManager savingsManager = SavingsAccountManager.getInstance(minecraft.level.getServer());
@@ -275,21 +281,21 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
             .mapToDouble(SavingsAccount::getBalance)
             .sum();
 
-        guiGraphics.drawString(this.font, "SPARKONTO", x + 10, y + 48, 0x404040, false);
-        guiGraphics.drawString(this.font, String.format("%.2f€", sparkonto), x + 80, y + 48, 0xFFAA00, false);
+        guiGraphics.drawString(this.font, "SPARKONTO", x + 10, y + 56, 0x404040, false);
+        guiGraphics.drawString(this.font, String.format("%.2f€", sparkonto), x + 80, y + 56, 0x6666FF, false);
 
         // Einzahlen/Abheben Labels
-        guiGraphics.drawString(this.font, "Einzahlung:", x + 10, y + 50, 0x808080, false);
-        guiGraphics.drawString(this.font, "Abhebung:", x + 10, y + 70, 0x808080, false);
+        guiGraphics.drawString(this.font, "Einzahlung:", x + 10, y + 68, 0x808080, false);
+        guiGraphics.drawString(this.font, "Abhebung:", x + 10, y + 88, 0x808080, false);
 
         // Deposit Limit Info
         double depositLimit = ModConfigHandler.COMMON.BANK_DEPOSIT_LIMIT.get();
-        guiGraphics.drawString(this.font, "Max: " + String.format("%.0f€", depositLimit),
-            x + 10, y + 100, 0x808080, false);
+        guiGraphics.drawString(this.font, "Limit: " + String.format("%.0f€", depositLimit),
+            x + 10, y + 108, 0x808080, false);
 
         // Info
-        guiGraphics.drawString(this.font, "Hinweis: Wertgegenstände werden", x + 10, y + 110, 0x606060, false);
-        guiGraphics.drawString(this.font, "automatisch gewechselt.", x + 10, y + 118, 0x606060, false);
+        guiGraphics.drawString(this.font, "Bargeld aus Wallet wird", x + 10, y + 118, 0x606060, false);
+        guiGraphics.drawString(this.font, "auf Girokonto eingezahlt.", x + 10, y + 126, 0x606060, false);
     }
 
     /**
