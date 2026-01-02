@@ -302,7 +302,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         guiGraphics.drawString(this.font, "Betrag:", x + 10, y + 60, 0x404040, false);
 
         // Transfer Limit Info
-        TransferLimitTracker tracker = TransferLimitTracker.getInstance();
+        TransferLimitTracker tracker = TransferLimitTracker.getInstance(minecraft.level.getServer());
         double remaining = tracker.getRemainingLimit(minecraft.player.getUUID());
         double dailyLimit = ModConfigHandler.COMMON.BANK_TRANSFER_DAILY_LIMIT.get();
 
@@ -329,7 +329,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
 
         // Get transaction history
         TransactionHistory history = TransactionHistory.getInstance(minecraft.level.getServer());
-        List<Transaction> transactions = history.getTransactions(minecraft.player.getUUID());
+        List<Transaction> transactions = history.getAllTransactions(minecraft.player.getUUID());
 
         if (transactions.isEmpty()) {
             guiGraphics.drawString(this.font, "Keine Transaktionen", x + 20, y + 60, 0x808080, false);

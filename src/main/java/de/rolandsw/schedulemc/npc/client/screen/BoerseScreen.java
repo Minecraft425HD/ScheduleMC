@@ -170,7 +170,7 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
         int y = (height - imageHeight) / 2;
 
         // Get stock market data
-        StockMarketData stockMarket = StockMarketData.getInstance();
+        StockMarketData stockMarket = StockMarketData.getInstance(minecraft.level.getServer());
 
         // Header
         guiGraphics.drawString(this.font, "MARKT", x + 10, y + 25, 0x404040, false);

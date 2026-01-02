@@ -48,7 +48,7 @@ public class BankTransferPacket {
             }
 
             // Prüfe tägliches Transfer-Limit
-            TransferLimitTracker tracker = TransferLimitTracker.getInstance();
+            TransferLimitTracker tracker = TransferLimitTracker.getInstance(player.server);
             double remaining = tracker.getRemainingLimit(player.getUUID());
 
             if (amount > remaining) {

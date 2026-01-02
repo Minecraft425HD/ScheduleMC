@@ -343,8 +343,8 @@ public class ScheduleMC {
                 RecurringPaymentManager.getInstance(server).tick(dayTime);
 
                 // Bank Systems
-                de.rolandsw.schedulemc.npc.bank.StockMarketData.getInstance().tick(dayTime);
-                de.rolandsw.schedulemc.npc.bank.TransferLimitTracker.getInstance().tick(dayTime);
+                de.rolandsw.schedulemc.npc.bank.StockMarketData.getInstance(server).tick(dayTime);
+                de.rolandsw.schedulemc.npc.bank.TransferLimitTracker.getInstance(server).tick(dayTime);
             }
 
             if (tickCounter >= SAVE_INTERVAL) {

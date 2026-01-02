@@ -76,7 +76,7 @@ public class StockTradePacket {
                 return;
             }
 
-            StockMarketData stockMarket = StockMarketData.getInstance();
+            StockMarketData stockMarket = StockMarketData.getInstance(player.server);
             Item tradedItem = stockType.getItem();
             double currentPrice = stockMarket.getCurrentPrice(tradedItem);
             double totalCost = currentPrice * quantity;
