@@ -118,6 +118,18 @@ public class NPCNetworkHandler {
             .consumerMainThread(BankTransferPacket::handle)
             .add();
 
+        INSTANCE.messageBuilder(SavingsDepositPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(SavingsDepositPacket::decode)
+            .encoder(SavingsDepositPacket::encode)
+            .consumerMainThread(SavingsDepositPacket::handle)
+            .add();
+
+        INSTANCE.messageBuilder(SavingsWithdrawPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(SavingsWithdrawPacket::decode)
+            .encoder(SavingsWithdrawPacket::encode)
+            .consumerMainThread(SavingsWithdrawPacket::handle)
+            .add();
+
         INSTANCE.messageBuilder(StockTradePacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
             .decoder(StockTradePacket::decode)
             .encoder(StockTradePacket::encode)

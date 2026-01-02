@@ -14,6 +14,8 @@ import de.rolandsw.schedulemc.npc.menu.BankerMenu;
 import de.rolandsw.schedulemc.npc.network.BankDepositPacket;
 import de.rolandsw.schedulemc.npc.network.BankTransferPacket;
 import de.rolandsw.schedulemc.npc.network.BankWithdrawPacket;
+import de.rolandsw.schedulemc.npc.network.SavingsDepositPacket;
+import de.rolandsw.schedulemc.npc.network.SavingsWithdrawPacket;
 import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -271,8 +273,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         try {
             double amount = Double.parseDouble(savingsDepositAmountInput.getValue());
             if (amount > 0) {
-                // TODO: Implement savings deposit packet
-                // NPCNetworkHandler.sendToServer(new SavingsDepositPacket(amount));
+                NPCNetworkHandler.sendToServer(new SavingsDepositPacket(amount));
                 this.onClose();
             }
         } catch (NumberFormatException e) {
@@ -287,8 +288,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         try {
             double amount = Double.parseDouble(savingsWithdrawAmountInput.getValue());
             if (amount > 0) {
-                // TODO: Implement savings withdraw packet
-                // NPCNetworkHandler.sendToServer(new SavingsWithdrawPacket(amount));
+                NPCNetworkHandler.sendToServer(new SavingsWithdrawPacket(amount));
                 this.onClose();
             }
         } catch (NumberFormatException e) {
