@@ -196,7 +196,16 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
         this.renderBackground(guiGraphics);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
+    }    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        // Block E key (inventory key - 69) from closing the screen
+        if (keyCode == 69) { // GLFW_KEY_E
+            return true; // Consume event, prevent closing
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
     }
+
+
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {

@@ -475,6 +475,16 @@ public class SmartphoneScreen extends Screen {
     }
 
     @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        // Block E key (inventory key - 69) from closing the screen
+        // Only ESC (256) should close the screen
+        if (keyCode == 69) { // GLFW_KEY_E
+            return true; // Consume event, prevent closing
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
     public boolean isPauseScreen() {
         return false; // Spiel läuft weiter
     }

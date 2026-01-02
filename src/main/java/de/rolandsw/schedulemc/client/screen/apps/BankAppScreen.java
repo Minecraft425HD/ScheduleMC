@@ -1,8 +1,14 @@
 package de.rolandsw.schedulemc.client.screen.apps;
 
 import de.rolandsw.schedulemc.economy.EconomyManager;
+import de.rolandsw.schedulemc.economy.RecurringPayment;
+import de.rolandsw.schedulemc.economy.RecurringPaymentInterval;
+import de.rolandsw.schedulemc.economy.RecurringPaymentManager;
 import de.rolandsw.schedulemc.economy.Transaction;
 import de.rolandsw.schedulemc.economy.TransactionHistory;
+import de.rolandsw.schedulemc.npc.network.BankTransferPacket;
+import de.rolandsw.schedulemc.npc.network.CreateRecurringPaymentPacket;
+import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -28,7 +34,7 @@ import java.util.UUID;
 public class BankAppScreen extends Screen {
 
     private final Screen parentScreen;
-    private static final int WIDTH = 200;
+    private static final int WIDTH = 240;
     private static final int HEIGHT = 240;
     private static final int BORDER_SIZE = 5;
     private static final int MARGIN_TOP = 15;
@@ -36,9 +42,10 @@ public class BankAppScreen extends Screen {
 
     // Tab-System
     private int currentTab = 0;
-    private static final String[] TAB_NAMES = {"Konto", "Historie", "Überweisung"};
+    private static final String[] TAB_NAMES = {"Konto", "Historie", "Überweisung", "Daueraufträge"};
     private static final int TAB_HEIGHT = 22;
-    private static final int TAB_WIDTH = 62;
+    // Tab widths: Konto (45), Historie (45), Überweisung (56), Daueraufträge (76)
+    private static final int[] TAB_WIDTHS = {45, 45, 56, 76};
 
     // Scrolling
     private int scrollOffset = 0;
@@ -54,6 +61,12 @@ public class BankAppScreen extends Screen {
     private EditBox transferAmountBox;
     private String transferMessage = "";
     private int transferMessageColor = 0xFFFFFF;
+
+    // Recurring Payment Form
+    private EditBox recurringRecipientBox;
+    private EditBox recurringAmountBox;
+    private Button recurringIntervalButton;
+    private RecurringPaymentInterval selectedInterval = RecurringPaymentInterval.MONTHLY;
 
     // Cached Data
     private double balance = 0.0;
@@ -80,7 +93,8 @@ public class BankAppScreen extends Screen {
         // Cache data
         refreshData();
 
-        // Tab-Buttons
+        // Tab-Buttons mit individuellen Breiten
+        int currentX = leftPos + 5;
         for (int i = 0; i < TAB_NAMES.length; i++) {
             final int tabIndex = i;
             addRenderableWidget(Button.builder(
@@ -93,7 +107,8 @@ public class BankAppScreen extends Screen {
                     clearWidgets();
                     init();
                 }
-            ).bounds(leftPos + 5 + (i * TAB_WIDTH), topPos + 30, TAB_WIDTH - 2, TAB_HEIGHT).build());
+            ).bounds(currentX, topPos + 30, TAB_WIDTHS[i] - 2, TAB_HEIGHT).build());
+            currentX += TAB_WIDTHS[i];
         }
 
         // Transfer Form (nur in Tab 2)
@@ -116,6 +131,37 @@ public class BankAppScreen extends Screen {
             addRenderableWidget(Button.builder(Component.literal("Überweisen"), button -> {
                 performTransfer();
             }).bounds(leftPos + 15, formY + 67, WIDTH - 30, 20).build());
+        }
+
+        // Recurring Payment Form (nur in Tab 3)
+        if (currentTab == 3) {
+            int contentY = topPos + 55;  // Gleich wie render()
+
+            // Empfänger (Label bei contentY + 25, Box bei contentY + 37)
+            recurringRecipientBox = new EditBox(this.font, leftPos + 15, contentY + 37, WIDTH - 30, 18, Component.literal("Empfänger"));
+            recurringRecipientBox.setMaxLength(100);
+            recurringRecipientBox.setHint(Component.literal("Spielername"));
+            addRenderableWidget(recurringRecipientBox);
+
+            // Betrag (Label bei contentY + 59, Box bei contentY + 71)
+            recurringAmountBox = new EditBox(this.font, leftPos + 15, contentY + 71, WIDTH - 30, 18, Component.literal("Betrag"));
+            recurringAmountBox.setMaxLength(10);
+            recurringAmountBox.setHint(Component.literal("Betrag in €"));
+            addRenderableWidget(recurringAmountBox);
+
+            // Intervall-Button (Label bei contentY + 93, Button bei contentY + 105)
+            recurringIntervalButton = addRenderableWidget(Button.builder(
+                Component.literal(selectedInterval.getDisplayName()),
+                button -> {
+                    selectedInterval = selectedInterval.next();
+                    recurringIntervalButton.setMessage(Component.literal(selectedInterval.getDisplayName()));
+                }
+            ).bounds(leftPos + 15, contentY + 105, WIDTH - 30, 18).build());
+
+            // Erstellen-Button (bei contentY + 127)
+            addRenderableWidget(Button.builder(Component.literal("Dauerauftrag erstellen"), button -> {
+                performCreateRecurringPayment();
+            }).bounds(leftPos + 15, contentY + 127, WIDTH - 30, 20).build());
         }
 
         // Zurück-Button
@@ -199,17 +245,72 @@ public class BankAppScreen extends Screen {
             return;
         }
 
-        // Hier würde normalerweise ein Packet an den Server gesendet werden
-        // Für diese Demo zeigen wir nur eine Erfolgsmeldung
-        transferMessage = String.format("§aÜberweisung an %s (%.2f€) gesendet!", recipient, amount);
+        // Sende Überweisung an Server
+        NPCNetworkHandler.sendToServer(new BankTransferPacket(recipient, amount));
+
+        // Lokale Bestätigung (Server sendet detaillierte Nachricht)
+        transferMessage = String.format("§aÜberweisung an %s (%.2f€) wird verarbeitet...", recipient, amount);
         transferMessageColor = 0x55FF55;
 
         // Felder leeren
         transferRecipientBox.setValue("");
         transferAmountBox.setValue("");
 
-        // TODO: Sende Packet an Server für tatsächliche Überweisung
-        // TransferPacket.send(recipient, amount);
+        // Daten aktualisieren nach kurzer Verzögerung
+        refreshData();
+    }
+
+    /**
+     * Erstellt Dauerauftrag
+     */
+    private void performCreateRecurringPayment() {
+        if (recurringRecipientBox == null || recurringAmountBox == null) {
+            return;
+        }
+
+        String recipient = recurringRecipientBox.getValue().trim();
+        String amountStr = recurringAmountBox.getValue().trim();
+
+        // Validierung: Empfänger
+        if (recipient.isEmpty()) {
+            transferMessage = "§cBitte Empfänger eingeben!";
+            transferMessageColor = 0xFF5555;
+            return;
+        }
+
+        // Validierung: Betrag
+        if (amountStr.isEmpty()) {
+            transferMessage = "§cBitte Betrag eingeben!";
+            transferMessageColor = 0xFF5555;
+            return;
+        }
+
+        double amount;
+        try {
+            amount = Double.parseDouble(amountStr);
+        } catch (NumberFormatException e) {
+            transferMessage = "§cUngültiger Betrag!";
+            transferMessageColor = 0xFF5555;
+            return;
+        }
+
+        if (amount <= 0) {
+            transferMessage = "§cBetrag muss positiv sein!";
+            transferMessageColor = 0xFF5555;
+            return;
+        }
+
+        // Sende Packet an Server
+        NPCNetworkHandler.sendToServer(new CreateRecurringPaymentPacket(recipient, amount, selectedInterval));
+
+        // Erfolgs-Nachricht
+        transferMessage = String.format("§aDauerauftrag an %s (%.2f€ %s) erstellt!",
+            recipient, amount, selectedInterval.getDisplayName().toLowerCase());
+        transferMessageColor = 0x55FF55;
+
+        // Felder leeren
+        recurringRecipientBox.setValue("");
+        recurringAmountBox.setValue("");
     }
 
     @Override
@@ -225,12 +326,13 @@ public class BankAppScreen extends Screen {
         guiGraphics.drawCenteredString(this.font, "§6§lBank", leftPos + WIDTH / 2, topPos + 10, 0xFFFFFF);
 
         // Tab-Hintergrund (aktiver Tab hervorheben)
+        int currentX = leftPos + 5;
         for (int i = 0; i < TAB_NAMES.length; i++) {
-            int tabX = leftPos + 5 + (i * TAB_WIDTH);
             int tabY = topPos + 30;
             if (i == currentTab) {
-                guiGraphics.fill(tabX - 1, tabY - 1, tabX + TAB_WIDTH - 1, tabY + TAB_HEIGHT + 1, 0xFF4A90E2);
+                guiGraphics.fill(currentX - 1, tabY - 1, currentX + TAB_WIDTHS[i] - 3, tabY + TAB_HEIGHT + 1, 0xFF4A90E2);
             }
+            currentX += TAB_WIDTHS[i];
         }
 
         // Content-Bereich
@@ -242,10 +344,11 @@ public class BankAppScreen extends Screen {
             case 0 -> renderAccountTab(guiGraphics, contentY, contentEndY);
             case 1 -> renderHistoryTab(guiGraphics, contentY, contentEndY);
             case 2 -> renderTransferTab(guiGraphics, contentY, contentEndY);
+            case 3 -> renderDauerauftraegeTab(guiGraphics, contentY, contentEndY);
         }
 
-        // Scroll-Indikator
-        if (maxScroll > 0 && currentTab != 2) {
+        // Scroll-Indikator (nicht in Tabs 2 und 3)
+        if (maxScroll > 0 && currentTab != 2 && currentTab != 3) {
             int scrollBarHeight = Math.max(20, CONTENT_HEIGHT * CONTENT_HEIGHT / (CONTENT_HEIGHT + maxScroll));
             int scrollBarY = contentY + (scrollOffset * (CONTENT_HEIGHT - scrollBarHeight) / maxScroll);
             guiGraphics.fill(leftPos + WIDTH - 8, contentY, leftPos + WIDTH - 5, contentEndY, 0x44FFFFFF);
@@ -413,16 +516,106 @@ public class BankAppScreen extends Screen {
     }
 
     // ═══════════════════════════════════════════════════════════
+    // TAB 4: DAUERAUFTRÄGE
+    // ═══════════════════════════════════════════════════════════
+
+    private void renderDauerauftraegeTab(GuiGraphics guiGraphics, int startY, int endY) {
+        // Überschrift
+        guiGraphics.drawCenteredString(this.font, "§6§lDaueraufträge", leftPos + WIDTH / 2, startY, 0xFFAA00);
+
+        // Neuer Dauerauftrag Überschrift
+        guiGraphics.drawString(this.font, "§fNeuer Dauerauftrag:", leftPos + 15, startY + 10, 0xFFFFFF);
+
+        // Form Labels (direkt über den Input-Feldern)
+        // EditBox ist bei contentY + 37 = startY + 37
+        guiGraphics.drawString(this.font, "§7Empfänger:", leftPos + 15, startY + 25, 0xAAAAAA);
+
+        // EditBox ist bei contentY + 71 = startY + 71
+        guiGraphics.drawString(this.font, "§7Betrag:", leftPos + 15, startY + 59, 0xAAAAAA);
+
+        // Intervall Button ist bei contentY + 105 = startY + 105
+        guiGraphics.drawString(this.font, "§7Intervall:", leftPos + 15, startY + 93, 0xAAAAAA);
+
+        // Erfolgsmeldung (unter dem Erstellen-Button bei contentY + 127)
+        if (!transferMessage.isEmpty()) {
+            guiGraphics.drawCenteredString(this.font, transferMessage, leftPos + WIDTH / 2, startY + 152, transferMessageColor);
+        }
+
+        // Trennlinie
+        guiGraphics.fill(leftPos + 10, startY + 162, leftPos + WIDTH - 10, startY + 163, 0x44FFFFFF);
+
+        // Aktive Daueraufträge
+        guiGraphics.drawString(this.font, "§fAktive Daueraufträge:", leftPos + 15, startY + 169, 0xFFFFFF);
+
+        // Liste anzeigen (wenn Server verfügbar)
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player != null && mc.level != null && mc.level.getServer() != null) {
+            RecurringPaymentManager manager = RecurringPaymentManager.getInstance(mc.level.getServer());
+            java.util.List<RecurringPayment> payments = manager.getPayments(mc.player.getUUID());
+
+            if (payments.isEmpty()) {
+                guiGraphics.drawCenteredString(this.font, "§7Keine aktiven Daueraufträge",
+                    leftPos + WIDTH / 2, startY + 185, 0xAAAAAA);
+            } else {
+                // Zeige bis zu 3 Daueraufträge an
+                int yOffset = startY + 182;
+                int maxDisplay = Math.min(3, payments.size());
+
+                for (int i = 0; i < maxDisplay; i++) {
+                    RecurringPayment payment = payments.get(i);
+
+                    // Empfänger (gekürzt)
+                    String recipientStr = payment.getToPlayer().toString().substring(0, 8);
+                    guiGraphics.drawString(this.font, "§f" + recipientStr + "...", leftPos + 15, yOffset, 0xFFFFFF);
+
+                    // Betrag
+                    String amountStr = String.format("%.0f€", payment.getAmount());
+                    guiGraphics.drawString(this.font, "§6" + amountStr, leftPos + 95, yOffset, 0xFFAA00);
+
+                    // Intervall
+                    String intervalStr = payment.getIntervalDays() + "d";
+                    guiGraphics.drawString(this.font, "§b" + intervalStr, leftPos + 145, yOffset, 0x00AAAA);
+
+                    // Status
+                    String statusStr = payment.isActive() ? "§a✓" : "§e⏸";
+                    guiGraphics.drawString(this.font, statusStr, leftPos + 180, yOffset, 0xFFFFFF);
+
+                    yOffset += 11;
+                }
+
+                // Hinweis bei mehr Einträgen
+                if (payments.size() > 3) {
+                    guiGraphics.drawCenteredString(this.font,
+                        "§7+" + (payments.size() - 3) + " weitere...",
+                        leftPos + WIDTH / 2, yOffset + 3, 0xAAAAAA);
+                }
+            }
+        } else {
+            guiGraphics.drawCenteredString(this.font, "§7Keine aktiven Daueraufträge",
+                leftPos + WIDTH / 2, startY + 185, 0xAAAAAA);
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════
     // SCROLL HANDLING
     // ═══════════════════════════════════════════════════════════
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-        if (currentTab != 2 && maxScroll > 0) {
+        if (currentTab != 2 && currentTab != 3 && maxScroll > 0) {
             scrollOffset = (int) Math.max(0, Math.min(maxScroll, scrollOffset - delta * SCROLL_SPEED));
             return true;
         }
         return super.mouseScrolled(mouseX, mouseY, delta);
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        // Block E key (inventory key - 69) from closing the screen
+        if (keyCode == 69) { // GLFW_KEY_E
+            return true; // Consume event, prevent closing
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     @Override
