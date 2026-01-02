@@ -399,10 +399,10 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         guiGraphics.drawString(this.font, "Bargeld:", x + 20, y + 72, 0x808080, false);
         guiGraphics.drawString(this.font, String.format("%.2f€", bargeld), x + 125, y + 72, 0xFFAA00, false);
 
-        // Einzahlen Label
+        // Einzahlen Label (12 Pixel über dem Input-Feld bei y+88)
         guiGraphics.drawString(this.font, "Einzahlen (aus Bargeld):", x + 15, y + 76, 0x808080, false);
 
-        // Abheben Label
+        // Abheben Label (12 Pixel über dem Input-Feld bei y+118)
         guiGraphics.drawString(this.font, "Abheben (zu Bargeld):", x + 15, y + 106, 0x808080, false);
 
         // Info
@@ -433,10 +433,10 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         guiGraphics.drawString(this.font, "Girokonto:", x + 20, y + 72, 0x808080, false);
         guiGraphics.drawString(this.font, String.format("%.2f€", girokonto), x + 125, y + 72, 0x00AA00, false);
 
-        // Einzahlen Label
+        // Einzahlen Label (12 Pixel über dem Input-Feld bei y+88)
         guiGraphics.drawString(this.font, "Einzahlen (vom Girokonto):", x + 15, y + 76, 0x808080, false);
 
-        // Abheben Label
+        // Abheben Label (12 Pixel über dem Input-Feld bei y+118)
         guiGraphics.drawString(this.font, "Abheben (zum Girokonto):", x + 15, y + 106, 0x808080, false);
 
         // Info
@@ -453,25 +453,26 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
 
         guiGraphics.drawString(this.font, "ÜBERWEISUNG", x + 70, y + 45, 0x404040, false);
 
-        // Verfügbar
-        double balance = EconomyManager.getBalance(minecraft.player.getUUID());
-        guiGraphics.drawString(this.font, "Verfügbar:", x + 15, y + 57, 0x808080, false);
-        guiGraphics.drawString(this.font, String.format("%.2f€", balance), x + 140, y + 57, 0xFFD700, false);
-
-        // Empfänger Label
+        // Empfänger Label (12 Pixel über dem Input-Feld bei y+70)
         guiGraphics.drawString(this.font, "Empfängername:", x + 15, y + 58, 0x808080, false);
 
-        // Betrag Label
+        // Betrag Label (12 Pixel über dem Input-Feld bei y+108)
         guiGraphics.drawString(this.font, "Betrag in €:", x + 15, y + 96, 0x808080, false);
 
-        // Info
+        // Info unten
         if (minecraft.level.getServer() != null) {
+            double balance = EconomyManager.getBalance(minecraft.player.getUUID());
+            guiGraphics.drawString(this.font, "Verfügbar:",
+                x + 15, y + 145, 0x606060, false);
+            guiGraphics.drawString(this.font, String.format("%.2f€", balance),
+                x + 140, y + 145, 0xFFD700, false);
+
             TransferLimitTracker tracker = TransferLimitTracker.getInstance(minecraft.level.getServer());
             double remaining = tracker.getRemainingLimit(minecraft.player.getUUID());
             guiGraphics.drawString(this.font, "Tageslimit:",
-                x + 15, y + 163, 0x606060, false);
+                x + 15, y + 157, 0x606060, false);
             guiGraphics.drawString(this.font, String.format("%.2f€", remaining),
-                x + 140, y + 163, remaining > 0 ? 0x00AA00 : 0xFF5555, false);
+                x + 140, y + 157, remaining > 0 ? 0x00AA00 : 0xFF5555, false);
         }
     }
 
