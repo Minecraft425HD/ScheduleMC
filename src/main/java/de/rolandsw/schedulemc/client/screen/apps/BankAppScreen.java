@@ -6,6 +6,7 @@ import de.rolandsw.schedulemc.economy.RecurringPaymentInterval;
 import de.rolandsw.schedulemc.economy.RecurringPaymentManager;
 import de.rolandsw.schedulemc.economy.Transaction;
 import de.rolandsw.schedulemc.economy.TransactionHistory;
+import de.rolandsw.schedulemc.npc.network.BankTransferPacket;
 import de.rolandsw.schedulemc.npc.network.CreateRecurringPaymentPacket;
 import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
 import net.minecraft.client.Minecraft;
@@ -244,17 +245,19 @@ public class BankAppScreen extends Screen {
             return;
         }
 
-        // Hier würde normalerweise ein Packet an den Server gesendet werden
-        // Für diese Demo zeigen wir nur eine Erfolgsmeldung
-        transferMessage = String.format("§aÜberweisung an %s (%.2f€) gesendet!", recipient, amount);
+        // Sende Überweisung an Server
+        NPCNetworkHandler.sendToServer(new BankTransferPacket(recipient, amount));
+
+        // Lokale Bestätigung (Server sendet detaillierte Nachricht)
+        transferMessage = String.format("§aÜberweisung an %s (%.2f€) wird verarbeitet...", recipient, amount);
         transferMessageColor = 0x55FF55;
 
         // Felder leeren
         transferRecipientBox.setValue("");
         transferAmountBox.setValue("");
 
-        // TODO: Sende Packet an Server für tatsächliche Überweisung
-        // TransferPacket.send(recipient, amount);
+        // Daten aktualisieren nach kurzer Verzögerung
+        refreshData();
     }
 
     /**
