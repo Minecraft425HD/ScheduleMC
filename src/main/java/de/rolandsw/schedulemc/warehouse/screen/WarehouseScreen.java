@@ -1280,6 +1280,12 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
                 return true;
             }
         }
+
+        // Block E key (inventory key - 69) from closing the screen
+        if (keyCode == 69) { // GLFW_KEY_E
+            return true; // Consume event, prevent closing
+        }
+
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
