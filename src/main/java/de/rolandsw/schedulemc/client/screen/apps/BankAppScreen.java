@@ -347,8 +347,8 @@ public class BankAppScreen extends Screen {
             case 3 -> renderDauerauftraegeTab(guiGraphics, contentY, contentEndY);
         }
 
-        // Scroll-Indikator (nicht in Tabs 2 und 3)
-        if (maxScroll > 0 && currentTab != 2 && currentTab != 3) {
+        // Scroll-Indikator (nicht in Tab 2)
+        if (maxScroll > 0 && currentTab != 2) {
             int scrollBarHeight = Math.max(20, CONTENT_HEIGHT * CONTENT_HEIGHT / (CONTENT_HEIGHT + maxScroll));
             int scrollBarY = contentY + (scrollOffset * (CONTENT_HEIGHT - scrollBarHeight) / maxScroll);
             guiGraphics.fill(leftPos + WIDTH - 8, contentY, leftPos + WIDTH - 5, contentEndY, 0x44FFFFFF);
@@ -520,32 +520,47 @@ public class BankAppScreen extends Screen {
     // ═══════════════════════════════════════════════════════════
 
     private void renderDauerauftraegeTab(GuiGraphics guiGraphics, int startY, int endY) {
+        // ═══════════════════════════════════════════════════════════
+        // FIXED SECTION: Form (kein Scrolling, bleibt mit EditBoxes aligned)
+        // ═══════════════════════════════════════════════════════════
+
         // Überschrift
         guiGraphics.drawCenteredString(this.font, "§6§lDaueraufträge", leftPos + WIDTH / 2, startY, 0xFFAA00);
 
         // Neuer Dauerauftrag Überschrift
         guiGraphics.drawString(this.font, "§fNeuer Dauerauftrag:", leftPos + 15, startY + 10, 0xFFFFFF);
 
-        // Form Labels (direkt über den Input-Feldern)
-        // EditBox ist bei contentY + 37 = startY + 37
+        // Form Labels (direkt über den Input-Feldern - FIXED positions wie EditBoxes)
         guiGraphics.drawString(this.font, "§7Empfänger:", leftPos + 15, startY + 25, 0xAAAAAA);
-
-        // EditBox ist bei contentY + 71 = startY + 71
         guiGraphics.drawString(this.font, "§7Betrag:", leftPos + 15, startY + 59, 0xAAAAAA);
-
-        // Intervall Button ist bei contentY + 105 = startY + 105
         guiGraphics.drawString(this.font, "§7Intervall:", leftPos + 15, startY + 93, 0xAAAAAA);
 
-        // Erfolgsmeldung (unter dem Erstellen-Button bei contentY + 127)
+        // Erfolgsmeldung (unter dem Erstellen-Button)
         if (!transferMessage.isEmpty()) {
             guiGraphics.drawCenteredString(this.font, transferMessage, leftPos + WIDTH / 2, startY + 152, transferMessageColor);
         }
 
-        // Trennlinie
-        guiGraphics.fill(leftPos + 10, startY + 162, leftPos + WIDTH - 10, startY + 163, 0x44FFFFFF);
+        // ═══════════════════════════════════════════════════════════
+        // SCROLLABLE SECTION: Liste (scrollt, wenn zu viele Einträge)
+        // ═══════════════════════════════════════════════════════════
 
-        // Aktive Daueraufträge
-        guiGraphics.drawString(this.font, "§fAktive Daueraufträge:", leftPos + 15, startY + 169, 0xFFFFFF);
+        int listStartY = startY + 165;  // Start der scrollbaren Liste
+        int y = listStartY - scrollOffset;
+        int contentHeight = 0;
+
+        // Trennlinie
+        if (y >= listStartY - 10 && y < endY) {
+            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
+        }
+        y += 8;
+        contentHeight += 8;
+
+        // Aktive Daueraufträge Header
+        if (y >= listStartY - 15 && y < endY) {
+            guiGraphics.drawString(this.font, "§fAktive Daueraufträge:", leftPos + 15, y, 0xFFFFFF);
+        }
+        y += 15;
+        contentHeight += 15;
 
         // Liste anzeigen (wenn Server verfügbar)
         Minecraft mc = Minecraft.getInstance();
@@ -554,46 +569,54 @@ public class BankAppScreen extends Screen {
             java.util.List<RecurringPayment> payments = manager.getPayments(mc.player.getUUID());
 
             if (payments.isEmpty()) {
-                guiGraphics.drawCenteredString(this.font, "§7Keine aktiven Daueraufträge",
-                    leftPos + WIDTH / 2, startY + 185, 0xAAAAAA);
-            } else {
-                // Zeige bis zu 3 Daueraufträge an
-                int yOffset = startY + 182;
-                int maxDisplay = Math.min(3, payments.size());
-
-                for (int i = 0; i < maxDisplay; i++) {
-                    RecurringPayment payment = payments.get(i);
-
-                    // Empfänger (gekürzt)
-                    String recipientStr = payment.getToPlayer().toString().substring(0, 8);
-                    guiGraphics.drawString(this.font, "§f" + recipientStr + "...", leftPos + 15, yOffset, 0xFFFFFF);
-
-                    // Betrag
-                    String amountStr = String.format("%.0f€", payment.getAmount());
-                    guiGraphics.drawString(this.font, "§6" + amountStr, leftPos + 95, yOffset, 0xFFAA00);
-
-                    // Intervall
-                    String intervalStr = payment.getIntervalDays() + "d";
-                    guiGraphics.drawString(this.font, "§b" + intervalStr, leftPos + 145, yOffset, 0x00AAAA);
-
-                    // Status
-                    String statusStr = payment.isActive() ? "§a✓" : "§e⏸";
-                    guiGraphics.drawString(this.font, statusStr, leftPos + 180, yOffset, 0xFFFFFF);
-
-                    yOffset += 11;
+                if (y >= listStartY - 15 && y < endY) {
+                    guiGraphics.drawCenteredString(this.font, "§7Keine aktiven Daueraufträge",
+                        leftPos + WIDTH / 2, y, 0xAAAAAA);
                 }
+                y += 15;
+                contentHeight += 15;
+            } else {
+                // Zeige ALLE Daueraufträge mit vollständigen Informationen
+                for (RecurringPayment payment : payments) {
+                    if (y >= listStartY - 50 && y < endY) {
+                        // Box für jeden Eintrag
+                        guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 45, 0x44333333);
 
-                // Hinweis bei mehr Einträgen
-                if (payments.size() > 3) {
-                    guiGraphics.drawCenteredString(this.font,
-                        "§7+" + (payments.size() - 3) + " weitere...",
-                        leftPos + WIDTH / 2, yOffset + 3, 0xAAAAAA);
+                        // Empfänger (voller Name wenn möglich)
+                        String recipientStr = payment.getToPlayer().toString();
+                        if (recipientStr.length() > 30) {
+                            recipientStr = recipientStr.substring(0, 27) + "...";
+                        }
+                        guiGraphics.drawString(this.font, "§fAn: §b" + recipientStr, leftPos + 15, y + 3, 0xFFFFFF);
+
+                        // Betrag
+                        String amountStr = String.format("§6%.2f€", payment.getAmount());
+                        guiGraphics.drawString(this.font, "§fBetrag: " + amountStr, leftPos + 15, y + 15, 0xFFFFFF);
+
+                        // Intervall
+                        String intervalName = RecurringPaymentInterval.fromDays(payment.getIntervalDays()).getDisplayName();
+                        guiGraphics.drawString(this.font, "§fIntervall: §e" + intervalName, leftPos + 15, y + 27, 0xFFFFFF);
+
+                        // Status
+                        String statusStr = payment.isActive() ? "§a● Aktiv" : "§e⏸ Pausiert";
+                        guiGraphics.drawString(this.font, statusStr, leftPos + 145, y + 27, 0xFFFFFF);
+                    }
+                    y += 50;
+                    contentHeight += 50;
                 }
             }
         } else {
-            guiGraphics.drawCenteredString(this.font, "§7Keine aktiven Daueraufträge",
-                leftPos + WIDTH / 2, startY + 185, 0xAAAAAA);
+            if (y >= listStartY - 15 && y < endY) {
+                guiGraphics.drawCenteredString(this.font, "§7Keine aktiven Daueraufträge",
+                    leftPos + WIDTH / 2, y, 0xAAAAAA);
+            }
+            y += 15;
+            contentHeight += 15;
         }
+
+        // MaxScroll: Nur basierend auf dem sichtbaren Bereich der Liste
+        int visibleListHeight = endY - listStartY;
+        maxScroll = Math.max(0, contentHeight - visibleListHeight);
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -602,7 +625,7 @@ public class BankAppScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-        if (currentTab != 2 && currentTab != 3 && maxScroll > 0) {
+        if (currentTab != 2 && maxScroll > 0) {
             scrollOffset = (int) Math.max(0, Math.min(maxScroll, scrollOffset - delta * SCROLL_SPEED));
             return true;
         }
