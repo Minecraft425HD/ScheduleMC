@@ -49,7 +49,8 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         GIROKONTO,
         SPARKONTO,
         UEBERWEISUNG,
-        HISTORIE
+        HISTORIE,
+        DAUERAUFTRAEGE
     }
 
     private Tab currentTab = Tab.UEBERSICHT;
@@ -60,6 +61,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
     private Button sparkontoTabButton;
     private Button ueberweisungTabButton;
     private Button historieTabButton;
+    private Button dauerauftraegeTabButton;
 
     // Girokonto Tab Components
     private Button giroDepositButton;
@@ -88,7 +90,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
 
     public BankerScreen(BankerMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
-        this.imageWidth = 220;
+        this.imageWidth = 280;
         this.imageHeight = 230;
     }
 
@@ -99,29 +101,38 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
 
-        // Tab Buttons (5 Tabs, volle Namen ohne Abkürzungen)
-        int tabWidth = 42;
+        // Tab Buttons (6 Tabs, volle Namen ohne Abkürzungen)
         int tabStartX = x + 5;
+        int currentX = tabStartX;
 
         uebersichtTabButton = addRenderableWidget(Button.builder(Component.literal("Übersicht"), button -> {
             switchTab(Tab.UEBERSICHT);
-        }).bounds(tabStartX, y + 20, tabWidth, 18).build());
+        }).bounds(currentX, y + 20, 40, 18).build());
+        currentX += 41;
 
         girokontoTabButton = addRenderableWidget(Button.builder(Component.literal("Girokonto"), button -> {
             switchTab(Tab.GIROKONTO);
-        }).bounds(tabStartX + tabWidth + 1, y + 20, tabWidth, 18).build());
+        }).bounds(currentX, y + 20, 40, 18).build());
+        currentX += 41;
 
         sparkontoTabButton = addRenderableWidget(Button.builder(Component.literal("Sparkonto"), button -> {
             switchTab(Tab.SPARKONTO);
-        }).bounds(tabStartX + (tabWidth + 1) * 2, y + 20, tabWidth, 18).build());
+        }).bounds(currentX, y + 20, 40, 18).build());
+        currentX += 41;
 
         ueberweisungTabButton = addRenderableWidget(Button.builder(Component.literal("Überweisung"), button -> {
             switchTab(Tab.UEBERWEISUNG);
-        }).bounds(tabStartX + (tabWidth + 1) * 3, y + 20, tabWidth + 4, 18).build());
+        }).bounds(currentX, y + 20, 50, 18).build());
+        currentX += 51;
 
         historieTabButton = addRenderableWidget(Button.builder(Component.literal("Historie"), button -> {
             switchTab(Tab.HISTORIE);
-        }).bounds(tabStartX + (tabWidth + 1) * 4 + 4, y + 20, tabWidth, 18).build());
+        }).bounds(currentX, y + 20, 38, 18).build());
+        currentX += 39;
+
+        dauerauftraegeTabButton = addRenderableWidget(Button.builder(Component.literal("Daueraufträge"), button -> {
+            switchTab(Tab.DAUERAUFTRAEGE);
+        }).bounds(currentX, y + 20, 62, 18).build());
 
         // Girokonto Tab Components
         giroDepositAmountInput = new EditBox(this.font, x + 15, y + 100, 90, 18, Component.literal("Betrag"));
@@ -342,6 +353,9 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
             case HISTORIE:
                 renderHistorieTab(guiGraphics, x, y);
                 break;
+            case DAUERAUFTRAEGE:
+                renderDauerauftraegeTab(guiGraphics, x, y);
+                break;
         }
     }
 
@@ -527,6 +541,36 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
                 String.format("%d/%d", startIndex + 1, transactions.size()),
                 x + 165, y + 160, 0x808080, false);
         }
+    }
+
+    /**
+     * Rendert Daueraufträge Tab
+     */
+    private void renderDauerauftraegeTab(GuiGraphics guiGraphics, int x, int y) {
+        if (minecraft == null || minecraft.player == null) return;
+
+        guiGraphics.drawString(this.font, "DAUERAUFTRÄGE", x + 85, y + 45, 0x404040, false);
+
+        // Neuer Dauerauftrag erstellen
+        guiGraphics.drawString(this.font, "Neuer Dauerauftrag:", x + 15, y + 60, 0x606060, false);
+
+        // Empfänger Label
+        guiGraphics.drawString(this.font, "Empfänger:", x + 15, y + 73, 0x808080, false);
+
+        // Betrag Label
+        guiGraphics.drawString(this.font, "Betrag in €:", x + 15, y + 103, 0x808080, false);
+
+        // Intervall Label
+        guiGraphics.drawString(this.font, "Intervall:", x + 15, y + 133, 0x808080, false);
+
+        // Trennlinie
+        guiGraphics.fill(x + 15, y + 165, x + 265, y + 166, 0x44FFFFFF);
+
+        // Aktive Daueraufträge
+        guiGraphics.drawString(this.font, "Aktive Daueraufträge:", x + 15, y + 173, 0x606060, false);
+
+        // TODO: Liste der Daueraufträge anzeigen (wird später implementiert)
+        guiGraphics.drawString(this.font, "Keine aktiven Daueraufträge", x + 65, y + 190, 0x808080, false);
     }
 
     @Override

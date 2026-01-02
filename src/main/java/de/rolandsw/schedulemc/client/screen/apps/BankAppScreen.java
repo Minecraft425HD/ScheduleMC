@@ -28,7 +28,7 @@ import java.util.UUID;
 public class BankAppScreen extends Screen {
 
     private final Screen parentScreen;
-    private static final int WIDTH = 200;
+    private static final int WIDTH = 240;
     private static final int HEIGHT = 240;
     private static final int BORDER_SIZE = 5;
     private static final int MARGIN_TOP = 15;
@@ -36,9 +36,10 @@ public class BankAppScreen extends Screen {
 
     // Tab-System
     private int currentTab = 0;
-    private static final String[] TAB_NAMES = {"Konto", "Historie", "Überweisung"};
+    private static final String[] TAB_NAMES = {"Konto", "Historie", "Überweisung", "Daueraufträge"};
     private static final int TAB_HEIGHT = 22;
-    private static final int TAB_WIDTH = 62;
+    // Tab widths: Konto (45), Historie (45), Überweisung (56), Daueraufträge (76)
+    private static final int[] TAB_WIDTHS = {45, 45, 56, 76};
 
     // Scrolling
     private int scrollOffset = 0;
@@ -80,7 +81,8 @@ public class BankAppScreen extends Screen {
         // Cache data
         refreshData();
 
-        // Tab-Buttons
+        // Tab-Buttons mit individuellen Breiten
+        int currentX = leftPos + 5;
         for (int i = 0; i < TAB_NAMES.length; i++) {
             final int tabIndex = i;
             addRenderableWidget(Button.builder(
@@ -93,7 +95,8 @@ public class BankAppScreen extends Screen {
                     clearWidgets();
                     init();
                 }
-            ).bounds(leftPos + 5 + (i * TAB_WIDTH), topPos + 30, TAB_WIDTH - 2, TAB_HEIGHT).build());
+            ).bounds(currentX, topPos + 30, TAB_WIDTHS[i] - 2, TAB_HEIGHT).build());
+            currentX += TAB_WIDTHS[i];
         }
 
         // Transfer Form (nur in Tab 2)
@@ -242,10 +245,11 @@ public class BankAppScreen extends Screen {
             case 0 -> renderAccountTab(guiGraphics, contentY, contentEndY);
             case 1 -> renderHistoryTab(guiGraphics, contentY, contentEndY);
             case 2 -> renderTransferTab(guiGraphics, contentY, contentEndY);
+            case 3 -> renderDauerauftraegeTab(guiGraphics, contentY, contentEndY);
         }
 
-        // Scroll-Indikator
-        if (maxScroll > 0 && currentTab != 2) {
+        // Scroll-Indikator (nicht in Tabs 2 und 3)
+        if (maxScroll > 0 && currentTab != 2 && currentTab != 3) {
             int scrollBarHeight = Math.max(20, CONTENT_HEIGHT * CONTENT_HEIGHT / (CONTENT_HEIGHT + maxScroll));
             int scrollBarY = contentY + (scrollOffset * (CONTENT_HEIGHT - scrollBarHeight) / maxScroll);
             guiGraphics.fill(leftPos + WIDTH - 8, contentY, leftPos + WIDTH - 5, contentEndY, 0x44FFFFFF);
@@ -413,12 +417,38 @@ public class BankAppScreen extends Screen {
     }
 
     // ═══════════════════════════════════════════════════════════
+    // TAB 4: DAUERAUFTRÄGE
+    // ═══════════════════════════════════════════════════════════
+
+    private void renderDauerauftraegeTab(GuiGraphics guiGraphics, int startY, int endY) {
+        // Überschrift
+        guiGraphics.drawCenteredString(this.font, "§6§lDaueraufträge", leftPos + WIDTH / 2, startY, 0xFFAA00);
+
+        // Neuer Dauerauftrag
+        guiGraphics.drawString(this.font, "§fNeuer Dauerauftrag:", leftPos + 15, startY + 15, 0xFFFFFF);
+
+        // Platzhalter für Formular
+        guiGraphics.drawString(this.font, "§8Empfänger:", leftPos + 15, startY + 30, 0x666666);
+        guiGraphics.drawString(this.font, "§8Betrag:", leftPos + 15, startY + 60, 0x666666);
+        guiGraphics.drawString(this.font, "§8Intervall:", leftPos + 15, startY + 90, 0x666666);
+
+        // Trennlinie
+        guiGraphics.fill(leftPos + 10, startY + 115, leftPos + WIDTH - 10, startY + 116, 0x44FFFFFF);
+
+        // Aktive Daueraufträge
+        guiGraphics.drawString(this.font, "§fAktive Daueraufträge:", leftPos + 15, startY + 120, 0xFFFFFF);
+
+        // TODO: Liste implementieren
+        guiGraphics.drawCenteredString(this.font, "§7Keine aktiven Daueraufträge", leftPos + WIDTH / 2, startY + 140, 0xAAAAAA);
+    }
+
+    // ═══════════════════════════════════════════════════════════
     // SCROLL HANDLING
     // ═══════════════════════════════════════════════════════════
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-        if (currentTab != 2 && maxScroll > 0) {
+        if (currentTab != 2 && currentTab != 3 && maxScroll > 0) {
             scrollOffset = (int) Math.max(0, Math.min(maxScroll, scrollOffset - delta * SCROLL_SPEED));
             return true;
         }
