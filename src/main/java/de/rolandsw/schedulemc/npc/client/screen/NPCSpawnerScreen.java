@@ -6,6 +6,7 @@ import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.npc.client.ClientNPCNameCache;
 import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.npc.data.MerchantCategory;
+import de.rolandsw.schedulemc.npc.data.BankCategory;
 import de.rolandsw.schedulemc.npc.menu.NPCSpawnerMenu;
 import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
 import de.rolandsw.schedulemc.npc.network.SpawnNPCPacket;
@@ -53,6 +54,11 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
     private Button prevMerchantCategoryButton;
     private Button nextMerchantCategoryButton;
 
+    // Bank Kategorie Auswahl
+    private int selectedBankCategoryIndex = 0;
+    private Button prevBankCategoryButton;
+    private Button nextBankCategoryButton;
+
     public NPCSpawnerScreen(NPCSpawnerMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.imageWidth = 176;
@@ -91,12 +97,12 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
         // NPC Typ Selection Buttons
         prevNPCTypeButton = addRenderableWidget(Button.builder(Component.literal("<"), button -> {
             selectedNPCTypeIndex = (selectedNPCTypeIndex - 1 + NPCType.values().length) % NPCType.values().length;
-            updateMerchantCategoryVisibility();
+            updateCategoryVisibility();
         }).bounds(x + 20, y + 80, 20, 20).build());
 
         nextNPCTypeButton = addRenderableWidget(Button.builder(Component.literal(">"), button -> {
             selectedNPCTypeIndex = (selectedNPCTypeIndex + 1) % NPCType.values().length;
-            updateMerchantCategoryVisibility();
+            updateCategoryVisibility();
         }).bounds(x + 136, y + 80, 20, 20).build());
 
         // Verkäufer Kategorie Selection Buttons
@@ -108,13 +114,22 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
             selectedMerchantCategoryIndex = (selectedMerchantCategoryIndex + 1) % MerchantCategory.values().length;
         }).bounds(x + 136, y + 110, 20, 20).build());
 
+        // Bank Kategorie Selection Buttons
+        prevBankCategoryButton = addRenderableWidget(Button.builder(Component.literal("<"), button -> {
+            selectedBankCategoryIndex = (selectedBankCategoryIndex - 1 + BankCategory.values().length) % BankCategory.values().length;
+        }).bounds(x + 20, y + 110, 20, 20).build());
+
+        nextBankCategoryButton = addRenderableWidget(Button.builder(Component.literal(">"), button -> {
+            selectedBankCategoryIndex = (selectedBankCategoryIndex + 1) % BankCategory.values().length;
+        }).bounds(x + 136, y + 110, 20, 20).build());
+
         // Spawn Button
         spawnButton = addRenderableWidget(Button.builder(Component.literal("NPC Spawnen"), button -> {
             spawnNPC();
         }).bounds(x + 38, y + 140, 100, 20).build());
 
         // Initial visibility update
-        updateMerchantCategoryVisibility();
+        updateCategoryVisibility();
     }
 
     /**
@@ -127,14 +142,18 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
     }
 
     /**
-     * Aktualisiert die Sichtbarkeit der Verkäufer-Kategorie Buttons
+     * Aktualisiert die Sichtbarkeit der Kategorie-Buttons (Verkäufer/Bank)
      */
-    private void updateMerchantCategoryVisibility() {
+    private void updateCategoryVisibility() {
         NPCType currentType = NPCType.values()[selectedNPCTypeIndex];
         boolean isVerkaufer = currentType == NPCType.VERKAEUFER;
+        boolean isBank = currentType == NPCType.BANK;
 
         prevMerchantCategoryButton.visible = isVerkaufer;
         nextMerchantCategoryButton.visible = isVerkaufer;
+
+        prevBankCategoryButton.visible = isBank;
+        nextBankCategoryButton.visible = isBank;
     }
 
     /**
@@ -211,13 +230,15 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
         String skinFile = availableSkins.get(selectedSkinIndex);
         NPCType npcType = NPCType.values()[selectedNPCTypeIndex];
         MerchantCategory merchantCategory = MerchantCategory.values()[selectedMerchantCategoryIndex];
+        BankCategory bankCategory = BankCategory.values()[selectedBankCategoryIndex];
 
         NPCNetworkHandler.sendToServer(new SpawnNPCPacket(
             menu.getSpawnPosition(),
             npcName,
             skinFile,
             npcType,
-            merchantCategory
+            merchantCategory,
+            bankCategory
         ));
 
         this.onClose();
@@ -286,6 +307,15 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
             int categoryTextY = y + 115;
             guiGraphics.drawString(this.font, categoryName, categoryTextX, categoryTextY, 0x404040, false);
         }
+
+        // Zeige ausgewählte Bank-Kategorie (nur wenn Bank)
+        if (currentType == NPCType.BANK) {
+            BankCategory currentCategory = BankCategory.values()[selectedBankCategoryIndex];
+            String categoryName = currentCategory.getDisplayName();
+            int categoryTextX = x + (imageWidth - font.width(categoryName)) / 2;
+            int categoryTextY = y + 115;
+            guiGraphics.drawString(this.font, categoryName, categoryTextX, categoryTextY, 0x404040, false);
+        }
     }
 
     @Override
@@ -306,6 +336,11 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
         // Verkäufer-Kategorie Label nur anzeigen wenn Verkäufer ausgewählt
         NPCType currentType = NPCType.values()[selectedNPCTypeIndex];
         if (currentType == NPCType.VERKAEUFER) {
+            guiGraphics.drawString(this.font, "Kategorie:", 8, 103, 0x404040, false);
+        }
+
+        // Bank-Kategorie Label nur anzeigen wenn Bank ausgewählt
+        if (currentType == NPCType.BANK) {
             guiGraphics.drawString(this.font, "Kategorie:", 8, 103, 0x404040, false);
         }
     }

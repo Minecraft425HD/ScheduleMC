@@ -4,6 +4,7 @@ import de.rolandsw.schedulemc.managers.NPCNameRegistry;
 import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.npc.data.MerchantCategory;
+import de.rolandsw.schedulemc.npc.data.BankCategory;
 import de.rolandsw.schedulemc.npc.data.MerchantShopDefaults;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.entity.NPCEntities;
@@ -26,13 +27,15 @@ public class SpawnNPCPacket {
     private final String skinFile;
     private final NPCType npcType;
     private final MerchantCategory merchantCategory;
+    private final BankCategory bankCategory;
 
-    public SpawnNPCPacket(BlockPos position, String npcName, String skinFile, NPCType npcType, MerchantCategory merchantCategory) {
+    public SpawnNPCPacket(BlockPos position, String npcName, String skinFile, NPCType npcType, MerchantCategory merchantCategory, BankCategory bankCategory) {
         this.position = position;
         this.npcName = npcName;
         this.skinFile = skinFile;
         this.npcType = npcType;
         this.merchantCategory = merchantCategory;
+        this.bankCategory = bankCategory;
     }
 
     public void encode(FriendlyByteBuf buf) {
@@ -41,6 +44,7 @@ public class SpawnNPCPacket {
         buf.writeUtf(skinFile);
         buf.writeEnum(npcType);
         buf.writeEnum(merchantCategory);
+        buf.writeEnum(bankCategory);
     }
 
     public static SpawnNPCPacket decode(FriendlyByteBuf buf) {
@@ -49,7 +53,8 @@ public class SpawnNPCPacket {
             buf.readUtf(),
             buf.readUtf(),
             buf.readEnum(NPCType.class),
-            buf.readEnum(MerchantCategory.class)
+            buf.readEnum(MerchantCategory.class),
+            buf.readEnum(BankCategory.class)
         );
     }
 
@@ -78,9 +83,10 @@ public class SpawnNPCPacket {
 
                 // Konfiguriere NPC Data
                 NPCData data = new NPCData(npcName, skinFile, npcType, merchantCategory);
+                data.setBankCategory(bankCategory);
 
                 // Füge typ-spezifische Standard-Dialoge hinzu
-                setupDialogForType(data, npcName, npcType, merchantCategory);
+                setupDialogForType(data, npcName, npcType, merchantCategory, bankCategory);
 
                 npc.setNpcData(data);
                 npc.setNpcName(npcName);
@@ -113,7 +119,7 @@ public class SpawnNPCPacket {
     /**
      * Richtet typ-spezifische Dialoge ein
      */
-    private static void setupDialogForType(NPCData data, String npcName, NPCType npcType, MerchantCategory merchantCategory) {
+    private static void setupDialogForType(NPCData data, String npcName, NPCType npcType, MerchantCategory merchantCategory, BankCategory bankCategory) {
         switch (npcType) {
             case BEWOHNER:
                 data.addDialogEntry(new NPCData.DialogEntry("Hallo! Ich bin " + npcName + ".", ""));
@@ -135,6 +141,13 @@ public class SpawnNPCPacket {
                 data.addDialogEntry(new NPCData.DialogEntry("Guten Tag. Polizei " + npcName + ".", ""));
                 data.addDialogEntry(new NPCData.DialogEntry("Kann ich Ihnen helfen?", ""));
                 data.addDialogEntry(new NPCData.DialogEntry("Bleiben Sie sicher!", ""));
+                break;
+
+            case BANK:
+                data.addDialogEntry(new NPCData.DialogEntry("Willkommen bei der Bank!", ""));
+                data.addDialogEntry(new NPCData.DialogEntry("Ich bin " + npcName + ", Ihr " + bankCategory.getDisplayName() + ".", ""));
+                data.addDialogEntry(new NPCData.DialogEntry("Wie kann ich Ihnen heute helfen?", ""));
+                data.addDialogEntry(new NPCData.DialogEntry("Vielen Dank für Ihr Vertrauen!", ""));
                 break;
         }
     }
