@@ -190,19 +190,22 @@ public class WorldMapScreen extends PopupScreen {
         this.buildWorldName();
         this.leftMouseButtonDown = false;
         this.sideMargin = 10;
-        this.buttonCount = 5;
         this.buttonSeparation = 4;
 
-        // Berechne Button-Breiten: - und + sind kleiner (40px), die anderen 3 teilen sich den Rest
+        // Layout: [−] [+]  [Center] [Options] [Done]
+        // Zoom-Buttons sind 40px breit, die 3 Haupt-Buttons teilen sich den Rest gleichmäßig
         int zoomButtonWidth = 40;
-        int remainingWidth = this.width - this.sideMargin * 2 - 2 * zoomButtonWidth - this.buttonSeparation * 4;
-        this.buttonWidth = remainingWidth / 3;
+        int totalAvailableWidth = this.width - this.sideMargin * 2;
+        int spaceForZoomButtons = 2 * zoomButtonWidth;
+        int totalSeparations = 4 * this.buttonSeparation; // 4 Lücken zwischen 5 Buttons
+        int spaceForMainButtons = totalAvailableWidth - spaceForZoomButtons - totalSeparations;
+        this.buttonWidth = spaceForMainButtons / 3; // Gleiche Breite für Center, Options, Done
 
         // Zoom-Buttons links
         this.addRenderableWidget(new PopupButton(this.sideMargin, this.getHeight() - 28, zoomButtonWidth, 20, Component.literal("−"), button -> this.zoomOut(), this));
         this.addRenderableWidget(new PopupButton(this.sideMargin + zoomButtonWidth + this.buttonSeparation, this.getHeight() - 28, zoomButtonWidth, 20, Component.literal("+"), button -> this.zoomIn(), this));
 
-        // Haupt-Buttons rechts
+        // Haupt-Buttons rechts (alle gleich breit)
         int mainButtonsStart = this.sideMargin + 2 * zoomButtonWidth + 2 * this.buttonSeparation;
         this.addRenderableWidget(new PopupButton(mainButtonsStart, this.getHeight() - 28, this.buttonWidth, 20, Component.translatable("worldmap.center"), button -> this.centerOnPlayer(), this));
         this.addRenderableWidget(new PopupButton(mainButtonsStart + 1 * (this.buttonWidth + this.buttonSeparation), this.getHeight() - 28, this.buttonWidth, 20, Component.translatable("menu.options"), button -> minecraft.setScreen(new MapOptionsScreen(this)), this));
