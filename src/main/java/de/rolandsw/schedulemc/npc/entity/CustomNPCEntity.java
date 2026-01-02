@@ -59,6 +59,8 @@ public class CustomNPCEntity extends PathfinderMob {
         SynchedEntityData.defineId(CustomNPCEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> MERCHANT_CATEGORY_ORDINAL =
         SynchedEntityData.defineId(CustomNPCEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> BANK_CATEGORY_ORDINAL =
+        SynchedEntityData.defineId(CustomNPCEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<String> PERSONALITY =
         SynchedEntityData.defineId(CustomNPCEntity.class, EntityDataSerializers.STRING);
     private static final EntityDataAccessor<Integer> ACTIVITY_STATUS =
@@ -88,6 +90,7 @@ public class CustomNPCEntity extends PathfinderMob {
         this.entityData.define(SKIN_FILE, "default.png");
         this.entityData.define(NPC_TYPE_ORDINAL, 0); // BEWOHNER
         this.entityData.define(MERCHANT_CATEGORY_ORDINAL, 0); // BAUMARKT
+        this.entityData.define(BANK_CATEGORY_ORDINAL, 0); // BANKER
         this.entityData.define(PERSONALITY, NPCPersonality.AUSGEWOGEN.name()); // Standard-Persönlichkeit
         this.entityData.define(ACTIVITY_STATUS, NPCActivityStatus.ROAMING.ordinal()); // Standard: Unterwegs
     }
@@ -358,6 +361,7 @@ public class CustomNPCEntity extends PathfinderMob {
         this.entityData.set(SKIN_FILE, npcData.getSkinFileName());
         this.entityData.set(NPC_TYPE_ORDINAL, npcData.getNpcType().ordinal());
         this.entityData.set(MERCHANT_CATEGORY_ORDINAL, npcData.getMerchantCategory().ordinal());
+        this.entityData.set(BANK_CATEGORY_ORDINAL, npcData.getBankCategory().ordinal());
 
         // Personality synchronisieren
         String personalityStr = npcData.getCustomData().getString("personality");
@@ -436,6 +440,13 @@ public class CustomNPCEntity extends PathfinderMob {
      */
     public de.rolandsw.schedulemc.npc.data.MerchantCategory getMerchantCategory() {
         return de.rolandsw.schedulemc.npc.data.MerchantCategory.fromOrdinal(this.entityData.get(MERCHANT_CATEGORY_ORDINAL));
+    }
+
+    /**
+     * Gibt die Bank-Kategorie zurück (Client-safe via synced data)
+     */
+    public de.rolandsw.schedulemc.npc.data.BankCategory getBankCategory() {
+        return de.rolandsw.schedulemc.npc.data.BankCategory.fromOrdinal(this.entityData.get(BANK_CATEGORY_ORDINAL));
     }
 
     /**

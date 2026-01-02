@@ -341,6 +341,10 @@ public class ScheduleMC {
                 SavingsAccountManager.getInstance(server).tick(dayTime);
                 OverdraftManager.getInstance(server).tick(dayTime);
                 RecurringPaymentManager.getInstance(server).tick(dayTime);
+
+                // Bank Systems
+                de.rolandsw.schedulemc.npc.bank.StockMarketData.getInstance(server).tick(dayTime);
+                de.rolandsw.schedulemc.npc.bank.TransferLimitTracker.getInstance(server).tick(dayTime);
             }
 
             if (tickCounter >= SAVE_INTERVAL) {

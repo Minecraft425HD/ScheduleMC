@@ -99,6 +99,42 @@ public class NPCNetworkHandler {
             .encoder(PayFuelBillPacket::encode)
             .consumerMainThread(PayFuelBillPacket::handle)
             .add();
+
+        INSTANCE.messageBuilder(BankDepositPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(BankDepositPacket::decode)
+            .encoder(BankDepositPacket::encode)
+            .consumerMainThread(BankDepositPacket::handle)
+            .add();
+
+        INSTANCE.messageBuilder(BankWithdrawPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(BankWithdrawPacket::decode)
+            .encoder(BankWithdrawPacket::encode)
+            .consumerMainThread(BankWithdrawPacket::handle)
+            .add();
+
+        INSTANCE.messageBuilder(BankTransferPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(BankTransferPacket::decode)
+            .encoder(BankTransferPacket::encode)
+            .consumerMainThread(BankTransferPacket::handle)
+            .add();
+
+        INSTANCE.messageBuilder(StockTradePacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(StockTradePacket::decode)
+            .encoder(StockTradePacket::encode)
+            .consumerMainThread(StockTradePacket::handle)
+            .add();
+
+        INSTANCE.messageBuilder(OpenBankerMenuPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(OpenBankerMenuPacket::decode)
+            .encoder(OpenBankerMenuPacket::encode)
+            .consumerMainThread(OpenBankerMenuPacket::handle)
+            .add();
+
+        INSTANCE.messageBuilder(OpenBoerseMenuPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(OpenBoerseMenuPacket::decode)
+            .encoder(OpenBoerseMenuPacket::encode)
+            .consumerMainThread(OpenBoerseMenuPacket::handle)
+            .add();
     }
 
     public static <MSG> void sendToServer(MSG message) {
