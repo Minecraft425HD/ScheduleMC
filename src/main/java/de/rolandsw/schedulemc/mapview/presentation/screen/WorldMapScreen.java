@@ -190,11 +190,28 @@ public class WorldMapScreen extends PopupScreen {
         this.buildWorldName();
         this.leftMouseButtonDown = false;
         this.sideMargin = 10;
-        this.buttonCount = 3;
         this.buttonSeparation = 4;
-        this.buttonWidth = (this.width - this.sideMargin * 2 - this.buttonSeparation * (this.buttonCount - 1)) / this.buttonCount;
-        this.addRenderableWidget(new PopupButton(this.sideMargin + 1 * (this.buttonWidth + this.buttonSeparation), this.getHeight() - 28, this.buttonWidth, 20, Component.translatable("menu.options"), button -> minecraft.setScreen(new MapOptionsScreen(this)), this));
-        this.addRenderableWidget(new PopupButton(this.sideMargin + 2 * (this.buttonWidth + this.buttonSeparation), this.getHeight() - 28, this.buttonWidth, 20, Component.translatable("gui.done"), button -> minecraft.setScreen(parent), this));
+
+        // Layout: [−] <Zoom%> [+]  [Center] [Options] [Done]
+        // Reserviere Platz für: - Button (40px) + Zoom-Display (50px) + + Button (40px)
+        int zoomButtonWidth = 40;
+        int zoomDisplayWidth = 50;
+        int totalAvailableWidth = this.width - this.sideMargin * 2;
+        int spaceForZoomControls = 2 * zoomButtonWidth + zoomDisplayWidth;
+        int totalSeparations = 4 * this.buttonSeparation; // 4 Lücken zwischen 5 Elementen
+        int spaceForMainButtons = totalAvailableWidth - spaceForZoomControls - totalSeparations;
+        this.buttonWidth = spaceForMainButtons / 3; // Gleiche Breite für Center, Options, Done
+
+        // Zoom-Buttons links mit Platz für Prozentanzeige dazwischen
+        this.addRenderableWidget(new PopupButton(this.sideMargin, this.getHeight() - 28, zoomButtonWidth, 20, Component.literal("−"), button -> this.zoomOut(), this));
+        this.addRenderableWidget(new PopupButton(this.sideMargin + zoomButtonWidth + zoomDisplayWidth + this.buttonSeparation, this.getHeight() - 28, zoomButtonWidth, 20, Component.literal("+"), button -> this.zoomIn(), this));
+
+        // Haupt-Buttons rechts (alle gleich breit)
+        int mainButtonsStart = this.sideMargin + spaceForZoomControls + 2 * this.buttonSeparation;
+        this.addRenderableWidget(new PopupButton(mainButtonsStart, this.getHeight() - 28, this.buttonWidth, 20, Component.translatable("worldmap.center"), button -> this.centerOnPlayer(), this));
+        this.addRenderableWidget(new PopupButton(mainButtonsStart + 1 * (this.buttonWidth + this.buttonSeparation), this.getHeight() - 28, this.buttonWidth, 20, Component.translatable("menu.options"), button -> minecraft.setScreen(new MapOptionsScreen(this)), this));
+        this.addRenderableWidget(new PopupButton(mainButtonsStart + 2 * (this.buttonWidth + this.buttonSeparation), this.getHeight() - 28, this.buttonWidth, 20, Component.translatable("gui.done"), button -> minecraft.setScreen(parent), this));
+
         this.coordinates = new EditBox(this.font, this.sideMargin, 10, 140, 20, null);
         this.top = 32;
         this.bottom = this.getHeight() - 32;
@@ -222,6 +239,43 @@ public class WorldMapScreen extends PopupScreen {
             this.mapCenterZ = z;
         }
 
+    }
+
+    /**
+     * Zentriert die Karte auf die aktuelle Spielerposition
+     */
+    private void centerOnPlayer() {
+        int playerX = MinecraftAccessor.xCoord();
+        int playerZ = MinecraftAccessor.zCoord();
+        this.centerAt(playerX, playerZ);
+    }
+
+    /**
+     * Zoomt herein (erhöht Zoomstufe)
+     */
+    private void zoomIn() {
+        if (currentZoomLevel < ZOOM_LEVELS.length - 1) {
+            currentZoomLevel++;
+            this.zoomGoal = ZOOM_LEVELS[currentZoomLevel];
+            this.zoomStart = this.zoom;
+            this.timeOfZoom = System.currentTimeMillis();
+            this.zoomDirectX = (minecraft.getWindow().getWidth() / 2f);
+            this.zoomDirectY = (minecraft.getWindow().getHeight() - minecraft.getWindow().getHeight() / 2f);
+        }
+    }
+
+    /**
+     * Zoomt heraus (verringert Zoomstufe)
+     */
+    private void zoomOut() {
+        if (currentZoomLevel > 0) {
+            currentZoomLevel--;
+            this.zoomGoal = ZOOM_LEVELS[currentZoomLevel];
+            this.zoomStart = this.zoom;
+            this.timeOfZoom = System.currentTimeMillis();
+            this.zoomDirectX = (minecraft.getWindow().getWidth() / 2f);
+            this.zoomDirectY = (minecraft.getWindow().getHeight() - minecraft.getWindow().getHeight() / 2f);
+        }
     }
 
     private void buildWorldName() {
@@ -870,6 +924,18 @@ public class WorldMapScreen extends PopupScreen {
             guiGraphics.drawString(this.font, Component.translatable("worldmap.disabled"), this.sideMargin, 16, 0xFFFFFFFF);
         }
         super.render(guiGraphics, mouseX, mouseY, delta);
+
+        // Rendere Zoom-Stufe im reservierten Bereich zwischen - und + Buttons
+        int zoomButtonWidth = 40;
+        int zoomDisplayWidth = 50;
+        int zoomDisplayX = this.sideMargin + zoomButtonWidth;
+        int zoomTextY = this.getHeight() - 23;
+        // Zoom-Prozent: 0%, 33%, 66%, 100%
+        int zoomPercent = currentZoomLevel == 3 ? 100 : currentZoomLevel * 33;
+        String zoomText = zoomPercent + "%";
+        int zoomTextWidth = this.font.width(zoomText);
+        // Zentriere Text im reservierten Bereich
+        guiGraphics.drawString(this.font, zoomText, zoomDisplayX + (zoomDisplayWidth - zoomTextWidth) / 2, zoomTextY, 0xFFFFFFFF);
     }
 
     public void renderBackground(GuiGraphics context, int mouseX, int mouseY, float delta) {
@@ -998,9 +1064,7 @@ public class WorldMapScreen extends PopupScreen {
             }
             case 5 -> {
                 // Navigation beenden
-                if (RoadNavigationService.getInstance() != null) {
-                    RoadNavigationService.getInstance().stopNavigation();
-                }
+                NavigationOverlay.getInstance().stopNavigation();
             }
             default -> MapViewConstants.getLogger().warn("unimplemented command");
         }
@@ -1029,7 +1093,7 @@ public class WorldMapScreen extends PopupScreen {
      * - Stufe 3 (100%, 16.0): Nur Block-Raster
      * - Stufe 2 (66%, 8.0): Block-Raster + Chunk-Raster (dicker)
      * - Stufe 1 (33%, 4.0): Nur Chunk-Raster
-     * - Stufe 0 (0%, 1.0): Nur Chunk-Raster
+     * - Stufe 0 (0%, 1.0): Kein Raster
      */
     private void renderGridOverlay(GuiGraphics guiGraphics) {
         // Sichtbarer Bereich in Welt-Koordinaten berechnen
@@ -1056,8 +1120,8 @@ public class WorldMapScreen extends PopupScreen {
             }
         }
 
-        // Chunk-Raster (Stufe 0, 1 und 2 - aber NICHT Stufe 3)
-        if (currentZoomLevel <= 2) {
+        // Chunk-Raster (Stufe 1 und 2 - aber NICHT Stufe 0 oder 3)
+        if (currentZoomLevel >= 1 && currentZoomLevel <= 2) {
             int chunkGridColor = 0xC0FFFF00; // Gelb, weniger transparent
             float thickness = (currentZoomLevel == 2) ? 0.15f : 0.3f;
 
@@ -1109,12 +1173,15 @@ public class WorldMapScreen extends PopupScreen {
             overlay.initialize(this.persistentMap);
         }
 
+        // Tick für Updates (Position, Pfad-Neuberechnung) - IMMER aufrufen, auch wenn nicht navigiert wird
+        // damit der Pfad gelöscht werden kann wenn Navigation beendet wurde
+        if (overlay.isInitialized()) {
+            overlay.tick();
+        }
+
         if (!overlay.isInitialized() || !overlay.isNavigating()) {
             return;
         }
-
-        // Tick für Updates (Position, Pfad-Neuberechnung)
-        overlay.tick();
 
         // Berechne Bildschirm-Zentrum
         int screenCenterX = this.width / 2;

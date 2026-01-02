@@ -19,5 +19,6 @@
   "key.categories.mapview": "Map View",
   "mapview.waypoints.teleportTo": "Teleport To",
   "worldmap.title": "World Map",
-  "worldmap.disabled": "The Worldmap is disabled on this server."
+  "worldmap.disabled": "The Worldmap is disabled on this server.",
+  "worldmap.center": "Center"
 }

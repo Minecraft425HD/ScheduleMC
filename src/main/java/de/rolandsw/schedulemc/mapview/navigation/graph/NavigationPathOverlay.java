@@ -59,6 +59,9 @@ public class NavigationPathOverlay {
                 BlockPos pos = path.get(i);
                 pathPositions.add(posToKey(pos.getX(), pos.getZ()));
             }
+
+            // Invalidiere alle Regions entlang des Pfades, damit sie neu gerendert werden
+            invalidateRegionsAlongPath(path);
         }
     }
 
@@ -84,6 +87,11 @@ public class NavigationPathOverlay {
      * Löscht den Pfad komplett
      */
     public void clearPath() {
+        // Invalidiere Regions entlang des alten Pfades BEVOR wir ihn löschen
+        if (currentPath != null && !currentPath.isEmpty()) {
+            invalidateRegionsAlongPath(currentPath);
+        }
+
         pathPositions.clear();
         currentPath = null;
         currentPathIndex = 0;
@@ -166,5 +174,25 @@ public class NavigationPathOverlay {
      */
     public boolean hasActivePath() {
         return !pathPositions.isEmpty();
+    }
+
+    /**
+     * Invalidiert alle Regions entlang eines Pfades
+     * Holt WorldMapData und ruft die Invalidierungs-Methode auf
+     */
+    private void invalidateRegionsAlongPath(List<BlockPos> path) {
+        if (path == null || path.isEmpty()) {
+            return;
+        }
+
+        try {
+            de.rolandsw.schedulemc.mapview.MapViewConstants.getLightMapInstance()
+                .getWorldMapData()
+                .invalidateRegionsAlongPath(path);
+        } catch (Exception e) {
+            // Fehler beim Invalidieren abfangen - nicht kritisch
+            de.rolandsw.schedulemc.mapview.MapViewConstants.getLogger()
+                .warn("[NavigationPathOverlay] Failed to invalidate regions: " + e.getMessage());
+        }
     }
 }
