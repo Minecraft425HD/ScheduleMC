@@ -135,33 +135,33 @@ public class BankAppScreen extends Screen {
 
         // Recurring Payment Form (nur in Tab 3)
         if (currentTab == 3) {
-            int formY = topPos + 78;
+            int contentY = topPos + 55;  // Gleich wie render()
 
-            // Empfänger
-            recurringRecipientBox = new EditBox(this.font, leftPos + 15, formY, WIDTH - 30, 18, Component.literal("Empfänger"));
+            // Empfänger (Label bei contentY + 25, Box bei contentY + 37)
+            recurringRecipientBox = new EditBox(this.font, leftPos + 15, contentY + 37, WIDTH - 30, 18, Component.literal("Empfänger"));
             recurringRecipientBox.setMaxLength(100);
             recurringRecipientBox.setHint(Component.literal("Spielername"));
             addRenderableWidget(recurringRecipientBox);
 
-            // Betrag
-            recurringAmountBox = new EditBox(this.font, leftPos + 15, formY + 30, WIDTH - 30, 18, Component.literal("Betrag"));
+            // Betrag (Label bei contentY + 59, Box bei contentY + 71)
+            recurringAmountBox = new EditBox(this.font, leftPos + 15, contentY + 71, WIDTH - 30, 18, Component.literal("Betrag"));
             recurringAmountBox.setMaxLength(10);
             recurringAmountBox.setHint(Component.literal("Betrag in €"));
             addRenderableWidget(recurringAmountBox);
 
-            // Intervall-Button
+            // Intervall-Button (Label bei contentY + 93, Button bei contentY + 105)
             recurringIntervalButton = addRenderableWidget(Button.builder(
                 Component.literal(selectedInterval.getDisplayName()),
                 button -> {
                     selectedInterval = selectedInterval.next();
                     recurringIntervalButton.setMessage(Component.literal(selectedInterval.getDisplayName()));
                 }
-            ).bounds(leftPos + 15, formY + 60, WIDTH - 30, 18).build());
+            ).bounds(leftPos + 15, contentY + 105, WIDTH - 30, 18).build());
 
-            // Erstellen-Button
+            // Erstellen-Button (bei contentY + 127)
             addRenderableWidget(Button.builder(Component.literal("Dauerauftrag erstellen"), button -> {
                 performCreateRecurringPayment();
-            }).bounds(leftPos + 15, formY + 87, WIDTH - 30, 20).build());
+            }).bounds(leftPos + 15, contentY + 127, WIDTH - 30, 20).build());
         }
 
         // Zurück-Button
@@ -524,28 +524,28 @@ public class BankAppScreen extends Screen {
         guiGraphics.drawCenteredString(this.font, "§6§lDaueraufträge", leftPos + WIDTH / 2, startY, 0xFFAA00);
 
         // Neuer Dauerauftrag Überschrift
-        guiGraphics.drawString(this.font, "§fNeuer Dauerauftrag:", leftPos + 15, startY + 8, 0xFFFFFF);
+        guiGraphics.drawString(this.font, "§fNeuer Dauerauftrag:", leftPos + 15, startY + 10, 0xFFFFFF);
 
         // Form Labels (direkt über den Input-Feldern)
-        // EditBox ist bei formY = topPos + 78 = startY + 23
-        guiGraphics.drawString(this.font, "§7Empfänger:", leftPos + 15, startY + 21, 0xAAAAAA);
+        // EditBox ist bei contentY + 37 = startY + 37
+        guiGraphics.drawString(this.font, "§7Empfänger:", leftPos + 15, startY + 25, 0xAAAAAA);
 
-        // EditBox ist bei formY + 30 = startY + 53
-        guiGraphics.drawString(this.font, "§7Betrag:", leftPos + 15, startY + 51, 0xAAAAAA);
+        // EditBox ist bei contentY + 71 = startY + 71
+        guiGraphics.drawString(this.font, "§7Betrag:", leftPos + 15, startY + 59, 0xAAAAAA);
 
-        // Intervall Button ist bei formY + 60 = startY + 83
-        guiGraphics.drawString(this.font, "§7Intervall:", leftPos + 15, startY + 81, 0xAAAAAA);
+        // Intervall Button ist bei contentY + 105 = startY + 105
+        guiGraphics.drawString(this.font, "§7Intervall:", leftPos + 15, startY + 93, 0xAAAAAA);
 
-        // Erfolgsmeldung (unter dem Erstellen-Button)
+        // Erfolgsmeldung (unter dem Erstellen-Button bei contentY + 127)
         if (!transferMessage.isEmpty()) {
-            guiGraphics.drawCenteredString(this.font, transferMessage, leftPos + WIDTH / 2, startY + 135, transferMessageColor);
+            guiGraphics.drawCenteredString(this.font, transferMessage, leftPos + WIDTH / 2, startY + 152, transferMessageColor);
         }
 
         // Trennlinie
-        guiGraphics.fill(leftPos + 10, startY + 145, leftPos + WIDTH - 10, startY + 146, 0x44FFFFFF);
+        guiGraphics.fill(leftPos + 10, startY + 162, leftPos + WIDTH - 10, startY + 163, 0x44FFFFFF);
 
         // Aktive Daueraufträge
-        guiGraphics.drawString(this.font, "§fAktive Daueraufträge:", leftPos + 15, startY + 152, 0xFFFFFF);
+        guiGraphics.drawString(this.font, "§fAktive Daueraufträge:", leftPos + 15, startY + 169, 0xFFFFFF);
 
         // Liste anzeigen (wenn Server verfügbar)
         Minecraft mc = Minecraft.getInstance();
@@ -555,10 +555,10 @@ public class BankAppScreen extends Screen {
 
             if (payments.isEmpty()) {
                 guiGraphics.drawCenteredString(this.font, "§7Keine aktiven Daueraufträge",
-                    leftPos + WIDTH / 2, startY + 170, 0xAAAAAA);
+                    leftPos + WIDTH / 2, startY + 185, 0xAAAAAA);
             } else {
                 // Zeige bis zu 3 Daueraufträge an
-                int yOffset = startY + 165;
+                int yOffset = startY + 182;
                 int maxDisplay = Math.min(3, payments.size());
 
                 for (int i = 0; i < maxDisplay; i++) {
@@ -592,7 +592,7 @@ public class BankAppScreen extends Screen {
             }
         } else {
             guiGraphics.drawCenteredString(this.font, "§7Keine aktiven Daueraufträge",
-                leftPos + WIDTH / 2, startY + 170, 0xAAAAAA);
+                leftPos + WIDTH / 2, startY + 185, 0xAAAAAA);
         }
     }
 
