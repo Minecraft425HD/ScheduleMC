@@ -8,7 +8,6 @@ import de.rolandsw.schedulemc.util.HealthCheckManager;
 import de.rolandsw.schedulemc.economy.commands.ShopInvestCommand;
 import de.rolandsw.schedulemc.economy.commands.StateCommand;
 import de.rolandsw.schedulemc.npc.commands.NPCCommand;
-import de.rolandsw.schedulemc.tobacco.commands.TobaccoCommand;
 import de.rolandsw.schedulemc.warehouse.commands.WarehouseCommand;
 import de.rolandsw.schedulemc.economy.PlayerJoinHandler;
 import de.rolandsw.schedulemc.events.BlockProtectionHandler;
