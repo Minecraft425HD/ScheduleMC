@@ -403,7 +403,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         guiGraphics.drawString(this.font, "Einzahlen (aus Bargeld):", x + 15, y + 85, 0x808080, false);
 
         // Abheben Label
-        guiGraphics.drawString(this.font, "Abheben (zu Bargeld):", x + 15, y + 125, 0x808080, false);
+        guiGraphics.drawString(this.font, "Abheben (zu Bargeld):", x + 15, y + 128, 0x808080, false);
 
         // Info
         double depositLimit = ModConfigHandler.COMMON.BANK_DEPOSIT_LIMIT.get();
@@ -437,7 +437,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         guiGraphics.drawString(this.font, "Einzahlen (vom Girokonto):", x + 15, y + 85, 0x808080, false);
 
         // Abheben Label
-        guiGraphics.drawString(this.font, "Abheben (zum Girokonto):", x + 15, y + 125, 0x808080, false);
+        guiGraphics.drawString(this.font, "Abheben (zum Girokonto):", x + 15, y + 128, 0x808080, false);
 
         // Info
         guiGraphics.drawString(this.font, "Zinsen: 5% pro Woche", x + 15, y + 145, 0x606060, false);
