@@ -46,7 +46,7 @@ public class TransactionHistoryTest {
     @Test
     public void testAddTransaction_Single() {
         Transaction tx = new Transaction(
-            TransactionType.DEPOSIT,
+            TransactionType.ATM_DEPOSIT,
             null,
             player1,
             1000.0,
@@ -61,9 +61,9 @@ public class TransactionHistoryTest {
 
     @Test
     public void testAddTransaction_Multiple() {
-        history.addTransaction(player1, createTransaction(TransactionType.DEPOSIT, 100.0));
-        history.addTransaction(player1, createTransaction(TransactionType.WITHDRAWAL, -50.0));
-        history.addTransaction(player1, createTransaction(TransactionType.PURCHASE, -25.0));
+        history.addTransaction(player1, createTransaction(TransactionType.ATM_DEPOSIT, 100.0));
+        history.addTransaction(player1, createTransaction(TransactionType.ATM_WITHDRAW, -50.0));
+        history.addTransaction(player1, createTransaction(TransactionType.NPC_PURCHASE, -25.0));
 
         assertThat(history.getTransactionCount(player1)).isEqualTo(3);
     }
@@ -79,9 +79,9 @@ public class TransactionHistoryTest {
 
     @Test
     public void testGetAllTransactions_ReturnsAllAdded() {
-        history.addTransaction(player1, createTransaction(TransactionType.DEPOSIT, 100.0));
-        history.addTransaction(player1, createTransaction(TransactionType.DEPOSIT, 200.0));
-        history.addTransaction(player1, createTransaction(TransactionType.DEPOSIT, 300.0));
+        history.addTransaction(player1, createTransaction(TransactionType.ATM_DEPOSIT, 100.0));
+        history.addTransaction(player1, createTransaction(TransactionType.ATM_DEPOSIT, 200.0));
+        history.addTransaction(player1, createTransaction(TransactionType.ATM_DEPOSIT, 300.0));
 
         List<Transaction> transactions = history.getAllTransactions(player1);
 
@@ -92,7 +92,7 @@ public class TransactionHistoryTest {
     public void testGetRecentTransactions_LimitWorks() {
         // Add 5 transactions
         for (int i = 0; i < 5; i++) {
-            history.addTransaction(player1, createTransaction(TransactionType.DEPOSIT, 100.0 * i));
+            history.addTransaction(player1, createTransaction(TransactionType.ATM_DEPOSIT, 100.0 * i));
         }
 
         // Get only 3 most recent
@@ -103,11 +103,11 @@ public class TransactionHistoryTest {
 
     @Test
     public void testGetRecentTransactions_SortedByNewest() throws InterruptedException {
-        Transaction old = createTransaction(TransactionType.DEPOSIT, 100.0);
+        Transaction old = createTransaction(TransactionType.ATM_DEPOSIT, 100.0);
         Thread.sleep(10); // Ensure different timestamps
-        Transaction middle = createTransaction(TransactionType.DEPOSIT, 200.0);
+        Transaction middle = createTransaction(TransactionType.ATM_DEPOSIT, 200.0);
         Thread.sleep(10);
-        Transaction newest = createTransaction(TransactionType.DEPOSIT, 300.0);
+        Transaction newest = createTransaction(TransactionType.ATM_DEPOSIT, 300.0);
 
         history.addTransaction(player1, old);
         history.addTransaction(player1, middle);
@@ -132,23 +132,23 @@ public class TransactionHistoryTest {
 
     @Test
     public void testGetTransactionsByType_FiltersCorrectly() {
-        history.addTransaction(player1, createTransaction(TransactionType.DEPOSIT, 100.0));
-        history.addTransaction(player1, createTransaction(TransactionType.WITHDRAWAL, -50.0));
-        history.addTransaction(player1, createTransaction(TransactionType.DEPOSIT, 200.0));
-        history.addTransaction(player1, createTransaction(TransactionType.PURCHASE, -25.0));
-        history.addTransaction(player1, createTransaction(TransactionType.DEPOSIT, 300.0));
+        history.addTransaction(player1, createTransaction(TransactionType.ATM_DEPOSIT, 100.0));
+        history.addTransaction(player1, createTransaction(TransactionType.ATM_WITHDRAW, -50.0));
+        history.addTransaction(player1, createTransaction(TransactionType.ATM_DEPOSIT, 200.0));
+        history.addTransaction(player1, createTransaction(TransactionType.NPC_PURCHASE, -25.0));
+        history.addTransaction(player1, createTransaction(TransactionType.ATM_DEPOSIT, 300.0));
 
-        List<Transaction> deposits = history.getTransactionsByType(player1, TransactionType.DEPOSIT);
+        List<Transaction> deposits = history.getTransactionsByType(player1, TransactionType.ATM_DEPOSIT);
 
         assertThat(deposits).hasSize(3);
-        assertThat(deposits).allMatch(tx -> tx.getType() == TransactionType.DEPOSIT);
+        assertThat(deposits).allMatch(tx -> tx.getType() == TransactionType.ATM_DEPOSIT);
     }
 
     @Test
     public void testGetTransactionsByType_EmptyWhenNoMatch() {
-        history.addTransaction(player1, createTransaction(TransactionType.DEPOSIT, 100.0));
+        history.addTransaction(player1, createTransaction(TransactionType.ATM_DEPOSIT, 100.0));
 
-        List<Transaction> withdrawals = history.getTransactionsByType(player1, TransactionType.WITHDRAWAL);
+        List<Transaction> withdrawals = history.getTransactionsByType(player1, TransactionType.ATM_WITHDRAW);
 
         assertThat(withdrawals).isEmpty();
     }
@@ -160,9 +160,9 @@ public class TransactionHistoryTest {
         long twoHoursAgo = now - 7200000;
 
         // Create transactions with specific timestamps
-        Transaction old = createTransactionWithTime(TransactionType.DEPOSIT, 100.0, twoHoursAgo);
-        Transaction middle = createTransactionWithTime(TransactionType.DEPOSIT, 200.0, oneHourAgo);
-        Transaction recent = createTransactionWithTime(TransactionType.DEPOSIT, 300.0, now);
+        Transaction old = createTransactionWithTime(TransactionType.ATM_DEPOSIT, 100.0, twoHoursAgo);
+        Transaction middle = createTransactionWithTime(TransactionType.ATM_DEPOSIT, 200.0, oneHourAgo);
+        Transaction recent = createTransactionWithTime(TransactionType.ATM_DEPOSIT, 300.0, now);
 
         history.addTransaction(player1, old);
         history.addTransaction(player1, middle);
@@ -176,10 +176,10 @@ public class TransactionHistoryTest {
 
     @Test
     public void testGetTotalIncome_SumsPositiveAmounts() {
-        history.addTransaction(player1, createTransaction(TransactionType.DEPOSIT, 100.0));
-        history.addTransaction(player1, createTransaction(TransactionType.DEPOSIT, 200.0));
-        history.addTransaction(player1, createTransaction(TransactionType.WITHDRAWAL, -50.0));
-        history.addTransaction(player1, createTransaction(TransactionType.DEPOSIT, 150.0));
+        history.addTransaction(player1, createTransaction(TransactionType.ATM_DEPOSIT, 100.0));
+        history.addTransaction(player1, createTransaction(TransactionType.ATM_DEPOSIT, 200.0));
+        history.addTransaction(player1, createTransaction(TransactionType.ATM_WITHDRAW, -50.0));
+        history.addTransaction(player1, createTransaction(TransactionType.ATM_DEPOSIT, 150.0));
 
         double totalIncome = history.getTotalIncome(player1);
 
@@ -197,10 +197,10 @@ public class TransactionHistoryTest {
 
     @Test
     public void testGetTotalExpenses_SumsNegativeAmounts() {
-        history.addTransaction(player1, createTransaction(TransactionType.DEPOSIT, 100.0));
-        history.addTransaction(player1, createTransaction(TransactionType.WITHDRAWAL, -50.0));
-        history.addTransaction(player1, createTransaction(TransactionType.PURCHASE, -25.0));
-        history.addTransaction(player1, createTransaction(TransactionType.WITHDRAWAL, -75.0));
+        history.addTransaction(player1, createTransaction(TransactionType.ATM_DEPOSIT, 100.0));
+        history.addTransaction(player1, createTransaction(TransactionType.ATM_WITHDRAW, -50.0));
+        history.addTransaction(player1, createTransaction(TransactionType.NPC_PURCHASE, -25.0));
+        history.addTransaction(player1, createTransaction(TransactionType.ATM_WITHDRAW, -75.0));
 
         double totalExpenses = history.getTotalExpenses(player1);
 
@@ -220,21 +220,21 @@ public class TransactionHistoryTest {
     public void testGetTransactionCount_AccurateCount() {
         assertThat(history.getTransactionCount(player1)).isEqualTo(0);
 
-        history.addTransaction(player1, createTransaction(TransactionType.DEPOSIT, 100.0));
+        history.addTransaction(player1, createTransaction(TransactionType.ATM_DEPOSIT, 100.0));
         assertThat(history.getTransactionCount(player1)).isEqualTo(1);
 
-        history.addTransaction(player1, createTransaction(TransactionType.DEPOSIT, 200.0));
+        history.addTransaction(player1, createTransaction(TransactionType.ATM_DEPOSIT, 200.0));
         assertThat(history.getTransactionCount(player1)).isEqualTo(2);
 
-        history.addTransaction(player1, createTransaction(TransactionType.DEPOSIT, 300.0));
+        history.addTransaction(player1, createTransaction(TransactionType.ATM_DEPOSIT, 300.0));
         assertThat(history.getTransactionCount(player1)).isEqualTo(3);
     }
 
     @Test
     public void testClearTransactions_RemovesAll() {
-        history.addTransaction(player1, createTransaction(TransactionType.DEPOSIT, 100.0));
-        history.addTransaction(player1, createTransaction(TransactionType.DEPOSIT, 200.0));
-        history.addTransaction(player1, createTransaction(TransactionType.DEPOSIT, 300.0));
+        history.addTransaction(player1, createTransaction(TransactionType.ATM_DEPOSIT, 100.0));
+        history.addTransaction(player1, createTransaction(TransactionType.ATM_DEPOSIT, 200.0));
+        history.addTransaction(player1, createTransaction(TransactionType.ATM_DEPOSIT, 300.0));
 
         assertThat(history.getTransactionCount(player1)).isEqualTo(3);
 
@@ -246,12 +246,12 @@ public class TransactionHistoryTest {
 
     @Test
     public void testMultiplePlayers_IndependentHistories() {
-        history.addTransaction(player1, createTransaction(TransactionType.DEPOSIT, 100.0));
-        history.addTransaction(player1, createTransaction(TransactionType.DEPOSIT, 200.0));
+        history.addTransaction(player1, createTransaction(TransactionType.ATM_DEPOSIT, 100.0));
+        history.addTransaction(player1, createTransaction(TransactionType.ATM_DEPOSIT, 200.0));
 
-        history.addTransaction(player2, createTransaction(TransactionType.DEPOSIT, 500.0));
-        history.addTransaction(player2, createTransaction(TransactionType.DEPOSIT, 600.0));
-        history.addTransaction(player2, createTransaction(TransactionType.DEPOSIT, 700.0));
+        history.addTransaction(player2, createTransaction(TransactionType.ATM_DEPOSIT, 500.0));
+        history.addTransaction(player2, createTransaction(TransactionType.ATM_DEPOSIT, 600.0));
+        history.addTransaction(player2, createTransaction(TransactionType.ATM_DEPOSIT, 700.0));
 
         assertThat(history.getTransactionCount(player1)).isEqualTo(2);
         assertThat(history.getTransactionCount(player2)).isEqualTo(3);
@@ -268,7 +268,7 @@ public class TransactionHistoryTest {
         int excess = 50;
 
         for (int i = 0; i < maxTransactions + excess; i++) {
-            history.addTransaction(player1, createTransaction(TransactionType.DEPOSIT, i * 10.0));
+            history.addTransaction(player1, createTransaction(TransactionType.ATM_DEPOSIT, i * 10.0));
         }
 
         // Should be capped at 1000
@@ -282,7 +282,7 @@ public class TransactionHistoryTest {
 
         // Add transactions with identifiable amounts
         for (int i = 0; i < maxTransactions + excess; i++) {
-            history.addTransaction(player1, createTransaction(TransactionType.DEPOSIT, i));
+            history.addTransaction(player1, createTransaction(TransactionType.ATM_DEPOSIT, i));
         }
 
         // Get all transactions
@@ -300,8 +300,8 @@ public class TransactionHistoryTest {
 
     @Test
     public void testGetStatistics_ProvidesInfo() {
-        history.addTransaction(player1, createTransaction(TransactionType.DEPOSIT, 100.0));
-        history.addTransaction(player2, createTransaction(TransactionType.DEPOSIT, 200.0));
+        history.addTransaction(player1, createTransaction(TransactionType.ATM_DEPOSIT, 100.0));
+        history.addTransaction(player2, createTransaction(TransactionType.ATM_DEPOSIT, 200.0));
 
         String stats = history.getStatistics();
 
@@ -313,12 +313,12 @@ public class TransactionHistoryTest {
     @Test
     public void testComplexScenario_MixedOperations() {
         // Simulate a player's transaction history
-        history.addTransaction(player1, createTransaction(TransactionType.DEPOSIT, 1000.0));
-        history.addTransaction(player1, createTransaction(TransactionType.PURCHASE, -150.0));
-        history.addTransaction(player1, createTransaction(TransactionType.PURCHASE, -200.0));
-        history.addTransaction(player1, createTransaction(TransactionType.DEPOSIT, 500.0));
-        history.addTransaction(player1, createTransaction(TransactionType.WITHDRAWAL, -100.0));
-        history.addTransaction(player1, createTransaction(TransactionType.DEPOSIT, 250.0));
+        history.addTransaction(player1, createTransaction(TransactionType.ATM_DEPOSIT, 1000.0));
+        history.addTransaction(player1, createTransaction(TransactionType.NPC_PURCHASE, -150.0));
+        history.addTransaction(player1, createTransaction(TransactionType.NPC_PURCHASE, -200.0));
+        history.addTransaction(player1, createTransaction(TransactionType.ATM_DEPOSIT, 500.0));
+        history.addTransaction(player1, createTransaction(TransactionType.ATM_WITHDRAW, -100.0));
+        history.addTransaction(player1, createTransaction(TransactionType.ATM_DEPOSIT, 250.0));
 
         // Verify counts
         assertThat(history.getTransactionCount(player1)).isEqualTo(6);
@@ -328,10 +328,10 @@ public class TransactionHistoryTest {
         assertThat(history.getTotalExpenses(player1)).isEqualTo(450.0); // 150 + 200 + 100
 
         // Verify filtering
-        List<Transaction> deposits = history.getTransactionsByType(player1, TransactionType.DEPOSIT);
+        List<Transaction> deposits = history.getTransactionsByType(player1, TransactionType.ATM_DEPOSIT);
         assertThat(deposits).hasSize(3);
 
-        List<Transaction> purchases = history.getTransactionsByType(player1, TransactionType.PURCHASE);
+        List<Transaction> purchases = history.getTransactionsByType(player1, TransactionType.NPC_PURCHASE);
         assertThat(purchases).hasSize(2);
     }
 
