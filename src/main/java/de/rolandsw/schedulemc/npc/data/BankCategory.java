@@ -1,18 +1,17 @@
 package de.rolandsw.schedulemc.npc.data;
 
 /**
- * Enum für verschiedene NPC-Typen
+ * Enum für verschiedene Bank-Kategorien
+ * Nur relevant wenn NPCType == BANK
  */
-public enum NPCType {
-    BEWOHNER("Bewohner", "Resident"),
-    VERKAEUFER("Verkäufer", "Merchant"),
-    POLIZEI("Polizei", "Police"),
-    BANK("Bank", "Bank");
+public enum BankCategory {
+    BANKER("Banker", "Banker"),
+    BOERSE("Börsenmakler", "Stock Broker");
 
     private final String displayNameDE;
     private final String displayNameEN;
 
-    NPCType(String displayNameDE, String displayNameEN) {
+    BankCategory(String displayNameDE, String displayNameEN) {
         this.displayNameDE = displayNameDE;
         this.displayNameEN = displayNameEN;
     }
@@ -42,10 +41,10 @@ public enum NPCType {
         }
     }
 
-    public static NPCType fromOrdinal(int ordinal) {
+    public static BankCategory fromOrdinal(int ordinal) {
         if (ordinal >= 0 && ordinal < values().length) {
             return values()[ordinal];
         }
-        return BEWOHNER; // Default
+        return BANKER; // Default
     }
 }

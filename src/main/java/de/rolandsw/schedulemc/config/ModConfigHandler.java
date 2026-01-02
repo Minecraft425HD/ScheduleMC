@@ -157,6 +157,18 @@ public class ModConfigHandler {
         public final ForgeConfigSpec.IntValue WAREHOUSE_DEFAULT_DELIVERY_PRICE;
 
         // ═══════════════════════════════════════════════════════════
+        // BANK SYSTEM
+        // ═══════════════════════════════════════════════════════════
+        public final ForgeConfigSpec.DoubleValue BANK_DEPOSIT_LIMIT;
+        public final ForgeConfigSpec.DoubleValue BANK_TRANSFER_DAILY_LIMIT;
+
+        // Stock Market (Börse)
+        public final ForgeConfigSpec.DoubleValue STOCK_GOLD_BASE_PRICE;
+        public final ForgeConfigSpec.DoubleValue STOCK_DIAMOND_BASE_PRICE;
+        public final ForgeConfigSpec.DoubleValue STOCK_EMERALD_BASE_PRICE;
+        public final ForgeConfigSpec.DoubleValue STOCK_MAX_PRICE_CHANGE_PERCENT;
+
+        // ═══════════════════════════════════════════════════════════
         // GARAGE SYSTEM
         // ═══════════════════════════════════════════════════════════
         public final ForgeConfigSpec.DoubleValue GARAGE_BASE_INSPECTION_FEE;
@@ -620,6 +632,40 @@ public class ModConfigHandler {
             GARAGE_FENDER_UPGRADE_COST_LVL3 = builder
                     .comment("Kosten für Fender-Upgrade Level 3 (Chrome -> Sport)")
                     .defineInRange("fender_upgrade_cost_lvl3", 500.0, 10.0, 10000.0);
+
+            builder.pop();
+
+            builder.comment("Bank System Settings")
+                    .push("bank");
+
+            BANK_DEPOSIT_LIMIT = builder
+                    .comment("Maximaler Einzahlungsbetrag pro Transaktion")
+                    .defineInRange("deposit_limit", 9999.0, 100.0, 1000000.0);
+
+            BANK_TRANSFER_DAILY_LIMIT = builder
+                    .comment("Maximaler Überweisungsbetrag pro Tag")
+                    .defineInRange("transfer_daily_limit", 999.0, 10.0, 100000.0);
+
+            builder.pop();
+
+            builder.comment("Stock Market Settings (Börse)")
+                    .push("stock_market");
+
+            STOCK_GOLD_BASE_PRICE = builder
+                    .comment("Basispreis für Goldbarren")
+                    .defineInRange("gold_base_price", 250.0, 10.0, 10000.0);
+
+            STOCK_DIAMOND_BASE_PRICE = builder
+                    .comment("Basispreis für Diamanten")
+                    .defineInRange("diamond_base_price", 450.0, 10.0, 10000.0);
+
+            STOCK_EMERALD_BASE_PRICE = builder
+                    .comment("Basispreis für Smaragde")
+                    .defineInRange("emerald_base_price", 180.0, 10.0, 10000.0);
+
+            STOCK_MAX_PRICE_CHANGE_PERCENT = builder
+                    .comment("Maximale Preisänderung pro Tag in Prozent (0.10 = 10%)")
+                    .defineInRange("max_price_change_percent", 0.10, 0.01, 0.50);
 
             builder.pop();
         }

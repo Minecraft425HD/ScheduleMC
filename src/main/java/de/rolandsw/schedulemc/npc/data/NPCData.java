@@ -24,6 +24,7 @@ public class NPCData {
     // NPC Typ System
     private NPCType npcType;
     private MerchantCategory merchantCategory; // Nur relevant wenn npcType == VERKAEUFER
+    private BankCategory bankCategory; // Nur relevant wenn npcType == BANK
 
     // Dialog System
     private List<DialogEntry> dialogEntries;
@@ -72,6 +73,7 @@ public class NPCData {
         this.npcUUID = UUID.randomUUID();
         this.npcType = NPCType.BEWOHNER;
         this.merchantCategory = MerchantCategory.BAUMARKT;
+        this.bankCategory = BankCategory.BANKER;
         this.dialogEntries = new ArrayList<>();
         this.currentDialogIndex = 0;
         this.buyShop = new ShopInventory();
@@ -115,6 +117,7 @@ public class NPCData {
         tag.putUUID("NPCUUID", npcUUID);
         tag.putInt("NPCType", npcType.ordinal());
         tag.putInt("MerchantCategory", merchantCategory.ordinal());
+        tag.putInt("BankCategory", bankCategory.ordinal());
         tag.putInt("CurrentDialogIndex", currentDialogIndex);
 
         // Dialog speichern
@@ -197,6 +200,7 @@ public class NPCData {
         npcUUID = tag.getUUID("NPCUUID");
         npcType = NPCType.fromOrdinal(tag.getInt("NPCType"));
         merchantCategory = MerchantCategory.fromOrdinal(tag.getInt("MerchantCategory"));
+        bankCategory = BankCategory.fromOrdinal(tag.getInt("BankCategory"));
         currentDialogIndex = tag.getInt("CurrentDialogIndex");
 
         // Dialog laden
@@ -328,6 +332,14 @@ public class NPCData {
 
     public void setMerchantCategory(MerchantCategory merchantCategory) {
         this.merchantCategory = merchantCategory;
+    }
+
+    public BankCategory getBankCategory() {
+        return bankCategory;
+    }
+
+    public void setBankCategory(BankCategory bankCategory) {
+        this.bankCategory = bankCategory;
     }
 
     public UUID getNpcUUID() {
