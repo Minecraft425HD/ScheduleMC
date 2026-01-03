@@ -6,9 +6,7 @@ import com.google.gson.reflect.TypeToken;
 import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.economy.TransactionType;
 import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerPlayer;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -380,17 +378,6 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
             // Belohnung auszahlen
             EconomyManager.deposit(playerUUID, reward, TransactionType.OTHER,
                 "Achievement: " + achievement.getName());
-
-            // Spieler benachrichtigen
-            ServerPlayer player = server.getPlayerList().getPlayer(playerUUID);
-            if (player != null) {
-                player.sendSystemMessage(Component.literal(
-                    "§a§l✓ ACHIEVEMENT FREIGESCHALTET!\n" +
-                    achievement.getFormattedName() + "\n" +
-                    achievement.getFormattedDescription() + "\n" +
-                    "§7Belohnung: " + achievement.getRewardString()
-                ));
-            }
 
             LOGGER.info("Player {} unlocked achievement: {}", playerUUID, achievementId);
             save();

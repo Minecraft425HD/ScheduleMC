@@ -34,4 +34,7 @@ public class NPCMenuTypes {
 
     public static final RegistryObject<MenuType<BoerseMenu>> BOERSE_MENU =
         MENUS.register("boerse_menu", () -> IForgeMenuType.create(BoerseMenu::new));
+
+    public static final RegistryObject<MenuType<CreditAdvisorMenu>> CREDIT_ADVISOR_MENU =
+        MENUS.register("credit_advisor_menu", () -> IForgeMenuType.create(CreditAdvisorMenu::new));
 }

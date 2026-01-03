@@ -1,5 +1,8 @@
 package de.rolandsw.schedulemc.client.screen.apps;
 
+import de.rolandsw.schedulemc.config.ModConfigHandler;
+import de.rolandsw.schedulemc.economy.CreditLoan;
+import de.rolandsw.schedulemc.economy.CreditLoanManager;
 import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.economy.RecurringPayment;
 import de.rolandsw.schedulemc.economy.RecurringPaymentInterval;
@@ -527,6 +530,27 @@ public class BankAppScreen extends Screen {
         // Überschrift
         guiGraphics.drawCenteredString(this.font, "§6§lDaueraufträge", leftPos + WIDTH / 2, startY, 0xFFAA00);
 
+        // Limit-Anzeige (10er-Limit prüfen)
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player != null && mc.level != null && mc.level.getServer() != null) {
+            RecurringPaymentManager manager = RecurringPaymentManager.getInstance(mc.level.getServer());
+            java.util.List<RecurringPayment> payments = manager.getPayments(mc.player.getUUID());
+            int maxPerPlayer = ModConfigHandler.COMMON.RECURRING_MAX_PER_PLAYER.get();
+
+            // Kredit zählt auch als Dauerauftrag
+            CreditLoanManager loanManager = CreditLoanManager.getInstance(mc.level.getServer());
+            int creditCount = loanManager.hasActiveLoan(mc.player.getUUID()) ? 1 : 0;
+            int totalCount = payments.size() + creditCount;
+
+            String limitStr = totalCount + "/" + maxPerPlayer;
+            int limitColor = totalCount >= maxPerPlayer ? 0xFF5555 : 0x00AA00;
+            guiGraphics.drawString(this.font, "Limit: " + limitStr, leftPos + WIDTH - 70, startY, limitColor, false);
+
+            if (totalCount >= maxPerPlayer) {
+                guiGraphics.drawString(this.font, "§c§lMAX!", leftPos + WIDTH - 70, startY + 10, 0xFF5555, false);
+            }
+        }
+
         // Neuer Dauerauftrag Überschrift
         guiGraphics.drawString(this.font, "§fNeuer Dauerauftrag:", leftPos + 15, startY + 10, 0xFFFFFF);
 
@@ -563,12 +587,18 @@ public class BankAppScreen extends Screen {
         contentHeight += 15;
 
         // Liste anzeigen (wenn Server verfügbar)
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.player != null && mc.level != null && mc.level.getServer() != null) {
-            RecurringPaymentManager manager = RecurringPaymentManager.getInstance(mc.level.getServer());
-            java.util.List<RecurringPayment> payments = manager.getPayments(mc.player.getUUID());
+        Minecraft mcList = Minecraft.getInstance();
+        if (mcList.player != null && mcList.level != null && mcList.level.getServer() != null) {
+            RecurringPaymentManager manager = RecurringPaymentManager.getInstance(mcList.level.getServer());
+            java.util.List<RecurringPayment> payments = manager.getPayments(mcList.player.getUUID());
 
-            if (payments.isEmpty()) {
+            // Kredit-Dauerauftrag anzeigen (wenn vorhanden)
+            CreditLoanManager loanManager = CreditLoanManager.getInstance(mcList.level.getServer());
+            CreditLoan activeLoan = loanManager.getLoan(mcList.player.getUUID());
+
+            boolean hasAnyPayments = !payments.isEmpty() || activeLoan != null;
+
+            if (!hasAnyPayments) {
                 if (y >= listStartY - 15 && y < endY) {
                     guiGraphics.drawCenteredString(this.font, "§7Keine aktiven Daueraufträge",
                         leftPos + WIDTH / 2, y, 0xAAAAAA);
@@ -576,6 +606,35 @@ public class BankAppScreen extends Screen {
                 y += 15;
                 contentHeight += 15;
             } else {
+                // Kredit-Dauerauftrag ZUERST anzeigen (als spezielle Zahlung)
+                if (activeLoan != null) {
+                    if (y >= listStartY - 50 && y < endY) {
+                        // Kredit-Box (besondere Hervorhebung)
+                        guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 45, 0x44AA6600);
+
+                        // Kredit-Symbol und Typ
+                        guiGraphics.drawString(this.font, "§6💳 KREDIT", leftPos + 15, y + 3, 0xFFAA00);
+                        guiGraphics.drawString(this.font, "§f" + activeLoan.getType().getDisplayNameDE(), leftPos + 80, y + 3, 0xFFFFFF);
+
+                        // Tägliche Rate
+                        String dailyStr = String.format("§e%.2f€", activeLoan.getDailyPayment());
+                        guiGraphics.drawString(this.font, "§fTäglich: " + dailyStr, leftPos + 15, y + 15, 0xFFFFFF);
+
+                        // Restbetrag und Fortschritt
+                        String remainingStr = String.format("§c%.2f€", activeLoan.getRemaining());
+                        guiGraphics.drawString(this.font, "§fRest: " + remainingStr, leftPos + 15, y + 27, 0xFFFFFF);
+
+                        // Fortschrittsbalken
+                        int progress = activeLoan.getProgressPercent();
+                        int barWidth = 60;
+                        int filledWidth = (barWidth * progress) / 100;
+                        guiGraphics.fill(leftPos + 145, y + 28, leftPos + 145 + barWidth, y + 34, 0xFF333333);
+                        guiGraphics.fill(leftPos + 145, y + 28, leftPos + 145 + filledWidth, y + 34, 0xFF00AA00);
+                        guiGraphics.drawString(this.font, "§a" + progress + "%", leftPos + 148, y + 28, 0x55FF55, false);
+                    }
+                    y += 50;
+                    contentHeight += 50;
+                }
                 // Zeige ALLE Daueraufträge mit vollständigen Informationen
                 for (RecurringPayment payment : payments) {
                     if (y >= listStartY - 50 && y < endY) {

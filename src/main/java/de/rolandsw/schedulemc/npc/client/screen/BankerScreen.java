@@ -4,6 +4,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.economy.EconomyManager;
+import de.rolandsw.schedulemc.economy.CreditLoan;
+import de.rolandsw.schedulemc.economy.CreditLoanManager;
 import de.rolandsw.schedulemc.economy.RecurringPayment;
 import de.rolandsw.schedulemc.economy.RecurringPaymentInterval;
 import de.rolandsw.schedulemc.economy.RecurringPaymentManager;
@@ -623,55 +625,102 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         // Intervall Label (12 Pixel über Button bei y+145)
         guiGraphics.drawString(this.font, "Intervall:", x + 15, y + 133, 0x808080, false);
 
+        // Limit-Anzeige (10er-Limit prüfen)
+        if (minecraft.level.getServer() != null) {
+            RecurringPaymentManager manager = RecurringPaymentManager.getInstance(minecraft.level.getServer());
+            java.util.List<RecurringPayment> payments = manager.getPayments(minecraft.player.getUUID());
+            int maxPerPlayer = ModConfigHandler.COMMON.RECURRING_MAX_PER_PLAYER.get();
+
+            String limitStr = payments.size() + "/" + maxPerPlayer;
+            int limitColor = payments.size() >= maxPerPlayer ? 0xFF5555 : 0x00AA00;
+            guiGraphics.drawString(this.font, "Limit: " + limitStr, x + 200, y + 60, limitColor, false);
+
+            if (payments.size() >= maxPerPlayer) {
+                guiGraphics.drawString(this.font, "MAX!", x + 200, y + 73, 0xFF5555, false);
+            }
+        }
+
         // Trennlinie
         guiGraphics.fill(x + 15, y + 168, x + 265, y + 169, 0x44FFFFFF);
 
-        // Aktive Daueraufträge
-        guiGraphics.drawString(this.font, "Aktive Daueraufträge:", x + 15, y + 175, 0x606060, false);
+        // Aktive Daueraufträge Header
+        guiGraphics.drawString(this.font, "Aktive Daueraufträge:", x + 15, y + 173, 0x606060, false);
 
-        // Liste der Daueraufträge anzeigen
+        int yOffset = y + 186;
+
+        // Kredit-Ratenzahlungen anzeigen (falls vorhanden)
+        if (minecraft.level.getServer() != null) {
+            CreditLoanManager loanManager = CreditLoanManager.getInstance(minecraft.level.getServer());
+            CreditLoan activeLoan = loanManager.getLoan(minecraft.player.getUUID());
+
+            if (activeLoan != null) {
+                // Kredit-Dauerauftrag Box
+                guiGraphics.fill(x + 15, yOffset - 2, x + 260, yOffset + 10, 0x44004400);
+
+                guiGraphics.drawString(this.font, "💳 KREDIT", x + 18, yOffset, 0xFFD700, false);
+                guiGraphics.drawString(this.font,
+                    String.format("-%.0f€", activeLoan.getDailyPayment()),
+                    x + 90, yOffset, 0xFF5555, false);
+                guiGraphics.drawString(this.font, "Täglich", x + 145, yOffset, 0x00AAAA, false);
+                guiGraphics.drawString(this.font, "✓", x + 195, yOffset, 0x00FF00, false);
+                guiGraphics.drawString(this.font,
+                    activeLoan.getType().name().substring(0, 3),
+                    x + 210, yOffset, 0x808080, false);
+
+                yOffset += 13;
+            }
+        }
+
+        // Normale Daueraufträge anzeigen
         if (minecraft.level.getServer() != null) {
             RecurringPaymentManager manager = RecurringPaymentManager.getInstance(minecraft.level.getServer());
             java.util.List<RecurringPayment> payments = manager.getPayments(minecraft.player.getUUID());
 
-            if (payments.isEmpty()) {
-                guiGraphics.drawString(this.font, "Keine aktiven Daueraufträge", x + 65, y + 192, 0x808080, false);
+            if (payments.isEmpty() && (minecraft.level.getServer() == null ||
+                CreditLoanManager.getInstance(minecraft.level.getServer()).getLoan(minecraft.player.getUUID()) == null)) {
+                guiGraphics.drawString(this.font, "Keine aktiven Daueraufträge", x + 65, yOffset, 0x808080, false);
             } else {
-                // Zeige bis zu 3 Daueraufträge an
-                int yOffset = y + 192;
-                int maxDisplay = Math.min(3, payments.size());
+                // Zeige Daueraufträge an
+                int remainingSpace = (y + 200) - yOffset;
+                int maxDisplay = Math.min(remainingSpace / 11, payments.size());
+                maxDisplay = Math.min(maxDisplay, 2); // Max 2 normale wenn Kredit vorhanden
 
                 for (int i = 0; i < maxDisplay; i++) {
                     RecurringPayment payment = payments.get(i);
 
                     // Empfänger Name (gekürzt falls zu lang)
                     String recipientStr = payment.getToPlayer().toString().substring(0, 8);
-                    guiGraphics.drawString(this.font, recipientStr + "...", x + 15, yOffset, 0xFFFFFF, false);
+                    guiGraphics.drawString(this.font, recipientStr + "...", x + 18, yOffset, 0xFFFFFF, false);
 
                     // Betrag
                     String amountStr = String.format("%.0f€", payment.getAmount());
-                    guiGraphics.drawString(this.font, amountStr, x + 80, yOffset, 0xFFAA00, false);
+                    guiGraphics.drawString(this.font, amountStr, x + 90, yOffset, 0xFFAA00, false);
 
                     // Intervall
                     String intervalStr = payment.getIntervalDays() + "d";
-                    guiGraphics.drawString(this.font, intervalStr, x + 130, yOffset, 0x00AAAA, false);
+                    guiGraphics.drawString(this.font, intervalStr, x + 145, yOffset, 0x00AAAA, false);
 
                     // Status
                     String statusStr = payment.isActive() ? "✓" : "⏸";
                     int statusColor = payment.isActive() ? 0x00FF00 : 0xFFAA00;
-                    guiGraphics.drawString(this.font, statusStr, x + 170, yOffset, statusColor, false);
+                    guiGraphics.drawString(this.font, statusStr, x + 195, yOffset, statusColor, false);
 
-                    // ID (für manuelle Verwaltung via Commands)
+                    // ID
                     String idStr = payment.getPaymentId().substring(0, 4);
-                    guiGraphics.drawString(this.font, "#" + idStr, x + 190, yOffset, 0x808080, false);
+                    guiGraphics.drawString(this.font, "#" + idStr, x + 210, yOffset, 0x808080, false);
 
                     yOffset += 11;
                 }
 
-                // Hinweis bei mehr als 3 Einträgen
-                if (payments.size() > 3) {
+                // Hinweis bei mehr Einträgen
+                int totalDisplayed = maxDisplay +
+                    (CreditLoanManager.getInstance(minecraft.level.getServer()).getLoan(minecraft.player.getUUID()) != null ? 1 : 0);
+                int totalEntries = payments.size() +
+                    (CreditLoanManager.getInstance(minecraft.level.getServer()).getLoan(minecraft.player.getUUID()) != null ? 1 : 0);
+
+                if (totalEntries > totalDisplayed) {
                     guiGraphics.drawString(this.font,
-                        "+" + (payments.size() - 3) + " weitere...",
+                        "+" + (totalEntries - totalDisplayed) + " weitere...",
                         x + 85, yOffset, 0x808080, false);
                 }
             }

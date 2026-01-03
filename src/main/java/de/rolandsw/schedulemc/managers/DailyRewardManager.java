@@ -4,8 +4,12 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.data.DailyReward;
+import de.rolandsw.schedulemc.economy.EconomyManager;
+import de.rolandsw.schedulemc.economy.TransactionType;
 import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
 import de.rolandsw.schedulemc.util.GsonHelper;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -105,6 +109,46 @@ public class DailyRewardManager {
         markDirty();
 
         return totalAmount;
+    }
+
+    /**
+     * Automatische Belohnung beim Login
+     * Prüft ob Spieler heute bereits geclaimed hat und zahlt ggf. automatisch aus
+     *
+     * @param player Der eingeloggte Spieler
+     * @return true wenn Belohnung ausgezahlt wurde
+     */
+    public static boolean claimOnLogin(ServerPlayer player) {
+        UUID playerUUID = player.getUUID();
+
+        // Prüfe ob heute bereits geclaimed
+        if (!canClaim(playerUUID)) {
+            return false;
+        }
+
+        // Claim durchführen
+        double amount = claimDaily(playerUUID);
+
+        // Auf Konto einzahlen
+        EconomyManager.deposit(playerUUID, amount, TransactionType.DAILY_REWARD,
+            "Tägliche Login-Belohnung");
+
+        int streak = getStreak(playerUUID);
+
+        // Nachricht an Spieler senden
+        player.sendSystemMessage(Component.literal(
+            "§a§l═══════════════════════════════\n" +
+            "§a§l✓ TÄGLICHE LOGIN-BELOHNUNG!\n" +
+            "§a§l═══════════════════════════════\n" +
+            "§a+§e" + String.format("%.2f€", amount) + " §7aufs Konto überwiesen!\n" +
+            "§7Streak: §e" + streak + " Tag" + (streak == 1 ? "" : "e") + " §6🔥\n" +
+            (streak >= 7 ? "§d★ Bonus-Woche! ★\n" : "") +
+            "§7Komm morgen wieder für mehr!\n" +
+            "§a═══════════════════════════════"
+        ));
+
+        save();
+        return true;
     }
 
     /**

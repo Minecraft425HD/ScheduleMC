@@ -11,6 +11,7 @@ import de.rolandsw.schedulemc.npc.client.screen.ShopEditorScreen;
 import de.rolandsw.schedulemc.npc.client.screen.StealingScreen;
 import de.rolandsw.schedulemc.npc.client.screen.BankerScreen;
 import de.rolandsw.schedulemc.npc.client.screen.BoerseScreen;
+import de.rolandsw.schedulemc.npc.client.screen.CreditAdvisorScreen;
 import de.rolandsw.schedulemc.npc.entity.NPCEntities;
 import de.rolandsw.schedulemc.npc.menu.NPCMenuTypes;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -39,6 +40,7 @@ public class NPCClientEvents {
                 MenuScreens.register(NPCMenuTypes.STEALING_MENU.get(), StealingScreen::new);
                 MenuScreens.register(NPCMenuTypes.BANKER_MENU.get(), BankerScreen::new);
                 MenuScreens.register(NPCMenuTypes.BOERSE_MENU.get(), BoerseScreen::new);
+                MenuScreens.register(NPCMenuTypes.CREDIT_ADVISOR_MENU.get(), CreditAdvisorScreen::new);
 
                 // Register Entity Renderer
                 EntityRenderers.register(NPCEntities.CUSTOM_NPC.get(), CustomNPCRenderer::new);

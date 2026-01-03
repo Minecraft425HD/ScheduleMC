@@ -11,7 +11,6 @@ import de.rolandsw.schedulemc.api.messaging.IMessagingAPI;
 import de.rolandsw.schedulemc.api.smartphone.ISmartphoneAPI;
 import de.rolandsw.schedulemc.api.vehicle.IVehicleAPI;
 import de.rolandsw.schedulemc.api.achievement.IAchievementAPI;
-import de.rolandsw.schedulemc.api.tutorial.ITutorialAPI;
 import de.rolandsw.schedulemc.api.market.IMarketAPI;
 import org.slf4j.Logger;
 
@@ -59,7 +58,6 @@ public class ScheduleMCAPI {
     private ISmartphoneAPI smartphoneAPI;
     private IVehicleAPI vehicleAPI;
     private IAchievementAPI achievementAPI;
-    private ITutorialAPI tutorialAPI;
     private IMarketAPI marketAPI;
 
     // ═══════════════════════════════════════════════════════════
@@ -186,16 +184,6 @@ public class ScheduleMCAPI {
     }
 
     /**
-     * Tutorial API - Tutorial-System, Steps, Rewards, etc.
-     */
-    public ITutorialAPI getTutorialAPI() {
-        if (tutorialAPI == null) {
-            throw new IllegalStateException("TutorialAPI not initialized! Call ScheduleMCAPI.initialize() first.");
-        }
-        return tutorialAPI;
-    }
-
-    /**
      * Market API - Dynamischer Markt, Preise, Supply & Demand, etc.
      */
     public IMarketAPI getMarketAPI() {
@@ -223,7 +211,6 @@ public class ScheduleMCAPI {
         ISmartphoneAPI smartphoneAPI,
         IVehicleAPI vehicleAPI,
         IAchievementAPI achievementAPI,
-        ITutorialAPI tutorialAPI,
         IMarketAPI marketAPI
     ) {
         this.economyAPI = economyAPI;
@@ -236,10 +223,9 @@ public class ScheduleMCAPI {
         this.smartphoneAPI = smartphoneAPI;
         this.vehicleAPI = vehicleAPI;
         this.achievementAPI = achievementAPI;
-        this.tutorialAPI = tutorialAPI;
         this.marketAPI = marketAPI;
 
-        LOGGER.info("ScheduleMC API v{} fully initialized with {} subsystems", VERSION, 12);
+        LOGGER.info("ScheduleMC API v{} fully initialized with {} subsystems", VERSION, 11);
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -267,7 +253,6 @@ public class ScheduleMCAPI {
             && smartphoneAPI != null
             && vehicleAPI != null
             && achievementAPI != null
-            && tutorialAPI != null
             && marketAPI != null;
     }
 
@@ -287,7 +272,6 @@ public class ScheduleMCAPI {
             "  Smartphone:   %s\n" +
             "  Vehicle:      %s\n" +
             "  Achievement:  %s\n" +
-            "  Tutorial:     %s\n" +
             "  Market:       %s",
             VERSION,
             isInitialized() ? "READY" : "NOT INITIALIZED",
@@ -301,7 +285,6 @@ public class ScheduleMCAPI {
             smartphoneAPI != null ? "✓" : "✗",
             vehicleAPI != null ? "✓" : "✗",
             achievementAPI != null ? "✓" : "✗",
-            tutorialAPI != null ? "✓" : "✗",
             marketAPI != null ? "✓" : "✗"
         );
     }
