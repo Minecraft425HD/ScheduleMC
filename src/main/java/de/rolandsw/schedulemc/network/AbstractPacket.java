@@ -23,8 +23,9 @@ import java.util.function.Supplier;
  *         buf.writeUtf(data);
  *     }
  *
+ *     // SICHERHEIT: Max-Länge für Strings gegen DoS/Memory-Angriffe
  *     public static MyPacket read(FriendlyByteBuf buf) {
- *         return new MyPacket(buf.readUtf());
+ *         return new MyPacket(buf.readUtf(256));
  *     }
  *
  *     @Override

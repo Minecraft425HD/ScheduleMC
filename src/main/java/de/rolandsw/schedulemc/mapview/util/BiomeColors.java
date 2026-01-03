@@ -9,10 +9,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 import net.minecraft.Util;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.registries.Registries;
@@ -22,9 +22,11 @@ import org.jetbrains.annotations.NotNull;
 
 public final class BiomeColors {
     private static final Random generator = new Random();
-    private static final HashMap<Biome, Integer> IDtoColor = new HashMap<>(256);
-    private static final TreeMap<String, Integer> nameToColor = new TreeMap<>();
-    private static boolean dirty;
+    // SICHERHEIT: Thread-Safe Collections für parallele Zugriffe
+    private static final ConcurrentHashMap<Biome, Integer> IDtoColor = new ConcurrentHashMap<>(256);
+    private static final ConcurrentSkipListMap<String, Integer> nameToColor = new ConcurrentSkipListMap<>();
+    // SICHERHEIT: volatile für Memory Visibility
+    private static volatile boolean dirty;
 
     private BiomeColors() {}
 

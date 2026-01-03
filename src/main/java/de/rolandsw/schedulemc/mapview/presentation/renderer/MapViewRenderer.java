@@ -113,11 +113,12 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     private final DynamicMoveableTexture[] mapImagesUnfiltered = new DynamicMoveableTexture[5];
     private BlockState transparentBlockState;
     private BlockState surfaceBlockState;
-    private boolean imageChanged = true;
+    // SICHERHEIT: volatile für Thread-Safety zwischen Render und Game Thread
+    private volatile boolean imageChanged = true;
     private LightTexture lightmapTexture;
-    private boolean needLightmapRefresh = true;
-    private int tickWithLightChange;
-    private boolean lastPaused = true;
+    private volatile boolean needLightmapRefresh = true;
+    private volatile int tickWithLightChange;
+    private volatile boolean lastPaused = true;
     private double lastGamma;
     private float lastSunBrightness;
     private float lastLightning;

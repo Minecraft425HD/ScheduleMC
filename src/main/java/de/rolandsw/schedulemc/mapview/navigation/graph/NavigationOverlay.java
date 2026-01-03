@@ -24,11 +24,13 @@ public class NavigationOverlay {
 
     private final RoadPathRenderer pathRenderer;
     private RoadNavigationService navigationService;
-    private boolean initialized = false;
+    // SICHERHEIT: volatile für Thread-Safety (tick() vs initialize())
+    private volatile boolean initialized = false;
 
     // Letzter bekannter Pfad-Index für Change-Detection
-    private int lastPathIndex = -1;
-    private int lastPathSize = 0;
+    // SICHERHEIT: volatile für Memory Visibility zwischen Threads
+    private volatile int lastPathIndex = -1;
+    private volatile int lastPathSize = 0;
 
     // ═══════════════════════════════════════════════════════════
     // SINGLETON
