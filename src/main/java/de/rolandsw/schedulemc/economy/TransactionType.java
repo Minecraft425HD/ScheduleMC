@@ -37,6 +37,9 @@ public enum TransactionType {
     SAVINGS_DEPOSIT("Sparkonto Einzahlung"),
     SAVINGS_WITHDRAW("Sparkonto Abhebung"),
     DAILY_REWARD("Tägliche Belohnung"),
+    PLOT_PURCHASE("Grundstücks-Kauf"),
+    PLOT_SALE("Grundstücks-Verkauf"),
+    PLOT_RENT("Grundstücks-Miete"),
     OTHER("Sonstiges");
 
     private final String displayName;

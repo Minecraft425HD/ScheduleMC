@@ -88,9 +88,9 @@ public class PlotPurchasePacket {
                         "Plot-Verkauf: " + plot.getPlotName());
 
                     // Übertrage Eigentum
-                    plot.setOwner(playerUUID.toString());
-                    plot.setForSale(false, 0);
-                    plot.setForRent(false, 0);
+                    plot.setOwner(playerUUID, player.getName().getString());
+                    plot.setForSale(false);
+                    plot.setForRent(false);
                     PlotManager.savePlots();
 
                     player.sendSystemMessage(Component.literal("§aPlot erfolgreich gekauft für ")
@@ -121,9 +121,9 @@ public class PlotPurchasePacket {
                     EconomyManager.deposit(ownerUUID, rentPrice, TransactionType.PLOT_RENT,
                         "Mieteinnahme: " + plot.getPlotName());
 
-                    // Setze Mieter
-                    plot.setRenter(playerUUID.toString());
-                    plot.setRentStartTime(System.currentTimeMillis());
+                    // Setze Mieter und Mietzeit (1 Tag = 24 Stunden)
+                    plot.setRenterUUID(playerUUID.toString());
+                    plot.setRentEndTime(System.currentTimeMillis() + (24 * 60 * 60 * 1000));
                     PlotManager.savePlots();
 
                     player.sendSystemMessage(Component.literal("§aPlot erfolgreich gemietet für ")

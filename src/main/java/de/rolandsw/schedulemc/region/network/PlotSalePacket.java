@@ -75,8 +75,9 @@ public class PlotSalePacket {
                         player.sendSystemMessage(Component.literal("§cPreis muss größer als 0 sein!"));
                         return;
                     }
-                    plot.setForSale(true, msg.price);
-                    plot.setForRent(false, 0);
+                    plot.setSalePrice(msg.price);
+                    plot.setForSale(true);
+                    plot.setForRent(false);
                     PlotManager.savePlots();
                     player.sendSystemMessage(Component.literal("§aPlot zum Verkauf gestellt für ")
                         .append(Component.literal(String.format("%.2f€", msg.price))
@@ -88,8 +89,9 @@ public class PlotSalePacket {
                         player.sendSystemMessage(Component.literal("§cPreis muss größer als 0 sein!"));
                         return;
                     }
-                    plot.setForRent(true, msg.price);
-                    plot.setForSale(false, 0);
+                    plot.setRentPricePerDay(msg.price);
+                    plot.setForRent(true);
+                    plot.setForSale(false);
                     PlotManager.savePlots();
                     player.sendSystemMessage(Component.literal("§aPlot zur Miete gestellt für ")
                         .append(Component.literal(String.format("%.2f€/Tag", msg.price))
@@ -97,8 +99,8 @@ public class PlotSalePacket {
                     break;
 
                 case CANCEL:
-                    plot.setForSale(false, 0);
-                    plot.setForRent(false, 0);
+                    plot.setForSale(false);
+                    plot.setForRent(false);
                     PlotManager.savePlots();
                     player.sendSystemMessage(Component.literal("§aAngebot beendet - Plot ist jetzt privat"));
                     break;

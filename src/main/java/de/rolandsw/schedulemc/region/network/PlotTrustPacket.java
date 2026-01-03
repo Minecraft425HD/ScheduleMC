@@ -74,15 +74,18 @@ public class PlotTrustPacket {
                 return;
             }
 
-            // Prüfe ob Spieler existiert (optional - kann auch offline sein)
-            ServerPlayer targetPlayer = player.server.getPlayerList().getPlayerByName(msg.playerName);
-            String targetUUID = null;
+            // Prüfe ob Spieler existiert (online oder offline via UserCache)
+            com.mojang.authlib.GameProfile profile = player.server.getProfileCache().get(msg.playerName).orElse(null);
+            java.util.UUID targetUUID = null;
 
-            if (targetPlayer != null) {
-                targetUUID = targetPlayer.getUUID().toString();
+            if (profile != null) {
+                targetUUID = profile.getId();
             } else {
-                // Wenn offline, verwende Spielernamen (PlotRegion muss das unterstützen)
-                targetUUID = msg.playerName; // Fallback auf Name
+                // Spieler nicht gefunden
+                player.sendSystemMessage(Component.literal("§cSpieler '")
+                    .append(Component.literal(msg.playerName).withStyle(ChatFormatting.GOLD))
+                    .append(Component.literal("' wurde nie auf dem Server gesehen!")));
+                return;
             }
 
             switch (msg.action) {
@@ -93,7 +96,7 @@ public class PlotTrustPacket {
                         return;
                     }
 
-                    if (plot.getTrustedPlayers().contains(targetUUID)) {
+                    if (plot.getTrustedPlayers().contains(targetUUID.toString())) {
                         player.sendSystemMessage(Component.literal("§e")
                             .append(Component.literal(msg.playerName).withStyle(ChatFormatting.GOLD))
                             .append(Component.literal(" ist bereits vertrauenswürdig!")));
@@ -109,7 +112,7 @@ public class PlotTrustPacket {
                     break;
 
                 case REMOVE:
-                    if (!plot.getTrustedPlayers().contains(targetUUID)) {
+                    if (!plot.getTrustedPlayers().contains(targetUUID.toString())) {
                         player.sendSystemMessage(Component.literal("§e")
                             .append(Component.literal(msg.playerName).withStyle(ChatFormatting.GOLD))
                             .append(Component.literal(" ist nicht in der Trust-Liste!")));

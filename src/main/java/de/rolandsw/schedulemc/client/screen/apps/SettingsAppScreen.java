@@ -475,7 +475,8 @@ public class SettingsAppScreen extends Screen {
                 minecraft.setScreen(new ConfirmDialogScreen(this, "⚠ WARNUNG",
                     "Plot wirklich aufgeben?\nDiese Aktion kann NICHT\nrückgängig gemacht werden!",
                     "Plot wird an Server zurückgegeben",
-                    () -> PlotNetworkHandler.sendToServer(new PlotAbandonPacket(plotId))));
+                    () -> PlotNetworkHandler.sendToServer(new PlotAbandonPacket(plotId)),
+                    null));
             }));
         }
         y += 25;
@@ -632,8 +633,8 @@ public class SettingsAppScreen extends Screen {
         if (y >= startY - 10 && y < endY) {
             // ✅ Lade echten Kontostand von EconomyManager
             double accountBalance = 0.0;
-            if (mc.player != null) {
-                accountBalance = EconomyManager.getBalance(mc.player.getUUID());
+            if (minecraft.player != null) {
+                accountBalance = EconomyManager.getBalance(minecraft.player.getUUID());
             }
 
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 50, 0x44228B22);
@@ -693,7 +694,7 @@ public class SettingsAppScreen extends Screen {
             guiGraphics.drawString(this.font, String.format("§e%.2f €", monthlyCost), leftPos + 100, y + 31, 0xFFAA00);
 
             // Reichweite - lade echten Kontostand
-            double currentBalance = mc.player != null ? EconomyManager.getBalance(mc.player.getUUID()) : 0.0;
+            double currentBalance = minecraft.player != null ? EconomyManager.getBalance(minecraft.player.getUUID()) : 0.0;
             int daysUntilEmpty = dailyCost > 0 ? (int) (currentBalance / dailyCost) : 999;
             String reichweiteColor = daysUntilEmpty < 7 ? "§c" : (daysUntilEmpty < 30 ? "§e" : "§a");
             guiGraphics.drawString(this.font, "§8Reichweite: " + reichweiteColor + daysUntilEmpty + " Tage", leftPos + 15, y + 44, 0x888888);

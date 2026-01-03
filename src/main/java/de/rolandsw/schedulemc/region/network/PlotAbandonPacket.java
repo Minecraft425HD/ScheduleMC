@@ -58,9 +58,10 @@ public class PlotAbandonPacket {
             String plotName = plot.getPlotName();
 
             // Setze Plot zurück auf Server-Besitz
-            plot.setOwner(null); // null = Server-owned
-            plot.setForSale(false, 0);
-            plot.setForRent(false, 0);
+            plot.setOwnerUUID(""); // Leer = Server-owned
+            plot.setOwnerName(null);
+            plot.setForSale(false);
+            plot.setForRent(false);
             plot.getTrustedPlayers().clear();
             plot.setDescription("");
             plot.setPlotName("Freies Grundstück");
