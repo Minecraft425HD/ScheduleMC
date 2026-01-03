@@ -40,11 +40,9 @@ public class PlotCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("plot")
-                
-                // /plot wand
-                .then(Commands.literal("wand")
-                        .executes(PlotCommand::giveWand))
-                
+
+                // ✅ /plot wand - ENTFERNT (wird nicht mehr benötigt)
+
                 // /plot create <type> <name> [price]
                 .then(Commands.literal("create")
                         .requires(source -> source.hasPermission(2))
@@ -81,83 +79,23 @@ public class PlotCommand {
                         .requires(source -> source.hasPermission(2))
                         .then(Commands.argument("player", EntityArgument.player())
                                 .executes(PlotCommand::setPlotOwner)))
-                
-                // /plot buy [plotId]
-                .then(Commands.literal("buy")
-                        .executes(PlotCommand::buyPlot)
-                        .then(Commands.argument("plotId", StringArgumentType.string())
-                                .executes(PlotCommand::buyPlotById)))
-                
-                // /plot list
-                .then(Commands.literal("list")
-                        .executes(PlotCommand::listPlots))
-                
-                // /plot info
-                .then(Commands.literal("info")
-                        .executes(PlotCommand::plotInfo))
-                
-                // /plot name <n>
-                .then(Commands.literal("name")
-                        .then(Commands.argument("name", StringArgumentType.greedyString())
-                                .executes(PlotCommand::setPlotName)))
-                
-                // /plot description <text>
-                .then(Commands.literal("description")
-                        .then(Commands.argument("description", StringArgumentType.greedyString())
-                                .executes(PlotCommand::setPlotDescription)))
-                
-                // /plot trust <player>
-                .then(Commands.literal("trust")
-                        .then(Commands.argument("player", EntityArgument.player())
-                                .executes(PlotCommand::trustPlayer)))
-                
-                // /plot untrust <player>
-                .then(Commands.literal("untrust")
-                        .then(Commands.argument("player", EntityArgument.player())
-                                .executes(PlotCommand::untrustPlayer)))
-                
-                // /plot trustlist
-                .then(Commands.literal("trustlist")
-                        .executes(PlotCommand::listTrusted))
-                
-                // /plot sell <preis>
-                .then(Commands.literal("sell")
-                        .then(Commands.argument("price", DoubleArgumentType.doubleArg(0.01))
-                                .executes(PlotCommand::sellPlot)))
-                
-                // /plot unsell
-                .then(Commands.literal("unsell")
-                        .executes(PlotCommand::unsellPlot))
-                
-                // /plot transfer <player>
-                .then(Commands.literal("transfer")
-                        .then(Commands.argument("player", EntityArgument.player())
-                                .executes(PlotCommand::transferPlot)))
-                
-                // /plot abandon
-                .then(Commands.literal("abandon")
-                        .executes(PlotCommand::abandonPlot))
-                
-                // /plot rent <preis>
-                .then(Commands.literal("rent")
-                        .then(Commands.argument("pricePerDay", DoubleArgumentType.doubleArg(0.01))
-                                .executes(PlotCommand::setForRent)))
-                
-                // /plot rentcancel
-                .then(Commands.literal("rentcancel")
-                        .executes(PlotCommand::cancelRent))
-                
-                // /plot rentplot <tage> [plotId]
-                .then(Commands.literal("rentplot")
-                        .then(Commands.argument("days", IntegerArgumentType.integer(1))
-                                .executes(PlotCommand::rentPlot)
-                                .then(Commands.argument("plotId", StringArgumentType.string())
-                                        .executes(PlotCommand::rentPlotById))))
-                
-                // /plot rentextend <tage>
-                .then(Commands.literal("rentextend")
-                        .then(Commands.argument("days", IntegerArgumentType.integer(1))
-                                .executes(PlotCommand::extendRent)))
+
+                // ✅ /plot buy - ENTFERNT (ersetzt durch Settings App UI)
+                // ✅ /plot list - ENTFERNT (ersetzt durch Settings App UI)
+                // ✅ /plot info - ENTFERNT (ersetzt durch Settings App UI)
+                // ✅ /plot name - ENTFERNT (ersetzt durch Settings App UI)
+                // ✅ /plot description - ENTFERNT (ersetzt durch Settings App UI)
+                // ✅ /plot trust - ENTFERNT (ersetzt durch Settings App UI)
+                // ✅ /plot untrust - ENTFERNT (ersetzt durch Settings App UI)
+                // ✅ /plot trustlist - ENTFERNT (ersetzt durch Settings App UI)
+                // ✅ /plot sell - ENTFERNT (ersetzt durch Settings App UI)
+                // ✅ /plot unsell - ENTFERNT (ersetzt durch Settings App UI)
+                // ✅ /plot transfer - ENTFERNT (ersetzt durch Settings App UI)
+                // ✅ /plot abandon - ENTFERNT (ersetzt durch Settings App UI)
+                // ✅ /plot rent - ENTFERNT (ersetzt durch Settings App UI)
+                // ✅ /plot rentcancel - ENTFERNT (ersetzt durch Settings App UI)
+                // ✅ /plot rentplot - ENTFERNT (ersetzt durch Settings App UI)
+                // ✅ /plot rentextend - ENTFERNT (ersetzt durch Settings App UI)
                 
                 // /plot rate <rating>
                 .then(Commands.literal("rate")

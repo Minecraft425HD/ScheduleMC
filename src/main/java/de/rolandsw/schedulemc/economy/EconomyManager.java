@@ -120,8 +120,12 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
                 throw new IOException("Geladene Daten sind null");
             }
 
+            LOGGER.info("=== LOADING ECONOMY DATA FROM {} ===", sourceFile.getName());
+            LOGGER.info("Loading {} accounts from file", loaded.size());
+
             balances.clear();
             int invalidUUIDs = 0;
+            int zeroBalanceAccounts = 0;
 
             for (Map.Entry<String, Double> entry : loaded.entrySet()) {
                 try {
@@ -135,7 +139,13 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
                         continue;
                     }
 
+                    if (balance == 0.0) {
+                        LOGGER.warn("⚠ FOUND ACCOUNT WITH 0€ BALANCE: UUID={}, Balance={}", uuid, balance);
+                        zeroBalanceAccounts++;
+                    }
+
                     balances.put(uuid, balance);
+                    LOGGER.debug("Loaded account: UUID={}, Balance={}", uuid, balance);
                 } catch (IllegalArgumentException e) {
                     LOGGER.error("Ungültige UUID in Economy-Datei: {}", entry.getKey());
                     invalidUUIDs++;
@@ -145,6 +155,10 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
             if (invalidUUIDs > 0) {
                 LOGGER.warn("{} ungültige Einträge beim Laden übersprungen", invalidUUIDs);
             }
+            if (zeroBalanceAccounts > 0) {
+                LOGGER.warn("⚠ {} accounts with 0€ balance found in saved data!", zeroBalanceAccounts);
+            }
+            LOGGER.info("=== ECONOMY DATA LOADED: {} accounts ===", balances.size());
         }
     }
 
@@ -286,7 +300,10 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
      * Prüft ob ein Konto existiert
      */
     public static boolean hasAccount(UUID uuid) {
-        return balances.containsKey(uuid);
+        boolean exists = balances.containsKey(uuid);
+        LOGGER.debug("hasAccount({}) = {} (current balance: {})", uuid, exists,
+            exists ? balances.get(uuid) : "N/A");
+        return exists;
     }
 
     /**

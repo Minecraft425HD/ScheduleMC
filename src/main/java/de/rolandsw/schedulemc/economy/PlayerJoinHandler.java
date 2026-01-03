@@ -1,10 +1,14 @@
 package de.rolandsw.schedulemc.economy;
 
+import de.rolandsw.schedulemc.player.PlayerSettingsManager;
+import de.rolandsw.schedulemc.player.network.PlayerSettingsNetworkHandler;
+import de.rolandsw.schedulemc.player.network.SyncPlayerSettingsPacket;
 import de.rolandsw.schedulemc.util.EventHelper;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameRules;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
@@ -39,22 +43,42 @@ public class PlayerJoinHandler {
     /**
      * Erstellt automatisch ein Konto für neue Spieler beim ersten Join
      * Startet auch die Minecraft-Zeit wenn der erste Spieler joined
+     *
+     * WICHTIG: Verwendet EventPriority.HIGHEST um sicherzustellen, dass Konten
+     * erstellt werden BEVOR andere Handler (wie AchievementTracker) darauf zugreifen!
      */
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
         EventHelper.handlePlayerJoin(event, player -> {
             UUID uuid = player.getUUID();
+
+            LOGGER.info("=== PLAYER JOIN: {} (UUID: {}) ===", player.getName().getString(), uuid);
 
             // ✅ MEMORY LEAK PREVENTION: Entferne Offline-Markierung bei Reconnect
             MemoryCleanupManager.markPlayerOnline(uuid);
 
             // Konto erstellen falls noch nicht vorhanden
             // createAccount setzt bereits das Startguthaben - kein zusätzlicher deposit nötig!
-            if (!EconomyManager.hasAccount(uuid)) {
+            boolean hadAccount = EconomyManager.hasAccount(uuid);
+            LOGGER.info("Player {} has existing account: {}", player.getName().getString(), hadAccount);
+
+            if (!hadAccount) {
+                LOGGER.info("Creating new account for player {} with start balance of {} €",
+                    player.getName().getString(), EconomyManager.getStartBalance());
                 EconomyManager.createAccount(uuid);
-                LOGGER.info("Neuer Spieler: " + player.getName().getString() + " - Konto erstellt mit "
-                    + EconomyManager.getStartBalance() + " €");
+                LOGGER.info("Account created! New balance: {} €", EconomyManager.getBalance(uuid));
+            } else {
+                LOGGER.info("Player {} already has account with balance: {} €",
+                    player.getName().getString(), EconomyManager.getBalance(uuid));
             }
+
+            // Synchronisiere Spieler-Einstellungen zum Client
+            var settings = PlayerSettingsManager.getSettings(uuid);
+            PlayerSettingsNetworkHandler.sendToClient(player, new SyncPlayerSettingsPacket(settings));
+            LOGGER.info("Synced player settings to client: Warnings={}, Electricity={} kWh, Water={} L",
+                settings.isUtilityWarningsEnabled(),
+                settings.getElectricityWarningThreshold(),
+                settings.getWaterWarningThreshold());
 
             // Prüfe ob das der erste Spieler ist
             ServerLevel level = (ServerLevel) player.level();
@@ -64,6 +88,8 @@ public class PlayerJoinHandler {
             if (playerCount == 1) {
                 unfreezeWorld(level);
             }
+
+            LOGGER.info("=== PLAYER JOIN COMPLETE: {} ===", player.getName().getString());
         });
     }
 

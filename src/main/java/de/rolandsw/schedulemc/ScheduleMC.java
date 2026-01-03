@@ -236,7 +236,9 @@ public class ScheduleMC {
             MessageNetworkHandler.register();
             WarehouseNetworkHandler.register();
             AchievementNetworkHandler.register();
+            de.rolandsw.schedulemc.region.network.PlotNetworkHandler.register();
             de.rolandsw.schedulemc.npc.crime.prison.network.PrisonNetworkHandler.register();
+            de.rolandsw.schedulemc.player.network.PlayerSettingsNetworkHandler.register();
             de.rolandsw.schedulemc.npc.crime.prison.PrisonManager.init();
             de.rolandsw.schedulemc.territory.network.TerritoryNetworkHandler.register();
 
@@ -284,6 +286,7 @@ public class ScheduleMC {
             de.rolandsw.schedulemc.npc.crime.CrimeManager.load();
             NPCNameRegistry.loadRegistry();
             MessageManager.loadMessages();
+            de.rolandsw.schedulemc.player.PlayerSettingsManager.load();
 
             // NEU: Warehouse & Shop System initialisieren
             StateAccount.load();
