@@ -22,11 +22,14 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * Polizei-KI System:
@@ -49,6 +52,7 @@ public class PoliceAIHandler {
     private static final int JAIL_SECONDS_PER_WANTED_LEVEL = 60;
     private static final int MAX_ARREST_TIMER_ENTRIES = 1000;
     private static final long ARREST_TIMER_TIMEOUT_MS = 600000; // 10 Minuten
+    private static final int MAX_CACHE_ENTRIES = 500; // Max Einträge für LRU-Caches
 
     // UUID -> Arrest Start Time (in Ticks) - mit automatischem Cleanup
     private static final Map<UUID, Long> arrestTimers = new LinkedHashMap<UUID, Long>(16, 0.75f, true) {
@@ -58,14 +62,99 @@ public class PoliceAIHandler {
         }
     };
 
-    // NPC UUID -> Last Pursuit Target (um zu wissen wen wir verfolgt haben)
-    private static final Map<UUID, UUID> lastPursuitTarget = new HashMap<>();
+    // NPC UUID -> Last Pursuit Target (um zu wissen wen wir verfolgt haben) - LRU Cache
+    private static final Map<UUID, UUID> lastPursuitTarget = new LinkedHashMap<UUID, UUID>(16, 0.75f, true) {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<UUID, UUID> eldest) {
+            return size() > MAX_CACHE_ENTRIES;
+        }
+    };
 
-    // Wanted-Level Sync Cache (verhindert unnötige Netzwerk-Pakete)
-    private static final Map<UUID, Integer> lastSyncedWantedLevel = new HashMap<>();
+    // Wanted-Level Sync Cache (verhindert unnötige Netzwerk-Pakete) - LRU Cache
+    private static final Map<UUID, Integer> lastSyncedWantedLevel = new LinkedHashMap<UUID, Integer>(16, 0.75f, true) {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<UUID, Integer> eldest) {
+            return size() > MAX_CACHE_ENTRIES;
+        }
+    };
 
-    // Escape-Time Sync Cache (verhindert unnötige Netzwerk-Pakete)
-    private static final Map<UUID, Long> lastSyncedEscapeTime = new HashMap<>();
+    // Escape-Time Sync Cache (verhindert unnötige Netzwerk-Pakete) - LRU Cache
+    private static final Map<UUID, Long> lastSyncedEscapeTime = new LinkedHashMap<UUID, Long>(16, 0.75f, true) {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<UUID, Long> eldest) {
+            return size() > MAX_CACHE_ENTRIES;
+        }
+    };
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // OPTIMIERUNG: Globaler Spieler-Cache (aktualisiert einmal pro Server-Tick)
+    // Verhindert teure getEntitiesOfClass() Aufrufe für jeden Polizisten
+    // ═══════════════════════════════════════════════════════════════════════════
+    private static final Map<UUID, CachedPlayerData> playerCache = new ConcurrentHashMap<>();
+    private static long lastCacheUpdateTick = -1;
+
+    /**
+     * Gecachte Spielerdaten für schnellen Zugriff
+     */
+    private static class CachedPlayerData {
+        final ServerPlayer player;
+        final Vec3 position;
+        final int wantedLevel;
+
+        CachedPlayerData(ServerPlayer player) {
+            this.player = player;
+            this.position = player.position();
+            this.wantedLevel = CrimeManager.getWantedLevel(player.getUUID());
+        }
+    }
+
+    /**
+     * Aktualisiert den Spieler-Cache einmal pro Server-Tick.
+     * Sollte vom Server-Tick-Handler aufgerufen werden.
+     *
+     * @param server Der Minecraft Server
+     * @param currentTick Aktueller Game-Tick
+     */
+    public static void updatePlayerCache(net.minecraft.server.MinecraftServer server, long currentTick) {
+        // Nur einmal pro Tick aktualisieren
+        if (currentTick == lastCacheUpdateTick) return;
+        lastCacheUpdateTick = currentTick;
+
+        // Alte Einträge entfernen und neue hinzufügen
+        playerCache.clear();
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            playerCache.put(player.getUUID(), new CachedPlayerData(player));
+        }
+    }
+
+    /**
+     * Findet Spieler im Radius einer Position (nutzt Cache statt Entity-Lookup)
+     * O(n) mit n = Anzahl Online-Spieler (typisch 10-100) statt World-Entity-Scan
+     *
+     * @param center Zentrum der Suche
+     * @param radius Suchradius
+     * @return Liste von Spielern im Radius
+     */
+    private static List<ServerPlayer> getPlayersInRadius(Vec3 center, double radius) {
+        List<ServerPlayer> result = new ArrayList<>();
+        double radiusSq = radius * radius;
+
+        for (CachedPlayerData data : playerCache.values()) {
+            if (data.position.distanceToSqr(center) <= radiusSq) {
+                result.add(data.player);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Holt gecachten Wanted-Level (vermeidet mehrfache CrimeManager-Aufrufe)
+     */
+    private static int getCachedWantedLevel(UUID playerUUID) {
+        CachedPlayerData data = playerCache.get(playerUUID);
+        return data != null ? data.wantedLevel : CrimeManager.getWantedLevel(playerUUID);
+    }
 
     /**
      * Polizei-KI: Sucht Verbrecher und verfolgt sie
@@ -121,7 +210,7 @@ public class PoliceAIHandler {
             ServerPlayer assignedPlayer = npc.level().getServer().getPlayerList().getPlayer(assignedTarget);
             if (assignedPlayer != null && !PoliceSearchBehavior.isPlayerHidden(assignedPlayer, npc)) {
                 targetCriminal = assignedPlayer;
-                highestWantedLevel = CrimeManager.getWantedLevel(assignedPlayer.getUUID());
+                highestWantedLevel = getCachedWantedLevel(assignedPlayer.getUUID()); // OPTIMIERT: Cache nutzen
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("[BACKUP] {} verfolgt zugewiesenes Ziel: {}",
                         npc.getNpcName(), assignedPlayer.getName().getString());
@@ -131,14 +220,12 @@ public class PoliceAIHandler {
 
         // Wenn kein zugewiesenes Ziel, suche Verbrecher in der Nähe
         if (targetCriminal == null) {
-            List<ServerPlayer> nearbyPlayers = npc.level().getEntitiesOfClass(
-                ServerPlayer.class,
-                AABB.ofSize(npc.position(), detectionRadius, detectionRadius, detectionRadius)
-            );
+            // OPTIMIERT: Nutze gecachte Spieler-Positionen statt teuren Entity-Scan
+            List<ServerPlayer> nearbyPlayers = getPlayersInRadius(npc.position(), detectionRadius);
 
             // Finde Spieler mit höchstem Wanted-Level
             for (ServerPlayer player : nearbyPlayers) {
-                int wantedLevel = CrimeManager.getWantedLevel(player.getUUID());
+                int wantedLevel = getCachedWantedLevel(player.getUUID()); // OPTIMIERT: Cache nutzen
 
                 if (wantedLevel > 0 && wantedLevel > highestWantedLevel) {
                     // Prüfe ob Spieler versteckt ist
@@ -572,5 +659,30 @@ public class PoliceAIHandler {
             }
         }
         });
+    }
+
+    /**
+     * Bereinigt alle Caches für einen Spieler (aufrufen bei Logout).
+     * Verhindert Memory Leaks bei langen Server-Laufzeiten.
+     *
+     * @param playerUUID UUID des Spielers der den Server verlässt
+     */
+    public static void cleanupPlayer(UUID playerUUID) {
+        arrestTimers.remove(playerUUID);
+        lastSyncedWantedLevel.remove(playerUUID);
+        lastSyncedEscapeTime.remove(playerUUID);
+        // lastPursuitTarget verwendet NPC-UUIDs als Key, nicht Spieler-UUIDs
+        // Daher hier kein Cleanup nötig
+        LOGGER.debug("[POLICE] Cleaned up caches for player {}", playerUUID);
+    }
+
+    /**
+     * Bereinigt alle Caches für einen NPC (aufrufen bei NPC-Entfernung).
+     *
+     * @param npcUUID UUID des NPCs der entfernt wird
+     */
+    public static void cleanupNPC(UUID npcUUID) {
+        lastPursuitTarget.remove(npcUUID);
+        LOGGER.debug("[POLICE] Cleaned up pursuit target for NPC {}", npcUUID);
     }
 }

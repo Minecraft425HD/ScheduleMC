@@ -8,7 +8,8 @@ import java.util.Set;
 
 /**
  * Client-seitiger Cache für registrierte NPC-Namen
- * Wird vom Server über SyncNPCNamesPacket synchronisiert
+ * Wird vom Server über SyncNPCNamesPacket (Full-Sync) oder
+ * DeltaSyncNPCNamesPacket (Delta-Sync) synchronisiert
  */
 @OnlyIn(Dist.CLIENT)
 public class ClientNPCNameCache {
@@ -16,10 +17,24 @@ public class ClientNPCNameCache {
     private static Set<String> npcNames = new HashSet<>();
 
     /**
-     * Setzt die NPC-Namen (vom Server synchronisiert)
+     * Setzt die NPC-Namen (Full-Sync vom Server)
      */
     public static void setNPCNames(Set<String> names) {
         npcNames = new HashSet<>(names);
+    }
+
+    /**
+     * Fügt Namen hinzu (Delta-Sync)
+     */
+    public static void addNames(Set<String> names) {
+        npcNames.addAll(names);
+    }
+
+    /**
+     * Entfernt Namen (Delta-Sync)
+     */
+    public static void removeNames(Set<String> names) {
+        npcNames.removeAll(names);
     }
 
     /**

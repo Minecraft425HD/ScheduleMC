@@ -1,9 +1,8 @@
 package de.rolandsw.schedulemc.economy;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
+import de.rolandsw.schedulemc.util.GsonHelper;
 import net.minecraft.server.MinecraftServer;
 
 import javax.annotation.Nullable;
@@ -29,7 +28,7 @@ public class CreditScoreManager extends AbstractPersistenceManager<Map<UUID, Cre
     private CreditScoreManager(MinecraftServer server) {
         super(
             server.getServerDirectory().toPath().resolve("config").resolve("plotmod_credit_scores.json").toFile(),
-            new GsonBuilder().setPrettyPrinting().create()
+            GsonHelper.get() // Umgebungsabhängig: kompakt in Produktion
         );
         this.server = server;
         load();

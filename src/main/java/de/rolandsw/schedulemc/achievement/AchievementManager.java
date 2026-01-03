@@ -1,11 +1,10 @@
 package de.rolandsw.schedulemc.achievement;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.economy.TransactionType;
 import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
+import de.rolandsw.schedulemc.util.GsonHelper;
 import net.minecraft.server.MinecraftServer;
 
 import javax.annotation.Nullable;
@@ -28,7 +27,7 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
     private AchievementManager(MinecraftServer server) {
         super(
             server.getServerDirectory().toPath().resolve("config").resolve("plotmod_achievements.json").toFile(),
-            new GsonBuilder().setPrettyPrinting().create()
+            GsonHelper.get() // Umgebungsabhängig: kompakt in Produktion
         );
         this.server = server;
         registerAchievements();

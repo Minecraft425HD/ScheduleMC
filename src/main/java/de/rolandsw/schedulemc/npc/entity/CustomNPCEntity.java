@@ -525,10 +525,10 @@ public class CustomNPCEntity extends PathfinderMob {
                 NPCNameRegistry.unregisterName(npcName);
                 NPCNameRegistry.saveIfNeeded();
 
-                // Sende aktualisierte Namen-Liste an alle Clients
+                // Delta-Sync: Sende nur den entfernten Namen statt aller Namen
                 if (this.level() instanceof ServerLevel serverLevel && serverLevel.getServer() != null) {
-                    de.rolandsw.schedulemc.npc.events.NPCNameSyncHandler.broadcastNameUpdate(
-                        serverLevel.getServer()
+                    de.rolandsw.schedulemc.npc.events.NPCNameSyncHandler.broadcastNameRemoved(
+                        serverLevel.getServer(), npcName
                     );
                 }
             }

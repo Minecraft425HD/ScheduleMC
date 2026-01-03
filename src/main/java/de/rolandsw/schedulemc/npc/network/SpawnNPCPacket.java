@@ -107,9 +107,9 @@ public class SpawnNPCPacket {
                     );
                     NPCNameRegistry.saveIfNeeded();
 
-                    // Sende aktualisierte Namen-Liste an alle Clients
-                    de.rolandsw.schedulemc.npc.events.NPCNameSyncHandler.broadcastNameUpdate(
-                        level.getServer()
+                    // Delta-Sync: Sende nur den neuen Namen statt aller Namen
+                    de.rolandsw.schedulemc.npc.events.NPCNameSyncHandler.broadcastNameAdded(
+                        level.getServer(), npcName
                     );
                 }
             }

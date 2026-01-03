@@ -94,6 +94,13 @@ public class NPCNetworkHandler {
             .consumerMainThread(SyncNPCNamesPacket::handle)
             .add();
 
+        // Delta-Sync für NPC-Namen (optimiert: nur Änderungen statt Full-Sync)
+        INSTANCE.messageBuilder(DeltaSyncNPCNamesPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+            .decoder(DeltaSyncNPCNamesPacket::decode)
+            .encoder(DeltaSyncNPCNamesPacket::encode)
+            .consumerMainThread(DeltaSyncNPCNamesPacket::handle)
+            .add();
+
         INSTANCE.messageBuilder(PayFuelBillPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
             .decoder(PayFuelBillPacket::decode)
             .encoder(PayFuelBillPacket::encode)
