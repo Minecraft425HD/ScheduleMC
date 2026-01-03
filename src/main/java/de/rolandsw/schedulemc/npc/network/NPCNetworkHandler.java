@@ -171,6 +171,37 @@ public class NPCNetworkHandler {
             .encoder(ResumeRecurringPaymentPacket::encode)
             .consumerMainThread(ResumeRecurringPaymentPacket::handle)
             .add();
+
+        // Credit Advisor Packets
+        INSTANCE.messageBuilder(OpenCreditAdvisorMenuPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(OpenCreditAdvisorMenuPacket::decode)
+            .encoder(OpenCreditAdvisorMenuPacket::encode)
+            .consumerMainThread(OpenCreditAdvisorMenuPacket::handle)
+            .add();
+
+        INSTANCE.messageBuilder(ApplyCreditLoanPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(ApplyCreditLoanPacket::decode)
+            .encoder(ApplyCreditLoanPacket::encode)
+            .consumerMainThread(ApplyCreditLoanPacket::handle)
+            .add();
+
+        INSTANCE.messageBuilder(RepayCreditLoanPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(RepayCreditLoanPacket::decode)
+            .encoder(RepayCreditLoanPacket::encode)
+            .consumerMainThread(RepayCreditLoanPacket::handle)
+            .add();
+
+        INSTANCE.messageBuilder(RequestCreditDataPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(RequestCreditDataPacket::decode)
+            .encoder(RequestCreditDataPacket::encode)
+            .consumerMainThread(RequestCreditDataPacket::handle)
+            .add();
+
+        INSTANCE.messageBuilder(SyncCreditDataPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+            .decoder(SyncCreditDataPacket::decode)
+            .encoder(SyncCreditDataPacket::encode)
+            .consumerMainThread(SyncCreditDataPacket::handle)
+            .add();
     }
 
     public static <MSG> void sendToServer(MSG message) {

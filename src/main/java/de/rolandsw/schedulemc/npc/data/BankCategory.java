@@ -6,7 +6,8 @@ package de.rolandsw.schedulemc.npc.data;
  */
 public enum BankCategory {
     BANKER("Banker", "Banker"),
-    BOERSE("Börsenmakler", "Stock Broker");
+    BOERSE("Börsenmakler", "Stock Broker"),
+    KREDITBERATER("Kreditberater", "Credit Advisor");
 
     private final String displayNameDE;
     private final String displayNameEN;

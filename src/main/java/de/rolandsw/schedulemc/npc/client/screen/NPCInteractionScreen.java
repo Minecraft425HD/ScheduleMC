@@ -15,6 +15,7 @@ import de.rolandsw.schedulemc.npc.network.NPCActionPacket;
 import de.rolandsw.schedulemc.npc.network.OpenMerchantShopPacket;
 import de.rolandsw.schedulemc.npc.network.OpenBankerMenuPacket;
 import de.rolandsw.schedulemc.npc.network.OpenBoerseMenuPacket;
+import de.rolandsw.schedulemc.npc.network.OpenCreditAdvisorMenuPacket;
 import de.rolandsw.schedulemc.tobacco.network.ModNetworking;
 import de.rolandsw.schedulemc.tobacco.network.OpenTobaccoNegotiationPacket;
 import net.minecraft.client.gui.GuiGraphics;
@@ -42,6 +43,7 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
     private Button shopSellButton;
     private Button bankerButton;
     private Button boerseButton;
+    private Button creditAdvisorButton;
 
     public NPCInteractionScreen(NPCInteractionMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -60,6 +62,7 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
         boolean canMessage = npc != null &&
             (npc.getNpcType() == NPCType.BEWOHNER || npc.getNpcType() == NPCType.VERKAEUFER);
         boolean isBank = npc != null && npc.getNpcType() == NPCType.BANK;
+        boolean isCreditAdvisor = isBank && npc != null && npc.getBankCategory() == BankCategory.KREDITBERATER;
 
         // Dialog/Chat Button - opens chat for BEWOHNER and VERKAEUFER, dialog for others
         String buttonLabel = canMessage ? "📱 Chat" : "Dialog";
@@ -71,16 +74,22 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
             }
         }).bounds(x + 8, y + 30, 160, 20).build());
 
-        // Bank-Buttons (nur für BANK NPCs)
+        // Bank-Buttons (nur für BANK NPCs - je nach Kategorie unterschiedlich)
         bankerButton = addRenderableWidget(Button.builder(Component.literal("🏦 Banking"), button -> {
             openBankerMenu();
         }).bounds(x + 8, y + 54, 78, 20).build());
-        bankerButton.visible = isBank;
+        bankerButton.visible = isBank && !isCreditAdvisor;
 
         boerseButton = addRenderableWidget(Button.builder(Component.literal("📈 Börse"), button -> {
             openBoerseMenu();
         }).bounds(x + 90, y + 54, 78, 20).build());
-        boerseButton.visible = isBank;
+        boerseButton.visible = isBank && !isCreditAdvisor;
+
+        // Kreditberater Button (nur für KREDITBERATER NPCs)
+        creditAdvisorButton = addRenderableWidget(Button.builder(Component.literal("💳 Kredit beantragen"), button -> {
+            openCreditAdvisorMenu();
+        }).bounds(x + 8, y + 54, 160, 20).build());
+        creditAdvisorButton.visible = isCreditAdvisor;
 
         // Shop Verkaufen Button (nicht für Bank-NPCs)
         shopSellButton = addRenderableWidget(Button.builder(Component.literal("Verkaufen"), button -> {
@@ -187,6 +196,20 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
             // Sende Packet an Server um Börsen-Menü zu öffnen
             NPCNetworkHandler.sendToServer(new OpenBoerseMenuPacket(menu.getEntityId()));
             // Schließe aktuelles GUI - das Börsen-GUI wird vom Server geöffnet
+            this.onClose();
+        }
+    }
+
+    /**
+     * Öffnet Kreditberater-Menü
+     */
+    private void openCreditAdvisorMenu() {
+        CustomNPCEntity npc = menu.getNpc();
+        if (npc != null && npc.getNpcType() == NPCType.BANK &&
+            npc.getBankCategory() == BankCategory.KREDITBERATER) {
+            // Sende Packet an Server um Kreditberater-Menü zu öffnen
+            NPCNetworkHandler.sendToServer(new OpenCreditAdvisorMenuPacket(menu.getEntityId()));
+            // Schließe aktuelles GUI - das Kreditberater-GUI wird vom Server geöffnet
             this.onClose();
         }
     }
