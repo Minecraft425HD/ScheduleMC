@@ -65,12 +65,14 @@ public class PlotPurchasePacket {
 
             switch (msg.type) {
                 case BUY:
-                    if (!plot.isForSale()) {
+                    // Prüfe ob Plot kaufbar ist (ohne Besitzer ODER explizit zum Verkauf)
+                    if (plot.hasOwner() && !plot.isForSale()) {
                         player.sendSystemMessage(Component.literal("§cDieser Plot steht nicht zum Verkauf!"));
                         return;
                     }
 
-                    double salePrice = plot.getSalePrice();
+                    // Bestimme Preis: Plot ohne Besitzer = Standardpreis, sonst Verkaufspreis
+                    double salePrice = !plot.hasOwner() ? plot.getPrice() : plot.getSalePrice();
 
                     // Prüfe Guthaben
                     if (EconomyManager.getBalance(playerUUID) < salePrice) {
@@ -80,12 +82,17 @@ public class PlotPurchasePacket {
                         return;
                     }
 
-                    // Zahle an Besitzer
-                    UUID oldOwnerUUID = UUID.fromString(plot.getOwnerUUID());
+                    // Ziehe Geld vom Käufer ab
                     EconomyManager.withdraw(playerUUID, salePrice, TransactionType.PLOT_PURCHASE,
                         "Plot-Kauf: " + plot.getPlotName());
-                    EconomyManager.deposit(oldOwnerUUID, salePrice, TransactionType.PLOT_SALE,
-                        "Plot-Verkauf: " + plot.getPlotName());
+
+                    // Zahle an alten Besitzer (nur wenn Plot einen Besitzer hat)
+                    if (plot.hasOwner()) {
+                        UUID oldOwnerUUID = UUID.fromString(plot.getOwnerUUID());
+                        EconomyManager.deposit(oldOwnerUUID, salePrice, TransactionType.PLOT_SALE,
+                            "Plot-Verkauf: " + plot.getPlotName());
+                    }
+                    // Wenn Plot keinen Besitzer hat, geht das Geld an den Server (= wird entfernt)
 
                     // Übertrage Eigentum
                     plot.setOwner(playerUUID, player.getName().getString());
