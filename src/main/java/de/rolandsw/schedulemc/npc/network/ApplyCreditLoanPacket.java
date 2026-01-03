@@ -1,9 +1,11 @@
 package de.rolandsw.schedulemc.npc.network;
 
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.economy.CreditLoan;
 import de.rolandsw.schedulemc.economy.CreditLoanManager;
 import de.rolandsw.schedulemc.economy.CreditScore;
 import de.rolandsw.schedulemc.economy.CreditScoreManager;
+import de.rolandsw.schedulemc.economy.RecurringPaymentManager;
 import de.rolandsw.schedulemc.util.PacketHandler;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.FriendlyByteBuf;
@@ -52,6 +54,31 @@ public class ApplyCreditLoanPacket {
                     "§c§lFehler: §7Du hast bereits einen aktiven Kredit!\n" +
                     "§7Bezahle diesen zuerst zurück."
                 ));
+                return;
+            }
+
+            // Prüfe 10er-Limit für Daueraufträge (Kredit zählt als Dauerauftrag)
+            RecurringPaymentManager recurringManager = RecurringPaymentManager.getInstance(player.getServer());
+            int currentPayments = recurringManager.getPayments(player.getUUID()).size();
+            int maxPerPlayer = ModConfigHandler.COMMON.RECURRING_MAX_PER_PLAYER.get();
+
+            if (currentPayments >= maxPerPlayer) {
+                player.sendSystemMessage(Component.literal("═══════════════════════════════")
+                    .withStyle(ChatFormatting.RED));
+                player.sendSystemMessage(Component.literal("⚠ KREDIT ABGELEHNT!")
+                    .withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
+                player.sendSystemMessage(Component.literal("Du hast bereits ")
+                    .withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal(currentPayments + "/" + maxPerPlayer)
+                        .withStyle(ChatFormatting.YELLOW))
+                    .append(Component.literal(" aktive Daueraufträge.")
+                        .withStyle(ChatFormatting.GRAY)));
+                player.sendSystemMessage(Component.literal("Ein Kredit zählt als Dauerauftrag!")
+                    .withStyle(ChatFormatting.GOLD));
+                player.sendSystemMessage(Component.literal("Lösche erst einen bestehenden Dauerauftrag!")
+                    .withStyle(ChatFormatting.YELLOW));
+                player.sendSystemMessage(Component.literal("═══════════════════════════════")
+                    .withStyle(ChatFormatting.RED));
                 return;
             }
 
