@@ -127,7 +127,16 @@ public class PlotInfoScreen extends Screen {
         // === PLOT-NAME (Titel) ===
         String plotName = plot.getPlotName();
         guiGraphics.drawCenteredString(this.font, "§6§l" + plotName, leftPos + backgroundWidth / 2, currentY, 0xFFD700);
-        currentY += 20;
+        currentY += 15;
+
+        // === BESCHREIBUNG ===
+        String description = plot.getDescription();
+        if (description != null && !description.isEmpty()) {
+            guiGraphics.drawCenteredString(this.font, "§7§o" + description, leftPos + backgroundWidth / 2, currentY, 0xAAAAAA);
+            currentY += 15;
+        } else {
+            currentY += 5;
+        }
 
         // Trennlinie
         guiGraphics.fill(leftPos + 10, currentY, leftPos + backgroundWidth - 10, currentY + 1, 0x66FFFFFF);

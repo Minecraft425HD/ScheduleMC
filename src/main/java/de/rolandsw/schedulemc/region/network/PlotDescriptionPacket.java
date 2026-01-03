@@ -58,8 +58,8 @@ public class PlotDescriptionPacket {
             }
 
             // Validiere Beschreibung
-            if (msg.description.length() > 200) {
-                player.sendSystemMessage(Component.literal("§cBeschreibung zu lang! (Max. 200 Zeichen)"));
+            if (msg.description.length() > 16) {
+                player.sendSystemMessage(Component.literal("§cBeschreibung zu lang! (Max. 16 Zeichen)"));
                 return;
             }
 
