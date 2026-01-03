@@ -96,16 +96,9 @@ public class PlotCommand {
                 // ✅ /plot rentcancel - ENTFERNT (ersetzt durch Settings App UI)
                 // ✅ /plot rentplot - ENTFERNT (ersetzt durch Settings App UI)
                 // ✅ /plot rentextend - ENTFERNT (ersetzt durch Settings App UI)
-                
-                // /plot rate <rating>
-                .then(Commands.literal("rate")
-                        .then(Commands.argument("rating", IntegerArgumentType.integer(1, 5))
-                                .executes(PlotCommand::ratePlot)))
-                
-                // /plot topplots
-                .then(Commands.literal("topplots")
-                        .executes(PlotCommand::topPlots))
-                
+                // ✅ /plot rate - ENTFERNT (ersetzt durch PlotInfoScreen Rating-Buttons)
+                // ✅ /plot topplots - ENTFERNT (ersetzt durch PlotInfoScreen Rating-Anzeige)
+
                 // /plot remove
                 .then(Commands.literal("remove")
                         .requires(source -> source.hasPermission(2))
@@ -853,65 +846,8 @@ public class PlotCommand {
             });
     }
 
-    private static int ratePlot(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot rate",
-            player -> {
-                int rating = IntegerArgumentType.getInteger(ctx, "rating");
-                PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
-
-                if (plot == null) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst in keinem Plot!");
-                    return;
-                }
-
-                if (!plot.hasOwner()) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Dieser Plot hat keinen Besitzer!");
-                    return;
-                }
-
-                if (plot.isOwnedBy(player.getUUID())) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Du kannst deinen eigenen Plot nicht bewerten!");
-                    return;
-                }
-
-                plot.addRating(player.getUUID(), rating);
-                PlotManager.markDirty();
-
-                ctx.getSource().sendSuccess(() -> Component.literal(
-                    "§a✓ Bewertung abgegeben!\n" +
-                    "§7Deine Bewertung: §6" + "★".repeat(rating) + "§7" + "☆".repeat(5 - rating) + "\n" +
-                    "§7Durchschnitt: §6" + plot.getRatingStars()
-                ), false);
-            });
-    }
-    
-    private static int topPlots(CommandContext<CommandSourceStack> ctx) {
-        List<PlotRegion> topPlots = PlotManager.getTopRatedPlots(10);
-        
-        if (topPlots.isEmpty()) {
-            ctx.getSource().sendFailure(Component.literal("§cKeine bewerteten Plots vorhanden!"));
-            return 0;
-        }
-        
-        ctx.getSource().sendSuccess(() -> Component.literal(
-            "§6═══════════════════════════════\n" +
-            "§e§l       TOP PLOTS\n" +
-            "§6═══════════════════════════════"
-        ), false);
-        
-        int rank = 1;
-        for (PlotRegion plot : topPlots) {
-            String medal = rank == 1 ? "§6🥇" : rank == 2 ? "§7🥈" : rank == 3 ? "§c🥉" : "§7" + rank + ".";
-            
-            ctx.getSource().sendSuccess(() -> Component.literal(
-                medal + " §e" + plot.getPlotName() + " §7- §6" + plot.getRatingStars()
-            ), false);
-            
-            rank++;
-        }
-        
-        return 1;
-    }
+    // ✅ REMOVED: ratePlot() - Ersetzt durch PlotInfoScreen Rating-Buttons + PlotRatingPacket
+    // ✅ REMOVED: topPlots() - Ersetzt durch PlotInfoScreen Rating-Anzeige
 
     private static int removePlot(CommandContext<CommandSourceStack> ctx) {
         return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot remove",

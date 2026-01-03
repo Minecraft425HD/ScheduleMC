@@ -5,6 +5,7 @@ import de.rolandsw.schedulemc.region.PlotArea;
 import de.rolandsw.schedulemc.region.PlotRegion;
 import de.rolandsw.schedulemc.region.network.PlotNetworkHandler;
 import de.rolandsw.schedulemc.region.network.PlotPurchasePacket;
+import de.rolandsw.schedulemc.region.network.PlotRatingPacket;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -27,6 +28,10 @@ public class PlotInfoScreen extends Screen {
     private int backgroundHeight = 200;
     private int leftPos;
     private int topPos;
+
+    // Rating Button Positionen (werden in render() gesetzt)
+    private int ratingButtonY = -1;
+    private int ratingButtonX = -1;
 
     public PlotInfoScreen(PlotRegion plot) {
         super(Component.literal("Plot Information"));
@@ -156,17 +161,71 @@ public class PlotInfoScreen extends Screen {
             leftPos + 15, currentY, 0xFFFFFF);
         currentY += 12;
 
-        // === RATING ===
-        if (plot.getRatingCount() > 0) {
-            guiGraphics.drawString(this.font, "§7Rating: §e" + plot.getRatingStars() +
-                " §8(" + plot.getRatingCount() + " Bewertungen)",
-                leftPos + 15, currentY, 0xFFFFFF);
-            currentY += 12;
-        }
-
         // === ID ===
         guiGraphics.drawString(this.font, "§8ID: " + plot.getPlotId(), leftPos + 15, currentY, 0x888888);
         currentY += 15;
+
+        // === RATING SECTION ===
+        // Trennlinie
+        guiGraphics.fill(leftPos + 10, currentY, leftPos + backgroundWidth - 10, currentY + 1, 0x66FFFFFF);
+        currentY += 8;
+
+        // Rating Box
+        guiGraphics.fill(leftPos + 10, currentY, leftPos + backgroundWidth - 10, currentY + 55, 0x44FFD700);
+
+        // Rating Titel
+        guiGraphics.drawString(this.font, "§6§l⭐ BEWERTUNG", leftPos + 15, currentY + 5, 0xFFD700);
+
+        // Durchschnittliches Rating
+        if (plot.getRatingCount() > 0) {
+            String avgRating = String.format("%.1f", plot.getAverageRating());
+            guiGraphics.drawString(this.font, "§7Durchschnitt: §e" + avgRating + "/5.0 §8(" +
+                plot.getRatingCount() + " Bewertungen)", leftPos + 15, currentY + 18, 0xFFFFFF);
+
+            // Stern-Anzeige
+            guiGraphics.drawString(this.font, "§e" + plot.getRatingStars(), leftPos + 15, currentY + 30, 0xFFFFFF);
+        } else {
+            guiGraphics.drawString(this.font, "§7Noch keine Bewertungen", leftPos + 15, currentY + 18, 0xAAAAAA);
+        }
+
+        // Spieler kann nicht eigene Plots bewerten
+        if (minecraft != null && minecraft.player != null &&
+            !plot.getOwnerUUID().equals(minecraft.player.getUUID().toString()) &&
+            plot.hasOwner()) {
+
+            // Zeige ob Spieler bereits bewertet hat
+            if (plot.hasRated(minecraft.player.getUUID())) {
+                int playerRating = plot.getPlayerRating(minecraft.player.getUUID());
+                String stars = "★".repeat(playerRating) + "☆".repeat(5 - playerRating);
+                guiGraphics.drawString(this.font, "§7Deine Bewertung: §e" + stars,
+                    leftPos + 15, currentY + 42, 0xFFFFFF);
+            } else {
+                guiGraphics.drawString(this.font, "§7Klicke auf Sterne zum Bewerten:",
+                    leftPos + 15, currentY + 42, 0xAAAAAA);
+            }
+
+            // Zeichne klickbare Sterne (1-5)
+            this.ratingButtonY = currentY + 30;
+            this.ratingButtonX = leftPos + backgroundWidth - 95;
+
+            int currentPlayerRating = plot.getPlayerRating(minecraft.player.getUUID());
+            for (int i = 1; i <= 5; i++) {
+                int starX = this.ratingButtonX + ((i - 1) * 16);
+                boolean isHovered = mouseX >= starX && mouseX < starX + 14 &&
+                                  mouseY >= this.ratingButtonY && mouseY < this.ratingButtonY + 14;
+
+                // Zeichne Stern (gefüllt wenn bewertet oder gehovered)
+                if (i <= currentPlayerRating || isHovered) {
+                    guiGraphics.drawString(this.font, "§e★", starX, this.ratingButtonY, 0xFFFFFF);
+                } else {
+                    guiGraphics.drawString(this.font, "§7☆", starX, this.ratingButtonY, 0xFFFFFF);
+                }
+            }
+        } else {
+            this.ratingButtonY = -1; // Keine Buttons wenn Spieler nicht bewerten darf
+        }
+
+        currentY += 60;
 
         // === VERKAUF/MIETE STATUS ===
         if (!plot.hasOwner()) {
@@ -245,7 +304,25 @@ public class PlotInfoScreen extends Screen {
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        // Prüfe ob auf Rating-Sterne geklickt wurde
+        if (button == 0 && ratingButtonY != -1) { // Linksklick
+            if (mouseY >= ratingButtonY && mouseY < ratingButtonY + 14) {
+                // Prüfe welcher Stern geklickt wurde
+                for (int i = 1; i <= 5; i++) {
+                    int starX = ratingButtonX + ((i - 1) * 16);
+                    if (mouseX >= starX && mouseX < starX + 14) {
+                        // Sende Rating zum Server
+                        PlotNetworkHandler.sendToServer(new PlotRatingPacket(plot.getPlotId(), i));
+                        return true;
+                    }
+                }
+            }
+        }
 
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
 
     @Override
     public boolean isPauseScreen() {
