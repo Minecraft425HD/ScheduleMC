@@ -44,8 +44,8 @@ public class ScheduleMCAPI {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final String VERSION = "3.0.0";
 
-    // Singleton
-    private static ScheduleMCAPI instance;
+    // SICHERHEIT: volatile für Double-Checked Locking Pattern
+    private static volatile ScheduleMCAPI instance;
 
     // API Implementations
     private IEconomyAPI economyAPI;

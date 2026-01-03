@@ -32,7 +32,8 @@ import java.util.stream.Collectors;
  */
 public class PlotManager implements IncrementalSaveManager.ISaveable {
 
-    private static PlotManager instance;
+    // SICHERHEIT: volatile für Double-Checked Locking Pattern
+    private static volatile PlotManager instance;
 
     private PlotManager() {}
 
@@ -718,11 +719,18 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
 
     /**
      * Gibt die Singleton-Instanz zurück (für IncrementalSaveManager Registration)
+     * SICHERHEIT: Double-Checked Locking für Thread-Safety
      */
     public static PlotManager getInstance() {
-        if (instance == null) {
-            instance = new PlotManager();
+        PlotManager localRef = instance;
+        if (localRef == null) {
+            synchronized (PlotManager.class) {
+                localRef = instance;
+                if (localRef == null) {
+                    instance = localRef = new PlotManager();
+                }
+            }
         }
-        return instance;
+        return localRef;
     }
 }

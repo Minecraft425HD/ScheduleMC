@@ -20,8 +20,8 @@ public class ProductionRegistry {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    // Singleton
-    private static ProductionRegistry instance;
+    // SICHERHEIT: volatile für Double-Checked Locking Pattern
+    private static volatile ProductionRegistry instance;
 
     // Registry
     private final Map<String, ProductionConfig> productions = new ConcurrentHashMap<>();
