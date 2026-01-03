@@ -65,6 +65,26 @@ public class SettingsAppScreen extends Screen {
     private double electricityWarningThreshold = 100.0; // kWh
     private double waterWarningThreshold = 500.0; // L
 
+    // Clickable regions for interactive elements
+    private final List<ClickableRegion> clickableRegions = new ArrayList<>();
+
+    private static class ClickableRegion {
+        int x1, y1, x2, y2;
+        Runnable onClick;
+
+        ClickableRegion(int x1, int y1, int x2, int y2, Runnable onClick) {
+            this.x1 = x1;
+            this.y1 = y1;
+            this.x2 = x2;
+            this.y2 = y2;
+            this.onClick = onClick;
+        }
+
+        boolean contains(int mouseX, int mouseY) {
+            return mouseX >= x1 && mouseX <= x2 && mouseY >= y1 && mouseY <= y2;
+        }
+    }
+
     public SettingsAppScreen(Screen parent) {
         super(Component.literal("Settings"));
         this.parentScreen = parent;
@@ -152,10 +172,13 @@ public class SettingsAppScreen extends Screen {
         int contentY = topPos + 55;
         int contentEndY = topPos + HEIGHT - 40;
 
+        // Clear clickable regions
+        clickableRegions.clear();
+
         // Render Tab-Content
         switch (currentTab) {
-            case 0 -> renderPlotSettingsTab(guiGraphics, contentY, contentEndY);
-            case 1 -> renderNotificationsTab(guiGraphics, contentY, contentEndY);
+            case 0 -> renderPlotSettingsTab(guiGraphics, contentY, contentEndY, mouseX, mouseY);
+            case 1 -> renderNotificationsTab(guiGraphics, contentY, contentEndY, mouseX, mouseY);
             case 2 -> renderAccountTab(guiGraphics, contentY, contentEndY);
         }
 
@@ -174,7 +197,7 @@ public class SettingsAppScreen extends Screen {
     // TAB 1: PLOT-EINSTELLUNGEN
     // ═══════════════════════════════════════════════════════════════════════════
 
-    private void renderPlotSettingsTab(GuiGraphics guiGraphics, int startY, int endY) {
+    private void renderPlotSettingsTab(GuiGraphics guiGraphics, int startY, int endY, int mouseX, int mouseY) {
         int y = startY - scrollOffset;
         int contentHeight = 0;
 
@@ -192,6 +215,7 @@ public class SettingsAppScreen extends Screen {
         }
 
         boolean isOwner = playerUUID.equals(currentPlot.getOwnerUUID());
+        String plotId = currentPlot.getPlotId();
 
         // Plot-Header
         if (y >= startY - 10 && y < endY) {
@@ -246,15 +270,49 @@ public class SettingsAppScreen extends Screen {
         y += 12;
         contentHeight += 12;
 
-        // Optionen (Info-Text)
-        if (y >= startY - 10 && y < endY) {
-            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 35, 0x33333333);
-            guiGraphics.drawString(this.font, "§8Verwende /plot sell <Preis>", leftPos + 15, y + 4, 0x666666);
-            guiGraphics.drawString(this.font, "§8oder /plot rent <Preis>", leftPos + 15, y + 14, 0x666666);
-            guiGraphics.drawString(this.font, "§8um anzubieten.", leftPos + 15, y + 24, 0x666666);
+        // ✅ INTERAKTIVE BUTTONS
+        if (y >= startY - 30 && y < endY + 30) {
+            int btnY = y;
+            int btnWidth = WIDTH - 20;
+
+            // "Zum Verkauf stellen" Button
+            if (!currentPlot.isForSale()) {
+                drawButton(guiGraphics, leftPos + 10, btnY, btnWidth, 18, "§a🏷 Zum Verkauf stellen", 0x55FF55, mouseX, mouseY);
+                clickableRegions.add(new ClickableRegion(leftPos + 10, btnY, leftPos + 10 + btnWidth, btnY + 18, () -> {
+                    minecraft.setScreen(new InputDialogScreen(this, "Verkaufspreis", "Preis in Euro eingeben:",
+                        InputDialogScreen.InputType.NUMBER, price -> {
+                            PlotNetworkHandler.sendToServer(new PlotSalePacket(plotId, Double.parseDouble(price), PlotSalePacket.SaleType.SELL));
+                        }));
+                }));
+                btnY += 20;
+            }
+
+            // "Zur Miete stellen" Button
+            if (!currentPlot.isForRent()) {
+                drawButton(guiGraphics, leftPos + 10, btnY, btnWidth, 18, "§d🏠 Zur Miete stellen", 0xFF55FF, mouseX, mouseY);
+                clickableRegions.add(new ClickableRegion(leftPos + 10, btnY, leftPos + 10 + btnWidth, btnY + 18, () -> {
+                    minecraft.setScreen(new InputDialogScreen(this, "Mietpreis", "Preis pro Tag in Euro:",
+                        InputDialogScreen.InputType.NUMBER, price -> {
+                            PlotNetworkHandler.sendToServer(new PlotSalePacket(plotId, Double.parseDouble(price), PlotSalePacket.SaleType.RENT));
+                        }));
+                }));
+                btnY += 20;
+            }
+
+            // "Angebot beenden" Button
+            if (currentPlot.isForSale() || currentPlot.isForRent()) {
+                drawButton(guiGraphics, leftPos + 10, btnY, btnWidth, 18, "§c✗ Angebot beenden", 0xFF5555, mouseX, mouseY);
+                clickableRegions.add(new ClickableRegion(leftPos + 10, btnY, leftPos + 10 + btnWidth, btnY + 18, () -> {
+                    PlotNetworkHandler.sendToServer(new PlotSalePacket(plotId, 0, PlotSalePacket.SaleType.CANCEL));
+                }));
+                btnY += 20;
+            }
+
+            y = btnY;
+        } else {
+            y += 60; // Reserve space even when scrolled out of view
         }
-        y += 40;
-        contentHeight += 40;
+        contentHeight += 60;
 
         // ═══════════════════════════════════════════════════════════════════════════
         // TRUSTED PLAYERS
@@ -271,7 +329,7 @@ public class SettingsAppScreen extends Screen {
         y += 15;
         contentHeight += 15;
 
-        // Zeige Trusted Players
+        // Zeige Trusted Players mit Remove-Buttons
         Set<String> trustedPlayers = currentPlot.getTrustedPlayers();
         if (trustedPlayers.isEmpty()) {
             if (y >= startY - 10 && y < endY) {
@@ -281,22 +339,34 @@ public class SettingsAppScreen extends Screen {
             contentHeight += 12;
         } else {
             for (String trusted : trustedPlayers) {
-                if (y >= startY - 10 && y < endY) {
+                if (y >= startY - 30 && y < endY + 30) {
                     guiGraphics.drawString(this.font, "§a● §f" + trusted, leftPos + 20, y, 0xFFFFFF);
+
+                    // ✅ Remove button
+                    int btnX = leftPos + WIDTH - 50;
+                    drawButton(guiGraphics, btnX, y - 2, 40, 12, "§c×", 0xFF5555, mouseX, mouseY);
+                    String trustedName = trusted;
+                    clickableRegions.add(new ClickableRegion(btnX, y - 2, btnX + 40, y + 10, () -> {
+                        PlotNetworkHandler.sendToServer(new PlotTrustPacket(plotId, trustedName, PlotTrustPacket.TrustAction.REMOVE));
+                    }));
                 }
-                y += 11;
-                contentHeight += 11;
+                y += 13;
+                contentHeight += 13;
             }
         }
 
-        // Hinweis
-        if (y >= startY - 10 && y < endY) {
-            guiGraphics.fill(leftPos + 10, y + 5, leftPos + WIDTH - 10, y + 30, 0x33333333);
-            guiGraphics.drawString(this.font, "§8/plot trust <Spieler>", leftPos + 15, y + 9, 0x666666);
-            guiGraphics.drawString(this.font, "§8/plot untrust <Spieler>", leftPos + 15, y + 19, 0x666666);
+        // ✅ "Spieler hinzufügen" Button
+        if (y >= startY - 30 && y < endY + 30) {
+            drawButton(guiGraphics, leftPos + 10, y + 5, WIDTH - 20, 18, "§b+ Spieler hinzufügen", 0x55FFFF, mouseX, mouseY);
+            clickableRegions.add(new ClickableRegion(leftPos + 10, y + 5, leftPos + WIDTH - 10, y + 23, () -> {
+                minecraft.setScreen(new InputDialogScreen(this, "Spieler vertrauen", "Spielername eingeben:",
+                    InputDialogScreen.InputType.TEXT, playerName -> {
+                        PlotNetworkHandler.sendToServer(new PlotTrustPacket(plotId, playerName, PlotTrustPacket.TrustAction.ADD));
+                    }));
+            }));
         }
-        y += 35;
-        contentHeight += 35;
+        y += 30;
+        contentHeight += 30;
 
         // ═══════════════════════════════════════════════════════════════════════════
         // PLOT UMBENENNEN
@@ -319,9 +389,94 @@ public class SettingsAppScreen extends Screen {
         y += 12;
         contentHeight += 12;
 
+        // ✅ "Umbenennen" Button
+        if (y >= startY - 30 && y < endY + 30) {
+            drawButton(guiGraphics, leftPos + 10, y + 3, WIDTH - 20, 18, "§e✏ Umbenennen", 0xFFAA00, mouseX, mouseY);
+            clickableRegions.add(new ClickableRegion(leftPos + 10, y + 3, leftPos + WIDTH - 10, y + 21, () -> {
+                minecraft.setScreen(new InputDialogScreen(this, "Plot umbenennen", "Neuen Namen eingeben:",
+                    InputDialogScreen.InputType.TEXT, newName -> {
+                        PlotNetworkHandler.sendToServer(new PlotRenamePacket(plotId, newName));
+                    }));
+            }));
+        }
+        y += 25;
+        contentHeight += 25;
+
+        // ═══════════════════════════════════════════════════════════════════════════
+        // PLOT BESCHREIBUNG
+        // ═══════════════════════════════════════════════════════════════════════════
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.fill(leftPos + 10, y + 3, leftPos + WIDTH - 10, y + 18, 0x33333333);
-            guiGraphics.drawString(this.font, "§8/plot rename <Neuer Name>", leftPos + 15, y + 6, 0x666666);
+            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
+        }
+        y += 8;
+        contentHeight += 8;
+
+        if (y >= startY - 10 && y < endY) {
+            guiGraphics.drawString(this.font, "§6§l📝 BESCHREIBUNG", leftPos + 15, y, 0xFFAA00);
+        }
+        y += 15;
+        contentHeight += 15;
+
+        String desc = currentPlot.getDescription();
+        if (desc != null && !desc.isEmpty()) {
+            if (y >= startY - 10 && y < endY) {
+                guiGraphics.drawString(this.font, "§7" + desc, leftPos + 15, y, 0xAAAAAA);
+            }
+            y += 12;
+            contentHeight += 12;
+        } else {
+            if (y >= startY - 10 && y < endY) {
+                guiGraphics.drawString(this.font, "§8Keine Beschreibung", leftPos + 15, y, 0x666666);
+            }
+            y += 12;
+            contentHeight += 12;
+        }
+
+        // ✅ "Beschreibung ändern" Button
+        if (y >= startY - 30 && y < endY + 30) {
+            drawButton(guiGraphics, leftPos + 10, y + 3, WIDTH - 20, 18, "§a📝 Beschreibung ändern", 0x55FF55, mouseX, mouseY);
+            clickableRegions.add(new ClickableRegion(leftPos + 10, y + 3, leftPos + WIDTH - 10, y + 21, () -> {
+                minecraft.setScreen(new InputDialogScreen(this, "Beschreibung", "Beschreibung eingeben:",
+                    InputDialogScreen.InputType.TEXT, description -> {
+                        PlotNetworkHandler.sendToServer(new PlotDescriptionPacket(plotId, description));
+                    }));
+            }));
+        }
+        y += 30;
+        contentHeight += 30;
+
+        // ═══════════════════════════════════════════════════════════════════════════
+        // PLOT AUFGEBEN
+        // ═══════════════════════════════════════════════════════════════════════════
+        if (y >= startY - 10 && y < endY) {
+            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
+        }
+        y += 8;
+        contentHeight += 8;
+
+        if (y >= startY - 10 && y < endY) {
+            guiGraphics.drawString(this.font, "§c§l🗑 PLOT AUFGEBEN", leftPos + 15, y, 0xFF5555);
+        }
+        y += 15;
+        contentHeight += 15;
+
+        if (y >= startY - 10 && y < endY) {
+            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 30, 0x44330000);
+            guiGraphics.drawString(this.font, "§8⚠ WARNUNG: Nicht rückgängig!", leftPos + 15, y + 5, 0x666666);
+            guiGraphics.drawString(this.font, "§8Plot geht an Server zurück.", leftPos + 15, y + 15, 0x666666);
+        }
+        y += 35;
+        contentHeight += 35;
+
+        // ✅ "Plot aufgeben" Button (ROT)
+        if (y >= startY - 30 && y < endY + 30) {
+            drawButton(guiGraphics, leftPos + 10, y, WIDTH - 20, 18, "§c🗑 Plot aufgeben", 0xFF5555, mouseX, mouseY);
+            clickableRegions.add(new ClickableRegion(leftPos + 10, y, leftPos + WIDTH - 10, y + 18, () -> {
+                minecraft.setScreen(new ConfirmDialogScreen(this, "⚠ WARNUNG",
+                    "Plot wirklich aufgeben?\nDiese Aktion kann NICHT\nrückgängig gemacht werden!",
+                    "Plot wird an Server zurückgegeben",
+                    () -> PlotNetworkHandler.sendToServer(new PlotAbandonPacket(plotId))));
+            }));
         }
         y += 25;
         contentHeight += 25;
@@ -333,7 +488,7 @@ public class SettingsAppScreen extends Screen {
     // TAB 2: BENACHRICHTIGUNGEN
     // ═══════════════════════════════════════════════════════════════════════════
 
-    private void renderNotificationsTab(GuiGraphics guiGraphics, int startY, int endY) {
+    private void renderNotificationsTab(GuiGraphics guiGraphics, int startY, int endY, int mouseX, int mouseY) {
         int y = startY - scrollOffset;
         int contentHeight = 0;
 
@@ -346,14 +501,17 @@ public class SettingsAppScreen extends Screen {
         y += 18;
         contentHeight += 18;
 
-        // An/Aus Status
-        if (y >= startY - 10 && y < endY) {
-            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 25, 0x44333333);
-            String status = utilityWarningsEnabled ? "§a● Aktiviert" : "§c● Deaktiviert";
-            guiGraphics.drawString(this.font, "§7Warnungen: " + status, leftPos + 15, y + 8, 0xFFFFFF);
+        // ✅ An/Aus Toggle (Checkbox)
+        if (y >= startY - 30 && y < endY + 30) {
+            String checkBox = utilityWarningsEnabled ? "§a[✓]" : "§7[ ]";
+            guiGraphics.drawString(this.font, checkBox + " §fUtility-Warnungen", leftPos + 15, y, 0xFFFFFF);
+
+            clickableRegions.add(new ClickableRegion(leftPos + 15, y - 2, leftPos + WIDTH - 10, y + 10, () -> {
+                utilityWarningsEnabled = !utilityWarningsEnabled;
+            }));
         }
-        y += 30;
-        contentHeight += 30;
+        y += 15;
+        contentHeight += 15;
 
         // Info über Warnungen
         if (y >= startY - 10 && y < endY) {
@@ -608,7 +766,22 @@ public class SettingsAppScreen extends Screen {
             return true;
         }
         return super.mouseScrolled(mouseX, mouseY, delta);
-    }    @Override
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (button == 0) { // Left click
+            for (ClickableRegion region : clickableRegions) {
+                if (region.contains((int) mouseX, (int) mouseY)) {
+                    region.onClick.run();
+                    return true;
+                }
+            }
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         // Block E key (inventory key - 69) from closing the screen
         if (keyCode == 69) { // GLFW_KEY_E
@@ -617,10 +790,18 @@ public class SettingsAppScreen extends Screen {
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
-
-
     @Override
     public boolean isPauseScreen() {
         return false;
+    }
+
+    // Helper method to draw a button-like region
+    private void drawButton(GuiGraphics guiGraphics, int x, int y, int width, int height,
+                           String text, int color, int mouseX, int mouseY) {
+        boolean hovered = mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
+        guiGraphics.fill(x, y, x + width, y + height, hovered ? 0xFF4A90E2 : 0xFF333333);
+        guiGraphics.fill(x, y, x + width, y + 1, 0xFF555555);
+        guiGraphics.fill(x, y + height - 1, x + width, y + height, 0xFF111111);
+        guiGraphics.drawCenteredString(this.font, text, x + width / 2, y + (height - 8) / 2, hovered ? 0xFFFFFF : color);
     }
 }
