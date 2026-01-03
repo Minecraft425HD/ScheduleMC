@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.npc.events;
 
 import de.rolandsw.schedulemc.util.EventHelper;
+import de.rolandsw.schedulemc.util.ConfigCache;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.economy.items.CashItem;
 import de.rolandsw.schedulemc.npc.crime.CrimeManager;
@@ -175,10 +176,10 @@ public class PoliceAIHandler {
 
         long currentTick = npc.level().getGameTime();
 
-        // Lade Config-Werte
-        int detectionRadius = ModConfigHandler.COMMON.POLICE_DETECTION_RADIUS.get();
-        double arrestDistance = ModConfigHandler.COMMON.POLICE_ARREST_DISTANCE.get();
-        long arrestCooldown = ModConfigHandler.COMMON.POLICE_ARREST_COOLDOWN_SECONDS.get() * TICKS_PER_SECOND;
+        // Lade Config-Werte (aus Cache für bessere Performance)
+        int detectionRadius = ConfigCache.getPoliceDetectionRadius();
+        double arrestDistance = ConfigCache.getPoliceArrestDistance();
+        long arrestCooldown = ConfigCache.getPoliceArrestCooldownTicks();
 
         // Prüfe ob Polizei gerade sucht
         if (PoliceSearchBehavior.isSearching(npc)) {
@@ -255,15 +256,17 @@ public class PoliceAIHandler {
                 // ═══════════════════════════════════════════
                 UUID playerUUID = targetCriminal.getUUID();
 
-                if (!arrestTimers.containsKey(playerUUID)) {
-                    // Start Arrest-Timer
-                    arrestTimers.put(playerUUID, currentTick);
-                    int cooldownSeconds = ModConfigHandler.COMMON.POLICE_ARREST_COOLDOWN_SECONDS.get();
+                // SICHERHEIT: Atomare Operation verhindert Race Condition
+                // wenn mehrere Polizisten gleichzeitig versuchen zu arrestieren
+                Long previousStartTick = arrestTimers.putIfAbsent(playerUUID, currentTick);
+
+                if (previousStartTick == null) {
+                    // Neuer Arrest-Timer gestartet (wir waren erste)
+                    int cooldownSeconds = ConfigCache.getPoliceArrestCooldownSeconds();
                     targetCriminal.sendSystemMessage(Component.literal("§c⚠ FESTNAHME läuft... " + cooldownSeconds + "s"));
                 } else {
                     // Timer läuft bereits - prüfe ob abgelaufen
-                    long startTick = arrestTimers.get(playerUUID);
-                    long elapsed = currentTick - startTick;
+                    long elapsed = currentTick - previousStartTick;
 
                     if (elapsed >= arrestCooldown) {
                         // Cooldown vorbei → FESTNAHME!
@@ -297,9 +300,8 @@ public class PoliceAIHandler {
                         LOGGER.debug("[POLICE] {} - Spieler ist versteckt, wechsle zu Suchmodus", npc.getNpcName());
                     }
 
-                    // Reset Timer falls vorhanden
-                    if (arrestTimers.containsKey(playerUUID)) {
-                        arrestTimers.remove(playerUUID);
+                    // Reset Timer falls vorhanden (atomare Operation)
+                    if (arrestTimers.remove(playerUUID) != null) {
                         targetCriminal.sendSystemMessage(Component.literal("§e✓ Du bist entkommen!"));
                     }
 
@@ -315,9 +317,8 @@ public class PoliceAIHandler {
                 } else {
                     // Spieler ist NICHT versteckt - normale Verfolgung
 
-                    // Reset Timer falls vorhanden
-                    if (arrestTimers.containsKey(playerUUID)) {
-                        arrestTimers.remove(playerUUID);
+                    // Reset Timer falls vorhanden (atomare Operation)
+                    if (arrestTimers.remove(playerUUID) != null) {
                         targetCriminal.sendSystemMessage(Component.literal("§e✓ Du bist entkommen!"));
                     }
 

@@ -1,8 +1,8 @@
 package de.rolandsw.schedulemc.warehouse;
 import de.rolandsw.schedulemc.util.EventHelper;
+import de.rolandsw.schedulemc.util.ConfigCache;
 
 import com.mojang.logging.LogUtils;
-import de.rolandsw.schedulemc.config.ModConfigHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -115,7 +115,7 @@ public class WarehouseManager {
      * Block-Entity wird nur abgefragt wenn tatsächlich eine Delivery nötig ist.
      */
     private static void checkWarehouseDelivery(ServerLevel level, BlockPos pos, long currentDay) {
-        long intervalDays = ModConfigHandler.COMMON.WAREHOUSE_DELIVERY_INTERVAL_DAYS.get();
+        long intervalDays = ConfigCache.getWarehouseDeliveryIntervalDays();
 
         // OPTIMIERUNG: Prüfe Cache zuerst - vermeide Block-Entity-Lookup wenn keine Delivery nötig
         Long cachedLastDeliveryDay = lastDeliveryDayCache.get(pos);

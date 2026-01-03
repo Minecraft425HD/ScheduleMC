@@ -8,6 +8,7 @@ import de.rolandsw.schedulemc.npc.data.BankCategory;
 import de.rolandsw.schedulemc.npc.data.MerchantShopDefaults;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.entity.NPCEntities;
+import de.rolandsw.schedulemc.util.InputValidation;
 import de.rolandsw.schedulemc.util.PacketHandler;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -50,8 +51,8 @@ public class SpawnNPCPacket {
     public static SpawnNPCPacket decode(FriendlyByteBuf buf) {
         return new SpawnNPCPacket(
             buf.readBlockPos(),
-            buf.readUtf(),
-            buf.readUtf(),
+            buf.readUtf(InputValidation.MAX_NPC_NAME_LENGTH + 10), // +10 für Sicherheitspuffer
+            buf.readUtf(InputValidation.MAX_SKIN_FILE_LENGTH + 10),
             buf.readEnum(NPCType.class),
             buf.readEnum(MerchantCategory.class),
             buf.readEnum(BankCategory.class)
@@ -62,12 +63,38 @@ public class SpawnNPCPacket {
         PacketHandler.handleServerPacket(ctx, player -> {
             ServerLevel level = player.serverLevel();
 
+            // SICHERHEIT: Validiere alle Eingaben
+            InputValidation.Result nameResult = InputValidation.validateNPCName(npcName);
+            if (!nameResult.isValid()) {
+                player.sendSystemMessage(Component.literal(nameResult.getError()));
+                return;
+            }
+            String validatedName = nameResult.getSanitizedValue();
+
+            InputValidation.Result skinResult = InputValidation.validateSkinFileName(skinFile);
+            if (!skinResult.isValid()) {
+                player.sendSystemMessage(Component.literal(skinResult.getError()));
+                return;
+            }
+
+            InputValidation.Result posResult = InputValidation.validateBlockPos(position);
+            if (!posResult.isValid()) {
+                player.sendSystemMessage(Component.literal(posResult.getError()));
+                return;
+            }
+
+            // SICHERHEIT: Prüfe Permission für spezielle NPC-Typen
+            if ((npcType == NPCType.POLIZEI || npcType == NPCType.ARZT) && !player.hasPermissions(2)) {
+                player.sendSystemMessage(Component.literal("§cDu hast keine Berechtigung für diesen NPC-Typ!"));
+                return;
+            }
+
             // Prüfe ob Name bereits vergeben ist
-            if (NPCNameRegistry.isNameTaken(npcName)) {
+            if (NPCNameRegistry.isNameTaken(validatedName)) {
                 player.sendSystemMessage(
                     Component.literal("⚠ Ein NPC mit dem Namen '")
                         .withStyle(ChatFormatting.RED)
-                        .append(Component.literal(npcName)
+                        .append(Component.literal(validatedName)
                             .withStyle(ChatFormatting.YELLOW))
                         .append(Component.literal("' existiert bereits!")
                             .withStyle(ChatFormatting.RED))
@@ -81,26 +108,26 @@ public class SpawnNPCPacket {
                 // Setze Position (über dem angeklickten Block)
                 npc.setPos(position.getX() + 0.5, position.getY() + 1.0, position.getZ() + 0.5);
 
-                // Konfiguriere NPC Data
-                NPCData data = new NPCData(npcName, skinFile, npcType, merchantCategory);
+                // Konfiguriere NPC Data (mit validiertem Namen)
+                NPCData data = new NPCData(validatedName, skinFile, npcType, merchantCategory);
                 data.setBankCategory(bankCategory);
 
                 // Füge typ-spezifische Standard-Dialoge hinzu
-                setupDialogForType(data, npcName, npcType, merchantCategory, bankCategory);
+                setupDialogForType(data, validatedName, npcType, merchantCategory, bankCategory);
 
                 npc.setNpcData(data);
-                npc.setNpcName(npcName);
+                npc.setNpcName(validatedName);
                 npc.setSkinFileName(skinFile);
 
                 // Füge Entity zur Welt hinzu
                 level.addFreshEntity(npc);
 
                 // Registriere Namen (nach dem Entity spawnen, damit ID verfügbar ist)
-                if (NPCNameRegistry.registerName(npcName, npc.getId())) {
+                if (NPCNameRegistry.registerName(validatedName, npc.getId())) {
                     player.sendSystemMessage(
                         Component.literal("✓ NPC '")
                             .withStyle(ChatFormatting.GREEN)
-                            .append(Component.literal(npcName)
+                            .append(Component.literal(validatedName)
                                 .withStyle(ChatFormatting.YELLOW))
                             .append(Component.literal("' erfolgreich erstellt!")
                                 .withStyle(ChatFormatting.GREEN))
@@ -109,7 +136,7 @@ public class SpawnNPCPacket {
 
                     // Delta-Sync: Sende nur den neuen Namen statt aller Namen
                     de.rolandsw.schedulemc.npc.events.NPCNameSyncHandler.broadcastNameAdded(
-                        level.getServer(), npcName
+                        level.getServer(), validatedName
                     );
                 }
             }

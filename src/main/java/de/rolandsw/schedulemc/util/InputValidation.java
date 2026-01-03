@@ -1,172 +1,170 @@
 package de.rolandsw.schedulemc.util;
 
+import net.minecraft.core.BlockPos;
+
+import javax.annotation.Nullable;
+
 /**
- * Input-Validierungs-Utilities für Commands
- * Verhindert ungültige Eingaben und potenzielle Exploits
+ * Zentrale Input-Validierung für alle Benutzereingaben
+ *
+ * SICHERHEIT: Verhindert Injection-Angriffe, DoS durch überlange Strings,
+ * und ungültige Daten die zu Server-Crashes führen könnten.
  */
 public class InputValidation {
 
-    // Konstanten für Limits
-    public static final double MAX_PRICE = 1_000_000_000.0; // 1 Milliarde
-    public static final int MAX_NAME_LENGTH = 64;
-    public static final int MIN_NAME_LENGTH = 1;
-    public static final int MAX_AMOUNT = 1_000_000_000; // 1 Milliarde Items
+    // Konstanten
+    public static final int MAX_NPC_NAME_LENGTH = 32;
+    public static final int MAX_PLOT_NAME_LENGTH = 64;
+    public static final int MAX_DESCRIPTION_LENGTH = 256;
+    public static final int MAX_SKIN_FILE_LENGTH = 128;
+    public static final int MAX_PACKET_STRING_LENGTH = 1024;
 
-    /**
-     * Validiert einen Preis-Wert
-     * @param price Der zu validierende Preis
-     * @return ValidationResult mit Erfolg/Fehler
-     */
-    public static ValidationResult validatePrice(double price) {
-        if (price <= 0) {
-            return ValidationResult.failure("Der Preis muss positiv sein!");
+    // Weltgrenzen
+    public static final int MIN_Y = -64;
+    public static final int MAX_Y = 320;
+    public static final int MAX_COORDINATE = 30_000_000;
+
+    private static final String ALLOWED_NAME_CHARS = "^[a-zA-Z0-9_ äöüÄÖÜßéèêëàâáãåçñ\\-\\.]+$";
+    private static final String ALLOWED_FILENAME_CHARS = "^[a-zA-Z0-9_\\-\\.]+$";
+
+    public static class Result {
+        private final boolean valid;
+        private final String error;
+        private final String sanitizedValue;
+
+        private Result(boolean valid, @Nullable String error, @Nullable String sanitizedValue) {
+            this.valid = valid;
+            this.error = error;
+            this.sanitizedValue = sanitizedValue;
         }
-        if (price > MAX_PRICE) {
-            return ValidationResult.failure("Der Preis ist zu hoch! Maximum: " +
-                String.format("%.2f€", MAX_PRICE));
-        }
-        if (Double.isNaN(price) || Double.isInfinite(price)) {
-            return ValidationResult.failure("Ungültiger Preis-Wert!");
-        }
-        return ValidationResult.success();
+
+        public static Result success() { return new Result(true, null, null); }
+        public static Result success(String sanitizedValue) { return new Result(true, null, sanitizedValue); }
+        public static Result failure(String error) { return new Result(false, error, null); }
+
+        public boolean isValid() { return valid; }
+        @Nullable public String getError() { return error; }
+        @Nullable public String getSanitizedValue() { return sanitizedValue; }
     }
 
-    /**
-     * Validiert einen Namen (für Plots, NPCs, etc.)
-     * @param name Der zu validierende Name
-     * @return ValidationResult mit Erfolg/Fehler
-     */
-    public static ValidationResult validateName(String name) {
-        if (name == null || name.trim().isEmpty()) {
-            return ValidationResult.failure("Der Name darf nicht leer sein!");
+    public static Result validateNPCName(@Nullable String name) {
+        if (name == null || name.isEmpty()) {
+            return Result.failure("§cNPC-Name darf nicht leer sein!");
         }
-
         String trimmed = name.trim();
-
-        if (trimmed.length() < MIN_NAME_LENGTH) {
-            return ValidationResult.failure("Der Name ist zu kurz! Minimum: " + MIN_NAME_LENGTH + " Zeichen");
+        if (trimmed.length() > MAX_NPC_NAME_LENGTH) {
+            return Result.failure("§cNPC-Name darf maximal " + MAX_NPC_NAME_LENGTH + " Zeichen lang sein!");
         }
-        if (trimmed.length() > MAX_NAME_LENGTH) {
-            return ValidationResult.failure("Der Name ist zu lang! Maximum: " + MAX_NAME_LENGTH + " Zeichen");
+        if (trimmed.length() < 2) {
+            return Result.failure("§cNPC-Name muss mindestens 2 Zeichen lang sein!");
         }
-
-        // Verhindere gefährliche Zeichen
-        if (trimmed.contains("§")) {
-            return ValidationResult.failure("Der Name darf keine Formatierungscodes (§) enthalten!");
+        if (!trimmed.matches(ALLOWED_NAME_CHARS)) {
+            return Result.failure("§cNPC-Name enthält ungültige Zeichen!");
         }
-
-        // Verhindere Control Characters
-        for (char c : trimmed.toCharArray()) {
-            if (Character.isISOControl(c)) {
-                return ValidationResult.failure("Der Name enthält ungültige Steuerzeichen!");
-            }
+        if (containsDangerousPatterns(trimmed)) {
+            return Result.failure("§cNPC-Name enthält nicht erlaubte Zeichenfolgen!");
         }
-
-        return ValidationResult.success();
+        return Result.success(trimmed);
     }
 
-    /**
-     * Validiert einen Betrag (Geld, Items, etc.)
-     * @param amount Der zu validierende Betrag
-     * @return ValidationResult mit Erfolg/Fehler
-     */
-    public static ValidationResult validateAmount(double amount) {
-        if (amount <= 0) {
-            return ValidationResult.failure("Der Betrag muss positiv sein!");
+    public static Result validatePlotName(@Nullable String name) {
+        if (name == null || name.isEmpty()) {
+            return Result.failure("§cPlot-Name darf nicht leer sein!");
         }
-        if (amount > MAX_AMOUNT) {
-            return ValidationResult.failure("Der Betrag ist zu hoch! Maximum: " + MAX_AMOUNT);
+        String trimmed = name.trim();
+        if (trimmed.length() > MAX_PLOT_NAME_LENGTH) {
+            return Result.failure("§cPlot-Name darf maximal " + MAX_PLOT_NAME_LENGTH + " Zeichen lang sein!");
         }
+        if (!trimmed.matches(ALLOWED_NAME_CHARS)) {
+            return Result.failure("§cPlot-Name enthält ungültige Zeichen!");
+        }
+        return Result.success(trimmed);
+    }
+
+    public static Result validateSkinFileName(@Nullable String filename) {
+        if (filename == null || filename.isEmpty()) {
+            return Result.success("");
+        }
+        String trimmed = filename.trim();
+        if (trimmed.length() > MAX_SKIN_FILE_LENGTH) {
+            return Result.failure("§cSkin-Dateiname zu lang!");
+        }
+        if (!trimmed.matches(ALLOWED_FILENAME_CHARS)) {
+            return Result.failure("§cSkin-Dateiname enthält ungültige Zeichen!");
+        }
+        if (trimmed.contains("..")) {
+            return Result.failure("§cSkin-Dateiname enthält nicht erlaubte Pfadzeichen!");
+        }
+        return Result.success(trimmed);
+    }
+
+    public static Result validatePacketString(@Nullable String value, String fieldName) {
+        if (value == null) return Result.success("");
+        if (value.length() > MAX_PACKET_STRING_LENGTH) {
+            return Result.failure("§c" + fieldName + " ist zu lang!");
+        }
+        return Result.success(value);
+    }
+
+    public static Result validateAmount(double amount) {
         if (Double.isNaN(amount) || Double.isInfinite(amount)) {
-            return ValidationResult.failure("Ungültiger Betrags-Wert!");
+            return Result.failure("§cUngültiger Betrag!");
         }
-        return ValidationResult.success();
+        if (amount < 0) {
+            return Result.failure("§cBetrag darf nicht negativ sein!");
+        }
+        if (amount > 1_000_000_000_000.0) {
+            return Result.failure("§cBetrag zu groß!");
+        }
+        return Result.success();
     }
 
-    /**
-     * Validiert einen Integer-Betrag
-     * @param amount Der zu validierende Betrag
-     * @return ValidationResult mit Erfolg/Fehler
-     */
-    public static ValidationResult validateAmount(int amount) {
-        if (amount <= 0) {
-            return ValidationResult.failure("Der Betrag muss positiv sein!");
+    public static Result validateBlockPos(@Nullable BlockPos pos) {
+        if (pos == null) {
+            return Result.failure("§cPosition darf nicht null sein!");
         }
-        if (amount > MAX_AMOUNT) {
-            return ValidationResult.failure("Der Betrag ist zu hoch! Maximum: " + MAX_AMOUNT);
+        if (Math.abs(pos.getX()) > MAX_COORDINATE || Math.abs(pos.getZ()) > MAX_COORDINATE) {
+            return Result.failure("§cKoordinaten außerhalb der Weltgrenzen!");
         }
-        return ValidationResult.success();
+        if (pos.getY() < MIN_Y || pos.getY() > MAX_Y) {
+            return Result.failure("§cY-Koordinate außerhalb der Weltgrenzen!");
+        }
+        return Result.success();
     }
 
-    /**
-     * Validiert einen Prozentsatz (0-100)
-     * @param percentage Der zu validierende Prozentsatz
-     * @return ValidationResult mit Erfolg/Fehler
-     */
-    public static ValidationResult validatePercentage(double percentage) {
-        if (percentage < 0 || percentage > 100) {
-            return ValidationResult.failure("Prozentsatz muss zwischen 0 und 100 liegen!");
+    public static Result validatePlotRegion(@Nullable BlockPos pos1, @Nullable BlockPos pos2) {
+        Result r1 = validateBlockPos(pos1);
+        if (!r1.isValid()) return r1;
+        Result r2 = validateBlockPos(pos2);
+        if (!r2.isValid()) return r2;
+        
+        int dx = Math.abs(pos1.getX() - pos2.getX());
+        int dz = Math.abs(pos1.getZ() - pos2.getZ());
+        if (dx > 10000 || dz > 10000) {
+            return Result.failure("§cPlot-Region zu groß! Max 10.000 x 10.000 Blöcke.");
         }
-        return ValidationResult.success();
+        return Result.success();
     }
 
-    /**
-     * Validiert eine Zeitangabe in Ticks
-     * @param ticks Die zu validierende Tick-Anzahl
-     * @return ValidationResult mit Erfolg/Fehler
-     */
-    public static ValidationResult validateTicks(int ticks) {
-        if (ticks < 0) {
-            return ValidationResult.failure("Zeitangabe darf nicht negativ sein!");
+    private static boolean containsDangerousPatterns(String input) {
+        String lower = input.toLowerCase();
+        if (lower.contains("'--") || lower.contains("'; drop") || lower.contains("1=1")) return true;
+        if (lower.contains("<script") || lower.contains("javascript:")) return true;
+        if (lower.contains("/op ") || lower.contains("/gamemode") || lower.contains("/execute")) return true;
+        for (char c : input.toCharArray()) {
+            if (c < 32 && c != '\n' && c != '\r' && c != '\t') return true;
         }
-        if (ticks > 72000) { // Max 1 Stunde (72000 ticks = 1 hour)
-            return ValidationResult.failure("Zeitangabe zu groß! Maximum: 72000 Ticks (1 Stunde)");
-        }
-        return ValidationResult.success();
+        return false;
     }
 
-    /**
-     * Validiert eine Koordinate
-     * @param coord Die zu validierende Koordinate
-     * @return ValidationResult mit Erfolg/Fehler
-     */
-    public static ValidationResult validateCoordinate(int coord) {
-        if (Math.abs(coord) > 30_000_000) { // Minecraft Welt-Grenze
-            return ValidationResult.failure("Koordinate außerhalb der Weltgrenzen! (±30,000,000)");
-        }
-        return ValidationResult.success();
+    public static String sanitize(String input) {
+        if (input == null) return "";
+        return input.replaceAll("§[klmnor]", "")
+                   .replaceAll("[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F]", "")
+                   .trim();
     }
 
-    /**
-     * Ergebnis einer Validierung
-     */
-    public static class ValidationResult {
-        private final boolean success;
-        private final String errorMessage;
-
-        private ValidationResult(boolean success, String errorMessage) {
-            this.success = success;
-            this.errorMessage = errorMessage;
-        }
-
-        public static ValidationResult success() {
-            return new ValidationResult(true, null);
-        }
-
-        public static ValidationResult failure(String errorMessage) {
-            return new ValidationResult(false, errorMessage);
-        }
-
-        public boolean isSuccess() {
-            return success;
-        }
-
-        public boolean isFailure() {
-            return !success;
-        }
-
-        public String getErrorMessage() {
-            return errorMessage;
-        }
+    private InputValidation() {
+        throw new UnsupportedOperationException("Utility class");
     }
 }

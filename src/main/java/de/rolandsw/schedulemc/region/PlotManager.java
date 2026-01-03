@@ -7,6 +7,7 @@ import de.rolandsw.schedulemc.economy.ShopAccountManager;
 import de.rolandsw.schedulemc.util.GsonHelper;
 import de.rolandsw.schedulemc.util.BackupManager;
 import de.rolandsw.schedulemc.util.IncrementalSaveManager;
+import de.rolandsw.schedulemc.util.InputValidation;
 import net.minecraft.core.BlockPos;
 import org.slf4j.Logger;
 
@@ -77,6 +78,24 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
      * @return Der erstellte Plot
      */
     public static PlotRegion createPlot(BlockPos pos1, BlockPos pos2, String customName, PlotType type, double price) {
+        // SICHERHEIT: Validiere Eingaben
+        InputValidation.Result regionResult = InputValidation.validatePlotRegion(pos1, pos2);
+        if (!regionResult.isValid()) {
+            throw new IllegalArgumentException(regionResult.getError());
+        }
+
+        if (customName != null && !customName.isEmpty()) {
+            InputValidation.Result nameResult = InputValidation.validatePlotName(customName);
+            if (!nameResult.isValid()) {
+                throw new IllegalArgumentException(nameResult.getError());
+            }
+        }
+
+        InputValidation.Result priceResult = InputValidation.validateAmount(price);
+        if (!priceResult.isValid()) {
+            throw new IllegalArgumentException(priceResult.getError());
+        }
+
         // Finde min/max Koordinaten
         BlockPos min = new BlockPos(
             Math.min(pos1.getX(), pos2.getX()),
