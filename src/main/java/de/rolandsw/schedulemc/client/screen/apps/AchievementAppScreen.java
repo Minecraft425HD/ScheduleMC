@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.client.screen.apps;
 
+import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.achievement.*;
 import de.rolandsw.schedulemc.achievement.client.ClientAchievementCache;
 import de.rolandsw.schedulemc.achievement.network.AchievementData;
@@ -12,6 +13,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.slf4j.Logger;
 
 import java.util.*;
 
@@ -27,6 +29,7 @@ import java.util.*;
  */
 @OnlyIn(Dist.CLIENT)
 public class AchievementAppScreen extends Screen {
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     private final Screen parentScreen;
     private static final int WIDTH = 240;
@@ -71,11 +74,40 @@ public class AchievementAppScreen extends Screen {
         int maxTop = this.height - HEIGHT - BORDER_SIZE - MARGIN_BOTTOM;
         this.topPos = Math.max(minTop, Math.min(centeredTop, maxTop));
 
+        // Register listener for cache updates
+        ClientAchievementCache.setUpdateListener(this::onCacheUpdated);
+
         // Cache data
         refreshData();
 
         // Buttons basierend auf aktuellem View
         initButtons();
+    }
+
+    @Override
+    public void removed() {
+        super.removed();
+        // Clean up listener when screen is closed
+        ClientAchievementCache.removeUpdateListener();
+    }
+
+    /**
+     * Called when achievement cache is updated from server
+     */
+    private void onCacheUpdated() {
+        LOGGER.info("AchievementAppScreen: Cache updated! Refreshing display (total: {}, unlocked: {})",
+            ClientAchievementCache.getTotalAchievements(), ClientAchievementCache.getUnlockedCount());
+
+        // Refresh displayed data
+        totalAchievements = ClientAchievementCache.getTotalAchievements();
+        unlockedAchievements = ClientAchievementCache.getUnlockedCount();
+        totalEarned = ClientAchievementCache.getTotalEarned();
+
+        if (selectedCategory != null) {
+            loadCategoryAchievements();
+            LOGGER.info("AchievementAppScreen: Loaded {} achievements for category {}",
+                currentAchievements.size(), selectedCategory.name());
+        }
     }
 
     private void initButtons() {
@@ -140,11 +172,13 @@ public class AchievementAppScreen extends Screen {
     }
 
     private void refreshData() {
+        LOGGER.info("AchievementAppScreen: Requesting achievement data from server");
         // Request fresh data from server
         AchievementNetworkHandler.sendToServer(new RequestAchievementDataPacket());
 
         // Load from client cache (will be updated when server responds)
         if (ClientAchievementCache.isInitialized()) {
+            LOGGER.info("AchievementAppScreen: Cache already initialized, loading data");
             totalAchievements = ClientAchievementCache.getTotalAchievements();
             unlockedAchievements = ClientAchievementCache.getUnlockedCount();
             totalEarned = ClientAchievementCache.getTotalEarned();
@@ -152,6 +186,8 @@ public class AchievementAppScreen extends Screen {
             if (selectedCategory != null) {
                 loadCategoryAchievements();
             }
+        } else {
+            LOGGER.info("AchievementAppScreen: Cache not yet initialized, waiting for server response");
         }
     }
 

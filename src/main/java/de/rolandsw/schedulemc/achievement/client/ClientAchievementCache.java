@@ -1,9 +1,11 @@
 package de.rolandsw.schedulemc.achievement.client;
 
+import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.achievement.AchievementCategory;
 import de.rolandsw.schedulemc.achievement.network.AchievementData;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.slf4j.Logger;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -16,6 +18,7 @@ import java.util.stream.Collectors;
  */
 @OnlyIn(Dist.CLIENT)
 public class ClientAchievementCache {
+    private static final Logger LOGGER = LogUtils.getLogger();
     private static final List<AchievementData> achievements = new ArrayList<>();
     private static final Map<String, AchievementData> achievementMap = new HashMap<>();
     private static final Map<AchievementCategory, List<AchievementData>> categoryMap = new HashMap<>();
@@ -25,10 +28,16 @@ public class ClientAchievementCache {
     private static double totalEarned = 0.0;
     private static boolean initialized = false;
 
+    // Listener für Cache-Updates
+    private static Runnable updateListener = null;
+
     /**
      * Aktualisiert den Cache mit neuen Daten vom Server
      */
     public static void updateCache(List<AchievementData> newAchievements, int total, int unlocked, double earned) {
+        LOGGER.info("ClientAchievementCache: Updating cache with {} achievements (unlocked: {}, earned: {}€)",
+            total, unlocked, earned);
+
         achievements.clear();
         achievementMap.clear();
         categoryMap.clear();
@@ -47,6 +56,14 @@ public class ClientAchievementCache {
         }
 
         initialized = true;
+
+        LOGGER.info("ClientAchievementCache: Cache initialized. Categories: {}", categoryMap.keySet());
+
+        // Notify listener (Achievement App) that data has been updated
+        if (updateListener != null) {
+            LOGGER.info("ClientAchievementCache: Notifying update listener");
+            updateListener.run();
+        }
     }
 
     /**
@@ -133,5 +150,19 @@ public class ClientAchievementCache {
     public static boolean isUnlocked(String achievementId) {
         AchievementData data = achievementMap.get(achievementId);
         return data != null && data.isUnlocked();
+    }
+
+    /**
+     * Registriert einen Listener, der benachrichtigt wird, wenn der Cache aktualisiert wird
+     */
+    public static void setUpdateListener(Runnable listener) {
+        updateListener = listener;
+    }
+
+    /**
+     * Entfernt den Update-Listener
+     */
+    public static void removeUpdateListener() {
+        updateListener = null;
     }
 }
