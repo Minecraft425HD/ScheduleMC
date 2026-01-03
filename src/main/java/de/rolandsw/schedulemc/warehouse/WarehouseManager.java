@@ -101,7 +101,8 @@ public class WarehouseManager {
 
                 long currentDay = level.getDayTime() / 24000L;
 
-                for (BlockPos pos : new ArrayList<>(entry.getValue())) {
+                // OPTIMIERUNG: Direkte Iteration ohne Kopie, ConcurrentHashMap.newKeySet() ist iterationssicher
+                for (BlockPos pos : entry.getValue()) {
                     checkWarehouseDelivery(level, pos, currentDay);
                 }
             }

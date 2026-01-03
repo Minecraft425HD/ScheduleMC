@@ -253,13 +253,18 @@ public class BountyManager extends AbstractPersistenceManager<Map<UUID, BountyDa
 
     /**
      * Gibt Statistiken zurück
+     * OPTIMIERUNG: Single-pass statt doppelter Stream-Operation
      */
     public String getStatistics() {
-        int active = (int) activeBounties.values().stream().filter(BountyData::isActive).count();
-        double totalAmount = activeBounties.values().stream()
-            .filter(BountyData::isActive)
-            .mapToDouble(BountyData::getAmount)
-            .sum();
+        int active = 0;
+        double totalAmount = 0.0;
+
+        for (BountyData bounty : activeBounties.values()) {
+            if (bounty.isActive()) {
+                active++;
+                totalAmount += bounty.getAmount();
+            }
+        }
 
         return String.format("Active Bounties: %d, Total: %.2f€", active, totalAmount);
     }

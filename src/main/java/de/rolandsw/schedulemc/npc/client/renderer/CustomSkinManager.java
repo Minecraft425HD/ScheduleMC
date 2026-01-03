@@ -9,16 +9,33 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.io.InputStream;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
  * Verwaltet das dynamische Laden von benutzerdefinierten NPC-Skins
+ * OPTIMIERUNG: LRU-Cache mit max. Größe verhindert Memory Leaks
  */
 @OnlyIn(Dist.CLIENT)
 public class CustomSkinManager {
 
-    private static final Map<String, ResourceLocation> loadedSkins = new HashMap<>();
+    // OPTIMIERUNG: LRU-Cache mit automatischer Eviction bei max. Größe
+    private static final int MAX_CACHED_SKINS = 64;
+    private static final Map<String, ResourceLocation> loadedSkins = new LinkedHashMap<String, ResourceLocation>(
+            MAX_CACHED_SKINS, 0.75f, true) {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<String, ResourceLocation> eldest) {
+            if (size() > MAX_CACHED_SKINS) {
+                // Entlade ältesten Skin vor Eviction
+                try {
+                    Minecraft.getInstance().getTextureManager().release(eldest.getValue());
+                    ScheduleMC.LOGGER.debug("LRU evicted skin: {}", eldest.getKey());
+                } catch (Exception ignored) {}
+                return true;
+            }
+            return false;
+        }
+    };
     private static final ResourceLocation DEFAULT_SKIN =
         new ResourceLocation(ScheduleMC.MOD_ID, "textures/entity/npc/default.png");
 

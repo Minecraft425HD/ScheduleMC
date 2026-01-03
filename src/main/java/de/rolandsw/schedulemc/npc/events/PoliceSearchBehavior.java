@@ -14,12 +14,13 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Polizei-Such- und Versteck-System
+ * SICHERHEIT: Thread-safe Collections für parallele Event-Handler Zugriffe
  *
  * Features:
  * - Indoor-Versteck-Erkennung (Spieler kann sich in Gebäuden verstecken)
@@ -30,20 +31,21 @@ public class PoliceSearchBehavior {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
+    // SICHERHEIT: ConcurrentHashMap für Thread-Safety (EventBus + ServerTick)
     // UUID -> Last Known Position
-    private static final Map<UUID, BlockPos> lastKnownPositions = new HashMap<>();
+    private static final Map<UUID, BlockPos> lastKnownPositions = new ConcurrentHashMap<>();
 
     // UUID -> Movement Direction (Vec3 als String gespeichert: "x,y,z")
-    private static final Map<UUID, String> movementDirections = new HashMap<>();
+    private static final Map<UUID, String> movementDirections = new ConcurrentHashMap<>();
 
     // UUID -> Search Start Time (in Ticks)
-    private static final Map<UUID, Long> searchTimers = new HashMap<>();
+    private static final Map<UUID, Long> searchTimers = new ConcurrentHashMap<>();
 
     // NPC UUID -> Target Player UUID
-    private static final Map<UUID, UUID> activeSearches = new HashMap<>();
+    private static final Map<UUID, UUID> activeSearches = new ConcurrentHashMap<>();
 
     // NPC UUID -> Last Search Target Update Time
-    private static final Map<UUID, Long> lastTargetUpdate = new HashMap<>();
+    private static final Map<UUID, Long> lastTargetUpdate = new ConcurrentHashMap<>();
 
     /**
      * Prüft, ob ein Spieler sich erfolgreich vor der Polizei versteckt
@@ -289,13 +291,14 @@ public class PoliceSearchBehavior {
 
     /**
      * Prüft, ob die Suchzeit abgelaufen ist
+     * SICHERHEIT: Single get() statt containsKey/get für TOCTOU-Vermeidung
      */
     public static boolean isSearchExpired(UUID playerUUID, long currentTick) {
-        if (!searchTimers.containsKey(playerUUID)) {
+        Long startTick = searchTimers.get(playerUUID);
+        if (startTick == null) {
             return true;
         }
 
-        long startTick = searchTimers.get(playerUUID);
         long elapsed = currentTick - startTick;
         long maxDuration = ModConfigHandler.COMMON.POLICE_SEARCH_DURATION_SECONDS.get() * 20L;
 
@@ -312,6 +315,7 @@ public class PoliceSearchBehavior {
     /**
      * Bewegt Polizei zur letzten bekannten Position des Spielers
      * Setzt nur alle 10 Sekunden ein neues Ziel, damit die Polizei aktiv patrouilliert
+     * SICHERHEIT: Single get() statt containsKey/get für TOCTOU-Vermeidung
      */
     public static void searchArea(CustomNPCEntity police, UUID playerUUID, long currentTick) {
         BlockPos lastPos = getLastKnownPosition(playerUUID);
@@ -322,16 +326,18 @@ public class PoliceSearchBehavior {
 
         UUID policeUUID = police.getUUID();
 
+        // SICHERHEIT: Single get() für atomaren Zugriff
+        Long lastUpdate = lastTargetUpdate.get(policeUUID);
+
         // Prüfe ob wir ein neues Ziel setzen müssen
         boolean needsNewTarget = false;
 
-        if (!lastTargetUpdate.containsKey(policeUUID)) {
+        if (lastUpdate == null) {
             needsNewTarget = true; // Erstes Mal
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("[POLICE] {} setzt erstes Suchziel", police.getNpcName());
             }
         } else {
-            long lastUpdate = lastTargetUpdate.get(policeUUID);
             long timeSinceUpdate = currentTick - lastUpdate;
             long updateInterval = ModConfigHandler.COMMON.POLICE_SEARCH_TARGET_UPDATE_SECONDS.get() * 20L;
 
@@ -354,10 +360,10 @@ public class PoliceSearchBehavior {
 
             BlockPos searchTarget;
 
-            // Prüfe ob wir eine Bewegungsrichtung haben
-            if (movementDirections.containsKey(playerUUID)) {
+            // SICHERHEIT: Single get() für atomaren Zugriff
+            String dirStr = movementDirections.get(playerUUID);
+            if (dirStr != null) {
                 // Suche in Bewegungsrichtung des Spielers
-                String dirStr = movementDirections.get(playerUUID);
                 String[] parts = dirStr.split(",");
                 double dirX = Double.parseDouble(parts[0]);
                 double dirZ = Double.parseDouble(parts[2]);
