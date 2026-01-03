@@ -98,12 +98,8 @@ public class PurchaseItemPacket {
             return;
         }
 
-        // Prüfe ob Spieler genug Geld hat
-        double playerBalance = EconomyManager.getBalance(player.getUUID());
-        if (playerBalance < totalPrice) {
-            player.sendSystemMessage(Component.literal("§cNicht genug Geld! Du brauchst " + totalPrice + "$"));
-            return;
-        }
+        // HINWEIS: Balance-Prüfung erfolgt atomar in EconomyManager.withdraw()
+        // Separate Prüfung hier entfernt wegen TOCTOU Race Condition
 
         // Spezialbehandlung für Tankrechnungen (Tankstelle)
         if (merchant.getMerchantCategory() == MerchantCategory.TANKSTELLE &&
@@ -154,7 +150,7 @@ public class PurchaseItemPacket {
             return;
         }
 
-        // Transaktion durchführen
+        // Transaktion durchführen - EconomyManager.withdraw() ist atomar und prüft Balance
         if (EconomyManager.withdraw(player.getUUID(), totalPrice)) {
             player.getInventory().add(itemToGive);
 
@@ -164,7 +160,9 @@ public class PurchaseItemPacket {
             player.sendSystemMessage(Component.literal("§aGekauft: " + quantity + "x " +
                 entry.getItem().getHoverName().getString() + " für " + totalPrice + "$"));
         } else {
-            player.sendSystemMessage(Component.literal("§cFehler beim Abbuchung! Kauf abgebrochen."));
+            // Atomare Prüfung fehlgeschlagen - nicht genug Geld
+            player.sendSystemMessage(Component.literal("§cNicht genug Geld! Du brauchst " + totalPrice + "$ (aktuell: " +
+                String.format("%.2f", EconomyManager.getBalance(player.getUUID())) + "$)"));
         }
     }
 

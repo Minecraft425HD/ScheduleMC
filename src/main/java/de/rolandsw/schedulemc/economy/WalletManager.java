@@ -11,11 +11,13 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Verwaltet Geldbörsen-Guthaben per UUID
  * Überlebt Serverneustarts und Spielertod!
  *
+ * SICHERHEIT: Verwendet ConcurrentHashMap für Thread-Sicherheit
  * Nutzt AbstractPersistenceManager für robuste Datenpersistenz
  */
 public class WalletManager {
@@ -23,8 +25,9 @@ public class WalletManager {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final File WALLET_FILE = new File("config/plotmod_wallets.json");
 
+    // SICHERHEIT: ConcurrentHashMap statt HashMap für Thread-Sicherheit
     // UUID -> Geldbörsen-Guthaben
-    private static Map<UUID, Double> wallets = new HashMap<>();
+    private static final Map<UUID, Double> wallets = new ConcurrentHashMap<>();
 
     // Persistence-Manager (eliminiert ~150 Zeilen Duplikation)
     private static final WalletPersistenceManager persistence =
@@ -68,22 +71,34 @@ public class WalletManager {
 
     /**
      * Fügt Geld hinzu
+     * SICHERHEIT: Atomare Operation für Thread-Sicherheit
      */
     public static void addMoney(UUID playerUUID, double amount) {
-        double current = getBalance(playerUUID);
-        setBalance(playerUUID, current + amount);
+        wallets.compute(playerUUID, (key, current) -> {
+            if (current == null) current = 0.0;
+            return current + amount;
+        });
+        persistence.markDirty();
     }
 
     /**
      * Entfernt Geld (wenn genug vorhanden)
+     * SICHERHEIT: Atomare Operation für Thread-Sicherheit
      */
     public static boolean removeMoney(UUID playerUUID, double amount) {
-        double current = getBalance(playerUUID);
-        if (current >= amount) {
-            setBalance(playerUUID, current - amount);
-            return true;
+        final boolean[] success = {false};
+        wallets.compute(playerUUID, (key, current) -> {
+            if (current == null) current = 0.0;
+            if (current >= amount) {
+                success[0] = true;
+                return current - amount;
+            }
+            return current; // Keine Änderung
+        });
+        if (success[0]) {
+            persistence.markDirty();
         }
-        return false;
+        return success[0];
     }
 
     /**
@@ -125,10 +140,9 @@ public class WalletManager {
 
         @Override
         protected void onDataLoaded(Map<String, Double> data) {
+            // SICHERHEIT: Thread-safe clear und fill
             wallets.clear();
-            for (Map.Entry<String, Double> entry : data.entrySet()) {
-                wallets.put(UUID.fromString(entry.getKey()), entry.getValue());
-            }
+            data.forEach((key, value) -> wallets.put(UUID.fromString(key), value));
         }
 
         @Override

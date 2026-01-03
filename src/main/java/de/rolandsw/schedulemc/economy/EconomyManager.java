@@ -234,6 +234,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
 
     /**
      * Zahlt Geld auf ein Konto ein mit Transaktions-Logging
+     * SICHERHEIT: Atomare Operation für Thread-Sicherheit
      */
     public static void deposit(UUID uuid, double amount, TransactionType type, @Nullable String description) {
         if (amount < 0) {
@@ -241,14 +242,19 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
             return;
         }
 
-        double currentBalance = balances.getOrDefault(uuid, 0.0);
-        double newBalance = currentBalance + amount;
-        balances.put(uuid, newBalance);
+        // SICHERHEIT: Atomare Operation mit compute()
+        final double[] newBalance = {0.0};
+        balances.compute(uuid, (key, currentBalance) -> {
+            if (currentBalance == null) currentBalance = 0.0;
+            newBalance[0] = currentBalance + amount;
+            return newBalance[0];
+        });
+
         markDirty();
         LOGGER.debug("Einzahlung: {} € für {} ({})", amount, uuid, type);
 
         // Transaction History
-        logTransaction(uuid, type, null, uuid, amount, description, newBalance);
+        logTransaction(uuid, type, null, uuid, amount, description, newBalance[0]);
     }
 
     /**
@@ -261,6 +267,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
 
     /**
      * Hebt Geld von einem Konto ab mit Transaktions-Logging
+     * SICHERHEIT: Atomare Operation verhindert Race Conditions bei gleichzeitigen Transaktionen
      * @return true wenn erfolgreich, false wenn nicht genug Guthaben (oder Dispo-Limit erreicht)
      */
     public static boolean withdraw(UUID uuid, double amount, TransactionType type, @Nullable String description) {
@@ -269,17 +276,30 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
             return false;
         }
 
-        double currentBalance = balances.getOrDefault(uuid, 0.0);
-        double newBalance = currentBalance - amount;
+        // SICHERHEIT: Atomare read-modify-write Operation mit compute()
+        final double[] resultBalance = {0.0};
+        final boolean[] success = {false};
 
-        // Prüfe ob genug Guthaben ODER Dispo-Limit nicht überschritten
-        if (currentBalance >= amount || de.rolandsw.schedulemc.economy.OverdraftManager.canOverdraft(newBalance)) {
-            balances.put(uuid, newBalance);
+        balances.compute(uuid, (key, currentBalance) -> {
+            if (currentBalance == null) currentBalance = 0.0;
+            double newBalance = currentBalance - amount;
+
+            // Prüfe ob genug Guthaben ODER Dispo-Limit nicht überschritten
+            if (currentBalance >= amount || de.rolandsw.schedulemc.economy.OverdraftManager.canOverdraft(newBalance)) {
+                resultBalance[0] = newBalance;
+                success[0] = true;
+                return newBalance;
+            }
+            resultBalance[0] = currentBalance;
+            return currentBalance; // Keine Änderung
+        });
+
+        if (success[0]) {
             markDirty();
-            LOGGER.debug("Abbuchung: {} € von {} ({}) - Neuer Stand: {}", amount, uuid, type, newBalance);
+            LOGGER.debug("Abbuchung: {} € von {} ({}) - Neuer Stand: {}", amount, uuid, type, resultBalance[0]);
 
             // Transaction History
-            logTransaction(uuid, type, uuid, null, -amount, description, newBalance);
+            logTransaction(uuid, type, uuid, null, -amount, description, resultBalance[0]);
             return true;
         }
         return false;
