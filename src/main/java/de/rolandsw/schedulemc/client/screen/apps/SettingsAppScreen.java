@@ -67,6 +67,7 @@ public class SettingsAppScreen extends Screen {
 
     // Clickable regions for interactive elements
     private final List<ClickableRegion> clickableRegions = new ArrayList<>();
+    private final List<SliderRegion> sliderRegions = new ArrayList<>();
 
     private static class ClickableRegion {
         int x1, y1, x2, y2;
@@ -82,6 +83,31 @@ public class SettingsAppScreen extends Screen {
 
         boolean contains(int mouseX, int mouseY) {
             return mouseX >= x1 && mouseX <= x2 && mouseY >= y1 && mouseY <= y2;
+        }
+    }
+
+    private static class SliderRegion {
+        int x, y, width;
+        double minValue, maxValue;
+        java.util.function.Consumer<Double> onValueChange;
+
+        SliderRegion(int x, int y, int width, double minValue, double maxValue,
+                    java.util.function.Consumer<Double> onValueChange) {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.minValue = minValue;
+            this.maxValue = maxValue;
+            this.onValueChange = onValueChange;
+        }
+
+        boolean contains(int mouseX, int mouseY) {
+            return mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + 6;
+        }
+
+        double getValue(int mouseX) {
+            double percent = Math.max(0, Math.min(1, (mouseX - x) / (double) width));
+            return minValue + (maxValue - minValue) * percent;
         }
     }
 
@@ -490,6 +516,7 @@ public class SettingsAppScreen extends Screen {
     // ═══════════════════════════════════════════════════════════════════════════
 
     private void renderNotificationsTab(GuiGraphics guiGraphics, int startY, int endY, int mouseX, int mouseY) {
+        sliderRegions.clear(); // Clear slider regions before re-rendering
         int y = startY - scrollOffset;
         int contentHeight = 0;
 
@@ -548,11 +575,18 @@ public class SettingsAppScreen extends Screen {
             guiGraphics.drawString(this.font, "§e⚡ Strom-Warnung ab:", leftPos + 15, y + 4, 0xFFAA00);
             guiGraphics.drawString(this.font, "§f" + String.format("%.0f kWh", electricityWarningThreshold), leftPos + 130, y + 4, 0xFFFFFF);
 
-            // Mini-Balken
+            // Mini-Balken (Interaktiv!)
             int barWidth = WIDTH - 40;
             int filledWidth = (int) ((electricityWarningThreshold / 500.0) * barWidth);
-            guiGraphics.fill(leftPos + 15, y + 18, leftPos + 15 + barWidth, y + 24, 0x44666666);
-            guiGraphics.fill(leftPos + 15, y + 18, leftPos + 15 + filledWidth, y + 24, 0xAAFFAA00);
+            int barX = leftPos + 15;
+            int barY = y + 18;
+
+            guiGraphics.fill(barX, barY, barX + barWidth, barY + 6, 0x44666666);
+            guiGraphics.fill(barX, barY, barX + filledWidth, barY + 6, 0xAAFFAA00);
+
+            // Registriere Slider (0-500 kWh)
+            sliderRegions.add(new SliderRegion(barX, barY, barWidth, 0, 500,
+                value -> electricityWarningThreshold = value));
         }
         y += 35;
         contentHeight += 35;
@@ -563,11 +597,18 @@ public class SettingsAppScreen extends Screen {
             guiGraphics.drawString(this.font, "§b💧 Wasser-Warnung ab:", leftPos + 15, y + 4, 0x55AAFF);
             guiGraphics.drawString(this.font, "§f" + String.format("%.0f L", waterWarningThreshold), leftPos + 135, y + 4, 0xFFFFFF);
 
-            // Mini-Balken
+            // Mini-Balken (Interaktiv!)
             int barWidth = WIDTH - 40;
             int filledWidth = (int) ((waterWarningThreshold / 2000.0) * barWidth);
-            guiGraphics.fill(leftPos + 15, y + 18, leftPos + 15 + barWidth, y + 24, 0x44666666);
-            guiGraphics.fill(leftPos + 15, y + 18, leftPos + 15 + filledWidth, y + 24, 0xAA55AAFF);
+            int barX = leftPos + 15;
+            int barY = y + 18;
+
+            guiGraphics.fill(barX, barY, barX + barWidth, barY + 6, 0x44666666);
+            guiGraphics.fill(barX, barY, barX + filledWidth, barY + 6, 0xAA55AAFF);
+
+            // Registriere Slider (0-2000 L)
+            sliderRegions.add(new SliderRegion(barX, barY, barWidth, 0, 2000,
+                value -> waterWarningThreshold = value));
         }
         y += 38;
         contentHeight += 38;
@@ -772,6 +813,16 @@ public class SettingsAppScreen extends Screen {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button == 0) { // Left click
+            // Check sliders first
+            for (SliderRegion slider : sliderRegions) {
+                if (slider.contains((int) mouseX, (int) mouseY)) {
+                    double newValue = slider.getValue((int) mouseX);
+                    slider.onValueChange.accept(newValue);
+                    return true;
+                }
+            }
+
+            // Then check regular clickable regions
             for (ClickableRegion region : clickableRegions) {
                 if (region.contains((int) mouseX, (int) mouseY)) {
                     region.onClick.run();
