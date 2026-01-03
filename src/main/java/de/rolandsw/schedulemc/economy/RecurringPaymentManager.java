@@ -20,7 +20,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * Refactored mit AbstractPersistenceManager
  */
 public class RecurringPaymentManager extends AbstractPersistenceManager<Map<UUID, List<RecurringPayment>>> {
-    private static RecurringPaymentManager instance;
+    // SICHERHEIT: volatile für Double-Checked Locking Pattern
+    private static volatile RecurringPaymentManager instance;
 
     private final Map<UUID, List<RecurringPayment>> payments = new ConcurrentHashMap<>();
     private MinecraftServer server;
@@ -36,12 +37,21 @@ public class RecurringPaymentManager extends AbstractPersistenceManager<Map<UUID
         load();
     }
 
+    /**
+     * SICHERHEIT: Double-Checked Locking für Thread-Safety
+     */
     public static RecurringPaymentManager getInstance(MinecraftServer server) {
-        if (instance == null) {
-            instance = new RecurringPaymentManager(server);
+        RecurringPaymentManager localRef = instance;
+        if (localRef == null) {
+            synchronized (RecurringPaymentManager.class) {
+                localRef = instance;
+                if (localRef == null) {
+                    instance = localRef = new RecurringPaymentManager(server);
+                }
+            }
         }
-        instance.server = server;
-        return instance;
+        localRef.server = server;
+        return localRef;
     }
 
     /**

@@ -19,7 +19,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * Refactored mit AbstractPersistenceManager
  */
 public class LoanManager extends AbstractPersistenceManager<Map<UUID, Loan>> {
-    private static LoanManager instance;
+    // SICHERHEIT: volatile für Double-Checked Locking Pattern
+    private static volatile LoanManager instance;
 
     private static final double MIN_BALANCE_FOR_LOAN = 1000.0;
     private static final int MIN_PLAYTIME_DAYS = 7;
@@ -38,12 +39,21 @@ public class LoanManager extends AbstractPersistenceManager<Map<UUID, Loan>> {
         load();
     }
 
+    /**
+     * SICHERHEIT: Double-Checked Locking für Thread-Safety
+     */
     public static LoanManager getInstance(MinecraftServer server) {
-        if (instance == null) {
-            instance = new LoanManager(server);
+        LoanManager localRef = instance;
+        if (localRef == null) {
+            synchronized (LoanManager.class) {
+                localRef = instance;
+                if (localRef == null) {
+                    instance = localRef = new LoanManager(server);
+                }
+            }
         }
-        instance.server = server;
-        return instance;
+        localRef.server = server;
+        return localRef;
     }
 
     /**

@@ -22,7 +22,8 @@ import java.util.stream.Collectors;
  */
 public class TransactionHistory {
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static TransactionHistory instance;
+    // SICHERHEIT: volatile für Double-Checked Locking Pattern
+    private static volatile TransactionHistory instance;
 
     private static final String FILE_NAME = "plotmod_transactions.json";
     private static final int MAX_TRANSACTIONS_PER_PLAYER = 1000; // Verhindert unbegrenztes Wachstum
@@ -38,11 +39,20 @@ public class TransactionHistory {
         load();
     }
 
+    /**
+     * SICHERHEIT: Double-Checked Locking für Thread-Safety
+     */
     public static TransactionHistory getInstance(MinecraftServer server) {
-        if (instance == null) {
-            instance = new TransactionHistory(server);
+        TransactionHistory localRef = instance;
+        if (localRef == null) {
+            synchronized (TransactionHistory.class) {
+                localRef = instance;
+                if (localRef == null) {
+                    instance = localRef = new TransactionHistory(server);
+                }
+            }
         }
-        return instance;
+        return localRef;
     }
 
     @Nullable

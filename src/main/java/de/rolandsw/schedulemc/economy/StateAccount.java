@@ -22,18 +22,27 @@ import java.io.*;
  */
 public class StateAccount {
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static StateAccount instance;
-    private static int balance = 100000; // Start: 100,000€
+    // SICHERHEIT: volatile für Double-Checked Locking Pattern
+    private static volatile StateAccount instance;
+    // SICHERHEIT: volatile für Memory Visibility zwischen Threads
+    private static volatile int balance = 100000; // Start: 100,000€
     private static final File SAVE_FILE = new File("config/state_account.json");
 
     /**
      * Singleton-Instanz für Kompatibilität mit neuen Managern
+     * SICHERHEIT: Double-Checked Locking für Thread-Safety
      */
     public static StateAccount getInstance(MinecraftServer server) {
-        if (instance == null) {
-            instance = new StateAccount();
+        StateAccount localRef = instance;
+        if (localRef == null) {
+            synchronized (StateAccount.class) {
+                localRef = instance;
+                if (localRef == null) {
+                    instance = localRef = new StateAccount();
+                }
+            }
         }
-        return instance;
+        return localRef;
     }
 
     public static int getBalance() {

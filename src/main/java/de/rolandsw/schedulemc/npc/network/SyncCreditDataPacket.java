@@ -47,12 +47,15 @@ public class SyncCreditDataPacket {
         buf.writeInt(remainingDays);
     }
 
+    /**
+     * SICHERHEIT: Max-Länge für Strings gegen DoS/Memory-Angriffe
+     */
     public static SyncCreditDataPacket decode(FriendlyByteBuf buf) {
         return new SyncCreditDataPacket(
             buf.readInt(),
             buf.readInt(),
             buf.readBoolean(),
-            buf.readUtf(),
+            buf.readUtf(64), // Loan type max 64 chars
             buf.readDouble(),
             buf.readDouble(),
             buf.readInt(),

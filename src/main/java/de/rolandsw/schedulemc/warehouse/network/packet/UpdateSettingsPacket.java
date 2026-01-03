@@ -31,9 +31,12 @@ public class UpdateSettingsPacket {
         }
     }
 
+    /**
+     * SICHERHEIT: Max-Länge für Strings gegen DoS/Memory-Angriffe
+     */
     public static UpdateSettingsPacket decode(FriendlyByteBuf buffer) {
         BlockPos pos = buffer.readBlockPos();
-        String shopId = buffer.readBoolean() ? buffer.readUtf() : null;
+        String shopId = buffer.readBoolean() ? buffer.readUtf(64) : null; // Shop ID max 64 chars
         return new UpdateSettingsPacket(pos, shopId);
     }
 

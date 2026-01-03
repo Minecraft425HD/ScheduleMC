@@ -40,8 +40,15 @@ public class CreateRecurringPaymentPacket {
         buf.writeInt(intervalOrdinal);
     }
 
+    /**
+     * SICHERHEIT: Max-Länge für Strings gegen DoS/Memory-Angriffe
+     */
     public static CreateRecurringPaymentPacket decode(FriendlyByteBuf buf) {
-        return new CreateRecurringPaymentPacket(buf.readUtf(), buf.readDouble(), buf.readInt());
+        return new CreateRecurringPaymentPacket(
+            buf.readUtf(16), // MC username max 16 chars
+            buf.readDouble(),
+            buf.readInt()
+        );
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {

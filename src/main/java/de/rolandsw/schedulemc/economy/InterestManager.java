@@ -20,7 +20,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * - Max 10.000€ Zinsen pro Woche (verhindert Inflation)
  */
 public class InterestManager extends AbstractPersistenceManager<Map<UUID, Long>> {
-    private static InterestManager instance;
+    // SICHERHEIT: volatile für Double-Checked Locking Pattern
+    private static volatile InterestManager instance;
 
     private static final double INTEREST_RATE = 0.02; // 2% pro Woche
     private static final double MAX_INTEREST_PER_WEEK = 10000.0;
@@ -56,12 +57,21 @@ public class InterestManager extends AbstractPersistenceManager<Map<UUID, Long>>
         return new HashMap<>(lastInterestPayout);
     }
 
+    /**
+     * SICHERHEIT: Double-Checked Locking für Thread-Safety
+     */
     public static InterestManager getInstance(MinecraftServer server) {
-        if (instance == null) {
-            instance = new InterestManager(server);
+        InterestManager localRef = instance;
+        if (localRef == null) {
+            synchronized (InterestManager.class) {
+                localRef = instance;
+                if (localRef == null) {
+                    instance = localRef = new InterestManager(server);
+                }
+            }
         }
-        instance.server = server;
-        return instance;
+        localRef.server = server;
+        return localRef;
     }
 
     /**

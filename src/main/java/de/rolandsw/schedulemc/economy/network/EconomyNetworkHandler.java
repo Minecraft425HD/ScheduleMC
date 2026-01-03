@@ -6,11 +6,13 @@ import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * Network Handler für Economy-Packets
  */
 public class EconomyNetworkHandler {
-    
+
     private static final String PROTOCOL_VERSION = "1";
     public static final SimpleChannel INSTANCE = NetworkRegistry.newSimpleChannel(
         new ResourceLocation(ScheduleMC.MOD_ID, "economy_network"),
@@ -18,11 +20,12 @@ public class EconomyNetworkHandler {
         PROTOCOL_VERSION::equals,
         PROTOCOL_VERSION::equals
     );
-    
-    private static int packetId = 0;
-    
+
+    // SICHERHEIT: AtomicInteger für Thread-safe Packet-ID Inkrement
+    private static final AtomicInteger packetId = new AtomicInteger(0);
+
     private static int id() {
-        return packetId++;
+        return packetId.getAndIncrement();
     }
     
     /**

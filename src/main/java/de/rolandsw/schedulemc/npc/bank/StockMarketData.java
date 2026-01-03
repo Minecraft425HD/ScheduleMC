@@ -23,7 +23,8 @@ import java.util.Random;
  */
 public class StockMarketData {
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static StockMarketData instance;
+    // SICHERHEIT: volatile für Double-Checked Locking Pattern
+    private static volatile StockMarketData instance;
 
     private final Map<Item, StockPrice> prices = new HashMap<>();
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -39,11 +40,20 @@ public class StockMarketData {
         load();
     }
 
+    /**
+     * SICHERHEIT: Double-Checked Locking für Thread-Safety
+     */
     public static StockMarketData getInstance(MinecraftServer server) {
-        if (instance == null) {
-            instance = new StockMarketData(server);
+        StockMarketData localRef = instance;
+        if (localRef == null) {
+            synchronized (StockMarketData.class) {
+                localRef = instance;
+                if (localRef == null) {
+                    instance = localRef = new StockMarketData(server);
+                }
+            }
         }
-        return instance;
+        return localRef;
     }
 
     /**

@@ -2,8 +2,8 @@ package de.rolandsw.schedulemc.production.nbt;
 
 import de.rolandsw.schedulemc.production.data.PlantPotData;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Factory für PlantSerializer
@@ -13,7 +13,8 @@ import java.util.List;
  */
 public class PlantSerializerFactory {
 
-    private static final List<PlantSerializer> SERIALIZERS = new ArrayList<>();
+    // SICHERHEIT: CopyOnWriteArrayList für Thread-safe Zugriff
+    private static final List<PlantSerializer> SERIALIZERS = new CopyOnWriteArrayList<>();
 
     static {
         SERIALIZERS.add(new TobaccoPlantSerializer());
