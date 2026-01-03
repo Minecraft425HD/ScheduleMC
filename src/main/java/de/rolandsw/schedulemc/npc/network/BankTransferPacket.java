@@ -94,17 +94,8 @@ public class BankTransferPacket {
                 EconomyManager.createAccount(targetUUID);
             }
 
-            // Prüfe ob Sender genug Geld hat
-            double balance = EconomyManager.getBalance(player.getUUID());
-            if (balance < amount) {
-                player.sendSystemMessage(Component.literal("⚠ Nicht genug Guthaben!")
-                    .withStyle(ChatFormatting.RED));
-                player.sendSystemMessage(Component.literal("Verfügbar: ")
-                    .withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(String.format("%.2f€", balance))
-                        .withStyle(ChatFormatting.YELLOW)));
-                return;
-            }
+            // HINWEIS: Balance-Prüfung erfolgt atomar in EconomyManager.transfer()
+            // Separate Prüfung entfernt wegen TOCTOU Race Condition
 
             // Führe Transfer durch
             String description = "Überweisung an " + targetPlayerName;
@@ -162,8 +153,13 @@ public class BankTransferPacket {
                 targetPlayer.sendSystemMessage(Component.literal("═══════════════════════════════")
                     .withStyle(ChatFormatting.GREEN));
             } else {
-                player.sendSystemMessage(Component.literal("⚠ Überweisung fehlgeschlagen!")
+                // Atomare Prüfung fehlgeschlagen - nicht genug Geld
+                player.sendSystemMessage(Component.literal("⚠ Überweisung fehlgeschlagen - nicht genug Guthaben!")
                     .withStyle(ChatFormatting.RED));
+                player.sendSystemMessage(Component.literal("Verfügbar: ")
+                    .withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID())))
+                        .withStyle(ChatFormatting.YELLOW)));
             }
         });
     }
