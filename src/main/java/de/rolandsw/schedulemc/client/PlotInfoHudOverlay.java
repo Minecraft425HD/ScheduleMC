@@ -62,6 +62,12 @@ public class PlotInfoHudOverlay {
         // Berechne benötigte Höhe
         int totalLines = 3; // Titel + Besitzer + Größe
 
+        // +1 wenn Beschreibung vorhanden
+        String description = plot.getDescription();
+        if (description != null && !description.isEmpty()) {
+            totalLines += 1;
+        }
+
         // Verkauf/Miete Status
         if (!plot.hasOwner()) {
             totalLines += 2; // "ZUM VERKAUF" + Preis
@@ -101,6 +107,12 @@ public class PlotInfoHudOverlay {
             (int)(HUD_X / (SCALE * 1.1f)), (int)(currentY / (SCALE * 1.1f)), 0xFFD700);
         gui.pose().popPose();
         currentY += LINE_HEIGHT + 2;
+
+        // === BESCHREIBUNG ===
+        if (description != null && !description.isEmpty()) {
+            drawLine(gui, mc, "§7§o" + description, currentY);
+            currentY += LINE_HEIGHT;
+        }
 
         // === BESITZER ===
         String ownerName = plot.getOwnerName();

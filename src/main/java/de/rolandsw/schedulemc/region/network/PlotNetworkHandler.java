@@ -70,6 +70,13 @@ public class PlotNetworkHandler {
             .encoder(PlotAbandonPacket::encode)
             .consumerMainThread(PlotAbandonPacket::handle)
             .add();
+
+        // Plot bewerten
+        INSTANCE.messageBuilder(PlotRatingPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(PlotRatingPacket::decode)
+            .encoder(PlotRatingPacket::encode)
+            .consumerMainThread(PlotRatingPacket::handle)
+            .add();
     }
 
     /**
