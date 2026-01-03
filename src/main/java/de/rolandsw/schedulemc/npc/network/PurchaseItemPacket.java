@@ -80,7 +80,23 @@ public class PurchaseItemPacket {
         }
 
         NPCData.ShopEntry entry = shopItems.get(itemIndex);
-        int totalPrice = entry.getPrice() * quantity;
+
+        // SICHERHEIT: Integer Overflow Prevention
+        // Maximale Menge pro Transaktion begrenzen
+        final int MAX_QUANTITY = 10000;
+        int safeQuantity = Math.min(quantity, MAX_QUANTITY);
+        if (quantity > MAX_QUANTITY) {
+            player.sendSystemMessage(Component.literal("§cMaximale Kaufmenge ist " + MAX_QUANTITY + " pro Transaktion!"));
+            return;
+        }
+
+        // SICHERHEIT: Berechne mit long um Overflow zu erkennen
+        long totalPriceLong = (long) entry.getPrice() * safeQuantity;
+        if (totalPriceLong > Integer.MAX_VALUE) {
+            player.sendSystemMessage(Component.literal("§cGesamtpreis zu hoch! Kaufe weniger Items."));
+            return;
+        }
+        int totalPrice = (int) totalPriceLong;
 
         // Prüfe Lagerbestand (nutze Warehouse-Integration)
         if (!merchant.getNpcData().canSellItemFromWarehouse(player.level(), entry, quantity)) {
