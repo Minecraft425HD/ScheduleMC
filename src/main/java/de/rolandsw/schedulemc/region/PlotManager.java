@@ -46,10 +46,11 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
     // Plot-Cache für Performance-Optimierung
     private static final PlotCache plotCache = new PlotCache(1000);
 
-    private static boolean dirty = false;
-    private static int plotCounter = 1;
-    private static boolean isHealthy = true;
-    private static String lastError = null;
+    // SICHERHEIT: volatile für Memory Visibility zwischen Threads (IncrementalSaveManager)
+    private static volatile boolean dirty = false;
+    private static volatile int plotCounter = 1;
+    private static volatile boolean isHealthy = true;
+    private static volatile String lastError = null;
     
     // ═══════════════════════════════════════════════════════════
     // PLOT ERSTELLEN

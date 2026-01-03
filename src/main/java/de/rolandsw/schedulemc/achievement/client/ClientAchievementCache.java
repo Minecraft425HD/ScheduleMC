@@ -8,6 +8,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.slf4j.Logger;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 /**
@@ -15,21 +17,24 @@ import java.util.stream.Collectors;
  *
  * Dieser Cache speichert Achievement-Daten, die vom Server synchronisiert werden,
  * sodass die Achievement-App sie anzeigen kann ohne direkten Server-Zugriff.
+ * SICHERHEIT: Thread-safe Collections und volatile Felder für concurrent access
  */
 @OnlyIn(Dist.CLIENT)
 public class ClientAchievementCache {
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final List<AchievementData> achievements = new ArrayList<>();
-    private static final Map<String, AchievementData> achievementMap = new HashMap<>();
-    private static final Map<AchievementCategory, List<AchievementData>> categoryMap = new HashMap<>();
+    // SICHERHEIT: Thread-safe Collections für concurrent access vom Network-Thread und Client-Thread
+    private static final List<AchievementData> achievements = new CopyOnWriteArrayList<>();
+    private static final Map<String, AchievementData> achievementMap = new ConcurrentHashMap<>();
+    private static final Map<AchievementCategory, List<AchievementData>> categoryMap = new ConcurrentHashMap<>();
 
-    private static int totalAchievements = 0;
-    private static int unlockedCount = 0;
-    private static double totalEarned = 0.0;
-    private static boolean initialized = false;
+    // SICHERHEIT: volatile für Memory Visibility zwischen Threads
+    private static volatile int totalAchievements = 0;
+    private static volatile int unlockedCount = 0;
+    private static volatile double totalEarned = 0.0;
+    private static volatile boolean initialized = false;
 
     // Listener für Cache-Updates
-    private static Runnable updateListener = null;
+    private static volatile Runnable updateListener = null;
 
     /**
      * Aktualisiert den Cache mit neuen Daten vom Server
@@ -52,7 +57,8 @@ public class ClientAchievementCache {
             achievementMap.put(data.getId(), data);
 
             AchievementCategory category = data.getCategory();
-            categoryMap.computeIfAbsent(category, k -> new ArrayList<>()).add(data);
+            // SICHERHEIT: Thread-safe list creation für categoryMap
+            categoryMap.computeIfAbsent(category, k -> new CopyOnWriteArrayList<>()).add(data);
         }
 
         initialized = true;
