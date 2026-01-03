@@ -25,7 +25,7 @@ public class PlotInfoScreen extends Screen {
 
     private final PlotRegion plot;
     private int backgroundWidth = 280;
-    private int backgroundHeight = 200;
+    private int backgroundHeight = 300; // Erhöht von 200 auf 300 für Rating-Sektion
     private int leftPos;
     private int topPos;
 
@@ -50,7 +50,7 @@ public class PlotInfoScreen extends Screen {
         int apartmentCount = plot.getAvailableSubAreaCount();
         if (apartmentCount > 0) {
             // Erhöhe Höhe für Apartment-Liste
-            this.backgroundHeight = 200 + (apartmentCount * 25);
+            this.backgroundHeight = 300 + (apartmentCount * 25);
             this.topPos = (this.height - this.backgroundHeight) / 2;
         }
 
