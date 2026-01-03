@@ -106,7 +106,7 @@ public class AchievementAppScreen extends Screen {
 
         // Kategorie-Buttons nur in Overview
         if (currentView == ViewMode.OVERVIEW) {
-            int btnY = topPos + 95;
+            int btnY = topPos + 120;
             int btnWidth = 105;
             int btnHeight = 28;
             int col = 0;
@@ -234,7 +234,7 @@ public class AchievementAppScreen extends Screen {
             leftPos + WIDTH / 2, startY + 44, 0xFFFFFF);
 
         // Kategorien-Header
-        guiGraphics.drawString(this.font, "§6Kategorien:", leftPos + 15, startY + 60, 0xFFAA00);
+        guiGraphics.drawString(this.font, "§6Kategorien:", leftPos + 15, startY + 80, 0xFFAA00);
 
         // Kategorie-Buttons werden in initButtons() erstellt
     }
