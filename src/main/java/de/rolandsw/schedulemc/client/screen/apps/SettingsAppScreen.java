@@ -8,6 +8,8 @@ import de.rolandsw.schedulemc.region.PlotRegion;
 import de.rolandsw.schedulemc.region.network.*;
 import de.rolandsw.schedulemc.utility.PlotUtilityData;
 import de.rolandsw.schedulemc.utility.PlotUtilityManager;
+import de.rolandsw.schedulemc.player.network.PlayerSettingsNetworkHandler;
+import de.rolandsw.schedulemc.player.network.PlayerSettingsPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -536,6 +538,7 @@ public class SettingsAppScreen extends Screen {
 
             clickableRegions.add(new ClickableRegion(leftPos + 15, y - 2, leftPos + WIDTH - 10, y + 10, () -> {
                 utilityWarningsEnabled = !utilityWarningsEnabled;
+                saveSettings(); // Sende Settings zum Server
             }));
         }
         y += 15;
@@ -586,7 +589,10 @@ public class SettingsAppScreen extends Screen {
 
             // Registriere Slider (0-500 kWh)
             sliderRegions.add(new SliderRegion(barX, barY, barWidth, 0, 500,
-                value -> electricityWarningThreshold = value));
+                value -> {
+                    electricityWarningThreshold = value;
+                    saveSettings(); // Sende Settings zum Server
+                }));
         }
         y += 35;
         contentHeight += 35;
@@ -608,7 +614,10 @@ public class SettingsAppScreen extends Screen {
 
             // Registriere Slider (0-2000 L)
             sliderRegions.add(new SliderRegion(barX, barY, barWidth, 0, 2000,
-                value -> waterWarningThreshold = value));
+                value -> {
+                    waterWarningThreshold = value;
+                    saveSettings(); // Sende Settings zum Server
+                }));
         }
         y += 38;
         contentHeight += 38;
@@ -845,6 +854,19 @@ public class SettingsAppScreen extends Screen {
     @Override
     public boolean isPauseScreen() {
         return false;
+    }
+
+    /**
+     * Sendet aktuelle Einstellungen zum Server zum persistenten Speichern
+     */
+    private void saveSettings() {
+        PlayerSettingsNetworkHandler.sendToServer(
+            new PlayerSettingsPacket(
+                utilityWarningsEnabled,
+                electricityWarningThreshold,
+                waterWarningThreshold
+            )
+        );
     }
 
     // Helper method to draw a button-like region
