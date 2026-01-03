@@ -2,7 +2,9 @@ package de.rolandsw.schedulemc.territory.network;
 
 import de.rolandsw.schedulemc.territory.TerritoryManager;
 import de.rolandsw.schedulemc.territory.TerritoryType;
+import de.rolandsw.schedulemc.util.InputValidation;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
 
@@ -55,7 +57,8 @@ public class SetTerritoryPacket {
             return new SetTerritoryPacket(chunkX, chunkZ);
         } else {
             TerritoryType type = buf.readEnum(TerritoryType.class);
-            String name = buf.readUtf();
+            // SICHERHEIT: Längenlimit für Territory-Namen
+            String name = buf.readUtf(InputValidation.MAX_TERRITORY_NAME_LENGTH + 10);
             return new SetTerritoryPacket(chunkX, chunkZ, type, name);
         }
     }
@@ -70,12 +73,25 @@ public class SetTerritoryPacket {
                 return;
             }
 
+            // SICHERHEIT: Validiere Territory-Name
+            String validatedName = msg.name;
+            if (!msg.remove) {
+                InputValidation.Result nameResult = InputValidation.validateTerritoryName(msg.name);
+                if (!nameResult.isValid()) {
+                    player.sendSystemMessage(Component.literal(nameResult.getError()));
+                    return;
+                }
+                validatedName = nameResult.getSanitizedValue() != null
+                    ? nameResult.getSanitizedValue()
+                    : msg.name;
+            }
+
             TerritoryManager manager = TerritoryManager.getInstance(player.server);
             if (manager != null) {
                 if (msg.remove) {
                     manager.removeTerritory(msg.chunkX, msg.chunkZ);
                 } else {
-                    manager.setTerritory(msg.chunkX, msg.chunkZ, msg.type, msg.name, null);
+                    manager.setTerritory(msg.chunkX, msg.chunkZ, msg.type, validatedName, null);
                 }
 
                 // Sync territories back to client

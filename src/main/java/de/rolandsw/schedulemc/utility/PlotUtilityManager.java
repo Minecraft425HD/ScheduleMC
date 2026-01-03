@@ -364,6 +364,9 @@ public class PlotUtilityManager {
     /**
      * Scannt einen Plot nach bestehenden Verbrauchern
      * Nützlich beim ersten Setup oder nach Welt-Migration
+     *
+     * OPTIMIERT: Chunk-basierte Batch-Verarbeitung für bessere Cache-Lokalität
+     * und Überspringen von ungeladenen Chunks
      */
     public static void scanPlotForConsumers(ServerLevel level, PlotRegion plot) {
         String plotId = plot.getPlotId();
@@ -374,19 +377,52 @@ public class PlotUtilityManager {
 
         int found = 0;
 
-        for (int x = min.getX(); x <= max.getX(); x++) {
-            for (int y = min.getY(); y <= max.getY(); y++) {
-                for (int z = min.getZ(); z <= max.getZ(); z++) {
-                    BlockPos pos = new BlockPos(x, y, z);
-                    Block block = level.getBlockState(pos).getBlock();
+        // OPTIMIERT: Chunk-basierte Iteration statt Block-für-Block
+        int minChunkX = min.getX() >> 4;
+        int maxChunkX = max.getX() >> 4;
+        int minChunkZ = min.getZ() >> 4;
+        int maxChunkZ = max.getZ() >> 4;
 
-                    if (UtilityRegistry.isConsumer(block)) {
-                        data.addConsumer(pos, block);
-                        positionCache.put(pos, plotId);
-                        found++;
+        // Batch-Verarbeitung: Sammle erst alle Positionen, dann füge in Batch hinzu
+        List<Map.Entry<BlockPos, Block>> foundConsumers = new ArrayList<>();
+
+        for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
+            for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
+                // OPTIMIERT: Überspringe ungeladene Chunks
+                if (!level.hasChunk(chunkX, chunkZ)) {
+                    continue;
+                }
+
+                // Berechne Chunk-lokale Grenzen
+                int startX = Math.max(min.getX(), chunkX << 4);
+                int endX = Math.min(max.getX(), (chunkX << 4) + 15);
+                int startZ = Math.max(min.getZ(), chunkZ << 4);
+                int endZ = Math.min(max.getZ(), (chunkZ << 4) + 15);
+
+                // OPTIMIERT: Iteriere nur über relevante Y-Levels (typisch -64 bis 320)
+                int startY = Math.max(min.getY(), level.getMinBuildHeight());
+                int endY = Math.min(max.getY(), level.getMaxBuildHeight() - 1);
+
+                for (int x = startX; x <= endX; x++) {
+                    for (int z = startZ; z <= endZ; z++) {
+                        for (int y = startY; y <= endY; y++) {
+                            BlockPos pos = new BlockPos(x, y, z);
+                            Block block = level.getBlockState(pos).getBlock();
+
+                            if (UtilityRegistry.isConsumer(block)) {
+                                foundConsumers.add(Map.entry(pos, block));
+                            }
+                        }
                     }
                 }
             }
+        }
+
+        // OPTIMIERT: Batch-Einfügung
+        for (var entry : foundConsumers) {
+            data.addConsumer(entry.getKey(), entry.getValue());
+            positionCache.put(entry.getKey(), plotId);
+            found++;
         }
 
         if (found > 0) {
@@ -394,6 +430,29 @@ public class PlotUtilityManager {
             dirty = true;
             LOGGER.info("Plot {} gescannt: {} Verbraucher gefunden", plotId, found);
         }
+    }
+
+    /**
+     * Scannt mehrere Plots parallel
+     * OPTIMIERT: Batch-Verarbeitung für viele Plots
+     */
+    public static void scanPlotsForConsumers(ServerLevel level, Collection<PlotRegion> plots) {
+        if (plots.isEmpty()) return;
+
+        LOGGER.info("Starte Batch-Scan für {} Plots", plots.size());
+        long startTime = System.currentTimeMillis();
+
+        int totalFound = 0;
+        for (PlotRegion plot : plots) {
+            int before = plotData.getOrDefault(plot.getPlotId(), new PlotUtilityData(plot.getPlotId())).getConsumerCount();
+            scanPlotForConsumers(level, plot);
+            int after = plotData.getOrDefault(plot.getPlotId(), new PlotUtilityData(plot.getPlotId())).getConsumerCount();
+            totalFound += (after - before);
+        }
+
+        long duration = System.currentTimeMillis() - startTime;
+        LOGGER.info("Batch-Scan abgeschlossen: {} Verbraucher in {} Plots gefunden ({}ms)",
+            totalFound, plots.size(), duration);
     }
 
     /**

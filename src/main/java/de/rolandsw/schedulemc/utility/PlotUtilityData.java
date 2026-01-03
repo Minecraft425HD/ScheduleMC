@@ -3,14 +3,19 @@ package de.rolandsw.schedulemc.utility;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 
 import java.util.*;
 
 /**
  * Speichert Verbrauchsdaten für einen einzelnen Plot
+ *
+ * OPTIMIERT: Verwendet Circular Buffer statt Array-Shifting für O(1) Operationen
  */
 public class PlotUtilityData {
+
+    private static final int HISTORY_SIZE = 7;
 
     private final String plotId;
 
@@ -20,9 +25,11 @@ public class PlotUtilityData {
     // Aktiver Status jedes Blocks: Position -> isActive
     private final Map<BlockPos, Boolean> activeStatus = new HashMap<>();
 
-    // 7-Tage-Historie (Index 0 = heute, 6 = vor 6 Tagen)
-    private final double[] dailyElectricity = new double[7];
-    private final double[] dailyWater = new double[7];
+    // OPTIMIERT: Circular Buffer statt Array-Shifting
+    // Index 0..6 für Tage, historyIndex zeigt auf "heute"
+    private final double[] dailyElectricity = new double[HISTORY_SIZE];
+    private final double[] dailyWater = new double[HISTORY_SIZE];
+    private int historyIndex = 0;  // Zeigt auf den aktuellen Tag
 
     // Aktueller Tag-Verbrauch (wird am Ende des Tages in Historie geschoben)
     private double currentDayElectricity = 0;
@@ -47,10 +54,15 @@ public class PlotUtilityData {
 
     /**
      * Fügt einen Verbraucher-Block hinzu
+     * SICHERHEIT: Null-Check für Block-Registry-Lookup
      */
     public void addConsumer(BlockPos pos, Block block) {
-        String blockId = net.minecraftforge.registries.ForgeRegistries.BLOCKS.getKey(block).toString();
-        consumers.put(pos, blockId);
+        ResourceLocation key = net.minecraftforge.registries.ForgeRegistries.BLOCKS.getKey(block);
+        if (key == null) {
+            // Block nicht in Registry - verwende Klassennamen als Fallback
+            key = new ResourceLocation("unknown", block.getClass().getSimpleName().toLowerCase());
+        }
+        consumers.put(pos, key.toString());
         activeStatus.put(pos, false); // Startet als idle
     }
 
@@ -130,6 +142,8 @@ public class PlotUtilityData {
     /**
      * Wird am Ende eines Minecraft-Tages aufgerufen
      * Schiebt den aktuellen Verbrauch in die Historie
+     *
+     * OPTIMIERT: O(1) Circular Buffer statt O(n) Array-Shifting
      */
     public void rolloverDay(long currentDay) {
         if (lastUpdateDay < 0) {
@@ -144,27 +158,36 @@ public class PlotUtilityData {
         // Berechne finale Werte für den Tag
         calculateCurrentConsumption();
 
-        // Schiebe Historie nach hinten
-        for (int i = 6; i >= 1; i--) {
-            dailyElectricity[i] = dailyElectricity[i - 1];
-            dailyWater[i] = dailyWater[i - 1];
-        }
+        // OPTIMIERT: Circular Buffer - kein Shifting nötig!
+        // Bewege Index vorwärts und überschreibe ältesten Eintrag
+        int daysToProcess = (int) Math.min(daysPassed, HISTORY_SIZE);
 
-        // Aktuellen Tag an Position 0
-        dailyElectricity[0] = currentDayElectricity;
-        dailyWater[0] = currentDayWater;
+        for (int d = 0; d < daysToProcess; d++) {
+            // Bewege Index zum nächsten Slot (rückwärts im Ring = vorwärts in Zeit)
+            historyIndex = (historyIndex + HISTORY_SIZE - 1) % HISTORY_SIZE;
 
-        // Falls mehrere Tage vergangen sind, fülle mit Schätzwerten
-        for (int d = 1; d < daysPassed && d < 7; d++) {
-            for (int i = 6; i >= 1; i--) {
-                dailyElectricity[i] = dailyElectricity[i - 1];
-                dailyWater[i] = dailyWater[i - 1];
-            }
-            dailyElectricity[0] = currentDayElectricity; // Schätzung basierend auf aktuellem Setup
-            dailyWater[0] = currentDayWater;
+            // Schreibe aktuellen Verbrauch in neuen "heute" Slot
+            dailyElectricity[historyIndex] = currentDayElectricity;
+            dailyWater[historyIndex] = currentDayWater;
         }
 
         lastUpdateDay = currentDay;
+    }
+
+    /**
+     * Hilfsmethode: Holt Historie-Wert relativ zu heute
+     * OPTIMIERT: O(1) Zugriff auf beliebigen Tag
+     */
+    private double getHistoryElectricity(int daysAgo) {
+        if (daysAgo < 0 || daysAgo >= HISTORY_SIZE) return 0;
+        int idx = (historyIndex + daysAgo) % HISTORY_SIZE;
+        return dailyElectricity[idx];
+    }
+
+    private double getHistoryWater(int daysAgo) {
+        if (daysAgo < 0 || daysAgo >= HISTORY_SIZE) return 0;
+        int idx = (historyIndex + daysAgo) % HISTORY_SIZE;
+        return dailyWater[idx];
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -185,11 +208,13 @@ public class PlotUtilityData {
 
     /**
      * Berechnet den 7-Tage-Durchschnitt für Strom
+     * OPTIMIERT: Verwendet Circular Buffer Hilfsmethoden
      */
     public double get7DayAverageElectricity() {
         double sum = 0;
         int count = 0;
-        for (double val : dailyElectricity) {
+        for (int i = 0; i < HISTORY_SIZE; i++) {
+            double val = getHistoryElectricity(i);
             if (val > 0) {
                 sum += val;
                 count++;
@@ -200,11 +225,13 @@ public class PlotUtilityData {
 
     /**
      * Berechnet den 7-Tage-Durchschnitt für Wasser
+     * OPTIMIERT: Verwendet Circular Buffer Hilfsmethoden
      */
     public double get7DayAverageWater() {
         double sum = 0;
         int count = 0;
-        for (double val : dailyWater) {
+        for (int i = 0; i < HISTORY_SIZE; i++) {
+            double val = getHistoryWater(i);
             if (val > 0) {
                 sum += val;
                 count++;
@@ -229,13 +256,22 @@ public class PlotUtilityData {
 
     /**
      * Gibt die tägliche Historie zurück (Index 0 = heute)
+     * OPTIMIERT: Konvertiert Circular Buffer in chronologische Reihenfolge
      */
     public double[] getDailyElectricity() {
-        return Arrays.copyOf(dailyElectricity, 7);
+        double[] result = new double[HISTORY_SIZE];
+        for (int i = 0; i < HISTORY_SIZE; i++) {
+            result[i] = getHistoryElectricity(i);
+        }
+        return result;
     }
 
     public double[] getDailyWater() {
-        return Arrays.copyOf(dailyWater, 7);
+        double[] result = new double[HISTORY_SIZE];
+        for (int i = 0; i < HISTORY_SIZE; i++) {
+            result[i] = getHistoryWater(i);
+        }
+        return result;
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -248,13 +284,14 @@ public class PlotUtilityData {
         json.addProperty("lastUpdateDay", lastUpdateDay);
         json.addProperty("currentDayElectricity", currentDayElectricity);
         json.addProperty("currentDayWater", currentDayWater);
+        json.addProperty("historyIndex", historyIndex);  // OPTIMIERT: Circular Buffer Index
 
-        // Historie
+        // Historie - speichere in chronologischer Reihenfolge für Kompatibilität
         JsonArray elecHistory = new JsonArray();
         JsonArray waterHistory = new JsonArray();
-        for (int i = 0; i < 7; i++) {
-            elecHistory.add(dailyElectricity[i]);
-            waterHistory.add(dailyWater[i]);
+        for (int i = 0; i < HISTORY_SIZE; i++) {
+            elecHistory.add(getHistoryElectricity(i));
+            waterHistory.add(getHistoryWater(i));
         }
         json.add("electricityHistory", elecHistory);
         json.add("waterHistory", waterHistory);
@@ -283,12 +320,19 @@ public class PlotUtilityData {
         data.currentDayElectricity = json.get("currentDayElectricity").getAsDouble();
         data.currentDayWater = json.get("currentDayWater").getAsDouble();
 
-        // Historie
+        // OPTIMIERT: Lade Circular Buffer Index (mit Fallback für alte Daten)
+        if (json.has("historyIndex")) {
+            data.historyIndex = json.get("historyIndex").getAsInt();
+        }
+
+        // Historie - Daten sind in chronologischer Reihenfolge gespeichert
         JsonArray elecHistory = json.getAsJsonArray("electricityHistory");
         JsonArray waterHistory = json.getAsJsonArray("waterHistory");
-        for (int i = 0; i < 7 && i < elecHistory.size(); i++) {
-            data.dailyElectricity[i] = elecHistory.get(i).getAsDouble();
-            data.dailyWater[i] = waterHistory.get(i).getAsDouble();
+        for (int i = 0; i < HISTORY_SIZE && i < elecHistory.size(); i++) {
+            // Speichere direkt im Array - historyIndex zeigt auf "heute"
+            int idx = (data.historyIndex + i) % HISTORY_SIZE;
+            data.dailyElectricity[idx] = elecHistory.get(i).getAsDouble();
+            data.dailyWater[idx] = waterHistory.get(i).getAsDouble();
         }
 
         // Verbraucher

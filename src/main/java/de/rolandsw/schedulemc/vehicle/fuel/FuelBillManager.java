@@ -8,7 +8,7 @@ import de.rolandsw.schedulemc.util.GsonHelper;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.*;  // Enthält Collections
 import java.util.stream.Collectors;
 
 /**
@@ -71,38 +71,58 @@ public class FuelBillManager {
      * Gibt alle unbezahlten Rechnungen eines Spielers zurück
      */
     public static List<UnpaidBill> getUnpaidBills(UUID playerUUID) {
-        return playerBills.getOrDefault(playerUUID, new ArrayList<>())
-            .stream()
+        List<UnpaidBill> bills = playerBills.get(playerUUID);
+        if (bills == null || bills.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return bills.stream()
             .filter(b -> !b.paid)
             .collect(Collectors.toList());
     }
 
     /**
      * Gibt alle unbezahlten Rechnungen für eine bestimmte Zapfsäule zurück
+     * OPTIMIERT: Single-Pass statt Double-Stream
      */
     public static List<UnpaidBill> getUnpaidBills(UUID playerUUID, UUID fuelStationId) {
-        return getUnpaidBills(playerUUID)
-            .stream()
-            .filter(b -> b.fuelStationId.equals(fuelStationId))
+        List<UnpaidBill> bills = playerBills.get(playerUUID);
+        if (bills == null || bills.isEmpty()) {
+            return Collections.emptyList();
+        }
+        // OPTIMIERT: Ein Stream mit beiden Filtern statt zwei separate Streams
+        return bills.stream()
+            .filter(b -> !b.paid && b.fuelStationId.equals(fuelStationId))
             .collect(Collectors.toList());
     }
 
     /**
      * Berechnet die Gesamtsumme aller unbezahlten Rechnungen
+     * OPTIMIERT: Direkter Zugriff ohne Zwischenliste
      */
     public static double getTotalUnpaidAmount(UUID playerUUID) {
-        return getUnpaidBills(playerUUID)
-            .stream()
+        List<UnpaidBill> bills = playerBills.get(playerUUID);
+        if (bills == null || bills.isEmpty()) {
+            return 0.0;
+        }
+        // OPTIMIERT: Direkte Berechnung ohne Zwischenliste
+        return bills.stream()
+            .filter(b -> !b.paid)
             .mapToDouble(b -> b.totalCost)
             .sum();
     }
 
     /**
      * Berechnet die Gesamtsumme für eine bestimmte Zapfsäule
+     * OPTIMIERT: Single-Pass statt Triple-Stream
      */
     public static double getTotalUnpaidAmount(UUID playerUUID, UUID fuelStationId) {
-        return getUnpaidBills(playerUUID, fuelStationId)
-            .stream()
+        List<UnpaidBill> bills = playerBills.get(playerUUID);
+        if (bills == null || bills.isEmpty()) {
+            return 0.0;
+        }
+        // OPTIMIERT: Ein Stream mit allen Filtern statt drei separate Streams
+        return bills.stream()
+            .filter(b -> !b.paid && b.fuelStationId.equals(fuelStationId))
             .mapToDouble(b -> b.totalCost)
             .sum();
     }

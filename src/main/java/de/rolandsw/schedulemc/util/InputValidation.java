@@ -15,6 +15,7 @@ public class InputValidation {
     // Konstanten
     public static final int MAX_NPC_NAME_LENGTH = 32;
     public static final int MAX_PLOT_NAME_LENGTH = 64;
+    public static final int MAX_TERRITORY_NAME_LENGTH = 48;  // OPTIMIERT: Territory Name Limit
     public static final int MAX_DESCRIPTION_LENGTH = 256;
     public static final int MAX_SKIN_FILE_LENGTH = 128;
     public static final int MAX_PACKET_STRING_LENGTH = 1024;
@@ -77,6 +78,27 @@ public class InputValidation {
         }
         if (!trimmed.matches(ALLOWED_NAME_CHARS)) {
             return Result.failure("§cPlot-Name enthält ungültige Zeichen!");
+        }
+        return Result.success(trimmed);
+    }
+
+    /**
+     * Validiert Territory-Namen
+     * SICHERHEIT: Verhindert DoS durch überlange Strings
+     */
+    public static Result validateTerritoryName(@Nullable String name) {
+        if (name == null || name.isEmpty()) {
+            return Result.success("");  // Leerer Name ist erlaubt
+        }
+        String trimmed = name.trim();
+        if (trimmed.length() > MAX_TERRITORY_NAME_LENGTH) {
+            return Result.failure("§cTerritory-Name darf maximal " + MAX_TERRITORY_NAME_LENGTH + " Zeichen lang sein!");
+        }
+        if (!trimmed.matches(ALLOWED_NAME_CHARS)) {
+            return Result.failure("§cTerritory-Name enthält ungültige Zeichen!");
+        }
+        if (containsDangerousPatterns(trimmed)) {
+            return Result.failure("§cTerritory-Name enthält nicht erlaubte Zeichenfolgen!");
         }
         return Result.success(trimmed);
     }
