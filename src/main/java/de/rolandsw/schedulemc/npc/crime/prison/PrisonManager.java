@@ -23,9 +23,11 @@ import java.io.*;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Zentrale Verwaltung des Gefängnissystems
+ * SICHERHEIT: Thread-safe Collections für parallele Zugriffe
  */
 public class PrisonManager {
 
@@ -38,7 +40,8 @@ public class PrisonManager {
 
     private final Map<UUID, PrisonerData> prisoners = new ConcurrentHashMap<>();
     private final Map<UUID, Long> offlineRemainingTime = new ConcurrentHashMap<>();
-    private final List<String> prisonPlotIds = new ArrayList<>();
+    // SICHERHEIT: CopyOnWriteArrayList für Thread-Sicherheit
+    private final List<String> prisonPlotIds = new CopyOnWriteArrayList<>();
 
     private static final String SAVE_FILE = "config/schedulemc/prisoners.json";
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();

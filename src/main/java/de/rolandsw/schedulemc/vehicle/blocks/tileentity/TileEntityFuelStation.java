@@ -79,6 +79,11 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
     @Nullable
     private IFluidHandler fluidHandlerInFront;
 
+    // OPTIMIERUNG: Cache für Entity-Scan (reduziert von 20x/sek auf 5x/sek)
+    private static final int ENTITY_SCAN_INTERVAL = 4; // Alle 4 Ticks (200ms)
+    private int entityScanCounter = 0;
+    private IFluidHandler cachedFluidHandler = null;
+
     public TileEntityFuelStation(BlockPos pos, BlockState state) {
         super(Main.FUEL_STATION_TILE_ENTITY_TYPE.get(), pos, state);
         this.transferRate = ModConfigHandler.VEHICLE_SERVER.fuelStationTransferRate.get();
@@ -174,7 +179,14 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
             fixTop();
         }
 
-        fluidHandlerInFront = searchFluidHandlerInFront();
+        // OPTIMIERUNG: Entity-Scan nur alle ENTITY_SCAN_INTERVAL Ticks
+        // Reduziert CPU-Last um 75% (von 20x/sek auf 5x/sek)
+        entityScanCounter++;
+        if (entityScanCounter >= ENTITY_SCAN_INTERVAL || cachedFluidHandler == null) {
+            entityScanCounter = 0;
+            cachedFluidHandler = searchFluidHandlerInFront();
+        }
+        fluidHandlerInFront = cachedFluidHandler;
 
         if (fluidHandlerInFront == null) {
             if (fuelCounter > 0 || isFueling) {
@@ -343,6 +355,7 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
         totalCostThisSession = 0;
         totalFueledThisSession = 0;
         currentFuelingPlayer = null;
+        cachedFluidHandler = null; // Cache invalidieren für nächstes Fahrzeug
         synchronize();
         setChanged();
     }

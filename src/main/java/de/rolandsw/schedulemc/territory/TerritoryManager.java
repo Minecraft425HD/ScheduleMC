@@ -117,10 +117,11 @@ public class TerritoryManager extends AbstractPersistenceManager<Map<Long, Terri
     }
 
     /**
-     * Gibt alle Territorien zurück
+     * Gibt alle Territorien zurück (read-only View ohne Kopie)
+     * OPTIMIERUNG: Collections.unmodifiableCollection statt ArrayList-Kopie
      */
     public Collection<Territory> getAllTerritories() {
-        return new ArrayList<>(territories.values());
+        return Collections.unmodifiableCollection(territories.values());
     }
 
     /**
@@ -189,10 +190,11 @@ public class TerritoryManager extends AbstractPersistenceManager<Map<Long, Terri
     // ═══════════════════════════════════════════════════════════
 
     /**
-     * Public getter für Map Editor
+     * Public getter für Map Editor (read-only View ohne Kopie)
+     * OPTIMIERUNG: Collections.unmodifiableMap statt HashMap-Kopie
      */
     public Map<Long, Territory> getTerritoriesMap() {
-        return new HashMap<>(territories);
+        return Collections.unmodifiableMap(territories);
     }
 
     // ═══════════════════════════════════════════════════════════
