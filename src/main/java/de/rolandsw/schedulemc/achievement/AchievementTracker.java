@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.achievement;
 
+import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.npc.crime.CrimeManager;
@@ -11,6 +12,7 @@ import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import org.slf4j.Logger;
 
 import java.util.UUID;
 
@@ -20,6 +22,7 @@ import java.util.UUID;
  */
 @Mod.EventBusSubscriber(modid = ScheduleMC.MOD_ID)
 public class AchievementTracker {
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     private static AchievementManager achievementManager;
     private static long lastCheckTicks = 0;
