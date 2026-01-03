@@ -1,10 +1,13 @@
 package de.rolandsw.schedulemc.achievement.network;
 
+import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.achievement.client.ClientAchievementCache;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkEvent;
+import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +18,8 @@ import java.util.function.Supplier;
  * Server → Client
  */
 public class SyncAchievementDataPacket {
+    private static final Logger LOGGER = LogUtils.getLogger();
+
     private final List<AchievementData> achievements;
     private final int totalAchievements;
     private final int unlockedCount;
@@ -52,12 +57,17 @@ public class SyncAchievementDataPacket {
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(this::handleClient);
+        ctx.get().enqueueWork(() -> {
+            LOGGER.info("SyncAchievementDataPacket received: {} achievements", totalAchievements);
+            // Use DistExecutor to ensure client-only code is only run on client
+            DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> handleClient());
+        });
         ctx.get().setPacketHandled(true);
     }
 
     @OnlyIn(Dist.CLIENT)
     private void handleClient() {
+        LOGGER.info("SyncAchievementDataPacket: Updating client cache with {} achievements", achievements.size());
         ClientAchievementCache.updateCache(achievements, totalAchievements, unlockedCount, totalEarned);
     }
 }
