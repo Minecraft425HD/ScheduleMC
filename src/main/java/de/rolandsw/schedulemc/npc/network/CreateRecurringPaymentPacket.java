@@ -1,5 +1,7 @@
 package de.rolandsw.schedulemc.npc.network;
 
+import de.rolandsw.schedulemc.config.ModConfigHandler;
+import de.rolandsw.schedulemc.economy.CreditLoanManager;
 import de.rolandsw.schedulemc.economy.RecurringPaymentInterval;
 import de.rolandsw.schedulemc.economy.RecurringPaymentManager;
 import de.rolandsw.schedulemc.util.PacketHandler;
@@ -67,6 +69,37 @@ public class CreateRecurringPaymentPacket {
 
             RecurringPaymentInterval interval = RecurringPaymentInterval.values()[intervalOrdinal];
 
+            // 10er-Limit prüfen (inkl. Kredit-Daueraufträge)
+            RecurringPaymentManager manager = RecurringPaymentManager.getInstance(player.getServer());
+            CreditLoanManager loanManager = CreditLoanManager.getInstance(player.getServer());
+
+            int currentPayments = manager.getPayments(player.getUUID()).size();
+            int creditCount = loanManager.hasActiveLoan(player.getUUID()) ? 1 : 0;
+            int totalCount = currentPayments + creditCount;
+            int maxPerPlayer = ModConfigHandler.COMMON.RECURRING_MAX_PER_PLAYER.get();
+
+            if (totalCount >= maxPerPlayer) {
+                player.sendSystemMessage(Component.literal("═══════════════════════════════")
+                    .withStyle(ChatFormatting.RED));
+                player.sendSystemMessage(Component.literal("⚠ LIMIT ERREICHT!")
+                    .withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
+                player.sendSystemMessage(Component.literal("Du hast bereits ")
+                    .withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal(totalCount + "/" + maxPerPlayer)
+                        .withStyle(ChatFormatting.YELLOW))
+                    .append(Component.literal(" aktive Daueraufträge.")
+                        .withStyle(ChatFormatting.GRAY)));
+                if (creditCount > 0) {
+                    player.sendSystemMessage(Component.literal("(inkl. 1 Kredit-Rückzahlung)")
+                        .withStyle(ChatFormatting.GOLD));
+                }
+                player.sendSystemMessage(Component.literal("Lösche erst einen bestehenden Dauerauftrag!")
+                    .withStyle(ChatFormatting.YELLOW));
+                player.sendSystemMessage(Component.literal("═══════════════════════════════")
+                    .withStyle(ChatFormatting.RED));
+                return;
+            }
+
             // Empfänger-UUID finden
             UUID recipientUUID = null;
             for (ServerPlayer p : player.getServer().getPlayerList().getPlayers()) {
@@ -88,7 +121,6 @@ public class CreateRecurringPaymentPacket {
             }
 
             // Erstelle Dauerauftrag
-            RecurringPaymentManager manager = RecurringPaymentManager.getInstance(player.getServer());
             String description = interval.getDisplayName() + " an " + recipientName;
 
             if (manager.createRecurringPayment(player.getUUID(), recipientUUID, amount,
