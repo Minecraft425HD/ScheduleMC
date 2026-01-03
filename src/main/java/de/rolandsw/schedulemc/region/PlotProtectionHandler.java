@@ -55,7 +55,7 @@ public class PlotProtectionHandler {
             // Kein Plot → Weltschutz aktiv
             event.setCanceled(true);
             player.sendSystemMessage(Component.literal(
-                "§c✗ Du kannst hier nicht abbauen! Kaufe einen Plot mit /plot buy"
+                "§c✗ Du kannst hier nicht abbauen! Kaufe einen Plot über die Einstellungen-App"
             ));
             LOGGER.debug("[PLOT-PROTECTION] {} versuchte außerhalb eines Plots bei {} abzubauen",
                 player.getName().getString(), pos.toShortString());
@@ -92,7 +92,7 @@ public class PlotProtectionHandler {
                 String ownerName = plot.getOwnerName();
                 if (ownerName == null || ownerName.equals("Niemand")) {
                     player.sendSystemMessage(Component.literal(
-                        "§c✗ Dieser Plot gehört niemandem! Kaufe ihn mit /plot buy"
+                        "§c✗ Dieser Plot gehört niemandem! Kaufe ihn über die Einstellungen-App oder den Plot-Info-Block"
                     ));
                 } else {
                     player.sendSystemMessage(Component.literal(
@@ -129,7 +129,7 @@ public class PlotProtectionHandler {
                 // Kein Plot → Weltschutz aktiv
                 event.setCanceled(true);
                 serverPlayer.sendSystemMessage(Component.literal(
-                    "§c✗ Du kannst hier nicht bauen! Kaufe einen Plot mit /plot buy"
+                    "§c✗ Du kannst hier nicht bauen! Kaufe einen Plot über die Einstellungen-App"
                 ));
                 return;
             }

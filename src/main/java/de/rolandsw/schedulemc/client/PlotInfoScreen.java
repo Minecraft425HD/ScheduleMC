@@ -3,6 +3,8 @@ package de.rolandsw.schedulemc.client;
 import com.mojang.blaze3d.systems.RenderSystem;
 import de.rolandsw.schedulemc.region.PlotArea;
 import de.rolandsw.schedulemc.region.PlotRegion;
+import de.rolandsw.schedulemc.region.network.PlotNetworkHandler;
+import de.rolandsw.schedulemc.region.network.PlotPurchasePacket;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -61,11 +63,11 @@ public class PlotInfoScreen extends Screen {
             addRenderableWidget(Button.builder(
                 Component.literal("§a§lKaufen"),
                 button -> {
-                    // Schließe GUI und führe Befehl aus mit Plot-ID
+                    // Sende Purchase-Packet direkt
+                    PlotNetworkHandler.sendToServer(
+                        new PlotPurchasePacket(plot.getPlotId(), PlotPurchasePacket.PurchaseType.BUY)
+                    );
                     this.onClose();
-                    if (minecraft != null && minecraft.player != null) {
-                        minecraft.player.connection.sendCommand("plot buy " + plot.getPlotId());
-                    }
                 }
             ).bounds(leftPos + 10, buttonY, 70, 20).build());
         }
@@ -75,11 +77,11 @@ public class PlotInfoScreen extends Screen {
             addRenderableWidget(Button.builder(
                 Component.literal("§d§lMieten"),
                 button -> {
+                    // Sende Purchase-Packet mit RENT type
+                    PlotNetworkHandler.sendToServer(
+                        new PlotPurchasePacket(plot.getPlotId(), PlotPurchasePacket.PurchaseType.RENT)
+                    );
                     this.onClose();
-                    if (minecraft != null && minecraft.player != null) {
-                        // Miete für 30 Tage mit Plot-ID
-                        minecraft.player.connection.sendCommand("plot rentplot 30 " + plot.getPlotId());
-                    }
                 }
             ).bounds(leftPos + 90, buttonY, 70, 20).build());
         }
