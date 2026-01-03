@@ -37,12 +37,19 @@ public class AchievementTracker {
             return;
         }
 
+        LOGGER.info("AchievementTracker: Player {} joined, checking achievements (UUID: {})",
+            player.getName().getString(), player.getUUID());
+
         if (achievementManager == null) {
             achievementManager = AchievementManager.getInstance(player.getServer());
         }
 
         // Checke sofort beim Join
+        LOGGER.info("AchievementTracker: About to check player achievements for {}",
+            player.getName().getString());
         checkPlayerAchievements(player);
+        LOGGER.info("AchievementTracker: Achievement check complete for {}",
+            player.getName().getString());
     }
 
     @SubscribeEvent
@@ -73,6 +80,7 @@ public class AchievementTracker {
 
         // ========== ECONOMY ACHIEVEMENTS ==========
         double balance = EconomyManager.getBalance(uuid);
+        LOGGER.info("AchievementTracker: Reading balance for {}: {} €", player.getName().getString(), balance);
 
         // Balance-basierte Achievements
         achievementManager.setProgress(uuid, "FIRST_EURO", Math.max(1, balance));
