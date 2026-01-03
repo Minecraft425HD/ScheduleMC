@@ -866,6 +866,7 @@ public class SettingsAppScreen extends Screen {
      * Sendet aktuelle Einstellungen zum Server zum persistenten Speichern
      */
     private void saveSettings() {
+        // Sende zum Server
         PlayerSettingsNetworkHandler.sendToServer(
             new PlayerSettingsPacket(
                 utilityWarningsEnabled,
@@ -873,6 +874,11 @@ public class SettingsAppScreen extends Screen {
                 waterWarningThreshold
             )
         );
+
+        // Aktualisiere auch lokal den Client-Cache
+        ClientPlayerSettings.utilityWarningsEnabled = utilityWarningsEnabled;
+        ClientPlayerSettings.electricityThreshold = electricityWarningThreshold;
+        ClientPlayerSettings.waterThreshold = waterWarningThreshold;
     }
 
     // Helper method to draw a button-like region
