@@ -1,7 +1,11 @@
 package de.rolandsw.schedulemc.client.screen.apps;
 
+import de.rolandsw.schedulemc.client.screen.ConfirmDialogScreen;
+import de.rolandsw.schedulemc.client.screen.InputDialogScreen;
+import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.region.PlotManager;
 import de.rolandsw.schedulemc.region.PlotRegion;
+import de.rolandsw.schedulemc.region.network.*;
 import de.rolandsw.schedulemc.utility.PlotUtilityData;
 import de.rolandsw.schedulemc.utility.PlotUtilityManager;
 import net.minecraft.client.Minecraft;
@@ -60,9 +64,6 @@ public class SettingsAppScreen extends Screen {
     private boolean utilityWarningsEnabled = true;
     private double electricityWarningThreshold = 100.0; // kWh
     private double waterWarningThreshold = 500.0; // L
-
-    // Simulated account balance
-    private double accountBalance = 15000.0; // €
 
     public SettingsAppScreen(Screen parent) {
         super(Component.literal("Settings"));
@@ -471,6 +472,12 @@ public class SettingsAppScreen extends Screen {
 
         // Großer Kontostand-Display
         if (y >= startY - 10 && y < endY) {
+            // ✅ Lade echten Kontostand von EconomyManager
+            double accountBalance = 0.0;
+            if (mc.player != null) {
+                accountBalance = EconomyManager.getBalance(mc.player.getUUID());
+            }
+
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 50, 0x44228B22);
             guiGraphics.drawCenteredString(this.font, "§fVerfügbar:", leftPos + WIDTH / 2, y + 8, 0xFFFFFF);
 
@@ -527,8 +534,9 @@ public class SettingsAppScreen extends Screen {
             guiGraphics.drawString(this.font, "§7Monatlich (30d):", leftPos + 15, y + 31, 0xAAAAAA);
             guiGraphics.drawString(this.font, String.format("§e%.2f €", monthlyCost), leftPos + 100, y + 31, 0xFFAA00);
 
-            // Reichweite
-            int daysUntilEmpty = dailyCost > 0 ? (int) (accountBalance / dailyCost) : 999;
+            // Reichweite - lade echten Kontostand
+            double currentBalance = mc.player != null ? EconomyManager.getBalance(mc.player.getUUID()) : 0.0;
+            int daysUntilEmpty = dailyCost > 0 ? (int) (currentBalance / dailyCost) : 999;
             String reichweiteColor = daysUntilEmpty < 7 ? "§c" : (daysUntilEmpty < 30 ? "§e" : "§a");
             guiGraphics.drawString(this.font, "§8Reichweite: " + reichweiteColor + daysUntilEmpty + " Tage", leftPos + 15, y + 44, 0x888888);
         }

@@ -236,6 +236,7 @@ public class ScheduleMC {
             MessageNetworkHandler.register();
             WarehouseNetworkHandler.register();
             AchievementNetworkHandler.register();
+            de.rolandsw.schedulemc.region.network.PlotNetworkHandler.register();
             de.rolandsw.schedulemc.npc.crime.prison.network.PrisonNetworkHandler.register();
             de.rolandsw.schedulemc.npc.crime.prison.PrisonManager.init();
             de.rolandsw.schedulemc.territory.network.TerritoryNetworkHandler.register();
