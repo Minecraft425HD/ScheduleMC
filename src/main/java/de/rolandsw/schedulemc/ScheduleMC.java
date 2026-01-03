@@ -96,6 +96,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.fml.config.ModConfig;
@@ -255,7 +256,7 @@ public class ScheduleMC {
             PlotCommand.register(event.getDispatcher());
             MoneyCommand.register(event.getDispatcher());
             // LoanCommand removed - now handled via CreditAdvisor NPC
-            DailyCommand.register(event.getDispatcher());
+            // DailyCommand removed - now automatic on login
             HospitalCommand.register(event.getDispatcher());
             NPCCommand.register(event.getDispatcher(), event.getBuildContext());
             WarehouseCommand.register(event.getDispatcher(), event.getBuildContext());
@@ -430,6 +431,16 @@ public class ScheduleMC {
             // Utility-System speichern
             PlotUtilityManager.save();
         }, "onServerStopping");
+    }
+
+    @SubscribeEvent
+    public void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+        EventHelper.handleEvent(() -> {
+            if (event.getEntity() instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+                // Automatische Daily-Belohnung beim Login
+                DailyRewardManager.claimOnLogin(serverPlayer);
+            }
+        }, "onPlayerLoggedIn");
     }
 
     @SubscribeEvent
