@@ -31,6 +31,8 @@ import de.rolandsw.schedulemc.economy.RecurringPaymentManager;
 import de.rolandsw.schedulemc.client.network.SmartphoneNetworkHandler;
 import de.rolandsw.schedulemc.messaging.MessageManager;
 import de.rolandsw.schedulemc.messaging.network.MessageNetworkHandler;
+import de.rolandsw.schedulemc.achievement.network.AchievementNetworkHandler;
+import de.rolandsw.schedulemc.achievement.AchievementManager;
 import de.rolandsw.schedulemc.economy.events.RespawnHandler;
 import de.rolandsw.schedulemc.region.PlotManager;
 import de.rolandsw.schedulemc.managers.*;
@@ -233,6 +235,7 @@ public class ScheduleMC {
             SmartphoneNetworkHandler.register();
             MessageNetworkHandler.register();
             WarehouseNetworkHandler.register();
+            AchievementNetworkHandler.register();
             de.rolandsw.schedulemc.npc.crime.prison.network.PrisonNetworkHandler.register();
             de.rolandsw.schedulemc.npc.crime.prison.PrisonManager.init();
             de.rolandsw.schedulemc.territory.network.TerritoryNetworkHandler.register();
@@ -301,6 +304,10 @@ public class ScheduleMC {
             CreditScoreManager.getInstance(event.getServer());
             CreditLoanManager.getInstance(event.getServer());
             LOGGER.info("Advanced Economy Systems initialized (Transaction History, Interest, Loans, Taxes, Savings, Overdraft, Recurring Payments, Credit Score)");
+
+            // Achievement System
+            AchievementManager.getInstance(event.getServer());
+            LOGGER.info("Achievement System initialized");
 
             // Vehicle System - Vehicle Spawn Registry, Gas Station Registry, Fuel Bills
             de.rolandsw.schedulemc.vehicle.vehicle.VehicleSpawnRegistry.load();

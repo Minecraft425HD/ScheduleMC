@@ -1,6 +1,11 @@
 package de.rolandsw.schedulemc.client.screen.apps;
 
+import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.achievement.*;
+import de.rolandsw.schedulemc.achievement.client.ClientAchievementCache;
+import de.rolandsw.schedulemc.achievement.network.AchievementData;
+import de.rolandsw.schedulemc.achievement.network.AchievementNetworkHandler;
+import de.rolandsw.schedulemc.achievement.network.RequestAchievementDataPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -8,6 +13,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.slf4j.Logger;
 
 import java.util.*;
 
@@ -23,6 +29,7 @@ import java.util.*;
  */
 @OnlyIn(Dist.CLIENT)
 public class AchievementAppScreen extends Screen {
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     private final Screen parentScreen;
     private static final int WIDTH = 240;
@@ -35,7 +42,6 @@ public class AchievementAppScreen extends Screen {
     private enum ViewMode { OVERVIEW, CATEGORY, DETAIL }
     private ViewMode currentView = ViewMode.OVERVIEW;
     private AchievementCategory selectedCategory = null;
-    private Achievement selectedAchievement = null;
 
     // Scrolling
     private int scrollOffset = 0;
@@ -49,9 +55,8 @@ public class AchievementAppScreen extends Screen {
     private int totalAchievements = 0;
     private int unlockedAchievements = 0;
     private double totalEarned = 0.0;
-    private List<Achievement> currentAchievements = new ArrayList<>();
-    private Map<String, Double> progressCache = new HashMap<>();
-    private Set<String> unlockedCache = new HashSet<>();
+    private List<AchievementData> currentAchievements = new ArrayList<>();
+    private AchievementData selectedAchievementData = null;
 
     public AchievementAppScreen(Screen parent) {
         super(Component.literal("Achievements"));
@@ -69,11 +74,40 @@ public class AchievementAppScreen extends Screen {
         int maxTop = this.height - HEIGHT - BORDER_SIZE - MARGIN_BOTTOM;
         this.topPos = Math.max(minTop, Math.min(centeredTop, maxTop));
 
+        // Register listener for cache updates
+        ClientAchievementCache.setUpdateListener(this::onCacheUpdated);
+
         // Cache data
         refreshData();
 
         // Buttons basierend auf aktuellem View
         initButtons();
+    }
+
+    @Override
+    public void removed() {
+        super.removed();
+        // Clean up listener when screen is closed
+        ClientAchievementCache.removeUpdateListener();
+    }
+
+    /**
+     * Called when achievement cache is updated from server
+     */
+    private void onCacheUpdated() {
+        LOGGER.info("AchievementAppScreen: Cache updated! Refreshing display (total: {}, unlocked: {})",
+            ClientAchievementCache.getTotalAchievements(), ClientAchievementCache.getUnlockedCount());
+
+        // Refresh displayed data
+        totalAchievements = ClientAchievementCache.getTotalAchievements();
+        unlockedAchievements = ClientAchievementCache.getUnlockedCount();
+        totalEarned = ClientAchievementCache.getTotalEarned();
+
+        if (selectedCategory != null) {
+            loadCategoryAchievements();
+            LOGGER.info("AchievementAppScreen: Loaded {} achievements for category {}",
+                currentAchievements.size(), selectedCategory.name());
+        }
     }
 
     private void initButtons() {
@@ -88,7 +122,7 @@ public class AchievementAppScreen extends Screen {
                 }
             } else if (currentView == ViewMode.DETAIL) {
                 currentView = ViewMode.CATEGORY;
-                selectedAchievement = null;
+                selectedAchievementData = null;
                 scrollOffset = 0;
                 initButtons();
             } else {
@@ -138,42 +172,32 @@ public class AchievementAppScreen extends Screen {
     }
 
     private void refreshData() {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.level == null || mc.level.getServer() == null) return;
+        LOGGER.info("AchievementAppScreen: Requesting achievement data from server");
+        // Request fresh data from server
+        AchievementNetworkHandler.sendToServer(new RequestAchievementDataPacket());
 
-        UUID playerUUID = mc.player.getUUID();
-        AchievementManager manager = AchievementManager.getInstance(mc.level.getServer());
-        if (manager == null) return;
+        // Load from client cache (will be updated when server responds)
+        if (ClientAchievementCache.isInitialized()) {
+            LOGGER.info("AchievementAppScreen: Cache already initialized, loading data");
+            totalAchievements = ClientAchievementCache.getTotalAchievements();
+            unlockedAchievements = ClientAchievementCache.getUnlockedCount();
+            totalEarned = ClientAchievementCache.getTotalEarned();
 
-        PlayerAchievements playerAch = manager.getPlayerAchievements(playerUUID);
-
-        totalAchievements = manager.getAllAchievements().size();
-        unlockedAchievements = playerAch.getUnlockedCount();
-        totalEarned = playerAch.getTotalPointsEarned();
-
-        // Cache progress and unlock status
-        progressCache.clear();
-        unlockedCache.clear();
-        for (Achievement ach : manager.getAllAchievements()) {
-            progressCache.put(ach.getId(), playerAch.getProgress(ach.getId()));
-            if (playerAch.isUnlocked(ach.getId())) {
-                unlockedCache.add(ach.getId());
+            if (selectedCategory != null) {
+                loadCategoryAchievements();
             }
-        }
-
-        if (selectedCategory != null) {
-            loadCategoryAchievements();
+        } else {
+            LOGGER.info("AchievementAppScreen: Cache not yet initialized, waiting for server response");
         }
     }
 
     private void loadCategoryAchievements() {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.level == null || mc.level.getServer() == null) return;
+        if (!ClientAchievementCache.isInitialized()) {
+            currentAchievements.clear();
+            return;
+        }
 
-        AchievementManager manager = AchievementManager.getInstance(mc.level.getServer());
-        if (manager == null) return;
-
-        currentAchievements = manager.getAchievementsByCategory(selectedCategory);
+        currentAchievements = ClientAchievementCache.getAchievementsByCategory(selectedCategory);
     }
 
     @Override
@@ -256,10 +280,10 @@ public class AchievementAppScreen extends Screen {
         int y = listStartY - scrollOffset;
         int contentHeight = 0;
 
-        // Achievement-Liste
-        for (Achievement ach : currentAchievements) {
-            boolean unlocked = unlockedCache.contains(ach.getId());
-            double progress = progressCache.getOrDefault(ach.getId(), 0.0);
+        // Achievement-Liste (sortiert nach Tier)
+        for (AchievementData ach : currentAchievements) {
+            boolean unlocked = ach.isUnlocked();
+            double progress = ach.getProgress();
             double progressPercent = Math.min(100, progress / ach.getRequirement() * 100.0);
 
             if (y >= listStartY - 50 && y < endY) {
@@ -297,7 +321,8 @@ public class AchievementAppScreen extends Screen {
 
                 // Reward (wenn nicht freigeschaltet)
                 if (!unlocked) {
-                    guiGraphics.drawString(this.font, ach.getRewardString(),
+                    String rewardString = String.format("§a+%.2f€", ach.getTier().getRewardMoney());
+                    guiGraphics.drawString(this.font, rewardString,
                         leftPos + WIDTH - 60, y + 28, 0x55FF55);
                 }
 
@@ -334,15 +359,16 @@ public class AchievementAppScreen extends Screen {
     // ═══════════════════════════════════════════════════════════
 
     private void renderDetailView(GuiGraphics guiGraphics, int startY, int endY) {
-        if (selectedAchievement == null) return;
+        if (selectedAchievementData == null) return;
 
-        Achievement ach = selectedAchievement;
-        boolean unlocked = unlockedCache.contains(ach.getId());
-        double progress = progressCache.getOrDefault(ach.getId(), 0.0);
+        AchievementData ach = selectedAchievementData;
+        boolean unlocked = ach.isUnlocked();
+        double progress = ach.getProgress();
         double progressPercent = Math.min(100, progress / ach.getRequirement() * 100.0);
 
         // Achievement Name
-        guiGraphics.drawCenteredString(this.font, ach.getFormattedName(),
+        String formattedName = ach.getTier().getColorCode() + ach.getTier().getEmoji() + " §f" + ach.getName();
+        guiGraphics.drawCenteredString(this.font, formattedName,
             leftPos + WIDTH / 2, startY + 10, 0xFFFFFF);
 
         // Category
@@ -350,7 +376,7 @@ public class AchievementAppScreen extends Screen {
             leftPos + WIDTH / 2, startY + 25, 0xAAAAAA);
 
         // Description
-        guiGraphics.drawCenteredString(this.font, ach.getFormattedDescription(),
+        guiGraphics.drawCenteredString(this.font, "§7" + ach.getDescription(),
             leftPos + WIDTH / 2, startY + 45, 0xAAAAAA);
 
         // Big Progress Circle (simplified as bar)
@@ -384,7 +410,8 @@ public class AchievementAppScreen extends Screen {
         // Reward
         guiGraphics.drawCenteredString(this.font, "§7Belohnung:",
             leftPos + WIDTH / 2, startY + 140, 0xAAAAAA);
-        guiGraphics.drawCenteredString(this.font, ach.getRewardString(),
+        String rewardString = String.format("§a+%.2f€", ach.getTier().getRewardMoney());
+        guiGraphics.drawCenteredString(this.font, rewardString,
             leftPos + WIDTH / 2, startY + 155, 0x55FF55);
 
         // Tier Info
@@ -404,7 +431,7 @@ public class AchievementAppScreen extends Screen {
             int listStartY = topPos + 32 + 30;
             int y = listStartY - scrollOffset;
 
-            for (Achievement ach : currentAchievements) {
+            for (AchievementData ach : currentAchievements) {
                 int boxTop = y;
                 int boxBottom = y + 45;
 
@@ -412,7 +439,7 @@ public class AchievementAppScreen extends Screen {
                     mouseY >= boxTop && mouseY <= boxBottom &&
                     boxTop >= listStartY - 50 && boxBottom <= topPos + HEIGHT - 40) {
 
-                    selectedAchievement = ach;
+                    selectedAchievementData = ach;
                     currentView = ViewMode.DETAIL;
                     scrollOffset = 0;
                     initButtons();
