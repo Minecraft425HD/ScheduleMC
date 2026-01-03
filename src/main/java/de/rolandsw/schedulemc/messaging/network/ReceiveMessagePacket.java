@@ -33,12 +33,15 @@ public class ReceiveMessagePacket {
         buf.writeUtf(content);
     }
 
+    /**
+     * SICHERHEIT: Max-Länge für Strings gegen DoS/Memory-Angriffe
+     */
     public static ReceiveMessagePacket decode(FriendlyByteBuf buf) {
         return new ReceiveMessagePacket(
             buf.readUUID(),
-            buf.readUtf(),
+            buf.readUtf(64),   // Sender name max 64 chars
             buf.readBoolean(),
-            buf.readUtf()
+            buf.readUtf(1024)  // Message max 1024 chars
         );
     }
 

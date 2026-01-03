@@ -10,21 +10,24 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * RoadBlockDetector - Erkennt Straßenblöcke für die Navigation
  *
  * Lädt konfigurierbare Blocktypen aus der Config und prüft,
  * ob ein Block als "Straße" für die Navigation gilt.
+ * SICHERHEIT: Thread-safe Set für concurrent access
  */
 public class RoadBlockDetector {
 
+    // SICHERHEIT: ConcurrentHashMap.newKeySet() für Thread-safe Set-Operationen
     // Gecachte Straßenblöcke für schnellen Lookup
-    private static Set<Block> roadBlocks = new HashSet<>();
-    private static boolean initialized = false;
+    private static final Set<Block> roadBlocks = ConcurrentHashMap.newKeySet();
+    // SICHERHEIT: volatile für Memory Visibility
+    private static volatile boolean initialized = false;
 
     /**
      * Initialisiert den Detector mit Blöcken aus der Config

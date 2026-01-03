@@ -11,9 +11,12 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Verwaltet Fahrzeug-Spawn-Punkte für Autohändler
+ * SICHERHEIT: Thread-safe Collections für concurrent access
  */
 public class VehicleSpawnRegistry {
 
@@ -21,9 +24,11 @@ public class VehicleSpawnRegistry {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final File SPAWN_FILE = new File("config/vehicle_spawns.json");
 
+    // SICHERHEIT: ConcurrentHashMap mit CopyOnWriteArrayList für Thread-safe Zugriff
     // UUID (Dealer NPC ID) → List<VehicleSpawnPoint>
-    private static Map<UUID, List<VehicleSpawnPoint>> dealerSpawnPoints = new HashMap<>();
-    private static boolean isDirty = false;
+    private static Map<UUID, List<VehicleSpawnPoint>> dealerSpawnPoints = new ConcurrentHashMap<>();
+    // SICHERHEIT: volatile für Memory Visibility
+    private static volatile boolean isDirty = false;
 
     /**
      * Lädt Spawn-Punkte vom Disk

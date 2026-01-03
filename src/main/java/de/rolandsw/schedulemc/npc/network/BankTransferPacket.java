@@ -31,9 +31,12 @@ public class BankTransferPacket {
         buf.writeDouble(amount);
     }
 
+    /**
+     * SICHERHEIT: Max-Länge für playerName gegen DoS/Memory-Angriffe
+     */
     public static BankTransferPacket decode(FriendlyByteBuf buf) {
         return new BankTransferPacket(
-            buf.readUtf(),
+            buf.readUtf(16), // MC username max 16 chars
             buf.readDouble()
         );
     }

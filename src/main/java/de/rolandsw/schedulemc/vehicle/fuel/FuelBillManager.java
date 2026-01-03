@@ -9,20 +9,24 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.lang.reflect.Type;
 import java.util.*;  // Enthält Collections
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 /**
  * Verwaltet alle Tankrechnungen
  *
  * Nutzt AbstractPersistenceManager für robuste Datenpersistenz
+ * SICHERHEIT: Thread-safe Collections für concurrent access
  */
 public class FuelBillManager {
 
     private static final Gson GSON = GsonHelper.get();
     private static final File BILLS_FILE = new File("config/fuel_bills.json");
 
+    // SICHERHEIT: ConcurrentHashMap für Thread-safe Zugriff
     // PlayerUUID → List<UnpaidBill>
-    private static Map<UUID, List<UnpaidBill>> playerBills = new HashMap<>();
+    private static Map<UUID, List<UnpaidBill>> playerBills = new ConcurrentHashMap<>();
 
     // Persistence-Manager (eliminiert ~80 Zeilen Duplikation)
     private static final FuelBillPersistenceManager persistence =

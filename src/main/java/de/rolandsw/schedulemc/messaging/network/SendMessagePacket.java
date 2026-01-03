@@ -37,12 +37,15 @@ public class SendMessagePacket {
         buf.writeUtf(content);
     }
 
+    /**
+     * SICHERHEIT: Max-Länge für Strings gegen DoS/Memory-Angriffe
+     */
     public static SendMessagePacket decode(FriendlyByteBuf buf) {
         UUID uuid = buf.readUUID();
         boolean isPlayer = buf.readBoolean();
         // OPTIMIERT: Lese recipientName nur für NPCs
-        String name = isPlayer ? "" : buf.readUtf();
-        String content = buf.readUtf();
+        String name = isPlayer ? "" : buf.readUtf(64); // NPC name max 64 chars
+        String content = buf.readUtf(1024); // Message max 1024 chars
         return new SendMessagePacket(uuid, name, isPlayer, content);
     }
 

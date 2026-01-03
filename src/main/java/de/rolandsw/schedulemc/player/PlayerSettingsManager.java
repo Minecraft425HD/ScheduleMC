@@ -14,9 +14,11 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Verwaltet persistente Spieler-Einstellungen
+ * SICHERHEIT: Thread-safe Map für concurrent access
  */
 public class PlayerSettingsManager {
 
@@ -24,7 +26,8 @@ public class PlayerSettingsManager {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final File SETTINGS_FILE = new File("world/data/player_settings.json");
 
-    private static Map<String, PlayerSettings> settingsMap = new HashMap<>();
+    // SICHERHEIT: ConcurrentHashMap für Thread-safe Zugriff
+    private static Map<String, PlayerSettings> settingsMap = new ConcurrentHashMap<>();
 
     /**
      * Lädt alle Einstellungen aus der Datei
@@ -39,14 +42,13 @@ public class PlayerSettingsManager {
 
         try (FileReader reader = new FileReader(SETTINGS_FILE)) {
             Type type = new TypeToken<Map<String, PlayerSettings>>(){}.getType();
-            settingsMap = GSON.fromJson(reader, type);
-            if (settingsMap == null) {
-                settingsMap = new HashMap<>();
-            }
+            Map<String, PlayerSettings> loaded = GSON.fromJson(reader, type);
+            // SICHERHEIT: Konvertiere zu ConcurrentHashMap
+            settingsMap = loaded != null ? new ConcurrentHashMap<>(loaded) : new ConcurrentHashMap<>();
             LOGGER.info("Loaded settings for {} players", settingsMap.size());
         } catch (IOException e) {
             LOGGER.error("Failed to load player settings", e);
-            settingsMap = new HashMap<>();
+            settingsMap = new ConcurrentHashMap<>();
         }
     }
 

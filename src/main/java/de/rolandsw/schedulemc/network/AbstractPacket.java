@@ -116,12 +116,13 @@ public abstract class AbstractPacket {
 
     /**
      * Liest eine String-Liste aus dem Buffer
+     * SICHERHEIT: Max-Länge und max Anzahl gegen DoS/Memory-Angriffe
      */
     protected static java.util.List<String> readStringList(FriendlyByteBuf buf) {
-        int size = buf.readInt();
+        int size = Math.min(buf.readInt(), 1000); // Max 1000 Einträge
         java.util.List<String> list = new java.util.ArrayList<>(size);
         for (int i = 0; i < size; i++) {
-            list.add(buf.readUtf());
+            list.add(buf.readUtf(256)); // Max 256 chars per String
         }
         return list;
     }
@@ -138,12 +139,13 @@ public abstract class AbstractPacket {
 
     /**
      * Liest ein String-Set aus dem Buffer
+     * SICHERHEIT: Max-Länge und max Anzahl gegen DoS/Memory-Angriffe
      */
     protected static java.util.Set<String> readStringSet(FriendlyByteBuf buf) {
-        int size = buf.readInt();
+        int size = Math.min(buf.readInt(), 1000); // Max 1000 Einträge
         java.util.Set<String> set = new java.util.HashSet<>(size);
         for (int i = 0; i < size; i++) {
-            set.add(buf.readUtf());
+            set.add(buf.readUtf(256)); // Max 256 chars per String
         }
         return set;
     }

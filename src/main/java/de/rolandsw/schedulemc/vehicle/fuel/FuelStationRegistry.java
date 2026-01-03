@@ -11,9 +11,11 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Verwaltet Registrierung und IDs aller Zapfsäulen
+ * SICHERHEIT: Thread-safe Collections für concurrent access
  */
 public class FuelStationRegistry {
 
@@ -21,11 +23,13 @@ public class FuelStationRegistry {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final File REGISTRY_FILE = new File("config/fuel_station_registry.json");
 
+    // SICHERHEIT: ConcurrentHashMap für Thread-safe Zugriff
     // UUID → FuelStationEntry
-    private static Map<UUID, FuelStationEntry> fuelStations = new HashMap<>();
+    private static Map<UUID, FuelStationEntry> fuelStations = new ConcurrentHashMap<>();
     // BlockPos → UUID (für schnelle Lookup)
-    private static Map<BlockPos, UUID> positionToId = new HashMap<>();
-    private static boolean isDirty = false;
+    private static Map<BlockPos, UUID> positionToId = new ConcurrentHashMap<>();
+    // SICHERHEIT: volatile für Memory Visibility
+    private static volatile boolean isDirty = false;
 
     /**
      * Lädt Registry vom Disk

@@ -44,13 +44,16 @@ public class AchievementData {
         buf.writeBoolean(unlocked);
     }
 
+    /**
+     * SICHERHEIT: Max-Länge für Strings gegen DoS/Memory-Angriffe
+     */
     public static AchievementData decode(FriendlyByteBuf buf) {
         return new AchievementData(
-            buf.readUtf(),
-            buf.readUtf(),
-            buf.readUtf(),
-            buf.readUtf(),
-            buf.readUtf(),
+            buf.readUtf(64),   // id max 64 chars
+            buf.readUtf(64),   // name max 64 chars
+            buf.readUtf(256),  // description max 256 chars
+            buf.readUtf(32),   // categoryName max 32 chars
+            buf.readUtf(32),   // tierName max 32 chars
             buf.readDouble(),
             buf.readBoolean(),
             buf.readDouble(),
