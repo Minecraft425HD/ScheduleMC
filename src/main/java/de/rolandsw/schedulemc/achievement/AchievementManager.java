@@ -18,7 +18,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * Extends AbstractPersistenceManager für robuste Persistenz
  */
 public class AchievementManager extends AbstractPersistenceManager<Map<UUID, PlayerAchievements>> {
-    private static AchievementManager instance;
+    // SICHERHEIT: volatile für Double-Checked Locking Pattern
+    private static volatile AchievementManager instance;
 
     private final Map<String, Achievement> achievements = new LinkedHashMap<>();
     private final Map<UUID, PlayerAchievements> playerData = new ConcurrentHashMap<>();
@@ -34,12 +35,21 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
         load();
     }
 
+    /**
+     * SICHERHEIT: Double-Checked Locking für Thread-Safety
+     */
     public static AchievementManager getInstance(MinecraftServer server) {
-        if (instance == null) {
-            instance = new AchievementManager(server);
+        AchievementManager localRef = instance;
+        if (localRef == null) {
+            synchronized (AchievementManager.class) {
+                localRef = instance;
+                if (localRef == null) {
+                    instance = localRef = new AchievementManager(server);
+                }
+            }
         }
-        instance.server = server;
-        return instance;
+        localRef.server = server;
+        return localRef;
     }
 
     @Nullable

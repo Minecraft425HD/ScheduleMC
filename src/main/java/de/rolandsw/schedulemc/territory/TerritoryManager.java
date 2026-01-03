@@ -18,7 +18,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * Extends AbstractPersistenceManager
  */
 public class TerritoryManager extends AbstractPersistenceManager<Map<Long, Territory>> {
-    private static TerritoryManager instance;
+    // SICHERHEIT: volatile für Double-Checked Locking Pattern
+    private static volatile TerritoryManager instance;
 
     // ChunkKey -> Territory
     private final Map<Long, Territory> territories = new ConcurrentHashMap<>();
@@ -34,12 +35,21 @@ public class TerritoryManager extends AbstractPersistenceManager<Map<Long, Terri
         load();
     }
 
+    /**
+     * SICHERHEIT: Double-Checked Locking für Thread-Safety
+     */
     public static TerritoryManager getInstance(MinecraftServer server) {
-        if (instance == null) {
-            instance = new TerritoryManager(server);
+        TerritoryManager localRef = instance;
+        if (localRef == null) {
+            synchronized (TerritoryManager.class) {
+                localRef = instance;
+                if (localRef == null) {
+                    instance = localRef = new TerritoryManager(server);
+                }
+            }
         }
-        instance.server = server;
-        return instance;
+        localRef.server = server;
+        return localRef;
     }
 
     @Nullable

@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -48,7 +49,8 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
 
     // SICHERHEIT: volatile für Memory Visibility zwischen Threads (IncrementalSaveManager)
     private static volatile boolean dirty = false;
-    private static volatile int plotCounter = 1;
+    // SICHERHEIT: AtomicInteger für Thread-safe Plot-ID Inkrement
+    private static final AtomicInteger plotCounter = new AtomicInteger(1);
     private static volatile boolean isHealthy = true;
     private static volatile String lastError = null;
     
@@ -133,11 +135,12 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
     
     /**
      * Generiert eine eindeutige Plot-ID
+     * SICHERHEIT: Thread-safe durch AtomicInteger
      */
     private static String generatePlotId() {
         String id;
         do {
-            id = "plot_" + plotCounter++;
+            id = "plot_" + plotCounter.getAndIncrement();
         } while (plots.containsKey(id));
         return id;
     }
@@ -418,7 +421,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
                 .max()
                 .orElse(0);
 
-            plotCounter = maxId + 1;
+            plotCounter.set(maxId + 1);
 
             // Spatial Index neu aufbauen
             spatialIndex.rebuild(plots.values());
@@ -434,7 +437,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
 
         plots.clear();
         spatialIndex.clear();
-        plotCounter = 1;
+        plotCounter.set(1);
         isHealthy = false;
         lastError = "Critical load failure - running with empty data";
 
@@ -622,7 +625,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
         spatialIndex.clear();
         plotCache.clear();
         dirty = true;
-        plotCounter = 1;
+        plotCounter.set(1);
         LOGGER.warn("Alle Plots gelöscht!");
     }
     

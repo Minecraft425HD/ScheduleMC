@@ -32,7 +32,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class PrisonManager {
 
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static PrisonManager instance;
+    // SICHERHEIT: volatile für Double-Checked Locking Pattern
+    private static volatile PrisonManager instance;
 
     public static final int JAIL_SECONDS_PER_WANTED_LEVEL = 60;
     public static final double BAIL_MULTIPLIER = 1000.0;
@@ -87,11 +88,20 @@ public class PrisonManager {
         loadPrisonerData();
     }
 
+    /**
+     * SICHERHEIT: Double-Checked Locking für Thread-Safety
+     */
     public static PrisonManager getInstance() {
-        if (instance == null) {
-            instance = new PrisonManager();
+        PrisonManager localRef = instance;
+        if (localRef == null) {
+            synchronized (PrisonManager.class) {
+                localRef = instance;
+                if (localRef == null) {
+                    instance = localRef = new PrisonManager();
+                }
+            }
         }
-        return instance;
+        return localRef;
     }
 
     public static void init() {

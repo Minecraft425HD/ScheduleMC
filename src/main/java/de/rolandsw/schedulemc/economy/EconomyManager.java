@@ -24,7 +24,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class EconomyManager implements IncrementalSaveManager.ISaveable {
 
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static EconomyManager instance;
+    // SICHERHEIT: volatile für Double-Checked Locking Pattern
+    private static volatile EconomyManager instance;
     private static final Map<UUID, Double> balances = new ConcurrentHashMap<>();
     // SICHERHEIT: volatile für Memory Visibility zwischen Threads (IncrementalSaveManager)
     private static volatile File file = new File("config/plotmod_economy.json");
@@ -66,12 +67,19 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
 
     /**
      * Gibt die Singleton-Instanz zurück
+     * SICHERHEIT: Double-Checked Locking für Thread-Safety
      */
     public static EconomyManager getInstance() {
-        if (instance == null) {
-            instance = new EconomyManager();
+        EconomyManager localRef = instance;
+        if (localRef == null) {
+            synchronized (EconomyManager.class) {
+                localRef = instance;
+                if (localRef == null) {
+                    instance = localRef = new EconomyManager();
+                }
+            }
         }
-        return instance;
+        return localRef;
     }
 
     // Typ für Gson-Deserialisierung

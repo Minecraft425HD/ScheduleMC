@@ -38,8 +38,9 @@ public class WarehouseManager {
 
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Map<String, Set<BlockPos>> warehouses = new ConcurrentHashMap<>();
-    private static boolean dirty = false;
-    private static int tickCounter = 0;
+    // SICHERHEIT: volatile für Memory Visibility zwischen Threads
+    private static volatile boolean dirty = false;
+    private static volatile int tickCounter = 0;
     private static final int CHECK_INTERVAL = 20; // Prüfe jede Sekunde (20 ticks) für schnelle Reaktion
 
     // OPTIMIERUNG: Cache für letzte Delivery-Tage (vermeidet Block-Entity-Lookups jeden Tick)

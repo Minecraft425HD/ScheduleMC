@@ -15,7 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * Verwendet AbstractPersistenceManager für robuste Datenpersistenz
  */
 public class CreditScoreManager extends AbstractPersistenceManager<Map<UUID, CreditScore>> {
-    private static CreditScoreManager instance;
+    // SICHERHEIT: volatile für Double-Checked Locking Pattern
+    private static volatile CreditScoreManager instance;
 
     private final Map<UUID, CreditScore> creditScores = new ConcurrentHashMap<>();
     private MinecraftServer server;
@@ -34,12 +35,21 @@ public class CreditScoreManager extends AbstractPersistenceManager<Map<UUID, Cre
         load();
     }
 
+    /**
+     * SICHERHEIT: Double-Checked Locking für Thread-Safety
+     */
     public static CreditScoreManager getInstance(MinecraftServer server) {
-        if (instance == null) {
-            instance = new CreditScoreManager(server);
+        CreditScoreManager localRef = instance;
+        if (localRef == null) {
+            synchronized (CreditScoreManager.class) {
+                localRef = instance;
+                if (localRef == null) {
+                    instance = localRef = new CreditScoreManager(server);
+                }
+            }
         }
-        instance.server = server;
-        return instance;
+        localRef.server = server;
+        return localRef;
     }
 
     /**

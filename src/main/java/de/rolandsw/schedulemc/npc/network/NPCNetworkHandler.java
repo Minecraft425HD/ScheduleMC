@@ -8,6 +8,8 @@ import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * Network Handler für NPC Packets
  */
@@ -20,10 +22,11 @@ public class NPCNetworkHandler {
         PROTOCOL_VERSION::equals
     );
 
-    private static int packetId = 0;
+    // SICHERHEIT: AtomicInteger für Thread-safe Packet-ID Inkrement
+    private static final AtomicInteger packetId = new AtomicInteger(0);
 
     private static int id() {
-        return packetId++;
+        return packetId.getAndIncrement();
     }
 
     public static void register() {
