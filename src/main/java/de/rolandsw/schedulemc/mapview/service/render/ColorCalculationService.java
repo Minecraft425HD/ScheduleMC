@@ -287,14 +287,18 @@ public class ColorCalculationService {
         return this.getBlockColor(this.dummyBlockPos, blockStateID);
     }
 
-    private int getBlockColor(MutableBlockPos blockPos, int blockStateID) {
+    /**
+     * SICHERHEIT: Synchronized für Thread-safe Array-Zugriff während Resize
+     */
+    private synchronized int getBlockColor(MutableBlockPos blockPos, int blockStateID) {
         int col = 0x1B000000;
 
-        try {
-            col = this.blockColors[blockStateID];
-        } catch (ArrayIndexOutOfBoundsException var5) {
+        // Nach Synchronisierung ist Array-Zugriff sicher
+        if (blockStateID >= this.blockColors.length) {
             this.resizeColorArrays(blockStateID);
         }
+
+        col = this.blockColors[blockStateID];
 
         if (col == 0xFEFF00FF || col == 0x1B000000) {
             BlockState blockState = BlockDatabase.getStateById(blockStateID);
@@ -304,7 +308,7 @@ public class ColorCalculationService {
         return col;
     }
 
-    private synchronized void resizeColorArrays(int queriedID) {
+    private void resizeColorArrays(int queriedID) {
         if (queriedID >= this.blockColors.length) {
             // Performance-Optimierung: Wachse direkt auf benötigte Größe + Puffer
             // Vorher: Verdoppelte Größe jedes Mal → mehrere Resizes nötig

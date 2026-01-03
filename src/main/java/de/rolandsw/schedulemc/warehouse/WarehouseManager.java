@@ -302,8 +302,13 @@ public class WarehouseManager {
 
     /**
      * Gibt alle registrierten Warehouse-Positionen zurück (für Debugging)
+     * SICHERHEIT: Deep Copy verhindert externe Modifikation
      */
     public static Map<String, Set<BlockPos>> getAllWarehouses() {
-        return new HashMap<>(warehouses);
+        Map<String, Set<BlockPos>> copy = new HashMap<>();
+        for (Map.Entry<String, Set<BlockPos>> entry : warehouses.entrySet()) {
+            copy.put(entry.getKey(), new HashSet<>(entry.getValue()));
+        }
+        return Collections.unmodifiableMap(copy);
     }
 }

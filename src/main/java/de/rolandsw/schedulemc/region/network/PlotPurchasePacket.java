@@ -42,15 +42,18 @@ public class PlotPurchasePacket {
 
     /**
      * Decode - Liest Daten aus Packet
+     * SICHERHEIT: Input-Validierung gegen DoS
      */
     public static PlotPurchasePacket decode(FriendlyByteBuf buffer) {
-        String plotId = buffer.readUtf();
+        // SICHERHEIT: Max-Länge 256 Zeichen für plotId
+        String plotId = buffer.readUtf(256);
         PurchaseType type = buffer.readEnum(PurchaseType.class);
         return new PlotPurchasePacket(plotId, type);
     }
 
     /**
      * Handle - Verarbeitet Packet auf Server-Seite
+     * SICHERHEIT: Atomare Plot-Transaktionen mit synchronized Block
      */
     public static void handle(PlotPurchasePacket msg, Supplier<NetworkEvent.Context> ctx) {
         PacketHandler.handleServerPacket(ctx, player -> {
@@ -63,80 +66,78 @@ public class PlotPurchasePacket {
 
             UUID playerUUID = player.getUUID();
 
-            switch (msg.type) {
-                case BUY:
-                    // Prüfe ob Plot kaufbar ist (ohne Besitzer ODER explizit zum Verkauf)
-                    if (plot.hasOwner() && !plot.isForSale()) {
-                        player.sendSystemMessage(Component.literal("§cDieser Plot steht nicht zum Verkauf!"));
-                        return;
-                    }
+            // SICHERHEIT: Atomare Transaktion - Lock auf Plot-Objekt
+            synchronized (plot) {
+                switch (msg.type) {
+                    case BUY:
+                        // Prüfe ob Plot kaufbar ist (ohne Besitzer ODER explizit zum Verkauf)
+                        if (plot.hasOwner() && !plot.isForSale()) {
+                            player.sendSystemMessage(Component.literal("§cDieser Plot steht nicht zum Verkauf!"));
+                            return;
+                        }
 
-                    // Bestimme Preis: Plot ohne Besitzer = Standardpreis, sonst Verkaufspreis
-                    double salePrice = !plot.hasOwner() ? plot.getPrice() : plot.getSalePrice();
+                        // Bestimme Preis: Plot ohne Besitzer = Standardpreis, sonst Verkaufspreis
+                        double salePrice = !plot.hasOwner() ? plot.getPrice() : plot.getSalePrice();
 
-                    // Prüfe Guthaben
-                    if (EconomyManager.getBalance(playerUUID) < salePrice) {
-                        player.sendSystemMessage(Component.literal("§cNicht genug Guthaben! Benötigt: ")
+                        // SICHERHEIT: Atomare Transaktion mit EconomyManager
+                        if (!EconomyManager.withdraw(playerUUID, salePrice, TransactionType.PLOT_PURCHASE,
+                                "Plot-Kauf: " + plot.getPlotName())) {
+                            player.sendSystemMessage(Component.literal("§cNicht genug Guthaben! Benötigt: ")
+                                .append(Component.literal(String.format("%.2f€", salePrice))
+                                    .withStyle(ChatFormatting.GOLD)));
+                            return;
+                        }
+
+                        // Zahle an alten Besitzer (nur wenn Plot einen Besitzer hat)
+                        if (plot.hasOwner()) {
+                            UUID oldOwnerUUID = UUID.fromString(plot.getOwnerUUID());
+                            EconomyManager.deposit(oldOwnerUUID, salePrice, TransactionType.PLOT_SALE,
+                                "Plot-Verkauf: " + plot.getPlotName());
+                        }
+
+                        // Übertrage Eigentum
+                        plot.setOwner(playerUUID, player.getName().getString());
+                        plot.setForSale(false);
+                        plot.setForRent(false);
+                        PlotManager.savePlots();
+
+                        player.sendSystemMessage(Component.literal("§aPlot erfolgreich gekauft für ")
                             .append(Component.literal(String.format("%.2f€", salePrice))
                                 .withStyle(ChatFormatting.GOLD)));
-                        return;
-                    }
+                        break;
 
-                    // Ziehe Geld vom Käufer ab
-                    EconomyManager.withdraw(playerUUID, salePrice, TransactionType.PLOT_PURCHASE,
-                        "Plot-Kauf: " + plot.getPlotName());
+                    case RENT:
+                        if (!plot.isForRent() || plot.isRented()) {
+                            player.sendSystemMessage(Component.literal("§cDieser Plot steht nicht zur Miete!"));
+                            return;
+                        }
 
-                    // Zahle an alten Besitzer (nur wenn Plot einen Besitzer hat)
-                    if (plot.hasOwner()) {
-                        UUID oldOwnerUUID = UUID.fromString(plot.getOwnerUUID());
-                        EconomyManager.deposit(oldOwnerUUID, salePrice, TransactionType.PLOT_SALE,
-                            "Plot-Verkauf: " + plot.getPlotName());
-                    }
-                    // Wenn Plot keinen Besitzer hat, geht das Geld an den Server (= wird entfernt)
+                        double rentPrice = plot.getRentPricePerDay();
 
-                    // Übertrage Eigentum
-                    plot.setOwner(playerUUID, player.getName().getString());
-                    plot.setForSale(false);
-                    plot.setForRent(false);
-                    PlotManager.savePlots();
+                        // SICHERHEIT: Atomare Transaktion
+                        if (!EconomyManager.withdraw(playerUUID, rentPrice, TransactionType.PLOT_RENT,
+                                "Plot-Miete (1 Tag): " + plot.getPlotName())) {
+                            player.sendSystemMessage(Component.literal("§cNicht genug Guthaben! Benötigt: ")
+                                .append(Component.literal(String.format("%.2f€", rentPrice))
+                                    .withStyle(ChatFormatting.GOLD)));
+                            return;
+                        }
 
-                    player.sendSystemMessage(Component.literal("§aPlot erfolgreich gekauft für ")
-                        .append(Component.literal(String.format("%.2f€", salePrice))
-                            .withStyle(ChatFormatting.GOLD)));
-                    break;
+                        // Zahle Miete an Besitzer
+                        UUID ownerUUID = UUID.fromString(plot.getOwnerUUID());
+                        EconomyManager.deposit(ownerUUID, rentPrice, TransactionType.PLOT_RENT,
+                            "Mieteinnahme: " + plot.getPlotName());
 
-                case RENT:
-                    if (!plot.isForRent() || plot.isRented()) {
-                        player.sendSystemMessage(Component.literal("§cDieser Plot steht nicht zur Miete!"));
-                        return;
-                    }
+                        // Setze Mieter und Mietzeit (1 Tag = 24 Stunden)
+                        plot.setRenterUUID(playerUUID.toString());
+                        plot.setRentEndTime(System.currentTimeMillis() + (24 * 60 * 60 * 1000));
+                        PlotManager.savePlots();
 
-                    double rentPrice = plot.getRentPricePerDay();
-
-                    // Prüfe Guthaben (mind. 1 Tag)
-                    if (EconomyManager.getBalance(playerUUID) < rentPrice) {
-                        player.sendSystemMessage(Component.literal("§cNicht genug Guthaben! Benötigt: ")
-                            .append(Component.literal(String.format("%.2f€", rentPrice))
+                        player.sendSystemMessage(Component.literal("§aPlot erfolgreich gemietet für ")
+                            .append(Component.literal(String.format("%.2f€/Tag", rentPrice))
                                 .withStyle(ChatFormatting.GOLD)));
-                        return;
-                    }
-
-                    // Zahle erste Miete
-                    UUID ownerUUID = UUID.fromString(plot.getOwnerUUID());
-                    EconomyManager.withdraw(playerUUID, rentPrice, TransactionType.PLOT_RENT,
-                        "Plot-Miete (1 Tag): " + plot.getPlotName());
-                    EconomyManager.deposit(ownerUUID, rentPrice, TransactionType.PLOT_RENT,
-                        "Mieteinnahme: " + plot.getPlotName());
-
-                    // Setze Mieter und Mietzeit (1 Tag = 24 Stunden)
-                    plot.setRenterUUID(playerUUID.toString());
-                    plot.setRentEndTime(System.currentTimeMillis() + (24 * 60 * 60 * 1000));
-                    PlotManager.savePlots();
-
-                    player.sendSystemMessage(Component.literal("§aPlot erfolgreich gemietet für ")
-                        .append(Component.literal(String.format("%.2f€/Tag", rentPrice))
-                            .withStyle(ChatFormatting.GOLD)));
-                    break;
+                        break;
+                }
             }
         });
     }

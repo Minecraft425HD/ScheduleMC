@@ -7,12 +7,13 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import org.slf4j.Logger;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * RoadNavigationService - Koordiniert die Straßen-Navigation
@@ -27,8 +28,9 @@ public class RoadNavigationService {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    // Singleton-Instanz
-    private static RoadNavigationService instance;
+    // SICHERHEIT: volatile + Lock für Thread-safe Singleton
+    private static volatile RoadNavigationService instance;
+    private static final Object INSTANCE_LOCK = new Object();
 
     // Konfiguration
     private static final int DEFAULT_SCAN_RADIUS = 150; // Reduziert für bessere Performance
@@ -52,18 +54,27 @@ public class RoadNavigationService {
     private int currentFullPathIndex;       // Index auf currentPath (für Rendering)
     private BlockPos lastPathStartPos;      // Letzte Position von der aus der Pfad berechnet wurde
 
-    // Listener für UI-Updates
-    private final List<NavigationListener> listeners = new ArrayList<>();
+    // SICHERHEIT: CopyOnWriteArrayList für Thread-safe Listener-Operationen
+    private final List<NavigationListener> listeners = new CopyOnWriteArrayList<>();
 
     // ═══════════════════════════════════════════════════════════
     // SINGLETON
     // ═══════════════════════════════════════════════════════════
 
+    /**
+     * SICHERHEIT: Thread-safe Singleton mit Double-Checked Locking
+     */
     public static RoadNavigationService getInstance(WorldMapData mapData) {
-        if (instance == null) {
-            instance = new RoadNavigationService(mapData);
+        RoadNavigationService result = instance;
+        if (result == null) {
+            synchronized (INSTANCE_LOCK) {
+                result = instance;
+                if (result == null) {
+                    instance = result = new RoadNavigationService(mapData);
+                }
+            }
         }
-        return instance;
+        return result;
     }
 
     public static RoadNavigationService getInstance() {
@@ -503,9 +514,24 @@ public class RoadNavigationService {
     /**
      * Gibt Ressourcen frei
      */
+    /**
+     * SICHERHEIT: Proper Shutdown mit awaitTermination und Thread-safe Instance-Reset
+     */
     public void shutdown() {
-        executor.shutdown();
         stopNavigation();
-        instance = null;
+        executor.shutdown();
+        try {
+            if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+                LOGGER.warn("[RoadNavigationService] Executor did not terminate in time, forcing shutdown");
+                executor.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            LOGGER.warn("[RoadNavigationService] Shutdown interrupted, forcing shutdown");
+            executor.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+        synchronized (INSTANCE_LOCK) {
+            instance = null;
+        }
     }
 }
