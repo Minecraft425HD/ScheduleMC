@@ -8,6 +8,7 @@ import de.rolandsw.schedulemc.region.PlotRegion;
 import de.rolandsw.schedulemc.region.network.*;
 import de.rolandsw.schedulemc.utility.PlotUtilityData;
 import de.rolandsw.schedulemc.utility.PlotUtilityManager;
+import de.rolandsw.schedulemc.player.network.ClientPlayerSettings;
 import de.rolandsw.schedulemc.player.network.PlayerSettingsNetworkHandler;
 import de.rolandsw.schedulemc.player.network.PlayerSettingsPacket;
 import net.minecraft.client.Minecraft;
@@ -121,6 +122,11 @@ public class SettingsAppScreen extends Screen {
     @Override
     protected void init() {
         super.init();
+
+        // Lade gespeicherte Einstellungen vom Client-Cache
+        this.utilityWarningsEnabled = ClientPlayerSettings.utilityWarningsEnabled;
+        this.electricityWarningThreshold = ClientPlayerSettings.electricityThreshold;
+        this.waterWarningThreshold = ClientPlayerSettings.waterThreshold;
 
         this.leftPos = (this.width - WIDTH) / 2;
 

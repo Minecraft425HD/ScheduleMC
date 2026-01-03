@@ -26,10 +26,18 @@ public class PlayerSettingsNetworkHandler {
     }
 
     public static void register() {
+        // Client → Server: Settings speichern
         INSTANCE.messageBuilder(PlayerSettingsPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
             .decoder(PlayerSettingsPacket::decode)
             .encoder(PlayerSettingsPacket::encode)
             .consumerMainThread(PlayerSettingsPacket::handle)
+            .add();
+
+        // Server → Client: Settings synchronisieren
+        INSTANCE.messageBuilder(SyncPlayerSettingsPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+            .decoder(SyncPlayerSettingsPacket::decode)
+            .encoder(SyncPlayerSettingsPacket::encode)
+            .consumerMainThread(SyncPlayerSettingsPacket::handle)
             .add();
     }
 
@@ -38,5 +46,12 @@ public class PlayerSettingsNetworkHandler {
      */
     public static void sendToServer(PlayerSettingsPacket packet) {
         INSTANCE.sendToServer(packet);
+    }
+
+    /**
+     * Sendet Packet vom Server zum Client
+     */
+    public static void sendToClient(net.minecraft.server.level.ServerPlayer player, SyncPlayerSettingsPacket packet) {
+        INSTANCE.send(net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> player), packet);
     }
 }

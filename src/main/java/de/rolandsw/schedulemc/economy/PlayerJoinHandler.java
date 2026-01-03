@@ -1,5 +1,8 @@
 package de.rolandsw.schedulemc.economy;
 
+import de.rolandsw.schedulemc.player.PlayerSettingsManager;
+import de.rolandsw.schedulemc.player.network.PlayerSettingsNetworkHandler;
+import de.rolandsw.schedulemc.player.network.SyncPlayerSettingsPacket;
 import de.rolandsw.schedulemc.util.EventHelper;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -68,6 +71,14 @@ public class PlayerJoinHandler {
                 LOGGER.info("Player {} already has account with balance: {} €",
                     player.getName().getString(), EconomyManager.getBalance(uuid));
             }
+
+            // Synchronisiere Spieler-Einstellungen zum Client
+            var settings = PlayerSettingsManager.getSettings(uuid);
+            PlayerSettingsNetworkHandler.sendToClient(player, new SyncPlayerSettingsPacket(settings));
+            LOGGER.info("Synced player settings to client: Warnings={}, Electricity={} kWh, Water={} L",
+                settings.isUtilityWarningsEnabled(),
+                settings.getElectricityWarningThreshold(),
+                settings.getWaterWarningThreshold());
 
             // Prüfe ob das der erste Spieler ist
             ServerLevel level = (ServerLevel) player.level();
