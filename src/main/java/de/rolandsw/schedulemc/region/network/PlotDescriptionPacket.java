@@ -32,10 +32,11 @@ public class PlotDescriptionPacket {
 
     /**
      * Decode - Liest Daten aus Packet
+     * SICHERHEIT: Max-Länge für Strings gegen DoS/Memory-Angriffe
      */
     public static PlotDescriptionPacket decode(FriendlyByteBuf buffer) {
-        String plotId = buffer.readUtf();
-        String description = buffer.readUtf();
+        String plotId = buffer.readUtf(256);
+        String description = buffer.readUtf(512);
         return new PlotDescriptionPacket(plotId, description);
     }
 

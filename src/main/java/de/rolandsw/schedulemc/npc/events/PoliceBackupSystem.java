@@ -7,6 +7,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.AABB;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Verwaltet Polizei-Verstärkungen
@@ -14,22 +15,25 @@ import java.util.*;
  * Limits:
  * - Max. 2 Polizisten bei normaler Verfolgung
  * - Max. 4 Polizisten wenn illegale Items gefunden wurden
+ * SICHERHEIT: Thread-safe Maps für concurrent access
  */
 public class PoliceBackupSystem {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
+    // SICHERHEIT: ConcurrentHashMap für Thread-safe Zugriff
     // Player UUID -> Set of Police UUIDs currently pursuing
-    private static final Map<UUID, Set<UUID>> activePolice = new HashMap<>();
+    private static final Map<UUID, Set<UUID>> activePolice = new ConcurrentHashMap<>();
 
     // Player UUID -> Is Raid (true = 4 max, false = 2 max)
-    private static final Map<UUID, Boolean> isRaidPursuit = new HashMap<>();
+    private static final Map<UUID, Boolean> isRaidPursuit = new ConcurrentHashMap<>();
 
     /**
      * Registriert eine Polizei als aktiv verfolgend
      */
     public static void registerPolice(UUID playerUUID, UUID policeUUID, boolean isRaid) {
-        activePolice.computeIfAbsent(playerUUID, k -> new HashSet<>()).add(policeUUID);
+        // SICHERHEIT: ConcurrentHashMap.newKeySet() für Thread-safe Set
+        activePolice.computeIfAbsent(playerUUID, k -> ConcurrentHashMap.newKeySet()).add(policeUUID);
         isRaidPursuit.put(playerUUID, isRaid);
 
         if (LOGGER.isDebugEnabled()) {

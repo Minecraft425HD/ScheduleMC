@@ -32,7 +32,8 @@ public class NPCNameRegistry {
     private static final File REGISTRY_FILE = new File("config/npc_names.json");
     private static final Gson GSON = GsonHelper.get();
 
-    private static boolean dirty = false;
+    // SICHERHEIT: volatile für Memory Visibility zwischen Threads
+    private static volatile boolean dirty = false;
 
     // ═══════════════════════════════════════════════════════════
     // REGISTRIERUNG

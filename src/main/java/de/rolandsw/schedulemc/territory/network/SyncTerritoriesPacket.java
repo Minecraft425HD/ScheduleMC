@@ -43,16 +43,22 @@ public class SyncTerritoriesPacket {
         }
     }
 
+    /**
+     * SICHERHEIT: Max-Länge für Territory-Name + max Territory count gegen DoS
+     */
     public static SyncTerritoriesPacket decode(FriendlyByteBuf buf) {
         SyncTerritoriesPacket packet = new SyncTerritoriesPacket();
         int size = buf.readInt();
+
+        // SICHERHEIT: Max 10000 Territories pro Sync (DoS-Prävention)
+        if (size > 10000) size = 10000;
 
         for (int i = 0; i < size; i++) {
             long key = buf.readLong();
             int chunkX = buf.readInt();
             int chunkZ = buf.readInt();
             TerritoryType type = buf.readEnum(TerritoryType.class);
-            String name = buf.readUtf();
+            String name = buf.readUtf(64); // Max 64 Zeichen für Territory-Name
 
             packet.territories.put(key, new TerritoryData(chunkX, chunkZ, type, name));
         }

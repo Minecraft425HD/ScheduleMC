@@ -1,16 +1,18 @@
 package de.rolandsw.schedulemc.client;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Trackt welche Spieler aktuell das Smartphone-GUI geöffnet haben
  * Server-Side Tracking für Schutz-Mechanismus
+ * SICHERHEIT: Thread-safe Set für concurrent access von mehreren Spielern
  */
 public class SmartphoneTracker {
 
-    private static final Set<UUID> playersWithSmartphoneOpen = new HashSet<>();
+    // SICHERHEIT: ConcurrentHashMap.newKeySet() für Thread-safe Set-Operationen
+    private static final Set<UUID> playersWithSmartphoneOpen = ConcurrentHashMap.newKeySet();
 
     /**
      * Registriert dass ein Spieler das Smartphone geöffnet hat

@@ -20,20 +20,22 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Zeigt Update-Benachrichtigungen in den Hauptmenüs und beim Login an
+ * SICHERHEIT: Thread-safe Set für concurrent player notification tracking
  */
 @Mod.EventBusSubscriber(modid = ScheduleMC.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class UpdateNotificationHandler {
 
-    private static boolean hasChecked = false;
-    private static int tickCounter = 0;
+    private static volatile boolean hasChecked = false;
+    private static volatile int tickCounter = 0;
     private static final int CHECK_DELAY = 100; // 5 Sekunden (20 ticks/sec)
-    private static final Set<UUID> notifiedPlayers = new HashSet<>();
+    // SICHERHEIT: ConcurrentHashMap.newKeySet() für Thread-safe Set
+    private static final Set<UUID> notifiedPlayers = ConcurrentHashMap.newKeySet();
 
     @SubscribeEvent
     public static void onClientTick(TickEvent.ClientTickEvent event) {

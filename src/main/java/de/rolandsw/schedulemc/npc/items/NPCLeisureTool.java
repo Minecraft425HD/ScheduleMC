@@ -14,10 +14,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Tool zum Setzen von Freizeitorten für NPCs (Bewohner & Verkäufer)
@@ -28,11 +28,12 @@ import java.util.UUID;
  *
  * Freizeitorte werden von Bewohnern den ganzen Tag über besucht (außer Heimzeit).
  * Verkäufer besuchen Freizeitorte nach Feierabend.
+ * SICHERHEIT: Thread-safe Map für concurrent access von mehreren Spielern
  */
 public class NPCLeisureTool extends Item {
 
-    // Speichere ausgewählten NPC pro Spieler (UUID -> NPC Entity ID)
-    private static final Map<UUID, Integer> selectedNPCs = new HashMap<>();
+    // SICHERHEIT: ConcurrentHashMap für Thread-safe Spieler-NPC-Mapping
+    private static final Map<UUID, Integer> selectedNPCs = new ConcurrentHashMap<>();
 
     public NPCLeisureTool() {
         super(new Item.Properties().stacksTo(1));
