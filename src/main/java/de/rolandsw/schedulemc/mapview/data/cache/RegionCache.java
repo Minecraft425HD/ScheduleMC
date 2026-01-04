@@ -86,7 +86,8 @@ public class RegionCache {
     Future<?> future;
     private final ReentrantLock threadLock = new ReentrantLock();
     boolean displayOptionsChanged;
-    boolean imageChanged;
+    // OPTIMIZATION: volatile for lock-free reads in getTextureLocation()
+    volatile boolean imageChanged;
     boolean refreshQueued;
     boolean refreshingImage;
     boolean dataUpdated;
@@ -690,14 +691,13 @@ public class RegionCache {
         return this.width;
     }
 
+    // OPTIMIZATION: Removed synchronized - volatile imageChanged ensures visibility
     public ResourceLocation getTextureLocation() {
         if (this.image != null) {
             if (!this.refreshingImage) {
-                synchronized (this.image) {
-                    if (this.imageChanged) {
-                        this.imageChanged = false;
-                        this.image.uploadToTexture();
-                    }
+                if (this.imageChanged) {
+                    this.imageChanged = false;
+                    this.image.uploadToTexture();
                 }
             }
 
