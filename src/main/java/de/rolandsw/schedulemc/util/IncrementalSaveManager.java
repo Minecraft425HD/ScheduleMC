@@ -8,6 +8,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Incremental Save Manager - Performance-Optimierung für Data Persistence
@@ -69,9 +70,9 @@ public class IncrementalSaveManager {
     private final List<ISaveable> saveables = new CopyOnWriteArrayList<>();
 
     /**
-     * Executor für Background Saves
+     * Scheduled Future für periodisches Speichern
      */
-    private final ScheduledExecutorService executor;
+    private final AtomicReference<ScheduledFuture<?>> scheduledTask = new AtomicReference<>(null);
 
     /**
      * Ist Manager aktiv?
@@ -97,22 +98,7 @@ public class IncrementalSaveManager {
     // ═══════════════════════════════════════════════════════════
 
     public IncrementalSaveManager() {
-        this.executor = Executors.newScheduledThreadPool(
-            2,
-            new ThreadFactory() {
-                private final AtomicInteger threadNumber = new AtomicInteger(1);
-
-                @Override
-                public Thread newThread(Runnable r) {
-                    Thread thread = new Thread(r, "IncrementalSave-" + threadNumber.getAndIncrement());
-                    thread.setPriority(Thread.MIN_PRIORITY);  // Niedrige Priorität
-                    thread.setDaemon(true);
-                    return thread;
-                }
-            }
-        );
-
-        LOGGER.info("IncrementalSaveManager initialized");
+        LOGGER.info("IncrementalSaveManager initialized (using ThreadPoolManager.getScheduledPool())");
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -151,12 +137,13 @@ public class IncrementalSaveManager {
      */
     public void start() {
         if (running.compareAndSet(false, true)) {
-            executor.scheduleAtFixedRate(
+            ScheduledFuture<?> future = ThreadPoolManager.getScheduledPool().scheduleAtFixedRate(
                 this::incrementalSaveTick,
                 saveIntervalTicks * 50L,  // Initial delay (ms)
                 saveIntervalTicks * 50L,  // Period (ms)
                 TimeUnit.MILLISECONDS
             );
+            scheduledTask.set(future);
 
             LOGGER.info("Incremental saving started (interval: {} ticks, batch: {})", saveIntervalTicks, batchSize);
         }
@@ -167,14 +154,9 @@ public class IncrementalSaveManager {
      */
     public void stop() {
         if (running.compareAndSet(true, false)) {
-            executor.shutdown();
-            try {
-                if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
-                    executor.shutdownNow();
-                }
-            } catch (InterruptedException e) {
-                executor.shutdownNow();
-                Thread.currentThread().interrupt();
+            ScheduledFuture<?> future = scheduledTask.getAndSet(null);
+            if (future != null) {
+                future.cancel(false);
             }
 
             LOGGER.info("Incremental saving stopped");
@@ -463,12 +445,10 @@ public class IncrementalSaveManager {
 
     /**
      * Registriert Shutdown Hook für sauberes Beenden
+     * DEPRECATED: Use ScheduleMC.onServerStopping instead
      */
+    @Deprecated
     public void registerShutdownHook() {
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            LOGGER.info("Shutdown detected - performing final save...");
-            forceSaveAll();
-            stop();
-        }, "IncrementalSave-Shutdown"));
+        LOGGER.warn("registerShutdownHook() is deprecated - shutdown is now handled by ScheduleMC.onServerStopping");
     }
 }

@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 
 /**
  * Prüft auf neue Versionen im GitHub Repository
@@ -26,7 +27,7 @@ public class VersionChecker {
     private static boolean checkInProgress = false;
 
     /**
-     * Prüft asynchron auf Updates
+     * Prüft asynchron auf Updates (using ThreadPoolManager.getIOPool())
      */
     public static void checkForUpdates() {
         if (checkInProgress) {
@@ -65,7 +66,7 @@ public class VersionChecker {
             } finally {
                 checkInProgress = false;
             }
-        });
+        }, ThreadPoolManager.getIOPool());  // Use managed IO thread pool
     }
 
     private static void parseResponse(String jsonResponse) {

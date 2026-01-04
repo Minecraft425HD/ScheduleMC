@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc;
 
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.util.EventHelper;
+import de.rolandsw.schedulemc.util.ThreadPoolManager;
 import de.rolandsw.schedulemc.commands.*;
 import de.rolandsw.schedulemc.economy.commands.HospitalCommand;
 import de.rolandsw.schedulemc.util.HealthCheckManager;
@@ -408,6 +409,14 @@ public class ScheduleMC {
                 saveManager.stop();
                 LOGGER.info("IncrementalSaveManager stopped successfully");
             }
+
+            // ═══════════════════════════════════════════════════════════
+            // THREAD POOL MANAGER - Shutdown all managed thread pools
+            // ═══════════════════════════════════════════════════════════
+            LOGGER.info("Shutting down ThreadPoolManager...");
+            ThreadPoolManager.shutdown();
+            LOGGER.info("ThreadPoolManager shutdown completed");
+
 
             // Manuelle Saves für noch nicht migrierte Manager
             // (PlotManager & EconomyManager werden via IncrementalSaveManager gespeichert)
