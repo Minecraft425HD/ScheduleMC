@@ -7,6 +7,7 @@ import de.rolandsw.schedulemc.economy.ShopAccountManager;
 import de.rolandsw.schedulemc.util.GsonHelper;
 import de.rolandsw.schedulemc.util.BackupManager;
 import de.rolandsw.schedulemc.util.IncrementalSaveManager;
+import de.rolandsw.schedulemc.util.InputValidation;
 import net.minecraft.core.BlockPos;
 import org.slf4j.Logger;
 
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -30,7 +32,8 @@ import java.util.stream.Collectors;
  */
 public class PlotManager implements IncrementalSaveManager.ISaveable {
 
-    private static PlotManager instance;
+    // SICHERHEIT: volatile für Double-Checked Locking Pattern
+    private static volatile PlotManager instance;
 
     private PlotManager() {}
 
@@ -45,10 +48,12 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
     // Plot-Cache für Performance-Optimierung
     private static final PlotCache plotCache = new PlotCache(1000);
 
-    private static boolean dirty = false;
-    private static int plotCounter = 1;
-    private static boolean isHealthy = true;
-    private static String lastError = null;
+    // SICHERHEIT: volatile für Memory Visibility zwischen Threads (IncrementalSaveManager)
+    private static volatile boolean dirty = false;
+    // SICHERHEIT: AtomicInteger für Thread-safe Plot-ID Inkrement
+    private static final AtomicInteger plotCounter = new AtomicInteger(1);
+    private static volatile boolean isHealthy = true;
+    private static volatile String lastError = null;
     
     // ═══════════════════════════════════════════════════════════
     // PLOT ERSTELLEN
@@ -77,6 +82,24 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
      * @return Der erstellte Plot
      */
     public static PlotRegion createPlot(BlockPos pos1, BlockPos pos2, String customName, PlotType type, double price) {
+        // SICHERHEIT: Validiere Eingaben
+        InputValidation.Result regionResult = InputValidation.validatePlotRegion(pos1, pos2);
+        if (!regionResult.isValid()) {
+            throw new IllegalArgumentException(regionResult.getError());
+        }
+
+        if (customName != null && !customName.isEmpty()) {
+            InputValidation.Result nameResult = InputValidation.validatePlotName(customName);
+            if (!nameResult.isValid()) {
+                throw new IllegalArgumentException(nameResult.getError());
+            }
+        }
+
+        InputValidation.Result priceResult = InputValidation.validateAmount(price);
+        if (!priceResult.isValid()) {
+            throw new IllegalArgumentException(priceResult.getError());
+        }
+
         // Finde min/max Koordinaten
         BlockPos min = new BlockPos(
             Math.min(pos1.getX(), pos2.getX()),
@@ -113,11 +136,12 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
     
     /**
      * Generiert eine eindeutige Plot-ID
+     * SICHERHEIT: Thread-safe durch AtomicInteger
      */
     private static String generatePlotId() {
         String id;
         do {
-            id = "plot_" + plotCounter++;
+            id = "plot_" + plotCounter.getAndIncrement();
         } while (plots.containsKey(id));
         return id;
     }
@@ -398,7 +422,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
                 .max()
                 .orElse(0);
 
-            plotCounter = maxId + 1;
+            plotCounter.set(maxId + 1);
 
             // Spatial Index neu aufbauen
             spatialIndex.rebuild(plots.values());
@@ -414,7 +438,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
 
         plots.clear();
         spatialIndex.clear();
-        plotCounter = 1;
+        plotCounter.set(1);
         isHealthy = false;
         lastError = "Critical load failure - running with empty data";
 
@@ -602,7 +626,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
         spatialIndex.clear();
         plotCache.clear();
         dirty = true;
-        plotCounter = 1;
+        plotCounter.set(1);
         LOGGER.warn("Alle Plots gelöscht!");
     }
     
@@ -695,11 +719,18 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
 
     /**
      * Gibt die Singleton-Instanz zurück (für IncrementalSaveManager Registration)
+     * SICHERHEIT: Double-Checked Locking für Thread-Safety
      */
     public static PlotManager getInstance() {
-        if (instance == null) {
-            instance = new PlotManager();
+        PlotManager localRef = instance;
+        if (localRef == null) {
+            synchronized (PlotManager.class) {
+                localRef = instance;
+                if (localRef == null) {
+                    instance = localRef = new PlotManager();
+                }
+            }
         }
-        return instance;
+        return localRef;
     }
 }

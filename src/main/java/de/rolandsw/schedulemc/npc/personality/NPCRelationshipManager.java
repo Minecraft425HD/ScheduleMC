@@ -28,7 +28,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class NPCRelationshipManager {
 
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static NPCRelationshipManager instance;
+    // SICHERHEIT: volatile für Double-Checked Locking Pattern
+    private static volatile NPCRelationshipManager instance;
 
     // ═══════════════════════════════════════════════════════════
     // DATA

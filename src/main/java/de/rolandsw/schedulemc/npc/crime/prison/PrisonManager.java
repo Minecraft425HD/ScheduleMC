@@ -23,14 +23,17 @@ import java.io.*;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Zentrale Verwaltung des Gefängnissystems
+ * SICHERHEIT: Thread-safe Collections für parallele Zugriffe
  */
 public class PrisonManager {
 
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static PrisonManager instance;
+    // SICHERHEIT: volatile für Double-Checked Locking Pattern
+    private static volatile PrisonManager instance;
 
     public static final int JAIL_SECONDS_PER_WANTED_LEVEL = 60;
     public static final double BAIL_MULTIPLIER = 1000.0;
@@ -38,7 +41,8 @@ public class PrisonManager {
 
     private final Map<UUID, PrisonerData> prisoners = new ConcurrentHashMap<>();
     private final Map<UUID, Long> offlineRemainingTime = new ConcurrentHashMap<>();
-    private final List<String> prisonPlotIds = new ArrayList<>();
+    // SICHERHEIT: CopyOnWriteArrayList für Thread-Sicherheit
+    private final List<String> prisonPlotIds = new CopyOnWriteArrayList<>();
 
     private static final String SAVE_FILE = "config/schedulemc/prisoners.json";
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -84,11 +88,20 @@ public class PrisonManager {
         loadPrisonerData();
     }
 
+    /**
+     * SICHERHEIT: Double-Checked Locking für Thread-Safety
+     */
     public static PrisonManager getInstance() {
-        if (instance == null) {
-            instance = new PrisonManager();
+        PrisonManager localRef = instance;
+        if (localRef == null) {
+            synchronized (PrisonManager.class) {
+                localRef = instance;
+                if (localRef == null) {
+                    instance = localRef = new PrisonManager();
+                }
+            }
         }
-        return instance;
+        return localRef;
     }
 
     public static void init() {

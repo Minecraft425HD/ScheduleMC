@@ -40,10 +40,13 @@ public class AddItemToSlotPacket {
         buffer.writeUtf(msg.itemId);
     }
 
+    /**
+     * SICHERHEIT: Max-Länge für Strings gegen DoS/Memory-Angriffe
+     */
     public static AddItemToSlotPacket decode(FriendlyByteBuf buffer) {
         return new AddItemToSlotPacket(
             buffer.readBlockPos(),
-            buffer.readUtf()
+            buffer.readUtf(256) // ResourceLocation max 256 chars
         );
     }
 

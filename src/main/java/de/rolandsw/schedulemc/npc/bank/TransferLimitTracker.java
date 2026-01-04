@@ -22,7 +22,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class TransferLimitTracker {
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static TransferLimitTracker instance;
+    // SICHERHEIT: volatile für Double-Checked Locking Pattern
+    private static volatile TransferLimitTracker instance;
 
     private final Map<UUID, DailyTransferData> dailyTransfers = new ConcurrentHashMap<>();
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -35,11 +36,20 @@ public class TransferLimitTracker {
         load();
     }
 
+    /**
+     * SICHERHEIT: Double-Checked Locking für Thread-Safety
+     */
     public static TransferLimitTracker getInstance(MinecraftServer server) {
-        if (instance == null) {
-            instance = new TransferLimitTracker(server);
+        TransferLimitTracker localRef = instance;
+        if (localRef == null) {
+            synchronized (TransferLimitTracker.class) {
+                localRef = instance;
+                if (localRef == null) {
+                    instance = localRef = new TransferLimitTracker(server);
+                }
+            }
         }
-        return instance;
+        return localRef;
     }
 
     /**

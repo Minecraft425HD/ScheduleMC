@@ -49,6 +49,10 @@ public abstract class AbstractProcessingBlockEntity<T extends ProductionType, Q 
     private static final int TICK_INTERVAL = 5; // Alle 5 Ticks statt jeden Tick
     private int lastSyncedProgress = 0; // Für Progressive setChanged()
 
+    // OPTIMIERUNG: Dirty-Flags für Slot-Synchronisation (verhindert unnötige ItemStack.copy())
+    private boolean inputDirty = false;
+    private boolean outputDirty = false;
+
     // Forge ItemHandler
     protected ItemStackHandler itemHandler;
     private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
@@ -170,6 +174,7 @@ public abstract class AbstractProcessingBlockEntity<T extends ProductionType, Q 
 
         // Reduziere Input
         inputStack.shrink(getInputConsumption());
+        inputDirty = true; // OPTIMIERUNG: Markiere als dirty
         if (inputStack.getCount() <= 0) {
             inputStack = ItemStack.EMPTY;
             productionType = null;
@@ -182,6 +187,7 @@ public abstract class AbstractProcessingBlockEntity<T extends ProductionType, Q 
         } else {
             outputStack.grow(result.getCount());
         }
+        outputDirty = true; // OPTIMIERUNG: Markiere als dirty
 
         syncToHandler();
         setChanged();
@@ -189,14 +195,16 @@ public abstract class AbstractProcessingBlockEntity<T extends ProductionType, Q 
 
     /**
      * Synchronisiert interne Stacks mit ItemHandler
+     * OPTIMIERT: Nur kopieren wenn Dirty-Flag gesetzt ist
      */
     protected void syncToHandler() {
-        for (int i = 0; i < getSlotCount(); i++) {
-            if (i == 0) {
-                itemHandler.setStackInSlot(i, inputStack.copy());
-            } else if (i == 1) {
-                itemHandler.setStackInSlot(i, outputStack.copy());
-            }
+        if (inputDirty) {
+            itemHandler.setStackInSlot(0, inputStack.copy());
+            inputDirty = false;
+        }
+        if (outputDirty) {
+            itemHandler.setStackInSlot(1, outputStack.copy());
+            outputDirty = false;
         }
     }
 

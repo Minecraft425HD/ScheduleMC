@@ -33,9 +33,10 @@ public class PlotRatingPacket {
 
     /**
      * Decode - Liest Daten aus Packet
+     * SICHERHEIT: Max-Länge für plotId gegen DoS/Memory-Angriffe
      */
     public static PlotRatingPacket decode(FriendlyByteBuf buffer) {
-        String plotId = buffer.readUtf();
+        String plotId = buffer.readUtf(256);
         int rating = buffer.readInt();
         return new PlotRatingPacket(plotId, rating);
     }

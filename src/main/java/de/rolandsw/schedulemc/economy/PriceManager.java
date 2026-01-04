@@ -11,6 +11,7 @@ import de.rolandsw.schedulemc.tobacco.items.TobaccoItems;
 import net.minecraft.world.item.Item;
 
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Verwaltet dynamische Preise für Shop-Items
@@ -19,10 +20,12 @@ import java.util.*;
  * - Zeitbasierte Wellen (±15%)
  * - Event-System (Dürre, etc.)
  * - Finale Preis = Shop-GUI-Preis × Multiplikator
+ * SICHERHEIT: Thread-safe List für concurrent access
  */
 public class PriceManager {
 
-    private static final List<EconomicEvent> activeEvents = new ArrayList<>();
+    // SICHERHEIT: CopyOnWriteArrayList für Thread-safe Iteration ohne ConcurrentModificationException
+    private static final List<EconomicEvent> activeEvents = new CopyOnWriteArrayList<>();
 
     /**
      * Gibt Preis-MULTIPLIKATOR zurück (nicht absoluten Preis!)

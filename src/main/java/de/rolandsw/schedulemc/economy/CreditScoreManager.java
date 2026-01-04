@@ -1,9 +1,8 @@
 package de.rolandsw.schedulemc.economy;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
+import de.rolandsw.schedulemc.util.GsonHelper;
 import net.minecraft.server.MinecraftServer;
 
 import javax.annotation.Nullable;
@@ -16,7 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * Verwendet AbstractPersistenceManager für robuste Datenpersistenz
  */
 public class CreditScoreManager extends AbstractPersistenceManager<Map<UUID, CreditScore>> {
-    private static CreditScoreManager instance;
+    // SICHERHEIT: volatile für Double-Checked Locking Pattern
+    private static volatile CreditScoreManager instance;
 
     private final Map<UUID, CreditScore> creditScores = new ConcurrentHashMap<>();
     private MinecraftServer server;
@@ -29,18 +29,27 @@ public class CreditScoreManager extends AbstractPersistenceManager<Map<UUID, Cre
     private CreditScoreManager(MinecraftServer server) {
         super(
             server.getServerDirectory().toPath().resolve("config").resolve("plotmod_credit_scores.json").toFile(),
-            new GsonBuilder().setPrettyPrinting().create()
+            GsonHelper.get() // Umgebungsabhängig: kompakt in Produktion
         );
         this.server = server;
         load();
     }
 
+    /**
+     * SICHERHEIT: Double-Checked Locking für Thread-Safety
+     */
     public static CreditScoreManager getInstance(MinecraftServer server) {
-        if (instance == null) {
-            instance = new CreditScoreManager(server);
+        CreditScoreManager localRef = instance;
+        if (localRef == null) {
+            synchronized (CreditScoreManager.class) {
+                localRef = instance;
+                if (localRef == null) {
+                    instance = localRef = new CreditScoreManager(server);
+                }
+            }
         }
-        instance.server = server;
-        return instance;
+        localRef.server = server;
+        return localRef;
     }
 
     /**

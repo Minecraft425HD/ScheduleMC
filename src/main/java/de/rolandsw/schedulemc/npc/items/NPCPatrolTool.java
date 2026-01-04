@@ -14,9 +14,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Tool zum Setzen von Polizeistationen und Patrouillenpunkten für Polizei-NPCs
@@ -24,11 +24,12 @@ import java.util.UUID;
  * - Rechtsklick auf Block (ohne Station): Polizeistation setzen
  * - Rechtsklick auf Block (mit Station): Patrouillenpunkt hinzufügen (max 16)
  * - Shift+Rechtsklick auf NPC: Info anzeigen & zurücksetzen
+ * SICHERHEIT: Thread-safe Map für concurrent access von mehreren Spielern
  */
 public class NPCPatrolTool extends Item {
 
-    // Speichere ausgewählten NPC pro Spieler (UUID -> NPC Entity ID)
-    private static final Map<UUID, Integer> selectedNPCs = new HashMap<>();
+    // SICHERHEIT: ConcurrentHashMap für Thread-safe Spieler-NPC-Mapping
+    private static final Map<UUID, Integer> selectedNPCs = new ConcurrentHashMap<>();
 
     public NPCPatrolTool() {
         super(new Item.Properties().stacksTo(1));

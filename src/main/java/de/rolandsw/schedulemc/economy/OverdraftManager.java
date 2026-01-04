@@ -22,7 +22,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * Refactored mit AbstractPersistenceManager
  */
 public class OverdraftManager extends AbstractPersistenceManager<Map<String, Object>> {
-    private static OverdraftManager instance;
+    // SICHERHEIT: volatile für Double-Checked Locking Pattern
+    private static volatile OverdraftManager instance;
 
     private final Map<UUID, Long> lastWarningDay = new ConcurrentHashMap<>();
     private final Map<UUID, Long> lastInterestDay = new ConcurrentHashMap<>();
@@ -39,12 +40,21 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
         load();
     }
 
+    /**
+     * SICHERHEIT: Double-Checked Locking für Thread-Safety
+     */
     public static OverdraftManager getInstance(MinecraftServer server) {
-        if (instance == null) {
-            instance = new OverdraftManager(server);
+        OverdraftManager localRef = instance;
+        if (localRef == null) {
+            synchronized (OverdraftManager.class) {
+                localRef = instance;
+                if (localRef == null) {
+                    instance = localRef = new OverdraftManager(server);
+                }
+            }
         }
-        instance.server = server;
-        return instance;
+        localRef.server = server;
+        return localRef;
     }
 
     /**

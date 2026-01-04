@@ -24,7 +24,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * - Monatliche Abrechnung (alle 7 MC-Tage)
  */
 public class TaxManager extends AbstractPersistenceManager<Map<String, Object>> {
-    private static TaxManager instance;
+    // SICHERHEIT: volatile für Double-Checked Locking Pattern
+    private static volatile TaxManager instance;
 
     // Steuerstufen
     private static final double TAX_FREE_AMOUNT = 10000.0;
@@ -106,12 +107,21 @@ public class TaxManager extends AbstractPersistenceManager<Map<String, Object>> 
         LOGGER.warn("TaxManager: Gestartet mit leeren Daten nach kritischem Fehler");
     }
 
+    /**
+     * SICHERHEIT: Double-Checked Locking für Thread-Safety
+     */
     public static TaxManager getInstance(MinecraftServer server) {
-        if (instance == null) {
-            instance = new TaxManager(server);
+        TaxManager localRef = instance;
+        if (localRef == null) {
+            synchronized (TaxManager.class) {
+                localRef = instance;
+                if (localRef == null) {
+                    instance = localRef = new TaxManager(server);
+                }
+            }
         }
-        instance.server = server;
-        return instance;
+        localRef.server = server;
+        return localRef;
     }
 
     /**

@@ -7,6 +7,8 @@ import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * Network Handler für Warehouse-Packets
  */
@@ -20,10 +22,11 @@ public class WarehouseNetworkHandler {
         PROTOCOL_VERSION::equals
     );
 
-    private static int packetId = 0;
+    // SICHERHEIT: AtomicInteger für Thread-safe Packet-ID Inkrement
+    private static final AtomicInteger packetId = new AtomicInteger(0);
 
     private static int id() {
-        return packetId++;
+        return packetId.getAndIncrement();
     }
 
     /**

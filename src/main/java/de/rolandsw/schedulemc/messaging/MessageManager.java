@@ -57,18 +57,20 @@ public class MessageManager {
 
     /**
      * Sends a message from one entity to another
+     * OPTIMIERT: Wiederverwendung des Message-Objekts statt Duplikation
      */
     public static void sendMessage(UUID fromUUID, String fromName, boolean isFromPlayer,
                                    UUID toUUID, String toName, boolean isToPlayer, String content) {
         long timestamp = System.currentTimeMillis();
 
+        // OPTIMIERT: Ein Message-Objekt für beide Konversationen (Message ist immutable)
+        Message message = new Message(fromUUID, fromName, content, timestamp, isFromPlayer);
+
         // Add message to sender's conversation
-        addMessageToConversation(fromUUID, toUUID, toName, isToPlayer,
-            new Message(fromUUID, fromName, content, timestamp, isFromPlayer));
+        addMessageToConversation(fromUUID, toUUID, toName, isToPlayer, message);
 
         // Add message to receiver's conversation
-        addMessageToConversation(toUUID, fromUUID, fromName, isFromPlayer,
-            new Message(fromUUID, fromName, content, timestamp, isFromPlayer));
+        addMessageToConversation(toUUID, fromUUID, fromName, isFromPlayer, message);
 
         markDirty();
         LOGGER.debug("Message sent from {} to {}", fromName, toName);

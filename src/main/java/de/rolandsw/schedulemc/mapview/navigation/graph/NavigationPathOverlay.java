@@ -15,7 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class NavigationPathOverlay {
 
-    private static NavigationPathOverlay instance;
+    // SICHERHEIT: volatile für Double-Checked Locking Pattern
+    private static volatile NavigationPathOverlay instance;
 
     // Pfad-Positionen für schnellen Lookup (x,z -> ist auf Pfad)
     private final Set<Long> pathPositions = ConcurrentHashMap.newKeySet();
@@ -32,11 +33,20 @@ public class NavigationPathOverlay {
     // SINGLETON
     // ═══════════════════════════════════════════════════════════
 
+    /**
+     * SICHERHEIT: Double-Checked Locking für Thread-Safety
+     */
     public static NavigationPathOverlay getInstance() {
-        if (instance == null) {
-            instance = new NavigationPathOverlay();
+        NavigationPathOverlay localRef = instance;
+        if (localRef == null) {
+            synchronized (NavigationPathOverlay.class) {
+                localRef = instance;
+                if (localRef == null) {
+                    instance = localRef = new NavigationPathOverlay();
+                }
+            }
         }
-        return instance;
+        return localRef;
     }
 
     private NavigationPathOverlay() {}

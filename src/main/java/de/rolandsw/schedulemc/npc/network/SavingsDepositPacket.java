@@ -51,17 +51,9 @@ public class SavingsDepositPacket {
                 return;
             }
 
-            // Prüfe ob Spieler genug Geld auf Girokonto hat
-            double giroBalance = EconomyManager.getBalance(player.getUUID());
-            if (giroBalance < amount) {
-                player.sendSystemMessage(Component.literal("⚠ Nicht genug Guthaben auf Girokonto!")
-                    .withStyle(ChatFormatting.RED));
-                player.sendSystemMessage(Component.literal("Verfügbar: ")
-                    .withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(String.format("%.2f€", giroBalance))
-                        .withStyle(ChatFormatting.YELLOW)));
-                return;
-            }
+            // HINWEIS: Balance-Prüfung erfolgt atomar in SavingsAccountManager.depositToSavings()
+            // und SavingsAccountManager.createSavingsAccount()
+            // Separate Prüfung hier entfernt wegen TOCTOU Race Condition
 
             SavingsAccountManager manager = SavingsAccountManager.getInstance(player.getServer());
             List<SavingsAccount> accounts = manager.getAccounts(player.getUUID());
@@ -91,8 +83,13 @@ public class SavingsDepositPacket {
                     player.sendSystemMessage(Component.literal("═══════════════════════════════")
                         .withStyle(ChatFormatting.GREEN));
                 } else {
-                    player.sendSystemMessage(Component.literal("⚠ Fehler beim Eröffnen des Sparkontos!")
+                    // Atomare Prüfung fehlgeschlagen - nicht genug Geld
+                    player.sendSystemMessage(Component.literal("⚠ Nicht genug Guthaben auf Girokonto!")
                         .withStyle(ChatFormatting.RED));
+                    player.sendSystemMessage(Component.literal("Verfügbar: ")
+                        .withStyle(ChatFormatting.GRAY)
+                        .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID())))
+                            .withStyle(ChatFormatting.YELLOW)));
                 }
             } else {
                 // Auf existierendes Sparkonto einzahlen
@@ -120,8 +117,13 @@ public class SavingsDepositPacket {
                     player.sendSystemMessage(Component.literal("═══════════════════════════════")
                         .withStyle(ChatFormatting.GREEN));
                 } else {
-                    player.sendSystemMessage(Component.literal("⚠ Fehler bei der Einzahlung!")
+                    // Atomare Prüfung fehlgeschlagen - nicht genug Geld
+                    player.sendSystemMessage(Component.literal("⚠ Nicht genug Guthaben auf Girokonto!")
                         .withStyle(ChatFormatting.RED));
+                    player.sendSystemMessage(Component.literal("Verfügbar: ")
+                        .withStyle(ChatFormatting.GRAY)
+                        .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID())))
+                            .withStyle(ChatFormatting.YELLOW)));
                 }
             }
         });

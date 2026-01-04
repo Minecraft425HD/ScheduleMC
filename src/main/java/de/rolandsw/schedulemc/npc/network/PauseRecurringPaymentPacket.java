@@ -23,8 +23,11 @@ public class PauseRecurringPaymentPacket {
         buf.writeUtf(paymentId);
     }
 
+    /**
+     * SICHERHEIT: Max-Länge für Strings gegen DoS/Memory-Angriffe
+     */
     public static PauseRecurringPaymentPacket decode(FriendlyByteBuf buf) {
-        return new PauseRecurringPaymentPacket(buf.readUtf());
+        return new PauseRecurringPaymentPacket(buf.readUtf(64)); // Payment ID max 64 chars
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {

@@ -9,18 +9,21 @@ import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Displays message notifications at the top center of the screen
+ * SICHERHEIT: Thread-safe Queue und volatile Felder für concurrent access
  */
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = "schedulemc")
 public class MessageNotificationOverlay {
 
-    private static final Queue<Notification> notifications = new LinkedList<>();
-    private static Notification currentNotification = null;
-    private static long notificationStartTime = 0;
+    // SICHERHEIT: ConcurrentLinkedQueue für Thread-safe access von showNotification() und onRenderOverlay()
+    private static final Queue<Notification> notifications = new ConcurrentLinkedQueue<>();
+    // SICHERHEIT: volatile für Memory Visibility zwischen Threads
+    private static volatile Notification currentNotification = null;
+    private static volatile long notificationStartTime = 0;
     private static final long NOTIFICATION_DURATION = 3000; // 3 seconds
 
     public static void showNotification(String senderName, String message) {

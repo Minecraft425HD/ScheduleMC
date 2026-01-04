@@ -5,21 +5,41 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Client-seitiger Cache für registrierte NPC-Namen
- * Wird vom Server über SyncNPCNamesPacket synchronisiert
+ * Wird vom Server über SyncNPCNamesPacket (Full-Sync) oder
+ * DeltaSyncNPCNamesPacket (Delta-Sync) synchronisiert
+ * SICHERHEIT: Thread-safe Set für concurrent access vom Network-Thread und Client-Thread
  */
 @OnlyIn(Dist.CLIENT)
 public class ClientNPCNameCache {
 
-    private static Set<String> npcNames = new HashSet<>();
+    // SICHERHEIT: ConcurrentHashMap.newKeySet() für Thread-safe Set-Operationen
+    private static final Set<String> npcNames = ConcurrentHashMap.newKeySet();
 
     /**
-     * Setzt die NPC-Namen (vom Server synchronisiert)
+     * Setzt die NPC-Namen (Full-Sync vom Server)
+     * SICHERHEIT: Thread-safe clear + addAll Operation
      */
     public static void setNPCNames(Set<String> names) {
-        npcNames = new HashSet<>(names);
+        npcNames.clear();
+        npcNames.addAll(names);
+    }
+
+    /**
+     * Fügt Namen hinzu (Delta-Sync)
+     */
+    public static void addNames(Set<String> names) {
+        npcNames.addAll(names);
+    }
+
+    /**
+     * Entfernt Namen (Delta-Sync)
+     */
+    public static void removeNames(Set<String> names) {
+        npcNames.removeAll(names);
     }
 
     /**

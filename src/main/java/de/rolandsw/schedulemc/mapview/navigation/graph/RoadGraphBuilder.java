@@ -35,6 +35,8 @@ public class RoadGraphBuilder {
     private final Map<BlockPos, RoadNode> nodesByPosition = new HashMap<>();
     private final List<RoadSegment> segments = new ArrayList<>();
     private final Set<BlockPos> allRoadBlocks = new HashSet<>();
+    // OPTIMIERUNG: O(1) Segment-Existenz-Check statt O(n) Iteration
+    private final Set<String> existingSegmentKeys = new HashSet<>();
 
     // Konfiguration
     private boolean useDiagonalConnections = true;
@@ -75,6 +77,7 @@ public class RoadGraphBuilder {
         nodesByPosition.clear();
         segments.clear();
         allRoadBlocks.clear();
+        existingSegmentKeys.clear();
 
         // Schritt 1: Finde alle Straßenblöcke
         LOGGER.info("[RoadGraphBuilder] Scanning area ({}, {}) radius {}", centerX, centerZ, radius);
@@ -217,8 +220,10 @@ public class RoadGraphBuilder {
 
             // Nur Segment erstellen wenn wir einen End-Node gefunden haben
             if (endNode != null) {
-                // Prüfe ob dieses Segment bereits existiert
-                if (!segmentExists(startNode, endNode)) {
+                // OPTIMIERUNG: O(1) Check mit HashSet statt O(n) Iteration
+                String key = createBidirectionalSegmentKey(startNode.getPosition(), endNode.getPosition());
+                if (!existingSegmentKeys.contains(key)) {
+                    existingSegmentKeys.add(key);
                     RoadSegment segment = new RoadSegment(startNode, endNode, pathPoints);
                     segments.add(segment);
                     startNode.addSegment(segment);
@@ -259,22 +264,23 @@ public class RoadGraphBuilder {
     }
 
     /**
-     * Prüft ob ein Segment zwischen zwei Nodes bereits existiert
-     */
-    private boolean segmentExists(RoadNode nodeA, RoadNode nodeB) {
-        for (RoadSegment segment : segments) {
-            if (segment.connects(nodeA, nodeB)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
      * Erstellt einen eindeutigen Key für eine Segment-Richtung
      */
     private String createSegmentKey(BlockPos from, BlockPos to) {
         return from.getX() + "," + from.getZ() + "->" + to.getX() + "," + to.getZ();
+    }
+
+    /**
+     * Erstellt einen bidirektionalen Key (A-B == B-A)
+     * OPTIMIERUNG: Sortierte Koordinaten für konsistenten Key
+     */
+    private String createBidirectionalSegmentKey(BlockPos a, BlockPos b) {
+        // Sortiere nach X, dann nach Z für konsistente Keys
+        if (a.getX() < b.getX() || (a.getX() == b.getX() && a.getZ() <= b.getZ())) {
+            return a.getX() + "," + a.getZ() + "<->" + b.getX() + "," + b.getZ();
+        } else {
+            return b.getX() + "," + b.getZ() + "<->" + a.getX() + "," + a.getZ();
+        }
     }
 
     // ═══════════════════════════════════════════════════════════

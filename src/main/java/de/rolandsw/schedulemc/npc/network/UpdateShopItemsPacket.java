@@ -15,7 +15,11 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.network.NetworkEvent;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 
 /**
@@ -113,9 +117,10 @@ public class UpdateShopItemsPacket {
         }
 
         // Hole Shop-Items mit unlimited Status
+        // OPTIMIERUNG: HashSet für O(1) contains statt O(n) mit List
         List<NPCData.ShopEntry> shopEntries = npc.getNpcData().getBuyShop().getEntries();
-        List<Item> allShopItems = new ArrayList<>();
-        List<Item> unlimitedItems = new ArrayList<>();
+        Set<Item> allShopItems = new HashSet<>();
+        Set<Item> unlimitedItems = new HashSet<>();
 
         for (NPCData.ShopEntry entry : shopEntries) {
             if (!entry.getItem().isEmpty()) {
@@ -130,7 +135,7 @@ public class UpdateShopItemsPacket {
         // Warehouse-Slots durchgehen
         WarehouseSlot[] slots = warehouse.getSlots();
 
-        // 1. Entferne Items die nicht mehr im Shop sind
+        // 1. Entferne Items die nicht mehr im Shop sind (O(1) lookup dank HashSet)
         for (int i = 0; i < slots.length; i++) {
             WarehouseSlot slot = slots[i];
             if (!slot.isEmpty()) {
@@ -142,34 +147,39 @@ public class UpdateShopItemsPacket {
         }
 
         // 2. Synchronisiere alle Shop-Items mit Warehouse
+        // OPTIMIERUNG: HashMap für O(1) Slot-Lookup statt O(n) pro Item
+        Map<Item, WarehouseSlot> slotByItem = new HashMap<>();
+        List<WarehouseSlot> emptySlots = new ArrayList<>();
+
+        for (WarehouseSlot slot : slots) {
+            if (!slot.isEmpty()) {
+                slotByItem.put(slot.getAllowedItem(), slot);
+            } else {
+                emptySlots.add(slot);
+            }
+        }
+
         int itemsAdded = 0;
+        int emptySlotIndex = 0;
+
         for (NPCData.ShopEntry entry : shopEntries) {
             if (!entry.getItem().isEmpty()) {
                 Item item = entry.getItem().getItem();
                 boolean isUnlimited = entry.isUnlimited();
 
-                // Finde Slot für dieses Item
-                WarehouseSlot targetSlot = null;
-                for (WarehouseSlot slot : slots) {
-                    if (!slot.isEmpty() && slot.getAllowedItem() == item) {
-                        targetSlot = slot;
-                        break;
-                    }
-                }
+                // O(1) Slot-Lookup dank HashMap
+                WarehouseSlot targetSlot = slotByItem.get(item);
 
                 if (targetSlot != null) {
                     // Item existiert - aktualisiere unlimited Flag
                     targetSlot.setUnlimited(isUnlimited);
-                } else if (!isUnlimited) {
+                } else if (!isUnlimited && emptySlotIndex < emptySlots.size()) {
                     // Nur Lager-Items werden neu hinzugefügt
-                    for (WarehouseSlot slot : slots) {
-                        if (slot.isEmpty()) {
-                            slot.addStock(item, 0);
-                            slot.setUnlimited(false);
-                            itemsAdded++;
-                            break;
-                        }
-                    }
+                    WarehouseSlot emptySlot = emptySlots.get(emptySlotIndex++);
+                    emptySlot.addStock(item, 0);
+                    emptySlot.setUnlimited(false);
+                    slotByItem.put(item, emptySlot); // Für spätere Lookups
+                    itemsAdded++;
                 }
             }
         }

@@ -22,14 +22,16 @@ import java.util.stream.Collectors;
  * Extends AbstractPersistenceManager
  */
 public class BountyManager extends AbstractPersistenceManager<Map<UUID, BountyData>> {
-    private static BountyManager instance;
+    // SICHERHEIT: volatile für Double-Checked Locking Pattern
+    private static volatile BountyManager instance;
+    private static final Object INSTANCE_LOCK = new Object();
 
     private static final double AUTO_BOUNTY_PER_STAR = 2000.0; // 2000€ pro Wanted-Star
     private static final int MIN_WANTED_LEVEL_FOR_BOUNTY = 3;  // Ab 3 Stars
 
     private final Map<UUID, BountyData> activeBounties = new ConcurrentHashMap<>();
     private final Map<UUID, List<BountyData>> bountyHistory = new ConcurrentHashMap<>();
-    private MinecraftServer server;
+    private volatile MinecraftServer server;
 
     private BountyManager(MinecraftServer server) {
         super(
@@ -40,12 +42,21 @@ public class BountyManager extends AbstractPersistenceManager<Map<UUID, BountyDa
         load();
     }
 
+    /**
+     * SICHERHEIT: Thread-safe Singleton mit Double-Checked Locking
+     */
     public static BountyManager getInstance(MinecraftServer server) {
-        if (instance == null) {
-            instance = new BountyManager(server);
+        BountyManager result = instance;
+        if (result == null) {
+            synchronized (INSTANCE_LOCK) {
+                result = instance;
+                if (result == null) {
+                    instance = result = new BountyManager(server);
+                }
+            }
         }
-        instance.server = server;
-        return instance;
+        result.server = server;
+        return result;
     }
 
     @Nullable
@@ -253,13 +264,18 @@ public class BountyManager extends AbstractPersistenceManager<Map<UUID, BountyDa
 
     /**
      * Gibt Statistiken zurück
+     * OPTIMIERUNG: Single-pass statt doppelter Stream-Operation
      */
     public String getStatistics() {
-        int active = (int) activeBounties.values().stream().filter(BountyData::isActive).count();
-        double totalAmount = activeBounties.values().stream()
-            .filter(BountyData::isActive)
-            .mapToDouble(BountyData::getAmount)
-            .sum();
+        int active = 0;
+        double totalAmount = 0.0;
+
+        for (BountyData bounty : activeBounties.values()) {
+            if (bounty.isActive()) {
+                active++;
+                totalAmount += bounty.getAmount();
+            }
+        }
 
         return String.format("Active Bounties: %d, Total: %.2f€", active, totalAmount);
     }

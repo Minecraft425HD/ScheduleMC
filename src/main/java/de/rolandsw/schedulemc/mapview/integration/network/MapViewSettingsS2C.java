@@ -14,9 +14,12 @@ public record MapViewSettingsS2C(String settingsJson) {
         this(parse(buf));
     }
 
+    /**
+     * SICHERHEIT: Max-Länge für Strings gegen DoS/Memory-Angriffe
+     */
     private static String parse(FriendlyByteBuf buf) {
         buf.readByte(); // ignore
-        return buf.readUtf();
+        return buf.readUtf(32767); // JSON settings max 32KB
     }
 
     public void write(FriendlyByteBuf buf) {

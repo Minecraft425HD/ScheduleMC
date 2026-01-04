@@ -19,25 +19,37 @@ public class NavigationOverlay {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    private static NavigationOverlay instance;
+    // SICHERHEIT: volatile für Double-Checked Locking Pattern
+    private static volatile NavigationOverlay instance;
 
     private final RoadPathRenderer pathRenderer;
     private RoadNavigationService navigationService;
-    private boolean initialized = false;
+    // SICHERHEIT: volatile für Thread-Safety (tick() vs initialize())
+    private volatile boolean initialized = false;
 
     // Letzter bekannter Pfad-Index für Change-Detection
-    private int lastPathIndex = -1;
-    private int lastPathSize = 0;
+    // SICHERHEIT: volatile für Memory Visibility zwischen Threads
+    private volatile int lastPathIndex = -1;
+    private volatile int lastPathSize = 0;
 
     // ═══════════════════════════════════════════════════════════
     // SINGLETON
     // ═══════════════════════════════════════════════════════════
 
+    /**
+     * SICHERHEIT: Double-Checked Locking für Thread-Safety
+     */
     public static NavigationOverlay getInstance() {
-        if (instance == null) {
-            instance = new NavigationOverlay();
+        NavigationOverlay localRef = instance;
+        if (localRef == null) {
+            synchronized (NavigationOverlay.class) {
+                localRef = instance;
+                if (localRef == null) {
+                    instance = localRef = new NavigationOverlay();
+                }
+            }
         }
-        return instance;
+        return localRef;
     }
 
     private NavigationOverlay() {

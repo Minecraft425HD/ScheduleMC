@@ -1,8 +1,8 @@
 package de.rolandsw.schedulemc.economy;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import de.rolandsw.schedulemc.util.GsonHelper;
 import com.mojang.logging.LogUtils;
 import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
@@ -22,13 +22,14 @@ import java.util.stream.Collectors;
  */
 public class TransactionHistory {
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static TransactionHistory instance;
+    // SICHERHEIT: volatile für Double-Checked Locking Pattern
+    private static volatile TransactionHistory instance;
 
     private static final String FILE_NAME = "plotmod_transactions.json";
     private static final int MAX_TRANSACTIONS_PER_PLAYER = 1000; // Verhindert unbegrenztes Wachstum
 
     private final Map<UUID, List<Transaction>> transactions = new ConcurrentHashMap<>();
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private final Gson gson = GsonHelper.get(); // Umgebungsabhängig: kompakt in Produktion
     private final Path savePath;
 
     private boolean needsSave = false;
@@ -38,11 +39,20 @@ public class TransactionHistory {
         load();
     }
 
+    /**
+     * SICHERHEIT: Double-Checked Locking für Thread-Safety
+     */
     public static TransactionHistory getInstance(MinecraftServer server) {
-        if (instance == null) {
-            instance = new TransactionHistory(server);
+        TransactionHistory localRef = instance;
+        if (localRef == null) {
+            synchronized (TransactionHistory.class) {
+                localRef = instance;
+                if (localRef == null) {
+                    instance = localRef = new TransactionHistory(server);
+                }
+            }
         }
-        return instance;
+        return localRef;
     }
 
     @Nullable
@@ -68,6 +78,10 @@ public class TransactionHistory {
 
     /**
      * Holt die letzten N Transaktionen eines Spielers
+     *
+     * OPTIMIERT: Da Transaktionen chronologisch hinzugefügt werden,
+     * nehmen wir einfach die letzten N Elemente (O(n) -> O(limit))
+     * statt die gesamte Liste zu sortieren (O(n log n))
      */
     public List<Transaction> getRecentTransactions(UUID playerUUID, int limit) {
         List<Transaction> playerTransactions = transactions.get(playerUUID);
@@ -75,11 +89,16 @@ public class TransactionHistory {
             return Collections.emptyList();
         }
 
-        // Rückwärts sortieren (neueste zuerst)
-        List<Transaction> sorted = new ArrayList<>(playerTransactions);
-        sorted.sort((a, b) -> Long.compare(b.getTimestamp(), a.getTimestamp()));
+        int size = playerTransactions.size();
+        int startIndex = Math.max(0, size - limit);
 
-        return sorted.stream().limit(limit).collect(Collectors.toList());
+        // Erstelle Ergebnisliste mit umgekehrter Reihenfolge (neueste zuerst)
+        List<Transaction> result = new ArrayList<>(Math.min(limit, size));
+        for (int i = size - 1; i >= startIndex; i--) {
+            result.add(playerTransactions.get(i));
+        }
+
+        return result;
     }
 
     /**

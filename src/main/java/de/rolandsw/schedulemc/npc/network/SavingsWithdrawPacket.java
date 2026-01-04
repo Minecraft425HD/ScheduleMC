@@ -52,20 +52,16 @@ public class SavingsWithdrawPacket {
 
             SavingsAccount account = accounts.get(0);
 
-            // Prüfe ob genug Guthaben auf Sparkonto
-            if (account.getBalance() < amount) {
-                player.sendSystemMessage(Component.literal("⚠ Nicht genug Guthaben auf Sparkonto!")
-                    .withStyle(ChatFormatting.RED));
-                player.sendSystemMessage(Component.literal("Verfügbar: ")
-                    .withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(String.format("%.2f€", account.getBalance()))
-                        .withStyle(ChatFormatting.YELLOW)));
-                return;
-            }
+            // HINWEIS: Balance-Prüfung erfolgt atomar in SavingsAccountManager.withdrawFromSavings()
+            // Separate Prüfung entfernt wegen TOCTOU Race Condition
 
             // Versuche Abhebung (erzwingen = false, damit Sperrfrist geprüft wird)
             if (manager.withdrawFromSavings(player.getUUID(), account.getAccountId(), amount, false)) {
-                // Erfolgs-Nachricht (wird vom SavingsAccountManager gesendet)
+                // OPTIMIERT: Hole aktuelle Werte NACH der Transaktion
+                double newSavingsBalance = account.getBalance();
+                double newCheckingBalance = EconomyManager.getBalance(player.getUUID());
+
+                // Erfolgs-Nachricht
                 player.sendSystemMessage(Component.literal("═══════════════════════════════")
                     .withStyle(ChatFormatting.GREEN));
                 player.sendSystemMessage(Component.literal("💰 ")
@@ -78,11 +74,11 @@ public class SavingsWithdrawPacket {
                         .withStyle(ChatFormatting.RED)));
                 player.sendSystemMessage(Component.literal("Neues Sparkonto: ")
                     .withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(String.format("%.2f€", account.getBalance()))
+                    .append(Component.literal(String.format("%.2f€", newSavingsBalance))
                         .withStyle(ChatFormatting.LIGHT_PURPLE)));
                 player.sendSystemMessage(Component.literal("Neues Girokonto: ")
                     .withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID())))
+                    .append(Component.literal(String.format("%.2f€", newCheckingBalance))
                         .withStyle(ChatFormatting.AQUA)));
                 player.sendSystemMessage(Component.literal("═══════════════════════════════")
                     .withStyle(ChatFormatting.GREEN));
@@ -101,6 +97,14 @@ public class SavingsWithdrawPacket {
                         .withStyle(ChatFormatting.GRAY)
                         .append(Component.literal("Vorzeitige Abhebung: -10% Strafe")
                             .withStyle(ChatFormatting.RED)));
+                } else if (account.getBalance() < amount) {
+                    // Nicht genug Guthaben
+                    player.sendSystemMessage(Component.literal("⚠ Nicht genug Guthaben auf Sparkonto!")
+                        .withStyle(ChatFormatting.RED));
+                    player.sendSystemMessage(Component.literal("Verfügbar: ")
+                        .withStyle(ChatFormatting.GRAY)
+                        .append(Component.literal(String.format("%.2f€", account.getBalance()))
+                            .withStyle(ChatFormatting.YELLOW)));
                 } else {
                     player.sendSystemMessage(Component.literal("⚠ Fehler bei der Abhebung!")
                         .withStyle(ChatFormatting.RED));

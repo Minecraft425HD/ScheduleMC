@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.piston.MovingPistonBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -51,9 +51,10 @@ public class BlockDatabase {
     public static Block chorusPlant;
     public static Block chorusFlower;
     public static Block leafLitter;
-    public static HashSet<Block> biomeBlocks;
+    // SICHERHEIT: Thread-Safe Sets für parallele Zugriffe
+    public static Set<Block> biomeBlocks;
     public static Block[] biomeBlocksArray;
-    public static HashSet<Block> shapedBlocks;
+    public static Set<Block> shapedBlocks;
     public static Block[] shapedBlocksArray;
     private static final ConcurrentHashMap<BlockState, Integer> stateToInt = new ConcurrentHashMap<>(1024);
     private static final ReferenceArrayList<BlockState> blockStates = new ReferenceArrayList<>(16384);
@@ -97,9 +98,20 @@ public class BlockDatabase {
         // leafLitter = Blocks.LEAF_LITTER;
         leafLitter = null;
         biomeBlocksArray = new Block[]{grassBlock, oakLeaves, spruceLeaves, birchLeaves, jungleLeaves, acaciaLeaves, darkOakLeaves, mangroveLeaves, grass, fern, tallGrass, largeFern, reeds, vine, lilypad, tallFlower, water, leafLitter};
-        biomeBlocks = new HashSet<>(Arrays.asList(biomeBlocksArray));
+        // SICHERHEIT: Thread-Safe Set für parallele Zugriffe (null-Werte filtern!)
+        biomeBlocks = ConcurrentHashMap.newKeySet();
+        for (Block block : biomeBlocksArray) {
+            if (block != null) {
+                biomeBlocks.add(block);
+            }
+        }
         shapedBlocksArray = new Block[]{ladder, vine};
-        shapedBlocks = new HashSet<>(Arrays.asList(shapedBlocksArray));
+        shapedBlocks = ConcurrentHashMap.newKeySet();
+        for (Block block : shapedBlocksArray) {
+            if (block != null) {
+                shapedBlocks.add(block);
+            }
+        }
 
         for (Block block : BuiltInRegistries.BLOCK) {
             if (block instanceof DoorBlock || block instanceof SignBlock) {

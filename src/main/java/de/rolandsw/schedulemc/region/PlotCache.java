@@ -2,12 +2,16 @@ package de.rolandsw.schedulemc.region;
 
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ChunkPos;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -31,6 +35,9 @@ public class PlotCache {
 
     private final Map<BlockPos, CacheEntry> cache;
     private final int maxSize;
+
+    // Sekundärer Chunk-Index für schnelle Region-Invalidierung O(chunks) statt O(n)
+    private final Map<ChunkPos, Set<BlockPos>> chunkIndex = new ConcurrentHashMap<>();
 
     // Statistiken
     private final AtomicLong hits = new AtomicLong(0);
@@ -95,6 +102,8 @@ public class PlotCache {
             } else {
                 // Plot hat sich geändert, Entry ist ungültig
                 cache.remove(pos);
+                // Auch aus Chunk-Index entfernen
+                removeFromChunkIndex(pos);
                 misses.incrementAndGet();
                 return null;
             }
@@ -102,6 +111,20 @@ public class PlotCache {
 
         misses.incrementAndGet();
         return null;
+    }
+
+    /**
+     * Hilfsmethode: Entfernt eine Position aus dem Chunk-Index
+     */
+    private void removeFromChunkIndex(BlockPos pos) {
+        ChunkPos chunkPos = new ChunkPos(pos);
+        Set<BlockPos> positionsInChunk = chunkIndex.get(chunkPos);
+        if (positionsInChunk != null) {
+            positionsInChunk.remove(pos);
+            if (positionsInChunk.isEmpty()) {
+                chunkIndex.remove(chunkPos);
+            }
+        }
     }
 
     /**
@@ -113,42 +136,112 @@ public class PlotCache {
     public void put(BlockPos pos, @Nullable PlotRegion plot) {
         if (plot != null) {
             cache.put(pos, new CacheEntry(plot));
+            // Chunk-Index aktualisieren für schnelle Region-Invalidierung
+            ChunkPos chunkPos = new ChunkPos(pos);
+            chunkIndex.computeIfAbsent(chunkPos, k -> ConcurrentHashMap.newKeySet()).add(pos);
         }
+    }
+
+    /**
+     * Hilfsmethode: Berechnet ChunkPos aus BlockPos
+     */
+    private static ChunkPos getChunkPos(BlockPos pos) {
+        return new ChunkPos(pos.getX() >> 4, pos.getZ() >> 4);
     }
 
     /**
      * Invalidiert alle Cache-Einträge für einen Plot
      *
+     * OPTIMIERT: Entfernt auch aus Chunk-Index
+     *
      * @param plotId Plot-ID
      */
     public void invalidatePlot(String plotId) {
+        Set<BlockPos> toRemoveFromChunkIndex = new HashSet<>();
+
         synchronized (cache) {
             cache.entrySet().removeIf(entry -> {
                 PlotRegion plot = entry.getValue().plot;
-                return plot != null && plot.getPlotId().equals(plotId);
+                boolean shouldRemove = plot != null && plot.getPlotId().equals(plotId);
+                if (shouldRemove) {
+                    toRemoveFromChunkIndex.add(entry.getKey());
+                }
+                return shouldRemove;
             });
         }
+
+        // Chunk-Index bereinigen
+        for (BlockPos pos : toRemoveFromChunkIndex) {
+            ChunkPos chunkPos = new ChunkPos(pos);
+            Set<BlockPos> positionsInChunk = chunkIndex.get(chunkPos);
+            if (positionsInChunk != null) {
+                positionsInChunk.remove(pos);
+                if (positionsInChunk.isEmpty()) {
+                    chunkIndex.remove(chunkPos);
+                }
+            }
+        }
+
         invalidations.incrementAndGet();
     }
 
     /**
      * Invalidiert alle Cache-Einträge in einer Region
      *
-     * Nützlich wenn Plot-Grenzen sich ändern
+     * OPTIMIERT: Nutzt Chunk-Index für O(affected_chunks) statt O(cache_size)
+     * Bei typischen Operationen (Plot-Änderung) betrifft das 1-4 Chunks statt 1000 Einträge
      *
      * @param min Min-Position
      * @param max Max-Position
      */
     public void invalidateRegion(BlockPos min, BlockPos max) {
-        synchronized (cache) {
-            cache.entrySet().removeIf(entry -> {
-                BlockPos pos = entry.getKey();
-                return pos.getX() >= min.getX() && pos.getX() <= max.getX() &&
-                       pos.getY() >= min.getY() && pos.getY() <= max.getY() &&
-                       pos.getZ() >= min.getZ() && pos.getZ() <= max.getZ();
-            });
+        // Berechne betroffene Chunks (nur die Chunks die tatsächlich in der Region liegen)
+        int minChunkX = min.getX() >> 4;
+        int maxChunkX = max.getX() >> 4;
+        int minChunkZ = min.getZ() >> 4;
+        int maxChunkZ = max.getZ() >> 4;
+
+        int removedCount = 0;
+
+        // Iteriere nur über betroffene Chunks (typisch 1-4 statt 1000 Einträge)
+        for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
+            for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
+                ChunkPos chunkPos = new ChunkPos(chunkX, chunkZ);
+                Set<BlockPos> positionsInChunk = chunkIndex.get(chunkPos);
+
+                if (positionsInChunk != null) {
+                    // Kopiere zum sicheren Iterieren
+                    Set<BlockPos> toRemove = new HashSet<>();
+
+                    for (BlockPos pos : positionsInChunk) {
+                        // Prüfe ob Position tatsächlich in der Region liegt
+                        if (pos.getX() >= min.getX() && pos.getX() <= max.getX() &&
+                            pos.getY() >= min.getY() && pos.getY() <= max.getY() &&
+                            pos.getZ() >= min.getZ() && pos.getZ() <= max.getZ()) {
+                            toRemove.add(pos);
+                        }
+                    }
+
+                    // Entferne aus beiden Indizes
+                    for (BlockPos pos : toRemove) {
+                        cache.remove(pos);
+                        positionsInChunk.remove(pos);
+                        removedCount++;
+                    }
+
+                    // Chunk-Set aufräumen wenn leer
+                    if (positionsInChunk.isEmpty()) {
+                        chunkIndex.remove(chunkPos);
+                    }
+                }
+            }
         }
-        invalidations.incrementAndGet();
+
+        if (removedCount > 0) {
+            invalidations.incrementAndGet();
+            LOGGER.debug("PlotCache: {} Einträge in Region invalidiert (Chunks: {}x{})",
+                removedCount, (maxChunkX - minChunkX + 1), (maxChunkZ - minChunkZ + 1));
+        }
     }
 
     /**
@@ -156,6 +249,7 @@ public class PlotCache {
      */
     public void clear() {
         cache.clear();
+        chunkIndex.clear();
         LOGGER.debug("PlotCache geleert");
     }
 

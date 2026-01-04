@@ -22,11 +22,13 @@ import net.minecraft.world.level.material.MapColor;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
  * Fullscreen Territory Map Editor
  * Allows OPs to paint territories chunk-by-chunk
+ * OPTIMIERUNG: LRU-Cache für Chunks verhindert Memory Leaks
  */
 public class TerritoryMapEditorScreen extends Screen {
     private static final int CHUNK_SIZE = 16;
@@ -34,10 +36,19 @@ public class TerritoryMapEditorScreen extends Screen {
     private static final int PALETTE_BUTTON_HEIGHT = 30;
     private static final int PALETTE_PADDING = 5;
 
+    // OPTIMIERUNG: LRU-Cache mit max. 1024 Chunks (16 MB max bei 256 bytes/chunk)
+    private static final int MAX_CACHED_CHUNKS = 1024;
     // Map data (independent from LightMapmod - Territory Editor uses its own map rendering)
-    private static final Map<Long, byte[]> exploredChunks = new HashMap<>();
-    private static int viewCenterWorldX = Integer.MAX_VALUE;
-    private static int viewCenterWorldZ = Integer.MAX_VALUE;
+    private static final Map<Long, byte[]> exploredChunks = new LinkedHashMap<Long, byte[]>(
+            MAX_CACHED_CHUNKS, 0.75f, true) {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<Long, byte[]> eldest) {
+            return size() > MAX_CACHED_CHUNKS;
+        }
+    };
+    // SICHERHEIT: volatile für Memory Visibility bei Client-Thread Zugriff
+    private static volatile int viewCenterWorldX = Integer.MAX_VALUE;
+    private static volatile int viewCenterWorldZ = Integer.MAX_VALUE;
 
     // Editor state
     @Nullable

@@ -31,9 +31,10 @@ public class PlotAbandonPacket {
 
     /**
      * Decode - Liest Daten aus Packet
+     * SICHERHEIT: Max-Länge für plotId gegen DoS/Memory-Angriffe
      */
     public static PlotAbandonPacket decode(FriendlyByteBuf buffer) {
-        String plotId = buffer.readUtf();
+        String plotId = buffer.readUtf(256);
         return new PlotAbandonPacket(plotId);
     }
 

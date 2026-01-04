@@ -110,8 +110,22 @@ public class NPCData {
         this.merchantCategory = category;
     }
 
-    // NBT Serialization
+    // ═══════════════════════════════════════════════════════════
+    // NBT Serialization - OPTIMIERT: Aufgeteilt in kleinere Methoden
+    // ═══════════════════════════════════════════════════════════
+
     public CompoundTag save(CompoundTag tag) {
+        saveBasicData(tag);
+        saveDialogData(tag);
+        saveShopData(tag);
+        saveLocationData(tag);
+        savePolicePatrolData(tag);
+        saveScheduleData(tag);
+        saveInventoryData(tag);
+        return tag;
+    }
+
+    private void saveBasicData(CompoundTag tag) {
         tag.putString("NPCName", npcName);
         tag.putString("SkinFileName", skinFileName);
         tag.putUUID("NPCUUID", npcUUID);
@@ -119,25 +133,24 @@ public class NPCData {
         tag.putInt("MerchantCategory", merchantCategory.ordinal());
         tag.putInt("BankCategory", bankCategory.ordinal());
         tag.putInt("CurrentDialogIndex", currentDialogIndex);
+        tag.put("CustomData", customData);
+        tag.put("Behavior", behavior.save(new CompoundTag()));
+    }
 
-        // Dialog speichern
+    private void saveDialogData(CompoundTag tag) {
         ListTag dialogList = new ListTag();
         for (DialogEntry entry : dialogEntries) {
             dialogList.add(entry.save(new CompoundTag()));
         }
         tag.put("DialogEntries", dialogList);
+    }
 
-        // Shop speichern
+    private void saveShopData(CompoundTag tag) {
         tag.put("BuyShop", buyShop.save(new CompoundTag()));
         tag.put("SellShop", sellShop.save(new CompoundTag()));
+    }
 
-        // Custom Data
-        tag.put("CustomData", customData);
-
-        // Behavior
-        tag.put("Behavior", behavior.save(new CompoundTag()));
-
-        // Locations
+    private void saveLocationData(CompoundTag tag) {
         if (homeLocation != null) {
             tag.putLong("HomeLocation", homeLocation.asLong());
         }
@@ -156,8 +169,9 @@ public class NPCData {
             leisureList.add(posTag);
         }
         tag.put("LeisureLocations", leisureList);
+    }
 
-        // Police Patrol System
+    private void savePolicePatrolData(CompoundTag tag) {
         if (policeStation != null) {
             tag.putLong("PoliceStation", policeStation.asLong());
         }
@@ -171,13 +185,15 @@ public class NPCData {
         tag.putInt("CurrentPatrolIndex", currentPatrolIndex);
         tag.putLong("PatrolArrivalTime", patrolArrivalTime);
         tag.putLong("StationArrivalTime", stationArrivalTime);
+    }
 
-        // Schedule Times
+    private void saveScheduleData(CompoundTag tag) {
         tag.putLong("WorkStartTime", workStartTime);
         tag.putLong("WorkEndTime", workEndTime);
         tag.putLong("HomeTime", homeTime);
+    }
 
-        // Inventar (nur für BEWOHNER und VERKAEUFER)
+    private void saveInventoryData(CompoundTag tag) {
         if (npcType != NPCType.POLIZEI) {
             ListTag inventoryList = new ListTag();
             for (int i = 0; i < inventory.size(); i++) {
@@ -190,11 +206,19 @@ public class NPCData {
             tag.putInt("Wallet", wallet);
             tag.putLong("LastDailyIncome", lastDailyIncome);
         }
-
-        return tag;
     }
 
     public void load(CompoundTag tag) {
+        loadBasicData(tag);
+        loadDialogData(tag);
+        loadShopData(tag);
+        loadLocationData(tag);
+        loadPolicePatrolData(tag);
+        loadScheduleData(tag);
+        loadInventoryData(tag);
+    }
+
+    private void loadBasicData(CompoundTag tag) {
         npcName = tag.getString("NPCName");
         skinFileName = tag.getString("SkinFileName");
         npcUUID = tag.getUUID("NPCUUID");
@@ -202,8 +226,12 @@ public class NPCData {
         merchantCategory = MerchantCategory.fromOrdinal(tag.getInt("MerchantCategory"));
         bankCategory = BankCategory.fromOrdinal(tag.getInt("BankCategory"));
         currentDialogIndex = tag.getInt("CurrentDialogIndex");
+        customData = tag.getCompound("CustomData");
+        behavior = new NPCBehavior();
+        behavior.load(tag.getCompound("Behavior"));
+    }
 
-        // Dialog laden
+    private void loadDialogData(CompoundTag tag) {
         dialogEntries.clear();
         ListTag dialogList = tag.getList("DialogEntries", Tag.TAG_COMPOUND);
         for (int i = 0; i < dialogList.size(); i++) {
@@ -211,21 +239,16 @@ public class NPCData {
             entry.load(dialogList.getCompound(i));
             dialogEntries.add(entry);
         }
+    }
 
-        // Shop laden
+    private void loadShopData(CompoundTag tag) {
         buyShop = new ShopInventory();
         buyShop.load(tag.getCompound("BuyShop"));
         sellShop = new ShopInventory();
         sellShop.load(tag.getCompound("SellShop"));
+    }
 
-        // Custom Data
-        customData = tag.getCompound("CustomData");
-
-        // Behavior
-        behavior = new NPCBehavior();
-        behavior.load(tag.getCompound("Behavior"));
-
-        // Locations
+    private void loadLocationData(CompoundTag tag) {
         if (tag.contains("HomeLocation")) {
             homeLocation = BlockPos.of(tag.getLong("HomeLocation"));
         }
@@ -236,7 +259,6 @@ public class NPCData {
             assignedWarehouse = BlockPos.of(tag.getLong("AssignedWarehouse"));
         }
 
-        // Leisure Locations
         leisureLocations.clear();
         if (tag.contains("LeisureLocations")) {
             ListTag leisureList = tag.getList("LeisureLocations", Tag.TAG_COMPOUND);
@@ -245,8 +267,9 @@ public class NPCData {
                 leisureLocations.add(BlockPos.of(posTag.getLong("Pos")));
             }
         }
+    }
 
-        // Police Patrol System
+    private void loadPolicePatrolData(CompoundTag tag) {
         if (tag.contains("PoliceStation")) {
             policeStation = BlockPos.of(tag.getLong("PoliceStation"));
         }
@@ -267,8 +290,9 @@ public class NPCData {
         if (tag.contains("StationArrivalTime")) {
             stationArrivalTime = tag.getLong("StationArrivalTime");
         }
+    }
 
-        // Schedule Times
+    private void loadScheduleData(CompoundTag tag) {
         if (tag.contains("WorkStartTime")) {
             workStartTime = tag.getLong("WorkStartTime");
         }
@@ -278,8 +302,9 @@ public class NPCData {
         if (tag.contains("HomeTime")) {
             homeTime = tag.getLong("HomeTime");
         }
+    }
 
-        // Inventar und Geldbörse (nur für BEWOHNER und VERKAEUFER)
+    private void loadInventoryData(CompoundTag tag) {
         if (npcType != NPCType.POLIZEI) {
             inventory = NonNullList.withSize(9, ItemStack.EMPTY);
             if (tag.contains("Inventory")) {

@@ -43,9 +43,10 @@ public class PlotSalePacket {
 
     /**
      * Decode - Liest Daten aus Packet
+     * SICHERHEIT: Max-Länge für plotId gegen DoS/Memory-Angriffe
      */
     public static PlotSalePacket decode(FriendlyByteBuf buffer) {
-        String plotId = buffer.readUtf();
+        String plotId = buffer.readUtf(256);
         double price = buffer.readDouble();
         SaleType type = buffer.readEnum(SaleType.class);
         return new PlotSalePacket(plotId, price, type);

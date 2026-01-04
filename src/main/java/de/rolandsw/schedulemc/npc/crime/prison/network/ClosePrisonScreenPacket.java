@@ -25,8 +25,11 @@ public class ClosePrisonScreenPacket {
         buf.writeUtf(msg.reason);
     }
 
+    /**
+     * SICHERHEIT: Max-Länge für Strings gegen DoS/Memory-Angriffe
+     */
     public static ClosePrisonScreenPacket decode(FriendlyByteBuf buf) {
-        return new ClosePrisonScreenPacket(buf.readUtf());
+        return new ClosePrisonScreenPacket(buf.readUtf(256)); // Release reason max 256 chars
     }
 
     public static void handle(ClosePrisonScreenPacket msg, Supplier<NetworkEvent.Context> ctx) {

@@ -18,7 +18,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * Extends AbstractPersistenceManager
  */
 public class TerritoryManager extends AbstractPersistenceManager<Map<Long, Territory>> {
-    private static TerritoryManager instance;
+    // SICHERHEIT: volatile für Double-Checked Locking Pattern
+    private static volatile TerritoryManager instance;
 
     // ChunkKey -> Territory
     private final Map<Long, Territory> territories = new ConcurrentHashMap<>();
@@ -34,12 +35,21 @@ public class TerritoryManager extends AbstractPersistenceManager<Map<Long, Terri
         load();
     }
 
+    /**
+     * SICHERHEIT: Double-Checked Locking für Thread-Safety
+     */
     public static TerritoryManager getInstance(MinecraftServer server) {
-        if (instance == null) {
-            instance = new TerritoryManager(server);
+        TerritoryManager localRef = instance;
+        if (localRef == null) {
+            synchronized (TerritoryManager.class) {
+                localRef = instance;
+                if (localRef == null) {
+                    instance = localRef = new TerritoryManager(server);
+                }
+            }
         }
-        instance.server = server;
-        return instance;
+        localRef.server = server;
+        return localRef;
     }
 
     @Nullable
@@ -117,10 +127,11 @@ public class TerritoryManager extends AbstractPersistenceManager<Map<Long, Terri
     }
 
     /**
-     * Gibt alle Territorien zurück
+     * Gibt alle Territorien zurück (read-only View ohne Kopie)
+     * OPTIMIERUNG: Collections.unmodifiableCollection statt ArrayList-Kopie
      */
     public Collection<Territory> getAllTerritories() {
-        return new ArrayList<>(territories.values());
+        return Collections.unmodifiableCollection(territories.values());
     }
 
     /**
@@ -189,10 +200,11 @@ public class TerritoryManager extends AbstractPersistenceManager<Map<Long, Terri
     // ═══════════════════════════════════════════════════════════
 
     /**
-     * Public getter für Map Editor
+     * Public getter für Map Editor (read-only View ohne Kopie)
+     * OPTIMIERUNG: Collections.unmodifiableMap statt HashMap-Kopie
      */
     public Map<Long, Territory> getTerritoriesMap() {
-        return new HashMap<>(territories);
+        return Collections.unmodifiableMap(territories);
     }
 
     // ═══════════════════════════════════════════════════════════

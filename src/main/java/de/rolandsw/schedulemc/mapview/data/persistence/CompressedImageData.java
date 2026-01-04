@@ -9,7 +9,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 // AddressMode and FilterMode don't exist in 1.20.1 - using GL constants directly when needed
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.zip.DataFormatException;
 import net.minecraft.client.Minecraft;
@@ -21,7 +22,15 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryUtil;
 
 public class CompressedImageData {
-    private static final HashMap<Integer, ByteBuffer> byteBuffers = new HashMap<>(4);
+    // OPTIMIERUNG: LRU-Cache mit max. 8 ByteBuffers verhindert Memory Leaks
+    private static final int MAX_BUFFER_CACHE_SIZE = 8;
+    private static final Map<Integer, ByteBuffer> byteBuffers = new LinkedHashMap<Integer, ByteBuffer>(
+            MAX_BUFFER_CACHE_SIZE, 0.75f, true) {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<Integer, ByteBuffer> eldest) {
+            return size() > MAX_BUFFER_CACHE_SIZE;
+        }
+    };
     private static final int DEFAULT_SIZE = 256;
     private static final ByteBuffer defaultSizeBuffer = ByteBuffer.allocateDirect(DEFAULT_SIZE * DEFAULT_SIZE * 4).order(ByteOrder.nativeOrder());
 

@@ -58,6 +58,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     private List<Part> parts;
     // Optimierung: Cache für Part-Lookups (vermeidet 30+ Iterationen pro Tick)
     private Map<Class<? extends Part>, Part> partCache;
+    private boolean partCacheValid = false;  // OPTIMIERT: Cache-Invalidierungs-Flag
 
     // Vehicle ownership and tracking
     private UUID ownerId;
@@ -246,6 +247,11 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     }
 
     public <T extends Part> T getPartByClass(Class<T> clazz) {
+        // OPTIMIERT: Re-validiere Cache bei Invalidierung
+        if (!partCacheValid && partCache != null) {
+            initParts();  // Re-initialisiert Cache
+        }
+
         // Optimierung: Nutze Cache für schnelle Lookups
         if (partCache != null) {
             @SuppressWarnings("unchecked")
@@ -262,6 +268,14 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
             }
         }
         return null;
+    }
+
+    /**
+     * Invalidiert den Part-Cache
+     * OPTIMIERT: Muss aufgerufen werden wenn Parts geändert werden
+     */
+    public void invalidatePartCache() {
+        partCacheValid = false;
     }
 
     public void setPartSerializer() {
@@ -304,6 +318,9 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
                 // Optimierung: Fülle Cache für schnelle Lookups
                 partCache.put(part.getClass(), part);
             });
+
+        // OPTIMIERT: Markiere Cache als valide
+        partCacheValid = true;
 
         checkInitializing();
     }

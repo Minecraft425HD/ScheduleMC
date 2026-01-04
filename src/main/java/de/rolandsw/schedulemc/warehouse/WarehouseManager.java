@@ -1,8 +1,8 @@
 package de.rolandsw.schedulemc.warehouse;
 import de.rolandsw.schedulemc.util.EventHelper;
+import de.rolandsw.schedulemc.util.ConfigCache;
 
 import com.mojang.logging.LogUtils;
-import de.rolandsw.schedulemc.config.ModConfigHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -38,9 +38,13 @@ public class WarehouseManager {
 
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Map<String, Set<BlockPos>> warehouses = new ConcurrentHashMap<>();
-    private static boolean dirty = false;
-    private static int tickCounter = 0;
+    // SICHERHEIT: volatile für Memory Visibility zwischen Threads
+    private static volatile boolean dirty = false;
+    private static volatile int tickCounter = 0;
     private static final int CHECK_INTERVAL = 20; // Prüfe jede Sekunde (20 ticks) für schnelle Reaktion
+
+    // OPTIMIERUNG: Cache für letzte Delivery-Tage (vermeidet Block-Entity-Lookups jeden Tick)
+    private static final Map<BlockPos, Long> lastDeliveryDayCache = new ConcurrentHashMap<>();
 
     /**
      * Registriert ein Warehouse
@@ -60,6 +64,7 @@ public class WarehouseManager {
         Set<BlockPos> levelWarehouses = warehouses.get(levelKey);
         if (levelWarehouses != null) {
             levelWarehouses.remove(pos);
+            lastDeliveryDayCache.remove(pos); // Cache bereinigen
             if (levelWarehouses.isEmpty()) {
                 warehouses.remove(levelKey);
             }
@@ -97,7 +102,8 @@ public class WarehouseManager {
 
                 long currentDay = level.getDayTime() / 24000L;
 
-                for (BlockPos pos : new ArrayList<>(entry.getValue())) {
+                // OPTIMIERUNG: Direkte Iteration ohne Kopie, ConcurrentHashMap.newKeySet() ist iterationssicher
+                for (BlockPos pos : entry.getValue()) {
                     checkWarehouseDelivery(level, pos, currentDay);
                 }
             }
@@ -106,9 +112,21 @@ public class WarehouseManager {
 
     /**
      * Prüft ein einzelnes Warehouse auf notwendige Delivery
+     *
+     * OPTIMIERT: Verwendet Cache um Block-Entity-Lookups zu minimieren.
+     * Block-Entity wird nur abgefragt wenn tatsächlich eine Delivery nötig ist.
      */
     private static void checkWarehouseDelivery(ServerLevel level, BlockPos pos, long currentDay) {
-        // Lade Chunk falls nötig (force load für diesen Tick)
+        long intervalDays = ConfigCache.getWarehouseDeliveryIntervalDays();
+
+        // OPTIMIERUNG: Prüfe Cache zuerst - vermeide Block-Entity-Lookup wenn keine Delivery nötig
+        Long cachedLastDeliveryDay = lastDeliveryDayCache.get(pos);
+        if (cachedLastDeliveryDay != null && currentDay < cachedLastDeliveryDay + intervalDays) {
+            // Keine Delivery nötig laut Cache - überspringe Block-Entity-Lookup
+            return;
+        }
+
+        // Delivery möglicherweise nötig - jetzt Block-Entity laden
         ChunkPos chunkPos = new ChunkPos(pos);
         boolean wasLoaded = level.isLoaded(pos);
 
@@ -120,13 +138,16 @@ public class WarehouseManager {
 
             BlockEntity be = level.getBlockEntity(pos);
             if (!(be instanceof WarehouseBlockEntity warehouse)) {
-                // Warehouse existiert nicht mehr - deregistrieren
+                // Warehouse existiert nicht mehr - deregistrieren und aus Cache entfernen
+                lastDeliveryDayCache.remove(pos);
                 unregisterWarehouse(level, pos);
                 return;
             }
 
-            long intervalDays = ModConfigHandler.COMMON.WAREHOUSE_DELIVERY_INTERVAL_DAYS.get();
             long lastDeliveryDay = warehouse.getLastDeliveryDay();
+
+            // Cache aktualisieren
+            lastDeliveryDayCache.put(pos, lastDeliveryDay);
 
             // Prüfe ob genug Tage vergangen sind
             if (currentDay >= lastDeliveryDay + intervalDays) {
@@ -134,6 +155,9 @@ public class WarehouseManager {
                 warehouse.setLastDeliveryDay(currentDay);
                 warehouse.setChanged();
                 warehouse.syncToClient();
+
+                // Cache mit neuem Wert aktualisieren
+                lastDeliveryDayCache.put(pos, currentDay);
             }
 
         } catch (Exception e) {
@@ -279,8 +303,13 @@ public class WarehouseManager {
 
     /**
      * Gibt alle registrierten Warehouse-Positionen zurück (für Debugging)
+     * SICHERHEIT: Deep Copy verhindert externe Modifikation
      */
     public static Map<String, Set<BlockPos>> getAllWarehouses() {
-        return new HashMap<>(warehouses);
+        Map<String, Set<BlockPos>> copy = new HashMap<>();
+        for (Map.Entry<String, Set<BlockPos>> entry : warehouses.entrySet()) {
+            copy.put(entry.getKey(), new HashSet<>(entry.getValue()));
+        }
+        return Collections.unmodifiableMap(copy);
     }
 }

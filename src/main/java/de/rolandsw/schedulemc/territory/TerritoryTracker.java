@@ -11,21 +11,23 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Trackt Territory-Wechsel und zeigt Hologramm beim Betreten/Verlassen
+ * SICHERHEIT: Verwendet ConcurrentHashMap für Thread-Sicherheit bei Event-Handlern
  */
 @Mod.EventBusSubscriber(modid = ScheduleMC.MOD_ID)
 public class TerritoryTracker {
 
+    // SICHERHEIT: ConcurrentHashMap statt HashMap für Thread-Sicherheit
     // Speichert letztes Territory pro Spieler
-    private static final Map<UUID, Territory> lastTerritory = new HashMap<>();
+    private static final Map<UUID, Territory> lastTerritory = new ConcurrentHashMap<>();
 
     // Cooldown um Spam zu vermeiden
-    private static final Map<UUID, Long> lastNotificationTime = new HashMap<>();
+    private static final Map<UUID, Long> lastNotificationTime = new ConcurrentHashMap<>();
     private static final long NOTIFICATION_COOLDOWN = 2000; // 2 Sekunden
 
     @SubscribeEvent

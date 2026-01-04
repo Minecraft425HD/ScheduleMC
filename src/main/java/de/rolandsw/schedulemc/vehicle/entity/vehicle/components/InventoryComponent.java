@@ -296,6 +296,9 @@ public class InventoryComponent extends VehicleComponent {
 
         ItemUtils.readInventory(compound, "parts", partInventory);
 
+        // OPTIMIERT: Invalidiere Part-Cache nach dem Laden
+        vehicle.invalidatePartCache();
+
         if (compound.contains("fluid_inventory")) {
             fluidInventory = FluidStack.loadFluidStackFromNBT(compound.getCompound("fluid_inventory"));
         }

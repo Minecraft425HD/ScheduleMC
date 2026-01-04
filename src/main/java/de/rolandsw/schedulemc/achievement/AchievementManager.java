@@ -1,11 +1,10 @@
 package de.rolandsw.schedulemc.achievement;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.economy.TransactionType;
 import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
+import de.rolandsw.schedulemc.util.GsonHelper;
 import net.minecraft.server.MinecraftServer;
 
 import javax.annotation.Nullable;
@@ -19,7 +18,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * Extends AbstractPersistenceManager für robuste Persistenz
  */
 public class AchievementManager extends AbstractPersistenceManager<Map<UUID, PlayerAchievements>> {
-    private static AchievementManager instance;
+    // SICHERHEIT: volatile für Double-Checked Locking Pattern
+    private static volatile AchievementManager instance;
 
     private final Map<String, Achievement> achievements = new LinkedHashMap<>();
     private final Map<UUID, PlayerAchievements> playerData = new ConcurrentHashMap<>();
@@ -28,19 +28,28 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
     private AchievementManager(MinecraftServer server) {
         super(
             server.getServerDirectory().toPath().resolve("config").resolve("plotmod_achievements.json").toFile(),
-            new GsonBuilder().setPrettyPrinting().create()
+            GsonHelper.get() // Umgebungsabhängig: kompakt in Produktion
         );
         this.server = server;
         registerAchievements();
         load();
     }
 
+    /**
+     * SICHERHEIT: Double-Checked Locking für Thread-Safety
+     */
     public static AchievementManager getInstance(MinecraftServer server) {
-        if (instance == null) {
-            instance = new AchievementManager(server);
+        AchievementManager localRef = instance;
+        if (localRef == null) {
+            synchronized (AchievementManager.class) {
+                localRef = instance;
+                if (localRef == null) {
+                    instance = localRef = new AchievementManager(server);
+                }
+            }
         }
-        instance.server = server;
-        return instance;
+        localRef.server = server;
+        return localRef;
     }
 
     @Nullable

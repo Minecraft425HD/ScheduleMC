@@ -20,7 +20,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * Refactored mit AbstractPersistenceManager
  */
 public class SavingsAccountManager extends AbstractPersistenceManager<Map<UUID, List<SavingsAccount>>> {
-    private static SavingsAccountManager instance;
+    // SICHERHEIT: volatile für Double-Checked Locking Pattern
+    private static volatile SavingsAccountManager instance;
 
     private final Map<UUID, List<SavingsAccount>> accounts = new ConcurrentHashMap<>();
     private MinecraftServer server;
@@ -36,12 +37,21 @@ public class SavingsAccountManager extends AbstractPersistenceManager<Map<UUID, 
         load();
     }
 
+    /**
+     * SICHERHEIT: Double-Checked Locking für Thread-Safety
+     */
     public static SavingsAccountManager getInstance(MinecraftServer server) {
-        if (instance == null) {
-            instance = new SavingsAccountManager(server);
+        SavingsAccountManager localRef = instance;
+        if (localRef == null) {
+            synchronized (SavingsAccountManager.class) {
+                localRef = instance;
+                if (localRef == null) {
+                    instance = localRef = new SavingsAccountManager(server);
+                }
+            }
         }
-        instance.server = server;
-        return instance;
+        localRef.server = server;
+        return localRef;
     }
 
     /**

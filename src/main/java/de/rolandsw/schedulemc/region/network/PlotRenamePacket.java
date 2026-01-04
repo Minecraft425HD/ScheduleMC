@@ -33,10 +33,11 @@ public class PlotRenamePacket {
 
     /**
      * Decode - Liest Daten aus Packet
+     * SICHERHEIT: Max-Länge für Strings gegen DoS/Memory-Angriffe
      */
     public static PlotRenamePacket decode(FriendlyByteBuf buffer) {
-        String plotId = buffer.readUtf();
-        String newName = buffer.readUtf();
+        String plotId = buffer.readUtf(256);
+        String newName = buffer.readUtf(32);
         return new PlotRenamePacket(plotId, newName);
     }
 

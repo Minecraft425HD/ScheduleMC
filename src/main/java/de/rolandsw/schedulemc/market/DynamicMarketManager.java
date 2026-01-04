@@ -27,7 +27,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DynamicMarketManager {
 
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static DynamicMarketManager instance;
+    // SICHERHEIT: volatile für Double-Checked Locking Pattern
+    private static volatile DynamicMarketManager instance;
 
     // ═══════════════════════════════════════════════════════════
     // DATA

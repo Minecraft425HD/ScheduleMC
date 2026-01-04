@@ -14,6 +14,7 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Verwaltet Wanted-Level (Fahndungsstufen) für Spieler
@@ -22,6 +23,7 @@ import java.util.UUID;
  * 3-4 Sterne = Schwere Straftaten
  * 5 Sterne = Höchste Fahndungsstufe
  *
+ * SICHERHEIT: Verwendet ConcurrentHashMap für Thread-Sicherheit bei parallelen Zugriffen
  * Nutzt AbstractPersistenceManager für robuste Datenpersistenz
  */
 public class CrimeManager {
@@ -35,13 +37,13 @@ public class CrimeManager {
     public static final long ESCAPE_DURATION = 30 * 20; // 30 Sekunden in Ticks
     public static final double ESCAPE_DISTANCE = 40.0; // Mindestabstand zur Polizei
 
-    // Server-side data
+    // SICHERHEIT: ConcurrentHashMap für Thread-Sicherheit
     // UUID -> Wanted Level
-    private static Map<UUID, Integer> wantedLevels = new HashMap<>();
+    private static final Map<UUID, Integer> wantedLevels = new ConcurrentHashMap<>();
     // UUID -> Last Crime Day (für automatischen Abbau)
-    private static Map<UUID, Long> lastCrimeDay = new HashMap<>();
+    private static final Map<UUID, Long> lastCrimeDay = new ConcurrentHashMap<>();
     // UUID -> Escape Timer Start (in Ticks) - NOT PERSISTED
-    private static Map<UUID, Long> escapeTimers = new HashMap<>();
+    private static final Map<UUID, Long> escapeTimers = new ConcurrentHashMap<>();
 
     // Client-side data (nur für HUD Overlay)
     private static int clientWantedLevel = 0;
@@ -88,12 +90,13 @@ public class CrimeManager {
 
     /**
      * Fügt Wanted-Level hinzu (max 5)
+     * SICHERHEIT: Atomare Operation für Thread-Sicherheit
      */
     public static void addWantedLevel(UUID playerUUID, int amount, long currentDay) {
-        int current = getWantedLevel(playerUUID);
-        int newLevel = Math.min(MAX_WANTED_LEVEL, current + amount);
-
-        wantedLevels.put(playerUUID, newLevel);
+        wantedLevels.compute(playerUUID, (key, current) -> {
+            int currentLevel = current != null ? current : 0;
+            return Math.min(MAX_WANTED_LEVEL, currentLevel + amount);
+        });
         lastCrimeDay.put(playerUUID, currentDay);
 
         markDirty();
@@ -123,26 +126,30 @@ public class CrimeManager {
     /**
      * Reduziert Wanted-Level über Zeit
      * Sollte täglich aufgerufen werden (pro Minecraft-Tag)
+     * SICHERHEIT: Atomare Operation für Thread-Sicherheit
      */
     public static void decayWantedLevel(UUID playerUUID, long currentDay) {
-        if (!wantedLevels.containsKey(playerUUID)) return;
-
         Long lastCrime = lastCrimeDay.get(playerUUID);
         if (lastCrime == null) return;
 
         // Pro Tag ohne Verbrechen: -1 Stern
         long daysPassed = currentDay - lastCrime;
         if (daysPassed > 0) {
-            int current = getWantedLevel(playerUUID);
-            int newLevel = Math.max(0, current - (int)daysPassed);
+            final int decay = (int) daysPassed;
 
-            if (newLevel <= 0) {
-                clearWantedLevel(playerUUID);
+            wantedLevels.compute(playerUUID, (key, current) -> {
+                if (current == null) return null;
+                int newLevel = Math.max(0, current - decay);
+                return newLevel <= 0 ? null : newLevel;
+            });
+
+            // Wenn Level auf 0 gefallen, entferne auch lastCrimeDay
+            if (!wantedLevels.containsKey(playerUUID)) {
+                lastCrimeDay.remove(playerUUID);
             } else {
-                wantedLevels.put(playerUUID, newLevel);
                 lastCrimeDay.put(playerUUID, currentDay);
-                markDirty();
             }
+            markDirty();
         }
     }
 
@@ -186,22 +193,25 @@ public class CrimeManager {
     /**
      * Prüft, ob Escape erfolgreich war (Timer abgelaufen)
      * Reduziert Wanted-Level um 1 Stern
+     * SICHERHEIT: Atomare Operation für Thread-Sicherheit
      */
     public static boolean checkEscapeSuccess(UUID playerUUID, long currentTick) {
         if (!isHiding(playerUUID)) return false;
 
         long remaining = getEscapeTimeRemaining(playerUUID, currentTick);
         if (remaining <= 0) {
-            // Escape erfolgreich! -1 Stern
-            int current = getWantedLevel(playerUUID);
-            int newLevel = Math.max(0, current - 1);
+            // Escape erfolgreich! -1 Stern (atomar)
+            wantedLevels.compute(playerUUID, (key, current) -> {
+                if (current == null) return null;
+                int newLevel = Math.max(0, current - 1);
+                return newLevel <= 0 ? null : newLevel;
+            });
 
-            if (newLevel <= 0) {
-                clearWantedLevel(playerUUID);
-            } else {
-                wantedLevels.put(playerUUID, newLevel);
-                markDirty();
+            // Wenn Level auf 0, entferne auch lastCrimeDay
+            if (!wantedLevels.containsKey(playerUUID)) {
+                lastCrimeDay.remove(playerUUID);
             }
+            markDirty();
 
             stopEscapeTimer(playerUUID);
             return true;

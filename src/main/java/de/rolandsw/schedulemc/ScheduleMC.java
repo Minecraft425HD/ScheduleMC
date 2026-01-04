@@ -116,8 +116,8 @@ public class ScheduleMC {
 
     public static final String MOD_ID = "schedulemc";
     public static final Logger LOGGER = LogUtils.getLogger();
-    private static final int SAVE_INTERVAL = 6000; // Wird durch IncrementalSaveManager ersetzt
-    private int tickCounter = 0;
+    private static final int SAVE_INTERVAL = 6000; // 5 Minuten (6000 Ticks)
+    private int tickCounter = 0; // Für periodische Saves der noch nicht migrierten Manager
 
     // Incremental Save Manager - Optimized Data Persistence
     private IncrementalSaveManager saveManager;
@@ -345,6 +345,10 @@ public class ScheduleMC {
         EventHelper.handleServerTickEnd(event, server -> {
             tickCounter++;
 
+            // OPTIMIERUNG: Spieler-Cache für Polizei-KI aktualisieren (einmal pro Tick)
+            long currentTick = server.overworld() != null ? server.overworld().getGameTime() : 0;
+            de.rolandsw.schedulemc.npc.events.PoliceAIHandler.updatePlayerCache(server, currentTick);
+
             // Economy Systems - Tick every server tick for day tracking
             if (server.overworld() != null) {
                 long dayTime = server.overworld().getDayTime();
@@ -366,8 +370,7 @@ public class ScheduleMC {
 
             if (tickCounter >= SAVE_INTERVAL) {
                 tickCounter = 0;
-                // PlotManager.saveIfNeeded();  // Jetzt via IncrementalSaveManager
-                // EconomyManager.saveIfNeeded();  // Jetzt via IncrementalSaveManager
+                // PlotManager & EconomyManager werden via IncrementalSaveManager gespeichert
                 DailyRewardManager.saveIfNeeded();
                 RentManager.checkExpiredRents();
                 WalletManager.saveIfNeeded();
@@ -407,8 +410,7 @@ public class ScheduleMC {
             }
 
             // Manuelle Saves für noch nicht migrierte Manager
-            // PlotManager.savePlots();  // Jetzt via IncrementalSaveManager
-            // EconomyManager.saveAccounts();  // Jetzt via IncrementalSaveManager
+            // (PlotManager & EconomyManager werden via IncrementalSaveManager gespeichert)
             DailyRewardManager.save();
             WalletManager.save();
             NPCNameRegistry.saveRegistry();

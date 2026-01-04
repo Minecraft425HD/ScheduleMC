@@ -14,9 +14,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Tool zum Setzen von Home- und Arbeitsstätte für NPCs
@@ -27,11 +27,12 @@ import java.util.UUID;
  *
  * BEWOHNER arbeiten nicht und brauchen daher keinen Arbeitsort.
  * Verwende das NPCLeisureTool für Freizeitorte!
+ * SICHERHEIT: Thread-safe Map für concurrent access von mehreren Spielern
  */
 public class NPCLocationTool extends Item {
 
-    // Speichere ausgewählten NPC pro Spieler (UUID -> NPC Entity ID)
-    private static final Map<UUID, Integer> selectedNPCs = new HashMap<>();
+    // SICHERHEIT: ConcurrentHashMap für Thread-safe Spieler-NPC-Mapping
+    private static final Map<UUID, Integer> selectedNPCs = new ConcurrentHashMap<>();
 
     public NPCLocationTool() {
         super(new Item.Properties().stacksTo(1));

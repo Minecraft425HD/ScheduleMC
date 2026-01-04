@@ -17,7 +17,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * Ersetzt den alten LoanManager für das neue NPC-basierte System
  */
 public class CreditLoanManager extends AbstractPersistenceManager<Map<UUID, CreditLoan>> {
-    private static CreditLoanManager instance;
+    // SICHERHEIT: volatile für Double-Checked Locking Pattern
+    private static volatile CreditLoanManager instance;
 
     private static final double MIN_BALANCE_FOR_LOAN = 1000.0;
 
@@ -34,12 +35,21 @@ public class CreditLoanManager extends AbstractPersistenceManager<Map<UUID, Cred
         load();
     }
 
+    /**
+     * SICHERHEIT: Double-Checked Locking für Thread-Safety
+     */
     public static CreditLoanManager getInstance(MinecraftServer server) {
-        if (instance == null) {
-            instance = new CreditLoanManager(server);
+        CreditLoanManager localRef = instance;
+        if (localRef == null) {
+            synchronized (CreditLoanManager.class) {
+                localRef = instance;
+                if (localRef == null) {
+                    instance = localRef = new CreditLoanManager(server);
+                }
+            }
         }
-        instance.server = server;
-        return instance;
+        localRef.server = server;
+        return localRef;
     }
 
     /**

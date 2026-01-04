@@ -4,6 +4,7 @@ import net.minecraft.world.level.block.Block;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Registry für Verbrauchswerte aller Blöcke
@@ -17,8 +18,9 @@ import java.util.Optional;
  */
 public class UtilityRegistry {
 
-    private static final Map<Block, UtilityConsumptionData> CONSUMPTION_MAP = new HashMap<>();
-    private static final Map<String, UtilityConsumptionData> CONSUMPTION_BY_ID = new HashMap<>();
+    // SICHERHEIT: ConcurrentHashMap für Thread-safe Zugriff
+    private static final Map<Block, UtilityConsumptionData> CONSUMPTION_MAP = new ConcurrentHashMap<>();
+    private static final Map<String, UtilityConsumptionData> CONSUMPTION_BY_ID = new ConcurrentHashMap<>();
 
     // Keine Instanziierung
     private UtilityRegistry() {}

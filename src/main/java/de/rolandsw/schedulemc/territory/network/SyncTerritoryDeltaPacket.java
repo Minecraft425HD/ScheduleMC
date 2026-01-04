@@ -79,6 +79,9 @@ public class SyncTerritoryDeltaPacket {
         // Bei REMOVE: nur chunkKey nötig (bereits geschrieben)
     }
 
+    /**
+     * SICHERHEIT: Max-Länge für Territory-Name gegen DoS/Memory-Angriffe
+     */
     public static SyncTerritoryDeltaPacket decode(FriendlyByteBuf buf) {
         long chunkKey = buf.readLong();
         DeltaType deltaType = buf.readEnum(DeltaType.class);
@@ -87,7 +90,7 @@ public class SyncTerritoryDeltaPacket {
             int chunkX = buf.readInt();
             int chunkZ = buf.readInt();
             TerritoryType type = buf.readEnum(TerritoryType.class);
-            String name = buf.readUtf();
+            String name = buf.readUtf(64); // Max 64 Zeichen für Territory-Name
 
             return new SyncTerritoryDeltaPacket(chunkKey, deltaType, chunkX, chunkZ, type, name);
         } else {

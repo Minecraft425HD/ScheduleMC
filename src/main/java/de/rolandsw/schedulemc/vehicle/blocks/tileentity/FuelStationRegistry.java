@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.logging.LogUtils;
+import de.rolandsw.schedulemc.util.GsonHelper;
 import net.minecraft.core.BlockPos;
 import org.slf4j.Logger;
 
@@ -11,22 +12,25 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Registry für alle Zapfsäulen auf dem Server
  * Verwaltet Zapfsäulen-IDs und deren Positionen
+ *
+ * OPTIMIERT: Verwendet Long-basierte BlockPos-Keys statt String-Konvertierung
  */
 public class FuelStationRegistry {
 
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private static final Gson GSON = GsonHelper.get();
     private static final File REGISTRY_FILE = new File("fuel_station_registry.json");
 
     // UUID (Gas Station ID) → BlockPos
-    private static Map<UUID, BlockPos> fuelStations = new HashMap<>();
-    // BlockPos → UUID (for reverse lookup)
-    private static Map<String, UUID> positionToId = new HashMap<>();
-    private static boolean isDirty = false;
+    private static final Map<UUID, BlockPos> fuelStations = new ConcurrentHashMap<>();
+    // Long (packed BlockPos) → UUID (für schnellen Lookup ohne String-Allokation)
+    private static final Map<Long, UUID> positionToId = new ConcurrentHashMap<>();
+    private static volatile boolean isDirty = false;
 
     /**
      * Lädt Registry vom Disk
@@ -49,7 +53,7 @@ public class FuelStationRegistry {
                     UUID id = UUID.fromString(entry.getKey());
                     BlockPos pos = parseBlockPos(entry.getValue());
                     fuelStations.put(id, pos);
-                    positionToId.put(posToString(pos), id);
+                    positionToId.put(pos.asLong(), id);  // OPTIMIERT: Long statt String
                 }
 
                 LOGGER.info("Fuel Station Registry geladen: {} Zapfsäulen", fuelStations.size());
@@ -87,23 +91,31 @@ public class FuelStationRegistry {
 
     /**
      * Registriert eine neue Zapfsäule
+     * OPTIMIERT: Atomare Operation mit computeIfAbsent verhindert Race Condition
      */
     public static UUID registerFuelStation(BlockPos pos) {
-        String posKey = posToString(pos);
+        long posKey = pos.asLong();  // OPTIMIERT: Long statt String
 
-        // Prüfe ob schon registriert
-        if (positionToId.containsKey(posKey)) {
-            return positionToId.get(posKey);
+        // OPTIMIERT: Atomare Operation - Thread-safe und effizienter
+        UUID existingId = positionToId.get(posKey);
+        if (existingId != null) {
+            return existingId;
         }
 
-        // Erstelle neue ID
-        UUID id = UUID.randomUUID();
-        fuelStations.put(id, pos);
-        positionToId.put(posKey, id);
+        // Erstelle neue ID - Atomare Registrierung
+        UUID newId = UUID.randomUUID();
+        UUID previousId = positionToId.putIfAbsent(posKey, newId);
+
+        if (previousId != null) {
+            // Andere Thread war schneller
+            return previousId;
+        }
+
+        fuelStations.put(newId, pos);
         isDirty = true;
 
-        LOGGER.info("Zapfsäule registriert: ID={}, Pos={}", id, pos);
-        return id;
+        LOGGER.info("Zapfsäule registriert: ID={}, Pos={}", newId, pos);
+        return newId;
     }
 
     /**
@@ -112,7 +124,7 @@ public class FuelStationRegistry {
     public static void unregisterFuelStation(UUID id) {
         BlockPos pos = fuelStations.remove(id);
         if (pos != null) {
-            positionToId.remove(posToString(pos));
+            positionToId.remove(pos.asLong());  // OPTIMIERT: Long statt String
             isDirty = true;
             LOGGER.info("Zapfsäule entfernt: ID={}", id);
         }
@@ -120,9 +132,10 @@ public class FuelStationRegistry {
 
     /**
      * Gibt die ID für eine Position zurück
+     * OPTIMIERT: O(1) Lookup mit Long-Key statt String-Allokation
      */
     public static UUID getIdByPosition(BlockPos pos) {
-        return positionToId.get(posToString(pos));
+        return positionToId.get(pos.asLong());
     }
 
     /**

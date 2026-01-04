@@ -42,10 +42,11 @@ public class PlotTrustPacket {
 
     /**
      * Decode - Liest Daten aus Packet
+     * SICHERHEIT: Max-Länge für Strings gegen DoS/Memory-Angriffe
      */
     public static PlotTrustPacket decode(FriendlyByteBuf buffer) {
-        String plotId = buffer.readUtf();
-        String playerName = buffer.readUtf();
+        String plotId = buffer.readUtf(256);
+        String playerName = buffer.readUtf(16); // MC username max 16 chars
         TrustAction action = buffer.readEnum(TrustAction.class);
         return new PlotTrustPacket(plotId, playerName, action);
     }
