@@ -535,7 +535,8 @@ public class RegionCache {
 
     private void saveData(boolean newThread) {
         if (this.liveChunksUpdated && !this.worldNamePathPart.isEmpty()) {
-            if (newThread) {
+            // SAFETY: Check if executor is still running, otherwise save synchronously
+            if (newThread && !AsyncPersistenceManager.saveExecutorService.isShutdown()) {
                 AsyncPersistenceManager.saveExecutorService.execute(() -> {
                     if (MapViewConstants.DEBUG) {
                         MapViewConstants.getLogger().info("Saving region file for " + RegionCache.this.x + "," + RegionCache.this.z + " in " + RegionCache.this.worldNamePathPart + "/" + RegionCache.this.subworldNamePathPart + RegionCache.this.dimensionNamePathPart);
@@ -555,6 +556,7 @@ public class RegionCache {
                     }
                 });
             } else {
+                // Save synchronously if executor is shutdown or newThread=false
                 try {
                     this.doSave();
                 } catch (Exception ex) {
@@ -564,7 +566,6 @@ public class RegionCache {
 
             this.liveChunksUpdated = false;
         }
-
     }
 
     private void doSave() throws IOException {
