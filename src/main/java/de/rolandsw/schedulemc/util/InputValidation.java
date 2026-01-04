@@ -26,6 +26,15 @@ public class InputValidation {
         private ValidationResult(boolean valid, String error, String sanitizedValue) {
             super(valid, error, sanitizedValue);
         }
+
+        public static ValidationResult success() { return new ValidationResult(true, null, null); }
+        public static ValidationResult success(String sanitizedValue) { return new ValidationResult(true, null, sanitizedValue); }
+        public static ValidationResult failure(String error) { return new ValidationResult(false, error, null); }
+
+        // Konvertiert Result zu ValidationResult
+        public static ValidationResult from(Result result) {
+            return new ValidationResult(result.isValid(), result.getError(), result.getSanitizedValue());
+        }
     }
 
     // Weltgrenzen
@@ -138,19 +147,6 @@ public class InputValidation {
         return Result.success(value);
     }
 
-    public static Result validateAmount(double amount) {
-        if (Double.isNaN(amount) || Double.isInfinite(amount)) {
-            return Result.failure("§cUngültiger Betrag!");
-        }
-        if (amount < 0) {
-            return Result.failure("§cBetrag darf nicht negativ sein!");
-        }
-        if (amount > 1_000_000_000_000.0) {
-            return Result.failure("§cBetrag zu groß!");
-        }
-        return Result.success();
-    }
-
     public static Result validateBlockPos(@Nullable BlockPos pos) {
         if (pos == null) {
             return Result.failure("§cPosition darf nicht null sein!");
@@ -197,21 +193,44 @@ public class InputValidation {
     }
 
     // ═══════════════════════════════════════════════════════════
-    // ALIAS-METHODEN für Rückwärtskompatibilität
+    // ALIAS-METHODEN für Rückwärtskompatibilität (geben ValidationResult zurück)
     // ═══════════════════════════════════════════════════════════
 
     /**
-     * Alias für validatePlotName
+     * Alias für validatePlotName - gibt ValidationResult zurück
      */
-    public static Result validateName(@Nullable String name) {
-        return validatePlotName(name);
+    public static ValidationResult validateName(@Nullable String name) {
+        return ValidationResult.from(validatePlotName(name));
     }
 
     /**
-     * Alias für validateAmount (double)
+     * Alias für validateAmount (double) - gibt ValidationResult zurück
      */
-    public static Result validatePrice(double price) {
-        return validateAmount(price);
+    public static ValidationResult validatePrice(double price) {
+        return ValidationResult.from(validateAmountInternal(price));
+    }
+
+    /**
+     * validateAmount mit ValidationResult Rückgabe für Rückwärtskompatibilität
+     */
+    public static ValidationResult validateAmount(double amount) {
+        return ValidationResult.from(validateAmountInternal(amount));
+    }
+
+    /**
+     * Interne Implementierung von validateAmount
+     */
+    private static Result validateAmountInternal(double amount) {
+        if (Double.isNaN(amount) || Double.isInfinite(amount)) {
+            return Result.failure("§cUngültiger Betrag!");
+        }
+        if (amount < 0) {
+            return Result.failure("§cBetrag darf nicht negativ sein!");
+        }
+        if (amount > MAX_AMOUNT) {
+            return Result.failure("§cBetrag zu groß!");
+        }
+        return Result.success();
     }
 
     private InputValidation() {
