@@ -101,13 +101,14 @@ public class WorldMapScreen extends PopupScreen {
     private float mouseDirectToMap = 1.0F;
     private float guiToDirectMouse = 2.0F;
     private static boolean gotSkin;
-    private boolean closed;
+    // OPTIMIZATION: volatile for lock-free reads
+    private volatile boolean closed;
     private RegionCache[] regions = new RegionCache[0];
     private final BiomeData biomeMapData = new BiomeData(760, 360);
     private final NPCMapRenderer npcMapRenderer = new NPCMapRenderer();
     private float mapPixelsX;
     private float mapPixelsY;
-    private final Object closedLock = new Object();
+    // OPTIMIZATION: Removed closedLock - volatile closed ensures visibility
     int sideMargin = 10;
     int buttonCount = 3;
     int buttonSeparation = 4;
@@ -676,13 +677,12 @@ public class WorldMapScreen extends PopupScreen {
             bottom = (int) Math.floor((this.mapCenterZ + this.centerY * this.guiToMap) / 256.0F);
         }
 
-        synchronized (this.closedLock) {
-            if (this.closed) {
-                return;
-            }
-
-            this.regions = this.persistentMap.getRegions(left - 1, right + 1, top - 1, bottom + 1);
+        // OPTIMIZATION: Removed synchronized - volatile closed ensures visibility
+        if (this.closed) {
+            return;
         }
+
+        this.regions = this.persistentMap.getRegions(left - 1, right + 1, top - 1, bottom + 1);
 
         guiGraphics.pose().translate(this.centerX - this.mapCenterX * this.mapToGui, (this.top + this.centerY) - this.mapCenterZ * this.mapToGui, 0.0f);
         if (this.oldNorth) {
@@ -766,7 +766,7 @@ public class WorldMapScreen extends PopupScreen {
                 boolean still = !this.leftMouseButtonDown;
                 still = still && this.zoom == this.zoomGoal;
                 still = still && this.deltaX == 0.0F && this.deltaY == 0.0F;
-                still = still && AsyncPersistenceManager.executorService.getActiveCount() == 0;
+                still = still && de.rolandsw.schedulemc.util.ThreadPoolManager.getComputationPoolActiveCount() == 0;
                 if (still && !this.lastStill) {
                     int column;
                     if (this.oldNorth) {
@@ -985,13 +985,12 @@ public class WorldMapScreen extends PopupScreen {
     public void tick() {
     }
 
+    // OPTIMIZATION: Removed synchronized - volatile closed ensures visibility
     @Override
     public void removed() {
-        synchronized (this.closedLock) {
-            this.closed = true;
-            this.persistentMap.getRegions(0, -1, 0, -1);
-            this.regions = new RegionCache[0];
-        }
+        this.closed = true;
+        this.persistentMap.getRegions(0, -1, 0, -1);
+        this.regions = new RegionCache[0];
     }
 
     private void createPopup(int x, int y, int directX, int directY) {

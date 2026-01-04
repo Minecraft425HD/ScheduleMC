@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.mapview.core.event;
 
+import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -90,7 +91,7 @@ public class MapEventBus {
                         ((Consumer<T>) listener).accept(event);
                     } catch (Exception e) {
                         // Log error but continue processing other listeners
-                        System.err.println("Error processing event " + event.getEventName() + ": " + e.getMessage());
+                        MapViewConstants.getLogger().error("Error processing event {}: {}", event.getEventName(), e.getMessage(), e);
                     }
                 }
             }

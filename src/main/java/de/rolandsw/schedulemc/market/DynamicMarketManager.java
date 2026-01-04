@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.util.GsonHelper;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import org.slf4j.Logger;
 
@@ -375,9 +377,48 @@ public class DynamicMarketManager {
                 return;
             }
 
-            // TODO: Deserialize (requires Item registry)
-            // For now, just log
-            LOGGER.info("Market data loaded: {} items", loaded.size());
+            // Deserialize: Convert SerializedMarketData → MarketData
+            int successCount = 0;
+            int failCount = 0;
+
+            for (SerializedMarketData serialized : loaded) {
+                try {
+                    // Convert String → Item using registry lookup
+                    ResourceLocation itemId = new ResourceLocation(serialized.itemId);
+                    Item item = BuiltInRegistries.ITEM.get(itemId);
+
+                    // Verify item exists
+                    if (item == null || item == net.minecraft.world.item.Items.AIR) {
+                        LOGGER.warn("Could not deserialize item {} - not found in registry", serialized.itemId);
+                        failCount++;
+                        continue;
+                    }
+
+                    // Restore MarketData with saved state
+                    MarketData data = new MarketData(
+                        item,
+                        serialized.basePrice,
+                        supplyDemandFactor,        // Use current config
+                        minPriceMultiplier,        // Use current config
+                        maxPriceMultiplier,        // Use current config
+                        serialized.supply,
+                        serialized.demand,
+                        serialized.currentPrice,
+                        serialized.previousPrice,
+                        serialized.previousSupply,
+                        serialized.previousDemand
+                    );
+
+                    marketData.put(item, data);
+                    successCount++;
+
+                } catch (Exception e) {
+                    LOGGER.error("Error deserializing market data for {}: {}", serialized.itemId, e.getMessage());
+                    failCount++;
+                }
+            }
+
+            LOGGER.info("Market data loaded: {} items restored, {} failed", successCount, failCount);
 
         } catch (IOException e) {
             LOGGER.error("Error loading market data", e);
@@ -390,8 +431,31 @@ public class DynamicMarketManager {
         try {
             MARKET_FILE.getParentFile().mkdirs();
 
-            // TODO: Serialize (requires Item registry)
+            // Serialize: Convert MarketData → SerializedMarketData
             List<SerializedMarketData> toSave = new ArrayList<>();
+
+            for (Map.Entry<Item, MarketData> entry : marketData.entrySet()) {
+                Item item = entry.getKey();
+                MarketData data = entry.getValue();
+
+                // Convert Item to ResourceLocation String (e.g. "minecraft:diamond")
+                ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(item);
+                if (itemId == null) {
+                    LOGGER.warn("Could not serialize item {} - no registry ID found", item);
+                    continue;
+                }
+
+                toSave.add(new SerializedMarketData(
+                    itemId.toString(),
+                    data.getBasePrice(),
+                    data.getSupply(),
+                    data.getDemand(),
+                    data.getCurrentPrice(),
+                    data.getPreviousPrice(),
+                    data.getPreviousSupply(),
+                    data.getPreviousDemand()
+                ));
+            }
 
             try (FileWriter writer = new FileWriter(MARKET_FILE)) {
                 GSON.toJson(toSave, writer);
@@ -412,11 +476,34 @@ public class DynamicMarketManager {
         }
     }
 
+    /**
+     * Serializable Market Data (Item wird als ResourceLocation String gespeichert)
+     */
     private static class SerializedMarketData {
-        String itemId;
+        String itemId;              // z.B. "minecraft:diamond"
         double basePrice;
         int supply;
         int demand;
+        double currentPrice;
+        double previousPrice;
+        int previousSupply;
+        int previousDemand;
+
+        // Default constructor für Gson
+        SerializedMarketData() {}
+
+        // Constructor mit allen Feldern
+        SerializedMarketData(String itemId, double basePrice, int supply, int demand,
+                           double currentPrice, double previousPrice, int previousSupply, int previousDemand) {
+            this.itemId = itemId;
+            this.basePrice = basePrice;
+            this.supply = supply;
+            this.demand = demand;
+            this.currentPrice = currentPrice;
+            this.previousPrice = previousPrice;
+            this.previousSupply = previousSupply;
+            this.previousDemand = previousDemand;
+        }
     }
 
     // ═══════════════════════════════════════════════════════════

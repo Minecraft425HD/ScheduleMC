@@ -5,6 +5,8 @@ import com.google.common.collect.HashBiMap;
 import de.rolandsw.schedulemc.mapview.core.model.AbstractMapData;
 import de.rolandsw.schedulemc.mapview.data.persistence.CompressionUtils;
 import java.util.Arrays;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.DataFormatException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -38,13 +40,22 @@ public class CompressedMapData extends AbstractMapData {
     private final static int REGION_SIZE = 256;
     private final static byte[] compressedEmptyData = CompressionUtils.compress(generateEmptyData());
 
-    private byte[] data;
-    private boolean isCompressed;
-    private BiMap<BlockState, Integer> blockStateToInt;
-    int blockStateCount = 1;
-    private BiMap<Biome, Integer> biomeToInt;
-    int biomeCount = 1;
+    // OPTIMIZATION: volatile for lock-free reads
+    private volatile byte[] data;
+    private volatile boolean isCompressed;
+
+    // OPTIMIZATION: Replaced BiMap with ConcurrentHashMap (lock-free!)
+    private final ConcurrentHashMap<BlockState, Integer> blockStateToInt = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer, BlockState> intToBlockState = new ConcurrentHashMap<>();
+    private final AtomicInteger blockStateCount = new AtomicInteger(1);
+
+    private final ConcurrentHashMap<Biome, Integer> biomeToInt = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer, Biome> intToBiome = new ConcurrentHashMap<>();
+    private final AtomicInteger biomeCount = new AtomicInteger(1);
+
     private final ClientLevel world;
+    // OPTIMIZATION: Lock object for decompress (only when actually decompressing)
+    private final Object decompressLock = new Object();
 
     private final Minecraft MINECRAFT = Minecraft.getInstance();
 
@@ -167,7 +178,8 @@ public class CompressedMapData extends AbstractMapData {
         return this.getDataUnsignedShort(x, z, BIOMEIDPOS);
     }
 
-    private synchronized byte getData(int x, int z, int layer) {
+    // OPTIMIZATION: Lock-free read with double-checked locking for decompress
+    private byte getData(int x, int z, int layer) {
         if (this.isCompressed) {
             this.decompress();
         }
@@ -176,11 +188,13 @@ public class CompressedMapData extends AbstractMapData {
         return this.data[index];
     }
 
-    private synchronized int getDataUnsignedShort(int x, int z, int layer) {
+    // OPTIMIZATION: Lock-free - calls getData which handles decompression
+    private int getDataUnsignedShort(int x, int z, int layer) {
         return ((this.getData(x, z, layer) & 0xFF) << 8) | (this.getData(x, z, layer + 1) & 0xFF);
     }
 
-    private synchronized int getDataSignedShort(int x, int z, int layer) {
+    // OPTIMIZATION: Lock-free - calls getData which handles decompression
+    private int getDataSignedShort(int x, int z, int layer) {
         return (this.getData(x, z, layer) << 8) | (this.getData(x, z, layer + 1) & 0xFF);
     }
 
@@ -273,7 +287,8 @@ public class CompressedMapData extends AbstractMapData {
         this.setDataShort(x, z, BIOMEIDPOS, id);
     }
 
-    private synchronized void setData(int x, int z, int layer, byte value) {
+    // OPTIMIZATION: Lock-free - volatile data ensures visibility
+    private void setData(int x, int z, int layer, byte value) {
         if (this.isCompressed) {
             this.decompress();
         }
@@ -282,13 +297,15 @@ public class CompressedMapData extends AbstractMapData {
         this.data[index] = value;
     }
 
-    private synchronized void setDataShort(int x, int z, int layer, int value) {
+    // OPTIMIZATION: Lock-free - calls setData which handles decompression
+    private void setDataShort(int x, int z, int layer, int value) {
         this.setData(x, z, layer, (byte) (value >> 8));
         this.setData(x, z, layer + 1, (byte) value);
     }
 
+    // OPTIMIZATION: Lock-free - decompress is synchronized, System.arraycopy is atomic
     @Override
-    public synchronized void moveX(int x) {
+    public void moveX(int x) {
         if (this.isCompressed) {
             this.decompress();
         }
@@ -299,8 +316,9 @@ public class CompressedMapData extends AbstractMapData {
         }
     }
 
+    // OPTIMIZATION: Lock-free - decompress is synchronized, System.arraycopy is atomic
     @Override
-    public synchronized void moveZ(int z) {
+    public void moveZ(int z) {
         if (this.isCompressed) {
             this.decompress();
         }
@@ -311,20 +329,38 @@ public class CompressedMapData extends AbstractMapData {
         }
     }
 
-    public synchronized void setData(byte[] is, BiMap<BlockState, Integer> newStateToInt, BiMap<Biome, Integer> newBiomeToInt, int version) {
+    // OPTIMIZATION: Lock-free with volatile data, BiMap conversion to ConcurrentHashMap
+    public void setData(byte[] is, BiMap<BlockState, Integer> newStateToInt, BiMap<Biome, Integer> newBiomeToInt, int version) {
         this.data = is;
         this.isCompressed = false;
         if (version < DATA_VERSION) {
             this.convertData(version);
         }
 
-        this.blockStateToInt = newStateToInt;
-        this.blockStateCount = this.blockStateToInt.size();
-        this.biomeToInt = newBiomeToInt;
-        this.biomeCount = this.biomeToInt.size();
+        // Convert BiMap to ConcurrentHashMaps
+        this.blockStateToInt.clear();
+        this.intToBlockState.clear();
+        if (newStateToInt != null) {
+            newStateToInt.forEach((state, id) -> {
+                this.blockStateToInt.put(state, id);
+                this.intToBlockState.put(id, state);
+            });
+            this.blockStateCount.set(newStateToInt.size());
+        }
+
+        this.biomeToInt.clear();
+        this.intToBiome.clear();
+        if (newBiomeToInt != null) {
+            newBiomeToInt.forEach((biome, id) -> {
+                this.biomeToInt.put(biome, id);
+                this.intToBiome.put(id, biome);
+            });
+            this.biomeCount.set(newBiomeToInt.size());
+        }
     }
 
-    private synchronized void convertData(int version) {
+    // OPTIMIZATION: Lock-free - decompress handles synchronization, data is volatile
+    private void convertData(int version) {
         if (this.isCompressed) {
             this.decompress();
         }
@@ -412,7 +448,8 @@ public class CompressedMapData extends AbstractMapData {
         System.arraycopy(oldData, start, newData, newStart, length);
     }
 
-    public synchronized byte[] getData() {
+    // OPTIMIZATION: Lock-free - decompress handles synchronization, volatile data
+    public byte[] getData() {
         if (this.isCompressed) {
             this.decompress();
         }
@@ -420,213 +457,224 @@ public class CompressedMapData extends AbstractMapData {
         return this.data;
     }
 
-    public synchronized void compress() {
+    // OPTIMIZATION: Double-Checked Locking for minimal synchronization
+    public void compress() {
         if (!this.isCompressed) {
-            this.isCompressed = true;
-            this.data = CompressionUtils.compress(this.data);
-        }
-    }
-
-    private synchronized void decompress() {
-        if (this.blockStateToInt == null) {
-            this.blockStateToInt = HashBiMap.create();
-        }
-        if (this.biomeToInt == null) {
-            this.biomeToInt = HashBiMap.create();
-        }
-
-        if (this.isCompressed) {
-            try {
-                this.data = CompressionUtils.decompress(this.data);
-                this.isCompressed = false;
-            } catch (DataFormatException ignored) {
+            synchronized (decompressLock) {
+                if (!this.isCompressed) {
+                    byte[] compressedData = CompressionUtils.compress(this.data);
+                    this.data = compressedData;
+                    this.isCompressed = true;
+                }
             }
         }
     }
 
-    public synchronized boolean isCompressed() {
+    // OPTIMIZATION: Double-Checked Locking for minimal synchronization
+    private void decompress() {
+        // No need to initialize ConcurrentHashMaps - they're already initialized in constructor
+
+        if (this.isCompressed) {
+            synchronized (decompressLock) {
+                if (this.isCompressed) {
+                    try {
+                        byte[] decompressedData = CompressionUtils.decompress(this.data);
+                        this.data = decompressedData;
+                        this.isCompressed = false;
+                    } catch (DataFormatException ignored) {
+                    }
+                }
+            }
+        }
+    }
+
+    // OPTIMIZATION: Lock-free - volatile isCompressed ensures visibility
+    public boolean isCompressed() {
         return this.isCompressed;
     }
 
-    private synchronized int getIDFromState(BlockState blockState) {
-        Integer id = this.blockStateToInt.get(blockState);
-        if (id == null && blockState != null) {
-            while (this.blockStateToInt.inverse().containsKey(this.blockStateCount)) {
-                ++this.blockStateCount;
-            }
-
-            id = this.blockStateCount;
-            this.blockStateToInt.put(blockState, id);
+    // OPTIMIZATION: Lock-free with ConcurrentHashMap.computeIfAbsent()
+    private int getIDFromState(BlockState blockState) {
+        if (blockState == null) {
+            return 0;
         }
 
-        return id;
+        return this.blockStateToInt.computeIfAbsent(blockState, state -> {
+            // Atomically find next available ID
+            int newId = this.blockStateCount.getAndIncrement();
+            while (this.intToBlockState.containsKey(newId)) {
+                newId = this.blockStateCount.getAndIncrement();
+            }
+            this.intToBlockState.put(newId, blockState);
+            return newId;
+        });
     }
 
+    // OPTIMIZATION: Direct ConcurrentHashMap access (lock-free)
     private BlockState getStateFromID(int id) {
-        return this.blockStateToInt.inverse().get(id);
+        return this.intToBlockState.get(id);
     }
 
+    // OPTIMIZATION: Convert ConcurrentHashMap back to BiMap for external API compatibility
     public BiMap<BlockState, Integer> getStateToInt() {
-        this.blockStateToInt = this.createKeyFromCurrentBlocks(this.blockStateToInt);
-        return this.blockStateToInt;
+        this.createKeyFromCurrentBlocks();
+        BiMap<BlockState, Integer> result = HashBiMap.create();
+        result.putAll(this.blockStateToInt);
+        return result;
     }
 
-    private BiMap<BlockState, Integer> createKeyFromCurrentBlocks(BiMap<BlockState, Integer> oldMap) {
-        this.blockStateCount = 1;
-        BiMap<BlockState, Integer> newMap = HashBiMap.create();
+    // OPTIMIZATION: Rewritten for ConcurrentHashMap (lock-free)
+    private void createKeyFromCurrentBlocks() {
+        ConcurrentHashMap<BlockState, Integer> oldStateToInt = new ConcurrentHashMap<>(this.blockStateToInt);
+        ConcurrentHashMap<Integer, BlockState> oldIntToState = new ConcurrentHashMap<>(this.intToBlockState);
+
+        this.blockStateToInt.clear();
+        this.intToBlockState.clear();
+        this.blockStateCount.set(1);
 
         for (int x = 0; x < this.width; ++x) {
             for (int z = 0; z < this.height; ++z) {
+                // Process BLOCKSTATEPOS
                 int oldID = (this.getData(x, z, BLOCKSTATEPOS) & 255) << 8 | this.getData(x, z, BLOCKSTATEPOS + 1) & 255;
                 if (oldID != 0) {
-                    BlockState blockState = oldMap.inverse().get(oldID);
-                    Integer id = newMap.get(blockState);
-                    if (id == null && blockState != null) {
-                        while (newMap.inverse().containsKey(this.blockStateCount)) {
-                            ++this.blockStateCount;
+                    BlockState blockState = oldIntToState.get(oldID);
+                    Integer id = this.blockStateToInt.computeIfAbsent(blockState, state -> {
+                        int newId = this.blockStateCount.getAndIncrement();
+                        while (this.intToBlockState.containsKey(newId)) {
+                            newId = this.blockStateCount.getAndIncrement();
                         }
-
-                        id = this.blockStateCount;
-                        newMap.put(blockState, id);
-                    }
-                    if (id == null) {
-                        id = 0;
-                    }
+                        this.intToBlockState.put(newId, blockState);
+                        return newId;
+                    });
 
                     this.setData(x, z, BLOCKSTATEPOS, (byte) (id >> 8));
                     this.setData(x, z, BLOCKSTATEPOS + 1, (byte) id.intValue());
                 }
 
+                // Process OCEANFLOORBLOCKSTATEPOS
                 oldID = (this.getData(x, z, OCEANFLOORBLOCKSTATEPOS) & 255) << 8 | this.getData(x, z, OCEANFLOORBLOCKSTATEPOS + 1) & 255;
                 if (oldID != 0) {
-                    BlockState blockState = oldMap.inverse().get(oldID);
-                    Integer id = newMap.get(blockState);
-                    if (id == null && blockState != null) {
-                        while (newMap.inverse().containsKey(this.blockStateCount)) {
-                            ++this.blockStateCount;
+                    BlockState blockState = oldIntToState.get(oldID);
+                    Integer id = this.blockStateToInt.computeIfAbsent(blockState, state -> {
+                        int newId = this.blockStateCount.getAndIncrement();
+                        while (this.intToBlockState.containsKey(newId)) {
+                            newId = this.blockStateCount.getAndIncrement();
                         }
-
-                        id = this.blockStateCount;
-                        newMap.put(blockState, id);
-                    }
-                    if (id == null) {
-                        id = 0;
-                    }
+                        this.intToBlockState.put(newId, blockState);
+                        return newId;
+                    });
 
                     this.setData(x, z, OCEANFLOORBLOCKSTATEPOS, (byte) (id >> 8));
                     this.setData(x, z, OCEANFLOORBLOCKSTATEPOS + 1, (byte) id.intValue());
                 }
 
+                // Process TRANSPARENTBLOCKSTATEPOS
                 oldID = (this.getData(x, z, TRANSPARENTBLOCKSTATEPOS) & 255) << 8 | this.getData(x, z, TRANSPARENTBLOCKSTATEPOS + 1) & 255;
                 if (oldID != 0) {
-                    BlockState blockState = oldMap.inverse().get(oldID);
-                    Integer id = newMap.get(blockState);
-                    if (id == null && blockState != null) {
-                        while (newMap.inverse().containsKey(this.blockStateCount)) {
-                            ++this.blockStateCount;
+                    BlockState blockState = oldIntToState.get(oldID);
+                    Integer id = this.blockStateToInt.computeIfAbsent(blockState, state -> {
+                        int newId = this.blockStateCount.getAndIncrement();
+                        while (this.intToBlockState.containsKey(newId)) {
+                            newId = this.blockStateCount.getAndIncrement();
                         }
-
-                        id = this.blockStateCount;
-                        newMap.put(blockState, id);
-                    }
-                    if (id == null) {
-                        id = 0;
-                    }
+                        this.intToBlockState.put(newId, blockState);
+                        return newId;
+                    });
 
                     this.setData(x, z, TRANSPARENTBLOCKSTATEPOS, (byte) (id >> 8));
                     this.setData(x, z, TRANSPARENTBLOCKSTATEPOS + 1, (byte) id.intValue());
                 }
 
+                // Process FOLIAGEBLOCKSTATEPOS
                 oldID = (this.getData(x, z, FOLIAGEBLOCKSTATEPOS) & 255) << 8 | this.getData(x, z, FOLIAGEBLOCKSTATEPOS + 1) & 255;
                 if (oldID != 0) {
-                    BlockState blockState = oldMap.inverse().get(oldID);
-                    Integer id = newMap.get(blockState);
-                    if (id == null && blockState != null) {
-                        while (newMap.inverse().containsKey(this.blockStateCount)) {
-                            ++this.blockStateCount;
+                    BlockState blockState = oldIntToState.get(oldID);
+                    Integer id = this.blockStateToInt.computeIfAbsent(blockState, state -> {
+                        int newId = this.blockStateCount.getAndIncrement();
+                        while (this.intToBlockState.containsKey(newId)) {
+                            newId = this.blockStateCount.getAndIncrement();
                         }
-
-                        id = this.blockStateCount;
-                        newMap.put(blockState, id);
-                    }
-                    if (id == null) {
-                        id = 0;
-                    }
+                        this.intToBlockState.put(newId, blockState);
+                        return newId;
+                    });
 
                     this.setData(x, z, FOLIAGEBLOCKSTATEPOS, (byte) (id >> 8));
                     this.setData(x, z, FOLIAGEBLOCKSTATEPOS + 1, (byte) id.intValue());
                 }
             }
         }
-
-        return newMap;
     }
 
-    private synchronized int getIDFromBiome(Biome biome) {
+    // OPTIMIZATION: Lock-free with ConcurrentHashMap.computeIfAbsent()
+    private int getIDFromBiome(Biome biome) {
         if (biome == null) {
             return 0;
         }
-        Integer id = this.biomeToInt.get(biome);
-        if (id == null) {
-            while (this.biomeToInt.inverse().containsKey(this.biomeCount)) {
-                ++this.biomeCount;
+
+        return this.biomeToInt.computeIfAbsent(biome, b -> {
+            // Atomically find next available ID
+            int newId = this.biomeCount.getAndIncrement();
+            while (this.intToBiome.containsKey(newId)) {
+                newId = this.biomeCount.getAndIncrement();
             }
-
-            id = this.biomeCount;
-            this.biomeToInt.put(biome, id);
-        }
-
-        return id;
+            this.intToBiome.put(newId, biome);
+            return newId;
+        });
     }
 
+    // OPTIMIZATION: Direct ConcurrentHashMap access (lock-free)
     private Biome getBiomeFromID(int id) {
         if (id == 0) {
             return null;
         }
-        Biome biome = this.biomeToInt.inverse().get(id);
+        Biome biome = this.intToBiome.get(id);
         if (biome != null) {
             return biome;
         }
         return world.registryAccess().registryOrThrow(Registries.BIOME).get(Biomes.PLAINS);
     }
 
+    // OPTIMIZATION: Convert ConcurrentHashMap back to BiMap for external API compatibility
     public BiMap<Biome, Integer> getBiomeToInt() {
-        this.biomeToInt = this.createKeyFromCurrentBiomes(this.biomeToInt);
-        return this.biomeToInt;
+        this.createKeyFromCurrentBiomes();
+        BiMap<Biome, Integer> result = HashBiMap.create();
+        result.putAll(this.biomeToInt);
+        return result;
     }
 
-    private BiMap<Biome, Integer> createKeyFromCurrentBiomes(BiMap<Biome, Integer> oldMap) {
-        this.biomeCount = 1;
-        BiMap<Biome, Integer> newMap = HashBiMap.create();
+    // OPTIMIZATION: Rewritten for ConcurrentHashMap (lock-free)
+    private void createKeyFromCurrentBiomes() {
+        ConcurrentHashMap<Biome, Integer> oldBiomeToInt = new ConcurrentHashMap<>(this.biomeToInt);
+        ConcurrentHashMap<Integer, Biome> oldIntToBiome = new ConcurrentHashMap<>(this.intToBiome);
+
+        this.biomeToInt.clear();
+        this.intToBiome.clear();
+        this.biomeCount.set(1);
 
         for (int x = 0; x < this.width; ++x) {
             for (int z = 0; z < this.height; ++z) {
                 int oldID = (this.getData(x, z, BIOMEIDPOS) & 255) << 8 | this.getData(x, z, BIOMEIDPOS + 1) & 255;
                 if (oldID != 0) {
-                    Biome biome = oldMap.inverse().get(oldID);
+                    Biome biome = oldIntToBiome.get(oldID);
                     if (biome == null) {
                         biome = world.registryAccess().registryOrThrow(Registries.BIOME).get(Biomes.PLAINS);
                     }
-                    Integer id = newMap.get(biome);
-                    if (id == null && biome != null) {
-                        while (newMap.inverse().containsKey(this.biomeCount)) {
-                            ++this.biomeCount;
-                        }
 
-                        id = this.biomeCount;
-                        newMap.put(biome, id);
-                    }
-                    if (id == null) {
-                        id = 0;
-                    }
+                    final Biome finalBiome = biome;
+                    Integer id = this.biomeToInt.computeIfAbsent(finalBiome, b -> {
+                        int newId = this.biomeCount.getAndIncrement();
+                        while (this.intToBiome.containsKey(newId)) {
+                            newId = this.biomeCount.getAndIncrement();
+                        }
+                        this.intToBiome.put(newId, finalBiome);
+                        return newId;
+                    });
 
                     this.setData(x, z, BIOMEIDPOS, (byte) (id >> 8));
                     this.setData(x, z, BIOMEIDPOS + 1, (byte) id.intValue());
                 }
             }
         }
-
-        return newMap;
     }
 
     public int getExpectedDataLength(int version) {

@@ -56,10 +56,11 @@ public class BlockDatabase {
     public static Block[] biomeBlocksArray;
     public static Set<Block> shapedBlocks;
     public static Block[] shapedBlocksArray;
+    // OPTIMIZATION: ConcurrentHashMap for lock-free reads, AtomicInteger for thread-safe counter
     private static final ConcurrentHashMap<BlockState, Integer> stateToInt = new ConcurrentHashMap<>(1024);
     private static final ReferenceArrayList<BlockState> blockStates = new ReferenceArrayList<>(16384);
-    private static int count = 1;
-    private static final ReadWriteLock incrementLock = new ReentrantReadWriteLock();
+    private static final java.util.concurrent.atomic.AtomicInteger count = new java.util.concurrent.atomic.AtomicInteger(1);
+    private static final Object stateLock = new Object();
 
     public static void getBlocks() {
         air = Blocks.AIR;
@@ -121,16 +122,16 @@ public class BlockDatabase {
 
     }
 
+    // OPTIMIZATION: Double-Checked Locking with AtomicInteger for thread-safe ID generation
     public static int getStateId(BlockState blockState) {
         Integer id = stateToInt.get(blockState);
         if (id == null) {
-            synchronized (incrementLock) {
+            synchronized (stateLock) {
                 id = stateToInt.get(blockState);
                 if (id == null) {
-                    id = count;
+                    id = count.getAndIncrement();
                     blockStates.add(blockState);
                     stateToInt.put(blockState, id);
-                    ++count;
                 }
             }
         }

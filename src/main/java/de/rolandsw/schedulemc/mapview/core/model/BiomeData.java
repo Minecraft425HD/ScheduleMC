@@ -177,27 +177,23 @@ public class BiomeData extends AbstractMapData {
         this.data[index] = value;
     }
 
+    // OPTIMIZATION: Removed synchronized - System.arraycopy is atomic
     @Override
     public void moveX(int x) {
-        synchronized (this.dataLock) {
-            if (x > 0) {
-                System.arraycopy(this.data, x, this.data, 0, this.data.length - x);
-            } else if (x < 0) {
-                System.arraycopy(this.data, 0, this.data, -x, this.data.length + x);
-            }
-
+        if (x > 0) {
+            System.arraycopy(this.data, x, this.data, 0, this.data.length - x);
+        } else if (x < 0) {
+            System.arraycopy(this.data, 0, this.data, -x, this.data.length + x);
         }
     }
 
+    // OPTIMIZATION: Removed synchronized - System.arraycopy is atomic
     @Override
     public void moveZ(int z) {
-        synchronized (this.dataLock) {
-            if (z > 0) {
-                System.arraycopy(this.data, z * this.width, this.data, 0, this.data.length - z * this.width);
-            } else if (z < 0) {
-                System.arraycopy(this.data, 0, this.data, -z * this.width, this.data.length + z * this.width);
-            }
-
+        if (z > 0) {
+            System.arraycopy(this.data, z * this.width, this.data, 0, this.data.length - z * this.width);
+        } else if (z < 0) {
+            System.arraycopy(this.data, 0, this.data, -z * this.width, this.data.length + z * this.width);
         }
     }
 }

@@ -27,12 +27,15 @@ public class TransactionHistory {
 
     private static final String FILE_NAME = "plotmod_transactions.json";
     private static final int MAX_TRANSACTIONS_PER_PLAYER = 1000; // Verhindert unbegrenztes Wachstum
+    private static final long TRANSACTION_RETENTION_DAYS = 90; // 90 Tage Aufbewahrung
+    private static final long ROTATION_INTERVAL_TICKS = 72000; // Alle 60 Minuten (72000 ticks)
 
     private final Map<UUID, List<Transaction>> transactions = new ConcurrentHashMap<>();
     private final Gson gson = GsonHelper.get(); // Umgebungsabhängig: kompakt in Produktion
     private final Path savePath;
 
     private boolean needsSave = false;
+    private long lastRotationTime = System.currentTimeMillis();
 
     private TransactionHistory(MinecraftServer server) {
         this.savePath = server.getServerDirectory().toPath().resolve("config").resolve(FILE_NAME);
@@ -185,6 +188,56 @@ public class TransactionHistory {
         transactions.remove(playerUUID);
         needsSave = true;
         LOGGER.info("Cleared transaction history for player {}", playerUUID);
+    }
+
+    /**
+     * Rotiert alte Transaktionen (löscht Transaktionen älter als RETENTION_DAYS)
+     * OPTIMIERUNG: Verhindert unbegrenztes Wachstum der Historie
+     */
+    public void rotateOldTransactions() {
+        long cutoffTime = System.currentTimeMillis() - (TRANSACTION_RETENTION_DAYS * 86400000L);
+        int totalRemoved = 0;
+        int playersAffected = 0;
+
+        for (Map.Entry<UUID, List<Transaction>> entry : transactions.entrySet()) {
+            List<Transaction> playerTransactions = entry.getValue();
+            int sizeBefore = playerTransactions.size();
+
+            // Entferne alte Transaktionen
+            playerTransactions.removeIf(t -> t.getTimestamp() < cutoffTime);
+
+            int removed = sizeBefore - playerTransactions.size();
+            if (removed > 0) {
+                totalRemoved += removed;
+                playersAffected++;
+            }
+
+            // Entferne leere Listen
+            if (playerTransactions.isEmpty()) {
+                transactions.remove(entry.getKey());
+            }
+        }
+
+        if (totalRemoved > 0) {
+            needsSave = true;
+            LOGGER.info("Rotation: {} alte Transaktionen von {} Spielern entfernt",
+                totalRemoved, playersAffected);
+        }
+
+        lastRotationTime = System.currentTimeMillis();
+    }
+
+    /**
+     * Prüft ob Rotation nötig ist und führt sie aus
+     * Sollte regelmäßig aufgerufen werden (z.B. alle 60 Minuten)
+     */
+    public void checkAndRotate() {
+        long timeSinceLastRotation = System.currentTimeMillis() - lastRotationTime;
+        long rotationIntervalMs = ROTATION_INTERVAL_TICKS * 50L; // Ticks zu MS
+
+        if (timeSinceLastRotation >= rotationIntervalMs) {
+            rotateOldTransactions();
+        }
     }
 
     // ═══════════════════════════════════════════════════════════

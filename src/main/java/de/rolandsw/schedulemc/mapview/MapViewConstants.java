@@ -136,7 +136,7 @@ public final class MapViewConstants {
         BiomeColors.saveBiomeColors();
         long shutdownTime = System.currentTimeMillis();
 
-        while (AsyncPersistenceManager.executorService.getQueue().size() + AsyncPersistenceManager.executorService.getActiveCount() > 0 && System.currentTimeMillis() - shutdownTime < 10000L) {
+        while (de.rolandsw.schedulemc.util.ThreadPoolManager.getComputationPoolQueueSize() + de.rolandsw.schedulemc.util.ThreadPoolManager.getComputationPoolActiveCount() > 0 && System.currentTimeMillis() - shutdownTime < 10000L) {
             Thread.onSpinWait();
         }
     }

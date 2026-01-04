@@ -4,6 +4,7 @@ import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import de.rolandsw.schedulemc.mapview.util.BiomeColors;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -11,10 +12,11 @@ public abstract class AbstractMapData {
     protected int width;
     protected int height;
     protected final Object dataLock = new Object();
-    private final Object labelLock = new Object();
+    // OPTIMIZATION: Removed labelLock - CopyOnWriteArrayList is thread-safe!
     public Point[][] points;
     public ArrayList<Segment> segments;
-    private final ArrayList<BiomeLabel> labels = new ArrayList<>();
+    // OPTIMIZATION: CopyOnWriteArrayList for lock-free reads
+    private final CopyOnWriteArrayList<BiomeLabel> labels = new CopyOnWriteArrayList<>();
 
     public int getWidth() {
         return this.width;
@@ -68,29 +70,26 @@ public abstract class AbstractMapData {
             }
         }
 
-        synchronized (this.labelLock) {
-            this.labels.clear();
-            if (this.segments != null) {
-                for (Segment segment : this.segments) {
-                    if (segment.biomeID != null) {
-                        BiomeLabel label = new BiomeLabel();
-                        label.biomeID = segment.biomeID;
-                        label.name = segment.name;
-                        label.segmentSize = segment.memberPoints.size();
-                        label.x = segment.centerX;
-                        label.z = segment.centerZ;
-                        this.labels.add(label);
-                    }
+        // OPTIMIZATION: Removed synchronized block - CopyOnWriteArrayList is thread-safe
+        this.labels.clear();
+        if (this.segments != null) {
+            for (Segment segment : this.segments) {
+                if (segment.biomeID != null) {
+                    BiomeLabel label = new BiomeLabel();
+                    label.biomeID = segment.biomeID;
+                    label.name = segment.name;
+                    label.segmentSize = segment.memberPoints.size();
+                    label.x = segment.centerX;
+                    label.z = segment.centerZ;
+                    this.labels.add(label);
                 }
             }
-
         }
     }
 
+    // OPTIMIZATION: Lock-free - CopyOnWriteArrayList already thread-safe for reads
     public ArrayList<BiomeLabel> getBiomeLabels() {
-        synchronized (this.labelLock) {
-            return new ArrayList<>(this.labels);
-        }
+        return new ArrayList<>(this.labels);
     }
 
     public abstract int getHeight(int x, int z);

@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.util;
 
+import de.rolandsw.schedulemc.ScheduleMC;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
@@ -106,8 +107,7 @@ public class PacketHandler {
                 handler.run();
             } catch (Exception e) {
                 // Client-side logging
-                System.err.println("Client packet error: " + e.getMessage());
-                e.printStackTrace();
+                ScheduleMC.LOGGER.error("Client packet error: {}", e.getMessage(), e);
             }
         });
         ctx.get().setPacketHandled(true);

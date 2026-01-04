@@ -30,6 +30,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
@@ -60,13 +62,15 @@ public class WorldMapData implements MapChangeListener {
     final int[] lightmapColors;
     ClientLevel world;
     String subworldName = "";
-    protected final List<RegionCache> cachedRegionsPool = Collections.synchronizedList(new ArrayList<>());
+    // OPTIMIZATION: CopyOnWriteArrayList is lock-free for reads (most common operation)
+    protected final List<RegionCache> cachedRegionsPool = new CopyOnWriteArrayList<>();
     protected final ConcurrentHashMap<String, RegionCache> cachedRegions = new ConcurrentHashMap<>(150, 0.9F, 2);
     int lastLeft;
     int lastRight;
     int lastTop;
     int lastBottom;
-    RegionCache[] lastRegionsArray = new RegionCache[0];
+    // OPTIMIZATION: AtomicReference for lock-free reads
+    private final AtomicReference<RegionCache[]> lastRegionsArray = new AtomicReference<>(new RegionCache[0]);
     final Comparator<RegionCache> ageThenDistanceSorter = (region1, region2) -> {
         long mostRecentAccess1 = region1.getMostRecentView();
         long mostRecentAccess2 = region2.getMostRecentView();
@@ -216,23 +220,20 @@ public class WorldMapData implements MapChangeListener {
     }
 
     public void purgeRegionCaches() {
-        synchronized (this.cachedRegionsPool) {
-            for (RegionCache cachedRegion : this.cachedRegionsPool) {
-                cachedRegion.cleanup();
-            }
-
-            this.cachedRegions.clear();
-            this.cachedRegionsPool.clear();
-            this.getRegions(0, -1, 0, -1);
+        // OPTIMIZATION: No synchronization needed - CopyOnWriteArrayList is thread-safe
+        for (RegionCache cachedRegion : this.cachedRegionsPool) {
+            cachedRegion.cleanup();
         }
+
+        this.cachedRegions.clear();
+        this.cachedRegionsPool.clear();
+        this.getRegions(0, -1, 0, -1);
     }
 
     public void renameSubworld(String oldName, String newName) {
-        synchronized (this.cachedRegionsPool) {
-            for (RegionCache cachedRegion : this.cachedRegionsPool) {
-                cachedRegion.renameSubworld(oldName, newName);
-            }
-
+        // OPTIMIZATION: No synchronization needed - CopyOnWriteArrayList is thread-safe
+        for (RegionCache cachedRegion : this.cachedRegionsPool) {
+            cachedRegion.renameSubworld(oldName, newName);
         }
     }
 
@@ -769,7 +770,7 @@ public class WorldMapData implements MapChangeListener {
 
     public RegionCache[] getRegions(int left, int right, int top, int bottom) {
         if (left == this.lastLeft && right == this.lastRight && top == this.lastTop && bottom == this.lastBottom) {
-            return this.lastRegionsArray;
+            return this.lastRegionsArray.get();
         } else {
             AsyncPersistenceManager.emptyQueue();
             RegionCache[] visibleRegionCachesArray = new RegionCache[(right - left + 1) * (bottom - top + 1)];
@@ -790,71 +791,61 @@ public class WorldMapData implements MapChangeListener {
                 int x = regionCoordinates.x;
                 int z = regionCoordinates.z;
                 String key = x + "," + z;
-                RegionCache cachedRegion;
-                synchronized (this.cachedRegions) {
-                    cachedRegion = this.cachedRegions.get(key);
-                    if (cachedRegion == null) {
-                        cachedRegion = new RegionCache(this, key, this.world, worldName, subWorldName, x, z);
-                        this.cachedRegions.put(key, cachedRegion);
-                        synchronized (this.cachedRegionsPool) {
-                            this.cachedRegionsPool.add(cachedRegion);
-                        }
-                    }
-                }
+                // OPTIMIZATION: ConcurrentHashMap.computeIfAbsent is atomic and lock-free
+                RegionCache cachedRegion = this.cachedRegions.computeIfAbsent(key, k -> {
+                    RegionCache newRegion = new RegionCache(this, k, this.world, worldName, subWorldName, x, z);
+                    // OPTIMIZATION: CopyOnWriteArrayList.add is thread-safe without explicit synchronization
+                    this.cachedRegionsPool.add(newRegion);
+                    return newRegion;
+                });
 
                 cachedRegion.refresh(true);
                 visibleRegionCachesArray[(z - top) * (right - left + 1) + (x - left)] = cachedRegion;
             }
 
             this.prunePool();
-            synchronized (this.lastRegionsArray) {
-                this.lastLeft = left;
-                this.lastRight = right;
-                this.lastTop = top;
-                this.lastBottom = bottom;
-                this.lastRegionsArray = visibleRegionCachesArray;
-                return visibleRegionCachesArray;
-            }
+            // OPTIMIZATION: AtomicReference for lock-free update
+            this.lastLeft = left;
+            this.lastRight = right;
+            this.lastTop = top;
+            this.lastBottom = bottom;
+            this.lastRegionsArray.set(visibleRegionCachesArray);
+            return visibleRegionCachesArray;
         }
     }
 
     private void prunePool() {
-        synchronized (this.cachedRegionsPool) {
-            Iterator<RegionCache> iterator = this.cachedRegionsPool.iterator();
+        // OPTIMIZATION: CopyOnWriteArrayList doesn't support iterator.remove(), use removeIf()
+        this.cachedRegionsPool.removeIf(region -> {
+            if (region.isLoaded() && region.isEmpty()) {
+                this.cachedRegions.put(region.getKey(), RegionCache.emptyRegion);
+                region.cleanup();
+                return true;
+            }
+            return false;
+        });
 
-            while (iterator.hasNext()) {
-                RegionCache region = iterator.next();
-                if (region.isLoaded() && region.isEmpty()) {
-                    this.cachedRegions.put(region.getKey(), RegionCache.emptyRegion);
-                    region.cleanup();
-                    iterator.remove();
-                }
+        if (this.cachedRegionsPool.size() > this.options.getCacheSize()) {
+            this.cachedRegionsPool.sort(this.ageThenDistanceSorter);
+            List<RegionCache> toRemove = this.cachedRegionsPool.subList(this.options.getCacheSize(), this.cachedRegionsPool.size());
+
+            for (RegionCache cachedRegion : toRemove) {
+                this.cachedRegions.remove(cachedRegion.getKey());
+                cachedRegion.cleanup();
             }
 
-            if (this.cachedRegionsPool.size() > this.options.getCacheSize()) {
-                this.cachedRegionsPool.sort(this.ageThenDistanceSorter);
-                List<RegionCache> toRemove = this.cachedRegionsPool.subList(this.options.getCacheSize(), this.cachedRegionsPool.size());
-
-                for (RegionCache cachedRegion : toRemove) {
-                    this.cachedRegions.remove(cachedRegion.getKey());
-                    cachedRegion.cleanup();
-                }
-
-                toRemove.clear();
-            }
-
-            this.compress();
+            toRemove.clear();
         }
+
+        this.compress();
     }
 
     public void compress() {
-        synchronized (this.cachedRegionsPool) {
-            for (RegionCache cachedRegion : this.cachedRegionsPool) {
-                if (System.currentTimeMillis() - cachedRegion.getMostRecentChange() > 5000L) {
-                    cachedRegion.compress();
-                }
+        // OPTIMIZATION: No synchronization needed - CopyOnWriteArrayList is thread-safe
+        for (RegionCache cachedRegion : this.cachedRegionsPool) {
+            if (System.currentTimeMillis() - cachedRegion.getMostRecentChange() > 5000L) {
+                cachedRegion.compress();
             }
-
         }
     }
 
@@ -895,25 +886,21 @@ public class WorldMapData implements MapChangeListener {
             int regionX = (int) Math.floor(chunkX / 16.0);
             int regionZ = (int) Math.floor(chunkZ / 16.0);
             String key = regionX + "," + regionZ;
-            RegionCache cachedRegion;
-            synchronized (this.cachedRegions) {
-                cachedRegion = this.cachedRegions.get(key);
-                if (cachedRegion == null || cachedRegion == RegionCache.emptyRegion) {
-                    String worldName = MapViewConstants.getLightMapInstance().getCurrentWorldName();
-                    String subWorldName = "";
-                    cachedRegion = new RegionCache(this, key, this.world, worldName, subWorldName, regionX, regionZ);
-                    this.cachedRegions.put(key, cachedRegion);
-                    synchronized (this.cachedRegionsPool) {
-                        this.cachedRegionsPool.add(cachedRegion);
-                    }
+            // OPTIMIZATION: ConcurrentHashMap.computeIfAbsent is atomic and lock-free
+            RegionCache cachedRegion = this.cachedRegions.computeIfAbsent(key, k -> {
+                String worldName = MapViewConstants.getLightMapInstance().getCurrentWorldName();
+                String subWorldName = "";
+                RegionCache newRegion = new RegionCache(this, k, this.world, worldName, subWorldName, regionX, regionZ);
+                // OPTIMIZATION: CopyOnWriteArrayList.add is thread-safe
+                this.cachedRegionsPool.add(newRegion);
 
-                    synchronized (this.lastRegionsArray) {
-                        if (regionX >= this.lastLeft && regionX <= this.lastRight && regionZ >= this.lastTop && regionZ <= this.lastBottom) {
-                            this.lastRegionsArray[(regionZ - this.lastTop) * (this.lastRight - this.lastLeft + 1) + (regionX - this.lastLeft)] = cachedRegion;
-                        }
-                    }
+                // OPTIMIZATION: AtomicReference for lock-free array access
+                RegionCache[] currentArray = this.lastRegionsArray.get();
+                if (regionX >= this.lastLeft && regionX <= this.lastRight && regionZ >= this.lastTop && regionZ <= this.lastBottom) {
+                    currentArray[(regionZ - this.lastTop) * (this.lastRight - this.lastLeft + 1) + (regionX - this.lastLeft)] = newRegion;
                 }
-            }
+                return newRegion;
+            });
 
             if (MapViewConstants.getMinecraft().screen != null && MapViewConstants.getMinecraft().screen instanceof WorldMapScreen) {
                 cachedRegion.registerChangeAt(chunkX, chunkZ);

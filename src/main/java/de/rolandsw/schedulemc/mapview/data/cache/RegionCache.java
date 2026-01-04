@@ -86,7 +86,8 @@ public class RegionCache {
     Future<?> future;
     private final ReentrantLock threadLock = new ReentrantLock();
     boolean displayOptionsChanged;
-    boolean imageChanged;
+    // OPTIMIZATION: volatile for lock-free reads in getTextureLocation()
+    volatile boolean imageChanged;
     boolean refreshQueued;
     boolean refreshingImage;
     boolean dataUpdated;
@@ -534,7 +535,8 @@ public class RegionCache {
 
     private void saveData(boolean newThread) {
         if (this.liveChunksUpdated && !this.worldNamePathPart.isEmpty()) {
-            if (newThread) {
+            // SAFETY: Check if executor is still running, otherwise save synchronously
+            if (newThread && !AsyncPersistenceManager.saveExecutorService.isShutdown()) {
                 AsyncPersistenceManager.saveExecutorService.execute(() -> {
                     if (MapViewConstants.DEBUG) {
                         MapViewConstants.getLogger().info("Saving region file for " + RegionCache.this.x + "," + RegionCache.this.z + " in " + RegionCache.this.worldNamePathPart + "/" + RegionCache.this.subworldNamePathPart + RegionCache.this.dimensionNamePathPart);
@@ -550,10 +552,11 @@ public class RegionCache {
                     }
                     if (MapViewConstants.DEBUG) {
                         MapViewConstants.getLogger().info("Finished saving region file for " + RegionCache.this.x + "," + RegionCache.this.z + " in " + RegionCache.this.worldNamePathPart + "/" + RegionCache.this.subworldNamePathPart + RegionCache.this.dimensionNamePathPart + " ("
-                                + AsyncPersistenceManager.saveExecutorService.getQueue().size() + ")");
+                                + de.rolandsw.schedulemc.util.ThreadPoolManager.getIOPoolQueueSize() + ")");
                     }
                 });
             } else {
+                // Save synchronously if executor is shutdown or newThread=false
                 try {
                     this.doSave();
                 } catch (Exception ex) {
@@ -563,7 +566,6 @@ public class RegionCache {
 
             this.liveChunksUpdated = false;
         }
-
     }
 
     private void doSave() throws IOException {
@@ -690,14 +692,13 @@ public class RegionCache {
         return this.width;
     }
 
+    // OPTIMIZATION: Removed synchronized - volatile imageChanged ensures visibility
     public ResourceLocation getTextureLocation() {
         if (this.image != null) {
             if (!this.refreshingImage) {
-                synchronized (this.image) {
-                    if (this.imageChanged) {
-                        this.imageChanged = false;
-                        this.image.uploadToTexture();
-                    }
+                if (this.imageChanged) {
+                    this.imageChanged = false;
+                    this.image.uploadToTexture();
                 }
             }
 
