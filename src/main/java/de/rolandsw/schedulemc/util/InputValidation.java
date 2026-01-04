@@ -19,6 +19,14 @@ public class InputValidation {
     public static final int MAX_DESCRIPTION_LENGTH = 256;
     public static final int MAX_SKIN_FILE_LENGTH = 128;
     public static final int MAX_PACKET_STRING_LENGTH = 1024;
+    public static final double MAX_AMOUNT = 1_000_000_000_000.0;  // Max money amount
+
+    // Aliase für Rückwärtskompatibilität
+    public static class ValidationResult extends Result {
+        private ValidationResult(boolean valid, String error, String sanitizedValue) {
+            super(valid, error, sanitizedValue);
+        }
+    }
 
     // Weltgrenzen
     public static final int MIN_Y = -64;
@@ -33,7 +41,7 @@ public class InputValidation {
         private final String error;
         private final String sanitizedValue;
 
-        private Result(boolean valid, @Nullable String error, @Nullable String sanitizedValue) {
+        protected Result(boolean valid, @Nullable String error, @Nullable String sanitizedValue) {
             this.valid = valid;
             this.error = error;
             this.sanitizedValue = sanitizedValue;
@@ -44,7 +52,9 @@ public class InputValidation {
         public static Result failure(String error) { return new Result(false, error, null); }
 
         public boolean isValid() { return valid; }
+        public boolean isFailure() { return !valid; }
         @Nullable public String getError() { return error; }
+        @Nullable public String getErrorMessage() { return error; }  // Alias für getError
         @Nullable public String getSanitizedValue() { return sanitizedValue; }
     }
 
@@ -184,6 +194,24 @@ public class InputValidation {
         return input.replaceAll("§[klmnor]", "")
                    .replaceAll("[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F]", "")
                    .trim();
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // ALIAS-METHODEN für Rückwärtskompatibilität
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Alias für validatePlotName
+     */
+    public static Result validateName(@Nullable String name) {
+        return validatePlotName(name);
+    }
+
+    /**
+     * Alias für validateAmount (double)
+     */
+    public static Result validatePrice(double price) {
+        return validateAmount(price);
     }
 
     private InputValidation() {

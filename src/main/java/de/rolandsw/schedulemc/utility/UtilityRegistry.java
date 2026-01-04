@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.utility;
 
 import net.minecraft.world.level.block.Block;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;

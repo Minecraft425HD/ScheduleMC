@@ -24,10 +24,9 @@ public class ConfigCache {
     private static int policeDetectionRadius = -1;
     private static int policeArrestCooldownSeconds = -1;
     private static double policeArrestDistance = -1;
-    private static int policeJailSecondsPerWantedLevel = -1;
 
     // Cache für Warehouse Werte
-    private static long warehouseDeliveryIntervalDays = -1;
+    private static int warehouseDeliveryIntervalDays = -1;
 
     // Cache für Economy Werte
     private static double economyStartBalance = -1;
@@ -55,10 +54,9 @@ public class ConfigCache {
             policeDetectionRadius = getConfigSafe(ModConfigHandler.COMMON.POLICE_DETECTION_RADIUS, 32);
             policeArrestCooldownSeconds = getConfigSafe(ModConfigHandler.COMMON.POLICE_ARREST_COOLDOWN_SECONDS, 5);
             policeArrestDistance = getConfigSafe(ModConfigHandler.COMMON.POLICE_ARREST_DISTANCE, 2.5);
-            policeJailSecondsPerWantedLevel = getConfigSafe(ModConfigHandler.COMMON.POLICE_JAIL_SECONDS_PER_WANTED_LEVEL, 60);
 
             // Warehouse Werte
-            warehouseDeliveryIntervalDays = getConfigSafe(ModConfigHandler.COMMON.WAREHOUSE_DELIVERY_INTERVAL_DAYS, 1L);
+            warehouseDeliveryIntervalDays = getConfigSafe(ModConfigHandler.COMMON.WAREHOUSE_DELIVERY_INTERVAL_DAYS, 1);
 
             // Economy Werte
             economyStartBalance = getConfigSafe(ModConfigHandler.COMMON.START_BALANCE, 1000.0);
@@ -96,11 +94,6 @@ public class ConfigCache {
         return policeArrestDistance;
     }
 
-    public static int getPoliceJailSecondsPerWantedLevel() {
-        refreshIfNeeded();
-        return policeJailSecondsPerWantedLevel;
-    }
-
     public static long getPoliceArrestCooldownTicks() {
         return getPoliceArrestCooldownSeconds() * 20L;
     }
@@ -109,7 +102,7 @@ public class ConfigCache {
     // WAREHOUSE GETTER
     // ═══════════════════════════════════════════════════════════
 
-    public static long getWarehouseDeliveryIntervalDays() {
+    public static int getWarehouseDeliveryIntervalDays() {
         refreshIfNeeded();
         return warehouseDeliveryIntervalDays;
     }

@@ -84,7 +84,7 @@ public class SpawnNPCPacket {
             }
 
             // SICHERHEIT: Prüfe Permission für spezielle NPC-Typen
-            if ((npcType == NPCType.POLIZEI || npcType == NPCType.ARZT) && !player.hasPermissions(2)) {
+            if (npcType == NPCType.POLIZEI && !player.hasPermissions(2)) {
                 player.sendSystemMessage(Component.literal("§cDu hast keine Berechtigung für diesen NPC-Typ!"));
                 return;
             }

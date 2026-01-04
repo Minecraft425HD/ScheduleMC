@@ -61,9 +61,13 @@ public class SendMessagePacket {
                     resolvedRecipientName = recipientPlayer.getName().getString();
                 } else {
                     // Offline-Player: Versuche aus GameProfile
-                    var profile = sender.getServer().getProfileCache()
-                        .flatMap(cache -> cache.get(recipientUUID));
-                    resolvedRecipientName = profile.map(p -> p.getName()).orElse("Unbekannt");
+                    var cache = sender.getServer().getProfileCache();
+                    if (cache != null) {
+                        var profile = cache.get(recipientUUID);
+                        resolvedRecipientName = profile.map(p -> p.getName()).orElse("Unbekannt");
+                    } else {
+                        resolvedRecipientName = "Unbekannt";
+                    }
                 }
             }
 

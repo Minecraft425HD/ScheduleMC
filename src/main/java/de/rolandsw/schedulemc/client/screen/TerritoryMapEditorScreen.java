@@ -21,6 +21,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.material.MapColor;
 
 import javax.annotation.Nullable;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
