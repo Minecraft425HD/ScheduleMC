@@ -815,17 +815,15 @@ public class WorldMapData implements MapChangeListener {
     }
 
     private void prunePool() {
-        // OPTIMIZATION: No synchronization needed - CopyOnWriteArrayList iterator is thread-safe
-        Iterator<RegionCache> iterator = this.cachedRegionsPool.iterator();
-
-        while (iterator.hasNext()) {
-            RegionCache region = iterator.next();
+        // OPTIMIZATION: CopyOnWriteArrayList doesn't support iterator.remove(), use removeIf()
+        this.cachedRegionsPool.removeIf(region -> {
             if (region.isLoaded() && region.isEmpty()) {
                 this.cachedRegions.put(region.getKey(), RegionCache.emptyRegion);
                 region.cleanup();
-                iterator.remove();
+                return true;
             }
-        }
+            return false;
+        });
 
         if (this.cachedRegionsPool.size() > this.options.getCacheSize()) {
             this.cachedRegionsPool.sort(this.ageThenDistanceSorter);
