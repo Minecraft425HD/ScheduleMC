@@ -831,7 +831,7 @@ public class ColorCalculationService {
             if (!blockStates.isEmpty()) {
                 if (!method.equals("horizontal") && !method.startsWith("overlay") && (method.equals("sandstone") || method.equals("top") || faces.contains("top") || faces.contains("all") || faces.isEmpty())) {
                     try {
-                        ResourceLocation pngResource = ResourceLocation.parse(propertiesFile.getNamespace(), tilePath);
+                        ResourceLocation pngResource = ResourceLocation.fromNamespaceAndPath(propertiesFile.getNamespace(), tilePath);
                         InputStream is = MapViewConstants.getMinecraft().getResourceManager().getResource(pngResource).get().open();
                         Image top = ImageIO.read(is);
                         is.close();
@@ -1120,11 +1120,11 @@ public class ColorCalculationService {
             String source = colorProperties.getProperty("source");
             ResourceLocation resourcePNG;
             if (source != null) {
-                resourcePNG = ResourceLocation.parse(resource.getNamespace(), source);
+                resourcePNG = ResourceLocation.fromNamespaceAndPath(resource.getNamespace(), source);
 
                 MapViewConstants.getMinecraft().getResourceManager().getResource(resourcePNG);
             } else {
-                resourcePNG = ResourceLocation.parse(resource.getNamespace(), resource.getPath().replace(".properties", ".png"));
+                resourcePNG = ResourceLocation.fromNamespaceAndPath(resource.getNamespace(), resource.getPath().replace(".properties", ".png"));
             }
 
             String format = colorProperties.getProperty("format");
@@ -1157,7 +1157,7 @@ public class ColorCalculationService {
     }
 
     private void processColorPropertyHelper(ResourceLocation resource, String list, boolean grid) {
-        ResourceLocation resourceProperties = ResourceLocation.parse(resource.getNamespace(), resource.getPath().replace(".png", ".properties"));
+        ResourceLocation resourceProperties = ResourceLocation.fromNamespaceAndPath(resource.getNamespace(), resource.getPath().replace(".png", ".properties"));
         Properties colorProperties = new Properties();
         int yOffset = 0;
 
