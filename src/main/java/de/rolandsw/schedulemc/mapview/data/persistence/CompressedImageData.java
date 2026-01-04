@@ -34,11 +34,12 @@ public class CompressedImageData {
     private static final int DEFAULT_SIZE = 256;
     private static final ByteBuffer defaultSizeBuffer = ByteBuffer.allocateDirect(DEFAULT_SIZE * DEFAULT_SIZE * 4).order(ByteOrder.nativeOrder());
 
-    private byte[] bytes;
+    // OPTIMIZATION: volatile for lock-free reads
+    private volatile byte[] bytes;
     private final int width;
     private final int height;
     private final Object bufferLock = new Object();
-    private boolean isCompressed;
+    private volatile boolean isCompressed;
     private final boolean compressNotDelete;
     private final ResourceLocation location = new ResourceLocation("schedulemc", "mapview/mapimage/" + UUID.randomUUID());
     private DynamicTexture texture;
@@ -149,30 +150,40 @@ public class CompressedImageData {
         }
     }
 
-    private synchronized void compress() {
+    // OPTIMIZATION: Double-Checked Locking for minimal synchronization
+    private void compress() {
         if (!this.isCompressed) {
-            if (this.compressNotDelete) {
-                this.bytes = CompressionUtils.compress(this.bytes);
-            } else {
-                this.bytes = null;
+            synchronized (bufferLock) {
+                if (!this.isCompressed) {
+                    if (this.compressNotDelete) {
+                        byte[] compressedBytes = CompressionUtils.compress(this.bytes);
+                        this.bytes = compressedBytes;
+                    } else {
+                        this.bytes = null;
+                    }
+                    this.isCompressed = true;
+                }
             }
-
-            this.isCompressed = true;
         }
     }
 
-    private synchronized void decompress() {
+    // OPTIMIZATION: Double-Checked Locking for minimal synchronization
+    private void decompress() {
         if (this.isCompressed) {
-            if (this.compressNotDelete) {
-                try {
-                    this.bytes = CompressionUtils.decompress(this.bytes);
-                } catch (DataFormatException ignored) {
+            synchronized (bufferLock) {
+                if (this.isCompressed) {
+                    if (this.compressNotDelete) {
+                        try {
+                            byte[] decompressedBytes = CompressionUtils.decompress(this.bytes);
+                            this.bytes = decompressedBytes;
+                        } catch (DataFormatException ignored) {
+                        }
+                    } else {
+                        this.bytes = new byte[this.width * this.height * 4];
+                    }
+                    this.isCompressed = false;
                 }
-            } else {
-                this.bytes = new byte[this.width * this.height * 4];
-                this.isCompressed = false;
             }
-
         }
     }
 
