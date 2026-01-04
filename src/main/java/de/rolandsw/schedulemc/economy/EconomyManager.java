@@ -7,6 +7,7 @@ import de.rolandsw.schedulemc.util.GsonHelper;
 import de.rolandsw.schedulemc.util.BackupManager;
 import de.rolandsw.schedulemc.util.IncrementalSaveManager;
 import de.rolandsw.schedulemc.util.PersistenceHelper;
+import de.rolandsw.schedulemc.util.RateLimiter;
 import com.mojang.logging.LogUtils;
 import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
@@ -33,6 +34,11 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
     private static volatile boolean needsSave = false;
     private static volatile boolean isHealthy = true;
     private static volatile String lastError = null;
+
+    // SICHERHEIT: Rate Limiting für DoS-Protection
+    private static final RateLimiter transferLimiter = new RateLimiter("money_transfer", 10, 1000L);
+    private static final RateLimiter withdrawLimiter = new RateLimiter("money_withdraw", 20, 1000L);
+    private static final RateLimiter depositLimiter = new RateLimiter("money_deposit", 20, 1000L);
 
     /**
      * Set the file location for economy data. Package-private for testing.
@@ -243,12 +249,20 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
 
     /**
      * Zahlt Geld auf ein Konto ein mit Transaktions-Logging
-     * SICHERHEIT: Atomare Operation für Thread-Sicherheit
+     * SICHERHEIT: Atomare Operation für Thread-Sicherheit + Rate Limiting
      */
     public static void deposit(UUID uuid, double amount, TransactionType type, @Nullable String description) {
         if (amount < 0) {
             LOGGER.warn("Versuch, negativen Betrag einzuzahlen: {}", amount);
             return;
+        }
+
+        // Rate Limiting (nur für Spieler-initiierte Deposits, nicht System)
+        if (type == TransactionType.OTHER || type == TransactionType.TRANSFER) {
+            if (!depositLimiter.allowOperation(uuid)) {
+                LOGGER.warn("Rate limit exceeded for deposit by player {}", uuid);
+                return;
+            }
         }
 
         // SICHERHEIT: Atomare Operation mit compute()
@@ -276,13 +290,21 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
 
     /**
      * Hebt Geld von einem Konto ab mit Transaktions-Logging
-     * SICHERHEIT: Atomare Operation verhindert Race Conditions bei gleichzeitigen Transaktionen
+     * SICHERHEIT: Atomare Operation verhindert Race Conditions + Rate Limiting
      * @return true wenn erfolgreich, false wenn nicht genug Guthaben (oder Dispo-Limit erreicht)
      */
     public static boolean withdraw(UUID uuid, double amount, TransactionType type, @Nullable String description) {
         if (amount < 0) {
             LOGGER.warn("Versuch, negativen Betrag abzuheben: {}", amount);
             return false;
+        }
+
+        // Rate Limiting (nur für Spieler-initiierte Withdrawals)
+        if (type == TransactionType.OTHER || type == TransactionType.TRANSFER) {
+            if (!withdrawLimiter.allowOperation(uuid)) {
+                LOGGER.warn("Rate limit exceeded for withdrawal by player {}", uuid);
+                return false;
+            }
         }
 
         // SICHERHEIT: Atomare read-modify-write Operation mit compute()
@@ -377,8 +399,15 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
 
     /**
      * Transfer zwischen zwei Spielern
+     * SICHERHEIT: Rate Limiting gegen Spam
      */
     public static boolean transfer(UUID from, UUID to, double amount, @Nullable String description) {
+        // Rate Limiting für Transfers
+        if (!transferLimiter.allowOperation(from)) {
+            LOGGER.warn("Rate limit exceeded for transfer by player {}", from);
+            return false;
+        }
+
         if (withdraw(from, amount)) {
             deposit(to, amount, TransactionType.TRANSFER, description);
 

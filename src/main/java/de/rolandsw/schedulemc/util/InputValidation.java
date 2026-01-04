@@ -20,6 +20,7 @@ public class InputValidation {
     public static final int MAX_SKIN_FILE_LENGTH = 128;
     public static final int MAX_PACKET_STRING_LENGTH = 1024;
     public static final double MAX_AMOUNT = 1_000_000_000_000.0;  // Max money amount
+    public static final int MAX_DIALOG_TEXT_LENGTH = 512;  // Dialog text limit
 
     // Aliase für Rückwärtskompatibilität
     public static class ValidationResult extends Result {
@@ -122,6 +123,10 @@ public class InputValidation {
         return Result.success(trimmed);
     }
 
+    /**
+     * Validiert Skin-Dateinamen
+     * SICHERHEIT: Verhindert Path Traversal Angriffe
+     */
     public static Result validateSkinFileName(@Nullable String filename) {
         if (filename == null || filename.isEmpty()) {
             return Result.success("");
@@ -133,10 +138,91 @@ public class InputValidation {
         if (!trimmed.matches(ALLOWED_FILENAME_CHARS)) {
             return Result.failure("§cSkin-Dateiname enthält ungültige Zeichen!");
         }
-        if (trimmed.contains("..")) {
+        // SICHERHEIT: Verhindere Path Traversal
+        if (trimmed.contains("..") || trimmed.contains("/") || trimmed.contains("\\")) {
             return Result.failure("§cSkin-Dateiname enthält nicht erlaubte Pfadzeichen!");
         }
+        // SICHERHEIT: Blockiere System-Dateien
+        String lower = trimmed.toLowerCase();
+        if (lower.equals("con") || lower.equals("prn") || lower.equals("aux") ||
+            lower.equals("nul") || lower.startsWith("com") || lower.startsWith("lpt")) {
+            return Result.failure("§cReservierter Dateiname!");
+        }
         return Result.success(trimmed);
+    }
+
+    /**
+     * Validiert Dialog-Text
+     * SICHERHEIT: Verhindert Command-Injection in NPC-Dialogen
+     */
+    public static Result validateDialogText(@Nullable String text) {
+        if (text == null || text.isEmpty()) {
+            return Result.failure("§cDialog-Text darf nicht leer sein!");
+        }
+        String trimmed = text.trim();
+        if (trimmed.length() > MAX_DIALOG_TEXT_LENGTH) {
+            return Result.failure("§cDialog-Text darf maximal " + MAX_DIALOG_TEXT_LENGTH + " Zeichen lang sein!");
+        }
+        // SICHERHEIT: Verhindere Command-Injection
+        if (trimmed.startsWith("/")) {
+            return Result.failure("§cDialog darf nicht mit '/' beginnen!");
+        }
+        // SICHERHEIT: Prüfe auf Server-Commands in Text
+        if (containsCommandInjection(trimmed)) {
+            return Result.failure("§cDialog enthält nicht erlaubte Befehle!");
+        }
+        // SICHERHEIT: Prüfe auf gefährliche Muster
+        if (containsDangerousPatterns(trimmed)) {
+            return Result.failure("§cDialog enthält nicht erlaubte Zeichenfolgen!");
+        }
+        return Result.success(trimmed);
+    }
+
+    /**
+     * Prüft auf Command-Injection-Versuche
+     */
+    private static boolean containsCommandInjection(String input) {
+        String lower = input.toLowerCase();
+        // Blockiere eingebettete Commands
+        if (lower.contains("/op ") || lower.contains("/gamemode") ||
+            lower.contains("/execute") || lower.contains("/give") ||
+            lower.contains("/setblock") || lower.contains("/kill")) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Validiert Verzeichnispfade
+     * SICHERHEIT: Verhindert Path Traversal zu sensitiven Verzeichnissen
+     */
+    public static Result validatePath(@Nullable String path) {
+        if (path == null || path.isEmpty()) {
+            return Result.failure("§cPfad darf nicht leer sein!");
+        }
+        String normalized = path.trim().replace("\\", "/");
+
+        // SICHERHEIT: Verhindere Path Traversal
+        if (normalized.contains("..")) {
+            return Result.failure("§cPfad enthält nicht erlaubte '..' Sequenz!");
+        }
+        // SICHERHEIT: Blockiere absolute Pfade
+        if (normalized.startsWith("/") || normalized.matches("^[A-Za-z]:.*")) {
+            return Result.failure("§cAbsolute Pfade sind nicht erlaubt!");
+        }
+        // SICHERHEIT: Whitelist für erlaubte Basis-Verzeichnisse
+        String[] allowedPrefixes = {"config/", "skins/", "data/", "backups/"};
+        boolean hasAllowedPrefix = false;
+        for (String prefix : allowedPrefixes) {
+            if (normalized.startsWith(prefix)) {
+                hasAllowedPrefix = true;
+                break;
+            }
+        }
+        if (!hasAllowedPrefix) {
+            return Result.failure("§cPfad muss in einem erlaubten Verzeichnis sein (config/, skins/, data/, backups/)!");
+        }
+        return Result.success(normalized);
     }
 
     public static Result validatePacketString(@Nullable String value, String fieldName) {
