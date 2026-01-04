@@ -29,7 +29,7 @@ import java.util.List;
 public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu> {
 
     private static final ResourceLocation TEXTURE =
-        new ResourceLocation(ScheduleMC.MOD_ID, "textures/gui/merchant_shop.png");
+        ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/merchant_shop.png");
 
     private List<ShopItemRow> shopItemRows;
     private int scrollOffset = 0;

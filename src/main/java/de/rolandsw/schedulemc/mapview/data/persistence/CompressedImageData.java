@@ -41,7 +41,7 @@ public class CompressedImageData {
     private final Object bufferLock = new Object();
     private volatile boolean isCompressed;
     private final boolean compressNotDelete;
-    private final ResourceLocation location = new ResourceLocation("schedulemc", "mapview/mapimage/" + UUID.randomUUID());
+    private final ResourceLocation location = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/mapimage/" + UUID.randomUUID());
     private DynamicTexture texture;
 
     public CompressedImageData(int width, int height, int imageType) {

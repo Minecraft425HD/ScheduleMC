@@ -48,7 +48,7 @@ import java.util.List;
 public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
 
     private static final ResourceLocation TEXTURE =
-        new ResourceLocation(ScheduleMC.MOD_ID, "textures/gui/npc_interaction.png");
+        ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/npc_interaction.png");
 
     private enum Tab {
         UEBERSICHT,

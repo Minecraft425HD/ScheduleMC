@@ -60,7 +60,7 @@ public class PlotUtilityData {
         ResourceLocation key = net.minecraftforge.registries.ForgeRegistries.BLOCKS.getKey(block);
         if (key == null) {
             // Block nicht in Registry - verwende Klassennamen als Fallback
-            key = new ResourceLocation("unknown", block.getClass().getSimpleName().toLowerCase());
+            key = ResourceLocation.fromNamespaceAndPath("unknown", block.getClass().getSimpleName().toLowerCase());
         }
         consumers.put(pos, key.toString());
         activeStatus.put(pos, false); // Startet als idle

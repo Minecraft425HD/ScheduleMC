@@ -23,11 +23,11 @@ public class CustomNPCRenderer extends MobRenderer<CustomNPCEntity, CustomNPCMod
 
     // Cached ResourceLocations (Performance-Optimierung)
     private static final ResourceLocation DEFAULT_SKIN =
-        new ResourceLocation(ScheduleMC.MOD_ID, "textures/entity/npc/default.png");
+        ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/entity/npc/default.png");
     private static final ResourceLocation STEVE_SKIN =
-        new ResourceLocation("minecraft", "textures/entity/player/wide/steve.png");
+        ResourceLocation.fromNamespaceAndPath("minecraft", "textures/entity/player/wide/steve.png");
     private static final ResourceLocation ALEX_SKIN =
-        new ResourceLocation("minecraft", "textures/entity/player/slim/alex.png");
+        ResourceLocation.fromNamespaceAndPath("minecraft", "textures/entity/player/slim/alex.png");
 
     // Cache für Custom Skins (verhindert wiederholtes Laden)
     private static final Map<String, ResourceLocation> customSkinCache = new ConcurrentHashMap<>();

@@ -47,7 +47,7 @@ public class RoadBlockDetector {
         if (ModConfigHandler.COMMON != null && ModConfigHandler.COMMON.NAVIGATION_ROAD_BLOCKS != null) {
             List<? extends String> blockIds = ModConfigHandler.COMMON.NAVIGATION_ROAD_BLOCKS.get();
             for (String blockId : blockIds) {
-                Block block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(blockId));
+                Block block = ForgeRegistries.BLOCKS.getValue(ResourceLocation.parse(blockId));
                 if (block != null) {
                     roadBlocks.add(block);
                 }
@@ -58,7 +58,7 @@ public class RoadBlockDetector {
         if (roadBlocks.isEmpty() && ModConfigHandler.COMMON != null && ModConfigHandler.COMMON.NPC_WALKABLE_BLOCKS != null) {
             List<? extends String> blockIds = ModConfigHandler.COMMON.NPC_WALKABLE_BLOCKS.get();
             for (String blockId : blockIds) {
-                Block block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(blockId));
+                Block block = ForgeRegistries.BLOCKS.getValue(ResourceLocation.parse(blockId));
                 if (block != null) {
                     roadBlocks.add(block);
                 }
@@ -89,7 +89,7 @@ public class RoadBlockDetector {
         };
 
         for (String blockId : defaults) {
-            Block block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(blockId));
+            Block block = ForgeRegistries.BLOCKS.getValue(ResourceLocation.parse(blockId));
             if (block != null) {
                 roadBlocks.add(block);
             }

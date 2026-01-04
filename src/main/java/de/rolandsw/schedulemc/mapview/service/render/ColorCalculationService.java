@@ -177,7 +177,7 @@ public class ColorCalculationService {
         BlockDatabase.getBlocks();
         this.loadColorPicker();
         this.loadTexturePackTerrainImage();
-        TextureAtlasSprite missing = MapViewConstants.getMinecraft().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(new ResourceLocation("missingno"));
+        TextureAtlasSprite missing = MapViewConstants.getMinecraft().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(ResourceLocation.parse("missingno"));
         this.failedToLoadX = missing.getU0();
         this.failedToLoadY = missing.getV0();
         this.loaded = false;
@@ -214,7 +214,7 @@ public class ColorCalculationService {
 
     private void loadColorPicker() {
         try {
-            InputStream is = MapViewConstants.getMinecraft().getResourceManager().getResource(new ResourceLocation("schedulemc", "mapview/images/colorpicker.png")).get().open();
+            InputStream is = MapViewConstants.getMinecraft().getResourceManager().getResource(ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/images/colorpicker.png")).get().open();
             Image picker = ImageIO.read(is);
             is.close();
             this.colorPicker = new BufferedImage(picker.getWidth(null), picker.getHeight(null), 2);
@@ -400,14 +400,14 @@ public class ColorCalculationService {
             Block material = blockState.getBlock();
             if (block instanceof LiquidBlock) {
                 if (material == Blocks.WATER) {
-                    icon = MapViewConstants.getMinecraft().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(new ResourceLocation("minecraft:blocks/water_flow"));
+                    icon = MapViewConstants.getMinecraft().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(ResourceLocation.parse("minecraft:blocks/water_flow"));
                 } else if (material == Blocks.LAVA) {
-                    icon = MapViewConstants.getMinecraft().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(new ResourceLocation("minecraft:blocks/lava_flow"));
+                    icon = MapViewConstants.getMinecraft().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(ResourceLocation.parse("minecraft:blocks/lava_flow"));
                 }
             } else if (material == Blocks.WATER) {
-                icon = MapViewConstants.getMinecraft().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(new ResourceLocation("minecraft:blocks/water_still"));
+                icon = MapViewConstants.getMinecraft().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(ResourceLocation.parse("minecraft:blocks/water_still"));
             } else if (material == Blocks.LAVA) {
-                icon = MapViewConstants.getMinecraft().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(new ResourceLocation("minecraft:blocks/lava_still"));
+                icon = MapViewConstants.getMinecraft().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(ResourceLocation.parse("minecraft:blocks/lava_still"));
             }
         }
 
@@ -687,7 +687,7 @@ public class ColorCalculationService {
     private void processCTM() {
         this.renderPassThreeBlendMode = "alpha";
         Properties properties = new Properties();
-        ResourceLocation propertiesFile = new ResourceLocation("minecraft", "optifine/renderpass.properties");
+        ResourceLocation propertiesFile = ResourceLocation.fromNamespaceAndPath("minecraft", "optifine/renderpass.properties");
 
         try {
             InputStream input = MapViewConstants.getMinecraft().getResourceManager().getResource(propertiesFile).get().open();
@@ -789,7 +789,7 @@ public class ColorCalculationService {
                         matchTiles = "minecraft:blocks/" + matchTiles;
                     }
 
-                    ResourceLocation matchID = new ResourceLocation(matchTiles);
+                    ResourceLocation matchID = ResourceLocation.parse(matchTiles);
                     TextureAtlasSprite compareIcon = MapViewConstants.getMinecraft().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(matchID);
                     if (compareIcon.atlasLocation() != MissingTextureAtlasSprite.getLocation()) {
                         ArrayList<BlockState> tmpList = new ArrayList<>();
@@ -831,7 +831,7 @@ public class ColorCalculationService {
             if (!blockStates.isEmpty()) {
                 if (!method.equals("horizontal") && !method.startsWith("overlay") && (method.equals("sandstone") || method.equals("top") || faces.contains("top") || faces.contains("all") || faces.isEmpty())) {
                     try {
-                        ResourceLocation pngResource = new ResourceLocation(propertiesFile.getNamespace(), tilePath);
+                        ResourceLocation pngResource = ResourceLocation.parse(propertiesFile.getNamespace(), tilePath);
                         InputStream is = MapViewConstants.getMinecraft().getResourceManager().getResource(pngResource).get().open();
                         Image top = ImageIO.read(is);
                         is.close();
@@ -1060,7 +1060,7 @@ public class ColorCalculationService {
         Properties properties = new Properties();
 
         try {
-            InputStream input = MapViewConstants.getMinecraft().getResourceManager().getResource(new ResourceLocation("optifine/color.properties")).get().open();
+            InputStream input = MapViewConstants.getMinecraft().getResourceManager().getResource(ResourceLocation.parse("optifine/color.properties")).get().open();
             if (input != null) {
                 properties.load(input);
                 input.close();
@@ -1093,7 +1093,7 @@ public class ColorCalculationService {
             if (key.startsWith("palette.block")) {
                 String filename = key.substring("palette.block.".length());
                 filename = filename.replace("~", "optifine");
-                this.processColorPropertyHelper(new ResourceLocation(filename), properties.getProperty(key), globalGrid);
+                this.processColorPropertyHelper(ResourceLocation.parse(filename), properties.getProperty(key), globalGrid);
             }
         }
 
@@ -1120,11 +1120,11 @@ public class ColorCalculationService {
             String source = colorProperties.getProperty("source");
             ResourceLocation resourcePNG;
             if (source != null) {
-                resourcePNG = new ResourceLocation(resource.getNamespace(), source);
+                resourcePNG = ResourceLocation.parse(resource.getNamespace(), source);
 
                 MapViewConstants.getMinecraft().getResourceManager().getResource(resourcePNG);
             } else {
-                resourcePNG = new ResourceLocation(resource.getNamespace(), resource.getPath().replace(".properties", ".png"));
+                resourcePNG = ResourceLocation.parse(resource.getNamespace(), resource.getPath().replace(".properties", ".png"));
             }
 
             String format = colorProperties.getProperty("format");
@@ -1144,20 +1144,20 @@ public class ColorCalculationService {
             this.processColorProperty(resourcePNG, names, grid, yOffset);
         }
 
-        this.processColorPropertyHelper(new ResourceLocation("optifine/colormap/water.png"), "water", globalGrid);
-        this.processColorPropertyHelper(new ResourceLocation("optifine/colormap/watercolorx.png"), "water", globalGrid);
-        this.processColorPropertyHelper(new ResourceLocation("optifine/colormap/swampgrass.png"), "grass_block grass fern tall_grass large_fern", globalGrid);
-        this.processColorPropertyHelper(new ResourceLocation("optifine/colormap/swampgrasscolor.png"), "grass_block grass fern tall_grass large_fern", globalGrid);
-        this.processColorPropertyHelper(new ResourceLocation("optifine/colormap/swampfoliage.png"), "oak_leaves vine", globalGrid);
-        this.processColorPropertyHelper(new ResourceLocation("optifine/colormap/swampfoliagecolor.png"), "oak_leaves vine", globalGrid);
-        this.processColorPropertyHelper(new ResourceLocation("optifine/colormap/pine.png"), "spruce_leaves", globalGrid);
-        this.processColorPropertyHelper(new ResourceLocation("optifine/colormap/pinecolor.png"), "spruce_leaves", globalGrid);
-        this.processColorPropertyHelper(new ResourceLocation("optifine/colormap/birch.png"), "birch_leaves", globalGrid);
-        this.processColorPropertyHelper(new ResourceLocation("optifine/colormap/birchcolor.png"), "birch_leaves", globalGrid);
+        this.processColorPropertyHelper(ResourceLocation.parse("optifine/colormap/water.png"), "water", globalGrid);
+        this.processColorPropertyHelper(ResourceLocation.parse("optifine/colormap/watercolorx.png"), "water", globalGrid);
+        this.processColorPropertyHelper(ResourceLocation.parse("optifine/colormap/swampgrass.png"), "grass_block grass fern tall_grass large_fern", globalGrid);
+        this.processColorPropertyHelper(ResourceLocation.parse("optifine/colormap/swampgrasscolor.png"), "grass_block grass fern tall_grass large_fern", globalGrid);
+        this.processColorPropertyHelper(ResourceLocation.parse("optifine/colormap/swampfoliage.png"), "oak_leaves vine", globalGrid);
+        this.processColorPropertyHelper(ResourceLocation.parse("optifine/colormap/swampfoliagecolor.png"), "oak_leaves vine", globalGrid);
+        this.processColorPropertyHelper(ResourceLocation.parse("optifine/colormap/pine.png"), "spruce_leaves", globalGrid);
+        this.processColorPropertyHelper(ResourceLocation.parse("optifine/colormap/pinecolor.png"), "spruce_leaves", globalGrid);
+        this.processColorPropertyHelper(ResourceLocation.parse("optifine/colormap/birch.png"), "birch_leaves", globalGrid);
+        this.processColorPropertyHelper(ResourceLocation.parse("optifine/colormap/birchcolor.png"), "birch_leaves", globalGrid);
     }
 
     private void processColorPropertyHelper(ResourceLocation resource, String list, boolean grid) {
-        ResourceLocation resourceProperties = new ResourceLocation(resource.getNamespace(), resource.getPath().replace(".png", ".properties"));
+        ResourceLocation resourceProperties = ResourceLocation.parse(resource.getNamespace(), resource.getPath().replace(".png", ".properties"));
         Properties colorProperties = new Properties();
         int yOffset = 0;
 
@@ -1241,9 +1241,9 @@ public class ColorCalculationService {
             if (swamp && previousTints == null) {
                 ResourceLocation defaultResource;
                 if (resource.getPath().contains("grass")) {
-                    defaultResource = new ResourceLocation("textures/colormap/grass.png");
+                    defaultResource = ResourceLocation.parse("textures/colormap/grass.png");
                 } else {
-                    defaultResource = new ResourceLocation("textures/colormap/foliage.png");
+                    defaultResource = ResourceLocation.parse("textures/colormap/foliage.png");
                 }
 
                 String stateString = blockState.toString().toLowerCase();
@@ -1276,7 +1276,7 @@ public class ColorCalculationService {
 
     private Block getBlockFromName(String name) {
         try {
-            ResourceLocation identifier = new ResourceLocation(name);
+            ResourceLocation identifier = ResourceLocation.parse(name);
             return BuiltInRegistries.BLOCK.containsKey(identifier) ? BuiltInRegistries.BLOCK.get(identifier) : null;
         } catch (ResourceLocationException | NumberFormatException var3) {
             return null;

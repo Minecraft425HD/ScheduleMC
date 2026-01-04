@@ -27,7 +27,7 @@ public class ForgeEvents implements Events {
     private MapDataManager map;
     private static final String PROTOCOL_VERSION = "1";
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
-            new ResourceLocation("schedulemc", "lightmap_main"),
+            ResourceLocation.fromNamespaceAndPath("schedulemc", "lightmap_main"),
             () -> PROTOCOL_VERSION,
             PROTOCOL_VERSION::equals,
             PROTOCOL_VERSION::equals

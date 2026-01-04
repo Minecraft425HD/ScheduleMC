@@ -114,7 +114,7 @@ public class FuelComponent extends VehicleComponent implements IFluidHandler {
         if (fuelType == null || fuelType.isEmpty()) {
             return null;
         }
-        return ForgeRegistries.FLUIDS.getValue(new ResourceLocation(fuelType));
+        return ForgeRegistries.FLUIDS.getValue(ResourceLocation.parse(fuelType));
     }
 
     public int getFuelAmount() {

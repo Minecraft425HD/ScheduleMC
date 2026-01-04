@@ -29,7 +29,7 @@ public final class MapViewConstants {
     private static final Logger LOGGER = LogManager.getLogger("MapDataManager");
     private static final MapDataManager LIGHTMAP_INSTANCE = new MapDataManager();
     private static int elapsedTicks;
-    private static final ResourceLocation OPTIONS_BACKGROUND_TEXTURE = new ResourceLocation("textures/block/dirt.png");
+    private static final ResourceLocation OPTIONS_BACKGROUND_TEXTURE = ResourceLocation.parse("textures/block/dirt.png");
     public static final boolean DEBUG = false;
     private static boolean initialized;
     private static Events events;

@@ -90,11 +90,11 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     private final Minecraft minecraft = Minecraft.getInstance();
     // private final float[] lastLightBrightnessTable = new float[16];
     private final Object coordinateLock = new Object();
-    private final ResourceLocation resourceArrow = new ResourceLocation("schedulemc", "mapview/images/mmarrow.png");
-    private final ResourceLocation resourceSquareMap = new ResourceLocation("schedulemc", "mapview/images/squaremap.png");
-    private final ResourceLocation resourceRoundMap = new ResourceLocation("schedulemc", "mapview/images/roundmap.png");
-    private final ResourceLocation squareStencil = new ResourceLocation("schedulemc", "mapview/images/square.png");
-    private final ResourceLocation circleStencil = new ResourceLocation("schedulemc", "mapview/images/circle.png");
+    private final ResourceLocation resourceArrow = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/images/mmarrow.png");
+    private final ResourceLocation resourceSquareMap = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/images/squaremap.png");
+    private final ResourceLocation resourceRoundMap = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/images/roundmap.png");
+    private final ResourceLocation squareStencil = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/images/square.png");
+    private final ResourceLocation circleStencil = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/images/circle.png");
     private ClientLevel world;
     private final MapViewConfiguration options;
     private final LayoutVariables layoutVariables;
@@ -181,16 +181,16 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     private MapViewCachedOrthoProjectionMatrixBuffer projection;
 
     public MapViewRenderer() {
-        resourceMapImageFiltered[0] = new ResourceLocation("schedulemc", "mapview/map/filtered/0");
-        resourceMapImageFiltered[1] = new ResourceLocation("schedulemc", "mapview/map/filtered/1");
-        resourceMapImageFiltered[2] = new ResourceLocation("schedulemc", "mapview/map/filtered/2");
-        resourceMapImageFiltered[3] = new ResourceLocation("schedulemc", "mapview/map/filtered/3");
-        resourceMapImageFiltered[4] = new ResourceLocation("schedulemc", "mapview/map/filtered/4");
-        resourceMapImageUnfiltered[0] = new ResourceLocation("schedulemc", "mapview/map/unfiltered/0");
-        resourceMapImageUnfiltered[1] = new ResourceLocation("schedulemc", "mapview/map/unfiltered/1");
-        resourceMapImageUnfiltered[2] = new ResourceLocation("schedulemc", "mapview/map/unfiltered/2");
-        resourceMapImageUnfiltered[3] = new ResourceLocation("schedulemc", "mapview/map/unfiltered/3");
-        resourceMapImageUnfiltered[4] = new ResourceLocation("schedulemc", "mapview/map/unfiltered/4");
+        resourceMapImageFiltered[0] = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/map/filtered/0");
+        resourceMapImageFiltered[1] = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/map/filtered/1");
+        resourceMapImageFiltered[2] = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/map/filtered/2");
+        resourceMapImageFiltered[3] = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/map/filtered/3");
+        resourceMapImageFiltered[4] = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/map/filtered/4");
+        resourceMapImageUnfiltered[0] = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/map/unfiltered/0");
+        resourceMapImageUnfiltered[1] = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/map/unfiltered/1");
+        resourceMapImageUnfiltered[2] = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/map/unfiltered/2");
+        resourceMapImageUnfiltered[3] = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/map/unfiltered/3");
+        resourceMapImageUnfiltered[4] = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/map/unfiltered/4");
 
         this.options = MapViewConstants.getLightMapInstance().getMapOptions();
         this.colorManager = MapViewConstants.getLightMapInstance().getColorManager();

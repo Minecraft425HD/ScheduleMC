@@ -34,7 +34,7 @@ import java.util.List;
 public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
 
     private static final ResourceLocation TEXTURE =
-        new ResourceLocation(ScheduleMC.MOD_ID, "textures/gui/npc_spawner.png");
+        ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/npc_spawner.png");
 
     private EditBox npcNameInput;
     private List<String> availableSkins;

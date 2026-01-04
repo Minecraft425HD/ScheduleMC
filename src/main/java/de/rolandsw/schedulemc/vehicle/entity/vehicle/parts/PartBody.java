@@ -51,7 +51,7 @@ public class PartBody extends PartModel {
             textureToUse = texture;
 
             // Uncomment when textures are available:
-            // textureToUse = new ResourceLocation(
+            // textureToUse = ResourceLocation.fromNamespaceAndPath(
             //     Main.MODID,
             //     "textures/entity/vehicle_" + translationKey + "_" + colorName + ".png"
             // );

@@ -59,7 +59,7 @@ public class AddItemToSlotPacket {
             }
 
             // Parse item ID
-            ResourceLocation itemLoc = new ResourceLocation(msg.itemId);
+            ResourceLocation itemLoc = ResourceLocation.parse(msg.itemId);
             Item item = BuiltInRegistries.ITEM.get(itemLoc);
 
             if (item == null || item == net.minecraft.world.item.Items.AIR) {

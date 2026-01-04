@@ -35,9 +35,9 @@ public final class BlockStateAnalyzer {
         ResourceLocation identifier = null;
 
         if (resourceStringParts.length == 1) {
-            identifier = new ResourceLocation(resourceStringParts[0]);
+            identifier = ResourceLocation.parse(resourceStringParts[0]);
         } else if (resourceStringParts.length == 2) {
-            identifier = new ResourceLocation(resourceStringParts[0], resourceStringParts[1]);
+            identifier = ResourceLocation.fromNamespaceAndPath(resourceStringParts[0], resourceStringParts[1]);
         }
         Block block = BuiltInRegistries.BLOCK.get(identifier);
         if (block == null) {
