@@ -64,6 +64,27 @@ public class MarketData {
         this(item, basePrice, 0.3, 0.5, 3.0);  // Default values
     }
 
+    /**
+     * Package-private constructor for deserialization
+     * Restores saved market state
+     */
+    MarketData(Item item, double basePrice, double supplyDemandFactor,
+              double minPriceMultiplier, double maxPriceMultiplier,
+              int supply, int demand, double currentPrice,
+              double previousPrice, int previousSupply, int previousDemand) {
+        this.item = item;
+        this.basePrice = basePrice;
+        this.supplyDemandFactor = supplyDemandFactor;
+        this.minPriceMultiplier = minPriceMultiplier;
+        this.maxPriceMultiplier = maxPriceMultiplier;
+        this.supply = supply;
+        this.demand = demand;
+        this.currentPrice = currentPrice;
+        this.previousPrice = previousPrice;
+        this.previousSupply = previousSupply;
+        this.previousDemand = previousDemand;
+    }
+
     // ═══════════════════════════════════════════════════════════
     // SUPPLY & DEMAND UPDATES
     // ═══════════════════════════════════════════════════════════
@@ -248,6 +269,18 @@ public class MarketData {
 
     public double getPriceMultiplier() {
         return currentPrice / basePrice;
+    }
+
+    public double getPreviousPrice() {
+        return previousPrice;
+    }
+
+    public int getPreviousSupply() {
+        return previousSupply;
+    }
+
+    public int getPreviousDemand() {
+        return previousDemand;
     }
 
     // ═══════════════════════════════════════════════════════════
