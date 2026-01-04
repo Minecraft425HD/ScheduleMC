@@ -291,8 +291,44 @@ public class ThreadPoolManager {
     }
 
     // ═══════════════════════════════════════════════════════════
-    // STATISTICS
+    // STATISTICS & MONITORING
     // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Gibt Queue-Größe des IO Pools zurück
+     *
+     * @return Anzahl wartender Tasks im IO Pool
+     */
+    public static int getIOPoolQueueSize() {
+        if (IO_POOL instanceof ThreadPoolExecutor) {
+            return ((ThreadPoolExecutor) IO_POOL).getQueue().size();
+        }
+        return 0;
+    }
+
+    /**
+     * Gibt Queue-Größe des Computation Pools zurück
+     *
+     * @return Anzahl wartender Tasks im Computation Pool
+     */
+    public static int getComputationPoolQueueSize() {
+        if (COMPUTATION_POOL instanceof ThreadPoolExecutor) {
+            return ((ThreadPoolExecutor) COMPUTATION_POOL).getQueue().size();
+        }
+        return 0;
+    }
+
+    /**
+     * Gibt Anzahl aktiver Threads im Computation Pool zurück
+     *
+     * @return Anzahl aktiv laufender Tasks
+     */
+    public static int getComputationPoolActiveCount() {
+        if (COMPUTATION_POOL instanceof ThreadPoolExecutor) {
+            return ((ThreadPoolExecutor) COMPUTATION_POOL).getActiveCount();
+        }
+        return 0;
+    }
 
     /**
      * Gibt Pool-Statistiken zurück (für Debugging)

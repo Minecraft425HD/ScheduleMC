@@ -770,7 +770,7 @@ public class WorldMapData implements MapChangeListener {
 
     public RegionCache[] getRegions(int left, int right, int top, int bottom) {
         if (left == this.lastLeft && right == this.lastRight && top == this.lastTop && bottom == this.lastBottom) {
-            return this.lastRegionsArray;
+            return this.lastRegionsArray.get();
         } else {
             AsyncPersistenceManager.emptyQueue();
             RegionCache[] visibleRegionCachesArray = new RegionCache[(right - left + 1) * (bottom - top + 1)];

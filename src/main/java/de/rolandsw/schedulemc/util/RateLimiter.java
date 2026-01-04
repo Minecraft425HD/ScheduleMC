@@ -114,21 +114,22 @@ public class RateLimiter {
      */
     public int cleanupOldEntries(long maxAgeMs) {
         long now = System.currentTimeMillis();
-        int removed = 0;
+        java.util.concurrent.atomic.AtomicInteger removed = new java.util.concurrent.atomic.AtomicInteger(0);
 
         windows.entrySet().removeIf(entry -> {
             if (now - entry.getValue().windowStart > maxAgeMs) {
-                removed++;
+                removed.incrementAndGet();
                 return true;
             }
             return false;
         });
 
-        if (removed > 0) {
-            LOGGER.debug("Cleaned up {} old rate limiter entries for '{}'", removed, operationName);
+        int removedCount = removed.get();
+        if (removedCount > 0) {
+            LOGGER.debug("Cleaned up {} old rate limiter entries for '{}'", removedCount, operationName);
         }
 
-        return removed;
+        return removedCount;
     }
 
     /**

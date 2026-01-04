@@ -551,7 +551,7 @@ public class RegionCache {
                     }
                     if (MapViewConstants.DEBUG) {
                         MapViewConstants.getLogger().info("Finished saving region file for " + RegionCache.this.x + "," + RegionCache.this.z + " in " + RegionCache.this.worldNamePathPart + "/" + RegionCache.this.subworldNamePathPart + RegionCache.this.dimensionNamePathPart + " ("
-                                + AsyncPersistenceManager.saveExecutorService.getQueue().size() + ")");
+                                + de.rolandsw.schedulemc.util.ThreadPoolManager.getIOPoolQueueSize() + ")");
                     }
                 });
             } else {
