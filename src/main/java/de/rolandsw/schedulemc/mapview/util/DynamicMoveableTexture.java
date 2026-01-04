@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.mapview.util;
 
 // GlTexture doesn't exist in 1.20.1
 import com.mojang.blaze3d.platform.NativeImage;
+import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import org.lwjgl.system.MemoryUtil;
 
@@ -19,7 +20,7 @@ public class DynamicMoveableTexture extends DynamicTexture {
             pixelsField.setAccessible(true);
             pixelsFieldInitialized = true;
         } catch (Exception e) {
-            System.err.println("[MapDataManager] Warning: Could not access NativeImage.pixels field, using slower fallback");
+            MapViewConstants.getLogger().warn("Could not access NativeImage.pixels field via reflection, using slower fallback");
             pixelsFieldInitialized = true;
         }
     }

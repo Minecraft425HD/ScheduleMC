@@ -223,9 +223,7 @@ public class NPCBusinessMetrics {
      */
     public void updatePurchaseDecision(Player player) {
         lastPurchaseDecision = new NPCPurchaseDecision(npc, player).calculate();
-
-        // Optional: Debug-Logging
-        // System.out.println(lastPurchaseDecision.toString());
+        // Debug output removed - use breakpoint if needed
     }
 
     /**

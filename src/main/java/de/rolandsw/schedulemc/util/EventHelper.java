@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.util;
 
+import de.rolandsw.schedulemc.ScheduleMC;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.event.TickEvent;
@@ -115,8 +116,7 @@ public class EventHelper {
         try {
             handler.run();
         } catch (Exception e) {
-            System.err.println("Error in event handler (" + context + "): " + e.getMessage());
-            e.printStackTrace();
+            ScheduleMC.LOGGER.error("Error in event handler ({}): {}", context, e.getMessage(), e);
             // Log but don't crash - Event handlers should be resilient
         }
     }
