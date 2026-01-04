@@ -25,8 +25,8 @@ import java.util.List;
 
 public class GuiGarage extends ScreenBase<ContainerGarage> {
 
-    private static final ResourceLocation GARAGE_GUI_TEXTURE = new ResourceLocation(Main.MODID, "textures/gui/gui_garage.png");
-    private static final ResourceLocation FALLBACK_TEXTURE = new ResourceLocation(Main.MODID, "textures/gui/gui_vehicle.png");
+    private static final ResourceLocation GARAGE_GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(Main.MODID, "textures/gui/gui_garage.png");
+    private static final ResourceLocation FALLBACK_TEXTURE = ResourceLocation.fromNamespaceAndPath(Main.MODID, "textures/gui/gui_vehicle.png");
 
     private static final int fontColor = 4210752;
     private static final int costColor = 0x00AA00;

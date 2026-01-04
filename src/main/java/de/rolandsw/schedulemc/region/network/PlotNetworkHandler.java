@@ -13,7 +13,7 @@ public class PlotNetworkHandler {
 
     private static final String PROTOCOL_VERSION = "1";
     public static final SimpleChannel INSTANCE = NetworkRegistry.newSimpleChannel(
-        new ResourceLocation(ScheduleMC.MOD_ID, "plot_network"),
+        ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "plot_network"),
         () -> PROTOCOL_VERSION,
         PROTOCOL_VERSION::equals,
         PROTOCOL_VERSION::equals

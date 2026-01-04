@@ -37,7 +37,7 @@ public class CustomSkinManager {
         }
     };
     private static final ResourceLocation DEFAULT_SKIN =
-        new ResourceLocation(ScheduleMC.MOD_ID, "textures/entity/npc/default.png");
+        ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/entity/npc/default.png");
 
     /**
      * Lädt einen benutzerdefinierten Skin aus dem assets/schedulemc/skins/ Ordner und registriert ihn als Textur
@@ -54,7 +54,7 @@ public class CustomSkinManager {
         try {
             // Erstelle ResourceLocation für den Skin im Ressourcen-Ordner
             // Pfad: assets/schedulemc/skins/skinFileName
-            ResourceLocation skinResourceLocation = new ResourceLocation(
+            ResourceLocation skinResourceLocation = ResourceLocation.fromNamespaceAndPath(
                 ScheduleMC.MOD_ID,
                 "skins/" + skinFileName
             );
@@ -76,7 +76,7 @@ public class CustomSkinManager {
                 DynamicTexture texture = new DynamicTexture(image);
 
                 // Registriere die Textur im TextureManager
-                ResourceLocation textureLocation = new ResourceLocation(
+                ResourceLocation textureLocation = ResourceLocation.fromNamespaceAndPath(
                     ScheduleMC.MOD_ID,
                     "dynamic_skins/" + skinFileName.replace(".png", "")
                 );

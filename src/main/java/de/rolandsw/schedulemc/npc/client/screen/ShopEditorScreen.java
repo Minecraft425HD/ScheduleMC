@@ -27,7 +27,7 @@ import java.util.List;
 public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
 
     private static final ResourceLocation TEXTURE =
-        new ResourceLocation("minecraft", "textures/gui/container/generic_54.png");
+        ResourceLocation.fromNamespaceAndPath("minecraft", "textures/gui/container/generic_54.png");
 
     private static class ItemRow {
         EditBox priceInput;

@@ -27,7 +27,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
 
     private static final ResourceLocation TEXTURE =
-        new ResourceLocation(ScheduleMC.MOD_ID, "textures/gui/npc_interaction.png");
+        ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/npc_interaction.png");
 
     // Trade Buttons für Gold
     private Button goldBuy1Button;

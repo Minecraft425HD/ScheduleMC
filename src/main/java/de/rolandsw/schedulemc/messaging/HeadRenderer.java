@@ -67,7 +67,7 @@ public class HeadRenderer {
         ResourceLocation skinTexture = null;
 
         if (skinFileName != null && !skinFileName.isEmpty()) {
-            skinTexture = new ResourceLocation("schedulemc", "textures/entity/npc/" + skinFileName);
+            skinTexture = ResourceLocation.fromNamespaceAndPath("schedulemc", "textures/entity/npc/" + skinFileName);
         }
 
         renderPlayerHead(guiGraphics, x, y, size, skinTexture);

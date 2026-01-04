@@ -36,8 +36,8 @@ public class FluidTypeVehicle extends FluidType {
     public void initializeClient(Consumer<IClientFluidTypeExtensions> consumer) {
         consumer.accept(new IClientFluidTypeExtensions() {
 
-            private static final ResourceLocation UNDERWATER_LOCATION = new ResourceLocation("textures/misc/underwater.png");
-            private static final ResourceLocation WATER_OVERLAY = new ResourceLocation("block/water_overlay");
+            private static final ResourceLocation UNDERWATER_LOCATION = ResourceLocation.parse("textures/misc/underwater.png");
+            private static final ResourceLocation WATER_OVERLAY = ResourceLocation.parse("block/water_overlay");
 
             @Override
             public ResourceLocation getStillTexture() {

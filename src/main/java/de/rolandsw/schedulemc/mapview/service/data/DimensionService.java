@@ -84,7 +84,7 @@ public class DimensionService {
 
     public DimensionContainer getDimensionContainerByIdentifier(String ident) {
         DimensionContainer dim;
-        ResourceLocation identifier = new ResourceLocation(ident);
+        ResourceLocation identifier = ResourceLocation.parse(ident);
         dim = this.getDimensionContainerByIdentifier(identifier);
         if (dim == null) {
             dim = new DimensionContainer(null, identifier.getPath(), identifier);

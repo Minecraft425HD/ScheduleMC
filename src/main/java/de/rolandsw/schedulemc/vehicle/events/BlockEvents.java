@@ -16,7 +16,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class BlockEvents {
 
-    private static ResourceLocation GRASS_LOOT_TABLE = new ResourceLocation(Main.MODID, "blocks/grass");
+    private static ResourceLocation GRASS_LOOT_TABLE = ResourceLocation.fromNamespaceAndPath(Main.MODID, "blocks/grass");
 
     @SubscribeEvent
     public void breakEvent(BlockEvent.BreakEvent event) {

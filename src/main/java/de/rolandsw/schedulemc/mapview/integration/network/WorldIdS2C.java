@@ -6,7 +6,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 
 public record WorldIdS2C(String worldName) {
-    public static final ResourceLocation PACKET_ID = new ResourceLocation("worldinfo", "world_id");
+    public static final ResourceLocation PACKET_ID = ResourceLocation.fromNamespaceAndPath("worldinfo", "world_id");
 
     public WorldIdS2C(FriendlyByteBuf buf) {
         this(parse(buf));

@@ -8,7 +8,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 
 public record MapViewSettingsS2C(String settingsJson) {
-    public static final ResourceLocation PACKET_ID = new ResourceLocation("schedulemc", "lightmap_settings");
+    public static final ResourceLocation PACKET_ID = ResourceLocation.fromNamespaceAndPath("schedulemc", "lightmap_settings");
 
     public MapViewSettingsS2C(FriendlyByteBuf buf) {
         this(parse(buf));

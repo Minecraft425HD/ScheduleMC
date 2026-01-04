@@ -36,18 +36,18 @@ public class SmartphoneScreen extends Screen {
     private static final int TOTAL_ROWS = 6; // Insgesamt 6 Reihen (12 Apps)
 
     // App-Icons (konfigurierbar über Ressourcen)
-    private static final ResourceLocation APP_MAP = new ResourceLocation(ScheduleMC.MOD_ID, "textures/gui/apps/app_map.png");
-    private static final ResourceLocation APP_DEALER = new ResourceLocation(ScheduleMC.MOD_ID, "textures/gui/apps/app_dealer.png");
-    private static final ResourceLocation APP_PRODUCTS = new ResourceLocation(ScheduleMC.MOD_ID, "textures/gui/apps/app_products.png");
-    private static final ResourceLocation APP_ORDER = new ResourceLocation(ScheduleMC.MOD_ID, "textures/gui/apps/app_order.png");
-    private static final ResourceLocation APP_CONTACTS = new ResourceLocation(ScheduleMC.MOD_ID, "textures/gui/apps/app_contacts.png");
-    private static final ResourceLocation APP_MESSAGES = new ResourceLocation(ScheduleMC.MOD_ID, "textures/gui/apps/app_messages.png");
-    private static final ResourceLocation APP_PLOT = new ResourceLocation(ScheduleMC.MOD_ID, "textures/gui/apps/app_plot.png");
-    private static final ResourceLocation APP_SETTINGS = new ResourceLocation(ScheduleMC.MOD_ID, "textures/gui/apps/app_settings.png");
-    private static final ResourceLocation APP_BANK = new ResourceLocation(ScheduleMC.MOD_ID, "textures/gui/apps/app_bank.png");
-    private static final ResourceLocation APP_CRIME = new ResourceLocation(ScheduleMC.MOD_ID, "textures/gui/apps/app_crime.png");
-    private static final ResourceLocation APP_ACHIEVEMENT = new ResourceLocation(ScheduleMC.MOD_ID, "textures/gui/apps/app_achievement.png");
-    private static final ResourceLocation CLOSE_ICON = new ResourceLocation(ScheduleMC.MOD_ID, "textures/gui/apps/close.png");
+    private static final ResourceLocation APP_MAP = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/app_map.png");
+    private static final ResourceLocation APP_DEALER = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/app_dealer.png");
+    private static final ResourceLocation APP_PRODUCTS = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/app_products.png");
+    private static final ResourceLocation APP_ORDER = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/app_order.png");
+    private static final ResourceLocation APP_CONTACTS = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/app_contacts.png");
+    private static final ResourceLocation APP_MESSAGES = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/app_messages.png");
+    private static final ResourceLocation APP_PLOT = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/app_plot.png");
+    private static final ResourceLocation APP_SETTINGS = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/app_settings.png");
+    private static final ResourceLocation APP_BANK = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/app_bank.png");
+    private static final ResourceLocation APP_CRIME = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/app_crime.png");
+    private static final ResourceLocation APP_ACHIEVEMENT = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/app_achievement.png");
+    private static final ResourceLocation CLOSE_ICON = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/close.png");
 
     private int leftPos;
     private int topPos;

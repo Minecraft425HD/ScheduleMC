@@ -27,7 +27,7 @@ import org.lwjgl.glfw.GLFW;
 public class StealingScreen extends AbstractContainerScreen<StealingMenu> {
 
     private static final ResourceLocation TEXTURE =
-        new ResourceLocation(ScheduleMC.MOD_ID, "textures/gui/stealing.png");
+        ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/stealing.png");
 
     // Auswahl-Modus
     private boolean choosingMode = true; // true = Auswahl, false = Minigame

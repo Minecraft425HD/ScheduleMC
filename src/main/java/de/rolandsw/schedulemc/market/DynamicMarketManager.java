@@ -384,7 +384,7 @@ public class DynamicMarketManager {
             for (SerializedMarketData serialized : loaded) {
                 try {
                     // Convert String → Item using registry lookup
-                    ResourceLocation itemId = new ResourceLocation(serialized.itemId);
+                    ResourceLocation itemId = ResourceLocation.parse(serialized.itemId);
                     Item item = BuiltInRegistries.ITEM.get(itemId);
 
                     // Verify item exists

@@ -12,19 +12,19 @@ import net.minecraft.world.entity.animal.horse.Horse;
 import net.minecraft.world.entity.animal.horse.Variant;
 
 public class HorseVariantDataFactory extends DefaultEntityVariantDataFactory {
-    private static final ResourceLocation INVISIBLE_TEXTURE = new ResourceLocation("minecraft", "invisible");
+    private static final ResourceLocation INVISIBLE_TEXTURE = ResourceLocation.fromNamespaceAndPath("minecraft", "invisible");
     private static final Map<Variant, ResourceLocation> LOCATION_BY_VARIANT = Maps.newEnumMap(
             Map.of(
                     Variant.values()[0],
                     INVISIBLE_TEXTURE,
                     Variant.values()[1],
-                    new ResourceLocation("minecraft", "textures/entity/horse/horse_markings_white.png"),
+                    ResourceLocation.fromNamespaceAndPath("minecraft", "textures/entity/horse/horse_markings_white.png"),
                     Variant.values()[2],
-                    new ResourceLocation("minecraft", "textures/entity/horse/horse_markings_whitefield.png"),
+                    ResourceLocation.fromNamespaceAndPath("minecraft", "textures/entity/horse/horse_markings_whitefield.png"),
                     Variant.values()[3],
-                    new ResourceLocation("minecraft", "textures/entity/horse/horse_markings_whitedots.png"),
+                    ResourceLocation.fromNamespaceAndPath("minecraft", "textures/entity/horse/horse_markings_whitedots.png"),
                     Variant.values()[4],
-                    new ResourceLocation("minecraft", "textures/entity/horse/horse_markings_blackdots.png")));
+                    ResourceLocation.fromNamespaceAndPath("minecraft", "textures/entity/horse/horse_markings_blackdots.png")));
 
     public HorseVariantDataFactory(EntityType<?> type) {
         super(type);

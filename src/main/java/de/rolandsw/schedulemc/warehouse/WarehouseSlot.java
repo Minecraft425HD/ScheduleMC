@@ -134,7 +134,7 @@ public class WarehouseSlot {
     public void load(CompoundTag tag) {
         if (tag.contains("Item")) {
             String itemIdStr = tag.getString("Item");
-            ResourceLocation itemId = new ResourceLocation(itemIdStr);
+            ResourceLocation itemId = ResourceLocation.parse(itemIdStr);
             this.allowedItem = BuiltInRegistries.ITEM.get(itemId);
             this.currentStock = tag.getInt("Stock");
             this.unlimited = tag.getBoolean("Unlimited");
