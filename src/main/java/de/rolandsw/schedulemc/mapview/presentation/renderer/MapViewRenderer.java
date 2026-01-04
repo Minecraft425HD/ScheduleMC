@@ -140,11 +140,12 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     private int timer;
     private boolean doFullRender = true;
     private boolean zoomChanged;
-    private int lastX;
-    private int lastZ;
+    // OPTIMIZATION: volatile for thread-safe coordinate updates (remove synchronized blocks)
+    private volatile int lastX;
+    private volatile int lastZ;
     private int lastY;
-    private int lastImageX;
-    private int lastImageZ;
+    private volatile int lastImageX;
+    private volatile int lastImageZ;
     private boolean lastFullscreen;
     // Performance-Optimierung: Movement-Throttling
     private int lastPlayerX = Integer.MIN_VALUE;
@@ -850,15 +851,15 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         boolean caves = false;
         needHeightAndID = false;
         int color24;
-        synchronized (this.coordinateLock) {
-            if (!full) {
-                this.mapImages[zoom].moveY(offsetZ);
-                this.mapImages[zoom].moveX(offsetX);
-            }
-
-            this.lastX = currentX;
-            this.lastZ = currentZ;
+        // OPTIMIZATION: Removed synchronized block - volatile fields ensure visibility
+        if (!full) {
+            this.mapImages[zoom].moveY(offsetZ);
+            this.mapImages[zoom].moveX(offsetX);
         }
+
+        this.lastX = currentX;
+        this.lastZ = currentZ;
+
         int startX = currentX - 16 * multi;
         int startZ = currentZ - 16 * multi;
         if (!full) {
@@ -1650,14 +1651,14 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
             scale = 1.4142F;
         }
 
-        synchronized (this.coordinateLock) {
-            if (this.imageChanged) {
-                this.imageChanged = false;
-                this.mapImages[this.zoom].upload();
-                this.lastImageX = this.lastX;
-                this.lastImageZ = this.lastZ;
-            }
+        // OPTIMIZATION: Removed synchronized block - volatile imageChanged ensures visibility
+        if (this.imageChanged) {
+            this.imageChanged = false;
+            this.mapImages[this.zoom].upload();
+            this.lastImageX = this.lastX;
+            this.lastImageZ = this.lastZ;
         }
+
         //
         float multi = (float) (1.0 / this.zoomScale);
         this.percentX = (float) (MinecraftAccessor.xCoordDouble() - this.lastImageX);
@@ -1777,14 +1778,14 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     }
 
     private void renderMapFull(GuiGraphics guiGraphics, int scWidth, int scHeight, float scaleProj) {
-        synchronized (this.coordinateLock) {
-            if (this.imageChanged) {
-                this.imageChanged = false;
-                this.mapImages[this.zoom].upload();
-                this.lastImageX = this.lastX;
-                this.lastImageZ = this.lastZ;
-            }
+        // OPTIMIZATION: Removed synchronized block - volatile imageChanged ensures visibility
+        if (this.imageChanged) {
+            this.imageChanged = false;
+            this.mapImages[this.zoom].upload();
+            this.lastImageX = this.lastX;
+            this.lastImageZ = this.lastZ;
         }
+
         PoseStack matrixStack = guiGraphics.pose();
         matrixStack.pushPose();
         matrixStack.scale(scaleProj, scaleProj, 1.0f);
