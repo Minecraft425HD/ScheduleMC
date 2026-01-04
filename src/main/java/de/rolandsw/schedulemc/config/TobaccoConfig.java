@@ -116,21 +116,29 @@ public class TobaccoConfig {
                 .push("pot_capacities");
         
         TERRACOTTA_WATER_CAPACITY = builder
+                .comment("Water capacity for terracotta pot (in mb)")
                 .defineInRange("terracotta_water", 100, 10, 10000);
         CERAMIC_WATER_CAPACITY = builder
+                .comment("Water capacity for ceramic pot (in mb)")
                 .defineInRange("ceramic_water", 200, 10, 10000);
         IRON_WATER_CAPACITY = builder
+                .comment("Water capacity for iron pot (in mb)")
                 .defineInRange("iron_water", 400, 10, 10000);
         GOLDEN_WATER_CAPACITY = builder
+                .comment("Water capacity for golden pot (in mb)")
                 .defineInRange("golden_water", 800, 10, 10000);
-        
+
         TERRACOTTA_SOIL_CAPACITY = builder
+                .comment("Soil capacity for terracotta pot (in units)")
                 .defineInRange("terracotta_soil", 50, 10, 10000);
         CERAMIC_SOIL_CAPACITY = builder
+                .comment("Soil capacity for ceramic pot (in units)")
                 .defineInRange("ceramic_soil", 100, 10, 10000);
         IRON_SOIL_CAPACITY = builder
+                .comment("Soil capacity for iron pot (in units)")
                 .defineInRange("iron_soil", 200, 10, 10000);
         GOLDEN_SOIL_CAPACITY = builder
+                .comment("Soil capacity for golden pot (in units)")
                 .defineInRange("golden_soil", 400, 10, 10000);
         
         builder.pop();
