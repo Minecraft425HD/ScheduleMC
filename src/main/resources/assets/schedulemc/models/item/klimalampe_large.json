@@ -1,3 +1,6 @@
 {
-  "parent": "schedulemc:block/klimalampe_large"
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "schedulemc:item/klimalampe_large"
+  }
 }
