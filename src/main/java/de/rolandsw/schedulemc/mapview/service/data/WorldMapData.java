@@ -824,23 +824,22 @@ public class WorldMapData implements MapChangeListener {
                 this.cachedRegions.put(region.getKey(), RegionCache.emptyRegion);
                 region.cleanup();
                 iterator.remove();
-                }
             }
-
-            if (this.cachedRegionsPool.size() > this.options.getCacheSize()) {
-                this.cachedRegionsPool.sort(this.ageThenDistanceSorter);
-                List<RegionCache> toRemove = this.cachedRegionsPool.subList(this.options.getCacheSize(), this.cachedRegionsPool.size());
-
-                for (RegionCache cachedRegion : toRemove) {
-                    this.cachedRegions.remove(cachedRegion.getKey());
-                    cachedRegion.cleanup();
-                }
-
-                toRemove.clear();
-            }
-
-            this.compress();
         }
+
+        if (this.cachedRegionsPool.size() > this.options.getCacheSize()) {
+            this.cachedRegionsPool.sort(this.ageThenDistanceSorter);
+            List<RegionCache> toRemove = this.cachedRegionsPool.subList(this.options.getCacheSize(), this.cachedRegionsPool.size());
+
+            for (RegionCache cachedRegion : toRemove) {
+                this.cachedRegions.remove(cachedRegion.getKey());
+                cachedRegion.cleanup();
+            }
+
+            toRemove.clear();
+        }
+
+        this.compress();
     }
 
     public void compress() {
