@@ -98,12 +98,20 @@ public class BlockDatabase {
         // leafLitter = Blocks.LEAF_LITTER;
         leafLitter = null;
         biomeBlocksArray = new Block[]{grassBlock, oakLeaves, spruceLeaves, birchLeaves, jungleLeaves, acaciaLeaves, darkOakLeaves, mangroveLeaves, grass, fern, tallGrass, largeFern, reeds, vine, lilypad, tallFlower, water, leafLitter};
-        // SICHERHEIT: Thread-Safe Set für parallele Zugriffe
+        // SICHERHEIT: Thread-Safe Set für parallele Zugriffe (null-Werte filtern!)
         biomeBlocks = ConcurrentHashMap.newKeySet();
-        biomeBlocks.addAll(Arrays.asList(biomeBlocksArray));
+        for (Block block : biomeBlocksArray) {
+            if (block != null) {
+                biomeBlocks.add(block);
+            }
+        }
         shapedBlocksArray = new Block[]{ladder, vine};
         shapedBlocks = ConcurrentHashMap.newKeySet();
-        shapedBlocks.addAll(Arrays.asList(shapedBlocksArray));
+        for (Block block : shapedBlocksArray) {
+            if (block != null) {
+                shapedBlocks.add(block);
+            }
+        }
 
         for (Block block : BuiltInRegistries.BLOCK) {
             if (block instanceof DoorBlock || block instanceof SignBlock) {
