@@ -1,6 +1,6 @@
 package de.rolandsw.schedulemc.mushroom.blocks;
 
-import de.rolandsw.schedulemc.mushroom.blockentity.KlimalampeBlockEntity;
+import de.rolandsw.schedulemc.mushroom.blockentity.ClimateLampBlockEntity;
 import de.rolandsw.schedulemc.mushroom.blockentity.MushroomBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -20,21 +20,21 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Klimalampe-Block mit 3 Modi: Kalt, Warm, Aus
+ * ClimateLamp-Block mit 3 Modi: Kalt, Warm, Aus
  */
-public class KlimalampeBlock extends Block implements EntityBlock {
+public class ClimateLampBlock extends Block implements EntityBlock {
 
     public static final EnumProperty<TemperatureMode> MODE = EnumProperty.create("mode", TemperatureMode.class);
 
-    private final KlimalampeTier tier;
+    private final ClimateLampTier tier;
 
-    public KlimalampeBlock(KlimalampeTier tier, Properties properties) {
+    public ClimateLampBlock(ClimateLampTier tier, Properties properties) {
         super(properties);
         this.tier = tier;
         this.registerDefaultState(this.stateDefinition.any().setValue(MODE, TemperatureMode.OFF));
     }
 
-    public KlimalampeTier getTier() {
+    public ClimateLampTier getTier() {
         return tier;
     }
 
@@ -46,7 +46,7 @@ public class KlimalampeBlock extends Block implements EntityBlock {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new KlimalampeBlockEntity(pos, state, tier);
+        return new ClimateLampBlockEntity(pos, state, tier);
     }
 
     @Nullable
@@ -54,7 +54,7 @@ public class KlimalampeBlock extends Block implements EntityBlock {
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         if (level.isClientSide) return null;
         return (lvl, pos, st, be) -> {
-            if (be instanceof KlimalampeBlockEntity klimalampe) {
+            if (be instanceof ClimateLampBlockEntity klimalampe) {
                 klimalampe.tick();
             }
         };

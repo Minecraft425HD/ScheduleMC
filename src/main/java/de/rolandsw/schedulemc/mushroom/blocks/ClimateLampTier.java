@@ -1,12 +1,12 @@
 package de.rolandsw.schedulemc.mushroom.blocks;
 
 /**
- * Klimalampe-Stufen mit verschiedenen Eigenschaften
+ * ClimateLamp-Stufen mit verschiedenen Eigenschaften
  */
-public enum KlimalampeTier {
-    SMALL("Klimalampe", "§7", false, 0.0, 0.0),
-    MEDIUM("Auto-Klimalampe", "§e", true, 0.10, 0.0),
-    LARGE("Premium-Klimalampe", "§6", true, 0.25, 0.10);
+public enum ClimateLampTier {
+    SMALL("ClimateLamp", "§7", false, 0.0, 0.0),
+    MEDIUM("Auto-ClimateLamp", "§e", true, 0.10, 0.0),
+    LARGE("Premium-ClimateLamp", "§6", true, 0.25, 0.10);
 
     private final String displayName;
     private final String colorCode;
@@ -14,7 +14,7 @@ public enum KlimalampeTier {
     private final double growthBonus;
     private final double qualityBonus;
 
-    KlimalampeTier(String displayName, String colorCode, boolean automatic, double growthBonus, double qualityBonus) {
+    ClimateLampTier(String displayName, String colorCode, boolean automatic, double growthBonus, double qualityBonus) {
         this.displayName = displayName;
         this.colorCode = colorCode;
         this.automatic = automatic;

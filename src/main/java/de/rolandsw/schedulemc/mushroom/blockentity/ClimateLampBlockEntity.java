@@ -1,8 +1,8 @@
 package de.rolandsw.schedulemc.mushroom.blockentity;
 
 import de.rolandsw.schedulemc.mushroom.MushroomType;
-import de.rolandsw.schedulemc.mushroom.blocks.KlimalampeBlock;
-import de.rolandsw.schedulemc.mushroom.blocks.KlimalampeTier;
+import de.rolandsw.schedulemc.mushroom.blocks.ClimateLampBlock;
+import de.rolandsw.schedulemc.mushroom.blocks.ClimateLampTier;
 import de.rolandsw.schedulemc.mushroom.blocks.TemperatureMode;
 import de.rolandsw.schedulemc.production.blockentity.PlantPotBlockEntity;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;
@@ -14,24 +14,24 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * BlockEntity für Klimalampe - reguliert Temperatur für benachbarte Töpfe
+ * BlockEntity für ClimateLamp - reguliert Temperatur für benachbarte Töpfe
  */
-public class KlimalampeBlockEntity extends BlockEntity implements IUtilityConsumer {
+public class ClimateLampBlockEntity extends BlockEntity implements IUtilityConsumer {
 
     private boolean lastActiveState = false;
-    private final KlimalampeTier tier;
+    private final ClimateLampTier tier;
     private int tickCounter = 0;
 
-    public KlimalampeBlockEntity(BlockPos pos, BlockState state, KlimalampeTier tier) {
+    public ClimateLampBlockEntity(BlockPos pos, BlockState state, ClimateLampTier tier) {
         super(MushroomBlockEntities.KLIMALAMPE.get(), pos, state);
         this.tier = tier;
     }
 
-    public KlimalampeBlockEntity(BlockPos pos, BlockState state) {
-        this(pos, state, KlimalampeTier.SMALL);
+    public ClimateLampBlockEntity(BlockPos pos, BlockState state) {
+        this(pos, state, ClimateLampTier.SMALL);
     }
 
-    public KlimalampeTier getTier() {
+    public ClimateLampTier getTier() {
         return tier;
     }
 
@@ -64,14 +64,14 @@ public class KlimalampeBlockEntity extends BlockEntity implements IUtilityConsum
         if (level == null) return;
 
         BlockState state = getBlockState();
-        TemperatureMode currentMode = state.getValue(KlimalampeBlock.MODE);
+        TemperatureMode currentMode = state.getValue(ClimateLampBlock.MODE);
 
         // Prüfe benachbarte Töpfe auf Pilzkulturen
         TemperatureMode neededMode = detectNeededMode();
 
         // Nur ändern wenn nötig
         if (neededMode != currentMode) {
-            level.setBlock(worldPosition, state.setValue(KlimalampeBlock.MODE, neededMode), 3);
+            level.setBlock(worldPosition, state.setValue(ClimateLampBlock.MODE, neededMode), 3);
         }
     }
 
@@ -116,7 +116,7 @@ public class KlimalampeBlockEntity extends BlockEntity implements IUtilityConsum
      * Gibt aktuellen Temperatur-Modus zurück
      */
     public TemperatureMode getCurrentMode() {
-        return getBlockState().getValue(KlimalampeBlock.MODE);
+        return getBlockState().getValue(ClimateLampBlock.MODE);
     }
 
     /**

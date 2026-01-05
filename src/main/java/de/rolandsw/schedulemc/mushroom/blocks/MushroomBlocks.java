@@ -22,28 +22,35 @@ public class MushroomBlocks {
             DeferredRegister.create(ForgeRegistries.ITEMS, ScheduleMC.MOD_ID);
 
     // ═══════════════════════════════════════════════════════════
-    // KLIMALAMPEN (3 Stufen)
+    // CLIMATE LAMPS (3 Tiers)
     // ═══════════════════════════════════════════════════════════
-    public static final RegistryObject<Block> KLIMALAMPE_SMALL = BLOCKS.register("klimalampe_small",
-            () -> new KlimalampeBlock(KlimalampeTier.SMALL,
+    public static final RegistryObject<Block> CLIMATE_LAMP_SMALL = BLOCKS.register("klimalampe_small",
+            () -> new ClimateLampBlock(ClimateLampTier.SMALL,
                     BlockBehaviour.Properties.of()
                             .strength(2.0f)
                             .sound(SoundType.METAL)
                             .noOcclusion()));
 
-    public static final RegistryObject<Block> KLIMALAMPE_MEDIUM = BLOCKS.register("klimalampe_medium",
-            () -> new KlimalampeBlock(KlimalampeTier.MEDIUM,
+    public static final RegistryObject<Block> CLIMATE_LAMP_MEDIUM = BLOCKS.register("klimalampe_medium",
+            () -> new ClimateLampBlock(ClimateLampTier.MEDIUM,
                     BlockBehaviour.Properties.of()
                             .strength(2.5f)
                             .sound(SoundType.METAL)
                             .noOcclusion()));
 
-    public static final RegistryObject<Block> KLIMALAMPE_LARGE = BLOCKS.register("klimalampe_large",
-            () -> new KlimalampeBlock(KlimalampeTier.LARGE,
+    public static final RegistryObject<Block> CLIMATE_LAMP_LARGE = BLOCKS.register("klimalampe_large",
+            () -> new ClimateLampBlock(ClimateLampTier.LARGE,
                     BlockBehaviour.Properties.of()
                             .strength(3.0f)
                             .sound(SoundType.METAL)
                             .noOcclusion()));
+
+    /** @deprecated Use {@link #CLIMATE_LAMP_SMALL} */
+    @Deprecated public static final RegistryObject<Block> KLIMALAMPE_SMALL = CLIMATE_LAMP_SMALL;
+    /** @deprecated Use {@link #CLIMATE_LAMP_MEDIUM} */
+    @Deprecated public static final RegistryObject<Block> KLIMALAMPE_MEDIUM = CLIMATE_LAMP_MEDIUM;
+    /** @deprecated Use {@link #CLIMATE_LAMP_LARGE} */
+    @Deprecated public static final RegistryObject<Block> KLIMALAMPE_LARGE = CLIMATE_LAMP_LARGE;
 
     // ═══════════════════════════════════════════════════════════
     // WASSERTANK
@@ -58,14 +65,21 @@ public class MushroomBlocks {
     // ═══════════════════════════════════════════════════════════
     // BLOCK ITEMS
     // ═══════════════════════════════════════════════════════════
-    public static final RegistryObject<Item> KLIMALAMPE_SMALL_ITEM = ITEMS.register("klimalampe_small",
-            () -> new BlockItem(KLIMALAMPE_SMALL.get(), new Item.Properties()));
+    public static final RegistryObject<Item> CLIMATE_LAMP_SMALL_ITEM = ITEMS.register("klimalampe_small",
+            () -> new BlockItem(CLIMATE_LAMP_SMALL.get(), new Item.Properties()));
 
-    public static final RegistryObject<Item> KLIMALAMPE_MEDIUM_ITEM = ITEMS.register("klimalampe_medium",
-            () -> new BlockItem(KLIMALAMPE_MEDIUM.get(), new Item.Properties()));
+    public static final RegistryObject<Item> CLIMATE_LAMP_MEDIUM_ITEM = ITEMS.register("klimalampe_medium",
+            () -> new BlockItem(CLIMATE_LAMP_MEDIUM.get(), new Item.Properties()));
 
-    public static final RegistryObject<Item> KLIMALAMPE_LARGE_ITEM = ITEMS.register("klimalampe_large",
-            () -> new BlockItem(KLIMALAMPE_LARGE.get(), new Item.Properties()));
+    public static final RegistryObject<Item> CLIMATE_LAMP_LARGE_ITEM = ITEMS.register("klimalampe_large",
+            () -> new BlockItem(CLIMATE_LAMP_LARGE.get(), new Item.Properties()));
+
+    /** @deprecated Use {@link #CLIMATE_LAMP_SMALL_ITEM} */
+    @Deprecated public static final RegistryObject<Item> KLIMALAMPE_SMALL_ITEM = CLIMATE_LAMP_SMALL_ITEM;
+    /** @deprecated Use {@link #CLIMATE_LAMP_MEDIUM_ITEM} */
+    @Deprecated public static final RegistryObject<Item> KLIMALAMPE_MEDIUM_ITEM = CLIMATE_LAMP_MEDIUM_ITEM;
+    /** @deprecated Use {@link #CLIMATE_LAMP_LARGE_ITEM} */
+    @Deprecated public static final RegistryObject<Item> KLIMALAMPE_LARGE_ITEM = CLIMATE_LAMP_LARGE_ITEM;
 
     public static final RegistryObject<Item> WASSERTANK_ITEM = ITEMS.register("wassertank",
             () -> new BlockItem(WASSERTANK.get(), new Item.Properties()));
