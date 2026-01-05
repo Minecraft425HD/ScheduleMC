@@ -3,8 +3,23 @@ import de.rolandsw.schedulemc.config.ModConfigHandler;
 
 import de.rolandsw.schedulemc.vehicle.Main;
 import de.rolandsw.schedulemc.config.Fuel;
-import de.rolandsw.schedulemc.vehicle.entity.vehicle.components.*;
-import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.*;
+import de.rolandsw.schedulemc.vehicle.entity.vehicle.components.BatteryComponent;
+import de.rolandsw.schedulemc.vehicle.entity.vehicle.components.DamageComponent;
+import de.rolandsw.schedulemc.vehicle.entity.vehicle.components.FuelComponent;
+import de.rolandsw.schedulemc.vehicle.entity.vehicle.components.InventoryComponent;
+import de.rolandsw.schedulemc.vehicle.entity.vehicle.components.PhysicsComponent;
+import de.rolandsw.schedulemc.vehicle.entity.vehicle.components.SecurityComponent;
+import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.Part;
+import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartBody;
+import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartContainer;
+import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartEngine;
+import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartIndustrialMotor;
+import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartLicensePlateHolder;
+import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartModel;
+import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartTank;
+import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartTankContainer;
+import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartTireBase;
+import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartTruckChassis;
 import de.rolandsw.schedulemc.vehicle.items.IVehiclePart;
 import de.rolandsw.schedulemc.vehicle.items.ItemKey;
 import de.rolandsw.schedulemc.vehicle.sounds.ModSounds;
@@ -36,7 +51,14 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3d;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Main vehicle entity using component-based architecture.

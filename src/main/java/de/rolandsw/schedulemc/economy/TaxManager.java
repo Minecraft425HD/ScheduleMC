@@ -14,7 +14,10 @@ import net.minecraft.network.chat.Component;
 
 import java.io.File;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**

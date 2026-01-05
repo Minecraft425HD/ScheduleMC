@@ -1,7 +1,13 @@
 package de.rolandsw.schedulemc.warehouse.network;
 
 import de.rolandsw.schedulemc.ScheduleMC;
-import de.rolandsw.schedulemc.warehouse.network.packet.*;
+import de.rolandsw.schedulemc.warehouse.network.packet.AddItemToSlotPacket;
+import de.rolandsw.schedulemc.warehouse.network.packet.AddSellerPacket;
+import de.rolandsw.schedulemc.warehouse.network.packet.AutoFillPacket;
+import de.rolandsw.schedulemc.warehouse.network.packet.ClearSlotPacket;
+import de.rolandsw.schedulemc.warehouse.network.packet.ModifySlotPacket;
+import de.rolandsw.schedulemc.warehouse.network.packet.RemoveSellerPacket;
+import de.rolandsw.schedulemc.warehouse.network.packet.UpdateSettingsPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkRegistry;

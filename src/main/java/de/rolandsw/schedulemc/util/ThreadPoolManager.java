@@ -3,7 +3,17 @@ package de.rolandsw.schedulemc.util;
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
 
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -182,6 +192,47 @@ public class ThreadPoolManager {
      */
     public static Future<?> submitIO(Runnable task) {
         return IO_POOL.submit(task);
+    }
+
+    /**
+     * Führt IO-Task mit automatischem Retry aus (3 Versuche, Exponential Backoff)
+     *
+     * SICHERHEIT: Verhindert Datenverlust bei temporären I/O-Fehlern
+     * - Retry 1: nach 500ms
+     * - Retry 2: nach 1000ms
+     * - Retry 3: nach 2000ms
+     *
+     * @param task Der auszuführende Task
+     * @param taskName Name für Logging
+     * @return CompletableFuture mit Ergebnis
+     */
+    public static CompletableFuture<Void> submitIOWithRetry(Runnable task, String taskName) {
+        return CompletableFuture.runAsync(task, IO_POOL)
+            .exceptionally(error1 -> {
+                LOGGER.warn("[RETRY 1/3] {} failed, retrying in 500ms: {}", taskName, error1.getMessage());
+                try {
+                    Thread.sleep(500);
+                    task.run();
+                    LOGGER.info("[RETRY 1/3] {} succeeded", taskName);
+                } catch (Exception error2) {
+                    LOGGER.warn("[RETRY 2/3] {} failed, retrying in 1000ms: {}", taskName, error2.getMessage());
+                    try {
+                        Thread.sleep(1000);
+                        task.run();
+                        LOGGER.info("[RETRY 2/3] {} succeeded", taskName);
+                    } catch (Exception error3) {
+                        LOGGER.warn("[RETRY 3/3] {} failed, retrying in 2000ms: {}", taskName, error3.getMessage());
+                        try {
+                            Thread.sleep(2000);
+                            task.run();
+                            LOGGER.info("[RETRY 3/3] {} succeeded", taskName);
+                        } catch (Exception error4) {
+                            LOGGER.error("[FAILED] {} failed after 3 retries - DATA LOSS POSSIBLE!", taskName, error4);
+                        }
+                    }
+                }
+                return null;
+            });
     }
 
     /**

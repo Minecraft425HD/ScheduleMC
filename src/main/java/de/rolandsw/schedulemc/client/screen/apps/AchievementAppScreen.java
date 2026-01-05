@@ -1,7 +1,7 @@
 package de.rolandsw.schedulemc.client.screen.apps;
 
 import com.mojang.logging.LogUtils;
-import de.rolandsw.schedulemc.achievement.*;
+import de.rolandsw.schedulemc.achievement.AchievementCategory;
 import de.rolandsw.schedulemc.achievement.client.ClientAchievementCache;
 import de.rolandsw.schedulemc.achievement.network.AchievementData;
 import de.rolandsw.schedulemc.achievement.network.AchievementNetworkHandler;
@@ -15,7 +15,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.slf4j.Logger;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Achievement-App - Vollständige Achievement-Verwaltung auf dem Smartphone

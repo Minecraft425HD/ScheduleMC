@@ -1,10 +1,19 @@
 package de.rolandsw.schedulemc.vehicle.gui;
+import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.Part;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.vehicle.Main;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
-import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.*;
+import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartBody;
+import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartBumper;
+import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartChromeBumper;
+import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartEngine;
+import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartRegistry;
+import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartSportBumper;
+import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartTank;
+import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartTireBase;
 import de.rolandsw.schedulemc.vehicle.items.IVehiclePart;
 import de.rolandsw.schedulemc.vehicle.net.MessageGaragePayment;
 import de.rolandsw.schedulemc.vehicle.net.MessageGarageUpgrade;
@@ -19,12 +28,14 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
+import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class GuiGarage extends ScreenBase<ContainerGarage> {
 
+    private static final Logger LOGGER = LogUtils.getLogger();
     private static final ResourceLocation GARAGE_GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(Main.MODID, "textures/gui/gui_garage.png");
     private static final ResourceLocation FALLBACK_TEXTURE = ResourceLocation.fromNamespaceAndPath(Main.MODID, "textures/gui/gui_vehicle.png");
 
@@ -65,6 +76,22 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
     private Button upgradeFenderButton;
     private List<Button> paintColorButtons = new ArrayList<>();
     private int selectedPaintColor = 0; // 0-4: white, black, red, blue, yellow
+
+    /**
+     * Helper-Methode: Widgets asynchron nach Delay neu aufbauen
+     * CODE-QUALITÄT: Vermeidet Code-Duplikation & proper Exception-Handling
+     */
+    private void refreshWidgetsAsync(int delayMs) {
+        minecraft.execute(() -> {
+            try {
+                Thread.sleep(delayMs);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                LOGGER.warn("Widget refresh interrupted", e);
+            }
+            this.rebuildWidgets();
+        });
+    }
 
     public GuiGarage(ContainerGarage containerGarage, Inventory playerInv, Component title) {
         super(GARAGE_GUI_TEXTURE, containerGarage, playerInv, title);
@@ -185,11 +212,7 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
                 Component.literal(String.format("Motor Lvl %d: %.0f€", motorLevel + 1, motorCost)),
                 button -> {
                     sendUpgrade(UpgradeType.MOTOR, motorLevel + 1);
-                    // Refresh GUI after upgrade
-                    minecraft.execute(() -> {
-                        try { Thread.sleep(100); } catch (InterruptedException e) {}
-                        this.rebuildWidgets();
-                    });
+                    refreshWidgetsAsync(100);
                 })
                 .bounds(btnX, btnY, btnWidth, btnHeight)
                 .build()
@@ -207,11 +230,7 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
                 Component.literal(String.format("Tank Lvl %d: %.0f€", tankLevel + 1, tankCost)),
                 button -> {
                     sendUpgrade(UpgradeType.TANK, tankLevel + 1);
-                    // Refresh GUI after upgrade
-                    minecraft.execute(() -> {
-                        try { Thread.sleep(100); } catch (InterruptedException e) {}
-                        this.rebuildWidgets();
-                    });
+                    refreshWidgetsAsync(100);
                 })
                 .bounds(btnX, btnY, btnWidth, btnHeight)
                 .build()
@@ -227,11 +246,7 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
                     ModConfigHandler.COMMON.GARAGE_TIRE_UPGRADE_COST.get())),
                 button -> {
                     sendUpgrade(UpgradeType.TIRE, currentTire + 1);
-                    // Refresh GUI after upgrade
-                    minecraft.execute(() -> {
-                        try { Thread.sleep(100); } catch (InterruptedException e) {}
-                        this.rebuildWidgets();
-                    });
+                    refreshWidgetsAsync(100);
                 })
                 .bounds(btnX, btnY, btnWidth, btnHeight)
                 .build()
@@ -249,11 +264,7 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
                 Component.literal(String.format("Fender Lvl %d: %.0f€", fenderLevel + 1, fenderCost)),
                 button -> {
                     sendUpgrade(UpgradeType.FENDER, fenderLevel + 1);
-                    // Refresh GUI after upgrade
-                    minecraft.execute(() -> {
-                        try { Thread.sleep(100); } catch (InterruptedException e) {}
-                        this.rebuildWidgets();
-                    });
+                    refreshWidgetsAsync(100);
                 })
                 .bounds(btnX, btnY, btnWidth, btnHeight)
                 .build()

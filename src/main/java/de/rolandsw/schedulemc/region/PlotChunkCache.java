@@ -6,10 +6,22 @@ import net.minecraft.world.level.ChunkPos;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Collection;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.ArrayList;
 
 /**
  * Plot Chunk Cache - Performance-Optimierung für Plot-Lookups

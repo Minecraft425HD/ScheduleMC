@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.npc.network;
 
 import de.rolandsw.schedulemc.util.PacketHandler;
+import de.rolandsw.schedulemc.util.RateLimiter;
 import de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager;
 import de.rolandsw.schedulemc.vehicle.fuel.FuelStationRegistry;
 import de.rolandsw.schedulemc.vehicle.items.ItemSpawnVehicle;
@@ -26,8 +27,13 @@ import java.util.function.Supplier;
 
 /**
  * Packet für Item-Kauf von Verkäufer-NPCs
+ *
+ * SICHERHEIT: Rate Limiting gegen DoS/Spam-Angriffe
  */
 public class PurchaseItemPacket {
+
+    // SICHERHEIT: Rate Limiter - Max 20 Käufe pro Sekunde (verhindert Spam/Exploits)
+    private static final RateLimiter PURCHASE_RATE_LIMITER = new RateLimiter("purchase", 20, 1000);
     private final int merchantEntityId;
     private final int itemIndex;
     private final int quantity;
@@ -54,6 +60,13 @@ public class PurchaseItemPacket {
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         PacketHandler.handleServerPacket(ctx, player -> {
+            // SICHERHEIT: Rate Limiting - verhindere Spam/DoS-Angriffe
+            if (!PURCHASE_RATE_LIMITER.allowOperation(player.getUUID())) {
+                player.sendSystemMessage(Component.literal("⚠ Zu viele Kaufversuche! Bitte langsamer.")
+                    .withStyle(ChatFormatting.RED));
+                return;
+            }
+
             Entity entity = player.level().getEntity(merchantEntityId);
             if (entity instanceof CustomNPCEntity merchant) {
                 processPurchase(player, merchant, itemIndex, quantity);

@@ -8,9 +8,13 @@ import de.rolandsw.schedulemc.meth.items.MethItems;
 import de.rolandsw.schedulemc.mushroom.items.MushroomItems;
 import de.rolandsw.schedulemc.poppy.items.PoppyItems;
 import de.rolandsw.schedulemc.tobacco.items.TobaccoItems;
+import de.rolandsw.schedulemc.util.SecureRandomUtil;
 import net.minecraft.world.item.Item;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -117,18 +121,18 @@ public class PriceManager {
         // Entferne abgelaufene Events
         removeExpiredEvents();
 
-        // 10% Chance auf neues Event
-        if (Math.random() < 0.1) {
+        // 10% Chance auf neues Event (SICHERHEIT: SecureRandom statt Math.random())
+        if (SecureRandomUtil.chance(0.1)) {
             triggerRandomEvent();
         }
     }
 
     /**
      * Triggert zufälliges Event aus dem Event-Pool
+     * SICHERHEIT: Verwendet SecureRandom für unvorhersagbare Event-Auswahl
      */
     private static void triggerRandomEvent() {
-        Random random = new Random();
-        int eventType = random.nextInt(12);
+        int eventType = SecureRandomUtil.nextInt(12);
 
         EconomicEvent event = switch (eventType) {
             // ═══════════════════════════════════════════════════════════

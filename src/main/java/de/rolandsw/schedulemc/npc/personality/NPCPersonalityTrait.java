@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.npc.personality;
 
+import de.rolandsw.schedulemc.util.SecureRandomUtil;
 import net.minecraft.nbt.CompoundTag;
 
 /**
@@ -128,16 +129,18 @@ public enum NPCPersonalityTrait {
 
     /**
      * Sollte NPC Polizei rufen?
+     * SICHERHEIT: Verwendet SecureRandom für unvorhersagbare NPC-Entscheidungen
      */
     public boolean shouldCallPolice() {
-        return Math.random() < policeCallChance;
+        return SecureRandomUtil.chance(policeCallChance);
     }
 
     /**
      * Sollte NPC Gratis-Item geben?
+     * SICHERHEIT: Verwendet SecureRandom für unvorhersagbare NPC-Entscheidungen
      */
     public boolean shouldGiveFreeItem() {
-        return Math.random() < freeItemChance;
+        return SecureRandomUtil.chance(freeItemChance);
     }
 
     /**
@@ -160,9 +163,11 @@ public enum NPCPersonalityTrait {
      * - GENEROUS: 15%
      * - GREEDY: 15%
      * - SUSPICIOUS: 10%
+     *
+     * SICHERHEIT: Verwendet SecureRandom für unvorhersagbare Trait-Generierung
      */
     public static NPCPersonalityTrait random() {
-        double rand = Math.random();
+        double rand = SecureRandomUtil.nextDouble();
 
         if (rand < 0.40) return NEUTRAL;        // 40%
         if (rand < 0.60) return FRIENDLY;       // 20%

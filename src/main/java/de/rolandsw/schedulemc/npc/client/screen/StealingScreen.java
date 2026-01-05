@@ -1,5 +1,7 @@
 package de.rolandsw.schedulemc.npc.client.screen;
 
+import de.rolandsw.schedulemc.util.SecureRandomUtil;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
@@ -132,8 +134,8 @@ public class StealingScreen extends AbstractContainerScreen<StealingMenu> {
                 targetZoneSize = minZone; // Sehr schwer
             }
 
-            // Zufällige Target-Position
-            targetPosition = 0.3f + (float)(Math.random() * 0.4f);
+            // Zufällige Target-Position (SICHERHEIT: SecureRandom)
+            targetPosition = 0.3f + (float)(SecureRandomUtil.nextDouble(0.4));
         }
     }
 
