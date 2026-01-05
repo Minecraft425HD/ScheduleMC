@@ -5,6 +5,7 @@ import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import net.minecraft.server.level.ServerLevel;
 import org.slf4j.Logger;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;

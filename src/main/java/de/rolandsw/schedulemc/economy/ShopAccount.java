@@ -13,6 +13,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Shop-Konto mit 7-Tage-Tracking und Aktien-System
