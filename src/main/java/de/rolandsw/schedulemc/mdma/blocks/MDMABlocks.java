@@ -24,12 +24,12 @@ public class MDMABlocks {
             DeferredRegister.create(ForgeRegistries.ITEMS, ScheduleMC.MOD_ID);
 
     // ═══════════════════════════════════════════════════════════
-    // REAKTIONS-KESSEL (Schritt 1)
+    // REACTION CAULDRON (Step 1)
     // ═══════════════════════════════════════════════════════════
 
-    public static final RegistryObject<Block> REAKTIONS_KESSEL = registerBlockWithItem(
-            "reaktions_kessel",
-            () -> new ReaktionsKesselBlock(
+    public static final RegistryObject<Block> REACTION_CAULDRON = registerBlockWithItem(
+            "reaktions_kessel", // Keep registry name for backwards compatibility
+            () -> new ReactionCauldronBlock(
                     BlockBehaviour.Properties.of()
                             .strength(3.5f)
                             .sound(SoundType.METAL)
@@ -38,13 +38,19 @@ public class MDMABlocks {
             )
     );
 
+    /**
+     * @deprecated Use {@link #REACTION_CAULDRON} instead
+     */
+    @Deprecated
+    public static final RegistryObject<Block> REAKTIONS_KESSEL = REACTION_CAULDRON;
+
     // ═══════════════════════════════════════════════════════════
-    // TROCKNUNGS-OFEN (Schritt 2)
+    // DRYING OVEN (Step 2)
     // ═══════════════════════════════════════════════════════════
 
-    public static final RegistryObject<Block> TROCKNUNGS_OFEN = registerBlockWithItem(
-            "trocknungs_ofen",
-            () -> new TrocknungsOfenBlock(
+    public static final RegistryObject<Block> DRYING_OVEN = registerBlockWithItem(
+            "trocknungs_ofen", // Keep registry name for backwards compatibility
+            () -> new DryingOvenBlock(
                     BlockBehaviour.Properties.of()
                             .strength(3.5f)
                             .sound(SoundType.METAL)
@@ -52,6 +58,12 @@ public class MDMABlocks {
                             .lightLevel(state -> 8)
             )
     );
+
+    /**
+     * @deprecated Use {@link #DRYING_OVEN} instead
+     */
+    @Deprecated
+    public static final RegistryObject<Block> TROCKNUNGS_OFEN = DRYING_OVEN;
 
     // ═══════════════════════════════════════════════════════════
     // PILLEN-PRESSE (Schritt 3) - Mit Timing-Minigame!
