@@ -43,7 +43,9 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class TileEntityFuelStation extends TileEntityBase implements ITickableBlockEntity, IFluidHandler, ISoundLoopable {

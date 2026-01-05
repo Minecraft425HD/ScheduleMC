@@ -11,18 +11,12 @@ import net.minecraft.network.chat.Component;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.UUID;
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * Verwaltet Kredite für Spieler

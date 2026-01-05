@@ -9,18 +9,12 @@ import net.minecraft.server.level.ServerPlayer;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.UUID;
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * Verwaltet das erweiterte Kredit-System mit Bonitätsprüfung
