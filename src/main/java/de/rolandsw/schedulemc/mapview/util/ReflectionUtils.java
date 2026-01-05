@@ -52,7 +52,10 @@ public final class ReflectionUtils {
                     try {
                         field.setAccessible(true);
                         return field.get(o);
-                    } catch (IllegalAccessException ignored) {}
+                    } catch (IllegalAccessException e) {
+                        // Field is not accessible even after setAccessible(true), likely due to security manager
+                        // This is expected in some JVM configurations, continue to next field
+                    }
                 }
 
                 ++counter;

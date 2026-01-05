@@ -53,7 +53,9 @@ public class DimensionService {
         if (dim.type == null) {
             try {
                 dim.type = world.dimensionType();
-            } catch (RuntimeException ignored) {}
+            } catch (RuntimeException e) {
+                MapViewConstants.getLogger().debug("Failed to get dimension type for {}: {}", resourceLocation, e.getMessage());
+            }
         }
 
     }

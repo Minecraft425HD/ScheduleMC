@@ -38,7 +38,9 @@ public class WorldMapConfiguration implements SubSettingsManager {
             }
 
             in.close();
-        } catch (IOException ignored) {}
+        } catch (IOException e) {
+            MapViewConstants.getLogger().debug("Could not load worldmap settings from {}, using defaults", settingsFile);
+        }
 
         for (int power = -3; power <= 5; ++power) {
             if (Math.pow(2.0, power) == this.minZoom) {

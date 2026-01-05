@@ -69,7 +69,10 @@ public class BountyCommand {
 
                 int rank = 1;
                 for (BountyData bounty : bounties) {
-                    String targetName = "Spieler"; // TODO: Get player name
+                    // Get player name from server (UUID -> name lookup)
+                    String targetName = server.getProfileCache() != null && bounty.getTargetPlayer() != null
+                        ? server.getProfileCache().get(bounty.getTargetPlayer()).map(p -> p.getName()).orElse("Unknown Player")
+                        : "Unknown Player";
 
                     player.sendSystemMessage(Component.literal(
                         String.format(

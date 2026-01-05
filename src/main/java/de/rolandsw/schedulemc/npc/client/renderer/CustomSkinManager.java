@@ -30,7 +30,9 @@ public class CustomSkinManager {
                 try {
                     Minecraft.getInstance().getTextureManager().release(eldest.getValue());
                     ScheduleMC.LOGGER.debug("LRU evicted skin: {}", eldest.getKey());
-                } catch (Exception ignored) {}
+                } catch (Exception e) {
+                    ScheduleMC.LOGGER.debug("Failed to release texture for evicted skin {}: {}", eldest.getKey(), e.getMessage());
+                }
                 return true;
             }
             return false;

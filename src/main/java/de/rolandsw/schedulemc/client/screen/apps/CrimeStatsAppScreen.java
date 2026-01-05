@@ -113,7 +113,10 @@ public class CrimeStatsAppScreen extends Screen {
         // Bail Cost (1000€ pro Stern)
         bailCost = wantedLevel * BAIL_COST_PER_STAR;
 
-        // TODO: Check if being chased (würde Server-Packet benötigen)
+        // FEATURE REQUEST: Accurate chase status tracking
+        // Currently using wanted level as proxy. For accurate tracking,
+        // implement server-side packet to sync active police chase state
+        // to client. See PoliceAIHandler for server-side chase logic.
         isBeingChased = wantedLevel > 0;
     }
 

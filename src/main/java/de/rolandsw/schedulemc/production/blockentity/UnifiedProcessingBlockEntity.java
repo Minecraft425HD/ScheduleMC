@@ -153,17 +153,23 @@ public class UnifiedProcessingBlockEntity extends BlockEntity {
 
     /**
      * Erstellt Output-Item basierend auf Config
+     *
+     * IMPLEMENTATION NOTE: This is a placeholder for future item registry integration.
+     * When implementing, connect this to the mod's item registry system to properly
+     * resolve outputItemId to actual ItemStacks with the correct quality attributes.
+     *
+     * Expected behavior:
+     * 1. Resolve outputItemId from item registry
+     * 2. Create ItemStack with appropriate NBT data for quality
+     * 3. Return properly configured ItemStack
      */
     protected ItemStack createOutput(int slotIndex, ProductionConfig.ProcessingStageConfig stageConfig) {
-        // TODO: Item-Registry Integration
-        // Aktuell Placeholder - muss mit ModItems verbunden werden
-
         String outputItemId = stageConfig.getOutputItem();
         GenericQuality quality = qualities[slotIndex];
 
-        // Erstelle ItemStack basierend auf outputItemId
-        // Dies wird in der finalen Version mit dem Item Registry verbunden
-        ItemStack output = ItemStack.EMPTY;  // Placeholder
+        // Placeholder implementation - requires item registry integration
+        // See method documentation for implementation requirements
+        ItemStack output = ItemStack.EMPTY;
 
         LOGGER.debug("Created output: {} ({})", outputItemId, quality != null ? quality.getDisplayName() : "unknown");
 

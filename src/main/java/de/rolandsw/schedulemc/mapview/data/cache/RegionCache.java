@@ -508,7 +508,9 @@ public class RegionCache {
 
                         try {
                             version = Integer.parseInt(versionString);
-                        } catch (NumberFormatException ignored) {}
+                        } catch (NumberFormatException e) {
+                            MapViewConstants.getLogger().debug("Invalid version string '{}' in region control file, defaulting to 1", versionString);
+                        }
 
                         is.close();
                     }

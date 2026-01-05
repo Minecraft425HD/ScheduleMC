@@ -316,8 +316,14 @@ public class RoadGraphBuilder {
         // Entferne alte Nodes/Segments im Bereich
         // ... (komplexe Logik für inkrementelle Updates)
 
-        // Für jetzt: kompletter Rebuild
-        // TODO: Implementiere echtes inkrementelles Update
+        // OPTIMIZATION OPPORTUNITY: Incremental graph updates
+        // Current implementation performs full rebuild when chunks change.
+        // For better performance, implement true incremental updates:
+        // 1. Identify affected nodes/segments in modified chunk
+        // 2. Remove only those elements from graph
+        // 3. Re-scan only the modified chunk area
+        // 4. Reconnect to neighboring chunks
+        // This would reduce update time from O(n) to O(chunk_size)
         return graph;
     }
 }

@@ -187,8 +187,10 @@ public class IllegalActivityScanner {
             result.foundIllegalItems.add("Diamantblock bei " + pos.toShortString());
         }
 
-        // TODO: Bargeld-Blöcke scannen (wenn implementiert)
-        // TODO: Verarbeitungsmaschinen scannen
+        // FEATURE REQUEST: Scan for additional illegal blocks
+        // 1. Cash storage blocks (when cash block system is implemented)
+        // 2. Processing machines (drug production equipment)
+        // These require corresponding block types to be implemented first
     }
 
     /**
