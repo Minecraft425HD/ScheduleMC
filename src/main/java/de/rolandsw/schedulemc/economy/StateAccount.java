@@ -1,6 +1,6 @@
 package de.rolandsw.schedulemc.economy;
 
-import com.google.gson.*;
+import com.google.gson.GsonBuilder;
 import com.mojang.logging.LogUtils;
 import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
