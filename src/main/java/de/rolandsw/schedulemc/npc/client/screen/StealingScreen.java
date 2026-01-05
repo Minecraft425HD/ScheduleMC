@@ -303,17 +303,12 @@ public class StealingScreen extends AbstractContainerScreen<StealingMenu> {
                     minecraft.player.displayClientMessage(Component.literal("§c✗ Diebstahl fehlgeschlagen!"), true);
                 }
 
-                // Schließe GUI nach 2 Sekunden
-                new Thread(() -> {
-                    try {
-                        Thread.sleep(2000);
-                        if (minecraft != null) {
-                            minecraft.execute(this::onClose);
-                        }
-                    } catch (InterruptedException e) {
-                        // Ignore
+                // Schließe GUI nach 2 Sekunden (using ThreadPoolManager)
+                de.rolandsw.schedulemc.util.ThreadPoolManager.executeScheduled(() -> {
+                    if (minecraft != null) {
+                        minecraft.execute(this::onClose);
                     }
-                }).start();
+                }, 2000, java.util.concurrent.TimeUnit.MILLISECONDS);
             } else {
                 // Noch ein Versuch
                 if (minecraft != null && minecraft.player != null) {
