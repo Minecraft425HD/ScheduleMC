@@ -1,7 +1,7 @@
 package de.rolandsw.schedulemc.client.screen.apps;
 
 import com.mojang.logging.LogUtils;
-import de.rolandsw.schedulemc.achievement.*;
+import de.rolandsw.schedulemc.achievement.AchievementCategory;
 import de.rolandsw.schedulemc.achievement.client.ClientAchievementCache;
 import de.rolandsw.schedulemc.achievement.network.AchievementData;
 import de.rolandsw.schedulemc.achievement.network.AchievementNetworkHandler;
