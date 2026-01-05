@@ -4,7 +4,9 @@ import net.minecraft.core.BlockPos;
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**

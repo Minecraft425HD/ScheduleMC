@@ -6,7 +6,9 @@ import net.minecraft.world.level.ChunkPos;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;

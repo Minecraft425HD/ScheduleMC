@@ -14,8 +14,11 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.slf4j.Logger;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
