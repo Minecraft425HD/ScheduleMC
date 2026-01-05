@@ -36,7 +36,7 @@ public class ItemBioDieselCanister extends Item {
      * Creates a pre-filled ItemStack with 150 mB of Bio-Diesel
      */
     public static ItemStack createPreFilledStack() {
-        ItemStack stack = new ItemStack(ModItems.BIO_DIESEL_CANISTER.get());
+        ItemStack stack = new ItemStack(VehicleItems.BIO_DIESEL_CANISTER.get());
         CompoundTag comp = stack.getOrCreateTag();
         FluidStack bioDiesel = new FluidStack(ModFluids.BIO_DIESEL.get(), MAX_FUEL);
         comp.put("fuel", bioDiesel.writeToNBT(new CompoundTag()));

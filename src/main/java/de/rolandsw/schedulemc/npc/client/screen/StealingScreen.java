@@ -304,7 +304,7 @@ public class StealingScreen extends AbstractContainerScreen<StealingMenu> {
                 }
 
                 // Schließe GUI nach 2 Sekunden (using ThreadPoolManager)
-                de.rolandsw.schedulemc.util.ThreadPoolManager.executeScheduled(() -> {
+                de.rolandsw.schedulemc.util.ThreadPoolManager.schedule(() -> {
                     if (minecraft != null) {
                         minecraft.execute(this::onClose);
                     }

@@ -44,55 +44,55 @@ public class ItemSpawnVehicle extends Item {
         List<ItemStack> parts = new ArrayList<>();
 
         // Add body
-        parts.add(new ItemStack(ModItems.LIMOUSINE_CHASSIS.get())); // Placeholder, will be replaced
+        parts.add(new ItemStack(VehicleItems.LIMOUSINE_CHASSIS.get())); // Placeholder, will be replaced
 
         // Determine which body to use based on the bodyPart
         if (bodyPart == PartRegistry.LIMOUSINE_CHASSIS) {
-            parts.set(0, new ItemStack(ModItems.LIMOUSINE_CHASSIS.get()));
+            parts.set(0, new ItemStack(VehicleItems.LIMOUSINE_CHASSIS.get()));
         } else if (bodyPart == PartRegistry.VAN_CHASSIS) {
-            parts.set(0, new ItemStack(ModItems.VAN_CHASSIS.get()));
+            parts.set(0, new ItemStack(VehicleItems.VAN_CHASSIS.get()));
         } else if (bodyPart == PartRegistry.TRUCK_CHASSIS) {
-            parts.set(0, new ItemStack(ModItems.TRUCK_CHASSIS.get()));
+            parts.set(0, new ItemStack(VehicleItems.TRUCK_CHASSIS.get()));
         } else if (bodyPart == PartRegistry.OFFROAD_CHASSIS) {
-            parts.set(0, new ItemStack(ModItems.OFFROAD_CHASSIS.get()));
+            parts.set(0, new ItemStack(VehicleItems.OFFROAD_CHASSIS.get()));
         } else if (bodyPart == PartRegistry.LUXUS_CHASSIS) {
-            parts.set(0, new ItemStack(ModItems.LUXUS_CHASSIS.get()));
+            parts.set(0, new ItemStack(VehicleItems.LUXUS_CHASSIS.get()));
         }
 
         // Add engine (Normal Motor)
-        parts.add(new ItemStack(ModItems.NORMAL_MOTOR.get()));
+        parts.add(new ItemStack(VehicleItems.NORMAL_MOTOR.get()));
 
         // Add wheels - different bodies have different wheel requirements
         if (bodyPart == PartRegistry.OFFROAD_CHASSIS) {
             // Offroad chassis needs 4 offroad tires
-            parts.add(new ItemStack(ModItems.OFFROAD_TIRE.get()));
-            parts.add(new ItemStack(ModItems.OFFROAD_TIRE.get()));
-            parts.add(new ItemStack(ModItems.OFFROAD_TIRE.get()));
-            parts.add(new ItemStack(ModItems.OFFROAD_TIRE.get()));
+            parts.add(new ItemStack(VehicleItems.OFFROAD_TIRE.get()));
+            parts.add(new ItemStack(VehicleItems.OFFROAD_TIRE.get()));
+            parts.add(new ItemStack(VehicleItems.OFFROAD_TIRE.get()));
+            parts.add(new ItemStack(VehicleItems.OFFROAD_TIRE.get()));
         } else if (bodyPart == PartRegistry.TRUCK_CHASSIS) {
             // Truck chassis needs 6 standard tires
-            parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
-            parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
-            parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
-            parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
-            parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
-            parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
+            parts.add(new ItemStack(VehicleItems.STANDARD_TIRE.get()));
+            parts.add(new ItemStack(VehicleItems.STANDARD_TIRE.get()));
+            parts.add(new ItemStack(VehicleItems.STANDARD_TIRE.get()));
+            parts.add(new ItemStack(VehicleItems.STANDARD_TIRE.get()));
+            parts.add(new ItemStack(VehicleItems.STANDARD_TIRE.get()));
+            parts.add(new ItemStack(VehicleItems.STANDARD_TIRE.get()));
         } else {
             // Limousine, Van, and Luxus chassis need 4 standard tires
-            parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
-            parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
-            parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
-            parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
+            parts.add(new ItemStack(VehicleItems.STANDARD_TIRE.get()));
+            parts.add(new ItemStack(VehicleItems.STANDARD_TIRE.get()));
+            parts.add(new ItemStack(VehicleItems.STANDARD_TIRE.get()));
+            parts.add(new ItemStack(VehicleItems.STANDARD_TIRE.get()));
         }
 
         // Add 15L tank
-        parts.add(new ItemStack(ModItems.TANK_15L.get()));
+        parts.add(new ItemStack(VehicleItems.TANK_15L.get()));
 
         // Add license plate
-        parts.add(new ItemStack(ModItems.LICENSE_PLATE.get()));
+        parts.add(new ItemStack(VehicleItems.LICENSE_PLATE.get()));
 
         // Add license plate holder
-        parts.add(new ItemStack(ModItems.LICENSE_PLATE_HOLDER.get()));
+        parts.add(new ItemStack(VehicleItems.LICENSE_PLATE_HOLDER.get()));
 
         // Create the vehicle using the factory's static method
         EntityGenericVehicle vehicle = VehicleFactory.createVehicle(world, parts);

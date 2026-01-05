@@ -114,7 +114,7 @@ public class WorldMapData implements MapChangeListener {
             this.newWorldStuff();
         } else {
             // Pause for 2 seconds before checking world again (using ThreadPoolManager)
-            de.rolandsw.schedulemc.util.ThreadPoolManager.executeScheduled(() -> {
+            de.rolandsw.schedulemc.util.ThreadPoolManager.schedule(() -> {
                 if (WorldMapData.this.world != null) {
                     WorldMapData.this.newWorldStuff();
                 }

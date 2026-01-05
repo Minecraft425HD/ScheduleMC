@@ -994,7 +994,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
      */
     private void scheduleRefresh() {
         // Schedule refresh after 250ms to allow server sync (using ThreadPoolManager)
-        de.rolandsw.schedulemc.util.ThreadPoolManager.executeScheduled(() -> {
+        de.rolandsw.schedulemc.util.ThreadPoolManager.schedule(() -> {
             // Execute on main thread
             minecraft.execute(() -> {
                 if (this.menu != null && this.menu.getWarehouse() != null) {
@@ -1009,7 +1009,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
      */
     private void scheduleRefreshForItemAddition() {
         // Schedule refresh after 500ms for item addition (using ThreadPoolManager)
-        de.rolandsw.schedulemc.util.ThreadPoolManager.executeScheduled(() -> {
+        de.rolandsw.schedulemc.util.ThreadPoolManager.schedule(() -> {
             // Execute on main thread - kompletter Refresh
             minecraft.execute(() -> {
                 if (this.menu != null && this.menu.getWarehouse() != null) {
