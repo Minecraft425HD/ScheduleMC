@@ -5,6 +5,7 @@ import de.rolandsw.schedulemc.economy.items.CashItem;
 import de.rolandsw.schedulemc.npc.crime.CrimeManager;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.util.PacketHandler;
+import de.rolandsw.schedulemc.util.SecureRandomUtil;
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
 import net.minecraft.network.FriendlyByteBuf;
@@ -125,8 +126,8 @@ public class StealingAttemptPacket {
                         }
 
                         if (!availableSlots.isEmpty()) {
-                            // Wähle zufälligen Slot
-                            int randomIndex = (int)(Math.random() * availableSlots.size());
+                            // Wähle zufälligen Slot (SICHERHEIT: SecureRandom statt Math.random())
+                            int randomIndex = SecureRandomUtil.nextInt(availableSlots.size());
                             int slot = availableSlots.get(randomIndex);
 
                             ItemStack stack = npc.getNpcData().getInventory().get(slot);
@@ -181,8 +182,8 @@ public class StealingAttemptPacket {
                             LOGGER.debug("[STEALING] Fehlgeschlagen - Player: {}", player.getName().getString());
                         }
 
-                        // 33% Chance: NPC attackiert Spieler
-                        if (Math.random() < 0.33) {
+                        // 33% Chance: NPC attackiert Spieler (SICHERHEIT: SecureRandom)
+                        if (SecureRandomUtil.chance(0.33)) {
                             npc.setTarget(player);
                             player.sendSystemMessage(Component.literal("§c⚠ " + npc.getNpcName() + " greift dich an!"));
                             if (LOGGER.isDebugEnabled()) {
@@ -222,8 +223,8 @@ public class StealingAttemptPacket {
                             detectionChance = Math.min(0.9, witnesses.size() * 0.15);
                         }
 
-                        if (Math.random() < detectionChance) {
-                            // Verbrechen wurde gesehen!
+                        if (SecureRandomUtil.chance(detectionChance)) {
+                            // Verbrechen wurde gesehen! (SICHERHEIT: SecureRandom)
                             CrimeManager.addWantedLevel(player.getUUID(), 2, currentDay);
 
                             int currentWantedLevel = CrimeManager.getWantedLevel(player.getUUID());

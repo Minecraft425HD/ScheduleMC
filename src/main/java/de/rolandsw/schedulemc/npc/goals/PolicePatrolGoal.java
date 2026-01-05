@@ -2,13 +2,13 @@ package de.rolandsw.schedulemc.npc.goals;
 
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
+import de.rolandsw.schedulemc.util.SecureRandomUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Goal: Polizist patrouilliert zwischen gesetzten Patrouillenpunkten
@@ -30,7 +30,6 @@ public class PolicePatrolGoal extends Goal {
     private int wanderTickCounter = 0;
     private int distanceCheckCounter = 0;
     private static final int WANDER_INTERVAL = 200; // Alle 10 Sekunden neues Wander-Ziel
-    private final Random random = new Random();
     private boolean hasArrived = false;
 
     public PolicePatrolGoal(CustomNPCEntity npc) {
@@ -221,9 +220,9 @@ public class PolicePatrolGoal extends Goal {
 
         int radius = ModConfigHandler.COMMON.POLICE_PATROL_RADIUS.get();
 
-        // Zufällige Position im Radius
-        int offsetX = random.nextInt(radius * 2 + 1) - radius;
-        int offsetZ = random.nextInt(radius * 2 + 1) - radius;
+        // Zufällige Position im Radius (SICHERHEIT: SecureRandom)
+        int offsetX = SecureRandomUtil.nextInt(radius * 2 + 1) - radius;
+        int offsetZ = SecureRandomUtil.nextInt(radius * 2 + 1) - radius;
 
         wanderTarget = currentTarget.offset(offsetX, 0, offsetZ);
 

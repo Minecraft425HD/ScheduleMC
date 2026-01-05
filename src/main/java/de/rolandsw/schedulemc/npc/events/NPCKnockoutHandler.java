@@ -4,6 +4,7 @@ import de.rolandsw.schedulemc.npc.crime.CrimeManager;
 import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.util.EventHelper;
+import de.rolandsw.schedulemc.util.SecureRandomUtil;
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
 import net.minecraft.network.chat.Component;
@@ -115,8 +116,8 @@ public class NPCKnockoutHandler {
                     detectionChance = Math.min(0.9, witnesses.size() * 0.15);
                 }
 
-                if (Math.random() < detectionChance) {
-                    // Verbrechen wurde gesehen!
+                if (SecureRandomUtil.chance(detectionChance)) {
+                    // Verbrechen wurde gesehen! (SICHERHEIT: SecureRandom)
                     long currentDay = npc.level().getDayTime() / 24000;
                     int starsToAdd;
                     String crimeType;

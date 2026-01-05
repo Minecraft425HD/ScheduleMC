@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
+import de.rolandsw.schedulemc.util.SecureRandomUtil;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Item;
@@ -16,7 +17,6 @@ import java.io.FileWriter;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 /**
  * Verwaltet Börsenpreise für handelbare Items
@@ -29,7 +29,6 @@ public class StockMarketData {
     private final Map<Item, StockPrice> prices = new HashMap<>();
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private final File saveFile;
-    private final Random random = new Random();
 
     private long currentDay = 0;
     private long lastPriceUpdate = 0;
@@ -131,6 +130,7 @@ public class StockMarketData {
 
     /**
      * Aktualisiert alle Preise mit zufälligen Schwankungen
+     * SICHERHEIT: Verwendet SecureRandom für unvorhersagbare Preisänderungen
      */
     private void updatePrices() {
         double maxChange = ModConfigHandler.COMMON.STOCK_MAX_PRICE_CHANGE_PERCENT.get();
@@ -142,7 +142,8 @@ public class StockMarketData {
             price.previousPrice = price.currentPrice;
 
             // Berechne zufällige Änderung (-maxChange bis +maxChange)
-            double changePercent = (random.nextDouble() * 2.0 - 1.0) * maxChange;
+            // SICHERHEIT: SecureRandom statt new Random()
+            double changePercent = (SecureRandomUtil.nextDouble() * 2.0 - 1.0) * maxChange;
             double changeAmount = price.currentPrice * changePercent;
 
             // Neuer Preis

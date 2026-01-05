@@ -1,5 +1,7 @@
 package de.rolandsw.schedulemc.poppy.data;
 
+import de.rolandsw.schedulemc.util.SecureRandomUtil;
+
 import de.rolandsw.schedulemc.poppy.PoppyType;
 import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
 
@@ -118,7 +120,7 @@ public class PoppyPlantData {
         // Afghanisch hat höhere Qualitäts-Chance
         upgradeChance *= type.getPotencyMultiplier();
 
-        if (Math.random() < upgradeChance) {
+        if (SecureRandomUtil.chance(upgradeChance)) {
             quality = quality.upgrade();
         }
     }

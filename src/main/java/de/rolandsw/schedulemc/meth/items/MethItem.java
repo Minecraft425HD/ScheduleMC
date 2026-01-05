@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.meth.items;
 
 import de.rolandsw.schedulemc.meth.MethQuality;
+import de.rolandsw.schedulemc.util.SecureRandomUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
@@ -70,10 +71,11 @@ public class MethItem extends Item {
     }
 
     private int getPurityPercent(MethQuality quality) {
+        // SICHERHEIT: SecureRandom für Reinheits-Berechnung
         return switch (quality) {
-            case STANDARD -> 70 + (int)(Math.random() * 10); // 70-79%
-            case GUT -> 80 + (int)(Math.random() * 10);      // 80-89%
-            case BLUE_SKY -> 96 + (int)(Math.random() * 4);  // 96-99%
+            case STANDARD -> 70 + SecureRandomUtil.nextInt(10); // 70-79%
+            case GUT -> 80 + SecureRandomUtil.nextInt(10);      // 80-89%
+            case BLUE_SKY -> 96 + SecureRandomUtil.nextInt(4);  // 96-99%
         };
     }
 

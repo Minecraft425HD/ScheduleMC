@@ -1,5 +1,7 @@
 package de.rolandsw.schedulemc.mushroom.data;
 
+import de.rolandsw.schedulemc.util.SecureRandomUtil;
+
 import de.rolandsw.schedulemc.mushroom.MushroomType;
 import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
 
@@ -83,7 +85,7 @@ public class MushroomPlantData {
             growthStage++;
 
             // Qualitätsverbesserung bei Wachstum
-            if (hasQualityBooster && Math.random() < 0.15) {
+            if (hasQualityBooster && SecureRandomUtil.chance(0.15)) {
                 upgradeQuality();
             }
         }
@@ -133,7 +135,7 @@ public class MushroomPlantData {
 
         // Zufällige Variation
         int variation = (int) (baseYield * 0.2);
-        baseYield += (int) (Math.random() * variation * 2) - variation;
+        baseYield += SecureRandomUtil.nextInt(variation * 2 + 1) - variation;
 
         return Math.min(10, Math.max(1, baseYield));
     }

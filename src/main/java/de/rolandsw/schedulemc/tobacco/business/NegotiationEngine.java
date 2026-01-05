@@ -5,17 +5,15 @@ import de.rolandsw.schedulemc.production.core.DrugType;
 import de.rolandsw.schedulemc.production.items.PackagedDrugItem;
 import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
 import de.rolandsw.schedulemc.tobacco.TobaccoType;
+import de.rolandsw.schedulemc.util.SecureRandomUtil;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 
-import java.util.Random;
-
 /**
  * Verhandlungs-Algorithmus
+ * SICHERHEIT: Verwendet SecureRandom für unvorhersagbare NPC-Entscheidungen
  */
 public class NegotiationEngine {
-
-    private static final Random random = new Random();
 
     private final TobaccoType type;
     private final TobaccoQuality quality;
@@ -77,7 +75,8 @@ public class NegotiationEngine {
             int satisfaction = metrics.getSatisfaction();
             double acceptChance = 0.3 + (satisfaction / 100.0 * 0.4) + (reputation / 100.0 * 0.3);
 
-            if (random.nextDouble() < acceptChance || round >= 3) {
+            // SICHERHEIT: SecureRandom für NPC-Entscheidungen
+            if (SecureRandomUtil.chance(acceptChance) || round >= 3) {
                 return new NPCResponse(
                     true,
                     playerOffer,
