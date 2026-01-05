@@ -5,7 +5,7 @@ import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartLicensePlateHolder;
 import de.rolandsw.schedulemc.vehicle.items.ItemKey;
 import de.rolandsw.schedulemc.vehicle.items.ItemLicensePlate;
-import de.rolandsw.schedulemc.vehicle.items.ModItems;
+import de.rolandsw.schedulemc.vehicle.items.VehicleItems;
 import de.rolandsw.schedulemc.vehicle.sounds.ModSounds;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -62,7 +62,7 @@ public class SecurityComponent extends VehicleComponent {
         }
 
         // Key binding
-        if (!isLocked() && player.isShiftKeyDown() && player.getAbilities().instabuild && !stack.isEmpty() && stack.getItem().equals(ModItems.KEY.get())) {
+        if (!isLocked() && player.isShiftKeyDown() && player.getAbilities().instabuild && !stack.isEmpty() && stack.getItem().equals(VehicleItems.KEY.get())) {
             UUID uuid = ItemKey.getVehicle(stack);
             if (uuid == null) {
                 ItemKey.setVehicle(stack, vehicle.getUUID());

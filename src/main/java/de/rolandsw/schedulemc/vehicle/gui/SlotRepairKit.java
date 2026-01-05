@@ -3,7 +3,7 @@ import de.rolandsw.schedulemc.config.ModConfigHandler;
 
 import de.rolandsw.schedulemc.vehicle.Main;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
-import de.rolandsw.schedulemc.vehicle.items.ModItems;
+import de.rolandsw.schedulemc.vehicle.items.VehicleItems;
 import de.rolandsw.schedulemc.vehicle.sounds.ModSounds;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Containers;
@@ -25,7 +25,7 @@ public class SlotRepairKit extends Slot {
 
     @Override
     public void set(ItemStack stack) {
-        if (!stack.getItem().equals(ModItems.REPAIR_KIT.get())) {
+        if (!stack.getItem().equals(VehicleItems.REPAIR_KIT.get())) {
             return;
         }
 
@@ -47,7 +47,7 @@ public class SlotRepairKit extends Slot {
 
     @Override
     public boolean mayPlace(ItemStack stack) {
-        return stack.getItem().equals(ModItems.REPAIR_KIT.get());
+        return stack.getItem().equals(VehicleItems.REPAIR_KIT.get());
     }
 
 }

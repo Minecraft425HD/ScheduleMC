@@ -223,24 +223,24 @@ public class MessageGarageUpgrade implements Message<MessageGarageUpgrade> {
      */
     private ItemStack getItemStackForPart(Part part) {
         // Map parts to their items
-        if (part == PartRegistry.NORMAL_MOTOR) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.NORMAL_MOTOR.get());
-        if (part == PartRegistry.PERFORMANCE_MOTOR) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.PERFORMANCE_MOTOR.get());
-        if (part == PartRegistry.INDUSTRIAL_MOTOR) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.INDUSTRIAL_MOTOR.get());
+        if (part == PartRegistry.NORMAL_MOTOR) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.VehicleItems.NORMAL_MOTOR.get());
+        if (part == PartRegistry.PERFORMANCE_MOTOR) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.VehicleItems.PERFORMANCE_MOTOR.get());
+        if (part == PartRegistry.INDUSTRIAL_MOTOR) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.VehicleItems.INDUSTRIAL_MOTOR.get());
 
-        if (part == PartRegistry.TANK_15L) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.TANK_15L.get());
-        if (part == PartRegistry.TANK_30L) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.TANK_30L.get());
-        if (part == PartRegistry.TANK_50L) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.TANK_50L.get());
+        if (part == PartRegistry.TANK_15L) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.VehicleItems.TANK_15L.get());
+        if (part == PartRegistry.TANK_30L) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.VehicleItems.TANK_30L.get());
+        if (part == PartRegistry.TANK_50L) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.VehicleItems.TANK_50L.get());
 
-        if (part == PartRegistry.STANDARD_TIRE) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.STANDARD_TIRE.get());
-        if (part == PartRegistry.SPORT_TIRE) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.SPORT_TIRE.get());
-        if (part == PartRegistry.PREMIUM_TIRE) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.PREMIUM_TIRE.get());
-        if (part == PartRegistry.OFFROAD_TIRE) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.OFFROAD_TIRE.get());
-        if (part == PartRegistry.ALLTERRAIN_TIRE) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.ALLTERRAIN_TIRE.get());
-        if (part == PartRegistry.HEAVY_DUTY_TIRE) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.HEAVY_DUTY_TIRE.get());
+        if (part == PartRegistry.STANDARD_TIRE) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.VehicleItems.STANDARD_TIRE.get());
+        if (part == PartRegistry.SPORT_TIRE) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.VehicleItems.SPORT_TIRE.get());
+        if (part == PartRegistry.PREMIUM_TIRE) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.VehicleItems.PREMIUM_TIRE.get());
+        if (part == PartRegistry.OFFROAD_TIRE) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.VehicleItems.OFFROAD_TIRE.get());
+        if (part == PartRegistry.ALLTERRAIN_TIRE) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.VehicleItems.ALLTERRAIN_TIRE.get());
+        if (part == PartRegistry.HEAVY_DUTY_TIRE) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.VehicleItems.HEAVY_DUTY_TIRE.get());
 
-        if (part == PartRegistry.FENDER_BASIC) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.FENDER_BASIC.get());
-        if (part == PartRegistry.FENDER_CHROME) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.FENDER_CHROME.get());
-        if (part == PartRegistry.FENDER_SPORT) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.FENDER_SPORT.get());
+        if (part == PartRegistry.FENDER_BASIC) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.VehicleItems.FENDER_BASIC.get());
+        if (part == PartRegistry.FENDER_CHROME) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.VehicleItems.FENDER_CHROME.get());
+        if (part == PartRegistry.FENDER_SPORT) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.VehicleItems.FENDER_SPORT.get());
 
         return ItemStack.EMPTY;
     }
