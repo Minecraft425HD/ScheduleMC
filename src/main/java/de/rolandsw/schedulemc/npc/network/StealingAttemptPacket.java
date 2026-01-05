@@ -30,9 +30,22 @@ public class StealingAttemptPacket {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
+    // Rate Limiting Constants
+    private static final int STEALING_MAX_ATTEMPTS = 5;
+    private static final int STEALING_WINDOW_MS = 10000;
+
+    // Theft Configuration
+    private static final double STEAL_MONEY_PERCENTAGE = 0.5;
+    private static final double NPC_ATTACK_CHANCE = 0.33;
+
+    // Detection Settings
+    private static final double WITNESS_DETECTION_RADIUS = 16.0;
+    private static final double DETECTION_CHANCE_PER_WITNESS = 0.15;
+    private static final double MAX_DETECTION_CHANCE = 0.9;
+
     // SICHERHEIT: Rate Limiter - Max 5 Diebstahlversuche pro 10 Sekunden
     // Verhindert Spam-Exploits und Server-Überlastung
-    private static final RateLimiter STEALING_RATE_LIMITER = new RateLimiter("stealing", 5, 10000);
+    private static final RateLimiter STEALING_RATE_LIMITER = new RateLimiter("stealing", STEALING_MAX_ATTEMPTS, STEALING_WINDOW_MS);
 
     private final int npcEntityId;
     private final boolean success;
@@ -89,7 +102,7 @@ public class StealingAttemptPacket {
                         }
 
                         if (npcWallet > 0) {
-                            int stolenAmount = (int)(npcWallet * 0.5);
+                            int stolenAmount = (int)(npcWallet * STEAL_MONEY_PERCENTAGE);
                             if (LOGGER.isDebugEnabled()) {
                                 LOGGER.debug("[STEALING] Berechnet 50%: {}€", stolenAmount);
                             }
@@ -199,7 +212,7 @@ public class StealingAttemptPacket {
                         }
 
                         // 33% Chance: NPC attackiert Spieler (SICHERHEIT: SecureRandom)
-                        if (SecureRandomUtil.chance(0.33)) {
+                        if (SecureRandomUtil.chance(NPC_ATTACK_CHANCE)) {
                             npc.setTarget(player);
                             player.sendSystemMessage(Component.literal("§c⚠ " + npc.getNpcName() + " greift dich an!"));
                             if (LOGGER.isDebugEnabled()) {
@@ -214,7 +227,7 @@ public class StealingAttemptPacket {
                     // Suche NPCs in 16 Block Radius
                     List<CustomNPCEntity> witnesses = player.level().getEntitiesOfClass(
                         CustomNPCEntity.class,
-                        AABB.ofSize(player.position(), 16, 16, 16)
+                        AABB.ofSize(player.position(), WITNESS_DETECTION_RADIUS, WITNESS_DETECTION_RADIUS, WITNESS_DETECTION_RADIUS)
                     );
 
                     // Entferne das Opfer aus der Zeugenliste
@@ -236,7 +249,7 @@ public class StealingAttemptPacket {
                             detectionChance = 1.0;
                         } else {
                             // Normale Zeugen: 15% pro Zeuge, max 90%
-                            detectionChance = Math.min(0.9, witnesses.size() * 0.15);
+                            detectionChance = Math.min(MAX_DETECTION_CHANCE, witnesses.size() * DETECTION_CHANCE_PER_WITNESS);
                         }
 
                         if (SecureRandomUtil.chance(detectionChance)) {

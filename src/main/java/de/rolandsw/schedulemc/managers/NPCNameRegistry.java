@@ -9,6 +9,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import org.slf4j.Logger;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -161,6 +162,7 @@ public class NPCNameRegistry {
      * @param name Der NPC-Name
      * @return Die Entity-ID oder null wenn nicht gefunden
      */
+    @Nullable
     public static Integer getEntityId(String name) {
         if (name == null) return null;
         return nameToEntityId.get(name.trim());
@@ -173,6 +175,7 @@ public class NPCNameRegistry {
      * @param level Das ServerLevel
      * @return Der gefundene CustomNPCEntity oder null
      */
+    @Nullable
     public static CustomNPCEntity findNPCByName(String name, ServerLevel level) {
         Integer entityId = getEntityId(name);
         if (entityId == null) return null;

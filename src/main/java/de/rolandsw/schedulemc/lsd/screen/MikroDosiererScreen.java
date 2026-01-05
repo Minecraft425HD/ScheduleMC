@@ -14,6 +14,25 @@ import org.jetbrains.annotations.NotNull;
  */
 public class MikroDosiererScreen extends AbstractContainerScreen<MikroDosiererMenu> {
 
+    // Color Constants
+    private static final int COLOR_BACKGROUND_DARK_BLUE = 0xFF1A1A2E;
+    private static final int COLOR_BACKGROUND_MEDIUM_BLUE = 0xFF2D2D44;
+    private static final int COLOR_HEADER_DARK_BLUE = 0xFF16213E;
+    private static final int COLOR_SLIDER_FRAME = 0xFF555577;
+    private static final int COLOR_SLIDER_BACKGROUND = 0xFF3D3D5C;
+    private static final int COLOR_DOSAGE_WEAK_GRAY = 0xFF777777;
+    private static final int COLOR_DOSAGE_STANDARD_GREEN = 0xFF55AA55;
+    private static final int COLOR_DOSAGE_STRONG_YELLOW = 0xFFAAAA55;
+    private static final int COLOR_DOSAGE_BICYCLE_MAGENTA = 0xFFAA55AA;
+    private static final int COLOR_SLIDER_HANDLE_WHITE = 0xFFFFFFFF;
+    private static final int COLOR_SLIDER_HANDLE_LIGHT = 0xFFDDDDDD;
+    private static final int COLOR_BUTTON_PROCESSING = 0xFF444466;
+    private static final int COLOR_BUTTON_HOVERED_BLUE = 0xFF5577AA;
+    private static final int COLOR_BUTTON_ACTIVE_BLUE = 0xFF446699;
+    private static final int COLOR_BUTTON_DISABLED = 0xFF333355;
+    private static final int COLOR_BUTTON_BORDER = 0xFF222244;
+    private static final int COLOR_TITLE_MAGENTA = 0xFFDD88FF;
+
     private static final int GUI_WIDTH = 220;
     private static final int GUI_HEIGHT = 160;
 
@@ -50,11 +69,11 @@ public class MikroDosiererScreen extends AbstractContainerScreen<MikroDosiererMe
         int y = this.topPos;
 
         // Haupthintergrund
-        graphics.fill(x, y, x + GUI_WIDTH, y + GUI_HEIGHT, 0xFF1A1A2E);
-        graphics.fill(x + 3, y + 3, x + GUI_WIDTH - 3, y + GUI_HEIGHT - 3, 0xFF2D2D44);
+        graphics.fill(x, y, x + GUI_WIDTH, y + GUI_HEIGHT, COLOR_BACKGROUND_DARK_BLUE);
+        graphics.fill(x + 3, y + 3, x + GUI_WIDTH - 3, y + GUI_HEIGHT - 3, COLOR_BACKGROUND_MEDIUM_BLUE);
 
         // Header
-        graphics.fill(x + 3, y + 3, x + GUI_WIDTH - 3, y + 22, 0xFF16213E);
+        graphics.fill(x + 3, y + 3, x + GUI_WIDTH - 3, y + 22, COLOR_HEADER_DARK_BLUE);
 
         // Slider rendern
         renderSlider(graphics, x + SLIDER_X, y + SLIDER_Y, mouseX, mouseY);
@@ -68,27 +87,27 @@ public class MikroDosiererScreen extends AbstractContainerScreen<MikroDosiererMe
 
     private void renderSlider(GuiGraphics graphics, int x, int y, int mouseX, int mouseY) {
         // Slider Hintergrund mit Zonen
-        graphics.fill(x - 1, y - 1, x + SLIDER_WIDTH + 1, y + SLIDER_HEIGHT + 1, 0xFF555577);
-        graphics.fill(x, y, x + SLIDER_WIDTH, y + SLIDER_HEIGHT, 0xFF3D3D5C);
+        graphics.fill(x - 1, y - 1, x + SLIDER_WIDTH + 1, y + SLIDER_HEIGHT + 1, COLOR_SLIDER_FRAME);
+        graphics.fill(x, y, x + SLIDER_WIDTH, y + SLIDER_HEIGHT, COLOR_SLIDER_BACKGROUND);
 
         // Zonen-Markierungen (Schwach, Standard, Stark, Bicycle Day)
         int zoneWidth = SLIDER_WIDTH / 4;
 
         // Schwach (Grau)
-        graphics.fill(x, y + 2, x + zoneWidth, y + SLIDER_HEIGHT - 2, 0xFF777777);
+        graphics.fill(x, y + 2, x + zoneWidth, y + SLIDER_HEIGHT - 2, COLOR_DOSAGE_WEAK_GRAY);
         // Standard (Grün)
-        graphics.fill(x + zoneWidth, y + 2, x + zoneWidth * 2, y + SLIDER_HEIGHT - 2, 0xFF55AA55);
+        graphics.fill(x + zoneWidth, y + 2, x + zoneWidth * 2, y + SLIDER_HEIGHT - 2, COLOR_DOSAGE_STANDARD_GREEN);
         // Stark (Gelb)
-        graphics.fill(x + zoneWidth * 2, y + 2, x + zoneWidth * 3, y + SLIDER_HEIGHT - 2, 0xFFAAAA55);
+        graphics.fill(x + zoneWidth * 2, y + 2, x + zoneWidth * 3, y + SLIDER_HEIGHT - 2, COLOR_DOSAGE_STRONG_YELLOW);
         // Bicycle Day (Magenta)
-        graphics.fill(x + zoneWidth * 3, y + 2, x + SLIDER_WIDTH, y + SLIDER_HEIGHT - 2, 0xFFAA55AA);
+        graphics.fill(x + zoneWidth * 3, y + 2, x + SLIDER_WIDTH, y + SLIDER_HEIGHT - 2, COLOR_DOSAGE_BICYCLE_MAGENTA);
 
         // Slider-Handle
         int sliderValue = menu.getSliderValue();
         int handleX = x + (int) ((sliderValue / 100.0) * (SLIDER_WIDTH - 10));
 
-        graphics.fill(handleX - 1, y - 3, handleX + 11, y + SLIDER_HEIGHT + 3, 0xFFFFFFFF);
-        graphics.fill(handleX, y - 2, handleX + 10, y + SLIDER_HEIGHT + 2, 0xFFDDDDDD);
+        graphics.fill(handleX - 1, y - 3, handleX + 11, y + SLIDER_HEIGHT + 3, COLOR_SLIDER_HANDLE_WHITE);
+        graphics.fill(handleX, y - 2, handleX + 10, y + SLIDER_HEIGHT + 2, COLOR_SLIDER_HANDLE_LIGHT);
 
         // Labels unter dem Slider
         graphics.drawString(this.font, "50μg", x, y + SLIDER_HEIGHT + 5, 0x888888, false);
@@ -102,7 +121,7 @@ public class MikroDosiererScreen extends AbstractContainerScreen<MikroDosiererMe
 
         // Info-Box
         int infoY = y + 85;
-        graphics.fill(x + 30, infoY, x + GUI_WIDTH - 30, infoY + 20, 0xFF16213E);
+        graphics.fill(x + 30, infoY, x + GUI_WIDTH - 30, infoY + 20, COLOR_HEADER_DARK_BLUE);
 
         // Dosierung anzeigen
         String dosageText = micrograms + "μg - " + dosage.getDisplayName();
@@ -128,17 +147,17 @@ public class MikroDosiererScreen extends AbstractContainerScreen<MikroDosiererMe
 
         int buttonColor;
         if (menu.isProcessing()) {
-            buttonColor = 0xFF444466;
+            buttonColor = COLOR_BUTTON_PROCESSING;
         } else if (canStart && hovered) {
-            buttonColor = 0xFF5577AA;
+            buttonColor = COLOR_BUTTON_HOVERED_BLUE;
         } else if (canStart) {
-            buttonColor = 0xFF446699;
+            buttonColor = COLOR_BUTTON_ACTIVE_BLUE;
         } else {
-            buttonColor = 0xFF333355;
+            buttonColor = COLOR_BUTTON_DISABLED;
         }
 
         // Button
-        graphics.fill(x - 1, y - 1, x + BUTTON_WIDTH + 1, y + BUTTON_HEIGHT + 1, 0xFF222244);
+        graphics.fill(x - 1, y - 1, x + BUTTON_WIDTH + 1, y + BUTTON_HEIGHT + 1, COLOR_BUTTON_BORDER);
         graphics.fill(x, y, x + BUTTON_WIDTH, y + BUTTON_HEIGHT, buttonColor);
 
         // Button Text
@@ -164,7 +183,7 @@ public class MikroDosiererScreen extends AbstractContainerScreen<MikroDosiererMe
         int y = this.topPos;
 
         // Titel
-        graphics.drawString(this.font, "§d⚗ §lMIKRO-DOSIERER", x + 10, y + 8, 0xFFDD88FF, true);
+        graphics.drawString(this.font, "§d⚗ §lMIKRO-DOSIERER", x + 10, y + 8, COLOR_TITLE_MAGENTA, true);
 
         // Beschreibung
         graphics.drawString(this.font, "§7Wähle die Dosierung:", x + 30, y + 35, 0xAAAAAA, false);

@@ -7,6 +7,7 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import org.slf4j.Logger;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -130,6 +131,7 @@ public class VehicleSpawnRegistry {
     /**
      * Findet einen freien Spawn-Punkt für einen Händler
      */
+    @Nullable
     public static VehicleSpawnPoint findFreeSpawnPoint(UUID dealerId) {
         List<VehicleSpawnPoint> points = getSpawnPoints(dealerId);
         for (VehicleSpawnPoint point : points) {

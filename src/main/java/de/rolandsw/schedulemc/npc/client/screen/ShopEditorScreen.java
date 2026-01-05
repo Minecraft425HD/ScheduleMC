@@ -26,6 +26,11 @@ import java.util.List;
 @OnlyIn(Dist.CLIENT)
 public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
 
+    // UI Color Constants
+    private static final int COLOR_BACKGROUND_GRAY = 0xFF8B8B8B;  // Main background color
+    private static final int COLOR_PANEL_DARK_GRAY = 0xFF373737;  // Panel backgrounds (grid, table, hotbar)
+    private static final int COLOR_OUTLINE_BLACK = 0xFF000000;    // Border outline color
+
     private static final ResourceLocation TEXTURE =
         ResourceLocation.fromNamespaceAndPath("minecraft", "textures/gui/container/generic_54.png");
 
@@ -271,19 +276,19 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
         int y = (height - imageHeight) / 2;
 
         // Haupthintergrund
-        guiGraphics.fill(x, y, x + imageWidth, y + imageHeight, 0xFF8B8B8B);
+        guiGraphics.fill(x, y, x + imageWidth, y + imageHeight, COLOR_BACKGROUND_GRAY);
 
         // Item-Grid Hintergrund (4x4)
-        guiGraphics.fill(x + 6, y + 16, x + 80, y + 90, 0xFF373737);
+        guiGraphics.fill(x + 6, y + 16, x + 80, y + 90, COLOR_PANEL_DARK_GRAY);
 
         // Tabelle Hintergrund (4 Zeilen mit 28px Abstand - kompakt)
-        guiGraphics.fill(x + 88, y + 14, x + 304, y + 142, 0xFF373737);
+        guiGraphics.fill(x + 88, y + 14, x + 304, y + 142, COLOR_PANEL_DARK_GRAY);
 
         // Hotbar Hintergrund (9 Slots) - rechts neben Item-Grid
-        guiGraphics.fill(x + 88, y + 150, x + 250, y + 176, 0xFF373737);
+        guiGraphics.fill(x + 88, y + 150, x + 250, y + 176, COLOR_PANEL_DARK_GRAY);
 
         // Rahmen
-        guiGraphics.renderOutline(x, y, imageWidth, imageHeight, 0xFF000000);
+        guiGraphics.renderOutline(x, y, imageWidth, imageHeight, COLOR_OUTLINE_BLACK);
     }
 
     @Override

@@ -32,6 +32,9 @@ public class IncrementalSaveManager {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
+    // Time Conversion Constants
+    private static final long TICK_TO_MS_CONVERSION = 50L;  // Minecraft ticks to milliseconds (1 tick = 50ms)
+
     // ═══════════════════════════════════════════════════════════
     // SAVEABLE INTERFACE
     // ═══════════════════════════════════════════════════════════
@@ -143,8 +146,8 @@ public class IncrementalSaveManager {
         if (running.compareAndSet(false, true)) {
             ScheduledFuture<?> future = ThreadPoolManager.getScheduledPool().scheduleAtFixedRate(
                 this::incrementalSaveTick,
-                saveIntervalTicks * 50L,  // Initial delay (ms)
-                saveIntervalTicks * 50L,  // Period (ms)
+                saveIntervalTicks * TICK_TO_MS_CONVERSION,  // Initial delay (ms)
+                saveIntervalTicks * TICK_TO_MS_CONVERSION,  // Period (ms)
                 TimeUnit.MILLISECONDS
             );
             scheduledTask.set(future);

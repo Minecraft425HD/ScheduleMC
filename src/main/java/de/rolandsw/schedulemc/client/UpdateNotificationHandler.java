@@ -30,10 +30,15 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Mod.EventBusSubscriber(modid = ScheduleMC.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class UpdateNotificationHandler {
+    // Time Constants
+    private static final int CHECK_DELAY_TICKS = 100; // 5 seconds delay (100 ticks at 20 ticks/sec)
+
+    // UI Dimension Constants
+    private static final int BUTTON_WIDTH = 120;      // Update button width
+    private static final int BUTTON_HEIGHT = 20;      // Update button height
 
     private static volatile boolean hasChecked = false;
     private static volatile int tickCounter = 0;
-    private static final int CHECK_DELAY = 100; // 5 Sekunden (20 ticks/sec)
     // SICHERHEIT: ConcurrentHashMap.newKeySet() für Thread-safe Set
     private static final Set<UUID> notifiedPlayers = ConcurrentHashMap.newKeySet();
 
@@ -45,7 +50,7 @@ public class UpdateNotificationHandler {
             }
 
             tickCounter++;
-            if (tickCounter >= CHECK_DELAY) {
+            if (tickCounter >= CHECK_DELAY_TICKS) {
                 hasChecked = true;
                 VersionChecker.checkForUpdates();
                 ScheduleMC.LOGGER.info("Started version check");
@@ -72,8 +77,8 @@ public class UpdateNotificationHandler {
             int height = screen.height;
 
             // Position für den Update-Button (oben rechts)
-            int buttonWidth = 120;
-            int buttonHeight = 20;
+            int buttonWidth = BUTTON_WIDTH;
+            int buttonHeight = BUTTON_HEIGHT;
             int buttonX = width - buttonWidth - 5;
             int buttonY = 5;
 

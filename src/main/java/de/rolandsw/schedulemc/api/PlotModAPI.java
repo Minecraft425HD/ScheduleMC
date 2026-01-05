@@ -7,6 +7,7 @@ import de.rolandsw.schedulemc.region.PlotRegion;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 
@@ -82,6 +83,7 @@ public class PlotModAPI {
         /**
          * Gibt den Plot an einer Position zurück
          */
+        @Nullable
         public static PlotRegion getPlotAt(BlockPos pos) {
             for (PlotRegion plot : PlotManager.getPlots()) {
                 if (plot.contains(pos)) {
@@ -94,6 +96,7 @@ public class PlotModAPI {
         /**
          * Gibt den Plot an Spieler-Position zurück
          */
+        @Nullable
         public static PlotRegion getPlotAt(ServerPlayer player) {
             return getPlotAt(player.blockPosition());
         }
@@ -148,6 +151,7 @@ public class PlotModAPI {
         /**
          * Gibt Plot-Namen zurück
          */
+        @Nullable
         public static String getPlotName(BlockPos pos) {
             PlotRegion plot = getPlotAt(pos);
             return plot != null ? plot.getPlotName() : null;

@@ -11,6 +11,7 @@ import de.rolandsw.schedulemc.util.InputValidation;
 import net.minecraft.core.BlockPos;
 import org.slf4j.Logger;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -44,6 +45,10 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
     private PlotManager() {}
 
     private static final Logger LOGGER = LogUtils.getLogger();
+
+    // Cache Configuration
+    private static final int DEFAULT_PLOT_CACHE_SIZE = 1000;
+
     private static final Map<String, PlotRegion> plots = new ConcurrentHashMap<>();
     private static final File PLOTS_FILE = new File("config/plotmod_plots.json");
     private static final Gson GSON = GsonHelper.get();
@@ -52,7 +57,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
     private static final PlotSpatialIndex spatialIndex = new PlotSpatialIndex();
 
     // Plot-Cache für Performance-Optimierung
-    private static final PlotCache plotCache = new PlotCache(1000);
+    private static final PlotCache plotCache = new PlotCache(DEFAULT_PLOT_CACHE_SIZE);
 
     // SICHERHEIT: volatile für Memory Visibility zwischen Threads (IncrementalSaveManager)
     private static volatile boolean dirty = false;
@@ -66,26 +71,38 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
     // ═══════════════════════════════════════════════════════════
     
     /**
-     * Erstellt Plot aus zwei BlockPos (für Selection Tool)
+     * Creates a plot region from two corner positions with the specified price.
      *
-     * @param pos1 Erste Position
-     * @param pos2 Zweite Position
-     * @param price Preis des Plots
-     * @return Der erstellte Plot
+     * This is a convenience method for creating residential plots using the selection tool.
+     * The method automatically calculates the minimum and maximum bounds from the two positions.
+     * The plot is assigned an auto-generated ID and type RESIDENTIAL.
+     *
+     * @param pos1 The first corner position of the plot region
+     * @param pos2 The second corner position of the plot region (opposite corner)
+     * @param price The purchase price for the plot (must be non-negative)
+     * @return The newly created PlotRegion instance
+     * @throws IllegalArgumentException if the region dimensions are invalid or price is negative
      */
     public static PlotRegion createPlot(BlockPos pos1, BlockPos pos2, double price) {
         return createPlot(pos1, pos2, null, PlotType.RESIDENTIAL, price);
     }
 
     /**
-     * Erstellt Plot mit Namen und Typ
+     * Creates a plot region with full configuration including custom name and type.
      *
-     * @param pos1 Erste Position
-     * @param pos2 Zweite Position
-     * @param customName Optionaler Name (wenn null, wird auto-generiert)
-     * @param type Plot-Typ
-     * @param price Preis des Plots (0 für nicht-kaufbare Typen)
-     * @return Der erstellte Plot
+     * This method provides complete control over plot creation including custom naming,
+     * plot type specification, and pricing. Input validation is performed on all parameters
+     * including region dimensions, name format, and price. The plot is automatically added
+     * to the spatial index for efficient lookups. If the plot type is a shop, a shop account
+     * is automatically created.
+     *
+     * @param pos1 The first corner position of the plot region
+     * @param pos2 The second corner position of the plot region (opposite corner)
+     * @param customName Optional custom name for the plot (if null or empty, auto-generates "plot_N")
+     * @param type The type of plot (RESIDENTIAL, COMMERCIAL, SHOP, etc.)
+     * @param price The purchase price for the plot (0 for non-purchasable types, must be non-negative)
+     * @return The newly created PlotRegion instance
+     * @throws IllegalArgumentException if region dimensions are invalid, name format is invalid, or price is negative
      */
     public static PlotRegion createPlot(BlockPos pos1, BlockPos pos2, String customName, PlotType type, double price) {
         // SICHERHEIT: Validiere Eingaben
@@ -167,6 +184,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
      * @param pos Die Position
      * @return Der Plot oder null
      */
+    @Nullable
     public static PlotRegion getPlotAt(BlockPos pos) {
         // 1. Cache-Lookup (schnellster Pfad)
         PlotRegion cached = plotCache.get(pos);
@@ -204,31 +222,53 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
     }
     
     /**
-     * Gibt Plot nach ID zurück
-     * 
-     * @param plotId Die Plot-ID
-     * @return Der Plot oder null
+     * Retrieves a plot by its unique identifier.
+     *
+     * This method performs a direct O(1) lookup in the plot map using the plot ID.
+     * The plot ID is case-sensitive and must match exactly.
+     *
+     * @param plotId The unique identifier of the plot to retrieve
+     * @return The PlotRegion with the specified ID, or null if no plot exists with that ID
      */
     public static PlotRegion getPlot(String plotId) {
         return plots.get(plotId);
     }
     
     /**
-     * Prüft ob ein Plot mit dieser ID existiert
+     * Checks if a plot with the specified ID exists in the system.
+     *
+     * This is a thread-safe O(1) lookup operation that checks for plot existence
+     * without retrieving the full plot data.
+     *
+     * @param plotId The unique identifier of the plot to check
+     * @return true if a plot with this ID exists, false otherwise
      */
     public static boolean hasPlot(String plotId) {
         return plots.containsKey(plotId);
     }
     
     /**
-     * Gibt alle Plots zurück
+     * Retrieves all plots registered in the system.
+     *
+     * Returns a defensive copy as a new ArrayList to prevent external modification
+     * of the internal plot collection. The list includes all plots regardless of
+     * ownership, type, or availability status.
+     *
+     * @return A new ArrayList containing all PlotRegion instances in the system
      */
     public static List<PlotRegion> getPlots() {
         return new ArrayList<>(plots.values());
     }
     
     /**
-     * Gibt alle Plots eines Besitzers zurück
+     * Retrieves all plots owned by the specified player.
+     *
+     * This method filters the plot collection to return only plots where the specified
+     * player is registered as the owner. The returned list is a new collection that can
+     * be safely modified without affecting the plot manager.
+     *
+     * @param ownerUUID The unique identifier of the player whose plots should be retrieved
+     * @return A List of PlotRegion instances owned by the specified player (empty list if player owns no plots)
      */
     public static List<PlotRegion> getPlotsByOwner(UUID ownerUUID) {
         return plots.values().stream()
@@ -237,7 +277,13 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
     }
     
     /**
-     * Gibt alle verfügbaren (kaufbaren) Plots zurück
+     * Retrieves all plots that are currently available for purchase.
+     *
+     * Returns plots that do not have an owner assigned. These are plots that players
+     * can potentially purchase or claim. The returned list does not include plots that
+     * are already owned, even if they might be for sale by their owner.
+     *
+     * @return A List of unowned PlotRegion instances (empty list if no plots are available)
      */
     public static List<PlotRegion> getAvailablePlots() {
         return plots.values().stream()
@@ -246,7 +292,13 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
     }
     
     /**
-     * Gibt alle zum Verkauf stehenden Plots zurück
+     * Retrieves all plots that are currently listed for sale.
+     *
+     * This includes both initially available plots and plots being resold by their owners.
+     * A plot is considered "for sale" if it has the forSale flag set, regardless of
+     * ownership status.
+     *
+     * @return A List of PlotRegion instances that are for sale (empty list if none available)
      */
     public static List<PlotRegion> getPlotsForSale() {
         return plots.values().stream()
@@ -279,7 +331,14 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
     // ═══════════════════════════════════════════════════════════
     
     /**
-     * Fügt einen Plot hinzu
+     * Adds a plot to the plot management system.
+     *
+     * This method registers the plot in the main plot map and adds it to the spatial
+     * index for efficient position-based lookups. The plot cache is invalidated for the
+     * region covered by the new plot. The manager is marked as dirty to ensure the
+     * changes are persisted.
+     *
+     * @param plot The PlotRegion instance to add to the system
      */
     public static void addPlot(PlotRegion plot) {
         plots.put(plot.getPlotId(), plot);
@@ -292,7 +351,14 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
     }
 
     /**
-     * Entfernt einen Plot
+     * Removes a plot from the plot management system by its ID.
+     *
+     * This method removes the plot from the main plot map, the spatial index, and
+     * invalidates all cache entries associated with the plot. The manager is marked
+     * as dirty to ensure the changes are persisted. This operation cannot be undone.
+     *
+     * @param plotId The unique identifier of the plot to remove
+     * @return true if the plot was found and removed, false if no plot exists with the specified ID
      */
     public static boolean removePlot(String plotId) {
         PlotRegion removed = plots.remove(plotId);
@@ -310,7 +376,14 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
     }
     
     /**
-     * Entfernt einen Plot an einer Position
+     * Removes the plot that contains the specified position.
+     *
+     * This is a convenience method that first looks up the plot at the given position
+     * and then removes it if found. All spatial index and cache entries are updated
+     * accordingly.
+     *
+     * @param pos The position to check for a plot
+     * @return true if a plot was found at the position and removed, false if no plot exists at that position
      */
     public static boolean removePlotAt(BlockPos pos) {
         PlotRegion plot = getPlotAt(pos);
@@ -321,14 +394,25 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
     }
     
     /**
-     * Gibt die Anzahl aller Plots zurück
+     * Returns the total number of plots currently registered in the system.
+     *
+     * This count includes all plots regardless of ownership status, type, or availability.
+     * This is a constant-time O(1) operation.
+     *
+     * @return The total number of plots in the system
      */
     public static int getPlotCount() {
         return plots.size();
     }
     
     /**
-     * Gibt die Gesamtfläche aller Plots zurück
+     * Calculates and returns the total volume of all plots in the system.
+     *
+     * The volume is measured in cubic blocks and is calculated by summing the volume
+     * of each individual plot. This operation iterates through all plots, so performance
+     * scales linearly with the number of plots.
+     *
+     * @return The total volume of all plots in cubic blocks
      */
     public static long getTotalPlotVolume() {
         return plots.values().stream()
@@ -337,7 +421,11 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
     }
     
     /**
-     * Markiert Daten als geändert
+     * Marks the plot manager as having unsaved changes.
+     *
+     * This flag indicates that plot data has been modified and needs to be persisted
+     * to disk. The incremental save manager will automatically save dirty managers
+     * during the next save cycle.
      */
     public static void markDirty() {
         dirty = true;

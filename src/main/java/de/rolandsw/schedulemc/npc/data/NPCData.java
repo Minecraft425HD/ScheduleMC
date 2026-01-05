@@ -17,6 +17,10 @@ import java.util.UUID;
  * Enthält alle Eigenschaften eines NPCs inkl. Skin, Dialog, Shop, etc.
  */
 public class NPCData {
+    // Time Constants (Minecraft Ticks: 24000 ticks = 1 day)
+    private static final long WORK_END_TIME_TICKS = 13000;  // 19:00 Uhr abends (work end time)
+    private static final long HOME_TIME_TICKS = 23000;      // 5:00 Uhr morgens (time to go home)
+
     private String npcName;
     private String skinFileName; // Dateiname des Skins (z.B. "steve.png")
     private UUID npcUUID;
@@ -87,9 +91,9 @@ public class NPCData {
         this.patrolArrivalTime = 0;
         this.stationArrivalTime = 0;
         // Standard-Zeiten (Minecraft Ticks: 0 = 6:00, 6000 = 12:00, 12000 = 18:00, 18000 = 0:00)
-        this.workStartTime = 0;      // 6:00 Uhr morgens
-        this.workEndTime = 13000;    // 19:00 Uhr abends
-        this.homeTime = 23000;       // 5:00 Uhr morgens (Zeit zum Schlafen)
+        this.workStartTime = 0;                 // 6:00 Uhr morgens
+        this.workEndTime = WORK_END_TIME_TICKS; // 19:00 Uhr abends
+        this.homeTime = HOME_TIME_TICKS;        // 5:00 Uhr morgens (Zeit zum Schlafen)
         // Inventar und Geldbörse
         this.inventory = NonNullList.withSize(9, ItemStack.EMPTY); // 9 Slots wie Hotbar
         this.wallet = 0;

@@ -55,6 +55,22 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class WorldMapData implements MapChangeListener {
+    // Cache Configuration Constants
+    private static final int REGION_CACHE_INITIAL_CAPACITY = 150;  // Initial capacity for region cache map
+    private static final float REGION_CACHE_LOAD_FACTOR = 0.9F;    // Load factor for region cache map
+    private static final int REGION_CACHE_CONCURRENCY_LEVEL = 2;   // Concurrency level for region cache map
+
+    // Chunk Cache Dimensions
+    private static final int WORLD_MAP_CHUNK_CACHE_WIDTH = 33;     // Width of world map chunk cache
+    private static final int WORLD_MAP_CHUNK_CACHE_HEIGHT = 33;    // Height of world map chunk cache
+
+    // Time Constants
+    private static final long PERIODIC_REFRESH_INTERVAL_MS = 2000; // Periodic refresh interval (2 seconds)
+    private static final long REGION_CHANGE_STALENESS_MS = 5000L;  // Region change staleness threshold (5 seconds)
+
+    // Color Constants
+    private static final int COLOR_ALPHA_MASK = 0xFF000000;        // Alpha channel mask for colors
+
     final MutableBlockPos blockPos = new MutableBlockPos(0, 0, 0);
     final ColorCalculationService colorManager;
     final MapViewConfiguration mapOptions;
@@ -64,7 +80,7 @@ public class WorldMapData implements MapChangeListener {
     String subworldName = "";
     // OPTIMIZATION: CopyOnWriteArrayList is lock-free for reads (most common operation)
     protected final List<RegionCache> cachedRegionsPool = new CopyOnWriteArrayList<>();
-    protected final ConcurrentHashMap<String, RegionCache> cachedRegions = new ConcurrentHashMap<>(150, 0.9F, 2);
+    protected final ConcurrentHashMap<String, RegionCache> cachedRegions = new ConcurrentHashMap<>(REGION_CACHE_INITIAL_CAPACITY, REGION_CACHE_LOAD_FACTOR, REGION_CACHE_CONCURRENCY_LEVEL);
     int lastLeft;
     int lastRight;
     int lastTop;
@@ -93,7 +109,6 @@ public class WorldMapData implements MapChangeListener {
     private ChunkCache chunkCache;
     private final ConcurrentLinkedQueue<ChunkWithAge> chunkUpdateQueue = new ConcurrentLinkedQueue<>();
     private long lastPeriodicRefresh = 0;
-    private static final long PERIODIC_REFRESH_INTERVAL_MS = 2000; // Alle 2 Sekunden
 
     public WorldMapData() {
         this.colorManager = MapViewConstants.getLightMapInstance().getColorManager();
@@ -139,7 +154,7 @@ public class WorldMapData implements MapChangeListener {
 
         // Multiworld detection removed with waypoint system
 
-        this.chunkCache = new ChunkCache(33, 33, this);
+        this.chunkCache = new ChunkCache(WORLD_MAP_CHUNK_CACHE_WIDTH, WORLD_MAP_CHUNK_CACHE_HEIGHT, this);
     }
 
     public void onTick() {
@@ -475,7 +490,7 @@ public class WorldMapData implements MapChangeListener {
         surfaceBlockState = mapData.getBlockstate(imageX, imageY);
         if (surfaceBlockState != null && (surfaceBlockState.getBlock() != BlockDatabase.air || mapData.getLight(imageX, imageY) != 0 || mapData.getHeight(imageX, imageY) != Short.MIN_VALUE) && biome != null) {
             if (mapOptions.biomeOverlay == 1) {
-                color24 = ARGBCompat.toABGR(BiomeColors.getBiomeColor(biome) | 0xFF000000);
+                color24 = ARGBCompat.toABGR(BiomeColors.getBiomeColor(biome) | COLOR_ALPHA_MASK);
             } else {
                 boolean solid = false;
                 int blockStateID;
@@ -833,7 +848,7 @@ public class WorldMapData implements MapChangeListener {
     public void compress() {
         // OPTIMIZATION: No synchronization needed - CopyOnWriteArrayList is thread-safe
         for (RegionCache cachedRegion : this.cachedRegionsPool) {
-            if (System.currentTimeMillis() - cachedRegion.getMostRecentChange() > 5000L) {
+            if (System.currentTimeMillis() - cachedRegion.getMostRecentChange() > REGION_CHANGE_STALENESS_MS) {
                 cachedRegion.compress();
             }
         }

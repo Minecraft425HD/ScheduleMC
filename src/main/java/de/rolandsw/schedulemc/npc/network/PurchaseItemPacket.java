@@ -32,8 +32,15 @@ import java.util.function.Supplier;
  */
 public class PurchaseItemPacket {
 
+    // Rate Limiting Constants
+    private static final int PURCHASE_MAX_OPS_PER_SECOND = 20;
+    private static final int PURCHASE_WINDOW_MS = 1000;
+
+    // Purchase Configuration
+    private static final int MAX_PURCHASE_QUANTITY = 10000;
+
     // SICHERHEIT: Rate Limiter - Max 20 Käufe pro Sekunde (verhindert Spam/Exploits)
-    private static final RateLimiter PURCHASE_RATE_LIMITER = new RateLimiter("purchase", 20, 1000);
+    private static final RateLimiter PURCHASE_RATE_LIMITER = new RateLimiter("purchase", PURCHASE_MAX_OPS_PER_SECOND, PURCHASE_WINDOW_MS);
     private final int merchantEntityId;
     private final int itemIndex;
     private final int quantity;
@@ -96,10 +103,9 @@ public class PurchaseItemPacket {
 
         // SICHERHEIT: Integer Overflow Prevention
         // Maximale Menge pro Transaktion begrenzen
-        final int MAX_QUANTITY = 10000;
-        int safeQuantity = Math.min(quantity, MAX_QUANTITY);
-        if (quantity > MAX_QUANTITY) {
-            player.sendSystemMessage(Component.literal("§cMaximale Kaufmenge ist " + MAX_QUANTITY + " pro Transaktion!"));
+        int safeQuantity = Math.min(quantity, MAX_PURCHASE_QUANTITY);
+        if (quantity > MAX_PURCHASE_QUANTITY) {
+            player.sendSystemMessage(Component.literal("§cMaximale Kaufmenge ist " + MAX_PURCHASE_QUANTITY + " pro Transaktion!"));
             return;
         }
 

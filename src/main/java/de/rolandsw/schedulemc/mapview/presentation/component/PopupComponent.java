@@ -9,6 +9,11 @@ import net.minecraft.client.gui.GuiGraphics;
 import java.util.ArrayList;
 
 public class PopupComponent {
+    // Farb-Konstanten für Popup-Einträge
+    private static final int COLOR_POPUP_DISABLED = 0xFFA0A0A0; // Grau für deaktivierte Einträge
+    private static final int COLOR_POPUP_HOVERED = 0xFFFFFFA0; // Gelb für gehighlightete Einträge
+    private static final int COLOR_POPUP_DEFAULT = 0xFFE0E0E0; // Hellgrau für normale Einträge
+
     private final Font fontRendererObj;
     private int x;
     private int y;
@@ -117,7 +122,7 @@ public class PopupComponent {
             boolean hover = mouseX >= this.x && mouseX <= this.x + this.w && mouseY >= this.y + t * 20 && mouseY < this.y + (t + 1) * 20;
             if (hover) {
             }
-            int color = !this.entries[t].enabled ? 0xFFA0A0A0 : (hover ? 0xFFFFFFA0 : 0xFFE0E0E0);
+            int color = !this.entries[t].enabled ? COLOR_POPUP_DISABLED : (hover ? COLOR_POPUP_HOVERED : COLOR_POPUP_DEFAULT);
             guiGraphics.drawString(this.fontRendererObj, this.entries[t].name, (this.x + this.padding), (this.y + this.padding + t * 20), color);
         }
         guiGraphics.pose().popPose();

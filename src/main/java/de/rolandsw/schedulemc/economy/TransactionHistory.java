@@ -39,6 +39,10 @@ public class TransactionHistory {
     private static final long TRANSACTION_RETENTION_DAYS = 90; // 90 Tage Aufbewahrung
     private static final long ROTATION_INTERVAL_TICKS = 72000; // Alle 60 Minuten (72000 ticks)
 
+    // Time Conversion Constants
+    private static final long ONE_DAY_MS = 86400000L;  // Milliseconds in one day (24 * 60 * 60 * 1000)
+    private static final long TICK_TO_MS_CONVERSION = 50L;  // Minecraft ticks to milliseconds (1 tick = 50ms)
+
     private final Map<UUID, List<Transaction>> transactions = new ConcurrentHashMap<>();
     private final Gson gson = GsonHelper.get(); // Umgebungsabhängig: kompakt in Produktion
     private final Path savePath;
@@ -204,7 +208,7 @@ public class TransactionHistory {
      * OPTIMIERUNG: Verhindert unbegrenztes Wachstum der Historie
      */
     public void rotateOldTransactions() {
-        long cutoffTime = System.currentTimeMillis() - (TRANSACTION_RETENTION_DAYS * 86400000L);
+        long cutoffTime = System.currentTimeMillis() - (TRANSACTION_RETENTION_DAYS * ONE_DAY_MS);
         int totalRemoved = 0;
         int playersAffected = 0;
 
@@ -242,7 +246,7 @@ public class TransactionHistory {
      */
     public void checkAndRotate() {
         long timeSinceLastRotation = System.currentTimeMillis() - lastRotationTime;
-        long rotationIntervalMs = ROTATION_INTERVAL_TICKS * 50L; // Ticks zu MS
+        long rotationIntervalMs = ROTATION_INTERVAL_TICKS * TICK_TO_MS_CONVERSION; // Ticks zu MS
 
         if (timeSinceLastRotation >= rotationIntervalMs) {
             rotateOldTransactions();

@@ -26,12 +26,22 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(modid = ScheduleMC.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class TobaccoPotHudOverlay {
 
+    // Layout constants
     private static final int BAR_WIDTH = 60; // 50% kürzer (120 → 60)
     private static final int BAR_HEIGHT = 8;
     private static final int SEGMENT_WIDTH = BAR_WIDTH / 5;
     private static final float SCALE = 0.7f;
     private static final int HUD_X = 10;
     private static final int HUD_Y = 10;
+    private static final int BG_WIDTH_PADDING = 20;
+    private static final int PERCENT_MULTIPLIER = 100;
+
+    // Colors
+    private static final int COLOR_WATER_BLUE = 0xFF2196F3;
+    private static final int COLOR_SOIL_BROWN = 0xFF8D6E63;
+    private static final int COLOR_BAR_BACKGROUND = 0xFF1A1A1A;
+    private static final int COLOR_FULLY_GROWN_GREEN = 0xFF4CAF50;
+    private static final int COLOR_GROWING_YELLOW = 0xFFFDD835;
 
     @SubscribeEvent
     public static void onRenderGuiOverlay(RenderGuiOverlayEvent.Post event) {
@@ -103,7 +113,7 @@ public class TobaccoPotHudOverlay {
         }
 
         int bgHeight = totalLines * lineHeight + 10;
-        int bgWidth = BAR_WIDTH + 20;
+        int bgWidth = BAR_WIDTH + BG_WIDTH_PADDING;
 
         // Halbtransparenter Hintergrund
         guiGraphics.fill(HUD_X - 5, HUD_Y - 5, HUD_X + bgWidth + 5, HUD_Y + bgHeight, 0x88000000);
@@ -134,7 +144,7 @@ public class TobaccoPotHudOverlay {
         currentY += 10;
 
         float waterRatio = (float) potData.getWaterLevel() / potData.getMaxWater();
-        drawResourceBar(guiGraphics, HUD_X, currentY, waterRatio, 0xFF2196F3);
+        drawResourceBar(guiGraphics, HUD_X, currentY, waterRatio, COLOR_WATER_BLUE);
         currentY += BAR_HEIGHT + 4;
 
         // Erd-Balken
@@ -146,7 +156,7 @@ public class TobaccoPotHudOverlay {
         currentY += 10;
 
         float soilRatio = (float) potData.getSoilLevel() / potData.getMaxSoil();
-        drawResourceBar(guiGraphics, HUD_X, currentY, soilRatio, 0xFF8D6E63);
+        drawResourceBar(guiGraphics, HUD_X, currentY, soilRatio, COLOR_SOIL_BROWN);
         currentY += BAR_HEIGHT + 4;
 
         // Lichtlevel anzeigen
@@ -199,7 +209,7 @@ public class TobaccoPotHudOverlay {
             // Wachstum
             boolean isFullyGrown = plant.isFullyGrown();
             // Bei erntereifer Pflanze immer 100% anzeigen, auch wenn Ressourcen aufgebraucht
-            int growthPercent = isFullyGrown ? 100 : (plant.getGrowthStage() * 100) / 7;
+            int growthPercent = isFullyGrown ? PERCENT_MULTIPLIER : (plant.getGrowthStage() * PERCENT_MULTIPLIER) / 7;
 
             String growthLabel = "§eWachstum: " + growthPercent + "%" + (isFullyGrown ? " §a✓" : "");
             guiGraphics.pose().pushPose();
@@ -233,7 +243,7 @@ public class TobaccoPotHudOverlay {
      */
     private static void drawResourceBar(GuiGraphics guiGraphics, int x, int y, float fillRatio, int color) {
         // Hintergrund
-        guiGraphics.fill(x, y, x + BAR_WIDTH, y + BAR_HEIGHT, 0xFF1A1A1A);
+        guiGraphics.fill(x, y, x + BAR_WIDTH, y + BAR_HEIGHT, COLOR_BAR_BACKGROUND);
 
         // Gefüllter Teil
         int filledWidth = (int) (BAR_WIDTH * fillRatio);
@@ -258,13 +268,13 @@ public class TobaccoPotHudOverlay {
      * Fortschritts-Balken (Wachstum)
      */
     private static void drawProgressBar(GuiGraphics guiGraphics, int x, int y, int percent, boolean fullyGrown) {
-        int color = fullyGrown ? 0xFF4CAF50 : 0xFFFDD835;
+        int color = fullyGrown ? COLOR_FULLY_GROWN_GREEN : COLOR_GROWING_YELLOW;
 
         // Hintergrund
-        guiGraphics.fill(x, y, x + BAR_WIDTH, y + BAR_HEIGHT, 0xFF1A1A1A);
+        guiGraphics.fill(x, y, x + BAR_WIDTH, y + BAR_HEIGHT, COLOR_BAR_BACKGROUND);
 
         // Gefüllter Teil
-        int filledWidth = (BAR_WIDTH * percent) / 100;
+        int filledWidth = (BAR_WIDTH * percent) / PERCENT_MULTIPLIER;
         if (filledWidth > 0) {
             guiGraphics.fill(x, y, x + filledWidth, y + BAR_HEIGHT, color);
         }

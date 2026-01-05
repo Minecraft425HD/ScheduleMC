@@ -42,6 +42,15 @@ import java.util.Set;
 @OnlyIn(Dist.CLIENT)
 public class SettingsAppScreen extends Screen {
 
+    // Color Constants
+    private static final int COLOR_APP_FRAME = 0xFF1C1C1C;
+    private static final int COLOR_APP_BACKGROUND = 0xFF2A2A2A;
+    private static final int COLOR_APP_HEADER = 0xFF1A1A1A;
+    private static final int COLOR_TAB_ACTIVE_BLUE = 0xFF4A90E2;
+    private static final int COLOR_BUTTON_DEFAULT = 0xFF333333;
+    private static final int COLOR_BUTTON_BORDER_TOP = 0xFF555555;
+    private static final int COLOR_BUTTON_BORDER_BOTTOM = 0xFF111111;
+
     private final Screen parentScreen;
     private static final int WIDTH = 200;
     private static final int HEIGHT = 240;
@@ -191,11 +200,11 @@ public class SettingsAppScreen extends Screen {
         renderBackground(guiGraphics);
 
         // Smartphone-Hintergrund
-        guiGraphics.fill(leftPos - 5, topPos - 5, leftPos + WIDTH + 5, topPos + HEIGHT + 5, 0xFF1C1C1C);
-        guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + HEIGHT, 0xFF2A2A2A);
+        guiGraphics.fill(leftPos - 5, topPos - 5, leftPos + WIDTH + 5, topPos + HEIGHT + 5, COLOR_APP_FRAME);
+        guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + HEIGHT, COLOR_APP_BACKGROUND);
 
         // Header
-        guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 28, 0xFF1A1A1A);
+        guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 28, COLOR_APP_HEADER);
         guiGraphics.drawCenteredString(this.font, "§f§lEinstellungen", leftPos + WIDTH / 2, topPos + 10, 0xFFFFFF);
 
         // Tab-Hintergrund (aktiver Tab hervorheben)
@@ -203,7 +212,7 @@ public class SettingsAppScreen extends Screen {
             int tabX = leftPos + 10 + (i * TAB_WIDTH);
             int tabY = topPos + 30;
             if (i == currentTab) {
-                guiGraphics.fill(tabX - 1, tabY - 1, tabX + TAB_WIDTH - 1, tabY + TAB_HEIGHT + 1, 0xFF4A90E2);
+                guiGraphics.fill(tabX - 1, tabY - 1, tabX + TAB_WIDTH - 1, tabY + TAB_HEIGHT + 1, COLOR_TAB_ACTIVE_BLUE);
             }
         }
 
@@ -890,9 +899,9 @@ public class SettingsAppScreen extends Screen {
     private void drawButton(GuiGraphics guiGraphics, int x, int y, int width, int height,
                            String text, int color, int mouseX, int mouseY) {
         boolean hovered = mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
-        guiGraphics.fill(x, y, x + width, y + height, hovered ? 0xFF4A90E2 : 0xFF333333);
-        guiGraphics.fill(x, y, x + width, y + 1, 0xFF555555);
-        guiGraphics.fill(x, y + height - 1, x + width, y + height, 0xFF111111);
+        guiGraphics.fill(x, y, x + width, y + height, hovered ? COLOR_TAB_ACTIVE_BLUE : COLOR_BUTTON_DEFAULT);
+        guiGraphics.fill(x, y, x + width, y + 1, COLOR_BUTTON_BORDER_TOP);
+        guiGraphics.fill(x, y + height - 1, x + width, y + height, COLOR_BUTTON_BORDER_BOTTOM);
         guiGraphics.drawCenteredString(this.font, text, x + width / 2, y + (height - 8) / 2, hovered ? 0xFFFFFF : color);
     }
 }

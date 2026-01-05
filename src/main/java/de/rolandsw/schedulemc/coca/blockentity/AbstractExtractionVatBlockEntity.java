@@ -24,6 +24,9 @@ import org.jetbrains.annotations.Nullable;
  */
 public abstract class AbstractExtractionVatBlockEntity extends BlockEntity implements IUtilityConsumer {
 
+    // Timing constants
+    protected static final int STANDARD_EXTRACTION_TIME_TICKS = 6000; // 5 minutes (6000 ticks)
+
     private boolean lastActiveState = false;
 
     private ItemStack[] inputs;

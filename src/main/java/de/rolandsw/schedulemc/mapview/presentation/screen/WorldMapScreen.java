@@ -51,6 +51,15 @@ import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class WorldMapScreen extends PopupScreen {
+    // Color Constants
+    private static final int COLOR_MARKER_RED = 0xFFFF0000;         // Red marker color
+    private static final int COLOR_PLAYER_MARKER_YELLOW = 0xFFFF00; // Yellow player marker
+    private static final int COLOR_ENTITY_WHITE = 0xFFFFFFFF;       // White color for entities and text
+    private static final int COLOR_TEXT_WHITE = 0xFFFFFFFF;         // White color for text (zoom, coords, etc)
+
+    // Time Constants
+    private static final long KEYBOARD_INPUT_TIMEOUT_MS = 2000L;    // Keyboard input timeout (2 seconds)
+
     private final Random generator = new Random();
     private final WorldMapData persistentMap;
     private final Screen parent;
@@ -718,7 +727,7 @@ public class WorldMapScreen extends PopupScreen {
             {
                 int playerBlockX = MinecraftAccessor.xCoord();
                 int playerBlockZ = MinecraftAccessor.zCoord();
-                int markerColor = 0xFFFF0000; // Rot
+                int markerColor = COLOR_MARKER_RED;
                 MapViewGuiGraphics.fillGradient(guiGraphics,
                     playerBlockX, playerBlockZ,
                     playerBlockX + 1, playerBlockZ + 1,
@@ -869,7 +878,7 @@ public class WorldMapScreen extends PopupScreen {
                 "Player: " + MinecraftAccessor.xCoord() + ", " + MinecraftAccessor.zCoord(),
                 (int)playerScreenX + 10,
                 (int)playerScreenY - 5,
-                0xFFFFFF00);  // Gelb
+                COLOR_PLAYER_MARKER_YELLOW);
         }
 
         if (gotSkin) {
@@ -904,7 +913,7 @@ public class WorldMapScreen extends PopupScreen {
             guiGraphics.pose().popPose();
         }
 
-        if (System.currentTimeMillis() - this.timeOfLastKBInput < 2000L) {
+        if (System.currentTimeMillis() - this.timeOfLastKBInput < KEYBOARD_INPUT_TIMEOUT_MS) {
             int scWidth = minecraft.getWindow().getGuiScaledWidth();
             int scHeight = minecraft.getWindow().getGuiScaledHeight();
 
@@ -916,18 +925,18 @@ public class WorldMapScreen extends PopupScreen {
         this.overlayBackground(guiGraphics, 0, this.top, 255, 255);
         this.overlayBackground(guiGraphics, this.bottom, this.getHeight(), 255, 255);
         if (MapDataManager.mapOptions.worldmapAllowed) {
-            guiGraphics.drawCenteredString(this.font, this.screenTitle, this.getWidth() / 2, 16, 0xFFFFFFFF);
+            guiGraphics.drawCenteredString(this.font, this.screenTitle, this.getWidth() / 2, 16, COLOR_TEXT_WHITE);
             int x = (int) Math.floor(cursorCoordX);
             int z = (int) Math.floor(cursorCoordZ);
             if (!this.editingCoordinates) {
-                guiGraphics.drawString(this.font, "X: " + x, this.sideMargin, 16, 0xFFFFFFFF);
-                guiGraphics.drawString(this.font, "Z: " + z, this.sideMargin + 64, 16, 0xFFFFFFFF);
+                guiGraphics.drawString(this.font, "X: " + x, this.sideMargin, 16, COLOR_TEXT_WHITE);
+                guiGraphics.drawString(this.font, "Z: " + z, this.sideMargin + 64, 16, COLOR_TEXT_WHITE);
             } else {
                 this.coordinates.render(guiGraphics, mouseX, mouseY, delta);
             }
             guiGraphics.drawString(this.font, this.worldNameDisplay, this.getWidth() - this.sideMargin - this.worldNameDisplayLength, 16, 0xFFFFFF);
         } else {
-            guiGraphics.drawString(this.font, Component.translatable("worldmap.disabled"), this.sideMargin, 16, 0xFFFFFFFF);
+            guiGraphics.drawString(this.font, Component.translatable("worldmap.disabled"), this.sideMargin, 16, COLOR_TEXT_WHITE);
         }
         super.render(guiGraphics, mouseX, mouseY, delta);
 
@@ -941,7 +950,7 @@ public class WorldMapScreen extends PopupScreen {
         String zoomText = zoomPercent + "%";
         int zoomTextWidth = this.font.width(zoomText);
         // Zentriere Text im reservierten Bereich
-        guiGraphics.drawString(this.font, zoomText, zoomDisplayX + (zoomDisplayWidth - zoomTextWidth) / 2, zoomTextY, 0xFFFFFFFF);
+        guiGraphics.drawString(this.font, zoomText, zoomDisplayX + (zoomDisplayWidth - zoomTextWidth) / 2, zoomTextY, COLOR_TEXT_WHITE);
     }
 
     public void renderBackground(GuiGraphics context, int mouseX, int mouseY, float delta) {

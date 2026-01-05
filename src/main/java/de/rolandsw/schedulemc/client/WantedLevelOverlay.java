@@ -18,9 +18,13 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(modid = ScheduleMC.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class WantedLevelOverlay {
 
+    // Layout constants
     private static final int HUD_X = 10;
     private static final int HUD_Y = 10;
     private static final float SCALE = 1.2f;
+    private static final int BG_HEIGHT_WITH_ESCAPE = 40;
+    private static final int BG_HEIGHT_DEFAULT = 20;
+    private static final int ESCAPE_BAR_WIDTH = 120;
 
     @SubscribeEvent
     public static void onRenderGuiOverlay(RenderGuiOverlayEvent.Post event) {
@@ -40,7 +44,7 @@ public class WantedLevelOverlay {
 
             // Berechne Hintergrund-Größe
             int bgWidth = 150;
-            int bgHeight = escapeTime > 0 ? 40 : 20;
+            int bgHeight = escapeTime > 0 ? BG_HEIGHT_WITH_ESCAPE : BG_HEIGHT_DEFAULT;
 
             // Halbtransparenter Hintergrund
             guiGraphics.fill(HUD_X - 5, currentY - 5, HUD_X + bgWidth, currentY + bgHeight, 0x88000000);
@@ -66,7 +70,7 @@ public class WantedLevelOverlay {
 
                 // Fortschrittsbalken
                 float progress = (float) escapeTime / CrimeManager.ESCAPE_DURATION;
-                int barWidth = 120;
+                int barWidth = ESCAPE_BAR_WIDTH;
                 int barHeight = 6;
 
                 // Balken-Hintergrund

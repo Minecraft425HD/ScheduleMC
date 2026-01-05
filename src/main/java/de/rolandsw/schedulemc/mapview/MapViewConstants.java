@@ -129,6 +129,9 @@ public final class MapViewConstants {
         return true;
     }
 
+    // Shutdown-Konstante
+    private static final long SHUTDOWN_TIMEOUT_MS = 10000L; // Max Wartezeit beim Shutdown (10 Sekunden)
+
     public static void onShutDown() {
         MapViewConstants.getLogger().info("Saving all world maps");
         MapViewConstants.getLightMapInstance().getWorldMapData().purgeRegionCaches();
@@ -136,7 +139,7 @@ public final class MapViewConstants {
         BiomeColors.saveBiomeColors();
         long shutdownTime = System.currentTimeMillis();
 
-        while (de.rolandsw.schedulemc.util.ThreadPoolManager.getComputationPoolQueueSize() + de.rolandsw.schedulemc.util.ThreadPoolManager.getComputationPoolActiveCount() > 0 && System.currentTimeMillis() - shutdownTime < 10000L) {
+        while (de.rolandsw.schedulemc.util.ThreadPoolManager.getComputationPoolQueueSize() + de.rolandsw.schedulemc.util.ThreadPoolManager.getComputationPoolActiveCount() > 0 && System.currentTimeMillis() - shutdownTime < SHUTDOWN_TIMEOUT_MS) {
             Thread.onSpinWait();
         }
     }

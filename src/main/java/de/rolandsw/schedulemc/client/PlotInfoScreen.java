@@ -23,8 +23,16 @@ import java.util.List;
 @OnlyIn(Dist.CLIENT)
 public class PlotInfoScreen extends Screen {
 
+    // Colors
+    private static final int COLOR_BORDER_BLUE = 0xFF4A90E2;
+
+    // Layout constants
+    private static final int BACKGROUND_WIDTH = 280;
+    private static final int SPACING_AFTER_HEADER = 60;
+    private static final int SECTION_SPACING = 40;
+
     private final PlotRegion plot;
-    private int backgroundWidth = 280;
+    private int backgroundWidth = BACKGROUND_WIDTH;
     private int backgroundHeight = 250; // Erhöht von 200 auf 250 für Rating-Sektion
     private int leftPos;
     private int topPos;
@@ -122,10 +130,10 @@ public class PlotInfoScreen extends Screen {
         guiGraphics.fill(leftPos, topPos, leftPos + backgroundWidth, topPos + backgroundHeight, 0xEE1A1A1A);
 
         // Rahmen
-        guiGraphics.fill(leftPos, topPos, leftPos + backgroundWidth, topPos + 2, 0xFF4A90E2); // Oben
-        guiGraphics.fill(leftPos, topPos + backgroundHeight - 2, leftPos + backgroundWidth, topPos + backgroundHeight, 0xFF4A90E2); // Unten
-        guiGraphics.fill(leftPos, topPos, leftPos + 2, topPos + backgroundHeight, 0xFF4A90E2); // Links
-        guiGraphics.fill(leftPos + backgroundWidth - 2, topPos, leftPos + backgroundWidth, topPos + backgroundHeight, 0xFF4A90E2); // Rechts
+        guiGraphics.fill(leftPos, topPos, leftPos + backgroundWidth, topPos + 2, COLOR_BORDER_BLUE); // Oben
+        guiGraphics.fill(leftPos, topPos + backgroundHeight - 2, leftPos + backgroundWidth, topPos + backgroundHeight, COLOR_BORDER_BLUE); // Unten
+        guiGraphics.fill(leftPos, topPos, leftPos + 2, topPos + backgroundHeight, COLOR_BORDER_BLUE); // Links
+        guiGraphics.fill(leftPos + backgroundWidth - 2, topPos, leftPos + backgroundWidth, topPos + backgroundHeight, COLOR_BORDER_BLUE); // Rechts
 
         int currentY = topPos + 15;
 
@@ -225,7 +233,7 @@ public class PlotInfoScreen extends Screen {
             this.ratingButtonY = -1; // Keine Buttons wenn Spieler nicht bewerten darf
         }
 
-        currentY += 60;
+        currentY += SPACING_AFTER_HEADER;
 
         // === VERKAUF/MIETE STATUS ===
         if (!plot.hasOwner()) {
@@ -234,27 +242,27 @@ public class PlotInfoScreen extends Screen {
             guiGraphics.drawString(this.font, "§a§l⚡ ZUM VERKAUF", leftPos + 15, currentY + 5, 0x00FF00);
             guiGraphics.drawString(this.font, "§7Preis: §e" + String.format("%.2f", plot.getPrice()) + "€",
                 leftPos + 15, currentY + 18, 0xFFFFFF);
-            currentY += 40;
+            currentY += SECTION_SPACING;
         } else {
             if (plot.isForSale()) {
                 guiGraphics.fill(leftPos + 10, currentY, leftPos + backgroundWidth - 10, currentY + 35, 0x44228B22);
                 guiGraphics.drawString(this.font, "§a§l⚡ ZUM VERKAUF", leftPos + 15, currentY + 5, 0x00FF00);
                 guiGraphics.drawString(this.font, "§7Preis: §e" + String.format("%.2f", plot.getSalePrice()) + "€",
                     leftPos + 15, currentY + 18, 0xFFFFFF);
-                currentY += 40;
+                currentY += SECTION_SPACING;
             } else if (plot.isForRent()) {
                 if (plot.isRented()) {
                     guiGraphics.fill(leftPos + 10, currentY, leftPos + backgroundWidth - 10, currentY + 35, 0x44228B22);
                     guiGraphics.drawString(this.font, "§a§l✓ VERMIETET", leftPos + 15, currentY + 5, 0x00FF00);
                     guiGraphics.drawString(this.font, "§7Noch §e" + plot.getRentDaysLeft() + " Tage",
                         leftPos + 15, currentY + 18, 0xFFFFFF);
-                    currentY += 40;
+                    currentY += SECTION_SPACING;
                 } else {
                     guiGraphics.fill(leftPos + 10, currentY, leftPos + backgroundWidth - 10, currentY + 35, 0x44C71585);
                     guiGraphics.drawString(this.font, "§d§l⚡ ZU VERMIETEN", leftPos + 15, currentY + 5, 0xFF00FF);
                     guiGraphics.drawString(this.font, "§7Miete: §e" + String.format("%.2f", plot.getRentPricePerDay()) + "€/Tag",
                         leftPos + 15, currentY + 18, 0xFFFFFF);
-                    currentY += 40;
+                    currentY += SECTION_SPACING;
                 }
             }
         }

@@ -30,6 +30,9 @@ public class NPCKnockoutHandler {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
+    // Detection Settings
+    private static final double KNOCKOUT_WITNESS_RADIUS = 16.0;
+
     @SubscribeEvent
     public void onNPCDamage(LivingDamageEvent event) {
         EventHelper.handleLivingDamage(event, () -> {
@@ -91,7 +94,7 @@ public class NPCKnockoutHandler {
             // Suche Zeugen in 16 Block Radius
             List<CustomNPCEntity> witnesses = npc.level().getEntitiesOfClass(
                 CustomNPCEntity.class,
-                AABB.ofSize(player.position(), 16, 16, 16)
+                AABB.ofSize(player.position(), KNOCKOUT_WITNESS_RADIUS, KNOCKOUT_WITNESS_RADIUS, KNOCKOUT_WITNESS_RADIUS)
             );
 
             // Entferne das Opfer aus der Zeugenliste

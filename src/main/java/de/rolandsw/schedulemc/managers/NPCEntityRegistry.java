@@ -5,6 +5,7 @@ import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import net.minecraft.server.level.ServerLevel;
 import org.slf4j.Logger;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -114,6 +115,7 @@ public class NPCEntityRegistry {
      * @param level Das ServerLevel
      * @return Der gefundene CustomNPCEntity oder null
      */
+    @Nullable
     public static CustomNPCEntity getNPCByUUID(UUID uuid, ServerLevel level) {
         if (uuid == null || level == null) {
             return null;
@@ -138,6 +140,7 @@ public class NPCEntityRegistry {
      * @param uuid Die UUID des NPCs
      * @return Der gefundene CustomNPCEntity oder null
      */
+    @Nullable
     public static CustomNPCEntity getNPCByUUID(UUID uuid) {
         if (uuid == null) {
             return null;

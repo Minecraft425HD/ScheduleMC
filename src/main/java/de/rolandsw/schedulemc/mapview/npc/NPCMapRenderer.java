@@ -30,14 +30,19 @@ import java.util.List;
  */
 public class NPCMapRenderer {
 
-    // Marker-Farben nach NPC-Typ
-    private static final int COLOR_BEWOHNER = 0xFF4CAF50;    // Grün für Bewohner
-    private static final int COLOR_VERKAEUFER = 0xFFFF9800;  // Orange für Verkäufer
-    private static final int COLOR_DEFAULT = 0xFF2196F3;     // Blau als Default
+    // Marker colors by NPC type
+    private static final int COLOR_NPC_BEWOHNER_GREEN = 0xFF4CAF50;    // Green for residents
+    private static final int COLOR_NPC_VERKAEUFER_ORANGE = 0xFFFF9800;  // Orange for vendors
+    private static final int COLOR_NPC_DEFAULT_BLUE = 0xFF2196F3;     // Blue as default
+    private static final int COLOR_MARKER_BORDER_BLACK = 0xFF000000;  // Black border
+    private static final int COLOR_MARKER_CENTER_WHITE = 0xFFFFFFFF;  // White center highlight
+    private static final int COLOR_DEBUG_BLUE = 0xFF0000FF;           // Debug blue (unused)
 
-    // Marker-Größe
+    // Marker size and appearance
     private static final float MARKER_SIZE = 4.0f;
-    private static final float MARKER_BORDER = 1.0f;
+    private static final float MARKER_BORDER_WIDTH = 1.0f;
+    private static final float MARKER_BORDER_ALPHA = 0.8f;
+    private static final float MARKER_CENTER_ALPHA = 0.5f;
 
     // Animation
     private float pulseAnimation = 0;
@@ -176,13 +181,13 @@ public class NPCMapRenderer {
         Matrix4f matrix = poseStack.last().pose();
 
         // Äußerer Rand (schwarz)
-        drawCircle(matrix, 0, 0, size + MARKER_BORDER, 0xFF000000, 0.8f);
+        drawCircle(matrix, 0, 0, size + MARKER_BORDER_WIDTH, COLOR_MARKER_BORDER_BLACK, MARKER_BORDER_ALPHA);
 
         // Innerer Kreis (Farbe nach Typ)
         drawCircle(matrix, 0, 0, size, color, 1.0f);
 
         // Highlight in der Mitte
-        drawCircle(matrix, 0, 0, size * 0.4f, 0xFFFFFFFF, 0.5f);
+        drawCircle(matrix, 0, 0, size * 0.4f, COLOR_MARKER_CENTER_WHITE, MARKER_CENTER_ALPHA);
 
         RenderSystem.disableBlend();
 
@@ -223,14 +228,14 @@ public class NPCMapRenderer {
 
         switch (type) {
             case BEWOHNER:
-                return COLOR_BEWOHNER;
+                return COLOR_NPC_BEWOHNER_GREEN;
             case VERKAEUFER:
-                return COLOR_VERKAEUFER;
+                return COLOR_NPC_VERKAEUFER_ORANGE;
             case POLIZEI:
                 // Sollte nie erreicht werden (gefiltert)
-                return 0xFF0000FF;
+                return COLOR_DEBUG_BLUE;
             default:
-                return COLOR_DEFAULT;
+                return COLOR_NPC_DEFAULT_BLUE;
         }
     }
 

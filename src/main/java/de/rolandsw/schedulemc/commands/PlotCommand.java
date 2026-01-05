@@ -38,6 +38,17 @@ import java.util.UUID;
  */
 public class PlotCommand {
 
+    // Time conversion constants
+    private static final long HOURS_PER_DAY = 24L;
+    private static final long MINUTES_PER_HOUR = 60L;
+    private static final long SECONDS_PER_MINUTE = 60L;
+    private static final long MS_PER_SECOND = 1000L;
+
+    // Business logic constants
+    private static final double PLOT_ABANDON_REFUND_RATE = 0.5; // 50% refund when abandoning plot
+    private static final double DAYS_PER_MONTH = 30.0; // For rent calculations
+    private static final double APARTMENT_DEPOSIT_MULTIPLIER = 3.0; // Deposit is 3x monthly rent
+
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("plot")
 
@@ -661,7 +672,7 @@ public class PlotCommand {
                     return;
                 }
 
-                double refund = plot.getPrice() * 0.5;
+                double refund = plot.getPrice() * PLOT_ABANDON_REFUND_RATE;
                 EconomyManager.deposit(player.getUUID(), refund);
 
                 plot.setOwnerUUID("");
@@ -787,7 +798,7 @@ public class PlotCommand {
             EconomyManager.deposit(ownerUUID, totalCost);
         }
 
-        long rentEndTime = System.currentTimeMillis() + (days * 24L * 60L * 60L * 1000L);
+        long rentEndTime = System.currentTimeMillis() + (days * HOURS_PER_DAY * MINUTES_PER_HOUR * SECONDS_PER_MINUTE * MS_PER_SECOND);
         plot.setRenterUUID(player.getUUID().toString());
         plot.setRentEndTime(rentEndTime);
         PlotManager.markDirty();
@@ -835,7 +846,7 @@ public class PlotCommand {
                     EconomyManager.deposit(ownerUUID, totalCost);
                 }
 
-                long additionalTime = days * 24L * 60L * 60L * 1000L;
+                long additionalTime = days * HOURS_PER_DAY * MINUTES_PER_HOUR * SECONDS_PER_MINUTE * MS_PER_SECOND;
                 plot.setRentEndTime(plot.getRentEndTime() + additionalTime);
                 PlotManager.markDirty();
 
@@ -1198,8 +1209,8 @@ public class PlotCommand {
 
                 // Berechne Kosten: Monatliche Miete * (Tage / 30) + Kaution (3x Monatsmiete)
                 double monthlyCost = apartment.getMonthlyRent();
-                double rentCost = (monthlyCost / 30.0) * days;
-                double deposit = monthlyCost * 3.0;  // 3x Monatsmiete als Kaution
+                double rentCost = (monthlyCost / DAYS_PER_MONTH) * days;
+                double deposit = monthlyCost * APARTMENT_DEPOSIT_MULTIPLIER;
                 double totalCost = rentCost + deposit;
 
                 if (!EconomyManager.withdraw(player.getUUID(), totalCost)) {
@@ -1260,7 +1271,7 @@ public class PlotCommand {
                 }
 
                 // Gebe Kaution zurück (3x Monatsmiete)
-                double deposit = apartment.getMonthlyRent() * 3.0;
+                double deposit = apartment.getMonthlyRent() * APARTMENT_DEPOSIT_MULTIPLIER;
                 EconomyManager.deposit(player.getUUID(), deposit);
 
                 // Beende Miete

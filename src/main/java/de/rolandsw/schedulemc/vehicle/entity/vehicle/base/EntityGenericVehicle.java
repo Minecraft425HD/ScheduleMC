@@ -268,6 +268,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         return parts;
     }
 
+    @Nullable
     public <T extends Part> T getPartByClass(Class<T> clazz) {
         // OPTIMIERT: Re-validiere Cache bei Invalidierung
         if (!partCacheValid && partCache != null) {

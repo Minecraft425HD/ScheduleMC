@@ -3,6 +3,8 @@ package de.rolandsw.schedulemc.vehicle.items;
 import de.rolandsw.schedulemc.vehicle.PredicateUUID;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import net.minecraft.nbt.CompoundTag;
+
+import javax.annotation.Nullable;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -64,6 +66,7 @@ public class ItemKey extends Item {
         comp.putUUID("vehicle", vehicleUUID);
     }
 
+    @Nullable
     public static UUID getVehicle(ItemStack stack) {
         if (stack == null) {
             return null;

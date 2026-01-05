@@ -19,6 +19,27 @@ import org.jetbrains.annotations.NotNull;
  */
 public class PillenPresseScreen extends AbstractContainerScreen<PillenPresseMenu> {
 
+    // Color Constants
+    private static final int COLOR_BACKGROUND_DARK_MAGENTA = 0xFF1A0A1A;
+    private static final int COLOR_BACKGROUND_MEDIUM_MAGENTA = 0xFF2D1D2D;
+    private static final int COLOR_HEADER_MAGENTA = 0xFF3D1D3D;
+    private static final int COLOR_FRAME_GRAY = 0xFF555555;
+    private static final int COLOR_BAR_BACKGROUND_DARK = 0xFF222222;
+    private static final int COLOR_ZONE_BAD_RED = 0xFFAA3333;
+    private static final int COLOR_ZONE_GOOD_YELLOW = 0xFFAAAA33;
+    private static final int COLOR_ZONE_PERFECT_GREEN = 0xFF33AA33;
+    private static final int COLOR_INDICATOR_WHITE = 0xFFFFFFFF;
+    private static final int COLOR_BUTTON_DISABLED = 0xFF333355;
+    private static final int COLOR_BUTTON_ACTIVE_MAGENTA = 0xFFDD55DD;
+    private static final int COLOR_BUTTON_HOVERED_MAGENTA = 0xFFAA44AA;
+    private static final int COLOR_BUTTON_PROCESSING = 0xFF444455;
+    private static final int COLOR_BUTTON_BORDER = 0xFF222244;
+    private static final int COLOR_QUALITY_EXCELLENT_ORANGE = 0xFFFFAA00;
+    private static final int COLOR_QUALITY_PERFECT_GREEN = 0xFF55FF55;
+    private static final int COLOR_QUALITY_GOOD_YELLOW = 0xFFFFFF55;
+    private static final int COLOR_QUALITY_BAD_RED = 0xFFFF5555;
+    private static final int COLOR_TITLE_LIGHT_MAGENTA = 0xFFDD88FF;
+
     private static final int GUI_WIDTH = 250;
     private static final int GUI_HEIGHT = 180;
 
@@ -63,11 +84,11 @@ public class PillenPresseScreen extends AbstractContainerScreen<PillenPresseMenu
         int y = this.topPos;
 
         // Haupthintergrund - Dunkles Magenta Theme
-        graphics.fill(x, y, x + GUI_WIDTH, y + GUI_HEIGHT, 0xFF1A0A1A);
-        graphics.fill(x + 3, y + 3, x + GUI_WIDTH - 3, y + GUI_HEIGHT - 3, 0xFF2D1D2D);
+        graphics.fill(x, y, x + GUI_WIDTH, y + GUI_HEIGHT, COLOR_BACKGROUND_DARK_MAGENTA);
+        graphics.fill(x + 3, y + 3, x + GUI_WIDTH - 3, y + GUI_HEIGHT - 3, COLOR_BACKGROUND_MEDIUM_MAGENTA);
 
         // Header
-        graphics.fill(x + 3, y + 3, x + GUI_WIDTH - 3, y + 25, 0xFF3D1D3D);
+        graphics.fill(x + 3, y + 3, x + GUI_WIDTH - 3, y + 25, COLOR_HEADER_MAGENTA);
 
         // Design & Farbe Info
         renderPillInfo(graphics, x, y);
@@ -87,7 +108,7 @@ public class PillenPresseScreen extends AbstractContainerScreen<PillenPresseMenu
     private void renderPillInfo(GuiGraphics graphics, int x, int y) {
         // Info-Box
         int infoY = y + 35;
-        graphics.fill(x + 20, infoY, x + GUI_WIDTH - 20, infoY + 28, 0xFF1A0A1A);
+        graphics.fill(x + 20, infoY, x + GUI_WIDTH - 20, infoY + 28, COLOR_BACKGROUND_DARK_MAGENTA);
 
         // Design und Farbe
         String designText = "§7Design: " + menu.getSelectedDesign().getColoredName() +
@@ -107,10 +128,10 @@ public class PillenPresseScreen extends AbstractContainerScreen<PillenPresseMenu
 
     private void renderTimingBar(GuiGraphics graphics, int x, int y, float partialTick) {
         // Rahmen
-        graphics.fill(x - 2, y - 2, x + BAR_WIDTH + 2, y + BAR_HEIGHT + 2, 0xFF555555);
+        graphics.fill(x - 2, y - 2, x + BAR_WIDTH + 2, y + BAR_HEIGHT + 2, COLOR_FRAME_GRAY);
 
         // Hintergrund
-        graphics.fill(x, y, x + BAR_WIDTH, y + BAR_HEIGHT, 0xFF222222);
+        graphics.fill(x, y, x + BAR_WIDTH, y + BAR_HEIGHT, COLOR_BAR_BACKGROUND_DARK);
 
         // Zonen zeichnen (von links nach rechts)
         int goodStartX = x + (int)(GOOD_START * BAR_WIDTH);
@@ -119,15 +140,15 @@ public class PillenPresseScreen extends AbstractContainerScreen<PillenPresseMenu
         int perfectEndX = x + (int)(PERFECT_END * BAR_WIDTH);
 
         // Rote Zonen (Ränder)
-        graphics.fill(x, y + 2, goodStartX, y + BAR_HEIGHT - 2, 0xFFAA3333);
-        graphics.fill(goodEndX, y + 2, x + BAR_WIDTH, y + BAR_HEIGHT - 2, 0xFFAA3333);
+        graphics.fill(x, y + 2, goodStartX, y + BAR_HEIGHT - 2, COLOR_ZONE_BAD_RED);
+        graphics.fill(goodEndX, y + 2, x + BAR_WIDTH, y + BAR_HEIGHT - 2, COLOR_ZONE_BAD_RED);
 
         // Gelbe Zonen
-        graphics.fill(goodStartX, y + 2, perfectStartX, y + BAR_HEIGHT - 2, 0xFFAAAA33);
-        graphics.fill(perfectEndX, y + 2, goodEndX, y + BAR_HEIGHT - 2, 0xFFAAAA33);
+        graphics.fill(goodStartX, y + 2, perfectStartX, y + BAR_HEIGHT - 2, COLOR_ZONE_GOOD_YELLOW);
+        graphics.fill(perfectEndX, y + 2, goodEndX, y + BAR_HEIGHT - 2, COLOR_ZONE_GOOD_YELLOW);
 
         // Grüne Zone (Perfekt)
-        graphics.fill(perfectStartX, y + 2, perfectEndX, y + BAR_HEIGHT - 2, 0xFF33AA33);
+        graphics.fill(perfectStartX, y + 2, perfectEndX, y + BAR_HEIGHT - 2, COLOR_ZONE_PERFECT_GREEN);
 
         // Pulsierender Indikator wenn aktiv
         if (menu.isWaitingForPress() && !hasPressed) {
@@ -139,12 +160,12 @@ public class PillenPresseScreen extends AbstractContainerScreen<PillenPresseMenu
             int pulseOffset = (int)(Math.sin(System.currentTimeMillis() / 100.0) * 2);
 
             graphics.fill(indicatorX - indicatorWidth/2 - 1, y - 3 + pulseOffset,
-                         indicatorX + indicatorWidth/2 + 1, y + BAR_HEIGHT + 3 + pulseOffset, 0xFFFFFFFF);
+                         indicatorX + indicatorWidth/2 + 1, y + BAR_HEIGHT + 3 + pulseOffset, COLOR_INDICATOR_WHITE);
             graphics.fill(indicatorX - indicatorWidth/2, y - 2 + pulseOffset,
                          indicatorX + indicatorWidth/2, y + BAR_HEIGHT + 2 + pulseOffset, 0xFFDDDDDD);
 
             // Pfeil oben
-            graphics.fill(indicatorX - 4, y - 8, indicatorX + 4, y - 3, 0xFFFFFFFF);
+            graphics.fill(indicatorX - 4, y - 8, indicatorX + 4, y - 3, COLOR_INDICATOR_WHITE);
         }
 
         // Labels
@@ -162,16 +183,16 @@ public class PillenPresseScreen extends AbstractContainerScreen<PillenPresseMenu
         String buttonText;
 
         if (hasPressed) {
-            buttonColor = 0xFF333355;
+            buttonColor = COLOR_BUTTON_DISABLED;
             buttonText = "§7GEPRESST!";
         } else if (canPress && hovered) {
-            buttonColor = 0xFFDD55DD;
+            buttonColor = COLOR_BUTTON_ACTIVE_MAGENTA;
             buttonText = "§f⚡ PRESS! ⚡";
         } else if (canPress) {
-            buttonColor = 0xFFAA44AA;
+            buttonColor = COLOR_BUTTON_HOVERED_MAGENTA;
             buttonText = "§f⚡ PRESS! ⚡";
         } else {
-            buttonColor = 0xFF444455;
+            buttonColor = COLOR_BUTTON_PROCESSING;
             buttonText = "§8Warte...";
         }
 
@@ -185,7 +206,7 @@ public class PillenPresseScreen extends AbstractContainerScreen<PillenPresseMenu
         graphics.fill(x + 2, y + 2 + yOffset, x + BUTTON_WIDTH + 2, y + BUTTON_HEIGHT + 2 + yOffset, 0x66000000);
 
         // Button
-        graphics.fill(x - 1, y - 1 + yOffset, x + BUTTON_WIDTH + 1, y + BUTTON_HEIGHT + 1 + yOffset, 0xFF222244);
+        graphics.fill(x - 1, y - 1 + yOffset, x + BUTTON_WIDTH + 1, y + BUTTON_HEIGHT + 1 + yOffset, COLOR_BUTTON_BORDER);
         graphics.fill(x, y + yOffset, x + BUTTON_WIDTH, y + BUTTON_HEIGHT + yOffset, buttonColor);
 
         // Text
@@ -204,19 +225,19 @@ public class PillenPresseScreen extends AbstractContainerScreen<PillenPresseMenu
         switch (quality) {
             case PREMIUM -> {
                 qualityText = "§6★ PERFEKT! ★ §fPremium-Qualität!";
-                qualityColor = 0xFFFFAA00;
+                qualityColor = COLOR_QUALITY_EXCELLENT_ORANGE;
             }
             case GUT -> {
                 qualityText = "§aGUT! §fGute Qualität";
-                qualityColor = 0xFF55FF55;
+                qualityColor = COLOR_QUALITY_PERFECT_GREEN;
             }
             case STANDARD -> {
                 qualityText = "§eOKAY §7Standard-Qualität";
-                qualityColor = 0xFFFFFF55;
+                qualityColor = COLOR_QUALITY_GOOD_YELLOW;
             }
             default -> {
                 qualityText = "§cSCHLECHT §7Minderwertig...";
-                qualityColor = 0xFFFF5555;
+                qualityColor = COLOR_QUALITY_BAD_RED;
             }
         }
 
@@ -236,7 +257,7 @@ public class PillenPresseScreen extends AbstractContainerScreen<PillenPresseMenu
         int y = this.topPos;
 
         // Titel
-        graphics.drawString(this.font, "§d💊 §lPILLEN-PRESSE §d💊", x + 10, y + 8, 0xFFDD88FF, true);
+        graphics.drawString(this.font, "§d💊 §lPILLEN-PRESSE §d💊", x + 10, y + 8, COLOR_TITLE_LIGHT_MAGENTA, true);
 
         // Anleitung
         if (menu.isWaitingForPress() && !hasPressed) {

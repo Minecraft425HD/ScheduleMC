@@ -87,6 +87,22 @@ import java.util.Random;
 import java.util.TreeSet;
 
 public class MapViewRenderer implements Runnable, MapChangeListener {
+    // Chunk Cache Size Constants (for different zoom levels 0-4)
+    private static final int CHUNK_CACHE_LEVEL_0_WIDTH = 3;    // Zoom level 0 cache width
+    private static final int CHUNK_CACHE_LEVEL_0_HEIGHT = 3;   // Zoom level 0 cache height
+    private static final int CHUNK_CACHE_LEVEL_1_WIDTH = 5;    // Zoom level 1 cache width
+    private static final int CHUNK_CACHE_LEVEL_1_HEIGHT = 5;   // Zoom level 1 cache height
+    private static final int CHUNK_CACHE_LEVEL_2_WIDTH = 9;    // Zoom level 2 cache width
+    private static final int CHUNK_CACHE_LEVEL_2_HEIGHT = 9;   // Zoom level 2 cache height
+    private static final int CHUNK_CACHE_LEVEL_3_WIDTH = 17;   // Zoom level 3 cache width
+    private static final int CHUNK_CACHE_LEVEL_3_HEIGHT = 17;  // Zoom level 3 cache height
+    private static final int CHUNK_CACHE_LEVEL_4_WIDTH = 33;   // Zoom level 4 cache width
+    private static final int CHUNK_CACHE_LEVEL_4_HEIGHT = 33;  // Zoom level 4 cache height
+
+    // Color Constants
+    private static final int COLOR_ALPHA_MASK = 0xFF000000;    // Alpha channel mask for colors
+    private static final int COLOR_TEXT_WHITE = 0xFFFFFFFF;    // White color for text and compass
+
     private final Minecraft minecraft = Minecraft.getInstance();
     // private final float[] lastLightBrightnessTable = new float[16];
     private final Object coordinateLock = new Object();
@@ -206,11 +222,11 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         this.mapData[2] = new MapDataRepository(128, 128);
         this.mapData[3] = new MapDataRepository(256, 256);
         this.mapData[4] = new MapDataRepository(512, 512);
-        this.chunkCache[0] = new ChunkCache(3, 3, this);
-        this.chunkCache[1] = new ChunkCache(5, 5, this);
-        this.chunkCache[2] = new ChunkCache(9, 9, this);
-        this.chunkCache[3] = new ChunkCache(17, 17, this);
-        this.chunkCache[4] = new ChunkCache(33, 33, this);
+        this.chunkCache[0] = new ChunkCache(CHUNK_CACHE_LEVEL_0_WIDTH, CHUNK_CACHE_LEVEL_0_HEIGHT, this);
+        this.chunkCache[1] = new ChunkCache(CHUNK_CACHE_LEVEL_1_WIDTH, CHUNK_CACHE_LEVEL_1_HEIGHT, this);
+        this.chunkCache[2] = new ChunkCache(CHUNK_CACHE_LEVEL_2_WIDTH, CHUNK_CACHE_LEVEL_2_HEIGHT, this);
+        this.chunkCache[3] = new ChunkCache(CHUNK_CACHE_LEVEL_3_WIDTH, CHUNK_CACHE_LEVEL_3_HEIGHT, this);
+        this.chunkCache[4] = new ChunkCache(CHUNK_CACHE_LEVEL_4_WIDTH, CHUNK_CACHE_LEVEL_4_HEIGHT, this);
         this.mapImagesFiltered[0] = new DynamicMoveableTexture(32, 32, true);
         this.mapImagesFiltered[1] = new DynamicMoveableTexture(64, 64, true);
         this.mapImagesFiltered[2] = new DynamicMoveableTexture(128, 128, true);
@@ -601,7 +617,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         if (!aboveHorizon) {
             return 0x0A000000 + (int) (r * 255.0F) * 65536 + (int) (g * 255.0F) * 256 + (int) (b * 255.0F);
         } else {
-            int backgroundColor = 0xFF000000 + (int) (r * 255.0F) * 65536 + (int) (g * 255.0F) * 256 + (int) (b * 255.0F);
+            int backgroundColor = COLOR_ALPHA_MASK + (int) (r * 255.0F) * 65536 + (int) (g * 255.0F) * 256 + (int) (b * 255.0F);
             // In 1.20.1, EnvironmentAttributes doesn't exist - skipping sunset color overlay
             return backgroundColor;
         }
@@ -1065,7 +1081,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
 
         if (this.options.biomeOverlay == 1) {
             if (biome != null) {
-                color24 = ARGBCompat.toABGR(BiomeColors.getBiomeColor(biome) | 0xFF000000);
+                color24 = ARGBCompat.toABGR(BiomeColors.getBiomeColor(biome) | COLOR_ALPHA_MASK);
             } else {
                 color24 = 0;
             }
@@ -1294,7 +1310,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
                     Block materialAbove = blockStateAbove.getBlock();
                     if (this.options.lightmap && materialAbove == Blocks.ICE) {
                         int multiplier = minecraft.options.ambientOcclusion().get() ? 200 : 120;
-                        seafloorLight = ColorUtils.colorMultiplier(seafloorLight, 0xFF000000 | multiplier << 16 | multiplier << 8 | multiplier);
+                        seafloorLight = ColorUtils.colorMultiplier(seafloorLight, COLOR_ALPHA_MASK | multiplier << 16 | multiplier << 8 | multiplier);
                     }
 
                     this.mapData[zoom].setOceanFloorLight(imageX, imageY, seafloorLight);
@@ -1816,9 +1832,9 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
                     float x = (float) (o.x * factor);
                     float z = (float) (o.z * factor);
                     if (this.options.oldNorth) {
-                        this.write(guiGraphics, name, (left + textureSize) - z - (nameWidth / 2f), top + x - 3.0F, 0xFFFFFFFF);
+                        this.write(guiGraphics, name, (left + textureSize) - z - (nameWidth / 2f), top + x - 3.0F, COLOR_TEXT_WHITE);
                     } else {
-                        this.write(guiGraphics, name, left + x - (nameWidth / 2f), top + z - 3.0F, 0xFFFFFFFF);
+                        this.write(guiGraphics, name, left + x - (nameWidth / 2f), top + z - 3.0F, COLOR_TEXT_WHITE);
                     }
                 }
             }
@@ -1862,19 +1878,19 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
 
         poseStack.pushPose();
         poseStack.translate((float) (distance * Math.sin(Math.toRadians(-(rotate - 90.0)))), (float) (distance * Math.cos(Math.toRadians(-(rotate - 90.0)))), 0.0f);
-        this.write(drawContext, "N", x / scale - 2.0F, y / scale - 4.0F, 0xFFFFFFFF);
+        this.write(drawContext, "N", x / scale - 2.0F, y / scale - 4.0F, COLOR_TEXT_WHITE);
         poseStack.popPose();
         poseStack.pushPose();
         poseStack.translate((float) (distance * Math.sin(Math.toRadians(-rotate))), (float) (distance * Math.cos(Math.toRadians(-rotate))), 0.0f);
-        this.write(drawContext, "E", x / scale - 2.0F, y / scale - 4.0F, 0xFFFFFFFF);
+        this.write(drawContext, "E", x / scale - 2.0F, y / scale - 4.0F, COLOR_TEXT_WHITE);
         poseStack.popPose();
         poseStack.pushPose();
         poseStack.translate((float) (distance * Math.sin(Math.toRadians(-(rotate + 90.0)))), (float) (distance * Math.cos(Math.toRadians(-(rotate + 90.0)))), 0.0f);
-        this.write(drawContext, "S", x / scale - 2.0F, y / scale - 4.0F, 0xFFFFFFFF);
+        this.write(drawContext, "S", x / scale - 2.0F, y / scale - 4.0F, COLOR_TEXT_WHITE);
         poseStack.popPose();
         poseStack.pushPose();
         poseStack.translate((float) (distance * Math.sin(Math.toRadians(-(rotate + 180.0)))), (float) (distance * Math.cos(Math.toRadians(-(rotate + 180.0)))), 0.0f);
-        this.write(drawContext, "W", x / scale - 2.0F, y / scale - 4.0F, 0xFFFFFFFF);
+        this.write(drawContext, "W", x / scale - 2.0F, y / scale - 4.0F, COLOR_TEXT_WHITE);
         poseStack.popPose();
 
         poseStack.popPose();

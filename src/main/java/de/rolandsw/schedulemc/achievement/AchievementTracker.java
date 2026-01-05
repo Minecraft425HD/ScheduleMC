@@ -24,9 +24,11 @@ import java.util.UUID;
 public class AchievementTracker {
     private static final Logger LOGGER = LogUtils.getLogger();
 
+    // Achievement Check Configuration
+    private static final long CHECK_INTERVAL_TICKS = 1200; // Alle 60 Sekunden (20 ticks/sec * 60)
+
     private static AchievementManager achievementManager;
     private static long lastCheckTicks = 0;
-    private static final long CHECK_INTERVAL = 1200; // Alle 60 Sekunden (20 ticks/sec * 60)
 
     @SubscribeEvent
     public static void onServerStarted(ServerStartedEvent event) {
@@ -65,7 +67,7 @@ public class AchievementTracker {
         long currentTicks = server.overworld().getGameTime();
 
         // Checke alle 60 Sekunden
-        if (currentTicks - lastCheckTicks >= CHECK_INTERVAL) {
+        if (currentTicks - lastCheckTicks >= CHECK_INTERVAL_TICKS) {
             lastCheckTicks = currentTicks;
 
             // Checke alle online Spieler

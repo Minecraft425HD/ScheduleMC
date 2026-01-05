@@ -34,12 +34,27 @@ public class CrackKocherBlockEntity extends BlockEntity implements IUtilityConsu
 
     private boolean lastActiveState = false;
 
-    // Timing-Konstanten
-    public static final int COOK_CYCLE_TICKS = 80;  // 4 Sekunden
+    // Timing window constants (for minigame)
+    public static final int COOK_CYCLE_TICKS = 80;  // 4 Sekunden (4 seconds total cook time)
     public static final int PERFECT_WINDOW_START = 35;
     public static final int PERFECT_WINDOW_END = 45;
     public static final int GOOD_WINDOW_START = 28;
     public static final int GOOD_WINDOW_END = 52;
+
+    // Score calculation constants
+    private static final double PERFECT_BASE_SCORE = 1.0;
+    private static final double PERFECT_DISTANCE_PENALTY = 0.05;
+    private static final double PERFECT_PENALTY_DIVISOR = 10.0;
+    private static final double GOOD_BASE_SCORE = 0.6;
+    private static final double GOOD_BONUS_MULTIPLIER = 0.3;
+    private static final double GOOD_DISTANCE_DIVISOR = 20.0;
+    private static final int GOOD_CENTER_TICK = 40;
+    private static final double EARLY_BASE_SCORE = 0.2;
+    private static final double EARLY_PROGRESS_BONUS = 0.3;
+    private static final double LATE_BASE_SCORE = 0.5;
+    private static final double LATE_MIN_SCORE = 0.1;
+    private static final double LATE_PENALTY_MULTIPLIER = 0.4;
+    private static final double LATE_PENALTY_DIVISOR = 30.0;
 
     // Zutaten
     private int cocaineGrams = 0;
@@ -118,16 +133,16 @@ public class CrackKocherBlockEntity extends BlockEntity implements IUtilityConsu
             // Perfekt - Fishscale!
             int perfectCenter = (PERFECT_WINDOW_START + PERFECT_WINDOW_END) / 2;
             double distanceFromPerfect = Math.abs(cookTick - perfectCenter);
-            score = 1.0 - (distanceFromPerfect / 10.0) * 0.05;
+            score = PERFECT_BASE_SCORE - (distanceFromPerfect / PERFECT_PENALTY_DIVISOR) * PERFECT_DISTANCE_PENALTY;
         } else if (cookTick >= GOOD_WINDOW_START && cookTick <= GOOD_WINDOW_END) {
             // Gut
-            score = 0.6 + (0.3 * (1.0 - Math.abs(cookTick - 40) / 20.0));
+            score = GOOD_BASE_SCORE + (GOOD_BONUS_MULTIPLIER * (PERFECT_BASE_SCORE - Math.abs(cookTick - GOOD_CENTER_TICK) / GOOD_DISTANCE_DIVISOR));
         } else if (cookTick < GOOD_WINDOW_START) {
             // Zu früh - unterkokt
-            score = 0.2 + (cookTick / (double) GOOD_WINDOW_START) * 0.3;
+            score = EARLY_BASE_SCORE + (cookTick / (double) GOOD_WINDOW_START) * EARLY_PROGRESS_BONUS;
         } else {
             // Zu spät - überkokt/verbrannt
-            score = Math.max(0.1, 0.5 - ((cookTick - GOOD_WINDOW_END) / 30.0) * 0.4);
+            score = Math.max(LATE_MIN_SCORE, LATE_BASE_SCORE - ((cookTick - GOOD_WINDOW_END) / LATE_PENALTY_DIVISOR) * LATE_PENALTY_MULTIPLIER);
         }
 
         lastTimingScore = score;

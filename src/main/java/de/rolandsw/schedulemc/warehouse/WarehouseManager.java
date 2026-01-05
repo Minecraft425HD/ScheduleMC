@@ -4,6 +4,8 @@ import de.rolandsw.schedulemc.util.ConfigCache;
 
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
+
+import javax.annotation.Nullable;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
@@ -65,7 +67,25 @@ public class WarehouseManager {
     private static final Map<BlockPos, Long> lastDeliveryDayCache = new ConcurrentHashMap<>();
 
     /**
-     * Registriert ein Warehouse
+     * Registers a warehouse in the global warehouse tracking system.
+     * <p>
+     * Adds the warehouse to the internal registry and marks the manager as dirty,
+     * ensuring the warehouse will be included in the next save operation and
+     * participate in automated delivery checks.
+     * </p>
+     * <p>
+     * <strong>Thread Safety:</strong> This method is thread-safe. Uses ConcurrentHashMap
+     * for safe concurrent access.
+     * </p>
+     * <p>
+     * <strong>Persistence:</strong> Triggers dirty flag; changes will be persisted
+     * on next server save or shutdown.
+     * </p>
+     *
+     * @param level the server level containing the warehouse
+     * @param pos the block position of the warehouse block entity
+     * @see #unregisterWarehouse(ServerLevel, BlockPos)
+     * @see #save(MinecraftServer)
      */
     public static void registerWarehouse(ServerLevel level, BlockPos pos) {
         String levelKey = getLevelKey(level);
@@ -75,7 +95,29 @@ public class WarehouseManager {
     }
 
     /**
-     * Deregistriert ein Warehouse
+     * Unregisters a warehouse from the global warehouse tracking system.
+     * <p>
+     * Removes the warehouse from the internal registry and clears any cached
+     * delivery data associated with it. If this was the last warehouse in the
+     * level, removes the level entry entirely.
+     * </p>
+     * <p>
+     * <strong>Thread Safety:</strong> This method is thread-safe. Uses ConcurrentHashMap
+     * for safe concurrent access.
+     * </p>
+     * <p>
+     * <strong>Persistence:</strong> Triggers dirty flag; changes will be persisted
+     * on next server save or shutdown.
+     * </p>
+     * <p>
+     * <strong>Cache Management:</strong> Automatically clears the lastDeliveryDay cache
+     * entry for this position to prevent memory leaks.
+     * </p>
+     *
+     * @param level the server level containing the warehouse
+     * @param pos the block position of the warehouse block entity
+     * @see #registerWarehouse(ServerLevel, BlockPos)
+     * @see #save(MinecraftServer)
      */
     public static void unregisterWarehouse(ServerLevel level, BlockPos pos) {
         String levelKey = getLevelKey(level);
@@ -218,7 +260,29 @@ public class WarehouseManager {
     // ═══════════════════════════════════════════════════════════
 
     /**
-     * Lädt Warehouse-Positionen beim Server-Start
+     * Loads warehouse positions from persistent storage on server startup.
+     * <p>
+     * Reads the warehouse registry from compressed NBT format stored in the world's
+     * data directory. If the data file doesn't exist (e.g., first run), the warehouse
+     * registry remains empty without error.
+     * </p>
+     * <p>
+     * <strong>File Location:</strong> {@code <world>/data/schedulemc_warehouses.dat}
+     * </p>
+     * <p>
+     * <strong>Data Format:</strong> Compressed NBT containing level keys and block positions
+     * </p>
+     * <p>
+     * <strong>Error Handling:</strong> Logs errors but does not throw exceptions. On failure,
+     * the warehouse registry remains in its current state (typically empty on startup).
+     * </p>
+     * <p>
+     * <strong>Thread Safety:</strong> Should only be called during server initialization
+     * before concurrent access begins.
+     * </p>
+     *
+     * @param server the Minecraft server instance, used to locate the world data directory
+     * @see #save(MinecraftServer)
      */
     public static void load(MinecraftServer server) {
         LOGGER.info("★★★ [WarehouseManager] load() aufgerufen! ★★★");
@@ -259,7 +323,33 @@ public class WarehouseManager {
     }
 
     /**
-     * Speichert Warehouse-Positionen beim Server-Stop
+     * Saves warehouse positions to persistent storage.
+     * <p>
+     * Writes the warehouse registry to compressed NBT format in the world's data
+     * directory. Only performs the write operation if the dirty flag is set,
+     * avoiding unnecessary disk I/O when no changes have been made.
+     * </p>
+     * <p>
+     * <strong>File Location:</strong> {@code <world>/data/schedulemc_warehouses.dat}
+     * </p>
+     * <p>
+     * <strong>Data Format:</strong> Compressed NBT containing level keys and block positions
+     * </p>
+     * <p>
+     * <strong>Optimization:</strong> Skips save operation if no changes have been made
+     * (dirty flag is false).
+     * </p>
+     * <p>
+     * <strong>Error Handling:</strong> Logs errors but does not throw exceptions. The dirty
+     * flag is only cleared on successful save.
+     * </p>
+     * <p>
+     * <strong>Thread Safety:</strong> Should typically be called during server shutdown
+     * when concurrent modifications have ceased.
+     * </p>
+     *
+     * @param server the Minecraft server instance, used to locate the world data directory
+     * @see #load(MinecraftServer)
      */
     public static void save(MinecraftServer server) {
         if (!dirty) return;
@@ -305,6 +395,18 @@ public class WarehouseManager {
         return level.dimension().location().toString();
     }
 
+    /**
+     * Retrieves a ServerLevel by its dimension key string.
+     * <p>
+     * Searches through all loaded server levels to find one matching the specified
+     * dimension key (e.g., "minecraft:overworld", "minecraft:the_nether").
+     * </p>
+     *
+     * @param server the Minecraft server instance
+     * @param key the dimension location key as a string
+     * @return the matching ServerLevel, or null if not found
+     */
+    @Nullable
     private static ServerLevel getLevelByKey(MinecraftServer server, String key) {
         for (ServerLevel level : server.getAllLevels()) {
             if (getLevelKey(level).equals(key)) {
@@ -320,8 +422,24 @@ public class WarehouseManager {
     }
 
     /**
-     * Gibt alle registrierten Warehouse-Positionen zurück (für Debugging)
-     * SICHERHEIT: Deep Copy verhindert externe Modifikation
+     * Returns all registered warehouse positions across all levels.
+     * <p>
+     * Primarily used for debugging, monitoring, and administrative commands.
+     * Returns an unmodifiable deep copy of the warehouse registry to prevent
+     * external modification of the internal state.
+     * </p>
+     * <p>
+     * <strong>Thread Safety:</strong> Returns a snapshot copy that is safe to iterate
+     * without synchronization. The returned map and its value sets are independent
+     * copies and will not reflect subsequent changes to the registry.
+     * </p>
+     * <p>
+     * <strong>Performance:</strong> Creates deep copies of all data structures.
+     * Avoid calling frequently in performance-critical code.
+     * </p>
+     *
+     * @return an unmodifiable map of level keys to sets of warehouse positions,
+     *         where the map and sets are defensive copies
      */
     public static Map<String, Set<BlockPos>> getAllWarehouses() {
         Map<String, Set<BlockPos>> copy = new HashMap<>();

@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.mapview.util;
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
 
+import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Set;
@@ -27,10 +28,12 @@ public final class ReflectionUtils {
 
     private ReflectionUtils() {}
 
+    @Nullable
     public static Object getPrivateFieldValueByType(Object o, Class<?> objectClasstype, Class<?> fieldClasstype) {
         return getPrivateFieldValueByType(o, objectClasstype, fieldClasstype, 0);
     }
 
+    @Nullable
     public static Object getPrivateFieldValueByType(Object o, Class<?> objectClasstype, Class<?> fieldClasstype, int index) {
         Class<?> objectClass;
         if (o != null) {

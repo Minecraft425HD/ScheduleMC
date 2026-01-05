@@ -1,6 +1,8 @@
 package de.rolandsw.schedulemc.region;
 
 import net.minecraft.core.BlockPos;
+
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -135,7 +137,8 @@ public class PlotRegion {
     
     public String getOwnerUUID() { return ownerUUID; }
     public void setOwnerUUID(String uuid) { this.ownerUUID = uuid; }
-    
+
+    @Nullable
     public UUID getOwnerUUIDAsUUID() {
         if (ownerUUID == null || ownerUUID.isEmpty()) return null;
         try { return UUID.fromString(ownerUUID); }
@@ -530,6 +533,7 @@ public class PlotRegion {
     /**
      * Gibt Unterbereich nach ID zurück
      */
+    @Nullable
     public PlotArea getSubArea(String areaId) {
         return getSubAreas().stream()
             .filter(area -> area.getId().equals(areaId))
@@ -540,6 +544,7 @@ public class PlotRegion {
     /**
      * Gibt Unterbereich an einer Position zurück
      */
+    @Nullable
     public PlotArea getSubAreaAt(BlockPos pos) {
         for (PlotArea area : getSubAreas()) {
             if (area.contains(pos)) {

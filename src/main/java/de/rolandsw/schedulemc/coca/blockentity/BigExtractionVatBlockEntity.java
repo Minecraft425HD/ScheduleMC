@@ -16,7 +16,7 @@ public class BigExtractionVatBlockEntity extends AbstractExtractionVatBlockEntit
 
     @Override
     protected int getExtractionTime() {
-        return 6000; // 5 Minuten
+        return STANDARD_EXTRACTION_TIME_TICKS;
     }
 
     @Override

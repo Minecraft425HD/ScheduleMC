@@ -42,6 +42,22 @@ public class ThreadPoolManager {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
+    // Thread Pool Configuration
+    private static final int IO_POOL_SIZE = 4;                      // Fixed size for IO pool
+    private static final int RENDER_POOL_SIZE = 2;                  // Fixed size for render pool
+    private static final int SCHEDULED_POOL_SIZE = 2;               // Fixed size for scheduled pool
+    private static final int ASYNC_POOL_MAX_THREADS = 20;
+    private static final long ASYNC_POOL_KEEP_ALIVE_SECONDS = 60L;
+
+    // Retry Configuration
+    private static final int RETRY_DELAY_FIRST_MS = 500;            // First retry delay (500ms)
+    private static final int RETRY_DELAY_SECOND_MS = 1000;          // Second retry delay (1000ms)
+    private static final int RETRY_DELAY_THIRD_MS = 2000;           // Third retry delay (2000ms)
+
+    // Shutdown Timeout Configuration
+    private static final int SHUTDOWN_TIMEOUT_SECONDS = 10;         // Initial shutdown timeout (10 seconds)
+    private static final int SHUTDOWN_FORCE_TIMEOUT_SECONDS = 5;    // Force shutdown timeout (5 seconds)
+
     // ═══════════════════════════════════════════════════════════
     // THREAD POOLS
     // ═══════════════════════════════════════════════════════════
@@ -51,7 +67,7 @@ public class ThreadPoolManager {
      * Fixed Pool mit 4 Threads - genug für async I/O
      */
     private static final ExecutorService IO_POOL = createNamedPool(
-        4,
+        IO_POOL_SIZE,
         "ScheduleMC-IO-%d",
         Thread.NORM_PRIORITY
     );
@@ -61,7 +77,7 @@ public class ThreadPoolManager {
      * Fixed Pool mit 2 Threads - mehr würde GPU bottleneck
      */
     private static final ExecutorService RENDER_POOL = createNamedPool(
-        2,
+        RENDER_POOL_SIZE,
         "ScheduleMC-Render-%d",
         Thread.NORM_PRIORITY - 1 // Niedrigere Priorität als Game-Thread
     );
@@ -71,7 +87,7 @@ public class ThreadPoolManager {
      * Fixed Pool mit CPU-Cores - optimal für CPU-bound tasks
      */
     private static final ExecutorService COMPUTATION_POOL = createNamedPool(
-        Math.max(2, Runtime.getRuntime().availableProcessors() / 2),
+        Math.max(RENDER_POOL_SIZE, Runtime.getRuntime().availableProcessors() / 2),
         "ScheduleMC-Compute-%d",
         Thread.NORM_PRIORITY
     );
@@ -82,8 +98,8 @@ public class ThreadPoolManager {
      */
     private static final ExecutorService ASYNC_POOL = new ThreadPoolExecutor(
         0,
-        20, // Max 20 Threads
-        60L,
+        ASYNC_POOL_MAX_THREADS,
+        ASYNC_POOL_KEEP_ALIVE_SECONDS,
         TimeUnit.SECONDS,
         new SynchronousQueue<>(),
         createThreadFactory("ScheduleMC-Async-%d", Thread.NORM_PRIORITY)
@@ -95,7 +111,7 @@ public class ThreadPoolManager {
      */
     private static final ScheduledExecutorService SCHEDULED_POOL =
         new ScheduledThreadPoolExecutor(
-            2,
+            SCHEDULED_POOL_SIZE,
             createThreadFactory("ScheduleMC-Scheduled-%d", Thread.NORM_PRIORITY)
         );
 
@@ -209,21 +225,21 @@ public class ThreadPoolManager {
     public static CompletableFuture<Void> submitIOWithRetry(Runnable task, String taskName) {
         return CompletableFuture.runAsync(task, IO_POOL)
             .exceptionally(error1 -> {
-                LOGGER.warn("[RETRY 1/3] {} failed, retrying in 500ms: {}", taskName, error1.getMessage());
+                LOGGER.warn("[RETRY 1/3] {} failed, retrying in {}ms: {}", taskName, RETRY_DELAY_FIRST_MS, error1.getMessage());
                 try {
-                    Thread.sleep(500);
+                    Thread.sleep(RETRY_DELAY_FIRST_MS);
                     task.run();
                     LOGGER.info("[RETRY 1/3] {} succeeded", taskName);
                 } catch (Exception error2) {
-                    LOGGER.warn("[RETRY 2/3] {} failed, retrying in 1000ms: {}", taskName, error2.getMessage());
+                    LOGGER.warn("[RETRY 2/3] {} failed, retrying in {}ms: {}", taskName, RETRY_DELAY_SECOND_MS, error2.getMessage());
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(RETRY_DELAY_SECOND_MS);
                         task.run();
                         LOGGER.info("[RETRY 2/3] {} succeeded", taskName);
                     } catch (Exception error3) {
-                        LOGGER.warn("[RETRY 3/3] {} failed, retrying in 2000ms: {}", taskName, error3.getMessage());
+                        LOGGER.warn("[RETRY 3/3] {} failed, retrying in {}ms: {}", taskName, RETRY_DELAY_THIRD_MS, error3.getMessage());
                         try {
-                            Thread.sleep(2000);
+                            Thread.sleep(RETRY_DELAY_THIRD_MS);
                             task.run();
                             LOGGER.info("[RETRY 3/3] {} succeeded", taskName);
                         } catch (Exception error4) {
@@ -323,12 +339,12 @@ public class ThreadPoolManager {
             pool.shutdown();
 
             // Warte max 10 Sekunden auf Abschluss
-            if (!pool.awaitTermination(10, TimeUnit.SECONDS)) {
+            if (!pool.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
                 LOGGER.warn("{} pool did not terminate in time, forcing shutdown", name);
                 pool.shutdownNow();
 
                 // Warte nochmal 5 Sekunden
-                if (!pool.awaitTermination(5, TimeUnit.SECONDS)) {
+                if (!pool.awaitTermination(SHUTDOWN_FORCE_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
                     LOGGER.error("{} pool did not terminate even after forced shutdown", name);
                 }
             }

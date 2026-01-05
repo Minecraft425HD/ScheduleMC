@@ -7,9 +7,13 @@ import de.rolandsw.schedulemc.production.core.ProductionQuality;
  * Mikrogramm-basiert für realistische Dosierung
  */
 public enum LSDDosage implements ProductionQuality {
+    // Dosierungs-Konstanten (in Mikrogramm)
+    private static final int STANDARD_DOSAGE_UG = 100; // Standard-Dosierung
+    private static final int STRONG_DOSAGE_UG = 200; // Starke Dosierung
+
     SCHWACH("Schwach", "§7", 0, 50, 1.0, "Leichte Effekte"),
-    STANDARD("Standard", "§a", 1, 100, 2.0, "Normale Dosis"),
-    STARK("Stark", "§e", 2, 200, 3.5, "Intensive Erfahrung"),
+    STANDARD("Standard", "§a", 1, STANDARD_DOSAGE_UG, 2.0, "Normale Dosis"),
+    STARK("Stark", "§e", 2, STRONG_DOSAGE_UG, 3.5, "Intensive Erfahrung"),
     BICYCLE_DAY("Bicycle Day", "§d§l", 3, 300, 6.0, "Hofmann-Dosis");
 
     private final String displayName;
