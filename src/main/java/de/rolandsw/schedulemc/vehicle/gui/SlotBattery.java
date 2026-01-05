@@ -1,7 +1,7 @@
 package de.rolandsw.schedulemc.vehicle.gui;
 
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
-import de.rolandsw.schedulemc.vehicle.items.ModItems;
+import de.rolandsw.schedulemc.vehicle.items.VehicleItems;
 import net.minecraft.world.Containers;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
@@ -21,7 +21,7 @@ public class SlotBattery extends Slot {
 
     @Override
     public void set(ItemStack stack) {
-        if (!stack.getItem().equals(ModItems.BATTERY.get())) {
+        if (!stack.getItem().equals(VehicleItems.BATTERY.get())) {
             return;
         }
 
@@ -42,7 +42,7 @@ public class SlotBattery extends Slot {
 
     @Override
     public boolean mayPlace(ItemStack stack) {
-        return stack.getItem().equals(ModItems.BATTERY.get());
+        return stack.getItem().equals(VehicleItems.BATTERY.get());
     }
 
 }

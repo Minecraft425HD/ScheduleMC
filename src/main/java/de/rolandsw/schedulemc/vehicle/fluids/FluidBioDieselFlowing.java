@@ -1,7 +1,7 @@
 package de.rolandsw.schedulemc.vehicle.fluids;
 
 import de.rolandsw.schedulemc.vehicle.blocks.ModBlocks;
-import de.rolandsw.schedulemc.vehicle.items.ModItems;
+import de.rolandsw.schedulemc.vehicle.items.VehicleItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
@@ -15,7 +15,7 @@ public class FluidBioDieselFlowing extends VehicleFluidFlowing {
                 () -> ModFluids.BIO_DIESEL.get(),
                 () -> ModFluids.BIO_DIESEL_FLOWING.get())
                 .block(() -> ModBlocks.BIO_DIESEL.get())
-                .bucket(() -> ModItems.BIO_DIESEL_BUCKET.get())
+                .bucket(() -> VehicleItems.BIO_DIESEL_BUCKET.get())
         );
     }
 

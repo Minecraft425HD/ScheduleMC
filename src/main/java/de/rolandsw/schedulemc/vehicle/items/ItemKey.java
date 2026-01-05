@@ -83,7 +83,7 @@ public class ItemKey extends Item {
     }
 
     public static ItemStack getKeyForVehicle(UUID vehicle) {
-        ItemStack stack = new ItemStack(ModItems.KEY.get());
+        ItemStack stack = new ItemStack(VehicleItems.KEY.get());
 
         setVehicle(stack, vehicle);
 

@@ -113,22 +113,12 @@ public class WorldMapData implements MapChangeListener {
         if (world != null) {
             this.newWorldStuff();
         } else {
-            Thread pauseForSubworldNamesThread = new Thread(null, null, "MapDataManager Pause for Subworld Name Thread") {
-                @Override
-                public void run() {
-                    try {
-                        Thread.sleep(2000L);
-                    } catch (InterruptedException var2) {
-                        MapViewConstants.getLogger().error(var2);
-                    }
-
-                    if (WorldMapData.this.world != null) {
-                        WorldMapData.this.newWorldStuff();
-                    }
-
+            // Pause for 2 seconds before checking world again (using ThreadPoolManager)
+            de.rolandsw.schedulemc.util.ThreadPoolManager.schedule(() -> {
+                if (WorldMapData.this.world != null) {
+                    WorldMapData.this.newWorldStuff();
                 }
-            };
-            pauseForSubworldNamesThread.start();
+            }, 2000, java.util.concurrent.TimeUnit.MILLISECONDS);
         }
 
     }

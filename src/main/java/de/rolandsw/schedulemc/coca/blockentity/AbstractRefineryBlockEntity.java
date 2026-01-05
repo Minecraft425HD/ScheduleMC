@@ -24,7 +24,10 @@ import org.jetbrains.annotations.Nullable;
  */
 public abstract class AbstractRefineryBlockEntity extends BlockEntity implements IUtilityConsumer {
 
+    private static final int TICK_INTERVAL = 5; // Nur alle 5 Ticks verarbeiten (Performance-Optimierung)
+
     private boolean lastActiveState = false;
+    private int tickCounter = 0;
 
     private ItemStack[] inputs;
     private ItemStack[] outputs;
@@ -32,6 +35,7 @@ public abstract class AbstractRefineryBlockEntity extends BlockEntity implements
     private CocaType[] cocaTypes;
     private TobaccoQuality[] qualities;
     private int fuelLevel = 0;
+    private int lastSyncedFuelLevel = -1;
 
     // Optional: ProductionSize für vereinfachte Subklassen
     protected final ProductionSize size;
@@ -228,6 +232,12 @@ public abstract class AbstractRefineryBlockEntity extends BlockEntity implements
     public void tick() {
         if (level == null || level.isClientSide) return;
 
+        tickCounter++;
+        if (tickCounter < TICK_INTERVAL) {
+            return; // Nur alle 5 Ticks verarbeiten
+        }
+        tickCounter = 0;
+
         boolean changed = false;
 
         for (int i = 0; i < getCapacity(); i++) {
@@ -237,10 +247,11 @@ public abstract class AbstractRefineryBlockEntity extends BlockEntity implements
                     continue; // Kein Brennstoff - pausiere
                 }
 
-                refineryProgress[i]++;
+                refineryProgress[i] += TICK_INTERVAL;
 
-                // Verbrauche Brennstoff (1 pro 20 Ticks = 1 Sekunde)
-                if (refineryProgress[i] % 20 == 0) {
+                // Verbrauche Brennstoff (TICK_INTERVAL pro 20 Ticks = alle 4 Verarbeitungszyklen)
+                int fuelConsumptionThreshold = 20;
+                if (refineryProgress[i] % fuelConsumptionThreshold < TICK_INTERVAL) {
                     fuelLevel = Math.max(0, fuelLevel - 1);
                 }
 
@@ -250,16 +261,14 @@ public abstract class AbstractRefineryBlockEntity extends BlockEntity implements
                     outputs[i] = CocaineItem.create(cocaTypes[i], finalQuality, 1);
                     changed = true;
                 }
-
-                if (refineryProgress[i] % 20 == 0) {
-                    changed = true;
-                }
             }
         }
 
-        if (changed) {
+        // Nur bei signifikanten Änderungen synchronisieren
+        if (changed || Math.abs(fuelLevel - lastSyncedFuelLevel) >= 10) {
             setChanged();
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+            lastSyncedFuelLevel = fuelLevel;
         }
 
         // Utility-Status nur bei Änderung melden

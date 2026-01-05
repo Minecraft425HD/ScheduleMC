@@ -94,6 +94,13 @@ public class PoliceAIHandler {
     private static final Map<UUID, CachedPlayerData> playerCache = new ConcurrentHashMap<>();
     private static long lastCacheUpdateTick = -1;
 
+    // ═══════════════════════════════════════════════════════════════════════════
+    // OPTIMIERUNG: Globaler NPC-Cache (aktualisiert einmal pro Server-Tick)
+    // Verhindert teure getEntitiesOfClass() Aufrufe in onPlayerTick()
+    // ═══════════════════════════════════════════════════════════════════════════
+    private static final Map<UUID, CachedNPCData> npcCache = new ConcurrentHashMap<>();
+    private static long lastNPCCacheUpdateTick = -1;
+
     /**
      * Gecachte Spielerdaten für schnellen Zugriff
      */
@@ -106,6 +113,21 @@ public class PoliceAIHandler {
             this.player = player;
             this.position = player.position();
             this.wantedLevel = CrimeManager.getWantedLevel(player.getUUID());
+        }
+    }
+
+    /**
+     * Gecachte NPC-Daten für schnellen Zugriff
+     */
+    private static class CachedNPCData {
+        final CustomNPCEntity npc;
+        final Vec3 position;
+        final boolean isKnockedOut;
+
+        CachedNPCData(CustomNPCEntity npc) {
+            this.npc = npc;
+            this.position = npc.position();
+            this.isKnockedOut = npc.getPersistentData().getBoolean("IsKnockedOut");
         }
     }
 
@@ -129,6 +151,30 @@ public class PoliceAIHandler {
     }
 
     /**
+     * Aktualisiert den NPC-Cache einmal pro Server-Tick.
+     * Sollte vom Server-Tick-Handler aufgerufen werden.
+     *
+     * @param server Der Minecraft Server
+     * @param currentTick Aktueller Game-Tick
+     */
+    public static void updateNPCCache(net.minecraft.server.MinecraftServer server, long currentTick) {
+        // Nur einmal pro Tick aktualisieren
+        if (currentTick == lastNPCCacheUpdateTick) return;
+        lastNPCCacheUpdateTick = currentTick;
+
+        // Alte Einträge entfernen und neue hinzufügen
+        npcCache.clear();
+        for (ServerLevel level : server.getAllLevels()) {
+            // Sammle alle Polizei-NPCs in dieser Welt
+            for (net.minecraft.world.entity.Entity entity : level.getAllEntities()) {
+                if (entity instanceof CustomNPCEntity npc && npc.getNpcType() == NPCType.POLIZEI) {
+                    npcCache.put(npc.getUUID(), new CachedNPCData(npc));
+                }
+            }
+        }
+    }
+
+    /**
      * Findet Spieler im Radius einer Position (nutzt Cache statt Entity-Lookup)
      * O(n) mit n = Anzahl Online-Spieler (typisch 10-100) statt World-Entity-Scan
      *
@@ -143,6 +189,27 @@ public class PoliceAIHandler {
         for (CachedPlayerData data : playerCache.values()) {
             if (data.position.distanceToSqr(center) <= radiusSq) {
                 result.add(data.player);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Findet Polizei-NPCs im Radius einer Position (nutzt Cache statt Entity-Lookup)
+     * O(n) mit n = Anzahl Polizei-NPCs (typisch 10-50) statt World-Entity-Scan
+     *
+     * @param center Zentrum der Suche
+     * @param radius Suchradius
+     * @return Liste von Polizei-NPCs im Radius
+     */
+    private static List<CustomNPCEntity> getPoliceInRadius(Vec3 center, double radius) {
+        List<CustomNPCEntity> result = new ArrayList<>();
+        double radiusSq = radius * radius;
+
+        for (CachedNPCData data : npcCache.values()) {
+            if (!data.isKnockedOut && data.position.distanceToSqr(center) <= radiusSq) {
+                result.add(data.npc);
             }
         }
 
@@ -567,13 +634,9 @@ public class PoliceAIHandler {
         if (wantedLevel > 0) {
             long currentTick = player.level().getGameTime();
 
-            // Finde nächste Polizei (OPTIMIERT: konfigurierbar statt hardcoded 100)
+            // Finde nächste Polizei (OPTIMIERT: Nutzt Cache statt getEntitiesOfClass)
             int backupSearchRadius = ModConfigHandler.COMMON.POLICE_BACKUP_SEARCH_RADIUS.get();
-            List<CustomNPCEntity> nearbyPolice = player.level().getEntitiesOfClass(
-                CustomNPCEntity.class,
-                AABB.ofSize(player.position(), backupSearchRadius, backupSearchRadius, backupSearchRadius),
-                npc -> npc.getNpcType() == NPCType.POLIZEI && !npc.getPersistentData().getBoolean("IsKnockedOut")
-            );
+            List<CustomNPCEntity> nearbyPolice = getPoliceInRadius(player.position(), backupSearchRadius);
 
             double minDistance = Double.MAX_VALUE;
             for (CustomNPCEntity police : nearbyPolice) {

@@ -993,32 +993,23 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
      * Plant ein GUI-Refresh nach kurzer Zeit ein, damit Server-Daten synchronisiert werden können
      */
     private void scheduleRefresh() {
-        // Schedule refresh after 5 ticks to allow server sync
-        new Thread(() -> {
-            try {
-                Thread.sleep(250); // 250ms delay for server sync
-            } catch (InterruptedException e) {
-                // Ignore
-            }
+        // Schedule refresh after 250ms to allow server sync (using ThreadPoolManager)
+        de.rolandsw.schedulemc.util.ThreadPoolManager.schedule(() -> {
             // Execute on main thread
             minecraft.execute(() -> {
                 if (this.menu != null && this.menu.getWarehouse() != null) {
                     initTabComponents();
                 }
             });
-        }).start();
+        }, 250, java.util.concurrent.TimeUnit.MILLISECONDS);
     }
 
     /**
      * Spezielle Refresh-Methode für Item-Hinzufügung mit längerer Verzögerung
      */
     private void scheduleRefreshForItemAddition() {
-        new Thread(() -> {
-            try {
-                Thread.sleep(500); // Längere Verzögerung für Item-Addition
-            } catch (InterruptedException e) {
-                // Ignore
-            }
+        // Schedule refresh after 500ms for item addition (using ThreadPoolManager)
+        de.rolandsw.schedulemc.util.ThreadPoolManager.schedule(() -> {
             // Execute on main thread - kompletter Refresh
             minecraft.execute(() -> {
                 if (this.menu != null && this.menu.getWarehouse() != null) {
@@ -1030,7 +1021,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
                     init();
                 }
             });
-        }).start();
+        }, 500, java.util.concurrent.TimeUnit.MILLISECONDS);
     }
 
     // ═══════════════════════════════════════════════════════════

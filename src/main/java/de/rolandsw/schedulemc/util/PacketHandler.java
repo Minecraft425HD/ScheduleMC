@@ -1,9 +1,11 @@
 package de.rolandsw.schedulemc.util;
 
+import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.ScheduleMC;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
+import org.slf4j.Logger;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -16,6 +18,8 @@ import java.util.function.Supplier;
  * Pattern inspiriert von CommandExecutor (Phase D)
  */
 public class PacketHandler {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     /**
      * Standard Packet-Handler mit automatischem Player-Check
@@ -37,7 +41,7 @@ public class PacketHandler {
                         Component.literal("§cPacket-Fehler: " + e.getMessage())
                     );
                     // Log but don't crash
-                    e.printStackTrace();
+                    LOGGER.error("Packet handling error for player {}: {}", player.getName().getString(), e.getMessage(), e);
                 }
             }
         });

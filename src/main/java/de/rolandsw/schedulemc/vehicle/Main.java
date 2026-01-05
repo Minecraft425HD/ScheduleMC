@@ -14,7 +14,7 @@ import de.rolandsw.schedulemc.vehicle.events.*;
 import de.rolandsw.schedulemc.vehicle.fluids.ModFluids;
 import de.rolandsw.schedulemc.vehicle.gui.*;
 import de.rolandsw.schedulemc.vehicle.items.ItemLicensePlate;
-import de.rolandsw.schedulemc.vehicle.items.ModItems;
+import de.rolandsw.schedulemc.vehicle.items.VehicleItems;
 import de.rolandsw.schedulemc.vehicle.net.*;
 import de.rolandsw.schedulemc.vehicle.sounds.ModSounds;
 import de.maxhenkel.corelib.ClientRegistry;
@@ -85,9 +85,9 @@ public class Main {
 
         ModFluids.init();
         ModBlocks.init();
-        ModItems.init();
+        VehicleItems.init();
         ModSounds.init();
-        ModCreativeTabs.init();
+        VehicleCreativeTabs.init();
         de.rolandsw.schedulemc.vehicle.recipes.ModRecipes.init();
 
         MENU_TYPE_REGISTER.register(FMLJavaModLoadingContext.get().getModEventBus());

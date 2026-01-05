@@ -2,7 +2,7 @@ package de.rolandsw.schedulemc.vehicle.gui;
 
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import de.rolandsw.schedulemc.vehicle.items.ItemCanister;
-import de.rolandsw.schedulemc.vehicle.items.ModItems;
+import de.rolandsw.schedulemc.vehicle.items.VehicleItems;
 import de.rolandsw.schedulemc.vehicle.sounds.ModSounds;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -25,7 +25,7 @@ public class SlotFuel extends Slot {
 
     @Override
     public void set(ItemStack stack) {
-        if (!stack.getItem().equals(ModItems.CANISTER.get())) {
+        if (!stack.getItem().equals(VehicleItems.CANISTER.get())) {
             return;
         }
 
@@ -42,7 +42,7 @@ public class SlotFuel extends Slot {
 
     @Override
     public boolean mayPlace(ItemStack stack) {
-        return stack.getItem().equals(ModItems.CANISTER.get());
+        return stack.getItem().equals(VehicleItems.CANISTER.get());
     }
 
 }
