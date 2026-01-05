@@ -9,7 +9,8 @@ import net.minecraft.server.level.ServerPlayer;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
