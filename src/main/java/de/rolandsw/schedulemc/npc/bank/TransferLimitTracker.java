@@ -55,30 +55,48 @@ public class TransferLimitTracker {
     /**
      * Prüft ob Überweisung im Limit ist und aktualisiert bei Erfolg
      *
+     * SICHERHEIT FIX: Atomare Check-And-Update Operation verhindert TOCTOU Race Condition
+     * - Vorher: Thread 1 und 2 lesen beide totalTransferred=0, beide updaten auf 100 -> Limit umgangen!
+     * - Jetzt: Synchronized block garantiert atomare Operation
+     *
      * @param playerUUID UUID des Spielers
      * @param amount Überweisungsbetrag
      * @return true wenn im Limit, false wenn Limit überschritten
      */
     public boolean checkAndUpdateLimit(UUID playerUUID, double amount) {
-        DailyTransferData data = dailyTransfers.computeIfAbsent(playerUUID,
-            k -> new DailyTransferData(currentDay));
-
-        // Reset wenn neuer Tag
-        if (data.day != currentDay) {
-            data = new DailyTransferData(currentDay);
-            dailyTransfers.put(playerUUID, data);
-        }
-
         double dailyLimit = ModConfigHandler.COMMON.BANK_TRANSFER_DAILY_LIMIT.get();
-        double newTotal = data.totalTransferred + amount;
 
-        if (newTotal > dailyLimit) {
-            return false;
+        // SICHERHEIT: Atomare Operation mit synchronized auf dem spezifischen Player-Eintrag
+        // Nutzt ConcurrentHashMap.compute() für lock-freie Concurrency auf Map-Ebene
+        // und synchronized auf Data-Objekt-Ebene für atomare Check-Update
+        final boolean[] success = {false};
+
+        dailyTransfers.compute(playerUUID, (key, data) -> {
+            // Erstelle neue Data wenn nicht vorhanden oder Tag gewechselt
+            if (data == null || data.day != currentDay) {
+                data = new DailyTransferData(currentDay);
+            }
+
+            // ATOMARE Check-And-Update Operation
+            synchronized (data) {
+                double newTotal = data.totalTransferred + amount;
+
+                if (newTotal <= dailyLimit) {
+                    data.totalTransferred = newTotal;
+                    success[0] = true;
+                } else {
+                    success[0] = false;
+                }
+            }
+
+            return data;
+        });
+
+        if (success[0]) {
+            save();
         }
 
-        data.totalTransferred = newTotal;
-        save();
-        return true;
+        return success[0];
     }
 
     /**

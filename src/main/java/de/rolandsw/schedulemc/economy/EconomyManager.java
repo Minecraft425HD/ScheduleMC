@@ -274,7 +274,11 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
         });
 
         markDirty();
-        LOGGER.debug("Einzahlung: {} € für {} ({})", amount, uuid, type);
+
+        // AUDIT: Strukturiertes Transaction Logging für Forensics
+        LOGGER.info("[ECONOMY] DEPOSIT | Player={} | Amount=+{}€ | Type={} | Balance={}€ | Description={}",
+            uuid, String.format("%.2f", amount), type, String.format("%.2f", newBalance[0]),
+            description != null ? description : "N/A");
 
         // Transaction History
         logTransaction(uuid, type, null, uuid, amount, description, newBalance[0]);
@@ -327,11 +331,19 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
 
         if (success[0]) {
             markDirty();
-            LOGGER.debug("Abbuchung: {} € von {} ({}) - Neuer Stand: {}", amount, uuid, type, resultBalance[0]);
+
+            // AUDIT: Strukturiertes Transaction Logging für Forensics
+            LOGGER.info("[ECONOMY] WITHDRAW | Player={} | Amount=-{}€ | Type={} | Balance={}€ | Description={}",
+                uuid, String.format("%.2f", amount), type, String.format("%.2f", resultBalance[0]),
+                description != null ? description : "N/A");
 
             // Transaction History
             logTransaction(uuid, type, uuid, null, -amount, description, resultBalance[0]);
             return true;
+        } else {
+            // AUDIT: Fehlgeschlagene Transaktion loggen
+            LOGGER.warn("[ECONOMY] WITHDRAW_FAILED | Player={} | Amount=-{}€ | Type={} | Reason=InsufficientFunds | Balance={}€",
+                uuid, String.format("%.2f", amount), type, String.format("%.2f", resultBalance[0]));
         }
         return false;
     }
@@ -354,7 +366,11 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
         double difference = amount - oldBalance;
         balances.put(uuid, amount);
         markDirty();
-        LOGGER.info("Guthaben gesetzt: {} auf {} € ({})", uuid, amount, type);
+
+        // AUDIT: Strukturiertes Admin-Transaction Logging
+        LOGGER.info("[ECONOMY] SET_BALANCE | Player={} | OldBalance={}€ | NewBalance={}€ | Difference={}€ | Type={} | Description={}",
+            uuid, String.format("%.2f", oldBalance), String.format("%.2f", amount),
+            String.format("%.2f", difference), type, description != null ? description : "N/A");
 
         // Transaction History
         logTransaction(uuid, type, null, uuid, difference, description, amount);
