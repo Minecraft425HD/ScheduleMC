@@ -5,8 +5,11 @@ import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
 
 import java.util.Map;
+import java.util.ArrayList;
 import java.util.UUID;
+import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
 
 /**
  * Memory Leak Prevention für EconomyManager

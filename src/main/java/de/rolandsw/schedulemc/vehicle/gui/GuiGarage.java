@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.vehicle.gui;
+import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.Part;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.logging.LogUtils;

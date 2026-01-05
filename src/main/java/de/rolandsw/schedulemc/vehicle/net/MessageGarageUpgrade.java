@@ -9,6 +9,7 @@ import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartEngine;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartRegistry;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartTank;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartTireBase;
+import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartBody;
 import de.maxhenkel.corelib.net.Message;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.FriendlyByteBuf;

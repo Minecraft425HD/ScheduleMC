@@ -9,9 +9,13 @@ import de.rolandsw.schedulemc.region.PlotManager;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.LinkedHashMap;
 
 /**
  * Zentraler Health-Check-Manager für alle Systeme

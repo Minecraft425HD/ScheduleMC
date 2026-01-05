@@ -19,10 +19,15 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.ArrayList;
 import java.util.Optional;
+import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
 
 /**
  * Verwaltet Utility-Verbrauch für alle Plots

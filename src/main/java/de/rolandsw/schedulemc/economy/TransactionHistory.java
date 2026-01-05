@@ -15,12 +15,19 @@ import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Collections;
 import java.util.Map;
+import java.util.Collections;
 import java.util.UUID;
+import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.Collections;
 import java.util.stream.Collectors;
+import java.util.Collections;
 
 /**
  * Verwaltet die Transaktionshistorie aller Spieler

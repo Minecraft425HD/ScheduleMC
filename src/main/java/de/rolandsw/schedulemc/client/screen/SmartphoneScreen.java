@@ -13,6 +13,7 @@ import de.rolandsw.schedulemc.client.screen.apps.OrderAppScreen;
 import de.rolandsw.schedulemc.client.screen.apps.PlotAppScreen;
 import de.rolandsw.schedulemc.client.screen.apps.ProductsAppScreen;
 import de.rolandsw.schedulemc.client.screen.apps.SettingsAppScreen;
+import de.rolandsw.schedulemc.client.screen.apps.CrimeStatsAppScreen;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;

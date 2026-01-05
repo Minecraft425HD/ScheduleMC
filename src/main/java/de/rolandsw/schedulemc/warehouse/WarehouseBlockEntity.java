@@ -20,8 +20,11 @@ import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.HashMap;
 import java.util.UUID;
+import java.util.HashMap;
 
 /**
  * Warehouse BlockEntity - Speichert Items für Shops

@@ -6,9 +6,21 @@ import net.minecraft.server.level.ServerLevel;
 import org.slf4j.Logger;
 
 import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.ArrayList;
 import java.util.UUID;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.ArrayList;
 
 /**
  * NPCEntityRegistry - Central Registry für O(1) NPC Lookups
