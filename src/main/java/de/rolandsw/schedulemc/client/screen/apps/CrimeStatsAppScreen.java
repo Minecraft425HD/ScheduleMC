@@ -21,6 +21,13 @@ import java.util.UUID;
  * - Crime-Statistiken
  */
 @OnlyIn(Dist.CLIENT)
+    // Color constants for UI theming
+    private static final int COLOR_BACKGROUND_OUTER = 0xFF1C1C1C;
+    private static final int COLOR_BACKGROUND_INNER = 0xFF2A2A2A;
+    private static final int COLOR_HEADER = 0xFF1A1A1A;
+    private static final int COLOR_TAB_ACTIVE = 0xFF4A90E2;
+    private static final int COLOR_TEXT_WHITE = 0xFFFFFF;
+
 public class CrimeStatsAppScreen extends Screen {
 
     private final Screen parentScreen;
