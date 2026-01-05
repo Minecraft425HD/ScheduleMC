@@ -5,8 +5,10 @@ import de.rolandsw.schedulemc.economy.items.CashItem;
 import de.rolandsw.schedulemc.npc.crime.CrimeManager;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.util.PacketHandler;
+import de.rolandsw.schedulemc.util.RateLimiter;
 import de.rolandsw.schedulemc.util.SecureRandomUtil;
 import com.mojang.logging.LogUtils;
+import net.minecraft.ChatFormatting;
 import org.slf4j.Logger;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -21,10 +23,16 @@ import java.util.function.Supplier;
 
 /**
  * Packet für Diebstahl-Versuch (Ergebnis des Minigames)
+ *
+ * SICHERHEIT: Rate Limiting gegen Exploits/Spam
  */
 public class StealingAttemptPacket {
 
     private static final Logger LOGGER = LogUtils.getLogger();
+
+    // SICHERHEIT: Rate Limiter - Max 5 Diebstahlversuche pro 10 Sekunden
+    // Verhindert Spam-Exploits und Server-Überlastung
+    private static final RateLimiter STEALING_RATE_LIMITER = new RateLimiter("stealing", 5, 10000);
 
     private final int npcEntityId;
     private final boolean success;
@@ -48,6 +56,14 @@ public class StealingAttemptPacket {
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         PacketHandler.handleServerPacket(ctx, player -> {
+                // SICHERHEIT: Rate Limiting - verhindere Diebstahl-Spam
+                if (!STEALING_RATE_LIMITER.allowOperation(player.getUUID())) {
+                    player.sendSystemMessage(Component.literal("⚠ Zu viele Diebstahlversuche! Warte kurz.")
+                        .withStyle(ChatFormatting.RED));
+                    LOGGER.warn("[AUDIT] Stealing rate limit exceeded: Player={}", player.getName().getString());
+                    return;
+                }
+
                 Entity entity = player.level().getEntity(npcEntityId);
                 if (entity instanceof CustomNPCEntity npc) {
                     long currentDay = player.level().getDayTime() / 24000;

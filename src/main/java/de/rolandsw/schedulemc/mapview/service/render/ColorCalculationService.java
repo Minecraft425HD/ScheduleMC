@@ -84,9 +84,30 @@ public class ColorCalculationService {
     private int[] blockColorsWithDefaultTint = new int[16384];
     private final HashSet<Integer> biomeTintsAvailable = new HashSet<>();
     private boolean optifineInstalled;
-    private final HashMap<Integer, int[][]> blockTintTables = new HashMap<>();
+
+    /**
+     * PERFORMANCE: LRU-Cache mit Max-Size gegen Memory-Leaks
+     * Max 200 Einträge für blockTintTables
+     */
+    private final Map<Integer, int[][]> blockTintTables = new LinkedHashMap<Integer, int[][]>(200, 0.75f, true) {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<Integer, int[][]> eldest) {
+            return size() > 200;
+        }
+    };
+
     private final HashSet<Integer> biomeTextureAvailable = new HashSet<>();
-    private final HashMap<String, Integer> blockBiomeSpecificColors = new HashMap<>();
+
+    /**
+     * PERFORMANCE: LRU-Cache mit Max-Size gegen Memory-Leaks
+     * Max 500 Einträge für blockBiomeSpecificColors
+     */
+    private final Map<String, Integer> blockBiomeSpecificColors = new LinkedHashMap<String, Integer>(500, 0.75f, true) {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<String, Integer> eldest) {
+            return size() > 500;
+        }
+    };
     private float failedToLoadX;
     private float failedToLoadY;
     private String renderPassThreeBlendMode;

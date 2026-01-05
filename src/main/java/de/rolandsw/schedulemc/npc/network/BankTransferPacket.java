@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.npc.network;
 
+import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.economy.TransactionType;
@@ -10,14 +11,19 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
+import org.slf4j.Logger;
 
 import java.util.UUID;
 import java.util.function.Supplier;
 
 /**
  * Packet für Überweisung zwischen Spielern
+ * SICHERHEIT: Audit-Logging für alle Transfer-Versuche
  */
 public class BankTransferPacket {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
+
     private final String targetPlayerName;
     private final double amount;
 
@@ -45,6 +51,9 @@ public class BankTransferPacket {
         PacketHandler.handleServerPacket(ctx, player -> {
             // Prüfe ob Betrag positiv
             if (amount <= 0) {
+                // AUDIT: Log fehlgeschlagenen Transfer
+                LOGGER.warn("[AUDIT] Transfer FAILED - Invalid amount: Player={}, Target={}, Amount={}",
+                    player.getName().getString(), targetPlayerName, amount);
                 player.sendSystemMessage(Component.literal("⚠ Betrag muss positiv sein!")
                     .withStyle(ChatFormatting.RED));
                 return;
@@ -56,6 +65,9 @@ public class BankTransferPacket {
 
             if (amount > remaining) {
                 double dailyLimit = ModConfigHandler.COMMON.BANK_TRANSFER_DAILY_LIMIT.get();
+                // AUDIT: Log Limit-Überschreitung
+                LOGGER.warn("[AUDIT] Transfer BLOCKED - Limit exceeded: Player={}, Target={}, Amount={}, Remaining={}",
+                    player.getName().getString(), targetPlayerName, amount, remaining);
                 player.sendSystemMessage(Component.literal("⚠ Tägliches Transfer-Limit überschritten!")
                     .withStyle(ChatFormatting.RED));
                 player.sendSystemMessage(Component.literal("Limit: ")
@@ -76,6 +88,9 @@ public class BankTransferPacket {
             // Finde Ziel-Spieler
             ServerPlayer targetPlayer = player.server.getPlayerList().getPlayerByName(targetPlayerName);
             if (targetPlayer == null) {
+                // AUDIT: Log fehlgeschlagenen Transfer (Player nicht gefunden)
+                LOGGER.warn("[AUDIT] Transfer FAILED - Target not found: Player={}, Target={}, Amount={}",
+                    player.getName().getString(), targetPlayerName, amount);
                 player.sendSystemMessage(Component.literal("⚠ Spieler nicht gefunden: ")
                     .withStyle(ChatFormatting.RED)
                     .append(Component.literal(targetPlayerName)
@@ -103,6 +118,11 @@ public class BankTransferPacket {
             // Führe Transfer durch
             String description = "Überweisung an " + targetPlayerName;
             if (EconomyManager.transfer(player.getUUID(), targetUUID, amount, description)) {
+                // AUDIT: Log erfolgreichen Transfer
+                LOGGER.info("[AUDIT] Transfer SUCCESS: From={} ({}) -> To={} ({}) Amount={}€",
+                    player.getName().getString(), player.getUUID(),
+                    targetPlayerName, targetUUID, String.format("%.2f", amount));
+
                 // Update Transfer-Tracker
                 tracker.checkAndUpdateLimit(player.getUUID(), amount);
 

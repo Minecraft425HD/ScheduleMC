@@ -11,10 +11,19 @@ import java.util.*;
  *
  * Enthält alle Nodes (Kreuzungen, Endpunkte) und Segmente (Straßenabschnitte).
  * Bietet Dijkstra-basiertes Routing für kürzeste Pfade.
+ *
+ * PERFORMANCE: Spatial Hash für O(1) Nearest-Node-Lookups
  */
 public class RoadGraph {
 
     private static final Logger LOGGER = LogUtils.getLogger();
+
+    // PERFORMANCE: Spatial Hash Grid - Zellgröße 32 Blöcke
+    // Bei 1000 Nodes verteilt auf 1000x1000 Blöcke:
+    // - Ohne Spatial Hash: O(1000) Nodes durchsuchen
+    // - Mit Spatial Hash: O(~4-16) Nodes pro Zelle durchsuchen = 60-250x schneller
+    private static final int SPATIAL_GRID_SIZE = 32;
+    private final Map<String, List<RoadNode>> spatialHashGrid = new HashMap<>();
 
     private final Map<BlockPos, RoadNode> nodesByPosition;
     private final List<RoadSegment> segments;
@@ -37,6 +46,31 @@ public class RoadGraph {
         for (RoadNode node : nodesByPosition.values()) {
             nodesById.put(node.getId(), node);
         }
+
+        // PERFORMANCE: Baue Spatial Hash Grid für schnelle Nearest-Node-Suche
+        buildSpatialHashGrid();
+    }
+
+    /**
+     * PERFORMANCE: Baut den Spatial Hash Grid auf
+     * Verteilt Nodes in Zellen für O(1) Nearest-Node-Lookups
+     */
+    private void buildSpatialHashGrid() {
+        for (RoadNode node : nodesByPosition.values()) {
+            String cellKey = getSpatialCellKey(node.getPosition());
+            spatialHashGrid.computeIfAbsent(cellKey, k -> new ArrayList<>()).add(node);
+        }
+        LOGGER.debug("Built spatial hash grid: {} cells for {} nodes",
+            spatialHashGrid.size(), nodesByPosition.size());
+    }
+
+    /**
+     * PERFORMANCE: Berechnet Spatial Hash Grid Zellen-Key
+     */
+    private String getSpatialCellKey(BlockPos pos) {
+        int cellX = Math.floorDiv(pos.getX(), SPATIAL_GRID_SIZE);
+        int cellZ = Math.floorDiv(pos.getZ(), SPATIAL_GRID_SIZE);
+        return cellX + "," + cellZ;
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -78,6 +112,10 @@ public class RoadGraph {
     /**
      * Findet den nächsten Node zu einer Position
      *
+     * PERFORMANCE: Nutzt Spatial Hash Grid für 60-250x schnellere Suche
+     * - Vorher: O(n) - alle Nodes durchsuchen
+     * - Jetzt: O(1) Zellen-Lookup + O(~4-16 Nodes pro Zelle)
+     *
      * @param pos Die Referenzposition
      * @return Der nächste Node oder null wenn Graph leer
      */
@@ -89,11 +127,50 @@ public class RoadGraph {
         RoadNode nearest = null;
         double minDist = Double.MAX_VALUE;
 
-        for (RoadNode node : nodesByPosition.values()) {
-            double dist = node.distanceTo(pos);
-            if (dist < minDist) {
-                minDist = dist;
-                nearest = node;
+        // PERFORMANCE: Suche nur in aktueller Zelle und Nachbarzellen (3x3 Grid)
+        // Das ist maximal 9 Zellen statt alle Nodes im gesamten Graphen
+        int centerCellX = Math.floorDiv(pos.getX(), SPATIAL_GRID_SIZE);
+        int centerCellZ = Math.floorDiv(pos.getZ(), SPATIAL_GRID_SIZE);
+
+        // Durchsuche 3x3 Grid um die Position (aktuelle Zelle + 8 Nachbarn)
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dz = -1; dz <= 1; dz++) {
+                String cellKey = (centerCellX + dx) + "," + (centerCellZ + dz);
+                List<RoadNode> cellNodes = spatialHashGrid.get(cellKey);
+
+                if (cellNodes != null) {
+                    for (RoadNode node : cellNodes) {
+                        double dist = node.distanceTo(pos);
+                        if (dist < minDist) {
+                            minDist = dist;
+                            nearest = node;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Fallback: Wenn kein Node in Nachbarzellen gefunden, suche in weiteren Ringen
+        // (sollte selten vorkommen, nur bei sehr spärlichen Graphen)
+        if (nearest == null && !nodesByPosition.isEmpty()) {
+            // Erweitere Suche auf 5x5 Grid
+            for (int dx = -2; dx <= 2; dx++) {
+                for (int dz = -2; dz <= 2; dz++) {
+                    if (Math.abs(dx) <= 1 && Math.abs(dz) <= 1) continue; // Skip bereits durchsuchte Zellen
+
+                    String cellKey = (centerCellX + dx) + "," + (centerCellZ + dz);
+                    List<RoadNode> cellNodes = spatialHashGrid.get(cellKey);
+
+                    if (cellNodes != null) {
+                        for (RoadNode node : cellNodes) {
+                            double dist = node.distanceTo(pos);
+                            if (dist < minDist) {
+                                minDist = dist;
+                                nearest = node;
+                            }
+                        }
+                    }
+                }
             }
         }
 

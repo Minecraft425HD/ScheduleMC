@@ -155,11 +155,13 @@ public class ChunkCache {
 
     public void checkIfChunksBecameSurroundedByLoaded() {
         if (this.loaded) {
-            // Performance-Optimierung: Parallel processing für große Chunk-Arrays
-            // Bei zoom=4 (33x33=1089 Chunks) kann Parallelverarbeitung 2-4x schneller sein
+            // PERFORMANCE FIX: Erhöhte Schwelle für Parallel Processing
+            // Thread-Overhead lohnt sich erst ab ~500+ Chunks
+            // Vorher: 100 Chunks (zu niedrig, overhead > benefit)
+            // Jetzt: 600 Chunks (nur bei sehr hohem zoom=4: 33x33=1089)
             int totalChunks = this.width * this.height;
-            if (totalChunks > 100) { // Nur bei >100 Chunks parallel (ab zoom=2)
-                // Parallele Verarbeitung mit AsyncPersistenceManager
+            if (totalChunks > 600) {
+                // Parallele Verarbeitung nur bei SEHR großen Arrays
                 java.util.concurrent.CompletableFuture<?>[] futures = new java.util.concurrent.CompletableFuture<?>[totalChunks];
                 for (int z = this.height - 1, idx = 0; z >= 0; --z) {
                     for (int x = 0; x < this.width; ++x, ++idx) {
@@ -172,7 +174,8 @@ public class ChunkCache {
                 // Warte auf alle Tasks
                 java.util.concurrent.CompletableFuture.allOf(futures).join();
             } else {
-                // Sequential processing für kleine Arrays (overhead würde nicht lohnen)
+                // PERFORMANCE: Sequential processing für <600 Chunks
+                // Schneller als parallel wegen Thread-Overhead
                 for (int z = this.height - 1; z >= 0; --z) {
                     for (int x = 0; x < this.width; ++x) {
                         this.mapChunks[x + z * this.width].checkIfChunkBecameSurroundedByLoaded(this.changeObserver);
