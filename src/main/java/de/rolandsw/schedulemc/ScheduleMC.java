@@ -346,9 +346,10 @@ public class ScheduleMC {
         EventHelper.handleServerTickEnd(event, server -> {
             tickCounter++;
 
-            // OPTIMIERUNG: Spieler-Cache für Polizei-KI aktualisieren (einmal pro Tick)
+            // OPTIMIERUNG: Spieler-Cache & NPC-Cache für Polizei-KI aktualisieren (einmal pro Tick)
             long currentTick = server.overworld() != null ? server.overworld().getGameTime() : 0;
             de.rolandsw.schedulemc.npc.events.PoliceAIHandler.updatePlayerCache(server, currentTick);
+            de.rolandsw.schedulemc.npc.events.PoliceAIHandler.updateNPCCache(server, currentTick);
 
             // Economy Systems - Tick every server tick for day tracking
             if (server.overworld() != null) {
