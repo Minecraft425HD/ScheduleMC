@@ -27,16 +27,91 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.Collections;
 
 /**
- * Verwaltet Daueraufträge
- * Refactored mit AbstractPersistenceManager
+ * Zentrales Dauerauftragssystem für ScheduleMC.
+ *
+ * <p>Dieser Manager ermöglicht Spielern die Erstellung und Verwaltung von automatischen,
+ * wiederkehrenden Zahlungen an andere Spieler. Das System führt Zahlungen basierend auf
+ * konfigurierbaren Intervallen automatisch durch und bietet umfassende Verwaltungsfunktionen.</p>
+ *
+ * <h2>Hauptfunktionalität:</h2>
+ * <ul>
+ *   <li><b>Dauerauftrag erstellen:</b> Spieler können automatische Zahlungen an andere Spieler
+ *       mit anpassbarem Intervall (täglich, wöchentlich, monatlich) einrichten</li>
+ *   <li><b>Pause/Resume:</b> Daueraufträge können temporär pausiert und wieder aktiviert werden</li>
+ *   <li><b>Auto-Execution:</b> Zahlungen werden automatisch täglich geprüft und bei Fälligkeit
+ *       durchgeführt</li>
+ *   <li><b>Failure Handling:</b> Bei 3 fehlgeschlagenen Versuchen (z.B. unzureichendes Guthaben)
+ *       wird der Dauerauftrag automatisch deaktiviert</li>
+ *   <li><b>Limit-Management:</b> Konfigurierbare Maximalanzahl pro Spieler zur Spam-Vermeidung</li>
+ * </ul>
+ *
+ * <h2>Konfiguration:</h2>
+ * <p>Alle Limits sind über {@link ModConfigHandler} konfigurierbar:</p>
+ * <ul>
+ *   <li><b>RECURRING_MAX_PER_PLAYER:</b> Maximale Anzahl Daueraufträge pro Spieler (standard: 10)</li>
+ * </ul>
+ *
+ * <h2>Beispiel-Verwendung:</h2>
+ * <pre>{@code
+ * RecurringPaymentManager manager = RecurringPaymentManager.getInstance(server);
+ *
+ * // Erstelle wöchentlichen Dauerauftrag über 100€
+ * boolean success = manager.createRecurringPayment(
+ *     senderUUID,
+ *     recipientUUID,
+ *     100.0,           // Betrag
+ *     7,               // Interval (Tage)
+ *     "Mietzahlung"    // Beschreibung
+ * );
+ *
+ * // Pause bei Bedarf
+ * manager.pauseRecurringPayment(senderUUID, "abc12345");
+ *
+ * // Später reaktivieren
+ * manager.resumeRecurringPayment(senderUUID, "abc12345");
+ * }</pre>
+ *
+ * <h2>Auto-Deaktivierung:</h2>
+ * <p>Daueraufträge werden automatisch deaktiviert wenn:</p>
+ * <ul>
+ *   <li>3 aufeinanderfolgende Zahlungen fehlschlagen (meist durch unzureichendes Guthaben)</li>
+ *   <li>Der Empfänger nicht mehr existiert</li>
+ * </ul>
+ * <p>Spieler erhalten bei Deaktivierung eine Warnung und können den Dauerauftrag nach
+ * Guthaben-Aufladung manuell wieder aktivieren.</p>
+ *
+ * <h2>Thread-Safety:</h2>
+ * <p>Thread-sicher durch ConcurrentHashMap für Zahlungen-Map und
+ * Double-Checked Locking für Singleton.</p>
+ *
+ * @author ScheduleMC Team
+ * @version 1.0
+ * @since 1.0.0
+ * @see RecurringPayment
+ * @see EconomyManager
+ * @see ModConfigHandler
  */
 public class RecurringPaymentManager extends AbstractPersistenceManager<Map<UUID, List<RecurringPayment>>> {
-    // SICHERHEIT: volatile für Double-Checked Locking Pattern
+    /**
+     * Singleton-Instanz des RecurringPaymentManagers.
+     * <p>Volatile für Double-Checked Locking Pattern.</p>
+     */
     private static volatile RecurringPaymentManager instance;
 
+    /**
+     * Zentrale Map aller Daueraufträge organisiert nach Zahler-UUID.
+     * <p>Thread-sicher durch ConcurrentHashMap.</p>
+     */
     private final Map<UUID, List<RecurringPayment>> payments = new ConcurrentHashMap<>();
+
+    /**
+     * MinecraftServer-Referenz für Spielerzugriffe und Benachrichtigungen.
+     */
     private MinecraftServer server;
 
+    /**
+     * Aktueller Spieltag für tägliche Verarbeitung der Daueraufträge.
+     */
     private long currentDay = 0;
 
     private RecurringPaymentManager(MinecraftServer server) {
@@ -49,7 +124,13 @@ public class RecurringPaymentManager extends AbstractPersistenceManager<Map<UUID
     }
 
     /**
-     * SICHERHEIT: Double-Checked Locking für Thread-Safety
+     * Gibt die Singleton-Instanz des RecurringPaymentManagers zurück.
+     *
+     * <p>Verwendet Double-Checked Locking Pattern für Thread-Safety bei minimaler
+     * Synchronisierung. Die Server-Referenz wird bei jedem Aufruf aktualisiert.</p>
+     *
+     * @param server MinecraftServer für Spielerzugriffe (non-null)
+     * @return Singleton-Instanz des RecurringPaymentManagers
      */
     public static RecurringPaymentManager getInstance(@Nonnull MinecraftServer server) {
         RecurringPaymentManager localRef = instance;
@@ -66,7 +147,27 @@ public class RecurringPaymentManager extends AbstractPersistenceManager<Map<UUID
     }
 
     /**
-     * Erstellt neuen Dauerauftrag
+     * Erstellt einen neuen Dauerauftrag von einem Spieler an einen anderen.
+     *
+     * <p>Validiert alle Parameter und prüft das konfigurierte Limit pro Spieler.
+     * Bei erfolgreicher Erstellung wird der Dauerauftrag sofort gespeichert und
+     * der Zahler erhält eine Bestätigung mit der Dauerauftrags-ID.</p>
+     *
+     * <h3>Validierungen:</h3>
+     * <ul>
+     *   <li>Zahler und Empfänger dürfen nicht identisch sein</li>
+     *   <li>Betrag muss positiv sein</li>
+     *   <li>Interval muss mindestens 1 Tag betragen</li>
+     *   <li>Zahler darf max. {@link ModConfigHandler.Common#RECURRING_MAX_PER_PLAYER} Daueraufträge haben</li>
+     * </ul>
+     *
+     * @param fromPlayer UUID des zahlenden Spielers (non-null)
+     * @param toPlayer UUID des Empfängers (non-null)
+     * @param amount Zahlungsbetrag in € (muss > 0 sein)
+     * @param intervalDays Zahlungsintervall in Tagen (muss >= 1 sein)
+     * @param description Beschreibung des Dauerauftrags (z.B. "Mietzahlung")
+     * @return {@code true} bei erfolgreicher Erstellung, {@code false} bei Validierungsfehlern
+     * @see RecurringPayment
      */
     public boolean createRecurringPayment(@Nonnull UUID fromPlayer, @Nonnull UUID toPlayer, double amount,
                                          int intervalDays, String description) {
@@ -109,7 +210,14 @@ public class RecurringPaymentManager extends AbstractPersistenceManager<Map<UUID
     }
 
     /**
-     * Löscht Dauerauftrag
+     * Löscht einen bestehenden Dauerauftrag permanent.
+     *
+     * <p>Entfernt den Dauerauftrag aus der Verwaltung und speichert die Änderungen.
+     * Der Spieler erhält eine Bestätigung mit Details zum gelöschten Dauerauftrag.</p>
+     *
+     * @param playerUUID UUID des Spielers, dem der Dauerauftrag gehört (non-null)
+     * @param paymentId ID des zu löschenden Dauerauftrags (Präfix-Match, min. 8 Zeichen empfohlen)
+     * @return {@code true} bei erfolgreicher Löschung, {@code false} wenn Dauerauftrag nicht gefunden
      */
     public boolean deleteRecurringPayment(@Nonnull UUID playerUUID, @Nonnull String paymentId) {
         RecurringPayment payment = findPayment(playerUUID, paymentId);
@@ -136,7 +244,15 @@ public class RecurringPaymentManager extends AbstractPersistenceManager<Map<UUID
     }
 
     /**
-     * Pausiert Dauerauftrag
+     * Pausiert einen aktiven Dauerauftrag temporär.
+     *
+     * <p>Der Dauerauftrag bleibt bestehen, wird aber nicht mehr automatisch ausgeführt.
+     * Kann jederzeit mit {@link #resumeRecurringPayment(UUID, String)} reaktiviert werden.</p>
+     *
+     * @param playerUUID UUID des Spielers, dem der Dauerauftrag gehört (non-null)
+     * @param paymentId ID des zu pausierenden Dauerauftrags
+     * @return {@code true} bei erfolgreicher Pausierung, {@code false} wenn nicht gefunden
+     * @see #resumeRecurringPayment(UUID, String)
      */
     public boolean pauseRecurringPayment(@Nonnull UUID playerUUID, @Nonnull String paymentId) {
         RecurringPayment payment = findPayment(playerUUID, paymentId);
@@ -159,7 +275,16 @@ public class RecurringPaymentManager extends AbstractPersistenceManager<Map<UUID
     }
 
     /**
-     * Aktiviert Dauerauftrag wieder
+     * Reaktiviert einen pausierten Dauerauftrag.
+     *
+     * <p>Setzt den Dauerauftrag wieder auf aktiv und aktualisiert das letzte
+     * Ausführungsdatum auf den aktuellen Tag. Die nächste Zahlung erfolgt dann
+     * nach Ablauf des konfigurierten Intervalls.</p>
+     *
+     * @param playerUUID UUID des Spielers, dem der Dauerauftrag gehört (non-null)
+     * @param paymentId ID des zu reaktivierenden Dauerauftrags
+     * @return {@code true} bei erfolgreicher Reaktivierung, {@code false} wenn nicht gefunden
+     * @see #pauseRecurringPayment(UUID, String)
      */
     public boolean resumeRecurringPayment(@Nonnull UUID playerUUID, @Nonnull String paymentId) {
         RecurringPayment payment = findPayment(playerUUID, paymentId);
@@ -182,7 +307,13 @@ public class RecurringPaymentManager extends AbstractPersistenceManager<Map<UUID
     }
 
     /**
-     * Tick-Methode
+     * Tick-Methode zur täglichen Verarbeitung von Daueraufträgen.
+     *
+     * <p>Wird vom Hauptserver-Tick aufgerufen. Erkennt Tageswechsel und triggert
+     * die Verarbeitung aller fälligen Daueraufträge über {@link #processPayments()}.</p>
+     *
+     * @param dayTime Aktuelle Spielzeit in Ticks (wird durch 24000 geteilt für Tagesberechnung)
+     * @see #processPayments()
      */
     public void tick(long dayTime) {
         long day = dayTime / 24000L;
@@ -194,7 +325,19 @@ public class RecurringPaymentManager extends AbstractPersistenceManager<Map<UUID
     }
 
     /**
-     * Verarbeitet fällige Daueraufträge
+     * Verarbeitet alle fälligen Daueraufträge für den aktuellen Tag.
+     *
+     * <p>Iteriert durch alle registrierten Daueraufträge und führt fällige Zahlungen aus.
+     * Bei erfolgreicher Zahlung werden Zahler und Empfänger benachrichtigt. Bei Fehlschlag
+     * wird ein Fehlerzähler inkrementiert und nach 3 Fehlversuchen erfolgt automatische
+     * Deaktivierung mit Warnung an den Zahler.</p>
+     *
+     * <h3>Failure-Handling:</h3>
+     * <ul>
+     *   <li>1-2 Fehlversuche: Stille Wiederholungsversuche</li>
+     *   <li>3 Fehlversuche: Automatische Deaktivierung + Warnung</li>
+     *   <li>Hauptgrund für Fehlschlag: Unzureichendes Guthaben</li>
+     * </ul>
      */
     private void processPayments() {
         for (Map.Entry<UUID, List<RecurringPayment>> entry : payments.entrySet()) {
@@ -252,14 +395,27 @@ public class RecurringPaymentManager extends AbstractPersistenceManager<Map<UUID
     }
 
     /**
-     * Gibt alle Daueraufträge eines Spielers zurück
+     * Gibt alle Daueraufträge eines Spielers zurück.
+     *
+     * <p>Liefert eine unveränderliche Liste aller Daueraufträge (aktiv und pausiert)
+     * für den angegebenen Spieler.</p>
+     *
+     * @param playerUUID UUID des Spielers
+     * @return Liste der Daueraufträge, leer wenn keine vorhanden
      */
     public List<RecurringPayment> getPayments(UUID playerUUID) {
         return payments.getOrDefault(playerUUID, Collections.emptyList());
     }
 
     /**
-     * Findet Dauerauftrag
+     * Sucht einen spezifischen Dauerauftrag anhand der Payment-ID.
+     *
+     * <p>Verwendet Präfix-Matching für flexiblere Suche (z.B. "abc12345" matched
+     * "abc12345-def67890-...").</p>
+     *
+     * @param playerUUID UUID des Spielers, dem der Dauerauftrag gehört
+     * @param paymentId ID oder Präfix der Payment-ID (min. 8 Zeichen empfohlen)
+     * @return Gefundener Dauerauftrag oder {@code null} wenn nicht gefunden
      */
     @Nullable
     private RecurringPayment findPayment(UUID playerUUID, String paymentId) {
