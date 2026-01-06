@@ -275,8 +275,10 @@ public class TransactionHistory {
                 LOGGER.info("Loaded {} transactions for {} players",
                     totalTransactions, transactions.size());
             }
-        } catch (Exception e) {
-            LOGGER.error("Failed to load transaction history", e);
+        } catch (IOException e) {
+            LOGGER.error("Failed to read transaction history file: {}", savePath, e);
+        } catch (com.google.gson.JsonSyntaxException e) {
+            LOGGER.error("Failed to parse transaction history JSON (corrupt file?): {}", savePath, e);
         }
     }
 
@@ -299,8 +301,9 @@ public class TransactionHistory {
                 LOGGER.debug("Saved {} transactions for {} players",
                     totalTransactions, transactions.size());
             }
-        } catch (Exception e) {
-            LOGGER.error("Failed to save transaction history", e);
+        } catch (IOException e) {
+            LOGGER.error("Failed to write transaction history file: {}", savePath, e);
+            // Keep needsSave=true so we retry on next save
         }
     }
 
