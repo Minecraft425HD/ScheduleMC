@@ -14,8 +14,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-// Temporarily disabled - method may be private or signature changed in 1.20.1
-// TODO: Find correct method name/signature for getAllSoundOptionsExceptMaster in Minecraft 1.20.1
+// DISABLED: Mixin incompatible with Minecraft 1.20.1
+// NOTE: Method getAllSoundOptionsExceptMaster() signature changed or became private in 1.20.1
+// Requires investigation of SoundOptionsScreen implementation in current Minecraft version
 //@Mixin(SoundOptionsScreen.class)
 public class SoundOptionsScreenMixin extends OptionsSubScreen {
 

@@ -362,8 +362,8 @@ public class UnifiedProcessingBlockEntity extends BlockEntity {
 
                 if (slotTag.contains("QualityLevel")) {
                     int qualityLevel = slotTag.getInt("QualityLevel");
-                    // TODO: Quality Lookup basierend auf Production Config
-                    // qualities[i] = config.getQualityTiers()[qualityLevel];
+                    // NOTE: Quality tier lookup not yet implemented
+                    // Future enhancement: qualities[i] = config.getQualityTiers()[qualityLevel];
                 }
             }
         }

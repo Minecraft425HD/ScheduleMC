@@ -8,8 +8,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-// Temporarily disabled - method signature may have changed in 1.20.1
-// TODO: Find correct method name/signature for renderExperienceBar in Minecraft 1.20.1
+// DISABLED: Mixin incompatible with Minecraft 1.20.1
+// NOTE: Method renderExperienceBar() signature changed in 1.20.1
+// Requires investigation of Gui.class implementation in current Minecraft version
 //@Mixin(Gui.class)
 public class GuiMixin {
 

@@ -235,9 +235,8 @@ public class IllegalActivityScanner {
             }
         }
 
-        // TODO: Waffen scannen (später wenn Mod hinzugefügt)
-        // List<String> illegalWeapons = ModConfigHandler.COMMON.POLICE_ILLEGAL_WEAPONS.get();
-        // if (illegalWeapons.contains(itemName)) { ... }
+        // NOTE: Weapon scanning not implemented - requires weapons mod integration
+        // Future enhancement: ModConfigHandler.COMMON.POLICE_ILLEGAL_WEAPONS support
     }
 
     /**

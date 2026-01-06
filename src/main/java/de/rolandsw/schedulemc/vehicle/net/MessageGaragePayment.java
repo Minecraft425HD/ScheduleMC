@@ -150,7 +150,7 @@ public class MessageGaragePayment implements Message<MessageGaragePayment> {
 
         // Oil change if selected
         if (changeOil) {
-            // TODO: Implement oil change logic when oil system is added
+            // NOTE: Oil system not yet implemented - placeholder for future enhancement
         }
     }
 
