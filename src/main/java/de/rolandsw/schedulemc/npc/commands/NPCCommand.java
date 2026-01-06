@@ -233,6 +233,18 @@ public class NPCCommand {
         return 1;
     }
 
+    /**
+     * Shows comprehensive information about an NPC including basic info, schedule, locations, and inventory.
+     * <p>
+     * This method has been refactored to use extracted helper methods for better maintainability:
+     * <ul>
+     *   <li>{@link #printBasicNPCInfo(Player, CustomNPCEntity, NPCData, Behavior)} - Basic NPC information</li>
+     *   <li>{@link #printScheduleInfo(Player, NPCData)} - Schedule times by NPC type</li>
+     *   <li>{@link #printLeisureLocations(Player, NPCData)} - Leisure locations list</li>
+     *   <li>{@link #printInventoryAndWallet(Player, NPCData)} - Inventory and wallet info</li>
+     * </ul>
+     * </p>
+     */
     private static int showInfo(CommandContext<CommandSourceStack> context) {
         String npcName = StringArgumentType.getString(context, "npcName");
         ServerLevel level = context.getSource().getLevel();
@@ -251,150 +263,11 @@ public class NPCCommand {
         var data = npc.getNpcData();
         var behavior = data.getBehavior();
 
-        player.sendSystemMessage(Component.literal("=== NPC Info ===").withStyle(ChatFormatting.GOLD));
-        player.sendSystemMessage(
-            Component.literal("Name: ").withStyle(ChatFormatting.GRAY)
-                .append(Component.literal(npc.getNpcName())
-                    .withStyle(ChatFormatting.YELLOW))
-        );
-        player.sendSystemMessage(
-            Component.literal("Typ: ").withStyle(ChatFormatting.GRAY)
-                .append(Component.literal(data.getNpcType().toString())
-                    .withStyle(ChatFormatting.YELLOW))
-        );
-        player.sendSystemMessage(
-            Component.literal("Bewegung: ").withStyle(ChatFormatting.GRAY)
-                .append(Component.literal(behavior.canMove() ? "Aktiviert" : "Deaktiviert")
-                    .withStyle(behavior.canMove() ? ChatFormatting.GREEN : ChatFormatting.RED))
-        );
-        player.sendSystemMessage(
-            Component.literal("Geschwindigkeit: ").withStyle(ChatFormatting.GRAY)
-                .append(Component.literal(String.format("%.2f", behavior.getMovementSpeed()))
-                    .withStyle(ChatFormatting.YELLOW))
-        );
-        player.sendSystemMessage(
-            Component.literal("Wohnort: ").withStyle(ChatFormatting.GRAY)
-                .append(Component.literal(data.getHomeLocation() != null ?
-                    data.getHomeLocation().toShortString() : "Nicht gesetzt")
-                    .withStyle(data.getHomeLocation() != null ? ChatFormatting.GREEN : ChatFormatting.RED))
-        );
-
-        // Arbeitsort nur für Verkäufer anzeigen
-        if (data.getNpcType() == NPCType.VERKAEUFER) {
-            player.sendSystemMessage(
-                Component.literal("Arbeitsort: ").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(data.getWorkLocation() != null ?
-                        data.getWorkLocation().toShortString() : "Nicht gesetzt")
-                        .withStyle(data.getWorkLocation() != null ? ChatFormatting.GREEN : ChatFormatting.RED))
-            );
-        } else if (data.getNpcType() == NPCType.BEWOHNER) {
-            player.sendSystemMessage(
-                Component.literal("Arbeitsort: ").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal("Bewohner arbeiten nicht").withStyle(ChatFormatting.YELLOW))
-            );
-            player.sendSystemMessage(
-                Component.literal("Freizeitorte: ").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(data.getLeisureLocations().size() + "/10")
-                        .withStyle(ChatFormatting.WHITE))
-            );
-        }
-
-        // Schedule Zeiten - unterschiedlich je nach NPC-Typ
-        player.sendSystemMessage(Component.literal("=== Zeitplan ===").withStyle(ChatFormatting.GOLD));
-
-        if (data.getNpcType() == NPCType.VERKAEUFER) {
-            // Verkäufer: Vollständiger Zeitplan
-            player.sendSystemMessage(
-                Component.literal("Arbeitsbeginn: ").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(ticksToTime(data.getWorkStartTime()))
-                        .withStyle(ChatFormatting.YELLOW))
-            );
-            player.sendSystemMessage(
-                Component.literal("Arbeitsende: ").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(ticksToTime(data.getWorkEndTime()))
-                        .withStyle(ChatFormatting.YELLOW))
-            );
-            player.sendSystemMessage(
-                Component.literal("Heimzeit: ").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal("ab " + ticksToTime(data.getHomeTime()))
-                        .withStyle(ChatFormatting.YELLOW))
-            );
-        } else if (data.getNpcType() == NPCType.BEWOHNER) {
-            // Bewohner: Nur Heimzeit (Schlafenszeit)
-            String homeStart = ticksToTime(data.getHomeTime());
-            String homeEnd = ticksToTime(data.getWorkStartTime()); // Aufstehzeit
-            player.sendSystemMessage(
-                Component.literal("Heimzeit (Schlaf): ").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(homeStart + " - " + homeEnd)
-                        .withStyle(ChatFormatting.YELLOW))
-            );
-            player.sendSystemMessage(
-                Component.literal("Freizeit: ").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(homeEnd + " - " + homeStart + " (Aktiv in der Stadt)")
-                        .withStyle(ChatFormatting.GREEN))
-            );
-        } else {
-            // Polizei oder andere: Alte Anzeige
-            player.sendSystemMessage(
-                Component.literal("Arbeitsbeginn: ").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(ticksToTime(data.getWorkStartTime()))
-                        .withStyle(ChatFormatting.YELLOW))
-            );
-            player.sendSystemMessage(
-                Component.literal("Arbeitsende: ").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(ticksToTime(data.getWorkEndTime()))
-                        .withStyle(ChatFormatting.YELLOW))
-            );
-            player.sendSystemMessage(
-                Component.literal("Heimzeit: ").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(ticksToTime(data.getHomeTime()))
-                        .withStyle(ChatFormatting.YELLOW))
-            );
-        }
-
-        // Freizeitorte
-        player.sendSystemMessage(Component.literal("=== Freizeitorte ===").withStyle(ChatFormatting.GOLD));
-        var leisureLocations = data.getLeisureLocations();
-        if (leisureLocations.isEmpty()) {
-            player.sendSystemMessage(
-                Component.literal("Keine Freizeitorte definiert").withStyle(ChatFormatting.GRAY)
-            );
-        } else {
-            for (int i = 0; i < leisureLocations.size(); i++) {
-                player.sendSystemMessage(
-                    Component.literal("[" + i + "] ")
-                        .withStyle(ChatFormatting.GRAY)
-                        .append(Component.literal(leisureLocations.get(i).toShortString())
-                            .withStyle(ChatFormatting.YELLOW))
-                );
-            }
-        }
-
-        // Inventar und Geldbörse (nur für Bewohner und Verkäufer)
-        if (data.hasInventoryAndWallet()) {
-            player.sendSystemMessage(Component.literal("=== Inventar & Geldbörse ===").withStyle(ChatFormatting.GOLD));
-
-            // Inventar
-            var inventory = data.getInventory();
-            int itemCount = 0;
-            for (ItemStack stack : inventory) {
-                if (!stack.isEmpty()) {
-                    itemCount++;
-                }
-            }
-            player.sendSystemMessage(
-                Component.literal("Inventar: ").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(itemCount + "/9 Slots belegt")
-                        .withStyle(itemCount > 0 ? ChatFormatting.GREEN : ChatFormatting.YELLOW))
-            );
-
-            // Geldbörse
-            player.sendSystemMessage(
-                Component.literal("Geldbörse: ").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(data.getWallet() + " Bargeld")
-                        .withStyle(ChatFormatting.GOLD))
-            );
-        }
+        // Print all NPC information sections using extracted methods
+        printBasicNPCInfo(player, npc, data, behavior);
+        printScheduleInfo(player, data);
+        printLeisureLocations(player, data);
+        printInventoryAndWallet(player, data);
 
         return 1;
     }
@@ -1237,5 +1110,187 @@ public class NPCCommand {
             context.getSource().sendFailure(Component.literal("§cFehler beim Abrufen der Warehouse-Info!"));
             return 0;
         }
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // EXTRACTED METHODS FOR showInfo() REFACTORING
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Prints basic NPC information including name, type, movement settings, and locations.
+     *
+     * @param player The player to send messages to
+     * @param npc The NPC entity
+     * @param data The NPC data
+     * @param behavior The NPC behavior settings
+     */
+    private static void printBasicNPCInfo(Player player, CustomNPCEntity npc, NPCData data, Behavior behavior) {
+        player.sendSystemMessage(Component.literal("=== NPC Info ===").withStyle(ChatFormatting.GOLD));
+        player.sendSystemMessage(
+            Component.literal("Name: ").withStyle(ChatFormatting.GRAY)
+                .append(Component.literal(npc.getNpcName())
+                    .withStyle(ChatFormatting.YELLOW))
+        );
+        player.sendSystemMessage(
+            Component.literal("Typ: ").withStyle(ChatFormatting.GRAY)
+                .append(Component.literal(data.getNpcType().toString())
+                    .withStyle(ChatFormatting.YELLOW))
+        );
+        player.sendSystemMessage(
+            Component.literal("Bewegung: ").withStyle(ChatFormatting.GRAY)
+                .append(Component.literal(behavior.canMove() ? "Aktiviert" : "Deaktiviert")
+                    .withStyle(behavior.canMove() ? ChatFormatting.GREEN : ChatFormatting.RED))
+        );
+        player.sendSystemMessage(
+            Component.literal("Geschwindigkeit: ").withStyle(ChatFormatting.GRAY)
+                .append(Component.literal(String.format("%.2f", behavior.getMovementSpeed()))
+                    .withStyle(ChatFormatting.YELLOW))
+        );
+        player.sendSystemMessage(
+            Component.literal("Wohnort: ").withStyle(ChatFormatting.GRAY)
+                .append(Component.literal(data.getHomeLocation() != null ?
+                    data.getHomeLocation().toShortString() : "Nicht gesetzt")
+                    .withStyle(data.getHomeLocation() != null ? ChatFormatting.GREEN : ChatFormatting.RED))
+        );
+
+        // Arbeitsort nur für Verkäufer anzeigen
+        if (data.getNpcType() == NPCType.VERKAEUFER) {
+            player.sendSystemMessage(
+                Component.literal("Arbeitsort: ").withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal(data.getWorkLocation() != null ?
+                        data.getWorkLocation().toShortString() : "Nicht gesetzt")
+                        .withStyle(data.getWorkLocation() != null ? ChatFormatting.GREEN : ChatFormatting.RED))
+            );
+        } else if (data.getNpcType() == NPCType.BEWOHNER) {
+            player.sendSystemMessage(
+                Component.literal("Arbeitsort: ").withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal("Bewohner arbeiten nicht").withStyle(ChatFormatting.YELLOW))
+            );
+            player.sendSystemMessage(
+                Component.literal("Freizeitorte: ").withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal(data.getLeisureLocations().size() + "/10")
+                        .withStyle(ChatFormatting.WHITE))
+            );
+        }
+    }
+
+    /**
+     * Prints NPC schedule information based on NPC type (Seller, Resident, or Police).
+     *
+     * @param player The player to send messages to
+     * @param data The NPC data containing schedule times
+     */
+    private static void printScheduleInfo(Player player, NPCData data) {
+        player.sendSystemMessage(Component.literal("=== Zeitplan ===").withStyle(ChatFormatting.GOLD));
+
+        if (data.getNpcType() == NPCType.VERKAEUFER) {
+            // Verkäufer: Vollständiger Zeitplan
+            player.sendSystemMessage(
+                Component.literal("Arbeitsbeginn: ").withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal(ticksToTime(data.getWorkStartTime()))
+                        .withStyle(ChatFormatting.YELLOW))
+            );
+            player.sendSystemMessage(
+                Component.literal("Arbeitsende: ").withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal(ticksToTime(data.getWorkEndTime()))
+                        .withStyle(ChatFormatting.YELLOW))
+            );
+            player.sendSystemMessage(
+                Component.literal("Heimzeit: ").withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal("ab " + ticksToTime(data.getHomeTime()))
+                        .withStyle(ChatFormatting.YELLOW))
+            );
+        } else if (data.getNpcType() == NPCType.BEWOHNER) {
+            // Bewohner: Nur Heimzeit (Schlafenszeit)
+            String homeStart = ticksToTime(data.getHomeTime());
+            String homeEnd = ticksToTime(data.getWorkStartTime()); // Aufstehzeit
+            player.sendSystemMessage(
+                Component.literal("Heimzeit (Schlaf): ").withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal(homeStart + " - " + homeEnd)
+                        .withStyle(ChatFormatting.YELLOW))
+            );
+            player.sendSystemMessage(
+                Component.literal("Freizeit: ").withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal(homeEnd + " - " + homeStart + " (Aktiv in der Stadt)")
+                        .withStyle(ChatFormatting.GREEN))
+            );
+        } else {
+            // Polizei oder andere: Alte Anzeige
+            player.sendSystemMessage(
+                Component.literal("Arbeitsbeginn: ").withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal(ticksToTime(data.getWorkStartTime()))
+                        .withStyle(ChatFormatting.YELLOW))
+            );
+            player.sendSystemMessage(
+                Component.literal("Arbeitsende: ").withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal(ticksToTime(data.getWorkEndTime()))
+                        .withStyle(ChatFormatting.YELLOW))
+            );
+            player.sendSystemMessage(
+                Component.literal("Heimzeit: ").withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal(ticksToTime(data.getHomeTime()))
+                        .withStyle(ChatFormatting.YELLOW))
+            );
+        }
+    }
+
+    /**
+     * Prints NPC leisure locations list.
+     *
+     * @param player The player to send messages to
+     * @param data The NPC data containing leisure locations
+     */
+    private static void printLeisureLocations(Player player, NPCData data) {
+        player.sendSystemMessage(Component.literal("=== Freizeitorte ===").withStyle(ChatFormatting.GOLD));
+        var leisureLocations = data.getLeisureLocations();
+        if (leisureLocations.isEmpty()) {
+            player.sendSystemMessage(
+                Component.literal("Keine Freizeitorte definiert").withStyle(ChatFormatting.GRAY)
+            );
+        } else {
+            for (int i = 0; i < leisureLocations.size(); i++) {
+                player.sendSystemMessage(
+                    Component.literal("[" + i + "] ")
+                        .withStyle(ChatFormatting.GRAY)
+                        .append(Component.literal(leisureLocations.get(i).toShortString())
+                            .withStyle(ChatFormatting.YELLOW))
+                );
+            }
+        }
+    }
+
+    /**
+     * Prints NPC inventory and wallet information.
+     *
+     * @param player The player to send messages to
+     * @param data The NPC data containing inventory and wallet
+     */
+    private static void printInventoryAndWallet(Player player, NPCData data) {
+        if (!data.hasInventoryAndWallet()) {
+            return;
+        }
+
+        player.sendSystemMessage(Component.literal("=== Inventar & Geldbörse ===").withStyle(ChatFormatting.GOLD));
+
+        // Inventar
+        var inventory = data.getInventory();
+        int itemCount = 0;
+        for (ItemStack stack : inventory) {
+            if (!stack.isEmpty()) {
+                itemCount++;
+            }
+        }
+        player.sendSystemMessage(
+            Component.literal("Inventar: ").withStyle(ChatFormatting.GRAY)
+                .append(Component.literal(itemCount + "/9 Slots belegt")
+                    .withStyle(itemCount > 0 ? ChatFormatting.GREEN : ChatFormatting.YELLOW))
+        );
+
+        // Geldbörse
+        player.sendSystemMessage(
+            Component.literal("Geldbörse: ").withStyle(ChatFormatting.GRAY)
+                .append(Component.literal(data.getWallet() + " Bargeld")
+                    .withStyle(ChatFormatting.GOLD))
+        );
     }
 }
