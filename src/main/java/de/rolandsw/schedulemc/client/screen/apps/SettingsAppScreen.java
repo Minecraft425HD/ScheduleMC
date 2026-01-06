@@ -245,6 +245,24 @@ public class SettingsAppScreen extends Screen {
     // TAB 1: PLOT-EINSTELLUNGEN
     // ═══════════════════════════════════════════════════════════════════════════
 
+    /**
+     * Renders the plot settings tab with sale/rent options, trusted players, rename, description, and abandon.
+     * <p>
+     * This method delegates rendering to specialized helper methods:
+     * <ul>
+     *   <li>{@link #renderSaleRentSection} - Sale/rent status and buttons</li>
+     *   <li>{@link #renderTrustedPlayersSection} - Trusted players list and add button</li>
+     *   <li>{@link #renderPlotRenameSection} - Plot rename functionality</li>
+     *   <li>{@link #renderPlotDescriptionSection} - Plot description display and edit</li>
+     *   <li>{@link #renderPlotAbandonSection} - Plot abandonment with confirmation</li>
+     * </ul>
+     *
+     * @param guiGraphics   the graphics context
+     * @param startY        the start Y position for rendering
+     * @param endY          the end Y position for rendering
+     * @param mouseX        the mouse X coordinate
+     * @param mouseY        the mouse Y coordinate
+     */
     private void renderPlotSettingsTab(GuiGraphics guiGraphics, int startY, int endY, int mouseX, int mouseY) {
         int y = startY - scrollOffset;
         int contentHeight = 0;
@@ -283,22 +301,45 @@ public class SettingsAppScreen extends Screen {
             return;
         }
 
-        // ═══════════════════════════════════════════════════════════════════════════
-        // VERKAUF / MIETE
-        // ═══════════════════════════════════════════════════════════════════════════
+        // Render all settings sections using helper methods
+        y = renderSaleRentSection(guiGraphics, currentPlot, plotId, y, startY, endY, mouseX, mouseY);
+        contentHeight = y - (startY - scrollOffset);
+
+        y = renderTrustedPlayersSection(guiGraphics, currentPlot, plotId, y, startY, endY, mouseX, mouseY);
+        contentHeight = y - (startY - scrollOffset);
+
+        y = renderPlotRenameSection(guiGraphics, currentPlot, plotId, y, startY, endY, mouseX, mouseY);
+        contentHeight = y - (startY - scrollOffset);
+
+        y = renderPlotDescriptionSection(guiGraphics, currentPlot, plotId, y, startY, endY, mouseX, mouseY);
+        contentHeight = y - (startY - scrollOffset);
+
+        y = renderPlotAbandonSection(guiGraphics, plotId, y, startY, endY, mouseX, mouseY);
+        contentHeight = y - (startY - scrollOffset);
+
+        maxScroll = Math.max(0, contentHeight - CONTENT_HEIGHT);
+    }
+
+    // ==================== Plot Settings Helper Methods ====================
+
+    /**
+     * Renders sale/rent section with buttons.
+     * @return new y position
+     */
+    private int renderSaleRentSection(GuiGraphics guiGraphics, PlotRegion currentPlot, String plotId, int y, int startY, int endY, int mouseX, int mouseY) {
+        // Separator
         if (y >= startY - 10 && y < endY) {
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
         }
         y += 8;
-        contentHeight += 8;
 
+        // Section header
         if (y >= startY - 10 && y < endY) {
             guiGraphics.drawString(this.font, "§e§l🏷 VERKAUF / MIETE", leftPos + 15, y, 0xFFAA00);
         }
         y += 15;
-        contentHeight += 15;
 
-        // Aktueller Status
+        // Current status
         String saleStatus;
         if (currentPlot.isForSale()) {
             saleStatus = "§a● Zum Verkauf (" + String.format("%.0f€", currentPlot.getSalePrice()) + ")";
@@ -316,14 +357,12 @@ public class SettingsAppScreen extends Screen {
             guiGraphics.drawString(this.font, "§7Status: " + saleStatus, leftPos + 15, y, 0xAAAAAA);
         }
         y += 12;
-        contentHeight += 12;
 
-        // ✅ INTERAKTIVE BUTTONS
+        // Interactive buttons
         if (y >= startY - 30 && y < endY + 30) {
             int btnY = y;
             int btnWidth = WIDTH - 20;
 
-            // "Zum Verkauf stellen" Button
             if (!currentPlot.isForSale()) {
                 drawButton(guiGraphics, leftPos + 10, btnY, btnWidth, 18, "§a🏷 Zum Verkauf stellen", 0x55FF55, mouseX, mouseY);
                 clickableRegions.add(new ClickableRegion(leftPos + 10, btnY, leftPos + 10 + btnWidth, btnY + 18, () -> {
@@ -335,7 +374,6 @@ public class SettingsAppScreen extends Screen {
                 btnY += 20;
             }
 
-            // "Zur Miete stellen" Button
             if (!currentPlot.isForRent()) {
                 drawButton(guiGraphics, leftPos + 10, btnY, btnWidth, 18, "§d🏠 Zur Miete stellen", 0xFF55FF, mouseX, mouseY);
                 clickableRegions.add(new ClickableRegion(leftPos + 10, btnY, leftPos + 10 + btnWidth, btnY + 18, () -> {
@@ -347,7 +385,6 @@ public class SettingsAppScreen extends Screen {
                 btnY += 20;
             }
 
-            // "Angebot beenden" Button
             if (currentPlot.isForSale() || currentPlot.isForRent()) {
                 drawButton(guiGraphics, leftPos + 10, btnY, btnWidth, 18, "§c✗ Angebot beenden", 0xFF5555, mouseX, mouseY);
                 clickableRegions.add(new ClickableRegion(leftPos + 10, btnY, leftPos + 10 + btnWidth, btnY + 18, () -> {
@@ -358,39 +395,41 @@ public class SettingsAppScreen extends Screen {
 
             y = btnY;
         } else {
-            y += 60; // Reserve space even when scrolled out of view
+            y += 60;
         }
-        contentHeight += 60;
 
-        // ═══════════════════════════════════════════════════════════════════════════
-        // TRUSTED PLAYERS
-        // ═══════════════════════════════════════════════════════════════════════════
+        return y;
+    }
+
+    /**
+     * Renders trusted players section with list and add/remove buttons.
+     * @return new y position
+     */
+    private int renderTrustedPlayersSection(GuiGraphics guiGraphics, PlotRegion currentPlot, String plotId, int y, int startY, int endY, int mouseX, int mouseY) {
+        // Separator
         if (y >= startY - 10 && y < endY) {
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
         }
         y += 8;
-        contentHeight += 8;
 
+        // Section header
         if (y >= startY - 10 && y < endY) {
             guiGraphics.drawString(this.font, "§b§l👥 TRUSTED PLAYERS", leftPos + 15, y, 0x55FFFF);
         }
         y += 15;
-        contentHeight += 15;
 
-        // Zeige Trusted Players mit Remove-Buttons
+        // Show trusted players with remove buttons
         Set<String> trustedPlayers = currentPlot.getTrustedPlayers();
         if (trustedPlayers.isEmpty()) {
             if (y >= startY - 10 && y < endY) {
                 guiGraphics.drawString(this.font, "§8Keine vertrauenswürdigen Spieler", leftPos + 15, y, 0x666666);
             }
             y += 12;
-            contentHeight += 12;
         } else {
             for (String trusted : trustedPlayers) {
                 if (y >= startY - 30 && y < endY + 30) {
                     guiGraphics.drawString(this.font, "§a● §f" + trusted, leftPos + 20, y, 0xFFFFFF);
 
-                    // ✅ Remove button
                     int btnX = leftPos + WIDTH - 50;
                     drawButton(guiGraphics, btnX, y - 2, 40, 12, "§c×", 0xFF5555, mouseX, mouseY);
                     String trustedName = trusted;
@@ -399,11 +438,10 @@ public class SettingsAppScreen extends Screen {
                     }));
                 }
                 y += 13;
-                contentHeight += 13;
             }
         }
 
-        // ✅ "Spieler hinzufügen" Button
+        // "Add player" button
         if (y >= startY - 30 && y < endY + 30) {
             drawButton(guiGraphics, leftPos + 10, y + 5, WIDTH - 20, 18, "§b+ Spieler hinzufügen", 0x55FFFF, mouseX, mouseY);
             clickableRegions.add(new ClickableRegion(leftPos + 10, y + 5, leftPos + WIDTH - 10, y + 23, () -> {
@@ -414,73 +452,80 @@ public class SettingsAppScreen extends Screen {
             }));
         }
         y += 30;
-        contentHeight += 30;
 
-        // ═══════════════════════════════════════════════════════════════════════════
-        // PLOT UMBENENNEN
-        // ═══════════════════════════════════════════════════════════════════════════
+        return y;
+    }
+
+    /**
+     * Renders plot rename section with button.
+     * @return new y position
+     */
+    private int renderPlotRenameSection(GuiGraphics guiGraphics, PlotRegion currentPlot, String plotId, int y, int startY, int endY, int mouseX, int mouseY) {
+        // Separator
         if (y >= startY - 10 && y < endY) {
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
         }
         y += 8;
-        contentHeight += 8;
 
+        // Section header
         if (y >= startY - 10 && y < endY) {
             guiGraphics.drawString(this.font, "§d§l✏ PLOT-NAME", leftPos + 15, y, 0xFF55FF);
         }
         y += 15;
-        contentHeight += 15;
 
+        // Current name
         if (y >= startY - 10 && y < endY) {
             guiGraphics.drawString(this.font, "§7Aktuell: §f" + currentPlot.getPlotName(), leftPos + 15, y, 0xFFFFFF);
         }
         y += 12;
-        contentHeight += 12;
 
-        // ✅ "Umbenennen" Button
+        // Rename button
         if (y >= startY - 30 && y < endY + 30) {
             drawButton(guiGraphics, leftPos + 10, y + 3, WIDTH - 20, 18, "§e✏ Umbenennen", 0xFFAA00, mouseX, mouseY);
             clickableRegions.add(new ClickableRegion(leftPos + 10, y + 3, leftPos + WIDTH - 10, y + 21, () -> {
                 minecraft.setScreen(new InputDialogScreen(this, "Plot umbenennen", "Neuen Namen eingeben:",
                     InputDialogScreen.InputType.TEXT, newName -> {
-                        PlotNetworkHandler.sendToServer(new PlotRenamePacket(plotId, newName));
+                        PlotNetworkHandler.sendToServer(new PlotNamePacket(plotId, newName));
                     }));
             }));
         }
         y += 25;
-        contentHeight += 25;
 
-        // ═══════════════════════════════════════════════════════════════════════════
-        // PLOT BESCHREIBUNG
-        // ═══════════════════════════════════════════════════════════════════════════
+        return y;
+    }
+
+    /**
+     * Renders plot description section with button.
+     * @return new y position
+     */
+    private int renderPlotDescriptionSection(GuiGraphics guiGraphics, PlotRegion currentPlot, String plotId, int y, int startY, int endY, int mouseX, int mouseY) {
+        // Separator
         if (y >= startY - 10 && y < endY) {
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
         }
         y += 8;
-        contentHeight += 8;
 
+        // Section header
         if (y >= startY - 10 && y < endY) {
             guiGraphics.drawString(this.font, "§6§l📝 BESCHREIBUNG", leftPos + 15, y, 0xFFAA00);
         }
         y += 15;
-        contentHeight += 15;
 
+        // Current description
         String desc = currentPlot.getDescription();
         if (desc != null && !desc.isEmpty()) {
             if (y >= startY - 10 && y < endY) {
                 guiGraphics.drawString(this.font, "§7" + desc, leftPos + 15, y, 0xAAAAAA);
             }
             y += 12;
-            contentHeight += 12;
         } else {
             if (y >= startY - 10 && y < endY) {
                 guiGraphics.drawString(this.font, "§8Keine Beschreibung", leftPos + 15, y, 0x666666);
             }
             y += 12;
-            contentHeight += 12;
         }
 
-        // ✅ "Beschreibung ändern" Button
+        // "Change description" button
         if (y >= startY - 30 && y < endY + 30) {
             drawButton(guiGraphics, leftPos + 10, y + 3, WIDTH - 20, 18, "§a📝 Beschreibung ändern", 0x55FF55, mouseX, mouseY);
             clickableRegions.add(new ClickableRegion(leftPos + 10, y + 3, leftPos + WIDTH - 10, y + 21, () -> {
@@ -491,32 +536,36 @@ public class SettingsAppScreen extends Screen {
             }));
         }
         y += 30;
-        contentHeight += 30;
 
-        // ═══════════════════════════════════════════════════════════════════════════
-        // PLOT AUFGEBEN
-        // ═══════════════════════════════════════════════════════════════════════════
+        return y;
+    }
+
+    /**
+     * Renders plot abandon section with warning and button.
+     * @return new y position
+     */
+    private int renderPlotAbandonSection(GuiGraphics guiGraphics, String plotId, int y, int startY, int endY, int mouseX, int mouseY) {
+        // Separator
         if (y >= startY - 10 && y < endY) {
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
         }
         y += 8;
-        contentHeight += 8;
 
+        // Section header
         if (y >= startY - 10 && y < endY) {
             guiGraphics.drawString(this.font, "§c§l🗑 PLOT AUFGEBEN", leftPos + 15, y, 0xFF5555);
         }
         y += 15;
-        contentHeight += 15;
 
+        // Warning box
         if (y >= startY - 10 && y < endY) {
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 30, 0x44330000);
             guiGraphics.drawString(this.font, "§8⚠ WARNUNG: Nicht rückgängig!", leftPos + 15, y + 5, 0x666666);
             guiGraphics.drawString(this.font, "§8Plot geht an Server zurück.", leftPos + 15, y + 15, 0x666666);
         }
         y += 35;
-        contentHeight += 35;
 
-        // ✅ "Plot aufgeben" Button (ROT)
+        // Abandon button
         if (y >= startY - 30 && y < endY + 30) {
             drawButton(guiGraphics, leftPos + 10, y, WIDTH - 20, 18, "§c🗑 Plot aufgeben", 0xFF5555, mouseX, mouseY);
             clickableRegions.add(new ClickableRegion(leftPos + 10, y, leftPos + WIDTH - 10, y + 18, () -> {
@@ -528,9 +577,8 @@ public class SettingsAppScreen extends Screen {
             }));
         }
         y += 25;
-        contentHeight += 25;
 
-        maxScroll = Math.max(0, contentHeight - CONTENT_HEIGHT);
+        return y;
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
