@@ -65,6 +65,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import de.rolandsw.schedulemc.util.LRUCache;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -86,28 +87,18 @@ public class ColorCalculationService {
     private boolean optifineInstalled;
 
     /**
-     * PERFORMANCE: LRU-Cache mit Max-Size gegen Memory-Leaks
-     * Max 200 Einträge für blockTintTables
+     * PERFORMANCE: LRU-Cache mit Max-Size gegen Memory-Leaks.
+     * <p>Max 200 Einträge für blockTintTables.</p>
      */
-    private final Map<Integer, int[][]> blockTintTables = new LinkedHashMap<Integer, int[][]>(200, 0.75f, true) {
-        @Override
-        protected boolean removeEldestEntry(Map.Entry<Integer, int[][]> eldest) {
-            return size() > 200;
-        }
-    };
+    private final Map<Integer, int[][]> blockTintTables = new LRUCache<>(200);
 
     private final HashSet<Integer> biomeTextureAvailable = new HashSet<>();
 
     /**
-     * PERFORMANCE: LRU-Cache mit Max-Size gegen Memory-Leaks
-     * Max 500 Einträge für blockBiomeSpecificColors
+     * PERFORMANCE: LRU-Cache mit Max-Size gegen Memory-Leaks.
+     * <p>Max 500 Einträge für blockBiomeSpecificColors.</p>
      */
-    private final Map<String, Integer> blockBiomeSpecificColors = new LinkedHashMap<String, Integer>(500, 0.75f, true) {
-        @Override
-        protected boolean removeEldestEntry(Map.Entry<String, Integer> eldest) {
-            return size() > 500;
-        }
-    };
+    private final Map<String, Integer> blockBiomeSpecificColors = new LRUCache<>(500);
     private float failedToLoadX;
     private float failedToLoadY;
     private String renderPassThreeBlendMode;
@@ -123,14 +114,11 @@ public class ColorCalculationService {
     private final ColorResolver dryFoliageColorResolver = (blockState, biomex, blockPos) -> biomex.getFoliageColor();
     private final ColorResolver waterColorResolver = (blockState, biomex, blockPos) -> biomex.getWaterColor();
 
-    // Performance-Optimierung: LRU Cache für Biome Tints (reduziert 9 Biome-Lookups pro Block)
-    // Cache-Size: 4096 Einträge = ~32KB Memory (genug für typische Spieler-Umgebung)
-    private final Map<Long, Integer> biomeTintCache = new LinkedHashMap<Long, Integer>(4096, 0.75f, true) {
-        @Override
-        protected boolean removeEldestEntry(Map.Entry<Long, Integer> eldest) {
-            return size() > 4096;
-        }
-    };
+    /**
+     * PERFORMANCE: LRU Cache für Biome Tints (reduziert 9 Biome-Lookups pro Block).
+     * <p>Cache-Size: 4096 Einträge = ~32KB Memory (genug für typische Spieler-Umgebung).</p>
+     */
+    private final Map<Long, Integer> biomeTintCache = new LRUCache<>(4096);
     private final ColorResolver redstoneColorResolver = (blockState, biomex, blockPos) -> RedStoneWireBlock.getColorForPower(blockState.getValue(RedStoneWireBlock.POWER));
 
     public ColorCalculationService() {

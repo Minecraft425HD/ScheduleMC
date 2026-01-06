@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import de.rolandsw.schedulemc.util.LRUCache;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -55,37 +56,29 @@ public class PoliceAIHandler {
     private static final long ARREST_TIMER_TIMEOUT_MS = 600000; // 10 Minuten
     private static final int MAX_CACHE_ENTRIES = 500; // Max Einträge für LRU-Caches
 
-    // UUID -> Arrest Start Time (in Ticks) - mit automatischem Cleanup
-    private static final Map<UUID, Long> arrestTimers = new LinkedHashMap<UUID, Long>(16, 0.75f, true) {
-        @Override
-        protected boolean removeEldestEntry(Map.Entry<UUID, Long> eldest) {
-            return size() > MAX_ARREST_TIMER_ENTRIES;
-        }
-    };
+    /**
+     * UUID → Arrest Start Time (in Ticks) - LRU-Cache mit automatischem Cleanup.
+     * <p>Max 1000 Einträge, älteste werden automatisch entfernt.</p>
+     */
+    private static final Map<UUID, Long> arrestTimers = new LRUCache<>(MAX_ARREST_TIMER_ENTRIES);
 
-    // NPC UUID -> Last Pursuit Target (um zu wissen wen wir verfolgt haben) - LRU Cache
-    private static final Map<UUID, UUID> lastPursuitTarget = new LinkedHashMap<UUID, UUID>(16, 0.75f, true) {
-        @Override
-        protected boolean removeEldestEntry(Map.Entry<UUID, UUID> eldest) {
-            return size() > MAX_CACHE_ENTRIES;
-        }
-    };
+    /**
+     * NPC UUID → Last Pursuit Target (letztes Verfolgungsziel) - LRU Cache.
+     * <p>Max 500 Einträge für Performance.</p>
+     */
+    private static final Map<UUID, UUID> lastPursuitTarget = new LRUCache<>(MAX_CACHE_ENTRIES);
 
-    // Wanted-Level Sync Cache (verhindert unnötige Netzwerk-Pakete) - LRU Cache
-    private static final Map<UUID, Integer> lastSyncedWantedLevel = new LinkedHashMap<UUID, Integer>(16, 0.75f, true) {
-        @Override
-        protected boolean removeEldestEntry(Map.Entry<UUID, Integer> eldest) {
-            return size() > MAX_CACHE_ENTRIES;
-        }
-    };
+    /**
+     * Wanted-Level Sync Cache (verhindert unnötige Netzwerk-Pakete) - LRU Cache.
+     * <p>Max 500 Einträge.</p>
+     */
+    private static final Map<UUID, Integer> lastSyncedWantedLevel = new LRUCache<>(MAX_CACHE_ENTRIES);
 
-    // Escape-Time Sync Cache (verhindert unnötige Netzwerk-Pakete) - LRU Cache
-    private static final Map<UUID, Long> lastSyncedEscapeTime = new LinkedHashMap<UUID, Long>(16, 0.75f, true) {
-        @Override
-        protected boolean removeEldestEntry(Map.Entry<UUID, Long> eldest) {
-            return size() > MAX_CACHE_ENTRIES;
-        }
-    };
+    /**
+     * Escape-Time Sync Cache (verhindert unnötige Netzwerk-Pakete) - LRU Cache.
+     * <p>Max 500 Einträge.</p>
+     */
+    private static final Map<UUID, Long> lastSyncedEscapeTime = new LRUCache<>(MAX_CACHE_ENTRIES);
 
     // ═══════════════════════════════════════════════════════════════════════════
     // OPTIMIERUNG: Globaler Spieler-Cache (aktualisiert einmal pro Server-Tick)
