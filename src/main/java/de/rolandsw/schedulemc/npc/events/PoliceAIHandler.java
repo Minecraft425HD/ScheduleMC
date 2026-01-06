@@ -333,133 +333,43 @@ public class PoliceAIHandler {
     }
 
     /**
-     * Festnahme eines Spielers
+     * Arrests a player and processes all associated penalties.
+     * <p>
+     * This method has been refactored to use extracted helper methods for better maintainability:
+     * <ul>
+     *   <li>{@link #performIllegalActivityScan(CustomNPCEntity, ServerPlayer)} - Scans for contraband</li>
+     *   <li>{@link #calculateArrestPenalties(ServerPlayer, int)} - Calculates fine and jail time</li>
+     *   <li>{@link #processFinePayment(ServerPlayer, int, int)} - Processes wallet payment</li>
+     *   <li>{@link #executeImprisonment(ServerPlayer, int, int)} - Imprisons the player</li>
+     *   <li>{@link #cleanupAfterArrest(ServerPlayer)} - Cleanup timers and backup system</li>
+     * </ul>
+     * </p>
      */
     private void arrestPlayer(CustomNPCEntity police, ServerPlayer player) {
         int wantedLevel = CrimeManager.getWantedLevel(player.getUUID());
-        if (wantedLevel <= 0) return; // Kein Wanted-Level mehr
+        if (wantedLevel <= 0) return; // No wanted level anymore
 
-        // Verhindere mehrfache Festnahmen
+        // Prevent duplicate arrests
         if (player.getPersistentData().getLong("JailReleaseTime") > 0) {
-            return; // Schon im Gefängnis
+            return; // Already in jail
         }
 
-        // ═══════════════════════════════════════════════════════════
-        // POLIZEI RAID - Scanne nach illegalen Items
-        // Modus wird über Config gesteuert (POLICE_ROOM_SCAN_ENABLED):
-        //   TRUE  = Intelligentes Raum-Scannen (nur gesehene Räume)
-        //   FALSE = Klassisches Radius-Scannen (komplette Umgebung)
-        // ═══════════════════════════════════════════════════════════
-        boolean useRoomScan = ModConfigHandler.COMMON.POLICE_ROOM_SCAN_ENABLED.get();
+        // Perform illegal activity scan using helper method
+        performIllegalActivityScan(police, player);
 
-        IllegalActivityScanner.ScanResult scanResult;
-        if (useRoomScan) {
-            // NEUE LOGIK: Nur Raum scannen, in dem Festnahme stattfand
-            //             Wenn Konterband gefunden → weitere Räume durchsuchen
-            //             Wenn nichts gefunden → KEINE Durchsuchung des ganzen Gebäudes
-            scanResult = IllegalActivityScanner.scanRoomBased(
-                player.level(),
-                player.blockPosition(),
-                player
-            );
-        } else {
-            // ALTE LOGIK: Kompletter Radius wird gescannt (deprecated)
-            scanResult = IllegalActivityScanner.scanArea(
-                player.level(),
-                player.blockPosition(),
-                player
-            );
-        }
+        // Calculate penalties using helper method
+        int[] penalties = calculateArrestPenalties(player, wantedLevel);
+        int fine = penalties[0];
+        int jailTimeSeconds = penalties[1];
 
-        if (scanResult.hasIllegalActivity()) {
-            // Illegale Aktivitäten gefunden!
-            if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("[RAID] Illegale Aktivitäten bei {} festgestellt!", player.getName().getString());
-                LOGGER.info("[RAID] Pflanzen: {}, Bargeld: {}, Items: {}",
-                    scanResult.illegalPlantCount, scanResult.totalCashFound, scanResult.illegalItemCount);
-            }
+        // Process fine payment using helper method
+        jailTimeSeconds = processFinePayment(player, fine, jailTimeSeconds);
 
-            // Wende Strafen an (Geldstrafe, Fahndungslevel-Erhöhung)
-            PoliceRaidPenalty.applyPenalties(player, scanResult);
+        // Execute imprisonment using helper method
+        executeImprisonment(player, wantedLevel, jailTimeSeconds);
 
-            // Upgrade zu Raid (max 4 Polizisten statt 2)
-            PoliceBackupSystem.upgradeToRaid(player.getUUID());
-            PoliceBackupSystem.registerPolice(player.getUUID(), police.getUUID(), true);
-
-            // Rufe Verstärkung (bis zu 4 Polizisten total)
-            PoliceBackupSystem.callBackup(player, police);
-
-        } else {
-            // Keine illegalen Items - normale Verfolgung (max 2 Polizisten)
-            PoliceBackupSystem.registerPolice(player.getUUID(), police.getUUID(), false);
-        }
-
-        // Strafe berechnen
-        int fine = wantedLevel * 500; // 500€ pro Stern
-        int jailTimeSeconds = wantedLevel * 60; // 60 Sekunden pro Stern
-
-        // Prüfe ob Raid-Strafe nicht bezahlt werden konnte (aus PoliceRaidPenalty)
-        if (player.getPersistentData().getBoolean("DoublePenalty")) {
-            jailTimeSeconds *= 2;
-            player.getPersistentData().remove("DoublePenalty");
-            LOGGER.warn("[RAID] Haftzeit verdoppelt wegen unbezahlter Raid-Strafe");
-        }
-
-        // Geld aus Wallet-Item abziehen
-        ItemStack wallet = player.getInventory().getItem(8);
-        if (wallet.getItem() instanceof CashItem) {
-            double currentMoney = CashItem.getValue(wallet);
-
-            if (currentMoney >= fine) {
-                // Strafe bezahlen
-                CashItem.removeValue(wallet, fine);
-                player.sendSystemMessage(Component.literal("§c✗ FESTGENOMMEN!"));
-                player.sendSystemMessage(Component.literal("§7Strafe: §c" + fine + "€"));
-            } else {
-                // Nicht genug Geld → Gefängnis länger + alles konfisziert
-                jailTimeSeconds *= 2;
-                CashItem.setValue(wallet, 0);
-                player.sendSystemMessage(Component.literal("§c✗ FESTGENOMMEN!"));
-                player.sendSystemMessage(Component.literal("§7Alles Bargeld konfisziert!"));
-                player.sendSystemMessage(Component.literal("§c§lDOPPELTE HAFTZEIT!"));
-            }
-        }
-
-        // Nutze PrisonManager für Inhaftierung
-        de.rolandsw.schedulemc.npc.crime.prison.PrisonManager prisonManager =
-            de.rolandsw.schedulemc.npc.crime.prison.PrisonManager.getInstance();
-
-        // Versuche Spieler ins Gefängnis zu bringen
-        boolean imprisoned = prisonManager.imprisonPlayer(player, wantedLevel);
-
-        if (!imprisoned) {
-            // Fallback: Alte Logik wenn kein Gefängnis verfügbar
-            BlockPos jailPos = player.getRespawnPosition() != null ?
-                player.getRespawnPosition() : BlockPos.ZERO;
-
-            player.teleportTo(jailPos.getX(), jailPos.getY(), jailPos.getZ());
-
-            long releaseTime = player.level().getGameTime() + (jailTimeSeconds * 20L);
-            player.getPersistentData().putLong("JailReleaseTime", releaseTime);
-            player.getPersistentData().putInt("JailX", jailPos.getX());
-            player.getPersistentData().putInt("JailY", jailPos.getY());
-            player.getPersistentData().putInt("JailZ", jailPos.getZ());
-
-            player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 40, 0));
-            player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, jailTimeSeconds * 20, 2));
-            player.addEffect(new MobEffectInstance(MobEffects.JUMP, jailTimeSeconds * 20, 250));
-
-            CrimeManager.clearWantedLevel(player.getUUID());
-
-            player.sendSystemMessage(Component.literal("§7Haftzeit: §e" + jailTimeSeconds + " Sekunden"));
-            player.sendSystemMessage(Component.literal("§7Fahndungsstufe zurückgesetzt"));
-        }
-
-        // Reset Arrest-Timer
-        arrestTimers.remove(player.getUUID());
-
-        // Cleanup Backup-System
-        PoliceBackupSystem.cleanup(player.getUUID());
+        // Cleanup using helper method
+        cleanupAfterArrest(player);
 
         LOGGER.info("[POLICE] {} arrested {} - Jail time: {}s",
             police.getNpcName(), player.getName().getString(), jailTimeSeconds);
@@ -849,5 +759,160 @@ public class PoliceAIHandler {
             // Cleanup arrestTimers if exists
             arrestTimers.remove(lastTarget);
         }
+    }
+
+    // ==================== Arrest Helper Methods (Refactored from arrestPlayer) ====================
+
+    /**
+     * Performs illegal activity scan and applies raid penalties if contraband found.
+     *
+     * @param police the arresting police NPC
+     * @param player the player being arrested
+     * @return the scan result
+     */
+    private IllegalActivityScanner.ScanResult performIllegalActivityScan(CustomNPCEntity police, ServerPlayer player) {
+        boolean useRoomScan = ModConfigHandler.COMMON.POLICE_ROOM_SCAN_ENABLED.get();
+
+        IllegalActivityScanner.ScanResult scanResult;
+        if (useRoomScan) {
+            // NEW LOGIC: Only scan room where arrest occurred
+            scanResult = IllegalActivityScanner.scanRoomBased(
+                player.level(),
+                player.blockPosition(),
+                player
+            );
+        } else {
+            // OLD LOGIC: Full radius scan (deprecated)
+            scanResult = IllegalActivityScanner.scanArea(
+                player.level(),
+                player.blockPosition(),
+                player
+            );
+        }
+
+        if (scanResult.hasIllegalActivity()) {
+            // Illegal activities found!
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("[RAID] Illegale Aktivitäten bei {} festgestellt!", player.getName().getString());
+                LOGGER.info("[RAID] Pflanzen: {}, Bargeld: {}, Items: {}",
+                    scanResult.illegalPlantCount, scanResult.totalCashFound, scanResult.illegalItemCount);
+            }
+
+            // Apply penalties (fines, wanted level increase)
+            PoliceRaidPenalty.applyPenalties(player, scanResult);
+
+            // Upgrade to raid (max 4 police instead of 2)
+            PoliceBackupSystem.upgradeToRaid(player.getUUID());
+            PoliceBackupSystem.registerPolice(player.getUUID(), police.getUUID(), true);
+
+            // Call backup (up to 4 police total)
+            PoliceBackupSystem.callBackup(player, police);
+
+        } else {
+            // No illegal items - normal pursuit (max 2 police)
+            PoliceBackupSystem.registerPolice(player.getUUID(), police.getUUID(), false);
+        }
+
+        return scanResult;
+    }
+
+    /**
+     * Calculates arrest penalties (fine and jail time).
+     *
+     * @param player the player being arrested
+     * @param wantedLevel the player's wanted level
+     * @return array with [fine, jailTimeSeconds]
+     */
+    private int[] calculateArrestPenalties(ServerPlayer player, int wantedLevel) {
+        int fine = wantedLevel * 500; // 500€ per star
+        int jailTimeSeconds = wantedLevel * 60; // 60 seconds per star
+
+        // Check if raid penalty couldn't be paid (from PoliceRaidPenalty)
+        if (player.getPersistentData().getBoolean("DoublePenalty")) {
+            jailTimeSeconds *= 2;
+            player.getPersistentData().remove("DoublePenalty");
+            LOGGER.warn("[RAID] Haftzeit verdoppelt wegen unbezahlter Raid-Strafe");
+        }
+
+        return new int[]{fine, jailTimeSeconds};
+    }
+
+    /**
+     * Processes fine payment from player's wallet.
+     *
+     * @param player the player being arrested
+     * @param fine the fine amount
+     * @param jailTimeSeconds the base jail time
+     * @return actual jail time after payment processing
+     */
+    private int processFinePayment(ServerPlayer player, int fine, int jailTimeSeconds) {
+        ItemStack wallet = player.getInventory().getItem(8);
+        if (wallet.getItem() instanceof CashItem) {
+            double currentMoney = CashItem.getValue(wallet);
+
+            if (currentMoney >= fine) {
+                // Pay fine
+                CashItem.removeValue(wallet, fine);
+                player.sendSystemMessage(Component.literal("§c✗ FESTGENOMMEN!"));
+                player.sendSystemMessage(Component.literal("§7Strafe: §c" + fine + "€"));
+                return jailTimeSeconds;
+            } else {
+                // Not enough money → longer jail + all confiscated
+                int doubledTime = jailTimeSeconds * 2;
+                CashItem.setValue(wallet, 0);
+                player.sendSystemMessage(Component.literal("§c✗ FESTGENOMMEN!"));
+                player.sendSystemMessage(Component.literal("§7Alles Bargeld konfisziert!"));
+                player.sendSystemMessage(Component.literal("§c§lDOPPELTE HAFTZEIT!"));
+                return doubledTime;
+            }
+        }
+        return jailTimeSeconds;
+    }
+
+    /**
+     * Imprisons the player using PrisonManager or fallback logic.
+     *
+     * @param player the player to imprison
+     * @param wantedLevel the player's wanted level
+     * @param jailTimeSeconds the jail time in seconds
+     */
+    private void executeImprisonment(ServerPlayer player, int wantedLevel, int jailTimeSeconds) {
+        de.rolandsw.schedulemc.npc.crime.prison.PrisonManager prisonManager =
+            de.rolandsw.schedulemc.npc.crime.prison.PrisonManager.getInstance();
+
+        boolean imprisoned = prisonManager.imprisonPlayer(player, wantedLevel);
+
+        if (!imprisoned) {
+            // Fallback: Old logic if no prison available
+            BlockPos jailPos = player.getRespawnPosition() != null ?
+                player.getRespawnPosition() : BlockPos.ZERO;
+
+            player.teleportTo(jailPos.getX(), jailPos.getY(), jailPos.getZ());
+
+            long releaseTime = player.level().getGameTime() + (jailTimeSeconds * 20L);
+            player.getPersistentData().putLong("JailReleaseTime", releaseTime);
+            player.getPersistentData().putInt("JailX", jailPos.getX());
+            player.getPersistentData().putInt("JailY", jailPos.getY());
+            player.getPersistentData().putInt("JailZ", jailPos.getZ());
+
+            player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 40, 0));
+            player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, jailTimeSeconds * 20, 2));
+            player.addEffect(new MobEffectInstance(MobEffects.JUMP, jailTimeSeconds * 20, 250));
+
+            CrimeManager.clearWantedLevel(player.getUUID());
+
+            player.sendSystemMessage(Component.literal("§7Haftzeit: §e" + jailTimeSeconds + " Sekunden"));
+            player.sendSystemMessage(Component.literal("§7Fahndungsstufe zurückgesetzt"));
+        }
+    }
+
+    /**
+     * Cleans up arrest-related data after arrest is complete.
+     *
+     * @param player the arrested player
+     */
+    private void cleanupAfterArrest(ServerPlayer player) {
+        arrestTimers.remove(player.getUUID());
+        PoliceBackupSystem.cleanup(player.getUUID());
     }
 }
