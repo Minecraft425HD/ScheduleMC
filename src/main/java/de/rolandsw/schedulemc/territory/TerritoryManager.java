@@ -3,9 +3,11 @@ package de.rolandsw.schedulemc.territory;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
+import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -24,6 +26,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * Extends AbstractPersistenceManager
  */
 public class TerritoryManager extends AbstractPersistenceManager<Map<Long, Territory>> {
+    private static final Logger LOGGER = LogUtils.getLogger();
+
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
     private static volatile TerritoryManager instance;
 
@@ -79,9 +83,15 @@ public class TerritoryManager extends AbstractPersistenceManager<Map<Long, Terri
 
         // Performance-Optimierung: Delta-Update an alle Clients senden
         if (server != null) {
-            de.rolandsw.schedulemc.territory.network.TerritoryNetworkHandler.broadcastDeltaUpdate(
-                de.rolandsw.schedulemc.territory.network.SyncTerritoryDeltaPacket.update(territory)
-            );
+            try {
+                de.rolandsw.schedulemc.territory.network.TerritoryNetworkHandler.broadcastDeltaUpdate(
+                    de.rolandsw.schedulemc.territory.network.SyncTerritoryDeltaPacket.update(territory)
+                );
+            } catch (Exception e) {
+                // Network errors should not prevent territory creation
+                LOGGER.error("Failed to broadcast territory update for chunk ({}, {}): {}",
+                    chunkX, chunkZ, e.getMessage());
+            }
         }
     }
 
@@ -97,9 +107,15 @@ public class TerritoryManager extends AbstractPersistenceManager<Map<Long, Terri
 
             // Performance-Optimierung: Delta-Update an alle Clients senden
             if (server != null) {
-                de.rolandsw.schedulemc.territory.network.TerritoryNetworkHandler.broadcastDeltaUpdate(
-                    de.rolandsw.schedulemc.territory.network.SyncTerritoryDeltaPacket.remove(chunkX, chunkZ)
-                );
+                try {
+                    de.rolandsw.schedulemc.territory.network.TerritoryNetworkHandler.broadcastDeltaUpdate(
+                        de.rolandsw.schedulemc.territory.network.SyncTerritoryDeltaPacket.remove(chunkX, chunkZ)
+                    );
+                } catch (Exception e) {
+                    // Network errors should not prevent territory removal
+                    LOGGER.error("Failed to broadcast territory removal for chunk ({}, {}): {}",
+                        chunkX, chunkZ, e.getMessage());
+                }
             }
         }
         return removed;
