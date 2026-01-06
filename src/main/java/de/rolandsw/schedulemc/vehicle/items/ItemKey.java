@@ -18,6 +18,25 @@ import net.minecraft.world.phys.AABB;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Vehicle key item that allows players to lock/unlock and locate their vehicles.
+ * <p>
+ * When right-clicked, this item will search for the associated vehicle within
+ * a 25-block radius and toggle its lock state. Each key is bound to a specific
+ * vehicle UUID stored in the item's NBT data.
+ * </p>
+ * <p>
+ * <strong>Key Features:</strong>
+ * </p>
+ * <ul>
+ *   <li>Lock/unlock vehicle access (prevents unauthorized use)</li>
+ *   <li>Locate vehicle within 25-block radius</li>
+ *   <li>One-to-one binding with vehicle UUID</li>
+ *   <li>Non-stackable (max stack size: 1)</li>
+ * </ul>
+ *
+ * @see EntityGenericVehicle
+ */
 public class ItemKey extends Item {
 
     public ItemKey() {
