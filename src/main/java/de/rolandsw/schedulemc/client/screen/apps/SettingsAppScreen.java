@@ -784,22 +784,62 @@ public class SettingsAppScreen extends Screen {
     // TAB 3: KONTO
     // ═══════════════════════════════════════════════════════════════════════════
 
+    /**
+     * Renders the account tab showing balance, running costs, owned properties, and money-making hints.
+     * <p>
+     * This method delegates rendering to specialized helper methods:
+     * <ul>
+     *   <li>{@link #renderAccountBalanceSection} - Current account balance display</li>
+     *   <li>{@link #renderRunningCostsSection} - Daily/weekly/monthly cost breakdown</li>
+     *   <li>{@link #renderPropertyListSection} - List of owned plots</li>
+     *   <li>{@link #renderMoneyHintSection} - Money-making guidance</li>
+     * </ul>
+     *
+     * @param guiGraphics   the graphics context
+     * @param startY        the start Y position for rendering
+     * @param endY          the end Y position for rendering
+     */
     private void renderAccountTab(GuiGraphics guiGraphics, int startY, int endY) {
         int y = startY - scrollOffset;
         int contentHeight = 0;
 
-        // ═══════════════════════════════════════════════════════════════════════════
-        // KONTOSTAND
-        // ═══════════════════════════════════════════════════════════════════════════
+        // Render all account sections using helper methods
+        y = renderAccountBalanceSection(guiGraphics, y, startY, endY);
+        contentHeight = y - (startY - scrollOffset);
+
+        y = renderRunningCostsSection(guiGraphics, y, startY, endY);
+        contentHeight = y - (startY - scrollOffset);
+
+        y = renderPropertyListSection(guiGraphics, y, startY, endY);
+        contentHeight = y - (startY - scrollOffset);
+
+        y = renderMoneyHintSection(guiGraphics, y, startY, endY);
+        contentHeight = y - (startY - scrollOffset);
+
+        maxScroll = Math.max(0, contentHeight - CONTENT_HEIGHT);
+    }
+
+    // ==================== Account Tab Helper Methods ====================
+
+    /**
+     * Renders the account balance section showing current available funds.
+     * Displays a prominent balance card with "Bank of Schedule" branding.
+     *
+     * @param guiGraphics   the graphics context
+     * @param y             the current Y position
+     * @param startY        the start Y position for rendering
+     * @param endY          the end Y position for rendering
+     * @return              the updated Y position after rendering
+     */
+    private int renderAccountBalanceSection(GuiGraphics guiGraphics, int y, int startY, int endY) {
+        // Header
         if (y >= startY - 10 && y < endY) {
             guiGraphics.drawString(this.font, "§6§l💰 KONTOSTAND", leftPos + 15, y, 0xFFAA00);
         }
         y += 18;
-        contentHeight += 18;
 
-        // Großer Kontostand-Display
+        // Large balance display card
         if (y >= startY - 10 && y < endY) {
-            // ✅ Lade echten Kontostand von EconomyManager
             double accountBalance = 0.0;
             if (minecraft.player != null) {
                 accountBalance = EconomyManager.getBalance(minecraft.player.getUUID());
@@ -808,31 +848,39 @@ public class SettingsAppScreen extends Screen {
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 50, 0x44228B22);
             guiGraphics.drawCenteredString(this.font, "§fVerfügbar:", leftPos + WIDTH / 2, y + 8, 0xFFFFFF);
 
-            // Großer Betrag
             String balanceStr = String.format("§a§l%.2f €", accountBalance);
             guiGraphics.drawCenteredString(this.font, balanceStr, leftPos + WIDTH / 2, y + 25, 0x55FF55);
 
             guiGraphics.drawCenteredString(this.font, "§8Bank of Schedule", leftPos + WIDTH / 2, y + 40, 0x666666);
         }
         y += 58;
-        contentHeight += 58;
 
-        // ═══════════════════════════════════════════════════════════════════════════
-        // MONATLICHE KOSTEN ÜBERSICHT
-        // ═══════════════════════════════════════════════════════════════════════════
+        return y;
+    }
+
+    /**
+     * Renders the running costs section showing daily, weekly, and monthly utility expenses.
+     * Calculates costs from all owned plots and displays budget runway.
+     *
+     * @param guiGraphics   the graphics context
+     * @param y             the current Y position
+     * @param startY        the start Y position for rendering
+     * @param endY          the end Y position for rendering
+     * @return              the updated Y position after rendering
+     */
+    private int renderRunningCostsSection(GuiGraphics guiGraphics, int y, int startY, int endY) {
+        // Section separator + header
         if (y >= startY - 10 && y < endY) {
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
         }
         y += 10;
-        contentHeight += 10;
 
         if (y >= startY - 10 && y < endY) {
             guiGraphics.drawString(this.font, "§e§l📊 LAUFENDE KOSTEN", leftPos + 15, y, 0xFFAA00);
         }
         y += 15;
-        contentHeight += 15;
 
-        // Berechne geschätzte monatliche Kosten
+        // Calculate estimated monthly costs from all plots
         double totalDailyElec = 0;
         double totalDailyWater = 0;
 
@@ -849,6 +897,7 @@ public class SettingsAppScreen extends Screen {
         double weeklyCost = dailyCost * 7;
         double monthlyCost = dailyCost * 30;
 
+        // Display cost breakdown
         if (y >= startY - 10 && y < endY) {
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 55, 0x33333333);
 
@@ -861,67 +910,84 @@ public class SettingsAppScreen extends Screen {
             guiGraphics.drawString(this.font, "§7Monatlich (30d):", leftPos + 15, y + 31, 0xAAAAAA);
             guiGraphics.drawString(this.font, String.format("§e%.2f €", monthlyCost), leftPos + 100, y + 31, 0xFFAA00);
 
-            // Reichweite - lade echten Kontostand
+            // Budget runway calculation
             double currentBalance = minecraft.player != null ? EconomyManager.getBalance(minecraft.player.getUUID()) : 0.0;
             int daysUntilEmpty = dailyCost > 0 ? (int) (currentBalance / dailyCost) : 999;
             String reichweiteColor = daysUntilEmpty < 7 ? "§c" : (daysUntilEmpty < 30 ? "§e" : "§a");
             guiGraphics.drawString(this.font, "§8Reichweite: " + reichweiteColor + daysUntilEmpty + " Tage", leftPos + 15, y + 44, 0x888888);
         }
         y += 60;
-        contentHeight += 60;
 
-        // ═══════════════════════════════════════════════════════════════════════════
-        // GRUNDSTÜCKE
-        // ═══════════════════════════════════════════════════════════════════════════
+        return y;
+    }
+
+    /**
+     * Renders the property list section showing all owned plots.
+     * Displays the number of owned properties and lists each plot by name.
+     *
+     * @param guiGraphics   the graphics context
+     * @param y             the current Y position
+     * @param startY        the start Y position for rendering
+     * @param endY          the end Y position for rendering
+     * @return              the updated Y position after rendering
+     */
+    private int renderPropertyListSection(GuiGraphics guiGraphics, int y, int startY, int endY) {
+        // Section separator + header
         if (y >= startY - 10 && y < endY) {
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
         }
         y += 10;
-        contentHeight += 10;
 
         if (y >= startY - 10 && y < endY) {
             guiGraphics.drawString(this.font, "§b§l🏠 EIGENTUM", leftPos + 15, y, 0x55FFFF);
         }
         y += 15;
-        contentHeight += 15;
 
+        // Display property count or list
         if (myPlots.isEmpty()) {
             if (y >= startY - 10 && y < endY) {
                 guiGraphics.drawString(this.font, "§8Keine Grundstücke", leftPos + 15, y, 0x666666);
             }
             y += 12;
-            contentHeight += 12;
         } else {
             if (y >= startY - 10 && y < endY) {
                 guiGraphics.drawString(this.font, "§a" + myPlots.size() + " Grundstück(e)", leftPos + 15, y, 0x55FF55);
             }
             y += 12;
-            contentHeight += 12;
 
-            // Liste der Grundstücke
+            // List each plot
             for (PlotRegion plot : myPlots) {
                 if (y >= startY - 10 && y < endY) {
                     guiGraphics.drawString(this.font, "§7● " + plot.getPlotName(), leftPos + 20, y, 0xAAAAAA);
                 }
                 y += 11;
-                contentHeight += 11;
             }
         }
         y += 10;
-        contentHeight += 10;
 
-        // ═══════════════════════════════════════════════════════════════════════════
-        // HINWEIS
-        // ═══════════════════════════════════════════════════════════════════════════
+        return y;
+    }
+
+    /**
+     * Renders a hint section about earning money through selling products.
+     * Provides guidance to players on income generation methods.
+     *
+     * @param guiGraphics   the graphics context
+     * @param y             the current Y position
+     * @param startY        the start Y position for rendering
+     * @param endY          the end Y position for rendering
+     * @return              the updated Y position after rendering
+     */
+    private int renderMoneyHintSection(GuiGraphics guiGraphics, int y, int startY, int endY) {
+        // Info box with hint
         if (y >= startY - 10 && y < endY) {
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 30, 0x33222222);
             guiGraphics.drawCenteredString(this.font, "§8Geld verdienen:", leftPos + WIDTH / 2, y + 5, 0x666666);
             guiGraphics.drawCenteredString(this.font, "§7Produkte verkaufen!", leftPos + WIDTH / 2, y + 17, 0xAAAAAA);
         }
         y += 35;
-        contentHeight += 35;
 
-        maxScroll = Math.max(0, contentHeight - CONTENT_HEIGHT);
+        return y;
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
