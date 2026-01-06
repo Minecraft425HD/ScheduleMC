@@ -5,25 +5,12 @@ import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
 
 import java.util.Collection;
-import java.util.Objects;
 import java.util.Collections;
-import java.util.Objects;
 import java.util.HashSet;
-import java.util.Objects;
-import java.util.Collections;
-import java.util.Objects;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Collections;
-import java.util.Objects;
 import java.util.Set;
-import java.util.Objects;
-import java.util.Collections;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.Objects;
-import java.util.Collections;
-import java.util.Objects;
 
 /**
  * Hochperformanter räumlicher Index für schnelle Plot-Lookups in ScheduleMC.
