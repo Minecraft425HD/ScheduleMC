@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.util;
 
+import de.rolandsw.schedulemc.exceptions.ValidationException;
 import net.minecraft.core.BlockPos;
 
 import javax.annotation.Nonnull;
@@ -332,6 +333,158 @@ public class InputValidation {
             return Result.failure("§cBetrag zu groß!");
         }
         return Result.success();
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // EXCEPTION-THROWING VALIDATION METHODS (Fail-Fast)
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Validates NPC name and throws ValidationException on failure.
+     *
+     * @param name The NPC name to validate
+     * @return The sanitized name
+     * @throws ValidationException if validation fails
+     */
+    public static String validateNPCNameOrThrow(@Nullable String name) {
+        Result result = validateNPCName(name);
+        if (result.isFailure()) {
+            throw new ValidationException(result.getError(), "npcName", name);
+        }
+        return result.getSanitizedValue() != null ? result.getSanitizedValue() : name;
+    }
+
+    /**
+     * Validates plot name and throws ValidationException on failure.
+     *
+     * @param name The plot name to validate
+     * @return The sanitized name
+     * @throws ValidationException if validation fails
+     */
+    public static String validatePlotNameOrThrow(@Nullable String name) {
+        Result result = validatePlotName(name);
+        if (result.isFailure()) {
+            throw new ValidationException(result.getError(), "plotName", name);
+        }
+        return result.getSanitizedValue() != null ? result.getSanitizedValue() : name;
+    }
+
+    /**
+     * Validates territory name and throws ValidationException on failure.
+     *
+     * @param name The territory name to validate
+     * @return The sanitized name
+     * @throws ValidationException if validation fails
+     */
+    public static String validateTerritoryNameOrThrow(@Nullable String name) {
+        Result result = validateTerritoryName(name);
+        if (result.isFailure()) {
+            throw new ValidationException(result.getError(), "territoryName", name);
+        }
+        return result.getSanitizedValue() != null ? result.getSanitizedValue() : name;
+    }
+
+    /**
+     * Validates skin file name and throws ValidationException on failure.
+     *
+     * @param filename The skin filename to validate
+     * @return The sanitized filename
+     * @throws ValidationException if validation fails
+     */
+    public static String validateSkinFileNameOrThrow(@Nullable String filename) {
+        Result result = validateSkinFileName(filename);
+        if (result.isFailure()) {
+            throw new ValidationException(result.getError(), "skinFileName", filename);
+        }
+        return result.getSanitizedValue() != null ? result.getSanitizedValue() : filename;
+    }
+
+    /**
+     * Validates dialog text and throws ValidationException on failure.
+     *
+     * @param text The dialog text to validate
+     * @return The sanitized text
+     * @throws ValidationException if validation fails
+     */
+    public static String validateDialogTextOrThrow(@Nullable String text) {
+        Result result = validateDialogText(text);
+        if (result.isFailure()) {
+            throw new ValidationException(result.getError(), "dialogText", text);
+        }
+        return result.getSanitizedValue() != null ? result.getSanitizedValue() : text;
+    }
+
+    /**
+     * Validates file path and throws ValidationException on failure.
+     *
+     * @param path The file path to validate
+     * @return The sanitized path
+     * @throws ValidationException if validation fails
+     */
+    public static String validatePathOrThrow(@Nullable String path) {
+        Result result = validatePath(path);
+        if (result.isFailure()) {
+            throw new ValidationException(result.getError(), "path", path);
+        }
+        return result.getSanitizedValue() != null ? result.getSanitizedValue() : path;
+    }
+
+    /**
+     * Validates packet string and throws ValidationException on failure.
+     *
+     * @param value The string value to validate
+     * @param fieldName The name of the field being validated
+     * @return The validated value
+     * @throws ValidationException if validation fails
+     */
+    public static String validatePacketStringOrThrow(@Nullable String value, @Nonnull String fieldName) {
+        Result result = validatePacketString(value, fieldName);
+        if (result.isFailure()) {
+            throw new ValidationException(result.getError(), fieldName, value);
+        }
+        return value;
+    }
+
+    /**
+     * Validates block position and throws ValidationException on failure.
+     *
+     * @param pos The block position to validate
+     * @return The validated position
+     * @throws ValidationException if validation fails
+     */
+    public static BlockPos validateBlockPosOrThrow(@Nullable BlockPos pos) {
+        Result result = validateBlockPos(pos);
+        if (result.isFailure()) {
+            throw new ValidationException(result.getError(), "blockPos", pos);
+        }
+        return pos;
+    }
+
+    /**
+     * Validates plot region and throws ValidationException on failure.
+     *
+     * @param pos1 First corner of the plot region
+     * @param pos2 Second corner of the plot region
+     * @throws ValidationException if validation fails
+     */
+    public static void validatePlotRegionOrThrow(@Nullable BlockPos pos1, @Nullable BlockPos pos2) {
+        Result result = validatePlotRegion(pos1, pos2);
+        if (result.isFailure()) {
+            throw new ValidationException(result.getError(), "plotRegion", "pos1=" + pos1 + ", pos2=" + pos2);
+        }
+    }
+
+    /**
+     * Validates money amount and throws ValidationException on failure.
+     *
+     * @param amount The amount to validate
+     * @throws ValidationException if validation fails
+     */
+    public static void validateAmountOrThrow(double amount) {
+        Result result = validateAmount(amount);
+        if (result.isFailure()) {
+            throw new ValidationException(result.getError(), "amount", amount);
+        }
     }
 
     private InputValidation() {
