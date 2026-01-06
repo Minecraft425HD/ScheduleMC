@@ -205,8 +205,15 @@ public class StockMarketData {
                 currentDay = data.lastUpdateDay;
                 LOGGER.info("Loaded stock market data (day {})", currentDay);
             }
+        } catch (java.io.IOException e) {
+            LOGGER.error("Failed to read stock market file {}: {}", saveFile.getPath(), e.getMessage());
+            initializeDefaults();
+        } catch (com.google.gson.JsonSyntaxException e) {
+            LOGGER.error("Failed to parse stock market JSON (corrupt file?): {}", saveFile.getPath(), e.getMessage());
+            initializeDefaults();
         } catch (Exception e) {
-            LOGGER.error("Failed to load stock market data, using defaults", e);
+            // Fallback for unexpected errors
+            LOGGER.error("Unexpected error loading stock market data from {}", saveFile.getPath(), e);
             initializeDefaults();
         }
     }
@@ -224,8 +231,13 @@ public class StockMarketData {
             try (FileWriter writer = new FileWriter(saveFile)) {
                 gson.toJson(data, writer);
             }
+        } catch (java.io.IOException e) {
+            LOGGER.error("Failed to write stock market file {}: {}", saveFile.getPath(), e.getMessage());
+        } catch (SecurityException e) {
+            LOGGER.error("Security error writing stock market file {}: {}", saveFile.getPath(), e.getMessage());
         } catch (Exception e) {
-            LOGGER.error("Failed to save stock market data", e);
+            // Fallback for unexpected errors
+            LOGGER.error("Unexpected error saving stock market data to {}", saveFile.getPath(), e);
         }
     }
 

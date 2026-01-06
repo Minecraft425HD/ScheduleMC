@@ -529,8 +529,18 @@ public class RegionCache {
                     this.liveChunksUpdated = true;
                 }
             }
+        } catch (java.io.IOException e) {
+            MapViewConstants.getLogger().error("Failed to read region file for {},{} in {}/{}{}: {}",
+                this.x, this.z, this.worldNamePathPart, this.subworldNamePathPart, this.dimensionNamePathPart, e.getMessage());
+        } catch (java.util.zip.ZipException e) {
+            MapViewConstants.getLogger().error("Corrupt zip file for region {},{} in {}/{}{} (will be regenerated)",
+                this.x, this.z, this.worldNamePathPart, this.subworldNamePathPart, this.dimensionNamePathPart);
+        } catch (NumberFormatException e) {
+            MapViewConstants.getLogger().debug("Invalid version format in region {},{} control file, defaulting to version 1", this.x, this.z);
         } catch (Exception ex) {
-            MapViewConstants.getLogger().error("Failed to load region file for " + this.x + "," + this.z + " in " + this.worldNamePathPart + "/" + this.subworldNamePathPart + this.dimensionNamePathPart, ex);
+            // Fallback for unexpected errors
+            MapViewConstants.getLogger().error("Unexpected error loading region file for {},{} in {}/{}{}",
+                this.x, this.z, this.worldNamePathPart, this.subworldNamePathPart, this.dimensionNamePathPart, ex);
         }
 
     }
@@ -547,8 +557,15 @@ public class RegionCache {
 
                     try {
                         RegionCache.this.doSave();
+                    } catch (java.io.IOException ex) {
+                        MapViewConstants.getLogger().error("Failed to write region file for {},{} in {}/{}{}: {}",
+                            RegionCache.this.x, RegionCache.this.z, RegionCache.this.worldNamePathPart,
+                            RegionCache.this.subworldNamePathPart, RegionCache.this.dimensionNamePathPart, ex.getMessage());
                     } catch (Exception ex) {
-                        MapViewConstants.getLogger().error("Failed to save region file for " + RegionCache.this.x + "," + RegionCache.this.z + " in " + RegionCache.this.worldNamePathPart + "/" + RegionCache.this.subworldNamePathPart + RegionCache.this.dimensionNamePathPart, ex);
+                        // Fallback for unexpected errors
+                        MapViewConstants.getLogger().error("Unexpected error saving region file for {},{} in {}/{}{}",
+                            RegionCache.this.x, RegionCache.this.z, RegionCache.this.worldNamePathPart,
+                            RegionCache.this.subworldNamePathPart, RegionCache.this.dimensionNamePathPart, ex);
                     } finally {
                         RegionCache.this.threadLock.unlock();
                     }
@@ -561,8 +578,15 @@ public class RegionCache {
                 // Save synchronously if executor is shutdown or newThread=false
                 try {
                     this.doSave();
+                } catch (java.io.IOException ex) {
+                    MapViewConstants.getLogger().error("Failed to write region file for {},{} in {}/{}{}: {}",
+                        this.x, this.z, this.worldNamePathPart, this.subworldNamePathPart,
+                        this.dimensionNamePathPart, ex.getMessage());
                 } catch (Exception ex) {
-                    MapViewConstants.getLogger().error(ex);
+                    // Fallback for unexpected errors
+                    MapViewConstants.getLogger().error("Unexpected error saving region file for {},{} in {}/{}{}",
+                        this.x, this.z, this.worldNamePathPart, this.subworldNamePathPart,
+                        this.dimensionNamePathPart, ex);
                 }
             }
 

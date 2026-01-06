@@ -61,8 +61,11 @@ public class VersionChecker {
                 }
 
                 connection.disconnect();
+            } catch (java.io.IOException e) {
+                ScheduleMC.LOGGER.error("Network error checking for updates: {}", e.getMessage());
             } catch (Exception e) {
-                ScheduleMC.LOGGER.error("Error checking for updates", e);
+                // Fallback for unexpected errors
+                ScheduleMC.LOGGER.error("Unexpected error checking for updates", e);
             } finally {
                 checkInProgress = false;
             }
@@ -97,8 +100,13 @@ public class VersionChecker {
             } else {
                 ScheduleMC.LOGGER.info("Running latest version: " + getCurrentVersion());
             }
+        } catch (com.google.gson.JsonSyntaxException e) {
+            ScheduleMC.LOGGER.error("Invalid JSON in version response: {}", e.getMessage());
+        } catch (NullPointerException e) {
+            ScheduleMC.LOGGER.error("Missing required fields in version response: {}", e.getMessage());
         } catch (Exception e) {
-            ScheduleMC.LOGGER.error("Error parsing version response", e);
+            // Fallback for unexpected errors
+            ScheduleMC.LOGGER.error("Unexpected error parsing version response", e);
         }
     }
 
@@ -168,8 +176,12 @@ public class VersionChecker {
             }
 
             return false;
+        } catch (NumberFormatException e) {
+            ScheduleMC.LOGGER.error("Invalid version number format: {}", e.getMessage());
+            return false;
         } catch (Exception e) {
-            ScheduleMC.LOGGER.error("Error comparing versions", e);
+            // Fallback for unexpected errors
+            ScheduleMC.LOGGER.error("Unexpected error comparing versions", e);
             return false;
         }
     }
@@ -195,8 +207,12 @@ public class VersionChecker {
                 } else {
                     CURRENT_VERSION = "1.0.0-alpha"; // Fallback
                 }
+            } catch (IllegalStateException e) {
+                ScheduleMC.LOGGER.error("Mod container not found: {}", e.getMessage());
+                CURRENT_VERSION = "1.0.0-alpha"; // Fallback
             } catch (Exception e) {
-                ScheduleMC.LOGGER.error("Error getting mod version", e);
+                // Fallback for unexpected errors
+                ScheduleMC.LOGGER.error("Unexpected error getting mod version", e);
                 CURRENT_VERSION = "1.0.0-alpha"; // Fallback
             }
         }

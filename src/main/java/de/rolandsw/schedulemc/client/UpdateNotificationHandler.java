@@ -101,8 +101,33 @@ public class UpdateNotificationHandler {
 
                     // Versuche Browser zu öffnen
                     java.awt.Desktop.getDesktop().browse(new java.net.URI(url));
+                } catch (java.net.URISyntaxException e) {
+                    ScheduleMC.LOGGER.error("Invalid URL format: {}", e.getMessage());
+                    if (Minecraft.getInstance().player != null) {
+                        Minecraft.getInstance().player.displayClientMessage(
+                            Component.literal("§cUngültige URL. Link wurde in Zwischenablage kopiert."),
+                            false
+                        );
+                    }
+                } catch (java.io.IOException e) {
+                    ScheduleMC.LOGGER.error("Failed to open browser: {}", e.getMessage());
+                    if (Minecraft.getInstance().player != null) {
+                        Minecraft.getInstance().player.displayClientMessage(
+                            Component.literal("§cFehler beim Öffnen des Browsers. URL wurde in Zwischenablage kopiert."),
+                            false
+                        );
+                    }
+                } catch (UnsupportedOperationException e) {
+                    ScheduleMC.LOGGER.error("Desktop browse operation not supported: {}", e.getMessage());
+                    if (Minecraft.getInstance().player != null) {
+                        Minecraft.getInstance().player.displayClientMessage(
+                            Component.literal("§cBrowser-Öffnen nicht unterstützt. URL wurde in Zwischenablage kopiert."),
+                            false
+                        );
+                    }
                 } catch (Exception e) {
-                    ScheduleMC.LOGGER.error("Failed to open update URL", e);
+                    // Fallback for unexpected errors
+                    ScheduleMC.LOGGER.error("Unexpected error opening update URL", e);
                     if (Minecraft.getInstance().player != null) {
                         Minecraft.getInstance().player.displayClientMessage(
                             Component.literal("§cFehler beim Öffnen des Links. URL wurde in Zwischenablage kopiert."),

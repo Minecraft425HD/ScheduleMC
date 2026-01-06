@@ -155,8 +155,13 @@ public class TransferLimitTracker {
                 dailyTransfers.putAll(loaded);
                 LOGGER.info("Loaded transfer limits for {} players", dailyTransfers.size());
             }
+        } catch (java.io.IOException e) {
+            LOGGER.error("Failed to read transfer limits file {}: {}", saveFile.getPath(), e.getMessage());
+        } catch (com.google.gson.JsonSyntaxException e) {
+            LOGGER.error("Failed to parse transfer limits JSON (corrupt file?): {}", saveFile.getPath(), e.getMessage());
         } catch (Exception e) {
-            LOGGER.error("Failed to load transfer limits", e);
+            // Fallback for unexpected errors
+            LOGGER.error("Unexpected error loading transfer limits from {}", saveFile.getPath(), e);
         }
     }
 
@@ -167,8 +172,13 @@ public class TransferLimitTracker {
             try (FileWriter writer = new FileWriter(saveFile)) {
                 gson.toJson(dailyTransfers, writer);
             }
+        } catch (java.io.IOException e) {
+            LOGGER.error("Failed to write transfer limits file {}: {}", saveFile.getPath(), e.getMessage());
+        } catch (SecurityException e) {
+            LOGGER.error("Security error writing transfer limits file {}: {}", saveFile.getPath(), e.getMessage());
         } catch (Exception e) {
-            LOGGER.error("Failed to save transfer limits", e);
+            // Fallback for unexpected errors
+            LOGGER.error("Unexpected error saving transfer limits to {}", saveFile.getPath(), e);
         }
     }
 
