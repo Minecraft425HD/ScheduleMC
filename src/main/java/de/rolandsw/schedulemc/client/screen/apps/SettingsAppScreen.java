@@ -585,68 +585,115 @@ public class SettingsAppScreen extends Screen {
     // TAB 2: BENACHRICHTIGUNGEN
     // ═══════════════════════════════════════════════════════════════════════════
 
+    /**
+     * Renders the notifications tab with utility warnings, threshold sliders, and police heat warning.
+     * <p>
+     * This method delegates rendering to specialized helper methods:
+     * <ul>
+     *   <li>{@link #renderUtilityWarningsSection} - Utility warnings toggle and info</li>
+     *   <li>{@link #renderThresholdsSection} - Electricity and water threshold sliders</li>
+     *   <li>{@link #renderPoliceHeatSection} - Police heat warning about high consumption</li>
+     * </ul>
+     *
+     * @param guiGraphics   the graphics context
+     * @param startY        the start Y position for rendering
+     * @param endY          the end Y position for rendering
+     * @param mouseX        the mouse X coordinate
+     * @param mouseY        the mouse Y coordinate
+     */
     private void renderNotificationsTab(GuiGraphics guiGraphics, int startY, int endY, int mouseX, int mouseY) {
         sliderRegions.clear(); // Clear slider regions before re-rendering
         int y = startY - scrollOffset;
         int contentHeight = 0;
 
-        // ═══════════════════════════════════════════════════════════════════════════
-        // UTILITY-WARNUNGEN
-        // ═══════════════════════════════════════════════════════════════════════════
+        // Render all notification sections using helper methods
+        y = renderUtilityWarningsSection(guiGraphics, y, startY, endY, mouseX, mouseY);
+        contentHeight = y - (startY - scrollOffset);
+
+        y = renderThresholdsSection(guiGraphics, y, startY, endY);
+        contentHeight = y - (startY - scrollOffset);
+
+        y = renderPoliceHeatSection(guiGraphics, y, startY, endY);
+        contentHeight = y - (startY - scrollOffset);
+
+        maxScroll = Math.max(0, contentHeight - CONTENT_HEIGHT);
+    }
+
+    // ==================== Notification Settings Helper Methods ====================
+
+    /**
+     * Renders the utility warnings section with toggle checkbox and info text.
+     * Shows settings for enabling/disabling utility consumption warnings.
+     *
+     * @param guiGraphics   the graphics context
+     * @param y             the current Y position
+     * @param startY        the start Y position for rendering
+     * @param endY          the end Y position for rendering
+     * @param mouseX        the mouse X coordinate
+     * @param mouseY        the mouse Y coordinate
+     * @return              the updated Y position after rendering
+     */
+    private int renderUtilityWarningsSection(GuiGraphics guiGraphics, int y, int startY, int endY, int mouseX, int mouseY) {
+        // Header
         if (y >= startY - 10 && y < endY) {
             guiGraphics.drawString(this.font, "§e§l⚠ UTILITY-WARNUNGEN", leftPos + 15, y, 0xFFAA00);
         }
         y += 18;
-        contentHeight += 18;
 
-        // ✅ An/Aus Toggle (Checkbox)
+        // Toggle Checkbox
         if (y >= startY - 30 && y < endY + 30) {
             String checkBox = utilityWarningsEnabled ? "§a[✓]" : "§7[ ]";
             guiGraphics.drawString(this.font, checkBox + " §fUtility-Warnungen", leftPos + 15, y, 0xFFFFFF);
 
             clickableRegions.add(new ClickableRegion(leftPos + 15, y - 2, leftPos + WIDTH - 10, y + 10, () -> {
                 utilityWarningsEnabled = !utilityWarningsEnabled;
-                saveSettings(); // Sende Settings zum Server
+                saveSettings();
             }));
         }
         y += 15;
-        contentHeight += 15;
 
-        // Info über Warnungen
+        // Info text
         if (y >= startY - 10 && y < endY) {
             guiGraphics.drawString(this.font, "§8Du erhältst Warnungen bei", leftPos + 15, y, 0x666666);
         }
         y += 11;
-        contentHeight += 11;
 
         if (y >= startY - 10 && y < endY) {
             guiGraphics.drawString(this.font, "§8hohem Strom-/Wasserverbrauch.", leftPos + 15, y, 0x666666);
         }
         y += 18;
-        contentHeight += 18;
 
-        // ═══════════════════════════════════════════════════════════════════════════
-        // SCHWELLENWERTE
-        // ═══════════════════════════════════════════════════════════════════════════
+        return y;
+    }
+
+    /**
+     * Renders the threshold settings section with interactive sliders for electricity and water warnings.
+     * Includes two sliders with visual feedback and info text about threshold functionality.
+     *
+     * @param guiGraphics   the graphics context
+     * @param y             the current Y position
+     * @param startY        the start Y position for rendering
+     * @param endY          the end Y position for rendering
+     * @return              the updated Y position after rendering
+     */
+    private int renderThresholdsSection(GuiGraphics guiGraphics, int y, int startY, int endY) {
+        // Section separator + header
         if (y >= startY - 10 && y < endY) {
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
         }
         y += 10;
-        contentHeight += 10;
 
         if (y >= startY - 10 && y < endY) {
             guiGraphics.drawString(this.font, "§b§l📊 SCHWELLENWERTE", leftPos + 15, y, 0x55FFFF);
         }
         y += 18;
-        contentHeight += 18;
 
-        // Strom-Schwellenwert
+        // Electricity threshold slider
         if (y >= startY - 10 && y < endY) {
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 30, 0x33333333);
             guiGraphics.drawString(this.font, "§e⚡ Strom-Warnung ab:", leftPos + 15, y + 4, 0xFFAA00);
             guiGraphics.drawString(this.font, "§f" + String.format("%.0f kWh", electricityWarningThreshold), leftPos + 130, y + 4, 0xFFFFFF);
 
-            // Mini-Balken (Interaktiv!)
             int barWidth = WIDTH - 40;
             int filledWidth = (int) ((electricityWarningThreshold / 500.0) * barWidth);
             int barX = leftPos + 15;
@@ -655,23 +702,20 @@ public class SettingsAppScreen extends Screen {
             guiGraphics.fill(barX, barY, barX + barWidth, barY + 6, 0x44666666);
             guiGraphics.fill(barX, barY, barX + filledWidth, barY + 6, 0xAAFFAA00);
 
-            // Registriere Slider (0-500 kWh)
             sliderRegions.add(new SliderRegion(barX, barY, barWidth, 0, 500,
                 value -> {
                     electricityWarningThreshold = value;
-                    saveSettings(); // Sende Settings zum Server
+                    saveSettings();
                 }));
         }
         y += 35;
-        contentHeight += 35;
 
-        // Wasser-Schwellenwert
+        // Water threshold slider
         if (y >= startY - 10 && y < endY) {
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 30, 0x33333333);
             guiGraphics.drawString(this.font, "§b💧 Wasser-Warnung ab:", leftPos + 15, y + 4, 0x55AAFF);
             guiGraphics.drawString(this.font, "§f" + String.format("%.0f L", waterWarningThreshold), leftPos + 135, y + 4, 0xFFFFFF);
 
-            // Mini-Balken (Interaktiv!)
             int barWidth = WIDTH - 40;
             int filledWidth = (int) ((waterWarningThreshold / 2000.0) * barWidth);
             int barX = leftPos + 15;
@@ -680,44 +724,51 @@ public class SettingsAppScreen extends Screen {
             guiGraphics.fill(barX, barY, barX + barWidth, barY + 6, 0x44666666);
             guiGraphics.fill(barX, barY, barX + filledWidth, barY + 6, 0xAA55AAFF);
 
-            // Registriere Slider (0-2000 L)
             sliderRegions.add(new SliderRegion(barX, barY, barWidth, 0, 2000,
                 value -> {
                     waterWarningThreshold = value;
-                    saveSettings(); // Sende Settings zum Server
+                    saveSettings();
                 }));
         }
         y += 38;
-        contentHeight += 38;
 
-        // Info-Text
+        // Info text
         if (y >= startY - 10 && y < endY) {
             guiGraphics.drawString(this.font, "§8Bei Überschreitung siehst du", leftPos + 15, y, 0x666666);
         }
         y += 11;
-        contentHeight += 11;
 
         if (y >= startY - 10 && y < endY) {
             guiGraphics.drawString(this.font, "§8eine Warnung in der Finanz-App.", leftPos + 15, y, 0x666666);
         }
         y += 20;
-        contentHeight += 20;
 
-        // ═══════════════════════════════════════════════════════════════════════════
-        // VERDÄCHTIGKEITS-HINWEIS
-        // ═══════════════════════════════════════════════════════════════════════════
+        return y;
+    }
+
+    /**
+     * Renders the police heat warning section showing the relationship between high consumption and police attention.
+     * Displays critical thresholds that may attract police investigation.
+     *
+     * @param guiGraphics   the graphics context
+     * @param y             the current Y position
+     * @param startY        the start Y position for rendering
+     * @param endY          the end Y position for rendering
+     * @return              the updated Y position after rendering
+     */
+    private int renderPoliceHeatSection(GuiGraphics guiGraphics, int y, int startY, int endY) {
+        // Section separator + header
         if (y >= startY - 10 && y < endY) {
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
         }
         y += 10;
-        contentHeight += 10;
 
         if (y >= startY - 10 && y < endY) {
             guiGraphics.drawString(this.font, "§c§l🚨 POLIZEI-HEAT", leftPos + 15, y, 0xFF5555);
         }
         y += 15;
-        contentHeight += 15;
 
+        // Warning box
         if (y >= startY - 10 && y < endY) {
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 45, 0x44330000);
             guiGraphics.drawString(this.font, "§8Hoher Verbrauch kann", leftPos + 15, y + 5, 0x666666);
@@ -725,9 +776,8 @@ public class SettingsAppScreen extends Screen {
             guiGraphics.drawString(this.font, "§c>200 kWh §8oder §c>1000 L", leftPos + 15, y + 30, 0xAA5555);
         }
         y += 50;
-        contentHeight += 50;
 
-        maxScroll = Math.max(0, contentHeight - CONTENT_HEIGHT);
+        return y;
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
