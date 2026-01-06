@@ -670,4 +670,126 @@ public class ModConfigHandler {
             builder.pop();
         }
     }
+
+    // ═══════════════════════════════════════════════════════════
+    // CONFIG VALIDATION
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Validates all config values for logical consistency and safety.
+     * Should be called after config load to prevent invalid game states.
+     *
+     * @throws IllegalStateException if critical config values are invalid
+     */
+    public static void validateConfig() {
+        com.mojang.logging.LogUtils.getLogger().info("Validating ScheduleMC configuration...");
+
+        // Economy Validation
+        validateRange("START_BALANCE", COMMON.START_BALANCE.get(), 0.0, 1_000_000_000.0);
+        validateRange("SAVINGS_INTEREST_RATE", COMMON.SAVINGS_INTEREST_RATE.get(), 0.0, 100.0);
+        validateRange("OVERDRAFT_INTEREST_RATE", COMMON.OVERDRAFT_INTEREST_RATE.get(), 0.0, 100.0);
+        validateRange("TAX_SALES_RATE", COMMON.TAX_SALES_RATE.get(), 0.0, 100.0);
+        validatePositive("SAVINGS_MAX_PER_PLAYER", COMMON.SAVINGS_MAX_PER_PLAYER.get());
+        validatePositive("OVERDRAFT_MAX_LIMIT", COMMON.OVERDRAFT_MAX_LIMIT.get());
+
+        // Plot Validation
+        validateRange("MIN_PLOT_SIZE", COMMON.MIN_PLOT_SIZE.get(), 1L, 1_000_000L);
+        validateRange("MAX_PLOT_SIZE", COMMON.MAX_PLOT_SIZE.get(), COMMON.MIN_PLOT_SIZE.get(), 10_000_000L);
+        validatePositive("MIN_PLOT_PRICE", COMMON.MIN_PLOT_PRICE.get());
+        validatePositive("MAX_PLOT_PRICE", COMMON.MAX_PLOT_PRICE.get());
+        validateRange("REFUND_ON_ABANDON", COMMON.REFUND_ON_ABANDON.get(), 0.0, 1.0);
+
+        if (COMMON.MAX_PLOT_PRICE.get() < COMMON.MIN_PLOT_PRICE.get()) {
+            throw new IllegalStateException("MAX_PLOT_PRICE must be >= MIN_PLOT_PRICE");
+        }
+
+        // Daily Reward Validation
+        validatePositive("DAILY_REWARD", COMMON.DAILY_REWARD.get());
+        validatePositive("DAILY_REWARD_STREAK_BONUS", COMMON.DAILY_REWARD_STREAK_BONUS.get());
+        validateRange("MAX_STREAK_DAYS", COMMON.MAX_STREAK_DAYS.get(), 1, 365);
+
+        // Rent Validation
+        validatePositive("MIN_RENT_PRICE", COMMON.MIN_RENT_PRICE.get());
+        validateRange("MIN_RENT_DAYS", COMMON.MIN_RENT_DAYS.get(), 1, 365);
+        validateRange("MAX_RENT_DAYS", COMMON.MAX_RENT_DAYS.get(), COMMON.MIN_RENT_DAYS.get(), 3650);
+
+        // Shop Validation
+        validateRange("BUY_MULTIPLIER", COMMON.BUY_MULTIPLIER.get(), 0.01, 100.0);
+        validateRange("SELL_MULTIPLIER", COMMON.SELL_MULTIPLIER.get(), 0.01, 100.0);
+
+        // Rating Validation
+        validateRange("MIN_RATING", COMMON.MIN_RATING.get(), -10, 10);
+        validateRange("MAX_RATING", COMMON.MAX_RATING.get(), COMMON.MIN_RATING.get(), 10);
+
+        // NPC Validation
+        validateRange("NPC_SALARY", COMMON.NPC_SALARY.get(), 0.0, 1_000_000.0);
+        validateRange("NPC_WANTED_DECAY", COMMON.NPC_WANTED_DECAY.get(), 0.0, 5.0);
+        validateRange("MAX_WANTED_LEVEL", COMMON.MAX_WANTED_LEVEL.get(), 1, 10);
+
+        // Warehouse Validation
+        validateRange("WAREHOUSE_DELIVERY_INTERVAL", COMMON.WAREHOUSE_DELIVERY_INTERVAL.get(), 1, 365);
+        validateRange("WAREHOUSE_MAX_CAPACITY", COMMON.WAREHOUSE_MAX_CAPACITY.get(), 1, 100000);
+
+        // Vehicle Validation
+        if (VEHICLE_SERVER != null) {
+            validatePositive("FUEL_CAPACITY", VEHICLE_SERVER.FUEL_CAPACITY.get());
+            validateRange("FUEL_CONSUMPTION_RATE", VEHICLE_SERVER.FUEL_CONSUMPTION_RATE.get(), 0.0001, 1.0);
+        }
+
+        // Tobacco/Production Validation
+        if (TOBACCO != null) {
+            validateRange("TOBACCO_GROWTH_STAGES", TOBACCO.GROWTH_STAGES.get(), 1, 20);
+            validatePositive("TOBACCO_GROWTH_SPEED", TOBACCO.GROWTH_SPEED.get());
+        }
+
+        com.mojang.logging.LogUtils.getLogger().info("✓ Configuration validation passed!");
+    }
+
+    /**
+     * Validates that a value is within a specified range (inclusive).
+     */
+    private static void validateRange(String name, double value, double min, double max) {
+        if (value < min || value > max) {
+            throw new IllegalStateException(String.format(
+                "Config '%s' has invalid value %.2f (must be between %.2f and %.2f)",
+                name, value, min, max
+            ));
+        }
+    }
+
+    /**
+     * Validates that a value is within a specified range (inclusive).
+     */
+    private static void validateRange(String name, long value, long min, long max) {
+        if (value < min || value > max) {
+            throw new IllegalStateException(String.format(
+                "Config '%s' has invalid value %d (must be between %d and %d)",
+                name, value, min, max
+            ));
+        }
+    }
+
+    /**
+     * Validates that a value is within a specified range (inclusive).
+     */
+    private static void validateRange(String name, int value, int min, int max) {
+        if (value < min || value > max) {
+            throw new IllegalStateException(String.format(
+                "Config '%s' has invalid value %d (must be between %d and %d)",
+                name, value, min, max
+            ));
+        }
+    }
+
+    /**
+     * Validates that a value is positive (> 0).
+     */
+    private static void validatePositive(String name, double value) {
+        if (value <= 0) {
+            throw new IllegalStateException(String.format(
+                "Config '%s' must be positive (> 0), but is %.2f",
+                name, value
+            ));
+        }
+    }
 }
