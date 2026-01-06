@@ -366,8 +366,15 @@ public class UtilityRegistry {
                     CONSUMPTION_MAP.put(registryObject.get(), data);
                 }
             }
+        } catch (IllegalStateException e) {
+            // Registry object not present - optional dependency not loaded
+            LOGGER.debug("Utility block {} not registered (optional dependency missing)", id);
+        } catch (NullPointerException e) {
+            // Block data not available yet - will be resolved later
+            LOGGER.debug("Utility consumption data for {} not yet available", id);
         } catch (Exception e) {
-            // Block not yet registered, will be resolved later
+            // Fallback for unexpected errors during mod loading
+            LOGGER.warn("Unexpected error resolving utility block {}", id, e);
         }
     }
 }

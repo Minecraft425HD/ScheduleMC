@@ -59,8 +59,15 @@ public class FuelStationRegistry {
                 }
                 LOGGER.info("Zapfsäulen-Registry geladen: {} Zapfsäulen", fuelStations.size());
             }
+        } catch (java.io.IOException e) {
+            LOGGER.error("Failed to read fuel station registry file: {}", REGISTRY_FILE.getPath(), e);
+        } catch (com.google.gson.JsonSyntaxException e) {
+            LOGGER.error("Failed to parse fuel station registry JSON (corrupt file?): {}", REGISTRY_FILE.getPath(), e);
+        } catch (SecurityException e) {
+            LOGGER.error("Security error accessing fuel station registry file: {}", REGISTRY_FILE.getPath(), e);
         } catch (Exception e) {
-            LOGGER.error("Fehler beim Laden der Zapfsäulen-Registry!", e);
+            // Fallback for unexpected errors
+            LOGGER.error("Unexpected error loading fuel station registry", e);
         }
     }
 
@@ -74,8 +81,14 @@ public class FuelStationRegistry {
             GSON.toJson(toSave, writer);
             isDirty = false;
             LOGGER.info("Zapfsäulen-Registry gespeichert");
+        } catch (java.io.IOException e) {
+            LOGGER.error("Failed to write fuel station registry file: {}", REGISTRY_FILE.getPath(), e);
+            // Keep isDirty=true so we retry on next save
+        } catch (SecurityException e) {
+            LOGGER.error("Security error writing fuel station registry file: {}", REGISTRY_FILE.getPath(), e);
         } catch (Exception e) {
-            LOGGER.error("Fehler beim Speichern der Zapfsäulen-Registry!", e);
+            // Fallback for unexpected errors
+            LOGGER.error("Unexpected error saving fuel station registry", e);
         }
     }
 

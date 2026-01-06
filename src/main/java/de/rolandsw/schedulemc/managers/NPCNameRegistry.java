@@ -244,8 +244,15 @@ public class NPCNameRegistry {
 
             dirty = false;
 
+        } catch (java.io.IOException e) {
+            LOGGER.error("Failed to read NPC name registry file: {}", REGISTRY_FILE.getPath(), e);
+        } catch (com.google.gson.JsonSyntaxException e) {
+            LOGGER.error("Failed to parse NPC name registry JSON (corrupt file?): {}", REGISTRY_FILE.getPath(), e);
+        } catch (SecurityException e) {
+            LOGGER.error("Security error accessing NPC name registry file: {}", REGISTRY_FILE.getPath(), e);
         } catch (Exception e) {
-            LOGGER.error("Fehler beim Laden der NPC-Namen", e);
+            // Fallback for unexpected errors
+            LOGGER.error("Unexpected error loading NPC name registry", e);
         }
     }
 
@@ -263,8 +270,14 @@ public class NPCNameRegistry {
             dirty = false;
             LOGGER.info("NPC-Namen gespeichert: {} NPCs", nameToEntityId.size());
 
+        } catch (java.io.IOException e) {
+            LOGGER.error("Failed to write NPC name registry file: {}", REGISTRY_FILE.getPath(), e);
+            // Keep dirty=true so we retry on next save
+        } catch (SecurityException e) {
+            LOGGER.error("Security error writing NPC name registry file: {}", REGISTRY_FILE.getPath(), e);
         } catch (Exception e) {
-            LOGGER.error("Fehler beim Speichern der NPC-Namen", e);
+            // Fallback for unexpected errors
+            LOGGER.error("Unexpected error saving NPC name registry", e);
         }
     }
 

@@ -219,7 +219,14 @@ public class CreditLoan {
         public String getDisplayName() {
             try {
                 return de.rolandsw.schedulemc.util.LocaleHelper.selectClientLocalized(displayNameDE, displayNameEN);
+            } catch (NullPointerException e) {
+                // Client context not available (server-side) - use German default
+                return displayNameDE;
+            } catch (IllegalStateException e) {
+                // Locale helper not initialized - use German default
+                return displayNameDE;
             } catch (Exception e) {
+                // Fallback for unexpected localization errors
                 return displayNameDE;
             }
         }

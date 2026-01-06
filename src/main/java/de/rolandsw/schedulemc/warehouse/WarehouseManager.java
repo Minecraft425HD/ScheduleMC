@@ -221,8 +221,12 @@ public class WarehouseManager {
                 lastDeliveryDayCache.put(pos, currentDay);
             }
 
-        } catch (Exception e) {  // Intentionally catching all exceptions - tick handler must not crash
-            LOGGER.error("Fehler beim Prüfen von Warehouse @ " + pos.toShortString(), e);
+        } catch (IllegalStateException e) {
+            // Chunk loading or world state issues
+            LOGGER.error("Invalid world state while checking warehouse @ {}: {}", pos.toShortString(), e.getMessage());
+        } catch (Exception e) {
+            // Intentionally catching all other exceptions - tick handler must not crash
+            LOGGER.error("Unexpected error while checking warehouse @ {}", pos.toShortString(), e);
         }
     }
 
