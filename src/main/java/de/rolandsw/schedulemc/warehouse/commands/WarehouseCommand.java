@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
@@ -162,8 +163,16 @@ public class WarehouseCommand {
                 "§7Nächste Lieferung in: " + nextDeliveryStr
             ), false);
             return 1;
+        } catch (CommandSyntaxException e) {
+            LOGGER.error("Command syntax error in /warehouse info: {}", e.getMessage());
+            return 0;
+        } catch (IllegalStateException e) {
+            LOGGER.error("Invalid warehouse state in /warehouse info: {}", e.getMessage(), e);
+            ctx.getSource().sendFailure(Component.literal("§cFehler: " + e.getMessage()));
+            return 0;
         } catch (Exception e) {
-            LOGGER.error("Fehler bei /warehouse info", e);
+            // Fallback for unexpected errors
+            LOGGER.error("Unexpected error in /warehouse info", e);
             return 0;
         }
     }
@@ -194,8 +203,16 @@ public class WarehouseCommand {
                 ctx.getSource().sendFailure(Component.literal("§cKein Platz im Warehouse!"));
                 return 0;
             }
+        } catch (CommandSyntaxException e) {
+            LOGGER.error("Command syntax error in /warehouse add: {}", e.getMessage());
+            return 0;
+        } catch (IllegalArgumentException e) {
+            LOGGER.error("Invalid item or amount in /warehouse add: {}", e.getMessage());
+            ctx.getSource().sendFailure(Component.literal("§cUngültiges Item oder Menge!"));
+            return 0;
         } catch (Exception e) {
-            LOGGER.error("Fehler bei /warehouse add", e);
+            // Fallback for unexpected errors
+            LOGGER.error("Unexpected error in /warehouse add", e);
             return 0;
         }
     }
@@ -226,8 +243,16 @@ public class WarehouseCommand {
                 ctx.getSource().sendFailure(Component.literal("§cItem nicht im Warehouse gefunden!"));
                 return 0;
             }
+        } catch (CommandSyntaxException e) {
+            LOGGER.error("Command syntax error in /warehouse remove: {}", e.getMessage());
+            return 0;
+        } catch (IllegalArgumentException e) {
+            LOGGER.error("Invalid item or amount in /warehouse remove: {}", e.getMessage());
+            ctx.getSource().sendFailure(Component.literal("§cUngültiges Item oder Menge!"));
+            return 0;
         } catch (Exception e) {
-            LOGGER.error("Fehler bei /warehouse remove", e);
+            // Fallback for unexpected errors
+            LOGGER.error("Unexpected error in /warehouse remove", e);
             return 0;
         }
     }
@@ -248,8 +273,12 @@ public class WarehouseCommand {
                 "§a✓ Warehouse geleert!"
             ), false);
             return 1;
+        } catch (CommandSyntaxException e) {
+            LOGGER.error("Command syntax error in /warehouse clear: {}", e.getMessage());
+            return 0;
         } catch (Exception e) {
-            LOGGER.error("Fehler bei /warehouse clear", e);
+            // Fallback for unexpected errors
+            LOGGER.error("Unexpected error in /warehouse clear", e);
             return 0;
         }
     }
@@ -272,8 +301,16 @@ public class WarehouseCommand {
                 "§7Shop-ID: §e" + shopId
             ), false);
             return 1;
+        } catch (CommandSyntaxException e) {
+            LOGGER.error("Command syntax error in /warehouse setshop: {}", e.getMessage());
+            return 0;
+        } catch (IllegalArgumentException e) {
+            LOGGER.error("Invalid shop ID in /warehouse setshop: {}", e.getMessage());
+            ctx.getSource().sendFailure(Component.literal("§cUngültige Shop-ID!"));
+            return 0;
         } catch (Exception e) {
-            LOGGER.error("Fehler bei /warehouse setshop", e);
+            // Fallback for unexpected errors
+            LOGGER.error("Unexpected error in /warehouse setshop", e);
             return 0;
         }
     }
@@ -306,8 +343,16 @@ public class WarehouseCommand {
             warehouse.performManualDelivery(player.level());
 
             return 1;
+        } catch (CommandSyntaxException e) {
+            LOGGER.error("Command syntax error in /warehouse deliver: {}", e.getMessage());
+            return 0;
+        } catch (IllegalStateException e) {
+            LOGGER.error("Invalid delivery state in /warehouse deliver: {}", e.getMessage(), e);
+            ctx.getSource().sendFailure(Component.literal("§cFehler: " + e.getMessage()));
+            return 0;
         } catch (Exception e) {
-            LOGGER.error("Fehler bei /warehouse deliver", e);
+            // Fallback for unexpected errors
+            LOGGER.error("Unexpected error in /warehouse deliver", e);
             ctx.getSource().sendFailure(Component.literal("§cFehler: " + e.getMessage()));
             return 0;
         }
@@ -343,8 +388,16 @@ public class WarehouseCommand {
             ), false);
 
             return 1;
+        } catch (CommandSyntaxException e) {
+            LOGGER.error("Command syntax error in /warehouse reset: {}", e.getMessage());
+            return 0;
+        } catch (IllegalStateException e) {
+            LOGGER.error("Invalid warehouse state in /warehouse reset: {}", e.getMessage(), e);
+            ctx.getSource().sendFailure(Component.literal("§cFehler: " + e.getMessage()));
+            return 0;
         } catch (Exception e) {
-            LOGGER.error("Fehler bei /warehouse reset", e);
+            // Fallback for unexpected errors
+            LOGGER.error("Unexpected error in /warehouse reset", e);
             ctx.getSource().sendFailure(Component.literal("§cFehler: " + e.getMessage()));
             return 0;
         }

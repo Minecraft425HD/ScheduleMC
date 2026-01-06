@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.economy.commands;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.economy.StateAccount;
 import net.minecraft.commands.CommandSourceStack;
@@ -54,8 +55,13 @@ public class StateCommand {
                 "§7Kontostand: §e" + balance + "€"
             ), false);
             return 1;
+        } catch (IllegalStateException e) {
+            LOGGER.error("Invalid state account state in /state balance: {}", e.getMessage(), e);
+            ctx.getSource().sendFailure(Component.literal("§cFehler beim Abrufen des Kontostands!"));
+            return 0;
         } catch (Exception e) {
-            LOGGER.error("Fehler bei /state balance", e);
+            // Fallback for unexpected errors
+            LOGGER.error("Unexpected error in /state balance", e);
             return 0;
         }
     }
@@ -72,8 +78,17 @@ public class StateCommand {
                 "§7Neuer Kontostand: §e" + StateAccount.getBalance() + "€"
             ), false);
             return 1;
+        } catch (IllegalArgumentException e) {
+            LOGGER.error("Invalid amount in /state deposit: {}", e.getMessage());
+            ctx.getSource().sendFailure(Component.literal("§cUngültiger Betrag!"));
+            return 0;
+        } catch (IllegalStateException e) {
+            LOGGER.error("Invalid state account state in /state deposit: {}", e.getMessage(), e);
+            ctx.getSource().sendFailure(Component.literal("§cEinzahlung fehlgeschlagen!"));
+            return 0;
         } catch (Exception e) {
-            LOGGER.error("Fehler bei /state deposit", e);
+            // Fallback for unexpected errors
+            LOGGER.error("Unexpected error in /state deposit", e);
             return 0;
         }
     }
@@ -97,8 +112,17 @@ public class StateCommand {
                 ));
                 return 0;
             }
+        } catch (IllegalArgumentException e) {
+            LOGGER.error("Invalid amount in /state withdraw: {}", e.getMessage());
+            ctx.getSource().sendFailure(Component.literal("§cUngültiger Betrag!"));
+            return 0;
+        } catch (IllegalStateException e) {
+            LOGGER.error("Invalid state account state in /state withdraw: {}", e.getMessage(), e);
+            ctx.getSource().sendFailure(Component.literal("§cAbhebung fehlgeschlagen!"));
+            return 0;
         } catch (Exception e) {
-            LOGGER.error("Fehler bei /state withdraw", e);
+            // Fallback for unexpected errors
+            LOGGER.error("Unexpected error in /state withdraw", e);
             return 0;
         }
     }

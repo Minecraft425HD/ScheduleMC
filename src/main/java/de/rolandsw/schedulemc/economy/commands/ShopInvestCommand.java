@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.economy.ShopAccount;
 import de.rolandsw.schedulemc.economy.ShopAccountManager;
@@ -86,8 +87,13 @@ public class ShopInvestCommand {
             String result = sb.toString();
             ctx.getSource().sendSuccess(() -> Component.literal(result), false);
             return 1;
+        } catch (IllegalStateException e) {
+            LOGGER.error("Invalid shop state in /shopinvest list: {}", e.getMessage(), e);
+            ctx.getSource().sendFailure(Component.literal("§cFehler beim Abrufen der Shops!"));
+            return 0;
         } catch (Exception e) {
-            LOGGER.error("Fehler bei /shop list", e);
+            // Fallback for unexpected errors
+            LOGGER.error("Unexpected error in /shopinvest list", e);
             return 0;
         }
     }
@@ -124,8 +130,13 @@ public class ShopInvestCommand {
             String result = sb.toString();
             ctx.getSource().sendSuccess(() -> Component.literal(result), false);
             return 1;
+        } catch (NullPointerException e) {
+            LOGGER.error("Shop data not available in /shopinvest info: {}", e.getMessage());
+            ctx.getSource().sendFailure(Component.literal("§cShop-Daten konnten nicht geladen werden!"));
+            return 0;
         } catch (Exception e) {
-            LOGGER.error("Fehler bei /shop info", e);
+            // Fallback for unexpected errors
+            LOGGER.error("Unexpected error in /shopinvest info", e);
             return 0;
         }
     }
@@ -185,8 +196,20 @@ public class ShopInvestCommand {
                 ctx.getSource().sendFailure(Component.literal("§cFehler beim Kauf der Anteile!"));
                 return 0;
             }
+        } catch (CommandSyntaxException e) {
+            LOGGER.error("Command syntax error in /shopinvest buy: {}", e.getMessage());
+            return 0;
+        } catch (IllegalArgumentException e) {
+            LOGGER.error("Invalid shop ID or share amount in /shopinvest buy: {}", e.getMessage());
+            ctx.getSource().sendFailure(Component.literal("§cUngültige Eingabe!"));
+            return 0;
+        } catch (IllegalStateException e) {
+            LOGGER.error("Invalid transaction state in /shopinvest buy: {}", e.getMessage(), e);
+            ctx.getSource().sendFailure(Component.literal("§cTransaktion fehlgeschlagen: " + e.getMessage()));
+            return 0;
         } catch (Exception e) {
-            LOGGER.error("Fehler bei /shop buy", e);
+            // Fallback for unexpected errors
+            LOGGER.error("Unexpected error in /shopinvest buy", e);
             return 0;
         }
     }
@@ -220,8 +243,20 @@ public class ShopInvestCommand {
                 ctx.getSource().sendFailure(Component.literal("§cDu besitzt keine Anteile an diesem Shop!"));
                 return 0;
             }
+        } catch (CommandSyntaxException e) {
+            LOGGER.error("Command syntax error in /shopinvest sell: {}", e.getMessage());
+            return 0;
+        } catch (IllegalArgumentException e) {
+            LOGGER.error("Invalid shop ID or share amount in /shopinvest sell: {}", e.getMessage());
+            ctx.getSource().sendFailure(Component.literal("§cUngültige Eingabe!"));
+            return 0;
+        } catch (IllegalStateException e) {
+            LOGGER.error("Invalid transaction state in /shopinvest sell: {}", e.getMessage(), e);
+            ctx.getSource().sendFailure(Component.literal("§cTransaktion fehlgeschlagen: " + e.getMessage()));
+            return 0;
         } catch (Exception e) {
-            LOGGER.error("Fehler bei /shop sell", e);
+            // Fallback for unexpected errors
+            LOGGER.error("Unexpected error in /shopinvest sell", e);
             return 0;
         }
     }
@@ -254,8 +289,16 @@ public class ShopInvestCommand {
             String result = sb.toString();
             ctx.getSource().sendSuccess(() -> Component.literal(result), false);
             return 1;
+        } catch (CommandSyntaxException e) {
+            LOGGER.error("Command syntax error in /shopinvest myshares: {}", e.getMessage());
+            return 0;
+        } catch (IllegalStateException e) {
+            LOGGER.error("Invalid shop state in /shopinvest myshares: {}", e.getMessage(), e);
+            ctx.getSource().sendFailure(Component.literal("§cFehler beim Abrufen der Anteile!"));
+            return 0;
         } catch (Exception e) {
-            LOGGER.error("Fehler bei /shop myshares", e);
+            // Fallback for unexpected errors
+            LOGGER.error("Unexpected error in /shopinvest myshares", e);
             return 0;
         }
     }
