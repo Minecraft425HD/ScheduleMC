@@ -376,7 +376,16 @@ public class PoliceAIHandler {
     }
 
     /**
-     * Gefängnis-System: Hält Spieler im Gefängnis
+     * Jail and escape system - manages imprisoned players and escape mechanics.
+     * <p>
+     * This method has been refactored to use extracted helper methods for better maintainability:
+     * <ul>
+     *   <li>{@link #handleJailRelease(ServerPlayer)} - Releases player from jail</li>
+     *   <li>{@link #handleJailConfinement(ServerPlayer, long, long)} - Prevents escape, shows time</li>
+     *   <li>{@link #processEscapeAttempt(ServerPlayer, long)} - Manages hiding and escape timer</li>
+     *   <li>{@link #syncWantedLevelToClient(ServerPlayer, int, long)} - Syncs HUD overlay</li>
+     * </ul>
+     * </p>
      */
     @SubscribeEvent
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
@@ -386,147 +395,27 @@ public class PoliceAIHandler {
 
             long releaseTime = player.getPersistentData().getLong("JailReleaseTime");
 
-        if (releaseTime > 0) {
-            long currentTime = player.level().getGameTime();
+            if (releaseTime > 0) {
+                long currentTime = player.level().getGameTime();
 
-            if (currentTime >= releaseTime) {
-                // ═══════════════════════════════════════════
-                // FREILASSUNG
-                // ═══════════════════════════════════════════
-                player.getPersistentData().remove("JailReleaseTime");
-                player.getPersistentData().remove("JailX");
-                player.getPersistentData().remove("JailY");
-                player.getPersistentData().remove("JailZ");
-
-                player.sendSystemMessage(Component.literal("§a✓ Du bist frei!"));
-                player.sendSystemMessage(Component.literal("§7Halte dich von nun an an das Gesetz."));
-
-                // Entferne Effekte
-                player.removeEffect(MobEffects.MOVEMENT_SLOWDOWN);
-                player.removeEffect(MobEffects.JUMP);
-
-                LOGGER.info("[JAIL] Player {} released", player.getName().getString());
-            } else {
-                // ═══════════════════════════════════════════
-                // NOCH IM GEFÄNGNIS
-                // ═══════════════════════════════════════════
-                // Verhindere Flucht - teleportiere zurück
-                int jailX = player.getPersistentData().getInt("JailX");
-                int jailY = player.getPersistentData().getInt("JailY");
-                int jailZ = player.getPersistentData().getInt("JailZ");
-
-                if (player.distanceToSqr(jailX, jailY, jailZ) > 100) {
-                    player.teleportTo(jailX, jailY, jailZ);
-                    player.sendSystemMessage(Component.literal("§c✗ FLUCHT VERHINDERT!"));
-                }
-
-                // Zeit anzeigen alle 10 Sekunden
-                if (currentTime % 200 == 0) {
-                    long remainingTicks = releaseTime - currentTime;
-                    long remainingSeconds = remainingTicks / 20;
-
-                    player.sendSystemMessage(Component.literal(
-                        "§7Noch §e" + remainingSeconds + " Sekunden §7im Gefängnis..."
-                    ));
-                }
-            }
-        }
-
-        // ═══════════════════════════════════════════
-        // ESCAPE SYSTEM (Verstecken vor Polizei)
-        // ═══════════════════════════════════════════
-        int wantedLevel = CrimeManager.getWantedLevel(player.getUUID());
-        if (wantedLevel > 0) {
-            long currentTick = player.level().getGameTime();
-
-            // Finde nächste Polizei (OPTIMIERT: Nutzt Cache statt getEntitiesOfClass)
-            int backupSearchRadius = ModConfigHandler.COMMON.POLICE_BACKUP_SEARCH_RADIUS.get();
-            List<CustomNPCEntity> nearbyPolice = getPoliceInRadius(player.position(), backupSearchRadius);
-
-            double minDistance = Double.MAX_VALUE;
-            for (CustomNPCEntity police : nearbyPolice) {
-                double distance = player.distanceTo(police);
-                if (distance < minDistance) {
-                    minDistance = distance;
+                if (currentTime >= releaseTime) {
+                    // Release from jail using helper method
+                    handleJailRelease(player);
+                } else {
+                    // Still in jail - prevent escape using helper method
+                    handleJailConfinement(player, currentTime, releaseTime);
                 }
             }
 
-            // Escape-Logic
-            boolean canHide = false;
-
-            // Prüfe ob Spieler sich verstecken kann
-            if (!nearbyPolice.isEmpty()) {
-                // Es gibt Polizei in der Nähe - prüfe ob Spieler vor ALLEN versteckt ist
-                boolean hiddenFromAll = true;
-
-                for (CustomNPCEntity police : nearbyPolice) {
-                    // isPlayerHidden gibt FALSE zurück wenn Polizei den Spieler SEHEN kann
-                    if (!PoliceSearchBehavior.isPlayerHidden(player, police)) {
-                        // Diese Polizei kann den Spieler sehen (z.B. draußen oder durch Fenster)
-                        hiddenFromAll = false;
-                        break;
-                    }
-                }
-
-                if (hiddenFromAll) {
-                    // Spieler ist vor ALLER Polizei versteckt (im Gebäude, nicht am Fenster)
-                    canHide = true;
-                }
-            } else if (minDistance > CrimeManager.ESCAPE_DISTANCE) {
-                // Keine Polizei in der Nähe UND weit genug entfernt
-                canHide = true;
+            // Escape system using helper methods
+            int wantedLevel = CrimeManager.getWantedLevel(player.getUUID());
+            if (wantedLevel > 0) {
+                long currentTick = player.level().getGameTime();
+                processEscapeAttempt(player, currentTick);
             }
 
-            if (canHide) {
-                // Spieler kann sich verstecken → Start Escape-Timer
-                if (!CrimeManager.isHiding(player.getUUID())) {
-                    CrimeManager.startEscapeTimer(player.getUUID(), currentTick);
-                    player.sendSystemMessage(Component.literal("§e✓ Du versteckst dich vor der Polizei..."));
-                }
-
-                // Prüfe ob Escape erfolgreich
-                if (CrimeManager.checkEscapeSuccess(player.getUUID(), currentTick)) {
-                    player.sendSystemMessage(Component.literal("§a✓ Du bist entkommen! -1★"));
-                }
-            } else {
-                // Spieler kann sich nicht verstecken → Stop Escape-Timer
-                if (CrimeManager.isHiding(player.getUUID())) {
-                    CrimeManager.stopEscapeTimer(player.getUUID());
-
-                    boolean isIndoors = PoliceSearchBehavior.isPlayerHidingIndoors(player);
-                    if (isIndoors) {
-                        // Im Gebäude aber am Fenster sichtbar
-                        player.sendSystemMessage(Component.literal("§c✗ Polizei hat dich am Fenster entdeckt!"));
-                    } else if (minDistance <= CrimeManager.ESCAPE_DISTANCE) {
-                        // Draußen und Polizei zu nah
-                        player.sendSystemMessage(Component.literal("§c✗ Polizei ist zu nah!"));
-                    } else {
-                        // Draußen und sichtbar
-                        player.sendSystemMessage(Component.literal("§c✗ Polizei hat dich gesehen!"));
-                    }
-                }
-            }
-
-            // Sync zu Client (für HUD Overlay) - NUR wenn sich Wert geändert hat!
-            long escapeTime = CrimeManager.getEscapeTimeRemaining(player.getUUID(), currentTick);
-            int lastSyncedLevel = lastSyncedWantedLevel.getOrDefault(player.getUUID(), -1);
-            long lastSyncedTime = lastSyncedEscapeTime.getOrDefault(player.getUUID(), -1L);
-
-            // Sync wenn sich Wanted-Level ODER Escape-Time geändert hat
-            if (wantedLevel != lastSyncedLevel || escapeTime != lastSyncedTime) {
-                NPCNetworkHandler.sendToPlayer(new WantedLevelSyncPacket(wantedLevel, escapeTime), player);
-                lastSyncedWantedLevel.put(player.getUUID(), wantedLevel);
-                lastSyncedEscapeTime.put(player.getUUID(), escapeTime);
-            }
-        } else {
-            // Kein Wanted-Level → cleanup und sync 0 zum Client (nur einmal)
-            if (lastSyncedWantedLevel.getOrDefault(player.getUUID(), -1) != 0) {
-                arrestTimers.remove(player.getUUID());
-                NPCNetworkHandler.sendToPlayer(new WantedLevelSyncPacket(0, 0), player);
-                lastSyncedWantedLevel.put(player.getUUID(), 0);
-                lastSyncedEscapeTime.put(player.getUUID(), 0L);
-            }
-        }
+            // Sync to client using helper method
+            syncWantedLevelToClient(player, wantedLevel, player.level().getGameTime());
         });
     }
 
@@ -914,5 +803,163 @@ public class PoliceAIHandler {
     private void cleanupAfterArrest(ServerPlayer player) {
         arrestTimers.remove(player.getUUID());
         PoliceBackupSystem.cleanup(player.getUUID());
+    }
+
+    // ==================== Jail & Escape System Helper Methods (Refactored from onPlayerTick) ====================
+
+    /**
+     * Handles player release from jail when jail time expires.
+     *
+     * @param player the player in jail
+     */
+    private void handleJailRelease(ServerPlayer player) {
+        player.getPersistentData().remove("JailReleaseTime");
+        player.getPersistentData().remove("JailX");
+        player.getPersistentData().remove("JailY");
+        player.getPersistentData().remove("JailZ");
+
+        player.sendSystemMessage(Component.literal("§a✓ Du bist frei!"));
+        player.sendSystemMessage(Component.literal("§7Halte dich von nun an an das Gesetz."));
+
+        // Remove effects
+        player.removeEffect(MobEffects.MOVEMENT_SLOWDOWN);
+        player.removeEffect(MobEffects.JUMP);
+
+        LOGGER.info("[JAIL] Player {} released", player.getName().getString());
+    }
+
+    /**
+     * Handles jail confinement - prevents escape and shows remaining time.
+     *
+     * @param player the player in jail
+     * @param currentTime the current game time
+     * @param releaseTime the scheduled release time
+     */
+    private void handleJailConfinement(ServerPlayer player, long currentTime, long releaseTime) {
+        // Prevent escape - teleport back
+        int jailX = player.getPersistentData().getInt("JailX");
+        int jailY = player.getPersistentData().getInt("JailY");
+        int jailZ = player.getPersistentData().getInt("JailZ");
+
+        if (player.distanceToSqr(jailX, jailY, jailZ) > 100) {
+            player.teleportTo(jailX, jailY, jailZ);
+            player.sendSystemMessage(Component.literal("§c✗ FLUCHT VERHINDERT!"));
+        }
+
+        // Show time every 10 seconds
+        if (currentTime % 200 == 0) {
+            long remainingTicks = releaseTime - currentTime;
+            long remainingSeconds = remainingTicks / 20;
+
+            player.sendSystemMessage(Component.literal(
+                "§7Noch §e" + remainingSeconds + " Sekunden §7im Gefängnis..."
+            ));
+        }
+    }
+
+    /**
+     * Processes escape attempt - checks if player can hide and manages escape timer.
+     *
+     * @param player the player with wanted level
+     * @param currentTick the current game tick
+     */
+    private void processEscapeAttempt(ServerPlayer player, long currentTick) {
+        int backupSearchRadius = ModConfigHandler.COMMON.POLICE_BACKUP_SEARCH_RADIUS.get();
+        List<CustomNPCEntity> nearbyPolice = getPoliceInRadius(player.position(), backupSearchRadius);
+
+        double minDistance = Double.MAX_VALUE;
+        for (CustomNPCEntity police : nearbyPolice) {
+            double distance = player.distanceTo(police);
+            if (distance < minDistance) {
+                minDistance = distance;
+            }
+        }
+
+        // Escape logic
+        boolean canHide = false;
+
+        // Check if player can hide
+        if (!nearbyPolice.isEmpty()) {
+            // There is police nearby - check if player is hidden from ALL
+            boolean hiddenFromAll = true;
+
+            for (CustomNPCEntity police : nearbyPolice) {
+                // isPlayerHidden returns FALSE if police CAN see the player
+                if (!PoliceSearchBehavior.isPlayerHidden(player, police)) {
+                    // This police can see the player (e.g. outside or through window)
+                    hiddenFromAll = false;
+                    break;
+                }
+            }
+
+            if (hiddenFromAll) {
+                // Player is hidden from ALL police (in building, not at window)
+                canHide = true;
+            }
+        } else if (minDistance > CrimeManager.ESCAPE_DISTANCE) {
+            // No police nearby AND far enough
+            canHide = true;
+        }
+
+        if (canHide) {
+            // Player can hide → Start escape timer
+            if (!CrimeManager.isHiding(player.getUUID())) {
+                CrimeManager.startEscapeTimer(player.getUUID(), currentTick);
+                player.sendSystemMessage(Component.literal("§e✓ Du versteckst dich vor der Polizei..."));
+            }
+
+            // Check if escape successful
+            if (CrimeManager.checkEscapeSuccess(player.getUUID(), currentTick)) {
+                player.sendSystemMessage(Component.literal("§a✓ Du bist entkommen! -1★"));
+            }
+        } else {
+            // Player cannot hide → Stop escape timer
+            if (CrimeManager.isHiding(player.getUUID())) {
+                CrimeManager.stopEscapeTimer(player.getUUID());
+
+                boolean isIndoors = PoliceSearchBehavior.isPlayerHidingIndoors(player);
+                if (isIndoors) {
+                    // Inside building but visible at window
+                    player.sendSystemMessage(Component.literal("§c✗ Polizei hat dich am Fenster entdeckt!"));
+                } else if (minDistance <= CrimeManager.ESCAPE_DISTANCE) {
+                    // Outside and police too close
+                    player.sendSystemMessage(Component.literal("§c✗ Polizei ist zu nah!"));
+                } else {
+                    // Outside and visible
+                    player.sendSystemMessage(Component.literal("§c✗ Polizei hat dich gesehen!"));
+                }
+            }
+        }
+    }
+
+    /**
+     * Syncs wanted level and escape time to client for HUD overlay.
+     * Only syncs when values change to reduce network traffic.
+     *
+     * @param player the player to sync to
+     * @param wantedLevel the current wanted level
+     * @param currentTick the current game tick
+     */
+    private void syncWantedLevelToClient(ServerPlayer player, int wantedLevel, long currentTick) {
+        if (wantedLevel > 0) {
+            long escapeTime = CrimeManager.getEscapeTimeRemaining(player.getUUID(), currentTick);
+            int lastSyncedLevel = lastSyncedWantedLevel.getOrDefault(player.getUUID(), -1);
+            long lastSyncedTime = lastSyncedEscapeTime.getOrDefault(player.getUUID(), -1L);
+
+            // Sync if wanted level OR escape time changed
+            if (wantedLevel != lastSyncedLevel || escapeTime != lastSyncedTime) {
+                NPCNetworkHandler.sendToPlayer(new WantedLevelSyncPacket(wantedLevel, escapeTime), player);
+                lastSyncedWantedLevel.put(player.getUUID(), wantedLevel);
+                lastSyncedEscapeTime.put(player.getUUID(), escapeTime);
+            }
+        } else {
+            // No wanted level → cleanup and sync 0 to client (only once)
+            if (lastSyncedWantedLevel.getOrDefault(player.getUUID(), -1) != 0) {
+                arrestTimers.remove(player.getUUID());
+                NPCNetworkHandler.sendToPlayer(new WantedLevelSyncPacket(0, 0), player);
+                lastSyncedWantedLevel.put(player.getUUID(), 0);
+                lastSyncedEscapeTime.put(player.getUUID(), 0L);
+            }
+        }
     }
 }
