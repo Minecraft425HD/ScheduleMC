@@ -5,6 +5,7 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.economy.ShopAccountManager;
+import de.rolandsw.schedulemc.exceptions.PlotException;
 import de.rolandsw.schedulemc.util.GsonHelper;
 import de.rolandsw.schedulemc.util.BackupManager;
 import de.rolandsw.schedulemc.util.IncrementalSaveManager;
@@ -104,25 +105,30 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
      * @param type The type of plot (RESIDENTIAL, COMMERCIAL, SHOP, etc.)
      * @param price The purchase price for the plot (0 for non-purchasable types, must be non-negative)
      * @return The newly created PlotRegion instance
-     * @throws IllegalArgumentException if region dimensions are invalid, name format is invalid, or price is negative
+     * @throws PlotException if coordinates are null, region dimensions are invalid, name format is invalid, price is negative, or plot ID already exists
      */
     public static PlotRegion createPlot(@Nonnull BlockPos pos1, @Nonnull BlockPos pos2, String customName, PlotType type, double price) {
+        // SICHERHEIT: Null-Check vor Validierung
+        if (pos1 == null || pos2 == null) {
+            throw new PlotException("Plot coordinates cannot be null");
+        }
+
         // SICHERHEIT: Validiere Eingaben
         InputValidation.Result regionResult = InputValidation.validatePlotRegion(pos1, pos2);
         if (!regionResult.isValid()) {
-            throw new IllegalArgumentException(regionResult.getError());
+            throw new PlotException("Invalid plot region: " + regionResult.getError());
         }
 
         if (customName != null && !customName.isEmpty()) {
             InputValidation.Result nameResult = InputValidation.validatePlotName(customName);
             if (!nameResult.isValid()) {
-                throw new IllegalArgumentException(nameResult.getError());
+                throw new PlotException("Invalid plot name: " + nameResult.getError());
             }
         }
 
         InputValidation.Result priceResult = InputValidation.validateAmount(price);
         if (!priceResult.isValid()) {
-            throw new IllegalArgumentException(priceResult.getError());
+            throw new PlotException("Invalid plot price: " + priceResult.getError());
         }
 
         // Finde min/max Koordinaten
@@ -139,16 +145,36 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
         );
 
         String plotId = (customName != null && !customName.isEmpty()) ? customName : generatePlotId();
+
+        // SICHERHEIT: Verhindere Überschreibung existierender Plots
+        if (plots.containsKey(plotId)) {
+            throw new PlotException("Plot with ID '" + plotId + "' already exists");
+        }
+
         PlotRegion plot = new PlotRegion(plotId, min, max, price);
         plot.setType(type);
 
         plots.put(plotId, plot);
-        spatialIndex.addPlot(plot);
+
+        // SICHERHEIT: Fehlerbehandlung für Spatial Index
+        try {
+            spatialIndex.addPlot(plot);
+        } catch (Exception e) {
+            plots.remove(plotId); // Rollback
+            throw new PlotException("Failed to add plot to spatial index: " + plotId, e);
+        }
 
         // Automatisch ShopAccount erstellen für Shop-Plots
         if (type.isShop()) {
-            ShopAccountManager.getOrCreateAccount(plotId);
-            LOGGER.info("ShopAccount automatisch erstellt für Shop-Plot: {}", plotId);
+            try {
+                ShopAccountManager.getOrCreateAccount(plotId);
+                LOGGER.info("ShopAccount automatisch erstellt für Shop-Plot: {}", plotId);
+            } catch (Exception e) {
+                // Rollback: Plot und Spatial Index entfernen
+                plots.remove(plotId);
+                spatialIndex.removePlot(plot);
+                throw new PlotException("Failed to create shop account for plot: " + plotId, e);
+            }
         }
 
         dirty = true;
@@ -342,10 +368,29 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
      * changes are persisted.
      *
      * @param plot The PlotRegion instance to add to the system
+     * @throws PlotException if plot is null, plot ID already exists, or spatial index addition fails
      */
     public static void addPlot(@Nonnull PlotRegion plot) {
+        // SICHERHEIT: Null-Check
+        if (plot == null) {
+            throw new PlotException("Cannot add null plot to manager");
+        }
+
+        // SICHERHEIT: Verhindere Überschreibung existierender Plots
+        if (plots.containsKey(plot.getPlotId())) {
+            throw new PlotException("Cannot add plot: ID '" + plot.getPlotId() +
+                                    "' already exists. Use update instead or remove existing first");
+        }
+
         plots.put(plot.getPlotId(), plot);
-        spatialIndex.addPlot(plot);
+
+        // SICHERHEIT: Fehlerbehandlung für Spatial Index mit Rollback
+        try {
+            spatialIndex.addPlot(plot);
+        } catch (Exception e) {
+            plots.remove(plot.getPlotId()); // Rollback
+            throw new PlotException("Failed to add plot to spatial index: " + plot.getPlotId(), e);
+        }
 
         // Invalidiere Cache-Einträge in der Plot-Region
         plotCache.invalidateRegion(plot.getMin(), plot.getMax());
@@ -362,8 +407,13 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
      *
      * @param plotId The unique identifier of the plot to remove
      * @return true if the plot was found and removed, false if no plot exists with the specified ID
+     * @throws PlotException if plotId is null or empty
      */
     public static boolean removePlot(@Nonnull String plotId) {
+        // SICHERHEIT: Null/Empty-Check
+        if (plotId == null || plotId.isEmpty()) {
+            throw new PlotException("Cannot remove plot: ID cannot be null or empty");
+        }
         PlotRegion removed = plots.remove(plotId);
         if (removed != null) {
             spatialIndex.removePlot(plotId);
@@ -465,7 +515,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
             dirty = false;
             LOGGER.info("Plots erfolgreich geladen: {} Plots", plots.size());
             LOGGER.info("Spatial Index: {}", spatialIndex.getStats());
-        } catch (IOException | JsonSyntaxException e) {
+        } catch (PlotException e) {
             LOGGER.error("Fehler beim Laden der Plots", e);
             lastError = "Failed to load: " + e.getMessage();
 
@@ -478,7 +528,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
                     isHealthy = true;
                     lastError = "Recovered from backup";
                     dirty = false;
-                } catch (IOException | JsonSyntaxException backupError) {
+                } catch (PlotException backupError) {
                     LOGGER.error("KRITISCH: Backup-Wiederherstellung fehlgeschlagen!", backupError);
                     handleCriticalLoadFailure();
                 }
@@ -490,16 +540,25 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
     }
 
     /**
-     * Lädt Plots aus einer spezifischen Datei
+     * Lädt Plots aus einer spezifischen Datei.
+     *
+     * @param sourceFile The file to load plot data from
+     * @throws PlotException if file reading fails, data is corrupted, or spatial index rebuild fails
      */
-    private static void loadPlotsFromFile(File sourceFile) throws IOException, JsonSyntaxException {
+    private static void loadPlotsFromFile(File sourceFile) throws PlotException {
         Type mapType = new TypeToken<Map<String, PlotRegion>>(){}.getType();
 
         try (FileReader reader = new FileReader(sourceFile)) {
-            Map<String, PlotRegion> loaded = GSON.fromJson(reader, mapType);
+            Map<String, PlotRegion> loaded;
+
+            try {
+                loaded = GSON.fromJson(reader, mapType);
+            } catch (JsonSyntaxException e) {
+                throw new PlotException("Failed to parse plot data from file: JSON syntax error", e);
+            }
 
             if (loaded == null) {
-                throw new IOException("Geladene Plot-Daten sind null");
+                throw new PlotException("Loaded plot data is null - file may be corrupted or empty");
             }
 
             plots.clear();
@@ -521,8 +580,14 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
 
             plotCounter.set(maxId + 1);
 
-            // Spatial Index neu aufbauen
-            spatialIndex.rebuild(plots.values());
+            // SICHERHEIT: Spatial Index neu aufbauen mit Error-Handling
+            try {
+                spatialIndex.rebuild(plots.values());
+            } catch (Exception e) {
+                throw new PlotException("Failed to rebuild spatial index after loading plots", e);
+            }
+        } catch (IOException e) {
+            throw new PlotException("Failed to read plot data from file: " + sourceFile.getAbsolutePath(), e);
         }
     }
 
@@ -553,7 +618,9 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
     }
     
     /**
-     * Speichert alle Plots in die Datei mit Backup
+     * Speichert alle Plots in die Datei mit Backup.
+     *
+     * @throws PlotException if saving fails after retry attempts
      */
     public static void savePlots() {
         try {
@@ -594,6 +661,10 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
             } catch (InterruptedException ie) {
                 Thread.currentThread().interrupt();
             }
+
+            // SICHERHEIT: Werfe PlotException nach Retry-Versuch
+            throw new PlotException("Failed to save plots to disk: " + e.getMessage() +
+                                    " (Retry attempted)", e);
         }
     }
 
