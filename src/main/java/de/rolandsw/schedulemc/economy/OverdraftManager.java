@@ -18,20 +18,74 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Verwaltet Überziehungskredite (Dispo)
- * - Konfigurierbare Überziehung
- * - Konfigurierbare Zinsen pro Woche
- * - Automatische Pfändung bei Limit
- * Refactored mit AbstractPersistenceManager
+ * Zentrales Überziehungskreditmanagement (Dispo) für ScheduleMC.
+ *
+ * <p>Verwaltet Überziehungskredite (Dispositionskredite) mit konfigurierbaren Limits,
+ * wöchentlichen Überziehungszinsen und automatischer Pfändung bei Limit-Überschreitung.</p>
+ *
+ * <h2>Hauptfunktionen:</h2>
+ * <ul>
+ *   <li><b>Überziehungslimit:</b> Configurable max. negatives Guthaben (z.B. -10.000€)</li>
+ *   <li><b>Überziehungszinsen:</b> Wöchentliche Zinsen auf negative Beträge (z.B. 15%/Woche)</li>
+ *   <li><b>Warnsystem:</b> Automatische Warnungen bei Erreichen des Warnschwellenwerts</li>
+ *   <li><b>Pfändung:</b> Automatische Pfändung (Wallet-Leerung) bei Limit-Überschreitung</li>
+ * </ul>
+ *
+ * <h2>Konfiguration:</h2>
+ * <p>Alle Limits und Zinssätze sind über {@link ModConfigHandler} konfigurierbar:</p>
+ * <ul>
+ *   <li><b>OVERDRAFT_MAX_LIMIT:</b> Maximales Überziehungslimit (standard: -10.000€)</li>
+ *   <li><b>OVERDRAFT_WARNING_THRESHOLD:</b> Warnschwelle (standard: -5.000€)</li>
+ *   <li><b>OVERDRAFT_INTEREST_RATE:</b> Wöchentlicher Zinssatz (standard: 15%)</li>
+ * </ul>
+ *
+ * <h2>Beispiel-Ablauf:</h2>
+ * <pre>{@code
+ * // Spieler-Kontostand: -6.000€ (unter Warnschwelle)
+ * 1. Warnung wird einmal pro Woche gesendet
+ * 2. Wöchentliche Zinsen: -6.000€ * 15% = -900€
+ * 3. Neuer Kontostand: -6.900€
+ * 4. Bei -10.000€: Pfändung (Wallet geleert, Konto auf Limit gesetzt)
+ * }</pre>
+ *
+ * <h2>Thread-Safety:</h2>
+ * <p>Thread-sicher durch ConcurrentHashMap für Tracking-Maps und
+ * Double-Checked Locking für Singleton.</p>
+ *
+ * @author ScheduleMC Team
+ * @version 1.0
+ * @since 1.0.0
+ * @see EconomyManager
+ * @see WalletManager
+ * @see ModConfigHandler
  */
 public class OverdraftManager extends AbstractPersistenceManager<Map<String, Object>> {
-    // SICHERHEIT: volatile für Double-Checked Locking Pattern
+    /**
+     * Singleton-Instanz des OverdraftManagers.
+     * <p>Volatile für Double-Checked Locking Pattern.</p>
+     */
     private static volatile OverdraftManager instance;
 
+    /**
+     * Tracking-Map für letzte Warnungstage pro Spieler.
+     * <p>Verhindert Spam (max. 1 Warnung pro 7 Tage).</p>
+     */
     private final Map<UUID, Long> lastWarningDay = new ConcurrentHashMap<>();
+
+    /**
+     * Tracking-Map für letzte Zinszahlungstage pro Spieler.
+     * <p>Stellt sicher, dass Zinsen nur einmal pro Woche berechnet werden.</p>
+     */
     private final Map<UUID, Long> lastInterestDay = new ConcurrentHashMap<>();
+
+    /**
+     * MinecraftServer-Referenz für Spielerzugriffe.
+     */
     private MinecraftServer server;
 
+    /**
+     * Aktueller Spieltag für tägliche Verarbeitung.
+     */
     private long currentDay = 0;
 
     private OverdraftManager(MinecraftServer server) {
@@ -44,7 +98,10 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
     }
 
     /**
-     * SICHERHEIT: Double-Checked Locking für Thread-Safety
+     * Gibt die Singleton-Instanz des OverdraftManagers zurück.
+     *
+     * @param server MinecraftServer für Spielerzugriffe (non-null)
+     * @return Singleton-Instanz des OverdraftManagers
      */
     public static OverdraftManager getInstance(@Nonnull MinecraftServer server) {
         OverdraftManager localRef = instance;
@@ -61,7 +118,13 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
     }
 
     /**
-     * Prüft ob Überziehung erlaubt ist
+     * Prüft ob eine Überziehung bis zum angegebenen Betrag erlaubt ist.
+     *
+     * <p>Vergleicht den neuen Kontostand mit dem konfigurierten Überziehungslimit.</p>
+     *
+     * @param newBalance Der geplante neue Kontostand
+     * @return {@code true} wenn Überziehung erlaubt (newBalance >= maxLimit), sonst {@code false}
+     * @see ModConfigHandler.Common#OVERDRAFT_MAX_LIMIT
      */
     public static boolean canOverdraft(double newBalance) {
         double maxLimit = ModConfigHandler.COMMON.OVERDRAFT_MAX_LIMIT.get();
@@ -69,7 +132,10 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
     }
 
     /**
-     * Gibt Überziehungsbetrag zurück
+     * Berechnet den aktuellen Überziehungsbetrag (Absolutwert des negativen Guthabens).
+     *
+     * @param balance Aktueller Kontostand
+     * @return Überziehungsbetrag (0 bei positivem Kontostand, sonst Absolutwert)
      */
     public static double getOverdraftAmount(double balance) {
         if (balance >= 0) {
@@ -79,7 +145,16 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
     }
 
     /**
-     * Tick-Methode
+     * Verarbeitet tägliche Überziehungsprüfungen.
+     *
+     * <p>Führt bei Tageswechsel folgende Aktionen durch:</p>
+     * <ul>
+     *   <li>Warnungen bei Erreichen des Warning-Thresholds (max. 1/Woche)</li>
+     *   <li>Wöchentliche Überziehungszinsen auf negative Beträge</li>
+     *   <li>Pfändung bei Überschreitung des Limits</li>
+     * </ul>
+     *
+     * @param dayTime Aktuelle Spielzeit in Ticks
      */
     public void tick(long dayTime) {
         long day = dayTime / 24000L;
@@ -208,7 +283,12 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
     }
 
     /**
-     * Gibt Info über Dispo
+     * Gibt formatierte Dispo-Informationen für einen Spieler zurück.
+     *
+     * <p>Zeigt Kontostand, Überziehungsbetrag, verfügbares Limit und Zinssatz an.</p>
+     *
+     * @param playerUUID UUID des Spielers (non-null)
+     * @return Formatierte Dispo-Informationen als String
      */
     public String getOverdraftInfo(@Nonnull UUID playerUUID) {
         double balance = EconomyManager.getBalance(playerUUID);
