@@ -80,7 +80,7 @@ public class InterestManager extends AbstractPersistenceManager<Map<UUID, Long>>
      * Tick-Methode - aufgerufen jeden Server-Tick oder Tag-Wechsel
      */
     public void tick(long dayTime) {
-        long day = dayTime / 24000L;
+        long day = dayTime / GameConstants.TICKS_PER_DAY;
 
         if (day != currentDay) {
             currentDay = day;

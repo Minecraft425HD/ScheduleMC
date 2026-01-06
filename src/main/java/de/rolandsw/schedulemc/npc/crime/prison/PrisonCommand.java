@@ -225,7 +225,7 @@ public class PrisonCommand {
 
         for (var data : prisoners) {
             long remainingTicks = data.releaseTime - source.getLevel().getGameTime();
-            int remainingSeconds = Math.max(0, (int)(remainingTicks / 20));
+            int remainingSeconds = Math.max(0, (int)(remainingTicks / GameConstants.TICKS_PER_SECOND));
 
             source.sendSuccess(() -> Component.literal(String.format(
                 "§7- §f%s §7(Zelle %d, %d Sek. verbleibend)",
@@ -261,7 +261,7 @@ public class PrisonCommand {
         }
 
         long remainingTicks = data.releaseTime - source.getLevel().getGameTime();
-        int remainingSeconds = Math.max(0, (int)(remainingTicks / 20));
+        int remainingSeconds = Math.max(0, (int)(remainingTicks / GameConstants.TICKS_PER_SECOND));
         int minutes = remainingSeconds / 60;
         int seconds = remainingSeconds % 60;
 
@@ -299,7 +299,7 @@ public class PrisonCommand {
         }
 
         long remainingTicks = data.releaseTime - player.level().getGameTime();
-        int remainingSeconds = Math.max(0, (int)(remainingTicks / 20));
+        int remainingSeconds = Math.max(0, (int)(remainingTicks / GameConstants.TICKS_PER_SECOND));
         int minutes = remainingSeconds / 60;
         int seconds = remainingSeconds % 60;
 

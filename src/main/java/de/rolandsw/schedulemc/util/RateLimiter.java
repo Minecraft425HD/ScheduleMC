@@ -51,7 +51,7 @@ public class RateLimiter {
      * @param maxOperationsPerSecond Max Operationen pro Sekunde
      */
     public RateLimiter(String operationName, int maxOperationsPerSecond) {
-        this(operationName, maxOperationsPerSecond, 1000L);
+        this(operationName, maxOperationsPerSecond, GameConstants.RATE_LIMIT_WINDOW_MS);
     }
 
     /**

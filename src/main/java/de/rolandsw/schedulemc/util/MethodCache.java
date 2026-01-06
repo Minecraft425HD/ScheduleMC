@@ -98,7 +98,7 @@ public class MethodCache {
      * @return Cached or freshly computed value
      */
     public static <T> T get(String key, Supplier<T> supplier) {
-        return get(key, 5000L, supplier);
+        return get(key, GameConstants.DEFAULT_CACHE_TTL_MS, supplier);
     }
 
     /**

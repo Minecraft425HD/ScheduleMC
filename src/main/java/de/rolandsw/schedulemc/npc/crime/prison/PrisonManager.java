@@ -361,7 +361,7 @@ public class PrisonManager {
         player.getPersistentData().putBoolean("IsInPrison", true);
         player.getPersistentData().putLong("JailReleaseTime", data.releaseTime);
 
-        int remainingSeconds = (int)(remainingTicks / 20);
+        int remainingSeconds = (int)(remainingTicks / GameConstants.TICKS_PER_SECOND);
         applyPrisonEffects(player, remainingSeconds);
 
         double playerBalance = EconomyManager.getBalance(playerId);

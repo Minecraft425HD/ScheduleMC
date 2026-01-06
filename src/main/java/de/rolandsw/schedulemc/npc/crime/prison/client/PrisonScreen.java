@@ -188,7 +188,7 @@ public class PrisonScreen extends Screen {
         int progressWidth = (int) (barWidth * progress);
         graphics.fill(barX, barY, barX + progressWidth, barY + barHeight, COLOR_PROGRESS_FILL);
 
-        int remainingSeconds = (int) (remainingTicks / 20);
+        int remainingSeconds = (int) (remainingTicks / GameConstants.TICKS_PER_SECOND);
         int minutes = remainingSeconds / 60;
         int seconds = remainingSeconds % 60;
         String timeText = String.format("%d:%02d VERBLEIBEND", minutes, seconds);
@@ -222,7 +222,7 @@ public class PrisonScreen extends Screen {
             graphics.drawString(font, "✓ Verfügbar!", leftPos + 120, y, COLOR_TEXT_GREEN, false);
         } else {
             long waitTicks = bailAvailableAtTick - currentTick;
-            int waitSeconds = (int) (waitTicks / 20);
+            int waitSeconds = (int) (waitTicks / GameConstants.TICKS_PER_SECOND);
             int waitMin = waitSeconds / 60;
             int waitSec = waitSeconds % 60;
 

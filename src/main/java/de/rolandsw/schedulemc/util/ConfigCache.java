@@ -123,7 +123,7 @@ public class ConfigCache {
     }
 
     public static long getPoliceArrestCooldownTicks() {
-        return getPoliceArrestCooldownSeconds() * 20L;
+        return getPoliceArrestCooldownSeconds() * GameConstants.TICKS_PER_SECOND;
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -197,7 +197,7 @@ public class ConfigCache {
     }
 
     public static long getNpcSalaryIntervalTicks() {
-        return getNpcSalaryIntervalDays() * 24000L; // 1 day = 24000 ticks
+        return getNpcSalaryIntervalDays() * GameConstants.TICKS_PER_DAY;
     }
 
     private ConfigCache() {

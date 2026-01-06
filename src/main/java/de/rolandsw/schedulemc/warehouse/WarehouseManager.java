@@ -161,7 +161,7 @@ public class WarehouseManager {
                     continue;
                 }
 
-                long currentDay = level.getDayTime() / 24000L;
+                long currentDay = level.getDayTime() / GameConstants.TICKS_PER_DAY;
 
                 // OPTIMIERUNG: Direkte Iteration ohne Kopie, ConcurrentHashMap.newKeySet() ist iterationssicher
                 for (BlockPos pos : entry.getValue()) {
