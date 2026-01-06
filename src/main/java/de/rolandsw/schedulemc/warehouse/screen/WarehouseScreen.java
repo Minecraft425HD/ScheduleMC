@@ -771,6 +771,18 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
     // STATS TAB RENDERING
     // ═══════════════════════════════════════════════════════════
 
+    /**
+     * Renders the statistics tab showing warehouse overview, finance info, and auto-delivery status.
+     * <p>
+     * This method has been refactored to use extracted helper methods for better maintainability:
+     * <ul>
+     *   <li>{@link #renderProgressBar(GuiGraphics, int, int, WarehouseBlockEntity)} - Capacity progress bar</li>
+     *   <li>{@link #renderTop5Items(GuiGraphics, int, int, WarehouseBlockEntity)} - Top 5 items by stock</li>
+     *   <li>{@link #renderFinanceSection(GuiGraphics, int, int, WarehouseBlockEntity)} - Financial overview</li>
+     *   <li>{@link #renderAutoDeliverySection(GuiGraphics, int, int, WarehouseBlockEntity)} - Auto-delivery status</li>
+     * </ul>
+     * </p>
+     */
     private void renderStatsTab(GuiGraphics graphics, int x, int y, int mouseX, int mouseY) {
         WarehouseBlockEntity warehouse = menu.getWarehouse();
         if (warehouse == null) return;
@@ -789,137 +801,17 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         graphics.drawString(this.font, "§l§e📊 LAGERBESTAND ÜBERSICHT", x + 10, contentY, COLOR_TEXT, false);
         contentY += 15;
 
-        WarehouseSlot[] slots = warehouse.getSlots();
-        int usedSlots = warehouse.getUsedSlots();
-        int totalSlots = slots.length;
-        double fillPercentage = (double) usedSlots / totalSlots * 100;
+        // Render progress bar
+        contentY = renderProgressBar(graphics, x, contentY, warehouse);
 
-        // Progress Bar
-        int barWidth = 300;
-        int barHeight = 20;
-        int barX = x + 10;
-        int filledWidth = (int) (barWidth * fillPercentage / 100);
+        // Render top 5 items
+        contentY = renderTop5Items(graphics, x, contentY, warehouse);
 
-        graphics.fill(barX, contentY, barX + barWidth, contentY + barHeight, COLOR_BG_LIGHT);
-        graphics.fill(barX, contentY, barX + filledWidth, contentY + barHeight, COLOR_SUCCESS);
-        graphics.drawString(this.font, String.format("%.0f%% ausgelastet (%d/%d Slots)",
-            fillPercentage, usedSlots, totalSlots),
-            barX + 80, contentY + 6, COLOR_TEXT, false);
+        // Render finance section
+        contentY = renderFinanceSection(graphics, x, contentY, warehouse);
 
-        contentY += 35;
-
-        // Top 5 Items
-        graphics.drawString(this.font, "Top 5 Items nach Bestand:", x + 10, contentY, COLOR_TEXT_GRAY, false);
-        contentY += 12;
-
-        // Simple top 5 (sorted by stock)
-        List<WarehouseSlot> sortedSlots = new ArrayList<>();
-        for (WarehouseSlot slot : slots) {
-            if (!slot.isEmpty()) sortedSlots.add(slot);
-        }
-        sortedSlots.sort((a, b) -> Integer.compare(b.getStock(), a.getStock()));
-
-        for (int i = 0; i < Math.min(5, sortedSlots.size()); i++) {
-            WarehouseSlot slot = sortedSlots.get(i);
-            String itemName = slot.getAllowedItem() != null ?
-                slot.getAllowedItem().getDescription().getString() : "Unknown";
-
-            int percentage = (int) ((double) slot.getStock() / slot.getMaxCapacity() * 100);
-            String status = slot.isFull() ? " [VOLL]" : "";
-
-            graphics.drawString(this.font,
-                String.format("%d. %s: %d/%d (%d%%)%s",
-                    i + 1, itemName, slot.getStock(), slot.getMaxCapacity(), percentage, status),
-                x + 15, contentY, COLOR_TEXT, false);
-            contentY += 12;
-        }
-
-        contentY += 10;
-
-        // === FINANZEN ===
-        graphics.drawString(this.font, "§l§e💰 FINANZEN", x + 10, contentY, COLOR_TEXT, false);
-        contentY += 15;
-
-        String shopId = warehouse.getShopId();
-        if (shopId != null) {
-            ShopAccount account = ShopAccountManager.getAccount(shopId);
-            if (account != null) {
-                int netRevenue7Days = account.get7DayNetRevenue();
-                graphics.drawString(this.font, "Nettoumsatz (7 Tage): " + String.format("%d€", netRevenue7Days),
-                    x + 15, contentY, netRevenue7Days >= 0 ? COLOR_SUCCESS : COLOR_DANGER, false);
-                contentY += 12;
-
-                // Expense tracking über 30 Tage
-                long currentTime = minecraft.level != null ? minecraft.level.getGameTime() : 0;
-                int totalExpenses30Days = warehouse.getTotalExpenses(currentTime, 30);
-                int deliveryCount30Days = warehouse.getDeliveryCount(currentTime, 30);
-                double avgExpensePerDelivery = warehouse.getAverageExpensePerDelivery(currentTime, 30);
-
-                graphics.drawString(this.font,
-                    "Ausgaben (30 Tage): " + String.format("%d€", totalExpenses30Days),
-                    x + 15, contentY, COLOR_WARNING, false);
-                contentY += 12;
-
-                if (deliveryCount30Days > 0) {
-                    graphics.drawString(this.font,
-                        "  Lieferungen: " + deliveryCount30Days + "x | Ø " + String.format("%.0f€", avgExpensePerDelivery),
-                        x + 15, contentY, COLOR_TEXT_GRAY, false);
-                    contentY += 12;
-
-                    // Zeige letzte 3 Lieferungen
-                    List<de.rolandsw.schedulemc.warehouse.ExpenseEntry> recentExpenses = warehouse.getExpenses();
-                    if (!recentExpenses.isEmpty()) {
-                        graphics.drawString(this.font, "  Letzte Lieferungen:",
-                            x + 15, contentY, COLOR_TEXT_GRAY, false);
-                        contentY += 12;
-
-                        // Zeige bis zu 3 der letzten Lieferungen
-                        int shown = 0;
-                        for (int i = recentExpenses.size() - 1; i >= 0 && shown < 3; i--) {
-                            de.rolandsw.schedulemc.warehouse.ExpenseEntry expense = recentExpenses.get(i);
-                            int ageDays = expense.getAgeDays(currentTime);
-                            String ageStr = ageDays == 0 ? "heute" : "vor " + ageDays + "d";
-
-                            graphics.drawString(this.font,
-                                String.format("    • %d€ (%s)", expense.getAmount(), ageStr),
-                                x + 15, contentY, COLOR_TEXT_GRAY, false);
-                            contentY += 10;
-                            shown++;
-                        }
-                        contentY += 2;
-                    }
-                }
-            } else {
-                graphics.drawString(this.font, "Shop-Konto nicht gefunden: " + shopId,
-                    x + 15, contentY, COLOR_DANGER, false);
-            }
-        } else {
-            graphics.drawString(this.font, "Kein Shop-Konto verknüpft",
-                x + 15, contentY, COLOR_TEXT_GRAY, false);
-        }
-
-        contentY += 20;
-
-        // === AUTO-DELIVERY ===
-        graphics.drawString(this.font, "§l§e📦 AUTO-DELIVERY", x + 10, contentY, COLOR_TEXT, false);
-        contentY += 15;
-
-        graphics.drawString(this.font, "Status: Aktiv ✓", x + 15, contentY, COLOR_SUCCESS, false);
-        contentY += 12;
-
-        long lastDeliveryDay = warehouse.getLastDeliveryDay();
-        long currentDay = minecraft.level != null ? minecraft.level.getDayTime() / 24000L : 0;
-        long intervalDays = ModConfigHandler.COMMON.WAREHOUSE_DELIVERY_INTERVAL_DAYS.get();
-        long daysUntilNext = (lastDeliveryDay + intervalDays) - currentDay;
-
-        graphics.drawString(this.font,
-            "Nächste Lieferung: in " + Math.max(0, daysUntilNext) + " Tagen",
-            x + 15, contentY, COLOR_TEXT, false);
-        contentY += 12;
-
-        graphics.drawString(this.font,
-            "Interval: alle " + ModConfigHandler.COMMON.WAREHOUSE_DELIVERY_INTERVAL_DAYS.get() + " Tage",
-            x + 15, contentY, COLOR_TEXT_GRAY, false);
+        // Render auto-delivery section
+        renderAutoDeliverySection(graphics, x, contentY, warehouse);
 
         // Disable scissor after rendering
         graphics.disableScissor();
@@ -1357,5 +1249,180 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
 
         // Fallback: Zeige gekürzte UUID
         return npcUUID.toString().substring(0, 8) + "...";
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // EXTRACTED METHODS FOR STATS TAB RENDERING
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Renders the progress bar showing warehouse capacity utilization.
+     *
+     * @param graphics the graphics context
+     * @param x base x position
+     * @param contentY current y position
+     * @param warehouse the warehouse block entity
+     * @return new y position after rendering
+     */
+    private int renderProgressBar(GuiGraphics graphics, int x, int contentY, WarehouseBlockEntity warehouse) {
+        WarehouseSlot[] slots = warehouse.getSlots();
+        int usedSlots = warehouse.getUsedSlots();
+        int totalSlots = slots.length;
+        double fillPercentage = (double) usedSlots / totalSlots * 100;
+
+        int barWidth = 300;
+        int barHeight = 20;
+        int barX = x + 10;
+        int filledWidth = (int) (barWidth * fillPercentage / 100);
+
+        graphics.fill(barX, contentY, barX + barWidth, contentY + barHeight, COLOR_BG_LIGHT);
+        graphics.fill(barX, contentY, barX + filledWidth, contentY + barHeight, COLOR_SUCCESS);
+        graphics.drawString(this.font, String.format("%.0f%% ausgelastet (%d/%d Slots)",
+            fillPercentage, usedSlots, totalSlots),
+            barX + 80, contentY + 6, COLOR_TEXT, false);
+
+        return contentY + 35;
+    }
+
+    /**
+     * Renders the top 5 items by stock quantity.
+     *
+     * @param graphics the graphics context
+     * @param x base x position
+     * @param contentY current y position
+     * @param warehouse the warehouse block entity
+     * @return new y position after rendering
+     */
+    private int renderTop5Items(GuiGraphics graphics, int x, int contentY, WarehouseBlockEntity warehouse) {
+        graphics.drawString(this.font, "Top 5 Items nach Bestand:", x + 10, contentY, COLOR_TEXT_GRAY, false);
+        contentY += 12;
+
+        WarehouseSlot[] slots = warehouse.getSlots();
+        List<WarehouseSlot> sortedSlots = new ArrayList<>();
+        for (WarehouseSlot slot : slots) {
+            if (!slot.isEmpty()) sortedSlots.add(slot);
+        }
+        sortedSlots.sort((a, b) -> Integer.compare(b.getStock(), a.getStock()));
+
+        for (int i = 0; i < Math.min(5, sortedSlots.size()); i++) {
+            WarehouseSlot slot = sortedSlots.get(i);
+            String itemName = slot.getAllowedItem() != null ?
+                slot.getAllowedItem().getDescription().getString() : "Unknown";
+
+            int percentage = (int) ((double) slot.getStock() / slot.getMaxCapacity() * 100);
+            String status = slot.isFull() ? " [VOLL]" : "";
+
+            graphics.drawString(this.font,
+                String.format("%d. %s: %d/%d (%d%%)%s",
+                    i + 1, itemName, slot.getStock(), slot.getMaxCapacity(), percentage, status),
+                x + 15, contentY, COLOR_TEXT, false);
+            contentY += 12;
+        }
+
+        return contentY + 10;
+    }
+
+    /**
+     * Renders the finance section with revenue, expenses, and recent deliveries.
+     *
+     * @param graphics the graphics context
+     * @param x base x position
+     * @param contentY current y position
+     * @param warehouse the warehouse block entity
+     * @return new y position after rendering
+     */
+    private int renderFinanceSection(GuiGraphics graphics, int x, int contentY, WarehouseBlockEntity warehouse) {
+        graphics.drawString(this.font, "§l§e💰 FINANZEN", x + 10, contentY, COLOR_TEXT, false);
+        contentY += 15;
+
+        String shopId = warehouse.getShopId();
+        if (shopId != null) {
+            ShopAccount account = ShopAccountManager.getAccount(shopId);
+            if (account != null) {
+                int netRevenue7Days = account.get7DayNetRevenue();
+                graphics.drawString(this.font, "Nettoumsatz (7 Tage): " + String.format("%d€", netRevenue7Days),
+                    x + 15, contentY, netRevenue7Days >= 0 ? COLOR_SUCCESS : COLOR_DANGER, false);
+                contentY += 12;
+
+                long currentTime = minecraft.level != null ? minecraft.level.getGameTime() : 0;
+                int totalExpenses30Days = warehouse.getTotalExpenses(currentTime, 30);
+                int deliveryCount30Days = warehouse.getDeliveryCount(currentTime, 30);
+                double avgExpensePerDelivery = warehouse.getAverageExpensePerDelivery(currentTime, 30);
+
+                graphics.drawString(this.font,
+                    "Ausgaben (30 Tage): " + String.format("%d€", totalExpenses30Days),
+                    x + 15, contentY, COLOR_WARNING, false);
+                contentY += 12;
+
+                if (deliveryCount30Days > 0) {
+                    graphics.drawString(this.font,
+                        "  Lieferungen: " + deliveryCount30Days + "x | Ø " + String.format("%.0f€", avgExpensePerDelivery),
+                        x + 15, contentY, COLOR_TEXT_GRAY, false);
+                    contentY += 12;
+
+                    List<de.rolandsw.schedulemc.warehouse.ExpenseEntry> recentExpenses = warehouse.getExpenses();
+                    if (!recentExpenses.isEmpty()) {
+                        graphics.drawString(this.font, "  Letzte Lieferungen:",
+                            x + 15, contentY, COLOR_TEXT_GRAY, false);
+                        contentY += 12;
+
+                        int shown = 0;
+                        for (int i = recentExpenses.size() - 1; i >= 0 && shown < 3; i--) {
+                            de.rolandsw.schedulemc.warehouse.ExpenseEntry expense = recentExpenses.get(i);
+                            int ageDays = expense.getAgeDays(currentTime);
+                            String ageStr = ageDays == 0 ? "heute" : "vor " + ageDays + "d";
+
+                            graphics.drawString(this.font,
+                                String.format("    • %d€ (%s)", expense.getAmount(), ageStr),
+                                x + 15, contentY, COLOR_TEXT_GRAY, false);
+                            contentY += 10;
+                            shown++;
+                        }
+                        contentY += 2;
+                    }
+                }
+            } else {
+                graphics.drawString(this.font, "Shop-Konto nicht gefunden: " + shopId,
+                    x + 15, contentY, COLOR_DANGER, false);
+            }
+        } else {
+            graphics.drawString(this.font, "Kein Shop-Konto verknüpft",
+                x + 15, contentY, COLOR_TEXT_GRAY, false);
+        }
+
+        return contentY + 20;
+    }
+
+    /**
+     * Renders the auto-delivery section with status and schedule information.
+     *
+     * @param graphics the graphics context
+     * @param x base x position
+     * @param contentY current y position
+     * @param warehouse the warehouse block entity
+     * @return new y position after rendering
+     */
+    private int renderAutoDeliverySection(GuiGraphics graphics, int x, int contentY, WarehouseBlockEntity warehouse) {
+        graphics.drawString(this.font, "§l§e📦 AUTO-DELIVERY", x + 10, contentY, COLOR_TEXT, false);
+        contentY += 15;
+
+        graphics.drawString(this.font, "Status: Aktiv ✓", x + 15, contentY, COLOR_SUCCESS, false);
+        contentY += 12;
+
+        long lastDeliveryDay = warehouse.getLastDeliveryDay();
+        long currentDay = minecraft.level != null ? minecraft.level.getDayTime() / 24000L : 0;
+        long intervalDays = ModConfigHandler.COMMON.WAREHOUSE_DELIVERY_INTERVAL_DAYS.get();
+        long daysUntilNext = (lastDeliveryDay + intervalDays) - currentDay;
+
+        graphics.drawString(this.font,
+            "Nächste Lieferung: in " + Math.max(0, daysUntilNext) + " Tagen",
+            x + 15, contentY, COLOR_TEXT, false);
+        contentY += 12;
+
+        graphics.drawString(this.font,
+            "Interval: alle " + ModConfigHandler.COMMON.WAREHOUSE_DELIVERY_INTERVAL_DAYS.get() + " Tage",
+            x + 15, contentY, COLOR_TEXT_GRAY, false);
+
+        return contentY;
     }
 }
