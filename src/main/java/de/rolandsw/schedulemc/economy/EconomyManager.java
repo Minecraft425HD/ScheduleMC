@@ -232,8 +232,14 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
      * player joins the server for the first time.
      *
      * @param uuid The unique identifier of the player
+     * @throws EconomyException if account already exists for this player
      */
     public static void createAccount(@Nonnull UUID uuid) {
+        // SICHERHEIT: Verhindere Überschreibung existierender Accounts
+        if (balances.containsKey(uuid)) {
+            throw new EconomyException("Account for player " + uuid + " already exists");
+        }
+
         double startBalance = getStartBalance();
         balances.put(uuid, startBalance);
         markDirty();
@@ -299,16 +305,15 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
      * @param description Optional description of the transaction (can be null)
      */
     public static void deposit(@Nonnull UUID uuid, double amount, @Nonnull TransactionType type, @Nullable String description) {
+        // SICHERHEIT: Negative Amount Validation
         if (amount < 0) {
-            LOGGER.warn("Versuch, negativen Betrag einzuzahlen: {}", amount);
-            return;
+            throw new EconomyException("Negative deposit amount not allowed: " + amount);
         }
 
         // Rate Limiting (nur für Spieler-initiierte Deposits, nicht System)
         if (type == TransactionType.OTHER || type == TransactionType.TRANSFER) {
             if (!depositLimiter.allowOperation(uuid)) {
-                LOGGER.warn("Rate limit exceeded for deposit by player {}", uuid);
-                return;
+                throw new EconomyException("Deposit rate limit exceeded for player " + uuid);
             }
         }
 
@@ -364,25 +369,26 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
      * @return true if the withdrawal was successful, false if insufficient funds or overdraft limit exceeded
      */
     public static boolean withdraw(@Nonnull UUID uuid, double amount, @Nonnull TransactionType type, @Nullable String description) {
+        // SICHERHEIT: Negative Amount Validation
         if (amount < 0) {
-            LOGGER.warn("Versuch, negativen Betrag abzuheben: {}", amount);
-            return false;
+            throw new EconomyException("Negative withdrawal amount not allowed: " + amount);
         }
 
         // Rate Limiting (nur für Spieler-initiierte Withdrawals)
         if (type == TransactionType.OTHER || type == TransactionType.TRANSFER) {
             if (!withdrawLimiter.allowOperation(uuid)) {
-                LOGGER.warn("Rate limit exceeded for withdrawal by player {}", uuid);
-                return false;
+                throw new EconomyException("Withdrawal rate limit exceeded for player " + uuid);
             }
         }
 
         // SICHERHEIT: Atomare read-modify-write Operation mit compute()
         final double[] resultBalance = {0.0};
+        final double[] currentBalanceHolder = {0.0};
         final boolean[] success = {false};
 
         balances.compute(uuid, (key, currentBalance) -> {
             if (currentBalance == null) currentBalance = 0.0;
+            currentBalanceHolder[0] = currentBalance;
             double newBalance = currentBalance - amount;
 
             // Prüfe ob genug Guthaben ODER Dispo-Limit nicht überschritten
@@ -395,23 +401,25 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
             return currentBalance; // Keine Änderung
         });
 
-        if (success[0]) {
-            markDirty();
-
-            // AUDIT: Strukturiertes Transaction Logging für Forensics
-            LOGGER.info("[ECONOMY] WITHDRAW | Player={} | Amount=-{}€ | Type={} | Balance={}€ | Description={}",
-                uuid, String.format("%.2f", amount), type, String.format("%.2f", resultBalance[0]),
-                description != null ? description : "N/A");
-
-            // Transaction History
-            logTransaction(uuid, type, uuid, null, -amount, description, resultBalance[0]);
-            return true;
-        } else {
-            // AUDIT: Fehlgeschlagene Transaktion loggen
-            LOGGER.warn("[ECONOMY] WITHDRAW_FAILED | Player={} | Amount=-{}€ | Type={} | Reason=InsufficientFunds | Balance={}€",
-                uuid, String.format("%.2f", amount), type, String.format("%.2f", resultBalance[0]));
+        if (!success[0]) {
+            // SICHERHEIT: Werfe EconomyException bei Insufficient Funds
+            double currentBalance = currentBalanceHolder[0];
+            double deficit = amount - currentBalance;
+            throw new EconomyException(
+                String.format("Insufficient funds for withdrawal. Required: %.2f€, Available: %.2f€, Deficit: %.2f€",
+                    amount, currentBalance, deficit));
         }
-        return false;
+
+        markDirty();
+
+        // AUDIT: Strukturiertes Transaction Logging für Forensics
+        LOGGER.info("[ECONOMY] WITHDRAW | Player={} | Amount=-{}€ | Type={} | Balance={}€ | Description={}",
+            uuid, String.format("%.2f", amount), type, String.format("%.2f", resultBalance[0]),
+            description != null ? description : "N/A");
+
+        // Transaction History
+        logTransaction(uuid, type, uuid, null, -amount, description, resultBalance[0]);
+        return true;
     }
 
     /**
@@ -523,12 +531,22 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
      * @return true if the transfer was successful, false if the sender had insufficient funds or rate limit was exceeded
      */
     public static boolean transfer(@Nonnull UUID from, @Nonnull UUID to, double amount, @Nullable String description) {
-        // Rate Limiting für Transfers
-        if (!transferLimiter.allowOperation(from)) {
-            LOGGER.warn("Rate limit exceeded for transfer by player {}", from);
-            return false;
+        // SICHERHEIT: Self-Transfer Validation
+        if (from.equals(to)) {
+            throw new EconomyException("Cannot transfer money to yourself. Sender and receiver must be different.");
         }
 
+        // SICHERHEIT: Invalid Amount Validation
+        if (amount <= 0) {
+            throw new EconomyException("Transfer amount must be positive: " + amount);
+        }
+
+        // Rate Limiting für Transfers
+        if (!transferLimiter.allowOperation(from)) {
+            throw new EconomyException("Transfer rate limit exceeded for player " + from);
+        }
+
+        // SICHERHEIT: Withdraw wirft jetzt EconomyException bei Insufficient Funds
         if (withdraw(from, amount)) {
             deposit(to, amount, TransactionType.TRANSFER, description);
 
