@@ -6,6 +6,7 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 
 import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
@@ -87,7 +88,7 @@ public class WarehouseManager {
      * @see #unregisterWarehouse(ServerLevel, BlockPos)
      * @see #save(MinecraftServer)
      */
-    public static void registerWarehouse(ServerLevel level, BlockPos pos) {
+    public static void registerWarehouse(@Nonnull ServerLevel level, @Nonnull BlockPos pos) {
         String levelKey = getLevelKey(level);
         warehouses.computeIfAbsent(levelKey, k -> ConcurrentHashMap.newKeySet()).add(pos);
         dirty = true;
@@ -119,7 +120,7 @@ public class WarehouseManager {
      * @see #registerWarehouse(ServerLevel, BlockPos)
      * @see #save(MinecraftServer)
      */
-    public static void unregisterWarehouse(ServerLevel level, BlockPos pos) {
+    public static void unregisterWarehouse(@Nonnull ServerLevel level, @Nonnull BlockPos pos) {
         String levelKey = getLevelKey(level);
         Set<BlockPos> levelWarehouses = warehouses.get(levelKey);
         if (levelWarehouses != null) {
@@ -176,7 +177,7 @@ public class WarehouseManager {
      * OPTIMIERT: Verwendet Cache um Block-Entity-Lookups zu minimieren.
      * Block-Entity wird nur abgefragt wenn tatsächlich eine Delivery nötig ist.
      */
-    private static void checkWarehouseDelivery(ServerLevel level, BlockPos pos, long currentDay) {
+    private static void checkWarehouseDelivery(@Nonnull ServerLevel level, @Nonnull BlockPos pos, long currentDay) {
         long intervalDays = ConfigCache.getWarehouseDeliveryIntervalDays();
 
         // OPTIMIERUNG: Prüfe Cache zuerst - vermeide Block-Entity-Lookup wenn keine Delivery nötig
@@ -220,7 +221,7 @@ public class WarehouseManager {
                 lastDeliveryDayCache.put(pos, currentDay);
             }
 
-        } catch (Exception e) {
+        } catch (Exception e) {  // Intentionally catching all exceptions - tick handler must not crash
             LOGGER.error("Fehler beim Prüfen von Warehouse @ " + pos.toShortString(), e);
         }
     }
@@ -284,7 +285,7 @@ public class WarehouseManager {
      * @param server the Minecraft server instance, used to locate the world data directory
      * @see #save(MinecraftServer)
      */
-    public static void load(MinecraftServer server) {
+    public static void load(@Nonnull MinecraftServer server) {
         LOGGER.info("★★★ [WarehouseManager] load() aufgerufen! ★★★");
         File dataFile = getDataFile(server);
         LOGGER.info("[WarehouseManager] Data file: {}, exists: {}", dataFile.getAbsolutePath(), dataFile.exists());
@@ -351,7 +352,7 @@ public class WarehouseManager {
      * @param server the Minecraft server instance, used to locate the world data directory
      * @see #load(MinecraftServer)
      */
-    public static void save(MinecraftServer server) {
+    public static void save(@Nonnull MinecraftServer server) {
         if (!dirty) return;
 
         File dataFile = getDataFile(server);
@@ -391,7 +392,7 @@ public class WarehouseManager {
     // UTILITY
     // ═══════════════════════════════════════════════════════════
 
-    private static String getLevelKey(ServerLevel level) {
+    private static String getLevelKey(@Nonnull ServerLevel level) {
         return level.dimension().location().toString();
     }
 
@@ -407,7 +408,7 @@ public class WarehouseManager {
      * @return the matching ServerLevel, or null if not found
      */
     @Nullable
-    private static ServerLevel getLevelByKey(MinecraftServer server, String key) {
+    private static ServerLevel getLevelByKey(@Nonnull MinecraftServer server, @Nonnull String key) {
         for (ServerLevel level : server.getAllLevels()) {
             if (getLevelKey(level).equals(key)) {
                 return level;
@@ -416,7 +417,7 @@ public class WarehouseManager {
         return null;
     }
 
-    private static File getDataFile(MinecraftServer server) {
+    private static File getDataFile(@Nonnull MinecraftServer server) {
         return new File(server.getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT).toFile(),
             "data/schedulemc_warehouses.dat");
     }

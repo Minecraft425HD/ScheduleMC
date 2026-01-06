@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import org.slf4j.Logger;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -131,6 +132,7 @@ public class RoadGraph {
      * @param pos Die Referenzposition
      * @return Der nächste Node oder null wenn Graph leer
      */
+    @Nullable
     public RoadNode findNearestNode(BlockPos pos) {
         if (nodesByPosition.isEmpty()) {
             return null;
@@ -196,6 +198,7 @@ public class RoadGraph {
      * @param maxRadius Maximaler Suchradius
      * @return Der nächste Node oder null wenn keiner im Radius
      */
+    @Nullable
     public RoadNode findNearestNode(BlockPos pos, double maxRadius) {
         RoadNode nearest = findNearestNode(pos);
         if (nearest != null && nearest.distanceTo(pos) <= maxRadius) {

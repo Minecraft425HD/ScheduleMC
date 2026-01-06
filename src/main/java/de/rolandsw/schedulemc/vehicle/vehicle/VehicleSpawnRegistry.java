@@ -51,11 +51,15 @@ public class VehicleSpawnRegistry {
             if (loaded != null) {
                 dealerSpawnPoints.clear();
                 for (Map.Entry<String, List<VehicleSpawnPoint>> entry : loaded.entrySet()) {
-                    dealerSpawnPoints.put(UUID.fromString(entry.getKey()), entry.getValue());
+                    try {
+                        dealerSpawnPoints.put(UUID.fromString(entry.getKey()), entry.getValue());
+                    } catch (IllegalArgumentException e) {
+                        LOGGER.error("Invalid UUID in spawn point data: {}", entry.getKey());
+                    }
                 }
                 LOGGER.info("Fahrzeug-Spawn-Punkte geladen: {} Händler", dealerSpawnPoints.size());
             }
-        } catch (Exception e) {
+        } catch (IOException | com.google.gson.JsonSyntaxException e) {
             LOGGER.error("Fehler beim Laden der Fahrzeug-Spawn-Punkte!", e);
         }
     }
@@ -73,7 +77,7 @@ public class VehicleSpawnRegistry {
             GSON.toJson(toSave, writer);
             isDirty = false;
             LOGGER.info("Fahrzeug-Spawn-Punkte gespeichert");
-        } catch (Exception e) {
+        } catch (IOException e) {
             LOGGER.error("Fehler beim Speichern der Fahrzeug-Spawn-Punkte!", e);
         }
     }

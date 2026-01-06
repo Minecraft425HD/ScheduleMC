@@ -11,6 +11,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 
 import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -51,7 +52,7 @@ public class BountyManager extends AbstractPersistenceManager<Map<UUID, BountyDa
     /**
      * SICHERHEIT: Thread-safe Singleton mit Double-Checked Locking
      */
-    public static BountyManager getInstance(MinecraftServer server) {
+    public static BountyManager getInstance(@Nonnull MinecraftServer server) {
         BountyManager result = instance;
         if (result == null) {
             synchronized (INSTANCE_LOCK) {
@@ -77,7 +78,7 @@ public class BountyManager extends AbstractPersistenceManager<Map<UUID, BountyDa
     /**
      * Platziert automatisches Bounty bei hohem Wanted-Level
      */
-    public void createAutoBounty(UUID criminal, int wantedLevel) {
+    public void createAutoBounty(@Nonnull UUID criminal, int wantedLevel) {
         if (wantedLevel < MIN_WANTED_LEVEL_FOR_BOUNTY) {
             return; // Zu niedriger Wanted-Level
         }
@@ -115,7 +116,7 @@ public class BountyManager extends AbstractPersistenceManager<Map<UUID, BountyDa
     /**
      * Platziert manuelles Bounty (von Spieler)
      */
-    public boolean placeBounty(UUID placerUUID, UUID targetUUID, double amount, String reason) {
+    public boolean placeBounty(@Nonnull UUID placerUUID, @Nonnull UUID targetUUID, double amount, String reason) {
         // Validierung
         if (amount <= 0) {
             return false;
@@ -161,7 +162,7 @@ public class BountyManager extends AbstractPersistenceManager<Map<UUID, BountyDa
     /**
      * Löst Kopfgeld ein (nach Verhaftung/Kill)
      */
-    public boolean claimBounty(UUID hunterUUID, UUID targetUUID) {
+    public boolean claimBounty(@Nonnull UUID hunterUUID, @Nonnull UUID targetUUID) {
         BountyData bounty = activeBounties.get(targetUUID);
 
         if (bounty == null || !bounty.isActive()) {

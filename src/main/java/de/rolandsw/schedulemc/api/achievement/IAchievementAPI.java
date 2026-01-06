@@ -4,6 +4,7 @@ import de.rolandsw.schedulemc.achievement.Achievement;
 import de.rolandsw.schedulemc.achievement.AchievementCategory;
 import de.rolandsw.schedulemc.achievement.PlayerAchievements;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
@@ -82,7 +83,8 @@ public interface IAchievementAPI {
      * @return PlayerAchievements-Objekt (niemals null, wird erstellt falls nicht vorhanden)
      * @throws IllegalArgumentException wenn playerUUID null ist
      */
-    PlayerAchievements getPlayerAchievements(UUID playerUUID);
+    @Nonnull
+    PlayerAchievements getPlayerAchievements(@Nonnull UUID playerUUID);
 
     /**
      * Fügt Fortschritt zu einem Achievement hinzu (inkrementell).
@@ -95,7 +97,7 @@ public interface IAchievementAPI {
      * @param amount Hinzuzufügender Fortschritt
      * @throws IllegalArgumentException wenn Parameter null sind
      */
-    void addProgress(UUID playerUUID, String achievementId, double amount);
+    void addProgress(@Nonnull UUID playerUUID, @Nonnull String achievementId, double amount);
 
     /**
      * Setzt Fortschritt eines Achievements (absolut).
@@ -108,7 +110,7 @@ public interface IAchievementAPI {
      * @param value Der neue Fortschrittswert
      * @throws IllegalArgumentException wenn Parameter null sind
      */
-    void setProgress(UUID playerUUID, String achievementId, double value);
+    void setProgress(@Nonnull UUID playerUUID, @Nonnull String achievementId, double value);
 
     /**
      * Schaltet ein Achievement manuell frei.
@@ -120,7 +122,7 @@ public interface IAchievementAPI {
      * @return true wenn erfolgreich freigeschaltet, false wenn bereits freigeschaltet
      * @throws IllegalArgumentException wenn Parameter null sind
      */
-    boolean unlockAchievement(UUID playerUUID, String achievementId);
+    boolean unlockAchievement(@Nonnull UUID playerUUID, @Nonnull String achievementId);
 
     /**
      * Gibt ein Achievement anhand seiner ID zurück.
@@ -130,13 +132,14 @@ public interface IAchievementAPI {
      * @throws IllegalArgumentException wenn achievementId null ist
      */
     @Nullable
-    Achievement getAchievement(String achievementId);
+    Achievement getAchievement(@Nonnull String achievementId);
 
     /**
      * Gibt alle registrierten Achievements zurück.
      *
      * @return Collection aller Achievements (unveränderbare Kopie)
      */
+    @Nonnull
     Collection<Achievement> getAllAchievements();
 
     /**
@@ -146,7 +149,8 @@ public interface IAchievementAPI {
      * @return Liste aller Achievements dieser Kategorie (kann leer sein)
      * @throws IllegalArgumentException wenn category null ist
      */
-    List<Achievement> getAchievementsByCategory(AchievementCategory category);
+    @Nonnull
+    List<Achievement> getAchievementsByCategory(@Nonnull AchievementCategory category);
 
     /**
      * Gibt Achievement-Statistiken für einen Spieler zurück.
@@ -157,7 +161,8 @@ public interface IAchievementAPI {
      * @return Formatierte Statistik-Zeichenkette
      * @throws IllegalArgumentException wenn playerUUID null ist
      */
-    String getStatistics(UUID playerUUID);
+    @Nonnull
+    String getStatistics(@Nonnull UUID playerUUID);
 
     /**
      * Gibt die Gesamtanzahl registrierter Achievements zurück.
@@ -173,7 +178,7 @@ public interface IAchievementAPI {
      * @return Anzahl freigeschalteter Achievements
      * @throws IllegalArgumentException wenn playerUUID null ist
      */
-    int getUnlockedCount(UUID playerUUID);
+    int getUnlockedCount(@Nonnull UUID playerUUID);
 
     /**
      * Gibt Fortschritt eines Achievements zurück.
@@ -183,7 +188,7 @@ public interface IAchievementAPI {
      * @return Aktueller Fortschritt (0.0 wenn nicht begonnen)
      * @throws IllegalArgumentException wenn Parameter null sind
      */
-    double getProgress(UUID playerUUID, String achievementId);
+    double getProgress(@Nonnull UUID playerUUID, @Nonnull String achievementId);
 
     /**
      * Prüft ob ein Achievement freigeschaltet ist.
@@ -193,5 +198,5 @@ public interface IAchievementAPI {
      * @return true wenn freigeschaltet
      * @throws IllegalArgumentException wenn Parameter null sind
      */
-    boolean isUnlocked(UUID playerUUID, String achievementId);
+    boolean isUnlocked(@Nonnull UUID playerUUID, @Nonnull String achievementId);
 }

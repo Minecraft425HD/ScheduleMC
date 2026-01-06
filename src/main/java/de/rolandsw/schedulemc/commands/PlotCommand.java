@@ -28,6 +28,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -193,7 +195,7 @@ public class PlotCommand {
         );
     }
 
-    private static int giveWand(CommandContext<CommandSourceStack> ctx) {
+    private static int giveWand(@Nonnull CommandContext<CommandSourceStack> ctx) {
         return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot wand",
             player -> {
                 ItemStack wand = new ItemStack(ModItems.PLOT_SELECTION_TOOL.get());
@@ -1429,6 +1431,7 @@ public class PlotCommand {
     /**
      * Findet die Position des Warehouse-Blocks, auf den der Spieler schaut
      */
+    @Nullable
     private static BlockPos findWarehouseBlockPos(ServerPlayer player) {
         // Zuerst: Prüfe Block, auf den der Spieler schaut (Raycast)
         Vec3 eyePos = player.getEyePosition(1.0F);

@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.production.core.GenericQuality;
 import org.slf4j.Logger;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -59,7 +60,7 @@ public class ProductionRegistry {
     /**
      * Registriert eine neue Production
      */
-    public void register(ProductionConfig config) {
+    public void register(@Nonnull ProductionConfig config) {
         String id = config.getId();
 
         if (productions.containsKey(id)) {
@@ -79,7 +80,7 @@ public class ProductionRegistry {
     /**
      * Entfernt eine Production
      */
-    public boolean unregister(String id) {
+    public boolean unregister(@Nonnull String id) {
         ProductionConfig removed = productions.remove(id);
         if (removed != null) {
             byCategory.get(removed.getCategory()).remove(removed);
@@ -94,19 +95,21 @@ public class ProductionRegistry {
     // ═══════════════════════════════════════════════════════════
 
     @Nullable
-    public ProductionConfig get(String id) {
+    public ProductionConfig get(@Nonnull String id) {
         return productions.get(id);
     }
 
-    public boolean has(String id) {
+    public boolean has(@Nonnull String id) {
         return productions.containsKey(id);
     }
 
+    @Nonnull
     public Collection<ProductionConfig> getAll() {
         return new ArrayList<>(productions.values());
     }
 
-    public List<ProductionConfig> getByCategory(ProductionConfig.ProductionCategory category) {
+    @Nonnull
+    public List<ProductionConfig> getByCategory(@Nonnull ProductionConfig.ProductionCategory category) {
         return new ArrayList<>(byCategory.getOrDefault(category, Collections.emptyList()));
     }
 

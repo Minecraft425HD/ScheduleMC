@@ -3,6 +3,8 @@ package de.rolandsw.schedulemc.util;
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -33,7 +35,7 @@ public class BackupManager {
      * @param sourceFile Die zu sichernde Datei
      * @return true wenn erfolgreich
      */
-    public static boolean createBackup(File sourceFile) {
+    public static boolean createBackup(@Nonnull File sourceFile) {
         if (!sourceFile.exists()) {
             LOGGER.warn("Backup übersprungen - Datei existiert nicht: {}", sourceFile.getAbsolutePath());
             return false;
@@ -63,7 +65,7 @@ public class BackupManager {
      * @param targetFile Die wiederherzustellende Datei
      * @return true wenn erfolgreich
      */
-    public static boolean restoreFromBackup(File targetFile) {
+    public static boolean restoreFromBackup(@Nonnull File targetFile) {
         File latestBackup = getLatestBackup(targetFile);
 
         if (latestBackup == null) {
@@ -87,7 +89,8 @@ public class BackupManager {
      * @param targetFile Die Zieldatei
      * @return Die neueste Backup-Datei oder null
      */
-    public static File getLatestBackup(File targetFile) {
+    @Nullable
+    public static File getLatestBackup(@Nonnull File targetFile) {
         File parentDir = targetFile.getParentFile();
         if (parentDir == null || !parentDir.exists()) {
             return null;
@@ -112,7 +115,7 @@ public class BackupManager {
      *
      * @param targetFile Die Zieldatei
      */
-    private static void cleanupOldBackups(File targetFile) {
+    private static void cleanupOldBackups(@Nonnull File targetFile) {
         File parentDir = targetFile.getParentFile();
         if (parentDir == null || !parentDir.exists()) {
             return;
@@ -146,7 +149,8 @@ public class BackupManager {
      * @param targetFile Die Zieldatei
      * @return Array von Backup-Dateien (neueste zuerst)
      */
-    public static File[] listBackups(File targetFile) {
+    @Nonnull
+    public static File[] listBackups(@Nonnull File targetFile) {
         File parentDir = targetFile.getParentFile();
         if (parentDir == null || !parentDir.exists()) {
             return new File[0];
@@ -172,7 +176,7 @@ public class BackupManager {
      * @param targetFile Die Zieldatei
      * @return Anzahl der Backups
      */
-    public static int getBackupCount(File targetFile) {
+    public static int getBackupCount(@Nonnull File targetFile) {
         return listBackups(targetFile).length;
     }
 }

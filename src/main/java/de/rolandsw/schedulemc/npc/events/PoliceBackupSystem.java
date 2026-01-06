@@ -3,6 +3,8 @@ package de.rolandsw.schedulemc.npc.events;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
+
+import javax.annotation.Nullable;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.AABB;
 
@@ -168,6 +170,7 @@ public class PoliceBackupSystem {
     /**
      * Gibt die Spieler-UUID zurück, die eine Polizei verfolgt (falls vorhanden)
      */
+    @Nullable
     public static UUID getAssignedTarget(UUID policeUUID) {
         for (Map.Entry<UUID, Set<UUID>> entry : activePolice.entrySet()) {
             if (entry.getValue().contains(policeUUID)) {

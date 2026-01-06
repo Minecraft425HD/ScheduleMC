@@ -12,6 +12,7 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.lang.reflect.Type;
@@ -73,7 +74,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
     /**
      * Initialisiert den EconomyManager mit dem Server
      */
-    public static void initialize(MinecraftServer server) {
+    public static void initialize(@Nonnull MinecraftServer server) {
         if (instance == null) {
             instance = new EconomyManager();
         }
@@ -231,7 +232,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
      *
      * @param uuid The unique identifier of the player
      */
-    public static void createAccount(UUID uuid) {
+    public static void createAccount(@Nonnull UUID uuid) {
         double startBalance = getStartBalance();
         balances.put(uuid, startBalance);
         markDirty();
@@ -247,7 +248,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
      * @param uuid The unique identifier of the player
      * @return true if an account exists for this player, false otherwise
      */
-    public static boolean hasAccount(UUID uuid) {
+    public static boolean hasAccount(@Nonnull UUID uuid) {
         boolean exists = balances.containsKey(uuid);
         LOGGER.debug("hasAccount({}) = {} (current balance: {})", uuid, exists,
             exists ? balances.get(uuid) : "N/A");
@@ -263,7 +264,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
      * @param uuid The unique identifier of the player
      * @return The player's current balance in the economy system, or 0.0 if no account exists
      */
-    public static double getBalance(UUID uuid) {
+    public static double getBalance(@Nonnull UUID uuid) {
         return balances.getOrDefault(uuid, 0.0);
     }
 
@@ -276,7 +277,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
      * @param uuid The unique identifier of the player
      * @param amount The amount to deposit (must be non-negative)
      */
-    public static void deposit(UUID uuid, double amount) {
+    public static void deposit(@Nonnull UUID uuid, double amount) {
         deposit(uuid, amount, TransactionType.OTHER, null);
     }
 
@@ -296,7 +297,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
      * @param type The type of transaction for categorization
      * @param description Optional description of the transaction (can be null)
      */
-    public static void deposit(UUID uuid, double amount, TransactionType type, @Nullable String description) {
+    public static void deposit(@Nonnull UUID uuid, double amount, @Nonnull TransactionType type, @Nullable String description) {
         if (amount < 0) {
             LOGGER.warn("Versuch, negativen Betrag einzuzahlen: {}", amount);
             return;
@@ -340,7 +341,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
      * @param amount The amount to withdraw (must be non-negative)
      * @return true if the withdrawal was successful, false if insufficient funds or overdraft limit exceeded
      */
-    public static boolean withdraw(UUID uuid, double amount) {
+    public static boolean withdraw(@Nonnull UUID uuid, double amount) {
         return withdraw(uuid, amount, TransactionType.OTHER, null);
     }
 
@@ -361,7 +362,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
      * @param description Optional description of the transaction (can be null)
      * @return true if the withdrawal was successful, false if insufficient funds or overdraft limit exceeded
      */
-    public static boolean withdraw(UUID uuid, double amount, TransactionType type, @Nullable String description) {
+    public static boolean withdraw(@Nonnull UUID uuid, double amount, @Nonnull TransactionType type, @Nullable String description) {
         if (amount < 0) {
             LOGGER.warn("Versuch, negativen Betrag abzuheben: {}", amount);
             return false;
@@ -423,14 +424,14 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
      * @param uuid The unique identifier of the player
      * @param amount The new balance to set (negative values are converted to 0.0)
      */
-    public static void setBalance(UUID uuid, double amount) {
+    public static void setBalance(@Nonnull UUID uuid, double amount) {
         setBalance(uuid, amount, TransactionType.ADMIN_SET, null);
     }
 
     /**
      * Setzt das Guthaben eines Spielers mit Transaktions-Logging
      */
-    public static void setBalance(UUID uuid, double amount, TransactionType type, @Nullable String description) {
+    public static void setBalance(@Nonnull UUID uuid, double amount, @Nonnull TransactionType type, @Nullable String description) {
         if (amount < 0) {
             amount = 0;
         }
@@ -482,7 +483,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
      *
      * @param uuid The unique identifier of the player whose account should be deleted
      */
-    public static void deleteAccount(UUID uuid) {
+    public static void deleteAccount(@Nonnull UUID uuid) {
         balances.remove(uuid);
         markDirty();
         LOGGER.info("Konto gelöscht: {}", uuid);
@@ -520,7 +521,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
      * @param description Optional description of the transfer (can be null)
      * @return true if the transfer was successful, false if the sender had insufficient funds or rate limit was exceeded
      */
-    public static boolean transfer(UUID from, UUID to, double amount, @Nullable String description) {
+    public static boolean transfer(@Nonnull UUID from, @Nonnull UUID to, double amount, @Nullable String description) {
         // Rate Limiting für Transfers
         if (!transferLimiter.allowOperation(from)) {
             LOGGER.warn("Rate limit exceeded for transfer by player {}", from);

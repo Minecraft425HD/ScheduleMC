@@ -218,6 +218,7 @@ public class MessageManager {
      * @return the conversation if it exists, or null if no conversation exists
      * @see #getOrCreateConversation(UUID, UUID, String, boolean)
      */
+    @Nullable
     public static Conversation getConversation(UUID playerUUID, UUID participantUUID) {
         Map<UUID, Conversation> convMap = playerConversations.get(playerUUID);
         return convMap != null ? convMap.get(participantUUID) : null;

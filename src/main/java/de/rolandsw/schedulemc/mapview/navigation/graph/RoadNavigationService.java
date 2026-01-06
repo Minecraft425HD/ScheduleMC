@@ -7,6 +7,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import org.slf4j.Logger;
 
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -434,6 +435,7 @@ public class RoadNavigationService {
     /**
      * Gibt den nächsten Wegpunkt auf dem Pfad zurück
      */
+    @Nullable
     public BlockPos getNextWaypoint() {
         if (simplifiedPath.isEmpty() || currentPathIndex >= simplifiedPath.size()) {
             return null;

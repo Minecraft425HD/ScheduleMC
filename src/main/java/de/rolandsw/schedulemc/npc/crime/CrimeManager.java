@@ -9,6 +9,7 @@ import de.rolandsw.schedulemc.util.GsonHelper;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -84,7 +85,7 @@ public class CrimeManager {
     /**
      * Gibt aktuelles Wanted-Level zurück
      */
-    public static int getWantedLevel(UUID playerUUID) {
+    public static int getWantedLevel(@Nonnull UUID playerUUID) {
         return wantedLevels.getOrDefault(playerUUID, 0);
     }
 
@@ -92,7 +93,7 @@ public class CrimeManager {
      * Fügt Wanted-Level hinzu (max 5)
      * SICHERHEIT: Atomare Operation für Thread-Sicherheit
      */
-    public static void addWantedLevel(UUID playerUUID, int amount, long currentDay) {
+    public static void addWantedLevel(@Nonnull UUID playerUUID, int amount, long currentDay) {
         wantedLevels.compute(playerUUID, (key, current) -> {
             int currentLevel = current != null ? current : 0;
             return Math.min(MAX_WANTED_LEVEL, currentLevel + amount);
@@ -105,7 +106,7 @@ public class CrimeManager {
     /**
      * Setzt Wanted-Level auf 0 (z.B. nach Festnahme)
      */
-    public static void clearWantedLevel(UUID playerUUID) {
+    public static void clearWantedLevel(@Nonnull UUID playerUUID) {
         wantedLevels.remove(playerUUID);
         lastCrimeDay.remove(playerUUID);
         markDirty();
@@ -114,7 +115,7 @@ public class CrimeManager {
     /**
      * Setzt Wanted-Level auf einen bestimmten Wert
      */
-    public static void setWantedLevel(UUID playerUUID, int level) {
+    public static void setWantedLevel(@Nonnull UUID playerUUID, int level) {
         if (level <= 0) {
             clearWantedLevel(playerUUID);
         } else {
@@ -156,7 +157,7 @@ public class CrimeManager {
     /**
      * Startet Escape-Timer (Spieler versteckt sich vor Polizei)
      */
-    public static void startEscapeTimer(UUID playerUUID, long currentTick) {
+    public static void startEscapeTimer(@Nonnull UUID playerUUID, long currentTick) {
         escapeTimers.put(playerUUID, currentTick);
         LOGGER.info("Player {} Escape-Timer gestartet (Tick {})", playerUUID, currentTick);
     }
@@ -294,11 +295,19 @@ public class CrimeManager {
             lastCrimeDay.clear();
 
             for (Map.Entry<String, Integer> entry : data.wantedLevels.entrySet()) {
-                wantedLevels.put(UUID.fromString(entry.getKey()), entry.getValue());
+                try {
+                    wantedLevels.put(UUID.fromString(entry.getKey()), entry.getValue());
+                } catch (IllegalArgumentException e) {
+                    LOGGER.error("Invalid UUID in wantedLevels: {}", entry.getKey());
+                }
             }
 
             for (Map.Entry<String, Long> entry : data.lastCrimeDay.entrySet()) {
-                lastCrimeDay.put(UUID.fromString(entry.getKey()), entry.getValue());
+                try {
+                    lastCrimeDay.put(UUID.fromString(entry.getKey()), entry.getValue());
+                } catch (IllegalArgumentException e) {
+                    LOGGER.error("Invalid UUID in lastCrimeDay: {}", entry.getKey());
+                }
             }
         }
 

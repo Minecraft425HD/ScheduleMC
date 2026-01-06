@@ -224,6 +224,7 @@ public class TextureAtlas extends AbstractTexture {
         }
     }
 
+    @Nullable
     public Sprite registerIconForBufferedImage(Object name, BufferedImage bufferedImage) {
         if (bufferedImage == null) {
             MapViewConstants.getLogger().warn("Cannot register icon for null BufferedImage: " + name);

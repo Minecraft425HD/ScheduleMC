@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.lang.reflect.Type;
@@ -57,14 +58,14 @@ public class WalletManager {
     /**
      * Gibt Geldbörsen-Guthaben zurück
      */
-    public static double getBalance(UUID playerUUID) {
+    public static double getBalance(@Nonnull UUID playerUUID) {
         return wallets.getOrDefault(playerUUID, 0.0);
     }
 
     /**
      * Setzt Geldbörsen-Guthaben
      */
-    public static void setBalance(UUID playerUUID, double amount) {
+    public static void setBalance(@Nonnull UUID playerUUID, double amount) {
         wallets.put(playerUUID, Math.max(0, amount));
         persistence.markDirty();
     }
@@ -73,7 +74,7 @@ public class WalletManager {
      * Fügt Geld hinzu
      * SICHERHEIT: Atomare Operation für Thread-Sicherheit
      */
-    public static void addMoney(UUID playerUUID, double amount) {
+    public static void addMoney(@Nonnull UUID playerUUID, double amount) {
         wallets.compute(playerUUID, (key, current) -> {
             if (current == null) current = 0.0;
             return current + amount;
@@ -85,7 +86,7 @@ public class WalletManager {
      * Entfernt Geld (wenn genug vorhanden)
      * SICHERHEIT: Atomare Operation für Thread-Sicherheit
      */
-    public static boolean removeMoney(UUID playerUUID, double amount) {
+    public static boolean removeMoney(@Nonnull UUID playerUUID, double amount) {
         final boolean[] success = {false};
         wallets.compute(playerUUID, (key, current) -> {
             if (current == null) current = 0.0;
@@ -142,7 +143,13 @@ public class WalletManager {
         protected void onDataLoaded(Map<String, Double> data) {
             // SICHERHEIT: Thread-safe clear und fill
             wallets.clear();
-            data.forEach((key, value) -> wallets.put(UUID.fromString(key), value));
+            data.forEach((key, value) -> {
+                try {
+                    wallets.put(UUID.fromString(key), value);
+                } catch (IllegalArgumentException e) {
+                    LOGGER.error("Invalid UUID in wallet data: {}", key);
+                }
+            });
         }
 
         @Override

@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.mapview.navigation.graph;
 
 import net.minecraft.core.BlockPos;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -128,6 +129,7 @@ public class RoadSegment {
      * @param node Der bekannte Node
      * @return Der andere Node oder null wenn node nicht Teil des Segments ist
      */
+    @Nullable
     public RoadNode getOtherNode(RoadNode node) {
         if (node.equals(startNode)) {
             return endNode;

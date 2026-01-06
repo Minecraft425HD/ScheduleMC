@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import de.rolandsw.schedulemc.commands.CommandExecutor;
 import de.rolandsw.schedulemc.util.InputValidation;
 import net.minecraft.commands.CommandSourceStack;
@@ -12,6 +13,7 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 /**
@@ -49,7 +51,7 @@ public class BountyCommand {
     /**
      * Zeigt alle aktiven Bounties
      */
-    private static int listBounties(CommandContext<CommandSourceStack> ctx) {
+    private static int listBounties(@Nonnull CommandContext<CommandSourceStack> ctx) {
         return CommandExecutor.executePlayerCommand(ctx, "Fehler beim Abrufen der Kopfgelder",
             player -> {
                 BountyManager manager = BountyManager.getInstance(player.getServer());
@@ -137,7 +139,7 @@ public class BountyCommand {
                             "- Ungültiges Ziel (du selbst)"
                         );
                     }
-                } catch (Exception e) {
+                } catch (CommandSyntaxException e) {
                     CommandExecutor.sendFailure(ctx.getSource(),
                         "Fehler beim Platzieren: " + e.getMessage());
                 }
@@ -184,7 +186,7 @@ public class BountyCommand {
                             bounty.getFormattedDescription()
                         ));
                     }
-                } catch (Exception e) {
+                } catch (CommandSyntaxException e) {
                     CommandExecutor.sendFailure(ctx.getSource(),
                         "Spieler nicht gefunden!");
                 }

@@ -10,6 +10,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -50,7 +51,7 @@ public class SavingsAccountManager extends AbstractPersistenceManager<Map<UUID, 
     /**
      * SICHERHEIT: Double-Checked Locking für Thread-Safety
      */
-    public static SavingsAccountManager getInstance(MinecraftServer server) {
+    public static SavingsAccountManager getInstance(@Nonnull MinecraftServer server) {
         SavingsAccountManager localRef = instance;
         if (localRef == null) {
             synchronized (SavingsAccountManager.class) {
@@ -67,7 +68,7 @@ public class SavingsAccountManager extends AbstractPersistenceManager<Map<UUID, 
     /**
      * Erstellt ein neues Sparkonto
      */
-    public boolean createSavingsAccount(UUID playerUUID, double initialDeposit) {
+    public boolean createSavingsAccount(@Nonnull UUID playerUUID, double initialDeposit) {
         double minDeposit = ModConfigHandler.COMMON.SAVINGS_MIN_DEPOSIT.get();
         if (initialDeposit < minDeposit) {
             return false;
@@ -108,7 +109,7 @@ public class SavingsAccountManager extends AbstractPersistenceManager<Map<UUID, 
     /**
      * Zahlt auf Sparkonto ein
      */
-    public boolean depositToSavings(UUID playerUUID, String accountId, double amount) {
+    public boolean depositToSavings(@Nonnull UUID playerUUID, @Nonnull String accountId, double amount) {
         SavingsAccount account = findAccount(playerUUID, accountId);
         if (account == null) {
             return false;
@@ -145,7 +146,7 @@ public class SavingsAccountManager extends AbstractPersistenceManager<Map<UUID, 
     /**
      * Hebt von Sparkonto ab
      */
-    public boolean withdrawFromSavings(UUID playerUUID, String accountId, double amount, boolean forced) {
+    public boolean withdrawFromSavings(@Nonnull UUID playerUUID, @Nonnull String accountId, double amount, boolean forced) {
         SavingsAccount account = findAccount(playerUUID, accountId);
         if (account == null) {
             return false;
@@ -196,7 +197,7 @@ public class SavingsAccountManager extends AbstractPersistenceManager<Map<UUID, 
     /**
      * Schließt Sparkonto
      */
-    public boolean closeSavingsAccount(UUID playerUUID, String accountId) {
+    public boolean closeSavingsAccount(@Nonnull UUID playerUUID, @Nonnull String accountId) {
         SavingsAccount account = findAccount(playerUUID, accountId);
         if (account == null) {
             return false;

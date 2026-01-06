@@ -8,6 +8,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import javax.annotation.Nonnull;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -30,7 +32,7 @@ public class CustomSkinManager {
                 try {
                     Minecraft.getInstance().getTextureManager().release(eldest.getValue());
                     ScheduleMC.LOGGER.debug("LRU evicted skin: {}", eldest.getKey());
-                } catch (Exception e) {
+                } catch (Exception e) {  // Intentionally catching all exceptions - texture cleanup must not fail cache eviction
                     ScheduleMC.LOGGER.debug("Failed to release texture for evicted skin {}: {}", eldest.getKey(), e.getMessage());
                 }
                 return true;
@@ -47,7 +49,7 @@ public class CustomSkinManager {
      * @param skinFileName Der Dateiname des Skins (z.B. "my_skin.png")
      * @return Die ResourceLocation der geladenen Textur, oder DEFAULT_SKIN bei Fehler
      */
-    public static ResourceLocation loadCustomSkin(String skinFileName) {
+    public static ResourceLocation loadCustomSkin(@Nonnull String skinFileName) {
         // Prüfe, ob der Skin bereits geladen wurde
         if (loadedSkins.containsKey(skinFileName)) {
             return loadedSkins.get(skinFileName);
@@ -93,7 +95,7 @@ public class CustomSkinManager {
 
                 return textureLocation;
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             ScheduleMC.LOGGER.error("Failed to load custom skin: {}", skinFileName, e);
             return DEFAULT_SKIN;
         }
@@ -108,7 +110,7 @@ public class CustomSkinManager {
             try {
                 Minecraft.getInstance().getTextureManager().release(entry.getValue());
                 ScheduleMC.LOGGER.info("Unloaded custom skin: {}", entry.getKey());
-            } catch (Exception e) {
+            } catch (Exception e) {  // Intentionally catching all exceptions - texture cleanup is best-effort
                 ScheduleMC.LOGGER.warn("Failed to unload skin: {}", entry.getKey(), e);
             }
         }
@@ -118,13 +120,13 @@ public class CustomSkinManager {
     /**
      * Entlädt einen spezifischen Skin
      */
-    public static void unloadSkin(String skinFileName) {
+    public static void unloadSkin(@Nonnull String skinFileName) {
         ResourceLocation location = loadedSkins.remove(skinFileName);
         if (location != null) {
             try {
                 Minecraft.getInstance().getTextureManager().release(location);
                 ScheduleMC.LOGGER.info("Unloaded custom skin: {}", skinFileName);
-            } catch (Exception e) {
+            } catch (Exception e) {  // Intentionally catching all exceptions - texture cleanup is best-effort
                 ScheduleMC.LOGGER.warn("Failed to unload skin: {}", skinFileName, e);
             }
         }
@@ -133,7 +135,7 @@ public class CustomSkinManager {
     /**
      * Prüft, ob ein Skin bereits geladen wurde
      */
-    public static boolean isSkinLoaded(String skinFileName) {
+    public static boolean isSkinLoaded(@Nonnull String skinFileName) {
         return loadedSkins.containsKey(skinFileName);
     }
 }

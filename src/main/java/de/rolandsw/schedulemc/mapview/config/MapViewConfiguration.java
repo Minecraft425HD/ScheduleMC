@@ -84,26 +84,25 @@ public class MapViewConfiguration implements SettingsManager {
 
         try {
             if (this.settingsFile.exists()) {
-                BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(this.settingsFile), StandardCharsets.UTF_8.newDecoder()));
-                String sCurrentLine;
-                while ((sCurrentLine = in.readLine()) != null) {
-                    String[] curLine = sCurrentLine.split(":");
-                    switch (curLine[0]) {
-                        case "Zoom Level" -> this.zoom = Math.max(0, Math.min(4, Integer.parseInt(curLine[1])));
-                        case "Old North" -> this.oldNorth = Boolean.parseBoolean(curLine[1]);
-                        case "MapViewRenderer Corner" -> this.mapCorner = Math.max(0, Math.min(3, Integer.parseInt(curLine[1])));
-                        case "MapViewRenderer Size" -> this.sizeModifier = Math.max(-1, Math.min(4, Integer.parseInt(curLine[1])));
-                        case "Zoom Key" -> this.bindKey(this.keyBindZoom, curLine[1]);
-                        case "Fullscreen Key" -> this.bindKey(this.keyBindFullscreen, curLine[1]);
-                        case "Menu Key" -> this.bindKey(this.keyBindMenu, curLine[1]);
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(this.settingsFile), StandardCharsets.UTF_8.newDecoder()))) {
+                    String sCurrentLine;
+                    while ((sCurrentLine = in.readLine()) != null) {
+                        String[] curLine = sCurrentLine.split(":");
+                        switch (curLine[0]) {
+                            case "Zoom Level" -> this.zoom = Math.max(0, Math.min(4, Integer.parseInt(curLine[1])));
+                            case "Old North" -> this.oldNorth = Boolean.parseBoolean(curLine[1]);
+                            case "MapViewRenderer Corner" -> this.mapCorner = Math.max(0, Math.min(3, Integer.parseInt(curLine[1])));
+                            case "MapViewRenderer Size" -> this.sizeModifier = Math.max(-1, Math.min(4, Integer.parseInt(curLine[1])));
+                            case "Zoom Key" -> this.bindKey(this.keyBindZoom, curLine[1]);
+                            case "Fullscreen Key" -> this.bindKey(this.keyBindFullscreen, curLine[1]);
+                            case "Menu Key" -> this.bindKey(this.keyBindMenu, curLine[1]);
+                        }
+                    }
+                    KeyMapping.resetMapping();
+                    for (SubSettingsManager subSettingsManager : this.subSettingsManagers) {
+                        subSettingsManager.loadSettings(this.settingsFile);
                     }
                 }
-                KeyMapping.resetMapping();
-                for (SubSettingsManager subSettingsManager : this.subSettingsManagers) {
-                    subSettingsManager.loadSettings(this.settingsFile);
-                }
-
-                in.close();
             }
 
             this.saveAll();
@@ -130,8 +129,7 @@ public class MapViewConfiguration implements SettingsManager {
 
         this.settingsFile = new File(settingsFileDir, "mapview.properties");
 
-        try {
-            PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(this.settingsFile), StandardCharsets.UTF_8.newEncoder())));
+        try (PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(this.settingsFile), StandardCharsets.UTF_8.newEncoder())))) {
             out.println("Zoom Level:" + this.zoom);
             out.println("Old North:" + this.oldNorth);
             out.println("MapViewRenderer Corner:" + this.mapCorner);
@@ -143,8 +141,6 @@ public class MapViewConfiguration implements SettingsManager {
             for (SubSettingsManager subSettingsManager : this.subSettingsManagers) {
                 subSettingsManager.saveAll(out);
             }
-
-            out.close();
         } catch (FileNotFoundException var5) {
             MessageUtils.chatInfo("§EError Saving Settings " + var5.getLocalizedMessage());
         }

@@ -62,7 +62,7 @@ public class InterestManager extends AbstractPersistenceManager<Map<UUID, Long>>
     /**
      * SICHERHEIT: Double-Checked Locking für Thread-Safety
      */
-    public static InterestManager getInstance(MinecraftServer server) {
+    public static InterestManager getInstance(@Nonnull MinecraftServer server) {
         InterestManager localRef = instance;
         if (localRef == null) {
             synchronized (InterestManager.class) {

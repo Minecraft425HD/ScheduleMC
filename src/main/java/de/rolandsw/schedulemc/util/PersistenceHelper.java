@@ -1,9 +1,11 @@
 package de.rolandsw.schedulemc.util;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileReader;
@@ -111,7 +113,8 @@ public class PersistenceHelper {
      * @param componentName Name für Logging (z.B. "EconomyManager")
      * @return LoadResult mit Daten oder Fehler
      */
-    public static <T> LoadResult<T> load(File file, Gson gson, Type type, String componentName) {
+    @Nonnull
+    public static <T> LoadResult<T> load(@Nonnull File file, @Nonnull Gson gson, @Nonnull Type type, @Nonnull String componentName) {
         if (!file.exists()) {
             LOGGER.info("{}: Keine Datei gefunden, starte mit leeren Daten", componentName);
             return LoadResult.noFile();
@@ -122,7 +125,7 @@ public class PersistenceHelper {
             LOGGER.info("{}: Daten erfolgreich geladen", componentName);
             return LoadResult.success(data);
 
-        } catch (Exception e) {
+        } catch (IOException | JsonSyntaxException e) {
             LOGGER.error("{}: Fehler beim Laden der Daten", componentName, e);
 
             // Versuch Backup wiederherzustellen
@@ -133,7 +136,7 @@ public class PersistenceHelper {
                     LOGGER.info("{}: Erfolgreich von Backup wiederhergestellt", componentName);
                     return LoadResult.recoveredFromBackup(data);
 
-                } catch (Exception backupError) {
+                } catch (IOException | JsonSyntaxException backupError) {
                     LOGGER.error("{}: KRITISCH: Backup-Wiederherstellung fehlgeschlagen!", componentName, backupError);
                     preserveCorruptFile(file, componentName);
                     return LoadResult.failure("Backup recovery failed: " + backupError.getMessage());
@@ -155,7 +158,8 @@ public class PersistenceHelper {
      * @param componentName Name für Logging
      * @return SaveResult mit Erfolg oder Fehler
      */
-    public static <T> SaveResult save(File file, Gson gson, T data, String componentName) {
+    @Nonnull
+    public static <T> SaveResult save(@Nonnull File file, @Nonnull Gson gson, @Nonnull T data, @Nonnull String componentName) {
         try {
             file.getParentFile().mkdirs();
 
@@ -180,7 +184,7 @@ public class PersistenceHelper {
             LOGGER.debug("{}: Daten erfolgreich gespeichert", componentName);
             return SaveResult.success();
 
-        } catch (Exception e) {
+        } catch (IOException e) {
             LOGGER.error("{}: KRITISCH: Fehler beim Speichern!", componentName, e);
 
             // Retry einmal
@@ -205,7 +209,7 @@ public class PersistenceHelper {
 
     // ========== Private Hilfsmethoden ==========
 
-    private static <T> T loadFromFile(File file, Gson gson, Type type) throws Exception {
+    private static <T> T loadFromFile(File file, Gson gson, Type type) throws IOException, JsonSyntaxException {
         try (FileReader reader = new FileReader(file)) {
             T data = gson.fromJson(reader, type);
 
@@ -236,7 +240,7 @@ public class PersistenceHelper {
             LOGGER.info("{}: Retry erfolgreich", componentName);
             return SaveResult.success();
 
-        } catch (Exception retryError) {
+        } catch (IOException | InterruptedException retryError) {
             LOGGER.error("{}: KRITISCH: Retry fehlgeschlagen!", componentName, retryError);
             return SaveResult.failure("Retry failed: " + retryError.getMessage());
         }
@@ -258,8 +262,9 @@ public class PersistenceHelper {
     /**
      * Gibt Health-Info für einen Datei-basierten Manager zurück
      */
-    public static String getHealthInfo(File file, boolean isHealthy, @Nullable String lastError,
-                                       String details) {
+    @Nonnull
+    public static String getHealthInfo(@Nonnull File file, boolean isHealthy, @Nullable String lastError,
+                                       @Nonnull String details) {
         if (isHealthy) {
             return String.format("§aGESUND§r - %s, %d Backups verfügbar",
                 details, BackupManager.getBackupCount(file));

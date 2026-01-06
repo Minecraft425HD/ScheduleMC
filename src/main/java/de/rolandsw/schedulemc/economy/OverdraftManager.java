@@ -9,6 +9,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -45,7 +46,7 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
     /**
      * SICHERHEIT: Double-Checked Locking für Thread-Safety
      */
-    public static OverdraftManager getInstance(MinecraftServer server) {
+    public static OverdraftManager getInstance(@Nonnull MinecraftServer server) {
         OverdraftManager localRef = instance;
         if (localRef == null) {
             synchronized (OverdraftManager.class) {
@@ -122,7 +123,7 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
     /**
      * Sendet Warnung an Spieler
      */
-    private void sendWarning(UUID playerUUID, double balance) {
+    private void sendWarning(@Nonnull UUID playerUUID, double balance) {
         Long lastWarning = lastWarningDay.get(playerUUID);
         if (lastWarning != null && currentDay - lastWarning < 7) {
             return; // Max 1 Warnung pro Woche
@@ -148,7 +149,7 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
     /**
      * Berechnet wöchentliche Überziehungszinsen
      */
-    private void chargeOverdraftInterest(UUID playerUUID, double balance) {
+    private void chargeOverdraftInterest(@Nonnull UUID playerUUID, double balance) {
         Long lastInterest = lastInterestDay.get(playerUUID);
         if (lastInterest != null && currentDay - lastInterest < 7) {
             return; // Nur 1x pro Woche
@@ -180,7 +181,7 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
     /**
      * Führt Pfändung durch
      */
-    private void executeSeizure(UUID playerUUID, double balance) {
+    private void executeSeizure(@Nonnull UUID playerUUID, double balance) {
         double maxLimit = ModConfigHandler.COMMON.OVERDRAFT_MAX_LIMIT.get();
         ServerPlayer player = server.getPlayerList().getPlayer(playerUUID);
 
@@ -209,7 +210,7 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
     /**
      * Gibt Info über Dispo
      */
-    public String getOverdraftInfo(UUID playerUUID) {
+    public String getOverdraftInfo(@Nonnull UUID playerUUID) {
         double balance = EconomyManager.getBalance(playerUUID);
         double overdraft = getOverdraftAmount(balance);
         double maxLimit = ModConfigHandler.COMMON.OVERDRAFT_MAX_LIMIT.get();
@@ -246,14 +247,24 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
 
         Object warningObj = data.get("lastWarningDay");
         if (warningObj instanceof Map) {
-            ((Map<String, Number>) warningObj).forEach((k, v) ->
-                lastWarningDay.put(UUID.fromString(k), v.longValue()));
+            ((Map<String, Number>) warningObj).forEach((k, v) -> {
+                try {
+                    lastWarningDay.put(UUID.fromString(k), v.longValue());
+                } catch (IllegalArgumentException e) {
+                    LOGGER.error("Invalid UUID in lastWarningDay: {}", k);
+                }
+            });
         }
 
         Object interestObj = data.get("lastInterestDay");
         if (interestObj instanceof Map) {
-            ((Map<String, Number>) interestObj).forEach((k, v) ->
-                lastInterestDay.put(UUID.fromString(k), v.longValue()));
+            ((Map<String, Number>) interestObj).forEach((k, v) -> {
+                try {
+                    lastInterestDay.put(UUID.fromString(k), v.longValue());
+                } catch (IllegalArgumentException e) {
+                    LOGGER.error("Invalid UUID in lastInterestDay: {}", k);
+                }
+            });
         }
     }
 

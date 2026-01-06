@@ -5,6 +5,7 @@ import de.rolandsw.schedulemc.config.ModConfigHandler;
 import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
 
+import javax.annotation.Nonnull;
 import java.util.UUID;
 
 /**
@@ -37,7 +38,7 @@ public class FeeManager {
      * Zieht ATM-Gebühr ab und transferiert an Staatskasse
      * @return true wenn erfolgreich, false wenn nicht genug Guthaben
      */
-    public static boolean chargeATMFee(UUID playerUUID, MinecraftServer server) {
+    public static boolean chargeATMFee(@Nonnull UUID playerUUID, @Nonnull MinecraftServer server) {
         if (EconomyManager.withdraw(playerUUID, ATM_FEE, TransactionType.ATM_FEE, "ATM-Gebühr")) {
             StateAccount.getInstance(server).deposit(ATM_FEE, "ATM-Gebühr");
             LOGGER.debug("ATM-Gebühr {} € von {} abgezogen", ATM_FEE, playerUUID);
@@ -50,7 +51,7 @@ public class FeeManager {
      * Zieht Transfer-Gebühr ab und transferiert an Staatskasse
      * @return true wenn erfolgreich, false wenn nicht genug Guthaben
      */
-    public static boolean chargeTransferFee(UUID playerUUID, double transferAmount, MinecraftServer server) {
+    public static boolean chargeTransferFee(@Nonnull UUID playerUUID, double transferAmount, @Nonnull MinecraftServer server) {
         double fee = getTransferFee(transferAmount);
         if (EconomyManager.withdraw(playerUUID, fee, TransactionType.TRANSFER_FEE,
                 String.format("Transfer-Gebühr (%.2f%%)", TRANSFER_FEE_PERCENTAGE * 100))) {
@@ -64,14 +65,14 @@ public class FeeManager {
     /**
      * Prüft ob Spieler sich ATM-Gebühr leisten kann
      */
-    public static boolean canAffordATMFee(UUID playerUUID) {
+    public static boolean canAffordATMFee(@Nonnull UUID playerUUID) {
         return EconomyManager.getBalance(playerUUID) >= ATM_FEE;
     }
 
     /**
      * Prüft ob Spieler sich Transfer + Gebühr leisten kann
      */
-    public static boolean canAffordTransfer(UUID playerUUID, double transferAmount) {
+    public static boolean canAffordTransfer(@Nonnull UUID playerUUID, double transferAmount) {
         double fee = getTransferFee(transferAmount);
         double totalCost = transferAmount + fee;
         return EconomyManager.getBalance(playerUUID) >= totalCost;

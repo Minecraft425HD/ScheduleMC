@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
@@ -55,7 +56,7 @@ public interface IVehicleAPI {
      * @throws IllegalArgumentException wenn Parameter null sind
      */
     @Nullable
-    EntityGenericVehicle spawnVehicle(ServerLevel level, BlockPos position, String vehicleType);
+    EntityGenericVehicle spawnVehicle(@Nonnull ServerLevel level, @Nonnull BlockPos position, @Nonnull String vehicleType);
 
     /**
      * Setzt den Besitzer eines Fahrzeugs.
@@ -64,7 +65,7 @@ public interface IVehicleAPI {
      * @param ownerUUID Die UUID des neuen Besitzers
      * @throws IllegalArgumentException wenn Parameter null sind
      */
-    void setVehicleOwner(EntityGenericVehicle vehicle, UUID ownerUUID);
+    void setVehicleOwner(@Nonnull EntityGenericVehicle vehicle, @Nonnull UUID ownerUUID);
 
     /**
      * Gibt den Besitzer eines Fahrzeugs zurück.
@@ -74,7 +75,7 @@ public interface IVehicleAPI {
      * @throws IllegalArgumentException wenn vehicle null ist
      */
     @Nullable
-    UUID getVehicleOwner(EntityGenericVehicle vehicle);
+    UUID getVehicleOwner(@Nonnull EntityGenericVehicle vehicle);
 
     /**
      * Tankt ein Fahrzeug.
@@ -84,7 +85,7 @@ public interface IVehicleAPI {
      * @return true wenn erfolgreich, false wenn Tank voll
      * @throws IllegalArgumentException wenn Parameter ungültig
      */
-    boolean refuelVehicle(EntityGenericVehicle vehicle, double amount);
+    boolean refuelVehicle(@Nonnull EntityGenericVehicle vehicle, double amount);
 
     /**
      * Gibt den aktuellen Kraftstoffstand zurück.
@@ -93,7 +94,7 @@ public interface IVehicleAPI {
      * @return Kraftstoffstand in Litern
      * @throws IllegalArgumentException wenn vehicle null ist
      */
-    double getFuelLevel(EntityGenericVehicle vehicle);
+    double getFuelLevel(@Nonnull EntityGenericVehicle vehicle);
 
     /**
      * Gibt die maximale Tankkapazität zurück.
@@ -102,7 +103,7 @@ public interface IVehicleAPI {
      * @return Tankkapazität in Litern
      * @throws IllegalArgumentException wenn vehicle null ist
      */
-    double getFuelCapacity(EntityGenericVehicle vehicle);
+    double getFuelCapacity(@Nonnull EntityGenericVehicle vehicle);
 
     /**
      * Gibt alle Fahrzeuge eines Spielers zurück.
@@ -112,7 +113,8 @@ public interface IVehicleAPI {
      * @return Liste aller Fahrzeuge
      * @throws IllegalArgumentException wenn Parameter null sind
      */
-    List<EntityGenericVehicle> getPlayerVehicles(ServerLevel level, UUID ownerUUID);
+    @Nonnull
+    List<EntityGenericVehicle> getPlayerVehicles(@Nonnull ServerLevel level, @Nonnull UUID ownerUUID);
 
     /**
      * Entfernt ein Fahrzeug aus der Welt.
@@ -120,5 +122,5 @@ public interface IVehicleAPI {
      * @param vehicle Das zu entfernende Fahrzeug
      * @throws IllegalArgumentException wenn vehicle null ist
      */
-    void removeVehicle(EntityGenericVehicle vehicle);
+    void removeVehicle(@Nonnull EntityGenericVehicle vehicle);
 }

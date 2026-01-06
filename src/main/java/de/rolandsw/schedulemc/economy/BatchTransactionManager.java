@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -86,14 +87,14 @@ public class BatchTransactionManager {
     /**
      * Fügt Deposit hinzu
      */
-    public BatchTransactionManager deposit(UUID account, double amount) {
+    public BatchTransactionManager deposit(@Nonnull UUID account, double amount) {
         return deposit(account, amount, TransactionType.OTHER, null);
     }
 
     /**
      * Fügt Deposit mit Type und Description hinzu
      */
-    public BatchTransactionManager deposit(UUID account, double amount, TransactionType type, @Nullable String description) {
+    public BatchTransactionManager deposit(@Nonnull UUID account, double amount, TransactionType type, @Nullable String description) {
         if (amount < 0) {
             LOGGER.warn("Attempted to add negative deposit: {}", amount);
             return this;
@@ -105,14 +106,14 @@ public class BatchTransactionManager {
     /**
      * Fügt Withdrawal hinzu
      */
-    public BatchTransactionManager withdraw(UUID account, double amount) {
+    public BatchTransactionManager withdraw(@Nonnull UUID account, double amount) {
         return withdraw(account, amount, TransactionType.OTHER, null);
     }
 
     /**
      * Fügt Withdrawal mit Type und Description hinzu
      */
-    public BatchTransactionManager withdraw(UUID account, double amount, TransactionType type, @Nullable String description) {
+    public BatchTransactionManager withdraw(@Nonnull UUID account, double amount, TransactionType type, @Nullable String description) {
         if (amount < 0) {
             LOGGER.warn("Attempted to add negative withdrawal: {}", amount);
             return this;
@@ -124,14 +125,14 @@ public class BatchTransactionManager {
     /**
      * Fügt Transfer hinzu
      */
-    public BatchTransactionManager transfer(UUID from, UUID to, double amount) {
+    public BatchTransactionManager transfer(@Nonnull UUID from, @Nonnull UUID to, double amount) {
         return transfer(from, to, amount, null);
     }
 
     /**
      * Fügt Transfer mit Description hinzu
      */
-    public BatchTransactionManager transfer(UUID from, UUID to, double amount, @Nullable String description) {
+    public BatchTransactionManager transfer(@Nonnull UUID from, @Nonnull UUID to, double amount, @Nullable String description) {
         if (amount < 0) {
             LOGGER.warn("Attempted to add negative transfer: {}", amount);
             return this;
@@ -149,14 +150,14 @@ public class BatchTransactionManager {
      *
      * @param amounts Map<UUID, Double> - Account → Amount
      */
-    public BatchTransactionManager batchDeposit(Map<UUID, Double> amounts) {
+    public BatchTransactionManager batchDeposit(@Nonnull Map<UUID, Double> amounts) {
         return batchDeposit(amounts, TransactionType.OTHER, null);
     }
 
     /**
      * Fügt mehrere Deposits mit Type hinzu
      */
-    public BatchTransactionManager batchDeposit(Map<UUID, Double> amounts, TransactionType type, @Nullable String description) {
+    public BatchTransactionManager batchDeposit(@Nonnull Map<UUID, Double> amounts, TransactionType type, @Nullable String description) {
         for (Map.Entry<UUID, Double> entry : amounts.entrySet()) {
             deposit(entry.getKey(), entry.getValue(), type, description);
         }
@@ -166,14 +167,14 @@ public class BatchTransactionManager {
     /**
      * Fügt mehrere Withdrawals auf einmal hinzu
      */
-    public BatchTransactionManager batchWithdraw(Map<UUID, Double> amounts) {
+    public BatchTransactionManager batchWithdraw(@Nonnull Map<UUID, Double> amounts) {
         return batchWithdraw(amounts, TransactionType.OTHER, null);
     }
 
     /**
      * Fügt mehrere Withdrawals mit Type hinzu
      */
-    public BatchTransactionManager batchWithdraw(Map<UUID, Double> amounts, TransactionType type, @Nullable String description) {
+    public BatchTransactionManager batchWithdraw(@Nonnull Map<UUID, Double> amounts, TransactionType type, @Nullable String description) {
         for (Map.Entry<UUID, Double> entry : amounts.entrySet()) {
             withdraw(entry.getKey(), entry.getValue(), type, description);
         }

@@ -9,6 +9,8 @@ import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3d;
+
+import javax.annotation.Nullable;
 import de.rolandsw.schedulemc.vehicle.Main;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -88,6 +90,7 @@ public abstract class EntityVehicleBase extends Entity {
         return 1.6D;
     }
 
+    @Nullable
     public Player getDriver() {
         List<Entity> passengers = getPassengers();
         if (passengers.size() <= 0) {

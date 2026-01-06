@@ -9,6 +9,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -46,7 +47,7 @@ public class LoanManager extends AbstractPersistenceManager<Map<UUID, Loan>> {
     /**
      * SICHERHEIT: Double-Checked Locking für Thread-Safety
      */
-    public static LoanManager getInstance(MinecraftServer server) {
+    public static LoanManager getInstance(@Nonnull MinecraftServer server) {
         LoanManager localRef = instance;
         if (localRef == null) {
             synchronized (LoanManager.class) {
@@ -63,7 +64,7 @@ public class LoanManager extends AbstractPersistenceManager<Map<UUID, Loan>> {
     /**
      * Beantragt einen Kredit
      */
-    public boolean applyForLoan(UUID playerUUID, Loan.LoanType type) {
+    public boolean applyForLoan(@Nonnull UUID playerUUID, Loan.LoanType type) {
         // Prüfe ob bereits Kredit aktiv
         if (hasActiveLoan(playerUUID)) {
             return false;
@@ -170,7 +171,7 @@ public class LoanManager extends AbstractPersistenceManager<Map<UUID, Loan>> {
     /**
      * Zahlt Kredit vorzeitig zurück
      */
-    public boolean repayLoan(UUID playerUUID) {
+    public boolean repayLoan(@Nonnull UUID playerUUID) {
         Loan loan = activeLoans.get(playerUUID);
         if (loan == null) {
             return false;

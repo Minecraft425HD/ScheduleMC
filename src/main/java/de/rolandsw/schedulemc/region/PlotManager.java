@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.region;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.economy.ShopAccountManager;
@@ -12,6 +13,7 @@ import net.minecraft.core.BlockPos;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -83,7 +85,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
      * @return The newly created PlotRegion instance
      * @throws IllegalArgumentException if the region dimensions are invalid or price is negative
      */
-    public static PlotRegion createPlot(BlockPos pos1, BlockPos pos2, double price) {
+    public static PlotRegion createPlot(@Nonnull BlockPos pos1, @Nonnull BlockPos pos2, double price) {
         return createPlot(pos1, pos2, null, PlotType.RESIDENTIAL, price);
     }
 
@@ -104,7 +106,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
      * @return The newly created PlotRegion instance
      * @throws IllegalArgumentException if region dimensions are invalid, name format is invalid, or price is negative
      */
-    public static PlotRegion createPlot(BlockPos pos1, BlockPos pos2, String customName, PlotType type, double price) {
+    public static PlotRegion createPlot(@Nonnull BlockPos pos1, @Nonnull BlockPos pos2, String customName, PlotType type, double price) {
         // SICHERHEIT: Validiere Eingaben
         InputValidation.Result regionResult = InputValidation.validatePlotRegion(pos1, pos2);
         if (!regionResult.isValid()) {
@@ -185,7 +187,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
      * @return Der Plot oder null
      */
     @Nullable
-    public static PlotRegion getPlotAt(BlockPos pos) {
+    public static PlotRegion getPlotAt(@Nonnull BlockPos pos) {
         // 1. Cache-Lookup (schnellster Pfad)
         PlotRegion cached = plotCache.get(pos);
         if (cached != null) {
@@ -230,7 +232,8 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
      * @param plotId The unique identifier of the plot to retrieve
      * @return The PlotRegion with the specified ID, or null if no plot exists with that ID
      */
-    public static PlotRegion getPlot(String plotId) {
+    @Nullable
+    public static PlotRegion getPlot(@Nonnull String plotId) {
         return plots.get(plotId);
     }
     
@@ -243,7 +246,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
      * @param plotId The unique identifier of the plot to check
      * @return true if a plot with this ID exists, false otherwise
      */
-    public static boolean hasPlot(String plotId) {
+    public static boolean hasPlot(@Nonnull String plotId) {
         return plots.containsKey(plotId);
     }
     
@@ -270,7 +273,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
      * @param ownerUUID The unique identifier of the player whose plots should be retrieved
      * @return A List of PlotRegion instances owned by the specified player (empty list if player owns no plots)
      */
-    public static List<PlotRegion> getPlotsByOwner(UUID ownerUUID) {
+    public static List<PlotRegion> getPlotsByOwner(@Nonnull UUID ownerUUID) {
         return plots.values().stream()
             .filter(p -> p.isOwnedBy(ownerUUID))
             .collect(Collectors.toList());
@@ -340,7 +343,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
      *
      * @param plot The PlotRegion instance to add to the system
      */
-    public static void addPlot(PlotRegion plot) {
+    public static void addPlot(@Nonnull PlotRegion plot) {
         plots.put(plot.getPlotId(), plot);
         spatialIndex.addPlot(plot);
 
@@ -360,7 +363,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
      * @param plotId The unique identifier of the plot to remove
      * @return true if the plot was found and removed, false if no plot exists with the specified ID
      */
-    public static boolean removePlot(String plotId) {
+    public static boolean removePlot(@Nonnull String plotId) {
         PlotRegion removed = plots.remove(plotId);
         if (removed != null) {
             spatialIndex.removePlot(plotId);
@@ -385,7 +388,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
      * @param pos The position to check for a plot
      * @return true if a plot was found at the position and removed, false if no plot exists at that position
      */
-    public static boolean removePlotAt(BlockPos pos) {
+    public static boolean removePlotAt(@Nonnull BlockPos pos) {
         PlotRegion plot = getPlotAt(pos);
         if (plot != null) {
             return removePlot(plot.getPlotId());
@@ -462,7 +465,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
             dirty = false;
             LOGGER.info("Plots erfolgreich geladen: {} Plots", plots.size());
             LOGGER.info("Spatial Index: {}", spatialIndex.getStats());
-        } catch (Exception e) {
+        } catch (IOException | JsonSyntaxException e) {
             LOGGER.error("Fehler beim Laden der Plots", e);
             lastError = "Failed to load: " + e.getMessage();
 
@@ -475,7 +478,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
                     isHealthy = true;
                     lastError = "Recovered from backup";
                     dirty = false;
-                } catch (Exception backupError) {
+                } catch (IOException | JsonSyntaxException backupError) {
                     LOGGER.error("KRITISCH: Backup-Wiederherstellung fehlgeschlagen!", backupError);
                     handleCriticalLoadFailure();
                 }
@@ -489,7 +492,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
     /**
      * Lädt Plots aus einer spezifischen Datei
      */
-    private static void loadPlotsFromFile(File sourceFile) throws Exception {
+    private static void loadPlotsFromFile(File sourceFile) throws IOException, JsonSyntaxException {
         Type mapType = new TypeToken<Map<String, PlotRegion>>(){}.getType();
 
         try (FileReader reader = new FileReader(sourceFile)) {
@@ -579,7 +582,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
             lastError = null;
             LOGGER.info("Plots gespeichert: {} Plots", plots.size());
 
-        } catch (Exception e) {
+        } catch (IOException e) {
             LOGGER.error("KRITISCH: Fehler beim Speichern der Plots", e);
             isHealthy = false;
             lastError = "Save failed: " + e.getMessage();
@@ -616,7 +619,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
             lastError = null;
             dirty = false;
 
-        } catch (Exception retryError) {
+        } catch (IOException retryError) {
             LOGGER.error("KRITISCH: Retry fehlgeschlagen - Plots konnten nicht gespeichert werden!", retryError);
             dirty = true;
         }

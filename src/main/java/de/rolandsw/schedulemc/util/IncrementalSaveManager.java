@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.util;
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -115,7 +116,7 @@ public class IncrementalSaveManager {
     /**
      * Registriert Saveable
      */
-    public void register(ISaveable saveable) {
+    public void register(@Nonnull ISaveable saveable) {
         saveables.add(saveable);
 
         // Sort nach Priorität
@@ -127,7 +128,7 @@ public class IncrementalSaveManager {
     /**
      * Entfernt Saveable
      */
-    public boolean unregister(ISaveable saveable) {
+    public boolean unregister(@Nonnull ISaveable saveable) {
         boolean removed = saveables.remove(saveable);
         if (removed) {
             LOGGER.info("Unregistered saveable: {}", saveable.getName());
@@ -215,7 +216,7 @@ public class IncrementalSaveManager {
     /**
      * Speichert einzelne Komponente
      */
-    private void saveSingleComponent(ISaveable saveable) {
+    private void saveSingleComponent(@Nonnull ISaveable saveable) {
         currentlySaving.incrementAndGet();
 
         try {
@@ -230,7 +231,7 @@ public class IncrementalSaveManager {
 
             LOGGER.debug("Saved {} in {:.2f}ms", saveable.getName(), durationMs);
 
-        } catch (Exception e) {
+        } catch (Exception e) {  // Intentionally catching all exceptions - prevent one component failure from breaking entire save
             LOGGER.error("Error saving {}", saveable.getName(), e);
         } finally {
             currentlySaving.decrementAndGet();

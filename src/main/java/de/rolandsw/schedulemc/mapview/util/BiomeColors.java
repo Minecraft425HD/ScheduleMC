@@ -34,9 +34,7 @@ public final class BiomeColors {
         File saveDir = new File(MapViewConstants.getMinecraft().gameDirectory, "/mapview/");
         File settingsFile = new File(saveDir, "biomecolors.txt");
         if (settingsFile.exists()) {
-            try {
-                BufferedReader br = new BufferedReader(new FileReader(settingsFile));
-
+            try (BufferedReader br = new BufferedReader(new FileReader(settingsFile))) {
                 String sCurrentLine;
                 while ((sCurrentLine = br.readLine()) != null) {
                     String[] curLine = sCurrentLine.split("=");
@@ -55,8 +53,6 @@ public final class BiomeColors {
                         }
                     }
                 }
-
-                br.close();
             } catch (IOException var12) {
                 MapViewConstants.getLogger().error("biome load error: " + var12.getLocalizedMessage(), var12);
             }
@@ -65,10 +61,8 @@ public final class BiomeColors {
         // Load default biome colors from mod resources (optional - won't exist until resources are built)
         var resourceOptional = MapViewConstants.getMinecraft().getResourceManager().getResource(ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/conf/biomecolors.txt"));
         if (resourceOptional.isPresent()) {
-            try {
-                InputStream is = resourceOptional.get().open();
-                BufferedReader br = new BufferedReader(new InputStreamReader(is));
-
+            try (InputStream is = resourceOptional.get().open();
+                 BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
                 String sCurrentLine;
                 while ((sCurrentLine = br.readLine()) != null) {
                     String[] curLine = sCurrentLine.split("=");
@@ -89,9 +83,6 @@ public final class BiomeColors {
                         }
                     }
                 }
-
-                br.close();
-                is.close();
             } catch (IOException var11) {
                 MapViewConstants.getLogger().error("Error loading biome color config file from mod resources!", var11);
             }
@@ -110,9 +101,7 @@ public final class BiomeColors {
 
             File settingsFile = new File(saveDir, "biomecolors.txt");
 
-            try {
-                PrintWriter out = new PrintWriter(new FileWriter(settingsFile));
-
+            try (PrintWriter out = new PrintWriter(new FileWriter(settingsFile))) {
                 for (Map.Entry<String, Integer> entry : nameToColor.entrySet()) {
                     String name = entry.getKey();
                     Integer color = entry.getValue();
@@ -125,8 +114,6 @@ public final class BiomeColors {
                     hexColor.insert(0, "0x");
                     out.println(name + "=" + hexColor);
                 }
-
-                out.close();
             } catch (IOException var8) {
                 MapViewConstants.getLogger().error("biome save error: " + var8.getLocalizedMessage(), var8);
             }

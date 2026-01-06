@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.util;
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
 
+import javax.annotation.Nonnull;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -206,7 +207,8 @@ public class ThreadPoolManager {
      * @param task Der auszuführende Task
      * @return Future für Ergebnis
      */
-    public static Future<?> submitIO(Runnable task) {
+    @Nonnull
+    public static Future<?> submitIO(@Nonnull Runnable task) {
         return IO_POOL.submit(task);
     }
 
@@ -222,7 +224,8 @@ public class ThreadPoolManager {
      * @param taskName Name für Logging
      * @return CompletableFuture mit Ergebnis
      */
-    public static CompletableFuture<Void> submitIOWithRetry(Runnable task, String taskName) {
+    @Nonnull
+    public static CompletableFuture<Void> submitIOWithRetry(@Nonnull Runnable task, @Nonnull String taskName) {
         return CompletableFuture.runAsync(task, IO_POOL)
             .exceptionally(error1 -> {
                 LOGGER.warn("[RETRY 1/3] {} failed, retrying in {}ms: {}", taskName, RETRY_DELAY_FIRST_MS, error1.getMessage());
@@ -230,19 +233,19 @@ public class ThreadPoolManager {
                     Thread.sleep(RETRY_DELAY_FIRST_MS);
                     task.run();
                     LOGGER.info("[RETRY 1/3] {} succeeded", taskName);
-                } catch (Exception error2) {
+                } catch (Exception error2) {  // Intentionally catching all exceptions - generic retry mechanism
                     LOGGER.warn("[RETRY 2/3] {} failed, retrying in {}ms: {}", taskName, RETRY_DELAY_SECOND_MS, error2.getMessage());
                     try {
                         Thread.sleep(RETRY_DELAY_SECOND_MS);
                         task.run();
                         LOGGER.info("[RETRY 2/3] {} succeeded", taskName);
-                    } catch (Exception error3) {
+                    } catch (Exception error3) {  // Intentionally catching all exceptions - generic retry mechanism
                         LOGGER.warn("[RETRY 3/3] {} failed, retrying in {}ms: {}", taskName, RETRY_DELAY_THIRD_MS, error3.getMessage());
                         try {
                             Thread.sleep(RETRY_DELAY_THIRD_MS);
                             task.run();
                             LOGGER.info("[RETRY 3/3] {} succeeded", taskName);
-                        } catch (Exception error4) {
+                        } catch (Exception error4) {  // Intentionally catching all exceptions - final retry failure
                             LOGGER.error("[FAILED] {} failed after 3 retries - DATA LOSS POSSIBLE!", taskName, error4);
                         }
                     }
@@ -257,7 +260,8 @@ public class ThreadPoolManager {
      * @param task Der auszuführende Task
      * @return Future für Ergebnis
      */
-    public static Future<?> submitRender(Runnable task) {
+    @Nonnull
+    public static Future<?> submitRender(@Nonnull Runnable task) {
         return RENDER_POOL.submit(task);
     }
 
@@ -267,7 +271,8 @@ public class ThreadPoolManager {
      * @param task Der auszuführende Task
      * @return Future für Ergebnis
      */
-    public static Future<?> submitComputation(Runnable task) {
+    @Nonnull
+    public static Future<?> submitComputation(@Nonnull Runnable task) {
         return COMPUTATION_POOL.submit(task);
     }
 
@@ -277,7 +282,8 @@ public class ThreadPoolManager {
      * @param task Der auszuführende Task
      * @return Future für Ergebnis
      */
-    public static Future<?> submitAsync(Runnable task) {
+    @Nonnull
+    public static Future<?> submitAsync(@Nonnull Runnable task) {
         return ASYNC_POOL.submit(task);
     }
 
@@ -289,7 +295,8 @@ public class ThreadPoolManager {
      * @param unit Zeiteinheit
      * @return ScheduledFuture
      */
-    public static ScheduledFuture<?> schedule(Runnable task, long delay, TimeUnit unit) {
+    @Nonnull
+    public static ScheduledFuture<?> schedule(@Nonnull Runnable task, long delay, @Nonnull TimeUnit unit) {
         return SCHEDULED_POOL.schedule(task, delay, unit);
     }
 
@@ -302,11 +309,12 @@ public class ThreadPoolManager {
      * @param unit Zeiteinheit
      * @return ScheduledFuture
      */
+    @Nonnull
     public static ScheduledFuture<?> scheduleAtFixedRate(
-            Runnable task,
+            @Nonnull Runnable task,
             long initialDelay,
             long period,
-            TimeUnit unit) {
+            @Nonnull TimeUnit unit) {
         return SCHEDULED_POOL.scheduleAtFixedRate(task, initialDelay, period, unit);
     }
 
@@ -333,7 +341,7 @@ public class ThreadPoolManager {
     /**
      * Fährt einen Pool herunter mit Timeout
      */
-    private static void shutdownPool(String name, ExecutorService pool) {
+    private static void shutdownPool(@Nonnull String name, @Nonnull ExecutorService pool) {
         try {
             LOGGER.debug("Shutting down {} pool...", name);
             pool.shutdown();

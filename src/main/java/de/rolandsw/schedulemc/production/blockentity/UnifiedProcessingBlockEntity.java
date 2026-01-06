@@ -13,6 +13,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.slf4j.Logger;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -60,8 +61,8 @@ public class UnifiedProcessingBlockEntity extends BlockEntity {
     // CONSTRUCTOR
     // ═══════════════════════════════════════════════════════════
 
-    public UnifiedProcessingBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state,
-                                       int capacity, String processingStageId, ProductionConfig config) {
+    public UnifiedProcessingBlockEntity(@Nonnull BlockEntityType<?> type, @Nonnull BlockPos pos, @Nonnull BlockState state,
+                                       int capacity, @Nonnull String processingStageId, @Nonnull ProductionConfig config) {
         super(type, pos, state);
         this.capacity = capacity;
         this.processingStageId = processingStageId;
@@ -163,7 +164,8 @@ public class UnifiedProcessingBlockEntity extends BlockEntity {
      * 2. Create ItemStack with appropriate NBT data for quality
      * 3. Return properly configured ItemStack
      */
-    protected ItemStack createOutput(int slotIndex, ProductionConfig.ProcessingStageConfig stageConfig) {
+    @Nonnull
+    protected ItemStack createOutput(int slotIndex, @Nonnull ProductionConfig.ProcessingStageConfig stageConfig) {
         String outputItemId = stageConfig.getOutputItem();
         GenericQuality quality = qualities[slotIndex];
 
@@ -183,7 +185,7 @@ public class UnifiedProcessingBlockEntity extends BlockEntity {
     /**
      * Fügt Item in nächsten freien Slot ein
      */
-    public boolean insertItem(ItemStack stack, String productionId, @Nullable GenericQuality quality) {
+    public boolean insertItem(@Nonnull ItemStack stack, @Nonnull String productionId, @Nullable GenericQuality quality) {
         for (int i = 0; i < capacity; i++) {
             if (inputs[i].isEmpty() && outputs[i].isEmpty()) {
                 inputs[i] = stack.copy();
@@ -201,6 +203,7 @@ public class UnifiedProcessingBlockEntity extends BlockEntity {
     /**
      * Entfernt Output aus Slot
      */
+    @Nonnull
     public ItemStack extractOutput(int slot) {
         if (slot >= 0 && slot < capacity && !outputs[slot].isEmpty()) {
             ItemStack extracted = outputs[slot].copy();
@@ -313,7 +316,7 @@ public class UnifiedProcessingBlockEntity extends BlockEntity {
     // ═══════════════════════════════════════════════════════════
 
     @Override
-    protected void saveAdditional(CompoundTag tag) {
+    protected void saveAdditional(@Nonnull CompoundTag tag) {
         super.saveAdditional(tag);
 
         tag.putInt("Capacity", capacity);
@@ -344,7 +347,7 @@ public class UnifiedProcessingBlockEntity extends BlockEntity {
     }
 
     @Override
-    public void load(CompoundTag tag) {
+    public void load(@Nonnull CompoundTag tag) {
         super.load(tag);
 
         // Load Slots

@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +39,7 @@ public class MemoryCleanupManager {
      * Markiert einen Spieler als offline
      * @param playerUUID UUID des Spielers
      */
-    public static void markPlayerOffline(UUID playerUUID) {
+    public static void markPlayerOffline(@Nonnull UUID playerUUID) {
         offlinePlayers.put(playerUUID, System.currentTimeMillis());
         LOGGER.debug("Player {} marked as offline for cleanup", playerUUID);
     }
@@ -47,7 +48,7 @@ public class MemoryCleanupManager {
      * Entfernt Offline-Markierung (bei Reconnect)
      * @param playerUUID UUID des Spielers
      */
-    public static void markPlayerOnline(UUID playerUUID) {
+    public static void markPlayerOnline(@Nonnull UUID playerUUID) {
         if (offlinePlayers.remove(playerUUID) != null) {
             LOGGER.debug("Player {} reconnected - cleanup cancelled", playerUUID);
         }
@@ -57,7 +58,7 @@ public class MemoryCleanupManager {
      * Wird jeden Tick vom Server aufgerufen
      * Führt periodisch Cleanup durch
      */
-    public static void tick(MinecraftServer server) {
+    public static void tick(@Nonnull MinecraftServer server) {
         tickCounter++;
 
         // Cleanup alle 60 Sekunden
@@ -69,7 +70,7 @@ public class MemoryCleanupManager {
     /**
      * Führt den eigentlichen Cleanup durch
      */
-    private static void performCleanup(MinecraftServer server) {
+    private static void performCleanup(@Nonnull MinecraftServer server) {
         if (offlinePlayers.isEmpty()) {
             return; // Nichts zu tun
         }

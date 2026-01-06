@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.util;
 
 import net.minecraft.core.BlockPos;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -225,7 +226,7 @@ public class InputValidation {
         return Result.success(normalized);
     }
 
-    public static Result validatePacketString(@Nullable String value, String fieldName) {
+    public static Result validatePacketString(@Nullable String value, @Nonnull String fieldName) {
         if (value == null) return Result.success("");
         if (value.length() > MAX_PACKET_STRING_LENGTH) {
             return Result.failure("§c" + fieldName + " ist zu lang!");
@@ -260,7 +261,7 @@ public class InputValidation {
         return Result.success();
     }
 
-    private static boolean containsDangerousPatterns(String input) {
+    private static boolean containsDangerousPatterns(@Nonnull String input) {
         String lower = input.toLowerCase();
         if (lower.contains("'--") || lower.contains("'; drop") || lower.contains("1=1")) return true;
         if (lower.contains("<script") || lower.contains("javascript:")) return true;
@@ -271,7 +272,8 @@ public class InputValidation {
         return false;
     }
 
-    public static String sanitize(String input) {
+    @Nonnull
+    public static String sanitize(@Nullable String input) {
         if (input == null) return "";
         return input.replaceAll("§[klmnor]", "")
                    .replaceAll("[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F]", "")

@@ -6,6 +6,7 @@ import de.rolandsw.schedulemc.util.GsonHelper;
 import net.minecraft.server.MinecraftServer;
 
 import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,7 +41,7 @@ public class CreditScoreManager extends AbstractPersistenceManager<Map<UUID, Cre
     /**
      * SICHERHEIT: Double-Checked Locking für Thread-Safety
      */
-    public static CreditScoreManager getInstance(MinecraftServer server) {
+    public static CreditScoreManager getInstance(@Nonnull MinecraftServer server) {
         CreditScoreManager localRef = instance;
         if (localRef == null) {
             synchronized (CreditScoreManager.class) {
@@ -58,7 +59,7 @@ public class CreditScoreManager extends AbstractPersistenceManager<Map<UUID, Cre
      * Gibt den CreditScore für einen Spieler zurück
      * Erstellt automatisch einen neuen Score falls nicht vorhanden
      */
-    public CreditScore getOrCreateScore(UUID playerUUID) {
+    public CreditScore getOrCreateScore(@Nonnull UUID playerUUID) {
         return creditScores.computeIfAbsent(playerUUID, uuid -> {
             CreditScore newScore = new CreditScore(uuid, currentDay);
             save();
@@ -77,7 +78,7 @@ public class CreditScoreManager extends AbstractPersistenceManager<Map<UUID, Cre
     /**
      * Prüft ob ein Spieler einen bestimmten Kredittyp aufnehmen kann
      */
-    public boolean canTakeLoan(UUID playerUUID, CreditLoan.CreditLoanType loanType) {
+    public boolean canTakeLoan(@Nonnull UUID playerUUID, CreditLoan.CreditLoanType loanType) {
         CreditScore score = getOrCreateScore(playerUUID);
 
         // Prüfe maximalen Kreditbetrag basierend auf Rating

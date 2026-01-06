@@ -1,5 +1,7 @@
 package de.rolandsw.schedulemc.utility;
 
+import javax.annotation.Nullable;
+
 /**
  * Interface für BlockEntities die Strom/Wasser verbrauchen
  *
@@ -28,6 +30,7 @@ public interface IUtilityConsumer {
      *
      * @return null um Registry-Werte zu verwenden, oder custom UtilityConsumptionData
      */
+    @Nullable
     default UtilityConsumptionData getCustomConsumption() {
         return null;
     }

@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.util;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
 
@@ -64,7 +65,7 @@ public abstract class AbstractPersistenceManager<T> {
             isHealthy = true;
             lastError = null;
             LOGGER.info("{}: Daten erfolgreich geladen", getComponentName());
-        } catch (Exception e) {
+        } catch (IOException | JsonSyntaxException e) {
             LOGGER.error("{}: Fehler beim Laden der Daten", getComponentName(), e);
             lastError = "Failed to load: " + e.getMessage();
 
@@ -77,7 +78,7 @@ public abstract class AbstractPersistenceManager<T> {
                     LOGGER.info("{}: Erfolgreich von Backup wiederhergestellt", getComponentName());
                     isHealthy = true;
                     lastError = "Recovered from backup";
-                } catch (Exception backupError) {
+                } catch (IOException | JsonSyntaxException backupError) {
                     LOGGER.error("{}: KRITISCH: Backup-Wiederherstellung fehlgeschlagen!", getComponentName(), backupError);
                     handleCriticalLoadFailure();
                 }
@@ -91,7 +92,7 @@ public abstract class AbstractPersistenceManager<T> {
     /**
      * Lädt Daten aus einer Datei
      */
-    private T loadFromFile(File file) throws Exception {
+    private T loadFromFile(File file) throws IOException, JsonSyntaxException {
         try (FileReader reader = new FileReader(file)) {
             T data = gson.fromJson(reader, getDataType());
 
@@ -159,7 +160,7 @@ public abstract class AbstractPersistenceManager<T> {
             lastError = null;
             LOGGER.info("{}: Daten erfolgreich gespeichert", getComponentName());
 
-        } catch (Exception e) {
+        } catch (IOException e) {
             LOGGER.error("{}: KRITISCH: Fehler beim Speichern!", getComponentName(), e);
             isHealthy = false;
             lastError = "Save failed: " + e.getMessage();

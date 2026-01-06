@@ -10,6 +10,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -50,7 +51,7 @@ public class RecurringPaymentManager extends AbstractPersistenceManager<Map<UUID
     /**
      * SICHERHEIT: Double-Checked Locking für Thread-Safety
      */
-    public static RecurringPaymentManager getInstance(MinecraftServer server) {
+    public static RecurringPaymentManager getInstance(@Nonnull MinecraftServer server) {
         RecurringPaymentManager localRef = instance;
         if (localRef == null) {
             synchronized (RecurringPaymentManager.class) {
@@ -67,7 +68,7 @@ public class RecurringPaymentManager extends AbstractPersistenceManager<Map<UUID
     /**
      * Erstellt neuen Dauerauftrag
      */
-    public boolean createRecurringPayment(UUID fromPlayer, UUID toPlayer, double amount,
+    public boolean createRecurringPayment(@Nonnull UUID fromPlayer, @Nonnull UUID toPlayer, double amount,
                                          int intervalDays, String description) {
         if (fromPlayer.equals(toPlayer)) {
             return false;
@@ -110,7 +111,7 @@ public class RecurringPaymentManager extends AbstractPersistenceManager<Map<UUID
     /**
      * Löscht Dauerauftrag
      */
-    public boolean deleteRecurringPayment(UUID playerUUID, String paymentId) {
+    public boolean deleteRecurringPayment(@Nonnull UUID playerUUID, @Nonnull String paymentId) {
         RecurringPayment payment = findPayment(playerUUID, paymentId);
         if (payment == null) {
             return false;
@@ -137,7 +138,7 @@ public class RecurringPaymentManager extends AbstractPersistenceManager<Map<UUID
     /**
      * Pausiert Dauerauftrag
      */
-    public boolean pauseRecurringPayment(UUID playerUUID, String paymentId) {
+    public boolean pauseRecurringPayment(@Nonnull UUID playerUUID, @Nonnull String paymentId) {
         RecurringPayment payment = findPayment(playerUUID, paymentId);
         if (payment == null) {
             return false;
@@ -160,7 +161,7 @@ public class RecurringPaymentManager extends AbstractPersistenceManager<Map<UUID
     /**
      * Aktiviert Dauerauftrag wieder
      */
-    public boolean resumeRecurringPayment(UUID playerUUID, String paymentId) {
+    public boolean resumeRecurringPayment(@Nonnull UUID playerUUID, @Nonnull String paymentId) {
         RecurringPayment payment = findPayment(playerUUID, paymentId);
         if (payment == null) {
             return false;

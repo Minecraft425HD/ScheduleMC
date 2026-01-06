@@ -14,6 +14,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
+import javax.annotation.Nonnull;
+
 /**
  * Admin-Commands für Gefängnis-System
  */
@@ -86,7 +88,7 @@ public class PrisonCommand {
             .executes(ctx -> showJailTime(ctx.getSource())));
     }
 
-    private static int createPrison(CommandSourceStack source, String plotId) {
+    private static int createPrison(@Nonnull CommandSourceStack source, @Nonnull String plotId) {
         PlotRegion plot = PlotManager.getPlot(plotId);
 
         if (plot == null) {

@@ -12,6 +12,8 @@ import de.rolandsw.schedulemc.production.core.PotType;
 import de.rolandsw.schedulemc.tobacco.TobaccoType;
 import de.rolandsw.schedulemc.tobacco.data.TobaccoPlantData;
 
+import javax.annotation.Nullable;
+
 /**
  * Speichert Daten eines universellen Pflanzen-Topfes
  * Unterstützt: Tabak, Cannabis, Koka, Mohn und Pilze
@@ -284,6 +286,7 @@ public class PlantPotData {
     /**
      * Erntet die Tabak-Pflanze
      */
+    @Nullable
     public TobaccoPlantData harvest() {
         if (plant == null || !plant.isFullyGrown()) {
             return null;
@@ -297,6 +300,7 @@ public class PlantPotData {
     /**
      * Erntet die Cannabis-Pflanze
      */
+    @Nullable
     public CannabisPlantData harvestCannabis() {
         if (cannabisPlant == null || !cannabisPlant.isFullyGrown()) {
             return null;
@@ -310,6 +314,7 @@ public class PlantPotData {
     /**
      * Erntet die Koka-Pflanze
      */
+    @Nullable
     public CocaPlantData harvestCoca() {
         if (cocaPlant == null || !cocaPlant.isFullyGrown()) {
             return null;
@@ -323,6 +328,7 @@ public class PlantPotData {
     /**
      * Erntet die Mohn-Pflanze
      */
+    @Nullable
     public PoppyPlantData harvestPoppy() {
         if (poppyPlant == null || !poppyPlant.isFullyGrown()) {
             return null;
@@ -337,6 +343,7 @@ public class PlantPotData {
      * Erntet Pilze (mit Flush-System)
      * @return MushroomPlantData oder null wenn nicht erntbar
      */
+    @Nullable
     public MushroomPlantData harvestMushroom() {
         if (mushroomPlant == null || !mushroomPlant.canHarvest()) {
             return null;

@@ -10,6 +10,7 @@ import net.minecraft.nbt.Tag;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -85,7 +86,7 @@ public class NPCRelationshipManager {
     /**
      * Holt oder erstellt Relationship
      */
-    public NPCRelationship getOrCreateRelationship(UUID npcId, UUID playerId) {
+    public NPCRelationship getOrCreateRelationship(@Nonnull UUID npcId, @Nonnull UUID playerId) {
         String key = makeKey(npcId, playerId);
 
         return relationships.computeIfAbsent(key, k -> {
@@ -105,14 +106,14 @@ public class NPCRelationshipManager {
      * Holt bestehende Relationship (oder null)
      */
     @Nullable
-    public NPCRelationship getRelationship(UUID npcId, UUID playerId) {
+    public NPCRelationship getRelationship(@Nonnull UUID npcId, @Nonnull UUID playerId) {
         return relationships.get(makeKey(npcId, playerId));
     }
 
     /**
      * Holt alle Relationships eines Spielers
      */
-    public List<NPCRelationship> getPlayerRelationships(UUID playerId) {
+    public List<NPCRelationship> getPlayerRelationships(@Nonnull UUID playerId) {
         Set<UUID> npcIds = playerToNPCs.get(playerId);
         if (npcIds == null) {
             return Collections.emptyList();
@@ -282,10 +283,9 @@ public class NPCRelationshipManager {
                     playerToNPCs.computeIfAbsent(playerId, p -> ConcurrentHashMap.newKeySet()).add(npcId);
                     npcToPlayers.computeIfAbsent(npcId, n -> ConcurrentHashMap.newKeySet()).add(playerId);
 
-                } catch (Exception e) {
-                    LOGGER.error("Error loading relationship: {}", sr, e);
+                } catch (IllegalArgumentException e) {
+                    LOGGER.error("Invalid UUID in relationship - NPC: {}, Player: {}", sr.npcId, sr.playerId);
                 }
-            }
 
             dirty = false;
             LOGGER.info("Loaded {} relationships", relationships.size());

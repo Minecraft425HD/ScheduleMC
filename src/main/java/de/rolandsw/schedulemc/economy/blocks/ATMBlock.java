@@ -29,7 +29,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.network.NetworkHooks;
-import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nullable;
 
 public class ATMBlock extends Block implements EntityBlock {
 
@@ -61,6 +62,7 @@ public class ATMBlock extends Block implements EntityBlock {
     }
 
     // --- Platzierungslogik (setzt LOWER + UPPER Block) ---
+    @Nullable
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext ctx) {
         BlockPos pos = ctx.getClickedPos();

@@ -36,6 +36,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -171,7 +173,7 @@ public class NPCCommand {
         );
     }
 
-    private static int setMovement(CommandContext<CommandSourceStack> context) {
+    private static int setMovement(@Nonnull CommandContext<CommandSourceStack> context) {
         String npcName = StringArgumentType.getString(context, "npcName");
         boolean enabled = BoolArgumentType.getBool(context, "enabled");
         ServerLevel level = context.getSource().getLevel();
@@ -1080,7 +1082,8 @@ public class NPCCommand {
      * @param level Das ServerLevel
      * @return Der gefundene CustomNPCEntity oder null
      */
-    private static CustomNPCEntity getNPCByName(String npcName, ServerLevel level) {
+    @Nullable
+    private static CustomNPCEntity getNPCByName(@Nonnull String npcName, @Nonnull ServerLevel level) {
         return NPCNameRegistry.findNPCByName(npcName, level);
     }
 
@@ -1158,7 +1161,7 @@ public class NPCCommand {
                 ), false
             );
             return 1;
-        } catch (Exception e) {
+        } catch (CommandSyntaxException e) {
             context.getSource().sendFailure(Component.literal("§cFehler beim Verknüpfen des Warehouses!"));
             return 0;
         }
@@ -1185,7 +1188,7 @@ public class NPCCommand {
                 ), false
             );
             return 1;
-        } catch (Exception e) {
+        } catch (CommandSyntaxException e) {
             context.getSource().sendFailure(Component.literal("§cFehler beim Entfernen der Warehouse-Verknüpfung!"));
             return 0;
         }
@@ -1230,7 +1233,7 @@ public class NPCCommand {
                 context.getSource().sendSuccess(() -> Component.literal(finalInfo), false);
             }
             return 1;
-        } catch (Exception e) {
+        } catch (CommandSyntaxException e) {
             context.getSource().sendFailure(Component.literal("§cFehler beim Abrufen der Warehouse-Info!"));
             return 0;
         }

@@ -66,15 +66,25 @@ public class TaxManager extends AbstractPersistenceManager<Map<String, Object>> 
         // Load lastTaxDay
         Object lastTaxObj = data.get("lastTaxDay");
         if (lastTaxObj instanceof Map) {
-            ((Map<String, Number>) lastTaxObj).forEach((k, v) ->
-                lastTaxDay.put(UUID.fromString(k), v.longValue()));
+            ((Map<String, Number>) lastTaxObj).forEach((k, v) -> {
+                try {
+                    lastTaxDay.put(UUID.fromString(k), v.longValue());
+                } catch (IllegalArgumentException e) {
+                    LOGGER.error("Invalid UUID in lastTaxDay: {}", k);
+                }
+            });
         }
 
         // Load taxDebt
         Object debtObj = data.get("taxDebt");
         if (debtObj instanceof Map) {
-            ((Map<String, Number>) debtObj).forEach((k, v) ->
-                taxDebt.put(UUID.fromString(k), v.doubleValue()));
+            ((Map<String, Number>) debtObj).forEach((k, v) -> {
+                try {
+                    taxDebt.put(UUID.fromString(k), v.doubleValue());
+                } catch (IllegalArgumentException e) {
+                    LOGGER.error("Invalid UUID in taxDebt: {}", k);
+                }
+            });
         }
     }
 
@@ -113,7 +123,7 @@ public class TaxManager extends AbstractPersistenceManager<Map<String, Object>> 
     /**
      * SICHERHEIT: Double-Checked Locking für Thread-Safety
      */
-    public static TaxManager getInstance(MinecraftServer server) {
+    public static TaxManager getInstance(@Nonnull MinecraftServer server) {
         TaxManager localRef = instance;
         if (localRef == null) {
             synchronized (TaxManager.class) {

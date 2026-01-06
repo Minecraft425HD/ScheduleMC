@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.api.production;
 import de.rolandsw.schedulemc.production.config.ProductionConfig;
 import net.minecraft.core.BlockPos;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
@@ -70,7 +71,7 @@ public interface IProductionAPI {
      * @throws IllegalArgumentException wenn productionId null ist
      */
     @Nullable
-    ProductionConfig getProduction(String productionId);
+    ProductionConfig getProduction(@Nonnull String productionId);
 
     /**
      * Prüft ob eine Produktion mit dieser ID existiert.
@@ -79,13 +80,14 @@ public interface IProductionAPI {
      * @return true wenn Produktion existiert
      * @throws IllegalArgumentException wenn productionId null ist
      */
-    boolean hasProduction(String productionId);
+    boolean hasProduction(@Nonnull String productionId);
 
     /**
      * Gibt alle registrierten Produktionen zurück.
      *
      * @return Collection aller ProductionConfigs (unveränderbare Kopie)
      */
+    @Nonnull
     Collection<ProductionConfig> getAllProductions();
 
     /**
@@ -95,7 +97,8 @@ public interface IProductionAPI {
      * @return Liste aller Produktionen dieser Kategorie (kann leer sein)
      * @throws IllegalArgumentException wenn category null ist
      */
-    List<ProductionConfig> getProductionsByCategory(ProductionConfig.ProductionCategory category);
+    @Nonnull
+    List<ProductionConfig> getProductionsByCategory(@Nonnull ProductionConfig.ProductionCategory category);
 
     /**
      * Registriert eine neue Produktionskonfiguration.
@@ -105,7 +108,7 @@ public interface IProductionAPI {
      * @param config Die zu registrierende ProductionConfig
      * @throws IllegalArgumentException wenn config null ist
      */
-    void registerProduction(ProductionConfig config);
+    void registerProduction(@Nonnull ProductionConfig config);
 
     /**
      * Entfernt eine Produktionskonfiguration.
@@ -114,7 +117,7 @@ public interface IProductionAPI {
      * @return true wenn erfolgreich entfernt, false wenn nicht existiert
      * @throws IllegalArgumentException wenn productionId null ist
      */
-    boolean unregisterProduction(String productionId);
+    boolean unregisterProduction(@Nonnull String productionId);
 
     /**
      * Gibt die Anzahl registrierter Produktionen zurück.
@@ -133,7 +136,7 @@ public interface IProductionAPI {
      * @return true wenn erfolgreich gestartet
      * @throws IllegalArgumentException wenn Parameter null sind
      */
-    boolean startProduction(BlockPos position, String productionId);
+    boolean startProduction(@Nonnull BlockPos position, @Nonnull String productionId);
 
     /**
      * Stoppt Produktionsprozess an einer Position.
@@ -142,7 +145,7 @@ public interface IProductionAPI {
      * @return true wenn erfolgreich gestoppt
      * @throws IllegalArgumentException wenn position null ist
      */
-    boolean stopProduction(BlockPos position);
+    boolean stopProduction(@Nonnull BlockPos position);
 
     /**
      * Gibt den Produktionsfortschritt an einer Position zurück.
@@ -151,5 +154,5 @@ public interface IProductionAPI {
      * @return Fortschritt in % (0.0 - 100.0), -1 wenn keine Produktion aktiv
      * @throws IllegalArgumentException wenn position null ist
      */
-    double getProductionProgress(BlockPos position);
+    double getProductionProgress(@Nonnull BlockPos position);
 }

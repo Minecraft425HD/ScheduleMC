@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.util;
 
+import javax.annotation.Nonnull;
 import java.security.SecureRandom;
 
 /**
@@ -103,7 +104,7 @@ public class SecureRandomUtil {
      *
      * @param bytes Das zu füllende Array
      */
-    public static void nextBytes(byte[] bytes) {
+    public static void nextBytes(@Nonnull byte[] bytes) {
         SECURE_RANDOM.nextBytes(bytes);
     }
 

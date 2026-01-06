@@ -46,16 +46,16 @@ public class VersionChecker {
 
                 int responseCode = connection.getResponseCode();
                 if (responseCode == 200) {
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                    StringBuilder response = new StringBuilder();
-                    String line;
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                        StringBuilder response = new StringBuilder();
+                        String line;
 
-                    while ((line = reader.readLine()) != null) {
-                        response.append(line);
+                        while ((line = reader.readLine()) != null) {
+                            response.append(line);
+                        }
+
+                        parseResponse(response.toString());
                     }
-                    reader.close();
-
-                    parseResponse(response.toString());
                 } else {
                     ScheduleMC.LOGGER.warn("Version check failed with response code: " + responseCode);
                 }
