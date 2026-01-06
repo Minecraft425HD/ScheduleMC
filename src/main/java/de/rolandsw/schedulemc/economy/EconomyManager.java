@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.economy;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
+import de.rolandsw.schedulemc.exceptions.EconomyException;
 import de.rolandsw.schedulemc.util.GsonHelper;
 import de.rolandsw.schedulemc.util.BackupManager;
 import de.rolandsw.schedulemc.util.IncrementalSaveManager;
