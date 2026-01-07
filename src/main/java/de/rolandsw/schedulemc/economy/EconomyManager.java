@@ -305,9 +305,15 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
      * @param description Optional description of the transaction (can be null)
      */
     public static void deposit(@Nonnull UUID uuid, double amount, @Nonnull TransactionType type, @Nullable String description) {
-        // SICHERHEIT: Negative Amount Validation
+        // SICHERHEIT: Comprehensive Amount Validation
+        if (Double.isNaN(amount) || Double.isInfinite(amount)) {
+            throw new EconomyException("Invalid deposit amount (NaN/Infinite): " + amount);
+        }
         if (amount < 0) {
             throw new EconomyException("Negative deposit amount not allowed: " + amount);
+        }
+        if (amount > de.rolandsw.schedulemc.util.InputValidation.MAX_AMOUNT) {
+            throw new EconomyException("Deposit amount exceeds maximum allowed: " + amount);
         }
 
         // Rate Limiting (nur für Spieler-initiierte Deposits, nicht System)
@@ -369,9 +375,15 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
      * @return true if the withdrawal was successful, false if insufficient funds or overdraft limit exceeded
      */
     public static boolean withdraw(@Nonnull UUID uuid, double amount, @Nonnull TransactionType type, @Nullable String description) {
-        // SICHERHEIT: Negative Amount Validation
+        // SICHERHEIT: Comprehensive Amount Validation
+        if (Double.isNaN(amount) || Double.isInfinite(amount)) {
+            throw new EconomyException("Invalid withdrawal amount (NaN/Infinite): " + amount);
+        }
         if (amount < 0) {
             throw new EconomyException("Negative withdrawal amount not allowed: " + amount);
+        }
+        if (amount > de.rolandsw.schedulemc.util.InputValidation.MAX_AMOUNT) {
+            throw new EconomyException("Withdrawal amount exceeds maximum allowed: " + amount);
         }
 
         // Rate Limiting (nur für Spieler-initiierte Withdrawals)
@@ -499,17 +511,22 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
     }
 
     /**
-     * Loggt eine Transaktion in die History
+     * Loggt eine Transaktion in die History mit Error Recovery
+     * Transaction logging sollte nie kritische Operations blockieren
      */
     private static void logTransaction(UUID playerUUID, TransactionType type,
                                       @Nullable UUID from, @Nullable UUID to,
                                       double amount, @Nullable String description,
                                       double balanceAfter) {
-        if (instance != null && instance.server != null) {
-            TransactionHistory history = TransactionHistory.getInstance(instance.server);
-            Transaction transaction = new Transaction(type, from, to, amount, description, balanceAfter);
-            history.addTransaction(playerUUID, transaction);
-        }
+        // Use ErrorRecovery to safely execute transaction logging
+        // Logging failures should not prevent the transaction from succeeding
+        de.rolandsw.schedulemc.util.ErrorRecovery.safeExecute(() -> {
+            if (instance != null && instance.server != null) {
+                TransactionHistory history = TransactionHistory.getInstance(instance.server);
+                Transaction transaction = new Transaction(type, from, to, amount, description, balanceAfter);
+                history.addTransaction(playerUUID, transaction);
+            }
+        }, "Transaction logging for " + playerUUID);
     }
 
     /**
@@ -536,9 +553,15 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
             throw new EconomyException("Cannot transfer money to yourself. Sender and receiver must be different.");
         }
 
-        // SICHERHEIT: Invalid Amount Validation
+        // SICHERHEIT: Comprehensive Amount Validation
+        if (Double.isNaN(amount) || Double.isInfinite(amount)) {
+            throw new EconomyException("Invalid transfer amount (NaN/Infinite): " + amount);
+        }
         if (amount <= 0) {
             throw new EconomyException("Transfer amount must be positive: " + amount);
+        }
+        if (amount > de.rolandsw.schedulemc.util.InputValidation.MAX_AMOUNT) {
+            throw new EconomyException("Transfer amount exceeds maximum allowed: " + amount);
         }
 
         // Rate Limiting für Transfers

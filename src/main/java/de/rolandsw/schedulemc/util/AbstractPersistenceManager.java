@@ -49,7 +49,7 @@ public abstract class AbstractPersistenceManager<T> {
     }
 
     /**
-     * Lädt die Daten mit Backup-Wiederherstellung
+     * Lädt die Daten mit Backup-Wiederherstellung und Retry-Mechanismus
      */
     public void load() {
         if (!dataFile.exists()) {
@@ -59,27 +59,38 @@ public abstract class AbstractPersistenceManager<T> {
             return;
         }
 
-        try {
-            T data = loadFromFile(dataFile);
-            onDataLoaded(data);
+        // Use ErrorRecovery with retry for resilient file I/O
+        ErrorRecovery.Result<T> result = ErrorRecovery.retry(() -> {
+            return loadFromFile(dataFile);
+        }, ErrorRecovery.RetryConfig.fast(), getComponentName() + " load");
+
+        if (result.isSuccess()) {
+            onDataLoaded(result.getValue());
             isHealthy = true;
             lastError = null;
-            LOGGER.info("{}: Daten erfolgreich geladen", getComponentName());
-        } catch (IOException | JsonSyntaxException e) {
-            LOGGER.error("{}: Fehler beim Laden der Daten", getComponentName(), e);
-            lastError = "Failed to load: " + e.getMessage();
+            LOGGER.info("{}: Daten erfolgreich geladen{}", getComponentName(),
+                result.getAttempts() > 1 ? " (nach " + result.getAttempts() + " Versuchen)" : "");
+        } else {
+            LOGGER.error("{}: Fehler beim Laden der Daten nach {} Versuchen",
+                getComponentName(), result.getAttempts(), result.getError());
+            lastError = "Failed to load: " + result.getError().getMessage();
 
             // Backup-Wiederherstellung
             if (BackupManager.restoreFromBackup(dataFile)) {
                 LOGGER.warn("{}: Datei korrupt, versuche Backup wiederherzustellen...", getComponentName());
-                try {
-                    T data = loadFromFile(dataFile);
-                    onDataLoaded(data);
+
+                ErrorRecovery.Result<T> backupResult = ErrorRecovery.retry(() -> {
+                    return loadFromFile(dataFile);
+                }, ErrorRecovery.RetryConfig.fast(), getComponentName() + " backup restore");
+
+                if (backupResult.isSuccess()) {
+                    onDataLoaded(backupResult.getValue());
                     LOGGER.info("{}: Erfolgreich von Backup wiederhergestellt", getComponentName());
                     isHealthy = true;
                     lastError = "Recovered from backup";
-                } catch (IOException | JsonSyntaxException backupError) {
-                    LOGGER.error("{}: KRITISCH: Backup-Wiederherstellung fehlgeschlagen!", getComponentName(), backupError);
+                } else {
+                    LOGGER.error("{}: KRITISCH: Backup-Wiederherstellung fehlgeschlagen!",
+                        getComponentName(), backupResult.getError());
                     handleCriticalLoadFailure();
                 }
             } else {
@@ -130,10 +141,11 @@ public abstract class AbstractPersistenceManager<T> {
     }
 
     /**
-     * Speichert die Daten mit Backup und atomic writes
+     * Speichert die Daten mit Backup, atomic writes und Retry-Mechanismus
      */
     public void save() {
-        try {
+        // Use ErrorRecovery with retry for resilient file I/O
+        ErrorRecovery.Result<Void> result = ErrorRecovery.retry(() -> {
             dataFile.getParentFile().mkdirs();
 
             // Create backup before overwriting
@@ -155,15 +167,20 @@ public abstract class AbstractPersistenceManager<T> {
                 StandardCopyOption.REPLACE_EXISTING,
                 StandardCopyOption.ATOMIC_MOVE);
 
+            return null; // Success
+        }, ErrorRecovery.RetryConfig.defaults(), getComponentName() + " save");
+
+        if (result.isSuccess()) {
             needsSave = false;
             isHealthy = true;
             lastError = null;
-            LOGGER.info("{}: Daten erfolgreich gespeichert", getComponentName());
-
-        } catch (IOException e) {
-            LOGGER.error("{}: KRITISCH: Fehler beim Speichern!", getComponentName(), e);
+            LOGGER.info("{}: Daten erfolgreich gespeichert{}", getComponentName(),
+                result.getAttempts() > 1 ? " (nach " + result.getAttempts() + " Versuchen)" : "");
+        } else {
+            LOGGER.error("{}: KRITISCH: Fehler beim Speichern nach {} Versuchen!",
+                getComponentName(), result.getAttempts(), result.getError());
             isHealthy = false;
-            lastError = "Save failed: " + e.getMessage();
+            lastError = "Save failed: " + result.getError().getMessage();
             needsSave = true; // Keep dirty flag for retry
         }
     }
