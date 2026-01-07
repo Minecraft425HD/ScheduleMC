@@ -258,6 +258,133 @@ public class CollectionUtils {
         return isNullOrEmpty(list) ? defaultValue : list.get(list.size() - 1);
     }
 
+    // ========== Performance-Optimized Batch Operations ==========
+
+    /**
+     * Batch adds elements to collection with pre-sizing optimization.
+     * Faster than repeated add() calls for large batches.
+     *
+     * @param target Target collection
+     * @param source Source collection to add from
+     * @param <T> Element type
+     */
+    public static <T> void addAllOptimized(Collection<T> target, Collection<? extends T> source) {
+        if (isNullOrEmpty(source)) {
+            return;
+        }
+
+        // Pre-size if possible
+        if (target instanceof ArrayList) {
+            ((ArrayList<T>) target).ensureCapacity(target.size() + source.size());
+        }
+
+        target.addAll(source);
+    }
+
+    /**
+     * Transforms collection without stream overhead.
+     * Faster than stream().map().collect() for small collections.
+     *
+     * @param source Source collection
+     * @param mapper Transformation function
+     * @param <T> Source type
+     * @param <R> Result type
+     * @return Transformed list
+     */
+    public static <T, R> List<R> transform(Collection<T> source, java.util.function.Function<T, R> mapper) {
+        if (isNullOrEmpty(source)) {
+            return new ArrayList<>();
+        }
+
+        List<R> result = newArrayListWithCapacity(source.size());
+        for (T element : source) {
+            result.add(mapper.apply(element));
+        }
+        return result;
+    }
+
+    /**
+     * Filters and transforms in single pass without intermediate collections.
+     * Optimized alternative to stream().filter().map().collect().
+     *
+     * @param source Source collection
+     * @param predicate Filter condition
+     * @param mapper Transformation function
+     * @param <T> Source type
+     * @param <R> Result type
+     * @return Filtered and transformed list
+     */
+    public static <T, R> List<R> filterAndTransform(Collection<T> source,
+                                                    Predicate<T> predicate,
+                                                    java.util.function.Function<T, R> mapper) {
+        if (isNullOrEmpty(source)) {
+            return new ArrayList<>();
+        }
+
+        List<R> result = newArrayListWithCapacity(source.size() / 2);
+        for (T element : source) {
+            if (predicate.test(element)) {
+                result.add(mapper.apply(element));
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Creates immutable copy with defensive copying.
+     * Prevents external modification of internal collections.
+     *
+     * @param source Source list
+     * @param <T> Element type
+     * @return Immutable copy
+     */
+    public static <T> List<T> immutableCopy(List<T> source) {
+        if (isNullOrEmpty(source)) {
+            return Collections.emptyList();
+        }
+        return Collections.unmodifiableList(new ArrayList<>(source));
+    }
+
+    /**
+     * Creates immutable map copy with defensive copying.
+     *
+     * @param source Source map
+     * @param <K> Key type
+     * @param <V> Value type
+     * @return Immutable copy
+     */
+    public static <K, V> Map<K, V> immutableCopy(Map<K, V> source) {
+        if (isNullOrEmpty(source)) {
+            return Collections.emptyMap();
+        }
+        return Collections.unmodifiableMap(new HashMap<>(source));
+    }
+
+    /**
+     * Removes elements matching predicate and returns removed count.
+     * Optimized for counting removed elements.
+     *
+     * @param collection Collection to remove from
+     * @param predicate Remove condition
+     * @param <T> Element type
+     * @return Number of elements removed
+     */
+    public static <T> int removeIf(Collection<T> collection, Predicate<T> predicate) {
+        if (isNullOrEmpty(collection)) {
+            return 0;
+        }
+
+        int removed = 0;
+        Iterator<T> iterator = collection.iterator();
+        while (iterator.hasNext()) {
+            if (predicate.test(iterator.next())) {
+                iterator.remove();
+                removed++;
+            }
+        }
+        return removed;
+    }
+
     private CollectionUtils() {
         throw new UnsupportedOperationException("Utility class");
     }
