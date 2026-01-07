@@ -9,6 +9,7 @@ import de.rolandsw.schedulemc.util.BackupManager;
 import de.rolandsw.schedulemc.util.IncrementalSaveManager;
 import de.rolandsw.schedulemc.util.PersistenceHelper;
 import de.rolandsw.schedulemc.util.RateLimiter;
+import de.rolandsw.schedulemc.economy.IEconomyService;
 import com.mojang.logging.LogUtils;
 import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
@@ -25,8 +26,10 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Zentrales Economy-System für ScheduleMC
  * Verwaltet Spieler-Guthaben mit Thread-Safety und Batch-Saving
+ *
+ * Implements IEconomyService for dependency injection and loose coupling.
  */
-public class EconomyManager implements IncrementalSaveManager.ISaveable {
+public class EconomyManager implements IEconomyService, IncrementalSaveManager.ISaveable {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
@@ -98,6 +101,111 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
         }
         return localRef;
     }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // IEconomyService Implementation - Instance Methods
+    // These delegate to static methods for backward compatibility
+    // ═══════════════════════════════════════════════════════════════════════
+
+    @Override
+    public void createAccount(@Nonnull UUID uuid) {
+        EconomyManager.createAccount(uuid);
+    }
+
+    @Override
+    public boolean hasAccount(@Nonnull UUID uuid) {
+        return EconomyManager.hasAccount(uuid);
+    }
+
+    @Override
+    public void deleteAccount(@Nonnull UUID uuid) {
+        EconomyManager.deleteAccount(uuid);
+    }
+
+    @Override
+    public double getBalance(@Nonnull UUID uuid) {
+        return EconomyManager.getBalance(uuid);
+    }
+
+    @Override
+    public void setBalance(@Nonnull UUID uuid, double amount) {
+        EconomyManager.setBalance(uuid, amount);
+    }
+
+    @Override
+    public void setBalance(@Nonnull UUID uuid, double amount, @Nonnull TransactionType type, @Nullable String description) {
+        EconomyManager.setBalance(uuid, amount, type, description);
+    }
+
+    @Override
+    public void deposit(@Nonnull UUID uuid, double amount) {
+        EconomyManager.deposit(uuid, amount);
+    }
+
+    @Override
+    public void deposit(@Nonnull UUID uuid, double amount, @Nonnull TransactionType type, @Nullable String description) {
+        EconomyManager.deposit(uuid, amount, type, description);
+    }
+
+    @Override
+    public boolean withdraw(@Nonnull UUID uuid, double amount) {
+        return EconomyManager.withdraw(uuid, amount);
+    }
+
+    @Override
+    public boolean withdraw(@Nonnull UUID uuid, double amount, @Nonnull TransactionType type, @Nullable String description) {
+        return EconomyManager.withdraw(uuid, amount, type, description);
+    }
+
+    @Override
+    public boolean transfer(@Nonnull UUID from, @Nonnull UUID to, double amount, @Nullable String description) {
+        return EconomyManager.transfer(from, to, amount, description);
+    }
+
+    @Override
+    public Map<UUID, Double> getAllAccounts() {
+        return EconomyManager.getAllAccounts();
+    }
+
+    @Override
+    public double getStartBalance() {
+        return EconomyManager.getStartBalance();
+    }
+
+    @Override
+    public boolean isHealthy() {
+        return EconomyManager.isHealthy();
+    }
+
+    @Override
+    @Nullable
+    public String getLastError() {
+        return EconomyManager.getLastError();
+    }
+
+    @Override
+    public String getHealthInfo() {
+        return EconomyManager.getHealthInfo();
+    }
+
+    @Override
+    public void loadAccounts() {
+        EconomyManager.loadAccounts();
+    }
+
+    @Override
+    public void saveAccounts() {
+        EconomyManager.saveAccounts();
+    }
+
+    @Override
+    public void saveIfNeeded() {
+        EconomyManager.saveIfNeeded();
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // Static Implementation Methods (for backward compatibility)
+    // ═══════════════════════════════════════════════════════════════════════
 
     // Typ für Gson-Deserialisierung
     private static final Type BALANCE_MAP_TYPE = new TypeToken<Map<String, Double>>(){}.getType();
