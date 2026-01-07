@@ -39,13 +39,41 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Warehouse GUI Screen - Tab-basiertes Management Panel
+ * Warehouse management GUI with tab-based interface for item storage and NPC seller automation.
  *
- * Tabs:
- * - Items: Item-Verwaltung mit scrollbarer Liste
- * - Seller: Verkäufer-Verwaltung
- * - Stats: Statistiken und Übersicht
- * - Settings: Konfiguration
+ * <p>This screen provides a comprehensive warehouse management system where players can:
+ * <ul>
+ *   <li><b>Items Tab:</b> Manage up to 100 warehouse slots with item configuration, pricing, and auto-refill</li>
+ *   <li><b>Sellers Tab:</b> Assign NPC sellers who automatically deliver items to customers</li>
+ *   <li><b>Stats Tab:</b> View warehouse statistics including total sales, inventory value, and top items</li>
+ *   <li><b>Settings Tab:</b> Configure warehouse name, delivery settings, and access permissions</li>
+ * </ul>
+ *
+ * <p><b>Features:</b>
+ * <ul>
+ *   <li>Scrollable item list with 25 visible slots per page</li>
+ *   <li>Item configuration: Set prices, delivery times, and auto-refill sources</li>
+ *   <li>NPC Seller management: Assign/remove sellers, configure delivery routes</li>
+ *   <li>Real-time statistics: Sales tracking, revenue monitoring, item popularity</li>
+ *   <li>Auto-refill system: Automatic inventory restocking from player containers</li>
+ *   <li>Network synchronization: Server-side validation for all operations</li>
+ * </ul>
+ *
+ * <p><b>UI Components:</b>
+ * <ul>
+ *   <li>Tab buttons for navigation between 4 main panels</li>
+ *   <li>Edit boxes for text input (item search, price entry, warehouse name)</li>
+ *   <li>Action buttons for item operations (add, remove, modify, clear)</li>
+ *   <li>Scrollable lists for items and sellers</li>
+ *   <li>Real-time data display synchronized with server</li>
+ * </ul>
+ *
+ * <p><b>Network Protocol:</b> All operations send packets to server for validation and synchronization.
+ * See {@link WarehouseNetworkHandler} for packet types and {@link WarehouseBlockEntity} for server-side logic.
+ *
+ * @see WarehouseMenu
+ * @see WarehouseBlockEntity
+ * @see WarehouseNetworkHandler
  */
 @OnlyIn(Dist.CLIENT)
 public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
@@ -134,6 +162,22 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
 
     private List<ClickableNPC> clickableNPCs = new ArrayList<>();
 
+    /**
+     * Constructs a new WarehouseScreen with the specified menu and player inventory.
+     *
+     * <p>This constructor:
+     * <ul>
+     *   <li>Sets GUI dimensions to 400x240 pixels</li>
+     *   <li>Loads all registered items from Minecraft's item registry</li>
+     *   <li>Initializes tab buttons, edit boxes, and action buttons</li>
+     *   <li>Sets up scrolling system for item and seller lists</li>
+     *   <li>Configures initial tab state (defaults to Items tab)</li>
+     * </ul>
+     *
+     * @param menu the WarehouseMenu container managing server-side inventory
+     * @param playerInventory the player's inventory for item transfer operations
+     * @param title the screen title displayed at the top (typically warehouse name)
+     */
     public WarehouseScreen(WarehouseMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.imageWidth = GUI_WIDTH;
