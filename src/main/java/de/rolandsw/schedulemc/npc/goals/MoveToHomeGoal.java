@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.npc.goals;
+nimport de.rolandsw.schedulemc.util.GameConstants;
 
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import net.minecraft.core.BlockPos;
@@ -44,7 +45,7 @@ public class MoveToHomeGoal extends Goal {
 
         // Prüfe ob Heimzeit ist (einstellbare Zeiten)
         Level level = npc.level();
-        long dayTime = level.getDayTime() % 24000;
+        long dayTime = level.getDayTime() % GameConstants.TICKS_PER_DAY;
         long homeTime = npc.getNpcData().getHomeTime();
         long workStart = npc.getNpcData().getWorkStartTime();
 
@@ -72,7 +73,7 @@ public class MoveToHomeGoal extends Goal {
         }
 
         Level level = npc.level();
-        long dayTime = level.getDayTime() % 24000;
+        long dayTime = level.getDayTime() % GameConstants.TICKS_PER_DAY;
         long homeTime = npc.getNpcData().getHomeTime();
         long workStart = npc.getNpcData().getWorkStartTime();
 

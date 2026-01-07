@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.npc.events;
+nimport de.rolandsw.schedulemc.util.GameConstants;
 
 import de.rolandsw.schedulemc.npc.crime.CrimeManager;
 import de.rolandsw.schedulemc.npc.data.NPCType;
@@ -63,7 +64,7 @@ public class NPCKnockoutHandler {
             npc.setHealth(1.0f); // Minimal HP
             npc.getPersistentData().putBoolean("IsKnockedOut", true);
 
-            long currentDay = npc.level().getDayTime() / 24000;
+            long currentDay = npc.level().getDayTime() / GameConstants.TICKS_PER_DAY;
             npc.getPersistentData().putLong("KnockoutDay", currentDay);
 
             // Stoppe Bewegung
@@ -121,7 +122,7 @@ public class NPCKnockoutHandler {
 
                 if (SecureRandomUtil.chance(detectionChance)) {
                     // Verbrechen wurde gesehen! (SICHERHEIT: SecureRandom)
-                    long currentDay = npc.level().getDayTime() / 24000;
+                    long currentDay = npc.level().getDayTime() / GameConstants.TICKS_PER_DAY;
                     int starsToAdd;
                     String crimeType;
 
@@ -174,7 +175,7 @@ public class NPCKnockoutHandler {
 
         if (npc.getPersistentData().getBoolean("IsKnockedOut")) {
             long knockoutDay = npc.getPersistentData().getLong("KnockoutDay");
-            long currentDay = npc.level().getDayTime() / 24000;
+            long currentDay = npc.level().getDayTime() / GameConstants.TICKS_PER_DAY;
 
             // Nächster Tag = Erholung
             if (currentDay > knockoutDay) {

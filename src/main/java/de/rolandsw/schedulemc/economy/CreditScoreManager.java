@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.economy;
+nimport de.rolandsw.schedulemc.util.GameConstants;
 
 import com.google.gson.reflect.TypeToken;
 import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
@@ -296,11 +297,11 @@ public class CreditScoreManager extends AbstractPersistenceManager<Map<UUID, Cre
      *   <li>Triggert Balance-Updates alle 60 Sekunden (throttled)</li>
      * </ul>
      *
-     * @param dayTime Aktuelle Spielzeit in Ticks (wird durch 24000 geteilt für Tagesberechnung)
+     * @param dayTime Aktuelle Spielzeit in Ticks (wird durch GameConstants.TICKS_PER_DAY geteilt für Tagesberechnung)
      * @see #updateAllBalances()
      */
     public void tick(long dayTime) {
-        long day = dayTime / 24000L;
+        long day = dayTime / GameConstants.TICKS_PER_DAY;
 
         if (day != currentDay) {
             currentDay = day;
@@ -335,7 +336,7 @@ public class CreditScoreManager extends AbstractPersistenceManager<Map<UUID, Cre
      *
      * <p>Wird für Score-Berechnungen und Zeitstempel verwendet.</p>
      *
-     * @return Aktuelle Tag-Nummer (Spielzeit / 24000)
+     * @return Aktuelle Tag-Nummer (Spielzeit / GameConstants.TICKS_PER_DAY)
      */
     public long getCurrentDay() {
         return currentDay;

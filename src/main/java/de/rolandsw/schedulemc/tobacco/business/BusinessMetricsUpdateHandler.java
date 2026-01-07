@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.tobacco.business;
+nimport de.rolandsw.schedulemc.util.GameConstants;
 
 import de.rolandsw.schedulemc.managers.NPCEntityRegistry;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
@@ -27,11 +28,11 @@ public class BusinessMetricsUpdateHandler {
             }
 
             ServerLevel level = server.overworld();
-            long dayTime = level.getDayTime() % 24000;
+            long dayTime = level.getDayTime() % GameConstants.TICKS_PER_DAY;
 
             // Um Mitternacht (Zeit 0)
             if (dayTime == 0) {
-                long currentDay = level.getDayTime() / 24000;
+                long currentDay = level.getDayTime() / GameConstants.TICKS_PER_DAY;
 
                 // Nur einmal pro Tag
                 if (currentDay != lastUpdateDay) {

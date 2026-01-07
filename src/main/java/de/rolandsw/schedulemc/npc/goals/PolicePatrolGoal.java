@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.npc.goals;
+nimport de.rolandsw.schedulemc.util.GameConstants;
 
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
@@ -84,11 +85,11 @@ public class PolicePatrolGoal extends Goal {
             long arrivalTime = npc.getNpcData().getPatrolArrivalTime();
             long waitTimeTicks = ModConfigHandler.COMMON.POLICE_PATROL_WAIT_MINUTES.get() * 60 * 20; // Minuten → Ticks
 
-            // Berechne verstrichene Zeit (mit Wrap-Around bei 24000 Ticks pro Tag)
+            // Berechne verstrichene Zeit (mit Wrap-Around bei GameConstants.TICKS_PER_DAY Ticks pro Tag)
             long elapsedTicks = currentTime - arrivalTime;
             if (elapsedTicks < 0) {
                 // Wrap-around: neuer Tag hat begonnen
-                elapsedTicks += 24000;
+                elapsedTicks += GameConstants.TICKS_PER_DAY;
             }
 
             if (elapsedTicks >= waitTimeTicks) {

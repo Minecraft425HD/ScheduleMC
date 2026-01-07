@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.economy;
+nimport de.rolandsw.schedulemc.util.GameConstants;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -108,7 +109,7 @@ public class LoanManager extends AbstractPersistenceManager<Map<UUID, Loan>> {
     private MinecraftServer server;
 
     /**
-     * Aktueller Spieltag (dayTime / 24000) für tägliche Ratenzahlungen.
+     * Aktueller Spieltag (dayTime / GameConstants.TICKS_PER_DAY) für tägliche Ratenzahlungen.
      * <p>Wird verwendet, um Ratenzahlungen exakt einmal pro Minecraft-Tag zu verarbeiten.</p>
      */
     private long currentDay = 0;
@@ -238,7 +239,7 @@ public class LoanManager extends AbstractPersistenceManager<Map<UUID, Loan>> {
      * @see #processDailyPayments()
      */
     public void tick(long dayTime) {
-        long day = dayTime / 24000L;
+        long day = dayTime / GameConstants.TICKS_PER_DAY;
 
         if (day != currentDay) {
             currentDay = day;

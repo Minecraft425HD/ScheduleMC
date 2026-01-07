@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.npc.entity;
+nimport de.rolandsw.schedulemc.util.GameConstants;
 
 import de.rolandsw.schedulemc.managers.NPCEntityRegistry;
 import de.rolandsw.schedulemc.managers.NPCNameRegistry;
@@ -262,7 +263,7 @@ public class CustomNPCEntity extends PathfinderMob {
 
         // Für normale NPCs: Prüfe Zeitplan
         if (this.level() instanceof ServerLevel serverLevel) {
-            long dayTime = serverLevel.getDayTime() % 24000;
+            long dayTime = serverLevel.getDayTime() % GameConstants.TICKS_PER_DAY;
             long workStart = npcData.getWorkStartTime();
             long workEnd = npcData.getWorkEndTime();
             long homeTime = npcData.getHomeTime();

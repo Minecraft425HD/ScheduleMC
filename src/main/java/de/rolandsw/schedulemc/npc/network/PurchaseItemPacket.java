@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.npc.network;
+nimport de.rolandsw.schedulemc.util.GameConstants;
 
 import de.rolandsw.schedulemc.util.PacketHandler;
 import de.rolandsw.schedulemc.util.RateLimiter;

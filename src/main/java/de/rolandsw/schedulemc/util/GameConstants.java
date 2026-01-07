@@ -157,6 +157,28 @@ public final class GameConstants {
     /** Container default size (slots) */
     public static final int CONTAINER_DEFAULT_SIZE = 27;
 
+    /** Minecraft time offset: 0 ticks = 6:00 AM (6000 ticks offset from midnight) */
+    public static final long TIME_OFFSET_6AM = 6000L;
+
+    /** Movement threshold for detecting player movement (squared distance) */
+    public static final double MOVEMENT_THRESHOLD = 0.01;
+
+    // ═══════════════════════════════════════════════════════════
+    // NPC & CRIME CONSTANTS
+    // ═══════════════════════════════════════════════════════════
+
+    /** High cash threshold for illegal activity detection (10,000€) */
+    public static final double HIGH_CASH_THRESHOLD = 10000.0;
+
+    /** Maximum purchase quantity per transaction */
+    public static final int MAX_PURCHASE_QUANTITY = 10000;
+
+    /** Arrest timer timeout in milliseconds (10 minutes) */
+    public static final long ARREST_TIMEOUT_MS = 600000L;
+
+    /** Stealing detection window in milliseconds (10 seconds) */
+    public static final int STEALING_WINDOW_MS = 10000;
+
     // ═══════════════════════════════════════════════════════════
     // PRODUCTION CONSTANTS
     // ═══════════════════════════════════════════════════════════

@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.npc.network;
+nimport de.rolandsw.schedulemc.util.GameConstants;
 
 import de.rolandsw.schedulemc.economy.WalletManager;
 import de.rolandsw.schedulemc.economy.items.CashItem;
@@ -79,7 +80,7 @@ public class StealingAttemptPacket {
 
                 Entity entity = player.level().getEntity(npcEntityId);
                 if (entity instanceof CustomNPCEntity npc) {
-                    long currentDay = player.level().getDayTime() / 24000;
+                    long currentDay = player.level().getDayTime() / GameConstants.TICKS_PER_DAY;
 
                     if (success) {
                         // ═══════════════════════════════════════════

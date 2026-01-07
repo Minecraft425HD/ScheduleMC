@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.tobacco.business;
+nimport de.rolandsw.schedulemc.util.GameConstants;
 
 import de.rolandsw.schedulemc.messaging.Conversation;
 import de.rolandsw.schedulemc.messaging.MessageManager;
@@ -142,7 +143,7 @@ public class NPCPurchaseDecision {
      */
     private void calculateDealHistoryScore() {
         String playerUUID = player.getStringUUID();
-        long currentDay = npc.level().getDayTime() / 24000L;
+        long currentDay = npc.level().getDayTime() / GameConstants.TICKS_PER_DAY;
 
         int recentDeals = 0;
         for (Purchase purchase : metrics.getPurchaseHistory()) {
@@ -162,7 +163,7 @@ public class NPCPurchaseDecision {
      * ±5 Punkte basierend auf Tageszeit
      */
     private void calculateTimeScore() {
-        long dayTime = npc.level().getDayTime() % 24000;
+        long dayTime = npc.level().getDayTime() % GameConstants.TICKS_PER_DAY;
 
         // Minecraft Tageszeiten:
         // 0 = 6:00 (Morgen)

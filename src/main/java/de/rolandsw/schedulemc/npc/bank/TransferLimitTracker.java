@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.npc.bank;
+nimport de.rolandsw.schedulemc.util.GameConstants;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -130,7 +131,7 @@ public class TransferLimitTracker {
      * Tick-Methode für Tag-Wechsel
      */
     public void tick(long dayTime) {
-        long day = dayTime / 24000L;
+        long day = dayTime / GameConstants.TICKS_PER_DAY;
 
         if (day != currentDay) {
             currentDay = day;

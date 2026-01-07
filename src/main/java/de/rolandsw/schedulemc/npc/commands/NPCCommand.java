@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.npc.commands;
+nimport de.rolandsw.schedulemc.util.GameConstants;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
@@ -912,7 +913,7 @@ public class NPCCommand {
     /**
      * Konvertiert Stunden und Minuten zu Minecraft-Ticks
      * Minecraft Zeit: 0 Ticks = 6:00 Uhr morgens
-     * 1 Stunde = 1000 Ticks, 1 Tag = 24000 Ticks
+     * 1 Stunde = 1000 Ticks, 1 Tag = GameConstants.TICKS_PER_DAY Ticks
      */
     private static long timeToTicks(int hours, int minutes) {
         // Berechne Gesamtminuten seit Mitternacht
@@ -924,9 +925,9 @@ public class NPCCommand {
 
         // Normalisiere zu 0-24000 (ein Minecraft-Tag)
         while (ticks < 0) {
-            ticks += 24000;
+            ticks += GameConstants.TICKS_PER_DAY;
         }
-        ticks = ticks % 24000;
+        ticks = ticks % GameConstants.TICKS_PER_DAY;
 
         return ticks;
     }

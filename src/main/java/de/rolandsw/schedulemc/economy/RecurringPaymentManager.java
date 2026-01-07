@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.economy;
+nimport de.rolandsw.schedulemc.util.GameConstants;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -312,11 +313,11 @@ public class RecurringPaymentManager extends AbstractPersistenceManager<Map<UUID
      * <p>Wird vom Hauptserver-Tick aufgerufen. Erkennt Tageswechsel und triggert
      * die Verarbeitung aller fälligen Daueraufträge über {@link #processPayments()}.</p>
      *
-     * @param dayTime Aktuelle Spielzeit in Ticks (wird durch 24000 geteilt für Tagesberechnung)
+     * @param dayTime Aktuelle Spielzeit in Ticks (wird durch GameConstants.TICKS_PER_DAY geteilt für Tagesberechnung)
      * @see #processPayments()
      */
     public void tick(long dayTime) {
-        long day = dayTime / 24000L;
+        long day = dayTime / GameConstants.TICKS_PER_DAY;
 
         if (day != currentDay) {
             currentDay = day;

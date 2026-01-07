@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.npc.items;
+nimport de.rolandsw.schedulemc.util.GameConstants;
 
 import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
@@ -291,7 +292,7 @@ public class NPCLocationTool extends Item {
      */
     private String ticksToTime(long ticks) {
         // Minecraft: 0 = 6:00, 6000 = 12:00, 12000 = 18:00, 18000 = 0:00
-        long totalMinutes = (ticks + 6000) % 24000; // Offset +6000 damit 0 = 6:00
+        long totalMinutes = (ticks + GameConstants.TIME_OFFSET_6AM) % GameConstants.TICKS_PER_DAY; // Offset +6000 damit 0 = 6:00
         long hours = (totalMinutes / 1000) % 24;
         long minutes = (totalMinutes % 1000) * 60 / 1000;
         return String.format("%02d:%02d", hours, minutes);

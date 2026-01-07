@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.npc.events;
+nimport de.rolandsw.schedulemc.util.GameConstants;
 
 import de.rolandsw.schedulemc.util.EventHelper;
 import de.rolandsw.schedulemc.util.ConfigCache;
@@ -53,7 +54,7 @@ public class PoliceAIHandler {
     private static final int FINE_PER_WANTED_LEVEL = 500;
     private static final int JAIL_SECONDS_PER_WANTED_LEVEL = 60;
     private static final int MAX_ARREST_TIMER_ENTRIES = 1000;
-    private static final long ARREST_TIMER_TIMEOUT_MS = 600000; // 10 Minuten
+    private static final long ARREST_TIMER_TIMEOUT_MS = GameConstants.ARREST_TIMEOUT_MS; // 10 Minuten
     private static final int MAX_CACHE_ENTRIES = 500; // Max Einträge für LRU-Caches
 
     /**

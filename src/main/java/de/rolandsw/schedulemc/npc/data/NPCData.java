@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.npc.data;
+nimport de.rolandsw.schedulemc.util.GameConstants;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
@@ -17,7 +18,7 @@ import java.util.UUID;
  * Enthält alle Eigenschaften eines NPCs inkl. Skin, Dialog, Shop, etc.
  */
 public class NPCData {
-    // Time Constants (Minecraft Ticks: 24000 ticks = 1 day)
+    // Time Constants (Minecraft Ticks: GameConstants.TICKS_PER_DAY ticks = 1 day)
     private static final long WORK_END_TIME_TICKS = 13000;  // 19:00 Uhr abends (work end time)
     private static final long HOME_TIME_TICKS = 23000;      // 5:00 Uhr morgens (time to go home)
 
@@ -61,7 +62,7 @@ public class NPCData {
     private long patrolArrivalTime; // Letzte Ankunftszeit am Patrol-Punkt
     private long stationArrivalTime; // Letzte Ankunftszeit an der Station
 
-    // Schedule - Zeiteinstellungen (in Minecraft Ticks, 24000 = 1 Tag)
+    // Schedule - Zeiteinstellungen (in Minecraft Ticks, GameConstants.TICKS_PER_DAY = 1 Tag)
     private long workStartTime;  // Wann geht NPC zur Arbeit (Standard: 0 = 6:00 Uhr)
     private long workEndTime;    // Wann endet die Arbeit (Standard: 13000 = 19:00 Uhr)
     private long homeTime;       // Wann muss NPC nach Hause (Standard: 23000 = 5:00 Uhr morgens)

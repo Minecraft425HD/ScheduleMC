@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.npc.goals;
+nimport de.rolandsw.schedulemc.util.GameConstants;
 
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import net.minecraft.core.BlockPos;
@@ -191,7 +192,7 @@ public class MoveToLeisureGoal extends Goal {
      */
     private boolean isLeisureTime() {
         Level level = npc.level();
-        long dayTime = level.getDayTime() % 24000;
+        long dayTime = level.getDayTime() % GameConstants.TICKS_PER_DAY;
 
         long workStart = npc.getNpcData().getWorkStartTime();
         long workEnd = npc.getNpcData().getWorkEndTime();

@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.cannabis.blockentity;
+nimport de.rolandsw.schedulemc.util.GameConstants;
 
 import de.rolandsw.schedulemc.cannabis.CannabisStrain;
 import de.rolandsw.schedulemc.cannabis.CannabisQuality;
