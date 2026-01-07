@@ -51,6 +51,58 @@ import java.util.Random;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * Full-screen interactive world map GUI for exploring the game world with zoom and pan controls.
+ *
+ * <p>This screen provides a large-scale map interface for:
+ * <ul>
+ *   <li><b>World Exploration:</b> View rendered map tiles with 256x256 block regions</li>
+ *   <li><b>Zoom Controls:</b> 5 zoom levels from 1:1 to 32:1 scale</li>
+ *   <li><b>Pan/Drag:</b> Click and drag to navigate, or use arrow keys</li>
+ *   <li><b>Navigation:</b> Right-click to set waypoints and calculate routes</li>
+ *   <li><b>Entity Markers:</b> Display players and NPCs on the map</li>
+ *   <li><b>Coordinate Display:</b> Show current position and biome information</li>
+ * </ul>
+ *
+ * <p><b>Controls:</b>
+ * <ul>
+ *   <li><b>Mouse Wheel:</b> Zoom in/out between 5 zoom levels</li>
+ *   <li><b>Left Click + Drag:</b> Pan the map to explore different areas</li>
+ *   <li><b>Right Click:</b> Set navigation waypoint at cursor position</li>
+ *   <li><b>Arrow Keys:</b> Pan the map in cardinal directions</li>
+ *   <li><b>ESC:</b> Close the map and return to game</li>
+ *   <li><b>Options Button:</b> Open map configuration screen</li>
+ * </ul>
+ *
+ * <p><b>Features:</b>
+ * <ul>
+ *   <li>Real-time map rendering with chunk loading indicators</li>
+ *   <li>Player position marker with rotation indicator</li>
+ *   <li>NPC positions displayed as colored dots</li>
+ *   <li>Navigation path overlay with route visualization</li>
+ *   <li>Biome information display at cursor position</li>
+ *   <li>Coordinates display (world X/Z)</li>
+ *   <li>Zoom level indicator (1:1, 2:1, 4:1, 8:1, 16:1)</li>
+ *   <li>Smooth zoom transitions with easing animations</li>
+ * </ul>
+ *
+ * <p><b>Rendering Pipeline:</b>
+ * <ol>
+ *   <li>Calculate visible region bounds based on zoom and pan offset</li>
+ *   <li>Load region caches from {@link WorldMapData}</li>
+ *   <li>Render map tiles to screen with proper scaling</li>
+ *   <li>Overlay player marker, NPC markers, and navigation path</li>
+ *   <li>Render UI elements (coordinates, zoom level, buttons)</li>
+ * </ol>
+ *
+ * <p><b>Performance:</b> Map tiles are cached and only re-rendered when chunks change.
+ * Region loading is asynchronous via {@link AsyncPersistenceManager}.
+ *
+ * @see PopupScreen
+ * @see WorldMapData
+ * @see NavigationOverlay
+ * @see NPCMapRenderer
+ */
 public class WorldMapScreen extends PopupScreen {
     // Color Constants
     private static final int COLOR_MARKER_RED = 0xFFFF0000;         // Red marker color
