@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.util;
 
 import com.mojang.logging.LogUtils;
+import de.rolandsw.schedulemc.exceptions.ScheduleMCException;
 import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
@@ -555,6 +556,145 @@ public class ErrorRecovery {
      */
     public static void safeCleanup(@Nonnull Runnable cleanup, @Nonnull String resourceName) {
         safeExecute(cleanup, "Cleanup: " + resourceName);
+    }
+
+    // ========== Smart Retry with Exception Analysis ==========
+
+    /**
+     * Intelligently retries operations based on exception retryability.
+     * Only retries if the exception is marked as retryable via {@link ScheduleMCException#isRetryable()}.
+     *
+     * <p>Example:</p>
+     * <pre>{@code
+     * Result<Data> result = ErrorRecovery.smartRetry(
+     *     () -> fetchFromNetwork(),
+     *     RetryConfig.aggressive(),
+     *     "networkFetch"
+     * );
+     *
+     * if (result.isSuccess()) {
+     *     // Use result.getValue()
+     * } else {
+     *     // Exception was not retryable or max retries reached
+     *     Exception error = result.getError();
+     *     if (error instanceof ScheduleMCException) {
+     *         String userMessage = ((ScheduleMCException) error).getUserMessage();
+     *         // Show user-friendly message
+     *     }
+     * }
+     * }</pre>
+     *
+     * @param operation The operation to retry
+     * @param config Retry configuration
+     * @param operationName Name for logging
+     * @param <T> Result type
+     * @return Result with value or error
+     */
+    public static <T> Result<T> smartRetry(@Nonnull Callable<T> operation,
+                                          @Nonnull RetryConfig config,
+                                          @Nonnull String operationName) {
+        Exception lastError = null;
+        long delay = config.initialDelayMs;
+
+        for (int attempt = 1; attempt <= config.maxRetries; attempt++) {
+            try {
+                T result = operation.call();
+                if (attempt > 1 && config.logRetries) {
+                    LOGGER.info("{}: Succeeded on attempt {}/{}",
+                              operationName, attempt, config.maxRetries);
+                }
+                return Result.success(result, attempt);
+
+            } catch (Exception e) {
+                lastError = e;
+
+                // Check if exception is retryable
+                boolean shouldRetry = isRetryableException(e);
+
+                if (!shouldRetry) {
+                    if (config.logRetries) {
+                        LOGGER.warn("{}: Non-retryable error encountered: {}",
+                                  operationName, e.getMessage());
+                    }
+                    return Result.failure(lastError, attempt);
+                }
+
+                if (attempt < config.maxRetries) {
+                    if (config.logRetries) {
+                        String errorCode = getErrorCode(e);
+                        LOGGER.warn("{}: Attempt {}/{} failed (code: {}): {}. Retrying in {}ms...",
+                                  operationName, attempt, config.maxRetries,
+                                  errorCode != null ? errorCode : "N/A",
+                                  e.getMessage(), delay);
+                    }
+
+                    // Exponential backoff
+                    try {
+                        Thread.sleep(delay);
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        LOGGER.error("{}: Retry interrupted", operationName);
+                        return Result.failure(lastError, attempt);
+                    }
+
+                    delay = (long) (delay * config.backoffMultiplier);
+                } else {
+                    if (config.logRetries) {
+                        LOGGER.error("{}: All {} attempts failed. Last error: {}",
+                                   operationName, config.maxRetries, e.getMessage());
+                    }
+                }
+            }
+        }
+
+        return Result.failure(lastError, config.maxRetries);
+    }
+
+    /**
+     * Smart retry with default configuration.
+     */
+    public static <T> Result<T> smartRetry(@Nonnull Callable<T> operation, @Nonnull String operationName) {
+        return smartRetry(operation, RetryConfig.defaults(), operationName);
+    }
+
+    /**
+     * Checks if an exception is retryable.
+     *
+     * @param exception The exception to check
+     * @return true if retryable, false otherwise
+     */
+    private static boolean isRetryableException(Exception exception) {
+        if (exception instanceof ScheduleMCException) {
+            return ((ScheduleMCException) exception).isRetryable();
+        }
+
+        // Consider these Java exceptions as retryable by default
+        if (exception instanceof java.io.IOException) {
+            return true; // Network/IO issues are often transient
+        }
+        if (exception instanceof java.util.concurrent.TimeoutException) {
+            return true; // Timeouts are retryable
+        }
+        if (exception instanceof java.net.SocketException) {
+            return true; // Socket errors are often transient
+        }
+
+        // Default: not retryable
+        return false;
+    }
+
+    /**
+     * Extracts error code from exception if available.
+     *
+     * @param exception The exception
+     * @return Error code or null
+     */
+    @Nullable
+    private static String getErrorCode(Exception exception) {
+        if (exception instanceof ScheduleMCException) {
+            return ((ScheduleMCException) exception).getErrorCode();
+        }
+        return null;
     }
 
     private ErrorRecovery() {
