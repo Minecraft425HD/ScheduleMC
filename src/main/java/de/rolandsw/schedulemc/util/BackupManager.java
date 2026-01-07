@@ -30,7 +30,7 @@ public class BackupManager {
     private static final DateTimeFormatter TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
 
     /**
-     * Erstellt ein Backup einer Datei
+     * Erstellt ein Backup einer Datei mit Retry-Mechanismus
      *
      * @param sourceFile Die zu sichernde Datei
      * @return true wenn erfolgreich
@@ -41,7 +41,8 @@ public class BackupManager {
             return false;
         }
 
-        try {
+        // Use ErrorRecovery for resilient backup creation
+        ErrorRecovery.Result<Boolean> result = ErrorRecovery.retry(() -> {
             String timestamp = LocalDateTime.now().format(TIMESTAMP_FORMAT);
             String backupName = sourceFile.getName() + ".backup_" + timestamp;
             File backupFile = new File(sourceFile.getParent(), backupName);
@@ -53,14 +54,22 @@ public class BackupManager {
             cleanupOldBackups(sourceFile);
 
             return true;
-        } catch (IOException e) {
-            LOGGER.error("Fehler beim Erstellen des Backups für {}", sourceFile.getName(), e);
-            return false;
+        }, ErrorRecovery.RetryConfig.fast(), "Backup creation for " + sourceFile.getName());
+
+        if (result.isSuccess()) {
+            if (result.getAttempts() > 1) {
+                LOGGER.info("Backup erfolgreich nach {} Versuchen", result.getAttempts());
+            }
+            return true;
         }
+
+        LOGGER.error("Fehler beim Erstellen des Backups für {} nach {} Versuchen",
+            sourceFile.getName(), result.getAttempts(), result.getError());
+        return false;
     }
 
     /**
-     * Stellt die neueste Backup-Datei wieder her
+     * Stellt die neueste Backup-Datei wieder her mit Retry-Mechanismus
      *
      * @param targetFile Die wiederherzustellende Datei
      * @return true wenn erfolgreich
@@ -73,14 +82,24 @@ public class BackupManager {
             return false;
         }
 
-        try {
-            Files.copy(latestBackup.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            LOGGER.info("Backup wiederhergestellt von: {} nach {}", latestBackup.getName(), targetFile.getName());
+        // Use ErrorRecovery for resilient backup restoration
+        final File backup = latestBackup;
+        ErrorRecovery.Result<Boolean> result = ErrorRecovery.retry(() -> {
+            Files.copy(backup.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            LOGGER.info("Backup wiederhergestellt von: {} nach {}", backup.getName(), targetFile.getName());
             return true;
-        } catch (IOException e) {
-            LOGGER.error("Fehler beim Wiederherstellen des Backups", e);
-            return false;
+        }, ErrorRecovery.RetryConfig.defaults(), "Backup restore for " + targetFile.getName());
+
+        if (result.isSuccess()) {
+            if (result.getAttempts() > 1) {
+                LOGGER.info("Backup-Wiederherstellung erfolgreich nach {} Versuchen", result.getAttempts());
+            }
+            return true;
         }
+
+        LOGGER.error("Fehler beim Wiederherstellen des Backups nach {} Versuchen",
+            result.getAttempts(), result.getError());
+        return false;
     }
 
     /**
@@ -112,35 +131,43 @@ public class BackupManager {
 
     /**
      * Löscht alte Backups und behält nur die neuesten MAX_BACKUPS
+     * Nutzt Safe Execution - Fehler beim Löschen blockieren nicht den Backup-Prozess
      *
      * @param targetFile Die Zieldatei
      */
     private static void cleanupOldBackups(@Nonnull File targetFile) {
-        File parentDir = targetFile.getParentFile();
-        if (parentDir == null || !parentDir.exists()) {
-            return;
-        }
-
-        String baseFileName = targetFile.getName() + ".backup_";
-
-        File[] backups = parentDir.listFiles((dir, name) -> name.startsWith(baseFileName));
-
-        if (backups == null || backups.length <= MAX_BACKUPS) {
-            return;
-        }
-
-        // Sortiere nach Änderungsdatum (älteste zuerst)
-        Arrays.sort(backups, Comparator.comparingLong(File::lastModified));
-
-        // Lösche die ältesten Backups
-        int toDelete = backups.length - MAX_BACKUPS;
-        for (int i = 0; i < toDelete; i++) {
-            if (backups[i].delete()) {
-                LOGGER.debug("Altes Backup gelöscht: {}", backups[i].getName());
-            } else {
-                LOGGER.warn("Konnte altes Backup nicht löschen: {}", backups[i].getName());
+        // Use safe execution - cleanup failures should not block backup creation
+        ErrorRecovery.safeExecute(() -> {
+            File parentDir = targetFile.getParentFile();
+            if (parentDir == null || !parentDir.exists()) {
+                return;
             }
-        }
+
+            String baseFileName = targetFile.getName() + ".backup_";
+
+            File[] backups = parentDir.listFiles((dir, name) -> name.startsWith(baseFileName));
+
+            if (backups == null || backups.length <= MAX_BACKUPS) {
+                return;
+            }
+
+            // Sortiere nach Änderungsdatum (älteste zuerst)
+            Arrays.sort(backups, Comparator.comparingLong(File::lastModified));
+
+            // Lösche die ältesten Backups
+            int toDelete = backups.length - MAX_BACKUPS;
+            for (int i = 0; i < toDelete; i++) {
+                final File fileToDelete = backups[i];
+                // Each delete is safe - one failure doesn't stop others
+                ErrorRecovery.safeExecute(() -> {
+                    if (fileToDelete.delete()) {
+                        LOGGER.debug("Altes Backup gelöscht: {}", fileToDelete.getName());
+                    } else {
+                        LOGGER.warn("Konnte altes Backup nicht löschen: {}", fileToDelete.getName());
+                    }
+                }, "Delete old backup " + fileToDelete.getName());
+            }
+        }, "Cleanup old backups for " + targetFile.getName());
     }
 
     /**
