@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.client.screen.apps;
+import de.rolandsw.schedulemc.util.UIColors;
 
 import de.rolandsw.schedulemc.npc.crime.CrimeManager;
 import net.minecraft.client.Minecraft;
@@ -22,10 +23,10 @@ import java.util.UUID;
  */
 @OnlyIn(Dist.CLIENT)
     // Color constants for UI theming
-    private static final int COLOR_BACKGROUND_OUTER = 0xFF1C1C1C;
-    private static final int COLOR_BACKGROUND_INNER = 0xFF2A2A2A;
-    private static final int COLOR_HEADER = 0xFF1A1A1A;
-    private static final int COLOR_TAB_ACTIVE = 0xFF4A90E2;
+    private static final int COLOR_BACKGROUND_OUTER = UIColors.BACKGROUND_DARKER;
+    private static final int COLOR_BACKGROUND_INNER = UIColors.BACKGROUND_MEDIUM_DARK;
+    private static final int COLOR_HEADER = UIColors.BACKGROUND_DARKEST;
+    private static final int COLOR_TAB_ACTIVE = UIColors.ACCENT_BLUE;
     private static final int COLOR_TEXT_WHITE = 0xFFFFFF;
 
 public class CrimeStatsAppScreen extends Screen {
@@ -132,11 +133,11 @@ public class CrimeStatsAppScreen extends Screen {
         renderBackground(guiGraphics);
 
         // Smartphone-Hintergrund
-        guiGraphics.fill(leftPos - 5, topPos - 5, leftPos + WIDTH + 5, topPos + HEIGHT + 5, 0xFF1C1C1C);
-        guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + HEIGHT, 0xFF2A2A2A);
+        guiGraphics.fill(leftPos - 5, topPos - 5, leftPos + WIDTH + 5, topPos + HEIGHT + 5, UIColors.BACKGROUND_DARKER);
+        guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + HEIGHT, UIColors.BACKGROUND_MEDIUM_DARK);
 
         // Header
-        guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 28, 0xFF1A1A1A);
+        guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 28, UIColors.BACKGROUND_DARKEST);
         guiGraphics.drawCenteredString(this.font, "§c§lPolizei-Akte", leftPos + WIDTH / 2, topPos + 10, 0xFFFFFF);
 
         // Tab-Hintergrund (aktiver Tab hervorheben)
@@ -144,7 +145,7 @@ public class CrimeStatsAppScreen extends Screen {
             int tabX = leftPos + 5 + (i * TAB_WIDTH);
             int tabY = topPos + 30;
             if (i == currentTab) {
-                guiGraphics.fill(tabX - 1, tabY - 1, tabX + TAB_WIDTH - 1, tabY + TAB_HEIGHT + 1, 0xFF4A90E2);
+                guiGraphics.fill(tabX - 1, tabY - 1, tabX + TAB_WIDTH - 1, tabY + TAB_HEIGHT + 1, UIColors.ACCENT_BLUE);
             }
         }
 
@@ -163,8 +164,8 @@ public class CrimeStatsAppScreen extends Screen {
         if (maxScroll > 0) {
             int scrollBarHeight = Math.max(20, CONTENT_HEIGHT * CONTENT_HEIGHT / (CONTENT_HEIGHT + maxScroll));
             int scrollBarY = contentY + (scrollOffset * (CONTENT_HEIGHT - scrollBarHeight) / maxScroll);
-            guiGraphics.fill(leftPos + WIDTH - 8, contentY, leftPos + WIDTH - 5, contentEndY, 0x44FFFFFF);
-            guiGraphics.fill(leftPos + WIDTH - 8, scrollBarY, leftPos + WIDTH - 5, scrollBarY + scrollBarHeight, 0xAAFFFFFF);
+            guiGraphics.fill(leftPos + WIDTH - 8, contentY, leftPos + WIDTH - 5, contentEndY, UIColors.WHITE_SEMI_TRANSPARENT);
+            guiGraphics.fill(leftPos + WIDTH - 8, scrollBarY, leftPos + WIDTH - 5, scrollBarY + scrollBarHeight, UIColors.WHITE_TRANSPARENT_67);
         }
 
         super.render(guiGraphics, mouseX, mouseY, partialTick);
@@ -180,7 +181,7 @@ public class CrimeStatsAppScreen extends Screen {
 
         // Wanted-Level Box
         if (y >= startY - 80 && y < endY) {
-            int boxColor = wantedLevel > 0 ? 0x44AA0000 : 0x44228B22;
+            int boxColor = wantedLevel > 0 ? UIColors.OVERLAY_RED_27 : UIColors.OVERLAY_GREEN_27;
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 75, boxColor);
 
             guiGraphics.drawCenteredString(this.font, "§f§lFAHNDUNGSStufe", leftPos + WIDTH / 2, y + 5, 0xFFFFFF);
@@ -202,7 +203,7 @@ public class CrimeStatsAppScreen extends Screen {
 
         // Verfolgungsstatus
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
+            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, UIColors.WHITE_SEMI_TRANSPARENT);
         }
         y += 8;
         contentHeight += 8;
@@ -217,7 +218,7 @@ public class CrimeStatsAppScreen extends Screen {
             contentHeight += 35;
         } else {
             if (y >= startY - 25 && y < endY) {
-                guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 20, 0x44228B22);
+                guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 20, UIColors.OVERLAY_GREEN_27);
                 guiGraphics.drawString(this.font, "§a✓ KEINE FAHNDUNG", leftPos + 15, y + 5, 0x55FF55);
             }
             y += 25;
@@ -226,7 +227,7 @@ public class CrimeStatsAppScreen extends Screen {
 
         // Tipps
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
+            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, UIColors.WHITE_SEMI_TRANSPARENT);
         }
         y += 8;
         contentHeight += 8;
@@ -297,7 +298,7 @@ public class CrimeStatsAppScreen extends Screen {
         } else {
             // Kautions-Box
             if (y >= startY - 60 && y < endY) {
-                guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 55, 0x44AA0000);
+                guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 55, UIColors.OVERLAY_RED_27);
 
                 guiGraphics.drawString(this.font, "§fFahndungsstufe:", leftPos + 15, y + 5, 0xFFFFFF);
                 guiGraphics.drawString(this.font, "§c" + wantedLevel + " Sterne", leftPos + 120, y + 5, 0xFF5555);
@@ -305,7 +306,7 @@ public class CrimeStatsAppScreen extends Screen {
                 guiGraphics.drawString(this.font, "§fKosten pro Stern:", leftPos + 15, y + 18, 0xFFFFFF);
                 guiGraphics.drawString(this.font, String.format("§e%.0f€", BAIL_COST_PER_STAR), leftPos + 120, y + 18, 0xFFAA00);
 
-                guiGraphics.fill(leftPos + 15, y + 30, leftPos + WIDTH - 15, y + 31, 0x44FFFFFF);
+                guiGraphics.fill(leftPos + 15, y + 30, leftPos + WIDTH - 15, y + 31, UIColors.WHITE_SEMI_TRANSPARENT);
 
                 guiGraphics.drawString(this.font, "§f§lGESAMT:", leftPos + 15, y + 35, 0xFFFFFF);
                 guiGraphics.drawString(this.font, String.format("§c§l%.0f€", bailCost), leftPos + 100, y + 35, 0xFF5555);
@@ -315,7 +316,7 @@ public class CrimeStatsAppScreen extends Screen {
 
             // Info-Text
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
+                guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, UIColors.WHITE_SEMI_TRANSPARENT);
             }
             y += 8;
             contentHeight += 8;
@@ -347,7 +348,7 @@ public class CrimeStatsAppScreen extends Screen {
 
         // Alternative
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
+            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, UIColors.WHITE_SEMI_TRANSPARENT);
         }
         y += 8;
         contentHeight += 8;
@@ -410,7 +411,7 @@ public class CrimeStatsAppScreen extends Screen {
 
         // Polizei-Verhalten
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
+            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, UIColors.WHITE_SEMI_TRANSPARENT);
         }
         y += 8;
         contentHeight += 8;
@@ -440,7 +441,7 @@ public class CrimeStatsAppScreen extends Screen {
 
         // Escape-Mechanik
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
+            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, UIColors.WHITE_SEMI_TRANSPARENT);
         }
         y += 8;
         contentHeight += 8;

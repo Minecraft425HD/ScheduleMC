@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.mdma.screen;
+import de.rolandsw.schedulemc.util.UIColors;
 
 import de.rolandsw.schedulemc.mdma.MDMAQuality;
 import de.rolandsw.schedulemc.mdma.menu.PillenPresseMenu;
@@ -23,19 +24,19 @@ public class PillenPresseScreen extends AbstractContainerScreen<PillenPresseMenu
     private static final int COLOR_BACKGROUND_DARK_MAGENTA = 0xFF1A0A1A;
     private static final int COLOR_BACKGROUND_MEDIUM_MAGENTA = 0xFF2D1D2D;
     private static final int COLOR_HEADER_MAGENTA = 0xFF3D1D3D;
-    private static final int COLOR_FRAME_GRAY = 0xFF555555;
+    private static final int COLOR_FRAME_GRAY = UIColors.GRAY_DARK;
     private static final int COLOR_BAR_BACKGROUND_DARK = 0xFF222222;
     private static final int COLOR_ZONE_BAD_RED = 0xFFAA3333;
     private static final int COLOR_ZONE_GOOD_YELLOW = 0xFFAAAA33;
     private static final int COLOR_ZONE_PERFECT_GREEN = 0xFF33AA33;
-    private static final int COLOR_INDICATOR_WHITE = 0xFFFFFFFF;
+    private static final int COLOR_INDICATOR_WHITE = UIColors.WHITE;
     private static final int COLOR_BUTTON_DISABLED = 0xFF333355;
     private static final int COLOR_BUTTON_ACTIVE_MAGENTA = 0xFFDD55DD;
     private static final int COLOR_BUTTON_HOVERED_MAGENTA = 0xFFAA44AA;
     private static final int COLOR_BUTTON_PROCESSING = 0xFF444455;
     private static final int COLOR_BUTTON_BORDER = 0xFF222244;
-    private static final int COLOR_QUALITY_EXCELLENT_ORANGE = 0xFFFFAA00;
-    private static final int COLOR_QUALITY_PERFECT_GREEN = 0xFF55FF55;
+    private static final int COLOR_QUALITY_EXCELLENT_ORANGE = UIColors.ACCENT_ORANGE;
+    private static final int COLOR_QUALITY_PERFECT_GREEN = UIColors.ACCENT_LIME;
     private static final int COLOR_QUALITY_GOOD_YELLOW = 0xFFFFFF55;
     private static final int COLOR_QUALITY_BAD_RED = 0xFFFF5555;
     private static final int COLOR_TITLE_LIGHT_MAGENTA = 0xFFDD88FF;

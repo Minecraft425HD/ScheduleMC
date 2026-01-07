@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.client.screen;
+import de.rolandsw.schedulemc.util.UIColors;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import de.rolandsw.schedulemc.ScheduleMC;
@@ -31,11 +32,11 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class SmartphoneScreen extends Screen {
 
     // Color Constants
-    private static final int COLOR_PHONE_FRAME = 0xFF1C1C1C;
-    private static final int COLOR_PHONE_BACKGROUND = 0xFF2A2A2A;
-    private static final int COLOR_HEADER_DARK = 0xFF1A1A1A;
-    private static final int COLOR_SCROLLBAR_HANDLE_HOVERED = 0xFFAAAAAA;
-    private static final int COLOR_SCROLLBAR_HANDLE = 0xFF888888;
+    private static final int COLOR_PHONE_FRAME = UIColors.BACKGROUND_DARKER;
+    private static final int COLOR_PHONE_BACKGROUND = UIColors.BACKGROUND_MEDIUM_DARK;
+    private static final int COLOR_HEADER_DARK = UIColors.BACKGROUND_DARKEST;
+    private static final int COLOR_SCROLLBAR_HANDLE_HOVERED = UIColors.GRAY_VERY_LIGHT;
+    private static final int COLOR_SCROLLBAR_HANDLE = UIColors.GRAY;
     private static final int COLOR_APP_ICON_HOVERED = 0xFF4A4A4A;
     private static final int COLOR_APP_ICON = 0xFF3A3A3A;
     private static final int COLOR_APP_ICON_BORDER_HOVERED = 0xFF6A6A6A;
@@ -322,8 +323,8 @@ public class SmartphoneScreen extends Screen {
                 gridStartY,
                 gridStartX + gridWidth,
                 gridStartY + 15,
-                0xAA000000 | (COLOR_PHONE_BACKGROUND & 0x00FFFFFF),
-                0x00000000 | (COLOR_PHONE_BACKGROUND & 0x00FFFFFF)
+                0xAA000000 | (COLOR_PHONE_BACKGROUND & UIColors.WHITE_FULLY_TRANSPARENT),
+                UIColors.TRANSPARENT | (COLOR_PHONE_BACKGROUND & UIColors.WHITE_FULLY_TRANSPARENT)
             );
         }
 
@@ -334,8 +335,8 @@ public class SmartphoneScreen extends Screen {
                 gridStartY + visibleContentHeight - 15,
                 gridStartX + gridWidth,
                 gridStartY + visibleContentHeight,
-                0x00000000 | (COLOR_PHONE_BACKGROUND & 0x00FFFFFF),
-                0xAA000000 | (COLOR_PHONE_BACKGROUND & 0x00FFFFFF)
+                UIColors.TRANSPARENT | (COLOR_PHONE_BACKGROUND & UIColors.WHITE_FULLY_TRANSPARENT),
+                0xAA000000 | (COLOR_PHONE_BACKGROUND & UIColors.WHITE_FULLY_TRANSPARENT)
             );
         }
 

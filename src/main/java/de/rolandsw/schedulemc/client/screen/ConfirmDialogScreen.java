@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.client.screen;
+import de.rolandsw.schedulemc.util.UIColors;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -76,8 +77,8 @@ public class ConfirmDialogScreen extends Screen {
         int topPos = (this.height - dialogHeight) / 2;
 
         // Dialog-Box
-        guiGraphics.fill(leftPos - 2, topPos - 2, leftPos + dialogWidth + 2, topPos + dialogHeight + 2, 0xFF1C1C1C);
-        guiGraphics.fill(leftPos, topPos, leftPos + dialogWidth, topPos + dialogHeight, 0xFF2A2A2A);
+        guiGraphics.fill(leftPos - 2, topPos - 2, leftPos + dialogWidth + 2, topPos + dialogHeight + 2, UIColors.BACKGROUND_DARKER);
+        guiGraphics.fill(leftPos, topPos, leftPos + dialogWidth, topPos + dialogHeight, UIColors.BACKGROUND_MEDIUM_DARK);
 
         // Titel (Rot für Warnung)
         guiGraphics.fill(leftPos, topPos, leftPos + dialogWidth, topPos + 25, 0xFF3A0000);
@@ -93,7 +94,7 @@ public class ConfirmDialogScreen extends Screen {
         // Warnung (falls vorhanden)
         if (warningText != null) {
             y += 5;
-            guiGraphics.fill(leftPos + 10, y, leftPos + dialogWidth - 10, y + 25, 0x44AA0000);
+            guiGraphics.fill(leftPos + 10, y, leftPos + dialogWidth - 10, y + 25, UIColors.OVERLAY_RED_27);
             guiGraphics.drawCenteredString(this.font, "§c⚠ " + warningText, leftPos + dialogWidth / 2, y + 8, 0xFF5555);
         }
 

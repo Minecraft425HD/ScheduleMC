@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.tobacco.screen;
+import de.rolandsw.schedulemc.util.UIColors;
 nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
@@ -282,13 +283,13 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
         int y = this.topPos;
 
         // Dunkler Hintergrund
-        graphics.fill(x, y, x + this.imageWidth, y + this.imageHeight, 0xFF2B2B2B);
+        graphics.fill(x, y, x + this.imageWidth, y + this.imageHeight, UIColors.BACKGROUND_MEDIUM);
 
         // Hellerer innerer Bereich
-        graphics.fill(x + 2, y + 2, x + this.imageWidth - 2, y + this.imageHeight - 2, 0xFF4C4C4C);
+        graphics.fill(x + 2, y + 2, x + this.imageWidth - 2, y + this.imageHeight - 2, UIColors.BACKGROUND_PANEL);
 
         // Header-Bereich
-        graphics.fill(x + 2, y + 2, x + this.imageWidth - 2, y + 20, 0xFF1E1E1E);
+        graphics.fill(x + 2, y + 2, x + this.imageWidth - 2, y + 20, UIColors.BACKGROUND_DARK);
     }
 
     @Override
@@ -371,14 +372,14 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
 
         // Score-Balken (100 Pixel breit)
         int barWidth = Math.min((purchaseScore * 100) / 100, 100); // Normalisiert auf 0-100
-        graphics.fill(x, y + 10, x + 100, y + 16, 0xFF333333); // Hintergrund (dunkelgrau)
+        graphics.fill(x, y + 10, x + 100, y + 16, UIColors.BACKGROUND_LIGHT); // Hintergrund (dunkelgrau)
 
         // Farbe basierend auf Kaufbereitschaft
         int barColor;
         if (willingToBuy) {
-            if (purchaseScore >= 70) barColor = 0xFF55FF55; // Grün (hohes Interesse)
+            if (purchaseScore >= 70) barColor = UIColors.ACCENT_LIME; // Grün (hohes Interesse)
             else if (purchaseScore >= 50) barColor = 0xFFFFFF55; // Gelb (mittleres Interesse)
-            else barColor = 0xFFFFAA00; // Orange (niedriges Interesse)
+            else barColor = UIColors.ACCENT_ORANGE; // Orange (niedriges Interesse)
         } else {
             barColor = 0xFFFF5555; // Rot (kein Interesse)
         }

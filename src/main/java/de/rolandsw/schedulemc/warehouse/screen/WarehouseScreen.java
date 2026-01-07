@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.warehouse.screen;
+import de.rolandsw.schedulemc.util.UIColors;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
@@ -54,12 +55,12 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
     private static final int GUI_HEIGHT = 240;
 
     // Farben (Dark Theme)
-    private static final int COLOR_BG = 0xFF2B2B2B;
+    private static final int COLOR_BG = UIColors.BACKGROUND_MEDIUM;
     private static final int COLOR_BG_LIGHT = 0xFF3C3C3C;
-    private static final int COLOR_BORDER = 0xFF1A1A1A;
-    private static final int COLOR_TEXT = 0xFFFFFFFF;
-    private static final int COLOR_TEXT_GRAY = 0xFFAAAAAA;
-    private static final int COLOR_ACCENT = 0xFF4A90E2;
+    private static final int COLOR_BORDER = UIColors.BACKGROUND_DARKEST;
+    private static final int COLOR_TEXT = UIColors.WHITE;
+    private static final int COLOR_TEXT_GRAY = UIColors.GRAY_VERY_LIGHT;
+    private static final int COLOR_ACCENT = UIColors.ACCENT_BLUE;
     private static final int COLOR_SUCCESS = 0xFF5CB85C;
     private static final int COLOR_WARNING = 0xFFF0AD4E;
     private static final int COLOR_DANGER = 0xFFD9534F;
@@ -949,8 +950,8 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         itemSearchField.setValue("");
         itemSearchField.setResponder(this::filterItems);
         itemSearchField.setBordered(true);
-        itemSearchField.setTextColor(0xFFFFFFFF);
-        itemSearchField.setTextColorUneditable(0xFFAAAAAA);
+        itemSearchField.setTextColor(UIColors.WHITE);
+        itemSearchField.setTextColorUneditable(UIColors.GRAY_VERY_LIGHT);
         // Set focus on search field
         this.setFocused(itemSearchField);
     }

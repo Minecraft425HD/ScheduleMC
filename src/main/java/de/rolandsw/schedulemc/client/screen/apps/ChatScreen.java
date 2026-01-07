@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.client.screen.apps;
+import de.rolandsw.schedulemc.util.UIColors;
 
 import de.rolandsw.schedulemc.messaging.Conversation;
 import de.rolandsw.schedulemc.messaging.HeadRenderer;
@@ -116,7 +117,7 @@ public class ChatScreen extends Screen {
         renderBackground(guiGraphics);
 
         // Smartphone border (dark frame)
-        guiGraphics.fill(leftPos - 5, topPos - 5, leftPos + WIDTH + 5, topPos + HEIGHT + 5, 0xFF1C1C1C);
+        guiGraphics.fill(leftPos - 5, topPos - 5, leftPos + WIDTH + 5, topPos + HEIGHT + 5, UIColors.BACKGROUND_DARKER);
 
         // WhatsApp chat wallpaper (light beige/cream)
         guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + HEIGHT, 0xFFE7DDD3);
@@ -125,7 +126,7 @@ public class ChatScreen extends Screen {
         guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 40, 0xFF075E54);
 
         // Back arrow
-        guiGraphics.drawString(this.font, "←", leftPos + 8, topPos + 14, 0xFFFFFFFF, false);
+        guiGraphics.drawString(this.font, "←", leftPos + 8, topPos + 14, UIColors.WHITE, false);
 
         // Profile picture in header
         int headSize = 28;
@@ -137,7 +138,7 @@ public class ChatScreen extends Screen {
 
         // Name (white, bold) - no shadow
         String displayName = conversation.getParticipantName();
-        guiGraphics.drawString(this.font, displayName, headX + headSize + 8, topPos + 12, 0xFFFFFFFF, false);
+        guiGraphics.drawString(this.font, displayName, headX + headSize + 8, topPos + 12, UIColors.WHITE, false);
 
         // Online status (small text below name) - no shadow
         guiGraphics.drawString(this.font, "online", headX + headSize + 8, topPos + 24, 0xFFCCCCCC, false);
@@ -206,30 +207,30 @@ public class ChatScreen extends Screen {
 
             // Message text (black) - no shadow
             for (int i = 0; i < lines.size(); i++) {
-                guiGraphics.drawString(this.font, lines.get(i), msgX + padding, y + padding + (i * 10), 0xFF000000, false);
+                guiGraphics.drawString(this.font, lines.get(i), msgX + padding, y + padding + (i * 10), UIColors.BLACK, false);
             }
 
             // Timestamp (bottom right, small, gray) - no shadow
             guiGraphics.drawString(this.font, timeStr,
                 msgX + msgWidth - timeWidth - padding,
-                y + msgHeight - 10, 0xFF888888, false);
+                y + msgHeight - 10, UIColors.GRAY, false);
 
         } else {
             // Left-aligned (received messages) - White
             int msgX = leftPos + 8;
 
             // Message bubble with rounded corner effect
-            drawRoundedBubble(guiGraphics, msgX, y, msgWidth, msgHeight, 0xFFFFFFFF);
+            drawRoundedBubble(guiGraphics, msgX, y, msgWidth, msgHeight, UIColors.WHITE);
 
             // Message text (black) - no shadow
             for (int i = 0; i < lines.size(); i++) {
-                guiGraphics.drawString(this.font, lines.get(i), msgX + padding, y + padding + (i * 10), 0xFF000000, false);
+                guiGraphics.drawString(this.font, lines.get(i), msgX + padding, y + padding + (i * 10), UIColors.BLACK, false);
             }
 
             // Timestamp (bottom right, small, gray) - no shadow
             guiGraphics.drawString(this.font, timeStr,
                 msgX + msgWidth - timeWidth - padding,
-                y + msgHeight - 10, 0xFF888888, false);
+                y + msgHeight - 10, UIColors.GRAY, false);
         }
     }
 

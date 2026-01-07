@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.client;
+import de.rolandsw.schedulemc.util.UIColors;
 import de.rolandsw.schedulemc.util.EventHelper;
 
 import de.rolandsw.schedulemc.ScheduleMC;
@@ -39,8 +40,8 @@ public class TobaccoPotHudOverlay {
     // Colors
     private static final int COLOR_WATER_BLUE = 0xFF2196F3;
     private static final int COLOR_SOIL_BROWN = 0xFF8D6E63;
-    private static final int COLOR_BAR_BACKGROUND = 0xFF1A1A1A;
-    private static final int COLOR_FULLY_GROWN_GREEN = 0xFF4CAF50;
+    private static final int COLOR_BAR_BACKGROUND = UIColors.BACKGROUND_DARKEST;
+    private static final int COLOR_FULLY_GROWN_GREEN = UIColors.ACCENT_GREEN;
     private static final int COLOR_GROWING_YELLOW = 0xFFFDD835;
 
     @SubscribeEvent
@@ -195,7 +196,7 @@ public class TobaccoPotHudOverlay {
             TobaccoPlantData plant = potData.getPlant();
 
             // Trennlinie
-            guiGraphics.fill(HUD_X, currentY, HUD_X + BAR_WIDTH, currentY + 1, 0x44FFFFFF);
+            guiGraphics.fill(HUD_X, currentY, HUD_X + BAR_WIDTH, currentY + 1, UIColors.WHITE_SEMI_TRANSPARENT);
             currentY += 4;
 
             // Pflanzen-Typ + Qualität
@@ -254,14 +255,14 @@ public class TobaccoPotHudOverlay {
         // Segment-Trennlinien (5 Einheiten)
         for (int i = 1; i < 5; i++) {
             int segmentX = x + (i * SEGMENT_WIDTH);
-            guiGraphics.fill(segmentX, y, segmentX + 1, y + BAR_HEIGHT, 0xAAFFFFFF);
+            guiGraphics.fill(segmentX, y, segmentX + 1, y + BAR_HEIGHT, UIColors.WHITE_TRANSPARENT_67);
         }
 
         // Rahmen
-        guiGraphics.fill(x - 1, y - 1, x + BAR_WIDTH + 1, y, 0xAAFFFFFF); // oben
-        guiGraphics.fill(x - 1, y + BAR_HEIGHT, x + BAR_WIDTH + 1, y + BAR_HEIGHT + 1, 0xAAFFFFFF); // unten
-        guiGraphics.fill(x - 1, y, x, y + BAR_HEIGHT, 0xAAFFFFFF); // links
-        guiGraphics.fill(x + BAR_WIDTH, y, x + BAR_WIDTH + 1, y + BAR_HEIGHT, 0xAAFFFFFF); // rechts
+        guiGraphics.fill(x - 1, y - 1, x + BAR_WIDTH + 1, y, UIColors.WHITE_TRANSPARENT_67); // oben
+        guiGraphics.fill(x - 1, y + BAR_HEIGHT, x + BAR_WIDTH + 1, y + BAR_HEIGHT + 1, UIColors.WHITE_TRANSPARENT_67); // unten
+        guiGraphics.fill(x - 1, y, x, y + BAR_HEIGHT, UIColors.WHITE_TRANSPARENT_67); // links
+        guiGraphics.fill(x + BAR_WIDTH, y, x + BAR_WIDTH + 1, y + BAR_HEIGHT, UIColors.WHITE_TRANSPARENT_67); // rechts
     }
 
     /**
@@ -280,9 +281,9 @@ public class TobaccoPotHudOverlay {
         }
 
         // Rahmen
-        guiGraphics.fill(x - 1, y - 1, x + BAR_WIDTH + 1, y, 0xAAFFFFFF);
-        guiGraphics.fill(x - 1, y + BAR_HEIGHT, x + BAR_WIDTH + 1, y + BAR_HEIGHT + 1, 0xAAFFFFFF);
-        guiGraphics.fill(x - 1, y, x, y + BAR_HEIGHT, 0xAAFFFFFF);
-        guiGraphics.fill(x + BAR_WIDTH, y, x + BAR_WIDTH + 1, y + BAR_HEIGHT, 0xAAFFFFFF);
+        guiGraphics.fill(x - 1, y - 1, x + BAR_WIDTH + 1, y, UIColors.WHITE_TRANSPARENT_67);
+        guiGraphics.fill(x - 1, y + BAR_HEIGHT, x + BAR_WIDTH + 1, y + BAR_HEIGHT + 1, UIColors.WHITE_TRANSPARENT_67);
+        guiGraphics.fill(x - 1, y, x, y + BAR_HEIGHT, UIColors.WHITE_TRANSPARENT_67);
+        guiGraphics.fill(x + BAR_WIDTH, y, x + BAR_WIDTH + 1, y + BAR_HEIGHT, UIColors.WHITE_TRANSPARENT_67);
     }
 }

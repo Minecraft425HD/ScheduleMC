@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.mapview.presentation.screen;
+import de.rolandsw.schedulemc.util.UIColors;
 
 import de.rolandsw.schedulemc.mapview.config.MapViewConfiguration;
 import de.rolandsw.schedulemc.mapview.config.WorldMapConfiguration;
@@ -54,8 +55,8 @@ public class WorldMapScreen extends PopupScreen {
     // Color Constants
     private static final int COLOR_MARKER_RED = 0xFFFF0000;         // Red marker color
     private static final int COLOR_PLAYER_MARKER_YELLOW = 0xFFFF00; // Yellow player marker
-    private static final int COLOR_ENTITY_WHITE = 0xFFFFFFFF;       // White color for entities and text
-    private static final int COLOR_TEXT_WHITE = 0xFFFFFFFF;         // White color for text (zoom, coords, etc)
+    private static final int COLOR_ENTITY_WHITE = UIColors.WHITE;       // White color for entities and text
+    private static final int COLOR_TEXT_WHITE = UIColors.WHITE;         // White color for text (zoom, coords, etc)
 
     // Time Constants
     private static final long KEYBOARD_INPUT_TIMEOUT_MS = 2000L;    // Keyboard input timeout (2 seconds)
@@ -841,7 +842,7 @@ public class WorldMapScreen extends PopupScreen {
                             float x = biomeLabel.x * biomeScaleX / this.scScale;
                             float z = biomeLabel.z * biomeScaleY / this.scScale;
 
-                            this.write(guiGraphics, label, x - (nameWidth / 2f), this.top + z - 3.0F, 0xFFFFFFFF);
+                            this.write(guiGraphics, label, x - (nameWidth / 2f), this.top + z - 3.0F, UIColors.WHITE);
                         }
                     }
                 }
@@ -908,7 +909,7 @@ public class WorldMapScreen extends PopupScreen {
             guiGraphics.pose().mulPose(com.mojang.math.Axis.ZP.rotationDegrees(locate * Mth.RAD_TO_DEG));
             guiGraphics.pose().translate(-x, -y, 0.0f);
 
-            MapViewGuiGraphics.blitFloat(guiGraphics, MapViewPipelines.GUI_TEXTURED_LESS_OR_EQUAL_DEPTH_PIPELINE, lightmapSkinLocation, x - width / 2, y - height / 2, width, height, 0, 1, 0, 1, 0xFFFFFFFF);
+            MapViewGuiGraphics.blitFloat(guiGraphics, MapViewPipelines.GUI_TEXTURED_LESS_OR_EQUAL_DEPTH_PIPELINE, lightmapSkinLocation, x - width / 2, y - height / 2, width, height, 0, 1, 0, 1, UIColors.WHITE);
 
             guiGraphics.pose().popPose();
         }

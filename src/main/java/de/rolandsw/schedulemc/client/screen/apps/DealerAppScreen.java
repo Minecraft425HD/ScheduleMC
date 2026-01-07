@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.client.screen.apps;
+import de.rolandsw.schedulemc.util.UIColors;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -52,11 +53,11 @@ public class DealerAppScreen extends Screen {
         renderBackground(guiGraphics);
 
         // Smartphone-Hintergrund
-        guiGraphics.fill(leftPos - 5, topPos - 5, leftPos + WIDTH + 5, topPos + HEIGHT + 5, 0xFF1C1C1C);
-        guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + HEIGHT, 0xFF2A2A2A);
+        guiGraphics.fill(leftPos - 5, topPos - 5, leftPos + WIDTH + 5, topPos + HEIGHT + 5, UIColors.BACKGROUND_DARKER);
+        guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + HEIGHT, UIColors.BACKGROUND_MEDIUM_DARK);
 
         // Header
-        guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 30, 0xFF1A1A1A);
+        guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 30, UIColors.BACKGROUND_DARKEST);
         guiGraphics.drawCenteredString(this.font, "§6§lDealer", leftPos + WIDTH / 2, topPos + 12, 0xFFFFFF);
 
         // Content-Bereich

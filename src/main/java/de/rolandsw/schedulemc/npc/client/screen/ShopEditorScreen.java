@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.npc.client.screen;
+import de.rolandsw.schedulemc.util.UIColors;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import de.rolandsw.schedulemc.ScheduleMC;
@@ -27,9 +28,9 @@ import java.util.List;
 public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
 
     // UI Color Constants
-    private static final int COLOR_BACKGROUND_GRAY = 0xFF8B8B8B;  // Main background color
-    private static final int COLOR_PANEL_DARK_GRAY = 0xFF373737;  // Panel backgrounds (grid, table, hotbar)
-    private static final int COLOR_OUTLINE_BLACK = 0xFF000000;    // Border outline color
+    private static final int COLOR_BACKGROUND_GRAY = UIColors.GRAY_LIGHT;  // Main background color
+    private static final int COLOR_PANEL_DARK_GRAY = UIColors.BACKGROUND_LIGHTER;  // Panel backgrounds (grid, table, hotbar)
+    private static final int COLOR_OUTLINE_BLACK = UIColors.BLACK;    // Border outline color
 
     private static final ResourceLocation TEXTURE =
         ResourceLocation.fromNamespaceAndPath("minecraft", "textures/gui/container/generic_54.png");

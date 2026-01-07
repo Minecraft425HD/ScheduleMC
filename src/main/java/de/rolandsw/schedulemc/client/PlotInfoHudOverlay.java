@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.client;
+import de.rolandsw.schedulemc.util.UIColors;
 nimport de.rolandsw.schedulemc.util.StringUtils;
 import de.rolandsw.schedulemc.util.EventHelper;
 
@@ -97,8 +98,8 @@ public class PlotInfoHudOverlay {
         gui.fill(HUD_X - 5, HUD_Y - 5, HUD_X + bgWidth, HUD_Y + bgHeight, 0xDD000000);
 
         // Rahmen (Top & Bottom)
-        gui.fill(HUD_X - 5, HUD_Y - 5, HUD_X + bgWidth, HUD_Y - 4, 0xFF4A90E2);
-        gui.fill(HUD_X - 5, HUD_Y + bgHeight - 1, HUD_X + bgWidth, HUD_Y + bgHeight, 0xFF4A90E2);
+        gui.fill(HUD_X - 5, HUD_Y - 5, HUD_X + bgWidth, HUD_Y - 4, UIColors.ACCENT_BLUE);
+        gui.fill(HUD_X - 5, HUD_Y + bgHeight - 1, HUD_X + bgWidth, HUD_Y + bgHeight, UIColors.ACCENT_BLUE);
 
         // === PLOT-NAME (Titel) ===
         String plotName = plot.getPlotName();
@@ -162,7 +163,7 @@ public class PlotInfoHudOverlay {
         // === APARTMENTS ===
         if (plot.getSubAreaCount() > 0) {
             // Trennlinie
-            gui.fill(HUD_X, currentY, HUD_X + bgWidth - 10, currentY + 1, 0x44FFFFFF);
+            gui.fill(HUD_X, currentY, HUD_X + bgWidth - 10, currentY + 1, UIColors.WHITE_SEMI_TRANSPARENT);
             currentY += 4;
 
             int rentedCount = plot.getRentedSubAreaCount();

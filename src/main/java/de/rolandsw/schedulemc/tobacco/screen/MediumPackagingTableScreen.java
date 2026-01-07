@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.tobacco.screen;
+import de.rolandsw.schedulemc.util.UIColors;
 
 import de.rolandsw.schedulemc.tobacco.menu.MediumPackagingTableMenu;
 import de.rolandsw.schedulemc.tobacco.network.ModNetworking;
@@ -69,9 +70,9 @@ public class MediumPackagingTableScreen extends AbstractContainerScreen<MediumPa
         int x = this.leftPos;
         int y = this.topPos;
 
-        graphics.fill(x, y, x + this.imageWidth, y + this.imageHeight, 0xFF2B2B2B);
-        graphics.fill(x + 2, y + 2, x + this.imageWidth - 2, y + this.imageHeight - 2, 0xFF4C4C4C);
-        graphics.fill(x + 2, y + 2, x + this.imageWidth - 2, y + 18, 0xFF1E1E1E);
+        graphics.fill(x, y, x + this.imageWidth, y + this.imageHeight, UIColors.BACKGROUND_MEDIUM);
+        graphics.fill(x + 2, y + 2, x + this.imageWidth - 2, y + this.imageHeight - 2, UIColors.BACKGROUND_PANEL);
+        graphics.fill(x + 2, y + 2, x + this.imageWidth - 2, y + 18, UIColors.BACKGROUND_DARK);
 
         renderSlotBorders(graphics, x, y);
     }
@@ -94,8 +95,8 @@ public class MediumPackagingTableScreen extends AbstractContainerScreen<MediumPa
     }
 
     private void drawSlot(GuiGraphics graphics, int x, int y) {
-        graphics.fill(x - 1, y - 1, x + 17, y + 17, 0xFF8B8B8B);
-        graphics.fill(x, y, x + 16, y + 16, 0xFF373737);
+        graphics.fill(x - 1, y - 1, x + 17, y + 17, UIColors.GRAY_LIGHT);
+        graphics.fill(x, y, x + 16, y + 16, UIColors.BACKGROUND_LIGHTER);
     }
 
     @Override

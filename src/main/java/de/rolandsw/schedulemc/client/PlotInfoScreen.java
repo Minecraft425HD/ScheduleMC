@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.client;
+import de.rolandsw.schedulemc.util.UIColors;
 nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -25,7 +26,7 @@ import java.util.List;
 public class PlotInfoScreen extends Screen {
 
     // Colors
-    private static final int COLOR_BORDER_BLUE = 0xFF4A90E2;
+    private static final int COLOR_BORDER_BLUE = UIColors.ACCENT_BLUE;
 
     // Layout constants
     private static final int BACKGROUND_WIDTH = 280;
@@ -153,7 +154,7 @@ public class PlotInfoScreen extends Screen {
         }
 
         // Trennlinie
-        guiGraphics.fill(leftPos + 10, currentY, leftPos + backgroundWidth - 10, currentY + 1, 0x66FFFFFF);
+        guiGraphics.fill(leftPos + 10, currentY, leftPos + backgroundWidth - 10, currentY + 1, UIColors.OVERLAY_WHITE_40);
         currentY += 8;
 
         // === BESITZER ===
@@ -176,7 +177,7 @@ public class PlotInfoScreen extends Screen {
 
         // === RATING SECTION ===
         // Trennlinie
-        guiGraphics.fill(leftPos + 10, currentY, leftPos + backgroundWidth - 10, currentY + 1, 0x66FFFFFF);
+        guiGraphics.fill(leftPos + 10, currentY, leftPos + backgroundWidth - 10, currentY + 1, UIColors.OVERLAY_WHITE_40);
         currentY += 8;
 
         // Rating Box
@@ -239,21 +240,21 @@ public class PlotInfoScreen extends Screen {
         // === VERKAUF/MIETE STATUS ===
         if (!plot.hasOwner()) {
             // Plot ohne Besitzer = zum Verkauf
-            guiGraphics.fill(leftPos + 10, currentY, leftPos + backgroundWidth - 10, currentY + 35, 0x44228B22);
+            guiGraphics.fill(leftPos + 10, currentY, leftPos + backgroundWidth - 10, currentY + 35, UIColors.OVERLAY_GREEN_27);
             guiGraphics.drawString(this.font, "§a§l⚡ ZUM VERKAUF", leftPos + 15, currentY + 5, 0x00FF00);
             guiGraphics.drawString(this.font, "§7Preis: §e" + String.format("%.2f", plot.getPrice()) + "€",
                 leftPos + 15, currentY + 18, 0xFFFFFF);
             currentY += SECTION_SPACING;
         } else {
             if (plot.isForSale()) {
-                guiGraphics.fill(leftPos + 10, currentY, leftPos + backgroundWidth - 10, currentY + 35, 0x44228B22);
+                guiGraphics.fill(leftPos + 10, currentY, leftPos + backgroundWidth - 10, currentY + 35, UIColors.OVERLAY_GREEN_27);
                 guiGraphics.drawString(this.font, "§a§l⚡ ZUM VERKAUF", leftPos + 15, currentY + 5, 0x00FF00);
                 guiGraphics.drawString(this.font, "§7Preis: §e" + String.format("%.2f", plot.getSalePrice()) + "€",
                     leftPos + 15, currentY + 18, 0xFFFFFF);
                 currentY += SECTION_SPACING;
             } else if (plot.isForRent()) {
                 if (plot.isRented()) {
-                    guiGraphics.fill(leftPos + 10, currentY, leftPos + backgroundWidth - 10, currentY + 35, 0x44228B22);
+                    guiGraphics.fill(leftPos + 10, currentY, leftPos + backgroundWidth - 10, currentY + 35, UIColors.OVERLAY_GREEN_27);
                     guiGraphics.drawString(this.font, "§a§l✓ VERMIETET", leftPos + 15, currentY + 5, 0x00FF00);
                     guiGraphics.drawString(this.font, "§7Noch §e" + plot.getRentDaysLeft() + " Tage",
                         leftPos + 15, currentY + 18, 0xFFFFFF);
@@ -271,7 +272,7 @@ public class PlotInfoScreen extends Screen {
         // === APARTMENTS ===
         if (plot.getSubAreaCount() > 0) {
             // Trennlinie
-            guiGraphics.fill(leftPos + 10, currentY, leftPos + backgroundWidth - 10, currentY + 1, 0x66FFFFFF);
+            guiGraphics.fill(leftPos + 10, currentY, leftPos + backgroundWidth - 10, currentY + 1, UIColors.OVERLAY_WHITE_40);
             currentY += 8;
 
             int availableCount = plot.getAvailableSubAreaCount();

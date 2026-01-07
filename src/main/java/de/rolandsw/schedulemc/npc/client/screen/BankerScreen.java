@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.npc.client.screen;
+import de.rolandsw.schedulemc.util.UIColors;
 nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -450,7 +451,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         guiGraphics.drawString(this.font, StringUtils.formatMoney(sparkonto), x + 125, y + 105, 0x6666FF, false);
 
         // Trennlinie
-        guiGraphics.fill(x + 20, y + 120, x + 200, y + 121, 0x44FFFFFF);
+        guiGraphics.fill(x + 20, y + 120, x + 200, y + 121, UIColors.WHITE_SEMI_TRANSPARENT);
 
         // Gesamt
         double gesamt = bargeld + girokonto + sparkonto;
@@ -642,7 +643,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         }
 
         // Trennlinie
-        guiGraphics.fill(x + 15, y + 168, x + 265, y + 169, 0x44FFFFFF);
+        guiGraphics.fill(x + 15, y + 168, x + 265, y + 169, UIColors.WHITE_SEMI_TRANSPARENT);
 
         // Aktive Daueraufträge Header
         guiGraphics.drawString(this.font, "Aktive Daueraufträge:", x + 15, y + 173, 0x606060, false);

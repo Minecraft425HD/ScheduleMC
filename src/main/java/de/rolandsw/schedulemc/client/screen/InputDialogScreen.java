@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.client.screen;
+import de.rolandsw.schedulemc.util.UIColors;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -128,11 +129,11 @@ public class InputDialogScreen extends Screen {
         int topPos = (this.height - dialogHeight) / 2;
 
         // Dialog-Box
-        guiGraphics.fill(leftPos - 2, topPos - 2, leftPos + dialogWidth + 2, topPos + dialogHeight + 2, 0xFF1C1C1C);
-        guiGraphics.fill(leftPos, topPos, leftPos + dialogWidth, topPos + dialogHeight, 0xFF2A2A2A);
+        guiGraphics.fill(leftPos - 2, topPos - 2, leftPos + dialogWidth + 2, topPos + dialogHeight + 2, UIColors.BACKGROUND_DARKER);
+        guiGraphics.fill(leftPos, topPos, leftPos + dialogWidth, topPos + dialogHeight, UIColors.BACKGROUND_MEDIUM_DARK);
 
         // Titel
-        guiGraphics.fill(leftPos, topPos, leftPos + dialogWidth, topPos + 25, 0xFF1A1A1A);
+        guiGraphics.fill(leftPos, topPos, leftPos + dialogWidth, topPos + 25, UIColors.BACKGROUND_DARKEST);
         guiGraphics.drawCenteredString(this.font, "§l" + title, leftPos + dialogWidth / 2, topPos + 8, 0xFFFFFF);
 
         // Beschreibung

@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.meth.screen;
+import de.rolandsw.schedulemc.util.UIColors;
 
 import de.rolandsw.schedulemc.meth.MethQuality;
 import de.rolandsw.schedulemc.meth.blockentity.ReduktionskesselBlockEntity;
@@ -17,16 +18,16 @@ import org.jetbrains.annotations.NotNull;
 public class ReduktionskesselScreen extends AbstractContainerScreen<ReduktionskesselMenu> {
 
     // Color Constants
-    private static final int COLOR_BACKGROUND_VERY_DARK = 0xFF1A1A1A;
+    private static final int COLOR_BACKGROUND_VERY_DARK = UIColors.BACKGROUND_DARKEST;
     private static final int COLOR_BACKGROUND_DARK = 0xFF2D2D2D;
     private static final int COLOR_HEADER_BLACK = 0xFF0D0D0D;
-    private static final int COLOR_THERMOMETER_FRAME = 0xFF555555;
-    private static final int COLOR_THERMOMETER_BACKGROUND = 0xFF1E1E1E;
+    private static final int COLOR_THERMOMETER_FRAME = UIColors.GRAY_DARK;
+    private static final int COLOR_THERMOMETER_BACKGROUND = UIColors.BACKGROUND_DARK;
     private static final int COLOR_TEMP_COLD_BLUE = 0xFF2255AA;
     private static final int COLOR_TEMP_OPTIMAL_GREEN = 0xFF22AA55;
     private static final int COLOR_TEMP_DANGER_ORANGE = 0xFFDD8800;
     private static final int COLOR_TEMP_HOT_RED = 0xFFCC2222;
-    private static final int COLOR_TEMP_MARKER_WHITE = 0xFFFFFFFF;
+    private static final int COLOR_TEMP_MARKER_WHITE = UIColors.WHITE;
     private static final int COLOR_BUTTON_HEAT_RED = 0xFFCC3333;
     private static final int COLOR_BUTTON_DISABLED = 0xFF3D3D3D;
     private static final int COLOR_BUTTON_SHADOW = 0xFF111111;
@@ -131,7 +132,7 @@ public class ReduktionskesselScreen extends AbstractContainerScreen<Reduktionske
         // Temperatur-Indikator (weißer Balken mit Farbe)
         int tempColor = menu.getTemperatureColor();
         graphics.fill(x - 4, indicatorY - 2, x + THERMO_WIDTH + 4, indicatorY + 4, COLOR_TEMP_MARKER_WHITE);
-        graphics.fill(x, indicatorY, x + THERMO_WIDTH, indicatorY + 2, tempColor | 0xFF000000);
+        graphics.fill(x, indicatorY, x + THERMO_WIDTH, indicatorY + 2, tempColor | UIColors.BLACK);
 
         // Temperatur-Labels
         graphics.drawString(this.font, "150°C", x + THERMO_WIDTH + 5, y + 2, 0xFF5555, false);
@@ -164,7 +165,7 @@ public class ReduktionskesselScreen extends AbstractContainerScreen<Reduktionske
         graphics.fill(x + 3, y + 3, x + BUTTON_WIDTH + 3, y + BUTTON_HEIGHT + 3, COLOR_BUTTON_SHADOW);
 
         // Button Rahmen
-        graphics.fill(x - 2, y - 2, x + BUTTON_WIDTH + 2, y + BUTTON_HEIGHT + 2, 0xFF666666);
+        graphics.fill(x - 2, y - 2, x + BUTTON_WIDTH + 2, y + BUTTON_HEIGHT + 2, UIColors.GRAY_MEDIUM);
 
         // Button Fläche
         graphics.fill(x, y, x + BUTTON_WIDTH, y + BUTTON_HEIGHT, buttonColor);
@@ -204,7 +205,7 @@ public class ReduktionskesselScreen extends AbstractContainerScreen<Reduktionske
         int progressWidth = (int) (barWidth * progress);
         if (progressWidth > 0) {
             // Farbverlauf basierend auf Progress
-            int progressColor = menu.isProcessing() ? 0xFF55FF55 : 0xFF888888;
+            int progressColor = menu.isProcessing() ? UIColors.ACCENT_LIME : UIColors.GRAY;
             graphics.fill(x + 1, y + 1, x + progressWidth - 1, y + barHeight - 1, progressColor);
         }
 
@@ -226,7 +227,7 @@ public class ReduktionskesselScreen extends AbstractContainerScreen<Reduktionske
 
         // Qualitäts-Farbe
         int qualityColor = switch (expected) {
-            case STANDARD -> 0xFFAAAAAA; // Grau-weiß
+            case STANDARD -> UIColors.GRAY_VERY_LIGHT; // Grau-weiß
             case GUT -> 0xFFFFFF55;      // Gelb
             case BLUE_SKY -> 0xFF55FFFF; // Cyan/Blau
         };

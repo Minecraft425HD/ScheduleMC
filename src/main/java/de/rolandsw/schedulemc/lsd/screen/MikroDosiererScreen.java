@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.lsd.screen;
+import de.rolandsw.schedulemc.util.UIColors;
 
 import de.rolandsw.schedulemc.lsd.LSDDosage;
 import de.rolandsw.schedulemc.lsd.menu.MikroDosiererMenu;
@@ -24,7 +25,7 @@ public class MikroDosiererScreen extends AbstractContainerScreen<MikroDosiererMe
     private static final int COLOR_DOSAGE_STANDARD_GREEN = 0xFF55AA55;
     private static final int COLOR_DOSAGE_STRONG_YELLOW = 0xFFAAAA55;
     private static final int COLOR_DOSAGE_BICYCLE_MAGENTA = 0xFFAA55AA;
-    private static final int COLOR_SLIDER_HANDLE_WHITE = 0xFFFFFFFF;
+    private static final int COLOR_SLIDER_HANDLE_WHITE = UIColors.WHITE;
     private static final int COLOR_SLIDER_HANDLE_LIGHT = 0xFFDDDDDD;
     private static final int COLOR_BUTTON_PROCESSING = 0xFF444466;
     private static final int COLOR_BUTTON_HOVERED_BLUE = 0xFF5577AA;

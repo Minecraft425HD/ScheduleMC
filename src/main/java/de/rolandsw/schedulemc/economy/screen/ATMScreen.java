@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.economy.screen;
+import de.rolandsw.schedulemc.util.UIColors;
 nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import de.rolandsw.schedulemc.economy.menu.ATMMenu;
@@ -113,13 +114,13 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu> {
         int y = (height - imageHeight) / 2;
         
         // Dunkler Hintergrund
-        graphics.fill(x, y, x + imageWidth, y + imageHeight, 0xFF2B2B2B);
+        graphics.fill(x, y, x + imageWidth, y + imageHeight, UIColors.BACKGROUND_MEDIUM);
         
         // Hellerer innerer Bereich
         graphics.fill(x + 2, y + 2, x + imageWidth - 2, y + imageHeight - 2, 0xFF3C3C3C);
         
         // Header-Bereich
-        graphics.fill(x + 2, y + 2, x + imageWidth - 2, y + 20, 0xFF1E1E1E);
+        graphics.fill(x + 2, y + 2, x + imageWidth - 2, y + 20, UIColors.BACKGROUND_DARK);
     }
     
     @Override

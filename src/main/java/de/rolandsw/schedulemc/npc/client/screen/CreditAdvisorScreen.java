@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.npc.client.screen;
+import de.rolandsw.schedulemc.util.UIColors;
 nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -37,9 +38,9 @@ public class CreditAdvisorScreen extends AbstractContainerScreen<CreditAdvisorMe
         ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/npc_interaction.png");
 
     // Colors
-    private static final int COLOR_PROGRESS_BAR_BACKGROUND = 0xFF333333;
-    private static final int COLOR_PROGRESS_BAR_FILL = 0xFF00AA00;
-    private static final int COLOR_PROGRESS_BAR_OUTLINE = 0xFF666666;
+    private static final int COLOR_PROGRESS_BAR_BACKGROUND = UIColors.BACKGROUND_LIGHT;
+    private static final int COLOR_PROGRESS_BAR_FILL = UIColors.ACCENT_GREEN_BRIGHT;
+    private static final int COLOR_PROGRESS_BAR_OUTLINE = UIColors.GRAY_MEDIUM;
 
     // Kredit-Buttons
     private Button starterLoanButton;

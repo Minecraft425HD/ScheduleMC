@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.npc.client.screen;
+import de.rolandsw.schedulemc.util.UIColors;
 
 import de.rolandsw.schedulemc.util.SecureRandomUtil;
 
@@ -32,7 +33,7 @@ public class StealingScreen extends AbstractContainerScreen<StealingMenu> {
         ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/stealing.png");
 
     // Colors
-    private static final int COLOR_SCREEN_BACKGROUND = 0xFF8B8B8B;
+    private static final int COLOR_SCREEN_BACKGROUND = UIColors.GRAY_LIGHT;
     private static final int COLOR_TIMING_BAR_BACKGROUND = 0xFF404040;
     private static final int COLOR_TARGET_ZONE_GREEN = 0xFF00FF00;
     private static final int COLOR_INDICATOR_RED = 0xFFFF0000;

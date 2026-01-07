@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.client.screen.apps;
+nimport de.rolandsw.schedulemc.util.UIColors;
 nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import de.rolandsw.schedulemc.client.screen.ConfirmDialogScreen;
@@ -44,12 +45,12 @@ import java.util.Set;
 public class SettingsAppScreen extends Screen {
 
     // Color Constants
-    private static final int COLOR_APP_FRAME = 0xFF1C1C1C;
-    private static final int COLOR_APP_BACKGROUND = 0xFF2A2A2A;
-    private static final int COLOR_APP_HEADER = 0xFF1A1A1A;
-    private static final int COLOR_TAB_ACTIVE_BLUE = 0xFF4A90E2;
-    private static final int COLOR_BUTTON_DEFAULT = 0xFF333333;
-    private static final int COLOR_BUTTON_BORDER_TOP = 0xFF555555;
+    private static final int COLOR_APP_FRAME = UIColors.BACKGROUND_DARKER;
+    private static final int COLOR_APP_BACKGROUND = UIColors.BACKGROUND_MEDIUM_DARK;
+    private static final int COLOR_APP_HEADER = UIColors.BACKGROUND_DARKEST;
+    private static final int COLOR_TAB_ACTIVE_BLUE = UIColors.ACCENT_BLUE;
+    private static final int COLOR_BUTTON_DEFAULT = UIColors.BACKGROUND_LIGHT;
+    private static final int COLOR_BUTTON_BORDER_TOP = UIColors.GRAY_DARK;
     private static final int COLOR_BUTTON_BORDER_BOTTOM = 0xFF111111;
 
     private final Screen parentScreen;
@@ -235,8 +236,8 @@ public class SettingsAppScreen extends Screen {
         if (maxScroll > 0) {
             int scrollBarHeight = Math.max(20, CONTENT_HEIGHT * CONTENT_HEIGHT / (CONTENT_HEIGHT + maxScroll));
             int scrollBarY = contentY + (scrollOffset * (CONTENT_HEIGHT - scrollBarHeight) / maxScroll);
-            guiGraphics.fill(leftPos + WIDTH - 8, contentY, leftPos + WIDTH - 5, contentEndY, 0x44FFFFFF);
-            guiGraphics.fill(leftPos + WIDTH - 8, scrollBarY, leftPos + WIDTH - 5, scrollBarY + scrollBarHeight, 0xAAFFFFFF);
+            guiGraphics.fill(leftPos + WIDTH - 8, contentY, leftPos + WIDTH - 5, contentEndY, UIColors.WHITE_SEMI_TRANSPARENT);
+            guiGraphics.fill(leftPos + WIDTH - 8, scrollBarY, leftPos + WIDTH - 5, scrollBarY + scrollBarHeight, UIColors.WHITE_TRANSPARENT_67);
         }
 
         super.render(guiGraphics, mouseX, mouseY, partialTick);
@@ -293,7 +294,7 @@ public class SettingsAppScreen extends Screen {
 
         if (!isOwner) {
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 25, 0x44AA0000);
+                guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 25, UIColors.OVERLAY_RED_27);
                 guiGraphics.drawString(this.font, "§c✗ Nicht dein Grundstück", leftPos + 15, y + 8, 0xFF5555);
             }
             y += 30;
@@ -330,7 +331,7 @@ public class SettingsAppScreen extends Screen {
     private int renderSaleRentSection(GuiGraphics guiGraphics, PlotRegion currentPlot, String plotId, int y, int startY, int endY, int mouseX, int mouseY) {
         // Separator
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
+            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, UIColors.WHITE_SEMI_TRANSPARENT);
         }
         y += 8;
 
@@ -409,7 +410,7 @@ public class SettingsAppScreen extends Screen {
     private int renderTrustedPlayersSection(GuiGraphics guiGraphics, PlotRegion currentPlot, String plotId, int y, int startY, int endY, int mouseX, int mouseY) {
         // Separator
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
+            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, UIColors.WHITE_SEMI_TRANSPARENT);
         }
         y += 8;
 
@@ -464,7 +465,7 @@ public class SettingsAppScreen extends Screen {
     private int renderPlotRenameSection(GuiGraphics guiGraphics, PlotRegion currentPlot, String plotId, int y, int startY, int endY, int mouseX, int mouseY) {
         // Separator
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
+            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, UIColors.WHITE_SEMI_TRANSPARENT);
         }
         y += 8;
 
@@ -502,7 +503,7 @@ public class SettingsAppScreen extends Screen {
     private int renderPlotDescriptionSection(GuiGraphics guiGraphics, PlotRegion currentPlot, String plotId, int y, int startY, int endY, int mouseX, int mouseY) {
         // Separator
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
+            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, UIColors.WHITE_SEMI_TRANSPARENT);
         }
         y += 8;
 
@@ -548,7 +549,7 @@ public class SettingsAppScreen extends Screen {
     private int renderPlotAbandonSection(GuiGraphics guiGraphics, String plotId, int y, int startY, int endY, int mouseX, int mouseY) {
         // Separator
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
+            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, UIColors.WHITE_SEMI_TRANSPARENT);
         }
         y += 8;
 
@@ -680,7 +681,7 @@ public class SettingsAppScreen extends Screen {
     private int renderThresholdsSection(GuiGraphics guiGraphics, int y, int startY, int endY) {
         // Section separator + header
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
+            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, UIColors.WHITE_SEMI_TRANSPARENT);
         }
         y += 10;
 
@@ -760,7 +761,7 @@ public class SettingsAppScreen extends Screen {
     private int renderPoliceHeatSection(GuiGraphics guiGraphics, int y, int startY, int endY) {
         // Section separator + header
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
+            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, UIColors.WHITE_SEMI_TRANSPARENT);
         }
         y += 10;
 
@@ -846,7 +847,7 @@ public class SettingsAppScreen extends Screen {
                 accountBalance = EconomyManager.getBalance(minecraft.player.getUUID());
             }
 
-            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 50, 0x44228B22);
+            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 50, UIColors.OVERLAY_GREEN_27);
             guiGraphics.drawCenteredString(this.font, "§fVerfügbar:", leftPos + WIDTH / 2, y + 8, 0xFFFFFF);
 
             String balanceStr = String.format("§a§l%.2f €", accountBalance);
@@ -872,7 +873,7 @@ public class SettingsAppScreen extends Screen {
     private int renderRunningCostsSection(GuiGraphics guiGraphics, int y, int startY, int endY) {
         // Section separator + header
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
+            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, UIColors.WHITE_SEMI_TRANSPARENT);
         }
         y += 10;
 
@@ -935,7 +936,7 @@ public class SettingsAppScreen extends Screen {
     private int renderPropertyListSection(GuiGraphics guiGraphics, int y, int startY, int endY) {
         // Section separator + header
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
+            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, UIColors.WHITE_SEMI_TRANSPARENT);
         }
         y += 10;
 

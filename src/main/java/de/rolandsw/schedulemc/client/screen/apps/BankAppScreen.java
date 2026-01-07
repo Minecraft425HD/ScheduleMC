@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.client.screen.apps;
+nimport de.rolandsw.schedulemc.util.UIColors;
 nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import de.rolandsw.schedulemc.config.ModConfigHandler;
@@ -322,11 +323,11 @@ public class BankAppScreen extends Screen {
         renderBackground(guiGraphics);
 
         // Smartphone-Hintergrund
-        guiGraphics.fill(leftPos - 5, topPos - 5, leftPos + WIDTH + 5, topPos + HEIGHT + 5, 0xFF1C1C1C);
-        guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + HEIGHT, 0xFF2A2A2A);
+        guiGraphics.fill(leftPos - 5, topPos - 5, leftPos + WIDTH + 5, topPos + HEIGHT + 5, UIColors.BACKGROUND_DARKER);
+        guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + HEIGHT, UIColors.BACKGROUND_MEDIUM_DARK);
 
         // Header
-        guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 28, 0xFF1A1A1A);
+        guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 28, UIColors.BACKGROUND_DARKEST);
         guiGraphics.drawCenteredString(this.font, "§6§lBank", leftPos + WIDTH / 2, topPos + 10, 0xFFFFFF);
 
         // Tab-Hintergrund (aktiver Tab hervorheben)
@@ -334,7 +335,7 @@ public class BankAppScreen extends Screen {
         for (int i = 0; i < TAB_NAMES.length; i++) {
             int tabY = topPos + 30;
             if (i == currentTab) {
-                guiGraphics.fill(currentX - 1, tabY - 1, currentX + TAB_WIDTHS[i] - 3, tabY + TAB_HEIGHT + 1, 0xFF4A90E2);
+                guiGraphics.fill(currentX - 1, tabY - 1, currentX + TAB_WIDTHS[i] - 3, tabY + TAB_HEIGHT + 1, UIColors.ACCENT_BLUE);
             }
             currentX += TAB_WIDTHS[i];
         }
@@ -355,8 +356,8 @@ public class BankAppScreen extends Screen {
         if (maxScroll > 0 && currentTab != 2) {
             int scrollBarHeight = Math.max(20, CONTENT_HEIGHT * CONTENT_HEIGHT / (CONTENT_HEIGHT + maxScroll));
             int scrollBarY = contentY + (scrollOffset * (CONTENT_HEIGHT - scrollBarHeight) / maxScroll);
-            guiGraphics.fill(leftPos + WIDTH - 8, contentY, leftPos + WIDTH - 5, contentEndY, 0x44FFFFFF);
-            guiGraphics.fill(leftPos + WIDTH - 8, scrollBarY, leftPos + WIDTH - 5, scrollBarY + scrollBarHeight, 0xAAFFFFFF);
+            guiGraphics.fill(leftPos + WIDTH - 8, contentY, leftPos + WIDTH - 5, contentEndY, UIColors.WHITE_SEMI_TRANSPARENT);
+            guiGraphics.fill(leftPos + WIDTH - 8, scrollBarY, leftPos + WIDTH - 5, scrollBarY + scrollBarHeight, UIColors.WHITE_TRANSPARENT_67);
         }
 
         super.render(guiGraphics, mouseX, mouseY, partialTick);
@@ -372,7 +373,7 @@ public class BankAppScreen extends Screen {
 
         // Balance-Box
         if (y >= startY - 60 && y < endY) {
-            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 55, 0x44228B22);
+            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 55, UIColors.OVERLAY_GREEN_27);
 
             guiGraphics.drawCenteredString(this.font, "§f§lKontostand", leftPos + WIDTH / 2, y + 5, 0xFFFFFF);
 
@@ -388,7 +389,7 @@ public class BankAppScreen extends Screen {
 
         // Statistiken
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
+            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, UIColors.WHITE_SEMI_TRANSPARENT);
         }
         y += 8;
         contentHeight += 8;
@@ -427,7 +428,7 @@ public class BankAppScreen extends Screen {
 
         // Info
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
+            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, UIColors.WHITE_SEMI_TRANSPARENT);
         }
         y += 8;
         contentHeight += 8;
@@ -465,7 +466,7 @@ public class BankAppScreen extends Screen {
         for (Transaction tx : recentTransactions) {
             if (y >= startY - 40 && y < endY) {
                 // Transaction-Box
-                guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 35, 0x44333333);
+                guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 35, UIColors.OVERLAY_DARK_27);
 
                 // Typ & Betrag
                 String amountColor = tx.getAmount() > 0 ? "§a" : "§c";
@@ -575,7 +576,7 @@ public class BankAppScreen extends Screen {
 
         // Trennlinie
         if (y >= listStartY - 10 && y < endY) {
-            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
+            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, UIColors.WHITE_SEMI_TRANSPARENT);
         }
         y += 8;
         contentHeight += 8;
@@ -629,8 +630,8 @@ public class BankAppScreen extends Screen {
                         int progress = activeLoan.getProgressPercent();
                         int barWidth = 60;
                         int filledWidth = (barWidth * progress) / 100;
-                        guiGraphics.fill(leftPos + 145, y + 28, leftPos + 145 + barWidth, y + 34, 0xFF333333);
-                        guiGraphics.fill(leftPos + 145, y + 28, leftPos + 145 + filledWidth, y + 34, 0xFF00AA00);
+                        guiGraphics.fill(leftPos + 145, y + 28, leftPos + 145 + barWidth, y + 34, UIColors.BACKGROUND_LIGHT);
+                        guiGraphics.fill(leftPos + 145, y + 28, leftPos + 145 + filledWidth, y + 34, UIColors.ACCENT_GREEN_BRIGHT);
                         guiGraphics.drawString(this.font, "§a" + progress + "%", leftPos + 148, y + 28, 0x55FF55, false);
                     }
                     y += 50;
@@ -640,7 +641,7 @@ public class BankAppScreen extends Screen {
                 for (RecurringPayment payment : payments) {
                     if (y >= listStartY - 50 && y < endY) {
                         // Box für jeden Eintrag
-                        guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 45, 0x44333333);
+                        guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 45, UIColors.OVERLAY_DARK_27);
 
                         // Empfänger (voller Name wenn möglich)
                         String recipientStr = payment.getToPlayer().toString();

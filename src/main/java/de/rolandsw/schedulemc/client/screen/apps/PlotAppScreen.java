@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.client.screen.apps;
+nimport de.rolandsw.schedulemc.util.UIColors;
 nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import de.rolandsw.schedulemc.region.PlotManager;
@@ -140,11 +141,11 @@ public class PlotAppScreen extends Screen {
         renderBackground(guiGraphics);
 
         // Smartphone-Hintergrund
-        guiGraphics.fill(leftPos - 5, topPos - 5, leftPos + WIDTH + 5, topPos + HEIGHT + 5, 0xFF1C1C1C);
-        guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + HEIGHT, 0xFF2A2A2A);
+        guiGraphics.fill(leftPos - 5, topPos - 5, leftPos + WIDTH + 5, topPos + HEIGHT + 5, UIColors.BACKGROUND_DARKER);
+        guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + HEIGHT, UIColors.BACKGROUND_MEDIUM_DARK);
 
         // Header
-        guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 28, 0xFF1A1A1A);
+        guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 28, UIColors.BACKGROUND_DARKEST);
         guiGraphics.drawCenteredString(this.font, "§6§lImmobilien", leftPos + WIDTH / 2, topPos + 10, 0xFFFFFF);
 
         // Tab-Hintergrund (aktiver Tab hervorheben)
@@ -152,7 +153,7 @@ public class PlotAppScreen extends Screen {
             int tabX = leftPos + 10 + (i * TAB_WIDTH);
             int tabY = topPos + 30;
             if (i == currentTab) {
-                guiGraphics.fill(tabX - 1, tabY - 1, tabX + TAB_WIDTH - 1, tabY + TAB_HEIGHT + 1, 0xFF4A90E2);
+                guiGraphics.fill(tabX - 1, tabY - 1, tabX + TAB_WIDTH - 1, tabY + TAB_HEIGHT + 1, UIColors.ACCENT_BLUE);
             }
         }
 
@@ -172,8 +173,8 @@ public class PlotAppScreen extends Screen {
         if (maxScroll > 0) {
             int scrollBarHeight = Math.max(20, CONTENT_HEIGHT * CONTENT_HEIGHT / (CONTENT_HEIGHT + maxScroll));
             int scrollBarY = contentY + (scrollOffset * (CONTENT_HEIGHT - scrollBarHeight) / maxScroll);
-            guiGraphics.fill(leftPos + WIDTH - 8, contentY, leftPos + WIDTH - 5, contentEndY, 0x44FFFFFF);
-            guiGraphics.fill(leftPos + WIDTH - 8, scrollBarY, leftPos + WIDTH - 5, scrollBarY + scrollBarHeight, 0xAAFFFFFF);
+            guiGraphics.fill(leftPos + WIDTH - 8, contentY, leftPos + WIDTH - 5, contentEndY, UIColors.WHITE_SEMI_TRANSPARENT);
+            guiGraphics.fill(leftPos + WIDTH - 8, scrollBarY, leftPos + WIDTH - 5, scrollBarY + scrollBarHeight, UIColors.WHITE_TRANSPARENT_67);
         }
 
         super.render(guiGraphics, mouseX, mouseY, partialTick);
@@ -229,7 +230,7 @@ public class PlotAppScreen extends Screen {
         // Status (Verkauf/Miete)
         if (!currentPlot.hasOwner()) {
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 25, 0x44228B22);
+                guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 25, UIColors.OVERLAY_GREEN_27);
                 guiGraphics.drawString(this.font, "§a⚡ ZUM VERKAUF", leftPos + 15, y + 3, 0x00FF00);
                 guiGraphics.drawString(this.font, "§7Preis: §e" + String.format("%.0f", currentPlot.getPrice()) + "€", leftPos + 15, y + 14, 0xFFFFFF);
             }
@@ -237,7 +238,7 @@ public class PlotAppScreen extends Screen {
             contentHeight += 30;
         } else if (currentPlot.isForSale()) {
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 25, 0x44228B22);
+                guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 25, UIColors.OVERLAY_GREEN_27);
                 guiGraphics.drawString(this.font, "§a⚡ ZUM VERKAUF", leftPos + 15, y + 3, 0x00FF00);
                 guiGraphics.drawString(this.font, "§7Preis: §e" + String.format("%.0f", currentPlot.getSalePrice()) + "€", leftPos + 15, y + 14, 0xFFFFFF);
             }
@@ -259,7 +260,7 @@ public class PlotAppScreen extends Screen {
         if (isOwner && utilityData != null) {
             // Trennlinie
             if (y >= startY && y < endY) {
-                guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x66FFFFFF);
+                guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, UIColors.OVERLAY_WHITE_40);
             }
             y += 8;
             contentHeight += 8;
@@ -337,7 +338,7 @@ public class PlotAppScreen extends Screen {
         for (PlotRegion plot : availablePlots) {
             if (y >= startY - 40 && y < endY) {
                 // Plot-Box
-                guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 35, 0x44333333);
+                guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 35, UIColors.OVERLAY_DARK_27);
 
                 // Name
                 guiGraphics.drawString(this.font, "§f" + plot.getPlotName(), leftPos + 15, y + 3, 0xFFFFFF);
@@ -394,7 +395,7 @@ public class PlotAppScreen extends Screen {
         for (PlotRegion plot : myPlots) {
             if (y >= startY - 50 && y < endY) {
                 // Plot-Box
-                guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 45, 0x44333333);
+                guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 45, UIColors.OVERLAY_DARK_27);
 
                 // Name
                 guiGraphics.drawString(this.font, "§6§l" + plot.getPlotName(), leftPos + 15, y + 3, 0xFFAA00);
@@ -497,7 +498,7 @@ public class PlotAppScreen extends Screen {
 
             // Gesamt-Box
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 50, 0x44333333);
+                guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 50, UIColors.OVERLAY_DARK_27);
                 guiGraphics.drawString(this.font, "§fGesamt (7-Tage-Ø/Tag)", leftPos + 15, y + 3, 0xFFFFFF);
 
                 // Strom
@@ -509,7 +510,7 @@ public class PlotAppScreen extends Screen {
                 guiGraphics.drawString(this.font, String.format("§a%.2f€", totalWaterCost), leftPos + 130, y + 27, 0x55FF55);
 
                 // Gesamtsumme
-                guiGraphics.fill(leftPos + 15, y + 38, leftPos + WIDTH - 15, y + 39, 0x44FFFFFF);
+                guiGraphics.fill(leftPos + 15, y + 38, leftPos + WIDTH - 15, y + 39, UIColors.WHITE_SEMI_TRANSPARENT);
                 guiGraphics.drawString(this.font, "§f§lSUMME:", leftPos + 15, y + 41, 0xFFFFFF);
                 guiGraphics.drawString(this.font, String.format("§e§l%.2f€/Tag", totalCost), leftPos + 100, y + 41, 0xFFAA00);
             }
@@ -550,7 +551,7 @@ public class PlotAppScreen extends Screen {
         contentHeight += 5;
 
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
+            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, UIColors.WHITE_SEMI_TRANSPARENT);
         }
         y += 8;
         contentHeight += 8;
@@ -588,7 +589,7 @@ public class PlotAppScreen extends Screen {
 
             if (y >= startY - 15 && y < endY) {
                 // Hintergrund für jeden Tag
-                int bgColor = (i == 0) ? 0x44228B22 : 0x22333333;
+                int bgColor = (i == 0) ? UIColors.OVERLAY_GREEN_27 : 0x22333333;
                 guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 14, bgColor);
 
                 guiGraphics.drawString(this.font, "§7" + dayLabels[i], leftPos + 15, y + 3, 0xAAAAAA);

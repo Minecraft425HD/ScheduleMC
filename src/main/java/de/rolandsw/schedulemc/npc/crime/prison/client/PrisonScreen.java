@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.npc.crime.prison.client;
+import de.rolandsw.schedulemc.util.UIColors;
 
 import de.rolandsw.schedulemc.npc.crime.prison.network.PayBailPacket;
 import de.rolandsw.schedulemc.npc.crime.prison.network.PrisonNetworkHandler;
@@ -21,13 +22,13 @@ public class PrisonScreen extends Screen {
 
     private static final int COLOR_BACKGROUND = 0xDD1a1a1a;
     private static final int COLOR_HEADER = 0xFF8B0000;
-    private static final int COLOR_PROGRESS_BG = 0xFF333333;
-    private static final int COLOR_PROGRESS_FILL = 0xFF4CAF50;
-    private static final int COLOR_TEXT = 0xFFFFFFFF;
-    private static final int COLOR_TEXT_GRAY = 0xFFAAAAAA;
+    private static final int COLOR_PROGRESS_BG = UIColors.BACKGROUND_LIGHT;
+    private static final int COLOR_PROGRESS_FILL = UIColors.ACCENT_GREEN;
+    private static final int COLOR_TEXT = UIColors.WHITE;
+    private static final int COLOR_TEXT_GRAY = UIColors.GRAY_VERY_LIGHT;
     private static final int COLOR_TEXT_RED = 0xFFFF5555;
-    private static final int COLOR_TEXT_GREEN = 0xFF55FF55;
-    private static final int COLOR_TEXT_GOLD = 0xFFFFAA00;
+    private static final int COLOR_TEXT_GREEN = UIColors.ACCENT_LIME;
+    private static final int COLOR_TEXT_GOLD = UIColors.ACCENT_ORANGE;
 
     private int cellNumber;
     private long totalSentenceTicks;
@@ -199,7 +200,7 @@ public class PrisonScreen extends Screen {
     private void renderBailSection(GuiGraphics graphics) {
         int y = topPos + 130;
 
-        graphics.fill(leftPos + 20, y, leftPos + BACKGROUND_WIDTH - 20, y + 1, 0xFF555555);
+        graphics.fill(leftPos + 20, y, leftPos + BACKGROUND_WIDTH - 20, y + 1, UIColors.GRAY_DARK);
 
         y += 10;
         graphics.drawString(font, "KAUTION", leftPos + 25, y, COLOR_TEXT_GOLD, true);
