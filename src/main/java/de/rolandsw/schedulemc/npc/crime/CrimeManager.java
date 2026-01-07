@@ -26,8 +26,12 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * SICHERHEIT: Verwendet ConcurrentHashMap für Thread-Sicherheit bei parallelen Zugriffen
  * Nutzt AbstractPersistenceManager für robuste Datenpersistenz
+ *
+ * Implements ICrimeManager for dependency injection and loose coupling.
  */
-public class CrimeManager {
+public class CrimeManager implements ICrimeManager {
+
+    private static volatile CrimeManager instance;
 
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Gson GSON = GsonHelper.get();
@@ -274,6 +278,49 @@ public class CrimeManager {
     public static long getClientEscapeTime() {
         return clientEscapeTime;
     }
+
+    /**
+     * Gibt die Singleton-Instanz zurück
+     */
+    public static CrimeManager getInstance() {
+        CrimeManager localRef = instance;
+        if (localRef == null) {
+            synchronized (CrimeManager.class) {
+                localRef = instance;
+                if (localRef == null) {
+                    instance = localRef = new CrimeManager();
+                }
+            }
+        }
+        return localRef;
+    }
+
+    private CrimeManager() {}
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // ICrimeManager Implementation - Instance Methods
+    // ═══════════════════════════════════════════════════════════════════════
+
+    @Override public int getWantedLevel(@Nonnull UUID playerUUID) { return CrimeManager.getWantedLevel(playerUUID); }
+    @Override public void addWantedLevel(@Nonnull UUID playerUUID, int amount, long currentDay) { CrimeManager.addWantedLevel(playerUUID, amount, currentDay); }
+    @Override public void clearWantedLevel(@Nonnull UUID playerUUID) { CrimeManager.clearWantedLevel(playerUUID); }
+    @Override public void setWantedLevel(@Nonnull UUID playerUUID, int level) { CrimeManager.setWantedLevel(playerUUID, level); }
+    @Override public void decayWantedLevel(UUID playerUUID, long currentDay) { CrimeManager.decayWantedLevel(playerUUID, currentDay); }
+    @Override public void startEscapeTimer(@Nonnull UUID playerUUID, long currentTick) { CrimeManager.startEscapeTimer(playerUUID, currentTick); }
+    @Override public void stopEscapeTimer(UUID playerUUID) { CrimeManager.stopEscapeTimer(playerUUID); }
+    @Override public boolean isHiding(UUID playerUUID) { return CrimeManager.isHiding(playerUUID); }
+    @Override public long getEscapeTimeRemaining(UUID playerUUID, long currentTick) { return CrimeManager.getEscapeTimeRemaining(playerUUID, currentTick); }
+    @Override public boolean checkEscapeSuccess(UUID playerUUID, long currentTick) { return CrimeManager.checkEscapeSuccess(playerUUID, currentTick); }
+    @Override public void setClientWantedLevel(int level) { CrimeManager.setClientWantedLevel(level); }
+    @Override public void setClientEscapeTime(long timeRemaining) { CrimeManager.setClientEscapeTime(timeRemaining); }
+    @Override public int getClientWantedLevel() { return CrimeManager.getClientWantedLevel(); }
+    @Override public long getClientEscapeTime() { return CrimeManager.getClientEscapeTime(); }
+    @Override public void load() { CrimeManager.load(); }
+    @Override public void save() { CrimeManager.save(); }
+    @Override public void saveIfNeeded() { CrimeManager.saveIfNeeded(); }
+    @Override public boolean isHealthy() { return CrimeManager.isHealthy(); }
+    @Override public String getLastError() { return CrimeManager.getLastError(); }
+    @Override public String getHealthInfo() { return CrimeManager.getHealthInfo(); }
 
     /**
      * Innere Persistence-Manager-Klasse

@@ -39,8 +39,10 @@ import java.util.stream.Collectors;
  * - Plot-Erstellung aus BlockPos (für Selection Tool)
  * - Plot-Suche nach Position
  * - Auto-Save mit dirty-Flag
+ *
+ * Implements IPlotManager for dependency injection and loose coupling.
  */
-public class PlotManager implements IncrementalSaveManager.ISaveable {
+public class PlotManager implements IPlotManager, IncrementalSaveManager.ISaveable {
 
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
     private static volatile PlotManager instance;
@@ -900,5 +902,158 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
             }
         }
         return localRef;
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // IPlotManager Implementation - Instance Methods
+    // These delegate to static methods for backward compatibility
+    // ═══════════════════════════════════════════════════════════════════════
+
+    @Override
+    public PlotRegion createPlot(@Nonnull BlockPos pos1, @Nonnull BlockPos pos2, double price) {
+        return PlotManager.createPlot(pos1, pos2, price);
+    }
+
+    @Override
+    public PlotRegion createPlot(@Nonnull BlockPos pos1, @Nonnull BlockPos pos2, String customName, PlotType type, double price) {
+        return PlotManager.createPlot(pos1, pos2, customName, type, price);
+    }
+
+    @Override
+    @Nullable
+    public PlotRegion getPlotAt(@Nonnull BlockPos pos) {
+        return PlotManager.getPlotAt(pos);
+    }
+
+    @Override
+    @Nullable
+    public PlotRegion getPlot(@Nonnull String plotId) {
+        return PlotManager.getPlot(plotId);
+    }
+
+    @Override
+    public boolean hasPlot(@Nonnull String plotId) {
+        return PlotManager.hasPlot(plotId);
+    }
+
+    @Override
+    public List<PlotRegion> getPlots() {
+        return PlotManager.getPlots();
+    }
+
+    @Override
+    public List<PlotRegion> getPlotsByOwner(@Nonnull UUID ownerUUID) {
+        return PlotManager.getPlotsByOwner(ownerUUID);
+    }
+
+    @Override
+    public List<PlotRegion> getAvailablePlots() {
+        return PlotManager.getAvailablePlots();
+    }
+
+    @Override
+    public List<PlotRegion> getPlotsForSale() {
+        return PlotManager.getPlotsForSale();
+    }
+
+    @Override
+    public List<PlotRegion> getPlotsForRent() {
+        return PlotManager.getPlotsForRent();
+    }
+
+    @Override
+    public List<PlotRegion> getTopRatedPlots(int limit) {
+        return PlotManager.getTopRatedPlots(limit);
+    }
+
+    @Override
+    public void addPlot(@Nonnull PlotRegion plot) {
+        PlotManager.addPlot(plot);
+    }
+
+    @Override
+    public boolean removePlot(@Nonnull String plotId) {
+        return PlotManager.removePlot(plotId);
+    }
+
+    @Override
+    public boolean removePlotAt(@Nonnull BlockPos pos) {
+        return PlotManager.removePlotAt(pos);
+    }
+
+    @Override
+    public void clearAllPlots() {
+        PlotManager.clearAllPlots();
+    }
+
+    @Override
+    public int getPlotCount() {
+        return PlotManager.getPlotCount();
+    }
+
+    @Override
+    public long getTotalPlotVolume() {
+        return PlotManager.getTotalPlotVolume();
+    }
+
+    @Override
+    public PlotStatistics getStatistics() {
+        return PlotManager.getStatistics();
+    }
+
+    @Override
+    public CacheStatistics getCacheStatistics() {
+        return PlotManager.getCacheStatistics();
+    }
+
+    @Override
+    public void resetCacheStatistics() {
+        PlotManager.resetCacheStatistics();
+    }
+
+    @Override
+    public void loadPlots() {
+        PlotManager.loadPlots();
+    }
+
+    @Override
+    public void savePlots() {
+        PlotManager.savePlots();
+    }
+
+    @Override
+    public void saveIfNeeded() {
+        PlotManager.saveIfNeeded();
+    }
+
+    @Override
+    public void markDirty() {
+        PlotManager.markDirty();
+    }
+
+    @Override
+    public void rebuildSpatialIndex() {
+        PlotManager.rebuildSpatialIndex();
+    }
+
+    @Override
+    public boolean isHealthy() {
+        return PlotManager.isHealthy();
+    }
+
+    @Override
+    @Nullable
+    public String getLastError() {
+        return PlotManager.getLastError();
+    }
+
+    @Override
+    public String getHealthInfo() {
+        return PlotManager.getHealthInfo();
+    }
+
+    @Override
+    public void printDebugInfo() {
+        PlotManager.printDebugInfo();
     }
 }

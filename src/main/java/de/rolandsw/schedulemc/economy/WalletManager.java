@@ -20,8 +20,12 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * SICHERHEIT: Verwendet ConcurrentHashMap für Thread-Sicherheit
  * Nutzt AbstractPersistenceManager für robuste Datenpersistenz
+ *
+ * Implements IWalletManager for dependency injection and loose coupling.
  */
-public class WalletManager {
+public class WalletManager implements IWalletManager {
+
+    private static volatile WalletManager instance;
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final File WALLET_FILE = new File("config/plotmod_wallets.json");
@@ -123,6 +127,39 @@ public class WalletManager {
     public static String getHealthInfo() {
         return persistence.getHealthInfo();
     }
+
+    /**
+     * Gibt die Singleton-Instanz zurück
+     */
+    public static WalletManager getInstance() {
+        WalletManager localRef = instance;
+        if (localRef == null) {
+            synchronized (WalletManager.class) {
+                localRef = instance;
+                if (localRef == null) {
+                    instance = localRef = new WalletManager();
+                }
+            }
+        }
+        return localRef;
+    }
+
+    private WalletManager() {}
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // IWalletManager Implementation - Instance Methods
+    // ═══════════════════════════════════════════════════════════════════════
+
+    @Override public double getBalance(@Nonnull UUID playerUUID) { return WalletManager.getBalance(playerUUID); }
+    @Override public void setBalance(@Nonnull UUID playerUUID, double amount) { WalletManager.setBalance(playerUUID, amount); }
+    @Override public void addMoney(@Nonnull UUID playerUUID, double amount) { WalletManager.addMoney(playerUUID, amount); }
+    @Override public boolean removeMoney(@Nonnull UUID playerUUID, double amount) { return WalletManager.removeMoney(playerUUID, amount); }
+    @Override public void load() { WalletManager.load(); }
+    @Override public void save() { WalletManager.save(); }
+    @Override public void saveIfNeeded() { WalletManager.saveIfNeeded(); }
+    @Override public boolean isHealthy() { return WalletManager.isHealthy(); }
+    @Override public String getLastError() { return WalletManager.getLastError(); }
+    @Override public String getHealthInfo() { return WalletManager.getHealthInfo(); }
 
     /**
      * Innere Persistence-Manager-Klasse
