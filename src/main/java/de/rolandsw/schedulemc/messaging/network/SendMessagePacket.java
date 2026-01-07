@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.messaging.network;
 import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.messaging.MessageManager;
 import de.rolandsw.schedulemc.util.PacketHandler;
+import de.rolandsw.schedulemc.util.StringUtils;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
@@ -39,13 +40,14 @@ public class SendMessagePacket {
 
     /**
      * SICHERHEIT: Max-Länge für Strings gegen DoS/Memory-Angriffe
+     * + Input-Sanitization gegen Command-Injection
      */
     public static SendMessagePacket decode(FriendlyByteBuf buf) {
         UUID uuid = buf.readUUID();
         boolean isPlayer = buf.readBoolean();
         // OPTIMIERT: Lese recipientName nur für NPCs
-        String name = isPlayer ? "" : buf.readUtf(64); // NPC name max 64 chars
-        String content = buf.readUtf(1024); // Message max 1024 chars
+        String name = isPlayer ? "" : StringUtils.sanitizeUserInput(buf.readUtf(64)); // NPC name max 64 chars
+        String content = StringUtils.sanitizeUserInput(buf.readUtf(1024)); // Message max 1024 chars + SANITIZED
         return new SendMessagePacket(uuid, name, isPlayer, content);
     }
 

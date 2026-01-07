@@ -6,6 +6,7 @@ import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.economy.TransactionType;
 import de.rolandsw.schedulemc.npc.bank.TransferLimitTracker;
 import de.rolandsw.schedulemc.util.PacketHandler;
+import de.rolandsw.schedulemc.util.StringUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -39,10 +40,11 @@ public class BankTransferPacket {
 
     /**
      * SICHERHEIT: Max-Länge für playerName gegen DoS/Memory-Angriffe
+     * + Input-Sanitization gegen Command-Injection
      */
     public static BankTransferPacket decode(FriendlyByteBuf buf) {
         return new BankTransferPacket(
-            buf.readUtf(16), // MC username max 16 chars
+            StringUtils.sanitizeUserInput(buf.readUtf(16)), // MC username max 16 chars + SANITIZED
             buf.readDouble()
         );
     }
