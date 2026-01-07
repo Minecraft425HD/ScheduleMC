@@ -4,7 +4,119 @@ import de.rolandsw.schedulemc.config.TobaccoConfig;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 /**
- * ScheduleMC 3.0 - Vollständige Konfiguration inkl. Tabak-System
+ * Central configuration handler for ScheduleMC, managing 200+ server and client settings.
+ *
+ * <p>This class provides a comprehensive configuration system using Forge's {@link ForgeConfigSpec}
+ * for type-safe, validated configuration management across all mod features.
+ *
+ * <h2>Configuration Structure:</h2>
+ * <ul>
+ *   <li><b>COMMON:</b> Server-side configuration (economy, plots, NPCs, etc.)</li>
+ *   <li><b>TOBACCO:</b> Tobacco system configuration ({@link TobaccoConfig})</li>
+ *   <li><b>VEHICLE_SERVER:</b> Server-side vehicle configuration</li>
+ *   <li><b>VEHICLE_CLIENT:</b> Client-side vehicle rendering and UI settings</li>
+ * </ul>
+ *
+ * <h2>Major Configuration Categories:</h2>
+ *
+ * <h3>Economy System:</h3>
+ * <ul>
+ *   <li>Starting balance, save intervals</li>
+ *   <li>Savings accounts (interest rates, lock periods, withdrawal penalties)</li>
+ *   <li>Overdraft limits and interest</li>
+ *   <li>Recurring payments configuration</li>
+ *   <li>Tax system (property tax per chunk, sales tax rate)</li>
+ *   <li>Credit loans (interest rates, minimum balance, max loans)</li>
+ *   <li>Shop account management</li>
+ * </ul>
+ *
+ * <h3>Plot System:</h3>
+ * <ul>
+ *   <li>Plot size limits (min: default 256, max: default 1,000,000)</li>
+ *   <li>Plot price range (min: $100, max: $1,000,000)</li>
+ *   <li>Max trusted players per plot (default: 10)</li>
+ *   <li>Transfer and abandonment settings</li>
+ *   <li>Protection rules and permissions</li>
+ * </ul>
+ *
+ * <h3>NPC System:</h3>
+ * <ul>
+ *   <li>Daily income for residents ($100-$5,000)</li>
+ *   <li>Merchant income ($200-$10,000)</li>
+ *   <li>Worker maximum (default: 100 NPCs per player)</li>
+ *   <li>Movement speeds and AI settings</li>
+ *   <li>Shop inventory limits</li>
+ * </ul>
+ *
+ * <h3>Crime & Law System:</h3>
+ * <ul>
+ *   <li>Crime detection settings (witness range, report delay)</li>
+ *   <li>Bounty system (min $100, max $100,000)</li>
+ *   <li>Prison sentences and early release</li>
+ *   <li>Police patrol configuration</li>
+ * </ul>
+ *
+ * <h3>Vehicle System:</h3>
+ * <ul>
+ *   <li><b>Server:</b> Fuel consumption, speed limits, damage settings</li>
+ *   <li><b>Client:</b> Rendering quality, UI display options, sound settings</li>
+ * </ul>
+ *
+ * <h3>Production System:</h3>
+ * <ul>
+ *   <li>Production speeds and multipliers</li>
+ *   <li>Resource consumption rates</li>
+ *   <li>Batch processing limits</li>
+ * </ul>
+ *
+ * <h3>Warehouse System:</h3>
+ * <ul>
+ *   <li>Storage capacity limits</li>
+ *   <li>Seller delivery settings</li>
+ *   <li>Auto-refill configuration</li>
+ * </ul>
+ *
+ * <h2>Configuration Files:</h2>
+ * <p>Configuration is saved to:
+ * <ul>
+ *   <li><b>Server Config:</b> {@code config/schedulemc-server.toml}</li>
+ *   <li><b>Client Config:</b> {@code config/schedulemc-client.toml}</li>
+ * </ul>
+ *
+ * <h2>Usage Example:</h2>
+ * <pre>{@code
+ * // Access economy settings
+ * double startBalance = ModConfigHandler.COMMON.START_BALANCE.get();
+ * int saveInterval = ModConfigHandler.COMMON.SAVE_INTERVAL_MINUTES.get();
+ *
+ * // Access plot settings
+ * long maxPlotSize = ModConfigHandler.COMMON.MAX_PLOT_SIZE.get();
+ * double plotPrice = ModConfigHandler.COMMON.MIN_PLOT_PRICE.get();
+ *
+ * // Access vehicle settings (server-side)
+ * double fuelConsumption = ModConfigHandler.VEHICLE_SERVER.FUEL_CONSUMPTION_RATE.get();
+ *
+ * // Access vehicle settings (client-side)
+ * boolean showSpeedometer = ModConfigHandler.VEHICLE_CLIENT.SHOW_SPEEDOMETER.get();
+ * }</pre>
+ *
+ * <h2>Validation:</h2>
+ * <p>All configuration values include built-in validation:
+ * <ul>
+ *   <li>Min/max range enforcement</li>
+ *   <li>Type safety (int, double, boolean, enum)</li>
+ *   <li>Automatic clamping to valid ranges</li>
+ *   <li>Default values for missing/invalid entries</li>
+ * </ul>
+ *
+ * <h2>Thread Safety:</h2>
+ * <p>{@link ForgeConfigSpec} values are thread-safe for reading. Configuration
+ * reloads are synchronized by Forge's configuration system.
+ *
+ * @see ForgeConfigSpec
+ * @see TobaccoConfig
+ * @author ScheduleMC Development Team
+ * @since 3.0.0
  */
 public class ModConfigHandler {
 
