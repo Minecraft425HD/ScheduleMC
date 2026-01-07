@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.client.screen.apps;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.achievement.AchievementCategory;
@@ -255,7 +256,7 @@ public class AchievementAppScreen extends Screen {
 
         // Verdientes Geld
         guiGraphics.drawCenteredString(this.font,
-            "§7Verdient: §a" + String.format("%.2f€", totalEarned),
+            "§7Verdient: §a" + StringUtils.formatMoney(totalEarned),
             leftPos + WIDTH / 2, startY + 44, 0xFFFFFF);
 
         // Kategorien-Header

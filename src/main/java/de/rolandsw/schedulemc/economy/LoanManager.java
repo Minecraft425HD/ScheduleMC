@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.economy;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 nimport de.rolandsw.schedulemc.util.GameConstants;
 
 import com.google.gson.Gson;
@@ -211,10 +212,10 @@ public class LoanManager extends AbstractPersistenceManager<Map<UUID, Loan>> {
             player.sendSystemMessage(Component.literal(
                 "§a§l[KREDIT] Bewilligt!\n" +
                 "§7Typ: §e" + type.name() + "\n" +
-                "§7Betrag: §a+" + String.format("%.2f€", type.getAmount()) + "\n" +
+                "§7Betrag: §a+" + StringUtils.formatMoney(type.getAmount()) + "\n" +
                 "§7Zinssatz: §c" + (int)(type.getInterestRate() * 100) + "%\n" +
                 "§7Laufzeit: §e" + type.getDurationDays() + " Tage\n" +
-                "§7Tägliche Rate: §c-" + String.format("%.2f€", loan.getDailyPayment())
+                "§7Tägliche Rate: §c-" + StringUtils.formatMoney(loan.getDailyPayment())
             ));
         }
 
@@ -305,8 +306,8 @@ public class LoanManager extends AbstractPersistenceManager<Map<UUID, Loan>> {
                 if (player != null) {
                     player.sendSystemMessage(Component.literal(
                         "§c§l[KREDIT] Zahlung fehlgeschlagen!\n" +
-                        "§7Fällig: §c" + String.format("%.2f€", payment) + "\n" +
-                        "§7Kontostand: §e" + String.format("%.2f€", EconomyManager.getBalance(playerUUID)) + "\n" +
+                        "§7Fällig: §c" + StringUtils.formatMoney(payment) + "\n" +
+                        "§7Kontostand: §e" + StringUtils.formatMoney(EconomyManager.getBalance(playerUUID)) + "\n" +
                         "§cZahle Geld ein um Strafen zu vermeiden!"
                     ));
                 }
@@ -369,7 +370,7 @@ public class LoanManager extends AbstractPersistenceManager<Map<UUID, Loan>> {
             if (player != null) {
                 player.sendSystemMessage(Component.literal(
                     "§a§l[KREDIT] Vorzeitig abbezahlt!\n" +
-                    "§7Betrag: §c-" + String.format("%.2f€", remaining)
+                    "§7Betrag: §c-" + StringUtils.formatMoney(remaining)
                 ));
             }
 

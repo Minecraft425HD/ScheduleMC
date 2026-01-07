@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.exceptions;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import javax.annotation.Nullable;
 import java.util.UUID;

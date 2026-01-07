@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.client.screen.apps;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.economy.CreditLoan;
@@ -419,7 +420,7 @@ public class BankAppScreen extends Screen {
         String balanceColor = balance >= 0 ? "§a" : "§c";
         if (y >= startY - 10 && y < endY) {
             guiGraphics.drawString(this.font, "§fBilanz:", leftPos + 15, y, 0xFFFFFF);
-            guiGraphics.drawString(this.font, balanceColor + String.format("%.2f€", balance), leftPos + 110, y, 0xFFFFFF);
+            guiGraphics.drawString(this.font, balanceColor + StringUtils.formatMoney(balance), leftPos + 110, y, 0xFFFFFF);
         }
         y += 15;
         contentHeight += 15;

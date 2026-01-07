@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.npc.network;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.economy.TransactionType;
@@ -46,7 +47,7 @@ public class BankWithdrawPacket {
                     .withStyle(ChatFormatting.RED));
                 player.sendSystemMessage(Component.literal("Verfügbar: ")
                     .withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(String.format("%.2f€", giroBalance))
+                    .append(Component.literal(StringUtils.formatMoney(giroBalance))
                         .withStyle(ChatFormatting.YELLOW)));
                 return;
             }
@@ -68,11 +69,11 @@ public class BankWithdrawPacket {
                         .withStyle(ChatFormatting.RED)));
                 player.sendSystemMessage(Component.literal("Neues Girokonto: ")
                     .withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID())))
+                    .append(Component.literal(StringUtils.formatMoney(EconomyManager.getBalance(player.getUUID())))
                         .withStyle(ChatFormatting.AQUA)));
                 player.sendSystemMessage(Component.literal("Neues Bargeld: ")
                     .withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(String.format("%.2f€", WalletManager.getBalance(player.getUUID())))
+                    .append(Component.literal(StringUtils.formatMoney(WalletManager.getBalance(player.getUUID())))
                         .withStyle(ChatFormatting.YELLOW)));
                 player.sendSystemMessage(Component.literal("═══════════════════════════════")
                     .withStyle(ChatFormatting.GREEN));

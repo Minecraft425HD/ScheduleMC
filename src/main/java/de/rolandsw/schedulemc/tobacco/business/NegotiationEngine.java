@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.tobacco.business;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.production.core.DrugType;
@@ -52,7 +53,7 @@ public class NegotiationEngine {
             return new NPCResponse(
                 false,
                 maxAcceptable * 0.8,
-                "Das ist absurd! Maximal " + String.format("%.2f€", maxAcceptable * 0.8) + "!",
+                "Das ist absurd! Maximal " + StringUtils.formatMoney(maxAcceptable * 0.8) + "!",
                 -5
             );
         }
@@ -63,7 +64,7 @@ public class NegotiationEngine {
             return new NPCResponse(
                 false,
                 counter,
-                "Das ist mir zu viel. Wie wäre es mit " + String.format("%.2f€", counter) + "?",
+                "Das ist mir zu viel. Wie wäre es mit " + StringUtils.formatMoney(counter) + "?",
                 0
             );
         }
@@ -88,7 +89,7 @@ public class NegotiationEngine {
                 return new NPCResponse(
                     false,
                     counter,
-                    "Fast! Ich würde " + String.format("%.2f€", counter) + " zahlen.",
+                    "Fast! Ich würde " + StringUtils.formatMoney(counter) + " zahlen.",
                     0
                 );
             }
@@ -98,7 +99,7 @@ public class NegotiationEngine {
         return new NPCResponse(
             false,
             minAcceptable,
-            "Das ist zu wenig. Mindestens " + String.format("%.2f€", minAcceptable) + "!",
+            "Das ist zu wenig. Mindestens " + StringUtils.formatMoney(minAcceptable) + "!",
             -2
         );
     }

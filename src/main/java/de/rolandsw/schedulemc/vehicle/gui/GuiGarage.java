@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.vehicle.gui;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.Part;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -306,8 +307,8 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
         int buttonY = topPos + imageHeight - 30; // Adjusted for smaller GUI
 
         String buttonText = currentTab == Tab.REPAIR ?
-            "Bezahlen: " + String.format("%.2f€", calculateSelectedCost()) :
-            "Kaufen: " + String.format("%.2f€", calculateUpgradeCost());
+            "Bezahlen: " + StringUtils.formatMoney(calculateSelectedCost()) :
+            "Kaufen: " + StringUtils.formatMoney(calculateUpgradeCost());
 
         payButton = addRenderableWidget(Button.builder(
             Component.literal(buttonText),
@@ -459,19 +460,19 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
         guiGraphics.drawString(font, "Reparatur", labelX, checkY, partColor, false);
         if (getDamagePercent() > 0) {
             double repairCost = getDamagePercent() * ModConfigHandler.COMMON.GARAGE_REPAIR_COST_PER_PERCENT.get();
-            guiGraphics.drawString(font, String.format("%.2f€", repairCost), priceX, checkY, costColor, false);
+            guiGraphics.drawString(font, StringUtils.formatMoney(repairCost), priceX, checkY, costColor, false);
         }
 
         // Batterie
         guiGraphics.drawString(font, "Batterie", labelX, checkY + lineSpacing, partColor, false);
         if (getBatteryPercent() < 50) {
             double batteryCost = (50 - getBatteryPercent()) * ModConfigHandler.COMMON.GARAGE_BATTERY_COST_PER_PERCENT.get();
-            guiGraphics.drawString(font, String.format("%.2f€", batteryCost), priceX, checkY + lineSpacing, costColor, false);
+            guiGraphics.drawString(font, StringUtils.formatMoney(batteryCost), priceX, checkY + lineSpacing, costColor, false);
         }
 
         // Ölwechsel
         guiGraphics.drawString(font, "Ölwechsel", labelX, checkY + lineSpacing * 2, partColor, false);
-        guiGraphics.drawString(font, String.format("%.2f€", ModConfigHandler.COMMON.GARAGE_OIL_CHANGE_COST.get()), priceX, checkY + lineSpacing * 2, costColor, false);
+        guiGraphics.drawString(font, StringUtils.formatMoney(ModConfigHandler.COMMON.GARAGE_OIL_CHANGE_COST.get()), priceX, checkY + lineSpacing * 2, costColor, false);
     }
 
     private void renderUpgradeTab(GuiGraphics guiGraphics, int mouseX, int mouseY) {

@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.npc.network;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.economy.SavingsAccount;
@@ -74,11 +75,11 @@ public class SavingsWithdrawPacket {
                         .withStyle(ChatFormatting.RED)));
                 player.sendSystemMessage(Component.literal("Neues Sparkonto: ")
                     .withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(String.format("%.2f€", newSavingsBalance))
+                    .append(Component.literal(StringUtils.formatMoney(newSavingsBalance))
                         .withStyle(ChatFormatting.LIGHT_PURPLE)));
                 player.sendSystemMessage(Component.literal("Neues Girokonto: ")
                     .withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(String.format("%.2f€", newCheckingBalance))
+                    .append(Component.literal(StringUtils.formatMoney(newCheckingBalance))
                         .withStyle(ChatFormatting.AQUA)));
                 player.sendSystemMessage(Component.literal("═══════════════════════════════")
                     .withStyle(ChatFormatting.GREEN));
@@ -103,7 +104,7 @@ public class SavingsWithdrawPacket {
                         .withStyle(ChatFormatting.RED));
                     player.sendSystemMessage(Component.literal("Verfügbar: ")
                         .withStyle(ChatFormatting.GRAY)
-                        .append(Component.literal(String.format("%.2f€", account.getBalance()))
+                        .append(Component.literal(StringUtils.formatMoney(account.getBalance()))
                             .withStyle(ChatFormatting.YELLOW)));
                 } else {
                     player.sendSystemMessage(Component.literal("⚠ Fehler bei der Abhebung!")

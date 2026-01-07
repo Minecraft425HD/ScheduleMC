@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.economy;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -158,8 +159,8 @@ public class CreditLoanManager extends AbstractPersistenceManager<Map<UUID, Cred
                 if (player != null) {
                     player.sendSystemMessage(Component.literal(
                         "§c§l[KREDIT] Zahlung fehlgeschlagen!\n" +
-                        "§7Fällig: §c" + String.format("%.2f€", payment) + "\n" +
-                        "§7Kontostand: §e" + String.format("%.2f€", EconomyManager.getBalance(playerUUID)) + "\n" +
+                        "§7Fällig: §c" + StringUtils.formatMoney(payment) + "\n" +
+                        "§7Kontostand: §e" + StringUtils.formatMoney(EconomyManager.getBalance(playerUUID)) + "\n" +
                         "§c⚠ Dein Kredit-Score wurde verschlechtert!\n" +
                         "§7Zahle Geld ein um weitere Strafen zu vermeiden!"
                     ));

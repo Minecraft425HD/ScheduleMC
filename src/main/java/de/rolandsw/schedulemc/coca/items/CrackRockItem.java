@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.coca.items;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import de.rolandsw.schedulemc.coca.CocaType;
 import de.rolandsw.schedulemc.coca.CrackQuality;
@@ -88,7 +89,7 @@ public class CrackRockItem extends Item {
         tooltip.add(Component.literal("§7Qualität: " + quality.getColoredName()));
         tooltip.add(Component.literal("§7Gewicht: §f" + (weight * stack.getCount()) + "g §8(" + stack.getCount() + "x 1g)"));
         tooltip.add(Component.empty());
-        tooltip.add(Component.literal("§6💰 Wert: §f" + String.format("%.2f", price) + "€"));
+        tooltip.add(Component.literal("§6💰 Wert: §f" + StringUtils.formatMoney(price)));
         tooltip.add(Component.empty());
 
         if (quality == CrackQuality.FISHSCALE) {

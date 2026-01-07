@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.vehicle.net;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.economy.EconomyManager;
@@ -77,8 +78,8 @@ public class MessageGaragePayment implements Message<MessageGaragePayment> {
         if (playerBalance < totalCost) {
             player.displayClientMessage(
                 Component.translatable("message.garage.insufficient_funds",
-                    String.format("%.2f€", totalCost),
-                    String.format("%.2f€", playerBalance))
+                    StringUtils.formatMoney(totalCost),
+                    StringUtils.formatMoney(playerBalance))
                     .withStyle(ChatFormatting.RED),
                 false
             );
@@ -95,7 +96,7 @@ public class MessageGaragePayment implements Message<MessageGaragePayment> {
             applyServices(vehicle, repairDamage, chargeBattery, changeOil);
 
             player.displayClientMessage(
-                Component.translatable("message.garage.payment_success", String.format("%.2f€", totalCost))
+                Component.translatable("message.garage.payment_success", StringUtils.formatMoney(totalCost))
                     .withStyle(ChatFormatting.GREEN),
                 false
             );

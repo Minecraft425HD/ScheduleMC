@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.npc.network;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 nimport de.rolandsw.schedulemc.util.GameConstants;
 
 import de.rolandsw.schedulemc.util.PacketHandler;
@@ -257,9 +258,9 @@ public class PurchaseItemPacket {
         player.sendSystemMessage(Component.literal("Getankt: ").withStyle(ChatFormatting.GRAY)
             .append(Component.literal(totalFueled + " mB Bio-Diesel").withStyle(ChatFormatting.YELLOW)));
         player.sendSystemMessage(Component.literal("Gezahlt: ").withStyle(ChatFormatting.GRAY)
-            .append(Component.literal(String.format("%.2f€", totalCost)).withStyle(ChatFormatting.GOLD)));
+            .append(Component.literal(StringUtils.formatMoney(totalCost)).withStyle(ChatFormatting.GOLD)));
         player.sendSystemMessage(Component.literal("Restguthaben: ").withStyle(ChatFormatting.GRAY)
-            .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID()))).withStyle(ChatFormatting.YELLOW)));
+            .append(Component.literal(StringUtils.formatMoney(EconomyManager.getBalance(player.getUUID()))).withStyle(ChatFormatting.YELLOW)));
         player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GREEN));
     }
 

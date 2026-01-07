@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.managers;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -139,7 +140,7 @@ public class DailyRewardManager {
             "§a§l═══════════════════════════════\n" +
             "§a§l✓ TÄGLICHE LOGIN-BELOHNUNG!\n" +
             "§a§l═══════════════════════════════\n" +
-            "§a+§e" + String.format("%.2f€", amount) + " §7aufs Konto überwiesen!\n" +
+            "§a+§e" + StringUtils.formatMoney(amount) + " §7aufs Konto überwiesen!\n" +
             "§7Streak: §e" + streak + " Tag" + (streak == 1 ? "" : "e") + " §6🔥\n" +
             (streak >= 7 ? "§d★ Bonus-Woche! ★\n" : "") +
             "§7Komm morgen wieder für mehr!\n" +

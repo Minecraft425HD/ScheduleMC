@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.economy;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -146,8 +147,8 @@ public class InterestManager extends AbstractPersistenceManager<Map<UUID, Long>>
             player.sendSystemMessage(Component.literal(
                 "§a§l[BANK] Zinsen gutgeschrieben!\n" +
                 "§7Rate: §e2.0%\n" +
-                "§7Betrag: §a+" + String.format("%.2f€", interest) + "\n" +
-                "§7Neuer Kontostand: §6" + String.format("%.2f€", EconomyManager.getBalance(playerUUID))
+                "§7Betrag: §a+" + StringUtils.formatMoney(interest) + "\n" +
+                "§7Neuer Kontostand: §6" + StringUtils.formatMoney(EconomyManager.getBalance(playerUUID))
             ));
         }
     }

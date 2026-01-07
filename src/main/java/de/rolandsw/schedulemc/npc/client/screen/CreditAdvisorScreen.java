@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.npc.client.screen;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import de.rolandsw.schedulemc.ScheduleMC;

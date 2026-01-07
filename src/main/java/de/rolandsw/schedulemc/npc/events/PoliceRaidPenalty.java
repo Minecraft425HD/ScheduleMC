@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.npc.events;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.economy.EconomyManager;
@@ -83,7 +84,7 @@ public class PoliceRaidPenalty {
                 "§c§l✗ NICHT GENUG GELD FÜR STRAFE!"
             ));
             player.sendSystemMessage(Component.literal(
-                "§7Kontostand konfisziert: §c" + String.format("%.2f", availableBalance) + "€"
+                "§7Kontostand konfisziert: §c" + StringUtils.formatMoney(availableBalance)
             ));
             player.sendSystemMessage(Component.literal(
                 "§c§lHAFTZEIT WIRD VERDOPPELT!"

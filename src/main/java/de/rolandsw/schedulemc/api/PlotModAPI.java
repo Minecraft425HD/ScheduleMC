@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.api;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.managers.DailyRewardManager;
@@ -206,7 +207,7 @@ public class PlotModAPI {
          * Formatiert Geld-Betrag
          */
         public static String formatMoney(double amount) {
-            return String.format("%.2f€", amount);
+            return StringUtils.formatMoney(amount);
         }
         
         /**

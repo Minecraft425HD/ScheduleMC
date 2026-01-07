@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.economy;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -211,8 +212,8 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
         if (player != null) {
             player.sendSystemMessage(Component.literal(
                 "§c§l⚠ WARNUNG: KONTO ÜBERZOGEN!\n" +
-                "§7Kontostand: §c" + String.format("%.2f€", balance) + "\n" +
-                "§7Limit: §c" + String.format("%.2f€", maxLimit) + "\n" +
+                "§7Kontostand: §c" + StringUtils.formatMoney(balance) + "\n" +
+                "§7Limit: §c" + StringUtils.formatMoney(maxLimit) + "\n" +
                 "§7Überziehungszinsen: §c" + String.format("%.0f%%", interestRate * 100) + " pro Woche\n" +
                 "§cBitte zahle Geld ein um Pfändung zu vermeiden!"
             ));
@@ -242,10 +243,10 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
         if (player != null) {
             player.sendSystemMessage(Component.literal(
                 "§c§l[DISPO] Überziehungszinsen\n" +
-                "§7Überzogen: §c" + String.format("%.2f€", overdraftAmount) + "\n" +
+                "§7Überzogen: §c" + StringUtils.formatMoney(overdraftAmount) + "\n" +
                 "§7Zinssatz: §c" + String.format("%.0f%%", interestRate * 100) + "\n" +
-                "§7Zinsen: §c-" + String.format("%.2f€", interest) + "\n" +
-                "§7Neuer Kontostand: §c" + String.format("%.2f€", balance - interest)
+                "§7Zinsen: §c-" + StringUtils.formatMoney(interest) + "\n" +
+                "§7Neuer Kontostand: §c" + StringUtils.formatMoney(balance - interest)
             ));
         }
 
@@ -272,9 +273,9 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
                 "§4§l⚠⚠⚠ PFÄNDUNG! ⚠⚠⚠\n" +
                 "§cDein Konto wurde gepfändet!\n" +
                 "§7Grund: Überziehungslimit erreicht\n" +
-                "§7Alte Schulden: §c" + String.format("%.2f€", balance) + "\n" +
+                "§7Alte Schulden: §c" + StringUtils.formatMoney(balance) + "\n" +
                 "§7Geldbörse geleert\n" +
-                "§7Konto auf §c" + String.format("%.2f€", maxLimit) + " §7gesetzt\n" +
+                "§7Konto auf §c" + StringUtils.formatMoney(maxLimit) + " §7gesetzt\n" +
                 "§eZahle Schulden ab um wieder handlungsfähig zu sein!"
             ));
 
@@ -298,17 +299,17 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
 
         if (overdraft == 0) {
             return "§aDein Konto ist nicht überzogen.\n" +
-                "§7Dispo-Limit: §e" + String.format("%.2f€", Math.abs(maxLimit)) + "\n" +
+                "§7Dispo-Limit: §e" + StringUtils.formatMoney(Math.abs(maxLimit)) + "\n" +
                 "§7Überziehungszinsen: §c" + String.format("%.0f%%", interestRate * 100) + " pro Woche";
         }
 
         double available = maxLimit - balance;
 
         return "§c§lKONTO ÜBERZOGEN!\n" +
-            "§7Kontostand: §c" + String.format("%.2f€", balance) + "\n" +
-            "§7Überzogen um: §c" + String.format("%.2f€", overdraft) + "\n" +
-            "§7Verfügbar bis Limit: §e" + String.format("%.2f€", available) + "\n" +
-            "§7Dispo-Limit: §c" + String.format("%.2f€", maxLimit) + "\n" +
+            "§7Kontostand: §c" + StringUtils.formatMoney(balance) + "\n" +
+            "§7Überzogen um: §c" + StringUtils.formatMoney(overdraft) + "\n" +
+            "§7Verfügbar bis Limit: §e" + StringUtils.formatMoney(available) + "\n" +
+            "§7Dispo-Limit: §c" + StringUtils.formatMoney(maxLimit) + "\n" +
             "§7Überziehungszinsen: §c" + String.format("%.0f%%", interestRate * 100) + " pro Woche";
     }
 

@@ -86,15 +86,15 @@ public class BankTransferPacket {
                     .withStyle(ChatFormatting.RED));
                 player.sendSystemMessage(Component.literal("Limit: ")
                     .withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(String.format("%.2f€", dailyLimit))
+                    .append(Component.literal(StringUtils.formatMoney(dailyLimit))
                         .withStyle(ChatFormatting.YELLOW)));
                 player.sendSystemMessage(Component.literal("Heute bereits überwiesen: ")
                     .withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(String.format("%.2f€", dailyLimit - remaining))
+                    .append(Component.literal(StringUtils.formatMoney(dailyLimit - remaining))
                         .withStyle(ChatFormatting.YELLOW)));
                 player.sendSystemMessage(Component.literal("Noch verfügbar: ")
                     .withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(String.format("%.2f€", remaining))
+                    .append(Component.literal(StringUtils.formatMoney(remaining))
                         .withStyle(ChatFormatting.YELLOW)));
                 return;
             }
@@ -157,13 +157,13 @@ public class BankTransferPacket {
                         .withStyle(ChatFormatting.RED)));
                 player.sendSystemMessage(Component.literal("Neuer Kontostand: ")
                     .withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID())))
+                    .append(Component.literal(StringUtils.formatMoney(EconomyManager.getBalance(player.getUUID())))
                         .withStyle(ChatFormatting.AQUA)));
 
                 double newRemaining = tracker.getRemainingLimit(player.getUUID());
                 player.sendSystemMessage(Component.literal("Verbleibendes Tageslimit: ")
                     .withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(String.format("%.2f€", newRemaining))
+                    .append(Component.literal(StringUtils.formatMoney(newRemaining))
                         .withStyle(ChatFormatting.YELLOW)));
                 player.sendSystemMessage(Component.literal("═══════════════════════════════")
                     .withStyle(ChatFormatting.GREEN));
@@ -185,7 +185,7 @@ public class BankTransferPacket {
                         .withStyle(ChatFormatting.GREEN)));
                 targetPlayer.sendSystemMessage(Component.literal("Neuer Kontostand: ")
                     .withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(targetUUID)))
+                    .append(Component.literal(StringUtils.formatMoney(EconomyManager.getBalance(targetUUID)))
                         .withStyle(ChatFormatting.AQUA)));
                 targetPlayer.sendSystemMessage(Component.literal("═══════════════════════════════")
                     .withStyle(ChatFormatting.GREEN));
@@ -195,7 +195,7 @@ public class BankTransferPacket {
                     .withStyle(ChatFormatting.RED));
                 player.sendSystemMessage(Component.literal("Verfügbar: ")
                     .withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID())))
+                    .append(Component.literal(StringUtils.formatMoney(EconomyManager.getBalance(player.getUUID())))
                         .withStyle(ChatFormatting.YELLOW)));
             }
         });

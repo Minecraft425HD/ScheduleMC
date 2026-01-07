@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.tobacco.screen;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.production.core.DrugType;

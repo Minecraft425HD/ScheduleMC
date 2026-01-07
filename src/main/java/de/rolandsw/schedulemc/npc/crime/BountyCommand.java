@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.npc.crime;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
@@ -129,7 +130,7 @@ public class BountyCommand {
                         player.sendSystemMessage(Component.literal(
                             "§a§l✓ KOPFGELD PLATZIERT!\n" +
                             "§7Auf §e" + target.getName().getString() + " §7wurde ein Kopfgeld von\n" +
-                            "§a" + String.format("%.2f€", amount) + " §7ausgesetzt!"
+                            "§a" + StringUtils.formatMoney(amount) + " §7ausgesetzt!"
                         ));
                     } else {
                         CommandExecutor.sendFailure(ctx.getSource(),

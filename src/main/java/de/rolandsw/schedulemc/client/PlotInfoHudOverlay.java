@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.client;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 import de.rolandsw.schedulemc.util.EventHelper;
 
 import de.rolandsw.schedulemc.ScheduleMC;

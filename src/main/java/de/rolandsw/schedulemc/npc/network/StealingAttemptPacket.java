@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.npc.network;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 nimport de.rolandsw.schedulemc.util.GameConstants;
 
 import de.rolandsw.schedulemc.economy.WalletManager;
@@ -196,8 +197,8 @@ public class StealingAttemptPacket {
                             ItemStack walletItem = player.getInventory().getItem(8);
                             if (walletItem.getItem() instanceof CashItem) {
                                 double walletValue = CashItem.getValue(walletItem);
-                                player.sendSystemMessage(Component.literal("§7+ " + String.format("%.2f€", stolenMoney) + " gestohlen"));
-                                player.sendSystemMessage(Component.literal("§7Geldbörse: " + String.format("%.2f€", walletValue)));
+                                player.sendSystemMessage(Component.literal("§7+ " + StringUtils.formatMoney(stolenMoney) + " gestohlen"));
+                                player.sendSystemMessage(Component.literal("§7Geldbörse: " + StringUtils.formatMoney(walletValue)));
                             }
                         }
 

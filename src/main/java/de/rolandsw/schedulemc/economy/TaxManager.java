@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.economy;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -380,21 +381,21 @@ public class TaxManager extends AbstractPersistenceManager<Map<String, Object>> 
             if (player != null) {
                 StringBuilder message = new StringBuilder();
                 message.append("§e§l[STEUERN] Monatliche Abrechnung\n");
-                message.append("§7Kontostand: §6").append(String.format("%.2f€", balance)).append("\n");
+                message.append("§7Kontostand: §6").append(StringUtils.formatMoney(balance)).append("\n");
 
                 if (incomeTax > 0) {
-                    message.append("§7Einkommenssteuer: §c-").append(String.format("%.2f€", incomeTax)).append("\n");
+                    message.append("§7Einkommenssteuer: §c-").append(StringUtils.formatMoney(incomeTax)).append("\n");
                 }
 
                 if (propertyTax > 0) {
                     double taxPerChunk = ModConfigHandler.COMMON.TAX_PROPERTY_PER_CHUNK.get();
                     int chunks = (int)(propertyTax / taxPerChunk);
-                    message.append("§7Grundsteuer: §c-").append(String.format("%.2f€", propertyTax))
+                    message.append("§7Grundsteuer: §c-").append(StringUtils.formatMoney(propertyTax))
                            .append(" §7(").append(chunks).append(" Chunks)\n");
                 }
 
-                message.append("§7Gesamt: §c-").append(String.format("%.2f€", totalTax)).append("\n");
-                message.append("§7Neuer Kontostand: §6").append(String.format("%.2f€", EconomyManager.getBalance(playerUUID)));
+                message.append("§7Gesamt: §c-").append(StringUtils.formatMoney(totalTax)).append("\n");
+                message.append("§7Neuer Kontostand: §6").append(StringUtils.formatMoney(EconomyManager.getBalance(playerUUID)));
 
                 player.sendSystemMessage(Component.literal(message.toString()));
             }
@@ -407,10 +408,10 @@ public class TaxManager extends AbstractPersistenceManager<Map<String, Object>> 
             if (player != null) {
                 player.sendSystemMessage(Component.literal(
                     "§c§l[STEUERN] Zahlung fehlgeschlagen!\n" +
-                    "§7Fällig: §c" + String.format("%.2f€", totalTax) + "\n" +
-                    "§7(Einkommen: " + String.format("%.2f€", incomeTax) +
-                    ", Grundsteuer: " + String.format("%.2f€", propertyTax) + ")\n" +
-                    "§7Steuerschuld: §c" + String.format("%.2f€", debt) + "\n" +
+                    "§7Fällig: §c" + StringUtils.formatMoney(totalTax) + "\n" +
+                    "§7(Einkommen: " + StringUtils.formatMoney(incomeTax) +
+                    ", Grundsteuer: " + StringUtils.formatMoney(propertyTax) + ")\n" +
+                    "§7Steuerschuld: §c" + StringUtils.formatMoney(debt) + "\n" +
                     "§cZahle innerhalb von 3 Tagen!"
                 ));
             }

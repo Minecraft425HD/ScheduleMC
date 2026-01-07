@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.economy.screen;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import de.rolandsw.schedulemc.economy.menu.ATMMenu;
 import de.rolandsw.schedulemc.economy.network.ATMTransactionPacket;
@@ -139,11 +140,11 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu> {
         
         // Balance Info (Gelb)
         graphics.drawString(this.font, "Konto:", x + 10, y + 28, 0xFFFFFF, false);
-        graphics.drawString(this.font, String.format("%.2f€", balance), x + 100, y + 28, 0xFFD700, false);
+        graphics.drawString(this.font, StringUtils.formatMoney(balance), x + 100, y + 28, 0xFFD700, false);
         
         // Wallet Info (Grün)
         graphics.drawString(this.font, "Bargeld:", x + 10, y + 38, 0xFFFFFF, false);
-        graphics.drawString(this.font, String.format("%.2f€", walletBalance), x + 100, y + 38, 0x00FF00, false);
+        graphics.drawString(this.font, StringUtils.formatMoney(walletBalance), x + 100, y + 38, 0x00FF00, false);
         
         // Input Label
         graphics.drawString(this.font, "Betrag:", x + 10, y + 54, 0xFFFFFF, false);

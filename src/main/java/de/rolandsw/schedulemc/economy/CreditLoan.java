@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.economy;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -244,7 +245,7 @@ public class CreditLoan {
         public String getDailyPaymentString() {
             double totalWithInterest = baseAmount * (1 + baseInterestRate);
             double daily = totalWithInterest / durationDays;
-            return String.format("%.2f€", daily);
+            return StringUtils.formatMoney(daily);
         }
     }
 }

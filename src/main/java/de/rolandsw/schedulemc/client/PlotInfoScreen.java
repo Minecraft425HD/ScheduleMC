@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.client;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import de.rolandsw.schedulemc.region.PlotArea;

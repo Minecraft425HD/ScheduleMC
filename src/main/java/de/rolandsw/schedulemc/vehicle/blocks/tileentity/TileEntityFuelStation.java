@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.vehicle.blocks.tileentity;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 
 import de.rolandsw.schedulemc.vehicle.Main;
@@ -248,7 +249,7 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
                             player.sendSystemMessage(Component.literal("Aktueller Preis (").withStyle(ChatFormatting.GRAY)
                                 .append(Component.literal(timeOfDay).withStyle(ChatFormatting.AQUA))
                                 .append(Component.literal("): ").withStyle(ChatFormatting.GRAY))
-                                .append(Component.literal(String.format("%.2f€", (double)pricePerUnit)).withStyle(ChatFormatting.GREEN))
+                                .append(Component.literal(StringUtils.formatMoney((double)pricePerUnit)).withStyle(ChatFormatting.GREEN))
                                 .append(Component.literal(" pro 10 mB").withStyle(ChatFormatting.GRAY)));
                             player.sendSystemMessage(Component.literal("💳 Tanken auf Rechnung aktiviert").withStyle(ChatFormatting.AQUA));
                             player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
@@ -333,9 +334,9 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
                 .append(Component.literal(totalFueled + " mB").withStyle(ChatFormatting.AQUA))
                 .append(Component.literal(" Bio-Diesel").withStyle(ChatFormatting.GREEN)));
             player.sendSystemMessage(Component.literal("Kosten: ").withStyle(ChatFormatting.GRAY)
-                .append(Component.literal(String.format("%.2f€", totalCost)).withStyle(ChatFormatting.GOLD)));
+                .append(Component.literal(StringUtils.formatMoney(totalCost)).withStyle(ChatFormatting.GOLD)));
             player.sendSystemMessage(Component.literal("Offener Betrag: ").withStyle(ChatFormatting.GRAY)
-                .append(Component.literal(String.format("%.2f€", FuelBillManager.getTotalUnpaidAmount(playerUUID))).withStyle(ChatFormatting.RED, ChatFormatting.BOLD)));
+                .append(Component.literal(StringUtils.formatMoney(FuelBillManager.getTotalUnpaidAmount(playerUUID))).withStyle(ChatFormatting.RED, ChatFormatting.BOLD)));
             player.sendSystemMessage(Component.literal("Bitte bezahlen Sie am Tankstellen-NPC!").withStyle(ChatFormatting.YELLOW));
             player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
         }

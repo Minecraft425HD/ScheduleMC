@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.economy;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -94,7 +95,7 @@ public class SavingsAccountManager extends AbstractPersistenceManager<Map<UUID, 
         if (player != null) {
             player.sendSystemMessage(Component.literal(
                 "§a§l[SPARKONTO] Erfolgreich eröffnet!\n" +
-                "§7Einlage: §e" + String.format("%.2f€", initialDeposit) + "\n" +
+                "§7Einlage: §e" + StringUtils.formatMoney(initialDeposit) + "\n" +
                 "§7Zinssatz: §a5.0% §7pro Woche\n" +
                 "§7Sperrfrist: §e4 Wochen\n" +
                 "§7Konto-ID: §f" + account.getAccountId().substring(0, 8)
@@ -135,8 +136,8 @@ public class SavingsAccountManager extends AbstractPersistenceManager<Map<UUID, 
         if (player != null) {
             player.sendSystemMessage(Component.literal(
                 "§a✓ Einzahlung erfolgreich!\n" +
-                "§7Betrag: §e+" + String.format("%.2f€", amount) + "\n" +
-                "§7Neuer Sparkonto-Stand: §6" + String.format("%.2f€", account.getBalance())
+                "§7Betrag: §e+" + StringUtils.formatMoney(amount) + "\n" +
+                "§7Neuer Sparkonto-Stand: §6" + StringUtils.formatMoney(account.getBalance())
             ));
         }
 
@@ -176,14 +177,14 @@ public class SavingsAccountManager extends AbstractPersistenceManager<Map<UUID, 
             ServerPlayer player = server.getPlayerList().getPlayer(playerUUID);
             if (player != null) {
                 String message = "§a✓ Abhebung erfolgreich!\n" +
-                    "§7Betrag: §e" + String.format("%.2f€", amount);
+                    "§7Betrag: §e" + StringUtils.formatMoney(amount);
 
                 if (penalty > 0) {
-                    message += "\n§cVorzeitige Abhebung: -10% Strafe (" + String.format("%.2f€", penalty) + ")";
-                    message += "\n§7Ausgezahlt: §e" + String.format("%.2f€", payout);
+                    message += "\n§cVorzeitige Abhebung: -10% Strafe (" + StringUtils.formatMoney(penalty) + ")";
+                    message += "\n§7Ausgezahlt: §e" + StringUtils.formatMoney(payout);
                 }
 
-                message += "\n§7Sparkonto-Stand: §6" + String.format("%.2f€", account.getBalance());
+                message += "\n§7Sparkonto-Stand: §6" + StringUtils.formatMoney(account.getBalance());
                 player.sendSystemMessage(Component.literal(message));
             }
 
@@ -225,7 +226,7 @@ public class SavingsAccountManager extends AbstractPersistenceManager<Map<UUID, 
         ServerPlayer player = server.getPlayerList().getPlayer(playerUUID);
         if (player != null) {
             String message = "§e[SPARKONTO] Geschlossen\n" +
-                "§7Ausgezahlt: §a" + String.format("%.2f€", payout);
+                "§7Ausgezahlt: §a" + StringUtils.formatMoney(payout);
 
             if (penalty > 0) {
                 message += "\n§cVorzeitige Schließung: -10% Strafe";
@@ -266,8 +267,8 @@ public class SavingsAccountManager extends AbstractPersistenceManager<Map<UUID, 
                         player.sendSystemMessage(Component.literal(
                             "§a§l[SPARKONTO] Zinsen gutgeschrieben!\n" +
                             "§7Zinssatz: §a5.0%\n" +
-                            "§7Betrag: §a+" + String.format("%.2f€", interest) + "\n" +
-                            "§7Neuer Stand: §6" + String.format("%.2f€", account.getBalance())
+                            "§7Betrag: §a+" + StringUtils.formatMoney(interest) + "\n" +
+                            "§7Neuer Stand: §6" + StringUtils.formatMoney(account.getBalance())
                         ));
                     }
 

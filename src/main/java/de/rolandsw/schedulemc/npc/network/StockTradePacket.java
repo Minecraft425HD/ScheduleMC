@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.npc.network;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.economy.TransactionType;
@@ -101,11 +102,11 @@ public class StockTradePacket {
                 .withStyle(ChatFormatting.RED));
             player.sendSystemMessage(Component.literal("Benötigt: ")
                 .withStyle(ChatFormatting.GRAY)
-                .append(Component.literal(String.format("%.2f€", totalCost))
+                .append(Component.literal(StringUtils.formatMoney(totalCost))
                     .withStyle(ChatFormatting.YELLOW)));
             player.sendSystemMessage(Component.literal("Verfügbar: ")
                 .withStyle(ChatFormatting.GRAY)
-                .append(Component.literal(String.format("%.2f€", balance))
+                .append(Component.literal(StringUtils.formatMoney(balance))
                     .withStyle(ChatFormatting.YELLOW)));
             return;
         }
@@ -159,7 +160,7 @@ public class StockTradePacket {
                 .withStyle(ChatFormatting.YELLOW)));
         player.sendSystemMessage(Component.literal("Preis pro Stück: ")
             .withStyle(ChatFormatting.GRAY)
-            .append(Component.literal(String.format("%.2f€", pricePerUnit))
+            .append(Component.literal(StringUtils.formatMoney(pricePerUnit))
                 .withStyle(ChatFormatting.GOLD)));
         player.sendSystemMessage(Component.literal("Gesamtkosten: ")
             .withStyle(ChatFormatting.GRAY)
@@ -167,7 +168,7 @@ public class StockTradePacket {
                 .withStyle(ChatFormatting.RED)));
         player.sendSystemMessage(Component.literal("Neuer Kontostand: ")
             .withStyle(ChatFormatting.GRAY)
-            .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID())))
+            .append(Component.literal(StringUtils.formatMoney(EconomyManager.getBalance(player.getUUID())))
                 .withStyle(ChatFormatting.AQUA)));
         player.sendSystemMessage(Component.literal("═══════════════════════════════")
             .withStyle(ChatFormatting.GREEN));
@@ -229,7 +230,7 @@ public class StockTradePacket {
                 .withStyle(ChatFormatting.YELLOW)));
         player.sendSystemMessage(Component.literal("Preis pro Stück: ")
             .withStyle(ChatFormatting.GRAY)
-            .append(Component.literal(String.format("%.2f€", pricePerUnit))
+            .append(Component.literal(StringUtils.formatMoney(pricePerUnit))
                 .withStyle(ChatFormatting.GOLD)));
         player.sendSystemMessage(Component.literal("Gesamterlös: ")
             .withStyle(ChatFormatting.GRAY)
@@ -237,7 +238,7 @@ public class StockTradePacket {
                 .withStyle(ChatFormatting.GREEN)));
         player.sendSystemMessage(Component.literal("Neuer Kontostand: ")
             .withStyle(ChatFormatting.GRAY)
-            .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID())))
+            .append(Component.literal(StringUtils.formatMoney(EconomyManager.getBalance(player.getUUID())))
                 .withStyle(ChatFormatting.AQUA)));
         player.sendSystemMessage(Component.literal("═══════════════════════════════")
             .withStyle(ChatFormatting.GREEN));

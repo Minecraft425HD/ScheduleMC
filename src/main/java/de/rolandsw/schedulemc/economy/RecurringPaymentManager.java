@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.economy;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 nimport de.rolandsw.schedulemc.util.GameConstants;
 
 import com.google.gson.Gson;
@@ -197,7 +198,7 @@ public class RecurringPaymentManager extends AbstractPersistenceManager<Map<UUID
             player.sendSystemMessage(Component.literal(
                 "§a§l[DAUERAUFTRAG] Erstellt!\n" +
                 "§7Empfänger: §e" + toPlayer + "\n" +
-                "§7Betrag: §e" + String.format("%.2f€", amount) + "\n" +
+                "§7Betrag: §e" + StringUtils.formatMoney(amount) + "\n" +
                 "§7Interval: §e" + intervalDays + " Tage\n" +
                 "§7Beschreibung: §f" + description + "\n" +
                 "§7ID: §f" + payment.getPaymentId().substring(0, 8)
@@ -236,7 +237,7 @@ public class RecurringPaymentManager extends AbstractPersistenceManager<Map<UUID
             player.sendSystemMessage(Component.literal(
                 "§e[DAUERAUFTRAG] Gelöscht\n" +
                 "§7Empfänger: §e" + payment.getToPlayer() + "\n" +
-                "§7Betrag: §e" + String.format("%.2f€", payment.getAmount())
+                "§7Betrag: §e" + StringUtils.formatMoney(payment.getAmount())
             ));
         }
 
@@ -354,7 +355,7 @@ public class RecurringPaymentManager extends AbstractPersistenceManager<Map<UUID
                         player.sendSystemMessage(Component.literal(
                             "§a[DAUERAUFTRAG] Ausgeführt\n" +
                             "§7Empfänger: §e" + payment.getToPlayer() + "\n" +
-                            "§7Betrag: §c-" + String.format("%.2f€", payment.getAmount()) + "\n" +
+                            "§7Betrag: §c-" + StringUtils.formatMoney(payment.getAmount()) + "\n" +
                             "§7Beschreibung: §f" + payment.getDescription()
                         ));
                     }
@@ -363,7 +364,7 @@ public class RecurringPaymentManager extends AbstractPersistenceManager<Map<UUID
                         recipient.sendSystemMessage(Component.literal(
                             "§a[DAUERAUFTRAG] Erhalten\n" +
                             "§7Von: §e" + playerUUID + "\n" +
-                            "§7Betrag: §a+" + String.format("%.2f€", payment.getAmount()) + "\n" +
+                            "§7Betrag: §a+" + StringUtils.formatMoney(payment.getAmount()) + "\n" +
                             "§7Beschreibung: §f" + payment.getDescription()
                         ));
                     }
@@ -380,7 +381,7 @@ public class RecurringPaymentManager extends AbstractPersistenceManager<Map<UUID
                                 "§c§l[DAUERAUFTRAG] Deaktiviert!\n" +
                                 "§7Grund: 3 fehlgeschlagene Versuche\n" +
                                 "§7Empfänger: §e" + payment.getToPlayer() + "\n" +
-                                "§7Betrag: §e" + String.format("%.2f€", payment.getAmount()) + "\n" +
+                                "§7Betrag: §e" + StringUtils.formatMoney(payment.getAmount()) + "\n" +
                                 "§cBitte zahle Geld ein und aktiviere den Auftrag erneut!"
                             ));
                         }

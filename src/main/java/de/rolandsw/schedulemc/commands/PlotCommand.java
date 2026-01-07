@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.commands;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
@@ -270,7 +271,7 @@ public class PlotCommand {
 
                 // Erfolgs-Nachricht basierend auf Typ
                 String priceInfo = type.canBePurchased() ?
-                    "\n§7Preis: §e" + String.format("%.2f", price) + "€" :
+                    "\n§7Preis: §e" + StringUtils.formatMoney(price) :
                     "\n§7Staatseigentum (nicht kaufbar)";
 
                 ctx.getSource().sendSuccess(() -> Component.literal(
@@ -602,7 +603,7 @@ public class PlotCommand {
 
                 ctx.getSource().sendSuccess(() -> Component.literal(
                     "§a✓ Plot zum Verkauf angeboten!\n" +
-                    "§7Verkaufspreis: §e" + String.format("%.2f", price) + "€"
+                    "§7Verkaufspreis: §e" + StringUtils.formatMoney(price)
                 ), false);
             });
     }
@@ -716,7 +717,7 @@ public class PlotCommand {
 
                 ctx.getSource().sendSuccess(() -> Component.literal(
                     "§a✓ Plot zur Miete angeboten!\n" +
-                    "§7Preis pro Tag: §e" + String.format("%.2f", pricePerDay) + "€"
+                    "§7Preis pro Tag: §e" + StringUtils.formatMoney(pricePerDay)
                 ), false);
             });
     }
@@ -789,7 +790,7 @@ public class PlotCommand {
         if (EconomyManager.getBalance(player.getUUID()) < totalCost) {
             ctx.getSource().sendFailure(Component.literal(
                 "§cNicht genug Geld!\n" +
-                "§7Kosten: §e" + String.format("%.2f", totalCost) + "€"
+                "§7Kosten: §e" + StringUtils.formatMoney(totalCost)
             ));
             return 0;
         }
@@ -810,7 +811,7 @@ public class PlotCommand {
         ctx.getSource().sendSuccess(() -> Component.literal(
             "§a✓ Plot gemietet!\n" +
             "§7Dauer: §e" + finalDays + " Tag(e)\n" +
-            "§7Kosten: §e" + String.format("%.2f", finalTotalCost) + "€"
+            "§7Kosten: §e" + StringUtils.formatMoney(finalTotalCost)
         ), false);
 
         return 1;
@@ -837,7 +838,7 @@ public class PlotCommand {
                 if (EconomyManager.getBalance(player.getUUID()) < totalCost) {
                     ctx.getSource().sendFailure(Component.literal(
                         "§cNicht genug Geld!\n" +
-                        "§7Kosten: §e" + String.format("%.2f", totalCost) + "€"
+                        "§7Kosten: §e" + StringUtils.formatMoney(totalCost)
                     ));
                     return;
                 }
@@ -1241,7 +1242,7 @@ public class PlotCommand {
                 ctx.getSource().sendSuccess(() -> Component.literal(
                     "§a✓ Mietvertrag gekündigt!\n" +
                     "§7Apartment: §e" + apartmentName + "\n" +
-                    "§7Kaution zurückerstattet: §e" + String.format("%.2f", finalDeposit) + "€"
+                    "§7Kaution zurückerstattet: §e" + StringUtils.formatMoney(finalDeposit)
                 ), false);
             });
     }

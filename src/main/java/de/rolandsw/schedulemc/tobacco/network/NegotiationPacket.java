@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.tobacco.network;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import de.rolandsw.schedulemc.economy.WalletManager;
 import de.rolandsw.schedulemc.economy.items.CashItem;
@@ -80,7 +81,7 @@ public class NegotiationPacket {
             int npcWallet = npc.getNpcData().getWallet();
             if (offeredPrice > npcWallet) {
                 player.sendSystemMessage(Component.literal("§c✗ Der NPC hat nicht genug Geld!"));
-                player.sendSystemMessage(Component.literal("§7NPC Geldbörse: " + npcWallet + "€, Preis: " + String.format("%.2f", offeredPrice) + "€"));
+                player.sendSystemMessage(Component.literal("§7NPC Geldbörse: " + npcWallet + "€, Preis: " + StringUtils.formatMoney(offeredPrice)));
                 return;
             }
 
@@ -179,7 +180,7 @@ public class NegotiationPacket {
                 // Erfolgsmeldung mit aktuellem Wallet-Item Wert
                 if (walletItem.getItem() instanceof CashItem) {
                     double walletValue = CashItem.getValue(walletItem);
-                    player.sendSystemMessage(Component.literal("§a✓ Verkauf erfolgreich! " + offeredGrams + "g für " + String.format("%.2f", price) + "€"));
+                    player.sendSystemMessage(Component.literal("§a✓ Verkauf erfolgreich! " + offeredGrams + "g für " + StringUtils.formatMoney(price)));
                     player.sendSystemMessage(Component.literal("§7Deine Geldbörse: " + String.format("%.2f", walletValue) + "€ | NPC Geldbörse: " + npc.getNpcData().getWallet() + "€"));
                 }
             } else {

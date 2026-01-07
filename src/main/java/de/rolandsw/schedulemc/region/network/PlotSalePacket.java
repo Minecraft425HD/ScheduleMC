@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.region.network;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import de.rolandsw.schedulemc.region.PlotManager;
 import de.rolandsw.schedulemc.region.PlotRegion;
@@ -81,7 +82,7 @@ public class PlotSalePacket {
                     plot.setForRent(false);
                     PlotManager.savePlots();
                     player.sendSystemMessage(Component.literal("§aPlot zum Verkauf gestellt für ")
-                        .append(Component.literal(String.format("%.2f€", msg.price))
+                        .append(Component.literal(StringUtils.formatMoney(msg.price))
                             .withStyle(ChatFormatting.GOLD)));
                     break;
 

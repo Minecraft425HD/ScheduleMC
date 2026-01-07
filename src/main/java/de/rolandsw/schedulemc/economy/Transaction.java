@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.economy;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -164,14 +165,14 @@ public class Transaction {
             sb.append("§c-");
         }
 
-        sb.append(String.format("%.2f€", Math.abs(amount)));
+        sb.append(StringUtils.formatMoney(Math.abs(amount)));
         sb.append(" §7- §e").append(type.getDisplayName());
 
         if (description != null && !description.isEmpty()) {
             sb.append(" §7(").append(description).append(")");
         }
 
-        sb.append("\n  §7Neuer Kontostand: §6").append(String.format("%.2f€", balanceAfter));
+        sb.append("\n  §7Neuer Kontostand: §6").append(StringUtils.formatMoney(balanceAfter));
 
         return sb.toString();
     }

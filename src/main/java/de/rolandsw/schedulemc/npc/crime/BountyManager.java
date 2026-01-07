@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.npc.crime;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -220,7 +221,7 @@ public class BountyManager extends AbstractPersistenceManager<Map<UUID, BountyDa
                 player.sendSystemMessage(Component.literal(
                     "§c§l⚠ KOPFGELD PLATZIERT!\n" +
                     "§7Auf deinen Kopf wurde ein Kopfgeld von §a" +
-                    String.format("%.2f€", bountyAmount) + " §7ausgesetzt!"
+                    StringUtils.formatMoney(bountyAmount) + " §7ausgesetzt!"
                 ));
             }
         }
@@ -281,7 +282,7 @@ public class BountyManager extends AbstractPersistenceManager<Map<UUID, BountyDa
         if (target != null) {
             target.sendSystemMessage(Component.literal(
                 "§c§l⚠ KOPFGELD ERHÖHT!\n" +
-                "§7Jemand hat §a" + String.format("%.2f€", amount) +
+                "§7Jemand hat §a" + StringUtils.formatMoney(amount) +
                 " §7auf deinen Kopf ausgesetzt!\n" +
                 "§7Grund: §e" + reason
             ));
@@ -337,7 +338,7 @@ public class BountyManager extends AbstractPersistenceManager<Map<UUID, BountyDa
         if (hunter != null) {
             hunter.sendSystemMessage(Component.literal(
                 "§a§l✓ KOPFGELD EINGELÖST!\n" +
-                "§7Du hast §a" + String.format("%.2f€", reward) + " §7erhalten!"
+                "§7Du hast §a" + StringUtils.formatMoney(reward) + " §7erhalten!"
             ));
         }
 

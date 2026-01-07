@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.economy.blockentity;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.economy.FeeManager;
@@ -38,8 +39,8 @@ public class ATMBlockEntity extends BlockEntity implements MenuProvider {
         if (balance < totalCost) {
             player.displayClientMessage(Component.literal(
                 "§c✗ Nicht genug Geld auf dem Konto!\n" +
-                "§7Kontostand: §e" + String.format("%.2f€", balance) + "\n" +
-                "§7Benötigt: §e" + String.format("%.2f€", amount) + " §7+ §c" + String.format("%.2f€", atmFee) + " §7Gebühr"
+                "§7Kontostand: §e" + StringUtils.formatMoney(balance) + "\n" +
+                "§7Benötigt: §e" + StringUtils.formatMoney(amount) + " §7+ §c" + StringUtils.formatMoney(atmFee) + " §7Gebühr"
             ), false);
             return false;
         }
@@ -64,9 +65,9 @@ public class ATMBlockEntity extends BlockEntity implements MenuProvider {
 
             player.displayClientMessage(Component.literal(
                 "§a✓ Auszahlung erfolgreich!\n" +
-                "§7Ausgezahlt: §e" + String.format("%.2f€", amount) + "\n" +
-                "§7ATM-Gebühr: §c-" + String.format("%.2f€", atmFee) + "\n" +
-                "§7Neuer Kontostand: §e" + String.format("%.2f€", EconomyManager.getBalance(player.getUUID()))
+                "§7Ausgezahlt: §e" + StringUtils.formatMoney(amount) + "\n" +
+                "§7ATM-Gebühr: §c-" + StringUtils.formatMoney(atmFee) + "\n" +
+                "§7Neuer Kontostand: §e" + StringUtils.formatMoney(EconomyManager.getBalance(player.getUUID()))
             ), false);
 
             player.playSound(net.minecraft.sounds.SoundEvents.EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
@@ -96,7 +97,7 @@ public class ATMBlockEntity extends BlockEntity implements MenuProvider {
         if (walletBalance < amount) {
             player.displayClientMessage(Component.literal(
                 "§c✗ Nicht genug Bargeld in der Geldbörse!\n" +
-                "§7Bargeld: §e" + String.format("%.2f€", walletBalance)
+                "§7Bargeld: §e" + StringUtils.formatMoney(walletBalance)
             ), false);
             return false;
         }
@@ -105,8 +106,8 @@ public class ATMBlockEntity extends BlockEntity implements MenuProvider {
         if (!FeeManager.canAffordATMFee(player.getUUID())) {
             player.displayClientMessage(Component.literal(
                 "§c✗ Nicht genug Geld für ATM-Gebühr auf dem Konto!\n" +
-                "§7Kontostand: §e" + String.format("%.2f€", EconomyManager.getBalance(player.getUUID())) + "\n" +
-                "§7Gebühr: §c" + String.format("%.2f€", atmFee)
+                "§7Kontostand: §e" + StringUtils.formatMoney(EconomyManager.getBalance(player.getUUID())) + "\n" +
+                "§7Gebühr: §c" + StringUtils.formatMoney(atmFee)
             ), false);
             return false;
         }
@@ -122,9 +123,9 @@ public class ATMBlockEntity extends BlockEntity implements MenuProvider {
 
         player.displayClientMessage(Component.literal(
             "§a✓ Einzahlung erfolgreich!\n" +
-            "§7Eingezahlt: §e" + String.format("%.2f€", amount) + "\n" +
-            "§7ATM-Gebühr: §c-" + String.format("%.2f€", atmFee) + "\n" +
-            "§7Neuer Kontostand: §e" + String.format("%.2f€", EconomyManager.getBalance(player.getUUID()))
+            "§7Eingezahlt: §e" + StringUtils.formatMoney(amount) + "\n" +
+            "§7ATM-Gebühr: §c-" + StringUtils.formatMoney(atmFee) + "\n" +
+            "§7Neuer Kontostand: §e" + StringUtils.formatMoney(EconomyManager.getBalance(player.getUUID()))
         ), false);
 
         player.playSound(net.minecraft.sounds.SoundEvents.EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);

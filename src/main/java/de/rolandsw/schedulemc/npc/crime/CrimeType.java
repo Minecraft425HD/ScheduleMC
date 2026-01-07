@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.npc.crime;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 /**
  * Verschiedene Verbrechen-Typen mit Strafen
