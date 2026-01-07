@@ -14,8 +14,119 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Erweiterbare Datenklasse für Custom NPCs
- * Enthält alle Eigenschaften eines NPCs inkl. Skin, Dialog, Shop, etc.
+ * Central data model for custom NPCs in ScheduleMC, managing all NPC properties and behaviors.
+ *
+ * <p>This class represents the complete state of an NPC entity, including identity, appearance,
+ * behavior, inventory, schedule, and specialized systems like shops, patrols, and warehouses.
+ *
+ * <h2>Core Features:</h2>
+ * <ul>
+ *   <li><b>Identity & Appearance:</b> Name, UUID, custom skin file</li>
+ *   <li><b>NPC Types:</b> BEWOHNER (resident), VERKAEUFER (merchant), POLIZEI (police), BANK</li>
+ *   <li><b>Dialog System:</b> Configurable conversation entries with player responses</li>
+ *   <li><b>Shop System:</b> Buy/Sell inventories with pricing and stock management</li>
+ *   <li><b>Schedule System:</b> Work hours, home time, and daily routines</li>
+ *   <li><b>Location Management:</b> Home, workplace, leisure locations (up to 10)</li>
+ *   <li><b>Police Patrol:</b> Station location and patrol points (up to 16)</li>
+ *   <li><b>Inventory & Wallet:</b> 9-slot inventory and cash wallet (BEWOHNER/VERKAEUFER only)</li>
+ *   <li><b>Warehouse Integration:</b> Shop NPCs can sell from assigned warehouses</li>
+ *   <li><b>Behavior Settings:</b> Movement, speed, player interaction</li>
+ * </ul>
+ *
+ * <h2>NPC Types:</h2>
+ * <table border="1">
+ *   <tr><th>Type</th><th>Features</th><th>Use Case</th></tr>
+ *   <tr><td>BEWOHNER</td><td>Inventory, Wallet, Schedule, Leisure</td><td>General town residents</td></tr>
+ *   <tr><td>VERKAEUFER</td><td>Shop, Inventory, Wallet, Work Location</td><td>Merchants and shop owners</td></tr>
+ *   <tr><td>POLIZEI</td><td>Patrol System, Police Station</td><td>Law enforcement NPCs</td></tr>
+ *   <tr><td>BANK</td><td>Bank Category, Dialog</td><td>Banking services</td></tr>
+ * </table>
+ *
+ * <h2>Schedule System (Minecraft Ticks):</h2>
+ * <ul>
+ *   <li><b>Work Start:</b> Default 0 ticks (6:00 AM)</li>
+ *   <li><b>Work End:</b> Default 13000 ticks (7:00 PM)</li>
+ *   <li><b>Home Time:</b> Default 23000 ticks (5:00 AM next day)</li>
+ *   <li><b>Conversion:</b> {@link GameConstants#TICKS_PER_DAY} = 1 Minecraft day</li>
+ * </ul>
+ *
+ * <h2>Shop System:</h2>
+ * <p>NPCs can have two shop inventories:
+ * <ul>
+ *   <li><b>Buy Shop:</b> Items the NPC sells to players</li>
+ *   <li><b>Sell Shop:</b> Items the NPC buys from players</li>
+ * </ul>
+ * Each shop entry supports:
+ * <ul>
+ *   <li>Item type and pricing</li>
+ *   <li>Unlimited stock OR limited inventory</li>
+ *   <li>Warehouse integration for automatic restocking</li>
+ * </ul>
+ *
+ * <h2>Warehouse Integration:</h2>
+ * <p>Shop NPCs can be assigned to a {@link de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity}:
+ * <ul>
+ *   <li>NPC sells items directly from warehouse stock</li>
+ *   <li>Revenue is automatically credited to shop account</li>
+ *   <li>Stock levels are synchronized with warehouse inventory</li>
+ *   <li>Falls back to traditional stock system if warehouse unavailable</li>
+ * </ul>
+ *
+ * <h2>Police Patrol System:</h2>
+ * <p>For POLIZEI type NPCs:
+ * <ul>
+ *   <li>Define a police station location (base)</li>
+ *   <li>Configure up to 16 patrol points</li>
+ *   <li>NPC automatically patrols between points</li>
+ *   <li>Tracks arrival times at each location</li>
+ * </ul>
+ *
+ * <h2>NBT Serialization:</h2>
+ * <p>All data is persistently stored using Minecraft's NBT format:
+ * <ul>
+ *   <li>{@link #save(CompoundTag)} - Serialize to NBT</li>
+ *   <li>{@link #load(CompoundTag)} - Deserialize from NBT</li>
+ *   <li>Subdivided into logical sections (Basic, Dialog, Shop, Location, etc.)</li>
+ * </ul>
+ *
+ * <h2>Thread Safety:</h2>
+ * <p><b>Warning:</b> This class is NOT thread-safe. All modifications should occur
+ * on the server thread. For concurrent access, external synchronization is required.
+ *
+ * <h2>Usage Example:</h2>
+ * <pre>{@code
+ * // Create a merchant NPC
+ * NPCData merchant = new NPCData("Hans", "merchant_skin.png",
+ *                                 NPCType.VERKAEUFER,
+ *                                 MerchantCategory.BAUMARKT);
+ *
+ * // Configure shop
+ * merchant.getBuyShop().addEntry(new ItemStack(Items.DIAMOND), 100);
+ * merchant.setWorkLocation(new BlockPos(100, 64, 200));
+ *
+ * // Set schedule
+ * merchant.setWorkStartTime(0);      // 6:00 AM
+ * merchant.setWorkEndTime(13000);    // 7:00 PM
+ *
+ * // Assign warehouse
+ * merchant.setAssignedWarehouse(warehousePos);
+ * }</pre>
+ *
+ * <h2>Inner Classes:</h2>
+ * <ul>
+ *   <li>{@link DialogEntry} - Single dialog conversation entry</li>
+ *   <li>{@link ShopInventory} - Collection of shop items (buy/sell)</li>
+ *   <li>{@link ShopEntry} - Individual shop item with price and stock</li>
+ *   <li>{@link NPCBehavior} - Behavioral settings (movement, interaction)</li>
+ * </ul>
+ *
+ * @see NPCType
+ * @see MerchantCategory
+ * @see BankCategory
+ * @see de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity
+ * @see de.rolandsw.schedulemc.economy.ShopAccount
+ * @author ScheduleMC Development Team
+ * @since 1.0.0
  */
 public class NPCData {
     // Time Constants (Minecraft Ticks: GameConstants.TICKS_PER_DAY ticks = 1 day)
@@ -591,7 +702,25 @@ public class NPCData {
     }
 
     /**
-     * Dialog Entry - einzelner Dialog-Eintrag
+     * Represents a single dialog conversation entry between an NPC and player.
+     *
+     * <p>Each dialog entry contains:
+     * <ul>
+     *   <li><b>Text:</b> The NPC's dialog message</li>
+     *   <li><b>Response:</b> Optional player response text</li>
+     * </ul>
+     *
+     * <p>Multiple dialog entries can be cycled through using {@link NPCData#nextDialog()}.
+     *
+     * <h3>Usage Example:</h3>
+     * <pre>{@code
+     * DialogEntry greeting = new DialogEntry("Hello traveler!", "Greetings!");
+     * npcData.addDialogEntry(greeting);
+     * }</pre>
+     *
+     * @see NPCData#getDialogEntries()
+     * @see NPCData#getCurrentDialog()
+     * @see NPCData#nextDialog()
      */
     public static class DialogEntry {
         private String text;
@@ -636,7 +765,34 @@ public class NPCData {
     }
 
     /**
-     * Shop Inventory - Kaufen/Verkaufen Items
+     * Manages a collection of shop entries for buying or selling items.
+     *
+     * <p>NPCs have two separate shop inventories:
+     * <ul>
+     *   <li><b>Buy Shop:</b> Items the NPC sells to players (player buys from NPC)</li>
+     *   <li><b>Sell Shop:</b> Items the NPC buys from players (player sells to NPC)</li>
+     * </ul>
+     *
+     * <p>Each inventory can contain multiple {@link ShopEntry} items with individual
+     * pricing, stock levels, and warehouse integration.
+     *
+     * <h3>Features:</h3>
+     * <ul>
+     *   <li>Dynamic entry management (add, clear)</li>
+     *   <li>NBT serialization for persistence</li>
+     *   <li>Supports unlimited stock or limited inventory</li>
+     * </ul>
+     *
+     * <h3>Usage Example:</h3>
+     * <pre>{@code
+     * ShopInventory buyShop = npcData.getBuyShop();
+     * buyShop.addEntry(new ItemStack(Items.DIAMOND), 100);
+     * buyShop.addEntry(new ItemStack(Items.IRON_INGOT), 10);
+     * }</pre>
+     *
+     * @see ShopEntry
+     * @see NPCData#getBuyShop()
+     * @see NPCData#getSellShop()
      */
     public static class ShopInventory {
         private List<ShopEntry> entries;
@@ -682,7 +838,54 @@ public class NPCData {
     }
 
     /**
-     * Shop Entry - einzelnes Shop-Item
+     * Represents a single item in an NPC's shop inventory with pricing and stock management.
+     *
+     * <p>Each shop entry defines:
+     * <ul>
+     *   <li><b>Item:</b> The ItemStack being traded</li>
+     *   <li><b>Price:</b> Cost in currency units</li>
+     *   <li><b>Stock Mode:</b> Unlimited (infinite supply) OR Limited (tracked inventory)</li>
+     *   <li><b>Stock Level:</b> Current inventory count (for limited mode only)</li>
+     * </ul>
+     *
+     * <h3>Stock Management:</h3>
+     * <p><b>Unlimited Mode (default):</b>
+     * <ul>
+     *   <li>Item is always available for purchase</li>
+     *   <li>Stock level is ignored</li>
+     *   <li>Suitable for basic merchant NPCs</li>
+     * </ul>
+     *
+     * <p><b>Limited Mode:</b>
+     * <ul>
+     *   <li>Item availability depends on stock level</li>
+     *   <li>Stock decreases with each purchase via {@link #reduceStock(int)}</li>
+     *   <li>Can integrate with warehouse for automatic restocking</li>
+     *   <li>Suitable for realistic economy simulation</li>
+     * </ul>
+     *
+     * <h3>Warehouse Integration:</h3>
+     * <p>When an NPC has an assigned warehouse via {@link NPCData#setAssignedWarehouse(BlockPos)},
+     * stock checks and reductions can be routed through the warehouse system instead of
+     * the local stock counter. See {@link NPCData#canSellItemFromWarehouse} for details.
+     *
+     * <h3>Usage Example:</h3>
+     * <pre>{@code
+     * // Create unlimited stock item
+     * ShopEntry diamond = new ShopEntry(new ItemStack(Items.DIAMOND), 100);
+     *
+     * // Create limited stock item
+     * ShopEntry rare = new ShopEntry(new ItemStack(Items.NETHER_STAR), 500, false, 10);
+     *
+     * // Check and reduce stock
+     * if (rare.hasStock(5)) {
+     *     rare.reduceStock(5);
+     * }
+     * }</pre>
+     *
+     * @see ShopInventory
+     * @see NPCData#canSellItemFromWarehouse
+     * @see NPCData#onItemSoldFromWarehouse
      */
     public static class ShopEntry {
         private ItemStack item;
@@ -758,7 +961,38 @@ public class NPCData {
     }
 
     /**
-     * NPC Behavior - Verhaltenseinstellungen
+     * Configurable behavioral settings for NPC entities.
+     *
+     * <p>Controls how NPCs interact with the world and players:
+     * <ul>
+     *   <li><b>Movement:</b> Whether NPC can walk around ({@link #canMove})</li>
+     *   <li><b>Player Interaction:</b> Whether NPC looks at nearby players ({@link #lookAtPlayer})</li>
+     *   <li><b>Movement Speed:</b> Walk speed multiplier (default: 0.3f)</li>
+     * </ul>
+     *
+     * <h3>Default Behavior:</h3>
+     * <ul>
+     *   <li>Movement: <b>Disabled</b> (NPCs are stationary by default)</li>
+     *   <li>Look at Player: <b>Enabled</b></li>
+     *   <li>Movement Speed: <b>0.3f</b> (30% of normal player speed)</li>
+     * </ul>
+     *
+     * <h3>Use Cases:</h3>
+     * <ul>
+     *   <li><b>Stationary Merchant:</b> canMove=false, lookAtPlayer=true</li>
+     *   <li><b>Patrol Officer:</b> canMove=true, lookAtPlayer=true, speed=0.3f</li>
+     *   <li><b>Background Resident:</b> canMove=true, lookAtPlayer=false, speed=0.25f</li>
+     * </ul>
+     *
+     * <h3>Usage Example:</h3>
+     * <pre>{@code
+     * NPCBehavior behavior = npcData.getBehavior();
+     * behavior.setCanMove(true);
+     * behavior.setMovementSpeed(0.4f);
+     * behavior.setLookAtPlayer(true);
+     * }</pre>
+     *
+     * @see NPCData#getBehavior()
      */
     public static class NPCBehavior {
         private boolean canMove;
