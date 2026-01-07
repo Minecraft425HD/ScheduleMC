@@ -6,6 +6,7 @@ import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.economy.TransactionType;
 import de.rolandsw.schedulemc.npc.bank.TransferLimitTracker;
 import de.rolandsw.schedulemc.util.PacketHandler;
+import de.rolandsw.schedulemc.util.RateLimiter;
 import de.rolandsw.schedulemc.util.StringUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.FriendlyByteBuf;
@@ -19,11 +20,13 @@ import java.util.function.Supplier;
 
 /**
  * Packet für Überweisung zwischen Spielern
- * SICHERHEIT: Audit-Logging für alle Transfer-Versuche
+ * SICHERHEIT: Audit-Logging für alle Transfer-Versuche + Rate Limiting
  */
 public class BankTransferPacket {
 
     private static final Logger LOGGER = LogUtils.getLogger();
+    // SICHERHEIT: Rate Limiting - Max 5 transfers per second (in addition to daily limits)
+    private static final RateLimiter TRANSFER_RATE_LIMITER = new RateLimiter("bankTransfer", 5);
 
     private final String targetPlayerName;
     private final double amount;
@@ -51,6 +54,15 @@ public class BankTransferPacket {
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         PacketHandler.handleServerPacket(ctx, player -> {
+            // SICHERHEIT: Rate Limiting - prevent transfer spam/DoS attacks
+            if (!TRANSFER_RATE_LIMITER.allowOperation(player.getUUID())) {
+                LOGGER.warn("[AUDIT] Transfer BLOCKED - Rate limit exceeded: Player={}",
+                    player.getName().getString());
+                player.sendSystemMessage(Component.literal("⚠ Zu viele Überweisungen! Bitte langsamer.")
+                    .withStyle(ChatFormatting.RED));
+                return;
+            }
+
             // Prüfe ob Betrag positiv
             if (amount <= 0) {
                 // AUDIT: Log fehlgeschlagenen Transfer

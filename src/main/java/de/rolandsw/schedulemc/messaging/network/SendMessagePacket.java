@@ -3,8 +3,11 @@ package de.rolandsw.schedulemc.messaging.network;
 import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.messaging.MessageManager;
 import de.rolandsw.schedulemc.util.PacketHandler;
+import de.rolandsw.schedulemc.util.RateLimiter;
 import de.rolandsw.schedulemc.util.StringUtils;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
 
@@ -14,8 +17,12 @@ import java.util.function.Supplier;
 /**
  * Packet sent from client to server when sending a message
  * OPTIMIERT: recipientName wird nur für NPCs gesendet (Player-Namen werden server-seitig aufgelöst)
+ * SICHERHEIT: Rate-Limited gegen Message-Spam
  */
 public class SendMessagePacket {
+    // SICHERHEIT: Rate Limiting - Max 10 messages per second to prevent spam
+    private static final RateLimiter MESSAGE_RATE_LIMITER = new RateLimiter("sendMessage", 10);
+
     private final UUID recipientUUID;
     private final String recipientName;  // Nur für NPCs nötig
     private final boolean isRecipientPlayer;
@@ -53,6 +60,13 @@ public class SendMessagePacket {
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         PacketHandler.handleServerPacket(ctx, sender -> {
+            // SICHERHEIT: Rate Limiting - prevent message spam/DoS attacks
+            if (!MESSAGE_RATE_LIMITER.allowOperation(sender.getUUID())) {
+                sender.sendSystemMessage(Component.literal("⚠ Zu viele Nachrichten! Bitte langsamer.")
+                    .withStyle(ChatFormatting.RED));
+                return;
+            }
+
             // OPTIMIERT: Löse Player-Namen server-seitig auf
             String resolvedRecipientName = recipientName;
             ServerPlayer recipientPlayer = null;
