@@ -75,6 +75,51 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+/**
+ * Service for calculating block colors, biome tints, and texture processing for the MapView minimap.
+ *
+ * <p>This service is responsible for:
+ * <ul>
+ *   <li><b>Block Color Calculation:</b> Retrieves base colors from block textures and models</li>
+ *   <li><b>Biome Tinting:</b> Applies biome-specific color tints (grass, foliage, water)</li>
+ *   <li><b>Resource Pack Loading:</b> Processes custom textures from active resource packs</li>
+ *   <li><b>CTM Support:</b> Handles Connected Textures Mod (Optifine) integration</li>
+ *   <li><b>Color Caching:</b> Maintains LRU caches for performance optimization</li>
+ *   <li><b>Texture Atlas Management:</b> Extracts and processes textures from Minecraft's atlas</li>
+ * </ul>
+ *
+ * <p><b>Color Processing Pipeline:</b>
+ * <ol>
+ *   <li>Load base block colors from textures (terrain.png or block models)</li>
+ *   <li>Apply biome-specific tints using vanilla or Optifine color maps</li>
+ *   <li>Handle special cases (water, grass, foliage, redstone, etc.)</li>
+ *   <li>Cache results in LRU caches for fast lookups</li>
+ *   <li>Return final ARGB color value for map rendering</li>
+ * </ol>
+ *
+ * <p><b>Performance Optimizations:</b>
+ * <ul>
+ *   <li><b>LRU Caches:</b> Two-level cache system (block tints: 200 entries, biome colors: 500 entries)</li>
+ *   <li><b>Color Arrays:</b> Pre-computed color tables for 16,384 block states</li>
+ *   <li><b>Lazy Loading:</b> Textures loaded on-demand only when needed</li>
+ *   <li><b>Resource Pack Detection:</b> Automatically reloads on resource pack changes</li>
+ * </ul>
+ *
+ * <p><b>Biome Tint Support:</b>
+ * <ul>
+ *   <li>Grass: Uses {@link GrassColor} with biome temperature/humidity</li>
+ *   <li>Foliage: Uses {@link FoliageColor} for trees and leaves</li>
+ *   <li>Water: Supports custom water colors per biome</li>
+ *   <li>Custom: Optifine custom color maps (swamp water, redstone, etc.)</li>
+ * </ul>
+ *
+ * <p><b>Thread Safety:</b> This service is designed for single-threaded use on the render thread.
+ * Color caches use {@link LRUCache} which is thread-safe for concurrent reads.
+ *
+ * @see ColorUtils
+ * @see BlockDatabase
+ * @see LRUCache
+ */
 public class ColorCalculationService {
     private boolean resourcePacksChanged;
     private ClientLevel world;
