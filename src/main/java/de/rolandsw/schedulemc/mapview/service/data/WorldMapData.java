@@ -54,6 +54,33 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
+/**
+ * Manages world map data rendering, caching, and updates for the MapView system.
+ *
+ * <p>This class is responsible for:
+ * <ul>
+ *   <li>Rendering world terrain data to map pixels with biome colors and lighting</li>
+ *   <li>Managing region-based caching system for efficient map tile storage</li>
+ *   <li>Handling chunk updates and periodic refreshes to detect block changes</li>
+ *   <li>Providing spatial queries for height, block states, and terrain data</li>
+ * </ul>
+ *
+ * <p><b>Thread Safety:</b> This class uses thread-safe collections (CopyOnWriteArrayList,
+ * ConcurrentHashMap, AtomicReference) for lock-free concurrent reads. Write operations
+ * should be performed on the main Minecraft thread.
+ *
+ * <p><b>Performance Optimizations:</b>
+ * <ul>
+ *   <li>Region-based caching with LRU eviction (150 regions, 256x256 blocks each)</li>
+ *   <li>Chunk cache for fast lookups (33x33 chunks)</li>
+ *   <li>Periodic refresh system to minimize redundant updates (2 second intervals)</li>
+ *   <li>Lock-free concurrent collections for multi-threaded map rendering</li>
+ * </ul>
+ *
+ * @see RegionCache
+ * @see MapChangeListener
+ * @see ColorCalculationService
+ */
 public class WorldMapData implements MapChangeListener {
     // Cache Configuration Constants
     private static final int REGION_CACHE_INITIAL_CAPACITY = 150;  // Initial capacity for region cache map
@@ -110,6 +137,12 @@ public class WorldMapData implements MapChangeListener {
     private final ConcurrentLinkedQueue<ChunkWithAge> chunkUpdateQueue = new ConcurrentLinkedQueue<>();
     private long lastPeriodicRefresh = 0;
 
+    /**
+     * Constructs a new WorldMapData instance with default configuration.
+     *
+     * <p>Initializes the color manager, map options, and lightmap array with default values.
+     * The lightmap is pre-filled with black (-16777216 / 0xFF000000) for unlit areas.
+     */
     public WorldMapData() {
         this.colorManager = MapViewConstants.getLightMapInstance().getColorManager();
         mapOptions = MapViewConstants.getLightMapInstance().getMapOptions();
@@ -118,6 +151,21 @@ public class WorldMapData implements MapChangeListener {
         Arrays.fill(this.lightmapColors, -16777216);
     }
 
+    /**
+     * Initializes or switches to a new world/dimension.
+     *
+     * <p>This method:
+     * <ul>
+     *   <li>Purges all existing region caches to free memory</li>
+     *   <li>Clears the chunk update queue</li>
+     *   <li>Migrates old cache directory structure if needed</li>
+     *   <li>Creates a new chunk cache for the world</li>
+     * </ul>
+     *
+     * <p>If the world is null, retries initialization after 2 seconds using ThreadPoolManager.
+     *
+     * @param world the new ClientLevel to render, or null to defer initialization
+     */
     public void newWorld(ClientLevel world) {
         this.subworldName = "";
         this.purgeRegionCaches();
@@ -157,6 +205,21 @@ public class WorldMapData implements MapChangeListener {
         this.chunkCache = new ChunkCache(WORLD_MAP_CHUNK_CACHE_WIDTH, WORLD_MAP_CHUNK_CACHE_HEIGHT, this);
     }
 
+    /**
+     * Main update loop called every game tick to maintain map data freshness.
+     *
+     * <p>Performs the following operations:
+     * <ul>
+     *   <li>Updates camera position if no screen is open</li>
+     *   <li>Centers the chunk cache around player position</li>
+     *   <li>Processes pending chunk updates from the update queue</li>
+     *   <li>Performs periodic refreshes every 2 seconds to detect block changes</li>
+     *   <li>Prunes the region pool when chunks are marked as changed</li>
+     * </ul>
+     *
+     * <p>Chunks are only processed if they've been in the queue for at least 20 ticks (1 second)
+     * to batch updates and improve performance.
+     */
     public void onTick() {
         if (MapViewConstants.getMinecraft().getCameraEntity() == null) {
             return;
@@ -224,6 +287,20 @@ public class WorldMapData implements MapChangeListener {
         }
     }
 
+    /**
+     * Purges all region caches and frees associated memory.
+     *
+     * <p>This method:
+     * <ul>
+     *   <li>Calls cleanup() on all cached regions to release native resources</li>
+     *   <li>Clears both the region map and region pool</li>
+     *   <li>Reinitializes the region system with empty bounds</li>
+     * </ul>
+     *
+     * <p>Called when switching worlds or dimensions to prevent memory leaks.
+     *
+     * <p><b>Thread Safety:</b> Uses thread-safe CopyOnWriteArrayList and ConcurrentHashMap.
+     */
     public void purgeRegionCaches() {
         // OPTIMIZATION: No synchronization needed - CopyOnWriteArrayList is thread-safe
         for (RegionCache cachedRegion : this.cachedRegionsPool) {
@@ -235,6 +312,15 @@ public class WorldMapData implements MapChangeListener {
         this.getRegions(0, -1, 0, -1);
     }
 
+    /**
+     * Renames a subworld across all cached regions.
+     *
+     * <p>Updates the subworld name in all region caches' persistence layer. This is used
+     * when worlds are renamed to maintain cache directory consistency.
+     *
+     * @param oldName the old subworld name
+     * @param newName the new subworld name
+     */
     public void renameSubworld(String oldName, String newName) {
         // OPTIMIZATION: No synchronization needed - CopyOnWriteArrayList is thread-safe
         for (RegionCache cachedRegion : this.cachedRegionsPool) {
@@ -773,6 +859,27 @@ public class WorldMapData implements MapChangeListener {
         return this.lightmapColors[light];
     }
 
+    /**
+     * Retrieves or creates region caches for the specified bounds.
+     *
+     * <p>This method manages the region cache system, which divides the world into 256x256 block
+     * regions for efficient rendering. Regions are sorted by distance from the player and
+     * loaded/created as needed.
+     *
+     * <p><b>Caching Behavior:</b>
+     * <ul>
+     *   <li>If bounds haven't changed, returns cached result (lock-free via AtomicReference)</li>
+     *   <li>Otherwise, creates/loads regions sorted by distance from player</li>
+     *   <li>Uses ConcurrentHashMap.computeIfAbsent for atomic region creation</li>
+     *   <li>Automatically prunes cache when exceeding configured size limit</li>
+     * </ul>
+     *
+     * @param left leftmost region X coordinate
+     * @param right rightmost region X coordinate
+     * @param top topmost region Z coordinate
+     * @param bottom bottommost region Z coordinate
+     * @return array of RegionCache objects covering the specified bounds, sorted by distance
+     */
     public RegionCache[] getRegions(int left, int right, int top, int bottom) {
         if (left == this.lastLeft && right == this.lastRight && top == this.lastTop && bottom == this.lastBottom) {
             return this.lastRegionsArray.get();
@@ -845,6 +952,15 @@ public class WorldMapData implements MapChangeListener {
         this.compress();
     }
 
+    /**
+     * Compresses stale region caches to save memory.
+     *
+     * <p>Regions that haven't been modified in the last 5 seconds (REGION_CHANGE_STALENESS_MS)
+     * are compressed to reduce memory footprint. This is called automatically during the
+     * pruning process.
+     *
+     * <p><b>Thread Safety:</b> Uses CopyOnWriteArrayList for lock-free iteration.
+     */
     public void compress() {
         // OPTIMIZATION: No synchronization needed - CopyOnWriteArrayList is thread-safe
         for (RegionCache cachedRegion : this.cachedRegionsPool) {
@@ -854,6 +970,15 @@ public class WorldMapData implements MapChangeListener {
         }
     }
 
+    /**
+     * Handles chunk change notifications from the Minecraft world.
+     *
+     * <p>This method is called by the MapChangeListener system when a chunk is modified.
+     * If the chunk is ready (surrounded by loaded chunks), it queues the chunk for processing.
+     *
+     * @param chunkX the X coordinate of the changed chunk
+     * @param chunkZ the Z coordinate of the changed chunk
+     */
     @Override
     public void handleChangeInWorld(int chunkX, int chunkZ) {
         if (this.world != null) {
@@ -867,6 +992,15 @@ public class WorldMapData implements MapChangeListener {
         }
     }
 
+    /**
+     * Queues a chunk for map data processing.
+     *
+     * <p>Chunks are added to the update queue with a timestamp and processed after 20 ticks
+     * (1 second) to batch updates. This reduces redundant processing when multiple blocks
+     * change in quick succession.
+     *
+     * @param chunk the LevelChunk to process
+     */
     @Override
     public void processChunk(LevelChunk chunk) {
         if (MapDataManager.mapOptions.worldmapAllowed) {
