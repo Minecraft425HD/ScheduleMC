@@ -481,7 +481,11 @@ public class CompressedMapData extends AbstractMapData {
                         byte[] decompressedData = CompressionUtils.decompress(this.data);
                         this.data = decompressedData;
                         this.isCompressed = false;
-                    } catch (DataFormatException ignored) {
+                    } catch (DataFormatException e) {
+                        MapViewConstants.getLogger().log(Level.ERROR, "Failed to decompress map data, using fallback empty data", e);
+                        // Fallback: use empty data array to prevent null pointer exceptions
+                        this.data = new byte[0];
+                        this.isCompressed = false;
                     }
                 }
             }

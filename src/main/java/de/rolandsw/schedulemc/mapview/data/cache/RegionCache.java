@@ -155,7 +155,11 @@ public class RegionCache {
                 if (!Objects.equals(this.subworldName, "")) {
                     this.subworldNamePathPart = TextUtils.scrubNameFile(this.subworldName) + "/";
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                MapViewConstants.getLogger().log(Level.ERROR, "Failed to rename subworld from '{}' to '{}', keeping old name", oldName, newName, e);
+                // Rollback to old name on error
+                this.subworldName = oldName;
+                this.subworldNamePathPart = TextUtils.scrubNameFile(oldName) + "/";
             } finally {
                 this.threadLock.unlock();
                 this.closed = false;
@@ -788,7 +792,9 @@ public class RegionCache {
                 if (this.threadLock.tryLock()) {
                     try {
                         this.compressData();
-                    } catch (RuntimeException ignored) {
+                    } catch (RuntimeException e) {
+                        MapViewConstants.getLogger().log(Level.ERROR, "Failed to compress region cache data at ({}, {})", this.x, this.z, e);
+                        // Continue - compression failure is not critical, data remains uncompressed
                     } finally {
                         this.threadLock.unlock();
                     }
