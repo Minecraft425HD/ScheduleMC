@@ -492,6 +492,71 @@ public class ErrorRecovery {
         }
     }
 
+    // ========== Factory Methods for Common Patterns ==========
+
+    /**
+     * Factory method for file I/O operations with fast retry (2 attempts, 50ms delay)
+     *
+     * @param operation The file I/O operation
+     * @param description Description for logging
+     * @param <T> Result type
+     * @return Result with value or error
+     */
+    public static <T> Result<T> retryFileIO(@Nonnull Callable<T> operation, @Nonnull String description) {
+        return retry(operation, RetryConfig.fast(), "FileIO: " + description);
+    }
+
+    /**
+     * Factory method for network operations with aggressive retry (5 attempts, longer delays)
+     *
+     * @param operation The network operation
+     * @param description Description for logging
+     * @param <T> Result type
+     * @return Result with value or error
+     */
+    public static <T> Result<T> retryNetwork(@Nonnull Callable<T> operation, @Nonnull String description) {
+        return retry(operation, RetryConfig.aggressive(), "Network: " + description);
+    }
+
+    /**
+     * Factory method for database operations with default retry (3 attempts, exponential backoff)
+     *
+     * @param operation The database operation
+     * @param description Description for logging
+     * @param <T> Result type
+     * @return Result with value or error
+     */
+    public static <T> Result<T> retryDatabase(@Nonnull Callable<T> operation, @Nonnull String description) {
+        return retry(operation, RetryConfig.defaults(), "Database: " + description);
+    }
+
+    /**
+     * Factory method for critical operations that must succeed
+     * Uses fallback if primary operation fails after retries
+     *
+     * @param operation Primary operation
+     * @param fallbackOperation Fallback operation
+     * @param description Description for logging
+     * @param <T> Result type
+     * @return Result from primary or fallback operation
+     */
+    public static <T> T criticalOperation(@Nonnull Supplier<T> operation,
+                                         @Nonnull Supplier<T> fallbackOperation,
+                                         @Nonnull String description) {
+        return withFallbackSupplier(operation, fallbackOperation, "Critical: " + description);
+    }
+
+    /**
+     * Factory method for safe resource cleanup
+     * Ensures cleanup runs even if it fails, logs errors but doesn't throw
+     *
+     * @param cleanup The cleanup operation
+     * @param resourceName Name of resource being cleaned up
+     */
+    public static void safeCleanup(@Nonnull Runnable cleanup, @Nonnull String resourceName) {
+        safeExecute(cleanup, "Cleanup: " + resourceName);
+    }
+
     private ErrorRecovery() {
         throw new UnsupportedOperationException("Utility class");
     }

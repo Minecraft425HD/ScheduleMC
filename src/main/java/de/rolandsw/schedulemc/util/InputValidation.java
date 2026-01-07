@@ -487,6 +487,107 @@ public class InputValidation {
         }
     }
 
+    // ========== Factory Methods for Common Validation Patterns ==========
+
+    /**
+     * Validates that a UUID is not null
+     * Factory method for common non-null UUID validation
+     *
+     * @param uuid The UUID to validate
+     * @param paramName Parameter name for error messages
+     * @return The validated UUID
+     * @throws ValidationException if UUID is null
+     */
+    public static UUID requireNonNullUUID(java.util.UUID uuid, String paramName) {
+        if (uuid == null) {
+            throw new ValidationException("UUID " + paramName + " cannot be null", paramName, null);
+        }
+        return uuid;
+    }
+
+    /**
+     * Validates amount for economy operations (non-negative, not NaN/Infinite, within limits)
+     * Factory method combining multiple validation checks
+     *
+     * @param amount The amount to validate
+     * @param operationType Type of operation (for error messages)
+     * @return The validated amount
+     * @throws ValidationException if validation fails
+     */
+    public static double validateEconomyAmount(double amount, String operationType) {
+        if (Double.isNaN(amount) || Double.isInfinite(amount)) {
+            throw new ValidationException(
+                "§cInvalid amount for " + operationType + " (NaN/Infinite)",
+                "amount",
+                amount
+            );
+        }
+        if (amount < 0) {
+            throw new ValidationException(
+                "§cAmount for " + operationType + " cannot be negative",
+                "amount",
+                amount
+            );
+        }
+        if (amount > MAX_AMOUNT) {
+            throw new ValidationException(
+                "§cAmount for " + operationType + " exceeds maximum (" + MAX_AMOUNT + ")",
+                "amount",
+                amount
+            );
+        }
+        return amount;
+    }
+
+    /**
+     * Validates positive amount (must be > 0)
+     * Factory method for transfers and similar operations
+     *
+     * @param amount The amount to validate
+     * @param operationType Type of operation (for error messages)
+     * @return The validated amount
+     * @throws ValidationException if amount is not positive
+     */
+    public static double validatePositiveAmount(double amount, String operationType) {
+        validateEconomyAmount(amount, operationType);
+        if (amount <= 0) {
+            throw new ValidationException(
+                "§cAmount for " + operationType + " must be positive",
+                "amount",
+                amount
+            );
+        }
+        return amount;
+    }
+
+    /**
+     * Validates coordinates are within world bounds
+     * Factory method for position validation
+     *
+     * @param x X coordinate
+     * @param y Y coordinate
+     * @param z Z coordinate
+     * @return true if valid
+     * @throws ValidationException if coordinates are out of bounds
+     */
+    public static boolean validateCoordinates(int x, int y, int z) {
+        if (y < MIN_Y || y > MAX_Y) {
+            throw new ValidationException(
+                "§cY coordinate out of bounds (" + MIN_Y + " to " + MAX_Y + ")",
+                "y",
+                y
+            );
+        }
+        if (Math.abs(x) > MAX_COORDINATE || Math.abs(z) > MAX_COORDINATE) {
+            throw new ValidationException(
+                "§cX/Z coordinates out of bounds (±" + MAX_COORDINATE + ")",
+                "coordinates",
+                String.format("%d, %d, %d", x, y, z)
+            );
+        }
+        return true;
+    }
+
     private InputValidation() {
         throw new UnsupportedOperationException("Utility class");
     }
