@@ -90,7 +90,7 @@ public class ServerConfig extends ConfigBase {
         fuelStationTransferRate = builder.defineInRange("machines.fuel_station.transfer_rate", 5, 1, Short.MAX_VALUE);
         fuelStationValidFuels = builder.comment("If it starts with '#' it is a tag").defineList("machines.fuel_station.valid_fuels", Collections.singletonList("#vehicle:fuel_station"), Objects::nonNull);
         fuelStationMorningPricePer10mb = builder.comment("Price per 10 mb of fuel during morning (0-12000 ticks, 6:00-18:00)").defineInRange("machines.fuel_station.morning_price_per_10mb", 10, 0, Integer.MAX_VALUE);
-        fuelStationEveningPricePer10mb = builder.comment("Price per 10 mb of fuel during evening (12000-24000 ticks, 18:00-6:00)").defineInRange("machines.fuel_station.evening_price_per_10mb", 5, 0, Integer.MAX_VALUE);
+        fuelStationEveningPricePer10mb = builder.comment("Price per 10 mb of fuel during evening (12000-TICKS_PER_DAY ticks, 18:00-6:00)").defineInRange("machines.fuel_station.evening_price_per_10mb", 5, 0, Integer.MAX_VALUE);
 
         repairKitRepairAmount = builder.comment("Amount of damage repaired by repair kit (in percentage)").defineInRange("items.repair_kit.repair_amount", 5F, 0.1F, 100F);
 

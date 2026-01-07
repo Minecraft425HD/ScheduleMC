@@ -227,7 +227,7 @@ public class LoanManager extends AbstractPersistenceManager<Map<UUID, Loan>> {
      * Verarbeitet tägliche Ratenzahlungen für alle aktiven Kredite.
      *
      * <p>Diese Methode wird vom Server-Tick-System aufgerufen und verarbeitet
-     * Zahlungen exakt einmal pro Minecraft-Tag (24000 Ticks).</p>
+     * Zahlungen exakt einmal pro Minecraft-Tag (GameConstants.TICKS_PER_DAY Ticks).</p>
      *
      * <h3>Funktionsweise:</h3>
      * <ul>

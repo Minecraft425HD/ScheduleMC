@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.vehicle.blocks.tileentity;
-nimport de.rolandsw.schedulemc.util.StringUtils;
+import de.rolandsw.schedulemc.util.StringUtils;
+import de.rolandsw.schedulemc.util.GameConstants;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 
 import de.rolandsw.schedulemc.vehicle.Main;
@@ -367,10 +368,10 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
     /**
      * Gets the current price per 10 mB based on time of day
      * Morning (0-12000 ticks / 6:00-18:00): higher price
-     * Evening (12000-24000 ticks / 18:00-6:00): lower price
+     * Evening (12000-TICKS_PER_DAY ticks / 18:00-6:00): lower price
      */
     private int getCurrentPrice() {
-        long dayTime = level.getDayTime() % 24000;
+        long dayTime = level.getDayTime() % GameConstants.TICKS_PER_DAY;
 
         if (dayTime >= 0 && dayTime < 12000) {
             // Morning/Day time

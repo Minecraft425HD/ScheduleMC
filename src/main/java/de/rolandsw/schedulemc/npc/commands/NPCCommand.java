@@ -923,7 +923,7 @@ public class NPCCommand {
         // Verwende double für präzise Berechnung
         long ticks = (long) ((totalMinutes - 360) * (1000.0 / 60.0));
 
-        // Normalisiere zu 0-24000 (ein Minecraft-Tag)
+        // Normalisiere zu 0-TICKS_PER_DAY (ein Minecraft-Tag)
         while (ticks < 0) {
             ticks += GameConstants.TICKS_PER_DAY;
         }
