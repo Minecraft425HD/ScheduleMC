@@ -53,6 +53,86 @@ public class Transaction {
         this.balanceAfter = balanceAfter;
     }
 
+    /**
+     * Private constructor for Builder
+     */
+    private Transaction(Builder builder) {
+        this.transactionId = builder.transactionId != null ? builder.transactionId : UUID.randomUUID().toString();
+        this.timestamp = builder.timestamp > 0 ? builder.timestamp : System.currentTimeMillis();
+        this.type = builder.type;
+        this.fromPlayer = builder.fromPlayer;
+        this.toPlayer = builder.toPlayer;
+        this.amount = builder.amount;
+        this.description = builder.description;
+        this.balanceAfter = builder.balanceAfter;
+    }
+
+    /**
+     * Creates a new Builder for constructing Transaction objects
+     * @param type The transaction type (required)
+     * @return A new Builder instance
+     */
+    public static Builder builder(TransactionType type) {
+        return new Builder(type);
+    }
+
+    /**
+     * Builder for Transaction - provides fluent API for complex object construction
+     */
+    public static class Builder {
+        private final TransactionType type;
+        private String transactionId;
+        private long timestamp;
+        private UUID fromPlayer;
+        private UUID toPlayer;
+        private double amount;
+        private String description;
+        private double balanceAfter;
+
+        private Builder(TransactionType type) {
+            this.type = type;
+        }
+
+        public Builder id(String transactionId) {
+            this.transactionId = transactionId;
+            return this;
+        }
+
+        public Builder timestamp(long timestamp) {
+            this.timestamp = timestamp;
+            return this;
+        }
+
+        public Builder from(@Nullable UUID fromPlayer) {
+            this.fromPlayer = fromPlayer;
+            return this;
+        }
+
+        public Builder to(@Nullable UUID toPlayer) {
+            this.toPlayer = toPlayer;
+            return this;
+        }
+
+        public Builder amount(double amount) {
+            this.amount = amount;
+            return this;
+        }
+
+        public Builder description(@Nullable String description) {
+            this.description = description;
+            return this;
+        }
+
+        public Builder balanceAfter(double balanceAfter) {
+            this.balanceAfter = balanceAfter;
+            return this;
+        }
+
+        public Transaction build() {
+            return new Transaction(this);
+        }
+    }
+
     // Getters
     public String getTransactionId() { return transactionId; }
     public long getTimestamp() { return timestamp; }

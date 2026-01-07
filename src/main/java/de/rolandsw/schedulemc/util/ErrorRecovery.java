@@ -51,6 +51,13 @@ public class ErrorRecovery {
             this.logRetries = logRetries;
         }
 
+        private RetryConfig(Builder builder) {
+            this.maxRetries = builder.maxRetries;
+            this.initialDelayMs = builder.initialDelayMs;
+            this.backoffMultiplier = builder.backoffMultiplier;
+            this.logRetries = builder.logRetries;
+        }
+
         public static RetryConfig defaults() {
             return new RetryConfig(DEFAULT_MAX_RETRIES, DEFAULT_INITIAL_DELAY_MS,
                                  DEFAULT_BACKOFF_MULTIPLIER, true);
@@ -62,6 +69,55 @@ public class ErrorRecovery {
 
         public static RetryConfig aggressive() {
             return new RetryConfig(5, 200L, 1.5, true);
+        }
+
+        /**
+         * Creates a new Builder for custom retry configuration
+         * @return A new Builder instance
+         */
+        public static Builder builder() {
+            return new Builder();
+        }
+
+        /**
+         * Builder for custom RetryConfig - provides fluent API for configuration
+         */
+        public static class Builder {
+            private int maxRetries = DEFAULT_MAX_RETRIES;
+            private long initialDelayMs = DEFAULT_INITIAL_DELAY_MS;
+            private double backoffMultiplier = DEFAULT_BACKOFF_MULTIPLIER;
+            private boolean logRetries = true;
+
+            private Builder() {}
+
+            public Builder maxRetries(int maxRetries) {
+                this.maxRetries = maxRetries;
+                return this;
+            }
+
+            public Builder initialDelay(long initialDelayMs) {
+                this.initialDelayMs = initialDelayMs;
+                return this;
+            }
+
+            public Builder backoffMultiplier(double backoffMultiplier) {
+                this.backoffMultiplier = backoffMultiplier;
+                return this;
+            }
+
+            public Builder logRetries(boolean logRetries) {
+                this.logRetries = logRetries;
+                return this;
+            }
+
+            public Builder silent() {
+                this.logRetries = false;
+                return this;
+            }
+
+            public RetryConfig build() {
+                return new RetryConfig(this);
+            }
         }
     }
 

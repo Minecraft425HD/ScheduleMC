@@ -27,7 +27,7 @@ import java.nio.file.StandardCopyOption;
  *
  * @param <T> Der Datentyp, der persistiert werden soll
  */
-public abstract class AbstractPersistenceManager<T> {
+public abstract class AbstractPersistenceManager<T> implements IPersistenceService<T> {
 
     protected static final Logger LOGGER = LogUtils.getLogger();
 
