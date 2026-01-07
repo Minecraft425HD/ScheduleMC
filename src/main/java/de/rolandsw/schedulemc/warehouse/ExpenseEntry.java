@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.warehouse;
+nimport de.rolandsw.schedulemc.util.GameConstants;
 
 import net.minecraft.nbt.CompoundTag;
 
@@ -33,7 +34,7 @@ public class ExpenseEntry {
      */
     public boolean isOlderThan(long currentTime, int days) {
         long ageTicks = currentTime - timestamp;
-        long daysTicks = days * 24000L; // 1 Tag = 24000 ticks
+        long daysTicks = days * GameConstants.TICKS_PER_DAY; // 1 Tag = GameConstants.TICKS_PER_DAY ticks
         return ageTicks > daysTicks;
     }
 
@@ -42,7 +43,7 @@ public class ExpenseEntry {
      */
     public int getAgeDays(long currentTime) {
         long ageTicks = currentTime - timestamp;
-        return (int) (ageTicks / 24000L);
+        return (int) (ageTicks / GameConstants.TICKS_PER_DAY);
     }
 
     // === NBT SERIALISIERUNG ===

@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.api.smartphone;
 
+import javax.annotation.Nonnull;
 import java.util.Set;
 import java.util.UUID;
 
@@ -74,7 +75,7 @@ public interface ISmartphoneAPI {
      * @param open true wenn Smartphone geöffnet, false wenn geschlossen
      * @throws IllegalArgumentException wenn playerUUID null ist
      */
-    void setSmartphoneOpen(UUID playerUUID, boolean open);
+    void setSmartphoneOpen(@Nonnull UUID playerUUID, boolean open);
 
     /**
      * Prüft ob ein Spieler das Smartphone geöffnet hat.
@@ -83,7 +84,7 @@ public interface ISmartphoneAPI {
      * @return true wenn Smartphone geöffnet (Schutz aktiv)
      * @throws IllegalArgumentException wenn playerUUID null ist
      */
-    boolean hasSmartphoneOpen(UUID playerUUID);
+    boolean hasSmartphoneOpen(@Nonnull UUID playerUUID);
 
     /**
      * Entfernt einen Spieler aus dem Tracking.
@@ -93,13 +94,14 @@ public interface ISmartphoneAPI {
      * @param playerUUID Die UUID des Spielers
      * @throws IllegalArgumentException wenn playerUUID null ist
      */
-    void removePlayer(UUID playerUUID);
+    void removePlayer(@Nonnull UUID playerUUID);
 
     /**
      * Gibt alle Spieler zurück die aktuell das Smartphone geöffnet haben.
      *
      * @return Set aller UUIDs mit geöffnetem Smartphone (unveränderbare Kopie)
      */
+    @Nonnull
     Set<UUID> getPlayersWithSmartphoneOpen();
 
     /**

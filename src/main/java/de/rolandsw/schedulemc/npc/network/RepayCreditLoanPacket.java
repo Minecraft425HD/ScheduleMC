@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.npc.network;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import de.rolandsw.schedulemc.economy.CreditLoan;
 import de.rolandsw.schedulemc.economy.CreditLoanManager;
@@ -48,8 +49,8 @@ public class RepayCreditLoanPacket {
             if (balance < remaining) {
                 player.sendSystemMessage(Component.literal(
                     "§c§lNicht genug Geld!\n" +
-                    "§7Benötigt: §c" + String.format("%.2f€", remaining) + "\n" +
-                    "§7Kontostand: §e" + String.format("%.2f€", balance)
+                    "§7Benötigt: §c" + StringUtils.formatMoney(remaining) + "\n" +
+                    "§7Kontostand: §e" + StringUtils.formatMoney(balance)
                 ));
                 return;
             }
@@ -68,7 +69,7 @@ public class RepayCreditLoanPacket {
                         .withStyle(ChatFormatting.RED)));
                 player.sendSystemMessage(Component.literal("Neuer Kontostand: ")
                     .withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID())))
+                    .append(Component.literal(StringUtils.formatMoney(EconomyManager.getBalance(player.getUUID())))
                         .withStyle(ChatFormatting.GOLD)));
                 player.sendSystemMessage(Component.literal("§a§lDu bist nun schuldenfrei!"));
                 player.sendSystemMessage(Component.literal("═══════════════════════════════")

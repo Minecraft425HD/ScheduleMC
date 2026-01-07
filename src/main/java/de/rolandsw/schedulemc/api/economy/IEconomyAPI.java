@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.api.economy;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
@@ -46,7 +47,7 @@ public interface IEconomyAPI {
      * @return Das Guthaben in Euro (0.0 wenn kein Konto existiert)
      * @throws IllegalArgumentException wenn playerUUID null ist
      */
-    double getBalance(UUID playerUUID);
+    double getBalance(@Nonnull UUID playerUUID);
 
     /**
      * Prüft ob ein Spieler ein Konto besitzt.
@@ -55,7 +56,7 @@ public interface IEconomyAPI {
      * @return true wenn Konto existiert, false sonst
      * @throws IllegalArgumentException wenn playerUUID null ist
      */
-    boolean hasAccount(UUID playerUUID);
+    boolean hasAccount(@Nonnull UUID playerUUID);
 
     /**
      * Erstellt ein neues Konto mit Startguthaben.
@@ -64,7 +65,7 @@ public interface IEconomyAPI {
      * @throws IllegalArgumentException wenn playerUUID null ist
      * @throws IllegalStateException wenn bereits ein Konto existiert
      */
-    void createAccount(UUID playerUUID);
+    void createAccount(@Nonnull UUID playerUUID);
 
     /**
      * Zahlt Geld auf ein Konto ein.
@@ -73,7 +74,7 @@ public interface IEconomyAPI {
      * @param amount Der Betrag (muss positiv sein)
      * @throws IllegalArgumentException wenn playerUUID null oder amount negativ
      */
-    void deposit(UUID playerUUID, double amount);
+    void deposit(@Nonnull UUID playerUUID, double amount);
 
     /**
      * Zahlt Geld auf ein Konto ein mit Beschreibung.
@@ -83,7 +84,7 @@ public interface IEconomyAPI {
      * @param description Optionale Beschreibung für Transaktions-Log
      * @throws IllegalArgumentException wenn playerUUID null oder amount negativ
      */
-    void deposit(UUID playerUUID, double amount, @Nullable String description);
+    void deposit(@Nonnull UUID playerUUID, double amount, @Nullable String description);
 
     /**
      * Hebt Geld von einem Konto ab.
@@ -93,7 +94,7 @@ public interface IEconomyAPI {
      * @return true wenn erfolgreich, false wenn nicht genug Guthaben
      * @throws IllegalArgumentException wenn playerUUID null oder amount negativ
      */
-    boolean withdraw(UUID playerUUID, double amount);
+    boolean withdraw(@Nonnull UUID playerUUID, double amount);
 
     /**
      * Hebt Geld von einem Konto ab mit Beschreibung.
@@ -104,7 +105,7 @@ public interface IEconomyAPI {
      * @return true wenn erfolgreich, false wenn nicht genug Guthaben
      * @throws IllegalArgumentException wenn playerUUID null oder amount negativ
      */
-    boolean withdraw(UUID playerUUID, double amount, @Nullable String description);
+    boolean withdraw(@Nonnull UUID playerUUID, double amount, @Nullable String description);
 
     /**
      * Transferiert Geld zwischen zwei Spielern.
@@ -115,7 +116,7 @@ public interface IEconomyAPI {
      * @return true wenn erfolgreich, false wenn nicht genug Guthaben
      * @throws IllegalArgumentException wenn UUIDs null oder amount negativ
      */
-    boolean transfer(UUID fromUUID, UUID toUUID, double amount);
+    boolean transfer(@Nonnull UUID fromUUID, @Nonnull UUID toUUID, double amount);
 
     /**
      * Transferiert Geld zwischen zwei Spielern mit Beschreibung.
@@ -127,7 +128,7 @@ public interface IEconomyAPI {
      * @return true wenn erfolgreich, false wenn nicht genug Guthaben
      * @throws IllegalArgumentException wenn UUIDs null oder amount negativ
      */
-    boolean transfer(UUID fromUUID, UUID toUUID, double amount, @Nullable String description);
+    boolean transfer(@Nonnull UUID fromUUID, @Nonnull UUID toUUID, double amount, @Nullable String description);
 
     /**
      * Setzt das Guthaben eines Spielers direkt (Admin-Funktion).
@@ -138,7 +139,7 @@ public interface IEconomyAPI {
      * @param amount Der neue Betrag (wird auf 0 gesetzt wenn negativ)
      * @throws IllegalArgumentException wenn playerUUID null ist
      */
-    void setBalance(UUID playerUUID, double amount);
+    void setBalance(@Nonnull UUID playerUUID, double amount);
 
     /**
      * Löscht ein Konto (Admin-Funktion).
@@ -148,7 +149,7 @@ public interface IEconomyAPI {
      * @param playerUUID Die UUID des Spielers
      * @throws IllegalArgumentException wenn playerUUID null ist
      */
-    void deleteAccount(UUID playerUUID);
+    void deleteAccount(@Nonnull UUID playerUUID);
 
     /**
      * Gibt das konfigurierte Startguthaben zurück.

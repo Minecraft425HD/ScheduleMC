@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.economy.events;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.economy.WalletManager;
@@ -52,7 +53,7 @@ public class CashSlotRestrictionHandler {
             if (savedBalance > 0) {
                 player.displayClientMessage(Component.literal(
                     "§a✓ Geldbörse geladen!\n" +
-                    "§7Guthaben: §a" + String.format("%.2f€", savedBalance) + "\n" +
+                    "§7Guthaben: §a" + StringUtils.formatMoney(savedBalance) + "\n" +
                     "§7Die Geldbörse ist in Slot 9 gesperrt.\n" +
                     "§7Sie kann nicht entfernt oder geworfen werden."
                 ), false);
@@ -133,7 +134,7 @@ public class CashSlotRestrictionHandler {
                 if (savedBalance > 0) {
                     player.displayClientMessage(Component.literal(
                         "§e⚠ Geldbörse wurde wiederhergestellt!\n" +
-                        "§7Guthaben: §a" + String.format("%.2f€", savedBalance)
+                        "§7Guthaben: §a" + StringUtils.formatMoney(savedBalance)
                     ), true);
                 } else {
                     player.displayClientMessage(Component.literal(
@@ -167,7 +168,7 @@ public class CashSlotRestrictionHandler {
                     CashItem.addValue(slot8, value);
 
                     player.displayClientMessage(Component.literal(
-                        "§a+ " + String.format("%.2f€", value) + " §7zur Geldbörse hinzugefügt"
+                        "§a+ " + StringUtils.formatMoney(value) + " §7zur Geldbörse hinzugefügt"
                     ), true);
 
                     event.setCanceled(true);

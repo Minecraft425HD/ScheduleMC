@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.npc.events;
+nimport de.rolandsw.schedulemc.util.GameConstants;
 
 import de.rolandsw.schedulemc.npc.crime.CrimeManager;
 import de.rolandsw.schedulemc.npc.data.NPCType;
@@ -30,6 +31,9 @@ public class NPCKnockoutHandler {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
+    // Detection Settings
+    private static final double KNOCKOUT_WITNESS_RADIUS = 16.0;
+
     @SubscribeEvent
     public void onNPCDamage(LivingDamageEvent event) {
         EventHelper.handleLivingDamage(event, () -> {
@@ -60,7 +64,7 @@ public class NPCKnockoutHandler {
             npc.setHealth(1.0f); // Minimal HP
             npc.getPersistentData().putBoolean("IsKnockedOut", true);
 
-            long currentDay = npc.level().getDayTime() / 24000;
+            long currentDay = npc.level().getDayTime() / GameConstants.TICKS_PER_DAY;
             npc.getPersistentData().putLong("KnockoutDay", currentDay);
 
             // Stoppe Bewegung
@@ -91,7 +95,7 @@ public class NPCKnockoutHandler {
             // Suche Zeugen in 16 Block Radius
             List<CustomNPCEntity> witnesses = npc.level().getEntitiesOfClass(
                 CustomNPCEntity.class,
-                AABB.ofSize(player.position(), 16, 16, 16)
+                AABB.ofSize(player.position(), KNOCKOUT_WITNESS_RADIUS, KNOCKOUT_WITNESS_RADIUS, KNOCKOUT_WITNESS_RADIUS)
             );
 
             // Entferne das Opfer aus der Zeugenliste
@@ -118,7 +122,7 @@ public class NPCKnockoutHandler {
 
                 if (SecureRandomUtil.chance(detectionChance)) {
                     // Verbrechen wurde gesehen! (SICHERHEIT: SecureRandom)
-                    long currentDay = npc.level().getDayTime() / 24000;
+                    long currentDay = npc.level().getDayTime() / GameConstants.TICKS_PER_DAY;
                     int starsToAdd;
                     String crimeType;
 
@@ -171,7 +175,7 @@ public class NPCKnockoutHandler {
 
         if (npc.getPersistentData().getBoolean("IsKnockedOut")) {
             long knockoutDay = npc.getPersistentData().getLong("KnockoutDay");
-            long currentDay = npc.level().getDayTime() / 24000;
+            long currentDay = npc.level().getDayTime() / GameConstants.TICKS_PER_DAY;
 
             // Nächster Tag = Erholung
             if (currentDay > knockoutDay) {

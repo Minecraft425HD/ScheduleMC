@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.npc.network;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.economy.CreditLoan;

@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.npc.events;
+nimport de.rolandsw.schedulemc.util.GameConstants;
 
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
@@ -253,7 +254,7 @@ public class PoliceSearchBehavior {
 
         // Speichere Bewegungsrichtung des Spielers
         Vec3 movement = player.getDeltaMovement();
-        if (movement.lengthSqr() > 0.01) { // Nur wenn sich Spieler bewegt
+        if (movement.lengthSqr() > GameConstants.MOVEMENT_THRESHOLD) { // Nur wenn sich Spieler bewegt
             String direction = movement.x + "," + movement.y + "," + movement.z;
             movementDirections.put(playerUUID, direction);
             if (LOGGER.isDebugEnabled()) {

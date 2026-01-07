@@ -9,6 +9,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import org.slf4j.Logger;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -161,6 +162,7 @@ public class NPCNameRegistry {
      * @param name Der NPC-Name
      * @return Die Entity-ID oder null wenn nicht gefunden
      */
+    @Nullable
     public static Integer getEntityId(String name) {
         if (name == null) return null;
         return nameToEntityId.get(name.trim());
@@ -173,6 +175,7 @@ public class NPCNameRegistry {
      * @param level Das ServerLevel
      * @return Der gefundene CustomNPCEntity oder null
      */
+    @Nullable
     public static CustomNPCEntity findNPCByName(String name, ServerLevel level) {
         Integer entityId = getEntityId(name);
         if (entityId == null) return null;
@@ -241,8 +244,15 @@ public class NPCNameRegistry {
 
             dirty = false;
 
+        } catch (java.io.IOException e) {
+            LOGGER.error("Failed to read NPC name registry file: {}", REGISTRY_FILE.getPath(), e);
+        } catch (com.google.gson.JsonSyntaxException e) {
+            LOGGER.error("Failed to parse NPC name registry JSON (corrupt file?): {}", REGISTRY_FILE.getPath(), e);
+        } catch (SecurityException e) {
+            LOGGER.error("Security error accessing NPC name registry file: {}", REGISTRY_FILE.getPath(), e);
         } catch (Exception e) {
-            LOGGER.error("Fehler beim Laden der NPC-Namen", e);
+            // Fallback for unexpected errors
+            LOGGER.error("Unexpected error loading NPC name registry", e);
         }
     }
 
@@ -260,8 +270,14 @@ public class NPCNameRegistry {
             dirty = false;
             LOGGER.info("NPC-Namen gespeichert: {} NPCs", nameToEntityId.size());
 
+        } catch (java.io.IOException e) {
+            LOGGER.error("Failed to write NPC name registry file: {}", REGISTRY_FILE.getPath(), e);
+            // Keep dirty=true so we retry on next save
+        } catch (SecurityException e) {
+            LOGGER.error("Security error writing NPC name registry file: {}", REGISTRY_FILE.getPath(), e);
         } catch (Exception e) {
-            LOGGER.error("Fehler beim Speichern der NPC-Namen", e);
+            // Fallback for unexpected errors
+            LOGGER.error("Unexpected error saving NPC name registry", e);
         }
     }
 

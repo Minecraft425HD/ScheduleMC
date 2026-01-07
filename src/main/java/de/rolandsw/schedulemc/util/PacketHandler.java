@@ -7,6 +7,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
 import org.slf4j.Logger;
 
+import javax.annotation.Nonnull;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -28,15 +29,15 @@ public class PacketHandler {
      * @param handler Handler-Logic die den Player benötigt
      */
     public static void handleServerPacket(
-            Supplier<NetworkEvent.Context> ctx,
-            Consumer<ServerPlayer> handler
+            @Nonnull Supplier<NetworkEvent.Context> ctx,
+            @Nonnull Consumer<ServerPlayer> handler
     ) {
         ctx.get().enqueueWork(() -> {
             ServerPlayer player = ctx.get().getSender();
             if (player != null) {
                 try {
                     handler.accept(player);
-                } catch (Exception e) {
+                } catch (Exception e) {  // Intentionally catching all exceptions - packet handler must not crash server
                     player.sendSystemMessage(
                         Component.literal("§cPacket-Fehler: " + e.getMessage())
                     );
@@ -56,9 +57,9 @@ public class PacketHandler {
      * @param handler Handler-Logic
      */
     public static void handleAdminPacket(
-            Supplier<NetworkEvent.Context> ctx,
+            @Nonnull Supplier<NetworkEvent.Context> ctx,
             int permissionLevel,
-            Consumer<ServerPlayer> handler
+            @Nonnull Consumer<ServerPlayer> handler
     ) {
         handleServerPacket(ctx, player -> {
             if (!player.hasPermissions(permissionLevel)) {
@@ -79,16 +80,16 @@ public class PacketHandler {
      * @param errorHandler Custom Error-Handler
      */
     public static void handleServerPacketWithErrorHandler(
-            Supplier<NetworkEvent.Context> ctx,
-            Consumer<ServerPlayer> handler,
-            BiConsumer<ServerPlayer, Exception> errorHandler
+            @Nonnull Supplier<NetworkEvent.Context> ctx,
+            @Nonnull Consumer<ServerPlayer> handler,
+            @Nonnull BiConsumer<ServerPlayer, Exception> errorHandler
     ) {
         ctx.get().enqueueWork(() -> {
             ServerPlayer player = ctx.get().getSender();
             if (player != null) {
                 try {
                     handler.accept(player);
-                } catch (Exception e) {
+                } catch (Exception e) {  // Intentionally catching all exceptions - custom error handler provided
                     errorHandler.accept(player, e);
                 }
             }
@@ -103,13 +104,13 @@ public class PacketHandler {
      * @param handler Handler-Logic
      */
     public static void handleClientPacket(
-            Supplier<NetworkEvent.Context> ctx,
-            Runnable handler
+            @Nonnull Supplier<NetworkEvent.Context> ctx,
+            @Nonnull Runnable handler
     ) {
         ctx.get().enqueueWork(() -> {
             try {
                 handler.run();
-            } catch (Exception e) {
+            } catch (Exception e) {  // Intentionally catching all exceptions - client packet handler must not crash
                 // Client-side logging
                 ScheduleMC.LOGGER.error("Client packet error: {}", e.getMessage(), e);
             }
@@ -124,8 +125,8 @@ public class PacketHandler {
      * @param handler Handler-Logic
      */
     public static void handlePacket(
-            Supplier<NetworkEvent.Context> ctx,
-            Runnable handler
+            @Nonnull Supplier<NetworkEvent.Context> ctx,
+            @Nonnull Runnable handler
     ) {
         ctx.get().enqueueWork(handler);
         ctx.get().setPacketHandled(true);
@@ -138,28 +139,28 @@ public class PacketHandler {
     /**
      * Sendet eine Erfolgs-Nachricht an den Player
      */
-    public static void sendSuccess(ServerPlayer player, String message) {
+    public static void sendSuccess(@Nonnull ServerPlayer player, @Nonnull String message) {
         player.sendSystemMessage(Component.literal("§a✓ " + message));
     }
 
     /**
      * Sendet eine Fehler-Nachricht an den Player
      */
-    public static void sendError(ServerPlayer player, String message) {
+    public static void sendError(@Nonnull ServerPlayer player, @Nonnull String message) {
         player.sendSystemMessage(Component.literal("§c✗ " + message));
     }
 
     /**
      * Sendet eine Info-Nachricht an den Player
      */
-    public static void sendInfo(ServerPlayer player, String message) {
+    public static void sendInfo(@Nonnull ServerPlayer player, @Nonnull String message) {
         player.sendSystemMessage(Component.literal("§7" + message));
     }
 
     /**
      * Sendet eine Warnung an den Player
      */
-    public static void sendWarning(ServerPlayer player, String message) {
+    public static void sendWarning(@Nonnull ServerPlayer player, @Nonnull String message) {
         player.sendSystemMessage(Component.literal("§e⚠ " + message));
     }
 }

@@ -139,8 +139,18 @@ public class VersionedData {
             JsonElement migrated = migrator.apply(new MigrationContext(data, dataVersion, currentVersion));
             return Result.success(migrated, currentVersion, true);
 
+        } catch (com.google.gson.JsonSyntaxException e) {
+            LOGGER.error("Invalid JSON syntax in versioned data: {}", e.getMessage());
+            return Result.failure("JSON syntax error: " + e.getMessage());
+        } catch (com.google.gson.JsonIOException e) {
+            LOGGER.error("I/O error reading versioned data: {}", e.getMessage());
+            return Result.failure("I/O error: " + e.getMessage());
+        } catch (NumberFormatException e) {
+            LOGGER.error("Invalid version number in versioned data: {}", e.getMessage());
+            return Result.failure("Invalid version number: " + e.getMessage());
         } catch (Exception e) {
-            LOGGER.error("Failed to parse versioned data", e);
+            // Fallback for unexpected errors
+            LOGGER.error("Unexpected error parsing versioned data", e);
             return Result.failure("Parse error: " + e.getMessage());
         }
     }

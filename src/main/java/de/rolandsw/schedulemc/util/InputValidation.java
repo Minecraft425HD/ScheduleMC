@@ -1,7 +1,9 @@
 package de.rolandsw.schedulemc.util;
 
+import de.rolandsw.schedulemc.exceptions.ValidationException;
 import net.minecraft.core.BlockPos;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -225,7 +227,7 @@ public class InputValidation {
         return Result.success(normalized);
     }
 
-    public static Result validatePacketString(@Nullable String value, String fieldName) {
+    public static Result validatePacketString(@Nullable String value, @Nonnull String fieldName) {
         if (value == null) return Result.success("");
         if (value.length() > MAX_PACKET_STRING_LENGTH) {
             return Result.failure("§c" + fieldName + " ist zu lang!");
@@ -260,7 +262,7 @@ public class InputValidation {
         return Result.success();
     }
 
-    private static boolean containsDangerousPatterns(String input) {
+    private static boolean containsDangerousPatterns(@Nonnull String input) {
         String lower = input.toLowerCase();
         if (lower.contains("'--") || lower.contains("'; drop") || lower.contains("1=1")) return true;
         if (lower.contains("<script") || lower.contains("javascript:")) return true;
@@ -271,7 +273,8 @@ public class InputValidation {
         return false;
     }
 
-    public static String sanitize(String input) {
+    @Nonnull
+    public static String sanitize(@Nullable String input) {
         if (input == null) return "";
         return input.replaceAll("§[klmnor]", "")
                    .replaceAll("[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F]", "")
@@ -330,6 +333,259 @@ public class InputValidation {
             return Result.failure("§cBetrag zu groß!");
         }
         return Result.success();
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // EXCEPTION-THROWING VALIDATION METHODS (Fail-Fast)
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Validates NPC name and throws ValidationException on failure.
+     *
+     * @param name The NPC name to validate
+     * @return The sanitized name
+     * @throws ValidationException if validation fails
+     */
+    public static String validateNPCNameOrThrow(@Nullable String name) {
+        Result result = validateNPCName(name);
+        if (result.isFailure()) {
+            throw new ValidationException(result.getError(), "npcName", name);
+        }
+        return result.getSanitizedValue() != null ? result.getSanitizedValue() : name;
+    }
+
+    /**
+     * Validates plot name and throws ValidationException on failure.
+     *
+     * @param name The plot name to validate
+     * @return The sanitized name
+     * @throws ValidationException if validation fails
+     */
+    public static String validatePlotNameOrThrow(@Nullable String name) {
+        Result result = validatePlotName(name);
+        if (result.isFailure()) {
+            throw new ValidationException(result.getError(), "plotName", name);
+        }
+        return result.getSanitizedValue() != null ? result.getSanitizedValue() : name;
+    }
+
+    /**
+     * Validates territory name and throws ValidationException on failure.
+     *
+     * @param name The territory name to validate
+     * @return The sanitized name
+     * @throws ValidationException if validation fails
+     */
+    public static String validateTerritoryNameOrThrow(@Nullable String name) {
+        Result result = validateTerritoryName(name);
+        if (result.isFailure()) {
+            throw new ValidationException(result.getError(), "territoryName", name);
+        }
+        return result.getSanitizedValue() != null ? result.getSanitizedValue() : name;
+    }
+
+    /**
+     * Validates skin file name and throws ValidationException on failure.
+     *
+     * @param filename The skin filename to validate
+     * @return The sanitized filename
+     * @throws ValidationException if validation fails
+     */
+    public static String validateSkinFileNameOrThrow(@Nullable String filename) {
+        Result result = validateSkinFileName(filename);
+        if (result.isFailure()) {
+            throw new ValidationException(result.getError(), "skinFileName", filename);
+        }
+        return result.getSanitizedValue() != null ? result.getSanitizedValue() : filename;
+    }
+
+    /**
+     * Validates dialog text and throws ValidationException on failure.
+     *
+     * @param text The dialog text to validate
+     * @return The sanitized text
+     * @throws ValidationException if validation fails
+     */
+    public static String validateDialogTextOrThrow(@Nullable String text) {
+        Result result = validateDialogText(text);
+        if (result.isFailure()) {
+            throw new ValidationException(result.getError(), "dialogText", text);
+        }
+        return result.getSanitizedValue() != null ? result.getSanitizedValue() : text;
+    }
+
+    /**
+     * Validates file path and throws ValidationException on failure.
+     *
+     * @param path The file path to validate
+     * @return The sanitized path
+     * @throws ValidationException if validation fails
+     */
+    public static String validatePathOrThrow(@Nullable String path) {
+        Result result = validatePath(path);
+        if (result.isFailure()) {
+            throw new ValidationException(result.getError(), "path", path);
+        }
+        return result.getSanitizedValue() != null ? result.getSanitizedValue() : path;
+    }
+
+    /**
+     * Validates packet string and throws ValidationException on failure.
+     *
+     * @param value The string value to validate
+     * @param fieldName The name of the field being validated
+     * @return The validated value
+     * @throws ValidationException if validation fails
+     */
+    public static String validatePacketStringOrThrow(@Nullable String value, @Nonnull String fieldName) {
+        Result result = validatePacketString(value, fieldName);
+        if (result.isFailure()) {
+            throw new ValidationException(result.getError(), fieldName, value);
+        }
+        return value;
+    }
+
+    /**
+     * Validates block position and throws ValidationException on failure.
+     *
+     * @param pos The block position to validate
+     * @return The validated position
+     * @throws ValidationException if validation fails
+     */
+    public static BlockPos validateBlockPosOrThrow(@Nullable BlockPos pos) {
+        Result result = validateBlockPos(pos);
+        if (result.isFailure()) {
+            throw new ValidationException(result.getError(), "blockPos", pos);
+        }
+        return pos;
+    }
+
+    /**
+     * Validates plot region and throws ValidationException on failure.
+     *
+     * @param pos1 First corner of the plot region
+     * @param pos2 Second corner of the plot region
+     * @throws ValidationException if validation fails
+     */
+    public static void validatePlotRegionOrThrow(@Nullable BlockPos pos1, @Nullable BlockPos pos2) {
+        Result result = validatePlotRegion(pos1, pos2);
+        if (result.isFailure()) {
+            throw new ValidationException(result.getError(), "plotRegion", "pos1=" + pos1 + ", pos2=" + pos2);
+        }
+    }
+
+    /**
+     * Validates money amount and throws ValidationException on failure.
+     *
+     * @param amount The amount to validate
+     * @throws ValidationException if validation fails
+     */
+    public static void validateAmountOrThrow(double amount) {
+        Result result = validateAmount(amount);
+        if (result.isFailure()) {
+            throw new ValidationException(result.getError(), "amount", amount);
+        }
+    }
+
+    // ========== Factory Methods for Common Validation Patterns ==========
+
+    /**
+     * Validates that a UUID is not null
+     * Factory method for common non-null UUID validation
+     *
+     * @param uuid The UUID to validate
+     * @param paramName Parameter name for error messages
+     * @return The validated UUID
+     * @throws ValidationException if UUID is null
+     */
+    public static UUID requireNonNullUUID(java.util.UUID uuid, String paramName) {
+        if (uuid == null) {
+            throw new ValidationException("UUID " + paramName + " cannot be null", paramName, null);
+        }
+        return uuid;
+    }
+
+    /**
+     * Validates amount for economy operations (non-negative, not NaN/Infinite, within limits)
+     * Factory method combining multiple validation checks
+     *
+     * @param amount The amount to validate
+     * @param operationType Type of operation (for error messages)
+     * @return The validated amount
+     * @throws ValidationException if validation fails
+     */
+    public static double validateEconomyAmount(double amount, String operationType) {
+        if (Double.isNaN(amount) || Double.isInfinite(amount)) {
+            throw new ValidationException(
+                "§cInvalid amount for " + operationType + " (NaN/Infinite)",
+                "amount",
+                amount
+            );
+        }
+        if (amount < 0) {
+            throw new ValidationException(
+                "§cAmount for " + operationType + " cannot be negative",
+                "amount",
+                amount
+            );
+        }
+        if (amount > MAX_AMOUNT) {
+            throw new ValidationException(
+                "§cAmount for " + operationType + " exceeds maximum (" + MAX_AMOUNT + ")",
+                "amount",
+                amount
+            );
+        }
+        return amount;
+    }
+
+    /**
+     * Validates positive amount (must be > 0)
+     * Factory method for transfers and similar operations
+     *
+     * @param amount The amount to validate
+     * @param operationType Type of operation (for error messages)
+     * @return The validated amount
+     * @throws ValidationException if amount is not positive
+     */
+    public static double validatePositiveAmount(double amount, String operationType) {
+        validateEconomyAmount(amount, operationType);
+        if (amount <= 0) {
+            throw new ValidationException(
+                "§cAmount for " + operationType + " must be positive",
+                "amount",
+                amount
+            );
+        }
+        return amount;
+    }
+
+    /**
+     * Validates coordinates are within world bounds
+     * Factory method for position validation
+     *
+     * @param x X coordinate
+     * @param y Y coordinate
+     * @param z Z coordinate
+     * @return true if valid
+     * @throws ValidationException if coordinates are out of bounds
+     */
+    public static boolean validateCoordinates(int x, int y, int z) {
+        if (y < MIN_Y || y > MAX_Y) {
+            throw new ValidationException(
+                "§cY coordinate out of bounds (" + MIN_Y + " to " + MAX_Y + ")",
+                "y",
+                y
+            );
+        }
+        if (Math.abs(x) > MAX_COORDINATE || Math.abs(z) > MAX_COORDINATE) {
+            throw new ValidationException(
+                "§cX/Z coordinates out of bounds (±" + MAX_COORDINATE + ")",
+                "coordinates",
+                String.format("%d, %d, %d", x, y, z)
+            );
+        }
+        return true;
     }
 
     private InputValidation() {

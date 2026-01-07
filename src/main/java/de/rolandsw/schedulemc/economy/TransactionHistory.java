@@ -39,6 +39,10 @@ public class TransactionHistory {
     private static final long TRANSACTION_RETENTION_DAYS = 90; // 90 Tage Aufbewahrung
     private static final long ROTATION_INTERVAL_TICKS = 72000; // Alle 60 Minuten (72000 ticks)
 
+    // Time Conversion Constants
+    private static final long ONE_DAY_MS = 86400000L;  // Milliseconds in one day (24 * 60 * 60 * 1000)
+    private static final long TICK_TO_MS_CONVERSION = 50L;  // Minecraft ticks to milliseconds (1 tick = 50ms)
+
     private final Map<UUID, List<Transaction>> transactions = new ConcurrentHashMap<>();
     private final Gson gson = GsonHelper.get(); // Umgebungsabhängig: kompakt in Produktion
     private final Path savePath;
@@ -204,7 +208,7 @@ public class TransactionHistory {
      * OPTIMIERUNG: Verhindert unbegrenztes Wachstum der Historie
      */
     public void rotateOldTransactions() {
-        long cutoffTime = System.currentTimeMillis() - (TRANSACTION_RETENTION_DAYS * 86400000L);
+        long cutoffTime = System.currentTimeMillis() - (TRANSACTION_RETENTION_DAYS * ONE_DAY_MS);
         int totalRemoved = 0;
         int playersAffected = 0;
 
@@ -242,7 +246,7 @@ public class TransactionHistory {
      */
     public void checkAndRotate() {
         long timeSinceLastRotation = System.currentTimeMillis() - lastRotationTime;
-        long rotationIntervalMs = ROTATION_INTERVAL_TICKS * 50L; // Ticks zu MS
+        long rotationIntervalMs = ROTATION_INTERVAL_TICKS * TICK_TO_MS_CONVERSION; // Ticks zu MS
 
         if (timeSinceLastRotation >= rotationIntervalMs) {
             rotateOldTransactions();
@@ -271,8 +275,10 @@ public class TransactionHistory {
                 LOGGER.info("Loaded {} transactions for {} players",
                     totalTransactions, transactions.size());
             }
-        } catch (Exception e) {
-            LOGGER.error("Failed to load transaction history", e);
+        } catch (IOException e) {
+            LOGGER.error("Failed to read transaction history file: {}", savePath, e);
+        } catch (com.google.gson.JsonSyntaxException e) {
+            LOGGER.error("Failed to parse transaction history JSON (corrupt file?): {}", savePath, e);
         }
     }
 
@@ -295,8 +301,9 @@ public class TransactionHistory {
                 LOGGER.debug("Saved {} transactions for {} players",
                     totalTransactions, transactions.size());
             }
-        } catch (Exception e) {
-            LOGGER.error("Failed to save transaction history", e);
+        } catch (IOException e) {
+            LOGGER.error("Failed to write transaction history file: {}", savePath, e);
+            // Keep needsSave=true so we retry on next save
         }
     }
 

@@ -231,6 +231,20 @@ public class ScheduleMC {
     
     private void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
+            // Validate configuration before initializing systems
+            try {
+                ModConfigHandler.validateConfig();
+            } catch (IllegalStateException e) {
+                LOGGER.error("═══════════════════════════════════════════════════════════");
+                LOGGER.error("CRITICAL: Configuration validation failed!");
+                LOGGER.error("═══════════════════════════════════════════════════════════");
+                LOGGER.error(e.getMessage());
+                LOGGER.error("═══════════════════════════════════════════════════════════");
+                LOGGER.error("Please fix your configuration file and restart the server.");
+                LOGGER.error("═══════════════════════════════════════════════════════════");
+                throw e; // Fail-fast: Don't start with invalid config
+            }
+
             // Initialize delivery price config from main config (after config is loaded)
             DeliveryPriceConfig.setDefaultPrice(ModConfigHandler.COMMON.WAREHOUSE_DEFAULT_DELIVERY_PRICE.get());
 

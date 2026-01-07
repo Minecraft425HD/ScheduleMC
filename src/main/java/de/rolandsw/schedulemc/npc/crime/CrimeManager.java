@@ -9,6 +9,7 @@ import de.rolandsw.schedulemc.util.GsonHelper;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -25,8 +26,12 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * SICHERHEIT: Verwendet ConcurrentHashMap für Thread-Sicherheit bei parallelen Zugriffen
  * Nutzt AbstractPersistenceManager für robuste Datenpersistenz
+ *
+ * Implements ICrimeManager for dependency injection and loose coupling.
  */
-public class CrimeManager {
+public class CrimeManager implements ICrimeManager {
+
+    private static volatile CrimeManager instance;
 
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Gson GSON = GsonHelper.get();
@@ -84,7 +89,7 @@ public class CrimeManager {
     /**
      * Gibt aktuelles Wanted-Level zurück
      */
-    public static int getWantedLevel(UUID playerUUID) {
+    public static int getWantedLevel(@Nonnull UUID playerUUID) {
         return wantedLevels.getOrDefault(playerUUID, 0);
     }
 
@@ -92,7 +97,7 @@ public class CrimeManager {
      * Fügt Wanted-Level hinzu (max 5)
      * SICHERHEIT: Atomare Operation für Thread-Sicherheit
      */
-    public static void addWantedLevel(UUID playerUUID, int amount, long currentDay) {
+    public static void addWantedLevel(@Nonnull UUID playerUUID, int amount, long currentDay) {
         wantedLevels.compute(playerUUID, (key, current) -> {
             int currentLevel = current != null ? current : 0;
             return Math.min(MAX_WANTED_LEVEL, currentLevel + amount);
@@ -105,7 +110,7 @@ public class CrimeManager {
     /**
      * Setzt Wanted-Level auf 0 (z.B. nach Festnahme)
      */
-    public static void clearWantedLevel(UUID playerUUID) {
+    public static void clearWantedLevel(@Nonnull UUID playerUUID) {
         wantedLevels.remove(playerUUID);
         lastCrimeDay.remove(playerUUID);
         markDirty();
@@ -114,7 +119,7 @@ public class CrimeManager {
     /**
      * Setzt Wanted-Level auf einen bestimmten Wert
      */
-    public static void setWantedLevel(UUID playerUUID, int level) {
+    public static void setWantedLevel(@Nonnull UUID playerUUID, int level) {
         if (level <= 0) {
             clearWantedLevel(playerUUID);
         } else {
@@ -156,7 +161,7 @@ public class CrimeManager {
     /**
      * Startet Escape-Timer (Spieler versteckt sich vor Polizei)
      */
-    public static void startEscapeTimer(UUID playerUUID, long currentTick) {
+    public static void startEscapeTimer(@Nonnull UUID playerUUID, long currentTick) {
         escapeTimers.put(playerUUID, currentTick);
         LOGGER.info("Player {} Escape-Timer gestartet (Tick {})", playerUUID, currentTick);
     }
@@ -275,6 +280,49 @@ public class CrimeManager {
     }
 
     /**
+     * Gibt die Singleton-Instanz zurück
+     */
+    public static CrimeManager getInstance() {
+        CrimeManager localRef = instance;
+        if (localRef == null) {
+            synchronized (CrimeManager.class) {
+                localRef = instance;
+                if (localRef == null) {
+                    instance = localRef = new CrimeManager();
+                }
+            }
+        }
+        return localRef;
+    }
+
+    private CrimeManager() {}
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // ICrimeManager Implementation - Instance Methods
+    // ═══════════════════════════════════════════════════════════════════════
+
+    @Override public int getWantedLevel(@Nonnull UUID playerUUID) { return CrimeManager.getWantedLevel(playerUUID); }
+    @Override public void addWantedLevel(@Nonnull UUID playerUUID, int amount, long currentDay) { CrimeManager.addWantedLevel(playerUUID, amount, currentDay); }
+    @Override public void clearWantedLevel(@Nonnull UUID playerUUID) { CrimeManager.clearWantedLevel(playerUUID); }
+    @Override public void setWantedLevel(@Nonnull UUID playerUUID, int level) { CrimeManager.setWantedLevel(playerUUID, level); }
+    @Override public void decayWantedLevel(UUID playerUUID, long currentDay) { CrimeManager.decayWantedLevel(playerUUID, currentDay); }
+    @Override public void startEscapeTimer(@Nonnull UUID playerUUID, long currentTick) { CrimeManager.startEscapeTimer(playerUUID, currentTick); }
+    @Override public void stopEscapeTimer(UUID playerUUID) { CrimeManager.stopEscapeTimer(playerUUID); }
+    @Override public boolean isHiding(UUID playerUUID) { return CrimeManager.isHiding(playerUUID); }
+    @Override public long getEscapeTimeRemaining(UUID playerUUID, long currentTick) { return CrimeManager.getEscapeTimeRemaining(playerUUID, currentTick); }
+    @Override public boolean checkEscapeSuccess(UUID playerUUID, long currentTick) { return CrimeManager.checkEscapeSuccess(playerUUID, currentTick); }
+    @Override public void setClientWantedLevel(int level) { CrimeManager.setClientWantedLevel(level); }
+    @Override public void setClientEscapeTime(long timeRemaining) { CrimeManager.setClientEscapeTime(timeRemaining); }
+    @Override public int getClientWantedLevel() { return CrimeManager.getClientWantedLevel(); }
+    @Override public long getClientEscapeTime() { return CrimeManager.getClientEscapeTime(); }
+    @Override public void load() { CrimeManager.load(); }
+    @Override public void save() { CrimeManager.save(); }
+    @Override public void saveIfNeeded() { CrimeManager.saveIfNeeded(); }
+    @Override public boolean isHealthy() { return CrimeManager.isHealthy(); }
+    @Override public String getLastError() { return CrimeManager.getLastError(); }
+    @Override public String getHealthInfo() { return CrimeManager.getHealthInfo(); }
+
+    /**
      * Innere Persistence-Manager-Klasse
      */
     private static class CrimePersistenceManager extends AbstractPersistenceManager<CrimeData> {
@@ -294,11 +342,19 @@ public class CrimeManager {
             lastCrimeDay.clear();
 
             for (Map.Entry<String, Integer> entry : data.wantedLevels.entrySet()) {
-                wantedLevels.put(UUID.fromString(entry.getKey()), entry.getValue());
+                try {
+                    wantedLevels.put(UUID.fromString(entry.getKey()), entry.getValue());
+                } catch (IllegalArgumentException e) {
+                    LOGGER.error("Invalid UUID in wantedLevels: {}", entry.getKey());
+                }
             }
 
             for (Map.Entry<String, Long> entry : data.lastCrimeDay.entrySet()) {
-                lastCrimeDay.put(UUID.fromString(entry.getKey()), entry.getValue());
+                try {
+                    lastCrimeDay.put(UUID.fromString(entry.getKey()), entry.getValue());
+                } catch (IllegalArgumentException e) {
+                    LOGGER.error("Invalid UUID in lastCrimeDay: {}", entry.getKey());
+                }
             }
         }
 

@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.api.market;
 
 import net.minecraft.world.item.Item;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 
@@ -54,7 +55,7 @@ public interface IMarketAPI {
      * @return Aktueller Preis in Euro
      * @throws IllegalArgumentException wenn item null ist
      */
-    double getCurrentPrice(Item item);
+    double getCurrentPrice(@Nonnull Item item);
 
     /**
      * Gibt den Basis-Preis eines Items zurück.
@@ -63,7 +64,7 @@ public interface IMarketAPI {
      * @return Basis-Preis ohne dynamische Anpassung
      * @throws IllegalArgumentException wenn item null ist
      */
-    double getBasePrice(Item item);
+    double getBasePrice(@Nonnull Item item);
 
     /**
      * Registriert einen Kauf (erhöht Nachfrage, steigert Preis).
@@ -72,7 +73,7 @@ public interface IMarketAPI {
      * @param amount Die Menge
      * @throws IllegalArgumentException wenn item null oder amount < 1
      */
-    void recordPurchase(Item item, int amount);
+    void recordPurchase(@Nonnull Item item, int amount);
 
     /**
      * Registriert einen Verkauf (erhöht Angebot, senkt Preis).
@@ -81,7 +82,7 @@ public interface IMarketAPI {
      * @param amount Die Menge
      * @throws IllegalArgumentException wenn item null oder amount < 1
      */
-    void recordSale(Item item, int amount);
+    void recordSale(@Nonnull Item item, int amount);
 
     /**
      * Gibt den Preismultiplikator zurück.
@@ -92,7 +93,7 @@ public interface IMarketAPI {
      * @return Preis-Multiplikator (typisch 0.5 - 2.0)
      * @throws IllegalArgumentException wenn item null ist
      */
-    double getPriceMultiplier(Item item);
+    double getPriceMultiplier(@Nonnull Item item);
 
     /**
      * Gibt die aktuelle Nachfrage zurück.
@@ -101,7 +102,7 @@ public interface IMarketAPI {
      * @return Nachfrage-Level (0-100)
      * @throws IllegalArgumentException wenn item null ist
      */
-    int getDemandLevel(Item item);
+    int getDemandLevel(@Nonnull Item item);
 
     /**
      * Gibt das aktuelle Angebot zurück.
@@ -110,13 +111,14 @@ public interface IMarketAPI {
      * @return Angebots-Level (0-100)
      * @throws IllegalArgumentException wenn item null ist
      */
-    int getSupplyLevel(Item item);
+    int getSupplyLevel(@Nonnull Item item);
 
     /**
      * Gibt alle Marktpreise zurück.
      *
      * @return Map von Item zu Preis
      */
+    @Nonnull
     Map<Item, Double> getAllPrices();
 
     /**
@@ -126,7 +128,7 @@ public interface IMarketAPI {
      * @param basePrice Der neue Basis-Preis
      * @throws IllegalArgumentException wenn item null oder basePrice < 0
      */
-    void setBasePrice(Item item, double basePrice);
+    void setBasePrice(@Nonnull Item item, double basePrice);
 
     /**
      * Setzt Markt-Daten zurück (Admin-Funktion).

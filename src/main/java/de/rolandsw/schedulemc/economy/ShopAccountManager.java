@@ -7,6 +7,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,7 +31,7 @@ public class ShopAccountManager {
     /**
      * Holt oder erstellt Shop-Konto
      */
-    public static ShopAccount getOrCreateAccount(String shopId) {
+    public static ShopAccount getOrCreateAccount(@Nonnull String shopId) {
         return accounts.computeIfAbsent(shopId, ShopAccount::new);
     }
 
@@ -38,7 +39,7 @@ public class ShopAccountManager {
      * Gibt Shop-Konto zurück (oder null wenn nicht existiert)
      */
     @Nullable
-    public static ShopAccount getAccount(String shopId) {
+    public static ShopAccount getAccount(@Nonnull String shopId) {
         return accounts.get(shopId);
     }
 
@@ -53,21 +54,21 @@ public class ShopAccountManager {
     /**
      * Prüft ob Shop-Konto existiert
      */
-    public static boolean exists(String shopId) {
+    public static boolean exists(@Nonnull String shopId) {
         return accounts.containsKey(shopId);
     }
 
     /**
      * Entfernt Shop-Konto
      */
-    public static void removeAccount(String shopId) {
+    public static void removeAccount(@Nonnull String shopId) {
         accounts.remove(shopId);
     }
 
     /**
      * Tickt alle Shop-Konten
      */
-    public static void tickAll(Level level) {
+    public static void tickAll(@Nonnull Level level) {
         for (ShopAccount account : accounts.values()) {
             account.tick(level);
         }

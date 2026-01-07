@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.cannabis.blockentity;
+nimport de.rolandsw.schedulemc.util.GameConstants;
 
 import de.rolandsw.schedulemc.cannabis.CannabisStrain;
 import de.rolandsw.schedulemc.cannabis.CannabisQuality;
@@ -25,7 +26,7 @@ public class TrocknungsnetzBlockEntity extends BlockEntity implements IUtilityCo
 
     private boolean lastActiveState = false;
 
-    public static final int DRYING_TICKS = 72000; // 3 Tage (24000 Ticks pro Tag)
+    public static final int DRYING_TICKS = 72000; // 3 Tage (GameConstants.TICKS_PER_DAY Ticks pro Tag)
     public static final int MAX_CAPACITY = 4; // 4 Slots
 
     private ItemStack[] dryingItems = new ItemStack[MAX_CAPACITY];

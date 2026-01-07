@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.npc.network;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.economy.EconomyManager;
@@ -46,7 +47,7 @@ public class SavingsDepositPacket {
             if (amount < minDeposit) {
                 player.sendSystemMessage(Component.literal("⚠ Mindesteinzahlung: ")
                     .withStyle(ChatFormatting.RED)
-                    .append(Component.literal(String.format("%.2f€", minDeposit))
+                    .append(Component.literal(StringUtils.formatMoney(minDeposit))
                         .withStyle(ChatFormatting.YELLOW)));
                 return;
             }
@@ -88,7 +89,7 @@ public class SavingsDepositPacket {
                         .withStyle(ChatFormatting.RED));
                     player.sendSystemMessage(Component.literal("Verfügbar: ")
                         .withStyle(ChatFormatting.GRAY)
-                        .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID())))
+                        .append(Component.literal(StringUtils.formatMoney(EconomyManager.getBalance(player.getUUID())))
                             .withStyle(ChatFormatting.YELLOW)));
                 }
             } else {
@@ -108,11 +109,11 @@ public class SavingsDepositPacket {
                             .withStyle(ChatFormatting.GOLD)));
                     player.sendSystemMessage(Component.literal("Neues Sparkonto: ")
                         .withStyle(ChatFormatting.GRAY)
-                        .append(Component.literal(String.format("%.2f€", account.getBalance()))
+                        .append(Component.literal(StringUtils.formatMoney(account.getBalance()))
                             .withStyle(ChatFormatting.LIGHT_PURPLE)));
                     player.sendSystemMessage(Component.literal("Neues Girokonto: ")
                         .withStyle(ChatFormatting.GRAY)
-                        .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID())))
+                        .append(Component.literal(StringUtils.formatMoney(EconomyManager.getBalance(player.getUUID())))
                             .withStyle(ChatFormatting.AQUA)));
                     player.sendSystemMessage(Component.literal("═══════════════════════════════")
                         .withStyle(ChatFormatting.GREEN));
@@ -122,7 +123,7 @@ public class SavingsDepositPacket {
                         .withStyle(ChatFormatting.RED));
                     player.sendSystemMessage(Component.literal("Verfügbar: ")
                         .withStyle(ChatFormatting.GRAY)
-                        .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID())))
+                        .append(Component.literal(StringUtils.formatMoney(EconomyManager.getBalance(player.getUUID())))
                             .withStyle(ChatFormatting.YELLOW)));
                 }
             }

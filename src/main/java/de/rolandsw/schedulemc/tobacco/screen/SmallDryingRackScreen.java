@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.tobacco.screen;
+import de.rolandsw.schedulemc.util.UIColors;
 
 import de.rolandsw.schedulemc.tobacco.menu.SmallDryingRackMenu;
 import net.minecraft.client.gui.GuiGraphics;
@@ -38,27 +39,27 @@ public class SmallDryingRackScreen extends AbstractContainerScreen<SmallDryingRa
         int y = this.topPos;
 
         // Dunkler Hintergrund
-        graphics.fill(x, y, x + this.imageWidth, y + this.imageHeight, 0xFF2B2B2B);
+        graphics.fill(x, y, x + this.imageWidth, y + this.imageHeight, UIColors.BACKGROUND_MEDIUM);
 
         // Hellerer innerer Bereich
-        graphics.fill(x + 2, y + 2, x + this.imageWidth - 2, y + this.imageHeight - 2, 0xFF4C4C4C);
+        graphics.fill(x + 2, y + 2, x + this.imageWidth - 2, y + this.imageHeight - 2, UIColors.BACKGROUND_PANEL);
 
         // Header-Bereich
-        graphics.fill(x + 2, y + 2, x + this.imageWidth - 2, y + 18, 0xFF1E1E1E);
+        graphics.fill(x + 2, y + 2, x + this.imageWidth - 2, y + 18, UIColors.BACKGROUND_DARK);
 
         // Slot-Umrandungen
         drawSlot(graphics, x + 56, y + 35);  // Input
         drawSlot(graphics, x + 116, y + 35); // Output
 
         // Progress-Pfeil Hintergrund
-        graphics.fill(x + 76, y + 35, x + 100, y + 51, 0xFF373737);
+        graphics.fill(x + 76, y + 35, x + 100, y + 51, UIColors.BACKGROUND_LIGHTER);
 
         // Progress-Pfeil füllen
         int progress = menu.getProgress();
         int maxProgress = menu.getMaxProgress();
         if (maxProgress > 0 && progress > 0) {
             int progressWidth = (int) (24 * ((float) progress / maxProgress));
-            graphics.fill(x + 76, y + 35, x + 76 + progressWidth, y + 51, 0xFF4CAF50);
+            graphics.fill(x + 76, y + 35, x + 76 + progressWidth, y + 51, UIColors.ACCENT_GREEN);
         }
 
         // Player Hotbar
@@ -68,8 +69,8 @@ public class SmallDryingRackScreen extends AbstractContainerScreen<SmallDryingRa
     }
 
     private void drawSlot(GuiGraphics graphics, int x, int y) {
-        graphics.fill(x - 1, y - 1, x + 17, y + 17, 0xFF8B8B8B);
-        graphics.fill(x, y, x + 16, y + 16, 0xFF373737);
+        graphics.fill(x - 1, y - 1, x + 17, y + 17, UIColors.GRAY_LIGHT);
+        graphics.fill(x, y, x + 16, y + 16, UIColors.BACKGROUND_LIGHTER);
     }
 
     @Override

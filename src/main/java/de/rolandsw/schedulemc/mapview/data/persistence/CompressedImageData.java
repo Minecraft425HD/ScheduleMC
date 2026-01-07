@@ -176,7 +176,10 @@ public class CompressedImageData {
                         try {
                             byte[] decompressedBytes = CompressionUtils.decompress(this.bytes);
                             this.bytes = decompressedBytes;
-                        } catch (DataFormatException ignored) {
+                        } catch (DataFormatException e) {
+                            MapViewConstants.getLogger().log(Level.ERROR, "Failed to decompress image data ({}x{}), using fallback", this.width, this.height, e);
+                            // Fallback: use empty bytes to prevent corrupted rendering
+                            this.bytes = new byte[this.width * this.height * 4];
                         }
                     } else {
                         this.bytes = new byte[this.width * this.height * 4];

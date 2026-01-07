@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.economy;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -8,6 +9,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 
 import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,7 +44,7 @@ public class CreditLoanManager extends AbstractPersistenceManager<Map<UUID, Cred
     /**
      * SICHERHEIT: Double-Checked Locking für Thread-Safety
      */
-    public static CreditLoanManager getInstance(MinecraftServer server) {
+    public static CreditLoanManager getInstance(@Nonnull MinecraftServer server) {
         CreditLoanManager localRef = instance;
         if (localRef == null) {
             synchronized (CreditLoanManager.class) {
@@ -59,7 +61,7 @@ public class CreditLoanManager extends AbstractPersistenceManager<Map<UUID, Cred
     /**
      * Beantragt einen Kredit mit dynamischem Zinssatz basierend auf Bonität
      */
-    public boolean applyForLoan(UUID playerUUID, CreditLoan.CreditLoanType type) {
+    public boolean applyForLoan(@Nonnull UUID playerUUID, CreditLoan.CreditLoanType type) {
         // Prüfe ob bereits Kredit aktiv
         if (hasActiveLoan(playerUUID)) {
             return false;
@@ -157,8 +159,8 @@ public class CreditLoanManager extends AbstractPersistenceManager<Map<UUID, Cred
                 if (player != null) {
                     player.sendSystemMessage(Component.literal(
                         "§c§l[KREDIT] Zahlung fehlgeschlagen!\n" +
-                        "§7Fällig: §c" + String.format("%.2f€", payment) + "\n" +
-                        "§7Kontostand: §e" + String.format("%.2f€", EconomyManager.getBalance(playerUUID)) + "\n" +
+                        "§7Fällig: §c" + StringUtils.formatMoney(payment) + "\n" +
+                        "§7Kontostand: §e" + StringUtils.formatMoney(EconomyManager.getBalance(playerUUID)) + "\n" +
                         "§c⚠ Dein Kredit-Score wurde verschlechtert!\n" +
                         "§7Zahle Geld ein um weitere Strafen zu vermeiden!"
                     ));
@@ -177,7 +179,7 @@ public class CreditLoanManager extends AbstractPersistenceManager<Map<UUID, Cred
     /**
      * Zahlt Kredit vorzeitig zurück
      */
-    public boolean repayLoan(UUID playerUUID) {
+    public boolean repayLoan(@Nonnull UUID playerUUID) {
         CreditLoan loan = activeLoans.get(playerUUID);
         if (loan == null) {
             return false;

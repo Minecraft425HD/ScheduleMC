@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.achievement;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import com.google.gson.reflect.TypeToken;
 import de.rolandsw.schedulemc.economy.EconomyManager;
@@ -323,14 +324,31 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
     // ═══════════════════════════════════════════════════════════
 
     /**
-     * Gibt PlayerAchievements für Spieler zurück
+     * Retrieves the achievement data for the specified player.
+     *
+     * If no achievement data exists for this player, a new PlayerAchievements instance
+     * is automatically created and registered. This method is thread-safe and uses
+     * atomic compute operations to prevent race conditions.
+     *
+     * @param playerUUID The unique identifier of the player
+     * @return The PlayerAchievements instance containing all achievement data for this player
      */
     public PlayerAchievements getPlayerAchievements(UUID playerUUID) {
         return playerData.computeIfAbsent(playerUUID, PlayerAchievements::new);
     }
 
     /**
-     * Addiert Fortschritt zu Achievement
+     * Adds incremental progress to a specific achievement for a player.
+     *
+     * This method increments the player's current progress toward the achievement by
+     * the specified amount. If the achievement does not exist or is already unlocked,
+     * the operation is ignored. When the progress reaches or exceeds the achievement
+     * requirement, the achievement is automatically unlocked and the reward is granted.
+     * Changes are immediately saved to disk.
+     *
+     * @param playerUUID The unique identifier of the player
+     * @param achievementId The unique identifier of the achievement
+     * @param amount The amount of progress to add (typically positive, but can be any value)
      */
     public void addProgress(UUID playerUUID, String achievementId, double amount) {
         Achievement achievement = achievements.get(achievementId);
@@ -359,7 +377,17 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
     }
 
     /**
-     * Setzt Fortschritt für Achievement (absolut)
+     * Sets the absolute progress value for a specific achievement for a player.
+     *
+     * Unlike addProgress(), this method sets the progress to an exact value rather than
+     * incrementing it. If the achievement does not exist or is already unlocked, the
+     * operation is ignored. When the progress reaches or exceeds the achievement requirement,
+     * the achievement is automatically unlocked and the reward is granted. Changes are
+     * immediately saved to disk.
+     *
+     * @param playerUUID The unique identifier of the player
+     * @param achievementId The unique identifier of the achievement
+     * @param value The absolute progress value to set
      */
     public void setProgress(UUID playerUUID, String achievementId, double value) {
         Achievement achievement = achievements.get(achievementId);
@@ -387,7 +415,16 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
     }
 
     /**
-     * Schaltet Achievement frei
+     * Unlocks a specific achievement for a player and grants the associated reward.
+     *
+     * This method immediately unlocks the achievement regardless of current progress.
+     * The monetary reward based on the achievement tier is deposited into the player's
+     * economy account. If the achievement is already unlocked or does not exist, the
+     * operation fails and returns false. Changes are immediately saved to disk.
+     *
+     * @param playerUUID The unique identifier of the player
+     * @param achievementId The unique identifier of the achievement to unlock
+     * @return true if the achievement was successfully unlocked, false if already unlocked or achievement doesn't exist
      */
     public boolean unlockAchievement(UUID playerUUID, String achievementId) {
         Achievement achievement = achievements.get(achievementId);
@@ -419,7 +456,13 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
     }
 
     /**
-     * Gibt Achievement zurück
+     * Retrieves an achievement definition by its unique identifier.
+     *
+     * This method looks up the achievement configuration including its name, description,
+     * category, tier, and requirements. The achievement ID is case-sensitive.
+     *
+     * @param achievementId The unique identifier of the achievement
+     * @return The Achievement instance, or null if no achievement exists with that ID
      */
     @Nullable
     public Achievement getAchievement(String achievementId) {
@@ -427,14 +470,27 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
     }
 
     /**
-     * Gibt alle Achievements zurück
+     * Retrieves all registered achievements in the system.
+     *
+     * Returns a defensive copy of all achievement definitions to prevent external
+     * modification. This includes achievements from all categories and tiers. The
+     * collection maintains insertion order (LinkedHashMap ordering).
+     *
+     * @return A new Collection containing all Achievement instances registered in the system
      */
     public Collection<Achievement> getAllAchievements() {
         return new ArrayList<>(achievements.values());
     }
 
     /**
-     * Gibt Achievements einer Kategorie zurück
+     * Retrieves all achievements belonging to a specific category.
+     *
+     * This method filters the achievement collection to return only achievements that
+     * match the specified category (e.g., ECONOMY, CRIME, PRODUCTION, SOCIAL). The
+     * returned list is a new collection that can be safely modified.
+     *
+     * @param category The achievement category to filter by
+     * @return A List of Achievement instances in the specified category (empty list if no achievements in that category)
      */
     public List<Achievement> getAchievementsByCategory(AchievementCategory category) {
         return achievements.values().stream()
@@ -443,7 +499,15 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
     }
 
     /**
-     * Gibt Statistiken zurück
+     * Generates a formatted statistics summary for a player's achievement progress.
+     *
+     * Creates a human-readable string containing the number of unlocked achievements,
+     * total achievements, completion percentage, and total monetary rewards earned
+     * from achievements. This is useful for displaying player progress in commands
+     * or user interfaces.
+     *
+     * @param playerUUID The unique identifier of the player
+     * @return A formatted string with achievement statistics (e.g., "Achievements: 5/42 (11.9%) - 1500.00€ verdient")
      */
     public String getStatistics(UUID playerUUID) {
         PlayerAchievements playerAch = getPlayerAchievements(playerUUID);

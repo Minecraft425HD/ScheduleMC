@@ -1,4 +1,6 @@
 package de.rolandsw.schedulemc.vehicle.gui;
+import de.rolandsw.schedulemc.util.UIColors;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.Part;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -306,8 +308,8 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
         int buttonY = topPos + imageHeight - 30; // Adjusted for smaller GUI
 
         String buttonText = currentTab == Tab.REPAIR ?
-            "Bezahlen: " + String.format("%.2f€", calculateSelectedCost()) :
-            "Kaufen: " + String.format("%.2f€", calculateUpgradeCost());
+            "Bezahlen: " + StringUtils.formatMoney(calculateSelectedCost()) :
+            "Kaufen: " + StringUtils.formatMoney(calculateUpgradeCost());
 
         payButton = addRenderableWidget(Button.builder(
             Component.literal(buttonText),
@@ -459,19 +461,19 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
         guiGraphics.drawString(font, "Reparatur", labelX, checkY, partColor, false);
         if (getDamagePercent() > 0) {
             double repairCost = getDamagePercent() * ModConfigHandler.COMMON.GARAGE_REPAIR_COST_PER_PERCENT.get();
-            guiGraphics.drawString(font, String.format("%.2f€", repairCost), priceX, checkY, costColor, false);
+            guiGraphics.drawString(font, StringUtils.formatMoney(repairCost), priceX, checkY, costColor, false);
         }
 
         // Batterie
         guiGraphics.drawString(font, "Batterie", labelX, checkY + lineSpacing, partColor, false);
         if (getBatteryPercent() < 50) {
             double batteryCost = (50 - getBatteryPercent()) * ModConfigHandler.COMMON.GARAGE_BATTERY_COST_PER_PERCENT.get();
-            guiGraphics.drawString(font, String.format("%.2f€", batteryCost), priceX, checkY + lineSpacing, costColor, false);
+            guiGraphics.drawString(font, StringUtils.formatMoney(batteryCost), priceX, checkY + lineSpacing, costColor, false);
         }
 
         // Ölwechsel
         guiGraphics.drawString(font, "Ölwechsel", labelX, checkY + lineSpacing * 2, partColor, false);
-        guiGraphics.drawString(font, String.format("%.2f€", ModConfigHandler.COMMON.GARAGE_OIL_CHANGE_COST.get()), priceX, checkY + lineSpacing * 2, costColor, false);
+        guiGraphics.drawString(font, StringUtils.formatMoney(ModConfigHandler.COMMON.GARAGE_OIL_CHANGE_COST.get()), priceX, checkY + lineSpacing * 2, costColor, false);
     }
 
     private void renderUpgradeTab(GuiGraphics guiGraphics, int mouseX, int mouseY) {
@@ -534,15 +536,15 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
                 int btnY = labelY;
 
                 // Draw colored square
-                guiGraphics.fill(btnX, btnY, btnX + colorBtnSize, btnY + colorBtnSize, 0xFF000000 | colorHex[i]);
+                guiGraphics.fill(btnX, btnY, btnX + colorBtnSize, btnY + colorBtnSize, UIColors.BLACK | colorHex[i]);
 
                 // Draw border
                 if (selectedPaintColor == i) {
                     // Selected color - thick border
-                    guiGraphics.fill(btnX - 2, btnY - 2, btnX + colorBtnSize + 2, btnY, 0xFFFFFFFF);
-                    guiGraphics.fill(btnX - 2, btnY + colorBtnSize, btnX + colorBtnSize + 2, btnY + colorBtnSize + 2, 0xFFFFFFFF);
-                    guiGraphics.fill(btnX - 2, btnY, btnX, btnY + colorBtnSize, 0xFFFFFFFF);
-                    guiGraphics.fill(btnX + colorBtnSize, btnY, btnX + colorBtnSize + 2, btnY + colorBtnSize, 0xFFFFFFFF);
+                    guiGraphics.fill(btnX - 2, btnY - 2, btnX + colorBtnSize + 2, btnY, UIColors.WHITE);
+                    guiGraphics.fill(btnX - 2, btnY + colorBtnSize, btnX + colorBtnSize + 2, btnY + colorBtnSize + 2, UIColors.WHITE);
+                    guiGraphics.fill(btnX - 2, btnY, btnX, btnY + colorBtnSize, UIColors.WHITE);
+                    guiGraphics.fill(btnX + colorBtnSize, btnY, btnX + colorBtnSize + 2, btnY + colorBtnSize, UIColors.WHITE);
                 }
             }
         }
@@ -559,12 +561,12 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
         int barHeight = 6;
 
         // Background
-        guiGraphics.fill(barX, barY, barX + barWidth, barY + barHeight, 0xFF000000 | barBackgroundColor);
+        guiGraphics.fill(barX, barY, barX + barWidth, barY + barHeight, UIColors.BLACK | barBackgroundColor);
 
         // Foreground based on percentage
         int fillWidth = (int) (barWidth * (percent / 100.0f));
         int barColor = getBarColor(percent);
-        guiGraphics.fill(barX, barY, barX + fillWidth, barY + barHeight, 0xFF000000 | barColor);
+        guiGraphics.fill(barX, barY, barX + fillWidth, barY + barHeight, UIColors.BLACK | barColor);
 
         // Percentage text
         guiGraphics.drawString(font, String.format("%.0f%%", percent), barX + barWidth + 5, y, fontColor, false);

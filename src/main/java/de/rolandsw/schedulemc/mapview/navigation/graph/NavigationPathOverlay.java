@@ -14,6 +14,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * Dadurch bewegt sich der Pfad perfekt mit der Karte (Zoom, Scroll, Rotation).
  */
 public class NavigationPathOverlay {
+    // Color Constants
+    private static final int COLOR_PATH_MAGENTA = 0xFFFF00FF;  // Magenta color for navigation path
+    private static final float PATH_BLEND_ALPHA = 0.75f;       // Path blend alpha (75% path, 25% original)
+
+    // Bitmask Constants
+    private static final long BITMASK_32BIT_UNSIGNED = 0xFFFFFFFFL;  // 32-bit unsigned integer bitmask
 
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
     private static volatile NavigationPathOverlay instance;
@@ -24,10 +30,6 @@ public class NavigationPathOverlay {
     // Aktuelle Pfad-Indizes (für das Verschwinden des Pfades)
     private volatile int currentPathIndex = 0;
     private volatile List<BlockPos> currentPath = null;
-
-    // Farben - Grelles Magenta/Pink für maximale Sichtbarkeit
-    private static final int PATH_COLOR = 0xFFFF00FF;  // Magenta für Pfad
-    private static final float PATH_BLEND_ALPHA = 0.75f; // 75% Pfadfarbe, 25% Originalfarbe
 
     // ═══════════════════════════════════════════════════════════
     // SINGLETON
@@ -123,7 +125,7 @@ public class NavigationPathOverlay {
      */
     public int getPathColor(int worldX, int worldZ) {
         if (isOnPath(worldX, worldZ)) {
-            return PATH_COLOR;
+            return COLOR_PATH_MAGENTA;
         }
         return 0;
     }
@@ -141,7 +143,7 @@ public class NavigationPathOverlay {
             return blockColor;
         }
 
-        return blendColors(blockColor, PATH_COLOR, PATH_BLEND_ALPHA);
+        return blendColors(blockColor, COLOR_PATH_MAGENTA, PATH_BLEND_ALPHA);
     }
 
     /**
@@ -176,7 +178,7 @@ public class NavigationPathOverlay {
      * Konvertiert X,Z zu einem eindeutigen Long-Schlüssel
      */
     private long posToKey(int x, int z) {
-        return ((long) x << 32) | (z & 0xFFFFFFFFL);
+        return ((long) x << 32) | (z & BITMASK_32BIT_UNSIGNED);
     }
 
     /**

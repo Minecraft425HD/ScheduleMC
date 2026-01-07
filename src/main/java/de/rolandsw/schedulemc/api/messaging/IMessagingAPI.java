@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.api.messaging;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
@@ -49,7 +50,7 @@ public interface IMessagingAPI {
      * @return true wenn erfolgreich gesendet
      * @throws IllegalArgumentException wenn Parameter null oder message leer
      */
-    boolean sendMessage(UUID fromUUID, UUID toUUID, String message);
+    boolean sendMessage(@Nonnull UUID fromUUID, @Nonnull UUID toUUID, @Nonnull String message);
 
     /**
      * Gibt die Anzahl ungelesener Nachrichten zurück.
@@ -58,7 +59,7 @@ public interface IMessagingAPI {
      * @return Anzahl ungelesener Nachrichten
      * @throws IllegalArgumentException wenn playerUUID null ist
      */
-    int getUnreadMessageCount(UUID playerUUID);
+    int getUnreadMessageCount(@Nonnull UUID playerUUID);
 
     /**
      * Gibt die letzten N Nachrichten eines Spielers zurück.
@@ -68,7 +69,8 @@ public interface IMessagingAPI {
      * @return Liste der Nachrichten (neueste zuerst)
      * @throws IllegalArgumentException wenn playerUUID null oder limit < 1
      */
-    List<String> getMessages(UUID playerUUID, int limit);
+    @Nonnull
+    List<String> getMessages(@Nonnull UUID playerUUID, int limit);
 
     /**
      * Markiert alle Nachrichten als gelesen.
@@ -76,7 +78,7 @@ public interface IMessagingAPI {
      * @param playerUUID Die UUID des Spielers
      * @throws IllegalArgumentException wenn playerUUID null ist
      */
-    void markAllAsRead(UUID playerUUID);
+    void markAllAsRead(@Nonnull UUID playerUUID);
 
     /**
      * Löscht eine Nachricht.
@@ -86,7 +88,7 @@ public interface IMessagingAPI {
      * @return true wenn erfolgreich gelöscht
      * @throws IllegalArgumentException wenn Parameter null sind
      */
-    boolean deleteMessage(UUID playerUUID, String messageId);
+    boolean deleteMessage(@Nonnull UUID playerUUID, @Nonnull String messageId);
 
     /**
      * Löscht alle Nachrichten eines Spielers.
@@ -94,7 +96,7 @@ public interface IMessagingAPI {
      * @param playerUUID Die UUID des Spielers
      * @throws IllegalArgumentException wenn playerUUID null ist
      */
-    void deleteAllMessages(UUID playerUUID);
+    void deleteAllMessages(@Nonnull UUID playerUUID);
 
     /**
      * Gibt die Gesamtanzahl aller Nachrichten zurück.
@@ -103,5 +105,5 @@ public interface IMessagingAPI {
      * @return Gesamtanzahl Nachrichten
      * @throws IllegalArgumentException wenn playerUUID null ist
      */
-    int getTotalMessageCount(UUID playerUUID);
+    int getTotalMessageCount(@Nonnull UUID playerUUID);
 }

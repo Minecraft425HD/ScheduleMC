@@ -14,6 +14,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
+import javax.annotation.Nonnull;
+
 /**
  * Admin-Commands für Gefängnis-System
  */
@@ -86,7 +88,7 @@ public class PrisonCommand {
             .executes(ctx -> showJailTime(ctx.getSource())));
     }
 
-    private static int createPrison(CommandSourceStack source, String plotId) {
+    private static int createPrison(@Nonnull CommandSourceStack source, @Nonnull String plotId) {
         PlotRegion plot = PlotManager.getPlot(plotId);
 
         if (plot == null) {
@@ -223,7 +225,7 @@ public class PrisonCommand {
 
         for (var data : prisoners) {
             long remainingTicks = data.releaseTime - source.getLevel().getGameTime();
-            int remainingSeconds = Math.max(0, (int)(remainingTicks / 20));
+            int remainingSeconds = Math.max(0, (int)(remainingTicks / GameConstants.TICKS_PER_SECOND));
 
             source.sendSuccess(() -> Component.literal(String.format(
                 "§7- §f%s §7(Zelle %d, %d Sek. verbleibend)",
@@ -259,7 +261,7 @@ public class PrisonCommand {
         }
 
         long remainingTicks = data.releaseTime - source.getLevel().getGameTime();
-        int remainingSeconds = Math.max(0, (int)(remainingTicks / 20));
+        int remainingSeconds = Math.max(0, (int)(remainingTicks / GameConstants.TICKS_PER_SECOND));
         int minutes = remainingSeconds / 60;
         int seconds = remainingSeconds % 60;
 
@@ -297,7 +299,7 @@ public class PrisonCommand {
         }
 
         long remainingTicks = data.releaseTime - player.level().getGameTime();
-        int remainingSeconds = Math.max(0, (int)(remainingTicks / 20));
+        int remainingSeconds = Math.max(0, (int)(remainingTicks / GameConstants.TICKS_PER_SECOND));
         int minutes = remainingSeconds / 60;
         int seconds = remainingSeconds % 60;
 

@@ -1,9 +1,11 @@
 package de.rolandsw.schedulemc.util;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileReader;
@@ -103,7 +105,7 @@ public class PersistenceHelper {
     }
 
     /**
-     * Lädt Daten aus einer JSON-Datei mit automatischer Backup-Wiederherstellung
+     * Lädt Daten aus einer JSON-Datei mit automatischer Backup-Wiederherstellung und Retry
      *
      * @param file Die Datei, aus der geladen werden soll
      * @param gson Die Gson-Instanz
@@ -111,43 +113,53 @@ public class PersistenceHelper {
      * @param componentName Name für Logging (z.B. "EconomyManager")
      * @return LoadResult mit Daten oder Fehler
      */
-    public static <T> LoadResult<T> load(File file, Gson gson, Type type, String componentName) {
+    @Nonnull
+    public static <T> LoadResult<T> load(@Nonnull File file, @Nonnull Gson gson, @Nonnull Type type, @Nonnull String componentName) {
         if (!file.exists()) {
             LOGGER.info("{}: Keine Datei gefunden, starte mit leeren Daten", componentName);
             return LoadResult.noFile();
         }
 
-        try {
-            T data = loadFromFile(file, gson, type);
-            LOGGER.info("{}: Daten erfolgreich geladen", componentName);
-            return LoadResult.success(data);
+        // Use ErrorRecovery for resilient loading with retry
+        ErrorRecovery.Result<T> result = ErrorRecovery.retry(() -> {
+            return loadFromFile(file, gson, type);
+        }, ErrorRecovery.RetryConfig.fast(), componentName + " load");
 
-        } catch (Exception e) {
-            LOGGER.error("{}: Fehler beim Laden der Daten", componentName, e);
-
-            // Versuch Backup wiederherzustellen
-            if (BackupManager.restoreFromBackup(file)) {
-                LOGGER.warn("{}: Datei korrupt, versuche Backup wiederherzustellen...", componentName);
-                try {
-                    T data = loadFromFile(file, gson, type);
-                    LOGGER.info("{}: Erfolgreich von Backup wiederhergestellt", componentName);
-                    return LoadResult.recoveredFromBackup(data);
-
-                } catch (Exception backupError) {
-                    LOGGER.error("{}: KRITISCH: Backup-Wiederherstellung fehlgeschlagen!", componentName, backupError);
-                    preserveCorruptFile(file, componentName);
-                    return LoadResult.failure("Backup recovery failed: " + backupError.getMessage());
-                }
-            } else {
-                LOGGER.error("{}: KRITISCH: Kein Backup verfügbar!", componentName);
-                preserveCorruptFile(file, componentName);
-                return LoadResult.failure("Load failed, no backup: " + e.getMessage());
-            }
+        if (result.isSuccess()) {
+            LOGGER.info("{}: Daten erfolgreich geladen{}", componentName,
+                result.getAttempts() > 1 ? " (nach " + result.getAttempts() + " Versuchen)" : "");
+            return LoadResult.success(result.getValue());
         }
+
+        LOGGER.error("{}: Fehler beim Laden der Daten nach {} Versuchen",
+            componentName, result.getAttempts(), result.getError());
+
+        // Versuch Backup wiederherzustellen
+        if (BackupManager.restoreFromBackup(file)) {
+            LOGGER.warn("{}: Datei korrupt, versuche Backup wiederherzustellen...", componentName);
+
+            ErrorRecovery.Result<T> backupResult = ErrorRecovery.retry(() -> {
+                return loadFromFile(file, gson, type);
+            }, ErrorRecovery.RetryConfig.fast(), componentName + " backup restore");
+
+            if (backupResult.isSuccess()) {
+                LOGGER.info("{}: Erfolgreich von Backup wiederhergestellt", componentName);
+                return LoadResult.recoveredFromBackup(backupResult.getValue());
+            }
+
+            LOGGER.error("{}: KRITISCH: Backup-Wiederherstellung fehlgeschlagen!",
+                componentName, backupResult.getError());
+            preserveCorruptFile(file, componentName);
+            return LoadResult.failure("Backup recovery failed: " + backupResult.getError().getMessage());
+        }
+
+        LOGGER.error("{}: KRITISCH: Kein Backup verfügbar!", componentName);
+        preserveCorruptFile(file, componentName);
+        return LoadResult.failure("Load failed, no backup: " + result.getError().getMessage());
     }
 
     /**
-     * Speichert Daten in eine JSON-Datei mit Backup und atomarem Schreiben
+     * Speichert Daten in eine JSON-Datei mit Backup, atomarem Schreiben und Retry
      *
      * @param file Die Zieldatei
      * @param gson Die Gson-Instanz
@@ -155,8 +167,10 @@ public class PersistenceHelper {
      * @param componentName Name für Logging
      * @return SaveResult mit Erfolg oder Fehler
      */
-    public static <T> SaveResult save(File file, Gson gson, T data, String componentName) {
-        try {
+    @Nonnull
+    public static <T> SaveResult save(@Nonnull File file, @Nonnull Gson gson, @Nonnull T data, @Nonnull String componentName) {
+        // Use ErrorRecovery for resilient saving with retry
+        ErrorRecovery.Result<Void> result = ErrorRecovery.retry(() -> {
             file.getParentFile().mkdirs();
 
             // Backup erstellen falls Datei existiert
@@ -177,20 +191,18 @@ public class PersistenceHelper {
                 StandardCopyOption.REPLACE_EXISTING,
                 StandardCopyOption.ATOMIC_MOVE);
 
-            LOGGER.debug("{}: Daten erfolgreich gespeichert", componentName);
+            return null; // Success
+        }, ErrorRecovery.RetryConfig.defaults(), componentName + " save");
+
+        if (result.isSuccess()) {
+            LOGGER.debug("{}: Daten erfolgreich gespeichert{}", componentName,
+                result.getAttempts() > 1 ? " (nach " + result.getAttempts() + " Versuchen)" : "");
             return SaveResult.success();
-
-        } catch (Exception e) {
-            LOGGER.error("{}: KRITISCH: Fehler beim Speichern!", componentName, e);
-
-            // Retry einmal
-            SaveResult retryResult = retrySave(file, gson, data, componentName);
-            if (retryResult.isSuccess()) {
-                return retryResult;
-            }
-
-            return SaveResult.failure("Save failed: " + e.getMessage());
         }
+
+        LOGGER.error("{}: KRITISCH: Fehler beim Speichern nach {} Versuchen!",
+            componentName, result.getAttempts(), result.getError());
+        return SaveResult.failure("Save failed: " + result.getError().getMessage());
     }
 
     /**
@@ -205,7 +217,7 @@ public class PersistenceHelper {
 
     // ========== Private Hilfsmethoden ==========
 
-    private static <T> T loadFromFile(File file, Gson gson, Type type) throws Exception {
+    private static <T> T loadFromFile(File file, Gson gson, Type type) throws IOException, JsonSyntaxException {
         try (FileReader reader = new FileReader(file)) {
             T data = gson.fromJson(reader, type);
 
@@ -214,31 +226,6 @@ public class PersistenceHelper {
             }
 
             return data;
-        }
-    }
-
-    private static <T> SaveResult retrySave(File file, Gson gson, T data, String componentName) {
-        LOGGER.warn("{}: Versuche erneut zu speichern...", componentName);
-        try {
-            Thread.sleep(100);
-
-            File tempFile = new File(file.getParent(), file.getName() + ".tmp");
-
-            try (FileWriter writer = new FileWriter(tempFile)) {
-                gson.toJson(data, writer);
-                writer.flush();
-            }
-
-            Files.move(tempFile.toPath(), file.toPath(),
-                StandardCopyOption.REPLACE_EXISTING,
-                StandardCopyOption.ATOMIC_MOVE);
-
-            LOGGER.info("{}: Retry erfolgreich", componentName);
-            return SaveResult.success();
-
-        } catch (Exception retryError) {
-            LOGGER.error("{}: KRITISCH: Retry fehlgeschlagen!", componentName, retryError);
-            return SaveResult.failure("Retry failed: " + retryError.getMessage());
         }
     }
 
@@ -258,8 +245,9 @@ public class PersistenceHelper {
     /**
      * Gibt Health-Info für einen Datei-basierten Manager zurück
      */
-    public static String getHealthInfo(File file, boolean isHealthy, @Nullable String lastError,
-                                       String details) {
+    @Nonnull
+    public static String getHealthInfo(@Nonnull File file, boolean isHealthy, @Nullable String lastError,
+                                       @Nonnull String details) {
         if (isHealthy) {
             return String.format("§aGESUND§r - %s, %d Backups verfügbar",
                 details, BackupManager.getBackupCount(file));

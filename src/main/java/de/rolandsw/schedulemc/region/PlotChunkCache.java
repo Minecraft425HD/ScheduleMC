@@ -77,13 +77,15 @@ public class PlotChunkCache {
     // CONSTRUCTOR
     // ═══════════════════════════════════════════════════════════
 
+    private static final int DEFAULT_CHUNK_CACHE_SIZE = 1000;  // 1000 Chunks = ~4 Million Blocks
+
     public PlotChunkCache(int maxCacheSize) {
         this.maxCacheSize = maxCacheSize;
         LOGGER.info("PlotChunkCache initialized with max size: {} chunks", maxCacheSize);
     }
 
     public PlotChunkCache() {
-        this(1000);  // Default: 1000 Chunks = ~4 Million Blocks
+        this(DEFAULT_CHUNK_CACHE_SIZE);
     }
 
     // ═══════════════════════════════════════════════════════════

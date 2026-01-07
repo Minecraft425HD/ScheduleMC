@@ -19,6 +19,8 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import org.slf4j.Logger;
 
+import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -130,7 +132,7 @@ public class PrisonManager {
         LOGGER.info("Gefängnisse geladen: {}", prisonPlotIds.size());
     }
 
-    public void registerPrison(String plotId) {
+    public void registerPrison(@Nonnull String plotId) {
         PlotRegion plot = PlotManager.getPlot(plotId);
         if (plot != null && plot.getType() == PlotType.PRISON) {
             if (!prisonPlotIds.contains(plotId)) {
@@ -140,6 +142,7 @@ public class PrisonManager {
         }
     }
 
+    @Nullable
     public PlotRegion getDefaultPrison() {
         if (prisonPlotIds.isEmpty()) {
             loadPrisonPlots();
@@ -148,6 +151,7 @@ public class PrisonManager {
         return PlotManager.getPlot(prisonPlotIds.get(0));
     }
 
+    @Nullable
     public PrisonCell findAvailableCell(int wantedLevel) {
         PlotRegion prison = getDefaultPrison();
         if (prison == null) {
@@ -178,7 +182,7 @@ public class PrisonManager {
         return null;
     }
 
-    public boolean imprisonPlayer(ServerPlayer player, int wantedLevel) {
+    public boolean imprisonPlayer(@Nonnull ServerPlayer player, int wantedLevel) {
         UUID playerId = player.getUUID();
 
         if (isPrisoner(playerId)) {
@@ -243,7 +247,7 @@ public class PrisonManager {
         return true;
     }
 
-    public void releasePlayer(ServerPlayer player, ReleaseReason reason) {
+    public void releasePlayer(@Nonnull ServerPlayer player, ReleaseReason reason) {
         UUID playerId = player.getUUID();
         PrisonerData data = prisoners.remove(playerId);
 
@@ -284,7 +288,7 @@ public class PrisonManager {
         savePrisonerData();
     }
 
-    public boolean isBailAvailable(UUID playerId, long currentTick) {
+    public boolean isBailAvailable(@Nonnull UUID playerId, long currentTick) {
         PrisonerData data = prisoners.get(playerId);
         if (data == null) return false;
 
@@ -295,7 +299,7 @@ public class PrisonManager {
         return servedTicks >= requiredTicks;
     }
 
-    public boolean payBail(ServerPlayer player) {
+    public boolean payBail(@Nonnull ServerPlayer player) {
         UUID playerId = player.getUUID();
         PrisonerData data = prisoners.get(playerId);
 
@@ -357,7 +361,7 @@ public class PrisonManager {
         player.getPersistentData().putBoolean("IsInPrison", true);
         player.getPersistentData().putLong("JailReleaseTime", data.releaseTime);
 
-        int remainingSeconds = (int)(remainingTicks / 20);
+        int remainingSeconds = (int)(remainingTicks / GameConstants.TICKS_PER_SECOND);
         applyPrisonEffects(player, remainingSeconds);
 
         double playerBalance = EconomyManager.getBalance(playerId);
@@ -413,6 +417,7 @@ public class PrisonManager {
         return prisoners.containsKey(playerId);
     }
 
+    @Nullable
     public PrisonerData getPrisonerData(UUID playerId) {
         return prisoners.get(playerId);
     }
@@ -462,14 +467,18 @@ public class PrisonManager {
 
             if (loadedData != null) {
                 for (var entry : loadedData.entrySet()) {
-                    UUID uuid = UUID.fromString(entry.getKey());
-                    prisoners.put(uuid, entry.getValue());
-                    offlineRemainingTime.put(uuid,
-                        Math.max(0, entry.getValue().releaseTime - System.currentTimeMillis() / 50));
+                    try {
+                        UUID uuid = UUID.fromString(entry.getKey());
+                        prisoners.put(uuid, entry.getValue());
+                        offlineRemainingTime.put(uuid,
+                            Math.max(0, entry.getValue().releaseTime - System.currentTimeMillis() / 50));
+                    } catch (IllegalArgumentException e) {
+                        LOGGER.error("Invalid UUID in prisoner data: {}", entry.getKey());
+                    }
                 }
                 LOGGER.info("Gefangene geladen: {}", prisoners.size());
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             LOGGER.error("Fehler beim Laden der Gefangenen-Daten", e);
         }
     }

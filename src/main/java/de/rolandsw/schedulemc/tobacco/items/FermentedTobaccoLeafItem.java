@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.tobacco.items;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
 import de.rolandsw.schedulemc.tobacco.TobaccoType;
@@ -74,11 +75,11 @@ public class FermentedTobaccoLeafItem extends Item {
         tooltip.add(Component.literal(""));
         
         double pricePerItem = type.calculatePrice(quality, 1);
-        tooltip.add(Component.literal("§7Verkaufspreis: §e" + String.format("%.2f€", pricePerItem) + " §7pro Stück"));
+        tooltip.add(Component.literal("§7Verkaufspreis: §e" + StringUtils.formatMoney(pricePerItem) + " §7pro Stück"));
         
         if (stack.getCount() > 1) {
             double totalPrice = type.calculatePrice(quality, stack.getCount());
-            tooltip.add(Component.literal("§7Gesamt: §e" + String.format("%.2f€", totalPrice)));
+            tooltip.add(Component.literal("§7Gesamt: §e" + StringUtils.formatMoney(totalPrice)));
         }
     }
     

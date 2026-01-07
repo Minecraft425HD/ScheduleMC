@@ -6,6 +6,8 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.network.IContainerFactory;
 
+import javax.annotation.Nullable;
+
 public class ContainerFactoryTileEntity<T extends AbstractContainerMenu, U extends BlockEntity> implements IContainerFactory<T> {
 
     private final ContainerCreator<T, U> containerCreator;
@@ -14,6 +16,7 @@ public class ContainerFactoryTileEntity<T extends AbstractContainerMenu, U exten
         this.containerCreator = containerCreator;
     }
 
+    @Nullable
     @Override
     public T create(int windowId, Inventory inv, FriendlyByteBuf data) {
         BlockEntity te = inv.player.level().getBlockEntity(data.readBlockPos());

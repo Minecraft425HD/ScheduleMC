@@ -10,6 +10,7 @@ import de.rolandsw.schedulemc.economy.TransactionHistory;
 import de.rolandsw.schedulemc.economy.TransactionType;
 import de.rolandsw.schedulemc.commands.CommandExecutor;
 import de.rolandsw.schedulemc.util.InputValidation;
+import de.rolandsw.schedulemc.util.StringUtils;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -117,11 +118,11 @@ public class MoneyCommand {
                 CommandExecutor.sendSuccess(source,
                     "Guthaben gesetzt!\n" +
                     "Spieler: " + target.getName().getString() + "\n" +
-                    "Neues Guthaben: " + String.format("%.2f", amount) + " €"
+                    "Neues Guthaben: " + StringUtils.formatMoney(amount)
                 );
 
                 target.sendSystemMessage(Component.literal(
-                    "§eDein Guthaben wurde auf §6" + String.format("%.2f", amount) + " € §egesetzt."
+                    "§eDein Guthaben wurde auf §6" + StringUtils.formatMoney(amount) + " §egesetzt."
                 ));
             });
     }
@@ -151,12 +152,12 @@ public class MoneyCommand {
                 CommandExecutor.sendSuccess(source,
                     "Geld hinzugefügt!\n" +
                     "Spieler: " + target.getName().getString() + "\n" +
-                    "Betrag: +" + String.format("%.2f", amount) + " €\n" +
-                    "Neues Guthaben: " + String.format("%.2f", EconomyManager.getBalance(target.getUUID())) + " €"
+                    "Betrag: +" + StringUtils.formatMoney(amount) + "\n" +
+                    "Neues Guthaben: " + StringUtils.formatMoney(EconomyManager.getBalance(target.getUUID()))
                 );
 
                 target.sendSystemMessage(Component.literal(
-                    "§a✓ Du hast §e" + String.format("%.2f", amount) + " € §aerhalten!"
+                    "§a✓ Du hast §e" + StringUtils.formatMoney(amount) + " §aerhalten!"
                 ));
             });
     }
@@ -187,12 +188,12 @@ public class MoneyCommand {
                     CommandExecutor.sendSuccess(source,
                         "Geld abgezogen!\n" +
                         "Spieler: " + target.getName().getString() + "\n" +
-                        "Betrag: -" + String.format("%.2f", amount) + " €\n" +
-                        "Neues Guthaben: " + String.format("%.2f", EconomyManager.getBalance(target.getUUID())) + " €"
+                        "Betrag: -" + StringUtils.formatMoney(amount) + "\n" +
+                        "Neues Guthaben: " + StringUtils.formatMoney(EconomyManager.getBalance(target.getUUID()))
                     );
 
                     target.sendSystemMessage(Component.literal(
-                        "§c" + String.format("%.2f", amount) + " € §cwurden von deinem Konto abgezogen."
+                        "§c" + StringUtils.formatMoney(amount) + " §cwurden von deinem Konto abgezogen."
                     ));
                 } else {
                     CommandExecutor.sendFailure(source, "Nicht genug Guthaben beim Zielspieler!");
@@ -218,7 +219,8 @@ public class MoneyCommand {
             return;
         }
 
-        StringBuilder sb = new StringBuilder();
+        // ⚡ PERFORMANCE: Pre-sized StringBuilder for large output
+        StringBuilder sb = StringUtils.newLargeStringBuilder();
         sb.append("§a§l━━━━━━━━━ TRANSAKTIONS-HISTORIE ━━━━━━━━━\n");
         sb.append("§eSpieler: §f").append(target.getName().getString()).append("\n");
         sb.append("§7Letzte ").append(transactions.size()).append(" Transaktionen:\n\n");
@@ -233,9 +235,9 @@ public class MoneyCommand {
         int totalCount = history.getTransactionCount(target.getUUID());
 
         sb.append("§a§l━━━━━━━━━ STATISTIKEN ━━━━━━━━━\n");
-        sb.append("§7Gesamt-Einnahmen: §a+").append(String.format("%.2f€", totalIncome)).append("\n");
-        sb.append("§7Gesamt-Ausgaben: §c-").append(String.format("%.2f€", totalExpenses)).append("\n");
-        sb.append("§7Gesamt-Transaktionen: §e").append(totalCount).append("\n");
+        sb.append("§7Gesamt-Einnahmen: §a+").append(StringUtils.formatMoney(totalIncome)).append("\n");
+        sb.append("§7Gesamt-Ausgaben: §c-").append(StringUtils.formatMoney(totalExpenses)).append("\n");
+        sb.append("§7Gesamt-Transaktionen: §e").append(StringUtils.formatNumber(totalCount)).append("\n");
         sb.append("§a§l━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
         ctx.getSource().sendSuccess(() -> Component.literal(sb.toString()), false);

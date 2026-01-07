@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.region.network;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.economy.TransactionType;
@@ -83,7 +84,7 @@ public class PlotPurchasePacket {
                         if (!EconomyManager.withdraw(playerUUID, salePrice, TransactionType.PLOT_PURCHASE,
                                 "Plot-Kauf: " + plot.getPlotName())) {
                             player.sendSystemMessage(Component.literal("§cNicht genug Guthaben! Benötigt: ")
-                                .append(Component.literal(String.format("%.2f€", salePrice))
+                                .append(Component.literal(StringUtils.formatMoney(salePrice))
                                     .withStyle(ChatFormatting.GOLD)));
                             return;
                         }
@@ -102,7 +103,7 @@ public class PlotPurchasePacket {
                         PlotManager.savePlots();
 
                         player.sendSystemMessage(Component.literal("§aPlot erfolgreich gekauft für ")
-                            .append(Component.literal(String.format("%.2f€", salePrice))
+                            .append(Component.literal(StringUtils.formatMoney(salePrice))
                                 .withStyle(ChatFormatting.GOLD)));
                         break;
 
@@ -118,7 +119,7 @@ public class PlotPurchasePacket {
                         if (!EconomyManager.withdraw(playerUUID, rentPrice, TransactionType.PLOT_RENT,
                                 "Plot-Miete (1 Tag): " + plot.getPlotName())) {
                             player.sendSystemMessage(Component.literal("§cNicht genug Guthaben! Benötigt: ")
-                                .append(Component.literal(String.format("%.2f€", rentPrice))
+                                .append(Component.literal(StringUtils.formatMoney(rentPrice))
                                     .withStyle(ChatFormatting.GOLD)));
                             return;
                         }

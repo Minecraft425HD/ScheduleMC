@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.economy;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -219,7 +220,14 @@ public class CreditLoan {
         public String getDisplayName() {
             try {
                 return de.rolandsw.schedulemc.util.LocaleHelper.selectClientLocalized(displayNameDE, displayNameEN);
+            } catch (NullPointerException e) {
+                // Client context not available (server-side) - use German default
+                return displayNameDE;
+            } catch (IllegalStateException e) {
+                // Locale helper not initialized - use German default
+                return displayNameDE;
             } catch (Exception e) {
+                // Fallback for unexpected localization errors
                 return displayNameDE;
             }
         }
@@ -237,7 +245,7 @@ public class CreditLoan {
         public String getDailyPaymentString() {
             double totalWithInterest = baseAmount * (1 + baseInterestRate);
             double daily = totalWithInterest / durationDays;
-            return String.format("%.2f€", daily);
+            return StringUtils.formatMoney(daily);
         }
     }
 }

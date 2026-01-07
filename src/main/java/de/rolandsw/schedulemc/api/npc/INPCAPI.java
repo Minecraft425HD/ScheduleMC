@@ -6,6 +6,7 @@ import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.UUID;
@@ -60,7 +61,7 @@ public interface INPCAPI {
      * @throws IllegalArgumentException wenn Parameter null sind
      */
     @Nullable
-    CustomNPCEntity getNPCByUUID(UUID npcUUID, ServerLevel level);
+    CustomNPCEntity getNPCByUUID(@Nonnull UUID npcUUID, @Nonnull ServerLevel level);
 
     /**
      * Findet einen NPC anhand seiner UUID in allen geladenen Welten.
@@ -72,7 +73,7 @@ public interface INPCAPI {
      * @throws IllegalArgumentException wenn npcUUID null ist
      */
     @Nullable
-    CustomNPCEntity getNPCByUUID(UUID npcUUID);
+    CustomNPCEntity getNPCByUUID(@Nonnull UUID npcUUID);
 
     /**
      * Gibt alle NPCs in einem ServerLevel zurück.
@@ -81,13 +82,15 @@ public interface INPCAPI {
      * @return Unmodifiable Collection aller NPCs
      * @throws IllegalArgumentException wenn level null ist
      */
-    Collection<CustomNPCEntity> getAllNPCs(ServerLevel level);
+    @Nonnull
+    Collection<CustomNPCEntity> getAllNPCs(@Nonnull ServerLevel level);
 
     /**
      * Gibt alle NPCs in allen Welten zurück.
      *
      * @return Unmodifiable Collection aller NPCs
      */
+    @Nonnull
     Collection<CustomNPCEntity> getAllNPCs();
 
     /**
@@ -97,7 +100,7 @@ public interface INPCAPI {
      * @return Anzahl NPCs
      * @throws IllegalArgumentException wenn level null ist
      */
-    int getNPCCount(ServerLevel level);
+    int getNPCCount(@Nonnull ServerLevel level);
 
     /**
      * Gibt die Gesamtanzahl aller NPCs zurück.
@@ -113,7 +116,8 @@ public interface INPCAPI {
      * @return NPCData-Objekt mit allen Daten
      * @throws IllegalArgumentException wenn npc null ist
      */
-    NPCData getNPCData(CustomNPCEntity npc);
+    @Nonnull
+    NPCData getNPCData(@Nonnull CustomNPCEntity npc);
 
     /**
      * Setzt die Home-Position eines NPCs.
@@ -122,7 +126,7 @@ public interface INPCAPI {
      * @param homePos Die neue Home-Position
      * @throws IllegalArgumentException wenn Parameter null sind
      */
-    void setNPCHome(CustomNPCEntity npc, BlockPos homePos);
+    void setNPCHome(@Nonnull CustomNPCEntity npc, @Nonnull BlockPos homePos);
 
     /**
      * Setzt die Work-Position eines NPCs.
@@ -131,7 +135,7 @@ public interface INPCAPI {
      * @param workPos Die neue Work-Position
      * @throws IllegalArgumentException wenn Parameter null sind
      */
-    void setNPCWork(CustomNPCEntity npc, BlockPos workPos);
+    void setNPCWork(@Nonnull CustomNPCEntity npc, @Nonnull BlockPos workPos);
 
     /**
      * Setzt den NPC-Typ.
@@ -140,5 +144,5 @@ public interface INPCAPI {
      * @param type Der neue Typ
      * @throws IllegalArgumentException wenn Parameter null sind
      */
-    void setNPCType(CustomNPCEntity npc, NPCType type);
+    void setNPCType(@Nonnull CustomNPCEntity npc, @Nonnull NPCType type);
 }

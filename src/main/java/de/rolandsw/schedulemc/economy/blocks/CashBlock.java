@@ -21,7 +21,8 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nullable;
 
 /**
  * Bargeld-Block - IMMER halber Block (8 Pixel)
@@ -135,7 +136,8 @@ public class CashBlock extends Block implements EntityBlock {
         }
         return 0.0;
     }
-    
+
+    @Nullable
     public static BlockState getCashBlock(Level level, BlockPos pos) {
         BlockState state = level.getBlockState(pos);
         if (state.getBlock() instanceof CashBlock) {

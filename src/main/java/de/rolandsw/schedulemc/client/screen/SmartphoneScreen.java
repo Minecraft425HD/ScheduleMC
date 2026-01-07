@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.client.screen;
+import de.rolandsw.schedulemc.util.UIColors;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import de.rolandsw.schedulemc.ScheduleMC;
@@ -29,6 +30,17 @@ import net.minecraftforge.api.distmarker.OnlyIn;
  */
 @OnlyIn(Dist.CLIENT)
 public class SmartphoneScreen extends Screen {
+
+    // Color Constants
+    private static final int COLOR_PHONE_FRAME = UIColors.BACKGROUND_DARKER;
+    private static final int COLOR_PHONE_BACKGROUND = UIColors.BACKGROUND_MEDIUM_DARK;
+    private static final int COLOR_HEADER_DARK = UIColors.BACKGROUND_DARKEST;
+    private static final int COLOR_SCROLLBAR_HANDLE_HOVERED = UIColors.GRAY_VERY_LIGHT;
+    private static final int COLOR_SCROLLBAR_HANDLE = UIColors.GRAY;
+    private static final int COLOR_APP_ICON_HOVERED = 0xFF4A4A4A;
+    private static final int COLOR_APP_ICON = 0xFF3A3A3A;
+    private static final int COLOR_APP_ICON_BORDER_HOVERED = 0xFF6A6A6A;
+    private static final int COLOR_PLACEHOLDER_GRAY = 0xFF505050;
 
     // Layout-Konstanten (kompakter für ALLE Bildschirmgrößen)
     private static final int PHONE_WIDTH = 220; // Etwas breiter für mehr Label-Platz
@@ -224,11 +236,11 @@ public class SmartphoneScreen extends Screen {
         renderBackground(guiGraphics);
 
         // Smartphone-Gehäuse (dunkel mit Rand)
-        guiGraphics.fill(leftPos - 5, topPos - 5, leftPos + PHONE_WIDTH + 5, topPos + PHONE_HEIGHT + 5, 0xFF1C1C1C); // Rahmen
-        guiGraphics.fill(leftPos, topPos, leftPos + PHONE_WIDTH, topPos + PHONE_HEIGHT, 0xFF2A2A2A); // Innerer Hintergrund
+        guiGraphics.fill(leftPos - 5, topPos - 5, leftPos + PHONE_WIDTH + 5, topPos + PHONE_HEIGHT + 5, COLOR_PHONE_FRAME); // Rahmen
+        guiGraphics.fill(leftPos, topPos, leftPos + PHONE_WIDTH, topPos + PHONE_HEIGHT, COLOR_PHONE_BACKGROUND); // Innerer Hintergrund
 
         // Oberer Bereich (Status-Bar)
-        guiGraphics.fill(leftPos, topPos, leftPos + PHONE_WIDTH, topPos + 30, 0xFF1A1A1A);
+        guiGraphics.fill(leftPos, topPos, leftPos + PHONE_WIDTH, topPos + 30, COLOR_HEADER_DARK);
 
         // Smartphone-Titel
         guiGraphics.drawCenteredString(this.font, "§6§lSmartphone", leftPos + PHONE_WIDTH / 2, topPos + 12, 0xFFFFFF);
@@ -311,8 +323,8 @@ public class SmartphoneScreen extends Screen {
                 gridStartY,
                 gridStartX + gridWidth,
                 gridStartY + 15,
-                0xAA2A2A2A,
-                0x002A2A2A
+                0xAA000000 | (COLOR_PHONE_BACKGROUND & UIColors.WHITE_FULLY_TRANSPARENT),
+                UIColors.TRANSPARENT | (COLOR_PHONE_BACKGROUND & UIColors.WHITE_FULLY_TRANSPARENT)
             );
         }
 
@@ -323,8 +335,8 @@ public class SmartphoneScreen extends Screen {
                 gridStartY + visibleContentHeight - 15,
                 gridStartX + gridWidth,
                 gridStartY + visibleContentHeight,
-                0x002A2A2A,
-                0xAA2A2A2A
+                UIColors.TRANSPARENT | (COLOR_PHONE_BACKGROUND & UIColors.WHITE_FULLY_TRANSPARENT),
+                0xAA000000 | (COLOR_PHONE_BACKGROUND & UIColors.WHITE_FULLY_TRANSPARENT)
             );
         }
 
@@ -334,7 +346,7 @@ public class SmartphoneScreen extends Screen {
         int scrollbarHeight = visibleContentHeight;
 
         // Scrollbar-Hintergrund
-        guiGraphics.fill(scrollbarX, scrollbarY, scrollbarX + SCROLLBAR_WIDTH, scrollbarY + scrollbarHeight, 0xFF1A1A1A);
+        guiGraphics.fill(scrollbarX, scrollbarY, scrollbarX + SCROLLBAR_WIDTH, scrollbarY + scrollbarHeight, COLOR_HEADER_DARK);
 
         // Scrollbar-Handle
         if (maxScrollOffset > 0) {
@@ -348,7 +360,7 @@ public class SmartphoneScreen extends Screen {
                                           mouseY >= handleY && mouseY <= handleY + handleHeight);
 
             // Handle-Farbe (heller wenn gehovered oder gedraggt)
-            int handleColor = (isDraggingScrollbar || isScrollbarHovered) ? 0xFFAAAAAA : 0xFF888888;
+            int handleColor = (isDraggingScrollbar || isScrollbarHovered) ? COLOR_SCROLLBAR_HANDLE_HOVERED : COLOR_SCROLLBAR_HANDLE;
             guiGraphics.fill(scrollbarX, handleY, scrollbarX + SCROLLBAR_WIDTH, handleY + handleHeight, handleColor);
         }
 
@@ -362,16 +374,16 @@ public class SmartphoneScreen extends Screen {
     private void renderAppIcon(GuiGraphics guiGraphics, int x, int y, ResourceLocation iconTexture, String label, int appIndex) {
         // Icon-Hintergrund (heller wenn gehovered)
         boolean isHovered = (hoveredAppIndex == appIndex);
-        int backgroundColor = isHovered ? 0xFF4A4A4A : 0xFF3A3A3A;
+        int backgroundColor = isHovered ? COLOR_APP_ICON_HOVERED : COLOR_APP_ICON;
         guiGraphics.fill(x, y, x + APP_ICON_SIZE, y + APP_ICON_SIZE, backgroundColor);
 
         // Hover-Rahmen (subtiler Glow-Effekt)
         if (isHovered) {
             // Äußerer Rahmen
-            guiGraphics.fill(x - 1, y - 1, x + APP_ICON_SIZE + 1, y, 0xFF6A6A6A); // Oben
-            guiGraphics.fill(x - 1, y + APP_ICON_SIZE, x + APP_ICON_SIZE + 1, y + APP_ICON_SIZE + 1, 0xFF6A6A6A); // Unten
-            guiGraphics.fill(x - 1, y, x, y + APP_ICON_SIZE, 0xFF6A6A6A); // Links
-            guiGraphics.fill(x + APP_ICON_SIZE, y, x + APP_ICON_SIZE + 1, y + APP_ICON_SIZE, 0xFF6A6A6A); // Rechts
+            guiGraphics.fill(x - 1, y - 1, x + APP_ICON_SIZE + 1, y, COLOR_APP_ICON_BORDER_HOVERED); // Oben
+            guiGraphics.fill(x - 1, y + APP_ICON_SIZE, x + APP_ICON_SIZE + 1, y + APP_ICON_SIZE + 1, COLOR_APP_ICON_BORDER_HOVERED); // Unten
+            guiGraphics.fill(x - 1, y, x, y + APP_ICON_SIZE, COLOR_APP_ICON_BORDER_HOVERED); // Links
+            guiGraphics.fill(x + APP_ICON_SIZE, y, x + APP_ICON_SIZE + 1, y + APP_ICON_SIZE, COLOR_APP_ICON_BORDER_HOVERED); // Rechts
         }
 
         boolean iconRendered = false;
@@ -389,7 +401,7 @@ public class SmartphoneScreen extends Screen {
 
         if (!iconRendered) {
             // Platzhalter wenn Bild nicht gefunden
-            guiGraphics.fill(x + 2, y + 2, x + APP_ICON_SIZE - 2, y + APP_ICON_SIZE - 2, 0xFF505050);
+            guiGraphics.fill(x + 2, y + 2, x + APP_ICON_SIZE - 2, y + APP_ICON_SIZE - 2, COLOR_PLACEHOLDER_GRAY);
 
             // Erste 2 Buchstaben als Platzhalter
             String initials = label.length() >= 2 ? label.substring(0, 2).toUpperCase() : label.toUpperCase();

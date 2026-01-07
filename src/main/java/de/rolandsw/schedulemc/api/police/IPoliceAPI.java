@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.api.police;
 
+import javax.annotation.Nonnull;
 import java.util.UUID;
 
 /**
@@ -68,7 +69,7 @@ public interface IPoliceAPI {
      * @return Wanted-Level (0-5)
      * @throws IllegalArgumentException wenn playerUUID null ist
      */
-    int getWantedLevel(UUID playerUUID);
+    int getWantedLevel(@Nonnull UUID playerUUID);
 
     /**
      * Fügt Wanted-Level hinzu (maximal 5 Sterne).
@@ -83,7 +84,7 @@ public interface IPoliceAPI {
      * @param amount Anzahl hinzuzufügender Sterne (1-5)
      * @throws IllegalArgumentException wenn playerUUID null oder amount < 1
      */
-    void addWantedLevel(UUID playerUUID, int amount);
+    void addWantedLevel(@Nonnull UUID playerUUID, int amount);
 
     /**
      * Setzt Wanted-Level auf einen bestimmten Wert.
@@ -92,7 +93,7 @@ public interface IPoliceAPI {
      * @param level Das neue Wanted-Level (0-5)
      * @throws IllegalArgumentException wenn playerUUID null
      */
-    void setWantedLevel(UUID playerUUID, int level);
+    void setWantedLevel(@Nonnull UUID playerUUID, int level);
 
     /**
      * Löscht Wanted-Level komplett (auf 0 zurücksetzen).
@@ -102,7 +103,7 @@ public interface IPoliceAPI {
      * @param playerUUID Die UUID des Spielers
      * @throws IllegalArgumentException wenn playerUUID null ist
      */
-    void clearWantedLevel(UUID playerUUID);
+    void clearWantedLevel(@Nonnull UUID playerUUID);
 
     /**
      * Reduziert Wanted-Level über Zeit (pro Minecraft-Tag).
@@ -114,7 +115,7 @@ public interface IPoliceAPI {
      * @param playerUUID Die UUID des Spielers
      * @throws IllegalArgumentException wenn playerUUID null ist
      */
-    void decayWantedLevel(UUID playerUUID);
+    void decayWantedLevel(@Nonnull UUID playerUUID);
 
     /**
      * Startet Escape-Timer für einen Spieler.
@@ -125,7 +126,7 @@ public interface IPoliceAPI {
      * @param playerUUID Die UUID des Spielers
      * @throws IllegalArgumentException wenn playerUUID null ist
      */
-    void startEscape(UUID playerUUID);
+    void startEscape(@Nonnull UUID playerUUID);
 
     /**
      * Stoppt Escape-Timer (Polizei hat Spieler wieder entdeckt).
@@ -133,7 +134,7 @@ public interface IPoliceAPI {
      * @param playerUUID Die UUID des Spielers
      * @throws IllegalArgumentException wenn playerUUID null ist
      */
-    void stopEscape(UUID playerUUID);
+    void stopEscape(@Nonnull UUID playerUUID);
 
     /**
      * Prüft ob ein Spieler sich gerade vor der Polizei versteckt.
@@ -142,7 +143,7 @@ public interface IPoliceAPI {
      * @return true wenn Escape-Timer aktiv
      * @throws IllegalArgumentException wenn playerUUID null ist
      */
-    boolean isHiding(UUID playerUUID);
+    boolean isHiding(@Nonnull UUID playerUUID);
 
     /**
      * Gibt verbleibende Escape-Zeit in Millisekunden zurück.
@@ -151,7 +152,7 @@ public interface IPoliceAPI {
      * @return Verbleibende Zeit in ms, 0 wenn kein Timer aktiv
      * @throws IllegalArgumentException wenn playerUUID null ist
      */
-    long getEscapeTimeRemaining(UUID playerUUID);
+    long getEscapeTimeRemaining(@Nonnull UUID playerUUID);
 
     /**
      * Prüft ob Escape erfolgreich war und reduziert Wanted-Level.
@@ -162,5 +163,5 @@ public interface IPoliceAPI {
      * @return true wenn Escape erfolgreich (Wanted-Level reduziert)
      * @throws IllegalArgumentException wenn playerUUID null ist
      */
-    boolean checkEscapeSuccess(UUID playerUUID);
+    boolean checkEscapeSuccess(@Nonnull UUID playerUUID);
 }

@@ -5,6 +5,8 @@ import de.rolandsw.schedulemc.economy.CreditLoanManager;
 import de.rolandsw.schedulemc.economy.RecurringPaymentInterval;
 import de.rolandsw.schedulemc.economy.RecurringPaymentManager;
 import de.rolandsw.schedulemc.util.PacketHandler;
+import de.rolandsw.schedulemc.util.RateLimiter;
+import de.rolandsw.schedulemc.util.StringUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -16,8 +18,12 @@ import java.util.function.Supplier;
 
 /**
  * Packet für Erstellen eines Dauerauftrags
+ * SICHERHEIT: Rate-Limited gegen Spam
  */
 public class CreateRecurringPaymentPacket {
+    // SICHERHEIT: Rate Limiting - Max 3 recurring payment creations per second
+    private static final RateLimiter RECURRING_PAYMENT_RATE_LIMITER = new RateLimiter("createRecurringPayment", 3);
+
     private final String recipientName;
     private final double amount;
     private final int intervalOrdinal;
@@ -42,10 +48,11 @@ public class CreateRecurringPaymentPacket {
 
     /**
      * SICHERHEIT: Max-Länge für Strings gegen DoS/Memory-Angriffe
+     * + Input-Sanitization gegen Command-Injection
      */
     public static CreateRecurringPaymentPacket decode(FriendlyByteBuf buf) {
         return new CreateRecurringPaymentPacket(
-            buf.readUtf(16), // MC username max 16 chars
+            StringUtils.sanitizeUserInput(buf.readUtf(16)), // MC username max 16 chars + SANITIZED
             buf.readDouble(),
             buf.readInt()
         );
@@ -53,6 +60,13 @@ public class CreateRecurringPaymentPacket {
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         PacketHandler.handleServerPacket(ctx, player -> {
+            // SICHERHEIT: Rate Limiting - prevent recurring payment spam
+            if (!RECURRING_PAYMENT_RATE_LIMITER.allowOperation(player.getUUID())) {
+                player.sendSystemMessage(Component.literal("⚠ Zu viele Anfragen! Bitte langsamer.")
+                    .withStyle(ChatFormatting.RED));
+                return;
+            }
+
             // Validierung: Betrag positiv
             if (amount <= 0) {
                 player.sendSystemMessage(Component.literal("⚠ Betrag muss positiv sein!")
@@ -145,7 +159,7 @@ public class CreateRecurringPaymentPacket {
                         .withStyle(ChatFormatting.AQUA)));
                 player.sendSystemMessage(Component.literal("Betrag: ")
                     .withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(String.format("%.2f€", amount))
+                    .append(Component.literal(StringUtils.formatMoney(amount))
                         .withStyle(ChatFormatting.GOLD)));
                 player.sendSystemMessage(Component.literal("Intervall: ")
                     .withStyle(ChatFormatting.GRAY)

@@ -6,6 +6,8 @@ import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.economy.TransactionType;
 import de.rolandsw.schedulemc.npc.bank.TransferLimitTracker;
 import de.rolandsw.schedulemc.util.PacketHandler;
+import de.rolandsw.schedulemc.util.RateLimiter;
+import de.rolandsw.schedulemc.util.StringUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -18,11 +20,13 @@ import java.util.function.Supplier;
 
 /**
  * Packet für Überweisung zwischen Spielern
- * SICHERHEIT: Audit-Logging für alle Transfer-Versuche
+ * SICHERHEIT: Audit-Logging für alle Transfer-Versuche + Rate Limiting
  */
 public class BankTransferPacket {
 
     private static final Logger LOGGER = LogUtils.getLogger();
+    // SICHERHEIT: Rate Limiting - Max 5 transfers per second (in addition to daily limits)
+    private static final RateLimiter TRANSFER_RATE_LIMITER = new RateLimiter("bankTransfer", 5);
 
     private final String targetPlayerName;
     private final double amount;
@@ -39,16 +43,26 @@ public class BankTransferPacket {
 
     /**
      * SICHERHEIT: Max-Länge für playerName gegen DoS/Memory-Angriffe
+     * + Input-Sanitization gegen Command-Injection
      */
     public static BankTransferPacket decode(FriendlyByteBuf buf) {
         return new BankTransferPacket(
-            buf.readUtf(16), // MC username max 16 chars
+            StringUtils.sanitizeUserInput(buf.readUtf(16)), // MC username max 16 chars + SANITIZED
             buf.readDouble()
         );
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         PacketHandler.handleServerPacket(ctx, player -> {
+            // SICHERHEIT: Rate Limiting - prevent transfer spam/DoS attacks
+            if (!TRANSFER_RATE_LIMITER.allowOperation(player.getUUID())) {
+                LOGGER.warn("[AUDIT] Transfer BLOCKED - Rate limit exceeded: Player={}",
+                    player.getName().getString());
+                player.sendSystemMessage(Component.literal("⚠ Zu viele Überweisungen! Bitte langsamer.")
+                    .withStyle(ChatFormatting.RED));
+                return;
+            }
+
             // Prüfe ob Betrag positiv
             if (amount <= 0) {
                 // AUDIT: Log fehlgeschlagenen Transfer
@@ -72,15 +86,15 @@ public class BankTransferPacket {
                     .withStyle(ChatFormatting.RED));
                 player.sendSystemMessage(Component.literal("Limit: ")
                     .withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(String.format("%.2f€", dailyLimit))
+                    .append(Component.literal(StringUtils.formatMoney(dailyLimit))
                         .withStyle(ChatFormatting.YELLOW)));
                 player.sendSystemMessage(Component.literal("Heute bereits überwiesen: ")
                     .withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(String.format("%.2f€", dailyLimit - remaining))
+                    .append(Component.literal(StringUtils.formatMoney(dailyLimit - remaining))
                         .withStyle(ChatFormatting.YELLOW)));
                 player.sendSystemMessage(Component.literal("Noch verfügbar: ")
                     .withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(String.format("%.2f€", remaining))
+                    .append(Component.literal(StringUtils.formatMoney(remaining))
                         .withStyle(ChatFormatting.YELLOW)));
                 return;
             }
@@ -143,13 +157,13 @@ public class BankTransferPacket {
                         .withStyle(ChatFormatting.RED)));
                 player.sendSystemMessage(Component.literal("Neuer Kontostand: ")
                     .withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID())))
+                    .append(Component.literal(StringUtils.formatMoney(EconomyManager.getBalance(player.getUUID())))
                         .withStyle(ChatFormatting.AQUA)));
 
                 double newRemaining = tracker.getRemainingLimit(player.getUUID());
                 player.sendSystemMessage(Component.literal("Verbleibendes Tageslimit: ")
                     .withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(String.format("%.2f€", newRemaining))
+                    .append(Component.literal(StringUtils.formatMoney(newRemaining))
                         .withStyle(ChatFormatting.YELLOW)));
                 player.sendSystemMessage(Component.literal("═══════════════════════════════")
                     .withStyle(ChatFormatting.GREEN));
@@ -171,7 +185,7 @@ public class BankTransferPacket {
                         .withStyle(ChatFormatting.GREEN)));
                 targetPlayer.sendSystemMessage(Component.literal("Neuer Kontostand: ")
                     .withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(targetUUID)))
+                    .append(Component.literal(StringUtils.formatMoney(EconomyManager.getBalance(targetUUID)))
                         .withStyle(ChatFormatting.AQUA)));
                 targetPlayer.sendSystemMessage(Component.literal("═══════════════════════════════")
                     .withStyle(ChatFormatting.GREEN));
@@ -181,7 +195,7 @@ public class BankTransferPacket {
                     .withStyle(ChatFormatting.RED));
                 player.sendSystemMessage(Component.literal("Verfügbar: ")
                     .withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID())))
+                    .append(Component.literal(StringUtils.formatMoney(EconomyManager.getBalance(player.getUUID())))
                         .withStyle(ChatFormatting.YELLOW)));
             }
         });

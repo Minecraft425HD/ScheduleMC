@@ -1,4 +1,6 @@
 package de.rolandsw.schedulemc.npc.network;
+nimport de.rolandsw.schedulemc.util.StringUtils;
+nimport de.rolandsw.schedulemc.util.GameConstants;
 
 import de.rolandsw.schedulemc.util.PacketHandler;
 import de.rolandsw.schedulemc.util.RateLimiter;
@@ -32,8 +34,15 @@ import java.util.function.Supplier;
  */
 public class PurchaseItemPacket {
 
+    // Rate Limiting Constants
+    private static final int PURCHASE_MAX_OPS_PER_SECOND = 20;
+    private static final int PURCHASE_WINDOW_MS = 1000;
+
+    // Purchase Configuration
+    private static final int MAX_PURCHASE_QUANTITY = 10000;
+
     // SICHERHEIT: Rate Limiter - Max 20 Käufe pro Sekunde (verhindert Spam/Exploits)
-    private static final RateLimiter PURCHASE_RATE_LIMITER = new RateLimiter("purchase", 20, 1000);
+    private static final RateLimiter PURCHASE_RATE_LIMITER = new RateLimiter("purchase", PURCHASE_MAX_OPS_PER_SECOND, PURCHASE_WINDOW_MS);
     private final int merchantEntityId;
     private final int itemIndex;
     private final int quantity;
@@ -96,10 +105,9 @@ public class PurchaseItemPacket {
 
         // SICHERHEIT: Integer Overflow Prevention
         // Maximale Menge pro Transaktion begrenzen
-        final int MAX_QUANTITY = 10000;
-        int safeQuantity = Math.min(quantity, MAX_QUANTITY);
-        if (quantity > MAX_QUANTITY) {
-            player.sendSystemMessage(Component.literal("§cMaximale Kaufmenge ist " + MAX_QUANTITY + " pro Transaktion!"));
+        int safeQuantity = Math.min(quantity, MAX_PURCHASE_QUANTITY);
+        if (quantity > MAX_PURCHASE_QUANTITY) {
+            player.sendSystemMessage(Component.literal("§cMaximale Kaufmenge ist " + MAX_PURCHASE_QUANTITY + " pro Transaktion!"));
             return;
         }
 
@@ -250,9 +258,9 @@ public class PurchaseItemPacket {
         player.sendSystemMessage(Component.literal("Getankt: ").withStyle(ChatFormatting.GRAY)
             .append(Component.literal(totalFueled + " mB Bio-Diesel").withStyle(ChatFormatting.YELLOW)));
         player.sendSystemMessage(Component.literal("Gezahlt: ").withStyle(ChatFormatting.GRAY)
-            .append(Component.literal(String.format("%.2f€", totalCost)).withStyle(ChatFormatting.GOLD)));
+            .append(Component.literal(StringUtils.formatMoney(totalCost)).withStyle(ChatFormatting.GOLD)));
         player.sendSystemMessage(Component.literal("Restguthaben: ").withStyle(ChatFormatting.GRAY)
-            .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID()))).withStyle(ChatFormatting.YELLOW)));
+            .append(Component.literal(StringUtils.formatMoney(EconomyManager.getBalance(player.getUUID()))).withStyle(ChatFormatting.YELLOW)));
         player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GREEN));
     }
 

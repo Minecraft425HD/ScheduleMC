@@ -1,9 +1,11 @@
 package de.rolandsw.schedulemc.npc.crime;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import de.rolandsw.schedulemc.commands.CommandExecutor;
 import de.rolandsw.schedulemc.util.InputValidation;
 import net.minecraft.commands.CommandSourceStack;
@@ -12,6 +14,7 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 /**
@@ -49,7 +52,7 @@ public class BountyCommand {
     /**
      * Zeigt alle aktiven Bounties
      */
-    private static int listBounties(CommandContext<CommandSourceStack> ctx) {
+    private static int listBounties(@Nonnull CommandContext<CommandSourceStack> ctx) {
         return CommandExecutor.executePlayerCommand(ctx, "Fehler beim Abrufen der Kopfgelder",
             player -> {
                 BountyManager manager = BountyManager.getInstance(player.getServer());
@@ -69,7 +72,10 @@ public class BountyCommand {
 
                 int rank = 1;
                 for (BountyData bounty : bounties) {
-                    String targetName = "Spieler"; // TODO: Get player name
+                    // Get player name from server (UUID -> name lookup)
+                    String targetName = server.getProfileCache() != null && bounty.getTargetPlayer() != null
+                        ? server.getProfileCache().get(bounty.getTargetPlayer()).map(p -> p.getName()).orElse("Unknown Player")
+                        : "Unknown Player";
 
                     player.sendSystemMessage(Component.literal(
                         String.format(
@@ -124,7 +130,7 @@ public class BountyCommand {
                         player.sendSystemMessage(Component.literal(
                             "§a§l✓ KOPFGELD PLATZIERT!\n" +
                             "§7Auf §e" + target.getName().getString() + " §7wurde ein Kopfgeld von\n" +
-                            "§a" + String.format("%.2f€", amount) + " §7ausgesetzt!"
+                            "§a" + StringUtils.formatMoney(amount) + " §7ausgesetzt!"
                         ));
                     } else {
                         CommandExecutor.sendFailure(ctx.getSource(),
@@ -134,7 +140,7 @@ public class BountyCommand {
                             "- Ungültiges Ziel (du selbst)"
                         );
                     }
-                } catch (Exception e) {
+                } catch (CommandSyntaxException e) {
                     CommandExecutor.sendFailure(ctx.getSource(),
                         "Fehler beim Platzieren: " + e.getMessage());
                 }
@@ -181,7 +187,7 @@ public class BountyCommand {
                             bounty.getFormattedDescription()
                         ));
                     }
-                } catch (Exception e) {
+                } catch (CommandSyntaxException e) {
                     CommandExecutor.sendFailure(ctx.getSource(),
                         "Spieler nicht gefunden!");
                 }

@@ -22,9 +22,7 @@ public class WorldMapConfiguration implements SubSettingsManager {
 
     @Override
     public void loadSettings(File settingsFile) {
-        try {
-            BufferedReader in = new BufferedReader(new FileReader(settingsFile));
-
+        try (BufferedReader in = new BufferedReader(new FileReader(settingsFile))) {
             String sCurrentLine;
             while ((sCurrentLine = in.readLine()) != null) {
                 String[] curLine = sCurrentLine.split(":");
@@ -36,9 +34,9 @@ public class WorldMapConfiguration implements SubSettingsManager {
                     case "Output Images" -> this.outputImages = Boolean.parseBoolean(curLine[1]);
                 }
             }
-
-            in.close();
-        } catch (IOException ignored) {}
+        } catch (IOException e) {
+            MapViewConstants.getLogger().debug("Could not load worldmap settings from {}, using defaults", settingsFile);
+        }
 
         for (int power = -3; power <= 5; ++power) {
             if (Math.pow(2.0, power) == this.minZoom) {

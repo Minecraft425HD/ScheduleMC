@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.npc.events;
+nimport de.rolandsw.schedulemc.util.GameConstants;
 
 import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
@@ -41,7 +42,7 @@ public class NPCStealingHandler {
             // Prüfe Cooldown (1x pro Tag pro NPC) - nur wenn bereits gestohlen wurde
             String cooldownKey = "LastSteal_" + player.getStringUUID();
             if (npc.getNpcData().getCustomData().contains(cooldownKey)) {
-                long currentDay = player.level().getDayTime() / 24000;
+                long currentDay = player.level().getDayTime() / GameConstants.TICKS_PER_DAY;
                 long lastStealDay = npc.getNpcData().getCustomData().getLong(cooldownKey);
 
                 if (lastStealDay >= currentDay) {

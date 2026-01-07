@@ -20,6 +20,26 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
+/**
+ * Rechargeable battery item for electric vehicles.
+ * <p>
+ * Batteries store energy (measured in Forge Energy units) and can be used to
+ * power electric vehicles. They can be charged using various charging stations
+ * or garage services. The battery's charge level is displayed in the item's
+ * durability bar and tooltip.
+ * </p>
+ * <p>
+ * <strong>Specifications:</strong>
+ * </p>
+ * <ul>
+ *   <li>Max Energy Capacity: 500 FE (Forge Energy)</li>
+ *   <li>Non-stackable (max stack size: 1)</li>
+ *   <li>Visually displays charge level via durability bar</li>
+ *   <li>Compatible with Forge Energy system</li>
+ * </ul>
+ *
+ * @see IEnergyStorage
+ */
 public class ItemBattery extends Item {
 
     public ItemBattery() {

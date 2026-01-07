@@ -1,7 +1,9 @@
 package de.rolandsw.schedulemc.region;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import net.minecraft.core.BlockPos;
 
+import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -88,6 +90,7 @@ public class PlotArea {
     public String getRenterUUID() { return renterUUID != null ? renterUUID : ""; }
     public void setRenterUUID(String uuid) { this.renterUUID = uuid; }
 
+    @Nullable
     public UUID getRenterUUIDAsUUID() {
         if (renterUUID == null || renterUUID.isEmpty()) return null;
         try {

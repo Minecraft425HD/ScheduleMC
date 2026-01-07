@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.mapview.presentation.screen;
+import de.rolandsw.schedulemc.util.UIColors;
 
 import de.rolandsw.schedulemc.mapview.config.MapViewConfiguration;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
@@ -45,7 +46,7 @@ public class MapOptionsScreen extends BaseMapScreen {
 
     @Override
     public void render(GuiGraphics drawContext, int mouseX, int mouseY, float delta) {
-        drawContext.drawCenteredString(this.font, this.screenTitle, this.getWidth() / 2, 20, 0xFFFFFFFF);
+        drawContext.drawCenteredString(this.font, this.screenTitle, this.getWidth() / 2, 20, UIColors.WHITE);
         super.render(drawContext, mouseX, mouseY, delta);
     }
 }

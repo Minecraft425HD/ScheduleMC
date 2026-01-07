@@ -14,6 +14,8 @@ import de.rolandsw.schedulemc.api.achievement.IAchievementAPI;
 import de.rolandsw.schedulemc.api.market.IMarketAPI;
 import org.slf4j.Logger;
 
+import javax.annotation.Nonnull;
+
 /**
  * ScheduleMC Public API - Zentraler Einstiegspunkt
  *
@@ -201,17 +203,17 @@ public class ScheduleMCAPI {
      * Initialisiert alle APIs (wird vom Mod aufgerufen)
      */
     public void initialize(
-        IEconomyAPI economyAPI,
-        IPlotAPI plotAPI,
-        IProductionAPI productionAPI,
-        INPCAPI npcAPI,
-        IPoliceAPI policeAPI,
-        IWarehouseAPI warehouseAPI,
-        IMessagingAPI messagingAPI,
-        ISmartphoneAPI smartphoneAPI,
-        IVehicleAPI vehicleAPI,
-        IAchievementAPI achievementAPI,
-        IMarketAPI marketAPI
+        @Nonnull IEconomyAPI economyAPI,
+        @Nonnull IPlotAPI plotAPI,
+        @Nonnull IProductionAPI productionAPI,
+        @Nonnull INPCAPI npcAPI,
+        @Nonnull IPoliceAPI policeAPI,
+        @Nonnull IWarehouseAPI warehouseAPI,
+        @Nonnull IMessagingAPI messagingAPI,
+        @Nonnull ISmartphoneAPI smartphoneAPI,
+        @Nonnull IVehicleAPI vehicleAPI,
+        @Nonnull IAchievementAPI achievementAPI,
+        @Nonnull IMarketAPI marketAPI
     ) {
         this.economyAPI = economyAPI;
         this.plotAPI = plotAPI;

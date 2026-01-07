@@ -39,7 +39,7 @@ public class NPCDailySalaryHandler {
             }
 
             ServerLevel level = server.overworld();
-            long currentDay = level.getDayTime() / 24000L;
+            long currentDay = level.getDayTime() / GameConstants.TICKS_PER_DAY;
 
             // Prüfe ob ein neuer Tag begonnen hat
             // Dies funktioniert auch wenn Zeit übersprungen wird (z.B. durch Schlafen)

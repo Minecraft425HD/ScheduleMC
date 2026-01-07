@@ -39,6 +39,10 @@ public class WarehouseBlockEntity extends BlockEntity {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final int EXPENSE_RETENTION_DAYS = 30; // Behalte Ausgaben für 30 Tage
 
+    // Synchronization Configuration
+    private static final int SYNC_INTERVAL_TICKS = 20; // Sync alle 20 Ticks (1 Sekunde)
+    private static final int CLEANUP_INTERVAL_TICKS = 12000; // Cleanup alle 10 Minuten (12000 ticks)
+
     private WarehouseSlot[] slots;
     private List<UUID> linkedSellers = new ArrayList<>();
     private long lastDeliveryDay = -1; // Tag der letzten Lieferung (nicht absolute ticks!)
@@ -49,7 +53,6 @@ public class WarehouseBlockEntity extends BlockEntity {
     // Performance-Optimierung: Batched Sync
     private boolean needsSync = false;
     private int syncCounter = 0;
-    private static final int SYNC_INTERVAL = 20; // Sync alle 20 Ticks (1 Sekunde)
 
     public WarehouseBlockEntity(BlockPos pos, BlockState state) {
         super(WarehouseBlocks.WAREHOUSE_BLOCK_ENTITY.get(), pos, state);
@@ -180,14 +183,14 @@ public class WarehouseBlockEntity extends BlockEntity {
 
         long currentTime = level.getGameTime();
 
-        // Bereinige alte Ausgaben alle 10 Minuten (12000 ticks)
-        if (currentTime % 12000 == 0) {
+        // Bereinige alte Ausgaben alle 10 Minuten
+        if (currentTime % CLEANUP_INTERVAL_TICKS == 0) {
             be.cleanupOldExpenses(currentTime);
         }
 
         // Batched synchronization
         be.syncCounter++;
-        if (be.syncCounter >= SYNC_INTERVAL) {
+        if (be.syncCounter >= SYNC_INTERVAL_TICKS) {
             be.syncCounter = 0;
             if (be.needsSync) {
                 level.sendBlockUpdated(pos, state, state, 3);

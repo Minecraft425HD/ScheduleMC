@@ -1,4 +1,6 @@
 package de.rolandsw.schedulemc.tobacco.network;
+import de.rolandsw.schedulemc.util.StringUtils;
+import de.rolandsw.schedulemc.util.GameConstants;
 
 import de.rolandsw.schedulemc.economy.WalletManager;
 import de.rolandsw.schedulemc.economy.items.CashItem;
@@ -80,7 +82,7 @@ public class NegotiationPacket {
             int npcWallet = npc.getNpcData().getWallet();
             if (offeredPrice > npcWallet) {
                 player.sendSystemMessage(Component.literal("§c✗ Der NPC hat nicht genug Geld!"));
-                player.sendSystemMessage(Component.literal("§7NPC Geldbörse: " + npcWallet + "€, Preis: " + String.format("%.2f", offeredPrice) + "€"));
+                player.sendSystemMessage(Component.literal("§7NPC Geldbörse: " + npcWallet + "€, Preis: " + StringUtils.formatMoney(offeredPrice)));
                 return;
             }
 
@@ -93,7 +95,7 @@ public class NegotiationPacket {
                 // Prüfe Cooldown (1x pro Tag pro NPC)
                 String cooldownKey = "LastTobaccoSale_" + player.getStringUUID();
                 if (npc.getNpcData().getCustomData().contains(cooldownKey)) {
-                    long currentDay = player.level().getDayTime() / 24000;
+                    long currentDay = player.level().getDayTime() / GameConstants.TICKS_PER_DAY;
                     long lastSaleDay = npc.getNpcData().getCustomData().getLong(cooldownKey);
 
                     if (lastSaleDay >= currentDay) {
@@ -105,7 +107,7 @@ public class NegotiationPacket {
 
                 // Verkauf durchführen
                 double price = offeredPrice;
-                long currentDay = player.level().getDayTime() / 24000;
+                long currentDay = player.level().getDayTime() / GameConstants.TICKS_PER_DAY;
 
                 // Parse Type und Quality aus PackagedDrugItem
                 String variantStr = PackagedDrugItem.getVariant(playerItem);
@@ -163,7 +165,7 @@ public class NegotiationPacket {
                     quality,
                     offeredGrams,  // Die tatsächlich verkauften Gramm
                     price,
-                    player.level().getDayTime() / 24000
+                    player.level().getDayTime() / GameConstants.TICKS_PER_DAY
                 );
 
                 // Reputation ändern
@@ -173,13 +175,13 @@ public class NegotiationPacket {
                 metrics.save();
 
                 // Setze Cooldown (aktueller Tag) - reuse variable from line 98
-                currentDay = player.level().getDayTime() / 24000;
+                currentDay = player.level().getDayTime() / GameConstants.TICKS_PER_DAY;
                 npc.getNpcData().getCustomData().putLong("LastTobaccoSale_" + player.getStringUUID(), currentDay);
 
                 // Erfolgsmeldung mit aktuellem Wallet-Item Wert
                 if (walletItem.getItem() instanceof CashItem) {
                     double walletValue = CashItem.getValue(walletItem);
-                    player.sendSystemMessage(Component.literal("§a✓ Verkauf erfolgreich! " + offeredGrams + "g für " + String.format("%.2f", price) + "€"));
+                    player.sendSystemMessage(Component.literal("§a✓ Verkauf erfolgreich! " + offeredGrams + "g für " + StringUtils.formatMoney(price)));
                     player.sendSystemMessage(Component.literal("§7Deine Geldbörse: " + String.format("%.2f", walletValue) + "€ | NPC Geldbörse: " + npc.getNpcData().getWallet() + "€"));
                 }
             } else {

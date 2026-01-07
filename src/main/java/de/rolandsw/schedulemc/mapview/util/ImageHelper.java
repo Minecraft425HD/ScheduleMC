@@ -40,7 +40,15 @@ public class ImageHelper {
     public static NativeImage createNativeImageFromIdentifier(ResourceLocation Identifier) {
         try {
             return NativeImage.read(Minecraft.getInstance().getResourceManager().getResource(Identifier).get().open());
+        } catch (java.io.IOException e) {
+            MapViewConstants.getLogger().debug("Failed to read image resource {}: {}", Identifier, e.getMessage());
+            return null;
+        } catch (IllegalArgumentException e) {
+            MapViewConstants.getLogger().debug("Invalid image format for {}: {}", Identifier, e.getMessage());
+            return null;
         } catch (Exception var5) {
+            // Fallback for unexpected errors
+            MapViewConstants.getLogger().debug("Unexpected error loading image {}", Identifier, var5);
             return null;
         }
     }
@@ -53,7 +61,15 @@ public class ImageHelper {
                 image = bufferedImageFromNativeImage(dynamicTexture.getPixels());
             }
             return image;
+        } catch (ClassCastException e) {
+            MapViewConstants.getLogger().debug("Texture {} is not a DynamicTexture", Identifier);
+            return null;
+        } catch (NullPointerException e) {
+            MapViewConstants.getLogger().debug("Texture {} not found or has no pixel data", Identifier);
+            return null;
         } catch (Exception var5) {
+            // Fallback for unexpected errors
+            MapViewConstants.getLogger().debug("Unexpected error converting texture {}", Identifier, var5);
             return null;
         }
     }
@@ -120,8 +136,15 @@ public class ImageHelper {
             g2.fillRect(0, 0, temp.getWidth(), temp.getHeight());
             g2.dispose();
             return temp;
+        } catch (java.io.IOException e) {
+            MapViewConstants.getLogger().error("Failed to read mob skin resource {}: {}", Identifier, e.getMessage());
+            return null;
+        } catch (IllegalArgumentException e) {
+            MapViewConstants.getLogger().error("Invalid mob skin dimensions for {}: {}", Identifier, e.getMessage());
+            return null;
         } catch (Exception var13) {
-            MapViewConstants.getLogger().error("Failed getting mob: " + Identifier.toString() + " - " + var13.getLocalizedMessage(), var13);
+            // Fallback for unexpected errors
+            MapViewConstants.getLogger().error("Unexpected error loading mob skin {}", Identifier, var13);
             return null;
         }
     }

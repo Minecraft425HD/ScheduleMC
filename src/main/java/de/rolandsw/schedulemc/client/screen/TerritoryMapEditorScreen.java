@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.client.screen;
+import de.rolandsw.schedulemc.util.UIColors;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import de.rolandsw.schedulemc.territory.Territory;
@@ -247,7 +248,7 @@ public class TerritoryMapEditorScreen extends Screen {
 
                 guiGraphics.fill(screenX, screenY,
                     screenX + pixelsPerBlock, screenY + pixelsPerBlock,
-                    0xFF000000 | color);
+                    UIColors.BLACK | color);
             }
         }
     }
@@ -288,8 +289,8 @@ public class TerritoryMapEditorScreen extends Screen {
                         overlayColor);
 
                     // Border for better visibility
-                    guiGraphics.fill(screenX, screenY, screenX + pixelsPerChunk, screenY + 1, 0xFFFFFFFF); // Top
-                    guiGraphics.fill(screenX, screenY, screenX + 1, screenY + pixelsPerChunk, 0xFFFFFFFF); // Left
+                    guiGraphics.fill(screenX, screenY, screenX + pixelsPerChunk, screenY + 1, UIColors.WHITE); // Top
+                    guiGraphics.fill(screenX, screenY, screenX + 1, screenY + pixelsPerChunk, UIColors.WHITE); // Left
                 }
             }
         }
@@ -306,13 +307,13 @@ public class TerritoryMapEditorScreen extends Screen {
         // Vertical lines
         for (int cx = 0; cx <= chunksWide; cx++) {
             int x = mapX + cx * pixelsPerChunk;
-            guiGraphics.fill(x, mapY, x + 1, mapY + mapHeight, 0x44FFFFFF);
+            guiGraphics.fill(x, mapY, x + 1, mapY + mapHeight, UIColors.WHITE_SEMI_TRANSPARENT);
         }
 
         // Horizontal lines
         for (int cz = 0; cz <= chunksHigh; cz++) {
             int y = mapY + cz * pixelsPerChunk;
-            guiGraphics.fill(mapX, y, mapX + mapWidth, y + 1, 0x44FFFFFF);
+            guiGraphics.fill(mapX, y, mapX + mapWidth, y + 1, UIColors.WHITE_SEMI_TRANSPARENT);
         }
     }
 
@@ -375,12 +376,12 @@ public class TerritoryMapEditorScreen extends Screen {
 
         // Background
         guiGraphics.fill(tooltipX, tooltipY, tooltipX + tooltipWidth, tooltipY + tooltipHeight, 0xE0000000);
-        guiGraphics.fill(tooltipX, tooltipY, tooltipX + tooltipWidth, tooltipY + 1, 0xFFFFFFFF);
+        guiGraphics.fill(tooltipX, tooltipY, tooltipX + tooltipWidth, tooltipY + 1, UIColors.WHITE);
 
         // Text
         int lineY = tooltipY + 2;
         for (String line : lines) {
-            guiGraphics.drawString(minecraft.font, line, tooltipX + 4, lineY, 0xFFFFFFFF);
+            guiGraphics.drawString(minecraft.font, line, tooltipX + 4, lineY, UIColors.WHITE);
             lineY += 10;
         }
     }

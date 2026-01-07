@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.npc.events;
+nimport de.rolandsw.schedulemc.util.GameConstants;
 
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.economy.items.CashItem;
@@ -46,7 +47,7 @@ public class IllegalActivityScanner {
             severity += illegalPlantCount;
 
             // Pro 10.000€: +1
-            severity += (int)(totalCashFound / 10000.0);
+            severity += (int)(totalCashFound / GameConstants.HIGH_CASH_THRESHOLD);
 
             // Illegale Items/Blöcke: +1
             severity += Math.min(illegalItemCount + illegalBlockCount, 3);
@@ -62,14 +63,14 @@ public class IllegalActivityScanner {
             increase += illegalPlantCount;
 
             // Pro 10.000€: +1 Stern
-            increase += (int)(totalCashFound / 10000.0);
+            increase += (int)(totalCashFound / GameConstants.HIGH_CASH_THRESHOLD);
 
             // Max +3 Sterne
             return Math.min(increase, 3);
         }
 
         public boolean hasIllegalActivity() {
-            return illegalPlantCount > 0 || totalCashFound > 10000.0 ||
+            return illegalPlantCount > 0 || totalCashFound > GameConstants.HIGH_CASH_THRESHOLD ||
                    illegalItemCount > 0 || illegalBlockCount > 0;
         }
     }
@@ -187,8 +188,10 @@ public class IllegalActivityScanner {
             result.foundIllegalItems.add("Diamantblock bei " + pos.toShortString());
         }
 
-        // TODO: Bargeld-Blöcke scannen (wenn implementiert)
-        // TODO: Verarbeitungsmaschinen scannen
+        // FEATURE REQUEST: Scan for additional illegal blocks
+        // 1. Cash storage blocks (when cash block system is implemented)
+        // 2. Processing machines (drug production equipment)
+        // These require corresponding block types to be implemented first
     }
 
     /**
@@ -233,9 +236,8 @@ public class IllegalActivityScanner {
             }
         }
 
-        // TODO: Waffen scannen (später wenn Mod hinzugefügt)
-        // List<String> illegalWeapons = ModConfigHandler.COMMON.POLICE_ILLEGAL_WEAPONS.get();
-        // if (illegalWeapons.contains(itemName)) { ... }
+        // NOTE: Weapon scanning not implemented - requires weapons mod integration
+        // Future enhancement: ModConfigHandler.COMMON.POLICE_ILLEGAL_WEAPONS support
     }
 
     /**
@@ -250,7 +252,7 @@ public class IllegalActivityScanner {
             report.append("§c• ").append(result.illegalPlantCount).append(" Tabakpflanzen\n");
         }
 
-        if (result.totalCashFound > 10000.0) {
+        if (result.totalCashFound > GameConstants.HIGH_CASH_THRESHOLD) {
             report.append("§c• ").append(String.format("%.0f", result.totalCashFound)).append("€ illegales Bargeld\n");
         }
 

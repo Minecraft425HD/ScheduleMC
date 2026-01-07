@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.cannabis.screen;
+import de.rolandsw.schedulemc.util.UIColors;
 
 import de.rolandsw.schedulemc.cannabis.menu.TrimmStationMenu;
 import net.minecraft.client.gui.GuiGraphics;
@@ -94,7 +95,7 @@ public class TrimmStationScreen extends AbstractContainerScreen<TrimmStationMenu
 
     private void renderTimingBar(GuiGraphics graphics, int x, int y) {
         // Rahmen
-        graphics.fill(x - 2, y - 2, x + BAR_WIDTH + 2, y + BAR_HEIGHT + 2, 0xFF555555);
+        graphics.fill(x - 2, y - 2, x + BAR_WIDTH + 2, y + BAR_HEIGHT + 2, UIColors.GRAY_DARK);
 
         // Hintergrund
         graphics.fill(x, y, x + BAR_WIDTH, y + BAR_HEIGHT, 0xFF222222);
@@ -122,7 +123,7 @@ public class TrimmStationScreen extends AbstractContainerScreen<TrimmStationMenu
 
             // Indikator-Linie
             int indicatorWidth = 4;
-            graphics.fill(indicatorX - indicatorWidth/2 - 1, y - 4, indicatorX + indicatorWidth/2 + 1, y + BAR_HEIGHT + 4, 0xFFFFFFFF);
+            graphics.fill(indicatorX - indicatorWidth/2 - 1, y - 4, indicatorX + indicatorWidth/2 + 1, y + BAR_HEIGHT + 4, UIColors.WHITE);
             graphics.fill(indicatorX - indicatorWidth/2, y - 3, indicatorX + indicatorWidth/2, y + BAR_HEIGHT + 3, 0xFFEEEEEE);
         }
 

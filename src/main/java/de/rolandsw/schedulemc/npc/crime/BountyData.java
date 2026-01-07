@@ -135,12 +135,33 @@ public class BountyData {
 
     /**
      * Gibt Auftraggeber-String zurück
+     *
+     * @param server MinecraftServer instance for player name lookup (can be null)
      */
+    public String getPlacedByString(net.minecraft.server.MinecraftServer server) {
+        if (placedBy == null) {
+            return "§6Polizei (Automatisch)";
+        }
+        // Lookup player name from UUID using profile cache
+        if (server != null && server.getProfileCache() != null) {
+            return server.getProfileCache()
+                .get(placedBy)
+                .map(p -> "§e" + p.getName())
+                .orElse("§eUnknown Player");
+        }
+        return "§eUnknown Player";
+    }
+
+    /**
+     * Legacy method - use getPlacedByString(MinecraftServer) instead
+     * @deprecated Use {@link #getPlacedByString(net.minecraft.server.MinecraftServer)} for proper name resolution
+     */
+    @Deprecated
     public String getPlacedByString() {
         if (placedBy == null) {
             return "§6Polizei (Automatisch)";
         }
-        return "§eSpieler"; // TODO: Player name lookup
+        return "§eUnknown Player";
     }
 
     /**

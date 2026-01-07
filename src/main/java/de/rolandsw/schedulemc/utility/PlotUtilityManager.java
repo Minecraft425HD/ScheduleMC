@@ -79,8 +79,17 @@ public class PlotUtilityManager {
             }
 
             LOGGER.info("Utility-Daten geladen: {} Plots", plotData.size());
+        } catch (java.io.IOException e) {
+            LOGGER.error("Failed to read utility data file: {}", DATA_FILE.getPath(), e);
+        } catch (com.google.gson.JsonSyntaxException e) {
+            LOGGER.error("Failed to parse utility data JSON (corrupt file?): {}", DATA_FILE.getPath(), e);
+        } catch (com.google.gson.JsonParseException e) {
+            LOGGER.error("JSON parsing error in utility data: {}", DATA_FILE.getPath(), e);
+        } catch (SecurityException e) {
+            LOGGER.error("Security error accessing utility data file: {}", DATA_FILE.getPath(), e);
         } catch (Exception e) {
-            LOGGER.error("Fehler beim Laden der Utility-Daten", e);
+            // Fallback for unexpected errors
+            LOGGER.error("Unexpected error loading utility data", e);
         }
 
         // Position-Cache rebuilden
@@ -111,8 +120,14 @@ public class PlotUtilityManager {
 
             dirty = false;
             LOGGER.debug("Utility-Daten gespeichert: {} Plots", plotData.size());
+        } catch (java.io.IOException e) {
+            LOGGER.error("Failed to write utility data file: {}", DATA_FILE.getPath(), e);
+            // Keep dirty=true so we retry on next save
+        } catch (SecurityException e) {
+            LOGGER.error("Security error writing utility data file: {}", DATA_FILE.getPath(), e);
         } catch (Exception e) {
-            LOGGER.error("Fehler beim Speichern der Utility-Daten", e);
+            // Fallback for unexpected errors
+            LOGGER.error("Unexpected error saving utility data", e);
         }
     }
 

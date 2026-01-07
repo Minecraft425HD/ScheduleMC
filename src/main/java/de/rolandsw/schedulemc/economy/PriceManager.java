@@ -11,6 +11,7 @@ import de.rolandsw.schedulemc.tobacco.items.TobaccoItems;
 import de.rolandsw.schedulemc.util.SecureRandomUtil;
 import net.minecraft.world.item.Item;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,7 +39,7 @@ public class PriceManager {
      * 0.85 = 15% günstiger
      * 1.15 = 15% teurer
      */
-    public static float getPriceMultiplier(Item item) {
+    public static float getPriceMultiplier(@Nonnull Item item) {
         // 1. Zeitbasierte Welle (±15%)
         long time = System.currentTimeMillis() / 1000; // Sekunden
         double wave = Math.sin(time * 0.0001); // Sehr langsame Welle
@@ -61,7 +62,7 @@ public class PriceManager {
      * @param item Das Item
      * @return Finaler Preis
      */
-    public static int getFinalPrice(int basePrice, Item item) {
+    public static int getFinalPrice(int basePrice, @Nonnull Item item) {
         float multiplier = getPriceMultiplier(item);
         return Math.max(1, (int)(basePrice * multiplier)); // Mindestens 1€
     }
@@ -70,7 +71,7 @@ public class PriceManager {
      * Gibt aktuellen Multiplikator als Prozentsatz zurück
      * z.B. 0.85 → "-15%", 1.15 → "+15%"
      */
-    public static String getMultiplierAsPercentage(Item item) {
+    public static String getMultiplierAsPercentage(@Nonnull Item item) {
         float multiplier = getPriceMultiplier(item);
         int percentage = (int)((multiplier - 1.0f) * 100);
         if (percentage > 0) {
@@ -89,14 +90,14 @@ public class PriceManager {
     /**
      * Fügt Wirtschafts-Event hinzu
      */
-    public static void addEvent(EconomicEvent event) {
+    public static void addEvent(@Nonnull EconomicEvent event) {
         activeEvents.add(event);
     }
 
     /**
      * Entfernt Event
      */
-    public static void removeEvent(EconomicEvent event) {
+    public static void removeEvent(@Nonnull EconomicEvent event) {
         activeEvents.remove(event);
     }
 
@@ -207,7 +208,7 @@ public class PriceManager {
     /**
      * Erstellt ein Event mit einheitlichem Multiplikator für alle Items
      */
-    private static EconomicEvent createEvent(String name, String description, List<Item> items, float multiplier, int days) {
+    private static EconomicEvent createEvent(@Nonnull String name, @Nonnull String description, @Nonnull List<Item> items, float multiplier, int days) {
         Map<Item, Float> multipliers = new HashMap<>();
         for (Item item : items) {
             if (item != null) {

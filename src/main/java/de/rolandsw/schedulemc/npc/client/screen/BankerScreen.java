@@ -1,4 +1,6 @@
 package de.rolandsw.schedulemc.npc.client.screen;
+import de.rolandsw.schedulemc.util.UIColors;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import de.rolandsw.schedulemc.ScheduleMC;
@@ -432,12 +434,12 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         // Bargeld (Wallet)
         double bargeld = WalletManager.getBalance(minecraft.player.getUUID());
         guiGraphics.drawString(this.font, "BARGELD", x + 30, y + 65, 0x808080, false);
-        guiGraphics.drawString(this.font, String.format("%.2f€", bargeld), x + 125, y + 65, 0xFFAA00, false);
+        guiGraphics.drawString(this.font, StringUtils.formatMoney(bargeld), x + 125, y + 65, 0xFFAA00, false);
 
         // Girokonto
         double girokonto = EconomyManager.getBalance(minecraft.player.getUUID());
         guiGraphics.drawString(this.font, "GIROKONTO", x + 30, y + 85, 0x808080, false);
-        guiGraphics.drawString(this.font, String.format("%.2f€", girokonto), x + 125, y + 85, 0x00AA00, false);
+        guiGraphics.drawString(this.font, StringUtils.formatMoney(girokonto), x + 125, y + 85, 0x00AA00, false);
 
         // Sparkonto
         SavingsAccountManager savingsManager = SavingsAccountManager.getInstance(minecraft.level.getServer());
@@ -446,15 +448,15 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
             .mapToDouble(SavingsAccount::getBalance)
             .sum();
         guiGraphics.drawString(this.font, "SPARKONTO", x + 30, y + 105, 0x808080, false);
-        guiGraphics.drawString(this.font, String.format("%.2f€", sparkonto), x + 125, y + 105, 0x6666FF, false);
+        guiGraphics.drawString(this.font, StringUtils.formatMoney(sparkonto), x + 125, y + 105, 0x6666FF, false);
 
         // Trennlinie
-        guiGraphics.fill(x + 20, y + 120, x + 200, y + 121, 0x44FFFFFF);
+        guiGraphics.fill(x + 20, y + 120, x + 200, y + 121, UIColors.WHITE_SEMI_TRANSPARENT);
 
         // Gesamt
         double gesamt = bargeld + girokonto + sparkonto;
         guiGraphics.drawString(this.font, "GESAMT:", x + 30, y + 130, 0x404040, false);
-        guiGraphics.drawString(this.font, String.format("%.2f€", gesamt), x + 125, y + 130, 0xFFD700, false);
+        guiGraphics.drawString(this.font, StringUtils.formatMoney(gesamt), x + 125, y + 130, 0xFFD700, false);
     }
 
     /**
@@ -468,12 +470,12 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         // Kontostand
         double girokonto = EconomyManager.getBalance(minecraft.player.getUUID());
         guiGraphics.drawString(this.font, "Kontostand:", x + 20, y + 60, 0x808080, false);
-        guiGraphics.drawString(this.font, String.format("%.2f€", girokonto), x + 125, y + 60, 0x00AA00, false);
+        guiGraphics.drawString(this.font, StringUtils.formatMoney(girokonto), x + 125, y + 60, 0x00AA00, false);
 
         // Bargeld
         double bargeld = WalletManager.getBalance(minecraft.player.getUUID());
         guiGraphics.drawString(this.font, "Bargeld:", x + 20, y + 72, 0x808080, false);
-        guiGraphics.drawString(this.font, String.format("%.2f€", bargeld), x + 125, y + 72, 0xFFAA00, false);
+        guiGraphics.drawString(this.font, StringUtils.formatMoney(bargeld), x + 125, y + 72, 0xFFAA00, false);
 
         // Einzahlen Label
         guiGraphics.drawString(this.font, "Einzahlen (aus Bargeld):", x + 15, y + 85, 0x808080, false);
@@ -502,12 +504,12 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
             .mapToDouble(SavingsAccount::getBalance)
             .sum();
         guiGraphics.drawString(this.font, "Kontostand:", x + 20, y + 60, 0x808080, false);
-        guiGraphics.drawString(this.font, String.format("%.2f€", sparkonto), x + 125, y + 60, 0x6666FF, false);
+        guiGraphics.drawString(this.font, StringUtils.formatMoney(sparkonto), x + 125, y + 60, 0x6666FF, false);
 
         // Girokonto
         double girokonto = EconomyManager.getBalance(minecraft.player.getUUID());
         guiGraphics.drawString(this.font, "Girokonto:", x + 20, y + 72, 0x808080, false);
-        guiGraphics.drawString(this.font, String.format("%.2f€", girokonto), x + 125, y + 72, 0x00AA00, false);
+        guiGraphics.drawString(this.font, StringUtils.formatMoney(girokonto), x + 125, y + 72, 0x00AA00, false);
 
         // Einzahlen Label
         guiGraphics.drawString(this.font, "Einzahlen (vom Girokonto):", x + 15, y + 85, 0x808080, false);
@@ -540,14 +542,14 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
             double balance = EconomyManager.getBalance(minecraft.player.getUUID());
             guiGraphics.drawString(this.font, "Verfügbar:",
                 x + 15, y + 145, 0x606060, false);
-            guiGraphics.drawString(this.font, String.format("%.2f€", balance),
+            guiGraphics.drawString(this.font, StringUtils.formatMoney(balance),
                 x + 140, y + 145, 0xFFD700, false);
 
             TransferLimitTracker tracker = TransferLimitTracker.getInstance(minecraft.level.getServer());
             double remaining = tracker.getRemainingLimit(minecraft.player.getUUID());
             guiGraphics.drawString(this.font, "Tageslimit:",
                 x + 15, y + 157, 0x606060, false);
-            guiGraphics.drawString(this.font, String.format("%.2f€", remaining),
+            guiGraphics.drawString(this.font, StringUtils.formatMoney(remaining),
                 x + 140, y + 157, remaining > 0 ? 0x00AA00 : 0xFF5555, false);
         }
     }
@@ -641,7 +643,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         }
 
         // Trennlinie
-        guiGraphics.fill(x + 15, y + 168, x + 265, y + 169, 0x44FFFFFF);
+        guiGraphics.fill(x + 15, y + 168, x + 265, y + 169, UIColors.WHITE_SEMI_TRANSPARENT);
 
         // Aktive Daueraufträge Header
         guiGraphics.drawString(this.font, "Aktive Daueraufträge:", x + 15, y + 173, 0x606060, false);

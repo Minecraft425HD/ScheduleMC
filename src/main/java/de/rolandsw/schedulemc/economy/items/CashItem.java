@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.economy.items;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import de.rolandsw.schedulemc.economy.blocks.CashBlock;
 import de.rolandsw.schedulemc.economy.blocks.EconomyBlocks;
@@ -184,7 +185,7 @@ public class CashItem extends Item {
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
         double value = getValue(stack);
         
-        tooltip.add(Component.literal("§7Guthaben: §a" + String.format("%.2f€", value)));
+        tooltip.add(Component.literal("§7Guthaben: §a" + StringUtils.formatMoney(value)));
         tooltip.add(Component.literal("§7Kapazität: §aUnlimitiert"));
         tooltip.add(Component.literal(""));
         tooltip.add(Component.literal("§c§lGESPERRT IN SLOT 9!"));

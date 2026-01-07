@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.vehicle.vehicle;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.VehicleFactory;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
@@ -47,7 +48,7 @@ public class VehiclePurchaseHandler {
             player.sendSystemMessage(Component.literal("Preis: ").withStyle(ChatFormatting.GRAY)
                 .append(Component.literal(price + "€").withStyle(ChatFormatting.GOLD))
                 .append(Component.literal(" | Dein Guthaben: ").withStyle(ChatFormatting.GRAY))
-                .append(Component.literal(String.format("%.2f€", playerBalance)).withStyle(ChatFormatting.YELLOW)));
+                .append(Component.literal(StringUtils.formatMoney(playerBalance)).withStyle(ChatFormatting.YELLOW)));
             return false;
         }
 
@@ -101,7 +102,7 @@ public class VehiclePurchaseHandler {
         player.sendSystemMessage(Component.literal("Fahrzeug-ID: ").withStyle(ChatFormatting.GRAY)
             .append(Component.literal(vehicleUUID.toString().substring(0, 8) + "...").withStyle(ChatFormatting.DARK_GRAY)));
         player.sendSystemMessage(Component.literal("Restguthaben: ").withStyle(ChatFormatting.GRAY)
-            .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID()))).withStyle(ChatFormatting.YELLOW)));
+            .append(Component.literal(StringUtils.formatMoney(EconomyManager.getBalance(player.getUUID()))).withStyle(ChatFormatting.YELLOW)));
         player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
 
         return true;

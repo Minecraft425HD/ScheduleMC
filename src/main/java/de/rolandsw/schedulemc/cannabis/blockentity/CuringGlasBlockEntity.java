@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.cannabis.blockentity;
+nimport de.rolandsw.schedulemc.util.GameConstants;
 
 import de.rolandsw.schedulemc.cannabis.CannabisStrain;
 import de.rolandsw.schedulemc.cannabis.CannabisQuality;
@@ -25,7 +26,7 @@ public class CuringGlasBlockEntity extends BlockEntity implements IUtilityConsum
 
     private boolean lastActiveState = false;
 
-    public static final int TICKS_PER_DAY = 24000;
+    public static final int TICKS_PER_DAY = GameConstants.TICKS_PER_DAY;
     public static final int MIN_CURING_DAYS = 14;
     public static final int OPTIMAL_CURING_DAYS = 28;
 

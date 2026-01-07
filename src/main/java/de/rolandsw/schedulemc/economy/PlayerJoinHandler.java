@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.economy;
+nimport de.rolandsw.schedulemc.util.GameConstants;
 
 import de.rolandsw.schedulemc.player.PlayerSettingsManager;
 import de.rolandsw.schedulemc.player.network.PlayerSettingsNetworkHandler;
@@ -136,7 +137,7 @@ public class PlayerJoinHandler {
         long currentTime = level.getDayTime();
         LOGGER.info("═══════════════════════════════════════════════════════════");
         LOGGER.info("WELT EINGEFROREN - Letzter Spieler hat den Server verlassen");
-        LOGGER.info("Zeit: {} | Tag: {} | Tageszeit: {}", currentTime, currentTime / 24000, currentTime % 24000);
+        LOGGER.info("Zeit: {} | Tag: {} | Tageszeit: {}", currentTime, currentTime / GameConstants.TICKS_PER_DAY, currentTime % GameConstants.TICKS_PER_DAY);
         LOGGER.info("✓ Zeit gestoppt (doDaylightCycle = false)");
         LOGGER.info("✓ Pflanzen gestoppt (randomTickSpeed = 0)");
         LOGGER.info("✓ Mob-Spawn gestoppt (doMobSpawning = false)");
@@ -157,7 +158,7 @@ public class PlayerJoinHandler {
         long currentTime = level.getDayTime();
         LOGGER.info("═══════════════════════════════════════════════════════════");
         LOGGER.info("WELT ENTFRIERT - Erster Spieler joined");
-        LOGGER.info("Zeit: {} | Tag: {} | Tageszeit: {}", currentTime, currentTime / 24000, currentTime % 24000);
+        LOGGER.info("Zeit: {} | Tag: {} | Tageszeit: {}", currentTime, currentTime / GameConstants.TICKS_PER_DAY, currentTime % GameConstants.TICKS_PER_DAY);
         LOGGER.info("✓ Zeit läuft (doDaylightCycle = true)");
         LOGGER.info("✓ Pflanzen wachsen (randomTickSpeed = {})", savedRandomTickSpeed);
         LOGGER.info("✓ Mob-Spawn aktiv (doMobSpawning = true)");

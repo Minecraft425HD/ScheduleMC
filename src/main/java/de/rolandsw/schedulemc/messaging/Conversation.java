@@ -4,6 +4,27 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Represents a conversation thread between a player and another entity (player or NPC).
+ * <p>
+ * Each conversation maintains a chronological list of messages, tracks the last
+ * message timestamp, and stores reputation data for NPC conversations. Conversations
+ * are stored per-player and per-participant, allowing each entity to have their own
+ * view of the conversation history.
+ * </p>
+ * <p>
+ * <strong>Reputation System:</strong> The reputation field (0-100) is only relevant
+ * for player-to-NPC conversations. Higher reputation unlocks better dialogue options
+ * and NPC interactions.
+ * </p>
+ * <p>
+ * <strong>Thread Safety:</strong> NOT thread-safe. Access should be synchronized
+ * by the calling code (typically MessageManager).
+ * </p>
+ *
+ * @see Message
+ * @see MessageManager
+ */
 public class Conversation {
     private final UUID participantUUID;
     private final String participantName;

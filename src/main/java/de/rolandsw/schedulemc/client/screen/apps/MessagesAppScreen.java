@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.client.screen.apps;
+import de.rolandsw.schedulemc.util.UIColors;
 
 import de.rolandsw.schedulemc.messaging.Conversation;
 import de.rolandsw.schedulemc.messaging.HeadRenderer;
@@ -67,7 +68,7 @@ public class MessagesAppScreen extends Screen {
         renderBackground(guiGraphics);
 
         // Smartphone border (dark frame)
-        guiGraphics.fill(leftPos - 5, topPos - 5, leftPos + WIDTH + 5, topPos + HEIGHT + 5, 0xFF1C1C1C);
+        guiGraphics.fill(leftPos - 5, topPos - 5, leftPos + WIDTH + 5, topPos + HEIGHT + 5, UIColors.BACKGROUND_DARKER);
 
         // WhatsApp background (light gray/white)
         guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + HEIGHT, 0xFFECE5DD);
@@ -76,7 +77,7 @@ public class MessagesAppScreen extends Screen {
         guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 35, 0xFF075E54);
 
         // Header title in white - no shadow
-        guiGraphics.drawString(this.font, "WhatsApp", leftPos + 10, topPos + 13, 0xFFFFFFFF, false);
+        guiGraphics.drawString(this.font, "WhatsApp", leftPos + 10, topPos + 13, UIColors.WHITE, false);
 
         // Content area
         int contentY = topPos + 40;
@@ -84,8 +85,8 @@ public class MessagesAppScreen extends Screen {
 
         if (conversations == null || conversations.isEmpty()) {
             // Empty state
-            guiGraphics.fill(leftPos, contentY, leftPos + WIDTH, contentY + 60, 0xFFFFFFFF);
-            guiGraphics.drawCenteredString(this.font, "§8Keine Chats", leftPos + WIDTH / 2, contentY + 20, 0xFF666666);
+            guiGraphics.fill(leftPos, contentY, leftPos + WIDTH, contentY + 60, UIColors.WHITE);
+            guiGraphics.drawCenteredString(this.font, "§8Keine Chats", leftPos + WIDTH / 2, contentY + 20, UIColors.GRAY_MEDIUM);
             guiGraphics.drawCenteredString(this.font, "§7Tippe einen Spieler an,", leftPos + WIDTH / 2, contentY + 32, 0xFF999999);
             guiGraphics.drawCenteredString(this.font, "§7um zu chatten", leftPos + WIDTH / 2, contentY + 42, 0xFF999999);
         } else {
@@ -112,7 +113,7 @@ public class MessagesAppScreen extends Screen {
         boolean isHovering = mouseX >= x && mouseX <= x + itemWidth && mouseY >= y && mouseY <= y + CHAT_ITEM_HEIGHT;
 
         // WhatsApp-style background (white with hover)
-        int bgColor = isHovering ? 0xFFF5F5F5 : 0xFFFFFFFF;
+        int bgColor = isHovering ? 0xFFF5F5F5 : UIColors.WHITE;
         guiGraphics.fill(x, y, x + itemWidth, y + CHAT_ITEM_HEIGHT, bgColor);
 
         // Bottom border line (light gray)
@@ -137,7 +138,7 @@ public class MessagesAppScreen extends Screen {
         if (displayName.length() > 15) {
             displayName = displayName.substring(0, 12) + "...";
         }
-        guiGraphics.drawString(this.font, displayName, textX, nameY, 0xFF000000, false);
+        guiGraphics.drawString(this.font, displayName, textX, nameY, UIColors.BLACK, false);
 
         // Message preview (gray) - no shadow
         String preview = conversation.getPreviewText();

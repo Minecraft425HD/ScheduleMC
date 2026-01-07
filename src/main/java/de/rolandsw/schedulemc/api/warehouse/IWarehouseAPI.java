@@ -4,6 +4,7 @@ import de.rolandsw.schedulemc.warehouse.WarehouseSlot;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.Item;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
@@ -51,7 +52,7 @@ public interface IWarehouseAPI {
      * @return true wenn Warehouse existiert
      * @throws IllegalArgumentException wenn position null ist
      */
-    boolean hasWarehouse(BlockPos position);
+    boolean hasWarehouse(@Nonnull BlockPos position);
 
     /**
      * Fügt Items zu einem Warehouse hinzu.
@@ -62,7 +63,7 @@ public interface IWarehouseAPI {
      * @return true wenn erfolgreich hinzugefügt
      * @throws IllegalArgumentException wenn Parameter ungültig
      */
-    boolean addItemToWarehouse(BlockPos position, Item item, int amount);
+    boolean addItemToWarehouse(@Nonnull BlockPos position, @Nonnull Item item, int amount);
 
     /**
      * Entfernt Items aus einem Warehouse.
@@ -73,7 +74,7 @@ public interface IWarehouseAPI {
      * @return true wenn erfolgreich entfernt
      * @throws IllegalArgumentException wenn Parameter ungültig
      */
-    boolean removeItemFromWarehouse(BlockPos position, Item item, int amount);
+    boolean removeItemFromWarehouse(@Nonnull BlockPos position, @Nonnull Item item, int amount);
 
     /**
      * Gibt den Bestand eines Items zurück.
@@ -83,7 +84,7 @@ public interface IWarehouseAPI {
      * @return Aktuelle Menge
      * @throws IllegalArgumentException wenn Parameter null sind
      */
-    int getItemStock(BlockPos position, Item item);
+    int getItemStock(@Nonnull BlockPos position, @Nonnull Item item);
 
     /**
      * Gibt die maximale Kapazität eines Items zurück.
@@ -93,7 +94,7 @@ public interface IWarehouseAPI {
      * @return Maximale Kapazität
      * @throws IllegalArgumentException wenn Parameter null sind
      */
-    int getItemCapacity(BlockPos position, Item item);
+    int getItemCapacity(@Nonnull BlockPos position, @Nonnull Item item);
 
     /**
      * Gibt alle Slots eines Warehouses zurück.
@@ -102,7 +103,8 @@ public interface IWarehouseAPI {
      * @return Liste aller Slots
      * @throws IllegalArgumentException wenn position null ist
      */
-    List<WarehouseSlot> getAllSlots(BlockPos position);
+    @Nonnull
+    List<WarehouseSlot> getAllSlots(@Nonnull BlockPos position);
 
     /**
      * Fügt einen Verkäufer zum Warehouse hinzu.
@@ -111,7 +113,7 @@ public interface IWarehouseAPI {
      * @param sellerUUID Die UUID des Verkäufers
      * @throws IllegalArgumentException wenn Parameter null sind
      */
-    void addSeller(BlockPos position, UUID sellerUUID);
+    void addSeller(@Nonnull BlockPos position, @Nonnull UUID sellerUUID);
 
     /**
      * Entfernt einen Verkäufer vom Warehouse.
@@ -120,7 +122,7 @@ public interface IWarehouseAPI {
      * @param sellerUUID Die UUID des Verkäufers
      * @throws IllegalArgumentException wenn Parameter null sind
      */
-    void removeSeller(BlockPos position, UUID sellerUUID);
+    void removeSeller(@Nonnull BlockPos position, @Nonnull UUID sellerUUID);
 
     /**
      * Prüft ob ein Spieler Verkäufer ist.
@@ -130,5 +132,5 @@ public interface IWarehouseAPI {
      * @return true wenn Verkäufer
      * @throws IllegalArgumentException wenn Parameter null sind
      */
-    boolean isSeller(BlockPos position, UUID sellerUUID);
+    boolean isSeller(@Nonnull BlockPos position, @Nonnull UUID sellerUUID);
 }

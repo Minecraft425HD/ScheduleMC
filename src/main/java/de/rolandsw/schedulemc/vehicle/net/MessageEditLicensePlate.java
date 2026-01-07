@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.vehicle.net;
 
+import de.rolandsw.schedulemc.util.StringUtils;
 import de.rolandsw.schedulemc.vehicle.items.ItemLicensePlate;
 import de.maxhenkel.corelib.net.Message;
 import net.minecraft.network.FriendlyByteBuf;
@@ -52,10 +53,13 @@ public class MessageEditLicensePlate implements Message<MessageEditLicensePlate>
         }
     }
 
+    /**
+     * SICHERHEIT: Sanitize license plate text against injection attacks
+     */
     @Override
     public MessageEditLicensePlate fromBytes(FriendlyByteBuf buf) {
         uuid = buf.readUUID();
-        text = buf.readUtf(128);
+        text = StringUtils.sanitizeUserInput(buf.readUtf(128)); // SANITIZED license plate text
         return this;
     }
 

@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.npc.client.screen;
+import de.rolandsw.schedulemc.util.UIColors;
 
 import de.rolandsw.schedulemc.util.SecureRandomUtil;
 
@@ -30,6 +31,12 @@ public class StealingScreen extends AbstractContainerScreen<StealingMenu> {
 
     private static final ResourceLocation TEXTURE =
         ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/stealing.png");
+
+    // Colors
+    private static final int COLOR_SCREEN_BACKGROUND = UIColors.GRAY_LIGHT;
+    private static final int COLOR_TIMING_BAR_BACKGROUND = 0xFF404040;
+    private static final int COLOR_TARGET_ZONE_GREEN = 0xFF00FF00;
+    private static final int COLOR_INDICATOR_RED = 0xFFFF0000;
 
     // Auswahl-Modus
     private boolean choosingMode = true; // true = Auswahl, false = Minigame
@@ -174,7 +181,7 @@ public class StealingScreen extends AbstractContainerScreen<StealingMenu> {
         int y = (height - imageHeight) / 2;
 
         // Hintergrund (fallback wenn Texture fehlt)
-        guiGraphics.fill(x, y, x + imageWidth, y + imageHeight, 0xFF8B8B8B);
+        guiGraphics.fill(x, y, x + imageWidth, y + imageHeight, COLOR_SCREEN_BACKGROUND);
 
         // Minigame Bar (nur wenn nicht in Auswahl-Modus)
         if (!choosingMode && gameActive) {
@@ -184,16 +191,16 @@ public class StealingScreen extends AbstractContainerScreen<StealingMenu> {
             int barHeight = 20;
 
             // Bar Hintergrund
-            guiGraphics.fill(barX, barY, barX + barWidth, barY + barHeight, 0xFF404040);
+            guiGraphics.fill(barX, barY, barX + barWidth, barY + barHeight, COLOR_TIMING_BAR_BACKGROUND);
 
             // Target Zone (grün)
             int targetStart = (int)(targetPosition * barWidth - (targetZoneSize * barWidth / 2));
             int targetEnd = (int)(targetPosition * barWidth + (targetZoneSize * barWidth / 2));
-            guiGraphics.fill(barX + targetStart, barY, barX + targetEnd, barY + barHeight, 0xFF00FF00);
+            guiGraphics.fill(barX + targetStart, barY, barX + targetEnd, barY + barHeight, COLOR_TARGET_ZONE_GREEN);
 
             // Aktueller Indikator (rot)
             int indicatorPos = (int)(currentPosition * barWidth);
-            guiGraphics.fill(barX + indicatorPos - 2, barY - 5, barX + indicatorPos + 2, barY + barHeight + 5, 0xFFFF0000);
+            guiGraphics.fill(barX + indicatorPos - 2, barY - 5, barX + indicatorPos + 2, barY + barHeight + 5, COLOR_INDICATOR_RED);
         }
     }
 

@@ -42,6 +42,23 @@ public class PillenPresseBlockEntity extends BlockEntity implements IUtilityCons
     public static final int GOOD_WINDOW_START = 20;
     public static final int GOOD_WINDOW_END = 40;
 
+    // Score-Berechnungs-Konstanten
+    private static final int PERFECT_CENTER_TICK = 30; // Idealer Zeitpunkt für perfekten Press
+    private static final double PERFECT_WINDOW_TOLERANCE = 15.0; // Toleranz für Perfekt-Zone
+    private static final double SCORE_BASE_GOOD = 0.6; // Basis-Score für gutes Timing
+    private static final double SCORE_RANGE_GOOD = 0.3; // Score-Bereich für gutes Timing
+    private static final double SCORE_MAX = 1.0; // Maximaler Score
+    private static final double SCORE_MIN_TOO_EARLY = 0.2; // Minimaler Score bei zu früh
+    private static final double SCORE_RANGE_TOO_EARLY = 0.3; // Score-Bereich bei zu früh
+    private static final double SCORE_MIN_TOO_LATE = 0.1; // Minimaler Score bei zu spät
+    private static final double SCORE_BASE_TOO_LATE = 0.5; // Basis-Score bei zu spät
+    private static final double LATE_TICK_DIVISOR = 20.0; // Divisor für Spät-Penalty
+    private static final double SCORE_PENALTY_TOO_LATE = 0.4; // Penalty-Multiplikator bei zu spät
+
+    // Kapazitäts-Konstanten
+    private static final int MAX_KRISTALL_COUNT = 16;
+    private static final int MAX_BINDEMITTEL_COUNT = 16;
+
     // Zustände
     private int kristallCount = 0;
     private int bindemittelCount = 0;
@@ -65,7 +82,7 @@ public class PillenPresseBlockEntity extends BlockEntity implements IUtilityCons
 
     public boolean addMDMAKristall(ItemStack stack) {
         if (!(stack.getItem() instanceof MDMAKristallItem)) return false;
-        if (kristallCount >= 16 || !outputItem.isEmpty()) return false;
+        if (kristallCount >= MAX_KRISTALL_COUNT || !outputItem.isEmpty()) return false;
 
         inputQuality = MDMAKristallItem.getQuality(stack);
         kristallCount++;
@@ -75,7 +92,7 @@ public class PillenPresseBlockEntity extends BlockEntity implements IUtilityCons
 
     public boolean addBindemittel(ItemStack stack) {
         if (!(stack.getItem() instanceof BindemittelItem)) return false;
-        if (bindemittelCount >= 16) return false;
+        if (bindemittelCount >= MAX_BINDEMITTEL_COUNT) return false;
 
         bindemittelCount++;
         setChanged();
@@ -140,18 +157,17 @@ public class PillenPresseBlockEntity extends BlockEntity implements IUtilityCons
         double score;
         if (minigameTick >= PERFECT_WINDOW_START && minigameTick <= PERFECT_WINDOW_END) {
             // Perfekt!
-            int perfectCenter = (PERFECT_WINDOW_START + PERFECT_WINDOW_END) / 2;
-            double distanceFromPerfect = Math.abs(minigameTick - perfectCenter);
-            score = 1.0 - (distanceFromPerfect / 10.0) * 0.1; // 0.9 - 1.0
+            double distanceFromPerfect = Math.abs(minigameTick - PERFECT_CENTER_TICK);
+            score = SCORE_MAX - (distanceFromPerfect / PERFECT_WINDOW_TOLERANCE) * (SCORE_MAX - 0.9); // 0.9 - 1.0
         } else if (minigameTick >= GOOD_WINDOW_START && minigameTick <= GOOD_WINDOW_END) {
             // Gut
-            score = 0.6 + (0.3 * (1.0 - Math.abs(minigameTick - 30) / 15.0));
+            score = SCORE_BASE_GOOD + (SCORE_RANGE_GOOD * (SCORE_MAX - Math.abs(minigameTick - PERFECT_CENTER_TICK) / PERFECT_WINDOW_TOLERANCE));
         } else if (minigameTick < GOOD_WINDOW_START) {
             // Zu früh
-            score = 0.2 + (minigameTick / (double) GOOD_WINDOW_START) * 0.3;
+            score = SCORE_MIN_TOO_EARLY + (minigameTick / (double) GOOD_WINDOW_START) * SCORE_RANGE_TOO_EARLY;
         } else {
             // Zu spät
-            score = Math.max(0.1, 0.5 - ((minigameTick - GOOD_WINDOW_END) / 20.0) * 0.4);
+            score = Math.max(SCORE_MIN_TOO_LATE, SCORE_BASE_TOO_LATE - ((minigameTick - GOOD_WINDOW_END) / LATE_TICK_DIVISOR) * SCORE_PENALTY_TOO_LATE);
         }
 
         lastTimingScore = score;

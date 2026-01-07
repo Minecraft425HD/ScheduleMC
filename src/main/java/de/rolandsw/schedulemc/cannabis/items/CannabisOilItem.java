@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.cannabis.items;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import de.rolandsw.schedulemc.cannabis.CannabisStrain;
 import de.rolandsw.schedulemc.cannabis.CannabisQuality;
@@ -87,7 +88,7 @@ public class CannabisOilItem extends Item {
         tooltip.add(Component.literal("§7THC: §f~" + (strain.getThcContent() * 3) + "%"));
         tooltip.add(Component.literal("§7Menge: §f" + ml + "ml"));
         tooltip.add(Component.empty());
-        tooltip.add(Component.literal("§6💰 Wert: §f" + String.format("%.2f", price) + "€"));
+        tooltip.add(Component.literal("§6💰 Wert: §f" + StringUtils.formatMoney(price)));
         tooltip.add(Component.empty());
         tooltip.add(Component.literal("§d✨ Hochkonzentriert"));
         tooltip.add(Component.literal("§8Extrahiert aus Blüten"));

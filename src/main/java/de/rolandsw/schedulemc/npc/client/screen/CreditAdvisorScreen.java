@@ -1,4 +1,6 @@
 package de.rolandsw.schedulemc.npc.client.screen;
+import de.rolandsw.schedulemc.util.UIColors;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import de.rolandsw.schedulemc.ScheduleMC;
@@ -34,6 +36,11 @@ public class CreditAdvisorScreen extends AbstractContainerScreen<CreditAdvisorMe
 
     private static final ResourceLocation TEXTURE =
         ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/npc_interaction.png");
+
+    // Colors
+    private static final int COLOR_PROGRESS_BAR_BACKGROUND = UIColors.BACKGROUND_LIGHT;
+    private static final int COLOR_PROGRESS_BAR_FILL = UIColors.ACCENT_GREEN_BRIGHT;
+    private static final int COLOR_PROGRESS_BAR_OUTLINE = UIColors.GRAY_MEDIUM;
 
     // Kredit-Buttons
     private Button starterLoanButton;
@@ -332,12 +339,12 @@ public class CreditAdvisorScreen extends AbstractContainerScreen<CreditAdvisorMe
         int barHeight = 8;
 
         // Hintergrund
-        guiGraphics.fill(barX, barY, barX + barWidth, barY + barHeight, 0xFF333333);
+        guiGraphics.fill(barX, barY, barX + barWidth, barY + barHeight, COLOR_PROGRESS_BAR_BACKGROUND);
         // Fortschritt
         int progressWidth = (int) ((activeLoanProgress / 100.0) * barWidth);
-        guiGraphics.fill(barX, barY, barX + progressWidth, barY + barHeight, 0xFF00AA00);
+        guiGraphics.fill(barX, barY, barX + progressWidth, barY + barHeight, COLOR_PROGRESS_BAR_FILL);
         // Rahmen
-        guiGraphics.renderOutline(barX - 1, barY - 1, barWidth + 2, barHeight + 2, 0xFF666666);
+        guiGraphics.renderOutline(barX - 1, barY - 1, barWidth + 2, barHeight + 2, COLOR_PROGRESS_BAR_OUTLINE);
 
         // Prozent-Anzeige
         guiGraphics.drawString(this.font, activeLoanProgress + "%",

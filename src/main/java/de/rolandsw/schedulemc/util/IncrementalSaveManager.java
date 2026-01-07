@@ -3,28 +3,17 @@ package de.rolandsw.schedulemc.util;
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Comparator;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.TimeUnit;
-import java.util.Comparator;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.TimeUnit;
-import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.TimeUnit;
-import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.TimeUnit;
-import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.TimeUnit;
-import java.util.Comparator;
 
 /**
  * Incremental Save Manager - Performance-Optimierung für Data Persistence
@@ -43,6 +32,9 @@ import java.util.Comparator;
 public class IncrementalSaveManager {
 
     private static final Logger LOGGER = LogUtils.getLogger();
+
+    // Time Conversion Constants
+    private static final long TICK_TO_MS_CONVERSION = 50L;  // Minecraft ticks to milliseconds (1 tick = 50ms)
 
     // ═══════════════════════════════════════════════════════════
     // SAVEABLE INTERFACE
@@ -124,7 +116,7 @@ public class IncrementalSaveManager {
     /**
      * Registriert Saveable
      */
-    public void register(ISaveable saveable) {
+    public void register(@Nonnull ISaveable saveable) {
         saveables.add(saveable);
 
         // Sort nach Priorität
@@ -136,7 +128,7 @@ public class IncrementalSaveManager {
     /**
      * Entfernt Saveable
      */
-    public boolean unregister(ISaveable saveable) {
+    public boolean unregister(@Nonnull ISaveable saveable) {
         boolean removed = saveables.remove(saveable);
         if (removed) {
             LOGGER.info("Unregistered saveable: {}", saveable.getName());
@@ -155,8 +147,8 @@ public class IncrementalSaveManager {
         if (running.compareAndSet(false, true)) {
             ScheduledFuture<?> future = ThreadPoolManager.getScheduledPool().scheduleAtFixedRate(
                 this::incrementalSaveTick,
-                saveIntervalTicks * 50L,  // Initial delay (ms)
-                saveIntervalTicks * 50L,  // Period (ms)
+                saveIntervalTicks * TICK_TO_MS_CONVERSION,  // Initial delay (ms)
+                saveIntervalTicks * TICK_TO_MS_CONVERSION,  // Period (ms)
                 TimeUnit.MILLISECONDS
             );
             scheduledTask.set(future);
@@ -224,7 +216,7 @@ public class IncrementalSaveManager {
     /**
      * Speichert einzelne Komponente
      */
-    private void saveSingleComponent(ISaveable saveable) {
+    private void saveSingleComponent(@Nonnull ISaveable saveable) {
         currentlySaving.incrementAndGet();
 
         try {
@@ -239,7 +231,7 @@ public class IncrementalSaveManager {
 
             LOGGER.debug("Saved {} in {:.2f}ms", saveable.getName(), durationMs);
 
-        } catch (Exception e) {
+        } catch (Exception e) {  // Intentionally catching all exceptions - prevent one component failure from breaking entire save
             LOGGER.error("Error saving {}", saveable.getName(), e);
         } finally {
             currentlySaving.decrementAndGet();

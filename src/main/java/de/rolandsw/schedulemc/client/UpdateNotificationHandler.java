@@ -30,10 +30,15 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Mod.EventBusSubscriber(modid = ScheduleMC.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class UpdateNotificationHandler {
+    // Time Constants
+    private static final int CHECK_DELAY_TICKS = 100; // 5 seconds delay (100 ticks at 20 ticks/sec)
+
+    // UI Dimension Constants
+    private static final int BUTTON_WIDTH = 120;      // Update button width
+    private static final int BUTTON_HEIGHT = 20;      // Update button height
 
     private static volatile boolean hasChecked = false;
     private static volatile int tickCounter = 0;
-    private static final int CHECK_DELAY = 100; // 5 Sekunden (20 ticks/sec)
     // SICHERHEIT: ConcurrentHashMap.newKeySet() für Thread-safe Set
     private static final Set<UUID> notifiedPlayers = ConcurrentHashMap.newKeySet();
 
@@ -45,7 +50,7 @@ public class UpdateNotificationHandler {
             }
 
             tickCounter++;
-            if (tickCounter >= CHECK_DELAY) {
+            if (tickCounter >= CHECK_DELAY_TICKS) {
                 hasChecked = true;
                 VersionChecker.checkForUpdates();
                 ScheduleMC.LOGGER.info("Started version check");
@@ -72,8 +77,8 @@ public class UpdateNotificationHandler {
             int height = screen.height;
 
             // Position für den Update-Button (oben rechts)
-            int buttonWidth = 120;
-            int buttonHeight = 20;
+            int buttonWidth = BUTTON_WIDTH;
+            int buttonHeight = BUTTON_HEIGHT;
             int buttonX = width - buttonWidth - 5;
             int buttonY = 5;
 
@@ -96,8 +101,33 @@ public class UpdateNotificationHandler {
 
                     // Versuche Browser zu öffnen
                     java.awt.Desktop.getDesktop().browse(new java.net.URI(url));
+                } catch (java.net.URISyntaxException e) {
+                    ScheduleMC.LOGGER.error("Invalid URL format: {}", e.getMessage());
+                    if (Minecraft.getInstance().player != null) {
+                        Minecraft.getInstance().player.displayClientMessage(
+                            Component.literal("§cUngültige URL. Link wurde in Zwischenablage kopiert."),
+                            false
+                        );
+                    }
+                } catch (java.io.IOException e) {
+                    ScheduleMC.LOGGER.error("Failed to open browser: {}", e.getMessage());
+                    if (Minecraft.getInstance().player != null) {
+                        Minecraft.getInstance().player.displayClientMessage(
+                            Component.literal("§cFehler beim Öffnen des Browsers. URL wurde in Zwischenablage kopiert."),
+                            false
+                        );
+                    }
+                } catch (UnsupportedOperationException e) {
+                    ScheduleMC.LOGGER.error("Desktop browse operation not supported: {}", e.getMessage());
+                    if (Minecraft.getInstance().player != null) {
+                        Minecraft.getInstance().player.displayClientMessage(
+                            Component.literal("§cBrowser-Öffnen nicht unterstützt. URL wurde in Zwischenablage kopiert."),
+                            false
+                        );
+                    }
                 } catch (Exception e) {
-                    ScheduleMC.LOGGER.error("Failed to open update URL", e);
+                    // Fallback for unexpected errors
+                    ScheduleMC.LOGGER.error("Unexpected error opening update URL", e);
                     if (Minecraft.getInstance().player != null) {
                         Minecraft.getInstance().player.displayClientMessage(
                             Component.literal("§cFehler beim Öffnen des Links. URL wurde in Zwischenablage kopiert."),

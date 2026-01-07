@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.production.items;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import de.rolandsw.schedulemc.cannabis.items.CuredBudItem;
 import de.rolandsw.schedulemc.cannabis.items.TrimmedBudItem;
@@ -325,6 +326,6 @@ public class PackagedDrugItem extends Item {
         }
 
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§6Verkaufspreis: §e" + String.format("%.2f", price) + "€"));
+        tooltip.add(Component.literal("§6Verkaufspreis: §e" + StringUtils.formatMoney(price)));
     }
 }

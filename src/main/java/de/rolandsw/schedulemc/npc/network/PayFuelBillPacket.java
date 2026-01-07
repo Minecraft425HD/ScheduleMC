@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.npc.network;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import de.rolandsw.schedulemc.util.PacketHandler;
 import de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager;
@@ -48,9 +49,9 @@ public class PayFuelBillPacket {
                 player.sendSystemMessage(Component.literal("⚠ ").withStyle(ChatFormatting.RED)
                     .append(Component.literal("Nicht genug Geld!").withStyle(ChatFormatting.RED)));
                 player.sendSystemMessage(Component.literal("Benötigt: ").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(String.format("%.2f€", totalAmount)).withStyle(ChatFormatting.RED))
+                    .append(Component.literal(StringUtils.formatMoney(totalAmount)).withStyle(ChatFormatting.RED))
                     .append(Component.literal(" | Verfügbar: ").withStyle(ChatFormatting.GRAY))
-                    .append(Component.literal(String.format("%.2f€", balance)).withStyle(ChatFormatting.YELLOW)));
+                    .append(Component.literal(StringUtils.formatMoney(balance)).withStyle(ChatFormatting.YELLOW)));
                 return;
             }
 
@@ -71,9 +72,9 @@ public class PayFuelBillPacket {
                 player.sendSystemMessage(Component.literal("Anzahl Rechnungen: ").withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(String.valueOf(billCount)).withStyle(ChatFormatting.AQUA)));
                 player.sendSystemMessage(Component.literal("Gesamtbetrag: ").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(String.format("%.2f€", totalAmount)).withStyle(ChatFormatting.GOLD)));
+                    .append(Component.literal(StringUtils.formatMoney(totalAmount)).withStyle(ChatFormatting.GOLD)));
                 player.sendSystemMessage(Component.literal("Neues Guthaben: ").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(String.format("%.2f€", WalletManager.getBalance(playerUUID))).withStyle(ChatFormatting.YELLOW)));
+                    .append(Component.literal(StringUtils.formatMoney(WalletManager.getBalance(playerUUID))).withStyle(ChatFormatting.YELLOW)));
                 player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
             } else {
                 player.sendSystemMessage(Component.literal("⚠ ").withStyle(ChatFormatting.RED)

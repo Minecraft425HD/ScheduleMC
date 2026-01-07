@@ -4,6 +4,7 @@ import de.rolandsw.schedulemc.region.PlotRegion;
 import de.rolandsw.schedulemc.region.PlotType;
 import net.minecraft.core.BlockPos;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
@@ -57,7 +58,7 @@ public interface IPlotAPI {
      * @throws IllegalArgumentException wenn pos null ist
      */
     @Nullable
-    PlotRegion getPlotAt(BlockPos pos);
+    PlotRegion getPlotAt(@Nonnull BlockPos pos);
 
     /**
      * Gibt einen Plot anhand seiner ID zurück.
@@ -67,7 +68,7 @@ public interface IPlotAPI {
      * @throws IllegalArgumentException wenn plotId null ist
      */
     @Nullable
-    PlotRegion getPlot(String plotId);
+    PlotRegion getPlot(@Nonnull String plotId);
 
     /**
      * Prüft ob ein Plot mit dieser ID existiert.
@@ -76,7 +77,7 @@ public interface IPlotAPI {
      * @return true wenn Plot existiert, false sonst
      * @throws IllegalArgumentException wenn plotId null ist
      */
-    boolean hasPlot(String plotId);
+    boolean hasPlot(@Nonnull String plotId);
 
     /**
      * Gibt alle Plots eines Besitzers zurück.
@@ -85,13 +86,15 @@ public interface IPlotAPI {
      * @return Liste aller Plots (kann leer sein)
      * @throws IllegalArgumentException wenn ownerUUID null ist
      */
-    List<PlotRegion> getPlotsByOwner(UUID ownerUUID);
+    @Nonnull
+    List<PlotRegion> getPlotsByOwner(@Nonnull UUID ownerUUID);
 
     /**
      * Gibt alle verfügbaren (kaufbaren) Plots zurück.
      *
      * @return Liste aller Plots ohne Besitzer (kann leer sein)
      */
+    @Nonnull
     List<PlotRegion> getAvailablePlots();
 
     /**
@@ -99,6 +102,7 @@ public interface IPlotAPI {
      *
      * @return Liste aller Plots die zum Verkauf stehen (kann leer sein)
      */
+    @Nonnull
     List<PlotRegion> getPlotsForSale();
 
     /**
@@ -112,7 +116,8 @@ public interface IPlotAPI {
      * @return Der erstellte Plot
      * @throws IllegalArgumentException wenn Positionen ungültig oder Plot zu groß
      */
-    PlotRegion createPlot(BlockPos pos1, BlockPos pos2, @Nullable String plotName, PlotType type, double price);
+    @Nonnull
+    PlotRegion createPlot(@Nonnull BlockPos pos1, @Nonnull BlockPos pos2, @Nullable String plotName, @Nonnull PlotType type, double price);
 
     /**
      * Entfernt einen Plot.
@@ -121,7 +126,7 @@ public interface IPlotAPI {
      * @return true wenn erfolgreich entfernt, false wenn Plot nicht existiert
      * @throws IllegalArgumentException wenn plotId null ist
      */
-    boolean removePlot(String plotId);
+    boolean removePlot(@Nonnull String plotId);
 
     /**
      * Gibt die Gesamtanzahl aller Plots zurück.

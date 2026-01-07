@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.economy;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -62,7 +63,7 @@ public class InterestManager extends AbstractPersistenceManager<Map<UUID, Long>>
     /**
      * SICHERHEIT: Double-Checked Locking für Thread-Safety
      */
-    public static InterestManager getInstance(MinecraftServer server) {
+    public static InterestManager getInstance(@Nonnull MinecraftServer server) {
         InterestManager localRef = instance;
         if (localRef == null) {
             synchronized (InterestManager.class) {
@@ -80,7 +81,7 @@ public class InterestManager extends AbstractPersistenceManager<Map<UUID, Long>>
      * Tick-Methode - aufgerufen jeden Server-Tick oder Tag-Wechsel
      */
     public void tick(long dayTime) {
-        long day = dayTime / 24000L;
+        long day = dayTime / GameConstants.TICKS_PER_DAY;
 
         if (day != currentDay) {
             currentDay = day;
@@ -146,8 +147,8 @@ public class InterestManager extends AbstractPersistenceManager<Map<UUID, Long>>
             player.sendSystemMessage(Component.literal(
                 "§a§l[BANK] Zinsen gutgeschrieben!\n" +
                 "§7Rate: §e2.0%\n" +
-                "§7Betrag: §a+" + String.format("%.2f€", interest) + "\n" +
-                "§7Neuer Kontostand: §6" + String.format("%.2f€", EconomyManager.getBalance(playerUUID))
+                "§7Betrag: §a+" + StringUtils.formatMoney(interest) + "\n" +
+                "§7Neuer Kontostand: §6" + StringUtils.formatMoney(EconomyManager.getBalance(playerUUID))
             ));
         }
     }

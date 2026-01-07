@@ -1,4 +1,6 @@
 package de.rolandsw.schedulemc.economy.screen;
+import de.rolandsw.schedulemc.util.UIColors;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import de.rolandsw.schedulemc.economy.menu.ATMMenu;
 import de.rolandsw.schedulemc.economy.network.ATMTransactionPacket;
@@ -112,13 +114,13 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu> {
         int y = (height - imageHeight) / 2;
         
         // Dunkler Hintergrund
-        graphics.fill(x, y, x + imageWidth, y + imageHeight, 0xFF2B2B2B);
+        graphics.fill(x, y, x + imageWidth, y + imageHeight, UIColors.BACKGROUND_MEDIUM);
         
         // Hellerer innerer Bereich
         graphics.fill(x + 2, y + 2, x + imageWidth - 2, y + imageHeight - 2, 0xFF3C3C3C);
         
         // Header-Bereich
-        graphics.fill(x + 2, y + 2, x + imageWidth - 2, y + 20, 0xFF1E1E1E);
+        graphics.fill(x + 2, y + 2, x + imageWidth - 2, y + 20, UIColors.BACKGROUND_DARK);
     }
     
     @Override
@@ -139,11 +141,11 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu> {
         
         // Balance Info (Gelb)
         graphics.drawString(this.font, "Konto:", x + 10, y + 28, 0xFFFFFF, false);
-        graphics.drawString(this.font, String.format("%.2f€", balance), x + 100, y + 28, 0xFFD700, false);
+        graphics.drawString(this.font, StringUtils.formatMoney(balance), x + 100, y + 28, 0xFFD700, false);
         
         // Wallet Info (Grün)
         graphics.drawString(this.font, "Bargeld:", x + 10, y + 38, 0xFFFFFF, false);
-        graphics.drawString(this.font, String.format("%.2f€", walletBalance), x + 100, y + 38, 0x00FF00, false);
+        graphics.drawString(this.font, StringUtils.formatMoney(walletBalance), x + 100, y + 38, 0x00FF00, false);
         
         // Input Label
         graphics.drawString(this.font, "Betrag:", x + 10, y + 54, 0xFFFFFF, false);

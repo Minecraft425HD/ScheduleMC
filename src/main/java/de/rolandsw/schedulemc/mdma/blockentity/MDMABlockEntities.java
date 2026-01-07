@@ -15,17 +15,29 @@ public class MDMABlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
             DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, ScheduleMC.MOD_ID);
 
-    public static final RegistryObject<BlockEntityType<ReaktionsKesselBlockEntity>> REAKTIONS_KESSEL =
+    public static final RegistryObject<BlockEntityType<ReactionCauldronBlockEntity>> REACTION_CAULDRON =
             BLOCK_ENTITIES.register("reaktions_kessel", () ->
-                    BlockEntityType.Builder.of(ReaktionsKesselBlockEntity::new,
-                            MDMABlocks.REAKTIONS_KESSEL.get()
+                    BlockEntityType.Builder.of(ReactionCauldronBlockEntity::new,
+                            MDMABlocks.REACTION_CAULDRON.get()
                     ).build(null));
 
-    public static final RegistryObject<BlockEntityType<TrocknungsOfenBlockEntity>> TROCKNUNGS_OFEN =
+    /**
+     * @deprecated Use {@link #REACTION_CAULDRON} instead
+     */
+    @Deprecated
+    public static final RegistryObject<BlockEntityType<ReactionCauldronBlockEntity>> REAKTIONS_KESSEL = REACTION_CAULDRON;
+
+    public static final RegistryObject<BlockEntityType<DryingOvenBlockEntity>> DRYING_OVEN =
             BLOCK_ENTITIES.register("trocknungs_ofen", () ->
-                    BlockEntityType.Builder.of(TrocknungsOfenBlockEntity::new,
-                            MDMABlocks.TROCKNUNGS_OFEN.get()
+                    BlockEntityType.Builder.of(DryingOvenBlockEntity::new,
+                            MDMABlocks.DRYING_OVEN.get()
                     ).build(null));
+
+    /**
+     * @deprecated Use {@link #DRYING_OVEN} instead
+     */
+    @Deprecated
+    public static final RegistryObject<BlockEntityType<DryingOvenBlockEntity>> TROCKNUNGS_OFEN = DRYING_OVEN;
 
     public static final RegistryObject<BlockEntityType<PillenPresseBlockEntity>> PILLEN_PRESSE =
             BLOCK_ENTITIES.register("pillen_presse", () ->

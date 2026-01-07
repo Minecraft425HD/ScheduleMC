@@ -7,6 +7,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import org.slf4j.Logger;
 
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -127,8 +128,15 @@ public class RoadNavigationService {
                 LOGGER.info("[RoadNavigationService] Graph built: {}", currentGraph);
 
                 return currentGraph;
+            } catch (IllegalStateException e) {
+                LOGGER.error("[RoadNavigationService] Invalid world state while building graph: {}", e.getMessage(), e);
+                return null;
+            } catch (NullPointerException e) {
+                LOGGER.error("[RoadNavigationService] Missing map data while building graph: {}", e.getMessage());
+                return null;
             } catch (Exception e) {
-                LOGGER.error("[RoadNavigationService] Error building graph", e);
+                // Fallback for unexpected errors
+                LOGGER.error("[RoadNavigationService] Unexpected error building graph", e);
                 return null;
             }
         }, executor);
@@ -434,6 +442,7 @@ public class RoadNavigationService {
     /**
      * Gibt den nächsten Wegpunkt auf dem Pfad zurück
      */
+    @Nullable
     public BlockPos getNextWaypoint() {
         if (simplifiedPath.isEmpty() || currentPathIndex >= simplifiedPath.size()) {
             return null;
@@ -478,7 +487,8 @@ public class RoadNavigationService {
             try {
                 listener.onNavigationEvent(event, this);
             } catch (Exception e) {
-                LOGGER.error("[RoadNavigationService] Error in listener", e);
+                // Intentionally catching all exceptions - listener must not crash service
+                LOGGER.error("[RoadNavigationService] Error in listener for event {}", event, e);
             }
         }
     }

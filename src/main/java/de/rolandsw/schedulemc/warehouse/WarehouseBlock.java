@@ -23,6 +23,7 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.Containers;
 import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.Nullable;
 
@@ -133,12 +134,15 @@ public class WarehouseBlock extends Block implements EntityBlock {
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
         if (!state.is(newState.getBlock())) {
             BlockEntity be = level.getBlockEntity(pos);
-            if (be instanceof WarehouseBlockEntity) {
+            if (be instanceof WarehouseBlockEntity warehouseEntity) {
                 // Unregister from WarehouseManager
                 if (!level.isClientSide && level instanceof ServerLevel serverLevel) {
                     WarehouseManager.unregisterWarehouse(serverLevel, pos);
+
+                    // Drop items from warehouse inventory when block is removed
+                    // This prevents item loss when warehouse is destroyed
+                    Containers.dropContents(level, pos, warehouseEntity.getInventory());
                 }
-                // TODO: Drop items wenn gewünscht
             }
         }
         super.onRemove(state, level, pos, newState, isMoving);

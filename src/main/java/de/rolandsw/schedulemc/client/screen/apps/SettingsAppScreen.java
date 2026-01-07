@@ -1,4 +1,6 @@
 package de.rolandsw.schedulemc.client.screen.apps;
+nimport de.rolandsw.schedulemc.util.UIColors;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import de.rolandsw.schedulemc.client.screen.ConfirmDialogScreen;
 import de.rolandsw.schedulemc.client.screen.InputDialogScreen;
@@ -41,6 +43,15 @@ import java.util.Set;
  */
 @OnlyIn(Dist.CLIENT)
 public class SettingsAppScreen extends Screen {
+
+    // Color Constants
+    private static final int COLOR_APP_FRAME = UIColors.BACKGROUND_DARKER;
+    private static final int COLOR_APP_BACKGROUND = UIColors.BACKGROUND_MEDIUM_DARK;
+    private static final int COLOR_APP_HEADER = UIColors.BACKGROUND_DARKEST;
+    private static final int COLOR_TAB_ACTIVE_BLUE = UIColors.ACCENT_BLUE;
+    private static final int COLOR_BUTTON_DEFAULT = UIColors.BACKGROUND_LIGHT;
+    private static final int COLOR_BUTTON_BORDER_TOP = UIColors.GRAY_DARK;
+    private static final int COLOR_BUTTON_BORDER_BOTTOM = 0xFF111111;
 
     private final Screen parentScreen;
     private static final int WIDTH = 200;
@@ -191,11 +202,11 @@ public class SettingsAppScreen extends Screen {
         renderBackground(guiGraphics);
 
         // Smartphone-Hintergrund
-        guiGraphics.fill(leftPos - 5, topPos - 5, leftPos + WIDTH + 5, topPos + HEIGHT + 5, 0xFF1C1C1C);
-        guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + HEIGHT, 0xFF2A2A2A);
+        guiGraphics.fill(leftPos - 5, topPos - 5, leftPos + WIDTH + 5, topPos + HEIGHT + 5, COLOR_APP_FRAME);
+        guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + HEIGHT, COLOR_APP_BACKGROUND);
 
         // Header
-        guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 28, 0xFF1A1A1A);
+        guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 28, COLOR_APP_HEADER);
         guiGraphics.drawCenteredString(this.font, "§f§lEinstellungen", leftPos + WIDTH / 2, topPos + 10, 0xFFFFFF);
 
         // Tab-Hintergrund (aktiver Tab hervorheben)
@@ -203,7 +214,7 @@ public class SettingsAppScreen extends Screen {
             int tabX = leftPos + 10 + (i * TAB_WIDTH);
             int tabY = topPos + 30;
             if (i == currentTab) {
-                guiGraphics.fill(tabX - 1, tabY - 1, tabX + TAB_WIDTH - 1, tabY + TAB_HEIGHT + 1, 0xFF4A90E2);
+                guiGraphics.fill(tabX - 1, tabY - 1, tabX + TAB_WIDTH - 1, tabY + TAB_HEIGHT + 1, COLOR_TAB_ACTIVE_BLUE);
             }
         }
 
@@ -225,8 +236,8 @@ public class SettingsAppScreen extends Screen {
         if (maxScroll > 0) {
             int scrollBarHeight = Math.max(20, CONTENT_HEIGHT * CONTENT_HEIGHT / (CONTENT_HEIGHT + maxScroll));
             int scrollBarY = contentY + (scrollOffset * (CONTENT_HEIGHT - scrollBarHeight) / maxScroll);
-            guiGraphics.fill(leftPos + WIDTH - 8, contentY, leftPos + WIDTH - 5, contentEndY, 0x44FFFFFF);
-            guiGraphics.fill(leftPos + WIDTH - 8, scrollBarY, leftPos + WIDTH - 5, scrollBarY + scrollBarHeight, 0xAAFFFFFF);
+            guiGraphics.fill(leftPos + WIDTH - 8, contentY, leftPos + WIDTH - 5, contentEndY, UIColors.WHITE_SEMI_TRANSPARENT);
+            guiGraphics.fill(leftPos + WIDTH - 8, scrollBarY, leftPos + WIDTH - 5, scrollBarY + scrollBarHeight, UIColors.WHITE_TRANSPARENT_67);
         }
 
         super.render(guiGraphics, mouseX, mouseY, partialTick);
@@ -236,6 +247,24 @@ public class SettingsAppScreen extends Screen {
     // TAB 1: PLOT-EINSTELLUNGEN
     // ═══════════════════════════════════════════════════════════════════════════
 
+    /**
+     * Renders the plot settings tab with sale/rent options, trusted players, rename, description, and abandon.
+     * <p>
+     * This method delegates rendering to specialized helper methods:
+     * <ul>
+     *   <li>{@link #renderSaleRentSection} - Sale/rent status and buttons</li>
+     *   <li>{@link #renderTrustedPlayersSection} - Trusted players list and add button</li>
+     *   <li>{@link #renderPlotRenameSection} - Plot rename functionality</li>
+     *   <li>{@link #renderPlotDescriptionSection} - Plot description display and edit</li>
+     *   <li>{@link #renderPlotAbandonSection} - Plot abandonment with confirmation</li>
+     * </ul>
+     *
+     * @param guiGraphics   the graphics context
+     * @param startY        the start Y position for rendering
+     * @param endY          the end Y position for rendering
+     * @param mouseX        the mouse X coordinate
+     * @param mouseY        the mouse Y coordinate
+     */
     private void renderPlotSettingsTab(GuiGraphics guiGraphics, int startY, int endY, int mouseX, int mouseY) {
         int y = startY - scrollOffset;
         int contentHeight = 0;
@@ -265,7 +294,7 @@ public class SettingsAppScreen extends Screen {
 
         if (!isOwner) {
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 25, 0x44AA0000);
+                guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 25, UIColors.OVERLAY_RED_27);
                 guiGraphics.drawString(this.font, "§c✗ Nicht dein Grundstück", leftPos + 15, y + 8, 0xFF5555);
             }
             y += 30;
@@ -274,22 +303,45 @@ public class SettingsAppScreen extends Screen {
             return;
         }
 
-        // ═══════════════════════════════════════════════════════════════════════════
-        // VERKAUF / MIETE
-        // ═══════════════════════════════════════════════════════════════════════════
+        // Render all settings sections using helper methods
+        y = renderSaleRentSection(guiGraphics, currentPlot, plotId, y, startY, endY, mouseX, mouseY);
+        contentHeight = y - (startY - scrollOffset);
+
+        y = renderTrustedPlayersSection(guiGraphics, currentPlot, plotId, y, startY, endY, mouseX, mouseY);
+        contentHeight = y - (startY - scrollOffset);
+
+        y = renderPlotRenameSection(guiGraphics, currentPlot, plotId, y, startY, endY, mouseX, mouseY);
+        contentHeight = y - (startY - scrollOffset);
+
+        y = renderPlotDescriptionSection(guiGraphics, currentPlot, plotId, y, startY, endY, mouseX, mouseY);
+        contentHeight = y - (startY - scrollOffset);
+
+        y = renderPlotAbandonSection(guiGraphics, plotId, y, startY, endY, mouseX, mouseY);
+        contentHeight = y - (startY - scrollOffset);
+
+        maxScroll = Math.max(0, contentHeight - CONTENT_HEIGHT);
+    }
+
+    // ==================== Plot Settings Helper Methods ====================
+
+    /**
+     * Renders sale/rent section with buttons.
+     * @return new y position
+     */
+    private int renderSaleRentSection(GuiGraphics guiGraphics, PlotRegion currentPlot, String plotId, int y, int startY, int endY, int mouseX, int mouseY) {
+        // Separator
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
+            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, UIColors.WHITE_SEMI_TRANSPARENT);
         }
         y += 8;
-        contentHeight += 8;
 
+        // Section header
         if (y >= startY - 10 && y < endY) {
             guiGraphics.drawString(this.font, "§e§l🏷 VERKAUF / MIETE", leftPos + 15, y, 0xFFAA00);
         }
         y += 15;
-        contentHeight += 15;
 
-        // Aktueller Status
+        // Current status
         String saleStatus;
         if (currentPlot.isForSale()) {
             saleStatus = "§a● Zum Verkauf (" + String.format("%.0f€", currentPlot.getSalePrice()) + ")";
@@ -307,14 +359,12 @@ public class SettingsAppScreen extends Screen {
             guiGraphics.drawString(this.font, "§7Status: " + saleStatus, leftPos + 15, y, 0xAAAAAA);
         }
         y += 12;
-        contentHeight += 12;
 
-        // ✅ INTERAKTIVE BUTTONS
+        // Interactive buttons
         if (y >= startY - 30 && y < endY + 30) {
             int btnY = y;
             int btnWidth = WIDTH - 20;
 
-            // "Zum Verkauf stellen" Button
             if (!currentPlot.isForSale()) {
                 drawButton(guiGraphics, leftPos + 10, btnY, btnWidth, 18, "§a🏷 Zum Verkauf stellen", 0x55FF55, mouseX, mouseY);
                 clickableRegions.add(new ClickableRegion(leftPos + 10, btnY, leftPos + 10 + btnWidth, btnY + 18, () -> {
@@ -326,7 +376,6 @@ public class SettingsAppScreen extends Screen {
                 btnY += 20;
             }
 
-            // "Zur Miete stellen" Button
             if (!currentPlot.isForRent()) {
                 drawButton(guiGraphics, leftPos + 10, btnY, btnWidth, 18, "§d🏠 Zur Miete stellen", 0xFF55FF, mouseX, mouseY);
                 clickableRegions.add(new ClickableRegion(leftPos + 10, btnY, leftPos + 10 + btnWidth, btnY + 18, () -> {
@@ -338,7 +387,6 @@ public class SettingsAppScreen extends Screen {
                 btnY += 20;
             }
 
-            // "Angebot beenden" Button
             if (currentPlot.isForSale() || currentPlot.isForRent()) {
                 drawButton(guiGraphics, leftPos + 10, btnY, btnWidth, 18, "§c✗ Angebot beenden", 0xFF5555, mouseX, mouseY);
                 clickableRegions.add(new ClickableRegion(leftPos + 10, btnY, leftPos + 10 + btnWidth, btnY + 18, () -> {
@@ -349,39 +397,41 @@ public class SettingsAppScreen extends Screen {
 
             y = btnY;
         } else {
-            y += 60; // Reserve space even when scrolled out of view
+            y += 60;
         }
-        contentHeight += 60;
 
-        // ═══════════════════════════════════════════════════════════════════════════
-        // TRUSTED PLAYERS
-        // ═══════════════════════════════════════════════════════════════════════════
+        return y;
+    }
+
+    /**
+     * Renders trusted players section with list and add/remove buttons.
+     * @return new y position
+     */
+    private int renderTrustedPlayersSection(GuiGraphics guiGraphics, PlotRegion currentPlot, String plotId, int y, int startY, int endY, int mouseX, int mouseY) {
+        // Separator
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
+            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, UIColors.WHITE_SEMI_TRANSPARENT);
         }
         y += 8;
-        contentHeight += 8;
 
+        // Section header
         if (y >= startY - 10 && y < endY) {
             guiGraphics.drawString(this.font, "§b§l👥 TRUSTED PLAYERS", leftPos + 15, y, 0x55FFFF);
         }
         y += 15;
-        contentHeight += 15;
 
-        // Zeige Trusted Players mit Remove-Buttons
+        // Show trusted players with remove buttons
         Set<String> trustedPlayers = currentPlot.getTrustedPlayers();
         if (trustedPlayers.isEmpty()) {
             if (y >= startY - 10 && y < endY) {
                 guiGraphics.drawString(this.font, "§8Keine vertrauenswürdigen Spieler", leftPos + 15, y, 0x666666);
             }
             y += 12;
-            contentHeight += 12;
         } else {
             for (String trusted : trustedPlayers) {
                 if (y >= startY - 30 && y < endY + 30) {
                     guiGraphics.drawString(this.font, "§a● §f" + trusted, leftPos + 20, y, 0xFFFFFF);
 
-                    // ✅ Remove button
                     int btnX = leftPos + WIDTH - 50;
                     drawButton(guiGraphics, btnX, y - 2, 40, 12, "§c×", 0xFF5555, mouseX, mouseY);
                     String trustedName = trusted;
@@ -390,11 +440,10 @@ public class SettingsAppScreen extends Screen {
                     }));
                 }
                 y += 13;
-                contentHeight += 13;
             }
         }
 
-        // ✅ "Spieler hinzufügen" Button
+        // "Add player" button
         if (y >= startY - 30 && y < endY + 30) {
             drawButton(guiGraphics, leftPos + 10, y + 5, WIDTH - 20, 18, "§b+ Spieler hinzufügen", 0x55FFFF, mouseX, mouseY);
             clickableRegions.add(new ClickableRegion(leftPos + 10, y + 5, leftPos + WIDTH - 10, y + 23, () -> {
@@ -405,73 +454,80 @@ public class SettingsAppScreen extends Screen {
             }));
         }
         y += 30;
-        contentHeight += 30;
 
-        // ═══════════════════════════════════════════════════════════════════════════
-        // PLOT UMBENENNEN
-        // ═══════════════════════════════════════════════════════════════════════════
+        return y;
+    }
+
+    /**
+     * Renders plot rename section with button.
+     * @return new y position
+     */
+    private int renderPlotRenameSection(GuiGraphics guiGraphics, PlotRegion currentPlot, String plotId, int y, int startY, int endY, int mouseX, int mouseY) {
+        // Separator
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
+            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, UIColors.WHITE_SEMI_TRANSPARENT);
         }
         y += 8;
-        contentHeight += 8;
 
+        // Section header
         if (y >= startY - 10 && y < endY) {
             guiGraphics.drawString(this.font, "§d§l✏ PLOT-NAME", leftPos + 15, y, 0xFF55FF);
         }
         y += 15;
-        contentHeight += 15;
 
+        // Current name
         if (y >= startY - 10 && y < endY) {
             guiGraphics.drawString(this.font, "§7Aktuell: §f" + currentPlot.getPlotName(), leftPos + 15, y, 0xFFFFFF);
         }
         y += 12;
-        contentHeight += 12;
 
-        // ✅ "Umbenennen" Button
+        // Rename button
         if (y >= startY - 30 && y < endY + 30) {
             drawButton(guiGraphics, leftPos + 10, y + 3, WIDTH - 20, 18, "§e✏ Umbenennen", 0xFFAA00, mouseX, mouseY);
             clickableRegions.add(new ClickableRegion(leftPos + 10, y + 3, leftPos + WIDTH - 10, y + 21, () -> {
                 minecraft.setScreen(new InputDialogScreen(this, "Plot umbenennen", "Neuen Namen eingeben:",
                     InputDialogScreen.InputType.TEXT, newName -> {
-                        PlotNetworkHandler.sendToServer(new PlotRenamePacket(plotId, newName));
+                        PlotNetworkHandler.sendToServer(new PlotNamePacket(plotId, newName));
                     }));
             }));
         }
         y += 25;
-        contentHeight += 25;
 
-        // ═══════════════════════════════════════════════════════════════════════════
-        // PLOT BESCHREIBUNG
-        // ═══════════════════════════════════════════════════════════════════════════
+        return y;
+    }
+
+    /**
+     * Renders plot description section with button.
+     * @return new y position
+     */
+    private int renderPlotDescriptionSection(GuiGraphics guiGraphics, PlotRegion currentPlot, String plotId, int y, int startY, int endY, int mouseX, int mouseY) {
+        // Separator
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
+            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, UIColors.WHITE_SEMI_TRANSPARENT);
         }
         y += 8;
-        contentHeight += 8;
 
+        // Section header
         if (y >= startY - 10 && y < endY) {
             guiGraphics.drawString(this.font, "§6§l📝 BESCHREIBUNG", leftPos + 15, y, 0xFFAA00);
         }
         y += 15;
-        contentHeight += 15;
 
+        // Current description
         String desc = currentPlot.getDescription();
         if (desc != null && !desc.isEmpty()) {
             if (y >= startY - 10 && y < endY) {
                 guiGraphics.drawString(this.font, "§7" + desc, leftPos + 15, y, 0xAAAAAA);
             }
             y += 12;
-            contentHeight += 12;
         } else {
             if (y >= startY - 10 && y < endY) {
                 guiGraphics.drawString(this.font, "§8Keine Beschreibung", leftPos + 15, y, 0x666666);
             }
             y += 12;
-            contentHeight += 12;
         }
 
-        // ✅ "Beschreibung ändern" Button
+        // "Change description" button
         if (y >= startY - 30 && y < endY + 30) {
             drawButton(guiGraphics, leftPos + 10, y + 3, WIDTH - 20, 18, "§a📝 Beschreibung ändern", 0x55FF55, mouseX, mouseY);
             clickableRegions.add(new ClickableRegion(leftPos + 10, y + 3, leftPos + WIDTH - 10, y + 21, () -> {
@@ -482,32 +538,36 @@ public class SettingsAppScreen extends Screen {
             }));
         }
         y += 30;
-        contentHeight += 30;
 
-        // ═══════════════════════════════════════════════════════════════════════════
-        // PLOT AUFGEBEN
-        // ═══════════════════════════════════════════════════════════════════════════
+        return y;
+    }
+
+    /**
+     * Renders plot abandon section with warning and button.
+     * @return new y position
+     */
+    private int renderPlotAbandonSection(GuiGraphics guiGraphics, String plotId, int y, int startY, int endY, int mouseX, int mouseY) {
+        // Separator
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
+            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, UIColors.WHITE_SEMI_TRANSPARENT);
         }
         y += 8;
-        contentHeight += 8;
 
+        // Section header
         if (y >= startY - 10 && y < endY) {
             guiGraphics.drawString(this.font, "§c§l🗑 PLOT AUFGEBEN", leftPos + 15, y, 0xFF5555);
         }
         y += 15;
-        contentHeight += 15;
 
+        // Warning box
         if (y >= startY - 10 && y < endY) {
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 30, 0x44330000);
             guiGraphics.drawString(this.font, "§8⚠ WARNUNG: Nicht rückgängig!", leftPos + 15, y + 5, 0x666666);
             guiGraphics.drawString(this.font, "§8Plot geht an Server zurück.", leftPos + 15, y + 15, 0x666666);
         }
         y += 35;
-        contentHeight += 35;
 
-        // ✅ "Plot aufgeben" Button (ROT)
+        // Abandon button
         if (y >= startY - 30 && y < endY + 30) {
             drawButton(guiGraphics, leftPos + 10, y, WIDTH - 20, 18, "§c🗑 Plot aufgeben", 0xFF5555, mouseX, mouseY);
             clickableRegions.add(new ClickableRegion(leftPos + 10, y, leftPos + WIDTH - 10, y + 18, () -> {
@@ -519,77 +579,123 @@ public class SettingsAppScreen extends Screen {
             }));
         }
         y += 25;
-        contentHeight += 25;
 
-        maxScroll = Math.max(0, contentHeight - CONTENT_HEIGHT);
+        return y;
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
     // TAB 2: BENACHRICHTIGUNGEN
     // ═══════════════════════════════════════════════════════════════════════════
 
+    /**
+     * Renders the notifications tab with utility warnings, threshold sliders, and police heat warning.
+     * <p>
+     * This method delegates rendering to specialized helper methods:
+     * <ul>
+     *   <li>{@link #renderUtilityWarningsSection} - Utility warnings toggle and info</li>
+     *   <li>{@link #renderThresholdsSection} - Electricity and water threshold sliders</li>
+     *   <li>{@link #renderPoliceHeatSection} - Police heat warning about high consumption</li>
+     * </ul>
+     *
+     * @param guiGraphics   the graphics context
+     * @param startY        the start Y position for rendering
+     * @param endY          the end Y position for rendering
+     * @param mouseX        the mouse X coordinate
+     * @param mouseY        the mouse Y coordinate
+     */
     private void renderNotificationsTab(GuiGraphics guiGraphics, int startY, int endY, int mouseX, int mouseY) {
         sliderRegions.clear(); // Clear slider regions before re-rendering
         int y = startY - scrollOffset;
         int contentHeight = 0;
 
-        // ═══════════════════════════════════════════════════════════════════════════
-        // UTILITY-WARNUNGEN
-        // ═══════════════════════════════════════════════════════════════════════════
+        // Render all notification sections using helper methods
+        y = renderUtilityWarningsSection(guiGraphics, y, startY, endY, mouseX, mouseY);
+        contentHeight = y - (startY - scrollOffset);
+
+        y = renderThresholdsSection(guiGraphics, y, startY, endY);
+        contentHeight = y - (startY - scrollOffset);
+
+        y = renderPoliceHeatSection(guiGraphics, y, startY, endY);
+        contentHeight = y - (startY - scrollOffset);
+
+        maxScroll = Math.max(0, contentHeight - CONTENT_HEIGHT);
+    }
+
+    // ==================== Notification Settings Helper Methods ====================
+
+    /**
+     * Renders the utility warnings section with toggle checkbox and info text.
+     * Shows settings for enabling/disabling utility consumption warnings.
+     *
+     * @param guiGraphics   the graphics context
+     * @param y             the current Y position
+     * @param startY        the start Y position for rendering
+     * @param endY          the end Y position for rendering
+     * @param mouseX        the mouse X coordinate
+     * @param mouseY        the mouse Y coordinate
+     * @return              the updated Y position after rendering
+     */
+    private int renderUtilityWarningsSection(GuiGraphics guiGraphics, int y, int startY, int endY, int mouseX, int mouseY) {
+        // Header
         if (y >= startY - 10 && y < endY) {
             guiGraphics.drawString(this.font, "§e§l⚠ UTILITY-WARNUNGEN", leftPos + 15, y, 0xFFAA00);
         }
         y += 18;
-        contentHeight += 18;
 
-        // ✅ An/Aus Toggle (Checkbox)
+        // Toggle Checkbox
         if (y >= startY - 30 && y < endY + 30) {
             String checkBox = utilityWarningsEnabled ? "§a[✓]" : "§7[ ]";
             guiGraphics.drawString(this.font, checkBox + " §fUtility-Warnungen", leftPos + 15, y, 0xFFFFFF);
 
             clickableRegions.add(new ClickableRegion(leftPos + 15, y - 2, leftPos + WIDTH - 10, y + 10, () -> {
                 utilityWarningsEnabled = !utilityWarningsEnabled;
-                saveSettings(); // Sende Settings zum Server
+                saveSettings();
             }));
         }
         y += 15;
-        contentHeight += 15;
 
-        // Info über Warnungen
+        // Info text
         if (y >= startY - 10 && y < endY) {
             guiGraphics.drawString(this.font, "§8Du erhältst Warnungen bei", leftPos + 15, y, 0x666666);
         }
         y += 11;
-        contentHeight += 11;
 
         if (y >= startY - 10 && y < endY) {
             guiGraphics.drawString(this.font, "§8hohem Strom-/Wasserverbrauch.", leftPos + 15, y, 0x666666);
         }
         y += 18;
-        contentHeight += 18;
 
-        // ═══════════════════════════════════════════════════════════════════════════
-        // SCHWELLENWERTE
-        // ═══════════════════════════════════════════════════════════════════════════
+        return y;
+    }
+
+    /**
+     * Renders the threshold settings section with interactive sliders for electricity and water warnings.
+     * Includes two sliders with visual feedback and info text about threshold functionality.
+     *
+     * @param guiGraphics   the graphics context
+     * @param y             the current Y position
+     * @param startY        the start Y position for rendering
+     * @param endY          the end Y position for rendering
+     * @return              the updated Y position after rendering
+     */
+    private int renderThresholdsSection(GuiGraphics guiGraphics, int y, int startY, int endY) {
+        // Section separator + header
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
+            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, UIColors.WHITE_SEMI_TRANSPARENT);
         }
         y += 10;
-        contentHeight += 10;
 
         if (y >= startY - 10 && y < endY) {
             guiGraphics.drawString(this.font, "§b§l📊 SCHWELLENWERTE", leftPos + 15, y, 0x55FFFF);
         }
         y += 18;
-        contentHeight += 18;
 
-        // Strom-Schwellenwert
+        // Electricity threshold slider
         if (y >= startY - 10 && y < endY) {
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 30, 0x33333333);
             guiGraphics.drawString(this.font, "§e⚡ Strom-Warnung ab:", leftPos + 15, y + 4, 0xFFAA00);
             guiGraphics.drawString(this.font, "§f" + String.format("%.0f kWh", electricityWarningThreshold), leftPos + 130, y + 4, 0xFFFFFF);
 
-            // Mini-Balken (Interaktiv!)
             int barWidth = WIDTH - 40;
             int filledWidth = (int) ((electricityWarningThreshold / 500.0) * barWidth);
             int barX = leftPos + 15;
@@ -598,23 +704,20 @@ public class SettingsAppScreen extends Screen {
             guiGraphics.fill(barX, barY, barX + barWidth, barY + 6, 0x44666666);
             guiGraphics.fill(barX, barY, barX + filledWidth, barY + 6, 0xAAFFAA00);
 
-            // Registriere Slider (0-500 kWh)
             sliderRegions.add(new SliderRegion(barX, barY, barWidth, 0, 500,
                 value -> {
                     electricityWarningThreshold = value;
-                    saveSettings(); // Sende Settings zum Server
+                    saveSettings();
                 }));
         }
         y += 35;
-        contentHeight += 35;
 
-        // Wasser-Schwellenwert
+        // Water threshold slider
         if (y >= startY - 10 && y < endY) {
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 30, 0x33333333);
             guiGraphics.drawString(this.font, "§b💧 Wasser-Warnung ab:", leftPos + 15, y + 4, 0x55AAFF);
             guiGraphics.drawString(this.font, "§f" + String.format("%.0f L", waterWarningThreshold), leftPos + 135, y + 4, 0xFFFFFF);
 
-            // Mini-Balken (Interaktiv!)
             int barWidth = WIDTH - 40;
             int filledWidth = (int) ((waterWarningThreshold / 2000.0) * barWidth);
             int barX = leftPos + 15;
@@ -623,44 +726,51 @@ public class SettingsAppScreen extends Screen {
             guiGraphics.fill(barX, barY, barX + barWidth, barY + 6, 0x44666666);
             guiGraphics.fill(barX, barY, barX + filledWidth, barY + 6, 0xAA55AAFF);
 
-            // Registriere Slider (0-2000 L)
             sliderRegions.add(new SliderRegion(barX, barY, barWidth, 0, 2000,
                 value -> {
                     waterWarningThreshold = value;
-                    saveSettings(); // Sende Settings zum Server
+                    saveSettings();
                 }));
         }
         y += 38;
-        contentHeight += 38;
 
-        // Info-Text
+        // Info text
         if (y >= startY - 10 && y < endY) {
             guiGraphics.drawString(this.font, "§8Bei Überschreitung siehst du", leftPos + 15, y, 0x666666);
         }
         y += 11;
-        contentHeight += 11;
 
         if (y >= startY - 10 && y < endY) {
             guiGraphics.drawString(this.font, "§8eine Warnung in der Finanz-App.", leftPos + 15, y, 0x666666);
         }
         y += 20;
-        contentHeight += 20;
 
-        // ═══════════════════════════════════════════════════════════════════════════
-        // VERDÄCHTIGKEITS-HINWEIS
-        // ═══════════════════════════════════════════════════════════════════════════
+        return y;
+    }
+
+    /**
+     * Renders the police heat warning section showing the relationship between high consumption and police attention.
+     * Displays critical thresholds that may attract police investigation.
+     *
+     * @param guiGraphics   the graphics context
+     * @param y             the current Y position
+     * @param startY        the start Y position for rendering
+     * @param endY          the end Y position for rendering
+     * @return              the updated Y position after rendering
+     */
+    private int renderPoliceHeatSection(GuiGraphics guiGraphics, int y, int startY, int endY) {
+        // Section separator + header
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
+            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, UIColors.WHITE_SEMI_TRANSPARENT);
         }
         y += 10;
-        contentHeight += 10;
 
         if (y >= startY - 10 && y < endY) {
             guiGraphics.drawString(this.font, "§c§l🚨 POLIZEI-HEAT", leftPos + 15, y, 0xFF5555);
         }
         y += 15;
-        contentHeight += 15;
 
+        // Warning box
         if (y >= startY - 10 && y < endY) {
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 45, 0x44330000);
             guiGraphics.drawString(this.font, "§8Hoher Verbrauch kann", leftPos + 15, y + 5, 0x666666);
@@ -668,64 +778,111 @@ public class SettingsAppScreen extends Screen {
             guiGraphics.drawString(this.font, "§c>200 kWh §8oder §c>1000 L", leftPos + 15, y + 30, 0xAA5555);
         }
         y += 50;
-        contentHeight += 50;
 
-        maxScroll = Math.max(0, contentHeight - CONTENT_HEIGHT);
+        return y;
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
     // TAB 3: KONTO
     // ═══════════════════════════════════════════════════════════════════════════
 
+    /**
+     * Renders the account tab showing balance, running costs, owned properties, and money-making hints.
+     * <p>
+     * This method delegates rendering to specialized helper methods:
+     * <ul>
+     *   <li>{@link #renderAccountBalanceSection} - Current account balance display</li>
+     *   <li>{@link #renderRunningCostsSection} - Daily/weekly/monthly cost breakdown</li>
+     *   <li>{@link #renderPropertyListSection} - List of owned plots</li>
+     *   <li>{@link #renderMoneyHintSection} - Money-making guidance</li>
+     * </ul>
+     *
+     * @param guiGraphics   the graphics context
+     * @param startY        the start Y position for rendering
+     * @param endY          the end Y position for rendering
+     */
     private void renderAccountTab(GuiGraphics guiGraphics, int startY, int endY) {
         int y = startY - scrollOffset;
         int contentHeight = 0;
 
-        // ═══════════════════════════════════════════════════════════════════════════
-        // KONTOSTAND
-        // ═══════════════════════════════════════════════════════════════════════════
+        // Render all account sections using helper methods
+        y = renderAccountBalanceSection(guiGraphics, y, startY, endY);
+        contentHeight = y - (startY - scrollOffset);
+
+        y = renderRunningCostsSection(guiGraphics, y, startY, endY);
+        contentHeight = y - (startY - scrollOffset);
+
+        y = renderPropertyListSection(guiGraphics, y, startY, endY);
+        contentHeight = y - (startY - scrollOffset);
+
+        y = renderMoneyHintSection(guiGraphics, y, startY, endY);
+        contentHeight = y - (startY - scrollOffset);
+
+        maxScroll = Math.max(0, contentHeight - CONTENT_HEIGHT);
+    }
+
+    // ==================== Account Tab Helper Methods ====================
+
+    /**
+     * Renders the account balance section showing current available funds.
+     * Displays a prominent balance card with "Bank of Schedule" branding.
+     *
+     * @param guiGraphics   the graphics context
+     * @param y             the current Y position
+     * @param startY        the start Y position for rendering
+     * @param endY          the end Y position for rendering
+     * @return              the updated Y position after rendering
+     */
+    private int renderAccountBalanceSection(GuiGraphics guiGraphics, int y, int startY, int endY) {
+        // Header
         if (y >= startY - 10 && y < endY) {
             guiGraphics.drawString(this.font, "§6§l💰 KONTOSTAND", leftPos + 15, y, 0xFFAA00);
         }
         y += 18;
-        contentHeight += 18;
 
-        // Großer Kontostand-Display
+        // Large balance display card
         if (y >= startY - 10 && y < endY) {
-            // ✅ Lade echten Kontostand von EconomyManager
             double accountBalance = 0.0;
             if (minecraft.player != null) {
                 accountBalance = EconomyManager.getBalance(minecraft.player.getUUID());
             }
 
-            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 50, 0x44228B22);
+            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 50, UIColors.OVERLAY_GREEN_27);
             guiGraphics.drawCenteredString(this.font, "§fVerfügbar:", leftPos + WIDTH / 2, y + 8, 0xFFFFFF);
 
-            // Großer Betrag
             String balanceStr = String.format("§a§l%.2f €", accountBalance);
             guiGraphics.drawCenteredString(this.font, balanceStr, leftPos + WIDTH / 2, y + 25, 0x55FF55);
 
             guiGraphics.drawCenteredString(this.font, "§8Bank of Schedule", leftPos + WIDTH / 2, y + 40, 0x666666);
         }
         y += 58;
-        contentHeight += 58;
 
-        // ═══════════════════════════════════════════════════════════════════════════
-        // MONATLICHE KOSTEN ÜBERSICHT
-        // ═══════════════════════════════════════════════════════════════════════════
+        return y;
+    }
+
+    /**
+     * Renders the running costs section showing daily, weekly, and monthly utility expenses.
+     * Calculates costs from all owned plots and displays budget runway.
+     *
+     * @param guiGraphics   the graphics context
+     * @param y             the current Y position
+     * @param startY        the start Y position for rendering
+     * @param endY          the end Y position for rendering
+     * @return              the updated Y position after rendering
+     */
+    private int renderRunningCostsSection(GuiGraphics guiGraphics, int y, int startY, int endY) {
+        // Section separator + header
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
+            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, UIColors.WHITE_SEMI_TRANSPARENT);
         }
         y += 10;
-        contentHeight += 10;
 
         if (y >= startY - 10 && y < endY) {
             guiGraphics.drawString(this.font, "§e§l📊 LAUFENDE KOSTEN", leftPos + 15, y, 0xFFAA00);
         }
         y += 15;
-        contentHeight += 15;
 
-        // Berechne geschätzte monatliche Kosten
+        // Calculate estimated monthly costs from all plots
         double totalDailyElec = 0;
         double totalDailyWater = 0;
 
@@ -742,6 +899,7 @@ public class SettingsAppScreen extends Screen {
         double weeklyCost = dailyCost * 7;
         double monthlyCost = dailyCost * 30;
 
+        // Display cost breakdown
         if (y >= startY - 10 && y < endY) {
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 55, 0x33333333);
 
@@ -754,67 +912,84 @@ public class SettingsAppScreen extends Screen {
             guiGraphics.drawString(this.font, "§7Monatlich (30d):", leftPos + 15, y + 31, 0xAAAAAA);
             guiGraphics.drawString(this.font, String.format("§e%.2f €", monthlyCost), leftPos + 100, y + 31, 0xFFAA00);
 
-            // Reichweite - lade echten Kontostand
+            // Budget runway calculation
             double currentBalance = minecraft.player != null ? EconomyManager.getBalance(minecraft.player.getUUID()) : 0.0;
             int daysUntilEmpty = dailyCost > 0 ? (int) (currentBalance / dailyCost) : 999;
             String reichweiteColor = daysUntilEmpty < 7 ? "§c" : (daysUntilEmpty < 30 ? "§e" : "§a");
             guiGraphics.drawString(this.font, "§8Reichweite: " + reichweiteColor + daysUntilEmpty + " Tage", leftPos + 15, y + 44, 0x888888);
         }
         y += 60;
-        contentHeight += 60;
 
-        // ═══════════════════════════════════════════════════════════════════════════
-        // GRUNDSTÜCKE
-        // ═══════════════════════════════════════════════════════════════════════════
+        return y;
+    }
+
+    /**
+     * Renders the property list section showing all owned plots.
+     * Displays the number of owned properties and lists each plot by name.
+     *
+     * @param guiGraphics   the graphics context
+     * @param y             the current Y position
+     * @param startY        the start Y position for rendering
+     * @param endY          the end Y position for rendering
+     * @return              the updated Y position after rendering
+     */
+    private int renderPropertyListSection(GuiGraphics guiGraphics, int y, int startY, int endY) {
+        // Section separator + header
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
+            guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, UIColors.WHITE_SEMI_TRANSPARENT);
         }
         y += 10;
-        contentHeight += 10;
 
         if (y >= startY - 10 && y < endY) {
             guiGraphics.drawString(this.font, "§b§l🏠 EIGENTUM", leftPos + 15, y, 0x55FFFF);
         }
         y += 15;
-        contentHeight += 15;
 
+        // Display property count or list
         if (myPlots.isEmpty()) {
             if (y >= startY - 10 && y < endY) {
                 guiGraphics.drawString(this.font, "§8Keine Grundstücke", leftPos + 15, y, 0x666666);
             }
             y += 12;
-            contentHeight += 12;
         } else {
             if (y >= startY - 10 && y < endY) {
                 guiGraphics.drawString(this.font, "§a" + myPlots.size() + " Grundstück(e)", leftPos + 15, y, 0x55FF55);
             }
             y += 12;
-            contentHeight += 12;
 
-            // Liste der Grundstücke
+            // List each plot
             for (PlotRegion plot : myPlots) {
                 if (y >= startY - 10 && y < endY) {
                     guiGraphics.drawString(this.font, "§7● " + plot.getPlotName(), leftPos + 20, y, 0xAAAAAA);
                 }
                 y += 11;
-                contentHeight += 11;
             }
         }
         y += 10;
-        contentHeight += 10;
 
-        // ═══════════════════════════════════════════════════════════════════════════
-        // HINWEIS
-        // ═══════════════════════════════════════════════════════════════════════════
+        return y;
+    }
+
+    /**
+     * Renders a hint section about earning money through selling products.
+     * Provides guidance to players on income generation methods.
+     *
+     * @param guiGraphics   the graphics context
+     * @param y             the current Y position
+     * @param startY        the start Y position for rendering
+     * @param endY          the end Y position for rendering
+     * @return              the updated Y position after rendering
+     */
+    private int renderMoneyHintSection(GuiGraphics guiGraphics, int y, int startY, int endY) {
+        // Info box with hint
         if (y >= startY - 10 && y < endY) {
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 30, 0x33222222);
             guiGraphics.drawCenteredString(this.font, "§8Geld verdienen:", leftPos + WIDTH / 2, y + 5, 0x666666);
             guiGraphics.drawCenteredString(this.font, "§7Produkte verkaufen!", leftPos + WIDTH / 2, y + 17, 0xAAAAAA);
         }
         y += 35;
-        contentHeight += 35;
 
-        maxScroll = Math.max(0, contentHeight - CONTENT_HEIGHT);
+        return y;
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -890,9 +1065,9 @@ public class SettingsAppScreen extends Screen {
     private void drawButton(GuiGraphics guiGraphics, int x, int y, int width, int height,
                            String text, int color, int mouseX, int mouseY) {
         boolean hovered = mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
-        guiGraphics.fill(x, y, x + width, y + height, hovered ? 0xFF4A90E2 : 0xFF333333);
-        guiGraphics.fill(x, y, x + width, y + 1, 0xFF555555);
-        guiGraphics.fill(x, y + height - 1, x + width, y + height, 0xFF111111);
+        guiGraphics.fill(x, y, x + width, y + height, hovered ? COLOR_TAB_ACTIVE_BLUE : COLOR_BUTTON_DEFAULT);
+        guiGraphics.fill(x, y, x + width, y + 1, COLOR_BUTTON_BORDER_TOP);
+        guiGraphics.fill(x, y + height - 1, x + width, y + height, COLOR_BUTTON_BORDER_BOTTOM);
         guiGraphics.drawCenteredString(this.font, text, x + width / 2, y + (height - 8) / 2, hovered ? 0xFFFFFF : color);
     }
 }

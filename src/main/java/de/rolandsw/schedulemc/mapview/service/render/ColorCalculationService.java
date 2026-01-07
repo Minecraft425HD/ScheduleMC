@@ -65,6 +65,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import de.rolandsw.schedulemc.util.LRUCache;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -74,6 +75,51 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+/**
+ * Service for calculating block colors, biome tints, and texture processing for the MapView minimap.
+ *
+ * <p>This service is responsible for:
+ * <ul>
+ *   <li><b>Block Color Calculation:</b> Retrieves base colors from block textures and models</li>
+ *   <li><b>Biome Tinting:</b> Applies biome-specific color tints (grass, foliage, water)</li>
+ *   <li><b>Resource Pack Loading:</b> Processes custom textures from active resource packs</li>
+ *   <li><b>CTM Support:</b> Handles Connected Textures Mod (Optifine) integration</li>
+ *   <li><b>Color Caching:</b> Maintains LRU caches for performance optimization</li>
+ *   <li><b>Texture Atlas Management:</b> Extracts and processes textures from Minecraft's atlas</li>
+ * </ul>
+ *
+ * <p><b>Color Processing Pipeline:</b>
+ * <ol>
+ *   <li>Load base block colors from textures (terrain.png or block models)</li>
+ *   <li>Apply biome-specific tints using vanilla or Optifine color maps</li>
+ *   <li>Handle special cases (water, grass, foliage, redstone, etc.)</li>
+ *   <li>Cache results in LRU caches for fast lookups</li>
+ *   <li>Return final ARGB color value for map rendering</li>
+ * </ol>
+ *
+ * <p><b>Performance Optimizations:</b>
+ * <ul>
+ *   <li><b>LRU Caches:</b> Two-level cache system (block tints: 200 entries, biome colors: 500 entries)</li>
+ *   <li><b>Color Arrays:</b> Pre-computed color tables for 16,384 block states</li>
+ *   <li><b>Lazy Loading:</b> Textures loaded on-demand only when needed</li>
+ *   <li><b>Resource Pack Detection:</b> Automatically reloads on resource pack changes</li>
+ * </ul>
+ *
+ * <p><b>Biome Tint Support:</b>
+ * <ul>
+ *   <li>Grass: Uses {@link GrassColor} with biome temperature/humidity</li>
+ *   <li>Foliage: Uses {@link FoliageColor} for trees and leaves</li>
+ *   <li>Water: Supports custom water colors per biome</li>
+ *   <li>Custom: Optifine custom color maps (swamp water, redstone, etc.)</li>
+ * </ul>
+ *
+ * <p><b>Thread Safety:</b> This service is designed for single-threaded use on the render thread.
+ * Color caches use {@link LRUCache} which is thread-safe for concurrent reads.
+ *
+ * @see ColorUtils
+ * @see BlockDatabase
+ * @see LRUCache
+ */
 public class ColorCalculationService {
     private boolean resourcePacksChanged;
     private ClientLevel world;
@@ -86,28 +132,18 @@ public class ColorCalculationService {
     private boolean optifineInstalled;
 
     /**
-     * PERFORMANCE: LRU-Cache mit Max-Size gegen Memory-Leaks
-     * Max 200 Einträge für blockTintTables
+     * PERFORMANCE: LRU-Cache mit Max-Size gegen Memory-Leaks.
+     * <p>Max 200 Einträge für blockTintTables.</p>
      */
-    private final Map<Integer, int[][]> blockTintTables = new LinkedHashMap<Integer, int[][]>(200, 0.75f, true) {
-        @Override
-        protected boolean removeEldestEntry(Map.Entry<Integer, int[][]> eldest) {
-            return size() > 200;
-        }
-    };
+    private final Map<Integer, int[][]> blockTintTables = new LRUCache<>(200);
 
     private final HashSet<Integer> biomeTextureAvailable = new HashSet<>();
 
     /**
-     * PERFORMANCE: LRU-Cache mit Max-Size gegen Memory-Leaks
-     * Max 500 Einträge für blockBiomeSpecificColors
+     * PERFORMANCE: LRU-Cache mit Max-Size gegen Memory-Leaks.
+     * <p>Max 500 Einträge für blockBiomeSpecificColors.</p>
      */
-    private final Map<String, Integer> blockBiomeSpecificColors = new LinkedHashMap<String, Integer>(500, 0.75f, true) {
-        @Override
-        protected boolean removeEldestEntry(Map.Entry<String, Integer> eldest) {
-            return size() > 500;
-        }
-    };
+    private final Map<String, Integer> blockBiomeSpecificColors = new LRUCache<>(500);
     private float failedToLoadX;
     private float failedToLoadY;
     private String renderPassThreeBlendMode;
@@ -123,14 +159,11 @@ public class ColorCalculationService {
     private final ColorResolver dryFoliageColorResolver = (blockState, biomex, blockPos) -> biomex.getFoliageColor();
     private final ColorResolver waterColorResolver = (blockState, biomex, blockPos) -> biomex.getWaterColor();
 
-    // Performance-Optimierung: LRU Cache für Biome Tints (reduziert 9 Biome-Lookups pro Block)
-    // Cache-Size: 4096 Einträge = ~32KB Memory (genug für typische Spieler-Umgebung)
-    private final Map<Long, Integer> biomeTintCache = new LinkedHashMap<Long, Integer>(4096, 0.75f, true) {
-        @Override
-        protected boolean removeEldestEntry(Map.Entry<Long, Integer> eldest) {
-            return size() > 4096;
-        }
-    };
+    /**
+     * PERFORMANCE: LRU Cache für Biome Tints (reduziert 9 Biome-Lookups pro Block).
+     * <p>Cache-Size: 4096 Einträge = ~32KB Memory (genug für typische Spieler-Umgebung).</p>
+     */
+    private final Map<Long, Integer> biomeTintCache = new LRUCache<>(4096);
     private final ColorResolver redstoneColorResolver = (blockState, biomex, blockPos) -> RedStoneWireBlock.getColorForPower(blockState.getValue(RedStoneWireBlock.POWER));
 
     public ColorCalculationService() {

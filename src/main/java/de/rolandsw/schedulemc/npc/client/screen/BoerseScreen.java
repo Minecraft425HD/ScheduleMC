@@ -1,4 +1,5 @@
 package de.rolandsw.schedulemc.npc.client.screen;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import de.rolandsw.schedulemc.ScheduleMC;
@@ -200,7 +201,7 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
         if (minecraft != null && minecraft.player != null) {
             double balance = EconomyManager.getBalance(minecraft.player.getUUID());
             guiGraphics.drawString(this.font, "Kontostand:", x + 10, y + 110, 0x808080, false);
-            guiGraphics.drawString(this.font, String.format("%.2f€", balance),
+            guiGraphics.drawString(this.font, StringUtils.formatMoney(balance),
                 x + 75, y + 110, 0x00AA00, false);
         }
 

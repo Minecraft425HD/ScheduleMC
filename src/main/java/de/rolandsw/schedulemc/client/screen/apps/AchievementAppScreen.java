@@ -1,4 +1,6 @@
 package de.rolandsw.schedulemc.client.screen.apps;
+import de.rolandsw.schedulemc.util.UIColors;
+nimport de.rolandsw.schedulemc.util.StringUtils;
 
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.achievement.AchievementCategory;
@@ -206,11 +208,11 @@ public class AchievementAppScreen extends Screen {
         renderBackground(guiGraphics);
 
         // Smartphone-Hintergrund
-        guiGraphics.fill(leftPos - 5, topPos - 5, leftPos + WIDTH + 5, topPos + HEIGHT + 5, 0xFF1C1C1C);
-        guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + HEIGHT, 0xFF2A2A2A);
+        guiGraphics.fill(leftPos - 5, topPos - 5, leftPos + WIDTH + 5, topPos + HEIGHT + 5, UIColors.BACKGROUND_DARKER);
+        guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + HEIGHT, UIColors.BACKGROUND_MEDIUM_DARK);
 
         // Header
-        guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 28, 0xFF1A1A1A);
+        guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 28, UIColors.BACKGROUND_DARKEST);
         guiGraphics.drawCenteredString(this.font, "§e§l🏆 Achievements", leftPos + WIDTH / 2, topPos + 10, 0xFFFFFF);
 
         // Content basierend auf View
@@ -232,7 +234,7 @@ public class AchievementAppScreen extends Screen {
 
     private void renderOverviewView(GuiGraphics guiGraphics, int startY, int endY) {
         // Gesamt-Fortschritt Box
-        guiGraphics.fill(leftPos + 10, startY, leftPos + WIDTH - 10, startY + 55, 0x44228B22);
+        guiGraphics.fill(leftPos + 10, startY, leftPos + WIDTH - 10, startY + 55, UIColors.OVERLAY_GREEN_27);
 
         // Fortschritts-Prozent
         double percentage = totalAchievements > 0 ? (double) unlockedAchievements / totalAchievements * 100.0 : 0;
@@ -248,14 +250,14 @@ public class AchievementAppScreen extends Screen {
         int barHeight = 8;
         int filledWidth = (int) (barWidth * percentage / 100.0);
 
-        guiGraphics.fill(barX, barY, barX + barWidth, barY + barHeight, 0xFF333333);
+        guiGraphics.fill(barX, barY, barX + barWidth, barY + barHeight, UIColors.BACKGROUND_LIGHT);
         if (filledWidth > 0) {
-            guiGraphics.fill(barX, barY, barX + filledWidth, barY + barHeight, 0xFF00AA00);
+            guiGraphics.fill(barX, barY, barX + filledWidth, barY + barHeight, UIColors.ACCENT_GREEN_BRIGHT);
         }
 
         // Verdientes Geld
         guiGraphics.drawCenteredString(this.font,
-            "§7Verdient: §a" + String.format("%.2f€", totalEarned),
+            "§7Verdient: §a" + StringUtils.formatMoney(totalEarned),
             leftPos + WIDTH / 2, startY + 44, 0xFFFFFF);
 
         // Kategorien-Header
@@ -289,7 +291,7 @@ public class AchievementAppScreen extends Screen {
 
             if (y >= listStartY - 50 && y < endY) {
                 // Achievement Box
-                int boxColor = unlocked ? 0x4400AA00 : (progressPercent >= 70 ? 0x44FFAA00 : 0x44333333);
+                int boxColor = unlocked ? 0x4400AA00 : (progressPercent >= 70 ? 0x44FFAA00 : UIColors.OVERLAY_DARK_27);
                 guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 45, boxColor);
 
                 // Status Icon & Name
@@ -309,8 +311,8 @@ public class AchievementAppScreen extends Screen {
                 int barHeight = 6;
                 int filledWidth = (int) (barWidth * progressPercent / 100.0);
 
-                guiGraphics.fill(barX, barY, barX + barWidth, barY + barHeight, 0xFF333333);
-                int barColor = unlocked ? 0xFF00AA00 : (progressPercent >= 70 ? 0xFFFFAA00 : 0xFF4A90E2);
+                guiGraphics.fill(barX, barY, barX + barWidth, barY + barHeight, UIColors.BACKGROUND_LIGHT);
+                int barColor = unlocked ? UIColors.ACCENT_GREEN_BRIGHT : (progressPercent >= 70 ? UIColors.ACCENT_ORANGE : UIColors.ACCENT_BLUE);
                 if (filledWidth > 0) {
                     guiGraphics.fill(barX, barY, barX + filledWidth, barY + barHeight, barColor);
                 }
@@ -350,8 +352,8 @@ public class AchievementAppScreen extends Screen {
         if (maxScroll > 0) {
             int scrollBarHeight = Math.max(20, visibleHeight * visibleHeight / (visibleHeight + maxScroll));
             int scrollBarY = listStartY + (scrollOffset * (visibleHeight - scrollBarHeight) / maxScroll);
-            guiGraphics.fill(leftPos + WIDTH - 8, listStartY, leftPos + WIDTH - 5, endY, 0x44FFFFFF);
-            guiGraphics.fill(leftPos + WIDTH - 8, scrollBarY, leftPos + WIDTH - 5, scrollBarY + scrollBarHeight, 0xAAFFFFFF);
+            guiGraphics.fill(leftPos + WIDTH - 8, listStartY, leftPos + WIDTH - 5, endY, UIColors.WHITE_SEMI_TRANSPARENT);
+            guiGraphics.fill(leftPos + WIDTH - 8, scrollBarY, leftPos + WIDTH - 5, scrollBarY + scrollBarHeight, UIColors.WHITE_TRANSPARENT_67);
         }
     }
 
@@ -387,8 +389,8 @@ public class AchievementAppScreen extends Screen {
         int barHeight = 15;
         int filledWidth = (int) (barWidth * progressPercent / 100.0);
 
-        guiGraphics.fill(barX, barY, barX + barWidth, barY + barHeight, 0xFF333333);
-        int barColor = unlocked ? 0xFF00AA00 : 0xFF4A90E2;
+        guiGraphics.fill(barX, barY, barX + barWidth, barY + barHeight, UIColors.BACKGROUND_LIGHT);
+        int barColor = unlocked ? UIColors.ACCENT_GREEN_BRIGHT : UIColors.ACCENT_BLUE;
         if (filledWidth > 0) {
             guiGraphics.fill(barX, barY, barX + filledWidth, barY + barHeight, barColor);
         }
