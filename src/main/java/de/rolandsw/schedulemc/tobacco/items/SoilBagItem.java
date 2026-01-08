@@ -114,13 +114,13 @@ public class SoilBagItem extends Item {
     public Component getName(ItemStack stack) {
         int units = getUnits(stack);
         if (units <= 0) {
-            return Component.translatable("item.soil_bag.empty", type.getDisplayName());
+            return Component.translatable("item.soil_bag.empty").append(" ").append(type.getDisplayName());
         } else if (units >= UNITS_PER_BAG) {
             return Component.literal(type.getColor())
-                .append(Component.translatable("item.soil_bag.full", type.getDisplayName()));
+                .append(Component.translatable("item.soil_bag.full")).append(" ").append(type.getDisplayName());
         } else {
             return Component.literal(type.getColor())
-                .append(Component.literal(type.getDisplayName()));
+                .append(type.getDisplayName());
         }
     }
     
@@ -145,34 +145,32 @@ public class SoilBagItem extends Item {
  * Verschiedene Erdsack-Typen
  */
 enum SoilBagType {
-    SMALL("Kleiner Erdsack", "§7", 1, 10.0),
-    MEDIUM("Mittlerer Erdsack", "§e", 2, 25.0),
-    LARGE("Großer Erdsack", "§6", 3, 50.0);
-    
-    private final String displayName;
+    SMALL("§7", 1, 10.0),
+    MEDIUM("§e", 2, 25.0),
+    LARGE("§6", 3, 50.0);
+
     private final String color;
     private final int plantsPerBag;
     private final double basePrice;
-    
-    SoilBagType(String displayName, String color, int plantsPerBag, double basePrice) {
-        this.displayName = displayName;
+
+    SoilBagType(String color, int plantsPerBag, double basePrice) {
         this.color = color;
         this.plantsPerBag = plantsPerBag;
         this.basePrice = basePrice;
     }
-    
-    public String getDisplayName() {
-        return displayName;
+
+    public Component getDisplayName() {
+        return Component.translatable("enum.soil_bag_type." + this.name().toLowerCase());
     }
-    
+
     public String getColor() {
         return color;
     }
-    
+
     public int getPlantsPerBag() {
         return plantsPerBag;
     }
-    
+
     public double getBasePrice() {
         return basePrice;
     }

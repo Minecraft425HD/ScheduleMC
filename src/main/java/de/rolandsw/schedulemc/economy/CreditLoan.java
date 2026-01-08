@@ -147,81 +147,35 @@ public class CreditLoan {
      * Kredittypen mit erweiterten Optionen
      */
     public enum CreditLoanType {
-        // Name, Basis-Betrag, Basis-Zinsen, Laufzeit, Min-Rating, Beschreibung DE, Beschreibung EN
-        STARTER(
-            "Starter-Kredit",
-            "Starter Loan",
-            5000,
-            0.08,
-            14,
-            CreditScore.CreditRating.C,
-            "Ideal für Einsteiger"
-        ),
-        STANDARD(
-            "Standard-Kredit",
-            "Standard Loan",
-            25000,
-            0.12,
-            28,
-            CreditScore.CreditRating.BB,
-            "Für mittlere Investitionen"
-        ),
-        PREMIUM(
-            "Premium-Kredit",
-            "Premium Loan",
-            100000,
-            0.15,
-            56,
-            CreditScore.CreditRating.BBB,
-            "Für größere Projekte"
-        ),
-        VIP(
-            "VIP-Kredit",
-            "VIP Loan",
-            500000,
-            0.10,
-            90,
-            CreditScore.CreditRating.A,
-            "Exklusiv für Top-Kunden"
-        );
+        STARTER(5000, 0.08, 14, CreditScore.CreditRating.C),
+        STANDARD(25000, 0.12, 28, CreditScore.CreditRating.BB),
+        PREMIUM(100000, 0.15, 56, CreditScore.CreditRating.BBB),
+        VIP(500000, 0.10, 90, CreditScore.CreditRating.A);
 
-        private final String displayNameDE;
-        private final String displayNameEN;
         private final double baseAmount;
         private final double baseInterestRate;
         private final int durationDays;
         private final CreditScore.CreditRating requiredRating;
-        private final String description;
 
-        CreditLoanType(String displayNameDE, String displayNameEN, double baseAmount,
-                       double baseInterestRate, int durationDays,
-                       CreditScore.CreditRating requiredRating, String description) {
-            this.displayNameDE = displayNameDE;
-            this.displayNameEN = displayNameEN;
+        CreditLoanType(double baseAmount, double baseInterestRate, int durationDays,
+                       CreditScore.CreditRating requiredRating) {
             this.baseAmount = baseAmount;
             this.baseInterestRate = baseInterestRate;
             this.durationDays = durationDays;
             this.requiredRating = requiredRating;
-            this.description = description;
         }
 
-        public String getDisplayNameDE() { return displayNameDE; }
-        public String getDisplayNameEN() { return displayNameEN; }
         public double getBaseAmount() { return baseAmount; }
         public double getBaseInterestRate() { return baseInterestRate; }
         public int getDurationDays() { return durationDays; }
         public CreditScore.CreditRating getRequiredRating() { return requiredRating; }
-        public String getDescription() { return description; }
 
-        /**
-         * Gibt den Display-Name basierend auf der Client-Locale zurück
-         */
-        public String getDisplayName() {
-            try {
-                return de.rolandsw.schedulemc.util.LocaleHelper.selectClientLocalized(displayNameDE, displayNameEN);
-            } catch (Exception e) {
-                return displayNameDE;
-            }
+        public net.minecraft.network.chat.Component getDisplayName() {
+            return net.minecraft.network.chat.Component.translatable("enum.credit_loan_type." + this.name().toLowerCase());
+        }
+
+        public net.minecraft.network.chat.Component getDescription() {
+            return net.minecraft.network.chat.Component.translatable("enum.credit_loan_type.desc." + this.name().toLowerCase());
         }
 
         /**

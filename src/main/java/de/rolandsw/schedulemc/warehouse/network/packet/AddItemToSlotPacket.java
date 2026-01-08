@@ -63,7 +63,7 @@ public class AddItemToSlotPacket {
             Item item = BuiltInRegistries.ITEM.get(itemLoc);
 
             if (item == null || item == net.minecraft.world.item.Items.AIR) {
-                PacketHandler.sendError(player, "Ungültiges Item: " + msg.itemId);
+                PacketHandler.sendError(player, Component.translatable("warehouse.packet.invalid_item", msg.itemId).getString());
                 return;
             }
 
@@ -79,7 +79,7 @@ public class AddItemToSlotPacket {
             }
 
             if (emptySlotIndex == -1) {
-                PacketHandler.sendError(player, "Kein leerer Slot verfügbar!");
+                PacketHandler.sendError(player, Component.translatable("warehouse.packet.no_empty_slot").getString());
                 return;
             }
 
@@ -100,7 +100,7 @@ public class AddItemToSlotPacket {
                         .append(Component.translatable("message.warehouse.status_stock"))
                 );
             } else {
-                PacketHandler.sendWarning(player, "Item zum Warehouse hinzugefügt, aber kein NPC-Shop aktualisiert!");
+                PacketHandler.sendWarning(player, Component.translatable("warehouse.packet.added_no_shop_update").getString());
             }
         });
     }

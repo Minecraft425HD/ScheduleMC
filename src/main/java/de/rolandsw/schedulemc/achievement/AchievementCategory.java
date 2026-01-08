@@ -1,38 +1,36 @@
 package de.rolandsw.schedulemc.achievement;
 
+import net.minecraft.network.chat.Component;
+
 /**
  * Kategorien für Achievements
  */
 public enum AchievementCategory {
-    ECONOMY("💰", "Wirtschaft", "Geld verdienen und verwalten"),
-    CRIME("🚔", "Verbrechen", "Kriminelle Aktivitäten"),
-    PRODUCTION("🌿", "Produktion", "Drogen und Waren produzieren"),
-    SOCIAL("👥", "Sozial", "Plots und soziale Interaktionen"),
-    EXPLORATION("🗺️", "Erkundung", "Die Welt erkunden");
+    ECONOMY("💰"),
+    CRIME("🚔"),
+    PRODUCTION("🌿"),
+    SOCIAL("👥"),
+    EXPLORATION("🗺️");
 
     private final String emoji;
-    private final String displayName;
-    private final String description;
 
-    AchievementCategory(String emoji, String displayName, String description) {
+    AchievementCategory(String emoji) {
         this.emoji = emoji;
-        this.displayName = displayName;
-        this.description = description;
     }
 
     public String getEmoji() {
         return emoji;
     }
 
-    public String getDisplayName() {
-        return displayName;
+    public Component getDisplayName() {
+        return Component.translatable("enum.achievement_category." + this.name().toLowerCase());
     }
 
-    public String getDescription() {
-        return description;
+    public Component getDescription() {
+        return Component.translatable("enum.achievement_category.desc." + this.name().toLowerCase());
     }
 
-    public String getFormattedName() {
-        return emoji + " " + displayName;
+    public Component getFormattedName() {
+        return Component.literal(emoji + " ").append(getDisplayName());
     }
 }

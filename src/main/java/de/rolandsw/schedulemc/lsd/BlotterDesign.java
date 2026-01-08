@@ -1,30 +1,30 @@
 package de.rolandsw.schedulemc.lsd;
 
+import net.minecraft.network.chat.Component;
+
 /**
  * Blotter-Design Varianten für LSD-Tabs
  */
 public enum BlotterDesign {
-    TOTENKOPF("Totenkopf", "§8", "☠"),
-    SONNE("Sonne", "§e", "☀"),
-    AUGE("Auge", "§5", "◉"),
-    PILZ("Pilz", "§c", "🍄"),
-    FAHRRAD("Fahrrad", "§b", "⚙"),  // Bicycle Day Reference
-    MANDALA("Mandala", "§d", "✿"),
-    BLITZ("Blitz", "§6", "⚡"),
-    STERN("Stern", "§f", "★");
+    TOTENKOPF("§8", "☠"),
+    SONNE("§e", "☀"),
+    AUGE("§5", "◉"),
+    PILZ("§c", "🍄"),
+    FAHRRAD("§b", "⚙"),  // Bicycle Day Reference
+    MANDALA("§d", "✿"),
+    BLITZ("§6", "⚡"),
+    STERN("§f", "★");
 
-    private final String displayName;
     private final String colorCode;
     private final String symbol;
 
-    BlotterDesign(String displayName, String colorCode, String symbol) {
-        this.displayName = displayName;
+    BlotterDesign(String colorCode, String symbol) {
         this.colorCode = colorCode;
         this.symbol = symbol;
     }
 
-    public String getDisplayName() {
-        return displayName;
+    public Component getDisplayName() {
+        return Component.translatable("enum.blotter_design." + this.name().toLowerCase());
     }
 
     public String getColorCode() {
@@ -35,8 +35,8 @@ public enum BlotterDesign {
         return symbol;
     }
 
-    public String getColoredName() {
-        return colorCode + displayName;
+    public Component getColoredName() {
+        return Component.literal(colorCode).append(getDisplayName());
     }
 
     public static BlotterDesign fromOrdinal(int ordinal) {

@@ -35,7 +35,7 @@ public class ChatScreen extends Screen {
     private int topPos;
     private int scrollOffset = 0;
     private EditBox messageInput;
-    private List<String> npcMessageOptions;
+    private List<Component> npcMessageOptions;
     private int selectedNPCMessage = -1;
 
     public ChatScreen(Screen parent, Conversation conversation) {
@@ -64,11 +64,12 @@ public class ChatScreen extends Screen {
             int buttonY = topPos + HEIGHT - 95;
             for (int i = 0; i < npcMessageOptions.size(); i++) {
                 final int index = i;
-                String message = npcMessageOptions.get(i);
+                Component messageComponent = npcMessageOptions.get(i);
+                String messageText = messageComponent.getString();
 
-                addRenderableWidget(Button.builder(Component.literal(truncate(message, 25)), button -> {
+                addRenderableWidget(Button.builder(Component.literal(truncate(messageText, 25)), button -> {
                     selectedNPCMessage = index;
-                    sendMessage(npcMessageOptions.get(index));
+                    sendMessage(npcMessageOptions.get(index).getString());
                 }).bounds(leftPos + 5, buttonY + (i * 22), WIDTH - 10, 20).build());
             }
         } else {

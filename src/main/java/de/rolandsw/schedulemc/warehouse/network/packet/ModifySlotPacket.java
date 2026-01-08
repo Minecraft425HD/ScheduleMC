@@ -57,15 +57,21 @@ public class ModifySlotPacket {
             if (msg.amount > 0) {
                 // Hinzufügen - verwende warehouse.addItem() für korrekte Synchronisation
                 int added = warehouse.addItem(slot.getAllowedItem(), msg.amount);
-                player.sendSystemMessage(Component.literal(
-                    "§a" + added + "x " + slot.getAllowedItem().getDescription().getString() + " hinzugefügt"
-                ));
+                player.sendSystemMessage(
+                    Component.translatable("warehouse.packet.added",
+                        added,
+                        slot.getAllowedItem().getDescription().getString()
+                    )
+                );
             } else if (msg.amount < 0) {
                 // Entfernen - verwende warehouse.removeItem() für korrekte Synchronisation
                 int removed = warehouse.removeItem(slot.getAllowedItem(), -msg.amount);
-                player.sendSystemMessage(Component.literal(
-                    "§a" + removed + "x " + slot.getAllowedItem().getDescription().getString() + " entfernt"
-                ));
+                player.sendSystemMessage(
+                    Component.translatable("warehouse.packet.removed",
+                        removed,
+                        slot.getAllowedItem().getDescription().getString()
+                    )
+                );
             }
         });
     }

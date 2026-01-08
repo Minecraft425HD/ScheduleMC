@@ -114,13 +114,13 @@ public class MistBagItem extends Item {
     public Component getName(ItemStack stack) {
         int units = getUnits(stack);
         if (units <= 0) {
-            return Component.translatable("item.mist_bag.empty", type.getDisplayName());
+            return Component.translatable("item.mist_bag.empty").append(" ").append(type.getDisplayName());
         } else if (units >= UNITS_PER_BAG) {
             return Component.literal(type.getColor())
-                .append(Component.translatable("item.mist_bag.full", type.getDisplayName()));
+                .append(Component.translatable("item.mist_bag.full")).append(" ").append(type.getDisplayName());
         } else {
             return Component.literal(type.getColor())
-                .append(Component.literal(type.getDisplayName()));
+                .append(type.getDisplayName());
         }
     }
 
@@ -145,24 +145,22 @@ public class MistBagItem extends Item {
  * Verschiedene Mist-Sack-Typen
  */
 enum MistBagType {
-    SMALL("Kleiner Mist-Sack", "§7", 1, 15.0),
-    MEDIUM("Mittlerer Mist-Sack", "§2", 2, 35.0),
-    LARGE("Großer Mist-Sack", "§6", 3, 60.0);
+    SMALL("§7", 1, 15.0),
+    MEDIUM("§2", 2, 35.0),
+    LARGE("§6", 3, 60.0);
 
-    private final String displayName;
     private final String color;
     private final int plantsPerBag;
     private final double basePrice;
 
-    MistBagType(String displayName, String color, int plantsPerBag, double basePrice) {
-        this.displayName = displayName;
+    MistBagType(String color, int plantsPerBag, double basePrice) {
         this.color = color;
         this.plantsPerBag = plantsPerBag;
         this.basePrice = basePrice;
     }
 
-    public String getDisplayName() {
-        return displayName;
+    public Component getDisplayName() {
+        return Component.translatable("enum.mist_bag_type." + this.name().toLowerCase());
     }
 
     public String getColor() {

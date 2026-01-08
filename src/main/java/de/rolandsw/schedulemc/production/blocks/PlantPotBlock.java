@@ -210,8 +210,11 @@ public class PlantPotBlock extends Block implements EntityBlock {
             potBE.setChanged();
             level.sendBlockUpdated(pos, state, state, 3); // Client-Update!
 
-            player.displayClientMessage(Component.literal("§b✓ Gegossen!\n§7Wasser: §b")
-                .append(Component.literal(potData.getWaterLevel() + "/" + maxWater)), true);
+            player.displayClientMessage(Component.translatable(
+                "block.plant_pot.watered",
+                potData.getWaterLevel(),
+                maxWater
+            ), true);
 
             player.playSound(net.minecraft.sounds.SoundEvents.BUCKET_EMPTY, 1.0f, 1.0f);
             return InteractionResult.SUCCESS;
@@ -251,8 +254,10 @@ public class PlantPotBlock extends Block implements EntityBlock {
             // Platziere Pflanzen-Block oberhalb des Topfes
             TobaccoPlantBlock.growToStage(level, pos, 0, seedItem.getTobaccoType());
 
-            player.displayClientMessage(Component.literal("§a✓ Samen gepflanzt!\n§7Sorte: ")
-                .append(seedItem.getTobaccoType().getColoredName()), true);
+            player.displayClientMessage(Component.translatable(
+                "block.plant_pot.tobacco_planted",
+                seedItem.getTobaccoType().getColoredName()
+            ), true);
 
             player.playSound(net.minecraft.sounds.SoundEvents.CROP_PLANTED, 1.0f, 1.0f);
             return InteractionResult.SUCCESS;
@@ -292,8 +297,10 @@ public class PlantPotBlock extends Block implements EntityBlock {
             // Platziere Cannabis-Pflanzen-Block oberhalb des Topfes
             CannabisPlantBlock.growToStage(level, pos, 0, CannabisSeedItem.getStrain(handStack));
 
-            player.displayClientMessage(Component.literal("§a✓ Cannabis-Samen gepflanzt!\n§7Strain: ")
-                .append(CannabisSeedItem.getStrain(handStack).getColoredName()), true);
+            player.displayClientMessage(Component.translatable(
+                "block.plant_pot.cannabis_planted_strain",
+                CannabisSeedItem.getStrain(handStack).getColoredName()
+            ), true);
 
             player.playSound(net.minecraft.sounds.SoundEvents.CROP_PLANTED, 1.0f, 1.0f);
             return InteractionResult.SUCCESS;
@@ -333,8 +340,10 @@ public class PlantPotBlock extends Block implements EntityBlock {
             // Platziere Koka-Pflanzen-Block oberhalb des Topfes
             CocaPlantBlock.growToStage(level, pos, 0, cocaSeedItem.getCocaType());
 
-            player.displayClientMessage(Component.literal("§a✓ Koka-Samen gepflanzt!\n§7Sorte: ")
-                .append(cocaSeedItem.getCocaType().getColoredName()), true);
+            player.displayClientMessage(Component.translatable(
+                "block.plant_pot.coca_planted",
+                cocaSeedItem.getCocaType().getColoredName()
+            ), true);
 
             player.playSound(net.minecraft.sounds.SoundEvents.CROP_PLANTED, 1.0f, 1.0f);
             return InteractionResult.SUCCESS;
@@ -374,8 +383,10 @@ public class PlantPotBlock extends Block implements EntityBlock {
             // Platziere Mohn-Pflanzen-Block oberhalb des Topfes
             PoppyPlantBlock.growToStage(level, pos, 0, poppySeedItem.getPoppyType());
 
-            player.displayClientMessage(Component.literal("§a✓ Mohn-Samen gepflanzt!\n§7Sorte: ")
-                .append(poppySeedItem.getPoppyType().getColoredName()), true);
+            player.displayClientMessage(Component.translatable(
+                "block.plant_pot.poppy_planted",
+                poppySeedItem.getPoppyType().getColoredName()
+            ), true);
 
             player.playSound(net.minecraft.sounds.SoundEvents.CROP_PLANTED, 1.0f, 1.0f);
             return InteractionResult.SUCCESS;
