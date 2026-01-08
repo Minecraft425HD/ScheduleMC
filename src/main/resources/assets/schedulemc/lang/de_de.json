@@ -1436,6 +1436,16 @@
   "vehicle.purchase.no_parking": "⚠ Kein freier Parkplatz verfügbar!",
   "vehicle.purchase.wait_for_parking": "Bitte warten Sie, bis ein Parkplatz frei wird.",
 
+  "command.health.last_error": "§c⚠ Letzte Fehler: %s",
+  "command.health.backups_available": "§7Backups verfügbar: §f%d",
+  "command.health.latest_backup": "§7Letztes Backup: §f%s §7(vor %d Minuten)",
+  "command.health.backup_header": "§e§l═══ BACKUP ÜBERSICHT ═══§r",
+  "command.health.backup_footer": "§e§l═══════════════════════════§r",
+  "command.health.backup_auto_info": "§7Backups werden automatisch bei jedem Speichervorgang erstellt.",
+  "command.health.backup_max_info": "§7Maximal 5 Backups werden pro Datei behalten.",
+  "command.health.backup_and_more": "  §8... und %d weitere",
+  "command.health.logged_to_console": "§aHealth-Check in Server-Console geloggt!",
+
   "block.plant_pot.remove_plant_first": "§c✗ Entferne zuerst die Pflanze!",
   "block.plant_pot.pot_full_soil": "§c✗ Topf ist bereits voll mit Erde!",
   "block.plant_pot.soil_added": "§a✓ Erde eingefüllt!",
