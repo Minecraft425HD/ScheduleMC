@@ -1155,8 +1155,8 @@ public class NPCCommand {
             context.getSource().sendSuccess(() ->
                 Component.translatable("message.warehouse.linked")
                     .append(Component.literal("\n§7NPC: §e" + npc.getNpcName() + "\n" +
-                    "§7Position: §f" + warehousePos.getX() + ", " + warehousePos.getY() + ", " + warehousePos.getZ()))
-                ), false
+                    "§7Position: §f" + warehousePos.getX() + ", " + warehousePos.getY() + ", " + warehousePos.getZ())),
+                false
             );
             return 1;
         } catch (Exception e) {
@@ -1182,8 +1182,8 @@ public class NPCCommand {
 
             context.getSource().sendSuccess(() ->
                 Component.translatable("message.warehouse.unlinked")
-                    .append(Component.literal("\n§7NPC: §e" + npc.getNpcName()))
-                ), false
+                    .append(Component.literal("\n§7NPC: §e" + npc.getNpcName())),
+                false
             );
             return 1;
         } catch (Exception e) {
