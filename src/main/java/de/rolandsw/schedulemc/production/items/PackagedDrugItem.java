@@ -269,28 +269,28 @@ public class PackagedDrugItem extends Item {
             switch (itemType) {
                 case "CRACK":
                     if (variant != null) {
-                        name = variant.getColoredName().copy().append(Component.translatable("item.packaged.crack"));
+                        name = Component.literal(variant.getColoredName()).append(Component.translatable("item.packaged.crack"));
                     } else {
                         name = Component.translatable("item.packaged.crack");
                     }
                     break;
                 case "COCAINE":
                     if (variant != null) {
-                        name = variant.getColoredName().copy().append(Component.translatable("item.packaged.cocaine"));
+                        name = Component.literal(variant.getColoredName()).append(Component.translatable("item.packaged.cocaine"));
                     } else {
                         name = Component.translatable("item.packaged.cocaine");
                     }
                     break;
                 case "CURED_CANNABIS":
                     if (variant != null) {
-                        name = variant.getColoredName().copy().append(Component.translatable("item.packaged.cannabis_cured"));
+                        name = Component.literal(variant.getColoredName()).append(Component.translatable("item.packaged.cannabis_cured"));
                     } else {
                         name = Component.translatable("item.packaged.cannabis_cured");
                     }
                     break;
                 case "TRIMMED_CANNABIS":
                     if (variant != null) {
-                        name = variant.getColoredName().copy().append(Component.translatable("item.packaged.cannabis"));
+                        name = Component.literal(variant.getColoredName()).append(Component.translatable("item.packaged.cannabis"));
                     } else {
                         name = Component.translatable("item.packaged.cannabis");
                     }
@@ -298,17 +298,17 @@ public class PackagedDrugItem extends Item {
                 default:
                     // Fallback auf Standard-Logik
                     if (variant != null) {
-                        name = variant.getColoredName().copy().append(Component.literal(" " + drugType.getDisplayName()));
+                        name = Component.literal(variant.getColoredName()).append(Component.literal(" " + drugType.getDisplayName()));
                     } else {
-                        name = drugType.getColoredName();
+                        name = Component.literal(drugType.getColoredName());
                     }
             }
         } else {
             // Alte Logik für Items ohne ItemType (Backwards Compatibility)
             if (variant != null) {
-                name = variant.getColoredName().copy().append(Component.literal(" " + drugType.getDisplayName()));
+                name = Component.literal(variant.getColoredName()).append(Component.literal(" " + drugType.getDisplayName()));
             } else {
-                name = drugType.getColoredName();
+                name = Component.literal(drugType.getColoredName());
             }
         }
 
