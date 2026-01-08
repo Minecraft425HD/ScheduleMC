@@ -162,16 +162,16 @@ public class NPCPatrolTool extends Item {
 
             if (hasStation) {
                 player.sendSystemMessage(
-                    Component.literal("Station: ")
+                    Component.translatable("message.npc.station_label")
                         .withStyle(ChatFormatting.GRAY)
                         .append(Component.literal(npc.getNpcData().getPoliceStation().toShortString())
                             .withStyle(ChatFormatting.WHITE))
-                        .append(Component.literal(" | Patrouille: " + patrolCount + "/16")
+                        .append(Component.translatable("message.npc.patrol_count_suffix", patrolCount)
                             .withStyle(ChatFormatting.GRAY))
                 );
             } else {
                 player.sendSystemMessage(
-                    Component.literal("Rechtsklick auf Block = Polizeistation setzen")
+                    Component.translatable("message.npc.right_click_set_police_station")
                         .withStyle(ChatFormatting.GRAY)
                 );
             }
@@ -194,14 +194,14 @@ public class NPCPatrolTool extends Item {
         BlockPos station = npc.getNpcData().getPoliceStation();
         if (station != null) {
             player.sendSystemMessage(
-                Component.literal("Polizeistation: ")
+                Component.translatable("message.npc.police_station_label")
                     .withStyle(ChatFormatting.AQUA)
                     .append(Component.literal(station.toShortString())
                         .withStyle(ChatFormatting.WHITE))
             );
         } else {
             player.sendSystemMessage(
-                Component.literal("Polizeistation: ")
+                Component.translatable("message.npc.police_station_label")
                     .withStyle(ChatFormatting.AQUA)
                     .append(Component.literal("Nicht gesetzt")
                         .withStyle(ChatFormatting.RED))
@@ -210,13 +210,13 @@ public class NPCPatrolTool extends Item {
 
         int patrolCount = npc.getNpcData().getPatrolPoints().size();
         player.sendSystemMessage(
-            Component.literal("Patrouillenpunkte: " + patrolCount + "/16")
+            Component.translatable("message.npc.patrol_points_count", patrolCount)
                 .withStyle(ChatFormatting.AQUA)
         );
 
         if (patrolCount > 0) {
             player.sendSystemMessage(
-                Component.literal("Punkte:")
+                Component.translatable("message.npc.points_label")
                     .withStyle(ChatFormatting.GRAY)
             );
             for (int i = 0; i < Math.min(patrolCount, 5); i++) {

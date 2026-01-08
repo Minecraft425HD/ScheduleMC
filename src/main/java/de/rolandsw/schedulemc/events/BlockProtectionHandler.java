@@ -231,7 +231,7 @@ public class BlockProtectionHandler {
                     // Zeige aktuellen Status
                     int leisureCount = npc.getNpcData().getLeisureLocations().size();
                     player.sendSystemMessage(
-                        Component.literal("Freizeitorte: " + leisureCount + "/10")
+                        Component.translatable("message.npc.leisure_count", leisureCount)
                             .withStyle(ChatFormatting.GRAY)
                     );
 
@@ -241,7 +241,7 @@ public class BlockProtectionHandler {
                     );
                     if (leisureCount > 0) {
                         player.sendSystemMessage(
-                            Component.literal("Shift+Rechtsklick auf Block = Letzten Ort entfernen")
+                            Component.translatable("message.npc.shift_right_click_remove_last")
                                 .withStyle(ChatFormatting.GRAY)
                         );
                     }
@@ -273,11 +273,11 @@ public class BlockProtectionHandler {
 
                     if (hasStation) {
                         player.sendSystemMessage(
-                            Component.literal("Station: ")
+                            Component.translatable("message.npc.station_label")
                                 .withStyle(ChatFormatting.GRAY)
                                 .append(Component.literal(npc.getNpcData().getPoliceStation().toShortString())
                                     .withStyle(ChatFormatting.WHITE))
-                                .append(Component.literal(" | Patrouille: " + patrolCount + "/16")
+                                .append(Component.translatable("message.npc.patrol_count_suffix", patrolCount)
                                     .withStyle(ChatFormatting.GRAY))
                         );
                     } else {
