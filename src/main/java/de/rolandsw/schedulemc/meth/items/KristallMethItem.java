@@ -50,10 +50,10 @@ public class KristallMethItem extends Item {
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
         MethQuality quality = getQuality(stack);
 
-        tooltip.add(Component.literal("§7Qualität: " + quality.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
         tooltip.add(Component.literal(""));
         tooltip.add(Component.literal("§7Feuchte " + quality.getColorDescription().toLowerCase() + "e Kristalle"));
-        tooltip.add(Component.literal("§8Nächster Schritt: Vakuum-Trockner"));
+        tooltip.add(Component.translatable("tooltip.meth.next_step_vacuum"));
     }
 
     @Override

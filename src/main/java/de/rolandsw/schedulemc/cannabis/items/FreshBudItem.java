@@ -71,7 +71,7 @@ public class FreshBudItem extends Item {
         int weight = getWeight(stack);
 
         tooltip.add(Component.literal("§7Sorte: " + strain.getColoredName()));
-        tooltip.add(Component.literal("§7Qualität: " + quality.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
         tooltip.add(Component.literal("§7Gewicht: §f" + (weight * stack.getCount()) + "g §8(" + stack.getCount() + "x 1g)"));
         tooltip.add(Component.empty());
         tooltip.add(Component.literal("§c⚠ Muss getrocknet werden!"));

@@ -80,13 +80,13 @@ public class TrimmedBudItem extends Item {
         double price = calculatePrice(stack);
 
         tooltip.add(Component.literal("§7Sorte: " + strain.getColoredName()));
-        tooltip.add(Component.literal("§7Qualität: " + quality.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
         tooltip.add(Component.literal("§7THC: §f" + strain.getThcContent() + "%"));
         tooltip.add(Component.literal("§7Gewicht: §f" + (weight * stack.getCount()) + "g §8(" + stack.getCount() + "x 1g)"));
         tooltip.add(Component.empty());
         tooltip.add(Component.literal("§6💰 Wert: §f" + String.format("%.2f", price) + "€"));
         tooltip.add(Component.empty());
         tooltip.add(Component.literal("§a🫙 Kann gecured werden"));
-        tooltip.add(Component.literal("§8Curing verbessert Qualität!"));
+        tooltip.add(Component.translatable("tooltip.cannabis.curing_improves"));
     }
 }

@@ -50,7 +50,7 @@ public class MethItem extends Item {
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
         MethQuality quality = getQuality(stack);
 
-        tooltip.add(Component.literal("§7Qualität: " + quality.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
         tooltip.add(Component.literal("§7Reinheit: §f" + getPurityPercent(quality) + "%"));
         tooltip.add(Component.literal("§7Gewicht: §f" + stack.getCount() + "g §8(" + stack.getCount() + "x 1g)"));
         tooltip.add(Component.literal(""));
