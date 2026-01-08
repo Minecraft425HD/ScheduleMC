@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:block/cross",
-  "textures": {
-    "cross": "schedulemc:block/virginia_plant_stage3"
-  }
-}

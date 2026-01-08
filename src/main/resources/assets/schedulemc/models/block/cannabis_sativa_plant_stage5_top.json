@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:block/cross",
-  "textures": {
-    "cross": "schedulemc:block/cannabis_sativa_plant_stage5_top"
-  }
-}

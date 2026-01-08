@@ -1,7 +1,0 @@
-{
-  "parent": "minecraft:block/cube_column",
-  "textures": {
-    "end": "schedulemc:block/basic_grow_light_slab",
-    "side": "schedulemc:block/basic_grow_light_slab"
-  }
-}
