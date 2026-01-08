@@ -58,16 +58,13 @@ public class HeroinRaffinerieBlock extends Block implements EntityBlock {
         if (isFuel(handStack)) {
             int fuelValue = getFuelValue(handStack);
             if (raffBE.getFuelLevel() >= raffBE.getMaxFuel()) {
-                player.displayClientMessage(Component.literal("§c✗ Brennstoff-Tank ist voll!"), true);
+                player.displayClientMessage(Component.translatable("message.heroin_raffinerie.fuel_tank_full"), true);
                 return InteractionResult.FAIL;
             }
 
             raffBE.addFuel(fuelValue);
             handStack.shrink(1);
-            player.displayClientMessage(Component.literal(
-                    "§c✓ Brennstoff hinzugefügt!\n" +
-                            "§7Tank: §e" + raffBE.getFuelLevel() + "/" + raffBE.getMaxFuel()
-            ), true);
+            player.displayClientMessage(Component.translatable("message.heroin_raffinerie.fuel_added", raffBE.getFuelLevel(), raffBE.getMaxFuel()), true);
             player.playSound(net.minecraft.sounds.SoundEvents.FIRE_AMBIENT, 1.0f, 1.0f);
             return InteractionResult.SUCCESS;
         }
@@ -75,16 +72,13 @@ public class HeroinRaffinerieBlock extends Block implements EntityBlock {
         // 2. Morphin hinzufügen
         if (handStack.getItem() instanceof MorphineItem) {
             if (raffBE.isFull()) {
-                player.displayClientMessage(Component.literal("§c✗ Raffinerie ist voll!"), true);
+                player.displayClientMessage(Component.translatable("message.heroin_raffinerie.refinery_full"), true);
                 return InteractionResult.FAIL;
             }
 
             if (raffBE.addMorphine(handStack)) {
                 handStack.shrink(1);
-                player.displayClientMessage(Component.literal(
-                        "§d✓ Morphin hinzugefügt!\n" +
-                                "§7Inhalt: §e" + raffBE.getInputCount() + "/" + raffBE.getCapacity()
-                ), true);
+                player.displayClientMessage(Component.translatable("message.heroin_raffinerie.morphine_added", raffBE.getInputCount(), raffBE.getCapacity()), true);
                 player.playSound(net.minecraft.sounds.SoundEvents.BREWING_STAND_BREW, 1.0f, 1.0f);
                 return InteractionResult.SUCCESS;
             }
@@ -96,10 +90,7 @@ public class HeroinRaffinerieBlock extends Block implements EntityBlock {
                 ItemStack heroin = raffBE.extractAllHeroin();
                 if (!heroin.isEmpty()) {
                     player.getInventory().add(heroin);
-                    player.displayClientMessage(Component.literal(
-                            "§f✓ Heroin entnommen!\n" +
-                                    "§7Menge: §e" + heroin.getCount()
-                    ), true);
+                    player.displayClientMessage(Component.translatable("message.heroin_raffinerie.heroin_extracted", heroin.getCount()), true);
                     player.playSound(net.minecraft.sounds.SoundEvents.ITEM_PICKUP, 1.0f, 1.0f);
                     return InteractionResult.SUCCESS;
                 }
@@ -109,13 +100,11 @@ public class HeroinRaffinerieBlock extends Block implements EntityBlock {
         // 4. Status anzeigen
         if (handStack.isEmpty() && !player.isShiftKeyDown()) {
             float progress = raffBE.getAverageProgress() * 100;
-            player.displayClientMessage(Component.literal(
-                    "§f═══ Heroin-Raffinerie ═══\n" +
-                            "§7Brennstoff: §e" + raffBE.getFuelLevel() + "/" + raffBE.getMaxFuel() + "\n" +
-                            "§7Morphin: §e" + raffBE.getInputCount() + "/" + raffBE.getCapacity() + "\n" +
-                            "§7Heroin fertig: §e" + raffBE.getOutputCount() + "\n" +
-                            "§7Fortschritt: §e" + String.format("%.1f", progress) + "%"
-            ), false);
+            player.displayClientMessage(Component.translatable("message.heroin_raffinerie.status",
+                    raffBE.getFuelLevel(), raffBE.getMaxFuel(),
+                    raffBE.getInputCount(), raffBE.getCapacity(),
+                    raffBE.getOutputCount(),
+                    String.format("%.1f", progress)), false);
             return InteractionResult.SUCCESS;
         }
 

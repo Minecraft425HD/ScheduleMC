@@ -57,16 +57,13 @@ public class RitzmaschineBlock extends Block implements EntityBlock {
         // 1. Mohnkapseln hinzufügen
         if (handStack.getItem() instanceof PoppyPodItem) {
             if (machineBE.isFull()) {
-                player.displayClientMessage(Component.literal("§c✗ Ritzmaschine ist voll!"), true);
+                player.displayClientMessage(Component.translatable("message.ritzmaschine.machine_full"), true);
                 return InteractionResult.FAIL;
             }
 
             if (machineBE.addPod(handStack)) {
                 handStack.shrink(1);
-                player.displayClientMessage(Component.literal(
-                        "§6✓ Mohnkapsel hinzugefügt!\n" +
-                                "§7Inhalt: §e" + machineBE.getInputCount() + "/" + machineBE.getCapacity()
-                ), true);
+                player.displayClientMessage(Component.translatable("message.ritzmaschine.pod_added", machineBE.getInputCount(), machineBE.getCapacity()), true);
                 player.playSound(net.minecraft.sounds.SoundEvents.ITEM_FRAME_ADD_ITEM, 1.0f, 1.0f);
                 return InteractionResult.SUCCESS;
             }
@@ -78,10 +75,7 @@ public class RitzmaschineBlock extends Block implements EntityBlock {
                 ItemStack opium = machineBE.extractAllOpium();
                 if (!opium.isEmpty()) {
                     player.getInventory().add(opium);
-                    player.displayClientMessage(Component.literal(
-                            "§6✓ Rohopium entnommen!\n" +
-                                    "§7Menge: §e" + opium.getCount()
-                    ), true);
+                    player.displayClientMessage(Component.translatable("message.ritzmaschine.opium_extracted", opium.getCount()), true);
                     player.playSound(net.minecraft.sounds.SoundEvents.ITEM_PICKUP, 1.0f, 1.0f);
                     return InteractionResult.SUCCESS;
                 }
@@ -92,13 +86,11 @@ public class RitzmaschineBlock extends Block implements EntityBlock {
         if (handStack.isEmpty() && !player.isShiftKeyDown()) {
             boolean hasPower = level.hasNeighborSignal(pos);
             float progress = machineBE.getAverageProgress() * 100;
-            player.displayClientMessage(Component.literal(
-                    "§4═══ Ritzmaschine ═══\n" +
-                            "§7Strom: " + (hasPower ? "§a✓ AN" : "§c✗ AUS") + "\n" +
-                            "§7Kapseln: §e" + machineBE.getInputCount() + "/" + machineBE.getCapacity() + "\n" +
-                            "§7Rohopium fertig: §e" + machineBE.getOutputCount() + "\n" +
-                            "§7Fortschritt: §e" + String.format("%.1f", progress) + "%"
-            ), false);
+            player.displayClientMessage(Component.translatable("message.ritzmaschine.status",
+                    hasPower ? Component.translatable("message.ritzmaschine.power_on") : Component.translatable("message.ritzmaschine.power_off"),
+                    machineBE.getInputCount(), machineBE.getCapacity(),
+                    machineBE.getOutputCount(),
+                    String.format("%.1f", progress)), false);
             return InteractionResult.SUCCESS;
         }
 

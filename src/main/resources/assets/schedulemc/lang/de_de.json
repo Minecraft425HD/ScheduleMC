@@ -2113,6 +2113,36 @@
   "command.npc.not_found": "NPC '%s' nicht gefunden!",
   "command.npc.movement_set": "Bewegung %s für NPC %s",
   "command.npc.movement_enabled": "aktiviert",
-  "command.npc.movement_disabled": "deaktiviert"
+  "command.npc.movement_disabled": "deaktiviert",
+
+  "message.heroin_raffinerie.fuel_tank_full": "§c✗ Brennstoff-Tank ist voll!",
+  "message.heroin_raffinerie.fuel_added": "§c✓ Brennstoff hinzugefügt!\n§7Tank: §e%d/%d",
+  "message.heroin_raffinerie.refinery_full": "§c✗ Raffinerie ist voll!",
+  "message.heroin_raffinerie.morphine_added": "§d✓ Morphin hinzugefügt!\n§7Inhalt: §e%d/%d",
+  "message.heroin_raffinerie.heroin_extracted": "§f✓ Heroin entnommen!\n§7Menge: §e%d",
+  "message.heroin_raffinerie.status": "§f═══ Heroin-Raffinerie ═══\n§7Brennstoff: §e%d/%d\n§7Morphin: §e%d/%d\n§7Heroin fertig: §e%d\n§7Fortschritt: §e%s%%",
+
+  "message.kochstation.water_tank_full": "§c✗ Wasser-Tank ist voll!",
+  "message.kochstation.water_added": "§b✓ Wasser hinzugefügt!\n§7Tank: §e%d/%d mB",
+  "message.kochstation.fuel_tank_full": "§c✗ Brennstoff-Tank ist voll!",
+  "message.kochstation.fuel_added": "§c✓ Brennstoff hinzugefügt!\n§7Tank: §e%d/%d",
+  "message.kochstation.station_full": "§c✗ Kochstation ist voll!",
+  "message.kochstation.opium_added": "§6✓ Rohopium hinzugefügt!\n§7Inhalt: §e%d/%d",
+  "message.kochstation.morphine_extracted": "§d✓ Morphin entnommen!\n§7Menge: §e%d",
+  "message.kochstation.status": "§d═══ Kochstation ═══\n§7Wasser: §b%d/%d mB\n§7Brennstoff: §e%d/%d\n§7Rohopium: §e%d/%d\n§7Morphin fertig: §e%d\n§7Fortschritt: §e%s%%",
+
+  "message.opium_presse.diesel_tank_full": "§c✗ Diesel-Tank ist voll!",
+  "message.opium_presse.diesel_added": "§e✓ Diesel hinzugefügt!\n§7Tank: §e%d/%d mB",
+  "message.opium_presse.press_full": "§c✗ Presse ist voll!",
+  "message.opium_presse.pod_added": "§6✓ Mohnkapsel hinzugefügt!\n§7Inhalt: §e%d/%d",
+  "message.opium_presse.opium_extracted": "§6✓ Rohopium entnommen!\n§7Menge: §e%d",
+  "message.opium_presse.status": "§4═══ Opium-Presse ═══\n§7Diesel: §e%d/%d mB\n§7Kapseln: §e%d/%d\n§7Rohopium fertig: §e%d\n§7Fortschritt: §e%s%%",
+
+  "message.ritzmaschine.machine_full": "§c✗ Ritzmaschine ist voll!",
+  "message.ritzmaschine.pod_added": "§6✓ Mohnkapsel hinzugefügt!\n§7Inhalt: §e%d/%d",
+  "message.ritzmaschine.opium_extracted": "§6✓ Rohopium entnommen!\n§7Menge: §e%d",
+  "message.ritzmaschine.status": "§4═══ Ritzmaschine ═══\n§7Strom: %s\n§7Kapseln: §e%d/%d\n§7Rohopium fertig: §e%d\n§7Fortschritt: §e%s%%",
+  "message.ritzmaschine.power_on": "§a✓ AN",
+  "message.ritzmaschine.power_off": "§c✗ AUS"
 
 }

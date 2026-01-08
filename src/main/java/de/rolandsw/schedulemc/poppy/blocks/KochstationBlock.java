@@ -58,7 +58,7 @@ public class KochstationBlock extends Block implements EntityBlock {
         // 1. Wasser hinzufügen (mit Wassereimer)
         if (handStack.is(Items.WATER_BUCKET)) {
             if (kochBE.getWaterLevel() >= kochBE.getMaxWater()) {
-                player.displayClientMessage(Component.literal("§c✗ Wasser-Tank ist voll!"), true);
+                player.displayClientMessage(Component.translatable("message.kochstation.water_tank_full"), true);
                 return InteractionResult.FAIL;
             }
 
@@ -66,10 +66,7 @@ public class KochstationBlock extends Block implements EntityBlock {
             if (!player.getAbilities().instabuild) {
                 player.setItemInHand(hand, new ItemStack(Items.BUCKET));
             }
-            player.displayClientMessage(Component.literal(
-                    "§b✓ Wasser hinzugefügt!\n" +
-                            "§7Tank: §e" + kochBE.getWaterLevel() + "/" + kochBE.getMaxWater() + " mB"
-            ), true);
+            player.displayClientMessage(Component.translatable("message.kochstation.water_added", kochBE.getWaterLevel(), kochBE.getMaxWater()), true);
             player.playSound(net.minecraft.sounds.SoundEvents.BUCKET_EMPTY, 1.0f, 1.0f);
             return InteractionResult.SUCCESS;
         }
@@ -78,16 +75,13 @@ public class KochstationBlock extends Block implements EntityBlock {
         if (isFuel(handStack)) {
             int fuelValue = getFuelValue(handStack);
             if (kochBE.getFuelLevel() >= kochBE.getMaxFuel()) {
-                player.displayClientMessage(Component.literal("§c✗ Brennstoff-Tank ist voll!"), true);
+                player.displayClientMessage(Component.translatable("message.kochstation.fuel_tank_full"), true);
                 return InteractionResult.FAIL;
             }
 
             kochBE.addFuel(fuelValue);
             handStack.shrink(1);
-            player.displayClientMessage(Component.literal(
-                    "§c✓ Brennstoff hinzugefügt!\n" +
-                            "§7Tank: §e" + kochBE.getFuelLevel() + "/" + kochBE.getMaxFuel()
-            ), true);
+            player.displayClientMessage(Component.translatable("message.kochstation.fuel_added", kochBE.getFuelLevel(), kochBE.getMaxFuel()), true);
             player.playSound(net.minecraft.sounds.SoundEvents.FIRE_AMBIENT, 1.0f, 1.0f);
             return InteractionResult.SUCCESS;
         }
@@ -95,16 +89,13 @@ public class KochstationBlock extends Block implements EntityBlock {
         // 3. Rohopium hinzufügen
         if (handStack.getItem() instanceof RawOpiumItem) {
             if (kochBE.isFull()) {
-                player.displayClientMessage(Component.literal("§c✗ Kochstation ist voll!"), true);
+                player.displayClientMessage(Component.translatable("message.kochstation.station_full"), true);
                 return InteractionResult.FAIL;
             }
 
             if (kochBE.addOpium(handStack)) {
                 handStack.shrink(1);
-                player.displayClientMessage(Component.literal(
-                        "§6✓ Rohopium hinzugefügt!\n" +
-                                "§7Inhalt: §e" + kochBE.getInputCount() + "/" + kochBE.getCapacity()
-                ), true);
+                player.displayClientMessage(Component.translatable("message.kochstation.opium_added", kochBE.getInputCount(), kochBE.getCapacity()), true);
                 player.playSound(net.minecraft.sounds.SoundEvents.SLIME_BLOCK_PLACE, 1.0f, 1.0f);
                 return InteractionResult.SUCCESS;
             }
@@ -116,10 +107,7 @@ public class KochstationBlock extends Block implements EntityBlock {
                 ItemStack morphine = kochBE.extractAllMorphine();
                 if (!morphine.isEmpty()) {
                     player.getInventory().add(morphine);
-                    player.displayClientMessage(Component.literal(
-                            "§d✓ Morphin entnommen!\n" +
-                                    "§7Menge: §e" + morphine.getCount()
-                    ), true);
+                    player.displayClientMessage(Component.translatable("message.kochstation.morphine_extracted", morphine.getCount()), true);
                     player.playSound(net.minecraft.sounds.SoundEvents.ITEM_PICKUP, 1.0f, 1.0f);
                     return InteractionResult.SUCCESS;
                 }
@@ -129,14 +117,12 @@ public class KochstationBlock extends Block implements EntityBlock {
         // 5. Status anzeigen
         if (handStack.isEmpty() && !player.isShiftKeyDown()) {
             float progress = kochBE.getAverageProgress() * 100;
-            player.displayClientMessage(Component.literal(
-                    "§d═══ Kochstation ═══\n" +
-                            "§7Wasser: §b" + kochBE.getWaterLevel() + "/" + kochBE.getMaxWater() + " mB\n" +
-                            "§7Brennstoff: §e" + kochBE.getFuelLevel() + "/" + kochBE.getMaxFuel() + "\n" +
-                            "§7Rohopium: §e" + kochBE.getInputCount() + "/" + kochBE.getCapacity() + "\n" +
-                            "§7Morphin fertig: §e" + kochBE.getOutputCount() + "\n" +
-                            "§7Fortschritt: §e" + String.format("%.1f", progress) + "%"
-            ), false);
+            player.displayClientMessage(Component.translatable("message.kochstation.status",
+                    kochBE.getWaterLevel(), kochBE.getMaxWater(),
+                    kochBE.getFuelLevel(), kochBE.getMaxFuel(),
+                    kochBE.getInputCount(), kochBE.getCapacity(),
+                    kochBE.getOutputCount(),
+                    String.format("%.1f", progress)), false);
             return InteractionResult.SUCCESS;
         }
 

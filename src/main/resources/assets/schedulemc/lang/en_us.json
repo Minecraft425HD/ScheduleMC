@@ -2118,6 +2118,36 @@
   "command.npc.not_found": "NPC '%s' not found!",
   "command.npc.movement_set": "Movement %s for NPC %s",
   "command.npc.movement_enabled": "enabled",
-  "command.npc.movement_disabled": "disabled"
+  "command.npc.movement_disabled": "disabled",
+
+  "message.heroin_raffinerie.fuel_tank_full": "§c✗ Fuel tank is full!",
+  "message.heroin_raffinerie.fuel_added": "§c✓ Fuel added!\n§7Tank: §e%d/%d",
+  "message.heroin_raffinerie.refinery_full": "§c✗ Refinery is full!",
+  "message.heroin_raffinerie.morphine_added": "§d✓ Morphine added!\n§7Content: §e%d/%d",
+  "message.heroin_raffinerie.heroin_extracted": "§f✓ Heroin extracted!\n§7Amount: §e%d",
+  "message.heroin_raffinerie.status": "§f═══ Heroin Refinery ═══\n§7Fuel: §e%d/%d\n§7Morphine: §e%d/%d\n§7Heroin ready: §e%d\n§7Progress: §e%s%%",
+
+  "message.kochstation.water_tank_full": "§c✗ Water tank is full!",
+  "message.kochstation.water_added": "§b✓ Water added!\n§7Tank: §e%d/%d mB",
+  "message.kochstation.fuel_tank_full": "§c✗ Fuel tank is full!",
+  "message.kochstation.fuel_added": "§c✓ Fuel added!\n§7Tank: §e%d/%d",
+  "message.kochstation.station_full": "§c✗ Cooking station is full!",
+  "message.kochstation.opium_added": "§6✓ Raw opium added!\n§7Content: §e%d/%d",
+  "message.kochstation.morphine_extracted": "§d✓ Morphine extracted!\n§7Amount: §e%d",
+  "message.kochstation.status": "§d═══ Cooking Station ═══\n§7Water: §b%d/%d mB\n§7Fuel: §e%d/%d\n§7Raw opium: §e%d/%d\n§7Morphine ready: §e%d\n§7Progress: §e%s%%",
+
+  "message.opium_presse.diesel_tank_full": "§c✗ Diesel tank is full!",
+  "message.opium_presse.diesel_added": "§e✓ Diesel added!\n§7Tank: §e%d/%d mB",
+  "message.opium_presse.press_full": "§c✗ Press is full!",
+  "message.opium_presse.pod_added": "§6✓ Poppy pod added!\n§7Content: §e%d/%d",
+  "message.opium_presse.opium_extracted": "§6✓ Raw opium extracted!\n§7Amount: §e%d",
+  "message.opium_presse.status": "§4═══ Opium Press ═══\n§7Diesel: §e%d/%d mB\n§7Pods: §e%d/%d\n§7Raw opium ready: §e%d\n§7Progress: §e%s%%",
+
+  "message.ritzmaschine.machine_full": "§c✗ Scoring machine is full!",
+  "message.ritzmaschine.pod_added": "§6✓ Poppy pod added!\n§7Content: §e%d/%d",
+  "message.ritzmaschine.opium_extracted": "§6✓ Raw opium extracted!\n§7Amount: §e%d",
+  "message.ritzmaschine.status": "§4═══ Scoring Machine ═══\n§7Power: %s\n§7Pods: §e%d/%d\n§7Raw opium ready: §e%d\n§7Progress: §e%s%%",
+  "message.ritzmaschine.power_on": "§a✓ ON",
+  "message.ritzmaschine.power_off": "§c✗ OFF"
 
 }

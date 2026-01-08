@@ -61,7 +61,7 @@ public class OpiumPresseBlock extends Block implements EntityBlock {
             int dieselAmount = DieselCanisterItem.getDieselAmount(handStack);
             if (dieselAmount > 0) {
                 if (presseBE.getDieselLevel() >= presseBE.getMaxDiesel()) {
-                    player.displayClientMessage(Component.literal("§c✗ Diesel-Tank ist voll!"), true);
+                    player.displayClientMessage(Component.translatable("message.opium_presse.diesel_tank_full"), true);
                     return InteractionResult.FAIL;
                 }
 
@@ -69,10 +69,7 @@ public class OpiumPresseBlock extends Block implements EntityBlock {
                 presseBE.addDiesel(toAdd);
                 DieselCanisterItem.consumeDiesel(handStack, toAdd);
 
-                player.displayClientMessage(Component.literal(
-                        "§e✓ Diesel hinzugefügt!\n" +
-                                "§7Tank: §e" + presseBE.getDieselLevel() + "/" + presseBE.getMaxDiesel() + " mB"
-                ), true);
+                player.displayClientMessage(Component.translatable("message.opium_presse.diesel_added", presseBE.getDieselLevel(), presseBE.getMaxDiesel()), true);
                 player.playSound(net.minecraft.sounds.SoundEvents.BUCKET_EMPTY, 1.0f, 1.0f);
                 return InteractionResult.SUCCESS;
             }
@@ -81,16 +78,13 @@ public class OpiumPresseBlock extends Block implements EntityBlock {
         // 2. Mohnkapseln hinzufügen
         if (handStack.getItem() instanceof PoppyPodItem) {
             if (presseBE.isFull()) {
-                player.displayClientMessage(Component.literal("§c✗ Presse ist voll!"), true);
+                player.displayClientMessage(Component.translatable("message.opium_presse.press_full"), true);
                 return InteractionResult.FAIL;
             }
 
             if (presseBE.addPod(handStack)) {
                 handStack.shrink(1);
-                player.displayClientMessage(Component.literal(
-                        "§6✓ Mohnkapsel hinzugefügt!\n" +
-                                "§7Inhalt: §e" + presseBE.getInputCount() + "/" + presseBE.getCapacity()
-                ), true);
+                player.displayClientMessage(Component.translatable("message.opium_presse.pod_added", presseBE.getInputCount(), presseBE.getCapacity()), true);
                 player.playSound(net.minecraft.sounds.SoundEvents.ITEM_FRAME_ADD_ITEM, 1.0f, 1.0f);
                 return InteractionResult.SUCCESS;
             }
@@ -102,10 +96,7 @@ public class OpiumPresseBlock extends Block implements EntityBlock {
                 ItemStack opium = presseBE.extractAllOpium();
                 if (!opium.isEmpty()) {
                     player.getInventory().add(opium);
-                    player.displayClientMessage(Component.literal(
-                            "§6✓ Rohopium entnommen!\n" +
-                                    "§7Menge: §e" + opium.getCount()
-                    ), true);
+                    player.displayClientMessage(Component.translatable("message.opium_presse.opium_extracted", opium.getCount()), true);
                     player.playSound(net.minecraft.sounds.SoundEvents.ITEM_PICKUP, 1.0f, 1.0f);
                     return InteractionResult.SUCCESS;
                 }
@@ -115,13 +106,11 @@ public class OpiumPresseBlock extends Block implements EntityBlock {
         // 4. Status anzeigen
         if (handStack.isEmpty() && !player.isShiftKeyDown()) {
             float progress = presseBE.getAverageProgress() * 100;
-            player.displayClientMessage(Component.literal(
-                    "§4═══ Opium-Presse ═══\n" +
-                            "§7Diesel: §e" + presseBE.getDieselLevel() + "/" + presseBE.getMaxDiesel() + " mB\n" +
-                            "§7Kapseln: §e" + presseBE.getInputCount() + "/" + presseBE.getCapacity() + "\n" +
-                            "§7Rohopium fertig: §e" + presseBE.getOutputCount() + "\n" +
-                            "§7Fortschritt: §e" + String.format("%.1f", progress) + "%"
-            ), false);
+            player.displayClientMessage(Component.translatable("message.opium_presse.status",
+                    presseBE.getDieselLevel(), presseBE.getMaxDiesel(),
+                    presseBE.getInputCount(), presseBE.getCapacity(),
+                    presseBE.getOutputCount(),
+                    String.format("%.1f", progress)), false);
             return InteractionResult.SUCCESS;
         }
 
