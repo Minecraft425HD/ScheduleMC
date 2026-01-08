@@ -2173,4 +2173,34 @@
   "message.small_extraction_vat.leaves_added": "§a✓ Koka-Blätter hinzugefügt!\n§7Inhalt: §e%d/%d",
   "message.small_extraction_vat.paste_extracted": "§6✓ Koka-Paste entnommen!\n§7Menge: §e%dg",
   "message.small_extraction_vat.status": "§6═══ Kleine Extraktionswanne ═══\n§7Diesel: §e%d/%d mB\n§7Blätter: §e%d/%d\n§7Paste fertig: §e%d\n§7Fortschritt: §e%s%%",
+
+  "message.medium_refinery.fuel_tank_full": "§c✗ Brennstoff-Tank ist voll!",
+  "message.medium_refinery.fuel_added": "§c✓ Brennstoff hinzugefügt!\n§7Tank: §e%d/%d",
+  "message.medium_refinery.refinery_full": "§c✗ Raffinerie ist voll!",
+  "message.medium_refinery.paste_added": "§6✓ Koka-Paste hinzugefügt!\n§7Inhalt: §e%d/%d",
+  "message.medium_refinery.cocaine_extracted": "§f✓ Kokain entnommen!\n§7Menge: §e%dg",
+  "message.medium_refinery.status": "§c═══ Mittlere Raffinerie ═══\n§7Brennstoff: §e%d/%d\n§7Paste: §e%d/%d\n§7Kokain fertig: §e%d\n§7Fortschritt: §e%s%%",
+
+  "message.big_refinery.fuel_tank_full": "§c✗ Brennstoff-Tank ist voll!",
+  "message.big_refinery.fuel_added": "§c✓ Brennstoff hinzugefügt!\n§7Tank: §e%d/%d",
+  "message.big_refinery.refinery_full": "§c✗ Raffinerie ist voll!",
+  "message.big_refinery.paste_added": "§6✓ Koka-Paste hinzugefügt!\n§7Inhalt: §e%d/%d",
+  "message.big_refinery.cocaine_extracted": "§f✓ Kokain entnommen!\n§7Menge: §e%dg",
+  "message.big_refinery.status": "§c═══ Große Raffinerie ═══\n§7Brennstoff: §e%d/%d\n§7Paste: §e%d/%d\n§7Kokain fertig: §e%d\n§7Fortschritt: §e%s%%",
+
+  "message.medium_extraction_vat.canister_empty": "§c✗ Diesel-Kanister ist leer!",
+  "message.medium_extraction_vat.diesel_tank_full": "§c✗ Diesel-Tank ist voll!",
+  "message.medium_extraction_vat.diesel_added": "§6✓ Diesel eingefüllt!\n§7Tank: §e%d/%d mB",
+  "message.medium_extraction_vat.vat_full": "§c✗ Extraktionswanne ist voll!",
+  "message.medium_extraction_vat.leaves_added": "§a✓ Koka-Blätter hinzugefügt!\n§7Inhalt: §e%d/%d",
+  "message.medium_extraction_vat.paste_extracted": "§6✓ Koka-Paste entnommen!\n§7Menge: §e%dg",
+  "message.medium_extraction_vat.status": "§6═══ Mittlere Extraktionswanne ═══\n§7Diesel: §e%d/%d mB\n§7Blätter: §e%d/%d\n§7Paste fertig: §e%d\n§7Fortschritt: §e%s%%",
+
+  "message.big_extraction_vat.canister_empty": "§c✗ Diesel-Kanister ist leer!",
+  "message.big_extraction_vat.diesel_tank_full": "§c✗ Diesel-Tank ist voll!",
+  "message.big_extraction_vat.diesel_added": "§6✓ Diesel eingefüllt!\n§7Tank: §e%d/%d mB",
+  "message.big_extraction_vat.vat_full": "§c✗ Extraktionswanne ist voll!",
+  "message.big_extraction_vat.leaves_added": "§a✓ Koka-Blätter hinzugefügt!\n§7Inhalt: §e%d/%d",
+  "message.big_extraction_vat.paste_extracted": "§6✓ Koka-Paste entnommen!\n§7Menge: §e%dg",
+  "message.big_extraction_vat.status": "§6═══ Große Extraktionswanne ═══\n§7Diesel: §e%d/%d mB\n§7Blätter: §e%d/%d\n§7Paste fertig: §e%d\n§7Fortschritt: §e%s%%"
 }

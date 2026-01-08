@@ -2178,4 +2178,34 @@
   "message.small_extraction_vat.leaves_added": "§a✓ Coca leaves added!\n§7Content: §e%d/%d",
   "message.small_extraction_vat.paste_extracted": "§6✓ Coca paste extracted!\n§7Amount: §e%dg",
   "message.small_extraction_vat.status": "§6═══ Small Extraction Vat ═══\n§7Diesel: §e%d/%d mB\n§7Leaves: §e%d/%d\n§7Paste ready: §e%d\n§7Progress: §e%s%%",
+
+  "message.medium_refinery.fuel_tank_full": "§c✗ Fuel tank is full!",
+  "message.medium_refinery.fuel_added": "§c✓ Fuel added!\n§7Tank: §e%d/%d",
+  "message.medium_refinery.refinery_full": "§c✗ Refinery is full!",
+  "message.medium_refinery.paste_added": "§6✓ Coca paste added!\n§7Content: §e%d/%d",
+  "message.medium_refinery.cocaine_extracted": "§f✓ Cocaine extracted!\n§7Amount: §e%dg",
+  "message.medium_refinery.status": "§c═══ Medium Refinery ═══\n§7Fuel: §e%d/%d\n§7Paste: §e%d/%d\n§7Cocaine ready: §e%d\n§7Progress: §e%s%%",
+
+  "message.big_refinery.fuel_tank_full": "§c✗ Fuel tank is full!",
+  "message.big_refinery.fuel_added": "§c✓ Fuel added!\n§7Tank: §e%d/%d",
+  "message.big_refinery.refinery_full": "§c✗ Refinery is full!",
+  "message.big_refinery.paste_added": "§6✓ Coca paste added!\n§7Content: §e%d/%d",
+  "message.big_refinery.cocaine_extracted": "§f✓ Cocaine extracted!\n§7Amount: §e%dg",
+  "message.big_refinery.status": "§c═══ Big Refinery ═══\n§7Fuel: §e%d/%d\n§7Paste: §e%d/%d\n§7Cocaine ready: §e%d\n§7Progress: §e%s%%",
+
+  "message.medium_extraction_vat.canister_empty": "§c✗ Diesel canister is empty!",
+  "message.medium_extraction_vat.diesel_tank_full": "§c✗ Diesel tank is full!",
+  "message.medium_extraction_vat.diesel_added": "§6✓ Diesel added!\n§7Tank: §e%d/%d mB",
+  "message.medium_extraction_vat.vat_full": "§c✗ Extraction vat is full!",
+  "message.medium_extraction_vat.leaves_added": "§a✓ Coca leaves added!\n§7Content: §e%d/%d",
+  "message.medium_extraction_vat.paste_extracted": "§6✓ Coca paste extracted!\n§7Amount: §e%dg",
+  "message.medium_extraction_vat.status": "§6═══ Medium Extraction Vat ═══\n§7Diesel: §e%d/%d mB\n§7Leaves: §e%d/%d\n§7Paste ready: §e%d\n§7Progress: §e%s%%",
+
+  "message.big_extraction_vat.canister_empty": "§c✗ Diesel canister is empty!",
+  "message.big_extraction_vat.diesel_tank_full": "§c✗ Diesel tank is full!",
+  "message.big_extraction_vat.diesel_added": "§6✓ Diesel added!\n§7Tank: §e%d/%d mB",
+  "message.big_extraction_vat.vat_full": "§c✗ Extraction vat is full!",
+  "message.big_extraction_vat.leaves_added": "§a✓ Coca leaves added!\n§7Content: §e%d/%d",
+  "message.big_extraction_vat.paste_extracted": "§6✓ Coca paste extracted!\n§7Amount: §e%dg",
+  "message.big_extraction_vat.status": "§6═══ Big Extraction Vat ═══\n§7Diesel: §e%d/%d mB\n§7Leaves: §e%d/%d\n§7Paste ready: §e%d\n§7Progress: §e%s%%"
 }
