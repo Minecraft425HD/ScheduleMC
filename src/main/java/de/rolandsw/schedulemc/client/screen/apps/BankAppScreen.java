@@ -121,7 +121,7 @@ public class BankAppScreen extends Screen {
             // Empfänger
             transferRecipientBox = new EditBox(this.font, leftPos + 15, formY, WIDTH - 30, 18, Component.translatable("message.bank.recipient"));
             transferRecipientBox.setMaxLength(100);
-            transferRecipientBox.setHint(Component.literal("Spielername"));
+            transferRecipientBox.setHint(Component.translatable("gui.bank.player_name_hint"));
             addRenderableWidget(transferRecipientBox);
 
             // Betrag
@@ -143,7 +143,7 @@ public class BankAppScreen extends Screen {
             // Empfänger (Label bei contentY + 25, Box bei contentY + 37)
             recurringRecipientBox = new EditBox(this.font, leftPos + 15, contentY + 37, WIDTH - 30, 18, Component.translatable("message.bank.recipient"));
             recurringRecipientBox.setMaxLength(100);
-            recurringRecipientBox.setHint(Component.literal("Spielername"));
+            recurringRecipientBox.setHint(Component.translatable("gui.bank.player_name_hint"));
             addRenderableWidget(recurringRecipientBox);
 
             // Betrag (Label bei contentY + 59, Box bei contentY + 71)
@@ -162,7 +162,7 @@ public class BankAppScreen extends Screen {
             ).bounds(leftPos + 15, contentY + 105, WIDTH - 30, 18).build());
 
             // Erstellen-Button (bei contentY + 127)
-            addRenderableWidget(Button.builder(Component.literal("Dauerauftrag erstellen"), button -> {
+            addRenderableWidget(Button.builder(Component.translatable("gui.bank.create_standing_order"), button -> {
                 performCreateRecurringPayment();
             }).bounds(leftPos + 15, contentY + 127, WIDTH - 30, 20).build());
         }

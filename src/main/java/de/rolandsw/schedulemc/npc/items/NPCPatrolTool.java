@@ -70,7 +70,7 @@ public class NPCPatrolTool extends Item {
             // Prüfe ob es ein Polizist ist
             if (npc.getNpcData().getNpcType() != NPCType.POLIZEI) {
                 player.sendSystemMessage(
-                    Component.literal("Dieser NPC ist kein Polizist!")
+                    Component.translatable("message.npc.not_police")
                         .withStyle(ChatFormatting.RED)
                 );
                 return InteractionResult.FAIL;
@@ -80,7 +80,7 @@ public class NPCPatrolTool extends Item {
             int currentSize = npc.getNpcData().getPatrolPoints().size();
             if (currentSize >= 16) {
                 player.sendSystemMessage(
-                    Component.literal("Maximum von 16 Patrouillenpunkten erreicht!")
+                    Component.translatable("message.npc.patrol_max_reached")
                         .withStyle(ChatFormatting.RED)
                 );
                 return InteractionResult.FAIL;
@@ -99,11 +99,11 @@ public class NPCPatrolTool extends Item {
                             .withStyle(ChatFormatting.WHITE))
                 );
                 player.sendSystemMessage(
-                    Component.literal("→ Patrouillenpunkt 1/16 (Polizeistation)")
+                    Component.translatable("message.npc.patrol_first_point")
                         .withStyle(ChatFormatting.AQUA)
                 );
                 player.sendSystemMessage(
-                    Component.literal("Jetzt weitere Patrouillenpunkte setzen (2-16)")
+                    Component.translatable("message.npc.patrol_set_more_points")
                         .withStyle(ChatFormatting.GRAY)
                 );
             } else {
@@ -132,7 +132,7 @@ public class NPCPatrolTool extends Item {
             // Prüfe ob es ein Polizist ist
             if (npc.getNpcData().getNpcType() != NPCType.POLIZEI) {
                 player.sendSystemMessage(
-                    Component.literal("Dieser NPC ist kein Polizist! Das Patrol-Tool funktioniert nur mit Polizei-NPCs.")
+                    Component.translatable("message.npc.patrol_tool_police_only")
                         .withStyle(ChatFormatting.RED)
                 );
                 return InteractionResult.FAIL;
@@ -148,7 +148,7 @@ public class NPCPatrolTool extends Item {
             selectedNPCs.put(player.getUUID(), npc.getId());
 
             player.sendSystemMessage(
-                Component.literal("Polizist ")
+                Component.translatable("message.npc.police_officer_prefix")
                     .withStyle(ChatFormatting.GREEN)
                     .append(Component.literal(npc.getNpcName())
                         .withStyle(ChatFormatting.YELLOW))

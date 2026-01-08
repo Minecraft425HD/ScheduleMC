@@ -112,21 +112,21 @@ public class BlockProtectionHandler {
                         .withStyle(ChatFormatting.GREEN)
                         .append(Component.literal(npc.getNpcName())
                             .withStyle(ChatFormatting.YELLOW))
-                        .append(Component.literal(" bei " + clickedPos.toShortString())
+                        .append(Component.translatable("message.common.at_location", clickedPos.toShortString())
                             .withStyle(ChatFormatting.WHITE))
                 );
             } else if (npc.getNpcData().getNpcType() == NPCType.BEWOHNER) {
                 player.sendSystemMessage(
-                    Component.literal("⚠ Bewohner arbeiten nicht! Sie brauchen keinen Arbeitsort.")
+                    Component.translatable("message.npc.residents_no_workplace")
                         .withStyle(ChatFormatting.YELLOW)
                 );
                 player.sendSystemMessage(
-                    Component.literal("→ Nutze NPCLeisureTool um Freizeitorte zu setzen.")
+                    Component.translatable("message.npc.use_leisure_tool")
                         .withStyle(ChatFormatting.GRAY)
                 );
             } else {
                 player.sendSystemMessage(
-                    Component.literal("⚠ Dieser NPC-Typ hat keine Arbeitsorte!")
+                    Component.translatable("message.npc.type_no_workplace")
                         .withStyle(ChatFormatting.RED)
                 );
             }
@@ -173,11 +173,11 @@ public class BlockProtectionHandler {
                 NPCLocationTool.setSelectedNPC(player.getUUID(), npc.getId());
 
                 player.sendSystemMessage(
-                    Component.literal("NPC ")
+                    Component.translatable("message.common.npc_prefix")
                         .withStyle(ChatFormatting.GREEN)
                         .append(Component.literal(npc.getNpcName())
                             .withStyle(ChatFormatting.YELLOW))
-                        .append(Component.literal(" (" + npc.getNpcData().getNpcType().getDisplayName() + ")")
+                        .append(Component.literal(" (").append(Component.literal(npc.getNpcData().getNpcType().getDisplayName())).append(Component.literal(")"))
                             .withStyle(ChatFormatting.GRAY))
                         .append(Component.translatable("message.common.selected")
                             .withStyle(ChatFormatting.GREEN))
@@ -186,7 +186,7 @@ public class BlockProtectionHandler {
                 // Unterschiedliche Hinweise je nach NPC-Typ
                 if (npc.getNpcData().getNpcType() == NPCType.BEWOHNER) {
                     player.sendSystemMessage(
-                        Component.literal("Rechtsklick auf Block = Wohnort")
+                        Component.translatable("message.npc.right_click_set_home")
                             .withStyle(ChatFormatting.GRAY)
                     );
                     player.sendSystemMessage(
@@ -195,12 +195,12 @@ public class BlockProtectionHandler {
                     );
                 } else if (npc.getNpcData().getNpcType() == NPCType.VERKAEUFER) {
                     player.sendSystemMessage(
-                        Component.literal("Rechtsklick = Wohnort | Shift+Rechtsklick = Arbeitsort")
+                        Component.translatable("message.npc.right_click_home_shift_work")
                             .withStyle(ChatFormatting.GRAY)
                     );
                 } else if (npc.getNpcData().getNpcType() == NPCType.POLIZEI) {
                     player.sendSystemMessage(
-                        Component.literal("⚠ Polizei-NPCs nutzen das NPCPatrolTool!")
+                        Component.translatable("message.npc.police_use_patrol_tool")
                             .withStyle(ChatFormatting.RED)
                     );
                 }
@@ -211,18 +211,18 @@ public class BlockProtectionHandler {
                 if (npc.getNpcData().getNpcType() != NPCType.BEWOHNER
                     && npc.getNpcData().getNpcType() != NPCType.VERKAEUFER) {
                     player.sendSystemMessage(
-                        Component.literal("⚠ Dieser NPC-Typ hat keine Freizeitorte!")
+                        Component.translatable("message.npc.type_no_leisure")
                             .withStyle(ChatFormatting.RED)
                     );
                 } else {
                     NPCLeisureTool.setSelectedNPC(player.getUUID(), npc.getId());
 
                     player.sendSystemMessage(
-                        Component.literal("NPC ")
+                        Component.translatable("message.common.npc_prefix")
                             .withStyle(ChatFormatting.GREEN)
                             .append(Component.literal(npc.getNpcName())
                                 .withStyle(ChatFormatting.YELLOW))
-                            .append(Component.literal(" (" + npc.getNpcData().getNpcType().getDisplayName() + ")")
+                            .append(Component.literal(" (").append(Component.literal(npc.getNpcData().getNpcType().getDisplayName())).append(Component.literal(")"))
                                 .withStyle(ChatFormatting.GRAY))
                             .append(Component.translatable("message.common.selected")
                                 .withStyle(ChatFormatting.GREEN))
@@ -252,7 +252,7 @@ public class BlockProtectionHandler {
                 // Prüfe ob es ein Polizist ist
                 if (npc.getNpcData().getNpcType() != NPCType.POLIZEI) {
                     player.sendSystemMessage(
-                        Component.literal("Dieser NPC ist kein Polizist! Das Patrol-Tool funktioniert nur mit Polizei-NPCs.")
+                        Component.translatable("message.npc.patrol_tool_police_only")
                             .withStyle(ChatFormatting.RED)
                     );
                 } else {
@@ -282,7 +282,7 @@ public class BlockProtectionHandler {
                         );
                     } else {
                         player.sendSystemMessage(
-                            Component.literal("Rechtsklick auf Block = Polizeistation setzen")
+                            Component.translatable("message.npc.right_click_set_police_station")
                                 .withStyle(ChatFormatting.GRAY)
                         );
                     }
