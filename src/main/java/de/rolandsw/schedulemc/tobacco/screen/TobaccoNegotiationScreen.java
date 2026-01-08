@@ -98,12 +98,12 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
             calculateFairPrice();
             calculateDealProbability();
             offerButton.active = true;
-            responseMessage = "§7Wähle Gramm und Preis, dann klicke 'Anbieten'";
+            responseMessage = Component.translatable("gui.tobacco_negotiation.select_amount_price").getString();
         } else {
             selectedSlot = -1;
             maxGramsAvailable = 0;
             offerButton.active = false;
-            responseMessage = "§cKein verpackter Tabak in diesem Slot!";
+            responseMessage = Component.translatable("gui.tobacco_negotiation.no_tobacco").getString();
         }
     }
 
@@ -232,7 +232,7 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
 
     private void makeOffer() {
         if (selectedSlot < 0) {
-            responseMessage = "§cBitte wähle zuerst einen Tabak aus!";
+            responseMessage = Component.translatable("gui.tobacco_negotiation.select_tobacco").getString();
             return;
         }
 
@@ -241,12 +241,12 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
             int offeredGrams = Integer.parseInt(gramsInput.getValue());
 
             if (offeredPrice <= 0) {
-                responseMessage = "§cPreis muss größer als 0 sein!";
+                responseMessage = Component.translatable("gui.tobacco_negotiation.invalid_price").getString();
                 return;
             }
 
             if (offeredGrams <= 0 || offeredGrams > maxGramsAvailable) {
-                responseMessage = "§cUngültige Grammzahl! (1-" + maxGramsAvailable + "g)";
+                responseMessage = Component.translatable("gui.tobacco_negotiation.invalid_grams", maxGramsAvailable).getString();
                 return;
             }
 
@@ -262,7 +262,7 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
             this.onClose();
 
         } catch (NumberFormatException e) {
-            responseMessage = "§cUngültige Eingabe!";
+            responseMessage = Component.translatable("gui.tobacco_negotiation.invalid_input").getString();
         }
     }    @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
@@ -302,18 +302,18 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
         CustomNPCEntity npc = menu.getNpc();
         if (npc != null) {
             // Title
-            graphics.drawString(this.font, "Tabak verkaufen", x + 8, y + 6, 0xFFFFFF, false);
+            graphics.drawString(this.font, Component.translatable("gui.tobacco_negotiation.title").getString(), x + 8, y + 6, 0xFFFFFF, false);
 
             // Input Labels
-            graphics.drawString(this.font, "§7Preis €", x + 10, y + 50, 0xFFFFFF, false);
-            graphics.drawString(this.font, "§7Gramm", x + 75, y + 50, 0xFFFFFF, false);
+            graphics.drawString(this.font, Component.translatable("gui.tobacco_negotiation.price_label").getString(), x + 10, y + 50, 0xFFFFFF, false);
+            graphics.drawString(this.font, Component.translatable("gui.tobacco_negotiation.grams_label").getString(), x + 75, y + 50, 0xFFFFFF, false);
 
             // NPC Wallet Balance (verwende synchronisierten Wert vom Server)
-            graphics.drawString(this.font, "§7NPC Geld: §e" + npcWalletBalance + "€", x + 8, y + 20, 0xFFFFFF, false);
+            graphics.drawString(this.font, Component.translatable("gui.tobacco_negotiation.npc_money", npcWalletBalance).getString(), x + 8, y + 20, 0xFFFFFF, false);
 
             // NPC Metriken
-            graphics.drawString(this.font, "§7Ruf: §f" + reputation, x + 8, y + 86, 0xFFFFFF, false);
-            graphics.drawString(this.font, "§7Zufriedenheit: §f" + satisfaction, x + 80, y + 86, 0xFFFFFF, false);
+            graphics.drawString(this.font, Component.translatable("gui.tobacco_negotiation.reputation", reputation).getString(), x + 8, y + 86, 0xFFFFFF, false);
+            graphics.drawString(this.font, Component.translatable("gui.tobacco_negotiation.satisfaction", satisfaction).getString(), x + 80, y + 86, 0xFFFFFF, false);
             graphics.drawString(this.font, demand.getDisplayName(), x + 8, y + 96, 0xFFFFFF, false);
 
             // Purchase Willingness Indicator
@@ -321,7 +321,7 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
 
             // Fairer Preis und Deal-Wahrscheinlichkeit
             if (selectedSlot >= 0) {
-                String fairPriceText = String.format("§7Fairer Preis: §a%.2f€ §7(für %dg)", fairPrice, maxGramsAvailable);
+                String fairPriceText = Component.translatable("gui.tobacco_negotiation.fair_price", String.format("%.2f", fairPrice), maxGramsAvailable).getString();
                 graphics.drawString(this.font, fairPriceText, x + 8, y + 126, 0xFFFFFF, false);
 
                 // Deal-Wahrscheinlichkeit mit Farbe
@@ -329,23 +329,22 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
                 ChatFormatting probColor;
                 if (dealAcceptanceProbability >= 70) {
                     probColor = ChatFormatting.GREEN;
-                    probText = "Sehr wahrscheinlich";
+                    probText = Component.translatable("gui.tobacco_negotiation.probability.very_likely").getString();
                 } else if (dealAcceptanceProbability >= 50) {
                     probColor = ChatFormatting.YELLOW;
-                    probText = "Wahrscheinlich";
+                    probText = Component.translatable("gui.tobacco_negotiation.probability.likely").getString();
                 } else if (dealAcceptanceProbability >= 30) {
                     probColor = ChatFormatting.GOLD;
-                    probText = "Möglich";
+                    probText = Component.translatable("gui.tobacco_negotiation.probability.possible").getString();
                 } else if (dealAcceptanceProbability > 0) {
                     probColor = ChatFormatting.RED;
-                    probText = "Unwahrscheinlich";
+                    probText = Component.translatable("gui.tobacco_negotiation.probability.unlikely").getString();
                 } else {
                     probColor = ChatFormatting.DARK_RED;
-                    probText = "Unmöglich";
+                    probText = Component.translatable("gui.tobacco_negotiation.probability.impossible").getString();
                 }
 
-                String dealProbText = String.format("§7Deal-Akzeptanz: %s%d%% §7(%s)",
-                    probColor, dealAcceptanceProbability, probText);
+                String dealProbText = Component.translatable("gui.tobacco_negotiation.deal_acceptance", probColor.toString() + dealAcceptanceProbability, probText).getString();
                 graphics.drawString(this.font, dealProbText, x + 8, y + 136, 0xFFFFFF, false);
             }
         }
@@ -366,7 +365,7 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
      */
     private void renderPurchaseWillingnessIndicator(GuiGraphics graphics, int x, int y) {
         // Titel
-        graphics.drawString(this.font, "§7Kaufbereitschaft:", x, y, 0xFFFFFF, false);
+        graphics.drawString(this.font, Component.translatable("gui.tobacco_negotiation.purchase_willingness").getString(), x, y, 0xFFFFFF, false);
 
         // Score-Balken (100 Pixel breit)
         int barWidth = Math.min((purchaseScore * 100) / 100, 100); // Normalisiert auf 0-100
@@ -391,10 +390,10 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
         String amountText;
         ChatFormatting color;
         if (willingToBuy && desiredGrams > 0) {
-            amountText = "Möchte " + desiredGrams + "g kaufen";
+            amountText = Component.translatable("gui.tobacco_negotiation.wants_to_buy", desiredGrams).getString();
             color = ChatFormatting.GREEN;
         } else {
-            amountText = "Kein Interesse";
+            amountText = Component.translatable("gui.tobacco_negotiation.no_interest").getString();
             color = ChatFormatting.RED;
         }
         graphics.drawString(this.font, color + amountText, x, y + 20, 0xFFFFFF, false);

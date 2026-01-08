@@ -35,9 +35,7 @@ public class RepayCreditLoanPacket {
             // Prüfe ob aktiver Kredit existiert
             CreditLoan loan = loanManager.getLoan(player.getUUID());
             if (loan == null) {
-                player.sendSystemMessage(Component.literal(
-                    "§c§lFehler: §7Du hast keinen aktiven Kredit!"
-                ));
+                player.sendSystemMessage(Component.translatable("network.credit.no_active_loan"));
                 return;
             }
 
@@ -46,11 +44,11 @@ public class RepayCreditLoanPacket {
 
             // Prüfe ob genug Geld vorhanden
             if (balance < remaining) {
-                player.sendSystemMessage(Component.literal(
-                    "§c§lNicht genug Geld!\n" +
-                    "§7Benötigt: §c" + String.format("%.2f€", remaining) + "\n" +
-                    "§7Kontostand: §e" + String.format("%.2f€", balance)
-                ));
+                player.sendSystemMessage(Component.translatable("network.credit.insufficient_funds_repay"));
+                player.sendSystemMessage(Component.translatable("network.credit.required_label")
+                    .append(Component.literal(String.format("%.2f€", remaining))));
+                player.sendSystemMessage(Component.translatable("network.credit.balance_label")
+                    .append(Component.literal(String.format("%.2f€", balance))));
                 return;
             }
 
@@ -70,13 +68,11 @@ public class RepayCreditLoanPacket {
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID())))
                         .withStyle(ChatFormatting.GOLD)));
-                player.sendSystemMessage(Component.literal("§a§lDu bist nun schuldenfrei!"));
+                player.sendSystemMessage(Component.translatable("network.credit.debt_free"));
                 player.sendSystemMessage(Component.literal("═══════════════════════════════")
                     .withStyle(ChatFormatting.GREEN));
             } else {
-                player.sendSystemMessage(Component.literal(
-                    "§c§lFehler: §7Kredit konnte nicht zurückgezahlt werden!"
-                ));
+                player.sendSystemMessage(Component.translatable("network.credit.repayment_error"));
             }
         });
     }

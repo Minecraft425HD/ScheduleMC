@@ -104,15 +104,19 @@ public class BigFermentationBarrelBlock extends Block implements EntityBlock {
             int inputCount = barrelBE.getInputCount();
             int outputCount = barrelBE.getOutputCount();
 
-            player.displayClientMessage(Component.literal("§6═══ Großes Fermentierungsfass ═══\n")
+            player.displayClientMessage(Component.translatable("block.big_fermentation_barrel.header")
+                .append(Component.literal("\n"))
                 .append(Component.translatable("block.fermentation.capacity", inputCount, 10))
-                .append(Component.literal("\n§7Fortschritt: " + bar + " §e" + String.format("%.1f", progress) + "%\n"))
+                .append(Component.literal("\n"))
+                .append(Component.translatable("block.big_fermentation_barrel.progress", bar, String.format("%.1f", progress)))
+                .append(Component.literal("\n"))
                 .append(Component.translatable("block.fermentation.finished", outputCount))
                 .append(Component.literal("\n"))
                 .append(barrelBE.hasOutput() ? Component.translatable("block.fermentation.shift_extract") : Component.translatable("block.fermentation.processing"))
             , false);
         } else {
-            player.displayClientMessage(Component.literal("§6═══ Großes Fermentierungsfass ═══\n")
+            player.displayClientMessage(Component.translatable("block.big_fermentation_barrel.header")
+                .append(Component.literal("\n"))
                 .append(Component.translatable("block.fermentation.capacity_max", 10))
                 .append(Component.literal("\n"))
                 .append(Component.translatable("block.fermentation.empty"))

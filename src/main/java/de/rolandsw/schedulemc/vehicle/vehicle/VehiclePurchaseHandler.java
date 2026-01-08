@@ -46,14 +46,14 @@ public class VehiclePurchaseHandler {
             player.sendSystemMessage(Component.translatable("message.common.not_enough_money").withStyle(ChatFormatting.RED));
             player.sendSystemMessage(Component.translatable("message.common.price_label").withStyle(ChatFormatting.GRAY)
                 .append(Component.literal(price + "€").withStyle(ChatFormatting.GOLD))
-                .append(Component.literal(" | Dein Guthaben: ").withStyle(ChatFormatting.GRAY))
+                .append(Component.translatable("vehicle.purchase.your_balance").withStyle(ChatFormatting.GRAY))
                 .append(Component.literal(String.format("%.2f€", playerBalance)).withStyle(ChatFormatting.YELLOW)));
             return false;
         }
 
         // Ziehe Geld ab
         if (!EconomyManager.withdraw(player.getUUID(), price)) {
-            player.sendSystemMessage(Component.literal("⚠ Fehler beim Abbuchung!").withStyle(ChatFormatting.RED));
+            player.sendSystemMessage(Component.translatable("vehicle.purchase.deduction_error").withStyle(ChatFormatting.RED));
             return false;
         }
 
@@ -92,11 +92,11 @@ public class VehiclePurchaseHandler {
         player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
         player.sendSystemMessage(Component.literal("🚗 ").withStyle(ChatFormatting.YELLOW)
             .append(Component.translatable("message.vehicle.purchased").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)));
-        player.sendSystemMessage(Component.literal("Modell: ").withStyle(ChatFormatting.GRAY)
+        player.sendSystemMessage(Component.translatable("vehicle.purchase.model_label").withStyle(ChatFormatting.GRAY)
             .append(Component.literal(getVehicleName(vehicleItem)).withStyle(ChatFormatting.AQUA)));
         player.sendSystemMessage(Component.translatable("message.common.price_label").withStyle(ChatFormatting.GRAY)
             .append(Component.literal(price + "€").withStyle(ChatFormatting.GOLD)));
-        player.sendSystemMessage(Component.literal("Parkplatz: ").withStyle(ChatFormatting.GRAY)
+        player.sendSystemMessage(Component.translatable("vehicle.purchase.parking_label").withStyle(ChatFormatting.GRAY)
             .append(Component.literal(spawnPoint.getPosition().toShortString()).withStyle(ChatFormatting.AQUA)));
         player.sendSystemMessage(Component.translatable("message.vehicle.id_label").withStyle(ChatFormatting.GRAY)
             .append(Component.literal(vehicleUUID.toString().substring(0, 8) + "...").withStyle(ChatFormatting.DARK_GRAY)));

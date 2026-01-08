@@ -77,11 +77,18 @@ public class DestillationsApparatBlock extends Block implements EntityBlock {
             }
 
             // Status
-            player.displayClientMessage(Component.literal("§d⚗ Destillations-Apparat\n")
-                    .append(Component.translatable("block.lsd.distillation_count", apparat.getErgotCount()))
+            Component message = Component.translatable("block.destillations_apparat.title")
                     .append(Component.literal("\n"))
-                    .append(apparat.isActive() ? Component.literal("§7Fortschritt: §e" + (int)(apparat.getProgress() * 100) + "%") : apparat.hasOutput() ? Component.literal("§a" + apparat.getOutputCount() + "x Lysergsäure fertig!") : Component.literal(""))
-            , true);
+                    .append(Component.translatable("block.lsd.distillation_count", apparat.getErgotCount()))
+                    .append(Component.literal("\n"));
+
+            if (apparat.isActive()) {
+                message = message.append(Component.translatable("block.destillations_apparat.progress", (int)(apparat.getProgress() * 100)));
+            } else if (apparat.hasOutput()) {
+                message = message.append(Component.translatable("block.destillations_apparat.output_ready", apparat.getOutputCount()));
+            }
+
+            player.displayClientMessage(message, true);
             return InteractionResult.SUCCESS;
         }
 

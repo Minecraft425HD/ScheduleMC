@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.economy;
 
 import com.google.gson.annotations.SerializedName;
+import net.minecraft.network.chat.Component;
 
 import java.util.UUID;
 
@@ -193,16 +194,16 @@ public class CreditScore {
      * Kredit-Rating Enum
      */
     public enum CreditRating {
-        AAA("Ausgezeichnet", 5, 500000, 0xFFD700),  // Gold
-        AA("Sehr Gut", 5, 250000, 0x00FF00),        // Grün
-        A("Gut", 4, 150000, 0x55FF55),              // Hellgrün
-        BBB("Befriedigend", 4, 100000, 0xAAAA00),   // Olive
-        BB("Ausreichend", 3, 75000, 0xFFFF00),      // Gelb
-        B("Mangelhaft", 3, 50000, 0xFFAA00),        // Orange
-        CCC("Schlecht", 2, 25000, 0xFF5500),        // Dunkelorange
-        CC("Sehr Schlecht", 2, 10000, 0xFF0000),    // Rot
-        C("Kritisch", 1, 5000, 0xAA0000),           // Dunkelrot
-        D("Ungenügend", 1, 0, 0x550000);            // Sehr dunkelrot (kein Kredit möglich)
+        AAA(Component.translatable("enum.credit_rating.aaa").getString(), 5, 500000, 0xFFD700),  // Gold
+        AA(Component.translatable("enum.credit_rating.aa").getString(), 5, 250000, 0x00FF00),        // Grün
+        A(Component.translatable("enum.credit_rating.a").getString(), 4, 150000, 0x55FF55),              // Hellgrün
+        BBB(Component.translatable("enum.credit_rating.bbb").getString(), 4, 100000, 0xAAAA00),   // Olive
+        BB(Component.translatable("enum.credit_rating.bb").getString(), 3, 75000, 0xFFFF00),      // Gelb
+        B(Component.translatable("enum.credit_rating.b").getString(), 3, 50000, 0xFFAA00),        // Orange
+        CCC(Component.translatable("enum.credit_rating.ccc").getString(), 2, 25000, 0xFF5500),        // Dunkelorange
+        CC(Component.translatable("enum.credit_rating.cc").getString(), 2, 10000, 0xFF0000),    // Rot
+        C(Component.translatable("enum.credit_rating.c").getString(), 1, 5000, 0xAA0000),           // Dunkelrot
+        D(Component.translatable("enum.credit_rating.d").getString(), 1, 0, 0x550000);            // Sehr dunkelrot (kein Kredit möglich)
 
         private final String displayName;
         private final int stars;

@@ -82,7 +82,7 @@ public class BlotterItem extends Item {
         tooltip.add(Component.translatable("tooltip.lsd.strength_label").append(Component.literal("§f" + micrograms + "μg")));
         tooltip.add(Component.translatable("tooltip.lsd.design_label").append(Component.literal(design.getColoredName() + " " + design.getSymbol())));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§d" + dosage.getDescription()));
+        tooltip.add(Component.translatable("tooltip.lsd.dosage." + dosage.name().toLowerCase() + ".description"));
         tooltip.add(Component.literal(""));
         tooltip.add(Component.translatable("tooltip.blotter.paper_with_design"));
         tooltip.add(Component.translatable("tooltip.blotter.can_consume_sell"));

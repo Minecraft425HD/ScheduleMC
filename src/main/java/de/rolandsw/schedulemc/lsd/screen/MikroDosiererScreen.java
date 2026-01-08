@@ -117,7 +117,7 @@ public class MikroDosiererScreen extends AbstractContainerScreen<MikroDosiererMe
         graphics.drawString(this.font, dosageText, x + GUI_WIDTH / 2 - textWidth / 2, infoY + 6, textColor, true);
 
         // Lysergsäure-Anzahl
-        graphics.drawString(this.font, "§7Lysergsäure: §f" + menu.getLysergsaeureCount(),
+        graphics.drawString(this.font, Component.translatable("gui.mikro_dosierer.lysergic_acid", menu.getLysergsaeureCount()).getString(),
                 x + 30, y + 140, 0xFFFFFF, false);
     }
 
@@ -144,11 +144,11 @@ public class MikroDosiererScreen extends AbstractContainerScreen<MikroDosiererMe
         // Button Text
         String buttonText;
         if (menu.isProcessing()) {
-            buttonText = "§7Dosiert... " + menu.getProgressPercent() + "%";
+            buttonText = Component.translatable("gui.mikro_dosierer.dosing", menu.getProgressPercent()).getString();
         } else if (canStart) {
-            buttonText = "§a▶ STARTEN";
+            buttonText = Component.translatable("gui.mikro_dosierer.start").getString();
         } else {
-            buttonText = "§8Keine Lysergsäure";
+            buttonText = Component.translatable("gui.mikro_dosierer.no_lysergic_acid").getString();
         }
 
         int textWidth = this.font.width(buttonText);
@@ -164,10 +164,10 @@ public class MikroDosiererScreen extends AbstractContainerScreen<MikroDosiererMe
         int y = this.topPos;
 
         // Titel
-        graphics.drawString(this.font, "§d⚗ §lMIKRO-DOSIERER", x + 10, y + 8, 0xFFDD88FF, true);
+        graphics.drawString(this.font, Component.translatable("gui.mikro_dosierer.title").getString(), x + 10, y + 8, 0xFFDD88FF, true);
 
         // Beschreibung
-        graphics.drawString(this.font, "§7Wähle die Dosierung:", x + 30, y + 35, 0xAAAAAA, false);
+        graphics.drawString(this.font, Component.translatable("gui.mikro_dosierer.select_dosage").getString(), x + 30, y + 35, 0xAAAAAA, false);
     }
 
     @Override

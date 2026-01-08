@@ -89,11 +89,18 @@ public class MikroDosiererBlock extends Block implements EntityBlock {
             }
 
             // Status
-            player.displayClientMessage(Component.literal("§d⚗ Mikro-Dosierer\n")
+            Component message = Component.translatable("block.mikro_dosierer.title")
+                    .append(Component.literal("\n"))
                     .append(Component.translatable("block.lsd.mikro_count", dosierer.getLysergsaeureCount()))
-                    .append(Component.literal("\n§7Dosierung: §e" + dosierer.getCurrentMicrograms() + "μg\n"))
-                    .append(dosierer.isProcessing() ? Component.literal("§7Fortschritt: §e" + (int)(dosierer.getProgress() * 100) + "%") : Component.literal(""))
-            , true);
+                    .append(Component.literal("\n"))
+                    .append(Component.translatable("block.mikro_dosierer.dosage", dosierer.getCurrentMicrograms()))
+                    .append(Component.literal("\n"));
+
+            if (dosierer.isProcessing()) {
+                message = message.append(Component.translatable("block.mikro_dosierer.progress", (int)(dosierer.getProgress() * 100)));
+            }
+
+            player.displayClientMessage(message, true);
             return InteractionResult.SUCCESS;
         }
 
@@ -106,7 +113,7 @@ public class MikroDosiererBlock extends Block implements EntityBlock {
         NetworkHooks.openScreen(serverPlayer, new MenuProvider() {
             @Override
             public Component getDisplayName() {
-                return Component.literal("Mikro-Dosierer");
+                return Component.translatable("block.mikro_dosierer.display_name");
             }
 
             @Override

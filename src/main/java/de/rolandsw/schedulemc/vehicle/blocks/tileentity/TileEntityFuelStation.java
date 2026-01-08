@@ -246,7 +246,7 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
                                 .append(Component.literal(timeOfDay).withStyle(ChatFormatting.AQUA))
                                 .append(Component.literal("): ").withStyle(ChatFormatting.GRAY))
                                 .append(Component.literal(String.format("%.2f€", (double)pricePerUnit)).withStyle(ChatFormatting.GREEN))
-                                .append(Component.literal(" pro 10 mB").withStyle(ChatFormatting.GRAY)));
+                                .append(Component.translatable("vehicle.fuel_station.per_10mb").withStyle(ChatFormatting.GRAY)));
                             player.sendSystemMessage(Component.translatable("message.fuel.bill_activated").withStyle(ChatFormatting.AQUA));
                             player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
 
@@ -329,7 +329,7 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
             player.sendSystemMessage(Component.translatable("message.fuel.refueled_label").withStyle(ChatFormatting.GRAY)
                 .append(Component.literal(totalFueled + " mB").withStyle(ChatFormatting.AQUA))
                 .append(Component.literal(" Bio-Diesel").withStyle(ChatFormatting.GREEN)));
-            player.sendSystemMessage(Component.literal("Kosten: ").withStyle(ChatFormatting.GRAY)
+            player.sendSystemMessage(Component.translatable("vehicle.fuel_station.costs_label").withStyle(ChatFormatting.GRAY)
                 .append(Component.literal(String.format("%.2f€", totalCost)).withStyle(ChatFormatting.GOLD)));
             player.sendSystemMessage(Component.translatable("message.common.outstanding_amount").withStyle(ChatFormatting.GRAY)
                 .append(Component.literal(String.format("%.2f€", FuelBillManager.getTotalUnpaidAmount(playerUUID))).withStyle(ChatFormatting.RED, ChatFormatting.BOLD)));

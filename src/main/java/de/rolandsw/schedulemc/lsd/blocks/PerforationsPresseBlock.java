@@ -111,12 +111,22 @@ public class PerforationsPresseBlock extends Block implements EntityBlock {
             }
 
             // Status
-            player.displayClientMessage(Component.literal("§d⚗ Perforations-Presse\n")
-                    .append(Component.literal("§7Design: " + presse.getSelectedDesign().getColoredName() + " " + presse.getSelectedDesign().getSymbol() + "\n"))
+            Component message = Component.translatable("block.perforations_presse.title")
+                    .append(Component.literal("\n"))
+                    .append(Component.translatable("block.perforations_presse.design", presse.getSelectedDesign().getColoredName(), presse.getSelectedDesign().getSymbol()))
+                    .append(Component.literal("\n"))
                     .append(Component.translatable("block.lsd.perforation_paper_count", presse.getBlotterPapierCount()))
-                    .append(Component.literal("\n§7Lösung: §f" + (presse.hasLoesung() ? "✓" : "✗") + "\n"))
-                    .append(presse.isPressing() ? Component.literal("§7Fortschritt: §e" + (int)(presse.getProgress() * 100) + "%") : presse.hasLoesung() && presse.hasPapier() ? Component.translatable("block.lsd.perforation_ready") : Component.literal(""))
-            , true);
+                    .append(Component.literal("\n"))
+                    .append(Component.translatable("block.perforations_presse.solution", (presse.hasLoesung() ? "✓" : "✗")))
+                    .append(Component.literal("\n"));
+
+            if (presse.isPressing()) {
+                message = message.append(Component.translatable("block.perforations_presse.progress", (int)(presse.getProgress() * 100)));
+            } else if (presse.hasLoesung() && presse.hasPapier()) {
+                message = message.append(Component.translatable("block.lsd.perforation_ready"));
+            }
+
+            player.displayClientMessage(message, true);
             return InteractionResult.SUCCESS;
         }
 

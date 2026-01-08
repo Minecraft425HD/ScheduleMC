@@ -45,7 +45,7 @@ public class BankDepositPacket {
             if (amount > depositLimit) {
                 player.sendSystemMessage(Component.translatable("message.bank.deposit_limit_exceeded")
                     .withStyle(ChatFormatting.RED));
-                player.sendSystemMessage(Component.literal("Maximum: ")
+                player.sendSystemMessage(Component.translatable("network.bank.maximum_label")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(String.format("%.2f€", depositLimit))
                         .withStyle(ChatFormatting.YELLOW)));
@@ -57,7 +57,7 @@ public class BankDepositPacket {
             if (walletBalance < amount) {
                 player.sendSystemMessage(Component.translatable("message.bank.insufficient_cash")
                     .withStyle(ChatFormatting.RED));
-                player.sendSystemMessage(Component.literal("Bargeld: ")
+                player.sendSystemMessage(Component.translatable("network.bank.cash_label")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(String.format("%.2f€", walletBalance))
                         .withStyle(ChatFormatting.YELLOW)));
@@ -83,14 +83,14 @@ public class BankDepositPacket {
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID())))
                         .withStyle(ChatFormatting.AQUA)));
-                player.sendSystemMessage(Component.literal("Restliches Bargeld: ")
+                player.sendSystemMessage(Component.translatable("network.bank.remaining_cash")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(String.format("%.2f€", WalletManager.getBalance(player.getUUID())))
                         .withStyle(ChatFormatting.YELLOW)));
                 player.sendSystemMessage(Component.literal("═══════════════════════════════")
                     .withStyle(ChatFormatting.GREEN));
             } else {
-                player.sendSystemMessage(Component.literal("⚠ Fehler bei der Einzahlung!")
+                player.sendSystemMessage(Component.translatable("network.bank.deposit_error")
                     .withStyle(ChatFormatting.RED));
             }
         });

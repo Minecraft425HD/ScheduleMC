@@ -124,7 +124,9 @@ public class StockTradePacket {
                 .withStyle(ChatFormatting.RED));
             player.sendSystemMessage(Component.translatable("message.bank.required")
                 .withStyle(ChatFormatting.GRAY)
-                .append(Component.literal(slotsNeeded + " freie Slots")
+                .append(Component.literal(String.valueOf(slotsNeeded))
+                    .withStyle(ChatFormatting.YELLOW))
+                .append(Component.translatable("network.stock.free_slots_suffix")
                     .withStyle(ChatFormatting.YELLOW)));
             return;
         }
@@ -161,7 +163,7 @@ public class StockTradePacket {
             .withStyle(ChatFormatting.GRAY)
             .append(Component.literal(String.format("%.2f€", pricePerUnit))
                 .withStyle(ChatFormatting.GOLD)));
-        player.sendSystemMessage(Component.literal("Gesamtkosten: ")
+        player.sendSystemMessage(Component.translatable("network.stock.total_cost")
             .withStyle(ChatFormatting.GRAY)
             .append(Component.literal(String.format("-%.2f€", totalCost))
                 .withStyle(ChatFormatting.RED)));

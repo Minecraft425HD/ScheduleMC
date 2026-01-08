@@ -58,7 +58,7 @@ public class BankTransferPacket {
                 double dailyLimit = ModConfigHandler.COMMON.BANK_TRANSFER_DAILY_LIMIT.get();
                 player.sendSystemMessage(Component.translatable("message.bank.transfer_limit_exceeded")
                     .withStyle(ChatFormatting.RED));
-                player.sendSystemMessage(Component.literal("Limit: ")
+                player.sendSystemMessage(Component.translatable("network.bank.limit_label")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(String.format("%.2f€", dailyLimit))
                         .withStyle(ChatFormatting.YELLOW)));
@@ -127,7 +127,7 @@ public class BankTransferPacket {
                         .withStyle(ChatFormatting.AQUA)));
 
                 double newRemaining = tracker.getRemainingLimit(player.getUUID());
-                player.sendSystemMessage(Component.literal("Verbleibendes Tageslimit: ")
+                player.sendSystemMessage(Component.translatable("network.bank.remaining_daily_limit")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(String.format("%.2f€", newRemaining))
                         .withStyle(ChatFormatting.YELLOW)));
@@ -139,9 +139,9 @@ public class BankTransferPacket {
                     .withStyle(ChatFormatting.GREEN));
                 targetPlayer.sendSystemMessage(Component.literal("💰 ").append(Component.translatable("message.bank.transfer_received"))
                     .withStyle(ChatFormatting.YELLOW)
-                    .append(Component.literal("GELD ERHALTEN")
+                    .append(Component.translatable("network.bank.money_received")
                         .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)));
-                targetPlayer.sendSystemMessage(Component.literal("Von: ")
+                targetPlayer.sendSystemMessage(Component.translatable("network.bank.from_label")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(player.getName().getString())
                         .withStyle(ChatFormatting.YELLOW)));
