@@ -64,7 +64,7 @@ public class SmallPackagingTableBlockEntity extends AbstractPackagingTableBlockE
 
     @Override
     public Component getDisplayName() {
-        return Component.literal("Kleiner Packtisch (1g, 5g)");
+        return Component.translatable("container.small_packaging_table");
     }
 
     @Nullable

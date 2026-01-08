@@ -2060,5 +2060,18 @@
   "item.watering_can.empty": "§7Empty Watering Can",
   "item.watering_can.full": "§bFull Watering Can",
   "item.watering_can.name": "§fWatering Can",
-  "item.mist_bag.empty": "§7Empty %s"
+  "item.mist_bag.empty": "§7Empty %s",
+  "message.fuel_station.registered": "§a§l✓ FUEL STATION REGISTERED",
+  "message.fuel_station.pump_label": "§fPump: §b%s",
+  "message.fuel_station.id_label": "§f  ID: §7%s",
+  "message.fuel_station.shop_plot_label": "§fShop Plot: §e%s",
+  "message.fuel_station.billing_system": "§f💳 Billing System: %s",
+  "message.fuel_station.activated": "§a§lACTIVATED",
+  "message.fuel_station.stop_refueling": "⚠ Please stop refueling with the STOP button!",
+  "container.large_packaging_table": "Large Packaging Table",
+  "container.medium_packaging_table": "Medium Packaging Table",
+  "container.small_packaging_table": "Small Packaging Table",
+  "block.big_drying_rack.name": "Large Drying Rack",
+  "block.medium_drying_rack.name": "Medium Drying Rack",
+  "block.small_drying_rack.name": "Small Drying Rack"
 }

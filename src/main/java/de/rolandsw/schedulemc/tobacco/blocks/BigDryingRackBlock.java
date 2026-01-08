@@ -257,7 +257,7 @@ public class BigDryingRackBlock extends Block implements EntityBlock {
             NetworkHooks.openScreen(serverPlayer, new MenuProvider() {
                 @Override
                 public @NotNull Component getDisplayName() {
-                    return Component.literal("Großes Trocknungsgestell");
+                    return Component.translatable("block.big_drying_rack.name");
                 }
 
                 @Nullable

@@ -2056,5 +2056,18 @@
   "item.watering_can.empty": "§7Leere Gießkanne",
   "item.watering_can.full": "§bVolle Gießkanne",
   "item.watering_can.name": "§fGießkanne",
-  "item.mist_bag.empty": "§7Leerer %s"
+  "item.mist_bag.empty": "§7Leerer %s",
+  "message.fuel_station.registered": "§a§l✓ TANKSTELLE REGISTRIERT",
+  "message.fuel_station.pump_label": "§fZapfsäule: §b%s",
+  "message.fuel_station.id_label": "§f  ID: §7%s",
+  "message.fuel_station.shop_plot_label": "§fShop-Plot: §e%s",
+  "message.fuel_station.billing_system": "§f💳 Rechnungssystem: %s",
+  "message.fuel_station.activated": "§a§lAKTIVIERT",
+  "message.fuel_station.stop_refueling": "⚠ Bitte beenden Sie den Tankvorgang mit dem STOP-Button!",
+  "container.large_packaging_table": "Großer Verpackungstisch",
+  "container.medium_packaging_table": "Mittlerer Verpackungstisch",
+  "container.small_packaging_table": "Kleiner Verpackungstisch",
+  "block.big_drying_rack.name": "Großes Trocknungsgestell",
+  "block.medium_drying_rack.name": "Mittleres Trocknungsgestell",
+  "block.small_drying_rack.name": "Kleines Trocknungsgestell"
 }

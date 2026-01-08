@@ -242,7 +242,7 @@ public class MediumDryingRackBlock extends Block implements EntityBlock {
             NetworkHooks.openScreen(serverPlayer, new MenuProvider() {
                 @Override
                 public @NotNull Component getDisplayName() {
-                    return Component.literal("Mittleres Trocknungsgestell");
+                    return Component.translatable("block.medium_drying_rack.name");
                 }
 
                 @Nullable
