@@ -72,7 +72,7 @@ public class ShopInvestCommand {
             var shops = ShopAccountManager.getAllAccounts();
 
             if (shops.isEmpty()) {
-                ctx.getSource().sendSuccess(() -> Component.literal("§eKeine Shops verfügbar."), false);
+                ctx.getSource().sendSuccess(() -> Component.translatable("command.shopinvest.no_shops"), false);
                 return 1;
             }
 

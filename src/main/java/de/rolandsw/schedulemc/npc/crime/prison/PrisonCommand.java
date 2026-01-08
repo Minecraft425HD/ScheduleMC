@@ -90,7 +90,7 @@ public class PrisonCommand {
         PlotRegion plot = PlotManager.getPlot(plotId);
 
         if (plot == null) {
-            source.sendFailure(Component.literal("§c✗ Plot '" + plotId + "' nicht gefunden!"));
+            source.sendFailure(Component.translatable("command.prison.plot_not_found", plotId));
             return 0;
         }
 
@@ -99,8 +99,7 @@ public class PrisonCommand {
 
         PrisonManager.getInstance().registerPrison(plotId);
 
-        source.sendSuccess(() -> Component.literal(
-            "§a✓ Gefängnis erstellt: " + plotId), true);
+        source.sendSuccess(() -> Component.translatable("command.prison.created", plotId), true);
         return 1;
     }
 
@@ -110,14 +109,14 @@ public class PrisonCommand {
         PlotRegion prison = PrisonManager.getInstance().getDefaultPrison();
 
         if (prison == null) {
-            source.sendFailure(Component.literal("§c✗ Kein Gefängnis vorhanden! Erstelle erst eines mit /prison create"));
+            source.sendFailure(Component.translatable("command.prison.no_prison_create"));
             return 0;
         }
 
         // Prüfe ob Zelle bereits existiert
         for (var area : prison.getSubAreas()) {
             if (area instanceof PrisonCell cell && cell.getCellNumber() == cellNumber) {
-                source.sendFailure(Component.literal("§c✗ Zelle " + cellNumber + " existiert bereits!"));
+                source.sendFailure(Component.translatable("command.prison.cell_exists", cellNumber));
                 return 0;
             }
         }
@@ -134,9 +133,8 @@ public class PrisonCommand {
         prison.addSubArea(cell);
         PlotManager.savePlots();
 
-        source.sendSuccess(() -> Component.literal(String.format(
-            "§a✓ Zelle %d hinzugefügt (Sicherheit: %d, Min: %s, Max: %s)",
-            cellNumber, securityLevel, min.toShortString(), max.toShortString())), true);
+        source.sendSuccess(() -> Component.translatable("command.prison.cell_added",
+            cellNumber, securityLevel, min.toShortString(), max.toShortString()), true);
         return 1;
     }
 
@@ -144,7 +142,7 @@ public class PrisonCommand {
         PlotRegion prison = PrisonManager.getInstance().getDefaultPrison();
 
         if (prison == null) {
-            source.sendFailure(Component.literal("§c✗ Kein Gefängnis vorhanden!"));
+            source.sendFailure(Component.translatable("command.prison.no_prison"));
             return 0;
         }
 
@@ -152,17 +150,16 @@ public class PrisonCommand {
 
         if (removed) {
             PlotManager.savePlots();
-            source.sendSuccess(() -> Component.literal(
-                "§a✓ Zelle " + cellNumber + " entfernt"), true);
+            source.sendSuccess(() -> Component.translatable("command.prison.cell_removed", cellNumber), true);
             return 1;
         } else {
-            source.sendFailure(Component.literal("§c✗ Zelle " + cellNumber + " nicht gefunden!"));
+            source.sendFailure(Component.translatable("command.prison.cell_not_found", cellNumber));
             return 0;
         }
     }
 
     private static int listPrisons(CommandSourceStack source) {
-        source.sendSuccess(() -> Component.literal("§6═══ GEFÄNGNISSE ═══"), false);
+        source.sendSuccess(() -> Component.translatable("command.prison.prisons_header"), false);
 
         int count = 0;
         for (PlotRegion plot : PlotManager.getPlots()) {
@@ -177,7 +174,7 @@ public class PrisonCommand {
         }
 
         if (count == 0) {
-            source.sendSuccess(() -> Component.literal("§7Keine Gefängnisse vorhanden."), false);
+            source.sendSuccess(() -> Component.translatable("command.prison.no_prisons"), false);
         }
 
         return count;
@@ -187,7 +184,7 @@ public class PrisonCommand {
         PlotRegion prison = PrisonManager.getInstance().getDefaultPrison();
 
         if (prison == null) {
-            source.sendFailure(Component.literal("§c✗ Kein Gefängnis vorhanden!"));
+            source.sendFailure(Component.translatable("command.prison.no_prison"));
             return 0;
         }
 
@@ -237,14 +234,13 @@ public class PrisonCommand {
         PrisonManager manager = PrisonManager.getInstance();
 
         if (!manager.isPrisoner(player.getUUID())) {
-            source.sendFailure(Component.literal("§c✗ " + player.getName().getString() + " ist nicht im Gefängnis!"));
+            source.sendFailure(Component.translatable("command.prison.not_prisoner", player.getName().getString()));
             return 0;
         }
 
         manager.releasePlayer(player, PrisonManager.ReleaseReason.ADMIN_RELEASE);
 
-        source.sendSuccess(() -> Component.literal(
-            "§a✓ " + player.getName().getString() + " entlassen"), true);
+        source.sendSuccess(() -> Component.translatable("command.prison.released", player.getName().getString()), true);
         return 1;
     }
 
@@ -263,7 +259,7 @@ public class PrisonCommand {
         int minutes = remainingSeconds / 60;
         int seconds = remainingSeconds % 60;
 
-        source.sendSuccess(() -> Component.literal("§6═══ GEFÄNGNIS-STATUS ═══"), false);
+        source.sendSuccess(() -> Component.translatable("command.prison.status_header"), false);
         source.sendSuccess(() -> Component.literal("§7Spieler: §f" + data.playerName), false);
         source.sendSuccess(() -> Component.literal("§7Zelle: §f" + data.cellNumber), false);
         source.sendSuccess(() -> Component.literal("§7Verbleibend: §f" + minutes + ":" + String.format("%02d", seconds)), false);
@@ -275,7 +271,7 @@ public class PrisonCommand {
 
     private static int payBail(CommandSourceStack source) {
         if (!(source.getEntity() instanceof ServerPlayer player)) {
-            source.sendFailure(Component.literal("§c✗ Nur Spieler können Kaution zahlen!"));
+            source.sendFailure(Component.translatable("command.prison.bail_players_only"));
             return 0;
         }
 
@@ -285,14 +281,14 @@ public class PrisonCommand {
 
     private static int showJailTime(CommandSourceStack source) {
         if (!(source.getEntity() instanceof ServerPlayer player)) {
-            source.sendFailure(Component.literal("§c✗ Nur Spieler können diesen Befehl nutzen!"));
+            source.sendFailure(Component.translatable("command.prison.players_only"));
             return 0;
         }
 
         PrisonManager.PrisonerData data = PrisonManager.getInstance().getPrisonerData(player.getUUID());
 
         if (data == null) {
-            source.sendSuccess(() -> Component.literal("§7Du bist nicht im Gefängnis."), false);
+            source.sendSuccess(() -> Component.translatable("command.prison.not_in_jail"), false);
             return 0;
         }
 

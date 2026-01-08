@@ -40,11 +40,11 @@ public class MarketCommand {
         DynamicMarketManager manager = DynamicMarketManager.getInstance();
 
         if (!manager.isEnabled()) {
-            source.sendFailure(Component.literal("§cDer dynamische Markt ist deaktiviert!"));
+            source.sendFailure(Component.translatable("command.market.disabled"));
             return 0;
         }
 
-        source.sendSuccess(() -> Component.literal("§6§l═══ MARKTPREISE ═══"), false);
+        source.sendSuccess(() -> Component.translatable("command.market.prices_header"), false);
 
         int count = 0;
         for (MarketData data : manager.getAllMarketData()) {
@@ -63,7 +63,7 @@ public class MarketCommand {
         }
 
         final int totalCount = count;
-        source.sendSuccess(() -> Component.literal(String.format("§7Insgesamt: %d Items", totalCount)), false);
+        source.sendSuccess(() -> Component.translatable("command.market.total_items", totalCount), false);
 
         return 1;
     }
@@ -76,14 +76,14 @@ public class MarketCommand {
         DynamicMarketManager manager = DynamicMarketManager.getInstance();
 
         if (!manager.isEnabled()) {
-            source.sendFailure(Component.literal("§cDer dynamische Markt ist deaktiviert!"));
+            source.sendFailure(Component.translatable("command.market.disabled"));
             return 0;
         }
 
-        source.sendSuccess(() -> Component.literal("§6§l═══ MARKT-TRENDS ═══"), false);
+        source.sendSuccess(() -> Component.translatable("command.market.trends_header"), false);
 
         // Top 5 Steigend
-        source.sendSuccess(() -> Component.literal("§a§lSTEIGEND:"), false);
+        source.sendSuccess(() -> Component.translatable("command.market.rising"), false);
         List<MarketData> rising = manager.getTrendingUpItems(5);
         for (MarketData data : rising) {
             source.sendSuccess(() -> Component.literal(String.format(
@@ -95,7 +95,7 @@ public class MarketCommand {
         }
 
         // Top 5 Fallend
-        source.sendSuccess(() -> Component.literal("§c§lFALLEND:"), false);
+        source.sendSuccess(() -> Component.translatable("command.market.falling"), false);
         List<MarketData> falling = manager.getTrendingDownItems(5);
         for (MarketData data : falling) {
             source.sendSuccess(() -> Component.literal(String.format(
@@ -117,20 +117,20 @@ public class MarketCommand {
         DynamicMarketManager manager = DynamicMarketManager.getInstance();
 
         if (!manager.isEnabled()) {
-            source.sendFailure(Component.literal("§cDer dynamische Markt ist deaktiviert!"));
+            source.sendFailure(Component.translatable("command.market.disabled"));
             return 0;
         }
 
         DynamicMarketManager.MarketStatistics stats = manager.getStatistics();
 
-        source.sendSuccess(() -> Component.literal("§6§l═══ MARKT-STATISTIKEN ═══"), false);
-        source.sendSuccess(() -> Component.literal(String.format("§7Registrierte Items: §f%d", stats.totalItems())), false);
-        source.sendSuccess(() -> Component.literal(String.format("§aSteigende Preise: §f%d", stats.risingCount())), false);
-        source.sendSuccess(() -> Component.literal(String.format("§cFallende Preise: §f%d", stats.fallingCount())), false);
-        source.sendSuccess(() -> Component.literal(String.format("§7Stabile Preise: §f%d", stats.stableCount())), false);
-        source.sendSuccess(() -> Component.literal(String.format("§7Durchschnittspreis: §6%.2f€", stats.averagePrice())), false);
-        source.sendSuccess(() -> Component.literal(String.format("§7Durchschnittlicher Multiplier: §f×%.2f", stats.averageMultiplier())), false);
-        source.sendSuccess(() -> Component.literal(String.format("§7Gesamt-Updates: §f%d", stats.totalUpdates())), false);
+        source.sendSuccess(() -> Component.translatable("command.market.stats_header"), false);
+        source.sendSuccess(() -> Component.translatable("command.market.registered_items", stats.totalItems()), false);
+        source.sendSuccess(() -> Component.translatable("command.market.rising_prices", stats.risingCount()), false);
+        source.sendSuccess(() -> Component.translatable("command.market.falling_prices", stats.fallingCount()), false);
+        source.sendSuccess(() -> Component.translatable("command.market.stable_prices", stats.stableCount()), false);
+        source.sendSuccess(() -> Component.translatable("command.market.average_price", String.format("%.2f", stats.averagePrice())), false);
+        source.sendSuccess(() -> Component.translatable("command.market.average_multiplier", String.format("%.2f", stats.averageMultiplier())), false);
+        source.sendSuccess(() -> Component.translatable("command.market.total_updates", stats.totalUpdates()), false);
 
         return 1;
     }
@@ -143,11 +143,11 @@ public class MarketCommand {
         DynamicMarketManager manager = DynamicMarketManager.getInstance();
 
         if (!manager.isEnabled()) {
-            source.sendFailure(Component.literal("§cDer dynamische Markt ist deaktiviert!"));
+            source.sendFailure(Component.translatable("command.market.disabled"));
             return 0;
         }
 
-        source.sendSuccess(() -> Component.literal("§6§l═══ TOP PREISE ═══"), false);
+        source.sendSuccess(() -> Component.translatable("command.market.top_header"), false);
 
         List<MarketData> top = manager.getTopPricedItems(10);
         for (int i = 0; i < top.size(); i++) {

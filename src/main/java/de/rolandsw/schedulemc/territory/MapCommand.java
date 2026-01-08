@@ -34,7 +34,7 @@ public class MapCommand {
      */
     private static int openEditor(CommandContext<CommandSourceStack> context) {
         if (!(context.getSource().getEntity() instanceof ServerPlayer player)) {
-            context.getSource().sendFailure(Component.literal("§cNur Spieler können diesen Command nutzen!"));
+            context.getSource().sendFailure(Component.translatable("command.map.players_only"));
             return 0;
         }
 
@@ -48,13 +48,7 @@ public class MapCommand {
         TerritoryNetworkHandler.sendToPlayer(new OpenMapEditorPacket(), player);
 
         context.getSource().sendSuccess(() ->
-            Component.literal("§a§lTerritory Map Editor§r\n" +
-                "§7Öffne Editor...\n" +
-                "§7Steuerung:\n" +
-                "  §e• Linksklick: §fTerritory setzen\n" +
-                "  §e• Rechtsklick + Ziehen: §fKarte verschieben\n" +
-                "  §e• Mausrad: §fZoom\n" +
-                "  §e• WASD/Pfeiltasten: §fKarte verschieben"), false);
+            Component.translatable("command.map.editor_opening"), false);
 
         return 1;
     }
@@ -66,18 +60,18 @@ public class MapCommand {
         TerritoryManager manager = TerritoryManager.getInstance();
 
         if (manager == null) {
-            context.getSource().sendFailure(Component.literal("§cTerritoryManager nicht verfügbar!"));
+            context.getSource().sendFailure(Component.translatable("command.map.manager_unavailable"));
             return 0;
         }
 
         context.getSource().sendSuccess(() ->
-            Component.literal("§6§l═══ TERRITORY INFO ═══§r"), false);
+            Component.translatable("command.map.info_header"), false);
 
         context.getSource().sendSuccess(() ->
             Component.literal(manager.getStatistics()), false);
 
         context.getSource().sendSuccess(() ->
-            Component.literal("§6§l════════════════════════§r"), false);
+            Component.translatable("command.map.info_footer"), false);
 
         return 1;
     }
