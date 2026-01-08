@@ -2055,5 +2055,6 @@
   "item.soil_bag.full": "Voller %s",
   "item.watering_can.empty": "§7Leere Gießkanne",
   "item.watering_can.full": "§bVolle Gießkanne",
-  "item.watering_can.name": "§fGießkanne"
+  "item.watering_can.name": "§fGießkanne",
+  "item.mist_bag.empty": "§7Leerer %s"
 }

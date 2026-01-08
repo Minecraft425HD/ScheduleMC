@@ -114,7 +114,7 @@ public class MistBagItem extends Item {
     public Component getName(ItemStack stack) {
         int units = getUnits(stack);
         if (units <= 0) {
-            return Component.literal("§7Leerer " + type.getDisplayName());
+            return Component.translatable("item.mist_bag.empty", type.getDisplayName());
         } else if (units >= UNITS_PER_BAG) {
             return Component.literal(type.getColor())
                 .append(Component.translatable("item.mist_bag.full", type.getDisplayName()));

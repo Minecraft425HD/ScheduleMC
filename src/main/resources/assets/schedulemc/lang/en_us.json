@@ -2059,5 +2059,6 @@
   "item.soil_bag.full": "Full %s",
   "item.watering_can.empty": "§7Empty Watering Can",
   "item.watering_can.full": "§bFull Watering Can",
-  "item.watering_can.name": "§fWatering Can"
+  "item.watering_can.name": "§fWatering Can",
+  "item.mist_bag.empty": "§7Empty %s"
 }
