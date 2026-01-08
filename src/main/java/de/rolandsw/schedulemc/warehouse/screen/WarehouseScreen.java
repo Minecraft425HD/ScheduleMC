@@ -60,16 +60,16 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
 
     // Tabs
     private enum Tab {
-        ITEMS("Items", "📦"),
-        SELLERS("Seller", "👥"),
-        STATS("Stats", "📊"),
-        SETTINGS("Einstellungen", "⚙");
+        ITEMS("gui.warehouse.tab_items", "📦"),
+        SELLERS("gui.warehouse.tab_sellers", "👥"),
+        STATS("gui.warehouse.tab_stats", "📊"),
+        SETTINGS("gui.warehouse.tab_settings", "⚙");
 
-        final String name;
+        final String translationKey;
         final String icon;
 
-        Tab(String name, String icon) {
-            this.name = name;
+        Tab(String translationKey, String icon) {
+            this.translationKey = translationKey;
             this.icon = icon;
         }
     }
@@ -159,7 +159,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         for (Tab tab : Tab.values()) {
             final Tab finalTab = tab;
             addRenderableWidget(Button.builder(
-                Component.literal(tab.icon + " " + tab.name),
+                Component.literal(tab.icon + " ").append(Component.translatable(tab.translationKey)),
                 button -> switchTab(finalTab)
             ).bounds(tabX, tabY, tabWidth, tabHeight).build());
 
@@ -471,7 +471,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         if (warehouse == null) return;
 
         // Left Panel: Item List
-        graphics.drawString(this.font, "§lITEM LISTE", x + 10, y + 35, COLOR_TEXT, false);
+        graphics.drawString(this.font, Component.translatable("gui.warehouse.item_list").getString(), x + 10, y + 35, COLOR_TEXT, false);
 
         WarehouseSlot[] slots = warehouse.getSlots();
         int renderY = y + 50;
@@ -502,7 +502,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
 
             // Item Name
             String itemName = slot.getAllowedItem() != null ?
-                slot.getAllowedItem().getDescription().getString() : "Leer";
+                slot.getAllowedItem().getDescription().getString() : Component.translatable("gui.warehouse.empty").getString();
             graphics.drawString(this.font, itemName, x + 32, renderY + 4, COLOR_TEXT, false);
 
             // Stock Info - Unlimited als ∞ anzeigen
@@ -531,48 +531,48 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         }
 
         // Right Panel: Slot Details
-        graphics.drawString(this.font, "§lSLOT DETAILS", x + 270, y + 35, COLOR_TEXT, false);
+        graphics.drawString(this.font, Component.translatable("gui.warehouse.slot_details").getString(), x + 270, y + 35, COLOR_TEXT, false);
 
         if (selectedSlotIndex >= 0 && selectedSlotIndex < slots.length) {
             WarehouseSlot selectedSlot = slots[selectedSlotIndex];
             int detailY = y + 120;
 
-            graphics.drawString(this.font, "Item: " +
+            graphics.drawString(this.font, Component.translatable("gui.warehouse.item").getString() +
                 (selectedSlot.getAllowedItem() != null ?
                     selectedSlot.getAllowedItem().getDescription().getString() : "N/A"),
                 x + 270, detailY, COLOR_TEXT_GRAY, false);
 
-            graphics.drawString(this.font, "Bestand: " + selectedSlot.getStock(),
+            graphics.drawString(this.font, Component.translatable("gui.warehouse.inventory").getString() + selectedSlot.getStock(),
                 x + 270, detailY + 12, COLOR_TEXT_GRAY, false);
 
-            graphics.drawString(this.font, "Max: " + selectedSlot.getMaxCapacity(),
+            graphics.drawString(this.font, Component.translatable("gui.warehouse.max").getString() + selectedSlot.getMaxCapacity(),
                 x + 270, detailY + 24, COLOR_TEXT_GRAY, false);
 
-            graphics.drawString(this.font, "Frei: " + selectedSlot.getAvailableSpace(),
+            graphics.drawString(this.font, Component.translatable("gui.warehouse.free").getString() + selectedSlot.getAvailableSpace(),
                 x + 270, detailY + 36, COLOR_TEXT_GRAY, false);
         } else {
-            graphics.drawString(this.font, "Kein Slot ausgewählt",
+            graphics.drawString(this.font, Component.translatable("gui.warehouse.no_slot_selected").getString(),
                 x + 270, y + 120, COLOR_TEXT_GRAY, false);
 
             // Zeige Hilfetext wenn keine Items vorhanden
             if (warehouse.getUsedSlots() == 0) {
                 int helpY = y + 140;
-                graphics.drawString(this.font, "§7So fügen Sie Items hinzu:",
+                graphics.drawString(this.font, Component.translatable("gui.warehouse.how_to_add").getString(),
                     x + 270, helpY, COLOR_TEXT_GRAY, false);
                 helpY += 12;
 
-                graphics.drawString(this.font, "§7Verwenden Sie den Command:",
+                graphics.drawString(this.font, Component.translatable("gui.warehouse.use_command").getString(),
                     x + 270, helpY, COLOR_TEXT_GRAY, false);
                 helpY += 12;
 
-                graphics.drawString(this.font, "§e/warehouse add <item> <amount>",
+                graphics.drawString(this.font, Component.translatable("gui.warehouse.command_example").getString(),
                     x + 270, helpY, COLOR_WARNING, false);
             }
         }
 
         // NPC Shop Items Section (unten rechts)
         int npcShopY = y + 160;
-        graphics.drawString(this.font, "§l§eNPC SHOP", x + 270, npcShopY, COLOR_WARNING, false);
+        graphics.drawString(this.font, Component.translatable("gui.warehouse.npc_shop").getString(), x + 270, npcShopY, COLOR_WARNING, false);
         npcShopY += 12;
 
         List<NPCData.ShopEntry> shopItems = getLinkedNPCShopItems();
@@ -605,11 +605,11 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
             }
 
             if (shopItems.size() > 3) {
-                graphics.drawString(this.font, "§7+" + (shopItems.size() - 3) + " mehr...",
+                graphics.drawString(this.font, Component.translatable("gui.warehouse.more").getString() + (shopItems.size() - 3) + Component.translatable("gui.warehouse.more_items").getString(),
                     x + 270, npcShopY, COLOR_TEXT_GRAY, false);
             }
         } else {
-            graphics.drawString(this.font, "§7Kein NPC Shop", x + 270, npcShopY, COLOR_TEXT_GRAY, false);
+            graphics.drawString(this.font, Component.translatable("gui.warehouse.no_npc_shop").getString(), x + 270, npcShopY, COLOR_TEXT_GRAY, false);
         }
 
         // Bottom Info
@@ -634,7 +634,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         clickableNPCs.clear();
 
         // Left Panel: Verknüpfte Verkäufer
-        graphics.drawString(this.font, "§lVERKNÜPFTE VERKÄUFER", x + 10, y + 35, COLOR_TEXT, false);
+        graphics.drawString(this.font, Component.translatable("gui.warehouse.linked_sellers").getString(), x + 10, y + 35, COLOR_TEXT, false);
 
         List<UUID> sellers = warehouse.getLinkedSellers();
         int renderY = y + 50;
@@ -669,12 +669,12 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         }
 
         if (sellers.isEmpty()) {
-            graphics.drawString(this.font, "Keine Verkäufer verknüpft",
+            graphics.drawString(this.font, Component.translatable("gui.warehouse.no_sellers").getString(),
                 x + 15, y + 50, COLOR_TEXT_GRAY, false);
         }
 
         // Right Panel: Verfügbare NPCs
-        graphics.drawString(this.font, "§lVERFÜGBARE NPCS", x + 210, y + 35, COLOR_TEXT, false);
+        graphics.drawString(this.font, Component.translatable("gui.warehouse.available_npcs").getString(), x + 210, y + 35, COLOR_TEXT, false);
 
         List<CustomNPCEntity> availableNpcs = getAvailableNPCs();
         renderY = y + 50;
@@ -705,14 +705,14 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         }
 
         if (availableNpcs.isEmpty()) {
-            graphics.drawString(this.font, "Alle NPCs sind verknüpft",
+            graphics.drawString(this.font, Component.translatable("gui.warehouse.all_npcs_linked").getString(),
                 x + 215, y + 50, COLOR_TEXT_GRAY, false);
         }
 
         // Bottom info
-        graphics.drawString(this.font, "Verknüpft: " + sellers.size(),
+        graphics.drawString(this.font, Component.translatable("gui.warehouse.linked").getString() + sellers.size(),
             x + 10, y + 215, COLOR_TEXT_GRAY, false);
-        graphics.drawString(this.font, "Verfügbar: " + availableNpcs.size(),
+        graphics.drawString(this.font, Component.translatable("gui.warehouse.available").getString() + availableNpcs.size(),
             x + 210, y + 215, COLOR_TEXT_GRAY, false);
     }
 
@@ -780,7 +780,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         int contentY = y + 40 - statsScrollOffset; // Apply scroll offset
 
         // === LAGERBESTAND ÜBERSICHT ===
-        graphics.drawString(this.font, "§l§e📊 LAGERBESTAND ÜBERSICHT", x + 10, contentY, COLOR_TEXT, false);
+        graphics.drawString(this.font, Component.translatable("gui.warehouse.stats_title").getString(), x + 10, contentY, COLOR_TEXT, false);
         contentY += 15;
 
         WarehouseSlot[] slots = warehouse.getSlots();
@@ -796,14 +796,14 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
 
         graphics.fill(barX, contentY, barX + barWidth, contentY + barHeight, COLOR_BG_LIGHT);
         graphics.fill(barX, contentY, barX + filledWidth, contentY + barHeight, COLOR_SUCCESS);
-        graphics.drawString(this.font, String.format("%.0f%% ausgelastet (%d/%d Slots)",
+        graphics.drawString(this.font, String.format(Component.translatable("gui.warehouse.utilization").getString(),
             fillPercentage, usedSlots, totalSlots),
             barX + 80, contentY + 6, COLOR_TEXT, false);
 
         contentY += 35;
 
         // Top 5 Items
-        graphics.drawString(this.font, "Top 5 Items nach Bestand:", x + 10, contentY, COLOR_TEXT_GRAY, false);
+        graphics.drawString(this.font, Component.translatable("gui.warehouse.top_5_items").getString(), x + 10, contentY, COLOR_TEXT_GRAY, false);
         contentY += 12;
 
         // Simple top 5 (sorted by stock)
@@ -819,7 +819,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
                 slot.getAllowedItem().getDescription().getString() : "Unknown";
 
             int percentage = (int) ((double) slot.getStock() / slot.getMaxCapacity() * 100);
-            String status = slot.isFull() ? " [VOLL]" : "";
+            String status = slot.isFull() ? Component.translatable("gui.warehouse.full").getString() : "";
 
             graphics.drawString(this.font,
                 String.format("%d. %s: %d/%d (%d%%)%s",
@@ -831,7 +831,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         contentY += 10;
 
         // === FINANZEN ===
-        graphics.drawString(this.font, "§l§e💰 FINANZEN", x + 10, contentY, COLOR_TEXT, false);
+        graphics.drawString(this.font, Component.translatable("gui.warehouse.finances_title").getString(), x + 10, contentY, COLOR_TEXT, false);
         contentY += 15;
 
         String shopId = warehouse.getShopId();
@@ -839,7 +839,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
             ShopAccount account = ShopAccountManager.getAccount(shopId);
             if (account != null) {
                 int netRevenue7Days = account.get7DayNetRevenue();
-                graphics.drawString(this.font, "Nettoumsatz (7 Tage): " + String.format("%d€", netRevenue7Days),
+                graphics.drawString(this.font, Component.translatable("gui.warehouse.net_revenue_7days").getString() + String.format("%d€", netRevenue7Days),
                     x + 15, contentY, netRevenue7Days >= 0 ? COLOR_SUCCESS : COLOR_DANGER, false);
                 contentY += 12;
 
@@ -850,20 +850,20 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
                 double avgExpensePerDelivery = warehouse.getAverageExpensePerDelivery(currentTime, 30);
 
                 graphics.drawString(this.font,
-                    "Ausgaben (30 Tage): " + String.format("%d€", totalExpenses30Days),
+                    Component.translatable("gui.warehouse.expenses_30days").getString() + String.format("%d€", totalExpenses30Days),
                     x + 15, contentY, COLOR_WARNING, false);
                 contentY += 12;
 
                 if (deliveryCount30Days > 0) {
                     graphics.drawString(this.font,
-                        "  Lieferungen: " + deliveryCount30Days + "x | Ø " + String.format("%.0f€", avgExpensePerDelivery),
+                        Component.translatable("gui.warehouse.deliveries").getString() + deliveryCount30Days + "x | Ø " + String.format("%.0f€", avgExpensePerDelivery),
                         x + 15, contentY, COLOR_TEXT_GRAY, false);
                     contentY += 12;
 
                     // Zeige letzte 3 Lieferungen
                     List<de.rolandsw.schedulemc.warehouse.ExpenseEntry> recentExpenses = warehouse.getExpenses();
                     if (!recentExpenses.isEmpty()) {
-                        graphics.drawString(this.font, "  Letzte Lieferungen:",
+                        graphics.drawString(this.font, Component.translatable("gui.warehouse.last_deliveries").getString(),
                             x + 15, contentY, COLOR_TEXT_GRAY, false);
                         contentY += 12;
 
@@ -872,7 +872,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
                         for (int i = recentExpenses.size() - 1; i >= 0 && shown < 3; i--) {
                             de.rolandsw.schedulemc.warehouse.ExpenseEntry expense = recentExpenses.get(i);
                             int ageDays = expense.getAgeDays(currentTime);
-                            String ageStr = ageDays == 0 ? "heute" : "vor " + ageDays + "d";
+                            String ageStr = ageDays == 0 ? Component.translatable("gui.warehouse.today").getString() : Component.translatable("gui.warehouse.days_ago").getString() + ageDays + Component.translatable("gui.warehouse.days").getString();
 
                             graphics.drawString(this.font,
                                 String.format("    • %d€ (%s)", expense.getAmount(), ageStr),
@@ -884,21 +884,21 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
                     }
                 }
             } else {
-                graphics.drawString(this.font, "Shop-Konto nicht gefunden: " + shopId,
+                graphics.drawString(this.font, Component.translatable("gui.warehouse.shop_account_not_found").getString() + shopId,
                     x + 15, contentY, COLOR_DANGER, false);
             }
         } else {
-            graphics.drawString(this.font, "Kein Shop-Konto verknüpft",
+            graphics.drawString(this.font, Component.translatable("gui.warehouse.no_shop_account").getString(),
                 x + 15, contentY, COLOR_TEXT_GRAY, false);
         }
 
         contentY += 20;
 
         // === AUTO-DELIVERY ===
-        graphics.drawString(this.font, "§l§e📦 AUTO-DELIVERY", x + 10, contentY, COLOR_TEXT, false);
+        graphics.drawString(this.font, Component.translatable("gui.warehouse.auto_delivery_title").getString(), x + 10, contentY, COLOR_TEXT, false);
         contentY += 15;
 
-        graphics.drawString(this.font, "Status: Aktiv ✓", x + 15, contentY, COLOR_SUCCESS, false);
+        graphics.drawString(this.font, Component.translatable("gui.warehouse.status_active").getString(), x + 15, contentY, COLOR_SUCCESS, false);
         contentY += 12;
 
         long lastDeliveryDay = warehouse.getLastDeliveryDay();
@@ -907,12 +907,12 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         long daysUntilNext = (lastDeliveryDay + intervalDays) - currentDay;
 
         graphics.drawString(this.font,
-            "Nächste Lieferung: in " + Math.max(0, daysUntilNext) + " Tagen",
+            Component.translatable("gui.warehouse.next_delivery").getString() + Math.max(0, daysUntilNext) + Component.translatable("gui.warehouse.delivery_days").getString(),
             x + 15, contentY, COLOR_TEXT, false);
         contentY += 12;
 
         graphics.drawString(this.font,
-            "Interval: alle " + ModConfigHandler.COMMON.WAREHOUSE_DELIVERY_INTERVAL_DAYS.get() + " Tage",
+            Component.translatable("gui.warehouse.interval_days").getString() + ModConfigHandler.COMMON.WAREHOUSE_DELIVERY_INTERVAL_DAYS.get() + Component.translatable("gui.warehouse.days_interval").getString(),
             x + 15, contentY, COLOR_TEXT_GRAY, false);
 
         // Disable scissor after rendering
@@ -929,52 +929,52 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
 
         int contentY = y + 40;
 
-        graphics.drawString(this.font, "§l§e⚙ WAREHOUSE KONFIGURATION", x + 10, contentY, COLOR_TEXT, false);
+        graphics.drawString(this.font, Component.translatable("gui.warehouse.config_title").getString(), x + 10, contentY, COLOR_TEXT, false);
         contentY += 20;
 
         // Shop ID
-        graphics.drawString(this.font, "Shop ID:", x + 15, contentY + 5, COLOR_TEXT, false);
+        graphics.drawString(this.font, Component.translatable("gui.warehouse.shop_id").getString() + ":", x + 15, contentY + 5, COLOR_TEXT, false);
         // Input field is rendered by widget system
         contentY += 30;
 
         // Auto-Delivery Info
-        graphics.drawString(this.font, "Auto-Delivery:", x + 15, contentY, COLOR_TEXT, false);
+        graphics.drawString(this.font, Component.translatable("gui.warehouse.auto_delivery_label").getString(), x + 15, contentY, COLOR_TEXT, false);
         contentY += 15;
 
         graphics.drawString(this.font,
-            "  Aktiviert: Ja",
+            Component.translatable("gui.warehouse.enabled_yes").getString(),
             x + 20, contentY, COLOR_SUCCESS, false);
         contentY += 12;
 
         graphics.drawString(this.font,
-            "  Interval: " + ModConfigHandler.COMMON.WAREHOUSE_DELIVERY_INTERVAL_DAYS.get() + " Tage",
+            Component.translatable("gui.warehouse.interval_label").getString() + ModConfigHandler.COMMON.WAREHOUSE_DELIVERY_INTERVAL_DAYS.get() + Component.translatable("gui.warehouse.days_interval").getString(),
             x + 20, contentY, COLOR_TEXT_GRAY, false);
         contentY += 20;
 
         // Slot Config
-        graphics.drawString(this.font, "Slot-Konfiguration:", x + 15, contentY, COLOR_TEXT, false);
+        graphics.drawString(this.font, Component.translatable("gui.warehouse.slot_config").getString(), x + 15, contentY, COLOR_TEXT, false);
         contentY += 15;
 
         WarehouseSlot[] slots = warehouse.getSlots();
         graphics.drawString(this.font,
-            "  Anzahl Slots: " + slots.length,
+            Component.translatable("gui.warehouse.slot_count").getString() + slots.length,
             x + 20, contentY, COLOR_TEXT_GRAY, false);
         contentY += 12;
 
         graphics.drawString(this.font,
-            "  Max Kapazität/Slot: " + ModConfigHandler.COMMON.WAREHOUSE_MAX_CAPACITY_PER_SLOT.get(),
+            Component.translatable("gui.warehouse.max_capacity").getString() + ModConfigHandler.COMMON.WAREHOUSE_MAX_CAPACITY_PER_SLOT.get(),
             x + 20, contentY, COLOR_TEXT_GRAY, false);
         contentY += 20;
 
         // Berechtigungen
-        graphics.drawString(this.font, "Berechtigungen:", x + 15, contentY, COLOR_TEXT, false);
+        graphics.drawString(this.font, Component.translatable("gui.warehouse.permissions").getString(), x + 15, contentY, COLOR_TEXT, false);
         contentY += 15;
 
-        graphics.drawString(this.font, "  ✓ Nur Admin kann bearbeiten",
+        graphics.drawString(this.font, Component.translatable("gui.warehouse.admin_only").getString(),
             x + 20, contentY, COLOR_SUCCESS, false);
         contentY += 12;
 
-        graphics.drawString(this.font, "  ✓ Seller können Bestand sehen",
+        graphics.drawString(this.font, Component.translatable("gui.warehouse.sellers_can_view").getString(),
             x + 20, contentY, COLOR_SUCCESS, false);
     }
 
@@ -1043,8 +1043,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
 
         // Prüfe ob mindestens ein Verkäufer verknüpft ist
         if (warehouse.getLinkedSellers().isEmpty()) {
-            minecraft.player.sendSystemMessage(Component.literal(
-                "§cFehler: Es muss mindestens ein Verkäufer-NPC verknüpft sein, bevor Items hinzugefügt werden können!"));
+            minecraft.player.sendSystemMessage(Component.translatable("gui.warehouse.error_no_seller"));
             return;
         }
 
@@ -1101,10 +1100,10 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         graphics.fill(x + dialogWidth - 1, y, x + dialogWidth, y + dialogHeight, COLOR_BORDER);
 
         // Title
-        graphics.drawString(this.font, "§lItem auswählen", x + 10, y + 10, COLOR_TEXT, false);
+        graphics.drawString(this.font, Component.translatable("gui.warehouse.item_select_title").getString(), x + 10, y + 10, COLOR_TEXT, false);
 
         // "Suche:" Label
-        graphics.drawString(this.font, "Suche:", x + 10, y + 25, COLOR_TEXT_GRAY, false);
+        graphics.drawString(this.font, Component.translatable("gui.warehouse.search_label").getString(), x + 10, y + 25, COLOR_TEXT_GRAY, false);
 
         // Search field
         if (itemSearchField != null) {
@@ -1154,10 +1153,10 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         if (closeHovered) {
             graphics.fill(closeX, closeY, closeX + 50, closeY + 20, COLOR_DANGER);
         }
-        graphics.drawString(this.font, "Abbrechen", closeX + 5, closeY + 6, COLOR_TEXT, false);
+        graphics.drawString(this.font, Component.translatable("gui.warehouse.cancel").getString(), closeX + 5, closeY + 6, COLOR_TEXT, false);
 
         // Item count
-        graphics.drawString(this.font, filteredItems.size() + " Items", x + 10, y + dialogHeight - 25, COLOR_TEXT_GRAY, false);
+        graphics.drawString(this.font, filteredItems.size() + Component.translatable("gui.warehouse.items_count").getString(), x + 10, y + dialogHeight - 25, COLOR_TEXT_GRAY, false);
     }
 
     @Override

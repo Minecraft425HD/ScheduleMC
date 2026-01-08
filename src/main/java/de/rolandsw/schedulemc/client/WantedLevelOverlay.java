@@ -48,7 +48,7 @@ public class WantedLevelOverlay {
             // === WANTED LEVEL STERNE ===
             if (wantedLevel > 0) {
                 String stars = getStarString(wantedLevel);
-                String wantedText = "§cGesucht: " + stars;
+                String wantedText = net.minecraft.network.chat.Component.translatable("hud.wanted.wanted", stars).getString();
 
                 guiGraphics.pose().pushPose();
                 guiGraphics.pose().scale(SCALE, SCALE, 1.0f);
@@ -62,7 +62,7 @@ public class WantedLevelOverlay {
             if (escapeTime > 0) {
                 // Konvertiere Ticks zu Sekunden
                 int secondsRemaining = (int) Math.ceil(escapeTime / 20.0);
-                String escapeText = "§eVersteckt: §f" + secondsRemaining + "s";
+                String escapeText = net.minecraft.network.chat.Component.translatable("hud.wanted.hidden", secondsRemaining).getString();
 
                 // Fortschrittsbalken
                 float progress = (float) escapeTime / CrimeManager.ESCAPE_DURATION;

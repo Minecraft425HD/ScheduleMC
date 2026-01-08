@@ -55,7 +55,7 @@ public class MessagesAppScreen extends Screen {
         }
 
         // Zurück-Button
-        addRenderableWidget(Button.builder(Component.translatable("gui.achievement_app.back"), button -> {
+        addRenderableWidget(Button.builder(Component.translatable("gui.app.messages.back"), button -> {
             if (minecraft != null) {
                 minecraft.setScreen(parentScreen);
             }
@@ -85,9 +85,9 @@ public class MessagesAppScreen extends Screen {
         if (conversations == null || conversations.isEmpty()) {
             // Empty state
             guiGraphics.fill(leftPos, contentY, leftPos + WIDTH, contentY + 60, 0xFFFFFFFF);
-            guiGraphics.drawCenteredString(this.font, "§8Keine Chats", leftPos + WIDTH / 2, contentY + 20, 0xFF666666);
-            guiGraphics.drawCenteredString(this.font, "§7Tippe einen Spieler an,", leftPos + WIDTH / 2, contentY + 32, 0xFF999999);
-            guiGraphics.drawCenteredString(this.font, "§7um zu chatten", leftPos + WIDTH / 2, contentY + 42, 0xFF999999);
+            guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.messages.no_chats").getString(), leftPos + WIDTH / 2, contentY + 20, 0xFF666666);
+            guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.messages.tap_player_line1").getString(), leftPos + WIDTH / 2, contentY + 32, 0xFF999999);
+            guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.messages.tap_player_line2").getString(), leftPos + WIDTH / 2, contentY + 42, 0xFF999999);
         } else {
             // Render conversation list
             for (int i = 0; i < conversations.size(); i++) {

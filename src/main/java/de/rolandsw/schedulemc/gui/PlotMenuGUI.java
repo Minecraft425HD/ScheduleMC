@@ -35,45 +35,45 @@ public class PlotMenuGUI {
         
         // Slot 1: Eigene Plots
         ItemStack ownPlots = new ItemStack(Items.OAK_SIGN);
-        ownPlots.setHoverName(Component.literal("§a§lEigene Plots"));
-        addLore(ownPlots, 
-            "§7Verwalte deine Plots",
-            "§7Plots: §e" + getOwnedPlotsCount(player),
+        ownPlots.setHoverName(Component.translatable("gui.plotmenu.own_plots"));
+        addLore(ownPlots,
+            Component.translatable("gui.plotmenu.own_plots.desc").getString(),
+            Component.translatable("gui.plotmenu.own_plots.count", getOwnedPlotsCount(player)).getString(),
             "",
-            "§eKlick zum Öffnen"
+            Component.translatable("gui.plotmenu.click_to_open").getString()
         );
         container.setItem(10, ownPlots);
         
         // Slot 2: Plots kaufen
         ItemStack buyPlots = new ItemStack(Items.EMERALD);
-        buyPlots.setHoverName(Component.literal("§a§lPlots kaufen"));
+        buyPlots.setHoverName(Component.translatable("gui.plotmenu.buy_plots"));
         addLore(buyPlots,
-            "§7Kaufe verfügbare Plots",
-            "§7Verfügbar: §e" + getAvailablePlotsCount(),
+            Component.translatable("gui.plotmenu.buy_plots.desc").getString(),
+            Component.translatable("gui.plotmenu.buy_plots.available", getAvailablePlotsCount()).getString(),
             "",
-            "§eKlick zum Öffnen"
+            Component.translatable("gui.plotmenu.click_to_open").getString()
         );
         container.setItem(12, buyPlots);
         
         // Slot 3: Plots mieten
         ItemStack rentPlots = new ItemStack(Items.GOLD_INGOT);
-        rentPlots.setHoverName(Component.literal("§d§lPlots mieten"));
+        rentPlots.setHoverName(Component.translatable("gui.plotmenu.rent_plots"));
         addLore(rentPlots,
-            "§7Miete Plots temporär",
-            "§7Zur Miete: §e" + getRentablePlotsCount(),
+            Component.translatable("gui.plotmenu.rent_plots.desc").getString(),
+            Component.translatable("gui.plotmenu.rent_plots.available", getRentablePlotsCount()).getString(),
             "",
-            "§eKlick zum Öffnen"
+            Component.translatable("gui.plotmenu.click_to_open").getString()
         );
         container.setItem(14, rentPlots);
         
         // Slot 4: Top Plots
         ItemStack topPlots = new ItemStack(Items.DIAMOND);
-        topPlots.setHoverName(Component.literal("§6§lTop Plots"));
+        topPlots.setHoverName(Component.translatable("gui.plotmenu.top_plots"));
         addLore(topPlots,
-            "§7Bestbewertete Plots",
-            "§7Top 10 nach Rating",
+            Component.translatable("gui.plotmenu.top_plots.desc").getString(),
+            Component.translatable("gui.plotmenu.top_plots.top10").getString(),
             "",
-            "§eKlick zum Öffnen"
+            Component.translatable("gui.plotmenu.click_to_open").getString()
         );
         container.setItem(16, topPlots);
         
@@ -83,11 +83,11 @@ public class PlotMenuGUI {
         
         // Shop (falls aktiviert)
         ItemStack shop = new ItemStack(Items.CHEST);
-        shop.setHoverName(Component.literal("§e§lShop"));
+        shop.setHoverName(Component.translatable("gui.plotmenu.shop"));
         addLore(shop,
-            "§7Items kaufen & verkaufen",
+            Component.translatable("gui.plotmenu.shop.desc").getString(),
             "",
-            "§eKlick zum Öffnen"
+            Component.translatable("gui.plotmenu.click_to_open").getString()
         );
         container.setItem(19, shop);
         
@@ -95,21 +95,21 @@ public class PlotMenuGUI {
         ItemStack daily = new ItemStack(Items.GOLD_BLOCK);
         daily.setHoverName(Component.translatable("gui.daily_reward"));
         addLore(daily,
-            "§7Hole deine tägliche Belohnung ab!",
-            "§7Befehl: §e/daily",
+            Component.translatable("gui.plotmenu.daily.desc").getString(),
+            Component.translatable("gui.plotmenu.daily.command").getString(),
             "",
-            "§7Baue einen Streak auf für Boni!"
+            Component.translatable("gui.plotmenu.daily.streak").getString()
         );
         container.setItem(21, daily);
         
         // Statistiken
         ItemStack stats = new ItemStack(Items.BOOK);
-        stats.setHoverName(Component.literal("§b§lStatistiken"));
+        stats.setHoverName(Component.translatable("gui.plotmenu.stats"));
         addLore(stats,
-            "§7Deine Plot-Statistiken",
-            "§7Besessen: §e" + getOwnedPlotsCount(player),
-            "§7Gemietet: §e" + getRentedPlotsCount(player),
-            "§7Vertraut in: §e" + getTrustedInCount(player)
+            Component.translatable("gui.plotmenu.stats.desc").getString(),
+            Component.translatable("gui.plotmenu.stats.owned", getOwnedPlotsCount(player)).getString(),
+            Component.translatable("gui.plotmenu.stats.rented", getRentedPlotsCount(player)).getString(),
+            Component.translatable("gui.plotmenu.stats.trusted", getTrustedInCount(player)).getString()
         );
         container.setItem(23, stats);
         

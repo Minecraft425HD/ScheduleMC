@@ -138,7 +138,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         }).bounds(currentX, y + 20, 50, 18).build());
         currentX += 51;
 
-        historieTabButton = addRenderableWidget(Button.builder(Component.literal("Historie"), button -> {
+        historieTabButton = addRenderableWidget(Button.builder(Component.translatable("gui.bank.tab_history"), button -> {
             switchTab(Tab.HISTORIE);
         }).bounds(currentX, y + 20, 38, 18).build());
         currentX += 39;
@@ -229,7 +229,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
             }
         ).bounds(x + 15, y + 145, 120, 18).build());
 
-        recurringCreateButton = addRenderableWidget(Button.builder(Component.literal("Erstellen"), button -> {
+        recurringCreateButton = addRenderableWidget(Button.builder(Component.translatable("gui.bank.create"), button -> {
             handleRecurringCreate();
         }).bounds(x + 145, y + 145, 120, 18).build());
 
@@ -427,16 +427,16 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
     private void renderUebersichtTab(GuiGraphics guiGraphics, int x, int y) {
         if (minecraft == null || minecraft.player == null) return;
 
-        guiGraphics.drawString(this.font, "KONTEN-ÜBERSICHT", x + 55, y + 45, 0x404040, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.bank.overview_title").getString(), x + 55, y + 45, 0x404040, false);
 
         // Bargeld (Wallet)
         double bargeld = WalletManager.getBalance(minecraft.player.getUUID());
-        guiGraphics.drawString(this.font, "BARGELD", x + 30, y + 65, 0x808080, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.bank.cash").getString(), x + 30, y + 65, 0x808080, false);
         guiGraphics.drawString(this.font, String.format("%.2f€", bargeld), x + 125, y + 65, 0xFFAA00, false);
 
         // Girokonto
         double girokonto = EconomyManager.getBalance(minecraft.player.getUUID());
-        guiGraphics.drawString(this.font, "GIROKONTO", x + 30, y + 85, 0x808080, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.bank.checking_balance").getString(), x + 30, y + 85, 0x808080, false);
         guiGraphics.drawString(this.font, String.format("%.2f€", girokonto), x + 125, y + 85, 0x00AA00, false);
 
         // Sparkonto
@@ -445,7 +445,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         double sparkonto = savingsAccounts.stream()
             .mapToDouble(SavingsAccount::getBalance)
             .sum();
-        guiGraphics.drawString(this.font, "SPARKONTO", x + 30, y + 105, 0x808080, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.bank.savings").getString(), x + 30, y + 105, 0x808080, false);
         guiGraphics.drawString(this.font, String.format("%.2f€", sparkonto), x + 125, y + 105, 0x6666FF, false);
 
         // Trennlinie
@@ -453,7 +453,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
 
         // Gesamt
         double gesamt = bargeld + girokonto + sparkonto;
-        guiGraphics.drawString(this.font, "GESAMT:", x + 30, y + 130, 0x404040, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.bank.total").getString(), x + 30, y + 130, 0x404040, false);
         guiGraphics.drawString(this.font, String.format("%.2f€", gesamt), x + 125, y + 130, 0xFFD700, false);
     }
 
@@ -463,27 +463,27 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
     private void renderGirokontoTab(GuiGraphics guiGraphics, int x, int y) {
         if (minecraft == null || minecraft.player == null) return;
 
-        guiGraphics.drawString(this.font, "GIROKONTO", x + 75, y + 45, 0x404040, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.bank.checking_title").getString(), x + 75, y + 45, 0x404040, false);
 
         // Kontostand
         double girokonto = EconomyManager.getBalance(minecraft.player.getUUID());
-        guiGraphics.drawString(this.font, "Kontostand:", x + 20, y + 60, 0x808080, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.bank.balance").getString(), x + 20, y + 60, 0x808080, false);
         guiGraphics.drawString(this.font, String.format("%.2f€", girokonto), x + 125, y + 60, 0x00AA00, false);
 
         // Bargeld
         double bargeld = WalletManager.getBalance(minecraft.player.getUUID());
-        guiGraphics.drawString(this.font, "Bargeld:", x + 20, y + 72, 0x808080, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.bank.cash_balance").getString(), x + 20, y + 72, 0x808080, false);
         guiGraphics.drawString(this.font, String.format("%.2f€", bargeld), x + 125, y + 72, 0xFFAA00, false);
 
         // Einzahlen Label
-        guiGraphics.drawString(this.font, "Einzahlen (aus Bargeld):", x + 15, y + 85, 0x808080, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.bank.deposit_from_cash").getString(), x + 15, y + 85, 0x808080, false);
 
         // Abheben Label
-        guiGraphics.drawString(this.font, "Abheben (zu Bargeld):", x + 15, y + 128, 0x808080, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.bank.withdraw_to_cash").getString(), x + 15, y + 128, 0x808080, false);
 
         // Info
         double depositLimit = ModConfigHandler.COMMON.BANK_DEPOSIT_LIMIT.get();
-        guiGraphics.drawString(this.font, "Limit: " + String.format("%.0f€", depositLimit),
+        guiGraphics.drawString(this.font, Component.translatable("gui.bank.limit").getString() + String.format("%.0f€", depositLimit),
             x + 15, y + 170, 0x606060, false);
     }
 
@@ -493,7 +493,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
     private void renderSparkontoTab(GuiGraphics guiGraphics, int x, int y) {
         if (minecraft == null || minecraft.player == null) return;
 
-        guiGraphics.drawString(this.font, "SPARKONTO", x + 75, y + 45, 0x404040, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.bank.savings_title").getString(), x + 75, y + 45, 0x404040, false);
 
         // Sparkonto Stand
         SavingsAccountManager savingsManager = SavingsAccountManager.getInstance(minecraft.level.getServer());
@@ -501,24 +501,24 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         double sparkonto = savingsAccounts.stream()
             .mapToDouble(SavingsAccount::getBalance)
             .sum();
-        guiGraphics.drawString(this.font, "Kontostand:", x + 20, y + 60, 0x808080, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.bank.balance").getString(), x + 20, y + 60, 0x808080, false);
         guiGraphics.drawString(this.font, String.format("%.2f€", sparkonto), x + 125, y + 60, 0x6666FF, false);
 
         // Girokonto
         double girokonto = EconomyManager.getBalance(minecraft.player.getUUID());
-        guiGraphics.drawString(this.font, "Girokonto:", x + 20, y + 72, 0x808080, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.bank.checking_balance").getString(), x + 20, y + 72, 0x808080, false);
         guiGraphics.drawString(this.font, String.format("%.2f€", girokonto), x + 125, y + 72, 0x00AA00, false);
 
         // Einzahlen Label
-        guiGraphics.drawString(this.font, "Einzahlen (vom Girokonto):", x + 15, y + 85, 0x808080, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.bank.deposit_from_checking").getString(), x + 15, y + 85, 0x808080, false);
 
         // Abheben Label
-        guiGraphics.drawString(this.font, "Abheben (zum Girokonto):", x + 15, y + 128, 0x808080, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.bank.withdraw_to_checking").getString(), x + 15, y + 128, 0x808080, false);
 
         // Info
-        guiGraphics.drawString(this.font, "Zinsen: 5% pro Woche", x + 15, y + 170, 0x606060, false);
-        guiGraphics.drawString(this.font, "Minimum: 1000€", x + 15, y + 182, 0x606060, false);
-        guiGraphics.drawString(this.font, "4-Wochen Sperre", x + 15, y + 194, 0x606060, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.bank.interest").getString(), x + 15, y + 170, 0x606060, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.bank.minimum").getString(), x + 15, y + 182, 0x606060, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.bank.lock_period").getString(), x + 15, y + 194, 0x606060, false);
     }
 
     /**
@@ -527,25 +527,25 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
     private void renderUeberweisungTab(GuiGraphics guiGraphics, int x, int y) {
         if (minecraft == null || minecraft.player == null) return;
 
-        guiGraphics.drawString(this.font, "ÜBERWEISUNG", x + 70, y + 45, 0x404040, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.bank.transfer_title").getString(), x + 70, y + 45, 0x404040, false);
 
         // Empfänger Label
-        guiGraphics.drawString(this.font, "Empfängername:", x + 15, y + 58, 0x808080, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.bank.recipient_name").getString(), x + 15, y + 58, 0x808080, false);
 
         // Betrag Label
-        guiGraphics.drawString(this.font, "Betrag in €:", x + 15, y + 96, 0x808080, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.bank.amount_label").getString(), x + 15, y + 96, 0x808080, false);
 
         // Info unten
         if (minecraft.level.getServer() != null) {
             double balance = EconomyManager.getBalance(minecraft.player.getUUID());
-            guiGraphics.drawString(this.font, "Verfügbar:",
+            guiGraphics.drawString(this.font, Component.translatable("gui.bank.available_balance").getString(),
                 x + 15, y + 145, 0x606060, false);
             guiGraphics.drawString(this.font, String.format("%.2f€", balance),
                 x + 140, y + 145, 0xFFD700, false);
 
             TransferLimitTracker tracker = TransferLimitTracker.getInstance(minecraft.level.getServer());
             double remaining = tracker.getRemainingLimit(minecraft.player.getUUID());
-            guiGraphics.drawString(this.font, "Tageslimit:",
+            guiGraphics.drawString(this.font, Component.translatable("gui.bank.daily_limit").getString(),
                 x + 15, y + 157, 0x606060, false);
             guiGraphics.drawString(this.font, String.format("%.2f€", remaining),
                 x + 140, y + 157, remaining > 0 ? 0x00AA00 : 0xFF5555, false);
@@ -558,14 +558,14 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
     private void renderHistorieTab(GuiGraphics guiGraphics, int x, int y) {
         if (minecraft == null || minecraft.player == null || minecraft.level.getServer() == null) return;
 
-        guiGraphics.drawString(this.font, "TRANSAKTIONEN", x + 65, y + 45, 0x404040, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.bank.history_title").getString(), x + 65, y + 45, 0x404040, false);
 
         // Get transaction history
         TransactionHistory history = TransactionHistory.getInstance(minecraft.level.getServer());
         List<Transaction> transactions = history.getAllTransactions(minecraft.player.getUUID());
 
         if (transactions.isEmpty()) {
-            guiGraphics.drawString(this.font, "Keine Transaktionen", x + 50, y + 80, 0x808080, false);
+            guiGraphics.drawString(this.font, Component.translatable("gui.bank.no_transactions").getString(), x + 50, y + 80, 0x808080, false);
             return;
         }
 
@@ -611,19 +611,19 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
     private void renderDauerauftraegeTab(GuiGraphics guiGraphics, int x, int y) {
         if (minecraft == null || minecraft.player == null) return;
 
-        guiGraphics.drawString(this.font, "DAUERAUFTRÄGE", x + 85, y + 45, 0x404040, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.bank.standing_orders_title").getString(), x + 85, y + 45, 0x404040, false);
 
         // Neuer Dauerauftrag erstellen
-        guiGraphics.drawString(this.font, "Neuer Dauerauftrag:", x + 15, y + 60, 0x606060, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.bank.new_standing_order").getString(), x + 15, y + 60, 0x606060, false);
 
         // Empfänger Label (12 Pixel über Input bei y+85)
-        guiGraphics.drawString(this.font, "Empfänger:", x + 15, y + 73, 0x808080, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.bank.recipient").getString(), x + 15, y + 73, 0x808080, false);
 
         // Betrag Label (12 Pixel über Input bei y+115)
-        guiGraphics.drawString(this.font, "Betrag in €:", x + 15, y + 103, 0x808080, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.bank.amount_label").getString(), x + 15, y + 103, 0x808080, false);
 
         // Intervall Label (12 Pixel über Button bei y+145)
-        guiGraphics.drawString(this.font, "Intervall:", x + 15, y + 133, 0x808080, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.bank.interval").getString(), x + 15, y + 133, 0x808080, false);
 
         // Limit-Anzeige (10er-Limit prüfen)
         if (minecraft.level.getServer() != null) {
@@ -633,7 +633,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
 
             String limitStr = payments.size() + "/" + maxPerPlayer;
             int limitColor = payments.size() >= maxPerPlayer ? 0xFF5555 : 0x00AA00;
-            guiGraphics.drawString(this.font, "Limit: " + limitStr, x + 200, y + 60, limitColor, false);
+            guiGraphics.drawString(this.font, Component.translatable("gui.bank.limit").getString() + limitStr, x + 200, y + 60, limitColor, false);
 
             if (payments.size() >= maxPerPlayer) {
                 guiGraphics.drawString(this.font, "MAX!", x + 200, y + 73, 0xFF5555, false);
@@ -644,7 +644,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         guiGraphics.fill(x + 15, y + 168, x + 265, y + 169, 0x44FFFFFF);
 
         // Aktive Daueraufträge Header
-        guiGraphics.drawString(this.font, "Aktive Daueraufträge:", x + 15, y + 173, 0x606060, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.bank.active_orders").getString(), x + 15, y + 173, 0x606060, false);
 
         int yOffset = y + 186;
 
@@ -657,11 +657,11 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
                 // Kredit-Dauerauftrag Box
                 guiGraphics.fill(x + 15, yOffset - 2, x + 260, yOffset + 10, 0x44004400);
 
-                guiGraphics.drawString(this.font, "💳 KREDIT", x + 18, yOffset, 0xFFD700, false);
+                guiGraphics.drawString(this.font, Component.translatable("gui.bank.credit_payment").getString(), x + 18, yOffset, 0xFFD700, false);
                 guiGraphics.drawString(this.font,
                     String.format("-%.0f€", activeLoan.getDailyPayment()),
                     x + 90, yOffset, 0xFF5555, false);
-                guiGraphics.drawString(this.font, "Täglich", x + 145, yOffset, 0x00AAAA, false);
+                guiGraphics.drawString(this.font, Component.translatable("gui.bank.interval_daily").getString(), x + 145, yOffset, 0x00AAAA, false);
                 guiGraphics.drawString(this.font, "✓", x + 195, yOffset, 0x00FF00, false);
                 guiGraphics.drawString(this.font,
                     activeLoan.getType().name().substring(0, 3),
@@ -678,7 +678,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
 
             if (payments.isEmpty() && (minecraft.level.getServer() == null ||
                 CreditLoanManager.getInstance(minecraft.level.getServer()).getLoan(minecraft.player.getUUID()) == null)) {
-                guiGraphics.drawString(this.font, "Keine aktiven Daueraufträge", x + 65, yOffset, 0x808080, false);
+                guiGraphics.drawString(this.font, Component.translatable("gui.bank.no_standing_orders").getString(), x + 65, yOffset, 0x808080, false);
             } else {
                 // Zeige Daueraufträge an
                 int remainingSpace = (y + 200) - yOffset;
@@ -746,6 +746,6 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
 
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        guiGraphics.drawString(this.font, "BANKER", 8, 6, 0x404040, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.bank.banker").getString(), 8, 6, 0x404040, false);
     }
 }

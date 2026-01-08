@@ -270,26 +270,26 @@ public class SmartphoneScreen extends Screen {
         );
 
         // App-Icons rendern mit scrollOffset (4 Reihen x 2 Spalten)
-        renderAppIcon(guiGraphics, gridStartX, gridStartY - scrollOffset, APP_MAP, "Map", 0);
-        renderAppIcon(guiGraphics, gridStartX + APP_ICON_SIZE + APP_SPACING, gridStartY - scrollOffset, APP_DEALER, "Dealer", 1);
+        renderAppIcon(guiGraphics, gridStartX, gridStartY - scrollOffset, APP_MAP, Component.translatable("gui.smartphone.app_map").getString(), 0);
+        renderAppIcon(guiGraphics, gridStartX + APP_ICON_SIZE + APP_SPACING, gridStartY - scrollOffset, APP_DEALER, Component.translatable("gui.smartphone.app_dealer").getString(), 1);
 
-        renderAppIcon(guiGraphics, gridStartX, gridStartY + APP_ICON_SIZE + APP_SPACING - scrollOffset, APP_PRODUCTS, "Produkte", 2);
+        renderAppIcon(guiGraphics, gridStartX, gridStartY + APP_ICON_SIZE + APP_SPACING - scrollOffset, APP_PRODUCTS, Component.translatable("gui.smartphone.app_products").getString(), 2);
         renderAppIcon(guiGraphics, gridStartX + APP_ICON_SIZE + APP_SPACING, gridStartY + APP_ICON_SIZE + APP_SPACING - scrollOffset,
-            APP_ORDER, "Bestellung", 3);
+            APP_ORDER, Component.translatable("gui.smartphone.app_order").getString(), 3);
 
-        renderAppIcon(guiGraphics, gridStartX, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 2 - scrollOffset, APP_CONTACTS, "Kontakte", 4);
+        renderAppIcon(guiGraphics, gridStartX, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 2 - scrollOffset, APP_CONTACTS, Component.translatable("gui.smartphone.app_contacts").getString(), 4);
         renderAppIcon(guiGraphics, gridStartX + APP_ICON_SIZE + APP_SPACING, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 2 - scrollOffset,
-            APP_MESSAGES, "Nachrichten", 5);
+            APP_MESSAGES, Component.translatable("gui.smartphone.app_messages").getString(), 5);
 
-        renderAppIcon(guiGraphics, gridStartX, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 3 - scrollOffset, APP_PLOT, "Immobilien", 6);
+        renderAppIcon(guiGraphics, gridStartX, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 3 - scrollOffset, APP_PLOT, Component.translatable("gui.smartphone.app_plot").getString(), 6);
         renderAppIcon(guiGraphics, gridStartX + APP_ICON_SIZE + APP_SPACING, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 3 - scrollOffset,
-            APP_SETTINGS, "Settings", 7);
+            APP_SETTINGS, Component.translatable("gui.smartphone.app_settings").getString(), 7);
 
-        renderAppIcon(guiGraphics, gridStartX, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 4 - scrollOffset, APP_BANK, "Bank", 8);
+        renderAppIcon(guiGraphics, gridStartX, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 4 - scrollOffset, APP_BANK, Component.translatable("gui.smartphone.app_bank").getString(), 8);
         renderAppIcon(guiGraphics, gridStartX + APP_ICON_SIZE + APP_SPACING, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 4 - scrollOffset,
-            APP_CRIME, "Polizei", 9);
+            APP_CRIME, Component.translatable("gui.smartphone.app_crime").getString(), 9);
 
-        renderAppIcon(guiGraphics, gridStartX, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 5 - scrollOffset, APP_ACHIEVEMENT, "Erfolge", 10);
+        renderAppIcon(guiGraphics, gridStartX, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 5 - scrollOffset, APP_ACHIEVEMENT, Component.translatable("gui.smartphone.app_achievements").getString(), 10);
 
         // Deaktiviere Scissor
         guiGraphics.disableScissor();

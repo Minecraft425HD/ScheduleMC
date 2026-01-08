@@ -40,7 +40,7 @@ public class ProductsAppScreen extends Screen {
         this.topPos = Math.max(minTop, Math.min(centeredTop, maxTop));
 
         // Zurück-Button
-        addRenderableWidget(Button.builder(Component.translatable("gui.achievement_app.back"), button -> {
+        addRenderableWidget(Button.builder(Component.translatable("gui.app.products.back"), button -> {
             if (minecraft != null) {
                 minecraft.setScreen(parentScreen);
             }
@@ -61,15 +61,15 @@ public class ProductsAppScreen extends Screen {
 
         // Content-Bereich
         int contentY = topPos + 40;
-        guiGraphics.drawCenteredString(this.font, "§7Produktkatalog", leftPos + WIDTH / 2, contentY, 0xFFFFFF);
+        guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.products.product_catalog").getString(), leftPos + WIDTH / 2, contentY, 0xFFFFFF);
         contentY += 20;
 
         // Platzhalter für Produkte
-        guiGraphics.drawString(this.font, "§8Verfügbare Produkte:", leftPos + 20, contentY, 0xAAAAAA);
+        guiGraphics.drawString(this.font, Component.translatable("gui.app.products.available_products").getString(), leftPos + 20, contentY, 0xAAAAAA);
         contentY += 15;
-        guiGraphics.drawString(this.font, "§7• Produkt A - 10€", leftPos + 25, contentY, 0xFFFFFF);
+        guiGraphics.drawString(this.font, Component.translatable("gui.app.products.product_a").getString(), leftPos + 25, contentY, 0xFFFFFF);
         contentY += 12;
-        guiGraphics.drawString(this.font, "§7• Produkt B - 25€", leftPos + 25, contentY, 0xFFFFFF);
+        guiGraphics.drawString(this.font, Component.translatable("gui.app.products.product_b").getString(), leftPos + 25, contentY, 0xFFFFFF);
 
         super.render(guiGraphics, mouseX, mouseY, partialTick);
     }    @Override

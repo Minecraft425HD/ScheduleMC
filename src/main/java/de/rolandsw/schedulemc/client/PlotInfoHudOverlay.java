@@ -117,42 +117,42 @@ public class PlotInfoHudOverlay {
         // === BESITZER ===
         String ownerName = plot.getOwnerName();
         if (ownerName == null || ownerName.equals("Niemand")) {
-            drawLine(gui, mc, "§7Besitzer: §cKein Besitzer", currentY);
+            drawLine(gui, mc, net.minecraft.network.chat.Component.translatable("hud.plot.owner_none").getString(), currentY);
         } else {
-            drawLine(gui, mc, "§7Besitzer: §f" + ownerName, currentY);
+            drawLine(gui, mc, net.minecraft.network.chat.Component.translatable("hud.plot.owner", ownerName).getString(), currentY);
         }
         currentY += LINE_HEIGHT;
 
         // === GRÖSSE ===
-        drawLine(gui, mc, "§7Größe: §e" + String.format("%,d", plot.getVolume()) + " Blöcke", currentY);
+        drawLine(gui, mc, net.minecraft.network.chat.Component.translatable("hud.plot.size", String.format("%,d", plot.getVolume())).getString(), currentY);
         currentY += LINE_HEIGHT + 3;
 
         // === VERKAUF/MIETE STATUS ===
         if (!plot.hasOwner()) {
             // Plot ohne Besitzer = zum Verkauf
-            drawLine(gui, mc, "§a§l⚡ ZUM VERKAUF", currentY);
+            drawLine(gui, mc, net.minecraft.network.chat.Component.translatable("hud.plot.for_sale").getString(), currentY);
             currentY += LINE_HEIGHT;
-            drawLine(gui, mc, "§7Preis: §e" + String.format("%.2f", plot.getPrice()) + "€", currentY);
+            drawLine(gui, mc, net.minecraft.network.chat.Component.translatable("hud.plot.price", String.format("%.2f€", plot.getPrice())).getString(), currentY);
             currentY += LINE_HEIGHT;
-            drawLine(gui, mc, "§8Rechtsklick für Details", currentY);
+            drawLine(gui, mc, net.minecraft.network.chat.Component.translatable("hud.plot.right_click_details").getString(), currentY);
             currentY += LINE_HEIGHT;
         } else {
             // Plot mit Besitzer
             if (plot.isForSale()) {
-                drawLine(gui, mc, "§a§l⚡ ZUM VERKAUF", currentY);
+                drawLine(gui, mc, net.minecraft.network.chat.Component.translatable("hud.plot.for_sale").getString(), currentY);
                 currentY += LINE_HEIGHT;
-                drawLine(gui, mc, "§7Preis: §e" + String.format("%.2f", plot.getSalePrice()) + "€", currentY);
+                drawLine(gui, mc, net.minecraft.network.chat.Component.translatable("hud.plot.price", String.format("%.2f€", plot.getSalePrice())).getString(), currentY);
                 currentY += LINE_HEIGHT;
             } else if (plot.isForRent()) {
                 if (plot.isRented()) {
-                    drawLine(gui, mc, "§a§l✓ VERMIETET", currentY);
+                    drawLine(gui, mc, net.minecraft.network.chat.Component.translatable("hud.plot.rented").getString(), currentY);
                     currentY += LINE_HEIGHT;
-                    drawLine(gui, mc, "§7Noch §e" + plot.getRentDaysLeft() + " Tage", currentY);
+                    drawLine(gui, mc, net.minecraft.network.chat.Component.translatable("hud.plot.days_left", plot.getRentDaysLeft()).getString(), currentY);
                     currentY += LINE_HEIGHT;
                 } else {
-                    drawLine(gui, mc, "§d§l⚡ ZU VERMIETEN", currentY);
+                    drawLine(gui, mc, net.minecraft.network.chat.Component.translatable("hud.plot.for_rent").getString(), currentY);
                     currentY += LINE_HEIGHT;
-                    drawLine(gui, mc, "§7Miete: §e" + String.format("%.2f", plot.getRentPricePerDay()) + "€/Tag", currentY);
+                    drawLine(gui, mc, net.minecraft.network.chat.Component.translatable("hud.plot.rent_per_day", String.format("%.2f€/Tag", plot.getRentPricePerDay())).getString(), currentY);
                     currentY += LINE_HEIGHT;
                 }
             }
@@ -167,8 +167,7 @@ public class PlotInfoHudOverlay {
             int rentedCount = plot.getRentedSubAreaCount();
             int availableCount = plot.getAvailableSubAreaCount();
 
-            drawLine(gui, mc, "§6🏠 Apartments: §e" + availableCount + " §7verfügbar §8(" +
-                plot.getSubAreaCount() + " gesamt)", currentY);
+            drawLine(gui, mc, net.minecraft.network.chat.Component.translatable("hud.plot.apartments", availableCount, plot.getSubAreaCount()).getString(), currentY);
             currentY += LINE_HEIGHT;
 
             // Zeige verfügbare Apartments (max 3)
@@ -186,7 +185,7 @@ public class PlotInfoHudOverlay {
 
                 // "... und X weitere"
                 if (availableCount > 3) {
-                    drawLine(gui, mc, "  §7└─ §8... und " + (availableCount - 3) + " weitere", currentY);
+                    drawLine(gui, mc, net.minecraft.network.chat.Component.translatable("hud.plot.apartments_more", availableCount - 3).getString(), currentY);
                     currentY += LINE_HEIGHT;
                 }
             }
@@ -194,7 +193,7 @@ public class PlotInfoHudOverlay {
 
         // === FOOTER ===
         currentY += 2;
-        drawLine(gui, mc, "§8§oRechtsklick für Details & Optionen", currentY);
+        drawLine(gui, mc, net.minecraft.network.chat.Component.translatable("hud.plot.right_click_options").getString(), currentY);
     }
 
     /**
