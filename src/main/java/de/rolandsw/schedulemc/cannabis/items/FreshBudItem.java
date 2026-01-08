@@ -61,7 +61,9 @@ public class FreshBudItem extends Item {
     @Override
     public Component getName(ItemStack stack) {
         CannabisStrain strain = getStrain(stack);
-        return Component.literal("§a🌿 " + strain.getColorCode() + "Frische " + strain.getDisplayName() + " Blüten");
+        return Component.literal("§a🌿 ")
+            .append(Component.literal(strain.getColorCode()))
+            .append(Component.translatable("item.fresh_bud.name", strain.getDisplayName()));
     }
 
     @Override

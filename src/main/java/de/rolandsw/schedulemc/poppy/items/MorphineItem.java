@@ -64,6 +64,6 @@ public class MorphineItem extends Item {
 
     @Override
     public Component getName(ItemStack stack) {
-        return Component.literal("§dMorphin-Base");
+        return Component.translatable("item.morphine.name");
     }
 }

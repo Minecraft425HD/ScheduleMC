@@ -59,6 +59,7 @@ public class RohMethItem extends Item {
     @Override
     public Component getName(ItemStack stack) {
         MethQuality quality = getQuality(stack);
-        return Component.literal(quality.getColorCode() + "Roh-Meth");
+        return Component.literal(quality.getColorCode())
+            .append(Component.translatable("item.roh_meth.name"));
     }
 }

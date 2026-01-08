@@ -50,6 +50,7 @@ public class FarbstoffItem extends Item {
     @Override
     public Component getName(ItemStack stack) {
         PillColor color = getColor(stack);
-        return Component.literal(color.getColorCode() + color.getDisplayName() + "er Farbstoff");
+        return Component.literal(color.getColorCode())
+            .append(Component.translatable("item.farbstoff.name", color.getDisplayName()));
     }
 }

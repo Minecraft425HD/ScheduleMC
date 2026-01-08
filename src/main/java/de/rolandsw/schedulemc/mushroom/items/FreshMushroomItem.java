@@ -67,6 +67,10 @@ public class FreshMushroomItem extends Item {
     @Override
     public Component getName(ItemStack stack) {
         TobaccoQuality quality = getQuality(stack);
-        return Component.literal(mushroomType.getColorCode() + "Frische " + mushroomType.getDisplayName() + " §7[" + quality.getColoredName() + "§7]");
+        return Component.literal(mushroomType.getColorCode())
+            .append(Component.translatable("item.fresh_mushroom.name", mushroomType.getDisplayName()))
+            .append(Component.literal(" §7["))
+            .append(quality.getColoredName())
+            .append(Component.literal("§7]"));
     }
 }

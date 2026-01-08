@@ -59,6 +59,7 @@ public class KristallMethItem extends Item {
     @Override
     public Component getName(ItemStack stack) {
         MethQuality quality = getQuality(stack);
-        return Component.literal(quality.getColorCode() + "Kristall-Meth (feucht)");
+        return Component.literal(quality.getColorCode())
+            .append(Component.translatable("item.kristall_meth.name"));
     }
 }

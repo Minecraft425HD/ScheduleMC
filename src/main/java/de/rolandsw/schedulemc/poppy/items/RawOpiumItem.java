@@ -65,6 +65,6 @@ public class RawOpiumItem extends Item {
 
     @Override
     public Component getName(ItemStack stack) {
-        return Component.literal("§6Rohopium");
+        return Component.translatable("item.raw_opium.name");
     }
 }

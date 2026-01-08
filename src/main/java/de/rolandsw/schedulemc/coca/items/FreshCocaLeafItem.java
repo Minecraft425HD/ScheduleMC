@@ -69,6 +69,6 @@ public class FreshCocaLeafItem extends Item {
     @Override
     public Component getName(ItemStack stack) {
         CocaType type = getType(stack);
-        return Component.literal("Frische " + type.getDisplayName() + " Koka-Blätter");
+        return Component.translatable("item.fresh_coca_leaf.name", type.getDisplayName());
     }
 }

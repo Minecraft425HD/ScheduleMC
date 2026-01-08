@@ -51,6 +51,7 @@ public class MDMAKristallItem extends Item {
     @Override
     public Component getName(ItemStack stack) {
         MDMAQuality quality = getQuality(stack);
-        return Component.literal(quality.getColorCode() + "MDMA-Kristalle");
+        return Component.literal(quality.getColorCode())
+            .append(Component.translatable("item.mdma_kristall.name"));
     }
 }

@@ -84,6 +84,7 @@ public class LSDLoesungItem extends Item {
     @Override
     public Component getName(ItemStack stack) {
         LSDDosage dosage = getDosage(stack);
-        return Component.literal(dosage.getColorCode() + "LSD-Lösung (" + dosage.getDosageString() + ")");
+        return Component.literal(dosage.getColorCode())
+            .append(Component.translatable("item.lsd_loesung.name", dosage.getDosageString()));
     }
 }

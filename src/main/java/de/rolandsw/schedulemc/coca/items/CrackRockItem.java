@@ -74,7 +74,9 @@ public class CrackRockItem extends Item {
         CrackQuality quality = getQuality(stack);
 
         String icon = quality == CrackQuality.FISHSCALE ? "§b💎" : "§f🪨";
-        return Component.literal(icon + " " + quality.getColorCode() + type.getDisplayName() + " Crack");
+        return Component.literal(icon + " ")
+            .append(Component.literal(quality.getColorCode()))
+            .append(Component.translatable("item.crack_rock.name", type.getDisplayName()));
     }
 
     @Override

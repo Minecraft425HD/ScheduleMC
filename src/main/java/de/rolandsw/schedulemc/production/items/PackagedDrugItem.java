@@ -262,37 +262,57 @@ public class PackagedDrugItem extends Item {
         ProductionType variant = parseVariant(getVariant(stack));
         String itemType = getItemType(stack);
 
-        String name = drugType.getColoredName();
+        Component name;
 
         // Spezielle Anzeige basierend auf ItemType
         if (itemType != null) {
             switch (itemType) {
                 case "CRACK":
-                    name = variant != null ? (variant.getColoredName() + " Crack") : "Crack";
+                    if (variant != null) {
+                        name = variant.getColoredName().copy().append(Component.translatable("item.packaged.crack"));
+                    } else {
+                        name = Component.translatable("item.packaged.crack");
+                    }
                     break;
                 case "COCAINE":
-                    name = variant != null ? (variant.getColoredName() + " Kokain") : "Kokain";
+                    if (variant != null) {
+                        name = variant.getColoredName().copy().append(Component.translatable("item.packaged.cocaine"));
+                    } else {
+                        name = Component.translatable("item.packaged.cocaine");
+                    }
                     break;
                 case "CURED_CANNABIS":
-                    name = variant != null ? (variant.getColoredName() + " Cannabis §7(Cured)") : "Cannabis §7(Cured)";
+                    if (variant != null) {
+                        name = variant.getColoredName().copy().append(Component.translatable("item.packaged.cannabis_cured"));
+                    } else {
+                        name = Component.translatable("item.packaged.cannabis_cured");
+                    }
                     break;
                 case "TRIMMED_CANNABIS":
-                    name = variant != null ? (variant.getColoredName() + " Cannabis") : "Cannabis";
+                    if (variant != null) {
+                        name = variant.getColoredName().copy().append(Component.translatable("item.packaged.cannabis"));
+                    } else {
+                        name = Component.translatable("item.packaged.cannabis");
+                    }
                     break;
                 default:
                     // Fallback auf Standard-Logik
                     if (variant != null) {
-                        name = variant.getColoredName() + " " + drugType.getDisplayName();
+                        name = variant.getColoredName().copy().append(Component.literal(" " + drugType.getDisplayName()));
+                    } else {
+                        name = drugType.getColoredName();
                     }
             }
         } else {
             // Alte Logik für Items ohne ItemType (Backwards Compatibility)
             if (variant != null) {
-                name = variant.getColoredName() + " " + drugType.getDisplayName();
+                name = variant.getColoredName().copy().append(Component.literal(" " + drugType.getDisplayName()));
+            } else {
+                name = drugType.getColoredName();
             }
         }
 
-        return Component.literal(name + " §7(" + weight + "g)");
+        return name.copy().append(Component.translatable("item.packaged.weight_suffix", weight));
     }
 
     @Override

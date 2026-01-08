@@ -69,6 +69,6 @@ public class DriedTobaccoLeafItem extends Item {
     @Override
     public Component getName(ItemStack stack) {
         TobaccoType type = getType(stack);
-        return Component.literal("Getrocknete " + type.getDisplayName() + "-Blätter");
+        return Component.translatable("item.dried_tobacco_leaf.name", type.getDisplayName());
     }
 }

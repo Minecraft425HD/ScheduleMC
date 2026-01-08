@@ -1,9 +1,7 @@
 {
   "_comment": "ScheduleMC MEGA VOLLSTÄNDIGE Sprachdatei - Deutsch - ALLE Items, Blöcke, Commands, GUIs, Nachrichten (580+ Einträge)",
-
   "itemGroup.schedulemc.plotmod_tab": "ScheduleMC",
   "itemGroup.schedulemc.tobacco_tab": "Tabakanbau",
-
   "item.schedulemc.plot_selection_tool": "Grundstücksauswahl-Werkzeug",
   "item.schedulemc.cash": "Bargeld",
   "item.schedulemc.npc_spawner_tool": "NPC-Spawner-Werkzeug",
@@ -38,7 +36,6 @@
   "item.schedulemc.packaging_box": "Verpackungsbox",
   "item.schedulemc.packaged_tobacco": "Verpackter Tabak",
   "item.schedulemc.packaged_drug": "Verpackte Droge",
-
   "item.schedulemc.cannabis_seed": "Cannabis-Samen",
   "item.schedulemc.fresh_cannabis_bud": "Frische Cannabis-Blüte",
   "item.schedulemc.dried_cannabis_bud": "Getrocknete Cannabis-Blüte",
@@ -49,7 +46,6 @@
   "item.schedulemc.cannabis_oil": "Cannabis-Öl",
   "item.schedulemc.pollen_press_mold": "Pollen-Pressform",
   "item.schedulemc.extraction_solvent": "Extraktionslösungsmittel",
-
   "item.schedulemc.bolivianisch_coca_seeds": "Bolivianische Koka-Samen",
   "item.schedulemc.kolumbianisch_coca_seeds": "Kolumbianische Koka-Samen",
   "item.schedulemc.fresh_bolivianisch_coca_leaf": "Frisches Bolivianisches Koka-Blatt",
@@ -59,21 +55,18 @@
   "item.schedulemc.diesel_canister": "Diesel-Kanister",
   "item.schedulemc.crack_rock": "Crack-Stein",
   "item.schedulemc.backpulver": "Backpulver",
-
   "item.schedulemc.mutterkorn": "Mutterkorn",
   "item.schedulemc.blotter_papier": "Löschpapier",
   "item.schedulemc.ergot_kultur": "Ergot-Kultur",
   "item.schedulemc.lysergsaeure": "Lysergsäure",
   "item.schedulemc.lsd_loesung": "LSD-Lösung",
   "item.schedulemc.lsd_blotter": "LSD-Löschpapier",
-
   "item.schedulemc.safrol": "Safrol",
   "item.schedulemc.bindemittel": "Bindemittel",
   "item.schedulemc.pillen_farbstoff": "Pillen-Farbstoff",
   "item.schedulemc.mdma_base": "MDMA-Base",
   "item.schedulemc.mdma_kristall": "MDMA-Kristall",
   "item.schedulemc.ecstasy_pill": "Ecstasy-Pille",
-
   "item.schedulemc.ephedrin": "Ephedrin",
   "item.schedulemc.pseudoephedrin": "Pseudoephedrin",
   "item.schedulemc.roter_phosphor": "Roter Phosphor",
@@ -82,7 +75,6 @@
   "item.schedulemc.roh_meth": "Roh-Meth",
   "item.schedulemc.kristall_meth": "Kristall-Meth",
   "item.schedulemc.meth": "Meth",
-
   "item.schedulemc.mist_bag_small": "Kleiner Miststsack",
   "item.schedulemc.mist_bag_medium": "Mittlerer Mistsack",
   "item.schedulemc.mist_bag_large": "Großer Mistsack",
@@ -95,7 +87,6 @@
   "item.schedulemc.dried_cubensis": "Getrockneter Cubensis",
   "item.schedulemc.dried_azurescens": "Getrockneter Azurescens",
   "item.schedulemc.dried_mexicana": "Getrockneter Mexicana",
-
   "item.schedulemc.afghanisch_poppy_seeds": "Afghanische Mohn-Samen",
   "item.schedulemc.tuerkisch_poppy_seeds": "Türkische Mohn-Samen",
   "item.schedulemc.indisch_poppy_seeds": "Indische Mohn-Samen",
@@ -104,7 +95,6 @@
   "item.schedulemc.morphine": "Morphin",
   "item.schedulemc.heroin": "Heroin",
   "item.schedulemc.scoring_knife": "Ritzmesser",
-
   "block.schedulemc.terracotta_pot": "Terrakotta-Topf",
   "block.schedulemc.ceramic_pot": "Keramik-Topf",
   "block.schedulemc.iron_pot": "Eisen-Topf",
@@ -130,7 +120,6 @@
   "block.schedulemc.burley_plant": "Burley-Tabakpflanze",
   "block.schedulemc.oriental_plant": "Orient-Tabakpflanze",
   "block.schedulemc.havana_plant": "Havanna-Tabakpflanze",
-
   "block.schedulemc.cannabis_indica_plant": "Cannabis Indica Pflanze",
   "block.schedulemc.cannabis_sativa_plant": "Cannabis Sativa Pflanze",
   "block.schedulemc.cannabis_hybrid_plant": "Cannabis Hybrid Pflanze",
@@ -140,7 +129,6 @@
   "block.schedulemc.cannabis_curing_glas": "Cannabis-Fermentierungsglas",
   "block.schedulemc.cannabis_hash_presse": "Cannabis-Haschisch-Presse",
   "block.schedulemc.cannabis_oel_extraktor": "Cannabis-Öl-Extraktor",
-
   "block.schedulemc.bolivianisch_coca_plant": "Bolivianische Koka-Pflanze",
   "block.schedulemc.kolumbianisch_coca_plant": "Kolumbianische Koka-Pflanze",
   "block.schedulemc.small_extraction_vat": "Kleines Extraktionsbecken",
@@ -150,26 +138,21 @@
   "block.schedulemc.medium_refinery": "Mittlere Raffinerie",
   "block.schedulemc.big_refinery": "Große Raffinerie",
   "block.schedulemc.crack_kocher": "Crack-Kocher",
-
   "block.schedulemc.fermentations_tank": "Fermentationstank",
   "block.schedulemc.destillations_apparat": "Destillationsapparat",
   "block.schedulemc.mikro_dosierer": "Mikro-Dosierer",
   "block.schedulemc.perforations_presse": "Perforationspresse",
-
   "block.schedulemc.reaktions_kessel": "Reaktionskessel",
   "block.schedulemc.trocknungs_ofen": "Trocknungsofen",
   "block.schedulemc.pillen_presse": "Pillenpresse",
-
   "block.schedulemc.chemie_mixer": "Chemie-Mixer",
   "block.schedulemc.reduktionskessel": "Reduktionskessel",
   "block.schedulemc.kristallisator": "Kristallisator",
   "block.schedulemc.vakuum_trockner": "Vakuum-Trockner",
-
   "block.schedulemc.klimalampe_small": "Kleine Klima-Lampe",
   "block.schedulemc.klimalampe_medium": "Mittlere Klima-Lampe",
   "block.schedulemc.klimalampe_large": "Große Klima-Lampe",
   "block.schedulemc.wassertank": "Wassertank",
-
   "block.schedulemc.afghanisch_poppy_plant": "Afghanische Mohn-Pflanze",
   "block.schedulemc.tuerkisch_poppy_plant": "Türkische Mohn-Pflanze",
   "block.schedulemc.indisch_poppy_plant": "Indische Mohn-Pflanze",
@@ -177,9 +160,7 @@
   "block.schedulemc.opium_presse": "Opium-Presse",
   "block.schedulemc.kochstation": "Kochstation",
   "block.schedulemc.heroin_raffinerie": "Heroin-Raffinerie",
-
   "entity.schedulemc.custom_npc": "Benutzerdefinierter NPC",
-
   "container.schedulemc.packaging_table": "Packtisch",
   "container.schedulemc.tobacco_negotiation": "Tabakverhandlung",
   "container.schedulemc.small_packaging_table": "Kleiner Packtisch",
@@ -191,14 +172,12 @@
   "container.schedulemc.merchant_shop": "Händlershop",
   "container.schedulemc.shop_editor": "Shop-Editor",
   "container.schedulemc.stealing": "Diebstahl",
-
   "item.schedulemc.soil_bag.tooltip.units": "%s Einheiten",
   "item.schedulemc.soil_bag.tooltip.plants": "Kann %s Pflanzen füllen",
   "item.schedulemc.soil_bag.tooltip.usage": "Rechtsklick auf Topf zum Befüllen mit Erde",
   "item.schedulemc.packaged_tobacco.tooltip.type": "Typ: %s",
   "item.schedulemc.packaged_tobacco.tooltip.quality": "Qualität: %s",
   "item.schedulemc.packaged_tobacco.tooltip.weight": "Gewicht: %s g",
-
   "tobacco.type.virginia": "Virginia",
   "tobacco.type.burley": "Burley",
   "tobacco.type.oriental": "Orient",
@@ -207,7 +186,6 @@
   "tobacco.quality.good": "Gut",
   "tobacco.quality.very_good": "Sehr Gut",
   "tobacco.quality.legendary": "Legendär",
-
   "pot.type.terracotta": "Terrakotta-Topf",
   "pot.type.ceramic": "Keramik-Topf",
   "pot.type.iron": "Eisen-Topf",
@@ -215,7 +193,6 @@
   "soilbag.type.small": "Kleiner Erdsack",
   "soilbag.type.medium": "Mittlerer Erdsack",
   "soilbag.type.large": "Großer Erdsack",
-
   "npc.type.resident": "Bewohner",
   "npc.type.merchant": "Händler",
   "npc.type.police": "Polizei",
@@ -225,7 +202,6 @@
   "merchant.category.grocery_store": "Lebensmittelgeschäft",
   "merchant.category.hr_management": "Personalverwaltung",
   "merchant.category.black_market": "Schwarzmarkt",
-
   "gui.schedulemc.npc_spawner.title": "NPC-Spawner",
   "gui.schedulemc.npc_spawner.name": "Name:",
   "gui.schedulemc.npc_spawner.skin": "Skin:",
@@ -234,7 +210,6 @@
   "gui.schedulemc.npc_spawner.button.spawn": "NPC Spawnen",
   "gui.schedulemc.npc_spawner.button.prev": "<",
   "gui.schedulemc.npc_spawner.button.next": ">",
-
   "gui.schedulemc.atm.title": "Geldautomat",
   "gui.schedulemc.atm.account": "Konto:",
   "gui.schedulemc.atm.cash": "Bargeld:",
@@ -244,16 +219,13 @@
   "gui.schedulemc.atm.button.deposit_all": "Alles",
   "gui.schedulemc.atm.button.100": "100€",
   "gui.schedulemc.atm.button.1000": "1000€",
-
   "gui.schedulemc.packaging_table.title": "Packtisch",
   "gui.schedulemc.packaging_table.button.1g": "1g",
   "gui.schedulemc.packaging_table.button.5g": "5g",
   "gui.schedulemc.packaging_table.button.10g": "10g",
   "gui.schedulemc.packaging_table.button.20g": "20g",
-
   "gui.schedulemc.shop_editor.title": "Shop-Editor",
   "gui.schedulemc.stealing.title": "Diebstahl",
-
   "gui.schedulemc.tobacco.negotiation.title": "Tabak verkaufen",
   "gui.schedulemc.tobacco.negotiation.price": "Preis €",
   "gui.schedulemc.tobacco.negotiation.grams": "Gramm",
@@ -274,7 +246,6 @@
   "gui.schedulemc.tobacco.negotiation.wants_to_buy": "Möchte %dg kaufen",
   "gui.schedulemc.tobacco.negotiation.select_prompt": "Wähle Gramm und Preis, dann klicke 'Anbieten'",
   "gui.schedulemc.tobacco.negotiation.no_tobacco": "Kein verpackter Tabak in diesem Slot!",
-
   "gui.schedulemc.tobacco.drying_rack.small": "Kleines Trocknungsgestell",
   "gui.schedulemc.tobacco.drying_rack.medium": "Mittleres Trocknungsgestell",
   "gui.schedulemc.tobacco.drying_rack.large": "Großes Trocknungsgestell",
@@ -283,7 +254,6 @@
   "gui.schedulemc.tobacco.drying_rack.max_6": "Max: 6 Blätter",
   "gui.schedulemc.tobacco.drying_rack.max_8": "Max: 8 Blätter",
   "gui.schedulemc.tobacco.drying_rack.max_10": "Max: 10 Blätter",
-
   "gui.schedulemc.tobacco.packaging.small": "Kleiner Packtisch",
   "gui.schedulemc.tobacco.packaging.medium": "Mittlerer Packtisch",
   "gui.schedulemc.tobacco.packaging.large": "Großer Packtisch",
@@ -291,7 +261,6 @@
   "gui.schedulemc.tobacco.packaging.jars": "Gläser",
   "gui.schedulemc.tobacco.packaging.unpack": "Auspacken",
   "gui.schedulemc.tobacco.packaging.stock": "Vorrat:",
-
   "gui.vehicle.title": "Fahrzeug",
   "gui.vehicle.status.title": "==== FAHRZEUG STATUS ====",
   "gui.vehicle.status.fuel": "Treibstoff:",
@@ -300,7 +269,6 @@
   "gui.vehicle.status.temperature": "Temperatur:",
   "gui.vehicle.status.liter": "Liter",
   "gui.vehicle.status.volt": "Volt",
-
   "gui.vehicle.garage.title": "FAHRZEUG-WERKSTATT",
   "gui.vehicle.garage.no_vehicle": "Kein Fahrzeug!",
   "gui.vehicle.garage.vehicle": "Fahrzeug:",
@@ -335,7 +303,6 @@
   "gui.vehicle.garage.upgrade.tank_max": "Tank: MAX",
   "gui.vehicle.garage.upgrade.tire_max": "Reifen: MAX",
   "gui.vehicle.garage.upgrade.fender_max": "Fender: MAX",
-
   "gui.smartphone.title": "Smartphone",
   "gui.smartphone.back": "Zurück",
   "gui.smartphone.close": "X",
@@ -350,7 +317,6 @@
   "gui.smartphone.app.bank": "Bank",
   "gui.smartphone.app.crime": "Polizei",
   "gui.smartphone.app.achievement": "Erfolge",
-
   "gui.npc.interaction.chat": "📱 Chat",
   "gui.npc.interaction.dialog": "Dialog",
   "gui.npc.interaction.banking": "🏦 Banking",
@@ -360,7 +326,6 @@
   "gui.npc.interaction.buy": "Kaufen",
   "gui.npc.interaction.no_seller": "Dieser NPC ist kein Verkäufer!",
   "gui.npc.interaction.no_buyer": "Dieser NPC kauft keine Items!",
-
   "gui.npc.banker.title": "BANKER",
   "gui.npc.banker.accounts_overview": "KONTEN-ÜBERSICHT",
   "gui.npc.banker.checking": "GIROKONTO",
@@ -387,7 +352,6 @@
   "gui.npc.banker.create": "Erstellen",
   "gui.npc.banker.history": "Historie",
   "gui.npc.banker.4week_lock": "4-Wochen Sperre",
-
   "gui.npc.boerse.title": "BÖRSENMAKLER",
   "gui.npc.boerse.market": "MARKT",
   "gui.npc.boerse.inventory": "BESTAND",
@@ -401,7 +365,6 @@
   "gui.npc.boerse.plus_1": "+1",
   "gui.npc.boerse.plus_10": "+10",
   "gui.npc.boerse.plus_64": "+64",
-
   "gui.npc.credit.title": "KREDITBERATER",
   "gui.npc.credit.available_loans": "Verfügbare Kredite:",
   "gui.npc.credit.creditworthiness": "Ihre Bonität:",
@@ -425,7 +388,6 @@
   "gui.npc.credit.28days": "28T",
   "gui.npc.credit.56days": "56T",
   "gui.npc.credit.90days": "90T",
-
   "gui.warehouse.last_deliveries": "  Letzte Lieferungen:",
   "gui.warehouse.admin_only": "  ✓ Nur Admin kann bearbeiten",
   "gui.warehouse.sellers_can_see": "  ✓ Seller können Bestand sehen",
@@ -455,7 +417,6 @@
   "gui.warehouse.max": "Max: ",
   "gui.warehouse.net_revenue_7d": "Nettoumsatz (7 Tage): ",
   "gui.warehouse.shop_id": "Shop ID",
-
   "gui.app.bank.title": "Bank",
   "gui.app.bank.amount": "Betrag",
   "gui.app.bank.amount_in_euro": "Betrag in €",
@@ -475,7 +436,6 @@
   "gui.app.bank.expenses": "§cAusgaben:",
   "gui.app.bank.max": "§c§lMAX!",
   "gui.app.bank.transactions": " Transaktionen",
-
   "gui.app.crime.title": "Crime Stats",
   "gui.app.crime.status": "Status",
   "gui.app.crime.bail": "Kaution",
@@ -488,7 +448,6 @@
   "gui.app.crime.dangerous": "GEFÄHRLICH",
   "gui.app.crime.very_dangerous": "SEHR GEFÄHRLICH",
   "gui.app.crime.hardcore_criminal": "SCHWERVERBRECHER",
-
   "gui.app.dealer.title": "Dealer",
   "gui.app.contacts.title": "Kontakte",
   "gui.app.messages.title": "Nachrichten",
@@ -497,7 +456,6 @@
   "gui.app.plot.title": "Immobilien",
   "gui.app.settings.title": "Einstellungen",
   "gui.app.achievement.title": "Erfolge",
-
   "gui.npc.merchant.shop": "Shop: ",
   "gui.npc.merchant.item": "Item",
   "gui.npc.merchant.price": "Preis",
@@ -506,26 +464,22 @@
   "gui.npc.merchant.buy": "Kaufen",
   "gui.npc.merchant.total_cost": "Gesamtkosten:",
   "gui.npc.merchant.bill_type": "Rechnungsart",
-
   "gui.npc.stealing.title": "Diebstahl",
   "gui.npc.stealing.attempt": "Diebstahl versuchen",
   "gui.npc.stealing.success_chance": "Erfolgschance:",
   "gui.npc.stealing.npc_awareness": "NPC Aufmerksamkeit:",
   "gui.npc.stealing.police_risk": "Polizeirisiko:",
-
   "gui.npc.shop_editor.title": "Shop-Editor",
   "gui.npc.shop_editor.add_item": "Item hinzufügen",
   "gui.npc.shop_editor.remove_item": "Item entfernen",
   "gui.npc.shop_editor.set_price": "Preis setzen",
   "gui.npc.shop_editor.save": "Speichern",
-
   "gui.prison.title": "Gefängnis",
   "gui.prison.sentence": "Strafe:",
   "gui.prison.time_remaining": "Verbleibende Zeit:",
   "gui.prison.bail_amount": "Kaution:",
   "gui.prison.pay_bail": "Kaution zahlen",
   "gui.prison.serve_time": "Zeit absitzen",
-
   "gui.production.expected_quality": "Erwartete Qualität: ",
   "gui.production.input": "Eingabe",
   "gui.production.output": "Ausgabe",
@@ -533,22 +487,20 @@
   "gui.production.temperature": "Temperatur:",
   "gui.production.time": "Zeit:",
   "gui.production.processing": "Verarbeitung...",
-
-  "gui.plot_info.title": "Plot Information",
+  "gui.plot_info.title": "Plot-Information",
   "gui.plot_info.close": "Schließen",
-  "gui.plot_info.rent": "Mieten",
+  "gui.plot_info.rent": "§d§lMieten",
   "gui.plot_info.nobody": "Niemand",
   "gui.plot_info.blocks": " Blöcke",
   "gui.plot_info.days": " Tage",
   "gui.plot_info.per_day": "€/Tag",
   "gui.plot_info.per_month": "€/Monat",
-  "gui.plot_info.owner": "Besitzer:",
-  "gui.plot_info.price": "Preis:",
-  "gui.plot_info.size": "Größe:",
-  "gui.plot_info.for_sale": "Zu verkaufen",
-  "gui.plot_info.for_rent": "Zu vermieten",
+  "gui.plot_info.owner": "§7Besitzer: ",
+  "gui.plot_info.price": "§7Preis: §e",
+  "gui.plot_info.size": "§7Größe: §e",
+  "gui.plot_info.for_sale": "§a§l⚡ ZUM VERKAUF",
+  "gui.plot_info.for_rent": "§d§l⚡ ZU VERMIETEN",
   "gui.plot_info.trusted_players": "Vertraute Spieler:",
-
   "command.health.logged": "§aHealth-Check in Server-Console geloggt!",
   "command.warehouse.not_found": "§cKein Warehouse gefunden! Schaue auf einen Warehouse-Block oder stehe darauf.",
   "command.warehouse.no_permission": "§cKeine Berechtigung für diesen Command!",
@@ -568,7 +520,6 @@
   "command.plot.not_for_rent": "§cDieser Plot ist nicht zur Miete verfügbar!",
   "command.error": "§cError!",
   "command.last_errors": "§c⚠ Letzte Fehler: ",
-
   "message.bank.withdrawal_successful": "ABHEBUNG ERFOLGREICH",
   "message.bank.deposit_successful": "EINZAHLUNG ERFOLGREICH",
   "message.bank.money_received": "GELD ERHALTEN",
@@ -579,14 +530,14 @@
   "message.bank.recurring_resumed": "Dauerauftrag fortgesetzt",
   "message.bank.payment_error": "Fehler bei der Zahlung!",
   "message.bank.balance": "Bargeld: ",
-  "message.bank.amount": "Betrag: ",
+  "message.bank.amount": "Betrag: %.2f€",
   "message.bank.recipient": "Empfänger: ",
   "message.bank.total_amount": "Gesamtbetrag: ",
   "message.bank.total_cost": "Gesamtkosten: ",
   "message.bank.total_revenue": "Gesamterlös: ",
   "message.bank.required": "Benötigt: ",
   "message.bank.hint": "Hinweis: ",
-  "message.bank.initial_deposit": "Ersteinlage: ",
+  "message.bank.initial_deposit": "Ersteinlage: %.2f€",
   "message.bank.effective_rate": "Effektiver Zinssatz: ",
   "message.bank.4_weeks": "4 Wochen",
   "message.bank.5_percent_per_week": "5% pro Woche",
@@ -596,7 +547,7 @@
   "message.bank.one_credit_counts": "Ein Kredit zählt als Dauerauftrag!",
   "message.bank.including_credit": "(inkl. 1 Kredit-Rückzahlung)",
   "message.bank.per_transaction": " pro Transaktion!",
-  "message.bank.bill_count": "Anzahl Rechnungen: ",
+  "message.bank.bill_count": "Anzahl Rechnungen: %d",
   "message.bank.paid": "Gezahlt: ",
   "message.bank.refueled": "Getankt: ",
   "message.bank.purchased": "Gekauft: ",
@@ -606,8 +557,7 @@
   "message.bank.days": " Tage",
   "message.bank.free_slots": " freie Slots",
   "message.bank.mb_biodiesel": " mB Bio-Diesel",
-  "message.bank.available": " | Verfügbar: ",
-
+  "message.bank.available": "Verfügbar: %.2f€",
   "message.shop.created": "' erfolgreich erstellt!",
   "message.shop.exists": "' existiert bereits!",
   "message.shop.not_found": "§c' nicht gefunden!",
@@ -617,7 +567,6 @@
   "message.shop.no_profit": "] Kein Gewinn diese Woche. ",
   "message.shop.investment_header": "§a§l[Shop Investment]§r\n",
   "message.shop.none_available": "§eKeine Shops verfügbar.",
-
   "message.cash.wallet_empty": "§7Geldbörse (Leer)",
   "message.cash.wallet": "§aGeldbörse §7(§e",
   "message.cash.balance": "§7Guthaben: §a",
@@ -626,7 +575,6 @@
   "message.cash.hold_left": "§7Linksklick halten: §eGesamten Block",
   "message.cash.right_click": "§7Rechtsklick: §e+100€ zum Block",
   "message.cash.locked_slot_9": "§c§lGESPERRT IN SLOT 9!",
-
   "message.plot.purchased": "§aPlot erfolgreich gekauft für ",
   "message.plot.rented": "§aPlot erfolgreich gemietet für ",
   "message.plot.renamed": "§aPlot umbenannt: §7",
@@ -637,7 +585,7 @@
   "message.plot.description_updated": "§aPlot-Beschreibung aktualisiert!",
   "message.plot.rating_thanks": "§aDanke für deine Bewertung: §e",
   "message.plot.rating_updated": "§aDeine Bewertung wurde aktualisiert: §e",
-  "message.plot.abandoned": "§c§lPlot aufgegeben: ",
+  "message.plot.abandoned": "§c§lPlot aufgegeben: %s",
   "message.plot.not_found": "§cPlot nicht gefunden!",
   "message.plot.not_for_sale": "§cDieser Plot steht nicht zum Verkauf!",
   "message.plot.not_for_rent": "§cDieser Plot steht nicht zur Miete!",
@@ -652,7 +600,6 @@
   "message.plot.invalid_rating": "§cUngültiges Rating! (1-5 Sterne)",
   "message.plot.insufficient_funds": "§cNicht genug Guthaben! Benötigt: ",
   "message.plot.player_not_found": "§cSpieler '",
-
   "message.npc.daily_income": " erhielt tägliches Einkommen: ",
   "message.npc.knocked_out": " ist kampfunfähig!",
   "message.npc.wallet": ", Geldbörse: ",
@@ -661,7 +608,6 @@
   "message.npc.seconds": " Sekunden",
   "message.npc.day": " (Tag ",
   "message.npc.prefix": "[NPC] ",
-
   "message.police.arrested": "§c✗ FESTGENOMMEN!",
   "message.police.arrest_in": "§c⚠ FESTNAHME in ",
   "message.police.arrest_progress": "§c⚠ FESTNAHME läuft... ",
@@ -686,12 +632,10 @@
   "message.police.stay_lawful": "§7Halte dich von nun an an das Gesetz.",
   "message.police.try_tomorrow": "§7Versuche es morgen nochmal.",
   "message.police.you_were_seen": "§c⚠ Du wurdest gesehen!",
-
   "message.stealing.attempt": "§cBestehle ",
   "message.stealing.no_items": "§c✗ Dieser NPC hat nichts zum Stehlen!",
   "message.stealing.already_stolen_today": "§c✗ Du hast heute bereits von diesem NPC gestohlen!",
   "message.stealing.cannot_steal_police": "§c✗ Du kannst keine Polizisten bestehlen!",
-
   "tooltip.item.quality": "§7Qualität: ",
   "tooltip.item.yield": "§7Ertrag: §e~",
   "tooltip.item.soil": "§7Erde: §6",
@@ -712,7 +656,6 @@
   "tooltip.item.plants": " Pflanzen",
   "tooltip.item.units": " Einheiten",
   "tooltip.item.quality_booster": "§6§lQualitätsverbesserer",
-
   "tooltip.vehicle.spawn_tool": "🚗 Vehicle Spawn Tool",
   "tooltip.vehicle.spawn_point": "FAHRZEUG-SPAWN-PUNKT",
   "tooltip.vehicle.tool_linked": "TOOL VERKNÜPFT",
@@ -725,11 +668,9 @@
   "tooltip.vehicle.click_floor_spawn": "Linksklicke nun auf den Boden, um Spawn-Punkte zu setzen",
   "tooltip.vehicle.no_dealer": "⚠ Kein Händler verknüpft! Rechtsklick auf einen Autohändler-NPC",
   "tooltip.vehicle.dealer_removed": "Händler-Verknüpfung entfernt",
-
   "message.schedulemc.plot.position1": "Position 1 gesetzt!",
   "message.schedulemc.plot.position2": "Position 2 gesetzt!",
   "message.schedulemc.plot.coordinates": "Koordinaten:",
-
   "command.plot.wand.success": "Grundstücksauswahl-Werkzeug erhalten!\nLinksklick: Position 1\nRechtsklick auf Block: Position 2\nDann: /plot create <preis>",
   "command.plot.wand.inventory_full": "Inventar ist voll!",
   "command.plot.create.no_selection": "Keine Auswahl!\nVerwende das Auswahl-Werkzeug, um zwei Positionen zu markieren.",
@@ -801,7 +742,6 @@
   "command.plot.debug.success": "═══ Debug-Info ═══\nPosition: %s, %s, %s\n%s\nAlle Grundstücke: %s",
   "command.plot.debug.plot_found": "Grundstück gefunden: %s (%s)",
   "command.plot.debug.no_plot": "Kein Grundstück an dieser Position",
-
   "command.plot.apartment.wand.success": "Wohnungsauswahl-Werkzeug erhalten!\nLinksklick: Position 1\nRechtsklick auf Block: Position 2\nDann: /plot apartment create <name> <miete>",
   "command.plot.apartment.wand.inventory_full": "Inventar ist voll!",
   "command.plot.apartment.create.no_selection": "Keine Auswahl!\nVerwende /plot apartment wand und markiere zwei Positionen.",
@@ -840,7 +780,6 @@
   "command.plot.apartment.evict.not_found": "Wohnung nicht gefunden: %s\nVerwende /plot apartment list für verfügbare Wohnungen",
   "command.plot.apartment.evict.not_rented": "Diese Wohnung ist nicht vermietet!",
   "command.plot.apartment.evict.success": "Mieter geräumt!\nWohnung: %s\nKAUTION NICHT ZURÜCKERSTATTET!",
-
   "command.money.balance": "━━━━━━━━━━━━━━━━━━\nDein Kontostand:\n%.2f€\n━━━━━━━━━━━━━━━━━━",
   "command.money.error": "Fehler beim Abrufen deines Kontostands!",
   "command.money.pay.to_self": "Du kannst dir nicht selbst Geld senden!",
@@ -859,7 +798,6 @@
   "command.money.take.notification": "%.2f€ wurden von deinem Konto abgezogen.",
   "command.money.take.not_enough": "Nicht genug Guthaben beim Zielspieler!",
   "command.money.take.error": "Fehler beim Abziehen von Geld!",
-
   "command.daily.already_claimed": "Du hast heute bereits deine Belohnung abgeholt!\nNächste Belohnung in: %s",
   "command.daily.error": "Fehler!",
   "command.daily.success": "TÄGLICHE BELOHNUNG!\n+%.2f€\nStreak: %s Tag%s 🔥\nKomm morgen wieder für mehr!",
@@ -870,7 +808,6 @@
   "command.daily.streak.longest": "Längster Streak: %s",
   "command.daily.streak.total": "Gesamt geclaimed: %s mal",
   "command.daily.streak.next": "Nächste Belohnung: %s",
-
   "command.shop.menu": "═══════════════════════════════\n         SHOP-MENÜ\n═══════════════════════════════\nVerfügbare Befehle:\n/shop buy <item> <menge> - Item kaufen\n/shop sell <item> <menge> - Item verkaufen\n/shop prices - Alle Preise anzeigen\n/shop info <item> - Item-Info\n\nBeispiel: /shop buy diamond 10\n═══════════════════════════════",
   "command.shop.buy.not_found": "Item nicht im Shop gefunden!\nTipp: /shop prices für alle Items",
   "command.shop.buy.cannot_buy": "Dieses Item kann nicht gekauft werden!",
@@ -907,14 +844,12 @@
   "command.shop.setprice.success": "Preise aktualisiert!\nItem: %s\nKauf: %.2f€\nVerkauf: %.2f€",
   "command.shop.additem.already_exists": "Item bereits im Shop! Nutze /shop setprice",
   "command.shop.additem.success": "Item zum Shop hinzugefügt!\nID: %s\nKauf: %.2f€\nVerkauf: %.2f€",
-
   "command.hospital.setspawn.success": "Krankenhaus-Spawn gesetzt!\nPosition: %s, %s, %s\nSpieler spawnen hier nach dem Tod",
   "command.hospital.setfee.success": "Krankenhausrechnung gesetzt!\nKosten pro Tod: %.0f€",
   "command.hospital.info.header": "╔══ KRANKENHAUS-INFO ══╗",
   "command.hospital.info.spawn": "Spawn: %s, %s, %s",
   "command.hospital.info.fee": "Gebühr: %.0f€ pro Tod",
   "command.hospital.info.footer": "╚══════════════════════╝",
-
   "command.tobacco.info.not_on_pot": "✗ Du stehst nicht auf einem Tabak-Topf!",
   "command.tobacco.give.unknown": "✗ Unbekanntes Item: %s\nVerfügbar: virginia_seeds, burley_seeds, oriental_seeds, havana_seeds,\nfertilizer, growth_booster, quality_booster, watering_can",
   "command.tobacco.give.success": "✓ Item erhalten: %s",
@@ -925,7 +860,6 @@
   "command.tobacco.stats.harvested": "│ Geerntet: %s",
   "command.tobacco.stats.sold": "│ Verkauft: %s€",
   "command.tobacco.stats.footer": "╚══════════════════════════════╝",
-
   "command.npc.players_only": "Nur Spieler können diesen Command verwenden!",
   "command.npc.no_npc": "Kein NPC ausgewählt oder in der Nähe!",
   "command.npc.movement.success": "Bewegung %s für NPC %s",
@@ -979,17 +913,13 @@
   "command.npc.info.inventory.header": "═══ Inventar & Geldbörse ═══",
   "command.npc.info.inventory.slots": "Inventar: %s/9 Slots belegt",
   "command.npc.info.wallet.amount": "Geldbörse: %s Bargeld",
-
   "death.attack.schedulemc.police": "%s wurde von der Polizei verhaftet",
   "death.attack.schedulemc.police.player": "%s wurde von der Polizei verhaftet, während er gegen %s kämpfte",
-
   "key.categories.schedulemc": "ScheduleMC",
   "key.schedulemc.open_smartphone": "Smartphone öffnen",
-
   "category.vehicle": "Fahrzeuge",
   "itemGroup.vehicle": "Fahrzeuge",
   "itemGroup.vehicle_parts": "Fahrzeugteile",
-
   "message.parts.too_few_wheels": "Zu wenige Räder",
   "message.parts.too_many_wheels": "Zu viele Räder",
   "message.parts.no_engine": "Kein Motor",
@@ -1020,7 +950,6 @@
   "message.garage.vehicle_not_found": "Fahrzeug nicht gefunden!",
   "message.garage.insufficient_funds": "Nicht genug Geld! Kosten: %s, Guthaben: %s",
   "message.garage.payment_success": "Zahlung erfolgreich! %s abgebucht",
-
   "gui.vehicle_fuel": "%s %% Kraftstoff",
   "gui.vehicle_damage": "%s %% Schaden",
   "gui.vehicle_battery": "%s %% Batterie",
@@ -1031,15 +960,12 @@
   "gui.sign.front": "Vorne",
   "gui.sign.back": "Hinten",
   "gui.license_plate": "Nummernschild bearbeiten",
-
   "block.vehicle.fuel_station": "Tankstelle",
   "block.vehicle.fuel_station_top": "Tankstelle",
   "block.vehicle.garage": "Fahrzeug-Werkstatt",
   "block.schedulemc.garage": "Fahrzeug-Werkstatt",
   "block.vehicle.diesel": "Diesel",
-
   "container.schedulemc.garage": "Fahrzeug-Werkstatt",
-
   "item.vehicle.normal_motor": "Normal-Motor",
   "item.vehicle.performance_motor": "Performance-Motor",
   "item.vehicle.industrial_motor": "Industrie-Motor",
@@ -1079,7 +1005,6 @@
   "item.vehicle.truck": "LKW",
   "item.vehicle.suv": "SUV",
   "item.vehicle.sports_car": "Sportwagen",
-
   "button.vehicle.start": "Starten",
   "button.vehicle.stop": "Stoppen",
   "button.vehicle.spawn_vehicle": "Fahrzeug spawnen",
@@ -1088,7 +1013,6 @@
   "button.vehicle.submit": "Bestätigen",
   "button.vehicle.cancel": "Abbrechen",
   "button.vehicle.front": "Vorne",
-
   "fuel_station.vehicle_info": "Fahrzeug: %s",
   "fuel_station.vehicle_fuel_amount": "Kraftstoff: %s/%s mb",
   "fuel_station.vehicle_fuel_type": "Typ: %s",
@@ -1100,7 +1024,6 @@
   "fuel_station.fuel_empty": "Unbegrenzter Kraftstoff",
   "fuel_station.no_vehicle": "Kein Fahrzeug",
   "fuel_station.admin.amount_text_field": "Menge",
-
   "tooltip.fuel": "Gespeicherter Kraftstoff: %s mb",
   "tooltip.diesel": "Gespeicherter Diesel: %s mb",
   "tooltip.progress": "Fortschritt %s%%",
@@ -1112,9 +1035,7 @@
   "tooltip.battery": "Stellt die Energie deiner Fahrzeugbatterie im Fahrzeug-GUI wieder her",
   "tooltip.trade": "%s %s für %s mb",
   "tooltip.license_plate_text": "Text: %s",
-
   "fluid.vehicle.diesel": "Diesel",
-
   "key.vehicle_back": "Rückwärts",
   "key.vehicle_forward": "Vorwärts",
   "key.vehicle_left": "Links",
@@ -1123,15 +1044,11 @@
   "key.vehicle_start": "Fahrzeugmotor starten",
   "key.vehicle_horn": "Hupe",
   "key.center_vehicle": "Fahrzeugrotation zentrieren",
-
   "vehicle.fuel_slot": "Kraftstoff",
-
   "canister.fluid": "Flüssigkeit: %s",
   "canister.amount": "Menge: %s mb",
   "canister.max_amount": "Max: %s mb",
-
   "filter.fluid": "Filter: %s",
-
   "entity.vehicle.vehicle": "Fahrzeug",
   "vehicle_name.limousine": "%s Limousine",
   "vehicle_name.van": "%s Van",
@@ -1144,9 +1061,7 @@
   "vehicle_short_name.sports": "Sportwagen",
   "vehicle_short_name.suv": "SUV",
   "vehicle_variant.standard": "Standard",
-
   "soundCategory.vehicle": "Fahrzeuge",
-
   "description.canister": "Schleiche und rechtsklicke eine Tankstelle, um den Kanister mit Kraftstoff zu füllen. Platziere ihn im Kraftstoffslot deines Fahrzeugs, um etwas Kraftstoff wiederherzustellen. Er sollte nur verwendet werden, um zur nächsten Tankstelle zu gelangen.",
   "description.fuel_station": "Eine Tankstelle kann verwendet werden, um Fahrzeuge und Kanister zu betanken. Sie hat einen internen Flüssigkeitsspeicher von 16.000 mb. Um ein Fahrzeug zu betanken, fahre es direkt vor die Tankstelle. Um einen Kanister zu füllen, schleiche und rechtsklicke die Tankstelle mit dem Kanister in der Hand.",
   "description.fuel_station_admin": "Du kannst einen Preis für das Tanken festlegen. Schleiche und rechtsklicke die Tankstelle mit leerer Hand, um das Admin-GUI zu öffnen. Du kannst nur auf das Admin-GUI zugreifen, wenn du die Tankstelle platziert hast oder Server-Operator bist.",
@@ -1156,9 +1071,7 @@
   "description.container": "Fügt deinem Transporter mehr Inventarplatz hinzu",
   "description.tank_container": "Fügt die Möglichkeit hinzu, Flüssigkeiten in deinem Transporter zu lagern",
   "description.license_plate": "Du kannst den Namen festlegen, indem du diesen Gegenstand rechtsklickst. Um ihn am Fahrzeug anzubringen, schleiche und rechtsklicke das Fahrzeug damit. Das Fahrzeug muss eine Nummernschildhalterung haben, um dies zu tun.",
-
   "death.attack.hit_vehicle": "%s wurde von einem Fahrzeug überfahren",
-
   "sound.vehicle.motor_idle": "Motor im Leerlauf",
   "sound.vehicle.motor_start": "Motor startet",
   "sound.vehicle.motor_starting": "Motor startet",
@@ -1185,7 +1098,6 @@
   "sound.vehicle.vehicle_unlock": "Fahrzeug aufschließen",
   "sound.vehicle.ratchet": "Ratsche",
   "sound.vehicle.fuel_station_attendant": "Tankstellenwärter arbeitet",
-
   "mapview.ui.zoomLevel": "Zoomstufe:",
   "key.mapview.zoom": "Zoom",
   "key.mapview.toggleFullscreen": "Vollbildkarte Schalten",
@@ -1208,7 +1120,6 @@
   "options.minimap.size.xl": "Sehr Groß",
   "options.minimap.size.xxl": "Übergroß",
   "options.minimap.size.xxxl": "Riesengroß",
-
   "tooltip.cannabis.oil_suffix": " Öl",
   "tooltip.cannabis.seed_suffix": " Samen",
   "tooltip.cannabis.strain": "§7Sorte: ",
@@ -1226,16 +1137,13 @@
   "tooltip.cannabis.flowering_days": " Tage",
   "tooltip.cannabis.yield": "§8Ertrag: ~",
   "tooltip.cannabis.yield_grams": "g",
-
   "tooltip.meth.crystal_meth_wet": "Kristall-Meth (feucht)",
   "tooltip.meth.wet_crystals": "§7Feuchte ",
   "tooltip.meth.wet_crystals_suffix": " Kristalle",
-  "tooltip.meth.next_step_vacuum": "§8Nächster Schritt: Vakuum-Trockner",
-
+  "tooltip.meth.next_step_vacuum": "§8💡 Nächster Schritt: Vakuumpumpe",
   "tooltip.mdma.crystals": "MDMA-Kristalle",
   "tooltip.mdma.white_crystals": "§fWeiße Kristalle",
   "tooltip.mdma.next_step_press": "§8Nächster Schritt: Pillen-Presse",
-
   "tooltip.lsd.solution": "LSD-Lösung (",
   "tooltip.lsd.solution_suffix": ")",
   "tooltip.lsd.dosage": "§7Dosierung: ",
@@ -1246,20 +1154,17 @@
   "tooltip.lsd.clear_liquid": "§dKlare Flüssigkeit in Flasche",
   "tooltip.lsd.next_step_press": "§8Nächster Schritt: Perforations-Presse",
   "tooltip.lsd.light_sensitive": "§c⚠ Lichtempfindlich! Im Dunkeln lagern!",
-
   "tooltip.mushroom.dried_prefix": "Getrocknete ",
-  "tooltip.mushroom.potency": "§7Potenz: §d",
+  "tooltip.mushroom.potency": "§7Potenz: ",
   "tooltip.mushroom.potency_percent": "%",
-  "tooltip.mushroom.weight": "§7Gewicht: §f",
+  "tooltip.mushroom.weight": "§7Gewicht: ",
   "tooltip.mushroom.weight_grams": "g §8(",
   "tooltip.mushroom.weight_pieces": "x 1g)",
   "tooltip.mushroom.shelf_stable": "§a✓ Haltbar",
   "tooltip.mushroom.ready_sell": "§8Bereit zum Verkauf oder Verpacken",
-
   "tooltip.poppy.pod": "Mohnkapsel",
   "tooltip.poppy.craft_instruction1": "§8Mit Ritzmesser im Crafting-Grid",
   "tooltip.poppy.craft_instruction2": "§8zu Rohopium verarbeiten",
-
   "gui.achievement_app.title": "§e§l🏆 Achievements",
   "gui.achievement_app.back": "← Zurück",
   "gui.achievement_app.overview": "← Übersicht",
@@ -1280,7 +1185,6 @@
   "gui.achievement_app.reward_label": "§7Belohnung:",
   "gui.achievement_app.difficulty_label": "§7Schwierigkeit: ",
   "gui.achievement_app.empty_category": "§7Keine Achievements in dieser Kategorie",
-
   "gui.territory_editor.title": "Territory Map Editor",
   "gui.territory_editor.clear": "Territory entfernen",
   "gui.territory_editor.zoom_in": "+ Vergrößern",
@@ -1290,22 +1194,18 @@
   "gui.territory_editor.chunk_coords": "Chunk: [%d, %d]",
   "gui.territory_editor.territory_removed": "§7Territory entfernt: [%d, %d]",
   "gui.territory_editor.territory_set": "§aTerritory gesetzt: [%d, %d] - ",
-
   "gui.territory_tracker.unnamed": "§7Unbenanntes Gebiet",
   "gui.territory_tracker.free_area": "§7Freies Gebiet",
-
   "gui.small_drying_rack.title": "Kleines Trocknungsgestell",
   "gui.small_drying_rack.capacity": "Max: 6 Blätter",
   "gui.small_drying_rack.fresh_label": "Frisch",
   "gui.small_drying_rack.dried_label": "Trocken",
-
   "gui.small_packaging.title": "Kleiner Packtisch",
   "gui.small_packaging.bags_label": "Tüten",
   "gui.small_packaging.jars_label": "Gläser",
   "gui.small_packaging.button_1g": "1g",
   "gui.small_packaging.button_5g": "5g",
   "gui.small_packaging.button_unpack": "Entpacken",
-
   "gui.trimming_station.title": "§a✂ §lTRIMM-STATION §a✂",
   "gui.trimming_station.leaves": "§7Blätter: §f",
   "gui.trimming_station.leaves_separator": "/",
@@ -1320,7 +1220,6 @@
   "gui.trimming_station.result_good": "§eGut!",
   "gui.trimming_station.result_bad": "§cDaneben...",
   "gui.trimming_station.hint": "§e▶ Klicke im §a§lGRÜNEN§e Bereich! ◀",
-
   "gui.atm.title": "GELDAUTOMAT",
   "gui.atm.amount_field": "Betrag",
   "gui.atm.withdraw": "Abheben",
@@ -1331,7 +1230,6 @@
   "gui.atm.account_label": "Konto:",
   "gui.atm.cash_label": "Bargeld:",
   "gui.atm.amount_label": "Betrag:",
-
   "gui.mikro_dosierer.title": "§d⚗ §lMIKRO-DOSIERER",
   "gui.mikro_dosierer.select_dosage": "§7Wähle die Dosierung:",
   "gui.mikro_dosierer.label_50": "50μg",
@@ -1342,7 +1240,6 @@
   "gui.mikro_dosierer.button_start": "§a▶ STARTEN",
   "gui.mikro_dosierer.button_no_acid": "§8Keine Lysergsäure",
   "gui.mikro_dosierer.dosage_display": "%dμg - ",
-
   "gui.pillen_presse.title": "§d💊 §lPILLEN-PRESSE §d💊",
   "gui.pillen_presse.design_label": "§7Design: ",
   "gui.pillen_presse.color_label": "§7Farbe: ",
@@ -1359,24 +1256,18 @@
   "gui.pillen_presse.result_standard": "§eOKAY §7Standard-Qualität",
   "gui.pillen_presse.result_poor": "§cSCHLECHT §7Minderwertig...",
   "gui.pillen_presse.hint": "§e▶ Drücke im §a§lGRÜNEN§e Bereich! ◀",
-
   "gui.confirm_dialog.yes": "§c✓ Ja, fortfahren",
   "gui.confirm_dialog.cancel": "✗ Abbrechen",
-
   "gui.input_dialog.field": "Eingabe",
   "gui.input_dialog.confirm": "✓ Bestätigen",
   "gui.input_dialog.cancel": "✗ Abbrechen",
-
   "tooltip.heroin.name": "Heroin",
   "tooltip.heroin.package_instruction": "§8Am Verpackungstisch verpacken",
-
   "tooltip.opium.raw_opium": "Rohopium",
   "tooltip.opium.process_instruction": "§8In Kochstation zu Morphin verarbeiten",
-
   "tooltip.cocaine.suffix": " Kokain",
   "tooltip.cocaine.white_powder": "§fWeißes Pulver",
   "tooltip.cocaine.package_instruction": "§8Kann verpackt und verkauft werden",
-
   "tooltip.packaged.crack_suffix": " Crack",
   "tooltip.packaged.cocaine_suffix": " Kokain",
   "tooltip.packaged.cannabis_cured": " Cannabis §7(Cured)",
@@ -1386,22 +1277,16 @@
   "tooltip.packaged.packaged_ago": "§8Verpackt: vor ",
   "tooltip.packaged.packaged_days": " Tag(en)",
   "tooltip.packaged.packaged_today": "§8Verpackt: Heute",
-  "tooltip.packaged.sale_price": "§6Verkaufspreis: §e",
+  "tooltip.packaged.sale_price": "§6Verkaufspreis: §e%s€",
   "tooltip.packaged.price_suffix": "€",
-
   "tooltip.general.potency": "§7Potenz: §c",
   "tooltip.general.potency_percent": "%%",
   "tooltip.general.weight_grams": "g §8(",
   "tooltip.general.weight_pieces": "x 1g)",
-
   "tooltip.quality.label": "§7Qualität: ",
   "tooltip.cannabis.curing_improves": "§8💡 Tipp: Curing verbessert die Qualität!",
-  "tooltip.meth.next_step_vacuum": "§8💡 Nächster Schritt: Vakuumpumpe",
-
   "tooltip.mdma.brown_crystals": "§fBraune Kristalle",
   "tooltip.mdma.next_step_oven": "§8Nächster Schritt: Trocknungs-Ofen",
-  "tooltip.mdma.white_crystals": "§fWeiße Kristalle",
-  "tooltip.mdma.next_step_press": "§8Nächster Schritt: Pillen-Presse",
   "tooltip.ecstasy.design_label": "§7Design: ",
   "tooltip.ecstasy.color_label": "§7Farbe: ",
   "tooltip.ecstasy.pressed_pill": "Gepresste Pille",
@@ -1413,7 +1298,6 @@
   "tooltip.safrol.yellowish_liquid": "§eGelbliche Flüssigkeit",
   "tooltip.safrol.smells_anise": "§8Riecht nach Anis",
   "tooltip.safrol.use_kettle": "§8Verwendung: Reaktions-Kessel",
-
   "item.vehicle_spawn_tool.dealer_unlinked": "Händler-Verknüpfung entfernt",
   "item.vehicle_spawn_tool.link_dealer_first": "Linksklick auf Autohändler-NPC, um ihn zu verknüpfen",
   "item.vehicle_spawn_tool.help_header": "══════════════════════════════",
@@ -1432,10 +1316,8 @@
   "item.vehicle_spawn_tool.linked_title": "✓ TOOL VERKNÜPFT",
   "item.vehicle_spawn_tool.linked_instruction": "Linksklicke nun auf den Boden, um Spawn-Punkte zu setzen",
   "item.vehicle_spawn_tool.linked_footer": "═══════════════════════════════",
-
   "vehicle.purchase.no_parking": "⚠ Kein freier Parkplatz verfügbar!",
   "vehicle.purchase.wait_for_parking": "Bitte warten Sie, bis ein Parkplatz frei wird.",
-
   "command.health.last_error": "§c⚠ Letzte Fehler: %s",
   "command.health.backups_available": "§7Backups verfügbar: §f%d",
   "command.health.latest_backup": "§7Letztes Backup: §f%s §7(vor %d Minuten)",
@@ -1445,13 +1327,11 @@
   "command.health.backup_max_info": "§7Maximal 5 Backups werden pro Datei behalten.",
   "command.health.backup_and_more": "  §8... und %d weitere",
   "command.health.logged_to_console": "§aHealth-Check in Server-Console geloggt!",
-
   "command.map.players_only": "§cNur Spieler können diesen Command nutzen!",
   "command.map.editor_opening": "§a§lTerritory Map Editor§r\n§7Öffne Editor...\n§7Steuerung:\n  §e• Linksklick: §fTerritory setzen\n  §e• Rechtsklick + Ziehen: §fKarte verschieben\n  §e• Mausrad: §fZoom\n  §e• WASD/Pfeiltasten: §fKarte verschieben",
   "command.map.manager_unavailable": "§cTerritoryManager nicht verfügbar!",
   "command.map.info_header": "§6§l═══ TERRITORY INFO ═══§r",
   "command.map.info_footer": "§6§l════════════════════════§r",
-
   "command.market.disabled": "§cDer dynamische Markt ist deaktiviert!",
   "command.market.prices_header": "§6§l═══ MARKTPREISE ═══",
   "command.market.total_items": "§7Insgesamt: %d Items",
@@ -1467,13 +1347,10 @@
   "command.market.average_multiplier": "§7Durchschnittlicher Multiplier: §f×%s",
   "command.market.total_updates": "§7Gesamt-Updates: §f%d",
   "command.market.top_header": "§6§l═══ TOP PREISE ═══",
-
   "command.utility.players_only": "§cNur Spieler können diesen Befehl nutzen!",
   "command.utility.not_on_plot": "§cDu stehst nicht auf einem Plot!",
   "command.utility.no_data": "§cKeine Verbrauchsdaten für Plot: %s",
-
   "command.shopinvest.no_shops": "§eKeine Shops verfügbar.",
-
   "command.prison.plot_not_found": "§c✗ Plot '%s' nicht gefunden!",
   "command.prison.created": "§a✓ Gefängnis erstellt: %s",
   "command.prison.no_prison_create": "§c✗ Kein Gefängnis vorhanden! Erstelle erst eines mit /prison create",
@@ -1490,7 +1367,6 @@
   "command.prison.bail_players_only": "§c✗ Nur Spieler können Kaution zahlen!",
   "command.prison.players_only": "§c✗ Nur Spieler können diesen Befehl nutzen!",
   "command.prison.not_in_jail": "§7Du bist nicht im Gefängnis.",
-
   "tooltip.roh_meth.impure_powder": "§7Unreines %s Pulver",
   "tooltip.roh_meth.next_step": "§8Nächster Schritt: Kristallisator",
   "tooltip.roter_phosphor.catalyst": "§7Katalysator",
@@ -1553,7 +1429,6 @@
   "tooltip.backpulver.for_crack": "§8Wird zum Kochen von Crack benötigt",
   "tooltip.coca.type_label": "§7Sorte: ",
   "tooltip.coca.weight": "§7Gewicht: ",
-  "tooltip.cocaine.white_powder": "§fWeißes Pulver",
   "tooltip.cocaine.can_package": "§8Kann verpackt und verkauft werden",
   "tooltip.coca_paste.brown_paste": "§6Braune Paste",
   "tooltip.coca_paste.must_refine": "§8Muss raffiniert werden (Raffinerie-Ofen)",
@@ -1607,8 +1482,6 @@
   "tooltip.farbstoff.food_dye": "Lebensmittelfarbe",
   "tooltip.farbstoff.use_press": "§8Verwendung: Pillen-Presse",
   "tooltip.mushroom.type_label": "§7Sorte: ",
-  "tooltip.mushroom.potency": "§7Potenz: ",
-  "tooltip.mushroom.weight": "§7Gewicht: ",
   "tooltip.fresh_mushroom.perishable": "§c⚠ Verderblich!",
   "tooltip.fresh_mushroom.bring_to_dryer": "§8Zum Trockner bringen",
   "tooltip.dried_mushroom.durable": "§a✓ Haltbar",
@@ -1628,8 +1501,6 @@
   "tooltip.packaged.type_label": "§7Sorte: ",
   "tooltip.packaged.weight": "§7Gewicht: §f%dg",
   "tooltip.packaged.packaged_days_ago": "§8Verpackt: vor %d Tag(en)",
-  "tooltip.packaged.packaged_today": "§8Verpackt: Heute",
-  "tooltip.packaged.sale_price": "§6Verkaufspreis: §e%s€",
   "message.cash.no_wallet_slot9": "§c✗ Keine Geldbörse in Slot 9!",
   "message.cash.not_enough": "§c✗ Nicht genug Bargeld!\n§7Benötigt: §e100€\n§7Vorhanden: §e%s€",
   "message.cash.block_full": "§c✗ Block ist voll! (1000€)\n§7Platziere an neuer Position",
@@ -1657,7 +1528,6 @@
   "tooltip.packaging_box.price": "§7Preis: §e10€",
   "tooltip.tobacco_bottle.fill_level": "§7Füllstand: §e%d/100 Züge",
   "tooltip.tobacco_bottle.right_click": "§8Rechtsklick: Einweg-Zigarette",
-
   "block.plant_pot.remove_plant_first": "§c✗ Entferne zuerst die Pflanze!",
   "block.plant_pot.pot_full_soil": "§c✗ Topf ist bereits voll mit Erde!",
   "block.plant_pot.soil_added": "§a✓ Erde eingefüllt!",
@@ -1684,7 +1554,6 @@
   "block.plant_pot.variety_label": "§7Sorte: ",
   "block.plant_pot.cannabis_planted": "§a✓ Cannabis-Samen gepflanzt!",
   "block.plant_pot.strain_label": "§7Strain: ",
-
   "block.curing_glas.buds_added": "§a🫙 Blüten zum Curing eingelegt",
   "block.curing_glas.perfect_buds": "§6🫙 ★ Perfekt gecurte Blüten entnommen!",
   "block.curing_glas.cured_buds": "§a🫙 Gecurte Blüten entnommen",
@@ -1694,14 +1563,12 @@
   "block.curing_glas.days_left": "§8Noch ",
   "block.curing_glas.days_until_min": " Tage bis Minimum",
   "block.curing_glas.empty": "§8Curing-Glas ist leer",
-
   "block.sink.can_full": "§e⚠ Gießkanne ist bereits voll!",
   "block.sink.can_filled": "§b✓ Gießkanne aufgefüllt!",
   "block.sink.water_display": "§7Wasser: §b1000/1000",
   "block.sink.info_title": "§b═══ Waschbecken ═══",
   "block.sink.info_line1": "§7Rechtsklick mit Gießkanne",
   "block.sink.info_line2": "§7zum Auffüllen",
-
   "block.ritzmaschine.machine_full": "§c✗ Ritzmaschine ist voll!",
   "block.ritzmaschine.pod_added": "§6✓ Mohnkapsel hinzugefügt!",
   "block.ritzmaschine.content": "§7Inhalt: §e",
@@ -1716,7 +1583,6 @@
   "block.ritzmaschine.opium_ready": "§7Rohopium fertig: §e",
   "block.ritzmaschine.progress": "§7Fortschritt: §e",
   "block.ritzmaschine.progress_percent": "%%",
-
   "block.fermentation_barrel.barrel_full": "§c✗ Fass ist voll! (10/10)",
   "block.fermentation_barrel.leaf_added": "§a✓ Blatt hinzugefügt! (",
   "block.fermentation_barrel.leaf_count": "/10)",
@@ -1725,10 +1591,8 @@
   "block.fermentation_barrel.complete": "§a✓ Fermentierung abgeschlossen!",
   "block.fermentation_barrel.received": "§7Erhalten: §e",
   "block.fermentation_barrel.received_suffix": "x §7fermentierten Tabak",
-
   "block.trimming_station.output_taken": "§a✂ Getrimmte Blüten und Trim entnommen!",
   "block.trimming_station.buds_added": "§e🍂 Getrocknete Blüten eingelegt",
-
   "block.crack_kocher.crack_removed": "§f🪨 Crack entnommen!",
   "block.crack_kocher.fishscale": "§b💎 FISHSCALE! Perfektes Timing!",
   "block.crack_kocher.good": "§a✓ Gutes Crack!",
@@ -1752,7 +1616,6 @@
   "block.crack_kocher.need_baking_soda": "§c⚠ Backpulver benötigt",
   "block.crack_kocher.empty": "§8Crack-Kocher ist leer",
   "block.crack_kocher.add_materials": "§8Füge Kokain und Backpulver hinzu",
-
   "block.oil_extractor.oil_removed": "§e🧪 Cannabis-Öl entnommen!",
   "block.oil_extractor.buds_label": "Blüten",
   "block.oil_extractor.trim_label": "Trim",
@@ -1773,11 +1636,9 @@
   "block.oil_extractor.min_material": "§c⚠ Mindestens 10g Material benötigt",
   "block.oil_extractor.empty": "§8Öl-Extraktor ist leer",
   "block.oil_extractor.shift_to_start": "§8[Shift+Rechtsklick zum Starten]",
-
   "block.trocknungsnetz.buds_added": "§a🌿 Blüten zum Trocknen aufgehängt (Slot %d)",
   "block.trocknungsnetz.full": "§c✗ Trocknungsnetz ist voll!",
   "block.trocknungsnetz.buds_removed": "§e🍂 Getrocknete Blüten entnommen!",
-
   "block.hash_press.hash_removed": "§6🟤 Haschisch entnommen!",
   "block.hash_press.trim_added": "§a🍃 Trim hinzugefügt §7(Gesamt: ",
   "block.hash_press.trim_grams": "g)",
@@ -1790,7 +1651,6 @@
   "block.hash_press.shift_to_start": "§8[Shift+Rechtsklick zum Starten]",
   "block.hash_press.min_trim": "§c⚠ Mindestens 20g Trim benötigt",
   "block.hash_press.empty": "§8Hash-Presse ist leer",
-
   "gui.npc_spawner.npc_name": "NPC Name",
   "gui.npc_spawner.spawn_button": "NPC Spawnen",
   "gui.npc_spawner.name_taken": "Name bereits vergeben!",
@@ -1801,9 +1661,7 @@
   "gui.npc_spawner.label_skin": "Skin:",
   "gui.npc_spawner.label_type": "Typ:",
   "gui.npc_spawner.label_category": "Kategorie:",
-
   "gui.fuel_station.stop_warning": "⚠ Bitte beenden Sie den Tankvorgang mit dem STOP-Button!",
-
   "gui.vehicle.status_header": "==== FAHRZEUG STATUS ====",
   "gui.vehicle.fuel_label": "Treibstoff:",
   "gui.vehicle.battery_label": "Batterie:",
@@ -1813,16 +1671,9 @@
   "gui.vehicle.battery_display": "%.1f%% | %.1f Volt",
   "gui.vehicle.damage_display": "%.1f%%",
   "gui.vehicle.temperature_display": "%.1f°C",
-
-  "gui.plot_info.title": "Plot-Information",
-  "gui.plot_info.close": "Schließen",
   "gui.plot_info.buy": "§a§lKaufen",
-  "gui.plot_info.rent": "§d§lMieten",
   "gui.plot_info.rent_apartment": "Mieten",
-  "gui.plot_info.owner": "§7Besitzer: ",
   "gui.plot_info.no_owner": "§cKein Besitzer",
-  "gui.plot_info.size": "§7Größe: §e",
-  "gui.plot_info.blocks": " Blöcke",
   "gui.plot_info.id": "§8ID: ",
   "gui.plot_info.rating_title": "§6§l⭐ BEWERTUNG",
   "gui.plot_info.rating_average": "§7Durchschnitt: §e",
@@ -1831,13 +1682,10 @@
   "gui.plot_info.no_ratings": "§7Noch keine Bewertungen",
   "gui.plot_info.your_rating": "§7Deine Bewertung: §e",
   "gui.plot_info.click_to_rate": "§7Klicke auf Sterne zum Bewerten:",
-  "gui.plot_info.for_sale": "§a§l⚡ ZUM VERKAUF",
-  "gui.plot_info.price": "§7Preis: §e",
   "gui.plot_info.price_suffix": "€",
   "gui.plot_info.rented": "§a§l✓ VERMIETET",
   "gui.plot_info.days_left": "§7Noch §e",
   "gui.plot_info.days_left_suffix": " Tage",
-  "gui.plot_info.for_rent": "§d§l⚡ ZU VERMIETEN",
   "gui.plot_info.rent_price": "§7Miete: §e",
   "gui.plot_info.rent_per_day": "€/Tag",
   "gui.plot_info.apartments_title": "§6§l🏠 APARTMENTS",
@@ -1846,14 +1694,11 @@
   "gui.plot_info.apartments_rented": " §8│ §7Vermietet: §c",
   "gui.plot_info.available_apartments": "§d§lVERFÜGBARE WOHNUNGEN:",
   "gui.plot_info.apartment_price": "€/Monat",
-
   "gui.achievement_app.title_screen": "Achievements",
   "gui.achievement_app.back_button": "← Zurück",
   "gui.achievement_app.overview_button": "← Übersicht",
   "gui.achievement_app.refresh_button": "↻",
-
   "gui.world_map.title": "Weltkarte",
-
   "gui.reduktionskessel.title": "§6⚗ §lREDUKTIONSKESSEL",
   "gui.reduktionskessel.button_heating": "§e§l[HEIZEN]",
   "gui.reduktionskessel.button_hold": "§f[HALTEN ZUM HEIZEN]",
@@ -1863,9 +1708,7 @@
   "gui.reduktionskessel.expected_quality": "Erwartete Qualität: ",
   "gui.reduktionskessel.instruction": "§7Halte Temperatur zwischen §a80-120°C",
   "gui.reduktionskessel.explosion_warning": "§4§l☠ EXPLOSION DROHEND! ☠",
-
   "gui.map_options.title": "Minimap-Optionen",
-
   "app.crime_stats.title": "Verbrechens-Statistik",
   "app.crime_stats.header": "§c§lPolizei-Akte",
   "app.crime_stats.tab_status": "Status",
@@ -1901,7 +1744,6 @@
   "app.crime_stats.escape_title": "§fEntkommen:",
   "app.crime_stats.escape_hide": "§730 Sekunden verstecken",
   "app.crime_stats.escape_distance": "§7> 40 Blöcke Entfernung",
-
   "app.settings.title": "Einstellungen",
   "app.settings.header": "§f§lEinstellungen",
   "app.settings.tab_plot": "Plot",
@@ -1945,24 +1787,19 @@
   "app.settings.property_title": "§b§l🏠 EIGENTUM",
   "app.settings.no_property": "§8Keine Grundstücke",
   "app.settings.plot_count": " Grundstück(e)",
-
   "app.dealer.title": "Händler",
   "app.dealer.available_dealers": "§8Verfügbare Händler:",
   "app.dealer.dealer_1": "§7• Händler 1",
   "app.dealer.dealer_2": "§7• Händler 2",
-
   "app.contacts.title": "Kontakte",
   "app.contacts.saved_contacts": "§8Gespeicherte Kontakte:",
   "app.contacts.contact_1": "§7• Kontakt 1",
   "app.contacts.contact_2": "§7• Kontakt 2",
-
   "app.order.title": "Bestellungen",
   "app.order.active_orders": "§8Aktive Bestellungen:",
   "app.order.no_orders": "§7Keine Bestellungen",
-
   "app.chat.back": "←",
   "app.chat.online": "online",
-
   "app.bank.statistics_title": "§6§lStatistiken",
   "app.bank.income": "§aEinnahmen:",
   "app.bank.expenses": "§cAusgaben:",
@@ -1975,38 +1812,28 @@
   "app.bank.max": "§c§lMAX!",
   "app.bank.new_standing_order": "§fNeuer Dauerauftrag:",
   "app.bank.recipient": "§7Empfänger:",
-
   "block.wassertank.water_added": "§b✓ Wasser eingefüllt!\n§7Füllstand: §b%d/%d",
   "block.wassertank.tank_full": "§c✗ Tank ist voll!",
   "block.wassertank.water_removed": "§b✓ Wasser entnommen!\n§7Füllstand: §b%d/%d",
   "block.wassertank.not_enough_water": "§c✗ Nicht genug Wasser!",
   "block.wassertank.info": "§b⬛ Wassertank\n§7Füllstand: §b%d/%d\n§8Rechtsklick mit Wassereimer zum Befüllen",
-
   "block.klimalampe.auto_info": "§7%s\n§7Modus: %s\n§8(Automatische Regulierung)",
   "block.klimalampe.mode_changed": "§7Modus gewechselt: %s",
-
   "block.atm.not_enough_money": "§c✗ Nicht genug Geld auf dem Konto!\n§7Kontostand: §e%.2f€\n§7Benötigt: §e%.2f€ §7+ §c%.2f€ §7Gebühr",
   "block.atm.no_wallet": "§c✗ Keine Geldbörse in Slot 9 gefunden!",
   "block.atm.withdraw_success": "§a✓ Auszahlung erfolgreich!\n§7Ausgezahlt: §e%.2f€\n§7ATM-Gebühr: §c-%.2f€\n§7Neuer Kontostand: §e%.2f€",
   "block.atm.not_enough_cash": "§c✗ Nicht genug Bargeld in der Geldbörse!\n§7Bargeld: §e%.2f€",
   "block.atm.no_money_for_fee": "§c✗ Nicht genug Geld für ATM-Gebühr auf dem Konto!\n§7Kontostand: §e%.2f€\n§7Gebühr: §c%.2f€",
   "block.atm.deposit_success": "§a✓ Einzahlung erfolgreich!\n§7Eingezahlt: §e%.2f€\n§7ATM-Gebühr: §c-%.2f€\n§7Neuer Kontostand: §e%.2f€",
-
-  "message.plot.not_found": "§cPlot nicht gefunden!",
-  "message.plot.not_owner": "§cDu bist nicht der Besitzer dieses Plots!",
-  "message.plot.not_for_sale": "§cDieser Plot steht nicht zum Verkauf!",
   "message.plot.not_enough_money_buy": "§cNicht genug Guthaben! Benötigt: %.2f€",
   "message.plot.buy_success": "§aPlot erfolgreich gekauft für %.2f€!",
-  "message.plot.not_for_rent": "§cDieser Plot steht nicht zur Miete!",
   "message.plot.not_enough_money_rent": "§cNicht genug Guthaben! Benötigt: %.2f€",
   "message.plot.rent_success": "§aPlot erfolgreich gemietet für %.2f€/Tag!",
   "message.plot.price_invalid": "§cPreis muss größer als 0 sein!",
   "message.plot.sale_listed": "§aPlot zum Verkauf gestellt für %.2f€!",
   "message.plot.rent_listed": "§aPlot zur Miete gestellt für %.2f€/Tag!",
   "message.plot.offer_ended": "§aAngebot beendet - Plot ist jetzt privat",
-  "message.plot.abandoned": "§c§lPlot aufgegeben: %s",
   "message.plot.now_for_sale": "§7Der Plot steht nun wieder zum Verkauf.",
-
   "message.bank.invalid_payment_id": "⚠ Ungültige Dauerauftrag-ID!",
   "message.bank.payment_paused": "⏸ Dauerauftrag pausiert",
   "message.bank.payment_resumed": "▶ Dauerauftrag fortgesetzt",
@@ -2016,13 +1843,10 @@
   "message.bank.minimum_deposit": "⚠ Mindesteinzahlung: %.2f€",
   "message.bank.separator": "═══════════════════════════════",
   "message.bank.savings_created": "💰 Sparkonto eröffnet",
-  "message.bank.initial_deposit": "Ersteinlage: %.2f€",
   "message.bank.interest": "Zinsen: %.2f%%",
   "message.bank.lock_period": "Sperrfrist: %d Tage",
   "message.bank.not_enough_checking": "⚠ Nicht genug Guthaben auf Girokonto!",
-  "message.bank.available": "Verfügbar: %.2f€",
   "message.bank.deposit_added": "💰 Einzahlung hinzugefügt",
-  "message.bank.amount": "Betrag: %.2f€",
   "message.bank.new_savings": "Neues Sparkonto: %.2f€",
   "message.bank.new_checking": "Neues Girokonto: %.2f€",
   "message.bank.not_banker": "§cDieser NPC ist kein Banker!",
@@ -2030,21 +1854,17 @@
   "message.bank.bill_no_bills": "⚠ Keine unbezahlten Rechnungen!",
   "message.bank.bill_not_enough": "⚠ Nicht genug Geld!\nBenötigt: %.2f€",
   "message.bank.bill_paid": "✓ Rechnungen bezahlt",
-  "message.bank.bill_count": "Anzahl Rechnungen: %d",
   "message.bank.bill_total": "Gesamtbetrag: %.2f€",
   "message.bank.bill_new_balance": "Neues Guthaben: %.2f€",
   "message.bank.bill_error": "⚠ Fehler beim Bezahlen der Rechnungen!",
-
   "message.mdma.crystals_added": "§b✓ Kristalle hinzugefügt: %s",
   "message.mdma.binder_added": "§a✓ Binde hinzugefügt: %d",
   "message.mdma.drying_output": "§a✓ %s entnommen!",
   "message.mdma.reaction_output": "§a✓ %s entnommen!",
   "message.mdma.pressing_output": "§a✓ %s entnommen: %s",
-
   "message.inventory.open_here": "§c⚠ Öffne dein Inventar hier!",
   "message.shop.items_updated": "§a✓ Shop-Items aktualisiert!",
   "message.shop.chest_not_found": "§c✗ Shop-Truhe nicht gefunden!",
-
   "command.plot.wand_received": "§a✓ Plot-Auswahl-Werkzeug erhalten!\n§7Linksklick: §ePosition 1\n§7Rechtsklick auf Block: §ePosition 2\n§7Dann: §e/plot create <type> <name> [price]",
   "command.plot.inventory_full": "Inventar ist voll!",
   "command.plot.invalid_name": "§c❌ Ungültiger Name: §f%s",
@@ -2056,10 +1876,8 @@
   "command.plot.government_property": "\n§7Staatseigentum (nicht kaufbar)",
   "command.plot.owner_changed": "§a✓ Besitzer geändert!\n§7Plot: §e%s\n§7Neuer Besitzer: §b%s",
   "command.plot.not_in_plot": "Du stehst in keinem Plot!",
-  "command.plot.already_owned": "§cDieser Plot hat bereits einen Besitzer!",
   "command.plot.not_enough_money": "§cNicht genug Geld!\n§7Preis: §e%.2f€\n§7Dein Guthaben: §e%.2f€",
   "command.plot.purchased": "§a✓ Plot gekauft!\n§7Name: §e%s\n§7Preis: §e%.2f€\n§7Neues Guthaben: §e%.2f€\n§a✓ Plot-Info-Block erhalten!",
-  "command.plot.no_plots": "§cKeine Plots vorhanden!",
   "command.plot.list_header": "§6═══════════════════════════════\n§e§l      VERFÜGBARE PLOTS\n§6═══════════════════════════════",
   "command.plot.list_entry_free": "§a[FREI]",
   "command.plot.list_entry_occupied": "§c[BELEGT]",
@@ -2079,7 +1897,6 @@
   "command.plot.abandoned": "§a✓ Plot aufgegeben!\n§7Rückerstattung: §e%.2f€ §7(50%%)\n§7Neues Guthaben: §e%.2f€",
   "command.plot.rent_offer": "§a✓ Plot zur Miete angeboten!\n§7Preis pro Tag: §e%.2f€",
   "command.plot.rent_cancelled": "§a✓ Mietangebot zurückgezogen!",
-  "command.plot.not_for_rent": "§cDieser Plot ist nicht zur Miete verfügbar!",
   "command.plot.rented": "§a✓ Plot gemietet!\n§7Dauer: §e%d Tag(e)\n§7Kosten: §e%.2f€",
   "command.plot.not_renting": "Du mietest diesen Plot nicht!",
   "command.plot.rent_extended": "§a✓ Miete verlängert!\n§7Verlängerung: §e%d Tag(e)",
@@ -2104,7 +1921,6 @@
   "command.plot.warehouse_info": "§e=== Warehouse Info ===\n§7Plot: §e%s\n§7Position: §f%d, %d, %d",
   "command.plot.no_warehouse_found": "§cKein Warehouse gefunden! Schaue auf einen Warehouse-Block oder stehe direkt darauf.",
   "command.plot.warehouse_not_in_plot": "Das Warehouse befindet sich nicht in einem Plot!",
-
   "command.money.balance_set": "Guthaben gesetzt!\nSpieler: %s\nNeues Guthaben: %.2f €",
   "command.money.balance_negative": "§c❌ Betrag darf nicht negativ sein!",
   "command.money.amount_too_high": "§c❌ Betrag zu hoch! Maximum: %.0f",
@@ -2122,19 +1938,16 @@
   "command.money.stats_income": "§7Gesamt-Einnahmen: §a+%.2f€",
   "command.money.stats_expenses": "§7Gesamt-Ausgaben: §c-%.2f€",
   "command.money.stats_count": "§7Gesamt-Transaktionen: §e%d",
-
   "command.npc.not_found": "NPC '%s' nicht gefunden!",
   "command.npc.movement_set": "Bewegung %s für NPC %s",
   "command.npc.movement_enabled": "aktiviert",
   "command.npc.movement_disabled": "deaktiviert",
-
   "message.heroin_raffinerie.fuel_tank_full": "§c✗ Brennstoff-Tank ist voll!",
   "message.heroin_raffinerie.fuel_added": "§c✓ Brennstoff hinzugefügt!\n§7Tank: §e%d/%d",
   "message.heroin_raffinerie.refinery_full": "§c✗ Raffinerie ist voll!",
   "message.heroin_raffinerie.morphine_added": "§d✓ Morphin hinzugefügt!\n§7Inhalt: §e%d/%d",
   "message.heroin_raffinerie.heroin_extracted": "§f✓ Heroin entnommen!\n§7Menge: §e%d",
   "message.heroin_raffinerie.status": "§f═══ Heroin-Raffinerie ═══\n§7Brennstoff: §e%d/%d\n§7Morphin: §e%d/%d\n§7Heroin fertig: §e%d\n§7Fortschritt: §e%s%%",
-
   "message.kochstation.water_tank_full": "§c✗ Wasser-Tank ist voll!",
   "message.kochstation.water_added": "§b✓ Wasser hinzugefügt!\n§7Tank: §e%d/%d mB",
   "message.kochstation.fuel_tank_full": "§c✗ Brennstoff-Tank ist voll!",
@@ -2143,29 +1956,24 @@
   "message.kochstation.opium_added": "§6✓ Rohopium hinzugefügt!\n§7Inhalt: §e%d/%d",
   "message.kochstation.morphine_extracted": "§d✓ Morphin entnommen!\n§7Menge: §e%d",
   "message.kochstation.status": "§d═══ Kochstation ═══\n§7Wasser: §b%d/%d mB\n§7Brennstoff: §e%d/%d\n§7Rohopium: §e%d/%d\n§7Morphin fertig: §e%d\n§7Fortschritt: §e%s%%",
-
   "message.opium_presse.diesel_tank_full": "§c✗ Diesel-Tank ist voll!",
   "message.opium_presse.diesel_added": "§e✓ Diesel hinzugefügt!\n§7Tank: §e%d/%d mB",
   "message.opium_presse.press_full": "§c✗ Presse ist voll!",
   "message.opium_presse.pod_added": "§6✓ Mohnkapsel hinzugefügt!\n§7Inhalt: §e%d/%d",
   "message.opium_presse.opium_extracted": "§6✓ Rohopium entnommen!\n§7Menge: §e%d",
   "message.opium_presse.status": "§4═══ Opium-Presse ═══\n§7Diesel: §e%d/%d mB\n§7Kapseln: §e%d/%d\n§7Rohopium fertig: §e%d\n§7Fortschritt: §e%s%%",
-
   "message.ritzmaschine.machine_full": "§c✗ Ritzmaschine ist voll!",
   "message.ritzmaschine.pod_added": "§6✓ Mohnkapsel hinzugefügt!\n§7Inhalt: §e%d/%d",
   "message.ritzmaschine.opium_extracted": "§6✓ Rohopium entnommen!\n§7Menge: §e%d",
   "message.ritzmaschine.status": "§4═══ Ritzmaschine ═══\n§7Strom: %s\n§7Kapseln: §e%d/%d\n§7Rohopium fertig: §e%d\n§7Fortschritt: §e%s%%",
   "message.ritzmaschine.power_on": "§a✓ AN",
-  "message.ritzmaschine.power_off": "§c✗ AUS"
-
-
+  "message.ritzmaschine.power_off": "§c✗ AUS",
   "message.small_refinery.fuel_tank_full": "§c✗ Brennstoff-Tank ist voll!",
   "message.small_refinery.fuel_added": "§c✓ Brennstoff hinzugefügt!\n§7Tank: §e%d/%d",
   "message.small_refinery.refinery_full": "§c✗ Raffinerie ist voll!",
   "message.small_refinery.paste_added": "§6✓ Koka-Paste hinzugefügt!\n§7Inhalt: §e%d/%d",
   "message.small_refinery.cocaine_extracted": "§f✓ Kokain entnommen!\n§7Menge: §e%dg",
   "message.small_refinery.status": "§c═══ Kleine Raffinerie ═══\n§7Brennstoff: §e%d/%d\n§7Paste: §e%d/%d\n§7Kokain fertig: §e%d\n§7Fortschritt: §e%s%%",
-
   "message.small_extraction_vat.canister_empty": "§c✗ Diesel-Kanister ist leer!",
   "message.small_extraction_vat.diesel_tank_full": "§c✗ Diesel-Tank ist voll!",
   "message.small_extraction_vat.diesel_added": "§6✓ Diesel eingefüllt!\n§7Tank: §e%d/%d mB",
@@ -2173,21 +1981,18 @@
   "message.small_extraction_vat.leaves_added": "§a✓ Koka-Blätter hinzugefügt!\n§7Inhalt: §e%d/%d",
   "message.small_extraction_vat.paste_extracted": "§6✓ Koka-Paste entnommen!\n§7Menge: §e%dg",
   "message.small_extraction_vat.status": "§6═══ Kleine Extraktionswanne ═══\n§7Diesel: §e%d/%d mB\n§7Blätter: §e%d/%d\n§7Paste fertig: §e%d\n§7Fortschritt: §e%s%%",
-
   "message.medium_refinery.fuel_tank_full": "§c✗ Brennstoff-Tank ist voll!",
   "message.medium_refinery.fuel_added": "§c✓ Brennstoff hinzugefügt!\n§7Tank: §e%d/%d",
   "message.medium_refinery.refinery_full": "§c✗ Raffinerie ist voll!",
   "message.medium_refinery.paste_added": "§6✓ Koka-Paste hinzugefügt!\n§7Inhalt: §e%d/%d",
   "message.medium_refinery.cocaine_extracted": "§f✓ Kokain entnommen!\n§7Menge: §e%dg",
   "message.medium_refinery.status": "§c═══ Mittlere Raffinerie ═══\n§7Brennstoff: §e%d/%d\n§7Paste: §e%d/%d\n§7Kokain fertig: §e%d\n§7Fortschritt: §e%s%%",
-
   "message.big_refinery.fuel_tank_full": "§c✗ Brennstoff-Tank ist voll!",
   "message.big_refinery.fuel_added": "§c✓ Brennstoff hinzugefügt!\n§7Tank: §e%d/%d",
   "message.big_refinery.refinery_full": "§c✗ Raffinerie ist voll!",
   "message.big_refinery.paste_added": "§6✓ Koka-Paste hinzugefügt!\n§7Inhalt: §e%d/%d",
   "message.big_refinery.cocaine_extracted": "§f✓ Kokain entnommen!\n§7Menge: §e%dg",
   "message.big_refinery.status": "§c═══ Große Raffinerie ═══\n§7Brennstoff: §e%d/%d\n§7Paste: §e%d/%d\n§7Kokain fertig: §e%d\n§7Fortschritt: §e%s%%",
-
   "message.medium_extraction_vat.canister_empty": "§c✗ Diesel-Kanister ist leer!",
   "message.medium_extraction_vat.diesel_tank_full": "§c✗ Diesel-Tank ist voll!",
   "message.medium_extraction_vat.diesel_added": "§6✓ Diesel eingefüllt!\n§7Tank: §e%d/%d mB",
@@ -2195,12 +2000,40 @@
   "message.medium_extraction_vat.leaves_added": "§a✓ Koka-Blätter hinzugefügt!\n§7Inhalt: §e%d/%d",
   "message.medium_extraction_vat.paste_extracted": "§6✓ Koka-Paste entnommen!\n§7Menge: §e%dg",
   "message.medium_extraction_vat.status": "§6═══ Mittlere Extraktionswanne ═══\n§7Diesel: §e%d/%d mB\n§7Blätter: §e%d/%d\n§7Paste fertig: §e%d\n§7Fortschritt: §e%s%%",
-
   "message.big_extraction_vat.canister_empty": "§c✗ Diesel-Kanister ist leer!",
   "message.big_extraction_vat.diesel_tank_full": "§c✗ Diesel-Tank ist voll!",
   "message.big_extraction_vat.diesel_added": "§6✓ Diesel eingefüllt!\n§7Tank: §e%d/%d mB",
   "message.big_extraction_vat.vat_full": "§c✗ Extraktionswanne ist voll!",
   "message.big_extraction_vat.leaves_added": "§a✓ Koka-Blätter hinzugefügt!\n§7Inhalt: §e%d/%d",
   "message.big_extraction_vat.paste_extracted": "§6✓ Koka-Paste entnommen!\n§7Menge: §e%dg",
-  "message.big_extraction_vat.status": "§6═══ Große Extraktionswanne ═══\n§7Diesel: §e%d/%d mB\n§7Blätter: §e%d/%d\n§7Paste fertig: §e%d\n§7Fortschritt: §e%s%%"
+  "message.big_extraction_vat.status": "§6═══ Große Extraktionswanne ═══\n§7Diesel: §e%d/%d mB\n§7Blätter: §e%d/%d\n§7Paste fertig: §e%d\n§7Fortschritt: §e%s%%",
+  "item.fresh_tobacco_leaf.name": "§rFrische %s-Blätter",
+  "item.dried_tobacco_leaf.name": "§rGetrocknete %s-Blätter",
+  "item.fermented_tobacco_leaf.name": " §r%s-Tabak",
+  "item.fresh_coca_leaf.name": "Frische %s Koka-Blätter",
+  "item.cocaine.name": "%s Kokain",
+  "item.crack_rock.name": "%s Crack",
+  "item.fresh_bud.name": "Frische %s Blüten",
+  "item.dried_bud.name": "Getrocknete %s Blüten",
+  "item.trimmed_bud.suffix": " §7(Getrimmt)",
+  "item.cured_bud.suffix": " §7(Cured)",
+  "item.fresh_mushroom.name": "Frische %s",
+  "item.heroin.name": "§fHeroin",
+  "item.morphine.name": "§dMorphin-Base",
+  "item.poppy_pod.name": "Mohnkapsel",
+  "item.raw_opium.name": "§6Rohopium",
+  "item.kristall_meth.name": "Kristall-Meth (feucht)",
+  "item.meth_paste.name": "Meth-Paste",
+  "item.roh_meth.name": "Roh-Meth",
+  "item.ecstasy_pill.name": "%s Ecstasy",
+  "item.farbstoff.name": "%ser Farbstoff",
+  "item.mdma_base.name": "MDMA-Base",
+  "item.mdma_kristall.name": "MDMA-Kristalle",
+  "item.blotter.name": "LSD-Tab §7(%dμg)",
+  "item.lsd_loesung.name": "LSD-Lösung (%s)",
+  "item.packaged.crack": " Crack",
+  "item.packaged.cocaine": " Kokain",
+  "item.packaged.cannabis_cured": " Cannabis §7(Cured)",
+  "item.packaged.cannabis": " Cannabis",
+  "item.packaged.weight_suffix": " §7(%dg)"
 }

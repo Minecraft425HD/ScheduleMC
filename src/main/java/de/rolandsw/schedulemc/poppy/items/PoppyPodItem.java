@@ -66,6 +66,7 @@ public class PoppyPodItem extends Item {
     @Override
     public Component getName(ItemStack stack) {
         PoppyType type = getType(stack);
-        return Component.literal(type.getColorCode() + "Mohnkapsel");
+        return Component.literal(type.getColorCode())
+            .append(Component.translatable("item.poppy_pod.name"));
     }
 }

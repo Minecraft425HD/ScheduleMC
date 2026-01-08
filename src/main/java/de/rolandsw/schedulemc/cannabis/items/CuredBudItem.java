@@ -82,7 +82,10 @@ public class CuredBudItem extends Item {
     public Component getName(ItemStack stack) {
         CannabisStrain strain = getStrain(stack);
         CannabisQuality quality = getQuality(stack);
-        return Component.literal("§6🫙 " + quality.getColorCode() + strain.getDisplayName() + " §7(Cured)");
+        return Component.literal("§6🫙 ")
+            .append(Component.literal(quality.getColorCode()))
+            .append(Component.literal(strain.getDisplayName()))
+            .append(Component.translatable("item.cured_bud.suffix"));
     }
 
     @Override

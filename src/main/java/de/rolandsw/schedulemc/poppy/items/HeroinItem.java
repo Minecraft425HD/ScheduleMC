@@ -66,6 +66,6 @@ public class HeroinItem extends Item {
 
     @Override
     public Component getName(ItemStack stack) {
-        return Component.literal("§fHeroin");
+        return Component.translatable("item.heroin.name");
     }
 }

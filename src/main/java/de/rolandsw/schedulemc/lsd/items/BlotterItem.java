@@ -97,6 +97,7 @@ public class BlotterItem extends Item {
     public Component getName(ItemStack stack) {
         LSDDosage dosage = getDosage(stack);
         BlotterDesign design = getDesign(stack);
-        return Component.literal(dosage.getColorCode() + design.getSymbol() + " LSD-Tab §7(" + getMicrograms(stack) + "μg)");
+        return Component.literal(dosage.getColorCode() + design.getSymbol() + " ")
+            .append(Component.translatable("item.blotter.name", getMicrograms(stack)));
     }
 }
