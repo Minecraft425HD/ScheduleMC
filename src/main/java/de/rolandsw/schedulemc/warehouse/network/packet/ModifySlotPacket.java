@@ -50,7 +50,7 @@ public class ModifySlotPacket {
 
             WarehouseSlot slot = slots[msg.slotIndex];
             if (slot.isEmpty() || slot.getAllowedItem() == null) {
-                player.sendSystemMessage(Component.literal("§cSlot ist leer!"));
+                player.sendSystemMessage(Component.translatable("message.warehouse.slot_empty"));
                 return;
             }
 

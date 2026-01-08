@@ -128,7 +128,7 @@ public class WarehouseCommand {
             WarehouseBlockEntity warehouse = findWarehouse(player);
 
             if (warehouse == null) {
-                ctx.getSource().sendFailure(Component.literal("§cKein Warehouse gefunden! Schaue auf einen Warehouse-Block oder stehe direkt darauf."));
+                ctx.getSource().sendFailure(Component.translatable("message.warehouse.command.not_found"));
                 return 0;
             }
 
@@ -141,25 +141,25 @@ public class WarehouseCommand {
 
             String nextDeliveryStr;
             if (daysUntilNext <= 0) {
-                nextDeliveryStr = "§aÜBERFÄLLIG! Sollte jeden Moment erfolgen...";
+                nextDeliveryStr = Component.translatable("message.warehouse.command.info_overdue").getString();
             } else {
-                nextDeliveryStr = "§e" + daysUntilNext + " Tage";
+                nextDeliveryStr = Component.translatable("message.warehouse.command.info_days", daysUntilNext).getString();
             }
 
-            ctx.getSource().sendSuccess(() -> Component.literal(
-                "§e§l=== Warehouse Info ===\n" +
-                "§7Position: §f" + pos.getX() + ", " + pos.getY() + ", " + pos.getZ() + "\n" +
-                "§7Slots belegt: §e" + warehouse.getUsedSlots() + " §7/ §e" + warehouse.getSlots().length + "\n" +
-                "§7Total Items: §e" + warehouse.getTotalItems() + "\n" +
-                "§7Shop-ID: §e" + (warehouse.getShopId() != null ? warehouse.getShopId() : "Nicht verknüpft") + "\n" +
-                "§7Verkäufer: §e" + warehouse.getLinkedSellers().size() + "\n" +
-                "§7\n" +
-                "§6=== Lieferungs-Status (Tag-basiert wie NPCs!) ===\n" +
-                "§7Aktueller Tag: §e" + currentDay + "\n" +
-                "§7Letzte Lieferung: §eTag " + lastDeliveryDay + "\n" +
-                "§7Tage seit letzter: §e" + daysSinceLastDelivery + " Tage\n" +
-                "§7Lieferungs-Interval: §e" + intervalDays + " Tage\n" +
-                "§7Nächste Lieferung in: " + nextDeliveryStr
+            String shopIdStr = warehouse.getShopId() != null ? warehouse.getShopId() : Component.translatable("message.warehouse.command.info_not_linked").getString();
+
+            ctx.getSource().sendSuccess(() -> Component.translatable(
+                "message.warehouse.command.info",
+                pos.getX(), pos.getY(), pos.getZ(),
+                warehouse.getUsedSlots(), warehouse.getSlots().length,
+                warehouse.getTotalItems(),
+                shopIdStr,
+                warehouse.getLinkedSellers().size(),
+                currentDay,
+                lastDeliveryDay,
+                daysSinceLastDelivery,
+                intervalDays,
+                nextDeliveryStr
             ), false);
             return 1;
         } catch (Exception e) {
@@ -174,7 +174,7 @@ public class WarehouseCommand {
             WarehouseBlockEntity warehouse = findWarehouse(player);
 
             if (warehouse == null) {
-                ctx.getSource().sendFailure(Component.literal("§cKein Warehouse gefunden! Schaue auf einen Warehouse-Block oder stehe direkt darauf."));
+                ctx.getSource().sendFailure(Component.translatable("message.warehouse.command.not_found"));
                 return 0;
             }
 
@@ -184,14 +184,17 @@ public class WarehouseCommand {
             int added = warehouse.addItem(itemInput.getItem().asItem(), amount);
 
             if (added > 0) {
-                ctx.getSource().sendSuccess(() -> Component.literal(
-                    "§a✓ Items hinzugefügt!\n" +
-                    "§7Item: §e" + itemInput.getItem().asItem().getDescription().getString() + "\n" +
-                    "§7Menge: §e" + added + (added < amount ? " §7(Rest passte nicht)" : "")
+                String itemName = itemInput.getItem().asItem().getDescription().getString();
+                String amountNote = added < amount ? Component.translatable("message.warehouse.command.add_overflow").getString() : "";
+                ctx.getSource().sendSuccess(() -> Component.translatable(
+                    "message.warehouse.command.add_success",
+                    itemName,
+                    added,
+                    amountNote
                 ), false);
                 return 1;
             } else {
-                ctx.getSource().sendFailure(Component.literal("§cKein Platz im Warehouse!"));
+                ctx.getSource().sendFailure(Component.translatable("message.warehouse.command.no_space"));
                 return 0;
             }
         } catch (Exception e) {
@@ -206,7 +209,7 @@ public class WarehouseCommand {
             WarehouseBlockEntity warehouse = findWarehouse(player);
 
             if (warehouse == null) {
-                ctx.getSource().sendFailure(Component.literal("§cKein Warehouse gefunden! Schaue auf einen Warehouse-Block oder stehe direkt darauf."));
+                ctx.getSource().sendFailure(Component.translatable("message.warehouse.command.not_found"));
                 return 0;
             }
 
@@ -216,14 +219,15 @@ public class WarehouseCommand {
             int removed = warehouse.removeItem(itemInput.getItem().asItem(), amount);
 
             if (removed > 0) {
-                ctx.getSource().sendSuccess(() -> Component.literal(
-                    "§a✓ Items entfernt!\n" +
-                    "§7Item: §e" + itemInput.getItem().asItem().getDescription().getString() + "\n" +
-                    "§7Menge: §e" + removed
+                String itemName = itemInput.getItem().asItem().getDescription().getString();
+                ctx.getSource().sendSuccess(() -> Component.translatable(
+                    "message.warehouse.command.remove_success",
+                    itemName,
+                    removed
                 ), false);
                 return 1;
             } else {
-                ctx.getSource().sendFailure(Component.literal("§cItem nicht im Warehouse gefunden!"));
+                ctx.getSource().sendFailure(Component.translatable("message.warehouse.command.item_not_found"));
                 return 0;
             }
         } catch (Exception e) {
@@ -238,15 +242,13 @@ public class WarehouseCommand {
             WarehouseBlockEntity warehouse = findWarehouse(player);
 
             if (warehouse == null) {
-                ctx.getSource().sendFailure(Component.literal("§cKein Warehouse gefunden! Schaue auf einen Warehouse-Block oder stehe direkt darauf."));
+                ctx.getSource().sendFailure(Component.translatable("message.warehouse.command.not_found"));
                 return 0;
             }
 
             warehouse.clearAll();
 
-            ctx.getSource().sendSuccess(() -> Component.literal(
-                "§a✓ Warehouse geleert!"
-            ), false);
+            ctx.getSource().sendSuccess(() -> Component.translatable("message.warehouse.command.cleared"), false);
             return 1;
         } catch (Exception e) {
             LOGGER.error("Fehler bei /warehouse clear", e);
@@ -260,16 +262,16 @@ public class WarehouseCommand {
             WarehouseBlockEntity warehouse = findWarehouse(player);
 
             if (warehouse == null) {
-                ctx.getSource().sendFailure(Component.literal("§cKein Warehouse gefunden! Schaue auf einen Warehouse-Block oder stehe direkt darauf."));
+                ctx.getSource().sendFailure(Component.translatable("message.warehouse.command.not_found"));
                 return 0;
             }
 
             String shopId = StringArgumentType.getString(ctx, "shopId");
             warehouse.setShopId(shopId);
 
-            ctx.getSource().sendSuccess(() -> Component.literal(
-                "§a✓ Shop-ID gesetzt!\n" +
-                "§7Shop-ID: §e" + shopId
+            ctx.getSource().sendSuccess(() -> Component.translatable(
+                "message.warehouse.command.shop_id_set",
+                shopId
             ), false);
             return 1;
         } catch (Exception e) {
@@ -284,7 +286,7 @@ public class WarehouseCommand {
             WarehouseBlockEntity warehouse = findWarehouse(player);
 
             if (warehouse == null) {
-                ctx.getSource().sendFailure(Component.literal("§cKein Warehouse gefunden! Schaue auf einen Warehouse-Block oder stehe direkt darauf."));
+                ctx.getSource().sendFailure(Component.translatable("message.warehouse.command.not_found"));
                 return 0;
             }
 
@@ -294,12 +296,11 @@ public class WarehouseCommand {
 
             LOGGER.info("Manual delivery triggered by {} at warehouse {}", player.getName().getString(), warehouse.getBlockPos());
 
-            ctx.getSource().sendSuccess(() -> Component.literal(
-                "§e=== Manuelle Lieferung ausgelöst ===\n" +
-                "§7Current Day: §e" + currentDay + "\n" +
-                "§7Last Delivery Day: §e" + lastDeliveryDay + "\n" +
-                "§7Days Since: §e" + daysSince + " Tage\n" +
-                "§7Prüfe Server-Logs für Details..."
+            ctx.getSource().sendSuccess(() -> Component.translatable(
+                "message.warehouse.command.manual_delivery",
+                currentDay,
+                lastDeliveryDay,
+                daysSince
             ), false);
 
             // Rufe manuelle Lieferung auf
@@ -308,7 +309,7 @@ public class WarehouseCommand {
             return 1;
         } catch (Exception e) {
             LOGGER.error("Fehler bei /warehouse deliver", e);
-            ctx.getSource().sendFailure(Component.literal("§cFehler: " + e.getMessage()));
+            ctx.getSource().sendFailure(Component.translatable("message.warehouse.command.error", e.getMessage()));
             return 0;
         }
     }
@@ -319,7 +320,7 @@ public class WarehouseCommand {
             WarehouseBlockEntity warehouse = findWarehouse(player);
 
             if (warehouse == null) {
-                ctx.getSource().sendFailure(Component.literal("§cKein Warehouse gefunden! Schaue auf einen Warehouse-Block oder stehe direkt darauf."));
+                ctx.getSource().sendFailure(Component.translatable("message.warehouse.command.not_found"));
                 return 0;
             }
 
@@ -335,17 +336,17 @@ public class WarehouseCommand {
             LOGGER.info("Warehouse delivery timer reset by {} at warehouse {} (old: Tag {}, new: Tag {})",
                 player.getName().getString(), warehouse.getBlockPos(), oldLastDeliveryDay, currentDay);
 
-            ctx.getSource().sendSuccess(() -> Component.literal(
-                "§a✓ Lieferungs-Timer zurückgesetzt!\n" +
-                "§7Alter Tag: §eTag " + oldLastDeliveryDay + "\n" +
-                "§7Neuer Tag: §eTag " + currentDay + "\n" +
-                "§7Nächste Lieferung in " + intervalDays + " Tagen"
+            ctx.getSource().sendSuccess(() -> Component.translatable(
+                "message.warehouse.command.timer_reset",
+                oldLastDeliveryDay,
+                currentDay,
+                intervalDays
             ), false);
 
             return 1;
         } catch (Exception e) {
             LOGGER.error("Fehler bei /warehouse reset", e);
-            ctx.getSource().sendFailure(Component.literal("§cFehler: " + e.getMessage()));
+            ctx.getSource().sendFailure(Component.translatable("message.warehouse.command.error", e.getMessage()));
             return 0;
         }
     }

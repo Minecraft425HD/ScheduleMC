@@ -48,7 +48,7 @@ public class UpdateSettingsPacket {
             warehouse.setShopId(msg.shopId);
             warehouse.setChanged();
 
-            player.sendSystemMessage(Component.literal("§aEinstellungen aktualisiert!"));
+            player.sendSystemMessage(Component.translatable("message.warehouse.settings_updated"));
         });
     }
 }

@@ -94,7 +94,7 @@ public class AddItemToSlotPacket {
 
             if (addedToShop) {
                 player.sendSystemMessage(
-                    Component.literal("§a✓ Item hinzugefügt!")
+                    Component.translatable("message.warehouse.item_added")
                         .append(Component.literal("\n§7Item: §e" + item.getDescription().getString()))
                         .append(Component.literal("\n§7Slot: §e#" + emptySlotIndex))
                         .append(Component.literal("\n§7Status: §eLager (Stock-basiert)"))

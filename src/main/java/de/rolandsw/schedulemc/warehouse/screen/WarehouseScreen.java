@@ -278,7 +278,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
             }).bounds(detailX, detailY + 55, 105, 20).build());
 
             // Auffüllen Button
-            addRenderableWidget(Button.builder(Component.literal("Auffüllen"), button -> {
+            addRenderableWidget(Button.builder(Component.translatable("gui.warehouse.auto_fill"), button -> {
                 int restockAmount = selectedSlot.getRestockAmount();
                 if (restockAmount > 0) {
                     sendModifySlotPacket(selectedSlotIndex, restockAmount);
@@ -404,7 +404,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         }).bounds(x + 280, y + 210, 100, 20).build());
 
         // Reset Button
-        addRenderableWidget(Button.builder(Component.literal("Zurücksetzen"), button -> {
+        addRenderableWidget(Button.builder(Component.translatable("gui.warehouse.reset"), button -> {
             initTabComponents();
         }).bounds(x + 170, y + 210, 100, 20).build());
     }
@@ -417,7 +417,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
             new UpdateSettingsPacket(menu.getBlockPos(), shopId)
         );
 
-        minecraft.player.sendSystemMessage(Component.literal("§aEinstellungen gespeichert!"));
+        minecraft.player.sendSystemMessage(Component.translatable("message.warehouse.settings_saved"));
     }
 
     // ═══════════════════════════════════════════════════════════

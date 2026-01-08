@@ -57,7 +57,7 @@ public class RemoveSellerPacket {
                 customNpc.getNpcData().setAssignedWarehouse(null);
             }
 
-            player.sendSystemMessage(Component.literal("§aVerkäufer entfernt!"));
+            player.sendSystemMessage(Component.translatable("message.warehouse.seller_removed"));
         });
     }
 }

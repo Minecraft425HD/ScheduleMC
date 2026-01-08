@@ -50,7 +50,7 @@ public class AddSellerPacket {
             ServerLevel level = player.serverLevel();
             BlockEntity be = level.getBlockEntity(msg.pos);
             if (!(be instanceof WarehouseBlockEntity warehouse)) {
-                player.sendSystemMessage(Component.literal("§cWarehouse nicht gefunden!"));
+                player.sendSystemMessage(Component.translatable("message.warehouse.not_found"));
                 return;
             }
 
@@ -58,7 +58,7 @@ public class AddSellerPacket {
             CustomNPCEntity npc = NPCEntityRegistry.getNPCByUUID(msg.sellerId, level);
 
             if (npc == null) {
-                player.sendSystemMessage(Component.literal("§cNPC nicht gefunden! (UUID: " + msg.sellerId + ")"));
+                player.sendSystemMessage(Component.translatable("message.warehouse.npc_not_found", msg.sellerId));
                 return;
             }
 
@@ -84,10 +84,10 @@ public class AddSellerPacket {
             warehouse.syncToClient(); // Wichtig: Synchronisiere zum Client damit GUI sich aktualisiert
 
             player.sendSystemMessage(
-                Component.literal("§a✓ NPC mit Warehouse verknüpft!")
+                Component.translatable("message.warehouse.npc_linked")
                     .append(Component.literal("\n§7NPC: §e" + npc.getNpcName()))
                     .append(Component.literal("\n§7Warehouse: §f" + msg.pos.toShortString()))
-                    .append(Component.literal("\n§7Shop-Items hinzugefügt: §e" + itemsAdded))
+                    .append(Component.translatable("message.warehouse.items_added_count", itemsAdded))
             );
         });
     }
