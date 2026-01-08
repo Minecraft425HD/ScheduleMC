@@ -106,10 +106,10 @@ public class WateringCanItem extends Item {
         float percentage = getPercentage(stack);
         
         String bar = createWaterBar(percentage);
-        tooltip.add(Component.literal("§7Wasser: " + bar + " §f" + waterLevel + "/" + MAX_WATER));
+        tooltip.add(Component.translatable("tooltip.watering_can.water").append(Component.literal(" " + bar + " §f" + waterLevel + "/" + MAX_WATER)));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§8Rechtsklick auf Topf: Gießen"));
-        tooltip.add(Component.literal("§8Rechtsklick auf Waschbecken: Auffüllen"));
+        tooltip.add(Component.translatable("tooltip.watering_can.right_click_pot"));
+        tooltip.add(Component.translatable("tooltip.watering_can.right_click_sink"));
     }
     
     /**

@@ -93,15 +93,15 @@ public class SoilBagItem extends Item {
         int units = getUnits(stack);
         float percentage = (float) units / UNITS_PER_BAG;
         
-        tooltip.add(Component.literal("§7Erde: §6" + units + "/" + UNITS_PER_BAG + " Einheiten"));
-        tooltip.add(Component.literal("§7Reicht für: §e" + type.getPlantsPerBag() + " Pflanzen"));
+        tooltip.add(Component.translatable("tooltip.soil_bag.soil", units, UNITS_PER_BAG));
+        tooltip.add(Component.translatable("tooltip.soil_bag.enough_for", type.getPlantsPerBag()));
         tooltip.add(Component.literal(""));
-        
+
         String bar = createBar(percentage);
         tooltip.add(Component.literal("§7" + bar));
-        
+
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§8Rechtsklick auf Topf zum Befüllen"));
+        tooltip.add(Component.translatable("tooltip.soil_bag.right_click_pot"));
     }
     
     private String createBar(float percentage) {

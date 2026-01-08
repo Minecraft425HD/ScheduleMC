@@ -27,10 +27,10 @@ public class TobaccoSeedItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.literal("§7Sorte: " + tobaccoType.getColoredName()));
-        tooltip.add(Component.literal("§7Wachstumszeit: §e~" + (tobaccoType.getGrowthTicks() / 20) + "s"));
-        tooltip.add(Component.literal("§7Ertrag: §e~" + tobaccoType.getBaseYield() + " Blätter"));
+        tooltip.add(Component.translatable("tooltip.tobacco.type_label").append(tobaccoType.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.tobacco_seed.growth_time", (tobaccoType.getGrowthTicks() / 20)));
+        tooltip.add(Component.translatable("tooltip.tobacco_seed.yield", tobaccoType.getBaseYield()));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§8Pflanze in einen Topf mit Erde"));
+        tooltip.add(Component.translatable("tooltip.tobacco_seed.plant_in_pot"));
     }
 }
