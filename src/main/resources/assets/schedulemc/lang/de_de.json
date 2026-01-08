@@ -562,6 +562,7 @@
 
   "block.vehicle.fuel_station": "Tankstelle",
   "block.vehicle.fuel_station_top": "Tankstelle",
+  "block.vehicle.garage": "Fahrzeug-Werkstatt",
   "block.schedulemc.garage": "Fahrzeug-Werkstatt",
   "block.vehicle.diesel": "Diesel",
 
