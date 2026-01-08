@@ -77,10 +77,7 @@ public class SmallExtractionVatBlock extends Block implements EntityBlock {
             vatBE.addDiesel(toAdd);
             DieselCanisterItem.consumeDiesel(handStack, toAdd);
 
-            player.displayClientMessage(Component.literal(
-                    "§6✓ Diesel eingefüllt!\n" +
-                            "§7Tank: §e" + vatBE.getDieselLevel() + "/" + maxDiesel + " mB"
-            ), true);
+            player.displayClientMessage(Component.translatable("message.small_extraction_vat.diesel_added", vatBE.getDieselLevel(), maxDiesel), true);
 
             player.playSound(net.minecraft.sounds.SoundEvents.BUCKET_EMPTY, 1.0f, 0.8f);
             return InteractionResult.SUCCESS;
@@ -95,10 +92,7 @@ public class SmallExtractionVatBlock extends Block implements EntityBlock {
 
             if (vatBE.addFreshLeaves(handStack)) {
                 handStack.shrink(1);
-                player.displayClientMessage(Component.literal(
-                        "§a✓ Koka-Blätter hinzugefügt!\n" +
-                                "§7Inhalt: §e" + vatBE.getInputCount() + "/" + vatBE.getCapacity()
-                ), true);
+                player.displayClientMessage(Component.translatable("message.small_extraction_vat.leaves_added", vatBE.getInputCount(), vatBE.getCapacity()), true);
                 player.playSound(net.minecraft.sounds.SoundEvents.CROP_PLANTED, 1.0f, 1.0f);
                 return InteractionResult.SUCCESS;
             }
@@ -110,10 +104,7 @@ public class SmallExtractionVatBlock extends Block implements EntityBlock {
                 ItemStack paste = vatBE.extractAllPaste();
                 if (!paste.isEmpty()) {
                     player.getInventory().add(paste);
-                    player.displayClientMessage(Component.literal(
-                            "§6✓ Koka-Paste entnommen!\n" +
-                                    "§7Menge: §e" + paste.getCount() + "g"
-                    ), true);
+                    player.displayClientMessage(Component.translatable("message.small_extraction_vat.paste_extracted", paste.getCount()), true);
                     player.playSound(net.minecraft.sounds.SoundEvents.ITEM_PICKUP, 1.0f, 1.0f);
                     return InteractionResult.SUCCESS;
                 }
@@ -123,13 +114,7 @@ public class SmallExtractionVatBlock extends Block implements EntityBlock {
         // 4. Status anzeigen (Rechtsklick mit leerer Hand)
         if (handStack.isEmpty() && !player.isShiftKeyDown()) {
             float progress = vatBE.getAverageExtractionPercentage() * 100;
-            player.displayClientMessage(Component.literal(
-                    "§6═══ Kleine Extraktionswanne ═══\n" +
-                            "§7Diesel: §e" + vatBE.getDieselLevel() + "/" + vatBE.getMaxDiesel() + " mB\n" +
-                            "§7Blätter: §e" + vatBE.getInputCount() + "/" + vatBE.getCapacity() + "\n" +
-                            "§7Paste fertig: §e" + vatBE.getOutputCount() + "\n" +
-                            "§7Fortschritt: §e" + String.format("%.1f", progress) + "%"
-            ), false);
+            player.displayClientMessage(Component.translatable("message.small_extraction_vat.status", vatBE.getDieselLevel(), vatBE.getMaxDiesel(), vatBE.getInputCount(), vatBE.getCapacity(), vatBE.getOutputCount(), String.format("%.1f", progress)), false);
             return InteractionResult.SUCCESS;
         }
 
