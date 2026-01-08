@@ -118,7 +118,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         int tabStartX = x + 5;
         int currentX = tabStartX;
 
-        uebersichtTabButton = addRenderableWidget(Button.builder(Component.literal("Übersicht"), button -> {
+        uebersichtTabButton = addRenderableWidget(Button.builder(Component.translatable("gui.bank.tab_overview"), button -> {
             switchTab(Tab.UEBERSICHT);
         }).bounds(currentX, y + 20, 40, 18).build());
         currentX += 41;
@@ -133,7 +133,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         }).bounds(currentX, y + 20, 40, 18).build());
         currentX += 41;
 
-        ueberweisungTabButton = addRenderableWidget(Button.builder(Component.literal("Überweisung"), button -> {
+        ueberweisungTabButton = addRenderableWidget(Button.builder(Component.translatable("gui.bank.tab_transfer"), button -> {
             switchTab(Tab.UEBERWEISUNG);
         }).bounds(currentX, y + 20, 50, 18).build());
         currentX += 51;
@@ -196,7 +196,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         transferAmountInput.setValue("100");
         addRenderableWidget(transferAmountInput);
 
-        transferButton = addRenderableWidget(Button.builder(Component.literal("Überweisen"), button -> {
+        transferButton = addRenderableWidget(Button.builder(Component.translatable("gui.bank.transfer_button"), button -> {
             handleTransfer();
         }).bounds(x + 15, y + 135, 190, 20).build());
 

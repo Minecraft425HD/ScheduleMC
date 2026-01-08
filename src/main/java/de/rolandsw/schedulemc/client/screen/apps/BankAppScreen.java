@@ -131,7 +131,7 @@ public class BankAppScreen extends Screen {
             addRenderableWidget(transferAmountBox);
 
             // Senden-Button
-            addRenderableWidget(Button.builder(Component.literal("Überweisen"), button -> {
+            addRenderableWidget(Button.builder(Component.translatable("gui.bank.transfer_button"), button -> {
                 performTransfer();
             }).bounds(leftPos + 15, formY + 67, WIDTH - 30, 20).build());
         }
@@ -168,7 +168,7 @@ public class BankAppScreen extends Screen {
         }
 
         // Zurück-Button
-        addRenderableWidget(Button.builder(Component.literal("← Zurück"), button -> {
+        addRenderableWidget(Button.builder(Component.translatable("gui.achievement_app.back"), button -> {
             if (minecraft != null) {
                 minecraft.setScreen(parentScreen);
             }

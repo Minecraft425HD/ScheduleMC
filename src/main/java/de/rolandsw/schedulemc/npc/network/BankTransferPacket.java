@@ -56,7 +56,7 @@ public class BankTransferPacket {
 
             if (amount > remaining) {
                 double dailyLimit = ModConfigHandler.COMMON.BANK_TRANSFER_DAILY_LIMIT.get();
-                player.sendSystemMessage(Component.literal("⚠ Tägliches Transfer-Limit überschritten!")
+                player.sendSystemMessage(Component.translatable("message.bank.transfer_limit_exceeded")
                     .withStyle(ChatFormatting.RED));
                 player.sendSystemMessage(Component.literal("Limit: ")
                     .withStyle(ChatFormatting.GRAY)
@@ -87,7 +87,7 @@ public class BankTransferPacket {
 
             // Prüfe ob nicht an sich selbst
             if (player.getUUID().equals(targetUUID)) {
-                player.sendSystemMessage(Component.literal("⚠ Sie können nicht an sich selbst überweisen!")
+                player.sendSystemMessage(Component.translatable("message.bank.cannot_transfer_self")
                     .withStyle(ChatFormatting.RED));
                 return;
             }
@@ -109,9 +109,9 @@ public class BankTransferPacket {
                 // Erfolgs-Nachricht an Sender
                 player.sendSystemMessage(Component.literal("═══════════════════════════════")
                     .withStyle(ChatFormatting.GREEN));
-                player.sendSystemMessage(Component.literal("💸 ")
+                player.sendSystemMessage(Component.literal("💸 ").append(Component.translatable("message.bank.transfer_header"))
                     .withStyle(ChatFormatting.YELLOW)
-                    .append(Component.literal("ÜBERWEISUNG ERFOLGREICH")
+                    .append(Component.translatable("message.bank.transfer_successful")
                         .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)));
                 player.sendSystemMessage(Component.translatable("message.bank.recipient_label")
                     .withStyle(ChatFormatting.GRAY)
@@ -137,7 +137,7 @@ public class BankTransferPacket {
                 // Benachrichtigung an Empfänger
                 targetPlayer.sendSystemMessage(Component.literal("═══════════════════════════════")
                     .withStyle(ChatFormatting.GREEN));
-                targetPlayer.sendSystemMessage(Component.literal("💰 ")
+                targetPlayer.sendSystemMessage(Component.literal("💰 ").append(Component.translatable("message.bank.transfer_received"))
                     .withStyle(ChatFormatting.YELLOW)
                     .append(Component.literal("GELD ERHALTEN")
                         .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)));
@@ -157,7 +157,7 @@ public class BankTransferPacket {
                     .withStyle(ChatFormatting.GREEN));
             } else {
                 // Atomare Prüfung fehlgeschlagen - nicht genug Geld
-                player.sendSystemMessage(Component.literal("⚠ Überweisung fehlgeschlagen - nicht genug Guthaben!")
+                player.sendSystemMessage(Component.translatable("message.bank.transfer_insufficient_funds")
                     .withStyle(ChatFormatting.RED));
                 player.sendSystemMessage(Component.translatable("message.bank.available")
                     .withStyle(ChatFormatting.GRAY)

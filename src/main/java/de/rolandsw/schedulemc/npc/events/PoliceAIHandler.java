@@ -263,7 +263,7 @@ public class PoliceAIHandler {
                 if (previousStartTick == null) {
                     // Neuer Arrest-Timer gestartet (wir waren erste)
                     int cooldownSeconds = ConfigCache.getPoliceArrestCooldownSeconds();
-                    targetCriminal.sendSystemMessage(Component.literal("§c⚠ FESTNAHME läuft... " + cooldownSeconds + "s"));
+                    targetCriminal.sendSystemMessage(Component.translatable("message.police.arrest_in_progress", cooldownSeconds));
                 } else {
                     // Timer läuft bereits - prüfe ob abgelaufen
                     long elapsed = currentTick - previousStartTick;
@@ -302,7 +302,7 @@ public class PoliceAIHandler {
 
                     // Reset Timer falls vorhanden (atomare Operation)
                     if (arrestTimers.remove(playerUUID) != null) {
-                        targetCriminal.sendSystemMessage(Component.literal("§e✓ Du bist entkommen!"));
+                        targetCriminal.sendSystemMessage(Component.translatable("message.police.escaped"));
                     }
 
                     // Starte Suchverhalten statt direkter Verfolgung
@@ -319,7 +319,7 @@ public class PoliceAIHandler {
 
                     // Reset Timer falls vorhanden (atomare Operation)
                     if (arrestTimers.remove(playerUUID) != null) {
-                        targetCriminal.sendSystemMessage(Component.literal("§e✓ Du bist entkommen!"));
+                        targetCriminal.sendSystemMessage(Component.translatable("message.police.escaped"));
                     }
 
                     // Verfolge direkt
@@ -451,13 +451,13 @@ public class PoliceAIHandler {
             if (currentMoney >= fine) {
                 // Strafe bezahlen
                 CashItem.removeValue(wallet, fine);
-                player.sendSystemMessage(Component.literal("§c✗ FESTGENOMMEN!"));
+                player.sendSystemMessage(Component.translatable("message.police.arrested"));
                 player.sendSystemMessage(Component.literal("§7Strafe: §c" + fine + "€"));
             } else {
                 // Nicht genug Geld → Gefängnis länger + alles konfisziert
                 jailTimeSeconds *= 2;
                 CashItem.setValue(wallet, 0);
-                player.sendSystemMessage(Component.literal("§c✗ FESTGENOMMEN!"));
+                player.sendSystemMessage(Component.translatable("message.police.arrested"));
                 player.sendSystemMessage(Component.literal("§7Alles Bargeld konfisziert!"));
                 player.sendSystemMessage(Component.literal("§c§lDOPPELTE HAFTZEIT!"));
             }
@@ -526,7 +526,7 @@ public class PoliceAIHandler {
                 player.getPersistentData().remove("JailY");
                 player.getPersistentData().remove("JailZ");
 
-                player.sendSystemMessage(Component.literal("§a✓ Du bist frei!"));
+                player.sendSystemMessage(Component.translatable("message.police.freed"));
                 player.sendSystemMessage(Component.literal("§7Halte dich von nun an an das Gesetz."));
 
                 // Entferne Effekte
@@ -545,7 +545,7 @@ public class PoliceAIHandler {
 
                 if (player.distanceToSqr(jailX, jailY, jailZ) > 100) {
                     player.teleportTo(jailX, jailY, jailZ);
-                    player.sendSystemMessage(Component.literal("§c✗ FLUCHT VERHINDERT!"));
+                    player.sendSystemMessage(Component.translatable("message.police.escape_prevented"));
                 }
 
                 // Zeit anzeigen alle 10 Sekunden
@@ -613,12 +613,12 @@ public class PoliceAIHandler {
                 // Spieler kann sich verstecken → Start Escape-Timer
                 if (!CrimeManager.isHiding(player.getUUID())) {
                     CrimeManager.startEscapeTimer(player.getUUID(), currentTick);
-                    player.sendSystemMessage(Component.literal("§e✓ Du versteckst dich vor der Polizei..."));
+                    player.sendSystemMessage(Component.translatable("message.police.hiding"));
                 }
 
                 // Prüfe ob Escape erfolgreich
                 if (CrimeManager.checkEscapeSuccess(player.getUUID(), currentTick)) {
-                    player.sendSystemMessage(Component.literal("§a✓ Du bist entkommen! -1★"));
+                    player.sendSystemMessage(Component.translatable("message.police.escaped_star"));
                 }
             } else {
                 // Spieler kann sich nicht verstecken → Stop Escape-Timer
@@ -628,13 +628,13 @@ public class PoliceAIHandler {
                     boolean isIndoors = PoliceSearchBehavior.isPlayerHidingIndoors(player);
                     if (isIndoors) {
                         // Im Gebäude aber am Fenster sichtbar
-                        player.sendSystemMessage(Component.literal("§c✗ Polizei hat dich am Fenster entdeckt!"));
+                        player.sendSystemMessage(Component.translatable("message.police.discovered_window"));
                     } else if (minDistance <= CrimeManager.ESCAPE_DISTANCE) {
                         // Draußen und Polizei zu nah
-                        player.sendSystemMessage(Component.literal("§c✗ Polizei ist zu nah!"));
+                        player.sendSystemMessage(Component.translatable("message.police.too_close"));
                     } else {
                         // Draußen und sichtbar
-                        player.sendSystemMessage(Component.literal("§c✗ Polizei hat dich gesehen!"));
+                        player.sendSystemMessage(Component.translatable("message.police.spotted"));
                     }
                 }
             }

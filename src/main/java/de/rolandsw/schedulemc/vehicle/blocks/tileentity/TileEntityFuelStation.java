@@ -238,7 +238,7 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
                             player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
                             player.sendSystemMessage(Component.literal("⛽ ").withStyle(ChatFormatting.YELLOW)
                                 .append(Component.literal("TANKSTELLE").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)));
-                            player.sendSystemMessage(Component.literal("Zapfsäule: ").withStyle(ChatFormatting.GRAY)
+                            player.sendSystemMessage(Component.translatable("message.fuel.pump_label").withStyle(ChatFormatting.GRAY)
                                 .append(Component.literal(stationName).withStyle(ChatFormatting.AQUA)));
                             player.sendSystemMessage(Component.literal("ID: ").withStyle(ChatFormatting.GRAY)
                                 .append(Component.literal(fuelStationId.toString().substring(0, 8) + "...").withStyle(ChatFormatting.DARK_GRAY)));
@@ -247,7 +247,7 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
                                 .append(Component.literal("): ").withStyle(ChatFormatting.GRAY))
                                 .append(Component.literal(String.format("%.2f€", (double)pricePerUnit)).withStyle(ChatFormatting.GREEN))
                                 .append(Component.literal(" pro 10 mB").withStyle(ChatFormatting.GRAY)));
-                            player.sendSystemMessage(Component.literal("💳 Tanken auf Rechnung aktiviert").withStyle(ChatFormatting.AQUA));
+                            player.sendSystemMessage(Component.translatable("message.fuel.bill_activated").withStyle(ChatFormatting.AQUA));
                             player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
 
                             // DEBUG LOGGING
@@ -324,7 +324,7 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
             player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
             player.sendSystemMessage(Component.literal("📄 ").withStyle(ChatFormatting.YELLOW)
                 .append(Component.literal("TANKRECHNUNG").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)));
-            player.sendSystemMessage(Component.literal("Zapfsäule: ").withStyle(ChatFormatting.GRAY)
+            player.sendSystemMessage(Component.translatable("message.fuel.pump_label").withStyle(ChatFormatting.GRAY)
                 .append(Component.literal(FuelStationRegistry.getDisplayName(fuelStationId)).withStyle(ChatFormatting.AQUA)));
             player.sendSystemMessage(Component.literal("Getankt: ").withStyle(ChatFormatting.GRAY)
                 .append(Component.literal(totalFueled + " mB").withStyle(ChatFormatting.AQUA))

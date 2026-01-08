@@ -74,7 +74,7 @@ public class NPCKnockoutHandler {
             // Angreifer informieren
             if (event.getSource().getEntity() != null) {
                 event.getSource().getEntity().sendSystemMessage(
-                    Component.literal("§e" + npc.getNpcName() + " ist kampfunfähig!")
+                    Component.translatable("message.npc.is_knocked_out", npc.getNpcName())
                 );
             }
 

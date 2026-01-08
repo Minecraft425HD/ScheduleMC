@@ -86,7 +86,7 @@ public class CrimeStatsAppScreen extends Screen {
         }
 
         // Zurück-Button
-        addRenderableWidget(Button.builder(Component.literal("← Zurück"), button -> {
+        addRenderableWidget(Button.builder(Component.translatable("gui.achievement_app.back"), button -> {
             if (minecraft != null) {
                 minecraft.setScreen(parentScreen);
             }

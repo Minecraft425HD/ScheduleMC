@@ -34,7 +34,7 @@ public class PauseRecurringPaymentPacket {
         PacketHandler.handleServerPacket(ctx, player -> {
             // Validierung: PaymentId nicht leer
             if (paymentId == null || paymentId.trim().isEmpty()) {
-                player.sendSystemMessage(Component.literal("⚠ Ungültige Dauerauftrag-ID!")
+                player.sendSystemMessage(Component.translatable("message.bank.invalid_payment_id")
                     .withStyle(ChatFormatting.RED));
                 return;
             }

@@ -38,7 +38,7 @@ public class PayFuelBillPacket {
 
             if (totalAmount <= 0 || unpaidBills.isEmpty()) {
                 player.sendSystemMessage(Component.literal("⚠ ").withStyle(ChatFormatting.YELLOW)
-                    .append(Component.literal("Keine offenen Rechnungen!").withStyle(ChatFormatting.GRAY)));
+                    .append(Component.translatable("message.bank.no_open_bills_plain").withStyle(ChatFormatting.GRAY)));
                 return;
             }
 

@@ -48,7 +48,7 @@ public class ConfirmDialogScreen extends Screen {
         int buttonY = topPos + dialogHeight - 30;
 
         // Ja-Button (Rot für kritische Aktionen)
-        addRenderableWidget(Button.builder(Component.literal("§c✓ Ja, fortfahren"), button -> {
+        addRenderableWidget(Button.builder(Component.translatable("gui.confirm_dialog.yes"), button -> {
             onConfirm.run();
             if (minecraft != null) {
                 minecraft.setScreen(parent);
@@ -56,7 +56,7 @@ public class ConfirmDialogScreen extends Screen {
         }).bounds(leftPos + 20, buttonY, 100, 20).build());
 
         // Nein-Button
-        addRenderableWidget(Button.builder(Component.literal("✗ Abbrechen"), button -> {
+        addRenderableWidget(Button.builder(Component.translatable("gui.confirm_dialog.cancel"), button -> {
             if (onCancel != null) {
                 onCancel.run();
             }

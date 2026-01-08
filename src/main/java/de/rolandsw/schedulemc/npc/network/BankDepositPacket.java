@@ -43,7 +43,7 @@ public class BankDepositPacket {
             // Prüfe Einzahlungslimit
             double depositLimit = ModConfigHandler.COMMON.BANK_DEPOSIT_LIMIT.get();
             if (amount > depositLimit) {
-                player.sendSystemMessage(Component.literal("⚠ Einzahlungslimit überschritten!")
+                player.sendSystemMessage(Component.translatable("message.bank.deposit_limit_exceeded")
                     .withStyle(ChatFormatting.RED));
                 player.sendSystemMessage(Component.literal("Maximum: ")
                     .withStyle(ChatFormatting.GRAY)

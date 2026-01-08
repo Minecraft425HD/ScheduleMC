@@ -72,7 +72,7 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
         addRenderableWidget(gramsInput);
 
         // Offer Button
-        offerButton = addRenderableWidget(Button.builder(Component.literal("Anbieten"), button -> {
+        offerButton = addRenderableWidget(Button.builder(Component.translatable("gui.tobacco.offer"), button -> {
             makeOffer();
         }).bounds(x + 110, y + 60, 60, 20).build());
         offerButton.active = false;

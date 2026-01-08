@@ -91,7 +91,7 @@ public class NPCPatrolTool extends Item {
                 npc.getNpcData().setPoliceStation(clickedPos);
                 npc.getNpcData().addPatrolPoint(clickedPos); // Station ist IMMER Patrouillenpunkt 1!
                 player.sendSystemMessage(
-                    Component.literal("✓ Polizeistation gesetzt für ")
+                    Component.translatable("message.npc.police_station_set")
                         .withStyle(ChatFormatting.GREEN)
                         .append(Component.literal(npc.getNpcName())
                             .withStyle(ChatFormatting.YELLOW))
@@ -111,7 +111,7 @@ public class NPCPatrolTool extends Item {
                 npc.getNpcData().addPatrolPoint(clickedPos);
                 int newSize = npc.getNpcData().getPatrolPoints().size();
                 player.sendSystemMessage(
-                    Component.literal("✓ Patrouillenpunkt " + newSize + "/16 gesetzt bei " + clickedPos.toShortString())
+                    Component.translatable("message.npc.patrol_point_set", newSize, clickedPos.toShortString())
                         .withStyle(ChatFormatting.GREEN)
                 );
             }

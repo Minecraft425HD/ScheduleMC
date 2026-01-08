@@ -86,11 +86,11 @@ public class NPCDailySalaryHandler {
                         // Nachricht an Spieler in der Nähe (optional)
                         serverLevel.getPlayers(player -> player.distanceToSqr(npc) < 2500) // 50 Blöcke
                             .forEach(player -> player.sendSystemMessage(
-                                Component.literal("[NPC] " + npc.getNpcName() + " erhielt tägliches Einkommen: ")
+                                Component.translatable("message.npc.received_daily_income", npc.getNpcName())
                                     .withStyle(ChatFormatting.GREEN)
                                     .append(Component.literal(income + " Bargeld")
                                         .withStyle(ChatFormatting.GOLD))
-                                    .append(Component.literal(" (Tag " + currentDay + ", Geldbörse: " +
+                                    .append(Component.translatable("message.npc.daily_income_info", currentDay,
                                         oldWallet + " → " + npc.getNpcData().getWallet() + ")")
                                         .withStyle(ChatFormatting.GRAY))
                             ));

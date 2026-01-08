@@ -158,7 +158,7 @@ public class UtilityCommand {
         List<PlotUtilityData> topPlots = PlotUtilityManager.getTopConsumers(10);
 
         if (topPlots.isEmpty()) {
-            source.sendFailure(Component.literal("§cKeine Verbrauchsdaten vorhanden!"));
+            source.sendFailure(Component.translatable("message.utility.no_consumption_data"));
             return 0;
         }
 
@@ -193,7 +193,7 @@ public class UtilityCommand {
             return 0;
         }
 
-        source.sendSuccess(() -> Component.literal("§7Scanne Plot " + plot.getPlotId() + "..."), false);
+        source.sendSuccess(() -> Component.translatable("message.utility.scanning_plot", plot.getPlotId()), false);
 
         ServerLevel level = player.serverLevel();
         PlotUtilityManager.scanPlotForConsumers(level, plot);
@@ -201,7 +201,7 @@ public class UtilityCommand {
         Optional<PlotUtilityData> dataOpt = PlotUtilityManager.getPlotData(plot.getPlotId());
         int count = dataOpt.map(PlotUtilityData::getConsumerCount).orElse(0);
 
-        source.sendSuccess(() -> Component.literal("§aScan abgeschlossen! " + count + " Verbraucher gefunden."), false);
+        source.sendSuccess(() -> Component.translatable("message.utility.scan_complete", count), false);
         return 1;
     }
 

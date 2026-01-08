@@ -75,18 +75,18 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
         }).bounds(x + 8, y + 30, 160, 20).build());
 
         // Bank-Buttons (nur für BANK NPCs - je nach Kategorie unterschiedlich)
-        bankerButton = addRenderableWidget(Button.builder(Component.literal("🏦 Banking"), button -> {
+        bankerButton = addRenderableWidget(Button.builder(Component.translatable("gui.npc.banking"), button -> {
             openBankerMenu();
         }).bounds(x + 8, y + 54, 78, 20).build());
         bankerButton.visible = isBank && !isCreditAdvisor;
 
-        boerseButton = addRenderableWidget(Button.builder(Component.literal("📈 Börse"), button -> {
+        boerseButton = addRenderableWidget(Button.builder(Component.translatable("gui.npc.stock_market"), button -> {
             openBoerseMenu();
         }).bounds(x + 90, y + 54, 78, 20).build());
         boerseButton.visible = isBank && !isCreditAdvisor;
 
         // Kreditberater Button (nur für KREDITBERATER NPCs)
-        creditAdvisorButton = addRenderableWidget(Button.builder(Component.literal("💳 Kredit beantragen"), button -> {
+        creditAdvisorButton = addRenderableWidget(Button.builder(Component.translatable("gui.npc.apply_credit"), button -> {
             openCreditAdvisorMenu();
         }).bounds(x + 8, y + 54, 160, 20).build());
         creditAdvisorButton.visible = isCreditAdvisor;

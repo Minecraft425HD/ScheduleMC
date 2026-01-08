@@ -94,7 +94,7 @@ public class NPCLeisureTool extends Item {
                     BlockPos removed = leisureLocations.get(lastIndex);
                     npc.getNpcData().removeLeisureLocation(lastIndex);
                     player.sendSystemMessage(
-                        Component.literal("✓ Freizeitort " + (lastIndex + 1) + " entfernt bei " + removed.toShortString())
+                        Component.translatable("message.npc.leisure_removed", (lastIndex + 1), removed.toShortString())
                             .withStyle(ChatFormatting.YELLOW)
                     );
                     player.sendSystemMessage(
@@ -122,7 +122,7 @@ public class NPCLeisureTool extends Item {
             npc.getNpcData().addLeisureLocation(clickedPos);
             int newSize = npc.getNpcData().getLeisureLocations().size();
             player.sendSystemMessage(
-                Component.literal("✓ Freizeitort " + newSize + "/10 gesetzt bei " + clickedPos.toShortString())
+                Component.translatable("message.npc.leisure_set", newSize, clickedPos.toShortString())
                     .withStyle(ChatFormatting.GREEN)
             );
 
@@ -232,12 +232,12 @@ public class NPCLeisureTool extends Item {
         // Typ-spezifische Info
         if (npc.getNpcData().getNpcType() == NPCType.BEWOHNER) {
             player.sendSystemMessage(
-                Component.literal("ℹ Bewohner besuchen Freizeitorte den ganzen Tag (außer Heimzeit)")
+                Component.translatable("message.npc.leisure_info_residents")
                     .withStyle(ChatFormatting.DARK_GRAY)
             );
         } else if (npc.getNpcData().getNpcType() == NPCType.VERKAEUFER) {
             player.sendSystemMessage(
-                Component.literal("ℹ Verkäufer besuchen Freizeitorte nach Feierabend")
+                Component.translatable("message.npc.leisure_info_sellers")
                     .withStyle(ChatFormatting.DARK_GRAY)
             );
         }

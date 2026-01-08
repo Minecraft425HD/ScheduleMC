@@ -65,7 +65,7 @@ public class InputDialogScreen extends Screen {
         setInitialFocus(inputField);
 
         // Bestätigen-Button
-        addRenderableWidget(Button.builder(Component.literal("✓ Bestätigen"), button -> {
+        addRenderableWidget(Button.builder(Component.translatable("gui.input_dialog.confirm"), button -> {
             String value = inputField.getValue().trim();
             if (!value.isEmpty() && validateInput(value)) {
                 onConfirm.accept(value);
@@ -76,7 +76,7 @@ public class InputDialogScreen extends Screen {
         }).bounds(leftPos + 20, topPos + 80, 90, 20).build());
 
         // Abbrechen-Button
-        addRenderableWidget(Button.builder(Component.literal("✗ Abbrechen"), button -> {
+        addRenderableWidget(Button.builder(Component.translatable("gui.input_dialog.cancel"), button -> {
             if (onCancel != null) {
                 onCancel.run();
             }

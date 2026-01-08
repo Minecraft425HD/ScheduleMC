@@ -53,7 +53,7 @@ public class SmartphoneProtectionHandler {
 
                     // Benachrichtige beide Spieler
                     attacker.sendSystemMessage(
-                        Component.literal("§c§l⚠ Du hast einen geschützten Spieler angegriffen! +1 Wanted-Stern")
+                        Component.translatable("message.smartphone.attacked_protected_player")
                     );
 
                     serverVictim.sendSystemMessage(

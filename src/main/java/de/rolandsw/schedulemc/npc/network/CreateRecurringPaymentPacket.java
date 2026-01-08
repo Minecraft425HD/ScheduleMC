@@ -62,14 +62,14 @@ public class CreateRecurringPaymentPacket {
 
             // Validierung: Empfänger nicht leer
             if (recipientName == null || recipientName.trim().isEmpty()) {
-                player.sendSystemMessage(Component.literal("⚠ Empfänger darf nicht leer sein!")
+                player.sendSystemMessage(Component.translatable("message.bank.recipient_required")
                     .withStyle(ChatFormatting.RED));
                 return;
             }
 
             // Validierung: Intervall gültig
             if (intervalOrdinal < 0 || intervalOrdinal >= RecurringPaymentInterval.values().length) {
-                player.sendSystemMessage(Component.literal("⚠ Ungültiges Intervall!")
+                player.sendSystemMessage(Component.translatable("message.bank.invalid_interval")
                     .withStyle(ChatFormatting.RED));
                 return;
             }
@@ -161,7 +161,7 @@ public class CreateRecurringPaymentPacket {
                     .withStyle(ChatFormatting.GRAY));
                 player.sendSystemMessage(Component.literal("• Maximale Anzahl erreicht")
                     .withStyle(ChatFormatting.YELLOW));
-                player.sendSystemMessage(Component.literal("• Ungültige Parameter")
+                player.sendSystemMessage(Component.translatable("message.bank.invalid_parameters")
                     .withStyle(ChatFormatting.YELLOW));
             }
         });

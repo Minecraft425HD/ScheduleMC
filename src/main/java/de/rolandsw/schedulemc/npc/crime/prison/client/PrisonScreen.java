@@ -268,9 +268,9 @@ public class PrisonScreen extends Screen {
             if (!bailAvailable) {
                 bailButton.setMessage(Component.translatable("gui.common.not_yet_available"));
             } else if (!canAfford) {
-                bailButton.setMessage(Component.literal("§c✗ Nicht genug Geld"));
+                bailButton.setMessage(Component.translatable("message.prison.not_enough_money"));
             } else {
-                bailButton.setMessage(Component.literal("§a✓ KAUTION ZAHLEN"));
+                bailButton.setMessage(Component.translatable("gui.prison.pay_bail"));
             }
         }
     }

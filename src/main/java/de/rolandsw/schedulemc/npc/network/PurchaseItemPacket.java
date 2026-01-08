@@ -110,7 +110,7 @@ public class PurchaseItemPacket {
             } else {
                 available = entry.getStock();
             }
-            player.sendSystemMessage(Component.literal("§cNicht genug auf Lager! Verfügbar: " + available));
+            player.sendSystemMessage(Component.translatable("message.shop.not_enough_stock", available));
             return;
         }
 
@@ -125,7 +125,7 @@ public class PurchaseItemPacket {
 
             // Prüfe ob es "Keine Rechnungen" ist
             if ("NoBill".equals(billType)) {
-                player.sendSystemMessage(Component.literal("✓ Sie haben keine offenen Rechnungen!")
+                player.sendSystemMessage(Component.translatable("message.bank.no_outstanding_bills")
                     .withStyle(ChatFormatting.GREEN));
                 return;
             }
@@ -296,7 +296,7 @@ public class PurchaseItemPacket {
             tag.putDouble("TotalCost", 0.0);
 
             // Setze Namen: Keine offenen Rechnungen
-            noBillItem.setHoverName(Component.literal("📄 Keine offenen Rechnungen")
+            noBillItem.setHoverName(Component.translatable("message.bank.no_open_bills")
                 .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD));
 
             // Erstelle Shop-Entry mit Preis 0

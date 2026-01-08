@@ -738,7 +738,7 @@ public class NPCCommand {
             npc.getNpcData().setInventoryItem(slot, stack);
 
             context.getSource().sendSuccess(
-                () -> Component.literal("Item hinzugefügt in Slot " + slot + ": ")
+                () -> Component.translatable("message.npc.item_added_slot", slot)
                     .withStyle(ChatFormatting.GREEN)
                     .append(stack.getDisplayName())
                     .append(Component.translatable("message.common.for_npc").withStyle(ChatFormatting.GREEN))
@@ -750,7 +750,7 @@ public class NPCCommand {
             return 1;
         } catch (CommandSyntaxException e) {
             context.getSource().sendFailure(
-                Component.literal("Ungültiges Item: " + e.getMessage())
+                Component.translatable("message.npc.invalid_item_error", e.getMessage())
                     .withStyle(ChatFormatting.RED)
             );
             return 0;
@@ -830,7 +830,7 @@ public class NPCCommand {
         npc.getNpcData().setInventoryItem(slot, ItemStack.EMPTY);
 
         context.getSource().sendSuccess(
-            () -> Component.literal("Slot " + slot + " geleert für NPC ")
+            () -> Component.translatable("message.npc.slot_cleared", slot)
                 .withStyle(ChatFormatting.GREEN)
                 .append(Component.literal(npc.getNpcName())
                     .withStyle(ChatFormatting.YELLOW)),
@@ -964,7 +964,7 @@ public class NPCCommand {
         npc.syncWalletToClient();
 
         context.getSource().sendSuccess(
-            () -> Component.literal(amount + " Bargeld hinzugefügt. Neue Geldbörse: ")
+            () -> Component.translatable("message.npc.cash_added", amount)
                 .withStyle(ChatFormatting.GREEN)
                 .append(Component.literal(npc.getNpcData().getWallet() + " Bargeld")
                     .withStyle(ChatFormatting.GOLD))
@@ -1014,14 +1014,14 @@ public class NPCCommand {
 
         if (!success) {
             context.getSource().sendFailure(
-                Component.literal("Nicht genug Geld! Aktuelle Geldbörse: " + npc.getNpcData().getWallet() + " Bargeld")
+                Component.translatable("message.npc.not_enough_money_wallet", npc.getNpcData().getWallet())
                     .withStyle(ChatFormatting.RED)
             );
             return 0;
         }
 
         context.getSource().sendSuccess(
-            () -> Component.literal(amount + " Bargeld entfernt. Neue Geldbörse: ")
+            () -> Component.translatable("message.npc.cash_removed", amount)
                 .withStyle(ChatFormatting.GREEN)
                 .append(Component.literal(npc.getNpcData().getWallet() + " Bargeld")
                     .withStyle(ChatFormatting.GOLD))
@@ -1152,7 +1152,7 @@ public class NPCCommand {
             npc.getNpcData().setAssignedWarehouse(warehousePos);
 
             context.getSource().sendSuccess(() ->
-                Component.literal("§a✓ Warehouse verknüpft!\n" +
+                Component.translatable("message.warehouse.linked")
                     "§7NPC: §e" + npc.getNpcName() + "\n" +
                     "§7Position: §f" + warehousePos.getX() + ", " + warehousePos.getY() + ", " + warehousePos.getZ()
                 ), false
@@ -1180,7 +1180,7 @@ public class NPCCommand {
             npc.getNpcData().setAssignedWarehouse(null);
 
             context.getSource().sendSuccess(() ->
-                Component.literal("§a✓ Warehouse-Verknüpfung entfernt!\n" +
+                Component.translatable("message.warehouse.unlinked")
                     "§7NPC: §e" + npc.getNpcName()
                 ), false
             );

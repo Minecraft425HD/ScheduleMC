@@ -347,7 +347,7 @@ public class BlockProtectionHandler {
         CustomNPCEntity npc = npcWorkLocationCache.get(pos);
         if (npc != null) {
             player.displayClientMessage(
-                Component.literal("§c✗ Dies ist der Arbeitsort von ")
+                Component.translatable("message.protection.work_location_of")
                     .append(Component.literal(npc.getNpcName()).withStyle(ChatFormatting.YELLOW))
                     .append(Component.literal("!")),
                 true

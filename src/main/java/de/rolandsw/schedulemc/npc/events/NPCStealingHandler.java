@@ -33,7 +33,7 @@ public class NPCStealingHandler {
             if (event.getTarget() instanceof CustomNPCEntity npc) {
             // Prüfe ob es kein Polizist ist
             if (npc.getNpcType() == NPCType.POLIZEI) {
-                player.displayClientMessage(Component.literal("§c✗ Du kannst keine Polizisten bestehlen!"), true);
+                player.displayClientMessage(Component.translatable("message.stealing.cannot_steal_police"), true);
                 event.setCanceled(true);
                 return;
             }
@@ -45,7 +45,7 @@ public class NPCStealingHandler {
                 long lastStealDay = npc.getNpcData().getCustomData().getLong(cooldownKey);
 
                 if (lastStealDay >= currentDay) {
-                    player.displayClientMessage(Component.literal("§c✗ Du hast heute bereits von diesem NPC gestohlen!"), true);
+                    player.displayClientMessage(Component.translatable("message.stealing.already_stolen_today"), true);
                     player.displayClientMessage(Component.literal("§7Versuche es morgen nochmal."), true);
                     event.setCanceled(true);
                     return;
@@ -64,7 +64,7 @@ public class NPCStealingHandler {
             boolean hasMoney = npc.getNpcData().getWallet() > 0;
 
             if (!hasItems && !hasMoney) {
-                player.displayClientMessage(Component.literal("§c✗ Dieser NPC hat nichts zum Stehlen!"), true);
+                player.displayClientMessage(Component.translatable("message.stealing.no_items"), true);
                 event.setCanceled(true);
                 return;
             }

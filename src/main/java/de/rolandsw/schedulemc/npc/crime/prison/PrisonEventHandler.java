@@ -80,7 +80,7 @@ public class PrisonEventHandler {
                 if (!withinCell) {
                     event.setCanceled(true);
                     player.sendSystemMessage(
-                        net.minecraft.network.chat.Component.literal("§c✗ Teleport im Gefängnis nicht erlaubt!"));
+                        net.minecraft.network.chat.Component.translatable("message.prison.no_teleport"));
                 }
             }
         }, "onPrisonerTeleport");
