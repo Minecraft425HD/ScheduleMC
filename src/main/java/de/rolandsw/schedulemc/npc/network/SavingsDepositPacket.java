@@ -74,11 +74,11 @@ public class SavingsDepositPacket {
                             .withStyle(ChatFormatting.GOLD)));
                     player.sendSystemMessage(Component.translatable("message.bank.interest_label")
                         .withStyle(ChatFormatting.GRAY)
-                        .append(Component.translatable("message.bank.interest_rate"))
+                        .append(Component.translatable("message.bank.interest_rate")
                             .withStyle(ChatFormatting.GREEN)));
                     player.sendSystemMessage(Component.translatable("message.bank.lock_period_label")
                         .withStyle(ChatFormatting.GRAY)
-                        .append(Component.translatable("message.bank.lock_period_duration"))
+                        .append(Component.translatable("message.bank.lock_period_duration")
                             .withStyle(ChatFormatting.YELLOW)));
                     player.sendSystemMessage(Component.literal("═══════════════════════════════")
                         .withStyle(ChatFormatting.GREEN));
@@ -100,7 +100,7 @@ public class SavingsDepositPacket {
                         .withStyle(ChatFormatting.GREEN));
                     player.sendSystemMessage(Component.literal("💰 ")
                         .withStyle(ChatFormatting.GOLD)
-                        .append(Component.translatable("message.bank.deposit_successful"))
+                        .append(Component.translatable("message.bank.deposit_successful")
                             .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)));
                     player.sendSystemMessage(Component.translatable("message.bank.amount_label")
                         .withStyle(ChatFormatting.GRAY)

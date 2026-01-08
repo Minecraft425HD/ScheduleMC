@@ -288,7 +288,8 @@ public class NPCCommand {
         } else if (data.getNpcType() == NPCType.BEWOHNER) {
             player.sendSystemMessage(
                 Component.translatable("message.npc.workplace_label").withStyle(ChatFormatting.GRAY)
-                    .append(Component.translatable("message.npc.residents_dont_work")).withStyle(ChatFormatting.YELLOW))
+                    .append(Component.translatable("message.npc.residents_dont_work")
+                        .withStyle(ChatFormatting.YELLOW))
             );
             player.sendSystemMessage(
                 Component.translatable("message.npc.leisure_locations_label").withStyle(ChatFormatting.GRAY)
@@ -1153,8 +1154,8 @@ public class NPCCommand {
 
             context.getSource().sendSuccess(() ->
                 Component.translatable("message.warehouse.linked")
-                    "§7NPC: §e" + npc.getNpcName() + "\n" +
-                    "§7Position: §f" + warehousePos.getX() + ", " + warehousePos.getY() + ", " + warehousePos.getZ()
+                    .append(Component.literal("\n§7NPC: §e" + npc.getNpcName() + "\n" +
+                    "§7Position: §f" + warehousePos.getX() + ", " + warehousePos.getY() + ", " + warehousePos.getZ()))
                 ), false
             );
             return 1;
@@ -1181,7 +1182,7 @@ public class NPCCommand {
 
             context.getSource().sendSuccess(() ->
                 Component.translatable("message.warehouse.unlinked")
-                    "§7NPC: §e" + npc.getNpcName()
+                    .append(Component.literal("\n§7NPC: §e" + npc.getNpcName()))
                 ), false
             );
             return 1;

@@ -137,7 +137,7 @@ public class CreateRecurringPaymentPacket {
                     .withStyle(ChatFormatting.GREEN));
                 player.sendSystemMessage(Component.literal("📋 ")
                     .withStyle(ChatFormatting.GOLD)
-                    .append(Component.translatable("message.bank.standing_order_created"))
+                    .append(Component.translatable("message.bank.standing_order_created")
                         .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)));
                 player.sendSystemMessage(Component.translatable("message.bank.recipient_label")
                     .withStyle(ChatFormatting.GRAY)

@@ -151,7 +151,7 @@ public class StockTradePacket {
             .withStyle(ChatFormatting.GREEN));
         player.sendSystemMessage(Component.literal("📈 ")
             .withStyle(ChatFormatting.YELLOW)
-            .append(Component.translatable("message.stock.purchase_successful"))
+            .append(Component.translatable("message.stock.purchase_successful")
                 .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)));
         player.sendSystemMessage(Component.translatable("message.stock.bought_label")
             .withStyle(ChatFormatting.GRAY)
@@ -221,7 +221,7 @@ public class StockTradePacket {
             .withStyle(ChatFormatting.GREEN));
         player.sendSystemMessage(Component.literal("📉 ")
             .withStyle(ChatFormatting.YELLOW)
-            .append(Component.translatable("message.stock.sale_successful"))
+            .append(Component.translatable("message.stock.sale_successful")
                 .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)));
         player.sendSystemMessage(Component.translatable("message.stock.sold_label")
             .withStyle(ChatFormatting.GRAY)
