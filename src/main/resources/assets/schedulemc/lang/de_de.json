@@ -2121,5 +2121,18 @@
   "message.warehouse.seller_removed": "§aVerkäufer entfernt!",
   "message.warehouse.slot_cleared": "§aSlot geleert: %s",
   "message.warehouse.settings_updated": "§aEinstellungen aktualisiert!",
-  "message.warehouse.slot_empty": "§cSlot ist leer!"
+  "message.warehouse.slot_empty": "§cSlot ist leer!",
+  "message.tobacco.invalid_grams": "§cUngültige Grammzahl!",
+  "message.tobacco.must_sell_complete_package": "§c✗ Du kannst nur das komplette Päckchen verkaufen!",
+  "message.tobacco.package_contains": "§7Dieses Päckchen enthält %sg.",
+  "message.tobacco.need_correct_package": "§7Wenn du %sg verkaufen möchtest, brauchst du ein %sg Päckchen.",
+  "message.tobacco.npc_insufficient_funds": "§c✗ Der NPC hat nicht genug Geld!",
+  "message.tobacco.npc_wallet_info": "§7NPC Geldbörse: %s€, Preis: %s€",
+  "message.tobacco.npc_already_bought_today": "§c✗ Dieser NPC hat heute bereits Tabak gekauft!",
+  "message.tobacco.try_tomorrow": "§7Versuche es morgen nochmal.",
+  "message.tobacco.sale_success": "§a✓ Verkauf erfolgreich! %sg für %s€",
+  "message.tobacco.wallet_summary": "§7Deine Geldbörse: %s€ | NPC Geldbörse: %s€",
+  "message.tobacco.counteroffer": "§7Gegenangebot: %s€",
+  "message.tobacco.police_no_buy": "§c✗ Polizisten kaufen keinen Tabak!",
+  "gui.tobacco.negotiation.title": "Tabak verkaufen"
 }

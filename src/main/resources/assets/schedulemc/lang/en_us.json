@@ -2125,5 +2125,18 @@
   "message.warehouse.seller_removed": "§aSeller removed!",
   "message.warehouse.slot_cleared": "§aSlot cleared: %s",
   "message.warehouse.settings_updated": "§aSettings updated!",
-  "message.warehouse.slot_empty": "§cSlot is empty!"
+  "message.warehouse.slot_empty": "§cSlot is empty!",
+  "message.tobacco.invalid_grams": "§cInvalid gram amount!",
+  "message.tobacco.must_sell_complete_package": "§c✗ You can only sell the complete package!",
+  "message.tobacco.package_contains": "§7This package contains %sg.",
+  "message.tobacco.need_correct_package": "§7If you want to sell %sg, you need a %sg package.",
+  "message.tobacco.npc_insufficient_funds": "§c✗ The NPC doesn't have enough money!",
+  "message.tobacco.npc_wallet_info": "§7NPC Wallet: %s€, Price: %s€",
+  "message.tobacco.npc_already_bought_today": "§c✗ This NPC already bought tobacco today!",
+  "message.tobacco.try_tomorrow": "§7Try again tomorrow.",
+  "message.tobacco.sale_success": "§a✓ Sale successful! %sg for %s€",
+  "message.tobacco.wallet_summary": "§7Your wallet: %s€ | NPC Wallet: %s€",
+  "message.tobacco.counteroffer": "§7Counteroffer: %s€",
+  "message.tobacco.police_no_buy": "§c✗ Police don't buy tobacco!",
+  "gui.tobacco.negotiation.title": "Sell Tobacco"
 }
