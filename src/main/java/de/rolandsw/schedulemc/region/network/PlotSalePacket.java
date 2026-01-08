@@ -60,41 +60,41 @@ public class PlotSalePacket {
             PlotRegion plot = PlotManager.getPlot(msg.plotId);
 
             if (plot == null) {
-                player.sendSystemMessage(Component.literal("§cPlot nicht gefunden!"));
+                player.sendSystemMessage(Component.translatable("message.plot.not_found"));
                 return;
             }
 
             // Prüfe ob Spieler Besitzer ist
             if (!plot.getOwnerUUID().equals(player.getUUID().toString())) {
-                player.sendSystemMessage(Component.literal("§cDu bist nicht der Besitzer dieses Plots!"));
+                player.sendSystemMessage(Component.translatable("message.plot.not_owner"));
                 return;
             }
 
             switch (msg.type) {
                 case SELL:
                     if (msg.price <= 0) {
-                        player.sendSystemMessage(Component.literal("§cPreis muss größer als 0 sein!"));
+                        player.sendSystemMessage(Component.translatable("message.plot.price_invalid"));
                         return;
                     }
                     plot.setSalePrice(msg.price);
                     plot.setForSale(true);
                     plot.setForRent(false);
                     PlotManager.savePlots();
-                    player.sendSystemMessage(Component.literal("§aPlot zum Verkauf gestellt für ")
+                    player.sendSystemMessage(Component.translatable("message.plot.listed_for_sale")
                         .append(Component.literal(String.format("%.2f€", msg.price))
                             .withStyle(ChatFormatting.GOLD)));
                     break;
 
                 case RENT:
                     if (msg.price <= 0) {
-                        player.sendSystemMessage(Component.literal("§cPreis muss größer als 0 sein!"));
+                        player.sendSystemMessage(Component.translatable("message.plot.price_invalid"));
                         return;
                     }
                     plot.setRentPricePerDay(msg.price);
                     plot.setForRent(true);
                     plot.setForSale(false);
                     PlotManager.savePlots();
-                    player.sendSystemMessage(Component.literal("§aPlot zur Miete gestellt für ")
+                    player.sendSystemMessage(Component.translatable("message.plot.listed_for_rent")
                         .append(Component.literal(String.format("%.2f€/Tag", msg.price))
                             .withStyle(ChatFormatting.GOLD)));
                     break;
@@ -103,7 +103,7 @@ public class PlotSalePacket {
                     plot.setForSale(false);
                     plot.setForRent(false);
                     PlotManager.savePlots();
-                    player.sendSystemMessage(Component.literal("§aAngebot beendet - Plot ist jetzt privat"));
+                    player.sendSystemMessage(Component.translatable("message.plot.offer_ended"));
                     break;
             }
         });

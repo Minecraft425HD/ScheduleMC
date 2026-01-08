@@ -49,19 +49,19 @@ public class PlotRatingPacket {
             PlotRegion plot = PlotManager.getPlot(msg.plotId);
 
             if (plot == null) {
-                player.sendSystemMessage(Component.literal("§cPlot nicht gefunden!"));
+                player.sendSystemMessage(Component.translatable("message.plot.not_found"));
                 return;
             }
 
             // Validiere Rating
             if (msg.rating < 1 || msg.rating > 5) {
-                player.sendSystemMessage(Component.literal("§cUngültiges Rating! (1-5 Sterne)"));
+                player.sendSystemMessage(Component.translatable("message.plot.rating_invalid"));
                 return;
             }
 
             // Spieler darf eigene Plots nicht bewerten
             if (plot.getOwnerUUID().equals(player.getUUID().toString())) {
-                player.sendSystemMessage(Component.literal("§cDu kannst deinen eigenen Plot nicht bewerten!"));
+                player.sendSystemMessage(Component.translatable("message.plot.cannot_rate_own"));
                 return;
             }
 
@@ -72,9 +72,9 @@ public class PlotRatingPacket {
 
             String stars = "★".repeat(msg.rating) + "☆".repeat(5 - msg.rating);
             if (wasUpdated) {
-                player.sendSystemMessage(Component.literal("§aDeine Bewertung wurde aktualisiert: §e" + stars));
+                player.sendSystemMessage(Component.translatable("message.plot.rating_updated", stars));
             } else {
-                player.sendSystemMessage(Component.literal("§aDanke für deine Bewertung: §e" + stars));
+                player.sendSystemMessage(Component.translatable("message.plot.rating_thankyou", stars));
             }
         });
     }

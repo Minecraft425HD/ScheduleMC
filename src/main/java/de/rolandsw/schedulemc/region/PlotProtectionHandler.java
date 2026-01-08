@@ -54,9 +54,7 @@ public class PlotProtectionHandler {
         if (plot == null) {
             // Kein Plot → Weltschutz aktiv
             event.setCanceled(true);
-            player.sendSystemMessage(Component.literal(
-                "§c✗ Du kannst hier nicht abbauen! Kaufe einen Plot über die Einstellungen-App"
-            ));
+            player.sendSystemMessage(Component.translatable("message.plot.cannot_break_buy_plot"));
             LOGGER.debug("[PLOT-PROTECTION] {} versuchte außerhalb eines Plots bei {} abzubauen",
                 player.getName().getString(), pos.toShortString());
             return;
@@ -72,17 +70,11 @@ public class PlotProtectionHandler {
             if (apartment != null) {
                 // In Apartment
                 if (apartment.isRented()) {
-                    player.sendSystemMessage(Component.literal(
-                        "§c✗ Diese Wohnung ist vermietet! Du hast keine Rechte hier."
-                    ));
+                    player.sendSystemMessage(Component.translatable("message.plot.apartment_rented"));
                 } else if (apartment.isForRent()) {
-                    player.sendSystemMessage(Component.literal(
-                        "§c✗ Miete diese Wohnung mit /plot apartment rent " + apartment.getId()
-                    ));
+                    player.sendSystemMessage(Component.translatable("message.plot.apartment_rent_command", apartment.getId()));
                 } else {
-                    player.sendSystemMessage(Component.literal(
-                        "§c✗ Du hast keine Rechte in dieser Wohnung!"
-                    ));
+                    player.sendSystemMessage(Component.translatable("message.plot.no_apartment_rights"));
                 }
 
                 LOGGER.debug("[PLOT-PROTECTION] {} versuchte ohne Rechte in Apartment {} (Plot: {}) abzubauen",
@@ -91,13 +83,9 @@ public class PlotProtectionHandler {
                 // Normaler Plot-Bereich
                 String ownerName = plot.getOwnerName();
                 if (ownerName == null || ownerName.equals("Niemand")) {
-                    player.sendSystemMessage(Component.literal(
-                        "§c✗ Dieser Plot gehört niemandem! Kaufe ihn über die Einstellungen-App oder den Plot-Info-Block"
-                    ));
+                    player.sendSystemMessage(Component.translatable("message.plot.unowned_buy"));
                 } else {
-                    player.sendSystemMessage(Component.literal(
-                        "§c✗ Dieser Plot gehört §e" + ownerName + "§c! Du hast keine Rechte hier."
-                    ));
+                    player.sendSystemMessage(Component.translatable("message.plot.no_rights_owner", ownerName));
                 }
 
                 LOGGER.debug("[PLOT-PROTECTION] {} versuchte ohne Rechte in Plot {} (Besitzer: {}) abzubauen",
@@ -128,9 +116,7 @@ public class PlotProtectionHandler {
             if (plot == null) {
                 // Kein Plot → Weltschutz aktiv
                 event.setCanceled(true);
-                serverPlayer.sendSystemMessage(Component.literal(
-                    "§c✗ Du kannst hier nicht bauen! Kaufe einen Plot über die Einstellungen-App"
-                ));
+                serverPlayer.sendSystemMessage(Component.translatable("message.plot.cannot_build_buy_plot"));
                 return;
             }
 
@@ -142,14 +128,10 @@ public class PlotProtectionHandler {
                 PlotArea apartment = plot.getSubAreaAt(pos);
 
                 if (apartment != null) {
-                    serverPlayer.sendSystemMessage(Component.literal(
-                        "§c✗ Du hast keine Rechte in dieser Wohnung!"
-                    ));
+                    serverPlayer.sendSystemMessage(Component.translatable("message.plot.no_apartment_rights"));
                 } else {
                     String ownerName = plot.getOwnerName();
-                    serverPlayer.sendSystemMessage(Component.literal(
-                        "§c✗ Dieser Plot gehört §e" + ownerName + "§c! Du hast keine Rechte hier."
-                    ));
+                    serverPlayer.sendSystemMessage(Component.translatable("message.plot.no_rights_owner", ownerName));
                 }
             }
         });
@@ -198,9 +180,7 @@ public class PlotProtectionHandler {
                     blockName.contains("fence_gate")) {
 
                     event.setCanceled(true);
-                    serverPlayer.sendSystemMessage(Component.literal(
-                        "§c✗ Dieser Plot gehört §e" + plot.getOwnerName() + "§c!"
-                    ));
+                    serverPlayer.sendSystemMessage(Component.translatable("message.plot.belongs_to_owner", plot.getOwnerName()));
                 }
             }
         });
@@ -234,27 +214,27 @@ public class PlotProtectionHandler {
         PlotRegion plot = PlotManager.getPlotAt(pos);
 
         if (plot == null) {
-            return "§7Kein Plot - Weltschutz aktiv";
+            return Component.translatable("message.plot.info_no_plot").getString();
         }
 
         StringBuilder info = new StringBuilder();
         info.append("§e").append(plot.getPlotName()).append("\n");
-        info.append("§7Besitzer: §f").append(plot.getOwnerName()).append("\n");
+        info.append(Component.translatable("message.plot.info_owner", plot.getOwnerName()).getString()).append("\n");
 
         if (plot.isForSale()) {
-            info.append("§a§lZUM VERKAUF §7- §e").append(plot.getSalePrice()).append("€\n");
+            info.append(Component.translatable("message.plot.info_for_sale", plot.getSalePrice()).getString()).append("\n");
         }
 
         if (plot.isForRent()) {
-            info.append("§d§lZU VERMIETEN §7- §e").append(plot.getRentPricePerDay()).append("€/Tag\n");
+            info.append(Component.translatable("message.plot.info_for_rent", plot.getRentPricePerDay()).getString()).append("\n");
         }
 
         if (plot.isRented()) {
-            info.append("§7Vermietet noch §e").append(plot.getRentDaysLeft()).append(" Tage\n");
+            info.append(Component.translatable("message.plot.info_rented_days", plot.getRentDaysLeft()).getString()).append("\n");
         }
 
-        info.append("§7Rating: §e").append(plot.getRatingStars()).append(" §7(").append(plot.getRatingCount()).append(")\n");
-        info.append("§7Größe: §e").append(plot.getVolume()).append(" Blöcke");
+        info.append(Component.translatable("message.plot.info_rating", plot.getRatingStars(), plot.getRatingCount()).getString()).append("\n");
+        info.append(Component.translatable("message.plot.info_size", plot.getVolume()).getString());
 
         return info.toString();
     }

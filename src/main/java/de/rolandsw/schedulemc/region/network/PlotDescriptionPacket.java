@@ -48,26 +48,26 @@ public class PlotDescriptionPacket {
             PlotRegion plot = PlotManager.getPlot(msg.plotId);
 
             if (plot == null) {
-                player.sendSystemMessage(Component.literal("§cPlot nicht gefunden!"));
+                player.sendSystemMessage(Component.translatable("message.plot.not_found"));
                 return;
             }
 
             // Prüfe ob Spieler Besitzer ist
             if (!plot.getOwnerUUID().equals(player.getUUID().toString())) {
-                player.sendSystemMessage(Component.literal("§cDu bist nicht der Besitzer dieses Plots!"));
+                player.sendSystemMessage(Component.translatable("message.plot.not_owner"));
                 return;
             }
 
             // Validiere Beschreibung
             if (msg.description.length() > 16) {
-                player.sendSystemMessage(Component.literal("§cBeschreibung zu lang! (Max. 16 Zeichen)"));
+                player.sendSystemMessage(Component.translatable("message.plot.description_too_long"));
                 return;
             }
 
             plot.setDescription(msg.description.trim());
             PlotManager.savePlots();
 
-            player.sendSystemMessage(Component.literal("§aPlot-Beschreibung aktualisiert!"));
+            player.sendSystemMessage(Component.translatable("message.plot.description_updated"));
         });
     }
 }
