@@ -27,10 +27,10 @@ public class CocaSeedItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.literal("§7Sorte: " + cocaType.getColoredName()));
-        tooltip.add(Component.literal("§7Wachstumszeit: §e~" + (cocaType.getGrowthTicks() / 20) + "s"));
-        tooltip.add(Component.literal("§7Ertrag: §e~" + cocaType.getBaseYield() + " Blätter"));
+        tooltip.add(Component.translatable("tooltip.coca.type_label").append(cocaType.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.coca_seed.growth_time", (cocaType.getGrowthTicks() / 20)));
+        tooltip.add(Component.translatable("tooltip.coca_seed.yield", cocaType.getBaseYield()));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§8Pflanze in einen Topf mit Erde"));
+        tooltip.add(Component.translatable("tooltip.coca_seed.plant_in_pot"));
     }
 }

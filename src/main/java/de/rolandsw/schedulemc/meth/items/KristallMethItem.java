@@ -52,7 +52,7 @@ public class KristallMethItem extends Item {
 
         tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§7Feuchte " + quality.getColorDescription().toLowerCase() + "e Kristalle"));
+        tooltip.add(Component.translatable("tooltip.kristall_meth.moist_crystals", quality.getColorDescription().toLowerCase()));
         tooltip.add(Component.translatable("tooltip.meth.next_step_vacuum"));
     }
 

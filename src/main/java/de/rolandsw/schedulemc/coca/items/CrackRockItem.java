@@ -84,17 +84,17 @@ public class CrackRockItem extends Item {
         int weight = getWeight(stack);
         double price = calculatePrice(stack);
 
-        tooltip.add(Component.literal("§7Sorte: " + type.getColoredName()));
-        tooltip.add(Component.literal("§7Qualität: " + quality.getColoredName()));
-        tooltip.add(Component.literal("§7Gewicht: §f" + (weight * stack.getCount()) + "g §8(" + stack.getCount() + "x 1g)"));
+        tooltip.add(Component.translatable("tooltip.coca.type_label").append(type.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.coca.weight").append(Component.literal("§f" + (weight * stack.getCount()) + "g §8(" + stack.getCount() + "x 1g)")));
         tooltip.add(Component.empty());
-        tooltip.add(Component.literal("§6💰 Wert: §f" + String.format("%.2f", price) + "€"));
+        tooltip.add(Component.translatable("tooltip.crack.value").append(Component.literal("§f" + String.format("%.2f", price) + "€")));
         tooltip.add(Component.empty());
 
         if (quality == CrackQuality.FISHSCALE) {
-            tooltip.add(Component.literal("§b✨ Glänzt wie Fischschuppen!"));
+            tooltip.add(Component.translatable("tooltip.crack.fishscale_shine"));
         }
 
-        tooltip.add(Component.literal("§8Gekochtes Kokain - schneller Effekt"));
+        tooltip.add(Component.translatable("tooltip.crack.cooked_cocaine"));
     }
 }

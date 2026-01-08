@@ -60,12 +60,12 @@ public class CocaineItem extends Item {
         CocaType type = getType(stack);
         TobaccoQuality quality = getQuality(stack);
 
-        tooltip.add(Component.literal("§7Sorte: " + type.getColoredName()));
-        tooltip.add(Component.literal("§7Qualität: " + quality.getColoredName()));
-        tooltip.add(Component.literal("§7Gewicht: §f" + stack.getCount() + "g §8(" + stack.getCount() + "x 1g)"));
+        tooltip.add(Component.translatable("tooltip.coca.type_label").append(type.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.coca.weight").append(Component.literal("§f" + stack.getCount() + "g §8(" + stack.getCount() + "x 1g)")));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§fWeißes Pulver"));
-        tooltip.add(Component.literal("§8Kann verpackt und verkauft werden"));
+        tooltip.add(Component.translatable("tooltip.cocaine.white_powder"));
+        tooltip.add(Component.translatable("tooltip.cocaine.can_package"));
     }
 
     @Override

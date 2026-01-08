@@ -70,11 +70,11 @@ public class FreshBudItem extends Item {
         CannabisQuality quality = getQuality(stack);
         int weight = getWeight(stack);
 
-        tooltip.add(Component.literal("§7Sorte: " + strain.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.cannabis.strain_label").append(strain.getColoredName()));
         tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
-        tooltip.add(Component.literal("§7Gewicht: §f" + (weight * stack.getCount()) + "g §8(" + stack.getCount() + "x 1g)"));
+        tooltip.add(Component.translatable("tooltip.cannabis.weight_label").append(Component.literal("§f" + (weight * stack.getCount()) + "g §8(" + stack.getCount() + "x 1g)")));
         tooltip.add(Component.empty());
-        tooltip.add(Component.literal("§c⚠ Muss getrocknet werden!"));
-        tooltip.add(Component.literal("§8Verwende ein Trocknungsnetz"));
+        tooltip.add(Component.translatable("tooltip.fresh_bud.must_dry"));
+        tooltip.add(Component.translatable("tooltip.fresh_bud.use_drying_rack"));
     }
 }
