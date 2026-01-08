@@ -714,6 +714,11 @@
   "tooltip.item.quality_booster": "§6§lQuality Booster",
 
   "tooltip.vehicle.spawn_tool": "🚗 Vehicle Spawn Tool",
+
+  "tooltip.cash.capacity_unlimited": "§7Capacity: §aUnlimited",
+  "tooltip.cash.survives_death": "§8Survives death",
+  "tooltip.cash.wallet_empty": "§7Wallet (Empty)",
+  "tooltip.cash.wallet_filled": "§aWallet §7(§e%s§7)",
   "tooltip.vehicle.spawn_point": "VEHICLE SPAWN POINT",
   "tooltip.vehicle.tool_linked": "TOOL LINKED",
   "tooltip.vehicle.position": "Position: ",
