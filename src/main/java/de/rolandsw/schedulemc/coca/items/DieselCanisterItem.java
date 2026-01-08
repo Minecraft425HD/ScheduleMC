@@ -107,11 +107,11 @@ public class DieselCanisterItem extends Item {
     public Component getName(ItemStack stack) {
         int amount = getDieselAmount(stack);
         if (amount <= 0) {
-            return Component.literal("Leerer Diesel-Kanister");
+            return Component.translatable("item.diesel_canister.empty");
         } else if (amount >= MAX_CAPACITY) {
-            return Component.literal("Voller Diesel-Kanister");
+            return Component.translatable("item.diesel_canister.full");
         }
-        return Component.literal("Diesel-Kanister (" + amount + " mB)");
+        return Component.translatable("item.diesel_canister.partial", amount);
     }
 
     @Override

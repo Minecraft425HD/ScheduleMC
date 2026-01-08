@@ -116,9 +116,11 @@ public class MistBagItem extends Item {
         if (units <= 0) {
             return Component.literal("§7Leerer " + type.getDisplayName());
         } else if (units >= UNITS_PER_BAG) {
-            return Component.literal(type.getColor() + "Voller " + type.getDisplayName());
+            return Component.literal(type.getColor())
+                .append(Component.translatable("item.mist_bag.full", type.getDisplayName()));
         } else {
-            return Component.literal(type.getColor() + type.getDisplayName());
+            return Component.literal(type.getColor())
+                .append(Component.literal(type.getDisplayName()));
         }
     }
 

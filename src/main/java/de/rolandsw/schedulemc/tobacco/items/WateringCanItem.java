@@ -125,11 +125,11 @@ public class WateringCanItem extends Item {
     @Override
     public Component getName(ItemStack stack) {
         if (isEmpty(stack)) {
-            return Component.literal("§7Leere Gießkanne");
+            return Component.translatable("item.watering_can.empty");
         } else if (isFull(stack)) {
-            return Component.literal("§bVolle Gießkanne");
+            return Component.translatable("item.watering_can.full");
         } else {
-            return Component.literal("§fGießkanne");
+            return Component.translatable("item.watering_can.name");
         }
     }
     

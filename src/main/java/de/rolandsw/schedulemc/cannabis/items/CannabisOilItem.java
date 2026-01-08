@@ -72,7 +72,9 @@ public class CannabisOilItem extends Item {
     public Component getName(ItemStack stack) {
         CannabisStrain strain = getStrain(stack);
         CannabisQuality quality = getQuality(stack);
-        return Component.literal("§e🧪 " + quality.getColorCode() + strain.getDisplayName() + " Öl");
+        return Component.literal("§e🧪 ")
+            .append(Component.literal(quality.getColorCode()))
+            .append(Component.translatable("item.cannabis_oil.name", strain.getDisplayName()));
     }
 
     @Override

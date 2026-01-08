@@ -42,7 +42,8 @@ public class CannabisSeedItem extends Item {
     @Override
     public Component getName(ItemStack stack) {
         CannabisStrain strain = getStrain(stack);
-        return Component.literal(strain.getColorCode() + strain.getDisplayName() + " Samen");
+        return Component.literal(strain.getColorCode())
+            .append(Component.translatable("item.cannabis_seed.name", strain.getDisplayName()));
     }
 
     @Override
