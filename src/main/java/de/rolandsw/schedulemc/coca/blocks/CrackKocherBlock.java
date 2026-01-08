@@ -65,7 +65,7 @@ public class CrackKocherBlock extends BaseEntityBlock {
             ItemStack crack = kocher.extractCrack();
             if (!crack.isEmpty()) {
                 player.addItem(crack);
-                player.displayClientMessage(Component.literal("§f🪨 Crack entnommen!"), true);
+                player.displayClientMessage(Component.translatable("block.crack_kocher.crack_removed"), true);
                 return InteractionResult.CONSUME;
             }
         }
@@ -75,13 +75,13 @@ public class CrackKocherBlock extends BaseEntityBlock {
             double score = kocher.removeCrack();
             CrackQuality quality = CrackQuality.fromTimingScore(score);
 
-            String message = switch (quality) {
-                case FISHSCALE -> "§b💎 FISHSCALE! Perfektes Timing!";
-                case GUT -> "§a✓ Gutes Crack!";
-                case STANDARD -> "§e~ Standard Qualität";
-                case SCHLECHT -> "§c✗ Schlecht... " + (kocher.getCookTick() < 28 ? "zu früh!" : "verbrannt!");
+            Component message = switch (quality) {
+                case FISHSCALE -> Component.translatable("block.crack_kocher.fishscale");
+                case GUT -> Component.translatable("block.crack_kocher.good");
+                case STANDARD -> Component.translatable("block.crack_kocher.standard");
+                case SCHLECHT -> kocher.getCookTick() < 28 ? Component.translatable("block.crack_kocher.bad_early") : Component.translatable("block.crack_kocher.bad_burnt");
             };
-            player.displayClientMessage(Component.literal(message), true);
+            player.displayClientMessage(message, true);
             return InteractionResult.CONSUME;
         }
 
@@ -91,9 +91,9 @@ public class CrackKocherBlock extends BaseEntityBlock {
                 if (!player.isCreative()) {
                     heldItem.shrink(heldItem.getCount());
                 }
-                player.displayClientMessage(Component.literal(
-                        "§f❄ Kokain hinzugefügt §7(" + kocher.getCocaineGrams() + "g)"
-                ), true);
+                player.displayClientMessage(Component.translatable("block.crack_kocher.cocaine_added")
+                        .append(Component.literal(kocher.getCocaineGrams() + ""))
+                        .append(Component.translatable("block.crack_kocher.cocaine_grams")), true);
                 return InteractionResult.CONSUME;
             }
         }
@@ -104,9 +104,9 @@ public class CrackKocherBlock extends BaseEntityBlock {
                 if (!player.isCreative()) {
                     heldItem.shrink(heldItem.getCount());
                 }
-                player.displayClientMessage(Component.literal(
-                        "§7Backpulver hinzugefügt §7(" + kocher.getBackpulverCount() + ")"
-                ), true);
+                player.displayClientMessage(Component.translatable("block.crack_kocher.baking_soda_added")
+                        .append(Component.literal(kocher.getBackpulverCount() + ""))
+                        .append(Component.translatable("block.crack_kocher.baking_soda_count")), true);
                 return InteractionResult.CONSUME;
             }
         }
@@ -114,7 +114,7 @@ public class CrackKocherBlock extends BaseEntityBlock {
         // Kochen starten (leere Hand + Shift)
         if (heldItem.isEmpty() && player.isShiftKeyDown() && kocher.canStartCooking()) {
             if (kocher.startCooking(player.getUUID())) {
-                player.displayClientMessage(Component.literal("§6🔥 Kochen gestartet! §eNimm es im richtigen Moment raus!"), true);
+                player.displayClientMessage(Component.translatable("block.crack_kocher.cooking_started"), true);
                 return InteractionResult.CONSUME;
             }
         }
@@ -122,27 +122,29 @@ public class CrackKocherBlock extends BaseEntityBlock {
         // Status anzeigen
         if (kocher.isMinigameActive()) {
             int progress = (int) (kocher.getCookProgress() * 100);
-            String zone = switch (kocher.getCurrentZone()) {
-                case 0 -> "§c[ZU FRÜH]";
-                case 1 -> "§e[GUT]";
-                case 2 -> "§a[PERFEKT!]";
-                default -> "§4[ZU SPÄT!]";
+            Component zone = switch (kocher.getCurrentZone()) {
+                case 0 -> Component.translatable("block.crack_kocher.zone_too_early");
+                case 1 -> Component.translatable("block.crack_kocher.zone_good");
+                case 2 -> Component.translatable("block.crack_kocher.zone_perfect");
+                default -> Component.translatable("block.crack_kocher.zone_too_late");
             };
-            player.displayClientMessage(Component.literal(
-                    "§6🔥 Kochen... " + progress + "% " + zone
-            ), true);
+            player.displayClientMessage(Component.translatable("block.crack_kocher.cooking_progress")
+                    .append(Component.literal(progress + ""))
+                    .append(Component.translatable("block.crack_kocher.cooking_percent"))
+                    .append(zone), true);
         } else if (kocher.getCocaineGrams() > 0) {
-            player.displayClientMessage(Component.literal(
-                    "§7Kokain: §f" + kocher.getCocaineGrams() + "g §7| Backpulver: §f" + kocher.getBackpulverCount()
-            ), true);
+            player.displayClientMessage(Component.translatable("block.crack_kocher.status_cocaine")
+                    .append(Component.literal(kocher.getCocaineGrams() + ""))
+                    .append(Component.translatable("block.crack_kocher.status_grams"))
+                    .append(Component.literal(kocher.getBackpulverCount() + "")), true);
             if (kocher.canStartCooking()) {
-                player.displayClientMessage(Component.literal("§8[Shift+Rechtsklick zum Starten]"), false);
+                player.displayClientMessage(Component.translatable("block.crack_kocher.shift_to_start"), false);
             } else if (kocher.getBackpulverCount() < 1) {
-                player.displayClientMessage(Component.literal("§c⚠ Backpulver benötigt"), false);
+                player.displayClientMessage(Component.translatable("block.crack_kocher.need_baking_soda"), false);
             }
         } else {
-            player.displayClientMessage(Component.literal("§8Crack-Kocher ist leer"), true);
-            player.displayClientMessage(Component.literal("§8Füge Kokain und Backpulver hinzu"), false);
+            player.displayClientMessage(Component.translatable("block.crack_kocher.empty"), true);
+            player.displayClientMessage(Component.translatable("block.crack_kocher.add_materials"), false);
         }
 
         return InteractionResult.SUCCESS;

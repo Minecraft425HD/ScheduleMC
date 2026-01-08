@@ -58,7 +58,7 @@ public class SmallRefineryBlock extends Block implements EntityBlock {
         if (isFuel(handStack)) {
             int fuelValue = getFuelValue(handStack);
             if (refineryBE.getFuelLevel() >= refineryBE.getMaxFuel()) {
-                player.displayClientMessage(Component.literal("§c✗ Brennstoff-Tank ist voll!"), true);
+                player.displayClientMessage(Component.translatable("message.small_refinery.fuel_tank_full"), true);
                 return InteractionResult.FAIL;
             }
 
@@ -75,7 +75,7 @@ public class SmallRefineryBlock extends Block implements EntityBlock {
         // 2. Koka-Paste hinzufügen
         if (handStack.getItem() instanceof CocaPasteItem) {
             if (refineryBE.isFull()) {
-                player.displayClientMessage(Component.literal("§c✗ Raffinerie ist voll!"), true);
+                player.displayClientMessage(Component.translatable("message.small_refinery.refinery_full"), true);
                 return InteractionResult.FAIL;
             }
 

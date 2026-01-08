@@ -1745,6 +1745,18 @@
   "block.crack_kocher.baking_soda_added": "§7Baking soda added §7(",
   "block.crack_kocher.baking_soda_count": ")",
   "block.crack_kocher.cooking_started": "§6🔥 Cooking started! §eTake it out at the right moment!",
+  "block.crack_kocher.cooking_progress": "§6🔥 Cooking... ",
+  "block.crack_kocher.cooking_percent": "% ",
+  "block.crack_kocher.zone_too_early": "§c[TOO EARLY]",
+  "block.crack_kocher.zone_good": "§e[GOOD]",
+  "block.crack_kocher.zone_perfect": "§a[PERFECT!]",
+  "block.crack_kocher.zone_too_late": "§4[TOO LATE!]",
+  "block.crack_kocher.status_cocaine": "§7Cocaine: §f",
+  "block.crack_kocher.status_grams": "g §7| Baking soda: §f",
+  "block.crack_kocher.shift_to_start": "§8[Shift+Right-click to start]",
+  "block.crack_kocher.need_baking_soda": "§c⚠ Baking soda needed",
+  "block.crack_kocher.empty": "§8Crack cooker is empty",
+  "block.crack_kocher.add_materials": "§8Add cocaine and baking soda",
 
   "block.oil_extractor.oil_removed": "§e🧪 Cannabis oil removed!",
   "block.oil_extractor.buds_label": "Buds",
@@ -2151,4 +2163,19 @@
   "message.ritzmaschine.power_on": "§a✓ ON",
   "message.ritzmaschine.power_off": "§c✗ OFF"
 
+
+  "message.small_refinery.fuel_tank_full": "§c✗ Fuel tank is full!",
+  "message.small_refinery.fuel_added": "§c✓ Fuel added!\n§7Tank: §e%d/%d",
+  "message.small_refinery.refinery_full": "§c✗ Refinery is full!",
+  "message.small_refinery.paste_added": "§6✓ Coca paste added!\n§7Content: §e%d/%d",
+  "message.small_refinery.cocaine_extracted": "§f✓ Cocaine extracted!\n§7Amount: §e%dg",
+  "message.small_refinery.status": "§c═══ Small Refinery ═══\n§7Fuel: §e%d/%d\n§7Paste: §e%d/%d\n§7Cocaine ready: §e%d\n§7Progress: §e%s%%",
+
+  "message.small_extraction_vat.canister_empty": "§c✗ Diesel canister is empty!",
+  "message.small_extraction_vat.diesel_tank_full": "§c✗ Diesel tank is full!",
+  "message.small_extraction_vat.diesel_added": "§6✓ Diesel added!\n§7Tank: §e%d/%d mB",
+  "message.small_extraction_vat.vat_full": "§c✗ Extraction vat is full!",
+  "message.small_extraction_vat.leaves_added": "§a✓ Coca leaves added!\n§7Content: §e%d/%d",
+  "message.small_extraction_vat.paste_extracted": "§6✓ Coca paste extracted!\n§7Amount: §e%dg",
+  "message.small_extraction_vat.status": "§6═══ Small Extraction Vat ═══\n§7Diesel: §e%d/%d mB\n§7Leaves: §e%d/%d\n§7Paste ready: §e%d\n§7Progress: §e%s%%",
 }

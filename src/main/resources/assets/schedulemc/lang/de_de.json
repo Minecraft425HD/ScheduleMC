@@ -1740,6 +1740,18 @@
   "block.crack_kocher.baking_soda_added": "§7Backpulver hinzugefügt §7(",
   "block.crack_kocher.baking_soda_count": ")",
   "block.crack_kocher.cooking_started": "§6🔥 Kochen gestartet! §eNimm es im richtigen Moment raus!",
+  "block.crack_kocher.cooking_progress": "§6🔥 Kochen... ",
+  "block.crack_kocher.cooking_percent": "% ",
+  "block.crack_kocher.zone_too_early": "§c[ZU FRÜH]",
+  "block.crack_kocher.zone_good": "§e[GUT]",
+  "block.crack_kocher.zone_perfect": "§a[PERFEKT!]",
+  "block.crack_kocher.zone_too_late": "§4[ZU SPÄT!]",
+  "block.crack_kocher.status_cocaine": "§7Kokain: §f",
+  "block.crack_kocher.status_grams": "g §7| Backpulver: §f",
+  "block.crack_kocher.shift_to_start": "§8[Shift+Rechtsklick zum Starten]",
+  "block.crack_kocher.need_baking_soda": "§c⚠ Backpulver benötigt",
+  "block.crack_kocher.empty": "§8Crack-Kocher ist leer",
+  "block.crack_kocher.add_materials": "§8Füge Kokain und Backpulver hinzu",
 
   "block.oil_extractor.oil_removed": "§e🧪 Cannabis-Öl entnommen!",
   "block.oil_extractor.buds_label": "Blüten",
@@ -2146,4 +2158,19 @@
   "message.ritzmaschine.power_on": "§a✓ AN",
   "message.ritzmaschine.power_off": "§c✗ AUS"
 
+
+  "message.small_refinery.fuel_tank_full": "§c✗ Brennstoff-Tank ist voll!",
+  "message.small_refinery.fuel_added": "§c✓ Brennstoff hinzugefügt!\n§7Tank: §e%d/%d",
+  "message.small_refinery.refinery_full": "§c✗ Raffinerie ist voll!",
+  "message.small_refinery.paste_added": "§6✓ Koka-Paste hinzugefügt!\n§7Inhalt: §e%d/%d",
+  "message.small_refinery.cocaine_extracted": "§f✓ Kokain entnommen!\n§7Menge: §e%dg",
+  "message.small_refinery.status": "§c═══ Kleine Raffinerie ═══\n§7Brennstoff: §e%d/%d\n§7Paste: §e%d/%d\n§7Kokain fertig: §e%d\n§7Fortschritt: §e%s%%",
+
+  "message.small_extraction_vat.canister_empty": "§c✗ Diesel-Kanister ist leer!",
+  "message.small_extraction_vat.diesel_tank_full": "§c✗ Diesel-Tank ist voll!",
+  "message.small_extraction_vat.diesel_added": "§6✓ Diesel eingefüllt!\n§7Tank: §e%d/%d mB",
+  "message.small_extraction_vat.vat_full": "§c✗ Extraktionswanne ist voll!",
+  "message.small_extraction_vat.leaves_added": "§a✓ Koka-Blätter hinzugefügt!\n§7Inhalt: §e%d/%d",
+  "message.small_extraction_vat.paste_extracted": "§6✓ Koka-Paste entnommen!\n§7Menge: §e%dg",
+  "message.small_extraction_vat.status": "§6═══ Kleine Extraktionswanne ═══\n§7Diesel: §e%d/%d mB\n§7Blätter: §e%d/%d\n§7Paste fertig: §e%d\n§7Fortschritt: §e%s%%",
 }

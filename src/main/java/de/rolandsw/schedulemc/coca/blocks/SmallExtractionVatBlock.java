@@ -60,7 +60,7 @@ public class SmallExtractionVatBlock extends Block implements EntityBlock {
         if (handStack.getItem() instanceof DieselCanisterItem) {
             int dieselInCanister = DieselCanisterItem.getDieselAmount(handStack);
             if (dieselInCanister <= 0) {
-                player.displayClientMessage(Component.literal("§c✗ Diesel-Kanister ist leer!"), true);
+                player.displayClientMessage(Component.translatable("message.small_extraction_vat.canister_empty"), true);
                 return InteractionResult.FAIL;
             }
 
@@ -69,7 +69,7 @@ public class SmallExtractionVatBlock extends Block implements EntityBlock {
             int space = maxDiesel - currentDiesel;
 
             if (space <= 0) {
-                player.displayClientMessage(Component.literal("§c✗ Diesel-Tank ist voll!"), true);
+                player.displayClientMessage(Component.translatable("message.small_extraction_vat.diesel_tank_full"), true);
                 return InteractionResult.FAIL;
             }
 
@@ -89,7 +89,7 @@ public class SmallExtractionVatBlock extends Block implements EntityBlock {
         // 2. Koka-Blätter hinzufügen
         if (handStack.getItem() instanceof FreshCocaLeafItem) {
             if (vatBE.isFull()) {
-                player.displayClientMessage(Component.literal("§c✗ Extraktionswanne ist voll!"), true);
+                player.displayClientMessage(Component.translatable("message.small_extraction_vat.vat_full"), true);
                 return InteractionResult.FAIL;
             }
 
