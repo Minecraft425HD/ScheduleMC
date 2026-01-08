@@ -1568,6 +1568,18 @@
   "gui.achievement_app.overview_button": "← Übersicht",
   "gui.achievement_app.refresh_button": "↻",
 
-  "gui.world_map.title": "Weltkarte"
+  "gui.world_map.title": "Weltkarte",
+
+  "gui.reduktionskessel.title": "§6⚗ §lREDUKTIONSKESSEL",
+  "gui.reduktionskessel.button_heating": "§e§l[HEIZEN]",
+  "gui.reduktionskessel.button_hold": "§f[HALTEN ZUM HEIZEN]",
+  "gui.reduktionskessel.warning": "§c⚠ VORSICHT!",
+  "gui.reduktionskessel.waiting": "Warten...",
+  "gui.reduktionskessel.progress_label": "§7Fortschritt:",
+  "gui.reduktionskessel.expected_quality": "Erwartete Qualität: ",
+  "gui.reduktionskessel.instruction": "§7Halte Temperatur zwischen §a80-120°C",
+  "gui.reduktionskessel.explosion_warning": "§4§l☠ EXPLOSION DROHEND! ☠",
+
+  "gui.map_options.title": "Minimap-Optionen"
 
 }

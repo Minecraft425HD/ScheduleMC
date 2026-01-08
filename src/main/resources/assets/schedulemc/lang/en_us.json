@@ -1568,6 +1568,18 @@
   "gui.achievement_app.overview_button": "← Overview",
   "gui.achievement_app.refresh_button": "↻",
 
-  "gui.world_map.title": "World MapViewRenderer"
+  "gui.world_map.title": "World MapViewRenderer",
+
+  "gui.reduktionskessel.title": "§6⚗ §lREDUCTION KETTLE",
+  "gui.reduktionskessel.button_heating": "§e§l[HEATING]",
+  "gui.reduktionskessel.button_hold": "§f[HOLD TO HEAT]",
+  "gui.reduktionskessel.warning": "§c⚠ CAUTION!",
+  "gui.reduktionskessel.waiting": "Waiting...",
+  "gui.reduktionskessel.progress_label": "§7Progress:",
+  "gui.reduktionskessel.expected_quality": "Expected quality: ",
+  "gui.reduktionskessel.instruction": "§7Keep temperature between §a80-120°C",
+  "gui.reduktionskessel.explosion_warning": "§4§l☠ EXPLOSION IMMINENT! ☠",
+
+  "gui.map_options.title": "Minimap Options"
 
 }
