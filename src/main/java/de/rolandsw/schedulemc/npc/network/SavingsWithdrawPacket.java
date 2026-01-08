@@ -101,7 +101,7 @@ public class SavingsWithdrawPacket {
                     // Nicht genug Guthaben
                     player.sendSystemMessage(Component.literal("⚠ Nicht genug Guthaben auf Sparkonto!")
                         .withStyle(ChatFormatting.RED));
-                    player.sendSystemMessage(Component.literal("Verfügbar: ")
+                    player.sendSystemMessage(Component.translatable("message.bank.available")
                         .withStyle(ChatFormatting.GRAY)
                         .append(Component.literal(String.format("%.2f€", account.getBalance()))
                             .withStyle(ChatFormatting.YELLOW)));

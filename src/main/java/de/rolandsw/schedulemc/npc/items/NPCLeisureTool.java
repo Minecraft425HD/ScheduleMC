@@ -54,7 +54,7 @@ public class NPCLeisureTool extends Item {
             Integer npcId = selectedNPCs.get(player.getUUID());
             if (npcId == null) {
                 player.sendSystemMessage(
-                    Component.literal("Kein NPC ausgewählt! Klick auf einen NPC.")
+                    Component.translatable("message.npc.no_npc_selected_click")
                         .withStyle(ChatFormatting.RED)
                 );
                 return InteractionResult.FAIL;
@@ -64,7 +64,7 @@ public class NPCLeisureTool extends Item {
 
             if (!(entity instanceof CustomNPCEntity npc)) {
                 player.sendSystemMessage(
-                    Component.literal("Ausgewählter NPC nicht mehr verfügbar!")
+                    Component.translatable("message.npc.selected_unavailable")
                         .withStyle(ChatFormatting.RED)
                 );
                 selectedNPCs.remove(player.getUUID());
@@ -165,7 +165,7 @@ public class NPCLeisureTool extends Item {
                         .withStyle(ChatFormatting.YELLOW))
                     .append(Component.literal(" (" + npc.getNpcData().getNpcType().getDisplayName() + ")")
                         .withStyle(ChatFormatting.GRAY))
-                    .append(Component.literal(" ausgewählt!")
+                    .append(Component.translatable("message.common.selected")
                         .withStyle(ChatFormatting.GREEN))
             );
 
@@ -177,7 +177,7 @@ public class NPCLeisureTool extends Item {
             );
 
             player.sendSystemMessage(
-                Component.literal("Rechtsklick auf Block = Freizeitort hinzufügen")
+                Component.translatable("message.npc.right_click_add_leisure")
                     .withStyle(ChatFormatting.GRAY)
             );
             if (leisureCount > 0) {

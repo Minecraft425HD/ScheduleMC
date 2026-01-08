@@ -75,7 +75,7 @@ public class PurchaseItemPacket {
         }
 
         if (itemIndex < 0 || itemIndex >= shopItems.size()) {
-            player.sendSystemMessage(Component.literal("§cUngültiges Item!"));
+            player.sendSystemMessage(Component.translatable("message.common.invalid_item"));
             return;
         }
 
@@ -232,7 +232,7 @@ public class PurchaseItemPacket {
         player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GREEN));
         player.sendSystemMessage(Component.literal("⛽ ").withStyle(ChatFormatting.YELLOW)
             .append(Component.literal("RECHNUNG BEZAHLT").withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)));
-        player.sendSystemMessage(Component.literal("Zapfsäule: ").withStyle(ChatFormatting.GRAY)
+        player.sendSystemMessage(Component.translatable("message.fuel.pump_label").withStyle(ChatFormatting.GRAY)
             .append(Component.literal(stationName).withStyle(ChatFormatting.AQUA)));
         player.sendSystemMessage(Component.literal("Getankt: ").withStyle(ChatFormatting.GRAY)
             .append(Component.literal(totalFueled + " mB Bio-Diesel").withStyle(ChatFormatting.YELLOW)));

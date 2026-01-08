@@ -490,7 +490,7 @@ public class PoliceAIHandler {
             CrimeManager.clearWantedLevel(player.getUUID());
 
             player.sendSystemMessage(Component.literal("§7Haftzeit: §e" + jailTimeSeconds + " Sekunden"));
-            player.sendSystemMessage(Component.literal("§7Fahndungsstufe zurückgesetzt"));
+            player.sendSystemMessage(Component.translatable("message.npc.wanted_level_reset"));
         }
 
         // Reset Arrest-Timer

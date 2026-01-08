@@ -47,9 +47,9 @@ public class PayFuelBillPacket {
             if (balance < totalAmount) {
                 player.sendSystemMessage(Component.literal("⚠ ").withStyle(ChatFormatting.RED)
                     .append(Component.literal("Nicht genug Geld!").withStyle(ChatFormatting.RED)));
-                player.sendSystemMessage(Component.literal("Benötigt: ").withStyle(ChatFormatting.GRAY)
+                player.sendSystemMessage(Component.translatable("message.bank.required").withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(String.format("%.2f€", totalAmount)).withStyle(ChatFormatting.RED))
-                    .append(Component.literal(" | Verfügbar: ").withStyle(ChatFormatting.GRAY))
+                    .append(Component.translatable("message.stock.available_separator").withStyle(ChatFormatting.GRAY))
                     .append(Component.literal(String.format("%.2f€", balance)).withStyle(ChatFormatting.YELLOW)));
                 return;
             }

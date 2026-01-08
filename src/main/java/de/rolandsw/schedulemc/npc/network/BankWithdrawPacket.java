@@ -44,7 +44,7 @@ public class BankWithdrawPacket {
             if (giroBalance < amount) {
                 player.sendSystemMessage(Component.literal("⚠ Nicht genug Guthaben auf Girokonto!")
                     .withStyle(ChatFormatting.RED));
-                player.sendSystemMessage(Component.literal("Verfügbar: ")
+                player.sendSystemMessage(Component.translatable("message.bank.available")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(String.format("%.2f€", giroBalance))
                         .withStyle(ChatFormatting.YELLOW)));

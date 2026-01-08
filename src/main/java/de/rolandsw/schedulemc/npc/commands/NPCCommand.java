@@ -192,7 +192,7 @@ public class NPCCommand {
             () -> Component.literal("Bewegung ").withStyle(ChatFormatting.GREEN)
                 .append(Component.literal(enabled ? "aktiviert" : "deaktiviert")
                     .withStyle(enabled ? ChatFormatting.GREEN : ChatFormatting.RED))
-                .append(Component.literal(" für NPC ").withStyle(ChatFormatting.GREEN))
+                .append(Component.translatable("message.common.for_npc").withStyle(ChatFormatting.GREEN))
                 .append(Component.literal(npc.getNpcName())
                     .withStyle(ChatFormatting.YELLOW)),
             false
@@ -222,7 +222,7 @@ public class NPCCommand {
             () -> Component.literal("Bewegungsgeschwindigkeit gesetzt auf ").withStyle(ChatFormatting.GREEN)
                 .append(Component.literal(String.format("%.2f", speed))
                     .withStyle(ChatFormatting.YELLOW))
-                .append(Component.literal(" für NPC ").withStyle(ChatFormatting.GREEN))
+                .append(Component.translatable("message.common.for_npc").withStyle(ChatFormatting.GREEN))
                 .append(Component.literal(npc.getNpcName())
                     .withStyle(ChatFormatting.YELLOW)),
             false
@@ -370,7 +370,7 @@ public class NPCCommand {
 
         // Inventar und Geldbörse (nur für Bewohner und Verkäufer)
         if (data.hasInventoryAndWallet()) {
-            player.sendSystemMessage(Component.literal("=== Inventar & Geldbörse ===").withStyle(ChatFormatting.GOLD));
+            player.sendSystemMessage(Component.translatable("message.npc.inventory_wallet_header").withStyle(ChatFormatting.GOLD));
 
             // Inventar
             var inventory = data.getInventory();
@@ -388,7 +388,7 @@ public class NPCCommand {
 
             // Geldbörse
             player.sendSystemMessage(
-                Component.literal("Geldbörse: ").withStyle(ChatFormatting.GRAY)
+                Component.translatable("message.npc.wallet_label").withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(data.getWallet() + " Bargeld")
                         .withStyle(ChatFormatting.GOLD))
             );
@@ -429,7 +429,7 @@ public class NPCCommand {
         try {
             if (timeInput.length() != 4) {
                 context.getSource().sendFailure(
-                    Component.literal("Ungültiges Format! Verwende HHMM (z.B. 0700, 1830)").withStyle(ChatFormatting.RED)
+                    Component.translatable("message.common.invalid_time_format").withStyle(ChatFormatting.RED)
                 );
                 return 0;
             }
@@ -439,7 +439,7 @@ public class NPCCommand {
 
             if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
                 context.getSource().sendFailure(
-                    Component.literal("Ungültige Zeit! Stunden: 0-23, Minuten: 0-59").withStyle(ChatFormatting.RED)
+                    Component.translatable("message.common.invalid_time_range").withStyle(ChatFormatting.RED)
                 );
                 return 0;
             }
@@ -447,7 +447,7 @@ public class NPCCommand {
             ticks = timeToTicks(hours, minutes);
         } catch (NumberFormatException | StringIndexOutOfBoundsException e) {
             context.getSource().sendFailure(
-                Component.literal("Ungültiges Format! Verwende HHMM (z.B. 0700, 1830)").withStyle(ChatFormatting.RED)
+                Component.translatable("message.common.invalid_time_format").withStyle(ChatFormatting.RED)
             );
             return 0;
         }
@@ -471,7 +471,7 @@ public class NPCCommand {
                 .withStyle(ChatFormatting.GREEN)
                 .append(Component.literal(timeInput)
                     .withStyle(ChatFormatting.YELLOW))
-                .append(Component.literal(" für NPC ").withStyle(ChatFormatting.GREEN))
+                .append(Component.translatable("message.common.for_npc").withStyle(ChatFormatting.GREEN))
                 .append(Component.literal(npc.getNpcName())
                     .withStyle(ChatFormatting.YELLOW)),
             false
@@ -486,7 +486,7 @@ public class NPCCommand {
         Player player = context.getSource().getPlayer();
 
         if (player == null) {
-            context.getSource().sendFailure(Component.literal("Nur Spieler können diesen Command verwenden!"));
+            context.getSource().sendFailure(Component.translatable("message.common.player_only"));
             return 0;
         }
 
@@ -511,10 +511,10 @@ public class NPCCommand {
         npc.getNpcData().addLeisureLocation(playerPos);
 
         context.getSource().sendSuccess(
-            () -> Component.literal("Freizeitort hinzugefügt: ").withStyle(ChatFormatting.GREEN)
+            () -> Component.translatable("message.npc.leisure_added").withStyle(ChatFormatting.GREEN)
                 .append(Component.literal(playerPos.toShortString())
                     .withStyle(ChatFormatting.YELLOW))
-                .append(Component.literal(" für NPC ").withStyle(ChatFormatting.GREEN))
+                .append(Component.translatable("message.common.for_npc").withStyle(ChatFormatting.GREEN))
                 .append(Component.literal(npc.getNpcName())
                     .withStyle(ChatFormatting.YELLOW)),
             false
@@ -530,7 +530,7 @@ public class NPCCommand {
         Player player = context.getSource().getPlayer();
 
         if (player == null) {
-            context.getSource().sendFailure(Component.literal("Nur Spieler können diesen Command verwenden!"));
+            context.getSource().sendFailure(Component.translatable("message.common.player_only"));
             return 0;
         }
 
@@ -546,7 +546,7 @@ public class NPCCommand {
 
         if (index >= npc.getNpcData().getLeisureLocations().size()) {
             context.getSource().sendFailure(
-                Component.literal("Ungültiger Index! Verwende /npc leisure list um alle Orte zu sehen.").withStyle(ChatFormatting.RED)
+                Component.translatable("message.npc.invalid_leisure_index").withStyle(ChatFormatting.RED)
             );
             return 0;
         }
@@ -558,7 +558,7 @@ public class NPCCommand {
             () -> Component.literal("Freizeitort entfernt: ").withStyle(ChatFormatting.GREEN)
                 .append(Component.literal(removed.toShortString())
                     .withStyle(ChatFormatting.YELLOW))
-                .append(Component.literal(" für NPC ").withStyle(ChatFormatting.GREEN))
+                .append(Component.translatable("message.common.for_npc").withStyle(ChatFormatting.GREEN))
                 .append(Component.literal(npc.getNpcName())
                     .withStyle(ChatFormatting.YELLOW)),
             false
@@ -573,7 +573,7 @@ public class NPCCommand {
         Player player = context.getSource().getPlayer();
 
         if (player == null) {
-            context.getSource().sendFailure(Component.literal("Nur Spieler können diesen Command verwenden!"));
+            context.getSource().sendFailure(Component.translatable("message.common.player_only"));
             return 0;
         }
 
@@ -619,7 +619,7 @@ public class NPCCommand {
         Player player = context.getSource().getPlayer();
 
         if (player == null) {
-            context.getSource().sendFailure(Component.literal("Nur Spieler können diesen Command verwenden!"));
+            context.getSource().sendFailure(Component.translatable("message.common.player_only"));
             return 0;
         }
 
@@ -636,7 +636,7 @@ public class NPCCommand {
         npc.getNpcData().clearLeisureLocations();
 
         context.getSource().sendSuccess(
-            () -> Component.literal("Alle Freizeitorte entfernt für NPC ").withStyle(ChatFormatting.GREEN)
+            () -> Component.translatable("message.npc.all_leisure_removed").withStyle(ChatFormatting.GREEN)
                 .append(Component.literal(npc.getNpcName())
                     .withStyle(ChatFormatting.YELLOW)),
             false
@@ -653,7 +653,7 @@ public class NPCCommand {
         Player player = context.getSource().getPlayer();
 
         if (player == null) {
-            context.getSource().sendFailure(Component.literal("Nur Spieler können diesen Command verwenden!"));
+            context.getSource().sendFailure(Component.translatable("message.common.player_only"));
             return 0;
         }
 
@@ -669,7 +669,7 @@ public class NPCCommand {
 
         if (!npc.getNpcData().hasInventoryAndWallet()) {
             context.getSource().sendFailure(
-                Component.literal("Dieser NPC-Typ hat kein Inventar! (Nur Bewohner und Verkäufer)").withStyle(ChatFormatting.RED)
+                Component.translatable("message.npc.no_inventory").withStyle(ChatFormatting.RED)
             );
             return 0;
         }
@@ -712,7 +712,7 @@ public class NPCCommand {
         Player player = context.getSource().getPlayer();
 
         if (player == null) {
-            context.getSource().sendFailure(Component.literal("Nur Spieler können diesen Command verwenden!"));
+            context.getSource().sendFailure(Component.translatable("message.common.player_only"));
             return 0;
         }
 
@@ -728,7 +728,7 @@ public class NPCCommand {
 
         if (!npc.getNpcData().hasInventoryAndWallet()) {
             context.getSource().sendFailure(
-                Component.literal("Dieser NPC-Typ hat kein Inventar! (Nur Bewohner und Verkäufer)").withStyle(ChatFormatting.RED)
+                Component.translatable("message.npc.no_inventory").withStyle(ChatFormatting.RED)
             );
             return 0;
         }
@@ -741,7 +741,7 @@ public class NPCCommand {
                 () -> Component.literal("Item hinzugefügt in Slot " + slot + ": ")
                     .withStyle(ChatFormatting.GREEN)
                     .append(stack.getDisplayName())
-                    .append(Component.literal(" für NPC ").withStyle(ChatFormatting.GREEN))
+                    .append(Component.translatable("message.common.for_npc").withStyle(ChatFormatting.GREEN))
                     .append(Component.literal(npc.getNpcName())
                         .withStyle(ChatFormatting.YELLOW)),
                 false
@@ -763,7 +763,7 @@ public class NPCCommand {
         Player player = context.getSource().getPlayer();
 
         if (player == null) {
-            context.getSource().sendFailure(Component.literal("Nur Spieler können diesen Command verwenden!"));
+            context.getSource().sendFailure(Component.translatable("message.common.player_only"));
             return 0;
         }
 
@@ -779,7 +779,7 @@ public class NPCCommand {
 
         if (!npc.getNpcData().hasInventoryAndWallet()) {
             context.getSource().sendFailure(
-                Component.literal("Dieser NPC-Typ hat kein Inventar! (Nur Bewohner und Verkäufer)").withStyle(ChatFormatting.RED)
+                Component.translatable("message.npc.no_inventory").withStyle(ChatFormatting.RED)
             );
             return 0;
         }
@@ -790,7 +790,7 @@ public class NPCCommand {
         }
 
         context.getSource().sendSuccess(
-            () -> Component.literal("Inventar geleert für NPC ").withStyle(ChatFormatting.GREEN)
+            () -> Component.translatable("message.npc.inventory_cleared").withStyle(ChatFormatting.GREEN)
                 .append(Component.literal(npc.getNpcName())
                     .withStyle(ChatFormatting.YELLOW)),
             false
@@ -806,7 +806,7 @@ public class NPCCommand {
         Player player = context.getSource().getPlayer();
 
         if (player == null) {
-            context.getSource().sendFailure(Component.literal("Nur Spieler können diesen Command verwenden!"));
+            context.getSource().sendFailure(Component.translatable("message.common.player_only"));
             return 0;
         }
 
@@ -822,7 +822,7 @@ public class NPCCommand {
 
         if (!npc.getNpcData().hasInventoryAndWallet()) {
             context.getSource().sendFailure(
-                Component.literal("Dieser NPC-Typ hat kein Inventar! (Nur Bewohner und Verkäufer)").withStyle(ChatFormatting.RED)
+                Component.translatable("message.npc.no_inventory").withStyle(ChatFormatting.RED)
             );
             return 0;
         }
@@ -848,7 +848,7 @@ public class NPCCommand {
         Player player = context.getSource().getPlayer();
 
         if (player == null) {
-            context.getSource().sendFailure(Component.literal("Nur Spieler können diesen Command verwenden!"));
+            context.getSource().sendFailure(Component.translatable("message.common.player_only"));
             return 0;
         }
 
@@ -864,7 +864,7 @@ public class NPCCommand {
 
         if (!npc.getNpcData().hasInventoryAndWallet()) {
             context.getSource().sendFailure(
-                Component.literal("Dieser NPC-Typ hat keine Geldbörse! (Nur Bewohner und Verkäufer)").withStyle(ChatFormatting.RED)
+                Component.translatable("message.npc.no_wallet").withStyle(ChatFormatting.RED)
             );
             return 0;
         }
@@ -872,7 +872,7 @@ public class NPCCommand {
         int wallet = npc.getNpcData().getWallet();
 
         context.getSource().sendSuccess(
-            () -> Component.literal("Geldbörse von ").withStyle(ChatFormatting.GREEN)
+            () -> Component.translatable("message.npc.wallet_of").withStyle(ChatFormatting.GREEN)
                 .append(Component.literal(npc.getNpcName())
                     .withStyle(ChatFormatting.YELLOW))
                 .append(Component.literal(": ").withStyle(ChatFormatting.GREEN))
@@ -891,7 +891,7 @@ public class NPCCommand {
         Player player = context.getSource().getPlayer();
 
         if (player == null) {
-            context.getSource().sendFailure(Component.literal("Nur Spieler können diesen Command verwenden!"));
+            context.getSource().sendFailure(Component.translatable("message.common.player_only"));
             return 0;
         }
 
@@ -907,7 +907,7 @@ public class NPCCommand {
 
         if (!npc.getNpcData().hasInventoryAndWallet()) {
             context.getSource().sendFailure(
-                Component.literal("Dieser NPC-Typ hat keine Geldbörse! (Nur Bewohner und Verkäufer)").withStyle(ChatFormatting.RED)
+                Component.translatable("message.npc.no_wallet").withStyle(ChatFormatting.RED)
             );
             return 0;
         }
@@ -918,10 +918,10 @@ public class NPCCommand {
         npc.syncWalletToClient();
 
         context.getSource().sendSuccess(
-            () -> Component.literal("Geldbörse gesetzt auf ").withStyle(ChatFormatting.GREEN)
+            () -> Component.translatable("message.npc.wallet_set_to").withStyle(ChatFormatting.GREEN)
                 .append(Component.literal(amount + " Bargeld")
                     .withStyle(ChatFormatting.GOLD))
-                .append(Component.literal(" für NPC ").withStyle(ChatFormatting.GREEN))
+                .append(Component.translatable("message.common.for_npc").withStyle(ChatFormatting.GREEN))
                 .append(Component.literal(npc.getNpcName())
                     .withStyle(ChatFormatting.YELLOW)),
             false
@@ -937,7 +937,7 @@ public class NPCCommand {
         Player player = context.getSource().getPlayer();
 
         if (player == null) {
-            context.getSource().sendFailure(Component.literal("Nur Spieler können diesen Command verwenden!"));
+            context.getSource().sendFailure(Component.translatable("message.common.player_only"));
             return 0;
         }
 
@@ -953,7 +953,7 @@ public class NPCCommand {
 
         if (!npc.getNpcData().hasInventoryAndWallet()) {
             context.getSource().sendFailure(
-                Component.literal("Dieser NPC-Typ hat keine Geldbörse! (Nur Bewohner und Verkäufer)").withStyle(ChatFormatting.RED)
+                Component.translatable("message.npc.no_wallet").withStyle(ChatFormatting.RED)
             );
             return 0;
         }
@@ -968,7 +968,7 @@ public class NPCCommand {
                 .withStyle(ChatFormatting.GREEN)
                 .append(Component.literal(npc.getNpcData().getWallet() + " Bargeld")
                     .withStyle(ChatFormatting.GOLD))
-                .append(Component.literal(" für NPC ").withStyle(ChatFormatting.GREEN))
+                .append(Component.translatable("message.common.for_npc").withStyle(ChatFormatting.GREEN))
                 .append(Component.literal(npc.getNpcName())
                     .withStyle(ChatFormatting.YELLOW)),
             false
@@ -984,7 +984,7 @@ public class NPCCommand {
         Player player = context.getSource().getPlayer();
 
         if (player == null) {
-            context.getSource().sendFailure(Component.literal("Nur Spieler können diesen Command verwenden!"));
+            context.getSource().sendFailure(Component.translatable("message.common.player_only"));
             return 0;
         }
 
@@ -1000,7 +1000,7 @@ public class NPCCommand {
 
         if (!npc.getNpcData().hasInventoryAndWallet()) {
             context.getSource().sendFailure(
-                Component.literal("Dieser NPC-Typ hat keine Geldbörse! (Nur Bewohner und Verkäufer)").withStyle(ChatFormatting.RED)
+                Component.translatable("message.npc.no_wallet").withStyle(ChatFormatting.RED)
             );
             return 0;
         }
@@ -1025,7 +1025,7 @@ public class NPCCommand {
                 .withStyle(ChatFormatting.GREEN)
                 .append(Component.literal(npc.getNpcData().getWallet() + " Bargeld")
                     .withStyle(ChatFormatting.GOLD))
-                .append(Component.literal(" für NPC ").withStyle(ChatFormatting.GREEN))
+                .append(Component.translatable("message.common.for_npc").withStyle(ChatFormatting.GREEN))
                 .append(Component.literal(npc.getNpcName())
                     .withStyle(ChatFormatting.YELLOW)),
             false
@@ -1159,7 +1159,7 @@ public class NPCCommand {
             );
             return 1;
         } catch (Exception e) {
-            context.getSource().sendFailure(Component.literal("§cFehler beim Verknüpfen des Warehouses!"));
+            context.getSource().sendFailure(Component.translatable("message.npc.warehouse_link_error"));
             return 0;
         }
     }
@@ -1186,7 +1186,7 @@ public class NPCCommand {
             );
             return 1;
         } catch (Exception e) {
-            context.getSource().sendFailure(Component.literal("§cFehler beim Entfernen der Warehouse-Verknüpfung!"));
+            context.getSource().sendFailure(Component.translatable("message.npc.warehouse_unlink_error"));
             return 0;
         }
     }

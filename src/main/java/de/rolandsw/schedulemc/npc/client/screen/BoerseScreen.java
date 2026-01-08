@@ -118,7 +118,7 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
         }).bounds(x + 147, emeraldY, 23, 12).build());
 
         // Close Button
-        closeButton = addRenderableWidget(Button.builder(Component.literal("Schließen"), button -> {
+        closeButton = addRenderableWidget(Button.builder(Component.translatable("gui.common.close"), button -> {
             this.onClose();
         }).bounds(x + 38, y + 140, 100, 20).build());
     }

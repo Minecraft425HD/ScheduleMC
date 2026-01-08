@@ -66,7 +66,7 @@ public class SavingsDepositPacket {
                         .withStyle(ChatFormatting.GREEN));
                     player.sendSystemMessage(Component.literal("💰 ")
                         .withStyle(ChatFormatting.GOLD)
-                        .append(Component.literal("SPARKONTO ERÖFFNET")
+                        .append(Component.translatable("message.bank.savings_opened")
                             .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)));
                     player.sendSystemMessage(Component.literal("Ersteinlage: ")
                         .withStyle(ChatFormatting.GRAY)
@@ -86,7 +86,7 @@ public class SavingsDepositPacket {
                     // Atomare Prüfung fehlgeschlagen - nicht genug Geld
                     player.sendSystemMessage(Component.literal("⚠ Nicht genug Guthaben auf Girokonto!")
                         .withStyle(ChatFormatting.RED));
-                    player.sendSystemMessage(Component.literal("Verfügbar: ")
+                    player.sendSystemMessage(Component.translatable("message.bank.available")
                         .withStyle(ChatFormatting.GRAY)
                         .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID())))
                             .withStyle(ChatFormatting.YELLOW)));
@@ -120,7 +120,7 @@ public class SavingsDepositPacket {
                     // Atomare Prüfung fehlgeschlagen - nicht genug Geld
                     player.sendSystemMessage(Component.literal("⚠ Nicht genug Guthaben auf Girokonto!")
                         .withStyle(ChatFormatting.RED));
-                    player.sendSystemMessage(Component.literal("Verfügbar: ")
+                    player.sendSystemMessage(Component.translatable("message.bank.available")
                         .withStyle(ChatFormatting.GRAY)
                         .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID())))
                             .withStyle(ChatFormatting.YELLOW)));

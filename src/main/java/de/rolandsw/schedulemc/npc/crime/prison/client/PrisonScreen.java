@@ -45,7 +45,7 @@ public class PrisonScreen extends Screen {
 
     public PrisonScreen(int cellNumber, long totalSentenceTicks, long releaseTime,
                         double bailAmount, double playerBalance, long bailAvailableAtTick) {
-        super(Component.literal("Gefängnis"));
+        super(Component.translatable("gui.common.prison"));
 
         this.cellNumber = cellNumber;
         this.totalSentenceTicks = totalSentenceTicks;
@@ -266,7 +266,7 @@ public class PrisonScreen extends Screen {
             bailButton.active = bailAvailable && canAfford;
 
             if (!bailAvailable) {
-                bailButton.setMessage(Component.literal("§7⏳ Noch nicht verfügbar"));
+                bailButton.setMessage(Component.translatable("gui.common.not_yet_available"));
             } else if (!canAfford) {
                 bailButton.setMessage(Component.literal("§c✗ Nicht genug Geld"));
             } else {

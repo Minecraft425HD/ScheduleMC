@@ -71,11 +71,11 @@ public class ApplyCreditLoanPacket {
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(currentPayments + "/" + maxPerPlayer)
                         .withStyle(ChatFormatting.YELLOW))
-                    .append(Component.literal(" aktive Daueraufträge.")
+                    .append(Component.translatable("message.bank.active_orders_suffix")
                         .withStyle(ChatFormatting.GRAY)));
-                player.sendSystemMessage(Component.literal("Ein Kredit zählt als Dauerauftrag!")
+                player.sendSystemMessage(Component.translatable("message.bank.loan_counts_as_order")
                     .withStyle(ChatFormatting.GOLD));
-                player.sendSystemMessage(Component.literal("Lösche erst einen bestehenden Dauerauftrag!")
+                player.sendSystemMessage(Component.translatable("message.bank.delete_existing_first")
                     .withStyle(ChatFormatting.YELLOW));
                 player.sendSystemMessage(Component.literal("═══════════════════════════════")
                     .withStyle(ChatFormatting.RED));
@@ -123,7 +123,7 @@ public class ApplyCreditLoanPacket {
                         .withStyle(ChatFormatting.GRAY)
                         .append(Component.literal(loanType.getDurationDays() + " Tage")
                             .withStyle(ChatFormatting.AQUA)));
-                    player.sendSystemMessage(Component.literal("Tägliche Rate: ")
+                    player.sendSystemMessage(Component.translatable("message.bank.daily_rate")
                         .withStyle(ChatFormatting.GRAY)
                         .append(Component.literal(String.format("-%.2f€", loan.getDailyPayment()))
                             .withStyle(ChatFormatting.RED)));

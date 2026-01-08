@@ -57,7 +57,7 @@ public class SmartphoneProtectionHandler {
                     );
 
                     serverVictim.sendSystemMessage(
-                        Component.literal("§a§l✓ Smartphone-Schutz: Du bist geschützt während du dein Smartphone benutzt!")
+                        Component.translatable("message.smartphone.protected")
                     );
 
                     ScheduleMC.LOGGER.info("Player {} attacked protected player {} (Smartphone active). +1 Wanted-Level",

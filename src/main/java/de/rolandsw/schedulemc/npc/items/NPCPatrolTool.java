@@ -50,7 +50,7 @@ public class NPCPatrolTool extends Item {
             Integer npcId = selectedNPCs.get(player.getUUID());
             if (npcId == null) {
                 player.sendSystemMessage(
-                    Component.literal("Kein Polizist ausgewählt! Linksklick auf einen Polizei-NPC.")
+                    Component.translatable("message.npc.no_police_selected")
                         .withStyle(ChatFormatting.RED)
                 );
                 return InteractionResult.FAIL;
@@ -60,7 +60,7 @@ public class NPCPatrolTool extends Item {
 
             if (!(entity instanceof CustomNPCEntity npc)) {
                 player.sendSystemMessage(
-                    Component.literal("Ausgewählter NPC nicht mehr verfügbar!")
+                    Component.translatable("message.npc.selected_unavailable")
                         .withStyle(ChatFormatting.RED)
                 );
                 selectedNPCs.remove(player.getUUID());
@@ -152,7 +152,7 @@ public class NPCPatrolTool extends Item {
                     .withStyle(ChatFormatting.GREEN)
                     .append(Component.literal(npc.getNpcName())
                         .withStyle(ChatFormatting.YELLOW))
-                    .append(Component.literal(" ausgewählt!")
+                    .append(Component.translatable("message.common.selected")
                         .withStyle(ChatFormatting.GREEN))
             );
 
@@ -235,7 +235,7 @@ public class NPCPatrolTool extends Item {
         }
 
         player.sendSystemMessage(
-            Component.literal("Zum Zurücksetzen: /npc reset patrol <NPC-Name>")
+            Component.translatable("message.npc.reset_patrol_hint")
                 .withStyle(ChatFormatting.YELLOW)
         );
     }

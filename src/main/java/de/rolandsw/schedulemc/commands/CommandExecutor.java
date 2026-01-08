@@ -158,7 +158,7 @@ public class CommandExecutor {
     ) {
         try {
             if (!ctx.getSource().hasPermission(requiredLevel)) {
-                ctx.getSource().sendFailure(Component.literal("§cKeine Berechtigung für diesen Command!"));
+                ctx.getSource().sendFailure(Component.translatable("message.common.no_permission_command"));
                 return 0;
             }
             command.execute(ctx.getSource());

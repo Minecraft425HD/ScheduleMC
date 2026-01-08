@@ -100,7 +100,7 @@ public class UpdateNotificationHandler {
                     ScheduleMC.LOGGER.error("Failed to open update URL", e);
                     if (Minecraft.getInstance().player != null) {
                         Minecraft.getInstance().player.displayClientMessage(
-                            Component.literal("§cFehler beim Öffnen des Links. URL wurde in Zwischenablage kopiert."),
+                            Component.translatable("message.common.link_error_copied"),
                             false
                         );
                     }
@@ -147,7 +147,7 @@ public class UpdateNotificationHandler {
             notifiedPlayers.add(player.getUUID());
 
             // Sende Update-Benachrichtigung
-            Component message = Component.literal("\n§6§l[ScheduleMC]§r §eUpdate verfügbar!§r\n")
+            Component message = Component.translatable("message.update.available")
                 .append(Component.literal("§7Aktuelle Version: §f" + VersionChecker.getCurrentVersion() + "\n"))
                 .append(Component.literal("§7Neue Version: §a" + VersionChecker.getLatestVersion() + "\n"))
                 .append(Component.literal("§b[Hier klicken zum Download]§r\n")

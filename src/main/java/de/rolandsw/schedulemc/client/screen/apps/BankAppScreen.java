@@ -119,7 +119,7 @@ public class BankAppScreen extends Screen {
             int formY = topPos + 78;
 
             // Empfänger
-            transferRecipientBox = new EditBox(this.font, leftPos + 15, formY, WIDTH - 30, 18, Component.literal("Empfänger"));
+            transferRecipientBox = new EditBox(this.font, leftPos + 15, formY, WIDTH - 30, 18, Component.translatable("message.bank.recipient"));
             transferRecipientBox.setMaxLength(100);
             transferRecipientBox.setHint(Component.literal("Spielername"));
             addRenderableWidget(transferRecipientBox);
@@ -141,7 +141,7 @@ public class BankAppScreen extends Screen {
             int contentY = topPos + 55;  // Gleich wie render()
 
             // Empfänger (Label bei contentY + 25, Box bei contentY + 37)
-            recurringRecipientBox = new EditBox(this.font, leftPos + 15, contentY + 37, WIDTH - 30, 18, Component.literal("Empfänger"));
+            recurringRecipientBox = new EditBox(this.font, leftPos + 15, contentY + 37, WIDTH - 30, 18, Component.translatable("message.bank.recipient"));
             recurringRecipientBox.setMaxLength(100);
             recurringRecipientBox.setHint(Component.literal("Spielername"));
             addRenderableWidget(recurringRecipientBox);

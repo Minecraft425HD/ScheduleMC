@@ -104,7 +104,7 @@ public class CreditAdvisorScreen extends AbstractContainerScreen<CreditAdvisorMe
 
         // Rückzahlen Button
         repayButton = addRenderableWidget(Button.builder(
-            Component.literal("Vorzeitig zurückzahlen"), button -> {
+            Component.translatable("gui.bank.repay_early"), button -> {
                 handleRepayLoan();
             }
         ).bounds(x + 60, y + 175, 160, 20).build());
@@ -118,7 +118,7 @@ public class CreditAdvisorScreen extends AbstractContainerScreen<CreditAdvisorMe
 
         // Close Button
         closeButton = addRenderableWidget(Button.builder(
-            Component.literal("Schließen"), button -> {
+            Component.translatable("gui.common.close"), button -> {
                 this.onClose();
             }
         ).bounds(x + 90, y + 205, 100, 20).build());

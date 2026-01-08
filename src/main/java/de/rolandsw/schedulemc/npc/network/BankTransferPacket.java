@@ -62,11 +62,11 @@ public class BankTransferPacket {
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(String.format("%.2f€", dailyLimit))
                         .withStyle(ChatFormatting.YELLOW)));
-                player.sendSystemMessage(Component.literal("Heute bereits überwiesen: ")
+                player.sendSystemMessage(Component.translatable("message.bank.today_transferred")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(String.format("%.2f€", dailyLimit - remaining))
                         .withStyle(ChatFormatting.YELLOW)));
-                player.sendSystemMessage(Component.literal("Noch verfügbar: ")
+                player.sendSystemMessage(Component.translatable("message.stock.still_available")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(String.format("%.2f€", remaining))
                         .withStyle(ChatFormatting.YELLOW)));
@@ -113,7 +113,7 @@ public class BankTransferPacket {
                     .withStyle(ChatFormatting.YELLOW)
                     .append(Component.literal("ÜBERWEISUNG ERFOLGREICH")
                         .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)));
-                player.sendSystemMessage(Component.literal("Empfänger: ")
+                player.sendSystemMessage(Component.translatable("message.bank.recipient_label")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(targetPlayerName)
                         .withStyle(ChatFormatting.YELLOW)));
@@ -159,7 +159,7 @@ public class BankTransferPacket {
                 // Atomare Prüfung fehlgeschlagen - nicht genug Geld
                 player.sendSystemMessage(Component.literal("⚠ Überweisung fehlgeschlagen - nicht genug Guthaben!")
                     .withStyle(ChatFormatting.RED));
-                player.sendSystemMessage(Component.literal("Verfügbar: ")
+                player.sendSystemMessage(Component.translatable("message.bank.available")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID())))
                         .withStyle(ChatFormatting.YELLOW)));

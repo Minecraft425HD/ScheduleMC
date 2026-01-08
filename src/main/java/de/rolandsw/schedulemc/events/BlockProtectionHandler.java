@@ -81,7 +81,7 @@ public class BlockProtectionHandler {
             Integer npcId = NPCLocationTool.getSelectedNPC(player.getUUID());
             if (npcId == null) {
                 player.sendSystemMessage(
-                    Component.literal("Kein NPC ausgewählt! Linksklick auf einen NPC.")
+                    Component.translatable("message.npc.no_npc_selected")
                         .withStyle(ChatFormatting.RED)
                 );
                 event.setCanceled(true);
@@ -94,7 +94,7 @@ public class BlockProtectionHandler {
 
             if (!(entity instanceof CustomNPCEntity npc)) {
                 player.sendSystemMessage(
-                    Component.literal("Ausgewählter NPC nicht mehr verfügbar!")
+                    Component.translatable("message.npc.selected_unavailable")
                         .withStyle(ChatFormatting.RED)
                 );
                 NPCLocationTool.clearSelectedNPC(player.getUUID());
@@ -108,7 +108,7 @@ public class BlockProtectionHandler {
             if (npc.getNpcData().getNpcType() == NPCType.VERKAEUFER) {
                 npc.getNpcData().setWorkLocation(clickedPos);
                 player.sendSystemMessage(
-                    Component.literal("Arbeitsstätte gesetzt für ")
+                    Component.translatable("message.npc.workplace_set")
                         .withStyle(ChatFormatting.GREEN)
                         .append(Component.literal(npc.getNpcName())
                             .withStyle(ChatFormatting.YELLOW))
@@ -179,7 +179,7 @@ public class BlockProtectionHandler {
                             .withStyle(ChatFormatting.YELLOW))
                         .append(Component.literal(" (" + npc.getNpcData().getNpcType().getDisplayName() + ")")
                             .withStyle(ChatFormatting.GRAY))
-                        .append(Component.literal(" ausgewählt!")
+                        .append(Component.translatable("message.common.selected")
                             .withStyle(ChatFormatting.GREEN))
                 );
 
@@ -190,7 +190,7 @@ public class BlockProtectionHandler {
                             .withStyle(ChatFormatting.GRAY)
                     );
                     player.sendSystemMessage(
-                        Component.literal("⚠ Bewohner arbeiten nicht! Nutze NPCLeisureTool für Freizeitorte.")
+                        Component.translatable("message.npc.residents_no_work")
                             .withStyle(ChatFormatting.YELLOW)
                     );
                 } else if (npc.getNpcData().getNpcType() == NPCType.VERKAEUFER) {
@@ -224,7 +224,7 @@ public class BlockProtectionHandler {
                                 .withStyle(ChatFormatting.YELLOW))
                             .append(Component.literal(" (" + npc.getNpcData().getNpcType().getDisplayName() + ")")
                                 .withStyle(ChatFormatting.GRAY))
-                            .append(Component.literal(" ausgewählt!")
+                            .append(Component.translatable("message.common.selected")
                                 .withStyle(ChatFormatting.GREEN))
                     );
 
@@ -236,7 +236,7 @@ public class BlockProtectionHandler {
                     );
 
                     player.sendSystemMessage(
-                        Component.literal("Rechtsklick auf Block = Freizeitort hinzufügen")
+                        Component.translatable("message.npc.right_click_add_leisure")
                             .withStyle(ChatFormatting.GRAY)
                     );
                     if (leisureCount > 0) {
@@ -263,7 +263,7 @@ public class BlockProtectionHandler {
                             .withStyle(ChatFormatting.GREEN)
                             .append(Component.literal(npc.getNpcName())
                                 .withStyle(ChatFormatting.YELLOW))
-                            .append(Component.literal(" ausgewählt!")
+                            .append(Component.translatable("message.common.selected")
                                 .withStyle(ChatFormatting.GREEN))
                     );
 

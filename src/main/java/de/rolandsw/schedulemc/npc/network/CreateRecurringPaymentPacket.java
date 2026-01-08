@@ -94,13 +94,13 @@ public class CreateRecurringPaymentPacket {
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(totalCount + "/" + maxPerPlayer)
                         .withStyle(ChatFormatting.YELLOW))
-                    .append(Component.literal(" aktive Daueraufträge.")
+                    .append(Component.translatable("message.bank.active_orders_suffix")
                         .withStyle(ChatFormatting.GRAY)));
                 if (creditCount > 0) {
-                    player.sendSystemMessage(Component.literal("(inkl. 1 Kredit-Rückzahlung)")
+                    player.sendSystemMessage(Component.translatable("message.bank.incl_loan_repayment")
                         .withStyle(ChatFormatting.GOLD));
                 }
-                player.sendSystemMessage(Component.literal("Lösche erst einen bestehenden Dauerauftrag!")
+                player.sendSystemMessage(Component.translatable("message.bank.delete_existing_first")
                     .withStyle(ChatFormatting.YELLOW));
                 player.sendSystemMessage(Component.literal("═══════════════════════════════")
                     .withStyle(ChatFormatting.RED));
@@ -139,7 +139,7 @@ public class CreateRecurringPaymentPacket {
                     .withStyle(ChatFormatting.GOLD)
                     .append(Component.literal("DAUERAUFTRAG ERSTELLT")
                         .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)));
-                player.sendSystemMessage(Component.literal("Empfänger: ")
+                player.sendSystemMessage(Component.translatable("message.bank.recipient_label")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(recipientName)
                         .withStyle(ChatFormatting.AQUA)));
@@ -157,7 +157,7 @@ public class CreateRecurringPaymentPacket {
                 // Fehler
                 player.sendSystemMessage(Component.literal("⚠ Dauerauftrag konnte nicht erstellt werden!")
                     .withStyle(ChatFormatting.RED));
-                player.sendSystemMessage(Component.literal("Mögliche Gründe:")
+                player.sendSystemMessage(Component.translatable("message.common.possible_reasons")
                     .withStyle(ChatFormatting.GRAY));
                 player.sendSystemMessage(Component.literal("• Maximale Anzahl erreicht")
                     .withStyle(ChatFormatting.YELLOW));

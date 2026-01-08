@@ -48,7 +48,7 @@ public class DeleteRecurringPaymentPacket {
                     .withStyle(ChatFormatting.YELLOW));
                 player.sendSystemMessage(Component.literal("🗑 ")
                     .withStyle(ChatFormatting.RED)
-                    .append(Component.literal("DAUERAUFTRAG GELÖSCHT")
+                    .append(Component.translatable("message.bank.order_deleted")
                         .withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD)));
                 player.sendSystemMessage(Component.literal("ID: ")
                     .withStyle(ChatFormatting.GRAY)

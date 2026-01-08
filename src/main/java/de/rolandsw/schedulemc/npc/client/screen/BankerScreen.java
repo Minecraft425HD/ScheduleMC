@@ -143,7 +143,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         }).bounds(currentX, y + 20, 38, 18).build());
         currentX += 39;
 
-        dauerauftraegeTabButton = addRenderableWidget(Button.builder(Component.literal("Daueraufträge"), button -> {
+        dauerauftraegeTabButton = addRenderableWidget(Button.builder(Component.translatable("gui.bank.standing_orders"), button -> {
             switchTab(Tab.DAUERAUFTRAEGE);
         }).bounds(currentX, y + 20, 62, 18).build());
 
@@ -212,7 +212,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         }).bounds(x + 200, y + 155, 15, 18).build());
 
         // Daueraufträge Tab Components
-        recurringRecipientInput = new EditBox(this.font, x + 15, y + 85, 120, 18, Component.literal("Empfänger"));
+        recurringRecipientInput = new EditBox(this.font, x + 15, y + 85, 120, 18, Component.translatable("message.bank.recipient"));
         recurringRecipientInput.setMaxLength(16);
         recurringRecipientInput.setValue("");
         addRenderableWidget(recurringRecipientInput);
@@ -234,7 +234,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         }).bounds(x + 145, y + 145, 120, 18).build());
 
         // Close Button
-        closeButton = addRenderableWidget(Button.builder(Component.literal("Schließen"), button -> {
+        closeButton = addRenderableWidget(Button.builder(Component.translatable("gui.common.close"), button -> {
             this.onClose();
         }).bounds(x + 60, y + 205, 100, 20).build());
 

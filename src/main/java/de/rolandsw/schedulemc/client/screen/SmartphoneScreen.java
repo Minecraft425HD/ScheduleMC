@@ -113,7 +113,7 @@ public class SmartphoneScreen extends Screen {
         int appsEndY = gridStartY + visibleContentHeight + 10; // Ende der Apps + etwas Puffer
         int phoneBottomY = PHONE_HEIGHT - 5; // Unterer Rand minus Padding
         int buttonY = topPos + (appsEndY - topPos + phoneBottomY) / 2 - 10; // Mittig positioniert
-        addRenderableWidget(Button.builder(Component.literal("Zurück"), button -> {
+        addRenderableWidget(Button.builder(Component.translatable("gui.common.back"), button -> {
             this.onClose();
         }).bounds(leftPos + (PHONE_WIDTH - 80) / 2, buttonY, 80, 20).build());
     }

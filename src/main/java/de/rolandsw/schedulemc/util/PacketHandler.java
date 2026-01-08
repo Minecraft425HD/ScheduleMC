@@ -59,7 +59,7 @@ public class PacketHandler {
         handleServerPacket(ctx, player -> {
             if (!player.hasPermissions(permissionLevel)) {
                 player.sendSystemMessage(
-                    Component.literal("§cKeine Berechtigung für diese Aktion!")
+                    Component.translatable("message.common.no_permission_action")
                 );
                 return;
             }

@@ -59,7 +59,7 @@ public class PlotInfoScreen extends Screen {
         int buttonY = topPos + backgroundHeight - 30;
 
         // Schließen Button
-        addRenderableWidget(Button.builder(Component.literal("Schließen"), button -> {
+        addRenderableWidget(Button.builder(Component.translatable("gui.common.close"), button -> {
             this.onClose();
         }).bounds(leftPos + backgroundWidth - 80, buttonY, 70, 20).build());
 

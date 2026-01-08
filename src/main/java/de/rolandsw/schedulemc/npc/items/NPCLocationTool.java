@@ -53,7 +53,7 @@ public class NPCLocationTool extends Item {
             Integer npcId = selectedNPCs.get(player.getUUID());
             if (npcId == null) {
                 player.sendSystemMessage(
-                    Component.literal("Kein NPC ausgewählt! Klick auf einen NPC.")
+                    Component.translatable("message.npc.no_npc_selected_click")
                         .withStyle(ChatFormatting.RED)
                 );
                 return InteractionResult.FAIL;
@@ -63,7 +63,7 @@ public class NPCLocationTool extends Item {
 
             if (!(entity instanceof CustomNPCEntity npc)) {
                 player.sendSystemMessage(
-                    Component.literal("Ausgewählter NPC nicht mehr verfügbar!")
+                    Component.translatable("message.npc.selected_unavailable")
                         .withStyle(ChatFormatting.RED)
                 );
                 selectedNPCs.remove(player.getUUID());
@@ -77,7 +77,7 @@ public class NPCLocationTool extends Item {
                 if (npc.getNpcData().getNpcType() == NPCType.VERKAEUFER) {
                     npc.getNpcData().setWorkLocation(clickedPos);
                     player.sendSystemMessage(
-                        Component.literal("Arbeitsort gesetzt für ")
+                        Component.translatable("message.npc.work_location_set")
                             .withStyle(ChatFormatting.GREEN)
                             .append(Component.literal(npc.getNpcName())
                                 .withStyle(ChatFormatting.YELLOW))
@@ -103,7 +103,7 @@ public class NPCLocationTool extends Item {
                 // Heimort setzen
                 npc.getNpcData().setHomeLocation(clickedPos);
                 player.sendSystemMessage(
-                    Component.literal("Wohnort gesetzt für ")
+                    Component.translatable("message.npc.home_set")
                         .withStyle(ChatFormatting.GREEN)
                         .append(Component.literal(npc.getNpcName())
                             .withStyle(ChatFormatting.YELLOW))
@@ -141,7 +141,7 @@ public class NPCLocationTool extends Item {
                         .withStyle(ChatFormatting.YELLOW))
                     .append(Component.literal(" (" + npc.getNpcData().getNpcType().getDisplayName() + ")")
                         .withStyle(ChatFormatting.GRAY))
-                    .append(Component.literal(" ausgewählt!")
+                    .append(Component.translatable("message.common.selected")
                         .withStyle(ChatFormatting.GREEN))
             );
 
@@ -152,7 +152,7 @@ public class NPCLocationTool extends Item {
                         .withStyle(ChatFormatting.GRAY)
                 );
                 player.sendSystemMessage(
-                    Component.literal("⚠ Bewohner arbeiten nicht! Nutze NPCLeisureTool für Freizeitorte.")
+                    Component.translatable("message.npc.residents_no_work")
                         .withStyle(ChatFormatting.YELLOW)
                 );
             } else if (npc.getNpcData().getNpcType() == NPCType.VERKAEUFER) {
