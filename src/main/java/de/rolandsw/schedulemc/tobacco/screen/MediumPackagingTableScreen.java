@@ -43,7 +43,7 @@ public class MediumPackagingTableScreen extends AbstractContainerScreen<MediumPa
         // Unpack Button
         this.addRenderableWidget(
             Button.builder(
-                Component.literal("Unpack"),
+                Component.translatable("gui.common.unpack"),
                 btn -> onPackageButton(-1)
             )
             .bounds(centerX + 5, buttonY, buttonWidth, buttonHeight)

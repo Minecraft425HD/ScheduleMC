@@ -58,7 +58,7 @@ public class DeleteRecurringPaymentPacket {
                     .withStyle(ChatFormatting.YELLOW));
             } else {
                 // Fehler
-                player.sendSystemMessage(Component.literal("⚠ Dauerauftrag nicht gefunden!")
+                player.sendSystemMessage(Component.translatable("message.bank.standing_order_not_found")
                     .withStyle(ChatFormatting.RED));
                 player.sendSystemMessage(Component.literal("ID: ")
                     .withStyle(ChatFormatting.GRAY)

@@ -328,7 +328,7 @@ public class PoliceAIHandler {
                     // Warnung alle 5 Sekunden
                     if (npc.tickCount % 100 == 0) {
                         targetCriminal.sendSystemMessage(
-                            Component.literal("§c⚠ POLIZEI! Bleib stehen!")
+                            Component.translatable("message.police.stop")
                         );
                     }
                 }

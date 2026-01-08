@@ -230,7 +230,7 @@ public class StealingAttemptPacket {
                             String stars = "⭐".repeat(currentWantedLevel);
 
                             if (policePresent) {
-                                player.sendSystemMessage(Component.literal("§c⚠ POLIZEI hat dich gesehen!"));
+                                player.sendSystemMessage(Component.translatable("message.police.witnessed"));
                             } else {
                                 player.sendSystemMessage(Component.translatable("message.stealing.caught"));
                             }

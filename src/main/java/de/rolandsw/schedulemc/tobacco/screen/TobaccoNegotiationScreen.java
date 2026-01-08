@@ -58,7 +58,7 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
         int y = this.topPos;
 
         // Price Input Field
-        priceInput = new EditBox(this.font, x + 10, y + 60, 60, 20, Component.literal("Preis"));
+        priceInput = new EditBox(this.font, x + 10, y + 60, 60, 20, Component.translatable("gui.common.price"));
         priceInput.setValue("0.00");
         priceInput.setMaxLength(10);
         priceInput.setResponder(s -> calculateDealProbability());

@@ -74,7 +74,7 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
         int y = (height - imageHeight) / 2;
 
         // NPC Name Input
-        npcNameInput = new EditBox(this.font, x + 38, y + 25, 100, 20, Component.literal("NPC Name"));
+        npcNameInput = new EditBox(this.font, x + 38, y + 25, 100, 20, Component.translatable("gui.npc.name_label"));
         npcNameInput.setMaxLength(32);
         npcNameInput.setValue("NPC");
         npcNameInput.setResponder(this::onNameChanged);
@@ -124,7 +124,7 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
         }).bounds(x + 136, y + 110, 20, 20).build());
 
         // Spawn Button
-        spawnButton = addRenderableWidget(Button.builder(Component.literal("NPC Spawnen"), button -> {
+        spawnButton = addRenderableWidget(Button.builder(Component.translatable("gui.npc.spawn_title"), button -> {
             spawnNPC();
         }).bounds(x + 38, y + 140, 100, 20).build());
 

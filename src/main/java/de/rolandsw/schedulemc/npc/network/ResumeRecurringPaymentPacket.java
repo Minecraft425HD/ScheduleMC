@@ -54,7 +54,7 @@ public class ResumeRecurringPaymentPacket {
                         .withStyle(ChatFormatting.DARK_GRAY)));
             } else {
                 // Fehler
-                player.sendSystemMessage(Component.literal("⚠ Dauerauftrag nicht gefunden!")
+                player.sendSystemMessage(Component.translatable("message.bank.standing_order_not_found")
                     .withStyle(ChatFormatting.RED));
             }
         });

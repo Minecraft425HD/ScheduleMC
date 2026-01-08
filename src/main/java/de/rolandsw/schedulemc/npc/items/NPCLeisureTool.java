@@ -109,7 +109,7 @@ public class NPCLeisureTool extends Item {
             int currentSize = npc.getNpcData().getLeisureLocations().size();
             if (currentSize >= 10) {
                 player.sendSystemMessage(
-                    Component.literal("⚠ Maximum von 10 Freizeitorten erreicht!")
+                    Component.translatable("message.npc.leisure_max_reached")
                         .withStyle(ChatFormatting.RED)
                 );
                 player.sendSystemMessage(
@@ -224,7 +224,7 @@ public class NPCLeisureTool extends Item {
             }
         } else {
             player.sendSystemMessage(
-                Component.literal("Keine Freizeitorte gesetzt.")
+                Component.translatable("message.npc.no_leisure_set")
                     .withStyle(ChatFormatting.YELLOW)
             );
         }

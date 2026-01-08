@@ -68,7 +68,7 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
         }
 
         // Großer Kaufen-Button unten rechts
-        buyButton = addRenderableWidget(Button.builder(Component.literal("Kaufen"), button -> {
+        buyButton = addRenderableWidget(Button.builder(Component.translatable("gui.common.buy"), button -> {
             purchaseAllItems();
         }).bounds(x + imageWidth - 70, y + imageHeight - 25, 60, 20).build());
     }

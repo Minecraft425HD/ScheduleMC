@@ -45,7 +45,7 @@ public class BankTransferPacket {
         PacketHandler.handleServerPacket(ctx, player -> {
             // Prüfe ob Betrag positiv
             if (amount <= 0) {
-                player.sendSystemMessage(Component.literal("⚠ Betrag muss positiv sein!")
+                player.sendSystemMessage(Component.translatable("message.common.amount_positive")
                     .withStyle(ChatFormatting.RED));
                 return;
             }
@@ -76,7 +76,7 @@ public class BankTransferPacket {
             // Finde Ziel-Spieler
             ServerPlayer targetPlayer = player.server.getPlayerList().getPlayerByName(targetPlayerName);
             if (targetPlayer == null) {
-                player.sendSystemMessage(Component.literal("⚠ Spieler nicht gefunden: ")
+                player.sendSystemMessage(Component.translatable("message.common.player_not_found_prefix")
                     .withStyle(ChatFormatting.RED)
                     .append(Component.literal(targetPlayerName)
                         .withStyle(ChatFormatting.YELLOW)));
@@ -117,11 +117,11 @@ public class BankTransferPacket {
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(targetPlayerName)
                         .withStyle(ChatFormatting.YELLOW)));
-                player.sendSystemMessage(Component.literal("Betrag: ")
+                player.sendSystemMessage(Component.translatable("gui.common.amount_label")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(String.format("-%.2f€", amount))
                         .withStyle(ChatFormatting.RED)));
-                player.sendSystemMessage(Component.literal("Neuer Kontostand: ")
+                player.sendSystemMessage(Component.translatable("message.bank.new_balance_label")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID())))
                         .withStyle(ChatFormatting.AQUA)));
@@ -145,11 +145,11 @@ public class BankTransferPacket {
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(player.getName().getString())
                         .withStyle(ChatFormatting.YELLOW)));
-                targetPlayer.sendSystemMessage(Component.literal("Betrag: ")
+                targetPlayer.sendSystemMessage(Component.translatable("gui.common.amount_label")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(String.format("+%.2f€", amount))
                         .withStyle(ChatFormatting.GREEN)));
-                targetPlayer.sendSystemMessage(Component.literal("Neuer Kontostand: ")
+                targetPlayer.sendSystemMessage(Component.translatable("message.bank.new_balance_label")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(targetUUID)))
                         .withStyle(ChatFormatting.AQUA)));

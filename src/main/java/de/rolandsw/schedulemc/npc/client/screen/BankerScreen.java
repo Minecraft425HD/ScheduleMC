@@ -123,12 +123,12 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         }).bounds(currentX, y + 20, 40, 18).build());
         currentX += 41;
 
-        girokontoTabButton = addRenderableWidget(Button.builder(Component.literal("Girokonto"), button -> {
+        girokontoTabButton = addRenderableWidget(Button.builder(Component.translatable("gui.bank.checking"), button -> {
             switchTab(Tab.GIROKONTO);
         }).bounds(currentX, y + 20, 40, 18).build());
         currentX += 41;
 
-        sparkontoTabButton = addRenderableWidget(Button.builder(Component.literal("Sparkonto"), button -> {
+        sparkontoTabButton = addRenderableWidget(Button.builder(Component.translatable("gui.bank.savings"), button -> {
             switchTab(Tab.SPARKONTO);
         }).bounds(currentX, y + 20, 40, 18).build());
         currentX += 41;
@@ -148,50 +148,50 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         }).bounds(currentX, y + 20, 62, 18).build());
 
         // Girokonto Tab Components
-        giroDepositAmountInput = new EditBox(this.font, x + 15, y + 100, 90, 18, Component.literal("Betrag"));
+        giroDepositAmountInput = new EditBox(this.font, x + 15, y + 100, 90, 18, Component.translatable("gui.common.amount"));
         giroDepositAmountInput.setMaxLength(10);
         giroDepositAmountInput.setValue("1000");
         addRenderableWidget(giroDepositAmountInput);
 
-        giroDepositButton = addRenderableWidget(Button.builder(Component.literal("Einzahlen"), button -> {
+        giroDepositButton = addRenderableWidget(Button.builder(Component.translatable("gui.bank.deposit"), button -> {
             handleGiroDeposit();
         }).bounds(x + 110, y + 100, 95, 18).build());
 
-        giroWithdrawAmountInput = new EditBox(this.font, x + 15, y + 140, 90, 18, Component.literal("Betrag"));
+        giroWithdrawAmountInput = new EditBox(this.font, x + 15, y + 140, 90, 18, Component.translatable("gui.common.amount"));
         giroWithdrawAmountInput.setMaxLength(10);
         giroWithdrawAmountInput.setValue("500");
         addRenderableWidget(giroWithdrawAmountInput);
 
-        giroWithdrawButton = addRenderableWidget(Button.builder(Component.literal("Abheben"), button -> {
+        giroWithdrawButton = addRenderableWidget(Button.builder(Component.translatable("gui.bank.withdraw"), button -> {
             handleGiroWithdraw();
         }).bounds(x + 110, y + 140, 95, 18).build());
 
         // Sparkonto Tab Components
-        savingsDepositAmountInput = new EditBox(this.font, x + 15, y + 100, 90, 18, Component.literal("Betrag"));
+        savingsDepositAmountInput = new EditBox(this.font, x + 15, y + 100, 90, 18, Component.translatable("gui.common.amount"));
         savingsDepositAmountInput.setMaxLength(10);
         savingsDepositAmountInput.setValue("1000");
         addRenderableWidget(savingsDepositAmountInput);
 
-        savingsDepositButton = addRenderableWidget(Button.builder(Component.literal("Einzahlen"), button -> {
+        savingsDepositButton = addRenderableWidget(Button.builder(Component.translatable("gui.bank.deposit"), button -> {
             handleSavingsDeposit();
         }).bounds(x + 110, y + 100, 95, 18).build());
 
-        savingsWithdrawAmountInput = new EditBox(this.font, x + 15, y + 140, 90, 18, Component.literal("Betrag"));
+        savingsWithdrawAmountInput = new EditBox(this.font, x + 15, y + 140, 90, 18, Component.translatable("gui.common.amount"));
         savingsWithdrawAmountInput.setMaxLength(10);
         savingsWithdrawAmountInput.setValue("500");
         addRenderableWidget(savingsWithdrawAmountInput);
 
-        savingsWithdrawButton = addRenderableWidget(Button.builder(Component.literal("Abheben"), button -> {
+        savingsWithdrawButton = addRenderableWidget(Button.builder(Component.translatable("gui.bank.withdraw"), button -> {
             handleSavingsWithdraw();
         }).bounds(x + 110, y + 140, 95, 18).build());
 
         // Überweisung Tab Components
-        transferTargetInput = new EditBox(this.font, x + 15, y + 70, 190, 18, Component.literal("Spielername"));
+        transferTargetInput = new EditBox(this.font, x + 15, y + 70, 190, 18, Component.translatable("gui.common.player_name"));
         transferTargetInput.setMaxLength(16);
         transferTargetInput.setValue("");
         addRenderableWidget(transferTargetInput);
 
-        transferAmountInput = new EditBox(this.font, x + 15, y + 108, 90, 18, Component.literal("Betrag"));
+        transferAmountInput = new EditBox(this.font, x + 15, y + 108, 90, 18, Component.translatable("gui.common.amount"));
         transferAmountInput.setMaxLength(10);
         transferAmountInput.setValue("100");
         addRenderableWidget(transferAmountInput);
@@ -217,7 +217,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         recurringRecipientInput.setValue("");
         addRenderableWidget(recurringRecipientInput);
 
-        recurringAmountInput = new EditBox(this.font, x + 15, y + 115, 80, 18, Component.literal("Betrag"));
+        recurringAmountInput = new EditBox(this.font, x + 15, y + 115, 80, 18, Component.translatable("gui.common.amount"));
         recurringAmountInput.setMaxLength(10);
         recurringAmountInput.setValue("");
         addRenderableWidget(recurringAmountInput);

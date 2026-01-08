@@ -92,7 +92,7 @@ public class SpawnNPCPacket {
             // Prüfe ob Name bereits vergeben ist
             if (NPCNameRegistry.isNameTaken(validatedName)) {
                 player.sendSystemMessage(
-                    Component.literal("⚠ Ein NPC mit dem Namen '")
+                    Component.translatable("message.npc.already_exists_prefix")
                         .withStyle(ChatFormatting.RED)
                         .append(Component.literal(validatedName)
                             .withStyle(ChatFormatting.YELLOW))
@@ -125,11 +125,11 @@ public class SpawnNPCPacket {
                 // Registriere Namen (nach dem Entity spawnen, damit ID verfügbar ist)
                 if (NPCNameRegistry.registerName(validatedName, npc.getId())) {
                     player.sendSystemMessage(
-                        Component.literal("✓ NPC '")
+                        Component.translatable("message.npc.success_prefix")
                             .withStyle(ChatFormatting.GREEN)
                             .append(Component.literal(validatedName)
                                 .withStyle(ChatFormatting.YELLOW))
-                            .append(Component.literal("' erfolgreich erstellt!")
+                            .append(Component.translatable("message.common.created_suffix")
                                 .withStyle(ChatFormatting.GREEN))
                     );
                     NPCNameRegistry.saveIfNeeded();

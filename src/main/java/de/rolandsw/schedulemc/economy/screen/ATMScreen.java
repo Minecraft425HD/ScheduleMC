@@ -41,12 +41,12 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu> {
         addRenderableWidget(amountInput);
         
         // Withdraw Button
-        addRenderableWidget(Button.builder(Component.literal("Abheben"), button -> {
+        addRenderableWidget(Button.builder(Component.translatable("gui.bank.withdraw"), button -> {
             withdraw(getInputAmount());
         }).bounds(x + 20, y + 75, 70, 20).build());
         
         // Deposit Button
-        addRenderableWidget(Button.builder(Component.literal("Einzahlen"), button -> {
+        addRenderableWidget(Button.builder(Component.translatable("gui.bank.deposit"), button -> {
             deposit(getInputAmount());
         }).bounds(x + 95, y + 75, 70, 20).build());
         

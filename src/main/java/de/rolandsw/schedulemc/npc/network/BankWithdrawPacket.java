@@ -42,7 +42,7 @@ public class BankWithdrawPacket {
             // Prüfe ob Spieler genug Geld auf Girokonto hat
             double giroBalance = EconomyManager.getBalance(player.getUUID());
             if (giroBalance < amount) {
-                player.sendSystemMessage(Component.literal("⚠ Nicht genug Guthaben auf Girokonto!")
+                player.sendSystemMessage(Component.translatable("message.bank.insufficient_checking")
                     .withStyle(ChatFormatting.RED));
                 player.sendSystemMessage(Component.translatable("message.bank.available")
                     .withStyle(ChatFormatting.GRAY)
@@ -77,7 +77,7 @@ public class BankWithdrawPacket {
                 player.sendSystemMessage(Component.literal("═══════════════════════════════")
                     .withStyle(ChatFormatting.GREEN));
             } else {
-                player.sendSystemMessage(Component.literal("⚠ Fehler bei der Abbuchung!")
+                player.sendSystemMessage(Component.translatable("message.bank.debit_error")
                     .withStyle(ChatFormatting.RED));
             }
         });

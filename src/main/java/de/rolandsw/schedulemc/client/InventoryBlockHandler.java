@@ -36,7 +36,7 @@ public class InventoryBlockHandler {
                 // Zeige Nachricht
                 if (mc.player != null) {
                     mc.player.displayClientMessage(
-                        Component.literal("§c⚠ Inventar ist gesperrt! Nutze nur die Schnellzugriffsleiste (1-9)."),
+                        Component.translatable("message.inventory.locked_use_hotbar"),
                         true
                     );
                 }

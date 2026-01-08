@@ -88,9 +88,9 @@ public class CreateRecurringPaymentPacket {
             if (totalCount >= maxPerPlayer) {
                 player.sendSystemMessage(Component.literal("═══════════════════════════════")
                     .withStyle(ChatFormatting.RED));
-                player.sendSystemMessage(Component.literal("⚠ LIMIT ERREICHT!")
+                player.sendSystemMessage(Component.translatable("message.common.limit_reached")
                     .withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
-                player.sendSystemMessage(Component.literal("Du hast bereits ")
+                player.sendSystemMessage(Component.translatable("message.common.already_have_prefix")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(totalCount + "/" + maxPerPlayer)
                         .withStyle(ChatFormatting.YELLOW))
@@ -118,7 +118,7 @@ public class CreateRecurringPaymentPacket {
 
             // Prüfe ob Empfänger existiert
             if (recipientUUID == null) {
-                player.sendSystemMessage(Component.literal("⚠ Spieler nicht gefunden!")
+                player.sendSystemMessage(Component.translatable("message.common.player_not_found")
                     .withStyle(ChatFormatting.RED));
                 player.sendSystemMessage(Component.translatable("message.common.name_label")
                     .withStyle(ChatFormatting.GRAY)
@@ -155,7 +155,7 @@ public class CreateRecurringPaymentPacket {
                     .withStyle(ChatFormatting.GREEN));
             } else {
                 // Fehler
-                player.sendSystemMessage(Component.literal("⚠ Dauerauftrag konnte nicht erstellt werden!")
+                player.sendSystemMessage(Component.translatable("message.bank.standing_order_failed")
                     .withStyle(ChatFormatting.RED));
                 player.sendSystemMessage(Component.translatable("message.common.possible_reasons")
                     .withStyle(ChatFormatting.GRAY));

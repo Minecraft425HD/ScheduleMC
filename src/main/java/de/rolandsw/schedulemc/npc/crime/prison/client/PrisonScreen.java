@@ -80,7 +80,7 @@ public class PrisonScreen extends Screen {
         if (keyCode == 256) { // ESC
             if (minecraft != null && minecraft.player != null) {
                 minecraft.player.displayClientMessage(
-                    Component.literal("§c⛓ ESC ist gesperrt!"),
+                    Component.translatable("message.prison.esc_locked"),
                     true
                 );
             }

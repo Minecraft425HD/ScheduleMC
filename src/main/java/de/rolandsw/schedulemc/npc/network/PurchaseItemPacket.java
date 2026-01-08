@@ -93,7 +93,7 @@ public class PurchaseItemPacket {
         // SICHERHEIT: Berechne mit long um Overflow zu erkennen
         long totalPriceLong = (long) entry.getPrice() * safeQuantity;
         if (totalPriceLong > Integer.MAX_VALUE) {
-            player.sendSystemMessage(Component.literal("§cGesamtpreis zu hoch! Kaufe weniger Items."));
+            player.sendSystemMessage(Component.translatable("message.shop.total_too_high"));
             return;
         }
         int totalPrice = (int) totalPriceLong;
@@ -231,14 +231,14 @@ public class PurchaseItemPacket {
         String stationName = FuelStationRegistry.getDisplayName(fuelStationId);
         player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GREEN));
         player.sendSystemMessage(Component.literal("⛽ ").withStyle(ChatFormatting.YELLOW)
-            .append(Component.literal("RECHNUNG BEZAHLT").withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)));
+            .append(Component.translatable("message.fuel.bill_paid").withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)));
         player.sendSystemMessage(Component.translatable("message.fuel.pump_label").withStyle(ChatFormatting.GRAY)
             .append(Component.literal(stationName).withStyle(ChatFormatting.AQUA)));
-        player.sendSystemMessage(Component.literal("Getankt: ").withStyle(ChatFormatting.GRAY)
+        player.sendSystemMessage(Component.translatable("message.fuel.refueled_label").withStyle(ChatFormatting.GRAY)
             .append(Component.literal(totalFueled + " mB Bio-Diesel").withStyle(ChatFormatting.YELLOW)));
         player.sendSystemMessage(Component.literal("Gezahlt: ").withStyle(ChatFormatting.GRAY)
             .append(Component.literal(String.format("%.2f€", totalCost)).withStyle(ChatFormatting.GOLD)));
-        player.sendSystemMessage(Component.literal("Restguthaben: ").withStyle(ChatFormatting.GRAY)
+        player.sendSystemMessage(Component.translatable("message.bank.remaining_credit_label").withStyle(ChatFormatting.GRAY)
             .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID()))).withStyle(ChatFormatting.YELLOW)));
         player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GREEN));
     }

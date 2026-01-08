@@ -98,7 +98,7 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
         shopSellButton.visible = !isBank;
 
         // Shop Kaufen Button (nicht für Bank-NPCs)
-        shopBuyButton = addRenderableWidget(Button.builder(Component.literal("Kaufen"), button -> {
+        shopBuyButton = addRenderableWidget(Button.builder(Component.translatable("gui.common.buy"), button -> {
             openShopBuy();
         }).bounds(x + 90, y + 54, 78, 20).build());
         shopBuyButton.visible = !isBank;

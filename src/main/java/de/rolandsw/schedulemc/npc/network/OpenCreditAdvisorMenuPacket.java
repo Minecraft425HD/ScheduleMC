@@ -56,7 +56,7 @@ public class OpenCreditAdvisorMenuPacket {
                 // Öffne Kreditberater-Menu
                 NetworkHooks.openScreen(player, new SimpleMenuProvider(
                     (id, playerInventory, p) -> new CreditAdvisorMenu(id, playerInventory, npc),
-                    Component.literal("Kreditberater")
+                    Component.translatable("gui.npc.credit_advisor")
                 ), buf -> {
                     buf.writeInt(npc.getId());
                 });

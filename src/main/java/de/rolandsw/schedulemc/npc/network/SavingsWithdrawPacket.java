@@ -45,7 +45,7 @@ public class SavingsWithdrawPacket {
 
             // Prüfe ob Sparkonto existiert
             if (accounts.isEmpty()) {
-                player.sendSystemMessage(Component.literal("⚠ Du hast kein Sparkonto!")
+                player.sendSystemMessage(Component.translatable("message.bank.no_savings")
                     .withStyle(ChatFormatting.RED));
                 return;
             }
@@ -87,7 +87,7 @@ public class SavingsWithdrawPacket {
                 long currentDay = player.getServer().overworld().getDayTime() / 24000L;
                 if (!account.isUnlocked(currentDay)) {
                     int daysLeft = account.getDaysUntilUnlock(currentDay);
-                    player.sendSystemMessage(Component.literal("⚠ Sparkonto ist noch gesperrt!")
+                    player.sendSystemMessage(Component.translatable("message.bank.savings_locked")
                         .withStyle(ChatFormatting.RED));
                     player.sendSystemMessage(Component.literal("Verbleibende Tage: ")
                         .withStyle(ChatFormatting.GRAY)

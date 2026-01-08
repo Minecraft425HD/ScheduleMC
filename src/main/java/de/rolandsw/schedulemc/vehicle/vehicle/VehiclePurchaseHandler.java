@@ -43,7 +43,7 @@ public class VehiclePurchaseHandler {
         // Prüfe ob Spieler genug Geld hat
         double playerBalance = EconomyManager.getBalance(player.getUUID());
         if (playerBalance < price) {
-            player.sendSystemMessage(Component.literal("⚠ Nicht genug Geld!").withStyle(ChatFormatting.RED));
+            player.sendSystemMessage(Component.translatable("message.common.not_enough_money").withStyle(ChatFormatting.RED));
             player.sendSystemMessage(Component.translatable("message.common.price_label").withStyle(ChatFormatting.GRAY)
                 .append(Component.literal(price + "€").withStyle(ChatFormatting.GOLD))
                 .append(Component.literal(" | Dein Guthaben: ").withStyle(ChatFormatting.GRAY))
@@ -74,7 +74,7 @@ public class VehiclePurchaseHandler {
         if (vehicle == null) {
             // Geld zurückgeben
             EconomyManager.deposit(player.getUUID(), price);
-            player.sendSystemMessage(Component.literal("⚠ Fehler beim Spawnen des Fahrzeugs!").withStyle(ChatFormatting.RED));
+            player.sendSystemMessage(Component.translatable("message.vehicle.spawn_error").withStyle(ChatFormatting.RED));
             return false;
         }
 
@@ -91,16 +91,16 @@ public class VehiclePurchaseHandler {
         // Erfolgs-Nachricht
         player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
         player.sendSystemMessage(Component.literal("🚗 ").withStyle(ChatFormatting.YELLOW)
-            .append(Component.literal("FAHRZEUG GEKAUFT").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)));
+            .append(Component.translatable("message.vehicle.purchased").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)));
         player.sendSystemMessage(Component.literal("Modell: ").withStyle(ChatFormatting.GRAY)
             .append(Component.literal(getVehicleName(vehicleItem)).withStyle(ChatFormatting.AQUA)));
         player.sendSystemMessage(Component.translatable("message.common.price_label").withStyle(ChatFormatting.GRAY)
             .append(Component.literal(price + "€").withStyle(ChatFormatting.GOLD)));
         player.sendSystemMessage(Component.literal("Parkplatz: ").withStyle(ChatFormatting.GRAY)
             .append(Component.literal(spawnPoint.getPosition().toShortString()).withStyle(ChatFormatting.AQUA)));
-        player.sendSystemMessage(Component.literal("Fahrzeug-ID: ").withStyle(ChatFormatting.GRAY)
+        player.sendSystemMessage(Component.translatable("message.vehicle.id_label").withStyle(ChatFormatting.GRAY)
             .append(Component.literal(vehicleUUID.toString().substring(0, 8) + "...").withStyle(ChatFormatting.DARK_GRAY)));
-        player.sendSystemMessage(Component.literal("Restguthaben: ").withStyle(ChatFormatting.GRAY)
+        player.sendSystemMessage(Component.translatable("message.bank.remaining_credit_label").withStyle(ChatFormatting.GRAY)
             .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID()))).withStyle(ChatFormatting.YELLOW)));
         player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
 

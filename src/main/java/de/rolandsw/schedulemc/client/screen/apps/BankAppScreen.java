@@ -125,9 +125,9 @@ public class BankAppScreen extends Screen {
             addRenderableWidget(transferRecipientBox);
 
             // Betrag
-            transferAmountBox = new EditBox(this.font, leftPos + 15, formY + 38, WIDTH - 30, 18, Component.literal("Betrag"));
+            transferAmountBox = new EditBox(this.font, leftPos + 15, formY + 38, WIDTH - 30, 18, Component.translatable("gui.common.amount"));
             transferAmountBox.setMaxLength(10);
-            transferAmountBox.setHint(Component.literal("Betrag in €"));
+            transferAmountBox.setHint(Component.translatable("gui.common.amount_euro"));
             addRenderableWidget(transferAmountBox);
 
             // Senden-Button
@@ -147,9 +147,9 @@ public class BankAppScreen extends Screen {
             addRenderableWidget(recurringRecipientBox);
 
             // Betrag (Label bei contentY + 59, Box bei contentY + 71)
-            recurringAmountBox = new EditBox(this.font, leftPos + 15, contentY + 71, WIDTH - 30, 18, Component.literal("Betrag"));
+            recurringAmountBox = new EditBox(this.font, leftPos + 15, contentY + 71, WIDTH - 30, 18, Component.translatable("gui.common.amount"));
             recurringAmountBox.setMaxLength(10);
-            recurringAmountBox.setHint(Component.literal("Betrag in €"));
+            recurringAmountBox.setHint(Component.translatable("gui.common.amount_euro"));
             addRenderableWidget(recurringAmountBox);
 
             // Intervall-Button (Label bei contentY + 93, Button bei contentY + 105)
