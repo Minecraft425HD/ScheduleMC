@@ -1361,6 +1361,37 @@
   "gui.pillen_presse.hint": "§e▶ Press in the §a§lGREEN§e zone! ◀",
 
   "gui.confirm_dialog.yes": "§c✓ Yes, continue",
-  "gui.confirm_dialog.cancel": "✗ Cancel"
+  "gui.confirm_dialog.cancel": "✗ Cancel",
+
+  "gui.input_dialog.field": "Input",
+  "gui.input_dialog.confirm": "✓ Confirm",
+  "gui.input_dialog.cancel": "✗ Cancel",
+
+  "tooltip.heroin.name": "Heroin",
+  "tooltip.heroin.package_instruction": "§8Package at packaging table",
+
+  "tooltip.opium.raw_opium": "Raw Opium",
+  "tooltip.opium.process_instruction": "§8Process to morphine at cooking station",
+
+  "tooltip.cocaine.suffix": " Cocaine",
+  "tooltip.cocaine.white_powder": "§fWhite powder",
+  "tooltip.cocaine.package_instruction": "§8Can be packaged and sold",
+
+  "tooltip.packaged.crack_suffix": " Crack",
+  "tooltip.packaged.cocaine_suffix": " Cocaine",
+  "tooltip.packaged.cannabis_cured": " Cannabis §7(Cured)",
+  "tooltip.packaged.cannabis_trimmed": " Cannabis",
+  "tooltip.packaged.weight_prefix": " §7(",
+  "tooltip.packaged.weight_suffix": "g)",
+  "tooltip.packaged.packaged_ago": "§8Packaged: ",
+  "tooltip.packaged.packaged_days": " day(s) ago",
+  "tooltip.packaged.packaged_today": "§8Packaged: Today",
+  "tooltip.packaged.sale_price": "§6Sale Price: §e",
+  "tooltip.packaged.price_suffix": "€",
+
+  "tooltip.general.potency": "§7Potency: §c",
+  "tooltip.general.potency_percent": "%%",
+  "tooltip.general.weight_grams": "g §8(",
+  "tooltip.general.weight_pieces": "x 1g)"
 
 }
