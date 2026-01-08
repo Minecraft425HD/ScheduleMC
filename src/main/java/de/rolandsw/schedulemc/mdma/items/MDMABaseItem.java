@@ -42,10 +42,10 @@ public class MDMABaseItem extends Item {
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
         MDMAQuality quality = getQuality(stack);
-        tooltip.add(Component.literal("§7Qualität: " + quality.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§fBraune Kristalle"));
-        tooltip.add(Component.literal("§8Nächster Schritt: Trocknungs-Ofen"));
+        tooltip.add(Component.translatable("tooltip.mdma.brown_crystals"));
+        tooltip.add(Component.translatable("tooltip.mdma.next_step_oven"));
     }
 
     @Override

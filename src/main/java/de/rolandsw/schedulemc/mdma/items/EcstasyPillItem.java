@@ -77,14 +77,14 @@ public class EcstasyPillItem extends Item {
         PillDesign design = getDesign(stack);
         PillColor color = getColor(stack);
 
-        tooltip.add(Component.literal("§7Qualität: " + quality.getColoredName()));
-        tooltip.add(Component.literal("§7Design: " + design.getColoredName() + " " + design.getSymbol()));
-        tooltip.add(Component.literal("§7Farbe: " + color.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.ecstasy.design_label").append(design.getColoredName() + " " + design.getSymbol()));
+        tooltip.add(Component.translatable("tooltip.ecstasy.color_label").append(color.getColoredName()));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal(color.getColorCode() + design.getSymbol() + " Gepresste Pille"));
+        tooltip.add(Component.literal(color.getColorCode() + design.getSymbol() + " ").append(Component.translatable("tooltip.ecstasy.pressed_pill")));
         tooltip.add(Component.literal("§8" + quality.getDescription()));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§7Preis: §6$" + String.format("%.0f", getBasePrice(quality))));
+        tooltip.add(Component.translatable("tooltip.ecstasy.price_label").append(Component.literal("§6$" + String.format("%.0f", getBasePrice(quality)))));
     }
 
     @Override
