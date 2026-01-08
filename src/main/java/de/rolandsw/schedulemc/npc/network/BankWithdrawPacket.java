@@ -60,7 +60,7 @@ public class BankWithdrawPacket {
                     .withStyle(ChatFormatting.GREEN));
                 player.sendSystemMessage(Component.literal("🏦 ")
                     .withStyle(ChatFormatting.YELLOW)
-                    .append(Component.translatable("message.bank.withdrawal_successful"))
+                    .append(Component.translatable("message.bank.withdrawal_successful")
                         .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)));
                 player.sendSystemMessage(Component.translatable("message.bank.amount_label")
                     .withStyle(ChatFormatting.GRAY)

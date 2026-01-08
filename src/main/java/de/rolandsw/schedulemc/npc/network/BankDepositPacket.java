@@ -73,7 +73,7 @@ public class BankDepositPacket {
                     .withStyle(ChatFormatting.GREEN));
                 player.sendSystemMessage(Component.literal("🏦 ")
                     .withStyle(ChatFormatting.YELLOW)
-                    .append(Component.translatable("message.bank.deposit_successful"))
+                    .append(Component.translatable("message.bank.deposit_successful")
                         .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)));
                 player.sendSystemMessage(Component.translatable("message.bank.amount_label")
                     .withStyle(ChatFormatting.GRAY)

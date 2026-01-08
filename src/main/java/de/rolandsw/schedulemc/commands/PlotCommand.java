@@ -255,8 +255,8 @@ public class PlotCommand {
 
                 ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.create.success",
                     type.getDisplayName(), plot.getPlotId(), type.getDisplayName()).append("\n").append(priceInfo).append("\n")
-                    .append(Component.translatable("command.plot.create.size", plot.getVolume()))
-                ), true);
+                    .append(Component.translatable("command.plot.create.size", plot.getVolume())),
+                    true);
             });
     }
 

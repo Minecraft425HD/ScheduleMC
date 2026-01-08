@@ -201,7 +201,7 @@ public class NPCLocationTool extends Item {
             player.sendSystemMessage(
                 Component.translatable("message.npc.home_label")
                     .withStyle(ChatFormatting.AQUA)
-                    .append(Component.translatable("message.common.not_set"))
+                    .append(Component.translatable("message.common.not_set")
                         .withStyle(ChatFormatting.RED))
             );
         }
@@ -220,7 +220,7 @@ public class NPCLocationTool extends Item {
                 player.sendSystemMessage(
                     Component.translatable("message.npc.workplace_label")
                         .withStyle(ChatFormatting.AQUA)
-                        .append(Component.translatable("message.common.not_set"))
+                        .append(Component.translatable("message.common.not_set")
                             .withStyle(ChatFormatting.RED))
                 );
             }
@@ -246,7 +246,7 @@ public class NPCLocationTool extends Item {
             player.sendSystemMessage(
                 Component.translatable("message.npc.workplace_label")
                     .withStyle(ChatFormatting.AQUA)
-                    .append(Component.translatable("message.npc.residents_dont_work"))
+                    .append(Component.translatable("message.npc.residents_dont_work")
                         .withStyle(ChatFormatting.YELLOW))
             );
             int leisureCount = npc.getNpcData().getLeisureLocations().size();
