@@ -55,8 +55,8 @@ public class DestillationsApparatBlock extends Block implements EntityBlock {
         if (heldItem.getItem() instanceof ErgotKulturItem) {
             if (apparat.addErgotKultur(heldItem)) {
                 if (!player.isCreative()) heldItem.shrink(1);
-                player.displayClientMessage(Component.literal(
-                        "§a✓ Ergot-Kultur hinzugefügt! (" + apparat.getErgotCount() + "/4)"
+                player.displayClientMessage(Component.translatable(
+                        "block.lsd.distillation_input", apparat.getErgotCount()
                 ), true);
                 player.playSound(net.minecraft.sounds.SoundEvents.BREWING_STAND_BREW, 0.5f, 0.8f);
                 return InteractionResult.SUCCESS;
@@ -70,22 +70,18 @@ public class DestillationsApparatBlock extends Block implements EntityBlock {
                 if (!player.getInventory().add(output)) {
                     player.drop(output, false);
                 }
-                player.displayClientMessage(Component.literal(
-                        "§a✓ " + output.getCount() + "x Lysergsäure entnommen!"
+                player.displayClientMessage(Component.translatable(
+                        "block.lsd.distillation_output", output.getCount()
                 ), true);
                 return InteractionResult.SUCCESS;
             }
 
             // Status
-            StringBuilder status = new StringBuilder();
-            status.append("§d⚗ Destillations-Apparat\n");
-            status.append("§7Ergot-Kultur: §f").append(apparat.getErgotCount()).append("/4\n");
-            if (apparat.isActive()) {
-                status.append("§7Fortschritt: §e").append((int)(apparat.getProgress() * 100)).append("%");
-            } else if (apparat.hasOutput()) {
-                status.append("§a").append(apparat.getOutputCount()).append("x Lysergsäure fertig!");
-            }
-            player.displayClientMessage(Component.literal(status.toString()), true);
+            player.displayClientMessage(Component.literal("§d⚗ Destillations-Apparat\n")
+                    .append(Component.translatable("block.lsd.distillation_count", apparat.getErgotCount()))
+                    .append(Component.literal("\n"))
+                    .append(apparat.isActive() ? Component.literal("§7Fortschritt: §e" + (int)(apparat.getProgress() * 100) + "%") : apparat.hasOutput() ? Component.literal("§a" + apparat.getOutputCount() + "x Lysergsäure fertig!") : Component.literal(""))
+            , true);
             return InteractionResult.SUCCESS;
         }
 

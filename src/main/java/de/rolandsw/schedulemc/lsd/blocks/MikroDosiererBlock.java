@@ -61,8 +61,8 @@ public class MikroDosiererBlock extends Block implements EntityBlock {
         if (heldItem.getItem() instanceof LysergsaeureItem) {
             if (dosierer.addLysergsaeure(heldItem)) {
                 if (!player.isCreative()) heldItem.shrink(1);
-                player.displayClientMessage(Component.literal(
-                        "§a✓ Lysergsäure hinzugefügt! (" + dosierer.getLysergsaeureCount() + "/16)"
+                player.displayClientMessage(Component.translatable(
+                        "block.lsd.mikro_input", dosierer.getLysergsaeureCount()
                 ), true);
                 player.playSound(net.minecraft.sounds.SoundEvents.BOTTLE_FILL, 0.5f, 1.2f);
                 return InteractionResult.SUCCESS;
@@ -76,8 +76,8 @@ public class MikroDosiererBlock extends Block implements EntityBlock {
                 if (!player.getInventory().add(output)) {
                     player.drop(output, false);
                 }
-                player.displayClientMessage(Component.literal(
-                        "§a✓ LSD-Lösung entnommen!"
+                player.displayClientMessage(Component.translatable(
+                        "block.lsd.mikro_output"
                 ), true);
                 return InteractionResult.SUCCESS;
             }
@@ -89,14 +89,11 @@ public class MikroDosiererBlock extends Block implements EntityBlock {
             }
 
             // Status
-            StringBuilder status = new StringBuilder();
-            status.append("§d⚗ Mikro-Dosierer\n");
-            status.append("§7Lysergsäure: §f").append(dosierer.getLysergsaeureCount()).append("/16\n");
-            status.append("§7Dosierung: §e").append(dosierer.getCurrentMicrograms()).append("μg\n");
-            if (dosierer.isProcessing()) {
-                status.append("§7Fortschritt: §e").append((int)(dosierer.getProgress() * 100)).append("%");
-            }
-            player.displayClientMessage(Component.literal(status.toString()), true);
+            player.displayClientMessage(Component.literal("§d⚗ Mikro-Dosierer\n")
+                    .append(Component.translatable("block.lsd.mikro_count", dosierer.getLysergsaeureCount()))
+                    .append(Component.literal("\n§7Dosierung: §e" + dosierer.getCurrentMicrograms() + "μg\n"))
+                    .append(dosierer.isProcessing() ? Component.literal("§7Fortschritt: §e" + (int)(dosierer.getProgress() * 100) + "%") : Component.literal(""))
+            , true);
             return InteractionResult.SUCCESS;
         }
 

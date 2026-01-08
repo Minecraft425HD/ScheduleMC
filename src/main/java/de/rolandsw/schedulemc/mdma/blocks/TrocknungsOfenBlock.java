@@ -52,8 +52,8 @@ public class TrocknungsOfenBlock extends Block implements EntityBlock {
         if (heldItem.getItem() instanceof MDMABaseItem) {
             if (ofen.addMDMABase(heldItem)) {
                 if (!player.isCreative()) heldItem.shrink(1);
-                player.displayClientMessage(Component.literal(
-                        "§a✓ MDMA-Base hinzugefügt! (" + ofen.getInputCount() + "/8)"
+                player.displayClientMessage(Component.translatable(
+                        "block.mdma.oven_input", ofen.getInputCount()
                 ), true);
                 return InteractionResult.SUCCESS;
             }
@@ -63,19 +63,17 @@ public class TrocknungsOfenBlock extends Block implements EntityBlock {
             if (ofen.hasOutput()) {
                 ItemStack output = ofen.extractOutput();
                 if (!player.getInventory().add(output)) player.drop(output, false);
-                player.displayClientMessage(Component.literal(
-                        "§a✓ " + output.getCount() + "x MDMA-Kristalle entnommen!"
+                player.displayClientMessage(Component.translatable(
+                        "block.mdma.oven_output", output.getCount()
                 ), true);
                 return InteractionResult.SUCCESS;
             }
 
-            StringBuilder status = new StringBuilder();
-            status.append("§6⚗ Trocknungs-Ofen\n");
-            status.append("§7MDMA-Base: §f").append(ofen.getInputCount()).append("/8\n");
-            if (ofen.isActive()) {
-                status.append("§7Fortschritt: §e").append((int)(ofen.getProgress() * 100)).append("%");
-            }
-            player.displayClientMessage(Component.literal(status.toString()), true);
+            player.displayClientMessage(Component.literal("§6⚗ Trocknungs-Ofen\n")
+                    .append(Component.translatable("block.mdma.oven_count", ofen.getInputCount()))
+                    .append(Component.literal("\n"))
+                    .append(ofen.isActive() ? Component.literal("§7Fortschritt: §e" + (int)(ofen.getProgress() * 100) + "%") : Component.literal(""))
+            , true);
             return InteractionResult.SUCCESS;
         }
 

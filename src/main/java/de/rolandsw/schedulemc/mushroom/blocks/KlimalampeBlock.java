@@ -68,10 +68,8 @@ public class KlimalampeBlock extends Block implements EntityBlock {
         // Bei automatischen Lampen: Nur Info anzeigen
         if (tier.isAutomatic()) {
             TemperatureMode currentMode = state.getValue(MODE);
-            player.displayClientMessage(Component.literal(
-                    "§7" + tier.getColoredName() + "\n" +
-                            "§7Modus: " + currentMode.getColoredName() + "\n" +
-                            "§8(Automatische Regulierung)"
+            player.displayClientMessage(Component.translatable(
+                    "block.klimalampe.info", tier.getColoredName(), currentMode.getColoredName()
             ), true);
             return InteractionResult.SUCCESS;
         }
@@ -81,8 +79,8 @@ public class KlimalampeBlock extends Block implements EntityBlock {
         TemperatureMode nextMode = currentMode.next();
         level.setBlock(pos, state.setValue(MODE, nextMode), 3);
 
-        player.displayClientMessage(Component.literal(
-                "§7Modus gewechselt: " + nextMode.getColoredName()
+        player.displayClientMessage(Component.translatable(
+                "block.klimalampe.mode_changed", nextMode.getColoredName()
         ), true);
 
         player.playSound(net.minecraft.sounds.SoundEvents.LEVER_CLICK, 1.0f, 1.0f);
