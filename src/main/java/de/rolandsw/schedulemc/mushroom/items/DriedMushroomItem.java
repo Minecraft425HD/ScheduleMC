@@ -59,13 +59,13 @@ public class DriedMushroomItem extends Item {
         TobaccoQuality quality = getQuality(stack);
         double potency = mushroomType.getPotencyMultiplier() * quality.getYieldMultiplier();
 
-        tooltip.add(Component.literal("§7Sorte: " + mushroomType.getColoredName()));
-        tooltip.add(Component.literal("§7Qualität: " + quality.getColoredName()));
-        tooltip.add(Component.literal("§7Potenz: §d" + String.format("%.1f", potency * 100) + "%"));
-        tooltip.add(Component.literal("§7Gewicht: §f" + stack.getCount() + "g §8(" + stack.getCount() + "x 1g)"));
+        tooltip.add(Component.translatable("tooltip.mushroom.type_label").append(mushroomType.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.mushroom.potency").append(Component.literal("§d" + String.format("%.1f", potency * 100) + "%")));
+        tooltip.add(Component.translatable("tooltip.mushroom.weight").append(Component.literal("§f" + stack.getCount() + "g §8(" + stack.getCount() + "x 1g)")));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§a✓ Haltbar"));
-        tooltip.add(Component.literal("§8Bereit zum Verkauf oder Verpacken"));
+        tooltip.add(Component.translatable("tooltip.dried_mushroom.durable"));
+        tooltip.add(Component.translatable("tooltip.dried_mushroom.ready_to_sell"));
     }
 
     @Override

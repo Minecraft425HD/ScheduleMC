@@ -306,25 +306,25 @@ public class PackagedDrugItem extends Item {
 
         // Variante (falls vorhanden)
         if (variant != null) {
-            tooltip.add(Component.literal("§7Sorte: " + variant.getColoredName()));
+            tooltip.add(Component.translatable("tooltip.packaged.type_label").append(variant.getColoredName()));
         }
 
         // Qualität
-        tooltip.add(Component.literal("§7Qualität: " + quality.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
 
         // Gewicht
-        tooltip.add(Component.literal("§7Gewicht: §f" + weight + "g"));
+        tooltip.add(Component.translatable("tooltip.packaged.weight", weight));
 
         // Verpackungsdatum
         long currentDay = level != null ? level.getDayTime() / 24000L : 0;
         long daysOld = currentDay - packageDate;
         if (daysOld > 0) {
-            tooltip.add(Component.literal("§8Verpackt: vor " + daysOld + " Tag(en)"));
+            tooltip.add(Component.translatable("tooltip.packaged.packaged_days_ago", daysOld));
         } else {
-            tooltip.add(Component.literal("§8Verpackt: Heute"));
+            tooltip.add(Component.translatable("tooltip.packaged.packaged_today"));
         }
 
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§6Verkaufspreis: §e" + String.format("%.2f", price) + "€"));
+        tooltip.add(Component.translatable("tooltip.packaged.sale_price", String.format("%.2f", price)));
     }
 }

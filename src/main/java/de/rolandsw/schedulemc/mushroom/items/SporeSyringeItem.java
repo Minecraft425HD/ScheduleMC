@@ -27,13 +27,13 @@ public class SporeSyringeItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.literal("§7Sorte: " + mushroomType.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.mushroom.type_label").append(mushroomType.getColoredName()));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§7Potenz: §e" + (int)(mushroomType.getPotencyMultiplier() * 100) + "%"));
-        tooltip.add(Component.literal("§7Flushes: §e" + mushroomType.getMaxFlushes()));
+        tooltip.add(Component.translatable("tooltip.spore_syringe.potency", (int)(mushroomType.getPotencyMultiplier() * 100)));
+        tooltip.add(Component.translatable("tooltip.spore_syringe.flushes", mushroomType.getMaxFlushes()));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§8Rechtsklick auf Topf mit Mist"));
-        tooltip.add(Component.literal("§8um Myzel zu impfen"));
+        tooltip.add(Component.translatable("tooltip.spore_syringe.right_click_pot"));
+        tooltip.add(Component.translatable("tooltip.spore_syringe.to_inoculate"));
     }
 
     @Override
