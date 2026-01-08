@@ -54,7 +54,7 @@ public class NPCLeisureTool extends Item {
             Integer npcId = selectedNPCs.get(player.getUUID());
             if (npcId == null) {
                 player.sendSystemMessage(
-                    Component.literal("Kein NPC ausgewählt! Klick auf einen NPC.")
+                    Component.translatable("message.npc.no_npc_selected_click")
                         .withStyle(ChatFormatting.RED)
                 );
                 return InteractionResult.FAIL;
@@ -64,7 +64,7 @@ public class NPCLeisureTool extends Item {
 
             if (!(entity instanceof CustomNPCEntity npc)) {
                 player.sendSystemMessage(
-                    Component.literal("Ausgewählter NPC nicht mehr verfügbar!")
+                    Component.translatable("message.npc.selected_unavailable")
                         .withStyle(ChatFormatting.RED)
                 );
                 selectedNPCs.remove(player.getUUID());
@@ -75,7 +75,7 @@ public class NPCLeisureTool extends Item {
             if (npc.getNpcData().getNpcType() != NPCType.BEWOHNER
                 && npc.getNpcData().getNpcType() != NPCType.VERKAEUFER) {
                 player.sendSystemMessage(
-                    Component.literal("⚠ Dieser NPC-Typ hat keine Freizeitorte!")
+                    Component.translatable("message.npc.type_no_leisure")
                         .withStyle(ChatFormatting.RED)
                 );
                 return InteractionResult.FAIL;
@@ -86,7 +86,7 @@ public class NPCLeisureTool extends Item {
                 List<BlockPos> leisureLocations = npc.getNpcData().getLeisureLocations();
                 if (leisureLocations.isEmpty()) {
                     player.sendSystemMessage(
-                        Component.literal("⚠ Keine Freizeitorte vorhanden!")
+                        Component.translatable("message.npc.no_leisure_available")
                             .withStyle(ChatFormatting.RED)
                     );
                 } else {
@@ -94,11 +94,11 @@ public class NPCLeisureTool extends Item {
                     BlockPos removed = leisureLocations.get(lastIndex);
                     npc.getNpcData().removeLeisureLocation(lastIndex);
                     player.sendSystemMessage(
-                        Component.literal("✓ Freizeitort " + (lastIndex + 1) + " entfernt bei " + removed.toShortString())
+                        Component.translatable("message.npc.leisure_removed", (lastIndex + 1), removed.toShortString())
                             .withStyle(ChatFormatting.YELLOW)
                     );
                     player.sendSystemMessage(
-                        Component.literal("→ Verbleibende Orte: " + npc.getNpcData().getLeisureLocations().size() + "/10")
+                        Component.translatable("message.npc.remaining_locations", npc.getNpcData().getLeisureLocations().size())
                             .withStyle(ChatFormatting.GRAY)
                     );
                 }
@@ -109,11 +109,11 @@ public class NPCLeisureTool extends Item {
             int currentSize = npc.getNpcData().getLeisureLocations().size();
             if (currentSize >= 10) {
                 player.sendSystemMessage(
-                    Component.literal("⚠ Maximum von 10 Freizeitorten erreicht!")
+                    Component.translatable("message.npc.leisure_max_reached")
                         .withStyle(ChatFormatting.RED)
                 );
                 player.sendSystemMessage(
-                    Component.literal("→ Shift+Rechtsklick auf Block um Orte zu entfernen")
+                    Component.translatable("message.npc.shift_right_click_remove")
                         .withStyle(ChatFormatting.GRAY)
                 );
                 return InteractionResult.FAIL;
@@ -122,7 +122,7 @@ public class NPCLeisureTool extends Item {
             npc.getNpcData().addLeisureLocation(clickedPos);
             int newSize = npc.getNpcData().getLeisureLocations().size();
             player.sendSystemMessage(
-                Component.literal("✓ Freizeitort " + newSize + "/10 gesetzt bei " + clickedPos.toShortString())
+                Component.translatable("message.npc.leisure_set", newSize, clickedPos.toShortString())
                     .withStyle(ChatFormatting.GREEN)
             );
 
@@ -143,7 +143,7 @@ public class NPCLeisureTool extends Item {
             if (npc.getNpcData().getNpcType() != NPCType.BEWOHNER
                 && npc.getNpcData().getNpcType() != NPCType.VERKAEUFER) {
                 player.sendSystemMessage(
-                    Component.literal("⚠ Dieser NPC-Typ hat keine Freizeitorte!")
+                    Component.translatable("message.npc.type_no_leisure")
                         .withStyle(ChatFormatting.RED)
                 );
                 return InteractionResult.FAIL;
@@ -165,24 +165,24 @@ public class NPCLeisureTool extends Item {
                         .withStyle(ChatFormatting.YELLOW))
                     .append(Component.literal(" (" + npc.getNpcData().getNpcType().getDisplayName() + ")")
                         .withStyle(ChatFormatting.GRAY))
-                    .append(Component.literal(" ausgewählt!")
+                    .append(Component.translatable("message.common.selected")
                         .withStyle(ChatFormatting.GREEN))
             );
 
             // Zeige aktuellen Status
             int leisureCount = npc.getNpcData().getLeisureLocations().size();
             player.sendSystemMessage(
-                Component.literal("Freizeitorte: " + leisureCount + "/10")
+                Component.translatable("message.npc.leisure_count", leisureCount)
                     .withStyle(ChatFormatting.GRAY)
             );
 
             player.sendSystemMessage(
-                Component.literal("Rechtsklick auf Block = Freizeitort hinzufügen")
+                Component.translatable("message.npc.right_click_add_leisure")
                     .withStyle(ChatFormatting.GRAY)
             );
             if (leisureCount > 0) {
                 player.sendSystemMessage(
-                    Component.literal("Shift+Rechtsklick auf Block = Letzten Ort entfernen")
+                    Component.translatable("message.npc.shift_right_click_remove_last")
                         .withStyle(ChatFormatting.GRAY)
                 );
             }
@@ -224,7 +224,7 @@ public class NPCLeisureTool extends Item {
             }
         } else {
             player.sendSystemMessage(
-                Component.literal("Keine Freizeitorte gesetzt.")
+                Component.translatable("message.npc.no_leisure_set")
                     .withStyle(ChatFormatting.YELLOW)
             );
         }
@@ -232,12 +232,12 @@ public class NPCLeisureTool extends Item {
         // Typ-spezifische Info
         if (npc.getNpcData().getNpcType() == NPCType.BEWOHNER) {
             player.sendSystemMessage(
-                Component.literal("ℹ Bewohner besuchen Freizeitorte den ganzen Tag (außer Heimzeit)")
+                Component.translatable("message.npc.leisure_info_residents")
                     .withStyle(ChatFormatting.DARK_GRAY)
             );
         } else if (npc.getNpcData().getNpcType() == NPCType.VERKAEUFER) {
             player.sendSystemMessage(
-                Component.literal("ℹ Verkäufer besuchen Freizeitorte nach Feierabend")
+                Component.translatable("message.npc.leisure_info_sellers")
                     .withStyle(ChatFormatting.DARK_GRAY)
             );
         }

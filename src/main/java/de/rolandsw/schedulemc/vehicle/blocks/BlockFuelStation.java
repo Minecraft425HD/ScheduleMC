@@ -161,23 +161,23 @@ public class BlockFuelStation extends BlockOrientableHorizontal {
                     .withStyle(net.minecraft.ChatFormatting.GREEN));
                 placer.sendSystemMessage(net.minecraft.network.chat.Component.literal("⛽ ")
                     .withStyle(net.minecraft.ChatFormatting.YELLOW)
-                    .append(net.minecraft.network.chat.Component.literal("TANKSTELLE REGISTRIERT")
+                    .append(net.minecraft.network.chat.Component.translatable("message.fuel_station.registered")
                         .withStyle(net.minecraft.ChatFormatting.GREEN, net.minecraft.ChatFormatting.BOLD)));
-                placer.sendSystemMessage(net.minecraft.network.chat.Component.literal("Zapfsäule: ")
+                placer.sendSystemMessage(net.minecraft.network.chat.Component.translatable("message.fuel_station.pump_label")
                     .withStyle(net.minecraft.ChatFormatting.GRAY)
                     .append(net.minecraft.network.chat.Component.literal(stationName)
                         .withStyle(net.minecraft.ChatFormatting.AQUA)));
-                placer.sendSystemMessage(net.minecraft.network.chat.Component.literal("ID: ")
+                placer.sendSystemMessage(net.minecraft.network.chat.Component.translatable("message.fuel_station.id_label")
                     .withStyle(net.minecraft.ChatFormatting.GRAY)
                     .append(net.minecraft.network.chat.Component.literal(station.getFuelStationId().toString())
                         .withStyle(net.minecraft.ChatFormatting.DARK_GRAY)));
-                placer.sendSystemMessage(net.minecraft.network.chat.Component.literal("Shop-Plot: ")
+                placer.sendSystemMessage(net.minecraft.network.chat.Component.translatable("message.fuel_station.shop_plot_label")
                     .withStyle(net.minecraft.ChatFormatting.GRAY)
                     .append(net.minecraft.network.chat.Component.literal(plot.getPlotId())
                         .withStyle(net.minecraft.ChatFormatting.GOLD)));
-                placer.sendSystemMessage(net.minecraft.network.chat.Component.literal("💳 Rechnungssystem: ")
+                placer.sendSystemMessage(net.minecraft.network.chat.Component.translatable("message.fuel_station.billing_system")
                     .withStyle(net.minecraft.ChatFormatting.GRAY)
-                    .append(net.minecraft.network.chat.Component.literal("AKTIVIERT")
+                    .append(net.minecraft.network.chat.Component.translatable("message.fuel_station.activated")
                         .withStyle(net.minecraft.ChatFormatting.GREEN, net.minecraft.ChatFormatting.BOLD)));
                 placer.sendSystemMessage(net.minecraft.network.chat.Component.literal("═══════════════════════════════")
                     .withStyle(net.minecraft.ChatFormatting.GREEN));

@@ -237,17 +237,17 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
                             String stationName = FuelStationRegistry.getDisplayName(fuelStationId);
                             player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
                             player.sendSystemMessage(Component.literal("⛽ ").withStyle(ChatFormatting.YELLOW)
-                                .append(Component.literal("TANKSTELLE").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)));
-                            player.sendSystemMessage(Component.literal("Zapfsäule: ").withStyle(ChatFormatting.GRAY)
+                                .append(Component.translatable("gui.fuel.station_title").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)));
+                            player.sendSystemMessage(Component.translatable("message.fuel.pump_label").withStyle(ChatFormatting.GRAY)
                                 .append(Component.literal(stationName).withStyle(ChatFormatting.AQUA)));
                             player.sendSystemMessage(Component.literal("ID: ").withStyle(ChatFormatting.GRAY)
                                 .append(Component.literal(fuelStationId.toString().substring(0, 8) + "...").withStyle(ChatFormatting.DARK_GRAY)));
-                            player.sendSystemMessage(Component.literal("Aktueller Preis (").withStyle(ChatFormatting.GRAY)
+                            player.sendSystemMessage(Component.translatable("message.common.current_price_prefix").withStyle(ChatFormatting.GRAY)
                                 .append(Component.literal(timeOfDay).withStyle(ChatFormatting.AQUA))
                                 .append(Component.literal("): ").withStyle(ChatFormatting.GRAY))
                                 .append(Component.literal(String.format("%.2f€", (double)pricePerUnit)).withStyle(ChatFormatting.GREEN))
                                 .append(Component.literal(" pro 10 mB").withStyle(ChatFormatting.GRAY)));
-                            player.sendSystemMessage(Component.literal("💳 Tanken auf Rechnung aktiviert").withStyle(ChatFormatting.AQUA));
+                            player.sendSystemMessage(Component.translatable("message.fuel.bill_activated").withStyle(ChatFormatting.AQUA));
                             player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
 
                             // DEBUG LOGGING
@@ -323,17 +323,17 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
         if (player != null) {
             player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
             player.sendSystemMessage(Component.literal("📄 ").withStyle(ChatFormatting.YELLOW)
-                .append(Component.literal("TANKRECHNUNG").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)));
-            player.sendSystemMessage(Component.literal("Zapfsäule: ").withStyle(ChatFormatting.GRAY)
+                .append(Component.translatable("gui.fuel.bill_title").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)));
+            player.sendSystemMessage(Component.translatable("message.fuel.pump_label").withStyle(ChatFormatting.GRAY)
                 .append(Component.literal(FuelStationRegistry.getDisplayName(fuelStationId)).withStyle(ChatFormatting.AQUA)));
-            player.sendSystemMessage(Component.literal("Getankt: ").withStyle(ChatFormatting.GRAY)
+            player.sendSystemMessage(Component.translatable("message.fuel.refueled_label").withStyle(ChatFormatting.GRAY)
                 .append(Component.literal(totalFueled + " mB").withStyle(ChatFormatting.AQUA))
                 .append(Component.literal(" Bio-Diesel").withStyle(ChatFormatting.GREEN)));
             player.sendSystemMessage(Component.literal("Kosten: ").withStyle(ChatFormatting.GRAY)
                 .append(Component.literal(String.format("%.2f€", totalCost)).withStyle(ChatFormatting.GOLD)));
-            player.sendSystemMessage(Component.literal("Offener Betrag: ").withStyle(ChatFormatting.GRAY)
+            player.sendSystemMessage(Component.translatable("message.common.outstanding_amount").withStyle(ChatFormatting.GRAY)
                 .append(Component.literal(String.format("%.2f€", FuelBillManager.getTotalUnpaidAmount(playerUUID))).withStyle(ChatFormatting.RED, ChatFormatting.BOLD)));
-            player.sendSystemMessage(Component.literal("Bitte bezahlen Sie am Tankstellen-NPC!").withStyle(ChatFormatting.YELLOW));
+            player.sendSystemMessage(Component.translatable("message.fuel.pay_at_npc").withStyle(ChatFormatting.YELLOW));
             player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
         }
     }

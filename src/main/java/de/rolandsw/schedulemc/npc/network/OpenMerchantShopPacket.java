@@ -146,7 +146,7 @@ public class OpenMerchantShopPacket {
             tag.putDouble("TotalCost", 0.0);
 
             // Setze Namen: Keine offenen Rechnungen
-            noBillItem.setHoverName(Component.literal("📄 Keine offenen Rechnungen")
+            noBillItem.setHoverName(Component.translatable("message.bank.no_open_bills")
                 .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD));
 
             // Erstelle Shop-Entry mit Preis 0

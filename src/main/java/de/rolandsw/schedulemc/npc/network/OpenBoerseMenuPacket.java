@@ -40,12 +40,12 @@ public class OpenBoerseMenuPacket {
                 if (npc.getNpcType() == NPCType.BANK && npc.getBankCategory() == BankCategory.BOERSE) {
                     NetworkHooks.openScreen(player, new SimpleMenuProvider(
                         (id, playerInventory, p) -> new BoerseMenu(id, playerInventory, npc),
-                        Component.literal("Börsenmakler")
+                        Component.translatable("gui.npc.stockbroker")
                     ), buf -> {
                         buf.writeInt(npc.getId());
                     });
                 } else {
-                    player.sendSystemMessage(Component.literal("§cDieser NPC ist kein Börsenmakler!"));
+                    player.sendSystemMessage(Component.translatable("message.npc.not_stockbroker"));
                 }
             }
         });

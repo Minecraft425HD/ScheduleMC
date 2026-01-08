@@ -74,7 +74,7 @@ public class UtilityCommand {
 
     private static int showCurrentPlot(CommandSourceStack source) {
         if (!(source.getEntity() instanceof ServerPlayer player)) {
-            source.sendFailure(Component.literal("§cNur Spieler können diesen Befehl nutzen!"));
+            source.sendFailure(Component.translatable("command.utility.players_only"));
             return 0;
         }
 
@@ -82,7 +82,7 @@ public class UtilityCommand {
         PlotRegion plot = PlotManager.getPlotAt(new BlockPos((int) pos.x, (int) pos.y, (int) pos.z));
 
         if (plot == null) {
-            source.sendFailure(Component.literal("§cDu stehst nicht auf einem Plot!"));
+            source.sendFailure(Component.translatable("command.utility.not_on_plot"));
             return 0;
         }
 
@@ -93,7 +93,7 @@ public class UtilityCommand {
         Optional<PlotUtilityData> dataOpt = PlotUtilityManager.getPlotData(plotId);
 
         if (dataOpt.isEmpty()) {
-            source.sendFailure(Component.literal("§cKeine Verbrauchsdaten für Plot: " + plotId));
+            source.sendFailure(Component.translatable("command.utility.no_data", plotId));
             return 0;
         }
 
@@ -121,7 +121,7 @@ public class UtilityCommand {
         Optional<PlotUtilityData> dataOpt = PlotUtilityManager.getPlotData(plotId);
 
         if (dataOpt.isEmpty()) {
-            source.sendFailure(Component.literal("§cKeine Verbrauchsdaten für Plot: " + plotId));
+            source.sendFailure(Component.translatable("command.utility.no_data", plotId));
             return 0;
         }
 
@@ -158,7 +158,7 @@ public class UtilityCommand {
         List<PlotUtilityData> topPlots = PlotUtilityManager.getTopConsumers(10);
 
         if (topPlots.isEmpty()) {
-            source.sendFailure(Component.literal("§cKeine Verbrauchsdaten vorhanden!"));
+            source.sendFailure(Component.translatable("message.utility.no_consumption_data"));
             return 0;
         }
 
@@ -181,7 +181,7 @@ public class UtilityCommand {
 
     private static int scanCurrentPlot(CommandSourceStack source) {
         if (!(source.getEntity() instanceof ServerPlayer player)) {
-            source.sendFailure(Component.literal("§cNur Spieler können diesen Befehl nutzen!"));
+            source.sendFailure(Component.translatable("command.utility.players_only"));
             return 0;
         }
 
@@ -189,11 +189,11 @@ public class UtilityCommand {
         PlotRegion plot = PlotManager.getPlotAt(new BlockPos((int) pos.x, (int) pos.y, (int) pos.z));
 
         if (plot == null) {
-            source.sendFailure(Component.literal("§cDu stehst nicht auf einem Plot!"));
+            source.sendFailure(Component.translatable("command.utility.not_on_plot"));
             return 0;
         }
 
-        source.sendSuccess(() -> Component.literal("§7Scanne Plot " + plot.getPlotId() + "..."), false);
+        source.sendSuccess(() -> Component.translatable("message.utility.scanning_plot", plot.getPlotId()), false);
 
         ServerLevel level = player.serverLevel();
         PlotUtilityManager.scanPlotForConsumers(level, plot);
@@ -201,7 +201,7 @@ public class UtilityCommand {
         Optional<PlotUtilityData> dataOpt = PlotUtilityManager.getPlotData(plot.getPlotId());
         int count = dataOpt.map(PlotUtilityData::getConsumerCount).orElse(0);
 
-        source.sendSuccess(() -> Component.literal("§aScan abgeschlossen! " + count + " Verbraucher gefunden."), false);
+        source.sendSuccess(() -> Component.translatable("message.utility.scan_complete", count), false);
         return 1;
     }
 

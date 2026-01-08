@@ -60,7 +60,7 @@ public class PlotPurchasePacket {
             PlotRegion plot = PlotManager.getPlot(msg.plotId);
 
             if (plot == null) {
-                player.sendSystemMessage(Component.literal("§cPlot nicht gefunden!"));
+                player.sendSystemMessage(Component.translatable("message.plot.not_found"));
                 return;
             }
 
@@ -72,7 +72,7 @@ public class PlotPurchasePacket {
                     case BUY:
                         // Prüfe ob Plot kaufbar ist (ohne Besitzer ODER explizit zum Verkauf)
                         if (plot.hasOwner() && !plot.isForSale()) {
-                            player.sendSystemMessage(Component.literal("§cDieser Plot steht nicht zum Verkauf!"));
+                            player.sendSystemMessage(Component.translatable("message.plot.not_for_sale"));
                             return;
                         }
 
@@ -82,7 +82,7 @@ public class PlotPurchasePacket {
                         // SICHERHEIT: Atomare Transaktion mit EconomyManager
                         if (!EconomyManager.withdraw(playerUUID, salePrice, TransactionType.PLOT_PURCHASE,
                                 "Plot-Kauf: " + plot.getPlotName())) {
-                            player.sendSystemMessage(Component.literal("§cNicht genug Guthaben! Benötigt: ")
+                            player.sendSystemMessage(Component.translatable("message.plot.insufficient_funds")
                                 .append(Component.literal(String.format("%.2f€", salePrice))
                                     .withStyle(ChatFormatting.GOLD)));
                             return;
@@ -101,14 +101,14 @@ public class PlotPurchasePacket {
                         plot.setForRent(false);
                         PlotManager.savePlots();
 
-                        player.sendSystemMessage(Component.literal("§aPlot erfolgreich gekauft für ")
+                        player.sendSystemMessage(Component.translatable("message.plot.purchased")
                             .append(Component.literal(String.format("%.2f€", salePrice))
                                 .withStyle(ChatFormatting.GOLD)));
                         break;
 
                     case RENT:
                         if (!plot.isForRent() || plot.isRented()) {
-                            player.sendSystemMessage(Component.literal("§cDieser Plot steht nicht zur Miete!"));
+                            player.sendSystemMessage(Component.translatable("message.plot.not_for_rent"));
                             return;
                         }
 
@@ -117,7 +117,7 @@ public class PlotPurchasePacket {
                         // SICHERHEIT: Atomare Transaktion
                         if (!EconomyManager.withdraw(playerUUID, rentPrice, TransactionType.PLOT_RENT,
                                 "Plot-Miete (1 Tag): " + plot.getPlotName())) {
-                            player.sendSystemMessage(Component.literal("§cNicht genug Guthaben! Benötigt: ")
+                            player.sendSystemMessage(Component.translatable("message.plot.insufficient_funds")
                                 .append(Component.literal(String.format("%.2f€", rentPrice))
                                     .withStyle(ChatFormatting.GOLD)));
                             return;
@@ -133,7 +133,7 @@ public class PlotPurchasePacket {
                         plot.setRentEndTime(System.currentTimeMillis() + (24 * 60 * 60 * 1000));
                         PlotManager.savePlots();
 
-                        player.sendSystemMessage(Component.literal("§aPlot erfolgreich gemietet für ")
+                        player.sendSystemMessage(Component.translatable("message.plot.rented")
                             .append(Component.literal(String.format("%.2f€/Tag", rentPrice))
                                 .withStyle(ChatFormatting.GOLD)));
                         break;

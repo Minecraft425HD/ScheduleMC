@@ -70,7 +70,7 @@ public class WarehouseBlock extends Block implements EntityBlock {
 
                     if (placer instanceof Player player) {
                         player.displayClientMessage(
-                            Component.literal("§a✓ Warehouse mit Shop-Plot verknüpft: §e" + plot.getPlotId()),
+                            Component.translatable("message.warehouse.linked_to_plot", plot.getPlotId()),
                             true
                         );
                     }
@@ -101,7 +101,7 @@ public class WarehouseBlock extends Block implements EntityBlock {
         if (player instanceof ServerPlayer serverPlayer) {
             if (!serverPlayer.hasPermissions(2)) {
                 player.displayClientMessage(
-                    Component.literal("§cNur Admins können Warehouses verwalten!"),
+                    Component.translatable("message.warehouse.admin_only"),
                     true
                 );
                 return InteractionResult.FAIL;

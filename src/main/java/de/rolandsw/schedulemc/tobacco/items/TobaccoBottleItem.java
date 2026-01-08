@@ -29,9 +29,9 @@ public abstract class TobaccoBottleItem extends Item {
     
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.literal("§7Effekt: §e" + effectDescription));
+        tooltip.add(Component.translatable("tooltip.tobacco_bottle.effect", effectDescription));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§8Rechtsklick auf Tabakpflanze"));
+        tooltip.add(Component.translatable("tooltip.tobacco_bottle.right_click"));
     }
 }
 
@@ -45,7 +45,7 @@ class FertilizerBottleItem extends TobaccoBottleItem {
     
     @Override
     public Component getName(ItemStack stack) {
-        return Component.literal("§a§lDünger");
+        return Component.translatable("item.fertilizer_bottle.name");
     }
 }
 
@@ -59,7 +59,7 @@ class GrowthBoosterBottleItem extends TobaccoBottleItem {
     
     @Override
     public Component getName(ItemStack stack) {
-        return Component.literal("§b§lWachstumsbeschleuniger");
+        return Component.translatable("item.growth_booster_bottle.name");
     }
 }
 
@@ -73,6 +73,6 @@ class QualityBoosterBottleItem extends TobaccoBottleItem {
     
     @Override
     public Component getName(ItemStack stack) {
-        return Component.literal("§6§lQualitätsverbesserer");
+        return Component.translatable("item.quality_booster_bottle.name");
     }
 }

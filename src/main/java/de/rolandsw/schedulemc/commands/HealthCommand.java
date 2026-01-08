@@ -64,22 +64,21 @@ public class HealthCommand {
 
         if (!EconomyManager.isHealthy()) {
             context.getSource().sendSuccess(() ->
-                Component.literal("§c⚠ Letzte Fehler: " + EconomyManager.getLastError()), false);
+                Component.translatable("command.health.last_error", EconomyManager.getLastError()), false);
         }
 
         // Backup-Info
         File economyFile = new File("config/plotmod_economy.json");
         int backupCount = BackupManager.getBackupCount(economyFile);
         context.getSource().sendSuccess(() ->
-            Component.literal("§7Backups verfügbar: §f" + backupCount), false);
+            Component.translatable("command.health.backups_available", backupCount), false);
 
         if (backupCount > 0) {
             File latestBackup = BackupManager.getLatestBackup(economyFile);
             if (latestBackup != null) {
                 long age = (System.currentTimeMillis() - latestBackup.lastModified()) / 1000 / 60;
                 context.getSource().sendSuccess(() ->
-                    Component.literal("§7Letztes Backup: §f" + latestBackup.getName() +
-                        " §7(vor " + age + " Minuten)"), false);
+                    Component.translatable("command.health.latest_backup", latestBackup.getName(), age), false);
             }
         }
 
@@ -101,7 +100,7 @@ public class HealthCommand {
 
         if (!PlotManager.isHealthy()) {
             context.getSource().sendSuccess(() ->
-                Component.literal("§c⚠ Letzte Fehler: " + PlotManager.getLastError()), false);
+                Component.translatable("command.health.last_error", PlotManager.getLastError()), false);
         }
 
         // Cache-Statistiken
@@ -113,15 +112,14 @@ public class HealthCommand {
         File plotFile = new File("config/plotmod_plots.json");
         int backupCount = BackupManager.getBackupCount(plotFile);
         context.getSource().sendSuccess(() ->
-            Component.literal("§7Backups verfügbar: §f" + backupCount), false);
+            Component.translatable("command.health.backups_available", backupCount), false);
 
         if (backupCount > 0) {
             File latestBackup = BackupManager.getLatestBackup(plotFile);
             if (latestBackup != null) {
                 long age = (System.currentTimeMillis() - latestBackup.lastModified()) / 1000 / 60;
                 context.getSource().sendSuccess(() ->
-                    Component.literal("§7Letztes Backup: §f" + latestBackup.getName() +
-                        " §7(vor " + age + " Minuten)"), false);
+                    Component.translatable("command.health.latest_backup", latestBackup.getName(), age), false);
             }
         }
 
@@ -136,7 +134,7 @@ public class HealthCommand {
      */
     private static int showBackupInfo(CommandContext<CommandSourceStack> context) {
         context.getSource().sendSuccess(() ->
-            Component.literal("§e§l═══ BACKUP ÜBERSICHT ═══§r"), false);
+            Component.translatable("command.health.backup_header"), false);
 
         // Economy Backups
         File economyFile = new File("config/plotmod_economy.json");
@@ -147,12 +145,12 @@ public class HealthCommand {
         showFileBackups(context, "Plots", plotFile);
 
         context.getSource().sendSuccess(() ->
-            Component.literal("§e§l═══════════════════════════§r"), false);
+            Component.translatable("command.health.backup_footer"), false);
 
         context.getSource().sendSuccess(() ->
-            Component.literal("§7Backups werden automatisch bei jedem Speichervorgang erstellt."), false);
+            Component.translatable("command.health.backup_auto_info"), false);
         context.getSource().sendSuccess(() ->
-            Component.literal("§7Maximal 5 Backups werden pro Datei behalten."), false);
+            Component.translatable("command.health.backup_max_info"), false);
 
         return 1;
     }
@@ -186,7 +184,7 @@ public class HealthCommand {
             if (backups.length > 3) {
                 final int remaining = backups.length - 3;
                 context.getSource().sendSuccess(() ->
-                    Component.literal("  §8... und " + remaining + " weitere"), false);
+                    Component.translatable("command.health.backup_and_more", remaining), false);
             }
         }
     }
@@ -198,7 +196,7 @@ public class HealthCommand {
         HealthCheckManager.logHealthCheck();
 
         context.getSource().sendSuccess(() ->
-            Component.literal("§aHealth-Check in Server-Console geloggt!"), false);
+            Component.translatable("command.health.logged_to_console"), false);
 
         context.getSource().sendSuccess(() ->
             Component.literal(HealthCheckManager.getQuickStatus()), false);

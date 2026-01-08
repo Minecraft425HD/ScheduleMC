@@ -58,16 +58,13 @@ public class BigRefineryBlock extends Block implements EntityBlock {
         if (isFuel(handStack)) {
             int fuelValue = getFuelValue(handStack);
             if (refineryBE.getFuelLevel() >= refineryBE.getMaxFuel()) {
-                player.displayClientMessage(Component.literal("§c✗ Brennstoff-Tank ist voll!"), true);
+                player.displayClientMessage(Component.translatable("message.big_refinery.fuel_tank_full"), true);
                 return InteractionResult.FAIL;
             }
 
             refineryBE.addFuel(fuelValue);
             handStack.shrink(1);
-            player.displayClientMessage(Component.literal(
-                    "§c✓ Brennstoff hinzugefügt!\n" +
-                            "§7Tank: §e" + refineryBE.getFuelLevel() + "/" + refineryBE.getMaxFuel()
-            ), true);
+            player.displayClientMessage(Component.translatable("message.big_refinery.fuel_added", refineryBE.getFuelLevel(), refineryBE.getMaxFuel()), true);
             player.playSound(net.minecraft.sounds.SoundEvents.FIRE_AMBIENT, 1.0f, 1.0f);
             return InteractionResult.SUCCESS;
         }
@@ -75,16 +72,13 @@ public class BigRefineryBlock extends Block implements EntityBlock {
         // 2. Koka-Paste hinzufügen
         if (handStack.getItem() instanceof CocaPasteItem) {
             if (refineryBE.isFull()) {
-                player.displayClientMessage(Component.literal("§c✗ Raffinerie ist voll!"), true);
+                player.displayClientMessage(Component.translatable("message.big_refinery.refinery_full"), true);
                 return InteractionResult.FAIL;
             }
 
             if (refineryBE.addPaste(handStack)) {
                 handStack.shrink(1);
-                player.displayClientMessage(Component.literal(
-                        "§6✓ Koka-Paste hinzugefügt!\n" +
-                                "§7Inhalt: §e" + refineryBE.getInputCount() + "/" + refineryBE.getCapacity()
-                ), true);
+                player.displayClientMessage(Component.translatable("message.big_refinery.paste_added", refineryBE.getInputCount(), refineryBE.getCapacity()), true);
                 player.playSound(net.minecraft.sounds.SoundEvents.SLIME_BLOCK_PLACE, 1.0f, 1.0f);
                 return InteractionResult.SUCCESS;
             }
@@ -96,10 +90,7 @@ public class BigRefineryBlock extends Block implements EntityBlock {
                 ItemStack cocaine = refineryBE.extractAllCocaine();
                 if (!cocaine.isEmpty()) {
                     player.getInventory().add(cocaine);
-                    player.displayClientMessage(Component.literal(
-                            "§f✓ Kokain entnommen!\n" +
-                                    "§7Menge: §e" + cocaine.getCount() + "g"
-                    ), true);
+                    player.displayClientMessage(Component.translatable("message.big_refinery.cocaine_extracted", cocaine.getCount()), true);
                     player.playSound(net.minecraft.sounds.SoundEvents.ITEM_PICKUP, 1.0f, 1.0f);
                     return InteractionResult.SUCCESS;
                 }
@@ -109,13 +100,7 @@ public class BigRefineryBlock extends Block implements EntityBlock {
         // 4. Status anzeigen
         if (handStack.isEmpty() && !player.isShiftKeyDown()) {
             float progress = refineryBE.getAverageRefineryPercentage() * 100;
-            player.displayClientMessage(Component.literal(
-                    "§c═══ Große Raffinerie ═══\n" +
-                            "§7Brennstoff: §e" + refineryBE.getFuelLevel() + "/" + refineryBE.getMaxFuel() + "\n" +
-                            "§7Paste: §e" + refineryBE.getInputCount() + "/" + refineryBE.getCapacity() + "\n" +
-                            "§7Kokain fertig: §e" + refineryBE.getOutputCount() + "\n" +
-                            "§7Fortschritt: §e" + String.format("%.1f", progress) + "%"
-            ), false);
+            player.displayClientMessage(Component.translatable("message.big_refinery.status", refineryBE.getFuelLevel(), refineryBE.getMaxFuel(), refineryBE.getInputCount(), refineryBE.getCapacity(), refineryBE.getOutputCount(), String.format("%.1f", progress)), false);
             return InteractionResult.SUCCESS;
         }
 

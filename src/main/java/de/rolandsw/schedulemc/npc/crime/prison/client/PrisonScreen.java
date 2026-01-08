@@ -45,7 +45,7 @@ public class PrisonScreen extends Screen {
 
     public PrisonScreen(int cellNumber, long totalSentenceTicks, long releaseTime,
                         double bailAmount, double playerBalance, long bailAvailableAtTick) {
-        super(Component.literal("Gefängnis"));
+        super(Component.translatable("gui.common.prison"));
 
         this.cellNumber = cellNumber;
         this.totalSentenceTicks = totalSentenceTicks;
@@ -68,7 +68,7 @@ public class PrisonScreen extends Screen {
         } else {
             if (minecraft != null && minecraft.player != null) {
                 minecraft.player.displayClientMessage(
-                    Component.literal("§c⛓ Du kannst nicht entkommen! Warte ab oder zahle Kaution."),
+                    Component.translatable("message.prison.cannot_escape"),
                     true
                 );
             }
@@ -80,7 +80,7 @@ public class PrisonScreen extends Screen {
         if (keyCode == 256) { // ESC
             if (minecraft != null && minecraft.player != null) {
                 minecraft.player.displayClientMessage(
-                    Component.literal("§c⛓ ESC ist gesperrt!"),
+                    Component.translatable("message.prison.esc_locked"),
                     true
                 );
             }
@@ -266,11 +266,11 @@ public class PrisonScreen extends Screen {
             bailButton.active = bailAvailable && canAfford;
 
             if (!bailAvailable) {
-                bailButton.setMessage(Component.literal("§7⏳ Noch nicht verfügbar"));
+                bailButton.setMessage(Component.translatable("gui.common.not_yet_available"));
             } else if (!canAfford) {
-                bailButton.setMessage(Component.literal("§c✗ Nicht genug Geld"));
+                bailButton.setMessage(Component.translatable("message.prison.not_enough_money"));
             } else {
-                bailButton.setMessage(Component.literal("§a✓ KAUTION ZAHLEN"));
+                bailButton.setMessage(Component.translatable("gui.prison.pay_bail"));
             }
         }
     }

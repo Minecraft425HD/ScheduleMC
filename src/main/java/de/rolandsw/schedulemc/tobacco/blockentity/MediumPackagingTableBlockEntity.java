@@ -58,7 +58,7 @@ public class MediumPackagingTableBlockEntity extends AbstractPackagingTableBlock
 
     @Override
     public Component getDisplayName() {
-        return Component.literal("Mittlerer Packtisch (10g)");
+        return Component.translatable("container.medium_packaging_table");
     }
 
     @Nullable

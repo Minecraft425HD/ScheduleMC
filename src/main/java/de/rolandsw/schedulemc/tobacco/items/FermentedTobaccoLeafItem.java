@@ -69,16 +69,16 @@ public class FermentedTobaccoLeafItem extends Item {
         TobaccoType type = getType(stack);
         TobaccoQuality quality = getQuality(stack);
         
-        tooltip.add(Component.literal("§7Sorte: " + type.getColoredName()));
-        tooltip.add(Component.literal("§7Qualität: " + quality.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.tobacco.type_label").append(type.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
         tooltip.add(Component.literal(""));
         
         double pricePerItem = type.calculatePrice(quality, 1);
-        tooltip.add(Component.literal("§7Verkaufspreis: §e" + String.format("%.2f€", pricePerItem) + " §7pro Stück"));
+        tooltip.add(Component.translatable("tooltip.fermented_tobacco.sale_price_per", String.format("%.2f", pricePerItem)));
         
         if (stack.getCount() > 1) {
             double totalPrice = type.calculatePrice(quality, stack.getCount());
-            tooltip.add(Component.literal("§7Gesamt: §e" + String.format("%.2f€", totalPrice)));
+            tooltip.add(Component.translatable("tooltip.fermented_tobacco.total", String.format("%.2f", totalPrice)));
         }
     }
     
@@ -86,6 +86,8 @@ public class FermentedTobaccoLeafItem extends Item {
     public Component getName(ItemStack stack) {
         TobaccoType type = getType(stack);
         TobaccoQuality quality = getQuality(stack);
-        return Component.literal(quality.getColoredName() + " §r" + type.getDisplayName() + "-Tabak");
+        return Component.empty()
+            .append(quality.getColoredName())
+            .append(Component.translatable("item.fermented_tobacco_leaf.name", type.getDisplayName()));
     }
 }

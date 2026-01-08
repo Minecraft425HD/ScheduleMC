@@ -74,7 +74,7 @@ public class NPCKnockoutHandler {
             // Angreifer informieren
             if (event.getSource().getEntity() != null) {
                 event.getSource().getEntity().sendSystemMessage(
-                    Component.literal("§e" + npc.getNpcName() + " ist kampfunfähig!")
+                    Component.translatable("message.npc.is_knocked_out", npc.getNpcName())
                 );
             }
 
@@ -142,12 +142,12 @@ public class NPCKnockoutHandler {
                     String stars = "⭐".repeat(currentWantedLevel);
 
                     if (policePresent) {
-                        player.sendSystemMessage(Component.literal("§c⚠ POLIZEI hat dich gesehen!"));
+                        player.sendSystemMessage(Component.translatable("message.crime.police_witnessed"));
                     } else {
-                        player.sendSystemMessage(Component.literal("§c⚠ Du wurdest gesehen!"));
+                        player.sendSystemMessage(Component.translatable("message.crime.witnessed"));
                     }
-                    player.sendSystemMessage(Component.literal("§7Verbrechen: §c" + crimeType));
-                    player.sendSystemMessage(Component.literal("§c" + stars + " Fahndungsstufe: " + currentWantedLevel));
+                    player.sendSystemMessage(Component.translatable("message.crime.type", crimeType));
+                    player.sendSystemMessage(Component.translatable("message.crime.wanted_level", stars, currentWantedLevel));
 
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("[CRIME] Player {} - {} - Wanted Level: {} (+{} Sterne{})",

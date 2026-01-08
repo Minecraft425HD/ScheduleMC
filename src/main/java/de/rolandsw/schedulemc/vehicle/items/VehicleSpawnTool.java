@@ -38,20 +38,20 @@ public class VehicleSpawnTool extends Item {
         if (player.isShiftKeyDown()) {
             if (tag.contains("DealerId")) {
                 tag.remove("DealerId");
-                player.sendSystemMessage(Component.literal("Händler-Verknüpfung entfernt").withStyle(ChatFormatting.YELLOW));
+                player.sendSystemMessage(Component.translatable("item.vehicle_spawn_tool.dealer_unlinked").withStyle(ChatFormatting.YELLOW));
             } else {
-                player.sendSystemMessage(Component.literal("Linksklick auf Autohändler-NPC, um ihn zu verknüpfen").withStyle(ChatFormatting.GOLD));
+                player.sendSystemMessage(Component.translatable("item.vehicle_spawn_tool.link_dealer_first").withStyle(ChatFormatting.GOLD));
             }
             return InteractionResult.SUCCESS;
         }
 
         // Rechtsklick auf Block = Info-Nachricht
-        player.sendSystemMessage(Component.literal("══════════════════════════════").withStyle(ChatFormatting.GOLD));
-        player.sendSystemMessage(Component.literal("🚗 Vehicle Spawn Tool").withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD));
-        player.sendSystemMessage(Component.literal("Linksklick auf AUTOHAENDLER = Tool verknüpfen").withStyle(ChatFormatting.GRAY));
-        player.sendSystemMessage(Component.literal("Linksklick auf Block = Spawn-Punkt setzen").withStyle(ChatFormatting.GRAY));
-        player.sendSystemMessage(Component.literal("Shift+Rechtsklick = Verknüpfung entfernen").withStyle(ChatFormatting.GRAY));
-        player.sendSystemMessage(Component.literal("══════════════════════════════").withStyle(ChatFormatting.GOLD));
+        player.sendSystemMessage(Component.translatable("item.vehicle_spawn_tool.help_header").withStyle(ChatFormatting.GOLD));
+        player.sendSystemMessage(Component.translatable("item.vehicle_spawn_tool.help_title").withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD));
+        player.sendSystemMessage(Component.translatable("item.vehicle_spawn_tool.help_left_dealer").withStyle(ChatFormatting.GRAY));
+        player.sendSystemMessage(Component.translatable("item.vehicle_spawn_tool.help_left_block").withStyle(ChatFormatting.GRAY));
+        player.sendSystemMessage(Component.translatable("item.vehicle_spawn_tool.help_shift_right").withStyle(ChatFormatting.GRAY));
+        player.sendSystemMessage(Component.translatable("item.vehicle_spawn_tool.help_footer").withStyle(ChatFormatting.GOLD));
 
         return InteractionResult.SUCCESS;
     }
@@ -65,7 +65,7 @@ public class VehicleSpawnTool extends Item {
 
         // Prüfe ob Händler verknüpft ist
         if (!tag.contains("DealerId")) {
-            player.sendSystemMessage(Component.literal("⚠ Kein Händler verknüpft! Rechtsklick auf einen Autohändler-NPC").withStyle(ChatFormatting.RED));
+            player.sendSystemMessage(Component.translatable("item.vehicle_spawn_tool.no_dealer").withStyle(ChatFormatting.RED));
             return;
         }
 
@@ -76,14 +76,14 @@ public class VehicleSpawnTool extends Item {
         VehicleSpawnRegistry.addSpawnPoint(dealerId, pos, yaw);
         VehicleSpawnRegistry.saveIfNeeded();
 
-        player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
-        player.sendSystemMessage(Component.literal("🚗 ").withStyle(ChatFormatting.YELLOW)
-            .append(Component.literal("FAHRZEUG-SPAWN-PUNKT").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)));
-        player.sendSystemMessage(Component.literal("Position: ").withStyle(ChatFormatting.GRAY)
+        player.sendSystemMessage(Component.translatable("item.vehicle_spawn_tool.spawn_header").withStyle(ChatFormatting.GOLD));
+        player.sendSystemMessage(Component.translatable("item.vehicle_spawn_tool.spawn_title").withStyle(ChatFormatting.YELLOW)
+            .withStyle(ChatFormatting.BOLD));
+        player.sendSystemMessage(Component.translatable("item.vehicle_spawn_tool.position_label").withStyle(ChatFormatting.GRAY)
             .append(Component.literal(pos.toShortString()).withStyle(ChatFormatting.AQUA)));
-        player.sendSystemMessage(Component.literal("Rotation: ").withStyle(ChatFormatting.GRAY)
+        player.sendSystemMessage(Component.translatable("item.vehicle_spawn_tool.rotation_label").withStyle(ChatFormatting.GRAY)
             .append(Component.literal(String.format("%.1f°", yaw)).withStyle(ChatFormatting.AQUA)));
-        player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
+        player.sendSystemMessage(Component.translatable("item.vehicle_spawn_tool.spawn_footer").withStyle(ChatFormatting.GOLD));
     }
 
     /**
@@ -93,10 +93,10 @@ public class VehicleSpawnTool extends Item {
         CompoundTag tag = stack.getOrCreateTag();
         tag.putUUID("DealerId", dealerId);
 
-        player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GREEN));
-        player.sendSystemMessage(Component.literal("✓ ").withStyle(ChatFormatting.GREEN)
-            .append(Component.literal("TOOL VERKNÜPFT").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)));
-        player.sendSystemMessage(Component.literal("Linksklicke nun auf den Boden, um Spawn-Punkte zu setzen").withStyle(ChatFormatting.GRAY));
-        player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GREEN));
+        player.sendSystemMessage(Component.translatable("item.vehicle_spawn_tool.linked_header").withStyle(ChatFormatting.GREEN));
+        player.sendSystemMessage(Component.translatable("item.vehicle_spawn_tool.linked_title").withStyle(ChatFormatting.GREEN)
+            .withStyle(ChatFormatting.BOLD));
+        player.sendSystemMessage(Component.translatable("item.vehicle_spawn_tool.linked_instruction").withStyle(ChatFormatting.GRAY));
+        player.sendSystemMessage(Component.translatable("item.vehicle_spawn_tool.linked_footer").withStyle(ChatFormatting.GREEN));
     }
 }

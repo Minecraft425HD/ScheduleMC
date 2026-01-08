@@ -82,7 +82,10 @@ public class CuredBudItem extends Item {
     public Component getName(ItemStack stack) {
         CannabisStrain strain = getStrain(stack);
         CannabisQuality quality = getQuality(stack);
-        return Component.literal("§6🫙 " + quality.getColorCode() + strain.getDisplayName() + " §7(Cured)");
+        return Component.literal("§6🫙 ")
+            .append(Component.literal(quality.getColorCode()))
+            .append(Component.literal(strain.getDisplayName()))
+            .append(Component.translatable("item.cured_bud.suffix"));
     }
 
     @Override
@@ -93,20 +96,20 @@ public class CuredBudItem extends Item {
         int curingDays = getCuringDays(stack);
         double price = calculatePrice(stack);
 
-        tooltip.add(Component.literal("§7Sorte: " + strain.getColoredName()));
-        tooltip.add(Component.literal("§7Qualität: " + quality.getColoredName()));
-        tooltip.add(Component.literal("§7THC: §f" + strain.getThcContent() + "%"));
-        tooltip.add(Component.literal("§7Gewicht: §f" + (weight * stack.getCount()) + "g §8(" + stack.getCount() + "x 1g)"));
-        tooltip.add(Component.literal("§7Curing-Zeit: §f" + curingDays + " Tage"));
+        tooltip.add(Component.translatable("tooltip.cannabis.strain_label").append(strain.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.cannabis.thc_label").append(Component.literal("§f" + strain.getThcContent() + "%")));
+        tooltip.add(Component.translatable("tooltip.cannabis.weight_label").append(Component.literal("§f" + (weight * stack.getCount()) + "g §8(" + stack.getCount() + "x 1g)")));
+        tooltip.add(Component.translatable("tooltip.cured_bud.curing_time").append(Component.literal("§f" + curingDays + " Tage")));
         tooltip.add(Component.empty());
-        tooltip.add(Component.literal("§6💰 Wert: §f" + String.format("%.2f", price) + "€"));
+        tooltip.add(Component.translatable("tooltip.cannabis.value_label").append(Component.literal("§f" + String.format("%.2f", price) + "€")));
         tooltip.add(Component.empty());
-        tooltip.add(Component.literal("§d✨ Premium-Produkt"));
+        tooltip.add(Component.translatable("tooltip.cured_bud.premium_product"));
 
         if (curingDays >= 28) {
-            tooltip.add(Component.literal("§6★ Perfekt gereift!"));
+            tooltip.add(Component.translatable("tooltip.cured_bud.perfectly_cured"));
         } else if (curingDays >= 14) {
-            tooltip.add(Component.literal("§a✓ Gut gereift"));
+            tooltip.add(Component.translatable("tooltip.cured_bud.well_cured"));
         }
     }
 }

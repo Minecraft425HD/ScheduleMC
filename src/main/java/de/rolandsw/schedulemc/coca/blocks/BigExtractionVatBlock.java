@@ -58,7 +58,7 @@ public class BigExtractionVatBlock extends Block implements EntityBlock {
         if (handStack.getItem() instanceof DieselCanisterItem) {
             int dieselInCanister = DieselCanisterItem.getDieselAmount(handStack);
             if (dieselInCanister <= 0) {
-                player.displayClientMessage(Component.literal("§c✗ Diesel-Kanister ist leer!"), true);
+                player.displayClientMessage(Component.translatable("message.big_extraction_vat.canister_empty"), true);
                 return InteractionResult.FAIL;
             }
 
@@ -67,7 +67,7 @@ public class BigExtractionVatBlock extends Block implements EntityBlock {
             int space = maxDiesel - currentDiesel;
 
             if (space <= 0) {
-                player.displayClientMessage(Component.literal("§c✗ Diesel-Tank ist voll!"), true);
+                player.displayClientMessage(Component.translatable("message.big_extraction_vat.diesel_tank_full"), true);
                 return InteractionResult.FAIL;
             }
 
@@ -75,10 +75,7 @@ public class BigExtractionVatBlock extends Block implements EntityBlock {
             vatBE.addDiesel(toAdd);
             DieselCanisterItem.consumeDiesel(handStack, toAdd);
 
-            player.displayClientMessage(Component.literal(
-                    "§6✓ Diesel eingefüllt!\n" +
-                            "§7Tank: §e" + vatBE.getDieselLevel() + "/" + maxDiesel + " mB"
-            ), true);
+            player.displayClientMessage(Component.translatable("message.big_extraction_vat.diesel_added", vatBE.getDieselLevel(), maxDiesel), true);
 
             player.playSound(net.minecraft.sounds.SoundEvents.BUCKET_EMPTY, 1.0f, 0.8f);
             return InteractionResult.SUCCESS;
@@ -87,16 +84,13 @@ public class BigExtractionVatBlock extends Block implements EntityBlock {
         // 2. Koka-Blätter hinzufügen
         if (handStack.getItem() instanceof FreshCocaLeafItem) {
             if (vatBE.isFull()) {
-                player.displayClientMessage(Component.literal("§c✗ Extraktionswanne ist voll!"), true);
+                player.displayClientMessage(Component.translatable("message.big_extraction_vat.vat_full"), true);
                 return InteractionResult.FAIL;
             }
 
             if (vatBE.addFreshLeaves(handStack)) {
                 handStack.shrink(1);
-                player.displayClientMessage(Component.literal(
-                        "§a✓ Koka-Blätter hinzugefügt!\n" +
-                                "§7Inhalt: §e" + vatBE.getInputCount() + "/" + vatBE.getCapacity()
-                ), true);
+                player.displayClientMessage(Component.translatable("message.big_extraction_vat.leaves_added", vatBE.getInputCount(), vatBE.getCapacity()), true);
                 player.playSound(net.minecraft.sounds.SoundEvents.CROP_PLANTED, 1.0f, 1.0f);
                 return InteractionResult.SUCCESS;
             }
@@ -108,10 +102,7 @@ public class BigExtractionVatBlock extends Block implements EntityBlock {
                 ItemStack paste = vatBE.extractAllPaste();
                 if (!paste.isEmpty()) {
                     player.getInventory().add(paste);
-                    player.displayClientMessage(Component.literal(
-                            "§6✓ Koka-Paste entnommen!\n" +
-                                    "§7Menge: §e" + paste.getCount() + "g"
-                    ), true);
+                    player.displayClientMessage(Component.translatable("message.big_extraction_vat.paste_extracted", paste.getCount()), true);
                     player.playSound(net.minecraft.sounds.SoundEvents.ITEM_PICKUP, 1.0f, 1.0f);
                     return InteractionResult.SUCCESS;
                 }
@@ -121,13 +112,7 @@ public class BigExtractionVatBlock extends Block implements EntityBlock {
         // 4. Status anzeigen
         if (handStack.isEmpty() && !player.isShiftKeyDown()) {
             float progress = vatBE.getAverageExtractionPercentage() * 100;
-            player.displayClientMessage(Component.literal(
-                    "§6═══ Große Extraktionswanne ═══\n" +
-                            "§7Diesel: §e" + vatBE.getDieselLevel() + "/" + vatBE.getMaxDiesel() + " mB\n" +
-                            "§7Blätter: §e" + vatBE.getInputCount() + "/" + vatBE.getCapacity() + "\n" +
-                            "§7Paste fertig: §e" + vatBE.getOutputCount() + "\n" +
-                            "§7Fortschritt: §e" + String.format("%.1f", progress) + "%"
-            ), false);
+            player.displayClientMessage(Component.translatable("message.big_extraction_vat.status", vatBE.getDieselLevel(), vatBE.getMaxDiesel(), vatBE.getInputCount(), vatBE.getCapacity(), vatBE.getOutputCount(), String.format("%.1f", progress)), false);
             return InteractionResult.SUCCESS;
         }
 

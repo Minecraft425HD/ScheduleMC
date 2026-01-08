@@ -64,8 +64,8 @@ public class PoliceDoorBlockHandler {
             if (!nearbyPolice.isEmpty()) {
                 // Polizei ist in der Nähe → Tür blockiert!
                 event.setCanceled(true);
-                serverPlayer.sendSystemMessage(Component.literal("§c✗ Du kannst keine Türen öffnen, während die Polizei dich verfolgt!"));
-                serverPlayer.sendSystemMessage(Component.literal("§7Verstecke dich vor der Polizei, um Türen zu benutzen."));
+                serverPlayer.sendSystemMessage(Component.translatable("message.police.cannot_use_doors"));
+                serverPlayer.sendSystemMessage(Component.translatable("message.protection.hide_from_police"));
             }
         });
     }

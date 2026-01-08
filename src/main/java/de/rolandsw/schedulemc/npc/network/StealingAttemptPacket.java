@@ -159,14 +159,14 @@ public class StealingAttemptPacket {
                         // ═══════════════════════════════════════════
                         // ERFOLGSMELDUNG
                         // ═══════════════════════════════════════════
-                        player.sendSystemMessage(Component.literal("§a✓ Diebstahl erfolgreich!"));
+                        player.sendSystemMessage(Component.translatable("message.stealing.success"));
 
                         if (stolenMoney > 0) {
                             ItemStack walletItem = player.getInventory().getItem(8);
                             if (walletItem.getItem() instanceof CashItem) {
                                 double walletValue = CashItem.getValue(walletItem);
                                 player.sendSystemMessage(Component.literal("§7+ " + String.format("%.2f€", stolenMoney) + " gestohlen"));
-                                player.sendSystemMessage(Component.literal("§7Geldbörse: " + String.format("%.2f€", walletValue)));
+                                player.sendSystemMessage(Component.translatable("message.stealing.wallet_stolen", String.format("%.2f€", walletValue)));
                             }
                         }
 
@@ -230,9 +230,9 @@ public class StealingAttemptPacket {
                             String stars = "⭐".repeat(currentWantedLevel);
 
                             if (policePresent) {
-                                player.sendSystemMessage(Component.literal("§c⚠ POLIZEI hat dich gesehen!"));
+                                player.sendSystemMessage(Component.translatable("message.police.witnessed"));
                             } else {
-                                player.sendSystemMessage(Component.literal("§c⚠ Du wurdest beim Stehlen gesehen!"));
+                                player.sendSystemMessage(Component.translatable("message.stealing.caught"));
                             }
                             player.sendSystemMessage(Component.literal("§c" + stars + " Fahndungsstufe: " + currentWantedLevel));
 

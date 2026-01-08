@@ -262,37 +262,57 @@ public class PackagedDrugItem extends Item {
         ProductionType variant = parseVariant(getVariant(stack));
         String itemType = getItemType(stack);
 
-        String name = drugType.getColoredName();
+        Component name;
 
         // Spezielle Anzeige basierend auf ItemType
         if (itemType != null) {
             switch (itemType) {
                 case "CRACK":
-                    name = variant != null ? (variant.getColoredName() + " Crack") : "Crack";
+                    if (variant != null) {
+                        name = variant.getColoredName().copy().append(Component.translatable("item.packaged.crack"));
+                    } else {
+                        name = Component.translatable("item.packaged.crack");
+                    }
                     break;
                 case "COCAINE":
-                    name = variant != null ? (variant.getColoredName() + " Kokain") : "Kokain";
+                    if (variant != null) {
+                        name = variant.getColoredName().copy().append(Component.translatable("item.packaged.cocaine"));
+                    } else {
+                        name = Component.translatable("item.packaged.cocaine");
+                    }
                     break;
                 case "CURED_CANNABIS":
-                    name = variant != null ? (variant.getColoredName() + " Cannabis §7(Cured)") : "Cannabis §7(Cured)";
+                    if (variant != null) {
+                        name = variant.getColoredName().copy().append(Component.translatable("item.packaged.cannabis_cured"));
+                    } else {
+                        name = Component.translatable("item.packaged.cannabis_cured");
+                    }
                     break;
                 case "TRIMMED_CANNABIS":
-                    name = variant != null ? (variant.getColoredName() + " Cannabis") : "Cannabis";
+                    if (variant != null) {
+                        name = variant.getColoredName().copy().append(Component.translatable("item.packaged.cannabis"));
+                    } else {
+                        name = Component.translatable("item.packaged.cannabis");
+                    }
                     break;
                 default:
                     // Fallback auf Standard-Logik
                     if (variant != null) {
-                        name = variant.getColoredName() + " " + drugType.getDisplayName();
+                        name = variant.getColoredName().copy().append(Component.literal(" " + drugType.getDisplayName()));
+                    } else {
+                        name = drugType.getColoredName();
                     }
             }
         } else {
             // Alte Logik für Items ohne ItemType (Backwards Compatibility)
             if (variant != null) {
-                name = variant.getColoredName() + " " + drugType.getDisplayName();
+                name = variant.getColoredName().copy().append(Component.literal(" " + drugType.getDisplayName()));
+            } else {
+                name = drugType.getColoredName();
             }
         }
 
-        return Component.literal(name + " §7(" + weight + "g)");
+        return name.copy().append(Component.translatable("item.packaged.weight_suffix", weight));
     }
 
     @Override
@@ -306,25 +326,25 @@ public class PackagedDrugItem extends Item {
 
         // Variante (falls vorhanden)
         if (variant != null) {
-            tooltip.add(Component.literal("§7Sorte: " + variant.getColoredName()));
+            tooltip.add(Component.translatable("tooltip.packaged.type_label").append(variant.getColoredName()));
         }
 
         // Qualität
-        tooltip.add(Component.literal("§7Qualität: " + quality.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
 
         // Gewicht
-        tooltip.add(Component.literal("§7Gewicht: §f" + weight + "g"));
+        tooltip.add(Component.translatable("tooltip.packaged.weight", weight));
 
         // Verpackungsdatum
         long currentDay = level != null ? level.getDayTime() / 24000L : 0;
         long daysOld = currentDay - packageDate;
         if (daysOld > 0) {
-            tooltip.add(Component.literal("§8Verpackt: vor " + daysOld + " Tag(en)"));
+            tooltip.add(Component.translatable("tooltip.packaged.packaged_days_ago", daysOld));
         } else {
-            tooltip.add(Component.literal("§8Verpackt: Heute"));
+            tooltip.add(Component.translatable("tooltip.packaged.packaged_today"));
         }
 
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§6Verkaufspreis: §e" + String.format("%.2f", price) + "€"));
+        tooltip.add(Component.translatable("tooltip.packaged.sale_price", String.format("%.2f", price)));
     }
 }

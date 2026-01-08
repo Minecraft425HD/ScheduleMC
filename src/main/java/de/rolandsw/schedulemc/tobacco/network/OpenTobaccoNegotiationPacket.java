@@ -45,7 +45,7 @@ public class OpenTobaccoNegotiationPacket {
 
             // Polizisten können keinen Tabak kaufen!
             if (npc.getNpcType() == NPCType.POLIZEI) {
-                player.sendSystemMessage(Component.literal("§c✗ Polizisten kaufen keinen Tabak!"));
+                player.sendSystemMessage(Component.translatable("message.tobacco.police_no_buy"));
                 return;
             }
 
@@ -58,7 +58,7 @@ public class OpenTobaccoNegotiationPacket {
             NetworkHooks.openScreen(player, new MenuProvider() {
                 @Override
                 public @NotNull Component getDisplayName() {
-                    return Component.literal("Tabak verkaufen");
+                    return Component.translatable("gui.tobacco.negotiation.title");
                 }
 
                 @Nullable

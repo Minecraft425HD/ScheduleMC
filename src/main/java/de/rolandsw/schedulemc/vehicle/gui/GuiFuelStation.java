@@ -174,7 +174,7 @@ public class GuiFuelStation extends ScreenBase<ContainerFuelStation> {
                 // Zeige Nachricht dass nur STOP-Button erlaubt ist
                 if (minecraft.player != null) {
                     minecraft.player.displayClientMessage(
-                        Component.literal("⚠ Bitte beenden Sie den Tankvorgang mit dem STOP-Button!")
+                        Component.translatable("message.fuel_station.stop_refueling")
                             .withStyle(ChatFormatting.RED),
                         true // actionBar
                     );

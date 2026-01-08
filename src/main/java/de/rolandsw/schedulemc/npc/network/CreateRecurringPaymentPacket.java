@@ -55,21 +55,21 @@ public class CreateRecurringPaymentPacket {
         PacketHandler.handleServerPacket(ctx, player -> {
             // Validierung: Betrag positiv
             if (amount <= 0) {
-                player.sendSystemMessage(Component.literal("⚠ Betrag muss positiv sein!")
+                player.sendSystemMessage(Component.translatable("message.bank.amount_must_positive")
                     .withStyle(ChatFormatting.RED));
                 return;
             }
 
             // Validierung: Empfänger nicht leer
             if (recipientName == null || recipientName.trim().isEmpty()) {
-                player.sendSystemMessage(Component.literal("⚠ Empfänger darf nicht leer sein!")
+                player.sendSystemMessage(Component.translatable("message.bank.recipient_required")
                     .withStyle(ChatFormatting.RED));
                 return;
             }
 
             // Validierung: Intervall gültig
             if (intervalOrdinal < 0 || intervalOrdinal >= RecurringPaymentInterval.values().length) {
-                player.sendSystemMessage(Component.literal("⚠ Ungültiges Intervall!")
+                player.sendSystemMessage(Component.translatable("message.bank.invalid_interval")
                     .withStyle(ChatFormatting.RED));
                 return;
             }
@@ -88,19 +88,19 @@ public class CreateRecurringPaymentPacket {
             if (totalCount >= maxPerPlayer) {
                 player.sendSystemMessage(Component.literal("═══════════════════════════════")
                     .withStyle(ChatFormatting.RED));
-                player.sendSystemMessage(Component.literal("⚠ LIMIT ERREICHT!")
+                player.sendSystemMessage(Component.translatable("message.common.limit_reached")
                     .withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
-                player.sendSystemMessage(Component.literal("Du hast bereits ")
+                player.sendSystemMessage(Component.translatable("message.common.already_have_prefix")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(totalCount + "/" + maxPerPlayer)
                         .withStyle(ChatFormatting.YELLOW))
-                    .append(Component.literal(" aktive Daueraufträge.")
+                    .append(Component.translatable("message.bank.active_orders_suffix")
                         .withStyle(ChatFormatting.GRAY)));
                 if (creditCount > 0) {
-                    player.sendSystemMessage(Component.literal("(inkl. 1 Kredit-Rückzahlung)")
+                    player.sendSystemMessage(Component.translatable("message.bank.incl_loan_repayment")
                         .withStyle(ChatFormatting.GOLD));
                 }
-                player.sendSystemMessage(Component.literal("Lösche erst einen bestehenden Dauerauftrag!")
+                player.sendSystemMessage(Component.translatable("message.bank.delete_existing_first")
                     .withStyle(ChatFormatting.YELLOW));
                 player.sendSystemMessage(Component.literal("═══════════════════════════════")
                     .withStyle(ChatFormatting.RED));
@@ -118,9 +118,9 @@ public class CreateRecurringPaymentPacket {
 
             // Prüfe ob Empfänger existiert
             if (recipientUUID == null) {
-                player.sendSystemMessage(Component.literal("⚠ Spieler nicht gefunden!")
+                player.sendSystemMessage(Component.translatable("message.common.player_not_found")
                     .withStyle(ChatFormatting.RED));
-                player.sendSystemMessage(Component.literal("Name: ")
+                player.sendSystemMessage(Component.translatable("message.common.name_label")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(recipientName)
                         .withStyle(ChatFormatting.YELLOW)));
@@ -137,17 +137,17 @@ public class CreateRecurringPaymentPacket {
                     .withStyle(ChatFormatting.GREEN));
                 player.sendSystemMessage(Component.literal("📋 ")
                     .withStyle(ChatFormatting.GOLD)
-                    .append(Component.literal("DAUERAUFTRAG ERSTELLT")
+                    .append(Component.translatable("message.bank.standing_order_created"))
                         .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)));
-                player.sendSystemMessage(Component.literal("Empfänger: ")
+                player.sendSystemMessage(Component.translatable("message.bank.recipient_label")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(recipientName)
                         .withStyle(ChatFormatting.AQUA)));
-                player.sendSystemMessage(Component.literal("Betrag: ")
+                player.sendSystemMessage(Component.translatable("message.bank.amount_label")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(String.format("%.2f€", amount))
                         .withStyle(ChatFormatting.GOLD)));
-                player.sendSystemMessage(Component.literal("Intervall: ")
+                player.sendSystemMessage(Component.translatable("message.bank.interval_label")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(interval.getDisplayName())
                         .withStyle(ChatFormatting.LIGHT_PURPLE)));
@@ -155,13 +155,13 @@ public class CreateRecurringPaymentPacket {
                     .withStyle(ChatFormatting.GREEN));
             } else {
                 // Fehler
-                player.sendSystemMessage(Component.literal("⚠ Dauerauftrag konnte nicht erstellt werden!")
+                player.sendSystemMessage(Component.translatable("message.bank.standing_order_failed")
                     .withStyle(ChatFormatting.RED));
-                player.sendSystemMessage(Component.literal("Mögliche Gründe:")
+                player.sendSystemMessage(Component.translatable("message.common.possible_reasons")
                     .withStyle(ChatFormatting.GRAY));
                 player.sendSystemMessage(Component.literal("• Maximale Anzahl erreicht")
                     .withStyle(ChatFormatting.YELLOW));
-                player.sendSystemMessage(Component.literal("• Ungültige Parameter")
+                player.sendSystemMessage(Component.translatable("message.bank.invalid_parameters")
                     .withStyle(ChatFormatting.YELLOW));
             }
         });

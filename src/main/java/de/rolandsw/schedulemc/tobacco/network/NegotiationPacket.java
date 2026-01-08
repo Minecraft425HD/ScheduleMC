@@ -63,24 +63,24 @@ public class NegotiationPacket {
             // Validierung der Gramm-Anzahl
             int availableGrams = PackagedDrugItem.getWeight(playerItem);
             if (offeredGrams <= 0 || offeredGrams > availableGrams) {
-                player.sendSystemMessage(Component.literal("§cUngültige Grammzahl!"));
+                player.sendSystemMessage(Component.translatable("message.tobacco.invalid_grams"));
                 return;
             }
 
             // WICHTIG: Man kann nur exakt passende Päckchen verkaufen!
             // Aus einem 5g Glas kann man nicht 1g herausnehmen
             if (offeredGrams != availableGrams) {
-                player.sendSystemMessage(Component.literal("§c✗ Du kannst nur das komplette Päckchen verkaufen!"));
-                player.sendSystemMessage(Component.literal("§7Dieses Päckchen enthält " + availableGrams + "g."));
-                player.sendSystemMessage(Component.literal("§7Wenn du " + offeredGrams + "g verkaufen möchtest, brauchst du ein " + offeredGrams + "g Päckchen."));
+                player.sendSystemMessage(Component.translatable("message.tobacco.must_sell_complete_package"));
+                player.sendSystemMessage(Component.translatable("message.tobacco.package_contains", availableGrams));
+                player.sendSystemMessage(Component.translatable("message.tobacco.need_correct_package", offeredGrams, offeredGrams));
                 return;
             }
 
             // Wallet-Check: NPC muss genug Geld haben
             int npcWallet = npc.getNpcData().getWallet();
             if (offeredPrice > npcWallet) {
-                player.sendSystemMessage(Component.literal("§c✗ Der NPC hat nicht genug Geld!"));
-                player.sendSystemMessage(Component.literal("§7NPC Geldbörse: " + npcWallet + "€, Preis: " + String.format("%.2f", offeredPrice) + "€"));
+                player.sendSystemMessage(Component.translatable("message.tobacco.npc_insufficient_funds"));
+                player.sendSystemMessage(Component.translatable("message.tobacco.npc_wallet_info", npcWallet, String.format("%.2f", offeredPrice)));
                 return;
             }
 
@@ -97,8 +97,8 @@ public class NegotiationPacket {
                     long lastSaleDay = npc.getNpcData().getCustomData().getLong(cooldownKey);
 
                     if (lastSaleDay >= currentDay) {
-                        player.sendSystemMessage(Component.literal("§c✗ Dieser NPC hat heute bereits Tabak gekauft!"));
-                        player.sendSystemMessage(Component.literal("§7Versuche es morgen nochmal."));
+                        player.sendSystemMessage(Component.translatable("message.tobacco.npc_already_bought_today"));
+                        player.sendSystemMessage(Component.translatable("message.tobacco.try_tomorrow"));
                         return;
                     }
                 }
@@ -179,13 +179,13 @@ public class NegotiationPacket {
                 // Erfolgsmeldung mit aktuellem Wallet-Item Wert
                 if (walletItem.getItem() instanceof CashItem) {
                     double walletValue = CashItem.getValue(walletItem);
-                    player.sendSystemMessage(Component.literal("§a✓ Verkauf erfolgreich! " + offeredGrams + "g für " + String.format("%.2f", price) + "€"));
-                    player.sendSystemMessage(Component.literal("§7Deine Geldbörse: " + String.format("%.2f", walletValue) + "€ | NPC Geldbörse: " + npc.getNpcData().getWallet() + "€"));
+                    player.sendSystemMessage(Component.translatable("message.tobacco.sale_success", offeredGrams, String.format("%.2f", price)));
+                    player.sendSystemMessage(Component.translatable("message.tobacco.wallet_summary", String.format("%.2f", walletValue), npc.getNpcData().getWallet()));
                 }
             } else {
-                player.sendSystemMessage(Component.literal("§e" + response.getMessage()));
+                player.sendSystemMessage(Component.literal("§e").append(Component.literal(response.getMessage())));
                 if (response.getCounterOffer() > 0) {
-                    player.sendSystemMessage(Component.literal("§7Gegenangebot: " + String.format("%.2f", response.getCounterOffer()) + "€"));
+                    player.sendSystemMessage(Component.translatable("message.tobacco.counteroffer", String.format("%.2f", response.getCounterOffer())));
                 }
             }
         });

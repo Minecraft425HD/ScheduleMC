@@ -56,11 +56,11 @@ public class TrimItem extends Item {
         CannabisStrain strain = getStrain(stack);
         int weight = getWeight(stack);
 
-        tooltip.add(Component.literal("§7Sorte: " + strain.getColoredName()));
-        tooltip.add(Component.literal("§7Gewicht: §f" + (weight * stack.getCount()) + "g §8(" + stack.getCount() + "x 1g)"));
+        tooltip.add(Component.translatable("tooltip.cannabis.strain_label").append(strain.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.cannabis.weight_label").append(Component.literal("§f" + (weight * stack.getCount()) + "g §8(" + stack.getCount() + "x 1g)")));
         tooltip.add(Component.empty());
-        tooltip.add(Component.literal("§8Blätterreste vom Trimmen"));
-        tooltip.add(Component.literal("§a→ Kann zu Hash gepresst werden"));
-        tooltip.add(Component.literal("§a→ Kann zu Öl extrahiert werden"));
+        tooltip.add(Component.translatable("tooltip.trim.leaf_remains"));
+        tooltip.add(Component.translatable("tooltip.trim.to_hash"));
+        tooltip.add(Component.translatable("tooltip.trim.to_oil"));
     }
 }

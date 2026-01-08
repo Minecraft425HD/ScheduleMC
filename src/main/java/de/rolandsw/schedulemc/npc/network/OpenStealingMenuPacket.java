@@ -45,7 +45,7 @@ public class OpenStealingMenuPacket {
                         buf.writeInt(npc.getId());
                     });
                 } else {
-                    player.displayClientMessage(Component.literal("§c✗ Du kannst keine Polizisten bestehlen!"), true);
+                    player.displayClientMessage(Component.translatable("message.stealing.cannot_steal_police"), true);
                 }
             }
         });

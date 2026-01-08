@@ -75,7 +75,7 @@ public class SmallDryingRackBlock extends AbstractDryingRackBlock {
             NetworkHooks.openScreen(serverPlayer, new MenuProvider() {
                 @Override
                 public @NotNull Component getDisplayName() {
-                    return Component.literal("Kleines Trocknungsgestell");
+                    return Component.translatable("block.small_drying_rack.name");
                 }
 
                 @Nullable

@@ -42,15 +42,16 @@ public class MDMAKristallItem extends Item {
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
         MDMAQuality quality = getQuality(stack);
-        tooltip.add(Component.literal("§7Qualität: " + quality.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§fWeiße Kristalle"));
-        tooltip.add(Component.literal("§8Nächster Schritt: Pillen-Presse"));
+        tooltip.add(Component.translatable("tooltip.mdma.white_crystals"));
+        tooltip.add(Component.translatable("tooltip.mdma.next_step_press"));
     }
 
     @Override
     public Component getName(ItemStack stack) {
         MDMAQuality quality = getQuality(stack);
-        return Component.literal(quality.getColorCode() + "MDMA-Kristalle");
+        return Component.literal(quality.getColorCode())
+            .append(Component.translatable("item.mdma_kristall.name"));
     }
 }

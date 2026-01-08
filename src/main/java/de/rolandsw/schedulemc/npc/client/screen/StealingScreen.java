@@ -283,7 +283,7 @@ public class StealingScreen extends AbstractContainerScreen<StealingMenu> {
             ));
 
             if (minecraft != null && minecraft.player != null) {
-                minecraft.player.displayClientMessage(Component.literal("§a✓ Erfolgreich gestohlen!"), true);
+                minecraft.player.displayClientMessage(Component.translatable("message.stealing.success"), true);
             }
 
             this.onClose();
@@ -300,7 +300,7 @@ public class StealingScreen extends AbstractContainerScreen<StealingMenu> {
                 gameActive = false;
 
                 if (minecraft != null && minecraft.player != null) {
-                    minecraft.player.displayClientMessage(Component.literal("§c✗ Diebstahl fehlgeschlagen!"), true);
+                    minecraft.player.displayClientMessage(Component.translatable("message.stealing.failed"), true);
                 }
 
                 // Schließe GUI nach 2 Sekunden

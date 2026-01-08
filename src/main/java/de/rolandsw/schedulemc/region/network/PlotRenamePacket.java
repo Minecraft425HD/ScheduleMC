@@ -49,24 +49,24 @@ public class PlotRenamePacket {
             PlotRegion plot = PlotManager.getPlot(msg.plotId);
 
             if (plot == null) {
-                player.sendSystemMessage(Component.literal("§cPlot nicht gefunden!"));
+                player.sendSystemMessage(Component.translatable("message.plot.not_found"));
                 return;
             }
 
             // Prüfe ob Spieler Besitzer ist
             if (!plot.getOwnerUUID().equals(player.getUUID().toString())) {
-                player.sendSystemMessage(Component.literal("§cDu bist nicht der Besitzer dieses Plots!"));
+                player.sendSystemMessage(Component.translatable("message.plot.not_owner"));
                 return;
             }
 
             // Validiere Name
             if (msg.newName == null || msg.newName.trim().isEmpty()) {
-                player.sendSystemMessage(Component.literal("§cName darf nicht leer sein!"));
+                player.sendSystemMessage(Component.translatable("message.plot.name_empty"));
                 return;
             }
 
             if (msg.newName.length() > 32) {
-                player.sendSystemMessage(Component.literal("§cName zu lang! (Max. 32 Zeichen)"));
+                player.sendSystemMessage(Component.translatable("message.plot.name_too_long"));
                 return;
             }
 
@@ -74,7 +74,7 @@ public class PlotRenamePacket {
             plot.setPlotName(msg.newName.trim());
             PlotManager.savePlots();
 
-            player.sendSystemMessage(Component.literal("§aPlot umbenannt: §7")
+            player.sendSystemMessage(Component.translatable("message.plot.renamed")
                 .append(Component.literal(oldName).withStyle(ChatFormatting.GRAY))
                 .append(Component.literal(" §a→ "))
                 .append(Component.literal(msg.newName).withStyle(ChatFormatting.GOLD)));

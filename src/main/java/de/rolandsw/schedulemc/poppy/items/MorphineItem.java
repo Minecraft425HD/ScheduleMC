@@ -56,14 +56,14 @@ public class MorphineItem extends Item {
         PoppyType type = getType(stack);
         TobaccoQuality quality = getQuality(stack);
 
-        tooltip.add(Component.literal("§7Sorte: " + type.getColoredName()));
-        tooltip.add(Component.literal("§7Qualität: " + quality.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.poppy.type_label").append(type.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§8In Raffinerie zu Heroin verarbeiten"));
+        tooltip.add(Component.translatable("tooltip.morphine.refine_to_heroin"));
     }
 
     @Override
     public Component getName(ItemStack stack) {
-        return Component.literal("§dMorphin-Base");
+        return Component.translatable("item.morphine.name");
     }
 }

@@ -75,18 +75,18 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
         }).bounds(x + 8, y + 30, 160, 20).build());
 
         // Bank-Buttons (nur für BANK NPCs - je nach Kategorie unterschiedlich)
-        bankerButton = addRenderableWidget(Button.builder(Component.literal("🏦 Banking"), button -> {
+        bankerButton = addRenderableWidget(Button.builder(Component.translatable("gui.npc.banking"), button -> {
             openBankerMenu();
         }).bounds(x + 8, y + 54, 78, 20).build());
         bankerButton.visible = isBank && !isCreditAdvisor;
 
-        boerseButton = addRenderableWidget(Button.builder(Component.literal("📈 Börse"), button -> {
+        boerseButton = addRenderableWidget(Button.builder(Component.translatable("gui.npc.stock_market"), button -> {
             openBoerseMenu();
         }).bounds(x + 90, y + 54, 78, 20).build());
         boerseButton.visible = isBank && !isCreditAdvisor;
 
         // Kreditberater Button (nur für KREDITBERATER NPCs)
-        creditAdvisorButton = addRenderableWidget(Button.builder(Component.literal("💳 Kredit beantragen"), button -> {
+        creditAdvisorButton = addRenderableWidget(Button.builder(Component.translatable("gui.npc.apply_credit"), button -> {
             openCreditAdvisorMenu();
         }).bounds(x + 8, y + 54, 160, 20).build());
         creditAdvisorButton.visible = isCreditAdvisor;
@@ -98,7 +98,7 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
         shopSellButton.visible = !isBank;
 
         // Shop Kaufen Button (nicht für Bank-NPCs)
-        shopBuyButton = addRenderableWidget(Button.builder(Component.literal("Kaufen"), button -> {
+        shopBuyButton = addRenderableWidget(Button.builder(Component.translatable("gui.common.buy"), button -> {
             openShopBuy();
         }).bounds(x + 90, y + 54, 78, 20).build());
         shopBuyButton.visible = !isBank;
@@ -152,7 +152,7 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
             this.onClose();
         } else {
             if (minecraft != null && minecraft.player != null) {
-                minecraft.player.sendSystemMessage(Component.literal("§cDieser NPC kauft keine Items!"));
+                minecraft.player.sendSystemMessage(Component.translatable("message.npc.does_not_buy_items"));
             }
         }
     }
@@ -169,7 +169,7 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
             this.onClose();
         } else {
             if (minecraft != null && minecraft.player != null) {
-                minecraft.player.sendSystemMessage(Component.literal("§cDieser NPC ist kein Verkäufer!"));
+                minecraft.player.sendSystemMessage(Component.translatable("message.npc.not_seller"));
             }
         }
     }

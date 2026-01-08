@@ -271,14 +271,14 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
             }).bounds(detailX + 55, detailY + 25, 55, 20).build());
 
             // Leeren Button
-            addRenderableWidget(Button.builder(Component.literal("Leeren"), button -> {
+            addRenderableWidget(Button.builder(Component.translatable("gui.common.clear"), button -> {
                 sendClearSlotPacket(selectedSlotIndex);
                 selectedSlotIndex = -1;
                 initTabComponents();
             }).bounds(detailX, detailY + 55, 105, 20).build());
 
             // Auffüllen Button
-            addRenderableWidget(Button.builder(Component.literal("Auffüllen"), button -> {
+            addRenderableWidget(Button.builder(Component.translatable("gui.warehouse.auto_fill"), button -> {
                 int restockAmount = selectedSlot.getRestockAmount();
                 if (restockAmount > 0) {
                     sendModifySlotPacket(selectedSlotIndex, restockAmount);
@@ -287,12 +287,12 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         }
 
         // Neuer Slot Button
-        addRenderableWidget(Button.builder(Component.literal("+ Neuer Slot"), button -> {
+        addRenderableWidget(Button.builder(Component.translatable("gui.warehouse.new_slot"), button -> {
             openItemSelection();
         }).bounds(x + 10, y + 210, 100, 20).build());
 
         // Auto-Fill Button
-        addRenderableWidget(Button.builder(Component.literal("Auto-Fill"), button -> {
+        addRenderableWidget(Button.builder(Component.translatable("gui.warehouse.auto_fill"), button -> {
             sendAutoFillPacket();
         }).bounds(x + 115, y + 210, 80, 20).build());
     }
@@ -393,18 +393,18 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         if (warehouse == null) return;
 
         // Shop ID Input
-        shopIdInput = new EditBox(this.font, x + 120, y + 50, 150, 20, Component.literal("Shop ID"));
+        shopIdInput = new EditBox(this.font, x + 120, y + 50, 150, 20, Component.translatable("gui.warehouse.shop_id"));
         shopIdInput.setValue(warehouse.getShopId() != null ? warehouse.getShopId() : "");
         shopIdInput.setMaxLength(50);
         addRenderableWidget(shopIdInput);
 
         // Save Button
-        addRenderableWidget(Button.builder(Component.literal("Speichern"), button -> {
+        addRenderableWidget(Button.builder(Component.translatable("gui.common.save"), button -> {
             sendUpdateSettingsPacket();
         }).bounds(x + 280, y + 210, 100, 20).build());
 
         // Reset Button
-        addRenderableWidget(Button.builder(Component.literal("Zurücksetzen"), button -> {
+        addRenderableWidget(Button.builder(Component.translatable("gui.warehouse.reset"), button -> {
             initTabComponents();
         }).bounds(x + 170, y + 210, 100, 20).build());
     }
@@ -417,7 +417,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
             new UpdateSettingsPacket(menu.getBlockPos(), shopId)
         );
 
-        minecraft.player.sendSystemMessage(Component.literal("§aEinstellungen gespeichert!"));
+        minecraft.player.sendSystemMessage(Component.translatable("message.warehouse.settings_saved"));
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -1055,7 +1055,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         // Create search field
         int x = (width - 300) / 2;
         int y = (height - 400) / 2;
-        itemSearchField = new EditBox(this.font, x + 10, y + 38, 280, 20, Component.literal("Suche"));
+        itemSearchField = new EditBox(this.font, x + 10, y + 38, 280, 20, Component.translatable("gui.common.search"));
         itemSearchField.setMaxLength(50);
         itemSearchField.setValue("");
         itemSearchField.setResponder(this::filterItems);

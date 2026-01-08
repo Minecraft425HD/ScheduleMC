@@ -62,7 +62,7 @@ public class HashPresseBlock extends BaseEntityBlock {
             ItemStack hash = presse.extractHash();
             if (!hash.isEmpty()) {
                 player.addItem(hash);
-                player.displayClientMessage(Component.literal("§6🟤 Haschisch entnommen!"), true);
+                player.displayClientMessage(Component.translatable("block.hash_press.hash_removed"), true);
                 return InteractionResult.CONSUME;
             }
         }
@@ -73,8 +73,8 @@ public class HashPresseBlock extends BaseEntityBlock {
                 if (!player.isCreative()) {
                     heldItem.shrink(1);
                 }
-                player.displayClientMessage(Component.literal(
-                        "§a🍃 Trim hinzugefügt §7(Gesamt: " + presse.getTrimWeight() + "g)"
+                player.displayClientMessage(Component.translatable("block.hash_press.trim_added").append(
+                        Component.translatable("block.hash_press.trim_grams", presse.getTrimWeight())
                 ), true);
                 return InteractionResult.CONSUME;
             }
@@ -83,7 +83,7 @@ public class HashPresseBlock extends BaseEntityBlock {
         // Pressen starten (leere Hand + Shift)
         if (heldItem.isEmpty() && player.isShiftKeyDown() && presse.canStart()) {
             if (presse.startPressing()) {
-                player.displayClientMessage(Component.literal("§e⚙ Presse gestartet..."), true);
+                player.displayClientMessage(Component.translatable("block.hash_press.pressing_started"), true);
                 return InteractionResult.CONSUME;
             }
         }
@@ -91,20 +91,20 @@ public class HashPresseBlock extends BaseEntityBlock {
         // Status anzeigen
         if (presse.isPressing()) {
             int progress = (int) (presse.getPressProgress() * 100);
-            player.displayClientMessage(Component.literal(
-                    "§e⚙ Pressen... " + progress + "%"
+            player.displayClientMessage(Component.translatable("block.hash_press.pressing").append(
+                    Component.translatable("block.hash_press.pressing_percent", progress)
             ), true);
         } else if (presse.getTrimWeight() > 0) {
-            player.displayClientMessage(Component.literal(
-                    "§7Trim: §f" + presse.getTrimWeight() + "g §7| Erwartetes Hash: §f" + presse.getExpectedHashWeight() + "g"
+            player.displayClientMessage(Component.translatable("block.hash_press.status_trim", presse.getTrimWeight()).append(
+                    Component.translatable("block.hash_press.status_expected", presse.getExpectedHashWeight())
             ), true);
             if (presse.canStart()) {
-                player.displayClientMessage(Component.literal("§8[Shift+Rechtsklick zum Starten]"), false);
+                player.displayClientMessage(Component.translatable("block.hash_press.shift_to_start"), false);
             } else {
-                player.displayClientMessage(Component.literal("§c⚠ Mindestens 20g Trim benötigt"), false);
+                player.displayClientMessage(Component.translatable("block.hash_press.min_trim"), false);
             }
         } else {
-            player.displayClientMessage(Component.literal("§8Hash-Presse ist leer"), true);
+            player.displayClientMessage(Component.translatable("block.hash_press.empty"), true);
         }
 
         return InteractionResult.SUCCESS;

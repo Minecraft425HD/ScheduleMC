@@ -69,7 +69,10 @@ public class TrimmedBudItem extends Item {
     public Component getName(ItemStack stack) {
         CannabisStrain strain = getStrain(stack);
         CannabisQuality quality = getQuality(stack);
-        return Component.literal("§a✂ " + quality.getColorCode() + strain.getDisplayName() + " §7(Getrimmt)");
+        return Component.literal("§a✂ ")
+            .append(Component.literal(quality.getColorCode()))
+            .append(Component.literal(strain.getDisplayName()))
+            .append(Component.translatable("item.trimmed_bud.suffix"));
     }
 
     @Override
@@ -79,14 +82,14 @@ public class TrimmedBudItem extends Item {
         int weight = getWeight(stack);
         double price = calculatePrice(stack);
 
-        tooltip.add(Component.literal("§7Sorte: " + strain.getColoredName()));
-        tooltip.add(Component.literal("§7Qualität: " + quality.getColoredName()));
-        tooltip.add(Component.literal("§7THC: §f" + strain.getThcContent() + "%"));
-        tooltip.add(Component.literal("§7Gewicht: §f" + (weight * stack.getCount()) + "g §8(" + stack.getCount() + "x 1g)"));
+        tooltip.add(Component.translatable("tooltip.cannabis.strain_label").append(strain.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.cannabis.thc_label").append(Component.literal("§f" + strain.getThcContent() + "%")));
+        tooltip.add(Component.translatable("tooltip.cannabis.weight_label").append(Component.literal("§f" + (weight * stack.getCount()) + "g §8(" + stack.getCount() + "x 1g)")));
         tooltip.add(Component.empty());
-        tooltip.add(Component.literal("§6💰 Wert: §f" + String.format("%.2f", price) + "€"));
+        tooltip.add(Component.translatable("tooltip.cannabis.value_label").append(Component.literal("§f" + String.format("%.2f", price) + "€")));
         tooltip.add(Component.empty());
-        tooltip.add(Component.literal("§a🫙 Kann gecured werden"));
-        tooltip.add(Component.literal("§8Curing verbessert Qualität!"));
+        tooltip.add(Component.translatable("tooltip.trimmed_bud.can_cure"));
+        tooltip.add(Component.translatable("tooltip.cannabis.curing_improves"));
     }
 }

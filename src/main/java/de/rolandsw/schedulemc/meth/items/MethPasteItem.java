@@ -50,15 +50,16 @@ public class MethPasteItem extends Item {
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
         MethQuality quality = getQuality(stack);
 
-        tooltip.add(Component.literal("§7Qualität: " + quality.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§7Klebrige Paste"));
-        tooltip.add(Component.literal("§8Nächster Schritt: Reduktionskessel"));
+        tooltip.add(Component.translatable("tooltip.meth_paste.sticky_paste"));
+        tooltip.add(Component.translatable("tooltip.meth_paste.next_step"));
     }
 
     @Override
     public Component getName(ItemStack stack) {
         MethQuality quality = getQuality(stack);
-        return Component.literal(quality.getColorCode() + "Meth-Paste");
+        return Component.literal(quality.getColorCode())
+            .append(Component.translatable("item.meth_paste.name"));
     }
 }

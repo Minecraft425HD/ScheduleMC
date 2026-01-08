@@ -21,10 +21,10 @@ public class PseudoephedrinItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.literal("§7Hochwertige Grundsubstanz"));
-        tooltip.add(Component.literal("§a+10% Qualitätsbonus"));
+        tooltip.add(Component.translatable("tooltip.pseudoephedrin.high_quality"));
+        tooltip.add(Component.translatable("tooltip.pseudoephedrin.quality_bonus"));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§fWeißes kristallines Pulver"));
-        tooltip.add(Component.literal("§8Verwendung: Chemie-Mixer"));
+        tooltip.add(Component.translatable("tooltip.pseudoephedrin.white_powder"));
+        tooltip.add(Component.translatable("tooltip.pseudoephedrin.use_mixer"));
     }
 }

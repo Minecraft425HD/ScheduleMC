@@ -60,13 +60,13 @@ public class RepayCreditLoanPacket {
                     .withStyle(ChatFormatting.GREEN));
                 player.sendSystemMessage(Component.literal("🏦 ")
                     .withStyle(ChatFormatting.YELLOW)
-                    .append(Component.literal("KREDIT ABBEZAHLT!")
+                    .append(Component.translatable("message.bank.loan_paid_off")
                         .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)));
-                player.sendSystemMessage(Component.literal("Betrag: ")
+                player.sendSystemMessage(Component.translatable("gui.common.amount_label")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(String.format("-%.2f€", remaining))
                         .withStyle(ChatFormatting.RED)));
-                player.sendSystemMessage(Component.literal("Neuer Kontostand: ")
+                player.sendSystemMessage(Component.translatable("message.bank.new_balance_label")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID())))
                         .withStyle(ChatFormatting.GOLD)));

@@ -61,7 +61,9 @@ public class DriedBudItem extends Item {
     @Override
     public Component getName(ItemStack stack) {
         CannabisStrain strain = getStrain(stack);
-        return Component.literal("§e🍂 " + strain.getColorCode() + "Getrocknete " + strain.getDisplayName() + " Blüten");
+        return Component.literal("§e🍂 ")
+            .append(Component.literal(strain.getColorCode()))
+            .append(Component.translatable("item.dried_bud.name", strain.getDisplayName()));
     }
 
     @Override
@@ -70,11 +72,11 @@ public class DriedBudItem extends Item {
         CannabisQuality quality = getQuality(stack);
         int weight = getWeight(stack);
 
-        tooltip.add(Component.literal("§7Sorte: " + strain.getColoredName()));
-        tooltip.add(Component.literal("§7Qualität: " + quality.getColoredName()));
-        tooltip.add(Component.literal("§7Gewicht: §f" + (weight * stack.getCount()) + "g §8(" + stack.getCount() + "x 1g)"));
+        tooltip.add(Component.translatable("tooltip.cannabis.strain_label").append(strain.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.cannabis.weight_label").append(Component.literal("§f" + (weight * stack.getCount()) + "g §8(" + stack.getCount() + "x 1g)")));
         tooltip.add(Component.empty());
-        tooltip.add(Component.literal("§e✂ Bereit zum Trimmen"));
-        tooltip.add(Component.literal("§8Verwende eine Trimm-Station"));
+        tooltip.add(Component.translatable("tooltip.dried_bud.ready_to_trim"));
+        tooltip.add(Component.translatable("tooltip.dried_bud.use_station"));
     }
 }

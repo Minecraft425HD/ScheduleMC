@@ -93,15 +93,15 @@ public class SoilBagItem extends Item {
         int units = getUnits(stack);
         float percentage = (float) units / UNITS_PER_BAG;
         
-        tooltip.add(Component.literal("§7Erde: §6" + units + "/" + UNITS_PER_BAG + " Einheiten"));
-        tooltip.add(Component.literal("§7Reicht für: §e" + type.getPlantsPerBag() + " Pflanzen"));
+        tooltip.add(Component.translatable("tooltip.soil_bag.soil", units, UNITS_PER_BAG));
+        tooltip.add(Component.translatable("tooltip.soil_bag.enough_for", type.getPlantsPerBag()));
         tooltip.add(Component.literal(""));
-        
+
         String bar = createBar(percentage);
         tooltip.add(Component.literal("§7" + bar));
-        
+
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§8Rechtsklick auf Topf zum Befüllen"));
+        tooltip.add(Component.translatable("tooltip.soil_bag.right_click_pot"));
     }
     
     private String createBar(float percentage) {
@@ -114,11 +114,13 @@ public class SoilBagItem extends Item {
     public Component getName(ItemStack stack) {
         int units = getUnits(stack);
         if (units <= 0) {
-            return Component.literal("§7Leerer " + type.getDisplayName());
+            return Component.translatable("item.soil_bag.empty", type.getDisplayName());
         } else if (units >= UNITS_PER_BAG) {
-            return Component.literal(type.getColor() + "Voller " + type.getDisplayName());
+            return Component.literal(type.getColor())
+                .append(Component.translatable("item.soil_bag.full", type.getDisplayName()));
         } else {
-            return Component.literal(type.getColor() + type.getDisplayName());
+            return Component.literal(type.getColor())
+                .append(Component.literal(type.getDisplayName()));
         }
     }
     

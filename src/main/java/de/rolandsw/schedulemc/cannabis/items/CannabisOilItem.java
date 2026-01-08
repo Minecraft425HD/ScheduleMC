@@ -72,7 +72,9 @@ public class CannabisOilItem extends Item {
     public Component getName(ItemStack stack) {
         CannabisStrain strain = getStrain(stack);
         CannabisQuality quality = getQuality(stack);
-        return Component.literal("§e🧪 " + quality.getColorCode() + strain.getDisplayName() + " Öl");
+        return Component.literal("§e🧪 ")
+            .append(Component.literal(quality.getColorCode()))
+            .append(Component.translatable("item.cannabis_oil.name", strain.getDisplayName()));
     }
 
     @Override
@@ -82,14 +84,14 @@ public class CannabisOilItem extends Item {
         int ml = getMilliliters(stack);
         double price = calculatePrice(stack);
 
-        tooltip.add(Component.literal("§7Sorte: " + strain.getColoredName()));
-        tooltip.add(Component.literal("§7Qualität: " + quality.getColoredName()));
-        tooltip.add(Component.literal("§7THC: §f~" + (strain.getThcContent() * 3) + "%"));
-        tooltip.add(Component.literal("§7Menge: §f" + ml + "ml"));
+        tooltip.add(Component.translatable("tooltip.cannabis.strain_label").append(strain.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.cannabis.thc_label").append(Component.literal("§f~" + (strain.getThcContent() * 3) + "%")));
+        tooltip.add(Component.translatable("tooltip.cannabis.amount_label").append(Component.literal("§f" + ml + "ml")));
         tooltip.add(Component.empty());
-        tooltip.add(Component.literal("§6💰 Wert: §f" + String.format("%.2f", price) + "€"));
+        tooltip.add(Component.translatable("tooltip.cannabis.value_label").append(Component.literal("§f" + String.format("%.2f", price) + "€")));
         tooltip.add(Component.empty());
-        tooltip.add(Component.literal("§d✨ Hochkonzentriert"));
-        tooltip.add(Component.literal("§8Extrahiert aus Blüten"));
+        tooltip.add(Component.translatable("tooltip.oil.highly_concentrated"));
+        tooltip.add(Component.translatable("tooltip.oil.extracted_from_buds"));
     }
 }

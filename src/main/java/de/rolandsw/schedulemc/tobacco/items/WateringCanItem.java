@@ -106,10 +106,10 @@ public class WateringCanItem extends Item {
         float percentage = getPercentage(stack);
         
         String bar = createWaterBar(percentage);
-        tooltip.add(Component.literal("§7Wasser: " + bar + " §f" + waterLevel + "/" + MAX_WATER));
+        tooltip.add(Component.translatable("tooltip.watering_can.water").append(Component.literal(" " + bar + " §f" + waterLevel + "/" + MAX_WATER)));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§8Rechtsklick auf Topf: Gießen"));
-        tooltip.add(Component.literal("§8Rechtsklick auf Waschbecken: Auffüllen"));
+        tooltip.add(Component.translatable("tooltip.watering_can.right_click_pot"));
+        tooltip.add(Component.translatable("tooltip.watering_can.right_click_sink"));
     }
     
     /**
@@ -125,11 +125,11 @@ public class WateringCanItem extends Item {
     @Override
     public Component getName(ItemStack stack) {
         if (isEmpty(stack)) {
-            return Component.literal("§7Leere Gießkanne");
+            return Component.translatable("item.watering_can.empty");
         } else if (isFull(stack)) {
-            return Component.literal("§bVolle Gießkanne");
+            return Component.translatable("item.watering_can.full");
         } else {
-            return Component.literal("§fGießkanne");
+            return Component.translatable("item.watering_can.name");
         }
     }
     

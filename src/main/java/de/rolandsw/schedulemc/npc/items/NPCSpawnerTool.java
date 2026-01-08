@@ -35,7 +35,7 @@ public class NPCSpawnerTool extends Item {
             // Öffne GUI zum Konfigurieren des NPCs
             NetworkHooks.openScreen(serverPlayer, new SimpleMenuProvider(
                 (id, playerInventory, p) -> new NPCSpawnerMenu(id, playerInventory, context.getClickedPos()),
-                Component.literal("NPC Spawner")
+                Component.translatable("gui.npc.spawner_title")
             ), buf -> {
                 buf.writeBlockPos(context.getClickedPos());
             });
@@ -54,7 +54,7 @@ public class NPCSpawnerTool extends Item {
             // Öffne GUI auch bei Rechtsklick in die Luft
             NetworkHooks.openScreen(serverPlayer, new SimpleMenuProvider(
                 (id, playerInventory, p) -> new NPCSpawnerMenu(id, playerInventory, player.blockPosition()),
-                Component.literal("NPC Spawner")
+                Component.translatable("gui.npc.spawner_title")
             ), buf -> {
                 buf.writeBlockPos(player.blockPosition());
             });

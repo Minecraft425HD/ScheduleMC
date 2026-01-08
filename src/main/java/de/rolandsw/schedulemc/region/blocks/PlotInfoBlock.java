@@ -63,10 +63,7 @@ public class PlotInfoBlock extends Block {
         PlotRegion plot = PlotManager.getPlotAt(pos);
 
         if (plot == null) {
-            player.sendSystemMessage(Component.literal(
-                "§c✗ Kein Plot gefunden!\n" +
-                "§7Dieser Info-Block ist nicht in einem gültigen Plot platziert."
-            ));
+            player.sendSystemMessage(Component.translatable("message.plot.info_block_no_plot"));
             return InteractionResult.SUCCESS;
         }
 

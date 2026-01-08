@@ -288,12 +288,12 @@ public class PrisonManager {
         PrisonerData data = prisoners.get(playerId);
 
         if (data == null) {
-            player.sendSystemMessage(Component.literal("§c✗ Du bist nicht im Gefängnis!"));
+            player.sendSystemMessage(Component.translatable("message.prison.not_in_prison"));
             return false;
         }
 
         if (!isBailAvailable(playerId, player.level().getGameTime())) {
-            player.sendSystemMessage(Component.literal("§c✗ Kaution noch nicht verfügbar!"));
+            player.sendSystemMessage(Component.translatable("message.prison.bail_not_available"));
             return false;
         }
 

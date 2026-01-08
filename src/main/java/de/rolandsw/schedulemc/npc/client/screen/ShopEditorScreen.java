@@ -101,7 +101,7 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
             // Preis-Eingabefeld
             row.priceInput = new EditBox(this.font,
                 x + 180, rowY, 40, 16,
-                Component.literal("Preis"));
+                Component.translatable("gui.common.price"));
             row.priceInput.setMaxLength(6);
             row.priceInput.setValue(String.valueOf(menu.getItemPrices()[slotIndex]));
             row.priceInput.setFilter(s -> s.matches("\\d*")); // Nur Zahlen
@@ -142,7 +142,7 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
             // Stock-Eingabefeld
             row.stockInput = new EditBox(this.font,
                 x + 248, rowY, 40, 16,
-                Component.literal("Lager"));
+                Component.translatable("gui.warehouse.storage"));
             row.stockInput.setMaxLength(6);
             row.stockInput.setValue(String.valueOf(menu.getItemStock()[slotIndex]));
             row.stockInput.setFilter(s -> s.matches("\\d*")); // Nur Zahlen

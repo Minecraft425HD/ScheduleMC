@@ -34,7 +34,7 @@ public class BankWithdrawPacket {
         PacketHandler.handleServerPacket(ctx, player -> {
             // Prüfe ob Betrag positiv
             if (amount <= 0) {
-                player.sendSystemMessage(Component.literal("⚠ Betrag muss positiv sein!")
+                player.sendSystemMessage(Component.translatable("message.bank.amount_must_positive")
                     .withStyle(ChatFormatting.RED));
                 return;
             }
@@ -42,9 +42,9 @@ public class BankWithdrawPacket {
             // Prüfe ob Spieler genug Geld auf Girokonto hat
             double giroBalance = EconomyManager.getBalance(player.getUUID());
             if (giroBalance < amount) {
-                player.sendSystemMessage(Component.literal("⚠ Nicht genug Guthaben auf Girokonto!")
+                player.sendSystemMessage(Component.translatable("message.bank.insufficient_checking")
                     .withStyle(ChatFormatting.RED));
-                player.sendSystemMessage(Component.literal("Verfügbar: ")
+                player.sendSystemMessage(Component.translatable("message.bank.available")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(String.format("%.2f€", giroBalance))
                         .withStyle(ChatFormatting.YELLOW)));
@@ -60,13 +60,13 @@ public class BankWithdrawPacket {
                     .withStyle(ChatFormatting.GREEN));
                 player.sendSystemMessage(Component.literal("🏦 ")
                     .withStyle(ChatFormatting.YELLOW)
-                    .append(Component.literal("ABHEBUNG ERFOLGREICH")
+                    .append(Component.translatable("message.bank.withdrawal_successful"))
                         .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)));
-                player.sendSystemMessage(Component.literal("Betrag: ")
+                player.sendSystemMessage(Component.translatable("message.bank.amount_label")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(String.format("-%.2f€", amount))
                         .withStyle(ChatFormatting.RED)));
-                player.sendSystemMessage(Component.literal("Neues Girokonto: ")
+                player.sendSystemMessage(Component.translatable("message.bank.new_checking_label")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID())))
                         .withStyle(ChatFormatting.AQUA)));
@@ -77,7 +77,7 @@ public class BankWithdrawPacket {
                 player.sendSystemMessage(Component.literal("═══════════════════════════════")
                     .withStyle(ChatFormatting.GREEN));
             } else {
-                player.sendSystemMessage(Component.literal("⚠ Fehler bei der Abbuchung!")
+                player.sendSystemMessage(Component.translatable("message.bank.debit_error")
                     .withStyle(ChatFormatting.RED));
             }
         });

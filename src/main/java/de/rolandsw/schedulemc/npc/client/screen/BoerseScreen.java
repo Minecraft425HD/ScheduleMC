@@ -65,60 +65,60 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
 
         // Gold Buttons (Zeile 1)
         int goldY = y + 45;
-        goldBuy1Button = addRenderableWidget(Button.builder(Component.literal("+1"), button -> {
+        goldBuy1Button = addRenderableWidget(Button.builder(Component.translatable("gui.common.plus_1"), button -> {
             trade(StockTradePacket.TradeType.BUY, StockTradePacket.StockType.GOLD, 1);
         }).bounds(x + 75, goldY, 20, 12).build());
 
-        goldBuy10Button = addRenderableWidget(Button.builder(Component.literal("+10"), button -> {
+        goldBuy10Button = addRenderableWidget(Button.builder(Component.translatable("gui.common.plus_10"), button -> {
             trade(StockTradePacket.TradeType.BUY, StockTradePacket.StockType.GOLD, 10);
         }).bounds(x + 97, goldY, 23, 12).build());
 
-        goldBuy64Button = addRenderableWidget(Button.builder(Component.literal("+64"), button -> {
+        goldBuy64Button = addRenderableWidget(Button.builder(Component.translatable("gui.common.plus_64"), button -> {
             trade(StockTradePacket.TradeType.BUY, StockTradePacket.StockType.GOLD, 64);
         }).bounds(x + 122, goldY, 23, 12).build());
 
-        goldSellAllButton = addRenderableWidget(Button.builder(Component.literal("Alle"), button -> {
+        goldSellAllButton = addRenderableWidget(Button.builder(Component.translatable("gui.common.all"), button -> {
             sellAll(StockTradePacket.StockType.GOLD);
         }).bounds(x + 147, goldY, 23, 12).build());
 
         // Diamant Buttons (Zeile 2)
         int diamondY = y + 68;
-        diamondBuy1Button = addRenderableWidget(Button.builder(Component.literal("+1"), button -> {
+        diamondBuy1Button = addRenderableWidget(Button.builder(Component.translatable("gui.common.plus_1"), button -> {
             trade(StockTradePacket.TradeType.BUY, StockTradePacket.StockType.DIAMOND, 1);
         }).bounds(x + 75, diamondY, 20, 12).build());
 
-        diamondBuy10Button = addRenderableWidget(Button.builder(Component.literal("+10"), button -> {
+        diamondBuy10Button = addRenderableWidget(Button.builder(Component.translatable("gui.common.plus_10"), button -> {
             trade(StockTradePacket.TradeType.BUY, StockTradePacket.StockType.DIAMOND, 10);
         }).bounds(x + 97, diamondY, 23, 12).build());
 
-        diamondBuy64Button = addRenderableWidget(Button.builder(Component.literal("+64"), button -> {
+        diamondBuy64Button = addRenderableWidget(Button.builder(Component.translatable("gui.common.plus_64"), button -> {
             trade(StockTradePacket.TradeType.BUY, StockTradePacket.StockType.DIAMOND, 64);
         }).bounds(x + 122, diamondY, 23, 12).build());
 
-        diamondSellAllButton = addRenderableWidget(Button.builder(Component.literal("Alle"), button -> {
+        diamondSellAllButton = addRenderableWidget(Button.builder(Component.translatable("gui.common.all"), button -> {
             sellAll(StockTradePacket.StockType.DIAMOND);
         }).bounds(x + 147, diamondY, 23, 12).build());
 
         // Smaragd Buttons (Zeile 3)
         int emeraldY = y + 91;
-        emeraldBuy1Button = addRenderableWidget(Button.builder(Component.literal("+1"), button -> {
+        emeraldBuy1Button = addRenderableWidget(Button.builder(Component.translatable("gui.common.plus_1"), button -> {
             trade(StockTradePacket.TradeType.BUY, StockTradePacket.StockType.EMERALD, 1);
         }).bounds(x + 75, emeraldY, 20, 12).build());
 
-        emeraldBuy10Button = addRenderableWidget(Button.builder(Component.literal("+10"), button -> {
+        emeraldBuy10Button = addRenderableWidget(Button.builder(Component.translatable("gui.common.plus_10"), button -> {
             trade(StockTradePacket.TradeType.BUY, StockTradePacket.StockType.EMERALD, 10);
         }).bounds(x + 97, emeraldY, 23, 12).build());
 
-        emeraldBuy64Button = addRenderableWidget(Button.builder(Component.literal("+64"), button -> {
+        emeraldBuy64Button = addRenderableWidget(Button.builder(Component.translatable("gui.common.plus_64"), button -> {
             trade(StockTradePacket.TradeType.BUY, StockTradePacket.StockType.EMERALD, 64);
         }).bounds(x + 122, emeraldY, 23, 12).build());
 
-        emeraldSellAllButton = addRenderableWidget(Button.builder(Component.literal("Alle"), button -> {
+        emeraldSellAllButton = addRenderableWidget(Button.builder(Component.translatable("gui.common.all"), button -> {
             sellAll(StockTradePacket.StockType.EMERALD);
         }).bounds(x + 147, emeraldY, 23, 12).build());
 
         // Close Button
-        closeButton = addRenderableWidget(Button.builder(Component.literal("Schließen"), button -> {
+        closeButton = addRenderableWidget(Button.builder(Component.translatable("gui.common.close"), button -> {
             this.onClose();
         }).bounds(x + 38, y + 140, 100, 20).build());
     }

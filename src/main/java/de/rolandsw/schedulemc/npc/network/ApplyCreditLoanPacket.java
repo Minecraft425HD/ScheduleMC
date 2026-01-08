@@ -65,17 +65,17 @@ public class ApplyCreditLoanPacket {
             if (currentPayments >= maxPerPlayer) {
                 player.sendSystemMessage(Component.literal("═══════════════════════════════")
                     .withStyle(ChatFormatting.RED));
-                player.sendSystemMessage(Component.literal("⚠ KREDIT ABGELEHNT!")
+                player.sendSystemMessage(Component.translatable("message.bank.loan_rejected")
                     .withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
-                player.sendSystemMessage(Component.literal("Du hast bereits ")
+                player.sendSystemMessage(Component.translatable("message.common.already_have_prefix")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(currentPayments + "/" + maxPerPlayer)
                         .withStyle(ChatFormatting.YELLOW))
-                    .append(Component.literal(" aktive Daueraufträge.")
+                    .append(Component.translatable("message.bank.active_orders_suffix")
                         .withStyle(ChatFormatting.GRAY)));
-                player.sendSystemMessage(Component.literal("Ein Kredit zählt als Dauerauftrag!")
+                player.sendSystemMessage(Component.translatable("message.bank.loan_counts_as_order")
                     .withStyle(ChatFormatting.GOLD));
-                player.sendSystemMessage(Component.literal("Lösche erst einen bestehenden Dauerauftrag!")
+                player.sendSystemMessage(Component.translatable("message.bank.delete_existing_first")
                     .withStyle(ChatFormatting.YELLOW));
                 player.sendSystemMessage(Component.literal("═══════════════════════════════")
                     .withStyle(ChatFormatting.RED));
@@ -105,13 +105,13 @@ public class ApplyCreditLoanPacket {
                         .withStyle(ChatFormatting.GREEN));
                     player.sendSystemMessage(Component.literal("🏦 ")
                         .withStyle(ChatFormatting.YELLOW)
-                        .append(Component.literal("KREDIT BEWILLIGT!")
+                        .append(Component.translatable("message.bank.loan_approved")
                             .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)));
                     player.sendSystemMessage(Component.literal("Typ: ")
                         .withStyle(ChatFormatting.GRAY)
                         .append(Component.literal(loanType.getDisplayNameDE())
                             .withStyle(ChatFormatting.GOLD)));
-                    player.sendSystemMessage(Component.literal("Betrag: ")
+                    player.sendSystemMessage(Component.translatable("gui.common.amount_label")
                         .withStyle(ChatFormatting.GRAY)
                         .append(Component.literal(String.format("+%.2f€", loanType.getBaseAmount()))
                             .withStyle(ChatFormatting.GREEN)));
@@ -123,7 +123,7 @@ public class ApplyCreditLoanPacket {
                         .withStyle(ChatFormatting.GRAY)
                         .append(Component.literal(loanType.getDurationDays() + " Tage")
                             .withStyle(ChatFormatting.AQUA)));
-                    player.sendSystemMessage(Component.literal("Tägliche Rate: ")
+                    player.sendSystemMessage(Component.translatable("message.bank.daily_rate")
                         .withStyle(ChatFormatting.GRAY)
                         .append(Component.literal(String.format("-%.2f€", loan.getDailyPayment()))
                             .withStyle(ChatFormatting.RED)));

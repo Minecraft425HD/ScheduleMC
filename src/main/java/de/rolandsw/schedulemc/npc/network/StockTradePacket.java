@@ -71,7 +71,7 @@ public class StockTradePacket {
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         PacketHandler.handleServerPacket(ctx, player -> {
             if (quantity <= 0) {
-                player.sendSystemMessage(Component.literal("⚠ Menge muss positiv sein!")
+                player.sendSystemMessage(Component.translatable("message.common.quantity_positive")
                     .withStyle(ChatFormatting.RED));
                 return;
             }
@@ -97,13 +97,13 @@ public class StockTradePacket {
         // Prüfe ob Spieler genug Geld hat
         double balance = EconomyManager.getBalance(player.getUUID());
         if (balance < totalCost) {
-            player.sendSystemMessage(Component.literal("⚠ Nicht genug Guthaben!")
+            player.sendSystemMessage(Component.translatable("message.bank.insufficient_balance")
                 .withStyle(ChatFormatting.RED));
-            player.sendSystemMessage(Component.literal("Benötigt: ")
+            player.sendSystemMessage(Component.translatable("message.bank.required")
                 .withStyle(ChatFormatting.GRAY)
                 .append(Component.literal(String.format("%.2f€", totalCost))
                     .withStyle(ChatFormatting.YELLOW)));
-            player.sendSystemMessage(Component.literal("Verfügbar: ")
+            player.sendSystemMessage(Component.translatable("message.bank.available")
                 .withStyle(ChatFormatting.GRAY)
                 .append(Component.literal(String.format("%.2f€", balance))
                     .withStyle(ChatFormatting.YELLOW)));
@@ -120,9 +120,9 @@ public class StockTradePacket {
         }
 
         if (emptySlots < slotsNeeded) {
-            player.sendSystemMessage(Component.literal("⚠ Nicht genug Platz im Inventar!")
+            player.sendSystemMessage(Component.translatable("message.common.no_inventory_space")
                 .withStyle(ChatFormatting.RED));
-            player.sendSystemMessage(Component.literal("Benötigt: ")
+            player.sendSystemMessage(Component.translatable("message.bank.required")
                 .withStyle(ChatFormatting.GRAY)
                 .append(Component.literal(slotsNeeded + " freie Slots")
                     .withStyle(ChatFormatting.YELLOW)));
@@ -132,7 +132,7 @@ public class StockTradePacket {
         // Ziehe Geld ab
         if (!EconomyManager.withdraw(player.getUUID(), totalCost, TransactionType.NPC_PURCHASE,
                 "Börsenkauf: " + quantity + "x " + itemName)) {
-            player.sendSystemMessage(Component.literal("⚠ Fehler bei der Abbuchung!")
+            player.sendSystemMessage(Component.translatable("message.bank.debit_error")
                 .withStyle(ChatFormatting.RED));
             return;
         }
@@ -151,13 +151,13 @@ public class StockTradePacket {
             .withStyle(ChatFormatting.GREEN));
         player.sendSystemMessage(Component.literal("📈 ")
             .withStyle(ChatFormatting.YELLOW)
-            .append(Component.literal("KAUF ERFOLGREICH")
+            .append(Component.translatable("message.stock.purchase_successful"))
                 .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)));
-        player.sendSystemMessage(Component.literal("Gekauft: ")
+        player.sendSystemMessage(Component.translatable("message.stock.bought_label")
             .withStyle(ChatFormatting.GRAY)
             .append(Component.literal(quantity + "x " + itemName)
                 .withStyle(ChatFormatting.YELLOW)));
-        player.sendSystemMessage(Component.literal("Preis pro Stück: ")
+        player.sendSystemMessage(Component.translatable("message.stock.price_per_unit")
             .withStyle(ChatFormatting.GRAY)
             .append(Component.literal(String.format("%.2f€", pricePerUnit))
                 .withStyle(ChatFormatting.GOLD)));
@@ -165,7 +165,7 @@ public class StockTradePacket {
             .withStyle(ChatFormatting.GRAY)
             .append(Component.literal(String.format("-%.2f€", totalCost))
                 .withStyle(ChatFormatting.RED)));
-        player.sendSystemMessage(Component.literal("Neuer Kontostand: ")
+        player.sendSystemMessage(Component.translatable("message.bank.new_balance_label")
             .withStyle(ChatFormatting.GRAY)
             .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID())))
                 .withStyle(ChatFormatting.AQUA)));
@@ -188,13 +188,13 @@ public class StockTradePacket {
         }
 
         if (itemCount < quantity) {
-            player.sendSystemMessage(Component.literal("⚠ Nicht genug Items!")
+            player.sendSystemMessage(Component.translatable("message.common.not_enough_items")
                 .withStyle(ChatFormatting.RED));
-            player.sendSystemMessage(Component.literal("Benötigt: ")
+            player.sendSystemMessage(Component.translatable("message.bank.required")
                 .withStyle(ChatFormatting.GRAY)
                 .append(Component.literal(quantity + "x " + itemName)
                     .withStyle(ChatFormatting.YELLOW)));
-            player.sendSystemMessage(Component.literal("Verfügbar: ")
+            player.sendSystemMessage(Component.translatable("message.bank.available")
                 .withStyle(ChatFormatting.GRAY)
                 .append(Component.literal(itemCount + "x")
                     .withStyle(ChatFormatting.YELLOW)));
@@ -221,21 +221,21 @@ public class StockTradePacket {
             .withStyle(ChatFormatting.GREEN));
         player.sendSystemMessage(Component.literal("📉 ")
             .withStyle(ChatFormatting.YELLOW)
-            .append(Component.literal("VERKAUF ERFOLGREICH")
+            .append(Component.translatable("message.stock.sale_successful"))
                 .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)));
-        player.sendSystemMessage(Component.literal("Verkauft: ")
+        player.sendSystemMessage(Component.translatable("message.stock.sold_label")
             .withStyle(ChatFormatting.GRAY)
             .append(Component.literal(quantity + "x " + itemName)
                 .withStyle(ChatFormatting.YELLOW)));
-        player.sendSystemMessage(Component.literal("Preis pro Stück: ")
+        player.sendSystemMessage(Component.translatable("message.stock.price_per_unit")
             .withStyle(ChatFormatting.GRAY)
             .append(Component.literal(String.format("%.2f€", pricePerUnit))
                 .withStyle(ChatFormatting.GOLD)));
-        player.sendSystemMessage(Component.literal("Gesamterlös: ")
+        player.sendSystemMessage(Component.translatable("message.stock.total_proceeds")
             .withStyle(ChatFormatting.GRAY)
             .append(Component.literal(String.format("+%.2f€", totalRevenue))
                 .withStyle(ChatFormatting.GREEN)));
-        player.sendSystemMessage(Component.literal("Neuer Kontostand: ")
+        player.sendSystemMessage(Component.translatable("message.bank.new_balance_label")
             .withStyle(ChatFormatting.GRAY)
             .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID())))
                 .withStyle(ChatFormatting.AQUA)));

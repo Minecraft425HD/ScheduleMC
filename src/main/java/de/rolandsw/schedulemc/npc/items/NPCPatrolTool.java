@@ -50,7 +50,7 @@ public class NPCPatrolTool extends Item {
             Integer npcId = selectedNPCs.get(player.getUUID());
             if (npcId == null) {
                 player.sendSystemMessage(
-                    Component.literal("Kein Polizist ausgewählt! Linksklick auf einen Polizei-NPC.")
+                    Component.translatable("message.npc.no_police_selected")
                         .withStyle(ChatFormatting.RED)
                 );
                 return InteractionResult.FAIL;
@@ -60,7 +60,7 @@ public class NPCPatrolTool extends Item {
 
             if (!(entity instanceof CustomNPCEntity npc)) {
                 player.sendSystemMessage(
-                    Component.literal("Ausgewählter NPC nicht mehr verfügbar!")
+                    Component.translatable("message.npc.selected_unavailable")
                         .withStyle(ChatFormatting.RED)
                 );
                 selectedNPCs.remove(player.getUUID());
@@ -70,7 +70,7 @@ public class NPCPatrolTool extends Item {
             // Prüfe ob es ein Polizist ist
             if (npc.getNpcData().getNpcType() != NPCType.POLIZEI) {
                 player.sendSystemMessage(
-                    Component.literal("Dieser NPC ist kein Polizist!")
+                    Component.translatable("message.npc.not_police")
                         .withStyle(ChatFormatting.RED)
                 );
                 return InteractionResult.FAIL;
@@ -80,7 +80,7 @@ public class NPCPatrolTool extends Item {
             int currentSize = npc.getNpcData().getPatrolPoints().size();
             if (currentSize >= 16) {
                 player.sendSystemMessage(
-                    Component.literal("Maximum von 16 Patrouillenpunkten erreicht!")
+                    Component.translatable("message.npc.patrol_max_reached")
                         .withStyle(ChatFormatting.RED)
                 );
                 return InteractionResult.FAIL;
@@ -91,7 +91,7 @@ public class NPCPatrolTool extends Item {
                 npc.getNpcData().setPoliceStation(clickedPos);
                 npc.getNpcData().addPatrolPoint(clickedPos); // Station ist IMMER Patrouillenpunkt 1!
                 player.sendSystemMessage(
-                    Component.literal("✓ Polizeistation gesetzt für ")
+                    Component.translatable("message.npc.police_station_set")
                         .withStyle(ChatFormatting.GREEN)
                         .append(Component.literal(npc.getNpcName())
                             .withStyle(ChatFormatting.YELLOW))
@@ -99,11 +99,11 @@ public class NPCPatrolTool extends Item {
                             .withStyle(ChatFormatting.WHITE))
                 );
                 player.sendSystemMessage(
-                    Component.literal("→ Patrouillenpunkt 1/16 (Polizeistation)")
+                    Component.translatable("message.npc.patrol_first_point")
                         .withStyle(ChatFormatting.AQUA)
                 );
                 player.sendSystemMessage(
-                    Component.literal("Jetzt weitere Patrouillenpunkte setzen (2-16)")
+                    Component.translatable("message.npc.patrol_set_more_points")
                         .withStyle(ChatFormatting.GRAY)
                 );
             } else {
@@ -111,7 +111,7 @@ public class NPCPatrolTool extends Item {
                 npc.getNpcData().addPatrolPoint(clickedPos);
                 int newSize = npc.getNpcData().getPatrolPoints().size();
                 player.sendSystemMessage(
-                    Component.literal("✓ Patrouillenpunkt " + newSize + "/16 gesetzt bei " + clickedPos.toShortString())
+                    Component.translatable("message.npc.patrol_point_set", newSize, clickedPos.toShortString())
                         .withStyle(ChatFormatting.GREEN)
                 );
             }
@@ -132,7 +132,7 @@ public class NPCPatrolTool extends Item {
             // Prüfe ob es ein Polizist ist
             if (npc.getNpcData().getNpcType() != NPCType.POLIZEI) {
                 player.sendSystemMessage(
-                    Component.literal("Dieser NPC ist kein Polizist! Das Patrol-Tool funktioniert nur mit Polizei-NPCs.")
+                    Component.translatable("message.npc.patrol_tool_police_only")
                         .withStyle(ChatFormatting.RED)
                 );
                 return InteractionResult.FAIL;
@@ -148,11 +148,11 @@ public class NPCPatrolTool extends Item {
             selectedNPCs.put(player.getUUID(), npc.getId());
 
             player.sendSystemMessage(
-                Component.literal("Polizist ")
+                Component.translatable("message.npc.police_officer_prefix")
                     .withStyle(ChatFormatting.GREEN)
                     .append(Component.literal(npc.getNpcName())
                         .withStyle(ChatFormatting.YELLOW))
-                    .append(Component.literal(" ausgewählt!")
+                    .append(Component.translatable("message.common.selected")
                         .withStyle(ChatFormatting.GREEN))
             );
 
@@ -162,16 +162,16 @@ public class NPCPatrolTool extends Item {
 
             if (hasStation) {
                 player.sendSystemMessage(
-                    Component.literal("Station: ")
+                    Component.translatable("message.npc.station_label")
                         .withStyle(ChatFormatting.GRAY)
                         .append(Component.literal(npc.getNpcData().getPoliceStation().toShortString())
                             .withStyle(ChatFormatting.WHITE))
-                        .append(Component.literal(" | Patrouille: " + patrolCount + "/16")
+                        .append(Component.translatable("message.npc.patrol_count_suffix", patrolCount)
                             .withStyle(ChatFormatting.GRAY))
                 );
             } else {
                 player.sendSystemMessage(
-                    Component.literal("Rechtsklick auf Block = Polizeistation setzen")
+                    Component.translatable("message.npc.right_click_set_police_station")
                         .withStyle(ChatFormatting.GRAY)
                 );
             }
@@ -194,14 +194,14 @@ public class NPCPatrolTool extends Item {
         BlockPos station = npc.getNpcData().getPoliceStation();
         if (station != null) {
             player.sendSystemMessage(
-                Component.literal("Polizeistation: ")
+                Component.translatable("message.npc.police_station_label")
                     .withStyle(ChatFormatting.AQUA)
                     .append(Component.literal(station.toShortString())
                         .withStyle(ChatFormatting.WHITE))
             );
         } else {
             player.sendSystemMessage(
-                Component.literal("Polizeistation: ")
+                Component.translatable("message.npc.police_station_label")
                     .withStyle(ChatFormatting.AQUA)
                     .append(Component.literal("Nicht gesetzt")
                         .withStyle(ChatFormatting.RED))
@@ -210,13 +210,13 @@ public class NPCPatrolTool extends Item {
 
         int patrolCount = npc.getNpcData().getPatrolPoints().size();
         player.sendSystemMessage(
-            Component.literal("Patrouillenpunkte: " + patrolCount + "/16")
+            Component.translatable("message.npc.patrol_points_count", patrolCount)
                 .withStyle(ChatFormatting.AQUA)
         );
 
         if (patrolCount > 0) {
             player.sendSystemMessage(
-                Component.literal("Punkte:")
+                Component.translatable("message.npc.points_label")
                     .withStyle(ChatFormatting.GRAY)
             );
             for (int i = 0; i < Math.min(patrolCount, 5); i++) {
@@ -235,7 +235,7 @@ public class NPCPatrolTool extends Item {
         }
 
         player.sendSystemMessage(
-            Component.literal("Zum Zurücksetzen: /npc reset patrol <NPC-Name>")
+            Component.translatable("message.npc.reset_patrol_hint")
                 .withStyle(ChatFormatting.YELLOW)
         );
     }

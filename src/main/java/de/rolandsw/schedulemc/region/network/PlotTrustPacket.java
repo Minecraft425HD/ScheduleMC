@@ -59,19 +59,19 @@ public class PlotTrustPacket {
             PlotRegion plot = PlotManager.getPlot(msg.plotId);
 
             if (plot == null) {
-                player.sendSystemMessage(Component.literal("§cPlot nicht gefunden!"));
+                player.sendSystemMessage(Component.translatable("message.plot.not_found"));
                 return;
             }
 
             // Prüfe ob Spieler Besitzer ist
             if (!plot.getOwnerUUID().equals(player.getUUID().toString())) {
-                player.sendSystemMessage(Component.literal("§cDu bist nicht der Besitzer dieses Plots!"));
+                player.sendSystemMessage(Component.translatable("message.plot.not_owner"));
                 return;
             }
 
             // Validiere Spielername
             if (msg.playerName == null || msg.playerName.trim().isEmpty()) {
-                player.sendSystemMessage(Component.literal("§cSpielername darf nicht leer sein!"));
+                player.sendSystemMessage(Component.translatable("message.plot.playername_empty"));
                 return;
             }
 
@@ -83,7 +83,7 @@ public class PlotTrustPacket {
                 targetUUID = profile.getId();
             } else {
                 // Spieler nicht gefunden
-                player.sendSystemMessage(Component.literal("§cSpieler '")
+                player.sendSystemMessage(Component.translatable("message.plot.player_not_found_prefix")
                     .append(Component.literal(msg.playerName).withStyle(ChatFormatting.GOLD))
                     .append(Component.literal("' wurde nie auf dem Server gesehen!")));
                 return;
@@ -93,14 +93,14 @@ public class PlotTrustPacket {
                 case ADD:
                     // Prüfe ob Spieler sich selbst trustet
                     if (msg.playerName.equalsIgnoreCase(player.getName().getString())) {
-                        player.sendSystemMessage(Component.literal("§cDu kannst dich nicht selbst vertrauen!"));
+                        player.sendSystemMessage(Component.translatable("message.plot.cannot_trust_self"));
                         return;
                     }
 
                     if (plot.getTrustedPlayers().contains(targetUUID.toString())) {
                         player.sendSystemMessage(Component.literal("§e")
                             .append(Component.literal(msg.playerName).withStyle(ChatFormatting.GOLD))
-                            .append(Component.literal(" ist bereits vertrauenswürdig!")));
+                            .append(Component.translatable("message.plot.already_trusted_suffix")));
                         return;
                     }
 
@@ -109,7 +109,7 @@ public class PlotTrustPacket {
 
                     player.sendSystemMessage(Component.literal("§a")
                         .append(Component.literal(msg.playerName).withStyle(ChatFormatting.GOLD))
-                        .append(Component.literal(" wurde als vertrauenswürdig hinzugefügt!")));
+                        .append(Component.translatable("message.plot.trust_added_suffix")));
                     break;
 
                 case REMOVE:

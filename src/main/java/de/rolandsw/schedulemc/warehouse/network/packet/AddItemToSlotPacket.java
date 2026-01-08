@@ -94,10 +94,10 @@ public class AddItemToSlotPacket {
 
             if (addedToShop) {
                 player.sendSystemMessage(
-                    Component.literal("§a✓ Item hinzugefügt!")
+                    Component.translatable("message.warehouse.item_added")
                         .append(Component.literal("\n§7Item: §e" + item.getDescription().getString()))
                         .append(Component.literal("\n§7Slot: §e#" + emptySlotIndex))
-                        .append(Component.literal("\n§7Status: §eLager (Stock-basiert)"))
+                        .append(Component.translatable("message.warehouse.status_stock"))
                 );
             } else {
                 PacketHandler.sendWarning(player, "Item zum Warehouse hinzugefügt, aber kein NPC-Shop aktualisiert!");

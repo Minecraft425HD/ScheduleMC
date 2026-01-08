@@ -34,7 +34,7 @@ public class DeleteRecurringPaymentPacket {
         PacketHandler.handleServerPacket(ctx, player -> {
             // Validierung: PaymentId nicht leer
             if (paymentId == null || paymentId.trim().isEmpty()) {
-                player.sendSystemMessage(Component.literal("⚠ Ungültige Dauerauftrag-ID!")
+                player.sendSystemMessage(Component.translatable("message.bank.invalid_payment_id")
                     .withStyle(ChatFormatting.RED));
                 return;
             }
@@ -48,7 +48,7 @@ public class DeleteRecurringPaymentPacket {
                     .withStyle(ChatFormatting.YELLOW));
                 player.sendSystemMessage(Component.literal("🗑 ")
                     .withStyle(ChatFormatting.RED)
-                    .append(Component.literal("DAUERAUFTRAG GELÖSCHT")
+                    .append(Component.translatable("message.bank.order_deleted")
                         .withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD)));
                 player.sendSystemMessage(Component.literal("ID: ")
                     .withStyle(ChatFormatting.GRAY)
@@ -58,7 +58,7 @@ public class DeleteRecurringPaymentPacket {
                     .withStyle(ChatFormatting.YELLOW));
             } else {
                 // Fehler
-                player.sendSystemMessage(Component.literal("⚠ Dauerauftrag nicht gefunden!")
+                player.sendSystemMessage(Component.translatable("message.bank.standing_order_not_found")
                     .withStyle(ChatFormatting.RED));
                 player.sendSystemMessage(Component.literal("ID: ")
                     .withStyle(ChatFormatting.GRAY)

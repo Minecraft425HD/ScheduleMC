@@ -57,16 +57,20 @@ public class FreshMushroomItem extends Item {
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
         TobaccoQuality quality = getQuality(stack);
-        tooltip.add(Component.literal("§7Sorte: " + mushroomType.getColoredName()));
-        tooltip.add(Component.literal("§7Qualität: " + quality.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.mushroom.type_label").append(mushroomType.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§c⚠ Verderblich!"));
-        tooltip.add(Component.literal("§8Zum Trockner bringen"));
+        tooltip.add(Component.translatable("tooltip.fresh_mushroom.perishable"));
+        tooltip.add(Component.translatable("tooltip.fresh_mushroom.bring_to_dryer"));
     }
 
     @Override
     public Component getName(ItemStack stack) {
         TobaccoQuality quality = getQuality(stack);
-        return Component.literal(mushroomType.getColorCode() + "Frische " + mushroomType.getDisplayName() + " §7[" + quality.getColoredName() + "§7]");
+        return Component.literal(mushroomType.getColorCode())
+            .append(Component.translatable("item.fresh_mushroom.name", mushroomType.getDisplayName()))
+            .append(Component.literal(" §7["))
+            .append(quality.getColoredName())
+            .append(Component.literal("§7]"));
     }
 }

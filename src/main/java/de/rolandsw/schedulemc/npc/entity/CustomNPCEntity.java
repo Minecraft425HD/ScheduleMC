@@ -149,7 +149,7 @@ public class CustomNPCEntity extends PathfinderMob {
                     de.rolandsw.schedulemc.vehicle.items.VehicleSpawnTool.linkToDealer(heldItem, getNpcData().getNpcUUID(), serverPlayer);
                     return false; // Verhindere Schaden
                 } else {
-                    serverPlayer.sendSystemMessage(net.minecraft.network.chat.Component.literal("⚠ Dieser NPC ist kein Autohändler!")
+                    serverPlayer.sendSystemMessage(net.minecraft.network.chat.Component.translatable("message.npc.not_car_dealer")
                         .withStyle(net.minecraft.ChatFormatting.RED));
                     return false;
                 }

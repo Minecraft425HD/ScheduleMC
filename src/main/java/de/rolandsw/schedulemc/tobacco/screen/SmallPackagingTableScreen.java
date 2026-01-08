@@ -54,7 +54,7 @@ public class SmallPackagingTableScreen extends AbstractContainerScreen<SmallPack
         // Unpack Button
         this.addRenderableWidget(
             Button.builder(
-                Component.literal("Unpack"),
+                Component.translatable("gui.common.unpack"),
                 btn -> onPackageButton(-1)
             )
             .bounds(centerX + 30, buttonY, buttonWidth, buttonHeight)

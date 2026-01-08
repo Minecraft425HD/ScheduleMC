@@ -46,13 +46,13 @@ public class PlotAbandonPacket {
             PlotRegion plot = PlotManager.getPlot(msg.plotId);
 
             if (plot == null) {
-                player.sendSystemMessage(Component.literal("§cPlot nicht gefunden!"));
+                player.sendSystemMessage(Component.translatable("message.plot.not_found"));
                 return;
             }
 
             // Prüfe ob Spieler Besitzer ist
             if (!plot.getOwnerUUID().equals(player.getUUID().toString())) {
-                player.sendSystemMessage(Component.literal("§cDu bist nicht der Besitzer dieses Plots!"));
+                player.sendSystemMessage(Component.translatable("message.plot.not_owner"));
                 return;
             }
 
@@ -71,7 +71,7 @@ public class PlotAbandonPacket {
 
             player.sendSystemMessage(Component.literal("§c§lPlot aufgegeben: ")
                 .append(Component.literal(plotName).withStyle(ChatFormatting.GRAY)));
-            player.sendSystemMessage(Component.literal("§7Der Plot steht nun wieder zum Verkauf."));
+            player.sendSystemMessage(Component.translatable("message.plot.abandoned"));
         });
     }
 }

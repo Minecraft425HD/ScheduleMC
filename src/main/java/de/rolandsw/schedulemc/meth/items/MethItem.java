@@ -50,22 +50,22 @@ public class MethItem extends Item {
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
         MethQuality quality = getQuality(stack);
 
-        tooltip.add(Component.literal("§7Qualität: " + quality.getColoredName()));
-        tooltip.add(Component.literal("§7Reinheit: §f" + getPurityPercent(quality) + "%"));
-        tooltip.add(Component.literal("§7Gewicht: §f" + stack.getCount() + "g §8(" + stack.getCount() + "x 1g)"));
+        tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.meth.purity").append(Component.literal("§f" + getPurityPercent(quality) + "%")));
+        tooltip.add(Component.translatable("tooltip.meth.weight").append(Component.literal("§f" + stack.getCount() + "g §8(" + stack.getCount() + "x 1g)")));
         tooltip.add(Component.literal(""));
 
         String colorDesc = switch (quality) {
-            case STANDARD -> "§fWeiße Kristalle";
-            case GUT -> "§eGelbliche Kristalle";
-            case BLUE_SKY -> "§b§lBlaue Kristalle";
+            case STANDARD -> "tooltip.meth.white_crystals";
+            case GUT -> "tooltip.meth.yellowish_crystals";
+            case BLUE_SKY -> "tooltip.meth.blue_crystals";
         };
-        tooltip.add(Component.literal(colorDesc));
-        tooltip.add(Component.literal("§8Kann verpackt und verkauft werden"));
+        tooltip.add(Component.translatable(colorDesc));
+        tooltip.add(Component.translatable("tooltip.meth.can_package"));
 
         if (quality == MethQuality.BLUE_SKY) {
             tooltip.add(Component.literal(""));
-            tooltip.add(Component.literal("§b\"Say my name.\""));
+            tooltip.add(Component.translatable("tooltip.meth.say_my_name"));
         }
     }
 

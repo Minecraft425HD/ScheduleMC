@@ -38,7 +38,7 @@ public class PayFuelBillPacket {
 
             if (totalAmount <= 0 || unpaidBills.isEmpty()) {
                 player.sendSystemMessage(Component.literal("⚠ ").withStyle(ChatFormatting.YELLOW)
-                    .append(Component.literal("Keine offenen Rechnungen!").withStyle(ChatFormatting.GRAY)));
+                    .append(Component.translatable("message.bank.no_open_bills_plain").withStyle(ChatFormatting.GRAY)));
                 return;
             }
 
@@ -47,9 +47,9 @@ public class PayFuelBillPacket {
             if (balance < totalAmount) {
                 player.sendSystemMessage(Component.literal("⚠ ").withStyle(ChatFormatting.RED)
                     .append(Component.literal("Nicht genug Geld!").withStyle(ChatFormatting.RED)));
-                player.sendSystemMessage(Component.literal("Benötigt: ").withStyle(ChatFormatting.GRAY)
+                player.sendSystemMessage(Component.translatable("message.bank.required").withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(String.format("%.2f€", totalAmount)).withStyle(ChatFormatting.RED))
-                    .append(Component.literal(" | Verfügbar: ").withStyle(ChatFormatting.GRAY))
+                    .append(Component.translatable("message.stock.available_separator").withStyle(ChatFormatting.GRAY))
                     .append(Component.literal(String.format("%.2f€", balance)).withStyle(ChatFormatting.YELLOW)));
                 return;
             }
@@ -67,10 +67,10 @@ public class PayFuelBillPacket {
                 // Erfolgs-Nachricht
                 player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
                 player.sendSystemMessage(Component.literal("✓ ").withStyle(ChatFormatting.GREEN)
-                    .append(Component.literal("ALLE RECHNUNGEN BEZAHLT").withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)));
-                player.sendSystemMessage(Component.literal("Anzahl Rechnungen: ").withStyle(ChatFormatting.GRAY)
+                    .append(Component.translatable("message.fuel.all_bills_paid").withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)));
+                player.sendSystemMessage(Component.translatable("message.fuel.bill_count_label").withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(String.valueOf(billCount)).withStyle(ChatFormatting.AQUA)));
-                player.sendSystemMessage(Component.literal("Gesamtbetrag: ").withStyle(ChatFormatting.GRAY)
+                player.sendSystemMessage(Component.translatable("message.common.total_amount_label").withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(String.format("%.2f€", totalAmount)).withStyle(ChatFormatting.GOLD)));
                 player.sendSystemMessage(Component.literal("Neues Guthaben: ").withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(String.format("%.2f€", WalletManager.getBalance(playerUUID))).withStyle(ChatFormatting.YELLOW)));

@@ -21,7 +21,7 @@ public class PackagingBoxItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.literal("§7Für 10g Tabak"));
-        tooltip.add(Component.literal("§7Preis: §e6€"));
+        tooltip.add(Component.translatable("tooltip.packaging_box.for_weight"));
+        tooltip.add(Component.translatable("tooltip.packaging.price", "6€"));
     }
 }

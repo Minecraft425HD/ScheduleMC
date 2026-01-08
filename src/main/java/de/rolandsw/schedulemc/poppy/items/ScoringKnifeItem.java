@@ -23,14 +23,14 @@ public class ScoringKnifeItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.literal("§7Zum Ritzen von Mohnkapseln"));
+        tooltip.add(Component.translatable("tooltip.scoring_knife.for_scoring"));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§eVerwendung:"));
-        tooltip.add(Component.literal("§8Im Crafting-Grid mit Mohnkapsel"));
-        tooltip.add(Component.literal("§8kombinieren → Rohopium"));
+        tooltip.add(Component.translatable("tooltip.scoring_knife.usage_label"));
+        tooltip.add(Component.translatable("tooltip.scoring_knife.craft_with_pod"));
+        tooltip.add(Component.translatable("tooltip.scoring_knife.yields_opium"));
         tooltip.add(Component.literal(""));
         int durability = stack.getMaxDamage() - stack.getDamageValue();
-        tooltip.add(Component.literal("§7Haltbarkeit: §e" + durability + "/" + stack.getMaxDamage()));
+        tooltip.add(Component.translatable("tooltip.scoring_knife.durability", durability, stack.getMaxDamage()));
     }
 
     @Override

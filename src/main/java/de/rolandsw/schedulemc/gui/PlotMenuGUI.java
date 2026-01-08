@@ -93,7 +93,7 @@ public class PlotMenuGUI {
         
         // Daily Reward Info
         ItemStack daily = new ItemStack(Items.GOLD_BLOCK);
-        daily.setHoverName(Component.literal("§6§lTägliche Belohnung"));
+        daily.setHoverName(Component.translatable("gui.daily_reward"));
         addLore(daily,
             "§7Hole deine tägliche Belohnung ab!",
             "§7Befehl: §e/daily",
@@ -118,13 +118,13 @@ public class PlotMenuGUI {
         // ═══════════════════════════════════════════════════════════
         
         ItemStack close = new ItemStack(Items.BARRIER);
-        close.setHoverName(Component.literal("§c§lSchließen"));
+        close.setHoverName(Component.translatable("gui.common.close_red"));
         container.setItem(26, close);
         
         // Container öffnen
         MenuProvider provider = new SimpleMenuProvider(
             (id, inv, p) -> new PlotMenuContainer(id, inv, container),
-            Component.literal("§8Plot-Menü")
+            Component.translatable("gui.plot.menu")
         );
         
         player.openMenu(provider);

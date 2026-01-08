@@ -43,7 +43,7 @@ public class ClosePrisonScreenPacket {
 
                 if (mc.player != null) {
                     mc.player.displayClientMessage(
-                        Component.literal("§a✓ ENTLASSEN: " + msg.reason),
+                        Component.translatable("message.prison.released", msg.reason),
                         false
                     );
                 }

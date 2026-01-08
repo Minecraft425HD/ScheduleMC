@@ -93,13 +93,13 @@ public class DieselCanisterItem extends Item {
         int amount = getDieselAmount(stack);
         float percentage = (amount / (float) MAX_CAPACITY) * 100;
 
-        tooltip.add(Component.literal("§7Inhalt: §e" + amount + " mB §7/ §f" + MAX_CAPACITY + " mB"));
-        tooltip.add(Component.literal("§7Füllstand: §e" + String.format("%.0f", percentage) + "%"));
+        tooltip.add(Component.translatable("tooltip.diesel.content", amount, MAX_CAPACITY));
+        tooltip.add(Component.translatable("tooltip.diesel.fill_level", String.format("%.0f", percentage)));
         tooltip.add(Component.literal(""));
         if (amount > 0) {
-            tooltip.add(Component.literal("§aVerwendbar in Extraktionswanne"));
+            tooltip.add(Component.translatable("tooltip.diesel.usable_extraction"));
         } else {
-            tooltip.add(Component.literal("§cLeer - muss aufgefüllt werden"));
+            tooltip.add(Component.translatable("tooltip.diesel.empty_refill"));
         }
     }
 
@@ -107,11 +107,11 @@ public class DieselCanisterItem extends Item {
     public Component getName(ItemStack stack) {
         int amount = getDieselAmount(stack);
         if (amount <= 0) {
-            return Component.literal("Leerer Diesel-Kanister");
+            return Component.translatable("item.diesel_canister.empty");
         } else if (amount >= MAX_CAPACITY) {
-            return Component.literal("Voller Diesel-Kanister");
+            return Component.translatable("item.diesel_canister.full");
         }
-        return Component.literal("Diesel-Kanister (" + amount + " mB)");
+        return Component.translatable("item.diesel_canister.partial", amount);
     }
 
     @Override

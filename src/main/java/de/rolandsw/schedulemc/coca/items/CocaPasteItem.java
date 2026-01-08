@@ -60,16 +60,16 @@ public class CocaPasteItem extends Item {
         CocaType type = getType(stack);
         TobaccoQuality quality = getQuality(stack);
 
-        tooltip.add(Component.literal("§7Sorte: " + type.getColoredName()));
-        tooltip.add(Component.literal("§7Qualität: " + quality.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.coca.type_label").append(type.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§6Braune Paste"));
-        tooltip.add(Component.literal("§8Muss raffiniert werden (Raffinerie-Ofen)"));
+        tooltip.add(Component.translatable("tooltip.coca_paste.brown_paste"));
+        tooltip.add(Component.translatable("tooltip.coca_paste.must_refine"));
     }
 
     @Override
     public Component getName(ItemStack stack) {
         CocaType type = getType(stack);
-        return Component.literal(type.getDisplayName() + " Koka-Paste");
+        return Component.translatable("item.coca_paste.name", type.getDisplayName());
     }
 }

@@ -75,7 +75,7 @@ public class PurchaseItemPacket {
         }
 
         if (itemIndex < 0 || itemIndex >= shopItems.size()) {
-            player.sendSystemMessage(Component.literal("§cUngültiges Item!"));
+            player.sendSystemMessage(Component.translatable("message.common.invalid_item"));
             return;
         }
 
@@ -93,7 +93,7 @@ public class PurchaseItemPacket {
         // SICHERHEIT: Berechne mit long um Overflow zu erkennen
         long totalPriceLong = (long) entry.getPrice() * safeQuantity;
         if (totalPriceLong > Integer.MAX_VALUE) {
-            player.sendSystemMessage(Component.literal("§cGesamtpreis zu hoch! Kaufe weniger Items."));
+            player.sendSystemMessage(Component.translatable("message.shop.total_too_high"));
             return;
         }
         int totalPrice = (int) totalPriceLong;
@@ -110,7 +110,7 @@ public class PurchaseItemPacket {
             } else {
                 available = entry.getStock();
             }
-            player.sendSystemMessage(Component.literal("§cNicht genug auf Lager! Verfügbar: " + available));
+            player.sendSystemMessage(Component.translatable("message.shop.not_enough_stock", available));
             return;
         }
 
@@ -125,7 +125,7 @@ public class PurchaseItemPacket {
 
             // Prüfe ob es "Keine Rechnungen" ist
             if ("NoBill".equals(billType)) {
-                player.sendSystemMessage(Component.literal("✓ Sie haben keine offenen Rechnungen!")
+                player.sendSystemMessage(Component.translatable("message.bank.no_outstanding_bills")
                     .withStyle(ChatFormatting.GREEN));
                 return;
             }
@@ -231,14 +231,14 @@ public class PurchaseItemPacket {
         String stationName = FuelStationRegistry.getDisplayName(fuelStationId);
         player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GREEN));
         player.sendSystemMessage(Component.literal("⛽ ").withStyle(ChatFormatting.YELLOW)
-            .append(Component.literal("RECHNUNG BEZAHLT").withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)));
-        player.sendSystemMessage(Component.literal("Zapfsäule: ").withStyle(ChatFormatting.GRAY)
+            .append(Component.translatable("message.fuel.bill_paid").withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)));
+        player.sendSystemMessage(Component.translatable("message.fuel.pump_label").withStyle(ChatFormatting.GRAY)
             .append(Component.literal(stationName).withStyle(ChatFormatting.AQUA)));
-        player.sendSystemMessage(Component.literal("Getankt: ").withStyle(ChatFormatting.GRAY)
+        player.sendSystemMessage(Component.translatable("message.fuel.refueled_label").withStyle(ChatFormatting.GRAY)
             .append(Component.literal(totalFueled + " mB Bio-Diesel").withStyle(ChatFormatting.YELLOW)));
         player.sendSystemMessage(Component.literal("Gezahlt: ").withStyle(ChatFormatting.GRAY)
             .append(Component.literal(String.format("%.2f€", totalCost)).withStyle(ChatFormatting.GOLD)));
-        player.sendSystemMessage(Component.literal("Restguthaben: ").withStyle(ChatFormatting.GRAY)
+        player.sendSystemMessage(Component.translatable("message.bank.remaining_credit_label").withStyle(ChatFormatting.GRAY)
             .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID()))).withStyle(ChatFormatting.YELLOW)));
         player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GREEN));
     }
@@ -296,7 +296,7 @@ public class PurchaseItemPacket {
             tag.putDouble("TotalCost", 0.0);
 
             // Setze Namen: Keine offenen Rechnungen
-            noBillItem.setHoverName(Component.literal("📄 Keine offenen Rechnungen")
+            noBillItem.setHoverName(Component.translatable("message.bank.no_open_bills")
                 .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD));
 
             // Erstelle Shop-Entry mit Preis 0

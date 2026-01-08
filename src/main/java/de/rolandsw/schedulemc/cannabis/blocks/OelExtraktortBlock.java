@@ -64,7 +64,7 @@ public class OelExtraktortBlock extends BaseEntityBlock {
             ItemStack oil = extraktor.extractOil();
             if (!oil.isEmpty()) {
                 player.addItem(oil);
-                player.displayClientMessage(Component.literal("§e🧪 Cannabis-Öl entnommen!"), true);
+                player.displayClientMessage(Component.translatable("block.oil_extractor.oil_removed"), true);
                 return InteractionResult.CONSUME;
             }
         }
@@ -75,9 +75,10 @@ public class OelExtraktortBlock extends BaseEntityBlock {
                 if (!player.isCreative()) {
                     heldItem.shrink(1);
                 }
-                String type = extraktor.isFromBuds() ? "Blüten" : "Trim";
-                player.displayClientMessage(Component.literal(
-                        "§a🌿 " + type + " hinzugefügt §7(Gesamt: " + extraktor.getMaterialWeight() + "g)"
+                String typeKey = extraktor.isFromBuds() ? "block.oil_extractor.buds_label" : "block.oil_extractor.trim_label";
+                player.displayClientMessage(Component.translatable("block.oil_extractor.material_added").append(
+                        Component.translatable(typeKey)).append(Component.translatable("block.oil_extractor.material_added_suffix")).append(
+                        Component.translatable("block.oil_extractor.material_grams", extraktor.getMaterialWeight())
                 ), true);
                 return InteractionResult.CONSUME;
             }
@@ -89,8 +90,8 @@ public class OelExtraktortBlock extends BaseEntityBlock {
                 if (!player.isCreative()) {
                     heldItem.shrink(heldItem.getCount());
                 }
-                player.displayClientMessage(Component.literal(
-                        "§b🧴 Lösungsmittel hinzugefügt §7(Gesamt: " + extraktor.getSolventCount() + ")"
+                player.displayClientMessage(Component.translatable("block.oil_extractor.solvent_added").append(
+                        Component.translatable("block.oil_extractor.solvent_count", extraktor.getSolventCount())
                 ), true);
                 return InteractionResult.CONSUME;
             }
@@ -99,7 +100,7 @@ public class OelExtraktortBlock extends BaseEntityBlock {
         // Extraktion starten (leere Hand + Shift)
         if (heldItem.isEmpty() && player.isShiftKeyDown() && extraktor.canStart()) {
             if (extraktor.startExtraction()) {
-                player.displayClientMessage(Component.literal("§e⚗ Extraktion gestartet..."), true);
+                player.displayClientMessage(Component.translatable("block.oil_extractor.extraction_started"), true);
                 return InteractionResult.CONSUME;
             }
         }
@@ -107,26 +108,29 @@ public class OelExtraktortBlock extends BaseEntityBlock {
         // Status anzeigen
         if (extraktor.isExtracting()) {
             int progress = (int) (extraktor.getExtractionProgress() * 100);
-            player.displayClientMessage(Component.literal(
-                    "§e⚗ Extrahiere... " + progress + "%"
+            player.displayClientMessage(Component.translatable("block.oil_extractor.extracting").append(
+                    Component.translatable("block.oil_extractor.extracting_percent", progress)
             ), true);
         } else if (extraktor.getMaterialWeight() > 0) {
-            String type = extraktor.isFromBuds() ? "Blüten" : "Trim";
-            player.displayClientMessage(Component.literal(
-                    "§7" + type + ": §f" + extraktor.getMaterialWeight() + "g §7| Lösungsmittel: §f" + extraktor.getSolventCount()
-            ), true);
-            player.displayClientMessage(Component.literal(
-                    "§7Erwartetes Öl: §f" + extraktor.getExpectedOilAmount() + "ml"
-            ), false);
+            String typeKey = extraktor.isFromBuds() ? "block.oil_extractor.buds_label" : "block.oil_extractor.trim_label";
+            player.displayClientMessage(Component.translatable("block.oil_extractor.status")
+                    .append(Component.translatable(typeKey))
+                    .append(Component.translatable("block.oil_extractor.status_separator"))
+                    .append(Component.literal(extraktor.getMaterialWeight() + ""))
+                    .append(Component.translatable("block.oil_extractor.status_grams"))
+                    .append(Component.literal(extraktor.getSolventCount() + "")), true);
+            player.displayClientMessage(Component.translatable("block.oil_extractor.expected_oil")
+                    .append(Component.literal(extraktor.getExpectedOilAmount() + ""))
+                    .append(Component.translatable("block.oil_extractor.expected_ml")), false);
             if (extraktor.canStart()) {
-                player.displayClientMessage(Component.literal("§8[Shift+Rechtsklick zum Starten]"), false);
+                player.displayClientMessage(Component.translatable("block.oil_extractor.shift_to_start"), false);
             } else if (extraktor.getSolventCount() < 1) {
-                player.displayClientMessage(Component.literal("§c⚠ Lösungsmittel benötigt"), false);
+                player.displayClientMessage(Component.translatable("block.oil_extractor.solvent_needed"), false);
             } else {
-                player.displayClientMessage(Component.literal("§c⚠ Mindestens 10g Material benötigt"), false);
+                player.displayClientMessage(Component.translatable("block.oil_extractor.min_material"), false);
             }
         } else {
-            player.displayClientMessage(Component.literal("§8Öl-Extraktor ist leer"), true);
+            player.displayClientMessage(Component.translatable("block.oil_extractor.empty"), true);
         }
 
         return InteractionResult.SUCCESS;

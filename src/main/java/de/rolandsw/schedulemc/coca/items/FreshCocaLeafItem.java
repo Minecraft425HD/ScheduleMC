@@ -60,15 +60,15 @@ public class FreshCocaLeafItem extends Item {
         CocaType type = getType(stack);
         TobaccoQuality quality = getQuality(stack);
 
-        tooltip.add(Component.literal("§7Sorte: " + type.getColoredName()));
-        tooltip.add(Component.literal("§7Qualität: " + quality.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.coca.type_label").append(type.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§8Muss extrahiert werden (Extraktionswanne)"));
+        tooltip.add(Component.translatable("tooltip.coca_leaf.must_extract"));
     }
 
     @Override
     public Component getName(ItemStack stack) {
         CocaType type = getType(stack);
-        return Component.literal("Frische " + type.getDisplayName() + " Koka-Blätter");
+        return Component.translatable("item.fresh_coca_leaf.name", type.getDisplayName());
     }
 }

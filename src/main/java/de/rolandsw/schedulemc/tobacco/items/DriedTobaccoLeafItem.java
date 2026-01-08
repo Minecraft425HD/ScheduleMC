@@ -60,15 +60,15 @@ public class DriedTobaccoLeafItem extends Item {
         TobaccoType type = getType(stack);
         TobaccoQuality quality = getQuality(stack);
         
-        tooltip.add(Component.literal("§7Sorte: " + type.getColoredName()));
-        tooltip.add(Component.literal("§7Qualität: " + quality.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.tobacco.type_label").append(type.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§8Kann fermentiert werden"));
+        tooltip.add(Component.translatable("tooltip.dried_tobacco.can_ferment"));
     }
     
     @Override
     public Component getName(ItemStack stack) {
         TobaccoType type = getType(stack);
-        return Component.literal("Getrocknete " + type.getDisplayName() + "-Blätter");
+        return Component.translatable("item.dried_tobacco_leaf.name", type.getDisplayName());
     }
 }

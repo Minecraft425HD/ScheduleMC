@@ -53,9 +53,7 @@ public class CashItem extends Item {
         ItemStack wallet = context.getPlayer().getInventory().getItem(WALLET_SLOT);
         
         if (!(wallet.getItem() instanceof CashItem)) {
-            context.getPlayer().displayClientMessage(Component.literal(
-                "§c✗ Keine Geldbörse in Slot 9!"
-            ), true);
+            context.getPlayer().displayClientMessage(Component.translatable("message.cash.no_wallet_slot9"), true);
             return InteractionResult.FAIL;
         }
         
@@ -63,11 +61,8 @@ public class CashItem extends Item {
         
         // Prüfe ob genug Geld vorhanden
         if (currentValue < PLACE_AMOUNT) {
-            context.getPlayer().displayClientMessage(Component.literal(
-                "§c✗ Nicht genug Bargeld!\n" +
-                "§7Benötigt: §e100€\n" +
-                "§7Vorhanden: §e" + String.format("%.0f€", currentValue)
-            ), true);
+            context.getPlayer().displayClientMessage(Component.translatable("message.cash.not_enough",
+                String.format("%.0f", currentValue)), true);
             return InteractionResult.FAIL;
         }
         
@@ -77,10 +72,7 @@ public class CashItem extends Item {
             double blockValue = CashBlock.getValue(level, clickedPos);
             
             if (blockValue >= MAX_PER_BLOCK) {
-                context.getPlayer().displayClientMessage(Component.literal(
-                    "§c✗ Block ist voll! (1000€)\n" +
-                    "§7Platziere an neuer Position"
-                ), true);
+                context.getPlayer().displayClientMessage(Component.translatable("message.cash.block_full"), true);
                 return InteractionResult.FAIL;
             }
             
@@ -89,10 +81,8 @@ public class CashItem extends Item {
             removeValue(wallet, PLACE_AMOUNT);
             
             double newValue = CashBlock.getValue(level, clickedPos);
-            context.getPlayer().displayClientMessage(Component.literal(
-                "§a✓ +100€\n" +
-                "§7Block: §e" + String.format("%.0f€/1000€", newValue)
-            ), true);
+            context.getPlayer().displayClientMessage(Component.translatable("message.cash.added_to_block",
+                String.format("%.0f", newValue)), true);
             
             level.playSound(null, clickedPos, SoundEvents.METAL_PLACE, SoundSource.BLOCKS, 1.0f, 1.2f);
             return InteractionResult.SUCCESS;
@@ -115,9 +105,7 @@ public class CashItem extends Item {
         CashBlock.setValue(level, placePos, PLACE_AMOUNT);
         removeValue(wallet, PLACE_AMOUNT);
         
-        context.getPlayer().displayClientMessage(Component.literal(
-            "§a✓ 100€ platziert!"
-        ), true);
+        context.getPlayer().displayClientMessage(Component.translatable("message.cash.placed"), true);
         
         level.playSound(null, placePos, SoundEvents.METAL_PLACE, SoundSource.BLOCKS, 1.0f, 1.0f);
         return InteractionResult.SUCCESS;
@@ -184,23 +172,23 @@ public class CashItem extends Item {
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
         double value = getValue(stack);
         
-        tooltip.add(Component.literal("§7Guthaben: §a" + String.format("%.2f€", value)));
-        tooltip.add(Component.literal("§7Kapazität: §aUnlimitiert"));
+        tooltip.add(Component.translatable("tooltip.cash.balance", String.format("%.2f", value)));
+        tooltip.add(Component.translatable("tooltip.cash.capacity_unlimited"));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§c§lGESPERRT IN SLOT 9!"));
-        tooltip.add(Component.literal("§8Überlebt den Tod"));
+        tooltip.add(Component.translatable("tooltip.cash.locked_slot9"));
+        tooltip.add(Component.translatable("tooltip.cash.survives_death"));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§7Rechtsklick: §e+100€ zum Block"));
-        tooltip.add(Component.literal("§7Linksklick halten: §eGesamten Block"));
+        tooltip.add(Component.translatable("tooltip.cash.right_click"));
+        tooltip.add(Component.translatable("tooltip.cash.left_click_hold"));
     }
     
     @Override
     public Component getName(ItemStack stack) {
         double value = getValue(stack);
         if (value <= 0) {
-            return Component.literal("§7Geldbörse (Leer)");
+            return Component.translatable("tooltip.cash.wallet_empty");
         } else {
-            return Component.literal("§aGeldbörse §7(§e" + String.format("%.0f€", value) + "§7)");
+            return Component.translatable("tooltip.cash.wallet_filled", String.format("%.0f€", value));
         }
     }
     

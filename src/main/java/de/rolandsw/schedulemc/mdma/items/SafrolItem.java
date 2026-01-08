@@ -20,10 +20,10 @@ public class SafrolItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.literal("§7Aromatisches Öl"));
+        tooltip.add(Component.translatable("tooltip.safrol.aromatic_oil"));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§eGelbliche Flüssigkeit"));
-        tooltip.add(Component.literal("§8Riecht nach Anis"));
-        tooltip.add(Component.literal("§8Verwendung: Reaktions-Kessel"));
+        tooltip.add(Component.translatable("tooltip.safrol.yellowish_liquid"));
+        tooltip.add(Component.translatable("tooltip.safrol.smells_anise"));
+        tooltip.add(Component.translatable("tooltip.safrol.use_kettle"));
     }
 }

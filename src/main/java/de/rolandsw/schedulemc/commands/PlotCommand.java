@@ -183,19 +183,14 @@ public class PlotCommand {
     }
 
     private static int giveWand(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot wand",
+        return CommandExecutor.executePlayerCommand(ctx, "command.plot.wand.error",
             player -> {
                 ItemStack wand = new ItemStack(ModItems.PLOT_SELECTION_TOOL.get());
 
                 if (player.getInventory().add(wand)) {
-                    ctx.getSource().sendSuccess(() -> Component.literal(
-                        "§a✓ Plot-Auswahl-Werkzeug erhalten!\n" +
-                        "§7Linksklick: §ePosition 1\n" +
-                        "§7Rechtsklick auf Block: §ePosition 2\n" +
-                        "§7Dann: §e/plot create <type> <name> [price]"
-                    ), false);
+                    ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.wand.success"), false);
                 } else {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Inventar ist voll!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.inventory_full").getString());
                 }
             });
     }
@@ -204,7 +199,7 @@ public class PlotCommand {
      * Erstellt einen Plot mit spezifischem Typ
      */
     private static int createPlotWithType(CommandContext<CommandSourceStack> ctx, PlotType type) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot create " + type.name(),
+        return CommandExecutor.executePlayerCommand(ctx, Component.translatable("command.plot.create.error", type.name()).getString(),
             player -> {
                 String name = StringArgumentType.getString(ctx, "name");
 
@@ -212,7 +207,7 @@ public class PlotCommand {
                 InputValidation.ValidationResult nameValidation = InputValidation.validateName(name);
                 if (nameValidation.isFailure()) {
                     CommandExecutor.sendFailure(ctx.getSource(),
-                        "§c❌ Ungültiger Name: §f" + nameValidation.getErrorMessage()
+                        Component.translatable("command.plot.invalid_name", nameValidation.getErrorMessage()).getString()
                     );
                     return;
                 }
@@ -227,14 +222,13 @@ public class PlotCommand {
                         InputValidation.ValidationResult priceValidation = InputValidation.validatePrice(price);
                         if (priceValidation.isFailure()) {
                             CommandExecutor.sendFailure(ctx.getSource(),
-                                "§c❌ Ungültiger Preis: §f" + priceValidation.getErrorMessage()
+                                Component.translatable("command.plot.invalid_price", priceValidation.getErrorMessage()).getString()
                             );
                             return;
                         }
                     } catch (IllegalArgumentException e) {
                         CommandExecutor.sendFailure(ctx.getSource(),
-                            "Fehler: " + type.getDisplayName() + " benötigt einen Preis!\n" +
-                            "Verwendung: /plot create " + type.name().toLowerCase() + " <name> <price>"
+                            Component.translatable("command.plot.create.price_required", type.getDisplayName(), type.name().toLowerCase()).getString()
                         );
                         return;
                     }
@@ -245,8 +239,7 @@ public class PlotCommand {
 
                 if (pos1 == null || pos2 == null) {
                     CommandExecutor.sendFailure(ctx.getSource(),
-                        "Keine Auswahl vorhanden!\n" +
-                        "Benutze das Selection Tool um zwei Positionen zu markieren."
+                        Component.translatable("command.plot.no_selection").getString()
                     );
                     return;
                 }
@@ -256,49 +249,44 @@ public class PlotCommand {
                 PlotSelectionTool.clearSelection(player.getUUID());
 
                 // Erfolgs-Nachricht basierend auf Typ
-                String priceInfo = type.canBePurchased() ?
-                    "\n§7Preis: §e" + String.format("%.2f", price) + "€" :
-                    "\n§7Staatseigentum (nicht kaufbar)";
+                Component priceInfo = type.canBePurchased() ?
+                    Component.translatable("command.plot.create.price_label", String.format("%.2f", price)) :
+                    Component.translatable("command.plot.create.government_owned");
 
-                ctx.getSource().sendSuccess(() -> Component.literal(
-                    "§a✓ " + type.getDisplayName() + " erstellt!\n" +
-                    "§7Name: §e" + plot.getPlotId() + "\n" +
-                    "§7Typ: §b" + type.getDisplayName() +
-                    priceInfo + "\n" +
-                    "§7Größe: §e" + plot.getVolume() + " Blöcke"
+                ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.create.success",
+                    type.getDisplayName(), plot.getPlotId(), type.getDisplayName()).append("\n").append(priceInfo).append("\n")
+                    .append(Component.translatable("command.plot.create.size", plot.getVolume()))
                 ), true);
             });
     }
 
     private static int setPlotOwner(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot setowner",
+        return CommandExecutor.executePlayerCommand(ctx, "command.plot.setowner.error",
             player -> {
                 ServerPlayer newOwner = EntityArgument.getPlayer(ctx, "player");
                 PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
 
                 if (plot == null) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst in keinem Plot!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_in_plot").getString());
                     return;
                 }
 
                 plot.setOwner(newOwner.getUUID(), newOwner.getName().getString());
                 PlotManager.markDirty();
 
-                ctx.getSource().sendSuccess(() -> Component.literal(
-                    "§a✓ Besitzer geändert!\n" +
-                    "§7Plot: §e" + plot.getPlotName() + "\n" +
-                    "§7Neuer Besitzer: §b" + newOwner.getName().getString()
+                ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.setowner.success",
+                    plot.getPlotName(), newOwner.getName().getString()
                 ), true);
             });
     }
 
     private static int buyPlot(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot buy",
+        return CommandExecutor.executePlayerCommand(ctx, "command.plot.buy.error",
             player -> {
                 PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
 
                 if (plot == null) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst in keinem Plot!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_in_plot").getString());
                     return;
                 }
 
@@ -307,13 +295,13 @@ public class PlotCommand {
     }
 
     private static int buyPlotById(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot buy <id>",
+        return CommandExecutor.executePlayerCommand(ctx, "command.plot.buy.error_id",
             player -> {
                 String plotId = StringArgumentType.getString(ctx, "plotId");
                 PlotRegion plot = PlotManager.getPlot(plotId);
 
                 if (plot == null) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Plot nicht gefunden: " + plotId);
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_found", plotId).getString());
                     return;
                 }
 
@@ -323,17 +311,15 @@ public class PlotCommand {
 
     private static int executeBuyPlot(CommandContext<CommandSourceStack> ctx, ServerPlayer player, PlotRegion plot) {
         if (plot.hasOwner()) {
-            ctx.getSource().sendFailure(Component.literal("§cDieser Plot hat bereits einen Besitzer!"));
+            ctx.getSource().sendFailure(Component.translatable("command.plot.buy.already_owned"));
             return 0;
         }
 
         double price = plot.getPrice();
 
         if (EconomyManager.getBalance(player.getUUID()) < price) {
-            ctx.getSource().sendFailure(Component.literal(
-                "§cNicht genug Geld!\n" +
-                "§7Preis: §e" + String.format("%.2f", price) + "€\n" +
-                "§7Dein Guthaben: §e" + String.format("%.2f", EconomyManager.getBalance(player.getUUID())) + "€"
+            ctx.getSource().sendFailure(Component.translatable("command.plot.buy.not_enough_money",
+                String.format("%.2f", price), String.format("%.2f", EconomyManager.getBalance(player.getUUID()))
             ));
             return 0;
         }
@@ -348,12 +334,8 @@ public class PlotCommand {
 
         String plotName = plot.getPlotName();
         final double finalPrice = price;
-        ctx.getSource().sendSuccess(() -> Component.literal(
-            "§a✓ Plot gekauft!\n" +
-            "§7Name: §e" + plotName + "\n" +
-            "§7Preis: §e" + String.format("%.2f", finalPrice) + "€\n" +
-            "§7Neues Guthaben: §e" + String.format("%.2f", EconomyManager.getBalance(player.getUUID())) + "€\n" +
-            "§a✓ Plot-Info-Block erhalten!"
+        ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.buy.success",
+            plotName, String.format("%.2f", finalPrice), String.format("%.2f", EconomyManager.getBalance(player.getUUID()))
         ), false);
 
         return 1;
@@ -361,205 +343,187 @@ public class PlotCommand {
     
     private static int listPlots(CommandContext<CommandSourceStack> ctx) {
         List<PlotRegion> plots = PlotManager.getPlots();
-        
+
         if (plots.isEmpty()) {
-            ctx.getSource().sendFailure(Component.literal("§cKeine Plots vorhanden!"));
+            ctx.getSource().sendFailure(Component.translatable("command.plot.list.none"));
             return 0;
         }
-        
-        ctx.getSource().sendSuccess(() -> Component.literal(
-            "§6═══════════════════════════════\n" +
-            "§e§l      VERFÜGBARE PLOTS\n" +
-            "§6═══════════════════════════════"
-        ), false);
-        
+
+        ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.list.header"), false);
+
         for (PlotRegion plot : plots) {
-            String status = plot.hasOwner() ? "§c[BELEGT]" : "§a[FREI]";
-            String price = plot.hasOwner() && plot.isForSale() ? 
-                " §7- Verkauf: §e" + String.format("%.2f", plot.getSalePrice()) + "€" : "";
-            
-            ctx.getSource().sendSuccess(() -> Component.literal(
-                status + " §e" + plot.getPlotName() + 
-                " §7(§f" + plot.getVolume() + " Blöcke§7)" + price
-            ), false);
+            Component status = plot.hasOwner() ? Component.translatable("command.plot.list.occupied") : Component.translatable("command.plot.list.free");
+            Component price = plot.hasOwner() && plot.isForSale() ?
+                Component.translatable("command.plot.list.for_sale", String.format("%.2f", plot.getSalePrice())) : Component.literal("");
+
+            ctx.getSource().sendSuccess(() -> status.copy().append(" §e" + plot.getPlotName() +
+                " §7(§f" + plot.getVolume() + " ").append(Component.translatable("command.plot.list.blocks")).append("§7)").append(price)
+            , false);
         }
-        
+
         return 1;
     }
     
     private static int plotInfo(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot info",
+        return CommandExecutor.executePlayerCommand(ctx, "command.plot.info.error",
             player -> {
                 PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
 
                 if (plot == null) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst in keinem Plot!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_in_plot").getString());
                     return;
                 }
 
-                String ownerInfo = plot.hasOwner() ?
-                    "§7Besitzer: §b" + plot.getOwnerName() :
-                    "§a§lZU VERKAUFEN";
+                Component ownerInfo = plot.hasOwner() ?
+                    Component.translatable("command.plot.info.owner", plot.getOwnerName()) :
+                    Component.translatable("command.plot.info.for_sale");
 
-                String priceInfo = plot.hasOwner() ?
-                    (plot.isForSale() ? "§7Verkaufspreis: §e" + String.format("%.2f", plot.getSalePrice()) + "€" : "") :
-                    "§7Preis: §e" + String.format("%.2f", plot.getPrice()) + "€";
+                Component priceInfo = plot.hasOwner() ?
+                    (plot.isForSale() ? Component.translatable("command.plot.info.sale_price", String.format("%.2f", plot.getSalePrice())) : Component.literal("")) :
+                    Component.translatable("command.plot.info.price", String.format("%.2f", plot.getPrice()));
 
-                String ratingInfo = plot.getRatingCount() > 0 ?
-                    "§7Rating: §6" + plot.getRatingStars() + " §7(" + plot.getRatingCount() + " Bewertungen)" : "";
+                Component ratingInfo = plot.getRatingCount() > 0 ?
+                    Component.translatable("command.plot.info.rating", plot.getRatingStars(), plot.getRatingCount()) : Component.literal("");
 
-                String description = plot.getDescription() != null && !plot.getDescription().isEmpty() ?
-                    "\n§7Beschreibung: §f" + plot.getDescription() : "";
+                Component description = plot.getDescription() != null && !plot.getDescription().isEmpty() ?
+                    Component.literal("\n").append(Component.translatable("command.plot.info.description", plot.getDescription())) : Component.literal("");
 
-                ctx.getSource().sendSuccess(() -> Component.literal(
-                    "§6═══ Plot-Info ═══\n" +
-                    "§7Name: §e" + plot.getPlotName() + "\n" +
-                    "§7ID: §f" + plot.getPlotId() + "\n" +
-                    ownerInfo + "\n" +
-                    priceInfo + "\n" +
-                    ratingInfo +
-                    description + "\n" +
-                    "§7Größe: §e" + plot.getVolume() + " Blöcke"
-                ), false);
+                ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.info.header")
+                    .append("\n").append(Component.translatable("command.plot.info.name", plot.getPlotName()))
+                    .append("\n").append(Component.translatable("command.plot.info.id", plot.getPlotId()))
+                    .append("\n").append(ownerInfo)
+                    .append("\n").append(priceInfo)
+                    .append("\n").append(ratingInfo)
+                    .append(description)
+                    .append("\n").append(Component.translatable("command.plot.info.size", plot.getVolume()))
+                , false);
             });
     }
 
     private static int setPlotName(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot name",
+        return CommandExecutor.executePlayerCommand(ctx, "command.plot.name.error",
             player -> {
                 String name = StringArgumentType.getString(ctx, "name");
                 PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
 
                 if (plot == null) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst in keinem Plot!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_in_plot").getString());
                     return;
                 }
 
                 if (!plot.isOwnedBy(player.getUUID())) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Dieser Plot gehört dir nicht!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_your_plot").getString());
                     return;
                 }
 
                 plot.setPlotName(name);
                 PlotManager.markDirty();
 
-                ctx.getSource().sendSuccess(() -> Component.literal(
-                    "§a✓ Plot-Name geändert!\n" +
-                    "§7Neuer Name: §e" + name
-                ), false);
+                ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.name.success", name), false);
             });
     }
 
     private static int setPlotDescription(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot description",
+        return CommandExecutor.executePlayerCommand(ctx, "command.plot.description.error",
             player -> {
                 String description = StringArgumentType.getString(ctx, "description");
                 PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
 
                 if (plot == null) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst in keinem Plot!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_in_plot").getString());
                     return;
                 }
 
                 if (!plot.isOwnedBy(player.getUUID())) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Dieser Plot gehört dir nicht!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_your_plot").getString());
                     return;
                 }
 
                 plot.setDescription(description);
                 PlotManager.markDirty();
 
-                ctx.getSource().sendSuccess(() -> Component.literal(
-                    "§a✓ Beschreibung geändert!\n" +
-                    "§7Neue Beschreibung: §f" + description
-                ), false);
+                ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.description.success", description), false);
             });
     }
 
     private static int trustPlayer(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot trust",
+        return CommandExecutor.executePlayerCommand(ctx, "command.plot.trust.error",
             player -> {
                 ServerPlayer trustPlayer = EntityArgument.getPlayer(ctx, "player");
                 PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
 
                 if (plot == null) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst in keinem Plot!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_in_plot").getString());
                     return;
                 }
 
                 if (!plot.isOwnedBy(player.getUUID())) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Dieser Plot gehört dir nicht!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_your_plot").getString());
                     return;
                 }
 
                 if (plot.isTrusted(trustPlayer.getUUID())) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Dieser Spieler ist bereits berechtigt!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.trust.already_trusted").getString());
                     return;
                 }
 
                 plot.addTrustedPlayer(trustPlayer.getUUID());
                 PlotManager.markDirty();
 
-                ctx.getSource().sendSuccess(() -> Component.literal(
-                    "§a✓ Spieler berechtigt!\n" +
-                    "§7Spieler: §b" + trustPlayer.getName().getString()
+                ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.trust.success",
+                    trustPlayer.getName().getString()
                 ), false);
             });
     }
 
     private static int untrustPlayer(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot untrust",
+        return CommandExecutor.executePlayerCommand(ctx, "command.plot.untrust.error",
             player -> {
                 ServerPlayer untrustPlayer = EntityArgument.getPlayer(ctx, "player");
                 PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
 
                 if (plot == null) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst in keinem Plot!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_in_plot").getString());
                     return;
                 }
 
                 if (!plot.isOwnedBy(player.getUUID())) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Dieser Plot gehört dir nicht!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_your_plot").getString());
                     return;
                 }
 
                 if (!plot.isTrusted(untrustPlayer.getUUID())) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Dieser Spieler ist nicht berechtigt!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.untrust.not_trusted").getString());
                     return;
                 }
 
                 plot.removeTrustedPlayer(untrustPlayer.getUUID());
                 PlotManager.markDirty();
 
-                ctx.getSource().sendSuccess(() -> Component.literal(
-                    "§a✓ Berechtigung entfernt!\n" +
-                    "§7Spieler: §b" + untrustPlayer.getName().getString()
+                ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.untrust.success",
+                    untrustPlayer.getName().getString()
                 ), false);
             });
     }
 
     private static int listTrusted(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot trustlist",
+        return CommandExecutor.executePlayerCommand(ctx, "command.plot.trustlist.error",
             player -> {
                 PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
 
                 if (plot == null) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst in keinem Plot!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_in_plot").getString());
                     return;
                 }
 
                 List<String> trusted = new ArrayList<>(plot.getTrustedPlayers());
 
                 if (trusted.isEmpty()) {
-                    ctx.getSource().sendSuccess(() -> Component.literal(
-                        "§7Keine berechtigten Spieler."
-                    ), false);
+                    ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.trustlist.none"), false);
                     return;
                 }
 
-                ctx.getSource().sendSuccess(() -> Component.literal(
-                    "§6═══ Berechtigte Spieler ═══"
-                ), false);
+                ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.trustlist.header"), false);
 
                 for (String uuidStr : trusted) {
                     ctx.getSource().sendSuccess(() -> Component.literal("§7• §b" + uuidStr), false);
@@ -568,18 +532,18 @@ public class PlotCommand {
     }
 
     private static int sellPlot(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot sell",
+        return CommandExecutor.executePlayerCommand(ctx, "command.plot.sell.error",
             player -> {
                 double price = DoubleArgumentType.getDouble(ctx, "price");
                 PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
 
                 if (plot == null) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst in keinem Plot!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_in_plot").getString());
                     return;
                 }
 
                 if (!plot.isOwnedBy(player.getUUID())) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Dieser Plot gehört dir nicht!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_your_plot").getString());
                     return;
                 }
 
@@ -587,25 +551,24 @@ public class PlotCommand {
                 plot.setSalePrice(price);
                 PlotManager.markDirty();
 
-                ctx.getSource().sendSuccess(() -> Component.literal(
-                    "§a✓ Plot zum Verkauf angeboten!\n" +
-                    "§7Verkaufspreis: §e" + String.format("%.2f", price) + "€"
+                ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.sell.success",
+                    String.format("%.2f", price)
                 ), false);
             });
     }
 
     private static int unsellPlot(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot unsell",
+        return CommandExecutor.executePlayerCommand(ctx, "command.plot.unsell.error",
             player -> {
                 PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
 
                 if (plot == null) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst in keinem Plot!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_in_plot").getString());
                     return;
                 }
 
                 if (!plot.isOwnedBy(player.getUUID())) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Dieser Plot gehört dir nicht!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_your_plot").getString());
                     return;
                 }
 
@@ -613,25 +576,23 @@ public class PlotCommand {
                 plot.setSalePrice(0);
                 PlotManager.markDirty();
 
-                ctx.getSource().sendSuccess(() -> Component.literal(
-                    "§a✓ Verkaufsangebot zurückgezogen!"
-                ), false);
+                ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.unsell.success"), false);
             });
     }
 
     private static int transferPlot(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot transfer",
+        return CommandExecutor.executePlayerCommand(ctx, "command.plot.transfer.error",
             player -> {
                 ServerPlayer newOwner = EntityArgument.getPlayer(ctx, "player");
                 PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
 
                 if (plot == null) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst in keinem Plot!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_in_plot").getString());
                     return;
                 }
 
                 if (!plot.isOwnedBy(player.getUUID())) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Dieser Plot gehört dir nicht!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_your_plot").getString());
                     return;
                 }
 
@@ -639,25 +600,24 @@ public class PlotCommand {
                 plot.setForSale(false);
                 PlotManager.markDirty();
 
-                ctx.getSource().sendSuccess(() -> Component.literal(
-                    "§a✓ Plot übertragen!\n" +
-                    "§7Neuer Besitzer: §b" + newOwner.getName().getString()
+                ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.transfer.success",
+                    newOwner.getName().getString()
                 ), false);
             });
     }
 
     private static int abandonPlot(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot abandon",
+        return CommandExecutor.executePlayerCommand(ctx, "command.plot.abandon.error",
             player -> {
                 PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
 
                 if (plot == null) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst in keinem Plot!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_in_plot").getString());
                     return;
                 }
 
                 if (!plot.isOwnedBy(player.getUUID())) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Dieser Plot gehört dir nicht!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_your_plot").getString());
                     return;
                 }
 
@@ -673,27 +633,25 @@ public class PlotCommand {
                 plot.clearTrustedPlayers();
                 PlotManager.markDirty();
 
-                ctx.getSource().sendSuccess(() -> Component.literal(
-                    "§a✓ Plot aufgegeben!\n" +
-                    "§7Rückerstattung: §e" + String.format("%.2f", refund) + "€ §7(50%)\n" +
-                    "§7Neues Guthaben: §e" + String.format("%.2f", EconomyManager.getBalance(player.getUUID())) + "€"
+                ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.abandon.success",
+                    String.format("%.2f", refund), String.format("%.2f", EconomyManager.getBalance(player.getUUID()))
                 ), false);
             });
     }
 
     private static int setForRent(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot rent",
+        return CommandExecutor.executePlayerCommand(ctx, "command.plot.rent.error",
             player -> {
                 double pricePerDay = DoubleArgumentType.getDouble(ctx, "pricePerDay");
                 PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
 
                 if (plot == null) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst in keinem Plot!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_in_plot").getString());
                     return;
                 }
 
                 if (!plot.isOwnedBy(player.getUUID())) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Dieser Plot gehört dir nicht!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_your_plot").getString());
                     return;
                 }
 
@@ -701,25 +659,24 @@ public class PlotCommand {
                 plot.setRentPricePerDay(pricePerDay);
                 PlotManager.markDirty();
 
-                ctx.getSource().sendSuccess(() -> Component.literal(
-                    "§a✓ Plot zur Miete angeboten!\n" +
-                    "§7Preis pro Tag: §e" + String.format("%.2f", pricePerDay) + "€"
+                ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.rent.success",
+                    String.format("%.2f", pricePerDay)
                 ), false);
             });
     }
 
     private static int cancelRent(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot rentcancel",
+        return CommandExecutor.executePlayerCommand(ctx, "command.plot.rentcancel.error",
             player -> {
                 PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
 
                 if (plot == null) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst in keinem Plot!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_in_plot").getString());
                     return;
                 }
 
                 if (!plot.isOwnedBy(player.getUUID())) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Dieser Plot gehört dir nicht!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_your_plot").getString());
                     return;
                 }
 
@@ -727,20 +684,18 @@ public class PlotCommand {
                 plot.setRentPricePerDay(0);
                 PlotManager.markDirty();
 
-                ctx.getSource().sendSuccess(() -> Component.literal(
-                    "§a✓ Mietangebot zurückgezogen!"
-                ), false);
+                ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.rentcancel.success"), false);
             });
     }
-    
+
     private static int rentPlot(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot rentplot",
+        return CommandExecutor.executePlayerCommand(ctx, "command.plot.rentplot.error",
             player -> {
                 int days = IntegerArgumentType.getInteger(ctx, "days");
                 PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
 
                 if (plot == null) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst in keinem Plot!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_in_plot").getString());
                     return;
                 }
 
@@ -749,7 +704,7 @@ public class PlotCommand {
     }
 
     private static int rentPlotById(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot rentplot <id>",
+        return CommandExecutor.executePlayerCommand(ctx, "command.plot.rentplot.error_id",
             player -> {
                 int days = IntegerArgumentType.getInteger(ctx, "days");
                 String plotId = StringArgumentType.getString(ctx, "plotId");
@@ -757,7 +712,7 @@ public class PlotCommand {
                 PlotRegion plot = PlotManager.getPlot(plotId);
 
                 if (plot == null) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Plot nicht gefunden: " + plotId);
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_found", plotId).getString());
                     return;
                 }
 
@@ -767,16 +722,15 @@ public class PlotCommand {
 
     private static int executeRentPlot(CommandContext<CommandSourceStack> ctx, ServerPlayer player, PlotRegion plot, int days) {
         if (!plot.isForRent() || plot.isRented()) {
-            ctx.getSource().sendFailure(Component.literal("§cDieser Plot ist nicht zur Miete verfügbar!"));
+            ctx.getSource().sendFailure(Component.translatable("command.plot.rentplot.not_available"));
             return 0;
         }
 
         double totalCost = plot.getRentPricePerDay() * days;
 
         if (EconomyManager.getBalance(player.getUUID()) < totalCost) {
-            ctx.getSource().sendFailure(Component.literal(
-                "§cNicht genug Geld!\n" +
-                "§7Kosten: §e" + String.format("%.2f", totalCost) + "€"
+            ctx.getSource().sendFailure(Component.translatable("command.plot.rentplot.not_enough_money",
+                String.format("%.2f", totalCost)
             ));
             return 0;
         }
@@ -794,37 +748,34 @@ public class PlotCommand {
 
         final int finalDays = days;
         final double finalTotalCost = totalCost;
-        ctx.getSource().sendSuccess(() -> Component.literal(
-            "§a✓ Plot gemietet!\n" +
-            "§7Dauer: §e" + finalDays + " Tag(e)\n" +
-            "§7Kosten: §e" + String.format("%.2f", finalTotalCost) + "€"
+        ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.rentplot.success",
+            finalDays, String.format("%.2f", finalTotalCost)
         ), false);
 
         return 1;
     }
     
     private static int extendRent(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot rentextend",
+        return CommandExecutor.executePlayerCommand(ctx, "command.plot.rentextend.error",
             player -> {
                 int days = IntegerArgumentType.getInteger(ctx, "days");
                 PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
 
                 if (plot == null) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst in keinem Plot!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_in_plot").getString());
                     return;
                 }
 
                 if (!plot.getRenterUUID().equals(player.getUUID().toString())) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Du mietest diesen Plot nicht!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.rentextend.not_renting").getString());
                     return;
                 }
 
                 double totalCost = plot.getRentPricePerDay() * days;
 
                 if (EconomyManager.getBalance(player.getUUID()) < totalCost) {
-                    ctx.getSource().sendFailure(Component.literal(
-                        "§cNicht genug Geld!\n" +
-                        "§7Kosten: §e" + String.format("%.2f", totalCost) + "€"
+                    ctx.getSource().sendFailure(Component.translatable("command.plot.rentextend.not_enough_money",
+                        String.format("%.2f", totalCost)
                     ));
                     return;
                 }
@@ -839,10 +790,7 @@ public class PlotCommand {
                 plot.setRentEndTime(plot.getRentEndTime() + additionalTime);
                 PlotManager.markDirty();
 
-                ctx.getSource().sendSuccess(() -> Component.literal(
-                    "§a✓ Miete verlängert!\n" +
-                    "§7Verlängerung: §e" + days + " Tag(e)"
-                ), false);
+                ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.rentextend.success", days), false);
             });
     }
 
@@ -850,12 +798,12 @@ public class PlotCommand {
     // ✅ REMOVED: topPlots() - Ersetzt durch PlotInfoScreen Rating-Anzeige
 
     private static int removePlot(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot remove",
+        return CommandExecutor.executePlayerCommand(ctx, "command.plot.remove.error",
             admin -> {
                 PlotRegion plot = PlotManager.getPlotAt(admin.blockPosition());
 
                 if (plot == null) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst in keinem Plot!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_in_plot").getString());
                     return;
                 }
 
@@ -864,42 +812,36 @@ public class PlotCommand {
 
                 PlotManager.removePlot(plotId);
 
-                ctx.getSource().sendSuccess(() -> Component.literal(
-                    "§a✓ Plot entfernt!\n" +
-                    "§7ID: §e" + plotId + "\n" +
-                    "§7Name: §e" + plotName
+                ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.remove.success",
+                    plotId, plotName
                 ), true);
             });
     }
 
     private static int reindexPlots(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executeSourceCommand(ctx, "Fehler bei /plot reindex",
+        return CommandExecutor.executeSourceCommand(ctx, "command.plot.reindex.error",
             source -> {
                 PlotManager.rebuildSpatialIndex();
 
-                ctx.getSource().sendSuccess(() -> Component.literal(
-                    "§a✓ Spatial Index neu aufgebaut!\n" +
-                    "§7Alle Plots wurden neu indiziert."
-                ), true);
+                ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.reindex.success"), true);
             });
     }
 
     private static int debugPosition(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot debug",
+        return CommandExecutor.executePlayerCommand(ctx, "command.plot.debug.error",
             player -> {
                 BlockPos pos = player.blockPosition();
                 PlotRegion plot = PlotManager.getPlotAt(pos);
 
-                String plotInfo = plot != null ?
-                    "§aPlot gefunden: §e" + plot.getPlotId() + " (" + plot.getPlotName() + ")" :
-                    "§cKein Plot an dieser Position";
+                Component plotInfo = plot != null ?
+                    Component.translatable("command.plot.debug.plot_found", plot.getPlotId(), plot.getPlotName()) :
+                    Component.translatable("command.plot.debug.no_plot");
 
-                ctx.getSource().sendSuccess(() -> Component.literal(
-                    "§6═══ Debug-Info ═══\n" +
-                    "§7Position: §f" + pos.getX() + ", " + pos.getY() + ", " + pos.getZ() + "\n" +
-                    plotInfo + "\n" +
-                    "§7Alle Plots: §f" + PlotManager.getPlotCount()
-                ), false);
+                ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.debug.header")
+                    .append("\n").append(Component.translatable("command.plot.debug.position", pos.getX(), pos.getY(), pos.getZ()))
+                    .append("\n").append(plotInfo)
+                    .append("\n").append(Component.translatable("command.plot.debug.total_plots", PlotManager.getPlotCount()))
+                , false);
             });
     }
 
@@ -908,25 +850,20 @@ public class PlotCommand {
     // ═══════════════════════════════════════════════════════════
 
     private static int apartmentWand(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot apartment wand",
+        return CommandExecutor.executePlayerCommand(ctx, "command.plot.apartment.wand.error",
             player -> {
                 ItemStack wand = new ItemStack(ModItems.PLOT_SELECTION_TOOL.get());
 
                 if (player.getInventory().add(wand)) {
-                    ctx.getSource().sendSuccess(() -> Component.literal(
-                        "§d✓ Apartment-Auswahl-Werkzeug erhalten!\n" +
-                        "§7Linksklick: §ePosition 1\n" +
-                        "§7Rechtsklick auf Block: §ePosition 2\n" +
-                        "§7Dann: §e/plot apartment create <name> <miete>"
-                    ), false);
+                    ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.apartment.wand.success"), false);
                 } else {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Inventar ist voll!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.inventory_full").getString());
                 }
             });
     }
 
     private static int createApartment(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot apartment create",
+        return CommandExecutor.executePlayerCommand(ctx, "command.plot.apartment.create.error",
             player -> {
                 String name = StringArgumentType.getString(ctx, "name");
                 double monthlyRent = DoubleArgumentType.getDouble(ctx, "monthlyRent");
@@ -936,10 +873,7 @@ public class PlotCommand {
                 BlockPos pos2 = de.rolandsw.schedulemc.items.PlotSelectionTool.getPosition2(player.getUUID());
 
                 if (pos1 == null || pos2 == null) {
-                    ctx.getSource().sendFailure(Component.literal(
-                        "§cKeine Auswahl vorhanden!\n" +
-                        "§7Benutze /plot apartment wand und markiere zwei Positionen."
-                    ));
+                    ctx.getSource().sendFailure(Component.translatable("command.plot.apartment.create.no_selection"));
                     return;
                 }
 
@@ -947,16 +881,13 @@ public class PlotCommand {
                 PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
 
                 if (plot == null) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst auf keinem Plot!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_on_plot").getString());
                     return;
                 }
 
                 // Prüfe ob Spieler der Besitzer ist
                 if (!plot.canManage(player.getUUID())) {
-                    ctx.getSource().sendFailure(Component.literal(
-                        "§cDieser Plot gehört nicht dir!\n" +
-                        "§7Nur der Besitzer kann Apartments erstellen."
-                    ));
+                    ctx.getSource().sendFailure(Component.translatable("command.plot.apartment.create.not_owner"));
                     return;
                 }
 
@@ -974,16 +905,14 @@ public class PlotCommand {
 
                 // Prüfe ob Positionen innerhalb des Plots sind
                 if (!plot.contains(min) || !plot.contains(max)) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Apartment muss komplett innerhalb deines Plots sein!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.apartment.create.outside_plot").getString());
                     return;
                 }
 
                 // Prüfe Überlappung mit anderen Apartments
                 for (de.rolandsw.schedulemc.region.PlotArea existing : plot.getSubAreas()) {
                     if (existing.overlaps(min, max)) {
-                        ctx.getSource().sendFailure(Component.literal(
-                            "§cApartment überschneidet sich mit: §e" + existing.getName()
-                        ));
+                        ctx.getSource().sendFailure(Component.translatable("command.plot.apartment.create.overlap", existing.getName()));
                         return;
                     }
                 }
@@ -1005,48 +934,38 @@ public class PlotCommand {
                 // Cleanup Selection
                 de.rolandsw.schedulemc.items.PlotSelectionTool.clearSelection(player.getUUID());
 
-                ctx.getSource().sendSuccess(() -> Component.literal(
-                    "§a✓ Apartment erstellt!\n" +
-                    "§7ID: §e" + apartmentId + "\n" +
-                    "§7Name: §e" + name + "\n" +
-                    "§7Miete: §e" + monthlyRent + "€/Monat\n" +
-                    "§7Größe: §e" + apartment.getVolume() + " Blöcke"
+                ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.apartment.create.success",
+                    apartmentId, name, monthlyRent, apartment.getVolume()
                 ), false);
             });
     }
 
     private static int deleteApartment(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot apartment delete",
+        return CommandExecutor.executePlayerCommand(ctx, "command.plot.apartment.delete.error",
             player -> {
                 String apartmentId = StringArgumentType.getString(ctx, "apartmentId");
 
                 PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
 
                 if (plot == null) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst auf keinem Plot!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_on_plot").getString());
                     return;
                 }
 
                 if (!plot.canManage(player.getUUID())) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Dieser Plot gehört nicht dir!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_your_plot").getString());
                     return;
                 }
 
                 de.rolandsw.schedulemc.region.PlotArea apartment = findApartment(plot, apartmentId);
 
                 if (apartment == null) {
-                    ctx.getSource().sendFailure(Component.literal(
-                        "§cApartment nicht gefunden: §e" + apartmentId + "\n" +
-                        "§7Nutze /plot apartment list für verfügbare Apartments"
-                    ));
+                    ctx.getSource().sendFailure(Component.translatable("command.plot.apartment.not_found", apartmentId));
                     return;
                 }
 
                 if (apartment.isRented()) {
-                    ctx.getSource().sendFailure(Component.literal(
-                        "§cApartment ist vermietet! Wirf zuerst den Mieter raus:\n" +
-                        "§e/plot apartment evict " + apartmentId
-                    ));
+                    ctx.getSource().sendFailure(Component.translatable("command.plot.apartment.delete.is_rented", apartmentId));
                     return;
                 }
 
@@ -1054,98 +973,81 @@ public class PlotCommand {
                 plot.removeSubArea(apartmentId);
                 PlotManager.markDirty();
 
-                ctx.getSource().sendSuccess(() -> Component.literal(
-                    "§a✓ Apartment gelöscht: §e" + apartmentName
-                ), false);
+                ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.apartment.delete.success", apartmentName), false);
             });
     }
 
     private static int listApartments(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot apartment list",
+        return CommandExecutor.executePlayerCommand(ctx, "command.plot.apartment.list.error",
             player -> {
                 PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
 
                 if (plot == null) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst auf keinem Plot!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_on_plot").getString());
                     return;
                 }
 
                 List<de.rolandsw.schedulemc.region.PlotArea> apartments = plot.getSubAreas();
 
                 if (apartments.isEmpty()) {
-                    ctx.getSource().sendSuccess(() -> Component.literal(
-                        "§7Dieser Plot hat keine Apartments.\n" +
-                        "§7Erstelle ein Apartment mit:\n" +
-                        "§e/plot apartment wand"
-                    ), false);
+                    ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.apartment.list.none"), false);
                     return;
                 }
 
-                StringBuilder message = new StringBuilder();
-                message.append("§6═══ Apartments in ").append(plot.getPlotName()).append(" ═══\n");
+                ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.apartment.list.header", plot.getPlotName()), false);
 
                 for (de.rolandsw.schedulemc.region.PlotArea apt : apartments) {
-                    message.append("\n§e").append(apt.getName()).append(" §7(§e").append(apt.getId()).append("§7)\n");
-                    message.append("  §7Miete: §e").append(apt.getMonthlyRent()).append("€/Monat\n");
+                    ctx.getSource().sendSuccess(() -> Component.literal("\n§e" + apt.getName() + " §7(§e" + apt.getId() + "§7)"), false);
+                    ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.apartment.list.rent", apt.getMonthlyRent()), false);
 
                     if (apt.isRented()) {
                         long daysLeft = apt.getRentDaysLeft();
-                        message.append("  §a§lVERMIETET §7- Noch §e").append(daysLeft).append(" Tage\n");
+                        ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.apartment.list.rented", daysLeft), false);
                     } else if (apt.isForRent()) {
-                        message.append("  §d§lVERFÜGBAR §7- §e/plot apartment rent ").append(apt.getId()).append("\n");
+                        ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.apartment.list.available", apt.getId()), false);
                     } else {
-                        message.append("  §c§lNICHT ZU VERMIETEN\n");
+                        ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.apartment.list.not_for_rent"), false);
                     }
 
-                    message.append("  §7Größe: §e").append(apt.getVolume()).append(" Blöcke");
+                    ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.apartment.list.size", apt.getVolume()), false);
                 }
-
-                String finalMessage = message.toString();
-                ctx.getSource().sendSuccess(() -> Component.literal(finalMessage), false);
             });
     }
 
     private static int apartmentInfo(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot apartment info",
+        return CommandExecutor.executePlayerCommand(ctx, "command.plot.apartment.info.error",
             player -> {
                 String apartmentId = StringArgumentType.getString(ctx, "apartmentId");
 
                 PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
 
                 if (plot == null) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst auf keinem Plot!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_on_plot").getString());
                     return;
                 }
 
                 de.rolandsw.schedulemc.region.PlotArea apartment = findApartment(plot, apartmentId);
 
                 if (apartment == null) {
-                    ctx.getSource().sendFailure(Component.literal(
-                        "§cApartment nicht gefunden: §e" + apartmentId + "\n" +
-                        "§7Nutze /plot apartment list für verfügbare Apartments"
-                    ));
+                    ctx.getSource().sendFailure(Component.translatable("command.plot.apartment.not_found", apartmentId));
                     return;
                 }
 
-                StringBuilder message = new StringBuilder();
-                message.append("§6═══ ").append(apartment.getName()).append(" ═══\n");
-                message.append("§7ID: §e").append(apartment.getId()).append("\n");
-                message.append("§7Miete: §e").append(apartment.getMonthlyRent()).append("€/Monat\n");
-                message.append("§7Größe: §e").append(apartment.getVolume()).append(" Blöcke\n");
+                ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.apartment.info.header", apartment.getName()), false);
+                ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.apartment.info.id", apartment.getId()), false);
+                ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.apartment.info.rent", apartment.getMonthlyRent()), false);
+                ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.apartment.info.size", apartment.getVolume()), false);
 
                 if (apartment.isRented()) {
                     long days = apartment.getRentDaysLeft();
-                    message.append("§a§lVERMIETET\n");
-                    message.append("§7Verbleibende Zeit: §e").append(days).append(" Tage");
+                    ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.apartment.info.rented"), false);
+                    ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.apartment.info.time_left", days), false);
                 } else if (apartment.isForRent()) {
-                    message.append("§d§lZU VERMIETEN\n");
-                    message.append("§7Miete mit: §e/plot apartment rent ").append(apartment.getId());
+                    ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.apartment.info.for_rent"), false);
+                    ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.apartment.info.rent_command", apartment.getId()), false);
                 } else {
-                    message.append("§c§lNICHT ZU VERMIETEN");
+                    ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.apartment.info.not_for_rent"), false);
                 }
-
-                String finalMessage = message.toString();
-                ctx.getSource().sendSuccess(() -> Component.literal(finalMessage), false);
             });
     }
 
@@ -1159,40 +1061,37 @@ public class PlotCommand {
     }
 
     private static int rentApartmentDays(CommandContext<CommandSourceStack> ctx, int days) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot apartment rent",
+        return CommandExecutor.executePlayerCommand(ctx, "command.plot.apartment.rent.error",
             player -> {
                 String apartmentId = StringArgumentType.getString(ctx, "apartmentId");
 
                 PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
 
                 if (plot == null) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst auf keinem Plot!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_on_plot").getString());
                     return;
                 }
 
                 de.rolandsw.schedulemc.region.PlotArea apartment = findApartment(plot, apartmentId);
 
                 if (apartment == null) {
-                    ctx.getSource().sendFailure(Component.literal(
-                        "§cApartment nicht gefunden: §e" + apartmentId + "\n" +
-                        "§7Nutze /plot apartment list für verfügbare Apartments"
-                    ));
+                    ctx.getSource().sendFailure(Component.translatable("command.plot.apartment.not_found", apartmentId));
                     return;
                 }
 
                 // Prüfe ob Spieler der Plot-Besitzer ist
                 if (plot.canManage(player.getUUID())) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Du kannst nicht dein eigenes Apartment mieten!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.apartment.rent.cannot_rent_own").getString());
                     return;
                 }
 
                 if (!apartment.isForRent()) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Dieses Apartment wird nicht vermietet!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.apartment.rent.not_for_rent").getString());
                     return;
                 }
 
                 if (apartment.isRented()) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Dieses Apartment ist bereits vermietet!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.apartment.rent.already_rented").getString());
                     return;
                 }
 
@@ -1203,10 +1102,8 @@ public class PlotCommand {
                 double totalCost = rentCost + deposit;
 
                 if (!EconomyManager.withdraw(player.getUUID(), totalCost)) {
-                    ctx.getSource().sendFailure(Component.literal(
-                        "§cNicht genug Geld!\n" +
-                        "§7Benötigt: §e" + String.format("%.2f", totalCost) + "€\n" +
-                        "§7(Miete: §e" + String.format("%.2f", rentCost) + "€ + Kaution: §e" + String.format("%.2f", deposit) + "€)"
+                    ctx.getSource().sendFailure(Component.translatable("command.plot.apartment.rent.not_enough_money",
+                        String.format("%.2f", totalCost), String.format("%.2f", rentCost), String.format("%.2f", deposit)
                     ));
                     return;
                 }
@@ -1225,23 +1122,19 @@ public class PlotCommand {
                 final int finalDays = days;
                 final double finalTotalCost = totalCost;
                 final double finalDeposit = deposit;
-                ctx.getSource().sendSuccess(() -> Component.literal(
-                    "§a✓ Apartment gemietet!\n" +
-                    "§7Name: §e" + apartmentName + "\n" +
-                    "§7Dauer: §e" + finalDays + " Tage\n" +
-                    "§7Kosten: §e" + String.format("%.2f", finalTotalCost) + "€\n" +
-                    "§7Kaution: §e" + String.format("%.2f", finalDeposit) + "€ §7(bei Auszug zurück)"
+                ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.apartment.rent.success",
+                    apartmentName, finalDays, String.format("%.2f", finalTotalCost), String.format("%.2f", finalDeposit)
                 ), false);
             });
     }
 
     private static int leaveApartment(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot apartment leave",
+        return CommandExecutor.executePlayerCommand(ctx, "command.plot.apartment.leave.error",
             player -> {
                 PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
 
                 if (plot == null) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst auf keinem Plot!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_on_plot").getString());
                     return;
                 }
 
@@ -1255,7 +1148,7 @@ public class PlotCommand {
                 }
 
                 if (apartment == null) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Du hast kein Apartment in diesem Plot gemietet!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.apartment.leave.no_rental").getString());
                     return;
                 }
 
@@ -1269,16 +1162,14 @@ public class PlotCommand {
                 PlotManager.markDirty();
 
                 final double finalDeposit = deposit;
-                ctx.getSource().sendSuccess(() -> Component.literal(
-                    "§a✓ Mietvertrag gekündigt!\n" +
-                    "§7Apartment: §e" + apartmentName + "\n" +
-                    "§7Kaution zurückerstattet: §e" + String.format("%.2f", finalDeposit) + "€"
+                ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.apartment.leave.success",
+                    apartmentName, String.format("%.2f", finalDeposit)
                 ), false);
             });
     }
 
     private static int setApartmentRent(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot apartment setrent",
+        return CommandExecutor.executePlayerCommand(ctx, "command.plot.apartment.setrent.error",
             player -> {
                 String apartmentId = StringArgumentType.getString(ctx, "apartmentId");
                 double monthlyRent = DoubleArgumentType.getDouble(ctx, "monthlyRent");
@@ -1286,22 +1177,19 @@ public class PlotCommand {
                 PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
 
                 if (plot == null) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst auf keinem Plot!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_on_plot").getString());
                     return;
                 }
 
                 if (!plot.canManage(player.getUUID())) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Dieser Plot gehört nicht dir!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_your_plot").getString());
                     return;
                 }
 
                 de.rolandsw.schedulemc.region.PlotArea apartment = findApartment(plot, apartmentId);
 
                 if (apartment == null) {
-                    ctx.getSource().sendFailure(Component.literal(
-                        "§cApartment nicht gefunden: §e" + apartmentId + "\n" +
-                        "§7Nutze /plot apartment list für verfügbare Apartments"
-                    ));
+                    ctx.getSource().sendFailure(Component.translatable("command.plot.apartment.not_found", apartmentId));
                     return;
                 }
 
@@ -1310,43 +1198,38 @@ public class PlotCommand {
                 PlotManager.markDirty();
 
                 final double finalMonthlyRent = monthlyRent;
-                ctx.getSource().sendSuccess(() -> Component.literal(
-                    "§a✓ Miete geändert!\n" +
-                    "§7Apartment: §e" + apartmentName + "\n" +
-                    "§7Neue Miete: §e" + finalMonthlyRent + "€/Monat"
+                ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.apartment.setrent.success",
+                    apartmentName, finalMonthlyRent
                 ), false);
             });
     }
 
     private static int evictTenant(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot apartment evict",
+        return CommandExecutor.executePlayerCommand(ctx, "command.plot.apartment.evict.error",
             player -> {
                 String apartmentId = StringArgumentType.getString(ctx, "apartmentId");
 
                 PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
 
                 if (plot == null) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst auf keinem Plot!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_on_plot").getString());
                     return;
                 }
 
                 if (!plot.canManage(player.getUUID())) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Dieser Plot gehört nicht dir!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_your_plot").getString());
                     return;
                 }
 
                 de.rolandsw.schedulemc.region.PlotArea apartment = findApartment(plot, apartmentId);
 
                 if (apartment == null) {
-                    ctx.getSource().sendFailure(Component.literal(
-                        "§cApartment nicht gefunden: §e" + apartmentId + "\n" +
-                        "§7Nutze /plot apartment list für verfügbare Apartments"
-                    ));
+                    ctx.getSource().sendFailure(Component.translatable("command.plot.apartment.not_found", apartmentId));
                     return;
                 }
 
                 if (!apartment.isRented()) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Dieses Apartment ist nicht vermietet!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.apartment.evict.not_rented").getString());
                     return;
                 }
 
@@ -1355,10 +1238,8 @@ public class PlotCommand {
                 apartment.endRent();
                 PlotManager.markDirty();
 
-                ctx.getSource().sendSuccess(() -> Component.literal(
-                    "§a✓ Mieter rausgeworfen!\n" +
-                    "§7Apartment: §e" + apartmentName + "\n" +
-                    "§c§lKaution wurde nicht zurückgezahlt!"
+                ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.apartment.evict.success",
+                    apartmentName
                 ), false);
             });
     }
@@ -1387,13 +1268,13 @@ public class PlotCommand {
     // ═══════════════════════════════════════════════════════════
 
     private static int setPlotType(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot settype",
+        return CommandExecutor.executePlayerCommand(ctx, "command.plot.settype.error",
             player -> {
                 String typeStr = StringArgumentType.getString(ctx, "type").toUpperCase();
 
                 PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
                 if (plot == null) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst nicht in einem Plot!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_in_plot_admin").getString());
                     return;
                 }
 
@@ -1402,15 +1283,11 @@ public class PlotCommand {
                     plot.setType(type);
                     PlotManager.markDirty();
 
-                    ctx.getSource().sendSuccess(() -> Component.literal(
-                        "§a✓ Plot-Typ geändert!\n" +
-                        "§7Neuer Typ: §e" + type.getDisplayName()
+                    ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.settype.success",
+                        type.getDisplayName()
                     ), false);
                 } catch (IllegalArgumentException e) {
-                    ctx.getSource().sendFailure(Component.literal(
-                        "§cUngültiger Plot-Typ!\n" +
-                        "§7Verfügbar: §eRESIDENTIAL, COMMERCIAL, SHOP, PUBLIC, GOVERNMENT"
-                    ));
+                    ctx.getSource().sendFailure(Component.translatable("command.plot.settype.invalid"));
                 }
             });
     }
@@ -1455,71 +1332,64 @@ public class PlotCommand {
     }
 
     private static int setWarehouseLocation(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot warehouse set",
+        return CommandExecutor.executePlayerCommand(ctx, "command.plot.warehouse.set.error",
             player -> {
                 BlockPos warehousePos = findWarehouseBlockPos(player);
                 if (warehousePos == null) {
-                    ctx.getSource().sendFailure(Component.literal("§cKein Warehouse gefunden! Schaue auf einen Warehouse-Block oder stehe direkt darauf."));
+                    ctx.getSource().sendFailure(Component.translatable("command.plot.warehouse.set.not_found"));
                     return;
                 }
 
                 PlotRegion plot = PlotManager.getPlotAt(warehousePos);
                 if (plot == null) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Das Warehouse befindet sich nicht in einem Plot!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.warehouse.set.not_in_plot").getString());
                     return;
                 }
 
                 plot.setWarehouseLocation(warehousePos);
                 PlotManager.markDirty();
 
-                ctx.getSource().sendSuccess(() -> Component.literal(
-                    "§a✓ Warehouse-Position gesetzt!\n" +
-                    "§7Plot: §e" + plot.getPlotId() + "\n" +
-                    "§7Position: §f" + warehousePos.getX() + ", " + warehousePos.getY() + ", " + warehousePos.getZ()
+                ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.warehouse.set.success",
+                    plot.getPlotId(), warehousePos.getX(), warehousePos.getY(), warehousePos.getZ()
                 ), false);
             });
     }
 
     private static int clearWarehouseLocation(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot warehouse clear",
+        return CommandExecutor.executePlayerCommand(ctx, "command.plot.warehouse.clear.error",
             player -> {
                 PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
                 if (plot == null) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst nicht in einem Plot!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_in_plot_admin").getString());
                     return;
                 }
 
                 plot.setWarehouseLocation(null);
                 PlotManager.markDirty();
 
-                ctx.getSource().sendSuccess(() -> Component.literal(
-                    "§a✓ Warehouse-Position entfernt!\n" +
-                    "§7Plot: §e" + plot.getPlotId()
+                ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.warehouse.clear.success",
+                    plot.getPlotId()
                 ), false);
             });
     }
 
     private static int warehouseInfo(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot warehouse info",
+        return CommandExecutor.executePlayerCommand(ctx, "command.plot.warehouse.info.error",
             player -> {
                 PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
                 if (plot == null) {
-                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst nicht in einem Plot!");
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_in_plot_admin").getString());
                     return;
                 }
 
                 BlockPos warehousePos = plot.getWarehouseLocation();
                 if (warehousePos == null) {
-                    ctx.getSource().sendSuccess(() -> Component.literal(
-                        "§e=== Warehouse Info ===\n" +
-                        "§7Plot: §e" + plot.getPlotId() + "\n" +
-                        "§7Status: §cKein Warehouse verknüpft"
+                    ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.warehouse.info.no_warehouse",
+                        plot.getPlotId()
                     ), false);
                 } else {
-                    ctx.getSource().sendSuccess(() -> Component.literal(
-                        "§e=== Warehouse Info ===\n" +
-                        "§7Plot: §e" + plot.getPlotId() + "\n" +
-                        "§7Position: §f" + warehousePos.getX() + ", " + warehousePos.getY() + ", " + warehousePos.getZ()
+                    ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.warehouse.info.success",
+                        plot.getPlotId(), warehousePos.getX(), warehousePos.getY(), warehousePos.getZ()
                     ), false);
                 }
             });
