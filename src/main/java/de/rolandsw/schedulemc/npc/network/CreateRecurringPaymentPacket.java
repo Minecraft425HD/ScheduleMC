@@ -120,7 +120,7 @@ public class CreateRecurringPaymentPacket {
             if (recipientUUID == null) {
                 player.sendSystemMessage(Component.literal("⚠ Spieler nicht gefunden!")
                     .withStyle(ChatFormatting.RED));
-                player.sendSystemMessage(Component.literal("Name: ")
+                player.sendSystemMessage(Component.translatable("message.common.name_label")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(recipientName)
                         .withStyle(ChatFormatting.YELLOW)));

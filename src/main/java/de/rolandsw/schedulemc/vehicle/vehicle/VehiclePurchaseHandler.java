@@ -44,7 +44,7 @@ public class VehiclePurchaseHandler {
         double playerBalance = EconomyManager.getBalance(player.getUUID());
         if (playerBalance < price) {
             player.sendSystemMessage(Component.literal("⚠ Nicht genug Geld!").withStyle(ChatFormatting.RED));
-            player.sendSystemMessage(Component.literal("Preis: ").withStyle(ChatFormatting.GRAY)
+            player.sendSystemMessage(Component.translatable("message.common.price_label").withStyle(ChatFormatting.GRAY)
                 .append(Component.literal(price + "€").withStyle(ChatFormatting.GOLD))
                 .append(Component.literal(" | Dein Guthaben: ").withStyle(ChatFormatting.GRAY))
                 .append(Component.literal(String.format("%.2f€", playerBalance)).withStyle(ChatFormatting.YELLOW)));
@@ -94,7 +94,7 @@ public class VehiclePurchaseHandler {
             .append(Component.literal("FAHRZEUG GEKAUFT").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)));
         player.sendSystemMessage(Component.literal("Modell: ").withStyle(ChatFormatting.GRAY)
             .append(Component.literal(getVehicleName(vehicleItem)).withStyle(ChatFormatting.AQUA)));
-        player.sendSystemMessage(Component.literal("Preis: ").withStyle(ChatFormatting.GRAY)
+        player.sendSystemMessage(Component.translatable("message.common.price_label").withStyle(ChatFormatting.GRAY)
             .append(Component.literal(price + "€").withStyle(ChatFormatting.GOLD)));
         player.sendSystemMessage(Component.literal("Parkplatz: ").withStyle(ChatFormatting.GRAY)
             .append(Component.literal(spawnPoint.getPosition().toShortString()).withStyle(ChatFormatting.AQUA)));
