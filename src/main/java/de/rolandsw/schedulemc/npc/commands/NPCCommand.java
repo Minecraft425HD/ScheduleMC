@@ -181,7 +181,7 @@ public class NPCCommand {
             context.getSource().sendFailure(
                 Component.translatable("message.npc.not_found_prefix").withStyle(ChatFormatting.RED)
                     .append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW))
-                    .append(Component.literal("' nicht gefunden!").withStyle(ChatFormatting.RED))
+                    .append(Component.translatable("message.npc.not_found_suffix").withStyle(ChatFormatting.RED))
             );
             return 0;
         }
@@ -211,7 +211,7 @@ public class NPCCommand {
             context.getSource().sendFailure(
                 Component.translatable("message.npc.not_found_prefix").withStyle(ChatFormatting.RED)
                     .append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW))
-                    .append(Component.literal("' nicht gefunden!").withStyle(ChatFormatting.RED))
+                    .append(Component.translatable("message.npc.not_found_suffix").withStyle(ChatFormatting.RED))
             );
             return 0;
         }
@@ -241,7 +241,7 @@ public class NPCCommand {
             context.getSource().sendFailure(
                 Component.translatable("message.npc.not_found_prefix").withStyle(ChatFormatting.RED)
                     .append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW))
-                    .append(Component.literal("' nicht gefunden!").withStyle(ChatFormatting.RED))
+                    .append(Component.translatable("message.npc.not_found_suffix").withStyle(ChatFormatting.RED))
             );
             return 0;
         }
@@ -419,7 +419,7 @@ public class NPCCommand {
             context.getSource().sendFailure(
                 Component.translatable("message.npc.not_found_prefix").withStyle(ChatFormatting.RED)
                     .append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW))
-                    .append(Component.literal("' nicht gefunden!").withStyle(ChatFormatting.RED))
+                    .append(Component.translatable("message.npc.not_found_suffix").withStyle(ChatFormatting.RED))
             );
             return 0;
         }
@@ -495,7 +495,7 @@ public class NPCCommand {
             context.getSource().sendFailure(
                 Component.translatable("message.npc.not_found_prefix").withStyle(ChatFormatting.RED)
                     .append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW))
-                    .append(Component.literal("' nicht gefunden!").withStyle(ChatFormatting.RED))
+                    .append(Component.translatable("message.npc.not_found_suffix").withStyle(ChatFormatting.RED))
             );
             return 0;
         }
@@ -539,7 +539,7 @@ public class NPCCommand {
             context.getSource().sendFailure(
                 Component.translatable("message.npc.not_found_prefix").withStyle(ChatFormatting.RED)
                     .append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW))
-                    .append(Component.literal("' nicht gefunden!").withStyle(ChatFormatting.RED))
+                    .append(Component.translatable("message.npc.not_found_suffix").withStyle(ChatFormatting.RED))
             );
             return 0;
         }
@@ -582,7 +582,7 @@ public class NPCCommand {
             context.getSource().sendFailure(
                 Component.translatable("message.npc.not_found_prefix").withStyle(ChatFormatting.RED)
                     .append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW))
-                    .append(Component.literal("' nicht gefunden!").withStyle(ChatFormatting.RED))
+                    .append(Component.translatable("message.npc.not_found_suffix").withStyle(ChatFormatting.RED))
             );
             return 0;
         }
@@ -628,7 +628,7 @@ public class NPCCommand {
             context.getSource().sendFailure(
                 Component.translatable("message.npc.not_found_prefix").withStyle(ChatFormatting.RED)
                     .append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW))
-                    .append(Component.literal("' nicht gefunden!").withStyle(ChatFormatting.RED))
+                    .append(Component.translatable("message.npc.not_found_suffix").withStyle(ChatFormatting.RED))
             );
             return 0;
         }
@@ -662,7 +662,7 @@ public class NPCCommand {
             context.getSource().sendFailure(
                 Component.translatable("message.npc.not_found_prefix").withStyle(ChatFormatting.RED)
                     .append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW))
-                    .append(Component.literal("' nicht gefunden!").withStyle(ChatFormatting.RED))
+                    .append(Component.translatable("message.npc.not_found_suffix").withStyle(ChatFormatting.RED))
             );
             return 0;
         }
@@ -721,7 +721,7 @@ public class NPCCommand {
             context.getSource().sendFailure(
                 Component.translatable("message.npc.not_found_prefix").withStyle(ChatFormatting.RED)
                     .append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW))
-                    .append(Component.literal("' nicht gefunden!").withStyle(ChatFormatting.RED))
+                    .append(Component.translatable("message.npc.not_found_suffix").withStyle(ChatFormatting.RED))
             );
             return 0;
         }
@@ -772,7 +772,7 @@ public class NPCCommand {
             context.getSource().sendFailure(
                 Component.translatable("message.npc.not_found_prefix").withStyle(ChatFormatting.RED)
                     .append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW))
-                    .append(Component.literal("' nicht gefunden!").withStyle(ChatFormatting.RED))
+                    .append(Component.translatable("message.npc.not_found_suffix").withStyle(ChatFormatting.RED))
             );
             return 0;
         }
@@ -815,7 +815,7 @@ public class NPCCommand {
             context.getSource().sendFailure(
                 Component.translatable("message.npc.not_found_prefix").withStyle(ChatFormatting.RED)
                     .append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW))
-                    .append(Component.literal("' nicht gefunden!").withStyle(ChatFormatting.RED))
+                    .append(Component.translatable("message.npc.not_found_suffix").withStyle(ChatFormatting.RED))
             );
             return 0;
         }
@@ -857,7 +857,7 @@ public class NPCCommand {
             context.getSource().sendFailure(
                 Component.translatable("message.npc.not_found_prefix").withStyle(ChatFormatting.RED)
                     .append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW))
-                    .append(Component.literal("' nicht gefunden!").withStyle(ChatFormatting.RED))
+                    .append(Component.translatable("message.npc.not_found_suffix").withStyle(ChatFormatting.RED))
             );
             return 0;
         }
@@ -900,7 +900,7 @@ public class NPCCommand {
             context.getSource().sendFailure(
                 Component.translatable("message.npc.not_found_prefix").withStyle(ChatFormatting.RED)
                     .append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW))
-                    .append(Component.literal("' nicht gefunden!").withStyle(ChatFormatting.RED))
+                    .append(Component.translatable("message.npc.not_found_suffix").withStyle(ChatFormatting.RED))
             );
             return 0;
         }
@@ -946,7 +946,7 @@ public class NPCCommand {
             context.getSource().sendFailure(
                 Component.translatable("message.npc.not_found_prefix").withStyle(ChatFormatting.RED)
                     .append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW))
-                    .append(Component.literal("' nicht gefunden!").withStyle(ChatFormatting.RED))
+                    .append(Component.translatable("message.npc.not_found_suffix").withStyle(ChatFormatting.RED))
             );
             return 0;
         }
@@ -993,7 +993,7 @@ public class NPCCommand {
             context.getSource().sendFailure(
                 Component.translatable("message.npc.not_found_prefix").withStyle(ChatFormatting.RED)
                     .append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW))
-                    .append(Component.literal("' nicht gefunden!").withStyle(ChatFormatting.RED))
+                    .append(Component.translatable("message.npc.not_found_suffix").withStyle(ChatFormatting.RED))
             );
             return 0;
         }
