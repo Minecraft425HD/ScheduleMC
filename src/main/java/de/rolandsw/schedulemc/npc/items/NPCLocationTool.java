@@ -239,7 +239,7 @@ public class NPCLocationTool extends Item {
             player.sendSystemMessage(
                 Component.translatable("message.npc.home_time_label")
                     .withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal("ab " + ticksToTime(homeTime))
+                    .append(Component.translatable("message.common.from_time", ticksToTime(homeTime))
                         .withStyle(ChatFormatting.WHITE))
             );
         } else if (npc.getNpcData().getNpcType() == NPCType.BEWOHNER) {
@@ -280,7 +280,7 @@ public class NPCLocationTool extends Item {
             player.sendSystemMessage(
                 Component.translatable("message.npc.home_time_label")
                     .withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal("ab " + ticksToTime(homeTime))
+                    .append(Component.translatable("message.common.from_time", ticksToTime(homeTime))
                         .withStyle(ChatFormatting.WHITE))
             );
         }

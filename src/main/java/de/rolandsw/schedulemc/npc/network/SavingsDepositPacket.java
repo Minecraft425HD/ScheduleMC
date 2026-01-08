@@ -36,7 +36,7 @@ public class SavingsDepositPacket {
         PacketHandler.handleServerPacket(ctx, player -> {
             // Prüfe ob Betrag positiv
             if (amount <= 0) {
-                player.sendSystemMessage(Component.literal("⚠ Betrag muss positiv sein!")
+                player.sendSystemMessage(Component.translatable("message.bank.amount_must_positive")
                     .withStyle(ChatFormatting.RED));
                 return;
             }
@@ -44,7 +44,7 @@ public class SavingsDepositPacket {
             // Minimum-Einzahlung prüfen
             double minDeposit = ModConfigHandler.COMMON.SAVINGS_MIN_DEPOSIT.get();
             if (amount < minDeposit) {
-                player.sendSystemMessage(Component.literal("⚠ Mindesteinzahlung: ")
+                player.sendSystemMessage(Component.translatable("message.bank.minimum_deposit_label")
                     .withStyle(ChatFormatting.RED)
                     .append(Component.literal(String.format("%.2f€", minDeposit))
                         .withStyle(ChatFormatting.YELLOW)));
@@ -68,23 +68,23 @@ public class SavingsDepositPacket {
                         .withStyle(ChatFormatting.GOLD)
                         .append(Component.translatable("message.bank.savings_opened")
                             .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)));
-                    player.sendSystemMessage(Component.literal("Ersteinlage: ")
+                    player.sendSystemMessage(Component.translatable("message.bank.initial_deposit_label")
                         .withStyle(ChatFormatting.GRAY)
                         .append(Component.literal(String.format("+%.2f€", amount))
                             .withStyle(ChatFormatting.GOLD)));
-                    player.sendSystemMessage(Component.literal("Zinsen: ")
+                    player.sendSystemMessage(Component.translatable("message.bank.interest_label")
                         .withStyle(ChatFormatting.GRAY)
-                        .append(Component.literal("5% pro Woche")
+                        .append(Component.translatable("message.bank.interest_rate"))
                             .withStyle(ChatFormatting.GREEN)));
-                    player.sendSystemMessage(Component.literal("Sperrfrist: ")
+                    player.sendSystemMessage(Component.translatable("message.bank.lock_period_label")
                         .withStyle(ChatFormatting.GRAY)
-                        .append(Component.literal("4 Wochen")
+                        .append(Component.translatable("message.bank.lock_period_duration"))
                             .withStyle(ChatFormatting.YELLOW)));
                     player.sendSystemMessage(Component.literal("═══════════════════════════════")
                         .withStyle(ChatFormatting.GREEN));
                 } else {
                     // Atomare Prüfung fehlgeschlagen - nicht genug Geld
-                    player.sendSystemMessage(Component.literal("⚠ Nicht genug Guthaben auf Girokonto!")
+                    player.sendSystemMessage(Component.translatable("message.bank.insufficient_checking")
                         .withStyle(ChatFormatting.RED));
                     player.sendSystemMessage(Component.translatable("message.bank.available")
                         .withStyle(ChatFormatting.GRAY)
@@ -100,17 +100,17 @@ public class SavingsDepositPacket {
                         .withStyle(ChatFormatting.GREEN));
                     player.sendSystemMessage(Component.literal("💰 ")
                         .withStyle(ChatFormatting.GOLD)
-                        .append(Component.literal("EINZAHLUNG ERFOLGREICH")
+                        .append(Component.translatable("message.bank.deposit_successful"))
                             .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)));
-                    player.sendSystemMessage(Component.literal("Betrag: ")
+                    player.sendSystemMessage(Component.translatable("message.bank.amount_label")
                         .withStyle(ChatFormatting.GRAY)
                         .append(Component.literal(String.format("+%.2f€", amount))
                             .withStyle(ChatFormatting.GOLD)));
-                    player.sendSystemMessage(Component.literal("Neues Sparkonto: ")
+                    player.sendSystemMessage(Component.translatable("message.bank.new_savings_label")
                         .withStyle(ChatFormatting.GRAY)
                         .append(Component.literal(String.format("%.2f€", account.getBalance()))
                             .withStyle(ChatFormatting.LIGHT_PURPLE)));
-                    player.sendSystemMessage(Component.literal("Neues Girokonto: ")
+                    player.sendSystemMessage(Component.translatable("message.bank.new_checking_label")
                         .withStyle(ChatFormatting.GRAY)
                         .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID())))
                             .withStyle(ChatFormatting.AQUA)));
@@ -118,7 +118,7 @@ public class SavingsDepositPacket {
                         .withStyle(ChatFormatting.GREEN));
                 } else {
                     // Atomare Prüfung fehlgeschlagen - nicht genug Geld
-                    player.sendSystemMessage(Component.literal("⚠ Nicht genug Guthaben auf Girokonto!")
+                    player.sendSystemMessage(Component.translatable("message.bank.insufficient_checking")
                         .withStyle(ChatFormatting.RED));
                     player.sendSystemMessage(Component.translatable("message.bank.available")
                         .withStyle(ChatFormatting.GRAY)

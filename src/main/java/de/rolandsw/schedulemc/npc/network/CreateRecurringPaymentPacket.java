@@ -55,7 +55,7 @@ public class CreateRecurringPaymentPacket {
         PacketHandler.handleServerPacket(ctx, player -> {
             // Validierung: Betrag positiv
             if (amount <= 0) {
-                player.sendSystemMessage(Component.literal("⚠ Betrag muss positiv sein!")
+                player.sendSystemMessage(Component.translatable("message.bank.amount_must_positive")
                     .withStyle(ChatFormatting.RED));
                 return;
             }
@@ -137,17 +137,17 @@ public class CreateRecurringPaymentPacket {
                     .withStyle(ChatFormatting.GREEN));
                 player.sendSystemMessage(Component.literal("📋 ")
                     .withStyle(ChatFormatting.GOLD)
-                    .append(Component.literal("DAUERAUFTRAG ERSTELLT")
+                    .append(Component.translatable("message.bank.standing_order_created"))
                         .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)));
                 player.sendSystemMessage(Component.translatable("message.bank.recipient_label")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(recipientName)
                         .withStyle(ChatFormatting.AQUA)));
-                player.sendSystemMessage(Component.literal("Betrag: ")
+                player.sendSystemMessage(Component.translatable("message.bank.amount_label")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(String.format("%.2f€", amount))
                         .withStyle(ChatFormatting.GOLD)));
-                player.sendSystemMessage(Component.literal("Intervall: ")
+                player.sendSystemMessage(Component.translatable("message.bank.interval_label")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(interval.getDisplayName())
                         .withStyle(ChatFormatting.LIGHT_PURPLE)));

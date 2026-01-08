@@ -97,7 +97,7 @@ public class StockTradePacket {
         // Prüfe ob Spieler genug Geld hat
         double balance = EconomyManager.getBalance(player.getUUID());
         if (balance < totalCost) {
-            player.sendSystemMessage(Component.literal("⚠ Nicht genug Guthaben!")
+            player.sendSystemMessage(Component.translatable("message.bank.insufficient_balance")
                 .withStyle(ChatFormatting.RED));
             player.sendSystemMessage(Component.translatable("message.bank.required")
                 .withStyle(ChatFormatting.GRAY)
@@ -151,7 +151,7 @@ public class StockTradePacket {
             .withStyle(ChatFormatting.GREEN));
         player.sendSystemMessage(Component.literal("📈 ")
             .withStyle(ChatFormatting.YELLOW)
-            .append(Component.literal("KAUF ERFOLGREICH")
+            .append(Component.translatable("message.stock.purchase_successful"))
                 .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)));
         player.sendSystemMessage(Component.literal("Gekauft: ")
             .withStyle(ChatFormatting.GRAY)
@@ -221,7 +221,7 @@ public class StockTradePacket {
             .withStyle(ChatFormatting.GREEN));
         player.sendSystemMessage(Component.literal("📉 ")
             .withStyle(ChatFormatting.YELLOW)
-            .append(Component.literal("VERKAUF ERFOLGREICH")
+            .append(Component.translatable("message.stock.sale_successful"))
                 .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)));
         player.sendSystemMessage(Component.literal("Verkauft: ")
             .withStyle(ChatFormatting.GRAY)

@@ -298,23 +298,23 @@ public class NPCCommand {
         }
 
         // Schedule Zeiten - unterschiedlich je nach NPC-Typ
-        player.sendSystemMessage(Component.literal("=== Zeitplan ===").withStyle(ChatFormatting.GOLD));
+        player.sendSystemMessage(Component.translatable("message.npc.schedule_header").withStyle(ChatFormatting.GOLD));
 
         if (data.getNpcType() == NPCType.VERKAEUFER) {
             // Verkäufer: Vollständiger Zeitplan
             player.sendSystemMessage(
-                Component.literal("Arbeitsbeginn: ").withStyle(ChatFormatting.GRAY)
+                Component.translatable("message.npc.work_start_label").withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(ticksToTime(data.getWorkStartTime()))
                         .withStyle(ChatFormatting.YELLOW))
             );
             player.sendSystemMessage(
-                Component.literal("Arbeitsende: ").withStyle(ChatFormatting.GRAY)
+                Component.translatable("message.npc.work_end_label").withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(ticksToTime(data.getWorkEndTime()))
                         .withStyle(ChatFormatting.YELLOW))
             );
             player.sendSystemMessage(
                 Component.translatable("message.npc.home_time_label").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal("ab " + ticksToTime(data.getHomeTime()))
+                    .append(Component.translatable("message.common.from_time", ticksToTime(data.getHomeTime()))
                         .withStyle(ChatFormatting.YELLOW))
             );
         } else if (data.getNpcType() == NPCType.BEWOHNER) {
@@ -334,12 +334,12 @@ public class NPCCommand {
         } else {
             // Polizei oder andere: Alte Anzeige
             player.sendSystemMessage(
-                Component.literal("Arbeitsbeginn: ").withStyle(ChatFormatting.GRAY)
+                Component.translatable("message.npc.work_start_label").withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(ticksToTime(data.getWorkStartTime()))
                         .withStyle(ChatFormatting.YELLOW))
             );
             player.sendSystemMessage(
-                Component.literal("Arbeitsende: ").withStyle(ChatFormatting.GRAY)
+                Component.translatable("message.npc.work_end_label").withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(ticksToTime(data.getWorkEndTime()))
                         .withStyle(ChatFormatting.YELLOW))
             );
@@ -351,16 +351,16 @@ public class NPCCommand {
         }
 
         // Freizeitorte
-        player.sendSystemMessage(Component.literal("=== Freizeitorte ===").withStyle(ChatFormatting.GOLD));
+        player.sendSystemMessage(Component.translatable("message.npc.leisure_header").withStyle(ChatFormatting.GOLD));
         var leisureLocations = data.getLeisureLocations();
         if (leisureLocations.isEmpty()) {
             player.sendSystemMessage(
-                Component.literal("Keine Freizeitorte definiert").withStyle(ChatFormatting.GRAY)
+                Component.translatable("message.npc.no_leisure_defined").withStyle(ChatFormatting.GRAY)
             );
         } else {
             for (int i = 0; i < leisureLocations.size(); i++) {
                 player.sendSystemMessage(
-                    Component.literal("[" + i + "] ")
+                    Component.literal("[").append(Component.literal(String.valueOf(i))).append(Component.literal("] "))
                         .withStyle(ChatFormatting.GRAY)
                         .append(Component.literal(leisureLocations.get(i).toShortString())
                             .withStyle(ChatFormatting.YELLOW))
@@ -381,7 +381,7 @@ public class NPCCommand {
                 }
             }
             player.sendSystemMessage(
-                Component.literal("Inventar: ").withStyle(ChatFormatting.GRAY)
+                Component.translatable("message.npc.inventory_label").withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(itemCount + "/9 Slots belegt")
                         .withStyle(itemCount > 0 ? ChatFormatting.GREEN : ChatFormatting.YELLOW))
             );
@@ -502,7 +502,7 @@ public class NPCCommand {
 
         if (npc.getNpcData().getLeisureLocations().size() >= 10) {
             context.getSource().sendFailure(
-                Component.literal("Maximale Anzahl von 10 Freizeitorten erreicht!").withStyle(ChatFormatting.RED)
+                Component.translatable("message.npc.leisure_max_reached").withStyle(ChatFormatting.RED)
             );
             return 0;
         }
@@ -555,7 +555,7 @@ public class NPCCommand {
         npc.getNpcData().removeLeisureLocation(index);
 
         context.getSource().sendSuccess(
-            () -> Component.literal("Freizeitort entfernt: ").withStyle(ChatFormatting.GREEN)
+            () -> Component.translatable("message.npc.leisure_removed_label").withStyle(ChatFormatting.GREEN)
                 .append(Component.literal(removed.toShortString())
                     .withStyle(ChatFormatting.YELLOW))
                 .append(Component.translatable("message.common.for_npc").withStyle(ChatFormatting.GREEN))
@@ -590,19 +590,19 @@ public class NPCCommand {
         var leisureLocations = npc.getNpcData().getLeisureLocations();
 
         player.sendSystemMessage(
-            Component.literal("=== Freizeitorte von " + npc.getNpcName() + " ===")
+            Component.translatable("message.npc.leisure_of", npc.getNpcName())
                 .withStyle(ChatFormatting.GOLD)
         );
 
         if (leisureLocations.isEmpty()) {
             player.sendSystemMessage(
-                Component.literal("Keine Freizeitorte definiert.").withStyle(ChatFormatting.GRAY)
+                Component.translatable("message.npc.no_leisure_defined").withStyle(ChatFormatting.GRAY)
             );
         } else {
             for (int i = 0; i < leisureLocations.size(); i++) {
                 BlockPos pos = leisureLocations.get(i);
                 player.sendSystemMessage(
-                    Component.literal("[" + i + "] ")
+                    Component.literal("[").append(Component.literal(String.valueOf(i))).append(Component.literal("] "))
                         .withStyle(ChatFormatting.GRAY)
                         .append(Component.literal(pos.toShortString())
                             .withStyle(ChatFormatting.YELLOW))
@@ -675,7 +675,7 @@ public class NPCCommand {
         }
 
         player.sendSystemMessage(
-            Component.literal("=== Inventar von " + npc.getNpcName() + " ===")
+            Component.translatable("message.npc.inventory_of", npc.getNpcName())
                 .withStyle(ChatFormatting.GOLD)
         );
 
@@ -686,7 +686,7 @@ public class NPCCommand {
             if (!stack.isEmpty()) {
                 isEmpty = false;
                 player.sendSystemMessage(
-                    Component.literal("[" + i + "] ")
+                    Component.literal("[").append(Component.literal(String.valueOf(i))).append(Component.literal("] "))
                         .withStyle(ChatFormatting.GRAY)
                         .append(Component.literal(stack.getCount() + "x ")
                             .withStyle(ChatFormatting.YELLOW))
@@ -697,7 +697,7 @@ public class NPCCommand {
 
         if (isEmpty) {
             player.sendSystemMessage(
-                Component.literal("Inventar ist leer").withStyle(ChatFormatting.GRAY)
+                Component.translatable("message.npc.inventory_empty").withStyle(ChatFormatting.GRAY)
             );
         }
 
