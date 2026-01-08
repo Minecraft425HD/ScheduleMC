@@ -72,22 +72,22 @@ public class ShopInvestCommand {
             var shops = ShopAccountManager.getAllAccounts();
 
             if (shops.isEmpty()) {
-                ctx.getSource().sendSuccess(() -> Component.translatable("command.shopinvest.no_shops"), false);
+                ctx.getSource().sendSuccess(() -> Component.translatable("command.shop.invest.no_shops"), false);
                 return 1;
             }
 
-            StringBuilder sb = new StringBuilder("§e§l=== Verfügbare Shops ===\n");
+            Component header = Component.translatable("command.shop.invest.available_shops");
             for (ShopAccount shop : shops) {
                 int availableShares = shop.getAvailableShares();
-                sb.append("§7- §e").append(shop.getShopId())
-                    .append(" §7(§e").append(availableShares).append("§7 Anteile verfügbar)\n");
+                Component shopLine = Component.translatable("command.shop.invest.shop_list_entry", shop.getShopId(), availableShares);
+                header = header.copy().append("\n").append(shopLine);
             }
 
-            String result = sb.toString();
-            ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+            ctx.getSource().sendSuccess(() -> header, false);
             return 1;
         } catch (Exception e) {
             LOGGER.error("Fehler bei /shop list", e);
+            ctx.getSource().sendFailure(Component.translatable("command.shop.invest.list_error"));
             return 0;
         }
     }
@@ -102,30 +102,31 @@ public class ShopInvestCommand {
                 return 0;
             }
 
-            StringBuilder sb = new StringBuilder("§e§l=== Shop Info: " + shopId + " ===\n");
-            sb.append("§7Verfügbare Anteile: §e").append(shop.getAvailableShares()).append(" §7/ 100\n");
-            sb.append("§77-Tage Netto-Umsatz: §e").append(shop.get7DayNetRevenue()).append("€\n\n");
+            Component result = Component.translatable("command.shop.invest.info_header", shopId);
+            result = result.copy().append("\n").append(Component.translatable("command.shop.invest.available_shares", shop.getAvailableShares()));
+            result = result.copy().append("\n").append(Component.translatable("command.shop.invest.net_revenue", shop.get7DayNetRevenue()));
+            result = result.copy().append("\n\n");
 
             if (shop.getShareholders().isEmpty()) {
-                sb.append("§7Keine Teilhaber");
+                result = result.copy().append(Component.translatable("command.shop.invest.no_shareholders"));
             } else {
-                sb.append("§e§lTeilhaber:\n");
+                result = result.copy().append(Component.translatable("command.shop.invest.shareholders_header"));
                 for (var holder : shop.getShareholders()) {
                     String playerName = ctx.getSource().getServer()
                         .getPlayerList()
                         .getPlayer(holder.getPlayerUUID())
                         .getName().getString();
-                    sb.append("§7- §e").append(playerName)
-                        .append(" §7(§e").append(holder.getSharesOwned()).append("§7 Anteile, ")
-                        .append(String.format("%.1f", holder.getOwnershipPercentage())).append("%)\n");
+                    double percentage = holder.getOwnershipPercentage();
+                    Component shareLine = Component.translatable("command.shop.invest.shareholder_entry", playerName, holder.getSharesOwned(), String.format("%.1f", percentage));
+                    result = result.copy().append("\n").append(shareLine);
                 }
             }
 
-            String result = sb.toString();
-            ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+            ctx.getSource().sendSuccess(() -> result, false);
             return 1;
         } catch (Exception e) {
             LOGGER.error("Fehler bei /shop info", e);
+            ctx.getSource().sendFailure(Component.translatable("command.shop.invest.info_error"));
             return 0;
         }
     }
@@ -147,46 +148,35 @@ public class ShopInvestCommand {
             boolean alreadyInvested = shop.hasShareholder(playerId);
 
             if (!alreadyInvested && !shop.canAddShareholder()) {
-                ctx.getSource().sendFailure(Component.literal("§cMaximal 2 Teilhaber pro Shop erlaubt!"));
+                ctx.getSource().sendFailure(Component.translatable("command.shop.invest.max_shareholders"));
                 return 0;
             }
 
             if (shares > shop.getAvailableShares()) {
-                ctx.getSource().sendFailure(Component.literal(
-                    "§cNicht genug Anteile verfügbar!\n" +
-                    "§7Verfügbar: §e" + shop.getAvailableShares()
-                ));
+                ctx.getSource().sendFailure(Component.translatable("command.shop.invest.insufficient_shares", shop.getAvailableShares()));
                 return 0;
             }
 
             int cost = shares * PRICE_PER_SHARE;
             double balance = WalletManager.getBalance(playerId);
             if (balance < cost) {
-                ctx.getSource().sendFailure(Component.literal(
-                    "§cNicht genug Geld!\n" +
-                    "§7Benötigt: §e" + cost + "€\n" +
-                    "§7Kontostand: §e" + (int)balance + "€"
-                ));
+                ctx.getSource().sendFailure(Component.translatable("command.shop.invest.insufficient_funds", cost, (int)balance));
                 return 0;
             }
 
             if (shop.purchaseShares(playerId, player.getName().getString(), shares, cost)) {
                 WalletManager.removeMoney(playerId, (double)cost);
 
-                ctx.getSource().sendSuccess(() -> Component.literal(
-                    "§a✓ Anteile gekauft!\n" +
-                    "§7Shop: §e" + shopId + "\n" +
-                    "§7Anteile: §e" + shares + "\n" +
-                    "§7Kosten: §e" + cost + "€\n" +
-                    "§7Besitz: §e" + String.format("%.1f", (shares / 100.0f) * 100) + "%"
-                ), false);
+                double ownership = (shares / 100.0f) * 100;
+                ctx.getSource().sendSuccess(() -> Component.translatable("command.shop.invest.shares_purchased", shopId, shares, cost, String.format("%.1f", ownership)), false);
                 return 1;
             } else {
-                ctx.getSource().sendFailure(Component.literal("§cFehler beim Kauf der Anteile!"));
+                ctx.getSource().sendFailure(Component.translatable("command.shop.invest.purchase_error"));
                 return 0;
             }
         } catch (Exception e) {
             LOGGER.error("Fehler bei /shop buy", e);
+            ctx.getSource().sendFailure(Component.translatable("command.shop.invest.buy_error"));
             return 0;
         }
     }
@@ -209,19 +199,15 @@ public class ShopInvestCommand {
             if (refund > 0) {
                 WalletManager.addMoney(playerId, (double)refund);
 
-                ctx.getSource().sendSuccess(() -> Component.literal(
-                    "§a✓ Anteile verkauft!\n" +
-                    "§7Shop: §e" + shopId + "\n" +
-                    "§7Anteile: §e" + shares + "\n" +
-                    "§7Rückerstattung (75%): §e" + refund + "€"
-                ), false);
+                ctx.getSource().sendSuccess(() -> Component.translatable("command.shop.invest.shares_sold", shopId, shares, refund), false);
                 return 1;
             } else {
-                ctx.getSource().sendFailure(Component.translatable("message.shop.no_shares"));
+                ctx.getSource().sendFailure(Component.translatable("command.shop.invest.no_shares_to_sell"));
                 return 0;
             }
         } catch (Exception e) {
             LOGGER.error("Fehler bei /shop sell", e);
+            ctx.getSource().sendFailure(Component.translatable("command.shop.invest.sell_error"));
             return 0;
         }
     }
@@ -231,7 +217,7 @@ public class ShopInvestCommand {
             ServerPlayer player = ctx.getSource().getPlayerOrException();
             UUID playerId = player.getUUID();
 
-            StringBuilder sb = new StringBuilder("§e§l=== Meine Shop-Anteile ===\n");
+            Component result = Component.translatable("command.shop.invest.my_shares");
             boolean hasShares = false;
 
             for (ShopAccount shop : ShopAccountManager.getAllAccounts()) {
@@ -239,23 +225,26 @@ public class ShopInvestCommand {
 
                 if (holder != null) {
                     hasShares = true;
-                    sb.append("§7Shop: §e").append(shop.getShopId()).append("\n");
-                    sb.append("§7  Anteile: §e").append(holder.getSharesOwned())
-                        .append(" §7(").append(String.format("%.1f", holder.getOwnershipPercentage())).append("%)\n");
-                    sb.append("§7  Investiert: §e").append(holder.getPurchasePrice()).append("€\n");
-                    sb.append("§7  7-Tage Netto: §e").append(shop.get7DayNetRevenue()).append("€\n\n");
+                    double percentage = holder.getOwnershipPercentage();
+                    Component shareEntry = Component.translatable("command.shop.invest.my_shares_entry",
+                        shop.getShopId(),
+                        holder.getSharesOwned(),
+                        String.format("%.1f", percentage),
+                        holder.getPurchasePrice(),
+                        shop.get7DayNetRevenue());
+                    result = result.copy().append("\n").append(shareEntry);
                 }
             }
 
             if (!hasShares) {
-                sb.append("§7Du besitzt keine Shop-Anteile.");
+                result = result.copy().append("\n").append(Component.translatable("command.shop.invest.no_shares_owned"));
             }
 
-            String result = sb.toString();
-            ctx.getSource().sendSuccess(() -> Component.literal(result), false);
+            ctx.getSource().sendSuccess(() -> result, false);
             return 1;
         } catch (Exception e) {
             LOGGER.error("Fehler bei /shop myshares", e);
+            ctx.getSource().sendFailure(Component.translatable("command.shop.invest.myshares_error"));
             return 0;
         }
     }

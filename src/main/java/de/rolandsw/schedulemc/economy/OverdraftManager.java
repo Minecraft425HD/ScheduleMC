@@ -131,12 +131,10 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
 
         ServerPlayer player = server.getPlayerList().getPlayer(playerUUID);
         if (player != null) {
-            player.sendSystemMessage(Component.literal(
-                "§c§l⚠ WARNUNG: KONTO ÜBERZOGEN!\n" +
-                "§7Kontostand: §c" + String.format("%.2f€", balance) + "\n" +
-                "§7Limit: §c" + String.format("%.2f€", maxLimit) + "\n" +
-                "§7Überziehungszinsen: §c" + String.format("%.0f%%", interestRate * 100) + " pro Woche\n" +
-                "§cBitte zahle Geld ein um Pfändung zu vermeiden!"
+            player.sendSystemMessage(Component.translatable("manager.overdraft.warning",
+                String.format("%.2f€", balance),
+                String.format("%.2f€", maxLimit),
+                String.format("%.0f%%", interestRate * 100)
             ));
         }
 
@@ -162,12 +160,11 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
 
         ServerPlayer player = server.getPlayerList().getPlayer(playerUUID);
         if (player != null) {
-            player.sendSystemMessage(Component.literal(
-                "§c§l[DISPO] Überziehungszinsen\n" +
-                "§7Überzogen: §c" + String.format("%.2f€", overdraftAmount) + "\n" +
-                "§7Zinssatz: §c" + String.format("%.0f%%", interestRate * 100) + "\n" +
-                "§7Zinsen: §c-" + String.format("%.2f€", interest) + "\n" +
-                "§7Neuer Kontostand: §c" + String.format("%.2f€", balance - interest)
+            player.sendSystemMessage(Component.translatable("manager.overdraft.interest_charged",
+                String.format("%.2f€", overdraftAmount),
+                String.format("%.0f%%", interestRate * 100),
+                String.format("%.2f€", interest),
+                String.format("%.2f€", balance - interest)
             ));
         }
 
@@ -190,14 +187,9 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
             EconomyManager.setBalance(playerUUID, maxLimit, TransactionType.OTHER,
                 "Pfändung durchgeführt");
 
-            player.sendSystemMessage(Component.literal(
-                "§4§l⚠⚠⚠ PFÄNDUNG! ⚠⚠⚠\n" +
-                "§cDein Konto wurde gepfändet!\n" +
-                "§7Grund: Überziehungslimit erreicht\n" +
-                "§7Alte Schulden: §c" + String.format("%.2f€", balance) + "\n" +
-                "§7Geldbörse geleert\n" +
-                "§7Konto auf §c" + String.format("%.2f€", maxLimit) + " §7gesetzt\n" +
-                "§eZahle Schulden ab um wieder handlungsfähig zu sein!"
+            player.sendSystemMessage(Component.translatable("manager.overdraft.seizure_executed",
+                String.format("%.2f€", balance),
+                String.format("%.2f€", maxLimit)
             ));
 
             LOGGER.warn("Seizure executed for {}: balance was {}€", playerUUID, balance);

@@ -232,25 +232,35 @@ public class TaxManager extends AbstractPersistenceManager<Map<String, Object>> 
 
             ServerPlayer player = server.getPlayerList().getPlayer(playerUUID);
             if (player != null) {
-                StringBuilder message = new StringBuilder();
-                message.append("§e§l[STEUERN] Monatliche Abrechnung\n");
-                message.append("§7Kontostand: §6").append(String.format("%.2f€", balance)).append("\n");
-
-                if (incomeTax > 0) {
-                    message.append("§7Einkommenssteuer: §c-").append(String.format("%.2f€", incomeTax)).append("\n");
-                }
-
-                if (propertyTax > 0) {
+                if (incomeTax > 0 && propertyTax > 0) {
                     double taxPerChunk = ModConfigHandler.COMMON.TAX_PROPERTY_PER_CHUNK.get();
                     int chunks = (int)(propertyTax / taxPerChunk);
-                    message.append("§7Grundsteuer: §c-").append(String.format("%.2f€", propertyTax))
-                           .append(" §7(").append(chunks).append(" Chunks)\n");
+                    player.sendSystemMessage(Component.translatable("manager.tax.charged_both",
+                        String.format("%.2f€", balance),
+                        String.format("%.2f€", incomeTax),
+                        String.format("%.2f€", propertyTax),
+                        String.valueOf(chunks),
+                        String.format("%.2f€", totalTax),
+                        String.format("%.2f€", EconomyManager.getBalance(playerUUID))
+                    ));
+                } else if (incomeTax > 0) {
+                    player.sendSystemMessage(Component.translatable("manager.tax.charged_income",
+                        String.format("%.2f€", balance),
+                        String.format("%.2f€", incomeTax),
+                        String.format("%.2f€", totalTax),
+                        String.format("%.2f€", EconomyManager.getBalance(playerUUID))
+                    ));
+                } else if (propertyTax > 0) {
+                    double taxPerChunk = ModConfigHandler.COMMON.TAX_PROPERTY_PER_CHUNK.get();
+                    int chunks = (int)(propertyTax / taxPerChunk);
+                    player.sendSystemMessage(Component.translatable("manager.tax.charged_property",
+                        String.format("%.2f€", balance),
+                        String.format("%.2f€", propertyTax),
+                        String.valueOf(chunks),
+                        String.format("%.2f€", totalTax),
+                        String.format("%.2f€", EconomyManager.getBalance(playerUUID))
+                    ));
                 }
-
-                message.append("§7Gesamt: §c-").append(String.format("%.2f€", totalTax)).append("\n");
-                message.append("§7Neuer Kontostand: §6").append(String.format("%.2f€", EconomyManager.getBalance(playerUUID)));
-
-                player.sendSystemMessage(Component.literal(message.toString()));
             }
         } else {
             // Schulden aufbauen
@@ -259,13 +269,11 @@ public class TaxManager extends AbstractPersistenceManager<Map<String, Object>> 
 
             ServerPlayer player = server.getPlayerList().getPlayer(playerUUID);
             if (player != null) {
-                player.sendSystemMessage(Component.literal(
-                    "§c§l[STEUERN] Zahlung fehlgeschlagen!\n" +
-                    "§7Fällig: §c" + String.format("%.2f€", totalTax) + "\n" +
-                    "§7(Einkommen: " + String.format("%.2f€", incomeTax) +
-                    ", Grundsteuer: " + String.format("%.2f€", propertyTax) + ")\n" +
-                    "§7Steuerschuld: §c" + String.format("%.2f€", debt) + "\n" +
-                    "§cZahle innerhalb von 3 Tagen!"
+                player.sendSystemMessage(Component.translatable("manager.tax.payment_failed",
+                    String.format("%.2f€", totalTax),
+                    String.format("%.2f€", incomeTax),
+                    String.format("%.2f€", propertyTax),
+                    String.format("%.2f€", debt)
                 ));
             }
         }

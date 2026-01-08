@@ -1,15 +1,16 @@
 package de.rolandsw.schedulemc.tobacco;
 
 import de.rolandsw.schedulemc.production.core.ProductionQuality;
+import net.minecraft.network.chat.Component;
 
 /**
  * Tabak-Qualitätsstufen
  */
 public enum TobaccoQuality implements ProductionQuality {
-    SCHLECHT("Schlecht", "§c", 0, 1.0),
-    GUT("Gut", "§e", 1, 1.5),
-    SEHR_GUT("Sehr Gut", "§a", 2, 2.5),
-    LEGENDAER("Legendär", "§6§l", 3, 5.0);
+    SCHLECHT(Component.translatable("enum.tobacco_quality.schlecht").getString(), "§c", 0, 1.0),
+    GUT(Component.translatable("enum.tobacco_quality.gut").getString(), "§e", 1, 1.5),
+    SEHR_GUT(Component.translatable("enum.tobacco_quality.sehr_gut").getString(), "§a", 2, 2.5),
+    LEGENDAER(Component.translatable("enum.tobacco_quality.legendaer").getString(), "§6§l", 3, 5.0);
     
     private final String displayName;
     private final String colorCode;
@@ -53,10 +54,10 @@ public enum TobaccoQuality implements ProductionQuality {
     @Override
     public String getDescription() {
         return switch (this) {
-            case SCHLECHT -> "Niedrige Qualität";
-            case GUT -> "Gute Qualität";
-            case SEHR_GUT -> "Sehr gute Qualität";
-            case LEGENDAER -> "Legendäre Qualität";
+            case SCHLECHT -> Component.translatable("enum.tobacco_quality.desc.schlecht").getString();
+            case GUT -> Component.translatable("enum.tobacco_quality.desc.gut").getString();
+            case SEHR_GUT -> Component.translatable("enum.tobacco_quality.desc.sehr_gut").getString();
+            case LEGENDAER -> Component.translatable("enum.tobacco_quality.desc.legendaer").getString();
         };
     }
 

@@ -75,9 +75,9 @@ public class PrisonManager {
     }
 
     public enum ReleaseReason {
-        TIME_SERVED("Haft verbüßt"),
-        BAIL_PAID("Kaution bezahlt"),
-        ADMIN_RELEASE("Admin-Entlassung");
+        TIME_SERVED("manager.prison.release_reason_time_served"),
+        BAIL_PAID("manager.prison.release_reason_bail_paid"),
+        ADMIN_RELEASE("manager.prison.release_reason_admin_release");
 
         public final String displayName;
         ReleaseReason(String name) { this.displayName = name; }
@@ -176,8 +176,8 @@ public class PrisonManager {
 
         PrisonCell cell = findAvailableCell(wantedLevel);
         if (cell == null) {
-            player.sendSystemMessage(Component.literal(
-                "§c✗ Kein Gefängnis verfügbar! Bitte Admin kontaktieren."));
+            player.sendSystemMessage(Component.translatable(
+                "manager.prison.no_prison_available"));
             return false;
         }
 
@@ -299,9 +299,9 @@ public class PrisonManager {
 
         double balance = EconomyManager.getBalance(playerId);
         if (balance < data.bailAmount) {
-            player.sendSystemMessage(Component.literal(String.format(
-                "§c✗ Nicht genug Geld! Kaution: %.0f€, Du hast: %.0f€",
-                data.bailAmount, balance)));
+            player.sendSystemMessage(Component.translatable(
+                "manager.prison.insufficient_funds",
+                (int)data.bailAmount, (int)balance));
             return false;
         }
 

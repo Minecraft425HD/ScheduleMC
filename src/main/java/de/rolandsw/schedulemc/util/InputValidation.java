@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.util;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nullable;
 
@@ -24,17 +25,18 @@ public class InputValidation {
 
     // Aliase für Rückwärtskompatibilität
     public static class ValidationResult extends Result {
-        private ValidationResult(boolean valid, String error, String sanitizedValue) {
-            super(valid, error, sanitizedValue);
+        private ValidationResult(boolean valid, String error, String errorKey, Object[] errorArgs, String sanitizedValue) {
+            super(valid, error, errorKey, errorArgs, sanitizedValue);
         }
 
-        public static ValidationResult success() { return new ValidationResult(true, null, null); }
-        public static ValidationResult success(String sanitizedValue) { return new ValidationResult(true, null, sanitizedValue); }
-        public static ValidationResult failure(String error) { return new ValidationResult(false, error, null); }
+        public static ValidationResult success() { return new ValidationResult(true, null, null, null, null); }
+        public static ValidationResult success(String sanitizedValue) { return new ValidationResult(true, null, null, null, sanitizedValue); }
+        public static ValidationResult failure(String error) { return new ValidationResult(false, error, null, null, null); }
+        public static ValidationResult failure(String errorKey, Object... args) { return new ValidationResult(false, null, errorKey, args, null); }
 
         // Konvertiert Result zu ValidationResult
         public static ValidationResult from(Result result) {
-            return new ValidationResult(result.isValid(), result.getError(), result.getSanitizedValue());
+            return new ValidationResult(result.isValid(), result.getError(), result.getErrorKey(), result.getErrorArgs(), result.getSanitizedValue());
         }
     }
 
@@ -49,55 +51,69 @@ public class InputValidation {
     public static class Result {
         private final boolean valid;
         private final String error;
+        private final String errorKey;
+        private final Object[] errorArgs;
         private final String sanitizedValue;
 
-        protected Result(boolean valid, @Nullable String error, @Nullable String sanitizedValue) {
+        protected Result(boolean valid, @Nullable String error, @Nullable String errorKey, @Nullable Object[] errorArgs, @Nullable String sanitizedValue) {
             this.valid = valid;
             this.error = error;
+            this.errorKey = errorKey;
+            this.errorArgs = errorArgs;
             this.sanitizedValue = sanitizedValue;
         }
 
-        public static Result success() { return new Result(true, null, null); }
-        public static Result success(String sanitizedValue) { return new Result(true, null, sanitizedValue); }
-        public static Result failure(String error) { return new Result(false, error, null); }
+        public static Result success() { return new Result(true, null, null, null, null); }
+        public static Result success(String sanitizedValue) { return new Result(true, null, null, null, sanitizedValue); }
+        public static Result failure(String error) { return new Result(false, error, null, null, null); }
+        public static Result failure(String errorKey, Object... args) { return new Result(false, null, errorKey, args, null); }
 
         public boolean isValid() { return valid; }
         public boolean isFailure() { return !valid; }
         @Nullable public String getError() { return error; }
         @Nullable public String getErrorMessage() { return error; }  // Alias für getError
+        @Nullable public String getErrorKey() { return errorKey; }
+        @Nullable public Object[] getErrorArgs() { return errorArgs; }
         @Nullable public String getSanitizedValue() { return sanitizedValue; }
+
+        public Component toComponent() {
+            if (errorKey != null) {
+                return Component.translatable(errorKey, errorArgs != null ? errorArgs : new Object[0]);
+            }
+            return Component.literal(error != null ? error : "");
+        }
     }
 
     public static Result validateNPCName(@Nullable String name) {
         if (name == null || name.isEmpty()) {
-            return Result.failure("§cNPC-Name darf nicht leer sein!");
+            return Result.failure("validation.npc.name_empty");
         }
         String trimmed = name.trim();
         if (trimmed.length() > MAX_NPC_NAME_LENGTH) {
-            return Result.failure("§cNPC-Name darf maximal " + MAX_NPC_NAME_LENGTH + " Zeichen lang sein!");
+            return Result.failure("validation.npc.max_length", MAX_NPC_NAME_LENGTH);
         }
         if (trimmed.length() < 2) {
-            return Result.failure("§cNPC-Name muss mindestens 2 Zeichen lang sein!");
+            return Result.failure("validation.npc.min_length");
         }
         if (!trimmed.matches(ALLOWED_NAME_CHARS)) {
-            return Result.failure("§cNPC-Name enthält ungültige Zeichen!");
+            return Result.failure("validation.npc.invalid_characters");
         }
         if (containsDangerousPatterns(trimmed)) {
-            return Result.failure("§cNPC-Name enthält nicht erlaubte Zeichenfolgen!");
+            return Result.failure("validation.npc.dangerous_pattern");
         }
         return Result.success(trimmed);
     }
 
     public static Result validatePlotName(@Nullable String name) {
         if (name == null || name.isEmpty()) {
-            return Result.failure("§cPlot-Name darf nicht leer sein!");
+            return Result.failure("validation.plot.name_empty");
         }
         String trimmed = name.trim();
         if (trimmed.length() > MAX_PLOT_NAME_LENGTH) {
-            return Result.failure("§cPlot-Name darf maximal " + MAX_PLOT_NAME_LENGTH + " Zeichen lang sein!");
+            return Result.failure("validation.plot.max_length", MAX_PLOT_NAME_LENGTH);
         }
         if (!trimmed.matches(ALLOWED_NAME_CHARS)) {
-            return Result.failure("§cPlot-Name enthält ungültige Zeichen!");
+            return Result.failure("validation.plot.invalid_characters");
         }
         return Result.success(trimmed);
     }
@@ -112,13 +128,13 @@ public class InputValidation {
         }
         String trimmed = name.trim();
         if (trimmed.length() > MAX_TERRITORY_NAME_LENGTH) {
-            return Result.failure("§cTerritory-Name darf maximal " + MAX_TERRITORY_NAME_LENGTH + " Zeichen lang sein!");
+            return Result.failure("validation.territory.max_length", MAX_TERRITORY_NAME_LENGTH);
         }
         if (!trimmed.matches(ALLOWED_NAME_CHARS)) {
-            return Result.failure("§cTerritory-Name enthält ungültige Zeichen!");
+            return Result.failure("validation.territory.invalid_characters");
         }
         if (containsDangerousPatterns(trimmed)) {
-            return Result.failure("§cTerritory-Name enthält nicht erlaubte Zeichenfolgen!");
+            return Result.failure("validation.territory.dangerous_pattern");
         }
         return Result.success(trimmed);
     }
@@ -133,20 +149,20 @@ public class InputValidation {
         }
         String trimmed = filename.trim();
         if (trimmed.length() > MAX_SKIN_FILE_LENGTH) {
-            return Result.failure("§cSkin-Dateiname zu lang!");
+            return Result.failure("validation.skin.filename_too_long");
         }
         if (!trimmed.matches(ALLOWED_FILENAME_CHARS)) {
-            return Result.failure("§cSkin-Dateiname enthält ungültige Zeichen!");
+            return Result.failure("validation.skin.invalid_characters");
         }
         // SICHERHEIT: Verhindere Path Traversal
         if (trimmed.contains("..") || trimmed.contains("/") || trimmed.contains("\\")) {
-            return Result.failure("§cSkin-Dateiname enthält nicht erlaubte Pfadzeichen!");
+            return Result.failure("validation.skin.path_characters");
         }
         // SICHERHEIT: Blockiere System-Dateien
         String lower = trimmed.toLowerCase();
         if (lower.equals("con") || lower.equals("prn") || lower.equals("aux") ||
             lower.equals("nul") || lower.startsWith("com") || lower.startsWith("lpt")) {
-            return Result.failure("§cReservierter Dateiname!");
+            return Result.failure("validation.skin.reserved_filename");
         }
         return Result.success(trimmed);
     }
@@ -157,23 +173,23 @@ public class InputValidation {
      */
     public static Result validateDialogText(@Nullable String text) {
         if (text == null || text.isEmpty()) {
-            return Result.failure("§cDialog-Text darf nicht leer sein!");
+            return Result.failure("validation.dialog.text_empty");
         }
         String trimmed = text.trim();
         if (trimmed.length() > MAX_DIALOG_TEXT_LENGTH) {
-            return Result.failure("§cDialog-Text darf maximal " + MAX_DIALOG_TEXT_LENGTH + " Zeichen lang sein!");
+            return Result.failure("validation.dialog.max_length", MAX_DIALOG_TEXT_LENGTH);
         }
         // SICHERHEIT: Verhindere Command-Injection
         if (trimmed.startsWith("/")) {
-            return Result.failure("§cDialog darf nicht mit '/' beginnen!");
+            return Result.failure("validation.dialog.starts_with_slash");
         }
         // SICHERHEIT: Prüfe auf Server-Commands in Text
         if (containsCommandInjection(trimmed)) {
-            return Result.failure("§cDialog enthält nicht erlaubte Befehle!");
+            return Result.failure("validation.dialog.command_injection");
         }
         // SICHERHEIT: Prüfe auf gefährliche Muster
         if (containsDangerousPatterns(trimmed)) {
-            return Result.failure("§cDialog enthält nicht erlaubte Zeichenfolgen!");
+            return Result.failure("validation.dialog.dangerous_pattern");
         }
         return Result.success(trimmed);
     }
@@ -198,17 +214,17 @@ public class InputValidation {
      */
     public static Result validatePath(@Nullable String path) {
         if (path == null || path.isEmpty()) {
-            return Result.failure("§cPfad darf nicht leer sein!");
+            return Result.failure("validation.path.empty");
         }
         String normalized = path.trim().replace("\\", "/");
 
         // SICHERHEIT: Verhindere Path Traversal
         if (normalized.contains("..")) {
-            return Result.failure("§cPfad enthält nicht erlaubte '..' Sequenz!");
+            return Result.failure("validation.path.traversal");
         }
         // SICHERHEIT: Blockiere absolute Pfade
         if (normalized.startsWith("/") || normalized.matches("^[A-Za-z]:.*")) {
-            return Result.failure("§cAbsolute Pfade sind nicht erlaubt!");
+            return Result.failure("validation.path.absolute_not_allowed");
         }
         // SICHERHEIT: Whitelist für erlaubte Basis-Verzeichnisse
         String[] allowedPrefixes = {"config/", "skins/", "data/", "backups/"};
@@ -220,7 +236,7 @@ public class InputValidation {
             }
         }
         if (!hasAllowedPrefix) {
-            return Result.failure("§cPfad muss in einem erlaubten Verzeichnis sein (config/, skins/, data/, backups/)!");
+            return Result.failure("validation.path.invalid_prefix");
         }
         return Result.success(normalized);
     }
@@ -228,20 +244,20 @@ public class InputValidation {
     public static Result validatePacketString(@Nullable String value, String fieldName) {
         if (value == null) return Result.success("");
         if (value.length() > MAX_PACKET_STRING_LENGTH) {
-            return Result.failure("§c" + fieldName + " ist zu lang!");
+            return Result.failure("validation.packet.too_long", fieldName);
         }
         return Result.success(value);
     }
 
     public static Result validateBlockPos(@Nullable BlockPos pos) {
         if (pos == null) {
-            return Result.failure("§cPosition darf nicht null sein!");
+            return Result.failure("validation.position.null");
         }
         if (Math.abs(pos.getX()) > MAX_COORDINATE || Math.abs(pos.getZ()) > MAX_COORDINATE) {
-            return Result.failure("§cKoordinaten außerhalb der Weltgrenzen!");
+            return Result.failure("validation.position.out_of_bounds");
         }
         if (pos.getY() < MIN_Y || pos.getY() > MAX_Y) {
-            return Result.failure("§cY-Koordinate außerhalb der Weltgrenzen!");
+            return Result.failure("validation.position.y_out_of_bounds");
         }
         return Result.success();
     }
@@ -251,11 +267,11 @@ public class InputValidation {
         if (!r1.isValid()) return r1;
         Result r2 = validateBlockPos(pos2);
         if (!r2.isValid()) return r2;
-        
+
         int dx = Math.abs(pos1.getX() - pos2.getX());
         int dz = Math.abs(pos1.getZ() - pos2.getZ());
         if (dx > 10000 || dz > 10000) {
-            return Result.failure("§cPlot-Region zu groß! Max 10.000 x 10.000 Blöcke.");
+            return Result.failure("validation.plot.region_too_large");
         }
         return Result.success();
     }
@@ -308,10 +324,10 @@ public class InputValidation {
      */
     public static ValidationResult validatePercentage(int percentage) {
         if (percentage < 0) {
-            return ValidationResult.failure("§cProzentsatz darf nicht negativ sein!");
+            return ValidationResult.failure("validation.percentage.negative");
         }
         if (percentage > 100) {
-            return ValidationResult.failure("§cProzentsatz darf nicht größer als 100 sein!");
+            return ValidationResult.failure("validation.percentage.too_large");
         }
         return ValidationResult.success();
     }
@@ -321,13 +337,13 @@ public class InputValidation {
      */
     private static Result validateAmountInternal(double amount) {
         if (Double.isNaN(amount) || Double.isInfinite(amount)) {
-            return Result.failure("§cUngültiger Betrag!");
+            return Result.failure("validation.amount.invalid");
         }
         if (amount < 0) {
-            return Result.failure("§cBetrag darf nicht negativ sein!");
+            return Result.failure("validation.amount.negative");
         }
         if (amount > MAX_AMOUNT) {
-            return Result.failure("§cBetrag zu groß!");
+            return Result.failure("validation.amount.too_large");
         }
         return Result.success();
     }

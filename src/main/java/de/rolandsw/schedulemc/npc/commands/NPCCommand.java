@@ -190,7 +190,7 @@ public class NPCCommand {
 
         context.getSource().sendSuccess(
             () -> Component.translatable("message.npc.movement_prefix").withStyle(ChatFormatting.GREEN)
-                .append(Component.literal(enabled ? "aktiviert" : "deaktiviert")
+                .append(Component.translatable(enabled ? "command.npc.activated" : "command.npc.deactivated")
                     .withStyle(enabled ? ChatFormatting.GREEN : ChatFormatting.RED))
                 .append(Component.translatable("message.common.for_npc").withStyle(ChatFormatting.GREEN))
                 .append(Component.literal(npc.getNpcName())
@@ -262,7 +262,7 @@ public class NPCCommand {
         );
         player.sendSystemMessage(
             Component.translatable("message.npc.movement_label").withStyle(ChatFormatting.GRAY)
-                .append(Component.literal(behavior.canMove() ? "Aktiviert" : "Deaktiviert")
+                .append(Component.translatable(behavior.canMove() ? "command.npc.activated" : "command.npc.deactivated")
                     .withStyle(behavior.canMove() ? ChatFormatting.GREEN : ChatFormatting.RED))
         );
         player.sendSystemMessage(
@@ -272,18 +272,18 @@ public class NPCCommand {
         );
         player.sendSystemMessage(
             Component.translatable("message.npc.home_label").withStyle(ChatFormatting.GRAY)
-                .append(Component.literal(data.getHomeLocation() != null ?
-                    data.getHomeLocation().toShortString() : "Nicht gesetzt")
-                    .withStyle(data.getHomeLocation() != null ? ChatFormatting.GREEN : ChatFormatting.RED))
+                .append(data.getHomeLocation() != null ?
+                    Component.literal(data.getHomeLocation().toShortString()).withStyle(ChatFormatting.GREEN) :
+                    Component.translatable("command.npc.not_set").withStyle(ChatFormatting.RED))
         );
 
         // Arbeitsort nur für Verkäufer anzeigen
         if (data.getNpcType() == NPCType.VERKAEUFER) {
             player.sendSystemMessage(
                 Component.translatable("message.npc.workplace_label").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(data.getWorkLocation() != null ?
-                        data.getWorkLocation().toShortString() : "Nicht gesetzt")
-                        .withStyle(data.getWorkLocation() != null ? ChatFormatting.GREEN : ChatFormatting.RED))
+                    .append(data.getWorkLocation() != null ?
+                        Component.literal(data.getWorkLocation().toShortString()).withStyle(ChatFormatting.GREEN) :
+                        Component.translatable("command.npc.not_set").withStyle(ChatFormatting.RED))
             );
         } else if (data.getNpcType() == NPCType.BEWOHNER) {
             player.sendSystemMessage(
@@ -329,8 +329,9 @@ public class NPCCommand {
             );
             player.sendSystemMessage(
                 Component.translatable("message.npc.leisure_label").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(homeEnd + " - " + homeStart + " (Aktiv in der Stadt)")
+                    .append(Component.literal(homeEnd + " - " + homeStart + " ")
                         .withStyle(ChatFormatting.GREEN))
+                    .append(Component.translatable("command.npc.active_in_town").withStyle(ChatFormatting.GREEN))
             );
         } else {
             // Polizei oder andere: Alte Anzeige
@@ -383,14 +384,14 @@ public class NPCCommand {
             }
             player.sendSystemMessage(
                 Component.translatable("message.npc.inventory_label").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(itemCount + "/9 Slots belegt")
+                    .append(Component.translatable("command.npc.slots_occupied", itemCount, 9)
                         .withStyle(itemCount > 0 ? ChatFormatting.GREEN : ChatFormatting.YELLOW))
             );
 
             // Geldbörse
             player.sendSystemMessage(
                 Component.translatable("message.npc.wallet_label").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(data.getWallet() + " Bargeld")
+                    .append(Component.translatable("command.npc.cash", data.getWallet())
                         .withStyle(ChatFormatting.GOLD))
             );
         }
@@ -460,17 +461,16 @@ public class NPCCommand {
             case "home" -> npc.getNpcData().setHomeTime(ticks);
         }
 
-        String timeName = switch (timeType) {
-            case "workstart" -> "Arbeitsbeginn";
-            case "workend" -> "Arbeitsende";
-            case "home" -> "Heimzeit";
-            default -> "Zeit";
+        String translationKey = switch (timeType) {
+            case "workstart" -> "command.npc.work_start_set";
+            case "workend" -> "command.npc.work_end_set";
+            case "home" -> "command.npc.home_time_set";
+            default -> "command.npc.time_set";
         };
 
         context.getSource().sendSuccess(
-            () -> Component.literal(timeName + " gesetzt auf ")
-                .withStyle(ChatFormatting.GREEN)
-                .append(Component.literal(timeInput)
+            () -> Component.translatable(translationKey).withStyle(ChatFormatting.GREEN)
+                .append(Component.literal(" " + timeInput)
                     .withStyle(ChatFormatting.YELLOW))
                 .append(Component.translatable("message.common.for_npc").withStyle(ChatFormatting.GREEN))
                 .append(Component.literal(npc.getNpcName())
@@ -877,7 +877,7 @@ public class NPCCommand {
                 .append(Component.literal(npc.getNpcName())
                     .withStyle(ChatFormatting.YELLOW))
                 .append(Component.literal(": ").withStyle(ChatFormatting.GREEN))
-                .append(Component.literal(wallet + " Bargeld")
+                .append(Component.translatable("command.npc.cash", wallet)
                     .withStyle(ChatFormatting.GOLD)),
             false
         );
@@ -920,7 +920,7 @@ public class NPCCommand {
 
         context.getSource().sendSuccess(
             () -> Component.translatable("message.npc.wallet_set_to").withStyle(ChatFormatting.GREEN)
-                .append(Component.literal(amount + " Bargeld")
+                .append(Component.translatable("command.npc.cash", amount)
                     .withStyle(ChatFormatting.GOLD))
                 .append(Component.translatable("message.common.for_npc").withStyle(ChatFormatting.GREEN))
                 .append(Component.literal(npc.getNpcName())
@@ -967,7 +967,7 @@ public class NPCCommand {
         context.getSource().sendSuccess(
             () -> Component.translatable("message.npc.cash_added", amount)
                 .withStyle(ChatFormatting.GREEN)
-                .append(Component.literal(npc.getNpcData().getWallet() + " Bargeld")
+                .append(Component.translatable("command.npc.cash", npc.getNpcData().getWallet())
                     .withStyle(ChatFormatting.GOLD))
                 .append(Component.translatable("message.common.for_npc").withStyle(ChatFormatting.GREEN))
                 .append(Component.literal(npc.getNpcName())
@@ -1024,7 +1024,7 @@ public class NPCCommand {
         context.getSource().sendSuccess(
             () -> Component.translatable("message.npc.cash_removed", amount)
                 .withStyle(ChatFormatting.GREEN)
-                .append(Component.literal(npc.getNpcData().getWallet() + " Bargeld")
+                .append(Component.translatable("command.npc.cash", npc.getNpcData().getWallet())
                     .withStyle(ChatFormatting.GOLD))
                 .append(Component.translatable("message.common.for_npc").withStyle(ChatFormatting.GREEN))
                 .append(Component.literal(npc.getNpcName())
@@ -1208,27 +1208,33 @@ public class NPCCommand {
             BlockPos warehousePos = npc.getNpcData().getAssignedWarehouse();
             if (warehousePos == null) {
                 context.getSource().sendSuccess(() ->
-                    Component.translatable("message.warehouse.info_header").append(Component.literal("\n")).append(
-                        "§7NPC: §e" + npc.getNpcName() + "\n" +
-                        "§7Status: §cKein Warehouse verknüpft"
-                    ), false
+                    Component.translatable("message.warehouse.info_header")
+                        .append(Component.literal("\n"))
+                        .append(Component.literal("§7NPC: §e").append(Component.literal(npc.getNpcName())))
+                        .append(Component.literal("\n§7Status: ").withStyle(ChatFormatting.GRAY))
+                        .append(Component.translatable("command.npc.warehouse_not_linked").withStyle(ChatFormatting.RED))
+                    , false
                 );
             } else {
                 de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity warehouse =
                     npc.getNpcData().getWarehouseEntity(level);
-                String info = "§e=== Warehouse Info ===\n" +
-                    "§7NPC: §e" + npc.getNpcName() + "\n" +
-                    "§7Position: §f" + warehousePos.getX() + ", " + warehousePos.getY() + ", " + warehousePos.getZ() + "\n";
+
+                Component info = Component.translatable("command.npc.warehouse_info_header").withStyle(ChatFormatting.GOLD)
+                    .append(Component.literal("\n§7NPC: §e").append(Component.literal(npc.getNpcName())))
+                    .append(Component.literal("\n§7Position: §f" + warehousePos.getX() + ", " + warehousePos.getY() + ", " + warehousePos.getZ() + "\n"));
 
                 if (warehouse != null) {
-                    info += "§7Slots belegt: §e" + warehouse.getUsedSlots() + "§7/§e" + warehouse.getSlots().length + "\n" +
-                            "§7Total Items: §e" + warehouse.getTotalItems();
+                    info = info.append(Component.literal("§7").withStyle(ChatFormatting.GRAY))
+                        .append(Component.translatable("command.npc.warehouse_slots", warehouse.getUsedSlots(), warehouse.getSlots().length).withStyle(ChatFormatting.GRAY))
+                        .append(Component.literal("\n§7").withStyle(ChatFormatting.GRAY))
+                        .append(Component.translatable("command.npc.warehouse_total_items", warehouse.getTotalItems()).withStyle(ChatFormatting.GRAY));
                 } else {
-                    info += "§7Status: §cWarehouse-Block nicht gefunden!";
+                    info = info.append(Component.literal("§7Status: ").withStyle(ChatFormatting.GRAY))
+                        .append(Component.translatable("command.npc.warehouse_block_not_found").withStyle(ChatFormatting.RED));
                 }
 
-                final String finalInfo = info;
-                context.getSource().sendSuccess(() -> Component.literal(finalInfo), false);
+                final Component finalInfo = info;
+                context.getSource().sendSuccess(() -> finalInfo, false);
             }
             return 1;
         } catch (Exception e) {

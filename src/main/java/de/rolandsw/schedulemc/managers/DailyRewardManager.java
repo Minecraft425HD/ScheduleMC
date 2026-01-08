@@ -131,21 +131,33 @@ public class DailyRewardManager {
 
         // Auf Konto einzahlen
         EconomyManager.deposit(playerUUID, amount, TransactionType.DAILY_REWARD,
-            "Tägliche Login-Belohnung");
+            Component.translatable("manager.daily_reward.transaction_description").getString());
 
         int streak = getStreak(playerUUID);
 
         // Nachricht an Spieler senden
-        player.sendSystemMessage(Component.literal(
-            "§a§l═══════════════════════════════\n" +
-            "§a§l✓ TÄGLICHE LOGIN-BELOHNUNG!\n" +
-            "§a§l═══════════════════════════════\n" +
-            "§a+§e" + String.format("%.2f€", amount) + " §7aufs Konto überwiesen!\n" +
-            "§7Streak: §e" + streak + " Tag" + (streak == 1 ? "" : "e") + " §6🔥\n" +
-            (streak >= 7 ? "§d★ Bonus-Woche! ★\n" : "") +
-            "§7Komm morgen wieder für mehr!\n" +
-            "§a═══════════════════════════════"
-        ));
+        player.sendSystemMessage(
+            Component.translatable("manager.daily_reward.separator")
+                .append(Component.literal("\n"))
+                .append(Component.translatable("manager.daily_reward.title").withStyle(style -> style))
+                .append(Component.literal("\n"))
+                .append(Component.translatable("manager.daily_reward.separator"))
+                .append(Component.literal("\n"))
+                .append(Component.translatable("manager.daily_reward.money_prefix"))
+                .append(Component.literal(String.format("%.2f€", amount)))
+                .append(Component.translatable("manager.daily_reward.money_suffix"))
+                .append(Component.literal("\n"))
+                .append(Component.translatable("manager.daily_reward.streak_prefix"))
+                .append(Component.literal(String.valueOf(streak)))
+                .append(Component.literal(" "))
+                .append(Component.translatable(streak == 1 ? "manager.daily_reward.day_singular" : "manager.daily_reward.day_plural"))
+                .append(Component.translatable("manager.daily_reward.streak_suffix"))
+                .append(Component.literal("\n"))
+                .append(streak >= 7 ? Component.translatable("manager.daily_reward.bonus_week").append(Component.literal("\n")) : Component.literal(""))
+                .append(Component.translatable("manager.daily_reward.come_back"))
+                .append(Component.literal("\n"))
+                .append(Component.translatable("manager.daily_reward.separator"))
+        );
 
         save();
         return true;

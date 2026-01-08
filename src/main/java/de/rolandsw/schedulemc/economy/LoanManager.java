@@ -84,13 +84,12 @@ public class LoanManager extends AbstractPersistenceManager<Map<UUID, Loan>> {
         // Benachrichtige Spieler
         ServerPlayer player = server.getPlayerList().getPlayer(playerUUID);
         if (player != null) {
-            player.sendSystemMessage(Component.literal(
-                "§a§l[KREDIT] Bewilligt!\n" +
-                "§7Typ: §e" + type.name() + "\n" +
-                "§7Betrag: §a+" + String.format("%.2f€", type.getAmount()) + "\n" +
-                "§7Zinssatz: §c" + (int)(type.getInterestRate() * 100) + "%\n" +
-                "§7Laufzeit: §e" + type.getDurationDays() + " Tage\n" +
-                "§7Tägliche Rate: §c-" + String.format("%.2f€", loan.getDailyPayment())
+            player.sendSystemMessage(Component.translatable("manager.loan.approved",
+                type.name(),
+                String.format("%.2f€", type.getAmount()),
+                String.valueOf((int)(type.getInterestRate() * 100)),
+                String.valueOf(type.getDurationDays()),
+                String.format("%.2f€", loan.getDailyPayment())
             ));
         }
 
@@ -134,10 +133,8 @@ public class LoanManager extends AbstractPersistenceManager<Map<UUID, Loan>> {
 
                     ServerPlayer player = server.getPlayerList().getPlayer(playerUUID);
                     if (player != null) {
-                        player.sendSystemMessage(Component.literal(
-                            "§a§l[KREDIT] Vollständig abbezahlt!\n" +
-                            "§7Kredit: §e" + loan.getType().name() + "\n" +
-                            "§aDu bist nun schuldenfrei!"
+                        player.sendSystemMessage(Component.translatable("manager.loan.repaid_complete",
+                            loan.getType().name()
                         ));
                     }
                 }
@@ -145,11 +142,9 @@ public class LoanManager extends AbstractPersistenceManager<Map<UUID, Loan>> {
                 // Nicht genug Geld - Warnung
                 ServerPlayer player = server.getPlayerList().getPlayer(playerUUID);
                 if (player != null) {
-                    player.sendSystemMessage(Component.literal(
-                        "§c§l[KREDIT] Zahlung fehlgeschlagen!\n" +
-                        "§7Fällig: §c" + String.format("%.2f€", payment) + "\n" +
-                        "§7Kontostand: §e" + String.format("%.2f€", EconomyManager.getBalance(playerUUID)) + "\n" +
-                        "§cZahle Geld ein um Strafen zu vermeiden!"
+                    player.sendSystemMessage(Component.translatable("manager.loan.payment_failed",
+                        String.format("%.2f€", payment),
+                        String.format("%.2f€", EconomyManager.getBalance(playerUUID))
                     ));
                 }
             }
@@ -181,9 +176,8 @@ public class LoanManager extends AbstractPersistenceManager<Map<UUID, Loan>> {
 
             ServerPlayer player = server.getPlayerList().getPlayer(playerUUID);
             if (player != null) {
-                player.sendSystemMessage(Component.literal(
-                    "§a§l[KREDIT] Vorzeitig abbezahlt!\n" +
-                    "§7Betrag: §c-" + String.format("%.2f€", remaining)
+                player.sendSystemMessage(Component.translatable("manager.loan.repaid_early",
+                    String.format("%.2f€", remaining)
                 ));
             }
 

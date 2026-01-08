@@ -49,13 +49,12 @@ public class StateCommand {
         try {
             int balance = StateAccount.getBalance();
 
-            ctx.getSource().sendSuccess(() -> Component.literal(
-                "§e§l=== Staatskasse ===\n" +
-                "§7Kontostand: §e" + balance + "€"
-            ), false);
+            ctx.getSource().sendSuccess(() -> Component.translatable("command.state.header")
+                .append("\n")
+                .append(Component.translatable("command.state.balance", balance)), false);
             return 1;
         } catch (Exception e) {
-            LOGGER.error("Fehler bei /state balance", e);
+            LOGGER.error("command.state.error.balance", e);
             return 0;
         }
     }
@@ -66,14 +65,15 @@ public class StateCommand {
 
             StateAccount.deposit(amount, "Admin-Einzahlung");
 
-            ctx.getSource().sendSuccess(() -> Component.literal(
-                "§a✓ Einzahlung erfolgreich!\n" +
-                "§7Betrag: §e+" + amount + "€\n" +
-                "§7Neuer Kontostand: §e" + StateAccount.getBalance() + "€"
-            ), false);
+            int newBalance = StateAccount.getBalance();
+            ctx.getSource().sendSuccess(() -> Component.translatable("command.state.deposit_success")
+                .append("\n")
+                .append(Component.translatable("command.state.deposit_amount", amount))
+                .append("\n")
+                .append(Component.translatable("command.state.new_balance", newBalance)), false);
             return 1;
         } catch (Exception e) {
-            LOGGER.error("Fehler bei /state deposit", e);
+            LOGGER.error("command.state.error.deposit", e);
             return 0;
         }
     }
@@ -83,22 +83,24 @@ public class StateCommand {
             int amount = IntegerArgumentType.getInteger(ctx, "amount");
 
             if (StateAccount.withdraw(amount, "Admin-Abhebung")) {
-                ctx.getSource().sendSuccess(() -> Component.literal(
-                    "§a✓ Abhebung erfolgreich!\n" +
-                    "§7Betrag: §e-" + amount + "€\n" +
-                    "§7Neuer Kontostand: §e" + StateAccount.getBalance() + "€"
-                ), false);
+                int newBalance = StateAccount.getBalance();
+                ctx.getSource().sendSuccess(() -> Component.translatable("command.state.withdraw_success")
+                    .append("\n")
+                    .append(Component.translatable("command.state.withdraw_amount", amount))
+                    .append("\n")
+                    .append(Component.translatable("command.state.new_balance", newBalance)), false);
                 return 1;
             } else {
-                ctx.getSource().sendFailure(Component.literal(
-                    "§cNicht genug Geld in der Staatskasse!\n" +
-                    "§7Kontostand: §e" + StateAccount.getBalance() + "€\n" +
-                    "§7Benötigt: §e" + amount + "€"
-                ));
+                int currentBalance = StateAccount.getBalance();
+                ctx.getSource().sendFailure(Component.translatable("command.state.insufficient_funds")
+                    .append("\n")
+                    .append(Component.translatable("command.state.balance", currentBalance))
+                    .append("\n")
+                    .append(Component.translatable("command.state.required_amount", amount)));
                 return 0;
             }
         } catch (Exception e) {
-            LOGGER.error("Fehler bei /state withdraw", e);
+            LOGGER.error("command.state.error.withdraw", e);
             return 0;
         }
     }

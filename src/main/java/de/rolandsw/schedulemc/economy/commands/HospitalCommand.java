@@ -23,13 +23,14 @@ public class HospitalCommand {
                 .executes(context -> {
                     BlockPos pos = BlockPos.containing(context.getSource().getPosition());
                     RespawnHandler.setHospitalSpawn(pos);
-                    
-                    context.getSource().sendSuccess(() -> Component.literal(
-                        "§a✓ Krankenhaus-Spawn gesetzt!\n" +
-                        "§7Position: §f" + pos.getX() + ", " + pos.getY() + ", " + pos.getZ() + "\n" +
-                        "§7Spieler spawnen hier nach dem Tod"
-                    ), true);
-                    
+
+                    context.getSource().sendSuccess(() -> Component.empty()
+                        .append(Component.translatable("command.hospital.spawn_set"))
+                        .append(Component.literal("\n"))
+                        .append(Component.translatable("command.hospital.position", pos.getX(), pos.getY(), pos.getZ()))
+                        .append(Component.literal("\n"))
+                        .append(Component.translatable("command.hospital.spawn_info")), true);
+
                     return 1;
                 }))
             
@@ -39,12 +40,12 @@ public class HospitalCommand {
                     .executes(context -> {
                         double fee = DoubleArgumentType.getDouble(context, "amount");
                         RespawnHandler.setHospitalFee(fee);
-                        
-                        context.getSource().sendSuccess(() -> Component.literal(
-                            "§a✓ Krankenhausrechnung gesetzt!\n" +
-                            "§7Kosten pro Tod: §e" + String.format("%.0f€", fee)
-                        ), true);
-                        
+
+                        context.getSource().sendSuccess(() -> Component.empty()
+                            .append(Component.translatable("command.hospital.fee_set"))
+                            .append(Component.literal("\n"))
+                            .append(Component.translatable("command.hospital.fee_info", fee)), true);
+
                         return 1;
                     })))
             
@@ -53,14 +54,16 @@ public class HospitalCommand {
                 .executes(context -> {
                     BlockPos spawn = RespawnHandler.getHospitalSpawn();
                     double fee = RespawnHandler.getHospitalFee();
-                    
-                    context.getSource().sendSuccess(() -> Component.literal(
-                        "§6╔══ KRANKENHAUS-INFO ══╗\n" +
-                        "§7Spawn: §f" + spawn.getX() + ", " + spawn.getY() + ", " + spawn.getZ() + "\n" +
-                        "§7Gebühr: §e" + String.format("%.0f€", fee) + " pro Tod\n" +
-                        "§6╚══════════════════════╝"
-                    ), false);
-                    
+
+                    context.getSource().sendSuccess(() -> Component.empty()
+                        .append(Component.translatable("command.hospital.info_header"))
+                        .append(Component.literal("\n"))
+                        .append(Component.translatable("command.hospital.info_spawn", spawn.getX(), spawn.getY(), spawn.getZ()))
+                        .append(Component.literal("\n"))
+                        .append(Component.translatable("command.hospital.info_fee", fee))
+                        .append(Component.literal("\n"))
+                        .append(Component.translatable("command.hospital.info_footer")), false);
+
                     return 1;
                 }))
         );

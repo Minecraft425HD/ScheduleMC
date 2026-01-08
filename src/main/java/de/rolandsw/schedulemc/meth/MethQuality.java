@@ -1,14 +1,15 @@
 package de.rolandsw.schedulemc.meth;
 
 import de.rolandsw.schedulemc.production.core.ProductionQuality;
+import net.minecraft.network.chat.Component;
 
 /**
  * Meth-Qualitätsstufen (Breaking Bad inspiriert)
  */
 public enum MethQuality implements ProductionQuality {
-    STANDARD("Standard", "§f", 0, 1.0, "Weiß"),      // Weißes Meth (niedrigste Qualität)
-    GUT("Gut", "§e", 1, 2.0, "Gelblich"),            // Gelbliches Meth
-    BLUE_SKY("Blue Sky", "§b§l", 2, 5.0, "Blau");   // Blaues Meth (höchste Qualität - Heisenberg Style)
+    STANDARD(Component.translatable("enum.meth_quality.standard").getString(), "§f", 0, 1.0, Component.translatable("enum.meth_quality.color.standard").getString()),      // Weißes Meth (niedrigste Qualität)
+    GUT(Component.translatable("enum.meth_quality.gut").getString(), "§e", 1, 2.0, Component.translatable("enum.meth_quality.color.gut").getString()),            // Gelbliches Meth
+    BLUE_SKY(Component.translatable("enum.meth_quality.blue_sky").getString(), "§b§l", 2, 5.0, Component.translatable("enum.meth_quality.color.blue_sky").getString());   // Blaues Meth (höchste Qualität - Heisenberg Style)
 
     private final String displayName;
     private final String colorCode;
@@ -50,7 +51,11 @@ public enum MethQuality implements ProductionQuality {
 
     @Override
     public String getDescription() {
-        return colorDescription + " Meth";
+        return switch (this) {
+            case STANDARD -> Component.translatable("enum.meth_quality.desc.standard").getString();
+            case GUT -> Component.translatable("enum.meth_quality.desc.gut").getString();
+            case BLUE_SKY -> Component.translatable("enum.meth_quality.desc.blue_sky").getString();
+        };
     }
 
     /**
