@@ -63,8 +63,8 @@ public class VehiclePurchaseHandler {
         if (spawnPoint == null) {
             // Geld zurückgeben
             EconomyManager.deposit(player.getUUID(), price);
-            player.sendSystemMessage(Component.literal("⚠ Kein freier Parkplatz verfügbar!").withStyle(ChatFormatting.RED));
-            player.sendSystemMessage(Component.literal("Bitte warten Sie, bis ein Parkplatz frei wird.").withStyle(ChatFormatting.GRAY));
+            player.sendSystemMessage(Component.translatable("vehicle.purchase.no_parking").withStyle(ChatFormatting.RED));
+            player.sendSystemMessage(Component.translatable("vehicle.purchase.wait_for_parking").withStyle(ChatFormatting.GRAY));
             return false;
         }
 
