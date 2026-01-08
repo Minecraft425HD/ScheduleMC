@@ -81,21 +81,21 @@ public class NPCLocationTool extends Item {
                             .withStyle(ChatFormatting.GREEN)
                             .append(Component.literal(npc.getNpcName())
                                 .withStyle(ChatFormatting.YELLOW))
-                            .append(Component.literal(" bei " + clickedPos.toShortString())
+                            .append(Component.translatable("message.common.at_location", clickedPos.toShortString())
                                 .withStyle(ChatFormatting.WHITE))
                     );
                 } else if (npc.getNpcData().getNpcType() == NPCType.BEWOHNER) {
                     player.sendSystemMessage(
-                        Component.literal("⚠ Bewohner arbeiten nicht! Sie brauchen keinen Arbeitsort.")
+                        Component.translatable("message.npc.residents_no_workplace")
                             .withStyle(ChatFormatting.YELLOW)
                     );
                     player.sendSystemMessage(
-                        Component.literal("→ Nutze NPCLeisureTool um Freizeitorte zu setzen.")
+                        Component.translatable("message.npc.use_leisure_tool")
                             .withStyle(ChatFormatting.GRAY)
                     );
                 } else {
                     player.sendSystemMessage(
-                        Component.literal("⚠ Dieser NPC-Typ hat keine Arbeitsorte!")
+                        Component.translatable("message.npc.type_no_workplace")
                             .withStyle(ChatFormatting.RED)
                     );
                 }
@@ -107,7 +107,7 @@ public class NPCLocationTool extends Item {
                         .withStyle(ChatFormatting.GREEN)
                         .append(Component.literal(npc.getNpcName())
                             .withStyle(ChatFormatting.YELLOW))
-                        .append(Component.literal(" bei " + clickedPos.toShortString())
+                        .append(Component.translatable("message.common.at_location", clickedPos.toShortString())
                             .withStyle(ChatFormatting.WHITE))
                 );
             }
@@ -148,7 +148,7 @@ public class NPCLocationTool extends Item {
             // Unterschiedliche Hinweise je nach NPC-Typ
             if (npc.getNpcData().getNpcType() == NPCType.BEWOHNER) {
                 player.sendSystemMessage(
-                    Component.literal("Rechtsklick auf Block = Wohnort")
+                    Component.translatable("message.npc.right_click_set_home")
                         .withStyle(ChatFormatting.GRAY)
                 );
                 player.sendSystemMessage(
@@ -157,12 +157,12 @@ public class NPCLocationTool extends Item {
                 );
             } else if (npc.getNpcData().getNpcType() == NPCType.VERKAEUFER) {
                 player.sendSystemMessage(
-                    Component.literal("Rechtsklick = Wohnort | Shift+Rechtsklick = Arbeitsort")
+                    Component.translatable("message.npc.right_click_home_shift_work")
                         .withStyle(ChatFormatting.GRAY)
                 );
             } else if (npc.getNpcData().getNpcType() == NPCType.POLIZEI) {
                 player.sendSystemMessage(
-                    Component.literal("⚠ Polizei-NPCs nutzen das NPCPatrolTool!")
+                    Component.translatable("message.npc.police_use_patrol_tool")
                         .withStyle(ChatFormatting.RED)
                 );
             }
@@ -178,12 +178,12 @@ public class NPCLocationTool extends Item {
      */
     private void showNPCInfo(Player player, CustomNPCEntity npc) {
         player.sendSystemMessage(
-            Component.literal("═══ NPC-Info: " + npc.getNpcName() + " ═══")
+            Component.translatable("message.npc.info_header", npc.getNpcName())
                 .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)
         );
 
         player.sendSystemMessage(
-            Component.literal("Typ: ")
+            Component.translatable("message.common.type_label")
                 .withStyle(ChatFormatting.AQUA)
                 .append(Component.literal(npc.getNpcData().getNpcType().getDisplayName())
                     .withStyle(ChatFormatting.WHITE))
@@ -192,16 +192,16 @@ public class NPCLocationTool extends Item {
         BlockPos home = npc.getNpcData().getHomeLocation();
         if (home != null) {
             player.sendSystemMessage(
-                Component.literal("Wohnort: ")
+                Component.translatable("message.npc.home_label")
                     .withStyle(ChatFormatting.AQUA)
                     .append(Component.literal(home.toShortString())
                         .withStyle(ChatFormatting.WHITE))
             );
         } else {
             player.sendSystemMessage(
-                Component.literal("Wohnort: ")
+                Component.translatable("message.npc.home_label")
                     .withStyle(ChatFormatting.AQUA)
-                    .append(Component.literal("Nicht gesetzt")
+                    .append(Component.translatable("message.common.not_set"))
                         .withStyle(ChatFormatting.RED))
             );
         }
@@ -211,16 +211,16 @@ public class NPCLocationTool extends Item {
             BlockPos work = npc.getNpcData().getWorkLocation();
             if (work != null) {
                 player.sendSystemMessage(
-                    Component.literal("Arbeitsort: ")
+                    Component.translatable("message.npc.workplace_label")
                         .withStyle(ChatFormatting.AQUA)
                         .append(Component.literal(work.toShortString())
                             .withStyle(ChatFormatting.WHITE))
                 );
             } else {
                 player.sendSystemMessage(
-                    Component.literal("Arbeitsort: ")
+                    Component.translatable("message.npc.workplace_label")
                         .withStyle(ChatFormatting.AQUA)
-                        .append(Component.literal("Nicht gesetzt")
+                        .append(Component.translatable("message.common.not_set"))
                             .withStyle(ChatFormatting.RED))
                 );
             }
@@ -229,7 +229,7 @@ public class NPCLocationTool extends Item {
             long workStart = npc.getNpcData().getWorkStartTime();
             long workEnd = npc.getNpcData().getWorkEndTime();
             player.sendSystemMessage(
-                Component.literal("Arbeitszeit: ")
+                Component.translatable("message.npc.work_hours_label")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(ticksToTime(workStart) + " - " + ticksToTime(workEnd))
                         .withStyle(ChatFormatting.WHITE))
@@ -237,21 +237,21 @@ public class NPCLocationTool extends Item {
             // Zeige Heimzeit für Verkäufer
             long homeTime = npc.getNpcData().getHomeTime();
             player.sendSystemMessage(
-                Component.literal("Heimzeit: ")
+                Component.translatable("message.npc.home_time_label")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal("ab " + ticksToTime(homeTime))
                         .withStyle(ChatFormatting.WHITE))
             );
         } else if (npc.getNpcData().getNpcType() == NPCType.BEWOHNER) {
             player.sendSystemMessage(
-                Component.literal("Arbeitsort: ")
+                Component.translatable("message.npc.workplace_label")
                     .withStyle(ChatFormatting.AQUA)
-                    .append(Component.literal("Bewohner arbeiten nicht")
+                    .append(Component.translatable("message.npc.residents_dont_work"))
                         .withStyle(ChatFormatting.YELLOW))
             );
             int leisureCount = npc.getNpcData().getLeisureLocations().size();
             player.sendSystemMessage(
-                Component.literal("Freizeitorte: ")
+                Component.translatable("message.npc.leisure_locations_label")
                     .withStyle(ChatFormatting.AQUA)
                     .append(Component.literal(leisureCount + "/10")
                         .withStyle(ChatFormatting.WHITE))
@@ -261,7 +261,7 @@ public class NPCLocationTool extends Item {
             String homeStart = ticksToTime(npc.getNpcData().getHomeTime());
             String homeEnd = ticksToTime(npc.getNpcData().getWorkStartTime()); // Aufstehzeit
             player.sendSystemMessage(
-                Component.literal("Heimzeit (Schlaf): ")
+                Component.translatable("message.npc.sleep_time_label")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(homeStart + " - " + homeEnd)
                         .withStyle(ChatFormatting.YELLOW))
@@ -269,7 +269,7 @@ public class NPCLocationTool extends Item {
 
             // Zeige Freizeit als Zeitbereich
             player.sendSystemMessage(
-                Component.literal("Freizeit: ")
+                Component.translatable("message.npc.leisure_label")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(homeEnd + " - " + homeStart + " (Aktiv in der Stadt)")
                         .withStyle(ChatFormatting.GREEN))
@@ -278,7 +278,7 @@ public class NPCLocationTool extends Item {
             // Zeige Heimzeit für andere NPC-Typen
             long homeTime = npc.getNpcData().getHomeTime();
             player.sendSystemMessage(
-                Component.literal("Heimzeit: ")
+                Component.translatable("message.npc.home_time_label")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal("ab " + ticksToTime(homeTime))
                         .withStyle(ChatFormatting.WHITE))
