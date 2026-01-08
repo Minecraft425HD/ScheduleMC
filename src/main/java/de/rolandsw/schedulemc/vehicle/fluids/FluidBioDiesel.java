@@ -1,0 +1,34 @@
+package de.rolandsw.schedulemc.vehicle.fluids;
+
+import de.rolandsw.schedulemc.vehicle.blocks.ModBlocks;
+import de.rolandsw.schedulemc.vehicle.items.VehicleItems;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+
+public class FluidBioDiesel extends VehicleFluidSource {
+
+    protected FluidBioDiesel() {
+        super(new Properties(
+                () -> ModFluids.BIO_DIESEL_TYPE.get(),
+                () -> ModFluids.BIO_DIESEL.get(),
+                () -> ModFluids.BIO_DIESEL_FLOWING.get())
+                .block(() -> ModBlocks.BIO_DIESEL.get())
+                .bucket(() -> VehicleItems.BIO_DIESEL_BUCKET.get())
+        );
+    }
+
+    @Override
+    public void applyEffects(Entity entity, BlockState state, Level worldIn, BlockPos pos) {
+        if (entity instanceof Player) {
+            Player player = (Player) entity;
+            if (!player.getAbilities().instabuild) {
+                player.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 100, 0, true, false));
+            }
+        }
+    }
+}

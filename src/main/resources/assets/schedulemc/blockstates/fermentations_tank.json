@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "schedulemc:block/fermentations_tank"
+    }
+  }
+}

@@ -1,0 +1,91 @@
+package de.rolandsw.schedulemc.client.screen.apps;
+import de.rolandsw.schedulemc.util.UIColors;
+
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
+/**
+ * Dealer App - Händler und Verkäufer finden
+ */
+@OnlyIn(Dist.CLIENT)
+public class DealerAppScreen extends Screen {
+
+    private final Screen parentScreen;
+    private static final int WIDTH = 200;
+    private static final int HEIGHT = 240; // Reduziert von 320 (10% kleiner)
+    private static final int BORDER_SIZE = 5; // Rahmen um das Smartphone
+    private static final int MARGIN_TOP = 15;
+    private static final int MARGIN_BOTTOM = 60; // Mindestabstand vom Bildschirmrand
+    private int leftPos;
+    private int topPos;
+
+    public DealerAppScreen(Screen parent) {
+        super(Component.literal("Dealer"));
+        this.parentScreen = parent;
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+
+        this.leftPos = (this.width - WIDTH) / 2;
+
+        // Zentriere vertikal mit Margin-Check
+        int centeredTop = (this.height - HEIGHT) / 2;
+        int minTop = MARGIN_TOP + BORDER_SIZE;
+        int maxTop = this.height - HEIGHT - BORDER_SIZE - MARGIN_BOTTOM;
+        this.topPos = Math.max(minTop, Math.min(centeredTop, maxTop));
+
+        // Zurück-Button
+        addRenderableWidget(Button.builder(Component.literal("← Zurück"), button -> {
+            if (minecraft != null) {
+                minecraft.setScreen(parentScreen);
+            }
+        }).bounds(leftPos + 10, topPos + HEIGHT - 30, 80, 20).build());
+    }
+
+    @Override
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        renderBackground(guiGraphics);
+
+        // Smartphone-Hintergrund
+        guiGraphics.fill(leftPos - 5, topPos - 5, leftPos + WIDTH + 5, topPos + HEIGHT + 5, UIColors.BACKGROUND_DARKER);
+        guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + HEIGHT, UIColors.BACKGROUND_MEDIUM_DARK);
+
+        // Header
+        guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 30, UIColors.BACKGROUND_DARKEST);
+        guiGraphics.drawCenteredString(this.font, "§6§lDealer", leftPos + WIDTH / 2, topPos + 12, 0xFFFFFF);
+
+        // Content-Bereich
+        int contentY = topPos + 40;
+        guiGraphics.drawCenteredString(this.font, "§7Händler-Übersicht", leftPos + WIDTH / 2, contentY, 0xFFFFFF);
+        contentY += 20;
+
+        // Platzhalter für Dealer-Liste
+        guiGraphics.drawString(this.font, "§8Verfügbare Händler:", leftPos + 20, contentY, 0xAAAAAA);
+        contentY += 15;
+        guiGraphics.drawString(this.font, "§7• Händler 1", leftPos + 25, contentY, 0xFFFFFF);
+        contentY += 12;
+        guiGraphics.drawString(this.font, "§7• Händler 2", leftPos + 25, contentY, 0xFFFFFF);
+
+        super.render(guiGraphics, mouseX, mouseY, partialTick);
+    }    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        // Block E key (inventory key - 69) from closing the screen
+        if (keyCode == 69) { // GLFW_KEY_E
+            return true; // Consume event, prevent closing
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+
+
+    @Override
+    public boolean isPauseScreen() {
+        return false;
+    }
+}

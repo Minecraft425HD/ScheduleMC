@@ -1,0 +1,1164 @@
+package de.rolandsw.schedulemc.commands;
+nimport de.rolandsw.schedulemc.util.StringUtils;
+
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.DoubleArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.context.CommandContext;
+import de.rolandsw.schedulemc.economy.EconomyManager;
+import de.rolandsw.schedulemc.items.ModItems;
+import de.rolandsw.schedulemc.items.PlotSelectionTool;
+import de.rolandsw.schedulemc.region.PlotManager;
+import de.rolandsw.schedulemc.region.PlotRegion;
+import de.rolandsw.schedulemc.region.PlotType;
+import de.rolandsw.schedulemc.region.blocks.PlotBlocks;
+import de.rolandsw.schedulemc.commands.CommandExecutor;
+import de.rolandsw.schedulemc.util.InputValidation;
+import de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+/**
+ * ScheduleMC 3.0 Commands - Vollständig implementiert
+ * Refactored mit CommandExecutor
+ */
+public class PlotCommand {
+
+    // Time conversion constants
+    private static final long HOURS_PER_DAY = 24L;
+    private static final long MINUTES_PER_HOUR = 60L;
+    private static final long SECONDS_PER_MINUTE = 60L;
+    private static final long MS_PER_SECOND = 1000L;
+
+    // Business logic constants
+    private static final double PLOT_ABANDON_REFUND_RATE = 0.5; // 50% refund when abandoning plot
+    private static final double DAYS_PER_MONTH = 30.0; // For rent calculations
+    private static final double APARTMENT_DEPOSIT_MULTIPLIER = 3.0; // Deposit is 3x monthly rent
+
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+        dispatcher.register(Commands.literal("plot")
+
+                // ✅ /plot wand - ENTFERNT (wird nicht mehr benötigt)
+
+                // /plot create <type> <name> [price]
+                .then(Commands.literal("create")
+                        .requires(source -> source.hasPermission(2))
+
+                        // /plot create residential <name> <price>
+                        .then(Commands.literal("residential")
+                                .then(Commands.argument("name", StringArgumentType.string())
+                                        .then(Commands.argument("price", DoubleArgumentType.doubleArg(0.01))
+                                                .executes(ctx -> createPlotWithType(ctx, PlotType.RESIDENTIAL)))))
+
+                        // /plot create commercial <name> <price>
+                        .then(Commands.literal("commercial")
+                                .then(Commands.argument("name", StringArgumentType.string())
+                                        .then(Commands.argument("price", DoubleArgumentType.doubleArg(0.01))
+                                                .executes(ctx -> createPlotWithType(ctx, PlotType.COMMERCIAL)))))
+
+                        // /plot create shop <name>
+                        .then(Commands.literal("shop")
+                                .then(Commands.argument("name", StringArgumentType.string())
+                                        .executes(ctx -> createPlotWithType(ctx, PlotType.SHOP))))
+
+                        // /plot create public <name>
+                        .then(Commands.literal("public")
+                                .then(Commands.argument("name", StringArgumentType.string())
+                                        .executes(ctx -> createPlotWithType(ctx, PlotType.PUBLIC))))
+
+                        // /plot create government <name>
+                        .then(Commands.literal("government")
+                                .then(Commands.argument("name", StringArgumentType.string())
+                                        .executes(ctx -> createPlotWithType(ctx, PlotType.GOVERNMENT)))))
+                
+                // /plot setowner <player>
+                .then(Commands.literal("setowner")
+                        .requires(source -> source.hasPermission(2))
+                        .then(Commands.argument("player", EntityArgument.player())
+                                .executes(PlotCommand::setPlotOwner)))
+
+                // ✅ /plot buy - ENTFERNT (ersetzt durch Settings App UI)
+                // ✅ /plot list - ENTFERNT (ersetzt durch Settings App UI)
+                // ✅ /plot info - ENTFERNT (ersetzt durch Settings App UI)
+                // ✅ /plot name - ENTFERNT (ersetzt durch Settings App UI)
+                // ✅ /plot description - ENTFERNT (ersetzt durch Settings App UI)
+                // ✅ /plot trust - ENTFERNT (ersetzt durch Settings App UI)
+                // ✅ /plot untrust - ENTFERNT (ersetzt durch Settings App UI)
+                // ✅ /plot trustlist - ENTFERNT (ersetzt durch Settings App UI)
+                // ✅ /plot sell - ENTFERNT (ersetzt durch Settings App UI)
+                // ✅ /plot unsell - ENTFERNT (ersetzt durch Settings App UI)
+                // ✅ /plot transfer - ENTFERNT (ersetzt durch Settings App UI)
+                // ✅ /plot abandon - ENTFERNT (ersetzt durch Settings App UI)
+                // ✅ /plot rent - ENTFERNT (ersetzt durch Settings App UI)
+                // ✅ /plot rentcancel - ENTFERNT (ersetzt durch Settings App UI)
+                // ✅ /plot rentplot - ENTFERNT (ersetzt durch Settings App UI)
+                // ✅ /plot rentextend - ENTFERNT (ersetzt durch Settings App UI)
+                // ✅ /plot rate - ENTFERNT (ersetzt durch PlotInfoScreen Rating-Buttons)
+                // ✅ /plot topplots - ENTFERNT (ersetzt durch PlotInfoScreen Rating-Anzeige)
+
+                // /plot remove
+                .then(Commands.literal("remove")
+                        .requires(source -> source.hasPermission(2))
+                        .executes(PlotCommand::removePlot))
+
+                // /plot reindex (Admin-Debug-Befehl)
+                .then(Commands.literal("reindex")
+                        .requires(source -> source.hasPermission(2))
+                        .executes(PlotCommand::reindexPlots))
+
+                // /plot debug (Admin-Debug-Befehl)
+                .then(Commands.literal("debug")
+                        .requires(source -> source.hasPermission(2))
+                        .executes(PlotCommand::debugPosition))
+
+                // /plot apartment - Apartment-Verwaltung
+                .then(Commands.literal("apartment")
+
+                        // /plot apartment wand
+                        .then(Commands.literal("wand")
+                                .executes(PlotCommand::apartmentWand))
+
+                        // /plot apartment create <name> <miete>
+                        .then(Commands.literal("create")
+                                .then(Commands.argument("name", StringArgumentType.string())
+                                        .then(Commands.argument("monthlyRent", DoubleArgumentType.doubleArg(0))
+                                                .executes(PlotCommand::createApartment))))
+
+                        // /plot apartment delete <id>
+                        .then(Commands.literal("delete")
+                                .then(Commands.argument("apartmentId", StringArgumentType.string())
+                                        .executes(PlotCommand::deleteApartment)))
+
+                        // /plot apartment list
+                        .then(Commands.literal("list")
+                                .executes(PlotCommand::listApartments))
+
+                        // /plot apartment info <id>
+                        .then(Commands.literal("info")
+                                .then(Commands.argument("apartmentId", StringArgumentType.string())
+                                        .executes(PlotCommand::apartmentInfo)))
+
+                        // /plot apartment rent <id> [tage]
+                        .then(Commands.literal("rent")
+                                .then(Commands.argument("apartmentId", StringArgumentType.string())
+                                        .executes(PlotCommand::rentApartment)
+                                        .then(Commands.argument("days", IntegerArgumentType.integer(1))
+                                                .executes(PlotCommand::rentApartmentDays))))
+
+                        // /plot apartment leave
+                        .then(Commands.literal("leave")
+                                .executes(PlotCommand::leaveApartment))
+
+                        // /plot apartment setrent <id> <miete>
+                        .then(Commands.literal("setrent")
+                                .then(Commands.argument("apartmentId", StringArgumentType.string())
+                                        .then(Commands.argument("monthlyRent", DoubleArgumentType.doubleArg(0))
+                                                .executes(PlotCommand::setApartmentRent))))
+
+                        // /plot apartment evict <id>
+                        .then(Commands.literal("evict")
+                                .then(Commands.argument("apartmentId", StringArgumentType.string())
+                                        .executes(PlotCommand::evictTenant)))
+                )
+
+                // /plot settype <type>
+                .then(Commands.literal("settype")
+                        .requires(source -> source.hasPermission(2))
+                        .then(Commands.argument("type", StringArgumentType.string())
+                                .executes(PlotCommand::setPlotType)))
+
+                // /plot warehouse set
+                .then(Commands.literal("warehouse")
+                        .requires(source -> source.hasPermission(2))
+                        .then(Commands.literal("set")
+                                .executes(PlotCommand::setWarehouseLocation))
+                        .then(Commands.literal("clear")
+                                .executes(PlotCommand::clearWarehouseLocation))
+                        .then(Commands.literal("info")
+                                .executes(PlotCommand::warehouseInfo)))
+        );
+    }
+
+    private static int giveWand(@Nonnull CommandContext<CommandSourceStack> ctx) {
+        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot wand",
+            player -> {
+                ItemStack wand = new ItemStack(ModItems.PLOT_SELECTION_TOOL.get());
+
+                if (player.getInventory().add(wand)) {
+                    ctx.getSource().sendSuccess(() -> Component.literal(
+                        "§a✓ Plot-Auswahl-Werkzeug erhalten!\n" +
+                        "§7Linksklick: §ePosition 1\n" +
+                        "§7Rechtsklick auf Block: §ePosition 2\n" +
+                        "§7Dann: §e/plot create <type> <name> [price]"
+                    ), false);
+                } else {
+                    CommandExecutor.sendFailure(ctx.getSource(), "Inventar ist voll!");
+                }
+            });
+    }
+
+    /**
+     * Erstellt einen Plot mit spezifischem Typ
+     */
+    private static int createPlotWithType(CommandContext<CommandSourceStack> ctx, PlotType type) {
+        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot create " + type.name(),
+            player -> {
+                String name = StringArgumentType.getString(ctx, "name");
+
+                // ✅ INPUT VALIDATION: Name validieren
+                InputValidation.ValidationResult nameValidation = InputValidation.validateName(name);
+                if (nameValidation.isFailure()) {
+                    CommandExecutor.sendFailure(ctx.getSource(),
+                        "§c❌ Ungültiger Name: §f" + nameValidation.getErrorMessage()
+                    );
+                    return;
+                }
+
+                // Preis nur für kaufbare Typen erforderlich
+                double price = 0.0;
+                if (type.canBePurchased()) {
+                    try {
+                        price = DoubleArgumentType.getDouble(ctx, "price");
+
+                        // ✅ INPUT VALIDATION: Preis validieren
+                        InputValidation.ValidationResult priceValidation = InputValidation.validatePrice(price);
+                        if (priceValidation.isFailure()) {
+                            CommandExecutor.sendFailure(ctx.getSource(),
+                                "§c❌ Ungültiger Preis: §f" + priceValidation.getErrorMessage()
+                            );
+                            return;
+                        }
+                    } catch (IllegalArgumentException e) {
+                        CommandExecutor.sendFailure(ctx.getSource(),
+                            "Fehler: " + type.getDisplayName() + " benötigt einen Preis!\n" +
+                            "Verwendung: /plot create " + type.name().toLowerCase() + " <name> <price>"
+                        );
+                        return;
+                    }
+                }
+
+                BlockPos pos1 = PlotSelectionTool.getPosition1(player.getUUID());
+                BlockPos pos2 = PlotSelectionTool.getPosition2(player.getUUID());
+
+                if (pos1 == null || pos2 == null) {
+                    CommandExecutor.sendFailure(ctx.getSource(),
+                        "Keine Auswahl vorhanden!\n" +
+                        "Benutze das Selection Tool um zwei Positionen zu markieren."
+                    );
+                    return;
+                }
+
+                // Erstelle Plot mit Namen und Typ
+                PlotRegion plot = PlotManager.createPlot(pos1, pos2, name, type, price);
+                PlotSelectionTool.clearSelection(player.getUUID());
+
+                // Erfolgs-Nachricht basierend auf Typ
+                String priceInfo = type.canBePurchased() ?
+                    "\n§7Preis: §e" + StringUtils.formatMoney(price) :
+                    "\n§7Staatseigentum (nicht kaufbar)";
+
+                ctx.getSource().sendSuccess(() -> Component.literal(
+                    "§a✓ " + type.getDisplayName() + " erstellt!\n" +
+                    "§7Name: §e" + plot.getPlotId() + "\n" +
+                    "§7Typ: §b" + type.getDisplayName() +
+                    priceInfo + "\n" +
+                    "§7Größe: §e" + plot.getVolume() + " Blöcke"
+                ), true);
+            });
+    }
+
+    private static int setPlotOwner(CommandContext<CommandSourceStack> ctx) {
+        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot setowner",
+            player -> {
+                ServerPlayer newOwner = EntityArgument.getPlayer(ctx, "player");
+                PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
+
+                if (plot == null) {
+                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst in keinem Plot!");
+                    return;
+                }
+
+                plot.setOwner(newOwner.getUUID(), newOwner.getName().getString());
+                PlotManager.markDirty();
+
+                ctx.getSource().sendSuccess(() -> Component.literal(
+                    "§a✓ Besitzer geändert!\n" +
+                    "§7Plot: §e" + plot.getPlotName() + "\n" +
+                    "§7Neuer Besitzer: §b" + newOwner.getName().getString()
+                ), true);
+            });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // REMOVED COMMANDS - Replaced by Settings App UI
+    // ═══════════════════════════════════════════════════════════════════════════
+    // The following commands have been removed and replaced by the Settings App UI:
+    // - buyPlot, buyPlotById, executeBuyPlot
+    // - listPlots, plotInfo, setPlotName, setPlotDescription
+    // - trustPlayer, untrustPlayer, listTrusted
+    // - sellPlot, unsellPlot, transferPlot, abandonPlot
+    // - setForRent, cancelRent, rentPlot, rentPlotById, executeRentPlot, extendRent
+    // - ratePlot, topPlots
+    //
+    // Total: ~554 lines of dead code removed
+    // See commit history for original implementations
+    // ═══════════════════════════════════════════════════════════════════════════
+
+
+    private static int removePlot(CommandContext<CommandSourceStack> ctx) {
+        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot remove",
+            admin -> {
+                PlotRegion plot = PlotManager.getPlotAt(admin.blockPosition());
+
+                if (plot == null) {
+                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst in keinem Plot!");
+                    return;
+                }
+
+                String plotName = plot.getPlotName();
+                String plotId = plot.getPlotId();
+
+                PlotManager.removePlot(plotId);
+
+                ctx.getSource().sendSuccess(() -> Component.literal(
+                    "§a✓ Plot entfernt!\n" +
+                    "§7ID: §e" + plotId + "\n" +
+                    "§7Name: §e" + plotName
+                ), true);
+            });
+    }
+
+    private static int reindexPlots(CommandContext<CommandSourceStack> ctx) {
+        return CommandExecutor.executeSourceCommand(ctx, "Fehler bei /plot reindex",
+            source -> {
+                PlotManager.rebuildSpatialIndex();
+
+                ctx.getSource().sendSuccess(() -> Component.literal(
+                    "§a✓ Spatial Index neu aufgebaut!\n" +
+                    "§7Alle Plots wurden neu indiziert."
+                ), true);
+            });
+    }
+
+    private static int debugPosition(CommandContext<CommandSourceStack> ctx) {
+        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot debug",
+            player -> {
+                BlockPos pos = player.blockPosition();
+                PlotRegion plot = PlotManager.getPlotAt(pos);
+
+                String plotInfo = plot != null ?
+                    "§aPlot gefunden: §e" + plot.getPlotId() + " (" + plot.getPlotName() + ")" :
+                    "§cKein Plot an dieser Position";
+
+                ctx.getSource().sendSuccess(() -> Component.literal(
+                    "§6═══ Debug-Info ═══\n" +
+                    "§7Position: §f" + pos.getX() + ", " + pos.getY() + ", " + pos.getZ() + "\n" +
+                    plotInfo + "\n" +
+                    "§7Alle Plots: §f" + PlotManager.getPlotCount()
+                ), false);
+            });
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // APARTMENT COMMANDS
+    // ═══════════════════════════════════════════════════════════
+
+    private static int apartmentWand(CommandContext<CommandSourceStack> ctx) {
+        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot apartment wand",
+            player -> {
+                ItemStack wand = new ItemStack(ModItems.PLOT_SELECTION_TOOL.get());
+
+                if (player.getInventory().add(wand)) {
+                    ctx.getSource().sendSuccess(() -> Component.literal(
+                        "§d✓ Apartment-Auswahl-Werkzeug erhalten!\n" +
+                        "§7Linksklick: §ePosition 1\n" +
+                        "§7Rechtsklick auf Block: §ePosition 2\n" +
+                        "§7Dann: §e/plot apartment create <name> <miete>"
+                    ), false);
+                } else {
+                    CommandExecutor.sendFailure(ctx.getSource(), "Inventar ist voll!");
+                }
+            });
+    }
+
+    /**
+     * Creates a new apartment within a plot.
+     * <p>
+     * This method has been refactored to use extracted helper methods for better maintainability:
+     * <ul>
+     *   <li>{@link #validateApartmentSelection(CommandContext, UUID)} - Validates position selection</li>
+     *   <li>{@link #validatePlotOwnership(CommandContext, ServerPlayer, PlotRegion)} - Validates ownership</li>
+     *   <li>{@link #normalizeApartmentBounds(BlockPos, BlockPos)} - Normalizes min/max bounds</li>
+     *   <li>{@link #validateApartmentBounds(CommandContext, PlotRegion, BlockPos, BlockPos)} - Validates bounds</li>
+     *   <li>{@link #checkApartmentOverlap(CommandContext, PlotRegion, BlockPos, BlockPos)} - Checks overlap</li>
+     * </ul>
+     * </p>
+     */
+    private static int createApartment(CommandContext<CommandSourceStack> ctx) {
+        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot apartment create",
+            player -> {
+                String name = StringArgumentType.getString(ctx, "name");
+                double monthlyRent = DoubleArgumentType.getDouble(ctx, "monthlyRent");
+
+                // Validate selection using helper method
+                BlockPos[] selection = validateApartmentSelection(ctx, player.getUUID());
+                if (selection == null) return;
+
+                // Get plot and validate existence
+                PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
+                if (plot == null) {
+                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst auf keinem Plot!");
+                    return;
+                }
+
+                // Validate ownership using helper method
+                if (!validatePlotOwnership(ctx, player, plot)) return;
+
+                // Normalize bounds using helper method
+                BlockPos[] bounds = normalizeApartmentBounds(selection[0], selection[1]);
+                BlockPos min = bounds[0];
+                BlockPos max = bounds[1];
+
+                // Validate bounds using helper method
+                if (!validateApartmentBounds(ctx, plot, min, max)) return;
+
+                // Check for overlaps using helper method
+                if (checkApartmentOverlap(ctx, plot, min, max) != null) return;
+
+                // Create and add apartment
+                String apartmentId = "apt_" + (plot.getSubAreaCount() + 1);
+                de.rolandsw.schedulemc.region.PlotArea apartment = new de.rolandsw.schedulemc.region.PlotArea(
+                    apartmentId,
+                    name,
+                    plot.getPlotId(),
+                    min,
+                    max,
+                    monthlyRent
+                );
+
+                plot.addSubArea(apartment);
+                PlotManager.markDirty();
+
+                // Cleanup selection
+                PlotSelectionTool.clearSelection(player.getUUID());
+
+                // Send success message
+                ctx.getSource().sendSuccess(() -> Component.literal(
+                    "§a✓ Apartment erstellt!\n" +
+                    "§7ID: §e" + apartmentId + "\n" +
+                    "§7Name: §e" + name + "\n" +
+                    "§7Miete: §e" + monthlyRent + "€/Monat\n" +
+                    "§7Größe: §e" + apartment.getVolume() + " Blöcke"
+                ), false);
+            });
+    }
+
+    private static int deleteApartment(CommandContext<CommandSourceStack> ctx) {
+        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot apartment delete",
+            player -> {
+                String apartmentId = StringArgumentType.getString(ctx, "apartmentId");
+
+                PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
+
+                if (plot == null) {
+                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst auf keinem Plot!");
+                    return;
+                }
+
+                if (!plot.canManage(player.getUUID())) {
+                    CommandExecutor.sendFailure(ctx.getSource(), "Dieser Plot gehört nicht dir!");
+                    return;
+                }
+
+                de.rolandsw.schedulemc.region.PlotArea apartment = findApartment(plot, apartmentId);
+
+                if (apartment == null) {
+                    ctx.getSource().sendFailure(Component.literal(
+                        "§cApartment nicht gefunden: §e" + apartmentId + "\n" +
+                        "§7Nutze /plot apartment list für verfügbare Apartments"
+                    ));
+                    return;
+                }
+
+                if (apartment.isRented()) {
+                    ctx.getSource().sendFailure(Component.literal(
+                        "§cApartment ist vermietet! Wirf zuerst den Mieter raus:\n" +
+                        "§e/plot apartment evict " + apartmentId
+                    ));
+                    return;
+                }
+
+                String apartmentName = apartment.getName();
+                plot.removeSubArea(apartmentId);
+                PlotManager.markDirty();
+
+                ctx.getSource().sendSuccess(() -> Component.literal(
+                    "§a✓ Apartment gelöscht: §e" + apartmentName
+                ), false);
+            });
+    }
+
+    private static int listApartments(CommandContext<CommandSourceStack> ctx) {
+        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot apartment list",
+            player -> {
+                PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
+
+                if (plot == null) {
+                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst auf keinem Plot!");
+                    return;
+                }
+
+                List<de.rolandsw.schedulemc.region.PlotArea> apartments = plot.getSubAreas();
+
+                if (apartments.isEmpty()) {
+                    ctx.getSource().sendSuccess(() -> Component.literal(
+                        "§7Dieser Plot hat keine Apartments.\n" +
+                        "§7Erstelle ein Apartment mit:\n" +
+                        "§e/plot apartment wand"
+                    ), false);
+                    return;
+                }
+
+                StringBuilder message = new StringBuilder();
+                message.append("§6═══ Apartments in ").append(plot.getPlotName()).append(" ═══\n");
+
+                for (de.rolandsw.schedulemc.region.PlotArea apt : apartments) {
+                    message.append("\n§e").append(apt.getName()).append(" §7(§e").append(apt.getId()).append("§7)\n");
+                    message.append("  §7Miete: §e").append(apt.getMonthlyRent()).append("€/Monat\n");
+
+                    if (apt.isRented()) {
+                        long daysLeft = apt.getRentDaysLeft();
+                        message.append("  §a§lVERMIETET §7- Noch §e").append(daysLeft).append(" Tage\n");
+                    } else if (apt.isForRent()) {
+                        message.append("  §d§lVERFÜGBAR §7- §e/plot apartment rent ").append(apt.getId()).append("\n");
+                    } else {
+                        message.append("  §c§lNICHT ZU VERMIETEN\n");
+                    }
+
+                    message.append("  §7Größe: §e").append(apt.getVolume()).append(" Blöcke");
+                }
+
+                String finalMessage = message.toString();
+                ctx.getSource().sendSuccess(() -> Component.literal(finalMessage), false);
+            });
+    }
+
+    private static int apartmentInfo(CommandContext<CommandSourceStack> ctx) {
+        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot apartment info",
+            player -> {
+                String apartmentId = StringArgumentType.getString(ctx, "apartmentId");
+
+                PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
+
+                if (plot == null) {
+                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst auf keinem Plot!");
+                    return;
+                }
+
+                de.rolandsw.schedulemc.region.PlotArea apartment = findApartment(plot, apartmentId);
+
+                if (apartment == null) {
+                    ctx.getSource().sendFailure(Component.literal(
+                        "§cApartment nicht gefunden: §e" + apartmentId + "\n" +
+                        "§7Nutze /plot apartment list für verfügbare Apartments"
+                    ));
+                    return;
+                }
+
+                StringBuilder message = new StringBuilder();
+                message.append("§6═══ ").append(apartment.getName()).append(" ═══\n");
+                message.append("§7ID: §e").append(apartment.getId()).append("\n");
+                message.append("§7Miete: §e").append(apartment.getMonthlyRent()).append("€/Monat\n");
+                message.append("§7Größe: §e").append(apartment.getVolume()).append(" Blöcke\n");
+
+                if (apartment.isRented()) {
+                    long days = apartment.getRentDaysLeft();
+                    message.append("§a§lVERMIETET\n");
+                    message.append("§7Verbleibende Zeit: §e").append(days).append(" Tage");
+                } else if (apartment.isForRent()) {
+                    message.append("§d§lZU VERMIETEN\n");
+                    message.append("§7Miete mit: §e/plot apartment rent ").append(apartment.getId());
+                } else {
+                    message.append("§c§lNICHT ZU VERMIETEN");
+                }
+
+                String finalMessage = message.toString();
+                ctx.getSource().sendSuccess(() -> Component.literal(finalMessage), false);
+            });
+    }
+
+    private static int rentApartment(CommandContext<CommandSourceStack> ctx) {
+        return rentApartmentDays(ctx, 30); // Default: 30 Tage
+    }
+
+    private static int rentApartmentDays(CommandContext<CommandSourceStack> ctx) {
+        int days = IntegerArgumentType.getInteger(ctx, "days");
+        return rentApartmentDays(ctx, days);
+    }
+
+    /**
+     * Rents an apartment for a specified number of days.
+     * <p>
+     * This method has been refactored to use extracted helper methods for better maintainability:
+     * <ul>
+     *   <li>{@link #validateRentEligibility(CommandContext, ServerPlayer, PlotRegion, de.rolandsw.schedulemc.region.PlotArea)} - Validates eligibility</li>
+     *   <li>{@link #calculateRentCosts(de.rolandsw.schedulemc.region.PlotArea, int)} - Calculates costs</li>
+     *   <li>{@link #processRentPayment(CommandContext, ServerPlayer, PlotRegion, double, double, double)} - Processes payment</li>
+     *   <li>{@link #finalizeRentAgreement(CommandContext, ServerPlayer, de.rolandsw.schedulemc.region.PlotArea, int, double, double)} - Finalizes agreement</li>
+     * </ul>
+     * </p>
+     */
+    private static int rentApartmentDays(CommandContext<CommandSourceStack> ctx, int days) {
+        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot apartment rent",
+            player -> {
+                String apartmentId = StringArgumentType.getString(ctx, "apartmentId");
+
+                // Get plot and validate existence
+                PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
+                if (plot == null) {
+                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst auf keinem Plot!");
+                    return;
+                }
+
+                // Find apartment
+                de.rolandsw.schedulemc.region.PlotArea apartment = findApartment(plot, apartmentId);
+                if (apartment == null) {
+                    ctx.getSource().sendFailure(Component.literal(
+                        "§cApartment nicht gefunden: §e" + apartmentId + "\n" +
+                        "§7Nutze /plot apartment list für verfügbare Apartments"
+                    ));
+                    return;
+                }
+
+                // Validate rent eligibility using helper method
+                if (!validateRentEligibility(ctx, player, plot, apartment)) return;
+
+                // Calculate costs using helper method
+                double[] costs = calculateRentCosts(apartment, days);
+                double rentCost = costs[0];
+                double deposit = costs[1];
+                double totalCost = costs[2];
+
+                // Process payment using helper method
+                if (!processRentPayment(ctx, player, plot, rentCost, deposit, totalCost)) return;
+
+                // Finalize agreement using helper method
+                finalizeRentAgreement(ctx, player, apartment, days, totalCost, deposit);
+            });
+    }
+
+    private static int leaveApartment(CommandContext<CommandSourceStack> ctx) {
+        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot apartment leave",
+            player -> {
+                PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
+
+                if (plot == null) {
+                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst auf keinem Plot!");
+                    return;
+                }
+
+                // Finde Apartment wo Spieler Mieter ist
+                de.rolandsw.schedulemc.region.PlotArea apartment = null;
+                for (de.rolandsw.schedulemc.region.PlotArea apt : plot.getSubAreas()) {
+                    if (apt.canManage(player.getUUID())) {
+                        apartment = apt;
+                        break;
+                    }
+                }
+
+                if (apartment == null) {
+                    CommandExecutor.sendFailure(ctx.getSource(), "Du hast kein Apartment in diesem Plot gemietet!");
+                    return;
+                }
+
+                // Gebe Kaution zurück (3x Monatsmiete)
+                double deposit = apartment.getMonthlyRent() * APARTMENT_DEPOSIT_MULTIPLIER;
+                EconomyManager.deposit(player.getUUID(), deposit);
+
+                // Beende Miete
+                String apartmentName = apartment.getName();
+                apartment.endRent();
+                PlotManager.markDirty();
+
+                final double finalDeposit = deposit;
+                ctx.getSource().sendSuccess(() -> Component.literal(
+                    "§a✓ Mietvertrag gekündigt!\n" +
+                    "§7Apartment: §e" + apartmentName + "\n" +
+                    "§7Kaution zurückerstattet: §e" + StringUtils.formatMoney(finalDeposit)
+                ), false);
+            });
+    }
+
+    private static int setApartmentRent(CommandContext<CommandSourceStack> ctx) {
+        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot apartment setrent",
+            player -> {
+                String apartmentId = StringArgumentType.getString(ctx, "apartmentId");
+                double monthlyRent = DoubleArgumentType.getDouble(ctx, "monthlyRent");
+
+                PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
+
+                if (plot == null) {
+                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst auf keinem Plot!");
+                    return;
+                }
+
+                if (!plot.canManage(player.getUUID())) {
+                    CommandExecutor.sendFailure(ctx.getSource(), "Dieser Plot gehört nicht dir!");
+                    return;
+                }
+
+                de.rolandsw.schedulemc.region.PlotArea apartment = findApartment(plot, apartmentId);
+
+                if (apartment == null) {
+                    ctx.getSource().sendFailure(Component.literal(
+                        "§cApartment nicht gefunden: §e" + apartmentId + "\n" +
+                        "§7Nutze /plot apartment list für verfügbare Apartments"
+                    ));
+                    return;
+                }
+
+                String apartmentName = apartment.getName();
+                apartment.setMonthlyRent(monthlyRent);
+                PlotManager.markDirty();
+
+                final double finalMonthlyRent = monthlyRent;
+                ctx.getSource().sendSuccess(() -> Component.literal(
+                    "§a✓ Miete geändert!\n" +
+                    "§7Apartment: §e" + apartmentName + "\n" +
+                    "§7Neue Miete: §e" + finalMonthlyRent + "€/Monat"
+                ), false);
+            });
+    }
+
+    private static int evictTenant(CommandContext<CommandSourceStack> ctx) {
+        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot apartment evict",
+            player -> {
+                String apartmentId = StringArgumentType.getString(ctx, "apartmentId");
+
+                PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
+
+                if (plot == null) {
+                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst auf keinem Plot!");
+                    return;
+                }
+
+                if (!plot.canManage(player.getUUID())) {
+                    CommandExecutor.sendFailure(ctx.getSource(), "Dieser Plot gehört nicht dir!");
+                    return;
+                }
+
+                de.rolandsw.schedulemc.region.PlotArea apartment = findApartment(plot, apartmentId);
+
+                if (apartment == null) {
+                    ctx.getSource().sendFailure(Component.literal(
+                        "§cApartment nicht gefunden: §e" + apartmentId + "\n" +
+                        "§7Nutze /plot apartment list für verfügbare Apartments"
+                    ));
+                    return;
+                }
+
+                if (!apartment.isRented()) {
+                    CommandExecutor.sendFailure(ctx.getSource(), "Dieses Apartment ist nicht vermietet!");
+                    return;
+                }
+
+                // KEINE Kaution zurück bei Rauswurf
+                String apartmentName = apartment.getName();
+                apartment.endRent();
+                PlotManager.markDirty();
+
+                ctx.getSource().sendSuccess(() -> Component.literal(
+                    "§a✓ Mieter rausgeworfen!\n" +
+                    "§7Apartment: §e" + apartmentName + "\n" +
+                    "§c§lKaution wurde nicht zurückgezahlt!"
+                ), false);
+            });
+    }
+
+    /**
+     * Findet ein Apartment nach ID oder Name
+     */
+    private static de.rolandsw.schedulemc.region.PlotArea findApartment(PlotRegion plot, String idOrName) {
+        // Suche zuerst nach ID
+        de.rolandsw.schedulemc.region.PlotArea apartment = plot.getSubArea(idOrName);
+
+        if (apartment == null) {
+            // Versuche nach Name zu suchen
+            for (de.rolandsw.schedulemc.region.PlotArea apt : plot.getSubAreas()) {
+                if (apt.getName().equalsIgnoreCase(idOrName)) {
+                    return apt;
+                }
+            }
+        }
+
+        return apartment;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // WAREHOUSE & PLOT TYPE COMMANDS
+    // ═══════════════════════════════════════════════════════════
+
+    private static int setPlotType(CommandContext<CommandSourceStack> ctx) {
+        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot settype",
+            player -> {
+                String typeStr = StringArgumentType.getString(ctx, "type").toUpperCase();
+
+                PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
+                if (plot == null) {
+                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst nicht in einem Plot!");
+                    return;
+                }
+
+                try {
+                    de.rolandsw.schedulemc.region.PlotType type = de.rolandsw.schedulemc.region.PlotType.valueOf(typeStr);
+                    plot.setType(type);
+                    PlotManager.markDirty();
+
+                    ctx.getSource().sendSuccess(() -> Component.literal(
+                        "§a✓ Plot-Typ geändert!\n" +
+                        "§7Neuer Typ: §e" + type.getDisplayName()
+                    ), false);
+                } catch (IllegalArgumentException e) {
+                    ctx.getSource().sendFailure(Component.literal(
+                        "§cUngültiger Plot-Typ!\n" +
+                        "§7Verfügbar: §eRESIDENTIAL, COMMERCIAL, SHOP, PUBLIC, GOVERNMENT"
+                    ));
+                }
+            });
+    }
+
+    /**
+     * Findet die Position des Warehouse-Blocks, auf den der Spieler schaut
+     */
+    @Nullable
+    private static BlockPos findWarehouseBlockPos(ServerPlayer player) {
+        // Zuerst: Prüfe Block, auf den der Spieler schaut (Raycast)
+        Vec3 eyePos = player.getEyePosition(1.0F);
+        Vec3 lookVec = player.getLookAngle();
+        Vec3 endPos = eyePos.add(lookVec.scale(5.0)); // 5 Blöcke Reichweite
+
+        BlockHitResult hitResult = player.level().clip(new ClipContext(
+            eyePos, endPos,
+            ClipContext.Block.OUTLINE,
+            ClipContext.Fluid.NONE,
+            player
+        ));
+
+        if (hitResult.getType() == HitResult.Type.BLOCK) {
+            BlockEntity be = player.level().getBlockEntity(hitResult.getBlockPos());
+            if (be instanceof WarehouseBlockEntity) {
+                return hitResult.getBlockPos();
+            }
+        }
+
+        // Fallback: Prüfe Position unter dem Spieler
+        BlockPos playerPos = player.blockPosition();
+        BlockEntity be = player.level().getBlockEntity(playerPos.below());
+        if (be instanceof WarehouseBlockEntity) {
+            return playerPos.below();
+        }
+
+        // Prüfe Position des Spielers selbst
+        be = player.level().getBlockEntity(playerPos);
+        if (be instanceof WarehouseBlockEntity) {
+            return playerPos;
+        }
+
+        return null;
+    }
+
+    private static int setWarehouseLocation(CommandContext<CommandSourceStack> ctx) {
+        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot warehouse set",
+            player -> {
+                BlockPos warehousePos = findWarehouseBlockPos(player);
+                if (warehousePos == null) {
+                    ctx.getSource().sendFailure(Component.literal("§cKein Warehouse gefunden! Schaue auf einen Warehouse-Block oder stehe direkt darauf."));
+                    return;
+                }
+
+                PlotRegion plot = PlotManager.getPlotAt(warehousePos);
+                if (plot == null) {
+                    CommandExecutor.sendFailure(ctx.getSource(), "Das Warehouse befindet sich nicht in einem Plot!");
+                    return;
+                }
+
+                plot.setWarehouseLocation(warehousePos);
+                PlotManager.markDirty();
+
+                ctx.getSource().sendSuccess(() -> Component.literal(
+                    "§a✓ Warehouse-Position gesetzt!\n" +
+                    "§7Plot: §e" + plot.getPlotId() + "\n" +
+                    "§7Position: §f" + warehousePos.getX() + ", " + warehousePos.getY() + ", " + warehousePos.getZ()
+                ), false);
+            });
+    }
+
+    private static int clearWarehouseLocation(CommandContext<CommandSourceStack> ctx) {
+        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot warehouse clear",
+            player -> {
+                PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
+                if (plot == null) {
+                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst nicht in einem Plot!");
+                    return;
+                }
+
+                plot.setWarehouseLocation(null);
+                PlotManager.markDirty();
+
+                ctx.getSource().sendSuccess(() -> Component.literal(
+                    "§a✓ Warehouse-Position entfernt!\n" +
+                    "§7Plot: §e" + plot.getPlotId()
+                ), false);
+            });
+    }
+
+    private static int warehouseInfo(CommandContext<CommandSourceStack> ctx) {
+        return CommandExecutor.executePlayerCommand(ctx, "Fehler bei /plot warehouse info",
+            player -> {
+                PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
+                if (plot == null) {
+                    CommandExecutor.sendFailure(ctx.getSource(), "Du stehst nicht in einem Plot!");
+                    return;
+                }
+
+                BlockPos warehousePos = plot.getWarehouseLocation();
+                if (warehousePos == null) {
+                    ctx.getSource().sendSuccess(() -> Component.literal(
+                        "§e=== Warehouse Info ===\n" +
+                        "§7Plot: §e" + plot.getPlotId() + "\n" +
+                        "§7Status: §cKein Warehouse verknüpft"
+                    ), false);
+                } else {
+                    ctx.getSource().sendSuccess(() -> Component.literal(
+                        "§e=== Warehouse Info ===\n" +
+                        "§7Plot: §e" + plot.getPlotId() + "\n" +
+                        "§7Position: §f" + warehousePos.getX() + ", " + warehousePos.getY() + ", " + warehousePos.getZ()
+                    ), false);
+                }
+            });
+    }
+
+    // ==================== Apartment Helper Methods ====================
+
+    /**
+     * Validates that the player has selected two positions for apartment creation.
+     *
+     * @param ctx the command context
+     * @param playerUUID the player's UUID
+     * @return array with [pos1, pos2] if valid, null otherwise
+     */
+    @Nullable
+    private static BlockPos[] validateApartmentSelection(CommandContext<CommandSourceStack> ctx, UUID playerUUID) {
+        BlockPos pos1 = PlotSelectionTool.getPosition1(playerUUID);
+        BlockPos pos2 = PlotSelectionTool.getPosition2(playerUUID);
+
+        if (pos1 == null || pos2 == null) {
+            ctx.getSource().sendFailure(Component.literal(
+                "§cKeine Auswahl vorhanden!\n" +
+                "§7Benutze /plot apartment wand und markiere zwei Positionen."
+            ));
+            return null;
+        }
+
+        return new BlockPos[]{pos1, pos2};
+    }
+
+    /**
+     * Validates that the player owns the plot they're standing on.
+     *
+     * @param ctx the command context
+     * @param player the player
+     * @param plot the plot to validate ownership for
+     * @return true if player owns the plot, false otherwise
+     */
+    private static boolean validatePlotOwnership(CommandContext<CommandSourceStack> ctx, ServerPlayer player, PlotRegion plot) {
+        if (!plot.canManage(player.getUUID())) {
+            ctx.getSource().sendFailure(Component.literal(
+                "§cDieser Plot gehört nicht dir!\n" +
+                "§7Nur der Besitzer kann Apartments erstellen."
+            ));
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Normalizes two positions to create min/max bounds for an apartment.
+     *
+     * @param pos1 first position
+     * @param pos2 second position
+     * @return array with [min, max] positions
+     */
+    @Nonnull
+    private static BlockPos[] normalizeApartmentBounds(BlockPos pos1, BlockPos pos2) {
+        BlockPos min = new BlockPos(
+            Math.min(pos1.getX(), pos2.getX()),
+            Math.min(pos1.getY(), pos2.getY()),
+            Math.min(pos1.getZ(), pos2.getZ())
+        );
+        BlockPos max = new BlockPos(
+            Math.max(pos1.getX(), pos2.getX()),
+            Math.max(pos1.getY(), pos2.getY()),
+            Math.max(pos1.getZ(), pos2.getZ())
+        );
+        return new BlockPos[]{min, max};
+    }
+
+    /**
+     * Validates that apartment bounds are completely within the plot.
+     *
+     * @param ctx the command context
+     * @param plot the plot containing the apartment
+     * @param min minimum position
+     * @param max maximum position
+     * @return true if bounds are valid, false otherwise
+     */
+    private static boolean validateApartmentBounds(CommandContext<CommandSourceStack> ctx, PlotRegion plot, BlockPos min, BlockPos max) {
+        if (!plot.contains(min) || !plot.contains(max)) {
+            CommandExecutor.sendFailure(ctx.getSource(), "Apartment muss komplett innerhalb deines Plots sein!");
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Checks if the apartment bounds overlap with existing apartments in the plot.
+     *
+     * @param ctx the command context
+     * @param plot the plot to check
+     * @param min minimum position of new apartment
+     * @param max maximum position of new apartment
+     * @return the overlapping apartment if found, null otherwise
+     */
+    @Nullable
+    private static de.rolandsw.schedulemc.region.PlotArea checkApartmentOverlap(CommandContext<CommandSourceStack> ctx, PlotRegion plot, BlockPos min, BlockPos max) {
+        for (de.rolandsw.schedulemc.region.PlotArea existing : plot.getSubAreas()) {
+            if (existing.overlaps(min, max)) {
+                ctx.getSource().sendFailure(Component.literal(
+                    "§cApartment überschneidet sich mit: §e" + existing.getName()
+                ));
+                return existing;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Validates that a player is eligible to rent an apartment.
+     *
+     * @param ctx the command context
+     * @param player the player attempting to rent
+     * @param plot the plot containing the apartment
+     * @param apartment the apartment to rent
+     * @return true if eligible, false otherwise
+     */
+    private static boolean validateRentEligibility(CommandContext<CommandSourceStack> ctx, ServerPlayer player, PlotRegion plot, de.rolandsw.schedulemc.region.PlotArea apartment) {
+        // Check if player is the plot owner
+        if (plot.canManage(player.getUUID())) {
+            CommandExecutor.sendFailure(ctx.getSource(), "Du kannst nicht dein eigenes Apartment mieten!");
+            return false;
+        }
+
+        // Check if apartment is available for rent
+        if (!apartment.isForRent()) {
+            CommandExecutor.sendFailure(ctx.getSource(), "Dieses Apartment wird nicht vermietet!");
+            return false;
+        }
+
+        // Check if apartment is already rented
+        if (apartment.isRented()) {
+            CommandExecutor.sendFailure(ctx.getSource(), "Dieses Apartment ist bereits vermietet!");
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Calculates the costs for renting an apartment.
+     *
+     * @param apartment the apartment to rent
+     * @param days the number of days to rent
+     * @return array with [rentCost, deposit, totalCost]
+     */
+    @Nonnull
+    private static double[] calculateRentCosts(de.rolandsw.schedulemc.region.PlotArea apartment, int days) {
+        double monthlyCost = apartment.getMonthlyRent();
+        double rentCost = (monthlyCost / DAYS_PER_MONTH) * days;
+        double deposit = monthlyCost * APARTMENT_DEPOSIT_MULTIPLIER;
+        double totalCost = rentCost + deposit;
+        return new double[]{rentCost, deposit, totalCost};
+    }
+
+    /**
+     * Processes the payment for renting an apartment.
+     *
+     * @param ctx the command context
+     * @param player the player renting the apartment
+     * @param plot the plot containing the apartment
+     * @param rentCost the rental cost
+     * @param deposit the security deposit
+     * @param totalCost the total cost
+     * @return true if payment successful, false otherwise
+     */
+    private static boolean processRentPayment(CommandContext<CommandSourceStack> ctx, ServerPlayer player, PlotRegion plot, double rentCost, double deposit, double totalCost) {
+        // Withdraw total cost from player
+        if (!EconomyManager.withdraw(player.getUUID(), totalCost)) {
+            ctx.getSource().sendFailure(Component.literal(
+                "§cNicht genug Geld!\n" +
+                "§7Benötigt: §e" + String.format("%.2f", totalCost) + "€\n" +
+                "§7(Miete: §e" + String.format("%.2f", rentCost) + "€ + Kaution: §e" + String.format("%.2f", deposit) + "€)"
+            ));
+            return false;
+        }
+
+        // Pay rent to landlord (deposit is returned to tenant later)
+        UUID landlordUUID = plot.getOwnerUUIDAsUUID();
+        if (landlordUUID != null) {
+            EconomyManager.deposit(landlordUUID, rentCost);
+        }
+
+        return true;
+    }
+
+    /**
+     * Finalizes the rent agreement and sends success message.
+     *
+     * @param ctx the command context
+     * @param player the player renting the apartment
+     * @param apartment the apartment being rented
+     * @param days the number of days rented
+     * @param totalCost the total cost paid
+     * @param deposit the security deposit
+     */
+    private static void finalizeRentAgreement(CommandContext<CommandSourceStack> ctx, ServerPlayer player, de.rolandsw.schedulemc.region.PlotArea apartment, int days, double totalCost, double deposit) {
+        String apartmentName = apartment.getName();
+        apartment.startRent(player.getUUID(), days);
+        PlotManager.markDirty();
+
+        ctx.getSource().sendSuccess(() -> Component.literal(
+            "§a✓ Apartment gemietet!\n" +
+            "§7Name: §e" + apartmentName + "\n" +
+            "§7Dauer: §e" + days + " Tage\n" +
+            "§7Kosten: §e" + String.format("%.2f", totalCost) + "€\n" +
+            "§7Kaution: §e" + String.format("%.2f", deposit) + "€ §7(bei Auszug zurück)"
+        ), false);
+    }
+}
