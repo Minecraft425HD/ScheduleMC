@@ -49,13 +49,13 @@ public class CannabisSeedItem extends Item {
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
         CannabisStrain strain = getStrain(stack);
 
-        tooltip.add(Component.literal("§7Sorte: " + strain.getColoredName()));
-        tooltip.add(Component.literal("§7THC: §f" + strain.getThcContent() + "%"));
-        tooltip.add(Component.literal("§7CBD: §f" + strain.getCbdContent() + "%"));
+        tooltip.add(Component.translatable("tooltip.cannabis.strain_label").append(strain.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.cannabis.thc_label").append(Component.literal("§f" + strain.getThcContent() + "%")));
+        tooltip.add(Component.translatable("tooltip.cannabis.cbd_label").append(Component.literal("§f" + strain.getCbdContent() + "%")));
         tooltip.add(Component.empty());
         tooltip.add(Component.literal(strain.getEffectDescription()));
         tooltip.add(Component.empty());
-        tooltip.add(Component.literal("§8Blütezeit: " + strain.getFloweringDays() + " Tage"));
-        tooltip.add(Component.literal("§8Ertrag: ~" + strain.getBaseYield() + "g"));
+        tooltip.add(Component.translatable("tooltip.seed.flowering_time", strain.getFloweringDays()));
+        tooltip.add(Component.translatable("tooltip.seed.yield", strain.getBaseYield()));
     }
 }

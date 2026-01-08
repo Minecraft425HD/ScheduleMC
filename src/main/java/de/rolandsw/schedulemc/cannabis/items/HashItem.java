@@ -82,14 +82,14 @@ public class HashItem extends Item {
         int weight = getWeight(stack);
         double price = calculatePrice(stack);
 
-        tooltip.add(Component.literal("§7Sorte: " + strain.getColoredName()));
-        tooltip.add(Component.literal("§7Qualität: " + quality.getColoredName()));
-        tooltip.add(Component.literal("§7THC: §f~" + (strain.getThcContent() * 1.5) + "%"));
-        tooltip.add(Component.literal("§7Gewicht: §f" + weight + "g"));
+        tooltip.add(Component.translatable("tooltip.cannabis.strain_label").append(strain.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.cannabis.thc_label").append(Component.literal("§f~" + (strain.getThcContent() * 1.5) + "%")));
+        tooltip.add(Component.translatable("tooltip.cannabis.weight_label").append(Component.literal("§f" + weight + "g")));
         tooltip.add(Component.empty());
-        tooltip.add(Component.literal("§6💰 Wert: §f" + String.format("%.2f", price) + "€"));
+        tooltip.add(Component.translatable("tooltip.cannabis.value_label").append(Component.literal("§f" + String.format("%.2f", price) + "€")));
         tooltip.add(Component.empty());
-        tooltip.add(Component.literal("§8Konzentriertes Produkt"));
-        tooltip.add(Component.literal("§8Hergestellt aus Trim"));
+        tooltip.add(Component.translatable("tooltip.hash.concentrated_product"));
+        tooltip.add(Component.translatable("tooltip.hash.made_from_trim"));
     }
 }

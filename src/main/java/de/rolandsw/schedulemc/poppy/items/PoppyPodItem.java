@@ -56,11 +56,11 @@ public class PoppyPodItem extends Item {
         PoppyType type = getType(stack);
         TobaccoQuality quality = getQuality(stack);
 
-        tooltip.add(Component.literal("§7Sorte: " + type.getColoredName()));
-        tooltip.add(Component.literal("§7Qualität: " + quality.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.poppy.type_label").append(type.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§8Mit Ritzmesser im Crafting-Grid"));
-        tooltip.add(Component.literal("§8zu Rohopium verarbeiten"));
+        tooltip.add(Component.translatable("tooltip.poppy_pod.craft_knife"));
+        tooltip.add(Component.translatable("tooltip.poppy_pod.to_opium"));
     }
 
     @Override

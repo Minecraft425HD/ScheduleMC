@@ -50,10 +50,10 @@ public class RohMethItem extends Item {
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
         MethQuality quality = getQuality(stack);
 
-        tooltip.add(Component.literal("§7Qualität: " + quality.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§7Unreines " + quality.getColorDescription().toLowerCase() + "es Pulver"));
-        tooltip.add(Component.literal("§8Nächster Schritt: Kristallisator"));
+        tooltip.add(Component.translatable("tooltip.roh_meth.impure_powder", quality.getColorDescription().toLowerCase()));
+        tooltip.add(Component.translatable("tooltip.roh_meth.next_step"));
     }
 
     @Override

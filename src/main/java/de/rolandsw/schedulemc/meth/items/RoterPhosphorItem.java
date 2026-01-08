@@ -21,10 +21,10 @@ public class RoterPhosphorItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.literal("§7Katalysator"));
+        tooltip.add(Component.translatable("tooltip.roter_phosphor.catalyst"));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§cRotes Pulver"));
-        tooltip.add(Component.literal("§8Verwendung: Chemie-Mixer"));
-        tooltip.add(Component.literal("§8§oVorsicht: Leicht entzündlich!"));
+        tooltip.add(Component.translatable("tooltip.roter_phosphor.red_powder"));
+        tooltip.add(Component.translatable("tooltip.roter_phosphor.use_mixer"));
+        tooltip.add(Component.translatable("tooltip.roter_phosphor.flammable"));
     }
 }

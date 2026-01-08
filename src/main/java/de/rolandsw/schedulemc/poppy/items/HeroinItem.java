@@ -56,12 +56,12 @@ public class HeroinItem extends Item {
         PoppyType type = getType(stack);
         TobaccoQuality quality = getQuality(stack);
 
-        tooltip.add(Component.literal("§7Sorte: " + type.getColoredName()));
-        tooltip.add(Component.literal("§7Qualität: " + quality.getColoredName()));
-        tooltip.add(Component.literal("§7Potenz: §c" + String.format("%.0f%%", type.getPotencyMultiplier() * 100)));
-        tooltip.add(Component.literal("§7Gewicht: §f" + stack.getCount() + "g §8(" + stack.getCount() + "x 1g)"));
+        tooltip.add(Component.translatable("tooltip.poppy.type_label").append(type.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.poppy.potency_label").append(Component.literal("§c" + String.format("%.0f%%", type.getPotencyMultiplier() * 100))));
+        tooltip.add(Component.translatable("tooltip.poppy.weight_label").append(Component.literal("§f" + stack.getCount() + "g §8(" + stack.getCount() + "x 1g)")));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§8Am Verpackungstisch verpacken"));
+        tooltip.add(Component.translatable("tooltip.heroin.package_at_table"));
     }
 
     @Override
