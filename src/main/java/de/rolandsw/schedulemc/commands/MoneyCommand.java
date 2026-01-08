@@ -93,19 +93,19 @@ public class MoneyCommand {
     // Admin: Guthaben setzen
     // ───────────────────────────────
     private static int setBalance(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executeAdminCommand(ctx, "Fehler beim Setzen des Guthabens", 2,
+        return CommandExecutor.executeAdminCommand(ctx, "command.money.set.error", 2,
             source -> {
                 ServerPlayer target = EntityArgument.getPlayer(ctx, "target");
                 double amount = DoubleArgumentType.getDouble(ctx, "amount");
 
                 // ✅ INPUT VALIDATION: Betrag validieren (erlaubt 0, aber nicht negativ)
                 if (amount < 0) {
-                    CommandExecutor.sendFailure(source, "§c❌ Betrag darf nicht negativ sein!");
+                    CommandExecutor.sendFailure(source, Component.translatable("command.money.amount_negative").getString());
                     return;
                 }
                 if (amount > InputValidation.MAX_AMOUNT) {
                     CommandExecutor.sendFailure(source,
-                        "§c❌ Betrag zu hoch! Maximum: " + InputValidation.MAX_AMOUNT
+                        Component.translatable("command.money.amount_too_high", InputValidation.MAX_AMOUNT).getString()
                     );
                     return;
                 }
@@ -115,13 +115,13 @@ public class MoneyCommand {
                     "Admin: " + adminName);
 
                 CommandExecutor.sendSuccess(source,
-                    "Guthaben gesetzt!\n" +
-                    "Spieler: " + target.getName().getString() + "\n" +
-                    "Neues Guthaben: " + String.format("%.2f", amount) + " €"
+                    Component.translatable("command.money.set.success",
+                        target.getName().getString(), String.format("%.2f", amount)
+                    ).getString()
                 );
 
-                target.sendSystemMessage(Component.literal(
-                    "§eDein Guthaben wurde auf §6" + String.format("%.2f", amount) + " € §egesetzt."
+                target.sendSystemMessage(Component.translatable("command.money.set.notification",
+                    String.format("%.2f", amount)
                 ));
             });
     }
@@ -130,7 +130,7 @@ public class MoneyCommand {
     // Admin: Geld geben
     // ───────────────────────────────
     private static int giveBalance(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executeAdminCommand(ctx, "Fehler beim Hinzufügen von Geld", 2,
+        return CommandExecutor.executeAdminCommand(ctx, "command.money.give.error", 2,
             source -> {
                 ServerPlayer target = EntityArgument.getPlayer(ctx, "target");
                 double amount = DoubleArgumentType.getDouble(ctx, "amount");
@@ -139,7 +139,7 @@ public class MoneyCommand {
                 InputValidation.ValidationResult validation = InputValidation.validateAmount(amount);
                 if (validation.isFailure()) {
                     CommandExecutor.sendFailure(source,
-                        "§c❌ Ungültiger Betrag: §f" + validation.getErrorMessage()
+                        Component.translatable("command.money.invalid_amount", validation.getErrorMessage()).getString()
                     );
                     return;
                 }
@@ -149,14 +149,14 @@ public class MoneyCommand {
                     "Admin: " + adminName);
 
                 CommandExecutor.sendSuccess(source,
-                    "Geld hinzugefügt!\n" +
-                    "Spieler: " + target.getName().getString() + "\n" +
-                    "Betrag: +" + String.format("%.2f", amount) + " €\n" +
-                    "Neues Guthaben: " + String.format("%.2f", EconomyManager.getBalance(target.getUUID())) + " €"
+                    Component.translatable("command.money.give.success",
+                        target.getName().getString(), String.format("%.2f", amount),
+                        String.format("%.2f", EconomyManager.getBalance(target.getUUID()))
+                    ).getString()
                 );
 
-                target.sendSystemMessage(Component.literal(
-                    "§a✓ Du hast §e" + String.format("%.2f", amount) + " € §aerhalten!"
+                target.sendSystemMessage(Component.translatable("command.money.give.notification",
+                    String.format("%.2f", amount)
                 ));
             });
     }
@@ -165,7 +165,7 @@ public class MoneyCommand {
     // Admin: Geld nehmen
     // ───────────────────────────────
     private static int takeBalance(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executeAdminCommand(ctx, "Fehler beim Abziehen von Geld", 2,
+        return CommandExecutor.executeAdminCommand(ctx, "command.money.take.error", 2,
             source -> {
                 ServerPlayer target = EntityArgument.getPlayer(ctx, "target");
                 double amount = DoubleArgumentType.getDouble(ctx, "amount");
@@ -174,7 +174,7 @@ public class MoneyCommand {
                 InputValidation.ValidationResult validation = InputValidation.validateAmount(amount);
                 if (validation.isFailure()) {
                     CommandExecutor.sendFailure(source,
-                        "§c❌ Ungültiger Betrag: §f" + validation.getErrorMessage()
+                        Component.translatable("command.money.invalid_amount", validation.getErrorMessage()).getString()
                     );
                     return;
                 }
@@ -185,17 +185,17 @@ public class MoneyCommand {
 
                 if (success) {
                     CommandExecutor.sendSuccess(source,
-                        "Geld abgezogen!\n" +
-                        "Spieler: " + target.getName().getString() + "\n" +
-                        "Betrag: -" + String.format("%.2f", amount) + " €\n" +
-                        "Neues Guthaben: " + String.format("%.2f", EconomyManager.getBalance(target.getUUID())) + " €"
+                        Component.translatable("command.money.take.success",
+                            target.getName().getString(), String.format("%.2f", amount),
+                            String.format("%.2f", EconomyManager.getBalance(target.getUUID()))
+                        ).getString()
                     );
 
-                    target.sendSystemMessage(Component.literal(
-                        "§c" + String.format("%.2f", amount) + " € §cwurden von deinem Konto abgezogen."
+                    target.sendSystemMessage(Component.translatable("command.money.take.notification",
+                        String.format("%.2f", amount)
                     ));
                 } else {
-                    CommandExecutor.sendFailure(source, "Nicht genug Guthaben beim Zielspieler!");
+                    CommandExecutor.sendFailure(source, Component.translatable("command.money.take.insufficient").getString());
                 }
             });
     }
@@ -206,7 +206,7 @@ public class MoneyCommand {
     private static void showHistoryFor(CommandContext<CommandSourceStack> ctx, ServerPlayer target, int limit) {
         TransactionHistory history = TransactionHistory.getInstance();
         if (history == null) {
-            CommandExecutor.sendFailure(ctx.getSource(), "Transaktionshistorie nicht verfügbar!");
+            CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.money.history.unavailable").getString());
             return;
         }
 
@@ -214,17 +214,18 @@ public class MoneyCommand {
 
         if (transactions.isEmpty()) {
             CommandExecutor.sendInfo(ctx.getSource(),
-                target.getName().getString() + " hat noch keine Transaktionen.");
+                Component.translatable("command.money.history.no_transactions", target.getName().getString()).getString());
             return;
         }
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("§a§l━━━━━━━━━ TRANSAKTIONS-HISTORIE ━━━━━━━━━\n");
-        sb.append("§eSpieler: §f").append(target.getName().getString()).append("\n");
-        sb.append("§7Letzte ").append(transactions.size()).append(" Transaktionen:\n\n");
+        ctx.getSource().sendSuccess(() -> Component.translatable("command.money.history.header"), false);
+        ctx.getSource().sendSuccess(() -> Component.translatable("command.money.history.player", target.getName().getString()), false);
+        ctx.getSource().sendSuccess(() -> Component.translatable("command.money.history.recent", transactions.size()), false);
+        ctx.getSource().sendSuccess(() -> Component.literal(""), false);
 
         for (Transaction transaction : transactions) {
-            sb.append(transaction.getFormattedDescription()).append("\n\n");
+            ctx.getSource().sendSuccess(() -> Component.literal(transaction.getFormattedDescription()), false);
+            ctx.getSource().sendSuccess(() -> Component.literal(""), false);
         }
 
         // Statistiken
@@ -232,12 +233,10 @@ public class MoneyCommand {
         double totalExpenses = history.getTotalExpenses(target.getUUID());
         int totalCount = history.getTransactionCount(target.getUUID());
 
-        sb.append("§a§l━━━━━━━━━ STATISTIKEN ━━━━━━━━━\n");
-        sb.append("§7Gesamt-Einnahmen: §a+").append(String.format("%.2f€", totalIncome)).append("\n");
-        sb.append("§7Gesamt-Ausgaben: §c-").append(String.format("%.2f€", totalExpenses)).append("\n");
-        sb.append("§7Gesamt-Transaktionen: §e").append(totalCount).append("\n");
-        sb.append("§a§l━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-
-        ctx.getSource().sendSuccess(() -> Component.literal(sb.toString()), false);
+        ctx.getSource().sendSuccess(() -> Component.translatable("command.money.history.stats_header"), false);
+        ctx.getSource().sendSuccess(() -> Component.translatable("command.money.history.total_income", String.format("%.2f", totalIncome)), false);
+        ctx.getSource().sendSuccess(() -> Component.translatable("command.money.history.total_expenses", String.format("%.2f", totalExpenses)), false);
+        ctx.getSource().sendSuccess(() -> Component.translatable("command.money.history.total_count", totalCount), false);
+        ctx.getSource().sendSuccess(() -> Component.translatable("command.money.history.footer"), false);
     }
 }
