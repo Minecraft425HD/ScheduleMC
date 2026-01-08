@@ -1,0 +1,18 @@
+{
+  "mapview.ui.zoomLevel": "Mức độ phóng đại:",
+  "options.mapview.title": "Tùy chọn cho bản đồ",
+  "options.mapview.location": "Vị trí",
+  "options.mapview.location.topLeft": "Trên - Trái",
+  "options.mapview.location.topRight": "Trên - Phải",
+  "options.mapview.location.bottomRight": "Dưới - Phải",
+  "options.mapview.location.bottomLeft": "Dưới - Trái",
+  "options.mapview.size": "Kích cỡ",
+  "options.mapview.size.small": "Nhỏ",
+  "options.mapview.size.medium": "Thường",
+  "options.mapview.size.large": "Lớn",
+  "key.mapview.zoom": "Phóng đại",
+  "key.mapview.toggleFullscreen": "Chuyển đổi bản đồ toàn màn hình",
+  "key.mapview.menu": "LightMap Menu",
+  "key.mapview.menu": "Menu",
+  "mapview.waypoints.teleportTo": "Dịch chuyển đến"
+}

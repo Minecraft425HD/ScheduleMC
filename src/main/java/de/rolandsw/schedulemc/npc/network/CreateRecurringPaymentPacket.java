@@ -1,0 +1,169 @@
+package de.rolandsw.schedulemc.npc.network;
+
+import de.rolandsw.schedulemc.config.ModConfigHandler;
+import de.rolandsw.schedulemc.economy.CreditLoanManager;
+import de.rolandsw.schedulemc.economy.RecurringPaymentInterval;
+import de.rolandsw.schedulemc.economy.RecurringPaymentManager;
+import de.rolandsw.schedulemc.util.PacketHandler;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.network.NetworkEvent;
+
+import java.util.UUID;
+import java.util.function.Supplier;
+
+/**
+ * Packet für Erstellen eines Dauerauftrags
+ */
+public class CreateRecurringPaymentPacket {
+    private final String recipientName;
+    private final double amount;
+    private final int intervalOrdinal;
+
+    public CreateRecurringPaymentPacket(String recipientName, double amount, RecurringPaymentInterval interval) {
+        this.recipientName = recipientName;
+        this.amount = amount;
+        this.intervalOrdinal = interval.ordinal();
+    }
+
+    private CreateRecurringPaymentPacket(String recipientName, double amount, int intervalOrdinal) {
+        this.recipientName = recipientName;
+        this.amount = amount;
+        this.intervalOrdinal = intervalOrdinal;
+    }
+
+    public void encode(FriendlyByteBuf buf) {
+        buf.writeUtf(recipientName);
+        buf.writeDouble(amount);
+        buf.writeInt(intervalOrdinal);
+    }
+
+    /**
+     * SICHERHEIT: Max-Länge für Strings gegen DoS/Memory-Angriffe
+     */
+    public static CreateRecurringPaymentPacket decode(FriendlyByteBuf buf) {
+        return new CreateRecurringPaymentPacket(
+            buf.readUtf(16), // MC username max 16 chars
+            buf.readDouble(),
+            buf.readInt()
+        );
+    }
+
+    public void handle(Supplier<NetworkEvent.Context> ctx) {
+        PacketHandler.handleServerPacket(ctx, player -> {
+            // Validierung: Betrag positiv
+            if (amount <= 0) {
+                player.sendSystemMessage(Component.literal("⚠ Betrag muss positiv sein!")
+                    .withStyle(ChatFormatting.RED));
+                return;
+            }
+
+            // Validierung: Empfänger nicht leer
+            if (recipientName == null || recipientName.trim().isEmpty()) {
+                player.sendSystemMessage(Component.literal("⚠ Empfänger darf nicht leer sein!")
+                    .withStyle(ChatFormatting.RED));
+                return;
+            }
+
+            // Validierung: Intervall gültig
+            if (intervalOrdinal < 0 || intervalOrdinal >= RecurringPaymentInterval.values().length) {
+                player.sendSystemMessage(Component.literal("⚠ Ungültiges Intervall!")
+                    .withStyle(ChatFormatting.RED));
+                return;
+            }
+
+            RecurringPaymentInterval interval = RecurringPaymentInterval.values()[intervalOrdinal];
+
+            // 10er-Limit prüfen (inkl. Kredit-Daueraufträge)
+            RecurringPaymentManager manager = RecurringPaymentManager.getInstance(player.getServer());
+            CreditLoanManager loanManager = CreditLoanManager.getInstance(player.getServer());
+
+            int currentPayments = manager.getPayments(player.getUUID()).size();
+            int creditCount = loanManager.hasActiveLoan(player.getUUID()) ? 1 : 0;
+            int totalCount = currentPayments + creditCount;
+            int maxPerPlayer = ModConfigHandler.COMMON.RECURRING_MAX_PER_PLAYER.get();
+
+            if (totalCount >= maxPerPlayer) {
+                player.sendSystemMessage(Component.literal("═══════════════════════════════")
+                    .withStyle(ChatFormatting.RED));
+                player.sendSystemMessage(Component.literal("⚠ LIMIT ERREICHT!")
+                    .withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
+                player.sendSystemMessage(Component.literal("Du hast bereits ")
+                    .withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal(totalCount + "/" + maxPerPlayer)
+                        .withStyle(ChatFormatting.YELLOW))
+                    .append(Component.literal(" aktive Daueraufträge.")
+                        .withStyle(ChatFormatting.GRAY)));
+                if (creditCount > 0) {
+                    player.sendSystemMessage(Component.literal("(inkl. 1 Kredit-Rückzahlung)")
+                        .withStyle(ChatFormatting.GOLD));
+                }
+                player.sendSystemMessage(Component.literal("Lösche erst einen bestehenden Dauerauftrag!")
+                    .withStyle(ChatFormatting.YELLOW));
+                player.sendSystemMessage(Component.literal("═══════════════════════════════")
+                    .withStyle(ChatFormatting.RED));
+                return;
+            }
+
+            // Empfänger-UUID finden
+            UUID recipientUUID = null;
+            for (ServerPlayer p : player.getServer().getPlayerList().getPlayers()) {
+                if (p.getName().getString().equalsIgnoreCase(recipientName)) {
+                    recipientUUID = p.getUUID();
+                    break;
+                }
+            }
+
+            // Prüfe ob Empfänger existiert
+            if (recipientUUID == null) {
+                player.sendSystemMessage(Component.literal("⚠ Spieler nicht gefunden!")
+                    .withStyle(ChatFormatting.RED));
+                player.sendSystemMessage(Component.literal("Name: ")
+                    .withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal(recipientName)
+                        .withStyle(ChatFormatting.YELLOW)));
+                return;
+            }
+
+            // Erstelle Dauerauftrag
+            String description = interval.getDisplayName() + " an " + recipientName;
+
+            if (manager.createRecurringPayment(player.getUUID(), recipientUUID, amount,
+                interval.getDaysInterval(), description)) {
+                // Erfolgs-Nachricht
+                player.sendSystemMessage(Component.literal("═══════════════════════════════")
+                    .withStyle(ChatFormatting.GREEN));
+                player.sendSystemMessage(Component.literal("📋 ")
+                    .withStyle(ChatFormatting.GOLD)
+                    .append(Component.literal("DAUERAUFTRAG ERSTELLT")
+                        .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)));
+                player.sendSystemMessage(Component.literal("Empfänger: ")
+                    .withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal(recipientName)
+                        .withStyle(ChatFormatting.AQUA)));
+                player.sendSystemMessage(Component.literal("Betrag: ")
+                    .withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal(String.format("%.2f€", amount))
+                        .withStyle(ChatFormatting.GOLD)));
+                player.sendSystemMessage(Component.literal("Intervall: ")
+                    .withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal(interval.getDisplayName())
+                        .withStyle(ChatFormatting.LIGHT_PURPLE)));
+                player.sendSystemMessage(Component.literal("═══════════════════════════════")
+                    .withStyle(ChatFormatting.GREEN));
+            } else {
+                // Fehler
+                player.sendSystemMessage(Component.literal("⚠ Dauerauftrag konnte nicht erstellt werden!")
+                    .withStyle(ChatFormatting.RED));
+                player.sendSystemMessage(Component.literal("Mögliche Gründe:")
+                    .withStyle(ChatFormatting.GRAY));
+                player.sendSystemMessage(Component.literal("• Maximale Anzahl erreicht")
+                    .withStyle(ChatFormatting.YELLOW));
+                player.sendSystemMessage(Component.literal("• Ungültige Parameter")
+                    .withStyle(ChatFormatting.YELLOW));
+            }
+        });
+    }
+}

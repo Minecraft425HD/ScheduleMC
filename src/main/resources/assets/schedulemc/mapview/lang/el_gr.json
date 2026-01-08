@@ -1,0 +1,17 @@
+{
+  "mapview.ui.zoomLevel": "Επίπεδο Ζουμ:",
+  "options.mapview.title": "Μικρός Επιλογές",
+  "options.mapview.location": "Τοποθεσία",
+  "options.mapview.location.topLeft": "Top Αριστερά",
+  "options.mapview.location.topRight": "Πάνωδεξιά",
+  "options.mapview.location.bottomRight": "Δεξιά Κάτω",
+  "options.mapview.location.bottomLeft": "Κάτω αριστερά",
+  "options.mapview.size": "Μέγεθος",
+  "options.mapview.size.small": "Μικρό",
+  "options.mapview.size.medium": "τακτική",
+  "options.mapview.size.large": "Large",
+  "key.mapview.zoom": "Zoom",
+  "key.mapview.toggleFullscreen": "Εναλλαγή Fullscreen Χάρτης",
+  "key.mapview.menu": "Μενού",
+  "mapview.waypoints.teleportTo": "teleport σε"
+}

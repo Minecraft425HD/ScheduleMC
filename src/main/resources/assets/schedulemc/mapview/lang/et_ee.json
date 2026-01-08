@@ -1,0 +1,22 @@
+{
+  "mapview.ui.zoomLevel": "Suurendustase:",
+  "options.mapview.title": "Minikaardi valikud",
+  "options.mapview.location": "Asukoht",
+  "options.mapview.location.topLeft": "ülal vasakul",
+  "options.mapview.location.topRight": "ülal paremal",
+  "options.mapview.location.bottomRight": "all paremal",
+  "options.mapview.location.bottomLeft": "all vasakul",
+  "options.mapview.size": "Suurus",
+  "options.mapview.size.small": "väike",
+  "options.mapview.size.medium": "tavaline",
+  "options.mapview.size.large": "suur",
+  "options.mapview.size.xl": "XL",
+  "options.mapview.size.xxl": "XXL",
+  "options.mapview.size.xxxl": "XXXL",
+  "key.mapview.zoom": "Suurendus",
+  "key.mapview.toggleFullscreen": "Lülita kaart täisekraani",
+  "key.mapview.menu": "LightMap'i menüü",
+  "key.mapview.menu": "Menüü",
+  "mapview.waypoints.teleportTo": "Teleporteeru",
+  "worldmap.title": "World Map"
+}

@@ -1,0 +1,17 @@
+{
+  "mapview.ui.zoomLevel": "Ниво на zoom:",
+  "options.mapview.title": "Опции на минимапа",
+  "options.mapview.location": "Местоположение",
+  "options.mapview.location.topLeft": "Горно ляво",
+  "options.mapview.location.topRight": "Горно дясно",
+  "options.mapview.location.bottomRight": "Долен десен",
+  "options.mapview.location.bottomLeft": "Долен ляв",
+  "options.mapview.size": "Размер",
+  "options.mapview.size.small": "Малък",
+  "options.mapview.size.medium": "Нормален",
+  "options.mapview.size.large": "Голям",
+  "key.mapview.zoom": "Zoom",
+  "key.mapview.toggleFullscreen": "Голяма карта",
+  "key.mapview.menu": "Меню",
+  "mapview.waypoints.teleportTo": "Телепортирай в ..."
+}

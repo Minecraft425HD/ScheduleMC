@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "schedulemc:item/advanced_grow_light_slab"
+  }
+}

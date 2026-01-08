@@ -1,0 +1,17 @@
+{
+  "mapview.ui.zoomLevel": "Poziom przybliżenia:",
+  "options.mapview.title": "Opcje minimapy",
+  "options.mapview.location": "Pozycja mapy",
+  "options.mapview.location.topLeft": "Górny lewy róg",
+  "options.mapview.location.topRight": "Górny prawy róg",
+  "options.mapview.location.bottomRight": "Dolny prawy róg",
+  "options.mapview.location.bottomLeft": "Dolny lewy róg",
+  "options.mapview.size": "Rozmiar",
+  "options.mapview.size.small": "Mały",
+  "options.mapview.size.medium": "Średni",
+  "options.mapview.size.large": "Duży",
+  "key.mapview.zoom": "Przybliżanie",
+  "key.mapview.toggleFullscreen": "Tryb pełnoekranowy",
+  "key.mapview.menu": "Menu",
+  "mapview.waypoints.teleportTo": "Teleportuj do..."
+}

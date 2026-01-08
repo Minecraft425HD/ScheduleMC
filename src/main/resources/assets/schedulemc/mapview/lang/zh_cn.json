@@ -1,0 +1,22 @@
+{
+  "mapview.ui.zoomLevel": "缩放等级:",
+  "options.mapview.title": "小地图选项",
+  "options.mapview.location": "地图位置",
+  "options.mapview.location.topLeft": "左上角",
+  "options.mapview.location.topRight": "右上角",
+  "options.mapview.location.bottomRight": "右下角",
+  "options.mapview.location.bottomLeft": "左下角",
+  "options.mapview.size": "地图尺寸",
+  "options.mapview.size.small": "小",
+  "options.mapview.size.medium": "中",
+  "options.mapview.size.large": "大",
+  "options.mapview.size.xl": "XL",
+  "options.mapview.size.xxl": "XXL",
+  "options.mapview.size.xxxl": "XXXL",
+  "key.mapview.zoom": "缩放",
+  "key.mapview.toggleFullscreen": "切换大地图",
+  "key.mapview.menu": "LightMap菜单",
+  "key.mapview.menu": "菜单",
+  "mapview.waypoints.teleportTo": "传送到该导航点",
+  "worldmap.title": "World Map"
+}

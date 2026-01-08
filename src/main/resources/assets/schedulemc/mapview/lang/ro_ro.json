@@ -1,0 +1,17 @@
+{
+  "mapview.ui.zoomLevel": "Nivelul maririi:",
+  "options.mapview.title": "Optiunile Minihartii",
+  "options.mapview.location": "Locatie",
+  "options.mapview.location.topLeft": "Coltul din Stânga Sus",
+  "options.mapview.location.topRight": "Coltul din Dreapta Sus",
+  "options.mapview.location.bottomRight": "Coltul din Dreapta Jos",
+  "options.mapview.location.bottomLeft": "Coltul din Stânga Jos",
+  "options.mapview.size": "Marime",
+  "options.mapview.size.small": "Mic",
+  "options.mapview.size.medium": "Regulat",
+  "options.mapview.size.large": "Larg",
+  "key.mapview.zoom": "Mareste",
+  "key.mapview.toggleFullscreen": "Arata Harta pe tot Ecranul",
+  "key.mapview.menu": "Meniu",
+  "mapview.waypoints.teleportTo": "Teleportare la"
+}

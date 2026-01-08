@@ -1,0 +1,18 @@
+{
+  "mapview.ui.zoomLevel": "רמת זום:",
+  "options.mapview.title": "אפשרויות מפה",
+  "options.mapview.location": "מיקום",
+  "options.mapview.location.topLeft": "פינה שמאלית למעלה",
+  "options.mapview.location.topRight": "פינה ימנית למעלה",
+  "options.mapview.location.bottomRight": "פינה ימנית למטה",
+  "options.mapview.location.bottomLeft": "פינה שמאלית למטה",
+  "options.mapview.size": "גודל",
+  "options.mapview.size.small": "קטן",
+  "options.mapview.size.medium": "רגיל",
+  "options.mapview.size.large": "גדול",
+  "key.mapview.zoom": "זום",
+  "key.mapview.toggleFullscreen": "הפעל מפה במסך מלא",
+  "key.mapview.menu": "LightMap תפריט",
+  "key.mapview.menu": "תפריט",
+  "mapview.waypoints.teleportTo": "השתגר אל"
+}
