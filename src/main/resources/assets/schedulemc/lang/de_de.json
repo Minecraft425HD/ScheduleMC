@@ -1493,6 +1493,13 @@
   "block.oil_extractor.status_grams": "g §7| Lösungsmittel: §f",
   "block.oil_extractor.expected_oil": "§7Erwartetes Öl: §f",
   "block.oil_extractor.expected_ml": "ml",
+  "block.oil_extractor.solvent_needed": "§c⚠ Lösungsmittel benötigt",
+  "block.oil_extractor.min_material": "§c⚠ Mindestens 10g Material benötigt",
+  "block.oil_extractor.empty": "§8Öl-Extraktor ist leer",
+
+  "block.trocknungsnetz.buds_added": "§a🌿 Blüten zum Trocknen aufgehängt (Slot %d)",
+  "block.trocknungsnetz.full": "§c✗ Trocknungsnetz ist voll!",
+  "block.trocknungsnetz.buds_removed": "§e🍂 Getrocknete Blüten entnommen!",
 
   "block.hash_press.hash_removed": "§6🟤 Haschisch entnommen!",
   "block.hash_press.trim_added": "§a🍃 Trim hinzugefügt §7(Gesamt: ",

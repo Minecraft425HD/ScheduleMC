@@ -1493,6 +1493,13 @@
   "block.oil_extractor.status_grams": "g §7| Solvent: §f",
   "block.oil_extractor.expected_oil": "§7Expected oil: §f",
   "block.oil_extractor.expected_ml": "ml",
+  "block.oil_extractor.solvent_needed": "§c⚠ Solvent needed",
+  "block.oil_extractor.min_material": "§c⚠ At least 10g material required",
+  "block.oil_extractor.empty": "§8Oil extractor is empty",
+
+  "block.trocknungsnetz.buds_added": "§a🌿 Buds hung for drying (Slot %d)",
+  "block.trocknungsnetz.full": "§c✗ Drying rack is full!",
+  "block.trocknungsnetz.buds_removed": "§e🍂 Dried buds removed!",
 
   "block.hash_press.hash_removed": "§6🟤 Hashish removed!",
   "block.hash_press.trim_added": "§a🍃 Trim added §7(Total: ",

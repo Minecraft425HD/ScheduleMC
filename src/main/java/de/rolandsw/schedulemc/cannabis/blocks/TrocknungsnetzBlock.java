@@ -65,12 +65,12 @@ public class TrocknungsnetzBlock extends BaseEntityBlock {
                         if (!player.isCreative()) {
                             heldItem.shrink(1);
                         }
-                        player.displayClientMessage(Component.literal("§a🌿 Blüten zum Trocknen aufgehängt (Slot " + (i+1) + ")"), true);
+                        player.displayClientMessage(Component.translatable("block.trocknungsnetz.buds_added", (i+1)), true);
                         return InteractionResult.CONSUME;
                     }
                 }
             }
-            player.displayClientMessage(Component.literal("§c✗ Trocknungsnetz ist voll!"), true);
+            player.displayClientMessage(Component.translatable("block.trocknungsnetz.full"), true);
             return InteractionResult.FAIL;
         }
 
@@ -81,7 +81,7 @@ public class TrocknungsnetzBlock extends BaseEntityBlock {
                     ItemStack dried = netz.extractDriedBud(i);
                     if (!dried.isEmpty()) {
                         player.addItem(dried);
-                        player.displayClientMessage(Component.literal("§e🍂 Getrocknete Blüten entnommen!"), true);
+                        player.displayClientMessage(Component.translatable("block.trocknungsnetz.buds_removed"), true);
                         return InteractionResult.CONSUME;
                     }
                 }

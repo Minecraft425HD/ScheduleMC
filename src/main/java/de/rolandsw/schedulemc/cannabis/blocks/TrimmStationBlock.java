@@ -66,7 +66,7 @@ public class TrimmStationBlock extends BaseEntityBlock {
             ItemStack trim = station.extractTrim();
             if (!bud.isEmpty()) player.addItem(bud);
             if (!trim.isEmpty()) player.addItem(trim);
-            player.displayClientMessage(Component.literal("§a✂ Getrimmte Blüten und Trim entnommen!"), true);
+            player.displayClientMessage(Component.translatable("block.trimming_station.output_taken"), true);
             return InteractionResult.CONSUME;
         }
 
@@ -76,7 +76,7 @@ public class TrimmStationBlock extends BaseEntityBlock {
                 if (!player.isCreative()) {
                     heldItem.shrink(1);
                 }
-                player.displayClientMessage(Component.literal("§e🍂 Getrocknete Blüten eingelegt"), true);
+                player.displayClientMessage(Component.translatable("block.trimming_station.buds_added"), true);
                 return InteractionResult.CONSUME;
             }
         }
