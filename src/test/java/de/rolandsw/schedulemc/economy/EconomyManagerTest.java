@@ -203,7 +203,7 @@ class EconomyManagerTest {
 
     @Test
     @DisplayName("Should deposit with transaction type and description")
-    void testDepositWithTransaction() {
+    void testDepositWithTransaction() throws Exception {
         // Arrange
         createAccountDirectly(testPlayer1, 1000.0);
         double initialBalance = EconomyManager.getBalance(testPlayer1);
@@ -266,7 +266,7 @@ class EconomyManagerTest {
 
     @Test
     @DisplayName("Should withdraw with transaction type")
-    void testWithdrawWithTransaction() {
+    void testWithdrawWithTransaction() throws Exception {
         // Arrange
         createAccountDirectly(testPlayer1, 1000.0);
         EconomyManager.deposit(testPlayer1, 1000.0);
@@ -310,7 +310,7 @@ class EconomyManagerTest {
 
     @Test
     @DisplayName("Should set balance to zero")
-    void testSetBalanceZero() {
+    void testSetBalanceZero() throws Exception {
         // Arrange
         createAccountDirectly(testPlayer1, 1000.0);
         EconomyManager.deposit(testPlayer1, 1000.0);
@@ -365,7 +365,7 @@ class EconomyManagerTest {
 
     @Test
     @DisplayName("Should transfer entire balance")
-    void testTransferEntireBalance() {
+    void testTransferEntireBalance() throws Exception {
         // Arrange
         createAccountDirectly(testPlayer1, 1000.0);
         createAccountDirectly(testPlayer2, 1000.0);
@@ -452,7 +452,7 @@ class EconomyManagerTest {
 
     @Test
     @DisplayName("Should report healthy status")
-    void testHealthyStatus() {
+    void testHealthyStatus() throws Exception {
         // Arrange
         createAccountDirectly(testPlayer1, 1000.0);
         EconomyManager.saveAccounts();
@@ -464,7 +464,7 @@ class EconomyManagerTest {
 
     @Test
     @DisplayName("Should provide health info")
-    void testHealthInfo() {
+    void testHealthInfo() throws Exception {
         // Arrange
         createAccountDirectly(testPlayer1, 1000.0);
         createAccountDirectly(testPlayer2, 1000.0);
@@ -508,7 +508,7 @@ class EconomyManagerTest {
 
     @Test
     @DisplayName("Should get all accounts")
-    void testGetAllAccounts() {
+    void testGetAllAccounts() throws Exception {
         // Arrange
         createAccountDirectly(testPlayer1, 1000.0);
         createAccountDirectly(testPlayer2, 1000.0);
@@ -523,7 +523,7 @@ class EconomyManagerTest {
 
     @Test
     @DisplayName("Should handle concurrent operations safely")
-    void testConcurrentOperations() throws InterruptedException {
+    void testConcurrentOperations() throws Exception {
         // Arrange
         createAccountDirectly(testPlayer1, 1000.0);
         EconomyManager.deposit(testPlayer1, 10000.0);

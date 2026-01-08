@@ -11,9 +11,9 @@ public class InputValidationTest {
     @Test
     public void testValidatePrice_Valid() {
         // Valid prices
-        assertThat(InputValidation.validatePrice(0.01).isSuccess()).isTrue();
-        assertThat(InputValidation.validatePrice(100.0).isSuccess()).isTrue();
-        assertThat(InputValidation.validatePrice(1000000.0).isSuccess()).isTrue();
+        assertThat(InputValidation.validatePrice(0.01).isValid()).isTrue();
+        assertThat(InputValidation.validatePrice(100.0).isValid()).isTrue();
+        assertThat(InputValidation.validatePrice(1000000.0).isValid()).isTrue();
     }
 
     @Test
@@ -36,9 +36,9 @@ public class InputValidationTest {
 
     @Test
     public void testValidateName_Valid() {
-        assertThat(InputValidation.validateName("MyPlot").isSuccess()).isTrue();
-        assertThat(InputValidation.validateName("Test123").isSuccess()).isTrue();
-        assertThat(InputValidation.validateName("A very long name but still valid").isSuccess()).isTrue();
+        assertThat(InputValidation.validateName("MyPlot").isValid()).isTrue();
+        assertThat(InputValidation.validateName("Test123").isValid()).isTrue();
+        assertThat(InputValidation.validateName("A very long name but still valid").isValid()).isTrue();
     }
 
     @Test
@@ -60,8 +60,8 @@ public class InputValidationTest {
 
     @Test
     public void testValidateAmount_Valid() {
-        assertThat(InputValidation.validateAmount(1.0).isSuccess()).isTrue();
-        assertThat(InputValidation.validateAmount(1000000).isSuccess()).isTrue();
+        assertThat(InputValidation.validateAmount(1.0).isValid()).isTrue();
+        assertThat(InputValidation.validateAmount(1000000).isValid()).isTrue();
     }
 
     @Test
@@ -73,9 +73,9 @@ public class InputValidationTest {
 
     @Test
     public void testValidatePercentage_Valid() {
-        assertThat(InputValidation.validatePercentage(0).isSuccess()).isTrue();
-        assertThat(InputValidation.validatePercentage(50).isSuccess()).isTrue();
-        assertThat(InputValidation.validatePercentage(100).isSuccess()).isTrue();
+        assertThat(InputValidation.validatePercentage(0).isValid()).isTrue();
+        assertThat(InputValidation.validatePercentage(50).isValid()).isTrue();
+        assertThat(InputValidation.validatePercentage(100).isValid()).isTrue();
     }
 
     @Test

@@ -304,6 +304,19 @@ public class InputValidation {
     }
 
     /**
+     * Validiert Prozentsätze (0-100)
+     */
+    public static ValidationResult validatePercentage(int percentage) {
+        if (percentage < 0) {
+            return ValidationResult.failure("§cProzentsatz darf nicht negativ sein!");
+        }
+        if (percentage > 100) {
+            return ValidationResult.failure("§cProzentsatz darf nicht größer als 100 sein!");
+        }
+        return ValidationResult.success();
+    }
+
+    /**
      * Interne Implementierung von validateAmount
      */
     private static Result validateAmountInternal(double amount) {
