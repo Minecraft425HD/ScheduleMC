@@ -1399,6 +1399,10 @@
   "tooltip.general.weight_grams": "g §8(",
   "tooltip.general.weight_pieces": "x 1g)",
 
+  "tooltip.quality.label": "§7Quality: ",
+  "tooltip.cannabis.curing_improves": "§8💡 Tip: Curing improves quality!",
+  "tooltip.meth.next_step_vacuum": "§8💡 Next step: Vacuum pump",
+
   "block.plant_pot.remove_plant_first": "§c✗ Remove plant first!",
   "block.plant_pot.pot_full_soil": "§c✗ Pot is already full of soil!",
   "block.plant_pot.soil_added": "§a✓ Soil added!",

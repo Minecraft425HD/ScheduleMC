@@ -206,7 +206,7 @@ public class MoneyCommand {
     private static void showHistoryFor(CommandContext<CommandSourceStack> ctx, ServerPlayer target, int limit) {
         TransactionHistory history = TransactionHistory.getInstance();
         if (history == null) {
-            CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.money.history.unavailable").getString());
+            CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.money.history_unavailable").getString());
             return;
         }
 
@@ -214,13 +214,11 @@ public class MoneyCommand {
 
         if (transactions.isEmpty()) {
             CommandExecutor.sendInfo(ctx.getSource(),
-                Component.translatable("command.money.history.no_transactions", target.getName().getString()).getString());
+                Component.translatable("command.money.no_transactions", target.getName().getString()).getString());
             return;
         }
 
-        ctx.getSource().sendSuccess(() -> Component.translatable("command.money.history.header"), false);
-        ctx.getSource().sendSuccess(() -> Component.translatable("command.money.history.player", target.getName().getString()), false);
-        ctx.getSource().sendSuccess(() -> Component.translatable("command.money.history.recent", transactions.size()), false);
+        ctx.getSource().sendSuccess(() -> Component.translatable("command.money.history_header", target.getName().getString(), transactions.size()), false);
         ctx.getSource().sendSuccess(() -> Component.literal(""), false);
 
         for (Transaction transaction : transactions) {
@@ -233,10 +231,9 @@ public class MoneyCommand {
         double totalExpenses = history.getTotalExpenses(target.getUUID());
         int totalCount = history.getTransactionCount(target.getUUID());
 
-        ctx.getSource().sendSuccess(() -> Component.translatable("command.money.history.stats_header"), false);
-        ctx.getSource().sendSuccess(() -> Component.translatable("command.money.history.total_income", String.format("%.2f", totalIncome)), false);
-        ctx.getSource().sendSuccess(() -> Component.translatable("command.money.history.total_expenses", String.format("%.2f", totalExpenses)), false);
-        ctx.getSource().sendSuccess(() -> Component.translatable("command.money.history.total_count", totalCount), false);
-        ctx.getSource().sendSuccess(() -> Component.translatable("command.money.history.footer"), false);
+        ctx.getSource().sendSuccess(() -> Component.translatable("command.money.stats_header"), false);
+        ctx.getSource().sendSuccess(() -> Component.translatable("command.money.stats_income", String.format("%.2f", totalIncome)), false);
+        ctx.getSource().sendSuccess(() -> Component.translatable("command.money.stats_expenses", String.format("%.2f", totalExpenses)), false);
+        ctx.getSource().sendSuccess(() -> Component.translatable("command.money.stats_count", totalCount), false);
     }
 }
