@@ -308,7 +308,7 @@ public class PoliceAIHandler {
                     // Starte Suchverhalten statt direkter Verfolgung
                     if (!PoliceSearchBehavior.isSearching(npc)) {
                         PoliceSearchBehavior.startSearch(npc, targetCriminal, currentTick);
-                        targetCriminal.sendSystemMessage(Component.literal("§e⚠ Die Polizei sucht dich im Gebiet..."));
+                        targetCriminal.sendSystemMessage(Component.translatable("message.police.searching_area"));
                     }
 
                     // Speichere dass wir diesen Spieler verfolgen
@@ -353,7 +353,7 @@ public class PoliceAIHandler {
                         LOGGER.debug("[POLICE] {} startet Suche nach {}", npc.getNpcName(), lostPlayer.getName().getString());
                     }
                     PoliceSearchBehavior.startSearch(npc, lostPlayer, currentTick);
-                    lostPlayer.sendSystemMessage(Component.literal("§e⚠ Die Polizei sucht dich im Gebiet..."));
+                    lostPlayer.sendSystemMessage(Component.translatable("message.police.searching_area"));
                 } else {
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("[POLICE] {} kann Spieler nicht finden oder Wanted-Level ist 0", npc.getNpcName());

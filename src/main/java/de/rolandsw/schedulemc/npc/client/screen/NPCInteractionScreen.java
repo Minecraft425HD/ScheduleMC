@@ -152,7 +152,7 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
             this.onClose();
         } else {
             if (minecraft != null && minecraft.player != null) {
-                minecraft.player.sendSystemMessage(Component.literal("§cDieser NPC kauft keine Items!"));
+                minecraft.player.sendSystemMessage(Component.translatable("message.npc.does_not_buy_items"));
             }
         }
     }

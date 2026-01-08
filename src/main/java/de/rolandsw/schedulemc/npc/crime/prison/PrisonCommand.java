@@ -260,7 +260,7 @@ public class PrisonCommand {
         int seconds = remainingSeconds % 60;
 
         source.sendSuccess(() -> Component.translatable("command.prison.status_header"), false);
-        source.sendSuccess(() -> Component.literal("§7Spieler: §f" + data.playerName), false);
+        source.sendSuccess(() -> Component.translatable("message.prison.player_label", data.playerName), false);
         source.sendSuccess(() -> Component.literal("§7Zelle: §f" + data.cellNumber), false);
         source.sendSuccess(() -> Component.literal("§7Verbleibend: §f" + minutes + ":" + String.format("%02d", seconds)), false);
         source.sendSuccess(() -> Component.literal("§7Kaution: §f" + data.bailAmount + "€"), false);

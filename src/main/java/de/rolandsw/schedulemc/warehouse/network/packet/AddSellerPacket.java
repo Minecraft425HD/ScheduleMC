@@ -85,7 +85,7 @@ public class AddSellerPacket {
 
             player.sendSystemMessage(
                 Component.translatable("message.warehouse.npc_linked")
-                    .append(Component.literal("\n§7NPC: §e" + npc.getNpcName()))
+                    .append(Component.literal("\n")).append(Component.translatable("message.common.npc_label", npc.getNpcName()))
                     .append(Component.literal("\n§7Warehouse: §f" + msg.pos.toShortString()))
                     .append(Component.translatable("message.warehouse.items_added_count", itemsAdded))
             );

@@ -272,7 +272,7 @@ public class WarehouseBlockEntity extends BlockEntity {
             level.players().stream()
                 .filter(player -> player.blockPosition().distSqr(worldPosition) < 2500)
                 .forEach(player -> player.sendSystemMessage(
-                    Component.literal("§c[Warehouse] Lieferung fehlgeschlagen! Staatskasse leer.")
+                    Component.translatable("message.warehouse.delivery_failed_treasury")
                 ));
         }
     }

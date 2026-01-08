@@ -1136,7 +1136,7 @@ public class NPCCommand {
             CustomNPCEntity npc = getNPCByName(npcName, level);
             if (npc == null) {
                 context.getSource().sendFailure(
-                    Component.literal("§cNPC '§e" + npcName + "§c' nicht gefunden!")
+                    Component.translatable("message.npc.not_found_colored", npcName)
                 );
                 return 0;
             }
@@ -1144,7 +1144,7 @@ public class NPCCommand {
             BlockPos warehousePos = findWarehouseBlockPos(player);
             if (warehousePos == null) {
                 context.getSource().sendFailure(
-                    Component.literal("§cKein Warehouse gefunden! Schaue auf einen Warehouse-Block oder stehe direkt darauf.")
+                    Component.translatable("message.warehouse.not_found_look_at")
                 );
                 return 0;
             }
@@ -1172,7 +1172,7 @@ public class NPCCommand {
             CustomNPCEntity npc = getNPCByName(npcName, level);
             if (npc == null) {
                 context.getSource().sendFailure(
-                    Component.literal("§cNPC '§e" + npcName + "§c' nicht gefunden!")
+                    Component.translatable("message.npc.not_found_colored", npcName)
                 );
                 return 0;
             }
@@ -1199,7 +1199,7 @@ public class NPCCommand {
             CustomNPCEntity npc = getNPCByName(npcName, level);
             if (npc == null) {
                 context.getSource().sendFailure(
-                    Component.literal("§cNPC '§e" + npcName + "§c' nicht gefunden!")
+                    Component.translatable("message.npc.not_found_colored", npcName)
                 );
                 return 0;
             }
@@ -1207,7 +1207,7 @@ public class NPCCommand {
             BlockPos warehousePos = npc.getNpcData().getAssignedWarehouse();
             if (warehousePos == null) {
                 context.getSource().sendSuccess(() ->
-                    Component.literal("§e=== Warehouse Info ===\n" +
+                    Component.translatable("message.warehouse.info_header").append(Component.literal("\n")).append(
                         "§7NPC: §e" + npc.getNpcName() + "\n" +
                         "§7Status: §cKein Warehouse verknüpft"
                     ), false
@@ -1231,7 +1231,7 @@ public class NPCCommand {
             }
             return 1;
         } catch (Exception e) {
-            context.getSource().sendFailure(Component.literal("§cFehler beim Abrufen der Warehouse-Info!"));
+            context.getSource().sendFailure(Component.translatable("message.warehouse.info_error"));
             return 0;
         }
     }

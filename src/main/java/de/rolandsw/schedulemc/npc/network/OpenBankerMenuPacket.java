@@ -45,7 +45,7 @@ public class OpenBankerMenuPacket {
                         buf.writeInt(npc.getId());
                     });
                 } else {
-                    player.sendSystemMessage(Component.literal("§cDieser NPC ist kein Banker!"));
+                    player.sendSystemMessage(Component.translatable("message.npc.not_banker"));
                 }
             }
         });

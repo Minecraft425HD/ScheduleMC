@@ -46,7 +46,7 @@ public class NPCStealingHandler {
 
                 if (lastStealDay >= currentDay) {
                     player.displayClientMessage(Component.translatable("message.stealing.already_stolen_today"), true);
-                    player.displayClientMessage(Component.literal("§7Versuche es morgen nochmal."), true);
+                    player.displayClientMessage(Component.translatable("message.stealing.try_tomorrow"), true);
                     event.setCanceled(true);
                     return;
                 }
@@ -73,7 +73,7 @@ public class NPCStealingHandler {
             if (player instanceof ServerPlayer serverPlayer) {
                 NetworkHooks.openScreen(serverPlayer, new SimpleMenuProvider(
                     (id, playerInventory, p) -> new StealingMenu(id, playerInventory, npc),
-                    Component.literal("§cBestehle " + npc.getNpcName())
+                    Component.translatable("message.stealing.attempt_npc", npc.getNpcName())
                 ), buf -> {
                     buf.writeInt(npc.getId());
                     buf.writeInt(npc.getNpcData().getWallet()); // Sende Wallet-Betrag zum Client

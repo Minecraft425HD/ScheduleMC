@@ -68,7 +68,7 @@ public class PrisonScreen extends Screen {
         } else {
             if (minecraft != null && minecraft.player != null) {
                 minecraft.player.displayClientMessage(
-                    Component.literal("§c⛓ Du kannst nicht entkommen! Warte ab oder zahle Kaution."),
+                    Component.translatable("message.prison.cannot_escape"),
                     true
                 );
             }

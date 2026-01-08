@@ -98,7 +98,7 @@ public class ShopInvestCommand {
             ShopAccount shop = ShopAccountManager.getAccount(shopId);
 
             if (shop == null) {
-                ctx.getSource().sendFailure(Component.literal("§cShop '§e" + shopId + "§c' nicht gefunden!"));
+                ctx.getSource().sendFailure(Component.translatable("message.shop.not_found", shopId));
                 return 0;
             }
 
@@ -138,7 +138,7 @@ public class ShopInvestCommand {
 
             ShopAccount shop = ShopAccountManager.getAccount(shopId);
             if (shop == null) {
-                ctx.getSource().sendFailure(Component.literal("§cShop '§e" + shopId + "§c' nicht gefunden!"));
+                ctx.getSource().sendFailure(Component.translatable("message.shop.not_found", shopId));
                 return 0;
             }
 
@@ -199,7 +199,7 @@ public class ShopInvestCommand {
 
             ShopAccount shop = ShopAccountManager.getAccount(shopId);
             if (shop == null) {
-                ctx.getSource().sendFailure(Component.literal("§cShop '§e" + shopId + "§c' nicht gefunden!"));
+                ctx.getSource().sendFailure(Component.translatable("message.shop.not_found", shopId));
                 return 0;
             }
 
@@ -217,7 +217,7 @@ public class ShopInvestCommand {
                 ), false);
                 return 1;
             } else {
-                ctx.getSource().sendFailure(Component.literal("§cDu besitzt keine Anteile an diesem Shop!"));
+                ctx.getSource().sendFailure(Component.translatable("message.shop.no_shares"));
                 return 0;
             }
         } catch (Exception e) {

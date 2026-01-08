@@ -232,7 +232,7 @@ public class StealingAttemptPacket {
                             if (policePresent) {
                                 player.sendSystemMessage(Component.literal("§c⚠ POLIZEI hat dich gesehen!"));
                             } else {
-                                player.sendSystemMessage(Component.literal("§c⚠ Du wurdest beim Stehlen gesehen!"));
+                                player.sendSystemMessage(Component.translatable("message.stealing.caught"));
                             }
                             player.sendSystemMessage(Component.literal("§c" + stars + " Fahndungsstufe: " + currentWantedLevel));
 
