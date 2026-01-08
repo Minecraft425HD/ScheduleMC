@@ -63,7 +63,7 @@ public class CuringGlasBlock extends BaseEntityBlock {
                 if (!player.isCreative()) {
                     heldItem.shrink(1);
                 }
-                player.displayClientMessage(Component.literal("§a🫙 Blüten zum Curing eingelegt"), true);
+                player.displayClientMessage(Component.translatable("block.curing_glas.buds_added"), true);
                 return InteractionResult.CONSUME;
             }
         }
@@ -75,11 +75,11 @@ public class CuringGlasBlock extends BaseEntityBlock {
                 if (!cured.isEmpty()) {
                     player.addItem(cured);
                     if (glas.isOptimallyCured()) {
-                        player.displayClientMessage(Component.literal("§6🫙 ★ Perfekt gecurte Blüten entnommen!"), true);
+                        player.displayClientMessage(Component.translatable("block.curing_glas.perfect_buds"), true);
                     } else if (glas.isReadyForExtraction()) {
-                        player.displayClientMessage(Component.literal("§a🫙 Gecurte Blüten entnommen"), true);
+                        player.displayClientMessage(Component.translatable("block.curing_glas.cured_buds"), true);
                     } else {
-                        player.displayClientMessage(Component.literal("§e🫙 Blüten vorzeitig entnommen (Curing nicht abgeschlossen)"), true);
+                        player.displayClientMessage(Component.translatable("block.curing_glas.early_removal"), true);
                     }
                     return InteractionResult.CONSUME;
                 }
