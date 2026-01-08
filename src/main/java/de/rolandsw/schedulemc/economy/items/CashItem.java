@@ -185,10 +185,10 @@ public class CashItem extends Item {
         double value = getValue(stack);
         
         tooltip.add(Component.literal("§7Guthaben: §a" + String.format("%.2f€", value)));
-        tooltip.add(Component.literal("§7Kapazität: §aUnlimitiert"));
+        tooltip.add(Component.translatable("tooltip.cash.capacity_unlimited"));
         tooltip.add(Component.literal(""));
         tooltip.add(Component.literal("§c§lGESPERRT IN SLOT 9!"));
-        tooltip.add(Component.literal("§8Überlebt den Tod"));
+        tooltip.add(Component.translatable("tooltip.cash.survives_death"));
         tooltip.add(Component.literal(""));
         tooltip.add(Component.literal("§7Rechtsklick: §e+100€ zum Block"));
         tooltip.add(Component.literal("§7Linksklick halten: §eGesamten Block"));
@@ -198,9 +198,9 @@ public class CashItem extends Item {
     public Component getName(ItemStack stack) {
         double value = getValue(stack);
         if (value <= 0) {
-            return Component.literal("§7Geldbörse (Leer)");
+            return Component.translatable("tooltip.cash.wallet_empty");
         } else {
-            return Component.literal("§aGeldbörse §7(§e" + String.format("%.0f€", value) + "§7)");
+            return Component.translatable("tooltip.cash.wallet_filled", String.format("%.0f€", value));
         }
     }
     
