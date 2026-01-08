@@ -1760,6 +1760,7 @@
   "block.oil_extractor.solvent_needed": "§c⚠ Lösungsmittel benötigt",
   "block.oil_extractor.min_material": "§c⚠ Mindestens 10g Material benötigt",
   "block.oil_extractor.empty": "§8Öl-Extraktor ist leer",
+  "block.oil_extractor.shift_to_start": "§8[Shift+Rechtsklick zum Starten]",
 
   "block.trocknungsnetz.buds_added": "§a🌿 Blüten zum Trocknen aufgehängt (Slot %d)",
   "block.trocknungsnetz.full": "§c✗ Trocknungsnetz ist voll!",

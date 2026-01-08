@@ -1765,6 +1765,7 @@
   "block.oil_extractor.solvent_needed": "§c⚠ Solvent needed",
   "block.oil_extractor.min_material": "§c⚠ At least 10g material required",
   "block.oil_extractor.empty": "§8Oil extractor is empty",
+  "block.oil_extractor.shift_to_start": "§8[Shift+Right-click to start]",
 
   "block.trocknungsnetz.buds_added": "§a🌿 Buds hung for drying (Slot %d)",
   "block.trocknungsnetz.full": "§c✗ Drying rack is full!",

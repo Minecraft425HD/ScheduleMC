@@ -100,18 +100,20 @@ public class CuringGlasBlock extends BaseEntityBlock {
                 statusIcon = "§e⏳";
             }
 
-            player.displayClientMessage(Component.literal(
-                    statusIcon + " §7Curing: §f" + days + " Tage §7| Qualität: " + qualityStr
-            ), true);
+            player.displayClientMessage(Component.literal(statusIcon)
+                    .append(Component.translatable("block.curing_glas.status_curing"))
+                    .append(Component.literal(days + ""))
+                    .append(Component.translatable("block.curing_glas.status_days"))
+                    .append(Component.literal(qualityStr)), true);
 
             if (!glas.isReadyForExtraction()) {
                 int daysLeft = 14 - days;
-                player.displayClientMessage(Component.literal(
-                        "§8Noch " + daysLeft + " Tage bis Minimum"
-                ), false);
+                player.displayClientMessage(Component.translatable("block.curing_glas.days_left")
+                        .append(Component.literal(daysLeft + ""))
+                        .append(Component.translatable("block.curing_glas.days_until_min")), false);
             }
         } else {
-            player.displayClientMessage(Component.literal("§8Curing-Glas ist leer"), true);
+            player.displayClientMessage(Component.translatable("block.curing_glas.empty"), true);
         }
 
         return InteractionResult.SUCCESS;

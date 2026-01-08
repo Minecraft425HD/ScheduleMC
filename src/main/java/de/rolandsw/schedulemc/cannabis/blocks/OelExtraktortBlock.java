@@ -112,15 +112,18 @@ public class OelExtraktortBlock extends BaseEntityBlock {
                     Component.translatable("block.oil_extractor.extracting_percent", progress)
             ), true);
         } else if (extraktor.getMaterialWeight() > 0) {
-            String type = extraktor.isFromBuds() ? "Blüten" : "Trim";
-            player.displayClientMessage(Component.literal(
-                    "§7" + type + ": §f" + extraktor.getMaterialWeight() + "g §7| Lösungsmittel: §f" + extraktor.getSolventCount()
-            ), true);
-            player.displayClientMessage(Component.literal(
-                    "§7Erwartetes Öl: §f" + extraktor.getExpectedOilAmount() + "ml"
-            ), false);
+            String typeKey = extraktor.isFromBuds() ? "block.oil_extractor.buds_label" : "block.oil_extractor.trim_label";
+            player.displayClientMessage(Component.translatable("block.oil_extractor.status")
+                    .append(Component.translatable(typeKey))
+                    .append(Component.translatable("block.oil_extractor.status_separator"))
+                    .append(Component.literal(extraktor.getMaterialWeight() + ""))
+                    .append(Component.translatable("block.oil_extractor.status_grams"))
+                    .append(Component.literal(extraktor.getSolventCount() + "")), true);
+            player.displayClientMessage(Component.translatable("block.oil_extractor.expected_oil")
+                    .append(Component.literal(extraktor.getExpectedOilAmount() + ""))
+                    .append(Component.translatable("block.oil_extractor.expected_ml")), false);
             if (extraktor.canStart()) {
-                player.displayClientMessage(Component.literal("§8[Shift+Rechtsklick zum Starten]"), false);
+                player.displayClientMessage(Component.translatable("block.oil_extractor.shift_to_start"), false);
             } else if (extraktor.getSolventCount() < 1) {
                 player.displayClientMessage(Component.translatable("block.oil_extractor.solvent_needed"), false);
             } else {
