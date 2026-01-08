@@ -28,10 +28,10 @@ public class PoppySeedItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.literal("§7Sorte: " + poppyType.getColoredName()));
-        tooltip.add(Component.literal("§7Wachstumszeit: §e" + (poppyType.getGrowthTicks() / 20) + "s"));
-        tooltip.add(Component.literal("§7Potenz: §c" + String.format("%.0f%%", poppyType.getPotencyMultiplier() * 100)));
+        tooltip.add(Component.translatable("tooltip.poppy.type_label").append(poppyType.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.poppy_seed.growth_time", (poppyType.getGrowthTicks() / 20)));
+        tooltip.add(Component.translatable("tooltip.poppy.potency_label").append(Component.literal("§c" + String.format("%.0f%%", poppyType.getPotencyMultiplier() * 100))));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§8In einen Topf mit Erde pflanzen"));
+        tooltip.add(Component.translatable("tooltip.poppy_seed.plant_in_pot"));
     }
 }

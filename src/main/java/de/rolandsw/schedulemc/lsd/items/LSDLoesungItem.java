@@ -71,14 +71,14 @@ public class LSDLoesungItem extends Item {
         int micrograms = getMicrograms(stack);
         int charges = getCharges(stack);
 
-        tooltip.add(Component.literal("§7Dosierung: " + dosage.getColoredName()));
-        tooltip.add(Component.literal("§7Konzentration: §f" + micrograms + "μg/Tropfen"));
-        tooltip.add(Component.literal("§7Ladungen: §e" + charges + " Blotter"));
+        tooltip.add(Component.translatable("tooltip.lsd.dosage_label").append(dosage.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.lsd_loesung.concentration").append(Component.literal("§f" + micrograms + "μg/Tropfen")));
+        tooltip.add(Component.translatable("tooltip.lsd_loesung.charges").append(Component.literal("§e" + charges + " Blotter")));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§dKlare Flüssigkeit in Flasche"));
-        tooltip.add(Component.literal("§8Nächster Schritt: Perforations-Presse"));
+        tooltip.add(Component.translatable("tooltip.lsd_loesung.clear_liquid"));
+        tooltip.add(Component.translatable("tooltip.lsd_loesung.next_press"));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§c⚠ Lichtempfindlich! Im Dunkeln lagern!"));
+        tooltip.add(Component.translatable("tooltip.lsd_loesung.light_sensitive"));
     }
 
     @Override

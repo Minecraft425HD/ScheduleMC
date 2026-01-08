@@ -20,10 +20,10 @@ public class BlotterPapierItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.literal("§7Saugfähiges Spezialpapier"));
+        tooltip.add(Component.translatable("tooltip.blotter_papier.absorbent_paper"));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§fWeißes, perforiertes Papier"));
-        tooltip.add(Component.literal("§8Bereit für LSD-Lösung"));
-        tooltip.add(Component.literal("§8Verwendung: Perforations-Presse"));
+        tooltip.add(Component.translatable("tooltip.blotter_papier.white_perforated"));
+        tooltip.add(Component.translatable("tooltip.blotter_papier.ready_for_lsd"));
+        tooltip.add(Component.translatable("tooltip.blotter_papier.use_press"));
     }
 }

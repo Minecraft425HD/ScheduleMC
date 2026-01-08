@@ -78,18 +78,18 @@ public class BlotterItem extends Item {
         int micrograms = getMicrograms(stack);
         BlotterDesign design = getDesign(stack);
 
-        tooltip.add(Component.literal("§7Dosierung: " + dosage.getColoredName()));
-        tooltip.add(Component.literal("§7Stärke: §f" + micrograms + "μg"));
-        tooltip.add(Component.literal("§7Design: " + design.getColoredName() + " " + design.getSymbol()));
+        tooltip.add(Component.translatable("tooltip.lsd.dosage_label").append(dosage.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.lsd.strength_label").append(Component.literal("§f" + micrograms + "μg")));
+        tooltip.add(Component.translatable("tooltip.lsd.design_label").append(Component.literal(design.getColoredName() + " " + design.getSymbol())));
         tooltip.add(Component.literal(""));
         tooltip.add(Component.literal("§d" + dosage.getDescription()));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§fKleines Papierstück mit Motiv"));
-        tooltip.add(Component.literal("§8Kann konsumiert oder verkauft werden"));
+        tooltip.add(Component.translatable("tooltip.blotter.paper_with_design"));
+        tooltip.add(Component.translatable("tooltip.blotter.can_consume_sell"));
 
         if (dosage == LSDDosage.BICYCLE_DAY) {
             tooltip.add(Component.literal(""));
-            tooltip.add(Component.literal("§5\"19. April 1943 - Dr. Albert Hofmann\""));
+            tooltip.add(Component.translatable("tooltip.blotter.bicycle_day"));
         }
     }
 

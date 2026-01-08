@@ -41,10 +41,10 @@ public class FarbstoffItem extends Item {
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
         PillColor color = getColor(stack);
-        tooltip.add(Component.literal("§7Farbe: " + color.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.farbstoff.color_label").append(color.getColoredName()));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal(color.getColorCode() + "Lebensmittelfarbe"));
-        tooltip.add(Component.literal("§8Verwendung: Pillen-Presse"));
+        tooltip.add(Component.literal(color.getColorCode()).append(Component.translatable("tooltip.farbstoff.food_dye")));
+        tooltip.add(Component.translatable("tooltip.farbstoff.use_press"));
     }
 
     @Override

@@ -20,12 +20,12 @@ public class LysergsaeureItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.literal("§7Reine Lysergsäure"));
+        tooltip.add(Component.translatable("tooltip.lysergsaeure.pure_lysergic"));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§fKristallines weißes Pulver"));
-        tooltip.add(Component.literal("§8Hochkonzentriert"));
-        tooltip.add(Component.literal("§8Nächster Schritt: Mikro-Dosierer"));
+        tooltip.add(Component.translatable("tooltip.lysergsaeure.white_powder"));
+        tooltip.add(Component.translatable("tooltip.lysergsaeure.highly_concentrated"));
+        tooltip.add(Component.translatable("tooltip.lysergsaeure.next_microdosing"));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§c⚠ Lichtempfindlich!"));
+        tooltip.add(Component.translatable("tooltip.lysergsaeure.light_sensitive"));
     }
 }
