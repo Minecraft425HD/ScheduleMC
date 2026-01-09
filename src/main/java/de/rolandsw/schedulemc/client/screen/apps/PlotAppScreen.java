@@ -209,7 +209,11 @@ public class PlotAppScreen extends Screen {
 
         // Plot-Name
         if (y >= startY - 15 && y < endY) {
-            guiGraphics.drawString(this.font, "§6§l" + currentPlot.getPlotName(), leftPos + 15, y, 0xFFAA00);
+            String plotName = currentPlot.getPlotName();
+            if (plotName == null || plotName.isEmpty()) {
+                plotName = Component.translatable("plot.unnamed").getString();
+            }
+            guiGraphics.drawString(this.font, "§6§l" + plotName, leftPos + 15, y, 0xFFAA00);
         }
         y += 15;
         contentHeight += 15;
@@ -350,7 +354,11 @@ public class PlotAppScreen extends Screen {
                 guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 35, 0x44333333);
 
                 // Name
-                guiGraphics.drawString(this.font, "§f" + plot.getPlotName(), leftPos + 15, y + 3, 0xFFFFFF);
+                String plotName = plot.getPlotName();
+                if (plotName == null || plotName.isEmpty()) {
+                    plotName = Component.translatable("plot.unnamed").getString();
+                }
+                guiGraphics.drawString(this.font, "§f" + plotName, leftPos + 15, y + 3, 0xFFFFFF);
 
                 // Status & Preis
                 String status;
@@ -407,7 +415,11 @@ public class PlotAppScreen extends Screen {
                 guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 45, 0x44333333);
 
                 // Name
-                guiGraphics.drawString(this.font, "§6§l" + plot.getPlotName(), leftPos + 15, y + 3, 0xFFAA00);
+                String plotName = plot.getPlotName();
+                if (plotName == null || plotName.isEmpty()) {
+                    plotName = Component.translatable("plot.unnamed").getString();
+                }
+                guiGraphics.drawString(this.font, "§6§l" + plotName, leftPos + 15, y + 3, 0xFFAA00);
 
                 // Utility-Verbrauch
                 Optional<PlotUtilityData> dataOpt = PlotUtilityManager.getPlotData(plot.getPlotId());
@@ -543,7 +555,11 @@ public class PlotAppScreen extends Screen {
 
                     if (y >= startY - 30 && y < endY) {
                         guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 25, 0x33333333);
-                        guiGraphics.drawString(this.font, "§7" + plot.getPlotName(), leftPos + 15, y + 3, 0xAAAAAA);
+                        String plotName = plot.getPlotName();
+                        if (plotName == null || plotName.isEmpty()) {
+                            plotName = Component.translatable("plot.unnamed").getString();
+                        }
+                        guiGraphics.drawString(this.font, "§7" + plotName, leftPos + 15, y + 3, 0xAAAAAA);
                         guiGraphics.drawString(this.font, String.format("§e%.2f€", cost), leftPos + 140, y + 3, 0xFFAA00);
                         guiGraphics.drawString(this.font, Component.translatable("ui.plot.utility_display",
                             String.format("%.0f", elec),

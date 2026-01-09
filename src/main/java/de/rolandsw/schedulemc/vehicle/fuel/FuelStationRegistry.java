@@ -94,7 +94,9 @@ public class FuelStationRegistry {
 
         // Erstelle neue Zapfsäule
         UUID id = UUID.randomUUID();
-        String displayName = "Zapfsäule #" + (fuelStations.size() + 1);
+        String displayName = net.minecraft.network.chat.Component.translatable("fuel_station.numbered",
+            String.valueOf(fuelStations.size() + 1)
+        ).getString();
 
         FuelStationEntry entry = new FuelStationEntry(id, position, displayName);
         fuelStations.put(id, entry);
@@ -117,7 +119,8 @@ public class FuelStationRegistry {
      */
     public static String getDisplayName(UUID id) {
         FuelStationEntry entry = fuelStations.get(id);
-        return entry != null ? entry.displayName : "Unbekannte Zapfsäule";
+        return entry != null ? entry.displayName :
+            net.minecraft.network.chat.Component.translatable("fuel_station.unknown").getString();
     }
 
     /**

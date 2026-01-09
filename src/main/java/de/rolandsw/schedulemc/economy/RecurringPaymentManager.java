@@ -280,7 +280,9 @@ public class RecurringPaymentManager extends AbstractPersistenceManager<Map<UUID
     @Override
     protected String getHealthDetails() {
         int totalPayments = payments.values().stream().mapToInt(List::size).sum();
-        return totalPayments + " Daueraufträge aktiv";
+        return Component.translatable("manager.recurring.health_details",
+            String.valueOf(totalPayments)
+        ).getString();
     }
 
     @Override

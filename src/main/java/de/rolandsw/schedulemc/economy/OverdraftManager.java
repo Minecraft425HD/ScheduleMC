@@ -199,26 +199,28 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
     /**
      * Gibt Info über Dispo
      */
-    public String getOverdraftInfo(UUID playerUUID) {
+    public Component getOverdraftInfo(UUID playerUUID) {
         double balance = EconomyManager.getBalance(playerUUID);
         double overdraft = getOverdraftAmount(balance);
         double maxLimit = ModConfigHandler.COMMON.OVERDRAFT_MAX_LIMIT.get();
         double interestRate = ModConfigHandler.COMMON.OVERDRAFT_INTEREST_RATE.get();
 
         if (overdraft == 0) {
-            return "§aDein Konto ist nicht überzogen.\n" +
-                "§7Dispo-Limit: §e" + String.format("%.2f€", Math.abs(maxLimit)) + "\n" +
-                "§7Überziehungszinsen: §c" + String.format("%.0f%%", interestRate * 100) + " pro Woche";
+            return Component.translatable("overdraft.info.healthy",
+                String.format("%.2f", Math.abs(maxLimit)),
+                String.format("%.0f", interestRate * 100)
+            );
         }
 
         double available = maxLimit - balance;
 
-        return "§c§lKONTO ÜBERZOGEN!\n" +
-            "§7Kontostand: §c" + String.format("%.2f€", balance) + "\n" +
-            "§7Überzogen um: §c" + String.format("%.2f€", overdraft) + "\n" +
-            "§7Verfügbar bis Limit: §e" + String.format("%.2f€", available) + "\n" +
-            "§7Dispo-Limit: §c" + String.format("%.2f€", maxLimit) + "\n" +
-            "§7Überziehungszinsen: §c" + String.format("%.0f%%", interestRate * 100) + " pro Woche";
+        return Component.translatable("overdraft.info.overdrawn",
+            String.format("%.2f", balance),
+            String.format("%.2f", overdraft),
+            String.format("%.2f", available),
+            String.format("%.2f", maxLimit),
+            String.format("%.0f", interestRate * 100)
+        );
     }
 
     // ========== AbstractPersistenceManager Implementation ==========
@@ -269,7 +271,9 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
 
     @Override
     protected String getHealthDetails() {
-        return lastWarningDay.size() + " Spieler mit Überziehung";
+        return Component.translatable("manager.overdraft.health_details",
+            String.valueOf(lastWarningDay.size())
+        ).getString();
     }
 
     @Override

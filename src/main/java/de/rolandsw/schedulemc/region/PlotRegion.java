@@ -92,7 +92,7 @@ public class PlotRegion {
 
         // ID & Namen - VERWENDE die übergebene plotId!
         this.plotId = plotId;
-        this.plotName = "Unbenannter Plot";
+        this.plotName = ""; // Empty by default, will use translation key "plot.unnamed" in display
         this.description = "";
 
         // Collections initialisieren
@@ -145,9 +145,10 @@ public class PlotRegion {
     
     /**
      * Gibt den Namen des Besitzers zurück
+     * Gibt null zurück wenn kein Besitzer gesetzt ist
      */
     public String getOwnerName() {
-        return ownerName != null ? ownerName : "Niemand";
+        return ownerName;
     }
     
     /**
@@ -184,8 +185,8 @@ public class PlotRegion {
     public void setPlotId(String id) { this.plotId = id; }
     
     public String getPlotName() { return plotName; }
-    public void setPlotName(String name) { 
-        this.plotName = name != null && !name.isEmpty() ? name : "Unbenannter Plot"; 
+    public void setPlotName(String name) {
+        this.plotName = name != null ? name : "";
     }
     
     public String getDescription() { return description != null ? description : ""; }

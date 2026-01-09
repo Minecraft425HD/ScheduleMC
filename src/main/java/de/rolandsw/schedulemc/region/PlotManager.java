@@ -9,6 +9,7 @@ import de.rolandsw.schedulemc.util.BackupManager;
 import de.rolandsw.schedulemc.util.IncrementalSaveManager;
 import de.rolandsw.schedulemc.util.InputValidation;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -671,11 +672,14 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
     public static String getHealthInfo() {
         if (isHealthy) {
             PlotCache.CacheStatistics cacheStats = plotCache.getStatistics();
-            return String.format("§aGESUND§r - %d Plots, %d Backups, Cache: %.1f%% Hit-Rate",
-                plots.size(), BackupManager.getBackupCount(PLOTS_FILE), cacheStats.hitRate);
+            return Component.translatable("health.plot_manager.healthy",
+                plots.size(),
+                BackupManager.getBackupCount(PLOTS_FILE),
+                String.format("%.1f", cacheStats.hitRate)).getString();
         } else {
-            return String.format("§cUNGESUND§r - Letzter Fehler: %s, %d Plots geladen",
-                lastError != null ? lastError : "Unknown", plots.size());
+            return Component.translatable("health.plot_manager.unhealthy",
+                lastError != null ? lastError : "Unknown",
+                plots.size()).getString();
         }
     }
 

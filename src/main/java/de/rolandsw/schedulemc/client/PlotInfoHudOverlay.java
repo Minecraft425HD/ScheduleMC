@@ -101,6 +101,9 @@ public class PlotInfoHudOverlay {
 
         // === PLOT-NAME (Titel) ===
         String plotName = plot.getPlotName();
+        if (plotName == null || plotName.isEmpty()) {
+            plotName = net.minecraft.network.chat.Component.translatable("plot.unnamed").getString();
+        }
         gui.pose().pushPose();
         gui.pose().scale(SCALE * 1.1f, SCALE * 1.1f, 1.0f);
         gui.drawString(mc.font, "§6§l" + plotName,
@@ -115,11 +118,11 @@ public class PlotInfoHudOverlay {
         }
 
         // === BESITZER ===
-        String ownerName = plot.getOwnerName();
-        if (ownerName == null || ownerName.equals("Niemand")) {
+        if (!plot.hasOwner()) {
             drawLine(gui, mc, net.minecraft.network.chat.Component.translatable("hud.plot.owner_none").getString(), currentY);
         } else {
-            drawLine(gui, mc, net.minecraft.network.chat.Component.translatable("hud.plot.owner", ownerName).getString(), currentY);
+            String ownerName = plot.getOwnerName();
+            drawLine(gui, mc, net.minecraft.network.chat.Component.translatable("hud.plot.owner", ownerName != null ? ownerName : net.minecraft.network.chat.Component.translatable("plot.no_owner").getString()).getString(), currentY);
         }
         currentY += LINE_HEIGHT;
 

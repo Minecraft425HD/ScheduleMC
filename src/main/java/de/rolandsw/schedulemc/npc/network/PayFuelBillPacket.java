@@ -46,7 +46,7 @@ public class PayFuelBillPacket {
             double balance = WalletManager.getBalance(playerUUID);
             if (balance < totalAmount) {
                 player.sendSystemMessage(Component.literal("⚠ ").withStyle(ChatFormatting.RED)
-                    .append(Component.literal("Nicht genug Geld!").withStyle(ChatFormatting.RED)));
+                    .append(Component.translatable("network.fuel_bill.insufficient_funds").withStyle(ChatFormatting.RED)));
                 player.sendSystemMessage(Component.translatable("message.bank.required").withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(String.format("%.2f€", totalAmount)).withStyle(ChatFormatting.RED))
                     .append(Component.translatable("message.stock.available_separator").withStyle(ChatFormatting.GRAY))

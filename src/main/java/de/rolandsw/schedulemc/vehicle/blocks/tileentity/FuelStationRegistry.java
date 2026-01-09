@@ -165,9 +165,11 @@ public class FuelStationRegistry {
     public static String getDisplayName(UUID id) {
         BlockPos pos = fuelStations.get(id);
         if (pos == null) {
-            return "Unbekannte Zapfsäule";
+            return net.minecraft.network.chat.Component.translatable("fuel_station.unknown").getString();
         }
-        return "Zapfsäule " + pos.toShortString();
+        return net.minecraft.network.chat.Component.translatable("fuel_station.display_name",
+            pos.toShortString()
+        ).getString();
     }
 
     // Hilfsmethoden für Position-Konvertierung

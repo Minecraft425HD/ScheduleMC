@@ -274,8 +274,13 @@ public class PlotCommand {
                 plot.setOwner(newOwner.getUUID(), newOwner.getName().getString());
                 PlotManager.markDirty();
 
+                String plotName = plot.getPlotName();
+                if (plotName == null || plotName.isEmpty()) {
+                    plotName = Component.translatable("plot.unnamed").getString();
+                }
+                final String finalPlotName = plotName;
                 ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.setowner.success",
-                    plot.getPlotName(), newOwner.getName().getString()
+                    finalPlotName, newOwner.getName().getString()
                 ), true);
             });
     }
@@ -333,9 +338,13 @@ public class PlotCommand {
         player.getInventory().add(infoBlock);
 
         String plotName = plot.getPlotName();
+        if (plotName == null || plotName.isEmpty()) {
+            plotName = Component.translatable("plot.unnamed").getString();
+        }
+        final String finalPlotName = plotName;
         final double finalPrice = price;
         ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.buy.success",
-            plotName, String.format("%.2f", finalPrice), String.format("%.2f", EconomyManager.getBalance(player.getUUID()))
+            finalPlotName, String.format("%.2f", finalPrice), String.format("%.2f", EconomyManager.getBalance(player.getUUID()))
         ), false);
 
         return 1;
@@ -356,7 +365,13 @@ public class PlotCommand {
             Component price = plot.hasOwner() && plot.isForSale() ?
                 Component.translatable("command.plot.list.for_sale", String.format("%.2f", plot.getSalePrice())) : Component.literal("");
 
-            ctx.getSource().sendSuccess(() -> status.copy().append(" §e" + plot.getPlotName() +
+            String plotName = plot.getPlotName();
+            if (plotName == null || plotName.isEmpty()) {
+                plotName = Component.translatable("plot.unnamed").getString();
+            }
+            final String finalPlotName = plotName;
+
+            ctx.getSource().sendSuccess(() -> status.copy().append(" §e" + finalPlotName +
                 " §7(§f" + plot.getVolume() + " ").append(Component.translatable("command.plot.list.blocks")).append("§7)").append(price)
             , false);
         }
@@ -374,8 +389,9 @@ public class PlotCommand {
                     return;
                 }
 
+                String ownerName = plot.hasOwner() && plot.getOwnerName() != null ? plot.getOwnerName() : Component.translatable("plot.no_owner").getString();
                 Component ownerInfo = plot.hasOwner() ?
-                    Component.translatable("command.plot.info.owner", plot.getOwnerName()) :
+                    Component.translatable("command.plot.info.owner", ownerName) :
                     Component.translatable("command.plot.info.for_sale");
 
                 Component priceInfo = plot.hasOwner() ?
@@ -388,8 +404,14 @@ public class PlotCommand {
                 Component description = plot.getDescription() != null && !plot.getDescription().isEmpty() ?
                     Component.literal("\n").append(Component.translatable("command.plot.info.description", plot.getDescription())) : Component.literal("");
 
+                String plotName = plot.getPlotName();
+                if (plotName == null || plotName.isEmpty()) {
+                    plotName = Component.translatable("plot.unnamed").getString();
+                }
+                final String finalPlotName = plotName;
+
                 ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.info.header")
-                    .append("\n").append(Component.translatable("command.plot.info.name", plot.getPlotName()))
+                    .append("\n").append(Component.translatable("command.plot.info.name", finalPlotName))
                     .append("\n").append(Component.translatable("command.plot.info.id", plot.getPlotId()))
                     .append("\n").append(ownerInfo)
                     .append("\n").append(priceInfo)
@@ -808,12 +830,16 @@ public class PlotCommand {
                 }
 
                 String plotName = plot.getPlotName();
+                if (plotName == null || plotName.isEmpty()) {
+                    plotName = Component.translatable("plot.unnamed").getString();
+                }
+                final String finalPlotName = plotName;
                 String plotId = plot.getPlotId();
 
                 PlotManager.removePlot(plotId);
 
                 ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.remove.success",
-                    plotId, plotName
+                    plotId, finalPlotName
                 ), true);
             });
     }
@@ -833,9 +859,16 @@ public class PlotCommand {
                 BlockPos pos = player.blockPosition();
                 PlotRegion plot = PlotManager.getPlotAt(pos);
 
-                Component plotInfo = plot != null ?
-                    Component.translatable("command.plot.debug.plot_found", plot.getPlotId(), plot.getPlotName()) :
-                    Component.translatable("command.plot.debug.no_plot");
+                Component plotInfo;
+                if (plot != null) {
+                    String plotName = plot.getPlotName();
+                    if (plotName == null || plotName.isEmpty()) {
+                        plotName = Component.translatable("plot.unnamed").getString();
+                    }
+                    plotInfo = Component.translatable("command.plot.debug.plot_found", plot.getPlotId(), plotName);
+                } else {
+                    plotInfo = Component.translatable("command.plot.debug.no_plot");
+                }
 
                 ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.debug.header")
                     .append("\n").append(Component.translatable("command.plot.debug.position", pos.getX(), pos.getY(), pos.getZ()))
@@ -994,7 +1027,13 @@ public class PlotCommand {
                     return;
                 }
 
-                ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.apartment.list.header", plot.getPlotName()), false);
+                String plotName = plot.getPlotName();
+                if (plotName == null || plotName.isEmpty()) {
+                    plotName = Component.translatable("plot.unnamed").getString();
+                }
+                final String finalPlotName = plotName;
+
+                ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.apartment.list.header", finalPlotName), false);
 
                 for (de.rolandsw.schedulemc.region.PlotArea apt : apartments) {
                     ctx.getSource().sendSuccess(() -> Component.literal("\n§e" + apt.getName() + " §7(§e" + apt.getId() + "§7)"), false);

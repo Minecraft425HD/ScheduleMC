@@ -6,6 +6,7 @@ import de.rolandsw.schedulemc.economy.WalletManager;
 import de.rolandsw.schedulemc.managers.DailyRewardManager;
 import de.rolandsw.schedulemc.messaging.MessageManager;
 import de.rolandsw.schedulemc.region.PlotManager;
+import net.minecraft.network.chat.Component;
 import org.slf4j.Logger;
 
 import java.util.*;
@@ -24,18 +25,18 @@ public class HealthCheckManager {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public enum SystemHealth {
-        HEALTHY("§aGESUND§r"),
-        DEGRADED("§eEINGESCHRÄNKT§r"),
-        UNHEALTHY("§cUNGESUND§r");
+        HEALTHY("health.status.healthy"),
+        DEGRADED("health.status.degraded"),
+        UNHEALTHY("health.status.unhealthy");
 
-        private final String displayName;
+        private final String translationKey;
 
-        SystemHealth(String displayName) {
-            this.displayName = displayName;
+        SystemHealth(String translationKey) {
+            this.translationKey = translationKey;
         }
 
         public String getDisplayName() {
-            return displayName;
+            return Component.translatable(translationKey).getString();
         }
     }
 

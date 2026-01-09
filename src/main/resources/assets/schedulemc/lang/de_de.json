@@ -4185,7 +4185,6 @@
   "npc.reputation.low": "Niedrig",
   "npc.reputation.neutral": "Neutral",
   "npc.reputation.high": "Hoch",
-
   "enum.achievement_category.economy": "Wirtschaft",
   "enum.achievement_category.crime": "Verbrechen",
   "enum.achievement_category.production": "Produktion",
@@ -4196,20 +4195,17 @@
   "enum.achievement_category.desc.production": "Drogen und Waren produzieren",
   "enum.achievement_category.desc.social": "Plots und soziale Interaktionen",
   "enum.achievement_category.desc.exploration": "Die Welt erkunden",
-
   "enum.achievement_tier.bronze": "Bronze",
   "enum.achievement_tier.silver": "Silber",
   "enum.achievement_tier.gold": "Gold",
   "enum.achievement_tier.diamond": "Diamant",
   "enum.achievement_tier.platinum": "Platin",
-
   "enum.plot_type.residential": "Wohngebäude",
   "enum.plot_type.commercial": "Gewerbefläche",
   "enum.plot_type.shop": "Laden",
   "enum.plot_type.public": "Öffentlich",
   "enum.plot_type.government": "Regierung",
   "enum.plot_type.prison": "Gefängnis",
-
   "enum.blotter_design.totenkopf": "Totenkopf",
   "enum.blotter_design.sonne": "Sonne",
   "enum.blotter_design.auge": "Auge",
@@ -4218,7 +4214,6 @@
   "enum.blotter_design.mandala": "Mandala",
   "enum.blotter_design.blitz": "Blitz",
   "enum.blotter_design.stern": "Stern",
-
   "enum.pill_color.pink": "Pink",
   "enum.pill_color.blau": "Blau",
   "enum.pill_color.gruen": "Grün",
@@ -4227,7 +4222,6 @@
   "enum.pill_color.weiss": "Weiß",
   "enum.pill_color.rot": "Rot",
   "enum.pill_color.lila": "Lila",
-
   "enum.pill_design.tesla": "Tesla",
   "enum.pill_design.superman": "Superman",
   "enum.pill_design.totenkopf": "Totenkopf",
@@ -4236,28 +4230,22 @@
   "enum.pill_design.stern": "Stern",
   "enum.pill_design.peace": "Peace",
   "enum.pill_design.diamant": "Diamant",
-
   "enum.klimalampe_tier.small": "Klimalampe",
   "enum.klimalampe_tier.medium": "Auto-Klimalampe",
   "enum.klimalampe_tier.large": "Premium-Klimalampe",
-
   "enum.temperature_mode.off": "Aus",
   "enum.temperature_mode.cold": "Kalt",
   "enum.temperature_mode.warm": "Warm",
-
   "enum.bank_category.banker": "Banker",
   "enum.bank_category.boerse": "Börsenmakler",
   "enum.bank_category.kreditberater": "Kreditberater",
-
   "enum.npc_type.bewohner": "Bewohner",
   "enum.npc_type.verkaeufer": "Verkäufer",
   "enum.npc_type.polizei": "Polizei",
   "enum.npc_type.bank": "Bank",
-
   "enum.demand_level.low": "NIEDRIG",
   "enum.demand_level.medium": "MITTEL",
   "enum.demand_level.high": "HOCH",
-
   "enum.credit_loan_type.starter": "Starter-Kredit",
   "enum.credit_loan_type.standard": "Standard-Kredit",
   "enum.credit_loan_type.premium": "Premium-Kredit",
@@ -4266,7 +4254,6 @@
   "enum.credit_loan_type.desc.standard": "Für mittlere Investitionen",
   "enum.credit_loan_type.desc.premium": "Für größere Projekte",
   "enum.credit_loan_type.desc.vip": "Exklusiv für Top-Kunden",
-
   "enum.mdma_quality.schlecht": "Schlecht",
   "enum.mdma_quality.standard": "Standard",
   "enum.mdma_quality.gut": "Gut",
@@ -4275,18 +4262,68 @@
   "enum.mdma_quality.desc.standard": "Normale Qualität",
   "enum.mdma_quality.desc.gut": "Hohe Reinheit",
   "enum.mdma_quality.desc.premium": "Laborqualität",
-
   "enum.mist_bag_type.small": "Kleiner Mist-Sack",
   "enum.mist_bag_type.medium": "Mittlerer Mist-Sack",
   "enum.mist_bag_type.large": "Großer Mist-Sack",
-
   "enum.soil_bag_type.small": "Kleiner Erdsack",
   "enum.soil_bag_type.medium": "Mittlerer Erdsack",
   "enum.soil_bag_type.large": "Großer Erdsack",
-
   "ui.fees.title": "GEBÜHREN-ÜBERSICHT",
   "ui.fees.atm": "ATM-Gebühr: %s€",
   "ui.fees.transfer": "Transfer-Gebühr: %s%% (min. %s€)",
   "ui.plot.utility_display": "§8⚡%s kWh  💧%s L",
-  "manager.interest.weekly_interest": "Wöchentliche Zinsen (%s%%)"
+  "manager.interest.weekly_interest": "Wöchentliche Zinsen (%s%%)",
+  "plot.unnamed": "Unbenannter Plot",
+  "plot.no_owner": "Niemand",
+  "item.plot_selection_tool.size": "§7Größe: §e%s Blöcke",
+
+  "health.status.healthy": "§aGESUND§r",
+  "health.status.degraded": "§eEINGESCHRÄNKT§r",
+  "health.status.unhealthy": "§cUNGESUND§r",
+
+  "health.plot_manager.healthy": "§aGESUND§r - %s Plots, %s Backups, Cache: %s%% Hit-Rate",
+  "health.plot_manager.unhealthy": "§cUNGESUND§r - Letzter Fehler: %s, %s Plots geladen",
+
+  "health.persistence.healthy": "§aGESUND§r - %s, %s Backups verfügbar",
+  "health.persistence.unhealthy": "§cUNGESUND§r - Letzter Fehler: %s, %s",
+
+  "npc.dialog.resident.intro": "Hallo! Ich bin %s.",
+  "npc.dialog.resident.help": "Wie kann ich dir helfen?",
+  "npc.dialog.resident.goodbye": "Schönen Tag noch!",
+
+  "npc.dialog.merchant.welcome": "Willkommen bei %s!",
+  "npc.dialog.merchant.intro": "Ich bin %s, dein Händler.",
+  "npc.dialog.merchant.offer": "Was möchtest du kaufen oder verkaufen?",
+  "npc.dialog.merchant.thanks": "Danke für deinen Einkauf!",
+
+  "npc.dialog.police.intro": "Guten Tag. Polizei %s.",
+  "npc.dialog.police.help": "Kann ich Ihnen helfen?",
+  "npc.dialog.police.goodbye": "Bleiben Sie sicher!",
+
+  "npc.dialog.bank.welcome": "Willkommen bei der Bank!",
+  "npc.dialog.bank.intro": "Ich bin %s, Ihr %s.",
+  "npc.dialog.bank.help": "Wie kann ich Ihnen heute helfen?",
+  "npc.dialog.bank.thanks": "Vielen Dank für Ihr Vertrauen!",
+
+  "npc.dialog.fallback": "Hallo!",
+  "manager.interest.weekly_interest": "Wöchentliche Zinsen (%s%%)",
+
+  "overdraft.info.healthy": "§aDein Konto ist nicht überzogen.\n§7Dispo-Limit: §e%s€\n§7Überziehungszinsen: §c%s%% pro Woche",
+  "overdraft.info.overdrawn": "§c§lKONTO ÜBERZOGEN!\n§7Kontostand: §c%s€\n§7Überzogen um: §c%s€\n§7Verfügbar bis Limit: §e%s€\n§7Dispo-Limit: §c%s€\n§7Überziehungszinsen: §c%s%% pro Woche",
+  "manager.overdraft.health_details": "%s Spieler mit Überziehung",
+
+  "network.purchase.success": "§aGekauft: %sx %s für %s$",
+  "network.purchase.insufficient_funds": "§cNicht genug Geld! Du brauchst %s$ (aktuell: %s$)",
+
+  "network.shop_update.success": "§aShop erfolgreich aktualisiert! %s Items hinzugefügt.",
+
+  "network.fuel_bill.insufficient_funds": "Nicht genug Geld!",
+
+  "fuel_station.unknown": "Unbekannte Zapfsäule",
+  "fuel_station.display_name": "Zapfsäule %s",
+  "fuel_station.numbered": "Zapfsäule #%s",
+
+  "police.search.extended": "§e[Erweiterte Durchsuchung: %s weitere Blöcke]",
+
+  "manager.recurring.health_details": "%s Daueraufträge aktiv"
 }

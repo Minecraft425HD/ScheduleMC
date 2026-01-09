@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.util;
 
 import com.google.gson.Gson;
 import com.mojang.logging.LogUtils;
+import net.minecraft.network.chat.Component;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
@@ -203,11 +204,13 @@ public abstract class AbstractPersistenceManager<T> {
      */
     public String getHealthInfo() {
         if (isHealthy) {
-            return String.format("§aGESUND§r - %s, %d Backups verfügbar",
-                getHealthDetails(), BackupManager.getBackupCount(dataFile));
+            return Component.translatable("health.persistence.healthy",
+                getHealthDetails(),
+                BackupManager.getBackupCount(dataFile)).getString();
         } else {
-            return String.format("§cUNGESUND§r - Letzter Fehler: %s, %s",
-                lastError != null ? lastError : "Unknown", getHealthDetails());
+            return Component.translatable("health.persistence.unhealthy",
+                lastError != null ? lastError : "Unknown",
+                getHealthDetails()).getString();
         }
     }
 

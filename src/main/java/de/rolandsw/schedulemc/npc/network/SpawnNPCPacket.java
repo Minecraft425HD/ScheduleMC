@@ -149,32 +149,32 @@ public class SpawnNPCPacket {
     private static void setupDialogForType(NPCData data, String npcName, NPCType npcType, MerchantCategory merchantCategory, BankCategory bankCategory) {
         switch (npcType) {
             case BEWOHNER:
-                data.addDialogEntry(new NPCData.DialogEntry("Hallo! Ich bin " + npcName + ".", ""));
-                data.addDialogEntry(new NPCData.DialogEntry("Wie kann ich dir helfen?", ""));
-                data.addDialogEntry(new NPCData.DialogEntry("Schönen Tag noch!", ""));
+                data.addDialogEntry(new NPCData.DialogEntry(Component.translatable("npc.dialog.resident.intro", npcName).getString(), ""));
+                data.addDialogEntry(new NPCData.DialogEntry(Component.translatable("npc.dialog.resident.help").getString(), ""));
+                data.addDialogEntry(new NPCData.DialogEntry(Component.translatable("npc.dialog.resident.goodbye").getString(), ""));
                 break;
 
             case VERKAEUFER:
-                data.addDialogEntry(new NPCData.DialogEntry("Willkommen bei " + merchantCategory.getDisplayName() + "!", ""));
-                data.addDialogEntry(new NPCData.DialogEntry("Ich bin " + npcName + ", dein Händler.", ""));
-                data.addDialogEntry(new NPCData.DialogEntry("Was möchtest du kaufen oder verkaufen?", ""));
-                data.addDialogEntry(new NPCData.DialogEntry("Danke für deinen Einkauf!", ""));
+                data.addDialogEntry(new NPCData.DialogEntry(Component.translatable("npc.dialog.merchant.welcome", merchantCategory.getDisplayName()).getString(), ""));
+                data.addDialogEntry(new NPCData.DialogEntry(Component.translatable("npc.dialog.merchant.intro", npcName).getString(), ""));
+                data.addDialogEntry(new NPCData.DialogEntry(Component.translatable("npc.dialog.merchant.offer").getString(), ""));
+                data.addDialogEntry(new NPCData.DialogEntry(Component.translatable("npc.dialog.merchant.thanks").getString(), ""));
 
                 // Initialisiere Shop-Items basierend auf Kategorie
                 MerchantShopDefaults.setupShopItems(data, merchantCategory);
                 break;
 
             case POLIZEI:
-                data.addDialogEntry(new NPCData.DialogEntry("Guten Tag. Polizei " + npcName + ".", ""));
-                data.addDialogEntry(new NPCData.DialogEntry("Kann ich Ihnen helfen?", ""));
-                data.addDialogEntry(new NPCData.DialogEntry("Bleiben Sie sicher!", ""));
+                data.addDialogEntry(new NPCData.DialogEntry(Component.translatable("npc.dialog.police.intro", npcName).getString(), ""));
+                data.addDialogEntry(new NPCData.DialogEntry(Component.translatable("npc.dialog.police.help").getString(), ""));
+                data.addDialogEntry(new NPCData.DialogEntry(Component.translatable("npc.dialog.police.goodbye").getString(), ""));
                 break;
 
             case BANK:
-                data.addDialogEntry(new NPCData.DialogEntry("Willkommen bei der Bank!", ""));
-                data.addDialogEntry(new NPCData.DialogEntry("Ich bin " + npcName + ", Ihr " + bankCategory.getDisplayName() + ".", ""));
-                data.addDialogEntry(new NPCData.DialogEntry("Wie kann ich Ihnen heute helfen?", ""));
-                data.addDialogEntry(new NPCData.DialogEntry("Vielen Dank für Ihr Vertrauen!", ""));
+                data.addDialogEntry(new NPCData.DialogEntry(Component.translatable("npc.dialog.bank.welcome").getString(), ""));
+                data.addDialogEntry(new NPCData.DialogEntry(Component.translatable("npc.dialog.bank.intro", npcName, bankCategory.getDisplayName()).getString(), ""));
+                data.addDialogEntry(new NPCData.DialogEntry(Component.translatable("npc.dialog.bank.help").getString(), ""));
+                data.addDialogEntry(new NPCData.DialogEntry(Component.translatable("npc.dialog.bank.thanks").getString(), ""));
                 break;
         }
     }

@@ -5,6 +5,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
@@ -381,7 +382,7 @@ public class NPCData {
 
     public DialogEntry getCurrentDialog() {
         if (dialogEntries.isEmpty()) {
-            return new DialogEntry("Hallo!", "");
+            return new DialogEntry(Component.translatable("npc.dialog.fallback").getString(), "");
         }
         if (currentDialogIndex >= dialogEntries.size()) {
             currentDialogIndex = 0;

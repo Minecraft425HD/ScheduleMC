@@ -4185,7 +4185,6 @@
   "npc.reputation.low": "Low",
   "npc.reputation.neutral": "Neutral",
   "npc.reputation.high": "High",
-
   "enum.achievement_category.economy": "Economy",
   "enum.achievement_category.crime": "Crime",
   "enum.achievement_category.production": "Production",
@@ -4196,20 +4195,17 @@
   "enum.achievement_category.desc.production": "Produce drugs and goods",
   "enum.achievement_category.desc.social": "Plots and social interactions",
   "enum.achievement_category.desc.exploration": "Explore the world",
-
   "enum.achievement_tier.bronze": "Bronze",
   "enum.achievement_tier.silver": "Silver",
   "enum.achievement_tier.gold": "Gold",
   "enum.achievement_tier.diamond": "Diamond",
   "enum.achievement_tier.platinum": "Platinum",
-
   "enum.plot_type.residential": "Residential",
   "enum.plot_type.commercial": "Commercial",
   "enum.plot_type.shop": "Shop",
   "enum.plot_type.public": "Public",
   "enum.plot_type.government": "Government",
   "enum.plot_type.prison": "Prison",
-
   "enum.blotter_design.totenkopf": "Skull",
   "enum.blotter_design.sonne": "Sun",
   "enum.blotter_design.auge": "Eye",
@@ -4218,7 +4214,6 @@
   "enum.blotter_design.mandala": "Mandala",
   "enum.blotter_design.blitz": "Lightning",
   "enum.blotter_design.stern": "Star",
-
   "enum.pill_color.pink": "Pink",
   "enum.pill_color.blau": "Blue",
   "enum.pill_color.gruen": "Green",
@@ -4227,7 +4222,6 @@
   "enum.pill_color.weiss": "White",
   "enum.pill_color.rot": "Red",
   "enum.pill_color.lila": "Purple",
-
   "enum.pill_design.tesla": "Tesla",
   "enum.pill_design.superman": "Superman",
   "enum.pill_design.totenkopf": "Skull",
@@ -4236,28 +4230,22 @@
   "enum.pill_design.stern": "Star",
   "enum.pill_design.peace": "Peace",
   "enum.pill_design.diamant": "Diamond",
-
   "enum.klimalampe_tier.small": "Climate Lamp",
   "enum.klimalampe_tier.medium": "Auto Climate Lamp",
   "enum.klimalampe_tier.large": "Premium Climate Lamp",
-
   "enum.temperature_mode.off": "Off",
   "enum.temperature_mode.cold": "Cold",
   "enum.temperature_mode.warm": "Warm",
-
   "enum.bank_category.banker": "Banker",
   "enum.bank_category.boerse": "Stock Broker",
   "enum.bank_category.kreditberater": "Credit Advisor",
-
   "enum.npc_type.bewohner": "Resident",
   "enum.npc_type.verkaeufer": "Merchant",
   "enum.npc_type.polizei": "Police",
   "enum.npc_type.bank": "Bank",
-
   "enum.demand_level.low": "LOW",
   "enum.demand_level.medium": "MEDIUM",
   "enum.demand_level.high": "HIGH",
-
   "enum.credit_loan_type.starter": "Starter Loan",
   "enum.credit_loan_type.standard": "Standard Loan",
   "enum.credit_loan_type.premium": "Premium Loan",
@@ -4266,7 +4254,6 @@
   "enum.credit_loan_type.desc.standard": "For medium investments",
   "enum.credit_loan_type.desc.premium": "For larger projects",
   "enum.credit_loan_type.desc.vip": "Exclusive for top customers",
-
   "enum.mdma_quality.schlecht": "Poor",
   "enum.mdma_quality.standard": "Standard",
   "enum.mdma_quality.gut": "Good",
@@ -4275,18 +4262,68 @@
   "enum.mdma_quality.desc.standard": "Normal Quality",
   "enum.mdma_quality.desc.gut": "High Purity",
   "enum.mdma_quality.desc.premium": "Lab Quality",
-
   "enum.mist_bag_type.small": "Small Manure Bag",
   "enum.mist_bag_type.medium": "Medium Manure Bag",
   "enum.mist_bag_type.large": "Large Manure Bag",
-
   "enum.soil_bag_type.small": "Small Soil Bag",
   "enum.soil_bag_type.medium": "Medium Soil Bag",
   "enum.soil_bag_type.large": "Large Soil Bag",
-
   "ui.fees.title": "FEE OVERVIEW",
   "ui.fees.atm": "ATM Fee: %s€",
   "ui.fees.transfer": "Transfer Fee: %s%% (min. %s€)",
   "ui.plot.utility_display": "§8⚡%s kWh  💧%s L",
-  "manager.interest.weekly_interest": "Weekly Interest (%s%%)"
+  "manager.interest.weekly_interest": "Weekly Interest (%s%%)",
+  "plot.unnamed": "Unnamed Plot",
+  "plot.no_owner": "Nobody",
+  "item.plot_selection_tool.size": "§7Size: §e%s blocks",
+
+  "health.status.healthy": "§aHEALTHY§r",
+  "health.status.degraded": "§eDEGRADED§r",
+  "health.status.unhealthy": "§cUNHEALTHY§r",
+
+  "health.plot_manager.healthy": "§aHEALTHY§r - %s Plots, %s Backups, Cache: %s%% Hit-Rate",
+  "health.plot_manager.unhealthy": "§cUNHEALTHY§r - Last Error: %s, %s Plots loaded",
+
+  "health.persistence.healthy": "§aHEALTHY§r - %s, %s Backups available",
+  "health.persistence.unhealthy": "§cUNHEALTHY§r - Last Error: %s, %s",
+  "manager.interest.weekly_interest": "Weekly Interest (%s%%)",
+
+  "overdraft.info.healthy": "§aYour account is not overdrawn.\n§7Overdraft Limit: §e%s€\n§7Overdraft Interest: §c%s%% per week",
+  "overdraft.info.overdrawn": "§c§lACCOUNT OVERDRAWN!\n§7Balance: §c%s€\n§7Overdrawn by: §c%s€\n§7Available until limit: §e%s€\n§7Overdraft Limit: §c%s€\n§7Overdraft Interest: §c%s%% per week",
+  "manager.overdraft.health_details": "%s players with overdraft",
+
+  "network.purchase.success": "§aPurchased: %sx %s for %s$",
+  "network.purchase.insufficient_funds": "§cNot enough money! You need %s$ (current: %s$)",
+
+  "network.shop_update.success": "§aShop successfully updated! %s items added.",
+
+  "network.fuel_bill.insufficient_funds": "Not enough money!",
+
+  "npc.dialog.resident.intro": "Hello! I'm %s.",
+  "npc.dialog.resident.help": "How can I help you?",
+  "npc.dialog.resident.goodbye": "Have a nice day!",
+
+  "npc.dialog.merchant.welcome": "Welcome to %s!",
+  "npc.dialog.merchant.intro": "I'm %s, your merchant.",
+  "npc.dialog.merchant.offer": "What would you like to buy or sell?",
+  "npc.dialog.merchant.thanks": "Thanks for your purchase!",
+
+  "npc.dialog.police.intro": "Good day. Officer %s.",
+  "npc.dialog.police.help": "Can I help you?",
+  "npc.dialog.police.goodbye": "Stay safe!",
+
+  "npc.dialog.bank.welcome": "Welcome to the bank!",
+  "npc.dialog.bank.intro": "I'm %s, your %s.",
+  "npc.dialog.bank.help": "How can I help you today?",
+  "npc.dialog.bank.thanks": "Thank you for your trust!",
+
+  "npc.dialog.fallback": "Hello!",
+
+  "fuel_station.unknown": "Unknown Fuel Station",
+  "fuel_station.display_name": "Fuel Station %s",
+  "fuel_station.numbered": "Fuel Station #%s",
+
+  "police.search.extended": "§e[Extended Search: %s additional blocks]",
+
+  "manager.recurring.health_details": "%s recurring payments active"
 }

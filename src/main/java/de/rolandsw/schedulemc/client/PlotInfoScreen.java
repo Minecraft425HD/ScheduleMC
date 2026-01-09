@@ -131,6 +131,9 @@ public class PlotInfoScreen extends Screen {
 
         // === PLOT-NAME (Titel) ===
         String plotName = plot.getPlotName();
+        if (plotName == null || plotName.isEmpty()) {
+            plotName = Component.translatable("plot.unnamed").getString();
+        }
         guiGraphics.drawCenteredString(this.font, "§6§l" + plotName, leftPos + backgroundWidth / 2, currentY, 0xFFD700);
         currentY += 15;
 
@@ -148,11 +151,11 @@ public class PlotInfoScreen extends Screen {
         currentY += 8;
 
         // === BESITZER ===
-        String ownerName = plot.getOwnerName();
-        if (ownerName == null || ownerName.equals("Niemand")) {
+        if (!plot.hasOwner()) {
             guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.owner_none").getString(), leftPos + 15, currentY, 0xFFFFFF);
         } else {
-            guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.owner", ownerName).getString(), leftPos + 15, currentY, 0xFFFFFF);
+            String ownerName = plot.getOwnerName();
+            guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.owner", ownerName != null ? ownerName : Component.translatable("plot.no_owner").getString()).getString(), leftPos + 15, currentY, 0xFFFFFF);
         }
         currentY += 12;
 
