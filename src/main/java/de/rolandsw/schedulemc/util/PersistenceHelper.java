@@ -139,7 +139,7 @@ public class PersistenceHelper {
                     return LoadResult.failure("Backup recovery failed: " + backupError.getMessage());
                 }
             } else {
-                LOGGER.error("{}: KRITISCH: Kein Backup verfügbar!", componentName);
+                LOGGER.error("{}: CRITICAL: No backup available!", componentName);
                 preserveCorruptFile(file, componentName);
                 return LoadResult.failure("Load failed, no backup: " + e.getMessage());
             }

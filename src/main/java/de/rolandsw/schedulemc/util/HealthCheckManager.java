@@ -346,7 +346,7 @@ public class HealthCheckManager {
                 case HEALTHY ->
                     LOGGER.info("{}: GESUND - {}", health.getComponentName(), health.getMessage());
                 case DEGRADED ->
-                    LOGGER.warn("{}: EINGESCHRÄNKT - {}", health.getComponentName(), health.getMessage());
+                    LOGGER.warn("{}: DEGRADED - {}", health.getComponentName(), health.getMessage());
                 case UNHEALTHY ->
                     LOGGER.error("{}: UNGESUND - {}", health.getComponentName(), health.getMessage());
             }

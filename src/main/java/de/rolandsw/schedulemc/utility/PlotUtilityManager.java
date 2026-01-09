@@ -147,7 +147,7 @@ public class PlotUtilityManager {
 
         dirty = true;
 
-        LOGGER.debug("Verbraucher hinzugefügt: {} bei {} im Plot {}",
+        LOGGER.debug("Consumer added: {} at {} in plot {}",
                 block.getDescriptionId(), pos.toShortString(), plotId);
     }
 
@@ -439,7 +439,7 @@ public class PlotUtilityManager {
     public static void scanPlotsForConsumers(ServerLevel level, Collection<PlotRegion> plots) {
         if (plots.isEmpty()) return;
 
-        LOGGER.info("Starte Batch-Scan für {} Plots", plots.size());
+        LOGGER.info("Starting batch scan for {} plots", plots.size());
         long startTime = System.currentTimeMillis();
 
         int totalFound = 0;

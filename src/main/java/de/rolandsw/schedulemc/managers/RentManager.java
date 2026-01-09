@@ -60,7 +60,7 @@ public class RentManager {
         
         PlotManager.savePlots();
 
-        LOGGER.info("Plot vermietet: {} an {} für {} Tage", plot.getPlotId(), renterUUID, days);
+        LOGGER.info("Plot rented: {} to {} for {} days", plot.getPlotId(), renterUUID, days);
 
         return true;
     }
@@ -100,7 +100,7 @@ public class RentManager {
         
         PlotManager.savePlots();
 
-        LOGGER.info("Miete verlängert: {} um {} Tage", plot.getPlotId(), additionalDays);
+        LOGGER.info("Rent extended: {} by {} days", plot.getPlotId(), additionalDays);
 
         return true;
     }

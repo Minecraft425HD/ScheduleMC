@@ -156,12 +156,12 @@ public class PlayerJoinHandler {
 
         long currentTime = level.getDayTime();
         LOGGER.info("═══════════════════════════════════════════════════════════");
-        LOGGER.info("WELT ENTFRIERT - Erster Spieler joined");
-        LOGGER.info("Zeit: {} | Tag: {} | Tageszeit: {}", currentTime, currentTime / 24000, currentTime % 24000);
-        LOGGER.info("✓ Zeit läuft (doDaylightCycle = true)");
-        LOGGER.info("✓ Pflanzen wachsen (randomTickSpeed = {})", savedRandomTickSpeed);
-        LOGGER.info("✓ Mob-Spawn aktiv (doMobSpawning = true)");
-        LOGGER.info("✓ Wetter aktiv (doWeatherCycle = true)");
+        LOGGER.info("WORLD UNFROZEN - First player joined");
+        LOGGER.info("Time: {} | Day: {} | Time of day: {}", currentTime, currentTime / 24000, currentTime % 24000);
+        LOGGER.info("✓ Time is running (doDaylightCycle = true)");
+        LOGGER.info("✓ Plants growing (randomTickSpeed = {})", savedRandomTickSpeed);
+        LOGGER.info("✓ Mob spawning active (doMobSpawning = true)");
+        LOGGER.info("✓ Weather active (doWeatherCycle = true)");
         LOGGER.info("═══════════════════════════════════════════════════════════");
     }
 }

@@ -239,7 +239,7 @@ public class PlotCache {
 
         if (removedCount > 0) {
             invalidations.incrementAndGet();
-            LOGGER.debug("PlotCache: {} Einträge in Region invalidiert (Chunks: {}x{})",
+            LOGGER.debug("PlotCache: {} entries in region invalidated (Chunks: {}x{})",
                 removedCount, (maxChunkX - minChunkX + 1), (maxChunkZ - minChunkZ + 1));
         }
     }
@@ -318,7 +318,7 @@ public class PlotCache {
         hits.set(0);
         misses.set(0);
         invalidations.set(0);
-        LOGGER.debug("PlotCache-Statistiken zurückgesetzt");
+        LOGGER.debug("PlotCache statistics reset");
     }
 
     /**

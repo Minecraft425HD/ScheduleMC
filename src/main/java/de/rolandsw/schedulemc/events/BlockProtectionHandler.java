@@ -327,7 +327,7 @@ public class BlockProtectionHandler {
         }
 
         lastNPCCacheUpdate = now;
-        LOGGER.debug("NPC Work Location Cache aktualisiert: {} Einträge", npcWorkLocationCache.size());
+        LOGGER.debug("NPC work location cache updated: {} entries", npcWorkLocationCache.size());
     }
 
     /**

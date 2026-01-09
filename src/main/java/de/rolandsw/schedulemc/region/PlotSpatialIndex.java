@@ -42,7 +42,7 @@ public class PlotSpatialIndex {
 
         plotToChunks.put(plotId, chunks);
 
-        LOGGER.debug("Plot {} zu Index hinzugefügt ({} Chunks)", plotId, chunks.size());
+        LOGGER.debug("Plot {} added to index ({} chunks)", plotId, chunks.size());
     }
 
     /**

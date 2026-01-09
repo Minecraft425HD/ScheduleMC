@@ -190,12 +190,12 @@ public class PoliceAIHandler {
                 PoliceSearchBehavior.stopSearch(npc, searchTarget);
                 PoliceBackupSystem.unregisterPolice(searchTarget, npc.getUUID());
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("[POLICE] {} hat die Suche aufgegeben", npc.getNpcName());
+                    LOGGER.debug("[POLICE] {} has given up the search", npc.getNpcName());
                 }
             } else {
                 // Weiter suchen
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("[POLICE] {} führt Suche fort", npc.getNpcName());
+                    LOGGER.debug("[POLICE] {} continues search", npc.getNpcName());
                 }
                 PoliceSearchBehavior.searchArea(npc, searchTarget, currentTick);
             }
@@ -213,7 +213,7 @@ public class PoliceAIHandler {
                 targetCriminal = assignedPlayer;
                 highestWantedLevel = getCachedWantedLevel(assignedPlayer.getUUID()); // OPTIMIERT: Cache nutzen
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("[BACKUP] {} verfolgt zugewiesenes Ziel: {}",
+                    LOGGER.debug("[BACKUP] {} pursues assigned target: {}",
                         npc.getNpcName(), assignedPlayer.getName().getString());
                 }
             }
@@ -297,7 +297,7 @@ public class PoliceAIHandler {
                     // Spieler ist versteckt - NICHT ins Gebäude folgen!
                     // Stattdessen: Gebiet durchsuchen / vor Gebäude warten
                     if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("[POLICE] {} - Spieler ist versteckt, wechsle zu Suchmodus", npc.getNpcName());
+                        LOGGER.debug("[POLICE] {} - Player is hidden, switching to search mode", npc.getNpcName());
                     }
 
                     // Reset Timer falls vorhanden (atomare Operation)
@@ -342,7 +342,7 @@ public class PoliceAIHandler {
 
             if (lastTarget != null) {
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("[POLICE] {} hat Verfolgungsziel verloren, starte Suche...", npc.getNpcName());
+                    LOGGER.debug("[POLICE] {} has lost pursuit target, starting search...", npc.getNpcName());
                 }
 
                 // Starte Suchverhalten für verlorenen Spieler
@@ -350,13 +350,13 @@ public class PoliceAIHandler {
 
                 if (lostPlayer != null && CrimeManager.getWantedLevel(lastTarget) > 0) {
                     if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("[POLICE] {} startet Suche nach {}", npc.getNpcName(), lostPlayer.getName().getString());
+                        LOGGER.debug("[POLICE] {} starts search for {}", npc.getNpcName(), lostPlayer.getName().getString());
                     }
                     PoliceSearchBehavior.startSearch(npc, lostPlayer, currentTick);
                     lostPlayer.sendSystemMessage(Component.translatable("event.police.searching_area"));
                 } else {
                     if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("[POLICE] {} kann Spieler nicht finden oder Wanted-Level ist 0", npc.getNpcName());
+                        LOGGER.debug("[POLICE] {} cannot find player or wanted level is 0", npc.getNpcName());
                     }
                 }
 
@@ -440,7 +440,7 @@ public class PoliceAIHandler {
         if (player.getPersistentData().getBoolean("DoublePenalty")) {
             jailTimeSeconds *= 2;
             player.getPersistentData().remove("DoublePenalty");
-            LOGGER.warn("[RAID] Haftzeit verdoppelt wegen unbezahlter Raid-Strafe");
+            LOGGER.warn("[RAID] Jail time doubled due to unpaid raid fine");
         }
 
         // Geld aus Wallet-Item abziehen

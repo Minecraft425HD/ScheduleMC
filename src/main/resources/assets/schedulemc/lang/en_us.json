@@ -4282,5 +4282,11 @@
 
   "enum.soil_bag_type.small": "Small Soil Bag",
   "enum.soil_bag_type.medium": "Medium Soil Bag",
-  "enum.soil_bag_type.large": "Large Soil Bag"
+  "enum.soil_bag_type.large": "Large Soil Bag",
+
+  "ui.fees.title": "FEE OVERVIEW",
+  "ui.fees.atm": "ATM Fee: %s€",
+  "ui.fees.transfer": "Transfer Fee: %s%% (min. %s€)",
+  "ui.plot.utility_display": "§8⚡%s kWh  💧%s L",
+  "manager.interest.weekly_interest": "Weekly Interest (%s%%)"
 }

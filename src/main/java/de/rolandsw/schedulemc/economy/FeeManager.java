@@ -40,7 +40,7 @@ public class FeeManager {
     public static boolean chargeATMFee(UUID playerUUID, MinecraftServer server) {
         if (EconomyManager.withdraw(playerUUID, ATM_FEE, TransactionType.ATM_FEE, "ATM-Gebühr")) {
             StateAccount.getInstance(server).deposit(ATM_FEE, "ATM-Gebühr");
-            LOGGER.debug("ATM-Gebühr {} € von {} abgezogen", ATM_FEE, playerUUID);
+            LOGGER.debug("ATM fee {} € deducted from {}", ATM_FEE, playerUUID);
             return true;
         }
         return false;
@@ -55,7 +55,7 @@ public class FeeManager {
         if (EconomyManager.withdraw(playerUUID, fee, TransactionType.TRANSFER_FEE,
                 String.format("Transfer-Gebühr (%.2f%%)", TRANSFER_FEE_PERCENTAGE * 100))) {
             StateAccount.getInstance(server).deposit(fee, "Transfer-Gebühr");
-            LOGGER.debug("Transfer-Gebühr {} € von {} abgezogen", fee, playerUUID);
+            LOGGER.debug("Transfer fee {} € deducted from {}", fee, playerUUID);
             return true;
         }
         return false;
@@ -81,13 +81,10 @@ public class FeeManager {
      * Gibt Gebühren-Info als formatierten Text zurück
      */
     public static String getFeeInfo() {
-        return String.format(
-            "§e§lGEBÜHREN-ÜBERSICHT\n" +
-            "§7ATM-Gebühr: §c%.2f€\n" +
-            "§7Transfer-Gebühr: §c%.1f%% §7(min. %.2f€)",
-            ATM_FEE,
-            TRANSFER_FEE_PERCENTAGE * 100,
-            MIN_TRANSFER_FEE
-        );
+        return "§e§l" + net.minecraft.network.chat.Component.translatable("ui.fees.title").getString() + "\n" +
+            "§7" + net.minecraft.network.chat.Component.translatable("ui.fees.atm", String.format("§c%.2f", ATM_FEE)).getString() + "\n" +
+            "§7" + net.minecraft.network.chat.Component.translatable("ui.fees.transfer",
+                String.format("§c%.1f", TRANSFER_FEE_PERCENTAGE * 100),
+                String.format("§7%.2f", MIN_TRANSFER_FEE)).getString();
     }
 }

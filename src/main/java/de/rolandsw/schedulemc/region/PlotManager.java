@@ -123,12 +123,12 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
         // Automatisch ShopAccount erstellen für Shop-Plots
         if (type.isShop()) {
             ShopAccountManager.getOrCreateAccount(plotId);
-            LOGGER.info("ShopAccount automatisch erstellt für Shop-Plot: {}", plotId);
+            LOGGER.info("ShopAccount automatically created for shop plot: {}", plotId);
         }
 
         dirty = true;
 
-        LOGGER.info("Plot erstellt: {} ({}) von {} bis {} ({}€)",
+        LOGGER.info("Plot created: {} ({}) from {} to {} ({}€)",
             plotId, type.getDisplayName(), min.toShortString(), max.toShortString(), price);
 
         return plot;
@@ -184,7 +184,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
         // Dies fängt Edge-Cases ab und wird nur selten ausgeführt
         for (PlotRegion plot : plots.values()) {
             if (plot.contains(pos)) {
-                LOGGER.warn("Spatial Index Miss - Plot {} nicht im Index gefunden bei Position {}",
+                LOGGER.warn("Spatial Index Miss - Plot {} not found in index at position {}",
                            plot.getPlotId(), pos);
                 // Re-indexiere diesen Plot
                 spatialIndex.addPlot(plot);
@@ -297,7 +297,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
             plotCache.invalidatePlot(plotId);
 
             dirty = true;
-            LOGGER.info("Plot entfernt: {}", plotId);
+            LOGGER.info("Plot removed: {}", plotId);
             return true;
         }
         return false;
@@ -342,7 +342,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
      */
     public static void rebuildSpatialIndex() {
         spatialIndex.rebuild(plots.values());
-        LOGGER.info("Spatial Index manuell neu aufgebaut");
+        LOGGER.info("Spatial index manually rebuilt");
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -354,7 +354,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
      */
     public static void loadPlots() {
         if (!PLOTS_FILE.exists()) {
-            LOGGER.info("Plots-Datei existiert nicht, erstelle neue");
+            LOGGER.info("Plots file does not exist, creating new");
             PLOTS_FILE.getParentFile().mkdirs();
             savePlots();
             isHealthy = true;
@@ -366,27 +366,27 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
             isHealthy = true;
             lastError = null;
             dirty = false;
-            LOGGER.info("Plots erfolgreich geladen: {} Plots", plots.size());
+            LOGGER.info("Plots loaded successfully: {} plots", plots.size());
             LOGGER.info("Spatial Index: {}", spatialIndex.getStats());
         } catch (Exception e) {
-            LOGGER.error("Fehler beim Laden der Plots", e);
+            LOGGER.error("Error loading plots", e);
             lastError = "Failed to load: " + e.getMessage();
 
             // Versuch Backup wiederherzustellen
             if (BackupManager.restoreFromBackup(PLOTS_FILE)) {
-                LOGGER.warn("Plots-Datei korrupt, versuche Backup wiederherzustellen...");
+                LOGGER.warn("Plots file corrupt, attempting to restore from backup...");
                 try {
                     loadPlotsFromFile(PLOTS_FILE);
-                    LOGGER.info("Plots erfolgreich von Backup wiederhergestellt: {} Plots", plots.size());
+                    LOGGER.info("Plots successfully restored from backup: {} plots", plots.size());
                     isHealthy = true;
                     lastError = "Recovered from backup";
                     dirty = false;
                 } catch (Exception backupError) {
-                    LOGGER.error("KRITISCH: Backup-Wiederherstellung fehlgeschlagen!", backupError);
+                    LOGGER.error("CRITICAL: Backup restoration failed!", backupError);
                     handleCriticalLoadFailure();
                 }
             } else {
-                LOGGER.error("KRITISCH: Kein Backup verfügbar für Wiederherstellung!");
+                LOGGER.error("CRITICAL: No backup available for restoration!");
                 handleCriticalLoadFailure();
             }
         }
@@ -402,7 +402,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
             Map<String, PlotRegion> loaded = GSON.fromJson(reader, mapType);
 
             if (loaded == null) {
-                throw new IOException("Geladene Plot-Daten sind null");
+                throw new IOException("Loaded plot data is null");
             }
 
             plots.clear();
@@ -433,8 +433,8 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
      * Behandelt kritischen Ladefehler mit Graceful Degradation
      */
     private static void handleCriticalLoadFailure() {
-        LOGGER.error("KRITISCH: Plot-System konnte nicht geladen werden!");
-        LOGGER.error("Starte mit leerem Plot-System als Fallback");
+        LOGGER.error("CRITICAL: Plot system could not be loaded!");
+        LOGGER.error("Starting with empty plot system as fallback");
 
         plots.clear();
         spatialIndex.clear();
@@ -448,9 +448,9 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
                 PLOTS_FILE.getName() + ".CORRUPT_" + System.currentTimeMillis());
             try {
                 java.nio.file.Files.copy(PLOTS_FILE.toPath(), corruptBackup.toPath());
-                LOGGER.info("Korrupte Datei gesichert nach: {}", corruptBackup.getName());
+                LOGGER.info("Corrupt file backed up to: {}", corruptBackup.getName());
             } catch (IOException e) {
-                LOGGER.error("Konnte korrupte Datei nicht sichern", e);
+                LOGGER.error("Could not backup corrupt file", e);
             }
         }
     }
@@ -483,10 +483,10 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
             dirty = false;
             isHealthy = true;
             lastError = null;
-            LOGGER.info("Plots gespeichert: {} Plots", plots.size());
+            LOGGER.info("Plots saved: {} plots", plots.size());
 
         } catch (Exception e) {
-            LOGGER.error("KRITISCH: Fehler beim Speichern der Plots", e);
+            LOGGER.error("CRITICAL: Error saving plots", e);
             isHealthy = false;
             lastError = "Save failed: " + e.getMessage();
 
@@ -504,7 +504,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
      * Retry-Mechanismus für fehlgeschlagene Saves
      */
     private static void retrySavePlots() {
-        LOGGER.warn("Versuche erneut Plots zu speichern...");
+        LOGGER.warn("Attempting to save plots again...");
         try {
             File tempFile = new File(PLOTS_FILE.getParent(), PLOTS_FILE.getName() + ".tmp");
 
@@ -517,13 +517,13 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
                 java.nio.file.StandardCopyOption.REPLACE_EXISTING,
                 java.nio.file.StandardCopyOption.ATOMIC_MOVE);
 
-            LOGGER.info("Retry erfolgreich - Plots gespeichert");
+            LOGGER.info("Retry successful - plots saved");
             isHealthy = true;
             lastError = null;
             dirty = false;
 
         } catch (Exception retryError) {
-            LOGGER.error("KRITISCH: Retry fehlgeschlagen - Plots konnten nicht gespeichert werden!", retryError);
+            LOGGER.error("CRITICAL: Retry failed - plots could not be saved!", retryError);
             dirty = true;
         }
     }
@@ -627,27 +627,27 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
         plotCache.clear();
         dirty = true;
         plotCounter.set(1);
-        LOGGER.warn("Alle Plots gelöscht!");
+        LOGGER.warn("All plots deleted!");
     }
     
     /**
      * Gibt Debug-Info aus
      */
     public static void printDebugInfo() {
-        LOGGER.info("═══ PlotManager Debug-Info ═══");
-        LOGGER.info("Plots gesamt: {}", plots.size());
-        LOGGER.info("Dirty Flag: {}", dirty);
-        LOGGER.info("Plot Counter: {}", plotCounter);
-        LOGGER.info("Datei: {}", PLOTS_FILE.getAbsolutePath());
+        LOGGER.info("═══ PlotManager Debug Info ═══");
+        LOGGER.info("Total plots: {}", plots.size());
+        LOGGER.info("Dirty flag: {}", dirty);
+        LOGGER.info("Plot counter: {}", plotCounter);
+        LOGGER.info("File: {}", PLOTS_FILE.getAbsolutePath());
 
         PlotStatistics stats = getStatistics();
-        LOGGER.info("Statistiken:");
-        LOGGER.info("  - Besessen: {}", stats.ownedPlots);
-        LOGGER.info("  - Verfügbar: {}", stats.availablePlots);
-        LOGGER.info("  - Zu verkaufen: {}", stats.forSale);
-        LOGGER.info("  - Zu vermieten: {}", stats.forRent);
-        LOGGER.info("  - Vermietet: {}", stats.rented);
-        LOGGER.info("  - Gesamtvolumen: {} Blöcke", stats.totalVolume);
+        LOGGER.info("Statistics:");
+        LOGGER.info("  - Owned: {}", stats.ownedPlots);
+        LOGGER.info("  - Available: {}", stats.availablePlots);
+        LOGGER.info("  - For sale: {}", stats.forSale);
+        LOGGER.info("  - For rent: {}", stats.forRent);
+        LOGGER.info("  - Rented: {}", stats.rented);
+        LOGGER.info("  - Total volume: {} blocks", stats.totalVolume);
         LOGGER.info("═══════════════════════════════");
     }
 

@@ -545,7 +545,9 @@ public class PlotAppScreen extends Screen {
                         guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 25, 0x33333333);
                         guiGraphics.drawString(this.font, "§7" + plot.getPlotName(), leftPos + 15, y + 3, 0xAAAAAA);
                         guiGraphics.drawString(this.font, String.format("§e%.2f€", cost), leftPos + 140, y + 3, 0xFFAA00);
-                        guiGraphics.drawString(this.font, String.format("§8⚡%.0f kWh  💧%.0f L", elec, water), leftPos + 15, y + 14, 0x666666);
+                        guiGraphics.drawString(this.font, Component.translatable("ui.plot.utility_display",
+                            String.format("%.0f", elec),
+                            String.format("%.0f", water)).getString(), leftPos + 15, y + 14, 0x666666);
                     }
                     y += 28;
                     contentHeight += 28;

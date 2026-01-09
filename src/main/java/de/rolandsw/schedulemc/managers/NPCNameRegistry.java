@@ -145,7 +145,7 @@ public class NPCNameRegistry {
         }
 
         // Entity existiert nicht mehr → Aufräumen
-        LOGGER.warn("NPC nicht gefunden für registrierten Namen: {} (ID: {})", name, entityId);
+        LOGGER.warn("NPC not found for registered name: {} (ID: {})", name, entityId);
         unregisterName(name);
 
         return null;
@@ -255,7 +255,7 @@ public class NPCNameRegistry {
             for (String name : toRemove) {
                 unregisterName(name);
             }
-            LOGGER.info("NPC-Namen bereinigt: {} ungültige Einträge entfernt", toRemove.size());
+            LOGGER.info("NPC names cleaned: {} invalid entries removed", toRemove.size());
         }
     }
 

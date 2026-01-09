@@ -104,7 +104,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
             balances.clear();
             isHealthy = false;
             lastError = result.getError();
-            LOGGER.error("KRITISCH: Economy-System startet mit leeren Daten!");
+            LOGGER.error("CRITICAL: Economy system starting with empty data!");
             return;
         }
 
@@ -121,7 +121,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
 
         isHealthy = true;
         lastError = result.isRecoveredFromBackup() ? "Recovered from backup" : null;
-        LOGGER.info("Economy-Daten geladen: {} Konten", balances.size());
+        LOGGER.info("Economy data loaded: {} accounts", balances.size());
     }
 
     /**
@@ -141,7 +141,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
                 Double balance = entry.getValue();
 
                 if (balance == null) {
-                    LOGGER.warn("Null-Balance für UUID {}, überspringe", entry.getKey());
+                    LOGGER.warn("Null balance for UUID {}, skipping", entry.getKey());
                     invalidUUIDs++;
                     continue;
                 }
@@ -152,13 +152,13 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
 
                 balances.put(uuid, balance);
             } catch (IllegalArgumentException e) {
-                LOGGER.error("Ungültige UUID in Economy-Datei: {}", entry.getKey());
+                LOGGER.error("Invalid UUID in economy file: {}", entry.getKey());
                 invalidUUIDs++;
             }
         }
 
         if (invalidUUIDs > 0) {
-            LOGGER.warn("{} ungültige Einträge beim Laden übersprungen", invalidUUIDs);
+            LOGGER.warn("{} invalid entries skipped during loading", invalidUUIDs);
         }
         if (zeroBalanceAccounts > 0) {
             LOGGER.warn("⚠ {} accounts with 0€ balance found!", zeroBalanceAccounts);
@@ -182,7 +182,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
             needsSave = false;
             isHealthy = true;
             lastError = null;
-            LOGGER.debug("Economy-Daten gespeichert: {} Konten", balances.size());
+            LOGGER.debug("Economy data saved: {} accounts", balances.size());
         } else {
             isHealthy = false;
             lastError = result.getError();
@@ -220,7 +220,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
         double startBalance = getStartBalance();
         balances.put(uuid, startBalance);
         markDirty();
-        LOGGER.info("Neues Konto erstellt für {} mit {} €", uuid, startBalance);
+        LOGGER.info("New account created for {} with {} €", uuid, startBalance);
     }
 
     /**
@@ -253,7 +253,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
      */
     public static void deposit(UUID uuid, double amount, TransactionType type, @Nullable String description) {
         if (amount < 0) {
-            LOGGER.warn("Versuch, negativen Betrag einzuzahlen: {}", amount);
+            LOGGER.warn("Attempt to deposit negative amount: {}", amount);
             return;
         }
 
@@ -274,7 +274,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
         });
 
         markDirty();
-        LOGGER.debug("Einzahlung: {} € für {} ({})", amount, uuid, type);
+        LOGGER.debug("Deposit: {} € for {} ({})", amount, uuid, type);
 
         // Transaction History
         logTransaction(uuid, type, null, uuid, amount, description, newBalance[0]);
@@ -295,7 +295,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
      */
     public static boolean withdraw(UUID uuid, double amount, TransactionType type, @Nullable String description) {
         if (amount < 0) {
-            LOGGER.warn("Versuch, negativen Betrag abzuheben: {}", amount);
+            LOGGER.warn("Attempt to withdraw negative amount: {}", amount);
             return false;
         }
 
@@ -327,7 +327,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
 
         if (success[0]) {
             markDirty();
-            LOGGER.debug("Abbuchung: {} € von {} ({}) - Neuer Stand: {}", amount, uuid, type, resultBalance[0]);
+            LOGGER.debug("Withdrawal: {} € from {} ({}) - New balance: {}", amount, uuid, type, resultBalance[0]);
 
             // Transaction History
             logTransaction(uuid, type, uuid, null, -amount, description, resultBalance[0]);
@@ -354,7 +354,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
         double difference = amount - oldBalance;
         balances.put(uuid, amount);
         markDirty();
-        LOGGER.info("Guthaben gesetzt: {} auf {} € ({})", uuid, amount, type);
+        LOGGER.info("Balance set: {} to {} € ({})", uuid, amount, type);
 
         // Transaction History
         logTransaction(uuid, type, null, uuid, difference, description, amount);
@@ -380,7 +380,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
     public static void deleteAccount(UUID uuid) {
         balances.remove(uuid);
         markDirty();
-        LOGGER.info("Konto gelöscht: {}", uuid);
+        LOGGER.info("Account deleted: {}", uuid);
     }
 
     /**

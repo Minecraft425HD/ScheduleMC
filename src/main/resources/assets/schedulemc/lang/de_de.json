@@ -4282,5 +4282,11 @@
 
   "enum.soil_bag_type.small": "Kleiner Erdsack",
   "enum.soil_bag_type.medium": "Mittlerer Erdsack",
-  "enum.soil_bag_type.large": "Großer Erdsack"
+  "enum.soil_bag_type.large": "Großer Erdsack",
+
+  "ui.fees.title": "GEBÜHREN-ÜBERSICHT",
+  "ui.fees.atm": "ATM-Gebühr: %s€",
+  "ui.fees.transfer": "Transfer-Gebühr: %s%% (min. %s€)",
+  "ui.plot.utility_display": "§8⚡%s kWh  💧%s L",
+  "manager.interest.weekly_interest": "Wöchentliche Zinsen (%s%%)"
 }

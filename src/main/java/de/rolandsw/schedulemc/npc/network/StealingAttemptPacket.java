@@ -153,7 +153,7 @@ public class StealingAttemptPacket {
                         // Setze Cooldown (aktueller Tag)
                         npc.getNpcData().getCustomData().putLong("LastSteal_" + player.getStringUUID(), currentDay);
                         if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("[STEALING] Cooldown gesetzt für Tag: {}", currentDay);
+                            LOGGER.debug("[STEALING] Cooldown set for day: {}", currentDay);
                         }
 
                         // ═══════════════════════════════════════════
@@ -248,7 +248,7 @@ public class StealingAttemptPacket {
                         }
                     } else {
                         if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("[STEALING] Keine Zeugen in der Nähe");
+                            LOGGER.debug("[STEALING] No witnesses nearby");
                         }
                     }
                 }

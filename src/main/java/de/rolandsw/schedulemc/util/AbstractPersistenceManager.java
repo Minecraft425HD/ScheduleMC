@@ -82,7 +82,7 @@ public abstract class AbstractPersistenceManager<T> {
                     handleCriticalLoadFailure();
                 }
             } else {
-                LOGGER.error("{}: KRITISCH: Kein Backup verfügbar!", getComponentName());
+                LOGGER.error("{}: CRITICAL: No backup available!", getComponentName());
                 handleCriticalLoadFailure();
             }
         }

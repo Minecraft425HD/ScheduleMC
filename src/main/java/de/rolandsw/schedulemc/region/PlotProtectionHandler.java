@@ -55,7 +55,7 @@ public class PlotProtectionHandler {
             // Kein Plot → Weltschutz aktiv
             event.setCanceled(true);
             player.sendSystemMessage(Component.translatable("message.plot.cannot_break_buy_plot"));
-            LOGGER.debug("[PLOT-PROTECTION] {} versuchte außerhalb eines Plots bei {} abzubauen",
+            LOGGER.debug("[PLOT-PROTECTION] {} attempted to break outside of a plot at {}",
                 player.getName().getString(), pos.toShortString());
             return;
         }

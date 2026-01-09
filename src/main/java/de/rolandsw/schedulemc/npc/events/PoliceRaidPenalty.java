@@ -42,7 +42,7 @@ public class PoliceRaidPenalty {
             ));
 
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("[RAID] Player {} Fahndungslevel erhöht: {} -> {}",
+                LOGGER.debug("[RAID] Player {} wanted level increased: {} -> {}",
                     player.getName().getString(), currentWanted, currentWanted + wantedIncrease);
             }
         }
@@ -69,7 +69,7 @@ public class PoliceRaidPenalty {
             ));
 
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("[RAID] Player {} Geldstrafe: {}€ (Kontostand: {}€)",
+                LOGGER.debug("[RAID] Player {} fine: {}€ (Balance: {}€)",
                     player.getName().getString(), fine, accountBalance);
             }
         } else {
@@ -92,7 +92,7 @@ public class PoliceRaidPenalty {
             // Verdopple Gefängnis-Zeit wird in PoliceAIHandler.arrestPlayer() gemacht
             player.getPersistentData().putBoolean("DoublePenalty", true);
 
-            LOGGER.warn("[RAID] Player {} kann Strafe nicht bezahlen - Gefängnis-Zeit verdoppelt",
+            LOGGER.warn("[RAID] Player {} cannot pay fine - jail time doubled",
                 player.getName().getString());
         }
     }

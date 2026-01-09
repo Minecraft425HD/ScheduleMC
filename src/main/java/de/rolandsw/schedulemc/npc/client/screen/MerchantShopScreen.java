@@ -136,7 +136,7 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
             shopItemRows.add(row);
         }
 
-        ScheduleMC.LOGGER.info("Shop geladen: {} Items für Kategorie {}", shopItemRows.size(), menu.getCategory());
+        ScheduleMC.LOGGER.info("Shop loaded: {} items for category {}", shopItemRows.size(), menu.getCategory());
     }
 
     /**
