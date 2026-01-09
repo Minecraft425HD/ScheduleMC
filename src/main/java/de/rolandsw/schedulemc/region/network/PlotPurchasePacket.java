@@ -133,9 +133,7 @@ public class PlotPurchasePacket {
                         plot.setRentEndTime(System.currentTimeMillis() + (24 * 60 * 60 * 1000));
                         PlotManager.savePlots();
 
-                        player.sendSystemMessage(Component.translatable("message.plot.rented")
-                            .append(Component.literal(String.format("%.2f€/Tag", rentPrice))
-                                .withStyle(ChatFormatting.GOLD)));
+                        player.sendSystemMessage(Component.translatable("message.plot.rent_success", rentPrice));
                         break;
                 }
             }

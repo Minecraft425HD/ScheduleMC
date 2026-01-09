@@ -4558,6 +4558,8 @@
   "manager.daily_reward.streak_suffix": " day(s)",
   "manager.daily_reward.title": "§6§l⭐ DAILY REWARD",
   "manager.daily_reward.transaction_description": "Daily reward",
+  "manager.daily_reward.day_singular": "day",
+  "manager.daily_reward.day_plural": "days",
   "manager.interest.paid": "§a+%s€ interest from your savings account",
   "manager.loan.approved": "§aLoan of %s€ approved",
   "manager.loan.payment_failed": "§cLoan payment failed: %s€",

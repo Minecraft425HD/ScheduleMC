@@ -4558,6 +4558,8 @@
   "manager.daily_reward.streak_suffix": " Tag(e)",
   "manager.daily_reward.title": "§6§l⭐ TÄGLICHE BELOHNUNG",
   "manager.daily_reward.transaction_description": "Tägliche Belohnung",
+  "manager.daily_reward.day_singular": "Tag",
+  "manager.daily_reward.day_plural": "Tage",
   "manager.interest.paid": "§a+%s€ Zinsen von deinem Sparkonto",
   "manager.loan.approved": "§aKredit über %s€ genehmigt",
   "manager.loan.payment_failed": "§cKredit-Zahlung fehlgeschlagen: %s€",
