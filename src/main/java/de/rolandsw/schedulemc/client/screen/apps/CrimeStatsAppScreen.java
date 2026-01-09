@@ -32,7 +32,6 @@ public class CrimeStatsAppScreen extends Screen {
 
     // Tab-System
     private int currentTab = 0;
-    private static final String[] TAB_NAMES = {"Status", "Kaution", "Info"};
     private static final int TAB_HEIGHT = 22;
     private static final int TAB_WIDTH = 62;
 
@@ -73,10 +72,11 @@ public class CrimeStatsAppScreen extends Screen {
         refreshData();
 
         // Tab-Buttons
-        for (int i = 0; i < TAB_NAMES.length; i++) {
+        String[] tabKeys = {"app.crime_stats.tab_status", "app.crime_stats.tab_bail", "app.crime_stats.tab_info"};
+        for (int i = 0; i < tabKeys.length; i++) {
             final int tabIndex = i;
             addRenderableWidget(Button.builder(
-                Component.literal(TAB_NAMES[i]),
+                Component.translatable(tabKeys[i]),
                 button -> {
                     currentTab = tabIndex;
                     scrollOffset = 0;
@@ -93,7 +93,7 @@ public class CrimeStatsAppScreen extends Screen {
         }).bounds(leftPos + 10, topPos + HEIGHT - 30, 80, 20).build());
 
         // Refresh-Button
-        addRenderableWidget(Button.builder(Component.literal("↻"), button -> {
+        addRenderableWidget(Button.builder(Component.translatable("app.crime_stats.refresh"), button -> {
             refreshData();
         }).bounds(leftPos + WIDTH - 30, topPos + HEIGHT - 30, 20, 20).build());
     }
@@ -127,10 +127,10 @@ public class CrimeStatsAppScreen extends Screen {
 
         // Header
         guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 28, 0xFF1A1A1A);
-        guiGraphics.drawCenteredString(this.font, "§c§lPolizei-Akte", leftPos + WIDTH / 2, topPos + 10, 0xFFFFFF);
+        guiGraphics.drawCenteredString(this.font, Component.translatable("app.crime_stats.header").getString(), leftPos + WIDTH / 2, topPos + 10, 0xFFFFFF);
 
         // Tab-Hintergrund (aktiver Tab hervorheben)
-        for (int i = 0; i < TAB_NAMES.length; i++) {
+        for (int i = 0; i < 3; i++) {
             int tabX = leftPos + 5 + (i * TAB_WIDTH);
             int tabY = topPos + 30;
             if (i == currentTab) {
@@ -173,7 +173,7 @@ public class CrimeStatsAppScreen extends Screen {
             int boxColor = wantedLevel > 0 ? 0x44AA0000 : 0x44228B22;
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 75, boxColor);
 
-            guiGraphics.drawCenteredString(this.font, "§f§lFAHNDUNGSStufe", leftPos + WIDTH / 2, y + 5, 0xFFFFFF);
+            guiGraphics.drawCenteredString(this.font, Component.translatable("app.crime_stats.wanted_level_title").getString(), leftPos + WIDTH / 2, y + 5, 0xFFFFFF);
 
             // Sterne visualisieren
             String stars = getStarDisplay(wantedLevel);
@@ -185,7 +185,7 @@ public class CrimeStatsAppScreen extends Screen {
             guiGraphics.drawCenteredString(this.font, levelColor + "§l" + levelText, leftPos + WIDTH / 2, y + 40, 0xFFFFFF);
 
             // Numerischer Level
-            guiGraphics.drawCenteredString(this.font, "§7Level: §f" + wantedLevel + " / 5", leftPos + WIDTH / 2, y + 55, 0xAAAAAA);
+            guiGraphics.drawCenteredString(this.font, Component.translatable("app.crime_stats.level_text", wantedLevel).getString(), leftPos + WIDTH / 2, y + 55, 0xAAAAAA);
         }
         y += 80;
         contentHeight += 80;
@@ -200,15 +200,15 @@ public class CrimeStatsAppScreen extends Screen {
         if (wantedLevel > 0) {
             if (y >= startY - 35 && y < endY) {
                 guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 30, 0x66AA0000);
-                guiGraphics.drawString(this.font, "§c§l⚠ VERFOLGUNG AKTIV", leftPos + 15, y + 3, 0xFF5555);
-                guiGraphics.drawString(this.font, "§7Polizei sucht dich!", leftPos + 15, y + 14, 0xFFFFFF);
+                guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.being_chased").getString(), leftPos + 15, y + 3, 0xFF5555);
+                guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.police_searching").getString(), leftPos + 15, y + 14, 0xFFFFFF);
             }
             y += 35;
             contentHeight += 35;
         } else {
             if (y >= startY - 25 && y < endY) {
                 guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 20, 0x44228B22);
-                guiGraphics.drawString(this.font, "§a✓ KEINE FAHNDUNG", leftPos + 15, y + 5, 0x55FF55);
+                guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.no_wanted").getString(), leftPos + 15, y + 5, 0x55FF55);
             }
             y += 25;
             contentHeight += 25;
@@ -222,38 +222,38 @@ public class CrimeStatsAppScreen extends Screen {
         contentHeight += 8;
 
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, "§6§lTIPPS:", leftPos + 15, y, 0xFFAA00);
+            guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.tips_title").getString(), leftPos + 15, y, 0xFFAA00);
         }
         y += 12;
         contentHeight += 12;
 
         if (wantedLevel > 0) {
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawString(this.font, "§7• Verstecke dich", leftPos + 15, y, 0xAAAAAA);
+                guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.tip_hide").getString(), leftPos + 15, y, 0xAAAAAA);
             }
             y += 11;
             contentHeight += 11;
 
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawString(this.font, "§7• Zahle Kaution", leftPos + 15, y, 0xAAAAAA);
+                guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.tip_pay_bail").getString(), leftPos + 15, y, 0xAAAAAA);
             }
             y += 11;
             contentHeight += 11;
 
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawString(this.font, "§7• Warte 1 Tag ab", leftPos + 15, y, 0xAAAAAA);
+                guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.tip_wait").getString(), leftPos + 15, y, 0xAAAAAA);
             }
             y += 11;
             contentHeight += 11;
         } else {
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawString(this.font, "§7• Bleib sauber!", leftPos + 15, y, 0xAAAAAA);
+                guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.tip_stay_clean").getString(), leftPos + 15, y, 0xAAAAAA);
             }
             y += 11;
             contentHeight += 11;
 
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawString(this.font, "§7• Vermeide Straftaten", leftPos + 15, y, 0xAAAAAA);
+                guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.tip_avoid_crime").getString(), leftPos + 15, y, 0xAAAAAA);
             }
             y += 11;
             contentHeight += 11;
@@ -272,15 +272,15 @@ public class CrimeStatsAppScreen extends Screen {
 
         // Kautions-Info
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, "§6§lKAUTION", leftPos + 15, y, 0xFFAA00);
+            guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.bail_title").getString(), leftPos + 15, y, 0xFFAA00);
         }
         y += 15;
         contentHeight += 15;
 
         if (wantedLevel == 0) {
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawCenteredString(this.font, "§aKeine Kaution nötig", leftPos + WIDTH / 2, y + 20, 0x55FF55);
-                guiGraphics.drawCenteredString(this.font, "§7Du bist unschuldig!", leftPos + WIDTH / 2, y + 35, 0xAAAAAA);
+                guiGraphics.drawCenteredString(this.font, Component.translatable("app.crime_stats.no_bail_needed").getString(), leftPos + WIDTH / 2, y + 20, 0x55FF55);
+                guiGraphics.drawCenteredString(this.font, Component.translatable("app.crime_stats.innocent").getString(), leftPos + WIDTH / 2, y + 35, 0xAAAAAA);
             }
             y += 60;
             contentHeight += 60;
@@ -289,15 +289,15 @@ public class CrimeStatsAppScreen extends Screen {
             if (y >= startY - 60 && y < endY) {
                 guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 55, 0x44AA0000);
 
-                guiGraphics.drawString(this.font, "§fFahndungsstufe:", leftPos + 15, y + 5, 0xFFFFFF);
-                guiGraphics.drawString(this.font, "§c" + wantedLevel + " Sterne", leftPos + 120, y + 5, 0xFF5555);
+                guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.wanted_level_label").getString(), leftPos + 15, y + 5, 0xFFFFFF);
+                guiGraphics.drawString(this.font, "§c" + wantedLevel + Component.translatable("app.crime_stats.stars").getString(), leftPos + 120, y + 5, 0xFF5555);
 
-                guiGraphics.drawString(this.font, "§fKosten pro Stern:", leftPos + 15, y + 18, 0xFFFFFF);
+                guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.cost_per_star").getString(), leftPos + 15, y + 18, 0xFFFFFF);
                 guiGraphics.drawString(this.font, String.format("§e%.0f€", BAIL_COST_PER_STAR), leftPos + 120, y + 18, 0xFFAA00);
 
                 guiGraphics.fill(leftPos + 15, y + 30, leftPos + WIDTH - 15, y + 31, 0x44FFFFFF);
 
-                guiGraphics.drawString(this.font, "§f§lGESAMT:", leftPos + 15, y + 35, 0xFFFFFF);
+                guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.total").getString(), leftPos + 15, y + 35, 0xFFFFFF);
                 guiGraphics.drawString(this.font, String.format("§c§l%.0f€", bailCost), leftPos + 100, y + 35, 0xFF5555);
             }
             y += 60;
@@ -311,25 +311,25 @@ public class CrimeStatsAppScreen extends Screen {
             contentHeight += 8;
 
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawString(this.font, "§8Kaution zahlen:", leftPos + 15, y, 0x888888);
+                guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.how_to_pay").getString(), leftPos + 15, y, 0x888888);
             }
             y += 12;
             contentHeight += 12;
 
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawString(this.font, "§7• Gehe zur Polizei-Station", leftPos + 15, y, 0xAAAAAA);
+                guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.goto_police").getString(), leftPos + 15, y, 0xAAAAAA);
             }
             y += 11;
             contentHeight += 11;
 
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawString(this.font, "§7• Zahle Kaution", leftPos + 15, y, 0xAAAAAA);
+                guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.pay_bail_action").getString(), leftPos + 15, y, 0xAAAAAA);
             }
             y += 11;
             contentHeight += 11;
 
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawString(this.font, "§7• Wanted-Level wird gelöscht", leftPos + 15, y, 0xAAAAAA);
+                guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.wanted_cleared").getString(), leftPos + 15, y, 0xAAAAAA);
             }
             y += 15;
             contentHeight += 15;
@@ -343,13 +343,13 @@ public class CrimeStatsAppScreen extends Screen {
         contentHeight += 8;
 
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, "§8Alternative:", leftPos + 15, y, 0x888888);
+            guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.alternative").getString(), leftPos + 15, y, 0x888888);
         }
         y += 12;
         contentHeight += 12;
 
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, "§7Warte 1 Tag = -1 Stern", leftPos + 15, y, 0xAAAAAA);
+            guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.wait_decay").getString(), leftPos + 15, y, 0xAAAAAA);
         }
         y += 11;
         contentHeight += 11;
@@ -367,29 +367,29 @@ public class CrimeStatsAppScreen extends Screen {
 
         // Überschrift
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, "§6§lWANTED-SYSTEM", leftPos + 15, y, 0xFFAA00);
+            guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.wanted_system_title").getString(), leftPos + 15, y, 0xFFAA00);
         }
         y += 15;
         contentHeight += 15;
 
         // Erklärung
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, "§fSterne-Bedeutung:", leftPos + 15, y, 0xFFFFFF);
+            guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.star_meaning").getString(), leftPos + 15, y, 0xFFFFFF);
         }
         y += 12;
         contentHeight += 12;
 
-        String[] starInfo = {
-            "§c★§7 = Kleinkriminalität",
-            "§c★★§7 = Diebstahl",
-            "§c★★★§7 = Schwere Straftat",
-            "§c★★★★§7 = Gewalttat",
-            "§c★★★★★§7 = Schwerverbrecher"
+        String[] starInfoKeys = {
+            "app.crime_stats.star_1",
+            "app.crime_stats.star_2",
+            "app.crime_stats.star_3",
+            "app.crime_stats.star_4",
+            "app.crime_stats.star_5"
         };
 
-        for (String line : starInfo) {
+        for (String key : starInfoKeys) {
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawString(this.font, line, leftPos + 15, y, 0xFFFFFF);
+                guiGraphics.drawString(this.font, Component.translatable(key).getString(), leftPos + 15, y, 0xFFFFFF);
             }
             y += 11;
             contentHeight += 11;
@@ -406,20 +406,20 @@ public class CrimeStatsAppScreen extends Screen {
         contentHeight += 8;
 
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, "§fPolizei-Verhalten:", leftPos + 15, y, 0xFFFFFF);
+            guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.police_behavior").getString(), leftPos + 15, y, 0xFFFFFF);
         }
         y += 12;
         contentHeight += 12;
 
-        String[] policeInfo = {
-            "§71-2 Sterne: Festnahme",
-            "§73-4 Sterne: Verstärkung",
-            "§75 Sterne: Großfahndung"
+        String[] policeInfoKeys = {
+            "app.crime_stats.police_1_2",
+            "app.crime_stats.police_3_4",
+            "app.crime_stats.police_5"
         };
 
-        for (String line : policeInfo) {
+        for (String key : policeInfoKeys) {
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawString(this.font, line, leftPos + 15, y, 0xAAAAAA);
+                guiGraphics.drawString(this.font, Component.translatable(key).getString(), leftPos + 15, y, 0xAAAAAA);
             }
             y += 11;
             contentHeight += 11;
@@ -436,19 +436,19 @@ public class CrimeStatsAppScreen extends Screen {
         contentHeight += 8;
 
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, "§fEntkommen:", leftPos + 15, y, 0xFFFFFF);
+            guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.escape_title").getString(), leftPos + 15, y, 0xFFFFFF);
         }
         y += 12;
         contentHeight += 12;
 
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, "§730 Sekunden verstecken", leftPos + 15, y, 0xAAAAAA);
+            guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.escape_hide").getString(), leftPos + 15, y, 0xAAAAAA);
         }
         y += 11;
         contentHeight += 11;
 
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, "§7> 40 Blöcke Entfernung", leftPos + 15, y, 0xAAAAAA);
+            guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.escape_distance").getString(), leftPos + 15, y, 0xAAAAAA);
         }
         y += 11;
         contentHeight += 11;
@@ -476,13 +476,13 @@ public class CrimeStatsAppScreen extends Screen {
 
     private String getLevelText(int level) {
         return switch (level) {
-            case 0 -> "SAUBER";
-            case 1 -> "VERDÄCHTIG";
-            case 2 -> "GESUCHT";
-            case 3 -> "GEFÄHRLICH";
-            case 4 -> "SEHR GEFÄHRLICH";
-            case 5 -> "SCHWERVERBRECHER";
-            default -> "UNBEKANNT";
+            case 0 -> Component.translatable("gui.app.crime.clean").getString();
+            case 1 -> Component.translatable("gui.app.crime.suspicious").getString();
+            case 2 -> Component.translatable("gui.app.crime.wanted").getString();
+            case 3 -> Component.translatable("gui.app.crime.dangerous").getString();
+            case 4 -> Component.translatable("gui.app.crime.very_dangerous").getString();
+            case 5 -> Component.translatable("gui.app.crime.hardcore_criminal").getString();
+            default -> Component.translatable("gui.app.crime.unknown").getString();
         };
     }
 
