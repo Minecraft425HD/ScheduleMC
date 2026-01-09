@@ -133,9 +133,9 @@ public class CreditAdvisorScreen extends AbstractContainerScreen<CreditAdvisorMe
     private void selectLoanType(CreditLoan.CreditLoanType type) {
         if (hasActiveLoan) {
             if (minecraft != null && minecraft.player != null) {
-                minecraft.player.sendSystemMessage(Component.literal(
-                    "§c§lFehler: §7Du hast bereits einen aktiven Kredit!"
-                ));
+                minecraft.player.sendSystemMessage(
+                    Component.translatable("screen.credit_advisor.error_active_loan")
+                );
             }
             return;
         }
@@ -143,10 +143,10 @@ public class CreditAdvisorScreen extends AbstractContainerScreen<CreditAdvisorMe
         // Prüfe ob Rating ausreichend ist (Client-Side check, Server validiert nochmal)
         if (creditRating.ordinal() > type.getRequiredRating().ordinal()) {
             if (minecraft != null && minecraft.player != null) {
-                minecraft.player.sendSystemMessage(Component.literal(
-                    "§c§lFehler: §7Deine Bonität reicht nicht aus!\n" +
-                    "§7Benötigt: §e" + type.getRequiredRating().getDisplayName() + "\n" +
-                    "§7Aktuell: §c" + creditRating.getDisplayName()
+                minecraft.player.sendSystemMessage(Component.translatable(
+                    "screen.credit_advisor.error_insufficient_rating",
+                    type.getRequiredRating().getDisplayName(),
+                    creditRating.getDisplayName()
                 ));
             }
             return;
@@ -233,13 +233,13 @@ public class CreditAdvisorScreen extends AbstractContainerScreen<CreditAdvisorMe
         int y = (height - imageHeight) / 2;
 
         // Header
-        guiGraphics.drawString(this.font, "KREDITBERATER", x + 95, y + 6, 0x404040, false);
+        guiGraphics.drawString(this.font, Component.translatable("screen.credit_advisor.header").getString(), x + 95, y + 6, 0x404040, false);
 
         // Bonitätsanzeige
         renderCreditScore(guiGraphics, x, y);
 
         // Verfügbare Kredite Header
-        guiGraphics.drawString(this.font, "Verfügbare Kredite:", x + 10, y + 72, 0x606060, false);
+        guiGraphics.drawString(this.font, Component.translatable("screen.credit_advisor.available_credits").getString(), x + 10, y + 72, 0x606060, false);
 
         // Kredit-Details (Zinsen, Laufzeit)
         renderLoanDetails(guiGraphics, x, y);
@@ -260,7 +260,7 @@ public class CreditAdvisorScreen extends AbstractContainerScreen<CreditAdvisorMe
         guiGraphics.fill(x + 10, boxY, x + 270, boxY + 45, 0x44000000);
 
         // "Ihre Bonität:" Label
-        guiGraphics.drawString(this.font, "Ihre Bonität:", x + 15, boxY + 5, 0x808080, false);
+        guiGraphics.drawString(this.font, Component.translatable("screen.credit_advisor.your_rating").getString(), x + 15, boxY + 5, 0x808080, false);
 
         // Sterne
         String stars = creditRating.getStarsString();
@@ -271,18 +271,18 @@ public class CreditAdvisorScreen extends AbstractContainerScreen<CreditAdvisorMe
             x + 145, boxY + 5, creditRating.getColor(), false);
 
         // Score-Zahl
-        guiGraphics.drawString(this.font, "Score: " + creditScore + "/1000",
-            x + 15, boxY + 18, 0xAAAAAA, false);
+        String scoreLabel = Component.translatable("screen.credit_advisor.score_label").getString() + creditScore + "/1000";
+        guiGraphics.drawString(this.font, scoreLabel, x + 15, boxY + 18, 0xAAAAAA, false);
 
         // Max Kreditbetrag
-        String maxAmount = String.format("Max. Kredit: %.0f€", creditRating.getMaxLoanAmount());
+        String maxAmount = Component.translatable("screen.credit_advisor.max_loan", String.format("%.0f€", creditRating.getMaxLoanAmount())).getString();
         guiGraphics.drawString(this.font, maxAmount, x + 15, boxY + 31, 0x00AA00, false);
 
         // Kontostand
         if (minecraft != null && minecraft.player != null) {
             double balance = EconomyManager.getBalance(minecraft.player.getUUID());
-            guiGraphics.drawString(this.font, String.format("Kontostand: %.2f€", balance),
-                x + 145, boxY + 31, 0xFFD700, false);
+            String balanceLabel = Component.translatable("screen.credit_advisor.balance", String.format("%.2f€", balance)).getString();
+            guiGraphics.drawString(this.font, balanceLabel, x + 145, boxY + 31, 0xFFD700, false);
         }
     }
 
@@ -293,13 +293,13 @@ public class CreditAdvisorScreen extends AbstractContainerScreen<CreditAdvisorMe
         int detailY = y + 135;
 
         // Kleine Info unter den Buttons
-        guiGraphics.drawString(this.font, "Zinsen:", x + 10, detailY, 0x808080, false);
+        guiGraphics.drawString(this.font, Component.translatable("screen.credit_advisor.interest_label").getString(), x + 10, detailY, 0x808080, false);
         guiGraphics.drawString(this.font, "8%", x + 55, detailY, 0xFFAAAA, false);
         guiGraphics.drawString(this.font, "12%", x + 80, detailY, 0xFFAAAA, false);
         guiGraphics.drawString(this.font, "15%", x + 115, detailY, 0xFFAAAA, false);
         guiGraphics.drawString(this.font, "10%", x + 150, detailY, 0xFFAAAA, false);
 
-        guiGraphics.drawString(this.font, "Laufzeit:", x + 10, detailY + 12, 0x808080, false);
+        guiGraphics.drawString(this.font, Component.translatable("screen.credit_advisor.duration_label").getString(), x + 10, detailY + 12, 0x808080, false);
         guiGraphics.drawString(this.font, "14T", x + 55, detailY + 12, 0xAAAAFF, false);
         guiGraphics.drawString(this.font, "28T", x + 80, detailY + 12, 0xAAAAFF, false);
         guiGraphics.drawString(this.font, "56T", x + 115, detailY + 12, 0xAAAAFF, false);
@@ -307,7 +307,7 @@ public class CreditAdvisorScreen extends AbstractContainerScreen<CreditAdvisorMe
 
         // Hinweis bei niedrigem Rating
         if (creditRating.ordinal() >= CreditScore.CreditRating.CCC.ordinal()) {
-            guiGraphics.drawString(this.font, "\u26A0 Niedrige Bonität - weniger Optionen",
+            guiGraphics.drawString(this.font, Component.translatable("screen.credit_advisor.low_rating_warning").getString(),
                 x + 10, detailY + 28, 0xFF5555, false);
         }
     }
@@ -322,8 +322,8 @@ public class CreditAdvisorScreen extends AbstractContainerScreen<CreditAdvisorMe
         guiGraphics.fill(x + 10, loanY, x + 270, loanY + 32, 0x66004400);
 
         // Aktiver Kredit Header
-        guiGraphics.drawString(this.font, "\u2714 AKTIVER KREDIT: " + activeLoanType,
-            x + 15, loanY + 3, 0x00FF00, false);
+        String activeLoanHeader = Component.translatable("screen.credit_advisor.active_loan_header", activeLoanType).getString();
+        guiGraphics.drawString(this.font, activeLoanHeader, x + 15, loanY + 3, 0x00FF00, false);
 
         // Fortschrittsbalken
         int barX = x + 15;
@@ -344,10 +344,12 @@ public class CreditAdvisorScreen extends AbstractContainerScreen<CreditAdvisorMe
             barX + barWidth + 5, barY, 0xFFFFFF, false);
 
         // Details
-        guiGraphics.drawString(this.font,
-            String.format("Rest: %.2f€ | Täglich: %.2f€ | %d Tage",
-                activeLoanRemaining, activeLoanDaily, activeLoanRemainingDays),
-            x + 15, loanY + 24, 0xAAAAAA, false);
+        String loanDetails = Component.translatable("screen.credit_advisor.loan_details",
+            String.format("%.2f€", activeLoanRemaining),
+            String.format("%.2f€", activeLoanDaily),
+            activeLoanRemainingDays
+        ).getString();
+        guiGraphics.drawString(this.font, loanDetails, x + 15, loanY + 24, 0xAAAAAA, false);
     }
 
     @Override

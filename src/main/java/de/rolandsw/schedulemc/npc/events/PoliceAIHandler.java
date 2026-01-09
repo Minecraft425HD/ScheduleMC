@@ -190,12 +190,12 @@ public class PoliceAIHandler {
                 PoliceSearchBehavior.stopSearch(npc, searchTarget);
                 PoliceBackupSystem.unregisterPolice(searchTarget, npc.getUUID());
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("[POLICE] {} hat die Suche aufgegeben", npc.getNpcName());
+                    LOGGER.debug("[POLICE] {} has given up the search", npc.getNpcName());
                 }
             } else {
                 // Weiter suchen
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("[POLICE] {} führt Suche fort", npc.getNpcName());
+                    LOGGER.debug("[POLICE] {} continues search", npc.getNpcName());
                 }
                 PoliceSearchBehavior.searchArea(npc, searchTarget, currentTick);
             }
@@ -213,7 +213,7 @@ public class PoliceAIHandler {
                 targetCriminal = assignedPlayer;
                 highestWantedLevel = getCachedWantedLevel(assignedPlayer.getUUID()); // OPTIMIERT: Cache nutzen
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("[BACKUP] {} verfolgt zugewiesenes Ziel: {}",
+                    LOGGER.debug("[BACKUP] {} pursues assigned target: {}",
                         npc.getNpcName(), assignedPlayer.getName().getString());
                 }
             }
@@ -263,7 +263,7 @@ public class PoliceAIHandler {
                 if (previousStartTick == null) {
                     // Neuer Arrest-Timer gestartet (wir waren erste)
                     int cooldownSeconds = ConfigCache.getPoliceArrestCooldownSeconds();
-                    targetCriminal.sendSystemMessage(Component.translatable("message.police.arrest_in_progress", cooldownSeconds));
+                    targetCriminal.sendSystemMessage(Component.translatable("event.police.arrest_in_progress", cooldownSeconds));
                 } else {
                     // Timer läuft bereits - prüfe ob abgelaufen
                     long elapsed = currentTick - previousStartTick;
@@ -279,7 +279,7 @@ public class PoliceAIHandler {
 
                         if (elapsed % 20 == 0) { // Jede Sekunde
                             targetCriminal.sendSystemMessage(
-                                Component.literal("§c⚠ FESTNAHME in " + remainingSeconds + "s...")
+                                Component.translatable("event.police.arrest_in", remainingSeconds)
                             );
                         }
                     }
@@ -297,18 +297,18 @@ public class PoliceAIHandler {
                     // Spieler ist versteckt - NICHT ins Gebäude folgen!
                     // Stattdessen: Gebiet durchsuchen / vor Gebäude warten
                     if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("[POLICE] {} - Spieler ist versteckt, wechsle zu Suchmodus", npc.getNpcName());
+                        LOGGER.debug("[POLICE] {} - Player is hidden, switching to search mode", npc.getNpcName());
                     }
 
                     // Reset Timer falls vorhanden (atomare Operation)
                     if (arrestTimers.remove(playerUUID) != null) {
-                        targetCriminal.sendSystemMessage(Component.translatable("message.police.escaped"));
+                        targetCriminal.sendSystemMessage(Component.translatable("event.police.escaped"));
                     }
 
                     // Starte Suchverhalten statt direkter Verfolgung
                     if (!PoliceSearchBehavior.isSearching(npc)) {
                         PoliceSearchBehavior.startSearch(npc, targetCriminal, currentTick);
-                        targetCriminal.sendSystemMessage(Component.translatable("message.police.searching_area"));
+                        targetCriminal.sendSystemMessage(Component.translatable("event.police.searching_area"));
                     }
 
                     // Speichere dass wir diesen Spieler verfolgen
@@ -319,7 +319,7 @@ public class PoliceAIHandler {
 
                     // Reset Timer falls vorhanden (atomare Operation)
                     if (arrestTimers.remove(playerUUID) != null) {
-                        targetCriminal.sendSystemMessage(Component.translatable("message.police.escaped"));
+                        targetCriminal.sendSystemMessage(Component.translatable("event.police.escaped"));
                     }
 
                     // Verfolge direkt
@@ -328,7 +328,7 @@ public class PoliceAIHandler {
                     // Warnung alle 5 Sekunden
                     if (npc.tickCount % 100 == 0) {
                         targetCriminal.sendSystemMessage(
-                            Component.translatable("message.police.stop")
+                            Component.translatable("event.police.stop")
                         );
                     }
                 }
@@ -342,7 +342,7 @@ public class PoliceAIHandler {
 
             if (lastTarget != null) {
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("[POLICE] {} hat Verfolgungsziel verloren, starte Suche...", npc.getNpcName());
+                    LOGGER.debug("[POLICE] {} has lost pursuit target, starting search...", npc.getNpcName());
                 }
 
                 // Starte Suchverhalten für verlorenen Spieler
@@ -350,13 +350,13 @@ public class PoliceAIHandler {
 
                 if (lostPlayer != null && CrimeManager.getWantedLevel(lastTarget) > 0) {
                     if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("[POLICE] {} startet Suche nach {}", npc.getNpcName(), lostPlayer.getName().getString());
+                        LOGGER.debug("[POLICE] {} starts search for {}", npc.getNpcName(), lostPlayer.getName().getString());
                     }
                     PoliceSearchBehavior.startSearch(npc, lostPlayer, currentTick);
-                    lostPlayer.sendSystemMessage(Component.translatable("message.police.searching_area"));
+                    lostPlayer.sendSystemMessage(Component.translatable("event.police.searching_area"));
                 } else {
                     if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("[POLICE] {} kann Spieler nicht finden oder Wanted-Level ist 0", npc.getNpcName());
+                        LOGGER.debug("[POLICE] {} cannot find player or wanted level is 0", npc.getNpcName());
                     }
                 }
 
@@ -440,7 +440,7 @@ public class PoliceAIHandler {
         if (player.getPersistentData().getBoolean("DoublePenalty")) {
             jailTimeSeconds *= 2;
             player.getPersistentData().remove("DoublePenalty");
-            LOGGER.warn("[RAID] Haftzeit verdoppelt wegen unbezahlter Raid-Strafe");
+            LOGGER.warn("[RAID] Jail time doubled due to unpaid raid fine");
         }
 
         // Geld aus Wallet-Item abziehen
@@ -451,15 +451,15 @@ public class PoliceAIHandler {
             if (currentMoney >= fine) {
                 // Strafe bezahlen
                 CashItem.removeValue(wallet, fine);
-                player.sendSystemMessage(Component.translatable("message.police.arrested"));
-                player.sendSystemMessage(Component.literal("§7Strafe: §c" + fine + "€"));
+                player.sendSystemMessage(Component.translatable("event.police.arrested"));
+                player.sendSystemMessage(Component.translatable("event.police.fine", fine));
             } else {
                 // Nicht genug Geld → Gefängnis länger + alles konfisziert
                 jailTimeSeconds *= 2;
                 CashItem.setValue(wallet, 0);
-                player.sendSystemMessage(Component.translatable("message.police.arrested"));
-                player.sendSystemMessage(Component.literal("§7Alles Bargeld konfisziert!"));
-                player.sendSystemMessage(Component.literal("§c§lDOPPELTE HAFTZEIT!"));
+                player.sendSystemMessage(Component.translatable("event.police.arrested"));
+                player.sendSystemMessage(Component.translatable("event.police.cash_confiscated"));
+                player.sendSystemMessage(Component.translatable("event.police.double_jail_time"));
             }
         }
 
@@ -489,8 +489,8 @@ public class PoliceAIHandler {
 
             CrimeManager.clearWantedLevel(player.getUUID());
 
-            player.sendSystemMessage(Component.literal("§7Haftzeit: §e" + jailTimeSeconds + " Sekunden"));
-            player.sendSystemMessage(Component.translatable("message.npc.wanted_level_reset"));
+            player.sendSystemMessage(Component.translatable("event.police.jail_time", jailTimeSeconds));
+            player.sendSystemMessage(Component.translatable("event.police.wanted_level_reset"));
         }
 
         // Reset Arrest-Timer
@@ -526,8 +526,8 @@ public class PoliceAIHandler {
                 player.getPersistentData().remove("JailY");
                 player.getPersistentData().remove("JailZ");
 
-                player.sendSystemMessage(Component.translatable("message.police.freed"));
-                player.sendSystemMessage(Component.literal("§7Halte dich von nun an an das Gesetz."));
+                player.sendSystemMessage(Component.translatable("event.police.freed"));
+                player.sendSystemMessage(Component.translatable("event.police.obey_law"));
 
                 // Entferne Effekte
                 player.removeEffect(MobEffects.MOVEMENT_SLOWDOWN);
@@ -545,7 +545,7 @@ public class PoliceAIHandler {
 
                 if (player.distanceToSqr(jailX, jailY, jailZ) > 100) {
                     player.teleportTo(jailX, jailY, jailZ);
-                    player.sendSystemMessage(Component.translatable("message.police.escape_prevented"));
+                    player.sendSystemMessage(Component.translatable("event.police.escape_prevented"));
                 }
 
                 // Zeit anzeigen alle 10 Sekunden
@@ -553,9 +553,7 @@ public class PoliceAIHandler {
                     long remainingTicks = releaseTime - currentTime;
                     long remainingSeconds = remainingTicks / 20;
 
-                    player.sendSystemMessage(Component.literal(
-                        "§7Noch §e" + remainingSeconds + " Sekunden §7im Gefängnis..."
-                    ));
+                    player.sendSystemMessage(Component.translatable("event.police.time_remaining", remainingSeconds));
                 }
             }
         }
@@ -613,12 +611,12 @@ public class PoliceAIHandler {
                 // Spieler kann sich verstecken → Start Escape-Timer
                 if (!CrimeManager.isHiding(player.getUUID())) {
                     CrimeManager.startEscapeTimer(player.getUUID(), currentTick);
-                    player.sendSystemMessage(Component.translatable("message.police.hiding"));
+                    player.sendSystemMessage(Component.translatable("event.police.hiding"));
                 }
 
                 // Prüfe ob Escape erfolgreich
                 if (CrimeManager.checkEscapeSuccess(player.getUUID(), currentTick)) {
-                    player.sendSystemMessage(Component.translatable("message.police.escaped_star"));
+                    player.sendSystemMessage(Component.translatable("event.police.escaped_star"));
                 }
             } else {
                 // Spieler kann sich nicht verstecken → Stop Escape-Timer
@@ -628,13 +626,13 @@ public class PoliceAIHandler {
                     boolean isIndoors = PoliceSearchBehavior.isPlayerHidingIndoors(player);
                     if (isIndoors) {
                         // Im Gebäude aber am Fenster sichtbar
-                        player.sendSystemMessage(Component.translatable("message.police.discovered_window"));
+                        player.sendSystemMessage(Component.translatable("event.police.discovered_window"));
                     } else if (minDistance <= CrimeManager.ESCAPE_DISTANCE) {
                         // Draußen und Polizei zu nah
-                        player.sendSystemMessage(Component.translatable("message.police.too_close"));
+                        player.sendSystemMessage(Component.translatable("event.police.too_close"));
                     } else {
                         // Draußen und sichtbar
-                        player.sendSystemMessage(Component.translatable("message.police.spotted"));
+                        player.sendSystemMessage(Component.translatable("event.police.spotted"));
                     }
                 }
             }

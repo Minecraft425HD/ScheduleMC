@@ -3,13 +3,14 @@ package de.rolandsw.schedulemc.coca;
 import de.rolandsw.schedulemc.production.core.ProductionType;
 import de.rolandsw.schedulemc.production.core.ProductionQuality;
 import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
+import net.minecraft.network.chat.Component;
 
 /**
  * Koka-Sorten mit unterschiedlichen Eigenschaften
  */
 public enum CocaType implements ProductionType {
-    BOLIVIANISCH("Bolivianisch", "§a", 20.0, 100, 0.8, 6),
-    KOLUMBIANISCH("Kolumbianisch", "§2", 35.0, 140, 1.0, 6);
+    BOLIVIANISCH(Component.translatable("enum.coca_type.bolivianisch").getString(), "§a", 20.0, 100, 0.8, 6),
+    KOLUMBIANISCH(Component.translatable("enum.coca_type.kolumbianisch").getString(), "§2", 35.0, 140, 1.0, 6);
 
     private final String displayName;
     private final String colorCode;

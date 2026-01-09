@@ -65,17 +65,13 @@ public class ChemieMixerBlock extends Block implements EntityBlock {
                 if (!player.isCreative()) {
                     heldItem.shrink(1);
                 }
-                String type = heldItem.getItem() instanceof PseudoephedrinItem ? "Pseudoephedrin" : "Ephedrin";
-                player.displayClientMessage(Component.literal(
-                        "§a✓ " + type + " hinzugefügt!\n" +
-                        "§7Status: §f" + mixer.getIngredientStatus()
-                ), true);
+                String translationKey = heldItem.getItem() instanceof PseudoephedrinItem ?
+                    "block.chemie_mixer.pseudoephedrin_added" : "block.chemie_mixer.ephedrin_added";
+                player.displayClientMessage(Component.translatable(translationKey, mixer.getIngredientStatus()), true);
                 player.playSound(net.minecraft.sounds.SoundEvents.BREWING_STAND_BREW, 0.5f, 1.2f);
                 return InteractionResult.SUCCESS;
             } else {
-                player.displayClientMessage(Component.literal(
-                        "§c✗ Mixer ist voll oder kein Slot verfügbar!"
-                ), true);
+                player.displayClientMessage(Component.translatable("block.chemie_mixer.full"), true);
                 return InteractionResult.FAIL;
             }
         }
@@ -86,16 +82,11 @@ public class ChemieMixerBlock extends Block implements EntityBlock {
                 if (!player.isCreative()) {
                     heldItem.shrink(1);
                 }
-                player.displayClientMessage(Component.literal(
-                        "§a✓ Roter Phosphor hinzugefügt!\n" +
-                        "§7Status: §f" + mixer.getIngredientStatus()
-                ), true);
+                player.displayClientMessage(Component.translatable("block.chemie_mixer.phosphor_added", mixer.getIngredientStatus()), true);
                 player.playSound(net.minecraft.sounds.SoundEvents.BREWING_STAND_BREW, 0.5f, 1.0f);
                 return InteractionResult.SUCCESS;
             } else {
-                player.displayClientMessage(Component.literal(
-                        "§c✗ Kein Slot mit Ephedrin verfügbar!"
-                ), true);
+                player.displayClientMessage(Component.translatable("block.chemie_mixer.no_ephedrin_slot"), true);
                 return InteractionResult.FAIL;
             }
         }
@@ -106,16 +97,11 @@ public class ChemieMixerBlock extends Block implements EntityBlock {
                 if (!player.isCreative()) {
                     heldItem.shrink(1);
                 }
-                player.displayClientMessage(Component.literal(
-                        "§a✓ Jod hinzugefügt - Mischvorgang gestartet!\n" +
-                        "§7Status: §f" + mixer.getIngredientStatus()
-                ), true);
+                player.displayClientMessage(Component.translatable("block.chemie_mixer.jod_added", mixer.getIngredientStatus()), true);
                 player.playSound(net.minecraft.sounds.SoundEvents.BREWING_STAND_BREW, 0.5f, 0.8f);
                 return InteractionResult.SUCCESS;
             } else {
-                player.displayClientMessage(Component.literal(
-                        "§c✗ Kein Slot mit Phosphor verfügbar!"
-                ), true);
+                player.displayClientMessage(Component.translatable("block.chemie_mixer.no_phosphor_slot"), true);
                 return InteractionResult.FAIL;
             }
         }
@@ -128,31 +114,31 @@ public class ChemieMixerBlock extends Block implements EntityBlock {
                     if (!player.getInventory().add(output)) {
                         player.drop(output, false);
                     }
-                    player.displayClientMessage(Component.literal(
-                            "§a✓ " + output.getCount() + "x Meth-Paste entnommen!"
-                    ), true);
+                    player.displayClientMessage(Component.translatable("block.chemie_mixer.output_extracted", output.getCount()), true);
                     player.playSound(net.minecraft.sounds.SoundEvents.ITEM_PICKUP, 1.0f, 1.0f);
                     return InteractionResult.SUCCESS;
                 }
             }
 
             // Status anzeigen
-            StringBuilder status = new StringBuilder();
-            status.append("§9⚗ Chemie-Mixer\n");
-            status.append("§7Zutaten: §f").append(mixer.getIngredientStatus()).append("\n");
+            Component message = Component.translatable("block.chemie_mixer.title")
+                .append(Component.literal("\n"))
+                .append(Component.translatable("block.chemie_mixer.ingredients", mixer.getIngredientStatus()))
+                .append(Component.literal("\n"));
 
             if (mixer.isActive()) {
                 int progress = (int)(mixer.getAverageProgress() * 100);
-                status.append("§7Fortschritt: §e").append(progress).append("%\n");
+                message = message.append(Component.translatable("block.chemie_mixer.progress", progress))
+                    .append(Component.literal("\n"));
             }
 
             if (mixer.hasOutput()) {
-                status.append("§a").append(mixer.getOutputCount()).append("x Meth-Paste fertig!");
+                message = message.append(Component.translatable("block.chemie_mixer.output_ready", mixer.getOutputCount()));
             } else if (!mixer.hasIngredients()) {
-                status.append("§8Füge Ephedrin, Phosphor und Jod hinzu");
+                message = message.append(Component.translatable("block.chemie_mixer.empty"));
             }
 
-            player.displayClientMessage(Component.literal(status.toString()), true);
+            player.displayClientMessage(message, true);
             return InteractionResult.SUCCESS;
         }
 

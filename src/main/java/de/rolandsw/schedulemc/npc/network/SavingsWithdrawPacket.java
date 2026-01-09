@@ -89,13 +89,13 @@ public class SavingsWithdrawPacket {
                     int daysLeft = account.getDaysUntilUnlock(currentDay);
                     player.sendSystemMessage(Component.translatable("message.bank.savings_locked")
                         .withStyle(ChatFormatting.RED));
-                    player.sendSystemMessage(Component.literal("Verbleibende Tage: ")
+                    player.sendSystemMessage(Component.translatable("network.bank.remaining_days")
                         .withStyle(ChatFormatting.GRAY)
                         .append(Component.literal(String.format("%d", daysLeft))
                             .withStyle(ChatFormatting.YELLOW)));
-                    player.sendSystemMessage(Component.literal("Hinweis: ")
+                    player.sendSystemMessage(Component.translatable("network.bank.hint_label")
                         .withStyle(ChatFormatting.GRAY)
-                        .append(Component.literal("Vorzeitige Abhebung: -10% Strafe")
+                        .append(Component.translatable("network.bank.early_withdrawal_penalty")
                             .withStyle(ChatFormatting.RED)));
                 } else if (account.getBalance() < amount) {
                     // Nicht genug Guthaben
@@ -106,7 +106,7 @@ public class SavingsWithdrawPacket {
                         .append(Component.literal(String.format("%.2f€", account.getBalance()))
                             .withStyle(ChatFormatting.YELLOW)));
                 } else {
-                    player.sendSystemMessage(Component.literal("⚠ Fehler bei der Abhebung!")
+                    player.sendSystemMessage(Component.translatable("network.bank.withdrawal_error")
                         .withStyle(ChatFormatting.RED));
                 }
             }

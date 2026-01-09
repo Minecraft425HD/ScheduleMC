@@ -45,10 +45,21 @@ public class BankAppScreen extends Screen {
 
     // Tab-System
     private int currentTab = 0;
-    private static final String[] TAB_NAMES = {"Konto", "Historie", "Überweisung", "Daueraufträge"};
     private static final int TAB_HEIGHT = 22;
-    // Tab widths: Konto (45), Historie (45), Überweisung (56), Daueraufträge (76)
+    // Tab widths: Account (45), History (45), Transfer (56), Recurring (76)
     private static final int[] TAB_WIDTHS = {45, 45, 56, 76};
+
+    /**
+     * Get localized tab names
+     */
+    private String[] getTabNames() {
+        return new String[]{
+            Component.translatable("gui.app.bank.tab.account").getString(),
+            Component.translatable("gui.app.bank.tab.history").getString(),
+            Component.translatable("gui.app.bank.tab.transfer").getString(),
+            Component.translatable("gui.app.bank.tab.recurring").getString()
+        };
+    }
 
     // Scrolling
     private int scrollOffset = 0;
@@ -98,10 +109,10 @@ public class BankAppScreen extends Screen {
 
         // Tab-Buttons mit individuellen Breiten
         int currentX = leftPos + 5;
-        for (int i = 0; i < TAB_NAMES.length; i++) {
+        for (int i = 0; i < getTabNames().length; i++) {
             final int tabIndex = i;
             addRenderableWidget(Button.builder(
-                Component.literal(TAB_NAMES[i]),
+                Component.literal(getTabNames()[i]),
                 button -> {
                     currentTab = tabIndex;
                     scrollOffset = 0;
@@ -177,7 +188,7 @@ public class BankAppScreen extends Screen {
         // Refresh-Button
         addRenderableWidget(Button.builder(Component.literal("↻"), button -> {
             refreshData();
-            transferMessage = "§aDaten aktualisiert!";
+            transferMessage = Component.translatable("message.bank.data_refreshed").getString();
             transferMessageColor = 0x55FF55;
         }).bounds(leftPos + WIDTH - 30, topPos + HEIGHT - 30, 20, 20).build());
     }
@@ -216,13 +227,13 @@ public class BankAppScreen extends Screen {
 
         // Validierung
         if (recipient.isEmpty()) {
-            transferMessage = "§cBitte Empfänger eingeben!";
+            transferMessage = Component.translatable("message.bank.enter_recipient").getString();
             transferMessageColor = 0xFF5555;
             return;
         }
 
         if (amountStr.isEmpty()) {
-            transferMessage = "§cBitte Betrag eingeben!";
+            transferMessage = Component.translatable("message.bank.enter_amount").getString();
             transferMessageColor = 0xFF5555;
             return;
         }
@@ -231,19 +242,19 @@ public class BankAppScreen extends Screen {
         try {
             amount = Double.parseDouble(amountStr);
         } catch (NumberFormatException e) {
-            transferMessage = "§cUngültiger Betrag!";
+            transferMessage = Component.translatable("message.bank.invalid_amount").getString();
             transferMessageColor = 0xFF5555;
             return;
         }
 
         if (amount <= 0) {
-            transferMessage = "§cBetrag muss positiv sein!";
+            transferMessage = Component.translatable("message.bank.amount_positive").getString();
             transferMessageColor = 0xFF5555;
             return;
         }
 
         if (amount > balance) {
-            transferMessage = "§cNicht genug Geld!";
+            transferMessage = Component.translatable("message.bank.insufficient_funds").getString();
             transferMessageColor = 0xFF5555;
             return;
         }
@@ -252,7 +263,7 @@ public class BankAppScreen extends Screen {
         NPCNetworkHandler.sendToServer(new BankTransferPacket(recipient, amount));
 
         // Lokale Bestätigung (Server sendet detaillierte Nachricht)
-        transferMessage = String.format("§aÜberweisung an %s (%.2f€) wird verarbeitet...", recipient, amount);
+        transferMessage = Component.translatable("message.bank.transfer_processing", recipient, amount).getString();
         transferMessageColor = 0x55FF55;
 
         // Felder leeren
@@ -276,14 +287,14 @@ public class BankAppScreen extends Screen {
 
         // Validierung: Empfänger
         if (recipient.isEmpty()) {
-            transferMessage = "§cBitte Empfänger eingeben!";
+            transferMessage = Component.translatable("message.bank.enter_recipient").getString();
             transferMessageColor = 0xFF5555;
             return;
         }
 
         // Validierung: Betrag
         if (amountStr.isEmpty()) {
-            transferMessage = "§cBitte Betrag eingeben!";
+            transferMessage = Component.translatable("message.bank.enter_amount").getString();
             transferMessageColor = 0xFF5555;
             return;
         }
@@ -292,13 +303,13 @@ public class BankAppScreen extends Screen {
         try {
             amount = Double.parseDouble(amountStr);
         } catch (NumberFormatException e) {
-            transferMessage = "§cUngültiger Betrag!";
+            transferMessage = Component.translatable("message.bank.invalid_amount").getString();
             transferMessageColor = 0xFF5555;
             return;
         }
 
         if (amount <= 0) {
-            transferMessage = "§cBetrag muss positiv sein!";
+            transferMessage = Component.translatable("message.bank.amount_positive").getString();
             transferMessageColor = 0xFF5555;
             return;
         }
@@ -307,8 +318,8 @@ public class BankAppScreen extends Screen {
         NPCNetworkHandler.sendToServer(new CreateRecurringPaymentPacket(recipient, amount, selectedInterval));
 
         // Erfolgs-Nachricht
-        transferMessage = String.format("§aDauerauftrag an %s (%.2f€ %s) erstellt!",
-            recipient, amount, selectedInterval.getDisplayName().toLowerCase());
+        transferMessage = Component.translatable("message.bank.recurring_created",
+            recipient, amount, selectedInterval.getDisplayName().toLowerCase()).getString();
         transferMessageColor = 0x55FF55;
 
         // Felder leeren
@@ -330,7 +341,7 @@ public class BankAppScreen extends Screen {
 
         // Tab-Hintergrund (aktiver Tab hervorheben)
         int currentX = leftPos + 5;
-        for (int i = 0; i < TAB_NAMES.length; i++) {
+        for (int i = 0; i < getTabNames().length; i++) {
             int tabY = topPos + 30;
             if (i == currentTab) {
                 guiGraphics.fill(currentX - 1, tabY - 1, currentX + TAB_WIDTHS[i] - 3, tabY + TAB_HEIGHT + 1, 0xFF4A90E2);
@@ -373,13 +384,15 @@ public class BankAppScreen extends Screen {
         if (y >= startY - 60 && y < endY) {
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 55, 0x44228B22);
 
-            guiGraphics.drawCenteredString(this.font, "§f§lKontostand", leftPos + WIDTH / 2, y + 5, 0xFFFFFF);
+            guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.bank.balance_title").getString(), leftPos + WIDTH / 2, y + 5, 0xFFFFFF);
 
             String balanceStr = String.format("§6§l%.2f€", balance);
             guiGraphics.drawCenteredString(this.font, balanceStr, leftPos + WIDTH / 2, y + 22, 0xFFAA00);
 
             String balanceColor = balance >= 0 ? "§a" : "§c";
-            String balanceStatus = balance >= 0 ? "Positiv" : "Dispo";
+            String balanceStatus = balance >= 0 ?
+                Component.translatable("gui.app.bank.balance_positive").getString() :
+                Component.translatable("gui.app.bank.balance_overdraft").getString();
             guiGraphics.drawCenteredString(this.font, balanceColor + balanceStatus, leftPos + WIDTH / 2, y + 40, 0xFFFFFF);
         }
         y += 60;
@@ -393,14 +406,14 @@ public class BankAppScreen extends Screen {
         contentHeight += 8;
 
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, "§6§lStatistiken", leftPos + 15, y, 0xFFAA00);
+            guiGraphics.drawString(this.font, Component.translatable("gui.app.bank.statistics").getString(), leftPos + 15, y, 0xFFAA00);
         }
         y += 15;
         contentHeight += 15;
 
         // Einnahmen
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, "§aEinnahmen:", leftPos + 15, y, 0x55FF55);
+            guiGraphics.drawString(this.font, Component.translatable("gui.app.bank.income").getString(), leftPos + 15, y, 0x55FF55);
             guiGraphics.drawString(this.font, String.format("§f+%.2f€", totalIncome), leftPos + 110, y, 0xFFFFFF);
         }
         y += 12;
@@ -408,7 +421,7 @@ public class BankAppScreen extends Screen {
 
         // Ausgaben
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, "§cAusgaben:", leftPos + 15, y, 0xFF5555);
+            guiGraphics.drawString(this.font, Component.translatable("gui.app.bank.expenses").getString(), leftPos + 15, y, 0xFF5555);
             guiGraphics.drawString(this.font, String.format("§f-%.2f€", totalExpenses), leftPos + 110, y, 0xFFFFFF);
         }
         y += 12;
@@ -418,7 +431,7 @@ public class BankAppScreen extends Screen {
         double balance = totalIncome - totalExpenses;
         String balanceColor = balance >= 0 ? "§a" : "§c";
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, "§fBilanz:", leftPos + 15, y, 0xFFFFFF);
+            guiGraphics.drawString(this.font, Component.translatable("gui.app.bank.balance_calc").getString(), leftPos + 15, y, 0xFFFFFF);
             guiGraphics.drawString(this.font, balanceColor + String.format("%.2f€", balance), leftPos + 110, y, 0xFFFFFF);
         }
         y += 15;
@@ -432,7 +445,7 @@ public class BankAppScreen extends Screen {
         contentHeight += 8;
 
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawCenteredString(this.font, "§7Transaktionen: " + recentTransactions.size(), leftPos + WIDTH / 2, y, 0xAAAAAA);
+            guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.bank.transactions_count").getString() + recentTransactions.size(), leftPos + WIDTH / 2, y, 0xAAAAAA);
         }
         y += 12;
         contentHeight += 12;
@@ -449,14 +462,14 @@ public class BankAppScreen extends Screen {
         int contentHeight = 0;
 
         if (recentTransactions.isEmpty()) {
-            guiGraphics.drawCenteredString(this.font, "§7Keine Transaktionen", leftPos + WIDTH / 2, y + 20, 0xAAAAAA);
+            guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.bank.no_transactions").getString(), leftPos + WIDTH / 2, y + 20, 0xAAAAAA);
             maxScroll = 0;
             return;
         }
 
         // Header
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, "§e" + recentTransactions.size() + " Transaktionen", leftPos + 15, y, 0xFFAA00);
+            guiGraphics.drawString(this.font, Component.translatable("gui.app.bank.transactions_header", recentTransactions.size()).getString(), leftPos + 15, y, 0xFFAA00);
         }
         y += 15;
         contentHeight += 15;
@@ -496,12 +509,12 @@ public class BankAppScreen extends Screen {
 
     private void renderTransferTab(GuiGraphics guiGraphics, int startY, int endY) {
         // Aktueller Kontostand
-        guiGraphics.drawString(this.font, "§7Verfügbar:", leftPos + 15, startY, 0xAAAAAA);
+        guiGraphics.drawString(this.font, Component.translatable("gui.app.bank.available").getString(), leftPos + 15, startY, 0xAAAAAA);
         guiGraphics.drawString(this.font, String.format("§6%.2f€", balance), leftPos + 110, startY, 0xFFAA00);
 
         // Labels für Form-Felder (über den EditBoxen mit ausreichend Abstand)
-        guiGraphics.drawString(this.font, "§fEmpfängername:", leftPos + 15, startY + 13, 0xFFFFFF);
-        guiGraphics.drawString(this.font, "§fBetrag in €:", leftPos + 15, startY + 51, 0xFFFFFF);
+        guiGraphics.drawString(this.font, Component.translatable("gui.app.bank.recipient_name").getString(), leftPos + 15, startY + 13, 0xFFFFFF);
+        guiGraphics.drawString(this.font, Component.translatable("gui.app.bank.amount_label").getString(), leftPos + 15, startY + 51, 0xFFFFFF);
 
         // Transfer-Message
         if (!transferMessage.isEmpty()) {
@@ -515,7 +528,7 @@ public class BankAppScreen extends Screen {
         }
 
         // Info
-        guiGraphics.drawCenteredString(this.font, "§8Überweisung an andere Spieler", leftPos + WIDTH / 2, startY + 130, 0x666666);
+        guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.bank.transfer_info").getString(), leftPos + WIDTH / 2, startY + 130, 0x666666);
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -528,7 +541,7 @@ public class BankAppScreen extends Screen {
         // ═══════════════════════════════════════════════════════════
 
         // Überschrift
-        guiGraphics.drawCenteredString(this.font, "§6§lDaueraufträge", leftPos + WIDTH / 2, startY, 0xFFAA00);
+        guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.bank.recurring_title").getString(), leftPos + WIDTH / 2, startY, 0xFFAA00);
 
         // Limit-Anzeige (10er-Limit prüfen)
         Minecraft mc = Minecraft.getInstance();
@@ -544,20 +557,20 @@ public class BankAppScreen extends Screen {
 
             String limitStr = totalCount + "/" + maxPerPlayer;
             int limitColor = totalCount >= maxPerPlayer ? 0xFF5555 : 0x00AA00;
-            guiGraphics.drawString(this.font, "Limit: " + limitStr, leftPos + WIDTH - 70, startY, limitColor, false);
+            guiGraphics.drawString(this.font, Component.translatable("gui.app.bank.limit").getString() + limitStr, leftPos + WIDTH - 70, startY, limitColor, false);
 
             if (totalCount >= maxPerPlayer) {
-                guiGraphics.drawString(this.font, "§c§lMAX!", leftPos + WIDTH - 70, startY + 10, 0xFF5555, false);
+                guiGraphics.drawString(this.font, Component.translatable("gui.app.bank.max").getString(), leftPos + WIDTH - 70, startY + 10, 0xFF5555, false);
             }
         }
 
         // Neuer Dauerauftrag Überschrift
-        guiGraphics.drawString(this.font, "§fNeuer Dauerauftrag:", leftPos + 15, startY + 10, 0xFFFFFF);
+        guiGraphics.drawString(this.font, Component.translatable("gui.app.bank.new_recurring").getString(), leftPos + 15, startY + 10, 0xFFFFFF);
 
         // Form Labels (direkt über den Input-Feldern - FIXED positions wie EditBoxes)
-        guiGraphics.drawString(this.font, "§7Empfänger:", leftPos + 15, startY + 25, 0xAAAAAA);
-        guiGraphics.drawString(this.font, "§7Betrag:", leftPos + 15, startY + 59, 0xAAAAAA);
-        guiGraphics.drawString(this.font, "§7Intervall:", leftPos + 15, startY + 93, 0xAAAAAA);
+        guiGraphics.drawString(this.font, Component.translatable("gui.app.bank.recipient_label").getString(), leftPos + 15, startY + 25, 0xAAAAAA);
+        guiGraphics.drawString(this.font, Component.translatable("gui.app.bank.amount_recurring_label").getString(), leftPos + 15, startY + 59, 0xAAAAAA);
+        guiGraphics.drawString(this.font, Component.translatable("gui.app.bank.interval_label").getString(), leftPos + 15, startY + 93, 0xAAAAAA);
 
         // Erfolgsmeldung (unter dem Erstellen-Button)
         if (!transferMessage.isEmpty()) {
@@ -581,7 +594,7 @@ public class BankAppScreen extends Screen {
 
         // Aktive Daueraufträge Header
         if (y >= listStartY - 15 && y < endY) {
-            guiGraphics.drawString(this.font, "§fAktive Daueraufträge:", leftPos + 15, y, 0xFFFFFF);
+            guiGraphics.drawString(this.font, Component.translatable("gui.app.bank.active_recurring").getString(), leftPos + 15, y, 0xFFFFFF);
         }
         y += 15;
         contentHeight += 15;
@@ -600,7 +613,7 @@ public class BankAppScreen extends Screen {
 
             if (!hasAnyPayments) {
                 if (y >= listStartY - 15 && y < endY) {
-                    guiGraphics.drawCenteredString(this.font, "§7Keine aktiven Daueraufträge",
+                    guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.bank.no_recurring").getString(),
                         leftPos + WIDTH / 2, y, 0xAAAAAA);
                 }
                 y += 15;
@@ -613,16 +626,16 @@ public class BankAppScreen extends Screen {
                         guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 45, 0x44AA6600);
 
                         // Kredit-Symbol und Typ
-                        guiGraphics.drawString(this.font, "§6💳 KREDIT", leftPos + 15, y + 3, 0xFFAA00);
+                        guiGraphics.drawString(this.font, Component.translatable("gui.app.bank.credit_title").getString(), leftPos + 15, y + 3, 0xFFAA00);
                         guiGraphics.drawString(this.font, "§f" + activeLoan.getType().getDisplayNameDE(), leftPos + 80, y + 3, 0xFFFFFF);
 
                         // Tägliche Rate
                         String dailyStr = String.format("§e%.2f€", activeLoan.getDailyPayment());
-                        guiGraphics.drawString(this.font, "§fTäglich: " + dailyStr, leftPos + 15, y + 15, 0xFFFFFF);
+                        guiGraphics.drawString(this.font, Component.translatable("gui.app.bank.credit_daily").getString() + dailyStr, leftPos + 15, y + 15, 0xFFFFFF);
 
                         // Restbetrag und Fortschritt
                         String remainingStr = String.format("§c%.2f€", activeLoan.getRemaining());
-                        guiGraphics.drawString(this.font, "§fRest: " + remainingStr, leftPos + 15, y + 27, 0xFFFFFF);
+                        guiGraphics.drawString(this.font, Component.translatable("gui.app.bank.credit_remaining").getString() + remainingStr, leftPos + 15, y + 27, 0xFFFFFF);
 
                         // Fortschrittsbalken
                         int progress = activeLoan.getProgressPercent();
@@ -646,18 +659,20 @@ public class BankAppScreen extends Screen {
                         if (recipientStr.length() > 30) {
                             recipientStr = recipientStr.substring(0, 27) + "...";
                         }
-                        guiGraphics.drawString(this.font, "§fAn: §b" + recipientStr, leftPos + 15, y + 3, 0xFFFFFF);
+                        guiGraphics.drawString(this.font, Component.translatable("gui.app.bank.payment_to").getString() + recipientStr, leftPos + 15, y + 3, 0xFFFFFF);
 
                         // Betrag
                         String amountStr = String.format("§6%.2f€", payment.getAmount());
-                        guiGraphics.drawString(this.font, "§fBetrag: " + amountStr, leftPos + 15, y + 15, 0xFFFFFF);
+                        guiGraphics.drawString(this.font, Component.translatable("gui.app.bank.payment_amount").getString() + amountStr, leftPos + 15, y + 15, 0xFFFFFF);
 
                         // Intervall
                         String intervalName = RecurringPaymentInterval.fromDays(payment.getIntervalDays()).getDisplayName();
-                        guiGraphics.drawString(this.font, "§fIntervall: §e" + intervalName, leftPos + 15, y + 27, 0xFFFFFF);
+                        guiGraphics.drawString(this.font, Component.translatable("gui.app.bank.payment_interval").getString() + intervalName, leftPos + 15, y + 27, 0xFFFFFF);
 
                         // Status
-                        String statusStr = payment.isActive() ? "§a● Aktiv" : "§e⏸ Pausiert";
+                        String statusStr = payment.isActive() ?
+                            Component.translatable("gui.app.bank.payment_status_active").getString() :
+                            Component.translatable("gui.app.bank.payment_status_paused").getString();
                         guiGraphics.drawString(this.font, statusStr, leftPos + 145, y + 27, 0xFFFFFF);
                     }
                     y += 50;
@@ -666,7 +681,7 @@ public class BankAppScreen extends Screen {
             }
         } else {
             if (y >= listStartY - 15 && y < endY) {
-                guiGraphics.drawCenteredString(this.font, "§7Keine aktiven Daueraufträge",
+                guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.bank.no_recurring").getString(),
                     leftPos + WIDTH / 2, y, 0xAAAAAA);
             }
             y += 15;

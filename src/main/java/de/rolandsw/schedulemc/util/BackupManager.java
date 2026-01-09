@@ -35,7 +35,7 @@ public class BackupManager {
      */
     public static boolean createBackup(File sourceFile) {
         if (!sourceFile.exists()) {
-            LOGGER.warn("Backup übersprungen - Datei existiert nicht: {}", sourceFile.getAbsolutePath());
+            LOGGER.warn("Backup skipped - file does not exist: {}", sourceFile.getAbsolutePath());
             return false;
         }
 
@@ -52,7 +52,7 @@ public class BackupManager {
 
             return true;
         } catch (IOException e) {
-            LOGGER.error("Fehler beim Erstellen des Backups für {}", sourceFile.getName(), e);
+            LOGGER.error("Error creating backup for {}", sourceFile.getName(), e);
             return false;
         }
     }
@@ -67,7 +67,7 @@ public class BackupManager {
         File latestBackup = getLatestBackup(targetFile);
 
         if (latestBackup == null) {
-            LOGGER.error("Kein Backup gefunden für: {}", targetFile.getName());
+            LOGGER.error("No backup found for: {}", targetFile.getName());
             return false;
         }
 
@@ -133,9 +133,9 @@ public class BackupManager {
         int toDelete = backups.length - MAX_BACKUPS;
         for (int i = 0; i < toDelete; i++) {
             if (backups[i].delete()) {
-                LOGGER.debug("Altes Backup gelöscht: {}", backups[i].getName());
+                LOGGER.debug("Old backup deleted: {}", backups[i].getName());
             } else {
-                LOGGER.warn("Konnte altes Backup nicht löschen: {}", backups[i].getName());
+                LOGGER.warn("Could not delete old backup: {}", backups[i].getName());
             }
         }
     }

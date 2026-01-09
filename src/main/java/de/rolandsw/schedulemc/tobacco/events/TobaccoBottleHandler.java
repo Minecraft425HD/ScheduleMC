@@ -41,8 +41,8 @@ public class TobaccoBottleHandler {
 
             // Prüfen ob Pflanze vorhanden ist
             if (!potData.hasPlant()) {
-                player.displayClientMessage(Component.literal(
-                    "§c✗ Keine Pflanze im Topf!"
+                player.displayClientMessage(Component.translatable(
+                    "block.tobacco_bottle.no_plant"
                 ), true);
                 return;
             }
@@ -51,8 +51,8 @@ public class TobaccoBottleHandler {
 
             // Prüfen ob Pflanze ausgewachsen ist
             if (plant.isFullyGrown()) {
-                player.displayClientMessage(Component.literal(
-                    "§c✗ Pflanze ist bereits ausgewachsen!"
+                player.displayClientMessage(Component.translatable(
+                    "block.tobacco_bottle.plant_fully_grown"
                 ), true);
                 return;
             }
@@ -65,8 +65,8 @@ public class TobaccoBottleHandler {
             // ═══════════════════════════════════════════════════════════
             if (itemName.contains("fertilizer")) {
                 if (plant.hasFertilizer()) {
-                    player.displayClientMessage(Component.literal(
-                        "§c✗ Pflanze wurde bereits gedüngt!"
+                    player.displayClientMessage(Component.translatable(
+                        "block.tobacco_bottle.already_fertilized"
                     ), true);
                     return;
                 }
@@ -74,10 +74,8 @@ public class TobaccoBottleHandler {
                 plant.applyFertilizer();
                 consumed = true;
 
-                player.displayClientMessage(Component.literal(
-                    "§a✓ Dünger angewendet!\n" +
-                    "§7Effekt: §eMehr Ertrag (max 10g)\n" +
-                    "§7Nachteil: §c-1 Qualität"
+                player.displayClientMessage(Component.translatable(
+                    "block.tobacco_bottle.fertilizer_applied"
                 ), true);
             }
 
@@ -86,8 +84,8 @@ public class TobaccoBottleHandler {
             // ═══════════════════════════════════════════════════════════
             else if (itemName.contains("growth_booster")) {
                 if (plant.hasGrowthBooster()) {
-                    player.displayClientMessage(Component.literal(
-                        "§c✗ Pflanze hat bereits einen Wachstumsbeschleuniger!"
+                    player.displayClientMessage(Component.translatable(
+                        "block.tobacco_bottle.already_growth_booster"
                     ), true);
                     return;
                 }
@@ -95,10 +93,8 @@ public class TobaccoBottleHandler {
                 plant.applyGrowthBooster();
                 consumed = true;
 
-                player.displayClientMessage(Component.literal(
-                    "§a✓ Wachstumsbeschleuniger angewendet!\n" +
-                    "§7Effekt: §e2x Wachstumsgeschwindigkeit\n" +
-                    "§7Nachteil: §c-1 Qualität"
+                player.displayClientMessage(Component.translatable(
+                    "block.tobacco_bottle.growth_booster_applied"
                 ), true);
             }
 
@@ -107,8 +103,8 @@ public class TobaccoBottleHandler {
             // ═══════════════════════════════════════════════════════════
             else if (itemName.contains("quality_booster")) {
                 if (plant.hasQualityBooster()) {
-                    player.displayClientMessage(Component.literal(
-                        "§c✗ Pflanze hat bereits einen Qualitätsverbesserer!"
+                    player.displayClientMessage(Component.translatable(
+                        "block.tobacco_bottle.already_quality_booster"
                     ), true);
                     return;
                 }
@@ -116,10 +112,9 @@ public class TobaccoBottleHandler {
                 plant.applyQualityBooster();
                 consumed = true;
 
-                player.displayClientMessage(Component.literal(
-                    "§a✓ Qualitätsverbesserer angewendet!\n" +
-                    "§7Effekt: §a+1 Qualität\n" +
-                    "§7Neue Qualität: " + plant.getQuality().getColoredName()
+                player.displayClientMessage(Component.translatable(
+                    "block.tobacco_bottle.quality_booster_applied",
+                    plant.getQuality().getColoredName()
                 ), true);
             }
 

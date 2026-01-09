@@ -55,7 +55,7 @@ public class PlotProtectionHandler {
             // Kein Plot → Weltschutz aktiv
             event.setCanceled(true);
             player.sendSystemMessage(Component.translatable("message.plot.cannot_break_buy_plot"));
-            LOGGER.debug("[PLOT-PROTECTION] {} versuchte außerhalb eines Plots bei {} abzubauen",
+            LOGGER.debug("[PLOT-PROTECTION] {} attempted to break outside of a plot at {}",
                 player.getName().getString(), pos.toShortString());
             return;
         }
@@ -81,15 +81,15 @@ public class PlotProtectionHandler {
                     player.getName().getString(), apartment.getId(), plot.getPlotId());
             } else {
                 // Normaler Plot-Bereich
-                String ownerName = plot.getOwnerName();
-                if (ownerName == null || ownerName.equals("Niemand")) {
+                if (!plot.hasOwner()) {
                     player.sendSystemMessage(Component.translatable("message.plot.unowned_buy"));
                 } else {
+                    String ownerName = plot.getOwnerName();
                     player.sendSystemMessage(Component.translatable("message.plot.no_rights_owner", ownerName));
                 }
 
                 LOGGER.debug("[PLOT-PROTECTION] {} versuchte ohne Rechte in Plot {} (Besitzer: {}) abzubauen",
-                    serverPlayer.getName().getString(), plot.getPlotId(), ownerName);
+                    serverPlayer.getName().getString(), plot.getPlotId(), plot.getOwnerName());
             }
         }
         });
@@ -218,8 +218,14 @@ public class PlotProtectionHandler {
         }
 
         StringBuilder info = new StringBuilder();
-        info.append("§e").append(plot.getPlotName()).append("\n");
-        info.append(Component.translatable("message.plot.info_owner", plot.getOwnerName()).getString()).append("\n");
+        String plotName = plot.getPlotName();
+        if (plotName == null || plotName.isEmpty()) {
+            plotName = Component.translatable("plot.unnamed").getString();
+        }
+        info.append("§e").append(plotName).append("\n");
+
+        String ownerName = plot.hasOwner() ? plot.getOwnerName() : Component.translatable("plot.no_owner").getString();
+        info.append(Component.translatable("message.plot.info_owner", ownerName).getString()).append("\n");
 
         if (plot.isForSale()) {
             info.append(Component.translatable("message.plot.info_for_sale", plot.getSalePrice()).getString()).append("\n");

@@ -50,7 +50,7 @@ public class DeleteRecurringPaymentPacket {
                     .withStyle(ChatFormatting.RED)
                     .append(Component.translatable("message.bank.order_deleted")
                         .withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD)));
-                player.sendSystemMessage(Component.literal("ID: ")
+                player.sendSystemMessage(Component.translatable("network.bank.id_label")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(paymentId)
                         .withStyle(ChatFormatting.DARK_GRAY)));
@@ -60,7 +60,7 @@ public class DeleteRecurringPaymentPacket {
                 // Fehler
                 player.sendSystemMessage(Component.translatable("message.bank.standing_order_not_found")
                     .withStyle(ChatFormatting.RED));
-                player.sendSystemMessage(Component.literal("ID: ")
+                player.sendSystemMessage(Component.translatable("network.bank.id_label")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(paymentId)
                         .withStyle(ChatFormatting.YELLOW)));

@@ -37,7 +37,7 @@ public class PoliceBackupSystem {
         isRaidPursuit.put(playerUUID, isRaid);
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("[BACKUP] Polizei {} verfolgt Spieler {} (Raid: {}, Gesamt: {})",
+            LOGGER.debug("[BACKUP] Police {} pursues player {} (Raid: {}, Total: {})",
                 policeUUID, playerUUID, isRaid, activePolice.get(playerUUID).size());
         }
     }
@@ -54,7 +54,7 @@ public class PoliceBackupSystem {
                 isRaidPursuit.remove(playerUUID);
             }
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("[BACKUP] Polizei {} gibt Verfolgung auf von Spieler {}", policeUUID, playerUUID);
+                LOGGER.debug("[BACKUP] Police {} stops pursuit of player {}", policeUUID, playerUUID);
             }
         }
     }
@@ -85,7 +85,7 @@ public class PoliceBackupSystem {
      */
     public static void callBackup(ServerPlayer player, CustomNPCEntity caller) {
         if (!canCallBackup(player.getUUID())) {
-            LOGGER.info("[BACKUP] Keine Verstärkung möglich - Maximum erreicht");
+            LOGGER.info("[BACKUP] No backup possible - maximum reached");
             return;
         }
 
@@ -95,7 +95,7 @@ public class PoliceBackupSystem {
         int needed = maxPolice - currentCount;
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("[BACKUP] Rufe {} Verstärkung(en) für Spieler {} (Raid: {})",
+            LOGGER.debug("[BACKUP] Calling {} backup(s) for player {} (Raid: {})",
                 needed, player.getName().getString(), isRaid);
         }
 
@@ -114,7 +114,7 @@ public class PoliceBackupSystem {
         );
 
         if (nearbyPolice.isEmpty()) {
-            LOGGER.debug("[BACKUP] Keine verfügbaren Polizisten in der Nähe gefunden");
+            LOGGER.debug("[BACKUP] No available police found nearby");
             return;
         }
 
@@ -135,7 +135,7 @@ public class PoliceBackupSystem {
 
             // Setze Ziel für Verstärkung (wird in PoliceAIHandler übernommen)
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("[BACKUP] Polizist {} als Verstärkung zugewiesen (Entfernung: {:.1f} Blöcke)",
+                LOGGER.debug("[BACKUP] Police {} assigned as backup (Distance: {:.1f} blocks)",
                     police.getNpcName(), Math.sqrt(police.distanceToSqr(caller.getX(), caller.getY(), caller.getZ())));
             }
 
@@ -143,9 +143,9 @@ public class PoliceBackupSystem {
         }
 
         if (assigned > 0) {
-            LOGGER.debug("[BACKUP] {} Verstärkung(en) erfolgreich zugewiesen", assigned);
+            LOGGER.debug("[BACKUP] {} backup(s) successfully assigned", assigned);
         } else {
-            LOGGER.debug("[BACKUP] Keine Verstärkung zugewiesen");
+            LOGGER.debug("[BACKUP] No backup assigned");
         }
     }
 
@@ -187,7 +187,7 @@ public class PoliceBackupSystem {
     public static void upgradeToRaid(UUID playerUUID) {
         if (activePolice.containsKey(playerUUID)) {
             isRaidPursuit.put(playerUUID, true);
-            LOGGER.info("[BACKUP] Verfolgung zu Raid hochgestuft - Max 4 Polizisten erlaubt");
+            LOGGER.info("[BACKUP] Pursuit upgraded to raid - Max 4 police allowed");
         }
     }
 
@@ -199,7 +199,7 @@ public class PoliceBackupSystem {
             LOGGER.debug("[BACKUP] === Polizei-Status ===");
             for (Map.Entry<UUID, Set<UUID>> entry : activePolice.entrySet()) {
                 boolean isRaid = isRaidPursuit.getOrDefault(entry.getKey(), false);
-                LOGGER.debug("[BACKUP] Spieler {}: {} Polizisten (Raid: {})",
+                LOGGER.debug("[BACKUP] Player {}: {} police (Raid: {})",
                     entry.getKey(), entry.getValue().size(), isRaid);
             }
         }

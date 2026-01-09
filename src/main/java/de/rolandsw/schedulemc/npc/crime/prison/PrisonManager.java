@@ -75,9 +75,9 @@ public class PrisonManager {
     }
 
     public enum ReleaseReason {
-        TIME_SERVED("Haft verbüßt"),
-        BAIL_PAID("Kaution bezahlt"),
-        ADMIN_RELEASE("Admin-Entlassung");
+        TIME_SERVED("manager.prison.release_reason_time_served"),
+        BAIL_PAID("manager.prison.release_reason_bail_paid"),
+        ADMIN_RELEASE("manager.prison.release_reason_admin_release");
 
         public final String displayName;
         ReleaseReason(String name) { this.displayName = name; }
@@ -115,7 +115,7 @@ public class PrisonManager {
                 prisonPlotIds.add(plot.getPlotId());
             }
         }
-        LOGGER.info("Gefängnisse geladen: {}", prisonPlotIds.size());
+        LOGGER.info("Prisons loaded: {}", prisonPlotIds.size());
     }
 
     public void registerPrison(String plotId) {
@@ -123,7 +123,7 @@ public class PrisonManager {
         if (plot != null && plot.getType() == PlotType.PRISON) {
             if (!prisonPlotIds.contains(plotId)) {
                 prisonPlotIds.add(plotId);
-                LOGGER.info("Gefängnis registriert: {}", plotId);
+                LOGGER.info("Prison registered: {}", plotId);
             }
         }
     }
@@ -139,7 +139,7 @@ public class PrisonManager {
     public PrisonCell findAvailableCell(int wantedLevel) {
         PlotRegion prison = getDefaultPrison();
         if (prison == null) {
-            LOGGER.warn("Kein Gefängnis registriert!");
+            LOGGER.warn("No prison registered!");
             return null;
         }
 
@@ -159,7 +159,7 @@ public class PrisonManager {
         }
 
         if (!cells.isEmpty()) {
-            LOGGER.warn("Alle Zellen belegt! Nutze Zelle 1 für Überbelegung.");
+            LOGGER.warn("All cells occupied! Using cell 1 for overcrowding.");
             return cells.get(0);
         }
 
@@ -170,14 +170,14 @@ public class PrisonManager {
         UUID playerId = player.getUUID();
 
         if (isPrisoner(playerId)) {
-            LOGGER.warn("Spieler {} ist bereits inhaftiert!", player.getName().getString());
+            LOGGER.warn("Player {} is already imprisoned!", player.getName().getString());
             return false;
         }
 
         PrisonCell cell = findAvailableCell(wantedLevel);
         if (cell == null) {
-            player.sendSystemMessage(Component.literal(
-                "§c✗ Kein Gefängnis verfügbar! Bitte Admin kontaktieren."));
+            player.sendSystemMessage(Component.translatable(
+                "manager.prison.no_prison_available"));
             return false;
         }
 
@@ -224,7 +224,7 @@ public class PrisonManager {
             bailAvailableAtTick
         ), player);
 
-        LOGGER.info("Spieler {} inhaftiert in Zelle {} für {} Sekunden",
+        LOGGER.info("Player {} imprisoned in cell {} for {} seconds",
             data.playerName, cell.getCellNumber(), jailSeconds);
 
         savePrisonerData();
@@ -266,7 +266,7 @@ public class PrisonManager {
 
         PrisonNetworkHandler.sendToPlayer(new ClosePrisonScreenPacket(reason.displayName), player);
 
-        LOGGER.info("Spieler {} entlassen: {}", data.playerName, reason.displayName);
+        LOGGER.info("Player {} released: {}", data.playerName, reason.displayName);
 
         offlineRemainingTime.remove(playerId);
         savePrisonerData();
@@ -299,9 +299,9 @@ public class PrisonManager {
 
         double balance = EconomyManager.getBalance(playerId);
         if (balance < data.bailAmount) {
-            player.sendSystemMessage(Component.literal(String.format(
-                "§c✗ Nicht genug Geld! Kaution: %.0f€, Du hast: %.0f€",
-                data.bailAmount, balance)));
+            player.sendSystemMessage(Component.translatable(
+                "manager.prison.insufficient_funds",
+                (int)data.bailAmount, (int)balance));
             return false;
         }
 
@@ -320,7 +320,7 @@ public class PrisonManager {
         offlineRemainingTime.put(playerId, remainingTicks);
         data.lastOnlineTime = System.currentTimeMillis();
 
-        LOGGER.info("Gefangener {} offline. Verbleibend: {} Ticks", data.playerName, remainingTicks);
+        LOGGER.info("Prisoner {} offline. Remaining: {} ticks", data.playerName, remainingTicks);
         savePrisonerData();
     }
 
@@ -358,7 +358,7 @@ public class PrisonManager {
             bailAvailableAtTick
         ), player);
 
-        LOGGER.info("Gefangener {} online. Verbleibend: {} Sekunden", data.playerName, remainingSeconds);
+        LOGGER.info("Prisoner {} online. Remaining: {} seconds", data.playerName, remainingSeconds);
     }
 
     public void onServerTick(long currentTick, net.minecraft.server.level.ServerLevel level) {
@@ -418,7 +418,7 @@ public class PrisonManager {
         if (prison != null && prison.getType() == PlotType.PRISON) {
             prison.addSubArea(cell);
             PlotManager.savePlots();
-            LOGGER.info("Zelle {} zu Gefängnis {} hinzugefügt", cell.getCellNumber(), prisonPlotId);
+            LOGGER.info("Cell {} added to prison {}", cell.getCellNumber(), prisonPlotId);
         }
     }
 
@@ -436,7 +436,7 @@ public class PrisonManager {
                 GSON.toJson(saveData, writer);
             }
         } catch (IOException e) {
-            LOGGER.error("Fehler beim Speichern der Gefangenen-Daten", e);
+            LOGGER.error("Error saving prisoner data", e);
         }
     }
 
@@ -455,10 +455,10 @@ public class PrisonManager {
                     offlineRemainingTime.put(uuid,
                         Math.max(0, entry.getValue().releaseTime - System.currentTimeMillis() / 50));
                 }
-                LOGGER.info("Gefangene geladen: {}", prisoners.size());
+                LOGGER.info("Prisoners loaded: {}", prisoners.size());
             }
         } catch (Exception e) {
-            LOGGER.error("Fehler beim Laden der Gefangenen-Daten", e);
+            LOGGER.error("Error loading prisoner data", e);
         }
     }
 }

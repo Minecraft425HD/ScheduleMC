@@ -125,7 +125,11 @@ public class IllegalActivityScanner {
             }
 
             // Füge Info hinzu, dass erweiterte Suche durchgeführt wurde
-            result.foundIllegalItems.add("§e[Erweiterte Durchsuchung: " + additionalBlocks + " weitere Blöcke]");
+            result.foundIllegalItems.add(
+                net.minecraft.network.chat.Component.translatable("police.search.extended",
+                    String.valueOf(additionalBlocks)
+                ).getString()
+            );
         } else {
             com.mojang.logging.LogUtils.getLogger().info(
                 "[ROOM-SCAN] Kein Konterband im initialen Raum gefunden - Durchsuchung beendet"

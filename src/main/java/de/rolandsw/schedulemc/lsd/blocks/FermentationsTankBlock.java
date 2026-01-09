@@ -55,8 +55,8 @@ public class FermentationsTankBlock extends Block implements EntityBlock {
         if (heldItem.getItem() instanceof MutterkornItem) {
             if (tank.addMutterkorn(heldItem)) {
                 if (!player.isCreative()) heldItem.shrink(1);
-                player.displayClientMessage(Component.literal(
-                        "§a✓ Mutterkorn hinzugefügt! (" + tank.getMutterkornCount() + "/8)"
+                player.displayClientMessage(Component.translatable(
+                        "block.lsd.fermentation_input", tank.getMutterkornCount()
                 ), true);
                 player.playSound(net.minecraft.sounds.SoundEvents.BREWING_STAND_BREW, 0.5f, 1.0f);
                 return InteractionResult.SUCCESS;
@@ -70,22 +70,18 @@ public class FermentationsTankBlock extends Block implements EntityBlock {
                 if (!player.getInventory().add(output)) {
                     player.drop(output, false);
                 }
-                player.displayClientMessage(Component.literal(
-                        "§a✓ " + output.getCount() + "x Ergot-Kultur entnommen!"
+                player.displayClientMessage(Component.translatable(
+                        "block.lsd.fermentation_output", output.getCount()
                 ), true);
                 return InteractionResult.SUCCESS;
             }
 
             // Status
-            StringBuilder status = new StringBuilder();
-            status.append("§5⚗ Fermentations-Tank\n");
-            status.append("§7Mutterkorn: §f").append(tank.getMutterkornCount()).append("/8\n");
-            if (tank.isActive()) {
-                status.append("§7Fortschritt: §e").append((int)(tank.getProgress() * 100)).append("%");
-            } else if (tank.hasOutput()) {
-                status.append("§a").append(tank.getOutputCount()).append("x Ergot-Kultur fertig!");
-            }
-            player.displayClientMessage(Component.literal(status.toString()), true);
+            player.displayClientMessage(Component.literal("§5⚗ Fermentations-Tank\n")
+                    .append(Component.translatable("block.lsd.fermentation_count", tank.getMutterkornCount()))
+                    .append(Component.literal("\n"))
+                    .append(tank.isActive() ? Component.literal("§7Fortschritt: §e").append(Component.literal((int)(tank.getProgress() * 100) + "%")) : tank.hasOutput() ? Component.literal("§a").append(Component.literal(tank.getOutputCount() + "x Ergot-Kultur fertig!")) : Component.literal(""))
+            , true);
             return InteractionResult.SUCCESS;
         }
 

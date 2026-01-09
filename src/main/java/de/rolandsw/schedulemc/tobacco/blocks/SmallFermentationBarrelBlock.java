@@ -61,8 +61,8 @@ public class SmallFermentationBarrelBlock extends Block implements EntityBlock {
         // ═══════════════════════════════════════════════════════════
         if (heldItem.getItem() instanceof DriedTobaccoLeafItem) {
             if (barrelBE.isFull()) {
-                player.displayClientMessage(Component.literal(
-                    "§c✗ Fass ist voll! (6/6)"
+                player.displayClientMessage(Component.translatable(
+                    "block.fermentation.barrel_full", 6
                 ), true);
                 return InteractionResult.FAIL;
             }
@@ -73,10 +73,8 @@ public class SmallFermentationBarrelBlock extends Block implements EntityBlock {
                 }
 
                 int count = barrelBE.getInputCount();
-                player.displayClientMessage(Component.literal(
-                    "§a✓ Blatt hinzugefügt! (" + count + "/6)\n" +
-                    "§7Dauer: §e~10 Minuten\n" +
-                    "§630% Chance auf Qualitätsverbesserung!"
+                player.displayClientMessage(Component.translatable(
+                    "block.fermentation.leaf_added", count, 6
                 ), true);
                 return InteractionResult.SUCCESS;
             }
@@ -90,9 +88,8 @@ public class SmallFermentationBarrelBlock extends Block implements EntityBlock {
             if (!fermented.isEmpty()) {
                 player.getInventory().add(fermented);
 
-                player.displayClientMessage(Component.literal(
-                    "§a✓ Fermentierung abgeschlossen!\n" +
-                    "§7Erhalten: §e" + fermented.getCount() + "x §7fermentierten Tabak"
+                player.displayClientMessage(Component.translatable(
+                    "block.fermentation.fermentation_complete", fermented.getCount()
                 ), true);
                 return InteractionResult.SUCCESS;
             }
@@ -107,20 +104,19 @@ public class SmallFermentationBarrelBlock extends Block implements EntityBlock {
             int inputCount = barrelBE.getInputCount();
             int outputCount = barrelBE.getOutputCount();
 
-            player.displayClientMessage(Component.literal(
-                "§6═══ Kleines Fermentierungsfass ═══\n" +
-                "§7Kapazität: §e" + inputCount + "/6\n" +
-                "§7Fortschritt: " + bar + " §e" + String.format("%.1f", progress) + "%\n" +
-                "§7Fertig: §e" + outputCount + "x\n" +
-                (barrelBE.hasOutput() ? "§a✓ Shift+Rechtsklick zum Entnehmen" : "§7Fermentierung läuft...")
-            ), false);
+            player.displayClientMessage(Component.literal("§6═══ Kleines Fermentierungsfass ═══\n")
+                .append(Component.translatable("block.fermentation.capacity", inputCount, 6))
+                .append(Component.literal("\n§7Fortschritt: " + bar + " §e" + String.format("%.1f", progress) + "%\n"))
+                .append(Component.translatable("block.fermentation.finished", outputCount))
+                .append(Component.literal("\n"))
+                .append(barrelBE.hasOutput() ? Component.translatable("block.fermentation.shift_extract") : Component.translatable("block.fermentation.processing"))
+            , false);
         } else {
-            player.displayClientMessage(Component.literal(
-                "§6═══ Kleines Fermentierungsfass ═══\n" +
-                "§7Kapazität: §e6 Blätter\n" +
-                "§7Leer - Lege getrocknete Tabakblätter hinein\n" +
-                "§830% Chance auf Qualitätsverbesserung"
-            ), false);
+            player.displayClientMessage(Component.literal("§6═══ Kleines Fermentierungsfass ═══\n")
+                .append(Component.translatable("block.fermentation.capacity_max", 6))
+                .append(Component.literal("\n"))
+                .append(Component.translatable("block.fermentation.empty"))
+            , false);
         }
 
         return InteractionResult.SUCCESS;

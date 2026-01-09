@@ -46,9 +46,9 @@ public class ResumeRecurringPaymentPacket {
                 // Erfolgs-Nachricht
                 player.sendSystemMessage(Component.literal("▶ ")
                     .withStyle(ChatFormatting.GREEN)
-                    .append(Component.literal("Dauerauftrag fortgesetzt")
+                    .append(Component.translatable("network.bank.order_resumed")
                         .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)));
-                player.sendSystemMessage(Component.literal("ID: ")
+                player.sendSystemMessage(Component.translatable("network.bank.id_label")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(paymentId)
                         .withStyle(ChatFormatting.DARK_GRAY)));

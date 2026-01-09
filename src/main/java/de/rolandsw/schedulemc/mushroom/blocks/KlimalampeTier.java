@@ -1,37 +1,37 @@
 package de.rolandsw.schedulemc.mushroom.blocks;
 
+import net.minecraft.network.chat.Component;
+
 /**
  * Klimalampe-Stufen mit verschiedenen Eigenschaften
  */
 public enum KlimalampeTier {
-    SMALL("Klimalampe", "§7", false, 0.0, 0.0),
-    MEDIUM("Auto-Klimalampe", "§e", true, 0.10, 0.0),
-    LARGE("Premium-Klimalampe", "§6", true, 0.25, 0.10);
+    SMALL("§7", false, 0.0, 0.0),
+    MEDIUM("§e", true, 0.10, 0.0),
+    LARGE("§6", true, 0.25, 0.10);
 
-    private final String displayName;
     private final String colorCode;
     private final boolean automatic;
     private final double growthBonus;
     private final double qualityBonus;
 
-    KlimalampeTier(String displayName, String colorCode, boolean automatic, double growthBonus, double qualityBonus) {
-        this.displayName = displayName;
+    KlimalampeTier(String colorCode, boolean automatic, double growthBonus, double qualityBonus) {
         this.colorCode = colorCode;
         this.automatic = automatic;
         this.growthBonus = growthBonus;
         this.qualityBonus = qualityBonus;
     }
 
-    public String getDisplayName() {
-        return displayName;
+    public Component getDisplayName() {
+        return Component.translatable("enum.klimalampe_tier." + this.name().toLowerCase());
     }
 
     public String getColorCode() {
         return colorCode;
     }
 
-    public String getColoredName() {
-        return colorCode + displayName;
+    public Component getColoredName() {
+        return Component.literal(colorCode).append(getDisplayName());
     }
 
     public boolean isAutomatic() {

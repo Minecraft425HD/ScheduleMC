@@ -66,14 +66,14 @@ public class StealingScreen extends AbstractContainerScreen<StealingMenu> {
         int centerX = (width - imageWidth) / 2 + imageWidth / 2;
         int centerY = (height - imageHeight) / 2 + imageHeight / 2;
 
-        moneyButton = Button.builder(Component.literal("§6Geld"), button -> {
+        moneyButton = Button.builder(Component.translatable("screen.stealing.button_money"), button -> {
             stealType = 0;
             choosingMode = false;
             startGame();
             updateButtons();
         }).bounds(centerX - buttonWidth - 5, centerY - buttonHeight / 2, buttonWidth, buttonHeight).build();
 
-        itemsButton = Button.builder(Component.literal("§bItems"), button -> {
+        itemsButton = Button.builder(Component.translatable("screen.stealing.button_items"), button -> {
             stealType = 1;
             choosingMode = false;
             startGame();
@@ -199,21 +199,25 @@ public class StealingScreen extends AbstractContainerScreen<StealingMenu> {
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         CustomNPCEntity npc = menu.getNpc();
         if (npc != null) {
-            guiGraphics.drawString(this.font, "§cBestehle: " + npc.getNpcName(), 8, 6, 0x404040, false);
+            String title = Component.translatable("screen.stealing.title_prefix").getString() + npc.getNpcName();
+            guiGraphics.drawString(this.font, title, 8, 6, 0x404040, false);
         }
 
         if (choosingMode) {
             // Auswahl-Modus
-            guiGraphics.drawString(this.font, "§eWas möchtest du stehlen?", 8, 20, 0x404040, false);
+            guiGraphics.drawString(this.font, Component.translatable("screen.stealing.prompt").getString(), 8, 20, 0x404040, false);
         } else {
             // Minigame-Modus
-            guiGraphics.drawString(this.font, "§7Geschätzter Wert: §a" + String.format("%.0f€", inventoryValue), 8, 20, 0x404040, false);
-            guiGraphics.drawString(this.font, "§7Versuche: §e" + attempts + "/" + maxAttempts, 8, 32, 0x404040, false);
+            String valueLabel = Component.translatable("screen.stealing.estimated_value").getString() + String.format("%.0f€", inventoryValue);
+            guiGraphics.drawString(this.font, valueLabel, 8, 20, 0x404040, false);
+
+            String attemptsLabel = Component.translatable("screen.stealing.attempts").getString() + attempts + "/" + maxAttempts;
+            guiGraphics.drawString(this.font, attemptsLabel, 8, 32, 0x404040, false);
 
             if (gameActive) {
-                guiGraphics.drawString(this.font, "§eDrücke LEERTASTE im grünen Bereich!", 8, 48, 0x404040, false);
+                guiGraphics.drawString(this.font, Component.translatable("screen.stealing.instruction").getString(), 8, 48, 0x404040, false);
             } else {
-                guiGraphics.drawString(this.font, "§cFehlgeschlagen! Zu viele Versuche.", 8, 48, 0x404040, false);
+                guiGraphics.drawString(this.font, Component.translatable("screen.stealing.failed").getString(), 8, 48, 0x404040, false);
             }
         }
     }
@@ -317,7 +321,7 @@ public class StealingScreen extends AbstractContainerScreen<StealingMenu> {
             } else {
                 // Noch ein Versuch
                 if (minecraft != null && minecraft.player != null) {
-                    minecraft.player.displayClientMessage(Component.literal("§e⚠ Versuche es nochmal!"), true);
+                    minecraft.player.displayClientMessage(Component.translatable("screen.stealing.try_again"), true);
                 }
             }
         }

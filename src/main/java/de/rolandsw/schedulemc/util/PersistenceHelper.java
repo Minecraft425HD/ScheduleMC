@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.util;
 
 import com.google.gson.Gson;
 import com.mojang.logging.LogUtils;
+import net.minecraft.network.chat.Component;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
@@ -139,7 +140,7 @@ public class PersistenceHelper {
                     return LoadResult.failure("Backup recovery failed: " + backupError.getMessage());
                 }
             } else {
-                LOGGER.error("{}: KRITISCH: Kein Backup verfügbar!", componentName);
+                LOGGER.error("{}: CRITICAL: No backup available!", componentName);
                 preserveCorruptFile(file, componentName);
                 return LoadResult.failure("Load failed, no backup: " + e.getMessage());
             }
@@ -261,11 +262,13 @@ public class PersistenceHelper {
     public static String getHealthInfo(File file, boolean isHealthy, @Nullable String lastError,
                                        String details) {
         if (isHealthy) {
-            return String.format("§aGESUND§r - %s, %d Backups verfügbar",
-                details, BackupManager.getBackupCount(file));
+            return Component.translatable("health.persistence.healthy",
+                details,
+                BackupManager.getBackupCount(file)).getString();
         } else {
-            return String.format("§cUNGESUND§r - Letzter Fehler: %s, %s",
-                lastError != null ? lastError : "Unknown", details);
+            return Component.translatable("health.persistence.unhealthy",
+                lastError != null ? lastError : "Unknown",
+                details).getString();
         }
     }
 }

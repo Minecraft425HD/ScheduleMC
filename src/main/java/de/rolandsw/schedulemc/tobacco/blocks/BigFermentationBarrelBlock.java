@@ -61,8 +61,8 @@ public class BigFermentationBarrelBlock extends Block implements EntityBlock {
         // ═══════════════════════════════════════════════════════════
         if (heldItem.getItem() instanceof DriedTobaccoLeafItem) {
             if (barrelBE.isFull()) {
-                player.displayClientMessage(Component.literal(
-                    "§c✗ Fass ist voll! (10/10)"
+                player.displayClientMessage(Component.translatable(
+                    "block.fermentation.barrel_full", 10
                 ), true);
                 return InteractionResult.FAIL;
             }
@@ -73,10 +73,8 @@ public class BigFermentationBarrelBlock extends Block implements EntityBlock {
                 }
 
                 int count = barrelBE.getInputCount();
-                player.displayClientMessage(Component.literal(
-                    "§a✓ Blatt hinzugefügt! (" + count + "/10)\n" +
-                    "§7Dauer: §e~10 Minuten\n" +
-                    "§630% Chance auf Qualitätsverbesserung!"
+                player.displayClientMessage(Component.translatable(
+                    "block.fermentation.leaf_added", count, 10
                 ), true);
                 return InteractionResult.SUCCESS;
             }
@@ -90,9 +88,8 @@ public class BigFermentationBarrelBlock extends Block implements EntityBlock {
             if (!fermented.isEmpty()) {
                 player.getInventory().add(fermented);
 
-                player.displayClientMessage(Component.literal(
-                    "§a✓ Fermentierung abgeschlossen!\n" +
-                    "§7Erhalten: §e" + fermented.getCount() + "x §7fermentierten Tabak"
+                player.displayClientMessage(Component.translatable(
+                    "block.fermentation.fermentation_complete", fermented.getCount()
                 ), true);
                 return InteractionResult.SUCCESS;
             }
@@ -107,20 +104,23 @@ public class BigFermentationBarrelBlock extends Block implements EntityBlock {
             int inputCount = barrelBE.getInputCount();
             int outputCount = barrelBE.getOutputCount();
 
-            player.displayClientMessage(Component.literal(
-                "§6═══ Großes Fermentierungsfass ═══\n" +
-                "§7Kapazität: §e" + inputCount + "/10\n" +
-                "§7Fortschritt: " + bar + " §e" + String.format("%.1f", progress) + "%\n" +
-                "§7Fertig: §e" + outputCount + "x\n" +
-                (barrelBE.hasOutput() ? "§a✓ Shift+Rechtsklick zum Entnehmen" : "§7Fermentierung läuft...")
-            ), false);
+            player.displayClientMessage(Component.translatable("block.big_fermentation_barrel.header")
+                .append(Component.literal("\n"))
+                .append(Component.translatable("block.fermentation.capacity", inputCount, 10))
+                .append(Component.literal("\n"))
+                .append(Component.translatable("block.big_fermentation_barrel.progress", bar, String.format("%.1f", progress)))
+                .append(Component.literal("\n"))
+                .append(Component.translatable("block.fermentation.finished", outputCount))
+                .append(Component.literal("\n"))
+                .append(barrelBE.hasOutput() ? Component.translatable("block.fermentation.shift_extract") : Component.translatable("block.fermentation.processing"))
+            , false);
         } else {
-            player.displayClientMessage(Component.literal(
-                "§6═══ Großes Fermentierungsfass ═══\n" +
-                "§7Kapazität: §e10 Blätter\n" +
-                "§7Leer - Lege getrocknete Tabakblätter hinein\n" +
-                "§830% Chance auf Qualitätsverbesserung"
-            ), false);
+            player.displayClientMessage(Component.translatable("block.big_fermentation_barrel.header")
+                .append(Component.literal("\n"))
+                .append(Component.translatable("block.fermentation.capacity_max", 10))
+                .append(Component.literal("\n"))
+                .append(Component.translatable("block.fermentation.empty"))
+            , false);
         }
 
         return InteractionResult.SUCCESS;

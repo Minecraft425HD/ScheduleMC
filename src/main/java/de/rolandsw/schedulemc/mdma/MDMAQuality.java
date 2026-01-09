@@ -1,36 +1,42 @@
 package de.rolandsw.schedulemc.mdma;
 
 import de.rolandsw.schedulemc.production.core.ProductionQuality;
+import net.minecraft.network.chat.Component;
 
 /**
  * MDMA/Ecstasy-Qualitätsstufen
  */
 public enum MDMAQuality implements ProductionQuality {
-    SCHLECHT("Schlecht", "§7", 0, 0.5, "Verunreinigt"),
-    STANDARD("Standard", "§f", 1, 1.0, "Normale Qualität"),
-    GUT("Gut", "§e", 2, 2.0, "Hohe Reinheit"),
-    PREMIUM("Premium", "§d§l", 3, 4.0, "Laborqualität");
+    SCHLECHT("§7", 0, 0.5),
+    STANDARD("§f", 1, 1.0),
+    GUT("§e", 2, 2.0),
+    PREMIUM("§d§l", 3, 4.0);
 
-    private final String displayName;
     private final String colorCode;
     private final int level;
     private final double priceMultiplier;
-    private final String description;
 
-    MDMAQuality(String displayName, String colorCode, int level, double priceMultiplier, String description) {
-        this.displayName = displayName;
+    MDMAQuality(String colorCode, int level, double priceMultiplier) {
         this.colorCode = colorCode;
         this.level = level;
         this.priceMultiplier = priceMultiplier;
-        this.description = description;
     }
 
-    public String getDisplayName() { return displayName; }
+    public Component getDisplayName() {
+        return Component.translatable("enum.mdma_quality." + this.name().toLowerCase());
+    }
+
+    public Component getDescription() {
+        return Component.translatable("enum.mdma_quality.desc." + this.name().toLowerCase());
+    }
+
     public String getColorCode() { return colorCode; }
     public int getLevel() { return level; }
     public double getPriceMultiplier() { return priceMultiplier; }
-    public String getDescription() { return description; }
-    public String getColoredName() { return colorCode + displayName; }
+
+    public Component getColoredName() {
+        return Component.literal(colorCode).append(getDisplayName());
+    }
 
     @Override
     public MDMAQuality upgrade() {

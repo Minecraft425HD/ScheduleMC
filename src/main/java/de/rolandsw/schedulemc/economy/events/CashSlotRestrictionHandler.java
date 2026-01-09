@@ -50,17 +50,13 @@ public class CashSlotRestrictionHandler {
             player.getInventory().setItem(CASH_SLOT, wallet);
 
             if (savedBalance > 0) {
-                player.displayClientMessage(Component.literal(
-                    "§a✓ Geldbörse geladen!\n" +
-                    "§7Guthaben: §a" + String.format("%.2f€", savedBalance) + "\n" +
-                    "§7Die Geldbörse ist in Slot 9 gesperrt.\n" +
-                    "§7Sie kann nicht entfernt oder geworfen werden."
+                player.displayClientMessage(Component.translatable(
+                    "event.cash_slot.wallet_loaded",
+                    String.format("%.2f€", savedBalance)
                 ), false);
             } else {
-                player.displayClientMessage(Component.literal(
-                    "§a✓ Geldbörse erhalten!\n" +
-                    "§7Die Geldbörse ist in Slot 9 gesperrt.\n" +
-                    "§7Sie kann nicht entfernt oder geworfen werden."
+                player.displayClientMessage(Component.translatable(
+                    "event.cash_slot.wallet_received"
                 ), false);
             }
         }
@@ -82,8 +78,8 @@ public class CashSlotRestrictionHandler {
 
                 if (slot != CASH_SLOT) {
                     event.setCanceled(true);
-                    player.displayClientMessage(Component.literal(
-                        "§c✗ Geldbörse kann nur in Slot 9 verwendet werden!"
+                    player.displayClientMessage(Component.translatable(
+                        "event.cash_slot.wrong_slot"
                     ), true);
                 }
             }
@@ -120,8 +116,8 @@ public class CashSlotRestrictionHandler {
                 player.getInventory().setItem(CASH_SLOT, foundWallet.copy());
                 player.getInventory().setItem(foundSlot, ItemStack.EMPTY);
 
-                player.displayClientMessage(Component.literal(
-                    "§e⚠ Geldbörse wurde zurück zu Slot 9 verschoben!"
+                player.displayClientMessage(Component.translatable(
+                    "event.cash_slot.moved_back"
                 ), true);
             } else {
                 // Erstelle neue Geldbörse wenn komplett verschwunden
@@ -130,17 +126,10 @@ public class CashSlotRestrictionHandler {
                 ItemStack newWallet = CashItem.create(savedBalance);
                 player.getInventory().setItem(CASH_SLOT, newWallet);
 
-                if (savedBalance > 0) {
-                    player.displayClientMessage(Component.literal(
-                        "§e⚠ Geldbörse wurde wiederhergestellt!\n" +
-                        "§7Guthaben: §a" + String.format("%.2f€", savedBalance)
-                    ), true);
-                } else {
-                    player.displayClientMessage(Component.literal(
-                        "§e⚠ Geldbörse wurde wiederhergestellt!\n" +
-                        "§7Guthaben: §70.00€"
-                    ), true);
-                }
+                player.displayClientMessage(Component.translatable(
+                    "event.cash_slot.restored",
+                    String.format("%.2f€", savedBalance)
+                ), true);
 
                 // Log für Monitoring
                 LOGGER.info("[WALLET] Restored wallet for player {} with balance {}€",
@@ -166,8 +155,9 @@ public class CashSlotRestrictionHandler {
                     double value = CashItem.getValue(stack);
                     CashItem.addValue(slot8, value);
 
-                    player.displayClientMessage(Component.literal(
-                        "§a+ " + String.format("%.2f€", value) + " §7zur Geldbörse hinzugefügt"
+                    player.displayClientMessage(Component.translatable(
+                        "event.cash_slot.added_to_wallet",
+                        String.format("%.2f€", value)
                     ), true);
 
                     event.setCanceled(true);
@@ -192,9 +182,8 @@ public class CashSlotRestrictionHandler {
                 // Gebe Item zurück zum Spieler (in Slot 8)
                 player.getInventory().setItem(CASH_SLOT, stack);
 
-                player.displayClientMessage(Component.literal(
-                    "§c✗ Die Geldbörse kann nicht geworfen werden!\n" +
-                    "§7Sie ist fest in Slot 9 gesperrt."
+                player.displayClientMessage(Component.translatable(
+                    "event.cash_slot.cannot_drop"
                 ), true);
 
                 // Log für Anti-Cheat Monitoring

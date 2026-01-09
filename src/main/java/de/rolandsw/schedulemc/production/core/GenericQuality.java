@@ -1,5 +1,7 @@
 package de.rolandsw.schedulemc.production.core;
 
+import net.minecraft.network.chat.Component;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -54,23 +56,23 @@ public class GenericQuality implements ProductionQuality {
         GenericQuality[] tiers = new GenericQuality[4];
 
         tiers[0] = new GenericQuality(
-            "Schlecht", "§c", 0, 0.7,
-            "Niedrige Qualität mit Verunreinigungen",
+            Component.translatable("enum.generic_quality.schlecht").getString(), "§c", 0, 0.7,
+            Component.translatable("enum.generic_quality.desc.niedrige_qualitaet_mit_verunreinigungen").getString(),
             tiers, 0
         );
         tiers[1] = new GenericQuality(
-            "Gut", "§e", 1, 1.0,
-            "Solide Qualität für den Standardmarkt",
+            Component.translatable("enum.generic_quality.gut").getString(), "§e", 1, 1.0,
+            Component.translatable("enum.generic_quality.desc.solide_qualitaet_fuer_den_standardmarkt").getString(),
             tiers, 1
         );
         tiers[2] = new GenericQuality(
-            "Sehr Gut", "§a", 2, 1.5,
-            "Hohe Qualität mit konsistenten Eigenschaften",
+            Component.translatable("enum.generic_quality.sehr_gut").getString(), "§a", 2, 1.5,
+            Component.translatable("enum.generic_quality.desc.hohe_qualitaet_mit_konsistenten_eigenschaften").getString(),
             tiers, 2
         );
         tiers[3] = new GenericQuality(
-            "Legendär", "§6", 3, 2.5,
-            "Außergewöhnliche Qualität - Premium-Produkt",
+            Component.translatable("enum.generic_quality.legendaer").getString(), "§6", 3, 2.5,
+            Component.translatable("enum.generic_quality.desc.aussergewoehnliche_qualitaet_premium_produkt").getString(),
             tiers, 3
         );
 
@@ -84,28 +86,28 @@ public class GenericQuality implements ProductionQuality {
         GenericQuality[] tiers = new GenericQuality[5];
 
         tiers[0] = new GenericQuality(
-            "Schwag", "§8", 0, 0.5,
-            "Minderwertiges Cannabis mit Stängeln und Samen",
+            Component.translatable("enum.generic_quality.schwag").getString(), "§8", 0, 0.5,
+            Component.translatable("enum.generic_quality.desc.minderwertiges_cannabis_mit_staengeln_und_samen").getString(),
             tiers, 0
         );
         tiers[1] = new GenericQuality(
-            "Mids", "§7", 1, 1.0,
-            "Durchschnittliche Qualität",
+            Component.translatable("enum.generic_quality.mids").getString(), "§7", 1, 1.0,
+            Component.translatable("enum.generic_quality.desc.durchschnittliche_qualitaet").getString(),
             tiers, 1
         );
         tiers[2] = new GenericQuality(
-            "Dank", "§e", 2, 1.8,
-            "Gute Qualität mit starker Potenz",
+            Component.translatable("enum.generic_quality.dank").getString(), "§e", 2, 1.8,
+            Component.translatable("enum.generic_quality.desc.gute_qualitaet_mit_starker_potenz").getString(),
             tiers, 2
         );
         tiers[3] = new GenericQuality(
-            "Top Shelf", "§a", 3, 3.0,
-            "Premium-Qualität",
+            Component.translatable("enum.generic_quality.top_shelf").getString(), "§a", 3, 3.0,
+            Component.translatable("enum.generic_quality.desc.premium_qualitaet").getString(),
             tiers, 3
         );
         tiers[4] = new GenericQuality(
-            "Exotic", "§d", 4, 5.0,
-            "Außergewöhnliche Qualität - Connoisseur Grade",
+            Component.translatable("enum.generic_quality.exotic").getString(), "§d", 4, 5.0,
+            Component.translatable("enum.generic_quality.desc.aussergewoehnliche_qualitaet_connoisseur_grade").getString(),
             tiers, 4
         );
 
@@ -132,8 +134,16 @@ public class GenericQuality implements ProductionQuality {
 
         // Standard Name Progression
         String[] names = {
-            "Schlecht", "Befriedigend", "Gut", "Sehr Gut", "Ausgezeichnet",
-            "Premium", "Elite", "Legendär", "Göttlich", "Mythisch"
+            Component.translatable("enum.generic_quality.schlecht").getString(),
+            Component.translatable("enum.generic_quality.befriedigend").getString(),
+            Component.translatable("enum.generic_quality.gut").getString(),
+            Component.translatable("enum.generic_quality.sehr_gut").getString(),
+            Component.translatable("enum.generic_quality.ausgezeichnet").getString(),
+            Component.translatable("enum.generic_quality.premium").getString(),
+            Component.translatable("enum.generic_quality.elite").getString(),
+            Component.translatable("enum.generic_quality.legendaer").getString(),
+            Component.translatable("enum.generic_quality.goettlich").getString(),
+            Component.translatable("enum.generic_quality.mythisch").getString()
         };
 
         for (int i = 0; i < tierCount; i++) {

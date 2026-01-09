@@ -34,7 +34,7 @@ public class PlotInfoScreen extends Screen {
     private int ratingButtonX = -1;
 
     public PlotInfoScreen(PlotRegion plot) {
-        super(Component.literal("Plot Information"));
+        super(Component.translatable("gui.plotinfo.title"));
         this.plot = plot;
     }
 
@@ -66,7 +66,7 @@ public class PlotInfoScreen extends Screen {
         // Kaufen Button (nur wenn zum Verkauf)
         if (!plot.hasOwner() || plot.isForSale()) {
             addRenderableWidget(Button.builder(
-                Component.literal("§a§lKaufen"),
+                Component.translatable("gui.plotinfo.button.buy"),
                 button -> {
                     // Sende Purchase-Packet direkt
                     PlotNetworkHandler.sendToServer(
@@ -80,7 +80,7 @@ public class PlotInfoScreen extends Screen {
         // Mieten Button (nur wenn Plot zu vermieten)
         if (plot.isForRent() && !plot.isRented()) {
             addRenderableWidget(Button.builder(
-                Component.literal("§d§lMieten"),
+                Component.translatable("gui.plotinfo.button.rent"),
                 button -> {
                     // Sende Purchase-Packet mit RENT type
                     PlotNetworkHandler.sendToServer(
@@ -99,7 +99,7 @@ public class PlotInfoScreen extends Screen {
             for (PlotArea apt : plot.getAvailableSubAreas()) {
                 final String aptId = apt.getId();
                 addRenderableWidget(Button.builder(
-                    Component.literal("Mieten"),
+                    Component.translatable("gui.plotinfo.button.rent_apartment"),
                     button -> {
                         this.onClose();
                         if (minecraft != null && minecraft.player != null) {
@@ -131,6 +131,9 @@ public class PlotInfoScreen extends Screen {
 
         // === PLOT-NAME (Titel) ===
         String plotName = plot.getPlotName();
+        if (plotName == null || plotName.isEmpty()) {
+            plotName = Component.translatable("plot.unnamed").getString();
+        }
         guiGraphics.drawCenteredString(this.font, "§6§l" + plotName, leftPos + backgroundWidth / 2, currentY, 0xFFD700);
         currentY += 15;
 
@@ -148,21 +151,21 @@ public class PlotInfoScreen extends Screen {
         currentY += 8;
 
         // === BESITZER ===
-        String ownerName = plot.getOwnerName();
-        if (ownerName == null || ownerName.equals("Niemand")) {
-            guiGraphics.drawString(this.font, "§7Besitzer: §cKein Besitzer", leftPos + 15, currentY, 0xFFFFFF);
+        if (!plot.hasOwner()) {
+            guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.owner_none").getString(), leftPos + 15, currentY, 0xFFFFFF);
         } else {
-            guiGraphics.drawString(this.font, "§7Besitzer: §f" + ownerName, leftPos + 15, currentY, 0xFFFFFF);
+            String ownerName = plot.getOwnerName();
+            guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.owner", ownerName != null ? ownerName : Component.translatable("plot.no_owner").getString()).getString(), leftPos + 15, currentY, 0xFFFFFF);
         }
         currentY += 12;
 
         // === GRÖSSE ===
-        guiGraphics.drawString(this.font, "§7Größe: §e" + String.format("%,d", plot.getVolume()) + " Blöcke",
+        guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.size", String.format("%,d", plot.getVolume())).getString(),
             leftPos + 15, currentY, 0xFFFFFF);
         currentY += 12;
 
         // === ID ===
-        guiGraphics.drawString(this.font, "§8ID: " + plot.getPlotId(), leftPos + 15, currentY, 0x888888);
+        guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.id", plot.getPlotId()).getString(), leftPos + 15, currentY, 0x888888);
         currentY += 15;
 
         // === RATING SECTION ===
@@ -174,18 +177,17 @@ public class PlotInfoScreen extends Screen {
         guiGraphics.fill(leftPos + 10, currentY, leftPos + backgroundWidth - 10, currentY + 55, 0x44FFD700);
 
         // Rating Titel
-        guiGraphics.drawString(this.font, "§6§l⭐ BEWERTUNG", leftPos + 15, currentY + 5, 0xFFD700);
+        guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.rating.title").getString(), leftPos + 15, currentY + 5, 0xFFD700);
 
         // Durchschnittliches Rating
         if (plot.getRatingCount() > 0) {
             String avgRating = String.format("%.1f", plot.getAverageRating());
-            guiGraphics.drawString(this.font, "§7Durchschnitt: §e" + avgRating + "/5.0 §8(" +
-                plot.getRatingCount() + " Bewertungen)", leftPos + 15, currentY + 18, 0xFFFFFF);
+            guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.rating.average", avgRating, plot.getRatingCount()).getString(), leftPos + 15, currentY + 18, 0xFFFFFF);
 
             // Stern-Anzeige
             guiGraphics.drawString(this.font, "§e" + plot.getRatingStars(), leftPos + 15, currentY + 30, 0xFFFFFF);
         } else {
-            guiGraphics.drawString(this.font, "§7Noch keine Bewertungen", leftPos + 15, currentY + 18, 0xAAAAAA);
+            guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.rating.none").getString(), leftPos + 15, currentY + 18, 0xAAAAAA);
         }
 
         // Spieler kann nicht eigene Plots bewerten
@@ -197,10 +199,10 @@ public class PlotInfoScreen extends Screen {
             if (plot.hasRated(minecraft.player.getUUID())) {
                 int playerRating = plot.getPlayerRating(minecraft.player.getUUID());
                 String stars = "★".repeat(playerRating) + "☆".repeat(5 - playerRating);
-                guiGraphics.drawString(this.font, "§7Deine Bewertung: §e" + stars,
+                guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.rating.your_rating", stars).getString(),
                     leftPos + 15, currentY + 42, 0xFFFFFF);
             } else {
-                guiGraphics.drawString(this.font, "§7Klicke auf Sterne zum Bewerten:",
+                guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.rating.click_to_rate").getString(),
                     leftPos + 15, currentY + 42, 0xAAAAAA);
             }
 
@@ -231,28 +233,28 @@ public class PlotInfoScreen extends Screen {
         if (!plot.hasOwner()) {
             // Plot ohne Besitzer = zum Verkauf
             guiGraphics.fill(leftPos + 10, currentY, leftPos + backgroundWidth - 10, currentY + 35, 0x44228B22);
-            guiGraphics.drawString(this.font, "§a§l⚡ ZUM VERKAUF", leftPos + 15, currentY + 5, 0x00FF00);
-            guiGraphics.drawString(this.font, "§7Preis: §e" + String.format("%.2f", plot.getPrice()) + "€",
+            guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.status.for_sale").getString(), leftPos + 15, currentY + 5, 0x00FF00);
+            guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.price", String.format("%.2f", plot.getPrice())).getString(),
                 leftPos + 15, currentY + 18, 0xFFFFFF);
             currentY += 40;
         } else {
             if (plot.isForSale()) {
                 guiGraphics.fill(leftPos + 10, currentY, leftPos + backgroundWidth - 10, currentY + 35, 0x44228B22);
-                guiGraphics.drawString(this.font, "§a§l⚡ ZUM VERKAUF", leftPos + 15, currentY + 5, 0x00FF00);
-                guiGraphics.drawString(this.font, "§7Preis: §e" + String.format("%.2f", plot.getSalePrice()) + "€",
+                guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.status.for_sale").getString(), leftPos + 15, currentY + 5, 0x00FF00);
+                guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.price", String.format("%.2f", plot.getSalePrice())).getString(),
                     leftPos + 15, currentY + 18, 0xFFFFFF);
                 currentY += 40;
             } else if (plot.isForRent()) {
                 if (plot.isRented()) {
                     guiGraphics.fill(leftPos + 10, currentY, leftPos + backgroundWidth - 10, currentY + 35, 0x44228B22);
-                    guiGraphics.drawString(this.font, "§a§l✓ VERMIETET", leftPos + 15, currentY + 5, 0x00FF00);
-                    guiGraphics.drawString(this.font, "§7Noch §e" + plot.getRentDaysLeft() + " Tage",
+                    guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.status.rented").getString(), leftPos + 15, currentY + 5, 0x00FF00);
+                    guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.days_left", plot.getRentDaysLeft()).getString(),
                         leftPos + 15, currentY + 18, 0xFFFFFF);
                     currentY += 40;
                 } else {
                     guiGraphics.fill(leftPos + 10, currentY, leftPos + backgroundWidth - 10, currentY + 35, 0x44C71585);
-                    guiGraphics.drawString(this.font, "§d§l⚡ ZU VERMIETEN", leftPos + 15, currentY + 5, 0xFF00FF);
-                    guiGraphics.drawString(this.font, "§7Miete: §e" + String.format("%.2f", plot.getRentPricePerDay()) + "€/Tag",
+                    guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.status.for_rent").getString(), leftPos + 15, currentY + 5, 0xFF00FF);
+                    guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.rent_per_day", String.format("%.2f", plot.getRentPricePerDay())).getString(),
                         leftPos + 15, currentY + 18, 0xFFFFFF);
                     currentY += 40;
                 }
@@ -266,26 +268,24 @@ public class PlotInfoScreen extends Screen {
             currentY += 8;
 
             int availableCount = plot.getAvailableSubAreaCount();
-            guiGraphics.drawString(this.font, "§6§l🏠 APARTMENTS",
+            guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.apartments.title").getString(),
                 leftPos + 15, currentY, 0xFFAA00);
             currentY += 12;
 
-            guiGraphics.drawString(this.font, "§7Gesamt: §e" + plot.getSubAreaCount() + " §8│ " +
-                "§7Verfügbar: §a" + availableCount + " §8│ " +
-                "§7Vermietet: §c" + plot.getRentedSubAreaCount(),
+            guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.apartments.stats", plot.getSubAreaCount(), availableCount, plot.getRentedSubAreaCount()).getString(),
                 leftPos + 15, currentY, 0xFFFFFF);
             currentY += 15;
 
             // Zeige verfügbare Apartments
             if (availableCount > 0) {
-                guiGraphics.drawString(this.font, "§d§lVERFÜGBARE WOHNUNGEN:", leftPos + 15, currentY, 0xFF00FF);
+                guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.apartments.available").getString(), leftPos + 15, currentY, 0xFF00FF);
                 currentY += 12;
 
                 for (PlotArea apt : plot.getAvailableSubAreas()) {
                     // Apartment-Zeile
                     guiGraphics.drawString(this.font, "§e" + apt.getName(),
                         leftPos + 20, currentY + 4, 0xFFFFFF);
-                    guiGraphics.drawString(this.font, "§a" + String.format("%.0f", apt.getMonthlyRent()) + "€/Monat",
+                    guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.apartments.monthly_rent", String.format("%.0f", apt.getMonthlyRent())).getString(),
                         leftPos + 120, currentY + 4, 0xFFFFFF);
                     // Button wird automatisch gerendert
                     currentY += 25;

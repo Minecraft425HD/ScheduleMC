@@ -39,9 +39,20 @@ public class PlotAppScreen extends Screen {
 
     // Tab-System
     private int currentTab = 0;
-    private static final String[] TAB_NAMES = {"Plot", "Markt", "Meine", "Geld"};
     private static final int TAB_HEIGHT = 22;
     private static final int TAB_WIDTH = 45;
+
+    /**
+     * Get localized tab names
+     */
+    private String[] getTabNames() {
+        return new String[]{
+            Component.translatable("gui.app.plot.tab.plot").getString(),
+            Component.translatable("gui.app.plot.tab.market").getString(),
+            Component.translatable("gui.app.plot.tab.mine").getString(),
+            Component.translatable("gui.app.plot.tab.finances").getString()
+        };
+    }
 
     // Scrolling
     private int scrollOffset = 0;
@@ -78,10 +89,10 @@ public class PlotAppScreen extends Screen {
         refreshData();
 
         // Tab-Buttons
-        for (int i = 0; i < TAB_NAMES.length; i++) {
+        for (int i = 0; i < getTabNames().length; i++) {
             final int tabIndex = i;
             addRenderableWidget(Button.builder(
-                Component.literal(TAB_NAMES[i]),
+                Component.literal(getTabNames()[i]),
                 button -> {
                     currentTab = tabIndex;
                     scrollOffset = 0;
@@ -144,10 +155,10 @@ public class PlotAppScreen extends Screen {
 
         // Header
         guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 28, 0xFF1A1A1A);
-        guiGraphics.drawCenteredString(this.font, "§6§lImmobilien", leftPos + WIDTH / 2, topPos + 10, 0xFFFFFF);
+        guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.plot.title").getString(), leftPos + WIDTH / 2, topPos + 10, 0xFFFFFF);
 
         // Tab-Hintergrund (aktiver Tab hervorheben)
-        for (int i = 0; i < TAB_NAMES.length; i++) {
+        for (int i = 0; i < getTabNames().length; i++) {
             int tabX = leftPos + 10 + (i * TAB_WIDTH);
             int tabY = topPos + 30;
             if (i == currentTab) {
@@ -187,8 +198,8 @@ public class PlotAppScreen extends Screen {
         int contentHeight = 0;
 
         if (currentPlot == null) {
-            guiGraphics.drawCenteredString(this.font, "§7Kein Plot gefunden", leftPos + WIDTH / 2, y + 20, 0xAAAAAA);
-            guiGraphics.drawCenteredString(this.font, "§8Stehe auf einem Plot", leftPos + WIDTH / 2, y + 35, 0x666666);
+            guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.plot.no_plot").getString(), leftPos + WIDTH / 2, y + 20, 0xAAAAAA);
+            guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.plot.stand_on_plot").getString(), leftPos + WIDTH / 2, y + 35, 0x666666);
             maxScroll = 0;
             return;
         }
@@ -198,7 +209,11 @@ public class PlotAppScreen extends Screen {
 
         // Plot-Name
         if (y >= startY - 15 && y < endY) {
-            guiGraphics.drawString(this.font, "§6§l" + currentPlot.getPlotName(), leftPos + 15, y, 0xFFAA00);
+            String plotName = currentPlot.getPlotName();
+            if (plotName == null || plotName.isEmpty()) {
+                plotName = Component.translatable("plot.unnamed").getString();
+            }
+            guiGraphics.drawString(this.font, "§6§l" + plotName, leftPos + 15, y, 0xFFAA00);
         }
         y += 15;
         contentHeight += 15;
@@ -212,15 +227,15 @@ public class PlotAppScreen extends Screen {
 
         // Besitzer
         if (y >= startY - 10 && y < endY) {
-            String owner = currentPlot.hasOwner() ? currentPlot.getOwnerName() : "§cKein Besitzer";
-            guiGraphics.drawString(this.font, "§7Besitzer: §f" + owner, leftPos + 15, y, 0xFFFFFF);
+            String owner = currentPlot.hasOwner() ? currentPlot.getOwnerName() : Component.translatable("gui.app.plot.no_owner").getString();
+            guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.owner").getString() + owner, leftPos + 15, y, 0xFFFFFF);
         }
         y += 12;
         contentHeight += 12;
 
         // Größe
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, "§7Größe: §e" + String.format("%,d", currentPlot.getVolume()) + " Blöcke", leftPos + 15, y, 0xFFFFFF);
+            guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.size").getString() + String.format("%,d", currentPlot.getVolume()) + Component.translatable("gui.app.plot.blocks").getString(), leftPos + 15, y, 0xFFFFFF);
         }
         y += 15;
         contentHeight += 15;
@@ -229,24 +244,24 @@ public class PlotAppScreen extends Screen {
         if (!currentPlot.hasOwner()) {
             if (y >= startY - 10 && y < endY) {
                 guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 25, 0x44228B22);
-                guiGraphics.drawString(this.font, "§a⚡ ZUM VERKAUF", leftPos + 15, y + 3, 0x00FF00);
-                guiGraphics.drawString(this.font, "§7Preis: §e" + String.format("%.0f", currentPlot.getPrice()) + "€", leftPos + 15, y + 14, 0xFFFFFF);
+                guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.for_sale").getString(), leftPos + 15, y + 3, 0x00FF00);
+                guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.price").getString() + String.format("%.0f", currentPlot.getPrice()) + "€", leftPos + 15, y + 14, 0xFFFFFF);
             }
             y += 30;
             contentHeight += 30;
         } else if (currentPlot.isForSale()) {
             if (y >= startY - 10 && y < endY) {
                 guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 25, 0x44228B22);
-                guiGraphics.drawString(this.font, "§a⚡ ZUM VERKAUF", leftPos + 15, y + 3, 0x00FF00);
-                guiGraphics.drawString(this.font, "§7Preis: §e" + String.format("%.0f", currentPlot.getSalePrice()) + "€", leftPos + 15, y + 14, 0xFFFFFF);
+                guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.for_sale").getString(), leftPos + 15, y + 3, 0x00FF00);
+                guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.price").getString() + String.format("%.0f", currentPlot.getSalePrice()) + "€", leftPos + 15, y + 14, 0xFFFFFF);
             }
             y += 30;
             contentHeight += 30;
         } else if (currentPlot.isForRent() && !currentPlot.isRented()) {
             if (y >= startY - 10 && y < endY) {
                 guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 25, 0x44C71585);
-                guiGraphics.drawString(this.font, "§d⚡ ZU VERMIETEN", leftPos + 15, y + 3, 0xFF00FF);
-                guiGraphics.drawString(this.font, "§7Miete: §e" + String.format("%.0f", currentPlot.getRentPricePerDay()) + "€/Tag", leftPos + 15, y + 14, 0xFFFFFF);
+                guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.for_rent").getString(), leftPos + 15, y + 3, 0xFF00FF);
+                guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.rent").getString() + String.format("%.0f", currentPlot.getRentPricePerDay()) + "€/Tag", leftPos + 15, y + 14, 0xFFFFFF);
             }
             y += 30;
             contentHeight += 30;
@@ -265,7 +280,7 @@ public class PlotAppScreen extends Screen {
 
             // Überschrift
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawString(this.font, "§b§l⚡ VERBRAUCH", leftPos + 15, y, 0x55FFFF);
+                guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.consumption").getString(), leftPos + 15, y, 0x55FFFF);
             }
             y += 14;
             contentHeight += 14;
@@ -274,14 +289,14 @@ public class PlotAppScreen extends Screen {
             if (y >= startY - 10 && y < endY) {
                 double elec = utilityData.getCurrentElectricity();
                 double avgElec = utilityData.get7DayAverageElectricity();
-                guiGraphics.drawString(this.font, "§e⚡ Strom:", leftPos + 15, y, 0xFFAA00);
+                guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.electricity").getString(), leftPos + 15, y, 0xFFAA00);
                 guiGraphics.drawString(this.font, PlotUtilityManager.formatElectricity(elec), leftPos + 80, y, 0xFFFFFF);
             }
             y += 11;
             contentHeight += 11;
 
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawString(this.font, "§8  7-Tage-Ø: " + PlotUtilityManager.formatElectricity(utilityData.get7DayAverageElectricity()), leftPos + 15, y, 0x888888);
+                guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.avg_7day").getString() + PlotUtilityManager.formatElectricity(utilityData.get7DayAverageElectricity()), leftPos + 15, y, 0x888888);
             }
             y += 13;
             contentHeight += 13;
@@ -289,21 +304,21 @@ public class PlotAppScreen extends Screen {
             // Wasser
             if (y >= startY - 10 && y < endY) {
                 double water = utilityData.getCurrentWater();
-                guiGraphics.drawString(this.font, "§b💧 Wasser:", leftPos + 15, y, 0x55AAFF);
+                guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.water").getString(), leftPos + 15, y, 0x55AAFF);
                 guiGraphics.drawString(this.font, PlotUtilityManager.formatWater(water), leftPos + 80, y, 0xFFFFFF);
             }
             y += 11;
             contentHeight += 11;
 
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawString(this.font, "§8  7-Tage-Ø: " + PlotUtilityManager.formatWater(utilityData.get7DayAverageWater()), leftPos + 15, y, 0x888888);
+                guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.avg_7day").getString() + PlotUtilityManager.formatWater(utilityData.get7DayAverageWater()), leftPos + 15, y, 0x888888);
             }
             y += 13;
             contentHeight += 13;
 
             // Verbraucher-Anzahl
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawString(this.font, "§7Geräte: §f" + utilityData.getConsumerCount(), leftPos + 15, y, 0xFFFFFF);
+                guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.devices").getString() + utilityData.getConsumerCount(), leftPos + 15, y, 0xFFFFFF);
             }
             y += 15;
             contentHeight += 15;
@@ -321,14 +336,14 @@ public class PlotAppScreen extends Screen {
         int contentHeight = 0;
 
         if (availablePlots.isEmpty()) {
-            guiGraphics.drawCenteredString(this.font, "§7Keine Angebote", leftPos + WIDTH / 2, y + 20, 0xAAAAAA);
+            guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.plot.no_offers").getString(), leftPos + WIDTH / 2, y + 20, 0xAAAAAA);
             maxScroll = 0;
             return;
         }
 
         // Header
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, "§e" + availablePlots.size() + " Angebote", leftPos + 15, y, 0xFFAA00);
+            guiGraphics.drawString(this.font, "§e" + availablePlots.size() + Component.translatable("gui.app.plot.offers").getString(), leftPos + 15, y, 0xFFAA00);
         }
         y += 15;
         contentHeight += 15;
@@ -339,19 +354,23 @@ public class PlotAppScreen extends Screen {
                 guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 35, 0x44333333);
 
                 // Name
-                guiGraphics.drawString(this.font, "§f" + plot.getPlotName(), leftPos + 15, y + 3, 0xFFFFFF);
+                String plotName = plot.getPlotName();
+                if (plotName == null || plotName.isEmpty()) {
+                    plotName = Component.translatable("plot.unnamed").getString();
+                }
+                guiGraphics.drawString(this.font, "§f" + plotName, leftPos + 15, y + 3, 0xFFFFFF);
 
                 // Status & Preis
                 String status;
                 String price;
                 if (!plot.hasOwner()) {
-                    status = "§a[KAUF]";
+                    status = Component.translatable("gui.app.plot.buy_label").getString();
                     price = String.format("%.0f€", plot.getPrice());
                 } else if (plot.isForSale()) {
-                    status = "§a[KAUF]";
+                    status = Component.translatable("gui.app.plot.buy_label").getString();
                     price = String.format("%.0f€", plot.getSalePrice());
                 } else {
-                    status = "§d[MIETE]";
+                    status = Component.translatable("gui.app.plot.rent_label").getString();
                     price = String.format("%.0f€/Tag", plot.getRentPricePerDay());
                 }
 
@@ -359,7 +378,7 @@ public class PlotAppScreen extends Screen {
                 guiGraphics.drawString(this.font, "§e" + price, leftPos + 70, y + 14, 0xFFFFFF);
 
                 // Größe
-                guiGraphics.drawString(this.font, "§8" + String.format("%,d", plot.getVolume()) + " Blöcke", leftPos + 15, y + 25, 0x666666);
+                guiGraphics.drawString(this.font, "§8" + String.format("%,d", plot.getVolume()) + Component.translatable("gui.app.plot.blocks").getString(), leftPos + 15, y + 25, 0x666666);
             }
             y += 40;
             contentHeight += 40;
@@ -377,15 +396,15 @@ public class PlotAppScreen extends Screen {
         int contentHeight = 0;
 
         if (myPlots.isEmpty()) {
-            guiGraphics.drawCenteredString(this.font, "§7Du besitzt keine Plots", leftPos + WIDTH / 2, y + 20, 0xAAAAAA);
-            guiGraphics.drawCenteredString(this.font, "§8Kaufe einen im Markt-Tab!", leftPos + WIDTH / 2, y + 35, 0x666666);
+            guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.plot.no_plots").getString(), leftPos + WIDTH / 2, y + 20, 0xAAAAAA);
+            guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.plot.buy_in_market").getString(), leftPos + WIDTH / 2, y + 35, 0x666666);
             maxScroll = 0;
             return;
         }
 
         // Header
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, "§6" + myPlots.size() + " Grundstücke", leftPos + 15, y, 0xFFAA00);
+            guiGraphics.drawString(this.font, "§6" + myPlots.size() + Component.translatable("gui.app.plot.properties").getString(), leftPos + 15, y, 0xFFAA00);
         }
         y += 15;
         contentHeight += 15;
@@ -396,7 +415,11 @@ public class PlotAppScreen extends Screen {
                 guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 45, 0x44333333);
 
                 // Name
-                guiGraphics.drawString(this.font, "§6§l" + plot.getPlotName(), leftPos + 15, y + 3, 0xFFAA00);
+                String plotName = plot.getPlotName();
+                if (plotName == null || plotName.isEmpty()) {
+                    plotName = Component.translatable("plot.unnamed").getString();
+                }
+                guiGraphics.drawString(this.font, "§6§l" + plotName, leftPos + 15, y + 3, 0xFFAA00);
 
                 // Utility-Verbrauch
                 Optional<PlotUtilityData> dataOpt = PlotUtilityManager.getPlotData(plot.getPlotId());
@@ -407,14 +430,14 @@ public class PlotAppScreen extends Screen {
                 }
 
                 // Status
-                String status = "§7Privat";
-                if (plot.isForSale()) status = "§a[Verkauf]";
-                else if (plot.isForRent()) status = plot.isRented() ? "§e[Vermietet]" : "§d[Zu vermieten]";
+                String status = Component.translatable("gui.app.plot.private").getString();
+                if (plot.isForSale()) status = Component.translatable("gui.app.plot.for_sale_short").getString();
+                else if (plot.isForRent()) status = plot.isRented() ? Component.translatable("gui.app.plot.rented").getString() : Component.translatable("gui.app.plot.to_rent").getString();
                 guiGraphics.drawString(this.font, status, leftPos + 15, y + 27, 0xFFFFFF);
 
                 // Geräte-Anzahl
                 if (dataOpt.isPresent()) {
-                    guiGraphics.drawString(this.font, "§8" + dataOpt.get().getConsumerCount() + " Geräte", leftPos + 100, y + 27, 0x666666);
+                    guiGraphics.drawString(this.font, "§8" + dataOpt.get().getConsumerCount() + Component.translatable("gui.app.plot.devices_count").getString(), leftPos + 100, y + 27, 0x666666);
                 }
             }
             y += 50;
@@ -466,8 +489,8 @@ public class PlotAppScreen extends Screen {
         if (hasWarnings) {
             if (y >= startY - 10 && y < endY) {
                 guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 25, 0x66AA0000);
-                guiGraphics.drawString(this.font, "§c§l⚠ WARNUNG", leftPos + 15, y + 3, 0xFF5555);
-                guiGraphics.drawString(this.font, "§7Hoher Verbrauch erkannt!", leftPos + 15, y + 14, 0xFFFFFF);
+                guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.warning").getString(), leftPos + 15, y + 3, 0xFF5555);
+                guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.high_consumption").getString(), leftPos + 15, y + 14, 0xFFFFFF);
             }
             y += 30;
             contentHeight += 30;
@@ -477,14 +500,14 @@ public class PlotAppScreen extends Screen {
         // AKTUELLE RECHNUNGEN
         // ═══════════════════════════════════════════════════════════════════════════
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, "§6§l💰 RECHNUNGEN", leftPos + 15, y, 0xFFAA00);
+            guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.bills").getString(), leftPos + 15, y, 0xFFAA00);
         }
         y += 15;
         contentHeight += 15;
 
         if (myPlots.isEmpty()) {
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawString(this.font, "§8Keine Grundstücke", leftPos + 15, y, 0x666666);
+                guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.no_properties").getString(), leftPos + 15, y, 0x666666);
             }
             y += 15;
             contentHeight += 15;
@@ -497,7 +520,7 @@ public class PlotAppScreen extends Screen {
             // Gesamt-Box
             if (y >= startY - 10 && y < endY) {
                 guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 50, 0x44333333);
-                guiGraphics.drawString(this.font, "§fGesamt (7-Tage-Ø/Tag)", leftPos + 15, y + 3, 0xFFFFFF);
+                guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.total_avg").getString(), leftPos + 15, y + 3, 0xFFFFFF);
 
                 // Strom
                 guiGraphics.drawString(this.font, "§e⚡ " + PlotUtilityManager.formatElectricity(totalElectricity), leftPos + 15, y + 15, 0xFFFFFF);
@@ -509,7 +532,7 @@ public class PlotAppScreen extends Screen {
 
                 // Gesamtsumme
                 guiGraphics.fill(leftPos + 15, y + 38, leftPos + WIDTH - 15, y + 39, 0x44FFFFFF);
-                guiGraphics.drawString(this.font, "§f§lSUMME:", leftPos + 15, y + 41, 0xFFFFFF);
+                guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.sum").getString(), leftPos + 15, y + 41, 0xFFFFFF);
                 guiGraphics.drawString(this.font, String.format("§e§l%.2f€/Tag", totalCost), leftPos + 100, y + 41, 0xFFAA00);
             }
             y += 55;
@@ -517,7 +540,7 @@ public class PlotAppScreen extends Screen {
 
             // Pro-Plot Aufschlüsselung
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawString(this.font, "§8Pro Grundstück:", leftPos + 15, y, 0x888888);
+                guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.per_property").getString(), leftPos + 15, y, 0x888888);
             }
             y += 12;
             contentHeight += 12;
@@ -532,9 +555,15 @@ public class PlotAppScreen extends Screen {
 
                     if (y >= startY - 30 && y < endY) {
                         guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 25, 0x33333333);
-                        guiGraphics.drawString(this.font, "§7" + plot.getPlotName(), leftPos + 15, y + 3, 0xAAAAAA);
+                        String plotName = plot.getPlotName();
+                        if (plotName == null || plotName.isEmpty()) {
+                            plotName = Component.translatable("plot.unnamed").getString();
+                        }
+                        guiGraphics.drawString(this.font, "§7" + plotName, leftPos + 15, y + 3, 0xAAAAAA);
                         guiGraphics.drawString(this.font, String.format("§e%.2f€", cost), leftPos + 140, y + 3, 0xFFAA00);
-                        guiGraphics.drawString(this.font, String.format("§8⚡%.0f kWh  💧%.0f L", elec, water), leftPos + 15, y + 14, 0x666666);
+                        guiGraphics.drawString(this.font, Component.translatable("ui.plot.utility_display",
+                            String.format("%.0f", elec),
+                            String.format("%.0f", water)).getString(), leftPos + 15, y + 14, 0x666666);
                     }
                     y += 28;
                     contentHeight += 28;
@@ -555,7 +584,7 @@ public class PlotAppScreen extends Screen {
         contentHeight += 8;
 
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, "§6§l📊 7-TAGE VERLAUF", leftPos + 15, y, 0xFFAA00);
+            guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.history_7day").getString(), leftPos + 15, y, 0xFFAA00);
         }
         y += 15;
         contentHeight += 15;
@@ -578,7 +607,15 @@ public class PlotAppScreen extends Screen {
         }
 
         // Tages-Anzeige (0 = Heute, 6 = Vor 6 Tagen)
-        String[] dayLabels = {"Heute", "Gestern", "Vor 2d", "Vor 3d", "Vor 4d", "Vor 5d", "Vor 6d"};
+        String[] dayLabels = {
+            Component.translatable("gui.app.plot.today").getString(),
+            Component.translatable("gui.app.plot.yesterday").getString(),
+            Component.translatable("gui.app.plot.days_ago_2").getString(),
+            Component.translatable("gui.app.plot.days_ago_3").getString(),
+            Component.translatable("gui.app.plot.days_ago_4").getString(),
+            Component.translatable("gui.app.plot.days_ago_5").getString(),
+            Component.translatable("gui.app.plot.days_ago_6").getString()
+        };
 
         for (int i = 0; i < 7; i++) {
             double elec = totalDailyElec[i];
@@ -605,7 +642,7 @@ public class PlotAppScreen extends Screen {
         contentHeight += 10;
 
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawCenteredString(this.font, "§8Preise: 0.35€/kWh, 0.50€/100L", leftPos + WIDTH / 2, y, 0x666666);
+            guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.plot.prices").getString(), leftPos + WIDTH / 2, y, 0x666666);
         }
         y += 12;
         contentHeight += 12;

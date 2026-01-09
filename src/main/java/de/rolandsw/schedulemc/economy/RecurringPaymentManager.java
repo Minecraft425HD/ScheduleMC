@@ -81,13 +81,12 @@ public class RecurringPaymentManager extends AbstractPersistenceManager<Map<UUID
 
         ServerPlayer player = server.getPlayerList().getPlayer(fromPlayer);
         if (player != null) {
-            player.sendSystemMessage(Component.literal(
-                "§a§l[DAUERAUFTRAG] Erstellt!\n" +
-                "§7Empfänger: §e" + toPlayer + "\n" +
-                "§7Betrag: §e" + String.format("%.2f€", amount) + "\n" +
-                "§7Interval: §e" + intervalDays + " Tage\n" +
-                "§7Beschreibung: §f" + description + "\n" +
-                "§7ID: §f" + payment.getPaymentId().substring(0, 8)
+            player.sendSystemMessage(Component.translatable("manager.recurring.created",
+                toPlayer.toString(),
+                String.format("%.2f€", amount),
+                String.valueOf(intervalDays),
+                description,
+                payment.getPaymentId().substring(0, 8)
             ));
         }
 
@@ -113,10 +112,9 @@ public class RecurringPaymentManager extends AbstractPersistenceManager<Map<UUID
 
         ServerPlayer player = server.getPlayerList().getPlayer(playerUUID);
         if (player != null) {
-            player.sendSystemMessage(Component.literal(
-                "§e[DAUERAUFTRAG] Gelöscht\n" +
-                "§7Empfänger: §e" + payment.getToPlayer() + "\n" +
-                "§7Betrag: §e" + String.format("%.2f€", payment.getAmount())
+            player.sendSystemMessage(Component.translatable("manager.recurring.deleted",
+                payment.getToPlayer().toString(),
+                String.format("%.2f€", payment.getAmount())
             ));
         }
 
@@ -137,9 +135,8 @@ public class RecurringPaymentManager extends AbstractPersistenceManager<Map<UUID
 
         ServerPlayer player = server.getPlayerList().getPlayer(playerUUID);
         if (player != null) {
-            player.sendSystemMessage(Component.literal(
-                "§e[DAUERAUFTRAG] Pausiert\n" +
-                "§7ID: §f" + paymentId
+            player.sendSystemMessage(Component.translatable("manager.recurring.paused",
+                paymentId
             ));
         }
 
@@ -160,9 +157,8 @@ public class RecurringPaymentManager extends AbstractPersistenceManager<Map<UUID
 
         ServerPlayer player = server.getPlayerList().getPlayer(playerUUID);
         if (player != null) {
-            player.sendSystemMessage(Component.literal(
-                "§a[DAUERAUFTRAG] Aktiviert\n" +
-                "§7ID: §f" + paymentId
+            player.sendSystemMessage(Component.translatable("manager.recurring.resumed",
+                paymentId
             ));
         }
 
@@ -196,20 +192,18 @@ public class RecurringPaymentManager extends AbstractPersistenceManager<Map<UUID
                     ServerPlayer recipient = server.getPlayerList().getPlayer(payment.getToPlayer());
 
                     if (player != null) {
-                        player.sendSystemMessage(Component.literal(
-                            "§a[DAUERAUFTRAG] Ausgeführt\n" +
-                            "§7Empfänger: §e" + payment.getToPlayer() + "\n" +
-                            "§7Betrag: §c-" + String.format("%.2f€", payment.getAmount()) + "\n" +
-                            "§7Beschreibung: §f" + payment.getDescription()
+                        player.sendSystemMessage(Component.translatable("manager.recurring.executed",
+                            payment.getToPlayer().toString(),
+                            String.format("%.2f€", payment.getAmount()),
+                            payment.getDescription()
                         ));
                     }
 
                     if (recipient != null) {
-                        recipient.sendSystemMessage(Component.literal(
-                            "§a[DAUERAUFTRAG] Erhalten\n" +
-                            "§7Von: §e" + playerUUID + "\n" +
-                            "§7Betrag: §a+" + String.format("%.2f€", payment.getAmount()) + "\n" +
-                            "§7Beschreibung: §f" + payment.getDescription()
+                        recipient.sendSystemMessage(Component.translatable("manager.recurring.received",
+                            playerUUID.toString(),
+                            String.format("%.2f€", payment.getAmount()),
+                            payment.getDescription()
                         ));
                     }
 
@@ -221,12 +215,9 @@ public class RecurringPaymentManager extends AbstractPersistenceManager<Map<UUID
                         // Nach 3 Fehlversuchen deaktiviert
                         ServerPlayer player = server.getPlayerList().getPlayer(playerUUID);
                         if (player != null) {
-                            player.sendSystemMessage(Component.literal(
-                                "§c§l[DAUERAUFTRAG] Deaktiviert!\n" +
-                                "§7Grund: 3 fehlgeschlagene Versuche\n" +
-                                "§7Empfänger: §e" + payment.getToPlayer() + "\n" +
-                                "§7Betrag: §e" + String.format("%.2f€", payment.getAmount()) + "\n" +
-                                "§cBitte zahle Geld ein und aktiviere den Auftrag erneut!"
+                            player.sendSystemMessage(Component.translatable("manager.recurring.deactivated",
+                                payment.getToPlayer().toString(),
+                                String.format("%.2f€", payment.getAmount())
                             ));
                         }
 
@@ -289,7 +280,9 @@ public class RecurringPaymentManager extends AbstractPersistenceManager<Map<UUID
     @Override
     protected String getHealthDetails() {
         int totalPayments = payments.values().stream().mapToInt(List::size).sum();
-        return totalPayments + " Daueraufträge aktiv";
+        return Component.translatable("manager.recurring.health_details",
+            String.valueOf(totalPayments)
+        ).getString();
     }
 
     @Override

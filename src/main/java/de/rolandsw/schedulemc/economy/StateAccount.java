@@ -55,11 +55,11 @@ public class StateAccount {
     public static boolean withdraw(int amount, String reason) {
         if (balance >= amount) {
             balance -= amount;
-            LOGGER.info("Staatskasse: -{}€ ({}), verbleibend: {}€", amount, reason, balance);
+            LOGGER.info("State treasury: -{}€ ({}), remaining: {}€", amount, reason, balance);
             save();
             return true;
         }
-        LOGGER.warn("Staatskasse: Nicht genug Geld für {} ({}€)", reason, amount);
+        LOGGER.warn("State treasury: Not enough money for {} ({}€)", reason, amount);
         return false;
     }
 
@@ -68,7 +68,7 @@ public class StateAccount {
      */
     public static void deposit(int amount, String reason) {
         balance += amount;
-        LOGGER.info("Staatskasse: +{}€ ({}), gesamt: {}€", amount, reason, balance);
+        LOGGER.info("State treasury: +{}€ ({}), total: {}€", amount, reason, balance);
         save();
     }
 
@@ -89,7 +89,7 @@ public class StateAccount {
             json.addProperty("lastUpdated", System.currentTimeMillis());
             new GsonBuilder().setPrettyPrinting().create().toJson(json, writer);
         } catch (IOException e) {
-            LOGGER.error("Fehler beim Speichern der Staatskasse", e);
+            LOGGER.error("Error saving state treasury", e);
         }
     }
 
@@ -98,7 +98,7 @@ public class StateAccount {
      */
     public static void load() {
         if (!SAVE_FILE.exists()) {
-            LOGGER.info("Staatskasse: Neue Staatskasse mit {}€ erstellt", balance);
+            LOGGER.info("State treasury: New treasury created with {}€", balance);
             save();
             return;
         }
@@ -106,9 +106,9 @@ public class StateAccount {
         try (FileReader reader = new FileReader(SAVE_FILE)) {
             JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
             balance = json.get("balance").getAsInt();
-            LOGGER.info("Staatskasse: Geladen mit {}€", balance);
+            LOGGER.info("State treasury: Loaded with {}€", balance);
         } catch (IOException e) {
-            LOGGER.error("Fehler beim Laden der Staatskasse", e);
+            LOGGER.error("Error loading state treasury", e);
         }
     }
 
@@ -118,7 +118,7 @@ public class StateAccount {
     public static void setBalance(int newBalance) {
         int oldBalance = balance;
         balance = newBalance;
-        LOGGER.info("Staatskasse: Saldo geändert von {}€ auf {}€", oldBalance, balance);
+        LOGGER.info("State treasury: Balance changed from {}€ to {}€", oldBalance, balance);
         save();
     }
 }

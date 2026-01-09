@@ -159,7 +159,7 @@ public class CreateRecurringPaymentPacket {
                     .withStyle(ChatFormatting.RED));
                 player.sendSystemMessage(Component.translatable("message.common.possible_reasons")
                     .withStyle(ChatFormatting.GRAY));
-                player.sendSystemMessage(Component.literal("• Maximale Anzahl erreicht")
+                player.sendSystemMessage(Component.translatable("network.bank.max_count_reached")
                     .withStyle(ChatFormatting.YELLOW));
                 player.sendSystemMessage(Component.translatable("message.bank.invalid_parameters")
                     .withStyle(ChatFormatting.YELLOW));

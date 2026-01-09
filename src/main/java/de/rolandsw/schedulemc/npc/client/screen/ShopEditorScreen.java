@@ -71,7 +71,7 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
 
         // Speichern-Button (groß und deutlich)
         saveButton = addRenderableWidget(Button.builder(
-            Component.literal("Shop Speichern"),
+            Component.translatable("screen.shop_editor.save_button"),
             button -> saveShopItems()
         ).bounds(x + 8, y + imageHeight - 26, 304, 20).build());
     }
@@ -225,11 +225,11 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
         int y = (height - imageHeight) / 2;
 
         // Render Tabellen-Header
-        guiGraphics.drawString(this.font, "#", x + 92, y + 18, 0x404040, false);
-        guiGraphics.drawString(this.font, "Item", x + 110, y + 18, 0x404040, false);
-        guiGraphics.drawString(this.font, "Preis", x + 180, y + 18, 0x404040, false);
-        guiGraphics.drawString(this.font, "∞", x + 228, y + 18, 0x404040, false);
-        guiGraphics.drawString(this.font, "Lager", x + 250, y + 18, 0x404040, false);
+        guiGraphics.drawString(this.font, Component.translatable("screen.shop_editor.column_number").getString(), x + 92, y + 18, 0x404040, false);
+        guiGraphics.drawString(this.font, Component.translatable("screen.shop_editor.column_item").getString(), x + 110, y + 18, 0x404040, false);
+        guiGraphics.drawString(this.font, Component.translatable("screen.shop_editor.column_price").getString(), x + 180, y + 18, 0x404040, false);
+        guiGraphics.drawString(this.font, Component.translatable("screen.shop_editor.column_unlimited").getString(), x + 228, y + 18, 0x404040, false);
+        guiGraphics.drawString(this.font, Component.translatable("screen.shop_editor.column_stock").getString(), x + 250, y + 18, 0x404040, false);
 
         // Render Tabellen-Einträge
         for (int i = 0; i < Math.min(VISIBLE_ROWS, ShopEditorMenu.SHOP_SLOTS - scrollOffset); i++) {
@@ -249,18 +249,18 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
                 }
                 guiGraphics.drawString(this.font, itemName, x + 110, rowY + 4, 0xFFFFFF, false);
             } else {
-                guiGraphics.drawString(this.font, "-leer-", x + 110, rowY + 4, 0x666666, false);
+                guiGraphics.drawString(this.font, Component.translatable("screen.shop_editor.empty_slot").getString(), x + 110, rowY + 4, 0x666666, false);
             }
         }
 
         // Hotbar-Label
-        guiGraphics.drawString(this.font, "Schnellauswahl",
+        guiGraphics.drawString(this.font, Component.translatable("screen.shop_editor.hotbar_label").getString(),
             x + 92, y + 144, 0x404040, false);
 
         // Hinweistext unten (dunkle Farbe für gute Lesbarkeit auf hellgrauem Hintergrund)
-        guiGraphics.drawString(this.font, "Items aus Hotbar ins 4x4 Grid ziehen, dann konfigurieren",
+        guiGraphics.drawString(this.font, Component.translatable("screen.shop_editor.hint_line1").getString(),
             x + 10, y + imageHeight - 38, 0x404040, false);
-        guiGraphics.drawString(this.font, "Preis: $-Betrag | ∞: Unbegrenzt | Lager: Stückzahl",
+        guiGraphics.drawString(this.font, Component.translatable("screen.shop_editor.hint_line2").getString(),
             x + 10, y + imageHeight - 28, 0x404040, false);
     }
 
@@ -288,14 +288,14 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
 
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        String title = "§6§lShop Editor";
+        String title = Component.translatable("screen.shop_editor.title").getString();
         guiGraphics.drawString(this.font, title, 8, 6, 0xFFD700, false);
 
         String category = "§7" + menu.getCategory().getDisplayName();
         guiGraphics.drawString(this.font, category, imageWidth - font.width(category) - 8, 6, 0xAAAAAA, false);
 
         // Überschrift für Shop Items
-        guiGraphics.drawString(this.font, "Shop Items (4x4)", 8, 94, 0xFFFFFF, false);
+        guiGraphics.drawString(this.font, Component.translatable("screen.shop_editor.shop_items_heading").getString(), 8, 94, 0xFFFFFF, false);
     }
 
     @Override

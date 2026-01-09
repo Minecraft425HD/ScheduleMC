@@ -114,8 +114,10 @@ public class AchievementAppScreen extends Screen {
         clearWidgets();
 
         // Zurück-Button (immer sichtbar)
-        String backLabel = currentView == ViewMode.OVERVIEW ? "← Zurück" : "← Übersicht";
-        addRenderableWidget(Button.builder(Component.literal(backLabel), button -> {
+        Component backLabel = currentView == ViewMode.OVERVIEW ?
+            Component.translatable("gui.app.achievement.back") :
+            Component.translatable("gui.app.achievement.back_to_overview");
+        addRenderableWidget(Button.builder(backLabel, button -> {
             if (currentView == ViewMode.OVERVIEW) {
                 if (minecraft != null) {
                     minecraft.setScreen(parentScreen);
@@ -235,7 +237,7 @@ public class AchievementAppScreen extends Screen {
 
         // Fortschritts-Prozent
         double percentage = totalAchievements > 0 ? (double) unlockedAchievements / totalAchievements * 100.0 : 0;
-        guiGraphics.drawCenteredString(this.font, "§f§lGesamt-Fortschritt", leftPos + WIDTH / 2, startY + 5, 0xFFFFFF);
+        guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.achievement.total_progress").getString(), leftPos + WIDTH / 2, startY + 5, 0xFFFFFF);
         guiGraphics.drawCenteredString(this.font,
             "§e" + unlockedAchievements + "§7/§e" + totalAchievements + " §7(" + String.format("%.1f%%", percentage) + ")",
             leftPos + WIDTH / 2, startY + 18, 0xFFFFFF);
@@ -254,11 +256,11 @@ public class AchievementAppScreen extends Screen {
 
         // Verdientes Geld
         guiGraphics.drawCenteredString(this.font,
-            "§7Verdient: §a" + String.format("%.2f€", totalEarned),
+            Component.translatable("gui.app.achievement.earned", String.format("%.2f€", totalEarned)).getString(),
             leftPos + WIDTH / 2, startY + 44, 0xFFFFFF);
 
         // Kategorien-Header
-        guiGraphics.drawString(this.font, "§6Kategorien:", leftPos + 15, startY + 80, 0xFFAA00);
+        guiGraphics.drawString(this.font, Component.translatable("gui.app.achievement.categories").getString(), leftPos + 15, startY + 80, 0xFFAA00);
 
         // Kategorie-Buttons werden in initButtons() erstellt
     }
@@ -337,7 +339,7 @@ public class AchievementAppScreen extends Screen {
 
         // Empty State
         if (currentAchievements.isEmpty()) {
-            guiGraphics.drawCenteredString(this.font, "§7Keine Achievements in dieser Kategorie",
+            guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.achievement.no_achievements").getString(),
                 leftPos + WIDTH / 2, listStartY + 20, 0xAAAAAA);
         }
 
@@ -403,12 +405,14 @@ public class AchievementAppScreen extends Screen {
             leftPos + WIDTH / 2, startY + 95, 0xFFFFFF);
 
         // Status
-        String statusText = unlocked ? "§a§l✓ FREIGESCHALTET" : "§7○ In Arbeit";
+        String statusText = unlocked ?
+            Component.translatable("gui.app.achievement.unlocked").getString() :
+            Component.translatable("gui.app.achievement.in_progress").getString();
         guiGraphics.drawCenteredString(this.font, statusText,
             leftPos + WIDTH / 2, startY + 115, 0xFFFFFF);
 
         // Reward
-        guiGraphics.drawCenteredString(this.font, "§7Belohnung:",
+        guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.achievement.reward").getString(),
             leftPos + WIDTH / 2, startY + 140, 0xAAAAAA);
         String rewardString = String.format("§a+%.2f€", ach.getTier().getRewardMoney());
         guiGraphics.drawCenteredString(this.font, rewardString,
@@ -416,7 +420,7 @@ public class AchievementAppScreen extends Screen {
 
         // Tier Info
         guiGraphics.drawCenteredString(this.font,
-            "§7Schwierigkeit: " + ach.getTier().getFormattedName(),
+            Component.translatable("gui.app.achievement.difficulty", ach.getTier().getFormattedName()).getString(),
             leftPos + WIDTH / 2, startY + 180, 0xAAAAAA);
     }
 

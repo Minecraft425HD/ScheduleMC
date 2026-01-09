@@ -1,23 +1,25 @@
 package de.rolandsw.schedulemc.economy;
 
+import net.minecraft.network.chat.Component;
+
 /**
  * Intervalle für Daueraufträge
  */
 public enum RecurringPaymentInterval {
-    DAILY("Täglich", 1),
-    WEEKLY("Wöchentlich", 7),
-    MONTHLY("Monatlich", 30);
+    DAILY("interval.daily", 1),
+    WEEKLY("interval.weekly", 7),
+    MONTHLY("interval.monthly", 30);
 
-    private final String displayName;
+    private final String translationKey;
     private final int daysInterval;
 
-    RecurringPaymentInterval(String displayName, int daysInterval) {
-        this.displayName = displayName;
+    RecurringPaymentInterval(String translationKey, int daysInterval) {
+        this.translationKey = translationKey;
         this.daysInterval = daysInterval;
     }
 
     public String getDisplayName() {
-        return displayName;
+        return Component.translatable(translationKey).getString();
     }
 
     public int getDaysInterval() {
@@ -36,7 +38,7 @@ public enum RecurringPaymentInterval {
      */
     public static RecurringPaymentInterval fromDisplayName(String displayName) {
         for (RecurringPaymentInterval interval : values()) {
-            if (interval.displayName.equals(displayName)) {
+            if (interval.getDisplayName().equals(displayName)) {
                 return interval;
             }
         }

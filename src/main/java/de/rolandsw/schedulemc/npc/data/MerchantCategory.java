@@ -1,49 +1,28 @@
 package de.rolandsw.schedulemc.npc.data;
 
+import net.minecraft.network.chat.Component;
+
 /**
  * Enum für verschiedene Verkäufer-Kategorien
  * Nur relevant wenn NPCType == VERKAEUFER
  */
 public enum MerchantCategory {
-    BAUMARKT("Baumarkt", "Hardware Store"),
-    WAFFENHAENDLER("Waffenhändler", "Gun Shop"),
-    TANKSTELLE("Tankstelle", "Gas Station"),
-    LEBENSMITTEL("Lebensmittel", "Grocery Store"),
-    PERSONALMANAGEMENT("Personalmanagement", "HR Management"),
-    ILLEGALER_HAENDLER("Illegaler Händler", "Black Market"),
-    AUTOHAENDLER("Autohändler", "Vehicle Dealer");
+    BAUMARKT(Component.translatable("enum.merchant_category.baumarkt").getString()),
+    WAFFENHAENDLER(Component.translatable("enum.merchant_category.waffenhaendler").getString()),
+    TANKSTELLE(Component.translatable("enum.merchant_category.tankstelle").getString()),
+    LEBENSMITTEL(Component.translatable("enum.merchant_category.lebensmittel").getString()),
+    PERSONALMANAGEMENT(Component.translatable("enum.merchant_category.personalmanagement").getString()),
+    ILLEGALER_HAENDLER(Component.translatable("enum.merchant_category.illegaler_haendler").getString()),
+    AUTOHAENDLER(Component.translatable("enum.merchant_category.autohaendler").getString());
 
-    private final String displayNameDE;
-    private final String displayNameEN;
+    private final String displayName;
 
-    MerchantCategory(String displayNameDE, String displayNameEN) {
-        this.displayNameDE = displayNameDE;
-        this.displayNameEN = displayNameEN;
+    MerchantCategory(String displayName) {
+        this.displayName = displayName;
     }
 
-    public String getDisplayNameDE() {
-        return displayNameDE;
-    }
-
-    public String getDisplayNameEN() {
-        return displayNameEN;
-    }
-
-    /**
-     * Gibt den Display-Name basierend auf der Client-Locale zurück
-     * Falls Client-Side: Automatische Sprachwahl
-     * Falls Server-Side: Deutsch (Standard)
-     *
-     * @return Lokalisierter Display-Name
-     */
     public String getDisplayName() {
-        try {
-            // Versuche Client-Locale zu verwenden
-            return de.rolandsw.schedulemc.util.LocaleHelper.selectClientLocalized(displayNameDE, displayNameEN);
-        } catch (Exception e) {
-            // Server-Side Fallback: Deutsch
-            return de.rolandsw.schedulemc.util.LocaleHelper.selectServerLocalized(displayNameDE, displayNameEN);
-        }
+        return displayName;
     }
 
     public static MerchantCategory fromOrdinal(int ordinal) {

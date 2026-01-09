@@ -1,16 +1,17 @@
 package de.rolandsw.schedulemc.cannabis;
 
 import de.rolandsw.schedulemc.production.core.ProductionQuality;
+import net.minecraft.network.chat.Component;
 
 /**
  * Cannabis-Qualitätsstufen
  */
 public enum CannabisQuality implements ProductionQuality {
-    SCHWAG("Schwag", "§8", 0, 0.5),              // Schlechte Qualität, viele Samen
-    MIDS("Mids", "§7", 1, 1.0),                  // Durchschnitt
-    DANK("Dank", "§a", 2, 2.0),                  // Gute Qualität
-    TOP_SHELF("Top Shelf", "§6", 3, 3.5),        // Premium
-    EXOTIC("Exotic", "§d§l", 4, 5.0);            // Beste Qualität
+    SCHWAG(Component.translatable("enum.cannabis_quality.schwag").getString(), "§8", 0, 0.5),              // Schlechte Qualität, viele Samen
+    MIDS(Component.translatable("enum.cannabis_quality.mids").getString(), "§7", 1, 1.0),                  // Durchschnitt
+    DANK(Component.translatable("enum.cannabis_quality.dank").getString(), "§a", 2, 2.0),                  // Gute Qualität
+    TOP_SHELF(Component.translatable("enum.cannabis_quality.top_shelf").getString(), "§6", 3, 3.5),        // Premium
+    EXOTIC(Component.translatable("enum.cannabis_quality.exotic").getString(), "§d§l", 4, 5.0);            // Beste Qualität
 
     private final String displayName;
     private final String colorCode;
@@ -33,11 +34,11 @@ public enum CannabisQuality implements ProductionQuality {
     @Override
     public String getDescription() {
         return switch (this) {
-            case SCHWAG -> "Schlechte Qualität mit Samen";
-            case MIDS -> "Durchschnittliche Qualität";
-            case DANK -> "Gute Qualität";
-            case TOP_SHELF -> "Premium Qualität";
-            case EXOTIC -> "Beste Qualität";
+            case SCHWAG -> Component.translatable("enum.cannabis_quality.desc.schwag").getString();
+            case MIDS -> Component.translatable("enum.cannabis_quality.desc.mids").getString();
+            case DANK -> Component.translatable("enum.cannabis_quality.desc.dank").getString();
+            case TOP_SHELF -> Component.translatable("enum.cannabis_quality.desc.top_shelf").getString();
+            case EXOTIC -> Component.translatable("enum.cannabis_quality.desc.exotic").getString();
         };
     }
 

@@ -327,7 +327,7 @@ public class BlockProtectionHandler {
         }
 
         lastNPCCacheUpdate = now;
-        LOGGER.debug("NPC Work Location Cache aktualisiert: {} Einträge", npcWorkLocationCache.size());
+        LOGGER.debug("NPC work location cache updated: {} entries", npcWorkLocationCache.size());
     }
 
     /**
@@ -400,9 +400,11 @@ public class BlockProtectionHandler {
 
         // Öffentlicher Plot: KEIN Bauen/Abbauen erlaubt!
         if (plot.isPublic()) {
-            player.displayClientMessage(Component.literal(
-                "§cÖffentlicher Plot - Bauen/Abbauen verboten!"
-            ), true);
+            player.displayClientMessage(
+                Component.translatable("event.protection.public_plot")
+                    .withStyle(ChatFormatting.RED),
+                true
+            );
             return false;
         }
 
@@ -417,18 +419,18 @@ public class BlockProtectionHandler {
         }
 
         // Keine Berechtigung - zeige Fehlermeldung
-        String ownerInfo;
+        Component ownerInfo;
         if (plot.isRented()) {
-            ownerInfo = "Dieser Plot ist vermietet";
+            ownerInfo = Component.translatable("event.protection.plot_rented");
         } else {
-            ownerInfo = "Dieser Plot gehört jemand anderem";
+            ownerInfo = Component.translatable("event.protection.plot_other_owner");
         }
 
         player.displayClientMessage(
-            Component.literal(
-                "§c✗ Du darfst hier keine Blöcke " + action + "!\n" +
-                "§7" + ownerInfo
-            ),
+            Component.translatable("event.protection.no_permission", action)
+                .withStyle(ChatFormatting.RED)
+                .append(Component.literal("\n"))
+                .append(ownerInfo.withStyle(ChatFormatting.DARK_GRAY)),
             true
         );
 
@@ -474,9 +476,11 @@ public class BlockProtectionHandler {
             // Privater Plot: Nur Besitzer + Trusted
             if (!plot.hasAccess(player.getUUID())) {
                 event.setCanceled(true);
-                player.displayClientMessage(Component.literal(
-                    "§c✗ Du darfst hier nichts benutzen!"
-                ), true);
+                player.displayClientMessage(
+                    Component.translatable("event.protection.cannot_use")
+                        .withStyle(ChatFormatting.RED),
+                    true
+                );
             }
         });
     }

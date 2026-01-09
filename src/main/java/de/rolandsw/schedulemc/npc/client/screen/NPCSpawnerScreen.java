@@ -258,7 +258,7 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
         if (ClientNPCNameCache.isNameTaken(currentName)) {
             npcNameInput.setTextColor(0xFF5555); // Rot
             // Zeige Fehlermeldung unter dem Name-Input
-            String errorMsg = "Name bereits vergeben!";
+            String errorMsg = Component.translatable("screen.npc_spawner.name_taken").getString();
             int errorX = x + 38;
             int errorY = y + 46;
             guiGraphics.drawString(this.font, errorMsg, errorX, errorY, 0xFF5555, false);
@@ -338,19 +338,19 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         guiGraphics.drawString(this.font, this.title, 8, 6, 0x404040, false);
-        guiGraphics.drawString(this.font, "Name:", 8, 18, 0x404040, false);
-        guiGraphics.drawString(this.font, "Skin:", 8, 43, 0x404040, false);
-        guiGraphics.drawString(this.font, "Typ:", 8, 73, 0x404040, false);
+        guiGraphics.drawString(this.font, Component.translatable("screen.npc_spawner.label_name").getString(), 8, 18, 0x404040, false);
+        guiGraphics.drawString(this.font, Component.translatable("screen.npc_spawner.label_skin").getString(), 8, 43, 0x404040, false);
+        guiGraphics.drawString(this.font, Component.translatable("screen.npc_spawner.label_type").getString(), 8, 73, 0x404040, false);
 
         // Verkäufer-Kategorie Label nur anzeigen wenn Verkäufer ausgewählt
         NPCType currentType = NPCType.values()[selectedNPCTypeIndex];
         if (currentType == NPCType.VERKAEUFER) {
-            guiGraphics.drawString(this.font, "Kategorie:", 8, 103, 0x404040, false);
+            guiGraphics.drawString(this.font, Component.translatable("screen.npc_spawner.label_category").getString(), 8, 103, 0x404040, false);
         }
 
         // Bank-Kategorie Label nur anzeigen wenn Bank ausgewählt
         if (currentType == NPCType.BANK) {
-            guiGraphics.drawString(this.font, "Kategorie:", 8, 103, 0x404040, false);
+            guiGraphics.drawString(this.font, Component.translatable("screen.npc_spawner.label_category").getString(), 8, 103, 0x404040, false);
         }
     }
 }

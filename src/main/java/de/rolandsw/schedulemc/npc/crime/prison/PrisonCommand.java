@@ -167,8 +167,8 @@ public class PrisonCommand {
                 int cellCount = (int) plot.getSubAreas().stream()
                     .filter(a -> a instanceof PrisonCell).count();
 
-                source.sendSuccess(() -> Component.literal(String.format(
-                    "§7- §f%s §7(%d Zellen)", plot.getPlotId(), cellCount)), false);
+                source.sendSuccess(() -> Component.translatable(
+                    "command.prison.prisons_list_entry", plot.getPlotId(), cellCount), false);
                 count++;
             }
         }
@@ -188,33 +188,34 @@ public class PrisonCommand {
             return 0;
         }
 
-        source.sendSuccess(() -> Component.literal("§6═══ ZELLEN ═══"), false);
+        source.sendSuccess(() -> Component.translatable("command.prison.cells_header"), false);
 
         int count = 0;
         for (var area : prison.getSubAreas()) {
             if (area instanceof PrisonCell cell) {
-                String status = cell.isOccupied() ? "§cBELEGT" : "§aFREI";
-                source.sendSuccess(() -> Component.literal(String.format(
-                    "§7Zelle §f%d §7(Sicherheit: %d) - %s",
-                    cell.getCellNumber(), cell.getSecurityLevel(), status)), false);
+                String status = cell.isOccupied() ?
+                    Component.translatable("command.prison.cell_occupied").getString() :
+                    Component.translatable("command.prison.cell_free").getString();
+                source.sendSuccess(() -> Component.translatable("command.prison.cell_info",
+                    cell.getCellNumber(), cell.getSecurityLevel(), status), false);
                 count++;
             }
         }
 
         if (count == 0) {
-            source.sendSuccess(() -> Component.literal("§7Keine Zellen vorhanden."), false);
+            source.sendSuccess(() -> Component.translatable("command.prison.no_cells"), false);
         }
 
         return count;
     }
 
     private static int listInmates(CommandSourceStack source) {
-        source.sendSuccess(() -> Component.literal("§6═══ GEFANGENE ═══"), false);
+        source.sendSuccess(() -> Component.translatable("command.prison.inmates_header"), false);
 
         var prisoners = PrisonManager.getInstance().getAllPrisoners();
 
         if (prisoners.isEmpty()) {
-            source.sendSuccess(() -> Component.literal("§7Keine Gefangenen."), false);
+            source.sendSuccess(() -> Component.translatable("command.prison.no_prisoners"), false);
             return 0;
         }
 
@@ -222,9 +223,8 @@ public class PrisonCommand {
             long remainingTicks = data.releaseTime - source.getLevel().getGameTime();
             int remainingSeconds = Math.max(0, (int)(remainingTicks / 20));
 
-            source.sendSuccess(() -> Component.literal(String.format(
-                "§7- §f%s §7(Zelle %d, %d Sek. verbleibend)",
-                data.playerName, data.cellNumber, remainingSeconds)), false);
+            source.sendSuccess(() -> Component.translatable("command.prison.inmate_info",
+                data.playerName, data.cellNumber, remainingSeconds), false);
         }
 
         return prisoners.size();
@@ -249,8 +249,8 @@ public class PrisonCommand {
         PrisonManager.PrisonerData data = manager.getPrisonerData(player.getUUID());
 
         if (data == null) {
-            source.sendSuccess(() -> Component.literal(
-                "§f" + player.getName().getString() + " §7ist nicht im Gefängnis."), false);
+            source.sendSuccess(() -> Component.translatable(
+                "command.prison.not_in_prison", player.getName().getString()), false);
             return 0;
         }
 
@@ -261,10 +261,10 @@ public class PrisonCommand {
 
         source.sendSuccess(() -> Component.translatable("command.prison.status_header"), false);
         source.sendSuccess(() -> Component.translatable("message.prison.player_label", data.playerName), false);
-        source.sendSuccess(() -> Component.literal("§7Zelle: §f" + data.cellNumber), false);
-        source.sendSuccess(() -> Component.literal("§7Verbleibend: §f" + minutes + ":" + String.format("%02d", seconds)), false);
-        source.sendSuccess(() -> Component.literal("§7Kaution: §f" + data.bailAmount + "€"), false);
-        source.sendSuccess(() -> Component.literal("§7WantedLevel: §f" + data.originalWantedLevel), false);
+        source.sendSuccess(() -> Component.translatable("command.prison.status_cell", data.cellNumber), false);
+        source.sendSuccess(() -> Component.translatable("command.prison.status_remaining", minutes, seconds), false);
+        source.sendSuccess(() -> Component.translatable("command.prison.status_bail", (int)data.bailAmount), false);
+        source.sendSuccess(() -> Component.translatable("command.prison.status_wantedlevel", data.originalWantedLevel), false);
 
         return 1;
     }
@@ -297,10 +297,10 @@ public class PrisonCommand {
         int minutes = remainingSeconds / 60;
         int seconds = remainingSeconds % 60;
 
-        source.sendSuccess(() -> Component.literal(String.format(
-            "§7Verbleibende Haftzeit: §f%d:%02d", minutes, seconds)), false);
-        source.sendSuccess(() -> Component.literal(String.format(
-            "§7Kaution: §f%.0f€", data.bailAmount)), false);
+        source.sendSuccess(() -> Component.translatable(
+            "command.prison.jail_time_remaining", minutes, seconds), false);
+        source.sendSuccess(() -> Component.translatable(
+            "command.prison.jail_time_bail", (int)data.bailAmount), false);
 
         return 1;
     }

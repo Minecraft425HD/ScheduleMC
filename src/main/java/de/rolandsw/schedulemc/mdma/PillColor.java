@@ -1,32 +1,38 @@
 package de.rolandsw.schedulemc.mdma;
 
+import net.minecraft.network.chat.Component;
+
 /**
  * Pillen-Farben für Ecstasy
  */
 public enum PillColor {
-    PINK("Pink", "§d", 0xFFAACC),
-    BLAU("Blau", "§9", 0x5555FF),
-    GRUEN("Grün", "§a", 0x55FF55),
-    ORANGE("Orange", "§6", 0xFFAA00),
-    GELB("Gelb", "§e", 0xFFFF55),
-    WEISS("Weiß", "§f", 0xFFFFFF),
-    ROT("Rot", "§c", 0xFF5555),
-    LILA("Lila", "§5", 0xAA55AA);
+    PINK("§d", 0xFFAACC),
+    BLAU("§9", 0x5555FF),
+    GRUEN("§a", 0x55FF55),
+    ORANGE("§6", 0xFFAA00),
+    GELB("§e", 0xFFFF55),
+    WEISS("§f", 0xFFFFFF),
+    ROT("§c", 0xFF5555),
+    LILA("§5", 0xAA55AA);
 
-    private final String displayName;
     private final String colorCode;
     private final int hexColor;
 
-    PillColor(String displayName, String colorCode, int hexColor) {
-        this.displayName = displayName;
+    PillColor(String colorCode, int hexColor) {
         this.colorCode = colorCode;
         this.hexColor = hexColor;
     }
 
-    public String getDisplayName() { return displayName; }
+    public Component getDisplayName() {
+        return Component.translatable("enum.pill_color." + this.name().toLowerCase());
+    }
+
     public String getColorCode() { return colorCode; }
     public int getHexColor() { return hexColor; }
-    public String getColoredName() { return colorCode + displayName; }
+
+    public Component getColoredName() {
+        return Component.literal(colorCode).append(getDisplayName());
+    }
 
     public static PillColor fromOrdinal(int ordinal) {
         if (ordinal >= 0 && ordinal < values().length) {

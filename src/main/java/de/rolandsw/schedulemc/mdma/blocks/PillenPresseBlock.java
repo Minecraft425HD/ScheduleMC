@@ -61,8 +61,8 @@ public class PillenPresseBlock extends Block implements EntityBlock {
         if (heldItem.getItem() instanceof MDMAKristallItem) {
             if (presse.addMDMAKristall(heldItem)) {
                 if (!player.isCreative()) heldItem.shrink(1);
-                player.displayClientMessage(Component.literal(
-                        "§a✓ MDMA-Kristalle hinzugefügt! (" + presse.getKristallCount() + "/16)"
+                player.displayClientMessage(Component.translatable(
+                        "block.mdma.press_crystal", presse.getKristallCount()
                 ), true);
                 return InteractionResult.SUCCESS;
             }
@@ -72,8 +72,8 @@ public class PillenPresseBlock extends Block implements EntityBlock {
         if (heldItem.getItem() instanceof BindemittelItem) {
             if (presse.addBindemittel(heldItem)) {
                 if (!player.isCreative()) heldItem.shrink(1);
-                player.displayClientMessage(Component.literal(
-                        "§a✓ Bindemittel hinzugefügt! (" + presse.getBindemittelCount() + "/16)"
+                player.displayClientMessage(Component.translatable(
+                        "block.mdma.press_binder", presse.getBindemittelCount()
                 ), true);
                 return InteractionResult.SUCCESS;
             }
@@ -83,8 +83,8 @@ public class PillenPresseBlock extends Block implements EntityBlock {
         if (heldItem.getItem() instanceof FarbstoffItem) {
             if (presse.addFarbstoff(heldItem)) {
                 if (!player.isCreative()) heldItem.shrink(1);
-                player.displayClientMessage(Component.literal(
-                        "§a✓ Farbe: " + presse.getSelectedColor().getColoredName()
+                player.displayClientMessage(Component.translatable(
+                        "block.mdma.press_color", presse.getSelectedColor().getColoredName()
                 ), true);
                 return InteractionResult.SUCCESS;
             }
@@ -96,8 +96,8 @@ public class PillenPresseBlock extends Block implements EntityBlock {
             if (presse.hasOutput()) {
                 ItemStack output = presse.extractOutput();
                 if (!player.getInventory().add(output)) player.drop(output, false);
-                player.displayClientMessage(Component.literal(
-                        "§a✓ " + output.getCount() + "x Ecstasy-Pillen entnommen!"
+                player.displayClientMessage(Component.translatable(
+                        "block.mdma.press_output", output.getCount()
                 ), true);
                 return InteractionResult.SUCCESS;
             }
@@ -105,9 +105,9 @@ public class PillenPresseBlock extends Block implements EntityBlock {
             // Schleichen = Design/Farbe wechseln
             if (player.isShiftKeyDown() && !presse.isMinigameActive()) {
                 presse.cycleDesign();
-                player.displayClientMessage(Component.literal(
-                        "§7Design: " + presse.getSelectedDesign().getColoredName() +
-                        " " + presse.getSelectedDesign().getSymbol()
+                player.displayClientMessage(Component.translatable(
+                        "block.mdma.press_design", presse.getSelectedDesign().getColoredName(),
+                        presse.getSelectedDesign().getSymbol()
                 ), true);
                 return InteractionResult.SUCCESS;
             }
@@ -119,17 +119,15 @@ public class PillenPresseBlock extends Block implements EntityBlock {
             }
 
             // Status
-            StringBuilder status = new StringBuilder();
-            status.append("§d⚗ Pillen-Presse\n");
-            status.append("§7Design: ").append(presse.getSelectedDesign().getColoredName())
-                  .append(" ").append(presse.getSelectedDesign().getSymbol()).append("\n");
-            status.append("§7Farbe: ").append(presse.getSelectedColor().getColoredName()).append("\n");
-            status.append("§7Kristalle: §f").append(presse.getKristallCount()).append("/16\n");
-            status.append("§7Bindemittel: §f").append(presse.getBindemittelCount()).append("/16\n");
-            if (presse.canStart()) {
-                status.append("§a▶ Bereit! Klicken zum Starten");
-            }
-            player.displayClientMessage(Component.literal(status.toString()), true);
+            player.displayClientMessage(Component.literal("§d⚗ Pillen-Presse\n")
+                    .append(Component.literal("§7Design: " + presse.getSelectedDesign().getColoredName() + " " + presse.getSelectedDesign().getSymbol() + "\n"))
+                    .append(Component.literal("§7Farbe: " + presse.getSelectedColor().getColoredName() + "\n"))
+                    .append(Component.translatable("block.mdma.press_crystal_count", presse.getKristallCount()))
+                    .append(Component.literal("\n"))
+                    .append(Component.translatable("block.mdma.press_binder_count", presse.getBindemittelCount()))
+                    .append(Component.literal("\n"))
+                    .append(presse.canStart() ? Component.translatable("block.mdma.press_ready") : Component.literal(""))
+            , true);
             return InteractionResult.SUCCESS;
         }
 

@@ -1,22 +1,21 @@
 package de.rolandsw.schedulemc.mushroom.blocks;
 
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringRepresentable;
 
 /**
  * Temperatur-Modi für Klimalampe
  */
 public enum TemperatureMode implements StringRepresentable {
-    OFF("off", "§7Aus", "⚫"),
-    COLD("cold", "§b Kalt", "❄"),
-    WARM("warm", "§c Warm", "🔥");
+    OFF("off", "⚫"),
+    COLD("cold", "❄"),
+    WARM("warm", "🔥");
 
     private final String name;
-    private final String displayName;
     private final String icon;
 
-    TemperatureMode(String name, String displayName, String icon) {
+    TemperatureMode(String name, String icon) {
         this.name = name;
-        this.displayName = displayName;
         this.icon = icon;
     }
 
@@ -25,12 +24,12 @@ public enum TemperatureMode implements StringRepresentable {
         return name;
     }
 
-    public String getDisplayName() {
-        return displayName;
+    public Component getDisplayName() {
+        return Component.translatable("enum.temperature_mode." + this.name().toLowerCase());
     }
 
-    public String getColoredName() {
-        return displayName + " " + icon;
+    public Component getColoredName() {
+        return getDisplayName().copy().append(Component.literal(" " + icon));
     }
 
     public String getIcon() {

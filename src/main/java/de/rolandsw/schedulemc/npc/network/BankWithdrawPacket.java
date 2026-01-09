@@ -70,7 +70,7 @@ public class BankWithdrawPacket {
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID())))
                         .withStyle(ChatFormatting.AQUA)));
-                player.sendSystemMessage(Component.literal("Neues Bargeld: ")
+                player.sendSystemMessage(Component.translatable("network.bank.new_cash")
                     .withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(String.format("%.2f€", WalletManager.getBalance(player.getUUID())))
                         .withStyle(ChatFormatting.YELLOW)));

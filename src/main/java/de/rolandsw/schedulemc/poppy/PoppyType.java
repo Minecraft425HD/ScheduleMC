@@ -2,14 +2,15 @@ package de.rolandsw.schedulemc.poppy;
 
 import de.rolandsw.schedulemc.production.core.ProductionType;
 import de.rolandsw.schedulemc.production.core.ProductionQuality;
+import net.minecraft.network.chat.Component;
 
 /**
  * Mohn-Sorten mit unterschiedlichen Eigenschaften
  */
 public enum PoppyType implements ProductionType {
-    AFGHANISCH("Afghanisch", "§4", 50.0, 160, 1.2, 6, 1.5),  // Höchste Potenz, langsam
-    TUERKISCH("Türkisch", "§6", 35.0, 120, 1.0, 6, 1.0),     // Ausgewogen
-    INDISCH("Indisch", "§5", 20.0, 80, 0.8, 6, 0.8);         // Schnell, niedrige Potenz
+    AFGHANISCH(Component.translatable("enum.poppy_type.afghanisch").getString(), "§4", 50.0, 160, 1.2, 6, 1.5),  // Höchste Potenz, langsam
+    TUERKISCH(Component.translatable("enum.poppy_type.tuerkisch").getString(), "§6", 35.0, 120, 1.0, 6, 1.0),     // Ausgewogen
+    INDISCH(Component.translatable("enum.poppy_type.indisch").getString(), "§5", 20.0, 80, 0.8, 6, 0.8);         // Schnell, niedrige Potenz
 
     private final String displayName;
     private final String colorCode;

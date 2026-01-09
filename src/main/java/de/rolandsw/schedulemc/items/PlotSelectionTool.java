@@ -116,7 +116,7 @@ public class PlotSelectionTool extends Item {
                 "§6═══ Selection ═══\n" +
                 "§aPos 1: §f" + pos1.toShortString() + "\n" +
                 "§aPos 2: §f" + pos2.toShortString() + "\n" +
-                "§7Größe: §e" + volume + " Blöcke\n" +
+                Component.translatable("item.plot_selection_tool.size", String.format("%,d", volume)).getString() + "\n" +
                 "§7Nutze: §e/plot create <preis>"
             ), false);
         }

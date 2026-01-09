@@ -252,14 +252,14 @@ public class PoliceSearchBehavior {
             String direction = movement.x + "," + movement.y + "," + movement.z;
             movementDirections.put(playerUUID, direction);
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("[POLICE] {} startet Suche nach Spieler {} bei {} in Richtung {}",
+                LOGGER.debug("[POLICE] {} starts search for player {} at {} in direction {}",
                     police.getNpcName(), player.getName().getString(), player.blockPosition(), movement);
             }
         } else {
             // Spieler steht still - keine bevorzugte Richtung
             movementDirections.remove(playerUUID);
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("[POLICE] {} startet Suche nach Spieler {} bei {}",
+                LOGGER.debug("[POLICE] {} starts search for player {} at {}",
                     police.getNpcName(), player.getName().getString(), player.blockPosition());
             }
         }
@@ -320,7 +320,7 @@ public class PoliceSearchBehavior {
     public static void searchArea(CustomNPCEntity police, UUID playerUUID, long currentTick) {
         BlockPos lastPos = getLastKnownPosition(playerUUID);
         if (lastPos == null) {
-            LOGGER.error("[POLICE] FEHLER: Keine letzte Position für Spieler {}", playerUUID);
+            LOGGER.error("[POLICE] ERROR: No last position for player {}", playerUUID);
             return;
         }
 
@@ -335,7 +335,7 @@ public class PoliceSearchBehavior {
         if (lastUpdate == null) {
             needsNewTarget = true; // Erstes Mal
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("[POLICE] {} setzt erstes Suchziel", police.getNpcName());
+                LOGGER.debug("[POLICE] {} sets first search target", police.getNpcName());
             }
         } else {
             long timeSinceUpdate = currentTick - lastUpdate;
@@ -345,12 +345,12 @@ public class PoliceSearchBehavior {
             if (timeSinceUpdate >= updateInterval) {
                 needsNewTarget = true;
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("[POLICE] {} Update-Intervall erreicht ({}s)", police.getNpcName(), timeSinceUpdate / 20);
+                    LOGGER.debug("[POLICE] {} update interval reached ({}s)", police.getNpcName(), timeSinceUpdate / 20);
                 }
             } else if (police.getNavigation().isDone()) {
                 needsNewTarget = true;
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("[POLICE] {} hat Ziel erreicht, neues Ziel wird gesetzt", police.getNpcName());
+                    LOGGER.debug("[POLICE] {} has reached target, setting new target", police.getNpcName());
                 }
             }
         }
@@ -385,7 +385,7 @@ public class PoliceSearchBehavior {
                 searchTarget = new BlockPos(targetX, lastPos.getY(), targetZ);
 
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("[POLICE] {} sucht in Bewegungsrichtung bei {} (Radius: {})",
+                    LOGGER.debug("[POLICE] {} searches in movement direction at {} (Radius: {})",
                         police.getNpcName(), searchTarget, searchRadius);
                 }
             } else {
@@ -396,7 +396,7 @@ public class PoliceSearchBehavior {
                 searchTarget = new BlockPos(randomX, lastPos.getY(), randomZ);
 
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("[POLICE] {} sucht zufällig bei {} (Radius: {})",
+                    LOGGER.debug("[POLICE] {} searches randomly at {} (Radius: {})",
                         police.getNpcName(), searchTarget, searchRadius);
                 }
             }
@@ -409,10 +409,10 @@ public class PoliceSearchBehavior {
 
             if (navigationStarted) {
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("[POLICE] {} Navigation gestartet zu {}", police.getNpcName(), searchTarget);
+                    LOGGER.debug("[POLICE] {} navigation started to {}", police.getNpcName(), searchTarget);
                 }
             } else {
-                LOGGER.error("[POLICE] FEHLER: {} konnte nicht zu {} navigieren!", police.getNpcName(), searchTarget);
+                LOGGER.error("[POLICE] ERROR: {} could not navigate to {}!", police.getNpcName(), searchTarget);
             }
 
             // Speichere Update-Zeit
@@ -420,7 +420,7 @@ public class PoliceSearchBehavior {
         } else {
             // Kein neues Ziel - prüfe ob Navigation noch läuft
             if (police.getNavigation().isDone()) {
-                LOGGER.warn("[POLICE] WARNUNG: {} Navigation ist fertig aber kein neues Ziel wurde gesetzt!", police.getNpcName());
+                LOGGER.warn("[POLICE] WARNING: {} navigation complete but no new target was set!", police.getNpcName());
             }
         }
     }

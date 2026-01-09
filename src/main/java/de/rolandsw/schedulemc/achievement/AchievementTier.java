@@ -1,23 +1,23 @@
 package de.rolandsw.schedulemc.achievement;
 
+import net.minecraft.network.chat.Component;
+
 /**
  * Schwierigkeits-Stufen für Achievements
  */
 public enum AchievementTier {
-    BRONZE("🥉", "Bronze", "§7", 100.0),
-    SILVER("🥈", "Silber", "§f", 500.0),
-    GOLD("🥇", "Gold", "§e", 2000.0),
-    DIAMOND("💎", "Diamant", "§b", 10000.0),
-    PLATINUM("⭐", "Platin", "§d", 50000.0);
+    BRONZE("🥉", "§7", 100.0),
+    SILVER("🥈", "§f", 500.0),
+    GOLD("🥇", "§e", 2000.0),
+    DIAMOND("💎", "§b", 10000.0),
+    PLATINUM("⭐", "§d", 50000.0);
 
     private final String emoji;
-    private final String displayName;
     private final String colorCode;
     private final double rewardMoney;
 
-    AchievementTier(String emoji, String displayName, String colorCode, double rewardMoney) {
+    AchievementTier(String emoji, String colorCode, double rewardMoney) {
         this.emoji = emoji;
-        this.displayName = displayName;
         this.colorCode = colorCode;
         this.rewardMoney = rewardMoney;
     }
@@ -26,8 +26,8 @@ public enum AchievementTier {
         return emoji;
     }
 
-    public String getDisplayName() {
-        return displayName;
+    public Component getDisplayName() {
+        return Component.translatable("enum.achievement_tier." + this.name().toLowerCase());
     }
 
     public String getColorCode() {
@@ -38,7 +38,7 @@ public enum AchievementTier {
         return rewardMoney;
     }
 
-    public String getFormattedName() {
-        return colorCode + emoji + " " + displayName;
+    public Component getFormattedName() {
+        return Component.literal(colorCode + emoji + " ").append(getDisplayName());
     }
 }

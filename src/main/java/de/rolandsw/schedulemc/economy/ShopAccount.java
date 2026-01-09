@@ -95,7 +95,7 @@ public class ShopAccount {
             StateAccount.getInstance(level.getServer()).deposit(salesTax, "MwSt Shop " + shopId);
         }
 
-        LOGGER.debug("Shop {}: +{}€ Einnahmen ({}) - MwSt: {}€, Netto: {}€",
+        LOGGER.debug("Shop {}: +{}€ revenue ({}) - Sales tax: {}€, Net: {}€",
             shopId, amount, source, salesTax, netRevenue);
     }
 
@@ -105,7 +105,7 @@ public class ShopAccount {
     public void addExpense(Level level, int amount, String reason) {
         updateDayIfNeeded(level);
         todayRecord.addExpense(amount);
-        LOGGER.debug("Shop {}: -{}€ Ausgaben ({})", shopId, amount, reason);
+        LOGGER.debug("Shop {}: -{}€ expenses ({})", shopId, amount, reason);
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -203,7 +203,7 @@ public class ShopAccount {
         if (existing != null) {
             // Spieler kauft mehr Aktien dazu
             existing.addShares(shares, totalCost);
-            LOGGER.info("Aktionär {} kauft {} weitere Aktien (Gesamt: {})",
+            LOGGER.info("Shareholder {} purchases {} additional shares (Total: {})",
                 playerName, shares, existing.getSharesOwned());
         } else {
             // Neuer Aktionär
@@ -213,7 +213,7 @@ public class ShopAccount {
 
             ShareHolder newHolder = new ShareHolder(playerUUID, playerName, shares, totalCost);
             shareholders.add(newHolder);
-            LOGGER.info("Neuer Aktionär: {} kauft {} Aktien ({}%)",
+            LOGGER.info("New shareholder: {} purchases {} shares ({}%)",
                 playerName, shares, newHolder.getOwnershipPercentage());
         }
 
@@ -238,9 +238,9 @@ public class ShopAccount {
         // Entferne Aktionär wenn keine Aktien mehr
         if (holder.getSharesOwned() == 0) {
             shareholders.remove(holder);
-            LOGGER.info("Aktionär {} verkauft alle Aktien und verlässt Shop", holder.getPlayerName());
+            LOGGER.info("Shareholder {} sells all shares and leaves shop", holder.getPlayerName());
         } else {
-            LOGGER.info("Aktionär {} verkauft {} Aktien (Verbleibend: {})",
+            LOGGER.info("Shareholder {} sells {} shares (Remaining: {})",
                 holder.getPlayerName(), shares, holder.getSharesOwned());
         }
 
@@ -275,14 +275,14 @@ public class ShopAccount {
      */
     private void performPayout(Level level) {
         if (shareholders.isEmpty()) {
-            LOGGER.debug("Shop {}: Keine Aktionäre für Auszahlung", shopId);
+            LOGGER.debug("Shop {}: No shareholders for payout", shopId);
             return;
         }
 
         int netRevenue = get7DayNetRevenue();
 
         if (netRevenue <= 0) {
-            LOGGER.info("Shop {}: Kein Gewinn (7-Tage-Nettoumsatz: {}€)", shopId, netRevenue);
+            LOGGER.info("Shop {}: No profit (7-day net revenue: {}€)", shopId, netRevenue);
 
             // Benachrichtige Aktionäre
             for (ShareHolder holder : shareholders) {
@@ -299,7 +299,7 @@ public class ShopAccount {
             return;
         }
 
-        LOGGER.info("Shop {}: Gewinnausschüttung! 7-Tage-Nettoumsatz: {}€", shopId, netRevenue);
+        LOGGER.info("Shop {}: Profit distribution! 7-day net revenue: {}€", shopId, netRevenue);
 
         // Zahle jeden Aktionär basierend auf Shares
         for (ShareHolder holder : shareholders) {
@@ -322,7 +322,7 @@ public class ShopAccount {
                         .withStyle(ChatFormatting.GREEN)
                 );
 
-                LOGGER.info("Aktionär {}: {}€ ausgezahlt ({}% = {} Aktien)",
+                LOGGER.info("Shareholder {}: {}€ paid out ({}% = {} shares)",
                     holder.getPlayerName(), payout,
                     String.format("%.1f", holder.getOwnershipPercentage()),
                     holder.getSharesOwned());

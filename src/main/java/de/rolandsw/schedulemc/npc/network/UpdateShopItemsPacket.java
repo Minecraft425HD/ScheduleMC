@@ -95,8 +95,10 @@ public class UpdateShopItemsPacket {
                 // WAREHOUSE SYNCHRONISATION
                 syncShopToWarehouse(npc, player);
 
-                player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
-                    "§aShop erfolgreich aktualisiert! " + items.size() + " Items hinzugefügt."));
+                player.sendSystemMessage(net.minecraft.network.chat.Component.translatable(
+                    "network.shop_update.success",
+                    String.valueOf(items.size())
+                ));
             }
         });
     }

@@ -52,8 +52,8 @@ public class ReaktionsKesselBlock extends Block implements EntityBlock {
         if (heldItem.getItem() instanceof SafrolItem) {
             if (kessel.addSafrol(heldItem)) {
                 if (!player.isCreative()) heldItem.shrink(1);
-                player.displayClientMessage(Component.literal(
-                        "§a✓ Safrol hinzugefügt! (" + kessel.getSafrolCount() + "/8)"
+                player.displayClientMessage(Component.translatable(
+                        "block.mdma.reaction_input", kessel.getSafrolCount()
                 ), true);
                 return InteractionResult.SUCCESS;
             }
@@ -63,19 +63,17 @@ public class ReaktionsKesselBlock extends Block implements EntityBlock {
             if (kessel.hasOutput()) {
                 ItemStack output = kessel.extractOutput();
                 if (!player.getInventory().add(output)) player.drop(output, false);
-                player.displayClientMessage(Component.literal(
-                        "§a✓ " + output.getCount() + "x MDMA-Base entnommen!"
+                player.displayClientMessage(Component.translatable(
+                        "block.mdma.reaction_output", output.getCount()
                 ), true);
                 return InteractionResult.SUCCESS;
             }
 
-            StringBuilder status = new StringBuilder();
-            status.append("§6⚗ Reaktions-Kessel\n");
-            status.append("§7Safrol: §f").append(kessel.getSafrolCount()).append("/8\n");
-            if (kessel.isActive()) {
-                status.append("§7Fortschritt: §e").append((int)(kessel.getProgress() * 100)).append("%");
-            }
-            player.displayClientMessage(Component.literal(status.toString()), true);
+            player.displayClientMessage(Component.literal("§6⚗ Reaktions-Kessel\n")
+                    .append(Component.translatable("block.mdma.reaction_count", kessel.getSafrolCount()))
+                    .append(Component.literal("\n"))
+                    .append(kessel.isActive() ? Component.literal("§7Fortschritt: §e" + (int)(kessel.getProgress() * 100) + "%") : Component.literal(""))
+            , true);
             return InteractionResult.SUCCESS;
         }
 

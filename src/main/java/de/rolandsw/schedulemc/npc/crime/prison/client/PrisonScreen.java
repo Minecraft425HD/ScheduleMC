@@ -126,7 +126,7 @@ public class PrisonScreen extends Screen {
         this.topPos = (this.height - BACKGROUND_HEIGHT) / 2;
 
         this.bailButton = addRenderableWidget(Button.builder(
-            Component.literal("KAUTION ZAHLEN"),
+            Component.translatable("screen.prison.pay_bail_button"),
             this::onBailButtonClick
         ).bounds(
             leftPos + 50,
@@ -159,7 +159,7 @@ public class PrisonScreen extends Screen {
 
     private void renderHeader(GuiGraphics graphics) {
         graphics.fill(leftPos + 2, topPos + 2, leftPos + BACKGROUND_WIDTH - 2, topPos + 35, COLOR_HEADER);
-        String title = "⛓ GEFÄNGNIS ⛓";
+        String title = Component.translatable("screen.prison.title").getString();
         int titleWidth = font.width(title);
         graphics.drawString(font, title, leftPos + (BACKGROUND_WIDTH - titleWidth) / 2, topPos + 12, COLOR_TEXT, true);
     }
@@ -169,7 +169,7 @@ public class PrisonScreen extends Screen {
 
         graphics.fill(leftPos + 20, y, leftPos + BACKGROUND_WIDTH - 20, y + 70, 0xFF2a2a2a);
 
-        String cellText = "ZELLE " + cellNumber;
+        String cellText = Component.translatable("screen.prison.cell", cellNumber).getString();
         int cellWidth = font.width(cellText);
         graphics.drawString(font, cellText, leftPos + (BACKGROUND_WIDTH - cellWidth) / 2, y + 8, COLOR_TEXT_GOLD, true);
 
@@ -191,7 +191,7 @@ public class PrisonScreen extends Screen {
         int remainingSeconds = (int) (remainingTicks / 20);
         int minutes = remainingSeconds / 60;
         int seconds = remainingSeconds % 60;
-        String timeText = String.format("%d:%02d VERBLEIBEND", minutes, seconds);
+        String timeText = Component.translatable("screen.prison.time_remaining", minutes, seconds).getString();
         int timeWidth = font.width(timeText);
         graphics.drawString(font, timeText, leftPos + (BACKGROUND_WIDTH - timeWidth) / 2, y + 48, COLOR_TEXT, true);
     }
@@ -202,14 +202,14 @@ public class PrisonScreen extends Screen {
         graphics.fill(leftPos + 20, y, leftPos + BACKGROUND_WIDTH - 20, y + 1, 0xFF555555);
 
         y += 10;
-        graphics.drawString(font, "KAUTION", leftPos + 25, y, COLOR_TEXT_GOLD, true);
+        graphics.drawString(font, Component.translatable("screen.prison.bail_header").getString(), leftPos + 25, y, COLOR_TEXT_GOLD, true);
 
         y += 18;
-        graphics.drawString(font, "Betrag:", leftPos + 25, y, COLOR_TEXT_GRAY, false);
+        graphics.drawString(font, Component.translatable("screen.prison.bail_amount_label").getString(), leftPos + 25, y, COLOR_TEXT_GRAY, false);
         graphics.drawString(font, String.format("%.0f€", bailAmount), leftPos + 120, y, COLOR_TEXT, false);
 
         y += 14;
-        graphics.drawString(font, "Dein Konto:", leftPos + 25, y, COLOR_TEXT_GRAY, false);
+        graphics.drawString(font, Component.translatable("screen.prison.your_account_label").getString(), leftPos + 25, y, COLOR_TEXT_GRAY, false);
         int balanceColor = playerBalance >= bailAmount ? COLOR_TEXT_GREEN : COLOR_TEXT_RED;
         graphics.drawString(font, String.format("%.0f€", playerBalance), leftPos + 120, y, balanceColor, false);
 
@@ -218,16 +218,16 @@ public class PrisonScreen extends Screen {
 
         if (bailAvailable || currentTick >= bailAvailableAtTick) {
             bailAvailable = true;
-            graphics.drawString(font, "Status:", leftPos + 25, y, COLOR_TEXT_GRAY, false);
-            graphics.drawString(font, "✓ Verfügbar!", leftPos + 120, y, COLOR_TEXT_GREEN, false);
+            graphics.drawString(font, Component.translatable("screen.prison.status_label").getString(), leftPos + 25, y, COLOR_TEXT_GRAY, false);
+            graphics.drawString(font, Component.translatable("screen.prison.status_available").getString(), leftPos + 120, y, COLOR_TEXT_GREEN, false);
         } else {
             long waitTicks = bailAvailableAtTick - currentTick;
             int waitSeconds = (int) (waitTicks / 20);
             int waitMin = waitSeconds / 60;
             int waitSec = waitSeconds % 60;
 
-            graphics.drawString(font, "Status:", leftPos + 25, y, COLOR_TEXT_GRAY, false);
-            graphics.drawString(font, String.format("⏳ Noch %d:%02d warten...", waitMin, waitSec),
+            graphics.drawString(font, Component.translatable("screen.prison.status_label").getString(), leftPos + 25, y, COLOR_TEXT_GRAY, false);
+            graphics.drawString(font, Component.translatable("screen.prison.status_wait", waitMin, waitSec).getString(),
                 leftPos + 120, y, COLOR_TEXT_GRAY, false);
         }
     }
@@ -235,8 +235,8 @@ public class PrisonScreen extends Screen {
     private void renderHintText(GuiGraphics graphics) {
         int y = topPos + BACKGROUND_HEIGHT - 35;
 
-        String hint1 = "Du kannst dieses Fenster nicht schließen.";
-        String hint2 = "Warte deine Strafe ab oder zahle Kaution.";
+        String hint1 = Component.translatable("screen.prison.hint_line1").getString();
+        String hint2 = Component.translatable("screen.prison.hint_line2").getString();
 
         int hint1Width = font.width(hint1);
         int hint2Width = font.width(hint2);
@@ -283,7 +283,7 @@ public class PrisonScreen extends Screen {
         PrisonNetworkHandler.sendToServer(new PayBailPacket());
 
         button.active = false;
-        button.setMessage(Component.literal("§7Verarbeite..."));
+        button.setMessage(Component.translatable("screen.prison.processing"));
     }
 
     public void allowClose() {

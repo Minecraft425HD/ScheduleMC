@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.messaging;
 
+import net.minecraft.network.chat.Component;
 import java.util.*;
 
 /**
@@ -7,52 +8,75 @@ import java.util.*;
  */
 public class NPCMessageTemplates {
 
-    // Low reputation (0-33): Unfriendly messages
-    private static final List<String> LOW_REPUTATION_MESSAGES = Arrays.asList(
-        "Lass mich in Ruhe.",
-        "Was willst du von mir?",
-        "Ich habe keine Zeit für dich."
-    );
-
-    // Medium reputation (34-66): Neutral messages
-    private static final List<String> MEDIUM_REPUTATION_MESSAGES = Arrays.asList(
-        "Hallo, wie geht's?",
-        "Brauchst du etwas?",
-        "Schönen Tag noch!"
-    );
-
-    // High reputation (67-100): Friendly messages
-    private static final List<String> HIGH_REPUTATION_MESSAGES = Arrays.asList(
-        "Hey! Schön dich zu sehen!",
-        "Wie läuft's bei dir?",
-        "Lass uns bald was unternehmen!"
-    );
+    private static final int MESSAGES_PER_MOOD = 3;
 
     /**
-     * Gets three message options based on reputation level
-     * @param reputation Reputation value (0-100)
-     * @return List of 3 message options
+     * Gets an unfriendly message Component based on variant
+     * @param variant Variant index (0-2)
+     * @return Translatable Component
      */
-    public static List<String> getMessagesForReputation(int reputation) {
-        if (reputation < 34) {
-            return new ArrayList<>(LOW_REPUTATION_MESSAGES);
-        } else if (reputation < 67) {
-            return new ArrayList<>(MEDIUM_REPUTATION_MESSAGES);
-        } else {
-            return new ArrayList<>(HIGH_REPUTATION_MESSAGES);
-        }
+    public static Component getUnfriendlyMessage(int variant) {
+        return Component.translatable("npc.message.unfriendly." + variant);
     }
 
     /**
-     * Gets reputation level description
+     * Gets a neutral message Component based on variant
+     * @param variant Variant index (0-2)
+     * @return Translatable Component
      */
-    public static String getReputationLevel(int reputation) {
+    public static Component getNeutralMessage(int variant) {
+        return Component.translatable("npc.message.neutral." + variant);
+    }
+
+    /**
+     * Gets a friendly message Component based on variant
+     * @param variant Variant index (0-2)
+     * @return Translatable Component
+     */
+    public static Component getFriendlyMessage(int variant) {
+        return Component.translatable("npc.message.friendly." + variant);
+    }
+
+    /**
+     * Gets all message Components based on reputation level
+     * @param reputation Reputation value (0-100)
+     * @return List of 3 message Components
+     */
+    public static List<Component> getMessagesForReputation(int reputation) {
+        List<Component> messages = new ArrayList<>();
+
         if (reputation < 34) {
-            return "§cNiedrig";
+            // Unfriendly messages
+            for (int i = 0; i < MESSAGES_PER_MOOD; i++) {
+                messages.add(getUnfriendlyMessage(i));
+            }
         } else if (reputation < 67) {
-            return "§eNeutral";
+            // Neutral messages
+            for (int i = 0; i < MESSAGES_PER_MOOD; i++) {
+                messages.add(getNeutralMessage(i));
+            }
         } else {
-            return "§aHoch";
+            // Friendly messages
+            for (int i = 0; i < MESSAGES_PER_MOOD; i++) {
+                messages.add(getFriendlyMessage(i));
+            }
+        }
+
+        return messages;
+    }
+
+    /**
+     * Gets reputation level description Component
+     * @param reputation Reputation value (0-100)
+     * @return Translatable Component with color formatting
+     */
+    public static Component getReputationLevel(int reputation) {
+        if (reputation < 34) {
+            return Component.translatable("npc.reputation.low");
+        } else if (reputation < 67) {
+            return Component.translatable("npc.reputation.neutral");
+        } else {
+            return Component.translatable("npc.reputation.high");
         }
     }
 }

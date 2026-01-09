@@ -136,16 +136,15 @@ public class InterestManager extends AbstractPersistenceManager<Map<UUID, Long>>
         interest = Math.min(interest, MAX_INTEREST_PER_WEEK);
 
         EconomyManager.deposit(playerUUID, interest, TransactionType.INTEREST,
-            String.format("Wöchentliche Zinsen (%.1f%%)", INTEREST_RATE * 100));
+            Component.translatable("manager.interest.weekly_interest",
+                String.format("%.1f", INTEREST_RATE * 100)).getString());
 
         // Benachrichtige Spieler wenn online
         ServerPlayer player = server.getPlayerList().getPlayer(playerUUID);
         if (player != null) {
-            player.sendSystemMessage(Component.literal(
-                "§a§l[BANK] Zinsen gutgeschrieben!\n" +
-                "§7Rate: §e2.0%\n" +
-                "§7Betrag: §a+" + String.format("%.2f€", interest) + "\n" +
-                "§7Neuer Kontostand: §6" + String.format("%.2f€", EconomyManager.getBalance(playerUUID))
+            player.sendSystemMessage(Component.translatable("manager.interest.paid",
+                String.format("%.2f€", interest),
+                String.format("%.2f€", EconomyManager.getBalance(playerUUID))
             ));
         }
     }

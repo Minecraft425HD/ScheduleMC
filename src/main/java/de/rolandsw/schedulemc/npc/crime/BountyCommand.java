@@ -50,44 +50,33 @@ public class BountyCommand {
      * Zeigt alle aktiven Bounties
      */
     private static int listBounties(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler beim Abrufen der Kopfgelder",
+        return CommandExecutor.executePlayerCommand(ctx, Component.translatable("command.bounty.fetch_error"),
             player -> {
                 BountyManager manager = BountyManager.getInstance(player.getServer());
                 List<BountyData> bounties = manager.getTopBounties(10);
 
                 if (bounties.isEmpty()) {
-                    player.sendSystemMessage(Component.literal(
-                        "§e§l[KOPFGELDER]\n" +
-                        "§7Keine aktiven Kopfgelder vorhanden."
-                    ));
+                    player.sendSystemMessage(Component.translatable("command.bounty.no_bounties"));
                     return;
                 }
 
-                player.sendSystemMessage(Component.literal(
-                    "§6§l━━━━━━━━ TOP KOPFGELDER ━━━━━━━━"
-                ));
+                player.sendSystemMessage(Component.translatable("command.bounty.header"));
 
                 int rank = 1;
                 for (BountyData bounty : bounties) {
                     String targetName = "Spieler"; // TODO: Get player name
 
-                    player.sendSystemMessage(Component.literal(
-                        String.format(
-                            "\n§e#%d §7- §f%s\n" +
-                            "  §7Betrag: §a%.2f€\n" +
-                            "  §7Grund: §e%s",
-                            rank,
-                            targetName,
-                            bounty.getAmount(),
-                            bounty.getReason()
-                        )
+                    player.sendSystemMessage(Component.translatable(
+                        "command.bounty.list_entry",
+                        rank,
+                        targetName,
+                        String.format("%.2f", bounty.getAmount()),
+                        bounty.getReason()
                     ));
                     rank++;
                 }
 
-                player.sendSystemMessage(Component.literal(
-                    "\n§6§l━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-                ));
+                player.sendSystemMessage(Component.translatable("command.bounty.divider"));
             });
     }
 
@@ -95,7 +84,7 @@ public class BountyCommand {
      * Platziert Kopfgeld
      */
     private static int placeBounty(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler beim Platzieren des Kopfgelds",
+        return CommandExecutor.executePlayerCommand(ctx, Component.translatable("command.bounty.place_error"),
             player -> {
                 try {
                     ServerPlayer target = EntityArgument.getPlayer(ctx, "target");
@@ -106,7 +95,7 @@ public class BountyCommand {
                     InputValidation.ValidationResult validation = InputValidation.validateAmount(amount);
                     if (validation.isFailure()) {
                         CommandExecutor.sendFailure(ctx.getSource(),
-                            "§c❌ Ungültiger Betrag: §f" + validation.getErrorMessage());
+                            Component.translatable("command.bounty.invalid_amount", validation.getErrorMessage()));
                         return;
                     }
 
@@ -114,29 +103,26 @@ public class BountyCommand {
                     InputValidation.ValidationResult nameValidation = InputValidation.validateName(reason);
                     if (nameValidation.isFailure()) {
                         CommandExecutor.sendFailure(ctx.getSource(),
-                            "§c❌ Ungültiger Grund: §f" + nameValidation.getErrorMessage());
+                            Component.translatable("command.bounty.invalid_reason", nameValidation.getErrorMessage()));
                         return;
                     }
 
                     BountyManager manager = BountyManager.getInstance(player.getServer());
 
                     if (manager.placeBounty(player.getUUID(), target.getUUID(), amount, reason)) {
-                        player.sendSystemMessage(Component.literal(
-                            "§a§l✓ KOPFGELD PLATZIERT!\n" +
-                            "§7Auf §e" + target.getName().getString() + " §7wurde ein Kopfgeld von\n" +
-                            "§a" + String.format("%.2f€", amount) + " §7ausgesetzt!"
+                        player.sendSystemMessage(Component.translatable(
+                            "command.bounty.place_success",
+                            target.getName().getString(),
+                            String.format("%.2f", amount)
                         ));
                     } else {
                         CommandExecutor.sendFailure(ctx.getSource(),
-                            "Kopfgeld konnte nicht platziert werden!\n" +
-                            "Mögliche Gründe:\n" +
-                            "- Nicht genug Geld\n" +
-                            "- Ungültiges Ziel (du selbst)"
+                            Component.translatable("command.bounty.place_failed")
                         );
                     }
                 } catch (Exception e) {
                     CommandExecutor.sendFailure(ctx.getSource(),
-                        "Fehler beim Platzieren: " + e.getMessage());
+                        Component.translatable("command.bounty.place_exception", e.getMessage()));
                 }
             });
     }
@@ -145,15 +131,13 @@ public class BountyCommand {
      * Zeigt eigenes Bounty
      */
     private static int showOwnBounty(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler beim Abrufen des Kopfgelds",
+        return CommandExecutor.executePlayerCommand(ctx, Component.translatable("command.bounty.fetch_error"),
             player -> {
                 BountyManager manager = BountyManager.getInstance(player.getServer());
                 BountyData bounty = manager.getActiveBounty(player.getUUID());
 
                 if (bounty == null) {
-                    player.sendSystemMessage(Component.literal(
-                        "§a§l✓ Keine aktiven Kopfgelder auf dich!"
-                    ));
+                    player.sendSystemMessage(Component.translatable("command.bounty.no_bounty_on_you"));
                 } else {
                     player.sendSystemMessage(Component.literal(bounty.getFormattedDescription()));
                 }
@@ -164,7 +148,7 @@ public class BountyCommand {
      * Zeigt Bounty eines anderen Spielers
      */
     private static int showTargetBounty(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler beim Abrufen des Kopfgelds",
+        return CommandExecutor.executePlayerCommand(ctx, Component.translatable("command.bounty.fetch_error"),
             player -> {
                 try {
                     ServerPlayer target = EntityArgument.getPlayer(ctx, "target");
@@ -172,18 +156,19 @@ public class BountyCommand {
                     BountyData bounty = manager.getActiveBounty(target.getUUID());
 
                     if (bounty == null) {
-                        player.sendSystemMessage(Component.literal(
-                            "§7Kein aktives Kopfgeld auf §e" + target.getName().getString()
+                        player.sendSystemMessage(Component.translatable(
+                            "command.bounty.no_bounty_on_target",
+                            target.getName().getString()
                         ));
                     } else {
                         player.sendSystemMessage(Component.literal(
-                            "§6§lKOPFGELD: §f" + target.getName().getString() + "\n" +
+                            Component.translatable("command.bounty.target_bounty_header", target.getName().getString()).getString() + "\n" +
                             bounty.getFormattedDescription()
                         ));
                     }
                 } catch (Exception e) {
                     CommandExecutor.sendFailure(ctx.getSource(),
-                        "Spieler nicht gefunden!");
+                        Component.translatable("command.bounty.player_not_found"));
                 }
             });
     }
@@ -192,45 +177,34 @@ public class BountyCommand {
      * Zeigt Bounty-Historie
      */
     private static int showHistory(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, "Fehler beim Abrufen der Historie",
+        return CommandExecutor.executePlayerCommand(ctx, Component.translatable("command.bounty.history_error"),
             player -> {
                 BountyManager manager = BountyManager.getInstance(player.getServer());
                 List<BountyData> history = manager.getBountyHistory(player.getUUID());
 
                 if (history.isEmpty()) {
-                    player.sendSystemMessage(Component.literal(
-                        "§7Keine Kopfgeld-Historie vorhanden."
-                    ));
+                    player.sendSystemMessage(Component.translatable("command.bounty.no_history"));
                     return;
                 }
 
-                player.sendSystemMessage(Component.literal(
-                    "§6§l━━━━━ KOPFGELD-HISTORIE ━━━━━"
-                ));
+                player.sendSystemMessage(Component.translatable("command.bounty.history_header"));
 
                 int count = 0;
                 for (BountyData bounty : history) {
                     if (count >= 5) break; // Nur letzte 5
 
-                    String status = bounty.isClaimed() ? "§c✗ Eingelöst" : "§7⏱ Abgelaufen";
-                    player.sendSystemMessage(Component.literal(
-                        String.format(
-                            "\n§7[%s]\n" +
-                            "  §7Betrag: §a%.2f€\n" +
-                            "  §7Grund: §e%s\n" +
-                            "  §7Status: %s",
-                            bounty.getFormattedDate(),
-                            bounty.getAmount(),
-                            bounty.getReason(),
-                            status
-                        )
+                    String status = bounty.isClaimed() ? Component.translatable("command.bounty.claimed").getString() : Component.translatable("command.bounty.expired").getString();
+                    player.sendSystemMessage(Component.translatable(
+                        "command.bounty.history_entry",
+                        bounty.getFormattedDate(),
+                        String.format("%.2f", bounty.getAmount()),
+                        bounty.getReason(),
+                        status
                     ));
                     count++;
                 }
 
-                player.sendSystemMessage(Component.literal(
-                    "\n§6§l━━━━━━━━━━━━━━━━━━━━━━━━"
-                ));
+                player.sendSystemMessage(Component.translatable("command.bounty.divider"));
             });
     }
 }

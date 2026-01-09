@@ -38,9 +38,7 @@ public class ApplyCreditLoanPacket {
             // Validiere Kredittyp
             CreditLoan.CreditLoanType[] types = CreditLoan.CreditLoanType.values();
             if (loanTypeOrdinal < 0 || loanTypeOrdinal >= types.length) {
-                player.sendSystemMessage(Component.literal(
-                    "§c§lFehler: §7Ungültiger Kredittyp!"
-                ));
+                player.sendSystemMessage(Component.translatable("network.credit.invalid_loan_type"));
                 return;
             }
 
@@ -50,10 +48,8 @@ public class ApplyCreditLoanPacket {
 
             // Prüfe ob bereits aktiver Kredit
             if (loanManager.hasActiveLoan(player.getUUID())) {
-                player.sendSystemMessage(Component.literal(
-                    "§c§lFehler: §7Du hast bereits einen aktiven Kredit!\n" +
-                    "§7Bezahle diesen zuerst zurück."
-                ));
+                player.sendSystemMessage(Component.translatable("network.credit.already_active_loan"));
+                player.sendSystemMessage(Component.translatable("network.credit.repay_first"));
                 return;
             }
 
@@ -87,12 +83,12 @@ public class ApplyCreditLoanPacket {
                 CreditScore score = scoreManager.getOrCreateScore(player.getUUID());
                 CreditScore.CreditRating currentRating = score.getRating(scoreManager.getCurrentDay());
 
-                player.sendSystemMessage(Component.literal(
-                    "§c§lKredit abgelehnt!\n" +
-                    "§7Deine Bonität reicht nicht aus.\n" +
-                    "§7Benötigt: §e" + loanType.getRequiredRating().getDisplayName() + "\n" +
-                    "§7Aktuell: §c" + currentRating.getDisplayName()
-                ));
+                player.sendSystemMessage(Component.translatable("network.credit.loan_rejected_insufficient"));
+                player.sendSystemMessage(Component.translatable("network.credit.insufficient_credit_score"));
+                player.sendSystemMessage(Component.translatable("network.credit.required_rating")
+                    .append(Component.literal(loanType.getRequiredRating().getDisplayName())));
+                player.sendSystemMessage(Component.translatable("network.credit.current_rating")
+                    .append(Component.literal(currentRating.getDisplayName())));
                 return;
             }
 
@@ -107,7 +103,7 @@ public class ApplyCreditLoanPacket {
                         .withStyle(ChatFormatting.YELLOW)
                         .append(Component.translatable("message.bank.loan_approved")
                             .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)));
-                    player.sendSystemMessage(Component.literal("Typ: ")
+                    player.sendSystemMessage(Component.translatable("network.credit.type_label")
                         .withStyle(ChatFormatting.GRAY)
                         .append(Component.literal(loanType.getDisplayNameDE())
                             .withStyle(ChatFormatting.GOLD)));
@@ -115,13 +111,15 @@ public class ApplyCreditLoanPacket {
                         .withStyle(ChatFormatting.GRAY)
                         .append(Component.literal(String.format("+%.2f€", loanType.getBaseAmount()))
                             .withStyle(ChatFormatting.GREEN)));
-                    player.sendSystemMessage(Component.literal("Effektiver Zinssatz: ")
+                    player.sendSystemMessage(Component.translatable("network.credit.effective_interest")
                         .withStyle(ChatFormatting.GRAY)
                         .append(Component.literal(String.format("%.1f%%", loan.getEffectiveInterestRate() * 100))
                             .withStyle(ChatFormatting.RED)));
-                    player.sendSystemMessage(Component.literal("Laufzeit: ")
+                    player.sendSystemMessage(Component.translatable("network.credit.duration_label")
                         .withStyle(ChatFormatting.GRAY)
-                        .append(Component.literal(loanType.getDurationDays() + " Tage")
+                        .append(Component.literal(String.valueOf(loanType.getDurationDays()))
+                            .withStyle(ChatFormatting.AQUA))
+                        .append(Component.translatable("network.credit.days_suffix")
                             .withStyle(ChatFormatting.AQUA)));
                     player.sendSystemMessage(Component.translatable("message.bank.daily_rate")
                         .withStyle(ChatFormatting.GRAY)
@@ -131,10 +129,8 @@ public class ApplyCreditLoanPacket {
                         .withStyle(ChatFormatting.GREEN));
                 }
             } else {
-                player.sendSystemMessage(Component.literal(
-                    "§c§lKredit abgelehnt!\n" +
-                    "§7Unbekannter Fehler bei der Kreditvergabe."
-                ));
+                player.sendSystemMessage(Component.translatable("network.credit.loan_rejected_unknown"));
+                player.sendSystemMessage(Component.translatable("network.credit.unknown_error"));
             }
         });
     }

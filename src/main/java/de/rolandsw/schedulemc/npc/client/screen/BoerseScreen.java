@@ -173,25 +173,25 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
         StockMarketData stockMarket = StockMarketData.getInstance(minecraft.level.getServer());
 
         // Header
-        guiGraphics.drawString(this.font, "MARKT", x + 10, y + 25, 0x404040, false);
-        guiGraphics.drawString(this.font, "PREIS", x + 55, y + 25, 0x404040, false);
-        guiGraphics.drawString(this.font, "HANDEL", x + 100, y + 25, 0x404040, false);
-        guiGraphics.drawString(this.font, "BESTAND", x + 10, y + 33, 0x808080, false);
+        guiGraphics.drawString(this.font, Component.translatable("screen.boerse.header_market").getString(), x + 10, y + 25, 0x404040, false);
+        guiGraphics.drawString(this.font, Component.translatable("screen.boerse.header_price").getString(), x + 55, y + 25, 0x404040, false);
+        guiGraphics.drawString(this.font, Component.translatable("screen.boerse.header_trade").getString(), x + 100, y + 25, 0x404040, false);
+        guiGraphics.drawString(this.font, Component.translatable("screen.boerse.header_stock").getString(), x + 10, y + 33, 0x808080, false);
 
         // Gold
-        renderStockRow(guiGraphics, x, y + 40, "Gold", Items.GOLD_INGOT,
+        renderStockRow(guiGraphics, x, y + 40, Component.translatable("screen.boerse.stock_gold").getString(), Items.GOLD_INGOT,
             stockMarket.getCurrentPrice(Items.GOLD_INGOT),
             stockMarket.getTrend(Items.GOLD_INGOT),
             countItems(StockTradePacket.StockType.GOLD));
 
         // Diamant
-        renderStockRow(guiGraphics, x, y + 63, "Diamant", Items.DIAMOND,
+        renderStockRow(guiGraphics, x, y + 63, Component.translatable("screen.boerse.stock_diamond").getString(), Items.DIAMOND,
             stockMarket.getCurrentPrice(Items.DIAMOND),
             stockMarket.getTrend(Items.DIAMOND),
             countItems(StockTradePacket.StockType.DIAMOND));
 
         // Smaragd
-        renderStockRow(guiGraphics, x, y + 86, "Smaragd", Items.EMERALD,
+        renderStockRow(guiGraphics, x, y + 86, Component.translatable("screen.boerse.stock_emerald").getString(), Items.EMERALD,
             stockMarket.getCurrentPrice(Items.EMERALD),
             stockMarket.getTrend(Items.EMERALD),
             countItems(StockTradePacket.StockType.EMERALD));
@@ -199,13 +199,13 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
         // Kontostand
         if (minecraft != null && minecraft.player != null) {
             double balance = EconomyManager.getBalance(minecraft.player.getUUID());
-            guiGraphics.drawString(this.font, "Kontostand:", x + 10, y + 110, 0x808080, false);
+            guiGraphics.drawString(this.font, Component.translatable("screen.boerse.balance_label").getString(), x + 10, y + 110, 0x808080, false);
             guiGraphics.drawString(this.font, String.format("%.2f€", balance),
                 x + 75, y + 110, 0x00AA00, false);
         }
 
         // Info
-        guiGraphics.drawString(this.font, "Tipp: Kaufe günstig, verkaufe teuer!", x + 10, y + 122, 0x606060, false);
+        guiGraphics.drawString(this.font, Component.translatable("screen.boerse.tip").getString(), x + 10, y + 122, 0x606060, false);
     }
 
     /**

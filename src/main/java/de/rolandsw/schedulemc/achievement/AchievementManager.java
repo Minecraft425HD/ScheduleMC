@@ -5,6 +5,7 @@ import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.economy.TransactionType;
 import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
 import de.rolandsw.schedulemc.util.GsonHelper;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 
 import javax.annotation.Nullable;
@@ -68,8 +69,8 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
         // ========== ECONOMY ACHIEVEMENTS ==========
         register(new Achievement(
             "FIRST_EURO",
-            "Erster Euro",
-            "Verdiene dein erstes Geld",
+            Component.translatable("achievement.first_euro.name").getString(),
+            Component.translatable("achievement.first_euro.desc").getString(),
             AchievementCategory.ECONOMY,
             AchievementTier.BRONZE,
             1.0,
@@ -78,8 +79,8 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
 
         register(new Achievement(
             "RICH",
-            "Wohlhabend",
-            "Erreiche 10.000€ Kontostand",
+            Component.translatable("achievement.rich.name").getString(),
+            Component.translatable("achievement.rich.desc").getString(),
             AchievementCategory.ECONOMY,
             AchievementTier.BRONZE,
             10000.0,
@@ -88,8 +89,8 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
 
         register(new Achievement(
             "WEALTHY",
-            "Reich",
-            "Erreiche 100.000€ Kontostand",
+            Component.translatable("achievement.wealthy.name").getString(),
+            Component.translatable("achievement.wealthy.desc").getString(),
             AchievementCategory.ECONOMY,
             AchievementTier.SILVER,
             100000.0,
@@ -98,8 +99,8 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
 
         register(new Achievement(
             "MILLIONAIRE",
-            "Millionär",
-            "Erreiche 1.000.000€ Kontostand",
+            Component.translatable("achievement.millionaire.name").getString(),
+            Component.translatable("achievement.millionaire.desc").getString(),
             AchievementCategory.ECONOMY,
             AchievementTier.GOLD,
             1000000.0,
@@ -108,8 +109,8 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
 
         register(new Achievement(
             "LOAN_MASTER",
-            "Kreditmeister",
-            "Zahle 10 Kredite vollständig ab",
+            Component.translatable("achievement.loan_master.name").getString(),
+            Component.translatable("achievement.loan_master.desc").getString(),
             AchievementCategory.ECONOMY,
             AchievementTier.SILVER,
             10.0,
@@ -118,8 +119,8 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
 
         register(new Achievement(
             "SAVINGS_KING",
-            "Sparkönig",
-            "Spare 100.000€ auf Sparkonten an",
+            Component.translatable("achievement.savings_king.name").getString(),
+            Component.translatable("achievement.savings_king.desc").getString(),
             AchievementCategory.ECONOMY,
             AchievementTier.GOLD,
             100000.0,
@@ -128,8 +129,8 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
 
         register(new Achievement(
             "BIG_SPENDER",
-            "Großverdiener",
-            "Verdiene 1.000.000€ insgesamt",
+            Component.translatable("achievement.big_spender.name").getString(),
+            Component.translatable("achievement.big_spender.desc").getString(),
             AchievementCategory.ECONOMY,
             AchievementTier.DIAMOND,
             1000000.0,
@@ -139,8 +140,8 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
         // ========== CRIME ACHIEVEMENTS ==========
         register(new Achievement(
             "FIRST_CRIME",
-            "Erstes Verbrechen",
-            "Erhalte deine ersten Wanted-Sterne",
+            Component.translatable("achievement.first_crime.name").getString(),
+            Component.translatable("achievement.first_crime.desc").getString(),
             AchievementCategory.CRIME,
             AchievementTier.BRONZE,
             1.0,
@@ -149,8 +150,8 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
 
         register(new Achievement(
             "WANTED",
-            "Gesucht",
-            "Erreiche 3 Wanted-Sterne",
+            Component.translatable("achievement.wanted.name").getString(),
+            Component.translatable("achievement.wanted.desc").getString(),
             AchievementCategory.CRIME,
             AchievementTier.SILVER,
             3.0,
@@ -159,8 +160,8 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
 
         register(new Achievement(
             "MOST_WANTED",
-            "Meist Gesucht",
-            "Erreiche 5 Wanted-Sterne",
+            Component.translatable("achievement.most_wanted.name").getString(),
+            Component.translatable("achievement.most_wanted.desc").getString(),
             AchievementCategory.CRIME,
             AchievementTier.GOLD,
             5.0,
@@ -169,8 +170,8 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
 
         register(new Achievement(
             "ESCAPE_ARTIST",
-            "Fluchtkünstler",
-            "Entkomme 10x der Polizei",
+            Component.translatable("achievement.escape_artist.name").getString(),
+            Component.translatable("achievement.escape_artist.desc").getString(),
             AchievementCategory.CRIME,
             AchievementTier.SILVER,
             10.0,
@@ -179,8 +180,8 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
 
         register(new Achievement(
             "PRISON_VETERAN",
-            "Knast-Veteran",
-            "Verbringe 100 Tage im Gefängnis",
+            Component.translatable("achievement.prison_veteran.name").getString(),
+            Component.translatable("achievement.prison_veteran.desc").getString(),
             AchievementCategory.CRIME,
             AchievementTier.GOLD,
             100.0,
@@ -189,8 +190,8 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
 
         register(new Achievement(
             "CLEAN_RECORD",
-            "Unbescholten",
-            "30 Tage ohne Verbrechen",
+            Component.translatable("achievement.clean_record.name").getString(),
+            Component.translatable("achievement.clean_record.desc").getString(),
             AchievementCategory.CRIME,
             AchievementTier.DIAMOND,
             30.0,
@@ -200,8 +201,8 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
         // ========== PRODUCTION ACHIEVEMENTS ==========
         register(new Achievement(
             "HOBBYIST",
-            "Hobbygärtner",
-            "Pflanze 100 Pflanzen an",
+            Component.translatable("achievement.hobbyist.name").getString(),
+            Component.translatable("achievement.hobbyist.desc").getString(),
             AchievementCategory.PRODUCTION,
             AchievementTier.BRONZE,
             100.0,
@@ -210,8 +211,8 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
 
         register(new Achievement(
             "FARMER",
-            "Bauer",
-            "Produziere 100kg Drogen",
+            Component.translatable("achievement.farmer.name").getString(),
+            Component.translatable("achievement.farmer.desc").getString(),
             AchievementCategory.PRODUCTION,
             AchievementTier.SILVER,
             100.0,
@@ -220,8 +221,8 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
 
         register(new Achievement(
             "PRODUCER",
-            "Produzent",
-            "Produziere 1.000kg Drogen",
+            Component.translatable("achievement.producer.name").getString(),
+            Component.translatable("achievement.producer.desc").getString(),
             AchievementCategory.PRODUCTION,
             AchievementTier.GOLD,
             1000.0,
@@ -230,8 +231,8 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
 
         register(new Achievement(
             "DRUG_LORD",
-            "Drogenboß",
-            "Produziere 10.000kg Drogen",
+            Component.translatable("achievement.drug_lord.name").getString(),
+            Component.translatable("achievement.drug_lord.desc").getString(),
             AchievementCategory.PRODUCTION,
             AchievementTier.DIAMOND,
             10000.0,
@@ -240,8 +241,8 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
 
         register(new Achievement(
             "EMPIRE_BUILDER",
-            "Imperium",
-            "Besitze 10 Produktionsstätten",
+            Component.translatable("achievement.empire_builder.name").getString(),
+            Component.translatable("achievement.empire_builder.desc").getString(),
             AchievementCategory.PRODUCTION,
             AchievementTier.PLATINUM,
             10.0,
@@ -251,8 +252,8 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
         // ========== SOCIAL ACHIEVEMENTS ==========
         register(new Achievement(
             "FIRST_PLOT",
-            "Erste Immobilie",
-            "Kaufe deinen ersten Plot",
+            Component.translatable("achievement.first_plot.name").getString(),
+            Component.translatable("achievement.first_plot.desc").getString(),
             AchievementCategory.SOCIAL,
             AchievementTier.BRONZE,
             1.0,
@@ -261,8 +262,8 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
 
         register(new Achievement(
             "PROPERTY_MOGUL",
-            "Immobilienmogul",
-            "Besitze 5 Plots",
+            Component.translatable("achievement.property_mogul.name").getString(),
+            Component.translatable("achievement.property_mogul.desc").getString(),
             AchievementCategory.SOCIAL,
             AchievementTier.GOLD,
             5.0,
@@ -271,8 +272,8 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
 
         register(new Achievement(
             "LANDLORD",
-            "Vermieter",
-            "Verdiene 100.000€ Mieteinnahmen",
+            Component.translatable("achievement.landlord.name").getString(),
+            Component.translatable("achievement.landlord.desc").getString(),
             AchievementCategory.SOCIAL,
             AchievementTier.DIAMOND,
             100000.0,
@@ -281,8 +282,8 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
 
         register(new Achievement(
             "POPULAR",
-            "Beliebt",
-            "Erhalte 50 positive Ratings",
+            Component.translatable("achievement.popular.name").getString(),
+            Component.translatable("achievement.popular.desc").getString(),
             AchievementCategory.SOCIAL,
             AchievementTier.GOLD,
             50.0,

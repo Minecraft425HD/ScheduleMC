@@ -95,11 +95,7 @@ public class BountyManager extends AbstractPersistenceManager<Map<UUID, BountyDa
             // Benachrichtige Spieler
             ServerPlayer player = server.getPlayerList().getPlayer(criminal);
             if (player != null) {
-                player.sendSystemMessage(Component.literal(
-                    "§c§l⚠ KOPFGELD PLATZIERT!\n" +
-                    "§7Auf deinen Kopf wurde ein Kopfgeld von §a" +
-                    String.format("%.2f€", bountyAmount) + " §7ausgesetzt!"
-                ));
+                player.sendSystemMessage(Component.translatable("manager.bounty.placed", String.format("%.2f€", bountyAmount)));
             }
         }
 
@@ -139,12 +135,7 @@ public class BountyManager extends AbstractPersistenceManager<Map<UUID, BountyDa
         // Benachrichtige Target
         ServerPlayer target = server.getPlayerList().getPlayer(targetUUID);
         if (target != null) {
-            target.sendSystemMessage(Component.literal(
-                "§c§l⚠ KOPFGELD ERHÖHT!\n" +
-                "§7Jemand hat §a" + String.format("%.2f€", amount) +
-                " §7auf deinen Kopf ausgesetzt!\n" +
-                "§7Grund: §e" + reason
-            ));
+            target.sendSystemMessage(Component.translatable("manager.bounty.increased", String.format("%.2f€", amount), reason));
         }
 
         LOGGER.info("Player {} placed bounty on {}: {}", placerUUID, targetUUID, amount);
@@ -181,18 +172,13 @@ public class BountyManager extends AbstractPersistenceManager<Map<UUID, BountyDa
         // Benachrichtige Hunter
         ServerPlayer hunter = server.getPlayerList().getPlayer(hunterUUID);
         if (hunter != null) {
-            hunter.sendSystemMessage(Component.literal(
-                "§a§l✓ KOPFGELD EINGELÖST!\n" +
-                "§7Du hast §a" + String.format("%.2f€", reward) + " §7erhalten!"
-            ));
+            hunter.sendSystemMessage(Component.translatable("manager.bounty.claimed", String.format("%.2f€", reward)));
         }
 
         // Benachrichtige Target
         ServerPlayer target = server.getPlayerList().getPlayer(targetUUID);
         if (target != null) {
-            target.sendSystemMessage(Component.literal(
-                "§c§lDein Kopfgeld wurde eingelöst!"
-            ));
+            target.sendSystemMessage(Component.translatable("manager.bounty.claimed.target"));
         }
 
         LOGGER.info("Bounty claimed: {} -> {}, amount: {}", targetUUID, hunterUUID, reward);

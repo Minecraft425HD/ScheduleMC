@@ -1,16 +1,17 @@
 package de.rolandsw.schedulemc.coca;
 
 import de.rolandsw.schedulemc.production.core.ProductionQuality;
+import net.minecraft.network.chat.Component;
 
 /**
  * Crack-Qualitätsstufen
  * Abhängig vom Kochprozess
  */
 public enum CrackQuality implements ProductionQuality {
-    SCHLECHT("Schlecht", "§c", 0, 0.6),        // Überkokt oder unterkokt
-    STANDARD("Standard", "§7", 1, 1.0),        // Normaler Cook
-    GUT("Gut", "§a", 2, 1.5),                  // Guter Cook
-    FISHSCALE("Fishscale", "§b§l", 3, 2.5);    // Perfekter Cook, glänzend
+    SCHLECHT(Component.translatable("enum.crack_quality.schlecht").getString(), "§c", 0, 0.6),        // Überkokt oder unterkokt
+    STANDARD(Component.translatable("enum.crack_quality.standard").getString(), "§7", 1, 1.0),        // Normaler Cook
+    GUT(Component.translatable("enum.crack_quality.gut").getString(), "§a", 2, 1.5),                  // Guter Cook
+    FISHSCALE(Component.translatable("enum.crack_quality.fishscale").getString(), "§b§l", 3, 2.5);    // Perfekter Cook, glänzend
 
     private final String displayName;
     private final String colorCode;
@@ -33,10 +34,10 @@ public enum CrackQuality implements ProductionQuality {
     @Override
     public String getDescription() {
         return switch (this) {
-            case SCHLECHT -> "Überkokt oder unterkokt";
-            case STANDARD -> "Normaler Cook";
-            case GUT -> "Guter Cook";
-            case FISHSCALE -> "Perfekter Cook, glänzend";
+            case SCHLECHT -> Component.translatable("enum.crack_quality.desc.schlecht").getString();
+            case STANDARD -> Component.translatable("enum.crack_quality.desc.standard").getString();
+            case GUT -> Component.translatable("enum.crack_quality.desc.gut").getString();
+            case FISHSCALE -> Component.translatable("enum.crack_quality.desc.fishscale").getString();
         };
     }
 

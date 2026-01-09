@@ -40,7 +40,7 @@ public class DealerAppScreen extends Screen {
         this.topPos = Math.max(minTop, Math.min(centeredTop, maxTop));
 
         // Zurück-Button
-        addRenderableWidget(Button.builder(Component.translatable("gui.achievement_app.back"), button -> {
+        addRenderableWidget(Button.builder(Component.translatable("gui.app.dealer.back"), button -> {
             if (minecraft != null) {
                 minecraft.setScreen(parentScreen);
             }
@@ -61,15 +61,15 @@ public class DealerAppScreen extends Screen {
 
         // Content-Bereich
         int contentY = topPos + 40;
-        guiGraphics.drawCenteredString(this.font, "§7Händler-Übersicht", leftPos + WIDTH / 2, contentY, 0xFFFFFF);
+        guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.dealer.dealer_overview").getString(), leftPos + WIDTH / 2, contentY, 0xFFFFFF);
         contentY += 20;
 
         // Platzhalter für Dealer-Liste
-        guiGraphics.drawString(this.font, "§8Verfügbare Händler:", leftPos + 20, contentY, 0xAAAAAA);
+        guiGraphics.drawString(this.font, Component.translatable("gui.app.dealer.available_dealers").getString(), leftPos + 20, contentY, 0xAAAAAA);
         contentY += 15;
-        guiGraphics.drawString(this.font, "§7• Händler 1", leftPos + 25, contentY, 0xFFFFFF);
+        guiGraphics.drawString(this.font, Component.translatable("gui.app.dealer.dealer_1").getString(), leftPos + 25, contentY, 0xFFFFFF);
         contentY += 12;
-        guiGraphics.drawString(this.font, "§7• Händler 2", leftPos + 25, contentY, 0xFFFFFF);
+        guiGraphics.drawString(this.font, Component.translatable("gui.app.dealer.dealer_2").getString(), leftPos + 25, contentY, 0xFFFFFF);
 
         super.render(guiGraphics, mouseX, mouseY, partialTick);
     }    @Override

@@ -155,7 +155,9 @@ public class ReduktionskesselScreen extends AbstractContainerScreen<Reduktionske
         graphics.fill(x, y, x + BUTTON_WIDTH, y + BUTTON_HEIGHT, buttonColor);
 
         // Button Text
-        String buttonText = isButtonPressed ? "§e§l[HEIZEN]" : "§f[HALTEN ZUM HEIZEN]";
+        String buttonText = isButtonPressed ?
+            Component.translatable("gui.reduktionskessel.button_heating").getString() :
+            Component.translatable("gui.reduktionskessel.button_hold").getString();
         int textWidth = this.font.width(buttonText);
         graphics.drawString(this.font, buttonText, x + (BUTTON_WIDTH - textWidth) / 2, y + 12, textColor, true);
 
@@ -169,7 +171,7 @@ public class ReduktionskesselScreen extends AbstractContainerScreen<Reduktionske
 
         // Warnhinweis
         if (temp > ReduktionskesselBlockEntity.TEMP_OPTIMAL_MAX) {
-            graphics.drawString(this.font, "§c⚠ VORSICHT!", x + (BUTTON_WIDTH - 70) / 2, y + BUTTON_HEIGHT + 5, 0xFF5555, false);
+            graphics.drawString(this.font, Component.translatable("gui.reduktionskessel.warning").getString(), x + (BUTTON_WIDTH - 70) / 2, y + BUTTON_HEIGHT + 5, 0xFF5555, false);
         }
     }
 
@@ -195,11 +197,11 @@ public class ReduktionskesselScreen extends AbstractContainerScreen<Reduktionske
 
         // Progress Text
         int percent = (int) (progress * 100);
-        String progressText = menu.isProcessing() ? percent + "%" : "Warten...";
+        String progressText = menu.isProcessing() ? percent + "%" : Component.translatable("gui.reduktionskessel.waiting").getString();
         graphics.drawString(this.font, progressText, x + (barWidth - this.font.width(progressText)) / 2, y + 4, 0xFFFFFF, false);
 
         // Label
-        graphics.drawString(this.font, "§7Fortschritt:", x, y - 12, 0xAAAAAA, false);
+        graphics.drawString(this.font, Component.translatable("gui.reduktionskessel.progress").getString(), x, y - 12, 0xAAAAAA, false);
     }
 
     private void renderQualityIndicator(GuiGraphics graphics, int x, int y) {
@@ -219,7 +221,7 @@ public class ReduktionskesselScreen extends AbstractContainerScreen<Reduktionske
         graphics.fill(x + 2, y + 2, x + 128, y + 14, qualityColor);
 
         // Qualitäts-Text
-        String qualityText = "Erwartete Qualität: " + expected.getDisplayName();
+        String qualityText = Component.translatable("gui.reduktionskessel.expected_quality", expected.getDisplayName()).getString();
         graphics.drawString(this.font, qualityText, x + 5, y + 4, 0x111111, false);
     }
 
@@ -232,16 +234,16 @@ public class ReduktionskesselScreen extends AbstractContainerScreen<Reduktionske
         int y = this.topPos;
 
         // Titel
-        graphics.drawString(this.font, "§6⚗ §lREDUKTIONSKESSEL", x + 10, y + 8, 0xFFAA00, true);
+        graphics.drawString(this.font, Component.translatable("gui.reduktionskessel.title").getString(), x + 10, y + 8, 0xFFAA00, true);
 
         // Anleitung
-        graphics.drawString(this.font, "§7Halte Temperatur zwischen §a80-120°C", x + 100, y + 160, 0xAAAAAA, false);
+        graphics.drawString(this.font, Component.translatable("gui.reduktionskessel.instruction").getString(), x + 100, y + 160, 0xAAAAAA, false);
 
         // Explosionswarnung bei kritischer Temperatur
         if (menu.getTemperature() > ReduktionskesselBlockEntity.TEMP_DANGER_MAX) {
             // Blinkender Text
             if (System.currentTimeMillis() % 500 < 250) {
-                graphics.drawString(this.font, "§4§l☠ EXPLOSION DROHEND! ☠", x + 80, y + 30, 0xFF0000, true);
+                graphics.drawString(this.font, Component.translatable("gui.reduktionskessel.explosion_warning").getString(), x + 80, y + 30, 0xFF0000, true);
             }
         }
     }

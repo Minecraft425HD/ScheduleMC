@@ -1,24 +1,24 @@
 package de.rolandsw.schedulemc.region;
 
+import net.minecraft.network.chat.Component;
+
 /**
  * Plot-Typen für verschiedene Gebäude-Arten
  *
  * SHOP-Plots sind nicht kaufbar und gehören der Staatskasse
  */
 public enum PlotType {
-    RESIDENTIAL("Wohngebäude", true, true),
-    COMMERCIAL("Gewerbefläche", true, true),
-    SHOP("Laden", false, false),           // Nicht kaufbar, Staatseigentum
-    PUBLIC("Öffentlich", false, false),
-    GOVERNMENT("Regierung", false, false),
-    PRISON("Gefängnis", false, false);     // Gefängnis-Plot
+    RESIDENTIAL(true, true),
+    COMMERCIAL(true, true),
+    SHOP(false, false),           // Nicht kaufbar, Staatseigentum
+    PUBLIC(false, false),
+    GOVERNMENT(false, false),
+    PRISON(false, false);         // Gefängnis-Plot
 
-    private final String displayName;
     private final boolean canBePurchased;
     private final boolean canBeRented;
 
-    PlotType(String displayName, boolean canBePurchased, boolean canBeRented) {
-        this.displayName = displayName;
+    PlotType(boolean canBePurchased, boolean canBeRented) {
         this.canBePurchased = canBePurchased;
         this.canBeRented = canBeRented;
     }
@@ -31,8 +31,8 @@ public enum PlotType {
         return canBeRented;
     }
 
-    public String getDisplayName() {
-        return displayName;
+    public Component getDisplayName() {
+        return Component.translatable("enum.plot_type." + this.name().toLowerCase());
     }
 
     public boolean isShop() {

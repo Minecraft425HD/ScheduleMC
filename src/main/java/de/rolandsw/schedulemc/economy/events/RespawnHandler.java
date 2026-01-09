@@ -119,14 +119,9 @@ public class RespawnHandler {
                 "§7Gute Besserung!"
             ), false);
         } else {
-            player.displayClientMessage(Component.literal(
-                "§c╔════════════════════════╗\n" +
-                "§c║  §f⚕ KRANKENHAUSRECHNUNG §c║\n" +
-                "§c╠════════════════════════╣\n" +
-                "§c║ §lKEIN GELD für Behandlung!\n" +
-                "§7║ Schulden: §c" + String.format("%.0f€", HOSPITAL_FEE) + "\n" +
-                "§c╚════════════════════════╝\n" +
-                "§7Du wurdest trotzdem behandelt..."
+            player.displayClientMessage(Component.translatable(
+                "event.respawn.no_money_treatment",
+                String.format("%.0f€", HOSPITAL_FEE)
             ), false);
         }
 

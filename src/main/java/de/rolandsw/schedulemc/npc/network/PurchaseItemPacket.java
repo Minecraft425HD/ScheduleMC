@@ -173,12 +173,17 @@ public class PurchaseItemPacket {
             // Reduziere Lagerbestand (nutze Warehouse-Integration)
             merchant.getNpcData().onItemSoldFromWarehouse(player.level(), entry, quantity, totalPrice);
 
-            player.sendSystemMessage(Component.literal("§aGekauft: " + quantity + "x " +
-                entry.getItem().getHoverName().getString() + " für " + totalPrice + "$"));
+            player.sendSystemMessage(Component.translatable("network.purchase.success",
+                String.valueOf(quantity),
+                entry.getItem().getHoverName().getString(),
+                String.valueOf(totalPrice)
+            ));
         } else {
             // Atomare Prüfung fehlgeschlagen - nicht genug Geld
-            player.sendSystemMessage(Component.literal("§cNicht genug Geld! Du brauchst " + totalPrice + "$ (aktuell: " +
-                String.format("%.2f", EconomyManager.getBalance(player.getUUID())) + "$)"));
+            player.sendSystemMessage(Component.translatable("network.purchase.insufficient_funds",
+                String.valueOf(totalPrice),
+                String.format("%.2f", EconomyManager.getBalance(player.getUUID()))
+            ));
         }
     }
 

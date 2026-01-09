@@ -82,10 +82,10 @@ public class BigDryingRackScreen extends AbstractContainerScreen<BigDryingRackMe
         int y = this.topPos;
 
         // Title
-        graphics.drawString(this.font, "Großes Trocknungsgestell", x + 8, y + 6, 0xFFFFFF, false);
+        graphics.drawString(this.font, Component.translatable("gui.big_drying_rack.title").getString(), x + 8, y + 6, 0xFFFFFF, false);
 
         // Kapazität
-        graphics.drawString(this.font, "Max: 10 Blätter", x + 8, y + 22, 0xCCCCCC, false);
+        graphics.drawString(this.font, Component.translatable("gui.big_drying_rack.capacity").getString(), x + 8, y + 22, 0xCCCCCC, false);
 
         // Progress Prozent
         int progress = menu.getProgress();
@@ -96,8 +96,8 @@ public class BigDryingRackScreen extends AbstractContainerScreen<BigDryingRackMe
         }
 
         // Labels
-        graphics.drawString(this.font, "Frisch", x + 48, y + 56, 0xCCCCCC, false);
-        graphics.drawString(this.font, "Trocken", x + 104, y + 56, 0xCCCCCC, false);
+        graphics.drawString(this.font, Component.translatable("gui.big_drying_rack.fresh").getString(), x + 48, y + 56, 0xCCCCCC, false);
+        graphics.drawString(this.font, Component.translatable("gui.big_drying_rack.dry").getString(), x + 104, y + 56, 0xCCCCCC, false);
     }
 
     @Override

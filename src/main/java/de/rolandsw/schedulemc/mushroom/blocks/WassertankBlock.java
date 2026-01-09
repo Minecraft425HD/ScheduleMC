@@ -63,15 +63,14 @@ public class WassertankBlock extends Block implements EntityBlock {
                 if (!player.isCreative()) {
                     player.setItemInHand(hand, new ItemStack(Items.BUCKET));
                 }
-                player.displayClientMessage(Component.literal(
-                        "§b✓ Wasser eingefüllt!\n" +
-                                "§7Füllstand: §b" + tank.getWaterLevel() + "/" + tank.getMaxWater()
+                player.displayClientMessage(Component.translatable(
+                        "block.wassertank.water_filled", tank.getWaterLevel(), tank.getMaxWater()
                 ), true);
                 player.playSound(net.minecraft.sounds.SoundEvents.BUCKET_EMPTY, 1.0f, 1.0f);
                 return InteractionResult.SUCCESS;
             } else {
-                player.displayClientMessage(Component.literal(
-                        "§c✗ Tank ist voll!"
+                player.displayClientMessage(Component.translatable(
+                        "block.wassertank.tank_full"
                 ), true);
                 return InteractionResult.FAIL;
             }
@@ -85,25 +84,22 @@ public class WassertankBlock extends Block implements EntityBlock {
                     heldItem.shrink(1);
                     player.getInventory().add(new ItemStack(Items.WATER_BUCKET));
                 }
-                player.displayClientMessage(Component.literal(
-                        "§b✓ Wasser entnommen!\n" +
-                                "§7Füllstand: §b" + tank.getWaterLevel() + "/" + tank.getMaxWater()
+                player.displayClientMessage(Component.translatable(
+                        "block.wassertank.water_removed", tank.getWaterLevel(), tank.getMaxWater()
                 ), true);
                 player.playSound(net.minecraft.sounds.SoundEvents.BUCKET_FILL, 1.0f, 1.0f);
                 return InteractionResult.SUCCESS;
             } else {
-                player.displayClientMessage(Component.literal(
-                        "§c✗ Nicht genug Wasser!"
+                player.displayClientMessage(Component.translatable(
+                        "block.wassertank.not_enough"
                 ), true);
                 return InteractionResult.FAIL;
             }
         }
 
         // Info anzeigen
-        player.displayClientMessage(Component.literal(
-                "§b⬛ Wassertank\n" +
-                        "§7Füllstand: §b" + tank.getWaterLevel() + "/" + tank.getMaxWater() + "\n" +
-                        "§8Rechtsklick mit Wassereimer zum Befüllen"
+        player.displayClientMessage(Component.translatable(
+                "block.wassertank.info", tank.getWaterLevel(), tank.getMaxWater()
         ), true);
 
         return InteractionResult.SUCCESS;

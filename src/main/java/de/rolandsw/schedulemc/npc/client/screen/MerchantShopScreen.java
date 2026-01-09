@@ -87,7 +87,7 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
             ShopItemRow row = shopItemRows.get(rowIndex);
 
             // Menge Eingabe-Feld
-            EditBox quantityInput = new EditBox(this.font, x + 230, y + 30 + i * 22, 35, 16, Component.literal("Menge"));
+            EditBox quantityInput = new EditBox(this.font, x + 230, y + 30 + i * 22, 35, 16, Component.translatable("screen.merchant_shop.quantity"));
             quantityInput.setMaxLength(4);
 
             // SPEZIALBEHANDLUNG: Rechnungs-Items immer auf "1" fixieren
@@ -136,7 +136,7 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
             shopItemRows.add(row);
         }
 
-        ScheduleMC.LOGGER.info("Shop geladen: {} Items für Kategorie {}", shopItemRows.size(), menu.getCategory());
+        ScheduleMC.LOGGER.info("Shop loaded: {} items for category {}", shopItemRows.size(), menu.getCategory());
     }
 
     /**
@@ -224,10 +224,10 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
         int y = (height - imageHeight) / 2;
 
         // Render Spaltenüberschriften
-        guiGraphics.drawString(this.font, "Item", x + 25, y + 18, 0x404040, false);
-        guiGraphics.drawString(this.font, "Preis", x + 110, y + 18, 0x404040, false);
-        guiGraphics.drawString(this.font, "Lager", x + 155, y + 18, 0x404040, false);
-        guiGraphics.drawString(this.font, "Menge", x + 230, y + 18, 0x404040, false);
+        guiGraphics.drawString(this.font, Component.translatable("screen.merchant_shop.column_item").getString(), x + 25, y + 18, 0x404040, false);
+        guiGraphics.drawString(this.font, Component.translatable("screen.merchant_shop.column_price").getString(), x + 110, y + 18, 0x404040, false);
+        guiGraphics.drawString(this.font, Component.translatable("screen.merchant_shop.column_stock").getString(), x + 155, y + 18, 0x404040, false);
+        guiGraphics.drawString(this.font, Component.translatable("screen.merchant_shop.column_quantity").getString(), x + 230, y + 18, 0x404040, false);
 
         // Render Shop Items
         for (int i = 0; i < Math.min(VISIBLE_ROWS, shopItemRows.size() - scrollOffset); i++) {
@@ -237,7 +237,7 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
 
         // Render Kostenaufstellung unten
         int totalCost = calculateTotalCost();
-        guiGraphics.drawString(this.font, "Gesamtkosten:", x + 10, y + imageHeight - 22, 0x404040, false);
+        guiGraphics.drawString(this.font, Component.translatable("screen.merchant_shop.total_cost").getString(), x + 10, y + imageHeight - 22, 0x404040, false);
         guiGraphics.drawString(this.font, totalCost + "$", x + 90, y + imageHeight - 22, totalCost > 0 ? 0xFFFF55 : 0x888888, false);
     }
 
@@ -306,7 +306,7 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
 
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        String categoryName = "Shop: " + menu.getCategory().getDisplayName();
+        String categoryName = Component.translatable("screen.merchant_shop.title_prefix").getString() + menu.getCategory().getDisplayName();
         guiGraphics.drawString(this.font, categoryName, 8, 6, 0x404040, false);
     }
 
