@@ -140,6 +140,11 @@ public class CompressedImageData {
             this.decompress();
         }
 
+        if (this.bytes == null) {
+            MapViewConstants.getLogger().error("Cannot set RGB: byte array is null");
+            return;
+        }
+
         int index = (x + y * this.getWidth()) * 4;
         synchronized (this.bufferLock) {
             int alpha = color >> 24 & 0xFF;
@@ -176,7 +181,9 @@ public class CompressedImageData {
                         try {
                             byte[] decompressedBytes = CompressionUtils.decompress(this.bytes);
                             this.bytes = decompressedBytes;
-                        } catch (DataFormatException ignored) {
+                        } catch (DataFormatException ex) {
+                            MapViewConstants.getLogger().warn("Failed to decompress image data, reinitializing", ex);
+                            this.bytes = new byte[this.width * this.height * 4];
                         }
                     } else {
                         this.bytes = new byte[this.width * this.height * 4];
