@@ -4750,5 +4750,15 @@
   "message.plot.abandoned_prefix": "§c§lPlot aufgegeben: ",
   "message.plot.rename_arrow": " §a→ ",
   "message.stealing.menu_title": "§cBestehle %s",
-  "message.negotiation.response_prefix": "§e%s"
+  "message.negotiation.response_prefix": "§e%s",
+  "app.crime_stats.star_1": "§c★§7 = Kleinkriminalität",
+  "app.crime_stats.star_2": "§c★★§7 = Diebstahl",
+  "app.crime_stats.star_3": "§c★★★§7 = Schwere Straftat",
+  "app.crime_stats.star_4": "§c★★★★§7 = Gewalttat",
+  "app.crime_stats.star_5": "§c★★★★★§7 = Schwerverbrecher",
+  "app.crime_stats.police_1_2": "§71-2 Sterne: Festnahme",
+  "app.crime_stats.police_3_4": "§73-4 Sterne: Verstärkung",
+  "app.crime_stats.police_5": "§75 Sterne: Großfahndung",
+  "app.crime_stats.no_bail_needed": "§aKeine Kaution nötig",
+  "app.crime_stats.innocent": "§7Du bist unschuldig!"
 }
