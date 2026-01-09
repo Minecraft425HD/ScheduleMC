@@ -69,7 +69,7 @@ public class PlotAbandonPacket {
 
             PlotManager.savePlots();
 
-            player.sendSystemMessage(Component.literal("§c§lPlot aufgegeben: ")
+            player.sendSystemMessage(Component.translatable("message.plot.abandoned_prefix")
                 .append(Component.literal(plotName).withStyle(ChatFormatting.GRAY)));
             player.sendSystemMessage(Component.translatable("message.plot.abandoned"));
         });

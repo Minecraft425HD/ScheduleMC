@@ -4746,5 +4746,9 @@
   "message.update.click_to_download": "§b[Hier klicken zum Download]§r\n",
   "message.purchase.max_quantity": "§cMaximale Kaufmenge ist %d pro Transaktion!",
   "message.purchase.inventory_full": "§cNicht genug Platz im Inventar!",
-  "message.purchase.payment_failed": "§cFehler beim Abbuchung! Zahlung abgebrochen."
+  "message.purchase.payment_failed": "§cFehler beim Abbuchung! Zahlung abgebrochen.",
+  "message.plot.abandoned_prefix": "§c§lPlot aufgegeben: ",
+  "message.plot.rename_arrow": " §a→ ",
+  "message.stealing.menu_title": "§cBestehle %s",
+  "message.negotiation.response_prefix": "§e%s"
 }
