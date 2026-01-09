@@ -302,7 +302,7 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
         // Zeige ausgewählte Verkäufer-Kategorie (nur wenn Verkäufer)
         if (currentType == NPCType.VERKAEUFER) {
             MerchantCategory currentCategory = MerchantCategory.values()[selectedMerchantCategoryIndex];
-            String categoryName = currentCategory.getDisplayName().getString();
+            String categoryName = currentCategory.getDisplayName();
             int categoryTextX = x + (imageWidth - font.width(categoryName)) / 2;
             int categoryTextY = y + 115;
             guiGraphics.drawString(this.font, categoryName, categoryTextX, categoryTextY, 0x404040, false);
