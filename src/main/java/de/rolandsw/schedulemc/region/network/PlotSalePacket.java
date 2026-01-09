@@ -94,9 +94,7 @@ public class PlotSalePacket {
                     plot.setForRent(true);
                     plot.setForSale(false);
                     PlotManager.savePlots();
-                    player.sendSystemMessage(Component.translatable("message.plot.listed_for_rent")
-                        .append(Component.literal(String.format("%.2f€/Tag", msg.price))
-                            .withStyle(ChatFormatting.GOLD)));
+                    player.sendSystemMessage(Component.translatable("message.plot.rent_listed", msg.price));
                     break;
 
                 case CANCEL:
