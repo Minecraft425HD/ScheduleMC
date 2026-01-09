@@ -78,7 +78,7 @@ public class UpdateNotificationHandler {
             int buttonY = 5;
 
             // Erstelle Update-Button
-            Component buttonText = Component.literal("§6§l⚠ Update §r§ev" + VersionChecker.getLatestVersion());
+            Component buttonText = Component.translatable("message.update.button", VersionChecker.getLatestVersion());
 
             Button updateButton = Button.builder(buttonText, button -> {
                 // Öffne Download-URL im Browser
@@ -89,7 +89,7 @@ public class UpdateNotificationHandler {
                     // Zeige Nachricht
                     if (Minecraft.getInstance().player != null) {
                         Minecraft.getInstance().player.displayClientMessage(
-                            Component.literal("§aDownload-Link in Zwischenablage kopiert!"),
+                            Component.translatable("message.update.link_copied"),
                             false
                         );
                     }
@@ -148,9 +148,9 @@ public class UpdateNotificationHandler {
 
             // Sende Update-Benachrichtigung
             Component message = Component.translatable("message.update.available")
-                .append(Component.literal("§7Aktuelle Version: §f" + VersionChecker.getCurrentVersion() + "\n"))
-                .append(Component.literal("§7Neue Version: §a" + VersionChecker.getLatestVersion() + "\n"))
-                .append(Component.literal("§b[Hier klicken zum Download]§r\n")
+                .append(Component.translatable("message.update.current_version", VersionChecker.getCurrentVersion()))
+                .append(Component.translatable("message.update.new_version", VersionChecker.getLatestVersion()))
+                .append(Component.translatable("message.update.click_to_download")
                     .setStyle(Style.EMPTY
                         .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, VersionChecker.getDownloadUrl()))
                         .withUnderlined(true)

@@ -86,7 +86,7 @@ public class PurchaseItemPacket {
         final int MAX_QUANTITY = 10000;
         int safeQuantity = Math.min(quantity, MAX_QUANTITY);
         if (quantity > MAX_QUANTITY) {
-            player.sendSystemMessage(Component.literal("§cMaximale Kaufmenge ist " + MAX_QUANTITY + " pro Transaktion!"));
+            player.sendSystemMessage(Component.translatable("message.purchase.max_quantity", MAX_QUANTITY));
             return;
         }
 
@@ -162,7 +162,7 @@ public class PurchaseItemPacket {
         itemToGive.setCount(quantity);
 
         if (!canAddItemToInventory(player, itemToGive)) {
-            player.sendSystemMessage(Component.literal("§cNicht genug Platz im Inventar!"));
+            player.sendSystemMessage(Component.translatable("message.purchase.inventory_full"));
             return;
         }
 
@@ -220,7 +220,7 @@ public class PurchaseItemPacket {
 
         // Prüfe ob Spieler genug Geld hat (bereits vorher geprüft, aber sicherheitshalber nochmal)
         if (!EconomyManager.withdraw(player.getUUID(), price)) {
-            player.sendSystemMessage(Component.literal("§cFehler beim Abbuchung! Zahlung abgebrochen."));
+            player.sendSystemMessage(Component.translatable("message.purchase.payment_failed"));
             return;
         }
 

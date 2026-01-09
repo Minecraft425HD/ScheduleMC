@@ -4738,5 +4738,13 @@
   "tooltip.cannabis.thc_value": "§f%s%%",
   "tooltip.cannabis.weight_value": "§f%dg §8(%dx 1g)",
   "tooltip.cured_bud.curing_days_value": "§f%d Tage",
-  "tooltip.cannabis.value": "§f%s€"
+  "tooltip.cannabis.value": "§f%s€",
+  "message.update.button": "§6§l⚠ Update §r§ev%s",
+  "message.update.link_copied": "§aDownload-Link in Zwischenablage kopiert!",
+  "message.update.current_version": "§7Aktuelle Version: §f%s\n",
+  "message.update.new_version": "§7Neue Version: §a%s\n",
+  "message.update.click_to_download": "§b[Hier klicken zum Download]§r\n",
+  "message.purchase.max_quantity": "§cMaximale Kaufmenge ist %d pro Transaktion!",
+  "message.purchase.inventory_full": "§cNicht genug Platz im Inventar!",
+  "message.purchase.payment_failed": "§cFehler beim Abbuchung! Zahlung abgebrochen."
 }
