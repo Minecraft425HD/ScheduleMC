@@ -76,7 +76,7 @@ public class PlotRenamePacket {
 
             player.sendSystemMessage(Component.translatable("message.plot.renamed")
                 .append(Component.literal(oldName).withStyle(ChatFormatting.GRAY))
-                .append(Component.literal(" §a→ "))
+                .append(Component.translatable("message.plot.rename_arrow"))
                 .append(Component.literal(msg.newName).withStyle(ChatFormatting.GOLD)));
         });
     }

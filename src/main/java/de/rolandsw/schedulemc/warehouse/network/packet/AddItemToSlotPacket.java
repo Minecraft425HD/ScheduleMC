@@ -95,8 +95,10 @@ public class AddItemToSlotPacket {
             if (addedToShop) {
                 player.sendSystemMessage(
                     Component.translatable("message.warehouse.item_added")
-                        .append(Component.literal("\n§7Item: §e" + item.getDescription().getString()))
-                        .append(Component.literal("\n§7Slot: §e#" + emptySlotIndex))
+                        .append(Component.literal("\n"))
+                        .append(Component.translatable("message.warehouse.item_label", item.getDescription().getString()))
+                        .append(Component.literal("\n"))
+                        .append(Component.translatable("message.warehouse.slot_label", emptySlotIndex))
                         .append(Component.translatable("message.warehouse.status_stock"))
                 );
             } else {

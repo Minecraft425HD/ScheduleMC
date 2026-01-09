@@ -84,10 +84,10 @@ public class TrimmedBudItem extends Item {
 
         tooltip.add(Component.translatable("tooltip.cannabis.strain_label").append(strain.getColoredName()));
         tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
-        tooltip.add(Component.translatable("tooltip.cannabis.thc_label").append(Component.literal("§f" + strain.getThcContent() + "%")));
-        tooltip.add(Component.translatable("tooltip.cannabis.weight_label").append(Component.literal("§f" + (weight * stack.getCount()) + "g §8(" + stack.getCount() + "x 1g)")));
+        tooltip.add(Component.translatable("tooltip.cannabis.thc_label").append(Component.translatable("tooltip.cannabis.thc_value", strain.getThcContent())));
+        tooltip.add(Component.translatable("tooltip.cannabis.weight_label").append(Component.translatable("tooltip.cannabis.weight_value", (weight * stack.getCount()), stack.getCount())));
         tooltip.add(Component.empty());
-        tooltip.add(Component.translatable("tooltip.cannabis.value_label").append(Component.literal("§f" + String.format("%.2f", price) + "€")));
+        tooltip.add(Component.translatable("tooltip.cannabis.value_label").append(Component.translatable("tooltip.cannabis.value", String.format("%.2f", price))));
         tooltip.add(Component.empty());
         tooltip.add(Component.translatable("tooltip.trimmed_bud.can_cure"));
         tooltip.add(Component.translatable("tooltip.cannabis.curing_improves"));

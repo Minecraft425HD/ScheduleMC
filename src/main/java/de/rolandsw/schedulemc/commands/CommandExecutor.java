@@ -86,7 +86,7 @@ public class CommandExecutor {
             return 1;
         } catch (Exception e) {
             LOGGER.error(errorMessage, e);
-            ctx.getSource().sendFailure(Component.literal("§c" + errorMessage + ": " + e.getMessage()));
+            ctx.getSource().sendFailure(Component.translatable("error.command.with_exception", errorMessage, e.getMessage()));
             return 0;
         }
     }
@@ -109,7 +109,7 @@ public class CommandExecutor {
             return 1;
         } catch (Exception e) {
             LOGGER.error(errorMessage, e);
-            ctx.getSource().sendFailure(Component.literal("§c" + errorMessage + ": " + e.getMessage()));
+            ctx.getSource().sendFailure(Component.translatable("error.command.with_exception", errorMessage, e.getMessage()));
             return 0;
         }
     }
@@ -132,11 +132,11 @@ public class CommandExecutor {
         try {
             ServerPlayer player = ctx.getSource().getPlayerOrException();
             command.execute(player);
-            ctx.getSource().sendSuccess(() -> Component.literal(successMessage), false);
+            ctx.getSource().sendSuccess(() -> Component.translatable(successMessage), false);
             return 1;
         } catch (Exception e) {
             LOGGER.error(errorMessage, e);
-            ctx.getSource().sendFailure(Component.literal("§c" + errorMessage + ": " + e.getMessage()));
+            ctx.getSource().sendFailure(Component.translatable("error.command.with_exception", errorMessage, e.getMessage()));
             return 0;
         }
     }
@@ -165,7 +165,7 @@ public class CommandExecutor {
             return 1;
         } catch (Exception e) {
             LOGGER.error(errorMessage, e);
-            ctx.getSource().sendFailure(Component.literal("§c" + errorMessage + ": " + e.getMessage()));
+            ctx.getSource().sendFailure(Component.translatable("error.command.with_exception", errorMessage, e.getMessage()));
             return 0;
         }
     }
@@ -174,20 +174,20 @@ public class CommandExecutor {
      * Sendet eine Success-Message
      */
     public static void sendSuccess(CommandSourceStack source, String message) {
-        source.sendSuccess(() -> Component.literal("§a" + message), false);
+        source.sendSuccess(() -> Component.translatable("message.command.success_green", message), false);
     }
 
     /**
      * Sendet eine Failure-Message
      */
     public static void sendFailure(CommandSourceStack source, String message) {
-        source.sendFailure(Component.literal("§c" + message));
+        source.sendFailure(Component.translatable("message.command.failure_red", message));
     }
 
     /**
      * Sendet eine Info-Message
      */
     public static void sendInfo(CommandSourceStack source, String message) {
-        source.sendSuccess(() -> Component.literal("§e" + message), false);
+        source.sendSuccess(() -> Component.translatable("message.command.info_yellow", message), false);
     }
 }

@@ -57,7 +57,7 @@ public class HealthCommand {
      */
     private static int showEconomyHealth(CommandContext<CommandSourceStack> context) {
         context.getSource().sendSuccess(() ->
-            Component.literal("§e§l═══ ECONOMY SYSTEM ═══§r"), false);
+            Component.translatable("command.health.economy_header"), false);
 
         context.getSource().sendSuccess(() ->
             Component.literal(EconomyManager.getHealthInfo()), false);
@@ -83,7 +83,7 @@ public class HealthCommand {
         }
 
         context.getSource().sendSuccess(() ->
-            Component.literal("§e§l═══════════════════════§r"), false);
+            Component.translatable("command.health.divider"), false);
 
         return 1;
     }
@@ -93,7 +93,7 @@ public class HealthCommand {
      */
     private static int showPlotHealth(CommandContext<CommandSourceStack> context) {
         context.getSource().sendSuccess(() ->
-            Component.literal("§e§l═══ PLOT SYSTEM ═══§r"), false);
+            Component.translatable("command.health.plot_header"), false);
 
         context.getSource().sendSuccess(() ->
             Component.literal(PlotManager.getHealthInfo()), false);
@@ -124,7 +124,7 @@ public class HealthCommand {
         }
 
         context.getSource().sendSuccess(() ->
-            Component.literal("§e§l═══════════════════════§r"), false);
+            Component.translatable("command.health.divider"), false);
 
         return 1;
     }
@@ -162,7 +162,7 @@ public class HealthCommand {
         File[] backups = BackupManager.listBackups(file);
 
         context.getSource().sendSuccess(() ->
-            Component.literal("§6" + name + ": §f" + backups.length + " Backups"), false);
+            Component.translatable("command.health.backup_file_info", name, backups.length), false);
 
         if (backups.length > 0) {
             for (int i = 0; i < Math.min(3, backups.length); i++) {
@@ -177,8 +177,8 @@ public class HealthCommand {
                 final long finalSize = size;
 
                 context.getSource().sendSuccess(() ->
-                    Component.literal(String.format("  §7%d. %s §8(vor %s, %d KB)",
-                        index, backup.getName(), finalAgeStr, finalSize)), false);
+                    Component.translatable("command.health.backup_file_detail",
+                        index, backup.getName(), finalAgeStr, finalSize), false);
             }
 
             if (backups.length > 3) {

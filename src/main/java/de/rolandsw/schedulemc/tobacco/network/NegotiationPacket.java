@@ -183,7 +183,7 @@ public class NegotiationPacket {
                     player.sendSystemMessage(Component.translatable("message.tobacco.wallet_summary", String.format("%.2f", walletValue), npc.getNpcData().getWallet()));
                 }
             } else {
-                player.sendSystemMessage(Component.literal("§e").append(Component.literal(response.getMessage())));
+                player.sendSystemMessage(Component.translatable("message.negotiation.response_prefix", response.getMessage()));
                 if (response.getCounterOffer() > 0) {
                     player.sendSystemMessage(Component.translatable("message.tobacco.counteroffer", String.format("%.2f", response.getCounterOffer())));
                 }

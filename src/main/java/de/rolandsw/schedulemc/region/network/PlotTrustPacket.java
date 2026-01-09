@@ -83,9 +83,7 @@ public class PlotTrustPacket {
                 targetUUID = profile.getId();
             } else {
                 // Spieler nicht gefunden
-                player.sendSystemMessage(Component.translatable("message.plot.player_not_found_prefix")
-                    .append(Component.literal(msg.playerName).withStyle(ChatFormatting.GOLD))
-                    .append(Component.literal("' wurde nie auf dem Server gesehen!")));
+                player.sendSystemMessage(Component.translatable("message.plot.player_not_seen", msg.playerName));
                 return;
             }
 
@@ -98,34 +96,26 @@ public class PlotTrustPacket {
                     }
 
                     if (plot.getTrustedPlayers().contains(targetUUID.toString())) {
-                        player.sendSystemMessage(Component.literal("§e")
-                            .append(Component.literal(msg.playerName).withStyle(ChatFormatting.GOLD))
-                            .append(Component.translatable("message.plot.already_trusted_suffix")));
+                        player.sendSystemMessage(Component.translatable("message.plot.player_already_trusted", msg.playerName));
                         return;
                     }
 
                     plot.addTrustedPlayer(targetUUID);
                     PlotManager.savePlots();
 
-                    player.sendSystemMessage(Component.literal("§a")
-                        .append(Component.literal(msg.playerName).withStyle(ChatFormatting.GOLD))
-                        .append(Component.translatable("message.plot.trust_added_suffix")));
+                    player.sendSystemMessage(Component.translatable("message.plot.player_trust_added", msg.playerName));
                     break;
 
                 case REMOVE:
                     if (!plot.getTrustedPlayers().contains(targetUUID.toString())) {
-                        player.sendSystemMessage(Component.literal("§e")
-                            .append(Component.literal(msg.playerName).withStyle(ChatFormatting.GOLD))
-                            .append(Component.literal(" ist nicht in der Trust-Liste!")));
+                        player.sendSystemMessage(Component.translatable("message.plot.player_not_trusted", msg.playerName));
                         return;
                     }
 
                     plot.removeTrustedPlayer(targetUUID);
                     PlotManager.savePlots();
 
-                    player.sendSystemMessage(Component.literal("§c")
-                        .append(Component.literal(msg.playerName).withStyle(ChatFormatting.GOLD))
-                        .append(Component.literal(" wurde aus der Trust-Liste entfernt!")));
+                    player.sendSystemMessage(Component.translatable("message.plot.player_trust_removed", msg.playerName));
                     break;
             }
         });

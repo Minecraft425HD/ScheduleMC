@@ -165,13 +165,13 @@ public class StealingAttemptPacket {
                             ItemStack walletItem = player.getInventory().getItem(8);
                             if (walletItem.getItem() instanceof CashItem) {
                                 double walletValue = CashItem.getValue(walletItem);
-                                player.sendSystemMessage(Component.literal("§7+ " + String.format("%.2f€", stolenMoney) + " gestohlen"));
+                                player.sendSystemMessage(Component.translatable("message.stealing.money_stolen", String.format("%.2f€", stolenMoney)));
                                 player.sendSystemMessage(Component.translatable("message.stealing.wallet_stolen", String.format("%.2f€", walletValue)));
                             }
                         }
 
                         if (!stolenItem.isEmpty()) {
-                            player.sendSystemMessage(Component.literal("§7+ " + stolenItem.getHoverName().getString() + " x" + stolenItem.getCount() + " gestohlen"));
+                            player.sendSystemMessage(Component.translatable("message.stealing.item_stolen", stolenItem.getHoverName().getString(), stolenItem.getCount()));
                         }
                     } else {
                         // ═══════════════════════════════════════════
@@ -184,7 +184,7 @@ public class StealingAttemptPacket {
                         // 33% Chance: NPC attackiert Spieler
                         if (Math.random() < 0.33) {
                             npc.setTarget(player);
-                            player.sendSystemMessage(Component.literal("§c⚠ " + npc.getNpcName() + " greift dich an!"));
+                            player.sendSystemMessage(Component.translatable("message.stealing.npc_attacks", npc.getNpcName()));
                             if (LOGGER.isDebugEnabled()) {
                                 LOGGER.debug("[STEALING] NPC {} attackiert Spieler", npc.getNpcName());
                             }
@@ -234,7 +234,7 @@ public class StealingAttemptPacket {
                             } else {
                                 player.sendSystemMessage(Component.translatable("message.stealing.caught"));
                             }
-                            player.sendSystemMessage(Component.literal("§c" + stars + " Fahndungsstufe: " + currentWantedLevel));
+                            player.sendSystemMessage(Component.translatable("message.stealing.wanted_level", stars, currentWantedLevel));
 
                             if (LOGGER.isDebugEnabled()) {
                                 LOGGER.debug("[CRIME] Player {} gesehen beim Stehlen - Wanted Level: {} ({} Zeugen{})",

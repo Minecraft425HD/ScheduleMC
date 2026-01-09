@@ -89,7 +89,7 @@ public class CannabisOilItem extends Item {
         tooltip.add(Component.translatable("tooltip.cannabis.thc_label").append(Component.literal("§f~" + (strain.getThcContent() * 3) + "%")));
         tooltip.add(Component.translatable("tooltip.cannabis.amount_label").append(Component.literal("§f" + ml + "ml")));
         tooltip.add(Component.empty());
-        tooltip.add(Component.translatable("tooltip.cannabis.value_label").append(Component.literal("§f" + String.format("%.2f", price) + "€")));
+        tooltip.add(Component.translatable("tooltip.cannabis.value_label").append(Component.translatable("tooltip.cannabis.value", String.format("%.2f", price))));
         tooltip.add(Component.empty());
         tooltip.add(Component.translatable("tooltip.oil.highly_concentrated"));
         tooltip.add(Component.translatable("tooltip.oil.extracted_from_buds"));

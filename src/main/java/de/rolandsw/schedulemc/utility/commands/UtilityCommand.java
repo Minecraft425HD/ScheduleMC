@@ -207,7 +207,7 @@ public class UtilityCommand {
 
     private static int showStats(CommandSourceStack source) {
         String summary = PlotUtilityManager.getStatsSummary();
-        source.sendSuccess(() -> Component.literal("§6" + summary), false);
+        source.sendSuccess(() -> Component.translatable("message.command.info_yellow", summary), false);
         return 1;
     }
 }

@@ -88,9 +88,9 @@ public class CrackRockItem extends Item {
 
         tooltip.add(Component.translatable("tooltip.coca.type_label").append(type.getColoredName()));
         tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
-        tooltip.add(Component.translatable("tooltip.coca.weight").append(Component.literal("§f" + (weight * stack.getCount()) + "g §8(" + stack.getCount() + "x 1g)")));
+        tooltip.add(Component.translatable("tooltip.coca.weight").append(Component.translatable("tooltip.cannabis.weight_value", (weight * stack.getCount()), stack.getCount())));
         tooltip.add(Component.empty());
-        tooltip.add(Component.translatable("tooltip.crack.value").append(Component.literal("§f" + String.format("%.2f", price) + "€")));
+        tooltip.add(Component.translatable("tooltip.crack.value").append(Component.translatable("tooltip.cannabis.value", String.format("%.2f", price))));
         tooltip.add(Component.empty());
 
         if (quality == CrackQuality.FISHSCALE) {

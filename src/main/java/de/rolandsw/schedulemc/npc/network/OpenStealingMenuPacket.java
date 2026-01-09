@@ -40,7 +40,7 @@ public class OpenStealingMenuPacket {
                     // Öffne Bestehlen-GUI
                     NetworkHooks.openScreen(player, new SimpleMenuProvider(
                         (id, playerInventory, p) -> new StealingMenu(id, playerInventory, npc),
-                        Component.literal("§cBestehle " + npc.getNpcName())
+                        Component.translatable("message.stealing.menu_title", npc.getNpcName())
                     ), buf -> {
                         buf.writeInt(npc.getId());
                     });

@@ -60,7 +60,7 @@ public class TrimItem extends Item {
         int weight = getWeight(stack);
 
         tooltip.add(Component.translatable("tooltip.cannabis.strain_label").append(strain.getColoredName()));
-        tooltip.add(Component.translatable("tooltip.cannabis.weight_label").append(Component.literal("§f" + (weight * stack.getCount()) + "g §8(" + stack.getCount() + "x 1g)")));
+        tooltip.add(Component.translatable("tooltip.cannabis.weight_label").append(Component.translatable("tooltip.cannabis.weight_value", (weight * stack.getCount()), stack.getCount())));
         tooltip.add(Component.empty());
         tooltip.add(Component.translatable("tooltip.trim.leaf_remains"));
         tooltip.add(Component.translatable("tooltip.trim.to_hash"));
