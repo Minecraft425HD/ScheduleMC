@@ -34,7 +34,7 @@ public class PacketHandler {
                     handler.accept(player);
                 } catch (Exception e) {
                     player.sendSystemMessage(
-                        Component.literal("§cPacket-Fehler: " + e.getMessage())
+                        Component.translatable("error.packet.failed", e.getMessage())
                     );
                     // Log but don't crash
                     e.printStackTrace();
@@ -135,27 +135,27 @@ public class PacketHandler {
      * Sendet eine Erfolgs-Nachricht an den Player
      */
     public static void sendSuccess(ServerPlayer player, String message) {
-        player.sendSystemMessage(Component.literal("§a✓ " + message));
+        player.sendSystemMessage(Component.translatable("message.packet.success", message));
     }
 
     /**
      * Sendet eine Fehler-Nachricht an den Player
      */
     public static void sendError(ServerPlayer player, String message) {
-        player.sendSystemMessage(Component.literal("§c✗ " + message));
+        player.sendSystemMessage(Component.translatable("message.packet.error", message));
     }
 
     /**
      * Sendet eine Info-Nachricht an den Player
      */
     public static void sendInfo(ServerPlayer player, String message) {
-        player.sendSystemMessage(Component.literal("§7" + message));
+        player.sendSystemMessage(Component.translatable("message.packet.info", message));
     }
 
     /**
      * Sendet eine Warnung an den Player
      */
     public static void sendWarning(ServerPlayer player, String message) {
-        player.sendSystemMessage(Component.literal("§e⚠ " + message));
+        player.sendSystemMessage(Component.translatable("message.packet.warning", message));
     }
 }

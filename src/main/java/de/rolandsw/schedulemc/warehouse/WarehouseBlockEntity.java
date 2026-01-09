@@ -262,7 +262,7 @@ public class WarehouseBlockEntity extends BlockEntity {
             level.players().stream()
                 .filter(player -> player.blockPosition().distSqr(worldPosition) < 2500) // 50 Blöcke
                 .forEach(player -> player.sendSystemMessage(
-                    Component.literal("§a[Warehouse] Lieferung erhalten! Kosten: " + finalCost + "€")
+                    Component.translatable("message.warehouse.delivery_received", finalCost)
                 ));
         } else {
             LOGGER.warn("Warehouse-Lieferung fehlgeschlagen @ {}: Staatskasse hat nicht genug Geld (benötigt: {}€)",
