@@ -167,6 +167,14 @@ public class RegionCache {
     public void registerChangeAt(int chunkX, int chunkZ) {
         chunkX -= this.x * 16;
         chunkZ -= this.z * 16;
+
+        // Validate chunk coordinates are within region bounds
+        if (chunkX < 0 || chunkX >= 16 || chunkZ < 0 || chunkZ >= 16) {
+            MapViewConstants.getLogger().debug("Chunk ({}, {}) is outside region bounds ({}, {})",
+                chunkX + this.x * 16, chunkZ + this.z * 16, this.x, this.z);
+            return;
+        }
+
         this.dataUpdateQueued = true;
         int index = chunkZ * 16 + chunkX;
         this.liveChunkUpdateQueued[index] = true;
