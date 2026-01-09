@@ -51,7 +51,7 @@ public class CannabisSeedItem extends Item {
         CannabisStrain strain = getStrain(stack);
 
         tooltip.add(Component.translatable("tooltip.cannabis.strain_label").append(strain.getColoredName()));
-        tooltip.add(Component.translatable("tooltip.cannabis.thc_label").append(Component.literal("§f" + strain.getThcContent() + "%")));
+        tooltip.add(Component.translatable("tooltip.cannabis.thc_label").append(Component.translatable("tooltip.cannabis.thc_value", strain.getThcContent())));
         tooltip.add(Component.translatable("tooltip.cannabis.cbd_label").append(Component.literal("§f" + strain.getCbdContent() + "%")));
         tooltip.add(Component.empty());
         tooltip.add(Component.literal(strain.getEffectDescription()));
