@@ -121,7 +121,7 @@ public class ChemieMixerBlock extends Block implements EntityBlock {
             }
 
             // Status anzeigen
-            Component message = Component.translatable("block.chemie_mixer.title")
+            net.minecraft.network.chat.MutableComponent message = Component.translatable("block.chemie_mixer.title")
                 .append(Component.literal("\n"))
                 .append(Component.translatable("block.chemie_mixer.ingredients", mixer.getIngredientStatus()))
                 .append(Component.literal("\n"));

@@ -177,7 +177,7 @@ public class BlockProtectionHandler {
                         .withStyle(ChatFormatting.GREEN)
                         .append(Component.literal(npc.getNpcName())
                             .withStyle(ChatFormatting.YELLOW))
-                        .append(Component.literal(" (").append(Component.literal(npc.getNpcData().getNpcType().getDisplayName())).append(Component.literal(")"))
+                        .append(Component.literal(" (").append(Component.literal(npc.getNpcData().getNpcType().getDisplayName().getString())).append(Component.literal(")"))
                             .withStyle(ChatFormatting.GRAY))
                         .append(Component.translatable("message.common.selected")
                             .withStyle(ChatFormatting.GREEN))
@@ -222,7 +222,7 @@ public class BlockProtectionHandler {
                             .withStyle(ChatFormatting.GREEN)
                             .append(Component.literal(npc.getNpcName())
                                 .withStyle(ChatFormatting.YELLOW))
-                            .append(Component.literal(" (").append(Component.literal(npc.getNpcData().getNpcType().getDisplayName())).append(Component.literal(")"))
+                            .append(Component.literal(" (").append(Component.literal(npc.getNpcData().getNpcType().getDisplayName().getString())).append(Component.literal(")"))
                                 .withStyle(ChatFormatting.GRAY))
                             .append(Component.translatable("message.common.selected")
                                 .withStyle(ChatFormatting.GREEN))
@@ -419,7 +419,7 @@ public class BlockProtectionHandler {
         }
 
         // Keine Berechtigung - zeige Fehlermeldung
-        Component ownerInfo;
+        net.minecraft.network.chat.MutableComponent ownerInfo;
         if (plot.isRented()) {
             ownerInfo = Component.translatable("event.protection.plot_rented");
         } else {

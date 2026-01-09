@@ -105,7 +105,7 @@ public class ApplyCreditLoanPacket {
                             .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)));
                     player.sendSystemMessage(Component.translatable("network.credit.type_label")
                         .withStyle(ChatFormatting.GRAY)
-                        .append(Component.literal(loanType.getDisplayNameDE())
+                        .append(Component.literal(loanType.getDisplayName().getString())
                             .withStyle(ChatFormatting.GOLD)));
                     player.sendSystemMessage(Component.translatable("gui.common.amount_label")
                         .withStyle(ChatFormatting.GRAY)

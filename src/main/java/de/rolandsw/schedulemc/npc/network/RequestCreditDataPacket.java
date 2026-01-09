@@ -44,7 +44,7 @@ public class RequestCreditDataPacket {
             CreditLoan activeLoan = loanManager.getLoan(player.getUUID());
 
             boolean hasLoan = activeLoan != null;
-            String loanType = hasLoan ? activeLoan.getType().getDisplayNameDE() : "";
+            String loanType = hasLoan ? activeLoan.getType().getDisplayName().getString() : "";
             double remaining = hasLoan ? activeLoan.getRemaining() : 0;
             double daily = hasLoan ? activeLoan.getDailyPayment() : 0;
             int progress = hasLoan ? activeLoan.getProgressPercent() : 0;

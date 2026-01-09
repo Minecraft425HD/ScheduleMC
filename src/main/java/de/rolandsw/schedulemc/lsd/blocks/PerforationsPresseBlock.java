@@ -111,7 +111,7 @@ public class PerforationsPresseBlock extends Block implements EntityBlock {
             }
 
             // Status
-            Component message = Component.translatable("block.perforations_presse.title")
+            net.minecraft.network.chat.MutableComponent message = Component.translatable("block.perforations_presse.title")
                     .append(Component.literal("\n"))
                     .append(Component.translatable("block.perforations_presse.design", presse.getSelectedDesign().getColoredName(), presse.getSelectedDesign().getSymbol()))
                     .append(Component.literal("\n"))

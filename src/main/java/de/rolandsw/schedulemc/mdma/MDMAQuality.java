@@ -22,20 +22,20 @@ public enum MDMAQuality implements ProductionQuality {
         this.priceMultiplier = priceMultiplier;
     }
 
-    public Component getDisplayName() {
-        return Component.translatable("enum.mdma_quality." + this.name().toLowerCase());
+    public String getDisplayName() {
+        return Component.translatable("enum.mdma_quality." + this.name().toLowerCase()).getString();
     }
 
-    public Component getDescription() {
-        return Component.translatable("enum.mdma_quality.desc." + this.name().toLowerCase());
+    public String getDescription() {
+        return Component.translatable("enum.mdma_quality.desc." + this.name().toLowerCase()).getString();
     }
 
     public String getColorCode() { return colorCode; }
     public int getLevel() { return level; }
     public double getPriceMultiplier() { return priceMultiplier; }
 
-    public Component getColoredName() {
-        return Component.literal(colorCode).append(getDisplayName());
+    public String getColoredName() {
+        return colorCode + getDisplayName();
     }
 
     @Override

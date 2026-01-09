@@ -77,7 +77,7 @@ public class DestillationsApparatBlock extends Block implements EntityBlock {
             }
 
             // Status
-            Component message = Component.translatable("block.destillations_apparat.title")
+            net.minecraft.network.chat.MutableComponent message = Component.translatable("block.destillations_apparat.title")
                     .append(Component.literal("\n"))
                     .append(Component.translatable("block.lsd.distillation_count", apparat.getErgotCount()))
                     .append(Component.literal("\n"));

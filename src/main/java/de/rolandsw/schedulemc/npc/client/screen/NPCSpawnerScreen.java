@@ -294,7 +294,7 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
 
         // Zeige ausgewählten NPC Typ
         NPCType currentType = NPCType.values()[selectedNPCTypeIndex];
-        String typeName = currentType.getDisplayName();
+        String typeName = currentType.getDisplayName().getString();
         int typeTextX = x + (imageWidth - font.width(typeName)) / 2;
         int typeTextY = y + 85;
         guiGraphics.drawString(this.font, typeName, typeTextX, typeTextY, 0x404040, false);
@@ -302,7 +302,7 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
         // Zeige ausgewählte Verkäufer-Kategorie (nur wenn Verkäufer)
         if (currentType == NPCType.VERKAEUFER) {
             MerchantCategory currentCategory = MerchantCategory.values()[selectedMerchantCategoryIndex];
-            String categoryName = currentCategory.getDisplayName();
+            String categoryName = currentCategory.getDisplayName().getString();
             int categoryTextX = x + (imageWidth - font.width(categoryName)) / 2;
             int categoryTextY = y + 115;
             guiGraphics.drawString(this.font, categoryName, categoryTextX, categoryTextY, 0x404040, false);
@@ -311,7 +311,7 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
         // Zeige ausgewählte Bank-Kategorie (nur wenn Bank)
         if (currentType == NPCType.BANK) {
             BankCategory currentCategory = BankCategory.values()[selectedBankCategoryIndex];
-            String categoryName = currentCategory.getDisplayName();
+            String categoryName = currentCategory.getDisplayName().getString();
             int categoryTextX = x + (imageWidth - font.width(categoryName)) / 2;
             int categoryTextY = y + 115;
             guiGraphics.drawString(this.font, categoryName, categoryTextX, categoryTextY, 0x404040, false);
