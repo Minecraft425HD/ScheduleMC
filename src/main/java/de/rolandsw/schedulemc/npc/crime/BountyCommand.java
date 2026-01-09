@@ -50,7 +50,7 @@ public class BountyCommand {
      * Zeigt alle aktiven Bounties
      */
     private static int listBounties(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, Component.translatable("command.bounty.fetch_error"),
+        return CommandExecutor.executePlayerCommand(ctx, Component.translatable("command.bounty.fetch_error").getString(),
             player -> {
                 BountyManager manager = BountyManager.getInstance(player.getServer());
                 List<BountyData> bounties = manager.getTopBounties(10);
@@ -84,7 +84,7 @@ public class BountyCommand {
      * Platziert Kopfgeld
      */
     private static int placeBounty(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, Component.translatable("command.bounty.place_error"),
+        return CommandExecutor.executePlayerCommand(ctx, Component.translatable("command.bounty.place_error").getString(),
             player -> {
                 try {
                     ServerPlayer target = EntityArgument.getPlayer(ctx, "target");
@@ -95,7 +95,7 @@ public class BountyCommand {
                     InputValidation.ValidationResult validation = InputValidation.validateAmount(amount);
                     if (validation.isFailure()) {
                         CommandExecutor.sendFailure(ctx.getSource(),
-                            Component.translatable("command.bounty.invalid_amount", validation.getErrorMessage()));
+                            Component.translatable("command.bounty.invalid_amount", validation.getErrorMessage()).getString());
                         return;
                     }
 
@@ -103,7 +103,7 @@ public class BountyCommand {
                     InputValidation.ValidationResult nameValidation = InputValidation.validateName(reason);
                     if (nameValidation.isFailure()) {
                         CommandExecutor.sendFailure(ctx.getSource(),
-                            Component.translatable("command.bounty.invalid_reason", nameValidation.getErrorMessage()));
+                            Component.translatable("command.bounty.invalid_reason", nameValidation.getErrorMessage()).getString());
                         return;
                     }
 
@@ -117,12 +117,12 @@ public class BountyCommand {
                         ));
                     } else {
                         CommandExecutor.sendFailure(ctx.getSource(),
-                            Component.translatable("command.bounty.place_failed")
+                            Component.translatable("command.bounty.place_failed").getString()
                         );
                     }
                 } catch (Exception e) {
                     CommandExecutor.sendFailure(ctx.getSource(),
-                        Component.translatable("command.bounty.place_exception", e.getMessage()));
+                        Component.translatable("command.bounty.place_exception", e.getMessage()).getString());
                 }
             });
     }
@@ -131,7 +131,7 @@ public class BountyCommand {
      * Zeigt eigenes Bounty
      */
     private static int showOwnBounty(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, Component.translatable("command.bounty.fetch_error"),
+        return CommandExecutor.executePlayerCommand(ctx, Component.translatable("command.bounty.fetch_error").getString(),
             player -> {
                 BountyManager manager = BountyManager.getInstance(player.getServer());
                 BountyData bounty = manager.getActiveBounty(player.getUUID());
@@ -148,7 +148,7 @@ public class BountyCommand {
      * Zeigt Bounty eines anderen Spielers
      */
     private static int showTargetBounty(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, Component.translatable("command.bounty.fetch_error"),
+        return CommandExecutor.executePlayerCommand(ctx, Component.translatable("command.bounty.fetch_error").getString(),
             player -> {
                 try {
                     ServerPlayer target = EntityArgument.getPlayer(ctx, "target");
@@ -168,7 +168,7 @@ public class BountyCommand {
                     }
                 } catch (Exception e) {
                     CommandExecutor.sendFailure(ctx.getSource(),
-                        Component.translatable("command.bounty.player_not_found"));
+                        Component.translatable("command.bounty.player_not_found").getString());
                 }
             });
     }
@@ -177,7 +177,7 @@ public class BountyCommand {
      * Zeigt Bounty-Historie
      */
     private static int showHistory(CommandContext<CommandSourceStack> ctx) {
-        return CommandExecutor.executePlayerCommand(ctx, Component.translatable("command.bounty.history_error"),
+        return CommandExecutor.executePlayerCommand(ctx, Component.translatable("command.bounty.history_error").getString(),
             player -> {
                 BountyManager manager = BountyManager.getInstance(player.getServer());
                 List<BountyData> history = manager.getBountyHistory(player.getUUID());

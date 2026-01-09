@@ -1219,7 +1219,7 @@ public class NPCCommand {
                 de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity warehouse =
                     npc.getNpcData().getWarehouseEntity(level);
 
-                Component info = Component.translatable("command.npc.warehouse_info_header").withStyle(ChatFormatting.GOLD)
+                net.minecraft.network.chat.MutableComponent info = Component.translatable("command.npc.warehouse_info_header").withStyle(ChatFormatting.GOLD)
                     .append(Component.literal("\n§7NPC: §e").append(Component.literal(npc.getNpcName())))
                     .append(Component.literal("\n§7Position: §f" + warehousePos.getX() + ", " + warehousePos.getY() + ", " + warehousePos.getZ() + "\n"));
 

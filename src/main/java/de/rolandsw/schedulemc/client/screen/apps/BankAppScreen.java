@@ -627,7 +627,7 @@ public class BankAppScreen extends Screen {
 
                         // Kredit-Symbol und Typ
                         guiGraphics.drawString(this.font, Component.translatable("gui.app.bank.credit_title").getString(), leftPos + 15, y + 3, 0xFFAA00);
-                        guiGraphics.drawString(this.font, "§f" + activeLoan.getType().getDisplayNameDE(), leftPos + 80, y + 3, 0xFFFFFF);
+                        guiGraphics.drawString(this.font, "§f" + activeLoan.getType().getDisplayName().getString(), leftPos + 80, y + 3, 0xFFFFFF);
 
                         // Tägliche Rate
                         String dailyStr = String.format("§e%.2f€", activeLoan.getDailyPayment());

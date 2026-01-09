@@ -306,7 +306,7 @@ public class NPCMapRenderer {
 
             // Zeige Tooltip
             String name = npc.getNpcName();
-            String typeStr = npc.getNpcType().getDisplayName();
+            String typeStr = npc.getNpcType().getDisplayName().getString();
 
             graphics.renderTooltip(
                     Minecraft.getInstance().font,

@@ -185,7 +185,7 @@ public class NPCLocationTool extends Item {
         player.sendSystemMessage(
             Component.translatable("message.common.type_label")
                 .withStyle(ChatFormatting.AQUA)
-                .append(Component.literal(npc.getNpcData().getNpcType().getDisplayName())
+                .append(Component.literal(npc.getNpcData().getNpcType().getDisplayName().getString())
                     .withStyle(ChatFormatting.WHITE))
         );
 

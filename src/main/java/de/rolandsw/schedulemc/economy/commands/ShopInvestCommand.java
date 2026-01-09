@@ -83,7 +83,8 @@ public class ShopInvestCommand {
                 header = header.copy().append("\n").append(shopLine);
             }
 
-            ctx.getSource().sendSuccess(() -> header, false);
+            final Component finalHeader = header;
+            ctx.getSource().sendSuccess(() -> finalHeader, false);
             return 1;
         } catch (Exception e) {
             LOGGER.error("Fehler bei /shop list", e);
@@ -122,7 +123,8 @@ public class ShopInvestCommand {
                 }
             }
 
-            ctx.getSource().sendSuccess(() -> result, false);
+            final Component finalResult = result;
+            ctx.getSource().sendSuccess(() -> finalResult, false);
             return 1;
         } catch (Exception e) {
             LOGGER.error("Fehler bei /shop info", e);
@@ -240,7 +242,8 @@ public class ShopInvestCommand {
                 result = result.copy().append("\n").append(Component.translatable("command.shop.invest.no_shares_owned"));
             }
 
-            ctx.getSource().sendSuccess(() -> result, false);
+            final Component finalResult = result;
+            ctx.getSource().sendSuccess(() -> finalResult, false);
             return 1;
         } catch (Exception e) {
             LOGGER.error("Fehler bei /shop myshares", e);

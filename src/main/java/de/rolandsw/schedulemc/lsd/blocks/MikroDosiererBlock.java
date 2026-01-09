@@ -89,7 +89,7 @@ public class MikroDosiererBlock extends Block implements EntityBlock {
             }
 
             // Status
-            Component message = Component.translatable("block.mikro_dosierer.title")
+            net.minecraft.network.chat.MutableComponent message = Component.translatable("block.mikro_dosierer.title")
                     .append(Component.literal("\n"))
                     .append(Component.translatable("block.lsd.mikro_count", dosierer.getLysergsaeureCount()))
                     .append(Component.literal("\n"))

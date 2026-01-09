@@ -84,7 +84,7 @@ public class CreditLoanManager extends AbstractPersistenceManager<Map<UUID, Cred
 
         // Zahle Kreditsumme aus
         EconomyManager.deposit(playerUUID, type.getBaseAmount(), TransactionType.LOAN_DISBURSEMENT,
-            "Kredit: " + type.getDisplayNameDE());
+            "Kredit: " + type.getDisplayName().getString());
 
         LOGGER.info("Credit loan granted: {} {} ({}% interest) to {}",
             type.name(), type.getBaseAmount(), String.format("%.1f", effectiveRate * 100), playerUUID);
@@ -120,7 +120,7 @@ public class CreditLoanManager extends AbstractPersistenceManager<Map<UUID, Cred
 
             // Versuche Abbuchung
             if (EconomyManager.withdraw(playerUUID, payment, TransactionType.LOAN_REPAYMENT,
-                    "Kredit-Rate: " + loan.getType().getDisplayNameDE())) {
+                    "Kredit-Rate: " + loan.getType().getDisplayName().getString())) {
 
                 loan.payDailyInstallment();
 
@@ -139,7 +139,7 @@ public class CreditLoanManager extends AbstractPersistenceManager<Map<UUID, Cred
                     if (player != null) {
                         player.sendSystemMessage(Component.literal(
                             "§a§l[KREDIT] Vollständig abbezahlt!\n" +
-                            "§7Kredit: §e" + loan.getType().getDisplayNameDE() + "\n" +
+                            "§7Kredit: §e" + loan.getType().getDisplayName().getString() + "\n" +
                             "§aDu bist nun schuldenfrei!\n" +
                             "§7Dein Kredit-Score wurde verbessert!"
                         ));
@@ -182,7 +182,7 @@ public class CreditLoanManager extends AbstractPersistenceManager<Map<UUID, Cred
         double remaining = loan.getRemaining();
 
         if (EconomyManager.withdraw(playerUUID, remaining, TransactionType.LOAN_REPAYMENT,
-                "Kredit-Vollauszahlung: " + loan.getType().getDisplayNameDE())) {
+                "Kredit-Vollauszahlung: " + loan.getType().getDisplayName().getString())) {
             loan.payOff();
             activeLoans.remove(playerUUID);
 
