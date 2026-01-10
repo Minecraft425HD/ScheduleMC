@@ -7,37 +7,35 @@ import net.minecraft.network.chat.Component;
  */
 public enum CrimeType {
     // ========== MINOR CRIMES (1 Star) ==========
-    THEFT(1, 500.0, 1, Component.translatable("enum.crime_type.theft").getString()),
-    TRESPASSING(1, 300.0, 1, Component.translatable("enum.crime_type.trespassing").getString()),
-    BLACK_MARKET(1, 1000.0, 2, Component.translatable("enum.crime_type.black_market").getString()),
-    VANDALISM(1, 400.0, 1, Component.translatable("enum.crime_type.vandalism").getString()),
+    THEFT(1, 500.0, 1),
+    TRESPASSING(1, 300.0, 1),
+    BLACK_MARKET(1, 1000.0, 2),
+    VANDALISM(1, 400.0, 1),
 
     // ========== MODERATE CRIMES (2 Stars) ==========
-    ASSAULT(2, 2000.0, 3, Component.translatable("enum.crime_type.assault").getString()),
-    DRUG_TRAFFICKING(2, 3000.0, 4, Component.translatable("enum.crime_type.drug_trafficking").getString()),
-    ROBBERY(2, 2500.0, 3, Component.translatable("enum.crime_type.robbery").getString()),
-    BURGLARY(2, 2000.0, 3, Component.translatable("enum.crime_type.burglary").getString()),
+    ASSAULT(2, 2000.0, 3),
+    DRUG_TRAFFICKING(2, 3000.0, 4),
+    ROBBERY(2, 2500.0, 3),
+    BURGLARY(2, 2000.0, 3),
 
     // ========== SERIOUS CRIMES (3 Stars) ==========
-    MURDER(3, 10000.0, 7, Component.translatable("enum.crime_type.murder").getString()),
-    GANG_VIOLENCE(3, 5000.0, 5, Component.translatable("enum.crime_type.gang_violence").getString()),
-    ARSON(3, 7000.0, 6, Component.translatable("enum.crime_type.arson").getString()),
+    MURDER(3, 10000.0, 7),
+    GANG_VIOLENCE(3, 5000.0, 5),
+    ARSON(3, 7000.0, 6),
 
     // ========== EXTREME CRIMES (4-5 Stars) ==========
-    PRISON_ESCAPE(4, 20000.0, 10, Component.translatable("enum.crime_type.prison_escape").getString()),
-    POLICE_ASSAULT(5, 50000.0, 14, Component.translatable("enum.crime_type.police_assault").getString()),
-    TERRORISM(5, 100000.0, 20, Component.translatable("enum.crime_type.terrorism").getString());
+    PRISON_ESCAPE(4, 20000.0, 10),
+    POLICE_ASSAULT(5, 50000.0, 14),
+    TERRORISM(5, 100000.0, 20);
 
     private final int wantedStars;      // Wanted-Sterne
     private final double fine;           // Geldstrafe
     private final int prisonDays;        // Gefängnis-Tage
-    private final String displayName;    // Anzeigename
 
-    CrimeType(int wantedStars, double fine, int prisonDays, String displayName) {
+    CrimeType(int wantedStars, double fine, int prisonDays) {
         this.wantedStars = wantedStars;
         this.fine = fine;
         this.prisonDays = prisonDays;
-        this.displayName = displayName;
     }
 
     public int getWantedStars() {
@@ -53,7 +51,7 @@ public enum CrimeType {
     }
 
     public String getDisplayName() {
-        return displayName;
+        return Component.translatable("enum.crime_type." + this.name().toLowerCase()).getString();
     }
 
     /**
@@ -69,7 +67,7 @@ public enum CrimeType {
     public String getFormattedInfo() {
         String starsStr = "⭐".repeat(wantedStars);
         return String.format("§c%s %s §7- Strafe: §c%.2f€ §7/ §e%d Tage",
-            starsStr, displayName, fine, prisonDays);
+            starsStr, getDisplayName(), fine, prisonDays);
     }
 
     /**

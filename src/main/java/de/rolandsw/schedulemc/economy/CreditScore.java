@@ -194,30 +194,30 @@ public class CreditScore {
      * Kredit-Rating Enum
      */
     public enum CreditRating {
-        AAA(Component.translatable("enum.credit_rating.aaa").getString(), 5, 500000, 0xFFD700),  // Gold
-        AA(Component.translatable("enum.credit_rating.aa").getString(), 5, 250000, 0x00FF00),        // Grün
-        A(Component.translatable("enum.credit_rating.a").getString(), 4, 150000, 0x55FF55),              // Hellgrün
-        BBB(Component.translatable("enum.credit_rating.bbb").getString(), 4, 100000, 0xAAAA00),   // Olive
-        BB(Component.translatable("enum.credit_rating.bb").getString(), 3, 75000, 0xFFFF00),      // Gelb
-        B(Component.translatable("enum.credit_rating.b").getString(), 3, 50000, 0xFFAA00),        // Orange
-        CCC(Component.translatable("enum.credit_rating.ccc").getString(), 2, 25000, 0xFF5500),        // Dunkelorange
-        CC(Component.translatable("enum.credit_rating.cc").getString(), 2, 10000, 0xFF0000),    // Rot
-        C(Component.translatable("enum.credit_rating.c").getString(), 1, 5000, 0xAA0000),           // Dunkelrot
-        D(Component.translatable("enum.credit_rating.d").getString(), 1, 0, 0x550000);            // Sehr dunkelrot (kein Kredit möglich)
+        AAA(5, 500000, 0xFFD700),  // Gold
+        AA(5, 250000, 0x00FF00),   // Grün
+        A(4, 150000, 0x55FF55),    // Hellgrün
+        BBB(4, 100000, 0xAAAA00),  // Olive
+        BB(3, 75000, 0xFFFF00),    // Gelb
+        B(3, 50000, 0xFFAA00),     // Orange
+        CCC(2, 25000, 0xFF5500),   // Dunkelorange
+        CC(2, 10000, 0xFF0000),    // Rot
+        C(1, 5000, 0xAA0000),      // Dunkelrot
+        D(1, 0, 0x550000);         // Sehr dunkelrot (kein Kredit möglich)
 
-        private final String displayName;
         private final int stars;
         private final double maxLoanAmount;
         private final int color;
 
-        CreditRating(String displayName, int stars, double maxLoanAmount, int color) {
-            this.displayName = displayName;
+        CreditRating(int stars, double maxLoanAmount, int color) {
             this.stars = stars;
             this.maxLoanAmount = maxLoanAmount;
             this.color = color;
         }
 
-        public String getDisplayName() { return displayName; }
+        public String getDisplayName() {
+            return Component.translatable("enum.credit_rating." + this.name().toLowerCase()).getString();
+        }
         public int getStars() { return stars; }
         public double getMaxLoanAmount() { return maxLoanAmount; }
         public int getColor() { return color; }

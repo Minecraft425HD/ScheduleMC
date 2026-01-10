@@ -9,19 +9,17 @@ import net.minecraft.network.chat.Component;
  * Koka-Sorten mit unterschiedlichen Eigenschaften
  */
 public enum CocaType implements ProductionType {
-    BOLIVIANISCH(Component.translatable("enum.coca_type.bolivianisch").getString(), "§a", 20.0, 100, 0.8, 6),
-    KOLUMBIANISCH(Component.translatable("enum.coca_type.kolumbianisch").getString(), "§2", 35.0, 140, 1.0, 6);
+    BOLIVIANISCH("§a", 20.0, 100, 0.8, 6),
+    KOLUMBIANISCH("§2", 35.0, 140, 1.0, 6);
 
-    private final String displayName;
     private final String colorCode;
     private final double seedPrice;
     private final int growthTicks; // Basis-Wachstumszeit in Ticks
     private final double waterConsumption; // Wasserverbrauch pro Wachstumsstufe
     private final int baseYield; // Basis-Ertrag beim Ernten
 
-    CocaType(String displayName, String colorCode, double seedPrice, int growthTicks,
+    CocaType(String colorCode, double seedPrice, int growthTicks,
              double waterConsumption, int baseYield) {
-        this.displayName = displayName;
         this.colorCode = colorCode;
         this.seedPrice = seedPrice;
         this.growthTicks = growthTicks;
@@ -30,7 +28,7 @@ public enum CocaType implements ProductionType {
     }
 
     public String getDisplayName() {
-        return displayName;
+        return Component.translatable("enum.coca_type." + this.name().toLowerCase()).getString();
     }
 
     public String getColorCode() {
@@ -54,7 +52,7 @@ public enum CocaType implements ProductionType {
     }
 
     public String getColoredName() {
-        return colorCode + displayName;
+        return colorCode + getDisplayName();
     }
 
     /**

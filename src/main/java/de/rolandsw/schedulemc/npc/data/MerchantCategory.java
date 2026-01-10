@@ -7,22 +7,16 @@ import net.minecraft.network.chat.Component;
  * Nur relevant wenn NPCType == VERKAEUFER
  */
 public enum MerchantCategory {
-    BAUMARKT(Component.translatable("enum.merchant_category.baumarkt").getString()),
-    WAFFENHAENDLER(Component.translatable("enum.merchant_category.waffenhaendler").getString()),
-    TANKSTELLE(Component.translatable("enum.merchant_category.tankstelle").getString()),
-    LEBENSMITTEL(Component.translatable("enum.merchant_category.lebensmittel").getString()),
-    PERSONALMANAGEMENT(Component.translatable("enum.merchant_category.personalmanagement").getString()),
-    ILLEGALER_HAENDLER(Component.translatable("enum.merchant_category.illegaler_haendler").getString()),
-    AUTOHAENDLER(Component.translatable("enum.merchant_category.autohaendler").getString());
-
-    private final String displayName;
-
-    MerchantCategory(String displayName) {
-        this.displayName = displayName;
-    }
+    BAUMARKT,
+    WAFFENHAENDLER,
+    TANKSTELLE,
+    LEBENSMITTEL,
+    PERSONALMANAGEMENT,
+    ILLEGALER_HAENDLER,
+    AUTOHAENDLER;
 
     public String getDisplayName() {
-        return displayName;
+        return Component.translatable("enum.merchant_category." + this.name().toLowerCase()).getString();
     }
 
     public static MerchantCategory fromOrdinal(int ordinal) {
