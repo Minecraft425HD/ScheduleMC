@@ -30,6 +30,7 @@ import de.rolandsw.schedulemc.mapview.util.MapViewPipelines;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
@@ -44,8 +45,16 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.border.WorldBorder;
 import org.lwjgl.glfw.GLFW;
 
+import de.rolandsw.schedulemc.territory.TerritoryType;
+import de.rolandsw.schedulemc.territory.network.SetTerritoryPacket;
+import de.rolandsw.schedulemc.territory.network.SyncTerritoriesPacket;
+import de.rolandsw.schedulemc.territory.network.TerritoryNetworkHandler;
+
+import javax.annotation.Nullable;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicReference;
@@ -126,8 +135,24 @@ public class WorldMapScreen extends PopupScreen {
     private int iconsWidth = 16;
     private int iconsHeight = 16;
 
+    // Territory Editor Mode
+    private final boolean editMode;
+    private static final int PALETTE_WIDTH = 150;
+    private static final int PALETTE_BUTTON_HEIGHT = 30;
+    private static final int PALETTE_PADDING = 5;
+    @Nullable
+    private TerritoryType selectedType = TerritoryType.COLOR_RED;
+    private final Map<TerritoryType, Button> paletteButtons = new HashMap<>();
+    private EditBox territoryNameInput;
+    private String currentTerritoryName = "";
+
     public WorldMapScreen(Screen parent) {
+        this(parent, false);
+    }
+
+    public WorldMapScreen(Screen parent, boolean editMode) {
         this.parent = parent;
+        this.editMode = editMode;
         this.setParentScreen(this.parent);
 
         mapOptions = MapViewConstants.getLightMapInstance().getMapOptions();
@@ -187,11 +212,47 @@ public class WorldMapScreen extends PopupScreen {
             this.closed = false;
         }
 
-        this.screenTitle = I18n.get("worldmap.title");
+        this.screenTitle = editMode ? "Territory Editor" : I18n.get("worldmap.title");
         this.buildWorldName();
         this.leftMouseButtonDown = false;
-        this.sideMargin = 10;
+        this.sideMargin = editMode ? PALETTE_WIDTH + 20 : 10;
         this.buttonSeparation = 4;
+
+        // Territory Editor: Color palette on the left
+        if (editMode) {
+            int buttonY = 10;
+            for (TerritoryType type : TerritoryType.values()) {
+                Button button = Button.builder(
+                    Component.literal(type.getDisplayName()),
+                    btn -> selectedType = type
+                )
+                .bounds(10, buttonY, PALETTE_WIDTH, PALETTE_BUTTON_HEIGHT)
+                .build();
+
+                paletteButtons.put(type, button);
+                addRenderableWidget(button);
+                buttonY += PALETTE_BUTTON_HEIGHT + PALETTE_PADDING;
+            }
+
+            // Clear Territory button
+            addRenderableWidget(Button.builder(
+                Component.literal("Clear Territory"),
+                btn -> selectedType = null
+            )
+            .bounds(10, buttonY, PALETTE_WIDTH, PALETTE_BUTTON_HEIGHT)
+            .build());
+
+            buttonY += PALETTE_BUTTON_HEIGHT + PALETTE_PADDING * 2;
+
+            // Territory Name Input
+            territoryNameInput = new EditBox(minecraft.font, 10, buttonY, PALETTE_WIDTH, 20,
+                Component.literal("Territory Name"));
+            territoryNameInput.setHint(Component.literal("Gebietsname..."));
+            territoryNameInput.setMaxLength(32);
+            territoryNameInput.setValue(currentTerritoryName);
+            territoryNameInput.setResponder(value -> currentTerritoryName = value);
+            addRenderableWidget(territoryNameInput);
+        }
 
         // Layout: [−] <Zoom%> [+]  [Center] [Options] [Done]
         // Reserviere Platz für: - Button (40px) + Zoom-Display (50px) + + Button (40px)
@@ -420,6 +481,16 @@ public class WorldMapScreen extends PopupScreen {
 
             this.lastEditingCoordinates = this.editingCoordinates;
         }
+
+        // Territory Editor: Paint territory on left click (only if not over UI elements)
+        if (editMode && button == 0 && mouseY > this.top && mouseY < this.bottom) {
+            // Check if click is not on palette area
+            if (mouseX >= PALETTE_WIDTH + 20) {
+                paintTerritoryAt(mouseX, mouseY);
+                return true;
+            }
+        }
+
         if (button == 0) {
             currentDragging = true;
         }
@@ -752,6 +823,15 @@ public class WorldMapScreen extends PopupScreen {
                 MapViewGuiGraphics.fillGradient(guiGraphics, x2 - scale, z1 - scale, x2 + scale, z2 + scale, 0xffff0000, 0xffff0000, 0xffff0000, 0xffff0000);
             }
 
+            // Territory Overlay (15% opacity for view mode, 80% for edit mode)
+            // In edit mode: always show territories
+            // In view mode: show only if enabled in map options
+            boolean showTerritories = editMode || mapOptions.showTerritories;
+
+            if (showTerritories) {
+                renderTerritoryOverlay(guiGraphics, cursorCoordX, cursorCoordZ);
+            }
+
             // cursorCoordX/Z bereits oben berechnet
 
             if (this.oldNorth) {
@@ -929,6 +1009,19 @@ public class WorldMapScreen extends PopupScreen {
         } else {
             guiGraphics.drawString(this.font, Component.translatable("worldmap.disabled"), this.sideMargin, 16, 0xFFFFFFFF);
         }
+
+        // Highlight selected territory type button in edit mode
+        if (editMode) {
+            for (Map.Entry<TerritoryType, Button> entry : paletteButtons.entrySet()) {
+                if (entry.getKey() == selectedType) {
+                    Button btn = entry.getValue();
+                    guiGraphics.fill(btn.getX() - 2, btn.getY() - 2,
+                        btn.getX() + btn.getWidth() + 2, btn.getY() + btn.getHeight() + 2,
+                        0xFF44FF44);
+                }
+            }
+        }
+
         super.render(guiGraphics, mouseX, mouseY, delta);
 
         // Rendere Zoom-Stufe im reservierten Bereich zwischen - und + Buttons
@@ -1196,5 +1289,101 @@ public class WorldMapScreen extends PopupScreen {
         // mapToGui konvertiert Weltkoordinaten zu Bildschirmkoordinaten
         overlay.renderFullscreenAccurate(graphics, centerX, centerZ,
                 screenCenterX, screenCenterY, this.mapToGui);
+    }
+
+    /**
+     * Rendert Territory-Overlays auf der Karte
+     * Opacity: 15% für View-Mode, 80% für Edit-Mode
+     */
+    private void renderTerritoryOverlay(GuiGraphics guiGraphics, float cursorCoordX, float cursorCoordZ) {
+        Map<Long, SyncTerritoriesPacket.TerritoryData> territories = SyncTerritoriesPacket.TerritoryClientCache.getCache();
+
+        // Calculate visible chunk range
+        int viewHalfWidth = (int) (this.centerX / this.mapToGui);
+        int viewHalfHeight = (int) (this.centerY / this.mapToGui);
+
+        int centerChunkX = ((int) this.mapCenterX) >> 4;
+        int centerChunkZ = ((int) this.mapCenterZ) >> 4;
+
+        int chunksWide = (viewHalfWidth >> 4) + 2;
+        int chunksHigh = (viewHalfHeight >> 4) + 2;
+
+        int startChunkX = centerChunkX - chunksWide;
+        int startChunkZ = centerChunkZ - chunksHigh;
+        int endChunkX = centerChunkX + chunksWide;
+        int endChunkZ = centerChunkZ + chunksHigh;
+
+        // Opacity: 15% for view mode (0x26), 80% for edit mode (0xCC)
+        int alpha = editMode ? 0xCC : 0x26;
+
+        for (int chunkZ = startChunkZ; chunkZ <= endChunkZ; chunkZ++) {
+            for (int chunkX = startChunkX; chunkX <= endChunkX; chunkX++) {
+                long chunkKey = getChunkKey(chunkX, chunkZ);
+                SyncTerritoriesPacket.TerritoryData territory = territories.get(chunkKey);
+
+                if (territory != null) {
+                    int color = territory.type.getColor();
+                    int overlayColor = (alpha << 24) | color;
+
+                    // Render territory chunk (16x16 blocks)
+                    float worldX1 = chunkX * 16f;
+                    float worldZ1 = chunkZ * 16f;
+                    float worldX2 = worldX1 + 16f;
+                    float worldZ2 = worldZ1 + 16f;
+
+                    MapViewGuiGraphics.fillGradient(guiGraphics,
+                        worldX1, worldZ1, worldX2, worldZ2,
+                        overlayColor, overlayColor, overlayColor, overlayColor);
+
+                    // Border for better visibility (only in edit mode)
+                    if (editMode) {
+                        int borderColor = 0xFFFFFFFF;
+                        float borderWidth = 0.1f;
+                        MapViewGuiGraphics.fillGradient(guiGraphics, worldX1, worldZ1, worldX2, worldZ1 + borderWidth,
+                            borderColor, borderColor, borderColor, borderColor); // Top
+                        MapViewGuiGraphics.fillGradient(guiGraphics, worldX1, worldZ1, worldX1 + borderWidth, worldZ2,
+                            borderColor, borderColor, borderColor, borderColor); // Left
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Paint territory at mouse position (only in edit mode)
+     */
+    private void paintTerritoryAt(double mouseX, double mouseY) {
+        if (!editMode) return;
+
+        // Convert mouse GUI coordinates to world coordinates
+        float cursorCoordX;
+        float cursorCoordZ;
+        if (this.oldNorth) {
+            cursorCoordX = this.mapCenterZ + ((float)mouseX - this.centerX) / this.mapToGui;
+            cursorCoordZ = -this.mapCenterX - ((float)mouseY - (this.top + this.centerY)) / this.mapToGui;
+        } else {
+            cursorCoordX = this.mapCenterX + ((float)mouseX - this.centerX) / this.mapToGui;
+            cursorCoordZ = this.mapCenterZ + ((float)mouseY - (this.top + this.centerY)) / this.mapToGui;
+        }
+
+        int chunkX = ((int) Math.floor(cursorCoordX)) >> 4;
+        int chunkZ = ((int) Math.floor(cursorCoordZ)) >> 4;
+
+        // Send packet to server to set/remove territory
+        if (selectedType == null) {
+            TerritoryNetworkHandler.sendToServer(new SetTerritoryPacket(chunkX, chunkZ));
+            if (minecraft != null && minecraft.player != null) {
+                minecraft.player.sendSystemMessage(Component.literal("§7Territory entfernt: [" + chunkX + ", " + chunkZ + "]"));
+            }
+        } else {
+            TerritoryNetworkHandler.sendToServer(new SetTerritoryPacket(chunkX, chunkZ, selectedType, currentTerritoryName));
+            if (minecraft != null && minecraft.player != null) {
+                minecraft.player.sendSystemMessage(Component.literal("§aTerritory gesetzt: [" + chunkX + ", " + chunkZ + "] - " + selectedType.getDisplayName()));
+            }
+        }
+    }
+
+    private static long getChunkKey(int chunkX, int chunkZ) {
+        return ((long) chunkX << 32) | (chunkZ & 0xFFFFFFFFL);
     }
 }

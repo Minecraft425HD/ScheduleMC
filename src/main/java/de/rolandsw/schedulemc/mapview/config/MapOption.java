@@ -4,7 +4,8 @@ public enum MapOption {
     OLD_NORTH("options.minimap.oldNorth", false, true, false),
     ZOOM("option.minimapZoom", false, true, false),
     LOCATION("options.minimap.location", false, false, true),
-    SIZE("options.minimap.size", false, false, true);
+    SIZE("options.minimap.size", false, false, true),
+    SHOW_TERRITORIES("options.worldmap.showTerritories", false, true, false);
 
     private final boolean isFloat;
     private final boolean isBoolean;

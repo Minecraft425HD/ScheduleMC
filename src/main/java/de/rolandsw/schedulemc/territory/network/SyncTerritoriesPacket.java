@@ -68,7 +68,7 @@ public class SyncTerritoriesPacket {
 
     public static void handle(SyncTerritoriesPacket msg, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
-            // Client-seitig: Update territoryCache in TerritoryMapEditorScreen
+            // Client-seitig: Update territoryCache in WorldMapScreen
             TerritoryClientCache.updateCache(msg.territories);
         });
         ctx.get().setPacketHandled(true);

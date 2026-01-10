@@ -25,7 +25,7 @@ public class MapOptionsScreen extends BaseMapScreen {
 
     @Override
     public void init() {
-        MapOption[] relevantOptions = { MapOption.LOCATION, MapOption.SIZE };
+        MapOption[] relevantOptions = { MapOption.LOCATION, MapOption.SIZE, MapOption.SHOW_TERRITORIES };
         this.screenTitle = I18n.get("options.minimap.title");
 
         for (int i = 0; i < relevantOptions.length; i++) {

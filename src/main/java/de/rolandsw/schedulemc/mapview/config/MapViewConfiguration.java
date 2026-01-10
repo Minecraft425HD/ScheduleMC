@@ -49,6 +49,7 @@ public class MapViewConfiguration implements SettingsManager {
 
     public boolean worldmapAllowed = true;
     public boolean minimapAllowed = true;
+    public boolean showTerritories = false; // Territory Overlay on worldmap for normal players
 
     public final boolean moveMapDownWhileStatusEffect = true;
     public final boolean moveScoreBoardDown = true;
@@ -93,6 +94,7 @@ public class MapViewConfiguration implements SettingsManager {
                         case "Old North" -> this.oldNorth = Boolean.parseBoolean(curLine[1]);
                         case "MapViewRenderer Corner" -> this.mapCorner = Math.max(0, Math.min(3, Integer.parseInt(curLine[1])));
                         case "MapViewRenderer Size" -> this.sizeModifier = Math.max(-1, Math.min(4, Integer.parseInt(curLine[1])));
+                        case "Show Territories" -> this.showTerritories = Boolean.parseBoolean(curLine[1]);
                         case "Zoom Key" -> this.bindKey(this.keyBindZoom, curLine[1]);
                         case "Fullscreen Key" -> this.bindKey(this.keyBindFullscreen, curLine[1]);
                         case "Menu Key" -> this.bindKey(this.keyBindMenu, curLine[1]);
@@ -136,6 +138,7 @@ public class MapViewConfiguration implements SettingsManager {
             out.println("Old North:" + this.oldNorth);
             out.println("MapViewRenderer Corner:" + this.mapCorner);
             out.println("MapViewRenderer Size:" + this.sizeModifier);
+            out.println("Show Territories:" + this.showTerritories);
             out.println("Zoom Key:" + this.keyBindZoom.saveString());
             out.println("Fullscreen Key:" + this.keyBindFullscreen.saveString());
             out.println("Menu Key:" + this.keyBindMenu.saveString());
@@ -183,6 +186,7 @@ public class MapViewConfiguration implements SettingsManager {
     public boolean getOptionBooleanValue(MapOption par1EnumOptions) {
         return switch (par1EnumOptions) {
             case OLD_NORTH -> this.oldNorth;
+            case SHOW_TERRITORIES -> this.showTerritories;
             default -> throw new IllegalArgumentException("Add code to handle EnumOptionMinimap: " + par1EnumOptions.getName() + ". (possibly not a boolean applicable to minimap)");
         };
     }
@@ -236,6 +240,7 @@ public class MapViewConfiguration implements SettingsManager {
     public void setOptionValue(MapOption par1EnumOptions) {
         switch (par1EnumOptions) {
             case OLD_NORTH -> this.oldNorth = !this.oldNorth;
+            case SHOW_TERRITORIES -> this.showTerritories = !this.showTerritories;
             case LOCATION -> this.mapCorner = this.mapCorner >= 3 ? 0 : this.mapCorner + 1;
             case SIZE -> this.sizeModifier = this.sizeModifier >= 4 ? -1 : this.sizeModifier + 1;
             default ->
