@@ -148,6 +148,7 @@ public class WorldMapScreen extends PopupScreen {
     private EditBox territoryNameInput;
     private String currentTerritoryName = "";
     private Button clearTerritoryButton;
+    private String lastPaintedTerritoryName = null; // Track last painted territory to avoid spam
 
     public WorldMapScreen(Screen parent) {
         this(parent, false);
@@ -1029,7 +1030,9 @@ public class WorldMapScreen extends PopupScreen {
             guiGraphics.drawString(this.font, Component.translatable("worldmap.disabled"), this.sideMargin, 16, 0xFFFFFFFF);
         }
 
-        // Render color buttons with actual colors and highlight selected
+        super.render(guiGraphics, mouseX, mouseY, delta);
+
+        // Render color buttons with actual colors and highlight selected (AFTER super.render!)
         if (editMode) {
             for (Map.Entry<TerritoryType, Button> entry : paletteButtons.entrySet()) {
                 TerritoryType type = entry.getKey();
@@ -1096,9 +1099,7 @@ public class WorldMapScreen extends PopupScreen {
             }
         }
 
-        super.render(guiGraphics, mouseX, mouseY, delta);
-
-        // Territory Tooltip (show name and color when hovering)
+        // Territory Tooltip (show name when hovering)
         // Note: cursorCoordX/Z already calculated earlier in render() method
         if (editMode || mapOptions.showTerritories) {
             int hoveredChunkX = ((int) Math.floor(cursorCoordX)) >> 4;
@@ -1110,8 +1111,7 @@ public class WorldMapScreen extends PopupScreen {
 
             if (territory != null && mouseY > this.top && mouseY < this.bottom) {
                 String name = territory.name != null && !territory.name.isEmpty() ? territory.name : "Unbenannt";
-                String colorName = territory.type.getDisplayName();
-                Component tooltipText = Component.literal(name + " §7(" + colorName + ")");
+                Component tooltipText = Component.literal(name);
                 renderTooltip(guiGraphics, tooltipText, mouseX, mouseY);
             }
         }
@@ -1479,16 +1479,36 @@ public class WorldMapScreen extends PopupScreen {
             return; // Don't paint, just load
         }
 
+        // Determine new territory name
+        String newTerritoryName = selectedType != null ? currentTerritoryName : null;
+
+        // Check if we're switching territories (by name)
+        String existingName = existingTerritory != null ? existingTerritory.name : null;
+        boolean territoryChanged = !java.util.Objects.equals(existingName, newTerritoryName);
+
         // Send packet to server to set/remove territory
         if (selectedType == null) {
             TerritoryNetworkHandler.sendToServer(new SetTerritoryPacket(chunkX, chunkZ));
-            if (minecraft != null && minecraft.player != null) {
-                minecraft.player.sendSystemMessage(Component.literal("§7Territory entfernt: [" + chunkX + ", " + chunkZ + "]"));
+            // Only show message if we changed territory name
+            if (territoryChanged && minecraft != null && minecraft.player != null) {
+                if (existingName != null && !existingName.isEmpty()) {
+                    minecraft.player.sendSystemMessage(Component.literal("§7Verlassen: " + existingName));
+                    lastPaintedTerritoryName = null;
+                }
             }
         } else {
             TerritoryNetworkHandler.sendToServer(new SetTerritoryPacket(chunkX, chunkZ, selectedType, currentTerritoryName));
-            if (minecraft != null && minecraft.player != null) {
-                minecraft.player.sendSystemMessage(Component.literal("§aTerritory gesetzt: [" + chunkX + ", " + chunkZ + "] - " + selectedType.getDisplayName()));
+            // Only show message when entering a different named territory
+            if (territoryChanged && minecraft != null && minecraft.player != null) {
+                String displayName = currentTerritoryName != null && !currentTerritoryName.isEmpty()
+                    ? currentTerritoryName
+                    : "Unbenanntes Gebiet";
+
+                // Only show if we haven't just painted this territory
+                if (!displayName.equals(lastPaintedTerritoryName)) {
+                    minecraft.player.sendSystemMessage(Component.literal("§aBetreten: " + displayName));
+                    lastPaintedTerritoryName = displayName;
+                }
             }
         }
     }
