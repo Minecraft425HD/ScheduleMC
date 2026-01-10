@@ -124,31 +124,47 @@ public class LargePackagingTableBlockEntity extends AbstractPackagingTableBlockE
     // ═══════════════════════════════════════════════════════════
 
     /**
-     * Entpackt alle vollen Pakete zurück zu Input
+     * Entpackt alle vollen Pakete zurück zu Drug-Items (kein Material-Rückgabe)
      */
     public void unpackAll() {
-        ItemStack input = getInputStack();
-        int totalWeight = 0;
+        // Sammle alle verpackten Items und ihre Gewichte
+        java.util.List<ItemStack> packagesToUnpack = new java.util.ArrayList<>();
 
         // Durchsuche alle Slots nach vollen Paketen
         for (int i = 1; i <= 9; i++) {
             ItemStack stack = itemHandler.getStackInSlot(i);
             if (stack.getItem() instanceof PackagedDrugItem) {
-                int weight = PackagedDrugItem.getWeight(stack);
-                totalWeight += weight;
+                // Sammle das Paket zur Entpackung
+                packagesToUnpack.add(stack.copy());
 
                 // Entferne das volle Paket (kein Material zurück, da keins verbraucht wurde)
                 itemHandler.setStackInSlot(i, ItemStack.EMPTY);
             }
         }
 
-        // Gib Material zurück (1g = 1 item)
-        if (totalWeight > 0 && !input.isEmpty()) {
-            int itemsToAdd = totalWeight; // 1g = 1 item
-            if (itemsToAdd > 0) {
-                input.grow(itemsToAdd);
-                setInputStack(input);
+        // Rekonstruiere die ursprünglichen Items aus den Paketen
+        if (!packagesToUnpack.isEmpty()) {
+            ItemStack input = getInputStack();
+
+            for (ItemStack packagedItem : packagesToUnpack) {
+                int weight = PackagedDrugItem.getWeight(packagedItem);
+                ItemStack reconstructed = reconstructItemFromPackage(packagedItem, weight);
+
+                if (!reconstructed.isEmpty()) {
+                    // Füge zum Input-Slot hinzu oder erstelle neuen Stack
+                    if (input.isEmpty()) {
+                        input = reconstructed.copy();
+                    } else if (ItemStack.isSameItemSameTags(input, reconstructed)) {
+                        input.grow(reconstructed.getCount());
+                    } else {
+                        // Wenn Input nicht kompatibel ist, versuche Platz zu finden
+                        // Dies sollte nicht passieren, aber als Fallback
+                        input.grow(reconstructed.getCount());
+                    }
+                }
             }
+
+            setInputStack(input);
         }
 
         setChanged();

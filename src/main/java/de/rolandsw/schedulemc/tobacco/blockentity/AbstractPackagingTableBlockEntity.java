@@ -109,6 +109,116 @@ public abstract class AbstractPackagingTableBlockEntity extends BlockEntity impl
     }
 
     /**
+     * Rekonstruiert das ursprüngliche Item aus einem PackagedDrugItem
+     *
+     * @param packagedItem Das verpackte Item
+     * @param count Anzahl der Items die erstellt werden sollen
+     * @return Das rekonstruierte Item mit NBT-Daten
+     */
+    protected ItemStack reconstructItemFromPackage(ItemStack packagedItem, int count) {
+        if (!(packagedItem.getItem() instanceof de.rolandsw.schedulemc.production.items.PackagedDrugItem)) {
+            return ItemStack.EMPTY;
+        }
+
+        String itemType = de.rolandsw.schedulemc.production.items.PackagedDrugItem.getItemType(packagedItem);
+        String qualityStr = de.rolandsw.schedulemc.production.items.PackagedDrugItem.getQuality(packagedItem);
+        String variantStr = de.rolandsw.schedulemc.production.items.PackagedDrugItem.getVariant(packagedItem);
+
+        if (itemType == null) {
+            return ItemStack.EMPTY;
+        }
+
+        // Parse Quality und Variant
+        de.rolandsw.schedulemc.production.core.ProductionQuality quality =
+            de.rolandsw.schedulemc.production.items.PackagedDrugItem.parseQuality(qualityStr);
+        de.rolandsw.schedulemc.production.core.ProductionType variant =
+            de.rolandsw.schedulemc.production.items.PackagedDrugItem.parseVariant(variantStr);
+
+        ItemStack result = ItemStack.EMPTY;
+
+        // Erstelle das richtige Item basierend auf ItemType
+        switch (itemType) {
+            case "TOBACCO":
+                result = new ItemStack(de.rolandsw.schedulemc.tobacco.items.TobaccoItems.FERMENTED_VIRGINIA_LEAF.get(), count);
+                if (variant != null) {
+                    de.rolandsw.schedulemc.tobacco.items.FermentedTobaccoLeafItem.setType(result, variant);
+                }
+                if (quality != null) {
+                    de.rolandsw.schedulemc.tobacco.items.FermentedTobaccoLeafItem.setQuality(result, quality);
+                }
+                break;
+
+            case "COCAINE":
+                result = de.rolandsw.schedulemc.coca.items.CocaineItem.create(count);
+                if (variant != null) {
+                    de.rolandsw.schedulemc.coca.items.CocaineItem.setType(result, variant);
+                }
+                if (quality != null) {
+                    de.rolandsw.schedulemc.coca.items.CocaineItem.setQuality(result, quality);
+                }
+                break;
+
+            case "CRACK":
+                result = de.rolandsw.schedulemc.coca.items.CrackRockItem.create(count);
+                if (variant != null) {
+                    de.rolandsw.schedulemc.coca.items.CrackRockItem.setType(result, variant);
+                }
+                if (quality != null) {
+                    de.rolandsw.schedulemc.coca.items.CrackRockItem.setQuality(result, quality);
+                }
+                break;
+
+            case "HEROIN":
+                result = de.rolandsw.schedulemc.poppy.items.HeroinItem.create(count);
+                if (variant != null) {
+                    de.rolandsw.schedulemc.poppy.items.HeroinItem.setType(result, variant);
+                }
+                if (quality != null) {
+                    de.rolandsw.schedulemc.poppy.items.HeroinItem.setQuality(result, quality);
+                }
+                break;
+
+            case "METH":
+                result = de.rolandsw.schedulemc.meth.items.MethItem.create(count);
+                if (quality != null) {
+                    de.rolandsw.schedulemc.meth.items.MethItem.setQuality(result, quality);
+                }
+                break;
+
+            case "MUSHROOM":
+                if (variant instanceof de.rolandsw.schedulemc.mushroom.MushroomType mushroomType) {
+                    result = de.rolandsw.schedulemc.mushroom.items.DriedMushroomItem.create(mushroomType, count);
+                    if (quality != null) {
+                        de.rolandsw.schedulemc.mushroom.items.DriedMushroomItem.setQuality(result, quality);
+                    }
+                }
+                break;
+
+            case "TRIMMED_CANNABIS":
+                result = de.rolandsw.schedulemc.cannabis.items.TrimmedBudItem.create(count);
+                if (variant != null) {
+                    de.rolandsw.schedulemc.cannabis.items.TrimmedBudItem.setStrain(result, variant);
+                }
+                if (quality != null) {
+                    de.rolandsw.schedulemc.cannabis.items.TrimmedBudItem.setQuality(result, quality);
+                }
+                break;
+
+            case "CURED_CANNABIS":
+                result = de.rolandsw.schedulemc.cannabis.items.CuredBudItem.create(count);
+                if (variant != null) {
+                    de.rolandsw.schedulemc.cannabis.items.CuredBudItem.setStrain(result, variant);
+                }
+                if (quality != null) {
+                    de.rolandsw.schedulemc.cannabis.items.CuredBudItem.setQuality(result, quality);
+                }
+                break;
+        }
+
+        return result;
+    }
+
+    /**
      * Extracts DrugType, Quality, and Variant from any packageable drug item
      *
      * ELIMINIERT: 63 Zeilen Duplikation (100% identisch in allen 3 Packaging Tables)
