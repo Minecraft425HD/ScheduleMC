@@ -557,10 +557,11 @@ public class WorldMapScreen extends PopupScreen {
             }
         }
 
-        if (MapViewConstants.getLightMapInstance().getMapOptions().keyBindMenu.matches(keyCode, scanCode)) {
-            keyCode = GLFW.GLFW_KEY_ESCAPE;
-            scanCode = -1;
-        }
+        // M-Taste deaktiviert - Map kann nicht mit M geschlossen werden
+        // if (MapViewConstants.getLightMapInstance().getMapOptions().keyBindMenu.matches(keyCode, scanCode)) {
+        //     keyCode = GLFW.GLFW_KEY_ESCAPE;
+        //     scanCode = -1;
+        // }
 
         keySprintPressed = minecraft.options.keySprint.matches(keyCode, scanCode) || keySprintPressed;
         keyUpPressed = minecraft.options.keyUp.matches(keyCode, scanCode) || keyUpPressed;

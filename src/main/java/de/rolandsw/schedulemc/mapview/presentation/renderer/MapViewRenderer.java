@@ -343,9 +343,10 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
             this.lightmapTexture = this.getLightmapTexture();
         }
 
-        if (minecraft.screen == null && this.options.keyBindMenu.consumeClick()) {
-            minecraft.setScreen(new WorldMapScreen(null));
-        }
+        // M-Taste deaktiviert - Map kann nicht mit M geöffnet werden
+        // if (minecraft.screen == null && this.options.keyBindMenu.consumeClick()) {
+        //     minecraft.setScreen(new WorldMapScreen(null));
+        // }
 
         if (minecraft.screen == null && this.options.keyBindZoom.consumeClick()) {
             this.cycleZoomLevel();
