@@ -29,7 +29,7 @@ public class SmartphoneScreen extends Screen {
     private static final int CLOSE_BUTTON_SIZE = 20;
     private static final int BORDER_SIZE = 5; // Rahmen um das Smartphone
     private static final int MARGIN_TOP = 15; // Mindestabstand vom oberen Bildschirmrand
-    private static final int MARGIN_BOTTOM = 35; // Genug Platz für Hotbar
+    private static final int MARGIN_BOTTOM = 20; // Genug Platz für Hotbar
     private static final int SCROLLBAR_WIDTH = 8; // Etwas breiter für bessere Klickbarkeit
     private static final int SCROLLBAR_MARGIN = 10; // Abstand zwischen Apps und Scrollbar
     private static final int VISIBLE_ROWS = 3; // Nur 3 Reihen sichtbar (6 Apps)
