@@ -1,54 +1,145 @@
 package de.rolandsw.schedulemc.tobacco.screen;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import de.rolandsw.schedulemc.npc.data.NPCPersonality;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
+import de.rolandsw.schedulemc.npc.personality.NPCPersonalityTrait;
 import de.rolandsw.schedulemc.production.core.DrugType;
 import de.rolandsw.schedulemc.production.items.PackagedDrugItem;
 import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
 import de.rolandsw.schedulemc.tobacco.TobaccoType;
-import de.rolandsw.schedulemc.tobacco.business.DemandLevel;
-import de.rolandsw.schedulemc.tobacco.business.NPCBusinessMetrics;
-import de.rolandsw.schedulemc.tobacco.business.PriceCalculator;
+import de.rolandsw.schedulemc.tobacco.business.*;
 import de.rolandsw.schedulemc.tobacco.menu.TobaccoNegotiationMenu;
 import de.rolandsw.schedulemc.tobacco.network.ModNetworking;
 import de.rolandsw.schedulemc.tobacco.network.NegotiationPacket;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * GUI für Tabak-Verhandlung mit NPC
+ * GUI für Tabak-Verhandlung mit NPC - Redesigned
+ *
+ * Layout (Vorschlag C - Vertikal Gestapelt):
+ * ┌─────────────────────────────────────────────────────────────┐
+ * │                     VERHANDLUNG · [NPC_NAME]                │
+ * ├─────────────────────────────────────────────────────────────┤
+ * │  ┌────────────────────┐  ┌───────────────────────────────┐ │
+ * │  │  INVENTAR (3x3)    │  │  NPC · PERSONALITY · TRAIT    │ │
+ * │  │  [0][1][2]         │  │  Sucht: TABAK █████░ 85%      │ │
+ * │  │  [3][4][5]         │  │  Wallet: €180                 │ │
+ * │  │  [6][7][8]         │  │  Beziehung: +45               │ │
+ * │  │                    │  │  SCORE: [████████░░] 73/100   │ │
+ * │  │  ▸ Slot X: Xg Type │  │  Risiko: ▓▓░░░░░░░░ 20%       │ │
+ * │  │  ▸ Wert: X€        │  │  Stimmung: 😊━━━▲━━━😡 (2/5)  │ │
+ * │  └────────────────────┘  └───────────────────────────────┘ │
+ * ├─────────────────────────────────────────────────────────────┤
+ * │  PREIS-SLIDER                                               │
+ * │  10€    15€    20€    25€    30€    35€    40€              │
+ * │  🔴━━━━🟡━━━━🟢━━━━🟢━━━━🟡━━━━🔴━━━━🔴                     │
+ * │           ▲              ▲                                  │
+ * │      NPC-Ziel       Dein Preis                              │
+ * │  [ ◀◀ -5€ ]  [ ◀ -1€ ]   26.50€   [ +1€ ▶ ]  [ +5€ ▶▶ ]    │
+ * ├─────────────────────────────────────────────────────────────┤
+ * │  NPC: "Das ist mir noch etwas zu viel..."                   │
+ * │                        [ ANBIETEN ]                         │
+ * │  ░░░░░░░░░░░░░░░░ BEREITS GEKAUFT ░░░░░░░░░░░░░░░░░        │
+ * └─────────────────────────────────────────────────────────────┘
  */
 public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNegotiationMenu> {
 
-    private EditBox priceInput;
-    private EditBox gramsInput;  // NEU: Gramm-Auswahl
-    private Button offerButton;
-    private int selectedSlot = -1;
-    private String responseMessage = "";
-    private double fairPrice = 0.0;
-    private int reputation = 0;
-    private int satisfaction = 0;
-    private DemandLevel demand = DemandLevel.MEDIUM;
-    private int maxGramsAvailable = 0;  // NEU: Max Gramm im ausgewählten Paket
-    private int dealAcceptanceProbability = 0;  // NEU: Wahrscheinlichkeit (0-100%)
+    // ═══════════════════════════════════════════════════════════
+    // LAYOUT CONSTANTS
+    // ═══════════════════════════════════════════════════════════
 
-    // Purchase Decision System
-    private int purchaseScore = 0;          // 0-100+ Punkte
-    private boolean willingToBuy = false;   // Kaufbereitschaft
-    private int desiredGrams = 0;           // Gewünschte Menge
-    private int npcWalletBalance = 0;       // NPC Wallet Balance (vom Server synchronisiert)
+    private static final int GUI_WIDTH = 256;
+    private static final int GUI_HEIGHT = 220;
+
+    // Inventar-Bereich (links)
+    private static final int INVENTORY_X = 8;
+    private static final int INVENTORY_Y = 24;
+    private static final int INVENTORY_WIDTH = 62;
+    private static final int INVENTORY_HEIGHT = 80;
+
+    // NPC-Info-Bereich (rechts)
+    private static final int NPC_INFO_X = 78;
+    private static final int NPC_INFO_Y = 24;
+    private static final int NPC_INFO_WIDTH = 170;
+    private static final int NPC_INFO_HEIGHT = 80;
+
+    // Slider-Bereich
+    private static final int SLIDER_X = 8;
+    private static final int SLIDER_Y = 112;
+    private static final int SLIDER_WIDTH = 240;
+    private static final int SLIDER_HEIGHT = 50;
+
+    // Response-Bereich
+    private static final int RESPONSE_Y = 168;
+
+    // Farben
+    private static final int COLOR_BACKGROUND = 0xFF1A1A1A;
+    private static final int COLOR_PANEL = 0xFF2D2D2D;
+    private static final int COLOR_BORDER = 0xFF404040;
+    private static final int COLOR_HEADER = 0xFF3A3A3A;
+    private static final int COLOR_TEXT = 0xFFFFFFFF;
+    private static final int COLOR_TEXT_SECONDARY = 0xFFAAAAAA;
+    private static final int COLOR_GREEN = 0xFF55FF55;
+    private static final int COLOR_YELLOW = 0xFFFFFF55;
+    private static final int COLOR_RED = 0xFFFF5555;
+    private static final int COLOR_SLIDER_BG = 0xFF333333;
+
+    // ═══════════════════════════════════════════════════════════
+    // STATE
+    // ═══════════════════════════════════════════════════════════
+
+    private int selectedSlot = -1;
+    private double currentPrice = 0.0;
+    private double fairPrice = 0.0;
+    private double npcTargetPrice = 0.0;
+    private double minPrice = 0.0;
+    private double maxPrice = 0.0;
+
+    // Score-Daten (vom Server synchronisiert)
+    private NegotiationScoreCalculator scoreData;
+    private NegotiationState negotiationState;
+
+    // NPC-Daten
+    private NPCPersonality personality;
+    private NPCPersonalityTrait trait;
+    private int addictionLevel = 0;
+    private int walletBalance = 0;
+    private int relationLevel = 0;
+
+    // Buttons
+    private Button offerButton;
+    private Button priceDownBigButton;
+    private Button priceDownButton;
+    private Button priceUpButton;
+    private Button priceUpBigButton;
+
+    // Response
+    private String npcResponse = "";
+    private boolean hasCooldown = false;
+
+    // ═══════════════════════════════════════════════════════════
+    // CONSTRUCTOR
+    // ═══════════════════════════════════════════════════════════
 
     public TobaccoNegotiationScreen(TobaccoNegotiationMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
-        this.imageHeight = 200; // Erhöht für Gramm-Input und Deal-Wahrscheinlichkeit
-        this.inventoryLabelY = this.imageHeight - 94;
+        this.imageWidth = GUI_WIDTH;
+        this.imageHeight = GUI_HEIGHT;
+        this.inventoryLabelY = this.imageHeight + 10; // Verstecke Standard-Label
+        this.titleLabelY = -100; // Verstecke Standard-Titel
     }
+
+    // ═══════════════════════════════════════════════════════════
+    // INITIALIZATION
+    // ═══════════════════════════════════════════════════════════
 
     @Override
     protected void init() {
@@ -57,345 +148,514 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
         int x = this.leftPos;
         int y = this.topPos;
 
-        // Price Input Field
-        priceInput = new EditBox(this.font, x + 10, y + 60, 60, 20, Component.translatable("gui.common.price"));
-        priceInput.setValue("0.00");
-        priceInput.setMaxLength(10);
-        priceInput.setResponder(s -> calculateDealProbability());
-        addRenderableWidget(priceInput);
+        // Preis-Buttons
+        int buttonY = y + SLIDER_Y + 35;
+        int buttonWidth = 35;
+        int buttonHeight = 14;
+        int centerX = x + (GUI_WIDTH / 2);
 
-        // Grams Input Field (NEU)
-        gramsInput = new EditBox(this.font, x + 75, y + 60, 30, 20, Component.literal("Gramm"));
-        gramsInput.setValue("1");
-        gramsInput.setMaxLength(2);
-        gramsInput.setResponder(s -> calculateDealProbability());
-        addRenderableWidget(gramsInput);
+        priceDownBigButton = addRenderableWidget(Button.builder(
+            Component.translatable("gui.negotiation.button.price_down_big"),
+            btn -> adjustPrice(-5.0)
+        ).bounds(centerX - 85, buttonY, buttonWidth, buttonHeight).build());
 
-        // Offer Button
-        offerButton = addRenderableWidget(Button.builder(Component.translatable("gui.tobacco.offer"), button -> {
-            makeOffer();
-        }).bounds(x + 110, y + 60, 60, 20).build());
+        priceDownButton = addRenderableWidget(Button.builder(
+            Component.translatable("gui.negotiation.button.price_down"),
+            btn -> adjustPrice(-1.0)
+        ).bounds(centerX - 48, buttonY, buttonWidth, buttonHeight).build());
+
+        priceUpButton = addRenderableWidget(Button.builder(
+            Component.translatable("gui.negotiation.button.price_up"),
+            btn -> adjustPrice(1.0)
+        ).bounds(centerX + 13, buttonY, buttonWidth, buttonHeight).build());
+
+        priceUpBigButton = addRenderableWidget(Button.builder(
+            Component.translatable("gui.negotiation.button.price_up_big"),
+            btn -> adjustPrice(5.0)
+        ).bounds(centerX + 50, buttonY, buttonWidth, buttonHeight).build());
+
+        // Anbieten-Button
+        offerButton = addRenderableWidget(Button.builder(
+            Component.translatable("gui.negotiation.button.offer"),
+            btn -> makeOffer()
+        ).bounds(centerX - 40, y + RESPONSE_Y + 16, 80, 20).build());
         offerButton.active = false;
 
-        // Select Item Buttons (für die ersten 9 Inventory-Slots)
-        for (int i = 0; i < 9; i++) {
-            final int slot = i;
-            addRenderableWidget(Button.builder(Component.literal(String.valueOf(i + 1)), button -> {
-                selectSlot(slot);
-            }).bounds(x + 8 + i * 18, y + 30, 18, 18).build());
-        }
+        // Lade initiale NPC-Daten
+        loadNPCData();
 
-        updateNPCMetrics();
+        // Check Cooldown
+        hasCooldown = menu.hasCooldown();
+        updateButtonStates();
     }
 
-    private void selectSlot(int slot) {
-        ItemStack stack = minecraft.player.getInventory().getItem(slot);
-        if (stack.getItem() instanceof PackagedDrugItem &&
-            PackagedDrugItem.getDrugType(stack) == DrugType.TOBACCO) {
-            selectedSlot = slot;
-            maxGramsAvailable = PackagedDrugItem.getWeight(stack);
-            gramsInput.setValue(String.valueOf(Math.min(desiredGrams > 0 ? desiredGrams : 1, maxGramsAvailable)));
-            calculateFairPrice();
-            calculateDealProbability();
-            offerButton.active = true;
-            responseMessage = Component.translatable("gui.tobacco_negotiation.select_amount_price").getString();
-        } else {
-            selectedSlot = -1;
-            maxGramsAvailable = 0;
-            offerButton.active = false;
-            responseMessage = Component.translatable("gui.tobacco_negotiation.no_tobacco").getString();
-        }
-    }
+    // ═══════════════════════════════════════════════════════════
+    // DATA LOADING
+    // ═══════════════════════════════════════════════════════════
 
-    private void updateNPCMetrics() {
+    private void loadNPCData() {
         CustomNPCEntity npc = menu.getNpc();
-        if (npc != null && minecraft.player != null) {
-            NPCBusinessMetrics metrics = new NPCBusinessMetrics(npc);
-            reputation = metrics.getReputation(minecraft.player.getStringUUID());
-            satisfaction = metrics.getSatisfaction();
-            demand = metrics.getDemand();
+        if (npc == null || minecraft == null || minecraft.player == null) return;
+
+        // Lade Persönlichkeit
+        String personalityStr = npc.getNpcData().getCustomData().getString("personality");
+        if (!personalityStr.isEmpty()) {
+            try {
+                personality = NPCPersonality.valueOf(personalityStr);
+            } catch (IllegalArgumentException e) {
+                personality = NPCPersonality.AUSGEWOGEN;
+            }
+        } else {
+            personality = NPCPersonality.AUSGEWOGEN;
+        }
+
+        // Lade Trait
+        String traitStr = npc.getNpcData().getCustomData().getString("personalityTrait");
+        if (!traitStr.isEmpty()) {
+            try {
+                trait = NPCPersonalityTrait.valueOf(traitStr);
+            } catch (IllegalArgumentException e) {
+                trait = NPCPersonalityTrait.NEUTRAL;
+            }
+        } else {
+            trait = NPCPersonalityTrait.NEUTRAL;
+        }
+
+        // Wallet
+        walletBalance = npc.getNpcData().getWallet();
+
+        // Initialisiere Verhandlungs-State
+        negotiationState = new NegotiationState(personality, trait);
+    }
+
+    /**
+     * Wird vom Server aufgerufen um Score-Daten zu synchronisieren
+     */
+    public void updateScoreData(NegotiationScoreCalculator score) {
+        this.scoreData = score;
+        if (score != null) {
+            this.personality = score.getPersonality();
+            this.trait = score.getTrait();
+            this.addictionLevel = score.getAddictionLevel();
+            this.walletBalance = score.getWalletBalance();
+            this.relationLevel = score.getNpcRelationLevel();
         }
     }
 
     /**
-     * Wird vom PurchaseDecisionSyncPacket aufgerufen, um die Kaufbereitschaft anzuzeigen
+     * Wird vom Server aufgerufen um Verhandlungs-State zu synchronisieren
      */
-    public void updatePurchaseDecision(int score, boolean willing, int amount, int wallet) {
-        this.purchaseScore = score;
-        this.willingToBuy = willing;
-        this.desiredGrams = amount;
-        this.npcWalletBalance = wallet;
+    public void updateNegotiationState(NegotiationState state) {
+        this.negotiationState = state;
+        this.npcResponse = state.getLastNPCResponse();
     }
 
-    private void calculateFairPrice() {
+    /**
+     * Wird vom PurchaseDecisionSyncPacket aufgerufen, um die Kaufbereitschaft anzuzeigen
+     * (Kompatibilität mit altem Packet-System)
+     */
+    public void updatePurchaseDecision(int score, boolean willing, int amount, int wallet) {
+        // Aktualisiere lokale Werte basierend auf dem alten Packet-Format
+        this.walletBalance = wallet;
+        // Score wird im neuen System über updateScoreData gesetzt
+    }
+
+    /**
+     * Setzt den Cooldown-Status
+     */
+    public void setCooldown(boolean cooldown) {
+        this.hasCooldown = cooldown;
+        updateButtonStates();
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // SLOT SELECTION
+    // ═══════════════════════════════════════════════════════════
+
+    @Override
+    protected void slotClicked(@NotNull Slot slot, int slotId, int mouseButton, @NotNull net.minecraft.world.inventory.ClickType type) {
+        // Nur Linksklick für Auswahl
+        if (mouseButton != 0) return;
+        if (slotId < 0 || slotId >= TobaccoNegotiationMenu.HOTBAR_SLOT_COUNT) return;
+
+        // Prüfe ob Slot gültiges Item enthält
+        if (menu.isSlotValid(slotId)) {
+            selectedSlot = slotId;
+            menu.selectSlot(slotId);
+            calculatePrices();
+            updateButtonStates();
+        }
+    }
+
+    private void calculatePrices() {
         if (selectedSlot < 0) return;
 
+        ItemStack stack = menu.getSelectedItem();
+        if (stack.isEmpty() || !(stack.getItem() instanceof PackagedDrugItem)) return;
+
         CustomNPCEntity npc = menu.getNpc();
-        if (npc == null || minecraft.player == null) return;
+        if (npc == null) return;
 
-        ItemStack stack = minecraft.player.getInventory().getItem(selectedSlot);
-        if (!(stack.getItem() instanceof PackagedDrugItem) ||
-            PackagedDrugItem.getDrugType(stack) != DrugType.TOBACCO) return;
-
-        // Parse Type und Quality aus PackagedDrugItem
+        // Parse Item-Daten
         String variantStr = PackagedDrugItem.getVariant(stack);
         TobaccoType type = variantStr != null ? TobaccoType.valueOf(variantStr.split("\\.")[1]) : TobaccoType.VIRGINIA;
 
         String qualityStr = PackagedDrugItem.getQuality(stack);
         TobaccoQuality quality = qualityStr != null ? TobaccoQuality.valueOf(qualityStr.split("\\.")[1]) : TobaccoQuality.GUT;
 
-        fairPrice = PriceCalculator.calculateFairPrice(
-            type,
-            quality,
-            PackagedDrugItem.getWeight(stack),
-            demand,
-            reputation,
-            satisfaction
-        );
+        int weight = PackagedDrugItem.getWeight(stack);
 
-        priceInput.setValue(String.format("%.2f", fairPrice));
+        // Berechne Preise
+        NPCBusinessMetrics metrics = new NPCBusinessMetrics(npc);
+        int reputation = metrics.getReputation(minecraft.player.getStringUUID());
+        int satisfaction = metrics.getSatisfaction();
+        DemandLevel demand = metrics.getDemand();
+
+        fairPrice = PriceCalculator.calculateFairPrice(type, quality, weight, demand, reputation, satisfaction);
+        npcTargetPrice = PriceCalculator.calculateIdealPrice(fairPrice);
+        minPrice = Math.max(1.0, npcTargetPrice * 0.5);
+        maxPrice = fairPrice * 1.5;
+
+        // Setze initialen Preis auf Fair Price
+        currentPrice = fairPrice;
     }
 
-    /**
-     * Berechnet die Deal-Akzeptanz-Wahrscheinlichkeit basierend auf Preis, Menge und Wallet
-     */
-    private void calculateDealProbability() {
-        if (selectedSlot < 0) {
-            dealAcceptanceProbability = 0;
-            return;
-        }
+    // ═══════════════════════════════════════════════════════════
+    // PRICE ADJUSTMENT
+    // ═══════════════════════════════════════════════════════════
 
-        CustomNPCEntity npc = menu.getNpc();
-        if (npc == null) {
-            dealAcceptanceProbability = 0;
-            return;
-        }
-
-        try {
-            double offeredPrice = Double.parseDouble(priceInput.getValue().replace(",", "."));
-            int offeredGrams = Integer.parseInt(gramsInput.getValue());
-
-            if (offeredPrice <= 0 || offeredGrams <= 0 || offeredGrams > maxGramsAvailable) {
-                dealAcceptanceProbability = 0;
-                return;
-            }
-
-            // Preis pro Gramm berechnen
-            double pricePerGram = offeredPrice / offeredGrams;
-            double fairPricePerGram = fairPrice / maxGramsAvailable;
-
-            // 1. Preis-Faktor (0-50%)
-            double priceRatio = pricePerGram / fairPricePerGram;
-            int priceScore = 0;
-            if (priceRatio >= 1.2) priceScore = 50; // 20% über Fair Price = 50%
-            else if (priceRatio >= 1.0) priceScore = (int)(25 + (priceRatio - 1.0) * 125); // 1.0-1.2 = 25-50%
-            else if (priceRatio >= 0.8) priceScore = (int)(priceRatio * 25); // 0.8-1.0 = 20-25%
-            else priceScore = (int)(priceRatio * 25); // < 0.8 = < 20%
-
-            // 2. Mengen-Faktor (0-30%)
-            int gramsScore = 0;
-            if (desiredGrams > 0) {
-                if (offeredGrams <= desiredGrams) {
-                    // Gewünschte Menge oder weniger = Bonus
-                    gramsScore = 30;
-                } else {
-                    // Mehr als gewünscht = Malus
-                    float excessRatio = (float)(offeredGrams - desiredGrams) / desiredGrams;
-                    gramsScore = Math.max(0, (int)(30 - excessRatio * 30));
-                }
-            } else {
-                // NPC will nicht kaufen = niedrige Wahrscheinlichkeit
-                gramsScore = 5;
-            }
-
-            // 3. Wallet-Check (0-20%) - verwende synchronisierten Wert
-            int walletScore = 0;
-            if (offeredPrice <= npcWalletBalance) {
-                // NPC kann sich das leisten
-                float budgetUsage = (float)offeredPrice / npcWalletBalance;
-                if (budgetUsage <= 0.3f) walletScore = 20; // Nur 30% Budget = gut
-                else if (budgetUsage <= 0.5f) walletScore = 15; // 30-50% = ok
-                else if (budgetUsage <= 0.7f) walletScore = 10; // 50-70% = kritisch
-                else walletScore = 5; // 70-100% = sehr kritisch
-            } else {
-                // NPC kann sich das nicht leisten
-                walletScore = 0;
-            }
-
-            // Gesamt: Preis (0-50%) + Menge (0-30%) + Wallet (0-20%) = 0-100%
-            dealAcceptanceProbability = Math.min(100, priceScore + gramsScore + walletScore);
-
-        } catch (NumberFormatException e) {
-            dealAcceptanceProbability = 0;
-        }
+    private void adjustPrice(double delta) {
+        currentPrice = Math.max(minPrice, Math.min(maxPrice, currentPrice + delta));
     }
+
+    private void updateButtonStates() {
+        boolean canOffer = selectedSlot >= 0 && !hasCooldown && currentPrice > 0;
+
+        offerButton.active = canOffer;
+        priceDownBigButton.active = canOffer && currentPrice > minPrice + 5;
+        priceDownButton.active = canOffer && currentPrice > minPrice;
+        priceUpButton.active = canOffer && currentPrice < maxPrice;
+        priceUpBigButton.active = canOffer && currentPrice < maxPrice - 5;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // OFFER SUBMISSION
+    // ═══════════════════════════════════════════════════════════
 
     private void makeOffer() {
-        if (selectedSlot < 0) {
-            responseMessage = Component.translatable("gui.tobacco_negotiation.select_tobacco").getString();
-            return;
-        }
+        if (selectedSlot < 0 || hasCooldown) return;
 
-        try {
-            double offeredPrice = Double.parseDouble(priceInput.getValue().replace(",", "."));
-            int offeredGrams = Integer.parseInt(gramsInput.getValue());
+        ItemStack stack = menu.getSelectedItem();
+        if (stack.isEmpty()) return;
 
-            if (offeredPrice <= 0) {
-                responseMessage = Component.translatable("gui.tobacco_negotiation.invalid_price").getString();
-                return;
-            }
+        int weight = PackagedDrugItem.getWeight(stack);
 
-            if (offeredGrams <= 0 || offeredGrams > maxGramsAvailable) {
-                responseMessage = Component.translatable("gui.tobacco_negotiation.invalid_grams", maxGramsAvailable).getString();
-                return;
-            }
+        // Sende Angebot an Server
+        ModNetworking.sendToServer(new NegotiationPacket(
+            menu.getNpcEntityId(),
+            selectedSlot,
+            currentPrice,
+            weight
+        ));
 
-            // Sende Negotiation Packet an Server mit Gramm-Anzahl
-            ModNetworking.sendToServer(new NegotiationPacket(
-                menu.getNpcEntityId(),
-                selectedSlot,
-                offeredPrice,
-                offeredGrams  // NEU: Gramm-Anzahl senden
-            ));
-
-            // GUI schließen - Server sendet Feedback als Chat-Nachricht
-            this.onClose();
-
-        } catch (NumberFormatException e) {
-            responseMessage = Component.translatable("gui.tobacco_negotiation.invalid_input").getString();
-        }
-    }    @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        // Block E key (inventory key - 69) from closing the screen
-        if (keyCode == 69) { // GLFW_KEY_E
-            return true; // Consume event, prevent closing
-        }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        // GUI schließen
+        this.onClose();
     }
 
-
-
-    @Override
-    protected void renderBg(@NotNull GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-        int x = this.leftPos;
-        int y = this.topPos;
-
-        // Dunkler Hintergrund
-        graphics.fill(x, y, x + this.imageWidth, y + this.imageHeight, 0xFF2B2B2B);
-
-        // Hellerer innerer Bereich
-        graphics.fill(x + 2, y + 2, x + this.imageWidth - 2, y + this.imageHeight - 2, 0xFF4C4C4C);
-
-        // Header-Bereich
-        graphics.fill(x + 2, y + 2, x + this.imageWidth - 2, y + 20, 0xFF1E1E1E);
-    }
+    // ═══════════════════════════════════════════════════════════
+    // RENDERING
+    // ═══════════════════════════════════════════════════════════
 
     @Override
     public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(graphics);
         super.render(graphics, mouseX, mouseY, partialTick);
         this.renderTooltip(graphics, mouseX, mouseY);
+    }
+
+    @Override
+    protected void renderBg(@NotNull GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
         int x = this.leftPos;
         int y = this.topPos;
 
-        CustomNPCEntity npc = menu.getNpc();
-        if (npc != null) {
-            // Title
-            graphics.drawString(this.font, Component.translatable("gui.tobacco_negotiation.title").getString(), x + 8, y + 6, 0xFFFFFF, false);
+        // Haupt-Hintergrund
+        graphics.fill(x, y, x + GUI_WIDTH, y + GUI_HEIGHT, COLOR_BACKGROUND);
 
-            // Input Labels
-            graphics.drawString(this.font, Component.translatable("gui.tobacco_negotiation.price_label").getString(), x + 10, y + 50, 0xFFFFFF, false);
-            graphics.drawString(this.font, Component.translatable("gui.tobacco_negotiation.grams_label").getString(), x + 75, y + 50, 0xFFFFFF, false);
+        // Header
+        graphics.fill(x, y, x + GUI_WIDTH, y + 18, COLOR_HEADER);
 
-            // NPC Wallet Balance (verwende synchronisierten Wert vom Server)
-            graphics.drawString(this.font, Component.translatable("gui.tobacco_negotiation.npc_money", npcWalletBalance).getString(), x + 8, y + 20, 0xFFFFFF, false);
+        // Inventar-Panel
+        renderPanel(graphics, x + INVENTORY_X - 2, y + INVENTORY_Y - 2, INVENTORY_WIDTH + 4, INVENTORY_HEIGHT + 4);
 
-            // NPC Metriken
-            graphics.drawString(this.font, Component.translatable("gui.tobacco_negotiation.reputation", reputation).getString(), x + 8, y + 86, 0xFFFFFF, false);
-            graphics.drawString(this.font, Component.translatable("gui.tobacco_negotiation.satisfaction", satisfaction).getString(), x + 80, y + 86, 0xFFFFFF, false);
-            graphics.drawString(this.font, demand.getDisplayName(), x + 8, y + 96, 0xFFFFFF, false);
+        // NPC-Info-Panel
+        renderPanel(graphics, x + NPC_INFO_X - 2, y + NPC_INFO_Y - 2, NPC_INFO_WIDTH + 4, NPC_INFO_HEIGHT + 4);
 
-            // Purchase Willingness Indicator
-            renderPurchaseWillingnessIndicator(graphics, x + 8, y + 106);
+        // Slider-Panel
+        renderPanel(graphics, x + SLIDER_X - 2, y + SLIDER_Y - 2, SLIDER_WIDTH + 4, SLIDER_HEIGHT + 4);
 
-            // Fairer Preis und Deal-Wahrscheinlichkeit
-            if (selectedSlot >= 0) {
-                String fairPriceText = Component.translatable("gui.tobacco_negotiation.fair_price", String.format("%.2f", fairPrice), maxGramsAvailable).getString();
-                graphics.drawString(this.font, fairPriceText, x + 8, y + 126, 0xFFFFFF, false);
+        // Response-Panel
+        renderPanel(graphics, x + 6, y + RESPONSE_Y - 2, GUI_WIDTH - 12, 50);
 
-                // Deal-Wahrscheinlichkeit mit Farbe
-                String probText;
-                ChatFormatting probColor;
-                if (dealAcceptanceProbability >= 70) {
-                    probColor = ChatFormatting.GREEN;
-                    probText = Component.translatable("gui.tobacco_negotiation.probability.very_likely").getString();
-                } else if (dealAcceptanceProbability >= 50) {
-                    probColor = ChatFormatting.YELLOW;
-                    probText = Component.translatable("gui.tobacco_negotiation.probability.likely").getString();
-                } else if (dealAcceptanceProbability >= 30) {
-                    probColor = ChatFormatting.GOLD;
-                    probText = Component.translatable("gui.tobacco_negotiation.probability.possible").getString();
-                } else if (dealAcceptanceProbability > 0) {
-                    probColor = ChatFormatting.RED;
-                    probText = Component.translatable("gui.tobacco_negotiation.probability.unlikely").getString();
-                } else {
-                    probColor = ChatFormatting.DARK_RED;
-                    probText = Component.translatable("gui.tobacco_negotiation.probability.impossible").getString();
-                }
+        // Slot-Hintergründe rendern
+        renderSlotBackgrounds(graphics, x, y);
+    }
 
-                String dealProbText = Component.translatable("gui.tobacco_negotiation.deal_acceptance", probColor.toString() + dealAcceptanceProbability, probText).getString();
-                graphics.drawString(this.font, dealProbText, x + 8, y + 136, 0xFFFFFF, false);
+    private void renderPanel(GuiGraphics graphics, int x, int y, int width, int height) {
+        graphics.fill(x, y, x + width, y + height, COLOR_BORDER);
+        graphics.fill(x + 1, y + 1, x + width - 1, y + height - 1, COLOR_PANEL);
+    }
+
+    private void renderSlotBackgrounds(GuiGraphics graphics, int baseX, int baseY) {
+        for (int i = 0; i < TobaccoNegotiationMenu.HOTBAR_SLOT_COUNT; i++) {
+            Slot slot = menu.slots.get(i);
+            int slotX = baseX + slot.x - 1;
+            int slotY = baseY + slot.y - 1;
+
+            // Highlight für ausgewählten Slot
+            if (i == selectedSlot) {
+                graphics.fill(slotX, slotY, slotX + 18, slotY + 18, COLOR_GREEN);
+            } else if (menu.isSlotValid(i)) {
+                graphics.fill(slotX, slotY, slotX + 18, slotY + 18, 0xFF555555);
+            } else {
+                graphics.fill(slotX, slotY, slotX + 18, slotY + 18, 0xFF333333);
             }
-        }
 
-        // Response Message
-        if (!responseMessage.isEmpty()) {
-            graphics.drawString(this.font, responseMessage, x + 8, y + 146, 0xFFFFFF, false);
+            // Innerer Slot-Hintergrund
+            graphics.fill(slotX + 1, slotY + 1, slotX + 17, slotY + 17, 0xFF1A1A1A);
         }
     }
 
     @Override
-    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        // Leer lassen - wir rendern alles in render()
+    protected void renderLabels(@NotNull GuiGraphics graphics, int mouseX, int mouseY) {
+        // Titel
+        CustomNPCEntity npc = menu.getNpc();
+        String npcName = npc != null ? npc.getNpcName() : "NPC";
+        String title = Component.translatable("gui.negotiation.title", npcName).getString();
+        int titleWidth = font.width(title);
+        graphics.drawString(font, title, (GUI_WIDTH - titleWidth) / 2, 5, COLOR_TEXT, false);
+
+        // Inventar-Bereich
+        renderInventorySection(graphics);
+
+        // NPC-Info-Bereich
+        renderNPCInfoSection(graphics);
+
+        // Slider-Bereich
+        renderSliderSection(graphics);
+
+        // Response-Bereich
+        renderResponseSection(graphics);
     }
 
-    /**
-     * Rendert den Kaufbereitschafts-Indikator
-     */
-    private void renderPurchaseWillingnessIndicator(GuiGraphics graphics, int x, int y) {
-        // Titel
-        graphics.drawString(this.font, Component.translatable("gui.tobacco_negotiation.purchase_willingness").getString(), x, y, 0xFFFFFF, false);
+    private void renderInventorySection(GuiGraphics graphics) {
+        int x = INVENTORY_X;
+        int y = INVENTORY_Y + INVENTORY_HEIGHT + 2;
 
-        // Score-Balken (100 Pixel breit)
-        int barWidth = Math.min((purchaseScore * 100) / 100, 100); // Normalisiert auf 0-100
-        graphics.fill(x, y + 10, x + 100, y + 16, 0xFF333333); // Hintergrund (dunkelgrau)
+        if (selectedSlot >= 0) {
+            ItemStack stack = menu.getSelectedItem();
+            if (!stack.isEmpty() && stack.getItem() instanceof PackagedDrugItem) {
+                int weight = PackagedDrugItem.getWeight(stack);
+                String variantStr = PackagedDrugItem.getVariant(stack);
+                String typeDisplay = variantStr != null ? variantStr.split("\\.")[1] : "Unknown";
+                String qualityStr = PackagedDrugItem.getQuality(stack);
+                String qualityDisplay = qualityStr != null ? qualityStr.split("\\.")[1] : "";
 
-        // Farbe basierend auf Kaufbereitschaft
-        int barColor;
-        if (willingToBuy) {
-            if (purchaseScore >= 70) barColor = 0xFF55FF55; // Grün (hohes Interesse)
-            else if (purchaseScore >= 50) barColor = 0xFFFFFF55; // Gelb (mittleres Interesse)
-            else barColor = 0xFFFFAA00; // Orange (niedriges Interesse)
+                graphics.drawString(font, Component.translatable("gui.negotiation.selected_item",
+                    weight, typeDisplay, qualityDisplay).getString(), x, y, COLOR_TEXT, false);
+                graphics.drawString(font, Component.translatable("gui.negotiation.fair_price",
+                    String.format("%.2f", fairPrice)).getString(), x, y + 10, COLOR_TEXT_SECONDARY, false);
+            }
         } else {
-            barColor = 0xFFFF5555; // Rot (kein Interesse)
+            graphics.drawString(font, Component.translatable("gui.negotiation.select_item").getString(),
+                x, y, COLOR_TEXT_SECONDARY, false);
         }
+    }
 
-        graphics.fill(x, y + 10, x + barWidth, y + 16, barColor);
+    private void renderNPCInfoSection(GuiGraphics graphics) {
+        int x = NPC_INFO_X;
+        int y = NPC_INFO_Y;
 
-        // Score-Text
-        graphics.drawString(this.font, purchaseScore + "/100", x + 105, y + 10, 0xFFFFFF, false);
+        // Persönlichkeit & Trait
+        String personalityStr = personality != null ? personality.name() : "?";
+        String traitStr = trait != null ? trait.getDisplayName() : "?";
+        graphics.drawString(font, personalityStr + " · " + traitStr, x, y, COLOR_TEXT, false);
 
-        // Kaufmenge oder "Kein Interesse"
-        String amountText;
-        ChatFormatting color;
-        if (willingToBuy && desiredGrams > 0) {
-            amountText = Component.translatable("gui.tobacco_negotiation.wants_to_buy", desiredGrams).getString();
-            color = ChatFormatting.GREEN;
+        // Suchtlevel
+        y += 12;
+        String addictionStr = Component.translatable("gui.negotiation.addiction", addictionLevel).getString();
+        graphics.drawString(font, addictionStr, x, y, COLOR_TEXT_SECONDARY, false);
+        renderProgressBar(graphics, x + 80, y, 80, 8, addictionLevel / 100.0f, COLOR_RED);
+
+        // Wallet
+        y += 12;
+        graphics.drawString(font, Component.translatable("gui.negotiation.wallet", walletBalance).getString(),
+            x, y, COLOR_TEXT_SECONDARY, false);
+
+        // Beziehung
+        y += 12;
+        String relationStr = (relationLevel >= 0 ? "+" : "") + relationLevel;
+        graphics.drawString(font, Component.translatable("gui.negotiation.relation", relationStr).getString(),
+            x, y, COLOR_TEXT_SECONDARY, false);
+
+        // Score
+        y += 14;
+        int score = scoreData != null ? scoreData.getTotalScore() : 50;
+        graphics.drawString(font, Component.translatable("gui.negotiation.score").getString(), x, y, COLOR_TEXT, false);
+        renderProgressBar(graphics, x + 50, y, 100, 10, score / 100.0f, getScoreColor(score));
+        graphics.drawString(font, score + "/100", x + 155, y, COLOR_TEXT, false);
+
+        // Risiko
+        y += 14;
+        int risk = scoreData != null ? scoreData.getAbortRisk() : 20;
+        graphics.drawString(font, Component.translatable("gui.negotiation.risk").getString(), x, y, COLOR_TEXT_SECONDARY, false);
+        renderProgressBar(graphics, x + 50, y, 60, 8, risk / 100.0f, COLOR_RED);
+        graphics.drawString(font, risk + "%", x + 115, y, COLOR_TEXT_SECONDARY, false);
+
+        // Stimmung
+        y += 12;
+        renderMoodIndicator(graphics, x, y);
+    }
+
+    private void renderSliderSection(GuiGraphics graphics) {
+        int x = SLIDER_X;
+        int y = SLIDER_Y;
+
+        // Slider-Leiste
+        int sliderWidth = SLIDER_WIDTH - 16;
+        int sliderX = x + 8;
+        int sliderY = y + 18;
+
+        // Slider-Hintergrund
+        graphics.fill(sliderX, sliderY, sliderX + sliderWidth, sliderY + 12, COLOR_SLIDER_BG);
+
+        if (selectedSlot >= 0 && maxPrice > minPrice) {
+            // Preis-Zonen rendern
+            renderPriceZones(graphics, sliderX, sliderY, sliderWidth);
+
+            // NPC-Zielpreis Marker
+            int npcTargetPos = (int) ((npcTargetPrice - minPrice) / (maxPrice - minPrice) * sliderWidth);
+            graphics.fill(sliderX + npcTargetPos - 1, sliderY - 2, sliderX + npcTargetPos + 1, sliderY + 14, COLOR_YELLOW);
+
+            // Spieler-Preis Marker
+            int playerPos = (int) ((currentPrice - minPrice) / (maxPrice - minPrice) * sliderWidth);
+            graphics.fill(sliderX + playerPos - 2, sliderY - 4, sliderX + playerPos + 2, sliderY + 16, COLOR_TEXT);
+
+            // Preis-Labels
+            graphics.drawString(font, String.format("%.0f", minPrice), sliderX, y + 4, COLOR_TEXT_SECONDARY, false);
+            graphics.drawString(font, String.format("%.0f", maxPrice), sliderX + sliderWidth - 20, y + 4, COLOR_TEXT_SECONDARY, false);
+
+            // Aktueller Preis (zentriert)
+            String priceStr = String.format("%.2f", currentPrice);
+            int priceWidth = font.width(priceStr);
+            graphics.drawString(font, priceStr, (GUI_WIDTH - priceWidth) / 2, y + 35, COLOR_TEXT, false);
         } else {
-            amountText = Component.translatable("gui.tobacco_negotiation.no_interest").getString();
-            color = ChatFormatting.RED;
+            graphics.drawString(font, Component.translatable("gui.negotiation.select_first").getString(),
+                sliderX, sliderY + 2, COLOR_TEXT_SECONDARY, false);
         }
-        graphics.drawString(this.font, color + amountText, x, y + 20, 0xFFFFFF, false);
+    }
+
+    private void renderPriceZones(GuiGraphics graphics, int sliderX, int sliderY, int sliderWidth) {
+        // Grüne Zone: 80-120% des NPC-Zielpreises
+        double greenLow = npcTargetPrice * 0.80;
+        double greenHigh = npcTargetPrice * 1.20;
+
+        // Gelbe Zone: 60-80% und 120-150%
+        double yellowLow = npcTargetPrice * 0.60;
+        double yellowHigh = npcTargetPrice * 1.50;
+
+        // Berechne Positionen
+        int greenLowPos = (int) (Math.max(0, (greenLow - minPrice) / (maxPrice - minPrice)) * sliderWidth);
+        int greenHighPos = (int) (Math.min(1, (greenHigh - minPrice) / (maxPrice - minPrice)) * sliderWidth);
+        int yellowLowPos = (int) (Math.max(0, (yellowLow - minPrice) / (maxPrice - minPrice)) * sliderWidth);
+        int yellowHighPos = (int) (Math.min(1, (yellowHigh - minPrice) / (maxPrice - minPrice)) * sliderWidth);
+
+        // Rote Zonen (außen)
+        graphics.fill(sliderX, sliderY, sliderX + yellowLowPos, sliderY + 12, COLOR_RED);
+        graphics.fill(sliderX + yellowHighPos, sliderY, sliderX + sliderWidth, sliderY + 12, COLOR_RED);
+
+        // Gelbe Zonen
+        graphics.fill(sliderX + yellowLowPos, sliderY, sliderX + greenLowPos, sliderY + 12, COLOR_YELLOW);
+        graphics.fill(sliderX + greenHighPos, sliderY, sliderX + yellowHighPos, sliderY + 12, COLOR_YELLOW);
+
+        // Grüne Zone
+        graphics.fill(sliderX + greenLowPos, sliderY, sliderX + greenHighPos, sliderY + 12, COLOR_GREEN);
+    }
+
+    private void renderResponseSection(GuiGraphics graphics) {
+        int x = 10;
+        int y = RESPONSE_Y;
+
+        if (hasCooldown) {
+            // Cooldown-Warnung
+            String cooldownText = Component.translatable("gui.negotiation.cooldown_active").getString();
+            int textWidth = font.width(cooldownText);
+            graphics.drawString(font, cooldownText, (GUI_WIDTH - textWidth) / 2, y + 4, COLOR_RED, false);
+        } else if (!npcResponse.isEmpty()) {
+            // NPC-Antwort
+            String prefix = Component.translatable("gui.negotiation.npc_says").getString();
+            graphics.drawString(font, prefix + " \"" + npcResponse + "\"", x, y + 4, COLOR_TEXT_SECONDARY, false);
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // HELPER RENDERING
+    // ═══════════════════════════════════════════════════════════
+
+    private void renderProgressBar(GuiGraphics graphics, int x, int y, int width, int height, float progress, int color) {
+        graphics.fill(x, y, x + width, y + height, COLOR_SLIDER_BG);
+        int filledWidth = (int) (width * Math.max(0, Math.min(1, progress)));
+        graphics.fill(x, y, x + filledWidth, y + height, color);
+    }
+
+    private void renderMoodIndicator(GuiGraphics graphics, int x, int y) {
+        int round = negotiationState != null ? negotiationState.getCurrentRound() : 0;
+        int maxRounds = negotiationState != null ? negotiationState.getMaxRounds() : 5;
+        float mood = negotiationState != null ? negotiationState.getMoodPercent() : 100;
+
+        // Stimmungs-Leiste
+        int barWidth = 80;
+        graphics.drawString(font, "\uD83D\uDE0A", x, y, COLOR_GREEN, false); // Happy emoji
+        graphics.fill(x + 12, y + 2, x + 12 + barWidth, y + 8, COLOR_SLIDER_BG);
+
+        // Mood-Position
+        int moodPos = (int) ((100 - mood) / 100.0f * barWidth);
+        graphics.fill(x + 12 + moodPos - 1, y, x + 12 + moodPos + 1, y + 10, COLOR_TEXT);
+
+        graphics.drawString(font, "\uD83D\uDE21", x + 14 + barWidth, y, COLOR_RED, false); // Angry emoji
+
+        // Runden-Anzeige
+        graphics.drawString(font, "(" + round + "/" + maxRounds + ")", x + 110, y, COLOR_TEXT_SECONDARY, false);
+    }
+
+    private int getScoreColor(int score) {
+        if (score >= 70) return COLOR_GREEN;
+        if (score >= 40) return COLOR_YELLOW;
+        return COLOR_RED;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // INPUT HANDLING
+    // ═══════════════════════════════════════════════════════════
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        // Block E key from closing
+        if (keyCode == 69) {
+            return true;
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        // Scroll zum Anpassen des Preises
+        if (selectedSlot >= 0) {
+            adjustPrice(delta > 0 ? 0.5 : -0.5);
+            updateButtonStates();
+            return true;
+        }
+        return super.mouseScrolled(mouseX, mouseY, delta);
     }
 }
