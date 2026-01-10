@@ -1474,7 +1474,8 @@ public class WorldMapScreen extends PopupScreen {
                 territoryNameInput.setValue(currentTerritoryName);
             }
             if (minecraft != null && minecraft.player != null) {
-                minecraft.player.sendSystemMessage(Component.literal("§eTerritory geladen: " + currentTerritoryName + " §7(" + existingTerritory.type.getDisplayName() + ")"));
+                String displayName = currentTerritoryName.isEmpty() ? "Unbenannt" : currentTerritoryName;
+                minecraft.player.sendSystemMessage(Component.literal("§eTerritory geladen: " + displayName));
             }
             return; // Don't paint, just load
         }
@@ -1482,19 +1483,22 @@ public class WorldMapScreen extends PopupScreen {
         // Determine new territory name
         String newTerritoryName = selectedType != null ? currentTerritoryName : null;
 
-        // Check if we're switching territories (by name)
-        String existingName = existingTerritory != null ? existingTerritory.name : null;
-        boolean territoryChanged = !java.util.Objects.equals(existingName, newTerritoryName);
+        // Normalize names for comparison (empty string = null)
+        String normalizedNewName = (newTerritoryName == null || newTerritoryName.isEmpty()) ? null : newTerritoryName;
+        String normalizedLastName = (lastPaintedTerritoryName == null || lastPaintedTerritoryName.isEmpty()) ? null : lastPaintedTerritoryName;
+
+        // Check if we're switching territories (compare with LAST painted, not server cache)
+        boolean territoryChanged = !java.util.Objects.equals(normalizedLastName, normalizedNewName);
 
         // Send packet to server to set/remove territory
         if (selectedType == null) {
             TerritoryNetworkHandler.sendToServer(new SetTerritoryPacket(chunkX, chunkZ));
             // Only show message if we changed territory name
             if (territoryChanged && minecraft != null && minecraft.player != null) {
-                if (existingName != null && !existingName.isEmpty()) {
-                    minecraft.player.sendSystemMessage(Component.literal("§7Verlassen: " + existingName));
-                    lastPaintedTerritoryName = null;
+                if (lastPaintedTerritoryName != null && !lastPaintedTerritoryName.isEmpty()) {
+                    minecraft.player.sendSystemMessage(Component.literal("§7Verlassen: " + lastPaintedTerritoryName));
                 }
+                lastPaintedTerritoryName = null;
             }
         } else {
             TerritoryNetworkHandler.sendToServer(new SetTerritoryPacket(chunkX, chunkZ, selectedType, currentTerritoryName));
@@ -1504,11 +1508,11 @@ public class WorldMapScreen extends PopupScreen {
                     ? currentTerritoryName
                     : "Unbenanntes Gebiet";
 
-                // Only show if we haven't just painted this territory
-                if (!displayName.equals(lastPaintedTerritoryName)) {
-                    minecraft.player.sendSystemMessage(Component.literal("§aBetreten: " + displayName));
-                    lastPaintedTerritoryName = displayName;
-                }
+                minecraft.player.sendSystemMessage(Component.literal("§aBetreten: " + displayName));
+                lastPaintedTerritoryName = displayName;
+            } else {
+                // Update lastPaintedTerritoryName even if no message shown
+                lastPaintedTerritoryName = normalizedNewName;
             }
         }
     }
