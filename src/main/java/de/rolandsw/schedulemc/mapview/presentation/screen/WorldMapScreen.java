@@ -502,8 +502,9 @@ public class WorldMapScreen extends PopupScreen {
 
         // Territory Editor: Paint territory on left click (only if not over UI elements)
         if (editMode && button == 0 && mouseY > this.top && mouseY < this.bottom) {
-            // Check if click is not on palette area
-            if (mouseX >= PALETTE_WIDTH + 20) {
+            // Check if click is not on palette area (palette is now at top, not left)
+            // Palette area: top 40-108px (PALETTE_TOP_MARGIN + 2 rows)
+            if (mouseY >= PALETTE_TOP_MARGIN + (PALETTE_BUTTON_SIZE + PALETTE_PADDING) * 2 + 10) {
                 paintTerritoryAt(mouseX, mouseY);
                 return true;
             }
@@ -1098,18 +1099,8 @@ public class WorldMapScreen extends PopupScreen {
         super.render(guiGraphics, mouseX, mouseY, delta);
 
         // Territory Tooltip (show name and color when hovering)
+        // Note: cursorCoordX/Z already calculated earlier in render() method
         if (editMode || mapOptions.showTerritories) {
-            // Calculate hovered chunk from cursor coordinates (already calculated earlier)
-            float cursorCoordX;
-            float cursorCoordZ;
-            if (this.oldNorth) {
-                cursorCoordX = this.mapCenterZ + (mouseX - this.centerX) / this.mapToGui;
-                cursorCoordZ = -this.mapCenterX - (mouseY - (this.top + this.centerY)) / this.mapToGui;
-            } else {
-                cursorCoordX = this.mapCenterX + (mouseX - this.centerX) / this.mapToGui;
-                cursorCoordZ = this.mapCenterZ + (mouseY - (this.top + this.centerY)) / this.mapToGui;
-            }
-
             int hoveredChunkX = ((int) Math.floor(cursorCoordX)) >> 4;
             int hoveredChunkZ = ((int) Math.floor(cursorCoordZ)) >> 4;
             long hoveredChunkKey = getChunkKey(hoveredChunkX, hoveredChunkZ);
