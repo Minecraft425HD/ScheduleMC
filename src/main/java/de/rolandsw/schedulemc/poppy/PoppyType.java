@@ -8,11 +8,10 @@ import net.minecraft.network.chat.Component;
  * Mohn-Sorten mit unterschiedlichen Eigenschaften
  */
 public enum PoppyType implements ProductionType {
-    AFGHANISCH(Component.translatable("enum.poppy_type.afghanisch").getString(), "§4", 50.0, 160, 1.2, 6, 1.5),  // Höchste Potenz, langsam
-    TUERKISCH(Component.translatable("enum.poppy_type.tuerkisch").getString(), "§6", 35.0, 120, 1.0, 6, 1.0),     // Ausgewogen
-    INDISCH(Component.translatable("enum.poppy_type.indisch").getString(), "§5", 20.0, 80, 0.8, 6, 0.8);         // Schnell, niedrige Potenz
+    AFGHANISCH("§4", 50.0, 160, 1.2, 6, 1.5),  // Höchste Potenz, langsam
+    TUERKISCH("§6", 35.0, 120, 1.0, 6, 1.0),   // Ausgewogen
+    INDISCH("§5", 20.0, 80, 0.8, 6, 0.8);      // Schnell, niedrige Potenz
 
-    private final String displayName;
     private final String colorCode;
     private final double seedPrice;
     private final int growthTicks;
@@ -20,9 +19,8 @@ public enum PoppyType implements ProductionType {
     private final int baseYield;
     private final double potencyMultiplier;
 
-    PoppyType(String displayName, String colorCode, double seedPrice, int growthTicks,
+    PoppyType(String colorCode, double seedPrice, int growthTicks,
               double waterConsumption, int baseYield, double potencyMultiplier) {
-        this.displayName = displayName;
         this.colorCode = colorCode;
         this.seedPrice = seedPrice;
         this.growthTicks = growthTicks;
@@ -32,7 +30,7 @@ public enum PoppyType implements ProductionType {
     }
 
     public String getDisplayName() {
-        return displayName;
+        return Component.translatable("enum.poppy_type." + this.name().toLowerCase()).getString();
     }
 
     public String getColorCode() {
@@ -40,7 +38,7 @@ public enum PoppyType implements ProductionType {
     }
 
     public String getColoredName() {
-        return colorCode + displayName;
+        return colorCode + getDisplayName();
     }
 
     public double getSeedPrice() {

@@ -8,26 +8,26 @@ import net.minecraft.network.chat.Component;
  * Abhängig vom Kochprozess
  */
 public enum CrackQuality implements ProductionQuality {
-    SCHLECHT(Component.translatable("enum.crack_quality.schlecht").getString(), "§c", 0, 0.6),        // Überkokt oder unterkokt
-    STANDARD(Component.translatable("enum.crack_quality.standard").getString(), "§7", 1, 1.0),        // Normaler Cook
-    GUT(Component.translatable("enum.crack_quality.gut").getString(), "§a", 2, 1.5),                  // Guter Cook
-    FISHSCALE(Component.translatable("enum.crack_quality.fishscale").getString(), "§b§l", 3, 2.5);    // Perfekter Cook, glänzend
+    SCHLECHT("§c", 0, 0.6),        // Überkokt oder unterkokt
+    STANDARD("§7", 1, 1.0),        // Normaler Cook
+    GUT("§a", 2, 1.5),             // Guter Cook
+    FISHSCALE("§b§l", 3, 2.5);     // Perfekter Cook, glänzend
 
-    private final String displayName;
     private final String colorCode;
     private final int level;
     private final double priceMultiplier;
 
-    CrackQuality(String displayName, String colorCode, int level, double priceMultiplier) {
-        this.displayName = displayName;
+    CrackQuality(String colorCode, int level, double priceMultiplier) {
         this.colorCode = colorCode;
         this.level = level;
         this.priceMultiplier = priceMultiplier;
     }
 
-    public String getDisplayName() { return displayName; }
+    public String getDisplayName() {
+        return Component.translatable("enum.crack_quality." + this.name().toLowerCase()).getString();
+    }
     public String getColorCode() { return colorCode; }
-    public String getColoredName() { return colorCode + displayName; }
+    public String getColoredName() { return colorCode + getDisplayName(); }
     public int getLevel() { return level; }
     public double getPriceMultiplier() { return priceMultiplier; }
 

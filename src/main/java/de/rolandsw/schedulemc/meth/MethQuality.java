@@ -7,26 +7,22 @@ import net.minecraft.network.chat.Component;
  * Meth-Qualitätsstufen (Breaking Bad inspiriert)
  */
 public enum MethQuality implements ProductionQuality {
-    STANDARD(Component.translatable("enum.meth_quality.standard").getString(), "§f", 0, 1.0, Component.translatable("enum.meth_quality.color.standard").getString()),      // Weißes Meth (niedrigste Qualität)
-    GUT(Component.translatable("enum.meth_quality.gut").getString(), "§e", 1, 2.0, Component.translatable("enum.meth_quality.color.gut").getString()),            // Gelbliches Meth
-    BLUE_SKY(Component.translatable("enum.meth_quality.blue_sky").getString(), "§b§l", 2, 5.0, Component.translatable("enum.meth_quality.color.blue_sky").getString());   // Blaues Meth (höchste Qualität - Heisenberg Style)
+    STANDARD("§f", 0, 1.0),      // Weißes Meth (niedrigste Qualität)
+    GUT("§e", 1, 2.0),           // Gelbliches Meth
+    BLUE_SKY("§b§l", 2, 5.0);    // Blaues Meth (höchste Qualität - Heisenberg Style)
 
-    private final String displayName;
     private final String colorCode;
     private final int level;
     private final double priceMultiplier;
-    private final String colorDescription;
 
-    MethQuality(String displayName, String colorCode, int level, double priceMultiplier, String colorDescription) {
-        this.displayName = displayName;
+    MethQuality(String colorCode, int level, double priceMultiplier) {
         this.colorCode = colorCode;
         this.level = level;
         this.priceMultiplier = priceMultiplier;
-        this.colorDescription = colorDescription;
     }
 
     public String getDisplayName() {
-        return displayName;
+        return Component.translatable("enum.meth_quality." + this.name().toLowerCase()).getString();
     }
 
     public String getColorCode() {
@@ -42,11 +38,11 @@ public enum MethQuality implements ProductionQuality {
     }
 
     public String getColorDescription() {
-        return colorDescription;
+        return Component.translatable("enum.meth_quality.color." + this.name().toLowerCase()).getString();
     }
 
     public String getColoredName() {
-        return colorCode + displayName;
+        return colorCode + getDisplayName();
     }
 
     @Override
