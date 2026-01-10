@@ -139,78 +139,115 @@ public abstract class AbstractPackagingTableBlockEntity extends BlockEntity impl
         // Erstelle das richtige Item basierend auf ItemType
         switch (itemType) {
             case "TOBACCO":
-                result = new ItemStack(de.rolandsw.schedulemc.tobacco.items.TobaccoItems.FERMENTED_VIRGINIA_LEAF.get(), count);
-                if (variant != null) {
-                    de.rolandsw.schedulemc.tobacco.items.FermentedTobaccoLeafItem.setType(result, variant);
-                }
-                if (quality != null) {
-                    de.rolandsw.schedulemc.tobacco.items.FermentedTobaccoLeafItem.setQuality(result, quality);
+                if (variant instanceof de.rolandsw.schedulemc.tobacco.TobaccoType tobaccoType &&
+                    quality instanceof de.rolandsw.schedulemc.tobacco.TobaccoQuality tobaccoQuality) {
+                    result = de.rolandsw.schedulemc.tobacco.items.FermentedTobaccoLeafItem.create(tobaccoType, tobaccoQuality, count);
+                } else {
+                    // Fallback with defaults
+                    result = de.rolandsw.schedulemc.tobacco.items.FermentedTobaccoLeafItem.create(
+                        de.rolandsw.schedulemc.tobacco.TobaccoType.VIRGINIA,
+                        de.rolandsw.schedulemc.tobacco.TobaccoQuality.GUT,
+                        count
+                    );
                 }
                 break;
 
             case "COCAINE":
-                result = de.rolandsw.schedulemc.coca.items.CocaineItem.create(count);
-                if (variant != null) {
-                    de.rolandsw.schedulemc.coca.items.CocaineItem.setType(result, variant);
-                }
-                if (quality != null) {
-                    de.rolandsw.schedulemc.coca.items.CocaineItem.setQuality(result, quality);
+                if (variant instanceof de.rolandsw.schedulemc.coca.CocaType cocaType &&
+                    quality instanceof de.rolandsw.schedulemc.tobacco.TobaccoQuality tobaccoQuality) {
+                    result = de.rolandsw.schedulemc.coca.items.CocaineItem.create(cocaType, tobaccoQuality, count);
+                } else {
+                    // Fallback with defaults
+                    result = de.rolandsw.schedulemc.coca.items.CocaineItem.create(
+                        de.rolandsw.schedulemc.coca.CocaType.BOLIVIANISCH,
+                        de.rolandsw.schedulemc.tobacco.TobaccoQuality.GUT,
+                        count
+                    );
                 }
                 break;
 
             case "CRACK":
-                result = de.rolandsw.schedulemc.coca.items.CrackRockItem.create(count);
-                if (variant != null) {
-                    de.rolandsw.schedulemc.coca.items.CrackRockItem.setType(result, variant);
-                }
-                if (quality != null) {
-                    de.rolandsw.schedulemc.coca.items.CrackRockItem.setQuality(result, quality);
+                if (variant instanceof de.rolandsw.schedulemc.coca.CocaType cocaType &&
+                    quality instanceof de.rolandsw.schedulemc.coca.CrackQuality crackQuality) {
+                    result = de.rolandsw.schedulemc.coca.items.CrackRockItem.create(cocaType, crackQuality, count);
+                } else {
+                    // Fallback with defaults
+                    result = de.rolandsw.schedulemc.coca.items.CrackRockItem.create(
+                        de.rolandsw.schedulemc.coca.CocaType.BOLIVIANISCH,
+                        de.rolandsw.schedulemc.coca.CrackQuality.STANDARD,
+                        count
+                    );
                 }
                 break;
 
             case "HEROIN":
-                result = de.rolandsw.schedulemc.poppy.items.HeroinItem.create(count);
-                if (variant != null) {
-                    de.rolandsw.schedulemc.poppy.items.HeroinItem.setType(result, variant);
-                }
-                if (quality != null) {
-                    de.rolandsw.schedulemc.poppy.items.HeroinItem.setQuality(result, quality);
+                if (variant instanceof de.rolandsw.schedulemc.poppy.PoppyType poppyType &&
+                    quality instanceof de.rolandsw.schedulemc.tobacco.TobaccoQuality tobaccoQuality) {
+                    result = de.rolandsw.schedulemc.poppy.items.HeroinItem.create(poppyType, tobaccoQuality, count);
+                } else {
+                    // Fallback with defaults
+                    result = de.rolandsw.schedulemc.poppy.items.HeroinItem.create(
+                        de.rolandsw.schedulemc.poppy.PoppyType.TUERKISCH,
+                        de.rolandsw.schedulemc.tobacco.TobaccoQuality.GUT,
+                        count
+                    );
                 }
                 break;
 
             case "METH":
-                result = de.rolandsw.schedulemc.meth.items.MethItem.create(count);
-                if (quality != null) {
-                    de.rolandsw.schedulemc.meth.items.MethItem.setQuality(result, quality);
+                if (quality instanceof de.rolandsw.schedulemc.meth.MethQuality methQuality) {
+                    result = de.rolandsw.schedulemc.meth.items.MethItem.create(methQuality, count);
+                } else {
+                    // Fallback with defaults
+                    result = de.rolandsw.schedulemc.meth.items.MethItem.create(
+                        de.rolandsw.schedulemc.meth.MethQuality.STANDARD,
+                        count
+                    );
                 }
                 break;
 
             case "MUSHROOM":
-                if (variant instanceof de.rolandsw.schedulemc.mushroom.MushroomType mushroomType) {
-                    result = de.rolandsw.schedulemc.mushroom.items.DriedMushroomItem.create(mushroomType, count);
-                    if (quality != null) {
-                        de.rolandsw.schedulemc.mushroom.items.DriedMushroomItem.setQuality(result, quality);
+                if (variant instanceof de.rolandsw.schedulemc.mushroom.MushroomType mushroomType &&
+                    quality instanceof de.rolandsw.schedulemc.tobacco.TobaccoQuality tobaccoQuality) {
+                    result = de.rolandsw.schedulemc.mushroom.items.DriedMushroomItem.create(mushroomType, tobaccoQuality, count);
+                } else {
+                    // Fallback - but mushroom type is required, so return empty if not available
+                    if (variant instanceof de.rolandsw.schedulemc.mushroom.MushroomType mushroomType) {
+                        result = de.rolandsw.schedulemc.mushroom.items.DriedMushroomItem.create(
+                            mushroomType,
+                            de.rolandsw.schedulemc.tobacco.TobaccoQuality.GUT,
+                            count
+                        );
                     }
                 }
                 break;
 
             case "TRIMMED_CANNABIS":
-                result = de.rolandsw.schedulemc.cannabis.items.TrimmedBudItem.create(count);
-                if (variant != null) {
-                    de.rolandsw.schedulemc.cannabis.items.TrimmedBudItem.setStrain(result, variant);
-                }
-                if (quality != null) {
-                    de.rolandsw.schedulemc.cannabis.items.TrimmedBudItem.setQuality(result, quality);
+                if (variant instanceof de.rolandsw.schedulemc.cannabis.CannabisStrain cannabisStrain &&
+                    quality instanceof de.rolandsw.schedulemc.cannabis.CannabisQuality cannabisQuality) {
+                    result = de.rolandsw.schedulemc.cannabis.items.TrimmedBudItem.create(cannabisStrain, cannabisQuality, count);
+                } else {
+                    // Fallback with defaults
+                    result = de.rolandsw.schedulemc.cannabis.items.TrimmedBudItem.create(
+                        de.rolandsw.schedulemc.cannabis.CannabisStrain.HYBRID,
+                        de.rolandsw.schedulemc.cannabis.CannabisQuality.MIDS,
+                        count
+                    );
                 }
                 break;
 
             case "CURED_CANNABIS":
-                result = de.rolandsw.schedulemc.cannabis.items.CuredBudItem.create(count);
-                if (variant != null) {
-                    de.rolandsw.schedulemc.cannabis.items.CuredBudItem.setStrain(result, variant);
-                }
-                if (quality != null) {
-                    de.rolandsw.schedulemc.cannabis.items.CuredBudItem.setQuality(result, quality);
+                if (variant instanceof de.rolandsw.schedulemc.cannabis.CannabisStrain cannabisStrain &&
+                    quality instanceof de.rolandsw.schedulemc.cannabis.CannabisQuality cannabisQuality) {
+                    result = de.rolandsw.schedulemc.cannabis.items.CuredBudItem.create(cannabisStrain, cannabisQuality, count, 0);
+                } else {
+                    // Fallback with defaults
+                    result = de.rolandsw.schedulemc.cannabis.items.CuredBudItem.create(
+                        de.rolandsw.schedulemc.cannabis.CannabisStrain.HYBRID,
+                        de.rolandsw.schedulemc.cannabis.CannabisQuality.MIDS,
+                        count,
+                        0
+                    );
                 }
                 break;
         }
