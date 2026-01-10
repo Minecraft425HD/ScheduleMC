@@ -17,7 +17,7 @@ public class ContactsAppScreen extends Screen {
     private static final int WIDTH = 200;
     private static final int HEIGHT = 240; // Reduziert von 320 (10% kleiner)
     private static final int BORDER_SIZE = 5; // Rahmen um das Smartphone
-    private static final int MARGIN_TOP = 15;
+    private static final int MARGIN_TOP = 5;
     private static final int MARGIN_BOTTOM = 60; // Mindestabstand vom Bildschirmrand
     private int leftPos;
     private int topPos;
@@ -33,11 +33,8 @@ public class ContactsAppScreen extends Screen {
 
         this.leftPos = (this.width - WIDTH) / 2;
 
-        // Zentriere vertikal mit Margin-Check
-        int centeredTop = (this.height - HEIGHT) / 2;
-        int minTop = MARGIN_TOP + BORDER_SIZE;
-        int maxTop = this.height - HEIGHT - BORDER_SIZE - MARGIN_BOTTOM;
-        this.topPos = Math.max(minTop, Math.min(centeredTop, maxTop));
+        // Positioniere oben mit Margin
+        this.topPos = MARGIN_TOP;
 
         // Zurück-Button
         addRenderableWidget(Button.builder(Component.translatable("gui.app.contacts.back"), button -> {

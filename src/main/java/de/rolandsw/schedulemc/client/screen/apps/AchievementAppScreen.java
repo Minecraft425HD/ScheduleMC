@@ -35,7 +35,7 @@ public class AchievementAppScreen extends Screen {
     private static final int WIDTH = 240;
     private static final int HEIGHT = 260;
     private static final int BORDER_SIZE = 5;
-    private static final int MARGIN_TOP = 15;
+    private static final int MARGIN_TOP = 5;
     private static final int MARGIN_BOTTOM = 60;
 
     // Views
@@ -69,10 +69,8 @@ public class AchievementAppScreen extends Screen {
 
         this.leftPos = (this.width - WIDTH) / 2;
 
-        int centeredTop = (this.height - HEIGHT) / 2;
-        int minTop = MARGIN_TOP + BORDER_SIZE;
-        int maxTop = this.height - HEIGHT - BORDER_SIZE - MARGIN_BOTTOM;
-        this.topPos = Math.max(minTop, Math.min(centeredTop, maxTop));
+        // Positioniere oben mit Margin
+        this.topPos = MARGIN_TOP;
 
         // Register listener for cache updates
         ClientAchievementCache.setUpdateListener(this::onCacheUpdated);

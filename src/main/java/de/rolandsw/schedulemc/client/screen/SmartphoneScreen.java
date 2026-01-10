@@ -28,8 +28,8 @@ public class SmartphoneScreen extends Screen {
     private static final int APP_SPACING = 15; // Guter Abstand zwischen Apps
     private static final int CLOSE_BUTTON_SIZE = 20;
     private static final int BORDER_SIZE = 5; // Rahmen um das Smartphone
-    private static final int MARGIN_TOP = 15; // Mindestabstand vom oberen Bildschirmrand
-    private static final int MARGIN_BOTTOM = 35; // Genug Platz für Hotbar
+    private static final int MARGIN_TOP = 5; // Mindestabstand vom oberen Bildschirmrand
+    private static final int MARGIN_BOTTOM = 50; // Genug Platz für Hotbar und UI-Elemente
     private static final int SCROLLBAR_WIDTH = 8; // Etwas breiter für bessere Klickbarkeit
     private static final int SCROLLBAR_MARGIN = 10; // Abstand zwischen Apps und Scrollbar
     private static final int VISIBLE_ROWS = 3; // Nur 3 Reihen sichtbar (6 Apps)
@@ -72,23 +72,8 @@ public class SmartphoneScreen extends Screen {
         // Zentriere das Smartphone horizontal
         this.leftPos = (this.width - PHONE_WIDTH) / 2;
 
-        // Zentriere das Smartphone vertikal mit Margin-Check
-        // Der Rahmen geht von (topPos - BORDER_SIZE) bis (topPos + PHONE_HEIGHT + BORDER_SIZE)
-
-        // Für Zentrierung: topPos = (height - PHONE_HEIGHT) / 2
-        int centeredTop = (this.height - PHONE_HEIGHT) / 2;
-
-        // Obere Grenze: Rahmen muss mindestens MARGIN_TOP vom oberen Rand sein
-        // topPos - BORDER_SIZE >= MARGIN_TOP → topPos >= MARGIN_TOP + BORDER_SIZE
-        int minTop = MARGIN_TOP + BORDER_SIZE;
-
-        // Untere Grenze: Rahmen muss mindestens MARGIN_BOTTOM vom unteren Rand sein
-        // topPos + PHONE_HEIGHT + BORDER_SIZE <= height - MARGIN_BOTTOM
-        // → topPos <= height - PHONE_HEIGHT - BORDER_SIZE - MARGIN_BOTTOM
-        int maxTop = this.height - PHONE_HEIGHT - BORDER_SIZE - MARGIN_BOTTOM;
-
-        // Wende Grenzen an
-        this.topPos = Math.max(minTop, Math.min(centeredTop, maxTop));
+        // Positioniere das Smartphone OBEN mit Margin
+        this.topPos = MARGIN_TOP;
 
         // Berechne maximalen Scroll-Offset
         // Gesamthöhe aller Reihen - sichtbare Höhe

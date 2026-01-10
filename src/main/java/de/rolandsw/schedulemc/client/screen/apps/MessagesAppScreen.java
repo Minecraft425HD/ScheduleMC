@@ -24,7 +24,7 @@ public class MessagesAppScreen extends Screen {
     private static final int WIDTH = 200;
     private static final int HEIGHT = 240;
     private static final int BORDER_SIZE = 5;
-    private static final int MARGIN_TOP = 15;
+    private static final int MARGIN_TOP = 5;
     private static final int MARGIN_BOTTOM = 60;
     private static final int CHAT_ITEM_HEIGHT = 50;
     private int leftPos;
@@ -43,11 +43,8 @@ public class MessagesAppScreen extends Screen {
 
         this.leftPos = (this.width - WIDTH) / 2;
 
-        // Zentriere vertikal mit Margin-Check
-        int centeredTop = (this.height - HEIGHT) / 2;
-        int minTop = MARGIN_TOP + BORDER_SIZE;
-        int maxTop = this.height - HEIGHT - BORDER_SIZE - MARGIN_BOTTOM;
-        this.topPos = Math.max(minTop, Math.min(centeredTop, maxTop));
+        // Positioniere oben mit Margin
+        this.topPos = MARGIN_TOP;
 
         // Load conversations
         if (minecraft != null && minecraft.player != null) {
