@@ -296,23 +296,40 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
         CustomNPCEntity npc = menu.getNpc();
         if (npc == null) return;
 
-        // Parse Item-Daten
-        String variantStr = PackagedDrugItem.getVariant(stack);
-        TobaccoType type = variantStr != null ? TobaccoType.valueOf(variantStr.split("\\.")[1]) : TobaccoType.VIRGINIA;
-
-        String qualityStr = PackagedDrugItem.getQuality(stack);
-        TobaccoQuality quality = qualityStr != null ? TobaccoQuality.valueOf(qualityStr.split("\\.")[1]) : TobaccoQuality.GUT;
-
+        // Get DrugType to handle different types correctly
+        DrugType drugType = PackagedDrugItem.getDrugType(stack);
         int weight = PackagedDrugItem.getWeight(stack);
 
-        // Berechne Preise
+        // Get NPC metrics
         NPCBusinessMetrics metrics = new NPCBusinessMetrics(npc);
         int reputation = metrics.getReputation(minecraft.player.getStringUUID());
         int satisfaction = metrics.getSatisfaction();
         DemandLevel demand = metrics.getDemand();
 
-        fairPrice = PriceCalculator.calculateFairPrice(type, quality, weight, demand, reputation, satisfaction);
-        npcTargetPrice = PriceCalculator.calculateIdealPrice(fairPrice);
+        // Calculate prices based on DrugType
+        if (drugType == DrugType.TOBACCO) {
+            // Tobacco-specific price calculation
+            String variantStr = PackagedDrugItem.getVariant(stack);
+            TobaccoType type = variantStr != null ? TobaccoType.valueOf(variantStr.split("\\.")[1]) : TobaccoType.VIRGINIA;
+
+            String qualityStr = PackagedDrugItem.getQuality(stack);
+            TobaccoQuality quality = qualityStr != null ? TobaccoQuality.valueOf(qualityStr.split("\\.")[1]) : TobaccoQuality.GUT;
+
+            fairPrice = PriceCalculator.calculateFairPrice(type, quality, weight, demand, reputation, satisfaction);
+            npcTargetPrice = PriceCalculator.calculateIdealPrice(fairPrice);
+        } else {
+            // Generic price calculation for other drugs (Cannabis, etc.)
+            double basePrice = PackagedDrugItem.calculatePrice(stack);
+
+            // Apply NPC modifiers
+            double demandMultiplier = demand.getPriceMultiplier();
+            double reputationMultiplier = 0.85 + (reputation / 100.0 * 0.35);
+            double satisfactionMultiplier = 0.80 + (satisfaction / 100.0 * 0.30);
+
+            fairPrice = basePrice * demandMultiplier * reputationMultiplier * satisfactionMultiplier;
+            npcTargetPrice = fairPrice * 0.85;
+        }
+
         minPrice = Math.max(1.0, npcTargetPrice * 0.5);
         maxPrice = fairPrice * 1.5;
 
@@ -458,9 +475,9 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
             if (!stack.isEmpty() && stack.getItem() instanceof PackagedDrugItem) {
                 int weight = PackagedDrugItem.getWeight(stack);
                 String variantStr = PackagedDrugItem.getVariant(stack);
-                String typeDisplay = variantStr != null ? variantStr.split("\\.")[1] : "Unknown";
+                String typeDisplay = variantStr != null && variantStr.contains(".") ? variantStr.split("\\.")[1] : "Unknown";
                 String qualityStr = PackagedDrugItem.getQuality(stack);
-                String qualityDisplay = qualityStr != null ? qualityStr.split("\\.")[1] : "";
+                String qualityDisplay = qualityStr != null && qualityStr.contains(".") ? qualityStr.split("\\.")[1] : "";
 
                 graphics.drawString(font, Component.translatable("gui.negotiation.selected_item",
                     weight, typeDisplay, qualityDisplay).getString(), x, y, COLOR_TEXT, false);
