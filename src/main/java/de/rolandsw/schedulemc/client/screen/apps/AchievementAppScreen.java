@@ -154,7 +154,7 @@ public class AchievementAppScreen extends Screen {
                 int y = btnY + (row * (btnHeight + 5));
 
                 addRenderableWidget(Button.builder(
-                    Component.literal(category.getEmoji() + " " + category.getDisplayName()),
+                    Component.literal(category.getEmoji() + " ").append(category.getDisplayName()),
                     button -> {
                         selectedCategory = cat;
                         currentView = ViewMode.CATEGORY;
@@ -275,7 +275,7 @@ public class AchievementAppScreen extends Screen {
         // Kategorie-Header
         guiGraphics.fill(leftPos + 10, startY, leftPos + WIDTH - 10, startY + 25, 0x44FFAA00);
         guiGraphics.drawCenteredString(this.font,
-            selectedCategory.getFormattedName(),
+            selectedCategory.getFormattedName().getString(),
             leftPos + WIDTH / 2, startY + 8, 0xFFFFFF);
 
         int listStartY = startY + 30;
@@ -374,7 +374,7 @@ public class AchievementAppScreen extends Screen {
             leftPos + WIDTH / 2, startY + 10, 0xFFFFFF);
 
         // Category
-        guiGraphics.drawCenteredString(this.font, "§7" + ach.getCategory().getFormattedName(),
+        guiGraphics.drawCenteredString(this.font, "§7" + ach.getCategory().getFormattedName().getString(),
             leftPos + WIDTH / 2, startY + 25, 0xAAAAAA);
 
         // Description
@@ -420,7 +420,7 @@ public class AchievementAppScreen extends Screen {
 
         // Tier Info
         guiGraphics.drawCenteredString(this.font,
-            Component.translatable("gui.app.achievement.difficulty", ach.getTier().getFormattedName()).getString(),
+            Component.translatable("gui.app.achievement.difficulty", ach.getTier().getFormattedName().getString()).getString(),
             leftPos + WIDTH / 2, startY + 180, 0xAAAAAA);
     }
 

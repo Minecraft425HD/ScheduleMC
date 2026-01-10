@@ -163,7 +163,7 @@ public class NPCLeisureTool extends Item {
                     .withStyle(ChatFormatting.GREEN)
                     .append(Component.literal(npc.getNpcName())
                         .withStyle(ChatFormatting.YELLOW))
-                    .append(Component.literal(" (" + npc.getNpcData().getNpcType().getDisplayName() + ")")
+                    .append(Component.literal(" (" + npc.getNpcData().getNpcType().getDisplayName().getString() + ")")
                         .withStyle(ChatFormatting.GRAY))
                     .append(Component.translatable("message.common.selected")
                         .withStyle(ChatFormatting.GREEN))
