@@ -28,7 +28,7 @@ public class ChatScreen extends Screen {
     private static final int WIDTH = 200;
     private static final int HEIGHT = 240;
     private static final int BORDER_SIZE = 5;
-    private static final int MARGIN_TOP = 15;
+    private static final int MARGIN_TOP = 5;
     private static final int MARGIN_BOTTOM = 60;
     private static final int MESSAGE_HEIGHT = 30;
     private int leftPos;

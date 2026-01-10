@@ -35,7 +35,7 @@ public class AchievementAppScreen extends Screen {
     private static final int WIDTH = 240;
     private static final int HEIGHT = 260;
     private static final int BORDER_SIZE = 5;
-    private static final int MARGIN_TOP = 15;
+    private static final int MARGIN_TOP = 5;
     private static final int MARGIN_BOTTOM = 60;
 
     // Views
