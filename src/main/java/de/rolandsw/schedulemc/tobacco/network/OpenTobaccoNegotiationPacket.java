@@ -2,8 +2,10 @@ package de.rolandsw.schedulemc.tobacco.network;
 
 import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
+import de.rolandsw.schedulemc.production.core.DrugType;
 import de.rolandsw.schedulemc.tobacco.business.NPCBusinessMetrics;
 import de.rolandsw.schedulemc.tobacco.business.NPCPurchaseDecision;
+import de.rolandsw.schedulemc.tobacco.business.NegotiationScoreCalculator;
 import de.rolandsw.schedulemc.tobacco.menu.TobaccoNegotiationMenu;
 import de.rolandsw.schedulemc.util.PacketHandler;
 import net.minecraft.network.FriendlyByteBuf;
@@ -49,12 +51,27 @@ public class OpenTobaccoNegotiationPacket {
                 return;
             }
 
+            // Prüfe Cooldown (1x pro Tag pro NPC)
+            boolean hasCooldown = false;
+            String cooldownKey = "LastTobaccoSale_" + player.getStringUUID();
+            if (npc.getNpcData().getCustomData().contains(cooldownKey)) {
+                long currentDay = player.level().getDayTime() / 24000;
+                long lastSaleDay = npc.getNpcData().getCustomData().getLong(cooldownKey);
+                hasCooldown = lastSaleDay >= currentDay;
+            }
+
             // Berechne Purchase Decision
             NPCBusinessMetrics metrics = new NPCBusinessMetrics(npc);
             metrics.updatePurchaseDecision(player);
             NPCPurchaseDecision decision = metrics.getLastPurchaseDecision();
 
-            // Öffne Negotiation GUI
+            // Berechne neuen Score
+            NegotiationScoreCalculator scoreCalculator = new NegotiationScoreCalculator();
+            scoreCalculator.calculate(npc, player, DrugType.TOBACCO, 25.0); // Geschätzter Preis
+
+            final boolean finalHasCooldown = hasCooldown;
+
+            // Öffne Negotiation GUI mit Cooldown-Status
             NetworkHooks.openScreen(player, new MenuProvider() {
                 @Override
                 public @NotNull Component getDisplayName() {
@@ -66,7 +83,10 @@ public class OpenTobaccoNegotiationPacket {
                 public AbstractContainerMenu createMenu(int containerId, @NotNull Inventory playerInventory, @NotNull Player player) {
                     return new TobaccoNegotiationMenu(containerId, playerInventory, npcEntityId);
                 }
-            }, buf -> buf.writeInt(npcEntityId));
+            }, buf -> {
+                buf.writeInt(npcEntityId);
+                buf.writeBoolean(finalHasCooldown);
+            });
 
             // Sende Purchase Decision zum Client (inkl. Wallet)
             if (decision != null) {
@@ -74,7 +94,7 @@ public class OpenTobaccoNegotiationPacket {
                     (int)decision.getTotalScore(),
                     decision.isWillingToBuy(),
                     decision.getDesiredAmount(),
-                    npc.getNpcData().getWallet()  // NPC Wallet hinzufügen
+                    npc.getNpcData().getWallet()
                 );
                 ModNetworking.sendToClient(syncPacket, player);
             }
