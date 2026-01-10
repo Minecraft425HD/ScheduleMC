@@ -63,19 +63,19 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
     private static final int INVENTORY_X = 8;
     private static final int INVENTORY_Y = 24;
     private static final int INVENTORY_WIDTH = 62;
-    private static final int INVENTORY_HEIGHT = 80;
+    private static final int INVENTORY_HEIGHT = 100;
 
     // NPC-Info-Bereich (rechts)
-    private static final int NPC_INFO_X = 78;
+    private static final int NPC_INFO_X = 80;
     private static final int NPC_INFO_Y = 24;
-    private static final int NPC_INFO_WIDTH = 200;
-    private static final int NPC_INFO_HEIGHT = 80;
+    private static final int NPC_INFO_WIDTH = 198;
+    private static final int NPC_INFO_HEIGHT = 100;
 
     // Slider-Bereich
     private static final int SLIDER_X = 8;
-    private static final int SLIDER_Y = 112;
+    private static final int SLIDER_Y = 132;
     private static final int SLIDER_WIDTH = 270;
-    private static final int SLIDER_HEIGHT = 50;
+    private static final int SLIDER_HEIGHT = 60;
 
     // Response-Bereich
     private static final int RESPONSE_Y = 198;
@@ -149,7 +149,7 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
         int y = this.topPos;
 
         // Preis-Buttons
-        int buttonY = y + SLIDER_Y + 35;
+        int buttonY = y + SLIDER_Y + 42;
         int buttonWidth = 35;
         int buttonHeight = 14;
         int centerX = x + (GUI_WIDTH / 2);
@@ -178,7 +178,7 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
         offerButton = addRenderableWidget(Button.builder(
             Component.translatable("gui.negotiation.button.offer"),
             btn -> makeOffer()
-        ).bounds(centerX - 40, y + RESPONSE_Y + 16, 80, 20).build());
+        ).bounds(centerX - 40, y + RESPONSE_Y + 32, 80, 20).build());
         offerButton.active = false;
 
         // Lade initiale NPC-Daten
@@ -384,7 +384,7 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
         graphics.fill(x, y, x + GUI_WIDTH, y + GUI_HEIGHT, COLOR_BACKGROUND);
 
         // Header
-        graphics.fill(x, y, x + GUI_WIDTH, y + 18, COLOR_HEADER);
+        graphics.fill(x, y, x + GUI_WIDTH, y + 20, COLOR_HEADER);
 
         // Inventar-Panel
         renderPanel(graphics, x + INVENTORY_X - 2, y + INVENTORY_Y - 2, INVENTORY_WIDTH + 4, INVENTORY_HEIGHT + 4);
@@ -434,7 +434,7 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
         String npcName = npc != null ? npc.getNpcName() : "NPC";
         String title = Component.translatable("gui.negotiation.title", npcName).getString();
         int titleWidth = font.width(title);
-        graphics.drawString(font, title, (GUI_WIDTH - titleWidth) / 2, 5, COLOR_TEXT, false);
+        graphics.drawString(font, title, (GUI_WIDTH - titleWidth) / 2, 6, COLOR_TEXT, false);
 
         // Inventar-Bereich
         renderInventorySection(graphics);
@@ -451,7 +451,7 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
 
     private void renderInventorySection(GuiGraphics graphics) {
         int x = INVENTORY_X;
-        int y = INVENTORY_Y + INVENTORY_HEIGHT + 2;
+        int y = INVENTORY_Y + INVENTORY_HEIGHT - 22;
 
         if (selectedSlot >= 0) {
             ItemStack stack = menu.getSelectedItem();
@@ -465,7 +465,7 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
                 graphics.drawString(font, Component.translatable("gui.negotiation.selected_item",
                     weight, typeDisplay, qualityDisplay).getString(), x, y, COLOR_TEXT, false);
                 graphics.drawString(font, Component.translatable("gui.negotiation.fair_price",
-                    String.format("%.2f", fairPrice)).getString(), x, y + 10, COLOR_TEXT_SECONDARY, false);
+                    String.format("%.2f", fairPrice)).getString(), x, y + 11, COLOR_TEXT_SECONDARY, false);
             }
         } else {
             graphics.drawString(font, Component.translatable("gui.negotiation.select_item").getString(),
@@ -483,38 +483,38 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
         graphics.drawString(font, personalityStr + " · " + traitStr, x, y, COLOR_TEXT, false);
 
         // Suchtlevel
-        y += 12;
+        y += 14;
         String addictionStr = Component.translatable("gui.negotiation.addiction", addictionLevel).getString();
         graphics.drawString(font, addictionStr, x, y, COLOR_TEXT_SECONDARY, false);
-        renderProgressBar(graphics, x + 80, y, 80, 8, addictionLevel / 100.0f, COLOR_RED);
+        renderProgressBar(graphics, x + 90, y, 100, 8, addictionLevel / 100.0f, COLOR_RED);
 
         // Wallet
-        y += 12;
+        y += 14;
         graphics.drawString(font, Component.translatable("gui.negotiation.wallet", walletBalance).getString(),
             x, y, COLOR_TEXT_SECONDARY, false);
 
         // Beziehung
-        y += 12;
+        y += 14;
         String relationStr = (relationLevel >= 0 ? "+" : "") + relationLevel;
         graphics.drawString(font, Component.translatable("gui.negotiation.relation", relationStr).getString(),
             x, y, COLOR_TEXT_SECONDARY, false);
 
         // Score
-        y += 14;
+        y += 16;
         int score = scoreData != null ? scoreData.getTotalScore() : 50;
         graphics.drawString(font, Component.translatable("gui.negotiation.score").getString(), x, y, COLOR_TEXT, false);
-        renderProgressBar(graphics, x + 50, y, 100, 10, score / 100.0f, getScoreColor(score));
-        graphics.drawString(font, score + "/100", x + 155, y, COLOR_TEXT, false);
+        renderProgressBar(graphics, x + 60, y, 105, 10, score / 100.0f, getScoreColor(score));
+        graphics.drawString(font, score + "/100", x + 168, y, COLOR_TEXT, false);
 
         // Risiko
-        y += 14;
+        y += 16;
         int risk = scoreData != null ? scoreData.getAbortRisk() : 20;
         graphics.drawString(font, Component.translatable("gui.negotiation.risk").getString(), x, y, COLOR_TEXT_SECONDARY, false);
-        renderProgressBar(graphics, x + 50, y, 60, 8, risk / 100.0f, COLOR_RED);
-        graphics.drawString(font, risk + "%", x + 115, y, COLOR_TEXT_SECONDARY, false);
+        renderProgressBar(graphics, x + 60, y, 70, 8, risk / 100.0f, COLOR_RED);
+        graphics.drawString(font, risk + "%", x + 135, y, COLOR_TEXT_SECONDARY, false);
 
         // Stimmung
-        y += 12;
+        y += 14;
         renderMoodIndicator(graphics, x, y);
     }
 
@@ -543,13 +543,13 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
             graphics.fill(sliderX + playerPos - 2, sliderY - 4, sliderX + playerPos + 2, sliderY + 16, COLOR_TEXT);
 
             // Preis-Labels
-            graphics.drawString(font, String.format("%.0f", minPrice), sliderX, y + 4, COLOR_TEXT_SECONDARY, false);
-            graphics.drawString(font, String.format("%.0f", maxPrice), sliderX + sliderWidth - 20, y + 4, COLOR_TEXT_SECONDARY, false);
+            graphics.drawString(font, String.format("%.0f", minPrice), sliderX, y + 6, COLOR_TEXT_SECONDARY, false);
+            graphics.drawString(font, String.format("%.0f", maxPrice), sliderX + sliderWidth - 20, y + 6, COLOR_TEXT_SECONDARY, false);
 
             // Aktueller Preis (zentriert)
             String priceStr = String.format("%.2f", currentPrice);
             int priceWidth = font.width(priceStr);
-            graphics.drawString(font, priceStr, (GUI_WIDTH - priceWidth) / 2, y + 35, COLOR_TEXT, false);
+            graphics.drawString(font, priceStr, (GUI_WIDTH - priceWidth) / 2, y + 40, COLOR_TEXT, false);
         } else {
             graphics.drawString(font, Component.translatable("gui.negotiation.select_first").getString(),
                 sliderX, sliderY + 2, COLOR_TEXT_SECONDARY, false);
@@ -615,7 +615,7 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
         float mood = negotiationState != null ? negotiationState.getMoodPercent() : 100;
 
         // Stimmungs-Leiste
-        int barWidth = 80;
+        int barWidth = 100;
         graphics.drawString(font, "\uD83D\uDE0A", x, y, COLOR_GREEN, false); // Happy emoji
         graphics.fill(x + 12, y + 2, x + 12 + barWidth, y + 8, COLOR_SLIDER_BG);
 
@@ -626,7 +626,7 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
         graphics.drawString(font, "\uD83D\uDE21", x + 14 + barWidth, y, COLOR_RED, false); // Angry emoji
 
         // Runden-Anzeige
-        graphics.drawString(font, "(" + round + "/" + maxRounds + ")", x + 110, y, COLOR_TEXT_SECONDARY, false);
+        graphics.drawString(font, "(" + round + "/" + maxRounds + ")", x + 130, y, COLOR_TEXT_SECONDARY, false);
     }
 
     private int getScoreColor(int score) {
