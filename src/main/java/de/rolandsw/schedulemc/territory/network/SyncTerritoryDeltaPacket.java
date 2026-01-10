@@ -100,7 +100,7 @@ public class SyncTerritoryDeltaPacket {
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
-            // Client-seitig: Update territoryCache in TerritoryMapEditorScreen
+            // Client-seitig: Update territoryCache in WorldMapScreen
             if (deltaType == DeltaType.SET) {
                 SyncTerritoriesPacket.TerritoryClientCache.updateSingle(
                     chunkKey,

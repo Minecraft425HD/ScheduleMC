@@ -1,6 +1,6 @@
 package de.rolandsw.schedulemc.territory.network;
 
-import de.rolandsw.schedulemc.client.screen.TerritoryMapEditorScreen;
+import de.rolandsw.schedulemc.mapview.presentation.screen.WorldMapScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
@@ -10,7 +10,7 @@ import net.minecraftforge.network.NetworkEvent;
 import java.util.function.Supplier;
 
 /**
- * Öffnet den Territory Map Editor auf dem Client
+ * Öffnet den Territory Map Editor (WorldMapScreen mit editMode=true) auf dem Client
  */
 public class OpenMapEditorPacket {
 
@@ -29,7 +29,7 @@ public class OpenMapEditorPacket {
         ctx.get().enqueueWork(() -> {
             DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
                 Minecraft mc = Minecraft.getInstance();
-                mc.setScreen(new TerritoryMapEditorScreen());
+                mc.setScreen(new WorldMapScreen(null, true));
             });
         });
         ctx.get().setPacketHandled(true);
