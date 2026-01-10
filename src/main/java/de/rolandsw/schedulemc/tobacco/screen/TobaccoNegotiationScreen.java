@@ -56,8 +56,8 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
     // LAYOUT CONSTANTS
     // ═══════════════════════════════════════════════════════════
 
-    private static final int GUI_WIDTH = 256;
-    private static final int GUI_HEIGHT = 220;
+    private static final int GUI_WIDTH = 286;
+    private static final int GUI_HEIGHT = 270;
 
     // Inventar-Bereich (links)
     private static final int INVENTORY_X = 8;
@@ -68,17 +68,17 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
     // NPC-Info-Bereich (rechts)
     private static final int NPC_INFO_X = 78;
     private static final int NPC_INFO_Y = 24;
-    private static final int NPC_INFO_WIDTH = 170;
+    private static final int NPC_INFO_WIDTH = 200;
     private static final int NPC_INFO_HEIGHT = 80;
 
     // Slider-Bereich
     private static final int SLIDER_X = 8;
     private static final int SLIDER_Y = 112;
-    private static final int SLIDER_WIDTH = 240;
+    private static final int SLIDER_WIDTH = 270;
     private static final int SLIDER_HEIGHT = 50;
 
     // Response-Bereich
-    private static final int RESPONSE_Y = 168;
+    private static final int RESPONSE_Y = 198;
 
     // Farben
     private static final int COLOR_BACKGROUND = 0xFF1A1A1A;
