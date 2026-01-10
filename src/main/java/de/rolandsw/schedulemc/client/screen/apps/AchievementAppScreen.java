@@ -69,10 +69,8 @@ public class AchievementAppScreen extends Screen {
 
         this.leftPos = (this.width - WIDTH) / 2;
 
-        int centeredTop = (this.height - HEIGHT) / 2;
-        int minTop = MARGIN_TOP + BORDER_SIZE;
-        int maxTop = this.height - HEIGHT - BORDER_SIZE - MARGIN_BOTTOM;
-        this.topPos = Math.max(minTop, Math.min(centeredTop, maxTop));
+        // Positioniere oben mit Margin
+        this.topPos = MARGIN_TOP;
 
         // Register listener for cache updates
         ClientAchievementCache.setUpdateListener(this::onCacheUpdated);
