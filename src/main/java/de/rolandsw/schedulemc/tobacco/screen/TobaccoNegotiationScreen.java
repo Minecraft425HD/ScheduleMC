@@ -251,6 +251,16 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
     }
 
     /**
+     * Wird vom PurchaseDecisionSyncPacket aufgerufen, um die Kaufbereitschaft anzuzeigen
+     * (Kompatibilität mit altem Packet-System)
+     */
+    public void updatePurchaseDecision(int score, boolean willing, int amount, int wallet) {
+        // Aktualisiere lokale Werte basierend auf dem alten Packet-Format
+        this.walletBalance = wallet;
+        // Score wird im neuen System über updateScoreData gesetzt
+    }
+
+    /**
      * Setzt den Cooldown-Status
      */
     public void setCooldown(boolean cooldown) {
