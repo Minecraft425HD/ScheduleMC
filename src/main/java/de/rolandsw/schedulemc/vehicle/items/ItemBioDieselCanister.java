@@ -26,14 +26,14 @@ import java.util.List;
 
 public class ItemBioDieselCanister extends Item {
 
-    private static final int MAX_FUEL = 150;
+    private static final int MAX_FUEL = 1000;
 
     public ItemBioDieselCanister() {
         super(new Item.Properties().stacksTo(1));
     }
 
     /**
-     * Creates a pre-filled ItemStack with 150 mB of Bio-Diesel
+     * Creates a pre-filled ItemStack with 1000 mB of Diesel
      */
     public static ItemStack createPreFilledStack() {
         ItemStack stack = new ItemStack(ModItems.BIO_DIESEL_CANISTER.get());
@@ -166,6 +166,56 @@ public class ItemBioDieselCanister extends Item {
         return true;
     }
 
+    /**
+     * Gets the current fuel amount in the canister (in mB)
+     */
+    public static int getFuel(ItemStack stack) {
+        if (!stack.hasTag()) {
+            return 0;
+        }
+        CompoundTag comp = stack.getTag();
+        if (!comp.contains("fuel")) {
+            return 0;
+        }
+        FluidStack fluidStack = FluidStack.loadFluidStackFromNBT(comp.getCompound("fuel"));
+        if (fluidStack == null || fluidStack.isEmpty()) {
+            return 0;
+        }
+        return fluidStack.getAmount();
+    }
+
+    /**
+     * Consumes fuel from the canister
+     * @return true if enough fuel was available
+     */
+    public static boolean consumeFuel(ItemStack stack, int amount) {
+        if (!stack.hasTag()) {
+            return false;
+        }
+        CompoundTag comp = stack.getTag();
+        if (!comp.contains("fuel")) {
+            return false;
+        }
+        FluidStack fluidStack = FluidStack.loadFluidStackFromNBT(comp.getCompound("fuel"));
+        if (fluidStack == null || fluidStack.isEmpty()) {
+            return false;
+        }
+        if (fluidStack.getAmount() < amount) {
+            return false;
+        }
+
+        fluidStack.setAmount(fluidStack.getAmount() - amount);
+
+        if (fluidStack.getAmount() <= 0) {
+            // Einweg-Kanister: Verschwindet nach vollständigem Entleeren
+            stack.shrink(1);
+        } else {
+            comp.put("fuel", fluidStack.writeToNBT(new CompoundTag()));
+        }
+
+        return true;
+    }
+
     public static boolean fuelFluidHandler(ItemStack canister, IFluidHandler handler) {
         if (!canister.hasTag()) {
             return false;
@@ -190,7 +240,8 @@ public class ItemBioDieselCanister extends Item {
         stack.setAmount(stack.getAmount() - fueledAmount);
 
         if (stack.getAmount() <= 0) {
-            comp.put("fuel", new CompoundTag());
+            // Einweg-Kanister: Verschwindet nach vollständigem Entleeren
+            canister.shrink(1);
             return true;
         }
 

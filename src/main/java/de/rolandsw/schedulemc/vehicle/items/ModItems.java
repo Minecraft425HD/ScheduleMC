@@ -102,8 +102,6 @@ public class ModItems {
     public static final RegistryObject<ItemSpawnVehicle> SPAWN_VEHICLE_WHITE_SUV = ITEM_REGISTER.register("suv", () -> new ItemSpawnVehicle(PartRegistry.OFFROAD_CHASSIS));
     public static final RegistryObject<ItemSpawnVehicle> SPAWN_VEHICLE_WHITE_SPORT = ITEM_REGISTER.register("sports_car", () -> new ItemSpawnVehicle(PartRegistry.LUXUS_CHASSIS));
 
-    public static final RegistryObject<VehicleBucketItem> BIO_DIESEL_BUCKET = ITEM_REGISTER.register("diesel_bucket", () -> new VehicleBucketItem(ModFluids.BIO_DIESEL.get()));
-
     public static final RegistryObject<Item> FUEL_STATION = ITEM_REGISTER.register("fuel_station", () -> ModBlocks.FUEL_STATION.get().toItem());
     public static final RegistryObject<Item> GARAGE = ITEM_REGISTER.register("garage", () -> ModBlocks.GARAGE.get().toItem());
 

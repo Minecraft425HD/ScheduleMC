@@ -1,25 +1,15 @@
 package de.rolandsw.schedulemc.vehicle.items;
-import de.rolandsw.schedulemc.config.ModConfigHandler;
 
-import de.rolandsw.schedulemc.vehicle.Main;
-import de.rolandsw.schedulemc.vehicle.blocks.ModBlocks;
-import de.rolandsw.schedulemc.vehicle.blocks.tileentity.TileEntityFuelStation;
-import de.rolandsw.schedulemc.vehicle.sounds.ModSounds;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -32,44 +22,7 @@ public class ItemCanister extends Item {
 
     @Override
     public InteractionResult useOn(UseOnContext context) {
-        if (!context.getPlayer().isShiftKeyDown()) {
-            return super.useOn(context);
-        }
-
-        BlockState state = context.getLevel().getBlockState(context.getClickedPos());
-
-        BlockEntity te;
-
-        if (state.getBlock().equals(ModBlocks.FUEL_STATION_TOP.get())) {
-            te = context.getLevel().getBlockEntity(context.getClickedPos().below());
-        } else {
-            te = context.getLevel().getBlockEntity(context.getClickedPos());
-        }
-
-        if (te == null) {
-            return super.useOn(context);
-        }
-
-        if (te instanceof TileEntityFuelStation fuelStation) {
-            if (fuelStation.hasTrade()) {
-                return super.useOn(context);
-            }
-            boolean success = fillCanister(context.getPlayer().getItemInHand(context.getHand()), fuelStation);
-            if (success) {
-                ModSounds.playSound(SoundEvents.BREWING_STAND_BREW, context.getLevel(), context.getClickedPos(), null, SoundSource.BLOCKS);
-            }
-            return InteractionResult.SUCCESS;
-        }
-
-        if (te instanceof IFluidHandler) {
-            IFluidHandler handler = (IFluidHandler) te;
-
-            boolean success = fuelFluidHandler(context.getPlayer().getItemInHand(context.getHand()), handler);
-            if (success) {
-                ModSounds.playSound(SoundEvents.BREWING_STAND_BREW, context.getLevel(), context.getClickedPos(), null, SoundSource.BLOCKS);
-            }
-            return InteractionResult.SUCCESS;
-        }
+        // Leerer Kanister ist nicht wiederauffüllbar (Einweg-System)
         return super.useOn(context);
     }
 
@@ -104,86 +57,6 @@ public class ItemCanister extends Item {
     private void addInfo(String fluid, int amount, List<Component> tooltip) {
         tooltip.add(Component.translatable("canister.fluid", Component.literal(fluid).withStyle(ChatFormatting.DARK_GRAY)).withStyle(ChatFormatting.GRAY));
         tooltip.add(Component.translatable("canister.amount", Component.literal(String.valueOf(amount)).withStyle(ChatFormatting.DARK_GRAY)).withStyle(ChatFormatting.GRAY));
-    }
-
-    public static boolean fillCanister(ItemStack canister, IFluidHandler handler) {
-        CompoundTag comp = canister.getOrCreateTag();
-
-        FluidStack fluid = null;
-
-        if (comp.contains("fuel")) {
-            fluid = FluidStack.loadFluidStackFromNBT(comp.getCompound("fuel"));
-        }
-
-        int maxAmount = ModConfigHandler.VEHICLE_SERVER.canisterMaxFuel.get();
-
-        if (fluid != null) {
-            maxAmount = ModConfigHandler.VEHICLE_SERVER.canisterMaxFuel.get() - fluid.getAmount();
-        }
-
-        if (maxAmount <= 0) {
-            return false;
-        }
-
-        FluidStack resultSim = handler.drain(maxAmount, IFluidHandler.FluidAction.SIMULATE);
-        if (resultSim.getAmount() <= 0) {
-            return false;
-        }
-
-        if (fluid != null && !fluid.isEmpty() && !resultSim.getFluid().equals(fluid.getFluid())) {
-            return false;
-        }
-
-        FluidStack result = handler.drain(maxAmount, IFluidHandler.FluidAction.EXECUTE);
-
-        if (result.isEmpty()) {
-            return false;
-        }
-
-        if (fluid == null || fluid.isEmpty()) {
-            comp.put("fuel", result.writeToNBT(new CompoundTag()));
-            return true;
-        }
-
-        if (result.getFluid().equals(fluid.getFluid())) {
-            fluid.setAmount(fluid.getAmount() + result.getAmount());
-            comp.put("fuel", fluid.writeToNBT(new CompoundTag()));
-        }
-        return true;
-    }
-
-    public static boolean fuelFluidHandler(ItemStack canister, IFluidHandler handler) {
-        if (!canister.hasTag()) {
-            return false;
-        }
-
-        CompoundTag comp = canister.getTag();
-
-        if (!comp.contains("fuel")) {
-            return false;
-        }
-
-        CompoundTag fluid = comp.getCompound("fuel");
-
-        FluidStack stack = FluidStack.loadFluidStackFromNBT(fluid);
-
-        if (stack == null || stack.isEmpty()) {
-            return false;
-        }
-
-        int fueledAmount = handler.fill(stack, IFluidHandler.FluidAction.EXECUTE);
-
-        stack.setAmount(stack.getAmount() - fueledAmount);
-
-        if (stack.getAmount() <= 0) {
-            comp.put("fuel", new CompoundTag());
-            return true;
-        }
-
-        CompoundTag f = new CompoundTag();
-        stack.writeToNBT(f);
-        comp.put("fuel", f);
-        return true;
     }
 
 }

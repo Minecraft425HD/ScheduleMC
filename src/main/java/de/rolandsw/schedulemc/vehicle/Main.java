@@ -119,10 +119,8 @@ public class Main {
             CommonRegistry.registerMessage(SIMPLE_CHANNEL, 4, MessageStartFuel.class);
             CommonRegistry.registerMessage(SIMPLE_CHANNEL, 6, MessageSyncTileEntity.class);
             CommonRegistry.registerMessage(SIMPLE_CHANNEL, 10, MessageVehicleHorn.class);
-            CommonRegistry.registerMessage(SIMPLE_CHANNEL, 12, MessageFuelStationAdminAmount.class);
             CommonRegistry.registerMessage(SIMPLE_CHANNEL, 13, MessageCenterVehicle.class);
             CommonRegistry.registerMessage(SIMPLE_CHANNEL, 14, MessageCenterVehicleClient.class);
-            CommonRegistry.registerMessage(SIMPLE_CHANNEL, 15, MessageEditLicensePlate.class);
             CommonRegistry.registerMessage(SIMPLE_CHANNEL, 16, MessageGaragePayment.class);
             CommonRegistry.registerMessage(SIMPLE_CHANNEL, 17, MessageGarageUpgrade.class);
         }, "commonSetup");
@@ -147,8 +145,6 @@ public class Main {
             ClientRegistry.<ContainerVehicle, GuiVehicle>registerScreen(Main.VEHICLE_CONTAINER_TYPE.get(), GuiVehicle::new);
             ClientRegistry.<ContainerVehicleInventory, GuiVehicleInventory>registerScreen(Main.VEHICLE_INVENTORY_CONTAINER_TYPE.get(), GuiVehicleInventory::new);
             ClientRegistry.<ContainerFuelStation, GuiFuelStation>registerScreen(Main.FUEL_STATION_CONTAINER_TYPE.get(), GuiFuelStation::new);
-            ClientRegistry.<ContainerFuelStationAdmin, GuiFuelStationAdmin>registerScreen(Main.FUEL_STATION_ADMIN_CONTAINER_TYPE.get(), GuiFuelStationAdmin::new);
-            ClientRegistry.<ContainerLicensePlate, GuiLicensePlate>registerScreen(Main.LICENSE_PLATE_CONTAINER_TYPE.get(), GuiLicensePlate::new);
             ClientRegistry.<ContainerGarage, GuiGarage>registerScreen(Main.GARAGE_CONTAINER_TYPE.get(), GuiGarage::new);
 
             MinecraftForge.EVENT_BUS.register(new RenderEvents());
@@ -221,27 +217,8 @@ public class Main {
     public static final RegistryObject<MenuType<ContainerFuelStation>> FUEL_STATION_CONTAINER_TYPE = MENU_TYPE_REGISTER.register("fuel_station", () ->
             IForgeMenuType.create(new ContainerFactoryTileEntity((ContainerFactoryTileEntity.ContainerCreator<ContainerFuelStation, TileEntityFuelStation>) ContainerFuelStation::new))
     );
-    public static final RegistryObject<MenuType<ContainerFuelStationAdmin>> FUEL_STATION_ADMIN_CONTAINER_TYPE = MENU_TYPE_REGISTER.register("fuel_station_admin", () ->
-            IForgeMenuType.create(new ContainerFactoryTileEntity((ContainerFactoryTileEntity.ContainerCreator<ContainerFuelStationAdmin, TileEntityFuelStation>) ContainerFuelStationAdmin::new))
-    );
     public static final RegistryObject<MenuType<ContainerGarage>> GARAGE_CONTAINER_TYPE = MENU_TYPE_REGISTER.register("garage", () ->
             IForgeMenuType.create((windowId, inv, data) -> new ContainerGarage(windowId, inv, data))
-    );
-    public static final RegistryObject<MenuType<ContainerLicensePlate>> LICENSE_PLATE_CONTAINER_TYPE = MENU_TYPE_REGISTER.register("license_plate", () ->
-            IForgeMenuType.create((windowId, inv, data) -> {
-                ItemStack licensePlate = null;
-                for (InteractionHand hand : InteractionHand.values()) {
-                    ItemStack stack = inv.player.getItemInHand(hand);
-                    if (stack.getItem() instanceof ItemLicensePlate) {
-                        licensePlate = stack;
-                        break;
-                    }
-                }
-                if (licensePlate != null) {
-                    return new ContainerLicensePlate(windowId, licensePlate);
-                }
-                return null;
-            })
     );
 
     private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_REGISTER = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, Main.MODID);

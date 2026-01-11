@@ -1,7 +1,7 @@
 package de.rolandsw.schedulemc.coca.blocks;
 
 import de.rolandsw.schedulemc.coca.blockentity.MediumExtractionVatBlockEntity;
-import de.rolandsw.schedulemc.coca.items.DieselCanisterItem;
+import de.rolandsw.schedulemc.vehicle.items.ItemBioDieselCanister;
 import de.rolandsw.schedulemc.coca.items.FreshCocaLeafItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -55,8 +55,8 @@ public class MediumExtractionVatBlock extends Block implements EntityBlock {
         ItemStack handStack = player.getItemInHand(hand);
 
         // 1. Diesel einfüllen
-        if (handStack.getItem() instanceof DieselCanisterItem) {
-            int dieselInCanister = DieselCanisterItem.getDieselAmount(handStack);
+        if (handStack.getItem() instanceof ItemBioDieselCanister) {
+            int dieselInCanister = ItemBioDieselCanister.getFuel(handStack);
             if (dieselInCanister <= 0) {
                 player.displayClientMessage(Component.translatable("message.medium_extraction_vat.canister_empty"), true);
                 return InteractionResult.FAIL;
@@ -73,7 +73,7 @@ public class MediumExtractionVatBlock extends Block implements EntityBlock {
 
             int toAdd = Math.min(dieselInCanister, space);
             vatBE.addDiesel(toAdd);
-            DieselCanisterItem.consumeDiesel(handStack, toAdd);
+            ItemBioDieselCanister.consumeFuel(handStack, toAdd);
 
             player.displayClientMessage(Component.translatable("message.medium_extraction_vat.diesel_added", vatBE.getDieselLevel(), maxDiesel), true);
 

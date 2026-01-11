@@ -50,11 +50,8 @@ public class CocaItems {
             ITEMS.register("cocaine", CocaineItem::new);
 
     // ═══════════════════════════════════════════════════════════
-    // DIESEL-KANISTER (für Extraktionswanne)
+    // DIESEL-KANISTER: Nutzt jetzt Vehicle-System ItemBioDieselCanister
     // ═══════════════════════════════════════════════════════════
-
-    public static final RegistryObject<Item> DIESEL_CANISTER =
-            ITEMS.register("diesel_canister", DieselCanisterItem::new);
 
     // ═══════════════════════════════════════════════════════════
     // CRACK (Gekochtes Kokain)

@@ -12,8 +12,7 @@ public class ModRecipes {
     private static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS =
         DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, Main.MODID);
 
-    public static final RegistryObject<RecipeSerializer<BioDieselCanisterRecipe>> BIO_DIESEL_CANISTER_SERIALIZER =
-        RECIPE_SERIALIZERS.register("bio_diesel_canister", BioDieselCanisterRecipe.Serializer::new);
+    // Keine Vehicle-spezifischen Rezepte mehr benötigt
 
     public static void init() {
         RECIPE_SERIALIZERS.register(FMLJavaModLoadingContext.get().getModEventBus());

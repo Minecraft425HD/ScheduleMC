@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.vehicle.vehicle;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.VehicleFactory;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartRegistry;
+import de.rolandsw.schedulemc.vehicle.items.ItemLicensePlate;
 import de.rolandsw.schedulemc.vehicle.items.ItemSpawnVehicle;
 import de.rolandsw.schedulemc.vehicle.items.ModItems;
 import de.rolandsw.schedulemc.economy.EconomyManager;
@@ -165,7 +166,13 @@ public class VehiclePurchaseHandler {
 
         // Füge Tank und Lizenzplatte hinzu
         parts.add(new ItemStack(ModItems.TANK_15L.get()));
-        parts.add(new ItemStack(ModItems.LICENSE_PLATE.get()));
+
+        // Generiere Auto-Kennzeichen
+        ItemStack licensePlate = new ItemStack(ModItems.LICENSE_PLATE.get());
+        String plateText = generateLicensePlateText(player, (ServerLevel) level);
+        ItemLicensePlate.setText(licensePlate, plateText);
+        parts.add(licensePlate);
+
         parts.add(new ItemStack(ModItems.LICENSE_PLATE_HOLDER.get()));
 
         // Erstelle Auto mit VehicleFactory (wie in ItemSpawnVehicle)
@@ -204,5 +211,71 @@ public class VehiclePurchaseHandler {
     public static void onVehicleDestroyed(UUID vehicleUUID) {
         VehicleSpawnRegistry.releaseSpawnPoint(vehicleUUID);
         VehicleSpawnRegistry.saveIfNeeded();
+    }
+
+    /**
+     * Generiert Kennzeichen-Text basierend auf Spielername
+     * Format: XXX-YY
+     * XXX = 3 Anfangsbuchstaben des Spielernamens
+     * YY = Fahrzeug-Nummer (01-99), mit Offset bei gleichem Präfix
+     *
+     * Beispiele:
+     * - Minecraft425HD (1. Auto): MIN-01
+     * - Minecraft425HD (2. Auto): MIN-02
+     * - MinecraftSteve (1. Auto, gleicher Präfix): MIN-10
+     */
+    private static String generateLicensePlateText(Player player, ServerLevel level) {
+        // Extrahiere Präfix aus Spielername (3 Buchstaben)
+        String prefix = extractPrefix(player.getName().getString());
+
+        // Hole Tracker
+        VehicleOwnershipTracker tracker = VehicleOwnershipTracker.get(level);
+
+        // Registriere Kauf und hole Nummer
+        int plateNumber = tracker.registerVehiclePurchase(player, prefix);
+
+        // Formatiere: XXX-YY (z.B. "MIN-01")
+        return String.format("%s-%02d", prefix, plateNumber);
+    }
+
+    /**
+     * Extrahiert 3-Buchstaben-Präfix aus Spielername
+     * - Mindestens 3 Zeichen, sonst mit 'X' auffüllen
+     * - Nur Großbuchstaben
+     * - Umlaute konvertieren (ä→A, ö→O, ü→U, ß→S)
+     * - Sonderzeichen entfernen
+     */
+    private static String extractPrefix(String playerName) {
+        // Entferne Sonderzeichen und konvertiere
+        StringBuilder cleaned = new StringBuilder();
+        for (char c : playerName.toCharArray()) {
+            char upper = Character.toUpperCase(c);
+
+            // Umlaute konvertieren
+            if (upper == 'Ä') upper = 'A';
+            else if (upper == 'Ö') upper = 'O';
+            else if (upper == 'Ü') upper = 'U';
+            else if (upper == 'ß') upper = 'S';
+
+            // Nur A-Z behalten
+            if (upper >= 'A' && upper <= 'Z') {
+                cleaned.append(upper);
+            }
+        }
+
+        String result = cleaned.toString();
+
+        // Mindestens 3 Zeichen
+        if (result.length() < 3) {
+            // Mit 'X' auffüllen
+            while (result.length() < 3) {
+                result += "X";
+            }
+        } else if (result.length() > 3) {
+            // Nur erste 3 Zeichen
+            result = result.substring(0, 3);
+        }
+
+        return result;
     }
 }

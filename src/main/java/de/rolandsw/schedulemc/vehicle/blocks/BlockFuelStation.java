@@ -120,11 +120,6 @@ public class BlockFuelStation extends BlockOrientableHorizontal {
                 TileEntityContainerProvider.openGui((ServerPlayer) player, station, (i, playerInventory, playerEntity) -> new ContainerFuelStation(i, station, playerInventory));
             }
             return InteractionResult.SUCCESS;
-        } else if (station.isOwner(player)) {
-            if (player instanceof ServerPlayer) {
-                TileEntityContainerProvider.openGui((ServerPlayer) player, station, (i, playerInventory, playerEntity) -> new ContainerFuelStationAdmin(i, station, playerInventory));
-            }
-            return InteractionResult.SUCCESS;
         }
         return InteractionResult.FAIL;
     }
