@@ -8,6 +8,7 @@ import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.*;
 import de.rolandsw.schedulemc.vehicle.items.IVehiclePart;
 import de.rolandsw.schedulemc.vehicle.items.ItemKey;
 import de.rolandsw.schedulemc.vehicle.sounds.ModSounds;
+import de.rolandsw.schedulemc.vehicle.vehicle.VehicleSpawnRegistry;
 import de.maxhenkel.corelib.client.obj.OBJModelInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
@@ -64,6 +65,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     private UUID ownerId;
     private UUID vehicleUUID;
     private BlockPos homeSpawnPoint;
+    private boolean spawnPointReleased = false; // Track if spawn point was released when driving away
 
     // Garage locking system
     private boolean isLockedInGarage;
@@ -142,9 +144,35 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
             batteryComponent.clientTick();
         } else {
             batteryComponent.serverTick();
+
+            // Prüfe ob Spawnpunkt freigegeben werden soll (nur alle 20 Ticks = 1 Sekunde)
+            if (tickCount % 20 == 0) {
+                checkAndReleaseSpawnPoint();
+            }
         }
 
         tryInitPartsAndModel();
+    }
+
+    /**
+     * Prüft ob das Fahrzeug sich vom Spawnpunkt entfernt hat und gibt ihn frei.
+     * Wird aufgerufen wenn das Fahrzeug gekauft wurde und sich dann bewegt.
+     */
+    private void checkAndReleaseSpawnPoint() {
+        // Nur prüfen wenn wir einen Spawnpunkt haben und er noch nicht freigegeben wurde
+        if (homeSpawnPoint == null || spawnPointReleased || vehicleUUID == null) {
+            return;
+        }
+
+        // Berechne Distanz zum Spawnpunkt (horizontal, ignoriere Y für einfachere Berechnung)
+        double distanceSquared = blockPosition().distSqr(homeSpawnPoint);
+
+        // Wenn mehr als 5 Blöcke entfernt (25 = 5²), gib Spawnpunkt frei
+        if (distanceSquared > 25) {
+            VehicleSpawnRegistry.releaseSpawnPoint(vehicleUUID);
+            VehicleSpawnRegistry.saveIfNeeded();
+            spawnPointReleased = true;
+        }
     }
 
     @Override
@@ -663,6 +691,9 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
             int z = compound.getInt("HomeSpawnZ");
             this.homeSpawnPoint = new BlockPos(x, y, z);
         }
+        if (compound.contains("SpawnPointReleased")) {
+            this.spawnPointReleased = compound.getBoolean("SpawnPointReleased");
+        }
 
         // Load garage locking data
         if (compound.contains("IsLockedInGarage")) {
@@ -716,6 +747,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
             compound.putInt("HomeSpawnY", this.homeSpawnPoint.getY());
             compound.putInt("HomeSpawnZ", this.homeSpawnPoint.getZ());
         }
+        compound.putBoolean("SpawnPointReleased", this.spawnPointReleased);
 
         // Save garage locking data
         compound.putBoolean("IsLockedInGarage", this.isLockedInGarage);

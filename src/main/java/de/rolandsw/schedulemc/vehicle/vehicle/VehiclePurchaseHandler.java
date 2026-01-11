@@ -214,6 +214,9 @@ public class VehiclePurchaseHandler {
         vehicle.setFuelAmount(100);
         vehicle.setBatteryLevel(500);
 
+        // WICHTIG: Setze Kennzeichen auch auf der Entity (nicht nur auf dem Item)
+        vehicle.setLicensePlate(plateText);
+
         // Spawn das Fahrzeug in der Welt
         level.addFreshEntity(vehicle);
         vehicle.setIsSpawned(true);
