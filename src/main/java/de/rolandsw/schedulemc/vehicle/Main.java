@@ -88,7 +88,6 @@ public class Main {
         ModItems.init();
         ModSounds.init();
         ModCreativeTabs.init();
-        de.rolandsw.schedulemc.vehicle.recipes.ModRecipes.init();
 
         MENU_TYPE_REGISTER.register(FMLJavaModLoadingContext.get().getModEventBus());
         BLOCK_ENTITY_REGISTER.register(FMLJavaModLoadingContext.get().getModEventBus());

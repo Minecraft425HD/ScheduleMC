@@ -70,7 +70,7 @@ public class VehiclePurchaseHandler {
         }
 
         // Spawn das Fahrzeug
-        EntityGenericVehicle vehicle = spawnVehicle((ServerLevel) level, vehicleItem, spawnPoint.getPosition(), spawnPoint.getYaw());
+        EntityGenericVehicle vehicle = spawnVehicle(player, (ServerLevel) level, vehicleItem, spawnPoint.getPosition(), spawnPoint.getYaw());
 
         if (vehicle == null) {
             // Geld zurückgeben
@@ -111,7 +111,7 @@ public class VehiclePurchaseHandler {
     /**
      * Spawnt ein Fahrzeug am angegebenen Spawn-Punkt
      */
-    private static EntityGenericVehicle spawnVehicle(ServerLevel level, ItemStack vehicleItem, BlockPos pos, float yaw) {
+    private static EntityGenericVehicle spawnVehicle(Player player, ServerLevel level, ItemStack vehicleItem, BlockPos pos, float yaw) {
         if (!(vehicleItem.getItem() instanceof ItemSpawnVehicle)) {
             return null;
         }

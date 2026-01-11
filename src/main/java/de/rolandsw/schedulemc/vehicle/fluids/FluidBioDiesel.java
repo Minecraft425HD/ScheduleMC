@@ -18,7 +18,6 @@ public class FluidBioDiesel extends VehicleFluidSource {
                 () -> ModFluids.BIO_DIESEL.get(),
                 () -> ModFluids.BIO_DIESEL_FLOWING.get())
                 .block(() -> ModBlocks.BIO_DIESEL.get())
-                .bucket(() -> ModItems.BIO_DIESEL_BUCKET.get())
         );
     }
 
