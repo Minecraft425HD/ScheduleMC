@@ -7,6 +7,7 @@ import de.rolandsw.schedulemc.npc.data.MerchantCategory;
 import de.rolandsw.schedulemc.npc.menu.MerchantShopMenu;
 import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
 import de.rolandsw.schedulemc.npc.network.PurchaseItemPacket;
+import de.rolandsw.schedulemc.vehicle.items.ItemSpawnVehicle;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -90,9 +91,11 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
             EditBox quantityInput = new EditBox(this.font, x + 230, y + 30 + i * 22, 35, 16, Component.translatable("screen.merchant_shop.quantity"));
             quantityInput.setMaxLength(4);
 
-            // SPEZIALBEHANDLUNG: Rechnungs-Items immer auf "1" fixieren
+            // SPEZIALBEHANDLUNG: Rechnungs-Items und Fahrzeuge immer auf "1" fixieren
             boolean isBillItem = row.item.hasTag() && row.item.getTag().contains("BillType");
-            if (isBillItem) {
+            boolean isVehicle = row.item.getItem() instanceof ItemSpawnVehicle;
+
+            if (isBillItem || isVehicle) {
                 quantityInput.setValue("1");
                 quantityInput.setEditable(false); // Nicht editierbar
                 quantityInput.setTextColor(0xAAAAAA); // Grau = disabled
