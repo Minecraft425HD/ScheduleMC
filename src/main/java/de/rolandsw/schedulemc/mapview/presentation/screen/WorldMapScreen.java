@@ -137,14 +137,18 @@ public class WorldMapScreen extends PopupScreen {
 
     // Territory Editor Mode
     private final boolean editMode;
-    private static final int PALETTE_WIDTH = 150;
-    private static final int PALETTE_BUTTON_HEIGHT = 30;
-    private static final int PALETTE_PADDING = 5;
+    private static final int PALETTE_BUTTON_SIZE = 12; // Square color buttons (70% smaller: 32px → 12px)
+    private static final int PALETTE_PADDING = 3;
+    private static final int PALETTE_TOP_MARGIN = 40; // Space below title/coords
+    private static final int NAME_INPUT_WIDTH = 150;
+    private static final int NAME_INPUT_HEIGHT = 20;
     @Nullable
     private TerritoryType selectedType = TerritoryType.COLOR_RED;
     private final Map<TerritoryType, Button> paletteButtons = new HashMap<>();
     private EditBox territoryNameInput;
     private String currentTerritoryName = "";
+    private Button clearTerritoryButton;
+    private String lastPaintedTerritoryName = null; // Track last painted territory to avoid spam
 
     public WorldMapScreen(Screen parent) {
         this(parent, false);
@@ -215,37 +219,52 @@ public class WorldMapScreen extends PopupScreen {
         this.screenTitle = editMode ? "Territory Editor" : I18n.get("worldmap.title");
         this.buildWorldName();
         this.leftMouseButtonDown = false;
-        this.sideMargin = editMode ? PALETTE_WIDTH + 20 : 10;
+        this.sideMargin = 10; // Same for both modes now
         this.buttonSeparation = 4;
 
-        // Territory Editor: Color palette on the left
+        // Territory Editor: ALL in ONE row (colors + delete + name input)
         if (editMode) {
-            int buttonY = 10;
-            for (TerritoryType type : TerritoryType.values()) {
+            TerritoryType[] types = TerritoryType.values();
+            int paletteStartX = 10; // Left-aligned
+            int paletteY = PALETTE_TOP_MARGIN;
+
+            // Create all 10 color buttons in ONE row
+            for (int i = 0; i < types.length; i++) {
+                TerritoryType type = types[i];
+                int buttonX = paletteStartX + i * (PALETTE_BUTTON_SIZE + PALETTE_PADDING);
+
                 Button button = Button.builder(
-                    Component.literal(type.getDisplayName()),
+                    Component.literal(""), // No text, just color
                     btn -> selectedType = type
                 )
-                .bounds(10, buttonY, PALETTE_WIDTH, PALETTE_BUTTON_HEIGHT)
+                .bounds(buttonX, paletteY, PALETTE_BUTTON_SIZE, PALETTE_BUTTON_SIZE)
                 .build();
 
                 paletteButtons.put(type, button);
                 addRenderableWidget(button);
-                buttonY += PALETTE_BUTTON_HEIGHT + PALETTE_PADDING;
             }
 
-            // Clear Territory button
-            addRenderableWidget(Button.builder(
-                Component.literal("Clear Territory"),
-                btn -> selectedType = null
+            // Clear Territory button (trash icon) - right after colors
+            int totalPaletteWidth = types.length * PALETTE_BUTTON_SIZE + (types.length - 1) * PALETTE_PADDING;
+            int clearButtonX = paletteStartX + totalPaletteWidth + PALETTE_PADDING * 2;
+            clearTerritoryButton = Button.builder(
+                Component.literal("🗑"),
+                btn -> {
+                    selectedType = null;
+                    currentTerritoryName = "";
+                    if (territoryNameInput != null) {
+                        territoryNameInput.setValue("");
+                    }
+                }
             )
-            .bounds(10, buttonY, PALETTE_WIDTH, PALETTE_BUTTON_HEIGHT)
-            .build());
+            .bounds(clearButtonX, paletteY, PALETTE_BUTTON_SIZE, PALETTE_BUTTON_SIZE)
+            .build();
+            addRenderableWidget(clearTerritoryButton);
 
-            buttonY += PALETTE_BUTTON_HEIGHT + PALETTE_PADDING * 2;
-
-            // Territory Name Input
-            territoryNameInput = new EditBox(minecraft.font, 10, buttonY, PALETTE_WIDTH, 20,
+            // Territory Name Input - right after delete button, same Y position
+            int nameInputX = clearButtonX + PALETTE_BUTTON_SIZE + PALETTE_PADDING * 2;
+            int nameInputY = paletteY - 4; // Slightly adjusted for vertical alignment with small buttons
+            territoryNameInput = new EditBox(minecraft.font, nameInputX, nameInputY, NAME_INPUT_WIDTH, NAME_INPUT_HEIGHT,
                 Component.literal("Territory Name"));
             territoryNameInput.setHint(Component.literal("Gebietsname..."));
             territoryNameInput.setMaxLength(32);
@@ -484,8 +503,9 @@ public class WorldMapScreen extends PopupScreen {
 
         // Territory Editor: Paint territory on left click (only if not over UI elements)
         if (editMode && button == 0 && mouseY > this.top && mouseY < this.bottom) {
-            // Check if click is not on palette area
-            if (mouseX >= PALETTE_WIDTH + 20) {
+            // Check if click is not on palette area (palette is now at top in ONE row)
+            // Palette area: top PALETTE_TOP_MARGIN to PALETTE_TOP_MARGIN + PALETTE_BUTTON_SIZE + 10
+            if (mouseY >= PALETTE_TOP_MARGIN + PALETTE_BUTTON_SIZE + 10) {
                 paintTerritoryAt(mouseX, mouseY);
                 return true;
             }
@@ -537,10 +557,11 @@ public class WorldMapScreen extends PopupScreen {
             }
         }
 
-        if (MapViewConstants.getLightMapInstance().getMapOptions().keyBindMenu.matches(keyCode, scanCode)) {
-            keyCode = GLFW.GLFW_KEY_ESCAPE;
-            scanCode = -1;
-        }
+        // M-Taste deaktiviert - Map kann nicht mit M geschlossen werden
+        // if (MapViewConstants.getLightMapInstance().getMapOptions().keyBindMenu.matches(keyCode, scanCode)) {
+        //     keyCode = GLFW.GLFW_KEY_ESCAPE;
+        //     scanCode = -1;
+        // }
 
         keySprintPressed = minecraft.options.keySprint.matches(keyCode, scanCode) || keySprintPressed;
         keyUpPressed = minecraft.options.keyUp.matches(keyCode, scanCode) || keyUpPressed;
@@ -1010,19 +1031,91 @@ public class WorldMapScreen extends PopupScreen {
             guiGraphics.drawString(this.font, Component.translatable("worldmap.disabled"), this.sideMargin, 16, 0xFFFFFFFF);
         }
 
-        // Highlight selected territory type button in edit mode
+        super.render(guiGraphics, mouseX, mouseY, delta);
+
+        // Render color buttons with actual colors and highlight selected (AFTER super.render!)
         if (editMode) {
             for (Map.Entry<TerritoryType, Button> entry : paletteButtons.entrySet()) {
-                if (entry.getKey() == selectedType) {
-                    Button btn = entry.getValue();
-                    guiGraphics.fill(btn.getX() - 2, btn.getY() - 2,
-                        btn.getX() + btn.getWidth() + 2, btn.getY() + btn.getHeight() + 2,
-                        0xFF44FF44);
+                TerritoryType type = entry.getKey();
+                Button btn = entry.getValue();
+
+                // Fill button with territory color
+                int color = 0xFF000000 | type.getColor(); // Add full alpha
+                guiGraphics.fill(btn.getX() + 2, btn.getY() + 2,
+                    btn.getX() + btn.getWidth() - 2, btn.getY() + btn.getHeight() - 2,
+                    color);
+
+                // White border for all buttons
+                guiGraphics.fill(btn.getX(), btn.getY(),
+                    btn.getX() + btn.getWidth(), btn.getY() + 1,
+                    0xFFFFFFFF); // Top
+                guiGraphics.fill(btn.getX(), btn.getY() + btn.getHeight() - 1,
+                    btn.getX() + btn.getWidth(), btn.getY() + btn.getHeight(),
+                    0xFFFFFFFF); // Bottom
+                guiGraphics.fill(btn.getX(), btn.getY(),
+                    btn.getX() + 1, btn.getY() + btn.getHeight(),
+                    0xFFFFFFFF); // Left
+                guiGraphics.fill(btn.getX() + btn.getWidth() - 1, btn.getY(),
+                    btn.getX() + btn.getWidth(), btn.getY() + btn.getHeight(),
+                    0xFFFFFFFF); // Right
+
+                // Thick highlight for selected button
+                if (type == selectedType) {
+                    int highlightColor = 0xFFFFFF00; // Yellow
+                    for (int i = 0; i < 3; i++) {
+                        guiGraphics.fill(btn.getX() - i - 1, btn.getY() - i - 1,
+                            btn.getX() + btn.getWidth() + i + 1, btn.getY() - i,
+                            highlightColor); // Top
+                        guiGraphics.fill(btn.getX() - i - 1, btn.getY() + btn.getHeight() + i,
+                            btn.getX() + btn.getWidth() + i + 1, btn.getY() + btn.getHeight() + i + 1,
+                            highlightColor); // Bottom
+                        guiGraphics.fill(btn.getX() - i - 1, btn.getY() - i,
+                            btn.getX() - i, btn.getY() + btn.getHeight() + i,
+                            highlightColor); // Left
+                        guiGraphics.fill(btn.getX() + btn.getWidth() + i, btn.getY() - i,
+                            btn.getX() + btn.getWidth() + i + 1, btn.getY() + btn.getHeight() + i,
+                            highlightColor); // Right
+                    }
+                }
+            }
+
+            // Highlight clear button if selected (null type)
+            if (selectedType == null && clearTerritoryButton != null) {
+                Button btn = clearTerritoryButton;
+                int highlightColor = 0xFFFFFF00; // Yellow
+                for (int i = 0; i < 3; i++) {
+                    guiGraphics.fill(btn.getX() - i - 1, btn.getY() - i - 1,
+                        btn.getX() + btn.getWidth() + i + 1, btn.getY() - i,
+                        highlightColor); // Top
+                    guiGraphics.fill(btn.getX() - i - 1, btn.getY() + btn.getHeight() + i,
+                        btn.getX() + btn.getWidth() + i + 1, btn.getY() + btn.getHeight() + i + 1,
+                        highlightColor); // Bottom
+                    guiGraphics.fill(btn.getX() - i - 1, btn.getY() - i,
+                        btn.getX() - i, btn.getY() + btn.getHeight() + i,
+                        highlightColor); // Left
+                    guiGraphics.fill(btn.getX() + btn.getWidth() + i, btn.getY() - i,
+                        btn.getX() + btn.getWidth() + i + 1, btn.getY() + btn.getHeight() + i,
+                        highlightColor); // Right
                 }
             }
         }
 
-        super.render(guiGraphics, mouseX, mouseY, delta);
+        // Territory Tooltip (show name when hovering)
+        // Note: cursorCoordX/Z already calculated earlier in render() method
+        if (editMode || mapOptions.showTerritories) {
+            int hoveredChunkX = ((int) Math.floor(cursorCoordX)) >> 4;
+            int hoveredChunkZ = ((int) Math.floor(cursorCoordZ)) >> 4;
+            long hoveredChunkKey = getChunkKey(hoveredChunkX, hoveredChunkZ);
+
+            Map<Long, SyncTerritoriesPacket.TerritoryData> territories = SyncTerritoriesPacket.TerritoryClientCache.getCache();
+            SyncTerritoriesPacket.TerritoryData territory = territories.get(hoveredChunkKey);
+
+            if (territory != null && mouseY > this.top && mouseY < this.bottom) {
+                String name = territory.name != null && !territory.name.isEmpty() ? territory.name : "Unbenannt";
+                Component tooltipText = Component.literal(name);
+                renderTooltip(guiGraphics, tooltipText, mouseX, mouseY);
+            }
+        }
 
         // Rendere Zoom-Stufe im reservierten Bereich zwischen - und + Buttons
         int zoomButtonWidth = 40;
@@ -1313,8 +1406,8 @@ public class WorldMapScreen extends PopupScreen {
         int endChunkX = centerChunkX + chunksWide;
         int endChunkZ = centerChunkZ + chunksHigh;
 
-        // Opacity: 15% for view mode (0x26), 80% for edit mode (0xCC)
-        int alpha = editMode ? 0xCC : 0x26;
+        // Opacity: 10% for both modes (0x19)
+        int alpha = 0x19;
 
         for (int chunkZ = startChunkZ; chunkZ <= endChunkZ; chunkZ++) {
             for (int chunkX = startChunkX; chunkX <= endChunkX; chunkX++) {
@@ -1368,17 +1461,59 @@ public class WorldMapScreen extends PopupScreen {
 
         int chunkX = ((int) Math.floor(cursorCoordX)) >> 4;
         int chunkZ = ((int) Math.floor(cursorCoordZ)) >> 4;
+        long chunkKey = getChunkKey(chunkX, chunkZ);
+
+        // SHIFT + Click: Load existing territory for editing
+        Map<Long, SyncTerritoriesPacket.TerritoryData> territories = SyncTerritoriesPacket.TerritoryClientCache.getCache();
+        SyncTerritoriesPacket.TerritoryData existingTerritory = territories.get(chunkKey);
+
+        if (existingTerritory != null && Screen.hasShiftDown()) {
+            // SHIFT + Click = Load territory for editing (SHIFT must be held down)
+            selectedType = existingTerritory.type;
+            currentTerritoryName = existingTerritory.name != null ? existingTerritory.name : "";
+            if (territoryNameInput != null) {
+                territoryNameInput.setValue(currentTerritoryName);
+            }
+            if (minecraft != null && minecraft.player != null) {
+                String displayName = currentTerritoryName.isEmpty() ? "Unbenannt" : currentTerritoryName;
+                minecraft.player.sendSystemMessage(Component.literal("§eTerritory geladen: " + displayName));
+            }
+            return; // Don't paint, just load
+        }
+
+        // Determine new territory name
+        String newTerritoryName = selectedType != null ? currentTerritoryName : null;
+
+        // Normalize names for comparison (empty string = null)
+        String normalizedNewName = (newTerritoryName == null || newTerritoryName.isEmpty()) ? null : newTerritoryName;
+        String normalizedLastName = (lastPaintedTerritoryName == null || lastPaintedTerritoryName.isEmpty()) ? null : lastPaintedTerritoryName;
+
+        // Check if we're switching territories (compare with LAST painted, not server cache)
+        boolean territoryChanged = !java.util.Objects.equals(normalizedLastName, normalizedNewName);
 
         // Send packet to server to set/remove territory
         if (selectedType == null) {
             TerritoryNetworkHandler.sendToServer(new SetTerritoryPacket(chunkX, chunkZ));
-            if (minecraft != null && minecraft.player != null) {
-                minecraft.player.sendSystemMessage(Component.literal("§7Territory entfernt: [" + chunkX + ", " + chunkZ + "]"));
+            // Only show message if we changed territory name
+            if (territoryChanged && minecraft != null && minecraft.player != null) {
+                if (lastPaintedTerritoryName != null && !lastPaintedTerritoryName.isEmpty()) {
+                    minecraft.player.sendSystemMessage(Component.literal("§7Verlassen: " + lastPaintedTerritoryName));
+                }
+                lastPaintedTerritoryName = null;
             }
         } else {
             TerritoryNetworkHandler.sendToServer(new SetTerritoryPacket(chunkX, chunkZ, selectedType, currentTerritoryName));
-            if (minecraft != null && minecraft.player != null) {
-                minecraft.player.sendSystemMessage(Component.literal("§aTerritory gesetzt: [" + chunkX + ", " + chunkZ + "] - " + selectedType.getDisplayName()));
+            // Only show message when entering a different named territory
+            if (territoryChanged && minecraft != null && minecraft.player != null) {
+                String displayName = currentTerritoryName != null && !currentTerritoryName.isEmpty()
+                    ? currentTerritoryName
+                    : "Unbenanntes Gebiet";
+
+                minecraft.player.sendSystemMessage(Component.literal("§aBetreten: " + displayName));
+                lastPaintedTerritoryName = displayName;
+            } else {
+                // Update lastPaintedTerritoryName even if no message shown
+                lastPaintedTerritoryName = normalizedNewName;
             }
         }
     }

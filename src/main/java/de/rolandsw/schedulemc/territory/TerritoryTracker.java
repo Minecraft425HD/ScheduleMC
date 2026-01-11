@@ -75,6 +75,8 @@ public class TerritoryTracker {
 
     /**
      * Prüft ob sich Territory geändert hat
+     * WICHTIG: Vergleicht NAMEN statt Position, sodass zusammenhängende Chunks
+     * mit gleichem Namen als EIN Territory gelten
      */
     private static boolean hasChanged(@Nullable Territory current, @Nullable Territory last) {
         if (current == null && last == null) {
@@ -85,34 +87,45 @@ public class TerritoryTracker {
             return true; // Einer null, anderer nicht - Änderung
         }
 
-        // Vergleiche Chunk-Position
-        return current.getChunkX() != last.getChunkX() ||
-               current.getChunkZ() != last.getChunkZ();
+        // Vergleiche Namen (nicht Position!)
+        // Chunks mit gleichem Namen = GLEICHES Territory
+        String currentName = current.getName();
+        String lastName = last.getName();
+
+        // Normalisiere null/empty
+        if (currentName == null || currentName.isEmpty()) currentName = null;
+        if (lastName == null || lastName.isEmpty()) lastName = null;
+
+        // Wenn Namen unterschiedlich -> Territory hat sich geändert
+        if (!java.util.Objects.equals(currentName, lastName)) {
+            return true;
+        }
+
+        // Namen gleich -> prüfe ob Farbe unterschiedlich
+        return current.getType() != last.getType();
     }
 
     /**
      * Zeigt Hologramm mit Territory-Name beim Betreten/Verlassen
+     * KEINE Farbanzeige mehr - nur der Name!
      */
     private static void showTerritoryChange(ServerPlayer player, @Nullable Territory from, @Nullable Territory to) {
         String title;
-        String subtitle;
+        String subtitle = ""; // Kein Subtitle mehr
 
         if (to != null) {
             // Territory betreten
             if (to.getName() != null && !to.getName().isEmpty()) {
-                // Custom Name vorhanden -> zeige Namen
+                // Custom Name vorhanden -> zeige nur Namen
                 title = to.getName();
-                subtitle = "§7" + to.getType().getDisplayName();
             } else {
-                // Kein Name -> zeige nur Farbe
-                title = to.getType().getDisplayName();
-                subtitle = "§7Unbenanntes Gebiet";
+                // Kein Name -> zeige "Unbenanntes Gebiet"
+                title = "Unbenanntes Gebiet";
             }
 
         } else {
             // Territory verlassen (jetzt in freiem Gebiet)
             title = "§7Freies Gebiet";
-            subtitle = "";
         }
 
         // Sende Title-Pakete
