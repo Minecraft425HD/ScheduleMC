@@ -3,7 +3,6 @@ package de.rolandsw.schedulemc.vehicle.blocks;
 import de.rolandsw.schedulemc.vehicle.blocks.tileentity.TileEntityFuelStation;
 import de.rolandsw.schedulemc.vehicle.fuel.FuelStationRegistry;
 import de.rolandsw.schedulemc.vehicle.gui.ContainerFuelStation;
-import de.rolandsw.schedulemc.vehicle.gui.ContainerFuelStationAdmin;
 import de.rolandsw.schedulemc.vehicle.gui.TileEntityContainerProvider;
 import de.rolandsw.schedulemc.region.PlotManager;
 import de.rolandsw.schedulemc.region.PlotRegion;
@@ -118,11 +117,6 @@ public class BlockFuelStation extends BlockOrientableHorizontal {
         if (!player.isShiftKeyDown()) {
             if (player instanceof ServerPlayer) {
                 TileEntityContainerProvider.openGui((ServerPlayer) player, station, (i, playerInventory, playerEntity) -> new ContainerFuelStation(i, station, playerInventory));
-            }
-            return InteractionResult.SUCCESS;
-        } else if (station.isOwner(player)) {
-            if (player instanceof ServerPlayer) {
-                TileEntityContainerProvider.openGui((ServerPlayer) player, station, (i, playerInventory, playerEntity) -> new ContainerFuelStationAdmin(i, station, playerInventory));
             }
             return InteractionResult.SUCCESS;
         }

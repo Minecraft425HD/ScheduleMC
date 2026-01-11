@@ -61,6 +61,12 @@ public class VehicleSpawnTool extends Item {
      */
     public static void handleLeftClick(Player player, ItemStack stack, BlockPos pos) {
         Level level = player.level();
+
+        // Nur auf Server ausführen
+        if (level.isClientSide()) {
+            return;
+        }
+
         CompoundTag tag = stack.getOrCreateTag();
 
         // Prüfe ob Händler verknüpft ist

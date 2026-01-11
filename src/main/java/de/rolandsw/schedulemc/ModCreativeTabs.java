@@ -242,7 +242,7 @@ public class ModCreativeTabs {
                 output.accept(CocaItems.FRESH_KOLUMBIANISCH_LEAF.get());
                 output.accept(CocaItems.COCA_PASTE.get());
                 output.accept(CocaItems.COCAINE.get());
-                output.accept(CocaItems.DIESEL_CANISTER.get());
+                output.accept(de.rolandsw.schedulemc.vehicle.items.ModItems.BIO_DIESEL_CANISTER.get());
                 output.accept(CocaItems.CRACK_ROCK.get());
                 output.accept(CocaItems.BACKPULVER.get());
 

@@ -1,8 +1,10 @@
 package de.rolandsw.schedulemc.vehicle.vehicle;
 
+import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.VehicleFactory;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartRegistry;
+import de.rolandsw.schedulemc.vehicle.items.ItemLicensePlate;
 import de.rolandsw.schedulemc.vehicle.items.ItemSpawnVehicle;
 import de.rolandsw.schedulemc.vehicle.items.ModItems;
 import de.rolandsw.schedulemc.economy.EconomyManager;
@@ -13,6 +15,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +26,8 @@ import java.util.UUID;
  * Spawnt Fahrzeuge direkt am definierten Spawn-Punkt
  */
 public class VehiclePurchaseHandler {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     /**
      * Verarbeitet den Kauf eines Fahrzeugs
@@ -40,9 +45,13 @@ public class VehiclePurchaseHandler {
             return false;
         }
 
+        LOGGER.info("Fahrzeugkauf gestartet: Spieler={}, Händler={}, Fahrzeug={}, Preis={}",
+            player.getName().getString(), dealerId, vehicleItem.getHoverName().getString(), price);
+
         // Prüfe ob Spieler genug Geld hat
         double playerBalance = EconomyManager.getBalance(player.getUUID());
         if (playerBalance < price) {
+            LOGGER.warn("Fahrzeugkauf fehlgeschlagen: Nicht genug Geld. Balance={}, Preis={}", playerBalance, price);
             player.sendSystemMessage(Component.translatable("message.common.not_enough_money").withStyle(ChatFormatting.RED));
             player.sendSystemMessage(Component.translatable("message.common.price_label").withStyle(ChatFormatting.GRAY)
                 .append(Component.literal(price + "€").withStyle(ChatFormatting.GOLD))
@@ -53,30 +62,45 @@ public class VehiclePurchaseHandler {
 
         // Ziehe Geld ab
         if (!EconomyManager.withdraw(player.getUUID(), price)) {
+            LOGGER.error("Fahrzeugkauf fehlgeschlagen: Geld konnte nicht abgebucht werden");
             player.sendSystemMessage(Component.translatable("vehicle.purchase.deduction_error").withStyle(ChatFormatting.RED));
             return false;
         }
 
+        LOGGER.info("Geld abgebucht: {}€. Suche Spawn-Punkt für Händler {}", price, dealerId);
+
         // Finde freien Spawn-Punkt
+        List<VehicleSpawnRegistry.VehicleSpawnPoint> allPoints = VehicleSpawnRegistry.getSpawnPoints(dealerId);
+        LOGGER.info("Verfügbare Spawn-Punkte für Händler {}: {}", dealerId, allPoints.size());
+
         VehicleSpawnRegistry.VehicleSpawnPoint spawnPoint = VehicleSpawnRegistry.findFreeSpawnPoint(dealerId);
 
         if (spawnPoint == null) {
             // Geld zurückgeben
             EconomyManager.deposit(player.getUUID(), price);
+            LOGGER.warn("Fahrzeugkauf fehlgeschlagen: Kein freier Spawn-Punkt verfügbar! Händler {} hat {} Punkte, alle belegt",
+                dealerId, allPoints.size());
             player.sendSystemMessage(Component.translatable("vehicle.purchase.no_parking").withStyle(ChatFormatting.RED));
             player.sendSystemMessage(Component.translatable("vehicle.purchase.wait_for_parking").withStyle(ChatFormatting.GRAY));
+            player.sendSystemMessage(Component.literal("DEBUG: Händler hat " + allPoints.size() + " Spawn-Punkte, alle belegt")
+                .withStyle(ChatFormatting.DARK_GRAY));
             return false;
         }
 
+        LOGGER.info("Freien Spawn-Punkt gefunden: {}", spawnPoint.getPosition());
+
         // Spawn das Fahrzeug
-        EntityGenericVehicle vehicle = spawnVehicle((ServerLevel) level, vehicleItem, spawnPoint.getPosition(), spawnPoint.getYaw());
+        EntityGenericVehicle vehicle = spawnVehicle(player, (ServerLevel) level, vehicleItem, spawnPoint.getPosition(), spawnPoint.getYaw());
 
         if (vehicle == null) {
             // Geld zurückgeben
             EconomyManager.deposit(player.getUUID(), price);
+            LOGGER.error("Fahrzeugkauf fehlgeschlagen: Fahrzeug konnte nicht gespawnt werden");
             player.sendSystemMessage(Component.translatable("message.vehicle.spawn_error").withStyle(ChatFormatting.RED));
             return false;
         }
+
+        LOGGER.info("Fahrzeug erfolgreich gespawnt");
 
         // Setze Owner und verknüpfe Fahrzeug
         UUID vehicleUUID = UUID.randomUUID();
@@ -87,6 +111,8 @@ public class VehiclePurchaseHandler {
         // Markiere Spawn-Punkt als belegt
         VehicleSpawnRegistry.occupySpawnPoint(spawnPoint.getPosition(), vehicleUUID);
         VehicleSpawnRegistry.saveIfNeeded();
+
+        LOGGER.info("Fahrzeugkauf erfolgreich abgeschlossen: Vehicle-UUID={}, Kennzeichen={}", vehicleUUID, vehicle.getLicensePlate());
 
         // Erfolgs-Nachricht
         player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
@@ -110,7 +136,7 @@ public class VehiclePurchaseHandler {
     /**
      * Spawnt ein Fahrzeug am angegebenen Spawn-Punkt
      */
-    private static EntityGenericVehicle spawnVehicle(ServerLevel level, ItemStack vehicleItem, BlockPos pos, float yaw) {
+    private static EntityGenericVehicle spawnVehicle(Player player, ServerLevel level, ItemStack vehicleItem, BlockPos pos, float yaw) {
         if (!(vehicleItem.getItem() instanceof ItemSpawnVehicle)) {
             return null;
         }
@@ -165,7 +191,13 @@ public class VehiclePurchaseHandler {
 
         // Füge Tank und Lizenzplatte hinzu
         parts.add(new ItemStack(ModItems.TANK_15L.get()));
-        parts.add(new ItemStack(ModItems.LICENSE_PLATE.get()));
+
+        // Generiere Auto-Kennzeichen
+        ItemStack licensePlate = new ItemStack(ModItems.LICENSE_PLATE.get());
+        String plateText = generateLicensePlateText(player, (ServerLevel) level);
+        ItemLicensePlate.setText(licensePlate, plateText);
+        parts.add(licensePlate);
+
         parts.add(new ItemStack(ModItems.LICENSE_PLATE_HOLDER.get()));
 
         // Erstelle Auto mit VehicleFactory (wie in ItemSpawnVehicle)
@@ -204,5 +236,71 @@ public class VehiclePurchaseHandler {
     public static void onVehicleDestroyed(UUID vehicleUUID) {
         VehicleSpawnRegistry.releaseSpawnPoint(vehicleUUID);
         VehicleSpawnRegistry.saveIfNeeded();
+    }
+
+    /**
+     * Generiert Kennzeichen-Text basierend auf Spielername
+     * Format: XXX-YY
+     * XXX = 3 Anfangsbuchstaben des Spielernamens
+     * YY = Fahrzeug-Nummer (01-99), mit Offset bei gleichem Präfix
+     *
+     * Beispiele:
+     * - Minecraft425HD (1. Auto): MIN-01
+     * - Minecraft425HD (2. Auto): MIN-02
+     * - MinecraftSteve (1. Auto, gleicher Präfix): MIN-10
+     */
+    private static String generateLicensePlateText(Player player, ServerLevel level) {
+        // Extrahiere Präfix aus Spielername (3 Buchstaben)
+        String prefix = extractPrefix(player.getName().getString());
+
+        // Hole Tracker
+        VehicleOwnershipTracker tracker = VehicleOwnershipTracker.get(level);
+
+        // Registriere Kauf und hole Nummer
+        int plateNumber = tracker.registerVehiclePurchase(player, prefix);
+
+        // Formatiere: XXX-YY (z.B. "MIN-01")
+        return String.format("%s-%02d", prefix, plateNumber);
+    }
+
+    /**
+     * Extrahiert 3-Buchstaben-Präfix aus Spielername
+     * - Mindestens 3 Zeichen, sonst mit 'X' auffüllen
+     * - Nur Großbuchstaben
+     * - Umlaute konvertieren (ä→A, ö→O, ü→U, ß→S)
+     * - Sonderzeichen entfernen
+     */
+    private static String extractPrefix(String playerName) {
+        // Entferne Sonderzeichen und konvertiere
+        StringBuilder cleaned = new StringBuilder();
+        for (char c : playerName.toCharArray()) {
+            char upper = Character.toUpperCase(c);
+
+            // Umlaute konvertieren
+            if (upper == 'Ä') upper = 'A';
+            else if (upper == 'Ö') upper = 'O';
+            else if (upper == 'Ü') upper = 'U';
+            else if (upper == 'ß') upper = 'S';
+
+            // Nur A-Z behalten
+            if (upper >= 'A' && upper <= 'Z') {
+                cleaned.append(upper);
+            }
+        }
+
+        String result = cleaned.toString();
+
+        // Mindestens 3 Zeichen
+        if (result.length() < 3) {
+            // Mit 'X' auffüllen
+            while (result.length() < 3) {
+                result += "X";
+            }
+        } else if (result.length() > 3) {
+            // Nur erste 3 Zeichen
+            result = result.substring(0, 3);
+        }
+
+        return result;
     }
 }

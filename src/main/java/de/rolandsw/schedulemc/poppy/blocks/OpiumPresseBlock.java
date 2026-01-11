@@ -1,7 +1,7 @@
 package de.rolandsw.schedulemc.poppy.blocks;
 
 import de.rolandsw.schedulemc.coca.items.CocaItems;
-import de.rolandsw.schedulemc.coca.items.DieselCanisterItem;
+import de.rolandsw.schedulemc.vehicle.items.ItemBioDieselCanister;
 import de.rolandsw.schedulemc.poppy.blockentity.OpiumPresseBlockEntity;
 import de.rolandsw.schedulemc.poppy.items.PoppyPodItem;
 import net.minecraft.core.BlockPos;
@@ -57,8 +57,8 @@ public class OpiumPresseBlock extends Block implements EntityBlock {
         ItemStack handStack = player.getItemInHand(hand);
 
         // 1. Diesel hinzufügen
-        if (handStack.getItem() instanceof DieselCanisterItem) {
-            int dieselAmount = DieselCanisterItem.getDieselAmount(handStack);
+        if (handStack.getItem() instanceof ItemBioDieselCanister) {
+            int dieselAmount = ItemBioDieselCanister.getFuel(handStack);
             if (dieselAmount > 0) {
                 if (presseBE.getDieselLevel() >= presseBE.getMaxDiesel()) {
                     player.displayClientMessage(Component.translatable("message.opium_presse.diesel_tank_full"), true);
@@ -67,7 +67,7 @@ public class OpiumPresseBlock extends Block implements EntityBlock {
 
                 int toAdd = Math.min(dieselAmount, presseBE.getMaxDiesel() - presseBE.getDieselLevel());
                 presseBE.addDiesel(toAdd);
-                DieselCanisterItem.consumeDiesel(handStack, toAdd);
+                ItemBioDieselCanister.consumeFuel(handStack, toAdd);
 
                 player.displayClientMessage(Component.translatable("message.opium_presse.diesel_added", presseBE.getDieselLevel(), presseBE.getMaxDiesel()), true);
                 player.playSound(net.minecraft.sounds.SoundEvents.BUCKET_EMPTY, 1.0f, 1.0f);

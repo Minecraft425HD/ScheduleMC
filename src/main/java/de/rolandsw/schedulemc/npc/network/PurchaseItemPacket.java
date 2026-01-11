@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.npc.network;
 
+import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.util.PacketHandler;
 import de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager;
 import de.rolandsw.schedulemc.vehicle.fuel.FuelStationRegistry;
@@ -18,6 +19,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.network.NetworkEvent;
+import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +30,8 @@ import java.util.function.Supplier;
  * Packet für Item-Kauf von Verkäufer-NPCs
  */
 public class PurchaseItemPacket {
+    private static final Logger LOGGER = LogUtils.getLogger();
+
     private final int merchantEntityId;
     private final int itemIndex;
     private final int quantity;
@@ -142,6 +146,9 @@ public class PurchaseItemPacket {
         if (merchant.getMerchantCategory() == MerchantCategory.AUTOHAENDLER &&
             entry.getItem().getItem() instanceof ItemSpawnVehicle) {
 
+            LOGGER.info("Fahrzeugkauf-Paket empfangen: Spieler={}, Händler-Category={}, Item={}",
+                player.getName().getString(), merchant.getMerchantCategory(), entry.getItem().getHoverName().getString());
+
             // Fahrzeug-Kauf über VehiclePurchaseHandler
             boolean success = VehiclePurchaseHandler.purchaseVehicle(
                 player,
@@ -151,8 +158,11 @@ public class PurchaseItemPacket {
             );
 
             if (success) {
+                LOGGER.info("Fahrzeugkauf erfolgreich, reduziere Lagerbestand");
                 // Reduziere Lagerbestand (nutze Warehouse-Integration)
                 merchant.getNpcData().onItemSoldFromWarehouse(player.level(), entry, quantity, totalPrice);
+            } else {
+                LOGGER.warn("Fahrzeugkauf fehlgeschlagen (VehiclePurchaseHandler gab false zurück)");
             }
             return;
         }

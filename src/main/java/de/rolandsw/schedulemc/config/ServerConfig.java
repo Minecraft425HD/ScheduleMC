@@ -94,7 +94,7 @@ public class ServerConfig extends ConfigBase {
 
         repairKitRepairAmount = builder.defineInRange("items.repair_kit.repair_amount", 5F, 0.1F, 100F);
 
-        canisterMaxFuel = builder.defineInRange("items.canister.max_fuel", 100, 1, 1000);
+        canisterMaxFuel = builder.defineInRange("items.canister.max_fuel", 1000, 1, 10000);
 
         collideWithEntities = builder.comment("Whether the vehicles should collide with other entities (except vehicles)").define("vehicle.collide_with_entities", true);
         damageEntities = builder.comment("Whether the vehicles should damage other entities on collision").define("vehicle.damage_entities", true);

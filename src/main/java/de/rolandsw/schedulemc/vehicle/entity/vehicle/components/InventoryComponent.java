@@ -4,7 +4,7 @@ import de.maxhenkel.corelib.item.ItemUtils;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import de.rolandsw.schedulemc.vehicle.gui.ContainerVehicle;
 import de.rolandsw.schedulemc.vehicle.gui.ContainerVehicleInventory;
-import de.rolandsw.schedulemc.vehicle.items.ItemCanister;
+import de.rolandsw.schedulemc.vehicle.items.ItemBioDieselCanister;
 import de.rolandsw.schedulemc.vehicle.sounds.ModSounds;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -78,8 +78,8 @@ public class InventoryComponent extends VehicleComponent {
         // Canister
         ItemStack stack = player.getItemInHand(hand);
         if (!stack.isEmpty()) {
-            if (stack.getItem() instanceof ItemCanister) {
-                boolean success = ItemCanister.fillCanister(stack, vehicle);
+            if (stack.getItem() instanceof ItemBioDieselCanister) {
+                boolean success = ItemBioDieselCanister.fillCanister(stack, vehicle);
 
                 if (success) {
                     ModSounds.playSound(SoundEvents.BREWING_STAND_BREW, vehicle.level(), vehicle.blockPosition(), null, SoundSource.BLOCKS);
