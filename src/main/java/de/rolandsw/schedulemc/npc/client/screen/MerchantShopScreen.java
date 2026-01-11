@@ -91,20 +91,27 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
             EditBox quantityInput = new EditBox(this.font, x + 230, y + 30 + i * 22, 35, 16, Component.translatable("screen.merchant_shop.quantity"));
             quantityInput.setMaxLength(4);
 
-            // SPEZIALBEHANDLUNG: Rechnungs-Items und Fahrzeuge immer auf "1" fixieren
+            // SPEZIALBEHANDLUNG: Rechnungs-Items immer auf "1" fixieren
             boolean isBillItem = row.item.hasTag() && row.item.getTag().contains("BillType");
             boolean isVehicle = row.item.getItem() instanceof ItemSpawnVehicle;
 
-            if (isBillItem || isVehicle) {
+            if (isBillItem) {
                 quantityInput.setValue("1");
                 quantityInput.setEditable(false); // Nicht editierbar
                 quantityInput.setTextColor(0xAAAAAA); // Grau = disabled
                 row.savedQuantity = "1"; // Fixiere auf 1
             } else {
                 quantityInput.setValue(row.savedQuantity);
-                quantityInput.setFilter(s -> s.matches("\\d*")); // Nur Zahlen
 
-                // Speichere Werte beim Tippen (nur für normale Items)
+                // Fahrzeuge: Nur "1" oder leer erlauben (max 1 Fahrzeug pro Kauf)
+                if (isVehicle) {
+                    quantityInput.setMaxLength(1);
+                    quantityInput.setFilter(s -> s.isEmpty() || s.equals("1")); // Nur 1 oder leer
+                } else {
+                    quantityInput.setFilter(s -> s.matches("\\d*")); // Nur Zahlen
+                }
+
+                // Speichere Werte beim Tippen
                 final int finalRowIndex = rowIndex;
                 quantityInput.setResponder(value -> {
                     shopItemRows.get(finalRowIndex).savedQuantity = value;
