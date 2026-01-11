@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.npc.client.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.data.MerchantCategory;
@@ -18,6 +19,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +30,8 @@ import java.util.List;
  */
 @OnlyIn(Dist.CLIENT)
 public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu> {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     private static final ResourceLocation TEXTURE =
         ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/merchant_shop.png");
@@ -91,16 +95,18 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
             EditBox quantityInput = new EditBox(this.font, x + 230, y + 30 + i * 22, 35, 16, Component.translatable("screen.merchant_shop.quantity"));
             quantityInput.setMaxLength(4);
 
-            // SPEZIALBEHANDLUNG: Rechnungs-Items immer auf "1" fixieren
+            // SPEZIALBEHANDLUNG: Rechnungs-Items immer auf "1" fixieren (nicht editierbar)
             boolean isBillItem = row.item.hasTag() && row.item.getTag().contains("BillType");
             boolean isVehicle = row.item.getItem() instanceof ItemSpawnVehicle;
 
             if (isBillItem) {
+                // Rechnungen: Fixiert auf "1", grau, nicht editierbar
                 quantityInput.setValue("1");
                 quantityInput.setEditable(false); // Nicht editierbar
                 quantityInput.setTextColor(0xAAAAAA); // Grau = disabled
                 row.savedQuantity = "1"; // Fixiere auf 1
             } else {
+                // Normale Items und Fahrzeuge: Zeige savedQuantity
                 quantityInput.setValue(row.savedQuantity);
 
                 // Fahrzeuge: Nur "1" oder leer erlauben (max 1 Fahrzeug pro Kauf)
@@ -137,10 +143,12 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
             row.unlimited = entry.isUnlimited();
             row.availableQuantity = entry.isUnlimited() ? Integer.MAX_VALUE : entry.getStock();
 
-            // SPEZIALBEHANDLUNG: Rechnungs-Items automatisch auf "1" setzen
+            // SPEZIALBEHANDLUNG: Rechnungs-Items und Fahrzeuge automatisch auf "1" setzen
             boolean isBillItem = row.item.hasTag() && row.item.getTag().contains("BillType");
-            if (isBillItem) {
-                row.savedQuantity = "1"; // Rechnungen immer Menge 1
+            boolean isVehicle = row.item.getItem() instanceof ItemSpawnVehicle;
+
+            if (isBillItem || isVehicle) {
+                row.savedQuantity = "1"; // Automatisch Menge 1
             }
 
             shopItemRows.add(row);
@@ -153,29 +161,43 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
      * Kauft alle Items mit Menge > 0
      */
     private void purchaseAllItems() {
+        LOGGER.info("[CLIENT] purchaseAllItems() wurde aufgerufen");
+
         // Speichere aktuelle Eingaben vor dem Kauf
         saveCurrentInputValues();
 
         // Sammle alle Items mit Menge > 0
+        int packetsSent = 0;
         for (int i = 0; i < shopItemRows.size(); i++) {
             ShopItemRow row = shopItemRows.get(i);
             String quantityStr = row.savedQuantity;
+
+            LOGGER.info("[CLIENT] Item {}: {} | savedQuantity='{}' | availableQuantity={}",
+                i, row.item.getHoverName().getString(), quantityStr, row.availableQuantity);
+
             if (!quantityStr.isEmpty() && !quantityStr.equals("0")) {
                 try {
                     int quantity = Integer.parseInt(quantityStr);
                     if (quantity > 0 && quantity <= row.availableQuantity) {
+                        LOGGER.info("[CLIENT] Sende PurchaseItemPacket: Item={}, Quantity={}", row.item.getHoverName().getString(), quantity);
                         // Sende Kauf-Packet an Server für dieses Item
                         NPCNetworkHandler.sendToServer(new PurchaseItemPacket(
                             menu.getEntityId(),
                             i,
                             quantity
                         ));
+                        packetsSent++;
+                    } else {
+                        LOGGER.warn("[CLIENT] Item NICHT gekauft: quantity={}, availableQuantity={}", quantity, row.availableQuantity);
                     }
                 } catch (NumberFormatException e) {
-                    // Ignoriere ungültige Eingaben
+                    LOGGER.error("[CLIENT] NumberFormatException beim Parsen von '{}'", quantityStr, e);
                 }
             }
         }
+
+        LOGGER.info("[CLIENT] purchaseAllItems() abgeschlossen. {} Pakete gesendet", packetsSent);
+
         // Schließe GUI nach Kauf
         this.onClose();
     }
