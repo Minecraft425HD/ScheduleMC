@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.vehicle.vehicle;
 
+import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.VehicleFactory;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartRegistry;
@@ -14,6 +15,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +26,8 @@ import java.util.UUID;
  * Spawnt Fahrzeuge direkt am definierten Spawn-Punkt
  */
 public class VehiclePurchaseHandler {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     /**
      * Verarbeitet den Kauf eines Fahrzeugs
@@ -41,9 +45,13 @@ public class VehiclePurchaseHandler {
             return false;
         }
 
+        LOGGER.info("Fahrzeugkauf gestartet: Spieler={}, Händler={}, Fahrzeug={}, Preis={}",
+            player.getName().getString(), dealerId, vehicleItem.getHoverName().getString(), price);
+
         // Prüfe ob Spieler genug Geld hat
         double playerBalance = EconomyManager.getBalance(player.getUUID());
         if (playerBalance < price) {
+            LOGGER.warn("Fahrzeugkauf fehlgeschlagen: Nicht genug Geld. Balance={}, Preis={}", playerBalance, price);
             player.sendSystemMessage(Component.translatable("message.common.not_enough_money").withStyle(ChatFormatting.RED));
             player.sendSystemMessage(Component.translatable("message.common.price_label").withStyle(ChatFormatting.GRAY)
                 .append(Component.literal(price + "€").withStyle(ChatFormatting.GOLD))
@@ -54,20 +62,32 @@ public class VehiclePurchaseHandler {
 
         // Ziehe Geld ab
         if (!EconomyManager.withdraw(player.getUUID(), price)) {
+            LOGGER.error("Fahrzeugkauf fehlgeschlagen: Geld konnte nicht abgebucht werden");
             player.sendSystemMessage(Component.translatable("vehicle.purchase.deduction_error").withStyle(ChatFormatting.RED));
             return false;
         }
 
+        LOGGER.info("Geld abgebucht: {}€. Suche Spawn-Punkt für Händler {}", price, dealerId);
+
         // Finde freien Spawn-Punkt
+        List<VehicleSpawnRegistry.VehicleSpawnPoint> allPoints = VehicleSpawnRegistry.getSpawnPoints(dealerId);
+        LOGGER.info("Verfügbare Spawn-Punkte für Händler {}: {}", dealerId, allPoints.size());
+
         VehicleSpawnRegistry.VehicleSpawnPoint spawnPoint = VehicleSpawnRegistry.findFreeSpawnPoint(dealerId);
 
         if (spawnPoint == null) {
             // Geld zurückgeben
             EconomyManager.deposit(player.getUUID(), price);
+            LOGGER.warn("Fahrzeugkauf fehlgeschlagen: Kein freier Spawn-Punkt verfügbar! Händler {} hat {} Punkte, alle belegt",
+                dealerId, allPoints.size());
             player.sendSystemMessage(Component.translatable("vehicle.purchase.no_parking").withStyle(ChatFormatting.RED));
             player.sendSystemMessage(Component.translatable("vehicle.purchase.wait_for_parking").withStyle(ChatFormatting.GRAY));
+            player.sendSystemMessage(Component.literal("DEBUG: Händler hat " + allPoints.size() + " Spawn-Punkte, alle belegt")
+                .withStyle(ChatFormatting.DARK_GRAY));
             return false;
         }
+
+        LOGGER.info("Freien Spawn-Punkt gefunden: {}", spawnPoint.getPosition());
 
         // Spawn das Fahrzeug
         EntityGenericVehicle vehicle = spawnVehicle(player, (ServerLevel) level, vehicleItem, spawnPoint.getPosition(), spawnPoint.getYaw());
@@ -75,9 +95,12 @@ public class VehiclePurchaseHandler {
         if (vehicle == null) {
             // Geld zurückgeben
             EconomyManager.deposit(player.getUUID(), price);
+            LOGGER.error("Fahrzeugkauf fehlgeschlagen: Fahrzeug konnte nicht gespawnt werden");
             player.sendSystemMessage(Component.translatable("message.vehicle.spawn_error").withStyle(ChatFormatting.RED));
             return false;
         }
+
+        LOGGER.info("Fahrzeug erfolgreich gespawnt");
 
         // Setze Owner und verknüpfe Fahrzeug
         UUID vehicleUUID = UUID.randomUUID();
@@ -88,6 +111,8 @@ public class VehiclePurchaseHandler {
         // Markiere Spawn-Punkt als belegt
         VehicleSpawnRegistry.occupySpawnPoint(spawnPoint.getPosition(), vehicleUUID);
         VehicleSpawnRegistry.saveIfNeeded();
+
+        LOGGER.info("Fahrzeugkauf erfolgreich abgeschlossen: Vehicle-UUID={}, Kennzeichen={}", vehicleUUID, vehicle.getLicensePlate());
 
         // Erfolgs-Nachricht
         player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
