@@ -3,7 +3,6 @@ package de.rolandsw.schedulemc.vehicle.blocks;
 import de.rolandsw.schedulemc.vehicle.blocks.tileentity.TileEntityFuelStation;
 import de.rolandsw.schedulemc.vehicle.fuel.FuelStationRegistry;
 import de.rolandsw.schedulemc.vehicle.gui.ContainerFuelStation;
-import de.rolandsw.schedulemc.vehicle.gui.ContainerFuelStationAdmin;
 import de.rolandsw.schedulemc.vehicle.gui.TileEntityContainerProvider;
 import de.rolandsw.schedulemc.region.PlotManager;
 import de.rolandsw.schedulemc.region.PlotRegion;
