@@ -981,6 +981,10 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         return securityComponent.getLicensePlate();
     }
 
+    public void setLicensePlate(String plate) {
+        securityComponent.setLicensePlate(plate);
+    }
+
     public boolean isLocked() {
         return securityComponent.isLocked();
     }
