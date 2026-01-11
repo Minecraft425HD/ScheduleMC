@@ -3007,6 +3007,7 @@
   "message.shop.none_available": "§eNo shops available.",
   "message.shop.not_enough_stock": "§cNot enough in stock! Available: %s",
   "message.shop.not_found": "§cShop '§e%s§c' not found!",
+  "message.shop.warehouse_shortage": "§c✗ Order failed!\n§7The dealer doesn't have enough §e%s§7 in the warehouse.\n§7Requested: §e%s§7, Available: §e%s",
   "message.shop.price_must_positive": "⚠ Price must be positive!",
   "message.shop.purchase_error": "§cError purchasing shares!",
   "message.shop.total_too_high": "§cTotal price too high! Buy fewer items.",

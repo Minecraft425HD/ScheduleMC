@@ -114,7 +114,11 @@ public class PurchaseItemPacket {
             } else {
                 available = entry.getStock();
             }
-            player.sendSystemMessage(Component.translatable("message.shop.not_enough_stock", available));
+            // Klare Meldung mit Item-Name, angeforderte Menge und verfügbare Menge
+            player.sendSystemMessage(Component.translatable("message.shop.warehouse_shortage",
+                entry.getItem().getHoverName().getString(),
+                quantity,
+                available));
             return;
         }
 
