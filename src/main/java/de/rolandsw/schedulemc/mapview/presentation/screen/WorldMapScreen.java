@@ -137,8 +137,8 @@ public class WorldMapScreen extends PopupScreen {
 
     // Territory Editor Mode
     private final boolean editMode;
-    private static final int PALETTE_BUTTON_SIZE = 32; // Square color buttons
-    private static final int PALETTE_PADDING = 4;
+    private static final int PALETTE_BUTTON_SIZE = 12; // Square color buttons (70% smaller: 32px → 12px)
+    private static final int PALETTE_PADDING = 3;
     private static final int PALETTE_TOP_MARGIN = 40; // Space below title/coords
     private static final int NAME_INPUT_WIDTH = 150;
     private static final int NAME_INPUT_HEIGHT = 20;
@@ -222,48 +222,48 @@ public class WorldMapScreen extends PopupScreen {
         this.sideMargin = 10; // Same for both modes now
         this.buttonSeparation = 4;
 
-        // Territory Editor: Horizontal color palette at top
+        // Territory Editor: ALL in ONE row (colors + delete + name input)
         if (editMode) {
-            // Calculate center position for horizontal palette
             TerritoryType[] types = TerritoryType.values();
-            int colorsPerRow = 5; // 5 colors per row (2 rows total)
-            int totalPaletteWidth = colorsPerRow * PALETTE_BUTTON_SIZE + (colorsPerRow - 1) * PALETTE_PADDING;
             int paletteStartX = 10; // Left-aligned
             int paletteY = PALETTE_TOP_MARGIN;
 
-            // Create color buttons in 2 rows x 5 columns grid
+            // Create all 10 color buttons in ONE row
             for (int i = 0; i < types.length; i++) {
                 TerritoryType type = types[i];
-                int row = i / colorsPerRow;
-                int col = i % colorsPerRow;
-                int buttonX = paletteStartX + col * (PALETTE_BUTTON_SIZE + PALETTE_PADDING);
-                int buttonY = paletteY + row * (PALETTE_BUTTON_SIZE + PALETTE_PADDING);
+                int buttonX = paletteStartX + i * (PALETTE_BUTTON_SIZE + PALETTE_PADDING);
 
                 Button button = Button.builder(
                     Component.literal(""), // No text, just color
                     btn -> selectedType = type
                 )
-                .bounds(buttonX, buttonY, PALETTE_BUTTON_SIZE, PALETTE_BUTTON_SIZE)
+                .bounds(buttonX, paletteY, PALETTE_BUTTON_SIZE, PALETTE_BUTTON_SIZE)
                 .build();
 
                 paletteButtons.put(type, button);
                 addRenderableWidget(button);
             }
 
-            // Clear Territory button (trash icon) - right of second row
+            // Clear Territory button (trash icon) - right after colors
+            int totalPaletteWidth = types.length * PALETTE_BUTTON_SIZE + (types.length - 1) * PALETTE_PADDING;
             int clearButtonX = paletteStartX + totalPaletteWidth + PALETTE_PADDING * 2;
-            int clearButtonY = paletteY + PALETTE_BUTTON_SIZE + PALETTE_PADDING;
             clearTerritoryButton = Button.builder(
                 Component.literal("🗑"),
-                btn -> selectedType = null
+                btn -> {
+                    selectedType = null;
+                    currentTerritoryName = "";
+                    if (territoryNameInput != null) {
+                        territoryNameInput.setValue("");
+                    }
+                }
             )
-            .bounds(clearButtonX, clearButtonY, PALETTE_BUTTON_SIZE, PALETTE_BUTTON_SIZE)
+            .bounds(clearButtonX, paletteY, PALETTE_BUTTON_SIZE, PALETTE_BUTTON_SIZE)
             .build();
             addRenderableWidget(clearTerritoryButton);
 
-            // Territory Name Input - to the right of palette
-            int nameInputX = paletteStartX + totalPaletteWidth + PALETTE_PADDING * 4 + PALETTE_BUTTON_SIZE;
-            int nameInputY = paletteY + 6; // Vertically centered
+            // Territory Name Input - right after delete button, same Y position
+            int nameInputX = clearButtonX + PALETTE_BUTTON_SIZE + PALETTE_PADDING * 2;
+            int nameInputY = paletteY - 4; // Slightly adjusted for vertical alignment with small buttons
             territoryNameInput = new EditBox(minecraft.font, nameInputX, nameInputY, NAME_INPUT_WIDTH, NAME_INPUT_HEIGHT,
                 Component.literal("Territory Name"));
             territoryNameInput.setHint(Component.literal("Gebietsname..."));
@@ -503,9 +503,9 @@ public class WorldMapScreen extends PopupScreen {
 
         // Territory Editor: Paint territory on left click (only if not over UI elements)
         if (editMode && button == 0 && mouseY > this.top && mouseY < this.bottom) {
-            // Check if click is not on palette area (palette is now at top, not left)
-            // Palette area: top 40-108px (PALETTE_TOP_MARGIN + 2 rows)
-            if (mouseY >= PALETTE_TOP_MARGIN + (PALETTE_BUTTON_SIZE + PALETTE_PADDING) * 2 + 10) {
+            // Check if click is not on palette area (palette is now at top in ONE row)
+            // Palette area: top PALETTE_TOP_MARGIN to PALETTE_TOP_MARGIN + PALETTE_BUTTON_SIZE + 10
+            if (mouseY >= PALETTE_TOP_MARGIN + PALETTE_BUTTON_SIZE + 10) {
                 paintTerritoryAt(mouseX, mouseY);
                 return true;
             }
@@ -1463,12 +1463,12 @@ public class WorldMapScreen extends PopupScreen {
         int chunkZ = ((int) Math.floor(cursorCoordZ)) >> 4;
         long chunkKey = getChunkKey(chunkX, chunkZ);
 
-        // Check if clicking on existing territory - if so, load its data for editing
+        // SHIFT + Click: Load existing territory for editing
         Map<Long, SyncTerritoriesPacket.TerritoryData> territories = SyncTerritoriesPacket.TerritoryClientCache.getCache();
         SyncTerritoriesPacket.TerritoryData existingTerritory = territories.get(chunkKey);
 
-        if (existingTerritory != null && selectedType == null) {
-            // Clicking on existing territory with clear tool - load for editing instead
+        if (existingTerritory != null && Screen.hasShiftDown()) {
+            // SHIFT + Click = Load territory for editing (SHIFT must be held down)
             selectedType = existingTerritory.type;
             currentTerritoryName = existingTerritory.name != null ? existingTerritory.name : "";
             if (territoryNameInput != null) {
