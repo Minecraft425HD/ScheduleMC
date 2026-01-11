@@ -472,6 +472,23 @@ public class NPCData {
         this.homeTime = homeTime;
     }
 
+    /**
+     * Prüft ob der NPC aktuell während seiner Arbeitszeit ist
+     * @param level Die Welt (für die aktuelle Zeit)
+     * @return true wenn innerhalb der Arbeitszeit, sonst false
+     */
+    public boolean isWithinWorkingHours(net.minecraft.world.level.Level level) {
+        long currentTime = level.getDayTime() % 24000; // Aktuelle Tageszeit (0-24000)
+
+        // Spezialfall: Wenn die Arbeitszeit über Mitternacht geht (z.B. 22:00 - 6:00)
+        if (workEndTime < workStartTime) {
+            return currentTime >= workStartTime || currentTime <= workEndTime;
+        }
+
+        // Normalfall: Arbeitszeit innerhalb eines Tages
+        return currentTime >= workStartTime && currentTime <= workEndTime;
+    }
+
     // Inventar und Geldbörse (nur BEWOHNER und VERKAEUFER)
     public NonNullList<ItemStack> getInventory() {
         return inventory;

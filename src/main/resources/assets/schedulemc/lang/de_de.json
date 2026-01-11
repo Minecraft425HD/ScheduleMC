@@ -4688,6 +4688,7 @@
   "message.npc.steal.caught": "§c✗ Erwischt!",
   "message.npc.purchase.success": "§a✓ Gekauft für %s€",
   "message.npc.purchase.insufficient": "§c✗ Nicht genug Geld",
+  "message.npc.outside_working_hours": "§cDieser Verkäufer ist außerhalb seiner Arbeitszeiten!",
   "message.plot.trust.added": "§a✓ Spieler vertraut",
   "message.plot.trust.removed": "§c✗ Vertrauen entfernt",
   "message.plot.rename.success": "§a✓ Grundstück umbenannt",

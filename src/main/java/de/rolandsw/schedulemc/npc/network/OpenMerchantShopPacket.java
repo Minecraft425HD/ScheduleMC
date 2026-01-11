@@ -49,6 +49,13 @@ public class OpenMerchantShopPacket {
             if (entity instanceof CustomNPCEntity npc) {
                 // Prüfe ob es ein Verkäufer ist
                 if (npc.getNpcType() == NPCType.VERKAEUFER) {
+                    // Prüfe ob NPC innerhalb der Arbeitszeiten ist
+                    if (!npc.getNpcData().isWithinWorkingHours(player.level())) {
+                        player.sendSystemMessage(Component.translatable("message.npc.outside_working_hours")
+                            .withStyle(ChatFormatting.RED));
+                        return;
+                    }
+
                     // Öffne Shop-GUI und sende Shop-Items zum Client
                     List<NPCData.ShopEntry> shopItems = new ArrayList<>(npc.getNpcData().getBuyShop().getEntries());
 

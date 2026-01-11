@@ -102,6 +102,12 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
             openShopBuy();
         }).bounds(x + 90, y + 54, 78, 20).build());
         shopBuyButton.visible = !isBank;
+
+        // Deaktiviere Kaufen-Button wenn NPC außerhalb der Arbeitszeiten ist
+        if (npc != null && minecraft != null && minecraft.level != null) {
+            boolean withinWorkingHours = npc.getNpcData().isWithinWorkingHours(minecraft.level);
+            shopBuyButton.active = withinWorkingHours;
+        }
     }
 
     /**
