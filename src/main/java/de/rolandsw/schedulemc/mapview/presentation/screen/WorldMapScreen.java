@@ -43,6 +43,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.border.WorldBorder;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.glfw.GLFW;
 
 import de.rolandsw.schedulemc.territory.TerritoryType;
@@ -59,6 +61,7 @@ import java.util.Random;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicReference;
 
+@OnlyIn(Dist.CLIENT)
 public class WorldMapScreen extends PopupScreen {
     private final Random generator = new Random();
     private final WorldMapData persistentMap;

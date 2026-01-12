@@ -27,18 +27,14 @@ public class TerritoryNetworkHandler {
     }
 
     public static void register() {
-        INSTANCE.messageBuilder(OpenMapEditorPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
-            .decoder(OpenMapEditorPacket::decode)
-            .encoder(OpenMapEditorPacket::encode)
-            .consumerMainThread(OpenMapEditorPacket::handle)
-            .add();
-
+        // Server-bound packets (safe to register on both sides)
         INSTANCE.messageBuilder(SetTerritoryPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
             .decoder(SetTerritoryPacket::decode)
             .encoder(SetTerritoryPacket::encode)
             .consumerMainThread(SetTerritoryPacket::handle)
             .add();
 
+        // Client-bound packets that don't reference Screen classes
         INSTANCE.messageBuilder(SyncTerritoriesPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
             .decoder(SyncTerritoriesPacket::decode)
             .encoder(SyncTerritoriesPacket::encode)
@@ -50,6 +46,18 @@ public class TerritoryNetworkHandler {
             .decoder(SyncTerritoryDeltaPacket::decode)
             .encoder(SyncTerritoryDeltaPacket::encode)
             .consumerMainThread(SyncTerritoryDeltaPacket::handle)
+            .add();
+    }
+
+    /**
+     * Register client-bound packets that reference client-only Screen classes.
+     * Must be called from client-side initialization only to avoid loading Screen classes on the server.
+     */
+    public static void registerClientPackets() {
+        INSTANCE.messageBuilder(OpenMapEditorPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+            .decoder(OpenMapEditorPacket::decode)
+            .encoder(OpenMapEditorPacket::encode)
+            .consumerMainThread(OpenMapEditorPacket::handle)
             .add();
     }
 

@@ -3,7 +3,10 @@ package de.rolandsw.schedulemc.mapview.presentation.screen;
 import de.rolandsw.schedulemc.mapview.presentation.component.PopupComponent;
 import java.util.ArrayList;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
+@OnlyIn(Dist.CLIENT)
 public abstract class PopupScreen extends BaseMapScreen implements IPopupScreen {
     private final ArrayList<PopupComponent> popups = new ArrayList<>();
 
