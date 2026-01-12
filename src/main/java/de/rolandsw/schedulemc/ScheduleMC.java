@@ -127,8 +127,7 @@ public class ScheduleMC {
     // Vehicle Mod integration
     private static Main vehicleMod;
 
-    public ScheduleMC() {
-        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+    public ScheduleMC(IEventBus modEventBus) {
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::onEntityAttributeCreation);
 
@@ -138,7 +137,7 @@ public class ScheduleMC {
         });
 
         // Initialize Vehicle Mod
-        vehicleMod = new Main();
+        vehicleMod = new Main(modEventBus);
 
         ModItems.ITEMS.register(modEventBus);
         TobaccoItems.ITEMS.register(modEventBus);
@@ -209,8 +208,9 @@ public class ScheduleMC {
         NPCMenuTypes.MENUS.register(modEventBus);
         ModCreativeTabs.CREATIVE_MODE_TABS.register(modEventBus);
 
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ModConfigHandler.SPEC);
-        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ModConfigHandler.CLIENT_SPEC);
+        ModLoadingContext context = ModLoadingContext.get();
+        context.registerConfig(ModConfig.Type.COMMON, ModConfigHandler.SPEC);
+        context.registerConfig(ModConfig.Type.CLIENT, ModConfigHandler.CLIENT_SPEC);
 
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(new BlockProtectionHandler());

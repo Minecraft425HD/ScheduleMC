@@ -3,8 +3,8 @@ package de.rolandsw.schedulemc.vehicle.fluids;
 import de.rolandsw.schedulemc.vehicle.Main;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fluids.FluidType;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
@@ -22,9 +22,9 @@ public class ModFluids {
             new FluidTypeVehicle("block.vehicle.diesel", ResourceLocation.fromNamespaceAndPath(Main.MODID, "block/diesel_still"), ResourceLocation.fromNamespaceAndPath(Main.MODID, "block/diesel_flowing"))
     );
 
-    public static void init() {
-        FLUID_REGISTER.register(FMLJavaModLoadingContext.get().getModEventBus());
-        FLUID_TYPE_REGISTER.register(FMLJavaModLoadingContext.get().getModEventBus());
+    public static void init(IEventBus modEventBus) {
+        FLUID_REGISTER.register(modEventBus);
+        FLUID_TYPE_REGISTER.register(modEventBus);
     }
 
 }

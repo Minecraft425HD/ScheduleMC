@@ -9,7 +9,7 @@ import de.maxhenkel.corelib.reflection.ReflectionUtils;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
@@ -28,9 +28,9 @@ public class ModBlocks {
             BlockEntityType.Builder.of(TileEntityGarage::new, GARAGE.get()).build(null)
     );
 
-    public static void init() {
-        BLOCK_REGISTER.register(FMLJavaModLoadingContext.get().getModEventBus());
-        BLOCK_ENTITY_REGISTER.register(FMLJavaModLoadingContext.get().getModEventBus());
+    public static void init(IEventBus modEventBus) {
+        BLOCK_REGISTER.register(modEventBus);
+        BLOCK_ENTITY_REGISTER.register(modEventBus);
     }
 
 }

@@ -42,6 +42,7 @@ import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.config.ModConfig;
@@ -73,27 +74,32 @@ public class Main {
 
     public static FuelConfig FUEL_CONFIG;
 
-    public Main() {
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
+    public Main(IEventBus modEventBus) {
+        modEventBus.addListener(this::commonSetup);
 
         FUEL_CONFIG = CommonRegistry.registerDynamicConfig(DynamicConfig.DynamicConfigType.SERVER, Main.MODID, "fuel", FuelConfig.class);
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            FMLJavaModLoadingContext.get().getModEventBus().addListener(Main.this::clientSetup);
-            FMLJavaModLoadingContext.get().getModEventBus().addListener(Main.this::onRegisterKeyBinds);
+            modEventBus.addListener(Main.this::clientSetup);
+            modEventBus.addListener(Main.this::onRegisterKeyBinds);
         });
 
-        ModFluids.init();
-        ModBlocks.init();
-        ModItems.init();
-        ModSounds.init();
-        ModCreativeTabs.init();
+        ModFluids.init(modEventBus);
+        ModBlocks.init(modEventBus);
+        ModItems.init(modEventBus);
+        ModSounds.init(modEventBus);
+        ModCreativeTabs.init(modEventBus);
 
-        MENU_TYPE_REGISTER.register(FMLJavaModLoadingContext.get().getModEventBus());
-        BLOCK_ENTITY_REGISTER.register(FMLJavaModLoadingContext.get().getModEventBus());
-        ENTITY_REGISTER.register(FMLJavaModLoadingContext.get().getModEventBus());
-        RECIPE_SERIALIZER_REGISTER.register(FMLJavaModLoadingContext.get().getModEventBus());
-        ENTITY_DATA_SERIALIZER_REGISTER.register(FMLJavaModLoadingContext.get().getModEventBus());
+        MENU_TYPE_REGISTER.register(modEventBus);
+        BLOCK_ENTITY_REGISTER.register(modEventBus);
+        ENTITY_REGISTER.register(modEventBus);
+        RECIPE_SERIALIZER_REGISTER.register(modEventBus);
+        ENTITY_DATA_SERIALIZER_REGISTER.register(modEventBus);
+    }
+
+    // Legacy constructor for backward compatibility
+    public Main() {
+        this(FMLJavaModLoadingContext.get().getModEventBus());
     }
 
     @SubscribeEvent

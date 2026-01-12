@@ -5,7 +5,7 @@ import de.rolandsw.schedulemc.vehicle.blocks.ModBlocks;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartRegistry;
 import de.rolandsw.schedulemc.vehicle.fluids.ModFluids;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
@@ -105,8 +105,8 @@ public class ModItems {
     public static final RegistryObject<Item> FUEL_STATION = ITEM_REGISTER.register("fuel_station", () -> ModBlocks.FUEL_STATION.get().toItem());
     public static final RegistryObject<Item> GARAGE = ITEM_REGISTER.register("garage", () -> ModBlocks.GARAGE.get().toItem());
 
-    public static void init() {
-        ITEM_REGISTER.register(FMLJavaModLoadingContext.get().getModEventBus());
+    public static void init(IEventBus modEventBus) {
+        ITEM_REGISTER.register(modEventBus);
     }
 
 }
