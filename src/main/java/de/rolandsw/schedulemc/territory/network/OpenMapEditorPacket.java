@@ -1,7 +1,5 @@
 package de.rolandsw.schedulemc.territory.network;
 
-import de.rolandsw.schedulemc.mapview.presentation.screen.WorldMapScreen;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
@@ -28,8 +26,7 @@ public class OpenMapEditorPacket {
     public static void handle(OpenMapEditorPacket msg, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-                Minecraft mc = Minecraft.getInstance();
-                mc.setScreen(new WorldMapScreen(null, true));
+                ClientMapScreenOpener.openMapEditor();
             });
         });
         ctx.get().setPacketHandled(true);
