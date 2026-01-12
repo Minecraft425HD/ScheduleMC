@@ -7,6 +7,7 @@ import de.rolandsw.schedulemc.npc.client.ClientNPCNameCache;
 import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.npc.data.MerchantCategory;
 import de.rolandsw.schedulemc.npc.data.BankCategory;
+import de.rolandsw.schedulemc.npc.data.ServiceCategory;
 import de.rolandsw.schedulemc.npc.menu.NPCSpawnerMenu;
 import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
 import de.rolandsw.schedulemc.npc.network.SpawnNPCPacket;
@@ -58,6 +59,11 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
     private int selectedBankCategoryIndex = 0;
     private Button prevBankCategoryButton;
     private Button nextBankCategoryButton;
+
+    // Service Kategorie Auswahl
+    private int selectedServiceCategoryIndex = 0;
+    private Button prevServiceCategoryButton;
+    private Button nextServiceCategoryButton;
 
     public NPCSpawnerScreen(NPCSpawnerMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -123,6 +129,15 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
             selectedBankCategoryIndex = (selectedBankCategoryIndex + 1) % BankCategory.values().length;
         }).bounds(x + 136, y + 110, 20, 20).build());
 
+        // Service Kategorie Selection Buttons
+        prevServiceCategoryButton = addRenderableWidget(Button.builder(Component.literal("<"), button -> {
+            selectedServiceCategoryIndex = (selectedServiceCategoryIndex - 1 + ServiceCategory.values().length) % ServiceCategory.values().length;
+        }).bounds(x + 20, y + 110, 20, 20).build());
+
+        nextServiceCategoryButton = addRenderableWidget(Button.builder(Component.literal(">"), button -> {
+            selectedServiceCategoryIndex = (selectedServiceCategoryIndex + 1) % ServiceCategory.values().length;
+        }).bounds(x + 136, y + 110, 20, 20).build());
+
         // Spawn Button
         spawnButton = addRenderableWidget(Button.builder(Component.translatable("gui.npc.spawn_title"), button -> {
             spawnNPC();
@@ -142,18 +157,22 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
     }
 
     /**
-     * Aktualisiert die Sichtbarkeit der Kategorie-Buttons (Verkäufer/Bank)
+     * Aktualisiert die Sichtbarkeit der Kategorie-Buttons (Verkäufer/Bank/Service)
      */
     private void updateCategoryVisibility() {
         NPCType currentType = NPCType.values()[selectedNPCTypeIndex];
         boolean isVerkaufer = currentType == NPCType.VERKAEUFER;
         boolean isBank = currentType == NPCType.BANK;
+        boolean isAbschlepper = currentType == NPCType.ABSCHLEPPER;
 
         prevMerchantCategoryButton.visible = isVerkaufer;
         nextMerchantCategoryButton.visible = isVerkaufer;
 
         prevBankCategoryButton.visible = isBank;
         nextBankCategoryButton.visible = isBank;
+
+        prevServiceCategoryButton.visible = isAbschlepper;
+        nextServiceCategoryButton.visible = isAbschlepper;
     }
 
     /**
@@ -231,6 +250,7 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
         NPCType npcType = NPCType.values()[selectedNPCTypeIndex];
         MerchantCategory merchantCategory = MerchantCategory.values()[selectedMerchantCategoryIndex];
         BankCategory bankCategory = BankCategory.values()[selectedBankCategoryIndex];
+        ServiceCategory serviceCategory = ServiceCategory.values()[selectedServiceCategoryIndex];
 
         NPCNetworkHandler.sendToServer(new SpawnNPCPacket(
             menu.getSpawnPosition(),
@@ -238,7 +258,8 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
             skinFile,
             npcType,
             merchantCategory,
-            bankCategory
+            bankCategory,
+            serviceCategory
         ));
 
         this.onClose();
@@ -316,6 +337,15 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
             int categoryTextY = y + 115;
             guiGraphics.drawString(this.font, categoryName, categoryTextX, categoryTextY, 0x404040, false);
         }
+
+        // Zeige ausgewählte Service-Kategorie (nur wenn Abschlepper)
+        if (currentType == NPCType.ABSCHLEPPER) {
+            ServiceCategory currentCategory = ServiceCategory.values()[selectedServiceCategoryIndex];
+            String categoryName = currentCategory.getDisplayName();
+            int categoryTextX = x + (imageWidth - font.width(categoryName)) / 2;
+            int categoryTextY = y + 115;
+            guiGraphics.drawString(this.font, categoryName, categoryTextX, categoryTextY, 0x404040, false);
+        }
     }    @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         // Block E key (inventory key - 69) from closing the screen
@@ -350,6 +380,11 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
 
         // Bank-Kategorie Label nur anzeigen wenn Bank ausgewählt
         if (currentType == NPCType.BANK) {
+            guiGraphics.drawString(this.font, Component.translatable("screen.npc_spawner.label_category").getString(), 8, 103, 0x404040, false);
+        }
+
+        // Service-Kategorie Label nur anzeigen wenn Abschlepper ausgewählt
+        if (currentType == NPCType.ABSCHLEPPER) {
             guiGraphics.drawString(this.font, Component.translatable("screen.npc_spawner.label_category").getString(), 8, 103, 0x404040, false);
         }
     }

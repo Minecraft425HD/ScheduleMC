@@ -64,9 +64,13 @@ public class WarehouseBlock extends Block implements EntityBlock {
 
                 // Prüfe ob Warehouse in einem Plot liegt
                 PlotRegion plot = PlotManager.getPlotAt(pos);
-                if (plot != null && plot.getType().isShop()) {
-                    // Setze Shop-ID automatisch auf Plot-ID
+                if (plot != null && (plot.getType().isShop() || plot.getType().isTowingYard())) {
+                    // Setze Shop-ID automatisch auf Plot-ID (auch für Towing Yards)
                     warehouse.setShopId(plot.getPlotId());
+
+                    // Setze Warehouse-Position im Plot (wichtig für Towing Yards)
+                    plot.setWarehouseLocation(pos);
+                    de.rolandsw.schedulemc.region.PlotManager.markDirty();
 
                     if (placer instanceof Player player) {
                         player.displayClientMessage(
