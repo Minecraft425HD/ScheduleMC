@@ -23,6 +23,7 @@ public class TowingYardManager {
 
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Map<UUID, TowingYardParkingSpot> parkingSpots = new ConcurrentHashMap<>();
+    private static final Map<String, List<TowingTransaction>> towingTransactions = new ConcurrentHashMap<>();
     private static final File file = new File("config/plotmod_towing_parking_spots.json");
     private static final Gson gson = GsonHelper.get();
 
@@ -150,6 +151,83 @@ public class TowingYardManager {
 
     public static boolean isHealthy() {
         return persistence.isHealthy();
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // TOWING TRANSACTION TRACKING (Warehouse Integration)
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Records a towing transaction for revenue tracking
+     */
+    public static void recordTransaction(long timestamp, UUID playerId, UUID vehicleId, String towingYardPlotId,
+                                          double totalCost, double playerPaid, MembershipTier membershipTier) {
+        // Calculate yard revenue (player paid amount goes to the yard)
+        double yardRevenue = playerPaid;
+
+        TowingTransaction transaction = new TowingTransaction(
+            timestamp, playerId, vehicleId, towingYardPlotId,
+            totalCost, playerPaid, yardRevenue, membershipTier
+        );
+
+        towingTransactions.computeIfAbsent(towingYardPlotId, k -> new ArrayList<>()).add(transaction);
+        markDirty();
+        LOGGER.info("Recorded towing transaction: {} → yard {} (revenue: {}€)", playerId, towingYardPlotId, yardRevenue);
+    }
+
+    /**
+     * Gets all transactions for a specific towing yard
+     */
+    public static List<TowingTransaction> getTransactions(String towingYardPlotId) {
+        return new ArrayList<>(towingTransactions.getOrDefault(towingYardPlotId, new ArrayList<>()));
+    }
+
+    /**
+     * Gets total revenue for a towing yard in the last X days
+     */
+    public static double getTotalRevenue(String towingYardPlotId, long currentTime, int days) {
+        List<TowingTransaction> transactions = towingTransactions.getOrDefault(towingYardPlotId, new ArrayList<>());
+        return transactions.stream()
+            .filter(t -> !t.isOlderThan(currentTime, days))
+            .mapToDouble(TowingTransaction::getYardRevenue)
+            .sum();
+    }
+
+    /**
+     * Gets number of towing operations in the last X days
+     */
+    public static int getTowingCount(String towingYardPlotId, long currentTime, int days) {
+        List<TowingTransaction> transactions = towingTransactions.getOrDefault(towingYardPlotId, new ArrayList<>());
+        return (int) transactions.stream()
+            .filter(t -> !t.isOlderThan(currentTime, days))
+            .count();
+    }
+
+    /**
+     * Gets average revenue per towing operation
+     */
+    public static double getAverageRevenue(String towingYardPlotId, long currentTime, int days) {
+        List<TowingTransaction> transactions = towingTransactions.getOrDefault(towingYardPlotId, new ArrayList<>());
+        List<TowingTransaction> recent = transactions.stream()
+            .filter(t -> !t.isOlderThan(currentTime, days))
+            .toList();
+
+        if (recent.isEmpty()) {
+            return 0.0;
+        }
+
+        double total = recent.stream().mapToDouble(TowingTransaction::getYardRevenue).sum();
+        return total / recent.size();
+    }
+
+    /**
+     * Cleans up old transactions (older than 30 days)
+     */
+    public static void cleanupOldTransactions(long currentTime) {
+        for (List<TowingTransaction> transactions : towingTransactions.values()) {
+            transactions.removeIf(t -> t.isOlderThan(currentTime, 30));
+        }
+        markDirty();
     }
 
     /**

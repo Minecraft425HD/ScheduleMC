@@ -132,6 +132,17 @@ public class RequestTowingPacket {
             // Mark vehicle as on towing yard to disable fuel consumption
             vehicle.setIsOnTowingYard(true);
 
+            // Record transaction for revenue tracking
+            TowingYardManager.recordTransaction(
+                level.getGameTime(),
+                sender.getUUID(),
+                vehicle.getUUID(),
+                towingYardPlotId,
+                TowingYardManager.calculateTowingCost(distance), // Original cost before discount
+                totalCost, // Amount player actually paid
+                membership != null ? membership.getTier() : de.rolandsw.schedulemc.towing.MembershipTier.NONE
+            );
+
             TowingYardManager.save();
 
             // Increment tow count for membership
