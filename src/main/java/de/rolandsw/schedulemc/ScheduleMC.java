@@ -309,6 +309,10 @@ public class ScheduleMC {
             PlayerTracker.load();
             de.rolandsw.schedulemc.player.PlayerSettingsManager.load();
 
+            // Towing Service System
+            de.rolandsw.schedulemc.towing.MembershipManager.load();
+            de.rolandsw.schedulemc.towing.TowingYardManager.load();
+
             // NEU: Warehouse & Shop System initialisieren
             StateAccount.load();
             MinecraftForge.EVENT_BUS.register(ShopAccountManager.class);
@@ -397,6 +401,13 @@ public class ScheduleMC {
                 WalletManager.saveIfNeeded();
                 NPCNameRegistry.saveIfNeeded();
                 MessageManager.saveIfNeeded();
+                PlayerTracker.saveIfNeeded();
+                de.rolandsw.schedulemc.player.PlayerSettingsManager.saveIfNeeded();
+
+                // Towing Service System periodic saves
+                de.rolandsw.schedulemc.towing.MembershipManager.saveIfNeeded();
+                de.rolandsw.schedulemc.towing.TowingYardManager.saveIfNeeded();
+
                 // Vehicle System periodic saves
                 de.rolandsw.schedulemc.vehicle.vehicle.VehicleSpawnRegistry.save();
                 de.rolandsw.schedulemc.vehicle.fuel.FuelStationRegistry.save();
@@ -444,7 +455,13 @@ public class ScheduleMC {
             WalletManager.save();
             NPCNameRegistry.saveRegistry();
             MessageManager.saveMessages();
+            PlayerTracker.save();
+            de.rolandsw.schedulemc.player.PlayerSettingsManager.save();
             WarehouseManager.save(event.getServer());
+
+            // Towing Service System final saves
+            de.rolandsw.schedulemc.towing.MembershipManager.save();
+            de.rolandsw.schedulemc.towing.TowingYardManager.save();
 
             // Economy Systems final saves
             InterestManager.getInstance(event.getServer()).save();

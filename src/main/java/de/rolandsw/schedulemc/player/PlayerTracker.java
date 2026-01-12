@@ -93,6 +93,16 @@ public class PlayerTracker {
     }
 
     /**
+     * Gets all service contacts (Pannenhilfe, Taxi, etc.)
+     */
+    public static List<ServiceContact> getServiceContacts() {
+        List<ServiceContact> services = new ArrayList<>();
+        services.add(new ServiceContact("towing_service", "Pannenhilfe ADAC", ServiceContact.ServiceType.TOWING));
+        // Future: Add more services like Taxi, Emergency, etc.
+        return services;
+    }
+
+    /**
      * Simple player contact data class
      */
     public static class PlayerContact {
