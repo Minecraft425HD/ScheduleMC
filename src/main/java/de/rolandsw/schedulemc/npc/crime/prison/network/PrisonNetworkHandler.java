@@ -27,6 +27,26 @@ public class PrisonNetworkHandler {
     }
 
     public static void register() {
+        // Server-bound packets (safe to register on both sides)
+        INSTANCE.messageBuilder(PayBailPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(PayBailPacket::decode)
+            .encoder(PayBailPacket::encode)
+            .consumerMainThread(PayBailPacket::handle)
+            .add();
+
+        // Client-bound packets that don't reference Screen classes
+        INSTANCE.messageBuilder(UpdatePrisonBalancePacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+            .decoder(UpdatePrisonBalancePacket::decode)
+            .encoder(UpdatePrisonBalancePacket::encode)
+            .consumerMainThread(UpdatePrisonBalancePacket::handle)
+            .add();
+    }
+
+    /**
+     * Register client-bound packets that reference client-only Screen classes.
+     * Must be called from client-side initialization only to avoid loading Screen classes on the server.
+     */
+    public static void registerClientPackets() {
         INSTANCE.messageBuilder(OpenPrisonScreenPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
             .decoder(OpenPrisonScreenPacket::decode)
             .encoder(OpenPrisonScreenPacket::encode)
@@ -37,18 +57,6 @@ public class PrisonNetworkHandler {
             .decoder(ClosePrisonScreenPacket::decode)
             .encoder(ClosePrisonScreenPacket::encode)
             .consumerMainThread(ClosePrisonScreenPacket::handle)
-            .add();
-
-        INSTANCE.messageBuilder(PayBailPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
-            .decoder(PayBailPacket::decode)
-            .encoder(PayBailPacket::encode)
-            .consumerMainThread(PayBailPacket::handle)
-            .add();
-
-        INSTANCE.messageBuilder(UpdatePrisonBalancePacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
-            .decoder(UpdatePrisonBalancePacket::decode)
-            .encoder(UpdatePrisonBalancePacket::encode)
-            .consumerMainThread(UpdatePrisonBalancePacket::handle)
             .add();
     }
 

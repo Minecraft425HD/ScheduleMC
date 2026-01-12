@@ -131,6 +131,11 @@ public class ScheduleMC {
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::onEntityAttributeCreation);
 
+        // Register client-side packet handlers only on client
+        net.minecraftforge.fml.DistExecutor.unsafeRunWhenOn(net.minecraftforge.api.distmarker.Dist.CLIENT, () -> () -> {
+            modEventBus.addListener(this::clientSetup);
+        });
+
         // Initialize Vehicle Mod
         vehicleMod = new Main();
 
@@ -250,6 +255,16 @@ public class ScheduleMC {
         });
 
         // Vehicle Mod handles its own setup via event bus (registered in Main constructor)
+    }
+
+    private void clientSetup(final net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent event) {
+        event.enqueueWork(() -> {
+            // Register client-bound packets that reference Screen classes
+            // These must be registered client-side only to avoid loading Screen classes on the server
+            de.rolandsw.schedulemc.territory.network.TerritoryNetworkHandler.registerClientPackets();
+            de.rolandsw.schedulemc.npc.crime.prison.network.PrisonNetworkHandler.registerClientPackets();
+            LOGGER.info("Client-side packets registered");
+        });
     }
 
     private void onEntityAttributeCreation(EntityAttributeCreationEvent event) {
