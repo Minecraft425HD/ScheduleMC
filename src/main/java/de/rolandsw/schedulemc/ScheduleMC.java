@@ -248,6 +248,9 @@ public class ScheduleMC {
             de.rolandsw.schedulemc.npc.crime.prison.PrisonManager.init();
             de.rolandsw.schedulemc.territory.network.TerritoryNetworkHandler.register();
 
+            // MapView (LightMap) network packets - must be registered on both client and server
+            de.rolandsw.schedulemc.mapview.integration.forge.ForgeEvents.registerNetworkPackets();
+
             // Utility-System initialisieren
             UtilityRegistry.registerDefaults();
             UtilityRegistry.resolveBlockReferences();

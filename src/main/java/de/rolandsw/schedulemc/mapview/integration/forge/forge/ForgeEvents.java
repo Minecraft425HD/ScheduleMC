@@ -33,38 +33,20 @@ public class ForgeEvents implements Events {
             PROTOCOL_VERSION::equals
     );
 
+    private static boolean packetsRegistered = false;
+
     public ForgeEvents() {
     }
 
-    @Override
-    public void initEvents(MapDataManager map) {
-        this.map = map;
-        // Event listeners are now registered from ClientModEvents in ScheduleMC
-        MinecraftForge.EVENT_BUS.register(new ForgeEventListener(map));
-    }
-
-    // Public method to be called from ClientModEvents
-    public void preInitClientPublic() {
-        MapViewConstants.lateInit();
-        if (map != null) {
-            map.onConfigurationInit();
+    /**
+     * Register network packets for the lightmap channel.
+     * Must be called on both client and server to avoid version mismatch.
+     */
+    public static synchronized void registerNetworkPackets() {
+        if (packetsRegistered) {
+            return; // Already registered
         }
-    }
 
-    // Public method to be called from ClientModEvents
-    public void registerPacketsPublic() {
-        registerPackets(null);
-    }
-
-    private void preInitClient(final FMLClientSetupEvent event) {
-        // Initialize MapDataManager on the main thread (required for texture creation)
-        event.enqueueWork(() -> {
-            MapViewConstants.lateInit();
-            map.onConfigurationInit();
-        });
-    }
-
-    public void registerPackets(final FMLClientSetupEvent event) {
         int id = 0;
         CHANNEL.registerMessage(id++, MapViewSettingsS2C.class,
             MapViewSettingsS2C::write,
@@ -84,6 +66,36 @@ public class ForgeEvents implements Events {
             (msg, ctx) -> { ctx.get().setPacketHandled(true); },
             Optional.of(NetworkDirection.PLAY_TO_SERVER)
         );
+
+        packetsRegistered = true;
+    }
+
+    @Override
+    public void initEvents(MapDataManager map) {
+        this.map = map;
+        // Event listeners are now registered from ClientModEvents in ScheduleMC
+        MinecraftForge.EVENT_BUS.register(new ForgeEventListener(map));
+    }
+
+    // Public method to be called from ClientModEvents
+    public void preInitClientPublic() {
+        MapViewConstants.lateInit();
+        if (map != null) {
+            map.onConfigurationInit();
+        }
+    }
+
+    // Public method to be called from ClientModEvents
+    public void registerPacketsPublic() {
+        registerNetworkPackets();
+    }
+
+    private void preInitClient(final FMLClientSetupEvent event) {
+        // Initialize MapDataManager on the main thread (required for texture creation)
+        event.enqueueWork(() -> {
+            MapViewConstants.lateInit();
+            map.onConfigurationInit();
+        });
     }
 
     private static class ForgeEventListener {
