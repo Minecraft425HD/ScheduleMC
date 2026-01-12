@@ -2,7 +2,7 @@ package de.rolandsw.schedulemc.towing.network;
 
 import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.economy.WalletManager;
-import de.rolandsw.schedulemc.region.Plot;
+import de.rolandsw.schedulemc.region.PlotRegion;
 import de.rolandsw.schedulemc.region.PlotManager;
 import de.rolandsw.schedulemc.towing.MembershipData;
 import de.rolandsw.schedulemc.towing.MembershipManager;
@@ -25,20 +25,20 @@ import java.util.function.Supplier;
  */
 public class RequestTowingPacket {
     private final UUID vehicleEntityId;
-    private final UUID towingYardPlotId;
+    private final String towingYardPlotId;
 
-    public RequestTowingPacket(UUID vehicleEntityId, UUID towingYardPlotId) {
+    public RequestTowingPacket(UUID vehicleEntityId, String towingYardPlotId) {
         this.vehicleEntityId = vehicleEntityId;
         this.towingYardPlotId = towingYardPlotId;
     }
 
     public void encode(FriendlyByteBuf buf) {
         buf.writeUUID(vehicleEntityId);
-        buf.writeUUID(towingYardPlotId);
+        buf.writeUtf(towingYardPlotId);
     }
 
     public static RequestTowingPacket decode(FriendlyByteBuf buf) {
-        return new RequestTowingPacket(buf.readUUID(), buf.readUUID());
+        return new RequestTowingPacket(buf.readUUID(), buf.readUtf(256));
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
@@ -74,7 +74,7 @@ public class RequestTowingPacket {
             }
 
             // Get towing yard plot
-            Plot towingYard = PlotManager.getInstance().getPlotById(towingYardPlotId);
+            PlotRegion towingYard = PlotManager.getPlot(towingYardPlotId);
             if (towingYard == null || !towingYard.getPlotType().isTowingYard()) {
                 sender.displayClientMessage(
                     Component.translatable("towing.error.invalid_yard"),

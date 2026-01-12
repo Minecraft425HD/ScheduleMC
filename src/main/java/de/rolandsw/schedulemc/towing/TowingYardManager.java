@@ -48,7 +48,7 @@ public class TowingYardManager {
     /**
      * Adds a new parking spot
      */
-    public static UUID addParkingSpot(BlockPos location, UUID towingYardPlotId) {
+    public static UUID addParkingSpot(BlockPos location, String towingYardPlotId) {
         UUID spotId = UUID.randomUUID();
         TowingYardParkingSpot spot = new TowingYardParkingSpot(spotId, location, towingYardPlotId);
         parkingSpots.put(spotId, spot);
@@ -70,7 +70,7 @@ public class TowingYardManager {
      * Finds a free parking spot at a specific towing yard
      */
     @Nullable
-    public static TowingYardParkingSpot findFreeSpot(UUID towingYardPlotId) {
+    public static TowingYardParkingSpot findFreeSpot(String towingYardPlotId) {
         return parkingSpots.values().stream()
             .filter(spot -> spot.getTowingYardPlotId().equals(towingYardPlotId))
             .filter(spot -> !spot.isOccupied())
@@ -81,7 +81,7 @@ public class TowingYardManager {
     /**
      * Gets all towing yards (distinct plot IDs with at least one spot)
      */
-    public static List<UUID> getAllTowingYards() {
+    public static List<String> getAllTowingYards() {
         return parkingSpots.values().stream()
             .map(TowingYardParkingSpot::getTowingYardPlotId)
             .distinct()
@@ -91,7 +91,7 @@ public class TowingYardManager {
     /**
      * Gets parking spots at a towing yard
      */
-    public static List<TowingYardParkingSpot> getSpotsAtYard(UUID towingYardPlotId) {
+    public static List<TowingYardParkingSpot> getSpotsAtYard(String towingYardPlotId) {
         return parkingSpots.values().stream()
             .filter(spot -> spot.getTowingYardPlotId().equals(towingYardPlotId))
             .collect(Collectors.toList());
@@ -100,7 +100,7 @@ public class TowingYardManager {
     /**
      * Counts free spots at a towing yard
      */
-    public static int countFreeSpots(UUID towingYardPlotId) {
+    public static int countFreeSpots(String towingYardPlotId) {
         return (int) parkingSpots.values().stream()
             .filter(spot -> spot.getTowingYardPlotId().equals(towingYardPlotId))
             .filter(spot -> !spot.isOccupied())
@@ -110,7 +110,7 @@ public class TowingYardManager {
     /**
      * Counts total spots at a towing yard
      */
-    public static int countTotalSpots(UUID towingYardPlotId) {
+    public static int countTotalSpots(String towingYardPlotId) {
         return (int) parkingSpots.values().stream()
             .filter(spot -> spot.getTowingYardPlotId().equals(towingYardPlotId))
             .count();

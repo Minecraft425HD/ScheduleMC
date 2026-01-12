@@ -11,7 +11,7 @@ import java.util.UUID;
 public class TowingYardParkingSpot {
     private final UUID spotId;
     private final BlockPos location;
-    private final UUID towingYardPlotId;
+    private final String towingYardPlotId;
     private boolean occupied;
     private UUID vehicleEntityId;
     private UUID ownerPlayerId;
@@ -20,7 +20,7 @@ public class TowingYardParkingSpot {
     private long towedTimestamp;
     private boolean engineWasRunning;
 
-    public TowingYardParkingSpot(UUID spotId, BlockPos location, UUID towingYardPlotId) {
+    public TowingYardParkingSpot(UUID spotId, BlockPos location, String towingYardPlotId) {
         this.spotId = spotId;
         this.location = location;
         this.towingYardPlotId = towingYardPlotId;
@@ -62,7 +62,7 @@ public class TowingYardParkingSpot {
         return location;
     }
 
-    public UUID getTowingYardPlotId() {
+    public String getTowingYardPlotId() {
         return towingYardPlotId;
     }
 

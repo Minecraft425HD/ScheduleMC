@@ -1,7 +1,7 @@
 package de.rolandsw.schedulemc.client.screen.apps;
 
 import de.rolandsw.schedulemc.region.PlotManager;
-import de.rolandsw.schedulemc.region.Plot;
+import de.rolandsw.schedulemc.region.PlotRegion;
 import de.rolandsw.schedulemc.towing.TowingYardManager;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -61,10 +61,10 @@ public class TowingYardSelectionScreen extends Screen {
     private void loadTowingYards() {
         towingYards.clear();
 
-        List<UUID> yardPlotIds = TowingYardManager.getAllTowingYards();
+        List<String> yardPlotIds = TowingYardManager.getAllTowingYards();
 
-        for (UUID plotId : yardPlotIds) {
-            Plot plot = PlotManager.getInstance().getPlotById(plotId);
+        for (String plotId : yardPlotIds) {
+            PlotRegion plot = PlotManager.getPlot(plotId);
             if (plot != null && plot.getPlotType().isTowingYard()) {
                 int freeSpots = TowingYardManager.countFreeSpots(plotId);
                 if (freeSpots > 0) {
@@ -231,11 +231,11 @@ public class TowingYardSelectionScreen extends Screen {
      * Helper class to store towing yard information
      */
     private static class TowingYardInfo {
-        final UUID plotId;
-        final Plot plot;
+        final String plotId;
+        final PlotRegion plot;
         final int freeSpots;
 
-        public TowingYardInfo(UUID plotId, Plot plot, int freeSpots) {
+        public TowingYardInfo(String plotId, PlotRegion plot, int freeSpots) {
             this.plotId = plotId;
             this.plot = plot;
             this.freeSpots = freeSpots;
