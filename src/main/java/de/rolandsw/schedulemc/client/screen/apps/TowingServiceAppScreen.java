@@ -81,6 +81,8 @@ public class TowingServiceAppScreen extends Screen {
         }
 
         Level level = minecraft.level;
+        String playerName = minecraft.player.getName().getString();
+        String playerPrefix = extractLicensePlatePrefix(playerName);
 
         // Query all vehicle entities within a large radius around player
         net.minecraft.world.phys.AABB searchBox = new net.minecraft.world.phys.AABB(
@@ -89,10 +91,52 @@ public class TowingServiceAppScreen extends Screen {
         );
 
         for (EntityGenericVehicle vehicle : level.getEntitiesOfClass(EntityGenericVehicle.class, searchBox)) {
+            // Check 1: Owner ID matches (preferred method)
             if (playerId.equals(vehicle.getOwnerId())) {
                 vehicles.add(new VehicleInfo(vehicle));
+                continue;
+            }
+
+            // Check 2: License plate prefix matches player name (fallback)
+            String licensePlate = vehicle.getLicensePlate();
+            if (licensePlate != null && !licensePlate.isEmpty()) {
+                if (licensePlate.startsWith(playerPrefix + "-")) {
+                    vehicles.add(new VehicleInfo(vehicle));
+                }
             }
         }
+    }
+
+    /**
+     * Extracts 3-letter prefix from player name for license plate matching
+     * Same logic as VehiclePurchaseHandler.extractPrefix()
+     */
+    private String extractLicensePlatePrefix(String playerName) {
+        // Remove special characters and convert to uppercase
+        StringBuilder cleaned = new StringBuilder();
+        for (char c : playerName.toCharArray()) {
+            char upper = Character.toUpperCase(c);
+
+            // Convert German umlauts
+            if (upper == 'Ä') upper = 'A';
+            else if (upper == 'Ö') upper = 'O';
+            else if (upper == 'Ü') upper = 'U';
+            else if (upper == 'ß') upper = 'S';
+
+            // Only keep A-Z
+            if (upper >= 'A' && upper <= 'Z') {
+                cleaned.append(upper);
+            }
+        }
+
+        String result = cleaned.toString();
+
+        // Ensure at least 3 characters
+        if (result.length() < 3) {
+            result = result + "XXX".substring(result.length());
+        }
+
+        return result.substring(0, 3);
     }
 
     private void loadMembership() {

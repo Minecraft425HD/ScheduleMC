@@ -848,19 +848,51 @@ public class NPCData {
     }
 
     public boolean hasWarehouse() {
-        return assignedWarehouse != null;
+        // Direktes Warehouse (für VERKAEUFER)
+        if (assignedWarehouse != null) {
+            return true;
+        }
+
+        // Plot-basiertes Warehouse (für ABSCHLEPPER)
+        if (npcType == NPCType.ABSCHLEPPER && workLocation != null) {
+            de.rolandsw.schedulemc.region.PlotRegion plot =
+                de.rolandsw.schedulemc.region.PlotManager.getPlotAt(workLocation);
+            return plot != null && plot.getType().isTowingYard() && plot.getWarehouseLocation() != null;
+        }
+
+        return false;
     }
 
     /**
      * Gibt Warehouse BlockEntity zurück (wenn vorhanden)
+     * Für VERKAEUFER: Nutzt assignedWarehouse
+     * Für ABSCHLEPPER: Sucht Warehouse über Towing Yard Plot
      */
     @Nullable
     public de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity getWarehouseEntity(net.minecraft.world.level.Level level) {
-        if (assignedWarehouse == null) return null;
-        net.minecraft.world.level.block.entity.BlockEntity be = level.getBlockEntity(assignedWarehouse);
-        if (be instanceof de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity) {
-            return (de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity) be;
+        BlockPos warehousePos = null;
+
+        // Methode 1: Direkt zugewiesenes Warehouse (für VERKAEUFER)
+        if (assignedWarehouse != null) {
+            warehousePos = assignedWarehouse;
         }
+        // Methode 2: Warehouse über Plot finden (für ABSCHLEPPER)
+        else if (npcType == NPCType.ABSCHLEPPER && workLocation != null) {
+            de.rolandsw.schedulemc.region.PlotRegion plot =
+                de.rolandsw.schedulemc.region.PlotManager.getPlotAt(workLocation);
+            if (plot != null && plot.getType().isTowingYard()) {
+                warehousePos = plot.getWarehouseLocation();
+            }
+        }
+
+        // Warehouse BlockEntity holen
+        if (warehousePos != null) {
+            net.minecraft.world.level.block.entity.BlockEntity be = level.getBlockEntity(warehousePos);
+            if (be instanceof de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity) {
+                return (de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity) be;
+            }
+        }
+
         return null;
     }
 
