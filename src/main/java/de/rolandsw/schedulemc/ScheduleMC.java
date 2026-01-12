@@ -127,6 +127,10 @@ public class ScheduleMC {
     // Vehicle Mod integration
     private static Main vehicleMod;
 
+    public ScheduleMC() {
+        this(FMLJavaModLoadingContext.get().getModEventBus());
+    }
+
     public ScheduleMC(IEventBus modEventBus) {
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::onEntityAttributeCreation);
