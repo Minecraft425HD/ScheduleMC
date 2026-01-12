@@ -206,6 +206,7 @@ public class ScheduleMC {
         NPCItems.ITEMS.register(modEventBus);
         NPCEntities.ENTITIES.register(modEventBus);
         NPCMenuTypes.MENUS.register(modEventBus);
+        de.rolandsw.schedulemc.towing.menu.TowingMenuTypes.MENUS.register(modEventBus);
         ModCreativeTabs.CREATIVE_MODE_TABS.register(modEventBus);
 
         ModLoadingContext context = ModLoadingContext.get();

@@ -25,6 +25,8 @@ import de.rolandsw.schedulemc.mdma.menu.MDMAMenuTypes;
 import de.rolandsw.schedulemc.mdma.screen.PillenPresseScreen;
 import de.rolandsw.schedulemc.cannabis.menu.CannabisMenuTypes;
 import de.rolandsw.schedulemc.cannabis.screen.TrimmStationScreen;
+import de.rolandsw.schedulemc.towing.menu.TowingMenuTypes;
+import de.rolandsw.schedulemc.towing.screen.TowingInvoiceScreen;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -72,6 +74,9 @@ public class ClientModEvents {
 
                 // Cannabis-System
                 MenuScreens.register(CannabisMenuTypes.TRIMM_STATION_MENU.get(), TrimmStationScreen::new);
+
+                // Towing-System
+                MenuScreens.register(TowingMenuTypes.TOWING_INVOICE.get(), TowingInvoiceScreen::new);
             });
         }, "onClientSetup");
     }

@@ -38,6 +38,13 @@ public class TowingNetworkHandler {
             .encoder(RequestTowingPacket::encode)
             .consumerMainThread(RequestTowingPacket::handle)
             .add();
+
+        // Client -> Server: Pay towing invoice
+        INSTANCE.messageBuilder(PayTowingInvoicePacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(PayTowingInvoicePacket::decode)
+            .encoder(PayTowingInvoicePacket::encode)
+            .consumerMainThread(PayTowingInvoicePacket::handle)
+            .add();
     }
 
     public static <MSG> void sendToServer(MSG message) {

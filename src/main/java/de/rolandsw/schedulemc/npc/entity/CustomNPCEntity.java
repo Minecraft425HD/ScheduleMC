@@ -133,6 +133,41 @@ public class CustomNPCEntity extends PathfinderMob {
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
         if (!this.level().isClientSide && player instanceof ServerPlayer serverPlayer) {
+            // ABSCHLEPPER: Zeige Rechnungs-Screen falls offene Rechnung vorhanden
+            if (getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.ABSCHLEPPER) {
+                java.util.List<de.rolandsw.schedulemc.towing.TowingInvoiceData> unpaidInvoices =
+                    de.rolandsw.schedulemc.towing.TowingYardManager.getUnpaidInvoices(serverPlayer.getUUID());
+
+                if (!unpaidInvoices.isEmpty()) {
+                    // Öffne Rechnungs-Screen mit erster unbezahlter Rechnung
+                    de.rolandsw.schedulemc.towing.TowingInvoiceData invoice = unpaidInvoices.get(0);
+                    net.minecraftforge.network.NetworkHooks.openScreen(serverPlayer,
+                        new net.minecraft.world.MenuProvider() {
+                            @Override
+                            public net.minecraft.network.chat.Component getDisplayName() {
+                                return Component.translatable("menu.towing_invoice");
+                            }
+
+                            @Override
+                            public net.minecraft.world.inventory.AbstractContainerMenu createMenu(int id,
+                                net.minecraft.world.entity.player.Inventory playerInv,
+                                net.minecraft.world.entity.player.Player p) {
+                                return new de.rolandsw.schedulemc.towing.menu.TowingInvoiceMenu(id, playerInv, invoice);
+                            }
+                        },
+                        buf -> invoice.encode(buf)
+                    );
+                    return InteractionResult.SUCCESS;
+                } else {
+                    // Keine offenen Rechnungen
+                    serverPlayer.displayClientMessage(
+                        Component.translatable("towing.no_invoices"),
+                        false
+                    );
+                    return InteractionResult.SUCCESS;
+                }
+            }
+
             // Normal: Öffne Interaktions-GUI
             openInteractionMenu(serverPlayer);
             return InteractionResult.SUCCESS;
