@@ -32,6 +32,7 @@ import de.rolandsw.schedulemc.economy.RecurringPaymentManager;
 import de.rolandsw.schedulemc.client.network.SmartphoneNetworkHandler;
 import de.rolandsw.schedulemc.messaging.MessageManager;
 import de.rolandsw.schedulemc.messaging.network.MessageNetworkHandler;
+import de.rolandsw.schedulemc.player.PlayerTracker;
 import de.rolandsw.schedulemc.achievement.network.AchievementNetworkHandler;
 import de.rolandsw.schedulemc.achievement.AchievementManager;
 import de.rolandsw.schedulemc.economy.events.RespawnHandler;
@@ -305,6 +306,7 @@ public class ScheduleMC {
             de.rolandsw.schedulemc.npc.crime.CrimeManager.load();
             NPCNameRegistry.loadRegistry();
             MessageManager.loadMessages();
+            PlayerTracker.load();
             de.rolandsw.schedulemc.player.PlayerSettingsManager.load();
 
             // NEU: Warehouse & Shop System initialisieren
