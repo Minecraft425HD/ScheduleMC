@@ -137,18 +137,20 @@ public class MembershipManager {
 
     /**
      * Verteilt Mitgliedschaftsgebühren gleichmäßig an alle Towing Yards
+     * 19% MwSt werden automatisch durch ShopAccount.addRevenue() an Staatskasse abgeführt
      */
     private static void distributeFeeToTowingYards(double fee, net.minecraft.server.MinecraftServer server, String source) {
         java.util.List<String> towingYards = de.rolandsw.schedulemc.towing.TowingYardManager.getAllTowingYards();
 
         if (towingYards.isEmpty()) {
-            // Keine Towing Yards vorhanden - Geld geht an Staatskasse
+            // Keine Towing Yards vorhanden - Brutto-Betrag inkl. MwSt geht an Staatskasse
             de.rolandsw.schedulemc.economy.StateAccount.getInstance(server).deposit((int) fee, source);
-            LOGGER.debug("No towing yards found - fee goes to state: {}€", fee);
+            LOGGER.debug("No towing yards found - gross fee goes to state: {}€", fee);
             return;
         }
 
-        // Verteile Gebühr gleichmäßig auf alle Towing Yards
+        // Verteile Brutto-Gebühr gleichmäßig auf alle Towing Yards
+        // addRevenue() zieht automatisch 19% MwSt ab und führt diese an Staatskasse ab
         int feePerYard = (int) Math.ceil(fee / towingYards.size());
         net.minecraft.world.level.Level level = server.overworld();
 
@@ -156,8 +158,11 @@ public class MembershipManager {
             de.rolandsw.schedulemc.economy.ShopAccount shopAccount =
                 de.rolandsw.schedulemc.economy.ShopAccountManager.getOrCreateShopAccount(yardPlotId);
 
+            // addRevenue berechnet: Netto = feePerYard * (1 - 0.19) = feePerYard * 0.81
+            // MwSt = feePerYard * 0.19 → wird an StateAccount abgeführt
             shopAccount.addRevenue(level, feePerYard, source);
-            LOGGER.debug("Distributed {}€ to towing yard {} from {}", feePerYard, yardPlotId, source);
+            LOGGER.debug("Distributed {}€ (gross) to towing yard {} from {} (19% sales tax will be deducted)",
+                feePerYard, yardPlotId, source);
         }
     }
 
