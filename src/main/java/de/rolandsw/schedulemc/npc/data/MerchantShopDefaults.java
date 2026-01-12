@@ -5,7 +5,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 /**
- * Definiert Standard-Shop-Items für jede Verkäufer-Kategorie
+ * Definiert Standard-Shop-Items für jede Verkäufer-Kategorie und Service-Kategorie
  */
 public class MerchantShopDefaults {
 
@@ -36,6 +36,28 @@ public class MerchantShopDefaults {
                 break;
             case AUTOHAENDLER:
                 setupAutohaendlerShop(shop);
+                break;
+        }
+    }
+
+    /**
+     * Fügt Standard-Items zum Shop hinzu basierend auf der Service-Kategorie
+     */
+    public static void setupServiceShopItems(NPCData npcData, ServiceCategory category) {
+        NPCData.ShopInventory shop = npcData.getBuyShop();
+
+        switch (category) {
+            case ABSCHLEPPDIENST:
+                setupAbschleppdienstShop(shop);
+                break;
+            case PANNENHILFE:
+                setupPannenhilfeShop(shop);
+                break;
+            case TAXI:
+                setupTaxiShop(shop);
+                break;
+            case NOTDIENST:
+                setupNotdienstShop(shop);
                 break;
         }
     }
@@ -124,5 +146,54 @@ public class MerchantShopDefaults {
         shop.addEntry(new NPCData.ShopEntry(new ItemStack(ModItems.SPAWN_VEHICLE_WHITE_TRANSPORTER.get(), 1), 12000, false, 0));
         shop.addEntry(new NPCData.ShopEntry(new ItemStack(ModItems.SPAWN_VEHICLE_WHITE_SUV.get(), 1), 10000, false, 0));
         shop.addEntry(new NPCData.ShopEntry(new ItemStack(ModItems.SPAWN_VEHICLE_WHITE_SPORT.get(), 1), 15000, false, 0));
+    }
+
+    // === SERVICE CATEGORY SHOPS ===
+
+    private static void setupAbschleppdienstShop(NPCData.ShopInventory shop) {
+        // Abschleppdienst - Reparatur- & Notfallitems
+        shop.addEntry(new NPCData.ShopEntry(new ItemStack(Items.IRON_INGOT, 8), 100, false, 0));
+        shop.addEntry(new NPCData.ShopEntry(new ItemStack(Items.REDSTONE, 16), 80, false, 0));
+        shop.addEntry(new NPCData.ShopEntry(new ItemStack(Items.BUCKET, 1), 80, false, 0));
+        shop.addEntry(new NPCData.ShopEntry(new ItemStack(Items.WATER_BUCKET, 1), 100, false, 0));
+        shop.addEntry(new NPCData.ShopEntry(new ItemStack(Items.TORCH, 32), 20, false, 0));
+        shop.addEntry(new NPCData.ShopEntry(new ItemStack(Items.COAL, 16), 40, false, 0));
+        shop.addEntry(new NPCData.ShopEntry(new ItemStack(Items.IRON_PICKAXE, 1), 120, false, 0));
+        shop.addEntry(new NPCData.ShopEntry(new ItemStack(Items.IRON_SHOVEL, 1), 90, false, 0));
+    }
+
+    private static void setupPannenhilfeShop(NPCData.ShopInventory shop) {
+        // Pannenhilfe - Werkzeuge & Reparaturmaterial
+        shop.addEntry(new NPCData.ShopEntry(new ItemStack(Items.IRON_PICKAXE, 1), 120, false, 0));
+        shop.addEntry(new NPCData.ShopEntry(new ItemStack(Items.IRON_SHOVEL, 1), 90, false, 0));
+        shop.addEntry(new NPCData.ShopEntry(new ItemStack(Items.IRON_AXE, 1), 140, false, 0));
+        shop.addEntry(new NPCData.ShopEntry(new ItemStack(Items.SHEARS, 1), 70, false, 0));
+        shop.addEntry(new NPCData.ShopEntry(new ItemStack(Items.BUCKET, 1), 80, false, 0));
+        shop.addEntry(new NPCData.ShopEntry(new ItemStack(Items.COAL, 16), 40, false, 0));
+        shop.addEntry(new NPCData.ShopEntry(new ItemStack(Items.TORCH, 32), 20, false, 0));
+        shop.addEntry(new NPCData.ShopEntry(new ItemStack(Items.LADDER, 8), 25, false, 0));
+    }
+
+    private static void setupTaxiShop(NPCData.ShopInventory shop) {
+        // Taxi - Reise & Komfort-Items
+        shop.addEntry(new NPCData.ShopEntry(new ItemStack(Items.COMPASS, 1), 100, false, 0));
+        shop.addEntry(new NPCData.ShopEntry(new ItemStack(Items.CLOCK, 1), 100, false, 0));
+        shop.addEntry(new NPCData.ShopEntry(new ItemStack(Items.MAP, 1), 50, false, 0));
+        shop.addEntry(new NPCData.ShopEntry(new ItemStack(Items.BREAD, 8), 30, false, 0));
+        shop.addEntry(new NPCData.ShopEntry(new ItemStack(Items.WATER_BUCKET, 1), 100, false, 0));
+        shop.addEntry(new NPCData.ShopEntry(new ItemStack(Items.LEATHER_BOOTS, 1), 60, false, 0));
+        shop.addEntry(new NPCData.ShopEntry(new ItemStack(Items.SADDLE, 1), 250, false, 0));
+    }
+
+    private static void setupNotdienstShop(NPCData.ShopInventory shop) {
+        // Notdienst - Medizin & Notfall-Items
+        shop.addEntry(new NPCData.ShopEntry(new ItemStack(Items.GOLDEN_APPLE, 1), 200, false, 0));
+        shop.addEntry(new NPCData.ShopEntry(new ItemStack(Items.BREAD, 8), 30, false, 0));
+        shop.addEntry(new NPCData.ShopEntry(new ItemStack(Items.COOKED_BEEF, 8), 60, false, 0));
+        shop.addEntry(new NPCData.ShopEntry(new ItemStack(Items.POTION, 1), 150, false, 0));
+        shop.addEntry(new NPCData.ShopEntry(new ItemStack(Items.TORCH, 32), 20, false, 0));
+        shop.addEntry(new NPCData.ShopEntry(new ItemStack(Items.COMPASS, 1), 100, false, 0));
+        shop.addEntry(new NPCData.ShopEntry(new ItemStack(Items.WATER_BUCKET, 1), 100, false, 0));
+        shop.addEntry(new NPCData.ShopEntry(new ItemStack(Items.ENDER_PEARL, 4), 300, false, 0));
     }
 }

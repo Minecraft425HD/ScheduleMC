@@ -103,19 +103,19 @@ public class MembershipManager {
      * Process membership payments for all players
      * Called daily by server tick
      */
-    public static void processPayments(long currentTime) {
+    public static void processPayments(long currentTime, net.minecraft.server.MinecraftServer server) {
         for (MembershipData data : memberships.values()) {
             if (!data.isActive() || data.getTier() == MembershipTier.NONE) {
                 continue;
             }
 
             if (currentTime >= data.getNextPaymentDate()) {
-                processSinglePayment(data);
+                processSinglePayment(data, server);
             }
         }
     }
 
-    private static void processSinglePayment(MembershipData data) {
+    private static void processSinglePayment(MembershipData data, net.minecraft.server.MinecraftServer server) {
         UUID playerId = data.getPlayerId();
         MembershipTier tier = data.getTier();
         double fee = tier.getMonthlyFee();
@@ -125,10 +125,39 @@ public class MembershipManager {
             data.renew();
             markDirty();
             LOGGER.info("Membership renewed for player {}: {} ({}€)", playerId, tier, fee);
+
+            // Verteile Gebühren an alle Towing Yards
+            distributeFeeToTowingYards(fee, server, "Membership Fee (" + tier.name() + ")");
         } else {
             data.cancel();
             markDirty();
             LOGGER.info("Membership cancelled for player {} (insufficient funds: {}€)", playerId, fee);
+        }
+    }
+
+    /**
+     * Verteilt Mitgliedschaftsgebühren gleichmäßig an alle Towing Yards
+     */
+    private static void distributeFeeToTowingYards(double fee, net.minecraft.server.MinecraftServer server, String source) {
+        java.util.List<String> towingYards = de.rolandsw.schedulemc.towing.TowingYardManager.getAllTowingYards();
+
+        if (towingYards.isEmpty()) {
+            // Keine Towing Yards vorhanden - Geld geht an Staatskasse
+            de.rolandsw.schedulemc.economy.StateAccount.getInstance(server).deposit((int) fee, source);
+            LOGGER.debug("No towing yards found - fee goes to state: {}€", fee);
+            return;
+        }
+
+        // Verteile Gebühr gleichmäßig auf alle Towing Yards
+        int feePerYard = (int) Math.ceil(fee / towingYards.size());
+        net.minecraft.world.level.Level level = server.overworld();
+
+        for (String yardPlotId : towingYards) {
+            de.rolandsw.schedulemc.economy.ShopAccount shopAccount =
+                de.rolandsw.schedulemc.economy.ShopAccountManager.getOrCreateShopAccount(yardPlotId);
+
+            shopAccount.addRevenue(level, feePerYard, source);
+            LOGGER.debug("Distributed {}€ to towing yard {} from {}", feePerYard, yardPlotId, source);
         }
     }
 

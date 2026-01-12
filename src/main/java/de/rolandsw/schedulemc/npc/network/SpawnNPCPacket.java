@@ -188,6 +188,9 @@ public class SpawnNPCPacket {
                 data.addDialogEntry(new NPCData.DialogEntry(Component.translatable("npc.dialog.service.intro", npcName).getString(), ""));
                 data.addDialogEntry(new NPCData.DialogEntry(Component.translatable("npc.dialog.service.help").getString(), ""));
                 data.addDialogEntry(new NPCData.DialogEntry(Component.translatable("npc.dialog.service.thanks").getString(), ""));
+
+                // Initialisiere Shop-Items basierend auf Service-Kategorie
+                MerchantShopDefaults.setupServiceShopItems(data, serviceCategory);
                 break;
         }
     }
