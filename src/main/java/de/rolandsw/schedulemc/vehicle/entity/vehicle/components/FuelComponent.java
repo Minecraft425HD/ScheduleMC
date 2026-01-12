@@ -50,6 +50,11 @@ public class FuelComponent extends VehicleComponent implements IFluidHandler {
     }
 
     protected void fuelTick() {
+        // No fuel consumption when vehicle is on towing yard
+        if (vehicle.isOnTowingYard()) {
+            return;
+        }
+
         int fuel = getFuelAmount();
         int tickFuel = getEfficiency(getFluid());
         if (tickFuel <= 0) {

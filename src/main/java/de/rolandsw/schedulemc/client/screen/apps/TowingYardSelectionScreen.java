@@ -189,20 +189,13 @@ public class TowingYardSelectionScreen extends Screen {
     }
 
     private void requestTowing(TowingYardInfo yardInfo) {
-        // TODO: Send network packet to server to request towing
-        // For now, show confirmation message
-
-        if (minecraft != null && minecraft.player != null) {
-            double distance = calculateDistance(yardInfo);
-            double cost = TowingYardManager.calculateTowingCost(distance);
-
-            minecraft.player.displayClientMessage(
-                Component.translatable("gui.app.towing.requested",
-                    yardInfo.getDisplayName(),
-                    String.format("%.0f", cost)),
-                false
-            );
-        }
+        // Send network packet to server to request towing
+        de.rolandsw.schedulemc.towing.network.TowingNetworkHandler.sendToServer(
+            new de.rolandsw.schedulemc.towing.network.RequestTowingPacket(
+                vehicleInfo.getEntityId(),
+                yardInfo.plotId
+            )
+        );
 
         // Go back to main towing app
         if (minecraft != null) {

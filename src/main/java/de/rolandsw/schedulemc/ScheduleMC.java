@@ -246,6 +246,7 @@ public class ScheduleMC {
             de.rolandsw.schedulemc.region.network.PlotNetworkHandler.register();
             de.rolandsw.schedulemc.npc.crime.prison.network.PrisonNetworkHandler.register();
             de.rolandsw.schedulemc.player.network.PlayerSettingsNetworkHandler.register();
+            de.rolandsw.schedulemc.towing.network.TowingNetworkHandler.register();
             de.rolandsw.schedulemc.npc.crime.prison.PrisonManager.init();
             de.rolandsw.schedulemc.territory.network.TerritoryNetworkHandler.register();
 

@@ -156,17 +156,10 @@ public class MembershipSelectionScreen extends Screen {
     }
 
     private void requestMembershipChange(MembershipTier newTier) {
-        // TODO: Send network packet to server to change membership
-        // For now, this will be implemented when we create the network packets
-
-        // Placeholder: Show message
-        if (minecraft != null && minecraft.player != null) {
-            minecraft.player.displayClientMessage(
-                Component.translatable("gui.app.towing.membership.change_requested",
-                    Component.translatable(newTier.getTranslationKey())),
-                false
-            );
-        }
+        // Send network packet to server to change membership
+        de.rolandsw.schedulemc.towing.network.TowingNetworkHandler.sendToServer(
+            new de.rolandsw.schedulemc.towing.network.ChangeMembershipPacket(newTier)
+        );
 
         // Go back to parent screen
         if (minecraft != null) {
