@@ -4397,7 +4397,7 @@
   "command.hospital.info_header": "§6§l═══ HOSPITAL INFO ═══",
   "command.hospital.info_spawn": "§6Spawn point: §7%s, %s, %s",
   "command.hospital.position": "§6Position: §7(%d, %d, %d)",
-  "command.hospital.spawn_info": "§6Hospital spawn: §7%s, %s, %s",
+  "command.hospital.spawn_info": "§7Players will spawn here after death",
   "command.hospital.spawn_set": "§aHospital spawn set to current position",
   "command.money.amount_negative": "§cAmount cannot be negative",
   "command.money.take.insufficient": "§cPlayer doesn't have enough money",
