@@ -68,6 +68,9 @@ public class WarehouseBlock extends Block implements EntityBlock {
                     // Setze Shop-ID automatisch auf Plot-ID (auch für Towing Yards)
                     warehouse.setShopId(plot.getPlotId());
 
+                    // Erstelle ShopAccount wenn noch nicht vorhanden
+                    de.rolandsw.schedulemc.economy.ShopAccountManager.getOrCreateAccount(plot.getPlotId());
+
                     // Setze Warehouse-Position im Plot (wichtig für Towing Yards)
                     plot.setWarehouseLocation(pos);
                     de.rolandsw.schedulemc.region.PlotManager.markDirty();

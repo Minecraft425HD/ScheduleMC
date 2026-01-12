@@ -344,6 +344,11 @@ public class PhysicsComponent extends VehicleComponent {
         if (player != null && canStartVehicleEngine(player)) {
             setStarted(true);
 
+            // Remove towing yard flag when engine starts (player is taking vehicle from yard)
+            if (vehicle.isOnTowingYard()) {
+                vehicle.setIsOnTowingYard(false);
+            }
+
             // Consume fuel when starting the engine
             // Optimierung: Cache Component-Getter
             FuelComponent fuel = vehicle.getFuelComponent();
