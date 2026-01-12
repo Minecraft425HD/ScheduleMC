@@ -54,6 +54,17 @@ public class MembershipManager {
     }
 
     /**
+     * Changes membership tier for player (wrapper for setMembershipTier)
+     */
+    public static boolean changeMembership(UUID playerId, MembershipTier tier, @Nullable net.minecraft.server.MinecraftServer server) {
+        ServerPlayer player = null;
+        if (server != null) {
+            player = server.getPlayerList().getPlayer(playerId);
+        }
+        return setMembershipTier(playerId, tier, player);
+    }
+
+    /**
      * Sets membership tier for player
      */
     public static boolean setMembershipTier(UUID playerId, MembershipTier tier, ServerPlayer player) {

@@ -121,7 +121,7 @@ public class MessagesAppScreen extends Screen {
         int headY = y + (CHAT_ITEM_HEIGHT - headSize) / 2;
 
         // Render head directly without circle background
-        HeadRenderer.renderPlayerHead(guiGraphics, headX, headY, headSize, null);
+        HeadRenderer.renderPlayerHead(guiGraphics, headX, headY, headSize, (ResourceLocation) null);
 
         // Text area
         int textX = headX + headSize + 12;

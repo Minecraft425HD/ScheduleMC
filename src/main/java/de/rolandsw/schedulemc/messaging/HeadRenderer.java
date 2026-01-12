@@ -31,7 +31,7 @@ public class HeadRenderer {
     public static void renderPlayerHead(GuiGraphics guiGraphics, int x, int y, int size, UUID playerUuid) {
         ResourceLocation skinTexture = null;
         if (playerUuid != null) {
-            skinTexture = DefaultPlayerSkin.getSkin(playerUuid);
+            skinTexture = DefaultPlayerSkin.getDefaultSkin(playerUuid);
         }
         renderPlayerHead(guiGraphics, x, y, size, skinTexture);
     }
