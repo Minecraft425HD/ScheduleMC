@@ -15,13 +15,36 @@ public final class AsyncPersistenceManager {
     // MIGRATED: Now using ThreadPoolManager for centralized thread management
     // executorService → ThreadPoolManager.getComputationPool() (map calculations)
     // saveExecutorService → ThreadPoolManager.getIOPool() (save operations)
-    public static final ExecutorService executorService = ThreadPoolManager.getComputationPool();
-    public static final ExecutorService saveExecutorService = ThreadPoolManager.getIOPool();
+    // DEPRECATED: Use getExecutorService() instead - kept for backward compatibility
+    @Deprecated
+    public static ExecutorService executorService = ThreadPoolManager.getComputationPool();
+    @Deprecated
+    public static ExecutorService saveExecutorService = ThreadPoolManager.getIOPool();
 
     // Legacy queue reference (for emptyQueue compatibility)
     static final LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
 
     private AsyncPersistenceManager() {}
+
+    /**
+     * Gets the executor service for map calculations (computation pool)
+     * This method ensures the pool is reinitialized if it was shut down
+     *
+     * @return ExecutorService for computations
+     */
+    public static ExecutorService getExecutorService() {
+        return ThreadPoolManager.getComputationPool();
+    }
+
+    /**
+     * Gets the executor service for save operations (IO pool)
+     * This method ensures the pool is reinitialized if it was shut down
+     *
+     * @return ExecutorService for I/O operations
+     */
+    public static ExecutorService getSaveExecutorService() {
+        return ThreadPoolManager.getIOPool();
+    }
 
     public static void emptyQueue() {
         // MIGRATED: ThreadPoolManager handles purging internally

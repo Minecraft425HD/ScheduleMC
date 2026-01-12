@@ -196,7 +196,7 @@ public class RegionCache {
                 this.refreshQueued = false;
             } else {
                 RefreshRunnable regionProcessingRunnable = new RefreshRunnable(forceCompress);
-                this.future = AsyncPersistenceManager.executorService.submit(regionProcessingRunnable);
+                this.future = AsyncPersistenceManager.getExecutorService().submit(regionProcessingRunnable);
             }
 
         }
@@ -211,7 +211,7 @@ public class RegionCache {
             this.mostRecentView = System.currentTimeMillis();
             this.mostRecentChange = this.mostRecentView;
             FillChunkRunnable fillChunkRunnable = new FillChunkRunnable(chunk);
-            AsyncPersistenceManager.executorService.execute(fillChunkRunnable);
+            AsyncPersistenceManager.getExecutorService().execute(fillChunkRunnable);
         }
     }
 
@@ -544,8 +544,8 @@ public class RegionCache {
     private void saveData(boolean newThread) {
         if (this.liveChunksUpdated && !this.worldNamePathPart.isEmpty()) {
             // SAFETY: Check if executor is still running, otherwise save synchronously
-            if (newThread && !AsyncPersistenceManager.saveExecutorService.isShutdown()) {
-                AsyncPersistenceManager.saveExecutorService.execute(() -> {
+            if (newThread && !AsyncPersistenceManager.getSaveExecutorService().isShutdown()) {
+                AsyncPersistenceManager.getSaveExecutorService().execute(() -> {
                     if (MapViewConstants.DEBUG) {
                         MapViewConstants.getLogger().info("Saving region file for " + RegionCache.this.x + "," + RegionCache.this.z + " in " + RegionCache.this.worldNamePathPart + "/" + RegionCache.this.subworldNamePathPart + RegionCache.this.dimensionNamePathPart);
                     }
@@ -656,7 +656,7 @@ public class RegionCache {
             imageFileDir.mkdirs();
             final File imageFile = new File(imageFileDir, this.key + ".png");
             if (this.liveChunksUpdated || !imageFile.exists()) {
-                AsyncPersistenceManager.executorService.execute(() -> {
+                AsyncPersistenceManager.getExecutorService().execute(() -> {
                     RegionCache.this.threadLock.lock();
 
                     try {
@@ -766,7 +766,7 @@ public class RegionCache {
     public void compress() {
         if (this.data != null && !this.isCompressed() && !this.queuedToCompress) {
             this.queuedToCompress = true;
-            AsyncPersistenceManager.executorService.execute(() -> {
+            AsyncPersistenceManager.getExecutorService().execute(() -> {
                 if (this.threadLock.tryLock()) {
                     try {
                         this.compressData();

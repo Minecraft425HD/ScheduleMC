@@ -166,7 +166,7 @@ public class ChunkCache {
                         final int index = x + z * this.width;
                         futures[idx] = java.util.concurrent.CompletableFuture.runAsync(() -> {
                             this.mapChunks[index].checkIfChunkBecameSurroundedByLoaded(this.changeObserver);
-                        }, de.rolandsw.schedulemc.mapview.data.persistence.AsyncPersistenceManager.executorService);
+                        }, de.rolandsw.schedulemc.mapview.data.persistence.AsyncPersistenceManager.getExecutorService());
                     }
                 }
                 // Warte auf alle Tasks
