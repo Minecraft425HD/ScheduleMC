@@ -618,7 +618,24 @@ public class PlotRegion {
     }
 
     /**
-     * Erweitert setForSale: Shop-Plots können nicht verkauft werden
+     * Prüft ob dieses Plot in einem Government-Plot liegt
+     */
+    public boolean isInsideGovernmentPlot() {
+        // Hole alle Plots und prüfe ob ein Government-Plot dieses Plot umschließt
+        for (PlotRegion other : PlotManager.getPlots()) {
+            if (other == this) continue;
+            if (other.getType() == PlotType.GOVERNMENT) {
+                // Prüfe ob dieses Plot komplett im Government-Plot liegt
+                if (other.contains(this.min) && other.contains(this.max)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Erweitert setForSale: Shop-Plots und Plots in Government-Gebieten können nicht verkauft werden
      * (Duplicate method - old ones commented out above)
      */
     public void setForSale(boolean forSale) {
@@ -626,16 +643,24 @@ public class PlotRegion {
             // Shop-Plots und andere nicht-kaufbare Plots können nicht verkauft werden
             return;
         }
+        if (isInsideGovernmentPlot()) {
+            // Plots in Government-Gebieten können nicht verkauft werden
+            return;
+        }
         this.forSale = forSale;
     }
 
     /**
-     * Erweitert setForRent: Shop-Plots können nicht vermietet werden
+     * Erweitert setForRent: Shop-Plots und Plots in Government-Gebieten können nicht vermietet werden
      * (Duplicate method - old ones commented out above)
      */
     public void setForRent(boolean forRent) {
         if (type != null && !type.canBeRented()) {
             // Shop-Plots und andere nicht-vermietbare Plots können nicht vermietet werden
+            return;
+        }
+        if (isInsideGovernmentPlot()) {
+            // Plots in Government-Gebieten können nicht vermietet werden
             return;
         }
         this.forRent = forRent;

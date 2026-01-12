@@ -72,7 +72,18 @@ public class PlotCommand {
                         // /plot create government <name>
                         .then(Commands.literal("government")
                                 .then(Commands.argument("name", StringArgumentType.string())
-                                        .executes(ctx -> createPlotWithType(ctx, PlotType.GOVERNMENT)))))
+                                        .executes(ctx -> createPlotWithType(ctx, PlotType.GOVERNMENT))))
+
+                        // /plot create prison <name>
+                        .then(Commands.literal("prison")
+                                .then(Commands.argument("name", StringArgumentType.string())
+                                        .executes(ctx -> createPlotWithType(ctx, PlotType.PRISON))))
+
+                        // /plot create towing_yard <name> <price>
+                        .then(Commands.literal("towing_yard")
+                                .then(Commands.argument("name", StringArgumentType.string())
+                                        .then(Commands.argument("price", DoubleArgumentType.doubleArg(0.01))
+                                                .executes(ctx -> createPlotWithType(ctx, PlotType.TOWING_YARD))))))
                 
                 // /plot setowner <player>
                 .then(Commands.literal("setowner")

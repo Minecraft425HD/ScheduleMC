@@ -127,6 +127,10 @@ public class ScheduleMC {
     // Vehicle Mod integration
     private static Main vehicleMod;
 
+    public ScheduleMC() {
+        this(FMLJavaModLoadingContext.get().getModEventBus());
+    }
+
     public ScheduleMC(IEventBus modEventBus) {
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::onEntityAttributeCreation);
@@ -206,6 +210,7 @@ public class ScheduleMC {
         NPCItems.ITEMS.register(modEventBus);
         NPCEntities.ENTITIES.register(modEventBus);
         NPCMenuTypes.MENUS.register(modEventBus);
+        de.rolandsw.schedulemc.towing.menu.TowingMenuTypes.MENUS.register(modEventBus);
         ModCreativeTabs.CREATIVE_MODE_TABS.register(modEventBus);
 
         ModLoadingContext context = ModLoadingContext.get();
@@ -313,6 +318,7 @@ public class ScheduleMC {
             // Towing Service System
             de.rolandsw.schedulemc.towing.MembershipManager.load();
             de.rolandsw.schedulemc.towing.TowingYardManager.load();
+            de.rolandsw.schedulemc.towing.TowingServiceRegistry.initializeDefaultServices();
 
             // NEU: Warehouse & Shop System initialisieren
             StateAccount.load();

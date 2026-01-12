@@ -9,7 +9,8 @@ public enum NPCType {
     BEWOHNER,
     VERKAEUFER,
     POLIZEI,
-    BANK;
+    BANK,
+    ABSCHLEPPER;
 
     public Component getDisplayName() {
         return Component.translatable("enum.npc_type." + this.name().toLowerCase());
