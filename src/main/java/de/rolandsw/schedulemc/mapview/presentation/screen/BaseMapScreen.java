@@ -8,10 +8,13 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 
+@OnlyIn(Dist.CLIENT)
 public class BaseMapScreen extends Screen {
     protected BaseMapScreen() { this (Component.literal("")); }
 
