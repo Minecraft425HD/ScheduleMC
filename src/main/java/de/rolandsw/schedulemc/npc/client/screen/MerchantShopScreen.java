@@ -143,13 +143,13 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
             row.unlimited = entry.isUnlimited();
             row.availableQuantity = entry.isUnlimited() ? Integer.MAX_VALUE : entry.getStock();
 
-            // SPEZIALBEHANDLUNG: Rechnungs-Items und Fahrzeuge automatisch auf "1" setzen
+            // SPEZIALBEHANDLUNG: Rechnungs-Items automatisch auf "1" setzen (nicht editierbar)
             boolean isBillItem = row.item.hasTag() && row.item.getTag().contains("BillType");
-            boolean isVehicle = row.item.getItem() instanceof ItemSpawnVehicle;
 
-            if (isBillItem || isVehicle) {
-                row.savedQuantity = "1"; // Automatisch Menge 1
+            if (isBillItem) {
+                row.savedQuantity = "1"; // Rechnungen fixiert auf 1
             }
+            // Fahrzeuge und normale Items: Default leer, Spieler muss Menge eingeben
 
             shopItemRows.add(row);
         }
@@ -351,6 +351,6 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
         boolean unlimited; // True = unbegrenzte Menge, False = begrenzter Lagerbestand
         int availableQuantity;
         EditBox quantityInput;
-        String savedQuantity = "0"; // Gespeicherte Eingabe (persistent beim Scrollen)
+        String savedQuantity = ""; // Gespeicherte Eingabe (persistent beim Scrollen) - Default leer
     }
 }

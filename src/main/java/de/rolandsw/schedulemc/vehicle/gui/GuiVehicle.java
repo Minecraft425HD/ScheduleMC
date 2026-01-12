@@ -33,8 +33,8 @@ public class GuiVehicle extends ScreenBase<ContainerVehicle> {
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         super.renderLabels(guiGraphics, mouseX, mouseY);
 
-        // Status Header centered
-        String header = "==== FAHRZEUG STATUS ====";
+        // Status Header centered (mit Übersetzung)
+        Component header = Component.translatable("gui.vehicle.status.title");
         int headerX = (imageWidth - font.width(header)) / 2;
         guiGraphics.drawString(font, header, headerX, 6, fontColor, false);
 
@@ -42,41 +42,23 @@ public class GuiVehicle extends ScreenBase<ContainerVehicle> {
         int startY = 18;
         int lineHeight = 12;
         int labelX = 8;
+        int valueX = 72; // Values start here (after longest label)
 
-        int valueX = 72; // Values start here (after longest label "Temperatur:")
-
- 
-
-        // Draw labels and values
-
-        guiGraphics.drawString(font, "Treibstoff:", labelX, startY, fontColor, false);
-
+        // Draw labels and values (mit Übersetzungen)
+        guiGraphics.drawString(font, Component.translatable("gui.vehicle.status.fuel"), labelX, startY, fontColor, false);
         guiGraphics.drawString(font, getFuelValueString(), valueX, startY, fontColor, false);
 
- 
-
-        guiGraphics.drawString(font, "Batterie:", labelX, startY + lineHeight, fontColor, false);
-
+        guiGraphics.drawString(font, Component.translatable("gui.vehicle.status.battery"), labelX, startY + lineHeight, fontColor, false);
         guiGraphics.drawString(font, getBatteryValueString(), valueX, startY + lineHeight, fontColor, false);
 
- 
-
-        guiGraphics.drawString(font, "Schaden:", labelX, startY + lineHeight * 2, fontColor, false);
-
+        guiGraphics.drawString(font, Component.translatable("gui.vehicle.status.damage"), labelX, startY + lineHeight * 2, fontColor, false);
         guiGraphics.drawString(font, getDamageValueString(), valueX, startY + lineHeight * 2, fontColor, false);
 
- 
-
-        guiGraphics.drawString(font, "Temperatur:", labelX, startY + lineHeight * 3, fontColor, false);
-
+        guiGraphics.drawString(font, Component.translatable("gui.vehicle.status.temperature"), labelX, startY + lineHeight * 3, fontColor, false);
         guiGraphics.drawString(font, getTempValueString(), valueX, startY + lineHeight * 3, fontColor, false);
 
- 
-
         // Vehicle name at bottom of status area
-
         guiGraphics.drawString(font, vehicle.getDisplayName().getVisualOrderText(), 8, 87, fontColor, false);
-
     }
 
     private void drawRightAlignedString(GuiGraphics guiGraphics, String text, int rightX, int y) {
