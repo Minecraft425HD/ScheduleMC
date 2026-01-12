@@ -5,7 +5,7 @@
 ![Minecraft](https://img.shields.io/badge/Minecraft-1.20.1-green?style=for-the-badge)
 ![Forge](https://img.shields.io/badge/Forge-47.4.0-orange?style=for-the-badge)
 ![Java](https://img.shields.io/badge/Java-17-blue?style=for-the-badge)
-![Version](https://img.shields.io/badge/Version-3.3.0--beta-red?style=for-the-badge)
+![Version](https://img.shields.io/badge/Version-3.4.0--beta-red?style=for-the-badge)
 ![Lines of Code](https://img.shields.io/badge/Lines_of_Code-93,349-yellow?style=for-the-badge)
 ![Items](https://img.shields.io/badge/Items-141-brightgreen?style=for-the-badge)
 ![Blocks](https://img.shields.io/badge/Blocks-77+-purple?style=for-the-badge)
@@ -80,7 +80,7 @@
 | **Manager Classes** | 29 | Core system managers |
 | **GUI Screens** | 32 | User interfaces |
 | **BlockEntity Types** | 43 | Block entities |
-| **Version** | 3.3.0-beta | Current release |
+| **Version** | 3.4.0-beta | Current release |
 
 ---
 
@@ -1194,7 +1194,7 @@ See [LICENSE](LICENSE) file for details.
 
 **Made with ❤️ for the Minecraft Community**
 
-ScheduleMC v3.3.0-beta | Minecraft 1.20.1 | Forge 47.4.0
+ScheduleMC v3.4.0-beta | Minecraft 1.20.1 | Forge 47.4.0
 
 [⬆ Back to Top](#schedulemc---complete-roleplay--economy-server-system)
 
