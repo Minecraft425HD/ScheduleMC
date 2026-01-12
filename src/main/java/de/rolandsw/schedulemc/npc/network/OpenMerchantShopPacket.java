@@ -203,9 +203,9 @@ public class OpenMerchantShopPacket {
                 // Hole den Yard-Namen vom PlotManager
                 String yardName = invoice.getTowingYardPlotId();
                 de.rolandsw.schedulemc.region.PlotRegion plot =
-                    de.rolandsw.schedulemc.region.PlotManager.getPlotById(yardName);
-                if (plot != null && plot.getName() != null && !plot.getName().isEmpty()) {
-                    yardName = plot.getName();
+                    de.rolandsw.schedulemc.region.PlotManager.getPlot(yardName);
+                if (plot != null && plot.getPlotName() != null && !plot.getPlotName().isEmpty()) {
+                    yardName = plot.getPlotName();
                 }
 
                 // Setze Namen mit Formatierung

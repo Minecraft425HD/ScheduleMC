@@ -156,7 +156,7 @@ public class MembershipManager {
 
         for (String yardPlotId : towingYards) {
             de.rolandsw.schedulemc.economy.ShopAccount shopAccount =
-                de.rolandsw.schedulemc.economy.ShopAccountManager.getOrCreateShopAccount(yardPlotId);
+                de.rolandsw.schedulemc.economy.ShopAccountManager.getOrCreateAccount(yardPlotId);
 
             // addRevenue berechnet: Netto = feePerYard * (1 - 0.19) = feePerYard * 0.81
             // MwSt = feePerYard * 0.19 → wird an StateAccount abgeführt
