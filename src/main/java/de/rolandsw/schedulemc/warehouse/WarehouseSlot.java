@@ -90,6 +90,10 @@ public class WarehouseSlot {
         return maxCapacity;
     }
 
+    public void setMaxCapacity(int maxCapacity) {
+        this.maxCapacity = Math.max(1, maxCapacity); // Mindestens 1
+    }
+
     public boolean isUnlimited() {
         return unlimited;
     }

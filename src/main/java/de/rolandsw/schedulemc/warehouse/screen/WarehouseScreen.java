@@ -94,6 +94,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
 
     // Input fields
     private EditBox slotCapacityInput;
+    private EditBox maxCapacityInput;
     private EditBox deliveryIntervalInput;
     private EditBox shopIdInput;
 
@@ -284,6 +285,33 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
                     sendModifySlotPacket(selectedSlotIndex, restockAmount);
                 }
             }).bounds(detailX, detailY + 80, 105, 20).build());
+
+            // Max Capacity Input
+            maxCapacityInput = new EditBox(this.font, detailX, detailY + 170, 70, 20,
+                Component.translatable("gui.warehouse.max_capacity_input"));
+            maxCapacityInput.setValue(String.valueOf(selectedSlot.getMaxCapacity()));
+            maxCapacityInput.setMaxLength(10);
+            addRenderableWidget(maxCapacityInput);
+
+            // Set Max Capacity Button
+            addRenderableWidget(Button.builder(Component.translatable("gui.warehouse.set"), button -> {
+                try {
+                    int newCapacity = Integer.parseInt(maxCapacityInput.getValue());
+                    if (newCapacity > 0) {
+                        sendUpdateSlotCapacityPacket(selectedSlotIndex, newCapacity);
+                        scheduleRefresh();
+                    }
+                } catch (NumberFormatException e) {
+                    // Invalid number, ignore
+                }
+            }).bounds(detailX + 75, detailY + 170, 30, 20).build());
+
+            // Remove Slot Button
+            addRenderableWidget(Button.builder(Component.translatable("gui.warehouse.remove_slot"), button -> {
+                sendClearSlotPacket(selectedSlotIndex);
+                selectedSlotIndex = -1;
+                initTabComponents();
+            }).bounds(detailX, detailY + 195, 105, 20).build());
         }
 
         // Neuer Slot Button
@@ -312,6 +340,12 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
     private void sendAutoFillPacket() {
         WarehouseNetworkHandler.INSTANCE.sendToServer(
             new AutoFillPacket(menu.getBlockPos())
+        );
+    }
+
+    private void sendUpdateSlotCapacityPacket(int slotIndex, int newCapacity) {
+        WarehouseNetworkHandler.INSTANCE.sendToServer(
+            new UpdateSlotCapacityPacket(menu.getBlockPos(), slotIndex, newCapacity)
         );
     }
 
@@ -550,6 +584,10 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
 
             graphics.drawString(this.font, Component.translatable("gui.warehouse.free").getString() + selectedSlot.getAvailableSpace(),
                 x + 270, detailY + 36, COLOR_TEXT_GRAY, false);
+
+            // Label for max capacity input
+            graphics.drawString(this.font, Component.translatable("gui.warehouse.set_max_capacity").getString(),
+                x + 270, y + 200, COLOR_TEXT, false);
         } else {
             graphics.drawString(this.font, Component.translatable("gui.warehouse.no_slot_selected").getString(),
                 x + 270, y + 120, COLOR_TEXT_GRAY, false);
@@ -568,48 +606,6 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
                 graphics.drawString(this.font, Component.translatable("gui.warehouse.command_example").getString(),
                     x + 270, helpY, COLOR_WARNING, false);
             }
-        }
-
-        // NPC Shop Items Section (unten rechts)
-        int npcShopY = y + 160;
-        graphics.drawString(this.font, Component.translatable("gui.warehouse.npc_shop").getString(), x + 270, npcShopY, COLOR_WARNING, false);
-        npcShopY += 12;
-
-        List<NPCData.ShopEntry> shopItems = getLinkedNPCShopItems();
-        if (shopItems != null && !shopItems.isEmpty()) {
-            // Zeige erste 3 Shop-Items als Beispiel
-            int shown = 0;
-            for (NPCData.ShopEntry entry : shopItems) {
-                if (shown >= 3) break;
-
-                ItemStack item = entry.getItem();
-                if (!item.isEmpty()) {
-                    // Render icon
-                    graphics.renderItem(item, x + 270, npcShopY - 2);
-
-                    // Item name (gekürzt)
-                    String itemName = item.getHoverName().getString();
-                    if (itemName.length() > 10) {
-                        itemName = itemName.substring(0, 10) + "...";
-                    }
-                    graphics.drawString(this.font, itemName, x + 290, npcShopY + 2, COLOR_TEXT_GRAY, false);
-
-                    // Status: Unlimited oder Stock
-                    String status = entry.isUnlimited() ?
-                        "§a∞" : "§e" + entry.getStock();
-                    graphics.drawString(this.font, status, x + 365, npcShopY + 2, COLOR_TEXT, false);
-
-                    npcShopY += 14;
-                    shown++;
-                }
-            }
-
-            if (shopItems.size() > 3) {
-                graphics.drawString(this.font, Component.translatable("gui.warehouse.more").getString() + (shopItems.size() - 3) + Component.translatable("gui.warehouse.more_items").getString(),
-                    x + 270, npcShopY, COLOR_TEXT_GRAY, false);
-            }
-        } else {
-            graphics.drawString(this.font, Component.translatable("gui.warehouse.no_npc_shop").getString(), x + 270, npcShopY, COLOR_TEXT_GRAY, false);
         }
 
         // Bottom Info

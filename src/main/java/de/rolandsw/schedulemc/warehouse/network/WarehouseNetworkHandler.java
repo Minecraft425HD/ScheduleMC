@@ -81,5 +81,12 @@ public class WarehouseNetworkHandler {
             .encoder(AddItemToSlotPacket::encode)
             .consumerMainThread(AddItemToSlotPacket::handle)
             .add();
+
+        // Update Slot Capacity
+        INSTANCE.messageBuilder(UpdateSlotCapacityPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(UpdateSlotCapacityPacket::decode)
+            .encoder(UpdateSlotCapacityPacket::encode)
+            .consumerMainThread(UpdateSlotCapacityPacket::handle)
+            .add();
     }
 }
