@@ -147,9 +147,12 @@ public class CustomNPCEntity extends PathfinderMob {
         if (!this.level().isClientSide && source.getEntity() instanceof ServerPlayer serverPlayer) {
             ItemStack heldItem = serverPlayer.getMainHandItem();
 
-            // Vehicle Spawn Tool: Linksklick auf AUTOHAENDLER NPC verknüpft das Tool
+            // Vehicle Spawn Tool: Linksklick auf AUTOHAENDLER oder ABSCHLEPPER NPC verknüpft das Tool
             if (heldItem.getItem() instanceof de.rolandsw.schedulemc.vehicle.items.VehicleSpawnTool) {
-                if (getMerchantCategory() == de.rolandsw.schedulemc.npc.data.MerchantCategory.AUTOHAENDLER) {
+                boolean isCarDealer = getMerchantCategory() == de.rolandsw.schedulemc.npc.data.MerchantCategory.AUTOHAENDLER;
+                boolean isTowingService = getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.ABSCHLEPPER;
+
+                if (isCarDealer || isTowingService) {
                     de.rolandsw.schedulemc.vehicle.items.VehicleSpawnTool.linkToDealer(heldItem, getNpcData().getNpcUUID(), serverPlayer);
                     return false; // Verhindere Schaden
                 } else {
