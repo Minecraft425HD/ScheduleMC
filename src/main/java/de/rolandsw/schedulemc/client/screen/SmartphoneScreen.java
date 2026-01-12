@@ -47,6 +47,7 @@ public class SmartphoneScreen extends Screen {
     private static final ResourceLocation APP_BANK = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/app_bank.png");
     private static final ResourceLocation APP_CRIME = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/app_crime.png");
     private static final ResourceLocation APP_ACHIEVEMENT = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/app_achievement.png");
+    private static final ResourceLocation APP_TOWING = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/app_towing.png");
     private static final ResourceLocation CLOSE_ICON = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/close.png");
 
     private int leftPos;
@@ -185,6 +186,7 @@ public class SmartphoneScreen extends Screen {
                             case 8: openApp(new BankAppScreen(this)); return true;
                             case 9: openApp(new CrimeStatsAppScreen(this)); return true;
                             case 10: openApp(new AchievementAppScreen(this)); return true;
+                            case 11: openApp(new TowingServiceAppScreen(this)); return true;
                         }
                     }
                 }
@@ -275,6 +277,8 @@ public class SmartphoneScreen extends Screen {
             APP_CRIME, Component.translatable("gui.smartphone.app_crime").getString(), 9);
 
         renderAppIcon(guiGraphics, gridStartX, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 5 - scrollOffset, APP_ACHIEVEMENT, Component.translatable("gui.smartphone.app_achievements").getString(), 10);
+        renderAppIcon(guiGraphics, gridStartX + APP_ICON_SIZE + APP_SPACING, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 5 - scrollOffset,
+            APP_TOWING, Component.translatable("gui.smartphone.app_towing").getString(), 11);
 
         // Deaktiviere Scissor
         guiGraphics.disableScissor();
