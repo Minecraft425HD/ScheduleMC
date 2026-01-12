@@ -18,8 +18,8 @@ public class PartRegistry {
     public static final Part INDUSTRIAL_MOTOR = new PartIndustrialMotor();
 
     // Bodies (Chassis)
-    public static final Part LIMOUSINE_CHASSIS = new PartLimousineChassis(ResourceLocation.fromNamespaceAndPath(Main.MODID, "textures/entity/vehicle_wood_oak.png"), "oak");
-    public static final Part VAN_CHASSIS = new PartVanChassis(ResourceLocation.fromNamespaceAndPath(Main.MODID, "textures/entity/vehicle_big_wood_oak.png"), "oak");
+    public static final Part LIMOUSINE_CHASSIS = new PartLimousineChassis(ResourceLocation.fromNamespaceAndPath(Main.MODID, "textures/entity/vehicle_wood_oak.png"), "white");
+    public static final Part VAN_CHASSIS = new PartVanChassis(ResourceLocation.fromNamespaceAndPath(Main.MODID, "textures/entity/vehicle_big_wood_oak.png"), "white");
     public static final Part LUXUS_CHASSIS = new PartLuxusChassis(ResourceLocation.fromNamespaceAndPath(Main.MODID, "textures/entity/vehicle_sport_white.png"), "white");
     public static final Part TRUCK_CHASSIS = new PartTruckChassis(ResourceLocation.fromNamespaceAndPath(Main.MODID, "textures/entity/vehicle_transporter_white.png"), "white");
     public static final Part OFFROAD_CHASSIS = new PartOffroadChassis(ResourceLocation.fromNamespaceAndPath(Main.MODID, "textures/entity/vehicle_suv_white.png"), "white");
