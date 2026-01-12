@@ -13,10 +13,28 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 
+import java.util.UUID;
+
 /**
  * Utility class for rendering player and NPC heads in GUIs
  */
 public class HeadRenderer {
+
+    /**
+     * Renders a player head in the GUI using UUID
+     * @param guiGraphics Graphics context
+     * @param x X position
+     * @param y Y position
+     * @param size Size of the head
+     * @param playerUuid Player UUID (can be null for Steve skin)
+     */
+    public static void renderPlayerHead(GuiGraphics guiGraphics, int x, int y, int size, UUID playerUuid) {
+        ResourceLocation skinTexture = null;
+        if (playerUuid != null) {
+            skinTexture = DefaultPlayerSkin.getDefaultSkin(playerUuid);
+        }
+        renderPlayerHead(guiGraphics, x, y, size, skinTexture);
+    }
 
     /**
      * Renders a player head in the GUI

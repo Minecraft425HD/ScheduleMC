@@ -32,6 +32,7 @@ import de.rolandsw.schedulemc.economy.RecurringPaymentManager;
 import de.rolandsw.schedulemc.client.network.SmartphoneNetworkHandler;
 import de.rolandsw.schedulemc.messaging.MessageManager;
 import de.rolandsw.schedulemc.messaging.network.MessageNetworkHandler;
+import de.rolandsw.schedulemc.player.PlayerTracker;
 import de.rolandsw.schedulemc.achievement.network.AchievementNetworkHandler;
 import de.rolandsw.schedulemc.achievement.AchievementManager;
 import de.rolandsw.schedulemc.economy.events.RespawnHandler;
@@ -126,8 +127,7 @@ public class ScheduleMC {
     // Vehicle Mod integration
     private static Main vehicleMod;
 
-    public ScheduleMC() {
-        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+    public ScheduleMC(IEventBus modEventBus) {
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::onEntityAttributeCreation);
 
@@ -137,7 +137,7 @@ public class ScheduleMC {
         });
 
         // Initialize Vehicle Mod
-        vehicleMod = new Main();
+        vehicleMod = new Main(modEventBus);
 
         ModItems.ITEMS.register(modEventBus);
         TobaccoItems.ITEMS.register(modEventBus);
@@ -208,8 +208,9 @@ public class ScheduleMC {
         NPCMenuTypes.MENUS.register(modEventBus);
         ModCreativeTabs.CREATIVE_MODE_TABS.register(modEventBus);
 
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ModConfigHandler.SPEC);
-        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ModConfigHandler.CLIENT_SPEC);
+        ModLoadingContext context = ModLoadingContext.get();
+        context.registerConfig(ModConfig.Type.COMMON, ModConfigHandler.SPEC);
+        context.registerConfig(ModConfig.Type.CLIENT, ModConfigHandler.CLIENT_SPEC);
 
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(new BlockProtectionHandler());
@@ -245,6 +246,7 @@ public class ScheduleMC {
             de.rolandsw.schedulemc.region.network.PlotNetworkHandler.register();
             de.rolandsw.schedulemc.npc.crime.prison.network.PrisonNetworkHandler.register();
             de.rolandsw.schedulemc.player.network.PlayerSettingsNetworkHandler.register();
+            de.rolandsw.schedulemc.towing.network.TowingNetworkHandler.register();
             de.rolandsw.schedulemc.npc.crime.prison.PrisonManager.init();
             de.rolandsw.schedulemc.territory.network.TerritoryNetworkHandler.register();
 
@@ -305,7 +307,12 @@ public class ScheduleMC {
             de.rolandsw.schedulemc.npc.crime.CrimeManager.load();
             NPCNameRegistry.loadRegistry();
             MessageManager.loadMessages();
+            PlayerTracker.load();
             de.rolandsw.schedulemc.player.PlayerSettingsManager.load();
+
+            // Towing Service System
+            de.rolandsw.schedulemc.towing.MembershipManager.load();
+            de.rolandsw.schedulemc.towing.TowingYardManager.load();
 
             // NEU: Warehouse & Shop System initialisieren
             StateAccount.load();
@@ -395,6 +402,13 @@ public class ScheduleMC {
                 WalletManager.saveIfNeeded();
                 NPCNameRegistry.saveIfNeeded();
                 MessageManager.saveIfNeeded();
+                PlayerTracker.saveIfNeeded();
+                de.rolandsw.schedulemc.player.PlayerSettingsManager.saveIfNeeded();
+
+                // Towing Service System periodic saves
+                de.rolandsw.schedulemc.towing.MembershipManager.saveIfNeeded();
+                de.rolandsw.schedulemc.towing.TowingYardManager.saveIfNeeded();
+
                 // Vehicle System periodic saves
                 de.rolandsw.schedulemc.vehicle.vehicle.VehicleSpawnRegistry.save();
                 de.rolandsw.schedulemc.vehicle.fuel.FuelStationRegistry.save();
@@ -442,7 +456,13 @@ public class ScheduleMC {
             WalletManager.save();
             NPCNameRegistry.saveRegistry();
             MessageManager.saveMessages();
+            PlayerTracker.save();
+            de.rolandsw.schedulemc.player.PlayerSettingsManager.save();
             WarehouseManager.save(event.getServer());
+
+            // Towing Service System final saves
+            de.rolandsw.schedulemc.towing.MembershipManager.save();
+            de.rolandsw.schedulemc.towing.TowingYardManager.save();
 
             // Economy Systems final saves
             InterestManager.getInstance(event.getServer()).save();

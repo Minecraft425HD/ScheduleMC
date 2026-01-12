@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.economy;
 
 import de.rolandsw.schedulemc.player.PlayerSettingsManager;
+import de.rolandsw.schedulemc.player.PlayerTracker;
 import de.rolandsw.schedulemc.player.network.PlayerSettingsNetworkHandler;
 import de.rolandsw.schedulemc.player.network.SyncPlayerSettingsPacket;
 import de.rolandsw.schedulemc.util.EventHelper;
@@ -71,6 +72,9 @@ public class PlayerJoinHandler {
                 LOGGER.info("Player {} already has account with balance: {} €",
                     player.getName().getString(), EconomyManager.getBalance(uuid));
             }
+
+            // Register player in contact tracker for Contacts App
+            PlayerTracker.registerPlayer(uuid, player.getName().getString());
 
             // Synchronisiere Spieler-Einstellungen zum Client
             var settings = PlayerSettingsManager.getSettings(uuid);

@@ -100,7 +100,10 @@ public class ColorCalculationService {
     private final ColorResolver grassColorResolver = (blockState, biomex, blockPos) -> biomex.getGrassColor(blockPos.getX(), blockPos.getZ());
     private final ColorResolver foliageColorResolver = (blockState, biomex, blockPos) -> biomex.getFoliageColor();
     private final ColorResolver dryFoliageColorResolver = (blockState, biomex, blockPos) -> biomex.getFoliageColor();
-    private final ColorResolver waterColorResolver = (blockState, biomex, blockPos) -> biomex.getWaterColor();
+    // Fixed water color (Minecraft default blue) - ignore biome tinting to prevent brown water in swamps
+    private final ColorResolver waterColorResolver = (blockState, biomex, blockPos) -> 0x3F76E4;
+    // Fixed lava color (Minecraft default orange/red)
+    private final ColorResolver lavaColorResolver = (blockState, biomex, blockPos) -> 0xFF5A00;
 
     // Performance-Optimierung: LRU Cache für Biome Tints (reduziert 9 Biome-Lookups pro Block)
     // Cache-Size: 4096 Einträge = ~32KB Memory (genug für typische Spieler-Umgebung)
@@ -457,7 +460,11 @@ public class ColorCalculationService {
         int blockStateID = BlockDatabase.getStateId(blockState);
         if (block != BlockDatabase.largeFern && block != BlockDatabase.tallGrass && block != BlockDatabase.reeds) {
             if (block == BlockDatabase.water) {
+                // Fixed blue color for water (Minecraft default: #3F76E4)
                 this.blockColorsWithDefaultTint[blockStateID] = ColorUtils.colorMultiplier(color, 0xFF3F76E4);
+            } else if (block == Blocks.LAVA) {
+                // Fixed orange/red color for lava (Minecraft default: #FF5A00)
+                this.blockColorsWithDefaultTint[blockStateID] = ColorUtils.colorMultiplier(color, 0xFFFF5A00);
             } else {
                 this.blockColorsWithDefaultTint[blockStateID] = ColorUtils.colorMultiplier(color, MapViewConstants.getMinecraft().getBlockColors().getColor(blockState, null, null, 0) | 0xFF000000);
             }
@@ -594,6 +601,8 @@ public class ColorCalculationService {
         ColorResolver colorResolver = null;
         if (block == BlockDatabase.water) {
             colorResolver = this.waterColorResolver;
+        } else if (block == Blocks.LAVA) {
+            colorResolver = this.lavaColorResolver;
         } else if (block == BlockDatabase.spruceLeaves) {
             colorResolver = this.spruceColorResolver;
         } else if (block == BlockDatabase.birchLeaves) {

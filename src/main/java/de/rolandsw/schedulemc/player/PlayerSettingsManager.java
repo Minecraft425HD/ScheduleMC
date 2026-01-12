@@ -28,6 +28,7 @@ public class PlayerSettingsManager {
 
     // SICHERHEIT: ConcurrentHashMap für Thread-safe Zugriff
     private static Map<String, PlayerSettings> settingsMap = new ConcurrentHashMap<>();
+    private static boolean needsSave = false;
 
     /**
      * Lädt alle Einstellungen aus der Datei
@@ -61,9 +62,19 @@ public class PlayerSettingsManager {
             try (FileWriter writer = new FileWriter(SETTINGS_FILE)) {
                 GSON.toJson(settingsMap, writer);
             }
+            needsSave = false;
             LOGGER.debug("Saved settings for {} players", settingsMap.size());
         } catch (IOException e) {
             LOGGER.error("Failed to save player settings", e);
+        }
+    }
+
+    /**
+     * Speichert nur wenn Änderungen vorliegen
+     */
+    public static void saveIfNeeded() {
+        if (needsSave) {
+            save();
         }
     }
 
@@ -81,6 +92,7 @@ public class PlayerSettingsManager {
     public static void updateSettings(UUID playerUUID, PlayerSettings settings) {
         settings.setPlayerUUID(playerUUID.toString());
         settingsMap.put(playerUUID.toString(), settings);
+        needsSave = true;
         save();
     }
 
@@ -90,12 +102,14 @@ public class PlayerSettingsManager {
     public static void setUtilityWarningsEnabled(UUID playerUUID, boolean enabled) {
         PlayerSettings settings = getSettings(playerUUID);
         settings.setUtilityWarningsEnabled(enabled);
+        needsSave = true;
         save();
     }
 
     public static void setElectricityThreshold(UUID playerUUID, double threshold) {
         PlayerSettings settings = getSettings(playerUUID);
         settings.setElectricityWarningThreshold(threshold);
+        needsSave = true;
         save();
     }
 

@@ -47,6 +47,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
 
     private static final EntityDataAccessor<NonNullList<ItemStack>> PARTS = SynchedEntityData.defineId(EntityGenericVehicle.class, Main.ITEM_LIST.get());
     private static final EntityDataAccessor<Integer> PAINT_COLOR = SynchedEntityData.defineId(EntityGenericVehicle.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Boolean> IS_ON_TOWING_YARD = SynchedEntityData.defineId(EntityGenericVehicle.class, EntityDataSerializers.BOOLEAN);
 
     // Components - lazy initialization to avoid issues with Entity constructor
     private PhysicsComponent physicsComponent;
@@ -122,6 +123,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     protected void defineSynchedData() {
         this.entityData.define(PARTS, NonNullList.create());
         this.entityData.define(PAINT_COLOR, 0); // Default: 0 = white
+        this.entityData.define(IS_ON_TOWING_YARD, false); // Default: not on towing yard
 
         // Define component data directly (components not yet initialized at this point)
         PhysicsComponent.defineData(this.entityData);
@@ -711,6 +713,11 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
             setPaintColor(compound.getInt("PaintColor"));
         }
 
+        // Load towing yard flag
+        if (compound.contains("IsOnTowingYard")) {
+            setIsOnTowingYard(compound.getBoolean("IsOnTowingYard"));
+        }
+
         // Initialize default items if this is a new vehicle
         if (compound.getAllKeys().stream().allMatch(s -> s.equals("id"))) {
             Container internal = inventoryComponent.getInternalInventory();
@@ -759,6 +766,9 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
 
         // Save paint color
         compound.putInt("PaintColor", getPaintColor());
+
+        // Save towing yard flag
+        compound.putBoolean("IsOnTowingYard", isOnTowingYard());
 
         // Save all component data
         physicsComponent.saveAdditionalData(compound);
@@ -1002,6 +1012,15 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         if (color >= 0 && color <= 4) {
             this.entityData.set(PAINT_COLOR, color);
         }
+    }
+
+    // Towing yard system - flag to disable fuel consumption when parked at towing yard
+    public boolean isOnTowingYard() {
+        return this.entityData.get(IS_ON_TOWING_YARD);
+    }
+
+    public void setIsOnTowingYard(boolean isOnTowingYard) {
+        this.entityData.set(IS_ON_TOWING_YARD, isOnTowingYard);
     }
 
     public String getPaintColorName() {

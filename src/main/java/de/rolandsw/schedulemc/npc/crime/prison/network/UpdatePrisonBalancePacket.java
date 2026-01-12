@@ -1,7 +1,5 @@
 package de.rolandsw.schedulemc.npc.crime.prison.network;
 
-import de.rolandsw.schedulemc.npc.crime.prison.client.PrisonScreen;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
@@ -31,10 +29,7 @@ public class UpdatePrisonBalancePacket {
     public static void handle(UpdatePrisonBalancePacket msg, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-                Minecraft mc = Minecraft.getInstance();
-                if (mc.screen instanceof PrisonScreen prisonScreen) {
-                    prisonScreen.updateBalance(msg.newBalance);
-                }
+                ClientPrisonScreenHandler.updatePrisonBalance(msg.newBalance);
             });
         });
         ctx.get().setPacketHandled(true);

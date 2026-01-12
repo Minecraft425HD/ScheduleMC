@@ -1,10 +1,8 @@
 package de.rolandsw.schedulemc.npc.network;
 
-import de.rolandsw.schedulemc.npc.client.screen.CreditAdvisorScreen;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
@@ -65,25 +63,19 @@ public class SyncCreditDataPacket {
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
-            handleClient();
+            DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+                ClientCreditScreenHandler.updateCreditData(
+                    creditScore,
+                    ratingOrdinal,
+                    hasActiveLoan,
+                    loanType,
+                    remaining,
+                    daily,
+                    progress,
+                    remainingDays
+                );
+            });
         });
         ctx.get().setPacketHandled(true);
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    private void handleClient() {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.screen instanceof CreditAdvisorScreen screen) {
-            screen.updateCreditData(
-                creditScore,
-                ratingOrdinal,
-                hasActiveLoan,
-                loanType,
-                remaining,
-                daily,
-                progress,
-                remainingDays
-            );
-        }
     }
 }

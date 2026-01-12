@@ -13,7 +13,8 @@ public enum PlotType {
     SHOP(false, false),           // Nicht kaufbar, Staatseigentum
     PUBLIC(false, false),
     GOVERNMENT(false, false),
-    PRISON(false, false);         // Gefängnis-Plot
+    PRISON(false, false),         // Gefängnis-Plot
+    TOWING_YARD(true, true);      // Abschlepphof
 
     private final boolean canBePurchased;
     private final boolean canBeRented;
@@ -41,5 +42,9 @@ public enum PlotType {
 
     public boolean isPrison() {
         return this == PRISON;
+    }
+
+    public boolean isTowingYard() {
+        return this == TOWING_YARD;
     }
 }
