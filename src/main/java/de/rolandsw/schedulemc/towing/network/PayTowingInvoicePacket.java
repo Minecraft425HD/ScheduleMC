@@ -62,7 +62,7 @@ public class PayTowingInvoicePacket {
             double amount = invoice.getAmount();
 
             // Check if player has enough money
-            if (!WalletManager.hasEnough(sender.getUUID(), amount)) {
+            if (WalletManager.getBalance(sender.getUUID()) < amount) {
                 sender.displayClientMessage(
                     Component.translatable("towing.error.not_enough_money"),
                     false
@@ -71,7 +71,13 @@ public class PayTowingInvoicePacket {
             }
 
             // Process payment
-            WalletManager.withdraw(sender.getUUID(), amount);
+            if (!WalletManager.removeMoney(sender.getUUID(), amount)) {
+                sender.displayClientMessage(
+                    Component.translatable("towing.error.not_enough_money"),
+                    false
+                );
+                return;
+            }
             TowingYardManager.payInvoice(invoiceId);
 
             sender.displayClientMessage(
