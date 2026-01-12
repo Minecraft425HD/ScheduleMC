@@ -81,6 +81,20 @@ public class ServerConfig extends ConfigBase {
     public final ForgeConfigSpec.DoubleValue truckChassisAcceleration;
     public final ForgeConfigSpec.DoubleValue truckChassisMaxSpeed;
 
+    // Towing Service Configuration
+    public final ForgeConfigSpec.DoubleValue towingBaseFee;
+    public final ForgeConfigSpec.DoubleValue towingDistanceFeePerBlock;
+    public final ForgeConfigSpec.IntValue towingDamageReductionPercent;
+
+    // Membership Configuration
+    public final ForgeConfigSpec.IntValue membershipPaymentIntervalDays;
+    public final ForgeConfigSpec.DoubleValue membershipBronzeFee;
+    public final ForgeConfigSpec.IntValue membershipBronzeCoveragePercent;
+    public final ForgeConfigSpec.DoubleValue membershipSilverFee;
+    public final ForgeConfigSpec.IntValue membershipSilverCoveragePercent;
+    public final ForgeConfigSpec.DoubleValue membershipGoldFee;
+    public final ForgeConfigSpec.IntValue membershipGoldCoveragePercent;
+
     public List<Tag<Fluid>> fuelStationValidFuelList = new ArrayList<>();
     public List<Tag<Block>> vehicleDriveBlockList = new ArrayList<>();
 
@@ -143,6 +157,43 @@ public class ServerConfig extends ConfigBase {
         truckChassisFuelEfficiency = builder.defineInRange("vehicle.parts.truck_chassis.fuel_efficiency", 0.6D, 0.001D, 10D);
         truckChassisAcceleration = builder.defineInRange("vehicle.parts.truck_chassis.acceleration", 0.8D, 0.001D, 10D);
         truckChassisMaxSpeed = builder.defineInRange("vehicle.parts.truck_chassis.max_speed", 0.765D, 0.001D, 10D);
+
+        // Towing Service
+        towingBaseFee = builder
+            .comment("Base fee for towing a vehicle (in €)")
+            .defineInRange("towing.base_fee", 100.0D, 0.0D, 10000.0D);
+        towingDistanceFeePerBlock = builder
+            .comment("Additional fee per block distance (in €)")
+            .defineInRange("towing.distance_fee_per_block", 0.5D, 0.0D, 100.0D);
+        towingDamageReductionPercent = builder
+            .comment("Percentage of damage reduction when collecting vehicle from towing yard")
+            .defineInRange("towing.damage_reduction_percent", 10, 0, 100);
+
+        // Membership System
+        membershipPaymentIntervalDays = builder
+            .comment("How often membership fees are charged (in Minecraft days)")
+            .defineInRange("towing.membership.payment_interval_days", 7, 1, 30);
+
+        membershipBronzeFee = builder
+            .comment("Monthly fee for Bronze membership (in €)")
+            .defineInRange("towing.membership.bronze.fee", 50.0D, 0.0D, 10000.0D);
+        membershipBronzeCoveragePercent = builder
+            .comment("Percentage of towing costs covered by Bronze membership")
+            .defineInRange("towing.membership.bronze.coverage_percent", 33, 0, 100);
+
+        membershipSilverFee = builder
+            .comment("Monthly fee for Silver membership (in €)")
+            .defineInRange("towing.membership.silver.fee", 150.0D, 0.0D, 10000.0D);
+        membershipSilverCoveragePercent = builder
+            .comment("Percentage of towing costs covered by Silver membership")
+            .defineInRange("towing.membership.silver.coverage_percent", 66, 0, 100);
+
+        membershipGoldFee = builder
+            .comment("Monthly fee for Gold membership (in €)")
+            .defineInRange("towing.membership.gold.fee", 300.0D, 0.0D, 10000.0D);
+        membershipGoldCoveragePercent = builder
+            .comment("Percentage of towing costs covered by Gold membership (100 = free towing)")
+            .defineInRange("towing.membership.gold.coverage_percent", 100, 0, 100);
     }
 
     @Override
