@@ -24,6 +24,7 @@ public class TowingYardManager {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Map<UUID, TowingYardParkingSpot> parkingSpots = new ConcurrentHashMap<>();
     private static final Map<String, List<TowingTransaction>> towingTransactions = new ConcurrentHashMap<>();
+    private static final Map<UUID, TowingInvoiceData> unpaidInvoices = new ConcurrentHashMap<>();
     private static final File file = new File("config/plotmod_towing_parking_spots.json");
     private static final Gson gson = GsonHelper.get();
 
@@ -228,6 +229,66 @@ public class TowingYardManager {
             transactions.removeIf(t -> t.isOlderThan(currentTime, 30));
         }
         markDirty();
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // TOWING INVOICE MANAGEMENT
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Creates a new invoice for a towed vehicle
+     */
+    public static TowingInvoiceData createInvoice(UUID playerId, UUID vehicleId, String towingYardPlotId,
+                                                    double amount, long timestamp) {
+        TowingInvoiceData invoice = new TowingInvoiceData(playerId, vehicleId, towingYardPlotId, amount, timestamp);
+        unpaidInvoices.put(invoice.getInvoiceId(), invoice);
+        markDirty();
+        LOGGER.info("Created towing invoice {} for player {} ({}€)", invoice.getInvoiceId(), playerId, amount);
+        return invoice;
+    }
+
+    /**
+     * Gets an unpaid invoice by vehicle ID
+     */
+    @Nullable
+    public static TowingInvoiceData getUnpaidInvoice(UUID playerId, UUID vehicleId) {
+        return unpaidInvoices.values().stream()
+            .filter(i -> i.getPlayerId().equals(playerId))
+            .filter(i -> i.getVehicleId().equals(vehicleId))
+            .filter(i -> !i.isPaid())
+            .findFirst()
+            .orElse(null);
+    }
+
+    /**
+     * Gets an unpaid invoice by invoice ID
+     */
+    @Nullable
+    public static TowingInvoiceData getInvoice(UUID invoiceId) {
+        return unpaidInvoices.get(invoiceId);
+    }
+
+    /**
+     * Gets all unpaid invoices for a player
+     */
+    public static List<TowingInvoiceData> getUnpaidInvoices(UUID playerId) {
+        return unpaidInvoices.values().stream()
+            .filter(i -> i.getPlayerId().equals(playerId))
+            .filter(i -> !i.isPaid())
+            .toList();
+    }
+
+    /**
+     * Marks an invoice as paid
+     */
+    public static void payInvoice(UUID invoiceId) {
+        TowingInvoiceData invoice = unpaidInvoices.get(invoiceId);
+        if (invoice != null) {
+            invoice.markAsPaid();
+            unpaidInvoices.remove(invoiceId);
+            markDirty();
+            LOGGER.info("Invoice {} paid ({}€)", invoiceId, invoice.getAmount());
+        }
     }
 
     /**
