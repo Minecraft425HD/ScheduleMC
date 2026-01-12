@@ -147,14 +147,30 @@ public class CustomNPCEntity extends PathfinderMob {
         if (!this.level().isClientSide && source.getEntity() instanceof ServerPlayer serverPlayer) {
             ItemStack heldItem = serverPlayer.getMainHandItem();
 
-            // Vehicle Spawn Tool: Linksklick auf AUTOHAENDLER oder ABSCHLEPPER NPC verknüpft das Tool
+            // Vehicle Spawn Tool: Linksklick verknüpft das Tool
             if (heldItem.getItem() instanceof de.rolandsw.schedulemc.vehicle.items.VehicleSpawnTool) {
                 boolean isCarDealer = getMerchantCategory() == de.rolandsw.schedulemc.npc.data.MerchantCategory.AUTOHAENDLER;
                 boolean isTowingService = getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.ABSCHLEPPER;
 
-                if (isCarDealer || isTowingService) {
+                if (isCarDealer) {
+                    // Autohändler: Verknüpfe für Fahrzeug-Spawn-Punkte
                     de.rolandsw.schedulemc.vehicle.items.VehicleSpawnTool.linkToDealer(heldItem, getNpcData().getNpcUUID(), serverPlayer);
-                    return false; // Verhindere Schaden
+                    return false;
+                } else if (isTowingService) {
+                    // Abschlepper: Verknüpfe für Parkplatz-Erstellung
+                    // Hole Plot ID vom Warehouse (das ist die Towing Yard ID)
+                    var warehouse = getNpcData().getWarehouseEntity(level());
+                    if (warehouse != null && warehouse.getShopId() != null) {
+                        de.rolandsw.schedulemc.vehicle.items.VehicleSpawnTool.linkToTowingYard(
+                            heldItem,
+                            warehouse.getShopId(), // Plot ID des Towing Yards
+                            serverPlayer
+                        );
+                    } else {
+                        serverPlayer.sendSystemMessage(net.minecraft.network.chat.Component.translatable("message.towing.no_yard")
+                            .withStyle(net.minecraft.ChatFormatting.RED));
+                    }
+                    return false;
                 } else {
                     serverPlayer.sendSystemMessage(net.minecraft.network.chat.Component.translatable("message.npc.not_car_dealer")
                         .withStyle(net.minecraft.ChatFormatting.RED));
