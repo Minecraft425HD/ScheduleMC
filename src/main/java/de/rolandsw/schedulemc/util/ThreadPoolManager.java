@@ -346,6 +346,12 @@ public class ThreadPoolManager {
      * Fährt einen Pool herunter mit Timeout
      */
     private static void shutdownPool(String name, ExecutorService pool) {
+        // Skip shutdown if pool was never initialized
+        if (pool == null) {
+            LOGGER.debug("{} pool was never initialized, skipping shutdown", name);
+            return;
+        }
+
         try {
             LOGGER.debug("Shutting down {} pool...", name);
             pool.shutdown();
@@ -364,7 +370,9 @@ public class ThreadPoolManager {
             LOGGER.debug("{} pool shut down successfully", name);
         } catch (InterruptedException e) {
             LOGGER.error("Interrupted while shutting down {} pool", name, e);
-            pool.shutdownNow();
+            if (pool != null) {
+                pool.shutdownNow();
+            }
             Thread.currentThread().interrupt();
         }
     }
