@@ -76,18 +76,21 @@ public class TowingServiceAppScreen extends Screen {
 
     private void loadVehicles() {
         vehicles.clear();
-        if (minecraft == null || minecraft.level == null || playerId == null) {
+        if (minecraft == null || minecraft.level == null || minecraft.player == null || playerId == null) {
             return;
         }
 
         Level level = minecraft.level;
 
-        // Query all vehicle entities in the world
-        for (Entity entity : level.entitiesForRendering()) {
-            if (entity instanceof EntityGenericVehicle vehicle) {
-                if (playerId.equals(vehicle.getOwnerId())) {
-                    vehicles.add(new VehicleInfo(vehicle));
-                }
+        // Query all vehicle entities within a large radius around player
+        net.minecraft.world.phys.AABB searchBox = new net.minecraft.world.phys.AABB(
+            minecraft.player.getX() - 1000, minecraft.player.getY() - 256, minecraft.player.getZ() - 1000,
+            minecraft.player.getX() + 1000, minecraft.player.getY() + 256, minecraft.player.getZ() + 1000
+        );
+
+        for (EntityGenericVehicle vehicle : level.getEntitiesOfClass(EntityGenericVehicle.class, searchBox)) {
+            if (playerId.equals(vehicle.getOwnerId())) {
+                vehicles.add(new VehicleInfo(vehicle));
             }
         }
     }
@@ -96,7 +99,7 @@ public class TowingServiceAppScreen extends Screen {
         if (playerId != null) {
             membership = MembershipManager.getMembership(playerId);
             if (membership == null) {
-                membership = new MembershipData(playerId);
+                membership = new MembershipData(playerId, MembershipTier.NONE);
             }
         }
     }

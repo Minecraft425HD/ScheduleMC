@@ -138,8 +138,8 @@ public class TowingYardManager {
      * Calculates towing cost based on distance
      */
     public static double calculateTowingCost(double distance) {
-        double baseFee = ModConfigHandler.SERVER.towingBaseFee.get();
-        double distanceFee = ModConfigHandler.SERVER.towingDistanceFeePerBlock.get();
+        double baseFee = ModConfigHandler.VEHICLE_SERVER.towingBaseFee.get();
+        double distanceFee = ModConfigHandler.VEHICLE_SERVER.towingDistanceFeePerBlock.get();
         return baseFee + (distance * distanceFee);
     }
 
@@ -190,7 +190,7 @@ public class TowingYardManager {
             data.forEach((spotIdStr, saveData) -> {
                 try {
                     UUID spotId = UUID.fromString(spotIdStr);
-                    UUID towingYardPlotId = UUID.fromString(saveData.towingYardPlotId);
+                    String towingYardPlotId = saveData.towingYardPlotId;
 
                     BlockPos location = new BlockPos(
                         Integer.parseInt(saveData.locationX),
@@ -226,7 +226,7 @@ public class TowingYardManager {
                 saveData.locationX = String.valueOf(spot.getLocation().getX());
                 saveData.locationY = String.valueOf(spot.getLocation().getY());
                 saveData.locationZ = String.valueOf(spot.getLocation().getZ());
-                saveData.towingYardPlotId = spot.getTowingYardPlotId().toString();
+                saveData.towingYardPlotId = spot.getTowingYardPlotId();
                 saveData.occupied = spot.isOccupied();
 
                 if (spot.isOccupied()) {

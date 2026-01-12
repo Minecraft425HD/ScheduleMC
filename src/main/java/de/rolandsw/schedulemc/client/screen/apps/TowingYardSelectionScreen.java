@@ -65,7 +65,7 @@ public class TowingYardSelectionScreen extends Screen {
 
         for (String plotId : yardPlotIds) {
             PlotRegion plot = PlotManager.getPlot(plotId);
-            if (plot != null && plot.getPlotType().isTowingYard()) {
+            if (plot != null && plot.getType().isTowingYard()) {
                 int freeSpots = TowingYardManager.countFreeSpots(plotId);
                 if (freeSpots > 0) {
                     towingYards.add(new TowingYardInfo(plotId, plot, freeSpots));

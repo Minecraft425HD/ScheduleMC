@@ -7,10 +7,10 @@ import de.rolandsw.schedulemc.config.ModConfigHandler;
  * Determines coverage percentage and monthly fees
  */
 public enum MembershipTier {
-    NONE(0, 0, "none"),
-    BRONZE(1, ModConfigHandler.SERVER.membershipBronzeCoveragePercent::get, ModConfigHandler.SERVER.membershipBronzeFee::get, "bronze"),
-    SILVER(2, ModConfigHandler.SERVER.membershipSilverCoveragePercent::get, ModConfigHandler.SERVER.membershipSilverFee::get, "silver"),
-    GOLD(3, ModConfigHandler.SERVER.membershipGoldCoveragePercent::get, ModConfigHandler.SERVER.membershipGoldFee::get, "gold");
+    NONE(0, 0, 0.0, "none"),
+    BRONZE(1, ModConfigHandler.VEHICLE_SERVER.membershipBronzeCoveragePercent::get, ModConfigHandler.VEHICLE_SERVER.membershipBronzeFee::get, "bronze"),
+    SILVER(2, ModConfigHandler.VEHICLE_SERVER.membershipSilverCoveragePercent::get, ModConfigHandler.VEHICLE_SERVER.membershipSilverFee::get, "silver"),
+    GOLD(3, ModConfigHandler.VEHICLE_SERVER.membershipGoldCoveragePercent::get, ModConfigHandler.VEHICLE_SERVER.membershipGoldFee::get, "gold");
 
     private final int level;
     private final java.util.function.Supplier<Integer> coveragePercentSupplier;

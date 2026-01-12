@@ -28,7 +28,7 @@ public class MembershipData {
         }
         // Convert Minecraft days to milliseconds
         // 1 Minecraft day = 20 minutes = 1200 seconds = 1200000 ms
-        long intervalMs = de.rolandsw.schedulemc.config.ModConfigHandler.SERVER.membershipPaymentIntervalDays.get() * 1200000L;
+        long intervalMs = de.rolandsw.schedulemc.config.ModConfigHandler.VEHICLE_SERVER.membershipPaymentIntervalDays.get() * 1200000L;
         return subscriptionStartDate + intervalMs;
     }
 

@@ -62,7 +62,7 @@ public class MembershipManager {
         // If upgrading/changing to paid tier, charge immediately
         if (tier != MembershipTier.NONE) {
             double fee = tier.getMonthlyFee();
-            if (!EconomyManager.hasEnoughMoney(playerId, fee)) {
+            if (EconomyManager.getBalance(playerId) < fee) {
                 if (player != null) {
                     player.sendSystemMessage(Component.translatable("towing.membership.insufficient_funds",
                         String.format("%.2f", fee)));
@@ -109,7 +109,7 @@ public class MembershipManager {
         MembershipTier tier = data.getTier();
         double fee = tier.getMonthlyFee();
 
-        if (EconomyManager.hasEnoughMoney(playerId, fee)) {
+        if (EconomyManager.getBalance(playerId) >= fee) {
             EconomyManager.withdraw(playerId, fee);
             data.renew();
             markDirty();

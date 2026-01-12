@@ -75,7 +75,7 @@ public class RequestTowingPacket {
 
             // Get towing yard plot
             PlotRegion towingYard = PlotManager.getPlot(towingYardPlotId);
-            if (towingYard == null || !towingYard.getPlotType().isTowingYard()) {
+            if (towingYard == null || !towingYard.getType().isTowingYard()) {
                 sender.displayClientMessage(
                     Component.translatable("towing.error.invalid_yard"),
                     false
@@ -136,7 +136,7 @@ public class RequestTowingPacket {
 
             // Increment tow count for membership
             if (membership != null) {
-                membership.incrementTowCount();
+                membership.incrementTows();
                 MembershipManager.save();
             }
 
