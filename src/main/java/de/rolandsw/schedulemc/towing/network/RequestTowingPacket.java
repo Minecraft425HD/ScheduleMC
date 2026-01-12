@@ -132,6 +132,12 @@ public class RequestTowingPacket {
             // Mark vehicle as on towing yard to disable fuel consumption
             vehicle.setIsOnTowingYard(true);
 
+            // Keep engine running when parked at towing yard
+            de.rolandsw.schedulemc.vehicle.entity.vehicle.components.PhysicsComponent physics = vehicle.getPhysicsComponent();
+            if (physics != null && !physics.isStarted()) {
+                physics.setStarted(true, false, false); // Start without playing sound
+            }
+
             // Record transaction for revenue tracking
             TowingYardManager.recordTransaction(
                 level.getGameTime(),
