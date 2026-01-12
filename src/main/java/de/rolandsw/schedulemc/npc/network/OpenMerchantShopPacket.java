@@ -197,17 +197,25 @@ public class OpenMerchantShopPacket {
                 ItemStack billItem = new ItemStack(Items.PAPER);
                 CompoundTag tag = billItem.getOrCreateTag();
                 tag.putString("BillType", "TowingBill");
-                tag.putUUID("InvoiceId", invoice.invoiceId());
-                tag.putDouble("TotalCost", invoice.cost());
+                tag.putUUID("InvoiceId", invoice.getInvoiceId());
+                tag.putDouble("TotalCost", invoice.getAmount());
+
+                // Hole den Yard-Namen vom PlotManager
+                String yardName = invoice.getTowingYardPlotId();
+                de.rolandsw.schedulemc.region.PlotRegion plot =
+                    de.rolandsw.schedulemc.region.PlotManager.getPlotById(yardName);
+                if (plot != null && plot.getName() != null && !plot.getName().isEmpty()) {
+                    yardName = plot.getName();
+                }
 
                 // Setze Namen mit Formatierung
-                billItem.setHoverName(Component.literal("🚗 Abschlepprechnung - " + invoice.yardName())
+                billItem.setHoverName(Component.literal("🚗 Abschlepprechnung - " + yardName)
                     .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
 
                 // Erstelle Shop-Entry
                 NPCData.ShopEntry billEntry = new NPCData.ShopEntry(
                     billItem,
-                    (int) Math.ceil(invoice.cost()), // Preis aufgerundet
+                    (int) Math.ceil(invoice.getAmount()), // Preis aufgerundet
                     true, // Unbegrenzt verfügbar
                     1     // Stock: 1
                 );
