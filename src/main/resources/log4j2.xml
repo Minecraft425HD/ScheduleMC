@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" packages="com.mojang.util,net.minecraftforge,cpw.mods">
+    <Appenders>
+        <Console name="SysOut" target="SYSTEM_OUT">
+            <PatternLayout pattern="[%d{HH:mm:ss}] [%t/%level]: %msg%n"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <!-- Suppress duplicate registry warnings - these are normal during mod updates -->
+        <Logger name="net.minecraftforge.registries" level="error" additivity="false">
+            <AppenderRef ref="SysOut"/>
+        </Logger>
+
+        <!-- Main loggers -->
+        <Root level="info" additivity="false">
+            <AppenderRef ref="SysOut"/>
+        </Root>
+    </Loggers>
+</Configuration>
