@@ -26,6 +26,7 @@ public class NPCData {
     private NPCType npcType;
     private MerchantCategory merchantCategory; // Nur relevant wenn npcType == VERKAEUFER
     private BankCategory bankCategory; // Nur relevant wenn npcType == BANK
+    private ServiceCategory serviceCategory; // Nur relevant wenn npcType == ABSCHLEPPER
 
     // Dialog System
     private List<DialogEntry> dialogEntries;
@@ -75,6 +76,7 @@ public class NPCData {
         this.npcType = NPCType.BEWOHNER;
         this.merchantCategory = MerchantCategory.BAUMARKT;
         this.bankCategory = BankCategory.BANKER;
+        this.serviceCategory = ServiceCategory.ABSCHLEPPDIENST;
         this.dialogEntries = new ArrayList<>();
         this.currentDialogIndex = 0;
         this.buyShop = new ShopInventory();
@@ -133,6 +135,7 @@ public class NPCData {
         tag.putInt("NPCType", npcType.ordinal());
         tag.putInt("MerchantCategory", merchantCategory.ordinal());
         tag.putInt("BankCategory", bankCategory.ordinal());
+        tag.putInt("ServiceCategory", serviceCategory.ordinal());
         tag.putInt("CurrentDialogIndex", currentDialogIndex);
         tag.put("CustomData", customData);
         tag.put("Behavior", behavior.save(new CompoundTag()));
@@ -226,6 +229,7 @@ public class NPCData {
         npcType = NPCType.fromOrdinal(tag.getInt("NPCType"));
         merchantCategory = MerchantCategory.fromOrdinal(tag.getInt("MerchantCategory"));
         bankCategory = BankCategory.fromOrdinal(tag.getInt("BankCategory"));
+        serviceCategory = ServiceCategory.fromOrdinal(tag.getInt("ServiceCategory"));
         currentDialogIndex = tag.getInt("CurrentDialogIndex");
         customData = tag.getCompound("CustomData");
         behavior = new NPCBehavior();
@@ -366,6 +370,14 @@ public class NPCData {
 
     public void setBankCategory(BankCategory bankCategory) {
         this.bankCategory = bankCategory;
+    }
+
+    public ServiceCategory getServiceCategory() {
+        return serviceCategory;
+    }
+
+    public void setServiceCategory(ServiceCategory serviceCategory) {
+        this.serviceCategory = serviceCategory;
     }
 
     public UUID getNpcUUID() {

@@ -313,6 +313,7 @@ public class ScheduleMC {
             // Towing Service System
             de.rolandsw.schedulemc.towing.MembershipManager.load();
             de.rolandsw.schedulemc.towing.TowingYardManager.load();
+            de.rolandsw.schedulemc.towing.TowingServiceRegistry.initializeDefaultServices();
 
             // NEU: Warehouse & Shop System initialisieren
             StateAccount.load();
