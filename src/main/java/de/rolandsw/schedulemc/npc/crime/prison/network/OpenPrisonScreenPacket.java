@@ -1,6 +1,5 @@
 package de.rolandsw.schedulemc.npc.crime.prison.network;
 
-import de.rolandsw.schedulemc.npc.crime.prison.client.PrisonScreen;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
@@ -53,7 +52,7 @@ public class OpenPrisonScreenPacket {
     public static void handle(OpenPrisonScreenPacket msg, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-                PrisonScreen.open(
+                ClientPrisonScreenHandler.openPrisonScreen(
                     msg.cellNumber,
                     msg.totalSentenceTicks,
                     msg.releaseTime,
