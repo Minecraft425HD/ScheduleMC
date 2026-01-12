@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.towing.network;
 
-import de.rolandsw.schedulemc.economy.WalletManager;
+import de.rolandsw.schedulemc.economy.EconomyManager;
+import de.rolandsw.schedulemc.economy.TransactionType;
 import de.rolandsw.schedulemc.towing.TowingInvoiceData;
 import de.rolandsw.schedulemc.towing.TowingYardManager;
 import de.rolandsw.schedulemc.util.PacketHandler;
@@ -61,8 +62,8 @@ public class PayTowingInvoicePacket {
 
             double amount = invoice.getAmount();
 
-            // Check if player has enough money
-            if (WalletManager.getBalance(sender.getUUID()) < amount) {
+            // Check if player has enough money in bank account
+            if (EconomyManager.getBalance(sender.getUUID()) < amount) {
                 sender.displayClientMessage(
                     Component.translatable("towing.error.not_enough_money"),
                     false
@@ -70,8 +71,9 @@ public class PayTowingInvoicePacket {
                 return;
             }
 
-            // Process payment
-            if (!WalletManager.removeMoney(sender.getUUID(), amount)) {
+            // Process payment from bank account
+            if (!EconomyManager.withdraw(sender.getUUID(), amount, TransactionType.GARAGE_FEE,
+                    "Towing invoice payment: " + invoice.getTowingYardPlotId())) {
                 sender.displayClientMessage(
                     Component.translatable("towing.error.not_enough_money"),
                     false
