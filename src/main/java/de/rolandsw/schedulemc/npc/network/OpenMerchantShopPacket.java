@@ -66,9 +66,13 @@ public class OpenMerchantShopPacket {
                     }
 
                     // Spezialbehandlung für Abschlepper: Füge Towing-Rechnungen hinzu
+                    // Slot 0 ist IMMER für Rechnungen reserviert (nur erste Rechnung anzeigen)
                     if (npc.getNpcType() == NPCType.ABSCHLEPPER) {
                         List<NPCData.ShopEntry> towingBillEntries = createTowingBillEntries(player);
-                        shopItems.addAll(0, towingBillEntries); // Am Anfang einfügen
+                        // Füge nur den ersten Eintrag ein (entweder erste Rechnung oder "Keine Rechnungen")
+                        if (!towingBillEntries.isEmpty()) {
+                            shopItems.add(0, towingBillEntries.get(0)); // Nur Slot 0
+                        }
                     }
 
                     // Determine display name based on NPC type
