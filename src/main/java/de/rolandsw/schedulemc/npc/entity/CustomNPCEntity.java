@@ -133,42 +133,8 @@ public class CustomNPCEntity extends PathfinderMob {
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
         if (!this.level().isClientSide && player instanceof ServerPlayer serverPlayer) {
-            // ABSCHLEPPER: Zeige Rechnungs-Screen falls offene Rechnung vorhanden
-            if (getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.ABSCHLEPPER) {
-                java.util.List<de.rolandsw.schedulemc.towing.TowingInvoiceData> unpaidInvoices =
-                    de.rolandsw.schedulemc.towing.TowingYardManager.getUnpaidInvoices(serverPlayer.getUUID());
-
-                if (!unpaidInvoices.isEmpty()) {
-                    // Öffne Rechnungs-Screen mit erster unbezahlter Rechnung
-                    de.rolandsw.schedulemc.towing.TowingInvoiceData invoice = unpaidInvoices.get(0);
-                    net.minecraftforge.network.NetworkHooks.openScreen(serverPlayer,
-                        new net.minecraft.world.MenuProvider() {
-                            @Override
-                            public net.minecraft.network.chat.Component getDisplayName() {
-                                return Component.translatable("menu.towing_invoice");
-                            }
-
-                            @Override
-                            public net.minecraft.world.inventory.AbstractContainerMenu createMenu(int id,
-                                net.minecraft.world.entity.player.Inventory playerInv,
-                                net.minecraft.world.entity.player.Player p) {
-                                return new de.rolandsw.schedulemc.towing.menu.TowingInvoiceMenu(id, playerInv, invoice);
-                            }
-                        },
-                        buf -> invoice.encode(buf)
-                    );
-                    return InteractionResult.SUCCESS;
-                } else {
-                    // Keine offenen Rechnungen
-                    serverPlayer.displayClientMessage(
-                        Component.translatable("towing.no_invoices"),
-                        false
-                    );
-                    return InteractionResult.SUCCESS;
-                }
-            }
-
-            // Normal: Öffne Interaktions-GUI
+            // Normal: Öffne Interaktions-GUI (auch für ABSCHLEPPER)
+            // Rechnungen können über die GUI aufgerufen werden
             openInteractionMenu(serverPlayer);
             return InteractionResult.SUCCESS;
         }
@@ -181,11 +147,30 @@ public class CustomNPCEntity extends PathfinderMob {
         if (!this.level().isClientSide && source.getEntity() instanceof ServerPlayer serverPlayer) {
             ItemStack heldItem = serverPlayer.getMainHandItem();
 
-            // Vehicle Spawn Tool: Linksklick auf AUTOHAENDLER NPC verknüpft das Tool
+            // Vehicle Spawn Tool: Linksklick verknüpft das Tool
             if (heldItem.getItem() instanceof de.rolandsw.schedulemc.vehicle.items.VehicleSpawnTool) {
-                if (getMerchantCategory() == de.rolandsw.schedulemc.npc.data.MerchantCategory.AUTOHAENDLER) {
+                boolean isCarDealer = getMerchantCategory() == de.rolandsw.schedulemc.npc.data.MerchantCategory.AUTOHAENDLER;
+                boolean isTowingService = getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.ABSCHLEPPER;
+
+                if (isCarDealer) {
+                    // Autohändler: Verknüpfe für Fahrzeug-Spawn-Punkte
                     de.rolandsw.schedulemc.vehicle.items.VehicleSpawnTool.linkToDealer(heldItem, getNpcData().getNpcUUID(), serverPlayer);
-                    return false; // Verhindere Schaden
+                    return false;
+                } else if (isTowingService) {
+                    // Abschlepper: Verknüpfe für Parkplatz-Erstellung
+                    // Hole Plot ID vom Warehouse (das ist die Towing Yard ID)
+                    var warehouse = getNpcData().getWarehouseEntity(level());
+                    if (warehouse != null && warehouse.getShopId() != null) {
+                        de.rolandsw.schedulemc.vehicle.items.VehicleSpawnTool.linkToTowingYard(
+                            heldItem,
+                            warehouse.getShopId(), // Plot ID des Towing Yards
+                            serverPlayer
+                        );
+                    } else {
+                        serverPlayer.sendSystemMessage(net.minecraft.network.chat.Component.translatable("message.towing.no_yard")
+                            .withStyle(net.minecraft.ChatFormatting.RED));
+                    }
+                    return false;
                 } else {
                     serverPlayer.sendSystemMessage(net.minecraft.network.chat.Component.translatable("message.npc.not_car_dealer")
                         .withStyle(net.minecraft.ChatFormatting.RED));
@@ -193,9 +178,10 @@ public class CustomNPCEntity extends PathfinderMob {
                 }
             }
 
-            // Shop-Editor für Admins
+            // Shop-Editor für Admins (VERKAEUFER und ABSCHLEPPER)
             if (serverPlayer.isShiftKeyDown() && serverPlayer.hasPermissions(2)) {
-                if (getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.VERKAEUFER) {
+                if (getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.VERKAEUFER ||
+                    getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.ABSCHLEPPER) {
                     openShopEditor(serverPlayer);
                     return false; // Verhindere Schaden
                 }

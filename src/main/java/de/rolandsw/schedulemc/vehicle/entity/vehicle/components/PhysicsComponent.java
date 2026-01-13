@@ -148,6 +148,11 @@ public class PhysicsComponent extends VehicleComponent {
     }
 
     public boolean canEngineStayOn() {
+        // Always allow engine to stay on when parked at towing yard
+        if (vehicle.isOnTowingYard()) {
+            return true;
+        }
+
         if (vehicle.isInWater() || vehicle.isInLava()) {
             return false;
         }
@@ -344,6 +349,11 @@ public class PhysicsComponent extends VehicleComponent {
         if (player != null && canStartVehicleEngine(player)) {
             setStarted(true);
 
+            // Remove towing yard flag when engine starts (player is taking vehicle from yard)
+            if (vehicle.isOnTowingYard()) {
+                vehicle.setIsOnTowingYard(false);
+            }
+
             // Consume fuel when starting the engine
             // Optimierung: Cache Component-Getter
             FuelComponent fuel = vehicle.getFuelComponent();
@@ -355,6 +365,11 @@ public class PhysicsComponent extends VehicleComponent {
     }
 
     public boolean canStartVehicleEngine(Player player) {
+        // Always allow engine start when parked at towing yard (no fuel consumption there)
+        if (vehicle.isOnTowingYard()) {
+            return true;
+        }
+
         if (vehicle.isInWater() || vehicle.isInLava()) {
             return false;
         }

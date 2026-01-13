@@ -168,7 +168,7 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
      */
     private void openShopBuy() {
         CustomNPCEntity npc = menu.getNpc();
-        if (npc != null && npc.getNpcType() == NPCType.VERKAEUFER) {
+        if (npc != null && (npc.getNpcType() == NPCType.VERKAEUFER || npc.getNpcType() == NPCType.ABSCHLEPPER)) {
             // Sende Packet an Server um Shop zu öffnen
             NPCNetworkHandler.sendToServer(new OpenMerchantShopPacket(menu.getEntityId()));
             // Schließe aktuelles GUI - das Shop-GUI wird vom Server geöffnet

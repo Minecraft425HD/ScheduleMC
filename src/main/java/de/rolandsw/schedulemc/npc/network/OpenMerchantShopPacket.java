@@ -47,8 +47,8 @@ public class OpenMerchantShopPacket {
         PacketHandler.handleServerPacket(ctx, player -> {
             Entity entity = player.level().getEntity(merchantEntityId);
             if (entity instanceof CustomNPCEntity npc) {
-                // Prüfe ob es ein Verkäufer ist
-                if (npc.getNpcType() == NPCType.VERKAEUFER) {
+                // Prüfe ob es ein Verkäufer oder Abschlepper ist
+                if (npc.getNpcType() == NPCType.VERKAEUFER || npc.getNpcType() == NPCType.ABSCHLEPPER) {
                     // Prüfe ob NPC innerhalb der Arbeitszeiten ist
                     if (!npc.getNpcData().isWithinWorkingHours(player.level())) {
                         player.sendSystemMessage(Component.translatable("message.npc.outside_working_hours")
@@ -61,13 +61,28 @@ public class OpenMerchantShopPacket {
 
                     // Spezialbehandlung für Tankstelle: Füge unbezahlte Rechnungen hinzu
                     if (npc.getMerchantCategory() == MerchantCategory.TANKSTELLE) {
-                        List<NPCData.ShopEntry> billEntries = createBillEntries(player);
+                        List<NPCData.ShopEntry> billEntries = createFuelBillEntries(player);
                         shopItems.addAll(0, billEntries); // Am Anfang einfügen
                     }
 
+                    // Spezialbehandlung für Abschlepper: Füge Towing-Rechnungen hinzu
+                    // Slot 0 ist IMMER für Rechnungen reserviert (nur erste Rechnung anzeigen)
+                    if (npc.getNpcType() == NPCType.ABSCHLEPPER) {
+                        List<NPCData.ShopEntry> towingBillEntries = createTowingBillEntries(player);
+                        // Füge nur den ersten Eintrag ein (entweder erste Rechnung oder "Keine Rechnungen")
+                        if (!towingBillEntries.isEmpty()) {
+                            shopItems.add(0, towingBillEntries.get(0)); // Nur Slot 0
+                        }
+                    }
+
+                    // Determine display name based on NPC type
+                    String displayName = npc.getNpcType() == NPCType.VERKAEUFER
+                        ? npc.getMerchantCategory().getDisplayName()
+                        : npc.getServiceCategory().getDisplayName();
+
                     NetworkHooks.openScreen(player, new SimpleMenuProvider(
                         (id, playerInventory, p) -> new MerchantShopMenu(id, playerInventory, npc),
-                        Component.literal(npc.getMerchantCategory().getDisplayName())
+                        Component.literal(displayName)
                     ), buf -> {
                         buf.writeInt(npc.getId());
                         // Sende Shop-Items
@@ -101,9 +116,9 @@ public class OpenMerchantShopPacket {
     }
 
     /**
-     * Erstellt Shop-Einträge für unbezahlte Rechnungen
+     * Erstellt Shop-Einträge für unbezahlte Tankrechnungen
      */
-    private List<NPCData.ShopEntry> createBillEntries(ServerPlayer player) {
+    private List<NPCData.ShopEntry> createFuelBillEntries(ServerPlayer player) {
         List<NPCData.ShopEntry> billEntries = new ArrayList<>();
 
         // Alle Tankstellen durchgehen
@@ -160,6 +175,70 @@ public class OpenMerchantShopPacket {
             NPCData.ShopEntry noBillEntry = new NPCData.ShopEntry(
                 noBillItem,
                 0, // Preis: 0€
+                true,
+                1
+            );
+
+            billEntries.add(noBillEntry);
+        }
+
+        return billEntries;
+    }
+
+    /**
+     * Erstellt Shop-Einträge für unbezahlte Abschlepprechnungen
+     */
+    private List<NPCData.ShopEntry> createTowingBillEntries(ServerPlayer player) {
+        List<NPCData.ShopEntry> billEntries = new ArrayList<>();
+
+        // Hole unbezahlte Abschlepprechnungen
+        java.util.List<de.rolandsw.schedulemc.towing.TowingInvoiceData> unpaidInvoices =
+            de.rolandsw.schedulemc.towing.TowingYardManager.getUnpaidInvoices(player.getUUID());
+
+        if (!unpaidInvoices.isEmpty()) {
+            for (de.rolandsw.schedulemc.towing.TowingInvoiceData invoice : unpaidInvoices) {
+                // Erstelle Bill-Item
+                ItemStack billItem = new ItemStack(Items.PAPER);
+                CompoundTag tag = billItem.getOrCreateTag();
+                tag.putString("BillType", "TowingBill");
+                tag.putUUID("InvoiceId", invoice.getInvoiceId());
+                tag.putDouble("TotalCost", invoice.getAmount());
+
+                // Hole den Yard-Namen vom PlotManager
+                String yardName = invoice.getTowingYardPlotId();
+                de.rolandsw.schedulemc.region.PlotRegion plot =
+                    de.rolandsw.schedulemc.region.PlotManager.getPlot(yardName);
+                if (plot != null && plot.getPlotName() != null && !plot.getPlotName().isEmpty()) {
+                    yardName = plot.getPlotName();
+                }
+
+                // Setze Namen mit Formatierung
+                billItem.setHoverName(Component.literal("🚗 Abschlepprechnung - " + yardName)
+                    .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
+
+                // Erstelle Shop-Entry
+                NPCData.ShopEntry billEntry = new NPCData.ShopEntry(
+                    billItem,
+                    (int) Math.ceil(invoice.getAmount()), // Preis aufgerundet
+                    true, // Unbegrenzt verfügbar
+                    1     // Stock: 1
+                );
+
+                billEntries.add(billEntry);
+            }
+        } else {
+            // Keine offenen Rechnungen
+            ItemStack noBillItem = new ItemStack(Items.PAPER);
+            CompoundTag tag = noBillItem.getOrCreateTag();
+            tag.putString("BillType", "NoBill");
+            tag.putDouble("TotalCost", 0.0);
+
+            noBillItem.setHoverName(Component.translatable("towing.no_invoices")
+                .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD));
+
+            NPCData.ShopEntry noBillEntry = new NPCData.ShopEntry(
+                noBillItem,
+                0,
                 true,
                 1
             );

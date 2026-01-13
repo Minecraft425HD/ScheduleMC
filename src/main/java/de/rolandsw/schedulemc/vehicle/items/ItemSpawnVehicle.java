@@ -14,6 +14,7 @@ import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class ItemSpawnVehicle extends Item {
 
@@ -106,6 +107,13 @@ public class ItemSpawnVehicle extends Item {
         vehicle.setYRot(context.getPlayer() != null ? context.getPlayer().getYRot() : 0);
         vehicle.setFuelAmount(100);
         vehicle.setBatteryLevel(500);
+
+        // Set owner and vehicle UUID
+        if (context.getPlayer() != null) {
+            vehicle.setOwnerId(context.getPlayer().getUUID());
+        }
+        vehicle.setVehicleUUID(UUID.randomUUID());
+
         world.addFreshEntity(vehicle);
         vehicle.setIsSpawned(true);
         vehicle.initTemperature();

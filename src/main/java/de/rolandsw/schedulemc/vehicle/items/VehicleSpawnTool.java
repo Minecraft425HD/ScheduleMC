@@ -34,11 +34,14 @@ public class VehicleSpawnTool extends Item {
         ItemStack stack = context.getItemInHand();
         CompoundTag tag = stack.getOrCreateTag();
 
-        // Rechtsklick + Shift = Entferne Händler-Verknüpfung
+        // Rechtsklick + Shift = Entferne Verknüpfung
         if (player.isShiftKeyDown()) {
             if (tag.contains("DealerId")) {
                 tag.remove("DealerId");
                 player.sendSystemMessage(Component.translatable("item.vehicle_spawn_tool.dealer_unlinked").withStyle(ChatFormatting.YELLOW));
+            } else if (tag.contains("TowingYardId")) {
+                tag.remove("TowingYardId");
+                player.sendSystemMessage(Component.translatable("item.vehicle_spawn_tool.yard_unlinked").withStyle(ChatFormatting.YELLOW));
             } else {
                 player.sendSystemMessage(Component.translatable("item.vehicle_spawn_tool.link_dealer_first").withStyle(ChatFormatting.GOLD));
             }
@@ -69,7 +72,23 @@ public class VehicleSpawnTool extends Item {
 
         CompoundTag tag = stack.getOrCreateTag();
 
-        // Prüfe ob Händler verknüpft ist
+        // Prüfe ob Towing Yard verknüpft ist (Parkplatz-Modus)
+        if (tag.contains("TowingYardId")) {
+            String yardId = tag.getString("TowingYardId");
+
+            // Erstelle Parkplatz für Towing Yard
+            UUID parkingSpotId = de.rolandsw.schedulemc.towing.TowingYardManager.addParkingSpot(pos, yardId);
+
+            player.sendSystemMessage(Component.translatable("item.vehicle_spawn_tool.parking_header").withStyle(ChatFormatting.GOLD));
+            player.sendSystemMessage(Component.translatable("item.vehicle_spawn_tool.parking_title").withStyle(ChatFormatting.YELLOW)
+                .withStyle(ChatFormatting.BOLD));
+            player.sendSystemMessage(Component.translatable("item.vehicle_spawn_tool.parking_position").withStyle(ChatFormatting.GRAY)
+                .append(Component.literal(pos.toShortString()).withStyle(ChatFormatting.AQUA)));
+            player.sendSystemMessage(Component.translatable("item.vehicle_spawn_tool.parking_footer").withStyle(ChatFormatting.GOLD));
+            return;
+        }
+
+        // Prüfe ob Händler verknüpft ist (Fahrzeug-Spawn-Modus)
         if (!tag.contains("DealerId")) {
             player.sendSystemMessage(Component.translatable("item.vehicle_spawn_tool.no_dealer").withStyle(ChatFormatting.RED));
             return;
@@ -97,6 +116,10 @@ public class VehicleSpawnTool extends Item {
      */
     public static void linkToDealer(ItemStack stack, UUID dealerId, Player player) {
         CompoundTag tag = stack.getOrCreateTag();
+        // Entferne TowingYardId falls vorhanden
+        if (tag.contains("TowingYardId")) {
+            tag.remove("TowingYardId");
+        }
         tag.putUUID("DealerId", dealerId);
 
         player.sendSystemMessage(Component.translatable("item.vehicle_spawn_tool.linked_header").withStyle(ChatFormatting.GREEN));
@@ -104,5 +127,23 @@ public class VehicleSpawnTool extends Item {
             .withStyle(ChatFormatting.BOLD));
         player.sendSystemMessage(Component.translatable("item.vehicle_spawn_tool.linked_instruction").withStyle(ChatFormatting.GRAY));
         player.sendSystemMessage(Component.translatable("item.vehicle_spawn_tool.linked_footer").withStyle(ChatFormatting.GREEN));
+    }
+
+    /**
+     * Verknüpft das Tool mit einem Towing Yard (wird von CustomNPCEntity.hurt() aufgerufen)
+     */
+    public static void linkToTowingYard(ItemStack stack, String yardId, Player player) {
+        CompoundTag tag = stack.getOrCreateTag();
+        // Entferne DealerId falls vorhanden
+        if (tag.contains("DealerId")) {
+            tag.remove("DealerId");
+        }
+        tag.putString("TowingYardId", yardId);
+
+        player.sendSystemMessage(Component.translatable("item.vehicle_spawn_tool.yard_linked_header").withStyle(ChatFormatting.GREEN));
+        player.sendSystemMessage(Component.translatable("item.vehicle_spawn_tool.yard_linked_title").withStyle(ChatFormatting.GREEN)
+            .withStyle(ChatFormatting.BOLD));
+        player.sendSystemMessage(Component.translatable("item.vehicle_spawn_tool.yard_linked_instruction").withStyle(ChatFormatting.GRAY));
+        player.sendSystemMessage(Component.translatable("item.vehicle_spawn_tool.yard_linked_footer").withStyle(ChatFormatting.GREEN));
     }
 }

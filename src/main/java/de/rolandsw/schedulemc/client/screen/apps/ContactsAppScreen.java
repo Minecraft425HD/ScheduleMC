@@ -41,8 +41,11 @@ public class ContactsAppScreen extends Screen {
         this.leftPos = (this.width - WIDTH) / 2;
         this.topPos = MARGIN_TOP;
 
-        // Load all player contacts
+        // Load all player contacts, excluding the current player
         contacts = PlayerTracker.getAllContacts();
+        if (minecraft != null && minecraft.player != null) {
+            contacts.removeIf(contact -> contact.getUuid().equals(minecraft.player.getUUID()));
+        }
 
         // Zurück-Button
         addRenderableWidget(Button.builder(Component.translatable("gui.app.contacts.back"), button -> {

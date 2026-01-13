@@ -5,6 +5,7 @@ import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.npc.data.MerchantCategory;
 import de.rolandsw.schedulemc.npc.data.BankCategory;
+import de.rolandsw.schedulemc.npc.data.ServiceCategory;
 import de.rolandsw.schedulemc.npc.data.MerchantShopDefaults;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.entity.NPCEntities;
@@ -29,14 +30,16 @@ public class SpawnNPCPacket {
     private final NPCType npcType;
     private final MerchantCategory merchantCategory;
     private final BankCategory bankCategory;
+    private final ServiceCategory serviceCategory;
 
-    public SpawnNPCPacket(BlockPos position, String npcName, String skinFile, NPCType npcType, MerchantCategory merchantCategory, BankCategory bankCategory) {
+    public SpawnNPCPacket(BlockPos position, String npcName, String skinFile, NPCType npcType, MerchantCategory merchantCategory, BankCategory bankCategory, ServiceCategory serviceCategory) {
         this.position = position;
         this.npcName = npcName;
         this.skinFile = skinFile;
         this.npcType = npcType;
         this.merchantCategory = merchantCategory;
         this.bankCategory = bankCategory;
+        this.serviceCategory = serviceCategory;
     }
 
     public void encode(FriendlyByteBuf buf) {
@@ -46,6 +49,7 @@ public class SpawnNPCPacket {
         buf.writeEnum(npcType);
         buf.writeEnum(merchantCategory);
         buf.writeEnum(bankCategory);
+        buf.writeEnum(serviceCategory);
     }
 
     public static SpawnNPCPacket decode(FriendlyByteBuf buf) {
@@ -55,7 +59,8 @@ public class SpawnNPCPacket {
             buf.readUtf(InputValidation.MAX_SKIN_FILE_LENGTH + 10),
             buf.readEnum(NPCType.class),
             buf.readEnum(MerchantCategory.class),
-            buf.readEnum(BankCategory.class)
+            buf.readEnum(BankCategory.class),
+            buf.readEnum(ServiceCategory.class)
         );
     }
 
@@ -111,9 +116,10 @@ public class SpawnNPCPacket {
                 // Konfiguriere NPC Data (mit validiertem Namen)
                 NPCData data = new NPCData(validatedName, skinFile, npcType, merchantCategory);
                 data.setBankCategory(bankCategory);
+                data.setServiceCategory(serviceCategory);
 
                 // Füge typ-spezifische Standard-Dialoge hinzu
-                setupDialogForType(data, validatedName, npcType, merchantCategory, bankCategory);
+                setupDialogForType(data, validatedName, npcType, merchantCategory, bankCategory, serviceCategory);
 
                 npc.setNpcData(data);
                 npc.setNpcName(validatedName);
@@ -146,7 +152,7 @@ public class SpawnNPCPacket {
     /**
      * Richtet typ-spezifische Dialoge ein
      */
-    private static void setupDialogForType(NPCData data, String npcName, NPCType npcType, MerchantCategory merchantCategory, BankCategory bankCategory) {
+    private static void setupDialogForType(NPCData data, String npcName, NPCType npcType, MerchantCategory merchantCategory, BankCategory bankCategory, ServiceCategory serviceCategory) {
         switch (npcType) {
             case BEWOHNER:
                 data.addDialogEntry(new NPCData.DialogEntry(Component.translatable("npc.dialog.resident.intro", npcName).getString(), ""));
@@ -175,6 +181,16 @@ public class SpawnNPCPacket {
                 data.addDialogEntry(new NPCData.DialogEntry(Component.translatable("npc.dialog.bank.intro", npcName, bankCategory.getDisplayName()).getString(), ""));
                 data.addDialogEntry(new NPCData.DialogEntry(Component.translatable("npc.dialog.bank.help").getString(), ""));
                 data.addDialogEntry(new NPCData.DialogEntry(Component.translatable("npc.dialog.bank.thanks").getString(), ""));
+                break;
+
+            case ABSCHLEPPER:
+                data.addDialogEntry(new NPCData.DialogEntry(Component.translatable("npc.dialog.service.welcome", serviceCategory.getDisplayName()).getString(), ""));
+                data.addDialogEntry(new NPCData.DialogEntry(Component.translatable("npc.dialog.service.intro", npcName).getString(), ""));
+                data.addDialogEntry(new NPCData.DialogEntry(Component.translatable("npc.dialog.service.help").getString(), ""));
+                data.addDialogEntry(new NPCData.DialogEntry(Component.translatable("npc.dialog.service.thanks").getString(), ""));
+
+                // Initialisiere Shop-Items basierend auf Service-Kategorie
+                MerchantShopDefaults.setupServiceShopItems(data, serviceCategory);
                 break;
         }
     }

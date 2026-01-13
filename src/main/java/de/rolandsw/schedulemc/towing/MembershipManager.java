@@ -103,19 +103,19 @@ public class MembershipManager {
      * Process membership payments for all players
      * Called daily by server tick
      */
-    public static void processPayments(long currentTime) {
+    public static void processPayments(long currentTime, net.minecraft.server.MinecraftServer server) {
         for (MembershipData data : memberships.values()) {
             if (!data.isActive() || data.getTier() == MembershipTier.NONE) {
                 continue;
             }
 
             if (currentTime >= data.getNextPaymentDate()) {
-                processSinglePayment(data);
+                processSinglePayment(data, server);
             }
         }
     }
 
-    private static void processSinglePayment(MembershipData data) {
+    private static void processSinglePayment(MembershipData data, net.minecraft.server.MinecraftServer server) {
         UUID playerId = data.getPlayerId();
         MembershipTier tier = data.getTier();
         double fee = tier.getMonthlyFee();
@@ -125,10 +125,44 @@ public class MembershipManager {
             data.renew();
             markDirty();
             LOGGER.info("Membership renewed for player {}: {} ({}€)", playerId, tier, fee);
+
+            // Verteile Gebühren an alle Towing Yards
+            distributeFeeToTowingYards(fee, server, "Membership Fee (" + tier.name() + ")");
         } else {
             data.cancel();
             markDirty();
             LOGGER.info("Membership cancelled for player {} (insufficient funds: {}€)", playerId, fee);
+        }
+    }
+
+    /**
+     * Verteilt Mitgliedschaftsgebühren gleichmäßig an alle Towing Yards
+     * 19% MwSt werden automatisch durch ShopAccount.addRevenue() an Staatskasse abgeführt
+     */
+    private static void distributeFeeToTowingYards(double fee, net.minecraft.server.MinecraftServer server, String source) {
+        java.util.List<String> towingYards = de.rolandsw.schedulemc.towing.TowingYardManager.getAllTowingYards();
+
+        if (towingYards.isEmpty()) {
+            // Keine Towing Yards vorhanden - Brutto-Betrag inkl. MwSt geht an Staatskasse
+            de.rolandsw.schedulemc.economy.StateAccount.getInstance(server).deposit((int) fee, source);
+            LOGGER.debug("No towing yards found - gross fee goes to state: {}€", fee);
+            return;
+        }
+
+        // Verteile Brutto-Gebühr gleichmäßig auf alle Towing Yards
+        // addRevenue() zieht automatisch 19% MwSt ab und führt diese an Staatskasse ab
+        int feePerYard = (int) Math.ceil(fee / towingYards.size());
+        net.minecraft.world.level.Level level = server.overworld();
+
+        for (String yardPlotId : towingYards) {
+            de.rolandsw.schedulemc.economy.ShopAccount shopAccount =
+                de.rolandsw.schedulemc.economy.ShopAccountManager.getOrCreateAccount(yardPlotId);
+
+            // addRevenue berechnet: Netto = feePerYard * (1 - 0.19) = feePerYard * 0.81
+            // MwSt = feePerYard * 0.19 → wird an StateAccount abgeführt
+            shopAccount.addRevenue(level, feePerYard, source);
+            LOGGER.debug("Distributed {}€ (gross) to towing yard {} from {} (19% sales tax will be deducted)",
+                feePerYard, yardPlotId, source);
         }
     }
 

@@ -9,6 +9,8 @@ import de.rolandsw.schedulemc.economy.RecurringPaymentInterval;
 import de.rolandsw.schedulemc.economy.RecurringPaymentManager;
 import de.rolandsw.schedulemc.economy.Transaction;
 import de.rolandsw.schedulemc.economy.TransactionHistory;
+import de.rolandsw.schedulemc.economy.network.ClientBankDataCache;
+import de.rolandsw.schedulemc.economy.network.RequestBankDataPacket;
 import de.rolandsw.schedulemc.npc.network.BankTransferPacket;
 import de.rolandsw.schedulemc.npc.network.CreateRecurringPaymentPacket;
 import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
@@ -198,18 +200,14 @@ public class BankAppScreen extends Screen {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
-        UUID playerUUID = mc.player.getUUID();
+        // Request latest data from server
+        NPCNetworkHandler.INSTANCE.sendToServer(new RequestBankDataPacket());
 
-        // Balance
-        balance = EconomyManager.getBalance(playerUUID);
-
-        // Transaction History
-        TransactionHistory history = TransactionHistory.getInstance();
-        if (history != null) {
-            recentTransactions = history.getRecentTransactions(playerUUID, 20);
-            totalIncome = history.getTotalIncome(playerUUID);
-            totalExpenses = history.getTotalExpenses(playerUUID);
-        }
+        // Read from client-side cache (will be updated by server response)
+        balance = ClientBankDataCache.getBalance();
+        recentTransactions = ClientBankDataCache.getTransactions();
+        totalIncome = ClientBankDataCache.getTotalIncome();
+        totalExpenses = ClientBankDataCache.getTotalExpenses();
     }
 
     /**
