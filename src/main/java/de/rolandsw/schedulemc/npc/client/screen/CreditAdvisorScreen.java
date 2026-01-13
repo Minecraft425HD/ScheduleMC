@@ -4,13 +4,14 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.economy.CreditLoan;
 import de.rolandsw.schedulemc.economy.CreditScore;
-import de.rolandsw.schedulemc.economy.EconomyManager;
+import de.rolandsw.schedulemc.economy.network.ClientBankDataCache;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.menu.CreditAdvisorMenu;
 import de.rolandsw.schedulemc.npc.network.ApplyCreditLoanPacket;
 import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
 import de.rolandsw.schedulemc.npc.network.RepayCreditLoanPacket;
 import de.rolandsw.schedulemc.npc.network.RequestCreditDataPacket;
+import de.rolandsw.schedulemc.economy.network.RequestBankDataPacket;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -125,6 +126,8 @@ public class CreditAdvisorScreen extends AbstractContainerScreen<CreditAdvisorMe
 
         // Initiale Daten vom Server anfordern
         requestCreditData();
+        // Also request bank data for balance display
+        NPCNetworkHandler.sendToServer(new RequestBankDataPacket());
     }
 
     /**
@@ -278,12 +281,10 @@ public class CreditAdvisorScreen extends AbstractContainerScreen<CreditAdvisorMe
         String maxAmount = Component.translatable("screen.credit_advisor.max_loan", String.format("%.0f€", creditRating.getMaxLoanAmount())).getString();
         guiGraphics.drawString(this.font, maxAmount, x + 15, boxY + 31, 0x00AA00, false);
 
-        // Kontostand
-        if (minecraft != null && minecraft.player != null) {
-            double balance = EconomyManager.getBalance(minecraft.player.getUUID());
-            String balanceLabel = Component.translatable("screen.credit_advisor.balance", String.format("%.2f€", balance)).getString();
-            guiGraphics.drawString(this.font, balanceLabel, x + 145, boxY + 31, 0xFFD700, false);
-        }
+        // Kontostand - from ClientBankDataCache
+        double balance = ClientBankDataCache.getBalance();
+        String balanceLabel = Component.translatable("screen.credit_advisor.balance", String.format("%.2f€", balance)).getString();
+        guiGraphics.drawString(this.font, balanceLabel, x + 145, boxY + 31, 0xFFD700, false);
     }
 
     /**

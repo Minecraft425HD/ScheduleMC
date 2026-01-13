@@ -103,8 +103,8 @@ public class PlantPotBlockEntity extends BlockEntity implements IUtilityConsumer
                             if (mushroom.needsWater()) {
                                 consumeResourcesForGrowth(newStage);
                             } else {
-                                // Nur Substrat verbrauchen
-                                potData.consumeSoil(15.0 / 7.0);
+                                // Nur Substrat verbrauchen (33/7 pro Stufe)
+                                potData.consumeSoil(potData.getSoilConsumptionPerStage());
                             }
                         } else {
                             // Standard-Ressourcen-Verbrauch für alle anderen Pflanzen
@@ -138,19 +138,18 @@ public class PlantPotBlockEntity extends BlockEntity implements IUtilityConsumer
 
     /**
      * Verbraucht Ressourcen beim Wachstum
+     *
+     * Neues System:
+     * - Wasser: 1/7 der Wasserkapazität pro Stufe
+     * - Erde: 33/7 = ~4.71 pro Stufe (insgesamt 33 pro Pflanze)
+     * - Resterde bleibt im Topf für die nächste Pflanze!
      */
     private void consumeResourcesForGrowth(int newStage) {
-        double waterToConsume, soilToConsume;
+        // Wasser: 1/7 der Kapazität pro Stufe
+        double waterToConsume = potData.getMaxWater() / 7.0;
 
-        if (newStage == 7) {
-            // Letzter Schritt: Verbrauche alles was noch da ist
-            waterToConsume = potData.getWaterLevelExact();
-            soilToConsume = potData.getSoilLevelExact();
-        } else {
-            // Normale Schritte: 1/7 der Kapazität
-            waterToConsume = potData.getMaxWater() / 7.0;
-            soilToConsume = 15.0 / 7.0;
-        }
+        // Erde: Feste 33/7 = ~4.71 pro Stufe (NICHT alles verbrauchen!)
+        double soilToConsume = potData.getSoilConsumptionPerStage();
 
         potData.consumeWater(waterToConsume);
         potData.consumeSoil(soilToConsume);
@@ -216,18 +215,22 @@ public class PlantPotBlockEntity extends BlockEntity implements IUtilityConsumer
 
     /**
      * Berechnet Wachstumsgeschwindigkeits-Multiplikator basierend auf Licht
+     * Prüft 2-3 Blöcke über dem Topf (Pflanzen sind 2 Blöcke hoch, Grow Light darüber)
      */
     private double getLightSpeedMultiplier() {
         if (level == null) return 1.0;
 
-        // Prüfe ob Grow Light direkt über Topf ist (1 Block)
-        BlockPos abovePos = worldPosition.above();
-        BlockState aboveState = level.getBlockState(abovePos);
-        Block aboveBlock = aboveState.getBlock();
+        // Prüfe Positionen 2 und 3 Blöcke über dem Topf
+        // (Pflanze: Block 1+2, Grow Light: Block 3)
+        for (int yOffset = 2; yOffset <= 3; yOffset++) {
+            BlockPos checkPos = worldPosition.above(yOffset);
+            BlockState checkState = level.getBlockState(checkPos);
+            Block checkBlock = checkState.getBlock();
 
-        if (aboveBlock instanceof GrowLightSlabBlock growLight) {
-            // Grow Light gefunden! Nutze dessen Multiplikator
-            return growLight.getTier().getGrowthSpeedMultiplier();
+            if (checkBlock instanceof GrowLightSlabBlock growLight) {
+                // Grow Light gefunden! Nutze dessen Multiplikator
+                return growLight.getTier().getGrowthSpeedMultiplier();
+            }
         }
 
         // Keine Grow Light → normale Geschwindigkeit
@@ -236,16 +239,20 @@ public class PlantPotBlockEntity extends BlockEntity implements IUtilityConsumer
 
     /**
      * Holt Qualitätsbonus von Grow Light (nur Premium)
+     * Prüft 2-3 Blöcke über dem Topf (Pflanzen sind 2 Blöcke hoch, Grow Light darüber)
      */
     public double getGrowLightQualityBonus() {
         if (level == null) return 0.0;
 
-        BlockPos abovePos = worldPosition.above();
-        BlockState aboveState = level.getBlockState(abovePos);
-        Block aboveBlock = aboveState.getBlock();
+        // Prüfe Positionen 2 und 3 Blöcke über dem Topf
+        for (int yOffset = 2; yOffset <= 3; yOffset++) {
+            BlockPos checkPos = worldPosition.above(yOffset);
+            BlockState checkState = level.getBlockState(checkPos);
+            Block checkBlock = checkState.getBlock();
 
-        if (aboveBlock instanceof GrowLightSlabBlock growLight) {
-            return growLight.getTier().getQualityBonus();
+            if (checkBlock instanceof GrowLightSlabBlock growLight) {
+                return growLight.getTier().getQualityBonus();
+            }
         }
 
         return 0.0;

@@ -15,19 +15,24 @@ import de.rolandsw.schedulemc.tobacco.data.TobaccoPlantData;
 /**
  * Speichert Daten eines universellen Pflanzen-Topfes
  * Unterstützt: Tabak, Cannabis, Koka, Mohn und Pilze
+ *
+ * Erde-System:
+ * - Jede Pflanze verbraucht 33 Erde während des Wachstums
+ * - Resterde bleibt im Topf für die nächste Pflanze
+ * - Erdsäcke fügen immer 33 Erde hinzu
  */
 public class PlantPotData {
 
     private PotType potType;
-    private double waterLevel; // Aktuelles Wasser (als double für präzisen Verbrauch)
-    private double soilLevel; // Aktuelle Erde (als double für präzisen Verbrauch)
-    private TobaccoPlantData plant; // Gepflanzte Tabakpflanze (null wenn leer)
-    private CannabisPlantData cannabisPlant; // Gepflanzte Cannabis-Pflanze (null wenn leer)
-    private CocaPlantData cocaPlant; // Gepflanzte Koka-Pflanze (null wenn leer)
-    private PoppyPlantData poppyPlant; // Gepflanzte Mohn-Pflanze (null wenn leer)
-    private MushroomPlantData mushroomPlant; // Gepflanzte Pilzkultur (null wenn leer)
-    private boolean hasSoil; // Wurde Erde hinzugefügt?
-    private boolean hasMist; // Wurde Mist hinzugefügt? (für Pilze)
+    private double waterLevel;
+    private double soilLevel;
+    private TobaccoPlantData plant;
+    private CannabisPlantData cannabisPlant;
+    private CocaPlantData cocaPlant;
+    private PoppyPlantData poppyPlant;
+    private MushroomPlantData mushroomPlant;
+    private boolean hasSoil;
+    private boolean hasMist;
 
     public PlantPotData(PotType potType) {
         this.potType = potType;
@@ -47,23 +52,17 @@ public class PlantPotData {
     }
 
     public int getWaterLevel() {
-        return (int) Math.ceil(waterLevel); // Runde auf für Anzeige
+        return (int) Math.ceil(waterLevel);
     }
 
     public int getSoilLevel() {
-        return (int) Math.ceil(soilLevel); // Runde auf für Anzeige
+        return (int) Math.ceil(soilLevel);
     }
 
-    /**
-     * Gibt exakte Wasser-Level als double zurück
-     */
     public double getWaterLevelExact() {
         return waterLevel;
     }
 
-    /**
-     * Gibt exakte Erde-Level als double zurück
-     */
     public double getSoilLevelExact() {
         return soilLevel;
     }
@@ -137,57 +136,73 @@ public class PlantPotData {
      */
     public void addMistForPlants(int plantsPerBag) {
         this.hasMist = true;
-        int baseMistPerPlant = 15;
-        int targetMist = (int) (baseMistPerPlant * plantsPerBag / potType.getConsumptionMultiplier());
+        int baseMistPerPlant = PotType.SOIL_PER_PLANT;
+        int targetMist = baseMistPerPlant * plantsPerBag;
         this.soilLevel = Math.min(soilLevel + targetMist, potType.getSoilCapacity());
     }
 
     public void setSoil(boolean hasSoil) {
         this.hasSoil = hasSoil;
-        if (hasSoil) {
-            this.soilLevel = potType.getSoilCapacity();
-        } else {
+        if (!hasSoil) {
             this.soilLevel = 0;
         }
     }
 
     /**
-     * Fügt Erde für eine bestimmte Anzahl von Pflanzen hinzu
-     * @param plantsPerBag Anzahl der Pflanzen, für die die Erde reichen soll
+     * Fügt 33 Erde aus einem Erdsack hinzu (genug für 1 Pflanze)
+     * @return true wenn erfolgreich, false wenn nicht genug Platz
      */
-    public void addSoilForPlants(int plantsPerBag) {
+    public boolean addSoilFromBag() {
+        if (!canAddSoilBag()) {
+            return false;
+        }
+
         this.hasSoil = true;
-        // Kalibrierung: 15 Einheiten Erde reichen genau für 1 Pflanze (bei Terracotta)
-        // Verbrauch: 15/7 = 2.1429 Erde pro Wachstumsschritt
-        // Bei 7 Wachstumsschritten: 7 × 2.1429 = 15 Einheiten
-
-        // Bessere Töpfe haben kleineren consumptionMultiplier (verbrauchen weniger)
-        // Daher wird mehr Erde hinzugefügt, damit die gleiche Anzahl Pflanzen möglich ist
-        int baseSoilPerPlant = 15;
-        int targetSoil = (int) (baseSoilPerPlant * plantsPerBag / potType.getConsumptionMultiplier());
-
-        // Addiere zur aktuellen Erde (falls schon welche vorhanden)
-        this.soilLevel = Math.min(soilLevel + targetSoil, potType.getSoilCapacity());
+        this.soilLevel = Math.min(soilLevel + PotType.SOIL_PER_PLANT, potType.getSoilCapacity());
+        return true;
     }
 
     /**
-     * Setzt Wasser-Level direkt (für Deserialisierung)
+     * Prüft ob ein Erdsack hinzugefügt werden kann
+     * - Nicht während eine Pflanze wächst
+     * - Nur wenn mindestens 33 Erde fehlt
      */
+    public boolean canAddSoilBag() {
+        // Nicht während Pflanze wächst
+        if (hasPlant()) {
+            return false;
+        }
+
+        // Prüfe ob genug Platz für 33 Erde
+        double missingSoil = potType.getSoilCapacity() - soilLevel;
+        return missingSoil >= PotType.SOIL_PER_PLANT;
+    }
+
+    /**
+     * Gibt die fehlende Erde-Menge zurück
+     */
+    public double getMissingSoil() {
+        return potType.getSoilCapacity() - soilLevel;
+    }
+
+    /**
+     * @deprecated Use addSoilFromBag() instead
+     */
+    @Deprecated
+    public void addSoilForPlants(int plantsPerBag) {
+        // Alte Methode für Kompatibilität - fügt jetzt immer 33 hinzu
+        addSoilFromBag();
+    }
+
     public void setWaterLevel(double waterLevel) {
         this.waterLevel = Math.max(0, Math.min(waterLevel, getMaxWater()));
     }
 
-    /**
-     * Setzt Erde-Level direkt (für Deserialisierung)
-     */
     public void setSoilLevel(double soilLevel) {
         this.soilLevel = Math.max(0, Math.min(soilLevel, getMaxSoil()));
         this.hasSoil = soilLevel > 0;
     }
 
-    /**
-     * Fügt Wasser hinzu
-     */
     public void addWater(int amount) {
         waterLevel = Math.min(waterLevel + amount, getMaxWater());
     }
@@ -198,7 +213,7 @@ public class PlantPotData {
     public boolean consumeWater(double amount) {
         double actualAmount = potType.calculateWaterConsumption(amount);
         if (waterLevel >= actualAmount) {
-            waterLevel -= actualAmount; // Kein Cast mehr, präziser Verbrauch
+            waterLevel -= actualAmount;
             return true;
         }
         return false;
@@ -206,13 +221,14 @@ public class PlantPotData {
 
     /**
      * Verbraucht Erde (präzise Berechnung mit double)
+     * Erde wird NICHT auf 0 gesetzt wenn aufgebraucht - Resterde bleibt!
      */
     public boolean consumeSoil(double amount) {
         double actualAmount = potType.calculateSoilConsumption(amount);
         if (soilLevel >= actualAmount) {
-            soilLevel -= actualAmount; // Kein Cast mehr, präziser Verbrauch
-            // Aktualisiere hasSoil Flag wenn Erde aufgebraucht ist
-            if (soilLevel <= 0.01) { // Kleine Toleranz für Floating-Point-Fehler
+            soilLevel -= actualAmount;
+            // hasSoil bleibt true solange soilLevel > 0
+            if (soilLevel <= 0.01) {
                 hasSoil = false;
                 soilLevel = 0;
             }
@@ -222,10 +238,17 @@ public class PlantPotData {
     }
 
     /**
+     * Prüft ob genug Erde für eine neue Pflanze vorhanden ist (mindestens 33)
+     */
+    public boolean hasEnoughSoilForPlant() {
+        return soilLevel >= PotType.SOIL_PER_PLANT;
+    }
+
+    /**
      * Pflanzt Tabak-Samen
      */
     public boolean plantSeed(TobaccoType type) {
-        if (!hasSoil || hasPlant()) {
+        if (!hasSoil || !hasEnoughSoilForPlant() || hasPlant()) {
             return false;
         }
 
@@ -237,7 +260,7 @@ public class PlantPotData {
      * Pflanzt Cannabis-Samen
      */
     public boolean plantCannabisSeed(CannabisStrain strain) {
-        if (!hasSoil || hasPlant()) {
+        if (!hasSoil || !hasEnoughSoilForPlant() || hasPlant()) {
             return false;
         }
 
@@ -249,7 +272,7 @@ public class PlantPotData {
      * Pflanzt Koka-Samen
      */
     public boolean plantCocaSeed(CocaType type) {
-        if (!hasSoil || hasPlant()) {
+        if (!hasSoil || !hasEnoughSoilForPlant() || hasPlant()) {
             return false;
         }
 
@@ -261,7 +284,7 @@ public class PlantPotData {
      * Pflanzt Mohn-Samen
      */
     public boolean plantPoppySeed(PoppyType type) {
-        if (!hasSoil || hasPlant()) {
+        if (!hasSoil || !hasEnoughSoilForPlant() || hasPlant()) {
             return false;
         }
 
@@ -283,6 +306,7 @@ public class PlantPotData {
 
     /**
      * Erntet die Tabak-Pflanze
+     * WICHTIG: Resterde bleibt erhalten!
      */
     public TobaccoPlantData harvest() {
         if (plant == null || !plant.isFullyGrown()) {
@@ -291,11 +315,13 @@ public class PlantPotData {
 
         TobaccoPlantData harvested = plant;
         plant = null;
+        // Resterde bleibt im Topf!
         return harvested;
     }
 
     /**
      * Erntet die Cannabis-Pflanze
+     * WICHTIG: Resterde bleibt erhalten!
      */
     public CannabisPlantData harvestCannabis() {
         if (cannabisPlant == null || !cannabisPlant.isFullyGrown()) {
@@ -304,11 +330,13 @@ public class PlantPotData {
 
         CannabisPlantData harvested = cannabisPlant;
         cannabisPlant = null;
+        // Resterde bleibt im Topf!
         return harvested;
     }
 
     /**
      * Erntet die Koka-Pflanze
+     * WICHTIG: Resterde bleibt erhalten!
      */
     public CocaPlantData harvestCoca() {
         if (cocaPlant == null || !cocaPlant.isFullyGrown()) {
@@ -317,11 +345,13 @@ public class PlantPotData {
 
         CocaPlantData harvested = cocaPlant;
         cocaPlant = null;
+        // Resterde bleibt im Topf!
         return harvested;
     }
 
     /**
      * Erntet die Mohn-Pflanze
+     * WICHTIG: Resterde bleibt erhalten!
      */
     public PoppyPlantData harvestPoppy() {
         if (poppyPlant == null || !poppyPlant.isFullyGrown()) {
@@ -330,28 +360,25 @@ public class PlantPotData {
 
         PoppyPlantData harvested = poppyPlant;
         poppyPlant = null;
+        // Resterde bleibt im Topf!
         return harvested;
     }
 
     /**
      * Erntet Pilze (mit Flush-System)
-     * @return MushroomPlantData oder null wenn nicht erntbar
      */
     public MushroomPlantData harvestMushroom() {
         if (mushroomPlant == null || !mushroomPlant.canHarvest()) {
             return null;
         }
 
-        // Speichere Daten vor der Ernte
         MushroomPlantData harvested = new MushroomPlantData(mushroomPlant.getType());
         harvested.setQuality(mushroomPlant.getQuality());
         harvested.setGrowthStage(mushroomPlant.getGrowthStage());
 
-        // Führe Ernte durch (startet nächsten Flush oder beendet)
         boolean moreFlushes = mushroomPlant.harvest();
 
         if (!moreFlushes) {
-            // Substrat erschöpft - Pflanze entfernen
             mushroomPlant = null;
             hasMist = false;
         }
@@ -374,27 +401,22 @@ public class PlantPotData {
      * Prüft ob die Pflanze wachsen kann (alle Pflanzentypen)
      */
     public boolean canGrow() {
-        // Prüfe Tabak-Pflanze
         if (plant != null && !plant.isFullyGrown()) {
             return checkResourcesForGrowth();
         }
 
-        // Prüfe Cannabis-Pflanze
         if (cannabisPlant != null && !cannabisPlant.isFullyGrown()) {
             return checkResourcesForGrowth();
         }
 
-        // Prüfe Koka-Pflanze
         if (cocaPlant != null && !cocaPlant.isFullyGrown()) {
             return checkResourcesForGrowth();
         }
 
-        // Prüfe Mohn-Pflanze
         if (poppyPlant != null && !poppyPlant.isFullyGrown()) {
             return checkResourcesForGrowth();
         }
 
-        // Prüfe Pilzkultur (spezielle Regeln)
         if (mushroomPlant != null && !mushroomPlant.isFullyGrown()) {
             return checkResourcesForMushroomGrowth();
         }
@@ -404,17 +426,14 @@ public class PlantPotData {
 
     /**
      * Prüft ob Ressourcen für Pilzwachstum vorhanden sind
-     * Pilze brauchen nur Wasser während Fruchtung (Stage 4-7)
      */
     private boolean checkResourcesForMushroomGrowth() {
-        // Während Inkubation: Kein Wasser nötig
         if (mushroomPlant.isIncubating()) {
-            return soilLevel > 0.5; // Nur Substrat nötig
+            return soilLevel > 0.5;
         }
 
-        // Während Fruchtung: Wasser nötig
         double waterNeeded = getMaxWater() / 7.0;
-        double soilNeeded = 15.0 / 7.0;
+        double soilNeeded = getSoilConsumptionPerStage();
         double tolerance = 0.5;
 
         return waterLevel >= (potType.calculateWaterConsumption(waterNeeded) - tolerance) &&
@@ -425,13 +444,8 @@ public class PlantPotData {
      * Prüft ob genug Ressourcen für Wachstum vorhanden sind
      */
     private boolean checkResourcesForGrowth() {
-        // Ressourcen-Anforderungen für einen Wachstumsschritt
-        // 7 Wachstumsschritte (0→1, 1→2, ... 6→7)
-        // Verbrauche 1/7 der Topfkapazität pro Schritt
         double waterNeeded = getMaxWater() / 7.0;
-        double soilNeeded = 15.0 / 7.0;
-
-        // Kleine Toleranz (0.5) für Floating-Point-Rundungsfehler
+        double soilNeeded = getSoilConsumptionPerStage();
         double tolerance = 0.5;
 
         return waterLevel >= (potType.calculateWaterConsumption(waterNeeded) - tolerance) &&
@@ -439,15 +453,17 @@ public class PlantPotData {
     }
 
     /**
-     * Gibt Wasser-Prozentsatz zurück
+     * Berechnet Erde-Verbrauch pro Wachstumsstufe
+     * 33 Erde / 7 Stufen = ~4.71 pro Stufe
      */
+    public double getSoilConsumptionPerStage() {
+        return (double) PotType.SOIL_PER_PLANT / 7.0;
+    }
+
     public float getWaterPercentage() {
         return (float) waterLevel / getMaxWater();
     }
 
-    /**
-     * Gibt Erde-Prozentsatz zurück
-     */
     public float getSoilPercentage() {
         return (float) soilLevel / getMaxSoil();
     }

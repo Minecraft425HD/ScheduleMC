@@ -4,25 +4,21 @@ import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.tobacco.blockentity.GrowLightSlabBlockEntity;
 import de.rolandsw.schedulemc.tobacco.blockentity.TobaccoBlockEntities;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Grow Light Slab - Lichtquelle für Indoor-Pflanzenanbau
+ * Grow Light Block - Lichtquelle für Indoor-Pflanzenanbau
  *
  * Features:
  * - 3 Tier-Stufen (Basic, Advanced, Premium)
@@ -31,8 +27,12 @@ import org.jetbrains.annotations.Nullable;
  * - Premium: Qualitätsbonus
  * - Partikeleffekte
  * - Utility-System Integration (Stromverbrauch)
+ * - Halbe Blockhöhe (wie Slab, aber OHNE Stacking-Verhalten!)
  */
-public class GrowLightSlabBlock extends SlabBlock implements EntityBlock {
+public class GrowLightSlabBlock extends Block implements EntityBlock {
+
+    // Halber Block - untere Hälfte (wie Bottom Slab)
+    private static final VoxelShape SHAPE = Block.box(0.0, 0.0, 0.0, 16.0, 8.0, 16.0);
 
     private final GrowLightTier tier;
 
@@ -43,6 +43,16 @@ public class GrowLightSlabBlock extends SlabBlock implements EntityBlock {
 
     public GrowLightTier getTier() {
         return tier;
+    }
+
+    @Override
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return SHAPE;
+    }
+
+    @Override
+    public VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return SHAPE;
     }
 
     @Override
@@ -60,14 +70,10 @@ public class GrowLightSlabBlock extends SlabBlock implements EntityBlock {
         // Nur für Advanced und Premium Lampen
         if (tier == GrowLightTier.BASIC) return;
 
-        // Partikel nur bei Bottom-Slab oder Double-Slab
-        SlabType slabType = state.getValue(TYPE);
-        if (slabType == SlabType.TOP) return;
-
         // Gelegentlich Partikel nach unten
         if (random.nextFloat() < tier.getParticleChance()) {
             double x = pos.getX() + 0.5 + (random.nextDouble() - 0.5) * 0.5;
-            double y = pos.getY() + (slabType == SlabType.DOUBLE ? 0.5 : 0.0);
+            double y = pos.getY();
             double z = pos.getZ() + 0.5 + (random.nextDouble() - 0.5) * 0.5;
 
             // Particle nach unten

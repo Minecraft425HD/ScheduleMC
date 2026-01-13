@@ -24,4 +24,7 @@ public class NPCItems {
 
     public static final RegistryObject<Item> NPC_PATROL_TOOL = ITEMS.register("npc_patrol_tool",
         NPCPatrolTool::new);
+
+    public static final RegistryObject<Item> ENTITY_REMOVER = ITEMS.register("entity_remover",
+        EntityRemoverItem::new);
 }

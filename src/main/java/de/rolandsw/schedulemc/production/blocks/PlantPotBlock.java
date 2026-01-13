@@ -80,48 +80,51 @@ public class PlantPotBlock extends Block implements EntityBlock {
         var potData = potBE.getPotData();
 
         // ═══════════════════════════════════════════════════════════
-        // 1. ERDE BEFÜLLEN (Berücksichtigt Erdsack-Typ!)
+        // 1. ERDE BEFÜLLEN (Jeder Sack gibt 33 Erde)
         // ═══════════════════════════════════════════════════════════
         if (handStack.getItem() instanceof SoilBagItem soilBagItem) {
-            // Erlaube Nachfüllen nur wenn keine Pflanze vorhanden ist
+            // Nicht während Pflanze wächst
             if (potData.hasPlant()) {
                 player.displayClientMessage(Component.translatable(
-                    "block.plant_pot.remove_plant_first"
+                    "block.plant_pot.cannot_add_soil_while_growing"
                 ), true);
                 return InteractionResult.FAIL;
             }
 
-            // Prüfe ob Topf bereits voll ist
-            if (potData.getSoilLevel() >= potData.getMaxSoil()) {
-                player.displayClientMessage(Component.translatable(
-                    "block.plant_pot.pot_full_soil"
-                ), true);
+            // Prüfe ob genug Platz für 33 Erde (mindestens 33 müssen fehlen)
+            if (!potData.canAddSoilBag()) {
+                double missing = potData.getMissingSoil();
+                if (missing < de.rolandsw.schedulemc.production.core.PotType.SOIL_PER_PLANT) {
+                    player.displayClientMessage(Component.translatable(
+                        "block.plant_pot.not_enough_space_for_soil",
+                        (int) missing,
+                        de.rolandsw.schedulemc.production.core.PotType.SOIL_PER_PLANT
+                    ), true);
+                } else {
+                    player.displayClientMessage(Component.translatable(
+                        "block.plant_pot.pot_full_soil"
+                    ), true);
+                }
                 return InteractionResult.FAIL;
             }
 
-            // Verbrauche 1 Einheit Erde
-            if (SoilBagItem.consumeUnits(handStack, 1)) {
-                // Füge Erde basierend auf Erdsack-Typ hinzu (1, 2 oder 3 Pflanzen)
-                int plantsPerBag = soilBagItem.getPlantsPerBag();
-                potData.addSoilForPlants(plantsPerBag);
+            // Füge 33 Erde hinzu
+            if (potData.addSoilFromBag()) {
+                handStack.shrink(1); // Verbrauche Erdsack
                 potBE.setChanged();
-                level.sendBlockUpdated(pos, state, state, 3); // Client-Update!
+                level.sendBlockUpdated(pos, state, state, 3);
 
                 player.displayClientMessage(Component.translatable(
-                    "block.plant_pot.soil_added_full",
-                    (int)potData.getSoilLevel(),
-                    potData.getMaxSoil(),
-                    plantsPerBag
+                    "block.plant_pot.soil_added",
+                    de.rolandsw.schedulemc.production.core.PotType.SOIL_PER_PLANT,
+                    (int) potData.getSoilLevel(),
+                    potData.getMaxSoil()
                 ), true);
 
                 player.playSound(net.minecraft.sounds.SoundEvents.GRAVEL_PLACE, 1.0f, 1.0f);
                 return InteractionResult.SUCCESS;
-            } else {
-                player.displayClientMessage(Component.translatable(
-                    "block.plant_pot.soil_bag_empty"
-                ), true);
-                return InteractionResult.FAIL;
             }
+            return InteractionResult.FAIL;
         }
 
         // ═══════════════════════════════════════════════════════════
@@ -442,9 +445,15 @@ public class PlantPotBlock extends Block implements EntityBlock {
             // Ernte Tabak
             var harvested = potData.harvest();
             if (harvested != null) {
+                // Golden Pot Qualitäts-Boost
+                var quality = harvested.getQuality();
+                if (potType.hasQualityBoost()) {
+                    quality = quality.upgrade();
+                }
+
                 ItemStack leaves = de.rolandsw.schedulemc.tobacco.items.FreshTobaccoLeafItem.create(
                     harvested.getType(),
-                    harvested.getQuality(),
+                    quality,
                     harvested.getHarvestYield()
                 );
 
@@ -455,11 +464,12 @@ public class PlantPotBlock extends Block implements EntityBlock {
                 // Entferne Pflanzen-Block
                 TobaccoPlantBlock.removePlant(level, pos);
 
+                String qualityBoostMsg = potType.hasQualityBoost() ? " §d(+1 Qualität!)" : "";
                 player.displayClientMessage(Component.translatable(
                     "block.plant_pot.tobacco_harvested",
                     harvested.getHarvestYield(),
-                    harvested.getQuality().getColoredName()
-                ), true);
+                    quality.getColoredName()
+                ).append(qualityBoostMsg), true);
 
                 player.playSound(net.minecraft.sounds.SoundEvents.CROP_BREAK, 1.0f, 1.0f);
                 return InteractionResult.SUCCESS;
@@ -483,9 +493,15 @@ public class PlantPotBlock extends Block implements EntityBlock {
             // Ernte Cannabis
             var harvested = potData.harvestCannabis();
             if (harvested != null) {
+                // Golden Pot Qualitäts-Boost
+                var quality = harvested.getQuality();
+                if (potType.hasQualityBoost()) {
+                    quality = quality.upgrade();
+                }
+
                 ItemStack buds = de.rolandsw.schedulemc.cannabis.items.FreshBudItem.create(
                     harvested.getStrain(),
-                    harvested.getQuality(),
+                    quality,
                     harvested.getHarvestYield()
                 );
 
@@ -496,11 +512,12 @@ public class PlantPotBlock extends Block implements EntityBlock {
                 // Entferne Cannabis-Pflanzen-Block
                 CannabisPlantBlock.removePlant(level, pos);
 
+                String qualityBoostMsg = potType.hasQualityBoost() ? " §d(+1 Qualität!)" : "";
                 player.displayClientMessage(Component.translatable(
                     "block.plant_pot.cannabis_harvested",
                     harvested.getHarvestYield(),
-                    harvested.getQuality().getColoredName()
-                ), true);
+                    quality.getColoredName()
+                ).append(qualityBoostMsg), true);
 
                 player.playSound(net.minecraft.sounds.SoundEvents.CROP_BREAK, 1.0f, 1.0f);
                 return InteractionResult.SUCCESS;
@@ -524,9 +541,15 @@ public class PlantPotBlock extends Block implements EntityBlock {
             // Ernte Koka
             var harvested = potData.harvestCoca();
             if (harvested != null) {
+                // Golden Pot Qualitäts-Boost
+                var quality = harvested.getQuality();
+                if (potType.hasQualityBoost()) {
+                    quality = quality.upgrade();
+                }
+
                 ItemStack leaves = FreshCocaLeafItem.create(
                     harvested.getType(),
-                    harvested.getQuality(),
+                    quality,
                     harvested.getHarvestYield()
                 );
 
@@ -537,11 +560,12 @@ public class PlantPotBlock extends Block implements EntityBlock {
                 // Entferne Koka-Pflanzen-Block
                 CocaPlantBlock.removePlant(level, pos);
 
+                String qualityBoostMsg = potType.hasQualityBoost() ? " §d(+1 Qualität!)" : "";
                 player.displayClientMessage(Component.translatable(
                     "block.plant_pot.coca_harvested",
                     harvested.getHarvestYield(),
-                    harvested.getQuality().getColoredName()
-                ), true);
+                    quality.getColoredName()
+                ).append(qualityBoostMsg), true);
 
                 player.playSound(net.minecraft.sounds.SoundEvents.CROP_BREAK, 1.0f, 1.0f);
                 return InteractionResult.SUCCESS;
@@ -565,9 +589,15 @@ public class PlantPotBlock extends Block implements EntityBlock {
             // Ernte Mohn
             var harvested = potData.harvestPoppy();
             if (harvested != null) {
+                // Golden Pot Qualitäts-Boost
+                var quality = harvested.getQuality();
+                if (potType.hasQualityBoost()) {
+                    quality = quality.upgrade();
+                }
+
                 ItemStack pods = PoppyPodItem.create(
                     harvested.getType(),
-                    harvested.getQuality(),
+                    quality,
                     harvested.getHarvestYield()
                 );
 
@@ -578,11 +608,12 @@ public class PlantPotBlock extends Block implements EntityBlock {
                 // Entferne Mohn-Pflanzen-Block
                 PoppyPlantBlock.removePlant(level, pos);
 
+                String qualityBoostMsg = potType.hasQualityBoost() ? " §d(+1 Qualität!)" : "";
                 player.displayClientMessage(Component.translatable(
                     "block.plant_pot.poppy_harvested",
                     harvested.getHarvestYield(),
-                    harvested.getQuality().getColoredName()
-                ), true);
+                    quality.getColoredName()
+                ).append(qualityBoostMsg), true);
 
                 player.playSound(net.minecraft.sounds.SoundEvents.CROP_BREAK, 1.0f, 1.0f);
                 return InteractionResult.SUCCESS;
@@ -617,9 +648,15 @@ public class PlantPotBlock extends Block implements EntityBlock {
             var harvested = potData.harvestMushroom();
 
             if (harvested != null) {
+                // Golden Pot Qualitätsboost
+                var quality = harvested.getQuality();
+                if (potType.hasQualityBoost()) {
+                    quality = quality.upgrade();
+                }
+
                 ItemStack freshMushrooms = FreshMushroomItem.create(
                     harvested.getType(),
-                    harvested.getQuality(),
+                    quality,
                     yield
                 );
 
@@ -631,12 +668,13 @@ public class PlantPotBlock extends Block implements EntityBlock {
                     Component.translatable("block.plant_pot.mushroom_remaining_flushes", remainingFlushes).getString() :
                     Component.translatable("block.plant_pot.mushroom_last_flush").getString();
 
+                String qualityBoostMsg = potType.hasQualityBoost() ? " §d(+1 Qualität!)" : "";
                 player.displayClientMessage(Component.translatable(
                     "block.plant_pot.mushroom_harvested",
                     yield,
-                    harvested.getQuality().getColoredName(),
+                    quality.getColoredName(),
                     flushInfo
-                ), true);
+                ).append(qualityBoostMsg), true);
 
                 player.playSound(net.minecraft.sounds.SoundEvents.FUNGUS_BREAK, 1.0f, 1.0f);
                 return InteractionResult.SUCCESS;
