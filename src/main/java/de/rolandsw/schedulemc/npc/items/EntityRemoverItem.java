@@ -58,8 +58,8 @@ public class EntityRemoverItem extends Item {
                 String npcName = npc.getNpcName();
 
                 // Entferne aus Registry
-                NPCEntityRegistry.removeNPC(npc.getUUID());
-                NPCNameRegistry.removeNPC(npcName);
+                NPCEntityRegistry.unregisterNPC(npc);
+                NPCNameRegistry.unregisterName(npcName);
 
                 // Entferne Entity
                 npc.discard();

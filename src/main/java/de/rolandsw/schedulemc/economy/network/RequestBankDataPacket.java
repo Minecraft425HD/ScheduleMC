@@ -70,8 +70,8 @@ public class RequestBankDataPacket {
         }
 
         // Transfer Limit
-        double remainingTransferLimit = ModConfigHandler.COMMON.DAILY_TRANSFER_LIMIT.get();
-        double maxTransferLimit = ModConfigHandler.COMMON.DAILY_TRANSFER_LIMIT.get();
+        double remainingTransferLimit = ModConfigHandler.COMMON.BANK_TRANSFER_DAILY_LIMIT.get();
+        double maxTransferLimit = ModConfigHandler.COMMON.BANK_TRANSFER_DAILY_LIMIT.get();
         if (server != null) {
             TransferLimitTracker tracker = TransferLimitTracker.getInstance(server);
             if (tracker != null) {
@@ -105,7 +105,7 @@ public class RequestBankDataPacket {
                         payment.getAmount(),
                         payment.getIntervalDays(),
                         payment.isActive(),
-                        payment.getNextExecutionTime()
+                        payment.getNextExecutionDay()
                     ));
                 }
             }
@@ -118,12 +118,15 @@ public class RequestBankDataPacket {
             if (loanManager != null) {
                 CreditLoan loan = loanManager.getLoan(playerUUID);
                 if (loan != null) {
+                    // Calculate current day for remaining days calculation
+                    long currentDay = server.overworld() != null ?
+                        server.overworld().getDayTime() / 24000L : 0;
                     activeLoan = new ClientBankDataCache.CreditLoanData(
                         loan.getType().name(),
-                        loan.getTotalAmount(),
-                        loan.getRemainingAmount(),
+                        loan.getPrincipal() + loan.getTotalInterest(),
+                        loan.getRemaining(),
                         loan.getDailyPayment(),
-                        loan.getRemainingDays()
+                        loan.getRemainingDays(currentDay)
                     );
                 }
             }
