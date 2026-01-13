@@ -512,6 +512,16 @@ public class ColorCalculationService {
     }
 
     public int getBiomeTint(AbstractMapData mapData, Level world, BlockState blockState, int blockStateID, MutableBlockPos blockPos, MutableBlockPos loopBlockPos, int startX, int startZ) {
+        // IMPORTANT: Water and lava should ALWAYS use fixed colors, ignoring biome tints
+        // This prevents brown water in swamps and ensures consistent fluid colors
+        Block block = blockState.getBlock();
+        if (block == BlockDatabase.water) {
+            return ARGBCompat.toABGR(0xFF3F76E4); // Fixed Minecraft default blue water color
+        }
+        if (block == Blocks.LAVA) {
+            return ARGBCompat.toABGR(0xFFFF5A00); // Fixed Minecraft default orange/red lava color
+        }
+
         // Performance-Optimierung: LRU Cache für Biome Tints
         // Cache-Key: ChunkX (16 bit) | ChunkZ (16 bit) | BlockStateID (32 bit)
         long cacheKey = ((long)(blockPos.getX() >> 4) << 48) | ((long)(blockPos.getZ() >> 4) << 32) | (blockStateID & 0xFFFFFFFFL);
@@ -576,6 +586,16 @@ public class ColorCalculationService {
     private int getBuiltInBiomeTint(AbstractMapData mapData, Level world, BlockState blockState, int blockStateID, MutableBlockPos blockPos, MutableBlockPos loopBlockPos, int startX, int startZ, boolean live) {
         int tint = -1;
         Block block = blockState.getBlock();
+
+        // IMPORTANT: Water and lava should ALWAYS use fixed colors, ignoring biome tints
+        // This prevents brown water in swamps and ensures consistent fluid colors
+        if (block == BlockDatabase.water) {
+            return 0xFF3F76E4; // Fixed Minecraft default blue water color
+        }
+        if (block == Blocks.LAVA) {
+            return 0xFFFF5A00; // Fixed Minecraft default orange/red lava color
+        }
+
         if (BlockDatabase.biomeBlocks.contains(block) || this.biomeTintsAvailable.contains(blockStateID)) {
             if (live) {
                 try {
