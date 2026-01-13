@@ -32,10 +32,25 @@ public class EconomyNetworkHandler {
      * Registriert alle Economy-Packets
      */
     public static void register() {
+        // ATM Transaction (Client -> Server)
         INSTANCE.messageBuilder(ATMTransactionPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
             .decoder(ATMTransactionPacket::decode)
             .encoder(ATMTransactionPacket::encode)
             .consumerMainThread(ATMTransactionPacket::handle)
+            .add();
+
+        // Request ATM Data (Client -> Server)
+        INSTANCE.messageBuilder(RequestATMDataPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(RequestATMDataPacket::decode)
+            .encoder(RequestATMDataPacket::encode)
+            .consumerMainThread(RequestATMDataPacket::handle)
+            .add();
+
+        // Sync ATM Data (Server -> Client)
+        INSTANCE.messageBuilder(SyncATMDataPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+            .decoder(SyncATMDataPacket::decode)
+            .encoder(SyncATMDataPacket::encode)
+            .consumerMainThread(SyncATMDataPacket::handle)
             .add();
     }
 }
