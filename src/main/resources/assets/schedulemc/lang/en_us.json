@@ -4899,5 +4899,20 @@
   "app.crime_stats.police_3_4": "§73-4 stars: Reinforcement",
   "app.crime_stats.police_5": "§75 stars: Manhunt",
   "app.crime_stats.no_bail_needed": "§aNo bail needed",
-  "app.crime_stats.innocent": "§7You are innocent!"
+  "app.crime_stats.innocent": "§7You are innocent!",
+
+  "item.schedulemc.entity_remover": "Entity Remover",
+  "item.entity_remover.tooltip.line1": "Right-click NPC = Delete NPC",
+  "item.entity_remover.tooltip.line2": "Right-click Vehicle = Delete Vehicle",
+  "item.entity_remover.tooltip.warning": "⚠ WARNING: Irreversible!",
+  "item.entity_remover.tooltip.op_required": "Requires OP Level 2",
+  "item.entity_remover.no_permission": "§cYou don't have permission to use this tool!",
+  "item.entity_remover.npc_removed": "§aNPC deleted:",
+  "item.entity_remover.vehicle_removed": "§aVehicle deleted:",
+
+  "command.admintools.remover_given": "§aEntity Remover received!",
+  "command.admintools.inventory_full": "§eInventory full - Item dropped!",
+  "command.admintools.player_only": "§cThis command can only be executed by players!",
+  "command.admintools.help.remover": "Gives you the Entity Remover",
+  "command.admintools.help.help": "Shows this help"
 }

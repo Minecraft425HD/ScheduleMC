@@ -224,6 +224,7 @@ public class ScheduleMC {
         MinecraftForge.EVENT_BUS.register(new CashSlotRestrictionHandler());
         MinecraftForge.EVENT_BUS.register(new InventoryRestrictionHandler());
         MinecraftForge.EVENT_BUS.register(new NPCStealingHandler());
+        MinecraftForge.EVENT_BUS.register(new de.rolandsw.schedulemc.npc.events.EntityRemoverHandler());
         MinecraftForge.EVENT_BUS.register(new de.rolandsw.schedulemc.npc.events.NPCKnockoutHandler());
         MinecraftForge.EVENT_BUS.register(new de.rolandsw.schedulemc.npc.events.PoliceAIHandler());
         MinecraftForge.EVENT_BUS.register(new de.rolandsw.schedulemc.npc.events.PoliceDoorBlockHandler());
@@ -290,6 +291,7 @@ public class ScheduleMC {
             // DailyCommand removed - now automatic on login
             HospitalCommand.register(event.getDispatcher());
             NPCCommand.register(event.getDispatcher(), event.getBuildContext());
+            de.rolandsw.schedulemc.npc.commands.AdminToolsCommand.register(event.getDispatcher());
             WarehouseCommand.register(event.getDispatcher(), event.getBuildContext());
             ShopInvestCommand.register(event.getDispatcher());
             StateCommand.register(event.getDispatcher());
