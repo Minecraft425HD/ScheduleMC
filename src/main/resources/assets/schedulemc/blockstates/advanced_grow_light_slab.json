@@ -1,13 +1,7 @@
 {
   "variants": {
-    "type=bottom": {
+    "": {
       "model": "schedulemc:block/advanced_grow_light_slab"
-    },
-    "type=top": {
-      "model": "schedulemc:block/advanced_grow_light_slab_top"
-    },
-    "type=double": {
-      "model": "schedulemc:block/advanced_grow_light_slab_double"
     }
   }
 }
