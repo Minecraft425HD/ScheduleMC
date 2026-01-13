@@ -2,10 +2,10 @@ package de.rolandsw.schedulemc.npc.client.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import de.rolandsw.schedulemc.ScheduleMC;
-import de.rolandsw.schedulemc.economy.EconomyManager;
-import de.rolandsw.schedulemc.npc.bank.StockMarketData;
+import de.rolandsw.schedulemc.economy.network.ClientBankDataCache;
 import de.rolandsw.schedulemc.npc.menu.BoerseMenu;
 import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
+import de.rolandsw.schedulemc.npc.network.RequestStockDataPacket;
 import de.rolandsw.schedulemc.npc.network.StockTradePacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -121,6 +121,9 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
         closeButton = addRenderableWidget(Button.builder(Component.translatable("gui.common.close"), button -> {
             this.onClose();
         }).bounds(x + 38, y + 140, 100, 20).build());
+
+        // Request stock market data from server
+        NPCNetworkHandler.sendToServer(new RequestStockDataPacket());
     }
 
     /**
@@ -169,40 +172,35 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
 
-        // Get stock market data
-        StockMarketData stockMarket = StockMarketData.getInstance(minecraft.level.getServer());
-
         // Header
         guiGraphics.drawString(this.font, Component.translatable("screen.boerse.header_market").getString(), x + 10, y + 25, 0x404040, false);
         guiGraphics.drawString(this.font, Component.translatable("screen.boerse.header_price").getString(), x + 55, y + 25, 0x404040, false);
         guiGraphics.drawString(this.font, Component.translatable("screen.boerse.header_trade").getString(), x + 100, y + 25, 0x404040, false);
         guiGraphics.drawString(this.font, Component.translatable("screen.boerse.header_stock").getString(), x + 10, y + 33, 0x808080, false);
 
-        // Gold
+        // Gold - use ClientBankDataCache for dedicated server support
         renderStockRow(guiGraphics, x, y + 40, Component.translatable("screen.boerse.stock_gold").getString(), Items.GOLD_INGOT,
-            stockMarket.getCurrentPrice(Items.GOLD_INGOT),
-            stockMarket.getTrend(Items.GOLD_INGOT),
+            ClientBankDataCache.getGoldPrice(),
+            ClientBankDataCache.getGoldTrend(),
             countItems(StockTradePacket.StockType.GOLD));
 
-        // Diamant
+        // Diamant - use ClientBankDataCache for dedicated server support
         renderStockRow(guiGraphics, x, y + 63, Component.translatable("screen.boerse.stock_diamond").getString(), Items.DIAMOND,
-            stockMarket.getCurrentPrice(Items.DIAMOND),
-            stockMarket.getTrend(Items.DIAMOND),
+            ClientBankDataCache.getDiamondPrice(),
+            ClientBankDataCache.getDiamondTrend(),
             countItems(StockTradePacket.StockType.DIAMOND));
 
-        // Smaragd
+        // Smaragd - use ClientBankDataCache for dedicated server support
         renderStockRow(guiGraphics, x, y + 86, Component.translatable("screen.boerse.stock_emerald").getString(), Items.EMERALD,
-            stockMarket.getCurrentPrice(Items.EMERALD),
-            stockMarket.getTrend(Items.EMERALD),
+            ClientBankDataCache.getEmeraldPrice(),
+            ClientBankDataCache.getEmeraldTrend(),
             countItems(StockTradePacket.StockType.EMERALD));
 
-        // Kontostand
-        if (minecraft != null && minecraft.player != null) {
-            double balance = EconomyManager.getBalance(minecraft.player.getUUID());
-            guiGraphics.drawString(this.font, Component.translatable("screen.boerse.balance_label").getString(), x + 10, y + 110, 0x808080, false);
-            guiGraphics.drawString(this.font, String.format("%.2f€", balance),
-                x + 75, y + 110, 0x00AA00, false);
-        }
+        // Kontostand - use ClientBankDataCache for dedicated server support
+        double balance = ClientBankDataCache.getBalance();
+        guiGraphics.drawString(this.font, Component.translatable("screen.boerse.balance_label").getString(), x + 10, y + 110, 0x808080, false);
+        guiGraphics.drawString(this.font, String.format("%.2f€", balance),
+            x + 75, y + 110, 0x00AA00, false);
 
         // Info
         guiGraphics.drawString(this.font, Component.translatable("screen.boerse.tip").getString(), x + 10, y + 122, 0x606060, false);

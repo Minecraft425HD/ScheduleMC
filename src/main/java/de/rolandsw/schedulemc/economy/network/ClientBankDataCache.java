@@ -32,6 +32,14 @@ public class ClientBankDataCache {
     // Kredit
     private static CreditLoanData activeLoan = null;
 
+    // Börsen-Daten
+    private static double goldPrice = 150.0;
+    private static double diamondPrice = 800.0;
+    private static double emeraldPrice = 100.0;
+    private static int goldTrend = 0;
+    private static int diamondTrend = 0;
+    private static int emeraldTrend = 0;
+
     // Status
     private static boolean hasData = false;
     private static long lastUpdateTime = 0;
@@ -83,6 +91,19 @@ public class ClientBankDataCache {
         lastUpdateTime = System.currentTimeMillis();
     }
 
+    /**
+     * Update stock market data
+     */
+    public static void updateStockData(double gold, int goldT, double diamond, int diamondT, double emerald, int emeraldT) {
+        goldPrice = gold;
+        goldTrend = goldT;
+        diamondPrice = diamond;
+        diamondTrend = diamondT;
+        emeraldPrice = emerald;
+        emeraldTrend = emeraldT;
+        lastUpdateTime = System.currentTimeMillis();
+    }
+
     // ═══════════════════════════════════════════════════════════════════════════
     // Getters
     // ═══════════════════════════════════════════════════════════════════════════
@@ -125,6 +146,31 @@ public class ClientBankDataCache {
 
     public static CreditLoanData getActiveLoan() {
         return activeLoan;
+    }
+
+    // Stock Market Getters
+    public static double getGoldPrice() {
+        return goldPrice;
+    }
+
+    public static double getDiamondPrice() {
+        return diamondPrice;
+    }
+
+    public static double getEmeraldPrice() {
+        return emeraldPrice;
+    }
+
+    public static int getGoldTrend() {
+        return goldTrend;
+    }
+
+    public static int getDiamondTrend() {
+        return diamondTrend;
+    }
+
+    public static int getEmeraldTrend() {
+        return emeraldTrend;
     }
 
     public static boolean hasData() {

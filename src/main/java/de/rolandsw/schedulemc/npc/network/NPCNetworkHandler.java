@@ -213,6 +213,19 @@ public class NPCNetworkHandler {
             .consumerMainThread(SyncCreditDataPacket::handle)
             .add();
 
+        // Stock Market Data Packets
+        INSTANCE.messageBuilder(RequestStockDataPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(RequestStockDataPacket::decode)
+            .encoder(RequestStockDataPacket::encode)
+            .consumerMainThread(RequestStockDataPacket::handle)
+            .add();
+
+        INSTANCE.messageBuilder(SyncStockDataPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+            .decoder(SyncStockDataPacket::decode)
+            .encoder(SyncStockDataPacket::encode)
+            .consumerMainThread(SyncStockDataPacket::handle)
+            .add();
+
         // Bank Data Synchronization Packets
         INSTANCE.messageBuilder(de.rolandsw.schedulemc.economy.network.RequestBankDataPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
             .decoder(de.rolandsw.schedulemc.economy.network.RequestBankDataPacket::decode)
