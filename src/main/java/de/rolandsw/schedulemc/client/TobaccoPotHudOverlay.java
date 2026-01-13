@@ -116,7 +116,7 @@ public class TobaccoPotHudOverlay {
         boolean isHarvestReady = isPlantHarvestReady(potData);
 
         if (isHarvestReady) {
-            totalLines += 2; // ERNTEBEREIT! + Hinweis
+            totalLines += 1; // ERNTEBEREIT!
         }
 
         if (potData.hasSoil() || potData.hasMist()) {
@@ -148,13 +148,6 @@ public class TobaccoPotHudOverlay {
             guiGraphics.drawString(mc.font, harvestText, (int)(HUD_X / (SCALE * 1.2f)), (int)(currentY / (SCALE * 1.2f)), 0x00FF00);
             guiGraphics.pose().popPose();
             currentY += lineHeight + 4;
-
-            // Hinweis
-            guiGraphics.pose().pushPose();
-            guiGraphics.pose().scale(SCALE * 0.9f, SCALE * 0.9f, 1.0f);
-            guiGraphics.drawString(mc.font, "§7[Shift+Klick zum Ernten]", (int)(HUD_X / (SCALE * 0.9f)), (int)(currentY / (SCALE * 0.9f)), 0xAAAAAA);
-            guiGraphics.pose().popPose();
-            currentY += lineHeight;
         }
 
         // ═══════════════════════════════════════════════════════════

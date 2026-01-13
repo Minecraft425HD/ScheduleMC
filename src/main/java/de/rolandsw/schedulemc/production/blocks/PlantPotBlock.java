@@ -648,9 +648,15 @@ public class PlantPotBlock extends Block implements EntityBlock {
             var harvested = potData.harvestMushroom();
 
             if (harvested != null) {
+                // Golden Pot Qualitätsboost
+                var quality = harvested.getQuality();
+                if (potType.hasQualityBoost()) {
+                    quality = quality.upgrade();
+                }
+
                 ItemStack freshMushrooms = FreshMushroomItem.create(
                     harvested.getType(),
-                    harvested.getQuality(),
+                    quality,
                     yield
                 );
 
@@ -662,12 +668,13 @@ public class PlantPotBlock extends Block implements EntityBlock {
                     Component.translatable("block.plant_pot.mushroom_remaining_flushes", remainingFlushes).getString() :
                     Component.translatable("block.plant_pot.mushroom_last_flush").getString();
 
+                String qualityBoostMsg = potType.hasQualityBoost() ? " §d(+1 Qualität!)" : "";
                 player.displayClientMessage(Component.translatable(
                     "block.plant_pot.mushroom_harvested",
                     yield,
-                    harvested.getQuality().getColoredName(),
+                    quality.getColoredName(),
                     flushInfo
-                ), true);
+                ).append(qualityBoostMsg), true);
 
                 player.playSound(net.minecraft.sounds.SoundEvents.FUNGUS_BREAK, 1.0f, 1.0f);
                 return InteractionResult.SUCCESS;
