@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.tobacco.items;
 
+import de.rolandsw.schedulemc.production.core.PotType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
@@ -10,73 +11,41 @@ import net.minecraft.world.level.Level;
 import java.util.List;
 
 /**
- * Erdsack-Item mit verschiedenen Kapazitäten
+ * Erdsack-Item - Alle Säcke geben 33 Erde (genug für 1 Pflanze)
+ *
+ * Unterschied liegt in der Stack-Größe:
+ * - SMALL: Stack 1 (billigste Option, einzeln)
+ * - MEDIUM: Stack 2 (mittlere Option)
+ * - LARGE: Stack 3 (beste Option, mehr auf einmal tragen)
  */
 public class SoilBagItem extends Item {
-    
+
     private final SoilBagType type;
-    private static final int UNITS_PER_BAG = 1;
-    
+
     public SoilBagItem(SoilBagType type) {
         super(new Properties()
-                .stacksTo(1));
+                .stacksTo(type.getMaxStackSize()));
         this.type = type;
     }
-    
+
     public SoilBagType getType() {
         return type;
     }
 
     /**
-     * Gibt die Anzahl der Pflanzen zurück, für die dieser Erdsack reicht
+     * Gibt die Menge an Erde zurück die dieser Sack enthält (immer 33)
      */
-    public int getPlantsPerBag() {
-        return type.getPlantsPerBag();
+    public int getSoilAmount() {
+        return PotType.SOIL_PER_PLANT; // 33 Erde pro Sack
     }
-    
+
     /**
      * Erstellt neuen vollen Erdsack
      */
     public static ItemStack createFull(SoilBagType type) {
-        ItemStack stack = new ItemStack(getItemForType(type));
-        setUnits(stack, UNITS_PER_BAG);
-        return stack;
+        return new ItemStack(getItemForType(type));
     }
-    
-    /**
-     * Setzt Einheiten im Sack
-     */
-    public static void setUnits(ItemStack stack, int units) {
-        CompoundTag tag = stack.getOrCreateTag();
-        tag.putInt("SoilUnits", Math.max(0, Math.min(UNITS_PER_BAG, units)));
-    }
-    
-    /**
-     * Gibt Einheiten zurück
-     */
-    public static int getUnits(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
-        if (tag != null && tag.contains("SoilUnits")) {
-            return tag.getInt("SoilUnits");
-        }
-        return UNITS_PER_BAG; // Neu = voll
-    }
-    
-    /**
-     * Verbraucht Einheiten
-     */
-    public static boolean consumeUnits(ItemStack stack, int amount) {
-        int current = getUnits(stack);
-        if (current >= amount) {
-            setUnits(stack, current - amount);
-            if (getUnits(stack) <= 0) {
-                stack.shrink(1); // Leerer Sack verschwindet
-            }
-            return true;
-        }
-        return false;
-    }
-    
+
     /**
      * Gibt Item für Typ zurück
      */
@@ -87,75 +56,42 @@ public class SoilBagItem extends Item {
             case LARGE -> TobaccoItems.SOIL_BAG_LARGE.get();
         };
     }
-    
+
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
-        int units = getUnits(stack);
-        float percentage = (float) units / UNITS_PER_BAG;
-        
-        tooltip.add(Component.translatable("tooltip.soil_bag.soil", units, UNITS_PER_BAG));
-        tooltip.add(Component.translatable("tooltip.soil_bag.enough_for", type.getPlantsPerBag()));
+        int soilAmount = getSoilAmount();
+
+        tooltip.add(Component.translatable("tooltip.soil_bag.contains", soilAmount));
+        tooltip.add(Component.translatable("tooltip.soil_bag.enough_for_one_plant"));
         tooltip.add(Component.literal(""));
-
-        String bar = createBar(percentage);
-        tooltip.add(Component.literal("§7" + bar));
-
+        tooltip.add(Component.literal("§7Stack: §f" + type.getMaxStackSize()));
         tooltip.add(Component.literal(""));
         tooltip.add(Component.translatable("tooltip.soil_bag.right_click_pot"));
     }
-    
-    private String createBar(float percentage) {
-        int filled = (int) (percentage * 10);
-        int empty = 10 - filled;
-        return "§6" + "▰".repeat(Math.max(0, filled)) + "§8" + "▱".repeat(Math.max(0, empty));
-    }
-    
+
     @Override
     public Component getName(ItemStack stack) {
-        int units = getUnits(stack);
-        if (units <= 0) {
-            return Component.translatable("item.soil_bag.empty").append(" ").append(type.getDisplayName());
-        } else if (units >= UNITS_PER_BAG) {
-            return Component.literal(type.getColor())
-                .append(Component.translatable("item.soil_bag.full")).append(" ").append(type.getDisplayName());
-        } else {
-            return Component.literal(type.getColor())
-                .append(type.getDisplayName());
-        }
-    }
-    
-    @Override
-    public boolean isBarVisible(ItemStack stack) {
-        return true;
-    }
-    
-    @Override
-    public int getBarWidth(ItemStack stack) {
-        float percentage = (float) getUnits(stack) / UNITS_PER_BAG;
-        return Math.round(13.0F * percentage);
-    }
-    
-    @Override
-    public int getBarColor(ItemStack stack) {
-        return 0x8B4513; // Braun für Erde
+        return Component.literal(type.getColor())
+            .append(Component.translatable("item.soil_bag." + type.name().toLowerCase()));
     }
 }
 
 /**
  * Verschiedene Erdsack-Typen
+ * Alle geben 33 Erde, unterscheiden sich nur in Stack-Größe und Preis
  */
 enum SoilBagType {
-    SMALL("§7", 1, 10.0),
-    MEDIUM("§e", 2, 25.0),
-    LARGE("§6", 3, 50.0);
+    SMALL("§7", 1, 10.0),   // Stack 1, billig
+    MEDIUM("§e", 2, 25.0),  // Stack 2, mittel
+    LARGE("§6", 3, 50.0);   // Stack 3, teuer aber mehr tragbar
 
     private final String color;
-    private final int plantsPerBag;
+    private final int maxStackSize;
     private final double basePrice;
 
-    SoilBagType(String color, int plantsPerBag, double basePrice) {
+    SoilBagType(String color, int maxStackSize, double basePrice) {
         this.color = color;
-        this.plantsPerBag = plantsPerBag;
+        this.maxStackSize = maxStackSize;
         this.basePrice = basePrice;
     }
 
@@ -167,8 +103,8 @@ enum SoilBagType {
         return color;
     }
 
-    public int getPlantsPerBag() {
-        return plantsPerBag;
+    public int getMaxStackSize() {
+        return maxStackSize;
     }
 
     public double getBasePrice() {

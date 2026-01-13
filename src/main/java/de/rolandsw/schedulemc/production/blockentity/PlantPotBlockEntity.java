@@ -103,8 +103,8 @@ public class PlantPotBlockEntity extends BlockEntity implements IUtilityConsumer
                             if (mushroom.needsWater()) {
                                 consumeResourcesForGrowth(newStage);
                             } else {
-                                // Nur Substrat verbrauchen
-                                potData.consumeSoil(15.0 / 7.0);
+                                // Nur Substrat verbrauchen (33/7 pro Stufe)
+                                potData.consumeSoil(potData.getSoilConsumptionPerStage());
                             }
                         } else {
                             // Standard-Ressourcen-Verbrauch für alle anderen Pflanzen
@@ -138,19 +138,18 @@ public class PlantPotBlockEntity extends BlockEntity implements IUtilityConsumer
 
     /**
      * Verbraucht Ressourcen beim Wachstum
+     *
+     * Neues System:
+     * - Wasser: 1/7 der Wasserkapazität pro Stufe
+     * - Erde: 33/7 = ~4.71 pro Stufe (insgesamt 33 pro Pflanze)
+     * - Resterde bleibt im Topf für die nächste Pflanze!
      */
     private void consumeResourcesForGrowth(int newStage) {
-        double waterToConsume, soilToConsume;
+        // Wasser: 1/7 der Kapazität pro Stufe
+        double waterToConsume = potData.getMaxWater() / 7.0;
 
-        if (newStage == 7) {
-            // Letzter Schritt: Verbrauche alles was noch da ist
-            waterToConsume = potData.getWaterLevelExact();
-            soilToConsume = potData.getSoilLevelExact();
-        } else {
-            // Normale Schritte: 1/7 der Kapazität
-            waterToConsume = potData.getMaxWater() / 7.0;
-            soilToConsume = 15.0 / 7.0;
-        }
+        // Erde: Feste 33/7 = ~4.71 pro Stufe (NICHT alles verbrauchen!)
+        double soilToConsume = potData.getSoilConsumptionPerStage();
 
         potData.consumeWater(waterToConsume);
         potData.consumeSoil(soilToConsume);

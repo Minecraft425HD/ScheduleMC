@@ -2,14 +2,18 @@ package de.rolandsw.schedulemc.client;
 import de.rolandsw.schedulemc.util.EventHelper;
 
 import de.rolandsw.schedulemc.ScheduleMC;
+import de.rolandsw.schedulemc.cannabis.blocks.CannabisPlantBlock;
+import de.rolandsw.schedulemc.coca.blocks.CocaPlantBlock;
+import de.rolandsw.schedulemc.poppy.blocks.PoppyPlantBlock;
 import de.rolandsw.schedulemc.production.blockentity.PlantPotBlockEntity;
 import de.rolandsw.schedulemc.production.blocks.PlantPotBlock;
+import de.rolandsw.schedulemc.production.core.PotType;
 import de.rolandsw.schedulemc.tobacco.blocks.TobaccoPlantBlock;
-import de.rolandsw.schedulemc.tobacco.data.TobaccoPlantData;
 import de.rolandsw.schedulemc.production.data.PlantPotData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
@@ -26,7 +30,7 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(modid = ScheduleMC.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class TobaccoPotHudOverlay {
 
-    private static final int BAR_WIDTH = 60; // 50% kürzer (120 → 60)
+    private static final int BAR_WIDTH = 60;
     private static final int BAR_HEIGHT = 8;
     private static final int SEGMENT_WIDTH = BAR_WIDTH / 5;
     private static final float SCALE = 0.7f;
@@ -49,12 +53,32 @@ public class TobaccoPotHudOverlay {
             GuiGraphics guiGraphics = event.getGuiGraphics();
 
             // Fall 1: Spieler schaut auf Pflanze - zeige Topf darunter
-            if (state.getBlock() instanceof TobaccoPlantBlock) {
+            Block block = state.getBlock();
+            BlockPos potPos = null;
+
+            if (block instanceof TobaccoPlantBlock) {
                 if (state.getValue(TobaccoPlantBlock.HALF) == DoubleBlockHalf.UPPER) {
-                    targetPos = targetPos.below(); // Gehe zum unteren Teil
+                    targetPos = targetPos.below();
                 }
-                // Topf ist unter der Pflanze
-                BlockPos potPos = targetPos.below();
+                potPos = targetPos.below();
+            } else if (block instanceof CannabisPlantBlock) {
+                if (state.getValue(CannabisPlantBlock.HALF) == DoubleBlockHalf.UPPER) {
+                    targetPos = targetPos.below();
+                }
+                potPos = targetPos.below();
+            } else if (block instanceof CocaPlantBlock) {
+                if (state.getValue(CocaPlantBlock.HALF) == DoubleBlockHalf.UPPER) {
+                    targetPos = targetPos.below();
+                }
+                potPos = targetPos.below();
+            } else if (block instanceof PoppyPlantBlock) {
+                if (state.getValue(PoppyPlantBlock.HALF) == DoubleBlockHalf.UPPER) {
+                    targetPos = targetPos.below();
+                }
+                potPos = targetPos.below();
+            }
+
+            if (potPos != null) {
                 BlockEntity be = mc.level.getBlockEntity(potPos);
                 BlockState potState = mc.level.getBlockState(potPos);
 
@@ -88,18 +112,21 @@ public class TobaccoPotHudOverlay {
         int lineHeight = 12;
         int totalLines = 1; // Topf-Typ
 
-        if (potData.hasSoil()) {
+        // Prüfe ob Pflanze erntebereit ist
+        boolean isHarvestReady = isPlantHarvestReady(potData);
+
+        if (isHarvestReady) {
+            totalLines += 2; // ERNTEBEREIT! + Hinweis
+        }
+
+        if (potData.hasSoil() || potData.hasMist()) {
             totalLines += 5; // Wasser-Label + Balken + Erde-Label + Balken + Licht
         } else {
             totalLines += 1; // "Keine Erde"
         }
 
-        if (potData.hasPlant()) {
+        if (potData.hasPlant() && !isHarvestReady) {
             totalLines += 2; // Pflanze-Info + Wachstum
-            TobaccoPlantData plant = potData.getPlant();
-            if (plant.hasFertilizer() || plant.hasGrowthBooster() || plant.hasQualityBooster()) {
-                totalLines += 1; // Booster
-            }
         }
 
         int bgHeight = totalLines * lineHeight + 10;
@@ -108,15 +135,45 @@ public class TobaccoPotHudOverlay {
         // Halbtransparenter Hintergrund
         guiGraphics.fill(HUD_X - 5, HUD_Y - 5, HUD_X + bgWidth + 5, HUD_Y + bgHeight, 0x88000000);
 
-        // Topf-Typ
-        String potName = potBlock.getPotType().getColoredName();
+        // ═══════════════════════════════════════════════════════════
+        // ERNTEBEREIT! - Auffällige Anzeige
+        // ═══════════════════════════════════════════════════════════
+        if (isHarvestReady) {
+            // Blinkender Effekt (alle 500ms)
+            boolean blink = (System.currentTimeMillis() / 500) % 2 == 0;
+            String harvestText = blink ? "§a§l✓ ERNTEBEREIT!" : "§2§l✓ ERNTEBEREIT!";
+
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().scale(SCALE * 1.2f, SCALE * 1.2f, 1.0f);
+            guiGraphics.drawString(mc.font, harvestText, (int)(HUD_X / (SCALE * 1.2f)), (int)(currentY / (SCALE * 1.2f)), 0x00FF00);
+            guiGraphics.pose().popPose();
+            currentY += lineHeight + 4;
+
+            // Hinweis
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().scale(SCALE * 0.9f, SCALE * 0.9f, 1.0f);
+            guiGraphics.drawString(mc.font, "§7[Shift+Klick zum Ernten]", (int)(HUD_X / (SCALE * 0.9f)), (int)(currentY / (SCALE * 0.9f)), 0xAAAAAA);
+            guiGraphics.pose().popPose();
+            currentY += lineHeight;
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // Topf-Typ mit Kapazitäts-Info
+        // ═══════════════════════════════════════════════════════════
+        PotType type = potBlock.getPotType();
+        String potName = type.getColoredName();
+        String capacityInfo = " §7(" + type.getMaxPlants() + " Pflanzen)";
+        if (type.hasQualityBoost()) {
+            capacityInfo += " §d+Qualität";
+        }
+
         guiGraphics.pose().pushPose();
         guiGraphics.pose().scale(SCALE, SCALE, 1.0f);
-        guiGraphics.drawString(mc.font, potName, (int)(HUD_X / SCALE), (int)(currentY / SCALE), 0xFFFFFF);
+        guiGraphics.drawString(mc.font, potName + capacityInfo, (int)(HUD_X / SCALE), (int)(currentY / SCALE), 0xFFFFFF);
         guiGraphics.pose().popPose();
         currentY += lineHeight;
 
-        if (!potData.hasSoil()) {
+        if (!potData.hasSoil() && !potData.hasMist()) {
             // Keine Erde - zeige Warnung
             guiGraphics.pose().pushPose();
             guiGraphics.pose().scale(SCALE, SCALE, 1.0f);
@@ -137,59 +194,67 @@ public class TobaccoPotHudOverlay {
         drawResourceBar(guiGraphics, HUD_X, currentY, waterRatio, 0xFF2196F3);
         currentY += BAR_HEIGHT + 4;
 
-        // Erd-Balken
-        String soilLabel = "§6Erde: " + potData.getSoilLevel() + "/" + potData.getMaxSoil();
+        // Erd-Balken mit Pflanzen-Kapazität
+        int currentSoil = potData.getSoilLevel();
+        int maxSoil = potData.getMaxSoil();
+        int plantsCapacity = currentSoil / PotType.SOIL_PER_PLANT;
+
+        String soilLabel = potData.hasMist() ?
+            "§dSubstrat: " + currentSoil + "/" + maxSoil + " §7(" + plantsCapacity + " Pflanzen)" :
+            "§6Erde: " + currentSoil + "/" + maxSoil + " §7(" + plantsCapacity + " Pflanzen)";
+
         guiGraphics.pose().pushPose();
         guiGraphics.pose().scale(SCALE, SCALE, 1.0f);
         guiGraphics.drawString(mc.font, soilLabel, (int)(HUD_X / SCALE), (int)(currentY / SCALE), 0xFFFFFF);
         guiGraphics.pose().popPose();
         currentY += 10;
 
-        float soilRatio = (float) potData.getSoilLevel() / potData.getMaxSoil();
-        drawResourceBar(guiGraphics, HUD_X, currentY, soilRatio, 0xFF8D6E63);
+        float soilRatio = (float) currentSoil / maxSoil;
+        int soilColor = potData.hasMist() ? 0xFFAA00FF : 0xFF8D6E63;
+        drawResourceBar(guiGraphics, HUD_X, currentY, soilRatio, soilColor);
         currentY += BAR_HEIGHT + 4;
 
-        // Lichtlevel anzeigen
-        BlockPos potPos = potBE.getBlockPos();
-        BlockPos plantPos = potPos.above(2);  // 2 Blöcke über Topf = Pflanze
-        int lightLevel = mc.level.getBrightness(net.minecraft.world.level.LightLayer.BLOCK, plantPos);
-        int minLight = de.rolandsw.schedulemc.config.ModConfigHandler.TOBACCO.MIN_LIGHT_LEVEL.get();
-        boolean hasEnoughLight = lightLevel >= minLight;
+        // Lichtlevel anzeigen (nur wenn nicht Pilze)
+        if (!potData.hasMushroomPlant()) {
+            BlockPos potPos = potBE.getBlockPos();
+            BlockPos plantPos = potPos.above(2);
+            int lightLevel = mc.level.getBrightness(net.minecraft.world.level.LightLayer.BLOCK, plantPos);
+            int minLight = de.rolandsw.schedulemc.config.ModConfigHandler.TOBACCO.MIN_LIGHT_LEVEL.get();
+            boolean hasEnoughLight = lightLevel >= minLight;
 
-        String lightLabel = "§eLicht: " + lightLevel + "/15";
-        String lightStatus;
-        int lightColor;
+            String lightLabel = "§eLicht: " + lightLevel + "/15";
+            String lightStatus;
+            int lightColor;
 
-        if (!de.rolandsw.schedulemc.config.ModConfigHandler.TOBACCO.REQUIRE_LIGHT_FOR_GROWTH.get()) {
-            lightStatus = " §8(optional)";
-            lightColor = 0xFFFFFF;
-        } else if (lightLevel >= 14) {
-            lightStatus = " §a✓";
-            lightColor = 0x00FF00;
-        } else if (hasEnoughLight) {
-            lightStatus = " §7(ok)";
-            lightColor = 0xFFFF00;
-        } else {
-            lightStatus = " §c✗";
-            lightColor = 0xFF0000;
+            if (!de.rolandsw.schedulemc.config.ModConfigHandler.TOBACCO.REQUIRE_LIGHT_FOR_GROWTH.get()) {
+                lightStatus = " §8(optional)";
+                lightColor = 0xFFFFFF;
+            } else if (lightLevel >= 14) {
+                lightStatus = " §a✓";
+                lightColor = 0x00FF00;
+            } else if (hasEnoughLight) {
+                lightStatus = " §7(ok)";
+                lightColor = 0xFFFF00;
+            } else {
+                lightStatus = " §c✗";
+                lightColor = 0xFF0000;
+            }
+
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().scale(SCALE, SCALE, 1.0f);
+            guiGraphics.drawString(mc.font, lightLabel + lightStatus, (int)(HUD_X / SCALE), (int)(currentY / SCALE), lightColor);
+            guiGraphics.pose().popPose();
+            currentY += 10;
         }
 
-        guiGraphics.pose().pushPose();
-        guiGraphics.pose().scale(SCALE, SCALE, 1.0f);
-        guiGraphics.drawString(mc.font, lightLabel + lightStatus, (int)(HUD_X / SCALE), (int)(currentY / SCALE), lightColor);
-        guiGraphics.pose().popPose();
-        currentY += 10;
-
-        // Pflanzen-Info (falls vorhanden)
-        if (potData.hasPlant()) {
-            TobaccoPlantData plant = potData.getPlant();
-
+        // Pflanzen-Info (falls vorhanden und nicht erntebereit)
+        if (potData.hasPlant() && !isHarvestReady) {
             // Trennlinie
             guiGraphics.fill(HUD_X, currentY, HUD_X + BAR_WIDTH, currentY + 1, 0x44FFFFFF);
             currentY += 4;
 
             // Pflanzen-Typ + Qualität
-            String plantInfo = plant.getType().getColoredName() + " §7| " + plant.getQuality().getColoredName();
+            String plantInfo = getPlantInfo(potData);
             guiGraphics.pose().pushPose();
             guiGraphics.pose().scale(SCALE, SCALE, 1.0f);
             guiGraphics.drawString(mc.font, plantInfo, (int)(HUD_X / SCALE), (int)(currentY / SCALE), 0xFFFFFF);
@@ -197,35 +262,70 @@ public class TobaccoPotHudOverlay {
             currentY += 10;
 
             // Wachstum
-            boolean isFullyGrown = plant.isFullyGrown();
-            // Bei erntereifer Pflanze immer 100% anzeigen, auch wenn Ressourcen aufgebraucht
-            int growthPercent = isFullyGrown ? 100 : (plant.getGrowthStage() * 100) / 7;
+            int growthStage = getPlantGrowthStage(potData);
+            int growthPercent = (growthStage * 100) / 7;
 
-            String growthLabel = "§eWachstum: " + growthPercent + "%" + (isFullyGrown ? " §a✓" : "");
+            String growthLabel = "§eWachstum: " + growthPercent + "%";
             guiGraphics.pose().pushPose();
             guiGraphics.pose().scale(SCALE, SCALE, 1.0f);
-            guiGraphics.drawString(mc.font, growthLabel, (int)(HUD_X / SCALE), (int)(currentY / SCALE),
-                                 isFullyGrown ? 0x00FF00 : 0xFFFFFF);
+            guiGraphics.drawString(mc.font, growthLabel, (int)(HUD_X / SCALE), (int)(currentY / SCALE), 0xFFFFFF);
             guiGraphics.pose().popPose();
             currentY += 10;
 
-            drawProgressBar(guiGraphics, HUD_X, currentY, growthPercent, isFullyGrown);
-            currentY += BAR_HEIGHT + 4;
-
-            // Booster
-            String boosters = "";
-            if (plant.hasFertilizer()) boosters += "§6[Dünger] ";
-            if (plant.hasGrowthBooster()) boosters += "§e[Wachstum+] ";
-            if (plant.hasQualityBooster()) boosters += "§d[Qualität+]";
-
-            if (!boosters.isEmpty()) {
-                guiGraphics.pose().pushPose();
-                guiGraphics.pose().scale(SCALE * 0.9f, SCALE * 0.9f, 1.0f);
-                guiGraphics.drawString(mc.font, boosters.trim(), (int)(HUD_X / (SCALE * 0.9f)),
-                                     (int)(currentY / (SCALE * 0.9f)), 0xFFFFFF);
-                guiGraphics.pose().popPose();
-            }
+            drawProgressBar(guiGraphics, HUD_X, currentY, growthPercent, false);
         }
+    }
+
+    /**
+     * Prüft ob eine Pflanze erntebereit ist
+     */
+    private static boolean isPlantHarvestReady(PlantPotData potData) {
+        if (potData.hasTobaccoPlant() && potData.getPlant().isFullyGrown()) return true;
+        if (potData.hasCannabisPlant() && potData.getCannabisPlant().isFullyGrown()) return true;
+        if (potData.hasCocaPlant() && potData.getCocaPlant().isFullyGrown()) return true;
+        if (potData.hasPoppyPlant() && potData.getPoppyPlant().isFullyGrown()) return true;
+        if (potData.hasMushroomPlant() && potData.getMushroomPlant().canHarvest()) return true;
+        return false;
+    }
+
+    /**
+     * Gibt Pflanzen-Info als String zurück
+     */
+    private static String getPlantInfo(PlantPotData potData) {
+        if (potData.hasTobaccoPlant()) {
+            var plant = potData.getPlant();
+            return plant.getType().getColoredName() + " §7| " + plant.getQuality().getColoredName();
+        }
+        if (potData.hasCannabisPlant()) {
+            var plant = potData.getCannabisPlant();
+            return plant.getStrain().getColoredName() + " §7| " + plant.getQuality().getColoredName();
+        }
+        if (potData.hasCocaPlant()) {
+            var plant = potData.getCocaPlant();
+            return plant.getType().getColoredName() + " §7| " + plant.getQuality().getColoredName();
+        }
+        if (potData.hasPoppyPlant()) {
+            var plant = potData.getPoppyPlant();
+            return plant.getType().getColoredName() + " §7| " + plant.getQuality().getColoredName();
+        }
+        if (potData.hasMushroomPlant()) {
+            var plant = potData.getMushroomPlant();
+            String phase = plant.isIncubating() ? "§8Inkubation" : "§aFruchtung";
+            return plant.getType().getColoredName() + " §7| " + phase;
+        }
+        return "§7Unbekannt";
+    }
+
+    /**
+     * Gibt Wachstumsstufe zurück
+     */
+    private static int getPlantGrowthStage(PlantPotData potData) {
+        if (potData.hasTobaccoPlant()) return potData.getPlant().getGrowthStage();
+        if (potData.hasCannabisPlant()) return potData.getCannabisPlant().getGrowthStage();
+        if (potData.hasCocaPlant()) return potData.getCocaPlant().getGrowthStage();
+        if (potData.hasPoppyPlant()) return potData.getPoppyPlant().getGrowthStage();
+        if (potData.hasMushroomPlant()) return potData.getMushroomPlant().getGrowthStage();
+        return 0;
     }
 
     /**
@@ -248,10 +348,10 @@ public class TobaccoPotHudOverlay {
         }
 
         // Rahmen
-        guiGraphics.fill(x - 1, y - 1, x + BAR_WIDTH + 1, y, 0xAAFFFFFF); // oben
-        guiGraphics.fill(x - 1, y + BAR_HEIGHT, x + BAR_WIDTH + 1, y + BAR_HEIGHT + 1, 0xAAFFFFFF); // unten
-        guiGraphics.fill(x - 1, y, x, y + BAR_HEIGHT, 0xAAFFFFFF); // links
-        guiGraphics.fill(x + BAR_WIDTH, y, x + BAR_WIDTH + 1, y + BAR_HEIGHT, 0xAAFFFFFF); // rechts
+        guiGraphics.fill(x - 1, y - 1, x + BAR_WIDTH + 1, y, 0xAAFFFFFF);
+        guiGraphics.fill(x - 1, y + BAR_HEIGHT, x + BAR_WIDTH + 1, y + BAR_HEIGHT + 1, 0xAAFFFFFF);
+        guiGraphics.fill(x - 1, y, x, y + BAR_HEIGHT, 0xAAFFFFFF);
+        guiGraphics.fill(x + BAR_WIDTH, y, x + BAR_WIDTH + 1, y + BAR_HEIGHT, 0xAAFFFFFF);
     }
 
     /**
