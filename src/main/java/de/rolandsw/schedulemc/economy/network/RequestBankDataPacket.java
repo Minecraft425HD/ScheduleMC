@@ -50,11 +50,13 @@ public class RequestBankDataPacket {
         // Girokonto Balance
         double balance = EconomyManager.getBalance(playerUUID);
 
-        // Wallet Balance (Bargeld)
+        // Wallet Balance (Bargeld) - Durchsuche das gesamte Inventar
         double walletBalance = 0.0;
-        ItemStack wallet = player.getInventory().getItem(8);
-        if (wallet.getItem() instanceof CashItem) {
-            walletBalance = CashItem.getValue(wallet);
+        for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+            ItemStack stack = player.getInventory().getItem(i);
+            if (stack.getItem() instanceof CashItem) {
+                walletBalance += CashItem.getValue(stack);
+            }
         }
 
         // Sparkonto Balance
@@ -136,22 +138,21 @@ public class RequestBankDataPacket {
         // Send comprehensive data to client
         // ═══════════════════════════════════════════════════════════════════════════
 
-        // First send basic bank data (for compatibility)
-        SyncBankDataPacket basicPacket = new SyncBankDataPacket(balance, transactions, totalIncome, totalExpenses);
+        // Send full bank data (includes everything)
+        SyncFullBankDataPacket fullPacket = new SyncFullBankDataPacket(
+            balance,
+            walletBalance,
+            savingsBalance,
+            remainingTransferLimit,
+            maxTransferLimit,
+            transactions,
+            recurringPayments,
+            activeLoan
+        );
         de.rolandsw.schedulemc.npc.network.NPCNetworkHandler.INSTANCE.sendTo(
-            basicPacket,
+            fullPacket,
             player.connection.connection,
             net.minecraftforge.network.NetworkDirection.PLAY_TO_CLIENT
         );
-
-        // Also send full data via ATM sync (includes wallet)
-        SyncATMDataPacket atmPacket = new SyncATMDataPacket(balance, walletBalance, true, "");
-        EconomyNetworkHandler.INSTANCE.send(
-            net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> player),
-            atmPacket
-        );
-
-        // Update client cache directly with full data
-        // Note: This is done via the packets above - the client will receive both and update accordingly
     }
 }

@@ -451,12 +451,12 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         g.drawString(font, Component.translatable("gui.bank.amount_label").getString(), x + 15, y + 96, 0x808080, false);
 
         double balance = ClientBankDataCache.getBalance();
-        g.drawString(font, Component.translatable("gui.bank.available_balance").getString(), x + 15, y + 145, 0x606060, false);
-        g.drawString(font, String.format("%.2f€", balance), x + 140, y + 145, 0xFFD700, false);
+        g.drawString(font, Component.translatable("gui.bank.available_balance").getString(), x + 15, y + 160, 0x606060, false);
+        g.drawString(font, String.format("%.2f€", balance), x + 140, y + 160, 0xFFD700, false);
 
         double remaining = ClientBankDataCache.getRemainingTransferLimit();
-        g.drawString(font, Component.translatable("gui.bank.daily_limit").getString(), x + 15, y + 157, 0x606060, false);
-        g.drawString(font, String.format("%.2f€", remaining), x + 140, y + 157, remaining > 0 ? 0x00AA00 : 0xFF5555, false);
+        g.drawString(font, Component.translatable("gui.bank.daily_limit").getString(), x + 15, y + 172, 0x606060, false);
+        g.drawString(font, String.format("%.2f€", remaining), x + 140, y + 172, remaining > 0 ? 0x00AA00 : 0xFF5555, false);
     }
 
     private void renderHistorieTab(GuiGraphics g, int x, int y) {
