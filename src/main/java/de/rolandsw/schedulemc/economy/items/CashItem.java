@@ -168,7 +168,13 @@ public class CashItem extends Item {
     
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.translatable("tooltip.cash.view_at_atm"));
+        // Zeige aktuellen Wert aus ClientBankDataCache (wird vom Server synchronisiert)
+        if (level != null && level.isClientSide()) {
+            double value = de.rolandsw.schedulemc.economy.network.ClientBankDataCache.getWalletBalance();
+            tooltip.add(Component.translatable("tooltip.cash.balance", String.format("%.2f", value)));
+        } else {
+            tooltip.add(Component.translatable("tooltip.cash.balance", "?.??"));
+        }
         tooltip.add(Component.translatable("tooltip.cash.capacity_unlimited"));
         tooltip.add(Component.literal(""));
         tooltip.add(Component.translatable("tooltip.cash.locked_slot9"));
@@ -180,6 +186,19 @@ public class CashItem extends Item {
 
     @Override
     public Component getName(ItemStack stack) {
+        // Zeige Wert im Item-Namen nur wenn auf Client-Seite
+        try {
+            if (net.minecraft.client.Minecraft.getInstance().level != null) {
+                double value = de.rolandsw.schedulemc.economy.network.ClientBankDataCache.getWalletBalance();
+                if (value <= 0) {
+                    return Component.translatable("tooltip.cash.wallet_empty");
+                } else {
+                    return Component.translatable("tooltip.cash.wallet_filled", String.format("%.0f€", value));
+                }
+            }
+        } catch (Exception e) {
+            // Server-Seite oder Fehler - zeige generischen Namen
+        }
         return Component.translatable("item.schedulemc.cash");
     }
     

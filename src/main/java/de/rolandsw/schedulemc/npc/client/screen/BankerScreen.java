@@ -286,7 +286,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
             double amount = Double.parseDouble(giroDepositAmountInput.getValue());
             if (amount > 0) {
                 NPCNetworkHandler.sendToServer(new BankDepositPacket(amount));
-                this.onClose();
+                // GUI bleibt offen
             }
         } catch (NumberFormatException e) {
             // Ignore
@@ -298,7 +298,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
             double amount = Double.parseDouble(giroWithdrawAmountInput.getValue());
             if (amount > 0) {
                 NPCNetworkHandler.sendToServer(new BankWithdrawPacket(amount));
-                this.onClose();
+                // GUI bleibt offen
             }
         } catch (NumberFormatException e) {
             // Ignore
@@ -310,7 +310,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
             double amount = Double.parseDouble(savingsDepositAmountInput.getValue());
             if (amount > 0) {
                 NPCNetworkHandler.sendToServer(new SavingsDepositPacket(amount));
-                this.onClose();
+                // GUI bleibt offen
             }
         } catch (NumberFormatException e) {
             // Ignore
@@ -322,7 +322,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
             double amount = Double.parseDouble(savingsWithdrawAmountInput.getValue());
             if (amount > 0) {
                 NPCNetworkHandler.sendToServer(new SavingsWithdrawPacket(amount));
-                this.onClose();
+                // GUI bleibt offen
             }
         } catch (NumberFormatException e) {
             // Ignore
@@ -337,7 +337,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
             double amount = Double.parseDouble(transferAmountInput.getValue());
             if (amount > 0) {
                 NPCNetworkHandler.sendToServer(new BankTransferPacket(target, amount));
-                this.onClose();
+                // GUI bleibt offen
             }
         } catch (NumberFormatException e) {
             // Ignore
@@ -352,7 +352,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
             double amount = Double.parseDouble(recurringAmountInput.getValue());
             if (amount > 0) {
                 NPCNetworkHandler.sendToServer(new CreateRecurringPaymentPacket(recipient, amount, selectedInterval));
-                this.onClose();
+                // GUI bleibt offen
             }
         } catch (NumberFormatException e) {
             // Ignore
