@@ -74,6 +74,8 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
     private Button savingsWithdrawButton;
     private EditBox savingsDepositAmountInput;
     private EditBox savingsWithdrawAmountInput;
+    private Button savingsForceWithdrawCheckbox;
+    private boolean forceWithdrawEnabled = false;
 
     // Überweisung Tab Components
     private EditBox transferTargetInput;
@@ -182,6 +184,11 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
             handleSavingsWithdraw();
         }).bounds(x + 110, y + 140, 95, 18).build());
 
+        savingsForceWithdrawCheckbox = addRenderableWidget(Button.builder(Component.literal("[ ]"), button -> {
+            forceWithdrawEnabled = !forceWithdrawEnabled;
+            button.setMessage(Component.literal(forceWithdrawEnabled ? "[✓]" : "[ ]"));
+        }).bounds(x + 210, y + 140, 20, 18).build());
+
         // Überweisung Tab Components
         transferTargetInput = new EditBox(this.font, x + 15, y + 70, 190, 18, Component.translatable("gui.common.player_name"));
         transferTargetInput.setMaxLength(16);
@@ -272,6 +279,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         savingsDepositButton.visible = isSparkonto;
         savingsWithdrawAmountInput.visible = isSparkonto;
         savingsWithdrawButton.visible = isSparkonto;
+        savingsForceWithdrawCheckbox.visible = isSparkonto;
 
         transferTargetInput.visible = isUeberweisung;
         transferAmountInput.visible = isUeberweisung;
@@ -326,7 +334,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         try {
             double amount = Double.parseDouble(savingsWithdrawAmountInput.getValue());
             if (amount > 0) {
-                NPCNetworkHandler.sendToServer(new SavingsWithdrawPacket(amount));
+                NPCNetworkHandler.sendToServer(new SavingsWithdrawPacket(amount, forceWithdrawEnabled));
                 // GUI bleibt offen
             }
         } catch (NumberFormatException e) {
@@ -470,6 +478,9 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
 
         g.drawString(font, Component.translatable("gui.bank.deposit_from_checking").getString(), x + 15, y + 85, 0x808080, false);
         g.drawString(font, Component.translatable("gui.bank.withdraw_to_checking").getString(), x + 15, y + 128, 0x808080, false);
+
+        // Label für Checkbox
+        g.drawString(font, "10%", x + 235, y + 144, 0xFF5555, false);
 
         g.drawString(font, Component.translatable("gui.bank.interest").getString(), x + 15, y + 170, 0x606060, false);
         g.drawString(font, Component.translatable("gui.bank.minimum").getString(), x + 15, y + 182, 0x606060, false);

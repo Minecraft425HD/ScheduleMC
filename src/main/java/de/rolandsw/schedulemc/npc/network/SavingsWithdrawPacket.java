@@ -18,17 +18,20 @@ import java.util.function.Supplier;
  */
 public class SavingsWithdrawPacket {
     private final double amount;
+    private final boolean forced;
 
-    public SavingsWithdrawPacket(double amount) {
+    public SavingsWithdrawPacket(double amount, boolean forced) {
         this.amount = amount;
+        this.forced = forced;
     }
 
     public void encode(FriendlyByteBuf buf) {
         buf.writeDouble(amount);
+        buf.writeBoolean(forced);
     }
 
     public static SavingsWithdrawPacket decode(FriendlyByteBuf buf) {
-        return new SavingsWithdrawPacket(buf.readDouble());
+        return new SavingsWithdrawPacket(buf.readDouble(), buf.readBoolean());
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
@@ -55,8 +58,8 @@ public class SavingsWithdrawPacket {
             // HINWEIS: Balance-Prüfung erfolgt atomar in SavingsAccountManager.withdrawFromSavings()
             // Separate Prüfung entfernt wegen TOCTOU Race Condition
 
-            // Versuche Abhebung (erzwingen = false, damit Sperrfrist geprüft wird)
-            if (manager.withdrawFromSavings(player.getUUID(), account.getAccountId(), amount, false)) {
+            // Versuche Abhebung (erzwingen = forced Parameter von Client)
+            if (manager.withdrawFromSavings(player.getUUID(), account.getAccountId(), amount, forced)) {
                 // OPTIMIERT: Hole aktuelle Werte NACH der Transaktion
                 double newSavingsBalance = account.getBalance();
                 double newCheckingBalance = EconomyManager.getBalance(player.getUUID());
