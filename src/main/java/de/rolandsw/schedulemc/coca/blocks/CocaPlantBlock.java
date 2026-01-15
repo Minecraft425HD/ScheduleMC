@@ -299,22 +299,42 @@ public class CocaPlantBlock extends Block {
 
     /**
      * Verifiziert und korrigiert die Ressourcen nach der Ernte
-     * Stellt sicher, dass exakt 100 Wasser und 33 Erde verbraucht wurden
-     * Entfernt den Rest falls noch übrig
+     * GARANTIERT dass EXAKT 100 Wasser und 33 Erde verbraucht wurden
+     * Korrigiert in beide Richtungen (zu viel UND zu wenig verbraucht)
      */
     private void verifyAndCorrectResources(de.rolandsw.schedulemc.production.data.PlantPotData potData,
                                            int targetWater, int targetSoil) {
-        // Hole aktuellen Stand
-        double remainingWater = potData.getWaterLevelExact();
-        double remainingSoil = potData.getSoilLevelExact();
+        int maxWater = potData.getMaxWater();
+        int maxSoil = potData.getMaxSoil();
 
-        // Entferne exakt targetWater (100) Wasser, oder so viel wie noch da ist
-        double waterToRemove = Math.min(targetWater, remainingWater);
-        potData.setWaterLevel(remainingWater - waterToRemove);
+        double currentWater = potData.getWaterLevelExact();
+        double currentSoil = potData.getSoilLevelExact();
 
-        // Entferne exakt targetSoil (33) Erde, oder so viel wie noch da ist
-        double soilToRemove = Math.min(targetSoil, remainingSoil);
-        potData.setSoilLevel(remainingSoil - soilToRemove);
+        // Berechne wie viel TATSÄCHLICH verbraucht wurde
+        double actualWaterConsumed = maxWater - currentWater;
+        double actualSoilConsumed = maxSoil - currentSoil;
+
+        // ═══════════════════════════════════════════════════════
+        // WASSER: Garantiere EXAKT 100 verbraucht
+        // ═══════════════════════════════════════════════════════
+        double waterDifference = targetWater - actualWaterConsumed;
+        if (Math.abs(waterDifference) > 0.001) {  // Nur wenn Abweichung vorhanden
+            // Zu wenig verbraucht → noch mehr abziehen
+            // Zu viel verbraucht → etwas zurückgeben
+            double correctedWater = currentWater - waterDifference;
+            potData.setWaterLevel(Math.max(0, correctedWater));
+        }
+
+        // ═══════════════════════════════════════════════════════
+        // ERDE: Garantiere EXAKT 33 verbraucht
+        // ═══════════════════════════════════════════════════════
+        double soilDifference = targetSoil - actualSoilConsumed;
+        if (Math.abs(soilDifference) > 0.001) {  // Nur wenn Abweichung vorhanden
+            // Zu wenig verbraucht → noch mehr abziehen
+            // Zu viel verbraucht → etwas zurückgeben
+            double correctedSoil = currentSoil - soilDifference;
+            potData.setSoilLevel(Math.max(0, correctedSoil));
+        }
     }
 
     /**
