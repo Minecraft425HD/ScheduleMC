@@ -285,7 +285,7 @@ public class PoppyPlantBlock extends Block {
     /**
      * Verifiziert und korrigiert die Ressourcen nach der Ernte
      * WASSER: Garantiert EXAKT 100 verbraucht (mit Korrektur)
-     * ERDE: Pauschal EXAKT 33 abziehen (garantiert korrekt!)
+     * ERDE: Pauschal EXAKT 33 abziehen + HUD-Basis synchronisieren
      */
     private void verifyAndCorrectResources(de.rolandsw.schedulemc.production.data.PlantPotData potData,
                                            int targetWater, int targetSoil) {
@@ -308,12 +308,16 @@ public class PoppyPlantBlock extends Block {
         }
 
         // ═══════════════════════════════════════════════════════
-        // ERDE: Pauschal EXAKT 33 abziehen
+        // ERDE: Pauschal EXAKT 33 abziehen + HUD-Basis sync
         // ═══════════════════════════════════════════════════════
-        // Während Wachstum wird Erde im HUD angezeigt (visuell schön)
-        // Bei Ernte: Pauschal -33 Erde (mathematisch garantiert!)
+        // WICHTIG: Während Wachstum bleibt soilLevel konstant!
+        // → Im HUD wird visuell eine Reduzierung angezeigt (optisch)
+        // → Bei Ernte: Jetzt tatsächlich -33 Erde abziehen
         double newSoilLevel = currentSoil - targetSoil;
         potData.setSoilLevel(Math.max(0, newSoilLevel));
+
+        // HUD-Basis synchronisieren: Neuer Wert wird Basis für nächste Pflanze
+        potData.setSoilLevelAtPlanting(Math.max(0, newSoilLevel));
     }
 
     private static Block getPlantBlockForType(PoppyType type) {
