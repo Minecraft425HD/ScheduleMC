@@ -205,7 +205,12 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         }).bounds(x + 200, y + 45, 15, 18).build());
 
         scrollDownButton = addRenderableWidget(Button.builder(Component.literal("▼"), button -> {
-            transactionScrollOffset++;
+            List<Transaction> transactions = ClientBankDataCache.getTransactions();
+            int maxDisplay = 8;
+            int maxScroll = Math.max(0, transactions.size() - maxDisplay);
+            if (transactionScrollOffset < maxScroll) {
+                transactionScrollOffset++;
+            }
         }).bounds(x + 200, y + 155, 15, 18).build());
 
         // Daueraufträge Tab Components
