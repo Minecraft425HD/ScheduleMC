@@ -743,9 +743,11 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
                 // Cache den NPC-Namen für spätere Verwendung
                 ClientWarehouseNPCCache.putNPC(npc.getUUID(), npc.getNpcName());
 
-                // Prüfe ob NPC bereits mit DIESEM Warehouse verknüpft ist
-                // Verwende die Warehouse-Liste als Source of Truth, nicht die NPC-Daten
-                if (!linkedSellers.contains(npc.getUUID())) {
+                // Prüfe ob NPC bereits mit IRGENDEINEM Warehouse verknüpft ist
+                // Ein NPC ist nur verfügbar wenn:
+                // 1. Er nicht mit diesem Warehouse verknüpft ist UND
+                // 2. Er kein assignedWarehouse hat (nicht mit einem anderen Warehouse verknüpft)
+                if (!linkedSellers.contains(npc.getUUID()) && npc.getNpcData().getAssignedWarehouse() == null) {
                     availableNpcs.add(npc);
                 }
             }
