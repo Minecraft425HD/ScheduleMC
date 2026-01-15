@@ -55,6 +55,9 @@ public class RequestBankDataPacket {
         ItemStack wallet = player.getInventory().getItem(8); // Slot 9 = Index 8
         if (wallet.getItem() instanceof CashItem) {
             walletBalance = CashItem.getValue(wallet);
+            System.out.println("[BankDataSync] Player " + player.getName().getString() + " wallet balance: " + walletBalance);
+        } else {
+            System.out.println("[BankDataSync] Player " + player.getName().getString() + " has no wallet in slot 8! Item: " + wallet.getItem());
         }
 
         // Sparkonto Balance
