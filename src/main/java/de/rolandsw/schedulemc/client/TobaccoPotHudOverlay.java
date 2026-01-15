@@ -36,9 +36,9 @@ public class TobaccoPotHudOverlay {
     private static final float SCALE = 0.7f;
     private static final int HUD_X = 10;
     private static final int HUD_Y = 10;
-    private static final int BOX_WIDTH = 140;
-    private static final int LINE_HEIGHT = 10;
     private static final int PADDING = 4;
+    private static final int BOX_WIDTH = PADDING + BAR_WIDTH + PADDING; // 4px links + Balken + 4px rechts = 88px
+    private static final int LINE_HEIGHT = 10;
 
     @SubscribeEvent
     public static void onRenderGuiOverlay(RenderGuiOverlayEvent.Post event) {
