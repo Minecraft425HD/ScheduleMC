@@ -226,9 +226,18 @@ public class TobaccoPotHudOverlay {
                 lightSource = " §7(Growlight " + growLight.getTier().name() + ")";
                 isGrowLight = true;
             } else {
-                // Kein Growlight → Zeige Sonnenlicht
-                lightLevel = mc.level.getBrightness(net.minecraft.world.level.LightLayer.SKY, growLightPos);
-                lightSource = " §7(Sonnenlicht)";
+                // Kein Growlight → Zeige tatsächliches Lichtlevel (kombiniert aus SKY + BLOCK)
+                lightLevel = mc.level.getMaxLocalRawBrightness(growLightPos);
+
+                // Prüfe ob es Sonnenlicht ist (SKY > BLOCK)
+                int skyLight = mc.level.getBrightness(net.minecraft.world.level.LightLayer.SKY, growLightPos);
+                int blockLight = mc.level.getBrightness(net.minecraft.world.level.LightLayer.BLOCK, growLightPos);
+
+                if (skyLight > blockLight) {
+                    lightSource = " §7(Sonnenlicht)";
+                } else {
+                    lightSource = " §7(Künstlich)";
+                }
             }
 
             int minLight = de.rolandsw.schedulemc.config.ModConfigHandler.TOBACCO.MIN_LIGHT_LEVEL.get();
