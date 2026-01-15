@@ -132,6 +132,11 @@ public class CreateRecurringPaymentPacket {
 
             if (manager.createRecurringPayment(player.getUUID(), recipientUUID, amount,
                 interval.getDaysInterval(), description)) {
+                // Aktualisiere Client-Daten
+                de.rolandsw.schedulemc.economy.network.RequestBankDataPacket requestPacket =
+                    new de.rolandsw.schedulemc.economy.network.RequestBankDataPacket();
+                requestPacket.handle(() -> ctx.get());
+
                 // Erfolgs-Nachricht
                 player.sendSystemMessage(Component.literal("═══════════════════════════════")
                     .withStyle(ChatFormatting.GREEN));

@@ -61,6 +61,11 @@ public class SavingsDepositPacket {
             // Wenn kein Sparkonto existiert, erstelle ein neues
             if (accounts.isEmpty()) {
                 if (manager.createSavingsAccount(player.getUUID(), amount)) {
+                    // Aktualisiere Client-Daten
+                    de.rolandsw.schedulemc.economy.network.RequestBankDataPacket requestPacket =
+                        new de.rolandsw.schedulemc.economy.network.RequestBankDataPacket();
+                    requestPacket.handle(() -> ctx.get());
+
                     // Erfolgs-Nachricht
                     player.sendSystemMessage(Component.literal("═══════════════════════════════")
                         .withStyle(ChatFormatting.GREEN));
@@ -95,6 +100,11 @@ public class SavingsDepositPacket {
                 // Auf existierendes Sparkonto einzahlen
                 SavingsAccount account = accounts.get(0);
                 if (manager.depositToSavings(player.getUUID(), account.getAccountId(), amount)) {
+                    // Aktualisiere Client-Daten
+                    de.rolandsw.schedulemc.economy.network.RequestBankDataPacket requestPacket =
+                        new de.rolandsw.schedulemc.economy.network.RequestBankDataPacket();
+                    requestPacket.handle(() -> ctx.get());
+
                     // Erfolgs-Nachricht
                     player.sendSystemMessage(Component.literal("═══════════════════════════════")
                         .withStyle(ChatFormatting.GREEN));

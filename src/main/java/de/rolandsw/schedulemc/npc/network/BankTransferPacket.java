@@ -106,6 +106,11 @@ public class BankTransferPacket {
                 // Update Transfer-Tracker
                 tracker.checkAndUpdateLimit(player.getUUID(), amount);
 
+                // Aktualisiere Client-Daten für Sender
+                de.rolandsw.schedulemc.economy.network.RequestBankDataPacket requestPacket =
+                    new de.rolandsw.schedulemc.economy.network.RequestBankDataPacket();
+                requestPacket.handle(() -> ctx.get());
+
                 // Erfolgs-Nachricht an Sender
                 player.sendSystemMessage(Component.literal("═══════════════════════════════")
                     .withStyle(ChatFormatting.GREEN));
