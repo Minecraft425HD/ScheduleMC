@@ -521,7 +521,9 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         }
 
         if (transactions.size() > maxDisplay) {
-            g.drawString(font, String.format("%d/%d", startIndex + 1, transactions.size()), x + 165, y + 160, 0x808080, false);
+            // Zeige "Start-Ende von Gesamt" statt "Start/Gesamt"
+            String displayText = String.format("%d-%d/%d", startIndex + 1, endIndex, transactions.size());
+            g.drawString(font, displayText, x + 155, y + 160, 0x808080, false);
         }
     }
 
