@@ -119,18 +119,7 @@ public class CannabisPlantBlock extends Block {
         return belowState.getBlock() instanceof PlantPotBlock;
     }
 
-    /**
-     * Rechtsklick-Ernte
-     */
-    @Override
-    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player,
-                                 InteractionHand hand, BlockHitResult hit) {
-        if (level.isClientSide) return InteractionResult.SUCCESS;
 
-        // Nur untere Hälfte kann geerntet werden
-        if (state.getValue(HALF) != DoubleBlockHalf.LOWER) {
-            return InteractionResult.PASS;
-        }
 
         // Finde Topf (unter der Pflanze)
         BlockPos potPos = pos.below();
@@ -195,26 +184,7 @@ public class CannabisPlantBlock extends Block {
         return InteractionResult.PASS;
     }
 
-    /**
-     * Verifiziert und korrigiert die Ressourcen nach der Ernte
-     */
-    private void verifyAndCorrectResources(de.rolandsw.schedulemc.production.data.PlantPotData potData,
-                                           int targetWater, int targetSoil) {
-        double remainingWater = potData.getWaterLevelExact();
-        double remainingSoil = potData.getSoilLevelExact();
-        int maxWater = potData.getMaxWater();
-        double consumedWater = maxWater - remainingWater;
-        double consumedSoil = targetSoil - remainingSoil;
-        double waterDiff = targetWater - consumedWater;
-        double soilDiff = targetSoil - consumedSoil;
 
-        if (Math.abs(waterDiff) > 0.01) {
-            potData.setWaterLevel(Math.max(0, remainingWater - waterDiff));
-        }
-        if (Math.abs(soilDiff) > 0.01) {
-            potData.setSoilLevel(Math.max(0, remainingSoil - soilDiff));
-        }
-    }
 
     /**
      * Drops beim Abbauen
@@ -296,10 +266,12 @@ public class CannabisPlantBlock extends Block {
     /**
      * Wird aufgerufen wenn die Pflanze abgebaut wird - entfernt sie aus dem Topf
      */
+    /**
+     * Linksklick-Ernte - wird aufgerufen wenn die Pflanze abgebaut wird
+     * Nur möglich wenn die Pflanze erntebereit ist!
+     */
     @Override
-    public void playerWillDestroy(Level level, BlockPos pos, BlockState state, net.minecraft.world.entity.player.Player player) {
-        super.playerWillDestroy(level, pos, state, player);
-
+    public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         if (!level.isClientSide) {
             DoubleBlockHalf half = state.getValue(HALF);
             BlockPos potPos;
@@ -310,17 +282,72 @@ public class CannabisPlantBlock extends Block {
             } else {
                 // Obere Hälfte wurde abgebaut - Topf ist 2 Blöcke darunter
                 potPos = pos.below(2);
+                // Bei oberer Hälfte: normale Destroy-Logik (entfernt Pflanze aus Topf)
+                super.playerWillDestroy(level, pos, state, player);
+                return;
             }
 
+            // Nur untere Hälfte kann geerntet werden
             var be = level.getBlockEntity(potPos);
             if (be instanceof PlantPotBlockEntity potBE) {
                 var potData = potBE.getPotData();
-                if (potData.hasPlant()) {
+                if (potData.hasCannabisPlant()) {
+                    var plant = potData.getCannabisPlant();
+
+                    // Prüfe ob Pflanze erntebereit ist
+                    if (plant.isFullyGrown()) {
+                        // Verifikation und Korrektur der Ressourcen
+                        verifyAndCorrectResources(potData, 100, 33);
+
+                        // Ernte Cannabis
+                        var harvested = potData.harvestCannabis();
+                        if (harvested != null) {
+                            // Golden Pot Qualitäts-Boost
+                            var quality = harvested.getQuality();
+                            var potType = ((PlantPotBlock) level.getBlockState(potPos).getBlock()).getPotType();
+                            if (potType.hasQualityBoost()) {
+                                quality = quality.upgrade();
+                            }
+
+                            ItemStack items = FreshBudItem.create(
+                                harvested.getStrain(),
+                                quality,
+                                harvested.getHarvestYield()
+                            );
+
+                            // Droppe Item an Spieler-Position
+                            player.getInventory().add(items);
+
+                            // Falls Inventar voll, droppe auf Boden
+                            if (!items.isEmpty()) {
+                                Block.popResource(level, pos, items);
+                            }
+
+                            potBE.setChanged();
+                            level.sendBlockUpdated(potPos, level.getBlockState(potPos), level.getBlockState(potPos), 3);
+
+                            String qualityBoostMsg = potType.hasQualityBoost() ? " §d(+1 Qualität!)" : "";
+                            player.displayClientMessage(Component.translatable(
+                                "block.plant_pot.cannabis_harvested",
+                                harvested.getHarvestYield(),
+                                quality.getColoredName()
+                            ).append(qualityBoostMsg), true);
+
+                            player.playSound(net.minecraft.sounds.SoundEvents.CROP_BREAK, 1.0f, 1.0f);
+                        }
+                    } else {
+                        // Nicht erntebereit - zeige Warnung aber erlaube Abbauen
+                        player.displayClientMessage(Component.translatable(
+                            "block.plant_pot.cannabis_not_fully_grown",
+                            (plant.getGrowthStage() * 100 / 7)
+                        ), true);
+                    }
+
                     // Entferne Pflanze aus Topf
                     potData.clearPlant();
                     potBE.setChanged();
 
-                    // WICHTIG: Client-Update senden!
+                    // Client-Update senden
                     BlockState potState = level.getBlockState(potPos);
                     level.sendBlockUpdated(potPos, potState, potState, 3);
                 }
@@ -334,6 +361,41 @@ public class CannabisPlantBlock extends Block {
                     level.destroyBlock(lowerPos, false); // false = keine Drops
                 }
             }
+        }
+
+        super.playerWillDestroy(level, pos, state, player);
+    }
+
+    /**
+     * Verifiziert und korrigiert die Ressourcen nach der Ernte
+     * Stellt sicher, dass exakt 100 Wasser und 33 Erde verbraucht wurden
+     */
+    private void verifyAndCorrectResources(de.rolandsw.schedulemc.production.data.PlantPotData potData,
+                                           int targetWater, int targetSoil) {
+        // Berechne was noch übrig ist
+        double remainingWater = potData.getWaterLevelExact();
+        double remainingSoil = potData.getSoilLevelExact();
+
+        // Berechne was hätte verbraucht werden sollen
+        int maxWater = potData.getMaxWater();
+        int maxSoil = targetSoil; // 33 Erde pro Pflanze
+
+        // Berechne was tatsächlich verbraucht wurde
+        double consumedWater = maxWater - remainingWater;
+        double consumedSoil = maxSoil - remainingSoil;
+
+        // Korrigiere falls nötig
+        double waterDiff = targetWater - consumedWater;
+        double soilDiff = targetSoil - consumedSoil;
+
+        if (Math.abs(waterDiff) > 0.01) {
+            // Wasser korrigieren
+            potData.setWaterLevel(Math.max(0, remainingWater - waterDiff));
+        }
+
+        if (Math.abs(soilDiff) > 0.01) {
+            // Erde korrigieren (nur die Differenz entfernen, nicht alles!)
+            potData.setSoilLevel(Math.max(0, remainingSoil - soilDiff));
         }
     }
 
