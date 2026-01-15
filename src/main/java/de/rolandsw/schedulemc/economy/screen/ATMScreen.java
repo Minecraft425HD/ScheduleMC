@@ -141,11 +141,11 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu> {
         double atmFee = 5.0;
 
         if (isDepositMode) {
-            // Bei Einzahlen wird die Gebühr vom Bargeld abgezogen
-            // Beispiel: 100€ Bargeld → 95€ aufs Konto, 5€ Gebühr
-            double maxDeposit = Math.max(0, walletBalance - atmFee);
-            if (amount > maxDeposit) {
-                amount = maxDeposit;
+            // Bei Einzahlen wird das gesamte Bargeld eingezahlt
+            // Die Gebühr wird dann vom eingezahlten Betrag auf dem Konto abgezogen
+            // Beispiel: 100€ Bargeld → 100€ aufs Konto → 5€ Gebühr abgezogen → 95€ Kontostand
+            if (amount > walletBalance) {
+                amount = walletBalance;
             }
         } else {
             // Bei Abheben wird die Gebühr zusätzlich vom Konto abgezogen
