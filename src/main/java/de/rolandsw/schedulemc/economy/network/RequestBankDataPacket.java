@@ -50,13 +50,11 @@ public class RequestBankDataPacket {
         // Girokonto Balance
         double balance = EconomyManager.getBalance(playerUUID);
 
-        // Wallet Balance (Bargeld) - Durchsuche das gesamte Inventar
+        // Wallet Balance (Bargeld) - Nur aus Slot 8 (Geldbörse)
         double walletBalance = 0.0;
-        for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
-            ItemStack stack = player.getInventory().getItem(i);
-            if (stack.getItem() instanceof CashItem) {
-                walletBalance += CashItem.getValue(stack);
-            }
+        ItemStack wallet = player.getInventory().getItem(8); // Slot 9 = Index 8
+        if (wallet.getItem() instanceof CashItem) {
+            walletBalance = CashItem.getValue(wallet);
         }
 
         // Sparkonto Balance
