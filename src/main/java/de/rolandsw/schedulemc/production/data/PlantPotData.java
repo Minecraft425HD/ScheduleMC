@@ -16,10 +16,14 @@ import de.rolandsw.schedulemc.tobacco.data.TobaccoPlantData;
  * Speichert Daten eines universellen Pflanzen-Topfes
  * Unterstützt: Tabak, Cannabis, Koka, Mohn und Pilze
  *
- * Erde-System:
- * - Jede Pflanze verbraucht 33 Erde während des Wachstums
- * - Resterde bleibt im Topf für die nächste Pflanze
- * - Erdsäcke fügen immer 33 Erde hinzu
+ * Ressourcen-System:
+ * - PFLANZEN (Tabak/Cannabis/Koka/Mohn): Verwenden ERDE
+ *   - Jede Pflanze verbraucht 33 Erde während des Wachstums
+ *   - Resterde bleibt im Topf für die nächste Pflanze
+ *   - Erdsäcke fügen immer 33 Erde hinzu
+ * - PILZE: Verwenden MIST statt Erde
+ *   - Mistsäcke fügen Substrat hinzu (kein Erdsack!)
+ *   - Mist wird beim Impfen mit Sporen benötigt
  */
 public class PlantPotData {
 

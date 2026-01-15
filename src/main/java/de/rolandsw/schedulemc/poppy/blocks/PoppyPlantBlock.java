@@ -2,10 +2,15 @@ package de.rolandsw.schedulemc.poppy.blocks;
 
 import de.rolandsw.schedulemc.poppy.PoppyType;
 import de.rolandsw.schedulemc.poppy.items.PoppyPodItem;
+import de.rolandsw.schedulemc.production.blockentity.PlantPotBlockEntity;
 import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
 import de.rolandsw.schedulemc.production.blocks.PlantPotBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -20,6 +25,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
@@ -110,6 +116,93 @@ public class PoppyPlantBlock extends Block {
         BlockPos belowPos = pos.below();
         BlockState belowState = level.getBlockState(belowPos);
         return belowState.getBlock() instanceof PlantPotBlock;
+    }
+
+    /**
+     * Rechtsklick-Ernte
+     */
+    @Override
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player,
+                                 InteractionHand hand, BlockHitResult hit) {
+        if (level.isClientSide) return InteractionResult.SUCCESS;
+
+        if (state.getValue(HALF) != DoubleBlockHalf.LOWER) {
+            return InteractionResult.PASS;
+        }
+
+        BlockPos potPos = pos.below();
+        var be = level.getBlockEntity(potPos);
+        if (!(be instanceof PlantPotBlockEntity potBE)) {
+            return InteractionResult.PASS;
+        }
+
+        var potData = potBE.getPotData();
+        if (!potData.hasPoppyPlant()) {
+            return InteractionResult.PASS;
+        }
+
+        var plant = potData.getPoppyPlant();
+
+        if (!plant.isFullyGrown()) {
+            player.displayClientMessage(Component.translatable(
+                "block.plant_pot.poppy_not_fully_grown",
+                (plant.getGrowthStage() * 100 / 7)
+            ), true);
+            return InteractionResult.FAIL;
+        }
+
+        verifyAndCorrectResources(potData, 100, 33);
+
+        var harvested = potData.harvestPoppy();
+        if (harvested != null) {
+            var quality = harvested.getQuality();
+            var potType = ((PlantPotBlock) level.getBlockState(potPos).getBlock()).getPotType();
+            if (potType.hasQualityBoost()) {
+                quality = quality.upgrade();
+            }
+
+            ItemStack pods = PoppyPodItem.create(
+                harvested.getType(),
+                quality,
+                harvested.getHarvestYield()
+            );
+
+            player.getInventory().add(pods);
+            potBE.setChanged();
+            level.sendBlockUpdated(potPos, level.getBlockState(potPos), level.getBlockState(potPos), 3);
+
+            removePlant(level, potPos);
+
+            String qualityBoostMsg = potType.hasQualityBoost() ? " §d(+1 Qualität!)" : "";
+            player.displayClientMessage(Component.translatable(
+                "block.plant_pot.poppy_harvested",
+                harvested.getHarvestYield(),
+                quality.getColoredName()
+            ).append(qualityBoostMsg), true);
+
+            player.playSound(net.minecraft.sounds.SoundEvents.CROP_BREAK, 1.0f, 1.0f);
+            return InteractionResult.SUCCESS;
+        }
+
+        return InteractionResult.PASS;
+    }
+
+    private void verifyAndCorrectResources(de.rolandsw.schedulemc.production.data.PlantPotData potData,
+                                           int targetWater, int targetSoil) {
+        double remainingWater = potData.getWaterLevelExact();
+        double remainingSoil = potData.getSoilLevelExact();
+        int maxWater = potData.getMaxWater();
+        double consumedWater = maxWater - remainingWater;
+        double consumedSoil = targetSoil - remainingSoil;
+        double waterDiff = targetWater - consumedWater;
+        double soilDiff = targetSoil - consumedSoil;
+
+        if (Math.abs(waterDiff) > 0.01) {
+            potData.setWaterLevel(Math.max(0, remainingWater - waterDiff));
+        }
+        if (Math.abs(soilDiff) > 0.01) {
+            potData.setSoilLevel(Math.max(0, remainingSoil - soilDiff));
+        }
     }
 
     @Override
