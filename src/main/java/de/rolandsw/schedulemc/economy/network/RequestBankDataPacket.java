@@ -81,7 +81,7 @@ public class RequestBankDataPacket {
         double totalExpenses = 0.0;
         TransactionHistory history = TransactionHistory.getInstance();
         if (history != null) {
-            transactions = history.getRecentTransactions(playerUUID, 20);
+            transactions = history.getRecentTransactions(playerUUID, 100);  // Erhöht von 20 auf 100
             totalIncome = history.getTotalIncome(playerUUID);
             totalExpenses = history.getTotalExpenses(playerUUID);
         }
