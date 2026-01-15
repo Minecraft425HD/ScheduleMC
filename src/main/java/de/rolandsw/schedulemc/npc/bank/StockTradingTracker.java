@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.npc.bank;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import de.rolandsw.schedulemc.achievement.AchievementManager;
+import de.rolandsw.schedulemc.achievement.AchievementTracker;
 import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
 import de.rolandsw.schedulemc.util.GsonHelper;
 import net.minecraft.server.MinecraftServer;
@@ -76,6 +77,13 @@ public class StockTradingTracker extends AbstractPersistenceManager<Map<UUID, St
 
     /**
      * Registriert einen Verkauf und berechnet Gewinn/Verlust
+     *
+     * WICHTIG - Achievement Integration:
+     * - Trading-Gewinne triggern BIG_SPENDER (Gesamt-Verdienst)
+     * - FIRST_EURO, RICH, WEALTHY, MILLIONAIRE werden automatisch getriggert,
+     *   da der Gewinn via EconomyManager.deposit() ins Geld eingezahlt wird
+     *   und AchievementTracker alle 60s den Balance-Check macht
+     *
      * @return Gewinn (positiv) oder Verlust (negativ)
      */
     public double recordSale(UUID playerUUID, Item item, int quantity, double pricePerUnit) {
@@ -118,6 +126,10 @@ public class StockTradingTracker extends AbstractPersistenceManager<Map<UUID, St
                 achievementManager.setProgress(playerUUID, "PROFIT_1K", data.totalProfit);
                 achievementManager.setProgress(playerUUID, "PROFIT_10K", data.totalProfit);
                 achievementManager.setProgress(playerUUID, "PROFIT_MASTER", data.totalProfit);
+
+                // WICHTIG: Trading-Gewinne zählen auch als "Geld verdient"
+                // Dies triggert BIG_SPENDER Achievement (Gesamt-Verdienst)
+                AchievementTracker.trackMoneyEarned(playerUUID, totalProfit);
             }
 
             // Verlust Achievement (als Fun Achievement)
