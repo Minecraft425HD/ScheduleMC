@@ -284,22 +284,40 @@ public class PoppyPlantBlock extends Block {
 
     /**
      * Verifiziert und korrigiert die Ressourcen nach der Ernte
-     * Stellt sicher, dass exakt 100 Wasser und 33 Erde verbraucht wurden
-     * Entfernt den Rest falls noch übrig
+     * WASSER: Garantiert EXAKT 100 verbraucht (mit Korrektur)
+     * ERDE: Pauschal EXAKT 33 abziehen + HUD-Basis synchronisieren
      */
     private void verifyAndCorrectResources(de.rolandsw.schedulemc.production.data.PlantPotData potData,
                                            int targetWater, int targetSoil) {
-        // Hole aktuellen Stand
-        double remainingWater = potData.getWaterLevelExact();
-        double remainingSoil = potData.getSoilLevelExact();
+        int maxWater = potData.getMaxWater();
+        double currentWater = potData.getWaterLevelExact();
+        double currentSoil = potData.getSoilLevelExact();
 
-        // Entferne exakt targetWater (100) Wasser, oder so viel wie noch da ist
-        double waterToRemove = Math.min(targetWater, remainingWater);
-        potData.setWaterLevel(remainingWater - waterToRemove);
+        // Berechne wie viel Wasser TATSÄCHLICH verbraucht wurde
+        double actualWaterConsumed = maxWater - currentWater;
 
-        // Entferne exakt targetSoil (33) Erde, oder so viel wie noch da ist
-        double soilToRemove = Math.min(targetSoil, remainingSoil);
-        potData.setSoilLevel(remainingSoil - soilToRemove);
+        // ═══════════════════════════════════════════════════════
+        // WASSER: Garantiere EXAKT 100 verbraucht
+        // ═══════════════════════════════════════════════════════
+        double waterDifference = targetWater - actualWaterConsumed;
+        if (Math.abs(waterDifference) > 0.001) {
+            // Zu wenig verbraucht → noch mehr abziehen
+            // Zu viel verbraucht → etwas zurückgeben
+            double correctedWater = currentWater - waterDifference;
+            potData.setWaterLevel(Math.max(0, correctedWater));
+        }
+
+        // ═══════════════════════════════════════════════════════
+        // ERDE: Pauschal EXAKT 33 abziehen + HUD-Basis sync
+        // ═══════════════════════════════════════════════════════
+        // WICHTIG: Während Wachstum bleibt soilLevel konstant!
+        // → Im HUD wird visuell eine Reduzierung angezeigt (optisch)
+        // → Bei Ernte: Jetzt tatsächlich -33 Erde abziehen
+        double newSoilLevel = currentSoil - targetSoil;
+        potData.setSoilLevel(Math.max(0, newSoilLevel));
+
+        // HUD-Basis synchronisieren: Neuer Wert wird Basis für nächste Pflanze
+        potData.setSoilLevelAtPlanting(Math.max(0, newSoilLevel));
     }
 
     private static Block getPlantBlockForType(PoppyType type) {

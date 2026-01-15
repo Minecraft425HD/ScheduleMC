@@ -222,7 +222,7 @@ public class TobaccoPotHudOverlay {
         currentY += BAR_HEIGHT + 2;
 
         // Erde/Substrat
-        int currentSoil = potData.getSoilLevel();
+        int currentSoil = getVisualSoilLevel(potData); // VISUELLER Wert (während Wachstum reduziert)
         int maxSoil = potData.getMaxSoil();
         int plantsCapacity = currentSoil / PotType.SOIL_PER_PLANT;
 
@@ -394,6 +394,34 @@ public class TobaccoPotHudOverlay {
         if (potData.hasPoppyPlant()) return potData.getPoppyPlant().getGrowthStage();
         if (potData.hasMushroomPlant()) return potData.getMushroomPlant().getGrowthStage();
         return 0;
+    }
+
+    /**
+     * Berechnet den VISUELLEN Erde-Wert für die HUD-Anzeige
+     *
+     * WICHTIG: Während des Wachstums bleibt der echte Erde-Wert konstant!
+     * Die HUD zeigt aber eine visuelle Reduktion an (Kreislauf ohne Rundungsfehler):
+     *
+     * 1. Pflanzen: soilLevelAtPlanting wird gespeichert (z.B. 99)
+     * 2. Wachstum: HUD zeigt Reduktion (99 → 66), echter Wert bleibt 99
+     * 3. Ernte: Echter Wert wird um 33 reduziert (99 → 66)
+     * 4. Sync: soilLevelAtPlanting = 66 (neue Basis für nächste Pflanze)
+     */
+    private static int getVisualSoilLevel(PlantPotData potData) {
+        // Wenn keine Pflanze → Zeige echten Wert
+        if (!potData.hasPlant()) {
+            return potData.getSoilLevel();
+        }
+
+        // Pflanze wächst → Berechne visuellen Wert
+        int growthStage = getPlantGrowthStage(potData);
+        double soilAtPlanting = potData.getSoilLevelAtPlanting();
+
+        // Visuell: -33 Erde verteilt über 7 Stufen
+        double visualSoilConsumed = (33.0 * growthStage) / 7.0;
+        double visualSoil = soilAtPlanting - visualSoilConsumed;
+
+        return (int) Math.ceil(Math.max(0, visualSoil));
     }
 
     /**

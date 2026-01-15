@@ -139,20 +139,20 @@ public class PlantPotBlockEntity extends BlockEntity implements IUtilityConsumer
     /**
      * Verbraucht Ressourcen beim Wachstum
      *
-     * Neues System:
-     * - Wasser: 1/7 der Wasserkapazität pro Stufe
-     * - Erde: 33/7 = ~4.71 pro Stufe (insgesamt 33 pro Pflanze)
-     * - Resterde bleibt im Topf für die nächste Pflanze!
+     * NEUES SYSTEM:
+     * - WASSER: 1/7 der Wasserkapazität pro Stufe (wird hier verbraucht)
+     * - ERDE: Wird NICHT mehr während des Wachstums verbraucht!
+     *   → Erde wird nur noch bei der Ernte pauschal abgezogen (-33)
+     *   → Im HUD wird visuell eine Reduzierung angezeigt (rein optisch!)
      */
     private void consumeResourcesForGrowth(int newStage) {
         // Wasser: 1/7 der Kapazität pro Stufe
         double waterToConsume = potData.getMaxWater() / 7.0;
-
-        // Erde: Feste 33/7 = ~4.71 pro Stufe (NICHT alles verbrauchen!)
-        double soilToConsume = potData.getSoilConsumptionPerStage();
-
         potData.consumeWater(waterToConsume);
-        potData.consumeSoil(soilToConsume);
+
+        // ERDE: Wird NICHT mehr hier verbraucht!
+        // → soilLevel bleibt konstant während des Wachstums
+        // → Bei Ernte: -33 Erde (siehe PlantBlock.verifyAndCorrectResources())
     }
 
     @Override
@@ -162,6 +162,7 @@ public class PlantPotBlockEntity extends BlockEntity implements IUtilityConsumer
         tag.putString("PotType", potData.getPotType().name());
         tag.putDouble("WaterLevel", potData.getWaterLevelExact());
         tag.putDouble("SoilLevel", potData.getSoilLevelExact());
+        tag.putDouble("SoilLevelAtPlanting", potData.getSoilLevelAtPlanting());
         tag.putBoolean("HasSoil", potData.hasSoil());
 
         // Pflanzen-Daten speichern (Strategy Pattern - eliminiert ~80 Zeilen Duplikation)
@@ -191,6 +192,9 @@ public class PlantPotBlockEntity extends BlockEntity implements IUtilityConsumer
         }
         if (tag.contains("SoilLevel")) {
             potData.setSoilLevel(tag.getDouble("SoilLevel"));
+        }
+        if (tag.contains("SoilLevelAtPlanting")) {
+            potData.setSoilLevelAtPlanting(tag.getDouble("SoilLevelAtPlanting"));
         }
 
         // Pflanzen-Daten laden (Strategy Pattern - eliminiert ~130 Zeilen Duplikation)

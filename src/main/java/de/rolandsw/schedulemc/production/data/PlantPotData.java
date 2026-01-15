@@ -30,6 +30,7 @@ public class PlantPotData {
     private PotType potType;
     private double waterLevel;
     private double soilLevel;
+    private double soilLevelAtPlanting; // HUD-Basis: Erde-Level beim Pflanzen (für visuelle Anzeige)
     private TobaccoPlantData plant;
     private CannabisPlantData cannabisPlant;
     private CocaPlantData cocaPlant;
@@ -42,6 +43,7 @@ public class PlantPotData {
         this.potType = potType;
         this.waterLevel = 0;
         this.soilLevel = 0;
+        this.soilLevelAtPlanting = 0;
         this.plant = null;
         this.cannabisPlant = null;
         this.cocaPlant = null;
@@ -69,6 +71,14 @@ public class PlantPotData {
 
     public double getSoilLevelExact() {
         return soilLevel;
+    }
+
+    public double getSoilLevelAtPlanting() {
+        return soilLevelAtPlanting;
+    }
+
+    public void setSoilLevelAtPlanting(double soilLevelAtPlanting) {
+        this.soilLevelAtPlanting = soilLevelAtPlanting;
     }
 
     public int getMaxWater() {
@@ -257,6 +267,7 @@ public class PlantPotData {
         }
 
         this.plant = new TobaccoPlantData(type);
+        this.soilLevelAtPlanting = this.soilLevel; // Speichere Basis-Wert für HUD
         return true;
     }
 
@@ -269,6 +280,7 @@ public class PlantPotData {
         }
 
         this.cannabisPlant = new CannabisPlantData(strain);
+        this.soilLevelAtPlanting = this.soilLevel; // Speichere Basis-Wert für HUD
         return true;
     }
 
@@ -281,6 +293,7 @@ public class PlantPotData {
         }
 
         this.cocaPlant = new CocaPlantData(type);
+        this.soilLevelAtPlanting = this.soilLevel; // Speichere Basis-Wert für HUD
         return true;
     }
 
@@ -293,6 +306,7 @@ public class PlantPotData {
         }
 
         this.poppyPlant = new PoppyPlantData(type);
+        this.soilLevelAtPlanting = this.soilLevel; // Speichere Basis-Wert für HUD
         return true;
     }
 
@@ -399,6 +413,7 @@ public class PlantPotData {
         this.cocaPlant = null;
         this.poppyPlant = null;
         this.mushroomPlant = null;
+        this.soilLevelAtPlanting = 0; // Reset HUD-Basis
     }
 
     /**
@@ -446,14 +461,15 @@ public class PlantPotData {
 
     /**
      * Prüft ob genug Ressourcen für Wachstum vorhanden sind
+     * NEUES SYSTEM: Nur Wasser wird während des Wachstums verbraucht!
+     * Erde wird bei der Ernte pauschal abgezogen (-33)
      */
     private boolean checkResourcesForGrowth() {
         double waterNeeded = getMaxWater() / 7.0;
-        double soilNeeded = getSoilConsumptionPerStage();
         double tolerance = 0.5;
 
-        return waterLevel >= (potType.calculateWaterConsumption(waterNeeded) - tolerance) &&
-                soilLevel >= (potType.calculateSoilConsumption(soilNeeded) - tolerance);
+        // Nur Wasser prüfen! Erde bleibt konstant während des Wachstums
+        return waterLevel >= (potType.calculateWaterConsumption(waterNeeded) - tolerance);
     }
 
     /**
