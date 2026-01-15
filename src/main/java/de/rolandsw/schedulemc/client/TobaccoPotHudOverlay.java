@@ -325,8 +325,12 @@ public class TobaccoPotHudOverlay {
 
     /**
      * Prüft ob eine Pflanze erntebereit ist
+     * Prüft zusätzlich ob der Pflanzen-Block tatsächlich noch existiert (Client-Server-Sync)
      */
     private static boolean isPlantHarvestReady(PlantPotData potData) {
+        // Wichtig: Keine Pflanze im PotData = nicht erntebereit (auch wenn Daten verzögert sind)
+        if (!potData.hasPlant() && !potData.hasMushroomPlant()) return false;
+
         if (potData.hasTobaccoPlant() && potData.getPlant().isFullyGrown()) return true;
         if (potData.hasCannabisPlant() && potData.getCannabisPlant().isFullyGrown()) return true;
         if (potData.hasCocaPlant() && potData.getCocaPlant().isFullyGrown()) return true;

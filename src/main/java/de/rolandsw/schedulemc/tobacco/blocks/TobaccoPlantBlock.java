@@ -224,34 +224,21 @@ public class TobaccoPlantBlock extends Block {
     /**
      * Verifiziert und korrigiert die Ressourcen nach der Ernte
      * Stellt sicher, dass exakt 100 Wasser und 33 Erde verbraucht wurden
+     * Entfernt den Rest falls noch übrig
      */
     private void verifyAndCorrectResources(de.rolandsw.schedulemc.production.data.PlantPotData potData,
                                            int targetWater, int targetSoil) {
-        // Berechne was noch übrig ist
+        // Hole aktuellen Stand
         double remainingWater = potData.getWaterLevelExact();
         double remainingSoil = potData.getSoilLevelExact();
 
-        // Berechne was hätte verbraucht werden sollen
-        int maxWater = potData.getMaxWater();
-        int maxSoil = targetSoil; // 33 Erde pro Pflanze
+        // Entferne exakt targetWater (100) Wasser, oder so viel wie noch da ist
+        double waterToRemove = Math.min(targetWater, remainingWater);
+        potData.setWaterLevel(remainingWater - waterToRemove);
 
-        // Berechne was tatsächlich verbraucht wurde
-        double consumedWater = maxWater - remainingWater;
-        double consumedSoil = maxSoil - remainingSoil;
-
-        // Korrigiere falls nötig
-        double waterDiff = targetWater - consumedWater;
-        double soilDiff = targetSoil - consumedSoil;
-
-        if (Math.abs(waterDiff) > 0.01) {
-            // Wasser korrigieren
-            potData.setWaterLevel(Math.max(0, remainingWater - waterDiff));
-        }
-
-        if (Math.abs(soilDiff) > 0.01) {
-            // Erde korrigieren (nur die Differenz entfernen, nicht alles!)
-            potData.setSoilLevel(Math.max(0, remainingSoil - soilDiff));
-        }
+        // Entferne exakt targetSoil (33) Erde, oder so viel wie noch da ist
+        double soilToRemove = Math.min(targetSoil, remainingSoil);
+        potData.setSoilLevel(remainingSoil - soilToRemove);
     }
 
     /**
