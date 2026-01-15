@@ -255,6 +255,56 @@ public class TobaccoPlantBlock extends Block {
     }
 
     /**
+     * Wächst zur nächsten Stufe (wird vom PlantPotBlockEntity aufgerufen)
+     */
+    public static void growToStage(Level level, BlockPos potPos, int newAge, TobaccoType type) {
+        BlockPos plantPos = potPos.above();
+
+        // Finde den richtigen Pflanzen-Block für diesen Typ
+        Block plantBlock = getPlantBlockForType(type);
+
+        if (newAge <= 7) {
+            // Setze unteren Block
+            BlockState lowerState = plantBlock.defaultBlockState()
+                    .setValue(AGE, newAge)
+                    .setValue(HALF, DoubleBlockHalf.LOWER);
+            level.setBlock(plantPos, lowerState, 3);
+
+            // Ab Stufe 4: setze oberen Block
+            if (newAge >= 4) {
+                BlockState upperState = plantBlock.defaultBlockState()
+                        .setValue(AGE, newAge)
+                        .setValue(HALF, DoubleBlockHalf.UPPER);
+                level.setBlock(plantPos.above(), upperState, 3);
+            } else {
+                // Entferne oberen Block falls vorhanden (downgrade)
+                BlockState above = level.getBlockState(plantPos.above());
+                if (above.getBlock() instanceof TobaccoPlantBlock) {
+                    level.setBlock(plantPos.above(), Blocks.AIR.defaultBlockState(), 3);
+                }
+            }
+        }
+    }
+
+    /**
+     * Entfernt die Pflanze (beim Ernten)
+     */
+    public static void removePlant(Level level, BlockPos potPos) {
+        BlockPos plantPos = potPos.above();
+        BlockState state = level.getBlockState(plantPos);
+
+        if (state.getBlock() instanceof TobaccoPlantBlock) {
+            level.setBlock(plantPos, Blocks.AIR.defaultBlockState(), 3);
+
+            // Entferne oberen Block falls vorhanden
+            BlockState above = level.getBlockState(plantPos.above());
+            if (above.getBlock() instanceof TobaccoPlantBlock) {
+                level.setBlock(plantPos.above(), Blocks.AIR.defaultBlockState(), 3);
+            }
+        }
+    }
+
+    /**
      * Gibt den Pflanzen-Block für einen Tabak-Typ zurück
      */
     private static Block getPlantBlockForType(TobaccoType type) {
