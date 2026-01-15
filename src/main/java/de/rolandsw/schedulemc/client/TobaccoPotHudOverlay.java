@@ -30,12 +30,15 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(modid = ScheduleMC.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class TobaccoPotHudOverlay {
 
-    private static final int BAR_WIDTH = 60;
-    private static final int BAR_HEIGHT = 8;
+    private static final int BAR_WIDTH = 80;
+    private static final int BAR_HEIGHT = 6;
     private static final int SEGMENT_WIDTH = BAR_WIDTH / 5;
     private static final float SCALE = 0.7f;
     private static final int HUD_X = 10;
     private static final int HUD_Y = 10;
+    private static final int PADDING = 4;
+    private static final int BOX_WIDTH = PADDING + BAR_WIDTH + PADDING; // 4px links + Balken + 4px rechts = 88px
+    private static final int LINE_HEIGHT = 10;
 
     @SubscribeEvent
     public static void onRenderGuiOverlay(RenderGuiOverlayEvent.Post event) {
@@ -99,227 +102,241 @@ public class TobaccoPotHudOverlay {
     }
 
     /**
-     * Vereinheitlichtes HUD am oberen Bildschirmrand
+     * Gaming HUD am oberen Bildschirmrand mit Box-Design
      */
     private static void renderUnifiedHud(GuiGraphics guiGraphics, Minecraft mc, PlantPotBlock potBlock,
                                          PlantPotBlockEntity potBE, boolean lookingAtPlant) {
         PlantPotData potData = potBE.getPotData();
         if (potData == null) return;
 
-        int currentY = HUD_Y;
-
-        // Berechne dynamische Höhe
-        int lineHeight = 12;
-        int totalLines = 1; // Topf-Typ
+        int x = HUD_X;
+        int y = HUD_Y;
+        int currentY = y + PADDING;
 
         // Prüfe ob Pflanze erntebereit ist
         boolean isHarvestReady = isPlantHarvestReady(potData);
 
+        // Prüfe ob Growlight vorhanden ist (für Höhenberechnung)
+        boolean hasGrowLight = false;
+        if (!potData.hasMushroomPlant()) {
+            BlockPos potPos = potBE.getBlockPos();
+            for (int yOffset = 2; yOffset <= 3; yOffset++) {
+                BlockPos growLightPos = potPos.above(yOffset);
+                BlockState growLightState = mc.level.getBlockState(growLightPos);
+                Block growLightBlock = growLightState.getBlock();
+                if (growLightBlock instanceof de.rolandsw.schedulemc.tobacco.blocks.GrowLightSlabBlock) {
+                    hasGrowLight = true;
+                    break;
+                }
+            }
+        }
+
+        // Berechne Box-Höhe dynamisch (exakt wie currentY-Inkremente)
+        int boxHeight = PADDING; // Oberer Rand
+        boxHeight += LINE_HEIGHT; // Topf-Typ
+        boxHeight += 4; // Separator (entspricht currentY += 4 im Code)
+
         if (isHarvestReady) {
-            totalLines += 1; // ERNTEBEREIT!
+            boxHeight += LINE_HEIGHT + 2; // Erntebereit-Banner
+            boxHeight += 2; // Extra separator
         }
 
         if (potData.hasSoil() || potData.hasMist()) {
-            totalLines += 5; // Wasser-Label + Balken + Erde-Label + Balken + Licht
+            boxHeight += LINE_HEIGHT; // Wasser-Label
+            boxHeight += BAR_HEIGHT + 2; // Wasser-Balken
+            boxHeight += LINE_HEIGHT; // Erde-Label
+            boxHeight += BAR_HEIGHT + 2; // Erde-Balken
+            boxHeight += LINE_HEIGHT + 2; // Pflanzen-Kapazität
+            if (!potData.hasMushroomPlant()) {
+                boxHeight += LINE_HEIGHT; // Licht-Label
+                if (hasGrowLight) {
+                    boxHeight += LINE_HEIGHT; // Growlight-Zeile
+                }
+            }
         } else {
-            totalLines += 1; // "Keine Erde"
+            boxHeight += LINE_HEIGHT; // Warnung
         }
 
         if (potData.hasPlant() && !isHarvestReady) {
-            totalLines += 2; // Pflanze-Info + Wachstum
+            boxHeight += 4; // Separator
+            boxHeight += LINE_HEIGHT; // Pflanze-Info
+            boxHeight += LINE_HEIGHT; // Qualität
+            boxHeight += LINE_HEIGHT; // Wachstum-Label
+            boxHeight += BAR_HEIGHT + 2; // Wachstum-Balken
+            boxHeight += LINE_HEIGHT; // Zeit
         }
 
-        int bgHeight = totalLines * lineHeight + 10;
-        int bgWidth = BAR_WIDTH + 20;
+        boxHeight += PADDING; // Unterer Rand
 
-        // Halbtransparenter Hintergrund
-        guiGraphics.fill(HUD_X - 5, HUD_Y - 5, HUD_X + bgWidth + 5, HUD_Y + bgHeight, 0x88000000);
+        // Hintergrund
+        guiGraphics.fill(x, y, x + BOX_WIDTH, y + boxHeight, 0xDD000000);
+
+        // Box-Rahmen
+        PotType type = potBlock.getPotType();
+        int borderColor = getPotBorderColor(type);
+        drawBox(guiGraphics, x, y, BOX_WIDTH, boxHeight, borderColor);
 
         // ═══════════════════════════════════════════════════════════
-        // ERNTEBEREIT! - Auffällige Anzeige
+        // ERNTEBEREIT-Banner
         // ═══════════════════════════════════════════════════════════
         if (isHarvestReady) {
-            // Blinkender Effekt (alle 500ms)
             boolean blink = (System.currentTimeMillis() / 500) % 2 == 0;
-            String harvestText = blink ? "§a§l✓ ERNTEBEREIT!" : "§2§l✓ ERNTEBEREIT!";
+            int bannerBg = blink ? 0xDD00FF00 : 0xDD00AA00;
+            guiGraphics.fill(x + 1, currentY - 1, x + BOX_WIDTH - 1, currentY + LINE_HEIGHT + 1, bannerBg);
 
-            guiGraphics.pose().pushPose();
-            guiGraphics.pose().scale(SCALE * 1.2f, SCALE * 1.2f, 1.0f);
-            guiGraphics.drawString(mc.font, harvestText, (int)(HUD_X / (SCALE * 1.2f)), (int)(currentY / (SCALE * 1.2f)), 0x00FF00);
-            guiGraphics.pose().popPose();
-            currentY += lineHeight + 4;
+            drawScaledText(guiGraphics, mc, "§l✅ ERNTEBEREIT!", x + PADDING, currentY, 0x000000);
+            currentY += LINE_HEIGHT + 2;
+            drawHorizontalLine(guiGraphics, x + PADDING, currentY, BOX_WIDTH - PADDING * 2, 0x88FFFFFF);
+            currentY += 2;
         }
 
         // ═══════════════════════════════════════════════════════════
-        // Topf-Typ mit Kapazitäts-Info
+        // Header: Topf-Typ
         // ═══════════════════════════════════════════════════════════
-        PotType type = potBlock.getPotType();
-        String potName = type.getColoredName();
-        String capacityInfo = " §7(" + type.getMaxPlants() + " Pflanzen)";
-        if (type.hasQualityBoost()) {
-            capacityInfo += " §d+Qualität";
-        }
+        String potName = "🏺 " + type.name().toUpperCase() + "-TOPF";
+        String qualityBadge = type.hasQualityBoost() ? "     §d🌟" : "";
+        drawScaledText(guiGraphics, mc, potName + qualityBadge, x + PADDING, currentY, 0xFFFFFF);
+        currentY += LINE_HEIGHT;
 
-        guiGraphics.pose().pushPose();
-        guiGraphics.pose().scale(SCALE, SCALE, 1.0f);
-        guiGraphics.drawString(mc.font, potName + capacityInfo, (int)(HUD_X / SCALE), (int)(currentY / SCALE), 0xFFFFFF);
-        guiGraphics.pose().popPose();
-        currentY += lineHeight;
+        drawHorizontalLine(guiGraphics, x + PADDING, currentY, BOX_WIDTH - PADDING * 2, borderColor);
+        currentY += 4;
 
         if (!potData.hasSoil() && !potData.hasMist()) {
-            // Keine Erde - zeige Warnung
-            guiGraphics.pose().pushPose();
-            guiGraphics.pose().scale(SCALE, SCALE, 1.0f);
-            guiGraphics.drawString(mc.font, "§c⚠ Keine Erde!", (int)(HUD_X / SCALE), (int)(currentY / SCALE), 0xFF0000);
-            guiGraphics.pose().popPose();
+            drawScaledText(guiGraphics, mc, "§c⚠ Keine Erde!", x + PADDING, currentY, 0xFF0000);
             return;
         }
 
-        // Wasser-Balken
-        String waterLabel = "§bWasser: " + potData.getWaterLevel() + "/" + potData.getMaxWater();
-        guiGraphics.pose().pushPose();
-        guiGraphics.pose().scale(SCALE, SCALE, 1.0f);
-        guiGraphics.drawString(mc.font, waterLabel, (int)(HUD_X / SCALE), (int)(currentY / SCALE), 0xFFFFFF);
-        guiGraphics.pose().popPose();
-        currentY += 10;
+        // ═══════════════════════════════════════════════════════════
+        // Ressourcen-Sektion
+        // ═══════════════════════════════════════════════════════════
 
-        float waterRatio = (float) potData.getWaterLevel() / potData.getMaxWater();
-        drawResourceBar(guiGraphics, HUD_X, currentY, waterRatio, 0xFF2196F3);
-        currentY += BAR_HEIGHT + 4;
+        // Wasser
+        int waterLevel = potData.getWaterLevel();
+        int maxWater = potData.getMaxWater();
+        drawScaledText(guiGraphics, mc, "💧 WASSER    §b" + waterLevel, x + PADDING, currentY, 0xFFFFFF);
+        currentY += LINE_HEIGHT;
 
-        // Erd-Balken mit Pflanzen-Kapazität
+        float waterRatio = (float) waterLevel / maxWater;
+        int waterColor = getResourceColor(waterRatio, 0xFF2196F3);
+        drawCompactBar(guiGraphics, x + PADDING, currentY, waterRatio, waterColor);
+        currentY += BAR_HEIGHT + 2;
+
+        // Erde/Substrat
         int currentSoil = potData.getSoilLevel();
         int maxSoil = potData.getMaxSoil();
         int plantsCapacity = currentSoil / PotType.SOIL_PER_PLANT;
 
-        String soilLabel = potData.hasMist() ?
-            "§dSubstrat: " + currentSoil + "/" + maxSoil + " §7(" + plantsCapacity + " Pflanzen)" :
-            "§6Erde: " + currentSoil + "/" + maxSoil + " §7(" + plantsCapacity + " Pflanzen)";
-
-        guiGraphics.pose().pushPose();
-        guiGraphics.pose().scale(SCALE, SCALE, 1.0f);
-        guiGraphics.drawString(mc.font, soilLabel, (int)(HUD_X / SCALE), (int)(currentY / SCALE), 0xFFFFFF);
-        guiGraphics.pose().popPose();
-        currentY += 10;
+        String soilLabel = potData.hasMist() ? "🍄 SUBSTRAT §d" + currentSoil : "🌱 ERDE     §6" + currentSoil;
+        drawScaledText(guiGraphics, mc, soilLabel, x + PADDING, currentY, 0xFFFFFF);
+        currentY += LINE_HEIGHT;
 
         float soilRatio = (float) currentSoil / maxSoil;
         int soilColor = potData.hasMist() ? 0xFFAA00FF : 0xFF8D6E63;
-        drawResourceBar(guiGraphics, HUD_X, currentY, soilRatio, soilColor);
-        currentY += BAR_HEIGHT + 4;
+        soilColor = getResourceColor(soilRatio, soilColor);
+        drawCompactBar(guiGraphics, x + PADDING, currentY, soilRatio, soilColor);
+        currentY += BAR_HEIGHT + 2;
 
-        // Lichtlevel anzeigen (nur wenn nicht Pilze)
+        // Pflanzen-Kapazität
+        String capacityText = "   └─ §7" + plantsCapacity + " Pflanzen";
+        drawScaledText(guiGraphics, mc, capacityText, x + PADDING, currentY, 0xFFFFFF);
+        currentY += LINE_HEIGHT + 2;
+
+        // Licht (nur wenn nicht Pilze)
         if (!potData.hasMushroomPlant()) {
             BlockPos potPos = potBE.getBlockPos();
-
-            // Prüfe ob ein Growlight vorhanden ist (2-3 Blöcke über dem Topf)
-            int lightLevel;
+            int lightLevel = 0;
             String lightSource = "";
             boolean isGrowLight = false;
-            de.rolandsw.schedulemc.tobacco.blocks.GrowLightSlabBlock foundGrowLight = null;
 
+            // Prüfe Growlight (2-3 Blöcke über Topf)
             for (int yOffset = 2; yOffset <= 3; yOffset++) {
                 BlockPos growLightPos = potPos.above(yOffset);
                 BlockState growLightState = mc.level.getBlockState(growLightPos);
                 Block growLightBlock = growLightState.getBlock();
 
                 if (growLightBlock instanceof de.rolandsw.schedulemc.tobacco.blocks.GrowLightSlabBlock growLight) {
-                    foundGrowLight = growLight;
+                    lightLevel = growLight.getTier().getLightLevel();
+                    lightSource = growLight.getTier().name();
                     isGrowLight = true;
                     break;
                 }
             }
 
-            if (isGrowLight && foundGrowLight != null) {
-                // Growlight gefunden! Zeige dessen konfigurierten Lichtlevel
-                lightLevel = foundGrowLight.getTier().getLightLevel();
-                lightSource = " §7(Growlight " + foundGrowLight.getTier().name() + ")";
-            } else {
-                // Kein Growlight → Berechne tatsächliches Lichtlevel mit Tag/Nacht-Variation
+            if (!isGrowLight) {
+                // Natürliches Licht berechnen
                 BlockPos checkPos = potPos.above(2);
-
-                // Hole SKY und BLOCK Licht separat
                 int skyLight = mc.level.getBrightness(net.minecraft.world.level.LightLayer.SKY, checkPos);
                 int blockLight = mc.level.getBrightness(net.minecraft.world.level.LightLayer.BLOCK, checkPos);
 
-                // Berechne Sky Darken basierend auf Tageszeit (für Overworld)
                 int skyDarken = 0;
                 if (mc.level.dimensionType().hasSkyLight()) {
-                    // Verwende die Dimension's brightness Berechnung
                     float celestialAngle = mc.level.getTimeOfDay(1.0F);
-                    // Sky darken basiert auf dem celestial angle (0.0 = Mittag, 0.5 = Mitternacht)
                     float brightness = (float) Math.cos(celestialAngle * 2.0F * Math.PI) * 2.0F + 0.5F;
                     brightness = net.minecraft.util.Mth.clamp(brightness, 0.0F, 1.0F);
                     skyDarken = Math.round((1.0F - brightness) * 11.0F);
                 }
 
-                // Berechne angepasstes Himmelslicht (mit Tageszeit)
                 int adjustedSkyLight = Math.max(0, skyLight - skyDarken);
-
-                // Kombiniertes Licht = Maximum aus angepasstem Himmelslicht und Blocklicht
                 lightLevel = Math.max(adjustedSkyLight, blockLight);
-
-                // Prüfe ob es Sonnenlicht ist (SKY > BLOCK)
-                if (skyLight > blockLight) {
-                    lightSource = " §7(Sonnenlicht)";
-                } else {
-                    lightSource = " §7(Künstlich)";
-                }
             }
 
             int minLight = de.rolandsw.schedulemc.config.ModConfigHandler.TOBACCO.MIN_LIGHT_LEVEL.get();
             boolean hasEnoughLight = lightLevel >= minLight;
+            boolean lightOptional = !de.rolandsw.schedulemc.config.ModConfigHandler.TOBACCO.REQUIRE_LIGHT_FOR_GROWTH.get();
 
-            String lightLabel = "§eLicht: " + lightLevel + "/15" + lightSource;
-            String lightStatus;
-            int lightColor;
+            String lightIcon = isGrowLight ? "⚡" : "☀️";
+            String lightText = lightIcon + " LICHT     §e" + lightLevel + "/15";
+            String status;
 
-            if (!de.rolandsw.schedulemc.config.ModConfigHandler.TOBACCO.REQUIRE_LIGHT_FOR_GROWTH.get()) {
-                lightStatus = " §8(optional)";
-                lightColor = 0xFFFFFF;
+            if (lightOptional) {
+                status = "";
             } else if (lightLevel >= 14) {
-                lightStatus = " §a✓";
-                lightColor = 0x00FF00;
+                status = "  §a✓";
             } else if (hasEnoughLight) {
-                lightStatus = " §7(ok)";
-                lightColor = 0xFFFF00;
+                status = "  §7✓";
             } else {
-                lightStatus = " §c✗";
-                lightColor = 0xFF0000;
+                status = "  §c✗";
             }
 
-            guiGraphics.pose().pushPose();
-            guiGraphics.pose().scale(SCALE, SCALE, 1.0f);
-            guiGraphics.drawString(mc.font, lightLabel + lightStatus, (int)(HUD_X / SCALE), (int)(currentY / SCALE), lightColor);
-            guiGraphics.pose().popPose();
-            currentY += 10;
+            drawScaledText(guiGraphics, mc, lightText + status, x + PADDING, currentY, 0xFFFFFF);
+            currentY += LINE_HEIGHT;
+
+            if (isGrowLight) {
+                drawScaledText(guiGraphics, mc, "   └─ §7Growlight", x + PADDING, currentY, 0xFFFFFF);
+                currentY += LINE_HEIGHT;
+            }
         }
 
-        // Pflanzen-Info (falls vorhanden und nicht erntebereit)
+        // ═══════════════════════════════════════════════════════════
+        // Pflanzen-Sektion
+        // ═══════════════════════════════════════════════════════════
         if (potData.hasPlant() && !isHarvestReady) {
-            // Trennlinie
-            guiGraphics.fill(HUD_X, currentY, HUD_X + BAR_WIDTH, currentY + 1, 0x44FFFFFF);
+            drawHorizontalLine(guiGraphics, x + PADDING, currentY, BOX_WIDTH - PADDING * 2, 0x88FFFFFF);
             currentY += 4;
 
-            // Pflanzen-Typ + Qualität
-            String plantInfo = getPlantInfo(potData);
-            guiGraphics.pose().pushPose();
-            guiGraphics.pose().scale(SCALE, SCALE, 1.0f);
-            guiGraphics.drawString(mc.font, plantInfo, (int)(HUD_X / SCALE), (int)(currentY / SCALE), 0xFFFFFF);
-            guiGraphics.pose().popPose();
-            currentY += 10;
+            String plantInfo = getPlantInfoCompact(potData);
+            drawScaledText(guiGraphics, mc, "🌿 " + plantInfo, x + PADDING, currentY, 0xFFFFFF);
+            currentY += LINE_HEIGHT;
 
-            // Wachstum
+            String qualityInfo = getQualityInfo(potData);
+            drawScaledText(guiGraphics, mc, "⭐ Qualität: " + qualityInfo, x + PADDING, currentY, 0xFFFFFF);
+            currentY += LINE_HEIGHT;
+
             int growthStage = getPlantGrowthStage(potData);
             int growthPercent = (growthStage * 100) / 7;
 
-            String growthLabel = "§eWachstum: " + growthPercent + "%";
-            guiGraphics.pose().pushPose();
-            guiGraphics.pose().scale(SCALE, SCALE, 1.0f);
-            guiGraphics.drawString(mc.font, growthLabel, (int)(HUD_X / SCALE), (int)(currentY / SCALE), 0xFFFFFF);
-            guiGraphics.pose().popPose();
-            currentY += 10;
+            drawScaledText(guiGraphics, mc, "📊 Wachstum  §e" + growthPercent + "%", x + PADDING, currentY, 0xFFFFFF);
+            currentY += LINE_HEIGHT;
 
-            drawProgressBar(guiGraphics, HUD_X, currentY, growthPercent, false);
+            drawCompactBar(guiGraphics, x + PADDING, currentY, growthPercent / 100.0f, 0xFFFDD835);
+            currentY += BAR_HEIGHT + 2;
+
+            // Zeit-Schätzung
+            int remainingMinutes = estimateTimeToHarvest(growthStage);
+            if (remainingMinutes > 0) {
+                String timeText = "   └─ §7~" + remainingMinutes + "min ⏱️";
+                drawScaledText(guiGraphics, mc, timeText, x + PADDING, currentY, 0xFFFFFF);
+            }
         }
     }
 
@@ -425,5 +442,139 @@ public class TobaccoPotHudOverlay {
         guiGraphics.fill(x - 1, y + BAR_HEIGHT, x + BAR_WIDTH + 1, y + BAR_HEIGHT + 1, 0xAAFFFFFF);
         guiGraphics.fill(x - 1, y, x, y + BAR_HEIGHT, 0xAAFFFFFF);
         guiGraphics.fill(x + BAR_WIDTH, y, x + BAR_WIDTH + 1, y + BAR_HEIGHT, 0xAAFFFFFF);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // Gaming HUD Helper-Methoden
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Zeichnet Box-Rahmen
+     */
+    private static void drawBox(GuiGraphics gui, int x, int y, int width, int height, int color) {
+        // Top & Bottom
+        gui.fill(x, y, x + width, y + 1, color);
+        gui.fill(x, y + height - 1, x + width, y + height, color);
+        // Left & Right
+        gui.fill(x, y, x + 1, y + height, color);
+        gui.fill(x + width - 1, y, x + width, y + height, color);
+    }
+
+    /**
+     * Zeichnet horizontale Linie
+     */
+    private static void drawHorizontalLine(GuiGraphics gui, int x, int y, int width, int color) {
+        gui.fill(x, y, x + width, y + 1, color);
+    }
+
+    /**
+     * Zeichnet skalierten Text
+     */
+    private static void drawScaledText(GuiGraphics gui, Minecraft mc, String text, int x, int y, int color) {
+        gui.pose().pushPose();
+        gui.pose().scale(SCALE, SCALE, 1.0f);
+        gui.drawString(mc.font, text, (int)(x / SCALE), (int)(y / SCALE), color);
+        gui.pose().popPose();
+    }
+
+    /**
+     * Kompakter Balken ohne Segmente
+     */
+    private static void drawCompactBar(GuiGraphics gui, int x, int y, float fillRatio, int color) {
+        // Hintergrund
+        gui.fill(x, y, x + BAR_WIDTH, y + BAR_HEIGHT, 0xFF1A1A1A);
+
+        // Füllung
+        int filledWidth = (int) (BAR_WIDTH * fillRatio);
+        if (filledWidth > 0) {
+            gui.fill(x, y, x + filledWidth, y + BAR_HEIGHT, color);
+        }
+
+        // Rahmen
+        gui.fill(x - 1, y - 1, x + BAR_WIDTH + 1, y, 0x88FFFFFF);
+        gui.fill(x - 1, y + BAR_HEIGHT, x + BAR_WIDTH + 1, y + BAR_HEIGHT + 1, 0x88FFFFFF);
+        gui.fill(x - 1, y, x, y + BAR_HEIGHT, 0x88FFFFFF);
+        gui.fill(x + BAR_WIDTH, y, x + BAR_WIDTH + 1, y + BAR_HEIGHT, 0x88FFFFFF);
+    }
+
+    /**
+     * Gibt Border-Farbe basierend auf Topf-Typ zurück
+     */
+    private static int getPotBorderColor(PotType type) {
+        return switch (type) {
+            case TERRACOTTA -> 0xFFD84315; // Orange
+            case CERAMIC -> 0xFFECEFF1;    // Hellgrau
+            case IRON -> 0xFF78909C;       // Grau
+            case GOLDEN -> 0xFFFFD700;     // Gold
+        };
+    }
+
+    /**
+     * Dynamische Ressourcen-Farbe basierend auf Füllstand
+     */
+    private static int getResourceColor(float fillRatio, int baseColor) {
+        if (fillRatio >= 0.5f) {
+            return baseColor; // Normal
+        } else if (fillRatio >= 0.2f) {
+            return 0xFFFFA726; // Orange - Warnung
+        } else {
+            // Kritisch - Blinken
+            boolean blink = (System.currentTimeMillis() / 300) % 2 == 0;
+            return blink ? 0xFFE53935 : 0xFF8B0000; // Rot-Blinken
+        }
+    }
+
+    /**
+     * Kompakte Pflanzen-Info (nur Name)
+     */
+    private static String getPlantInfoCompact(PlantPotData potData) {
+        if (potData.hasTobaccoPlant()) {
+            return potData.getPlant().getType().getColoredName();
+        }
+        if (potData.hasCannabisPlant()) {
+            return potData.getCannabisPlant().getStrain().getColoredName();
+        }
+        if (potData.hasCocaPlant()) {
+            return potData.getCocaPlant().getType().getColoredName();
+        }
+        if (potData.hasPoppyPlant()) {
+            return potData.getPoppyPlant().getType().getColoredName();
+        }
+        if (potData.hasMushroomPlant()) {
+            var plant = potData.getMushroomPlant();
+            String phase = plant.isIncubating() ? "§8Inkubation" : "§aFruchtung";
+            return potData.getMushroomPlant().getType().getColoredName() + " §7| " + phase;
+        }
+        return "§7Unbekannt";
+    }
+
+    /**
+     * Qualitäts-Info
+     */
+    private static String getQualityInfo(PlantPotData potData) {
+        if (potData.hasTobaccoPlant()) {
+            return potData.getPlant().getQuality().getColoredName();
+        }
+        if (potData.hasCannabisPlant()) {
+            return potData.getCannabisPlant().getQuality().getColoredName();
+        }
+        if (potData.hasCocaPlant()) {
+            return potData.getCocaPlant().getQuality().getColoredName();
+        }
+        if (potData.hasPoppyPlant()) {
+            return potData.getPoppyPlant().getQuality().getColoredName();
+        }
+        return "§7-";
+    }
+
+    /**
+     * Schätzt verbleibende Zeit bis zur Ernte (in Minuten)
+     */
+    private static int estimateTimeToHarvest(int currentStage) {
+        if (currentStage >= 7) return 0;
+
+        int remainingStages = 7 - currentStage;
+        // Durchschnittlich ~2 Minuten pro Stage (kann variieren je nach Licht)
+        return remainingStages * 2;
     }
 }
