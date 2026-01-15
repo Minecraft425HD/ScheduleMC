@@ -258,6 +258,16 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
             true // Hidden achievement für Verluste
         ));
 
+        register(new Achievement(
+            "PATIENT_INVESTOR",
+            Component.translatable("achievement.patient_investor.name").getString(),
+            Component.translatable("achievement.patient_investor.desc").getString(),
+            AchievementCategory.ECONOMY,
+            AchievementTier.GOLD,
+            100.0,
+            false
+        ));
+
         // ========== CRIME ACHIEVEMENTS ==========
         register(new Achievement(
             "FIRST_CRIME",
