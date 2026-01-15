@@ -4966,4 +4966,22 @@
   "command.admintools.player_only": "§cThis command can only be executed by players!",
   "command.admintools.help.remover": "Gives you the Entity Remover",
   "command.admintools.help.help": "Shows this help"
+  "command.admintools.help.help": "Shows this help",
+
+  "garage.container.tab": "Container",
+  "garage.container.item_container": "Item Container",
+  "garage.container.fluid_container": "Fluid Container",
+  "garage.container.status_installed": "§aInstalled",
+  "garage.container.status_not_installed": "§7Not Installed",
+  "garage.container.install": "Install",
+  "garage.container.remove": "Remove",
+  "garage.container.cost_free": "§aFree",
+  "garage.container.cost": "§e%s€",
+  "garage.container.item_slots": "%s Slots",
+  "garage.container.fluid_capacity": "%sL",
+  "garage.container.truck_only": "§cTrucks Only",
+  "garage.container.installed_successfully": "§aContainer installed successfully!",
+  "garage.container.removed_successfully": "§aContainer removed successfully!",
+  "garage.container.not_enough_money": "§cNot enough money! Need: %s€",
+  "garage.container.error": "§cError during container operation!"
 }

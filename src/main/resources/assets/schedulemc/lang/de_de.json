@@ -4975,4 +4975,22 @@
   "command.admintools.player_only": "§cDieser Befehl kann nur von Spielern ausgeführt werden!",
   "command.admintools.help.remover": "Gibt dir den Entity-Entferner",
   "command.admintools.help.help": "Zeigt diese Hilfe"
+  "command.admintools.help.help": "Zeigt diese Hilfe",
+
+  "garage.container.tab": "Container",
+  "garage.container.item_container": "Item-Container",
+  "garage.container.fluid_container": "Flüssigkeits-Container",
+  "garage.container.status_installed": "§aInstalliert",
+  "garage.container.status_not_installed": "§7Nicht installiert",
+  "garage.container.install": "Installieren",
+  "garage.container.remove": "Entfernen",
+  "garage.container.cost_free": "§aKostenlos",
+  "garage.container.cost": "§e%s€",
+  "garage.container.item_slots": "%s Slots",
+  "garage.container.fluid_capacity": "%sL",
+  "garage.container.truck_only": "§cNur für LKWs",
+  "garage.container.installed_successfully": "§aContainer erfolgreich installiert!",
+  "garage.container.removed_successfully": "§aContainer erfolgreich entfernt!",
+  "garage.container.not_enough_money": "§cNicht genug Geld! Benötigt: %s€",
+  "garage.container.error": "§cFehler bei Container-Operation!"
 }

@@ -73,6 +73,11 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     @Nullable
     private BlockPos garagePosition;
 
+    // Container installation tracking (for cost system)
+    // First installation is free, reinstallation after removal costs money
+    private boolean hasHadItemContainer = false;
+    private boolean hasHadFluidContainer = false;
+
     private boolean isInitialized;
     private boolean isSpawned = true;
 
@@ -650,6 +655,23 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         return !isLockedInGarage;
     }
 
+    // Container installation tracking
+    public boolean hasHadItemContainer() {
+        return hasHadItemContainer;
+    }
+
+    public void setHasHadItemContainer(boolean hasHad) {
+        this.hasHadItemContainer = hasHad;
+    }
+
+    public boolean hasHadFluidContainer() {
+        return hasHadFluidContainer;
+    }
+
+    public void setHasHadFluidContainer(boolean hasHad) {
+        this.hasHadFluidContainer = hasHad;
+    }
+
     @Override
     protected Component getTypeName() {
         PartBody body = getPartByClass(PartBody.class);
@@ -727,6 +749,14 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
             setIsOnTowingYard(compound.getBoolean("IsOnTowingYard"));
         }
 
+        // Load container installation tracking
+        if (compound.contains("HasHadItemContainer")) {
+            this.hasHadItemContainer = compound.getBoolean("HasHadItemContainer");
+        }
+        if (compound.contains("HasHadFluidContainer")) {
+            this.hasHadFluidContainer = compound.getBoolean("HasHadFluidContainer");
+        }
+
         // Initialize default items if this is a new vehicle
         if (compound.getAllKeys().stream().allMatch(s -> s.equals("id"))) {
             Container internal = inventoryComponent.getInternalInventory();
@@ -778,6 +808,10 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
 
         // Save towing yard flag
         compound.putBoolean("IsOnTowingYard", isOnTowingYard());
+
+        // Save container installation tracking
+        compound.putBoolean("HasHadItemContainer", this.hasHadItemContainer);
+        compound.putBoolean("HasHadFluidContainer", this.hasHadFluidContainer);
 
         // Save all component data
         physicsComponent.saveAdditionalData(compound);
