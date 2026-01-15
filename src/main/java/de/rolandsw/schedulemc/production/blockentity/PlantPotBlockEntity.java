@@ -215,25 +215,29 @@ public class PlantPotBlockEntity extends BlockEntity implements IUtilityConsumer
 
     /**
      * Berechnet Wachstumsgeschwindigkeits-Multiplikator basierend auf Licht
-     * Prüft exakt 2 Blöcke über dem Topf (wo das Grow Light platziert werden muss)
+     * Prüft 2-3 Blöcke über dem Topf (wo das Grow Light platziert werden kann)
      * Wenn kein Grow Light vorhanden ist, wird Sonnenlicht genutzt (50% Geschwindigkeit)
      */
     private double getLightSpeedMultiplier() {
         if (level == null) return 0.5; // Fallback: Sonnenlicht = 50%
 
-        // Prüfe exakt 2 Blöcke über dem Topf (Grow Light Position)
-        BlockPos growLightPos = worldPosition.above(2);
-        BlockState checkState = level.getBlockState(growLightPos);
-        Block checkBlock = checkState.getBlock();
+        // Prüfe 2-3 Blöcke über dem Topf (Grow Light Position)
+        for (int yOffset = 2; yOffset <= 3; yOffset++) {
+            BlockPos growLightPos = worldPosition.above(yOffset);
+            BlockState checkState = level.getBlockState(growLightPos);
+            Block checkBlock = checkState.getBlock();
 
-        if (checkBlock instanceof GrowLightSlabBlock growLight) {
-            // Grow Light gefunden! Nutze dessen Geschwindigkeits-Multiplikator
-            return growLight.getTier().getGrowthSpeedMultiplier();
+            if (checkBlock instanceof GrowLightSlabBlock growLight) {
+                // Grow Light gefunden! Nutze dessen Geschwindigkeits-Multiplikator
+                return growLight.getTier().getGrowthSpeedMultiplier();
+            }
         }
 
         // Kein Grow Light → Nutze Sonnenlicht (50% Geschwindigkeit)
         // Lichtlevel variiert mit Tageszeit (0-15)
-        int skyLight = level.getBrightness(LightLayer.SKY, growLightPos);
+        // Prüfe an Position 2 Blöcke über dem Topf
+        BlockPos checkPos = worldPosition.above(2);
+        int skyLight = level.getBrightness(LightLayer.SKY, checkPos);
 
         // Je dunkler, desto langsamer das Wachstum
         // Bei Nacht (Lichtlevel 0): kein Wachstum (0%)
@@ -244,18 +248,20 @@ public class PlantPotBlockEntity extends BlockEntity implements IUtilityConsumer
 
     /**
      * Holt Qualitätsbonus von Grow Light (nur Premium)
-     * Prüft exakt 2 Blöcke über dem Topf (wo das Grow Light platziert werden muss)
+     * Prüft 2-3 Blöcke über dem Topf (wo das Grow Light platziert werden kann)
      */
     public double getGrowLightQualityBonus() {
         if (level == null) return 0.0;
 
-        // Prüfe exakt 2 Blöcke über dem Topf
-        BlockPos growLightPos = worldPosition.above(2);
-        BlockState checkState = level.getBlockState(growLightPos);
-        Block checkBlock = checkState.getBlock();
+        // Prüfe 2-3 Blöcke über dem Topf
+        for (int yOffset = 2; yOffset <= 3; yOffset++) {
+            BlockPos growLightPos = worldPosition.above(yOffset);
+            BlockState checkState = level.getBlockState(growLightPos);
+            Block checkBlock = checkState.getBlock();
 
-        if (checkBlock instanceof GrowLightSlabBlock growLight) {
-            return growLight.getTier().getQualityBonus();
+            if (checkBlock instanceof GrowLightSlabBlock growLight) {
+                return growLight.getTier().getQualityBonus();
+            }
         }
 
         return 0.0;

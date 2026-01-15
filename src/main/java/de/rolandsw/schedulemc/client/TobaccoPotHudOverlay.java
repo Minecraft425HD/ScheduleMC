@@ -210,28 +210,37 @@ public class TobaccoPotHudOverlay {
         // Lichtlevel anzeigen (nur wenn nicht Pilze)
         if (!potData.hasMushroomPlant()) {
             BlockPos potPos = potBE.getBlockPos();
-            BlockPos growLightPos = potPos.above(2); // Exakt 2 Blöcke über dem Topf
 
-            // Prüfe ob ein Growlight vorhanden ist
-            BlockState growLightState = mc.level.getBlockState(growLightPos);
-            Block growLightBlock = growLightState.getBlock();
-
+            // Prüfe ob ein Growlight vorhanden ist (2-3 Blöcke über dem Topf)
             int lightLevel;
             String lightSource = "";
             boolean isGrowLight = false;
+            de.rolandsw.schedulemc.tobacco.blocks.GrowLightSlabBlock foundGrowLight = null;
 
-            if (growLightBlock instanceof de.rolandsw.schedulemc.tobacco.blocks.GrowLightSlabBlock growLight) {
+            for (int yOffset = 2; yOffset <= 3; yOffset++) {
+                BlockPos growLightPos = potPos.above(yOffset);
+                BlockState growLightState = mc.level.getBlockState(growLightPos);
+                Block growLightBlock = growLightState.getBlock();
+
+                if (growLightBlock instanceof de.rolandsw.schedulemc.tobacco.blocks.GrowLightSlabBlock growLight) {
+                    foundGrowLight = growLight;
+                    isGrowLight = true;
+                    break;
+                }
+            }
+
+            if (isGrowLight && foundGrowLight != null) {
                 // Growlight gefunden! Zeige dessen konfigurierten Lichtlevel
-                lightLevel = growLight.getTier().getLightLevel();
-                lightSource = " §7(Growlight " + growLight.getTier().name() + ")";
-                isGrowLight = true;
+                lightLevel = foundGrowLight.getTier().getLightLevel();
+                lightSource = " §7(Growlight " + foundGrowLight.getTier().name() + ")";
             } else {
                 // Kein Growlight → Zeige tatsächliches Lichtlevel (kombiniert aus SKY + BLOCK)
-                lightLevel = mc.level.getMaxLocalRawBrightness(growLightPos);
+                BlockPos checkPos = potPos.above(2);
+                lightLevel = mc.level.getMaxLocalRawBrightness(checkPos);
 
                 // Prüfe ob es Sonnenlicht ist (SKY > BLOCK)
-                int skyLight = mc.level.getBrightness(net.minecraft.world.level.LightLayer.SKY, growLightPos);
-                int blockLight = mc.level.getBrightness(net.minecraft.world.level.LightLayer.BLOCK, growLightPos);
+                int skyLight = mc.level.getBrightness(net.minecraft.world.level.LightLayer.SKY, checkPos);
+                int blockLight = mc.level.getBrightness(net.minecraft.world.level.LightLayer.BLOCK, checkPos);
 
                 if (skyLight > blockLight) {
                     lightSource = " §7(Sonnenlicht)";
