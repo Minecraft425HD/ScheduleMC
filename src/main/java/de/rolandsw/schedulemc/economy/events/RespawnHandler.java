@@ -58,12 +58,8 @@ public class RespawnHandler {
     @SubscribeEvent
     public static void onPlayerDeath(LivingDeathEvent event) {
         EventHelper.handleServerPlayerLivingEvent(event, player -> {
-            // Speichere Geldbörsen-Wert in WalletManager (überlebt Tod!)
-            ItemStack wallet = player.getInventory().getItem(8); // Slot 9
-            if (wallet.getItem() instanceof CashItem) {
-                double walletValue = CashItem.getValue(wallet);
-                WalletManager.setBalance(player.getUUID(), walletValue);
-            }
+            // Bargeld überlebt Tod automatisch (ist im WalletManager gespeichert!)
+            // Keine Aktion nötig - WalletManager ist UUID-basiert und persistent
 
             player.displayClientMessage(Component.literal(
                 "§c☠ Du bist gestorben!\n" +
@@ -84,26 +80,22 @@ public class RespawnHandler {
         player.getServer().execute(() -> {
             player.teleportTo(
                 player.serverLevel(),
-                HOSPITAL_SPAWN.getX() + 0.5, 
-                HOSPITAL_SPAWN.getY(), 
-                HOSPITAL_SPAWN.getZ() + 0.5, 
-                player.getYRot(), 
+                HOSPITAL_SPAWN.getX() + 0.5,
+                HOSPITAL_SPAWN.getY(),
+                HOSPITAL_SPAWN.getZ() + 0.5,
+                player.getYRot(),
                 player.getXRot()
             );
         });
-        
-        // Stelle Geldbörse wieder her
+
+        // Hole aktuelles Bargeld aus WalletManager
         double savedBalance = WalletManager.getBalance(player.getUUID());
-        
+
         // Ziehe Krankenhausrechnung ab
         double newBalance = Math.max(0, savedBalance - HOSPITAL_FEE);
         double actualFee = savedBalance - newBalance;
-        
-        // Erstelle neue Geldbörse mit neuem Wert
-        ItemStack newWallet = CashItem.create(newBalance);
-        player.getInventory().setItem(8, newWallet); // Slot 9
-        
-        // Update WalletManager
+
+        // Update WalletManager (Geldbörse im Inventar zeigt Wert automatisch in GUI)
         WalletManager.setBalance(player.getUUID(), newBalance);
         
         // Nachricht an Spieler

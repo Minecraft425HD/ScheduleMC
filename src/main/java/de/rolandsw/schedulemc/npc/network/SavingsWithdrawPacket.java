@@ -61,6 +61,11 @@ public class SavingsWithdrawPacket {
                 double newSavingsBalance = account.getBalance();
                 double newCheckingBalance = EconomyManager.getBalance(player.getUUID());
 
+                // Aktualisiere Client-Daten
+                de.rolandsw.schedulemc.economy.network.RequestBankDataPacket requestPacket =
+                    new de.rolandsw.schedulemc.economy.network.RequestBankDataPacket();
+                requestPacket.handle(() -> ctx.get());
+
                 // Erfolgs-Nachricht
                 player.sendSystemMessage(Component.literal("═══════════════════════════════")
                     .withStyle(ChatFormatting.GREEN));

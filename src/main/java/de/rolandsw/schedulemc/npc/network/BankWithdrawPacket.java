@@ -55,6 +55,11 @@ public class BankWithdrawPacket {
             if (EconomyManager.withdraw(player.getUUID(), amount, TransactionType.ATM_WITHDRAW, "Bank-Abhebung")) {
                 WalletManager.addMoney(player.getUUID(), amount);
 
+                // Aktualisiere Client-Daten
+                de.rolandsw.schedulemc.economy.network.RequestBankDataPacket requestPacket =
+                    new de.rolandsw.schedulemc.economy.network.RequestBankDataPacket();
+                requestPacket.handle(() -> ctx.get());
+
                 // Erfolgs-Nachricht
                 player.sendSystemMessage(Component.literal("═══════════════════════════════")
                     .withStyle(ChatFormatting.GREEN));

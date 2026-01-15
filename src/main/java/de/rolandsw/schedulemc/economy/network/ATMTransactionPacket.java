@@ -1,12 +1,11 @@
 package de.rolandsw.schedulemc.economy.network;
 
 import de.rolandsw.schedulemc.economy.EconomyManager;
+import de.rolandsw.schedulemc.economy.WalletManager;
 import de.rolandsw.schedulemc.economy.blockentity.ATMBlockEntity;
-import de.rolandsw.schedulemc.economy.items.CashItem;
 import de.rolandsw.schedulemc.util.PacketHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.PacketDistributor;
@@ -65,11 +64,7 @@ public class ATMTransactionPacket {
 
             // Sende aktualisierten Stand zurück an Client
             double newBalance = EconomyManager.getBalance(player.getUUID());
-            double newWalletBalance = 0.0;
-            ItemStack wallet = player.getInventory().getItem(8);
-            if (wallet.getItem() instanceof CashItem) {
-                newWalletBalance = CashItem.getValue(wallet);
-            }
+            double newWalletBalance = WalletManager.getBalance(player.getUUID());
 
             SyncATMDataPacket response = new SyncATMDataPacket(
                 newBalance,

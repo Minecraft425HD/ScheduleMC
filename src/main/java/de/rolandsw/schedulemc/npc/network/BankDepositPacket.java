@@ -68,6 +68,11 @@ public class BankDepositPacket {
             if (WalletManager.removeMoney(player.getUUID(), amount)) {
                 EconomyManager.deposit(player.getUUID(), amount, TransactionType.ATM_DEPOSIT, "Bank-Einzahlung");
 
+                // Aktualisiere Client-Daten
+                de.rolandsw.schedulemc.economy.network.RequestBankDataPacket requestPacket =
+                    new de.rolandsw.schedulemc.economy.network.RequestBankDataPacket();
+                requestPacket.handle(() -> ctx.get());
+
                 // Erfolgs-Nachricht
                 player.sendSystemMessage(Component.literal("═══════════════════════════════")
                     .withStyle(ChatFormatting.GREEN));

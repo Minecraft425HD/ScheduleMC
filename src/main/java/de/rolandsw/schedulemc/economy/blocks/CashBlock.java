@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.economy.blocks;
 
+import de.rolandsw.schedulemc.economy.WalletManager;
 import de.rolandsw.schedulemc.economy.blockentity.CashBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -81,26 +82,26 @@ public class CashBlock extends Block implements EntityBlock {
             // KEINE Geldbörse in Slot 9 - Block ist UNZERSTÖRBAR
             return;
         }
-        
+
         double blockValue = getValue(level, pos);
-        
+
         if (blockValue <= 0) {
             player.displayClientMessage(Component.literal(
                 "§c✗ Block ist leer!"
             ), true);
             return;
         }
-        
-        // Füge GESAMTEN Wert zur Geldbörse in Slot 9 hinzu
-        de.rolandsw.schedulemc.economy.items.CashItem.addValue(wallet, blockValue);
-        
+
+        // Füge GESAMTEN Wert zur Geldbörse hinzu (WalletManager!)
+        WalletManager.addMoney(player.getUUID(), blockValue);
+
         // Entferne Block komplett
         level.removeBlock(pos, false);
-        
+
         player.displayClientMessage(Component.literal(
             "§a✓ " + String.format("%.0f€", blockValue) + " aufgesammelt"
         ), true);
-        
+
         level.playSound(null, pos, SoundEvents.METAL_BREAK, SoundSource.BLOCKS, 1.0f, 0.8f);
     }
     

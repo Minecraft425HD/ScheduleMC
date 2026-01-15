@@ -50,14 +50,8 @@ public class RequestBankDataPacket {
         // Girokonto Balance
         double balance = EconomyManager.getBalance(playerUUID);
 
-        // Wallet Balance (Bargeld) - Durchsuche das gesamte Inventar
-        double walletBalance = 0.0;
-        for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
-            ItemStack stack = player.getInventory().getItem(i);
-            if (stack.getItem() instanceof CashItem) {
-                walletBalance += CashItem.getValue(stack);
-            }
-        }
+        // Wallet Balance (Bargeld) - Aus WalletManager (UUID-basiert)
+        double walletBalance = de.rolandsw.schedulemc.economy.WalletManager.getBalance(playerUUID);
 
         // Sparkonto Balance
         double savingsBalance = 0.0;

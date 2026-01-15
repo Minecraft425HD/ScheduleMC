@@ -87,24 +87,22 @@ public class StealingAttemptPacket {
                                 // Performance-Optimierung: Sync nur Wallet statt Full NPC Data
                                 npc.syncWalletToClient();
 
-                                // Geld zum Wallet-Item hinzufügen
+                                // Geld zum Wallet hinzufügen (WalletManager)
                                 ItemStack walletItem = player.getInventory().getItem(8);
                                 if (walletItem.getItem() instanceof CashItem) {
-                                    double previousValue = CashItem.getValue(walletItem);
+                                    double previousValue = de.rolandsw.schedulemc.economy.WalletManager.getBalance(player.getUUID());
                                     if (LOGGER.isDebugEnabled()) {
-                                        LOGGER.debug("[STEALING] Wallet-Item vorher: {}€", previousValue);
+                                        LOGGER.debug("[STEALING] Wallet vorher: {}€", previousValue);
                                     }
 
-                                    CashItem.addValue(walletItem, stolenMoney);
+                                    // Füge Geld im WalletManager hinzu
+                                    de.rolandsw.schedulemc.economy.WalletManager.addMoney(player.getUUID(), stolenMoney);
+                                    de.rolandsw.schedulemc.economy.WalletManager.save();
 
-                                    double newValue = CashItem.getValue(walletItem);
+                                    double newValue = de.rolandsw.schedulemc.economy.WalletManager.getBalance(player.getUUID());
                                     if (LOGGER.isDebugEnabled()) {
-                                        LOGGER.debug("[STEALING] Wallet-Item nachher: {}€", newValue);
+                                        LOGGER.debug("[STEALING] Wallet nachher: {}€", newValue);
                                     }
-
-                                    // Auch WalletManager aktualisieren
-                                    WalletManager.addMoney(player.getUUID(), stolenMoney);
-                                    WalletManager.save();
                                 } else {
                                     LOGGER.warn("[STEALING] WARNUNG: Kein Wallet-Item in Slot 8!");
                                 }
@@ -162,12 +160,9 @@ public class StealingAttemptPacket {
                         player.sendSystemMessage(Component.translatable("message.stealing.success"));
 
                         if (stolenMoney > 0) {
-                            ItemStack walletItem = player.getInventory().getItem(8);
-                            if (walletItem.getItem() instanceof CashItem) {
-                                double walletValue = CashItem.getValue(walletItem);
-                                player.sendSystemMessage(Component.translatable("message.stealing.money_stolen", String.format("%.2f€", stolenMoney)));
-                                player.sendSystemMessage(Component.translatable("message.stealing.wallet_stolen", String.format("%.2f€", walletValue)));
-                            }
+                            double walletValue = de.rolandsw.schedulemc.economy.WalletManager.getBalance(player.getUUID());
+                            player.sendSystemMessage(Component.translatable("message.stealing.money_stolen", String.format("%.2f€", stolenMoney)));
+                            player.sendSystemMessage(Component.translatable("message.stealing.wallet_stolen", String.format("%.2f€", walletValue)));
                         }
 
                         if (!stolenItem.isEmpty()) {
