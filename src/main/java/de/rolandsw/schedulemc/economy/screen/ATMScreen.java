@@ -137,15 +137,19 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu> {
         if (amount <= 0) return;
 
         // Validate against available funds
+        // ATM-Gebühr ist immer 5.0€ (sync with FeeManager.ATM_FEE)
+        double atmFee = 5.0;
+
         if (isDepositMode) {
-            if (amount > walletBalance) {
-                amount = walletBalance;
+            // Bei Einzahlen wird die Gebühr vom Bargeld abgezogen
+            // Beispiel: 100€ Bargeld → 95€ aufs Konto, 5€ Gebühr
+            double maxDeposit = Math.max(0, walletBalance - atmFee);
+            if (amount > maxDeposit) {
+                amount = maxDeposit;
             }
         } else {
-            // Bei Abheben muss die ATM-Gebühr berücksichtigt werden
-            // Die Gebühr wird serverseitig zusätzlich zum Betrag abgezogen
-            // Sync with FeeManager.ATM_FEE (5.0€)
-            double atmFee = 5.0;
+            // Bei Abheben wird die Gebühr zusätzlich vom Konto abgezogen
+            // Beispiel: 100€ Konto → 95€ abheben möglich, 5€ Gebühr
             double maxWithdraw = Math.max(0, balance - atmFee);
             if (amount > maxWithdraw) {
                 amount = maxWithdraw;
