@@ -1,10 +1,9 @@
 package de.rolandsw.schedulemc.economy.network;
 
 import de.rolandsw.schedulemc.economy.EconomyManager;
-import de.rolandsw.schedulemc.economy.items.CashItem;
+import de.rolandsw.schedulemc.economy.WalletManager;
 import de.rolandsw.schedulemc.util.PacketHandler;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.PacketDistributor;
 
@@ -32,12 +31,8 @@ public class RequestATMDataPacket {
             // Get player's bank data
             double balance = EconomyManager.getBalance(player.getUUID());
 
-            // Get wallet balance
-            double walletBalance = 0.0;
-            ItemStack wallet = player.getInventory().getItem(8);
-            if (wallet.getItem() instanceof CashItem) {
-                walletBalance = CashItem.getValue(wallet);
-            }
+            // Get wallet balance from WalletManager (UUID-basiert)
+            double walletBalance = WalletManager.getBalance(player.getUUID());
 
             // Send response
             SyncATMDataPacket response = new SyncATMDataPacket(

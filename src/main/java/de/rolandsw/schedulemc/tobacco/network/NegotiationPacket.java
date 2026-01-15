@@ -146,12 +146,10 @@ public class NegotiationPacket {
                 // Performance-Optimierung: Sync nur Wallet statt Full NPC Data
                 npc.syncWalletToClient();
 
-                // Geld zum Wallet-Item hinzufügen (Slot 8 = Slot 9 im UI)
+                // Geld zum Wallet hinzufügen (WalletManager)
                 ItemStack walletItem = player.getInventory().getItem(8);
                 if (walletItem.getItem() instanceof CashItem) {
-                    CashItem.addValue(walletItem, price);
-
-                    // Auch WalletManager aktualisieren (für Persistenz)
+                    // Füge Geld im WalletManager hinzu
                     WalletManager.addMoney(player.getUUID(), price);
                     WalletManager.save();
                 }
@@ -176,9 +174,9 @@ public class NegotiationPacket {
                 currentDay = player.level().getDayTime() / 24000;
                 npc.getNpcData().getCustomData().putLong("LastTobaccoSale_" + player.getStringUUID(), currentDay);
 
-                // Erfolgsmeldung mit aktuellem Wallet-Item Wert
+                // Erfolgsmeldung mit aktuellem Wallet-Wert
                 if (walletItem.getItem() instanceof CashItem) {
-                    double walletValue = CashItem.getValue(walletItem);
+                    double walletValue = WalletManager.getBalance(player.getUUID());
                     player.sendSystemMessage(Component.translatable("message.tobacco.sale_success", offeredGrams, String.format("%.2f", price)));
                     player.sendSystemMessage(Component.translatable("message.tobacco.wallet_summary", String.format("%.2f", walletValue), npc.getNpcData().getWallet()));
                 }

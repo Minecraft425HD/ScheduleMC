@@ -389,13 +389,6 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         g.drawString(font, Component.translatable("gui.bank.cash").getString(), x + 30, y + 65, 0x808080, false);
         g.drawString(font, String.format("%.2f€", bargeld), x + 125, y + 65, 0xFFAA00, false);
 
-        // DEBUG: Show if data was received
-        if (ClientBankDataCache.hasData()) {
-            g.drawString(font, "§a[Data OK]", x + 200, y + 65, 0x00FF00, false);
-        } else {
-            g.drawString(font, "§c[No Data]", x + 200, y + 65, 0xFF0000, false);
-        }
-
         double girokonto = ClientBankDataCache.getBalance();
         g.drawString(font, Component.translatable("gui.bank.checking_balance").getString(), x + 30, y + 85, 0x808080, false);
         g.drawString(font, String.format("%.2f€", girokonto), x + 125, y + 85, 0x00AA00, false);

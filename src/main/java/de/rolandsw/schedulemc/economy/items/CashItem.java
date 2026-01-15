@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.economy.items;
 
+import de.rolandsw.schedulemc.economy.WalletManager;
 import de.rolandsw.schedulemc.economy.blocks.CashBlock;
 import de.rolandsw.schedulemc.economy.blocks.EconomyBlocks;
 import net.minecraft.core.BlockPos;
@@ -51,62 +52,63 @@ public class CashItem extends Item {
         
         // Hole Geldbörse aus Slot 9 (NICHT aus Hand!)
         ItemStack wallet = context.getPlayer().getInventory().getItem(WALLET_SLOT);
-        
+
         if (!(wallet.getItem() instanceof CashItem)) {
             context.getPlayer().displayClientMessage(Component.translatable("message.cash.no_wallet_slot9"), true);
             return InteractionResult.FAIL;
         }
-        
-        double currentValue = getValue(wallet);
-        
+
+        // Prüfe Bargeld im WalletManager
+        double currentValue = WalletManager.getBalance(context.getPlayer().getUUID());
+
         // Prüfe ob genug Geld vorhanden
         if (currentValue < PLACE_AMOUNT) {
             context.getPlayer().displayClientMessage(Component.translatable("message.cash.not_enough",
                 String.format("%.0f", currentValue)), true);
             return InteractionResult.FAIL;
         }
-        
+
         // Ist es bereits ein CashBlock?
         if (clickedState.getBlock() instanceof CashBlock) {
             // Block existiert bereits - füge Geld hinzu
             double blockValue = CashBlock.getValue(level, clickedPos);
-            
+
             if (blockValue >= MAX_PER_BLOCK) {
                 context.getPlayer().displayClientMessage(Component.translatable("message.cash.block_full"), true);
                 return InteractionResult.FAIL;
             }
-            
+
             // Füge 100€ hinzu
             CashBlock.addValue(level, clickedPos, PLACE_AMOUNT);
-            removeValue(wallet, PLACE_AMOUNT);
-            
+            WalletManager.removeMoney(context.getPlayer().getUUID(), PLACE_AMOUNT);
+
             double newValue = CashBlock.getValue(level, clickedPos);
             context.getPlayer().displayClientMessage(Component.translatable("message.cash.added_to_block",
                 String.format("%.0f", newValue)), true);
-            
+
             level.playSound(null, clickedPos, SoundEvents.METAL_PLACE, SoundSource.BLOCKS, 1.0f, 1.2f);
             return InteractionResult.SUCCESS;
         }
-        
+
         // Neuen Block platzieren - NUR auf Luft!
         BlockPos placePos = clickedPos.relative(context.getClickedFace());
-        
+
         // Prüfe ob Position frei ist
         if (!level.getBlockState(placePos).isAir()) {
             // SILENT FAIL
             return InteractionResult.FAIL;
         }
-        
+
         // Platziere neuen CashBlock
         BlockState newState = EconomyBlocks.CASH_BLOCK.get().defaultBlockState();
         level.setBlock(placePos, newState, 3);
-        
+
         // Setze Wert auf 100€
         CashBlock.setValue(level, placePos, PLACE_AMOUNT);
-        removeValue(wallet, PLACE_AMOUNT);
-        
+        WalletManager.removeMoney(context.getPlayer().getUUID(), PLACE_AMOUNT);
+
         context.getPlayer().displayClientMessage(Component.translatable("message.cash.placed"), true);
-        
+
         level.playSound(null, placePos, SoundEvents.METAL_PLACE, SoundSource.BLOCKS, 1.0f, 1.0f);
         return InteractionResult.SUCCESS;
     }
@@ -120,59 +122,53 @@ public class CashItem extends Item {
     }
     
     /**
-     * Erstellt Bargeld mit Wert
+     * Erstellt eine Geldbörse
+     * @deprecated Bargeld wird jetzt im WalletManager gespeichert (UUID-basiert), amount wird ignoriert
      */
+    @Deprecated
     public static ItemStack create(double amount) {
-        ItemStack stack = new ItemStack(de.rolandsw.schedulemc.items.ModItems.CASH.get());
-        setValue(stack, amount);
-        return stack;
+        // Wert wird ignoriert, da er im WalletManager gespeichert wird
+        return new ItemStack(de.rolandsw.schedulemc.items.ModItems.CASH.get());
     }
     
     /**
-     * Setzt Wert (UNLIMITED!)
+     * @deprecated Bargeld wird jetzt im WalletManager gespeichert (UUID-basiert), nicht mehr im ItemStack NBT
      */
+    @Deprecated
     public static void setValue(ItemStack stack, double value) {
-        CompoundTag tag = stack.getOrCreateTag();
-        tag.putDouble("CashValue", Math.max(0, value));
+        // No-op: Wert wird im WalletManager gespeichert
     }
-    
+
     /**
-     * Gibt Wert zurück
+     * @deprecated Bargeld wird jetzt im WalletManager gespeichert (UUID-basiert), nicht mehr im ItemStack NBT
      */
+    @Deprecated
     public static double getValue(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
-        if (tag != null && tag.contains("CashValue")) {
-            return tag.getDouble("CashValue");
-        }
+        // Wert wird im WalletManager gespeichert, nicht im ItemStack
         return 0.0;
     }
-    
+
     /**
-     * Fügt Wert hinzu (UNLIMITED!)
+     * @deprecated Bargeld wird jetzt im WalletManager gespeichert (UUID-basiert), nicht mehr im ItemStack NBT
      */
+    @Deprecated
     public static boolean addValue(ItemStack stack, double amount) {
-        double current = getValue(stack);
-        setValue(stack, current + amount);
-        return true;
+        // No-op: Wert wird im WalletManager gespeichert
+        return false;
     }
-    
+
     /**
-     * Entfernt Wert
+     * @deprecated Bargeld wird jetzt im WalletManager gespeichert (UUID-basiert), nicht mehr im ItemStack NBT
      */
+    @Deprecated
     public static boolean removeValue(ItemStack stack, double amount) {
-        double current = getValue(stack);
-        if (current >= amount) {
-            setValue(stack, current - amount);
-            return true;
-        }
+        // No-op: Wert wird im WalletManager gespeichert
         return false;
     }
     
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
-        double value = getValue(stack);
-        
-        tooltip.add(Component.translatable("tooltip.cash.balance", String.format("%.2f", value)));
+        tooltip.add(Component.translatable("tooltip.cash.view_at_atm"));
         tooltip.add(Component.translatable("tooltip.cash.capacity_unlimited"));
         tooltip.add(Component.literal(""));
         tooltip.add(Component.translatable("tooltip.cash.locked_slot9"));
@@ -181,15 +177,10 @@ public class CashItem extends Item {
         tooltip.add(Component.translatable("tooltip.cash.right_click"));
         tooltip.add(Component.translatable("tooltip.cash.left_click_hold"));
     }
-    
+
     @Override
     public Component getName(ItemStack stack) {
-        double value = getValue(stack);
-        if (value <= 0) {
-            return Component.translatable("tooltip.cash.wallet_empty");
-        } else {
-            return Component.translatable("tooltip.cash.wallet_filled", String.format("%.0f€", value));
-        }
+        return Component.translatable("item.schedulemc.cash");
     }
     
     @Override

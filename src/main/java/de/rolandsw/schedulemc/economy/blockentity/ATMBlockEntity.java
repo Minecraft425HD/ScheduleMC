@@ -4,6 +4,7 @@ import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.economy.FeeManager;
 import de.rolandsw.schedulemc.economy.StateAccount;
 import de.rolandsw.schedulemc.economy.TransactionType;
+import de.rolandsw.schedulemc.economy.WalletManager;
 import de.rolandsw.schedulemc.economy.items.CashItem;
 import de.rolandsw.schedulemc.economy.menu.ATMMenu;
 import net.minecraft.core.BlockPos;
@@ -46,7 +47,7 @@ public class ATMBlockEntity extends BlockEntity implements MenuProvider {
             return false;
         }
 
-        // Finde Geldbörse in Slot 8
+        // Prüfe ob Geldbörse in Slot 8 vorhanden ist
         ItemStack wallet = player.getInventory().getItem(8);
         if (!(wallet.getItem() instanceof CashItem)) {
             player.displayClientMessage(Component.translatable(
@@ -58,8 +59,8 @@ public class ATMBlockEntity extends BlockEntity implements MenuProvider {
         // Transaktion durchführen
         // 1. Ziehe Betrag + Gebühr vom Konto ab (totalCost)
         if (EconomyManager.withdraw(player.getUUID(), totalCost, TransactionType.ATM_WITHDRAW, "ATM-Auszahlung inkl. Gebühr")) {
-            // 2. Gib nur den Betrag (ohne Gebühr) ins Wallet
-            CashItem.addValue(wallet, amount);
+            // 2. Gib nur den Betrag (ohne Gebühr) ins Wallet (WalletManager!)
+            WalletManager.addMoney(player.getUUID(), amount);
 
             // 3. Überweise Gebühr an Staatskasse
             if (level != null && !level.isClientSide()) {
@@ -86,7 +87,7 @@ public class ATMBlockEntity extends BlockEntity implements MenuProvider {
     public boolean deposit(Player player, double amount) {
         if (amount <= 0) return false;
 
-        // Finde Geldbörse in Slot 8
+        // Prüfe ob Geldbörse in Slot 8 vorhanden ist
         ItemStack wallet = player.getInventory().getItem(8);
         if (!(wallet.getItem() instanceof CashItem)) {
             player.displayClientMessage(Component.translatable(
@@ -96,7 +97,7 @@ public class ATMBlockEntity extends BlockEntity implements MenuProvider {
         }
 
         double atmFee = FeeManager.getATMFee();
-        double walletBalance = CashItem.getValue(wallet);
+        double walletBalance = WalletManager.getBalance(player.getUUID());
         if (walletBalance < amount) {
             player.displayClientMessage(Component.translatable(
                 "block.atm.insufficient_cash_in_wallet",
@@ -106,8 +107,10 @@ public class ATMBlockEntity extends BlockEntity implements MenuProvider {
         }
 
         // Transaktion durchführen
-        // 1. Entferne Bargeld aus Wallet
-        CashItem.removeValue(wallet, amount);
+        // 1. Entferne Bargeld aus Wallet (WalletManager!)
+        if (!WalletManager.removeMoney(player.getUUID(), amount)) {
+            return false; // Sollte nicht passieren, aber sicherheitshalber
+        }
 
         // 2. Zahle auf Konto ein (voller Betrag)
         EconomyManager.deposit(player.getUUID(), amount, TransactionType.ATM_DEPOSIT, "ATM-Einzahlung");
@@ -139,11 +142,8 @@ public class ATMBlockEntity extends BlockEntity implements MenuProvider {
      * Gibt Bargeld in Geldbörse zurück
      */
     public double getWalletBalance(Player player) {
-        ItemStack wallet = player.getInventory().getItem(8);
-        if (wallet.getItem() instanceof CashItem) {
-            return CashItem.getValue(wallet);
-        }
-        return 0.0;
+        // Bargeld wird im WalletManager gespeichert, nicht im ItemStack
+        return WalletManager.getBalance(player.getUUID());
     }
     
     @Override

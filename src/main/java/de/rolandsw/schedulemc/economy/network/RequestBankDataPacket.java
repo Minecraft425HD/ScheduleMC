@@ -50,15 +50,8 @@ public class RequestBankDataPacket {
         // Girokonto Balance
         double balance = EconomyManager.getBalance(playerUUID);
 
-        // Wallet Balance (Bargeld) - Nur aus Slot 8 (Geldbörse)
-        double walletBalance = 0.0;
-        ItemStack wallet = player.getInventory().getItem(8); // Slot 9 = Index 8
-        if (wallet.getItem() instanceof CashItem) {
-            walletBalance = CashItem.getValue(wallet);
-            System.out.println("[BankDataSync] Player " + player.getName().getString() + " wallet balance: " + walletBalance);
-        } else {
-            System.out.println("[BankDataSync] Player " + player.getName().getString() + " has no wallet in slot 8! Item: " + wallet.getItem());
-        }
+        // Wallet Balance (Bargeld) - Aus WalletManager (UUID-basiert)
+        double walletBalance = de.rolandsw.schedulemc.economy.WalletManager.getBalance(playerUUID);
 
         // Sparkonto Balance
         double savingsBalance = 0.0;
