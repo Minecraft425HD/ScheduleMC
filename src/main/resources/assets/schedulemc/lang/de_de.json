@@ -4480,7 +4480,7 @@
   "overdraft.warning.initial": "§c§l⚠ KONTO ÜBERZOGEN!§r\n§7Schulden: §c%s\n§7Du hast §e28 Tage§7 Zeit, deine Schulden zu bezahlen.\n§7Tag 7: Automatischer Ausgleich über Bargeld/Sparkonto\n§7Tag 28: Gefängnis (1000€ = 1 Minute)\n§7Zinsen: §c%s pro Woche",
   "overdraft.warning.countdown": "§e§l⚠ SCHULDEN-WARNUNG!§r\n§7Aktuelle Schulden: §c%s\n§7Noch §c%s Tage§7 bis Gefängnis!\n§7Gefängniszeit: §c%s Minuten\n§7Zahle deine Schulden schnellstmöglich zurück!",
   "overdraft.interest.charged": "§c⚠ Überziehungszinsen abgebucht: -%s\n§7Neuer Kontostand: §c%s",
-  "overdraft.autorepay.executed": "§e§lAUTO-AUSGLEICH DURCHGEFÜHRT (Tag 7)§r\n§7Ausgeglichener Betrag: §a%s\n§7Genutzt: Bargeld (%s)\n§7Verbleibende Schulden: §c%s",
+  "overdraft.autorepay.executed": "§e§lAUTO-AUSGLEICH DURCHGEFÜHRT (Tag 7)§r\n§7Ausgeglichener Betrag: §a%s\n§7Genutzt: Bargeld (%s) + Sparkonto (%s)\n§7Verbleibende Schulden: §c%s",
   "overdraft.autorepay.failed": "§c§lAUTO-AUSGLEICH FEHLGESCHLAGEN!§r\n§7Schulden: §c%s\n§7Du hast kein Bargeld oder Sparkonto zum Ausgleichen!\n§7Noch §e21 Tage§7 bis Gefängnis!",
   "overdraft.prison.sent": "§c§l⚠ AB INS GEFÄNGNIS! ⚠§r\n§7Du konntest deine Schulden (§c%s§7) nicht bezahlen!\n§7Gefängniszeit: §c%s Minuten\n§7Deine Schulden werden nach der Strafe beglichen.",
   "manager.overdraft.health_details": "%s Spieler mit Schulden",

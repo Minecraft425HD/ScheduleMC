@@ -293,6 +293,10 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
 
         LOGGER.info("Auto-Repay started for {}: debt={}€", playerUUID, debt);
 
+        // Tracking für Benachrichtigung
+        double usedFromWallet = 0.0;
+        double usedFromSavings = 0.0;
+
         // 1. BARGELD nutzen
         double wallet = WalletManager.getBalance(playerUUID);
         if (wallet > 0) {
@@ -301,19 +305,49 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
             EconomyManager.deposit(playerUUID, useWallet, TransactionType.OVERDRAFT_REPAY_WALLET,
                 "Auto-Ausgleich: Bargeld");
             debt -= useWallet;
+            usedFromWallet = useWallet;
             LOGGER.info("Auto-Repay: Used {}€ from wallet", useWallet);
         }
 
         // 2. SPARKONTO nutzen (falls Bargeld nicht reicht)
-        if (debt > 0) {
-            double savings = SavingsAccountManager.getBalance(playerUUID);
-            if (savings > 0) {
-                double useSavings = Math.min(savings, debt);
-                SavingsAccountManager.withdraw(playerUUID, useSavings);
-                EconomyManager.deposit(playerUUID, useSavings, TransactionType.OVERDRAFT_REPAY_SAVINGS,
-                    "Auto-Ausgleich: Sparkonto");
-                debt -= useSavings;
-                LOGGER.info("Auto-Repay: Used {}€ from savings", useSavings);
+        if (debt > 0 && server != null) {
+            SavingsAccountManager savingsManager = SavingsAccountManager.getInstance(server);
+            if (savingsManager != null) {
+                List<SavingsAccount> savingsAccounts = savingsManager.getAccounts(playerUUID);
+
+                // Sortiere nach Balance (größte zuerst)
+                savingsAccounts.sort((a, b) -> Double.compare(b.getBalance(), a.getBalance()));
+
+                // Nehme von jedem Sparkonto ab (größte zuerst) bis Schulden beglichen
+                for (SavingsAccount account : savingsAccounts) {
+                    if (debt <= 0) break;
+
+                    double accountBalance = account.getBalance();
+                    if (accountBalance > 0) {
+                        double useFromThisAccount = Math.min(accountBalance, debt);
+
+                        // Abhebung durchführen (forced=true, auch wenn gesperrt)
+                        boolean success = savingsManager.withdrawFromSavings(
+                            playerUUID,
+                            account.getAccountId(),
+                            useFromThisAccount,
+                            true  // forced - auch gesperrte Konten nutzen
+                        );
+
+                        if (success) {
+                            // withdrawFromSavings zahlt bereits auf Girokonto ein
+                            // Wir müssen nur tracken
+                            usedFromSavings += useFromThisAccount;
+                            debt -= useFromThisAccount;
+                            LOGGER.info("Auto-Repay: Used {}€ from savings account {}",
+                                useFromThisAccount, account.getAccountId());
+                        }
+                    }
+                }
+
+                if (usedFromSavings > 0) {
+                    LOGGER.info("Auto-Repay: Total used from savings: {}€", usedFromSavings);
+                }
             }
         }
 
@@ -324,7 +358,8 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
             if (repaidAmount > 0) {
                 player.sendSystemMessage(Component.translatable("overdraft.autorepay.executed",
                     String.format("%.2f€", repaidAmount),
-                    String.format("%.2f€", wallet),
+                    String.format("%.2f€", usedFromWallet),
+                    String.format("%.2f€", usedFromSavings),
                     String.format("%.2f€", Math.max(0, debt))
                 ));
             } else {
