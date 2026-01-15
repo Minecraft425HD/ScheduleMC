@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.economy.blockentity;
 
 import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.economy.FeeManager;
+import de.rolandsw.schedulemc.economy.StateAccount;
 import de.rolandsw.schedulemc.economy.TransactionType;
 import de.rolandsw.schedulemc.economy.items.CashItem;
 import de.rolandsw.schedulemc.economy.menu.ATMMenu;
@@ -54,13 +55,15 @@ public class ATMBlockEntity extends BlockEntity implements MenuProvider {
             return false;
         }
 
-        // Transaktion durchführen - withdraw gibt boolean zurück!
-        if (EconomyManager.withdraw(player.getUUID(), amount, TransactionType.ATM_WITHDRAW, "ATM-Auszahlung")) {
+        // Transaktion durchführen
+        // 1. Ziehe Betrag + Gebühr vom Konto ab (totalCost)
+        if (EconomyManager.withdraw(player.getUUID(), totalCost, TransactionType.ATM_WITHDRAW, "ATM-Auszahlung inkl. Gebühr")) {
+            // 2. Gib nur den Betrag (ohne Gebühr) ins Wallet
             CashItem.addValue(wallet, amount);
 
-            // Gebühr abziehen
+            // 3. Überweise Gebühr an Staatskasse
             if (level != null && !level.isClientSide()) {
-                FeeManager.chargeATMFee(player.getUUID(), level.getServer());
+                StateAccount.getInstance(level.getServer()).deposit(atmFee, "ATM-Gebühr");
             }
 
             player.displayClientMessage(Component.translatable(
