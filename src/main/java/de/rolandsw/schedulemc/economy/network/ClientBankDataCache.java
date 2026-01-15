@@ -32,6 +32,13 @@ public class ClientBankDataCache {
     // Kredit
     private static CreditLoanData activeLoan = null;
 
+    // Überziehung (Dispo)
+    private static double overdraftAmount = 0.0;           // Wie viel überzogen?
+    private static int debtDaysPassed = 0;                 // Tage seit Überziehung
+    private static int daysUntilAutoRepay = 0;             // Tage bis Auto-Ausgleich (Tag 7)
+    private static int daysUntilPrison = 0;                // Tage bis Gefängnis (Tag 28)
+    private static double potentialPrisonMinutes = 0.0;    // Gefängniszeit in Minuten
+
     // Börsen-Daten
     private static double goldPrice = 150.0;
     private static double diamondPrice = 800.0;
@@ -103,6 +110,37 @@ public class ClientBankDataCache {
         transactions = new ArrayList<>(newTransactions);
         recurringPayments = new ArrayList<>(newRecurringPayments);
         activeLoan = newActiveLoan;
+        hasData = true;
+        lastUpdateTime = System.currentTimeMillis();
+    }
+
+    /**
+     * Update full bank data including overdraft info
+     */
+    public static void updateFullData(double newBalance, double newWalletBalance,
+                                      double newSavingsBalance, double newRemainingLimit,
+                                      double newMaxLimit, List<Transaction> newTransactions,
+                                      List<RecurringPaymentData> newRecurringPayments,
+                                      CreditLoanData newActiveLoan,
+                                      double newOverdraftAmount, int newDebtDaysPassed,
+                                      int newDaysUntilAutoRepay, int newDaysUntilPrison,
+                                      double newPotentialPrisonMinutes) {
+        balance = newBalance;
+        walletBalance = newWalletBalance;
+        savingsBalance = newSavingsBalance;
+        remainingTransferLimit = newRemainingLimit;
+        maxTransferLimit = newMaxLimit;
+        transactions = new ArrayList<>(newTransactions);
+        recurringPayments = new ArrayList<>(newRecurringPayments);
+        activeLoan = newActiveLoan;
+
+        // Dispo-Daten
+        overdraftAmount = newOverdraftAmount;
+        debtDaysPassed = newDebtDaysPassed;
+        daysUntilAutoRepay = newDaysUntilAutoRepay;
+        daysUntilPrison = newDaysUntilPrison;
+        potentialPrisonMinutes = newPotentialPrisonMinutes;
+
         hasData = true;
         lastUpdateTime = System.currentTimeMillis();
     }
@@ -197,6 +235,31 @@ public class ClientBankDataCache {
 
     public static CreditLoanData getActiveLoan() {
         return activeLoan;
+    }
+
+    // Overdraft Getters
+    public static double getOverdraftAmount() {
+        return overdraftAmount;
+    }
+
+    public static int getDebtDaysPassed() {
+        return debtDaysPassed;
+    }
+
+    public static int getDaysUntilAutoRepay() {
+        return daysUntilAutoRepay;
+    }
+
+    public static int getDaysUntilPrison() {
+        return daysUntilPrison;
+    }
+
+    public static double getPotentialPrisonMinutes() {
+        return potentialPrisonMinutes;
+    }
+
+    public static boolean isOverdrawn() {
+        return overdraftAmount > 0;
     }
 
     // Stock Market Getters
@@ -300,6 +363,13 @@ public class ClientBankDataCache {
         activeLoan = null;
         totalIncome = 0.0;
         totalExpenses = 0.0;
+
+        // Clear overdraft data
+        overdraftAmount = 0.0;
+        debtDaysPassed = 0;
+        daysUntilAutoRepay = 0;
+        daysUntilPrison = 0;
+        potentialPrisonMinutes = 0.0;
 
         // Clear stock data
         goldHistory.clear();

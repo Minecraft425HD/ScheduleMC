@@ -24,16 +24,33 @@ public class SyncFullBankDataPacket {
     private final List<RecurringPaymentData> recurringPayments;
     private final CreditLoanData activeLoan; // null if no active loan
 
+    // Dispo-Daten
+    private final double overdraftAmount;
+    private final int debtDaysPassed;
+    private final int daysUntilAutoRepay;
+    private final int daysUntilPrison;
+    private final double potentialPrisonMinutes;
+
     public SyncFullBankDataPacket(double balance, double walletBalance, double savingsBalance,
                                   double remainingTransferLimit, double maxTransferLimit,
                                   List<Transaction> transactions,
                                   List<ClientBankDataCache.RecurringPaymentData> recurringPayments,
-                                  ClientBankDataCache.CreditLoanData activeLoan) {
+                                  ClientBankDataCache.CreditLoanData activeLoan,
+                                  double overdraftAmount, int debtDaysPassed,
+                                  int daysUntilAutoRepay, int daysUntilPrison,
+                                  double potentialPrisonMinutes) {
         this.balance = balance;
         this.walletBalance = walletBalance;
         this.savingsBalance = savingsBalance;
         this.remainingTransferLimit = remainingTransferLimit;
         this.maxTransferLimit = maxTransferLimit;
+
+        // Dispo-Daten
+        this.overdraftAmount = overdraftAmount;
+        this.debtDaysPassed = debtDaysPassed;
+        this.daysUntilAutoRepay = daysUntilAutoRepay;
+        this.daysUntilPrison = daysUntilPrison;
+        this.potentialPrisonMinutes = potentialPrisonMinutes;
 
         // Convert transactions
         this.transactions = new ArrayList<>();
@@ -82,7 +99,10 @@ public class SyncFullBankDataPacket {
                                    double remainingTransferLimit, double maxTransferLimit,
                                    List<TransactionData> transactions,
                                    List<RecurringPaymentData> recurringPayments,
-                                   CreditLoanData activeLoan) {
+                                   CreditLoanData activeLoan,
+                                   double overdraftAmount, int debtDaysPassed,
+                                   int daysUntilAutoRepay, int daysUntilPrison,
+                                   double potentialPrisonMinutes) {
         this.balance = balance;
         this.walletBalance = walletBalance;
         this.savingsBalance = savingsBalance;
@@ -91,6 +111,13 @@ public class SyncFullBankDataPacket {
         this.transactions = transactions;
         this.recurringPayments = recurringPayments;
         this.activeLoan = activeLoan;
+
+        // Dispo-Daten
+        this.overdraftAmount = overdraftAmount;
+        this.debtDaysPassed = debtDaysPassed;
+        this.daysUntilAutoRepay = daysUntilAutoRepay;
+        this.daysUntilPrison = daysUntilPrison;
+        this.potentialPrisonMinutes = potentialPrisonMinutes;
     }
 
     public void encode(FriendlyByteBuf buf) {
@@ -140,6 +167,13 @@ public class SyncFullBankDataPacket {
             buf.writeDouble(activeLoan.dailyPayment);
             buf.writeInt(activeLoan.remainingDays);
         }
+
+        // Dispo-Daten
+        buf.writeDouble(overdraftAmount);
+        buf.writeInt(debtDaysPassed);
+        buf.writeInt(daysUntilAutoRepay);
+        buf.writeInt(daysUntilPrison);
+        buf.writeDouble(potentialPrisonMinutes);
     }
 
     public static SyncFullBankDataPacket decode(FriendlyByteBuf buf) {
@@ -191,8 +225,16 @@ public class SyncFullBankDataPacket {
             activeLoan = new CreditLoanData(loanType, totalAmount, remainingAmount, dailyPayment, remainingDays);
         }
 
+        // Dispo-Daten
+        double overdraftAmount = buf.readDouble();
+        int debtDaysPassed = buf.readInt();
+        int daysUntilAutoRepay = buf.readInt();
+        int daysUntilPrison = buf.readInt();
+        double potentialPrisonMinutes = buf.readDouble();
+
         return new SyncFullBankDataPacket(balance, walletBalance, savingsBalance,
-            remainingTransferLimit, maxTransferLimit, transactions, recurringPayments, activeLoan);
+            remainingTransferLimit, maxTransferLimit, transactions, recurringPayments, activeLoan,
+            overdraftAmount, debtDaysPassed, daysUntilAutoRepay, daysUntilPrison, potentialPrisonMinutes);
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
@@ -235,7 +277,7 @@ public class SyncFullBankDataPacket {
                 );
             }
 
-            // Update the client cache with full data
+            // Update the client cache with full data (including overdraft)
             ClientBankDataCache.updateFullData(
                 balance,
                 walletBalance,
@@ -244,7 +286,12 @@ public class SyncFullBankDataPacket {
                 maxTransferLimit,
                 transactionList,
                 recurringList,
-                loanData
+                loanData,
+                overdraftAmount,
+                debtDaysPassed,
+                daysUntilAutoRepay,
+                daysUntilPrison,
+                potentialPrisonMinutes
             );
         });
         ctx.get().setPacketHandled(true);

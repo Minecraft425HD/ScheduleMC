@@ -231,6 +231,81 @@ public class PrisonManager {
         return true;
     }
 
+    /**
+     * Sperrt Spieler wegen Schulden ein
+     * @param player Der Spieler
+     * @param minutes Gefängniszeit in Minuten
+     * @param debtAmount Die Schuldenhöhe (für Logging)
+     * @return true wenn erfolgreich
+     */
+    public static boolean imprisonPlayerForDebt(ServerPlayer player, int minutes, double debtAmount) {
+        UUID playerId = player.getUUID();
+
+        PrisonManager instance = getInstance();
+
+        if (instance.isPrisoner(playerId)) {
+            LOGGER.warn("Player {} is already imprisoned!", player.getName().getString());
+            return false;
+        }
+
+        PrisonCell cell = instance.findAvailableCell(1); // Wanted level 1 für Schulden-Zelle
+        if (cell == null) {
+            player.sendSystemMessage(Component.translatable(
+                "manager.prison.no_prison_available"));
+            return false;
+        }
+
+        int jailSeconds = minutes * 60;
+        long jailTicks = jailSeconds * 20L;
+        long currentTick = player.level().getGameTime();
+        long releaseTime = currentTick + jailTicks;
+
+        // KEIN Bail für Schulden-Gefängnis!
+        double bail = 0.0;
+        double playerBalance = 0.0;
+        long bailAvailableAtTick = Long.MAX_VALUE; // Nie verfügbar
+
+        PrisonerData data = new PrisonerData();
+        data.playerId = playerId;
+        data.playerName = player.getName().getString();
+        data.prisonPlotId = cell.getParentPlotId();
+        data.cellNumber = cell.getCellNumber();
+        data.setCellSpawn(cell.getSpawnPosition());
+        data.originalWantedLevel = 0; // Kein Crime, nur Schulden
+        data.arrestTime = System.currentTimeMillis();
+        data.releaseTime = releaseTime;
+        data.totalSentenceTicks = jailTicks;
+        data.bailAmount = 0.0; // Kein Bail möglich
+        data.lastOnlineTime = System.currentTimeMillis();
+
+        cell.assignInmate(playerId, releaseTime);
+        instance.prisoners.put(playerId, data);
+
+        BlockPos spawn = cell.getSpawnPosition();
+        player.teleportTo(spawn.getX() + 0.5, spawn.getY(), spawn.getZ() + 0.5);
+
+        instance.applyPrisonEffects(player, jailSeconds);
+
+        player.getPersistentData().putBoolean("IsInPrison", true);
+        player.getPersistentData().putLong("JailReleaseTime", releaseTime);
+        player.getPersistentData().putInt("JailCellNumber", cell.getCellNumber());
+
+        PrisonNetworkHandler.sendToPlayer(new OpenPrisonScreenPacket(
+            cell.getCellNumber(),
+            jailTicks,
+            releaseTime,
+            bail,
+            playerBalance,
+            bailAvailableAtTick
+        ), player);
+
+        LOGGER.warn("Player {} imprisoned for DEBT in cell {} for {} minutes (debt: {}€)",
+            data.playerName, cell.getCellNumber(), minutes, debtAmount);
+
+        instance.savePrisonerData();
+        return true;
+    }
+
     public void releasePlayer(ServerPlayer player, ReleaseReason reason) {
         UUID playerId = player.getUUID();
         PrisonerData data = prisoners.remove(playerId);

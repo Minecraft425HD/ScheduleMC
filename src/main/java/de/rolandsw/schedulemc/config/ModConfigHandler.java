@@ -43,8 +43,6 @@ public class ModConfigHandler {
         public final ForgeConfigSpec.DoubleValue SAVINGS_EARLY_WITHDRAWAL_PENALTY;
 
         // Overdraft (Dispo)
-        public final ForgeConfigSpec.DoubleValue OVERDRAFT_MAX_LIMIT;
-        public final ForgeConfigSpec.DoubleValue OVERDRAFT_WARNING_THRESHOLD;
         public final ForgeConfigSpec.DoubleValue OVERDRAFT_INTEREST_RATE;
 
         // Recurring Payments (Daueraufträge)
@@ -226,16 +224,11 @@ public class ModConfigHandler {
 
             builder.pop();
 
-            builder.comment("Overdraft Settings (Dispo)")
+            builder.comment("Overdraft Settings (Dispo - UNBEGRENZT!)",
+                            "Spieler können unbegrenzt ins Minus gehen.",
+                            "Tag 7: Auto-Ausgleich (Bargeld -> Sparkonto)",
+                            "Tag 28: Gefängnis (1000€ = 1 Minute)")
                     .push("overdraft");
-
-            OVERDRAFT_MAX_LIMIT = builder
-                    .comment("Maximales Dispo-Limit (negativ, z.B. -5000)")
-                    .defineInRange("max_limit", -5000.0, -100000.0, 0.0);
-
-            OVERDRAFT_WARNING_THRESHOLD = builder
-                    .comment("Warnschwelle (negativ, z.B. -2500)")
-                    .defineInRange("warning_threshold", -2500.0, -100000.0, 0.0);
 
             OVERDRAFT_INTEREST_RATE = builder
                     .comment("Dispo-Zinssatz pro Woche (0.25 = 25%)")

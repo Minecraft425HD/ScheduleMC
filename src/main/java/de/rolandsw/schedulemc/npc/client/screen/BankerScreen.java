@@ -74,6 +74,8 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
     private Button savingsWithdrawButton;
     private EditBox savingsDepositAmountInput;
     private EditBox savingsWithdrawAmountInput;
+    private Button savingsForceWithdrawCheckbox;
+    private boolean forceWithdrawEnabled = false;
 
     // Überweisung Tab Components
     private EditBox transferTargetInput;
@@ -182,6 +184,11 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
             handleSavingsWithdraw();
         }).bounds(x + 110, y + 140, 95, 18).build());
 
+        savingsForceWithdrawCheckbox = addRenderableWidget(Button.builder(Component.literal("[ ]"), button -> {
+            forceWithdrawEnabled = !forceWithdrawEnabled;
+            button.setMessage(Component.literal(forceWithdrawEnabled ? "[✓]" : "[ ]"));
+        }).bounds(x + 210, y + 140, 20, 18).build());
+
         // Überweisung Tab Components
         transferTargetInput = new EditBox(this.font, x + 15, y + 70, 190, 18, Component.translatable("gui.common.player_name"));
         transferTargetInput.setMaxLength(16);
@@ -205,7 +212,12 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         }).bounds(x + 200, y + 45, 15, 18).build());
 
         scrollDownButton = addRenderableWidget(Button.builder(Component.literal("▼"), button -> {
-            transactionScrollOffset++;
+            List<Transaction> transactions = ClientBankDataCache.getTransactions();
+            int maxDisplay = 8;
+            int maxScroll = Math.max(0, transactions.size() - maxDisplay);
+            if (transactionScrollOffset < maxScroll) {
+                transactionScrollOffset++;
+            }
         }).bounds(x + 200, y + 155, 15, 18).build());
 
         // Daueraufträge Tab Components
@@ -230,10 +242,10 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
             handleRecurringCreate();
         }).bounds(x + 145, y + 145, 120, 18).build());
 
-        // Close Button
+        // Close Button (rechts unten)
         closeButton = addRenderableWidget(Button.builder(Component.translatable("gui.common.close"), button -> {
             this.onClose();
-        }).bounds(x + 60, y + 205, 100, 20).build());
+        }).bounds(x + 210, y + 205, 60, 20).build());
 
         // Initial tab
         updateComponentVisibility();
@@ -267,6 +279,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         savingsDepositButton.visible = isSparkonto;
         savingsWithdrawAmountInput.visible = isSparkonto;
         savingsWithdrawButton.visible = isSparkonto;
+        savingsForceWithdrawCheckbox.visible = isSparkonto;
 
         transferTargetInput.visible = isUeberweisung;
         transferAmountInput.visible = isUeberweisung;
@@ -321,7 +334,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         try {
             double amount = Double.parseDouble(savingsWithdrawAmountInput.getValue());
             if (amount > 0) {
-                NPCNetworkHandler.sendToServer(new SavingsWithdrawPacket(amount));
+                NPCNetworkHandler.sendToServer(new SavingsWithdrawPacket(amount, forceWithdrawEnabled));
                 // GUI bleibt offen
             }
         } catch (NumberFormatException e) {
@@ -424,6 +437,32 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
 
         double depositLimit = ModConfigHandler.COMMON.BANK_DEPOSIT_LIMIT.get();
         g.drawString(font, Component.translatable("gui.bank.limit").getString() + String.format("%.0f€", depositLimit), x + 15, y + 170, 0x606060, false);
+
+        // DISPO-ANZEIGE
+        if (ClientBankDataCache.isOverdrawn()) {
+            double overdraft = ClientBankDataCache.getOverdraftAmount();
+            int daysPassed = ClientBankDataCache.getDebtDaysPassed();
+            int daysUntilPrison = ClientBankDataCache.getDaysUntilPrison();
+            int daysUntilAutoRepay = ClientBankDataCache.getDaysUntilAutoRepay();
+            double prisonMinutes = ClientBankDataCache.getPotentialPrisonMinutes();
+
+            // Warnung: KONTO ÜBERZOGEN!
+            g.drawString(font, "§c§l⚠ KONTO ÜBERZOGEN!", x + 20, y + 185, 0xFF5555, false);
+            g.drawString(font, String.format("§cSchulden: %.2f€", overdraft), x + 20, y + 197, 0xFF5555, false);
+
+            // Phase-abhängige Anzeige
+            if (daysPassed < 7) {
+                // Tag 1-6: Countdown zu Auto-Repay
+                g.drawString(font, String.format("§eAuto-Ausgleich in %d Tagen", daysUntilAutoRepay), x + 20, y + 209, 0xFFAA00, false);
+            } else if (daysPassed >= 7 && daysUntilPrison > 0) {
+                // Tag 7-27: Countdown zu Gefängnis
+                g.drawString(font, String.format("§cGefängnis in %d Tagen!", daysUntilPrison), x + 20, y + 209, 0xFF0000, false);
+                g.drawString(font, String.format("§cStrafe: %.1f Minuten", prisonMinutes), x + 20, y + 221, 0xFF5555, false);
+            } else if (daysUntilPrison == 0) {
+                // Tag 28+: KRITISCH!
+                g.drawString(font, "§4§lAB INS GEFÄNGNIS!", x + 20, y + 209, 0xAA0000, false);
+            }
+        }
     }
 
     private void renderSparkontoTab(GuiGraphics g, int x, int y) {
@@ -439,6 +478,9 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
 
         g.drawString(font, Component.translatable("gui.bank.deposit_from_checking").getString(), x + 15, y + 85, 0x808080, false);
         g.drawString(font, Component.translatable("gui.bank.withdraw_to_checking").getString(), x + 15, y + 128, 0x808080, false);
+
+        // Label für Checkbox
+        g.drawString(font, "10%", x + 235, y + 144, 0xFF5555, false);
 
         g.drawString(font, Component.translatable("gui.bank.interest").getString(), x + 15, y + 170, 0x606060, false);
         g.drawString(font, Component.translatable("gui.bank.minimum").getString(), x + 15, y + 182, 0x606060, false);
@@ -490,7 +532,9 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         }
 
         if (transactions.size() > maxDisplay) {
-            g.drawString(font, String.format("%d/%d", startIndex + 1, transactions.size()), x + 165, y + 160, 0x808080, false);
+            // Zeige "Start-Ende von Gesamt" statt "Start/Gesamt"
+            String displayText = String.format("%d-%d/%d", startIndex + 1, endIndex, transactions.size());
+            g.drawString(font, displayText, x + 155, y + 160, 0x808080, false);
         }
     }
 

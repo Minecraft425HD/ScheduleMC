@@ -42,6 +42,9 @@ public enum TransactionType {
     PLOT_PURCHASE,
     PLOT_SALE,
     PLOT_RENT,
+    OVERDRAFT_REPAY_WALLET,
+    OVERDRAFT_REPAY_SAVINGS,
+    PRISON_DEBT_CLEARED,
     OTHER;
 
     public String getDisplayName() {

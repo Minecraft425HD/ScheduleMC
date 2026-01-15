@@ -315,14 +315,11 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
             if (currentBalance == null) currentBalance = 0.0;
             double newBalance = currentBalance - amount;
 
-            // Prüfe ob genug Guthaben ODER Dispo-Limit nicht überschritten
-            if (currentBalance >= amount || de.rolandsw.schedulemc.economy.OverdraftManager.canOverdraft(newBalance)) {
-                resultBalance[0] = newBalance;
-                success[0] = true;
-                return newBalance;
-            }
-            resultBalance[0] = currentBalance;
-            return currentBalance; // Keine Änderung
+            // UNBEGRENZTES Dispo - Spieler kann immer ins Minus gehen
+            // OverdraftManager regelt Konsequenzen (Tag 7: Auto-Repay, Tag 28: Gefängnis)
+            resultBalance[0] = newBalance;
+            success[0] = true;
+            return newBalance;
         });
 
         if (success[0]) {
