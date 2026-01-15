@@ -128,6 +128,26 @@ public class RequestBankDataPacket {
             }
         }
 
+        // Overdraft (Dispo) Data
+        double overdraftAmount = 0.0;
+        int debtDaysPassed = 0;
+        int daysUntilAutoRepay = 0;
+        int daysUntilPrison = 0;
+        double potentialPrisonMinutes = 0.0;
+
+        if (server != null) {
+            OverdraftManager overdraftManager = OverdraftManager.getInstance(server);
+            if (overdraftManager != null) {
+                overdraftAmount = OverdraftManager.getOverdraftAmount(balance);
+                if (overdraftAmount > 0) {
+                    debtDaysPassed = overdraftManager.getDaysSinceDebtStart(playerUUID);
+                    daysUntilAutoRepay = overdraftManager.getDaysUntilAutoRepay(playerUUID);
+                    daysUntilPrison = overdraftManager.getDaysUntilPrison(playerUUID);
+                    potentialPrisonMinutes = overdraftManager.getPotentialPrisonMinutes(overdraftAmount);
+                }
+            }
+        }
+
         // ═══════════════════════════════════════════════════════════════════════════
         // Send comprehensive data to client
         // ═══════════════════════════════════════════════════════════════════════════
@@ -141,7 +161,12 @@ public class RequestBankDataPacket {
             maxTransferLimit,
             transactions,
             recurringPayments,
-            activeLoan
+            activeLoan,
+            overdraftAmount,
+            debtDaysPassed,
+            daysUntilAutoRepay,
+            daysUntilPrison,
+            potentialPrisonMinutes
         );
         de.rolandsw.schedulemc.npc.network.NPCNetworkHandler.INSTANCE.sendTo(
             fullPacket,

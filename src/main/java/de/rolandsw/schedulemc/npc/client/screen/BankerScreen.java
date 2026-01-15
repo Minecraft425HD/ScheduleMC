@@ -424,6 +424,32 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
 
         double depositLimit = ModConfigHandler.COMMON.BANK_DEPOSIT_LIMIT.get();
         g.drawString(font, Component.translatable("gui.bank.limit").getString() + String.format("%.0f€", depositLimit), x + 15, y + 170, 0x606060, false);
+
+        // DISPO-ANZEIGE
+        if (ClientBankDataCache.isOverdrawn()) {
+            double overdraft = ClientBankDataCache.getOverdraftAmount();
+            int daysPassed = ClientBankDataCache.getDebtDaysPassed();
+            int daysUntilPrison = ClientBankDataCache.getDaysUntilPrison();
+            int daysUntilAutoRepay = ClientBankDataCache.getDaysUntilAutoRepay();
+            double prisonMinutes = ClientBankDataCache.getPotentialPrisonMinutes();
+
+            // Warnung: KONTO ÜBERZOGEN!
+            g.drawString(font, "§c§l⚠ KONTO ÜBERZOGEN!", x + 20, y + 185, 0xFF5555, false);
+            g.drawString(font, String.format("§cSchulden: %.2f€", overdraft), x + 20, y + 197, 0xFF5555, false);
+
+            // Phase-abhängige Anzeige
+            if (daysPassed < 7) {
+                // Tag 1-6: Countdown zu Auto-Repay
+                g.drawString(font, String.format("§eAuto-Ausgleich in %d Tagen", daysUntilAutoRepay), x + 20, y + 209, 0xFFAA00, false);
+            } else if (daysPassed >= 7 && daysUntilPrison > 0) {
+                // Tag 7-27: Countdown zu Gefängnis
+                g.drawString(font, String.format("§cGefängnis in %d Tagen!", daysUntilPrison), x + 20, y + 209, 0xFF0000, false);
+                g.drawString(font, String.format("§cStrafe: %.1f Minuten", prisonMinutes), x + 20, y + 221, 0xFF5555, false);
+            } else if (daysUntilPrison == 0) {
+                // Tag 28+: KRITISCH!
+                g.drawString(font, "§4§lAB INS GEFÄNGNIS!", x + 20, y + 209, 0xAA0000, false);
+            }
+        }
     }
 
     private void renderSparkontoTab(GuiGraphics g, int x, int y) {
