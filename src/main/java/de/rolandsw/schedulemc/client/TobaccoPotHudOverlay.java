@@ -234,18 +234,28 @@ public class TobaccoPotHudOverlay {
                 lightLevel = foundGrowLight.getTier().getLightLevel();
                 lightSource = " §7(Growlight " + foundGrowLight.getTier().name() + ")";
             } else {
-                // Kein Growlight → Zeige tatsächliches Lichtlevel mit Tag/Nacht-Variation
+                // Kein Growlight → Berechne tatsächliches Lichtlevel mit Tag/Nacht-Variation
                 BlockPos checkPos = potPos.above(2);
 
                 // Hole SKY und BLOCK Licht separat
                 int skyLight = mc.level.getBrightness(net.minecraft.world.level.LightLayer.SKY, checkPos);
                 int blockLight = mc.level.getBrightness(net.minecraft.world.level.LightLayer.BLOCK, checkPos);
 
-                // Berechne tatsächliches Himmelslicht unter Berücksichtigung der Tageszeit
-                int skyDarken = mc.level.getSkyDarken();
+                // Berechne Sky Darken basierend auf Tageszeit (für Overworld)
+                int skyDarken = 0;
+                if (mc.level.dimensionType().hasSkyLight()) {
+                    // Verwende die Dimension's brightness Berechnung
+                    float celestialAngle = mc.level.getTimeOfDay(1.0F);
+                    // Sky darken basiert auf dem celestial angle (0.0 = Mittag, 0.5 = Mitternacht)
+                    float brightness = (float) Math.cos(celestialAngle * 2.0F * Math.PI) * 2.0F + 0.5F;
+                    brightness = net.minecraft.util.Mth.clamp(brightness, 0.0F, 1.0F);
+                    skyDarken = Math.round((1.0F - brightness) * 11.0F);
+                }
+
+                // Berechne angepasstes Himmelslicht (mit Tageszeit)
                 int adjustedSkyLight = Math.max(0, skyLight - skyDarken);
 
-                // Kombiniertes Licht = Maximum aus Himmelslicht und Blocklicht
+                // Kombiniertes Licht = Maximum aus angepasstem Himmelslicht und Blocklicht
                 lightLevel = Math.max(adjustedSkyLight, blockLight);
 
                 // Prüfe ob es Sonnenlicht ist (SKY > BLOCK)
