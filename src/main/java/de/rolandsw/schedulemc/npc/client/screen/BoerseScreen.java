@@ -261,6 +261,11 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
         guiGraphics.drawString(this.font, String.format("Cost: %.0f€", totalCost), x + 137, y + 145, 0xFFAA00, false);
         guiGraphics.drawString(this.font, "Own: " + playerStock + "x", x + 137, y + 155, 0x606060, false);
 
+        // Steuer-Hinweis (falls Spieler Items besitzt)
+        if (playerStock > 0) {
+            guiGraphics.drawString(this.font, "⚠ Hold 7d for tax-free", x + 137, y + 164, 0xFFAA00, false);
+        }
+
         // === BOTTOM PANEL: Portfolio ===
         guiGraphics.drawString(this.font, "PORTFOLIO", x + 8, y + 165, 0x404040, false);
 

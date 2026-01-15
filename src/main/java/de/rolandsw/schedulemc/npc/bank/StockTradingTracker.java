@@ -76,7 +76,7 @@ public class StockTradingTracker extends AbstractPersistenceManager<Map<UUID, St
     }
 
     /**
-     * Registriert einen Verkauf und berechnet Gewinn/Verlust
+     * Registriert einen Verkauf und berechnet Gewinn/Verlust + Spekulationssteuer
      *
      * WICHTIG - Achievement Integration:
      * - Trading-Gewinne triggern BIG_SPENDER (Gesamt-Verdienst)
@@ -84,9 +84,14 @@ public class StockTradingTracker extends AbstractPersistenceManager<Map<UUID, St
      *   da der Gewinn via EconomyManager.deposit() ins Geld eingezahlt wird
      *   und AchievementTracker alle 60s den Balance-Check macht
      *
-     * @return Gewinn (positiv) oder Verlust (negativ)
+     * SPEKULATIONSSTEUER:
+     * - Berechnet Durchschnittsalter aller verkauften Items
+     * - Falls Ø < 7 Tage: 25% Steuer auf Verkaufswert
+     * - Steuer wird aus Economy entfernt (geht "an den Staat")
+     *
+     * @return Array: [0]=Gewinn/Verlust, [1]=Steuer, [2]=Durchschnittsalter in Tagen
      */
-    public double recordSale(UUID playerUUID, Item item, int quantity, double pricePerUnit) {
+    public double[] recordSaleWithTax(UUID playerUUID, Item item, int quantity, double pricePerUnit) {
         PlayerTradingData data = playerData.computeIfAbsent(playerUUID, PlayerTradingData::new);
 
         // Berechne durchschnittlichen Kaufpreis
@@ -95,6 +100,40 @@ public class StockTradingTracker extends AbstractPersistenceManager<Map<UUID, St
         // Berechne Gewinn/Verlust
         double profitPerUnit = pricePerUnit - avgBuyPrice;
         double totalProfit = profitPerUnit * quantity;
+
+        // ========== SPEKULATIONSSTEUER BERECHNUNG ==========
+        // Berechne Durchschnittsalter der verkauften Items (FIFO)
+        long totalAgeMs = 0;
+        int itemCount = 0;
+        long currentTime = System.currentTimeMillis();
+
+        List<Purchase> purchases = data.holdings.get(getItemKey(item));
+        if (purchases != null) {
+            for (Purchase purchase : purchases) {
+                int sellAmount = Math.min(purchase.quantity, quantity - itemCount);
+                long ageMs = currentTime - purchase.timestamp;
+                totalAgeMs += ageMs * sellAmount;
+                itemCount += sellAmount;
+
+                if (itemCount >= quantity) break;
+            }
+        }
+
+        // Durchschnittsalter in Millisekunden und Tagen
+        long avgAgeMs = itemCount > 0 ? totalAgeMs / itemCount : 0;
+        double avgAgeDays = avgAgeMs / (24.0 * 60.0 * 60.0 * 1000.0);
+
+        // Spekulationssteuer: 25% wenn < 7 Tage
+        long sevenDaysMs = 7L * 24L * 60L * 60L * 1000L;
+        double taxRate = avgAgeMs < sevenDaysMs ? 0.25 : 0.0;
+        double totalRevenue = pricePerUnit * quantity;
+        double tax = totalRevenue * taxRate;
+
+        // Statistiken aktualisieren
+        data.totalTaxPaid += tax;
+        if (taxRate == 0.0) {
+            data.taxFreeTrades++;
+        }
 
         // Entferne verkaufte Items aus Holdings (FIFO)
         data.removeSold(item, quantity);
@@ -138,6 +177,11 @@ public class StockTradingTracker extends AbstractPersistenceManager<Map<UUID, St
                 achievementManager.setProgress(playerUUID, "BIG_LOSER", data.totalLoss);
             }
 
+            // Steuerfreie Trades Achievement
+            if (taxRate == 0.0) {
+                achievementManager.addProgress(playerUUID, "PATIENT_INVESTOR", 1.0);
+            }
+
             // Erfolgsrate Achievements
             if (data.totalTrades >= 10) {
                 double successRate = (double) data.profitableTrades / data.totalTrades * 100.0;
@@ -148,7 +192,15 @@ public class StockTradingTracker extends AbstractPersistenceManager<Map<UUID, St
         }
 
         save();
-        return totalProfit;
+        return new double[] { totalProfit, tax, avgAgeDays };
+    }
+
+    /**
+     * Legacy-Methode für Backward Compatibility
+     */
+    public double recordSale(UUID playerUUID, Item item, int quantity, double pricePerUnit) {
+        double[] result = recordSaleWithTax(playerUUID, item, quantity, pricePerUnit);
+        return result[0]; // Nur Gewinn/Verlust zurückgeben
     }
 
     /**
@@ -156,6 +208,16 @@ public class StockTradingTracker extends AbstractPersistenceManager<Map<UUID, St
      */
     public PlayerTradingData getPlayerData(UUID playerUUID) {
         return playerData.computeIfAbsent(playerUUID, PlayerTradingData::new);
+    }
+
+    /**
+     * Hilfsmethode: Konvertiert Item zu String-Key
+     */
+    private String getItemKey(Item item) {
+        if (item == Items.GOLD_INGOT) return "gold";
+        if (item == Items.DIAMOND) return "diamond";
+        if (item == Items.EMERALD) return "emerald";
+        return "unknown";
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -221,6 +283,13 @@ public class StockTradingTracker extends AbstractPersistenceManager<Map<UUID, St
 
         @SerializedName("losingTrades")
         private int losingTrades = 0;
+
+        // Steuer-Statistiken
+        @SerializedName("totalTaxPaid")
+        private double totalTaxPaid = 0.0;
+
+        @SerializedName("taxFreeTrades")
+        private int taxFreeTrades = 0;
 
         public PlayerTradingData(UUID playerUUID) {
             this.playerUUID = playerUUID;
@@ -291,6 +360,8 @@ public class StockTradingTracker extends AbstractPersistenceManager<Map<UUID, St
         public int getTotalTrades() { return totalTrades; }
         public int getProfitableTrades() { return profitableTrades; }
         public int getLosingTrades() { return losingTrades; }
+        public double getTotalTaxPaid() { return totalTaxPaid; }
+        public int getTaxFreeTrades() { return taxFreeTrades; }
 
         public double getSuccessRate() {
             return totalTrades > 0 ? (double) profitableTrades / totalTrades * 100.0 : 0.0;
@@ -298,6 +369,38 @@ public class StockTradingTracker extends AbstractPersistenceManager<Map<UUID, St
 
         public double getNetProfit() {
             return totalProfit - totalLoss;
+        }
+
+        public double getTaxSavings() {
+            // Grobe Schätzung: Durchschnittlicher Trade-Wert wäre ohne Steuervermeidung besteuert
+            // Hier könnte man eine genauere Berechnung machen
+            return taxFreeTrades > 0 ? totalTaxPaid / taxFreeTrades * taxFreeTrades : 0.0;
+        }
+
+        /**
+         * Gibt Durchschnittsalter der aktuellen Holdings für ein Item zurück (in Tagen)
+         */
+        public double getAverageHoldingAge(Item item) {
+            String itemKey = getItemKey(item);
+            List<Purchase> purchases = holdings.get(itemKey);
+            if (purchases == null || purchases.isEmpty()) {
+                return 0.0;
+            }
+
+            long currentTime = System.currentTimeMillis();
+            long totalAge = 0;
+            int totalQuantity = 0;
+
+            for (Purchase purchase : purchases) {
+                long age = currentTime - purchase.timestamp;
+                totalAge += age * purchase.quantity;
+                totalQuantity += purchase.quantity;
+            }
+
+            if (totalQuantity == 0) return 0.0;
+
+            long avgAgeMs = totalAge / totalQuantity;
+            return avgAgeMs / (24.0 * 60.0 * 60.0 * 1000.0); // Convert to days
         }
     }
 

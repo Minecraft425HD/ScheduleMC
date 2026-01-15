@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.npc.network;
 
 import de.rolandsw.schedulemc.economy.EconomyManager;
+import de.rolandsw.schedulemc.economy.StateAccount;
 import de.rolandsw.schedulemc.economy.TransactionType;
 import de.rolandsw.schedulemc.npc.bank.StockMarketData;
 import de.rolandsw.schedulemc.npc.bank.StockTradingTracker;
@@ -219,13 +220,24 @@ public class StockTradePacket {
             }
         }
 
-        // Zahle Geld ein
-        EconomyManager.deposit(player.getUUID(), totalRevenue, TransactionType.SHOP_PAYOUT,
-            "Börsenverkauf: " + quantity + "x " + itemName);
-
-        // Tracke Verkauf und berechne Gewinn/Verlust
+        // Tracke Verkauf und berechne Gewinn/Verlust + Spekulationssteuer
         StockTradingTracker tracker = StockTradingTracker.getInstance(player.server);
-        double profitLoss = tracker.recordSale(player.getUUID(), item, quantity, pricePerUnit);
+        double[] saleResult = tracker.recordSaleWithTax(player.getUUID(), item, quantity, pricePerUnit);
+        double profitLoss = saleResult[0];
+        double tax = saleResult[1];
+        double avgAgeDays = saleResult[2];
+
+        // Berechne Netto-Erlös (nach Steuer)
+        double netRevenue = totalRevenue - tax;
+
+        // Zahle Spekulationssteuer an den Staat
+        if (tax > 0) {
+            StateAccount.deposit((int) Math.round(tax), "Spekulationssteuer: " + quantity + "x " + itemName);
+        }
+
+        // Zahle Netto-Betrag an Spieler aus
+        EconomyManager.deposit(player.getUUID(), netRevenue, TransactionType.SHOP_PAYOUT,
+            "Börsenverkauf: " + quantity + "x " + itemName);
 
         // Erfolgs-Nachricht
         player.sendSystemMessage(Component.literal("═══════════════════════════════")
@@ -242,10 +254,33 @@ public class StockTradePacket {
             .withStyle(ChatFormatting.GRAY)
             .append(Component.literal(String.format("%.2f€", pricePerUnit))
                 .withStyle(ChatFormatting.GOLD)));
-        player.sendSystemMessage(Component.translatable("message.stock.total_proceeds")
+
+        // Zeige Haltezeit
+        player.sendSystemMessage(Component.translatable("message.stock.holding_time")
             .withStyle(ChatFormatting.GRAY)
-            .append(Component.literal(String.format("+%.2f€", totalRevenue))
+            .append(Component.literal(String.format("%.1f Tage", avgAgeDays))
+                .withStyle(avgAgeDays >= 7.0 ? ChatFormatting.GREEN : ChatFormatting.YELLOW)));
+
+        // Bruttoerlös
+        player.sendSystemMessage(Component.translatable("message.stock.gross_proceeds")
+            .withStyle(ChatFormatting.GRAY)
+            .append(Component.literal(String.format("%.2f€", totalRevenue))
+                .withStyle(ChatFormatting.YELLOW)));
+
+        // Spekulationssteuer (falls vorhanden)
+        if (tax > 0) {
+            player.sendSystemMessage(Component.translatable("message.stock.speculation_tax")
+                .withStyle(ChatFormatting.GRAY)
+                .append(Component.literal(String.format("-%.2f€ (25%%)", tax))
+                    .withStyle(ChatFormatting.RED)));
+        }
+
+        // Nettoerlös
+        player.sendSystemMessage(Component.translatable("message.stock.net_proceeds")
+            .withStyle(ChatFormatting.GRAY)
+            .append(Component.literal(String.format("+%.2f€", netRevenue))
                 .withStyle(ChatFormatting.GREEN)));
+
         player.sendSystemMessage(Component.translatable("message.bank.new_balance_label")
             .withStyle(ChatFormatting.GRAY)
             .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID())))
