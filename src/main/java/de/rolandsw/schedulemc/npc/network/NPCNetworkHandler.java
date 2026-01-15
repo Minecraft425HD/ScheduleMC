@@ -238,6 +238,12 @@ public class NPCNetworkHandler {
             .encoder(de.rolandsw.schedulemc.economy.network.SyncBankDataPacket::encode)
             .consumerMainThread(de.rolandsw.schedulemc.economy.network.SyncBankDataPacket::handle)
             .add();
+
+        INSTANCE.messageBuilder(de.rolandsw.schedulemc.economy.network.SyncFullBankDataPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+            .decoder(de.rolandsw.schedulemc.economy.network.SyncFullBankDataPacket::decode)
+            .encoder(de.rolandsw.schedulemc.economy.network.SyncFullBankDataPacket::encode)
+            .consumerMainThread(de.rolandsw.schedulemc.economy.network.SyncFullBankDataPacket::handle)
+            .add();
     }
 
     public static <MSG> void sendToServer(MSG message) {

@@ -136,22 +136,21 @@ public class RequestBankDataPacket {
         // Send comprehensive data to client
         // ═══════════════════════════════════════════════════════════════════════════
 
-        // First send basic bank data (for compatibility)
-        SyncBankDataPacket basicPacket = new SyncBankDataPacket(balance, transactions, totalIncome, totalExpenses);
+        // Send full bank data (includes everything)
+        SyncFullBankDataPacket fullPacket = new SyncFullBankDataPacket(
+            balance,
+            walletBalance,
+            savingsBalance,
+            remainingTransferLimit,
+            maxTransferLimit,
+            transactions,
+            recurringPayments,
+            activeLoan
+        );
         de.rolandsw.schedulemc.npc.network.NPCNetworkHandler.INSTANCE.sendTo(
-            basicPacket,
+            fullPacket,
             player.connection.connection,
             net.minecraftforge.network.NetworkDirection.PLAY_TO_CLIENT
         );
-
-        // Also send full data via ATM sync (includes wallet)
-        SyncATMDataPacket atmPacket = new SyncATMDataPacket(balance, walletBalance, true, "");
-        EconomyNetworkHandler.INSTANCE.send(
-            net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> player),
-            atmPacket
-        );
-
-        // Update client cache directly with full data
-        // Note: This is done via the packets above - the client will receive both and update accordingly
     }
 }
