@@ -119,6 +119,13 @@ public class PartBody extends PartModel {
         return wheel instanceof PartStandardTire;
     }
 
+    /**
+     * Returns the base number of inventory slots for this chassis type.
+     * Can be overridden by config in subclasses.
+     * @return Number of inventory slots (0-54)
+     */
+    public abstract int getBaseInventorySize();
+
     @Override
     public boolean validate(List<Part> parts, List<Component> messages) {
         int wheelAmount = getAmount(parts, part -> part instanceof PartTireBase);

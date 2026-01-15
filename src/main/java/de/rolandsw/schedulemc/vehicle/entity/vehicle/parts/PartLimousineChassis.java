@@ -31,4 +31,9 @@ public class PartLimousineChassis extends PartChassisBase {
         this.maxSpeed = () -> ModConfigHandler.VEHICLE_SERVER.limousineChassisMaxSpeed.get().floatValue();
     }
 
+    @Override
+    public int getBaseInventorySize() {
+        return ModConfigHandler.VEHICLE_SERVER.limousineChassisInventorySlots.get();
+    }
+
 }

@@ -32,4 +32,9 @@ public class PartVanChassis extends PartChassisBase {
         this.maxSpeed = () -> ModConfigHandler.VEHICLE_SERVER.vanChassisMaxSpeed.get().floatValue();
     }
 
+    @Override
+    public int getBaseInventorySize() {
+        return ModConfigHandler.VEHICLE_SERVER.vanChassisInventorySlots.get();
+    }
+
 }

@@ -358,14 +358,23 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     private void checkInitializing() {
         PartBody body = getPartByClass(PartBody.class);
 
-        if (body instanceof PartTruckChassis) {
-            PartContainer container = getPartByClass(PartContainer.class);
-            if (container != null) {
-                inventoryComponent.setExternalInventorySize(54);
+        // Calculate external inventory size
+        int externalSlots = 0;
+        if (body != null) {
+            // For Trucks: Container REPLACES base inventory (Replacement Mode)
+            if (body instanceof PartTruckChassis) {
+                PartContainer container = getPartByClass(PartContainer.class);
+                if (container != null) {
+                    externalSlots = container.getSlotCount(); // 12 Slots (replaces 0 base)
+                } else {
+                    externalSlots = body.getBaseInventorySize(); // 0 Slots
+                }
             } else {
-                inventoryComponent.setExternalInventorySize(27);
+                // For other vehicles: Only base inventory (containers not allowed)
+                externalSlots = body.getBaseInventorySize(); // 4/6/3/6 Slots
             }
         }
+        inventoryComponent.setExternalInventorySize(externalSlots);
 
         PartTireBase partWheels = getPartByClass(PartTireBase.class);
         if (partWheels != null) {

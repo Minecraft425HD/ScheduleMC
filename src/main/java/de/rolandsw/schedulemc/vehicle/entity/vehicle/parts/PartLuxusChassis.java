@@ -29,4 +29,9 @@ public class PartLuxusChassis extends PartBody {
         this.maxSpeed = () -> ModConfigHandler.VEHICLE_SERVER.luxusChassisMaxSpeed.get().floatValue();
     }
 
+    @Override
+    public int getBaseInventorySize() {
+        return ModConfigHandler.VEHICLE_SERVER.luxusChassisInventorySlots.get();
+    }
+
 }
