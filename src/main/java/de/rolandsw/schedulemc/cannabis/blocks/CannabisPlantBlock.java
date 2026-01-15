@@ -300,26 +300,22 @@ public class CannabisPlantBlock extends Block {
 
     /**
      * Verifiziert und korrigiert die Ressourcen nach der Ernte
-     * GARANTIERT dass EXAKT 100 Wasser und 33 Erde verbraucht wurden
-     * Korrigiert in beide Richtungen (zu viel UND zu wenig verbraucht)
+     * WASSER: Garantiert EXAKT 100 verbraucht
+     * ERDE: Bleibt unverändert (wurde bereits korrekt während Wachstum verbraucht)
      */
     private void verifyAndCorrectResources(de.rolandsw.schedulemc.production.data.PlantPotData potData,
                                            int targetWater, int targetSoil) {
         int maxWater = potData.getMaxWater();
-        int maxSoil = potData.getMaxSoil();
-
         double currentWater = potData.getWaterLevelExact();
-        double currentSoil = potData.getSoilLevelExact();
 
-        // Berechne wie viel TATSÄCHLICH verbraucht wurde
+        // Berechne wie viel Wasser TATSÄCHLICH verbraucht wurde
         double actualWaterConsumed = maxWater - currentWater;
-        double actualSoilConsumed = maxSoil - currentSoil;
 
         // ═══════════════════════════════════════════════════════
         // WASSER: Garantiere EXAKT 100 verbraucht
         // ═══════════════════════════════════════════════════════
         double waterDifference = targetWater - actualWaterConsumed;
-        if (Math.abs(waterDifference) > 0.001) {  // Nur wenn Abweichung vorhanden
+        if (Math.abs(waterDifference) > 0.001) {
             // Zu wenig verbraucht → noch mehr abziehen
             // Zu viel verbraucht → etwas zurückgeben
             double correctedWater = currentWater - waterDifference;
@@ -327,15 +323,11 @@ public class CannabisPlantBlock extends Block {
         }
 
         // ═══════════════════════════════════════════════════════
-        // ERDE: Garantiere EXAKT 33 verbraucht
+        // ERDE: KEINE KORREKTUR!
+        // Die Erde wurde bereits während des Wachstums (7 Stufen)
+        // präzise verbraucht: 33 / 7 = 4.714... pro Stufe
+        // Total nach 7 Stufen: EXAKT 33 Erde verbraucht
         // ═══════════════════════════════════════════════════════
-        double soilDifference = targetSoil - actualSoilConsumed;
-        if (Math.abs(soilDifference) > 0.001) {  // Nur wenn Abweichung vorhanden
-            // Zu wenig verbraucht → noch mehr abziehen
-            // Zu viel verbraucht → etwas zurückgeben
-            double correctedSoil = currentSoil - soilDifference;
-            potData.setSoilLevel(Math.max(0, correctedSoil));
-        }
     }
 
     /**
