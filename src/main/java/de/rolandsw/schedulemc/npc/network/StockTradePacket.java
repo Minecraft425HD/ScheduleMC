@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.npc.network;
 
 import de.rolandsw.schedulemc.economy.EconomyManager;
+import de.rolandsw.schedulemc.economy.StateAccount;
 import de.rolandsw.schedulemc.economy.TransactionType;
 import de.rolandsw.schedulemc.npc.bank.StockMarketData;
 import de.rolandsw.schedulemc.npc.bank.StockTradingTracker;
@@ -229,7 +230,12 @@ public class StockTradePacket {
         // Berechne Netto-Erlös (nach Steuer)
         double netRevenue = totalRevenue - tax;
 
-        // Zahle nur Netto-Betrag an Spieler aus (Steuer geht "an den Staat" = verschwindet)
+        // Zahle Spekulationssteuer an den Staat
+        if (tax > 0) {
+            StateAccount.deposit((int) Math.round(tax), "Spekulationssteuer: " + quantity + "x " + itemName);
+        }
+
+        // Zahle Netto-Betrag an Spieler aus
         EconomyManager.deposit(player.getUUID(), netRevenue, TransactionType.SHOP_PAYOUT,
             "Börsenverkauf: " + quantity + "x " + itemName);
 
