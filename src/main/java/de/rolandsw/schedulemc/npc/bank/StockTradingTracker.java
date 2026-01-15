@@ -402,13 +402,6 @@ public class StockTradingTracker extends AbstractPersistenceManager<Map<UUID, St
             long avgAgeMs = totalAge / totalQuantity;
             return avgAgeMs / (24.0 * 60.0 * 60.0 * 1000.0); // Convert to days
         }
-
-        private String getItemKey(Item item) {
-            if (item == Items.GOLD_INGOT) return "gold";
-            if (item == Items.DIAMOND) return "diamond";
-            if (item == Items.EMERALD) return "emerald";
-            return "unknown";
-        }
     }
 
     /**
