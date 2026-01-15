@@ -4953,8 +4953,8 @@
   "app.crime_stats.innocent": "§7You are innocent!",
 
   "item.schedulemc.entity_remover": "Entity Remover",
-  "item.entity_remover.tooltip.line1": "Right-click NPC = Delete NPC",
-  "item.entity_remover.tooltip.line2": "Right-click Vehicle = Delete Vehicle",
+  "item.entity_remover.tooltip.line1": "Left-click NPC = Delete NPC",
+  "item.entity_remover.tooltip.line2": "Left-click Vehicle = Delete Vehicle",
   "item.entity_remover.tooltip.warning": "⚠ WARNING: Irreversible!",
   "item.entity_remover.tooltip.op_required": "Requires OP Level 2",
   "item.entity_remover.no_permission": "§cYou don't have permission to use this tool!",

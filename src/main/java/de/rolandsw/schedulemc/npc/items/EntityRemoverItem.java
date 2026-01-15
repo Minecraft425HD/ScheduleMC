@@ -23,8 +23,8 @@ import java.util.List;
 
 /**
  * Admin-Tool zum Entfernen von NPCs und Fahrzeugen
- * - Rechtsklick auf NPC: Entfernt den NPC permanent
- * - Rechtsklick auf Fahrzeug: Entfernt das Fahrzeug permanent
+ * - Linksklick auf NPC: Entfernt den NPC permanent
+ * - Linksklick auf Fahrzeug: Entfernt das Fahrzeug permanent
  * - Nur für Admins mit OP-Level 2+ verfügbar
  */
 public class EntityRemoverItem extends Item {
@@ -37,20 +37,27 @@ public class EntityRemoverItem extends Item {
         );
     }
 
-    @Override
-    public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {
+    /**
+     * Wird aufgerufen wenn ein Spieler mit dem Item per Linksklick auf eine Entity klickt
+     * Behandelt sowohl NPCs als auch Fahrzeuge
+     * Diese Methode wird über ein Event (AttackEntityEvent) in EntityRemoverHandler aufgerufen
+     */
+    public static boolean onEntityInteract(Player player, Entity target, ItemStack stack) {
         if (player.level().isClientSide) {
-            return InteractionResult.SUCCESS;
+            return false;
         }
 
-        // Prüfe OP-Level (Server-Side)
+        if (!(stack.getItem() instanceof EntityRemoverItem)) {
+            return false;
+        }
+
         if (player instanceof ServerPlayer serverPlayer) {
             if (!serverPlayer.hasPermissions(2)) {
                 serverPlayer.sendSystemMessage(
                     Component.translatable("item.entity_remover.no_permission")
                         .withStyle(ChatFormatting.RED)
                 );
-                return InteractionResult.FAIL;
+                return false;
             }
 
             // Prüfe ob es ein NPC ist
@@ -71,33 +78,7 @@ public class EntityRemoverItem extends Item {
                         .append(Component.literal(npcName).withStyle(ChatFormatting.YELLOW))
                 );
 
-                return InteractionResult.SUCCESS;
-            }
-        }
-
-        return InteractionResult.PASS;
-    }
-
-    /**
-     * Wird aufgerufen wenn ein Spieler mit dem Item auf eine Entity klickt (auch nicht-lebende)
-     * Diese Methode wird über ein Event in ScheduleMC registriert
-     */
-    public static boolean onEntityInteract(Player player, Entity target, ItemStack stack) {
-        if (player.level().isClientSide) {
-            return false;
-        }
-
-        if (!(stack.getItem() instanceof EntityRemoverItem)) {
-            return false;
-        }
-
-        if (player instanceof ServerPlayer serverPlayer) {
-            if (!serverPlayer.hasPermissions(2)) {
-                serverPlayer.sendSystemMessage(
-                    Component.translatable("item.entity_remover.no_permission")
-                        .withStyle(ChatFormatting.RED)
-                );
-                return false;
+                return true;
             }
 
             // Prüfe ob es ein Fahrzeug ist
@@ -115,11 +96,6 @@ public class EntityRemoverItem extends Item {
                 );
 
                 return true;
-            }
-
-            // NPC wird über interactLivingEntity behandelt
-            if (target instanceof CustomNPCEntity) {
-                return false; // Lasse interactLivingEntity das behandeln
             }
         }
 

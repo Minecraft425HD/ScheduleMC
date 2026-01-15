@@ -4962,8 +4962,8 @@
   "app.crime_stats.innocent": "§7Du bist unschuldig!",
 
   "item.schedulemc.entity_remover": "Entity-Entferner",
-  "item.entity_remover.tooltip.line1": "Rechtsklick auf NPC = NPC löschen",
-  "item.entity_remover.tooltip.line2": "Rechtsklick auf Fahrzeug = Fahrzeug löschen",
+  "item.entity_remover.tooltip.line1": "Linksklick auf NPC = NPC löschen",
+  "item.entity_remover.tooltip.line2": "Linksklick auf Fahrzeug = Fahrzeug löschen",
   "item.entity_remover.tooltip.warning": "⚠ ACHTUNG: Unwiderruflich!",
   "item.entity_remover.tooltip.op_required": "Erfordert OP-Level 2",
   "item.entity_remover.no_permission": "§cDu hast keine Berechtigung dieses Tool zu nutzen!",
