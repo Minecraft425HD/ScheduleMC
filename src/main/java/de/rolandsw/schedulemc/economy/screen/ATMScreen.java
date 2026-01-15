@@ -142,8 +142,13 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu> {
                 amount = walletBalance;
             }
         } else {
-            if (amount > balance) {
-                amount = balance;
+            // Bei Abheben muss die ATM-Gebühr berücksichtigt werden
+            // Die Gebühr wird serverseitig zusätzlich zum Betrag abgezogen
+            // Sync with FeeManager.ATM_FEE (5.0€)
+            double atmFee = 5.0;
+            double maxWithdraw = Math.max(0, balance - atmFee);
+            if (amount > maxWithdraw) {
+                amount = maxWithdraw;
             }
         }
 
