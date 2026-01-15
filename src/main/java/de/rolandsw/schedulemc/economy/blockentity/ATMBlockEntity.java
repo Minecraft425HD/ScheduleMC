@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.economy.blockentity;
 
 import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.economy.FeeManager;
+import de.rolandsw.schedulemc.economy.StateAccount;
 import de.rolandsw.schedulemc.economy.TransactionType;
 import de.rolandsw.schedulemc.economy.items.CashItem;
 import de.rolandsw.schedulemc.economy.menu.ATMMenu;
@@ -54,13 +55,15 @@ public class ATMBlockEntity extends BlockEntity implements MenuProvider {
             return false;
         }
 
-        // Transaktion durchführen - withdraw gibt boolean zurück!
-        if (EconomyManager.withdraw(player.getUUID(), amount, TransactionType.ATM_WITHDRAW, "ATM-Auszahlung")) {
+        // Transaktion durchführen
+        // 1. Ziehe Betrag + Gebühr vom Konto ab (totalCost)
+        if (EconomyManager.withdraw(player.getUUID(), totalCost, TransactionType.ATM_WITHDRAW, "ATM-Auszahlung inkl. Gebühr")) {
+            // 2. Gib nur den Betrag (ohne Gebühr) ins Wallet
             CashItem.addValue(wallet, amount);
 
-            // Gebühr abziehen
+            // 3. Überweise Gebühr an Staatskasse
             if (level != null && !level.isClientSide()) {
-                FeeManager.chargeATMFee(player.getUUID(), level.getServer());
+                StateAccount.getInstance(level.getServer()).deposit(atmFee, "ATM-Gebühr");
             }
 
             player.displayClientMessage(Component.translatable(
@@ -102,21 +105,14 @@ public class ATMBlockEntity extends BlockEntity implements MenuProvider {
             return false;
         }
 
-        // Prüfe ob genug Geld für Gebühr auf Konto vorhanden ist
-        if (!FeeManager.canAffordATMFee(player.getUUID())) {
-            player.displayClientMessage(Component.translatable(
-                "block.atm.insufficient_funds_for_fee",
-                String.format("%.2f€", EconomyManager.getBalance(player.getUUID())),
-                String.format("%.2f€", atmFee)
-            ), false);
-            return false;
-        }
-
-        // Transaktion durchführen - deposit gibt void zurück
+        // Transaktion durchführen
+        // 1. Entferne Bargeld aus Wallet
         CashItem.removeValue(wallet, amount);
+
+        // 2. Zahle auf Konto ein (voller Betrag)
         EconomyManager.deposit(player.getUUID(), amount, TransactionType.ATM_DEPOSIT, "ATM-Einzahlung");
 
-        // Gebühr abziehen
+        // 3. Ziehe Gebühr vom Konto ab (jetzt ist garantiert genug Geld da)
         if (level != null && !level.isClientSide()) {
             FeeManager.chargeATMFee(player.getUUID(), level.getServer());
         }
