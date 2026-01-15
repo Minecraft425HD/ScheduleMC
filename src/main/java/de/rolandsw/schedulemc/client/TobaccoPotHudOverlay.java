@@ -210,12 +210,31 @@ public class TobaccoPotHudOverlay {
         // Lichtlevel anzeigen (nur wenn nicht Pilze)
         if (!potData.hasMushroomPlant()) {
             BlockPos potPos = potBE.getBlockPos();
-            BlockPos plantPos = potPos.above(2);
-            int lightLevel = mc.level.getBrightness(net.minecraft.world.level.LightLayer.BLOCK, plantPos);
+            BlockPos growLightPos = potPos.above(2); // Exakt 2 Blöcke über dem Topf
+
+            // Prüfe ob ein Growlight vorhanden ist
+            BlockState growLightState = mc.level.getBlockState(growLightPos);
+            Block growLightBlock = growLightState.getBlock();
+
+            int lightLevel;
+            String lightSource = "";
+            boolean isGrowLight = false;
+
+            if (growLightBlock instanceof de.rolandsw.schedulemc.tobacco.blocks.GrowLightSlabBlock growLight) {
+                // Growlight gefunden! Zeige dessen konfigurierten Lichtlevel
+                lightLevel = growLight.getTier().getLightLevel();
+                lightSource = " §7(Growlight " + growLight.getTier().name() + ")";
+                isGrowLight = true;
+            } else {
+                // Kein Growlight → Zeige Sonnenlicht
+                lightLevel = mc.level.getBrightness(net.minecraft.world.level.LightLayer.SKY, growLightPos);
+                lightSource = " §7(Sonnenlicht)";
+            }
+
             int minLight = de.rolandsw.schedulemc.config.ModConfigHandler.TOBACCO.MIN_LIGHT_LEVEL.get();
             boolean hasEnoughLight = lightLevel >= minLight;
 
-            String lightLabel = "§eLicht: " + lightLevel + "/15";
+            String lightLabel = "§eLicht: " + lightLevel + "/15" + lightSource;
             String lightStatus;
             int lightColor;
 
