@@ -116,10 +116,25 @@ public class TobaccoPotHudOverlay {
         // Prüfe ob Pflanze erntebereit ist
         boolean isHarvestReady = isPlantHarvestReady(potData);
 
-        // Berechne Box-Höhe dynamisch
-        int boxHeight = PADDING * 2;
+        // Prüfe ob Growlight vorhanden ist (für Höhenberechnung)
+        boolean hasGrowLight = false;
+        if (!potData.hasMushroomPlant()) {
+            BlockPos potPos = potBE.getBlockPos();
+            for (int yOffset = 2; yOffset <= 3; yOffset++) {
+                BlockPos growLightPos = potPos.above(yOffset);
+                BlockState growLightState = mc.level.getBlockState(growLightPos);
+                Block growLightBlock = growLightState.getBlock();
+                if (growLightBlock instanceof de.rolandsw.schedulemc.tobacco.blocks.GrowLightSlabBlock) {
+                    hasGrowLight = true;
+                    break;
+                }
+            }
+        }
+
+        // Berechne Box-Höhe dynamisch (exakt wie currentY-Inkremente)
+        int boxHeight = PADDING; // Oberer Rand
         boxHeight += LINE_HEIGHT; // Topf-Typ
-        boxHeight += 2; // Separator
+        boxHeight += 4; // Separator (entspricht currentY += 4 im Code)
 
         if (isHarvestReady) {
             boxHeight += LINE_HEIGHT + 2; // Erntebereit-Banner
@@ -127,23 +142,31 @@ public class TobaccoPotHudOverlay {
         }
 
         if (potData.hasSoil() || potData.hasMist()) {
-            boxHeight += LINE_HEIGHT + BAR_HEIGHT + 2; // Wasser
-            boxHeight += LINE_HEIGHT + BAR_HEIGHT + 2; // Erde
-            boxHeight += LINE_HEIGHT; // Pflanzen möglich
+            boxHeight += LINE_HEIGHT; // Wasser-Label
+            boxHeight += BAR_HEIGHT + 2; // Wasser-Balken
+            boxHeight += LINE_HEIGHT; // Erde-Label
+            boxHeight += BAR_HEIGHT + 2; // Erde-Balken
+            boxHeight += LINE_HEIGHT + 2; // Pflanzen-Kapazität
             if (!potData.hasMushroomPlant()) {
-                boxHeight += LINE_HEIGHT + 2; // Licht
+                boxHeight += LINE_HEIGHT; // Licht-Label
+                if (hasGrowLight) {
+                    boxHeight += LINE_HEIGHT; // Growlight-Zeile
+                }
             }
         } else {
             boxHeight += LINE_HEIGHT; // Warnung
         }
 
         if (potData.hasPlant() && !isHarvestReady) {
-            boxHeight += 2; // Separator
+            boxHeight += 4; // Separator
             boxHeight += LINE_HEIGHT; // Pflanze-Info
             boxHeight += LINE_HEIGHT; // Qualität
-            boxHeight += LINE_HEIGHT + BAR_HEIGHT + 2; // Wachstum
+            boxHeight += LINE_HEIGHT; // Wachstum-Label
+            boxHeight += BAR_HEIGHT + 2; // Wachstum-Balken
             boxHeight += LINE_HEIGHT; // Zeit
         }
+
+        boxHeight += PADDING; // Unterer Rand
 
         // Hintergrund
         guiGraphics.fill(x, y, x + BOX_WIDTH, y + boxHeight, 0xDD000000);
