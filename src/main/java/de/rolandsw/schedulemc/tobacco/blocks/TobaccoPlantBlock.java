@@ -1,12 +1,18 @@
 package de.rolandsw.schedulemc.tobacco.blocks;
 
+import de.rolandsw.schedulemc.production.blocks.PlantPotBlock;
+import de.rolandsw.schedulemc.production.blockentity.PlantPotBlockEntity;
 import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
 import de.rolandsw.schedulemc.tobacco.TobaccoType;
 import de.rolandsw.schedulemc.tobacco.items.FreshTobaccoLeafItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -21,6 +27,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
@@ -115,34 +122,127 @@ public class TobaccoPlantBlock extends Block {
     }
 
     /**
-     * Drops beim Abbauen
+     * Linksklick-Ernte - wird aufgerufen wenn die Pflanze abgebaut wird
+     * Nur möglich wenn die Pflanze erntebereit ist!
      */
     @Override
-    public List<ItemStack> getDrops(BlockState state, net.minecraft.world.level.storage.loot.LootParams.Builder builder) {
-        List<ItemStack> drops = new java.util.ArrayList<>();
+    public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+        if (!level.isClientSide) {
+            DoubleBlockHalf half = state.getValue(HALF);
+            BlockPos potPos;
 
-        // Nur untere Hälfte droppt Items
-        if (state.getValue(HALF) == DoubleBlockHalf.LOWER) {
-            int age = state.getValue(AGE);
-
-            // Berechne Ertrag basierend auf Wachstumsstufe
-            if (age >= 7) {
-                // Voll ausgewachsen - voller Ertrag
-                int yield = tobaccoType.getBaseYield();
-                drops.add(FreshTobaccoLeafItem.create(tobaccoType, TobaccoQuality.GUT, yield));
-            } else if (age >= 4) {
-                // Teilweise gewachsen - reduzierter Ertrag
-                int yield = (int) (tobaccoType.getBaseYield() * 0.5);
-                drops.add(FreshTobaccoLeafItem.create(tobaccoType, TobaccoQuality.SCHLECHT, yield));
+            // Finde Topf-Position (unter der unteren Pflanzenhälfte)
+            if (half == DoubleBlockHalf.LOWER) {
+                potPos = pos.below();
+            } else {
+                // Obere Hälfte wurde abgebaut - Topf ist 2 Blöcke darunter
+                potPos = pos.below(2);
+                // Bei oberer Hälfte: normale Destroy-Logik (entfernt Pflanze aus Topf)
+                super.playerWillDestroy(level, pos, state, player);
+                return;
             }
-            // Stufe 0-3: kein Drop
+
+            // Nur untere Hälfte kann geerntet werden
+            var be = level.getBlockEntity(potPos);
+            if (be instanceof PlantPotBlockEntity potBE) {
+                var potData = potBE.getPotData();
+                if (potData.hasTobaccoPlant()) {
+                    var plant = potData.getPlant();
+
+                    // Prüfe ob Pflanze erntebereit ist
+                    if (plant.isFullyGrown()) {
+                        // Verifikation und Korrektur der Ressourcen
+                        verifyAndCorrectResources(potData, 100, 33);
+
+                        // Ernte Tabak
+                        var harvested = potData.harvest();
+                        if (harvested != null) {
+                            // Golden Pot Qualitäts-Boost
+                            var quality = harvested.getQuality();
+                            var potType = ((PlantPotBlock) level.getBlockState(potPos).getBlock()).getPotType();
+                            if (potType.hasQualityBoost()) {
+                                quality = quality.upgrade();
+                            }
+
+                            ItemStack leaves = FreshTobaccoLeafItem.create(
+                                harvested.getType(),
+                                quality,
+                                harvested.getHarvestYield()
+                            );
+
+                            // Droppe Item an Spieler-Position
+                            player.getInventory().add(leaves);
+
+                            // Falls Inventar voll, droppe auf Boden
+                            if (!leaves.isEmpty()) {
+                                Block.popResource(level, pos, leaves);
+                            }
+
+                            potBE.setChanged();
+                            level.sendBlockUpdated(potPos, level.getBlockState(potPos), level.getBlockState(potPos), 3);
+
+                            String qualityBoostMsg = potType.hasQualityBoost() ? " §d(+1 Qualität!)" : "";
+                            player.displayClientMessage(Component.translatable(
+                                "block.plant_pot.tobacco_harvested",
+                                harvested.getHarvestYield(),
+                                quality.getColoredName()
+                            ).append(qualityBoostMsg), true);
+
+                            player.playSound(net.minecraft.sounds.SoundEvents.CROP_BREAK, 1.0f, 1.0f);
+                        }
+                    } else {
+                        // Nicht erntebereit - zeige Warnung aber erlaube Abbauen
+                        player.displayClientMessage(Component.translatable(
+                            "block.plant_pot.tobacco_not_fully_grown",
+                            (plant.getGrowthStage() * 100 / 7)
+                        ), true);
+                    }
+
+                    // Entferne Pflanze aus Topf
+                    potData.clearPlant();
+                    potBE.setChanged();
+
+                    // Client-Update senden
+                    BlockState potState = level.getBlockState(potPos);
+                    level.sendBlockUpdated(potPos, potState, potState, 3);
+                }
+            }
+
+            // Wenn obere Hälfte abgebaut wird, entferne auch untere Hälfte
+            if (half == DoubleBlockHalf.UPPER) {
+                BlockPos lowerPos = pos.below();
+                BlockState lowerState = level.getBlockState(lowerPos);
+                if (lowerState.getBlock() instanceof TobaccoPlantBlock) {
+                    level.destroyBlock(lowerPos, false); // false = keine Drops
+                }
+            }
         }
 
-        return drops;
+        super.playerWillDestroy(level, pos, state, player);
     }
 
     /**
-     * Wächst zur nächsten Stufe (wird vom TobaccoPotBlockEntity aufgerufen)
+     * Verifiziert und korrigiert die Ressourcen nach der Ernte
+     * Stellt sicher, dass exakt 100 Wasser und 33 Erde verbraucht wurden
+     * Entfernt den Rest falls noch übrig
+     */
+    private void verifyAndCorrectResources(de.rolandsw.schedulemc.production.data.PlantPotData potData,
+                                           int targetWater, int targetSoil) {
+        // Hole aktuellen Stand
+        double remainingWater = potData.getWaterLevelExact();
+        double remainingSoil = potData.getSoilLevelExact();
+
+        // Entferne exakt targetWater (100) Wasser, oder so viel wie noch da ist
+        double waterToRemove = Math.min(targetWater, remainingWater);
+        potData.setWaterLevel(remainingWater - waterToRemove);
+
+        // Entferne exakt targetSoil (33) Erde, oder so viel wie noch da ist
+        double soilToRemove = Math.min(targetSoil, remainingSoil);
+        potData.setSoilLevel(remainingSoil - soilToRemove);
+    }
+
+    /**
+     * Wächst zur nächsten Stufe (wird vom PlantPotBlockEntity aufgerufen)
      */
     public static void growToStage(Level level, BlockPos potPos, int newAge, TobaccoType type) {
         BlockPos plantPos = potPos.above();
@@ -187,50 +287,6 @@ public class TobaccoPlantBlock extends Block {
             BlockState above = level.getBlockState(plantPos.above());
             if (above.getBlock() instanceof TobaccoPlantBlock) {
                 level.setBlock(plantPos.above(), Blocks.AIR.defaultBlockState(), 3);
-            }
-        }
-    }
-
-    /**
-     * Wird aufgerufen wenn die Pflanze abgebaut wird - entfernt sie aus dem Topf
-     */
-    @Override
-    public void playerWillDestroy(Level level, BlockPos pos, BlockState state, net.minecraft.world.entity.player.Player player) {
-        super.playerWillDestroy(level, pos, state, player);
-
-        if (!level.isClientSide) {
-            DoubleBlockHalf half = state.getValue(HALF);
-            BlockPos potPos;
-
-            // Finde Topf-Position (unter der unteren Pflanzenhälfte)
-            if (half == DoubleBlockHalf.LOWER) {
-                potPos = pos.below();
-            } else {
-                // Obere Hälfte wurde abgebaut - Topf ist 2 Blöcke darunter
-                potPos = pos.below(2);
-            }
-
-            var be = level.getBlockEntity(potPos);
-            if (be instanceof de.rolandsw.schedulemc.production.blockentity.PlantPotBlockEntity potBE) {
-                var potData = potBE.getPotData();
-                if (potData.hasPlant()) {
-                    // Entferne Pflanze aus Topf
-                    potData.clearPlant();
-                    potBE.setChanged();
-
-                    // WICHTIG: Client-Update senden!
-                    BlockState potState = level.getBlockState(potPos);
-                    level.sendBlockUpdated(potPos, potState, potState, 3);
-                }
-            }
-
-            // Wenn obere Hälfte abgebaut wird, entferne auch untere Hälfte
-            if (half == DoubleBlockHalf.UPPER) {
-                BlockPos lowerPos = pos.below();
-                BlockState lowerState = level.getBlockState(lowerPos);
-                if (lowerState.getBlock() instanceof TobaccoPlantBlock) {
-                    level.destroyBlock(lowerPos, false); // false = keine Drops
-                }
             }
         }
     }

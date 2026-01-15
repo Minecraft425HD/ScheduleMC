@@ -429,199 +429,14 @@ public class PlantPotBlock extends Block implements EntityBlock {
         }
 
         // ═══════════════════════════════════════════════════════════
-        // 4. ERNTEN - TABAK
+        // HINWEIS: Ernte erfolgt jetzt durch Rechtsklick auf die Pflanze!
+        // Die Ernte-Mechanik wurde in die jeweiligen PlantBlock-Klassen verschoben.
+        // NUR PILZE werden noch hier geerntet (Shift+Rechtsklick auf Topf),
+        // da Pilze keinen sichtbaren Pflanzen-Block haben.
         // ═══════════════════════════════════════════════════════════
-        if (handStack.isEmpty() && player.isShiftKeyDown() && potData.hasTobaccoPlant()) {
-            var plant = potData.getPlant();
-
-            if (!plant.isFullyGrown()) {
-                player.displayClientMessage(Component.translatable(
-                    "block.plant_pot.tobacco_not_fully_grown",
-                    (plant.getGrowthStage() * 100 / 7)
-                ), true);
-                return InteractionResult.FAIL;
-            }
-
-            // Ernte Tabak
-            var harvested = potData.harvest();
-            if (harvested != null) {
-                // Golden Pot Qualitäts-Boost
-                var quality = harvested.getQuality();
-                if (potType.hasQualityBoost()) {
-                    quality = quality.upgrade();
-                }
-
-                ItemStack leaves = de.rolandsw.schedulemc.tobacco.items.FreshTobaccoLeafItem.create(
-                    harvested.getType(),
-                    quality,
-                    harvested.getHarvestYield()
-                );
-
-                player.getInventory().add(leaves);
-                potBE.setChanged();
-                level.sendBlockUpdated(pos, state, state, 3);
-
-                // Entferne Pflanzen-Block
-                TobaccoPlantBlock.removePlant(level, pos);
-
-                String qualityBoostMsg = potType.hasQualityBoost() ? " §d(+1 Qualität!)" : "";
-                player.displayClientMessage(Component.translatable(
-                    "block.plant_pot.tobacco_harvested",
-                    harvested.getHarvestYield(),
-                    quality.getColoredName()
-                ).append(qualityBoostMsg), true);
-
-                player.playSound(net.minecraft.sounds.SoundEvents.CROP_BREAK, 1.0f, 1.0f);
-                return InteractionResult.SUCCESS;
-            }
-        }
 
         // ═══════════════════════════════════════════════════════════
-        // 4b. ERNTEN - CANNABIS
-        // ═══════════════════════════════════════════════════════════
-        if (handStack.isEmpty() && player.isShiftKeyDown() && potData.hasCannabisPlant()) {
-            var cannabisPlant = potData.getCannabisPlant();
-
-            if (!cannabisPlant.isFullyGrown()) {
-                player.displayClientMessage(Component.translatable(
-                    "block.plant_pot.cannabis_not_fully_grown",
-                    (cannabisPlant.getGrowthStage() * 100 / 7)
-                ), true);
-                return InteractionResult.FAIL;
-            }
-
-            // Ernte Cannabis
-            var harvested = potData.harvestCannabis();
-            if (harvested != null) {
-                // Golden Pot Qualitäts-Boost
-                var quality = harvested.getQuality();
-                if (potType.hasQualityBoost()) {
-                    quality = quality.upgrade();
-                }
-
-                ItemStack buds = de.rolandsw.schedulemc.cannabis.items.FreshBudItem.create(
-                    harvested.getStrain(),
-                    quality,
-                    harvested.getHarvestYield()
-                );
-
-                player.getInventory().add(buds);
-                potBE.setChanged();
-                level.sendBlockUpdated(pos, state, state, 3);
-
-                // Entferne Cannabis-Pflanzen-Block
-                CannabisPlantBlock.removePlant(level, pos);
-
-                String qualityBoostMsg = potType.hasQualityBoost() ? " §d(+1 Qualität!)" : "";
-                player.displayClientMessage(Component.translatable(
-                    "block.plant_pot.cannabis_harvested",
-                    harvested.getHarvestYield(),
-                    quality.getColoredName()
-                ).append(qualityBoostMsg), true);
-
-                player.playSound(net.minecraft.sounds.SoundEvents.CROP_BREAK, 1.0f, 1.0f);
-                return InteractionResult.SUCCESS;
-            }
-        }
-
-        // ═══════════════════════════════════════════════════════════
-        // 4c. ERNTEN - KOKA
-        // ═══════════════════════════════════════════════════════════
-        if (handStack.isEmpty() && player.isShiftKeyDown() && potData.hasCocaPlant()) {
-            var cocaPlant = potData.getCocaPlant();
-
-            if (!cocaPlant.isFullyGrown()) {
-                player.displayClientMessage(Component.translatable(
-                    "block.plant_pot.coca_not_fully_grown",
-                    (cocaPlant.getGrowthStage() * 100 / 7)
-                ), true);
-                return InteractionResult.FAIL;
-            }
-
-            // Ernte Koka
-            var harvested = potData.harvestCoca();
-            if (harvested != null) {
-                // Golden Pot Qualitäts-Boost
-                var quality = harvested.getQuality();
-                if (potType.hasQualityBoost()) {
-                    quality = quality.upgrade();
-                }
-
-                ItemStack leaves = FreshCocaLeafItem.create(
-                    harvested.getType(),
-                    quality,
-                    harvested.getHarvestYield()
-                );
-
-                player.getInventory().add(leaves);
-                potBE.setChanged();
-                level.sendBlockUpdated(pos, state, state, 3);
-
-                // Entferne Koka-Pflanzen-Block
-                CocaPlantBlock.removePlant(level, pos);
-
-                String qualityBoostMsg = potType.hasQualityBoost() ? " §d(+1 Qualität!)" : "";
-                player.displayClientMessage(Component.translatable(
-                    "block.plant_pot.coca_harvested",
-                    harvested.getHarvestYield(),
-                    quality.getColoredName()
-                ).append(qualityBoostMsg), true);
-
-                player.playSound(net.minecraft.sounds.SoundEvents.CROP_BREAK, 1.0f, 1.0f);
-                return InteractionResult.SUCCESS;
-            }
-        }
-
-        // ═══════════════════════════════════════════════════════════
-        // 4d. ERNTEN - MOHN
-        // ═══════════════════════════════════════════════════════════
-        if (handStack.isEmpty() && player.isShiftKeyDown() && potData.hasPoppyPlant()) {
-            var poppyPlant = potData.getPoppyPlant();
-
-            if (!poppyPlant.isFullyGrown()) {
-                player.displayClientMessage(Component.translatable(
-                    "block.plant_pot.poppy_not_fully_grown",
-                    (poppyPlant.getGrowthStage() * 100 / 7)
-                ), true);
-                return InteractionResult.FAIL;
-            }
-
-            // Ernte Mohn
-            var harvested = potData.harvestPoppy();
-            if (harvested != null) {
-                // Golden Pot Qualitäts-Boost
-                var quality = harvested.getQuality();
-                if (potType.hasQualityBoost()) {
-                    quality = quality.upgrade();
-                }
-
-                ItemStack pods = PoppyPodItem.create(
-                    harvested.getType(),
-                    quality,
-                    harvested.getHarvestYield()
-                );
-
-                player.getInventory().add(pods);
-                potBE.setChanged();
-                level.sendBlockUpdated(pos, state, state, 3);
-
-                // Entferne Mohn-Pflanzen-Block
-                PoppyPlantBlock.removePlant(level, pos);
-
-                String qualityBoostMsg = potType.hasQualityBoost() ? " §d(+1 Qualität!)" : "";
-                player.displayClientMessage(Component.translatable(
-                    "block.plant_pot.poppy_harvested",
-                    harvested.getHarvestYield(),
-                    quality.getColoredName()
-                ).append(qualityBoostMsg), true);
-
-                player.playSound(net.minecraft.sounds.SoundEvents.CROP_BREAK, 1.0f, 1.0f);
-                return InteractionResult.SUCCESS;
-            }
-        }
-
-        // ═══════════════════════════════════════════════════════════
-        // 4e. ERNTEN - PILZE
+        // ERNTEN - PILZE (Shift+Rechtsklick auf Topf)
         // ═══════════════════════════════════════════════════════════
         if (handStack.isEmpty() && player.isShiftKeyDown() && potData.hasMushroomPlant()) {
             var mushroom = potData.getMushroomPlant();
@@ -641,6 +456,9 @@ public class PlantPotBlock extends Block implements EntityBlock {
                 }
                 return InteractionResult.FAIL;
             }
+
+            // Verifikation und Korrektur der Ressourcen (Pilze nutzen MIST statt Erde!)
+            verifyAndCorrectMushroomResources(potData, 100, 33);
 
             // Ernte Pilze
             int yield = mushroom.getHarvestYield();
@@ -682,5 +500,27 @@ public class PlantPotBlock extends Block implements EntityBlock {
         }
 
         return InteractionResult.PASS;
+    }
+
+    /**
+     * Verifiziert und korrigiert die Ressourcen nach der Pilz-Ernte
+     * Pilze verwenden MIST statt Erde!
+     */
+    private void verifyAndCorrectMushroomResources(de.rolandsw.schedulemc.production.data.PlantPotData potData,
+                                                    int targetWater, int targetMist) {
+        double remainingWater = potData.getWaterLevelExact();
+        double remainingMist = potData.getSoilLevelExact(); // Mist wird in soilLevel gespeichert
+        int maxWater = potData.getMaxWater();
+        double consumedWater = maxWater - remainingWater;
+        double consumedMist = targetMist - remainingMist;
+        double waterDiff = targetWater - consumedWater;
+        double mistDiff = targetMist - consumedMist;
+
+        if (Math.abs(waterDiff) > 0.01) {
+            potData.setWaterLevel(Math.max(0, remainingWater - waterDiff));
+        }
+        if (Math.abs(mistDiff) > 0.01) {
+            potData.setSoilLevel(Math.max(0, remainingMist - mistDiff));
+        }
     }
 }

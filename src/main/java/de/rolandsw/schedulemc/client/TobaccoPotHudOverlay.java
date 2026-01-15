@@ -210,12 +210,66 @@ public class TobaccoPotHudOverlay {
         // Lichtlevel anzeigen (nur wenn nicht Pilze)
         if (!potData.hasMushroomPlant()) {
             BlockPos potPos = potBE.getBlockPos();
-            BlockPos plantPos = potPos.above(2);
-            int lightLevel = mc.level.getBrightness(net.minecraft.world.level.LightLayer.BLOCK, plantPos);
+
+            // Prüfe ob ein Growlight vorhanden ist (2-3 Blöcke über dem Topf)
+            int lightLevel;
+            String lightSource = "";
+            boolean isGrowLight = false;
+            de.rolandsw.schedulemc.tobacco.blocks.GrowLightSlabBlock foundGrowLight = null;
+
+            for (int yOffset = 2; yOffset <= 3; yOffset++) {
+                BlockPos growLightPos = potPos.above(yOffset);
+                BlockState growLightState = mc.level.getBlockState(growLightPos);
+                Block growLightBlock = growLightState.getBlock();
+
+                if (growLightBlock instanceof de.rolandsw.schedulemc.tobacco.blocks.GrowLightSlabBlock growLight) {
+                    foundGrowLight = growLight;
+                    isGrowLight = true;
+                    break;
+                }
+            }
+
+            if (isGrowLight && foundGrowLight != null) {
+                // Growlight gefunden! Zeige dessen konfigurierten Lichtlevel
+                lightLevel = foundGrowLight.getTier().getLightLevel();
+                lightSource = " §7(Growlight " + foundGrowLight.getTier().name() + ")";
+            } else {
+                // Kein Growlight → Berechne tatsächliches Lichtlevel mit Tag/Nacht-Variation
+                BlockPos checkPos = potPos.above(2);
+
+                // Hole SKY und BLOCK Licht separat
+                int skyLight = mc.level.getBrightness(net.minecraft.world.level.LightLayer.SKY, checkPos);
+                int blockLight = mc.level.getBrightness(net.minecraft.world.level.LightLayer.BLOCK, checkPos);
+
+                // Berechne Sky Darken basierend auf Tageszeit (für Overworld)
+                int skyDarken = 0;
+                if (mc.level.dimensionType().hasSkyLight()) {
+                    // Verwende die Dimension's brightness Berechnung
+                    float celestialAngle = mc.level.getTimeOfDay(1.0F);
+                    // Sky darken basiert auf dem celestial angle (0.0 = Mittag, 0.5 = Mitternacht)
+                    float brightness = (float) Math.cos(celestialAngle * 2.0F * Math.PI) * 2.0F + 0.5F;
+                    brightness = net.minecraft.util.Mth.clamp(brightness, 0.0F, 1.0F);
+                    skyDarken = Math.round((1.0F - brightness) * 11.0F);
+                }
+
+                // Berechne angepasstes Himmelslicht (mit Tageszeit)
+                int adjustedSkyLight = Math.max(0, skyLight - skyDarken);
+
+                // Kombiniertes Licht = Maximum aus angepasstem Himmelslicht und Blocklicht
+                lightLevel = Math.max(adjustedSkyLight, blockLight);
+
+                // Prüfe ob es Sonnenlicht ist (SKY > BLOCK)
+                if (skyLight > blockLight) {
+                    lightSource = " §7(Sonnenlicht)";
+                } else {
+                    lightSource = " §7(Künstlich)";
+                }
+            }
+
             int minLight = de.rolandsw.schedulemc.config.ModConfigHandler.TOBACCO.MIN_LIGHT_LEVEL.get();
             boolean hasEnoughLight = lightLevel >= minLight;
 
-            String lightLabel = "§eLicht: " + lightLevel + "/15";
+            String lightLabel = "§eLicht: " + lightLevel + "/15" + lightSource;
             String lightStatus;
             int lightColor;
 
@@ -271,8 +325,12 @@ public class TobaccoPotHudOverlay {
 
     /**
      * Prüft ob eine Pflanze erntebereit ist
+     * Prüft zusätzlich ob der Pflanzen-Block tatsächlich noch existiert (Client-Server-Sync)
      */
     private static boolean isPlantHarvestReady(PlantPotData potData) {
+        // Wichtig: Keine Pflanze im PotData = nicht erntebereit (auch wenn Daten verzögert sind)
+        if (!potData.hasPlant() && !potData.hasMushroomPlant()) return false;
+
         if (potData.hasTobaccoPlant() && potData.getPlant().isFullyGrown()) return true;
         if (potData.hasCannabisPlant() && potData.getCannabisPlant().isFullyGrown()) return true;
         if (potData.hasCocaPlant() && potData.getCocaPlant().isFullyGrown()) return true;

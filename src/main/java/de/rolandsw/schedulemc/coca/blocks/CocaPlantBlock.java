@@ -2,10 +2,15 @@ package de.rolandsw.schedulemc.coca.blocks;
 
 import de.rolandsw.schedulemc.coca.CocaType;
 import de.rolandsw.schedulemc.coca.items.FreshCocaLeafItem;
+import de.rolandsw.schedulemc.production.blockentity.PlantPotBlockEntity;
 import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
 import de.rolandsw.schedulemc.production.blocks.PlantPotBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -20,6 +25,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
@@ -192,12 +198,11 @@ public class CocaPlantBlock extends Block {
     }
 
     /**
-     * Wird aufgerufen wenn die Pflanze abgebaut wird - entfernt sie aus dem Topf
+     * Linksklick-Ernte - wird aufgerufen wenn die Pflanze abgebaut wird
+     * Nur möglich wenn die Pflanze erntebereit ist!
      */
     @Override
-    public void playerWillDestroy(Level level, BlockPos pos, BlockState state, net.minecraft.world.entity.player.Player player) {
-        super.playerWillDestroy(level, pos, state, player);
-
+    public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         if (!level.isClientSide) {
             DoubleBlockHalf half = state.getValue(HALF);
             BlockPos potPos;
@@ -208,17 +213,72 @@ public class CocaPlantBlock extends Block {
             } else {
                 // Obere Hälfte wurde abgebaut - Topf ist 2 Blöcke darunter
                 potPos = pos.below(2);
+                // Bei oberer Hälfte: normale Destroy-Logik (entfernt Pflanze aus Topf)
+                super.playerWillDestroy(level, pos, state, player);
+                return;
             }
 
+            // Nur untere Hälfte kann geerntet werden
             var be = level.getBlockEntity(potPos);
-            if (be instanceof de.rolandsw.schedulemc.production.blockentity.PlantPotBlockEntity potBE) {
+            if (be instanceof PlantPotBlockEntity potBE) {
                 var potData = potBE.getPotData();
-                if (potData.hasPlant()) {
+                if (potData.hasCocaPlant()) {
+                    var plant = potData.getCocaPlant();
+
+                    // Prüfe ob Pflanze erntebereit ist
+                    if (plant.isFullyGrown()) {
+                        // Verifikation und Korrektur der Ressourcen
+                        verifyAndCorrectResources(potData, 100, 33);
+
+                        // Ernte Coca
+                        var harvested = potData.harvestCoca();
+                        if (harvested != null) {
+                            // Golden Pot Qualitäts-Boost
+                            var quality = harvested.getQuality();
+                            var potType = ((PlantPotBlock) level.getBlockState(potPos).getBlock()).getPotType();
+                            if (potType.hasQualityBoost()) {
+                                quality = quality.upgrade();
+                            }
+
+                            ItemStack items = FreshCocaLeafItem.create(
+                                harvested.getType(),
+                                quality,
+                                harvested.getHarvestYield()
+                            );
+
+                            // Droppe Item an Spieler-Position
+                            player.getInventory().add(items);
+
+                            // Falls Inventar voll, droppe auf Boden
+                            if (!items.isEmpty()) {
+                                Block.popResource(level, pos, items);
+                            }
+
+                            potBE.setChanged();
+                            level.sendBlockUpdated(potPos, level.getBlockState(potPos), level.getBlockState(potPos), 3);
+
+                            String qualityBoostMsg = potType.hasQualityBoost() ? " §d(+1 Qualität!)" : "";
+                            player.displayClientMessage(Component.translatable(
+                                "block.plant_pot.coca_harvested",
+                                harvested.getHarvestYield(),
+                                quality.getColoredName()
+                            ).append(qualityBoostMsg), true);
+
+                            player.playSound(net.minecraft.sounds.SoundEvents.CROP_BREAK, 1.0f, 1.0f);
+                        }
+                    } else {
+                        // Nicht erntebereit - zeige Warnung aber erlaube Abbauen
+                        player.displayClientMessage(Component.translatable(
+                            "block.plant_pot.coca_not_fully_grown",
+                            (plant.getGrowthStage() * 100 / 7)
+                        ), true);
+                    }
+
                     // Entferne Pflanze aus Topf
                     potData.clearPlant();
                     potBE.setChanged();
 
-                    // WICHTIG: Client-Update senden!
+                    // Client-Update senden
                     BlockState potState = level.getBlockState(potPos);
                     level.sendBlockUpdated(potPos, potState, potState, 3);
                 }
@@ -233,6 +293,28 @@ public class CocaPlantBlock extends Block {
                 }
             }
         }
+
+        super.playerWillDestroy(level, pos, state, player);
+    }
+
+    /**
+     * Verifiziert und korrigiert die Ressourcen nach der Ernte
+     * Stellt sicher, dass exakt 100 Wasser und 33 Erde verbraucht wurden
+     * Entfernt den Rest falls noch übrig
+     */
+    private void verifyAndCorrectResources(de.rolandsw.schedulemc.production.data.PlantPotData potData,
+                                           int targetWater, int targetSoil) {
+        // Hole aktuellen Stand
+        double remainingWater = potData.getWaterLevelExact();
+        double remainingSoil = potData.getSoilLevelExact();
+
+        // Entferne exakt targetWater (100) Wasser, oder so viel wie noch da ist
+        double waterToRemove = Math.min(targetWater, remainingWater);
+        potData.setWaterLevel(remainingWater - waterToRemove);
+
+        // Entferne exakt targetSoil (33) Erde, oder so viel wie noch da ist
+        double soilToRemove = Math.min(targetSoil, remainingSoil);
+        potData.setSoilLevel(remainingSoil - soilToRemove);
     }
 
     /**
