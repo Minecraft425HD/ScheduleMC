@@ -191,6 +191,22 @@ public class TransactionHistory {
     }
 
     /**
+     * Löscht ALLE Transaktionen ALLER Spieler (täglicher Reset)
+     */
+    public void clearAllTransactions() {
+        int totalPlayers = transactions.size();
+        int totalTransactions = transactions.values().stream()
+            .mapToInt(List::size)
+            .sum();
+
+        transactions.clear();
+        needsSave = true;
+
+        LOGGER.info("Daily transaction history reset: Cleared {} transactions from {} players",
+            totalTransactions, totalPlayers);
+    }
+
+    /**
      * Rotiert alte Transaktionen (löscht Transaktionen älter als RETENTION_DAYS)
      * OPTIMIERUNG: Verhindert unbegrenztes Wachstum der Historie
      */

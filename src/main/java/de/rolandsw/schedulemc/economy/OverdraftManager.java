@@ -148,6 +148,12 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
                 resetDebtTimer(playerUUID);
             }
         }
+
+        // Täglicher Reset: Alle Transaktionshistorien löschen
+        TransactionHistory history = TransactionHistory.getInstance();
+        if (history != null) {
+            history.clearAllTransactions();
+        }
     }
 
     /**
