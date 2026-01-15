@@ -299,13 +299,14 @@ public class CocaPlantBlock extends Block {
 
     /**
      * Verifiziert und korrigiert die Ressourcen nach der Ernte
-     * WASSER: Garantiert EXAKT 100 verbraucht
-     * ERDE: Bleibt unverändert (wurde bereits korrekt während Wachstum verbraucht)
+     * WASSER: Garantiert EXAKT 100 verbraucht (mit Korrektur)
+     * ERDE: Pauschal EXAKT 33 abziehen (garantiert korrekt!)
      */
     private void verifyAndCorrectResources(de.rolandsw.schedulemc.production.data.PlantPotData potData,
                                            int targetWater, int targetSoil) {
         int maxWater = potData.getMaxWater();
         double currentWater = potData.getWaterLevelExact();
+        double currentSoil = potData.getSoilLevelExact();
 
         // Berechne wie viel Wasser TATSÄCHLICH verbraucht wurde
         double actualWaterConsumed = maxWater - currentWater;
@@ -322,11 +323,12 @@ public class CocaPlantBlock extends Block {
         }
 
         // ═══════════════════════════════════════════════════════
-        // ERDE: KEINE KORREKTUR!
-        // Die Erde wurde bereits während des Wachstums (7 Stufen)
-        // präzise verbraucht: 33 / 7 = 4.714... pro Stufe
-        // Total nach 7 Stufen: EXAKT 33 Erde verbraucht
+        // ERDE: Pauschal EXAKT 33 abziehen
         // ═══════════════════════════════════════════════════════
+        // Während Wachstum wird Erde im HUD angezeigt (visuell schön)
+        // Bei Ernte: Pauschal -33 Erde (mathematisch garantiert!)
+        double newSoilLevel = currentSoil - targetSoil;
+        potData.setSoilLevel(Math.max(0, newSoilLevel));
     }
 
     /**
