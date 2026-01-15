@@ -206,10 +206,6 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu> {
         // Header area
         graphics.fill(x, y, x + imageWidth, y + 22, 0xFF16213E);
 
-        // Mode indicator bar
-        int modeBarColor = isDepositMode ? 0xFF00AA00 : 0xFFAA0000;
-        graphics.fill(x, y + 52, x + imageWidth, y + 54, modeBarColor);
-
         // Separator lines
         graphics.fill(x + 10, y + 78, x + imageWidth - 10, y + 79, 0x44FFFFFF);
         graphics.fill(x + 10, y + 150, x + imageWidth - 10, y + 151, 0x44FFFFFF);
@@ -235,10 +231,6 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu> {
 
         graphics.drawString(this.font, "Bargeld:", x + 15, y + 40, 0xAAAAAA, false);
         graphics.drawString(this.font, String.format("%.2f€", walletBalance), x + 100, y + 40, 0x00FF00, false);
-
-        // Current mode indicator
-        String modeText = isDepositMode ? "§a▶ EINZAHLEN" : "§c▶ ABHEBEN";
-        graphics.drawCenteredString(this.font, modeText, x + imageWidth / 2, y + 130, 0xFFFFFF);
 
         // ATM Fee info
         graphics.drawString(this.font, "§8Gebühr: 5,00€ pro Transaktion", x + 15, y + 182, 0x666666, false);
