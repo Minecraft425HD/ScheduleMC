@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.npc.network;
 import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.economy.TransactionType;
 import de.rolandsw.schedulemc.npc.bank.StockMarketData;
+import de.rolandsw.schedulemc.npc.bank.StockTradingTracker;
 import de.rolandsw.schedulemc.util.PacketHandler;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.FriendlyByteBuf;
@@ -148,6 +149,10 @@ public class StockTradePacket {
             remaining -= stackSize;
         }
 
+        // Tracke Kauf für Trading Achievements
+        StockTradingTracker tracker = StockTradingTracker.getInstance(player.server);
+        tracker.recordPurchase(player.getUUID(), item, quantity, pricePerUnit);
+
         // Erfolgs-Nachricht
         player.sendSystemMessage(Component.literal("═══════════════════════════════")
             .withStyle(ChatFormatting.GREEN));
@@ -218,6 +223,10 @@ public class StockTradePacket {
         EconomyManager.deposit(player.getUUID(), totalRevenue, TransactionType.SHOP_PAYOUT,
             "Börsenverkauf: " + quantity + "x " + itemName);
 
+        // Tracke Verkauf und berechne Gewinn/Verlust
+        StockTradingTracker tracker = StockTradingTracker.getInstance(player.server);
+        double profitLoss = tracker.recordSale(player.getUUID(), item, quantity, pricePerUnit);
+
         // Erfolgs-Nachricht
         player.sendSystemMessage(Component.literal("═══════════════════════════════")
             .withStyle(ChatFormatting.GREEN));
@@ -241,6 +250,23 @@ public class StockTradePacket {
             .withStyle(ChatFormatting.GRAY)
             .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID())))
                 .withStyle(ChatFormatting.AQUA)));
+
+        // Zeige Gewinn/Verlust
+        if (profitLoss > 0) {
+            player.sendSystemMessage(Component.translatable("message.stock.profit")
+                .withStyle(ChatFormatting.GRAY)
+                .append(Component.literal(String.format("+%.2f€", profitLoss))
+                    .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)));
+        } else if (profitLoss < 0) {
+            player.sendSystemMessage(Component.translatable("message.stock.loss")
+                .withStyle(ChatFormatting.GRAY)
+                .append(Component.literal(String.format("%.2f€", profitLoss))
+                    .withStyle(ChatFormatting.RED, ChatFormatting.BOLD)));
+        } else {
+            player.sendSystemMessage(Component.translatable("message.stock.breakeven")
+                .withStyle(ChatFormatting.GRAY));
+        }
+
         player.sendSystemMessage(Component.literal("═══════════════════════════════")
             .withStyle(ChatFormatting.GREEN));
     }

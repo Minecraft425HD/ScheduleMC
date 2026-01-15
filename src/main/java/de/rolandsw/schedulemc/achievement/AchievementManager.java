@@ -137,6 +137,127 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
             false
         ));
 
+        // ========== STOCK TRADING ACHIEVEMENTS ==========
+        register(new Achievement(
+            "FIRST_TRADE",
+            Component.translatable("achievement.first_trade.name").getString(),
+            Component.translatable("achievement.first_trade.desc").getString(),
+            AchievementCategory.ECONOMY,
+            AchievementTier.BRONZE,
+            1.0,
+            false
+        ));
+
+        register(new Achievement(
+            "FIRST_PROFIT",
+            Component.translatable("achievement.first_profit.name").getString(),
+            Component.translatable("achievement.first_profit.desc").getString(),
+            AchievementCategory.ECONOMY,
+            AchievementTier.BRONZE,
+            1.0,
+            false
+        ));
+
+        register(new Achievement(
+            "FIRST_LOSS",
+            Component.translatable("achievement.first_loss.name").getString(),
+            Component.translatable("achievement.first_loss.desc").getString(),
+            AchievementCategory.ECONOMY,
+            AchievementTier.BRONZE,
+            1.0,
+            false
+        ));
+
+        register(new Achievement(
+            "PROFIT_100",
+            Component.translatable("achievement.profit_100.name").getString(),
+            Component.translatable("achievement.profit_100.desc").getString(),
+            AchievementCategory.ECONOMY,
+            AchievementTier.BRONZE,
+            100.0,
+            false
+        ));
+
+        register(new Achievement(
+            "PROFIT_1K",
+            Component.translatable("achievement.profit_1k.name").getString(),
+            Component.translatable("achievement.profit_1k.desc").getString(),
+            AchievementCategory.ECONOMY,
+            AchievementTier.SILVER,
+            1000.0,
+            false
+        ));
+
+        register(new Achievement(
+            "PROFIT_10K",
+            Component.translatable("achievement.profit_10k.name").getString(),
+            Component.translatable("achievement.profit_10k.desc").getString(),
+            AchievementCategory.ECONOMY,
+            AchievementTier.GOLD,
+            10000.0,
+            false
+        ));
+
+        register(new Achievement(
+            "PROFIT_MASTER",
+            Component.translatable("achievement.profit_master.name").getString(),
+            Component.translatable("achievement.profit_master.desc").getString(),
+            AchievementCategory.ECONOMY,
+            AchievementTier.DIAMOND,
+            100000.0,
+            false
+        ));
+
+        register(new Achievement(
+            "ACTIVE_TRADER",
+            Component.translatable("achievement.active_trader.name").getString(),
+            Component.translatable("achievement.active_trader.desc").getString(),
+            AchievementCategory.ECONOMY,
+            AchievementTier.SILVER,
+            50.0,
+            false
+        ));
+
+        register(new Achievement(
+            "DAY_TRADER",
+            Component.translatable("achievement.day_trader.name").getString(),
+            Component.translatable("achievement.day_trader.desc").getString(),
+            AchievementCategory.ECONOMY,
+            AchievementTier.GOLD,
+            500.0,
+            false
+        ));
+
+        register(new Achievement(
+            "WOLF_OF_MINECRAFT",
+            Component.translatable("achievement.wolf_of_minecraft.name").getString(),
+            Component.translatable("achievement.wolf_of_minecraft.desc").getString(),
+            AchievementCategory.ECONOMY,
+            AchievementTier.PLATINUM,
+            5000.0,
+            false
+        ));
+
+        register(new Achievement(
+            "TRADING_GENIUS",
+            Component.translatable("achievement.trading_genius.name").getString(),
+            Component.translatable("achievement.trading_genius.desc").getString(),
+            AchievementCategory.ECONOMY,
+            AchievementTier.DIAMOND,
+            1.0,
+            false
+        ));
+
+        register(new Achievement(
+            "BIG_LOSER",
+            Component.translatable("achievement.big_loser.name").getString(),
+            Component.translatable("achievement.big_loser.desc").getString(),
+            AchievementCategory.ECONOMY,
+            AchievementTier.SILVER,
+            5000.0,
+            true // Hidden achievement für Verluste
+        ));
+
         // ========== CRIME ACHIEVEMENTS ==========
         register(new Achievement(
             "FIRST_CRIME",

@@ -7,8 +7,8 @@ import de.rolandsw.schedulemc.npc.menu.BoerseMenu;
 import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
 import de.rolandsw.schedulemc.npc.network.RequestStockDataPacket;
 import de.rolandsw.schedulemc.npc.network.StockTradePacket;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
@@ -19,41 +19,42 @@ import net.minecraft.world.item.Items;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import java.util.List;
+
 /**
- * Vollständige Börsen-GUI für Handel mit Gold/Diamant/Smaragd
- * Zeigt Live-Preise, Trends und ermöglicht schnellen Handel
+ * Modern Trading Dashboard für Börsen-NPC
+ * Multi-Panel Layout mit Charts, Slider und Portfolio
  */
 @OnlyIn(Dist.CLIENT)
 public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
 
     private static final ResourceLocation TEXTURE =
-        ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/npc_interaction.png");
+        ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/boerse_gui.png");
 
-    // Trade Buttons für Gold
-    private Button goldBuy1Button;
-    private Button goldBuy10Button;
-    private Button goldBuy64Button;
-    private Button goldSellAllButton;
+    // Selected stock for trading
+    private StockTradePacket.StockType selectedStock = StockTradePacket.StockType.GOLD;
 
-    // Trade Buttons für Diamant
-    private Button diamondBuy1Button;
-    private Button diamondBuy10Button;
-    private Button diamondBuy64Button;
-    private Button diamondSellAllButton;
+    // Quantity slider
+    private QuantitySlider quantitySlider;
 
-    // Trade Buttons für Smaragd
-    private Button emeraldBuy1Button;
-    private Button emeraldBuy10Button;
-    private Button emeraldBuy64Button;
-    private Button emeraldSellAllButton;
+    // Trade buttons
+    private Button buyButton;
+    private Button sellButton;
+    private Button maxBuyButton;
+    private Button sellAllButton;
 
-    // Close Button
+    // Stock selection buttons
+    private Button goldSelectButton;
+    private Button diamondSelectButton;
+    private Button emeraldSelectButton;
+
+    // Close button
     private Button closeButton;
 
     public BoerseScreen(BoerseMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
-        this.imageWidth = 176;
-        this.imageHeight = 166;
+        this.imageWidth = 256;
+        this.imageHeight = 220;
     }
 
     @Override
@@ -63,92 +64,126 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
 
-        // Gold Buttons (Zeile 1)
-        int goldY = y + 45;
-        goldBuy1Button = addRenderableWidget(Button.builder(Component.translatable("gui.common.plus_1"), button -> {
-            trade(StockTradePacket.TradeType.BUY, StockTradePacket.StockType.GOLD, 1);
-        }).bounds(x + 75, goldY, 20, 12).build());
+        // === LEFT PANEL: Stock Selection (3 buttons) ===
+        goldSelectButton = addRenderableWidget(Button.builder(
+            Component.literal("▶ Gold"),
+            btn -> selectStock(StockTradePacket.StockType.GOLD)
+        ).bounds(x + 7, y + 40, 120, 20).build());
 
-        goldBuy10Button = addRenderableWidget(Button.builder(Component.translatable("gui.common.plus_10"), button -> {
-            trade(StockTradePacket.TradeType.BUY, StockTradePacket.StockType.GOLD, 10);
-        }).bounds(x + 97, goldY, 23, 12).build());
+        diamondSelectButton = addRenderableWidget(Button.builder(
+            Component.literal("  Diamond"),
+            btn -> selectStock(StockTradePacket.StockType.DIAMOND)
+        ).bounds(x + 7, y + 68, 120, 20).build());
 
-        goldBuy64Button = addRenderableWidget(Button.builder(Component.translatable("gui.common.plus_64"), button -> {
-            trade(StockTradePacket.TradeType.BUY, StockTradePacket.StockType.GOLD, 64);
-        }).bounds(x + 122, goldY, 23, 12).build());
+        emeraldSelectButton = addRenderableWidget(Button.builder(
+            Component.literal("  Emerald"),
+            btn -> selectStock(StockTradePacket.StockType.EMERALD)
+        ).bounds(x + 7, y + 96, 120, 20).build());
 
-        goldSellAllButton = addRenderableWidget(Button.builder(Component.translatable("gui.common.all"), button -> {
-            sellAll(StockTradePacket.StockType.GOLD);
-        }).bounds(x + 147, goldY, 23, 12).build());
+        // === RIGHT PANEL: Trade Controls ===
 
-        // Diamant Buttons (Zeile 2)
-        int diamondY = y + 68;
-        diamondBuy1Button = addRenderableWidget(Button.builder(Component.translatable("gui.common.plus_1"), button -> {
-            trade(StockTradePacket.TradeType.BUY, StockTradePacket.StockType.DIAMOND, 1);
-        }).bounds(x + 75, diamondY, 20, 12).build());
+        // Quantity Slider
+        quantitySlider = addRenderableWidget(new QuantitySlider(x + 135, y + 65, 115, 20));
 
-        diamondBuy10Button = addRenderableWidget(Button.builder(Component.translatable("gui.common.plus_10"), button -> {
-            trade(StockTradePacket.TradeType.BUY, StockTradePacket.StockType.DIAMOND, 10);
-        }).bounds(x + 97, diamondY, 23, 12).build());
+        // Buy Button
+        buyButton = addRenderableWidget(Button.builder(
+            Component.translatable("gui.common.buy"),
+            btn -> executeTrade(StockTradePacket.TradeType.BUY)
+        ).bounds(x + 135, y + 90, 56, 20).build());
 
-        diamondBuy64Button = addRenderableWidget(Button.builder(Component.translatable("gui.common.plus_64"), button -> {
-            trade(StockTradePacket.TradeType.BUY, StockTradePacket.StockType.DIAMOND, 64);
-        }).bounds(x + 122, diamondY, 23, 12).build());
+        // Sell Button
+        sellButton = addRenderableWidget(Button.builder(
+            Component.literal("Sell"),
+            btn -> executeTrade(StockTradePacket.TradeType.SELL)
+        ).bounds(x + 194, y + 90, 56, 20).build());
 
-        diamondSellAllButton = addRenderableWidget(Button.builder(Component.translatable("gui.common.all"), button -> {
-            sellAll(StockTradePacket.StockType.DIAMOND);
-        }).bounds(x + 147, diamondY, 23, 12).build());
+        // Max Buy Button (calculates max affordable)
+        maxBuyButton = addRenderableWidget(Button.builder(
+            Component.literal("Max Buy"),
+            btn -> {
+                int max = calculateMaxAffordable();
+                quantitySlider.setValue(Math.min(max, 64));
+            }
+        ).bounds(x + 135, y + 113, 56, 18).build());
 
-        // Smaragd Buttons (Zeile 3)
-        int emeraldY = y + 91;
-        emeraldBuy1Button = addRenderableWidget(Button.builder(Component.translatable("gui.common.plus_1"), button -> {
-            trade(StockTradePacket.TradeType.BUY, StockTradePacket.StockType.EMERALD, 1);
-        }).bounds(x + 75, emeraldY, 20, 12).build());
-
-        emeraldBuy10Button = addRenderableWidget(Button.builder(Component.translatable("gui.common.plus_10"), button -> {
-            trade(StockTradePacket.TradeType.BUY, StockTradePacket.StockType.EMERALD, 10);
-        }).bounds(x + 97, emeraldY, 23, 12).build());
-
-        emeraldBuy64Button = addRenderableWidget(Button.builder(Component.translatable("gui.common.plus_64"), button -> {
-            trade(StockTradePacket.TradeType.BUY, StockTradePacket.StockType.EMERALD, 64);
-        }).bounds(x + 122, emeraldY, 23, 12).build());
-
-        emeraldSellAllButton = addRenderableWidget(Button.builder(Component.translatable("gui.common.all"), button -> {
-            sellAll(StockTradePacket.StockType.EMERALD);
-        }).bounds(x + 147, emeraldY, 23, 12).build());
+        // Sell All Button
+        sellAllButton = addRenderableWidget(Button.builder(
+            Component.literal("Sell All"),
+            btn -> executeSellAll()
+        ).bounds(x + 194, y + 113, 56, 18).build());
 
         // Close Button
-        closeButton = addRenderableWidget(Button.builder(Component.translatable("gui.common.close"), button -> {
-            this.onClose();
-        }).bounds(x + 38, y + 140, 100, 20).build());
+        closeButton = addRenderableWidget(Button.builder(
+            Component.translatable("gui.common.close"),
+            btn -> this.onClose()
+        ).bounds(x + 78, y + 198, 100, 18).build());
 
         // Request stock market data from server
         NPCNetworkHandler.sendToServer(new RequestStockDataPacket());
+
+        // Initial stock selection
+        selectStock(StockTradePacket.StockType.GOLD);
     }
 
     /**
-     * Führt einen Handel aus
+     * Selects a stock for trading
      */
-    private void trade(StockTradePacket.TradeType tradeType, StockTradePacket.StockType stockType, int quantity) {
-        NPCNetworkHandler.sendToServer(new StockTradePacket(tradeType, stockType, quantity));
-        this.onClose();
+    private void selectStock(StockTradePacket.StockType stock) {
+        selectedStock = stock;
+
+        // Update button labels to show selection
+        goldSelectButton.setMessage(Component.literal(
+            (stock == StockTradePacket.StockType.GOLD ? "▶ " : "  ") + "Gold"
+        ));
+        diamondSelectButton.setMessage(Component.literal(
+            (stock == StockTradePacket.StockType.DIAMOND ? "▶ " : "  ") + "Diamond"
+        ));
+        emeraldSelectButton.setMessage(Component.literal(
+            (stock == StockTradePacket.StockType.EMERALD ? "▶ " : "  ") + "Emerald"
+        ));
+
+        // Reset slider
+        quantitySlider.setValue(1);
     }
 
     /**
-     * Verkauft alle Items eines Typs
+     * Executes a trade
      */
-    private void sellAll(StockTradePacket.StockType stockType) {
-        if (minecraft == null || minecraft.player == null) return;
-
-        int count = countItems(stockType);
-        if (count > 0) {
-            NPCNetworkHandler.sendToServer(new StockTradePacket(StockTradePacket.TradeType.SELL, stockType, count));
-            this.onClose();
+    private void executeTrade(StockTradePacket.TradeType tradeType) {
+        int quantity = quantitySlider.getQuantity();
+        if (quantity > 0) {
+            NPCNetworkHandler.sendToServer(new StockTradePacket(tradeType, selectedStock, quantity));
+            // DON'T CLOSE - let player continue trading!
+            // Re-request data to update display
+            NPCNetworkHandler.sendToServer(new RequestStockDataPacket());
         }
     }
 
     /**
-     * Zählt Items im Inventar
+     * Sells all items of selected stock
+     */
+    private void executeSellAll() {
+        int count = countItems(selectedStock);
+        if (count > 0) {
+            NPCNetworkHandler.sendToServer(new StockTradePacket(
+                StockTradePacket.TradeType.SELL, selectedStock, count
+            ));
+            NPCNetworkHandler.sendToServer(new RequestStockDataPacket());
+        }
+    }
+
+    /**
+     * Calculates maximum affordable quantity
+     */
+    private int calculateMaxAffordable() {
+        double balance = ClientBankDataCache.getBalance();
+        double price = getCurrentPrice(selectedStock);
+        if (price <= 0) return 0;
+        return Math.min(64, (int)(balance / price));
+    }
+
+    /**
+     * Counts items in inventory
      */
     private int countItems(StockTradePacket.StockType stockType) {
         if (minecraft == null || minecraft.player == null) return 0;
@@ -163,6 +198,17 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
         return count;
     }
 
+    /**
+     * Gets current price for a stock
+     */
+    private double getCurrentPrice(StockTradePacket.StockType stock) {
+        return switch (stock) {
+            case GOLD -> ClientBankDataCache.getGoldPrice();
+            case DIAMOND -> ClientBankDataCache.getDiamondPrice();
+            case EMERALD -> ClientBankDataCache.getEmeraldPrice();
+        };
+    }
+
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(guiGraphics);
@@ -172,59 +218,165 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
 
-        // Header
-        guiGraphics.drawString(this.font, Component.translatable("screen.boerse.header_market").getString(), x + 10, y + 25, 0x404040, false);
-        guiGraphics.drawString(this.font, Component.translatable("screen.boerse.header_price").getString(), x + 55, y + 25, 0x404040, false);
-        guiGraphics.drawString(this.font, Component.translatable("screen.boerse.header_trade").getString(), x + 100, y + 25, 0x404040, false);
-        guiGraphics.drawString(this.font, Component.translatable("screen.boerse.header_stock").getString(), x + 10, y + 33, 0x808080, false);
+        // === LEFT PANEL: Stock Market Overview ===
+        guiGraphics.drawString(this.font, "STOCK MARKET", x + 8, y + 22, 0x404040, false);
 
-        // Gold - use ClientBankDataCache for dedicated server support
-        renderStockRow(guiGraphics, x, y + 40, Component.translatable("screen.boerse.stock_gold").getString(), Items.GOLD_INGOT,
-            ClientBankDataCache.getGoldPrice(),
-            ClientBankDataCache.getGoldTrend(),
-            countItems(StockTradePacket.StockType.GOLD));
+        // Render each stock row
+        renderStockRow(guiGraphics, x + 7, y + 42, StockTradePacket.StockType.GOLD);
+        renderStockRow(guiGraphics, x + 7, y + 70, StockTradePacket.StockType.DIAMOND);
+        renderStockRow(guiGraphics, x + 7, y + 98, StockTradePacket.StockType.EMERALD);
 
-        // Diamant - use ClientBankDataCache for dedicated server support
-        renderStockRow(guiGraphics, x, y + 63, Component.translatable("screen.boerse.stock_diamond").getString(), Items.DIAMOND,
-            ClientBankDataCache.getDiamondPrice(),
-            ClientBankDataCache.getDiamondTrend(),
-            countItems(StockTradePacket.StockType.DIAMOND));
+        // === MINI CHARTS ===
+        renderMiniChart(guiGraphics, x + 8, y + 125, 120, 30, ClientBankDataCache.getGoldHistory(), 0xFFAA00);
+        renderMiniChart(guiGraphics, x + 8, y + 125, 120, 30, ClientBankDataCache.getDiamondHistory(), 0x55FFFF);
+        renderMiniChart(guiGraphics, x + 8, y + 125, 120, 30, ClientBankDataCache.getEmeraldHistory(), 0x55FF55);
 
-        // Smaragd - use ClientBankDataCache for dedicated server support
-        renderStockRow(guiGraphics, x, y + 86, Component.translatable("screen.boerse.stock_emerald").getString(), Items.EMERALD,
-            ClientBankDataCache.getEmeraldPrice(),
-            ClientBankDataCache.getEmeraldTrend(),
-            countItems(StockTradePacket.StockType.EMERALD));
+        // === RIGHT PANEL: Trade Info ===
+        guiGraphics.drawString(this.font, "TRADE PANEL", x + 137, y + 22, 0x404040, false);
 
-        // Kontostand - use ClientBankDataCache for dedicated server support
+        // Selected stock info
+        String stockName = selectedStock.getDisplayName();
+        double currentPrice = getCurrentPrice(selectedStock);
+        int playerStock = countItems(selectedStock);
+
+        guiGraphics.drawString(this.font, stockName, x + 137, y + 38, 0x404040, false);
+        guiGraphics.drawString(this.font, String.format("%.0f€", currentPrice), x + 210, y + 38, 0xFFAA00, false);
+
+        // Statistics
+        double high = getHighPrice(selectedStock);
+        double low = getLowPrice(selectedStock);
+        double avg = getAvgPrice(selectedStock);
+
+        guiGraphics.drawString(this.font, "24h High:", x + 137, y + 50, 0x808080, false);
+        guiGraphics.drawString(this.font, String.format("%.0f€", high), x + 210, y + 50, 0x00AA00, false);
+
+        guiGraphics.drawString(this.font, "24h Low:", x + 137, y + 58, 0x808080, false);
+        guiGraphics.drawString(this.font, String.format("%.0f€", low), x + 210, y + 58, 0xFF5555, false);
+
+        // Quantity & Cost
+        int quantity = quantitySlider.getQuantity();
+        double totalCost = currentPrice * quantity;
+
+        guiGraphics.drawString(this.font, "Quantity: " + quantity, x + 137, y + 135, 0x404040, false);
+        guiGraphics.drawString(this.font, String.format("Cost: %.0f€", totalCost), x + 137, y + 145, 0xFFAA00, false);
+        guiGraphics.drawString(this.font, "Own: " + playerStock + "x", x + 137, y + 155, 0x606060, false);
+
+        // === BOTTOM PANEL: Portfolio ===
+        guiGraphics.drawString(this.font, "PORTFOLIO", x + 8, y + 165, 0x404040, false);
+
         double balance = ClientBankDataCache.getBalance();
-        guiGraphics.drawString(this.font, Component.translatable("screen.boerse.balance_label").getString(), x + 10, y + 110, 0x808080, false);
-        guiGraphics.drawString(this.font, String.format("%.2f€", balance),
-            x + 75, y + 110, 0x00AA00, false);
+        double portfolioValue = calculatePortfolioValue();
 
-        // Info
-        guiGraphics.drawString(this.font, Component.translatable("screen.boerse.tip").getString(), x + 10, y + 122, 0x606060, false);
+        guiGraphics.drawString(this.font, "Balance:", x + 8, y + 177, 0x808080, false);
+        guiGraphics.drawString(this.font, String.format("%.2f€", balance), x + 70, y + 177, 0x00AA00, false);
+
+        guiGraphics.drawString(this.font, "Holdings:", x + 8, y + 186, 0x808080, false);
+        guiGraphics.drawString(this.font, String.format("%.0f€", portfolioValue), x + 70, y + 186, 0xFFAA00, false);
+
+        guiGraphics.drawString(this.font, "Total:", x + 135, y + 177, 0x808080, false);
+        guiGraphics.drawString(this.font, String.format("%.0f€", balance + portfolioValue),
+            x + 185, y + 177, 0x55FFFF, false);
     }
 
     /**
-     * Rendert eine Zeile für ein Wertpapier
+     * Renders a stock row with price and trend
      */
-    private void renderStockRow(GuiGraphics guiGraphics, int x, int y, String name,
-                                net.minecraft.world.item.Item item, double price, int trend, int playerStock) {
-        // Name
-        guiGraphics.drawString(this.font, name, x + 10, y, 0x404040, false);
+    private void renderStockRow(GuiGraphics guiGraphics, int x, int y, StockTradePacket.StockType stock) {
+        double price = getCurrentPrice(stock);
+        int trend = getTrend(stock);
+        double changePercent = getChangePercent(stock);
 
-        // Preis mit Trend-Arrow
-        String priceStr = String.format("%.0f€", price);
+        // Trend arrow and color
         String trendArrow = trend > 0 ? "↗" : (trend < 0 ? "↘" : "→");
         int trendColor = trend > 0 ? 0x00AA00 : (trend < 0 ? 0xFF5555 : 0x808080);
 
-        guiGraphics.drawString(this.font, priceStr, x + 43, y, 0xFFAA00, false);
-        guiGraphics.drawString(this.font, trendArrow, x + 65, y, trendColor, false);
+        // Draw on button (offset slightly)
+        int yOffset = 5;
+    }
 
-        // Player Stock
-        guiGraphics.drawString(this.font, playerStock + "x", x + 10, y + 8, 0x808080, false);
-    }    @Override
+    /**
+     * Renders a mini price chart
+     */
+    private void renderMiniChart(GuiGraphics guiGraphics, int x, int y, int width, int height, List<Double> history, int color) {
+        if (history == null || history.size() < 2) return;
+
+        // Find min/max for scaling
+        double min = history.stream().mapToDouble(Double::doubleValue).min().orElse(0);
+        double max = history.stream().mapToDouble(Double::doubleValue).max().orElse(100);
+        double range = max - min;
+        if (range < 0.01) range = 1.0; // Avoid division by zero
+
+        // Draw chart lines
+        int segments = history.size() - 1;
+        float segmentWidth = (float) width / segments;
+
+        for (int i = 0; i < segments; i++) {
+            double v1 = history.get(i);
+            double v2 = history.get(i + 1);
+
+            int y1 = y + height - (int)((v1 - min) / range * height);
+            int y2 = y + height - (int)((v2 - min) / range * height);
+            int x1 = x + (int)(i * segmentWidth);
+            int x2 = x + (int)((i + 1) * segmentWidth);
+
+            // Draw line using fill (simple line drawing)
+            guiGraphics.fill(x1, y1, x2, y2, color | 0xFF000000);
+        }
+    }
+
+    /**
+     * Calculates portfolio value (all holdings)
+     */
+    private double calculatePortfolioValue() {
+        double goldValue = countItems(StockTradePacket.StockType.GOLD) * ClientBankDataCache.getGoldPrice();
+        double diamondValue = countItems(StockTradePacket.StockType.DIAMOND) * ClientBankDataCache.getDiamondPrice();
+        double emeraldValue = countItems(StockTradePacket.StockType.EMERALD) * ClientBankDataCache.getEmeraldPrice();
+        return goldValue + diamondValue + emeraldValue;
+    }
+
+    private int getTrend(StockTradePacket.StockType stock) {
+        return switch (stock) {
+            case GOLD -> ClientBankDataCache.getGoldTrend();
+            case DIAMOND -> ClientBankDataCache.getDiamondTrend();
+            case EMERALD -> ClientBankDataCache.getEmeraldTrend();
+        };
+    }
+
+    private double getChangePercent(StockTradePacket.StockType stock) {
+        // Calculate from current vs average (simplified)
+        double current = getCurrentPrice(stock);
+        double avg = getAvgPrice(stock);
+        if (avg > 0) {
+            return ((current - avg) / avg) * 100.0;
+        }
+        return 0.0;
+    }
+
+    private double getHighPrice(StockTradePacket.StockType stock) {
+        return switch (stock) {
+            case GOLD -> ClientBankDataCache.getGoldHigh();
+            case DIAMOND -> ClientBankDataCache.getDiamondHigh();
+            case EMERALD -> ClientBankDataCache.getEmeraldHigh();
+        };
+    }
+
+    private double getLowPrice(StockTradePacket.StockType stock) {
+        return switch (stock) {
+            case GOLD -> ClientBankDataCache.getGoldLow();
+            case DIAMOND -> ClientBankDataCache.getDiamondLow();
+            case EMERALD -> ClientBankDataCache.getEmeraldLow();
+        };
+    }
+
+    private double getAvgPrice(StockTradePacket.StockType stock) {
+        return switch (stock) {
+            case GOLD -> ClientBankDataCache.getGoldAvg();
+            case DIAMOND -> ClientBankDataCache.getDiamondAvg();
+            case EMERALD -> ClientBankDataCache.getEmeraldAvg();
+        };
+    }
+
+    @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         // Block E key (inventory key - 69) from closing the screen
         if (keyCode == 69) { // GLFW_KEY_E
@@ -232,8 +384,6 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
-
-
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
@@ -245,6 +395,39 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
 
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        guiGraphics.drawString(this.font, "BÖRSENMAKLER", 8, 6, 0x404040, false);
+        guiGraphics.drawString(this.font, "TRADING DASHBOARD", 8, 6, 0x404040, false);
+    }
+
+    /**
+     * Custom slider for quantity selection
+     */
+    private class QuantitySlider extends AbstractSliderButton {
+        private static final int MIN = 1;
+        private static final int MAX = 64;
+
+        public QuantitySlider(int x, int y, int width, int height) {
+            super(x, y, width, height, Component.literal("Qty: 1"), 0.0);
+            updateMessage();
+        }
+
+        @Override
+        protected void updateMessage() {
+            this.setMessage(Component.literal("Qty: " + getQuantity()));
+        }
+
+        @Override
+        protected void applyValue() {
+            // Called when slider is moved
+        }
+
+        public int getQuantity() {
+            return MIN + (int)(this.value * (MAX - MIN));
+        }
+
+        public void setValue(int quantity) {
+            this.value = (double)(quantity - MIN) / (MAX - MIN);
+            this.value = Math.max(0.0, Math.min(1.0, this.value));
+            updateMessage();
+        }
     }
 }

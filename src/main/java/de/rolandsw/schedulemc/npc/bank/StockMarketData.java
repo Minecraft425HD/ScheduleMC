@@ -14,9 +14,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Verwaltet Börsenpreise für handelbare Items
@@ -116,6 +114,38 @@ public class StockMarketData {
     }
 
     /**
+     * Gibt Preis-Historie für ein Item zurück (letzte 7 Tage)
+     */
+    public List<Double> getPriceHistory(Item item) {
+        StockPrice price = prices.get(item);
+        return price != null ? price.getHistory(7) : new ArrayList<>();
+    }
+
+    /**
+     * Gibt Höchstpreis der letzten 7 Tage zurück
+     */
+    public double getHighPrice(Item item) {
+        StockPrice price = prices.get(item);
+        return price != null ? price.getHighPrice() : 0.0;
+    }
+
+    /**
+     * Gibt Tiefstpreis der letzten 7 Tage zurück
+     */
+    public double getLowPrice(Item item) {
+        StockPrice price = prices.get(item);
+        return price != null ? price.getLowPrice() : 0.0;
+    }
+
+    /**
+     * Gibt Durchschnittspreis der letzten 7 Tage zurück
+     */
+    public double getAveragePrice(Item item) {
+        StockPrice price = prices.get(item);
+        return price != null ? price.getAveragePrice() : 0.0;
+    }
+
+    /**
      * Tick-Methode für tägliche Preisänderungen
      */
     public void tick(long dayTime) {
@@ -147,6 +177,9 @@ public class StockMarketData {
 
             // Neuer Preis
             price.currentPrice = Math.max(10.0, price.currentPrice + changeAmount);
+
+            // Füge zur Historie hinzu
+            price.addToHistory(price.currentPrice);
 
             LOGGER.debug("Stock price updated: {} = {}€ ({}{}%)",
                 entry.getKey().toString(),
@@ -192,12 +225,25 @@ public class StockMarketData {
             if (data != null) {
                 // Lade Preise aus SaveData
                 if (data.goldPrice != null) {
+                    // Initialisiere Historie falls nicht vorhanden (alte Saves)
+                    if (data.goldPrice.priceHistory == null) {
+                        data.goldPrice.priceHistory = new LinkedList<>();
+                        data.goldPrice.priceHistory.add(data.goldPrice.currentPrice);
+                    }
                     prices.put(Items.GOLD_INGOT, data.goldPrice);
                 }
                 if (data.diamondPrice != null) {
+                    if (data.diamondPrice.priceHistory == null) {
+                        data.diamondPrice.priceHistory = new LinkedList<>();
+                        data.diamondPrice.priceHistory.add(data.diamondPrice.currentPrice);
+                    }
                     prices.put(Items.DIAMOND, data.diamondPrice);
                 }
                 if (data.emeraldPrice != null) {
+                    if (data.emeraldPrice.priceHistory == null) {
+                        data.emeraldPrice.priceHistory = new LinkedList<>();
+                        data.emeraldPrice.priceHistory.add(data.emeraldPrice.currentPrice);
+                    }
                     prices.put(Items.EMERALD, data.emeraldPrice);
                 }
 
@@ -236,10 +282,55 @@ public class StockMarketData {
     public static class StockPrice {
         public double currentPrice;
         public double previousPrice;
+        public LinkedList<Double> priceHistory; // Letzte 7 Tage
 
         public StockPrice(double currentPrice, double previousPrice) {
             this.currentPrice = currentPrice;
             this.previousPrice = previousPrice;
+            this.priceHistory = new LinkedList<>();
+            this.priceHistory.add(currentPrice); // Initial price
+        }
+
+        /**
+         * Fügt einen neuen Preis zur Historie hinzu (maximal 7 Einträge)
+         */
+        public void addToHistory(double price) {
+            priceHistory.add(price);
+            if (priceHistory.size() > 7) {
+                priceHistory.removeFirst(); // Ältesten Eintrag entfernen
+            }
+        }
+
+        /**
+         * Gibt die letzten N Preise zurück (maximal 7)
+         */
+        public List<Double> getHistory(int days) {
+            int size = Math.min(days, priceHistory.size());
+            return new ArrayList<>(priceHistory.subList(
+                Math.max(0, priceHistory.size() - size),
+                priceHistory.size()
+            ));
+        }
+
+        /**
+         * Berechnet Höchstpreis der letzten 7 Tage
+         */
+        public double getHighPrice() {
+            return priceHistory.stream().mapToDouble(Double::doubleValue).max().orElse(currentPrice);
+        }
+
+        /**
+         * Berechnet Tiefstpreis der letzten 7 Tage
+         */
+        public double getLowPrice() {
+            return priceHistory.stream().mapToDouble(Double::doubleValue).min().orElse(currentPrice);
+        }
+
+        /**
+         * Berechnet Durchschnittspreis der letzten 7 Tage
+         */
+        public double getAveragePrice() {
+            return priceHistory.stream().mapToDouble(Double::doubleValue).average().orElse(currentPrice);
         }
     }
 
