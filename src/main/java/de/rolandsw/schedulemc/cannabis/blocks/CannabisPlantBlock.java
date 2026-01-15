@@ -121,71 +121,6 @@ public class CannabisPlantBlock extends Block {
 
 
 
-        // Finde Topf (unter der Pflanze)
-        BlockPos potPos = pos.below();
-        var be = level.getBlockEntity(potPos);
-        if (!(be instanceof PlantPotBlockEntity potBE)) {
-            return InteractionResult.PASS;
-        }
-
-        var potData = potBE.getPotData();
-        if (!potData.hasCannabisPlant()) {
-            return InteractionResult.PASS;
-        }
-
-        var plant = potData.getCannabisPlant();
-
-        // Prüfe ob Pflanze erntebereit ist
-        if (!plant.isFullyGrown()) {
-            player.displayClientMessage(Component.translatable(
-                "block.plant_pot.cannabis_not_fully_grown",
-                (plant.getGrowthStage() * 100 / 7)
-            ), true);
-            return InteractionResult.FAIL;
-        }
-
-        // Verifikation und Korrektur der Ressourcen
-        verifyAndCorrectResources(potData, 100, 33);
-
-        // Ernte Cannabis
-        var harvested = potData.harvestCannabis();
-        if (harvested != null) {
-            // Golden Pot Qualitäts-Boost
-            var quality = harvested.getQuality();
-            var potType = ((PlantPotBlock) level.getBlockState(potPos).getBlock()).getPotType();
-            if (potType.hasQualityBoost()) {
-                quality = quality.upgrade();
-            }
-
-            ItemStack buds = FreshBudItem.create(
-                harvested.getStrain(),
-                quality,
-                harvested.getHarvestYield()
-            );
-
-            player.getInventory().add(buds);
-            potBE.setChanged();
-            level.sendBlockUpdated(potPos, level.getBlockState(potPos), level.getBlockState(potPos), 3);
-
-            // Entferne Pflanzen-Block
-            removePlant(level, potPos);
-
-            String qualityBoostMsg = potType.hasQualityBoost() ? " §d(+1 Qualität!)" : "";
-            player.displayClientMessage(Component.translatable(
-                "block.plant_pot.cannabis_harvested",
-                harvested.getHarvestYield(),
-                quality.getColoredName()
-            ).append(qualityBoostMsg), true);
-
-            player.playSound(net.minecraft.sounds.SoundEvents.CROP_BREAK, 1.0f, 1.0f);
-            return InteractionResult.SUCCESS;
-        }
-
-        return InteractionResult.PASS;
-    }
-
-
-
     /**
      * Drops beim Abbauen
      */
@@ -263,9 +198,6 @@ public class CannabisPlantBlock extends Block {
         }
     }
 
-    /**
-     * Wird aufgerufen wenn die Pflanze abgebaut wird - entfernt sie aus dem Topf
-     */
     /**
      * Linksklick-Ernte - wird aufgerufen wenn die Pflanze abgebaut wird
      * Nur möglich wenn die Pflanze erntebereit ist!

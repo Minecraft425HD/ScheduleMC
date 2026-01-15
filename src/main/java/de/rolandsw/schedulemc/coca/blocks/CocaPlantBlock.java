@@ -120,83 +120,6 @@ public class CocaPlantBlock extends Block {
         return belowState.getBlock() instanceof PlantPotBlock;
     }
 
-
-
-        BlockPos potPos = pos.below();
-        var be = level.getBlockEntity(potPos);
-        if (!(be instanceof PlantPotBlockEntity potBE)) {
-            return InteractionResult.PASS;
-        }
-
-        var potData = potBE.getPotData();
-        if (!potData.hasCocaPlant()) {
-            return InteractionResult.PASS;
-        }
-
-        var plant = potData.getCocaPlant();
-
-        if (!plant.isFullyGrown()) {
-            player.displayClientMessage(Component.translatable(
-                "block.plant_pot.coca_not_fully_grown",
-                (plant.getGrowthStage() * 100 / 7)
-            ), true);
-            return InteractionResult.FAIL;
-        }
-
-        verifyAndCorrectResources(potData, 100, 33);
-
-        var harvested = potData.harvestCoca();
-        if (harvested != null) {
-            var quality = harvested.getQuality();
-            var potType = ((PlantPotBlock) level.getBlockState(potPos).getBlock()).getPotType();
-            if (potType.hasQualityBoost()) {
-                quality = quality.upgrade();
-            }
-
-            ItemStack leaves = FreshCocaLeafItem.create(
-                harvested.getType(),
-                quality,
-                harvested.getHarvestYield()
-            );
-
-            player.getInventory().add(leaves);
-            potBE.setChanged();
-            level.sendBlockUpdated(potPos, level.getBlockState(potPos), level.getBlockState(potPos), 3);
-
-            removePlant(level, potPos);
-
-            String qualityBoostMsg = potType.hasQualityBoost() ? " §d(+1 Qualität!)" : "";
-            player.displayClientMessage(Component.translatable(
-                "block.plant_pot.coca_harvested",
-                harvested.getHarvestYield(),
-                quality.getColoredName()
-            ).append(qualityBoostMsg), true);
-
-            player.playSound(net.minecraft.sounds.SoundEvents.CROP_BREAK, 1.0f, 1.0f);
-            return InteractionResult.SUCCESS;
-        }
-
-        return InteractionResult.PASS;
-    }
-
-    private void verifyAndCorrectResources(de.rolandsw.schedulemc.production.data.PlantPotData potData,
-                                           int targetWater, int targetSoil) {
-        double remainingWater = potData.getWaterLevelExact();
-        double remainingSoil = potData.getSoilLevelExact();
-        int maxWater = potData.getMaxWater();
-        double consumedWater = maxWater - remainingWater;
-        double consumedSoil = targetSoil - remainingSoil;
-        double waterDiff = targetWater - consumedWater;
-        double soilDiff = targetSoil - consumedSoil;
-
-        if (Math.abs(waterDiff) > 0.01) {
-            potData.setWaterLevel(Math.max(0, remainingWater - waterDiff));
-        }
-        if (Math.abs(soilDiff) > 0.01) {
-            potData.setSoilLevel(Math.max(0, remainingSoil - soilDiff));
-        }
-    }
-
     /**
      * Drops beim Abbauen
      */
@@ -274,9 +197,6 @@ public class CocaPlantBlock extends Block {
         }
     }
 
-    /**
-     * Wird aufgerufen wenn die Pflanze abgebaut wird - entfernt sie aus dem Topf
-     */
     /**
      * Linksklick-Ernte - wird aufgerufen wenn die Pflanze abgebaut wird
      * Nur möglich wenn die Pflanze erntebereit ist!
