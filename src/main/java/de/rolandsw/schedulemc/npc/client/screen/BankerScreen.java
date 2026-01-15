@@ -230,10 +230,10 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
             handleRecurringCreate();
         }).bounds(x + 145, y + 145, 120, 18).build());
 
-        // Close Button (rechts oben)
+        // Close Button (rechts unten)
         closeButton = addRenderableWidget(Button.builder(Component.translatable("gui.common.close"), button -> {
             this.onClose();
-        }).bounds(x + 210, y + 5, 60, 20).build());
+        }).bounds(x + 210, y + 205, 60, 20).build());
 
         // Initial tab
         updateComponentVisibility();
