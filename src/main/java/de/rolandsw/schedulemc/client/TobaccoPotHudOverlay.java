@@ -234,14 +234,21 @@ public class TobaccoPotHudOverlay {
                 lightLevel = foundGrowLight.getTier().getLightLevel();
                 lightSource = " §7(Growlight " + foundGrowLight.getTier().name() + ")";
             } else {
-                // Kein Growlight → Zeige tatsächliches Lichtlevel (kombiniert aus SKY + BLOCK)
+                // Kein Growlight → Zeige tatsächliches Lichtlevel mit Tag/Nacht-Variation
                 BlockPos checkPos = potPos.above(2);
-                lightLevel = mc.level.getMaxLocalRawBrightness(checkPos);
 
-                // Prüfe ob es Sonnenlicht ist (SKY > BLOCK)
+                // Hole SKY und BLOCK Licht separat
                 int skyLight = mc.level.getBrightness(net.minecraft.world.level.LightLayer.SKY, checkPos);
                 int blockLight = mc.level.getBrightness(net.minecraft.world.level.LightLayer.BLOCK, checkPos);
 
+                // Berechne tatsächliches Himmelslicht unter Berücksichtigung der Tageszeit
+                int skyDarken = mc.level.getSkyDarken();
+                int adjustedSkyLight = Math.max(0, skyLight - skyDarken);
+
+                // Kombiniertes Licht = Maximum aus Himmelslicht und Blocklicht
+                lightLevel = Math.max(adjustedSkyLight, blockLight);
+
+                // Prüfe ob es Sonnenlicht ist (SKY > BLOCK)
                 if (skyLight > blockLight) {
                     lightSource = " §7(Sonnenlicht)";
                 } else {
