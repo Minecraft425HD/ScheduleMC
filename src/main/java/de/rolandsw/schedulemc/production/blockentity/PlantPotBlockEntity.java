@@ -216,10 +216,10 @@ public class PlantPotBlockEntity extends BlockEntity implements IUtilityConsumer
     /**
      * Berechnet Wachstumsgeschwindigkeits-Multiplikator basierend auf Licht
      * Prüft exakt 2 Blöcke über dem Topf (wo das Grow Light platziert werden muss)
-     * Wenn kein Grow Light vorhanden ist, wird Sonnenlicht genutzt (0,5% = 0.005 Multiplikator)
+     * Wenn kein Grow Light vorhanden ist, wird Sonnenlicht genutzt (50% Geschwindigkeit)
      */
     private double getLightSpeedMultiplier() {
-        if (level == null) return 0.005; // Fallback: Sonnenlicht
+        if (level == null) return 0.5; // Fallback: Sonnenlicht = 50%
 
         // Prüfe exakt 2 Blöcke über dem Topf (Grow Light Position)
         BlockPos growLightPos = worldPosition.above(2);
@@ -227,19 +227,19 @@ public class PlantPotBlockEntity extends BlockEntity implements IUtilityConsumer
         Block checkBlock = checkState.getBlock();
 
         if (checkBlock instanceof GrowLightSlabBlock growLight) {
-            // Grow Light gefunden! Nutze dessen maximalen Lichtlevel-Multiplikator
+            // Grow Light gefunden! Nutze dessen Geschwindigkeits-Multiplikator
             return growLight.getTier().getGrowthSpeedMultiplier();
         }
 
-        // Kein Grow Light → Nutze Sonnenlicht (0,5% Geschwindigkeit)
+        // Kein Grow Light → Nutze Sonnenlicht (50% Geschwindigkeit)
         // Lichtlevel variiert mit Tageszeit (0-15)
         int skyLight = level.getBrightness(LightLayer.SKY, growLightPos);
 
         // Je dunkler, desto langsamer das Wachstum
-        // Bei Nacht (Lichtlevel 0-3): fast kein Wachstum
-        // Bei Tag (Lichtlevel 15): volle 0,5%
+        // Bei Nacht (Lichtlevel 0): kein Wachstum (0%)
+        // Bei Tag (Lichtlevel 15): volle 50%
         double sunlightFactor = skyLight / 15.0; // 0.0 bis 1.0
-        return 0.005 * sunlightFactor; // 0% bis 0,5%
+        return 0.5 * sunlightFactor; // 0% bis 50%
     }
 
     /**
