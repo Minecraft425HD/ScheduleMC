@@ -40,6 +40,22 @@ public class ClientBankDataCache {
     private static int diamondTrend = 0;
     private static int emeraldTrend = 0;
 
+    // Börsen-Historie (7 Tage)
+    private static List<Double> goldHistory = new ArrayList<>();
+    private static List<Double> diamondHistory = new ArrayList<>();
+    private static List<Double> emeraldHistory = new ArrayList<>();
+
+    // Börsen-Statistiken
+    private static double goldHigh = 150.0;
+    private static double goldLow = 150.0;
+    private static double goldAvg = 150.0;
+    private static double diamondHigh = 800.0;
+    private static double diamondLow = 800.0;
+    private static double diamondAvg = 800.0;
+    private static double emeraldHigh = 100.0;
+    private static double emeraldLow = 100.0;
+    private static double emeraldAvg = 100.0;
+
     // Status
     private static boolean hasData = false;
     private static long lastUpdateTime = 0;
@@ -92,7 +108,7 @@ public class ClientBankDataCache {
     }
 
     /**
-     * Update stock market data
+     * Update stock market data (legacy method - ohne Historie)
      */
     public static void updateStockData(double gold, int goldT, double diamond, int diamondT, double emerald, int emeraldT) {
         goldPrice = gold;
@@ -101,6 +117,41 @@ public class ClientBankDataCache {
         diamondTrend = diamondT;
         emeraldPrice = emerald;
         emeraldTrend = emeraldT;
+        lastUpdateTime = System.currentTimeMillis();
+    }
+
+    /**
+     * Update stock market data with full statistics
+     */
+    public static void updateStockDataFull(
+            double gold, int goldT, List<Double> goldHist, double goldH, double goldL, double goldA,
+            double diamond, int diamondT, List<Double> diamondHist, double diamondH, double diamondL, double diamondA,
+            double emerald, int emeraldT, List<Double> emeraldHist, double emeraldH, double emeraldL, double emeraldA) {
+
+        // Prices & Trends
+        goldPrice = gold;
+        goldTrend = goldT;
+        diamondPrice = diamond;
+        diamondTrend = diamondT;
+        emeraldPrice = emerald;
+        emeraldTrend = emeraldT;
+
+        // History
+        goldHistory = new ArrayList<>(goldHist);
+        diamondHistory = new ArrayList<>(diamondHist);
+        emeraldHistory = new ArrayList<>(emeraldHist);
+
+        // Statistics
+        goldHigh = goldH;
+        goldLow = goldL;
+        goldAvg = goldA;
+        diamondHigh = diamondH;
+        diamondLow = diamondL;
+        diamondAvg = diamondA;
+        emeraldHigh = emeraldH;
+        emeraldLow = emeraldL;
+        emeraldAvg = emeraldA;
+
         lastUpdateTime = System.currentTimeMillis();
     }
 
@@ -173,6 +224,56 @@ public class ClientBankDataCache {
         return emeraldTrend;
     }
 
+    // History Getters
+    public static List<Double> getGoldHistory() {
+        return new ArrayList<>(goldHistory);
+    }
+
+    public static List<Double> getDiamondHistory() {
+        return new ArrayList<>(diamondHistory);
+    }
+
+    public static List<Double> getEmeraldHistory() {
+        return new ArrayList<>(emeraldHistory);
+    }
+
+    // Statistics Getters
+    public static double getGoldHigh() {
+        return goldHigh;
+    }
+
+    public static double getGoldLow() {
+        return goldLow;
+    }
+
+    public static double getGoldAvg() {
+        return goldAvg;
+    }
+
+    public static double getDiamondHigh() {
+        return diamondHigh;
+    }
+
+    public static double getDiamondLow() {
+        return diamondLow;
+    }
+
+    public static double getDiamondAvg() {
+        return diamondAvg;
+    }
+
+    public static double getEmeraldHigh() {
+        return emeraldHigh;
+    }
+
+    public static double getEmeraldLow() {
+        return emeraldLow;
+    }
+
+    public static double getEmeraldAvg() {
+        return emeraldAvg;
+    }
+
     public static boolean hasData() {
         return hasData;
     }
@@ -199,6 +300,12 @@ public class ClientBankDataCache {
         activeLoan = null;
         totalIncome = 0.0;
         totalExpenses = 0.0;
+
+        // Clear stock data
+        goldHistory.clear();
+        diamondHistory.clear();
+        emeraldHistory.clear();
+
         hasData = false;
         lastUpdateTime = 0;
     }

@@ -35,23 +35,38 @@ public class RequestStockDataPacket {
             // Get stock market data
             StockMarketData stockMarket = StockMarketData.getInstance(server);
 
+            // Gold data
             double goldPrice = stockMarket.getCurrentPrice(Items.GOLD_INGOT);
             int goldTrend = stockMarket.getTrend(Items.GOLD_INGOT);
+            var goldHistory = stockMarket.getPriceHistory(Items.GOLD_INGOT);
+            double goldHigh = stockMarket.getHighPrice(Items.GOLD_INGOT);
+            double goldLow = stockMarket.getLowPrice(Items.GOLD_INGOT);
+            double goldAvg = stockMarket.getAveragePrice(Items.GOLD_INGOT);
 
+            // Diamond data
             double diamondPrice = stockMarket.getCurrentPrice(Items.DIAMOND);
             int diamondTrend = stockMarket.getTrend(Items.DIAMOND);
+            var diamondHistory = stockMarket.getPriceHistory(Items.DIAMOND);
+            double diamondHigh = stockMarket.getHighPrice(Items.DIAMOND);
+            double diamondLow = stockMarket.getLowPrice(Items.DIAMOND);
+            double diamondAvg = stockMarket.getAveragePrice(Items.DIAMOND);
 
+            // Emerald data
             double emeraldPrice = stockMarket.getCurrentPrice(Items.EMERALD);
             int emeraldTrend = stockMarket.getTrend(Items.EMERALD);
+            var emeraldHistory = stockMarket.getPriceHistory(Items.EMERALD);
+            double emeraldHigh = stockMarket.getHighPrice(Items.EMERALD);
+            double emeraldLow = stockMarket.getLowPrice(Items.EMERALD);
+            double emeraldAvg = stockMarket.getAveragePrice(Items.EMERALD);
 
             double balance = EconomyManager.getBalance(player.getUUID());
 
-            // Send response
+            // Send response with full data
             SyncStockDataPacket response = new SyncStockDataPacket(
-                goldPrice, goldTrend,
-                diamondPrice, diamondTrend,
-                emeraldPrice, emeraldTrend,
-                balance
+                goldPrice, goldTrend, diamondPrice, diamondTrend, emeraldPrice, emeraldTrend, balance,
+                goldHistory, goldHigh, goldLow, goldAvg,
+                diamondHistory, diamondHigh, diamondLow, diamondAvg,
+                emeraldHistory, emeraldHigh, emeraldLow, emeraldAvg
             );
 
             NPCNetworkHandler.INSTANCE.send(
