@@ -131,6 +131,7 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
         // Reinitialize vehicle - CRITICAL: Must reload parts and recalculate inventory!
         vehicle.invalidatePartCache();
         vehicle.initParts(); // Reload parts from part inventory
+        vehicle.setPartSerializer(); // Sync parts to client (shows 3D model!)
         vehicle.checkInitializing(); // Recalculate inventory sizes (sets external to 12!)
         vehicle.tryInitPartsAndModel(); // Update 3D models
 
@@ -165,6 +166,7 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
         // Reinitialize - CRITICAL: Must reload parts and recalculate inventory!
         vehicle.invalidatePartCache();
         vehicle.initParts(); // Reload parts from part inventory
+        vehicle.setPartSerializer(); // Sync parts to client (updates 3D model!)
         vehicle.checkInitializing(); // Recalculate inventory sizes (sets external back to 0!)
         vehicle.tryInitPartsAndModel(); // Update 3D models
 
@@ -263,6 +265,7 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
         // Reinitialize - CRITICAL: Must reload parts and recalculate inventory!
         vehicle.invalidatePartCache();
         vehicle.initParts(); // Reload parts from part inventory
+        vehicle.setPartSerializer(); // Sync parts to client (updates 3D model!)
         vehicle.checkInitializing(); // Recalculate inventory sizes (sets external back to 0!)
         vehicle.tryInitPartsAndModel(); // Update 3D models
 
