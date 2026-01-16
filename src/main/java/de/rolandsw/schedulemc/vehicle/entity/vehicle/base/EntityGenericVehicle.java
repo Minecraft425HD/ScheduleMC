@@ -418,11 +418,13 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
             if (level().isClientSide) {
                 if (!isSpawned || updateClientSideItems()) {
                     initParts();
+                    checkInitializing(); // CRITICAL: Recalculate inventory sizes based on loaded parts!
                     initModel();
                     setIsInitialized(true);
                 }
             } else {
                 initParts();
+                checkInitializing(); // CRITICAL: Recalculate inventory sizes based on loaded parts!
                 setIsInitialized(true);
             }
         }
