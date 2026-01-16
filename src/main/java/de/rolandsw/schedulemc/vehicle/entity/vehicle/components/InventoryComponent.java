@@ -228,29 +228,8 @@ public class InventoryComponent extends VehicleComponent {
                 @Nullable
                 @Override
                 public AbstractContainerMenu createMenu(int i, Inventory playerInventory, Player playerEntity) {
-                    // Determine which container to open based on vehicle chassis type
-                    de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartBody body = vehicle.getPartByClass(de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartBody.class);
-
-                    if (body instanceof de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartLimousineChassis) {
-                        return new de.rolandsw.schedulemc.vehicle.gui.ContainerLimousineInventory(i, vehicle, playerInventory);
-                    } else if (body instanceof de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartVanChassis) {
-                        return new de.rolandsw.schedulemc.vehicle.gui.ContainerVanInventory(i, vehicle, playerInventory);
-                    } else if (body instanceof de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartTruckChassis) {
-                        // Check if truck has a container mounted
-                        de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartContainer container = vehicle.getPartByClass(de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartContainer.class);
-                        if (container != null) {
-                            return new de.rolandsw.schedulemc.vehicle.gui.ContainerTruckWithContainer(i, vehicle, playerInventory);
-                        } else {
-                            return new de.rolandsw.schedulemc.vehicle.gui.ContainerTruckEmpty(i, vehicle, playerInventory);
-                        }
-                    } else if (body instanceof de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartLuxusChassis) {
-                        return new de.rolandsw.schedulemc.vehicle.gui.ContainerLuxusInventory(i, vehicle, playerInventory);
-                    } else if (body instanceof de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartOffroadChassis) {
-                        return new de.rolandsw.schedulemc.vehicle.gui.ContainerOffroadInventory(i, vehicle, playerInventory);
-                    }
-
-                    // Fallback to empty truck container if chassis type unknown
-                    return new de.rolandsw.schedulemc.vehicle.gui.ContainerTruckEmpty(i, vehicle, playerInventory);
+                    // Open the unified vehicle GUI that shows status + inventory
+                    return new ContainerVehicle(i, vehicle, playerInventory);
                 }
             }, packetBuffer -> packetBuffer.writeUUID(vehicle.getUUID()));
         }

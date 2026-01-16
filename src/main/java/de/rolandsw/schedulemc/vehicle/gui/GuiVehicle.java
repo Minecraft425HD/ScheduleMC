@@ -24,9 +24,16 @@ public class GuiVehicle extends ScreenBase<ContainerVehicle> {
         this.vehicle = containerVehicle.getVehicle();
 
         imageWidth = 176;
-        // Reduced height - no player inventory needed
-        int numRows = vehicle.getContainerSize() / 9;
-        imageHeight = 90 + numRows * 18 + 18; // Status area + vehicle inventory + bottom margin
+
+        // Calculate total rows needed for internal + external inventory
+        int internalSlots = vehicle.getInternalInventory().getContainerSize();
+        int externalSlots = vehicle.getExternalInventory().getContainerSize();
+        int internalRows = internalSlots > 0 ? (int) Math.ceil(internalSlots / 9.0) : 0;
+        int externalRows = externalSlots > 0 ? (int) Math.ceil(externalSlots / 9.0) : 0;
+        int totalRows = internalRows + externalRows;
+
+        // Status area (90px) + inventory rows + spacing + bottom margin
+        imageHeight = 90 + totalRows * 18 + (totalRows > 0 ? 2 : 0) + 18;
     }
 
     @Override
