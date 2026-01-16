@@ -149,18 +149,7 @@ public class Main {
             BlockEntityRenderers.register(FUEL_STATION_TILE_ENTITY_TYPE.get(), TileentitySpecialRendererFuelStation::new);
 
             ClientRegistry.<ContainerVehicle, GuiVehicle>registerScreen(Main.VEHICLE_CONTAINER_TYPE.get(), GuiVehicle::new);
-
-            // Register vehicle-specific inventory screens
-            ClientRegistry.<ContainerLimousineInventory, GuiLimousineInventory>registerScreen(Main.LIMOUSINE_INVENTORY_CONTAINER_TYPE.get(), GuiLimousineInventory::new);
-            ClientRegistry.<ContainerVanInventory, GuiVanInventory>registerScreen(Main.VAN_INVENTORY_CONTAINER_TYPE.get(), GuiVanInventory::new);
-            ClientRegistry.<ContainerLuxusInventory, GuiLuxusInventory>registerScreen(Main.LUXUS_INVENTORY_CONTAINER_TYPE.get(), GuiLuxusInventory::new);
-            ClientRegistry.<ContainerOffroadInventory, GuiOffroadInventory>registerScreen(Main.OFFROAD_INVENTORY_CONTAINER_TYPE.get(), GuiOffroadInventory::new);
-            ClientRegistry.<ContainerTruckEmpty, GuiTruckEmpty>registerScreen(Main.TRUCK_EMPTY_CONTAINER_TYPE.get(), GuiTruckEmpty::new);
-            ClientRegistry.<ContainerTruckWithContainer, GuiTruckWithContainer>registerScreen(Main.TRUCK_CONTAINER_TYPE.get(), GuiTruckWithContainer::new);
-
-            // Legacy vehicle inventory screen (fallback)
             ClientRegistry.<ContainerVehicleInventory, GuiVehicleInventory>registerScreen(Main.VEHICLE_INVENTORY_CONTAINER_TYPE.get(), GuiVehicleInventory::new);
-
             ClientRegistry.<ContainerFuelStation, GuiFuelStation>registerScreen(Main.FUEL_STATION_CONTAINER_TYPE.get(), GuiFuelStation::new);
             ClientRegistry.<ContainerGarage, GuiGarage>registerScreen(Main.GARAGE_CONTAINER_TYPE.get(), GuiGarage::new);
 
@@ -221,50 +210,7 @@ public class Main {
                 return new ContainerVehicle(windowId, vehicle, inv);
             })
     );
-    // Separate MenuTypes for each vehicle chassis type
-    public static final RegistryObject<MenuType<ContainerLimousineInventory>> LIMOUSINE_INVENTORY_CONTAINER_TYPE = MENU_TYPE_REGISTER.register("limousine_inventory", () ->
-            IForgeMenuType.create((IContainerFactory<ContainerLimousineInventory>) (windowId, inv, data) -> {
-                EntityGenericVehicle vehicle = VehicleUtils.getVehicleByUUID(inv.player, data.readUUID());
-                return vehicle != null ? new ContainerLimousineInventory(windowId, vehicle, inv) : null;
-            })
-    );
 
-    public static final RegistryObject<MenuType<ContainerVanInventory>> VAN_INVENTORY_CONTAINER_TYPE = MENU_TYPE_REGISTER.register("van_inventory", () ->
-            IForgeMenuType.create((IContainerFactory<ContainerVanInventory>) (windowId, inv, data) -> {
-                EntityGenericVehicle vehicle = VehicleUtils.getVehicleByUUID(inv.player, data.readUUID());
-                return vehicle != null ? new ContainerVanInventory(windowId, vehicle, inv) : null;
-            })
-    );
-
-    public static final RegistryObject<MenuType<ContainerLuxusInventory>> LUXUS_INVENTORY_CONTAINER_TYPE = MENU_TYPE_REGISTER.register("luxus_inventory", () ->
-            IForgeMenuType.create((IContainerFactory<ContainerLuxusInventory>) (windowId, inv, data) -> {
-                EntityGenericVehicle vehicle = VehicleUtils.getVehicleByUUID(inv.player, data.readUUID());
-                return vehicle != null ? new ContainerLuxusInventory(windowId, vehicle, inv) : null;
-            })
-    );
-
-    public static final RegistryObject<MenuType<ContainerOffroadInventory>> OFFROAD_INVENTORY_CONTAINER_TYPE = MENU_TYPE_REGISTER.register("offroad_inventory", () ->
-            IForgeMenuType.create((IContainerFactory<ContainerOffroadInventory>) (windowId, inv, data) -> {
-                EntityGenericVehicle vehicle = VehicleUtils.getVehicleByUUID(inv.player, data.readUUID());
-                return vehicle != null ? new ContainerOffroadInventory(windowId, vehicle, inv) : null;
-            })
-    );
-
-    public static final RegistryObject<MenuType<ContainerTruckEmpty>> TRUCK_EMPTY_CONTAINER_TYPE = MENU_TYPE_REGISTER.register("truck_empty", () ->
-            IForgeMenuType.create((IContainerFactory<ContainerTruckEmpty>) (windowId, inv, data) -> {
-                EntityGenericVehicle vehicle = VehicleUtils.getVehicleByUUID(inv.player, data.readUUID());
-                return vehicle != null ? new ContainerTruckEmpty(windowId, vehicle, inv) : null;
-            })
-    );
-
-    public static final RegistryObject<MenuType<ContainerTruckWithContainer>> TRUCK_CONTAINER_TYPE = MENU_TYPE_REGISTER.register("truck_container", () ->
-            IForgeMenuType.create((IContainerFactory<ContainerTruckWithContainer>) (windowId, inv, data) -> {
-                EntityGenericVehicle vehicle = VehicleUtils.getVehicleByUUID(inv.player, data.readUUID());
-                return vehicle != null ? new ContainerTruckWithContainer(windowId, vehicle, inv) : null;
-            })
-    );
-
-    // Legacy vehicle inventory container type (kept for backwards compatibility)
     public static final RegistryObject<MenuType<ContainerVehicleInventory>> VEHICLE_INVENTORY_CONTAINER_TYPE = MENU_TYPE_REGISTER.register("vehicle_inventory", () ->
             IForgeMenuType.create((IContainerFactory<ContainerVehicleInventory>) (windowId, inv, data) -> {
                 EntityGenericVehicle vehicle = VehicleUtils.getVehicleByUUID(inv.player, data.readUUID());
