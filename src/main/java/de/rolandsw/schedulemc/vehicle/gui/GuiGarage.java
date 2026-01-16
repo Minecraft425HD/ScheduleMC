@@ -6,6 +6,7 @@ import de.rolandsw.schedulemc.vehicle.Main;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.*;
 import de.rolandsw.schedulemc.vehicle.items.IVehiclePart;
+import de.rolandsw.schedulemc.vehicle.net.MessageContainerOperation;
 import de.rolandsw.schedulemc.vehicle.net.MessageGaragePayment;
 import de.rolandsw.schedulemc.vehicle.net.MessageGarageUpgrade;
 import de.rolandsw.schedulemc.vehicle.net.UpgradeType;
@@ -112,7 +113,7 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
         );
 
         // Container tab (only for trucks)
-        if (vehicle.getChassis() instanceof PartTruckChassis) {
+        if (vehicle.getPartByClass(PartBody.class) instanceof PartTruckChassis) {
             containerTabButton = addRenderableWidget(Button.builder(
                 Component.translatable("garage.container.tab"),
                 button -> switchTab(Tab.CONTAINER))
@@ -128,7 +129,7 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
         initUpgradeButtons();
 
         // Initialize container buttons (if truck)
-        if (vehicle.getChassis() instanceof PartTruckChassis) {
+        if (vehicle.getPartByClass(PartBody.class) instanceof PartTruckChassis) {
             initContainerButtons();
         }
 

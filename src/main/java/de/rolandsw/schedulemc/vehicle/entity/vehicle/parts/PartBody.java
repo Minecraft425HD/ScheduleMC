@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class PartBody extends PartModel {
+public abstract class PartBody extends PartModel {
 
     protected Vector3d[] wheelOffsets;
     protected Vector3d[] playerOffsets;

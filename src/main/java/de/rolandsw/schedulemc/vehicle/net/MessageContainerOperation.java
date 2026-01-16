@@ -59,7 +59,8 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
         }
 
         // Only trucks allowed
-        if (!(vehicle.getChassis() instanceof PartTruckChassis)) {
+        PartBody chassis = vehicle.getPartByClass(PartBody.class);
+        if (!(chassis instanceof PartTruckChassis)) {
             player.sendSystemMessage(Component.translatable("garage.container.truck_only"));
             return;
         }
@@ -102,7 +103,7 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
         }
 
         // Add container to vehicle
-        ItemStack containerItem = new ItemStack(ModItems.ITEM_CONTAINER.get());
+        ItemStack containerItem = new ItemStack(ModItems.CARGO_MODULE.get());
         Container partInventory = vehicle.getInventoryComponent().getPartInventory();
 
         // Find empty slot
@@ -198,7 +199,7 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
         }
 
         // Add container to vehicle
-        ItemStack containerItem = new ItemStack(ModItems.FLUID_CONTAINER.get());
+        ItemStack containerItem = new ItemStack(ModItems.FLUID_MODULE.get());
         Container partInventory = vehicle.getInventoryComponent().getPartInventory();
 
         // Find empty slot
