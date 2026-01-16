@@ -33,7 +33,7 @@ public class PartLimousineChassis extends PartChassisBase {
 
     @Override
     public int getBaseInventorySize() {
-        return ModConfigHandler.VEHICLE_SERVER.limousineChassisInventorySlots.get();
+        return 4; // Fixed: Limousine has 4 external inventory slots
     }
 
 }

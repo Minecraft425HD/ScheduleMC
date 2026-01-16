@@ -37,7 +37,7 @@ public class PartTruckChassis extends PartBody {
 
     @Override
     public int getBaseInventorySize() {
-        return ModConfigHandler.VEHICLE_SERVER.truckChassisInventorySlots.get();
+        return 0; // Fixed: Truck has 0 base slots (replaced by Container with 12 slots)
     }
 
     @Override

@@ -1,6 +1,5 @@
 package de.rolandsw.schedulemc.vehicle.entity.vehicle.parts;
 
-import de.rolandsw.schedulemc.config.ModConfigHandler;
 import org.joml.Vector3d;
 import de.rolandsw.schedulemc.vehicle.Main;
 import de.maxhenkel.corelib.client.obj.OBJModel;
@@ -18,10 +17,10 @@ public class PartContainer extends PartTransporterBack {
 
     /**
      * Returns the number of inventory slots this container provides.
-     * @return Number of slots (configurable, default: 12)
+     * @return Number of slots (fixed: 12)
      */
     public int getSlotCount() {
-        return ModConfigHandler.VEHICLE_SERVER.itemContainerSlots.get();
+        return 12; // Fixed: Container provides 12 inventory slots
     }
 
     /**
