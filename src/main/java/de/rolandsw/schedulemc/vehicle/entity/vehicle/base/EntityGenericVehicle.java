@@ -144,6 +144,26 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     }
 
     @Override
+    public void onSyncedDataUpdated(net.minecraft.network.syncher.EntityDataAccessor<?> key) {
+        super.onSyncedDataUpdated(key);
+
+        // When PARTS data changes from server, re-initialize on client
+        if (level().isClientSide && key.equals(PARTS)) {
+            // Force re-initialization on next tick
+            setIsInitialized(false);
+        }
+
+        // When inventory sizes change, update the inventory component
+        if (key.equals(INTERNAL_INV_SIZE) || key.equals(EXTERNAL_INV_SIZE)) {
+            if (level().isClientSide) {
+                // Apply synced inventory sizes immediately on client
+                inventoryComponent.setInternalInventorySize(entityData.get(INTERNAL_INV_SIZE));
+                inventoryComponent.setExternalInventorySize(entityData.get(EXTERNAL_INV_SIZE));
+            }
+        }
+    }
+
+    @Override
     public void tick() {
         super.tick();
 
