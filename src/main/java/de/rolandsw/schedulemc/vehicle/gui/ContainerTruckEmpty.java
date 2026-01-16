@@ -12,7 +12,7 @@ public class ContainerTruckEmpty extends ContainerBase {
     private EntityGenericVehicle vehicle;
 
     public ContainerTruckEmpty(int id, EntityGenericVehicle vehicle, Inventory playerInventory) {
-        super(Main.VEHICLE_INVENTORY_CONTAINER_TYPE.get(), id, playerInventory, vehicle.getInternalInventory());
+        super(Main.TRUCK_EMPTY_CONTAINER_TYPE.get(), id, playerInventory, vehicle.getInternalInventory());
         this.vehicle = vehicle;
 
         // No vehicle inventory slots - truck has 0 internal slots without container

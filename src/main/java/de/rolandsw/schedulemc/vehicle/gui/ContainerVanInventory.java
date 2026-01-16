@@ -13,7 +13,7 @@ public class ContainerVanInventory extends ContainerBase {
     private EntityGenericVehicle vehicle;
 
     public ContainerVanInventory(int id, EntityGenericVehicle vehicle, Inventory playerInventory) {
-        super(Main.VEHICLE_INVENTORY_CONTAINER_TYPE.get(), id, playerInventory, vehicle.getInternalInventory());
+        super(Main.VAN_INVENTORY_CONTAINER_TYPE.get(), id, playerInventory, vehicle.getInternalInventory());
         this.vehicle = vehicle;
 
         // Add 6 internal inventory slots (partial row)
