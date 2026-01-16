@@ -128,9 +128,11 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
         // Mark as "had container"
         vehicle.setHasHadItemContainer(true);
 
-        // Reinitialize vehicle
+        // Reinitialize vehicle - CRITICAL: Must reload parts and recalculate inventory!
         vehicle.invalidatePartCache();
-        vehicle.tryInitPartsAndModel();
+        vehicle.initParts(); // Reload parts from part inventory
+        vehicle.checkInitializing(); // Recalculate inventory sizes (sets external to 12!)
+        vehicle.tryInitPartsAndModel(); // Update 3D models
 
         // Success message
         String costMsg = cost > 0 ? String.format(" (Kosten: %.0f€)", cost) : " (Kostenlos!)";
@@ -160,9 +162,11 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
             }
         }
 
-        // Reinitialize
+        // Reinitialize - CRITICAL: Must reload parts and recalculate inventory!
         vehicle.invalidatePartCache();
-        vehicle.tryInitPartsAndModel();
+        vehicle.initParts(); // Reload parts from part inventory
+        vehicle.checkInitializing(); // Recalculate inventory sizes (sets external back to 0!)
+        vehicle.tryInitPartsAndModel(); // Update 3D models
 
         player.sendSystemMessage(
             Component.translatable("garage.container.removed_successfully").withStyle(ChatFormatting.GREEN)
@@ -256,9 +260,11 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
             }
         }
 
-        // Reinitialize
+        // Reinitialize - CRITICAL: Must reload parts and recalculate inventory!
         vehicle.invalidatePartCache();
-        vehicle.tryInitPartsAndModel();
+        vehicle.initParts(); // Reload parts from part inventory
+        vehicle.checkInitializing(); // Recalculate inventory sizes (sets external back to 0!)
+        vehicle.tryInitPartsAndModel(); // Update 3D models
 
         player.sendSystemMessage(
             Component.translatable("garage.container.removed_successfully").withStyle(ChatFormatting.GREEN)

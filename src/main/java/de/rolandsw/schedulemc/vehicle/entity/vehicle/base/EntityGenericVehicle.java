@@ -371,7 +371,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
      * - When loading from NBT (to apply updated config values)
      * - When config values change (to update existing vehicles)
      */
-    private void checkInitializing() {
+    public void checkInitializing() {
         PartBody body = getPartByClass(PartBody.class);
 
         // Calculate internal and external inventory sizes

@@ -146,10 +146,15 @@ public class GuiVehicle extends ScreenBase<ContainerVehicle> {
             int usedSlotsInLastRow = internalSlots % 9;
             if (usedSlotsInLastRow == 0) usedSlotsInLastRow = 9;
 
-            // Cover unused slots in the last row
-            int lastRowY = slotY + (internalRows - 1) * 18;
-            int startX = 8 + usedSlotsInLastRow * 18;
-            guiGraphics.fill(leftPos + startX, topPos + lastRowY, leftPos + 8 + 9 * 18, topPos + lastRowY + 16, bgColor);
+            // Cover ALL unused slots in the last row (complete 18x18 slot graphics)
+            if (usedSlotsInLastRow < 9) {
+                int lastRowY = slotY + (internalRows - 1) * 18;
+                for (int i = usedSlotsInLastRow; i < 9; i++) {
+                    int slotX = 8 + i * 18;
+                    // Cover complete slot graphic (18x18)
+                    guiGraphics.fill(leftPos + slotX, topPos + lastRowY, leftPos + slotX + 18, topPos + lastRowY + 18, bgColor);
+                }
+            }
 
             slotY += internalRows * 18 + 2;
         }
@@ -160,10 +165,24 @@ public class GuiVehicle extends ScreenBase<ContainerVehicle> {
             int usedSlotsInLastRow = externalSlots % 9;
             if (usedSlotsInLastRow == 0) usedSlotsInLastRow = 9;
 
-            // Cover unused slots in the last row
-            int lastRowY = slotY + (externalRows - 1) * 18;
-            int startX = 8 + usedSlotsInLastRow * 18;
-            guiGraphics.fill(leftPos + startX, topPos + lastRowY, leftPos + 8 + 9 * 18, topPos + lastRowY + 16, bgColor);
+            // Cover ALL unused slots in the last row (complete 18x18 slot graphics)
+            if (usedSlotsInLastRow < 9) {
+                int lastRowY = slotY + (externalRows - 1) * 18;
+                for (int i = usedSlotsInLastRow; i < 9; i++) {
+                    int slotX = 8 + i * 18;
+                    // Cover complete slot graphic (18x18)
+                    guiGraphics.fill(leftPos + slotX, topPos + lastRowY, leftPos + slotX + 18, topPos + lastRowY + 18, bgColor);
+                }
+            }
+        }
+
+        // Cover ALL empty rows that should not be visible
+        int totalSlots = internalSlots + externalSlots;
+        if (totalSlots < 27) { // If less than 3 full rows
+            int totalRows = (int) Math.ceil(totalSlots / 9.0);
+            int startCoverY = 98 + totalRows * 18;
+            // Cover from after last used row to end of potential inventory area
+            guiGraphics.fill(leftPos + 7, topPos + startCoverY, leftPos + 169, topPos + 98 + 3 * 18, bgColor);
         }
     }
 
