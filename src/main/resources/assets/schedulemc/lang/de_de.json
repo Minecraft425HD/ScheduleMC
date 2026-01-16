@@ -597,7 +597,6 @@
   "command.daily.streak.total": "Gesamt geclaimed: %s mal",
   "command.daily.success": "TÄGLICHE BELOHNUNG!\n+%.2f€\nStreak: %s Tag%s 🔥\nKomm morgen wieder für mehr!",
   "command.daily.success.plural": "e",
-  "command.daily.success.singular": "",
   "command.economy.header": "§e§l═══ ECONOMY SYSTEM ═══§r",
   "command.error": "§cError!",
   "command.health.backup_and_more": "  §8... und %d weitere",
@@ -2001,7 +2000,6 @@
   "gui.tobacco_negotiation.select_tobacco": "§cBitte wähle zuerst einen Tabak aus!",
   "gui.tobacco_negotiation.title": "Tabak verkaufen",
   "gui.tobacco_negotiation.wants_to_buy": "Möchte %dg kaufen",
-
   "gui.negotiation.title": "Verhandlung mit %s",
   "gui.negotiation.button.price_down_big": "◀◀ -5",
   "gui.negotiation.button.price_down": "◀ -1",
@@ -2022,13 +2020,11 @@
   "gui.negotiation.zone.green": "Akzeptabel",
   "gui.negotiation.zone.yellow": "Verhandelbar",
   "gui.negotiation.zone.red": "Inakzeptabel",
-
   "gui.addiction.interest.none": "Kein Interesse",
   "gui.addiction.interest.low": "Geringes Interesse",
   "gui.addiction.interest.medium": "Mittleres Interesse",
   "gui.addiction.interest.high": "Hohes Interesse",
   "gui.addiction.interest.addicted": "Süchtig",
-
   "gui.trimming_station.button_cut": "§f✂ SCHNEIDEN!",
   "gui.trimming_station.button_done": "§7Fertig!",
   "gui.trimming_station.button_start": "§f▶ STARTEN",
@@ -2653,11 +2649,9 @@
   "message.bank.total_cost": "Gesamtkosten: ",
   "message.bank.total_revenue": "Gesamterlös: ",
   "message.bank.transfer": "ÜBERWEISUNG",
-  "message.bank.transfer_header": "",
   "message.bank.transfer_insufficient_funds": "⚠ Überweisung fehlgeschlagen - nicht genug Guthaben!",
   "message.bank.transfer_limit_exceeded": "⚠ Tägliches Transfer-Limit überschritten!",
   "message.bank.transfer_processing": "§aÜberweisung an %s (%.2f€) wird verarbeitet...",
-  "message.bank.transfer_received": "",
   "message.bank.transfer_successful": "ÜBERWEISUNG ERFOLGREICH",
   "message.bank.wanted_level": " Fahndungsstufe: ",
   "message.bank.withdrawal_successful": "ABHEBUNG ERFOLGREICH",
@@ -4942,7 +4936,6 @@
   "app.crime_stats.police_5": "§75 Sterne: Großfahndung",
   "app.crime_stats.no_bail_needed": "§aKeine Kaution nötig",
   "app.crime_stats.innocent": "§7Du bist unschuldig!",
-
   "item.schedulemc.entity_remover": "Entity-Entferner",
   "item.entity_remover.tooltip.line1": "Linksklick auf NPC = NPC löschen",
   "item.entity_remover.tooltip.line2": "Linksklick auf Fahrzeug = Fahrzeug löschen",
@@ -4951,13 +4944,11 @@
   "item.entity_remover.no_permission": "§cDu hast keine Berechtigung dieses Tool zu nutzen!",
   "item.entity_remover.npc_removed": "§aNPC gelöscht:",
   "item.entity_remover.vehicle_removed": "§aFahrzeug gelöscht:",
-
   "command.admintools.remover_given": "§aEntity-Entferner erhalten!",
   "command.admintools.inventory_full": "§eInventar voll - Item gedroppt!",
   "command.admintools.player_only": "§cDieser Befehl kann nur von Spielern ausgeführt werden!",
   "command.admintools.help.remover": "Gibt dir den Entity-Entferner",
   "command.admintools.help.help": "Zeigt diese Hilfe",
-
   "garage.container.tab": "Container",
   "garage.container.item_container": "Item-Container",
   "garage.container.fluid_container": "Flüssigkeits-Container",
