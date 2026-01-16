@@ -149,7 +149,26 @@ public class Main {
             BlockEntityRenderers.register(FUEL_STATION_TILE_ENTITY_TYPE.get(), TileentitySpecialRendererFuelStation::new);
 
             ClientRegistry.<ContainerVehicle, GuiVehicle>registerScreen(Main.VEHICLE_CONTAINER_TYPE.get(), GuiVehicle::new);
-            ClientRegistry.<ContainerVehicleInventory, GuiVehicleInventory>registerScreen(Main.VEHICLE_INVENTORY_CONTAINER_TYPE.get(), GuiVehicleInventory::new);
+
+            // Register vehicle-specific inventory screens with dynamic factory
+            ClientRegistry.registerScreen(Main.VEHICLE_INVENTORY_CONTAINER_TYPE.get(), (container, inventory, title) -> {
+                if (container instanceof ContainerLimousineInventory) {
+                    return new GuiLimousineInventory((ContainerLimousineInventory) container, inventory, title);
+                } else if (container instanceof ContainerVanInventory) {
+                    return new GuiVanInventory((ContainerVanInventory) container, inventory, title);
+                } else if (container instanceof ContainerTruckEmpty) {
+                    return new GuiTruckEmpty((ContainerTruckEmpty) container, inventory, title);
+                } else if (container instanceof ContainerTruckWithContainer) {
+                    return new GuiTruckWithContainer((ContainerTruckWithContainer) container, inventory, title);
+                } else if (container instanceof ContainerLuxusInventory) {
+                    return new GuiLuxusInventory((ContainerLuxusInventory) container, inventory, title);
+                } else if (container instanceof ContainerOffroadInventory) {
+                    return new GuiOffroadInventory((ContainerOffroadInventory) container, inventory, title);
+                }
+                // Fallback to generic vehicle inventory GUI
+                return new GuiVehicleInventory((ContainerVehicleInventory) container, inventory, title);
+            });
+
             ClientRegistry.<ContainerFuelStation, GuiFuelStation>registerScreen(Main.FUEL_STATION_CONTAINER_TYPE.get(), GuiFuelStation::new);
             ClientRegistry.<ContainerGarage, GuiGarage>registerScreen(Main.GARAGE_CONTAINER_TYPE.get(), GuiGarage::new);
 

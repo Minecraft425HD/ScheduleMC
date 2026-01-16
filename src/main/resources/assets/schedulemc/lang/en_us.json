@@ -2520,6 +2520,7 @@
   "gui.vehicle.fuel_display": "%.1f%% | %.1f Liter",
   "gui.vehicle.fuel_label": "Fuel:",
   "gui.vehicle.internal_inventory": "Internal Storage",
+  "gui.vehicle.truck.no_container": "No storage - mount a container!",
   "gui.vehicle.garage.condition.bad": "Bad",
   "gui.vehicle.garage.condition.good": "Good",
   "gui.vehicle.garage.condition.medium": "Medium",
