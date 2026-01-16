@@ -32,7 +32,7 @@ public class PartLimousineChassis extends PartChassisBase {
     }
 
     @Override
-    public int getBaseInventorySize() {
+    public int getInternalInventorySize() {
         return 4; // Fixed: Limousine has 4 external inventory slots
     }
 

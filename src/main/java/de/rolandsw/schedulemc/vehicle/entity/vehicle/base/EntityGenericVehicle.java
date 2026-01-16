@@ -374,32 +374,36 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     private void checkInitializing() {
         PartBody body = getPartByClass(PartBody.class);
 
-        // Calculate external inventory size
+        // Calculate internal and external inventory sizes
+        int internalSlots = 0;
         int externalSlots = 0;
+
         if (body != null) {
-            // For Trucks: Container REPLACES base inventory (Replacement Mode)
+            // Internal inventory is always chassis-specific (4/6/0/3/6)
+            internalSlots = body.getInternalInventorySize();
+
+            // External inventory is ONLY for containers (mounted externally)
             if (body instanceof PartTruckChassis) {
                 PartContainer container = getPartByClass(PartContainer.class);
                 if (container != null) {
-                    externalSlots = container.getSlotCount(); // 12 Slots (replaces 0 base)
-                } else {
-                    externalSlots = body.getBaseInventorySize(); // 0 Slots
+                    externalSlots = container.getSlotCount(); // 12 Slots (external container)
                 }
-            } else {
-                // For other vehicles: Only base inventory (containers not allowed)
-                externalSlots = body.getBaseInventorySize(); // 4/6/3/6 Slots
+                // Otherwise: externalSlots = 0 (no container mounted)
             }
+            // For other vehicles: externalSlots = 0 (containers not allowed)
 
             // DEBUG: Log inventory size calculation
             if (!level().isClientSide) {
                 de.rolandsw.schedulemc.ScheduleMC.LOGGER.info(
-                    "[VEHICLE INVENTORY] Chassis: {}, Calculated Slots: {}, Current Slots: {}",
+                    "[VEHICLE INVENTORY] Chassis: {}, Internal: {}, External: {}",
                     body.getClass().getSimpleName(),
-                    externalSlots,
-                    inventoryComponent.getExternalInventory().getContainerSize()
+                    internalSlots,
+                    externalSlots
                 );
             }
         }
+
+        inventoryComponent.setInternalInventorySize(internalSlots);
         inventoryComponent.setExternalInventorySize(externalSlots);
 
         PartTireBase partWheels = getPartByClass(PartTireBase.class);
