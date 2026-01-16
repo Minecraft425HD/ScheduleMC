@@ -4974,7 +4974,6 @@
   "command.admintools.inventory_full": "§eInventar voll - Item gedroppt!",
   "command.admintools.player_only": "§cDieser Befehl kann nur von Spielern ausgeführt werden!",
   "command.admintools.help.remover": "Gibt dir den Entity-Entferner",
-  "command.admintools.help.help": "Zeigt diese Hilfe"
   "command.admintools.help.help": "Zeigt diese Hilfe",
 
   "garage.container.tab": "Container",

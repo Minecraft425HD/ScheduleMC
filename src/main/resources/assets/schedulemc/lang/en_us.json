@@ -4965,7 +4965,6 @@
   "command.admintools.inventory_full": "§eInventory full - Item dropped!",
   "command.admintools.player_only": "§cThis command can only be executed by players!",
   "command.admintools.help.remover": "Gives you the Entity Remover",
-  "command.admintools.help.help": "Shows this help"
   "command.admintools.help.help": "Shows this help",
 
   "garage.container.tab": "Container",
