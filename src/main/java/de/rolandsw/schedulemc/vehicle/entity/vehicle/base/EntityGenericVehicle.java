@@ -49,6 +49,8 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     private static final EntityDataAccessor<Integer> PAINT_COLOR = SynchedEntityData.defineId(EntityGenericVehicle.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> IS_ON_TOWING_YARD = SynchedEntityData.defineId(EntityGenericVehicle.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> IS_INITIALIZED = SynchedEntityData.defineId(EntityGenericVehicle.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Integer> INTERNAL_INV_SIZE = SynchedEntityData.defineId(EntityGenericVehicle.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> EXTERNAL_INV_SIZE = SynchedEntityData.defineId(EntityGenericVehicle.class, EntityDataSerializers.INT);
 
     // Components - lazy initialization to avoid issues with Entity constructor
     private PhysicsComponent physicsComponent;
@@ -130,6 +132,8 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         this.entityData.define(PAINT_COLOR, 0); // Default: 0 = white
         this.entityData.define(IS_ON_TOWING_YARD, false); // Default: not on towing yard
         this.entityData.define(IS_INITIALIZED, false); // Default: not initialized
+        this.entityData.define(INTERNAL_INV_SIZE, 0); // Default: 0 internal slots
+        this.entityData.define(EXTERNAL_INV_SIZE, 0); // Default: 0 external slots
 
         // Define component data directly (components not yet initialized at this point)
         PhysicsComponent.defineData(this.entityData);
@@ -404,6 +408,10 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
             }
         }
 
+        // CRITICAL: Sync inventory sizes via entityData so client always has correct sizes!
+        this.entityData.set(INTERNAL_INV_SIZE, internalSlots);
+        this.entityData.set(EXTERNAL_INV_SIZE, externalSlots);
+
         inventoryComponent.setInternalInventorySize(internalSlots);
         inventoryComponent.setExternalInventorySize(externalSlots);
 
@@ -444,6 +452,14 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
 
     public boolean isInitialized() {
         return this.entityData.get(IS_INITIALIZED);
+    }
+
+    public int getSyncedInternalInventorySize() {
+        return this.entityData.get(INTERNAL_INV_SIZE);
+    }
+
+    public int getSyncedExternalInventorySize() {
+        return this.entityData.get(EXTERNAL_INV_SIZE);
     }
 
     public List<Part> getModelParts() {

@@ -13,10 +13,18 @@ public class ContainerVehicle extends ContainerBase {
         super(Main.VEHICLE_CONTAINER_TYPE.get(), id, playerInv, vehicle);
         this.vehicle = vehicle;
 
+        // CRITICAL: Ensure inventories have correct sizes BEFORE adding slots!
+        // Use synced sizes from entityData (guaranteed to be in sync between client/server)
+        int internalSlots = vehicle.getSyncedInternalInventorySize();
+        int externalSlots = vehicle.getSyncedExternalInventorySize();
+
+        // Resize inventories if needed (ensures inventory size matches synced size)
+        vehicle.getInventoryComponent().setInternalInventorySize(internalSlots);
+        vehicle.getInventoryComponent().setExternalInventorySize(externalSlots);
+
         int slotY = 98; // Start Y position for inventory slots
 
         // Add INTERNAL inventory slots (chassis-specific: 0-6 slots)
-        int internalSlots = vehicle.getInternalInventory().getContainerSize();
         if (internalSlots > 0) {
             int internalRows = (int) Math.ceil(internalSlots / 9.0);
             int slotIndex = 0;
@@ -32,7 +40,6 @@ public class ContainerVehicle extends ContainerBase {
         }
 
         // Add EXTERNAL inventory slots (container: 0 or 12 slots)
-        int externalSlots = vehicle.getExternalInventory().getContainerSize();
         if (externalSlots > 0) {
             int externalRows = (int) Math.ceil(externalSlots / 9.0);
             int slotIndex = 0;
