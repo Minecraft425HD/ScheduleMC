@@ -133,7 +133,8 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
         vehicle.initParts(); // Reload parts from part inventory
         vehicle.setPartSerializer(); // Sync parts to client (shows 3D model!)
         vehicle.checkInitializing(); // Recalculate inventory sizes (sets external to 12!)
-        vehicle.tryInitPartsAndModel(); // Update 3D models
+        vehicle.setIsInitialized(false); // Force re-initialization on client
+        vehicle.tryInitPartsAndModel(); // Update 3D models (now actually runs!)
 
         // Success message
         String costMsg = cost > 0 ? String.format(" (Kosten: %.0f€)", cost) : " (Kostenlos!)";
@@ -168,6 +169,7 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
         vehicle.initParts(); // Reload parts from part inventory
         vehicle.setPartSerializer(); // Sync parts to client (updates 3D model!)
         vehicle.checkInitializing(); // Recalculate inventory sizes (sets external back to 0!)
+        vehicle.setIsInitialized(false); // Force re-initialization on client
         vehicle.tryInitPartsAndModel(); // Update 3D models
 
         player.sendSystemMessage(
@@ -230,9 +232,13 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
         // Mark as "had container"
         vehicle.setHasHadFluidContainer(true);
 
-        // Reinitialize vehicle
+        // Reinitialize vehicle - CRITICAL: Must reload parts and recalculate inventory!
         vehicle.invalidatePartCache();
-        vehicle.tryInitPartsAndModel();
+        vehicle.initParts(); // Reload parts from part inventory
+        vehicle.setPartSerializer(); // Sync parts to client (shows 3D model!)
+        vehicle.checkInitializing(); // Recalculate inventory sizes
+        vehicle.setIsInitialized(false); // Force re-initialization on client
+        vehicle.tryInitPartsAndModel(); // Update 3D models
 
         // Success message
         String costMsg = cost > 0 ? String.format(" (Kosten: %.0f€)", cost) : " (Kostenlos!)";
@@ -267,6 +273,7 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
         vehicle.initParts(); // Reload parts from part inventory
         vehicle.setPartSerializer(); // Sync parts to client (updates 3D model!)
         vehicle.checkInitializing(); // Recalculate inventory sizes (sets external back to 0!)
+        vehicle.setIsInitialized(false); // Force re-initialization on client
         vehicle.tryInitPartsAndModel(); // Update 3D models
 
         player.sendSystemMessage(
