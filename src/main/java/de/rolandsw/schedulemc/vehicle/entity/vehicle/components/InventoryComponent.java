@@ -60,7 +60,26 @@ public class InventoryComponent extends VehicleComponent {
 
     public void setExternalInventorySize(int size) {
         if (externalInventory.getContainerSize() != size) {
-            externalInventory = new SimpleContainer(size);
+            SimpleContainer oldInventory = (SimpleContainer) externalInventory;
+            SimpleContainer newInventory = new SimpleContainer(size);
+
+            // Transfer items from old inventory to new inventory
+            int itemsToTransfer = Math.min(oldInventory.getContainerSize(), size);
+            for (int i = 0; i < itemsToTransfer; i++) {
+                newInventory.setItem(i, oldInventory.getItem(i));
+            }
+
+            // Drop items that don't fit in the new inventory (only on server side and if vehicle is in world)
+            if (oldInventory.getContainerSize() > size && vehicle.level() != null && !vehicle.level().isClientSide) {
+                for (int i = size; i < oldInventory.getContainerSize(); i++) {
+                    net.minecraft.world.item.ItemStack stack = oldInventory.getItem(i);
+                    if (!stack.isEmpty()) {
+                        vehicle.spawnAtLocation(stack);
+                    }
+                }
+            }
+
+            externalInventory = newInventory;
         }
     }
 

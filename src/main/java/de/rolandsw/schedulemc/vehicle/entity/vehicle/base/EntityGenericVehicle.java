@@ -360,6 +360,17 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         checkInitializing();
     }
 
+    /**
+     * Recalculates vehicle properties based on installed parts and current config values.
+     * This includes:
+     * - External inventory size (from chassis config or container part)
+     * - Step height (from tire parts)
+     *
+     * IMPORTANT: This method should be called:
+     * - When parts are added/removed (via initParts)
+     * - When loading from NBT (to apply updated config values)
+     * - When config values change (to update existing vehicles)
+     */
     private void checkInitializing() {
         PartBody body = getPartByClass(PartBody.class);
 
@@ -777,6 +788,10 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
 
         setPartSerializer();
         tryInitPartsAndModel();
+
+        // CRITICAL: Recalculate inventory size to apply current config values
+        // This ensures that config changes are applied to existing vehicles when loaded from NBT
+        checkInitializing();
     }
 
     @Override
