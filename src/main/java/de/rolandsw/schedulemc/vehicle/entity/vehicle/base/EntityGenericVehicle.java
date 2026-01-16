@@ -917,6 +917,10 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         inventoryComponent.getInternalInventory().clearContent();
     }
 
+    public Container getInternalInventory() {
+        return inventoryComponent.getInternalInventory();
+    }
+
     public Container getExternalInventory() {
         return inventoryComponent.getExternalInventory();
     }
