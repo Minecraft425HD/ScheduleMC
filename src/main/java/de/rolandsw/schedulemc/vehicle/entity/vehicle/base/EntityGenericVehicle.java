@@ -435,6 +435,14 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         return isSpawned;
     }
 
+    public void setIsInitialized(boolean isInitialized) {
+        this.isInitialized = isInitialized;
+    }
+
+    public boolean isInitialized() {
+        return isInitialized;
+    }
+
     public List<Part> getModelParts() {
         return Collections.unmodifiableList(getVehicleParts());
     }
