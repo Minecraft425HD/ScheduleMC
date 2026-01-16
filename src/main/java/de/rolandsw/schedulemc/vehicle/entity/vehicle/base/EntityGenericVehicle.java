@@ -782,16 +782,6 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
             this.hasHadFluidContainer = compound.getBoolean("HasHadFluidContainer");
         }
 
-        // Initialize default items if this is a new vehicle
-        if (compound.getAllKeys().stream().allMatch(s -> s.equals("id"))) {
-            Container internal = inventoryComponent.getInternalInventory();
-            internal.setItem(0, ItemKey.getKeyForVehicle(getUUID()));
-            internal.setItem(1, ItemKey.getKeyForVehicle(getUUID()));
-            fuelComponent.setFuelAmount(100);
-            batteryComponent.setBatteryLevel(500);
-            damageComponent.initTemperature();
-        }
-
         // Load all component data
         physicsComponent.readAdditionalData(compound);
         fuelComponent.readAdditionalData(compound);
@@ -806,6 +796,16 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         // CRITICAL: Recalculate inventory size to apply current config values
         // This ensures that config changes are applied to existing vehicles when loaded from NBT
         checkInitializing();
+
+        // Initialize default items if this is a new vehicle (MUST be AFTER checkInitializing!)
+        if (compound.getAllKeys().stream().allMatch(s -> s.equals("id"))) {
+            Container internal = inventoryComponent.getInternalInventory();
+            internal.setItem(0, ItemKey.getKeyForVehicle(getUUID()));
+            internal.setItem(1, ItemKey.getKeyForVehicle(getUUID()));
+            fuelComponent.setFuelAmount(100);
+            batteryComponent.setBatteryLevel(500);
+            damageComponent.initTemperature();
+        }
     }
 
     @Override

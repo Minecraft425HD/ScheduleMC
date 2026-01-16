@@ -368,10 +368,16 @@ public class InventoryComponent extends VehicleComponent {
 
     @Override
     public void readAdditionalData(CompoundTag compound) {
-        this.internalInventory = new SimpleContainer(compound.getInt("internal_inventory_size"));
+        // Load internal inventory size (default 0 if not present - will be set by checkInitializing)
+        int internalSize = compound.contains("internal_inventory_size") ?
+            compound.getInt("internal_inventory_size") : 0;
+        this.internalInventory = new SimpleContainer(internalSize);
         ItemUtils.readInventory(compound, "int_inventory", internalInventory);
 
-        this.externalInventory = new SimpleContainer(compound.getInt("external_inventory_size"));
+        // Load external inventory size (default 0 if not present - will be set by checkInitializing)
+        int externalSize = compound.contains("external_inventory_size") ?
+            compound.getInt("external_inventory_size") : 0;
+        this.externalInventory = new SimpleContainer(externalSize);
         ItemUtils.readInventory(compound, "external_inventory", externalInventory);
 
         ItemUtils.readInventory(compound, "parts", partInventory);
