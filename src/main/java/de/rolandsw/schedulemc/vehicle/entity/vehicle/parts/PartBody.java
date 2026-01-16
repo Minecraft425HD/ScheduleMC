@@ -120,11 +120,11 @@ public abstract class PartBody extends PartModel {
     }
 
     /**
-     * Returns the base number of inventory slots for this chassis type.
-     * Can be overridden by config in subclasses.
-     * @return Number of inventory slots (0-54)
+     * Returns the internal inventory slots for this chassis type.
+     * This represents the built-in storage capacity of the vehicle chassis itself.
+     * @return Number of internal inventory slots (0-6)
      */
-    public abstract int getBaseInventorySize();
+    public abstract int getInternalInventorySize();
 
     @Override
     public boolean validate(List<Part> parts, List<Component> messages) {

@@ -30,8 +30,8 @@ public class PartOffroadChassis extends PartBody {
     }
 
     @Override
-    public int getBaseInventorySize() {
-        return ModConfigHandler.VEHICLE_SERVER.offroadChassisInventorySlots.get();
+    public int getInternalInventorySize() {
+        return 6; // Fixed: Offroad has 6 external inventory slots
     }
 
     @Override

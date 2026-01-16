@@ -40,8 +40,8 @@ public class InventoryComponent extends VehicleComponent {
 
     public InventoryComponent(EntityGenericVehicle vehicle) {
         super(vehicle);
-        internalInventory = new SimpleContainer(27);
-        externalInventory = new SimpleContainer(0);
+        internalInventory = new SimpleContainer(0); // Dynamic: Set by chassis type (4/6/0/3/6)
+        externalInventory = new SimpleContainer(0); // Dynamic: Set by containers (0 or 12)
         partInventory = new SimpleContainer(15);
         fluidInventory = FluidStack.EMPTY;
     }
@@ -58,15 +58,15 @@ public class InventoryComponent extends VehicleComponent {
         return partInventory;
     }
 
-    public void setExternalInventorySize(int size) {
-        if (externalInventory.getContainerSize() != size) {
-            SimpleContainer oldInventory = (SimpleContainer) externalInventory;
+    public void setInternalInventorySize(int size) {
+        if (internalInventory.getContainerSize() != size) {
+            SimpleContainer oldInventory = (SimpleContainer) internalInventory;
             SimpleContainer newInventory = new SimpleContainer(size);
 
             // DEBUG: Log inventory resize
             if (vehicle.level() != null && !vehicle.level().isClientSide) {
                 de.rolandsw.schedulemc.ScheduleMC.LOGGER.info(
-                    "[VEHICLE INVENTORY] Resizing inventory: {} -> {} slots",
+                    "[VEHICLE INVENTORY] Resizing INTERNAL inventory: {} -> {} slots",
                     oldInventory.getContainerSize(),
                     size
                 );
@@ -90,7 +90,49 @@ public class InventoryComponent extends VehicleComponent {
                 }
                 if (droppedItems > 0) {
                     de.rolandsw.schedulemc.ScheduleMC.LOGGER.warn(
-                        "[VEHICLE INVENTORY] Dropped {} items that didn't fit in smaller inventory",
+                        "[VEHICLE INVENTORY] Dropped {} items that didn't fit in smaller INTERNAL inventory",
+                        droppedItems
+                    );
+                }
+            }
+
+            internalInventory = newInventory;
+        }
+    }
+
+    public void setExternalInventorySize(int size) {
+        if (externalInventory.getContainerSize() != size) {
+            SimpleContainer oldInventory = (SimpleContainer) externalInventory;
+            SimpleContainer newInventory = new SimpleContainer(size);
+
+            // DEBUG: Log inventory resize
+            if (vehicle.level() != null && !vehicle.level().isClientSide) {
+                de.rolandsw.schedulemc.ScheduleMC.LOGGER.info(
+                    "[VEHICLE INVENTORY] Resizing EXTERNAL inventory: {} -> {} slots",
+                    oldInventory.getContainerSize(),
+                    size
+                );
+            }
+
+            // Transfer items from old inventory to new inventory
+            int itemsToTransfer = Math.min(oldInventory.getContainerSize(), size);
+            for (int i = 0; i < itemsToTransfer; i++) {
+                newInventory.setItem(i, oldInventory.getItem(i));
+            }
+
+            // Drop items that don't fit in the new inventory (only on server side and if vehicle is in world)
+            if (oldInventory.getContainerSize() > size && vehicle.level() != null && !vehicle.level().isClientSide) {
+                int droppedItems = 0;
+                for (int i = size; i < oldInventory.getContainerSize(); i++) {
+                    net.minecraft.world.item.ItemStack stack = oldInventory.getItem(i);
+                    if (!stack.isEmpty()) {
+                        vehicle.spawnAtLocation(stack);
+                        droppedItems++;
+                    }
+                }
+                if (droppedItems > 0) {
+                    de.rolandsw.schedulemc.ScheduleMC.LOGGER.warn(
+                        "[VEHICLE INVENTORY] Dropped {} items that didn't fit in smaller EXTERNAL inventory",
                         droppedItems
                     );
                 }
@@ -140,24 +182,9 @@ public class InventoryComponent extends VehicleComponent {
             }
         }
 
-        // Inv
+        // Open vehicle-specific GUI
         if (!vehicle.level().isClientSide) {
-            if (externalInventory.getContainerSize() <= 0) {
-                openVehicleGUI(player);
-            } else {
-                NetworkHooks.openScreen((ServerPlayer) player, new MenuProvider() {
-                    @Override
-                    public Component getDisplayName() {
-                        return vehicle.getDisplayName();
-                    }
-
-                    @Nullable
-                    @Override
-                    public AbstractContainerMenu createMenu(int i, Inventory playerInventory, Player playerEntity) {
-                        return new ContainerVehicleInventory(i, vehicle, playerInventory);
-                    }
-                }, packetBuffer -> packetBuffer.writeUUID(vehicle.getUUID()));
-            }
+            openVehicleGUI(player);
         }
 
         return true;
@@ -201,6 +228,7 @@ public class InventoryComponent extends VehicleComponent {
                 @Nullable
                 @Override
                 public AbstractContainerMenu createMenu(int i, Inventory playerInventory, Player playerEntity) {
+                    // Open the unified vehicle GUI that shows status + inventory
                     return new ContainerVehicle(i, vehicle, playerInventory);
                 }
             }, packetBuffer -> packetBuffer.writeUUID(vehicle.getUUID()));
@@ -313,6 +341,7 @@ public class InventoryComponent extends VehicleComponent {
 
     @Override
     public void saveAdditionalData(CompoundTag compound) {
+        compound.putInt("internal_inventory_size", internalInventory.getContainerSize());
         ItemUtils.saveInventory(compound, "int_inventory", internalInventory);
         compound.putInt("external_inventory_size", externalInventory.getContainerSize());
         ItemUtils.saveInventory(compound, "external_inventory", externalInventory);
@@ -325,9 +354,16 @@ public class InventoryComponent extends VehicleComponent {
 
     @Override
     public void readAdditionalData(CompoundTag compound) {
+        // Load internal inventory size (default 0 if not present - will be set by checkInitializing)
+        int internalSize = compound.contains("internal_inventory_size") ?
+            compound.getInt("internal_inventory_size") : 0;
+        this.internalInventory = new SimpleContainer(internalSize);
         ItemUtils.readInventory(compound, "int_inventory", internalInventory);
 
-        this.externalInventory = new SimpleContainer(compound.getInt("external_inventory_size"));
+        // Load external inventory size (default 0 if not present - will be set by checkInitializing)
+        int externalSize = compound.contains("external_inventory_size") ?
+            compound.getInt("external_inventory_size") : 0;
+        this.externalInventory = new SimpleContainer(externalSize);
         ItemUtils.readInventory(compound, "external_inventory", externalInventory);
 
         ItemUtils.readInventory(compound, "parts", partInventory);

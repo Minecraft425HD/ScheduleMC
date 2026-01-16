@@ -30,8 +30,8 @@ public class PartLuxusChassis extends PartBody {
     }
 
     @Override
-    public int getBaseInventorySize() {
-        return ModConfigHandler.VEHICLE_SERVER.luxusChassisInventorySlots.get();
+    public int getInternalInventorySize() {
+        return 3; // Fixed: Luxus has 3 external inventory slots
     }
 
 }

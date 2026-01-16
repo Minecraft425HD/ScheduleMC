@@ -33,8 +33,8 @@ public class PartVanChassis extends PartChassisBase {
     }
 
     @Override
-    public int getBaseInventorySize() {
-        return ModConfigHandler.VEHICLE_SERVER.vanChassisInventorySlots.get();
+    public int getInternalInventorySize() {
+        return 6; // Fixed: Van has 6 external inventory slots
     }
 
 }

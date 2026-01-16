@@ -26,7 +26,28 @@ public class GuiVehicleInventory extends ScreenBase<ContainerVehicleInventory> {
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         super.renderLabels(guiGraphics, mouseX, mouseY);
-        guiGraphics.drawString(font, vehicle.getDisplayName().getVisualOrderText(), 8, 6, FONT_COLOR, false);
+
+        int yOffset = 6;
+
+        // Vehicle title
+        guiGraphics.drawString(font, vehicle.getDisplayName().getVisualOrderText(), 8, yOffset, FONT_COLOR, false);
+
+        // Internal inventory label (if it exists)
+        int internalSlots = menu.getInternalSlots();
+        if (internalSlots > 0) {
+            yOffset += 12; // Move below title
+            guiGraphics.drawString(font, Component.translatable("gui.vehicle.internal_inventory").getVisualOrderText(), 8, yOffset, FONT_COLOR, false);
+        }
+
+        // External inventory label (if it exists)
+        int externalSlots = menu.getExternalSlots();
+        if (externalSlots > 0) {
+            int internalRows = internalSlots > 0 ? (int) Math.ceil(internalSlots / 9.0) : 0;
+            yOffset = 6 + 12 + (internalRows * 18) + 4; // After internal inventory + spacing
+            guiGraphics.drawString(font, Component.translatable("gui.vehicle.external_inventory").getVisualOrderText(), 8, yOffset, FONT_COLOR, false);
+        }
+
+        // Player inventory label
         guiGraphics.drawString(font, playerInventory.getDisplayName().getVisualOrderText(), 8, imageHeight - 96 + 3, FONT_COLOR, false);
     }
 

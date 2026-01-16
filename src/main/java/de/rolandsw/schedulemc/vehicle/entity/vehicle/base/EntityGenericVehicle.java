@@ -48,6 +48,9 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     private static final EntityDataAccessor<NonNullList<ItemStack>> PARTS = SynchedEntityData.defineId(EntityGenericVehicle.class, Main.ITEM_LIST.get());
     private static final EntityDataAccessor<Integer> PAINT_COLOR = SynchedEntityData.defineId(EntityGenericVehicle.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> IS_ON_TOWING_YARD = SynchedEntityData.defineId(EntityGenericVehicle.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> IS_INITIALIZED = SynchedEntityData.defineId(EntityGenericVehicle.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Integer> INTERNAL_INV_SIZE = SynchedEntityData.defineId(EntityGenericVehicle.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> EXTERNAL_INV_SIZE = SynchedEntityData.defineId(EntityGenericVehicle.class, EntityDataSerializers.INT);
 
     // Components - lazy initialization to avoid issues with Entity constructor
     private PhysicsComponent physicsComponent;
@@ -78,7 +81,6 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     private boolean hasHadItemContainer = false;
     private boolean hasHadFluidContainer = false;
 
-    private boolean isInitialized;
     private boolean isSpawned = true;
 
     public EntityGenericVehicle(EntityType type, Level worldIn) {
@@ -129,6 +131,9 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         this.entityData.define(PARTS, NonNullList.create());
         this.entityData.define(PAINT_COLOR, 0); // Default: 0 = white
         this.entityData.define(IS_ON_TOWING_YARD, false); // Default: not on towing yard
+        this.entityData.define(IS_INITIALIZED, false); // Default: not initialized
+        this.entityData.define(INTERNAL_INV_SIZE, 0); // Default: 0 internal slots
+        this.entityData.define(EXTERNAL_INV_SIZE, 0); // Default: 0 external slots
 
         // Define component data directly (components not yet initialized at this point)
         PhysicsComponent.defineData(this.entityData);
@@ -136,6 +141,26 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         BatteryComponent.defineData(this.entityData);
         DamageComponent.defineData(this.entityData);
         SecurityComponent.defineData(this.entityData);
+    }
+
+    @Override
+    public void onSyncedDataUpdated(net.minecraft.network.syncher.EntityDataAccessor<?> key) {
+        super.onSyncedDataUpdated(key);
+
+        // When PARTS data changes from server, re-initialize on client
+        if (level().isClientSide && key.equals(PARTS)) {
+            // Force re-initialization on next tick
+            setIsInitialized(false);
+        }
+
+        // When inventory sizes change, update the inventory component
+        if (key.equals(INTERNAL_INV_SIZE) || key.equals(EXTERNAL_INV_SIZE)) {
+            if (level().isClientSide) {
+                // Apply synced inventory sizes immediately on client
+                inventoryComponent.setInternalInventorySize(entityData.get(INTERNAL_INV_SIZE));
+                inventoryComponent.setExternalInventorySize(entityData.get(EXTERNAL_INV_SIZE));
+            }
+        }
     }
 
     @Override
@@ -371,35 +396,43 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
      * - When loading from NBT (to apply updated config values)
      * - When config values change (to update existing vehicles)
      */
-    private void checkInitializing() {
+    public void checkInitializing() {
         PartBody body = getPartByClass(PartBody.class);
 
-        // Calculate external inventory size
+        // Calculate internal and external inventory sizes
+        int internalSlots = 0;
         int externalSlots = 0;
+
         if (body != null) {
-            // For Trucks: Container REPLACES base inventory (Replacement Mode)
+            // Internal inventory is always chassis-specific (4/6/0/3/6)
+            internalSlots = body.getInternalInventorySize();
+
+            // External inventory is ONLY for containers (mounted externally)
             if (body instanceof PartTruckChassis) {
                 PartContainer container = getPartByClass(PartContainer.class);
                 if (container != null) {
-                    externalSlots = container.getSlotCount(); // 12 Slots (replaces 0 base)
-                } else {
-                    externalSlots = body.getBaseInventorySize(); // 0 Slots
+                    externalSlots = container.getSlotCount(); // 12 Slots (external container)
                 }
-            } else {
-                // For other vehicles: Only base inventory (containers not allowed)
-                externalSlots = body.getBaseInventorySize(); // 4/6/3/6 Slots
+                // Otherwise: externalSlots = 0 (no container mounted)
             }
+            // For other vehicles: externalSlots = 0 (containers not allowed)
 
             // DEBUG: Log inventory size calculation
             if (!level().isClientSide) {
                 de.rolandsw.schedulemc.ScheduleMC.LOGGER.info(
-                    "[VEHICLE INVENTORY] Chassis: {}, Calculated Slots: {}, Current Slots: {}",
+                    "[VEHICLE INVENTORY] Chassis: {}, Internal: {}, External: {}",
                     body.getClass().getSimpleName(),
-                    externalSlots,
-                    inventoryComponent.getExternalInventory().getContainerSize()
+                    internalSlots,
+                    externalSlots
                 );
             }
         }
+
+        // CRITICAL: Sync inventory sizes via entityData so client always has correct sizes!
+        this.entityData.set(INTERNAL_INV_SIZE, internalSlots);
+        this.entityData.set(EXTERNAL_INV_SIZE, externalSlots);
+
+        inventoryComponent.setInternalInventorySize(internalSlots);
         inventoryComponent.setExternalInventorySize(externalSlots);
 
         PartTireBase partWheels = getPartByClass(PartTireBase.class);
@@ -409,16 +442,18 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     }
 
     public void tryInitPartsAndModel() {
-        if (!isInitialized) {
+        if (!isInitialized()) {
             if (level().isClientSide) {
                 if (!isSpawned || updateClientSideItems()) {
                     initParts();
+                    checkInitializing(); // CRITICAL: Recalculate inventory sizes based on loaded parts!
                     initModel();
-                    isInitialized = true;
+                    setIsInitialized(true);
                 }
             } else {
                 initParts();
-                isInitialized = true;
+                checkInitializing(); // CRITICAL: Recalculate inventory sizes based on loaded parts!
+                setIsInitialized(true);
             }
         }
     }
@@ -429,6 +464,22 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
 
     public boolean isSpawned() {
         return isSpawned;
+    }
+
+    public void setIsInitialized(boolean isInitialized) {
+        this.entityData.set(IS_INITIALIZED, isInitialized);
+    }
+
+    public boolean isInitialized() {
+        return this.entityData.get(IS_INITIALIZED);
+    }
+
+    public int getSyncedInternalInventorySize() {
+        return this.entityData.get(INTERNAL_INV_SIZE);
+    }
+
+    public int getSyncedExternalInventorySize() {
+        return this.entityData.get(EXTERNAL_INV_SIZE);
     }
 
     public List<Part> getModelParts() {
@@ -778,16 +829,6 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
             this.hasHadFluidContainer = compound.getBoolean("HasHadFluidContainer");
         }
 
-        // Initialize default items if this is a new vehicle
-        if (compound.getAllKeys().stream().allMatch(s -> s.equals("id"))) {
-            Container internal = inventoryComponent.getInternalInventory();
-            internal.setItem(0, ItemKey.getKeyForVehicle(getUUID()));
-            internal.setItem(1, ItemKey.getKeyForVehicle(getUUID()));
-            fuelComponent.setFuelAmount(100);
-            batteryComponent.setBatteryLevel(500);
-            damageComponent.initTemperature();
-        }
-
         // Load all component data
         physicsComponent.readAdditionalData(compound);
         fuelComponent.readAdditionalData(compound);
@@ -802,6 +843,16 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         // CRITICAL: Recalculate inventory size to apply current config values
         // This ensures that config changes are applied to existing vehicles when loaded from NBT
         checkInitializing();
+
+        // Initialize default items if this is a new vehicle (MUST be AFTER checkInitializing!)
+        if (compound.getAllKeys().stream().allMatch(s -> s.equals("id"))) {
+            Container internal = inventoryComponent.getInternalInventory();
+            internal.setItem(0, ItemKey.getKeyForVehicle(getUUID()));
+            internal.setItem(1, ItemKey.getKeyForVehicle(getUUID()));
+            fuelComponent.setFuelAmount(100);
+            batteryComponent.setBatteryLevel(500);
+            damageComponent.initTemperature();
+        }
     }
 
     @Override
@@ -911,6 +962,10 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     @Override
     public void clearContent() {
         inventoryComponent.getInternalInventory().clearContent();
+    }
+
+    public Container getInternalInventory() {
+        return inventoryComponent.getInternalInventory();
     }
 
     public Container getExternalInventory() {

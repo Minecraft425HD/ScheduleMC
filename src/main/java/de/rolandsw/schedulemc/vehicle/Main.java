@@ -210,6 +210,7 @@ public class Main {
                 return new ContainerVehicle(windowId, vehicle, inv);
             })
     );
+
     public static final RegistryObject<MenuType<ContainerVehicleInventory>> VEHICLE_INVENTORY_CONTAINER_TYPE = MENU_TYPE_REGISTER.register("vehicle_inventory", () ->
             IForgeMenuType.create((IContainerFactory<ContainerVehicleInventory>) (windowId, inv, data) -> {
                 EntityGenericVehicle vehicle = VehicleUtils.getVehicleByUUID(inv.player, data.readUUID());
