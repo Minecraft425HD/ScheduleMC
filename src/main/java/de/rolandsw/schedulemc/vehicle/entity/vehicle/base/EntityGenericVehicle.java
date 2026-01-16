@@ -48,6 +48,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     private static final EntityDataAccessor<NonNullList<ItemStack>> PARTS = SynchedEntityData.defineId(EntityGenericVehicle.class, Main.ITEM_LIST.get());
     private static final EntityDataAccessor<Integer> PAINT_COLOR = SynchedEntityData.defineId(EntityGenericVehicle.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> IS_ON_TOWING_YARD = SynchedEntityData.defineId(EntityGenericVehicle.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> IS_INITIALIZED = SynchedEntityData.defineId(EntityGenericVehicle.class, EntityDataSerializers.BOOLEAN);
 
     // Components - lazy initialization to avoid issues with Entity constructor
     private PhysicsComponent physicsComponent;
@@ -78,7 +79,6 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     private boolean hasHadItemContainer = false;
     private boolean hasHadFluidContainer = false;
 
-    private boolean isInitialized;
     private boolean isSpawned = true;
 
     public EntityGenericVehicle(EntityType type, Level worldIn) {
@@ -129,6 +129,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         this.entityData.define(PARTS, NonNullList.create());
         this.entityData.define(PAINT_COLOR, 0); // Default: 0 = white
         this.entityData.define(IS_ON_TOWING_YARD, false); // Default: not on towing yard
+        this.entityData.define(IS_INITIALIZED, false); // Default: not initialized
 
         // Define component data directly (components not yet initialized at this point)
         PhysicsComponent.defineData(this.entityData);
@@ -413,16 +414,16 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     }
 
     public void tryInitPartsAndModel() {
-        if (!isInitialized) {
+        if (!isInitialized()) {
             if (level().isClientSide) {
                 if (!isSpawned || updateClientSideItems()) {
                     initParts();
                     initModel();
-                    isInitialized = true;
+                    setIsInitialized(true);
                 }
             } else {
                 initParts();
-                isInitialized = true;
+                setIsInitialized(true);
             }
         }
     }
@@ -436,11 +437,11 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     }
 
     public void setIsInitialized(boolean isInitialized) {
-        this.isInitialized = isInitialized;
+        this.entityData.set(IS_INITIALIZED, isInitialized);
     }
 
     public boolean isInitialized() {
-        return isInitialized;
+        return this.entityData.get(IS_INITIALIZED);
     }
 
     public List<Part> getModelParts() {
