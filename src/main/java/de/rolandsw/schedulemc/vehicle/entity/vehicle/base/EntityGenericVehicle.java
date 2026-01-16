@@ -389,6 +389,16 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
                 // For other vehicles: Only base inventory (containers not allowed)
                 externalSlots = body.getBaseInventorySize(); // 4/6/3/6 Slots
             }
+
+            // DEBUG: Log inventory size calculation
+            if (!level().isClientSide) {
+                de.rolandsw.schedulemc.ScheduleMC.LOGGER.info(
+                    "[VEHICLE INVENTORY] Chassis: {}, Calculated Slots: {}, Current Slots: {}",
+                    body.getClass().getSimpleName(),
+                    externalSlots,
+                    inventoryComponent.getExternalInventory().getContainerSize()
+                );
+            }
         }
         inventoryComponent.setExternalInventorySize(externalSlots);
 

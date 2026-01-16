@@ -63,6 +63,15 @@ public class InventoryComponent extends VehicleComponent {
             SimpleContainer oldInventory = (SimpleContainer) externalInventory;
             SimpleContainer newInventory = new SimpleContainer(size);
 
+            // DEBUG: Log inventory resize
+            if (vehicle.level() != null && !vehicle.level().isClientSide) {
+                de.rolandsw.schedulemc.ScheduleMC.LOGGER.info(
+                    "[VEHICLE INVENTORY] Resizing inventory: {} -> {} slots",
+                    oldInventory.getContainerSize(),
+                    size
+                );
+            }
+
             // Transfer items from old inventory to new inventory
             int itemsToTransfer = Math.min(oldInventory.getContainerSize(), size);
             for (int i = 0; i < itemsToTransfer; i++) {
@@ -71,11 +80,19 @@ public class InventoryComponent extends VehicleComponent {
 
             // Drop items that don't fit in the new inventory (only on server side and if vehicle is in world)
             if (oldInventory.getContainerSize() > size && vehicle.level() != null && !vehicle.level().isClientSide) {
+                int droppedItems = 0;
                 for (int i = size; i < oldInventory.getContainerSize(); i++) {
                     net.minecraft.world.item.ItemStack stack = oldInventory.getItem(i);
                     if (!stack.isEmpty()) {
                         vehicle.spawnAtLocation(stack);
+                        droppedItems++;
                     }
+                }
+                if (droppedItems > 0) {
+                    de.rolandsw.schedulemc.ScheduleMC.LOGGER.warn(
+                        "[VEHICLE INVENTORY] Dropped {} items that didn't fit in smaller inventory",
+                        droppedItems
+                    );
                 }
             }
 
