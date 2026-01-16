@@ -81,6 +81,18 @@ public class ServerConfig extends ConfigBase {
     public final ForgeConfigSpec.DoubleValue truckChassisAcceleration;
     public final ForgeConfigSpec.DoubleValue truckChassisMaxSpeed;
 
+    // Chassis Inventory Slots
+    public final ForgeConfigSpec.IntValue limousineChassisInventorySlots;
+    public final ForgeConfigSpec.IntValue vanChassisInventorySlots;
+    public final ForgeConfigSpec.IntValue truckChassisInventorySlots;
+    public final ForgeConfigSpec.IntValue offroadChassisInventorySlots;
+    public final ForgeConfigSpec.IntValue luxusChassisInventorySlots;
+
+    // Container Configuration
+    public final ForgeConfigSpec.IntValue itemContainerSlots;
+    public final ForgeConfigSpec.IntValue fluidContainerCapacity;
+    public final ForgeConfigSpec.DoubleValue containerReinstallationCost;
+
     // Towing Service Configuration
     public final ForgeConfigSpec.DoubleValue towingBaseFee;
     public final ForgeConfigSpec.DoubleValue towingDistanceFeePerBlock;
@@ -157,6 +169,34 @@ public class ServerConfig extends ConfigBase {
         truckChassisFuelEfficiency = builder.defineInRange("vehicle.parts.truck_chassis.fuel_efficiency", 0.6D, 0.001D, 10D);
         truckChassisAcceleration = builder.defineInRange("vehicle.parts.truck_chassis.acceleration", 0.8D, 0.001D, 10D);
         truckChassisMaxSpeed = builder.defineInRange("vehicle.parts.truck_chassis.max_speed", 0.765D, 0.001D, 10D);
+
+        // Chassis Inventory Slots
+        limousineChassisInventorySlots = builder
+            .comment("Number of inventory slots for Limousine chassis")
+            .defineInRange("vehicle.parts.limousine_chassis.inventory_slots", 4, 0, 54);
+        vanChassisInventorySlots = builder
+            .comment("Number of inventory slots for Van chassis")
+            .defineInRange("vehicle.parts.van_chassis.inventory_slots", 6, 0, 54);
+        truckChassisInventorySlots = builder
+            .comment("Number of inventory slots for Truck chassis (base, without containers)")
+            .defineInRange("vehicle.parts.truck_chassis.inventory_slots", 0, 0, 54);
+        offroadChassisInventorySlots = builder
+            .comment("Number of inventory slots for Offroad/SUV chassis")
+            .defineInRange("vehicle.parts.offroad_chassis.inventory_slots", 6, 0, 54);
+        luxusChassisInventorySlots = builder
+            .comment("Number of inventory slots for Luxus/Sport chassis")
+            .defineInRange("vehicle.parts.luxus_chassis.inventory_slots", 3, 0, 54);
+
+        // Container Configuration
+        itemContainerSlots = builder
+            .comment("Number of inventory slots provided by Item Container (truck-only)")
+            .defineInRange("vehicle.parts.item_container.slots", 12, 0, 54);
+        fluidContainerCapacity = builder
+            .comment("Fluid capacity of Fluid Container in mB (truck-only). 100000 mB = 100 Buckets")
+            .defineInRange("vehicle.parts.fluid_container.capacity", 100000, 0, 1000000);
+        containerReinstallationCost = builder
+            .comment("Cost to reinstall a container after it was removed (in €). First installation is free.")
+            .defineInRange("vehicle.parts.container.reinstallation_cost", 7500.0D, 0.0D, 1000000.0D);
 
         // Towing Service
         towingBaseFee = builder

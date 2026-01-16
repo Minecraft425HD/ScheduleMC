@@ -36,6 +36,11 @@ public class PartTruckChassis extends PartBody {
     }
 
     @Override
+    public int getBaseInventorySize() {
+        return ModConfigHandler.VEHICLE_SERVER.truckChassisInventorySlots.get();
+    }
+
+    @Override
     public boolean validate(List<Part> parts, List<Component> messages) {
         if (getAmount(parts, part -> part instanceof PartTransporterBack) > 1) {
             messages.add(Component.translatable("message.parts.too_many_containers"));

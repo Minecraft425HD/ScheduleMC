@@ -73,6 +73,11 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     @Nullable
     private BlockPos garagePosition;
 
+    // Container installation tracking (for cost system)
+    // First installation is free, reinstallation after removal costs money
+    private boolean hasHadItemContainer = false;
+    private boolean hasHadFluidContainer = false;
+
     private boolean isInitialized;
     private boolean isSpawned = true;
 
@@ -355,17 +360,47 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         checkInitializing();
     }
 
+    /**
+     * Recalculates vehicle properties based on installed parts and current config values.
+     * This includes:
+     * - External inventory size (from chassis config or container part)
+     * - Step height (from tire parts)
+     *
+     * IMPORTANT: This method should be called:
+     * - When parts are added/removed (via initParts)
+     * - When loading from NBT (to apply updated config values)
+     * - When config values change (to update existing vehicles)
+     */
     private void checkInitializing() {
         PartBody body = getPartByClass(PartBody.class);
 
-        if (body instanceof PartTruckChassis) {
-            PartContainer container = getPartByClass(PartContainer.class);
-            if (container != null) {
-                inventoryComponent.setExternalInventorySize(54);
+        // Calculate external inventory size
+        int externalSlots = 0;
+        if (body != null) {
+            // For Trucks: Container REPLACES base inventory (Replacement Mode)
+            if (body instanceof PartTruckChassis) {
+                PartContainer container = getPartByClass(PartContainer.class);
+                if (container != null) {
+                    externalSlots = container.getSlotCount(); // 12 Slots (replaces 0 base)
+                } else {
+                    externalSlots = body.getBaseInventorySize(); // 0 Slots
+                }
             } else {
-                inventoryComponent.setExternalInventorySize(27);
+                // For other vehicles: Only base inventory (containers not allowed)
+                externalSlots = body.getBaseInventorySize(); // 4/6/3/6 Slots
+            }
+
+            // DEBUG: Log inventory size calculation
+            if (!level().isClientSide) {
+                de.rolandsw.schedulemc.ScheduleMC.LOGGER.info(
+                    "[VEHICLE INVENTORY] Chassis: {}, Calculated Slots: {}, Current Slots: {}",
+                    body.getClass().getSimpleName(),
+                    externalSlots,
+                    inventoryComponent.getExternalInventory().getContainerSize()
+                );
             }
         }
+        inventoryComponent.setExternalInventorySize(externalSlots);
 
         PartTireBase partWheels = getPartByClass(PartTireBase.class);
         if (partWheels != null) {
@@ -641,6 +676,23 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         return !isLockedInGarage;
     }
 
+    // Container installation tracking
+    public boolean hasHadItemContainer() {
+        return hasHadItemContainer;
+    }
+
+    public void setHasHadItemContainer(boolean hasHad) {
+        this.hasHadItemContainer = hasHad;
+    }
+
+    public boolean hasHadFluidContainer() {
+        return hasHadFluidContainer;
+    }
+
+    public void setHasHadFluidContainer(boolean hasHad) {
+        this.hasHadFluidContainer = hasHad;
+    }
+
     @Override
     protected Component getTypeName() {
         PartBody body = getPartByClass(PartBody.class);
@@ -718,6 +770,14 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
             setIsOnTowingYard(compound.getBoolean("IsOnTowingYard"));
         }
 
+        // Load container installation tracking
+        if (compound.contains("HasHadItemContainer")) {
+            this.hasHadItemContainer = compound.getBoolean("HasHadItemContainer");
+        }
+        if (compound.contains("HasHadFluidContainer")) {
+            this.hasHadFluidContainer = compound.getBoolean("HasHadFluidContainer");
+        }
+
         // Initialize default items if this is a new vehicle
         if (compound.getAllKeys().stream().allMatch(s -> s.equals("id"))) {
             Container internal = inventoryComponent.getInternalInventory();
@@ -738,6 +798,10 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
 
         setPartSerializer();
         tryInitPartsAndModel();
+
+        // CRITICAL: Recalculate inventory size to apply current config values
+        // This ensures that config changes are applied to existing vehicles when loaded from NBT
+        checkInitializing();
     }
 
     @Override
@@ -769,6 +833,10 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
 
         // Save towing yard flag
         compound.putBoolean("IsOnTowingYard", isOnTowingYard());
+
+        // Save container installation tracking
+        compound.putBoolean("HasHadItemContainer", this.hasHadItemContainer);
+        compound.putBoolean("HasHadFluidContainer", this.hasHadFluidContainer);
 
         // Save all component data
         physicsComponent.saveAdditionalData(compound);

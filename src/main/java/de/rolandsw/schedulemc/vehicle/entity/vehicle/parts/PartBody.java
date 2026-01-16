@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class PartBody extends PartModel {
+public abstract class PartBody extends PartModel {
 
     protected Vector3d[] wheelOffsets;
     protected Vector3d[] playerOffsets;
@@ -118,6 +118,13 @@ public class PartBody extends PartModel {
     public boolean canFitWheel(PartTireBase wheel) {
         return wheel instanceof PartStandardTire;
     }
+
+    /**
+     * Returns the base number of inventory slots for this chassis type.
+     * Can be overridden by config in subclasses.
+     * @return Number of inventory slots (0-54)
+     */
+    public abstract int getBaseInventorySize();
 
     @Override
     public boolean validate(List<Part> parts, List<Component> messages) {

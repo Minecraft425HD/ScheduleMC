@@ -30,6 +30,11 @@ public class PartOffroadChassis extends PartBody {
     }
 
     @Override
+    public int getBaseInventorySize() {
+        return ModConfigHandler.VEHICLE_SERVER.offroadChassisInventorySlots.get();
+    }
+
+    @Override
     public boolean canFitWheel(PartTireBase wheel) {
         return wheel instanceof PartOffroadTire;
     }
