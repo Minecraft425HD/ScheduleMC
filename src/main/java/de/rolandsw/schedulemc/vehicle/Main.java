@@ -60,7 +60,7 @@ import org.lwjgl.glfw.GLFW;
 
 public class Main {
 
-    public static final String MODID = "vehicle";
+    public static final String MODID = "schedulemc";
 
     public static final Logger LOGGER = LogManager.getLogger(Main.MODID);
 

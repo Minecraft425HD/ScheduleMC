@@ -1,6 +1,6 @@
 {
     "parent": "item/generated",
     "textures": {
-        "layer0": "schedulemc:item/license_sign"
+        "layer0": "schedulemc:block/diesel_still"
     }
 }
