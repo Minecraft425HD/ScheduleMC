@@ -1,8 +1,9 @@
 # ScheduleMC - Vollständige Texturenliste
 
-Gesamtanzahl: **532 PNG-Texturen**
+Gesamtanzahl: **746 PNG-Texturen** (532 Original + 214 Platzhalter)
 
 Erstellt am: 2026-01-17
+Aktualisiert am: 2026-01-17 (214 Platzhalter hinzugefügt)
 
 ---
 
@@ -764,6 +765,296 @@ Das Projekt enthält **9 verschiedene Pflanzentypen**, jede mit **8 Wachstumssta
 11. Oriental Tobacco (16 Texturen)
 12. Tuerkisch Poppy (16 Texturen)
 13. Virginia Tobacco (16 Texturen)
+
+---
+
+## NEU HINZUGEFÜGT: Textur-Platzhalter (214 Dateien)
+
+**Status:** ✅ Alle 214 Platzhalter erstellt am 2026-01-17
+
+Diese Platzhalter wurden erstellt, um jede im Code definierte Textur-Variante abzudecken, die vorher fehlte. Jeder Platzhalter hat eine eindeutige Farbe basierend auf Minecraft-Farbcodes.
+
+### Basis-Texturen (7 Platzhalter)
+
+**Entity Texturen (4):**
+- `src/main/resources/assets/schedulemc/textures/entity/sport_wheel.png`
+- `src/main/resources/assets/schedulemc/textures/entity/premium_wheel.png`
+- `src/main/resources/assets/schedulemc/textures/entity/allterrain_wheel.png`
+- `src/main/resources/assets/schedulemc/textures/entity/heavyduty_wheel.png`
+
+**GUI Texturen (1):**
+- `src/main/resources/assets/schedulemc/textures/gui/gui_garage.png`
+
+**Parts Texturen (2):**
+- `src/main/resources/assets/schedulemc/textures/parts/fender_chrome.png`
+- `src/main/resources/assets/schedulemc/textures/parts/fender_sport.png`
+
+### Item Varianten-Texturen (207 Platzhalter)
+
+**Speicherort:** `/src/main/resources/assets/schedulemc/textures/item/`
+
+#### Meth-System (11 Texturen)
+- `meth_gut.png` - Gelb
+- `meth_blue_sky.png` - Cyan
+- `kristall_meth_standard.png` - Weiß
+- `kristall_meth_gut.png` - Gelb
+- `kristall_meth_blue_sky.png` - Cyan
+- `roh_meth_standard.png` - Weiß
+- `roh_meth_gut.png` - Gelb
+- `roh_meth_blue_sky.png` - Cyan
+- `meth_paste_standard.png` - Weiß
+- `meth_paste_gut.png` - Gelb
+- `meth_paste_blue_sky.png` - Cyan
+
+#### MDMA-System (8 Texturen)
+- `mdma_base_schlecht.png` - Grau
+- `mdma_base_standard.png` - Weiß
+- `mdma_base_gut.png` - Gelb
+- `mdma_base_premium.png` - Lila
+- `mdma_kristall_schlecht.png` - Grau
+- `mdma_kristall_standard.png` - Weiß
+- `mdma_kristall_gut.png` - Gelb
+- `mdma_kristall_premium.png` - Lila
+
+#### Cocaine-System (8 Texturen)
+- `cocaine_bolivianisch_schlecht.png` - Hellgrün
+- `cocaine_bolivianisch_gut.png` - Hellgrün
+- `cocaine_bolivianisch_sehr_gut.png` - Hellgrün
+- `cocaine_bolivianisch_legendaer.png` - Hellgrün
+- `cocaine_kolumbianisch_schlecht.png` - Dunkelgrün
+- `cocaine_kolumbianisch_gut.png` - Dunkelgrün
+- `cocaine_kolumbianisch_sehr_gut.png` - Dunkelgrün
+- `cocaine_kolumbianisch_legendaer.png` - Dunkelgrün
+
+#### Crack Rock-System (8 Texturen)
+- `crack_rock_bolivianisch_schlecht.png` - Hellgrün
+- `crack_rock_bolivianisch_standard.png` - Hellgrün
+- `crack_rock_bolivianisch_gut.png` - Hellgrün
+- `crack_rock_bolivianisch_fishscale.png` - Hellgrün
+- `crack_rock_kolumbianisch_schlecht.png` - Dunkelgrün
+- `crack_rock_kolumbianisch_standard.png` - Dunkelgrün
+- `crack_rock_kolumbianisch_gut.png` - Dunkelgrün
+- `crack_rock_kolumbianisch_fishscale.png` - Dunkelgrün
+
+#### Heroin-System (12 Texturen)
+- `heroin_afghanisch_schlecht.png` - Dunkelrot
+- `heroin_afghanisch_gut.png` - Dunkelrot
+- `heroin_afghanisch_sehr_gut.png` - Dunkelrot
+- `heroin_afghanisch_legendaer.png` - Dunkelrot
+- `heroin_tuerkisch_schlecht.png` - Gold/Orange
+- `heroin_tuerkisch_gut.png` - Gold/Orange
+- `heroin_tuerkisch_sehr_gut.png` - Gold/Orange
+- `heroin_tuerkisch_legendaer.png` - Gold/Orange
+- `heroin_indisch_schlecht.png` - Dunkellila
+- `heroin_indisch_gut.png` - Dunkellila
+- `heroin_indisch_sehr_gut.png` - Dunkellila
+- `heroin_indisch_legendaer.png` - Dunkellila
+
+#### Morphine-System (12 Texturen)
+- `morphine_afghanisch_schlecht.png` - Dunkelrot
+- `morphine_afghanisch_gut.png` - Dunkelrot
+- `morphine_afghanisch_sehr_gut.png` - Dunkelrot
+- `morphine_afghanisch_legendaer.png` - Dunkelrot
+- `morphine_tuerkisch_schlecht.png` - Gold/Orange
+- `morphine_tuerkisch_gut.png` - Gold/Orange
+- `morphine_tuerkisch_sehr_gut.png` - Gold/Orange
+- `morphine_tuerkisch_legendaer.png` - Gold/Orange
+- `morphine_indisch_schlecht.png` - Dunkellila
+- `morphine_indisch_gut.png` - Dunkellila
+- `morphine_indisch_sehr_gut.png` - Dunkellila
+- `morphine_indisch_legendaer.png` - Dunkellila
+
+#### Raw Opium-System (12 Texturen)
+- `raw_opium_afghanisch_schlecht.png` - Dunkelrot
+- `raw_opium_afghanisch_gut.png` - Dunkelrot
+- `raw_opium_afghanisch_sehr_gut.png` - Dunkelrot
+- `raw_opium_afghanisch_legendaer.png` - Dunkelrot
+- `raw_opium_tuerkisch_schlecht.png` - Gold/Orange
+- `raw_opium_tuerkisch_gut.png` - Gold/Orange
+- `raw_opium_tuerkisch_sehr_gut.png` - Gold/Orange
+- `raw_opium_tuerkisch_legendaer.png` - Gold/Orange
+- `raw_opium_indisch_schlecht.png` - Dunkellila
+- `raw_opium_indisch_gut.png` - Dunkellila
+- `raw_opium_indisch_sehr_gut.png` - Dunkellila
+- `raw_opium_indisch_legendaer.png` - Dunkellila
+
+#### Cannabis-System (120 Texturen)
+
+**Farbschema nach Qualität:**
+- SCHWAG: Dunkelgrau RGB(85,85,85)
+- MIDS: Grau RGB(170,170,170)
+- DANK: Grün RGB(85,255,85)
+- TOP_SHELF: Gold RGB(255,170,0)
+- EXOTIC: Lila RGB(255,85,255)
+
+**Cured Cannabis Bud (20):**
+- `cured_cannabis_bud_indica_schwag.png`
+- `cured_cannabis_bud_indica_mids.png`
+- `cured_cannabis_bud_indica_dank.png`
+- `cured_cannabis_bud_indica_top_shelf.png`
+- `cured_cannabis_bud_indica_exotic.png`
+- `cured_cannabis_bud_sativa_schwag.png`
+- `cured_cannabis_bud_sativa_mids.png`
+- `cured_cannabis_bud_sativa_dank.png`
+- `cured_cannabis_bud_sativa_top_shelf.png`
+- `cured_cannabis_bud_sativa_exotic.png`
+- `cured_cannabis_bud_hybrid_schwag.png`
+- `cured_cannabis_bud_hybrid_mids.png`
+- `cured_cannabis_bud_hybrid_dank.png`
+- `cured_cannabis_bud_hybrid_top_shelf.png`
+- `cured_cannabis_bud_hybrid_exotic.png`
+- `cured_cannabis_bud_autoflower_schwag.png`
+- `cured_cannabis_bud_autoflower_mids.png`
+- `cured_cannabis_bud_autoflower_dank.png`
+- `cured_cannabis_bud_autoflower_top_shelf.png`
+- `cured_cannabis_bud_autoflower_exotic.png`
+
+**Trimmed Cannabis Bud (20):**
+- `trimmed_cannabis_bud_indica_schwag.png`
+- `trimmed_cannabis_bud_indica_mids.png`
+- `trimmed_cannabis_bud_indica_dank.png`
+- `trimmed_cannabis_bud_indica_top_shelf.png`
+- `trimmed_cannabis_bud_indica_exotic.png`
+- `trimmed_cannabis_bud_sativa_schwag.png`
+- `trimmed_cannabis_bud_sativa_mids.png`
+- `trimmed_cannabis_bud_sativa_dank.png`
+- `trimmed_cannabis_bud_sativa_top_shelf.png`
+- `trimmed_cannabis_bud_sativa_exotic.png`
+- `trimmed_cannabis_bud_hybrid_schwag.png`
+- `trimmed_cannabis_bud_hybrid_mids.png`
+- `trimmed_cannabis_bud_hybrid_dank.png`
+- `trimmed_cannabis_bud_hybrid_top_shelf.png`
+- `trimmed_cannabis_bud_hybrid_exotic.png`
+- `trimmed_cannabis_bud_autoflower_schwag.png`
+- `trimmed_cannabis_bud_autoflower_mids.png`
+- `trimmed_cannabis_bud_autoflower_dank.png`
+- `trimmed_cannabis_bud_autoflower_top_shelf.png`
+- `trimmed_cannabis_bud_autoflower_exotic.png`
+
+**Dried Cannabis Bud (20):**
+- `dried_cannabis_bud_indica_schwag.png`
+- `dried_cannabis_bud_indica_mids.png`
+- `dried_cannabis_bud_indica_dank.png`
+- `dried_cannabis_bud_indica_top_shelf.png`
+- `dried_cannabis_bud_indica_exotic.png`
+- `dried_cannabis_bud_sativa_schwag.png`
+- `dried_cannabis_bud_sativa_mids.png`
+- `dried_cannabis_bud_sativa_dank.png`
+- `dried_cannabis_bud_sativa_top_shelf.png`
+- `dried_cannabis_bud_sativa_exotic.png`
+- `dried_cannabis_bud_hybrid_schwag.png`
+- `dried_cannabis_bud_hybrid_mids.png`
+- `dried_cannabis_bud_hybrid_dank.png`
+- `dried_cannabis_bud_hybrid_top_shelf.png`
+- `dried_cannabis_bud_hybrid_exotic.png`
+- `dried_cannabis_bud_autoflower_schwag.png`
+- `dried_cannabis_bud_autoflower_mids.png`
+- `dried_cannabis_bud_autoflower_dank.png`
+- `dried_cannabis_bud_autoflower_top_shelf.png`
+- `dried_cannabis_bud_autoflower_exotic.png`
+
+**Fresh Cannabis Bud (20):**
+- `fresh_cannabis_bud_indica_schwag.png`
+- `fresh_cannabis_bud_indica_mids.png`
+- `fresh_cannabis_bud_indica_dank.png`
+- `fresh_cannabis_bud_indica_top_shelf.png`
+- `fresh_cannabis_bud_indica_exotic.png`
+- `fresh_cannabis_bud_sativa_schwag.png`
+- `fresh_cannabis_bud_sativa_mids.png`
+- `fresh_cannabis_bud_sativa_dank.png`
+- `fresh_cannabis_bud_sativa_top_shelf.png`
+- `fresh_cannabis_bud_sativa_exotic.png`
+- `fresh_cannabis_bud_hybrid_schwag.png`
+- `fresh_cannabis_bud_hybrid_mids.png`
+- `fresh_cannabis_bud_hybrid_dank.png`
+- `fresh_cannabis_bud_hybrid_top_shelf.png`
+- `fresh_cannabis_bud_hybrid_exotic.png`
+- `fresh_cannabis_bud_autoflower_schwag.png`
+- `fresh_cannabis_bud_autoflower_mids.png`
+- `fresh_cannabis_bud_autoflower_dank.png`
+- `fresh_cannabis_bud_autoflower_top_shelf.png`
+- `fresh_cannabis_bud_autoflower_exotic.png`
+
+**Cannabis Hash (20):**
+- `cannabis_hash_indica_schwag.png`
+- `cannabis_hash_indica_mids.png`
+- `cannabis_hash_indica_dank.png`
+- `cannabis_hash_indica_top_shelf.png`
+- `cannabis_hash_indica_exotic.png`
+- `cannabis_hash_sativa_schwag.png`
+- `cannabis_hash_sativa_mids.png`
+- `cannabis_hash_sativa_dank.png`
+- `cannabis_hash_sativa_top_shelf.png`
+- `cannabis_hash_sativa_exotic.png`
+- `cannabis_hash_hybrid_schwag.png`
+- `cannabis_hash_hybrid_mids.png`
+- `cannabis_hash_hybrid_dank.png`
+- `cannabis_hash_hybrid_top_shelf.png`
+- `cannabis_hash_hybrid_exotic.png`
+- `cannabis_hash_autoflower_schwag.png`
+- `cannabis_hash_autoflower_mids.png`
+- `cannabis_hash_autoflower_dank.png`
+- `cannabis_hash_autoflower_top_shelf.png`
+- `cannabis_hash_autoflower_exotic.png`
+
+**Cannabis Oil (20):**
+- `cannabis_oil_indica_schwag.png`
+- `cannabis_oil_indica_mids.png`
+- `cannabis_oil_indica_dank.png`
+- `cannabis_oil_indica_top_shelf.png`
+- `cannabis_oil_indica_exotic.png`
+- `cannabis_oil_sativa_schwag.png`
+- `cannabis_oil_sativa_mids.png`
+- `cannabis_oil_sativa_dank.png`
+- `cannabis_oil_sativa_top_shelf.png`
+- `cannabis_oil_sativa_exotic.png`
+- `cannabis_oil_hybrid_schwag.png`
+- `cannabis_oil_hybrid_mids.png`
+- `cannabis_oil_hybrid_dank.png`
+- `cannabis_oil_hybrid_top_shelf.png`
+- `cannabis_oil_hybrid_exotic.png`
+- `cannabis_oil_autoflower_schwag.png`
+- `cannabis_oil_autoflower_mids.png`
+- `cannabis_oil_autoflower_dank.png`
+- `cannabis_oil_autoflower_top_shelf.png`
+- `cannabis_oil_autoflower_exotic.png`
+
+#### Tobacco-System (16 Texturen)
+- `packaged_tobacco_virginia_schlecht.png` - Gelb
+- `packaged_tobacco_virginia_gut.png` - Gelb
+- `packaged_tobacco_virginia_sehr_gut.png` - Gelb
+- `packaged_tobacco_virginia_legendaer.png` - Gelb
+- `packaged_tobacco_burley_schlecht.png` - Gold/Orange
+- `packaged_tobacco_burley_gut.png` - Gold/Orange
+- `packaged_tobacco_burley_sehr_gut.png` - Gold/Orange
+- `packaged_tobacco_burley_legendaer.png` - Gold/Orange
+- `packaged_tobacco_oriental_schlecht.png` - Lila
+- `packaged_tobacco_oriental_gut.png` - Lila
+- `packaged_tobacco_oriental_sehr_gut.png` - Lila
+- `packaged_tobacco_oriental_legendaer.png` - Lila
+- `packaged_tobacco_havana_schlecht.png` - Rot
+- `packaged_tobacco_havana_gut.png` - Rot
+- `packaged_tobacco_havana_sehr_gut.png` - Rot
+- `packaged_tobacco_havana_legendaer.png` - Rot
+
+---
+
+### Platzhalter Zusammenfassung
+
+**Gesamt:** 214 Platzhalter
+- **Basis-Texturen:** 7 (Entity: 4, GUI: 1, Parts: 2)
+- **Item-Varianten:** 207
+  - Meth: 11
+  - MDMA: 8
+  - Cocaine: 8
+  - Crack Rock: 8
+  - Heroin: 12
+  - Morphine: 12
+  - Raw Opium: 12
+  - Cannabis: 120 (6 Items × 4 Strains × 5 Qualitäten)
+  - Tobacco: 16
+
+**Dokumentation:** Siehe `MISSING_TEXTURE_PLACEHOLDERS.md` für vollständige Details mit RGB-Farben und Code-Referenzen.
 
 ---
 
