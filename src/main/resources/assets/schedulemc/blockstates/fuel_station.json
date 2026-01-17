@@ -1,7 +1,8 @@
 {
-  "variants": {
-    "": {
-      "model": "schedulemc:block/fuel_station"
+    "variants": {
+        "facing=north": { "model": "schedulemc:block/fuel_station", "y": 180 },
+        "facing=south": { "model": "schedulemc:block/fuel_station" },
+        "facing=west":  { "model": "schedulemc:block/fuel_station", "y": 90 },
+        "facing=east":  { "model": "schedulemc:block/fuel_station", "y": 270 }
     }
-  }
 }

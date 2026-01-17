@@ -1,6 +1,6 @@
 {
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "schedulemc:item/key"
-  }
+    "parent": "item/generated",
+    "textures": {
+        "layer0": "schedulemc:item/key"
+    }
 }
