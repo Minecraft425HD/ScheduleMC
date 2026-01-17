@@ -203,40 +203,184 @@ Diese 181 Texturen sind Varianten von Items, die **NUR EINE BASIS-TEXTUR** haben
 - **EXOTIC** - Lila RGB(255, 85, 255)
 
 ### 9.1 Cured Cannabis Bud (20 Varianten)
-- `cured_cannabis_bud_indica_schwag.png` bis `..._exotic.png`
-- `cured_cannabis_bud_sativa_schwag.png` bis `..._exotic.png`
-- `cured_cannabis_bud_hybrid_schwag.png` bis `..._exotic.png`
-- `cured_cannabis_bud_autoflower_schwag.png` bis `..._exotic.png`
+
+**Indica Strain:**
+- `cured_cannabis_bud_indica_schwag.png` - RGB(85, 85, 85)
+- `cured_cannabis_bud_indica_mids.png` - RGB(170, 170, 170)
+- `cured_cannabis_bud_indica_dank.png` - RGB(85, 255, 85)
+- `cured_cannabis_bud_indica_top_shelf.png` - RGB(255, 170, 0)
+- `cured_cannabis_bud_indica_exotic.png` - RGB(255, 85, 255)
+
+**Sativa Strain:**
+- `cured_cannabis_bud_sativa_schwag.png` - RGB(85, 85, 85)
+- `cured_cannabis_bud_sativa_mids.png` - RGB(170, 170, 170)
+- `cured_cannabis_bud_sativa_dank.png` - RGB(85, 255, 85)
+- `cured_cannabis_bud_sativa_top_shelf.png` - RGB(255, 170, 0)
+- `cured_cannabis_bud_sativa_exotic.png` - RGB(255, 85, 255)
+
+**Hybrid Strain:**
+- `cured_cannabis_bud_hybrid_schwag.png` - RGB(85, 85, 85)
+- `cured_cannabis_bud_hybrid_mids.png` - RGB(170, 170, 170)
+- `cured_cannabis_bud_hybrid_dank.png` - RGB(85, 255, 85)
+- `cured_cannabis_bud_hybrid_top_shelf.png` - RGB(255, 170, 0)
+- `cured_cannabis_bud_hybrid_exotic.png` - RGB(255, 85, 255)
+
+**Autoflower Strain:**
+- `cured_cannabis_bud_autoflower_schwag.png` - RGB(85, 85, 85)
+- `cured_cannabis_bud_autoflower_mids.png` - RGB(170, 170, 170)
+- `cured_cannabis_bud_autoflower_dank.png` - RGB(85, 255, 85)
+- `cured_cannabis_bud_autoflower_top_shelf.png` - RGB(255, 170, 0)
+- `cured_cannabis_bud_autoflower_exotic.png` - RGB(255, 85, 255)
 
 ### 9.2 Trimmed Cannabis Bud (20 Varianten)
-- `trimmed_cannabis_bud_indica_schwag.png` bis `..._exotic.png`
-- `trimmed_cannabis_bud_sativa_schwag.png` bis `..._exotic.png`
-- `trimmed_cannabis_bud_hybrid_schwag.png` bis `..._exotic.png`
-- `trimmed_cannabis_bud_autoflower_schwag.png` bis `..._exotic.png`
+
+**Indica Strain:**
+- `trimmed_cannabis_bud_indica_schwag.png` - RGB(85, 85, 85)
+- `trimmed_cannabis_bud_indica_mids.png` - RGB(170, 170, 170)
+- `trimmed_cannabis_bud_indica_dank.png` - RGB(85, 255, 85)
+- `trimmed_cannabis_bud_indica_top_shelf.png` - RGB(255, 170, 0)
+- `trimmed_cannabis_bud_indica_exotic.png` - RGB(255, 85, 255)
+
+**Sativa Strain:**
+- `trimmed_cannabis_bud_sativa_schwag.png` - RGB(85, 85, 85)
+- `trimmed_cannabis_bud_sativa_mids.png` - RGB(170, 170, 170)
+- `trimmed_cannabis_bud_sativa_dank.png` - RGB(85, 255, 85)
+- `trimmed_cannabis_bud_sativa_top_shelf.png` - RGB(255, 170, 0)
+- `trimmed_cannabis_bud_sativa_exotic.png` - RGB(255, 85, 255)
+
+**Hybrid Strain:**
+- `trimmed_cannabis_bud_hybrid_schwag.png` - RGB(85, 85, 85)
+- `trimmed_cannabis_bud_hybrid_mids.png` - RGB(170, 170, 170)
+- `trimmed_cannabis_bud_hybrid_dank.png` - RGB(85, 255, 85)
+- `trimmed_cannabis_bud_hybrid_top_shelf.png` - RGB(255, 170, 0)
+- `trimmed_cannabis_bud_hybrid_exotic.png` - RGB(255, 85, 255)
+
+**Autoflower Strain:**
+- `trimmed_cannabis_bud_autoflower_schwag.png` - RGB(85, 85, 85)
+- `trimmed_cannabis_bud_autoflower_mids.png` - RGB(170, 170, 170)
+- `trimmed_cannabis_bud_autoflower_dank.png` - RGB(85, 255, 85)
+- `trimmed_cannabis_bud_autoflower_top_shelf.png` - RGB(255, 170, 0)
+- `trimmed_cannabis_bud_autoflower_exotic.png` - RGB(255, 85, 255)
 
 ### 9.3 Dried Cannabis Bud (20 Varianten)
-- `dried_cannabis_bud_indica_schwag.png` bis `..._exotic.png`
-- `dried_cannabis_bud_sativa_schwag.png` bis `..._exotic.png`
-- `dried_cannabis_bud_hybrid_schwag.png` bis `..._exotic.png`
-- `dried_cannabis_bud_autoflower_schwag.png` bis `..._exotic.png`
+
+**Indica Strain:**
+- `dried_cannabis_bud_indica_schwag.png` - RGB(85, 85, 85)
+- `dried_cannabis_bud_indica_mids.png` - RGB(170, 170, 170)
+- `dried_cannabis_bud_indica_dank.png` - RGB(85, 255, 85)
+- `dried_cannabis_bud_indica_top_shelf.png` - RGB(255, 170, 0)
+- `dried_cannabis_bud_indica_exotic.png` - RGB(255, 85, 255)
+
+**Sativa Strain:**
+- `dried_cannabis_bud_sativa_schwag.png` - RGB(85, 85, 85)
+- `dried_cannabis_bud_sativa_mids.png` - RGB(170, 170, 170)
+- `dried_cannabis_bud_sativa_dank.png` - RGB(85, 255, 85)
+- `dried_cannabis_bud_sativa_top_shelf.png` - RGB(255, 170, 0)
+- `dried_cannabis_bud_sativa_exotic.png` - RGB(255, 85, 255)
+
+**Hybrid Strain:**
+- `dried_cannabis_bud_hybrid_schwag.png` - RGB(85, 85, 85)
+- `dried_cannabis_bud_hybrid_mids.png` - RGB(170, 170, 170)
+- `dried_cannabis_bud_hybrid_dank.png` - RGB(85, 255, 85)
+- `dried_cannabis_bud_hybrid_top_shelf.png` - RGB(255, 170, 0)
+- `dried_cannabis_bud_hybrid_exotic.png` - RGB(255, 85, 255)
+
+**Autoflower Strain:**
+- `dried_cannabis_bud_autoflower_schwag.png` - RGB(85, 85, 85)
+- `dried_cannabis_bud_autoflower_mids.png` - RGB(170, 170, 170)
+- `dried_cannabis_bud_autoflower_dank.png` - RGB(85, 255, 85)
+- `dried_cannabis_bud_autoflower_top_shelf.png` - RGB(255, 170, 0)
+- `dried_cannabis_bud_autoflower_exotic.png` - RGB(255, 85, 255)
 
 ### 9.4 Fresh Cannabis Bud (20 Varianten)
-- `fresh_cannabis_bud_indica_schwag.png` bis `..._exotic.png`
-- `fresh_cannabis_bud_sativa_schwag.png` bis `..._exotic.png`
-- `fresh_cannabis_bud_hybrid_schwag.png` bis `..._exotic.png`
-- `fresh_cannabis_bud_autoflower_schwag.png` bis `..._exotic.png`
+
+**Indica Strain:**
+- `fresh_cannabis_bud_indica_schwag.png` - RGB(85, 85, 85)
+- `fresh_cannabis_bud_indica_mids.png` - RGB(170, 170, 170)
+- `fresh_cannabis_bud_indica_dank.png` - RGB(85, 255, 85)
+- `fresh_cannabis_bud_indica_top_shelf.png` - RGB(255, 170, 0)
+- `fresh_cannabis_bud_indica_exotic.png` - RGB(255, 85, 255)
+
+**Sativa Strain:**
+- `fresh_cannabis_bud_sativa_schwag.png` - RGB(85, 85, 85)
+- `fresh_cannabis_bud_sativa_mids.png` - RGB(170, 170, 170)
+- `fresh_cannabis_bud_sativa_dank.png` - RGB(85, 255, 85)
+- `fresh_cannabis_bud_sativa_top_shelf.png` - RGB(255, 170, 0)
+- `fresh_cannabis_bud_sativa_exotic.png` - RGB(255, 85, 255)
+
+**Hybrid Strain:**
+- `fresh_cannabis_bud_hybrid_schwag.png` - RGB(85, 85, 85)
+- `fresh_cannabis_bud_hybrid_mids.png` - RGB(170, 170, 170)
+- `fresh_cannabis_bud_hybrid_dank.png` - RGB(85, 255, 85)
+- `fresh_cannabis_bud_hybrid_top_shelf.png` - RGB(255, 170, 0)
+- `fresh_cannabis_bud_hybrid_exotic.png` - RGB(255, 85, 255)
+
+**Autoflower Strain:**
+- `fresh_cannabis_bud_autoflower_schwag.png` - RGB(85, 85, 85)
+- `fresh_cannabis_bud_autoflower_mids.png` - RGB(170, 170, 170)
+- `fresh_cannabis_bud_autoflower_dank.png` - RGB(85, 255, 85)
+- `fresh_cannabis_bud_autoflower_top_shelf.png` - RGB(255, 170, 0)
+- `fresh_cannabis_bud_autoflower_exotic.png` - RGB(255, 85, 255)
 
 ### 9.5 Cannabis Hash (20 Varianten)
-- `cannabis_hash_indica_schwag.png` bis `..._exotic.png`
-- `cannabis_hash_sativa_schwag.png` bis `..._exotic.png`
-- `cannabis_hash_hybrid_schwag.png` bis `..._exotic.png`
-- `cannabis_hash_autoflower_schwag.png` bis `..._exotic.png`
+
+**Indica Strain:**
+- `cannabis_hash_indica_schwag.png` - RGB(85, 85, 85)
+- `cannabis_hash_indica_mids.png` - RGB(170, 170, 170)
+- `cannabis_hash_indica_dank.png` - RGB(85, 255, 85)
+- `cannabis_hash_indica_top_shelf.png` - RGB(255, 170, 0)
+- `cannabis_hash_indica_exotic.png` - RGB(255, 85, 255)
+
+**Sativa Strain:**
+- `cannabis_hash_sativa_schwag.png` - RGB(85, 85, 85)
+- `cannabis_hash_sativa_mids.png` - RGB(170, 170, 170)
+- `cannabis_hash_sativa_dank.png` - RGB(85, 255, 85)
+- `cannabis_hash_sativa_top_shelf.png` - RGB(255, 170, 0)
+- `cannabis_hash_sativa_exotic.png` - RGB(255, 85, 255)
+
+**Hybrid Strain:**
+- `cannabis_hash_hybrid_schwag.png` - RGB(85, 85, 85)
+- `cannabis_hash_hybrid_mids.png` - RGB(170, 170, 170)
+- `cannabis_hash_hybrid_dank.png` - RGB(85, 255, 85)
+- `cannabis_hash_hybrid_top_shelf.png` - RGB(255, 170, 0)
+- `cannabis_hash_hybrid_exotic.png` - RGB(255, 85, 255)
+
+**Autoflower Strain:**
+- `cannabis_hash_autoflower_schwag.png` - RGB(85, 85, 85)
+- `cannabis_hash_autoflower_mids.png` - RGB(170, 170, 170)
+- `cannabis_hash_autoflower_dank.png` - RGB(85, 255, 85)
+- `cannabis_hash_autoflower_top_shelf.png` - RGB(255, 170, 0)
+- `cannabis_hash_autoflower_exotic.png` - RGB(255, 85, 255)
 
 ### 9.6 Cannabis Oil (20 Varianten)
-- `cannabis_oil_indica_schwag.png` bis `..._exotic.png`
-- `cannabis_oil_sativa_schwag.png` bis `..._exotic.png`
-- `cannabis_oil_hybrid_schwag.png` bis `..._exotic.png`
-- `cannabis_oil_autoflower_schwag.png` bis `..._exotic.png`
+
+**Indica Strain:**
+- `cannabis_oil_indica_schwag.png` - RGB(85, 85, 85)
+- `cannabis_oil_indica_mids.png` - RGB(170, 170, 170)
+- `cannabis_oil_indica_dank.png` - RGB(85, 255, 85)
+- `cannabis_oil_indica_top_shelf.png` - RGB(255, 170, 0)
+- `cannabis_oil_indica_exotic.png` - RGB(255, 85, 255)
+
+**Sativa Strain:**
+- `cannabis_oil_sativa_schwag.png` - RGB(85, 85, 85)
+- `cannabis_oil_sativa_mids.png` - RGB(170, 170, 170)
+- `cannabis_oil_sativa_dank.png` - RGB(85, 255, 85)
+- `cannabis_oil_sativa_top_shelf.png` - RGB(255, 170, 0)
+- `cannabis_oil_sativa_exotic.png` - RGB(255, 85, 255)
+
+**Hybrid Strain:**
+- `cannabis_oil_hybrid_schwag.png` - RGB(85, 85, 85)
+- `cannabis_oil_hybrid_mids.png` - RGB(170, 170, 170)
+- `cannabis_oil_hybrid_dank.png` - RGB(85, 255, 85)
+- `cannabis_oil_hybrid_top_shelf.png` - RGB(255, 170, 0)
+- `cannabis_oil_hybrid_exotic.png` - RGB(255, 85, 255)
+
+**Autoflower Strain:**
+- `cannabis_oil_autoflower_schwag.png` - RGB(85, 85, 85)
+- `cannabis_oil_autoflower_mids.png` - RGB(170, 170, 170)
+- `cannabis_oil_autoflower_dank.png` - RGB(85, 255, 85)
+- `cannabis_oil_autoflower_top_shelf.png` - RGB(255, 170, 0)
+- `cannabis_oil_autoflower_exotic.png` - RGB(255, 85, 255)
 
 ---
 
