@@ -38,7 +38,7 @@ public class ModCreativeTabs {
                     output.accept(new ItemStack(ModItems.LICENSE_PLATE.get()));
                     output.accept(new ItemStack(ModItems.VEHICLE_SPAWN_TOOL.get()));
                 })
-                .title(Component.translatable("itemGroup.vehicle"))
+                .title(Component.translatable("itemGroup.schedulemc.vehicle"))
                 .build();
     });
 

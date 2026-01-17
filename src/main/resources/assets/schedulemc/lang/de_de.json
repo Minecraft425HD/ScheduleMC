@@ -2966,7 +2966,7 @@
   "item.watering_can.name": "§fGießkanne",
   "itemGroup.schedulemc.plotmod_tab": "ScheduleMC",
   "itemGroup.schedulemc.tobacco_tab": "Tabakanbau",
-  "itemGroup.vehicle": "Fahrzeuge",
+  "itemGroup.schedulemc.vehicle": "Fahrzeuge",
   "itemGroup.vehicle_parts": "Fahrzeugteile",
   "key.categories.mapview": "Kartenansicht",
   "key.categories.schedulemc": "ScheduleMC",

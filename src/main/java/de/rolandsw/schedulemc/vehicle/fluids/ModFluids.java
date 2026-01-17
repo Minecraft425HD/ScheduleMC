@@ -19,7 +19,7 @@ public class ModFluids {
     private static final DeferredRegister<FluidType> FLUID_TYPE_REGISTER = DeferredRegister.create(ForgeRegistries.Keys.FLUID_TYPES, Main.MODID);
 
     public static final RegistryObject<FluidType> BIO_DIESEL_TYPE = FLUID_TYPE_REGISTER.register("diesel", () ->
-            new FluidTypeVehicle("block.vehicle.diesel", ResourceLocation.fromNamespaceAndPath(Main.MODID, "block/diesel_still"), ResourceLocation.fromNamespaceAndPath(Main.MODID, "block/diesel_flowing"))
+            new FluidTypeVehicle("block.schedulemc.diesel", ResourceLocation.fromNamespaceAndPath(Main.MODID, "block/diesel_still"), ResourceLocation.fromNamespaceAndPath(Main.MODID, "block/diesel_flowing"))
     );
 
     public static void init(IEventBus modEventBus) {
