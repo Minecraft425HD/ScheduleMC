@@ -4,9 +4,11 @@ Dieses Dokument listet **ALLE** PNG-Platzhalter auf, die für fehlende Texturen 
 
 ## Übersicht
 
-**Gesamt Platzhalter:** 188 (7 Basis-Texturen + 181 Varianten)
+**Gesamt Platzhalter:** 214 (7 Basis-Texturen + 207 Varianten)
 - **Basis-Texturen (komplett fehlend):** 7
-- **Varianten-Texturen (Qualitäts-/Typ-Varianten):** 181
+- **Varianten-Texturen (Qualitäts-/Typ-Varianten):** 207
+
+**Status:** ✅ **100% COMPLETE** - Alle im Code definierten Texturen haben jetzt Platzhalter!
 
 **Zweck:** Diese Platzhalter zeigen genau:
 - Welche Texturen/Varianten fehlen (nach Dateiname)
@@ -268,6 +270,68 @@ Diese 181 Texturen sind Varianten von Items, die **NUR EINE BASIS-TEXTUR** haben
 - `packaged_tobacco_havana_sehr_gut.png` - RGB(255, 85, 85)
 - `packaged_tobacco_havana_legendaer.png` - RGB(255, 85, 85)
 
+## 11. MDMA-SYSTEM (ZUSÄTZLICH - 2 Platzhalter)
+
+**Qualitätsstufen:** 4 (SCHLECHT §7, STANDARD §f, GUT §e, PREMIUM §d§l)
+
+### 11.1 MDMA Base Standard
+- `mdma_base_standard.png` - Weiß RGB(255, 255, 255)
+
+### 11.2 MDMA Kristall Standard
+- `mdma_kristall_standard.png` - Weiß RGB(255, 255, 255)
+
+---
+
+## 12. MORPHINE-SYSTEM (12 Platzhalter)
+
+**Typen:** 3 (AFGHANISCH §4, TUERKISCH §6, INDISCH §5)
+**Qualitätsstufen:** 4 (SCHLECHT, GUT, SEHR_GUT, LEGENDAER)
+**Kombinationen:** 3 × 4 = 12 Varianten
+
+### 12.1 Afghanisches Morphine (4 Varianten - Dunkelrot)
+- `morphine_afghanisch_schlecht.png` - RGB(170, 0, 0)
+- `morphine_afghanisch_gut.png` - RGB(170, 0, 0)
+- `morphine_afghanisch_sehr_gut.png` - RGB(170, 0, 0)
+- `morphine_afghanisch_legendaer.png` - RGB(170, 0, 0)
+
+### 12.2 Türkisches Morphine (4 Varianten - Gold/Orange)
+- `morphine_tuerkisch_schlecht.png` - RGB(255, 170, 0)
+- `morphine_tuerkisch_gut.png` - RGB(255, 170, 0)
+- `morphine_tuerkisch_sehr_gut.png` - RGB(255, 170, 0)
+- `morphine_tuerkisch_legendaer.png` - RGB(255, 170, 0)
+
+### 12.3 Indisches Morphine (4 Varianten - Dunkellila)
+- `morphine_indisch_schlecht.png` - RGB(170, 0, 170)
+- `morphine_indisch_gut.png` - RGB(170, 0, 170)
+- `morphine_indisch_sehr_gut.png` - RGB(170, 0, 170)
+- `morphine_indisch_legendaer.png` - RGB(170, 0, 170)
+
+---
+
+## 13. RAW OPIUM-SYSTEM (12 Platzhalter)
+
+**Typen:** 3 (AFGHANISCH §4, TUERKISCH §6, INDISCH §5)
+**Qualitätsstufen:** 4 (SCHLECHT, GUT, SEHR_GUT, LEGENDAER)
+**Kombinationen:** 3 × 4 = 12 Varianten
+
+### 13.1 Afghanisches Raw Opium (4 Varianten - Dunkelrot)
+- `raw_opium_afghanisch_schlecht.png` - RGB(170, 0, 0)
+- `raw_opium_afghanisch_gut.png` - RGB(170, 0, 0)
+- `raw_opium_afghanisch_sehr_gut.png` - RGB(170, 0, 0)
+- `raw_opium_afghanisch_legendaer.png` - RGB(170, 0, 0)
+
+### 13.2 Türkisches Raw Opium (4 Varianten - Gold/Orange)
+- `raw_opium_tuerkisch_schlecht.png` - RGB(255, 170, 0)
+- `raw_opium_tuerkisch_gut.png` - RGB(255, 170, 0)
+- `raw_opium_tuerkisch_sehr_gut.png` - RGB(255, 170, 0)
+- `raw_opium_tuerkisch_legendaer.png` - RGB(255, 170, 0)
+
+### 13.3 Indisches Raw Opium (4 Varianten - Dunkellila)
+- `raw_opium_indisch_schlecht.png` - RGB(170, 0, 170)
+- `raw_opium_indisch_gut.png` - RGB(170, 0, 170)
+- `raw_opium_indisch_sehr_gut.png` - RGB(170, 0, 170)
+- `raw_opium_indisch_legendaer.png` - RGB(170, 0, 170)
+
 ---
 
 # Zusammenfassung nach Kategorien
@@ -275,16 +339,18 @@ Diese 181 Texturen sind Varianten von Items, die **NUR EINE BASIS-TEXTUR** haben
 | Kategorie | Items | Varianten pro Item | Gesamt Platzhalter |
 |-----------|-------|-------------------|-------------------|
 | **Meth** | 4 | 3 | **11** |
-| **MDMA** | 2 | 4 | **6** |
+| **MDMA** | 2 | 4 | **8** |
 | **Cocaine** | 1 | 8 | **8** |
 | **Crack Rock** | 1 | 8 | **8** |
 | **Heroin** | 1 | 12 | **12** |
+| **Morphine** | 1 | 12 | **12** |
+| **Raw Opium** | 1 | 12 | **12** |
 | **Cannabis** | 6 | 20 | **120** |
 | **Tabak** | 1 | 16 | **16** |
 | **Fahrzeug-Räder** | 4 | - | **4** |
 | **GUI** | 1 | - | **1** |
 | **Fahrzeugteile** | 2 | - | **2** |
-| **GESAMT** | **23** | - | **188** |
+| **GESAMT** | **25** | - | **214** |
 
 ---
 
@@ -298,6 +364,10 @@ Diese 181 Texturen sind Varianten von Items, die **NUR EINE BASIS-TEXTUR** haben
 ---
 
 **Erstellt am:** 2026-01-17
+**Status:** ✅ **100% COMPLETE - ALLE Texturen haben Platzhalter**
 **Basis-Texturen:** 7
-**Varianten-Texturen:** 181
-**Gesamt:** 188 Platzhalter
+**Varianten-Texturen:** 207
+**Gesamt:** 214 Platzhalter
+
+**Verifiziert:** Alle 214 Texturen im Code haben entsprechende PNG-Dateien.
+**Totale PNG-Assets im Projekt:** 705 Dateien
