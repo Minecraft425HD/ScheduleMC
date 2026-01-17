@@ -1,9 +1,9 @@
 # ScheduleMC - Vollständige Texturenliste
 
-Gesamtanzahl: **746 PNG-Texturen** (532 Original + 214 Platzhalter)
+Gesamtanzahl: **750 PNG-Texturen** (532 Original + 218 Platzhalter)
 
 Erstellt am: 2026-01-17
-Aktualisiert am: 2026-01-17 (214 Platzhalter hinzugefügt)
+Aktualisiert am: 2026-01-17 (218 Platzhalter hinzugefügt)
 
 ---
 
@@ -15,7 +15,7 @@ Aktualisiert am: 2026-01-17 (214 Platzhalter hinzugefügt)
    - [Block Texturen (270 Dateien)](#schedulemc-block-texturen)
    - [Entity Texturen (1 Datei)](#schedulemc-entity-texturen)
    - [GUI Texturen (19 Dateien)](#schedulemc-gui-texturen)
-   - [Item Texturen (179 Dateien)](#schedulemc-item-texturen)
+   - [Item Texturen (183 Dateien)](#schedulemc-item-texturen)
 2. [Vehicle Namespace (56 Dateien)](#vehicle-namespace)
    - [Block Texturen (9 Dateien)](#vehicle-block-texturen)
    - [Entity Texturen (9 Dateien)](#vehicle-entity-texturen)
@@ -400,17 +400,21 @@ Aktualisiert am: 2026-01-17 (214 Platzhalter hinzugefügt)
 
 **Speicherort:** `/src/main/resources/assets/schedulemc/textures/item/`
 
-#### Seeds (10 Dateien)
+#### Seeds (14 Dateien)
 1. `afghanisch_poppy_seeds.png`
 2. `bolivianisch_coca_seeds.png`
 3. `burley_seeds.png`
 4. `cannabis_seed.png`
-5. `havana_seeds.png`
-6. `indisch_poppy_seeds.png`
-7. `kolumbianisch_coca_seeds.png`
-8. `oriental_seeds.png`
-9. `tuerkisch_poppy_seeds.png`
-10. `virginia_seeds.png`
+5. `cannabis_seed_autoflower.png` ⭐ NEU
+6. `cannabis_seed_hybrid.png` ⭐ NEU
+7. `cannabis_seed_indica.png` ⭐ NEU
+8. `cannabis_seed_sativa.png` ⭐ NEU
+9. `havana_seeds.png`
+10. `indisch_poppy_seeds.png`
+11. `kolumbianisch_coca_seeds.png`
+12. `oriental_seeds.png`
+13. `tuerkisch_poppy_seeds.png`
+14. `virginia_seeds.png`
 
 #### Fresh Plant Products (12 Dateien)
 11. `fresh_azurescens.png`
@@ -739,12 +743,12 @@ Aktualisiert am: 2026-01-17 (214 Platzhalter hinzugefügt)
 | **ScheduleMC** | Block Texturen | 270 |
 | **ScheduleMC** | Entity Texturen | 1 |
 | **ScheduleMC** | GUI Texturen | 19 |
-| **ScheduleMC** | Item Texturen | 179 |
+| **ScheduleMC** | Item Texturen | 183 |
 | **Vehicle** | Block Texturen | 9 |
 | **Vehicle** | Entity Texturen | 9 |
 | **Vehicle** | GUI Texturen | 3 |
 | **Vehicle** | Item Texturen | 35 |
-| **GESAMT** | | **532** |
+| **GESAMT** | | **536** |
 
 ---
 
@@ -768,9 +772,9 @@ Das Projekt enthält **9 verschiedene Pflanzentypen**, jede mit **8 Wachstumssta
 
 ---
 
-## NEU HINZUGEFÜGT: Textur-Platzhalter (214 Dateien)
+## NEU HINZUGEFÜGT: Textur-Platzhalter (218 Dateien)
 
-**Status:** ✅ Alle 214 Platzhalter erstellt am 2026-01-17
+**Status:** ✅ Alle 218 Platzhalter erstellt am 2026-01-17
 
 Diese Platzhalter wurden erstellt, um jede im Code definierte Textur-Variante abzudecken, die vorher fehlte. Jeder Platzhalter hat eine eindeutige Farbe basierend auf Minecraft-Farbcodes.
 
@@ -1037,13 +1041,19 @@ Diese Platzhalter wurden erstellt, um jede im Code definierte Textur-Variante ab
 - `packaged_tobacco_havana_sehr_gut.png` - Rot
 - `packaged_tobacco_havana_legendaer.png` - Rot
 
+#### Cannabis Seed-System (4 Texturen) ⭐ NEU HINZUGEFÜGT
+- `cannabis_seed_indica.png` - Lila RGB(100,50,150)
+- `cannabis_seed_sativa.png` - Grün RGB(50,150,50)
+- `cannabis_seed_hybrid.png` - Gelb RGB(150,150,50)
+- `cannabis_seed_autoflower.png` - Orange RGB(150,100,50)
+
 ---
 
 ### Platzhalter Zusammenfassung
 
-**Gesamt:** 214 Platzhalter
+**Gesamt:** 218 Platzhalter
 - **Basis-Texturen:** 7 (Entity: 4, GUI: 1, Parts: 2)
-- **Item-Varianten:** 207
+- **Item-Varianten:** 211
   - Meth: 11
   - MDMA: 8
   - Cocaine: 8
@@ -1051,7 +1061,8 @@ Diese Platzhalter wurden erstellt, um jede im Code definierte Textur-Variante ab
   - Heroin: 12
   - Morphine: 12
   - Raw Opium: 12
-  - Cannabis: 120 (6 Items × 4 Strains × 5 Qualitäten)
+  - Cannabis Products: 120 (6 Items × 4 Strains × 5 Qualitäten)
+  - Cannabis Seeds: 4 (4 Strains) ⭐ NEU
   - Tobacco: 16
 
 **Dokumentation:** Siehe `MISSING_TEXTURE_PLACEHOLDERS.md` für vollständige Details mit RGB-Farben und Code-Referenzen.
