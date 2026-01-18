@@ -25,6 +25,9 @@ public class CocaItems {
     public static final RegistryObject<Item> KOLUMBIANISCH_SEEDS =
             ITEMS.register("kolumbianisch_coca_seeds", () -> new CocaSeedItem(CocaType.KOLUMBIANISCH));
 
+    public static final RegistryObject<Item> PERUANISCH_SEEDS =
+            ITEMS.register("peruanisch_coca_seeds", () -> new CocaSeedItem(CocaType.PERUANISCH));
+
     // ═══════════════════════════════════════════════════════════
     // FRISCHE BLÄTTER
     // ═══════════════════════════════════════════════════════════
@@ -34,6 +37,9 @@ public class CocaItems {
 
     public static final RegistryObject<Item> FRESH_KOLUMBIANISCH_LEAF =
             ITEMS.register("fresh_kolumbianisch_coca_leaf", FreshCocaLeafItem::new);
+
+    public static final RegistryObject<Item> FRESH_PERUANISCH_LEAF =
+            ITEMS.register("fresh_peruanisch_coca_leaf", FreshCocaLeafItem::new);
 
     // ═══════════════════════════════════════════════════════════
     // KOKA-PASTE (braun - Zwischenprodukt)
