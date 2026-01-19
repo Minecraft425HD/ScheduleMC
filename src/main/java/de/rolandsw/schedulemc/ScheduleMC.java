@@ -299,6 +299,7 @@ public class ScheduleMC {
             HealthCommand.register(event.getDispatcher());
             de.rolandsw.schedulemc.npc.crime.prison.PrisonCommand.register(event.getDispatcher());
             de.rolandsw.schedulemc.territory.MapCommand.register(event.getDispatcher());
+            TestDrugCommand.register(event.getDispatcher());
 
             // Vehicle Mod handles its own commands via event bus (registered in Main.commonSetup)
         }, "onRegisterCommands");
