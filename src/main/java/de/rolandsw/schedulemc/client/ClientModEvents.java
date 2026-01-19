@@ -27,8 +27,15 @@ import de.rolandsw.schedulemc.cannabis.menu.CannabisMenuTypes;
 import de.rolandsw.schedulemc.cannabis.screen.TrimmStationScreen;
 import de.rolandsw.schedulemc.towing.menu.TowingMenuTypes;
 import de.rolandsw.schedulemc.towing.screen.TowingInvoiceScreen;
+import de.rolandsw.schedulemc.items.ModItems;
+import de.rolandsw.schedulemc.production.client.QualityColorHandler;
+import de.rolandsw.schedulemc.production.core.DrugType;
+import de.rolandsw.schedulemc.production.items.PackagedDrugItem;
 import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -79,5 +86,15 @@ public class ClientModEvents {
                 MenuScreens.register(TowingMenuTypes.TOWING_INVOICE.get(), TowingInvoiceScreen::new);
             });
         }, "onClientSetup");
+    }
+
+    /**
+     * Registriert Item Color Handler für Qualitäts-Vignetten
+     */
+    @SubscribeEvent
+    public static void onRegisterItemColors(RegisterColorHandlersEvent.Item event) {
+        EventHelper.handleEvent(() -> {
+            event.register(QualityColorHandler::getColor, ModItems.PACKAGED_DRUG.get());
+        }, "onRegisterItemColors");
     }
 }
