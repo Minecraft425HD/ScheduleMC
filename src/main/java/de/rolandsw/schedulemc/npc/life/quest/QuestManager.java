@@ -1,0 +1,549 @@
+package de.rolandsw.schedulemc.npc.life.quest;
+
+import de.rolandsw.schedulemc.npc.NPCType;
+import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
+import de.rolandsw.schedulemc.npc.life.core.EmotionState;
+import de.rolandsw.schedulemc.npc.life.core.MemoryType;
+import de.rolandsw.schedulemc.npc.life.core.NPCLifeData;
+import de.rolandsw.schedulemc.npc.life.social.Faction;
+import de.rolandsw.schedulemc.npc.life.social.FactionManager;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Items;
+
+import javax.annotation.Nullable;
+import java.util.*;
+
+/**
+ * QuestManager - Verwaltet alle Quests im System
+ *
+ * Verantwortlich für:
+ * - Quest-Vorlagen registrieren
+ * - Dynamische Quest-Generierung
+ * - Spieler-Fortschritt verwalten
+ * - Quest-Belohnungen verteilen
+ */
+public class QuestManager {
+
+    // ═══════════════════════════════════════════════════════════
+    // SINGLETON-LIKE PER LEVEL
+    // ═══════════════════════════════════════════════════════════
+
+    private static final Map<ServerLevel, QuestManager> MANAGERS = new HashMap<>();
+
+    public static QuestManager getManager(ServerLevel level) {
+        return MANAGERS.computeIfAbsent(level, l -> new QuestManager(l));
+    }
+
+    public static void removeManager(ServerLevel level) {
+        MANAGERS.remove(level);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // DATA
+    // ═══════════════════════════════════════════════════════════
+
+    private final ServerLevel level;
+
+    /** Registrierte Quest-Vorlagen: Template ID -> Template */
+    private final Map<String, QuestTemplate> questTemplates = new HashMap<>();
+
+    /** Spieler-Fortschritt: Player UUID -> Progress */
+    private final Map<UUID, QuestProgress> playerProgress = new HashMap<>();
+
+    /** NPC-Quest-Angebote: NPC UUID -> List of Quest IDs currently offered */
+    private final Map<UUID, List<String>> npcQuestOffers = new HashMap<>();
+
+    /** Quest-ID-Zähler für eindeutige IDs */
+    private int questIdCounter = 0;
+
+    // ═══════════════════════════════════════════════════════════
+    // CONSTRUCTOR
+    // ═══════════════════════════════════════════════════════════
+
+    private QuestManager(ServerLevel level) {
+        this.level = level;
+        registerDefaultTemplates();
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // TEMPLATE REGISTRATION
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Registriert die Standard-Quest-Vorlagen
+     */
+    private void registerDefaultTemplates() {
+        // Lieferquests
+        registerTemplate(QuestTemplate.builder("delivery_basic")
+            .type(QuestType.DELIVERY)
+            .title("Einfache Lieferung")
+            .description("Liefern Sie ein Paket an den Empfänger.")
+            .difficulty(1)
+            .baseReward(QuestReward.create().money(50).factionRep(Faction.HAENDLER, 2))
+            .build());
+
+        registerTemplate(QuestTemplate.builder("delivery_urgent")
+            .type(QuestType.DELIVERY)
+            .title("Dringende Lieferung")
+            .description("Eine zeitkritische Lieferung muss schnell zugestellt werden!")
+            .difficulty(2)
+            .timeLimit(1)
+            .baseReward(QuestReward.create().money(150).factionRep(Faction.HAENDLER, 5))
+            .build());
+
+        // Sammelquests
+        registerTemplate(QuestTemplate.builder("collect_materials")
+            .type(QuestType.COLLECTION)
+            .title("Materialsammlung")
+            .description("Sammeln Sie die benötigten Materialien.")
+            .difficulty(1)
+            .baseReward(QuestReward.create().money(75).experience(50))
+            .build());
+
+        // Eskort-Quests
+        registerTemplate(QuestTemplate.builder("escort_citizen")
+            .type(QuestType.ESCORT)
+            .title("Sicheres Geleit")
+            .description("Begleiten Sie den NPC sicher zu seinem Ziel.")
+            .difficulty(3)
+            .minFactionRep(10)
+            .baseReward(QuestReward.create().money(200).factionRep(Faction.BUERGER, 10))
+            .build());
+
+        // Eliminierungs-Quests
+        registerTemplate(QuestTemplate.builder("eliminate_threat")
+            .type(QuestType.ELIMINATION)
+            .title("Bedrohung beseitigen")
+            .description("Eliminieren Sie die Bedrohung in der Gegend.")
+            .difficulty(3)
+            .minFactionRep(20)
+            .baseReward(QuestReward.create().money(300).factionRep(Faction.ORDNUNG, 15))
+            .build());
+
+        // Ermittlungs-Quests
+        registerTemplate(QuestTemplate.builder("investigate_crime")
+            .type(QuestType.INVESTIGATION)
+            .title("Ermittlung")
+            .description("Untersuchen Sie den Vorfall und finden Sie Hinweise.")
+            .difficulty(2)
+            .minFactionRep(15)
+            .baseReward(QuestReward.create().money(150).factionRep(Faction.ORDNUNG, 8))
+            .build());
+
+        // Verhandlungs-Quests
+        registerTemplate(QuestTemplate.builder("negotiate_deal")
+            .type(QuestType.NEGOTIATION)
+            .title("Vermittlung")
+            .description("Verhandeln Sie einen Deal zwischen den Parteien.")
+            .difficulty(4)
+            .minFactionRep(25)
+            .baseReward(QuestReward.create().money(250).factionRep(Faction.HAENDLER, 12))
+            .build());
+
+        // Untergrund-Quests
+        registerTemplate(QuestTemplate.builder("underground_delivery")
+            .type(QuestType.DELIVERY)
+            .title("Diskrete Lieferung")
+            .description("Eine Lieferung, über die niemand etwas erfahren sollte...")
+            .difficulty(2)
+            .faction(Faction.UNTERGRUND)
+            .minFactionRep(10)
+            .baseReward(QuestReward.create().money(200).factionRep(Faction.UNTERGRUND, 8))
+            .build());
+    }
+
+    /**
+     * Registriert eine Quest-Vorlage
+     */
+    public void registerTemplate(QuestTemplate template) {
+        questTemplates.put(template.getId(), template);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // QUEST GENERATION
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Generiert eine Quest basierend auf einer Vorlage
+     */
+    @Nullable
+    public Quest generateQuest(String templateId, CustomNPCEntity questGiver, ServerPlayer player) {
+        QuestTemplate template = questTemplates.get(templateId);
+        if (template == null) return null;
+
+        // Prüfe ob Spieler die Quest annehmen kann
+        FactionManager factionManager = FactionManager.getManager(level);
+        if (template.getFaction() != null) {
+            int playerRep = factionManager.getReputation(player.getUUID(), template.getFaction());
+            if (playerRep < template.getMinFactionRep()) {
+                return null;
+            }
+        }
+
+        // Einzigartige Quest-ID generieren
+        String questId = templateId + "_" + (++questIdCounter);
+
+        // Quest erstellen
+        Quest quest = new Quest(
+            questId,
+            template.getTitle(),
+            template.getDescription(),
+            template.getType(),
+            questGiver.getNpcData().getNpcUUID(),
+            template.getFaction()
+        );
+
+        // Eigenschaften setzen
+        quest.setDifficulty(template.getDifficulty());
+        quest.setTimeLimit(template.getTimeLimit());
+        quest.setMinFactionRep(template.getMinFactionRep());
+        quest.setRepeatable(template.isRepeatable());
+
+        // Ziele generieren
+        generateObjectives(quest, template, questGiver, player);
+
+        // Belohnung setzen (skaliert nach Schwierigkeit)
+        QuestReward reward = template.getBaseReward().scale(1.0f + (template.getDifficulty() - 1) * 0.25f);
+        quest.setReward(reward);
+
+        return quest;
+    }
+
+    /**
+     * Generiert Ziele für eine Quest
+     */
+    private void generateObjectives(Quest quest, QuestTemplate template, CustomNPCEntity questGiver, ServerPlayer player) {
+        switch (template.getType()) {
+            case DELIVERY -> {
+                // Lieferung: Item an einen anderen NPC
+                quest.addObjective(QuestObjective.collectItems(
+                    "collect_package",
+                    Items.PAPER, // Placeholder
+                    1,
+                    "Paket abholen"
+                ));
+                // Hier würde man dynamisch einen Ziel-NPC finden
+                quest.addObjective(QuestObjective.deliverToNPC(
+                    "deliver_package",
+                    Items.PAPER,
+                    1,
+                    questGiver.getNpcData().getNpcUUID(), // Placeholder - sollte anderer NPC sein
+                    "Paket abliefern"
+                ));
+            }
+
+            case COLLECTION -> {
+                // Sammlung: Bestimmte Anzahl Items
+                int amount = 5 + template.getDifficulty() * 5;
+                quest.addObjective(QuestObjective.collectItems(
+                    "collect_materials",
+                    Items.COAL, // Placeholder
+                    amount,
+                    String.format("Sammle %d Materialien", amount)
+                ));
+            }
+
+            case ESCORT -> {
+                // Eskorte: NPC zu einem Ort bringen
+                BlockPos destination = questGiver.blockPosition().offset(50, 0, 50); // Placeholder
+                quest.addObjective(QuestObjective.escortNPC(
+                    "escort_npc",
+                    questGiver.getNpcData().getNpcUUID(),
+                    destination,
+                    "Begleite den NPC sicher zum Ziel"
+                ));
+            }
+
+            case ELIMINATION -> {
+                // Eliminierung: Feinde besiegen
+                int kills = 3 + template.getDifficulty() * 2;
+                quest.addObjective(QuestObjective.killEntities(
+                    "eliminate_threats",
+                    "zombie", // Placeholder
+                    kills,
+                    String.format("Beseitige %d Bedrohungen", kills)
+                ));
+            }
+
+            case INVESTIGATION -> {
+                // Ermittlung: Mehrere NPCs befragen
+                quest.addObjective(QuestObjective.talkToNPC(
+                    "investigate_1",
+                    questGiver.getNpcData().getNpcUUID(), // Placeholder
+                    "Befrage Zeugen"
+                ));
+                quest.addObjective(QuestObjective.visitLocation(
+                    "investigate_2",
+                    questGiver.blockPosition().offset(20, 0, 20),
+                    5,
+                    "Untersuche den Tatort"
+                ));
+            }
+
+            case NEGOTIATION -> {
+                // Verhandlung: Mit mehreren NPCs sprechen
+                quest.addObjective(QuestObjective.talkToNPC(
+                    "negotiate_party1",
+                    questGiver.getNpcData().getNpcUUID(), // Placeholder
+                    "Sprich mit der ersten Partei"
+                ));
+                quest.addObjective(QuestObjective.negotiateDeal(
+                    "negotiate_deal",
+                    questGiver.getNpcData().getNpcUUID(), // Placeholder
+                    "Schließe den Deal ab"
+                ));
+            }
+        }
+    }
+
+    /**
+     * Generiert eine zufällige Quest für einen NPC
+     */
+    @Nullable
+    public Quest generateRandomQuest(CustomNPCEntity npc, ServerPlayer player) {
+        NPCType npcType = npc.getNpcType();
+
+        // Passende Templates finden
+        List<QuestTemplate> suitable = new ArrayList<>();
+        for (QuestTemplate template : questTemplates.values()) {
+            if (template.getType().canBeGivenBy(npcType)) {
+                // Fraktions-Check
+                if (template.getFaction() != null) {
+                    Faction npcFaction = Faction.forNPCType(npcType);
+                    if (template.getFaction() != npcFaction) continue;
+                }
+                suitable.add(template);
+            }
+        }
+
+        if (suitable.isEmpty()) return null;
+
+        // Zufällig auswählen
+        QuestTemplate selected = suitable.get(new Random().nextInt(suitable.size()));
+        return generateQuest(selected.getId(), npc, player);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // PLAYER PROGRESS
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Holt den Fortschritt eines Spielers
+     */
+    public QuestProgress getProgress(ServerPlayer player) {
+        return playerProgress.computeIfAbsent(player.getUUID(), QuestProgress::new);
+    }
+
+    /**
+     * Lässt einen Spieler eine Quest annehmen
+     */
+    public boolean acceptQuest(ServerPlayer player, Quest quest) {
+        QuestProgress progress = getProgress(player);
+        long currentDay = level.getDayTime() / 24000;
+
+        if (!progress.acceptQuest(quest, currentDay)) {
+            return false;
+        }
+
+        // NPC informieren
+        // Quest aus Angeboten entfernen würde hier passieren
+
+        return true;
+    }
+
+    /**
+     * Schließt eine Quest ab und gibt Belohnung
+     */
+    public boolean completeQuest(ServerPlayer player, String questId) {
+        QuestProgress progress = getProgress(player);
+        Quest quest = progress.getActiveQuest(questId);
+
+        if (quest == null || !quest.isReadyToComplete()) {
+            return false;
+        }
+
+        // Quest abschließen
+        if (!progress.completeQuest(questId)) {
+            return false;
+        }
+
+        // Belohnung geben
+        quest.getReward().grant(player, level);
+
+        // NPC-Reaktion
+        CustomNPCEntity questGiver = findNPC(quest.getQuestGiverNPC());
+        if (questGiver != null) {
+            NPCLifeData lifeData = questGiver.getLifeData();
+            if (lifeData != null) {
+                lifeData.getEmotions().trigger(EmotionState.HAPPY, 30.0f, 1200);
+                lifeData.getMemory().addMemory(
+                    player.getUUID(),
+                    MemoryType.QUEST_COMPLETED,
+                    "Quest abgeschlossen: " + quest.getTitle(),
+                    6
+                );
+                lifeData.getMemory().addPlayerTag(player.getUUID(), "QuestErfüller");
+            }
+        }
+
+        // Bei wiederholbarer Quest: Cooldown setzen
+        if (quest.isRepeatable()) {
+            long currentDay = level.getDayTime() / 24000;
+            progress.setCooldown(questId, currentDay + 3); // 3 Tage Cooldown
+        }
+
+        return true;
+    }
+
+    /**
+     * Aktualisiert alle Spieler-Fortschritte
+     */
+    public void tick() {
+        long currentDay = level.getDayTime() / 24000;
+        for (QuestProgress progress : playerProgress.values()) {
+            progress.tick(currentDay);
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // NPC QUEST OFFERS
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Aktualisiert die Quest-Angebote eines NPCs
+     */
+    public void refreshNPCQuests(CustomNPCEntity npc) {
+        UUID npcUUID = npc.getNpcData().getNpcUUID();
+        List<String> offers = new ArrayList<>();
+
+        // Generiere 1-3 Quest-Angebote
+        int numQuests = 1 + new Random().nextInt(3);
+        for (int i = 0; i < numQuests; i++) {
+            // Hier würden wir Quests generieren und speichern
+        }
+
+        npcQuestOffers.put(npcUUID, offers);
+    }
+
+    /**
+     * Holt die Quest-Angebote eines NPCs
+     */
+    public List<Quest> getQuestOffers(CustomNPCEntity npc, ServerPlayer player) {
+        List<Quest> quests = new ArrayList<>();
+
+        // Generiere dynamisch eine Quest wenn keine vorhanden
+        Quest randomQuest = generateRandomQuest(npc, player);
+        if (randomQuest != null) {
+            quests.add(randomQuest);
+        }
+
+        return quests;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // UTILITY
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Findet einen NPC anhand seiner UUID
+     */
+    @Nullable
+    private CustomNPCEntity findNPC(UUID npcUUID) {
+        for (var entity : level.getAllEntities()) {
+            if (entity instanceof CustomNPCEntity npc) {
+                if (npc.getNpcData().getNpcUUID().equals(npcUUID)) {
+                    return npc;
+                }
+            }
+        }
+        return null;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // INNER CLASS: QUEST TEMPLATE
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Quest-Vorlage für dynamische Quest-Generierung
+     */
+    public static class QuestTemplate {
+        private final String id;
+        private final QuestType type;
+        private final String title;
+        private final String description;
+        private final int difficulty;
+        private final int timeLimit;
+        private final Faction faction;
+        private final int minFactionRep;
+        private final boolean repeatable;
+        private final QuestReward baseReward;
+
+        private QuestTemplate(Builder builder) {
+            this.id = builder.id;
+            this.type = builder.type;
+            this.title = builder.title;
+            this.description = builder.description;
+            this.difficulty = builder.difficulty;
+            this.timeLimit = builder.timeLimit;
+            this.faction = builder.faction;
+            this.minFactionRep = builder.minFactionRep;
+            this.repeatable = builder.repeatable;
+            this.baseReward = builder.baseReward;
+        }
+
+        public static Builder builder(String id) {
+            return new Builder(id);
+        }
+
+        // Getters
+        public String getId() { return id; }
+        public QuestType getType() { return type; }
+        public String getTitle() { return title; }
+        public String getDescription() { return description; }
+        public int getDifficulty() { return difficulty; }
+        public int getTimeLimit() { return timeLimit; }
+        public Faction getFaction() { return faction; }
+        public int getMinFactionRep() { return minFactionRep; }
+        public boolean isRepeatable() { return repeatable; }
+        public QuestReward getBaseReward() { return baseReward; }
+
+        public static class Builder {
+            private final String id;
+            private QuestType type = QuestType.DELIVERY;
+            private String title = "Quest";
+            private String description = "";
+            private int difficulty = 1;
+            private int timeLimit = 0;
+            private Faction faction = null;
+            private int minFactionRep = 0;
+            private boolean repeatable = true;
+            private QuestReward baseReward = QuestReward.create();
+
+            public Builder(String id) {
+                this.id = id;
+            }
+
+            public Builder type(QuestType type) { this.type = type; return this; }
+            public Builder title(String title) { this.title = title; return this; }
+            public Builder description(String desc) { this.description = desc; return this; }
+            public Builder difficulty(int diff) { this.difficulty = diff; return this; }
+            public Builder timeLimit(int days) { this.timeLimit = days; return this; }
+            public Builder faction(Faction faction) { this.faction = faction; return this; }
+            public Builder minFactionRep(int rep) { this.minFactionRep = rep; return this; }
+            public Builder repeatable(boolean rep) { this.repeatable = rep; return this; }
+            public Builder baseReward(QuestReward reward) { this.baseReward = reward; return this; }
+
+            public QuestTemplate build() {
+                return new QuestTemplate(this);
+            }
+        }
+    }
+
+    @Override
+    public String toString() {
+        return String.format("QuestManager{templates=%d, players=%d}",
+            questTemplates.size(), playerProgress.size());
+    }
+}
