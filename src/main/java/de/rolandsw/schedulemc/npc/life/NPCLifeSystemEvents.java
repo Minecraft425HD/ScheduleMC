@@ -17,7 +17,7 @@ import net.minecraftforge.fml.common.Mod;
  * NPCLifeSystemEvents - Zentrale Event-Handler für das NPC Life System
  *
  * Behandelt:
- * - Level-Lifecycle (Load, Unload)
+ * - Level-Lifecycle (Load, Save, Unload)
  * - Server-Lifecycle
  * - Level-Tick für System-Updates
  * - Spieler-Tracking für Quest-Updates
@@ -30,30 +30,44 @@ public class NPCLifeSystemEvents {
     // ═══════════════════════════════════════════════════════════
 
     /**
-     * Level wird geladen
+     * Level wird geladen - Initialisiert das System und lädt gespeicherte Daten
      */
     @SubscribeEvent
     public static void onLevelLoad(LevelEvent.Load event) {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
 
-        // System initialisieren
+        // System initialisieren (erstellt alle Manager)
         NPCLifeSystemIntegration.get(level);
 
-        // TODO: Gespeicherte Daten laden
-        // Dies würde normalerweise aus World-Saved-Data geladen werden
+        // Gespeicherte Daten laden via WorldSavedData
+        // Dies lädt automatisch beim ersten Zugriff
+        NPCLifeSystemSavedData.get(level);
     }
 
     /**
-     * Level wird entladen
+     * Level wird gespeichert - Speichert alle NPC Life System Daten
+     */
+    @SubscribeEvent
+    public static void onLevelSave(LevelEvent.Save event) {
+        if (!(event.getLevel() instanceof ServerLevel level)) return;
+
+        // SavedData als dirty markieren, damit es gespeichert wird
+        NPCLifeSystemSavedData savedData = NPCLifeSystemSavedData.get(level);
+        savedData.markDirty();
+    }
+
+    /**
+     * Level wird entladen - Räumt auf und entfernt Manager
      */
     @SubscribeEvent
     public static void onLevelUnload(LevelEvent.Unload event) {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
 
-        // TODO: Daten speichern vor dem Entladen
-        // Dies würde normalerweise in World-Saved-Data gespeichert werden
+        // Daten speichern vor dem Entladen
+        NPCLifeSystemSavedData savedData = NPCLifeSystemSavedData.get(level);
+        savedData.forceSave();
 
-        // System entfernen
+        // System entfernen (räumt alle Manager auf)
         NPCLifeSystemIntegration.remove(level);
     }
 
@@ -62,13 +76,17 @@ public class NPCLifeSystemEvents {
     // ═══════════════════════════════════════════════════════════
 
     /**
-     * Server wird gestoppt
+     * Server wird gestoppt - Speichert und entfernt alle Systeme
      */
     @SubscribeEvent
     public static void onServerStopping(ServerStoppingEvent event) {
         // Alle Systeme für alle Levels speichern und entfernen
         for (ServerLevel level : event.getServer().getAllLevels()) {
-            // TODO: Daten speichern
+            // Daten speichern
+            NPCLifeSystemSavedData savedData = NPCLifeSystemSavedData.get(level);
+            savedData.forceSave();
+
+            // System entfernen
             NPCLifeSystemIntegration.remove(level);
         }
     }
@@ -76,6 +94,10 @@ public class NPCLifeSystemEvents {
     // ═══════════════════════════════════════════════════════════
     // TICK EVENTS
     // ═══════════════════════════════════════════════════════════
+
+    /** Zähler für periodisches Auto-Save */
+    private static int autoSaveCounter = 0;
+    private static final int AUTO_SAVE_INTERVAL = 6000; // Alle 5 Minuten
 
     /**
      * Level-Tick für System-Updates
@@ -87,6 +109,13 @@ public class NPCLifeSystemEvents {
 
         // Haupt-System ticken
         NPCLifeSystemIntegration.get(level).tick();
+
+        // Periodisches Auto-Save (alle 5 Minuten)
+        autoSaveCounter++;
+        if (autoSaveCounter >= AUTO_SAVE_INTERVAL) {
+            autoSaveCounter = 0;
+            NPCLifeSystemSavedData.get(level).markDirty();
+        }
     }
 
     /**
@@ -159,5 +188,12 @@ public class NPCLifeSystemEvents {
      */
     public static void setSystemActive(ServerLevel level, boolean active) {
         NPCLifeSystemIntegration.get(level).setEnabled(active);
+    }
+
+    /**
+     * Erzwingt sofortiges Speichern für ein Level
+     */
+    public static void forceSave(ServerLevel level) {
+        NPCLifeSystemSavedData.get(level).forceSave();
     }
 }

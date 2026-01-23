@@ -10,6 +10,11 @@ import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.npc.data.MerchantCategory;
 import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
+import de.rolandsw.schedulemc.npc.life.NPCLifeSystemIntegration;
+import de.rolandsw.schedulemc.npc.life.core.EmotionState;
+import de.rolandsw.schedulemc.npc.life.core.MemoryType;
+import de.rolandsw.schedulemc.npc.life.core.NPCLifeData;
+import de.rolandsw.schedulemc.npc.life.economy.TradeEventHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -69,6 +74,27 @@ public class PurchaseItemPacket {
      * Verarbeitet den Kauf
      */
     private void processPurchase(ServerPlayer player, CustomNPCEntity merchant, int itemIndex, int quantity) {
+        // ═══════════════════════════════════════════════════════════
+        // NPC LIFE SYSTEM INTEGRATION: Prüfe ob NPC handeln möchte
+        // ═══════════════════════════════════════════════════════════
+        if (!merchant.isWillingToTrade()) {
+            NPCLifeData lifeData = merchant.getLifeData();
+            if (lifeData != null) {
+                EmotionState emotion = lifeData.getEmotions().getCurrentEmotion();
+                if (emotion == EmotionState.FEARFUL) {
+                    player.sendSystemMessage(Component.translatable("message.npc.too_scared_to_trade")
+                        .withStyle(ChatFormatting.RED));
+                } else if (lifeData.getNeeds().getEnergy() < 10) {
+                    player.sendSystemMessage(Component.translatable("message.npc.too_tired_to_trade")
+                        .withStyle(ChatFormatting.YELLOW));
+                } else {
+                    player.sendSystemMessage(Component.translatable("message.npc.not_willing_to_trade")
+                        .withStyle(ChatFormatting.GRAY));
+                }
+            }
+            return;
+        }
+
         // WICHTIG: Für Tankstellen müssen wir die Bill-Items auch hier hinzufügen, damit die Indizes stimmen!
         List<NPCData.ShopEntry> shopItems = new ArrayList<>(merchant.getNpcData().getBuyShop().getEntries());
 
@@ -94,8 +120,14 @@ public class PurchaseItemPacket {
             return;
         }
 
+        // ═══════════════════════════════════════════════════════════
+        // NPC LIFE SYSTEM INTEGRATION: Dynamische Preisanpassung
+        // ═══════════════════════════════════════════════════════════
+        float priceModifier = merchant.getPersonalPriceModifier();
+
         // SICHERHEIT: Berechne mit long um Overflow zu erkennen
-        long totalPriceLong = (long) entry.getPrice() * safeQuantity;
+        long basePriceLong = (long) entry.getPrice() * safeQuantity;
+        long totalPriceLong = (long) (basePriceLong * priceModifier);
         if (totalPriceLong > Integer.MAX_VALUE) {
             player.sendSystemMessage(Component.translatable("message.shop.total_too_high"));
             return;
@@ -192,6 +224,42 @@ public class PurchaseItemPacket {
                 entry.getItem().getHoverName().getString(),
                 String.valueOf(totalPrice)
             ));
+
+            // ═══════════════════════════════════════════════════════════
+            // NPC LIFE SYSTEM INTEGRATION: Update Emotionen und Gedächtnis
+            // ═══════════════════════════════════════════════════════════
+            NPCLifeData lifeData = merchant.getLifeData();
+            if (lifeData != null) {
+                // NPC freut sich über den Verkauf (je größer der Betrag, desto mehr)
+                float happinessAmount = Math.min(30.0f, totalPrice / 100.0f);
+                lifeData.getEmotions().trigger(EmotionState.HAPPY, happinessAmount, 600);
+
+                // Speichere im Gedächtnis
+                lifeData.getMemory().addMemory(
+                    player.getUUID(),
+                    MemoryType.TRADED,
+                    String.format("Kaufte %dx %s für %d",
+                        quantity,
+                        entry.getItem().getHoverName().getString(),
+                        totalPrice),
+                    totalPrice > 500 ? 4 : 2 // Große Käufe sind wichtiger
+                );
+
+                // Bei großen Einkäufen: Spieler als "guter Kunde" merken
+                if (totalPrice > 1000) {
+                    lifeData.getMemory().addPlayerTag(player.getUUID(), "GutKunde");
+                }
+            }
+
+            // Trade Event für Economy-System melden
+            if (player.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+                TradeEventHelper.recordTrade(serverLevel, player.getUUID(),
+                    merchant.getNpcData().getNpcUUID(), totalPrice, true);
+
+                // Cross-System Koordination via Life System Integration
+                NPCLifeSystemIntegration integration = NPCLifeSystemIntegration.get(serverLevel);
+                integration.onTradeCompleted(player, merchant, totalPrice);
+            }
         } else {
             // Atomare Prüfung fehlgeschlagen - nicht genug Geld
             player.sendSystemMessage(Component.translatable("network.purchase.insufficient_funds",

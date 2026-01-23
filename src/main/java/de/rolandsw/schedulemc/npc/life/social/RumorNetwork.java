@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.npc.life.social;
 
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -188,6 +189,39 @@ public class RumorNetwork {
 
         // Leere Listen entfernen
         rumorsByPlayer.entrySet().removeIf(e -> e.getValue().isEmpty());
+    }
+
+    /**
+     * Periodisches Update
+     */
+    public void tick() {
+        // Täglich Gerüchte aufräumen
+        // (wird durch onDayChange behandelt)
+    }
+
+    /**
+     * Verbreitet ein Gerücht von einer Position aus zu nahegelegenen NPCs
+     */
+    public void spreadRumor(Rumor rumor, BlockPos sourcePos) {
+        // Korrigiere expirationDay wenn nötig (für Factory-erstellte Gerüchte)
+        if (rumor.needsExpirationCorrection()) {
+            rumor.correctExpiration(Math.max(0, lastKnownDay));
+        }
+        addRumor(rumor);
+        // Gerücht wird durch normale NPC-Interaktionen weiterverbreitet
+    }
+
+    /**
+     * Verbreitet ein Gerücht an alle NPCs (server-weit)
+     */
+    public void broadcastRumor(Rumor rumor) {
+        // Korrigiere expirationDay wenn nötig (für Factory-erstellte Gerüchte)
+        if (rumor.needsExpirationCorrection()) {
+            rumor.correctExpiration(Math.max(0, lastKnownDay));
+        }
+        addRumor(rumor);
+        // Wichtige Gerüchte (z.B. Welt-Events) werden sofort allen bekannt
+        rumor.setCredibility(100.0f);
     }
 
     /**

@@ -58,6 +58,77 @@ public class Rumor {
     }
 
     // ═══════════════════════════════════════════════════════════
+    // FACTORY METHODS
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Erstellt ein Gerücht über einen NPC
+     * Hinweis: expirationDay wird später vom RumorNetwork beim Hinzufügen korrigiert
+     */
+    public static Rumor createNPC(UUID npcUUID, String details, int importance, int durationDays) {
+        // Für NPC-bezogene Gerüchte verwenden wir HELPFUL als neutralen Typ
+        // createdDay wird temporär auf 0 gesetzt, der eigentliche Tag wird beim addRumor gesetzt
+        Rumor rumor = new Rumor(npcUUID, RumorType.HELPFUL, 0);
+        rumor.details = details;
+        // Speichere die Dauer temporär in expirationDay (wird bei addRumor korrigiert)
+        rumor.expirationDay = durationDays;
+        rumor.credibility = Math.min(100.0f, 50.0f + importance * 10);
+        return rumor;
+    }
+
+    /**
+     * Erstellt ein Gerücht über einen Spieler
+     * Hinweis: expirationDay wird später vom RumorNetwork beim Hinzufügen korrigiert
+     */
+    public static Rumor createPlayer(UUID playerUUID, String details, int importance, int durationDays) {
+        // Bestimme den Typ basierend auf den Details (neutral als Standard)
+        RumorType type = details.toLowerCase().contains("kriminal") || details.toLowerCase().contains("verbrechen")
+            ? RumorType.UNRELIABLE
+            : RumorType.HELPFUL;
+        Rumor rumor = new Rumor(playerUUID, type, 0);
+        rumor.details = details;
+        // Speichere die Dauer temporär in expirationDay (wird bei addRumor korrigiert)
+        rumor.expirationDay = durationDays;
+        rumor.credibility = Math.min(100.0f, 50.0f + importance * 10);
+        return rumor;
+    }
+
+    /**
+     * Erstellt ein Welt-Gerücht (ohne spezifisches Subjekt)
+     * Hinweis: expirationDay wird später vom RumorNetwork beim Hinzufügen korrigiert
+     */
+    public static Rumor createWorld(String details, int importance, int durationDays) {
+        // Für Welt-Events verwenden wir eine Null-UUID
+        Rumor rumor = new Rumor(new UUID(0, 0), RumorType.HELPFUL, 0);
+        rumor.details = details;
+        // Speichere die Dauer temporär in expirationDay (wird bei addRumor korrigiert)
+        rumor.expirationDay = durationDays;
+        rumor.credibility = Math.min(100.0f, 60.0f + importance * 8);
+        return rumor;
+    }
+
+    /**
+     * Gibt an, ob die expirationDay korrigiert werden muss
+     * (wenn createdDay == 0 und expirationDay klein ist, handelt es sich um eine Dauer)
+     */
+    public boolean needsExpirationCorrection() {
+        return createdDay == 0 && expirationDay < 365;
+    }
+
+    /**
+     * Korrigiert die expirationDay basierend auf dem aktuellen Tag
+     */
+    public void correctExpiration(long currentDay) {
+        if (needsExpirationCorrection()) {
+            // expirationDay enthält temporär die Dauer
+            int duration = (int) expirationDay;
+            // Jetzt korrigieren
+            // Wir können createdDay nicht ändern (final), also nur expirationDay anpassen
+            expirationDay = currentDay + duration;
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════
     // SPREAD MECHANICS
     // ═══════════════════════════════════════════════════════════
 

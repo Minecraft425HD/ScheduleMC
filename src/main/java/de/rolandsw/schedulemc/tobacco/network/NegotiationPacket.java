@@ -3,6 +3,8 @@ package de.rolandsw.schedulemc.tobacco.network;
 import de.rolandsw.schedulemc.economy.WalletManager;
 import de.rolandsw.schedulemc.economy.items.CashItem;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
+import de.rolandsw.schedulemc.npc.life.NPCLifeSystemIntegration;
+import de.rolandsw.schedulemc.npc.life.quest.QuestEventHandler;
 import de.rolandsw.schedulemc.production.core.DrugType;
 import de.rolandsw.schedulemc.production.items.PackagedDrugItem;
 import de.rolandsw.schedulemc.tobacco.TobaccoType;
@@ -13,6 +15,8 @@ import de.rolandsw.schedulemc.tobacco.business.NegotiationEngine;
 import de.rolandsw.schedulemc.util.PacketHandler;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.network.NetworkEvent;
@@ -173,6 +177,17 @@ public class NegotiationPacket {
                 // Setze Cooldown (aktueller Tag) - reuse variable from line 98
                 currentDay = player.level().getDayTime() / 24000;
                 npc.getNpcData().getCustomData().putLong("LastTobaccoSale_" + player.getStringUUID(), currentDay);
+
+                // Quest-System: Melde erfolgreiche Verhandlung
+                if (player instanceof ServerPlayer serverPlayer) {
+                    QuestEventHandler.reportSuccessfulNegotiation(serverPlayer, npc);
+                }
+
+                // Life-System: Koordiniere Manager-Updates
+                if (player.level() instanceof ServerLevel serverLevel && player instanceof ServerPlayer serverPlayer) {
+                    NPCLifeSystemIntegration integration = NPCLifeSystemIntegration.get(serverLevel);
+                    integration.onTradeCompleted(serverPlayer, npc, (int) price);
+                }
 
                 // Erfolgsmeldung mit aktuellem Wallet-Wert
                 if (walletItem.getItem() instanceof CashItem) {
