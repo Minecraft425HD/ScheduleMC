@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.npc.life.core;
 
+import de.rolandsw.schedulemc.npc.life.NPCLifeConstants;
 import net.minecraft.nbt.CompoundTag;
 
 /**
@@ -13,20 +14,15 @@ import net.minecraft.nbt.CompoundTag;
 public class NPCEmotions {
 
     // ═══════════════════════════════════════════════════════════
-    // CONSTANTS
+    // CONSTANTS (via NPCLifeConstants)
     // ═══════════════════════════════════════════════════════════
 
     public static final float MIN_INTENSITY = 0.0f;
     public static final float MAX_INTENSITY = 100.0f;
 
-    /** Decay-Rate pro Tick (Intensität sinkt über Zeit) */
-    private static final float DECAY_PER_TICK = 0.02f; // ~1 pro Sekunde
-
-    /** Schwelle ab der Emotion "stark" ist */
-    public static final float STRONG_EMOTION_THRESHOLD = 70.0f;
-
-    /** Schwelle ab der Emotion "aktiv" ist */
-    public static final float ACTIVE_EMOTION_THRESHOLD = 20.0f;
+    private static final float DECAY_PER_TICK = NPCLifeConstants.Emotions.DECAY_PER_TICK;
+    public static final float STRONG_EMOTION_THRESHOLD = NPCLifeConstants.Emotions.STRONG_THRESHOLD;
+    public static final float ACTIVE_EMOTION_THRESHOLD = NPCLifeConstants.Emotions.ACTIVE_THRESHOLD;
 
     // ═══════════════════════════════════════════════════════════
     // DATA
@@ -71,13 +67,13 @@ public class NPCEmotions {
      * Löst eine Emotion mit Standard-Dauer aus
      */
     public void trigger(EmotionState emotion, float intensity) {
-        // Standard-Dauer basierend auf Emotion
+        // Standard-Dauer basierend auf Emotion (via NPCLifeConstants)
         int duration = switch (emotion) {
-            case HAPPY -> 6000;      // 5 Minuten
-            case SAD -> 12000;       // 10 Minuten
-            case ANGRY -> 9000;      // 7.5 Minuten
-            case FEARFUL -> 4800;    // 4 Minuten
-            case SUSPICIOUS -> 12000; // 10 Minuten
+            case HAPPY -> NPCLifeConstants.Emotions.DURATION_HAPPY;
+            case SAD -> NPCLifeConstants.Emotions.DURATION_SAD;
+            case ANGRY -> NPCLifeConstants.Emotions.DURATION_ANGRY;
+            case FEARFUL -> NPCLifeConstants.Emotions.DURATION_FEARFUL;
+            case SUSPICIOUS -> NPCLifeConstants.Emotions.DURATION_SUSPICIOUS;
             case NEUTRAL -> 0;
         };
         trigger(emotion, intensity, duration);
@@ -108,7 +104,7 @@ public class NPCEmotions {
             remainingTicks--;
 
             // Intensität natürlich abbauen
-            if (remainingTicks < 1200) { // Letzte Minute: Intensität sinkt
+            if (remainingTicks < NPCLifeConstants.Emotions.FINAL_DECAY_START) {
                 intensity = Math.max(MIN_INTENSITY, intensity - DECAY_PER_TICK);
             }
 
@@ -238,21 +234,21 @@ public class NPCEmotions {
      * Prüft ob der NPC bei aktueller Emotion fliehen würde
      */
     public boolean wouldFlee() {
-        return currentEmotion.wouldFlee() && intensity >= 50.0f;
+        return currentEmotion.wouldFlee() && intensity >= NPCLifeConstants.Emotions.FLEE_INTENSITY_THRESHOLD;
     }
 
     /**
      * Prüft ob der NPC bei aktueller Emotion kämpfen würde
      */
     public boolean wouldFight() {
-        return currentEmotion.wouldFight() && intensity >= 70.0f;
+        return currentEmotion.wouldFight() && intensity >= NPCLifeConstants.Emotions.FIGHT_INTENSITY_THRESHOLD;
     }
 
     /**
      * Prüft ob der NPC bei aktueller Emotion handeln würde
      */
     public boolean wouldTrade() {
-        return currentEmotion.wouldTrade() || intensity < 50.0f;
+        return currentEmotion.wouldTrade() || intensity < NPCLifeConstants.Emotions.TRADE_BLOCK_THRESHOLD;
     }
 
     /**
@@ -260,7 +256,7 @@ public class NPCEmotions {
      */
     public boolean wouldCallPolice() {
         return (currentEmotion == EmotionState.FEARFUL || currentEmotion == EmotionState.ANGRY)
-               && intensity >= 60.0f;
+               && intensity >= NPCLifeConstants.Emotions.POLICE_CALL_THRESHOLD;
     }
 
     // ═══════════════════════════════════════════════════════════

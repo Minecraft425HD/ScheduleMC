@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.npc.life.core;
 
+import de.rolandsw.schedulemc.npc.life.NPCLifeConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -21,17 +22,12 @@ import java.util.stream.Collectors;
 public class NPCMemory {
 
     // ═══════════════════════════════════════════════════════════
-    // CONSTANTS
+    // CONSTANTS (via NPCLifeConstants)
     // ═══════════════════════════════════════════════════════════
 
-    /** Maximale Detail-Erinnerungen pro Spieler */
-    private static final int MAX_MEMORIES_PER_PLAYER = 10;
-
-    /** Maximale Tages-Zusammenfassungen */
-    private static final int MAX_DAILY_SUMMARIES = 30;
-
-    /** Maximale Spieler-Profile */
-    private static final int MAX_PLAYER_PROFILES = 50;
+    private static final int MAX_MEMORIES_PER_PLAYER = NPCLifeConstants.Memory.MAX_MEMORIES_PER_PLAYER;
+    private static final int MAX_DAILY_SUMMARIES = NPCLifeConstants.Memory.MAX_DAILY_SUMMARIES;
+    private static final int MAX_PLAYER_PROFILES = NPCLifeConstants.Memory.MAX_PLAYER_PROFILES;
 
     // ═══════════════════════════════════════════════════════════
     // DATA STRUCTURES
@@ -120,7 +116,7 @@ public class NPCMemory {
             }
 
             // Highlights für wichtige Erinnerungen
-            if (memory.importance() >= 7 && highlights.size() < 3) {
+            if (memory.importance() >= NPCLifeConstants.Memory.IMPORTANCE_HIGHLIGHT_THRESHOLD && highlights.size() < 3) {
                 highlights.add(memory.details());
             }
         }
@@ -130,9 +126,10 @@ public class NPCMemory {
         }
 
         public void calculateMood() {
-            if (positiveInteractions > negativeInteractions * 2) {
+            int ratio = NPCLifeConstants.Memory.POSITIVE_NEGATIVE_RATIO;
+            if (positiveInteractions > negativeInteractions * ratio) {
                 mood = "positiv";
-            } else if (negativeInteractions > positiveInteractions * 2) {
+            } else if (negativeInteractions > positiveInteractions * ratio) {
                 mood = "negativ";
             } else {
                 mood = "neutral";
@@ -213,25 +210,35 @@ public class NPCMemory {
             totalTradeVolume += value;
 
             // Tags basierend auf Verhalten
-            if (totalTradeVolume > 10000) {
-                reputationTags.add("Guter Kunde");
+            if (totalTradeVolume > NPCLifeConstants.Memory.TRADE_VOLUME_GOOD_CUSTOMER) {
+                reputationTags.add(NPCLifeConstants.PlayerTags.GOOD_CUSTOMER);
             }
-            if (totalTransactions > 50) {
-                reputationTags.add("Stammkunde");
+            if (totalTransactions > NPCLifeConstants.Memory.TRANSACTIONS_REGULAR_CUSTOMER) {
+                reputationTags.add(NPCLifeConstants.PlayerTags.REGULAR_CUSTOMER);
             }
         }
 
         public void recordCrime() {
             crimeCount++;
-            if (crimeCount >= 1) reputationTags.add("Verdächtig");
-            if (crimeCount >= 3) reputationTags.add("Kriminell");
-            if (crimeCount >= 5) reputationTags.add("Gefährlich");
+            if (crimeCount >= NPCLifeConstants.Memory.CRIMES_FOR_SUSPICIOUS) {
+                reputationTags.add(NPCLifeConstants.PlayerTags.SUSPICIOUS);
+            }
+            if (crimeCount >= NPCLifeConstants.Memory.CRIMES_FOR_CRIMINAL) {
+                reputationTags.add(NPCLifeConstants.PlayerTags.CRIMINAL);
+            }
+            if (crimeCount >= NPCLifeConstants.Memory.CRIMES_FOR_DANGEROUS) {
+                reputationTags.add(NPCLifeConstants.PlayerTags.DANGEROUS);
+            }
         }
 
         public void recordHelp() {
             helpCount++;
-            if (helpCount >= 3) reputationTags.add("Hilfsbereit");
-            if (helpCount >= 10) reputationTags.add("Wohltäter");
+            if (helpCount >= NPCLifeConstants.Memory.HELPS_FOR_HELPFUL) {
+                reputationTags.add(NPCLifeConstants.PlayerTags.HELPFUL);
+            }
+            if (helpCount >= NPCLifeConstants.Memory.HELPS_FOR_BENEFACTOR) {
+                reputationTags.add(NPCLifeConstants.PlayerTags.BENEFACTOR);
+            }
         }
 
         public void updateLastInteraction(long gameTime) {
