@@ -127,8 +127,8 @@ public class NPCLifeSystemIntegration {
         // Alle 20 Ticks (1 Sekunde)
         if (tickCounter % 20 == 0) {
             rumorNetwork.tick();
-            witnessManager.tick();
-            priceManager.tick();
+            witnessManager.tick(level);
+            priceManager.tick(level);
             companionManager.tick();
         }
 
@@ -493,6 +493,8 @@ public class NPCLifeSystemIntegration {
         tag.put("companionManager", companionManager.save());
         tag.put("worldEventManager", worldEventManager.save());
         tag.put("questManager", questManager.save());
+        tag.put("dialogueManager", dialogueManager.save());
+        tag.put("interactionManager", interactionManager.save());
 
         return tag;
     }
@@ -525,6 +527,12 @@ public class NPCLifeSystemIntegration {
         }
         if (tag.contains("questManager")) {
             questManager.load(tag.getCompound("questManager"));
+        }
+        if (tag.contains("dialogueManager")) {
+            dialogueManager.load(tag.getCompound("dialogueManager"));
+        }
+        if (tag.contains("interactionManager")) {
+            interactionManager.load(tag.getCompound("interactionManager"));
         }
     }
 

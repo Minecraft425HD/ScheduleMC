@@ -6,6 +6,10 @@ import de.rolandsw.schedulemc.npc.life.core.NPCLifeData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+
 import javax.annotation.Nullable;
 import java.util.*;
 
@@ -317,6 +321,53 @@ public class DialogueManager {
      */
     public boolean isInDialogue(ServerPlayer player) {
         return activeDialogues.containsKey(player.getUUID());
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // SERIALIZATION
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Speichert dynamische Dialogzuweisungen
+     * (Registrierte Bäume werden bei Setup neu erstellt)
+     */
+    public CompoundTag save() {
+        CompoundTag tag = new CompoundTag();
+
+        // NPC-Tree-Zuweisungen speichern
+        CompoundTag npcTreesTag = new CompoundTag();
+        for (Map.Entry<UUID, List<String>> entry : npcTrees.entrySet()) {
+            ListTag treeIdList = new ListTag();
+            for (String treeId : entry.getValue()) {
+                CompoundTag treeIdTag = new CompoundTag();
+                treeIdTag.putString("id", treeId);
+                treeIdList.add(treeIdTag);
+            }
+            npcTreesTag.put(entry.getKey().toString(), treeIdList);
+        }
+        tag.put("npcTrees", npcTreesTag);
+
+        return tag;
+    }
+
+    /**
+     * Lädt dynamische Dialogzuweisungen
+     */
+    public void load(CompoundTag tag) {
+        // NPC-Tree-Zuweisungen laden
+        npcTrees.clear();
+        if (tag.contains("npcTrees")) {
+            CompoundTag npcTreesTag = tag.getCompound("npcTrees");
+            for (String uuidStr : npcTreesTag.getAllKeys()) {
+                UUID npcUUID = UUID.fromString(uuidStr);
+                List<String> treeIds = new ArrayList<>();
+                ListTag treeIdList = npcTreesTag.getList(uuidStr, Tag.TAG_COMPOUND);
+                for (int i = 0; i < treeIdList.size(); i++) {
+                    treeIds.add(treeIdList.getCompound(i).getString("id"));
+                }
+                npcTrees.put(npcUUID, treeIds);
+            }
+        }
     }
 
     // ═══════════════════════════════════════════════════════════

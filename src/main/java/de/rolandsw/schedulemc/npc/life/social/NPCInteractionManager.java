@@ -4,6 +4,7 @@ import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.life.core.EmotionState;
 import de.rolandsw.schedulemc.npc.life.core.MemoryType;
 import de.rolandsw.schedulemc.npc.life.core.NPCLifeData;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 
 import java.util.*;
@@ -317,6 +318,30 @@ public class NPCInteractionManager {
             .filter(e -> e != npc)
             .map(e -> (CustomNPCEntity) e)
             .toList();
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // SERIALIZATION
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Speichert den Manager-Zustand
+     * (Aktive Interaktionen und Cooldowns sind transient und werden nicht persistiert)
+     */
+    public CompoundTag save() {
+        // Keine persistenten Daten - aktive Interaktionen und Cooldowns
+        // werden bei Level-Load automatisch zurückgesetzt
+        return new CompoundTag();
+    }
+
+    /**
+     * Lädt den Manager-Zustand
+     */
+    public void load(CompoundTag tag) {
+        // Keine persistenten Daten zu laden
+        // Clear transiente Daten für frischen Start
+        activeInteractions.clear();
+        interactionCooldowns.clear();
     }
 
     // ═══════════════════════════════════════════════════════════

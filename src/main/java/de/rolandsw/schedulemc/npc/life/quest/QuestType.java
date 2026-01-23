@@ -102,17 +102,17 @@ public enum QuestType {
     /**
      * Kann diese Quest von einem bestimmten NPC-Typ gegeben werden?
      */
-    public boolean canBeGivenBy(de.rolandsw.schedulemc.npc.NPCType npcType) {
+    public boolean canBeGivenBy(de.rolandsw.schedulemc.npc.data.NPCType npcType) {
         return switch (this) {
             case DELIVERY -> true; // Jeder kann Lieferquests geben
             case COLLECTION -> true;
-            case ESCORT -> npcType != de.rolandsw.schedulemc.npc.NPCType.POLICE;
-            case ELIMINATION -> npcType == de.rolandsw.schedulemc.npc.NPCType.POLICE ||
-                               npcType == de.rolandsw.schedulemc.npc.NPCType.CITIZEN;
-            case INVESTIGATION -> npcType == de.rolandsw.schedulemc.npc.NPCType.POLICE ||
-                                 npcType == de.rolandsw.schedulemc.npc.NPCType.MERCHANT;
-            case NEGOTIATION -> npcType == de.rolandsw.schedulemc.npc.NPCType.MERCHANT ||
-                               npcType == de.rolandsw.schedulemc.npc.NPCType.DRUG_DEALER;
+            case ESCORT -> npcType != de.rolandsw.schedulemc.npc.data.NPCType.POLICE;
+            case ELIMINATION -> npcType == de.rolandsw.schedulemc.npc.data.NPCType.POLICE ||
+                               npcType == de.rolandsw.schedulemc.npc.data.NPCType.CITIZEN;
+            case INVESTIGATION -> npcType == de.rolandsw.schedulemc.npc.data.NPCType.POLICE ||
+                                 npcType == de.rolandsw.schedulemc.npc.data.NPCType.MERCHANT;
+            case NEGOTIATION -> npcType == de.rolandsw.schedulemc.npc.data.NPCType.MERCHANT ||
+                               npcType == de.rolandsw.schedulemc.npc.data.NPCType.DRUG_DEALER;
         };
     }
 }
