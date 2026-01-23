@@ -1,6 +1,6 @@
 package de.rolandsw.schedulemc.npc.life.quest;
 
-import de.rolandsw.schedulemc.npc.NPCType;
+import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.life.core.EmotionState;
 import de.rolandsw.schedulemc.npc.life.core.MemoryType;
@@ -8,6 +8,9 @@ import de.rolandsw.schedulemc.npc.life.core.NPCLifeData;
 import de.rolandsw.schedulemc.npc.life.social.Faction;
 import de.rolandsw.schedulemc.npc.life.social.FactionManager;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Items;
@@ -538,6 +541,37 @@ public class QuestManager {
             public QuestTemplate build() {
                 return new QuestTemplate(this);
             }
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // SERIALIZATION
+    // ═══════════════════════════════════════════════════════════
+
+    public CompoundTag save() {
+        CompoundTag tag = new CompoundTag();
+
+        tag.putInt("questIdCounter", questIdCounter);
+
+        // Player Progress speichern
+        ListTag progressTag = new ListTag();
+        for (QuestProgress progress : playerProgress.values()) {
+            progressTag.add(progress.save());
+        }
+        tag.put("playerProgress", progressTag);
+
+        return tag;
+    }
+
+    public void load(CompoundTag tag) {
+        questIdCounter = tag.getInt("questIdCounter");
+
+        // Player Progress laden
+        playerProgress.clear();
+        ListTag progressTag = tag.getList("playerProgress", Tag.TAG_COMPOUND);
+        for (int i = 0; i < progressTag.size(); i++) {
+            QuestProgress progress = QuestProgress.load(progressTag.getCompound(i));
+            playerProgress.put(progress.getPlayerUUID(), progress);
         }
     }
 

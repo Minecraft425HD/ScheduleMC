@@ -1,6 +1,6 @@
 package de.rolandsw.schedulemc.npc.life;
 
-import de.rolandsw.schedulemc.npc.NPCType;
+import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.life.companion.CompanionData;
 import de.rolandsw.schedulemc.npc.life.companion.CompanionManager;
@@ -492,6 +492,7 @@ public class NPCLifeSystemIntegration {
         tag.put("priceManager", priceManager.save());
         tag.put("companionManager", companionManager.save());
         tag.put("worldEventManager", worldEventManager.save());
+        tag.put("questManager", questManager.save());
 
         return tag;
     }
@@ -521,6 +522,9 @@ public class NPCLifeSystemIntegration {
         }
         if (tag.contains("worldEventManager")) {
             worldEventManager.load(tag.getCompound("worldEventManager"));
+        }
+        if (tag.contains("questManager")) {
+            questManager.load(tag.getCompound("questManager"));
         }
     }
 

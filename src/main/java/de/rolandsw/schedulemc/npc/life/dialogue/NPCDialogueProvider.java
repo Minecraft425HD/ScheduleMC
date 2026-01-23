@@ -1,6 +1,6 @@
 package de.rolandsw.schedulemc.npc.life.dialogue;
 
-import de.rolandsw.schedulemc.npc.NPCType;
+import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.life.core.EmotionState;
 import de.rolandsw.schedulemc.npc.life.social.Faction;
