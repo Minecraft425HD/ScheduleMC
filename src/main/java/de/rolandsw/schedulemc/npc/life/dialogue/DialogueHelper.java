@@ -142,7 +142,7 @@ public class DialogueHelper {
         options.add(new DialogueOptionInfo("talk", "Reden", "Unterhalten Sie sich mit dem NPC"));
 
         // Händler-spezifisch
-        if (npc.getNpcType() == de.rolandsw.schedulemc.npc.NPCType.VERKAEUFER) {
+        if (npc.getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.VERKAEUFER) {
             if (npc.isWillingToTrade()) {
                 options.add(new DialogueOptionInfo("trade", "Handeln", "Kaufen oder verkaufen Sie Waren"));
             } else {
@@ -193,7 +193,7 @@ public class DialogueHelper {
      */
     private static boolean canBecomeCompanion(CustomNPCEntity npc, ServerPlayer player) {
         // NPCs vom Typ BEWOHNER können potentiell Begleiter werden
-        if (npc.getNpcType() != de.rolandsw.schedulemc.npc.NPCType.BEWOHNER) {
+        if (npc.getNpcType() != de.rolandsw.schedulemc.npc.data.NPCType.BEWOHNER) {
             return false;
         }
 
