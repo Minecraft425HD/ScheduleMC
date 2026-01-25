@@ -234,6 +234,23 @@ public class StealingAttemptPacket {
                             // Verbrechen wurde gesehen!
                             CrimeManager.addWantedLevel(player.getUUID(), 2, currentDay);
 
+                            // WitnessManager: Verbrechen registrieren
+                            if (player.level() instanceof ServerLevel serverLevel) {
+                                var witnessManager = de.rolandsw.schedulemc.npc.life.witness.WitnessManager.getManager(serverLevel);
+                                witnessManager.registerCrime(
+                                    player,
+                                    de.rolandsw.schedulemc.npc.life.witness.CrimeType.THEFT,
+                                    npc.blockPosition(),
+                                    serverLevel,
+                                    npc.getNpcData().getNpcUUID()
+                                );
+
+                                // NPCLifeSystemIntegration: onCrimeWitnessed aufrufen
+                                var integration = de.rolandsw.schedulemc.npc.life.NPCLifeSystemIntegration.get(serverLevel);
+                                integration.onCrimeWitnessed(player,
+                                    de.rolandsw.schedulemc.npc.life.witness.CrimeType.THEFT, npc);
+                            }
+
                             int currentWantedLevel = CrimeManager.getWantedLevel(player.getUUID());
                             String stars = "⭐".repeat(currentWantedLevel);
 

@@ -91,6 +91,12 @@ public class BriberySystem {
                 lifeData.getEmotions().trigger(EmotionState.HAPPY, 20.0f, 600);
             }
 
+            // NPCLifeSystemIntegration: onBribeOffered aufrufen
+            if (player.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+                var integration = de.rolandsw.schedulemc.npc.life.NPCLifeSystemIntegration.get(serverLevel);
+                integration.onBribeOffered(player, npc, true);
+            }
+
             return BriberyResult.ACCEPTED;
 
         } else {
@@ -115,6 +121,12 @@ public class BriberySystem {
                 );
                 lifeData.getMemory().addPlayerTag(player.getUUID(), "Korrupt");
                 lifeData.getEmotions().trigger(EmotionState.ANGRY, 50.0f);
+
+                // NPCLifeSystemIntegration: onBribeOffered aufrufen (abgelehnt)
+                if (player.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+                    var integration = de.rolandsw.schedulemc.npc.life.NPCLifeSystemIntegration.get(serverLevel);
+                    integration.onBribeOffered(player, npc, false);
+                }
 
                 // Bei Polizei: Zusätzliches Verbrechen
                 if (npc.getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.POLIZEI) {

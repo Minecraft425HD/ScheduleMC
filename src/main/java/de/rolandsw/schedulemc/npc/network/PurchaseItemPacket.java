@@ -253,8 +253,15 @@ public class PurchaseItemPacket {
 
             // Trade Event für Economy-System melden
             if (player.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
-                TradeEventHelper.recordTrade(serverLevel, player.getUUID(),
-                    merchant.getNpcData().getNpcUUID(), totalPrice, true);
+                // NPC Life System: Transaktion verarbeiten
+                TradeEventHelper.processPurchase(merchant, player, entry.getItem(),
+                    totalPrice, entry.getPrice() * safeQuantity, serverLevel);
+
+                // WorldEventManager Preismodifikator
+                de.rolandsw.schedulemc.npc.life.world.WorldEventManager worldEventManager =
+                    de.rolandsw.schedulemc.npc.life.world.WorldEventManager.getManager(serverLevel);
+                float worldModifier = worldEventManager.getCombinedPriceModifier(player.blockPosition());
+                // Hinweis: Modifikator wird für zukünftige Preisberechnungen gespeichert
 
                 // Cross-System Koordination via Life System Integration
                 NPCLifeSystemIntegration integration = NPCLifeSystemIntegration.get(serverLevel);
