@@ -4,7 +4,9 @@ import de.rolandsw.schedulemc.economy.WalletManager;
 import de.rolandsw.schedulemc.economy.items.CashItem;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.life.NPCLifeSystemIntegration;
+import de.rolandsw.schedulemc.npc.life.core.EmotionState;
 import de.rolandsw.schedulemc.npc.life.quest.QuestEventHandler;
+import de.rolandsw.schedulemc.npc.life.world.WorldEventManager;
 import de.rolandsw.schedulemc.production.core.DrugType;
 import de.rolandsw.schedulemc.production.items.PackagedDrugItem;
 import de.rolandsw.schedulemc.tobacco.TobaccoType;
@@ -60,6 +62,26 @@ public class NegotiationPacket {
             Entity entity = player.level().getEntity(npcEntityId);
             if (!(entity instanceof CustomNPCEntity npc)) return;
 
+            // ═══════════════════════════════════════════════════════════
+            // NPC LIFE SYSTEM INTEGRATION: Willingness Check
+            // ═══════════════════════════════════════════════════════════
+            if (!npc.isWillingToTrade()) {
+                // NPC möchte nicht handeln (Emotionen/Bedürfnisse)
+                if (npc.getLifeData() != null) {
+                    EmotionState emotion = npc.getLifeData().getEmotions().getCurrentEmotion();
+                    if (emotion == EmotionState.FEARFUL) {
+                        player.sendSystemMessage(Component.translatable("message.npc.too_scared_to_trade"));
+                    } else if (emotion == EmotionState.ANGRY) {
+                        player.sendSystemMessage(Component.translatable("message.npc.too_angry_to_trade"));
+                    } else {
+                        player.sendSystemMessage(Component.translatable("message.npc.not_willing_to_trade"));
+                    }
+                } else {
+                    player.sendSystemMessage(Component.translatable("message.npc.not_willing_to_trade"));
+                }
+                return;
+            }
+
             ItemStack playerItem = player.getInventory().getItem(playerSlot);
             if (!(playerItem.getItem() instanceof PackagedDrugItem) ||
                 PackagedDrugItem.getDrugType(playerItem) != DrugType.TOBACCO) return;
@@ -88,9 +110,28 @@ public class NegotiationPacket {
                 return;
             }
 
+            // ═══════════════════════════════════════════════════════════
+            // NPC LIFE SYSTEM INTEGRATION: Price Modifiers
+            // ═══════════════════════════════════════════════════════════
+            float npcPriceModifier = npc.getPersonalPriceModifier();
+
+            // WorldEventManager Preismodifikator
+            float worldEventModifier = 1.0f;
+            if (player.level() instanceof ServerLevel serverLevel) {
+                WorldEventManager worldEventManager = WorldEventManager.getManager(serverLevel);
+                worldEventModifier = worldEventManager.getCombinedPriceModifier();
+            }
+
+            // Kombinierter Modifikator: NPC-Emotionen + World Events
+            float combinedModifier = npcPriceModifier * worldEventModifier;
+
+            // Der NPC erwartet einen höheren Preis wenn der Modifikator > 1.0 ist
+            // Das bedeutet: offeredPrice muss angepasst werden für die Verhandlung
+            double adjustedOfferedPrice = offeredPrice / combinedModifier;
+
             NPCBusinessMetrics metrics = new NPCBusinessMetrics(npc);
             NPCResponse response = NegotiationEngine.handleNegotiation(
-                npc, player, playerItem, offeredPrice
+                npc, player, playerItem, adjustedOfferedPrice
             );
 
             if (response.isAccepted()) {
