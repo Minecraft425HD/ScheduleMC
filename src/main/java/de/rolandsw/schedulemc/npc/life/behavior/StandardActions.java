@@ -194,18 +194,38 @@ public class StandardActions {
         private void triggerPoliceAlert(CustomNPCEntity npc) {
             if (!(npc.level() instanceof ServerLevel serverLevel)) return;
 
-            // TODO: Integration mit Police-System
-            // Hier würde normalerweise ein Event ausgelöst werden
-            // das Polizei-NPCs in der Nähe benachrichtigt
+            // Police-System Integration:
+            // 1. Finde Polizei-NPCs in der Nähe (100 Block Radius)
+            var policeNPCs = serverLevel.getEntitiesOfClass(
+                CustomNPCEntity.class,
+                npc.getBoundingBox().inflate(100),
+                police -> police.getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.POLIZEI
+            );
 
-            // Für jetzt: Nachricht an nahe Spieler (Debug)
-            // serverLevel.players().stream()
-            //     .filter(p -> p.distanceToSqr(npc) < 400)
-            //     .forEach(p -> p.sendSystemMessage(Component.literal("NPC hat die Polizei gerufen!")));
+            // 2. Wenn Polizei in der Nähe und Ziel ist ein Spieler
+            if (targetEntity instanceof Player player) {
+                // Wanted-Level erhöhen
+                de.rolandsw.schedulemc.npc.crime.CrimeManager.addWantedLevel(
+                    player.getUUID(), 1, serverLevel.getDayTime() / 24000);
 
-            // Erinnerung speichern dass alarmiert wurde
-            if (npc.getLifeData() != null && targetEntity instanceof Player player) {
-                npc.getLifeData().getMemory().addPlayerTag(player.getUUID(), "PolizeiGerufen");
+                // Polizei-NPCs zum Spieler schicken
+                for (CustomNPCEntity police : policeNPCs) {
+                    // Setze Ziel auf den Spieler
+                    police.setTarget(player);
+                }
+
+                // WitnessManager: Registriere das Verbrechen
+                var witnessManager = de.rolandsw.schedulemc.npc.life.witness.WitnessManager.getManager(serverLevel);
+                witnessManager.registerCrime(
+                    player, npc,
+                    de.rolandsw.schedulemc.npc.life.witness.CrimeType.ASSAULT,
+                    "Polizei gerufen von NPC"
+                );
+
+                // Erinnerung speichern dass alarmiert wurde
+                if (npc.getLifeData() != null) {
+                    npc.getLifeData().getMemory().addPlayerTag(player.getUUID(), "PolizeiGerufen");
+                }
             }
         }
 

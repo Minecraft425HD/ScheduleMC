@@ -134,13 +134,33 @@ public class BountyData {
     }
 
     /**
-     * Gibt Auftraggeber-String zurück
+     * Gibt Auftraggeber-String zurück (ohne Spielername-Auflösung)
      */
     public String getPlacedByString() {
         if (placedBy == null) {
             return "§6Polizei (Automatisch)";
         }
-        return "§eSpieler"; // TODO: Player name lookup
+        return "§eSpieler (UUID: " + placedBy.toString().substring(0, 8) + "...)";
+    }
+
+    /**
+     * Gibt Auftraggeber-String zurück (mit Spielername-Auflösung)
+     */
+    public String getPlacedByString(@Nullable net.minecraft.server.MinecraftServer server) {
+        if (placedBy == null) {
+            return "§6Polizei (Automatisch)";
+        }
+        if (server != null) {
+            var gameProfile = server.getProfileCache().get(placedBy).orElse(null);
+            if (gameProfile != null) {
+                return "§e" + gameProfile.getName();
+            }
+            var onlinePlayer = server.getPlayerList().getPlayer(placedBy);
+            if (onlinePlayer != null) {
+                return "§e" + onlinePlayer.getName().getString();
+            }
+        }
+        return "§eSpieler (UUID: " + placedBy.toString().substring(0, 8) + "...)";
     }
 
     /**
