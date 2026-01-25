@@ -226,14 +226,12 @@ public class NegotiationPacket {
                 npc.getNpcData().getCustomData().putLong("LastTobaccoSale_" + player.getStringUUID(), currentDay);
 
                 // Quest-System: Melde erfolgreiche Verhandlung
-                if (player instanceof ServerPlayer serverPlayer) {
-                    QuestEventHandler.reportSuccessfulNegotiation(serverPlayer, npc);
-                }
+                QuestEventHandler.reportSuccessfulNegotiation(player, npc);
 
                 // Life-System: Koordiniere Manager-Updates
-                if (player.level() instanceof ServerLevel serverLevel && player instanceof ServerPlayer serverPlayer) {
+                if (player.level() instanceof ServerLevel serverLevel) {
                     NPCLifeSystemIntegration integration = NPCLifeSystemIntegration.get(serverLevel);
-                    integration.onTradeCompleted(serverPlayer, npc, (int) price);
+                    integration.onTradeCompleted(player, npc, (int) price);
                 }
 
                 // Erfolgsmeldung mit aktuellem Wallet-Wert

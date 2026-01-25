@@ -54,7 +54,17 @@ public enum MarketCondition {
     /**
      * Deflation - Allgemeiner Preisverfall
      */
-    DEFLATION("Deflation", 0.7f, "Geldwert steigt - Preise fallen");
+    DEFLATION("Deflation", 0.7f, "Geldwert steigt - Preise fallen"),
+
+    /**
+     * Sale - Sonderangebote aktiv
+     */
+    SALE("Sonderangebot", 0.75f, "Sonderangebote - Reduzierte Preise"),
+
+    /**
+     * High Demand - Hohe Nachfrage nach bestimmten Waren
+     */
+    HIGH_DEMAND("Hohe Nachfrage", 1.35f, "Hohe Nachfrage - Erhöhte Preise");
 
     private final String displayName;
     private final float priceMultiplier;

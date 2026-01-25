@@ -249,6 +249,33 @@ public class NPCMemory {
             return reputationTags.contains(tag);
         }
 
+        /**
+         * Berechnet das Beziehungslevel basierend auf Interaktionen
+         * @return Wert von -100 (Feind) bis +100 (Freund)
+         */
+        public int getRelationLevel() {
+            int level = 0;
+
+            // Positive Faktoren
+            level += Math.min(30, totalTransactions * 2);
+            level += Math.min(40, helpCount * 10);
+            level += (totalTradeVolume > 10000) ? 20 : (int)(totalTradeVolume / 500);
+
+            // Negative Faktoren
+            level -= crimeCount * 15;
+
+            // Tags berücksichtigen
+            if (hasTag(NPCLifeConstants.PlayerTags.GOOD_CUSTOMER)) level += 10;
+            if (hasTag(NPCLifeConstants.PlayerTags.REGULAR_CUSTOMER)) level += 15;
+            if (hasTag(NPCLifeConstants.PlayerTags.HELPFUL)) level += 20;
+            if (hasTag(NPCLifeConstants.PlayerTags.BENEFACTOR)) level += 25;
+            if (hasTag(NPCLifeConstants.PlayerTags.SUSPICIOUS)) level -= 15;
+            if (hasTag(NPCLifeConstants.PlayerTags.CRIMINAL)) level -= 30;
+            if (hasTag(NPCLifeConstants.PlayerTags.DANGEROUS)) level -= 50;
+
+            return Math.max(-100, Math.min(100, level));
+        }
+
         // Getters
         public UUID getPlayerId() { return playerId; }
         public int getTotalTransactions() { return totalTransactions; }
@@ -574,5 +601,49 @@ public class NPCMemory {
         int totalMemories = detailMemories.values().stream().mapToInt(List::size).sum();
         return String.format("NPCMemory{memories=%d, summaries=%d, profiles=%d}",
             totalMemories, dailySummaries.size(), playerProfiles.size());
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // CONVENIENCE METHODS (API Compatibility)
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Fügt eine Erinnerung hinzu (Alias für remember)
+     */
+    public void addMemory(UUID playerId, MemoryType type, String details, int importance) {
+        remember(type, playerId, details, importance);
+    }
+
+    /**
+     * Fügt einen Tag zum Spieler-Profil hinzu
+     */
+    public void addPlayerTag(UUID playerId, String tag) {
+        PlayerProfile profile = getOrCreateProfile(playerId);
+        profile.reputationTags.add(tag);
+    }
+
+    /**
+     * Entfernt einen Tag vom Spieler-Profil
+     */
+    public void removePlayerTag(UUID playerId, String tag) {
+        PlayerProfile profile = playerProfiles.get(playerId);
+        if (profile != null) {
+            profile.reputationTags.remove(tag);
+        }
+    }
+
+    /**
+     * Prüft ob der NPC Erinnerungen über einen Spieler hat
+     */
+    public boolean hasMemoryOf(UUID playerId) {
+        List<MemoryEntry> memories = detailMemories.get(playerId);
+        return memories != null && !memories.isEmpty();
+    }
+
+    /**
+     * Prüft ob ein Spieler einen bestimmten Tag hat (Alias für playerHasTag)
+     */
+    public boolean hasPlayerTag(UUID playerId, String tag) {
+        return playerHasTag(playerId, tag);
     }
 }

@@ -169,6 +169,13 @@ public class WitnessReport {
         return location;
     }
 
+    /**
+     * Alias für getLocation() - Gibt den Ort des Verbrechens zurück
+     */
+    public BlockPos getCrimeLocation() {
+        return location;
+    }
+
     public long getTimestamp() {
         return timestamp;
     }

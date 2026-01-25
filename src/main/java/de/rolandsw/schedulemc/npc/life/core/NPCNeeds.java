@@ -85,7 +85,7 @@ public class NPCNeeds {
      * Sollte periodisch aufgerufen werden (nicht jeden Tick)
      */
     public void calculateSafety(Level level, BlockPos npcPos, @Nullable BlockPos homePos,
-                                 List<Player> nearbyPlayers, boolean isNight,
+                                 List<? extends Player> nearbyPlayers, boolean isNight,
                                  boolean policeNearby, boolean friendNearby,
                                  boolean recentCrimeNearby, @Nullable Player knownCriminal) {
 
@@ -271,6 +271,21 @@ public class NPCNeeds {
 
     public void setSafety(float safety) {
         this.safety = Math.max(MIN_VALUE, Math.min(MAX_VALUE, safety));
+    }
+
+    /**
+     * Modifiziert den Sicherheitswert um einen Betrag
+     * @param amount Positiv = erhöhen, Negativ = reduzieren
+     */
+    public void modifySafety(float amount) {
+        this.safety = Math.max(MIN_VALUE, Math.min(MAX_VALUE, this.safety + amount));
+    }
+
+    /**
+     * Modifiziert den Sicherheitswert um einen Betrag (int overload)
+     */
+    public void modifySafety(int amount) {
+        modifySafety((float) amount);
     }
 
     // ═══════════════════════════════════════════════════════════

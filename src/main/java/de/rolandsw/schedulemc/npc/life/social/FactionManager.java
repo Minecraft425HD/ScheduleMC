@@ -73,6 +73,13 @@ public class FactionManager {
     // ═══════════════════════════════════════════════════════════
 
     /**
+     * Gibt die Reputation eines Spielers bei einer Fraktion zurück
+     */
+    public int getReputation(UUID playerUUID, Faction faction) {
+        return getRelation(playerUUID, faction).getReputation();
+    }
+
+    /**
      * Ändert die Reputation eines Spielers bei einer Fraktion
      */
     public void modifyReputation(UUID playerUUID, Faction faction, int amount) {

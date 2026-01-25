@@ -53,7 +53,27 @@ public enum MemoryType {
     /**
      * Quest-bezogen - Interaktion im Rahmen einer Quest
      */
-    QUEST_RELATED("Quest", 6, false);
+    QUEST_RELATED("Quest", 6, false),
+
+    /**
+     * Handel - Spieler hat mit NPC gehandelt (Alias für TRANSACTION)
+     */
+    TRADED("Handel", 3, false),
+
+    /**
+     * Quest abgeschlossen - Spieler hat eine Quest für NPC abgeschlossen
+     */
+    QUEST_COMPLETED("Quest abgeschlossen", 7, false),
+
+    /**
+     * Geholfen - Spieler hat NPC geholfen (Alias für HELP_RECEIVED)
+     */
+    HELPED("Geholfen", 7, false),
+
+    /**
+     * Bestechung angeboten - Spieler hat versucht den NPC zu bestechen
+     */
+    BRIBE_OFFERED("Bestechung", 6, true);
 
     private final String displayName;
     private final int defaultImportance;

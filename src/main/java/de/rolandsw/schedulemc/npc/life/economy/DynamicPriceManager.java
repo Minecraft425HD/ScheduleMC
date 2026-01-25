@@ -153,6 +153,13 @@ public class DynamicPriceManager {
     }
 
     /**
+     * Alias für setGlobalMarketCondition - setzt die Marktbedingung
+     */
+    public void setMarketCondition(MarketCondition condition) {
+        setGlobalMarketCondition(condition);
+    }
+
+    /**
      * Gibt die Marktbedingung für eine Kategorie zurück
      */
     public MarketCondition getCategoryCondition(String category) {
