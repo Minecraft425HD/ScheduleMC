@@ -91,7 +91,7 @@ public class OpenMerchantShopPacket {
                     float worldEventModifier = 1.0f;
                     if (player.level() instanceof ServerLevel serverLevel) {
                         WorldEventManager worldEventManager = WorldEventManager.getManager(serverLevel);
-                        worldEventModifier = worldEventManager.getCombinedPriceModifier();
+                        worldEventModifier = worldEventManager.getCombinedPriceModifier(player.blockPosition());
                     }
 
                     // Kombinierter Modifikator für Preise
