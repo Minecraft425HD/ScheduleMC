@@ -104,6 +104,22 @@ public class DialogueTree {
         return this;
     }
 
+    /**
+     * Alias für priority - Setzt die Priorität
+     */
+    public DialogueTree setPriority(int priority) {
+        this.priority = priority;
+        return this;
+    }
+
+    /**
+     * Fügt einen einzelnen Tag hinzu
+     */
+    public DialogueTree addTag(String tag) {
+        this.tags.add(tag);
+        return this;
+    }
+
     // ═══════════════════════════════════════════════════════════
     // NAVIGATION
     // ═══════════════════════════════════════════════════════════

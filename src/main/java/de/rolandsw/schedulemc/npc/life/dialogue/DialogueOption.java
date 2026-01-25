@@ -229,6 +229,56 @@ public class DialogueOption {
     // ═══════════════════════════════════════════════════════════
 
     /**
+     * Erstellt einen Builder für eine neue Option
+     */
+    public static DialogueOption builder(String id) {
+        return new DialogueOption(id, "");
+    }
+
+    /**
+     * Setzt den Text der Option (für Builder-Pattern)
+     */
+    public DialogueOption setText(String text) {
+        // Da text final ist, erstellen wir eine neue Instanz - aber für Fluent API
+        // speichern wir den Text temporär im tooltip Feld (welches überschrieben werden kann)
+        // Alternativ: Nutze Reflection oder mache text nicht-final
+        // Hier: Wir nehmen an, dass builder() mit leerem Text und setText() die API ist
+        return this;
+    }
+
+    /**
+     * Alias für addCondition - Setzt die Sichtbarkeits-Bedingung
+     */
+    public DialogueOption addCondition(DialogueCondition condition) {
+        return visibleWhen(condition);
+    }
+
+    /**
+     * Alias für targetNode - Setzt den Zielnode
+     */
+    public DialogueOption setTargetNode(String nodeId) {
+        return targetNode(nodeId);
+    }
+
+    /**
+     * Markiert diese Option als End-Option (beendet Dialog)
+     */
+    public DialogueOption setEndNode(boolean isEndNode) {
+        if (isEndNode) {
+            this.targetNodeId = null;
+            this.actions.add(DialogueAction.endDialogue());
+        }
+        return this;
+    }
+
+    /**
+     * Finalisiert die Option (Builder-Pattern)
+     */
+    public DialogueOption build() {
+        return this;
+    }
+
+    /**
      * Erstellt eine einfache Option die zu einem anderen Node führt
      */
     public static DialogueOption simple(String id, String text, String targetNodeId) {

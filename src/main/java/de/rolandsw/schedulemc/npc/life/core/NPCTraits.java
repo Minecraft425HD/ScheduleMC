@@ -113,6 +113,16 @@ public class NPCTraits {
         this.greed = clamp(greed);
     }
 
+    /**
+     * Berechnet eine Sozialitäts-Metrik basierend auf den Traits
+     * Ehrliche, nicht gierige und mutige NPCs sind geselliger
+     */
+    public int getSociability() {
+        // Kombination: Ehrlichkeit fördert, Gier senkt, Mut hat leichten Einfluss
+        int base = (honesty / 2) - (greed / 3) + (courage / 4);
+        return clamp(base);
+    }
+
     // ═══════════════════════════════════════════════════════════
     // CALCULATED VALUES
     // ═══════════════════════════════════════════════════════════

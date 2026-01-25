@@ -97,6 +97,81 @@ public class DialogueCondition {
             });
     }
 
+    /**
+     * Alias für playerHasTag - Prüft ob Spieler einen Tag hat
+     */
+    public static DialogueCondition hasPlayerTag(String tag) {
+        return playerHasTag(tag);
+    }
+
+    /**
+     * Prüft Fraktions-Reputation (einfache Version mit int)
+     */
+    public static DialogueCondition factionStanding(Faction faction, int minRep) {
+        return factionReputationAtLeast(faction, minRep);
+    }
+
+    /**
+     * Prüft ob NPC-Trait über einem Wert liegt
+     */
+    public static DialogueCondition npcTraitAbove(String trait, int minValue) {
+        return new DialogueCondition("npc_trait_" + trait + "_above_" + minValue,
+            "NPC " + trait + " >= " + minValue,
+            (ctx, npc) -> {
+                NPCLifeData life = npc.getLifeData();
+                if (life == null) return false;
+                return switch (trait.toLowerCase()) {
+                    case "greed" -> life.getTraits().getGreed() >= minValue;
+                    case "courage" -> life.getTraits().getCourage() >= minValue;
+                    case "honesty" -> life.getTraits().getHonesty() >= minValue;
+                    case "sociability" -> life.getTraits().getSociability() >= minValue;
+                    default -> false;
+                };
+            });
+    }
+
+    /**
+     * Prüft ob NPC-Trait unter einem Wert liegt
+     */
+    public static DialogueCondition npcTraitBelow(String trait, int maxValue) {
+        return new DialogueCondition("npc_trait_" + trait + "_below_" + maxValue,
+            "NPC " + trait + " < " + maxValue,
+            (ctx, npc) -> {
+                NPCLifeData life = npc.getLifeData();
+                if (life == null) return true;
+                return switch (trait.toLowerCase()) {
+                    case "greed" -> life.getTraits().getGreed() < maxValue;
+                    case "courage" -> life.getTraits().getCourage() < maxValue;
+                    case "honesty" -> life.getTraits().getHonesty() < maxValue;
+                    case "sociability" -> life.getTraits().getSociability() < maxValue;
+                    default -> true;
+                };
+            });
+    }
+
+    /**
+     * Prüft NPC-Emotion mit Intensität
+     */
+    public static DialogueCondition npcEmotion(EmotionState emotion, int minIntensity) {
+        return new DialogueCondition("npc_emotion_" + emotion.name() + "_" + minIntensity,
+            "NPC fühlt " + emotion.getDisplayName() + " >= " + minIntensity,
+            (ctx, npc) -> {
+                NPCLifeData life = npc.getLifeData();
+                if (life == null) return false;
+                return life.getEmotions().getCurrentEmotion() == emotion &&
+                       life.getEmotions().getCurrentIntensity() >= minIntensity;
+            });
+    }
+
+    /**
+     * Zufällige Bedingung mit Chance
+     */
+    public static DialogueCondition random(float chance) {
+        return new DialogueCondition("random_" + (int)(chance * 100),
+            "Zufällig " + (int)(chance * 100) + "%",
+            (ctx, npc) -> Math.random() < chance);
+    }
+
     public static DialogueCondition factionReputationAtLeast(Faction faction, int minRep) {
         return new DialogueCondition("faction_rep_" + faction.name() + "_" + minRep,
             "Mindestens " + minRep + " Reputation bei " + faction.getDisplayName(),

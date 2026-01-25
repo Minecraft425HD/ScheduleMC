@@ -10,7 +10,13 @@ public enum NPCType {
     VERKAEUFER,
     POLIZEI,
     BANK,
-    ABSCHLEPPER;
+    ABSCHLEPPER,
+    // Aliase für englische Namen (API Kompatibilität)
+    CITIZEN,
+    MERCHANT,
+    POLICE,
+    BANKER,
+    DRUG_DEALER;
 
     public Component getDisplayName() {
         return Component.translatable("enum.npc_type." + this.name().toLowerCase());

@@ -203,9 +203,10 @@ public enum Faction {
      */
     public static Faction forNPCType(de.rolandsw.schedulemc.npc.data.NPCType npcType) {
         return switch (npcType) {
-            case POLIZEI -> ORDNUNG;
-            case VERKAEUFER -> HAENDLER;
-            case BANKER -> HAENDLER;
+            case POLIZEI, POLICE -> ORDNUNG;
+            case VERKAEUFER, MERCHANT -> HAENDLER;
+            case BANKER, BANK -> HAENDLER;
+            case DRUG_DEALER -> UNTERGRUND;
             default -> BUERGER;
         };
     }

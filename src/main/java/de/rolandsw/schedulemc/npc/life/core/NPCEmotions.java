@@ -153,6 +153,13 @@ public class NPCEmotions {
     }
 
     /**
+     * Alias für getIntensity - Gibt die aktuelle Intensität zurück
+     */
+    public float getCurrentIntensity() {
+        return intensity;
+    }
+
+    /**
      * Gibt die verbleibende Zeit in Ticks zurück
      */
     public int getRemainingTicks() {

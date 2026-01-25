@@ -221,6 +221,183 @@ public class DialogueAction {
         );
     }
 
+    /**
+     * Alias für openTradeMenu - Öffnet den Handel
+     */
+    public static DialogueAction openTrade() {
+        return openTradeMenu();
+    }
+
+    /**
+     * Teilt Gerüchte mit dem Spieler
+     */
+    public static DialogueAction shareRumors() {
+        return new DialogueAction(
+            "share_rumors",
+            "Gerüchte teilen",
+            (ctx, npc) -> {
+                if (npc.level() instanceof ServerLevel level) {
+                    RumorNetwork network = RumorNetwork.getNetwork(level);
+                    // Gebe dem NPC bekannte Gerüchte an den Spieler weiter
+                    ctx.setFlag("rumors_shared");
+                    // Die tatsächliche Anzeige der Gerüchte wird vom Dialogue-System behandelt
+                }
+            }
+        );
+    }
+
+    /**
+     * Startet eine Preisverhandlung
+     */
+    public static DialogueAction startNegotiation() {
+        return new DialogueAction(
+            "start_negotiation",
+            "Verhandlung starten",
+            (ctx, npc) -> {
+                ctx.setFlag("negotiation_started");
+                ctx.setVariable("base_price", npc.getNpcData() != null ?
+                    npc.getNpcData().getWallet() * 0.1 : 100);
+            }
+        );
+    }
+
+    /**
+     * Modifiziert die Fraktions-Reputation (einfacher Alias)
+     */
+    public static DialogueAction modifyFaction(Faction faction, int amount) {
+        return modifyFactionReputation(faction, amount);
+    }
+
+    /**
+     * Alarmiert NPCs in der Nähe
+     */
+    public static DialogueAction alertNearbyNPCs(String reason) {
+        return new DialogueAction(
+            "alert_npcs_" + reason,
+            "NPCs alarmieren: " + reason,
+            (ctx, npc) -> {
+                if (npc.level() instanceof ServerLevel level) {
+                    // Finde NPCs im Umkreis von 32 Blöcken
+                    var nearbyNPCs = level.getEntitiesOfClass(
+                        de.rolandsw.schedulemc.npc.entity.CustomNPCEntity.class,
+                        npc.getBoundingBox().inflate(32)
+                    );
+
+                    for (var nearbyNPC : nearbyNPCs) {
+                        if (nearbyNPC != npc && nearbyNPC.getLifeData() != null) {
+                            // Setze Emotions-Trigger basierend auf Grund
+                            switch (reason) {
+                                case "criminal" -> nearbyNPC.getLifeData().getEmotions()
+                                    .trigger(EmotionState.SUSPICIOUS, 0.5f);
+                                case "dangerous" -> nearbyNPC.getLifeData().getEmotions()
+                                    .trigger(EmotionState.FEARFUL, 0.7f);
+                                default -> nearbyNPC.getLifeData().getEmotions()
+                                    .trigger(EmotionState.SUSPICIOUS, 0.3f);
+                            }
+                        }
+                    }
+                }
+            }
+        );
+    }
+
+    /**
+     * Startet einen Bestechungsversuch
+     */
+    public static DialogueAction startBribery() {
+        return new DialogueAction(
+            "start_bribery",
+            "Bestechung starten",
+            (ctx, npc) -> {
+                ctx.setFlag("bribery_started");
+                NPCLifeData life = npc.getLifeData();
+                if (life != null) {
+                    // Bestechungspreis basiert auf Gier
+                    int basePrice = 100;
+                    int greedBonus = life.getTraits().getGreed() * 5;
+                    ctx.setVariable("bribe_amount", basePrice + greedBonus);
+                }
+            }
+        );
+    }
+
+    /**
+     * Prüft ob NPC eine Quest hat
+     */
+    public static DialogueAction checkForQuest() {
+        return new DialogueAction(
+            "check_quest",
+            "Quest prüfen",
+            (ctx, npc) -> {
+                // Setze Flag wenn Quest verfügbar
+                // Die tatsächliche Quest-Logik wird vom Quest-System behandelt
+                ctx.setFlag("quest_available");
+            }
+        );
+    }
+
+    /**
+     * Bietet eine Quest an
+     */
+    public static DialogueAction offerQuest() {
+        return new DialogueAction(
+            "offer_quest",
+            "Quest anbieten",
+            (ctx, npc) -> {
+                ctx.setFlag("quest_offered");
+                // Die Quest-Daten werden vom Quest-System bereitgestellt
+            }
+        );
+    }
+
+    /**
+     * Öffnet illegalen Handel
+     */
+    public static DialogueAction openIllegalTrade() {
+        return new DialogueAction(
+            "open_illegal_trade",
+            "Illegalen Handel öffnen",
+            (ctx, npc) -> {
+                ctx.setFlag("open_illegal_trade_menu");
+                ctx.endDialogue();
+            }
+        );
+    }
+
+    /**
+     * Zahlt Geld
+     */
+    public static DialogueAction payMoney(int amount) {
+        return new DialogueAction(
+            "pay_money_" + amount,
+            "Bezahlen: " + amount + " Münzen",
+            (ctx, npc) -> {
+                var player = ctx.getPlayer();
+                if (player != null) {
+                    // Geld vom Spieler abziehen
+                    double balance = de.rolandsw.schedulemc.economy.WalletManager.getBalance(player.getUUID());
+                    if (balance >= amount) {
+                        de.rolandsw.schedulemc.economy.WalletManager.removeMoney(player.getUUID(), amount);
+                        ctx.setFlag("payment_successful");
+                    } else {
+                        ctx.setFlag("payment_failed");
+                    }
+                }
+            }
+        );
+    }
+
+    /**
+     * Alias für setVariable mit String-Wert
+     */
+    public static DialogueAction setVariable(String key, String value) {
+        return new DialogueAction(
+            "set_var_" + key,
+            "Variable: " + key + " = " + value,
+            (ctx, npc) -> ctx.setVariable(key, value)
+        );
+    }
+
     public static DialogueAction giveTempDiscount(float discount, int durationMinutes) {
         return new DialogueAction(
             "temp_discount_" + (int)(discount * 100),

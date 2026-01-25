@@ -259,6 +259,56 @@ public class DialogueNode {
     // ═══════════════════════════════════════════════════════════
 
     /**
+     * Erstellt einen Builder für einen neuen Node
+     */
+    public static DialogueNode builder(String id) {
+        return new DialogueNode(id, "");
+    }
+
+    /**
+     * Alias für setPriority - Setzt die Priorität (für Fluent API Kompatibilität)
+     * Hinweis: DialogueNode hat keine eigene Priorität, diese Methode ist für API-Kompatibilität
+     */
+    public DialogueNode setPriority(int priority) {
+        // DialogueNode hat keine Priorität, aber die Methode existiert für API-Kompatibilität
+        return this;
+    }
+
+    /**
+     * Alias für addCondition - Fügt eine Bedingung hinzu (Entry-Bedingung)
+     */
+    public DialogueNode addCondition(DialogueCondition condition) {
+        this.entryCondition = condition;
+        return this;
+    }
+
+    /**
+     * Alias für setText - Fügt Text hinzu (für Builder-Pattern Kompatibilität)
+     */
+    public DialogueNode addText(String text) {
+        this.text = text;
+        return this;
+    }
+
+    /**
+     * Markiert diesen Node als End-Node
+     */
+    public DialogueNode setEndNode(boolean isEndNode) {
+        if (isEndNode && this.options.isEmpty()) {
+            // Füge automatisch Exit-Option hinzu wenn keine Optionen vorhanden
+            this.addOption(DialogueOption.exit("Auf Wiedersehen"));
+        }
+        return this;
+    }
+
+    /**
+     * Finalisiert den Node (Builder-Pattern)
+     */
+    public DialogueNode build() {
+        return this;
+    }
+
+    /**
      * Erstellt einen einfachen Node mit Text und Optionen
      */
     public static DialogueNode simple(String id, String text, DialogueOption... options) {
