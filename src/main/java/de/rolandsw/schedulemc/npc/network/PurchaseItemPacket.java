@@ -95,6 +95,13 @@ public class PurchaseItemPacket {
             return;
         }
 
+        // Null-Safety: Prüfe ob NPC-Daten und Shop vorhanden sind
+        if (merchant.getNpcData() == null || merchant.getNpcData().getBuyShop() == null) {
+            player.sendSystemMessage(Component.translatable("message.npc.shop_unavailable")
+                .withStyle(ChatFormatting.RED));
+            return;
+        }
+
         // WICHTIG: Für Tankstellen müssen wir die Bill-Items auch hier hinzufügen, damit die Indizes stimmen!
         List<NPCData.ShopEntry> shopItems = new ArrayList<>(merchant.getNpcData().getBuyShop().getEntries());
 
