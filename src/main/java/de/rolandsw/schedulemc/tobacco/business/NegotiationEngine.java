@@ -120,17 +120,39 @@ public class NegotiationEngine {
      * Static Helper-Methode für einfache Verhandlung
      */
     public static NPCResponse handleNegotiation(CustomNPCEntity npc, ServerPlayer player,
-                                                ItemStack tobaccoItem, double offeredPrice) {
+                                                ItemStack drugItem, double offeredPrice) {
         NPCBusinessMetrics metrics = new NPCBusinessMetrics(npc);
 
-        // Parse from PackagedDrugItem
-        String variantStr = PackagedDrugItem.getVariant(tobaccoItem);
-        TobaccoType type = variantStr != null ? TobaccoType.valueOf(variantStr.split("\\.")[1]) : TobaccoType.VIRGINIA;
+        // Prüfe DrugType - nur für Tabak spezifische Typen parsen
+        de.rolandsw.schedulemc.production.core.DrugType drugType = PackagedDrugItem.getDrugType(drugItem);
 
-        String qualityStr = PackagedDrugItem.getQuality(tobaccoItem);
-        TobaccoQuality quality = qualityStr != null ? TobaccoQuality.valueOf(qualityStr.split("\\.")[1]) : TobaccoQuality.GUT;
+        TobaccoType type = TobaccoType.VIRGINIA;  // Default
+        TobaccoQuality quality = TobaccoQuality.GUT;  // Default
 
-        int weight = PackagedDrugItem.getWeight(tobaccoItem);
+        if (drugType == de.rolandsw.schedulemc.production.core.DrugType.TOBACCO) {
+            // Nur für Tabak: Parse spezifische Typen
+            String variantStr = PackagedDrugItem.getVariant(drugItem);
+            if (variantStr != null && variantStr.contains(".")) {
+                try {
+                    type = TobaccoType.valueOf(variantStr.split("\\.")[1]);
+                } catch (IllegalArgumentException e) {
+                    type = TobaccoType.VIRGINIA;
+                }
+            }
+
+            String qualityStr = PackagedDrugItem.getQuality(drugItem);
+            if (qualityStr != null && qualityStr.contains(".")) {
+                try {
+                    quality = TobaccoQuality.valueOf(qualityStr.split("\\.")[1]);
+                } catch (IllegalArgumentException e) {
+                    quality = TobaccoQuality.GUT;
+                }
+            }
+        }
+        // Für andere Drogenarten: Verwende Default-Werte (VIRGINIA/GUT)
+        // Dies ermöglicht generische Verhandlung mit demselben Engine
+
+        int weight = PackagedDrugItem.getWeight(drugItem);
 
         NegotiationEngine engine = new NegotiationEngine(type, quality, weight, metrics, player.getStringUUID());
         return engine.calculateResponse(offeredPrice, 1);
