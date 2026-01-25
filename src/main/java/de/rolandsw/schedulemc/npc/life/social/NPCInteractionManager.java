@@ -191,7 +191,7 @@ public class NPCInteractionManager {
         }
 
         // Wallet-Transfer
-        long buyerWallet = buyer.getNpcData().getWallet();
+        int buyerWallet = buyer.getNpcData().getWallet();
         if (buyerWallet < amount) {
             return false; // Nicht genug Geld
         }

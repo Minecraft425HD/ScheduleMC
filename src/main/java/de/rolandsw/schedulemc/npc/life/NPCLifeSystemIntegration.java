@@ -428,7 +428,7 @@ public class NPCLifeSystemIntegration {
         UUID npcUUID = npc.getNpcData().getNpcUUID();
 
         // Gerücht über den Tod verbreiten
-        String npcName = npc.getNpcData().getName();
+        String npcName = npc.getNpcData().getNpcName();
         Rumor rumor = Rumor.createNPC(
             npcUUID,
             npcName + " wurde getötet",

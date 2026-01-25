@@ -342,6 +342,8 @@ public class CocaPlantBlock extends Block {
         return switch (type) {
             case BOLIVIANISCH -> CocaBlocks.BOLIVIANISCH_PLANT.get();
             case KOLUMBIANISCH -> CocaBlocks.KOLUMBIANISCH_PLANT.get();
+            // PERUANISCH verwendet vorerst den bolivianischen Block
+            default -> CocaBlocks.BOLIVIANISCH_PLANT.get();
         };
     }
 }

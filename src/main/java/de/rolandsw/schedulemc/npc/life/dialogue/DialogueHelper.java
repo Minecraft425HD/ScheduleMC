@@ -226,7 +226,7 @@ public class DialogueHelper {
         if (tree == null) return null;
 
         // Dialog starten
-        return manager.startDialogue(player.getUUID(), npc.getNpcData().getNpcUUID(), tree.getId());
+        return manager.startDialogue(player, npc);
     }
 
     /**
@@ -236,7 +236,7 @@ public class DialogueHelper {
         if (!(player.level() instanceof ServerLevel level)) return;
 
         DialogueManager manager = DialogueManager.getManager(level);
-        manager.endDialogue(player.getUUID());
+        manager.endDialogue(player);
     }
 
     // ═══════════════════════════════════════════════════════════
