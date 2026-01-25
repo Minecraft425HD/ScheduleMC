@@ -224,6 +224,11 @@ public class StandardActions {
                     null  // kein explizites Opfer
                 );
 
+                // NPCLifeSystemIntegration: onCrimeWitnessed
+                var integration = de.rolandsw.schedulemc.npc.life.NPCLifeSystemIntegration.get(serverLevel);
+                integration.onCrimeWitnessed(serverPlayer,
+                    de.rolandsw.schedulemc.npc.life.witness.CrimeType.ASSAULT, npc);
+
                 // Erinnerung speichern dass alarmiert wurde
                 if (npc.getLifeData() != null) {
                     npc.getLifeData().getMemory().addPlayerTag(serverPlayer.getUUID(), "PolizeiGerufen");

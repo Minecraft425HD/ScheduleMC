@@ -120,23 +120,43 @@ public class NPCKnockoutHandler {
                     long currentDay = npc.level().getDayTime() / 24000;
                     int starsToAdd;
                     String crimeType;
+                    de.rolandsw.schedulemc.npc.life.witness.CrimeType lifeCrimeType;
 
                     if (isKnockout) {
                         // Knockout
                         if (npc.getNpcType() == NPCType.POLIZEI) {
                             starsToAdd = 4; // Polizist knockout
                             crimeType = "Polizist kampfunfähig geschlagen";
+                            lifeCrimeType = de.rolandsw.schedulemc.npc.life.witness.CrimeType.ARMED_VIOLENCE;
                         } else {
                             starsToAdd = 3; // NPC knockout
                             crimeType = "NPC kampfunfähig geschlagen";
+                            lifeCrimeType = de.rolandsw.schedulemc.npc.life.witness.CrimeType.ASSAULT;
                         }
                     } else {
                         // Nur Schaden
                         starsToAdd = 1;
                         crimeType = "Körperverletzung";
+                        lifeCrimeType = de.rolandsw.schedulemc.npc.life.witness.CrimeType.ASSAULT;
                     }
 
                     CrimeManager.addWantedLevel(player.getUUID(), starsToAdd, currentDay);
+
+                    // WitnessManager: Verbrechen registrieren
+                    if (player.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+                        var witnessManager = de.rolandsw.schedulemc.npc.life.witness.WitnessManager.getManager(serverLevel);
+                        witnessManager.registerCrime(
+                            player,
+                            lifeCrimeType,
+                            npc.blockPosition(),
+                            serverLevel,
+                            npc.getNpcData() != null ? npc.getNpcData().getNpcUUID() : null
+                        );
+
+                        // NPCLifeSystemIntegration: onCrimeWitnessed
+                        var integration = de.rolandsw.schedulemc.npc.life.NPCLifeSystemIntegration.get(serverLevel);
+                        integration.onCrimeWitnessed(player, lifeCrimeType, npc);
+                    }
 
                     int currentWantedLevel = CrimeManager.getWantedLevel(player.getUUID());
                     String stars = "⭐".repeat(currentWantedLevel);
