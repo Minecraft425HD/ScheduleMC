@@ -42,7 +42,7 @@ public class PoliceRaidPenalty {
                 var witnessManager = de.rolandsw.schedulemc.npc.life.witness.WitnessManager.getManager(serverLevel);
                 witnessManager.registerCrime(
                     player,
-                    de.rolandsw.schedulemc.npc.life.witness.CrimeType.DRUG_TRAFFICKING,
+                    de.rolandsw.schedulemc.npc.life.witness.CrimeType.DRUG_DEALING_LARGE,
                     player.blockPosition(),
                     serverLevel,
                     null  // kein spezifisches Opfer
@@ -58,7 +58,7 @@ public class PoliceRaidPenalty {
                 );
                 if (!policeNPCs.isEmpty()) {
                     integration.onCrimeWitnessed(player,
-                        de.rolandsw.schedulemc.npc.life.witness.CrimeType.DRUG_TRAFFICKING,
+                        de.rolandsw.schedulemc.npc.life.witness.CrimeType.DRUG_DEALING_LARGE,
                         policeNPCs.get(0));
                 }
             }

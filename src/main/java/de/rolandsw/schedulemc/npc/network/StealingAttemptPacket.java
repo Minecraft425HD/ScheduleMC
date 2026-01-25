@@ -240,7 +240,7 @@ public class StealingAttemptPacket {
                                 var witnessManager = de.rolandsw.schedulemc.npc.life.witness.WitnessManager.getManager(serverLevel);
                                 witnessManager.registerCrime(
                                     player,
-                                    de.rolandsw.schedulemc.npc.life.witness.CrimeType.THEFT,
+                                    de.rolandsw.schedulemc.npc.life.witness.CrimeType.PETTY_THEFT,
                                     npc.blockPosition(),
                                     serverLevel,
                                     npc.getNpcData().getNpcUUID()
@@ -249,7 +249,7 @@ public class StealingAttemptPacket {
                                 // NPCLifeSystemIntegration: onCrimeWitnessed aufrufen
                                 var integration = de.rolandsw.schedulemc.npc.life.NPCLifeSystemIntegration.get(serverLevel);
                                 integration.onCrimeWitnessed(player,
-                                    de.rolandsw.schedulemc.npc.life.witness.CrimeType.THEFT, npc);
+                                    de.rolandsw.schedulemc.npc.life.witness.CrimeType.PETTY_THEFT, npc);
                             }
 
                             int currentWantedLevel = CrimeManager.getWantedLevel(player.getUUID());
