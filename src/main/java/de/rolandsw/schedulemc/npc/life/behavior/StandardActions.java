@@ -203,28 +203,30 @@ public class StandardActions {
             );
 
             // 2. Wenn Polizei in der Nähe und Ziel ist ein Spieler
-            if (targetEntity instanceof Player player) {
+            if (targetEntity instanceof ServerPlayer serverPlayer) {
                 // Wanted-Level erhöhen
                 de.rolandsw.schedulemc.npc.crime.CrimeManager.addWantedLevel(
-                    player.getUUID(), 1, serverLevel.getDayTime() / 24000);
+                    serverPlayer.getUUID(), 1, serverLevel.getDayTime() / 24000);
 
                 // Polizei-NPCs zum Spieler schicken
                 for (CustomNPCEntity police : policeNPCs) {
                     // Setze Ziel auf den Spieler
-                    police.setTarget(player);
+                    police.setTarget(serverPlayer);
                 }
 
                 // WitnessManager: Registriere das Verbrechen
                 var witnessManager = de.rolandsw.schedulemc.npc.life.witness.WitnessManager.getManager(serverLevel);
                 witnessManager.registerCrime(
-                    player, npc,
+                    serverPlayer,
                     de.rolandsw.schedulemc.npc.life.witness.CrimeType.ASSAULT,
-                    "Polizei gerufen von NPC"
+                    npc.blockPosition(),
+                    serverLevel,
+                    null  // kein explizites Opfer
                 );
 
                 // Erinnerung speichern dass alarmiert wurde
                 if (npc.getLifeData() != null) {
-                    npc.getLifeData().getMemory().addPlayerTag(player.getUUID(), "PolizeiGerufen");
+                    npc.getLifeData().getMemory().addPlayerTag(serverPlayer.getUUID(), "PolizeiGerufen");
                 }
             }
         }

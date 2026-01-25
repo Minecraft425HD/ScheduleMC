@@ -154,13 +154,20 @@ public class NPCLifeData {
             boolean friendNearby = level.getEntitiesOfClass(
                     de.rolandsw.schedulemc.npc.entity.CustomNPCEntity.class,
                     npc.getBoundingBox().inflate(15),
-                    e -> e != npc && e.getLifeData() != null
+                    e -> e != npc && e.getLifeData() != null && e.getLifeData().getMemory() != null
                 ).stream()
                 .anyMatch(friend -> {
                     // Prüfe ob beide NPCs einen gemeinsamen Spieler kennen und mögen
                     for (var player : nearbyPlayers) {
                         var myProfile = memory.getPlayerProfile(player.getUUID());
-                        var friendProfile = friend.getLifeData().getMemory().getPlayerProfile(player.getUUID());
+                        var friendLifeData = friend.getLifeData();
+                        if (myProfile == null || friendLifeData == null || friendLifeData.getMemory() == null) {
+                            continue;
+                        }
+                        var friendProfile = friendLifeData.getMemory().getPlayerProfile(player.getUUID());
+                        if (friendProfile == null) {
+                            continue;
+                        }
                         if (myProfile.getRelationLevel() > 20 && friendProfile.getRelationLevel() > 20) {
                             return true;
                         }
