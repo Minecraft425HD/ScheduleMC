@@ -89,8 +89,16 @@ public class NegotiationPacket {
             }
 
             ItemStack playerItem = player.getInventory().getItem(playerSlot);
-            if (!(playerItem.getItem() instanceof PackagedDrugItem) ||
-                PackagedDrugItem.getDrugType(playerItem) != DrugType.TOBACCO) return;
+            if (!(playerItem.getItem() instanceof PackagedDrugItem)) {
+                player.sendSystemMessage(Component.translatable("message.negotiation.not_a_drug_item"));
+                return;
+            }
+
+            DrugType drugType = PackagedDrugItem.getDrugType(playerItem);
+            if (drugType == null) {
+                player.sendSystemMessage(Component.translatable("message.negotiation.invalid_drug_type"));
+                return;
+            }
 
             // Validierung der Gramm-Anzahl
             int availableGrams = PackagedDrugItem.getWeight(playerItem);
@@ -160,21 +168,31 @@ public class NegotiationPacket {
 
                 // Parse Type und Quality aus PackagedDrugItem
                 String variantStr = PackagedDrugItem.getVariant(playerItem);
-                TobaccoType type = variantStr != null ? TobaccoType.valueOf(variantStr.split("\\.")[1]) : TobaccoType.VIRGINIA;
-
                 String qualityStr = PackagedDrugItem.getQuality(playerItem);
-                TobaccoQuality quality = qualityStr != null ? TobaccoQuality.valueOf(qualityStr.split("\\.")[1]) : TobaccoQuality.GUT;
-
                 long packagedDate = PackagedDrugItem.getPackageDate(playerItem);
 
+                // Für Tabak: Spezifische Typen parsen
+                TobaccoType tobaccoType = null;
+                TobaccoQuality tobaccoQuality = null;
+                if (drugType == DrugType.TOBACCO) {
+                    tobaccoType = variantStr != null ? TobaccoType.valueOf(variantStr.split("\\.")[1]) : TobaccoType.VIRGINIA;
+                    tobaccoQuality = qualityStr != null ? TobaccoQuality.valueOf(qualityStr.split("\\.")[1]) : TobaccoQuality.GUT;
+                }
+
                 // Erstelle verkauftes Item (komplettes Päckchen, da offeredGrams == availableGrams)
-                ItemStack soldItem = PackagedDrugItem.create(
-                    DrugType.TOBACCO,
-                    offeredGrams,
-                    quality,
-                    type,
-                    packagedDate  // Behalte Original-Datum
-                );
+                ItemStack soldItem;
+                if (drugType == DrugType.TOBACCO && tobaccoQuality != null && tobaccoType != null) {
+                    soldItem = PackagedDrugItem.create(
+                        DrugType.TOBACCO,
+                        offeredGrams,
+                        tobaccoQuality,
+                        tobaccoType,
+                        packagedDate
+                    );
+                } else {
+                    // Für andere Drogenarten: Kopiere das Original-Item
+                    soldItem = playerItem.copy();
+                }
 
                 // Entferne das komplette Päckchen aus dem Inventar
                 playerItem.shrink(1);
@@ -206,14 +224,25 @@ public class NegotiationPacket {
                 }
 
                 // Metriken aktualisieren (mit den tatsächlich verkauften Gramm)
-                metrics.recordPurchase(
-                    player.getStringUUID(),
-                    type,
-                    quality,
-                    offeredGrams,  // Die tatsächlich verkauften Gramm
-                    price,
-                    player.level().getDayTime() / 24000
-                );
+                if (drugType == DrugType.TOBACCO && tobaccoType != null && tobaccoQuality != null) {
+                    metrics.recordPurchase(
+                        player.getStringUUID(),
+                        tobaccoType,
+                        tobaccoQuality,
+                        offeredGrams,
+                        price,
+                        player.level().getDayTime() / 24000
+                    );
+                } else {
+                    // Für andere Drogenarten: Einfache Aufzeichnung
+                    metrics.recordGenericPurchase(
+                        player.getStringUUID(),
+                        drugType,
+                        offeredGrams,
+                        price,
+                        player.level().getDayTime() / 24000
+                    );
+                }
 
                 // Reputation ändern
                 metrics.modifyReputation(player.getStringUUID(), response.getReputationChange());
@@ -237,7 +266,8 @@ public class NegotiationPacket {
                 // Erfolgsmeldung mit aktuellem Wallet-Wert
                 if (walletItem.getItem() instanceof CashItem) {
                     double walletValue = WalletManager.getBalance(player.getUUID());
-                    player.sendSystemMessage(Component.translatable("message.tobacco.sale_success", offeredGrams, String.format("%.2f", price)));
+                    String drugName = drugType.getDisplayName();
+                    player.sendSystemMessage(Component.translatable("message.negotiation.sale_success", offeredGrams, drugName, String.format("%.2f", price)));
                     player.sendSystemMessage(Component.translatable("message.tobacco.wallet_summary", String.format("%.2f", walletValue), npc.getNpcData().getWallet()));
                 }
             } else {

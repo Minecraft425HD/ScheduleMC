@@ -202,6 +202,36 @@ public class NPCBusinessMetrics {
     }
 
     /**
+     * Registriert einen generischen Kauf (für alle Drogenarten)
+     */
+    public void recordGenericPurchase(String playerUUID, de.rolandsw.schedulemc.production.core.DrugType drugType,
+                                      int weight, double price, long day) {
+        // Verwende Standard-Werte für Tabak-Felder
+        Purchase purchase = new Purchase(playerUUID, TobaccoType.VIRGINIA, TobaccoQuality.GUT, weight, price, day);
+        purchaseHistory.add(0, purchase);
+
+        // Nur letzte 10 behalten
+        if (purchaseHistory.size() > 10) {
+            purchaseHistory = purchaseHistory.subList(0, 10);
+        }
+
+        totalPurchases++;
+        lastPurchaseDay = day;
+
+        // Zufriedenheit steigt
+        modifySatisfaction(5);
+
+        // Nachfrage sinkt nach Kauf
+        if (demand == DemandLevel.HIGH) {
+            demand = DemandLevel.MEDIUM;
+        } else if (demand == DemandLevel.MEDIUM && totalPurchases % 3 == 0) {
+            demand = DemandLevel.LOW;
+        }
+
+        save();
+    }
+
+    /**
      * Nachfrage regenerieren (täglich aufgerufen)
      */
     public void regenerateDemand() {
