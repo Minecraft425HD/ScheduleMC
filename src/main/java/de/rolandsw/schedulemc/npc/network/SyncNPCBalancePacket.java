@@ -44,7 +44,7 @@ public class SyncNPCBalancePacket {
             Minecraft minecraft = Minecraft.getInstance();
             if (minecraft.level != null) {
                 Entity entity = minecraft.level.getEntity(entityId);
-                if (entity instanceof CustomNPCEntity npc) {
+                if (entity instanceof CustomNPCEntity npc && npc.getNpcData() != null) {
                     npc.getNpcData().setWallet(wallet);
                 }
             }

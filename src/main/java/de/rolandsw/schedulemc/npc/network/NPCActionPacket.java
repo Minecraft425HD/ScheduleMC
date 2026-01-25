@@ -39,7 +39,7 @@ public class NPCActionPacket {
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         PacketHandler.handleServerPacket(ctx, player -> {
             Entity entity = player.level().getEntity(entityId);
-            if (entity instanceof CustomNPCEntity npc) {
+            if (entity instanceof CustomNPCEntity npc && npc.getNpcData() != null) {
                 if (action == Action.NEXT_DIALOG) {
                     npc.getNpcData().nextDialog();
                 }

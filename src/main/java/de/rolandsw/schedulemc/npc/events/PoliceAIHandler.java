@@ -400,10 +400,15 @@ public class PoliceAIHandler {
             };
             witnessManager.registerCrime(
                 player,
-                police,
                 arrestCrimeType,
-                "Festnahme durch Polizei - Wanted Level " + wantedLevel
+                player.blockPosition(),
+                serverLevel,
+                null  // kein spezifisches Opfer bei Verhaftung
             );
+
+            // NPCLifeSystemIntegration: onCrimeWitnessed
+            var integration = de.rolandsw.schedulemc.npc.life.NPCLifeSystemIntegration.get(serverLevel);
+            integration.onCrimeWitnessed(player, arrestCrimeType, police);
         }
 
         // ═══════════════════════════════════════════════════════════
