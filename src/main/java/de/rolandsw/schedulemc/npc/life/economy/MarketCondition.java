@@ -158,6 +158,8 @@ public enum MarketCondition {
             case RECOVERY -> new MarketCondition[]{NORMAL, BOOM};
             case INFLATION -> new MarketCondition[]{NORMAL, CRISIS, BOOM};
             case DEFLATION -> new MarketCondition[]{NORMAL, RECESSION, RECOVERY};
+            case SALE -> new MarketCondition[]{NORMAL};  // Sonderangebot endet immer mit Normal
+            case HIGH_DEMAND -> new MarketCondition[]{NORMAL, SHORTAGE};  // Hohe Nachfrage kann zu Engpass führen
         };
     }
 
