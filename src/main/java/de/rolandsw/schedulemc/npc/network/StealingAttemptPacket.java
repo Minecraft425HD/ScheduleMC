@@ -49,6 +49,12 @@ public class StealingAttemptPacket {
         PacketHandler.handleServerPacket(ctx, player -> {
                 Entity entity = player.level().getEntity(npcEntityId);
                 if (entity instanceof CustomNPCEntity npc) {
+                    // Null-Safety: Prüfe ob NPC-Daten vorhanden sind
+                    if (npc.getNpcData() == null) {
+                        LOGGER.warn("[STEALING] NPC {} hat keine NPCData!", npc.getId());
+                        return;
+                    }
+
                     long currentDay = player.level().getDayTime() / 24000;
 
                     if (success) {
@@ -114,9 +120,16 @@ public class StealingAttemptPacket {
                         // ═══════════════════════════════════════════
                         List<Integer> availableSlots = new ArrayList<>();
 
+                        // Null-Safety: Prüfe ob Inventar vorhanden ist
+                        var npcInventory = npc.getNpcData().getInventory();
+                        if (npcInventory == null) {
+                            LOGGER.warn("[STEALING] NPC {} hat kein Inventar!", npc.getId());
+                            return;
+                        }
+
                         // Finde nicht-leere Slots
                         for (int i = 0; i < 9; i++) {
-                            ItemStack stack = npc.getNpcData().getInventory().get(i);
+                            ItemStack stack = npcInventory.get(i);
                             if (!stack.isEmpty()) {
                                 availableSlots.add(i);
                             }
@@ -127,13 +140,13 @@ public class StealingAttemptPacket {
                             int randomIndex = (int)(Math.random() * availableSlots.size());
                             int slot = availableSlots.get(randomIndex);
 
-                            ItemStack stack = npc.getNpcData().getInventory().get(slot);
+                            ItemStack stack = npcInventory.get(slot);
                             if (!stack.isEmpty()) {
                                 // Stehle das komplette Item
                                 stolenItem = stack.copy();
 
                                 // Entferne vom NPC
-                                npc.getNpcData().getInventory().set(slot, ItemStack.EMPTY);
+                                npcInventory.set(slot, ItemStack.EMPTY);
 
                                 // Gib dem Spieler
                                 if (!player.getInventory().add(stolenItem)) {

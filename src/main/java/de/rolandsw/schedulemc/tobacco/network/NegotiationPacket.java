@@ -62,12 +62,18 @@ public class NegotiationPacket {
             Entity entity = player.level().getEntity(npcEntityId);
             if (!(entity instanceof CustomNPCEntity npc)) return;
 
+            // Null-Safety: Prüfe ob NPC-Daten vorhanden sind
+            if (npc.getNpcData() == null) {
+                player.sendSystemMessage(Component.translatable("message.npc.data_unavailable"));
+                return;
+            }
+
             // ═══════════════════════════════════════════════════════════
             // NPC LIFE SYSTEM INTEGRATION: Willingness Check
             // ═══════════════════════════════════════════════════════════
             if (!npc.isWillingToTrade()) {
                 // NPC möchte nicht handeln (Emotionen/Bedürfnisse)
-                if (npc.getLifeData() != null) {
+                if (npc.getLifeData() != null && npc.getLifeData().getEmotions() != null) {
                     EmotionState emotion = npc.getLifeData().getEmotions().getCurrentEmotion();
                     if (emotion == EmotionState.FEARFUL) {
                         player.sendSystemMessage(Component.translatable("message.npc.too_scared_to_trade"));

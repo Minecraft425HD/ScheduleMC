@@ -143,14 +143,34 @@ public class NPCLifeData {
             // Ist es Nacht?
             boolean isNight = level.isNight();
 
-            // Polizei in der Nähe? (vereinfacht - später mit NPCEntityRegistry)
-            boolean policeNearby = false; // TODO: Implementieren
+            // Polizei in der Nähe? (NPCs vom Typ POLIZEI in 30 Block Radius)
+            boolean policeNearby = level.getEntitiesOfClass(
+                    de.rolandsw.schedulemc.npc.entity.CustomNPCEntity.class,
+                    npc.getBoundingBox().inflate(30),
+                    e -> e.getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.POLIZEI
+                ).size() > 0;
 
-            // Freund in der Nähe? (vereinfacht)
-            boolean friendNearby = false; // TODO: Mit NPC-Beziehungen
+            // Freund in der Nähe? (NPCs mit positiver Beziehung zum gleichen Spieler)
+            boolean friendNearby = level.getEntitiesOfClass(
+                    de.rolandsw.schedulemc.npc.entity.CustomNPCEntity.class,
+                    npc.getBoundingBox().inflate(15),
+                    e -> e != npc && e.getLifeData() != null
+                ).stream()
+                .anyMatch(friend -> {
+                    // Prüfe ob beide NPCs einen gemeinsamen Spieler kennen und mögen
+                    for (var player : nearbyPlayers) {
+                        var myProfile = memory.getPlayerProfile(player.getUUID());
+                        var friendProfile = friend.getLifeData().getMemory().getPlayerProfile(player.getUUID());
+                        if (myProfile.getRelationLevel() > 20 && friendProfile.getRelationLevel() > 20) {
+                            return true;
+                        }
+                    }
+                    return false;
+                });
 
-            // Kürzliches Verbrechen? (vereinfacht)
-            boolean recentCrime = false; // TODO: Mit CrimeManager
+            // Kürzliches Verbrechen? (CrimeManager prüfen)
+            boolean recentCrime = nearbyPlayers.stream()
+                .anyMatch(p -> de.rolandsw.schedulemc.npc.crime.CrimeManager.getWantedLevel(p.getUUID()) > 0);
 
             // Bekannter Verbrecher?
             var knownCriminal = nearbyPlayers.stream()

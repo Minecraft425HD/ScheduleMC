@@ -166,9 +166,20 @@ public class DialogueCondition {
     public static DialogueCondition playerHasMoney(int amount) {
         return new DialogueCondition("player_money_" + amount, "Spieler hat mindestens " + amount + " Geld",
             (ctx, npc) -> {
-                // Integration mit dem Economy-System des Mods
-                // Vereinfacht: Prüfe auf emeralds oder ähnliches
-                return true; // TODO: Echte Geldprüfung
+                // Echte Geldprüfung mit WalletManager und EconomyManager
+                var player = ctx.getPlayer();
+                if (player == null) return false;
+
+                // 1. Prüfe Wallet (Bargeld)
+                double walletBalance = de.rolandsw.schedulemc.economy.WalletManager.getBalance(player.getUUID());
+
+                // 2. Prüfe Bankkonto
+                double bankBalance = de.rolandsw.schedulemc.economy.EconomyManager.getBalance(player.getUUID());
+
+                // Gesamtvermögen (Bargeld + Bank)
+                double totalMoney = walletBalance + bankBalance;
+
+                return totalMoney >= amount;
             });
     }
 

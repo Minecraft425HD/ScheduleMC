@@ -358,11 +358,26 @@ public class WitnessManager {
         for (Map.Entry<UUID, List<WitnessReport>> entry : reportsByCriminal.entrySet()) {
             for (WitnessReport report : entry.getValue()) {
                 if (!report.isReported() && !report.isBribed()) {
-                    // Chance dass NPC meldet (basierend auf Trait)
-                    // TODO: Wenn Polizei-NPC in der Nähe ist
-                    if (Math.random() < 0.1) { // 10% Chance pro Check
+                    // Prüfe ob Polizei-NPC in der Nähe ist (50 Block Radius vom Zeugen)
+                    BlockPos witnessPos = report.getCrimeLocation();
+                    boolean policeNearby = level.getEntitiesOfClass(
+                        de.rolandsw.schedulemc.npc.entity.CustomNPCEntity.class,
+                        AABB.ofSize(witnessPos.getCenter(), 100, 50, 100),
+                        npc -> npc.getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.POLIZEI
+                    ).size() > 0;
+
+                    // Meldungs-Chance: 90% wenn Polizei in der Nähe, sonst 10%
+                    double reportChance = policeNearby ? 0.9 : 0.1;
+
+                    if (Math.random() < reportChance) {
                         report.markAsReported();
                         addToWantedList(report.getCriminalUUID(), report.getCrimeType());
+
+                        // Wenn Polizei in der Nähe, sofort Wanted-Level erhöhen
+                        if (policeNearby) {
+                            de.rolandsw.schedulemc.npc.crime.CrimeManager.addWantedLevel(
+                                report.getCriminalUUID(), 1, level.getDayTime() / 24000);
+                        }
                     }
                 }
             }

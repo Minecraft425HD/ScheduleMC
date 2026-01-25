@@ -30,20 +30,20 @@ public class NegotiationState {
     public static final int BASE_ROUNDS_FRIENDLY = 7;
     public static final int BASE_ROUNDS_GENEROUS = 8;
 
-    // Heat-Anstieg pro Zone
-    public static final float HEAT_RED_ZONE = 25.0f;    // Rote Zone: +25% Heat
-    public static final float HEAT_YELLOW_ZONE = 10.0f; // Gelbe Zone: +10% Heat
-    public static final float HEAT_GREEN_ZONE = -5.0f;  // Grüne Zone: -5% Heat (Cooling)
+    // Heat-Anstieg pro Zone (aus TobaccoBusinessConstants)
+    public static final float HEAT_RED_ZONE = TobaccoBusinessConstants.Heat.RED_ZONE_MULTIPLIER;
+    public static final float HEAT_YELLOW_ZONE = TobaccoBusinessConstants.Heat.YELLOW_ZONE_MULTIPLIER;
+    public static final float HEAT_GREEN_ZONE = TobaccoBusinessConstants.Heat.GREEN_ZONE_MULTIPLIER;
 
-    // Heat-Multiplikatoren pro Persönlichkeit
-    public static final float HEAT_MULT_SUSPICIOUS = 1.5f;
-    public static final float HEAT_MULT_GREEDY = 1.3f;
-    public static final float HEAT_MULT_NEUTRAL = 1.0f;
-    public static final float HEAT_MULT_FRIENDLY = 0.8f;
-    public static final float HEAT_MULT_GENEROUS = 0.6f;
+    // Heat-Multiplikatoren pro Persönlichkeit (aus TobaccoBusinessConstants)
+    public static final float HEAT_MULT_SUSPICIOUS = TobaccoBusinessConstants.Heat.TRAIT_MULTIPLIER_VERY_IMPATIENT;
+    public static final float HEAT_MULT_GREEDY = TobaccoBusinessConstants.Heat.TRAIT_MULTIPLIER_IMPATIENT;
+    public static final float HEAT_MULT_NEUTRAL = TobaccoBusinessConstants.Heat.TRAIT_MULTIPLIER_NEUTRAL;
+    public static final float HEAT_MULT_FRIENDLY = TobaccoBusinessConstants.Heat.TRAIT_MULTIPLIER_PATIENT;
+    public static final float HEAT_MULT_GENEROUS = TobaccoBusinessConstants.Heat.TRAIT_MULTIPLIER_VERY_PATIENT;
 
-    // Abbruch-Schwellenwert
-    public static final float HEAT_ABORT_THRESHOLD = 100.0f;
+    // Abbruch-Schwellenwert (aus TobaccoBusinessConstants)
+    public static final float HEAT_ABORT_THRESHOLD = TobaccoBusinessConstants.Heat.ABORT_THRESHOLD;
 
     // ═══════════════════════════════════════════════════════════
     // STATE DATA

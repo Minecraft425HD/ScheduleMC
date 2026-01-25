@@ -75,6 +75,13 @@ public class UpdateShopItemsPacket {
         PacketHandler.handleAdminPacket(ctx, 2, player -> {
             Entity entity = player.level().getEntity(merchantEntityId);
             if (entity instanceof CustomNPCEntity npc) {
+                // Null-Safety: Prüfe ob NPC-Daten und Shop vorhanden sind
+                if (npc.getNpcData() == null || npc.getNpcData().getBuyShop() == null) {
+                    player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+                        "§cFehler: NPC-Daten nicht verfügbar!"));
+                    return;
+                }
+
                 // Lösche alte Shop-Items
                 npc.getNpcData().getBuyShop().clear();
 

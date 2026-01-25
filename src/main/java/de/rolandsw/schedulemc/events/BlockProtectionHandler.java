@@ -104,6 +104,14 @@ public class BlockProtectionHandler {
                 return;
             }
 
+            // Null-Safety: Prüfe ob NPC-Daten vorhanden sind
+            if (npc.getNpcData() == null) {
+                player.sendSystemMessage(
+                    Component.literal("§cFehler: NPC-Daten nicht verfügbar!"));
+                event.setCanceled(true);
+                return;
+            }
+
             // Setze Arbeitsort nur für VERKAEUFER
             if (npc.getNpcData().getNpcType() == NPCType.VERKAEUFER) {
                 npc.getNpcData().setWorkLocation(clickedPos);
@@ -168,6 +176,14 @@ public class BlockProtectionHandler {
             }
 
             if (!player.level().isClientSide) {
+            // Null-Safety: Prüfe ob NPC-Daten vorhanden sind
+            if (npc.getNpcData() == null) {
+                player.sendSystemMessage(
+                    Component.literal("§cFehler: NPC-Daten nicht verfügbar!"));
+                event.setCanceled(true);
+                return;
+            }
+
             // Handle LocationTool
             if (holdsLocationTool) {
                 NPCLocationTool.setSelectedNPC(player.getUUID(), npc.getId());
