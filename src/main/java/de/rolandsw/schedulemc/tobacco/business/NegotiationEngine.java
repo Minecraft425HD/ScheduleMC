@@ -21,6 +21,8 @@ public class NegotiationEngine {
 
     private static final Random random = new Random();
     private static final String NEGOTIATION_STATE_KEY = "NegotiationState_";
+    private static final String NEGOTIATION_BLOCKED_KEY = "NegotiationBlocked_";
+    private static final long BLOCK_DURATION_MS = 10 * 60 * 1000; // 10 Minuten Sperre nach Abbruch
 
     private final TobaccoType type;
     private final TobaccoQuality quality;
@@ -68,27 +70,45 @@ public class NegotiationEngine {
         double basePercentage = 0.70 + (round - 1) * 0.08;
         basePercentage = Math.min(1.0, basePercentage); // Max 100%
 
-        // NPC's Startangebot für diese Runde
+        // NPC's Basis-Angebot für diese Runde (steigt automatisch jede Runde)
         double npcBaseOffer = fairPrice * basePercentage;
 
-        // Wenn der Spieler in vorherigen Runden angeboten hat, bewegt sich der NPC darauf zu
+        // WICHTIG: npcOffer muss IMMER mindestens so hoch sein wie in der letzten Runde!
+        // Und es muss sich dem Spieler-Angebot annähern
         double npcOffer;
-        if (lastNPCOffer > 0 && playerOffer > lastNPCOffer) {
-            // NPC erhöht sein Angebot um 30-50% der Differenz zum Spielerangebot
-            double diff = playerOffer - lastNPCOffer;
-            double increase = diff * (0.30 + random.nextDouble() * 0.20);
-            npcOffer = lastNPCOffer + increase;
 
-            // Aber nicht mehr als der faire Preis
-            npcOffer = Math.min(npcOffer, fairPrice);
+        if (lastNPCOffer > 0) {
+            // Es gab schon ein vorheriges Angebot
+            // NPC erhöht sein Angebot: Minimum ist das letzte Angebot + kleiner Bonus
+            double minOffer = lastNPCOffer + (fairPrice * 0.03); // Mindestens 3% mehr als vorher
+
+            // Wenn Spieler mehr bietet, bewegen wir uns stärker darauf zu
+            if (playerOffer > lastNPCOffer) {
+                double diff = playerOffer - lastNPCOffer;
+                double increase = diff * (0.30 + random.nextDouble() * 0.20); // 30-50% der Differenz
+                npcOffer = lastNPCOffer + increase;
+            } else {
+                // Spieler bietet weniger/gleich - NPC erhöht trotzdem etwas
+                npcOffer = minOffer;
+            }
+
+            // NPC-Angebot ist IMMER mindestens das Basis-Angebot dieser Runde
+            npcOffer = Math.max(npcOffer, npcBaseOffer);
+            // Und IMMER mindestens so viel wie letzte Runde + Bonus
+            npcOffer = Math.max(npcOffer, minOffer);
         } else {
+            // Erste Runde - nutze Basis-Angebot
             npcOffer = npcBaseOffer;
         }
+
+        // Nie mehr als der faire Preis
+        npcOffer = Math.min(npcOffer, fairPrice);
 
         // Reputation beeinflusst die Großzügigkeit
         int reputation = metrics.getReputation(playerUUID);
         if (reputation > 50) {
             npcOffer *= 1.0 + (reputation - 50) / 200.0; // Bis zu 25% mehr
+            npcOffer = Math.min(npcOffer, fairPrice * 1.1); // Max 110% fair price
         }
 
         // ═══════════════════════════════════════════════════════════
@@ -303,6 +323,51 @@ public class NegotiationEngine {
     }
 
     /**
+     * Blockiert den NPC für diesen Spieler (nach Stimmungs-Abbruch)
+     */
+    public static void blockNegotiation(CustomNPCEntity npc, String playerUUID) {
+        String key = NEGOTIATION_BLOCKED_KEY + playerUUID;
+        npc.getNpcData().getCustomData().putLong(key, System.currentTimeMillis());
+    }
+
+    /**
+     * Prüft ob der NPC für diesen Spieler blockiert ist
+     */
+    public static boolean isNegotiationBlocked(CustomNPCEntity npc, String playerUUID) {
+        String key = NEGOTIATION_BLOCKED_KEY + playerUUID;
+        CompoundTag customData = npc.getNpcData().getCustomData();
+
+        if (!customData.contains(key)) return false;
+
+        long blockedTime = customData.getLong(key);
+        long elapsed = System.currentTimeMillis() - blockedTime;
+
+        // Sperre ist abgelaufen?
+        if (elapsed >= BLOCK_DURATION_MS) {
+            customData.remove(key); // Aufräumen
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Gibt die verbleibende Sperrzeit in Minuten zurück
+     */
+    public static int getRemainingBlockMinutes(CustomNPCEntity npc, String playerUUID) {
+        String key = NEGOTIATION_BLOCKED_KEY + playerUUID;
+        CompoundTag customData = npc.getNpcData().getCustomData();
+
+        if (!customData.contains(key)) return 0;
+
+        long blockedTime = customData.getLong(key);
+        long elapsed = System.currentTimeMillis() - blockedTime;
+        long remaining = BLOCK_DURATION_MS - elapsed;
+
+        return (int) Math.max(0, remaining / 60000);
+    }
+
+    /**
      * Prüft ob die Verhandlung noch aktiv ist (nicht älter als 5 Minuten)
      */
     public static boolean isNegotiationActive(CompoundTag state) {
@@ -319,6 +384,20 @@ public class NegotiationEngine {
                                                 ItemStack drugItem, double offeredPrice) {
         NPCBusinessMetrics metrics = new NPCBusinessMetrics(npc);
         String playerUUID = player.getStringUUID();
+
+        // ═══════════════════════════════════════════════════════════
+        // BLOCKIERUNGS-CHECK - NPC will nicht mehr handeln
+        // ═══════════════════════════════════════════════════════════
+
+        if (isNegotiationBlocked(npc, playerUUID)) {
+            int remainingMinutes = getRemainingBlockMinutes(npc, playerUUID);
+            return new NPCResponse(
+                false,
+                0.0,
+                String.format("Ich will nicht mehr mit dir handeln! Komm in %d Minuten wieder.", remainingMinutes),
+                0
+            );
+        }
 
         // Prüfe DrugType - nur für Tabak spezifische Typen parsen
         DrugType drugType = PackagedDrugItem.getDrugType(drugItem);
@@ -370,8 +449,9 @@ public class NegotiationEngine {
         // ═══════════════════════════════════════════════════════════
 
         if (currentMood <= 0) {
-            // NPC ist zu sauer, bricht Verhandlung ab
+            // NPC ist zu sauer, bricht Verhandlung ab und blockiert Spieler
             clearNegotiationState(npc, playerUUID);
+            blockNegotiation(npc, playerUUID);  // Spieler wird gesperrt!
             return new NPCResponse(
                 false,
                 0.0,
@@ -389,67 +469,82 @@ public class NegotiationEngine {
         // ═══════════════════════════════════════════════════════════
 
         float newMood = currentMood;
+
         if (response.isAccepted()) {
             // Deal abgeschlossen - State löschen
             clearNegotiationState(npc, playerUUID);
-        } else {
-            // Berechne Stimmungsverlust basierend auf wie schlecht das Angebot war
-            double fairPrice = engine.getFairPrice();
-            double difference = (offeredPrice - fairPrice) / fairPrice;
 
-            float moodLoss;
-            if (difference > 0.5) {
-                // Absurd hohes Angebot (>150% fair price) - NPC wird sauer
-                moodLoss = 25.0f;
-            } else if (difference > 0.2) {
-                // Zu hohes Angebot (>120% fair price)
-                moodLoss = 15.0f;
-            } else if (difference > 0) {
-                // Leicht über fair price
-                moodLoss = 8.0f;
-            } else {
-                // Unter oder am fair price - minimaler Verlust
-                moodLoss = 5.0f;
-            }
-
-            // Runden-Faktor: Spätere Runden sind frustrierender
-            moodLoss += round * 2.0f;
-
-            newMood = Math.max(0, currentMood - moodLoss);
-
-            // Prüfe ob NPC jetzt abbricht
-            if (newMood <= 0) {
-                clearNegotiationState(npc, playerUUID);
-                return new NPCResponse(
-                    false,
-                    0.0,
-                    getMoodAbortMessage(),
-                    -10
-                );
-            }
-
-            // State für nächste Runde speichern (mit neuer Stimmung)
-            updateNegotiationState(npc, playerUUID, round, response.getCounterOffer(), offeredPrice, newMood);
-
-            // Füge Stimmungshinweis zur Antwort hinzu, wenn Laune niedrig ist
-            if (newMood < 30) {
-                response = new NPCResponse(
-                    response.isAccepted(),
-                    response.getCounterOffer(),
-                    response.getMessage() + " [NPC wird ungeduldig!]",
-                    response.getReputationChange()
-                );
-            } else if (newMood < 50) {
-                response = new NPCResponse(
-                    response.isAccepted(),
-                    response.getCounterOffer(),
-                    response.getMessage() + " [NPC wirkt genervt]",
-                    response.getReputationChange()
-                );
-            }
+            // Deal akzeptiert - gib trotzdem mood/round zurück
+            return new NPCResponse(
+                response.isAccepted(),
+                response.getCounterOffer(),
+                response.getMessage(),
+                response.getReputationChange(),
+                100.0f,  // Reset mood nach Deal
+                round
+            );
         }
 
-        return response;
+        // ═══════════════════════════════════════════════════════════
+        // Deal NICHT akzeptiert - Stimmung anpassen
+        // ═══════════════════════════════════════════════════════════
+
+        double fairPrice = engine.getFairPrice();
+        double difference = (offeredPrice - fairPrice) / fairPrice;
+
+        float moodLoss;
+        if (difference > 0.5) {
+            // Absurd hohes Angebot (>150% fair price) - NPC wird sauer
+            moodLoss = 25.0f;
+        } else if (difference > 0.2) {
+            // Zu hohes Angebot (>120% fair price)
+            moodLoss = 15.0f;
+        } else if (difference > 0) {
+            // Leicht über fair price
+            moodLoss = 8.0f;
+        } else {
+            // Unter oder am fair price - minimaler Verlust
+            moodLoss = 5.0f;
+        }
+
+        // Runden-Faktor: Spätere Runden sind frustrierender
+        moodLoss += round * 2.0f;
+
+        newMood = Math.max(0, currentMood - moodLoss);
+
+        // Prüfe ob NPC jetzt abbricht
+        if (newMood <= 0) {
+            clearNegotiationState(npc, playerUUID);
+            blockNegotiation(npc, playerUUID);  // Spieler wird gesperrt!
+            return new NPCResponse(
+                false,
+                0.0,
+                getMoodAbortMessage(),
+                -10,
+                0.0f,
+                round
+            );
+        }
+
+        // State für nächste Runde speichern (mit neuer Stimmung)
+        updateNegotiationState(npc, playerUUID, round, response.getCounterOffer(), offeredPrice, newMood);
+
+        // Erstelle neue Response mit Mood und Round
+        String moodHint = "";
+        if (newMood < 30) {
+            moodHint = " [NPC wird ungeduldig!]";
+        } else if (newMood < 50) {
+            moodHint = " [NPC wirkt genervt]";
+        }
+
+        return new NPCResponse(
+            response.isAccepted(),
+            response.getCounterOffer(),
+            response.getMessage() + moodHint,
+            response.getReputationChange(),
+            newMood,
+            round
+        );
     }
 
     /**

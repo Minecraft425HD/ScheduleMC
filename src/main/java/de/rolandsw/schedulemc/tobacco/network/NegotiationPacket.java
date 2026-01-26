@@ -270,12 +270,27 @@ public class NegotiationPacket {
                     player.sendSystemMessage(Component.translatable("message.negotiation.sale_success", offeredGrams, drugName, String.format("%.2f", price)));
                     player.sendSystemMessage(Component.translatable("message.tobacco.wallet_summary", String.format("%.2f", walletValue), npc.getNpcData().getWallet()));
                 }
-            } else {
-                player.sendSystemMessage(Component.translatable("message.negotiation.response_prefix", response.getMessage()));
-                if (response.getCounterOffer() > 0) {
-                    player.sendSystemMessage(Component.translatable("message.tobacco.counteroffer", String.format("%.2f", response.getCounterOffer())));
-                }
             }
+
+            // Sende Response-Packet zum Client für GUI-Update
+            // Max Runden basierend auf NPC-Trait (default 6)
+            int maxRounds = 6;
+            if (npc.getNpcData().getCustomData().contains("personalityTrait")) {
+                String traitStr = npc.getNpcData().getCustomData().getString("personalityTrait");
+                maxRounds = switch (traitStr) {
+                    case "SUSPICIOUS" -> 4;
+                    case "GREEDY" -> 5;
+                    case "NEUTRAL" -> 6;
+                    case "FRIENDLY" -> 7;
+                    case "GENEROUS" -> 8;
+                    default -> 6;
+                };
+            }
+
+            ModNetworking.sendToClient(
+                new NegotiationResponsePacket(response, maxRounds),
+                player
+            );
         });
     }
 }

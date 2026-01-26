@@ -62,6 +62,13 @@ public class ModNetworking {
             .encoder(PurchaseDecisionSyncPacket::encode)
             .consumerMainThread(PurchaseDecisionSyncPacket::handle)
             .add();
+
+        // Server -> Client: Verhandlungs-Antwort mit Stimmung und Runde
+        INSTANCE.messageBuilder(NegotiationResponsePacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+            .decoder(NegotiationResponsePacket::decode)
+            .encoder(NegotiationResponsePacket::encode)
+            .consumerMainThread(NegotiationResponsePacket::handle)
+            .add();
     }
 
     public static <MSG> void sendToServer(MSG message) {

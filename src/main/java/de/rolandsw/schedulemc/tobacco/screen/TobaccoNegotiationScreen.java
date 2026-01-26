@@ -126,6 +126,11 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
     private String npcResponse = "";
     private boolean hasCooldown = false;
 
+    // Server-synchronisierte Werte für Stimmung und Runde
+    private float serverMood = 100.0f;
+    private int serverRound = 0;
+    private int serverMaxRounds = 6;
+
     // ═══════════════════════════════════════════════════════════
     // CONSTRUCTOR
     // ═══════════════════════════════════════════════════════════
@@ -352,8 +357,31 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
             weight
         ));
 
-        // GUI schließen
-        this.onClose();
+        // GUI bleibt offen - wird vom Server-Response geschlossen wenn Deal akzeptiert
+        // Zeige "Warte auf Antwort..." Status
+        npcResponse = "Warte auf Antwort...";
+        offerButton.active = false;  // Verhindere mehrfaches Klicken
+    }
+
+    /**
+     * Wird vom Server aufgerufen (via NegotiationResponsePacket) um die GUI zu aktualisieren
+     */
+    public void updateNegotiationResponse(String message, double counterOffer, float mood, int round, int maxRounds) {
+        this.npcResponse = message;
+        this.npcTargetPrice = counterOffer;  // NPC's Gegenangebot als neuer Zielpreis
+
+        // Aktualisiere lokalen NegotiationState mit den Server-Daten
+        if (this.negotiationState != null) {
+            // Wir müssen die Stimmung und Runde irgendwie speichern
+            // Da wir keinen direkten Zugriff auf die internen Felder haben,
+            // speichern wir sie lokal
+            this.serverMood = mood;
+            this.serverRound = round;
+            this.serverMaxRounds = maxRounds;
+        }
+
+        // Reaktiviere den Offer-Button
+        updateButtonStates();
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -627,23 +655,40 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
     }
 
     private void renderMoodIndicator(GuiGraphics graphics, int x, int y) {
-        int round = negotiationState != null ? negotiationState.getCurrentRound() : 0;
-        int maxRounds = negotiationState != null ? negotiationState.getMaxRounds() : 5;
-        float mood = negotiationState != null ? negotiationState.getMoodPercent() : 100;
+        // Nutze Server-synchronisierte Werte
+        int round = serverRound;
+        int maxRounds = serverMaxRounds;
+        float mood = serverMood;
 
         // Stimmungs-Leiste
         int barWidth = 100;
         graphics.drawString(font, "\uD83D\uDE0A", x, y, COLOR_GREEN, false); // Happy emoji
         graphics.fill(x + 12, y + 2, x + 12 + barWidth, y + 8, COLOR_SLIDER_BG);
 
-        // Mood-Position
+        // Mood-Position (0 = rechts/sauer, 100 = links/glücklich)
         int moodPos = (int) ((100 - mood) / 100.0f * barWidth);
-        graphics.fill(x + 12 + moodPos - 1, y, x + 12 + moodPos + 1, y + 10, COLOR_TEXT);
+
+        // Farbe basierend auf Stimmung
+        int moodColor;
+        if (mood > 70) {
+            moodColor = COLOR_GREEN;
+        } else if (mood > 40) {
+            moodColor = COLOR_YELLOW;
+        } else {
+            moodColor = COLOR_RED;
+        }
+
+        // Größerer Mood-Marker
+        graphics.fill(x + 12 + moodPos - 2, y - 1, x + 12 + moodPos + 2, y + 11, moodColor);
 
         graphics.drawString(font, "\uD83D\uDE21", x + 14 + barWidth, y, COLOR_RED, false); // Angry emoji
 
         // Runden-Anzeige
         graphics.drawString(font, "(" + round + "/" + maxRounds + ")", x + 130, y, COLOR_TEXT_SECONDARY, false);
+
+        // Mood-Prozent anzeigen
+        String moodStr = String.format("%.0f%%", mood);
+        graphics.drawString(font, moodStr, x + 160, y, moodColor, false);
     }
 
     private int getScoreColor(int score) {
