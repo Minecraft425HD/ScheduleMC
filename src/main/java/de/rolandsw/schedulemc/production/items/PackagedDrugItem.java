@@ -14,11 +14,13 @@ import de.rolandsw.schedulemc.production.core.ProductionType;
 import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
 import de.rolandsw.schedulemc.tobacco.TobaccoType;
 import de.rolandsw.schedulemc.coca.CocaType;
+import de.rolandsw.schedulemc.coca.CrackQuality;
 import de.rolandsw.schedulemc.poppy.PoppyType;
 import de.rolandsw.schedulemc.meth.MethQuality;
 import de.rolandsw.schedulemc.mushroom.MushroomType;
 import de.rolandsw.schedulemc.cannabis.CannabisQuality;
 import de.rolandsw.schedulemc.cannabis.CannabisStrain;
+import de.rolandsw.schedulemc.mdma.MDMAQuality;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
@@ -167,6 +169,7 @@ public class PackagedDrugItem extends Item {
 
     /**
      * Parse Quality Enum aus String (Format: "ClassName.ENUM_VALUE")
+     * Unterstützt ALLE drogenspezifischen Qualitäts-Enums
      */
     public static ProductionQuality parseQuality(String qualityStr) {
         if (qualityStr == null || !qualityStr.contains(".")) {
@@ -182,6 +185,8 @@ public class PackagedDrugItem extends Item {
                 case "TobaccoQuality" -> TobaccoQuality.valueOf(enumValue);
                 case "MethQuality" -> MethQuality.valueOf(enumValue);
                 case "CannabisQuality" -> CannabisQuality.valueOf(enumValue);
+                case "CrackQuality" -> CrackQuality.valueOf(enumValue);
+                case "MDMAQuality" -> MDMAQuality.valueOf(enumValue);
                 default -> TobaccoQuality.GUT;
             };
         } catch (IllegalArgumentException e) {
@@ -222,6 +227,17 @@ public class PackagedDrugItem extends Item {
 
     /**
      * Berechnet Verkaufspreis basierend auf Typ, Qualität, Variante und Gewicht
+     *
+     * Formel: Basispreis × Gewicht × Qualitäts-Multiplikator
+     *
+     * Basispreise pro Gramm (aus Varianten oder Fallback):
+     * - Tabak: 0.50 - 1.50€/g (Virginia bis Havana)
+     * - Kokain: 2.00 - 3.50€/g (Bolivianisch bis Kolumbianisch)
+     * - Crack: 2.00 - 3.50€/g (gleiche Varianten wie Kokain)
+     * - Heroin: 2.00 - 5.00€/g (Indisch bis Afghanisch)
+     * - Meth: 3.00€/g (keine Varianten)
+     * - Pilze: 2.00 - 6.00€/g (Mexicana bis Azurescens)
+     * - Cannabis: 2.00 - 3.50€/g (Autoflower bis Hybrid)
      */
     public static double calculatePrice(ItemStack stack) {
         DrugType drugType = getDrugType(stack);
@@ -234,14 +250,14 @@ public class PackagedDrugItem extends Item {
         if (variant != null) {
             basePricePerGram = variant.getBasePrice();
         } else {
-            // Fallback wenn kein Variant vorhanden
+            // Realistische Fallback-Preise basierend auf durchschnittlichen Varianten-Preisen
             basePricePerGram = switch (drugType) {
-                case TOBACCO -> 0.50;
-                case COCAINE -> 80.0;
-                case HEROIN -> 100.0;
-                case METH -> 120.0;
-                case MUSHROOM -> 15.0;
-                case CANNABIS -> 10.0;
+                case TOBACCO -> 0.75;   // Durchschnitt Virginia-Havana
+                case COCAINE -> 2.75;   // Durchschnitt Bolivianisch-Kolumbianisch
+                case HEROIN -> 3.50;    // Durchschnitt Indisch-Afghanisch
+                case METH -> 3.00;      // Keine Varianten - fester Preis
+                case MUSHROOM -> 3.50;  // Durchschnitt Mexicana-Azurescens
+                case CANNABIS -> 2.75;  // Durchschnitt Autoflower-Hybrid
             };
         }
 
