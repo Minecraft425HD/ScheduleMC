@@ -259,6 +259,7 @@ public class NegotiationEngine {
             state.putDouble("lastNPCOffer", 0.0);
             state.putDouble("lastPlayerOffer", 0.0);
             state.putLong("startTime", System.currentTimeMillis());
+            state.putFloat("mood", 100.0f);  // NPC-Stimmung: 100 = gut, 0 = sauer
             customData.put(key, state);
         }
 
@@ -267,10 +268,10 @@ public class NegotiationEngine {
 
     /**
      * Aktualisiert den Verhandlungs-State
-     * WICHTIG: startTime muss beibehalten werden, sonst wird isNegotiationActive false!
+     * WICHTIG: startTime und mood müssen beibehalten werden!
      */
     public static void updateNegotiationState(CustomNPCEntity npc, String playerUUID,
-                                               int round, double npcOffer, double playerOffer) {
+                                               int round, double npcOffer, double playerOffer, float mood) {
         String key = NEGOTIATION_STATE_KEY + playerUUID;
         CompoundTag customData = npc.getNpcData().getCustomData();
 
@@ -289,6 +290,7 @@ public class NegotiationEngine {
         state.putDouble("lastPlayerOffer", playerOffer);
         state.putLong("startTime", startTime);  // WICHTIG: startTime beibehalten!
         state.putLong("lastUpdate", System.currentTimeMillis());
+        state.putFloat("mood", mood);  // NPC-Stimmung speichern
         customData.put(key, state);
     }
 
@@ -311,7 +313,7 @@ public class NegotiationEngine {
     }
 
     /**
-     * Static Helper-Methode für Verhandlung MIT State-Tracking
+     * Static Helper-Methode für Verhandlung MIT State-Tracking und Stimmungs-System
      */
     public static NPCResponse handleNegotiation(CustomNPCEntity npc, ServerPlayer player,
                                                 ItemStack drugItem, double offeredPrice) {
@@ -361,20 +363,106 @@ public class NegotiationEngine {
 
         int round = state.getInt("round") + 1;
         double lastNPCOffer = state.getDouble("lastNPCOffer");
+        float currentMood = state.contains("mood") ? state.getFloat("mood") : 100.0f;
+
+        // ═══════════════════════════════════════════════════════════
+        // STIMMUNGS-CHECK - NPC bricht ab wenn Laune zu schlecht
+        // ═══════════════════════════════════════════════════════════
+
+        if (currentMood <= 0) {
+            // NPC ist zu sauer, bricht Verhandlung ab
+            clearNegotiationState(npc, playerUUID);
+            return new NPCResponse(
+                false,
+                0.0,
+                getMoodAbortMessage(),
+                -10  // Starker Reputationsverlust
+            );
+        }
 
         // Engine erstellen und Response berechnen
         NegotiationEngine engine = new NegotiationEngine(type, quality, weight, metrics, playerUUID);
         NPCResponse response = engine.calculateResponse(offeredPrice, round, lastNPCOffer);
 
-        // State aktualisieren
+        // ═══════════════════════════════════════════════════════════
+        // STIMMUNG ANPASSEN
+        // ═══════════════════════════════════════════════════════════
+
+        float newMood = currentMood;
         if (response.isAccepted()) {
             // Deal abgeschlossen - State löschen
             clearNegotiationState(npc, playerUUID);
         } else {
-            // State für nächste Runde speichern
-            updateNegotiationState(npc, playerUUID, round, response.getCounterOffer(), offeredPrice);
+            // Berechne Stimmungsverlust basierend auf wie schlecht das Angebot war
+            double fairPrice = engine.getFairPrice();
+            double difference = (offeredPrice - fairPrice) / fairPrice;
+
+            float moodLoss;
+            if (difference > 0.5) {
+                // Absurd hohes Angebot (>150% fair price) - NPC wird sauer
+                moodLoss = 25.0f;
+            } else if (difference > 0.2) {
+                // Zu hohes Angebot (>120% fair price)
+                moodLoss = 15.0f;
+            } else if (difference > 0) {
+                // Leicht über fair price
+                moodLoss = 8.0f;
+            } else {
+                // Unter oder am fair price - minimaler Verlust
+                moodLoss = 5.0f;
+            }
+
+            // Runden-Faktor: Spätere Runden sind frustrierender
+            moodLoss += round * 2.0f;
+
+            newMood = Math.max(0, currentMood - moodLoss);
+
+            // Prüfe ob NPC jetzt abbricht
+            if (newMood <= 0) {
+                clearNegotiationState(npc, playerUUID);
+                return new NPCResponse(
+                    false,
+                    0.0,
+                    getMoodAbortMessage(),
+                    -10
+                );
+            }
+
+            // State für nächste Runde speichern (mit neuer Stimmung)
+            updateNegotiationState(npc, playerUUID, round, response.getCounterOffer(), offeredPrice, newMood);
+
+            // Füge Stimmungshinweis zur Antwort hinzu, wenn Laune niedrig ist
+            if (newMood < 30) {
+                response = new NPCResponse(
+                    response.isAccepted(),
+                    response.getCounterOffer(),
+                    response.getMessage() + " [NPC wird ungeduldig!]",
+                    response.getReputationChange()
+                );
+            } else if (newMood < 50) {
+                response = new NPCResponse(
+                    response.isAccepted(),
+                    response.getCounterOffer(),
+                    response.getMessage() + " [NPC wirkt genervt]",
+                    response.getReputationChange()
+                );
+            }
         }
 
         return response;
+    }
+
+    /**
+     * Gibt eine zufällige Abbruch-Nachricht zurück wenn NPC zu sauer ist
+     */
+    private static String getMoodAbortMessage() {
+        String[] messages = {
+            "Das reicht! Ich habe keine Lust mehr auf dieses Spiel!",
+            "Vergiss es! Du verschwendest meine Zeit!",
+            "Gespräch beendet! Komm wieder wenn du seriöse Angebote hast!",
+            "Ich bin raus! Das ist mir zu blöd!",
+            "Nein! Ich handle nicht weiter mit dir!"
+        };
+        return messages[random.nextInt(messages.length)];
     }
 }
