@@ -267,16 +267,29 @@ public class NegotiationEngine {
 
     /**
      * Aktualisiert den Verhandlungs-State
+     * WICHTIG: startTime muss beibehalten werden, sonst wird isNegotiationActive false!
      */
     public static void updateNegotiationState(CustomNPCEntity npc, String playerUUID,
                                                int round, double npcOffer, double playerOffer) {
         String key = NEGOTIATION_STATE_KEY + playerUUID;
+        CompoundTag customData = npc.getNpcData().getCustomData();
+
+        // Hole existierende startTime oder erstelle neue
+        long startTime = System.currentTimeMillis();
+        if (customData.contains(key)) {
+            CompoundTag existingState = customData.getCompound(key);
+            if (existingState.contains("startTime")) {
+                startTime = existingState.getLong("startTime");
+            }
+        }
+
         CompoundTag state = new CompoundTag();
         state.putInt("round", round);
         state.putDouble("lastNPCOffer", npcOffer);
         state.putDouble("lastPlayerOffer", playerOffer);
+        state.putLong("startTime", startTime);  // WICHTIG: startTime beibehalten!
         state.putLong("lastUpdate", System.currentTimeMillis());
-        npc.getNpcData().getCustomData().put(key, state);
+        customData.put(key, state);
     }
 
     /**
