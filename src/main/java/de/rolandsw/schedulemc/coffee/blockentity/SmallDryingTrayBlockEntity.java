@@ -1,26 +1,24 @@
 package de.rolandsw.schedulemc.coffee.blockentity;
-
+import de.rolandsw.schedulemc.coffee.menu.SmallDryingTrayMenu;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.state.BlockState;
-
-/**
- * Kleines Trocknungstablett
- * Kapazität: 10 Kirschen
- * Trocknungszeit: 600 Ticks (30 Sekunden) pro Kirsche
- */
-public class SmallDryingTrayBlockEntity extends AbstractCoffeeDryingTrayBlockEntity {
-
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+public class SmallDryingTrayBlockEntity extends AbstractCoffeeDryingTrayBlockEntity implements MenuProvider {
     public SmallDryingTrayBlockEntity(BlockPos pos, BlockState state) {
         super(CoffeeBlockEntities.SMALL_DRYING_TRAY.get(), pos, state);
     }
-
-    @Override
-    protected int getCapacity() {
-        return 10;
+    @Override protected int getCapacity() { return 10; }
+    @Override protected int getDryingTimePerCherry() { return 600; }
+    @Override public @NotNull Component getDisplayName() {
+        return Component.translatable("block.small_coffee_drying_tray.name");
     }
-
-    @Override
-    protected int getDryingTimePerCherry() {
-        return 600; // 30 Sekunden pro Kirsche
+    @Nullable @Override public AbstractContainerMenu createMenu(int id, @NotNull Inventory inv, @NotNull Player p) {
+        return new SmallDryingTrayMenu(id, inv, this);
     }
 }
