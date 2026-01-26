@@ -28,10 +28,12 @@ public class PriceCalculator {
         double demandMultiplier = demand.getPriceMultiplier();
 
         // Reputation-Multiplikator (0-100 -> 0.85-1.20)
-        double reputationMultiplier = 0.85 + (playerReputation / 100.0 * 0.35);
+        double reputationMultiplier = TobaccoBusinessConstants.Price.REPUTATION_BASE_MULTIPLIER
+            + (playerReputation / 100.0 * TobaccoBusinessConstants.Price.REPUTATION_RANGE_MULTIPLIER);
 
         // Zufriedenheits-Multiplikator (0-100 -> 0.80-1.10)
-        double satisfactionMultiplier = 0.80 + (satisfaction / 100.0 * 0.30);
+        double satisfactionMultiplier = TobaccoBusinessConstants.Price.SATISFACTION_BASE_MULTIPLIER
+            + (satisfaction / 100.0 * TobaccoBusinessConstants.Price.SATISFACTION_RANGE_MULTIPLIER);
 
         return basePrice * demandMultiplier * reputationMultiplier * satisfactionMultiplier;
     }
@@ -40,20 +42,20 @@ public class PriceCalculator {
      * Berechnet minimalen akzeptablen Preis
      */
     public static double calculateMinPrice(double fairPrice) {
-        return fairPrice * 0.7;
+        return fairPrice * TobaccoBusinessConstants.Price.MIN_PRICE_RATIO;
     }
 
     /**
      * Berechnet maximalen akzeptablen Preis
      */
     public static double calculateMaxPrice(double fairPrice) {
-        return fairPrice * 1.0;
+        return fairPrice * TobaccoBusinessConstants.Price.MAX_PRICE_RATIO;
     }
 
     /**
      * Berechnet idealen Preis für NPC
      */
     public static double calculateIdealPrice(double fairPrice) {
-        return fairPrice * 0.85;
+        return fairPrice * TobaccoBusinessConstants.Price.IDEAL_PRICE_RATIO;
     }
 }

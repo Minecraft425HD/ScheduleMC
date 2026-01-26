@@ -50,6 +50,13 @@ public class BankTransferPacket {
                 return;
             }
 
+            // Null-Safety: Prüfe ob Server vorhanden ist
+            if (player.server == null) {
+                player.sendSystemMessage(Component.translatable("message.common.server_unavailable")
+                    .withStyle(ChatFormatting.RED));
+                return;
+            }
+
             // Prüfe tägliches Transfer-Limit
             TransferLimitTracker tracker = TransferLimitTracker.getInstance(player.server);
             double remaining = tracker.getRemainingLimit(player.getUUID());

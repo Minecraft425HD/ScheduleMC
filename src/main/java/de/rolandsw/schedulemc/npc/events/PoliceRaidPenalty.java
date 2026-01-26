@@ -37,6 +37,32 @@ public class PoliceRaidPenalty {
             long currentDay = player.level().getDayTime() / 24000L;
             CrimeManager.addWantedLevel(player.getUUID(), wantedIncrease, currentDay);
 
+            // WitnessManager: Polizei-Raid registrieren (Polizei ist Zeuge)
+            if (player.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+                var witnessManager = de.rolandsw.schedulemc.npc.life.witness.WitnessManager.getManager(serverLevel);
+                witnessManager.registerCrime(
+                    player,
+                    de.rolandsw.schedulemc.npc.life.witness.CrimeType.DRUG_DEALING_LARGE,
+                    player.blockPosition(),
+                    serverLevel,
+                    null  // kein spezifisches Opfer
+                );
+
+                // NPCLifeSystemIntegration: Crime Event
+                var integration = de.rolandsw.schedulemc.npc.life.NPCLifeSystemIntegration.get(serverLevel);
+                // Finde einen Polizei-NPC in der Nähe als Zeugen
+                var policeNPCs = serverLevel.getEntitiesOfClass(
+                    de.rolandsw.schedulemc.npc.entity.CustomNPCEntity.class,
+                    player.getBoundingBox().inflate(50),
+                    npc -> npc.getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.POLIZEI
+                );
+                if (!policeNPCs.isEmpty()) {
+                    integration.onCrimeWitnessed(player,
+                        de.rolandsw.schedulemc.npc.life.witness.CrimeType.DRUG_DEALING_LARGE,
+                        policeNPCs.get(0));
+                }
+            }
+
             player.sendSystemMessage(Component.literal(
                 "§c⚠ FAHNDUNGSLEVEL ERHÖHT: +" + wantedIncrease + "★ (Illegal possession)"
             ));

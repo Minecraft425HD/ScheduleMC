@@ -45,6 +45,12 @@ public class OpenTobaccoNegotiationPacket {
             Entity entity = player.level().getEntity(npcEntityId);
             if (!(entity instanceof CustomNPCEntity npc)) return;
 
+            // Null-Safety: Prüfe ob NPC-Daten vorhanden sind
+            if (npc.getNpcData() == null) {
+                player.sendSystemMessage(Component.translatable("message.npc.data_unavailable"));
+                return;
+            }
+
             // Polizisten können keinen Tabak kaufen!
             if (npc.getNpcType() == NPCType.POLIZEI) {
                 player.sendSystemMessage(Component.translatable("message.tobacco.police_no_buy"));
@@ -54,7 +60,8 @@ public class OpenTobaccoNegotiationPacket {
             // Prüfe Cooldown (1x pro Tag pro NPC)
             boolean hasCooldown = false;
             String cooldownKey = "LastTobaccoSale_" + player.getStringUUID();
-            if (npc.getNpcData().getCustomData().contains(cooldownKey)) {
+            var customData = npc.getNpcData().getCustomData();
+            if (customData != null && customData.contains(cooldownKey)) {
                 long currentDay = player.level().getDayTime() / 24000;
                 long lastSaleDay = npc.getNpcData().getCustomData().getLong(cooldownKey);
                 hasCooldown = lastSaleDay >= currentDay;

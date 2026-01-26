@@ -7,11 +7,14 @@ import de.rolandsw.schedulemc.npc.data.MerchantCategory;
 import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
+import de.rolandsw.schedulemc.npc.life.core.EmotionState;
+import de.rolandsw.schedulemc.npc.life.world.WorldEventManager;
 import de.rolandsw.schedulemc.npc.menu.MerchantShopMenu;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.Entity;
@@ -47,6 +50,13 @@ public class OpenMerchantShopPacket {
         PacketHandler.handleServerPacket(ctx, player -> {
             Entity entity = player.level().getEntity(merchantEntityId);
             if (entity instanceof CustomNPCEntity npc) {
+                // Null-Safety: Prüfe ob NPC-Daten vorhanden sind
+                if (npc.getNpcData() == null) {
+                    player.sendSystemMessage(Component.translatable("message.npc.data_unavailable")
+                        .withStyle(ChatFormatting.RED));
+                    return;
+                }
+
                 // Prüfe ob es ein Verkäufer oder Abschlepper ist
                 if (npc.getNpcType() == NPCType.VERKAEUFER || npc.getNpcType() == NPCType.ABSCHLEPPER) {
                     // Prüfe ob NPC innerhalb der Arbeitszeiten ist
@@ -56,7 +66,51 @@ public class OpenMerchantShopPacket {
                         return;
                     }
 
+                    // ═══════════════════════════════════════════════════════════
+                    // NPC LIFE SYSTEM INTEGRATION: Willingness Check
+                    // ═══════════════════════════════════════════════════════════
+                    if (!npc.isWillingToTrade()) {
+                        if (npc.getLifeData() != null && npc.getLifeData().getEmotions() != null) {
+                            EmotionState emotion = npc.getLifeData().getEmotions().getCurrentEmotion();
+                            if (emotion == EmotionState.FEARFUL) {
+                                player.sendSystemMessage(Component.translatable("message.npc.too_scared_to_trade")
+                                    .withStyle(ChatFormatting.RED));
+                            } else if (emotion == EmotionState.ANGRY) {
+                                player.sendSystemMessage(Component.translatable("message.npc.too_angry_to_trade")
+                                    .withStyle(ChatFormatting.RED));
+                            } else {
+                                player.sendSystemMessage(Component.translatable("message.npc.not_willing_to_trade")
+                                    .withStyle(ChatFormatting.RED));
+                            }
+                        } else {
+                            player.sendSystemMessage(Component.translatable("message.npc.not_willing_to_trade")
+                                .withStyle(ChatFormatting.RED));
+                        }
+                        return;
+                    }
+
+                    // ═══════════════════════════════════════════════════════════
+                    // NPC LIFE SYSTEM INTEGRATION: Price Modifiers
+                    // ═══════════════════════════════════════════════════════════
+                    float npcPriceModifier = npc.getPersonalPriceModifier();
+
+                    // WorldEventManager Preismodifikator
+                    float worldEventModifier = 1.0f;
+                    if (player.level() instanceof ServerLevel serverLevel) {
+                        WorldEventManager worldEventManager = WorldEventManager.getManager(serverLevel);
+                        worldEventModifier = worldEventManager.getCombinedPriceModifier(player.blockPosition());
+                    }
+
+                    // Kombinierter Modifikator für Preise
+                    float combinedPriceModifier = npcPriceModifier * worldEventModifier;
+
                     // Öffne Shop-GUI und sende Shop-Items zum Client
+                    // Null-Safety: Prüfe ob BuyShop vorhanden ist
+                    if (npc.getNpcData().getBuyShop() == null) {
+                        player.sendSystemMessage(Component.translatable("message.npc.shop_unavailable")
+                            .withStyle(ChatFormatting.RED));
+                        return;
+                    }
                     List<NPCData.ShopEntry> shopItems = new ArrayList<>(npc.getNpcData().getBuyShop().getEntries());
 
                     // Spezialbehandlung für Tankstelle: Füge unbezahlte Rechnungen hinzu
@@ -85,11 +139,13 @@ public class OpenMerchantShopPacket {
                         Component.literal(displayName)
                     ), buf -> {
                         buf.writeInt(npc.getId());
-                        // Sende Shop-Items
+                        // Sende Shop-Items mit angepassten Preisen (NPC + WorldEvent Modifikatoren)
                         buf.writeInt(shopItems.size());
                         for (var entry : shopItems) {
                             buf.writeItem(entry.getItem());
-                            buf.writeInt(entry.getPrice());
+                            // Wende kombinierte Preismodifikatoren an
+                            int adjustedPrice = Math.round(entry.getPrice() * combinedPriceModifier);
+                            buf.writeInt(adjustedPrice);
                             buf.writeBoolean(entry.isUnlimited());
 
                             // Stock aus Warehouse oder lokalem Entry

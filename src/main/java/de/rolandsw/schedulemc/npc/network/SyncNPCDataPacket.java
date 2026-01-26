@@ -39,7 +39,7 @@ public class SyncNPCDataPacket {
             Minecraft minecraft = Minecraft.getInstance();
             if (minecraft.level != null) {
                 Entity entity = minecraft.level.getEntity(entityId);
-                if (entity instanceof CustomNPCEntity npc && npcData != null) {
+                if (entity instanceof CustomNPCEntity npc && npcData != null && npc.getNpcData() != null) {
                     npc.getNpcData().load(npcData);
                 }
             }

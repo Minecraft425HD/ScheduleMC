@@ -9,6 +9,7 @@ import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
@@ -49,6 +50,12 @@ public class StealingAttemptPacket {
         PacketHandler.handleServerPacket(ctx, player -> {
                 Entity entity = player.level().getEntity(npcEntityId);
                 if (entity instanceof CustomNPCEntity npc) {
+                    // Null-Safety: Prüfe ob NPC-Daten vorhanden sind
+                    if (npc.getNpcData() == null) {
+                        LOGGER.warn("[STEALING] NPC {} hat keine NPCData!", npc.getId());
+                        return;
+                    }
+
                     long currentDay = player.level().getDayTime() / 24000;
 
                     if (success) {
@@ -114,9 +121,16 @@ public class StealingAttemptPacket {
                         // ═══════════════════════════════════════════
                         List<Integer> availableSlots = new ArrayList<>();
 
+                        // Null-Safety: Prüfe ob Inventar vorhanden ist
+                        var npcInventory = npc.getNpcData().getInventory();
+                        if (npcInventory == null) {
+                            LOGGER.warn("[STEALING] NPC {} hat kein Inventar!", npc.getId());
+                            return;
+                        }
+
                         // Finde nicht-leere Slots
                         for (int i = 0; i < 9; i++) {
-                            ItemStack stack = npc.getNpcData().getInventory().get(i);
+                            ItemStack stack = npcInventory.get(i);
                             if (!stack.isEmpty()) {
                                 availableSlots.add(i);
                             }
@@ -127,13 +141,13 @@ public class StealingAttemptPacket {
                             int randomIndex = (int)(Math.random() * availableSlots.size());
                             int slot = availableSlots.get(randomIndex);
 
-                            ItemStack stack = npc.getNpcData().getInventory().get(slot);
+                            ItemStack stack = npcInventory.get(slot);
                             if (!stack.isEmpty()) {
                                 // Stehle das komplette Item
                                 stolenItem = stack.copy();
 
                                 // Entferne vom NPC
-                                npc.getNpcData().getInventory().set(slot, ItemStack.EMPTY);
+                                npcInventory.set(slot, ItemStack.EMPTY);
 
                                 // Gib dem Spieler
                                 if (!player.getInventory().add(stolenItem)) {
@@ -220,6 +234,23 @@ public class StealingAttemptPacket {
                         if (Math.random() < detectionChance) {
                             // Verbrechen wurde gesehen!
                             CrimeManager.addWantedLevel(player.getUUID(), 2, currentDay);
+
+                            // WitnessManager: Verbrechen registrieren
+                            if (player.level() instanceof ServerLevel serverLevel) {
+                                var witnessManager = de.rolandsw.schedulemc.npc.life.witness.WitnessManager.getManager(serverLevel);
+                                witnessManager.registerCrime(
+                                    player,
+                                    de.rolandsw.schedulemc.npc.life.witness.CrimeType.PETTY_THEFT,
+                                    npc.blockPosition(),
+                                    serverLevel,
+                                    npc.getNpcData().getNpcUUID()
+                                );
+
+                                // NPCLifeSystemIntegration: onCrimeWitnessed aufrufen
+                                var integration = de.rolandsw.schedulemc.npc.life.NPCLifeSystemIntegration.get(serverLevel);
+                                integration.onCrimeWitnessed(player,
+                                    de.rolandsw.schedulemc.npc.life.witness.CrimeType.PETTY_THEFT, npc);
+                            }
 
                             int currentWantedLevel = CrimeManager.getWantedLevel(player.getUUID());
                             String stars = "⭐".repeat(currentWantedLevel);

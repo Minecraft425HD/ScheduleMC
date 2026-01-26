@@ -3,6 +3,10 @@ package de.rolandsw.schedulemc.tobacco.network;
 import de.rolandsw.schedulemc.economy.WalletManager;
 import de.rolandsw.schedulemc.economy.items.CashItem;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
+import de.rolandsw.schedulemc.npc.life.NPCLifeSystemIntegration;
+import de.rolandsw.schedulemc.npc.life.core.EmotionState;
+import de.rolandsw.schedulemc.npc.life.quest.QuestEventHandler;
+import de.rolandsw.schedulemc.npc.life.world.WorldEventManager;
 import de.rolandsw.schedulemc.production.core.DrugType;
 import de.rolandsw.schedulemc.production.items.PackagedDrugItem;
 import de.rolandsw.schedulemc.tobacco.TobaccoType;
@@ -13,6 +17,8 @@ import de.rolandsw.schedulemc.tobacco.business.NegotiationEngine;
 import de.rolandsw.schedulemc.util.PacketHandler;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.network.NetworkEvent;
@@ -56,9 +62,43 @@ public class NegotiationPacket {
             Entity entity = player.level().getEntity(npcEntityId);
             if (!(entity instanceof CustomNPCEntity npc)) return;
 
+            // Null-Safety: Prüfe ob NPC-Daten vorhanden sind
+            if (npc.getNpcData() == null) {
+                player.sendSystemMessage(Component.translatable("message.npc.data_unavailable"));
+                return;
+            }
+
+            // ═══════════════════════════════════════════════════════════
+            // NPC LIFE SYSTEM INTEGRATION: Willingness Check
+            // ═══════════════════════════════════════════════════════════
+            if (!npc.isWillingToTrade()) {
+                // NPC möchte nicht handeln (Emotionen/Bedürfnisse)
+                if (npc.getLifeData() != null && npc.getLifeData().getEmotions() != null) {
+                    EmotionState emotion = npc.getLifeData().getEmotions().getCurrentEmotion();
+                    if (emotion == EmotionState.FEARFUL) {
+                        player.sendSystemMessage(Component.translatable("message.npc.too_scared_to_trade"));
+                    } else if (emotion == EmotionState.ANGRY) {
+                        player.sendSystemMessage(Component.translatable("message.npc.too_angry_to_trade"));
+                    } else {
+                        player.sendSystemMessage(Component.translatable("message.npc.not_willing_to_trade"));
+                    }
+                } else {
+                    player.sendSystemMessage(Component.translatable("message.npc.not_willing_to_trade"));
+                }
+                return;
+            }
+
             ItemStack playerItem = player.getInventory().getItem(playerSlot);
-            if (!(playerItem.getItem() instanceof PackagedDrugItem) ||
-                PackagedDrugItem.getDrugType(playerItem) != DrugType.TOBACCO) return;
+            if (!(playerItem.getItem() instanceof PackagedDrugItem)) {
+                player.sendSystemMessage(Component.translatable("message.negotiation.not_a_drug_item"));
+                return;
+            }
+
+            DrugType drugType = PackagedDrugItem.getDrugType(playerItem);
+            if (drugType == null) {
+                player.sendSystemMessage(Component.translatable("message.negotiation.invalid_drug_type"));
+                return;
+            }
 
             // Validierung der Gramm-Anzahl
             int availableGrams = PackagedDrugItem.getWeight(playerItem);
@@ -84,9 +124,28 @@ public class NegotiationPacket {
                 return;
             }
 
+            // ═══════════════════════════════════════════════════════════
+            // NPC LIFE SYSTEM INTEGRATION: Price Modifiers
+            // ═══════════════════════════════════════════════════════════
+            float npcPriceModifier = npc.getPersonalPriceModifier();
+
+            // WorldEventManager Preismodifikator
+            float worldEventModifier = 1.0f;
+            if (player.level() instanceof ServerLevel serverLevel) {
+                WorldEventManager worldEventManager = WorldEventManager.getManager(serverLevel);
+                worldEventModifier = worldEventManager.getCombinedPriceModifier(player.blockPosition());
+            }
+
+            // Kombinierter Modifikator: NPC-Emotionen + World Events
+            float combinedModifier = npcPriceModifier * worldEventModifier;
+
+            // Der NPC erwartet einen höheren Preis wenn der Modifikator > 1.0 ist
+            // Das bedeutet: offeredPrice muss angepasst werden für die Verhandlung
+            double adjustedOfferedPrice = offeredPrice / combinedModifier;
+
             NPCBusinessMetrics metrics = new NPCBusinessMetrics(npc);
             NPCResponse response = NegotiationEngine.handleNegotiation(
-                npc, player, playerItem, offeredPrice
+                npc, player, playerItem, adjustedOfferedPrice
             );
 
             if (response.isAccepted()) {
@@ -109,21 +168,31 @@ public class NegotiationPacket {
 
                 // Parse Type und Quality aus PackagedDrugItem
                 String variantStr = PackagedDrugItem.getVariant(playerItem);
-                TobaccoType type = variantStr != null ? TobaccoType.valueOf(variantStr.split("\\.")[1]) : TobaccoType.VIRGINIA;
-
                 String qualityStr = PackagedDrugItem.getQuality(playerItem);
-                TobaccoQuality quality = qualityStr != null ? TobaccoQuality.valueOf(qualityStr.split("\\.")[1]) : TobaccoQuality.GUT;
-
                 long packagedDate = PackagedDrugItem.getPackageDate(playerItem);
 
+                // Für Tabak: Spezifische Typen parsen
+                TobaccoType tobaccoType = null;
+                TobaccoQuality tobaccoQuality = null;
+                if (drugType == DrugType.TOBACCO) {
+                    tobaccoType = variantStr != null ? TobaccoType.valueOf(variantStr.split("\\.")[1]) : TobaccoType.VIRGINIA;
+                    tobaccoQuality = qualityStr != null ? TobaccoQuality.valueOf(qualityStr.split("\\.")[1]) : TobaccoQuality.GUT;
+                }
+
                 // Erstelle verkauftes Item (komplettes Päckchen, da offeredGrams == availableGrams)
-                ItemStack soldItem = PackagedDrugItem.create(
-                    DrugType.TOBACCO,
-                    offeredGrams,
-                    quality,
-                    type,
-                    packagedDate  // Behalte Original-Datum
-                );
+                ItemStack soldItem;
+                if (drugType == DrugType.TOBACCO && tobaccoQuality != null && tobaccoType != null) {
+                    soldItem = PackagedDrugItem.create(
+                        DrugType.TOBACCO,
+                        offeredGrams,
+                        tobaccoQuality,
+                        tobaccoType,
+                        packagedDate
+                    );
+                } else {
+                    // Für andere Drogenarten: Kopiere das Original-Item
+                    soldItem = playerItem.copy();
+                }
 
                 // Entferne das komplette Päckchen aus dem Inventar
                 playerItem.shrink(1);
@@ -155,14 +224,25 @@ public class NegotiationPacket {
                 }
 
                 // Metriken aktualisieren (mit den tatsächlich verkauften Gramm)
-                metrics.recordPurchase(
-                    player.getStringUUID(),
-                    type,
-                    quality,
-                    offeredGrams,  // Die tatsächlich verkauften Gramm
-                    price,
-                    player.level().getDayTime() / 24000
-                );
+                if (drugType == DrugType.TOBACCO && tobaccoType != null && tobaccoQuality != null) {
+                    metrics.recordPurchase(
+                        player.getStringUUID(),
+                        tobaccoType,
+                        tobaccoQuality,
+                        offeredGrams,
+                        price,
+                        player.level().getDayTime() / 24000
+                    );
+                } else {
+                    // Für andere Drogenarten: Einfache Aufzeichnung
+                    metrics.recordGenericPurchase(
+                        player.getStringUUID(),
+                        drugType,
+                        offeredGrams,
+                        price,
+                        player.level().getDayTime() / 24000
+                    );
+                }
 
                 // Reputation ändern
                 metrics.modifyReputation(player.getStringUUID(), response.getReputationChange());
@@ -174,10 +254,20 @@ public class NegotiationPacket {
                 currentDay = player.level().getDayTime() / 24000;
                 npc.getNpcData().getCustomData().putLong("LastTobaccoSale_" + player.getStringUUID(), currentDay);
 
+                // Quest-System: Melde erfolgreiche Verhandlung
+                QuestEventHandler.reportSuccessfulNegotiation(player, npc);
+
+                // Life-System: Koordiniere Manager-Updates
+                if (player.level() instanceof ServerLevel serverLevel) {
+                    NPCLifeSystemIntegration integration = NPCLifeSystemIntegration.get(serverLevel);
+                    integration.onTradeCompleted(player, npc, (int) price);
+                }
+
                 // Erfolgsmeldung mit aktuellem Wallet-Wert
                 if (walletItem.getItem() instanceof CashItem) {
                     double walletValue = WalletManager.getBalance(player.getUUID());
-                    player.sendSystemMessage(Component.translatable("message.tobacco.sale_success", offeredGrams, String.format("%.2f", price)));
+                    String drugName = drugType.getDisplayName();
+                    player.sendSystemMessage(Component.translatable("message.negotiation.sale_success", offeredGrams, drugName, String.format("%.2f", price)));
                     player.sendSystemMessage(Component.translatable("message.tobacco.wallet_summary", String.format("%.2f", walletValue), npc.getNpcData().getWallet()));
                 }
             } else {

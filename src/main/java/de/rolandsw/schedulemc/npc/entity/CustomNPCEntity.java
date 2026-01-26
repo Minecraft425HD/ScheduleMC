@@ -6,6 +6,15 @@ import de.rolandsw.schedulemc.mapview.npc.NPCActivityStatus;
 import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.data.NPCPersonality;
 import de.rolandsw.schedulemc.npc.data.NPCType;
+import de.rolandsw.schedulemc.npc.life.core.NPCLifeData;
+import de.rolandsw.schedulemc.npc.life.core.NPCNeeds;
+import de.rolandsw.schedulemc.npc.life.core.NPCEmotions;
+import de.rolandsw.schedulemc.npc.life.core.NPCMemory;
+import de.rolandsw.schedulemc.npc.life.core.NPCTraits;
+import de.rolandsw.schedulemc.npc.life.core.EmotionState;
+import de.rolandsw.schedulemc.npc.life.behavior.NPCBehaviorEngine;
+import de.rolandsw.schedulemc.npc.life.behavior.BehaviorState;
+import de.rolandsw.schedulemc.npc.life.behavior.StandardActions;
 import de.rolandsw.schedulemc.npc.goals.MoveToHomeGoal;
 import de.rolandsw.schedulemc.npc.goals.MoveToLeisureGoal;
 import de.rolandsw.schedulemc.npc.goals.MoveToWorkGoal;
@@ -68,8 +77,19 @@ public class CustomNPCEntity extends PathfinderMob {
     private static final EntityDataAccessor<Integer> ACTIVITY_STATUS =
         SynchedEntityData.defineId(CustomNPCEntity.class, EntityDataSerializers.INT);
 
+    // NPC Life System - Synced Data für Client
+    private static final EntityDataAccessor<Integer> EMOTION_STATE =
+        SynchedEntityData.defineId(CustomNPCEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Float> EMOTION_INTENSITY =
+        SynchedEntityData.defineId(CustomNPCEntity.class, EntityDataSerializers.FLOAT);
+
     // NPC Daten (Server-Side)
     private NPCData npcData;
+
+    // NPC Life System (Server-Side)
+    private NPCLifeData lifeData;
+    private NPCBehaviorEngine behaviorEngine;
+    private boolean lifeSystemEnabled = true;
 
     // Performance-Optimierung: Player-Lookup Throttling
     private int playerLookupCounter = 0;
@@ -82,6 +102,9 @@ public class CustomNPCEntity extends PathfinderMob {
     public CustomNPCEntity(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);
         this.npcData = new NPCData();
+        this.lifeData = new NPCLifeData(this);
+        this.behaviorEngine = new NPCBehaviorEngine(this);
+        StandardActions.registerAllStandardActions(this.behaviorEngine);
         this.setMaxUpStep(1.5F); // Ermöglicht das Steigen auf Blöcke und Treppen (erhöht für bessere Navigation)
     }
 
@@ -96,6 +119,9 @@ public class CustomNPCEntity extends PathfinderMob {
         this.entityData.define(SERVICE_CATEGORY_ORDINAL, 0); // ABSCHLEPPDIENST
         this.entityData.define(PERSONALITY, NPCPersonality.AUSGEWOGEN.name()); // Standard-Persönlichkeit
         this.entityData.define(ACTIVITY_STATUS, NPCActivityStatus.ROAMING.ordinal()); // Standard: Unterwegs
+        // NPC Life System - Emotion syncing für Client-Rendering
+        this.entityData.define(EMOTION_STATE, 0); // EmotionState.NEUTRAL.ordinal()
+        this.entityData.define(EMOTION_INTENSITY, 0.0f);
     }
 
     @Override
@@ -232,6 +258,19 @@ public class CustomNPCEntity extends PathfinderMob {
         if (!this.level().isClientSide) {
             // Server-Side Logic
 
+            // NPC Life System Update
+            if (lifeSystemEnabled && lifeData != null) {
+                lifeData.tick(this);
+                // Behavior Engine Update
+                if (behaviorEngine != null) {
+                    behaviorEngine.tick();
+                }
+                // Sync emotion state to client for rendering (throttled - every second)
+                if (playerLookupCounter == 0) {
+                    syncEmotionState();
+                }
+            }
+
             // Look at nearest player (Throttled für Performance)
             playerLookupCounter++;
             if (playerLookupCounter >= PLAYER_LOOKUP_INTERVAL) {
@@ -253,6 +292,18 @@ public class CustomNPCEntity extends PathfinderMob {
                 activityStatusUpdateCounter = 0;
                 updateActivityStatus();
             }
+        }
+    }
+
+    /**
+     * Synchronisiert den Emotion-State zum Client für Rendering
+     */
+    private void syncEmotionState() {
+        if (lifeData != null && lifeData.getEmotions() != null) {
+            EmotionState emotion = lifeData.getEmotions().getCurrentEmotion();
+            float intensity = lifeData.getEmotions().getIntensity();
+            this.entityData.set(EMOTION_STATE, emotion.ordinal());
+            this.entityData.set(EMOTION_INTENSITY, intensity);
         }
     }
 
@@ -351,6 +402,11 @@ public class CustomNPCEntity extends PathfinderMob {
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.put("NPCData", npcData.save(new CompoundTag()));
+        // NPC Life System speichern
+        if (lifeData != null) {
+            tag.put("LifeData", lifeData.save());
+        }
+        tag.putBoolean("LifeSystemEnabled", lifeSystemEnabled);
     }
 
     @Override
@@ -360,6 +416,17 @@ public class CustomNPCEntity extends PathfinderMob {
             npcData.load(tag.getCompound("NPCData"));
             // Sync to client
             syncToClient();
+        }
+        // NPC Life System laden
+        if (tag.contains("LifeData")) {
+            if (lifeData == null) {
+                lifeData = new NPCLifeData(this);
+            }
+            lifeData.load(tag.getCompound("LifeData"));
+            lifeData.setNpcEntity(this);
+        }
+        if (tag.contains("LifeSystemEnabled")) {
+            lifeSystemEnabled = tag.getBoolean("LifeSystemEnabled");
         }
     }
 
@@ -393,6 +460,9 @@ public class CustomNPCEntity extends PathfinderMob {
         if (!personalityStr.isEmpty()) {
             this.entityData.set(PERSONALITY, personalityStr);
         }
+
+        // NPC Life System: Emotion synchronisieren
+        syncEmotionState();
     }
 
     /**
@@ -516,6 +586,152 @@ public class CustomNPCEntity extends PathfinderMob {
             return values[ordinal];
         }
         return NPCActivityStatus.ROAMING;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // NPC LIFE SYSTEM GETTERS
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Gibt das NPCLifeData-Objekt zurück (Container für alle Life-System Daten)
+     */
+    public NPCLifeData getLifeData() {
+        return lifeData;
+    }
+
+    /**
+     * Gibt die Bedürfnisse des NPCs zurück
+     */
+    public NPCNeeds getNeeds() {
+        return lifeData != null ? lifeData.getNeeds() : null;
+    }
+
+    /**
+     * Gibt die Emotionen des NPCs zurück
+     */
+    public NPCEmotions getEmotions() {
+        return lifeData != null ? lifeData.getEmotions() : null;
+    }
+
+    /**
+     * Gibt das Gedächtnis des NPCs zurück
+     */
+    public NPCMemory getMemory() {
+        return lifeData != null ? lifeData.getMemory() : null;
+    }
+
+    /**
+     * Gibt die Persönlichkeits-Traits des NPCs zurück
+     */
+    public NPCTraits getTraits() {
+        return lifeData != null ? lifeData.getTraits() : null;
+    }
+
+    /**
+     * Prüft ob das Life-System aktiviert ist
+     */
+    public boolean isLifeSystemEnabled() {
+        return lifeSystemEnabled;
+    }
+
+    /**
+     * Aktiviert/Deaktiviert das Life-System
+     */
+    public void setLifeSystemEnabled(boolean enabled) {
+        this.lifeSystemEnabled = enabled;
+        if (lifeData != null) {
+            lifeData.setEnabled(enabled);
+        }
+    }
+
+    /**
+     * Gibt die aktuelle Emotion zurück (Client-safe via synced data)
+     */
+    public EmotionState getCurrentEmotion() {
+        int ordinal = this.entityData.get(EMOTION_STATE);
+        return EmotionState.fromOrdinal(ordinal);
+    }
+
+    /**
+     * Gibt die Emotions-Intensität zurück (Client-safe via synced data)
+     */
+    public float getEmotionIntensity() {
+        return this.entityData.get(EMOTION_INTENSITY);
+    }
+
+    /**
+     * Gibt die Behavior-Engine des NPCs zurück
+     */
+    public NPCBehaviorEngine getBehaviorEngine() {
+        return behaviorEngine;
+    }
+
+    /**
+     * Gibt den aktuellen Verhaltenszustand zurück
+     */
+    public BehaviorState getBehaviorState() {
+        return behaviorEngine != null ? behaviorEngine.getCurrentState() : BehaviorState.IDLE;
+    }
+
+    /**
+     * Initialisiert das Life-System falls noch nicht geschehen
+     * Wird von NPCLifeSystemEvents aufgerufen wenn NPC dem Level beitritt
+     */
+    public void initializeLifeSystem() {
+        if (lifeData == null) {
+            lifeData = new NPCLifeData(this);
+        }
+        if (behaviorEngine == null) {
+            behaviorEngine = new NPCBehaviorEngine(this);
+            StandardActions.registerAllStandardActions(behaviorEngine);
+        }
+        lifeSystemEnabled = true;
+    }
+
+    /**
+     * Prüft ob der NPC bereit für Handel ist
+     * Berücksichtigt Emotionen und Bedürfnisse
+     */
+    public boolean isWillingToTrade() {
+        if (lifeData == null) return true;
+
+        // Nicht handeln wenn in schlechter Verfassung
+        if (lifeData.getEmotions().getCurrentEmotion() == EmotionState.FEARFUL &&
+            lifeData.getEmotions().getIntensity() > 50) {
+            return false;
+        }
+
+        // Prüfe ob NPC zu müde ist
+        if (lifeData.getNeeds().getEnergy() < 10) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Gibt den Preismodifikator basierend auf NPC-Zustand zurück
+     * Kann für dynamische Preise verwendet werden
+     */
+    public float getPersonalPriceModifier() {
+        if (lifeData == null) return 1.0f;
+
+        float modifier = 1.0f;
+
+        // Gierige NPCs verlangen mehr
+        modifier += lifeData.getTraits().getGreed() / 200.0f; // -0.5 bis +0.5
+
+        // Glückliche NPCs geben Rabatt
+        if (lifeData.getEmotions().getCurrentEmotion() == EmotionState.HAPPY) {
+            modifier -= lifeData.getEmotions().getIntensity() / 400.0f;
+        }
+
+        // Ängstliche NPCs senken Preise
+        if (lifeData.getEmotions().getCurrentEmotion() == EmotionState.FEARFUL) {
+            modifier -= lifeData.getEmotions().getIntensity() / 300.0f;
+        }
+
+        return Math.max(0.5f, Math.min(1.5f, modifier));
     }
 
     // Verhindern von Despawning

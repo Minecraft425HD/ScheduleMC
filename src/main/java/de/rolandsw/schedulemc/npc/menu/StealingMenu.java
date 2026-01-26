@@ -23,7 +23,7 @@ public class StealingMenu extends AbstractContainerMenu {
         super(NPCMenuTypes.STEALING_MENU.get(), id);
         this.npc = npc;
         this.entityId = npc.getId();
-        this.npcWalletAmount = npc.getNpcData().getWallet();
+        this.npcWalletAmount = npc.getNpcData() != null ? npc.getNpcData().getWallet() : 0;
 
         // Kein Player-Inventar in dieser GUI - nur Minigame
     }

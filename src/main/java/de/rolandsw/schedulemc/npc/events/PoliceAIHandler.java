@@ -7,6 +7,8 @@ import de.rolandsw.schedulemc.economy.items.CashItem;
 import de.rolandsw.schedulemc.npc.crime.CrimeManager;
 import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
+import de.rolandsw.schedulemc.npc.life.witness.CrimeType;
+import de.rolandsw.schedulemc.npc.life.witness.WitnessManager;
 import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
 import de.rolandsw.schedulemc.npc.network.WantedLevelSyncPacket;
 import net.minecraft.core.BlockPos;
@@ -380,6 +382,33 @@ public class PoliceAIHandler {
         // Verhindere mehrfache Festnahmen
         if (player.getPersistentData().getLong("JailReleaseTime") > 0) {
             return; // Schon im Gefängnis
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // NPC LIFE SYSTEM INTEGRATION: WitnessManager informieren
+        // ═══════════════════════════════════════════════════════════
+        if (player.level() instanceof ServerLevel serverLevel) {
+            WitnessManager witnessManager = WitnessManager.getManager(serverLevel);
+            // Registriere die Verhaftung als offiziellen Bericht
+            // CrimeType basierend auf Wanted-Level auswählen
+            CrimeType arrestCrimeType = switch (wantedLevel) {
+                case 1 -> CrimeType.PETTY_THEFT;
+                case 2 -> CrimeType.SHOPLIFTING;
+                case 3 -> CrimeType.ASSAULT;
+                case 4 -> CrimeType.ROBBERY;
+                default -> CrimeType.ARMED_VIOLENCE;
+            };
+            witnessManager.registerCrime(
+                player,
+                arrestCrimeType,
+                player.blockPosition(),
+                serverLevel,
+                null  // kein spezifisches Opfer bei Verhaftung
+            );
+
+            // NPCLifeSystemIntegration: onCrimeWitnessed
+            var integration = de.rolandsw.schedulemc.npc.life.NPCLifeSystemIntegration.get(serverLevel);
+            integration.onCrimeWitnessed(player, arrestCrimeType, police);
         }
 
         // ═══════════════════════════════════════════════════════════

@@ -51,6 +51,18 @@ public class SmartphoneProtectionHandler {
                     long currentDay = serverVictim.getServer().overworld().getDayTime() / 24000L;
                     CrimeManager.addWantedLevel(attacker.getUUID(), 1, currentDay);
 
+                    // WitnessManager: Registriere das Verbrechen (falls NPCs in der Nähe)
+                    if (attacker.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+                        var witnessManager = de.rolandsw.schedulemc.npc.life.witness.WitnessManager.getManager(serverLevel);
+                        witnessManager.registerCrime(
+                            attacker,
+                            de.rolandsw.schedulemc.npc.life.witness.CrimeType.ASSAULT,
+                            attacker.blockPosition(),
+                            serverLevel,
+                            serverVictim.getUUID()
+                        );
+                    }
+
                     // Benachrichtige beide Spieler
                     attacker.sendSystemMessage(
                         Component.translatable("message.smartphone.attacked_protected_player")

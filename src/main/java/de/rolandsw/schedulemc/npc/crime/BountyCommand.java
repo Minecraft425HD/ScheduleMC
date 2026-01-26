@@ -64,7 +64,21 @@ public class BountyCommand {
 
                 int rank = 1;
                 for (BountyData bounty : bounties) {
-                    String targetName = "Spieler"; // TODO: Get player name
+                    // Spielername aus UUID abrufen (Server-Cache oder Online-Spieler)
+                    String targetName = "Unbekannt";
+                    var server = player.getServer();
+                    if (server != null) {
+                        var gameProfile = server.getProfileCache().get(bounty.getTargetUUID()).orElse(null);
+                        if (gameProfile != null) {
+                            targetName = gameProfile.getName();
+                        } else {
+                            // Fallback: Online-Spieler prüfen
+                            var onlinePlayer = server.getPlayerList().getPlayer(bounty.getTargetUUID());
+                            if (onlinePlayer != null) {
+                                targetName = onlinePlayer.getName().getString();
+                            }
+                        }
+                    }
 
                     player.sendSystemMessage(Component.translatable(
                         "command.bounty.list_entry",
