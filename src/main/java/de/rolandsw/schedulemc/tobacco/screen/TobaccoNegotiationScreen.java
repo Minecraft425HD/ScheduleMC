@@ -116,14 +116,20 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
 
     // Buttons
     private Button offerButton;
-    private Button priceDownBigButton;
-    private Button priceDownButton;
-    private Button priceUpButton;
-    private Button priceUpBigButton;
+    // Slider state - ersetzt Buttons
+    private boolean isDraggingSlider = false;
+    private int sliderBarX;
+    private int sliderBarY;
+    private int sliderBarWidth;
 
     // Response
     private String npcResponse = "";
     private boolean hasCooldown = false;
+
+    // Server-synchronisierte Werte für Stimmung und Runde
+    private float serverMood = 100.0f;
+    private int serverRound = 0;
+    private int serverMaxRounds = 6;
 
     // ═══════════════════════════════════════════════════════════
     // CONSTRUCTOR
@@ -147,34 +153,14 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
 
         int x = this.leftPos;
         int y = this.topPos;
-
-        // Preis-Buttons
-        int buttonY = y + SLIDER_Y + 42;
-        int buttonWidth = 35;
-        int buttonHeight = 14;
         int centerX = x + (GUI_WIDTH / 2);
 
-        priceDownBigButton = addRenderableWidget(Button.builder(
-            Component.translatable("gui.negotiation.button.price_down_big"),
-            btn -> adjustPrice(-5.0)
-        ).bounds(centerX - 85, buttonY, buttonWidth, buttonHeight).build());
+        // Slider-Position berechnen (für Maus-Interaktion)
+        sliderBarX = x + SLIDER_X + 8;
+        sliderBarY = y + SLIDER_Y + 18;
+        sliderBarWidth = SLIDER_WIDTH - 16;
 
-        priceDownButton = addRenderableWidget(Button.builder(
-            Component.translatable("gui.negotiation.button.price_down"),
-            btn -> adjustPrice(-1.0)
-        ).bounds(centerX - 48, buttonY, buttonWidth, buttonHeight).build());
-
-        priceUpButton = addRenderableWidget(Button.builder(
-            Component.translatable("gui.negotiation.button.price_up"),
-            btn -> adjustPrice(1.0)
-        ).bounds(centerX + 13, buttonY, buttonWidth, buttonHeight).build());
-
-        priceUpBigButton = addRenderableWidget(Button.builder(
-            Component.translatable("gui.negotiation.button.price_up_big"),
-            btn -> adjustPrice(5.0)
-        ).bounds(centerX + 50, buttonY, buttonWidth, buttonHeight).build());
-
-        // Anbieten-Button
+        // Anbieten-Button (einziger Button)
         offerButton = addRenderableWidget(Button.builder(
             Component.translatable("gui.negotiation.button.offer"),
             btn -> makeOffer()
@@ -330,8 +316,9 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
             npcTargetPrice = fairPrice * 0.85;
         }
 
-        minPrice = Math.max(1.0, npcTargetPrice * 0.5);
-        maxPrice = fairPrice * 1.5;
+        // Dynamische Preisspanne: 0 bis 200% des fairen Preises
+        minPrice = 0.0;
+        maxPrice = fairPrice * 2.0;
 
         // Setze initialen Preis auf Fair Price
         currentPrice = fairPrice;
@@ -347,12 +334,7 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
 
     private void updateButtonStates() {
         boolean canOffer = selectedSlot >= 0 && !hasCooldown && currentPrice > 0;
-
         offerButton.active = canOffer;
-        priceDownBigButton.active = canOffer && currentPrice > minPrice + 5;
-        priceDownButton.active = canOffer && currentPrice > minPrice;
-        priceUpButton.active = canOffer && currentPrice < maxPrice;
-        priceUpBigButton.active = canOffer && currentPrice < maxPrice - 5;
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -375,8 +357,31 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
             weight
         ));
 
-        // GUI schließen
-        this.onClose();
+        // GUI bleibt offen - wird vom Server-Response geschlossen wenn Deal akzeptiert
+        // Zeige "Warte auf Antwort..." Status
+        npcResponse = "Warte auf Antwort...";
+        offerButton.active = false;  // Verhindere mehrfaches Klicken
+    }
+
+    /**
+     * Wird vom Server aufgerufen (via NegotiationResponsePacket) um die GUI zu aktualisieren
+     */
+    public void updateNegotiationResponse(String message, double counterOffer, float mood, int round, int maxRounds) {
+        this.npcResponse = message;
+        this.npcTargetPrice = counterOffer;  // NPC's Gegenangebot als neuer Zielpreis
+
+        // Aktualisiere lokalen NegotiationState mit den Server-Daten
+        if (this.negotiationState != null) {
+            // Wir müssen die Stimmung und Runde irgendwie speichern
+            // Da wir keinen direkten Zugriff auf die internen Felder haben,
+            // speichern wir sie lokal
+            this.serverMood = mood;
+            this.serverRound = round;
+            this.serverMaxRounds = maxRounds;
+        }
+
+        // Reaktiviere den Offer-Button
+        updateButtonStates();
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -542,7 +547,7 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
         // Slider-Leiste
         int sliderWidth = SLIDER_WIDTH - 16;
         int sliderX = x + 8;
-        int sliderY = y + 18;
+        int sliderY = y + 20;
 
         // Slider-Hintergrund
         graphics.fill(sliderX, sliderY, sliderX + sliderWidth, sliderY + 12, COLOR_SLIDER_BG);
@@ -551,22 +556,45 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
             // Preis-Zonen rendern
             renderPriceZones(graphics, sliderX, sliderY, sliderWidth);
 
-            // NPC-Zielpreis Marker
+            // NPC-Zielpreis Marker (Dreieck unten)
             int npcTargetPos = (int) ((npcTargetPrice - minPrice) / (maxPrice - minPrice) * sliderWidth);
-            graphics.fill(sliderX + npcTargetPos - 1, sliderY - 2, sliderX + npcTargetPos + 1, sliderY + 14, COLOR_YELLOW);
+            graphics.fill(sliderX + npcTargetPos - 1, sliderY + 12, sliderX + npcTargetPos + 1, sliderY + 16, COLOR_YELLOW);
+            graphics.drawString(font, "NPC", sliderX + npcTargetPos - 8, sliderY + 17, COLOR_YELLOW, false);
 
-            // Spieler-Preis Marker
+            // Spieler-Preis Griff (großer Griff für Drag)
             int playerPos = (int) ((currentPrice - minPrice) / (maxPrice - minPrice) * sliderWidth);
-            graphics.fill(sliderX + playerPos - 2, sliderY - 4, sliderX + playerPos + 2, sliderY + 16, COLOR_TEXT);
+            int handleWidth = 8;
+            int handleHeight = 20;
+            int handleX = sliderX + playerPos - handleWidth / 2;
+            int handleY = sliderY - 4;
 
-            // Preis-Labels
-            graphics.drawString(font, String.format("%.0f", minPrice), sliderX, y + 6, COLOR_TEXT_SECONDARY, false);
-            graphics.drawString(font, String.format("%.0f", maxPrice), sliderX + sliderWidth - 20, y + 6, COLOR_TEXT_SECONDARY, false);
+            // Griff-Umrandung
+            graphics.fill(handleX - 1, handleY - 1, handleX + handleWidth + 1, handleY + handleHeight + 1, COLOR_BORDER);
+            // Griff-Körper
+            int handleColor = isDraggingSlider ? 0xFFFFFFFF : 0xFFDDDDDD;
+            graphics.fill(handleX, handleY, handleX + handleWidth, handleY + handleHeight, handleColor);
+            // Griff-Linien (für visuelles Feedback)
+            graphics.fill(handleX + 2, handleY + 5, handleX + handleWidth - 2, handleY + 6, COLOR_BORDER);
+            graphics.fill(handleX + 2, handleY + 9, handleX + handleWidth - 2, handleY + 10, COLOR_BORDER);
+            graphics.fill(handleX + 2, handleY + 13, handleX + handleWidth - 2, handleY + 14, COLOR_BORDER);
 
-            // Aktueller Preis (zentriert)
-            String priceStr = String.format("%.2f", currentPrice);
+            // Preis-Labels (0%, 100%, 200%)
+            graphics.drawString(font, "0€", sliderX, y + 6, COLOR_TEXT_SECONDARY, false);
+            String fairStr = String.format("%.0f€", fairPrice);
+            int fairPos = (int) ((fairPrice - minPrice) / (maxPrice - minPrice) * sliderWidth);
+            graphics.drawString(font, fairStr, sliderX + fairPos - font.width(fairStr) / 2, y + 6, COLOR_GREEN, false);
+            String maxStr = String.format("%.0f€", maxPrice);
+            graphics.drawString(font, maxStr, sliderX + sliderWidth - font.width(maxStr), y + 6, COLOR_TEXT_SECONDARY, false);
+
+            // Aktueller Preis (zentriert, größer)
+            String priceStr = String.format("%.2f€", currentPrice);
             int priceWidth = font.width(priceStr);
-            graphics.drawString(font, priceStr, (GUI_WIDTH - priceWidth) / 2, y + 40, COLOR_TEXT, false);
+            graphics.drawString(font, priceStr, (GUI_WIDTH - priceWidth) / 2, y + 44, COLOR_TEXT, false);
+
+            // Prozent-Anzeige
+            int percent = (int) ((currentPrice / fairPrice) * 100);
+            String percentStr = "(" + percent + "%)";
+            graphics.drawString(font, percentStr, (GUI_WIDTH - font.width(percentStr)) / 2, y + 54, COLOR_TEXT_SECONDARY, false);
         } else {
             graphics.drawString(font, Component.translatable("gui.negotiation.select_first").getString(),
                 sliderX, sliderY + 2, COLOR_TEXT_SECONDARY, false);
@@ -627,23 +655,40 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
     }
 
     private void renderMoodIndicator(GuiGraphics graphics, int x, int y) {
-        int round = negotiationState != null ? negotiationState.getCurrentRound() : 0;
-        int maxRounds = negotiationState != null ? negotiationState.getMaxRounds() : 5;
-        float mood = negotiationState != null ? negotiationState.getMoodPercent() : 100;
+        // Nutze Server-synchronisierte Werte
+        int round = serverRound;
+        int maxRounds = serverMaxRounds;
+        float mood = serverMood;
 
         // Stimmungs-Leiste
         int barWidth = 100;
         graphics.drawString(font, "\uD83D\uDE0A", x, y, COLOR_GREEN, false); // Happy emoji
         graphics.fill(x + 12, y + 2, x + 12 + barWidth, y + 8, COLOR_SLIDER_BG);
 
-        // Mood-Position
+        // Mood-Position (0 = rechts/sauer, 100 = links/glücklich)
         int moodPos = (int) ((100 - mood) / 100.0f * barWidth);
-        graphics.fill(x + 12 + moodPos - 1, y, x + 12 + moodPos + 1, y + 10, COLOR_TEXT);
+
+        // Farbe basierend auf Stimmung
+        int moodColor;
+        if (mood > 70) {
+            moodColor = COLOR_GREEN;
+        } else if (mood > 40) {
+            moodColor = COLOR_YELLOW;
+        } else {
+            moodColor = COLOR_RED;
+        }
+
+        // Größerer Mood-Marker
+        graphics.fill(x + 12 + moodPos - 2, y - 1, x + 12 + moodPos + 2, y + 11, moodColor);
 
         graphics.drawString(font, "\uD83D\uDE21", x + 14 + barWidth, y, COLOR_RED, false); // Angry emoji
 
         // Runden-Anzeige
         graphics.drawString(font, "(" + round + "/" + maxRounds + ")", x + 130, y, COLOR_TEXT_SECONDARY, false);
+
+        // Mood-Prozent anzeigen
+        String moodStr = String.format("%.0f%%", mood);
+        graphics.drawString(font, moodStr, x + 160, y, moodColor, false);
     }
 
     private int getScoreColor(int score) {
@@ -666,10 +711,68 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
     }
 
     @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        // Linksklick auf Slider
+        if (button == 0 && isMouseOverSlider(mouseX, mouseY)) {
+            isDraggingSlider = true;
+            updatePriceFromMouse(mouseX);
+            return true;
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        if (button == 0 && isDraggingSlider) {
+            isDraggingSlider = false;
+            return true;
+        }
+        return super.mouseReleased(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        if (isDraggingSlider && selectedSlot >= 0) {
+            updatePriceFromMouse(mouseX);
+            return true;
+        }
+        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+    }
+
+    /**
+     * Prüft ob die Maus über dem Slider ist
+     */
+    private boolean isMouseOverSlider(double mouseX, double mouseY) {
+        if (selectedSlot < 0) return false;
+        return mouseX >= sliderBarX && mouseX <= sliderBarX + sliderBarWidth &&
+               mouseY >= sliderBarY - 4 && mouseY <= sliderBarY + 16;
+    }
+
+    /**
+     * Aktualisiert den Preis basierend auf der Mausposition
+     */
+    private void updatePriceFromMouse(double mouseX) {
+        if (selectedSlot < 0 || maxPrice <= minPrice) return;
+
+        // Berechne Position als Prozentsatz (0-1)
+        double relativeX = (mouseX - sliderBarX) / sliderBarWidth;
+        relativeX = Math.max(0.0, Math.min(1.0, relativeX));
+
+        // Konvertiere zu Preis
+        currentPrice = minPrice + (relativeX * (maxPrice - minPrice));
+
+        // Runde auf 0.50€ Schritte für bessere Bedienbarkeit
+        currentPrice = Math.round(currentPrice * 2) / 2.0;
+
+        updateButtonStates();
+    }
+
+    @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-        // Scroll zum Anpassen des Preises
+        // Scroll zum Anpassen des Preises (auf 1% des Maxpreises)
         if (selectedSlot >= 0) {
-            adjustPrice(delta > 0 ? 0.5 : -0.5);
+            double step = maxPrice * 0.01;  // 1% des Maxpreises pro Scroll
+            adjustPrice(delta > 0 ? step : -step);
             updateButtonStates();
             return true;
         }
