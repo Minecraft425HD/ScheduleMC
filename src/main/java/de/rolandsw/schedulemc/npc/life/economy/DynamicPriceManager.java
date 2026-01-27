@@ -51,6 +51,14 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
         return result;
     }
 
+    /**
+     * Gets manager instance for a specific level (convenience method).
+     * Note: Manager is server-wide, not per-level.
+     */
+    public static DynamicPriceManager getManager(ServerLevel level) {
+        return getInstance(level.getServer());
+    }
+
     // ═══════════════════════════════════════════════════════════
     // CONSTANTS
     // ═══════════════════════════════════════════════════════════

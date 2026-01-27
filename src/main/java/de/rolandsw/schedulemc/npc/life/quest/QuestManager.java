@@ -61,6 +61,14 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
         return result;
     }
 
+    /**
+     * Gets manager instance for a specific level (convenience method).
+     * Note: Manager is server-wide, not per-level.
+     */
+    public static QuestManager getManager(ServerLevel level) {
+        return getInstance(level.getServer());
+    }
+
     // ═══════════════════════════════════════════════════════════
     // DATA
     // ═══════════════════════════════════════════════════════════

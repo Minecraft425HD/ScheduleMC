@@ -60,6 +60,14 @@ public class WitnessManager extends AbstractPersistenceManager<WitnessManager.Wi
         return result;
     }
 
+    /**
+     * Gets manager instance for a specific level (convenience method).
+     * Note: Manager is server-wide, not per-level.
+     */
+    public static WitnessManager getManager(ServerLevel level) {
+        return getInstance(level.getServer());
+    }
+
     // ═══════════════════════════════════════════════════════════
     // CONSTANTS
     // ═══════════════════════════════════════════════════════════

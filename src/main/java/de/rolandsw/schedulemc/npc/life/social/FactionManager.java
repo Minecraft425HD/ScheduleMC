@@ -44,6 +44,14 @@ public class FactionManager extends AbstractPersistenceManager<Map<String, Map<S
         return result;
     }
 
+    /**
+     * Gets manager instance for a specific level (convenience method).
+     * Note: Manager is server-wide, not per-level.
+     */
+    public static FactionManager getManager(ServerLevel level) {
+        return getInstance(level.getServer());
+    }
+
     // ═══════════════════════════════════════════════════════════
     // DATA
     // ═══════════════════════════════════════════════════════════

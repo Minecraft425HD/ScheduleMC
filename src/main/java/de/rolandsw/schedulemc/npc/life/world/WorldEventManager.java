@@ -43,6 +43,14 @@ public class WorldEventManager extends AbstractPersistenceManager<WorldEventMana
         return instance;
     }
 
+    /**
+     * Gets manager instance for a specific level (convenience method).
+     * Note: Manager is server-wide, not per-level.
+     */
+    public static WorldEventManager getManager(ServerLevel level) {
+        return getInstance(level.getServer());
+    }
+
     public static WorldEventManager getInstance(MinecraftServer server) {
         WorldEventManager result = instance;
         if (result == null) {
@@ -390,6 +398,15 @@ public class WorldEventManager extends AbstractPersistenceManager<WorldEventMana
             .filter(e -> e.getEventId().equals(eventId))
             .findFirst()
             .orElse(null);
+    }
+
+    /**
+     * Berechnet den kombinierten Preismodifikator aller Events (convenience method)
+     */
+    public float getCombinedPriceModifier(BlockPos pos) {
+        if (server == null) return 1.0f;
+        long currentDay = server.overworld().getDayTime() / 24000L;
+        return getCombinedPriceModifier(pos, currentDay);
     }
 
     /**
