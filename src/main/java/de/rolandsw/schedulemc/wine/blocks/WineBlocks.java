@@ -47,61 +47,61 @@ public class WineBlocks {
 
     // Crushing Station
     public static final RegistryObject<Block> CRUSHING_STATION = BLOCKS.register("crushing_station",
-        () -> new Block(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)));
+        () -> new CrushingStationBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)));
     public static final RegistryObject<Item> CRUSHING_STATION_ITEM = ITEMS.register("crushing_station",
         () -> new BlockItem(CRUSHING_STATION.get(), new Item.Properties()));
 
     // Pressing Stations (3 sizes)
     public static final RegistryObject<Block> SMALL_WINE_PRESS = BLOCKS.register("small_wine_press",
-        () -> new Block(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)));
+        () -> new SmallWinePressBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)));
     public static final RegistryObject<Item> SMALL_WINE_PRESS_ITEM = ITEMS.register("small_wine_press",
         () -> new BlockItem(SMALL_WINE_PRESS.get(), new Item.Properties()));
 
     public static final RegistryObject<Block> MEDIUM_WINE_PRESS = BLOCKS.register("medium_wine_press",
-        () -> new Block(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)));
+        () -> new MediumWinePressBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)));
     public static final RegistryObject<Item> MEDIUM_WINE_PRESS_ITEM = ITEMS.register("medium_wine_press",
         () -> new BlockItem(MEDIUM_WINE_PRESS.get(), new Item.Properties()));
 
     public static final RegistryObject<Block> LARGE_WINE_PRESS = BLOCKS.register("large_wine_press",
-        () -> new Block(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)));
+        () -> new LargeWinePressBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)));
     public static final RegistryObject<Item> LARGE_WINE_PRESS_ITEM = ITEMS.register("large_wine_press",
         () -> new BlockItem(LARGE_WINE_PRESS.get(), new Item.Properties()));
 
     // Fermentation Tanks (3 sizes)
     public static final RegistryObject<Block> SMALL_FERMENTATION_TANK = BLOCKS.register("small_fermentation_tank",
-        () -> new Block(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)));
+        () -> new SmallFermentationTankBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)));
     public static final RegistryObject<Item> SMALL_FERMENTATION_TANK_ITEM = ITEMS.register("small_fermentation_tank",
         () -> new BlockItem(SMALL_FERMENTATION_TANK.get(), new Item.Properties()));
 
     public static final RegistryObject<Block> MEDIUM_FERMENTATION_TANK = BLOCKS.register("medium_fermentation_tank",
-        () -> new Block(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)));
+        () -> new MediumFermentationTankBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)));
     public static final RegistryObject<Item> MEDIUM_FERMENTATION_TANK_ITEM = ITEMS.register("medium_fermentation_tank",
         () -> new BlockItem(MEDIUM_FERMENTATION_TANK.get(), new Item.Properties()));
 
     public static final RegistryObject<Block> LARGE_FERMENTATION_TANK = BLOCKS.register("large_fermentation_tank",
-        () -> new Block(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)));
+        () -> new LargeFermentationTankBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)));
     public static final RegistryObject<Item> LARGE_FERMENTATION_TANK_ITEM = ITEMS.register("large_fermentation_tank",
         () -> new BlockItem(LARGE_FERMENTATION_TANK.get(), new Item.Properties()));
 
     // Aging Barrels (3 sizes)
     public static final RegistryObject<Block> SMALL_AGING_BARREL = BLOCKS.register("small_aging_barrel",
-        () -> new Block(BlockBehaviour.Properties.copy(Blocks.BARREL)));
+        () -> new SmallAgingBarrelBlock(BlockBehaviour.Properties.copy(Blocks.BARREL)));
     public static final RegistryObject<Item> SMALL_AGING_BARREL_ITEM = ITEMS.register("small_aging_barrel",
         () -> new BlockItem(SMALL_AGING_BARREL.get(), new Item.Properties()));
 
     public static final RegistryObject<Block> MEDIUM_AGING_BARREL = BLOCKS.register("medium_aging_barrel",
-        () -> new Block(BlockBehaviour.Properties.copy(Blocks.BARREL)));
+        () -> new MediumAgingBarrelBlock(BlockBehaviour.Properties.copy(Blocks.BARREL)));
     public static final RegistryObject<Item> MEDIUM_AGING_BARREL_ITEM = ITEMS.register("medium_aging_barrel",
         () -> new BlockItem(MEDIUM_AGING_BARREL.get(), new Item.Properties()));
 
     public static final RegistryObject<Block> LARGE_AGING_BARREL = BLOCKS.register("large_aging_barrel",
-        () -> new Block(BlockBehaviour.Properties.copy(Blocks.BARREL)));
+        () -> new LargeAgingBarrelBlock(BlockBehaviour.Properties.copy(Blocks.BARREL)));
     public static final RegistryObject<Item> LARGE_AGING_BARREL_ITEM = ITEMS.register("large_aging_barrel",
         () -> new BlockItem(LARGE_AGING_BARREL.get(), new Item.Properties()));
 
     // Bottling Station
     public static final RegistryObject<Block> WINE_BOTTLING_STATION = BLOCKS.register("wine_bottling_station",
-        () -> new Block(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)));
+        () -> new WineBottlingStationBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)));
     public static final RegistryObject<Item> WINE_BOTTLING_STATION_ITEM = ITEMS.register("wine_bottling_station",
         () -> new BlockItem(WINE_BOTTLING_STATION.get(), new Item.Properties()));
 }
