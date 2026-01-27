@@ -1,0 +1,72 @@
+{
+  "_comment": "Coffee System - Complete Translations",
+  
+  "item.schedulemc.arabica_coffee_seedling": "Arabica Coffee Seedling",
+  "item.schedulemc.robusta_coffee_seedling": "Robusta Coffee Seedling",
+  "item.schedulemc.liberica_coffee_seedling": "Liberica Coffee Seedling",
+  "item.schedulemc.excelsa_coffee_seedling": "Excelsa Coffee Seedling",
+  
+  "item.schedulemc.arabica_coffee_cherry": "Arabica Coffee Cherry",
+  "item.schedulemc.robusta_coffee_cherry": "Robusta Coffee Cherry",
+  "item.schedulemc.liberica_coffee_cherry": "Liberica Coffee Cherry",
+  "item.schedulemc.excelsa_coffee_cherry": "Excelsa Coffee Cherry",
+  
+  "item.schedulemc.green_arabica_beans": "Green Arabica Beans",
+  "item.schedulemc.green_robusta_beans": "Green Robusta Beans",
+  "item.schedulemc.green_liberica_beans": "Green Liberica Beans",
+  "item.schedulemc.green_excelsa_beans": "Green Excelsa Beans",
+  
+  "item.schedulemc.roasted_coffee_beans": "Roasted Coffee Beans",
+  "item.schedulemc.ground_coffee": "Ground Coffee",
+  
+  "item.schedulemc.coffee_package_250g": "Coffee Package (250g)",
+  "item.schedulemc.coffee_package_500g": "Coffee Package (500g)",
+  "item.schedulemc.coffee_package_1kg": "Coffee Package (1kg)",
+  
+  "item.schedulemc.coffee_bag_small": "Small Coffee Bag",
+  "item.schedulemc.coffee_bag_medium": "Medium Coffee Bag",
+  "item.schedulemc.coffee_bag_large": "Large Coffee Bag",
+  
+  "item.schedulemc.brewed_coffee": "Brewed Coffee",
+  "item.schedulemc.espresso": "Espresso",
+  
+  "block.schedulemc.coffee_plant": "Coffee Plant",
+  "block.schedulemc.arabica_coffee_pot": "Arabica Coffee Pot",
+  "block.schedulemc.robusta_coffee_pot": "Robusta Coffee Pot",
+  "block.schedulemc.liberica_coffee_pot": "Liberica Coffee Pot",
+  "block.schedulemc.excelsa_coffee_pot": "Excelsa Coffee Pot",
+  
+  "block.schedulemc.small_coffee_drying_tray": "Small Coffee Drying Tray",
+  "block.schedulemc.medium_coffee_drying_tray": "Medium Coffee Drying Tray",
+  "block.schedulemc.large_coffee_drying_tray": "Large Coffee Drying Tray",
+  
+  "block.schedulemc.wet_processing_station": "Wet Processing Station",
+  
+  "block.schedulemc.small_coffee_roaster": "Small Coffee Roaster",
+  "block.schedulemc.medium_coffee_roaster": "Medium Coffee Roaster",
+  "block.schedulemc.large_coffee_roaster": "Large Coffee Roaster",
+  
+  "block.schedulemc.coffee_grinder": "Coffee Grinder",
+  "block.schedulemc.coffee_packaging_table": "Coffee Packaging Table",
+  
+  "coffee.type.arabica": "Arabica",
+  "coffee.type.robusta": "Robusta",
+  "coffee.type.liberica": "Liberica",
+  "coffee.type.excelsa": "Excelsa",
+  
+  "coffee.quality.poor": "Poor",
+  "coffee.quality.good": "Good",
+  "coffee.quality.very_good": "Very Good",
+  "coffee.quality.excellent": "Excellent",
+  "coffee.quality.legendary": "Legendary",
+  
+  "coffee.roast.light": "Light",
+  "coffee.roast.medium": "Medium",
+  "coffee.roast.dark": "Dark",
+  "coffee.roast.espresso": "Espresso",
+  
+  "coffee.grind.extra_fine": "Extra Fine",
+  "coffee.grind.fine": "Fine",
+  "coffee.grind.medium": "Medium",
+  "coffee.grind.coarse": "Coarse"
+}

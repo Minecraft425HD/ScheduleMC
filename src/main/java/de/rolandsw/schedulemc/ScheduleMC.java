@@ -71,6 +71,36 @@ import de.rolandsw.schedulemc.cannabis.items.CannabisItems;
 import de.rolandsw.schedulemc.cannabis.blocks.CannabisBlocks;
 import de.rolandsw.schedulemc.cannabis.blockentity.CannabisBlockEntities;
 import de.rolandsw.schedulemc.cannabis.menu.CannabisMenuTypes;
+import de.rolandsw.schedulemc.coffee.items.CoffeeItems;
+import de.rolandsw.schedulemc.coffee.blocks.CoffeeBlocks;
+import de.rolandsw.schedulemc.coffee.blockentity.CoffeeBlockEntities;
+import de.rolandsw.schedulemc.coffee.menu.CoffeeMenuTypes;
+import de.rolandsw.schedulemc.coffee.network.CoffeeNetworking;
+import de.rolandsw.schedulemc.wine.items.WineItems;
+import de.rolandsw.schedulemc.wine.blocks.WineBlocks;
+import de.rolandsw.schedulemc.wine.blockentity.WineBlockEntities;
+import de.rolandsw.schedulemc.wine.menu.WineMenuTypes;
+import de.rolandsw.schedulemc.wine.network.WineNetworking;
+import de.rolandsw.schedulemc.cheese.items.CheeseItems;
+import de.rolandsw.schedulemc.cheese.blocks.CheeseBlocks;
+import de.rolandsw.schedulemc.cheese.blockentity.CheeseBlockEntities;
+import de.rolandsw.schedulemc.cheese.menu.CheeseMenuTypes;
+import de.rolandsw.schedulemc.cheese.network.CheeseNetworking;
+import de.rolandsw.schedulemc.honey.items.HoneyItems;
+import de.rolandsw.schedulemc.honey.blocks.HoneyBlocks;
+import de.rolandsw.schedulemc.honey.blockentity.HoneyBlockEntities;
+import de.rolandsw.schedulemc.honey.menu.HoneyMenuTypes;
+import de.rolandsw.schedulemc.honey.network.HoneyNetworking;
+import de.rolandsw.schedulemc.chocolate.items.ChocolateItems;
+import de.rolandsw.schedulemc.chocolate.blocks.ChocolateBlocks;
+import de.rolandsw.schedulemc.chocolate.blockentity.ChocolateBlockEntities;
+import de.rolandsw.schedulemc.chocolate.menu.ChocolateMenuTypes;
+import de.rolandsw.schedulemc.chocolate.network.ChocolateNetworking;
+import de.rolandsw.schedulemc.beer.items.BeerItems;
+import de.rolandsw.schedulemc.beer.blocks.BeerBlocks;
+import de.rolandsw.schedulemc.beer.blockentity.BeerBlockEntities;
+import de.rolandsw.schedulemc.beer.menu.BeerMenuTypes;
+import de.rolandsw.schedulemc.beer.network.BeerNetworking;
 import de.rolandsw.schedulemc.tobacco.menu.ModMenuTypes;
 import de.rolandsw.schedulemc.tobacco.entity.ModEntities;
 import de.rolandsw.schedulemc.economy.blocks.EconomyBlocks;
@@ -194,6 +224,48 @@ public class ScheduleMC {
         CannabisBlockEntities.BLOCK_ENTITIES.register(modEventBus);
         CannabisMenuTypes.MENUS.register(modEventBus);
 
+        // Coffee-System registrieren
+        CoffeeItems.ITEMS.register(modEventBus);
+        CoffeeBlocks.BLOCKS.register(modEventBus);
+        CoffeeBlocks.ITEMS.register(modEventBus);
+        CoffeeBlockEntities.BLOCK_ENTITIES.register(modEventBus);
+        CoffeeMenuTypes.MENUS.register(modEventBus);
+
+        // Wine-System registrieren
+        WineItems.ITEMS.register(modEventBus);
+        WineBlocks.BLOCKS.register(modEventBus);
+        WineBlocks.ITEMS.register(modEventBus);
+        WineBlockEntities.BLOCK_ENTITIES.register(modEventBus);
+        WineMenuTypes.MENUS.register(modEventBus);
+
+        // Cheese-System registrieren
+        CheeseItems.ITEMS.register(modEventBus);
+        CheeseBlocks.BLOCKS.register(modEventBus);
+        CheeseBlocks.ITEMS.register(modEventBus);
+        CheeseBlockEntities.BLOCK_ENTITIES.register(modEventBus);
+        CheeseMenuTypes.MENUS.register(modEventBus);
+
+        // Honey-System registrieren
+        HoneyItems.ITEMS.register(modEventBus);
+        HoneyBlocks.BLOCKS.register(modEventBus);
+        HoneyBlocks.ITEMS.register(modEventBus);
+        HoneyBlockEntities.BLOCK_ENTITIES.register(modEventBus);
+        HoneyMenuTypes.MENUS.register(modEventBus);
+
+        // Chocolate-System registrieren
+        ChocolateItems.ITEMS.register(modEventBus);
+        ChocolateBlocks.BLOCKS.register(modEventBus);
+        ChocolateBlocks.ITEMS.register(modEventBus);
+        ChocolateBlockEntities.BLOCK_ENTITIES.register(modEventBus);
+        ChocolateMenuTypes.MENUS.register(modEventBus);
+
+        // Beer-System registrieren
+        BeerItems.ITEMS.register(modEventBus);
+        BeerBlocks.BLOCKS.register(modEventBus);
+        BeerBlocks.ITEMS.register(modEventBus);
+        BeerBlockEntities.BLOCK_ENTITIES.register(modEventBus);
+        BeerMenuTypes.MENUS.register(modEventBus);
+
         EconomyBlocks.BLOCKS.register(modEventBus);
         EconomyBlocks.ITEMS.register(modEventBus);
         de.rolandsw.schedulemc.region.blocks.PlotBlocks.BLOCKS.register(modEventBus);
@@ -245,6 +317,12 @@ public class ScheduleMC {
             EconomyNetworkHandler.register();
             NPCNetworkHandler.register();
             ModNetworking.register();
+            CoffeeNetworking.register();
+            WineNetworking.register();
+            CheeseNetworking.register();
+            HoneyNetworking.register();
+            ChocolateNetworking.register();
+            BeerNetworking.register();
             SmartphoneNetworkHandler.register();
             MessageNetworkHandler.register();
             WarehouseNetworkHandler.register();
