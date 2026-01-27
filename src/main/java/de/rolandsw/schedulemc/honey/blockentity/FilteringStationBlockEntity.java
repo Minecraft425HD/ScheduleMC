@@ -179,9 +179,11 @@ public class FilteringStationBlockEntity extends BlockEntity implements IUtility
     private HoneyQuality upgradeQuality(HoneyQuality current) {
         if (current == null) return HoneyQuality.BASIC;
         return switch (current) {
+            case RAW -> HoneyQuality.BASIC;
             case BASIC -> HoneyQuality.GOOD;
             case GOOD -> HoneyQuality.GOOD; // Max at GOOD for filtering
             case PREMIUM -> HoneyQuality.PREMIUM; // Already max
+            case EXCEPTIONAL -> HoneyQuality.EXCEPTIONAL; // Already max
         };
     }
 
