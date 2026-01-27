@@ -101,4 +101,14 @@ public enum WineType implements ProductionType {
     public int getBaseYield() {
         return 1;  // Default yield for wine production
     }
+
+    @Override
+    public int getGrowthTicks() {
+        return growthTimeDays * 24000;  // Convert days to ticks (1 day = 24000 ticks)
+    }
+
+    @Override
+    public double getBasePrice() {
+        return basePricePerLiter;
+    }
 }
