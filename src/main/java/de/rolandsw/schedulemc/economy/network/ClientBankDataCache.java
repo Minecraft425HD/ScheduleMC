@@ -4,6 +4,7 @@ import de.rolandsw.schedulemc.economy.Transaction;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Client-side cache for bank data received from server
@@ -12,7 +13,7 @@ import java.util.List;
 public class ClientBankDataCache {
     // Girokonto
     private static double balance = 0.0;
-    private static List<Transaction> transactions = new ArrayList<>();
+    private static List<Transaction> transactions = new CopyOnWriteArrayList<>();
     private static double totalIncome = 0.0;
     private static double totalExpenses = 0.0;
 
@@ -27,7 +28,7 @@ public class ClientBankDataCache {
     private static double maxTransferLimit = 0.0;
 
     // Daueraufträge
-    private static List<RecurringPaymentData> recurringPayments = new ArrayList<>();
+    private static List<RecurringPaymentData> recurringPayments = new CopyOnWriteArrayList<>();
 
     // Kredit
     private static CreditLoanData activeLoan = null;
@@ -48,9 +49,9 @@ public class ClientBankDataCache {
     private static int emeraldTrend = 0;
 
     // Börsen-Historie (7 Tage)
-    private static List<Double> goldHistory = new ArrayList<>();
-    private static List<Double> diamondHistory = new ArrayList<>();
-    private static List<Double> emeraldHistory = new ArrayList<>();
+    private static List<Double> goldHistory = new CopyOnWriteArrayList<>();
+    private static List<Double> diamondHistory = new CopyOnWriteArrayList<>();
+    private static List<Double> emeraldHistory = new CopyOnWriteArrayList<>();
 
     // Börsen-Statistiken
     private static double goldHigh = 150.0;
@@ -77,7 +78,7 @@ public class ClientBankDataCache {
     public static void updateData(double newBalance, List<Transaction> newTransactions,
                                   double newTotalIncome, double newTotalExpenses) {
         balance = newBalance;
-        transactions = new ArrayList<>(newTransactions);
+        transactions = new CopyOnWriteArrayList<>(newTransactions);
         totalIncome = newTotalIncome;
         totalExpenses = newTotalExpenses;
         hasData = true;
@@ -107,8 +108,8 @@ public class ClientBankDataCache {
         savingsBalance = newSavingsBalance;
         remainingTransferLimit = newRemainingLimit;
         maxTransferLimit = newMaxLimit;
-        transactions = new ArrayList<>(newTransactions);
-        recurringPayments = new ArrayList<>(newRecurringPayments);
+        transactions = new CopyOnWriteArrayList<>(newTransactions);
+        recurringPayments = new CopyOnWriteArrayList<>(newRecurringPayments);
         activeLoan = newActiveLoan;
         hasData = true;
         lastUpdateTime = System.currentTimeMillis();
@@ -130,8 +131,8 @@ public class ClientBankDataCache {
         savingsBalance = newSavingsBalance;
         remainingTransferLimit = newRemainingLimit;
         maxTransferLimit = newMaxLimit;
-        transactions = new ArrayList<>(newTransactions);
-        recurringPayments = new ArrayList<>(newRecurringPayments);
+        transactions = new CopyOnWriteArrayList<>(newTransactions);
+        recurringPayments = new CopyOnWriteArrayList<>(newRecurringPayments);
         activeLoan = newActiveLoan;
 
         // Dispo-Daten
@@ -175,9 +176,9 @@ public class ClientBankDataCache {
         emeraldTrend = emeraldT;
 
         // History
-        goldHistory = new ArrayList<>(goldHist);
-        diamondHistory = new ArrayList<>(diamondHist);
-        emeraldHistory = new ArrayList<>(emeraldHist);
+        goldHistory = new CopyOnWriteArrayList<>(goldHist);
+        diamondHistory = new CopyOnWriteArrayList<>(diamondHist);
+        emeraldHistory = new CopyOnWriteArrayList<>(emeraldHist);
 
         // Statistics
         goldHigh = goldH;

@@ -94,7 +94,7 @@ public class PoliceAIHandler {
     // Verhindert teure getEntitiesOfClass() Aufrufe für jeden Polizisten
     // ═══════════════════════════════════════════════════════════════════════════
     private static final Map<UUID, CachedPlayerData> playerCache = new ConcurrentHashMap<>();
-    private static long lastCacheUpdateTick = -1;
+    private static volatile long lastCacheUpdateTick = -1;
 
     /**
      * Gecachte Spielerdaten für schnellen Zugriff

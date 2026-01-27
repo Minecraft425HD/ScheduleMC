@@ -107,77 +107,6 @@ public class ThreadPoolManager {
         return pool == null || pool.isShutdown() || pool.isTerminated();
     }
 
-    /**
-     * Initialisiert IO Pool
-     */
-    private static void initializeIOPool() {
-        synchronized (INIT_LOCK) {
-            if (isPoolShutdown(IO_POOL)) {
-                LOGGER.debug("Initializing IO Pool...");
-                IO_POOL = createNamedPool(4, "ScheduleMC-IO-%d", Thread.NORM_PRIORITY);
-            }
-        }
-    }
-
-    /**
-     * Initialisiert Render Pool
-     */
-    private static void initializeRenderPool() {
-        synchronized (INIT_LOCK) {
-            if (isPoolShutdown(RENDER_POOL)) {
-                LOGGER.debug("Initializing Render Pool...");
-                RENDER_POOL = createNamedPool(2, "ScheduleMC-Render-%d", Thread.NORM_PRIORITY - 1);
-            }
-        }
-    }
-
-    /**
-     * Initialisiert Computation Pool
-     */
-    private static void initializeComputationPool() {
-        synchronized (INIT_LOCK) {
-            if (isPoolShutdown(COMPUTATION_POOL)) {
-                LOGGER.debug("Initializing Computation Pool...");
-                int poolSize = Math.max(2, Runtime.getRuntime().availableProcessors() / 2);
-                COMPUTATION_POOL = createNamedPool(poolSize, "ScheduleMC-Compute-%d", Thread.NORM_PRIORITY);
-            }
-        }
-    }
-
-    /**
-     * Initialisiert Async Pool
-     */
-    private static void initializeAsyncPool() {
-        synchronized (INIT_LOCK) {
-            if (isPoolShutdown(ASYNC_POOL)) {
-                LOGGER.debug("Initializing Async Pool...");
-                ASYNC_POOL = new ThreadPoolExecutor(
-                    0,
-                    20,
-                    60L,
-                    TimeUnit.SECONDS,
-                    new SynchronousQueue<>(),
-                    createThreadFactory("ScheduleMC-Async-%d", Thread.NORM_PRIORITY)
-                );
-            }
-        }
-    }
-
-    /**
-     * Initialisiert Scheduled Pool
-     */
-    private static void initializeScheduledPool() {
-        synchronized (INIT_LOCK) {
-            if (isPoolShutdown(SCHEDULED_POOL)) {
-                LOGGER.debug("Initializing Scheduled Pool...");
-                SCHEDULED_POOL = new ScheduledThreadPoolExecutor(
-                    2,
-                    createThreadFactory("ScheduleMC-Scheduled-%d", Thread.NORM_PRIORITY)
-                );
-            }
-        }
-    }
-
     // ═══════════════════════════════════════════════════════════
     // PUBLIC API
     // ═══════════════════════════════════════════════════════════
@@ -196,7 +125,12 @@ public class ThreadPoolManager {
      */
     public static ExecutorService getIOPool() {
         if (isPoolShutdown(IO_POOL)) {
-            initializeIOPool();
+            synchronized (INIT_LOCK) {
+                if (isPoolShutdown(IO_POOL)) {
+                    LOGGER.debug("Initializing IO Pool...");
+                    IO_POOL = createNamedPool(4, "ScheduleMC-IO-%d", Thread.NORM_PRIORITY);
+                }
+            }
         }
         return IO_POOL;
     }
@@ -208,7 +142,12 @@ public class ThreadPoolManager {
      */
     public static ExecutorService getRenderPool() {
         if (isPoolShutdown(RENDER_POOL)) {
-            initializeRenderPool();
+            synchronized (INIT_LOCK) {
+                if (isPoolShutdown(RENDER_POOL)) {
+                    LOGGER.debug("Initializing Render Pool...");
+                    RENDER_POOL = createNamedPool(2, "ScheduleMC-Render-%d", Thread.NORM_PRIORITY - 1);
+                }
+            }
         }
         return RENDER_POOL;
     }
@@ -220,7 +159,13 @@ public class ThreadPoolManager {
      */
     public static ExecutorService getComputationPool() {
         if (isPoolShutdown(COMPUTATION_POOL)) {
-            initializeComputationPool();
+            synchronized (INIT_LOCK) {
+                if (isPoolShutdown(COMPUTATION_POOL)) {
+                    LOGGER.debug("Initializing Computation Pool...");
+                    int poolSize = Math.max(2, Runtime.getRuntime().availableProcessors() / 2);
+                    COMPUTATION_POOL = createNamedPool(poolSize, "ScheduleMC-Compute-%d", Thread.NORM_PRIORITY);
+                }
+            }
         }
         return COMPUTATION_POOL;
     }
@@ -232,7 +177,19 @@ public class ThreadPoolManager {
      */
     public static ExecutorService getAsyncPool() {
         if (isPoolShutdown(ASYNC_POOL)) {
-            initializeAsyncPool();
+            synchronized (INIT_LOCK) {
+                if (isPoolShutdown(ASYNC_POOL)) {
+                    LOGGER.debug("Initializing Async Pool...");
+                    ASYNC_POOL = new ThreadPoolExecutor(
+                        0,
+                        20,
+                        60L,
+                        TimeUnit.SECONDS,
+                        new SynchronousQueue<>(),
+                        createThreadFactory("ScheduleMC-Async-%d", Thread.NORM_PRIORITY)
+                    );
+                }
+            }
         }
         return ASYNC_POOL;
     }
@@ -244,7 +201,15 @@ public class ThreadPoolManager {
      */
     public static ScheduledExecutorService getScheduledPool() {
         if (isPoolShutdown(SCHEDULED_POOL)) {
-            initializeScheduledPool();
+            synchronized (INIT_LOCK) {
+                if (isPoolShutdown(SCHEDULED_POOL)) {
+                    LOGGER.debug("Initializing Scheduled Pool...");
+                    SCHEDULED_POOL = new ScheduledThreadPoolExecutor(
+                        2,
+                        createThreadFactory("ScheduleMC-Scheduled-%d", Thread.NORM_PRIORITY)
+                    );
+                }
+            }
         }
         return SCHEDULED_POOL;
     }

@@ -11,6 +11,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Custom PathNavigation für NPCs
@@ -18,7 +19,7 @@ import java.util.Set;
  */
 public class NPCPathNavigation extends GroundPathNavigation {
 
-    private static Set<String> allowedBlocks = new HashSet<>();
+    private static Set<String> allowedBlocks = ConcurrentHashMap.newKeySet();
 
     public NPCPathNavigation(Mob mob, Level level) {
         super(mob, level);
