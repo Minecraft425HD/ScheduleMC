@@ -34,7 +34,7 @@ public class BeerBlocks {
     // MALTING STATION (Mälzen von Getreide)
     // ═══════════════════════════════════════════════════════════
     public static final RegistryObject<Block> MALTING_STATION = BLOCKS.register("malting_station",
-        () -> new Block(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)
+        () -> new MaltingStationBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)
             .strength(3.0f, 6.0f)
             .requiresCorrectToolForDrops()));
     public static final RegistryObject<Item> MALTING_STATION_ITEM = ITEMS.register("malting_station",
@@ -44,7 +44,7 @@ public class BeerBlocks {
     // MASH TUN (Maischbottich für Maischvorgang)
     // ═══════════════════════════════════════════════════════════
     public static final RegistryObject<Block> MASH_TUN = BLOCKS.register("mash_tun",
-        () -> new Block(BlockBehaviour.Properties.copy(Blocks.COPPER_BLOCK)
+        () -> new MashTunBlock(BlockBehaviour.Properties.copy(Blocks.COPPER_BLOCK)
             .strength(3.0f, 6.0f)
             .requiresCorrectToolForDrops()));
     public static final RegistryObject<Item> MASH_TUN_ITEM = ITEMS.register("mash_tun",
@@ -54,21 +54,21 @@ public class BeerBlocks {
     // BREW KETTLES (Sudkessel, 3 Größen)
     // ═══════════════════════════════════════════════════════════
     public static final RegistryObject<Block> SMALL_BREW_KETTLE = BLOCKS.register("small_brew_kettle",
-        () -> new Block(BlockBehaviour.Properties.copy(Blocks.COPPER_BLOCK)
+        () -> new SmallBrewKettleBlock(BlockBehaviour.Properties.copy(Blocks.COPPER_BLOCK)
             .strength(3.5f, 6.0f)
             .requiresCorrectToolForDrops()));
     public static final RegistryObject<Item> SMALL_BREW_KETTLE_ITEM = ITEMS.register("small_brew_kettle",
         () -> new BlockItem(SMALL_BREW_KETTLE.get(), new Item.Properties()));
 
     public static final RegistryObject<Block> MEDIUM_BREW_KETTLE = BLOCKS.register("medium_brew_kettle",
-        () -> new Block(BlockBehaviour.Properties.copy(Blocks.COPPER_BLOCK)
+        () -> new MediumBrewKettleBlock(BlockBehaviour.Properties.copy(Blocks.COPPER_BLOCK)
             .strength(4.0f, 6.0f)
             .requiresCorrectToolForDrops()));
     public static final RegistryObject<Item> MEDIUM_BREW_KETTLE_ITEM = ITEMS.register("medium_brew_kettle",
         () -> new BlockItem(MEDIUM_BREW_KETTLE.get(), new Item.Properties()));
 
     public static final RegistryObject<Block> LARGE_BREW_KETTLE = BLOCKS.register("large_brew_kettle",
-        () -> new Block(BlockBehaviour.Properties.copy(Blocks.COPPER_BLOCK)
+        () -> new LargeBrewKettleBlock(BlockBehaviour.Properties.copy(Blocks.COPPER_BLOCK)
             .strength(4.5f, 6.0f)
             .requiresCorrectToolForDrops()));
     public static final RegistryObject<Item> LARGE_BREW_KETTLE_ITEM = ITEMS.register("large_brew_kettle",
@@ -78,21 +78,21 @@ public class BeerBlocks {
     // FERMENTATION TANKS (Gärtanks, 3 Größen)
     // ═══════════════════════════════════════════════════════════
     public static final RegistryObject<Block> SMALL_FERMENTATION_TANK = BLOCKS.register("small_beer_fermentation_tank",
-        () -> new Block(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)
+        () -> new SmallBeerFermentationTankBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)
             .strength(3.5f, 6.0f)
             .requiresCorrectToolForDrops()));
     public static final RegistryObject<Item> SMALL_FERMENTATION_TANK_ITEM = ITEMS.register("small_beer_fermentation_tank",
         () -> new BlockItem(SMALL_FERMENTATION_TANK.get(), new Item.Properties()));
 
     public static final RegistryObject<Block> MEDIUM_FERMENTATION_TANK = BLOCKS.register("medium_beer_fermentation_tank",
-        () -> new Block(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)
+        () -> new MediumBeerFermentationTankBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)
             .strength(4.0f, 6.0f)
             .requiresCorrectToolForDrops()));
     public static final RegistryObject<Item> MEDIUM_FERMENTATION_TANK_ITEM = ITEMS.register("medium_beer_fermentation_tank",
         () -> new BlockItem(MEDIUM_FERMENTATION_TANK.get(), new Item.Properties()));
 
     public static final RegistryObject<Block> LARGE_FERMENTATION_TANK = BLOCKS.register("large_beer_fermentation_tank",
-        () -> new Block(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)
+        () -> new LargeBeerFermentationTankBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)
             .strength(4.5f, 6.0f)
             .requiresCorrectToolForDrops()));
     public static final RegistryObject<Item> LARGE_FERMENTATION_TANK_ITEM = ITEMS.register("large_beer_fermentation_tank",
@@ -102,21 +102,21 @@ public class BeerBlocks {
     // CONDITIONING TANKS (Lagertanks für Nachgärung, 3 Größen)
     // ═══════════════════════════════════════════════════════════
     public static final RegistryObject<Block> SMALL_CONDITIONING_TANK = BLOCKS.register("small_conditioning_tank",
-        () -> new Block(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)
+        () -> new SmallConditioningTankBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)
             .strength(3.5f, 6.0f)
             .requiresCorrectToolForDrops()));
     public static final RegistryObject<Item> SMALL_CONDITIONING_TANK_ITEM = ITEMS.register("small_conditioning_tank",
         () -> new BlockItem(SMALL_CONDITIONING_TANK.get(), new Item.Properties()));
 
     public static final RegistryObject<Block> MEDIUM_CONDITIONING_TANK = BLOCKS.register("medium_conditioning_tank",
-        () -> new Block(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)
+        () -> new MediumConditioningTankBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)
             .strength(4.0f, 6.0f)
             .requiresCorrectToolForDrops()));
     public static final RegistryObject<Item> MEDIUM_CONDITIONING_TANK_ITEM = ITEMS.register("medium_conditioning_tank",
         () -> new BlockItem(MEDIUM_CONDITIONING_TANK.get(), new Item.Properties()));
 
     public static final RegistryObject<Block> LARGE_CONDITIONING_TANK = BLOCKS.register("large_conditioning_tank",
-        () -> new Block(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)
+        () -> new LargeConditioningTankBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)
             .strength(4.5f, 6.0f)
             .requiresCorrectToolForDrops()));
     public static final RegistryObject<Item> LARGE_CONDITIONING_TANK_ITEM = ITEMS.register("large_conditioning_tank",
@@ -126,7 +126,7 @@ public class BeerBlocks {
     // BOTTLING STATION (Abfüllstation)
     // ═══════════════════════════════════════════════════════════
     public static final RegistryObject<Block> BOTTLING_STATION = BLOCKS.register("beer_bottling_station",
-        () -> new Block(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)
+        () -> new BottlingStationBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)
             .strength(3.0f, 6.0f)
             .requiresCorrectToolForDrops()));
     public static final RegistryObject<Item> BOTTLING_STATION_ITEM = ITEMS.register("beer_bottling_station",
