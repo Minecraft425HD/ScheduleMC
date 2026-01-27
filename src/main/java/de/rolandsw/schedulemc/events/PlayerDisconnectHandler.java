@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.events;
 
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.items.PlotSelectionTool;
+import de.rolandsw.schedulemc.npc.events.PoliceAIHandler;
 import de.rolandsw.schedulemc.npc.events.PoliceBackupSystem;
 import de.rolandsw.schedulemc.npc.events.PoliceSearchBehavior;
 import de.rolandsw.schedulemc.npc.items.NPCLeisureTool;
@@ -18,6 +19,7 @@ import java.util.UUID;
  * Handler für Player Disconnect Events
  *
  * Verhindert Memory Leaks durch Cleanup aller spieler-bezogenen Maps:
+ * - PoliceAIHandler (4 Maps: playerCache, arrestTimers, lastSyncedWantedLevel, lastSyncedEscapeTime)
  * - PoliceSearchBehavior (5 Maps)
  * - PoliceBackupSystem (2 Maps)
  * - PlotSelectionTool (2 Maps)
@@ -50,6 +52,7 @@ public class PlayerDisconnectHandler {
 
         try {
             // Cleanup Police Systems
+            PoliceAIHandler.cleanupPlayer(playerUUID);
             PoliceSearchBehavior.cleanup(playerUUID);
             PoliceBackupSystem.cleanup(playerUUID);
 

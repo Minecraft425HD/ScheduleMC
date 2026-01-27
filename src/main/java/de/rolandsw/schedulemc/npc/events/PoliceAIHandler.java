@@ -696,6 +696,7 @@ public class PoliceAIHandler {
      * @param playerUUID UUID des Spielers der den Server verlässt
      */
     public static void cleanupPlayer(UUID playerUUID) {
+        playerCache.remove(playerUUID);
         arrestTimers.remove(playerUUID);
         lastSyncedWantedLevel.remove(playerUUID);
         lastSyncedEscapeTime.remove(playerUUID);
