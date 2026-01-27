@@ -10,6 +10,8 @@ import de.rolandsw.schedulemc.economy.commands.ShopInvestCommand;
 import de.rolandsw.schedulemc.economy.commands.StateCommand;
 import de.rolandsw.schedulemc.npc.commands.NPCCommand;
 import de.rolandsw.schedulemc.warehouse.commands.WarehouseCommand;
+import de.rolandsw.schedulemc.api.ScheduleMCAPI;
+import de.rolandsw.schedulemc.api.impl.*;
 import de.rolandsw.schedulemc.economy.PlayerJoinHandler;
 import de.rolandsw.schedulemc.events.BlockProtectionHandler;
 import de.rolandsw.schedulemc.events.InventoryRestrictionHandler;
@@ -434,15 +436,18 @@ public class ScheduleMC {
             AchievementManager.getInstance(event.getServer());
             LOGGER.info("Achievement System initialized");
 
-            // NPC Life System Manager - Implemented managers with JSON persistence
+            // NPC Life System Manager - All managers with JSON persistence
             LOGGER.info("Initializing NPC Life System Managers...");
             de.rolandsw.schedulemc.npc.life.social.FactionManager.getInstance(event.getServer());
             de.rolandsw.schedulemc.npc.life.witness.WitnessManager.getInstance(event.getServer());
             de.rolandsw.schedulemc.npc.personality.NPCRelationshipManager.getInstance(event.getServer());
-            // TODO: Remaining managers (CompanionManager, QuestManager, DialogueManager,
-            // NPCInteractionManager, WorldEventManager, DynamicPriceManager) need persistence
-            // implementation - see NPC_LIFE_PERSISTENCE_IMPLEMENTATION_GUIDE.md for details
-            LOGGER.info("NPC Life System Managers initialized (3/9 completed)");
+            de.rolandsw.schedulemc.npc.life.companion.CompanionManager.getInstance(event.getServer());
+            de.rolandsw.schedulemc.npc.life.quest.QuestManager.getInstance(event.getServer());
+            de.rolandsw.schedulemc.npc.life.dialogue.DialogueManager.getInstance(event.getServer());
+            de.rolandsw.schedulemc.npc.life.social.NPCInteractionManager.getInstance(event.getServer());
+            de.rolandsw.schedulemc.npc.life.world.WorldEventManager.getInstance(event.getServer());
+            de.rolandsw.schedulemc.npc.life.economy.DynamicPriceManager.getInstance(event.getServer());
+            LOGGER.info("NPC Life System Managers initialized (9/9 completed)");
 
             // Vehicle System - Vehicle Spawn Registry, Gas Station Registry, Fuel Bills
             de.rolandsw.schedulemc.vehicle.vehicle.VehicleSpawnRegistry.load();
@@ -500,14 +505,16 @@ public class ScheduleMC {
                 5
             ));
 
-            // NPC Life System Managers (Priority 5) - Completed: 3/9
+            // NPC Life System Managers (Priority 5) - All 9 managers completed
             saveManager.register(de.rolandsw.schedulemc.npc.life.social.FactionManager.getInstance());
             saveManager.register(de.rolandsw.schedulemc.npc.life.witness.WitnessManager.getInstance());
             saveManager.register(de.rolandsw.schedulemc.npc.personality.NPCRelationshipManager.getInstance());
-            // TODO: Remaining 6 managers need AbstractPersistenceManager implementation:
-            // - CompanionManager, QuestManager, DialogueManager, NPCInteractionManager,
-            // - WorldEventManager, DynamicPriceManager
-            // See NPC_LIFE_PERSISTENCE_IMPLEMENTATION_GUIDE.md for implementation pattern
+            saveManager.register(de.rolandsw.schedulemc.npc.life.companion.CompanionManager.getInstance());
+            saveManager.register(de.rolandsw.schedulemc.npc.life.quest.QuestManager.getInstance());
+            saveManager.register(de.rolandsw.schedulemc.npc.life.dialogue.DialogueManager.getInstance());
+            saveManager.register(de.rolandsw.schedulemc.npc.life.social.NPCInteractionManager.getInstance());
+            saveManager.register(de.rolandsw.schedulemc.npc.life.world.WorldEventManager.getInstance());
+            saveManager.register(de.rolandsw.schedulemc.npc.life.economy.DynamicPriceManager.getInstance());
 
             // NPC System (Priority 5)
             saveManager.register(new de.rolandsw.schedulemc.util.SaveableWrapper(
@@ -575,27 +582,24 @@ public class ScheduleMC {
             HealthCheckManager.logHealthCheck();
 
             // ═══════════════════════════════════════════════════════════
-            // TODO: SCHEDULEMC API - Initialize public API for external mods
+            // SCHEDULEMC API - Initialize public API for external mods
             // ═══════════════════════════════════════════════════════════
-            // ScheduleMCAPI needs 11 interface implementations:
-            // 1. IEconomyAPI - Economy operations (EconomyManager wrapper)
-            // 2. IPlotAPI - Plot management (PlotManager wrapper)
-            // 3. IProductionAPI - Production system access
-            // 4. INPCAPI - NPC management and interaction
-            // 5. IPoliceAPI - Crime and wanted level system
-            // 6. IWarehouseAPI - Warehouse management
-            // 7. IMessagingAPI - Message system
-            // 8. ISmartphoneAPI - Smartphone app integration
-            // 9. IVehicleAPI - Vehicle system access
-            // 10. IAchievementAPI - Achievement tracking
-            // 11. IMarketAPI - Dynamic market system
-            //
-            // After implementing all 11, call:
-            // ScheduleMCAPI.initialize(economyAPI, plotAPI, productionAPI, npcAPI,
-            //     policeAPI, warehouseAPI, messagingAPI, smartphoneAPI,
-            //     vehicleAPI, achievementAPI, marketAPI);
-            //
-            // This is CRITICAL for external mod compatibility!
+            LOGGER.info("Initializing ScheduleMC Public API...");
+            ScheduleMCAPI.getInstance().initialize(
+                new EconomyAPIImpl(),      // 1. Economy operations
+                new PlotAPIImpl(),          // 2. Plot management
+                new ProductionAPIImpl(),    // 3. Production system
+                new NPCAPIImpl(),           // 4. NPC management
+                new PoliceAPIImpl(),        // 5. Crime/wanted system
+                new WarehouseAPIImpl(),     // 6. Warehouse management
+                new MessagingAPIImpl(),     // 7. Message system
+                new SmartphoneAPIImpl(),    // 8. Smartphone apps
+                new VehicleAPIImpl(),       // 9. Vehicle system
+                new AchievementAPIImpl(),   // 10. Achievement tracking
+                new MarketAPIImpl()         // 11. Dynamic market
+            );
+            LOGGER.info("ScheduleMC Public API v{} - READY", ScheduleMCAPI.getInstance().getVersion());
+            LOGGER.info("External mods can now access ScheduleMC features via ScheduleMCAPI.getInstance()");
             // ═══════════════════════════════════════════════════════════
 
         }, "onServerStarted");
