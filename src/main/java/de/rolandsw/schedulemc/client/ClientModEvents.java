@@ -33,6 +33,8 @@ import de.rolandsw.schedulemc.wine.menu.WineMenuTypes;
 import de.rolandsw.schedulemc.wine.screen.*;
 import de.rolandsw.schedulemc.cheese.menu.CheeseMenuTypes;
 import de.rolandsw.schedulemc.cheese.screen.*;
+import de.rolandsw.schedulemc.honey.menu.HoneyMenuTypes;
+import de.rolandsw.schedulemc.honey.screen.*;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -118,6 +120,20 @@ public class ClientModEvents {
                 MenuScreens.register(CheeseMenuTypes.MEDIUM_AGING_CAVE_MENU.get(), MediumAgingCaveScreen::new);
                 MenuScreens.register(CheeseMenuTypes.LARGE_AGING_CAVE_MENU.get(), LargeAgingCaveScreen::new);
                 MenuScreens.register(CheeseMenuTypes.PACKAGING_STATION_MENU.get(), PackagingStationScreen::new);
+
+                // Honey-System
+                MenuScreens.register(HoneyMenuTypes.BEEHIVE_MENU.get(), BeehiveScreen::new);
+                MenuScreens.register(HoneyMenuTypes.ADVANCED_BEEHIVE_MENU.get(), AdvancedBeehiveScreen::new);
+                MenuScreens.register(HoneyMenuTypes.APIARY_MENU.get(), ApiaryScreen::new);
+                MenuScreens.register(HoneyMenuTypes.HONEY_EXTRACTOR_MENU.get(), HoneyExtractorScreen::new);
+                MenuScreens.register(HoneyMenuTypes.CENTRIFUGAL_EXTRACTOR_MENU.get(), CentrifugalExtractorScreen::new);
+                MenuScreens.register(HoneyMenuTypes.FILTERING_STATION_MENU.get(), FilteringStationScreen::new);
+                MenuScreens.register(HoneyMenuTypes.SMALL_AGING_CHAMBER_MENU.get(), SmallAgingChamberScreen::new);
+                MenuScreens.register(HoneyMenuTypes.MEDIUM_AGING_CHAMBER_MENU.get(), MediumAgingChamberScreen::new);
+                MenuScreens.register(HoneyMenuTypes.LARGE_AGING_CHAMBER_MENU.get(), LargeAgingChamberScreen::new);
+                MenuScreens.register(HoneyMenuTypes.PROCESSING_STATION_MENU.get(), ProcessingStationScreen::new);
+                MenuScreens.register(HoneyMenuTypes.CREAMING_STATION_MENU.get(), CreamingStationScreen::new);
+                MenuScreens.register(HoneyMenuTypes.BOTTLING_STATION_MENU.get(), BottlingStationScreen::new);
             });
         }, "onClientSetup");
     }
