@@ -234,6 +234,6 @@ public class WinnowingMachineBlockEntity extends BlockEntity implements IUtility
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int id, @NotNull Inventory inv, @NotNull Player p) {
-        return null; // TODO: Create menu in Part 3
+        return new de.rolandsw.schedulemc.chocolate.menu.WinnowingMachineMenu(id, inv, this);
     }
 }

@@ -291,6 +291,6 @@ public class WrappingStationBlockEntity extends BlockEntity implements IUtilityC
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int id, @NotNull Inventory inv, @NotNull Player p) {
-        return null; // TODO: Create menu in Part 3
+        return new de.rolandsw.schedulemc.chocolate.menu.WrappingStationMenu(id, inv, this);
     }
 }
