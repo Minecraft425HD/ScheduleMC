@@ -1,0 +1,72 @@
+{
+  "_comment": "Coffee System - Vollständige Übersetzungen",
+  
+  "item.schedulemc.arabica_coffee_seedling": "Arabica-Kaffeesetzling",
+  "item.schedulemc.robusta_coffee_seedling": "Robusta-Kaffeesetzling",
+  "item.schedulemc.liberica_coffee_seedling": "Liberica-Kaffeesetzling",
+  "item.schedulemc.excelsa_coffee_seedling": "Excelsa-Kaffeesetzling",
+  
+  "item.schedulemc.arabica_coffee_cherry": "Arabica-Kaffeekirsche",
+  "item.schedulemc.robusta_coffee_cherry": "Robusta-Kaffeekirsche",
+  "item.schedulemc.liberica_coffee_cherry": "Liberica-Kaffeekirsche",
+  "item.schedulemc.excelsa_coffee_cherry": "Excelsa-Kaffeekirsche",
+  
+  "item.schedulemc.green_arabica_beans": "Grüne Arabica-Bohnen",
+  "item.schedulemc.green_robusta_beans": "Grüne Robusta-Bohnen",
+  "item.schedulemc.green_liberica_beans": "Grüne Liberica-Bohnen",
+  "item.schedulemc.green_excelsa_beans": "Grüne Excelsa-Bohnen",
+  
+  "item.schedulemc.roasted_coffee_beans": "Geröstete Kaffeebohnen",
+  "item.schedulemc.ground_coffee": "Gemahlener Kaffee",
+  
+  "item.schedulemc.coffee_package_250g": "Kaffeepackung (250g)",
+  "item.schedulemc.coffee_package_500g": "Kaffeepackung (500g)",
+  "item.schedulemc.coffee_package_1kg": "Kaffeepackung (1kg)",
+  
+  "item.schedulemc.coffee_bag_small": "Kleine Kaffeetüte",
+  "item.schedulemc.coffee_bag_medium": "Mittlere Kaffeetüte",
+  "item.schedulemc.coffee_bag_large": "Große Kaffeetüte",
+  
+  "item.schedulemc.brewed_coffee": "Gebrühter Kaffee",
+  "item.schedulemc.espresso": "Espresso",
+  
+  "block.schedulemc.coffee_plant": "Kaffeepflanze",
+  "block.schedulemc.arabica_coffee_pot": "Arabica-Kaffeetopf",
+  "block.schedulemc.robusta_coffee_pot": "Robusta-Kaffeetopf",
+  "block.schedulemc.liberica_coffee_pot": "Liberica-Kaffeetopf",
+  "block.schedulemc.excelsa_coffee_pot": "Excelsa-Kaffeetopf",
+  
+  "block.schedulemc.small_coffee_drying_tray": "Kleine Kaffee-Trocknungsschale",
+  "block.schedulemc.medium_coffee_drying_tray": "Mittlere Kaffee-Trocknungsschale",
+  "block.schedulemc.large_coffee_drying_tray": "Große Kaffee-Trocknungsschale",
+  
+  "block.schedulemc.wet_processing_station": "Nassaufbereitungsstation",
+  
+  "block.schedulemc.small_coffee_roaster": "Kleiner Kaffeeröster",
+  "block.schedulemc.medium_coffee_roaster": "Mittlerer Kaffeeröster",
+  "block.schedulemc.large_coffee_roaster": "Großer Kaffeeröster",
+  
+  "block.schedulemc.coffee_grinder": "Kaffeemühle",
+  "block.schedulemc.coffee_packaging_table": "Kaffee-Verpackungsstation",
+  
+  "coffee.type.arabica": "Arabica",
+  "coffee.type.robusta": "Robusta",
+  "coffee.type.liberica": "Liberica",
+  "coffee.type.excelsa": "Excelsa",
+  
+  "coffee.quality.poor": "Schlecht",
+  "coffee.quality.good": "Gut",
+  "coffee.quality.very_good": "Sehr Gut",
+  "coffee.quality.excellent": "Exzellent",
+  "coffee.quality.legendary": "Legendär",
+  
+  "coffee.roast.light": "Hell",
+  "coffee.roast.medium": "Mittel",
+  "coffee.roast.dark": "Dunkel",
+  "coffee.roast.espresso": "Espresso",
+  
+  "coffee.grind.extra_fine": "Extra Fein",
+  "coffee.grind.fine": "Fein",
+  "coffee.grind.medium": "Mittel",
+  "coffee.grind.coarse": "Grob"
+}
