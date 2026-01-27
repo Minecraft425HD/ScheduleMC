@@ -11,6 +11,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Stores ALL bank-related data needed by ATM and Banker screens
  */
 public class ClientBankDataCache {
+
+    /**
+     * Maximum stock market history size (90 days)
+     * Prevents unbounded memory growth - daily updates would grow infinitely otherwise
+     */
+    private static final int MAX_HISTORY_SIZE = 90;
+
     // Girokonto
     private static double balance = 0.0;
     private static List<Transaction> transactions = new CopyOnWriteArrayList<>();
@@ -175,10 +182,10 @@ public class ClientBankDataCache {
         emeraldPrice = emerald;
         emeraldTrend = emeraldT;
 
-        // History
-        goldHistory = new CopyOnWriteArrayList<>(goldHist);
-        diamondHistory = new CopyOnWriteArrayList<>(diamondHist);
-        emeraldHistory = new CopyOnWriteArrayList<>(emeraldHist);
+        // History - with size limit to prevent unbounded growth
+        goldHistory = limitHistorySize(goldHist);
+        diamondHistory = limitHistorySize(diamondHist);
+        emeraldHistory = limitHistorySize(emeraldHist);
 
         // Statistics
         goldHigh = goldH;
@@ -379,6 +386,26 @@ public class ClientBankDataCache {
 
         hasData = false;
         lastUpdateTime = 0;
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // Helper Methods
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    /**
+     * Limits history list size to MAX_HISTORY_SIZE (90 days).
+     * Keeps only the most recent entries.
+     * Prevents unbounded memory growth from daily stock price updates.
+     */
+    private static List<Double> limitHistorySize(List<Double> history) {
+        if (history.size() <= MAX_HISTORY_SIZE) {
+            return new CopyOnWriteArrayList<>(history);
+        }
+
+        // Keep only last MAX_HISTORY_SIZE entries
+        int startIndex = history.size() - MAX_HISTORY_SIZE;
+        List<Double> limited = history.subList(startIndex, history.size());
+        return new CopyOnWriteArrayList<>(limited);
     }
 
     // ═══════════════════════════════════════════════════════════════════════════

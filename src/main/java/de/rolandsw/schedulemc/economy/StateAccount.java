@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.economy;
 
 import com.google.gson.*;
 import com.mojang.logging.LogUtils;
+import de.rolandsw.schedulemc.util.ThreadPoolManager;
 import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
 
@@ -80,17 +81,21 @@ public class StateAccount {
     }
 
     /**
-     * Speichert Staatskassen-Saldo
+     * Speichert Staatskassen-Saldo (Async - blockiert Game Thread nicht)
      */
     public static void save() {
-        try (FileWriter writer = new FileWriter(SAVE_FILE)) {
-            JsonObject json = new JsonObject();
-            json.addProperty("balance", balance);
-            json.addProperty("lastUpdated", System.currentTimeMillis());
-            new GsonBuilder().setPrettyPrinting().create().toJson(json, writer);
-        } catch (IOException e) {
-            LOGGER.error("Error saving state treasury", e);
-        }
+        // PERFORMANCE: File I/O auf IO Thread Pool statt Game Thread
+        int currentBalance = balance; // Capture current balance
+        ThreadPoolManager.getIOPool().submit(() -> {
+            try (FileWriter writer = new FileWriter(SAVE_FILE)) {
+                JsonObject json = new JsonObject();
+                json.addProperty("balance", currentBalance);
+                json.addProperty("lastUpdated", System.currentTimeMillis());
+                new GsonBuilder().setPrettyPrinting().create().toJson(json, writer);
+            } catch (IOException e) {
+                LOGGER.error("Error saving state treasury", e);
+            }
+        });
     }
 
     /**
