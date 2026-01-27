@@ -8,6 +8,7 @@ import net.minecraftforge.network.NetworkEvent;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 /**
@@ -96,13 +97,13 @@ public class SyncTerritoriesPacket {
      * Unterstützt sowohl Full Sync als auch Delta Updates
      */
     public static class TerritoryClientCache {
-        private static Map<Long, TerritoryData> cache = new HashMap<>();
+        private static Map<Long, TerritoryData> cache = new ConcurrentHashMap<>();
 
         /**
          * Full Sync: Ersetzt kompletten Cache
          */
         public static void updateCache(Map<Long, TerritoryData> territories) {
-            cache = new HashMap<>(territories);
+            cache = new ConcurrentHashMap<>(territories);
         }
 
         /**

@@ -5,6 +5,7 @@ import net.minecraft.world.item.Items;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Konfiguration für Lieferpreise
@@ -12,7 +13,7 @@ import java.util.Map;
  */
 public class DeliveryPriceConfig {
 
-    private static final Map<Item, Integer> PRICES = new HashMap<>();
+    private static final Map<Item, Integer> PRICES = new ConcurrentHashMap<>();
     private static int defaultPrice = 5;
 
     static {

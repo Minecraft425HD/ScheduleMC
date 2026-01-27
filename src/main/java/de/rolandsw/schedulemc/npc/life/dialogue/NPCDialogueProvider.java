@@ -8,6 +8,7 @@ import net.minecraft.server.level.ServerLevel;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * NPCDialogueProvider - Stellt vorgefertigte Dialogbäume für verschiedene NPC-Typen bereit
@@ -23,8 +24,8 @@ public class NPCDialogueProvider {
     // STATIC INITIALIZATION
     // ═══════════════════════════════════════════════════════════
 
-    private static final Map<NPCType, DialogueTree> TYPE_DIALOGUES = new HashMap<>();
-    private static boolean initialized = false;
+    private static final Map<NPCType, DialogueTree> TYPE_DIALOGUES = new ConcurrentHashMap<>();
+    private static volatile boolean initialized = false;
 
     /**
      * Initialisiert alle Standard-Dialogbäume
