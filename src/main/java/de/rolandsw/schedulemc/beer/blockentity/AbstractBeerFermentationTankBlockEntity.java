@@ -148,6 +148,10 @@ public abstract class AbstractBeerFermentationTankBlockEntity extends BlockEntit
         return (int) (2400 / getSpeedMultiplier()); // Base 120 seconds (2 minutes), adjusted by speed
     }
 
+    public int getProgress() {
+        return fermentationProgress;
+    }
+
     public void tick() {
         if (level == null || level.isClientSide) return;
 

@@ -125,6 +125,10 @@ public abstract class AbstractFermentationTankBlockEntity extends BlockEntity im
         return getFermentationTimePerItem() * Math.max(1, inputStack.getCount());
     }
 
+    public int getProgress() {
+        return fermentationProgress;
+    }
+
     public void tick() {
         if (level == null || level.isClientSide) return;
 

@@ -96,4 +96,9 @@ public enum WineType implements ProductionType {
     public double calculatePrice(de.rolandsw.schedulemc.production.core.ProductionQuality quality, int amount) {
         return basePricePerLiter * quality.getPriceMultiplier() * amount;
     }
+
+    @Override
+    public int getBaseYield() {
+        return 1;  // Default yield for wine production
+    }
 }

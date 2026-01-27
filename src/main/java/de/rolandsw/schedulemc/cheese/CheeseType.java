@@ -56,4 +56,9 @@ public enum CheeseType implements ProductionType {
     public double calculatePrice(de.rolandsw.schedulemc.production.core.ProductionQuality quality, int amount) {
         return basePricePerKg * quality.getPriceMultiplier() * amount;
     }
+
+    @Override
+    public int getBaseYield() {
+        return 1;  // Default yield for cheese production
+    }
 }

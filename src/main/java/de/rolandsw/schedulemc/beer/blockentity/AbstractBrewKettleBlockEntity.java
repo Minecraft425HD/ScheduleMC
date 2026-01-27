@@ -148,6 +148,10 @@ public abstract class AbstractBrewKettleBlockEntity extends BlockEntity implemen
         return (int) (1200 / getSpeedMultiplier()); // Base 60 seconds, adjusted by speed
     }
 
+    public int getProgress() {
+        return brewingProgress;
+    }
+
     public void tick() {
         if (level == null || level.isClientSide) return;
 

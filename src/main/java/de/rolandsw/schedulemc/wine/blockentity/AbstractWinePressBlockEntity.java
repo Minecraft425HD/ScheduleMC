@@ -134,6 +134,10 @@ public abstract class AbstractWinePressBlockEntity extends BlockEntity implement
         return getPressingTimePerItem() * Math.max(1, inputStack.getCount());
     }
 
+    public int getProgress() {
+        return pressingProgress;
+    }
+
     public void tick() {
         if (level == null || level.isClientSide) return;
 
