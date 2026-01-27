@@ -3,14 +3,20 @@ package de.rolandsw.schedulemc.honey.blockentity;
 import de.rolandsw.schedulemc.honey.HoneyQuality;
 import de.rolandsw.schedulemc.honey.HoneyType;
 import de.rolandsw.schedulemc.honey.items.HoneyItems;
+import de.rolandsw.schedulemc.honey.menu.BeehiveMenu;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;
 import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -30,7 +36,7 @@ import org.jetbrains.annotations.Nullable;
  * Quality: Based on biome/temperature
  * Implements IUtilityConsumer for minimal power (climate control)
  */
-public class BeehiveBlockEntity extends BlockEntity implements IUtilityConsumer {
+public class BeehiveBlockEntity extends BlockEntity implements IUtilityConsumer, MenuProvider {
     private boolean lastActiveState = false;
 
     private int tickCount = 0;
@@ -203,5 +209,16 @@ public class BeehiveBlockEntity extends BlockEntity implements IUtilityConsumer 
     @Override
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public @NotNull Component getDisplayName() {
+        return Component.translatable("block.schedulemc.beehive");
+    }
+
+    @Nullable
+    @Override
+    public AbstractContainerMenu createMenu(int id, @NotNull Inventory inv, @NotNull Player p) {
+        return new BeehiveMenu(id, inv, this);
     }
 }

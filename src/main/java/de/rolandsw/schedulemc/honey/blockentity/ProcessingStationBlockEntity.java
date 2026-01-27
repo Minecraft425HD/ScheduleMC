@@ -4,14 +4,20 @@ import de.rolandsw.schedulemc.honey.HoneyAgeLevel;
 import de.rolandsw.schedulemc.honey.HoneyQuality;
 import de.rolandsw.schedulemc.honey.HoneyType;
 import de.rolandsw.schedulemc.honey.items.HoneyItems;
+import de.rolandsw.schedulemc.honey.menu.ProcessingStationMenu;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;
 import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -32,7 +38,7 @@ import org.jetbrains.annotations.Nullable;
  * Processing time: 800 ticks (40 seconds)
  * Can upgrade quality by 1 level (max PREMIUM)
  */
-public class ProcessingStationBlockEntity extends BlockEntity implements IUtilityConsumer {
+public class ProcessingStationBlockEntity extends BlockEntity implements IUtilityConsumer, MenuProvider {
     private boolean lastActiveState = false;
 
     private ItemStack honeyInput = ItemStack.EMPTY;
@@ -257,5 +263,16 @@ public class ProcessingStationBlockEntity extends BlockEntity implements IUtilit
     @Override
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public @NotNull Component getDisplayName() {
+        return Component.translatable("block.schedulemc.processing_station");
+    }
+
+    @Nullable
+    @Override
+    public AbstractContainerMenu createMenu(int id, @NotNull Inventory inv, @NotNull Player p) {
+        return new ProcessingStationMenu(id, inv, this);
     }
 }
