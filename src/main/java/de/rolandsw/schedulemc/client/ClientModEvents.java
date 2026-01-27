@@ -37,6 +37,8 @@ import de.rolandsw.schedulemc.honey.menu.HoneyMenuTypes;
 import de.rolandsw.schedulemc.honey.screen.*;
 import de.rolandsw.schedulemc.chocolate.menu.ChocolateMenuTypes;
 import de.rolandsw.schedulemc.chocolate.screen.*;
+import de.rolandsw.schedulemc.beer.menu.BeerMenuTypes;
+import de.rolandsw.schedulemc.beer.screen.*;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -152,6 +154,20 @@ public class ClientModEvents {
                 MenuScreens.register(ChocolateMenuTypes.ENROBING_MACHINE_MENU.get(), EnrobingMachineScreen::new);
                 MenuScreens.register(ChocolateMenuTypes.COOLING_TUNNEL_MENU.get(), CoolingTunnelScreen::new);
                 MenuScreens.register(ChocolateMenuTypes.WRAPPING_STATION_MENU.get(), WrappingStationScreen::new);
+
+                // Beer-System
+                MenuScreens.register(BeerMenuTypes.MALTING_STATION_MENU.get(), MaltingStationScreen::new);
+                MenuScreens.register(BeerMenuTypes.MASH_TUN_MENU.get(), MashTunScreen::new);
+                MenuScreens.register(BeerMenuTypes.SMALL_BREW_KETTLE_MENU.get(), SmallBrewKettleScreen::new);
+                MenuScreens.register(BeerMenuTypes.MEDIUM_BREW_KETTLE_MENU.get(), MediumBrewKettleScreen::new);
+                MenuScreens.register(BeerMenuTypes.LARGE_BREW_KETTLE_MENU.get(), LargeBrewKettleScreen::new);
+                MenuScreens.register(BeerMenuTypes.SMALL_BEER_FERMENTATION_TANK_MENU.get(), SmallBeerFermentationTankScreen::new);
+                MenuScreens.register(BeerMenuTypes.MEDIUM_BEER_FERMENTATION_TANK_MENU.get(), MediumBeerFermentationTankScreen::new);
+                MenuScreens.register(BeerMenuTypes.LARGE_BEER_FERMENTATION_TANK_MENU.get(), LargeBeerFermentationTankScreen::new);
+                MenuScreens.register(BeerMenuTypes.SMALL_CONDITIONING_TANK_MENU.get(), SmallConditioningTankScreen::new);
+                MenuScreens.register(BeerMenuTypes.MEDIUM_CONDITIONING_TANK_MENU.get(), MediumConditioningTankScreen::new);
+                MenuScreens.register(BeerMenuTypes.LARGE_CONDITIONING_TANK_MENU.get(), LargeConditioningTankScreen::new);
+                MenuScreens.register(BeerMenuTypes.BOTTLING_STATION_MENU.get(), BottlingStationScreen::new);
             });
         }, "onClientSetup");
     }
