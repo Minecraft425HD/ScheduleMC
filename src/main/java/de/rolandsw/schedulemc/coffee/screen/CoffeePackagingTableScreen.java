@@ -1,6 +1,8 @@
 package de.rolandsw.schedulemc.coffee.screen;
 
 import de.rolandsw.schedulemc.coffee.menu.CoffeePackagingTableMenu;
+import de.rolandsw.schedulemc.coffee.network.CoffeeNetworking;
+import de.rolandsw.schedulemc.coffee.network.CoffeePackageRequestPacket;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -61,8 +63,9 @@ public class CoffeePackagingTableScreen extends AbstractContainerScreen<CoffeePa
     }
 
     private void onPackageButton(int weight) {
-        // TODO: Send network packet to server
-        // ModNetworking.sendToServer(new CoffeePackageRequestPacket(menu.blockEntity.getBlockPos(), weight));
+        if (menu.blockEntity != null) {
+            CoffeeNetworking.sendToServer(new CoffeePackageRequestPacket(menu.blockEntity.getBlockPos(), weight));
+        }
     }
 
     @Override

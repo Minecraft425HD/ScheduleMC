@@ -2,6 +2,8 @@ package de.rolandsw.schedulemc.coffee.screen;
 
 import de.rolandsw.schedulemc.coffee.CoffeeRoastLevel;
 import de.rolandsw.schedulemc.coffee.menu.MediumCoffeeRoasterMenu;
+import de.rolandsw.schedulemc.coffee.network.CoffeeNetworking;
+import de.rolandsw.schedulemc.coffee.network.RoasterLevelPacket;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
@@ -31,6 +33,40 @@ public class MediumCoffeeRoasterScreen extends AbstractContainerScreen<MediumCof
             return true; // Consume event, prevent closing
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (button == 0 && menu.blockEntity != null) { // Left click
+            int x = this.leftPos;
+            int y = this.topPos;
+            int buttonY = y + 65;
+            int buttonWidth = 35;
+            int buttonHeight = 16;
+            int spacing = 37;
+
+            if (isMouseOver(mouseX, mouseY, x + 8, buttonY, buttonWidth, buttonHeight)) {
+                CoffeeNetworking.sendToServer(new RoasterLevelPacket(menu.blockEntity.getBlockPos(), CoffeeRoastLevel.LIGHT));
+                return true;
+            }
+            if (isMouseOver(mouseX, mouseY, x + 8 + spacing, buttonY, buttonWidth, buttonHeight)) {
+                CoffeeNetworking.sendToServer(new RoasterLevelPacket(menu.blockEntity.getBlockPos(), CoffeeRoastLevel.MEDIUM));
+                return true;
+            }
+            if (isMouseOver(mouseX, mouseY, x + 8 + spacing * 2, buttonY, buttonWidth, buttonHeight)) {
+                CoffeeNetworking.sendToServer(new RoasterLevelPacket(menu.blockEntity.getBlockPos(), CoffeeRoastLevel.DARK));
+                return true;
+            }
+            if (isMouseOver(mouseX, mouseY, x + 8 + spacing * 3, buttonY, buttonWidth, buttonHeight)) {
+                CoffeeNetworking.sendToServer(new RoasterLevelPacket(menu.blockEntity.getBlockPos(), CoffeeRoastLevel.ESPRESSO));
+                return true;
+            }
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    private boolean isMouseOver(double mouseX, double mouseY, int x, int y, int width, int height) {
+        return mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + height;
     }
 
     @Override
