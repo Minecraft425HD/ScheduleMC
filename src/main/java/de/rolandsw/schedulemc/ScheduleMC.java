@@ -96,6 +96,11 @@ import de.rolandsw.schedulemc.chocolate.blocks.ChocolateBlocks;
 import de.rolandsw.schedulemc.chocolate.blockentity.ChocolateBlockEntities;
 import de.rolandsw.schedulemc.chocolate.menu.ChocolateMenuTypes;
 import de.rolandsw.schedulemc.chocolate.network.ChocolateNetworking;
+import de.rolandsw.schedulemc.beer.items.BeerItems;
+import de.rolandsw.schedulemc.beer.blocks.BeerBlocks;
+import de.rolandsw.schedulemc.beer.blockentity.BeerBlockEntities;
+import de.rolandsw.schedulemc.beer.menu.BeerMenuTypes;
+import de.rolandsw.schedulemc.beer.network.BeerNetworking;
 import de.rolandsw.schedulemc.tobacco.menu.ModMenuTypes;
 import de.rolandsw.schedulemc.tobacco.entity.ModEntities;
 import de.rolandsw.schedulemc.economy.blocks.EconomyBlocks;
@@ -254,6 +259,13 @@ public class ScheduleMC {
         ChocolateBlockEntities.BLOCK_ENTITIES.register(modEventBus);
         ChocolateMenuTypes.MENUS.register(modEventBus);
 
+        // Beer-System registrieren
+        BeerItems.ITEMS.register(modEventBus);
+        BeerBlocks.BLOCKS.register(modEventBus);
+        BeerBlocks.ITEMS.register(modEventBus);
+        BeerBlockEntities.BLOCK_ENTITIES.register(modEventBus);
+        BeerMenuTypes.MENUS.register(modEventBus);
+
         EconomyBlocks.BLOCKS.register(modEventBus);
         EconomyBlocks.ITEMS.register(modEventBus);
         de.rolandsw.schedulemc.region.blocks.PlotBlocks.BLOCKS.register(modEventBus);
@@ -310,6 +322,7 @@ public class ScheduleMC {
             CheeseNetworking.register();
             HoneyNetworking.register();
             ChocolateNetworking.register();
+            BeerNetworking.register();
             SmartphoneNetworkHandler.register();
             MessageNetworkHandler.register();
             WarehouseNetworkHandler.register();
