@@ -263,4 +263,16 @@ public class NPCLeisureTool extends Item {
     public static void clearSelectedNPC(UUID playerUUID) {
         selectedNPCs.remove(playerUUID);
     }
+
+    /**
+     * Cleanup-Methode für Player Disconnect
+     * Thread-safe cleanup der NPC-Auswahl für diesen Spieler
+     */
+    public static void cleanup(UUID playerUUID) {
+        if (playerUUID == null) {
+            return;
+        }
+
+        selectedNPCs.remove(playerUUID);
+    }
 }

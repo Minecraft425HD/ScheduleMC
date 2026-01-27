@@ -68,6 +68,10 @@ public class EntityRemoverItem extends Item {
                 NPCEntityRegistry.unregisterNPC(npc);
                 NPCNameRegistry.unregisterName(npcName);
 
+                // Memory Leak Prevention - Cleanup NPC-bezogene Daten
+                de.rolandsw.schedulemc.npc.events.PoliceSearchBehavior.cleanupNPC(npc.getUUID());
+                de.rolandsw.schedulemc.npc.events.PoliceBackupSystem.cleanupNPC(npc.getUUID());
+
                 // Entferne Entity
                 npc.discard();
 

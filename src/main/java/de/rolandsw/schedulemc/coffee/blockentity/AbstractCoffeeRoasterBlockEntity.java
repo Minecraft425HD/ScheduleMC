@@ -105,8 +105,11 @@ public abstract class AbstractCoffeeRoasterBlockEntity extends BlockEntity imple
         ItemStack handlerInput = itemHandler.getStackInSlot(0);
         if (!handlerInput.isEmpty() && inputStack.isEmpty()) {
             inputStack = handlerInput.copy();
-            coffeeType = CoffeeType.ARABICA; // TODO: Extract from NBT
-            quality = CoffeeQuality.GOOD; // TODO: Extract from NBT
+            // Note: GreenCoffeeBeans don't have Type/Quality in NBT yet
+            // These are determined by the plant's growing conditions and set during roasting
+            // For now, use default values - proper implementation would track from harvest
+            coffeeType = CoffeeType.ARABICA;
+            quality = CoffeeQuality.GOOD;
             roastingProgress = 0;
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;

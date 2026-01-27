@@ -1,16 +1,24 @@
 package de.rolandsw.schedulemc.npc.life.social;
 
+import com.google.gson.reflect.TypeToken;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.life.core.EmotionState;
 import de.rolandsw.schedulemc.npc.life.core.MemoryType;
 import de.rolandsw.schedulemc.npc.life.core.NPCLifeData;
+import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
+import de.rolandsw.schedulemc.util.GsonHelper;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 
+import javax.annotation.Nullable;
+import java.io.File;
+import java.lang.reflect.Type;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * NPCInteractionManager - Verwaltet Interaktionen zwischen NPCs
+ * NPCInteractionManager - Verwaltet Interaktionen zwischen NPCs mit JSON-Persistenz
  *
  * Features:
  * - Warnsystem (NPCs warnen sich vor Gefahren)
@@ -18,20 +26,39 @@ import java.util.*;
  * - Soziale Interaktionen (Gespräche, Grüße)
  * - Gerüchte verbreiten
  */
-public class NPCInteractionManager {
+public class NPCInteractionManager extends AbstractPersistenceManager<Map<String, Object>> {
 
     // ═══════════════════════════════════════════════════════════
-    // SINGLETON-LIKE PER LEVEL
+    // SINGLETON
     // ═══════════════════════════════════════════════════════════
 
-    private static final Map<ServerLevel, NPCInteractionManager> MANAGERS = new HashMap<>();
+    private static volatile NPCInteractionManager instance;
+    private static final Object INSTANCE_LOCK = new Object();
 
-    public static NPCInteractionManager getManager(ServerLevel level) {
-        return MANAGERS.computeIfAbsent(level, l -> new NPCInteractionManager());
+    @Nullable
+    public static NPCInteractionManager getInstance() {
+        return instance;
     }
 
-    public static void removeManager(ServerLevel level) {
-        MANAGERS.remove(level);
+    public static NPCInteractionManager getInstance(MinecraftServer server) {
+        NPCInteractionManager result = instance;
+        if (result == null) {
+            synchronized (INSTANCE_LOCK) {
+                result = instance;
+                if (result == null) {
+                    instance = result = new NPCInteractionManager(server);
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Helper method for level-based access.
+     * Note: Manager is server-wide, not per-level.
+     */
+    public static NPCInteractionManager getManager(ServerLevel level) {
+        return getInstance(level.getServer());
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -51,11 +78,26 @@ public class NPCInteractionManager {
     // DATA
     // ═══════════════════════════════════════════════════════════
 
-    /** Aktive Interaktionen: NPC UUID -> InteractionContext */
-    private final Map<UUID, InteractionContext> activeInteractions = new HashMap<>();
+    private MinecraftServer server;
 
-    /** Cooldowns: NPC UUID Pair -> Ticks until can interact again */
-    private final Map<String, Integer> interactionCooldowns = new HashMap<>();
+    /** Aktive Interaktionen: NPC UUID -> InteractionContext (TRANSIENT - nicht persistiert) */
+    private final Map<UUID, InteractionContext> activeInteractions = new ConcurrentHashMap<>();
+
+    /** Cooldowns: NPC UUID Pair -> Ticks until can interact again (TRANSIENT - nicht persistiert) */
+    private final Map<String, Integer> interactionCooldowns = new ConcurrentHashMap<>();
+
+    // ═══════════════════════════════════════════════════════════
+    // CONSTRUCTOR
+    // ═══════════════════════════════════════════════════════════
+
+    private NPCInteractionManager(MinecraftServer server) {
+        super(
+            server.getServerDirectory().toPath().resolve("config").resolve("npc_life_interactions.json").toFile(),
+            GsonHelper.get()
+        );
+        this.server = server;
+        load();
+    }
 
     // ═══════════════════════════════════════════════════════════
     // TICK / UPDATE
@@ -321,32 +363,44 @@ public class NPCInteractionManager {
     }
 
     // ═══════════════════════════════════════════════════════════
-    // SERIALIZATION
+    // ABSTRACT PERSISTENCE MANAGER IMPLEMENTATION
     // ═══════════════════════════════════════════════════════════
 
-    /**
-     * Speichert den Manager-Zustand
-     * (Aktive Interaktionen und Cooldowns sind transient und werden nicht persistiert)
-     */
-    public CompoundTag save() {
-        // Keine persistenten Daten - aktive Interaktionen und Cooldowns
-        // werden bei Level-Load automatisch zurückgesetzt
-        return new CompoundTag();
+    @Override
+    protected Type getDataType() {
+        return new TypeToken<Map<String, Object>>(){}.getType();
     }
 
-    /**
-     * Lädt den Manager-Zustand
-     */
-    public void load(CompoundTag tag) {
-        // Keine persistenten Daten zu laden
-        // Clear transiente Daten für frischen Start
+    @Override
+    protected void onDataLoaded(Map<String, Object> data) {
+        // Keine persistenten Daten - aktive Interaktionen und Cooldowns
+        // werden bei Level-Load automatisch zurückgesetzt
         activeInteractions.clear();
         interactionCooldowns.clear();
     }
 
-    // ═══════════════════════════════════════════════════════════
-    // DEBUG
-    // ═══════════════════════════════════════════════════════════
+    @Override
+    protected Map<String, Object> getCurrentData() {
+        // Keine persistenten Daten
+        return new HashMap<>();
+    }
+
+    @Override
+    protected String getComponentName() {
+        return "NPCInteractionManager";
+    }
+
+    @Override
+    protected String getHealthDetails() {
+        return String.format("%d active, %d cooldowns",
+            activeInteractions.size(), interactionCooldowns.size());
+    }
+
+    @Override
+    protected void onCriticalLoadFailure() {
+        activeInteractions.clear();
+        interactionCooldowns.clear();
+    }
 
     @Override
     public String toString() {

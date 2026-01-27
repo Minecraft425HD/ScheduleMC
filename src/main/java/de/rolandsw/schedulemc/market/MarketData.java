@@ -244,7 +244,8 @@ public class MarketData {
     }
 
     public String getItemName() {
-        return item.toString();  // TODO: Better item name
+        // Use description ID for translatable item names (e.g. "item.minecraft.diamond")
+        return item.getDescriptionId();
     }
 
     public double getBasePrice() {

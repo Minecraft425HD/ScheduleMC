@@ -22,12 +22,13 @@ import java.nio.file.StandardCopyOption;
  * - Backup-Wiederherstellung bei Korruption
  * - Health-Status-Tracking
  * - Graceful degradation
+ * - IncrementalSaveManager Integration (ISaveable)
  *
  * Eliminiert ~165 Zeilen duplizierter Code pro Manager
  *
  * @param <T> Der Datentyp, der persistiert werden soll
  */
-public abstract class AbstractPersistenceManager<T> {
+public abstract class AbstractPersistenceManager<T> implements IncrementalSaveManager.ISaveable {
 
     protected static final Logger LOGGER = LogUtils.getLogger();
 
@@ -267,5 +268,32 @@ public abstract class AbstractPersistenceManager<T> {
 
     protected boolean needsSave() {
         return needsSave;
+    }
+
+    // ========== ISaveable Implementation for IncrementalSaveManager ==========
+
+    /**
+     * Prüft ob Daten geändert wurden (für IncrementalSaveManager)
+     */
+    @Override
+    public boolean isDirty() {
+        return needsSave;
+    }
+
+    /**
+     * Gibt den Namen für Logging zurück (delegiert an getComponentName)
+     */
+    @Override
+    public String getName() {
+        return getComponentName();
+    }
+
+    /**
+     * Standard-Priorität für IncrementalSaveManager
+     * Subklassen können dies überschreiben für höhere/niedrigere Priorität
+     */
+    @Override
+    public int getPriority() {
+        return 5; // Default: mittlere Priorität
     }
 }

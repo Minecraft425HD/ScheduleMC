@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.npc.life.witness;
 
+import com.google.gson.reflect.TypeToken;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.life.behavior.BehaviorState;
 import de.rolandsw.schedulemc.npc.life.core.EmotionState;
@@ -8,20 +9,23 @@ import de.rolandsw.schedulemc.npc.life.core.NPCLifeData;
 import de.rolandsw.schedulemc.npc.life.social.FactionManager;
 import de.rolandsw.schedulemc.npc.life.social.RumorNetwork;
 import de.rolandsw.schedulemc.npc.life.social.RumorType;
+import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
+import de.rolandsw.schedulemc.util.GsonHelper;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.AABB;
 
 import javax.annotation.Nullable;
+import java.io.File;
+import java.lang.reflect.Type;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
- * WitnessManager - Verwaltet das Zeugensystem
+ * WitnessManager - Verwaltet das Zeugensystem mit JSON-Persistenz
  *
  * Funktionen:
  * - Verbrechen erkennen und Zeugen identifizieren
@@ -29,20 +33,39 @@ import java.util.stream.Collectors;
  * - Meldungen an die Polizei koordinieren
  * - Fahndungslisten verwalten
  */
-public class WitnessManager {
+public class WitnessManager extends AbstractPersistenceManager<WitnessManager.WitnessData> {
 
     // ═══════════════════════════════════════════════════════════
-    // SINGLETON-LIKE PER LEVEL
+    // SINGLETON
     // ═══════════════════════════════════════════════════════════
 
-    private static final Map<ServerLevel, WitnessManager> MANAGERS = new HashMap<>();
+    private static volatile WitnessManager instance;
+    private static final Object INSTANCE_LOCK = new Object();
 
-    public static WitnessManager getManager(ServerLevel level) {
-        return MANAGERS.computeIfAbsent(level, l -> new WitnessManager());
+    @Nullable
+    public static WitnessManager getInstance() {
+        return instance;
     }
 
-    public static void removeManager(ServerLevel level) {
-        MANAGERS.remove(level);
+    public static WitnessManager getInstance(MinecraftServer server) {
+        WitnessManager result = instance;
+        if (result == null) {
+            synchronized (INSTANCE_LOCK) {
+                result = instance;
+                if (result == null) {
+                    instance = result = new WitnessManager(server);
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Gets manager instance for a specific level (convenience method).
+     * Note: Manager is server-wide, not per-level.
+     */
+    public static WitnessManager getManager(ServerLevel level) {
+        return getInstance(level.getServer());
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -63,16 +86,28 @@ public class WitnessManager {
     // ═══════════════════════════════════════════════════════════
 
     /** Alle Zeugenberichte, nach Täter-UUID gruppiert */
-    private final Map<UUID, List<WitnessReport>> reportsByCriminal = new HashMap<>();
+    private final Map<UUID, List<WitnessReport>> reportsByCriminal = new ConcurrentHashMap<>();
 
     /** Gesuchte Spieler mit aktivem Haftbefehl */
-    private final Set<UUID> wantedPlayers = new HashSet<>();
+    private final Set<UUID> wantedPlayers = ConcurrentHashMap.newKeySet();
 
     /** Kopfgelder: Spieler UUID -> Betrag */
-    private final Map<UUID, Integer> bounties = new HashMap<>();
+    private final Map<UUID, Integer> bounties = new ConcurrentHashMap<>();
 
     /** Tick-Counter für periodische Prüfungen */
     private int tickCounter = 0;
+
+    // ═══════════════════════════════════════════════════════════
+    // CONSTRUCTOR
+    // ═══════════════════════════════════════════════════════════
+
+    private WitnessManager(MinecraftServer server) {
+        super(
+            new File(server.getServerDirectory(), "config/npc_life_witness.json"),
+            GsonHelper.get()
+        );
+        load();
+    }
 
     // ═══════════════════════════════════════════════════════════
     // CRIME DETECTION
@@ -241,6 +276,7 @@ public class WitnessManager {
         }
 
         reports.add(report);
+        markDirty();
     }
 
     /**
@@ -284,6 +320,7 @@ public class WitnessManager {
         // Kopfgeld erhöhen
         int currentBounty = bounties.getOrDefault(playerUUID, 0);
         bounties.put(playerUUID, currentBounty + crimeType.getBaseBounty());
+        markDirty();
     }
 
     /**
@@ -292,6 +329,7 @@ public class WitnessManager {
     public void removeFromWantedList(UUID playerUUID) {
         wantedPlayers.remove(playerUUID);
         bounties.remove(playerUUID);
+        markDirty();
     }
 
     /**
@@ -423,55 +461,66 @@ public class WitnessManager {
     }
 
     // ═══════════════════════════════════════════════════════════
-    // NBT SERIALIZATION
+    // ABSTRACT PERSISTENCE MANAGER IMPLEMENTATION
     // ═══════════════════════════════════════════════════════════
 
-    public CompoundTag save() {
-        CompoundTag tag = new CompoundTag();
-
-        // Reports speichern
-        ListTag reportsList = new ListTag();
-        for (List<WitnessReport> reports : reportsByCriminal.values()) {
-            for (WitnessReport report : reports) {
-                reportsList.add(report.save());
-            }
-        }
-        tag.put("Reports", reportsList);
-
-        // Wanted speichern
-        ListTag wantedList = new ListTag();
-        for (UUID uuid : wantedPlayers) {
-            CompoundTag wantedTag = new CompoundTag();
-            wantedTag.putUUID("UUID", uuid);
-            wantedTag.putInt("Bounty", bounties.getOrDefault(uuid, 0));
-            wantedList.add(wantedTag);
-        }
-        tag.put("Wanted", wantedList);
-
-        return tag;
+    @Override
+    protected Type getDataType() {
+        return new TypeToken<WitnessData>(){}.getType();
     }
 
-    public void load(CompoundTag tag) {
+    @Override
+    protected void onDataLoaded(WitnessData data) {
         reportsByCriminal.clear();
         wantedPlayers.clear();
         bounties.clear();
 
-        // Reports laden
-        ListTag reportsList = tag.getList("Reports", Tag.TAG_COMPOUND);
-        for (int i = 0; i < reportsList.size(); i++) {
-            WitnessReport report = WitnessReport.load(reportsList.getCompound(i));
-            reportsByCriminal.computeIfAbsent(report.getCriminalUUID(), k -> new ArrayList<>())
-                .add(report);
+        if (data.reports != null) {
+            reportsByCriminal.putAll(data.reports);
         }
+        if (data.wantedPlayers != null) {
+            wantedPlayers.addAll(data.wantedPlayers);
+        }
+        if (data.bounties != null) {
+            bounties.putAll(data.bounties);
+        }
+    }
 
-        // Wanted laden
-        ListTag wantedList = tag.getList("Wanted", Tag.TAG_COMPOUND);
-        for (int i = 0; i < wantedList.size(); i++) {
-            CompoundTag wantedTag = wantedList.getCompound(i);
-            UUID uuid = wantedTag.getUUID("UUID");
-            wantedPlayers.add(uuid);
-            bounties.put(uuid, wantedTag.getInt("Bounty"));
-        }
+    @Override
+    protected WitnessData getCurrentData() {
+        WitnessData data = new WitnessData();
+        data.reports = new HashMap<>(reportsByCriminal);
+        data.wantedPlayers = new HashSet<>(wantedPlayers);
+        data.bounties = new HashMap<>(bounties);
+        return data;
+    }
+
+    @Override
+    protected String getComponentName() {
+        return "WitnessManager";
+    }
+
+    @Override
+    protected String getHealthDetails() {
+        int totalReports = reportsByCriminal.values().stream().mapToInt(List::size).sum();
+        return String.format("%d Berichte, %d Gesuchte", totalReports, wantedPlayers.size());
+    }
+
+    @Override
+    protected void onCriticalLoadFailure() {
+        reportsByCriminal.clear();
+        wantedPlayers.clear();
+        bounties.clear();
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // DATA CLASSES FOR JSON SERIALIZATION
+    // ═══════════════════════════════════════════════════════════
+
+    public static class WitnessData {
+        public Map<UUID, List<WitnessReport>> reports;
+        public Set<UUID> wantedPlayers;
+        public Map<UUID, Integer> bounties;
     }
 
     // ═══════════════════════════════════════════════════════════

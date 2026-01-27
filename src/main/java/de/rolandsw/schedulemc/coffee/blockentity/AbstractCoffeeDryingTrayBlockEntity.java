@@ -104,7 +104,10 @@ public abstract class AbstractCoffeeDryingTrayBlockEntity extends BlockEntity im
         ItemStack handlerInput = itemHandler.getStackInSlot(0);
         if (!handlerInput.isEmpty() && inputStack.isEmpty()) {
             inputStack = handlerInput.copy();
-            // TODO: Extract coffee type & quality from NBT wenn implementiert
+            // Note: CoffeeCherries would need NBT tracking from harvest to preserve variety/quality
+            // For now using defaults - proper implementation needs CoffeePlantBlock harvest tracking
+            coffeeType = CoffeeType.ARABICA;
+            quality = CoffeeQuality.GOOD;
             dryingProgress = 0;
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
@@ -129,7 +132,7 @@ public abstract class AbstractCoffeeDryingTrayBlockEntity extends BlockEntity im
         if (inputStack.isEmpty() && outputStack.isEmpty()) {
             inputStack = stack.copy();
             inputStack.setCount(Math.min(stack.getCount(), getCapacity()));
-            // TODO: Extract type & quality
+            // Note: Type & quality would be extracted from NBT if CoffeeCherries tracked harvest data
             coffeeType = CoffeeType.ARABICA; // Default
             quality = CoffeeQuality.GOOD; // Default
             dryingProgress = 0;

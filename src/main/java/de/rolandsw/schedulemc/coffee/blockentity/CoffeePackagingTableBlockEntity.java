@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.coffee.blockentity;
 
 import de.rolandsw.schedulemc.coffee.items.CoffeeItems;
 import de.rolandsw.schedulemc.coffee.items.GroundCoffeeItem;
+import de.rolandsw.schedulemc.coffee.menu.CoffeePackagingTableMenu;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;
 import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
@@ -15,6 +16,7 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -46,6 +48,36 @@ public class CoffeePackagingTableBlockEntity extends BlockEntity implements IUti
     // ItemHandler (3 Slots)
     protected ItemStackHandler itemHandler;
     private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
+
+    // ContainerData for syncing with client
+    protected final ContainerData data = new ContainerData() {
+        @Override
+        public int get(int index) {
+            return switch (index) {
+                case 0 -> packagingProgress;
+                case 1 -> selectedSize.ordinal();
+                case 2 -> 0; // Reserved for future use
+                default -> 0;
+            };
+        }
+
+        @Override
+        public void set(int index, int value) {
+            switch (index) {
+                case 0 -> packagingProgress = value;
+                case 1 -> {
+                    if (value >= 0 && value < PackageSize.values().length) {
+                        selectedSize = PackageSize.values()[value];
+                    }
+                }
+            }
+        }
+
+        @Override
+        public int getCount() {
+            return 3;
+        }
+    };
 
     public enum PackageSize {
         SMALL(250, 250),   // 250g = 250 items
@@ -189,7 +221,11 @@ public class CoffeePackagingTableBlockEntity extends BlockEntity implements IUti
                 coffeeInput.shrink(selectedSize.getRequiredItems());
                 packageInput.shrink(1);
                 outputStack = selectedSize.getOutputItem();
-                // TODO: Kopiere NBT-Daten vom Ground Coffee zum Package
+
+                // Copy NBT data from GroundCoffee to PackagedCoffee to preserve type, quality, roast level
+                if (coffeeInput.hasTag()) {
+                    outputStack.setTag(coffeeInput.getTag().copy());
+                }
 
                 packagingProgress = 0;
                 changed = true;
@@ -299,7 +335,13 @@ public class CoffeePackagingTableBlockEntity extends BlockEntity implements IUti
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
-        // TODO: Implement menu when GUI is created
-        return null;
+        return new CoffeePackagingTableMenu(containerId, playerInventory, this);
+    }
+
+    /**
+     * Returns the ContainerData for syncing with the menu
+     */
+    public ContainerData getContainerData() {
+        return data;
     }
 }

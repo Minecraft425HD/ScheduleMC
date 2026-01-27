@@ -94,7 +94,7 @@ public class PoliceAIHandler {
     // Verhindert teure getEntitiesOfClass() Aufrufe für jeden Polizisten
     // ═══════════════════════════════════════════════════════════════════════════
     private static final Map<UUID, CachedPlayerData> playerCache = new ConcurrentHashMap<>();
-    private static long lastCacheUpdateTick = -1;
+    private static volatile long lastCacheUpdateTick = -1;
 
     /**
      * Gecachte Spielerdaten für schnellen Zugriff
@@ -696,6 +696,7 @@ public class PoliceAIHandler {
      * @param playerUUID UUID des Spielers der den Server verlässt
      */
     public static void cleanupPlayer(UUID playerUUID) {
+        playerCache.remove(playerUUID);
         arrestTimers.remove(playerUUID);
         lastSyncedWantedLevel.remove(playerUUID);
         lastSyncedEscapeTime.remove(playerUUID);

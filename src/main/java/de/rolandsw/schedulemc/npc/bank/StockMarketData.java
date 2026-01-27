@@ -15,16 +15,18 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Verwaltet Börsenpreise für handelbare Items
+ * Thread-Safe mit ConcurrentHashMap
  */
 public class StockMarketData {
     private static final Logger LOGGER = LogUtils.getLogger();
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
     private static volatile StockMarketData instance;
 
-    private final Map<Item, StockPrice> prices = new HashMap<>();
+    private final Map<Item, StockPrice> prices = new ConcurrentHashMap<>();
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private final File saveFile;
     private final Random random = new Random();

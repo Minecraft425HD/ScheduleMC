@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Registry for towing service contacts and NPCs
@@ -15,7 +16,7 @@ import java.util.List;
 public class TowingServiceRegistry {
 
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final List<ServiceContact> REGISTERED_SERVICES = new ArrayList<>();
+    private static final List<ServiceContact> REGISTERED_SERVICES = new CopyOnWriteArrayList<>();
 
     /**
      * Initialize default towing service contacts

@@ -1,35 +1,50 @@
 package de.rolandsw.schedulemc.npc.personality;
 
-import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.mojang.logging.LogUtils;
+import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
 import de.rolandsw.schedulemc.util.GsonHelper;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import org.slf4j.Logger;
+import net.minecraft.server.MinecraftServer;
 
 import javax.annotation.Nullable;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * NPC Relationship Manager - Verwaltet alle NPC-Spieler Beziehungen
+ * NPC Relationship Manager - Verwaltet alle NPC-Spieler Beziehungen mit JSON-Persistenz
  *
  * Features:
  * - Beziehungstracking zwischen NPCs und Spielern
  * - Persistence (JSON)
  * - Lookup-Performance-Optimierung
  */
-public class NPCRelationshipManager {
+public class NPCRelationshipManager extends AbstractPersistenceManager<NPCRelationshipManager.NPCRelationshipManagerData> {
 
-    private static final Logger LOGGER = LogUtils.getLogger();
-    // SICHERHEIT: volatile für Double-Checked Locking Pattern
+    // ═══════════════════════════════════════════════════════════
+    // SINGLETON
+    // ═══════════════════════════════════════════════════════════
+
     private static volatile NPCRelationshipManager instance;
+    private static final Object INSTANCE_LOCK = new Object();
+
+    @Nullable
+    public static NPCRelationshipManager getInstance() {
+        return instance;
+    }
+
+    public static NPCRelationshipManager getInstance(MinecraftServer server) {
+        NPCRelationshipManager result = instance;
+        if (result == null) {
+            synchronized (INSTANCE_LOCK) {
+                result = instance;
+                if (result == null) {
+                    instance = result = new NPCRelationshipManager(server);
+                }
+            }
+        }
+        return result;
+    }
 
     // ═══════════════════════════════════════════════════════════
     // DATA
@@ -50,27 +65,16 @@ public class NPCRelationshipManager {
      */
     private final Map<UUID, Set<UUID>> npcToPlayers = new ConcurrentHashMap<>();
 
-    private static final File RELATIONSHIPS_FILE = new File("config/plotmod_npc_relationships.json");
-    private static final Gson GSON = GsonHelper.get();
-    private boolean dirty = false;
-
     // ═══════════════════════════════════════════════════════════
-    // SINGLETON
+    // CONSTRUCTOR
     // ═══════════════════════════════════════════════════════════
 
-    private NPCRelationshipManager() {
-        LOGGER.info("NPCRelationshipManager initialized");
-    }
-
-    public static NPCRelationshipManager getInstance() {
-        if (instance == null) {
-            synchronized (NPCRelationshipManager.class) {
-                if (instance == null) {
-                    instance = new NPCRelationshipManager();
-                }
-            }
-        }
-        return instance;
+    private NPCRelationshipManager(MinecraftServer server) {
+        super(
+            server.getServerDirectory().toPath().resolve("config").resolve("npc_life_relationships.json").toFile(),
+            GsonHelper.get()
+        );
+        load();
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -90,8 +94,7 @@ public class NPCRelationshipManager {
             playerToNPCs.computeIfAbsent(playerId, p -> ConcurrentHashMap.newKeySet()).add(npcId);
             npcToPlayers.computeIfAbsent(npcId, n -> ConcurrentHashMap.newKeySet()).add(playerId);
 
-            dirty = true;
-            LOGGER.debug("Created new relationship: NPC {} <-> Player {}", npcId, playerId);
+            markDirty();
             return rel;
         });
     }
@@ -155,8 +158,7 @@ public class NPCRelationshipManager {
             Set<UUID> players = npcToPlayers.get(npcId);
             if (players != null) players.remove(playerId);
 
-            dirty = true;
-            LOGGER.debug("Removed relationship: NPC {} <-> Player {}", npcId, playerId);
+            markDirty();
         }
     }
 
@@ -171,8 +173,7 @@ public class NPCRelationshipManager {
                 Set<UUID> players = npcToPlayers.get(npcId);
                 if (players != null) players.remove(playerId);
             }
-            dirty = true;
-            LOGGER.info("Removed all relationships for player {}", playerId);
+            markDirty();
         }
     }
 
@@ -187,8 +188,7 @@ public class NPCRelationshipManager {
                 Set<UUID> npcs = playerToNPCs.get(playerId);
                 if (npcs != null) npcs.remove(npcId);
             }
-            dirty = true;
-            LOGGER.info("Removed all relationships for NPC {}", npcId);
+            markDirty();
         }
     }
 
@@ -235,34 +235,22 @@ public class NPCRelationshipManager {
     }
 
     // ═══════════════════════════════════════════════════════════
-    // PERSISTENCE
+    // ABSTRACT PERSISTENCE MANAGER IMPLEMENTATION
     // ═══════════════════════════════════════════════════════════
 
-    /**
-     * Lädt alle Relationships aus Datei
-     */
-    public void load() {
-        if (!RELATIONSHIPS_FILE.exists()) {
-            LOGGER.info("No relationships file found, starting fresh");
-            return;
-        }
+    @Override
+    protected Type getDataType() {
+        return new TypeToken<NPCRelationshipManagerData>(){}.getType();
+    }
 
-        try (FileReader reader = new FileReader(RELATIONSHIPS_FILE)) {
-            List<SerializedRelationship> loaded = GSON.fromJson(
-                reader,
-                new TypeToken<List<SerializedRelationship>>(){}.getType()
-            );
+    @Override
+    protected void onDataLoaded(NPCRelationshipManagerData data) {
+        relationships.clear();
+        playerToNPCs.clear();
+        npcToPlayers.clear();
 
-            if (loaded == null) {
-                LOGGER.warn("Loaded relationships is null");
-                return;
-            }
-
-            relationships.clear();
-            playerToNPCs.clear();
-            npcToPlayers.clear();
-
-            for (SerializedRelationship sr : loaded) {
+        if (data.relationships != null) {
+            for (SerializedRelationship sr : data.relationships) {
                 try {
                     UUID npcId = UUID.fromString(sr.npcId);
                     UUID playerId = UUID.fromString(sr.playerId);
@@ -281,65 +269,57 @@ public class NPCRelationshipManager {
                     LOGGER.error("Error loading relationship: {}", sr, e);
                 }
             }
-
-            dirty = false;
-            LOGGER.info("Loaded {} relationships", relationships.size());
-
-        } catch (IOException e) {
-            LOGGER.error("Error loading relationships", e);
         }
     }
 
-    /**
-     * Speichert alle Relationships in Datei
-     */
-    public void save() {
-        if (!dirty) {
-            return;  // Keine Änderungen
+    @Override
+    protected NPCRelationshipManagerData getCurrentData() {
+        NPCRelationshipManagerData data = new NPCRelationshipManagerData();
+        data.relationships = new ArrayList<>();
+
+        for (NPCRelationship rel : relationships.values()) {
+            data.relationships.add(new SerializedRelationship(
+                rel.getNpcId().toString(),
+                rel.getPlayerId().toString(),
+                rel.getRelationshipLevel()
+            ));
         }
 
-        try {
-            RELATIONSHIPS_FILE.getParentFile().mkdirs();
-
-            // Serialize
-            List<SerializedRelationship> toSave = new ArrayList<>();
-            for (NPCRelationship rel : relationships.values()) {
-                toSave.add(new SerializedRelationship(
-                    rel.getNpcId().toString(),
-                    rel.getPlayerId().toString(),
-                    rel.getRelationshipLevel()
-                ));
-            }
-
-            // Write
-            try (FileWriter writer = new FileWriter(RELATIONSHIPS_FILE)) {
-                GSON.toJson(toSave, writer);
-                writer.flush();
-            }
-
-            dirty = false;
-            LOGGER.info("Saved {} relationships", relationships.size());
-
-        } catch (IOException e) {
-            LOGGER.error("Error saving relationships", e);
-        }
+        return data;
     }
 
-    public void saveIfNeeded() {
-        if (dirty) {
-            save();
-        }
+    @Override
+    protected String getComponentName() {
+        return "NPCRelationshipManager";
     }
 
-    /**
-     * Serialization helper class
-     */
-    private static class SerializedRelationship {
-        String npcId;
-        String playerId;
-        int relationshipLevel;
+    @Override
+    protected String getHealthDetails() {
+        return String.format("%d relationships, %d players, %d NPCs",
+            relationships.size(), playerToNPCs.size(), npcToPlayers.size());
+    }
 
-        SerializedRelationship(String npcId, String playerId, int relationshipLevel) {
+    @Override
+    protected void onCriticalLoadFailure() {
+        relationships.clear();
+        playerToNPCs.clear();
+        npcToPlayers.clear();
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // DATA CLASSES FOR JSON SERIALIZATION
+    // ═══════════════════════════════════════════════════════════
+
+    public static class NPCRelationshipManagerData {
+        public List<SerializedRelationship> relationships;
+    }
+
+    public static class SerializedRelationship {
+        public String npcId;
+        public String playerId;
+        public int relationshipLevel;
+
+        public SerializedRelationship(String npcId, String playerId, int relationshipLevel) {
             this.npcId = npcId;
             this.playerId = playerId;
             this.relationshipLevel = relationshipLevel;
@@ -350,15 +330,11 @@ public class NPCRelationshipManager {
     // UTILITY
     // ═══════════════════════════════════════════════════════════
 
-    public void markDirty() {
-        dirty = true;
-    }
-
     public void clearAll() {
         relationships.clear();
         playerToNPCs.clear();
         npcToPlayers.clear();
-        dirty = true;
+        markDirty();
         LOGGER.warn("All relationships cleared!");
     }
 
@@ -367,7 +343,6 @@ public class NPCRelationshipManager {
         LOGGER.info("Total Relationships: {}", relationships.size());
         LOGGER.info("Players with Relationships: {}", playerToNPCs.size());
         LOGGER.info("NPCs with Relationships: {}", npcToPlayers.size());
-        LOGGER.info("Dirty: {}", dirty);
         LOGGER.info("═══════════════════════════════════════");
     }
 }

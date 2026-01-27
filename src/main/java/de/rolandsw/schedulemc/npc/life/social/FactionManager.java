@@ -1,32 +1,56 @@
 package de.rolandsw.schedulemc.npc.life.social;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
+import com.google.gson.reflect.TypeToken;
+import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
+import de.rolandsw.schedulemc.util.GsonHelper;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 
+import javax.annotation.Nullable;
+import java.io.File;
+import java.lang.reflect.Type;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * FactionManager - Verwaltet alle Fraktionsbeziehungen
  *
- * Globaler Manager für Spieler-Fraktion Beziehungen.
+ * Globaler Manager für Spieler-Fraktion Beziehungen mit JSON-Persistenz.
  */
-public class FactionManager {
+public class FactionManager extends AbstractPersistenceManager<Map<String, Map<String, FactionRelation>>> {
 
     // ═══════════════════════════════════════════════════════════
-    // SINGLETON-LIKE PER LEVEL
+    // SINGLETON
     // ═══════════════════════════════════════════════════════════
 
-    private static final Map<ServerLevel, FactionManager> MANAGERS = new HashMap<>();
+    private static volatile FactionManager instance;
+    private static final Object INSTANCE_LOCK = new Object();
 
-    public static FactionManager getManager(ServerLevel level) {
-        return MANAGERS.computeIfAbsent(level, l -> new FactionManager());
+    @Nullable
+    public static FactionManager getInstance() {
+        return instance;
     }
 
-    public static void removeManager(ServerLevel level) {
-        MANAGERS.remove(level);
+    public static FactionManager getInstance(MinecraftServer server) {
+        FactionManager result = instance;
+        if (result == null) {
+            synchronized (INSTANCE_LOCK) {
+                result = instance;
+                if (result == null) {
+                    instance = result = new FactionManager(server);
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Gets manager instance for a specific level (convenience method).
+     * Note: Manager is server-wide, not per-level.
+     */
+    public static FactionManager getManager(ServerLevel level) {
+        return getInstance(level.getServer());
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -34,7 +58,19 @@ public class FactionManager {
     // ═══════════════════════════════════════════════════════════
 
     /** Spieler -> Fraktionsbeziehungen */
-    private final Map<UUID, Map<Faction, FactionRelation>> playerFactions = new HashMap<>();
+    private final Map<UUID, Map<Faction, FactionRelation>> playerFactions = new ConcurrentHashMap<>();
+
+    // ═══════════════════════════════════════════════════════════
+    // CONSTRUCTOR
+    // ═══════════════════════════════════════════════════════════
+
+    private FactionManager(MinecraftServer server) {
+        super(
+            new File(server.getServerDirectory(), "config/npc_life_factions.json"),
+            GsonHelper.get()
+        );
+        load();
+    }
 
     // ═══════════════════════════════════════════════════════════
     // PLAYER FACTION MANAGEMENT
@@ -84,6 +120,7 @@ public class FactionManager {
      */
     public void modifyReputation(UUID playerUUID, Faction faction, int amount) {
         getRelation(playerUUID, faction).modifyReputation(amount);
+        markDirty();
 
         // Gegenwirkung auf verbündete/feindliche Fraktionen
         for (Faction other : Faction.values()) {
@@ -179,6 +216,7 @@ public class FactionManager {
         }
 
         relation.joinFaction(title);
+        markDirty();
         return true;
     }
 
@@ -187,6 +225,7 @@ public class FactionManager {
      */
     public void leaveFaction(UUID playerUUID, Faction faction) {
         getRelation(playerUUID, faction).leaveFaction();
+        markDirty();
     }
 
     /**
@@ -253,46 +292,74 @@ public class FactionManager {
     }
 
     // ═══════════════════════════════════════════════════════════
-    // NBT SERIALIZATION
+    // ABSTRACT PERSISTENCE MANAGER IMPLEMENTATION
     // ═══════════════════════════════════════════════════════════
 
-    public CompoundTag save() {
-        CompoundTag tag = new CompoundTag();
-
-        CompoundTag playersTag = new CompoundTag();
-        for (Map.Entry<UUID, Map<Faction, FactionRelation>> entry : playerFactions.entrySet()) {
-            ListTag relationsList = new ListTag();
-            for (FactionRelation relation : entry.getValue().values()) {
-                relationsList.add(relation.save());
-            }
-            playersTag.put(entry.getKey().toString(), relationsList);
-        }
-        tag.put("PlayerFactions", playersTag);
-
-        return tag;
+    @Override
+    protected Type getDataType() {
+        return new TypeToken<Map<String, Map<String, FactionRelation>>>(){}.getType();
     }
 
-    public void load(CompoundTag tag) {
+    @Override
+    protected void onDataLoaded(Map<String, Map<String, FactionRelation>> data) {
         playerFactions.clear();
 
-        CompoundTag playersTag = tag.getCompound("PlayerFactions");
-        for (String uuidStr : playersTag.getAllKeys()) {
-            UUID playerUUID = UUID.fromString(uuidStr);
-            Map<Faction, FactionRelation> relations = new EnumMap<>(Faction.class);
+        for (Map.Entry<String, Map<String, FactionRelation>> entry : data.entrySet()) {
+            try {
+                UUID playerUUID = UUID.fromString(entry.getKey());
+                Map<Faction, FactionRelation> relations = new EnumMap<>(Faction.class);
 
-            ListTag relationsList = playersTag.getList(uuidStr, Tag.TAG_COMPOUND);
-            for (int i = 0; i < relationsList.size(); i++) {
-                FactionRelation relation = FactionRelation.load(relationsList.getCompound(i));
-                relations.put(relation.getFaction(), relation);
+                for (Map.Entry<String, FactionRelation> relEntry : entry.getValue().entrySet()) {
+                    try {
+                        Faction faction = Faction.valueOf(relEntry.getKey());
+                        relations.put(faction, relEntry.getValue());
+                    } catch (IllegalArgumentException e) {
+                        LOGGER.warn("Unknown faction: {}", relEntry.getKey());
+                    }
+                }
+
+                // Fehlende Fraktionen mit Standard füllen
+                for (Faction faction : Faction.values()) {
+                    relations.computeIfAbsent(faction, FactionRelation::new);
+                }
+
+                playerFactions.put(playerUUID, relations);
+            } catch (IllegalArgumentException e) {
+                LOGGER.error("Invalid player UUID in faction data: {}", entry.getKey(), e);
             }
-
-            // Fehlende Fraktionen mit Standard füllen
-            for (Faction faction : Faction.values()) {
-                relations.computeIfAbsent(faction, FactionRelation::new);
-            }
-
-            playerFactions.put(playerUUID, relations);
         }
+    }
+
+    @Override
+    protected Map<String, Map<String, FactionRelation>> getCurrentData() {
+        Map<String, Map<String, FactionRelation>> data = new HashMap<>();
+
+        for (Map.Entry<UUID, Map<Faction, FactionRelation>> entry : playerFactions.entrySet()) {
+            Map<String, FactionRelation> relations = new HashMap<>();
+            for (Map.Entry<Faction, FactionRelation> relEntry : entry.getValue().entrySet()) {
+                relations.put(relEntry.getKey().name(), relEntry.getValue());
+            }
+            data.put(entry.getKey().toString(), relations);
+        }
+
+        return data;
+    }
+
+    @Override
+    protected String getComponentName() {
+        return "FactionManager";
+    }
+
+    @Override
+    protected String getHealthDetails() {
+        return String.format("%d Spieler, %d Beziehungen",
+            playerFactions.size(),
+            playerFactions.values().stream().mapToInt(Map::size).sum());
+    }
+
+    @Override
+    protected void onCriticalLoadFailure() {
+        playerFactions.clear();
     }
 
     // ═══════════════════════════════════════════════════════════

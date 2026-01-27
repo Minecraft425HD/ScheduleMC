@@ -1,19 +1,26 @@
 package de.rolandsw.schedulemc.npc.life.companion;
 
+import com.google.gson.reflect.TypeToken;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.life.social.Faction;
 import de.rolandsw.schedulemc.npc.life.social.FactionManager;
+import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
+import de.rolandsw.schedulemc.util.GsonHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 
 import javax.annotation.Nullable;
+import java.io.File;
+import java.lang.reflect.Type;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * CompanionManager - Verwaltet alle Begleiter im System
+ * CompanionManager - Verwaltet alle Begleiter im System mit JSON-Persistenz
  *
  * Verantwortlich für:
  * - Begleiter-Rekrutierung
@@ -21,20 +28,39 @@ import java.util.*;
  * - Begleiter-Persistenz
  * - Beschwören und Entlassen
  */
-public class CompanionManager {
+public class CompanionManager extends AbstractPersistenceManager<CompanionManager.CompanionManagerData> {
 
     // ═══════════════════════════════════════════════════════════
-    // SINGLETON-LIKE PER LEVEL
+    // SINGLETON
     // ═══════════════════════════════════════════════════════════
 
-    private static final Map<ServerLevel, CompanionManager> MANAGERS = new HashMap<>();
+    private static volatile CompanionManager instance;
+    private static final Object INSTANCE_LOCK = new Object();
 
-    public static CompanionManager getManager(ServerLevel level) {
-        return MANAGERS.computeIfAbsent(level, l -> new CompanionManager(l));
+    @Nullable
+    public static CompanionManager getInstance() {
+        return instance;
     }
 
-    public static void removeManager(ServerLevel level) {
-        MANAGERS.remove(level);
+    public static CompanionManager getInstance(MinecraftServer server) {
+        CompanionManager result = instance;
+        if (result == null) {
+            synchronized (INSTANCE_LOCK) {
+                result = instance;
+                if (result == null) {
+                    instance = result = new CompanionManager(server);
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Helper method for level-based access.
+     * Note: Manager is server-wide, not per-level.
+     */
+    public static CompanionManager getManager(ServerLevel level) {
+        return getInstance(level.getServer());
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -51,23 +77,28 @@ public class CompanionManager {
     // DATA
     // ═══════════════════════════════════════════════════════════
 
-    private final ServerLevel level;
+    private MinecraftServer server;
 
     /** Alle registrierten Begleiter: Companion UUID -> Data */
-    private final Map<UUID, CompanionData> allCompanions = new HashMap<>();
+    private final Map<UUID, CompanionData> allCompanions = new ConcurrentHashMap<>();
 
     /** Spieler-Begleiter-Zuordnung: Player UUID -> List of Companion UUIDs */
-    private final Map<UUID, List<UUID>> playerCompanions = new HashMap<>();
+    private final Map<UUID, List<UUID>> playerCompanions = new ConcurrentHashMap<>();
 
-    /** Aktive Begleiter-Entities: Companion UUID -> Entity */
-    private final Map<UUID, CustomNPCEntity> activeCompanionEntities = new HashMap<>();
+    /** Aktive Begleiter-Entities: Companion UUID -> Entity (TRANSIENT - nicht persistiert) */
+    private final Map<UUID, CustomNPCEntity> activeCompanionEntities = new ConcurrentHashMap<>();
 
     // ═══════════════════════════════════════════════════════════
     // CONSTRUCTOR
     // ═══════════════════════════════════════════════════════════
 
-    private CompanionManager(ServerLevel level) {
-        this.level = level;
+    private CompanionManager(MinecraftServer server) {
+        super(
+            server.getServerDirectory().toPath().resolve("config").resolve("npc_life_companions.json").toFile(),
+            GsonHelper.get()
+        );
+        this.server = server;
+        load();
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -87,12 +118,15 @@ public class CompanionManager {
         }
 
         // Prüfe Reputation
-        FactionManager factionManager = FactionManager.getManager(level);
-        Faction npcFaction = Faction.forNPCType(npc.getNpcType());
-        int playerRep = factionManager.getReputation(playerUUID, npcFaction);
+        ServerLevel level = (ServerLevel) player.level();
+        FactionManager factionManager = FactionManager.getInstance();
+        if (factionManager != null) {
+            Faction npcFaction = Faction.forNPCType(npc.getNpcType());
+            int playerRep = factionManager.getReputation(playerUUID, npcFaction);
 
-        if (playerRep < type.getRequiredReputation()) {
-            return RecruitmentResult.INSUFFICIENT_REPUTATION;
+            if (playerRep < type.getRequiredReputation()) {
+                return RecruitmentResult.INSUFFICIENT_REPUTATION;
+            }
         }
 
         // Prüfe Geld
@@ -128,6 +162,7 @@ public class CompanionManager {
         allCompanions.put(companionUUID, data);
         playerCompanions.computeIfAbsent(playerUUID, k -> new ArrayList<>()).add(companionUUID);
 
+        markDirty();
         return data;
     }
 
@@ -218,7 +253,11 @@ public class CompanionManager {
         CompanionData data = allCompanions.get(companionUUID);
         if (data == null) return false;
 
-        return data.giveCommand(command);
+        boolean result = data.giveCommand(command);
+        if (result) {
+            markDirty();
+        }
+        return result;
     }
 
     /**
@@ -234,6 +273,8 @@ public class CompanionManager {
         if (companions != null) {
             companions.remove(companionUUID);
         }
+
+        markDirty();
     }
 
     /**
@@ -269,6 +310,7 @@ public class CompanionManager {
         // Loyalität sinkt bei Transfer
         data.addLoyalty(-20);
 
+        markDirty();
         return true;
     }
 
@@ -378,57 +420,59 @@ public class CompanionManager {
     }
 
     // ═══════════════════════════════════════════════════════════
-    // SERIALIZATION
+    // ABSTRACT PERSISTENCE MANAGER IMPLEMENTATION
     // ═══════════════════════════════════════════════════════════
 
-    public CompoundTag save() {
-        CompoundTag tag = new CompoundTag();
-
-        // Alle Begleiter
-        ListTag companionsTag = new ListTag();
-        for (CompanionData data : allCompanions.values()) {
-            companionsTag.add(data.save());
-        }
-        tag.put("companions", companionsTag);
-
-        // Spieler-Zuordnungen
-        CompoundTag playerTag = new CompoundTag();
-        for (Map.Entry<UUID, List<UUID>> entry : playerCompanions.entrySet()) {
-            ListTag uuidList = new ListTag();
-            for (UUID uuid : entry.getValue()) {
-                CompoundTag uuidTag = new CompoundTag();
-                uuidTag.putUUID("uuid", uuid);
-                uuidList.add(uuidTag);
-            }
-            playerTag.put(entry.getKey().toString(), uuidList);
-        }
-        tag.put("playerCompanions", playerTag);
-
-        return tag;
+    @Override
+    protected Type getDataType() {
+        return new TypeToken<CompanionManagerData>(){}.getType();
     }
 
-    public void load(CompoundTag tag) {
+    @Override
+    protected void onDataLoaded(CompanionManagerData data) {
         allCompanions.clear();
         playerCompanions.clear();
 
-        // Begleiter laden
-        ListTag companionsTag = tag.getList("companions", Tag.TAG_COMPOUND);
-        for (int i = 0; i < companionsTag.size(); i++) {
-            CompanionData data = CompanionData.load(companionsTag.getCompound(i));
-            allCompanions.put(data.getCompanionUUID(), data);
+        if (data.allCompanions != null) {
+            allCompanions.putAll(data.allCompanions);
         }
+        if (data.playerCompanions != null) {
+            playerCompanions.putAll(data.playerCompanions);
+        }
+    }
 
-        // Spieler-Zuordnungen laden
-        CompoundTag playerTag = tag.getCompound("playerCompanions");
-        for (String key : playerTag.getAllKeys()) {
-            UUID playerUUID = UUID.fromString(key);
-            ListTag uuidList = playerTag.getList(key, Tag.TAG_COMPOUND);
-            List<UUID> companions = new ArrayList<>();
-            for (int i = 0; i < uuidList.size(); i++) {
-                companions.add(uuidList.getCompound(i).getUUID("uuid"));
-            }
-            playerCompanions.put(playerUUID, companions);
-        }
+    @Override
+    protected CompanionManagerData getCurrentData() {
+        CompanionManagerData data = new CompanionManagerData();
+        data.allCompanions = new HashMap<>(allCompanions);
+        data.playerCompanions = new HashMap<>(playerCompanions);
+        return data;
+    }
+
+    @Override
+    protected String getComponentName() {
+        return "CompanionManager";
+    }
+
+    @Override
+    protected String getHealthDetails() {
+        return String.format("%d companions, %d active",
+            allCompanions.size(), activeCompanionEntities.size());
+    }
+
+    @Override
+    protected void onCriticalLoadFailure() {
+        allCompanions.clear();
+        playerCompanions.clear();
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // DATA CLASS FOR JSON SERIALIZATION
+    // ═══════════════════════════════════════════════════════════
+
+    public static class CompanionManagerData {
+        public Map<UUID, CompanionData> allCompanions;
+        public Map<UUID, List<UUID>> playerCompanions;
     }
 
     @Override

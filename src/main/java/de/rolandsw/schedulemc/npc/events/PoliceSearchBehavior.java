@@ -427,10 +427,66 @@ public class PoliceSearchBehavior {
 
     /**
      * Cleanup-Methode für entfernte Spieler
+     * Entfernt alle Such-Einträge für diesen Spieler
      */
     public static void cleanup(UUID playerUUID) {
+        if (playerUUID == null) {
+            return;
+        }
+
         lastKnownPositions.remove(playerUUID);
         searchTimers.remove(playerUUID);
         movementDirections.remove(playerUUID);
+
+        // Entferne alle NPCs, die diesen Spieler suchen
+        activeSearches.entrySet().removeIf(entry -> playerUUID.equals(entry.getValue()));
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("[POLICE] Cleaned up search data for player {}", playerUUID);
+        }
+    }
+
+    /**
+     * Cleanup-Methode für entfernte NPCs
+     * Entfernt alle Such-Einträge für diese NPC
+     */
+    public static void cleanupNPC(UUID npcUUID) {
+        if (npcUUID == null) {
+            return;
+        }
+
+        activeSearches.remove(npcUUID);
+        lastTargetUpdate.remove(npcUUID);
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("[POLICE] Cleaned up search data for NPC {}", npcUUID);
+        }
+    }
+
+    /**
+     * Timeout-based Cleanup - Entfernt alte Such-Einträge
+     * Sollte periodisch aufgerufen werden (z.B. alle 5 Minuten)
+     */
+    public static void cleanupExpiredSearches(long currentTick) {
+        int removed = 0;
+
+        // Entferne abgelaufene Search Timer
+        for (UUID playerUUID : searchTimers.keySet()) {
+            if (isSearchExpired(playerUUID, currentTick)) {
+                // Entferne alle Daten für diesen Spieler
+                lastKnownPositions.remove(playerUUID);
+                searchTimers.remove(playerUUID);
+                movementDirections.remove(playerUUID);
+
+                // Entferne alle NPCs, die diesen Spieler suchen
+                activeSearches.entrySet().removeIf(entry -> playerUUID.equals(entry.getValue()));
+
+                removed++;
+            }
+        }
+
+        if (removed > 0 && LOGGER.isDebugEnabled()) {
+            LOGGER.debug("[POLICE] Cleaned up {} expired search entries", removed);
+        }
     }
 }

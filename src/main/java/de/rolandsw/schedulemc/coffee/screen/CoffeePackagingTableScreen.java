@@ -17,7 +17,7 @@ public class CoffeePackagingTableScreen extends AbstractContainerScreen<CoffeePa
 
     public CoffeePackagingTableScreen(CoffeePackagingTableMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
-        this.imageHeight = 140;
+        this.imageHeight = 146;
         this.inventoryLabelY = this.imageHeight - 94;
     }
 
@@ -28,7 +28,7 @@ public class CoffeePackagingTableScreen extends AbstractContainerScreen<CoffeePa
         int buttonWidth = 50;
         int buttonHeight = 18;
         int centerX = this.leftPos + this.imageWidth / 2;
-        int buttonY = this.topPos + 100;
+        int buttonY = this.topPos + 58;
 
         // 3 Buttons: 250g, 500g, 1kg
         // 250g Button
@@ -92,22 +92,27 @@ public class CoffeePackagingTableScreen extends AbstractContainerScreen<CoffeePa
         graphics.fill(x + 2, y + 2, x + this.imageWidth - 2, y + 18, 0xFF1E1E1E);
 
         // Slot-Umrandungen
-        drawSlot(graphics, x + 46, y + 35);  // Coffee Input
-        drawSlot(graphics, x + 76, y + 35);  // Bag Input
+        drawSlot(graphics, x + 56, y + 35);  // Coffee Input
+        drawSlot(graphics, x + 86, y + 35);  // Bag Input
         drawSlot(graphics, x + 126, y + 35); // Package Output
 
-        // Progress-Pfeil Hintergrund
-        graphics.fill(x + 96, y + 35, x + 110, y + 51, 0xFF373737);
+        // Progress Arrow Background (zwischen Bag und Output)
+        graphics.fill(x + 104, y + 37, x + 122, y + 49, 0xFF373737);
 
-        // Progress-Pfeil füllen
-        if (menu.blockEntity != null) {
-            // TODO: Get actual progress from blockEntity
-            // For now, no progress bar as it's instant packaging
+        // Progress Arrow Fill
+        int progress = menu.getProgress();
+        int maxProgress = menu.getMaxProgress();
+        if (progress > 0 && maxProgress > 0) {
+            int arrowWidth = 18;
+            int filledWidth = (int) ((float) progress / maxProgress * arrowWidth);
+
+            // Grüner Fortschrittsbalken
+            graphics.fill(x + 104, y + 37, x + 104 + filledWidth, y + 49, 0xFF00AA00);
         }
 
         // Player Hotbar
         for (int i = 0; i < 9; i++) {
-            drawSlot(graphics, x + 8 + i * 18, y + 116);
+            drawSlot(graphics, x + 8 + i * 18, y + 122);
         }
     }
 
@@ -126,19 +131,39 @@ public class CoffeePackagingTableScreen extends AbstractContainerScreen<CoffeePa
         int y = this.topPos;
 
         // Title
-        graphics.drawString(this.font, "Kaffee-Verpackungsstation", x + 8, y + 6, 0xFFFFFF, false);
+        graphics.drawString(this.font, "Coffee Packaging", x + 8, y + 6, 0xFFFFFF, false);
 
         // Instructions
-        graphics.drawString(this.font, "Größe wählen:", x + 8, y + 22, 0xCCCCCC, false);
+        graphics.drawString(this.font, "Select Size:", x + 8, y + 22, 0xCCCCCC, false);
 
-        // Labels
-        graphics.drawString(this.font, "Kaffee", x + 32, y + 56, 0xCCCCCC, false);
-        graphics.drawString(this.font, "Tüte", x + 68, y + 56, 0xCCCCCC, false);
-        graphics.drawString(this.font, "Paket", x + 116, y + 56, 0xCCCCCC, false);
+        // Slot Labels
+        graphics.drawString(this.font, "Coffee", x + 48, y + 56, 0xCCCCCC, false);
+        graphics.drawString(this.font, "Bag", x + 82, y + 56, 0xCCCCCC, false);
+        graphics.drawString(this.font, "Package", x + 116, y + 56, 0xCCCCCC, false);
+
+        // Progress Percentage
+        int progress = menu.getProgress();
+        int maxProgress = menu.getMaxProgress();
+        if (progress > 0 && maxProgress > 0) {
+            int percentage = (int) ((float) progress / maxProgress * 100);
+            String progressText = percentage + "%";
+            int textWidth = this.font.width(progressText);
+            graphics.drawString(this.font, progressText, x + 113 - textWidth / 2, y + 82, 0x00FF00, false);
+        }
+
+        // Selected Package Size Indicator
+        int selectedSize = menu.getSelectedPackageSize(); // 0=SMALL, 1=MEDIUM, 2=LARGE
+        String sizeText = switch (selectedSize) {
+            case 0 -> "Selected: 250g";
+            case 1 -> "Selected: 500g";
+            case 2 -> "Selected: 1kg";
+            default -> "Selected: 500g";
+        };
+        graphics.drawString(this.font, sizeText, x + 8, y + 82, 0xFFFF00, false);
     }
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        // Leer lassen - wir rendern in render()
+        // Empty - we render in render()
     }
 }

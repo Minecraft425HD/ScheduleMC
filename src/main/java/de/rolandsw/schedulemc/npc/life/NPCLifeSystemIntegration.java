@@ -26,8 +26,8 @@ import net.minecraft.server.level.ServerPlayer;
 
 import java.util.UUID;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * NPCLifeSystemIntegration - Zentraler Integrationspunkt für das NPC Life System
@@ -37,6 +37,8 @@ import java.util.Map;
  * - Koordiniert deren Zusammenarbeit
  * - Bietet eine zentrale API für externe Zugriffe
  * - Verwaltet Persistenz aller Systeme
+ *
+ * Thread-Safe: Nutzt ConcurrentHashMap für Multi-Level Support
  */
 public class NPCLifeSystemIntegration {
 
@@ -44,7 +46,7 @@ public class NPCLifeSystemIntegration {
     // SINGLETON-LIKE PER LEVEL
     // ═══════════════════════════════════════════════════════════
 
-    private static final Map<ServerLevel, NPCLifeSystemIntegration> INTEGRATIONS = new HashMap<>();
+    private static final Map<ServerLevel, NPCLifeSystemIntegration> INTEGRATIONS = new ConcurrentHashMap<>();
 
     public static NPCLifeSystemIntegration get(ServerLevel level) {
         return INTEGRATIONS.computeIfAbsent(level, NPCLifeSystemIntegration::new);
@@ -52,17 +54,8 @@ public class NPCLifeSystemIntegration {
 
     public static void remove(ServerLevel level) {
         INTEGRATIONS.remove(level);
-
-        // Alle Manager entfernen
-        FactionManager.removeManager(level);
-        RumorNetwork.removeNetwork(level);
-        NPCInteractionManager.removeManager(level);
-        WitnessManager.removeManager(level);
-        DynamicPriceManager.removeManager(level);
-        DialogueManager.removeManager(level);
-        QuestManager.removeManager(level);
-        CompanionManager.removeManager(level);
-        WorldEventManager.removeManager(level);
+        // Note: Managers are now server-wide singletons and persist themselves via AbstractPersistenceManager
+        // No need to manually remove them per-level
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -134,12 +127,12 @@ public class NPCLifeSystemIntegration {
 
         // Alle 100 Ticks (5 Sekunden)
         if (tickCounter % 100 == 0) {
-            questManager.tick();
+            questManager.tick(level);
         }
 
         // Alle 2400 Ticks (2 Minuten)
         if (tickCounter % 2400 == 0) {
-            worldEventManager.tick();
+            worldEventManager.tick(level);
         }
 
         // Counter zurücksetzen
@@ -478,62 +471,24 @@ public class NPCLifeSystemIntegration {
 
     /**
      * Speichert alle Systeme
+     * NOTE: Managers now persist themselves via AbstractPersistenceManager
+     * This method only saves integration-specific state
      */
     public CompoundTag save() {
         CompoundTag tag = new CompoundTag();
-
         tag.putBoolean("enabled", enabled);
         tag.putInt("tickCounter", tickCounter);
-
-        // Jedes Subsystem speichern
-        tag.put("factionManager", factionManager.save());
-        tag.put("rumorNetwork", rumorNetwork.save());
-        tag.put("witnessManager", witnessManager.save());
-        tag.put("priceManager", priceManager.save());
-        tag.put("companionManager", companionManager.save());
-        tag.put("worldEventManager", worldEventManager.save());
-        tag.put("questManager", questManager.save());
-        tag.put("dialogueManager", dialogueManager.save());
-        tag.put("interactionManager", interactionManager.save());
-
         return tag;
     }
 
     /**
      * Lädt alle Systeme
+     * NOTE: Managers now persist themselves via AbstractPersistenceManager
+     * This method only loads integration-specific state
      */
     public void load(CompoundTag tag) {
         enabled = tag.getBoolean("enabled");
         tickCounter = tag.getInt("tickCounter");
-
-        // Jedes Subsystem laden
-        if (tag.contains("factionManager")) {
-            factionManager.load(tag.getCompound("factionManager"));
-        }
-        if (tag.contains("rumorNetwork")) {
-            rumorNetwork.load(tag.getCompound("rumorNetwork"));
-        }
-        if (tag.contains("witnessManager")) {
-            witnessManager.load(tag.getCompound("witnessManager"));
-        }
-        if (tag.contains("priceManager")) {
-            priceManager.load(tag.getCompound("priceManager"));
-        }
-        if (tag.contains("companionManager")) {
-            companionManager.load(tag.getCompound("companionManager"));
-        }
-        if (tag.contains("worldEventManager")) {
-            worldEventManager.load(tag.getCompound("worldEventManager"));
-        }
-        if (tag.contains("questManager")) {
-            questManager.load(tag.getCompound("questManager"));
-        }
-        if (tag.contains("dialogueManager")) {
-            dialogueManager.load(tag.getCompound("dialogueManager"));
-        }
-        if (tag.contains("interactionManager")) {
-            interactionManager.load(tag.getCompound("interactionManager"));
-        }
     }
 
     // ═══════════════════════════════════════════════════════════

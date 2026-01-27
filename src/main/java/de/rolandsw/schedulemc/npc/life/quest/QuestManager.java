@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.npc.life.quest;
 
+import com.google.gson.reflect.TypeToken;
 import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.life.core.EmotionState;
@@ -7,19 +8,25 @@ import de.rolandsw.schedulemc.npc.life.core.MemoryType;
 import de.rolandsw.schedulemc.npc.life.core.NPCLifeData;
 import de.rolandsw.schedulemc.npc.life.social.Faction;
 import de.rolandsw.schedulemc.npc.life.social.FactionManager;
+import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
+import de.rolandsw.schedulemc.util.GsonHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Items;
 
 import javax.annotation.Nullable;
+import java.io.File;
+import java.lang.reflect.Type;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * QuestManager - Verwaltet alle Quests im System
+ * QuestManager - Verwaltet alle Quests im System mit JSON-Persistenz
  *
  * Verantwortlich für:
  * - Quest-Vorlagen registrieren
@@ -27,36 +34,55 @@ import java.util.*;
  * - Spieler-Fortschritt verwalten
  * - Quest-Belohnungen verteilen
  */
-public class QuestManager {
+public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestManagerData> {
 
     // ═══════════════════════════════════════════════════════════
-    // SINGLETON-LIKE PER LEVEL
+    // SINGLETON
     // ═══════════════════════════════════════════════════════════
 
-    private static final Map<ServerLevel, QuestManager> MANAGERS = new HashMap<>();
+    private static volatile QuestManager instance;
+    private static final Object INSTANCE_LOCK = new Object();
 
-    public static QuestManager getManager(ServerLevel level) {
-        return MANAGERS.computeIfAbsent(level, l -> new QuestManager(l));
+    @Nullable
+    public static QuestManager getInstance() {
+        return instance;
     }
 
-    public static void removeManager(ServerLevel level) {
-        MANAGERS.remove(level);
+    public static QuestManager getInstance(MinecraftServer server) {
+        QuestManager result = instance;
+        if (result == null) {
+            synchronized (INSTANCE_LOCK) {
+                result = instance;
+                if (result == null) {
+                    instance = result = new QuestManager(server);
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Gets manager instance for a specific level (convenience method).
+     * Note: Manager is server-wide, not per-level.
+     */
+    public static QuestManager getManager(ServerLevel level) {
+        return getInstance(level.getServer());
     }
 
     // ═══════════════════════════════════════════════════════════
     // DATA
     // ═══════════════════════════════════════════════════════════
 
-    private final ServerLevel level;
+    private MinecraftServer server;
 
-    /** Registrierte Quest-Vorlagen: Template ID -> Template */
-    private final Map<String, QuestTemplate> questTemplates = new HashMap<>();
+    /** Registrierte Quest-Vorlagen: Template ID -> Template (TRANSIENT - nicht persistiert) */
+    private final Map<String, QuestTemplate> questTemplates = new ConcurrentHashMap<>();
 
     /** Spieler-Fortschritt: Player UUID -> Progress */
-    private final Map<UUID, QuestProgress> playerProgress = new HashMap<>();
+    private final Map<UUID, QuestProgress> playerProgress = new ConcurrentHashMap<>();
 
     /** NPC-Quest-Angebote: NPC UUID -> List of Quest IDs currently offered */
-    private final Map<UUID, List<String>> npcQuestOffers = new HashMap<>();
+    private final Map<UUID, List<String>> npcQuestOffers = new ConcurrentHashMap<>();
 
     /** Quest-ID-Zähler für eindeutige IDs */
     private int questIdCounter = 0;
@@ -65,8 +91,13 @@ public class QuestManager {
     // CONSTRUCTOR
     // ═══════════════════════════════════════════════════════════
 
-    private QuestManager(ServerLevel level) {
-        this.level = level;
+    private QuestManager(MinecraftServer server) {
+        super(
+            server.getServerDirectory().toPath().resolve("config").resolve("npc_life_quests.json").toFile(),
+            GsonHelper.get()
+        );
+        this.server = server;
+        load();
         registerDefaultTemplates();
     }
 
@@ -177,8 +208,8 @@ public class QuestManager {
         if (template == null) return null;
 
         // Prüfe ob Spieler die Quest annehmen kann
-        FactionManager factionManager = FactionManager.getManager(level);
-        if (template.getFaction() != null) {
+        FactionManager factionManager = FactionManager.getInstance();
+        if (factionManager != null && template.getFaction() != null) {
             int playerRep = factionManager.getReputation(player.getUUID(), template.getFaction());
             if (playerRep < template.getMinFactionRep()) {
                 return null;
@@ -187,6 +218,7 @@ public class QuestManager {
 
         // Einzigartige Quest-ID generieren
         String questId = templateId + "_" + (++questIdCounter);
+        markDirty();
 
         // Quest erstellen
         Quest quest = new Quest(
@@ -344,16 +376,14 @@ public class QuestManager {
      */
     public boolean acceptQuest(ServerPlayer player, Quest quest) {
         QuestProgress progress = getProgress(player);
+        ServerLevel level = (ServerLevel) player.level();
         long currentDay = level.getDayTime() / 24000;
 
-        if (!progress.acceptQuest(quest, currentDay)) {
-            return false;
+        boolean result = progress.acceptQuest(quest, currentDay);
+        if (result) {
+            markDirty();
         }
-
-        // NPC informieren
-        // Quest aus Angeboten entfernen würde hier passieren
-
-        return true;
+        return result;
     }
 
     /**
@@ -372,11 +402,13 @@ public class QuestManager {
             return false;
         }
 
+        ServerLevel level = (ServerLevel) player.level();
+
         // Belohnung geben
         quest.getReward().grant(player, level);
 
         // NPC-Reaktion
-        CustomNPCEntity questGiver = findNPC(quest.getQuestGiverNPC());
+        CustomNPCEntity questGiver = findNPC(level, quest.getQuestGiverNPC());
         if (questGiver != null) {
             NPCLifeData lifeData = questGiver.getLifeData();
             if (lifeData != null) {
@@ -397,13 +429,14 @@ public class QuestManager {
             progress.setCooldown(questId, currentDay + 3); // 3 Tage Cooldown
         }
 
+        markDirty();
         return true;
     }
 
     /**
      * Aktualisiert alle Spieler-Fortschritte
      */
-    public void tick() {
+    public void tick(ServerLevel level) {
         long currentDay = level.getDayTime() / 24000;
         for (QuestProgress progress : playerProgress.values()) {
             progress.tick(currentDay);
@@ -428,6 +461,7 @@ public class QuestManager {
         }
 
         npcQuestOffers.put(npcUUID, offers);
+        markDirty();
     }
 
     /**
@@ -453,7 +487,7 @@ public class QuestManager {
      * Findet einen NPC anhand seiner UUID
      */
     @Nullable
-    private CustomNPCEntity findNPC(UUID npcUUID) {
+    private CustomNPCEntity findNPC(ServerLevel level, UUID npcUUID) {
         for (var entity : level.getAllEntities()) {
             if (entity instanceof CustomNPCEntity npc) {
                 if (npc.getNpcData().getNpcUUID().equals(npcUUID)) {
@@ -462,6 +496,66 @@ public class QuestManager {
             }
         }
         return null;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // ABSTRACT PERSISTENCE MANAGER IMPLEMENTATION
+    // ═══════════════════════════════════════════════════════════
+
+    @Override
+    protected Type getDataType() {
+        return new TypeToken<QuestManagerData>(){}.getType();
+    }
+
+    @Override
+    protected void onDataLoaded(QuestManagerData data) {
+        questIdCounter = data.questIdCounter;
+        playerProgress.clear();
+        npcQuestOffers.clear();
+
+        if (data.playerProgress != null) {
+            playerProgress.putAll(data.playerProgress);
+        }
+        if (data.npcQuestOffers != null) {
+            npcQuestOffers.putAll(data.npcQuestOffers);
+        }
+    }
+
+    @Override
+    protected QuestManagerData getCurrentData() {
+        QuestManagerData data = new QuestManagerData();
+        data.questIdCounter = questIdCounter;
+        data.playerProgress = new HashMap<>(playerProgress);
+        data.npcQuestOffers = new HashMap<>(npcQuestOffers);
+        return data;
+    }
+
+    @Override
+    protected String getComponentName() {
+        return "QuestManager";
+    }
+
+    @Override
+    protected String getHealthDetails() {
+        return String.format("%d players, %d templates",
+            playerProgress.size(), questTemplates.size());
+    }
+
+    @Override
+    protected void onCriticalLoadFailure() {
+        playerProgress.clear();
+        npcQuestOffers.clear();
+        questIdCounter = 0;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // DATA CLASS FOR JSON SERIALIZATION
+    // ═══════════════════════════════════════════════════════════
+
+    public static class QuestManagerData {
+        public int questIdCounter;
+        public Map<UUID, QuestProgress> playerProgress;
+        public Map<UUID, List<String>> npcQuestOffers;
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -541,37 +635,6 @@ public class QuestManager {
             public QuestTemplate build() {
                 return new QuestTemplate(this);
             }
-        }
-    }
-
-    // ═══════════════════════════════════════════════════════════
-    // SERIALIZATION
-    // ═══════════════════════════════════════════════════════════
-
-    public CompoundTag save() {
-        CompoundTag tag = new CompoundTag();
-
-        tag.putInt("questIdCounter", questIdCounter);
-
-        // Player Progress speichern
-        ListTag progressTag = new ListTag();
-        for (QuestProgress progress : playerProgress.values()) {
-            progressTag.add(progress.save());
-        }
-        tag.put("playerProgress", progressTag);
-
-        return tag;
-    }
-
-    public void load(CompoundTag tag) {
-        questIdCounter = tag.getInt("questIdCounter");
-
-        // Player Progress laden
-        playerProgress.clear();
-        ListTag progressTag = tag.getList("playerProgress", Tag.TAG_COMPOUND);
-        for (int i = 0; i < progressTag.size(); i++) {
-            QuestProgress progress = QuestProgress.load(progressTag.getCompound(i));
-            playerProgress.put(progress.getPlayerUUID(), progress);
         }
     }
 

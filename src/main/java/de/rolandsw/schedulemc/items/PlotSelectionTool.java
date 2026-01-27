@@ -150,4 +150,17 @@ public class PlotSelectionTool extends Item {
         position1.remove(playerUUID);
         position2.remove(playerUUID);
     }
+
+    /**
+     * Cleanup-Methode für Player Disconnect
+     * Thread-safe cleanup aller Positionen für diesen Spieler
+     */
+    public static void cleanup(UUID playerUUID) {
+        if (playerUUID == null) {
+            return;
+        }
+
+        position1.remove(playerUUID);
+        position2.remove(playerUUID);
+    }
 }
