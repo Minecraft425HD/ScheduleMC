@@ -26,8 +26,8 @@ import net.minecraft.server.level.ServerPlayer;
 
 import java.util.UUID;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * NPCLifeSystemIntegration - Zentraler Integrationspunkt für das NPC Life System
@@ -37,6 +37,8 @@ import java.util.Map;
  * - Koordiniert deren Zusammenarbeit
  * - Bietet eine zentrale API für externe Zugriffe
  * - Verwaltet Persistenz aller Systeme
+ *
+ * Thread-Safe: Nutzt ConcurrentHashMap für Multi-Level Support
  */
 public class NPCLifeSystemIntegration {
 
@@ -44,7 +46,7 @@ public class NPCLifeSystemIntegration {
     // SINGLETON-LIKE PER LEVEL
     // ═══════════════════════════════════════════════════════════
 
-    private static final Map<ServerLevel, NPCLifeSystemIntegration> INTEGRATIONS = new HashMap<>();
+    private static final Map<ServerLevel, NPCLifeSystemIntegration> INTEGRATIONS = new ConcurrentHashMap<>();
 
     public static NPCLifeSystemIntegration get(ServerLevel level) {
         return INTEGRATIONS.computeIfAbsent(level, NPCLifeSystemIntegration::new);

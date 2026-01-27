@@ -9,12 +9,15 @@ import net.minecraft.server.level.ServerLevel;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * RumorNetwork - Globales Netzwerk für Gerüchte
  *
  * Verwaltet alle Gerüchte und deren Verbreitung zwischen NPCs.
  * Wird pro ServerLevel gespeichert.
+ *
+ * Thread-Safe: Nutzt ConcurrentHashMap für Multi-Level Support
  */
 public class RumorNetwork {
 
@@ -22,7 +25,7 @@ public class RumorNetwork {
     // SINGLETON-LIKE PER LEVEL
     // ═══════════════════════════════════════════════════════════
 
-    private static final Map<ServerLevel, RumorNetwork> NETWORKS = new HashMap<>();
+    private static final Map<ServerLevel, RumorNetwork> NETWORKS = new ConcurrentHashMap<>();
 
     public static RumorNetwork getNetwork(ServerLevel level) {
         return NETWORKS.computeIfAbsent(level, l -> new RumorNetwork());

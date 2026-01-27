@@ -177,8 +177,42 @@ public class PoliceBackupSystem {
      * Cleanup wenn Spieler den Server verlässt
      */
     public static void cleanup(UUID playerUUID) {
+        if (playerUUID == null) {
+            return;
+        }
+
         activePolice.remove(playerUUID);
         isRaidPursuit.remove(playerUUID);
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("[BACKUP] Cleaned up backup data for player {}", playerUUID);
+        }
+    }
+
+    /**
+     * Cleanup wenn Polizei-NPC entfernt wird
+     * Entfernt die Polizei aus allen aktiven Verfolgungen
+     */
+    public static void cleanupNPC(UUID policeUUID) {
+        if (policeUUID == null) {
+            return;
+        }
+
+        int removedFrom = 0;
+
+        // Entferne NPC aus allen Verfolgungen
+        for (Set<UUID> policeSet : activePolice.values()) {
+            if (policeSet.remove(policeUUID)) {
+                removedFrom++;
+            }
+        }
+
+        // Entferne leere Sets
+        activePolice.entrySet().removeIf(entry -> entry.getValue().isEmpty());
+
+        if (removedFrom > 0 && LOGGER.isDebugEnabled()) {
+            LOGGER.debug("[BACKUP] Cleaned up NPC {} from {} pursuits", policeUUID, removedFrom);
+        }
     }
 
     /**

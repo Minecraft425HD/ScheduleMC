@@ -294,6 +294,7 @@ public class ScheduleMC {
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(new BlockProtectionHandler());
         MinecraftForge.EVENT_BUS.register(new PlayerJoinHandler());
+        MinecraftForge.EVENT_BUS.register(new de.rolandsw.schedulemc.events.PlayerDisconnectHandler());
         MinecraftForge.EVENT_BUS.register(new TobaccoBottleHandler());
         MinecraftForge.EVENT_BUS.register(new CashSlotRestrictionHandler());
         MinecraftForge.EVENT_BUS.register(new InventoryRestrictionHandler());
@@ -558,6 +559,18 @@ public class ScheduleMC {
             saveManager.register(CreditScoreManager.getInstance(event.getServer()));
             saveManager.register(CreditLoanManager.getInstance(event.getServer()));
 
+            // Transaction History (Priority 3)
+            saveManager.register(new de.rolandsw.schedulemc.util.SaveableWrapper(
+                "TransactionHistory",
+                () -> {
+                    TransactionHistory history = TransactionHistory.getInstance();
+                    if (history != null) {
+                        history.save();
+                    }
+                },
+                3
+            ));
+
             // Vehicle Systems (Priority 5)
             saveManager.register(de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager.getInstance());
             saveManager.register(new de.rolandsw.schedulemc.util.SaveableWrapper(
@@ -638,6 +651,10 @@ public class ScheduleMC {
                 // ALLE Manager werden jetzt via IncrementalSaveManager gespeichert
                 // Nur Business Logic bleibt hier
                 RentManager.checkExpiredRents();
+
+                // Memory Leak Prevention - Cleanup abgelaufener Police Search Einträge
+                de.rolandsw.schedulemc.npc.events.PoliceSearchBehavior.cleanupExpiredSearches(currentTick);
+
                 // HINWEIS: Alle Saves werden jetzt automatisch vom IncrementalSaveManager gehandhabt
             }
         });
