@@ -29,6 +29,8 @@ import de.rolandsw.schedulemc.towing.menu.TowingMenuTypes;
 import de.rolandsw.schedulemc.towing.screen.TowingInvoiceScreen;
 import de.rolandsw.schedulemc.coffee.menu.CoffeeMenuTypes;
 import de.rolandsw.schedulemc.coffee.screen.*;
+import de.rolandsw.schedulemc.wine.menu.WineMenuTypes;
+import de.rolandsw.schedulemc.wine.screen.*;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -90,6 +92,19 @@ public class ClientModEvents {
                 MenuScreens.register(CoffeeMenuTypes.LARGE_COFFEE_ROASTER_MENU.get(), LargeCoffeeRoasterScreen::new);
                 MenuScreens.register(CoffeeMenuTypes.COFFEE_GRINDER_MENU.get(), CoffeeGrinderScreen::new);
                 MenuScreens.register(CoffeeMenuTypes.COFFEE_PACKAGING_TABLE_MENU.get(), CoffeePackagingTableScreen::new);
+
+                // Wine-System
+                MenuScreens.register(WineMenuTypes.CRUSHING_STATION_MENU.get(), CrushingStationScreen::new);
+                MenuScreens.register(WineMenuTypes.SMALL_WINE_PRESS_MENU.get(), SmallWinePressScreen::new);
+                MenuScreens.register(WineMenuTypes.MEDIUM_WINE_PRESS_MENU.get(), MediumWinePressScreen::new);
+                MenuScreens.register(WineMenuTypes.LARGE_WINE_PRESS_MENU.get(), LargeWinePressScreen::new);
+                MenuScreens.register(WineMenuTypes.SMALL_FERMENTATION_TANK_MENU.get(), SmallFermentationTankScreen::new);
+                MenuScreens.register(WineMenuTypes.MEDIUM_FERMENTATION_TANK_MENU.get(), MediumFermentationTankScreen::new);
+                MenuScreens.register(WineMenuTypes.LARGE_FERMENTATION_TANK_MENU.get(), LargeFermentationTankScreen::new);
+                MenuScreens.register(WineMenuTypes.SMALL_AGING_BARREL_MENU.get(), SmallAgingBarrelScreen::new);
+                MenuScreens.register(WineMenuTypes.MEDIUM_AGING_BARREL_MENU.get(), MediumAgingBarrelScreen::new);
+                MenuScreens.register(WineMenuTypes.LARGE_AGING_BARREL_MENU.get(), LargeAgingBarrelScreen::new);
+                MenuScreens.register(WineMenuTypes.WINE_BOTTLING_STATION_MENU.get(), WineBottlingStationScreen::new);
             });
         }, "onClientSetup");
     }
