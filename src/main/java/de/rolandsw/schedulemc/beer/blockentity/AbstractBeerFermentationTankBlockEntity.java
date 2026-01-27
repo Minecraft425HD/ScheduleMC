@@ -10,6 +10,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -32,7 +33,7 @@ import org.jetbrains.annotations.Nullable;
  * Quality: Preserved through fermentation
  * Different sizes: Small (1.0x), Medium (1.5x), Large (2.0x)
  */
-public abstract class AbstractBeerFermentationTankBlockEntity extends BlockEntity implements IUtilityConsumer {
+public abstract class AbstractBeerFermentationTankBlockEntity extends BlockEntity implements IUtilityConsumer, MenuProvider {
     private boolean lastActiveState = false;
 
     private ItemStack unfermentedBeerStack = ItemStack.EMPTY;

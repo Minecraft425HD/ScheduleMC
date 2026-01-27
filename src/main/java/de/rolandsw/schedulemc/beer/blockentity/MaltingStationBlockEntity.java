@@ -2,14 +2,20 @@ package de.rolandsw.schedulemc.beer.blockentity;
 
 import de.rolandsw.schedulemc.beer.BeerQuality;
 import de.rolandsw.schedulemc.beer.items.BeerItems;
+import de.rolandsw.schedulemc.beer.menu.MaltingStationMenu;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;
 import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -28,7 +34,7 @@ import org.jetbrains.annotations.Nullable;
  * Output: Malted grain (same type, preserves quality)
  * Processing Time: 600 Ticks (30 seconds)
  */
-public class MaltingStationBlockEntity extends BlockEntity implements IUtilityConsumer {
+public class MaltingStationBlockEntity extends BlockEntity implements IUtilityConsumer, MenuProvider {
     private boolean lastActiveState = false;
 
     private ItemStack inputStack = ItemStack.EMPTY;
@@ -221,5 +227,16 @@ public class MaltingStationBlockEntity extends BlockEntity implements IUtilityCo
     @Override
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public @NotNull Component getDisplayName() {
+        return Component.translatable("block.schedulemc.malting_station");
+    }
+
+    @Nullable
+    @Override
+    public AbstractContainerMenu createMenu(int id, @NotNull Inventory inv, @NotNull Player p) {
+        return new MaltingStationMenu(id, inv, this);
     }
 }

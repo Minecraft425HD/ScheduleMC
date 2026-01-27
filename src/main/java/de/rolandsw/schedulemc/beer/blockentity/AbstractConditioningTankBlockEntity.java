@@ -13,6 +13,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -35,7 +36,7 @@ import org.jetbrains.annotations.Nullable;
  * Different sizes: Small (4 slots), Medium (9 slots), Large (16 slots)
  * Speed multipliers: 1.0x, 1.5x, 2.0x
  */
-public abstract class AbstractConditioningTankBlockEntity extends BlockEntity implements IUtilityConsumer {
+public abstract class AbstractConditioningTankBlockEntity extends BlockEntity implements IUtilityConsumer, MenuProvider {
     private boolean lastActiveState = false;
 
     // Track aging ticks for each slot
