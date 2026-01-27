@@ -7,12 +7,18 @@ import de.rolandsw.schedulemc.wine.WineQuality;
 import de.rolandsw.schedulemc.wine.WineType;
 import de.rolandsw.schedulemc.wine.items.WineBottleItem;
 import de.rolandsw.schedulemc.wine.items.WineItems;
+import de.rolandsw.schedulemc.wine.menu.WineBottlingStationMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -24,7 +30,7 @@ import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class WineBottlingStationBlockEntity extends BlockEntity implements IUtilityConsumer {
+public class WineBottlingStationBlockEntity extends BlockEntity implements IUtilityConsumer, MenuProvider {
     private ItemStack wineInput = ItemStack.EMPTY;
     private ItemStack bottleInput = ItemStack.EMPTY;
     private ItemStack output = ItemStack.EMPTY;
@@ -255,5 +261,16 @@ public class WineBottlingStationBlockEntity extends BlockEntity implements IUtil
     @Override
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public @NotNull Component getDisplayName() {
+        return Component.translatable("block.schedulemc.wine_bottling_station");
+    }
+
+    @Nullable
+    @Override
+    public AbstractContainerMenu createMenu(int id, @NotNull Inventory inv, @NotNull Player p) {
+        return new WineBottlingStationMenu(id, inv, this);
     }
 }

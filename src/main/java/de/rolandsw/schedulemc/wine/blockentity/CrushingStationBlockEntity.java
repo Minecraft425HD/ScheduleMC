@@ -6,12 +6,18 @@ import de.rolandsw.schedulemc.wine.WineQuality;
 import de.rolandsw.schedulemc.wine.WineType;
 import de.rolandsw.schedulemc.wine.items.GrapeItem;
 import de.rolandsw.schedulemc.wine.items.WineItems;
+import de.rolandsw.schedulemc.wine.menu.CrushingStationMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -30,7 +36,7 @@ import org.jetbrains.annotations.Nullable;
  * Output: Maische (gleiche Sorte, erhält Quality)
  * Processing Time: 100 Ticks (5 Sekunden) pro Traube
  */
-public class CrushingStationBlockEntity extends BlockEntity implements IUtilityConsumer {
+public class CrushingStationBlockEntity extends BlockEntity implements IUtilityConsumer, MenuProvider {
     private boolean lastActiveState = false;
     
     private ItemStack inputStack = ItemStack.EMPTY;
@@ -214,5 +220,16 @@ public class CrushingStationBlockEntity extends BlockEntity implements IUtilityC
     @Override
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public @NotNull Component getDisplayName() {
+        return Component.translatable("block.schedulemc.crushing_station");
+    }
+
+    @Nullable
+    @Override
+    public AbstractContainerMenu createMenu(int id, @NotNull Inventory inv, @NotNull Player p) {
+        return new CrushingStationMenu(id, inv, this);
     }
 }
