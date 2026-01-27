@@ -35,6 +35,8 @@ import de.rolandsw.schedulemc.cheese.menu.CheeseMenuTypes;
 import de.rolandsw.schedulemc.cheese.screen.*;
 import de.rolandsw.schedulemc.honey.menu.HoneyMenuTypes;
 import de.rolandsw.schedulemc.honey.screen.*;
+import de.rolandsw.schedulemc.chocolate.menu.ChocolateMenuTypes;
+import de.rolandsw.schedulemc.chocolate.screen.*;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -134,6 +136,22 @@ public class ClientModEvents {
                 MenuScreens.register(HoneyMenuTypes.PROCESSING_STATION_MENU.get(), ProcessingStationScreen::new);
                 MenuScreens.register(HoneyMenuTypes.CREAMING_STATION_MENU.get(), CreamingStationScreen::new);
                 MenuScreens.register(HoneyMenuTypes.BOTTLING_STATION_MENU.get(), BottlingStationScreen::new);
+
+                // Chocolate-System
+                MenuScreens.register(ChocolateMenuTypes.ROASTING_STATION_MENU.get(), RoastingStationScreen::new);
+                MenuScreens.register(ChocolateMenuTypes.WINNOWING_MACHINE_MENU.get(), WinnowingMachineScreen::new);
+                MenuScreens.register(ChocolateMenuTypes.GRINDING_MILL_MENU.get(), GrindingMillScreen::new);
+                MenuScreens.register(ChocolateMenuTypes.PRESSING_STATION_MENU.get(), PressingStationScreen::new);
+                MenuScreens.register(ChocolateMenuTypes.SMALL_CONCHING_MACHINE_MENU.get(), SmallConchingMachineScreen::new);
+                MenuScreens.register(ChocolateMenuTypes.MEDIUM_CONCHING_MACHINE_MENU.get(), MediumConchingMachineScreen::new);
+                MenuScreens.register(ChocolateMenuTypes.LARGE_CONCHING_MACHINE_MENU.get(), LargeConchingMachineScreen::new);
+                MenuScreens.register(ChocolateMenuTypes.TEMPERING_STATION_MENU.get(), TemperingStationScreen::new);
+                MenuScreens.register(ChocolateMenuTypes.SMALL_MOLDING_STATION_MENU.get(), SmallMoldingStationScreen::new);
+                MenuScreens.register(ChocolateMenuTypes.MEDIUM_MOLDING_STATION_MENU.get(), MediumMoldingStationScreen::new);
+                MenuScreens.register(ChocolateMenuTypes.LARGE_MOLDING_STATION_MENU.get(), LargeMoldingStationScreen::new);
+                MenuScreens.register(ChocolateMenuTypes.ENROBING_MACHINE_MENU.get(), EnrobingMachineScreen::new);
+                MenuScreens.register(ChocolateMenuTypes.COOLING_TUNNEL_MENU.get(), CoolingTunnelScreen::new);
+                MenuScreens.register(ChocolateMenuTypes.WRAPPING_STATION_MENU.get(), WrappingStationScreen::new);
             });
         }, "onClientSetup");
     }
