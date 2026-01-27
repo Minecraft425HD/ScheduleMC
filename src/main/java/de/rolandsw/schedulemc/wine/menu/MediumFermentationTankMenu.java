@@ -40,7 +40,7 @@ public class MediumFermentationTankMenu extends AbstractContainerMenu {
     }
 
     public int getProgress() {
-        return blockEntity == null ? 0 : blockEntity.getFermentationProgress();
+        return blockEntity == null ? 0 : blockEntity.getProgress();
     }
 
     public int getMaxProgress() {

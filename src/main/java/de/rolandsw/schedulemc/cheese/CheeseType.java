@@ -51,4 +51,9 @@ public enum CheeseType implements ProductionType {
     public double getQualityFactor() {
         return qualityFactor;
     }
+
+    @Override
+    public double calculatePrice(de.rolandsw.schedulemc.production.core.ProductionQuality quality, int amount) {
+        return basePricePerKg * quality.getPriceMultiplier() * amount;
+    }
 }

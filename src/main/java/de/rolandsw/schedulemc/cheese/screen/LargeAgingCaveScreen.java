@@ -39,18 +39,6 @@ public class LargeAgingCaveScreen extends AbstractContainerScreen<LargeAgingCave
         drawSlot(graphics, x + 56, y + 35);  // Input
         drawSlot(graphics, x + 116, y + 35); // Output
 
-        // Progress bar
-        graphics.fill(x + 76, y + 35, x + 100, y + 51, 0xFF373737);
-        int progress = menu.getProgress();
-        int maxProgress = menu.getMaxProgress();
-        if (maxProgress > 0) {
-            float percentage = (float) progress / maxProgress;
-            int progressWidth = (int) (24 * percentage);
-            if (progressWidth > 0) {
-                graphics.fill(x + 76, y + 35, x + 76 + progressWidth, y + 51, 0xFFFFAA00); // Cheese yellow
-            }
-        }
-
         // Player Inventory
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
@@ -80,14 +68,6 @@ public class LargeAgingCaveScreen extends AbstractContainerScreen<LargeAgingCave
 
         // Title
         graphics.drawString(this.font, "Große Reifekammer", x + 8, y + 6, 0xFFFFFF, false);
-
-        // Progress percentage
-        int progress = menu.getProgress();
-        int maxProgress = menu.getMaxProgress();
-        if (progress > 0 && maxProgress > 0) {
-            int percent = (int) (100.0f * progress / maxProgress);
-            graphics.drawString(this.font, percent + "%", x + 80, y + 56, 0xFFFFAA00, false);
-        }
     }
 
     @Override

@@ -141,10 +141,10 @@ public class ApiaryBlockEntity extends BlockEntity implements IUtilityConsumer, 
 
         // Apiary produces premium quality
         if (temperature > 1.5f) {
-            honeyType = HoneyType.DESERT_BLOSSOM;
+            honeyType = HoneyType.WILDFLOWER;
             quality = HoneyQuality.PREMIUM;
         } else if (temperature < 0.3f) {
-            honeyType = HoneyType.ALPINE;
+            honeyType = HoneyType.FOREST;
             quality = HoneyQuality.PREMIUM;
         } else if (temperature >= 0.6f && temperature <= 0.95f) {
             honeyType = HoneyType.WILDFLOWER;

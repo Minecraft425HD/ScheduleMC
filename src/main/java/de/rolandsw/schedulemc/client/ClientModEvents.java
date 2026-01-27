@@ -137,7 +137,7 @@ public class ClientModEvents {
                 MenuScreens.register(HoneyMenuTypes.LARGE_AGING_CHAMBER_MENU.get(), LargeAgingChamberScreen::new);
                 MenuScreens.register(HoneyMenuTypes.PROCESSING_STATION_MENU.get(), ProcessingStationScreen::new);
                 MenuScreens.register(HoneyMenuTypes.CREAMING_STATION_MENU.get(), CreamingStationScreen::new);
-                MenuScreens.register(HoneyMenuTypes.BOTTLING_STATION_MENU.get(), BottlingStationScreen::new);
+                MenuScreens.register(HoneyMenuTypes.BOTTLING_STATION_MENU.get(), de.rolandsw.schedulemc.honey.screen.BottlingStationScreen::new);
 
                 // Chocolate-System
                 MenuScreens.register(ChocolateMenuTypes.ROASTING_STATION_MENU.get(), RoastingStationScreen::new);
@@ -167,7 +167,7 @@ public class ClientModEvents {
                 MenuScreens.register(BeerMenuTypes.SMALL_CONDITIONING_TANK_MENU.get(), SmallConditioningTankScreen::new);
                 MenuScreens.register(BeerMenuTypes.MEDIUM_CONDITIONING_TANK_MENU.get(), MediumConditioningTankScreen::new);
                 MenuScreens.register(BeerMenuTypes.LARGE_CONDITIONING_TANK_MENU.get(), LargeConditioningTankScreen::new);
-                MenuScreens.register(BeerMenuTypes.BOTTLING_STATION_MENU.get(), BottlingStationScreen::new);
+                MenuScreens.register(BeerMenuTypes.BOTTLING_STATION_MENU.get(), de.rolandsw.schedulemc.beer.screen.BottlingStationScreen::new);
             });
         }, "onClientSetup");
     }

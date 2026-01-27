@@ -46,6 +46,7 @@ public abstract class AbstractMoldingStationBlockEntity extends BlockEntity impl
     private ChocolateQuality quality;
     private boolean hasMilk;
     private boolean hasVanilla;
+    private de.rolandsw.schedulemc.chocolate.ChocolateProcessingMethod processingMethod;
 
     protected ItemStackHandler itemHandler;
     private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
@@ -162,6 +163,11 @@ public abstract class AbstractMoldingStationBlockEntity extends BlockEntity impl
 
     public int getTotalMoldingTime() {
         return (int) (BASE_PROCESSING_TIME / getSpeedMultiplier());
+    }
+
+    public void setProcessingMethod(de.rolandsw.schedulemc.chocolate.ChocolateProcessingMethod method) {
+        this.processingMethod = method;
+        setChanged();
     }
 
     public void tick() {

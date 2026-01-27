@@ -40,7 +40,7 @@ public class LargeWinePressMenu extends AbstractContainerMenu {
     }
 
     public int getProgress() {
-        return blockEntity == null ? 0 : blockEntity.getCrushingProgress();
+        return blockEntity == null ? 0 : blockEntity.getProgress();
     }
 
     public int getMaxProgress() {

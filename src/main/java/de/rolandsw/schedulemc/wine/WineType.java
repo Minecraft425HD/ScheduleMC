@@ -91,4 +91,9 @@ public enum WineType implements ProductionType {
         if (diff <= 10) return 1.0; // Normale Bedingungen
         return 0.8; // Schlechte Bedingungen: -20%
     }
+
+    @Override
+    public double calculatePrice(de.rolandsw.schedulemc.production.core.ProductionQuality quality, int amount) {
+        return basePricePerLiter * quality.getPriceMultiplier() * amount;
+    }
 }

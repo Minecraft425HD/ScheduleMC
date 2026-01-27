@@ -40,20 +40,6 @@ public class SmallConditioningTankScreen extends AbstractContainerScreen<SmallCo
         drawSlot(graphics, x + 56, y + 35);  // Input slot
         drawSlot(graphics, x + 116, y + 35); // Output slot
 
-        // Progress bar background
-        graphics.fill(x + 76, y + 35, x + 100, y + 51, 0xFF373737);
-
-        // Progress bar fill
-        int progress = menu.getProgress();
-        int maxProgress = menu.getMaxProgress();
-        if (maxProgress > 0) {
-            float percentage = (float) progress / maxProgress;
-            int progressWidth = (int) (24 * percentage);
-            if (progressWidth > 0) {
-                graphics.fill(x + 76, y + 35, x + 76 + progressWidth, y + 51, 0xFFC57F00); // Beer amber/golden color
-            }
-        }
-
         // Player Hotbar
         for (int i = 0; i < 9; i++) {
             drawSlot(graphics, x + 8 + i * 18, y + 106);
@@ -76,14 +62,6 @@ public class SmallConditioningTankScreen extends AbstractContainerScreen<SmallCo
 
         // Title
         graphics.drawString(this.font, "Kleiner Lagertank", x + 8, y + 6, 0xFFFFFF, false);
-
-        // Progress percentage
-        int progress = menu.getProgress();
-        int maxProgress = menu.getMaxProgress();
-        if (progress > 0 && maxProgress > 0) {
-            int percent = (int) (100.0f * progress / maxProgress);
-            graphics.drawString(this.font, percent + "%", x + 80, y + 56, 0xC57F00, false);
-        }
     }
 
     @Override
