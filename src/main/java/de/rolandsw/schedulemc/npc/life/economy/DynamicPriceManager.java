@@ -1,14 +1,22 @@
 package de.rolandsw.schedulemc.npc.life.economy;
 
+import com.google.gson.reflect.TypeToken;
+import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
+import de.rolandsw.schedulemc.util.GsonHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 
+import javax.annotation.Nullable;
+import java.io.File;
+import java.lang.reflect.Type;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * DynamicPriceManager - Verwaltet dynamische Preise und Marktbedingungen
+ * DynamicPriceManager - Verwaltet dynamische Preise und Marktbedingungen mit JSON-Persistenz
  *
  * Features:
  * - Globale Marktbedingungen
@@ -16,20 +24,31 @@ import java.util.*;
  * - Zeitbasierte Schwankungen
  * - Event-basierte Änderungen
  */
-public class DynamicPriceManager {
+public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPriceManager.DynamicPriceManagerData> {
 
     // ═══════════════════════════════════════════════════════════
-    // SINGLETON-LIKE PER LEVEL
+    // SINGLETON
     // ═══════════════════════════════════════════════════════════
 
-    private static final Map<ServerLevel, DynamicPriceManager> MANAGERS = new HashMap<>();
+    private static volatile DynamicPriceManager instance;
+    private static final Object INSTANCE_LOCK = new Object();
 
-    public static DynamicPriceManager getManager(ServerLevel level) {
-        return MANAGERS.computeIfAbsent(level, l -> new DynamicPriceManager());
+    @Nullable
+    public static DynamicPriceManager getInstance() {
+        return instance;
     }
 
-    public static void removeManager(ServerLevel level) {
-        MANAGERS.remove(level);
+    public static DynamicPriceManager getInstance(MinecraftServer server) {
+        DynamicPriceManager result = instance;
+        if (result == null) {
+            synchronized (INSTANCE_LOCK) {
+                result = instance;
+                if (result == null) {
+                    instance = result = new DynamicPriceManager(server);
+                }
+            }
+        }
+        return result;
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -46,14 +65,16 @@ public class DynamicPriceManager {
     // DATA
     // ═══════════════════════════════════════════════════════════
 
+    private MinecraftServer server;
+
     /** Globale Marktbedingung */
     private MarketCondition globalCondition = MarketCondition.NORMAL;
 
     /** Kategorie-spezifische Bedingungen */
-    private final Map<String, MarketCondition> categoryConditions = new HashMap<>();
+    private final Map<String, MarketCondition> categoryConditions = new ConcurrentHashMap<>();
 
     /** Zusätzliche temporäre Modifikatoren */
-    private final Map<String, TemporaryModifier> temporaryModifiers = new HashMap<>();
+    private final Map<String, TemporaryModifier> temporaryModifiers = new ConcurrentHashMap<>();
 
     /** Preis-History für Analysen */
     private final Deque<PriceSnapshot> priceHistory = new ArrayDeque<>();
@@ -62,8 +83,21 @@ public class DynamicPriceManager {
     /** Letzter bekannter Tag */
     private long lastKnownDay = -1;
 
-    /** Tick-Counter */
+    /** Tick-Counter (TRANSIENT - nicht persistiert) */
     private int tickCounter = 0;
+
+    // ═══════════════════════════════════════════════════════════
+    // CONSTRUCTOR
+    // ═══════════════════════════════════════════════════════════
+
+    private DynamicPriceManager(MinecraftServer server) {
+        super(
+            server.getServerDirectory().toPath().resolve("config").resolve("npc_life_prices.json").toFile(),
+            GsonHelper.get()
+        );
+        this.server = server;
+        load();
+    }
 
     // ═══════════════════════════════════════════════════════════
     // TICK / UPDATE
@@ -78,7 +112,11 @@ public class DynamicPriceManager {
         // Temporäre Modifikatoren aktualisieren
         temporaryModifiers.entrySet().removeIf(e -> {
             e.getValue().ticksRemaining--;
-            return e.getValue().ticksRemaining <= 0;
+            if (e.getValue().ticksRemaining <= 0) {
+                markDirty();
+                return true;
+            }
+            return false;
         });
 
         // Tageswechsel prüfen
@@ -98,6 +136,7 @@ public class DynamicPriceManager {
 
         // Snapshot speichern
         savePriceSnapshot(currentDay);
+        markDirty();
     }
 
     /**
@@ -115,6 +154,7 @@ public class DynamicPriceManager {
                     cumulative += globalCondition.getTransitionChance(condition);
                     if (roll < cumulative) {
                         globalCondition = condition;
+                        markDirty();
                         break;
                     }
                 }
@@ -129,6 +169,7 @@ public class DynamicPriceManager {
                 MarketCondition[] possible = current.getPossibleTransitions();
                 if (possible.length > 0 && Math.random() < 0.5) {
                     categoryConditions.put(category, possible[(int) (Math.random() * possible.length)]);
+                    markDirty();
                 }
             }
         }
@@ -150,6 +191,7 @@ public class DynamicPriceManager {
      */
     public void setGlobalMarketCondition(MarketCondition condition) {
         this.globalCondition = condition;
+        markDirty();
     }
 
     /**
@@ -171,6 +213,7 @@ public class DynamicPriceManager {
      */
     public void setCategoryCondition(String category, MarketCondition condition) {
         categoryConditions.put(category, condition);
+        markDirty();
     }
 
     /**
@@ -178,6 +221,7 @@ public class DynamicPriceManager {
      */
     public void resetCategoryCondition(String category) {
         categoryConditions.remove(category);
+        markDirty();
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -189,6 +233,7 @@ public class DynamicPriceManager {
      */
     public void addTemporaryModifier(String id, float modifier, int durationTicks, String reason) {
         temporaryModifiers.put(id, new TemporaryModifier(modifier, durationTicks, reason));
+        markDirty();
     }
 
     /**
@@ -196,6 +241,7 @@ public class DynamicPriceManager {
      */
     public void removeTemporaryModifier(String id) {
         temporaryModifiers.remove(id);
+        markDirty();
     }
 
     /**
@@ -312,65 +358,108 @@ public class DynamicPriceManager {
     }
 
     // ═══════════════════════════════════════════════════════════
-    // NBT SERIALIZATION
+    // ABSTRACT PERSISTENCE MANAGER IMPLEMENTATION
     // ═══════════════════════════════════════════════════════════
 
-    public CompoundTag save() {
-        CompoundTag tag = new CompoundTag();
-
-        tag.putString("GlobalCondition", globalCondition.name());
-        tag.putLong("LastKnownDay", lastKnownDay);
-
-        // Kategorie-Bedingungen
-        CompoundTag categoriesTag = new CompoundTag();
-        for (Map.Entry<String, MarketCondition> entry : categoryConditions.entrySet()) {
-            categoriesTag.putString(entry.getKey(), entry.getValue().name());
-        }
-        tag.put("CategoryConditions", categoriesTag);
-
-        // Temporäre Modifikatoren
-        ListTag modifiersList = new ListTag();
-        for (Map.Entry<String, TemporaryModifier> entry : temporaryModifiers.entrySet()) {
-            CompoundTag modTag = new CompoundTag();
-            modTag.putString("Id", entry.getKey());
-            modTag.putFloat("Modifier", entry.getValue().modifier);
-            modTag.putInt("TicksRemaining", entry.getValue().ticksRemaining);
-            modTag.putString("Reason", entry.getValue().reason);
-            modifiersList.add(modTag);
-        }
-        tag.put("TemporaryModifiers", modifiersList);
-
-        return tag;
+    @Override
+    protected Type getDataType() {
+        return new TypeToken<DynamicPriceManagerData>(){}.getType();
     }
 
-    public void load(CompoundTag tag) {
-        globalCondition = MarketCondition.fromName(tag.getString("GlobalCondition"));
-        lastKnownDay = tag.getLong("LastKnownDay");
+    @Override
+    protected void onDataLoaded(DynamicPriceManagerData data) {
+        if (data.globalCondition != null) {
+            try {
+                globalCondition = MarketCondition.valueOf(data.globalCondition);
+            } catch (IllegalArgumentException e) {
+                globalCondition = MarketCondition.NORMAL;
+            }
+        }
+
+        lastKnownDay = data.lastKnownDay;
 
         categoryConditions.clear();
-        CompoundTag categoriesTag = tag.getCompound("CategoryConditions");
-        for (String key : categoriesTag.getAllKeys()) {
-            categoryConditions.put(key, MarketCondition.fromName(categoriesTag.getString(key)));
+        if (data.categoryConditions != null) {
+            categoryConditions.putAll(data.categoryConditions);
         }
 
         temporaryModifiers.clear();
-        ListTag modifiersList = tag.getList("TemporaryModifiers", Tag.TAG_COMPOUND);
-        for (int i = 0; i < modifiersList.size(); i++) {
-            CompoundTag modTag = modifiersList.getCompound(i);
-            temporaryModifiers.put(
-                modTag.getString("Id"),
-                new TemporaryModifier(
-                    modTag.getFloat("Modifier"),
-                    modTag.getInt("TicksRemaining"),
-                    modTag.getString("Reason")
-                )
-            );
+        if (data.temporaryModifiers != null) {
+            temporaryModifiers.putAll(data.temporaryModifiers);
+        }
+
+        priceHistory.clear();
+        if (data.priceHistory != null) {
+            priceHistory.addAll(data.priceHistory);
         }
     }
 
+    @Override
+    protected DynamicPriceManagerData getCurrentData() {
+        DynamicPriceManagerData data = new DynamicPriceManagerData();
+        data.globalCondition = globalCondition.name();
+        data.lastKnownDay = lastKnownDay;
+        data.categoryConditions = new HashMap<>(categoryConditions);
+        data.temporaryModifiers = new HashMap<>(temporaryModifiers);
+        data.priceHistory = new ArrayList<>(priceHistory);
+        return data;
+    }
+
+    @Override
+    protected String getComponentName() {
+        return "DynamicPriceManager";
+    }
+
+    @Override
+    protected String getHealthDetails() {
+        return String.format("%s market, %d categories, %d modifiers",
+            globalCondition.name(), categoryConditions.size(), temporaryModifiers.size());
+    }
+
+    @Override
+    protected void onCriticalLoadFailure() {
+        globalCondition = MarketCondition.NORMAL;
+        categoryConditions.clear();
+        temporaryModifiers.clear();
+        priceHistory.clear();
+        lastKnownDay = -1;
+    }
+
     // ═══════════════════════════════════════════════════════════
-    // DEBUG
+    // DATA CLASSES FOR JSON SERIALIZATION
     // ═══════════════════════════════════════════════════════════
+
+    public static class DynamicPriceManagerData {
+        public String globalCondition;
+        public long lastKnownDay;
+        public Map<String, MarketCondition> categoryConditions;
+        public Map<String, TemporaryModifier> temporaryModifiers;
+        public List<PriceSnapshot> priceHistory;
+    }
+
+    public static class TemporaryModifier {
+        public final float modifier;
+        public int ticksRemaining;
+        public final String reason;
+
+        public TemporaryModifier(float modifier, int ticksRemaining, String reason) {
+            this.modifier = modifier;
+            this.ticksRemaining = ticksRemaining;
+            this.reason = reason;
+        }
+    }
+
+    public static class PriceSnapshot {
+        public final long day;
+        public final MarketCondition condition;
+        public final float modifier;
+
+        public PriceSnapshot(long day, MarketCondition condition, float modifier) {
+            this.day = day;
+            this.condition = condition;
+            this.modifier = modifier;
+        }
+    }
 
     @Override
     public String toString() {
@@ -410,33 +499,5 @@ public class DynamicPriceManager {
         if (days > 0) return days + " Tage";
         int hours = ticks / 1000;
         return hours + " Stunden";
-    }
-
-    // ═══════════════════════════════════════════════════════════
-    // INNER CLASSES
-    // ═══════════════════════════════════════════════════════════
-
-    public static class TemporaryModifier {
-        public final float modifier;
-        public int ticksRemaining;
-        public final String reason;
-
-        public TemporaryModifier(float modifier, int ticksRemaining, String reason) {
-            this.modifier = modifier;
-            this.ticksRemaining = ticksRemaining;
-            this.reason = reason;
-        }
-    }
-
-    public static class PriceSnapshot {
-        public final long day;
-        public final MarketCondition condition;
-        public final float modifier;
-
-        public PriceSnapshot(long day, MarketCondition condition, float modifier) {
-            this.day = day;
-            this.condition = condition;
-            this.modifier = modifier;
-        }
     }
 }

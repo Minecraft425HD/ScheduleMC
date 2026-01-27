@@ -189,7 +189,11 @@ public class CoffeePackagingTableBlockEntity extends BlockEntity implements IUti
                 coffeeInput.shrink(selectedSize.getRequiredItems());
                 packageInput.shrink(1);
                 outputStack = selectedSize.getOutputItem();
-                // TODO: Kopiere NBT-Daten vom Ground Coffee zum Package
+
+                // Copy NBT data from GroundCoffee to PackagedCoffee to preserve type, quality, roast level
+                if (coffeeInput.hasTag()) {
+                    outputStack.setTag(coffeeInput.getTag().copy());
+                }
 
                 packagingProgress = 0;
                 changed = true;
@@ -299,7 +303,12 @@ public class CoffeePackagingTableBlockEntity extends BlockEntity implements IUti
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
-        // TODO: Implement menu when GUI is created
+        // TODO: Implement CoffeePackagingTableMenu when GUI system is ready
+        // Menu should include:
+        // - 3 slots (coffee input, packaging material, output)
+        // - Package size selector (Small/Medium/Large)
+        // - Progress bar
+        // Reference: See other packaging table implementations for pattern
         return null;
     }
 }

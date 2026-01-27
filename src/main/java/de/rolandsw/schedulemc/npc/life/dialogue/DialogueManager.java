@@ -1,8 +1,12 @@
 package de.rolandsw.schedulemc.npc.life.dialogue;
 
+import com.google.gson.reflect.TypeToken;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.life.core.MemoryType;
 import de.rolandsw.schedulemc.npc.life.core.NPCLifeData;
+import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
+import de.rolandsw.schedulemc.util.GsonHelper;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -11,44 +15,73 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 
 import javax.annotation.Nullable;
+import java.io.File;
+import java.lang.reflect.Type;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * DialogueManager - Verwaltet aktive Dialoge und Dialogbäume
+ * DialogueManager - Verwaltet aktive Dialoge und Dialogbäume mit JSON-Persistenz
  *
  * Verantwortlich für:
  * - Starten und Beenden von Dialogen
  * - Navigation durch Dialogbäume
  * - Registrierung von Dialogbäumen für NPCs
  */
-public class DialogueManager {
+public class DialogueManager extends AbstractPersistenceManager<DialogueManager.DialogueManagerData> {
 
     // ═══════════════════════════════════════════════════════════
-    // SINGLETON-LIKE PER LEVEL
+    // SINGLETON
     // ═══════════════════════════════════════════════════════════
 
-    private static final Map<ServerLevel, DialogueManager> MANAGERS = new HashMap<>();
+    private static volatile DialogueManager instance;
+    private static final Object INSTANCE_LOCK = new Object();
 
-    public static DialogueManager getManager(ServerLevel level) {
-        return MANAGERS.computeIfAbsent(level, l -> new DialogueManager());
+    @Nullable
+    public static DialogueManager getInstance() {
+        return instance;
     }
 
-    public static void removeManager(ServerLevel level) {
-        MANAGERS.remove(level);
+    public static DialogueManager getInstance(MinecraftServer server) {
+        DialogueManager result = instance;
+        if (result == null) {
+            synchronized (INSTANCE_LOCK) {
+                result = instance;
+                if (result == null) {
+                    instance = result = new DialogueManager(server);
+                }
+            }
+        }
+        return result;
     }
 
     // ═══════════════════════════════════════════════════════════
     // DATA
     // ═══════════════════════════════════════════════════════════
 
-    /** Registrierte Dialogbäume: TreeID -> Tree */
-    private final Map<String, DialogueTree> registeredTrees = new HashMap<>();
+    private MinecraftServer server;
+
+    /** Registrierte Dialogbäume: TreeID -> Tree (TRANSIENT - nicht persistiert) */
+    private final Map<String, DialogueTree> registeredTrees = new ConcurrentHashMap<>();
 
     /** NPC-spezifische Bäume: NPC UUID -> Liste von Tree IDs */
-    private final Map<UUID, List<String>> npcTrees = new HashMap<>();
+    private final Map<UUID, List<String>> npcTrees = new ConcurrentHashMap<>();
 
-    /** Aktive Dialoge: Player UUID -> Context */
-    private final Map<UUID, DialogueContext> activeDialogues = new HashMap<>();
+    /** Aktive Dialoge: Player UUID -> Context (TRANSIENT - nicht persistiert) */
+    private final Map<UUID, DialogueContext> activeDialogues = new ConcurrentHashMap<>();
+
+    // ═══════════════════════════════════════════════════════════
+    // CONSTRUCTOR
+    // ═══════════════════════════════════════════════════════════
+
+    private DialogueManager(MinecraftServer server) {
+        super(
+            server.getServerDirectory().toPath().resolve("config").resolve("npc_life_dialogues.json").toFile(),
+            GsonHelper.get()
+        );
+        this.server = server;
+        load();
+    }
 
     // ═══════════════════════════════════════════════════════════
     // TREE REGISTRATION
@@ -73,6 +106,7 @@ public class DialogueManager {
      */
     public void assignTreeToNPC(UUID npcUUID, String treeId) {
         npcTrees.computeIfAbsent(npcUUID, k -> new ArrayList<>()).add(treeId);
+        markDirty();
     }
 
     /**
@@ -82,6 +116,7 @@ public class DialogueManager {
         List<String> trees = npcTrees.get(npcUUID);
         if (trees != null) {
             trees.remove(treeId);
+            markDirty();
         }
     }
 
@@ -324,55 +359,52 @@ public class DialogueManager {
     }
 
     // ═══════════════════════════════════════════════════════════
-    // SERIALIZATION
+    // ABSTRACT PERSISTENCE MANAGER IMPLEMENTATION
     // ═══════════════════════════════════════════════════════════
 
-    /**
-     * Speichert dynamische Dialogzuweisungen
-     * (Registrierte Bäume werden bei Setup neu erstellt)
-     */
-    public CompoundTag save() {
-        CompoundTag tag = new CompoundTag();
-
-        // NPC-Tree-Zuweisungen speichern
-        CompoundTag npcTreesTag = new CompoundTag();
-        for (Map.Entry<UUID, List<String>> entry : npcTrees.entrySet()) {
-            ListTag treeIdList = new ListTag();
-            for (String treeId : entry.getValue()) {
-                CompoundTag treeIdTag = new CompoundTag();
-                treeIdTag.putString("id", treeId);
-                treeIdList.add(treeIdTag);
-            }
-            npcTreesTag.put(entry.getKey().toString(), treeIdList);
-        }
-        tag.put("npcTrees", npcTreesTag);
-
-        return tag;
+    @Override
+    protected Type getDataType() {
+        return new TypeToken<DialogueManagerData>(){}.getType();
     }
 
-    /**
-     * Lädt dynamische Dialogzuweisungen
-     */
-    public void load(CompoundTag tag) {
-        // NPC-Tree-Zuweisungen laden
+    @Override
+    protected void onDataLoaded(DialogueManagerData data) {
         npcTrees.clear();
-        if (tag.contains("npcTrees")) {
-            CompoundTag npcTreesTag = tag.getCompound("npcTrees");
-            for (String uuidStr : npcTreesTag.getAllKeys()) {
-                UUID npcUUID = UUID.fromString(uuidStr);
-                List<String> treeIds = new ArrayList<>();
-                ListTag treeIdList = npcTreesTag.getList(uuidStr, Tag.TAG_COMPOUND);
-                for (int i = 0; i < treeIdList.size(); i++) {
-                    treeIds.add(treeIdList.getCompound(i).getString("id"));
-                }
-                npcTrees.put(npcUUID, treeIds);
-            }
+
+        if (data.npcTrees != null) {
+            npcTrees.putAll(data.npcTrees);
         }
     }
 
+    @Override
+    protected DialogueManagerData getCurrentData() {
+        DialogueManagerData data = new DialogueManagerData();
+        data.npcTrees = new HashMap<>(npcTrees);
+        return data;
+    }
+
+    @Override
+    protected String getComponentName() {
+        return "DialogueManager";
+    }
+
+    @Override
+    protected String getHealthDetails() {
+        return String.format("%d trees, %d active", registeredTrees.size(), activeDialogues.size());
+    }
+
+    @Override
+    protected void onCriticalLoadFailure() {
+        npcTrees.clear();
+    }
+
     // ═══════════════════════════════════════════════════════════
-    // DEBUG
+    // DATA CLASS FOR JSON SERIALIZATION
     // ═══════════════════════════════════════════════════════════
+
+    public static class DialogueManagerData {
+        public Map<UUID, List<String>> npcTrees;
+    }
 
     @Override
     public String toString() {

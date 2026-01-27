@@ -377,6 +377,8 @@ public class ScheduleMC {
             HealthCommand.register(event.getDispatcher());
             de.rolandsw.schedulemc.npc.crime.prison.PrisonCommand.register(event.getDispatcher());
             de.rolandsw.schedulemc.territory.MapCommand.register(event.getDispatcher());
+            de.rolandsw.schedulemc.npc.crime.BountyCommand.register(event.getDispatcher());
+            de.rolandsw.schedulemc.market.MarketCommand.register(event.getDispatcher());
 
             // Vehicle Mod handles its own commands via event bus (registered in Main.commonSetup)
         }, "onRegisterCommands");
@@ -405,6 +407,14 @@ public class ScheduleMC {
             MinecraftForge.EVENT_BUS.register(ShopAccountManager.class);
             WarehouseManager.load(event.getServer());
 
+            // Crime & Territory Systems - Initialize managers with persistence
+            de.rolandsw.schedulemc.npc.crime.BountyManager.getInstance(event.getServer());
+            de.rolandsw.schedulemc.territory.TerritoryManager.getInstance(event.getServer());
+
+            // Market System - Load market data
+            de.rolandsw.schedulemc.market.DynamicMarketManager.getInstance().load();
+            LOGGER.info("Crime, Territory, and Market Systems initialized");
+
             // Economy System - Advanced Features
             EconomyManager.initialize(event.getServer());
             TransactionHistory.getInstance(event.getServer());
@@ -424,6 +434,16 @@ public class ScheduleMC {
             AchievementManager.getInstance(event.getServer());
             LOGGER.info("Achievement System initialized");
 
+            // NPC Life System Manager - Implemented managers with JSON persistence
+            LOGGER.info("Initializing NPC Life System Managers...");
+            de.rolandsw.schedulemc.npc.life.social.FactionManager.getInstance(event.getServer());
+            de.rolandsw.schedulemc.npc.life.witness.WitnessManager.getInstance(event.getServer());
+            de.rolandsw.schedulemc.npc.personality.NPCRelationshipManager.getInstance(event.getServer());
+            // TODO: Remaining managers (CompanionManager, QuestManager, DialogueManager,
+            // NPCInteractionManager, WorldEventManager, DynamicPriceManager) need persistence
+            // implementation - see NPC_LIFE_PERSISTENCE_IMPLEMENTATION_GUIDE.md for details
+            LOGGER.info("NPC Life System Managers initialized (3/9 completed)");
+
             // Vehicle System - Vehicle Spawn Registry, Gas Station Registry, Fuel Bills
             de.rolandsw.schedulemc.vehicle.vehicle.VehicleSpawnRegistry.load();
             de.rolandsw.schedulemc.vehicle.fuel.FuelStationRegistry.load();
@@ -442,6 +462,110 @@ public class ScheduleMC {
             saveManager.register(EconomyManager.getInstance());
             saveManager.register(PlotManager.getInstance());
 
+            // Crime & Territory Systems (Priority 2)
+            saveManager.register(de.rolandsw.schedulemc.npc.crime.BountyManager.getInstance(event.getServer()));
+            saveManager.register(de.rolandsw.schedulemc.territory.TerritoryManager.getInstance(event.getServer()));
+
+            // Market System (Priority 3)
+            saveManager.register(new de.rolandsw.schedulemc.util.SaveableWrapper(
+                "DynamicMarketManager",
+                () -> de.rolandsw.schedulemc.market.DynamicMarketManager.getInstance().save(),
+                3
+            ));
+
+            // Player Systems (Priority 4)
+            saveManager.register(de.rolandsw.schedulemc.player.PlayerTracker.getInstance());
+            saveManager.register(new de.rolandsw.schedulemc.util.SaveableWrapper(
+                "PlayerSettingsManager",
+                de.rolandsw.schedulemc.player.PlayerSettingsManager::saveIfNeeded,
+                4
+            ));
+
+            // Wallet & Daily Rewards (Priority 4)
+            saveManager.register(new de.rolandsw.schedulemc.util.SaveableWrapper(
+                "WalletManager",
+                WalletManager::saveIfNeeded,
+                4
+            ));
+            saveManager.register(new de.rolandsw.schedulemc.util.SaveableWrapper(
+                "DailyRewardManager",
+                DailyRewardManager::saveIfNeeded,
+                4
+            ));
+
+            // Messaging System (Priority 5)
+            saveManager.register(new de.rolandsw.schedulemc.util.SaveableWrapper(
+                "MessageManager",
+                MessageManager::saveIfNeeded,
+                5
+            ));
+
+            // NPC Life System Managers (Priority 5) - Completed: 3/9
+            saveManager.register(de.rolandsw.schedulemc.npc.life.social.FactionManager.getInstance());
+            saveManager.register(de.rolandsw.schedulemc.npc.life.witness.WitnessManager.getInstance());
+            saveManager.register(de.rolandsw.schedulemc.npc.personality.NPCRelationshipManager.getInstance());
+            // TODO: Remaining 6 managers need AbstractPersistenceManager implementation:
+            // - CompanionManager, QuestManager, DialogueManager, NPCInteractionManager,
+            // - WorldEventManager, DynamicPriceManager
+            // See NPC_LIFE_PERSISTENCE_IMPLEMENTATION_GUIDE.md for implementation pattern
+
+            // NPC System (Priority 5)
+            saveManager.register(new de.rolandsw.schedulemc.util.SaveableWrapper(
+                "NPCNameRegistry",
+                de.rolandsw.schedulemc.managers.NPCNameRegistry::saveIfNeeded,
+                5
+            ));
+
+            // Towing Service (Priority 6)
+            saveManager.register(de.rolandsw.schedulemc.towing.MembershipManager.getInstance());
+            saveManager.register(de.rolandsw.schedulemc.towing.TowingYardManager.getInstance());
+
+            // Warehouse System (Priority 6)
+            saveManager.register(new de.rolandsw.schedulemc.util.SaveableWrapper(
+                "WarehouseManager",
+                () -> de.rolandsw.schedulemc.warehouse.WarehouseManager.save(event.getServer()),
+                6
+            ));
+
+            // Utility System (Priority 6)
+            saveManager.register(new de.rolandsw.schedulemc.util.SaveableWrapper(
+                "PlotUtilityManager",
+                de.rolandsw.schedulemc.utility.PlotUtilityManager::save,
+                6
+            ));
+
+            // State Account (Priority 7)
+            saveManager.register(new de.rolandsw.schedulemc.util.SaveableWrapper(
+                "StateAccount",
+                StateAccount::save,
+                7
+            ));
+
+            // Economy Advanced Systems (Priority 3)
+            saveManager.register(InterestManager.getInstance(event.getServer()));
+            saveManager.register(LoanManager.getInstance(event.getServer()));
+            saveManager.register(TaxManager.getInstance(event.getServer()));
+            saveManager.register(SavingsAccountManager.getInstance(event.getServer()));
+            saveManager.register(OverdraftManager.getInstance(event.getServer()));
+            saveManager.register(RecurringPaymentManager.getInstance(event.getServer()));
+            saveManager.register(CreditScoreManager.getInstance(event.getServer()));
+            saveManager.register(CreditLoanManager.getInstance(event.getServer()));
+
+            // Vehicle Systems (Priority 5)
+            saveManager.register(de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager.getInstance());
+            saveManager.register(new de.rolandsw.schedulemc.util.SaveableWrapper(
+                "VehicleSpawnRegistry",
+                de.rolandsw.schedulemc.vehicle.vehicle.VehicleSpawnRegistry::save,
+                5
+            ));
+            saveManager.register(new de.rolandsw.schedulemc.util.SaveableWrapper(
+                "FuelStationRegistry",
+                de.rolandsw.schedulemc.vehicle.fuel.FuelStationRegistry::save,
+                5
+            ));
+
+            LOGGER.info("Registered {} managers with IncrementalSaveManager", saveManager.getRegisteredCount());
+
             // SaveManager starten
             saveManager.start();
             LOGGER.info("IncrementalSaveManager started - automatic background saves active");
@@ -449,6 +573,31 @@ public class ScheduleMC {
             // Health-Check nach Start
             LOGGER.info("Performing initial health check...");
             HealthCheckManager.logHealthCheck();
+
+            // ═══════════════════════════════════════════════════════════
+            // TODO: SCHEDULEMC API - Initialize public API for external mods
+            // ═══════════════════════════════════════════════════════════
+            // ScheduleMCAPI needs 11 interface implementations:
+            // 1. IEconomyAPI - Economy operations (EconomyManager wrapper)
+            // 2. IPlotAPI - Plot management (PlotManager wrapper)
+            // 3. IProductionAPI - Production system access
+            // 4. INPCAPI - NPC management and interaction
+            // 5. IPoliceAPI - Crime and wanted level system
+            // 6. IWarehouseAPI - Warehouse management
+            // 7. IMessagingAPI - Message system
+            // 8. ISmartphoneAPI - Smartphone app integration
+            // 9. IVehicleAPI - Vehicle system access
+            // 10. IAchievementAPI - Achievement tracking
+            // 11. IMarketAPI - Dynamic market system
+            //
+            // After implementing all 11, call:
+            // ScheduleMCAPI.initialize(economyAPI, plotAPI, productionAPI, npcAPI,
+            //     policeAPI, warehouseAPI, messagingAPI, smartphoneAPI,
+            //     vehicleAPI, achievementAPI, marketAPI);
+            //
+            // This is CRITICAL for external mod compatibility!
+            // ═══════════════════════════════════════════════════════════
+
         }, "onServerStarted");
     }
 
@@ -482,35 +631,10 @@ public class ScheduleMC {
 
             if (tickCounter >= SAVE_INTERVAL) {
                 tickCounter = 0;
-                // PlotManager & EconomyManager werden via IncrementalSaveManager gespeichert
-                DailyRewardManager.saveIfNeeded();
+                // ALLE Manager werden jetzt via IncrementalSaveManager gespeichert
+                // Nur Business Logic bleibt hier
                 RentManager.checkExpiredRents();
-                WalletManager.saveIfNeeded();
-                NPCNameRegistry.saveIfNeeded();
-                MessageManager.saveIfNeeded();
-                PlayerTracker.saveIfNeeded();
-                de.rolandsw.schedulemc.player.PlayerSettingsManager.saveIfNeeded();
-
-                // Towing Service System periodic saves
-                de.rolandsw.schedulemc.towing.MembershipManager.saveIfNeeded();
-                de.rolandsw.schedulemc.towing.TowingYardManager.saveIfNeeded();
-
-                // Vehicle System periodic saves
-                de.rolandsw.schedulemc.vehicle.vehicle.VehicleSpawnRegistry.save();
-                de.rolandsw.schedulemc.vehicle.fuel.FuelStationRegistry.save();
-                de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager.save();
-
-                // Economy Systems periodic saves
-                InterestManager.getInstance(server).save();
-                LoanManager.getInstance(server).save();
-                TaxManager.getInstance(server).save();
-                SavingsAccountManager.getInstance(server).save();
-                OverdraftManager.getInstance(server).save();
-                RecurringPaymentManager.getInstance(server).save();
-
-                // Credit System periodic saves
-                CreditScoreManager.getInstance(server).save();
-                CreditLoanManager.getInstance(server).save();
+                // HINWEIS: Alle Saves werden jetzt automatisch vom IncrementalSaveManager gehandhabt
             }
         });
     }
@@ -535,46 +659,8 @@ public class ScheduleMC {
             ThreadPoolManager.shutdown();
             LOGGER.info("ThreadPoolManager shutdown completed");
 
-
-            // Manuelle Saves für noch nicht migrierte Manager
-            // (PlotManager & EconomyManager werden via IncrementalSaveManager gespeichert)
-            DailyRewardManager.save();
-            WalletManager.save();
-            NPCNameRegistry.saveRegistry();
-            MessageManager.saveMessages();
-            PlayerTracker.save();
-            de.rolandsw.schedulemc.player.PlayerSettingsManager.save();
-            WarehouseManager.save(event.getServer());
-
-            // Towing Service System final saves
-            de.rolandsw.schedulemc.towing.MembershipManager.save();
-            de.rolandsw.schedulemc.towing.TowingYardManager.save();
-
-            // Economy Systems final saves
-            InterestManager.getInstance(event.getServer()).save();
-            LoanManager.getInstance(event.getServer()).save();
-            TaxManager.getInstance(event.getServer()).save();
-            SavingsAccountManager.getInstance(event.getServer()).save();
-            OverdraftManager.getInstance(event.getServer()).save();
-            RecurringPaymentManager.getInstance(event.getServer()).save();
-
-            // Credit System final saves
-            CreditScoreManager.getInstance(event.getServer()).save();
-            CreditLoanManager.getInstance(event.getServer()).save();
-
-            TransactionHistory history = TransactionHistory.getInstance();
-            if (history != null) {
-                history.save();
-            }
-            LOGGER.info("Advanced Economy Systems saved (including Savings, Overdraft, Recurring Payments, and Credit Score)");
-
-            // Vehicle System final saves
-            de.rolandsw.schedulemc.vehicle.vehicle.VehicleSpawnRegistry.save();
-            de.rolandsw.schedulemc.vehicle.fuel.FuelStationRegistry.save();
-            de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager.save();
-
-            // Utility-System speichern
-            PlotUtilityManager.save();
+            // HINWEIS: Alle Manager wurden bereits von saveManager.saveAll() gespeichert (Zeile 592)
+            // Keine manuellen Saves mehr nötig - IncrementalSaveManager handled alles!
         }, "onServerStopping");
     }
 

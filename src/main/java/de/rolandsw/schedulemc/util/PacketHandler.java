@@ -37,7 +37,7 @@ public class PacketHandler {
                         Component.translatable("error.packet.failed", e.getMessage())
                     );
                     // Log but don't crash
-                    e.printStackTrace();
+                    ScheduleMC.LOGGER.error("Exception handling packet for player {}", player.getName().getString(), e);
                 }
             }
         });

@@ -1,11 +1,13 @@
 package de.rolandsw.schedulemc.coffee.blocks;
 
 import de.rolandsw.schedulemc.coffee.CoffeeType;
+import de.rolandsw.schedulemc.coffee.items.CoffeeItems;
 import de.rolandsw.schedulemc.production.blockentity.PlantPotBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -131,8 +133,11 @@ public class CoffeePlantBlock extends Block {
                 // They don't use the PlantPotData system
                 int age = state.getValue(AGE);
                 if (age >= 9) {
-                    // TODO: Ernte Kaffeekirschen implementieren
-                    player.displayClientMessage(Component.literal("Coffee cherries harvested!"), true);
+                    // Harvest coffee cherries
+                    int yield = level.random.nextInt(3) + 2; // 2-4 cherries
+                    ItemStack cherries = new ItemStack(CoffeeItems.COFFEE_CHERRY.get(), yield);
+                    Block.popResource(level, pos, cherries);
+                    player.displayClientMessage(Component.literal("§aCoffee cherries harvested! +" + yield), true);
                 } else {
                     player.displayClientMessage(Component.translatable(
                         "block.plant_pot.coffee_not_fully_grown",

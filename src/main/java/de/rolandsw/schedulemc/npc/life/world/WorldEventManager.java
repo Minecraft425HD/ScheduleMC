@@ -1,41 +1,59 @@
 package de.rolandsw.schedulemc.npc.life.world;
 
+import com.google.gson.reflect.TypeToken;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.life.core.EmotionState;
 import de.rolandsw.schedulemc.npc.life.core.NPCLifeData;
 import de.rolandsw.schedulemc.npc.life.economy.DynamicPriceManager;
 import de.rolandsw.schedulemc.npc.life.economy.MarketCondition;
+import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
+import de.rolandsw.schedulemc.util.GsonHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 
 import javax.annotation.Nullable;
+import java.io.File;
+import java.lang.reflect.Type;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * WorldEventManager - Verwaltet alle Welt-Events
+ * WorldEventManager - Verwaltet alle Welt-Events mit JSON-Persistenz
  *
  * Verantwortlich für:
  * - Zufällige Event-Generierung
  * - Aktive Events verwalten
  * - Event-Effekte auf die Welt anwenden
  */
-public class WorldEventManager {
+public class WorldEventManager extends AbstractPersistenceManager<WorldEventManager.WorldEventManagerData> {
 
     // ═══════════════════════════════════════════════════════════
-    // SINGLETON-LIKE PER LEVEL
+    // SINGLETON
     // ═══════════════════════════════════════════════════════════
 
-    private static final Map<ServerLevel, WorldEventManager> MANAGERS = new HashMap<>();
+    private static volatile WorldEventManager instance;
+    private static final Object INSTANCE_LOCK = new Object();
 
-    public static WorldEventManager getManager(ServerLevel level) {
-        return MANAGERS.computeIfAbsent(level, l -> new WorldEventManager(l));
+    @Nullable
+    public static WorldEventManager getInstance() {
+        return instance;
     }
 
-    public static void removeManager(ServerLevel level) {
-        MANAGERS.remove(level);
+    public static WorldEventManager getInstance(MinecraftServer server) {
+        WorldEventManager result = instance;
+        if (result == null) {
+            synchronized (INSTANCE_LOCK) {
+                result = instance;
+                if (result == null) {
+                    instance = result = new WorldEventManager(server);
+                }
+            }
+        }
+        return result;
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -55,15 +73,15 @@ public class WorldEventManager {
     // DATA
     // ═══════════════════════════════════════════════════════════
 
-    private final ServerLevel level;
+    private MinecraftServer server;
 
     /** Aktive Events */
     private final List<WorldEvent> activeEvents = new ArrayList<>();
 
     /** Event-History: Event Type -> letzter Tag */
-    private final Map<WorldEventType, Long> eventHistory = new HashMap<>();
+    private final Map<WorldEventType, Long> eventHistory = new ConcurrentHashMap<>();
 
-    /** Tick-Zähler für Event-Checks */
+    /** Tick-Zähler für Event-Checks (TRANSIENT - nicht persistiert) */
     private int tickCounter = 0;
 
     /** Letzter geprüfter Tag */
@@ -73,8 +91,13 @@ public class WorldEventManager {
     // CONSTRUCTOR
     // ═══════════════════════════════════════════════════════════
 
-    private WorldEventManager(ServerLevel level) {
-        this.level = level;
+    private WorldEventManager(MinecraftServer server) {
+        super(
+            server.getServerDirectory().toPath().resolve("config").resolve("npc_life_world_events.json").toFile(),
+            GsonHelper.get()
+        );
+        this.server = server;
+        load();
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -84,7 +107,7 @@ public class WorldEventManager {
     /**
      * Haupttick - prüft auf neue Events und aktualisiert aktive
      */
-    public void tick() {
+    public void tick(ServerLevel level) {
         tickCounter++;
 
         // Nur periodisch prüfen
@@ -101,11 +124,12 @@ public class WorldEventManager {
         // Neue Events generieren (täglich prüfen)
         if (currentDay != lastCheckedDay) {
             lastCheckedDay = currentDay;
-            tryGenerateEvent(currentDay);
+            tryGenerateEvent(level, currentDay);
+            markDirty();
         }
 
         // Event-Effekte anwenden
-        applyEventEffects(currentDay);
+        applyEventEffects(level, currentDay);
     }
 
     /**
@@ -115,6 +139,7 @@ public class WorldEventManager {
         activeEvents.removeIf(event -> {
             if (event.isExpired(currentDay) || !event.isActive()) {
                 onEventEnd(event);
+                markDirty();
                 return true;
             }
             return false;
@@ -124,7 +149,7 @@ public class WorldEventManager {
     /**
      * Versucht ein neues Event zu generieren
      */
-    private void tryGenerateEvent(long currentDay) {
+    private void tryGenerateEvent(ServerLevel level, long currentDay) {
         if (activeEvents.size() >= MAX_ACTIVE_EVENTS) {
             return;
         }
@@ -196,6 +221,7 @@ public class WorldEventManager {
         eventHistory.put(type, currentDay);
 
         onEventStart(event);
+        markDirty();
 
         return event;
     }
@@ -209,6 +235,7 @@ public class WorldEventManager {
         eventHistory.put(type, currentDay);
 
         onEventStart(event);
+        markDirty();
 
         return event;
     }
@@ -220,6 +247,7 @@ public class WorldEventManager {
         for (WorldEvent event : activeEvents) {
             if (event.getEventId().equals(eventId)) {
                 event.end();
+                markDirty();
                 return;
             }
         }
@@ -230,8 +258,11 @@ public class WorldEventManager {
      */
     private void onEventStart(WorldEvent event) {
         // Market-Condition aktualisieren
-        MarketCondition condition = event.getType().getMarketEffect();
-        DynamicPriceManager.getManager(level).setMarketCondition(condition);
+        DynamicPriceManager priceManager = DynamicPriceManager.getInstance();
+        if (priceManager != null) {
+            MarketCondition condition = event.getType().getMarketEffect();
+            priceManager.setMarketCondition(condition);
+        }
 
         // Event ankündigen
         if (!event.isAnnounced()) {
@@ -250,7 +281,10 @@ public class WorldEventManager {
             .anyMatch(e -> e.getType().getCategory() == WorldEventType.EventCategory.MARKET);
 
         if (!hasOtherMarketEvents) {
-            DynamicPriceManager.getManager(level).setMarketCondition(MarketCondition.NORMAL);
+            DynamicPriceManager priceManager = DynamicPriceManager.getInstance();
+            if (priceManager != null) {
+                priceManager.setMarketCondition(MarketCondition.NORMAL);
+            }
         }
     }
 
@@ -273,7 +307,7 @@ public class WorldEventManager {
     /**
      * Wendet Event-Effekte auf die Welt an
      */
-    private void applyEventEffects(long currentDay) {
+    private void applyEventEffects(ServerLevel level, long currentDay) {
         // NPCs beeinflussen
         for (var entity : level.getAllEntities()) {
             if (entity instanceof CustomNPCEntity npc) {
@@ -361,8 +395,7 @@ public class WorldEventManager {
     /**
      * Berechnet den kombinierten Preismodifikator aller Events
      */
-    public float getCombinedPriceModifier(BlockPos pos) {
-        long currentDay = level.getDayTime() / 24000;
+    public float getCombinedPriceModifier(BlockPos pos, long currentDay) {
         float modifier = 1.0f;
 
         for (WorldEvent event : activeEvents) {
@@ -378,8 +411,7 @@ public class WorldEventManager {
     /**
      * Berechnet den kombinierten Stimmungseffekt
      */
-    public float getCombinedMoodEffect(BlockPos pos) {
-        long currentDay = level.getDayTime() / 24000;
+    public float getCombinedMoodEffect(BlockPos pos, long currentDay) {
         float effect = 0;
 
         for (WorldEvent event : activeEvents) {
@@ -400,51 +432,62 @@ public class WorldEventManager {
     }
 
     // ═══════════════════════════════════════════════════════════
-    // SERIALIZATION
+    // ABSTRACT PERSISTENCE MANAGER IMPLEMENTATION
     // ═══════════════════════════════════════════════════════════
 
-    public CompoundTag save() {
-        CompoundTag tag = new CompoundTag();
-
-        // Aktive Events
-        ListTag eventsTag = new ListTag();
-        for (WorldEvent event : activeEvents) {
-            eventsTag.add(event.save());
-        }
-        tag.put("activeEvents", eventsTag);
-
-        // Event-History
-        CompoundTag historyTag = new CompoundTag();
-        for (Map.Entry<WorldEventType, Long> entry : eventHistory.entrySet()) {
-            historyTag.putLong(entry.getKey().name(), entry.getValue());
-        }
-        tag.put("eventHistory", historyTag);
-
-        tag.putLong("lastCheckedDay", lastCheckedDay);
-
-        return tag;
+    @Override
+    protected Type getDataType() {
+        return new TypeToken<WorldEventManagerData>(){}.getType();
     }
 
-    public void load(CompoundTag tag) {
+    @Override
+    protected void onDataLoaded(WorldEventManagerData data) {
         activeEvents.clear();
         eventHistory.clear();
 
-        // Aktive Events
-        ListTag eventsTag = tag.getList("activeEvents", Tag.TAG_COMPOUND);
-        for (int i = 0; i < eventsTag.size(); i++) {
-            WorldEvent event = WorldEvent.load(eventsTag.getCompound(i));
-            activeEvents.add(event);
+        if (data.activeEvents != null) {
+            activeEvents.addAll(data.activeEvents);
         }
-
-        // Event-History
-        CompoundTag historyTag = tag.getCompound("eventHistory");
-        for (String key : historyTag.getAllKeys()) {
-            WorldEventType type = WorldEventType.valueOf(key);
-            long day = historyTag.getLong(key);
-            eventHistory.put(type, day);
+        if (data.eventHistory != null) {
+            eventHistory.putAll(data.eventHistory);
         }
+        lastCheckedDay = data.lastCheckedDay;
+    }
 
-        lastCheckedDay = tag.getLong("lastCheckedDay");
+    @Override
+    protected WorldEventManagerData getCurrentData() {
+        WorldEventManagerData data = new WorldEventManagerData();
+        data.activeEvents = new ArrayList<>(activeEvents);
+        data.eventHistory = new HashMap<>(eventHistory);
+        data.lastCheckedDay = lastCheckedDay;
+        return data;
+    }
+
+    @Override
+    protected String getComponentName() {
+        return "WorldEventManager";
+    }
+
+    @Override
+    protected String getHealthDetails() {
+        return String.format("%d active events", activeEvents.size());
+    }
+
+    @Override
+    protected void onCriticalLoadFailure() {
+        activeEvents.clear();
+        eventHistory.clear();
+        lastCheckedDay = -1;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // DATA CLASS FOR JSON SERIALIZATION
+    // ═══════════════════════════════════════════════════════════
+
+    public static class WorldEventManagerData {
+        public List<WorldEvent> activeEvents;
+        public Map<WorldEventType, Long> eventHistory;
+        public long lastCheckedDay;
     }
 
     @Override
