@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * Implementation of INPCAPI
@@ -35,7 +36,7 @@ public class NPCAPIImpl implements INPCAPI {
             throw new IllegalArgumentException("npcUUID and level cannot be null");
         }
 
-        return level.getAllEntities().stream()
+        return StreamSupport.stream(level.getAllEntities().spliterator(), false)
             .filter(entity -> entity instanceof CustomNPCEntity)
             .map(entity -> (CustomNPCEntity) entity)
             .filter(npc -> npc.getUUID().equals(npcUUID))
@@ -78,7 +79,7 @@ public class NPCAPIImpl implements INPCAPI {
         }
 
         return Collections.unmodifiableCollection(
-            level.getAllEntities().stream()
+            StreamSupport.stream(level.getAllEntities().spliterator(), false)
                 .filter(entity -> entity instanceof CustomNPCEntity)
                 .map(entity -> (CustomNPCEntity) entity)
                 .collect(Collectors.toList())
@@ -96,7 +97,7 @@ public class NPCAPIImpl implements INPCAPI {
         }
 
         return Collections.unmodifiableCollection(
-            server.getAllLevels().stream()
+            StreamSupport.stream(server.getAllLevels().spliterator(), false)
                 .flatMap(level -> getAllNPCs(level).stream())
                 .collect(Collectors.toList())
         );
@@ -140,7 +141,8 @@ public class NPCAPIImpl implements INPCAPI {
         if (npc == null || homePos == null) {
             throw new IllegalArgumentException("npc and homePos cannot be null");
         }
-        npc.setHomePosition(homePos);
+        // Access through npcData
+        npc.getNpcData().setHomePosition(homePos);
     }
 
     /**
@@ -151,7 +153,8 @@ public class NPCAPIImpl implements INPCAPI {
         if (npc == null || workPos == null) {
             throw new IllegalArgumentException("npc and workPos cannot be null");
         }
-        npc.setWorkPosition(workPos);
+        // Access through npcData
+        npc.getNpcData().setWorkPosition(workPos);
     }
 
     /**
@@ -162,6 +165,7 @@ public class NPCAPIImpl implements INPCAPI {
         if (npc == null || type == null) {
             throw new IllegalArgumentException("npc and type cannot be null");
         }
-        npc.setNPCType(type);
+        // Access through npcData
+        npc.getNpcData().setType(type);
     }
 }

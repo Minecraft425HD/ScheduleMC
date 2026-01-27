@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * Implementation of IVehicleAPI
@@ -44,7 +45,7 @@ public class VehicleAPIImpl implements IVehicleAPI {
         if (vehicle == null || ownerUUID == null) {
             throw new IllegalArgumentException("vehicle and ownerUUID cannot be null");
         }
-        vehicle.setOwner(ownerUUID);
+        vehicle.setOwnerId(ownerUUID);
     }
 
     /**
@@ -56,7 +57,7 @@ public class VehicleAPIImpl implements IVehicleAPI {
         if (vehicle == null) {
             throw new IllegalArgumentException("vehicle cannot be null");
         }
-        return vehicle.getOwner();
+        return vehicle.getOwnerId();
     }
 
     /**
@@ -79,7 +80,7 @@ public class VehicleAPIImpl implements IVehicleAPI {
         }
 
         double newFuel = Math.min(currentFuel + amount, capacity);
-        vehicle.setFuel(newFuel);
+        vehicle.setFuelAmount((int) newFuel);
         return true;
     }
 
@@ -91,7 +92,7 @@ public class VehicleAPIImpl implements IVehicleAPI {
         if (vehicle == null) {
             throw new IllegalArgumentException("vehicle cannot be null");
         }
-        return vehicle.getFuel();
+        return vehicle.getFuelAmount();
     }
 
     /**
@@ -102,7 +103,7 @@ public class VehicleAPIImpl implements IVehicleAPI {
         if (vehicle == null) {
             throw new IllegalArgumentException("vehicle cannot be null");
         }
-        return vehicle.getFuelCapacity();
+        return vehicle.getMaxFuel();
     }
 
     /**
@@ -115,10 +116,10 @@ public class VehicleAPIImpl implements IVehicleAPI {
         }
 
         return Collections.unmodifiableList(
-            level.getAllEntities().stream()
+            StreamSupport.stream(level.getAllEntities().spliterator(), false)
                 .filter(entity -> entity instanceof EntityGenericVehicle)
                 .map(entity -> (EntityGenericVehicle) entity)
-                .filter(vehicle -> ownerUUID.equals(vehicle.getOwner()))
+                .filter(vehicle -> ownerUUID.equals(vehicle.getOwnerId()))
                 .collect(Collectors.toList())
         );
     }

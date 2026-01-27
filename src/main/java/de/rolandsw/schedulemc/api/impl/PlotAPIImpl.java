@@ -79,7 +79,7 @@ public class PlotAPIImpl implements IPlotAPI {
      */
     @Override
     public List<PlotRegion> getAvailablePlots() {
-        return plotManager.getAllPlots().stream()
+        return plotManager.getPlots().stream()
             .filter(plot -> plot.getOwner() == null)
             .collect(Collectors.toList());
     }
@@ -89,7 +89,7 @@ public class PlotAPIImpl implements IPlotAPI {
      */
     @Override
     public List<PlotRegion> getPlotsForSale() {
-        return plotManager.getAllPlots().stream()
+        return plotManager.getPlots().stream()
             .filter(PlotRegion::isForSale)
             .collect(Collectors.toList());
     }

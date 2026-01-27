@@ -23,6 +23,12 @@ import java.util.stream.Collectors;
  */
 public class ProductionAPIImpl implements IProductionAPI {
 
+    private final ProductionRegistry productionRegistry;
+
+    public ProductionAPIImpl() {
+        this.productionRegistry = ProductionRegistry.getInstance();
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -32,7 +38,7 @@ public class ProductionAPIImpl implements IProductionAPI {
         if (productionId == null) {
             throw new IllegalArgumentException("productionId cannot be null");
         }
-        return ProductionRegistry.getProduction(productionId);
+        return productionRegistry.getProduction(productionId);
     }
 
     /**
@@ -43,7 +49,7 @@ public class ProductionAPIImpl implements IProductionAPI {
         if (productionId == null) {
             throw new IllegalArgumentException("productionId cannot be null");
         }
-        return ProductionRegistry.hasProduction(productionId);
+        return productionRegistry.hasProduction(productionId);
     }
 
     /**
@@ -51,7 +57,7 @@ public class ProductionAPIImpl implements IProductionAPI {
      */
     @Override
     public Collection<ProductionConfig> getAllProductions() {
-        return ProductionRegistry.getAllProductions();
+        return productionRegistry.getAllProductions();
     }
 
     /**
@@ -75,7 +81,7 @@ public class ProductionAPIImpl implements IProductionAPI {
         if (config == null) {
             throw new IllegalArgumentException("config cannot be null");
         }
-        ProductionRegistry.register(config);
+        productionRegistry.register(config);
     }
 
     /**
@@ -86,7 +92,7 @@ public class ProductionAPIImpl implements IProductionAPI {
         if (productionId == null) {
             throw new IllegalArgumentException("productionId cannot be null");
         }
-        return ProductionRegistry.unregister(productionId);
+        return productionRegistry.unregister(productionId);
     }
 
     /**
@@ -94,7 +100,7 @@ public class ProductionAPIImpl implements IProductionAPI {
      */
     @Override
     public int getProductionCount() {
-        return ProductionRegistry.getProductionCount();
+        return productionRegistry.getProductionCount();
     }
 
     /**

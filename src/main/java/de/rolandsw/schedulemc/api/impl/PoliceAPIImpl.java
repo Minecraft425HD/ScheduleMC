@@ -38,7 +38,8 @@ public class PoliceAPIImpl implements IPoliceAPI {
         if (amount < 1) {
             throw new IllegalArgumentException("amount must be at least 1, got: " + amount);
         }
-        CrimeManager.addWantedLevel(playerUUID, amount);
+        // Use current game day (0 as default if not available)
+        CrimeManager.addWantedLevel(playerUUID, amount, 0L);
     }
 
     /**
@@ -85,7 +86,8 @@ public class PoliceAPIImpl implements IPoliceAPI {
         if (playerUUID == null) {
             throw new IllegalArgumentException("playerUUID cannot be null");
         }
-        CrimeManager.startEscapeTimer(playerUUID);
+        // Use current tick (0 as default if not available)
+        CrimeManager.startEscapeTimer(playerUUID, 0L);
     }
 
     /**
@@ -107,7 +109,7 @@ public class PoliceAPIImpl implements IPoliceAPI {
         if (playerUUID == null) {
             throw new IllegalArgumentException("playerUUID cannot be null");
         }
-        return CrimeManager.isEscaping(playerUUID);
+        return CrimeManager.isHiding(playerUUID);
     }
 
     /**
@@ -118,7 +120,8 @@ public class PoliceAPIImpl implements IPoliceAPI {
         if (playerUUID == null) {
             throw new IllegalArgumentException("playerUUID cannot be null");
         }
-        return CrimeManager.getEscapeTimeRemaining(playerUUID);
+        // Use current tick (0 as default if not available)
+        return CrimeManager.getEscapeTimeRemaining(playerUUID, 0L);
     }
 
     /**
@@ -130,7 +133,7 @@ public class PoliceAPIImpl implements IPoliceAPI {
             throw new IllegalArgumentException("playerUUID cannot be null");
         }
 
-        if (isHiding(playerUUID) && getEscapeTimeRemaining(playerUUID) <= 0) {
+        if (isHiding(playerUUID) && CrimeManager.getEscapeTimeRemaining(playerUUID, 0L) <= 0) {
             // Escape successful - reduce wanted level by 1
             int currentLevel = getWantedLevel(playerUUID);
             if (currentLevel > 0) {

@@ -480,7 +480,11 @@ public class ScheduleMC {
             ));
 
             // Player Systems (Priority 4)
-            saveManager.register(de.rolandsw.schedulemc.player.PlayerTracker.getInstance());
+            saveManager.register(new de.rolandsw.schedulemc.util.SaveableWrapper(
+                "PlayerTracker",
+                de.rolandsw.schedulemc.player.PlayerTracker::saveIfNeeded,
+                4
+            ));
             saveManager.register(new de.rolandsw.schedulemc.util.SaveableWrapper(
                 "PlayerSettingsManager",
                 de.rolandsw.schedulemc.player.PlayerSettingsManager::saveIfNeeded,
@@ -525,8 +529,16 @@ public class ScheduleMC {
             ));
 
             // Towing Service (Priority 6)
-            saveManager.register(de.rolandsw.schedulemc.towing.MembershipManager.getInstance());
-            saveManager.register(de.rolandsw.schedulemc.towing.TowingYardManager.getInstance());
+            saveManager.register(new de.rolandsw.schedulemc.util.SaveableWrapper(
+                "MembershipManager",
+                de.rolandsw.schedulemc.towing.MembershipManager::saveIfNeeded,
+                6
+            ));
+            saveManager.register(new de.rolandsw.schedulemc.util.SaveableWrapper(
+                "TowingYardManager",
+                de.rolandsw.schedulemc.towing.TowingYardManager::saveIfNeeded,
+                6
+            ));
 
             // Warehouse System (Priority 6)
             saveManager.register(new de.rolandsw.schedulemc.util.SaveableWrapper(
@@ -572,7 +584,11 @@ public class ScheduleMC {
             ));
 
             // Vehicle Systems (Priority 5)
-            saveManager.register(de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager.getInstance());
+            saveManager.register(new de.rolandsw.schedulemc.util.SaveableWrapper(
+                "FuelBillManager",
+                de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager::saveIfNeeded,
+                5
+            ));
             saveManager.register(new de.rolandsw.schedulemc.util.SaveableWrapper(
                 "VehicleSpawnRegistry",
                 de.rolandsw.schedulemc.vehicle.vehicle.VehicleSpawnRegistry::save,

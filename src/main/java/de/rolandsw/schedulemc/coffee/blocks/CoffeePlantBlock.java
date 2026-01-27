@@ -133,9 +133,9 @@ public class CoffeePlantBlock extends Block {
                 // They don't use the PlantPotData system
                 int age = state.getValue(AGE);
                 if (age >= 9) {
-                    // Harvest coffee cherries
+                    // Harvest coffee cherries (defaults to Arabica)
                     int yield = level.random.nextInt(3) + 2; // 2-4 cherries
-                    ItemStack cherries = new ItemStack(CoffeeItems.COFFEE_CHERRY.get(), yield);
+                    ItemStack cherries = new ItemStack(CoffeeItems.ARABICA_CHERRY.get(), yield);
                     Block.popResource(level, pos, cherries);
                     player.displayClientMessage(Component.literal("§aCoffee cherries harvested! +" + yield), true);
                 } else {

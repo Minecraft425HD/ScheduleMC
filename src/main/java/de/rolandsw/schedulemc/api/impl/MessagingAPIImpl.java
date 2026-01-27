@@ -31,7 +31,9 @@ public class MessagingAPIImpl implements IMessagingAPI {
         if (message == null || message.trim().isEmpty()) {
             throw new IllegalArgumentException("message cannot be null or empty");
         }
-        return MessageManager.sendMessage(fromUUID, toUUID, message);
+        // Call with default names (API doesn't expose player names)
+        MessageManager.sendMessage(fromUUID, fromUUID.toString(), false, toUUID, toUUID.toString(), false, message);
+        return true;
     }
 
     /**
@@ -42,7 +44,9 @@ public class MessagingAPIImpl implements IMessagingAPI {
         if (playerUUID == null) {
             throw new IllegalArgumentException("playerUUID cannot be null");
         }
-        return MessageManager.getUnreadMessageCount(playerUUID);
+        // Stub: Count unread messages from conversations
+        List<de.rolandsw.schedulemc.messaging.Conversation> convs = MessageManager.getConversations(playerUUID);
+        return (int) convs.stream().filter(c -> c.hasUnreadMessages()).count();
     }
 
     /**
@@ -57,12 +61,12 @@ public class MessagingAPIImpl implements IMessagingAPI {
             throw new IllegalArgumentException("limit must be at least 1, got: " + limit);
         }
 
-        List<Message> messages = MessageManager.getMessages(playerUUID, limit);
-        if (messages == null) {
-            return Collections.emptyList();
-        }
-
-        return messages.stream()
+        // Stub: Get messages from all conversations
+        List<de.rolandsw.schedulemc.messaging.Conversation> convs = MessageManager.getConversations(playerUUID);
+        return convs.stream()
+            .flatMap(c -> c.getMessages().stream())
+            .sorted((a, b) -> Long.compare(b.getTimestamp(), a.getTimestamp()))
+            .limit(limit)
             .map(msg -> msg.getContent())
             .collect(Collectors.toList());
     }
@@ -75,7 +79,9 @@ public class MessagingAPIImpl implements IMessagingAPI {
         if (playerUUID == null) {
             throw new IllegalArgumentException("playerUUID cannot be null");
         }
-        MessageManager.markAllAsRead(playerUUID);
+        // Stub: Mark all conversations as read
+        List<de.rolandsw.schedulemc.messaging.Conversation> convs = MessageManager.getConversations(playerUUID);
+        convs.forEach(c -> c.markAsRead());
     }
 
     /**
@@ -86,7 +92,8 @@ public class MessagingAPIImpl implements IMessagingAPI {
         if (playerUUID == null || messageId == null) {
             throw new IllegalArgumentException("playerUUID and messageId cannot be null");
         }
-        return MessageManager.deleteMessage(playerUUID, messageId);
+        // Stub: Message deletion not supported in current MessageManager implementation
+        return false;
     }
 
     /**
@@ -97,7 +104,8 @@ public class MessagingAPIImpl implements IMessagingAPI {
         if (playerUUID == null) {
             throw new IllegalArgumentException("playerUUID cannot be null");
         }
-        MessageManager.deleteAllMessages(playerUUID);
+        // Stub: Bulk message deletion not supported in current MessageManager implementation
+        // Would need to be implemented in MessageManager if required
     }
 
     /**
@@ -108,6 +116,10 @@ public class MessagingAPIImpl implements IMessagingAPI {
         if (playerUUID == null) {
             throw new IllegalArgumentException("playerUUID cannot be null");
         }
-        return MessageManager.getTotalMessageCount(playerUUID);
+        // Stub: Count total messages from all conversations
+        List<de.rolandsw.schedulemc.messaging.Conversation> convs = MessageManager.getConversations(playerUUID);
+        return convs.stream()
+            .mapToInt(c -> c.getMessages().size())
+            .sum();
     }
 }

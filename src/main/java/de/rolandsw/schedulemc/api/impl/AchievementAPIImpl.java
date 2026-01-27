@@ -123,7 +123,7 @@ public class AchievementAPIImpl implements IAchievementAPI {
         int unlocked = playerAch.getUnlockedCount();
         int total = getTotalAchievementCount();
         double percentage = total > 0 ? (unlocked * 100.0 / total) : 0.0;
-        double totalRewards = playerAch.getTotalRewards();
+        double totalRewards = playerAch.getTotalPointsEarned();
 
         return String.format("Achievements: %d/%d (%.1f%%) - €%.2f verdient",
             unlocked, total, percentage, totalRewards);

@@ -123,7 +123,7 @@ public class EconomyAPIImpl implements IEconomyAPI {
         if (amount < 0) {
             throw new IllegalArgumentException("amount must be positive, got: " + amount);
         }
-        return economyManager.transfer(fromUUID, toUUID, amount);
+        return economyManager.transfer(fromUUID, toUUID, amount, description);
     }
 
     /**
@@ -153,6 +153,6 @@ public class EconomyAPIImpl implements IEconomyAPI {
      */
     @Override
     public double getStartBalance() {
-        return ModConfigHandler.COMMON.STARTING_BALANCE.get();
+        return ModConfigHandler.COMMON.START_BALANCE.get();
     }
 }

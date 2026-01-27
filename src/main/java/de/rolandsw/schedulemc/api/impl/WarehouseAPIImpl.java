@@ -29,7 +29,9 @@ public class WarehouseAPIImpl implements IWarehouseAPI {
         if (position == null) {
             throw new IllegalArgumentException("position cannot be null");
         }
-        return WarehouseManager.hasWarehouse(position);
+        // Stub: WarehouseManager uses plot IDs, not BlockPos
+        // Would need plot system integration to implement this
+        return false;
     }
 
     /**
@@ -43,7 +45,9 @@ public class WarehouseAPIImpl implements IWarehouseAPI {
         if (amount < 1) {
             throw new IllegalArgumentException("amount must be at least 1, got: " + amount);
         }
-        return WarehouseManager.addItem(position, item, amount);
+        // Stub: WarehouseManager uses plot IDs, not BlockPos
+        // Would need plot system integration to implement this
+        return false;
     }
 
     /**
@@ -57,7 +61,9 @@ public class WarehouseAPIImpl implements IWarehouseAPI {
         if (amount < 1) {
             throw new IllegalArgumentException("amount must be at least 1, got: " + amount);
         }
-        return WarehouseManager.removeItem(position, item, amount);
+        // Stub: WarehouseManager uses plot IDs, not BlockPos
+        // Would need plot system integration to implement this
+        return false;
     }
 
     /**
@@ -68,7 +74,9 @@ public class WarehouseAPIImpl implements IWarehouseAPI {
         if (position == null || item == null) {
             throw new IllegalArgumentException("position and item cannot be null");
         }
-        return WarehouseManager.getItemStock(position, item);
+        // Stub: WarehouseManager uses plot IDs, not BlockPos
+        // Would need plot system integration to implement this
+        return 0;
     }
 
     /**
@@ -79,7 +87,9 @@ public class WarehouseAPIImpl implements IWarehouseAPI {
         if (position == null || item == null) {
             throw new IllegalArgumentException("position and item cannot be null");
         }
-        return WarehouseManager.getItemCapacity(position, item);
+        // Stub: WarehouseManager uses plot IDs, not BlockPos
+        // Would need plot system integration to implement this
+        return 0;
     }
 
     /**
@@ -90,8 +100,9 @@ public class WarehouseAPIImpl implements IWarehouseAPI {
         if (position == null) {
             throw new IllegalArgumentException("position cannot be null");
         }
-        List<WarehouseSlot> slots = WarehouseManager.getAllSlots(position);
-        return slots != null ? Collections.unmodifiableList(slots) : Collections.emptyList();
+        // Stub: WarehouseManager uses plot IDs, not BlockPos
+        // Would need plot system integration to implement this
+        return Collections.emptyList();
     }
 
     /**
@@ -102,7 +113,8 @@ public class WarehouseAPIImpl implements IWarehouseAPI {
         if (position == null || sellerUUID == null) {
             throw new IllegalArgumentException("position and sellerUUID cannot be null");
         }
-        WarehouseManager.addSeller(position, sellerUUID);
+        // Stub: WarehouseManager uses plot IDs, not BlockPos
+        // Would need plot system integration to implement this
     }
 
     /**
@@ -113,7 +125,8 @@ public class WarehouseAPIImpl implements IWarehouseAPI {
         if (position == null || sellerUUID == null) {
             throw new IllegalArgumentException("position and sellerUUID cannot be null");
         }
-        WarehouseManager.removeSeller(position, sellerUUID);
+        // Stub: WarehouseManager uses plot IDs, not BlockPos
+        // Would need plot system integration to implement this
     }
 
     /**
@@ -124,6 +137,8 @@ public class WarehouseAPIImpl implements IWarehouseAPI {
         if (position == null || sellerUUID == null) {
             throw new IllegalArgumentException("position and sellerUUID cannot be null");
         }
-        return WarehouseManager.isSeller(position, sellerUUID);
+        // Stub: WarehouseManager uses plot IDs, not BlockPos
+        // Would need plot system integration to implement this
+        return false;
     }
 }

@@ -55,6 +55,14 @@ public class CompanionManager extends AbstractPersistenceManager<CompanionManage
         return result;
     }
 
+    /**
+     * Helper method for level-based access.
+     * Note: Manager is server-wide, not per-level.
+     */
+    public static CompanionManager getManager(ServerLevel level) {
+        return getInstance(level.getServer());
+    }
+
     // ═══════════════════════════════════════════════════════════
     // CONSTANTS
     // ═══════════════════════════════════════════════════════════
