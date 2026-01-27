@@ -31,6 +31,8 @@ import de.rolandsw.schedulemc.coffee.menu.CoffeeMenuTypes;
 import de.rolandsw.schedulemc.coffee.screen.*;
 import de.rolandsw.schedulemc.wine.menu.WineMenuTypes;
 import de.rolandsw.schedulemc.wine.screen.*;
+import de.rolandsw.schedulemc.cheese.menu.CheeseMenuTypes;
+import de.rolandsw.schedulemc.cheese.screen.*;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -105,6 +107,17 @@ public class ClientModEvents {
                 MenuScreens.register(WineMenuTypes.MEDIUM_AGING_BARREL_MENU.get(), MediumAgingBarrelScreen::new);
                 MenuScreens.register(WineMenuTypes.LARGE_AGING_BARREL_MENU.get(), LargeAgingBarrelScreen::new);
                 MenuScreens.register(WineMenuTypes.WINE_BOTTLING_STATION_MENU.get(), WineBottlingStationScreen::new);
+
+                // Cheese-System
+                MenuScreens.register(CheeseMenuTypes.PASTEURIZATION_STATION_MENU.get(), PasteurizationStationScreen::new);
+                MenuScreens.register(CheeseMenuTypes.CURDLING_VAT_MENU.get(), CurdlingVatScreen::new);
+                MenuScreens.register(CheeseMenuTypes.SMALL_CHEESE_PRESS_MENU.get(), SmallCheesePressScreen::new);
+                MenuScreens.register(CheeseMenuTypes.MEDIUM_CHEESE_PRESS_MENU.get(), MediumCheesePressScreen::new);
+                MenuScreens.register(CheeseMenuTypes.LARGE_CHEESE_PRESS_MENU.get(), LargeCheesePressScreen::new);
+                MenuScreens.register(CheeseMenuTypes.SMALL_AGING_CAVE_MENU.get(), SmallAgingCaveScreen::new);
+                MenuScreens.register(CheeseMenuTypes.MEDIUM_AGING_CAVE_MENU.get(), MediumAgingCaveScreen::new);
+                MenuScreens.register(CheeseMenuTypes.LARGE_AGING_CAVE_MENU.get(), LargeAgingCaveScreen::new);
+                MenuScreens.register(CheeseMenuTypes.PACKAGING_STATION_MENU.get(), PackagingStationScreen::new);
             });
         }, "onClientSetup");
     }
