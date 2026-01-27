@@ -249,6 +249,6 @@ public class CurdlingVatBlockEntity extends BlockEntity implements IUtilityConsu
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int id, @NotNull Inventory inv, @NotNull Player p) {
-        return null; // Menu will be created later
+        return new de.rolandsw.schedulemc.cheese.menu.CurdlingVatMenu(id, inv, this);
     }
 }

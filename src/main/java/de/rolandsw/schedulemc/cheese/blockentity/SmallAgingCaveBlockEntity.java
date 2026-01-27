@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.cheese.blockentity;
 
+import de.rolandsw.schedulemc.cheese.menu.SmallAgingCaveMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.MenuProvider;
@@ -33,6 +34,6 @@ public class SmallAgingCaveBlockEntity extends AbstractAgingCaveBlockEntity impl
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int id, @NotNull Inventory inv, @NotNull Player p) {
-        return null; // Menu will be created later
+        return new SmallAgingCaveMenu(id, inv, this);
     }
 }

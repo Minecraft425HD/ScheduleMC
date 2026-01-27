@@ -6,6 +6,7 @@ import de.rolandsw.schedulemc.cheese.CheeseQuality;
 import de.rolandsw.schedulemc.cheese.CheeseType;
 import de.rolandsw.schedulemc.cheese.items.CheeseItems;
 import de.rolandsw.schedulemc.cheese.items.CheeseWheelItem;
+import de.rolandsw.schedulemc.cheese.menu.PackagingStationMenu;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -290,6 +291,6 @@ public class PackagingStationBlockEntity extends BlockEntity implements IUtility
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int id, @NotNull Inventory inv, @NotNull Player p) {
-        return null; // Menu will be created later
+        return new PackagingStationMenu(id, inv, this);
     }
 }

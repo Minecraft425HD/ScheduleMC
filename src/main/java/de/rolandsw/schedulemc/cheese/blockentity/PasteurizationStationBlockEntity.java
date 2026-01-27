@@ -203,6 +203,6 @@ public class PasteurizationStationBlockEntity extends BlockEntity implements IUt
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int id, @NotNull Inventory inv, @NotNull Player p) {
-        return null; // Menu will be created later
+        return new de.rolandsw.schedulemc.cheese.menu.PasteurizationStationMenu(id, inv, this);
     }
 }

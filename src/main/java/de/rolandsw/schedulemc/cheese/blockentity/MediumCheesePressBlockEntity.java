@@ -33,6 +33,6 @@ public class MediumCheesePressBlockEntity extends AbstractCheesePressBlockEntity
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int id, @NotNull Inventory inv, @NotNull Player p) {
-        return null; // Menu will be created later
+        return new de.rolandsw.schedulemc.cheese.menu.MediumCheesePressMenu(id, inv, this);
     }
 }
