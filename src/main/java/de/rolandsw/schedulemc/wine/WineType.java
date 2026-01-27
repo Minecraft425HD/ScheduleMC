@@ -1,6 +1,6 @@
 package de.rolandsw.schedulemc.wine;
 
-import de.rolandsw.schedulemc.interfaces.ProductionType;
+import de.rolandsw.schedulemc.production.core.ProductionType;
 
 /**
  * Weintypen mit verschiedenen Eigenschaften

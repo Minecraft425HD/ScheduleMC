@@ -1,6 +1,6 @@
 package de.rolandsw.schedulemc.cheese;
 
-import de.rolandsw.schedulemc.interfaces.ProductionType;
+import de.rolandsw.schedulemc.production.core.ProductionType;
 
 /**
  * Kasetypen mit verschiedenen Eigenschaften
