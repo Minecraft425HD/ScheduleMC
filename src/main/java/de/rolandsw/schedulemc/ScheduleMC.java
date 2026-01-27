@@ -76,6 +76,11 @@ import de.rolandsw.schedulemc.coffee.blocks.CoffeeBlocks;
 import de.rolandsw.schedulemc.coffee.blockentity.CoffeeBlockEntities;
 import de.rolandsw.schedulemc.coffee.menu.CoffeeMenuTypes;
 import de.rolandsw.schedulemc.coffee.network.CoffeeNetworking;
+import de.rolandsw.schedulemc.wine.items.WineItems;
+import de.rolandsw.schedulemc.wine.blocks.WineBlocks;
+import de.rolandsw.schedulemc.wine.blockentity.WineBlockEntities;
+import de.rolandsw.schedulemc.wine.menu.WineMenuTypes;
+import de.rolandsw.schedulemc.wine.network.WineNetworking;
 import de.rolandsw.schedulemc.tobacco.menu.ModMenuTypes;
 import de.rolandsw.schedulemc.tobacco.entity.ModEntities;
 import de.rolandsw.schedulemc.economy.blocks.EconomyBlocks;
@@ -206,6 +211,13 @@ public class ScheduleMC {
         CoffeeBlockEntities.BLOCK_ENTITIES.register(modEventBus);
         CoffeeMenuTypes.MENUS.register(modEventBus);
 
+        // Wine-System registrieren
+        WineItems.ITEMS.register(modEventBus);
+        WineBlocks.BLOCKS.register(modEventBus);
+        WineBlocks.ITEMS.register(modEventBus);
+        WineBlockEntities.BLOCK_ENTITIES.register(modEventBus);
+        WineMenuTypes.MENUS.register(modEventBus);
+
         EconomyBlocks.BLOCKS.register(modEventBus);
         EconomyBlocks.ITEMS.register(modEventBus);
         de.rolandsw.schedulemc.region.blocks.PlotBlocks.BLOCKS.register(modEventBus);
@@ -258,6 +270,7 @@ public class ScheduleMC {
             NPCNetworkHandler.register();
             ModNetworking.register();
             CoffeeNetworking.register();
+            WineNetworking.register();
             SmartphoneNetworkHandler.register();
             MessageNetworkHandler.register();
             WarehouseNetworkHandler.register();
