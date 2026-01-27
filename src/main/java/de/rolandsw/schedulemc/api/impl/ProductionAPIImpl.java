@@ -8,6 +8,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.server.MinecraftServer;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,7 +39,7 @@ public class ProductionAPIImpl implements IProductionAPI {
         if (productionId == null) {
             throw new IllegalArgumentException("productionId cannot be null");
         }
-        return productionRegistry.getProduction(productionId);
+        return productionRegistry.get(productionId);
     }
 
     /**
@@ -49,7 +50,7 @@ public class ProductionAPIImpl implements IProductionAPI {
         if (productionId == null) {
             throw new IllegalArgumentException("productionId cannot be null");
         }
-        return productionRegistry.hasProduction(productionId);
+        return productionRegistry.has(productionId);
     }
 
     /**
@@ -57,7 +58,7 @@ public class ProductionAPIImpl implements IProductionAPI {
      */
     @Override
     public Collection<ProductionConfig> getAllProductions() {
-        return productionRegistry.getAllProductions();
+        return new ArrayList<>(productionRegistry.getAll());
     }
 
     /**
@@ -100,7 +101,7 @@ public class ProductionAPIImpl implements IProductionAPI {
      */
     @Override
     public int getProductionCount() {
-        return productionRegistry.getProductionCount();
+        return productionRegistry.getCount();
     }
 
     /**

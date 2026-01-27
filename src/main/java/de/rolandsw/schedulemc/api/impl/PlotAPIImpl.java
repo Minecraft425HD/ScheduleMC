@@ -80,7 +80,7 @@ public class PlotAPIImpl implements IPlotAPI {
     @Override
     public List<PlotRegion> getAvailablePlots() {
         return plotManager.getPlots().stream()
-            .filter(plot -> plot.getOwner() == null)
+            .filter(plot -> !plot.hasOwner())
             .collect(Collectors.toList());
     }
 

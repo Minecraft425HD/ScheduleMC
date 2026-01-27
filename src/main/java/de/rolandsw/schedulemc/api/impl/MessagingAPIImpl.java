@@ -44,9 +44,9 @@ public class MessagingAPIImpl implements IMessagingAPI {
         if (playerUUID == null) {
             throw new IllegalArgumentException("playerUUID cannot be null");
         }
-        // Stub: Count unread messages from conversations
-        List<de.rolandsw.schedulemc.messaging.Conversation> convs = MessageManager.getConversations(playerUUID);
-        return (int) convs.stream().filter(c -> c.hasUnreadMessages()).count();
+        // Note: Conversation class doesn't track read/unread status
+        // This would need to be implemented in the messaging system
+        return 0;
     }
 
     /**
@@ -79,9 +79,8 @@ public class MessagingAPIImpl implements IMessagingAPI {
         if (playerUUID == null) {
             throw new IllegalArgumentException("playerUUID cannot be null");
         }
-        // Stub: Mark all conversations as read
-        List<de.rolandsw.schedulemc.messaging.Conversation> convs = MessageManager.getConversations(playerUUID);
-        convs.forEach(c -> c.markAsRead());
+        // Note: Conversation class doesn't support marking as read
+        // This would need to be implemented in the messaging system
     }
 
     /**

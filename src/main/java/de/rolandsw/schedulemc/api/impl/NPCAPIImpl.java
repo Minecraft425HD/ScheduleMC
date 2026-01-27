@@ -142,7 +142,7 @@ public class NPCAPIImpl implements INPCAPI {
             throw new IllegalArgumentException("npc and homePos cannot be null");
         }
         // Access through npcData
-        npc.getNpcData().setHomePosition(homePos);
+        npc.getNpcData().setHomeLocation(homePos);
     }
 
     /**
@@ -154,7 +154,7 @@ public class NPCAPIImpl implements INPCAPI {
             throw new IllegalArgumentException("npc and workPos cannot be null");
         }
         // Access through npcData
-        npc.getNpcData().setWorkPosition(workPos);
+        npc.getNpcData().setWorkLocation(workPos);
     }
 
     /**
@@ -166,6 +166,6 @@ public class NPCAPIImpl implements INPCAPI {
             throw new IllegalArgumentException("npc and type cannot be null");
         }
         // Access through npcData
-        npc.getNpcData().setType(type);
+        npc.getNpcData().setNpcType(type);
     }
 }
