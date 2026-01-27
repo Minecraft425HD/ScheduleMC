@@ -48,7 +48,6 @@ public enum CoffeeQuality implements ProductionQuality {
         return priceMultiplier;
     }
 
-    @Override
     public double getYieldMultiplier() {
         return priceMultiplier;
     }

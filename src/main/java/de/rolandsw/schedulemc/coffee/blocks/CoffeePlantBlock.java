@@ -127,23 +127,19 @@ public class CoffeePlantBlock extends Block {
 
             var be = level.getBlockEntity(potPos);
             if (be instanceof PlantPotBlockEntity potBE) {
-                var potData = potBE.getPotData();
-                if (potData.hasCoffeePlant()) {
-                    var plant = potData.getPlant();
-
-                    if (plant.isFullyGrown()) {
-                        // TODO: Ernte Kaffeekirschen implementieren
-                        player.displayClientMessage(Component.literal("Coffee cherries harvested!"), true);
-                    } else {
-                        player.displayClientMessage(Component.translatable(
-                            "block.plant_pot.coffee_not_fully_grown",
-                            (plant.getGrowthStage() * 100 / 9)
-                        ), true);
-                    }
-
-                    potData.clearPlant();
-                    potBE.setChanged();
+                // Coffee plants grow as separate blocks on top of pots
+                // They don't use the PlantPotData system
+                int age = state.getValue(AGE);
+                if (age >= 9) {
+                    // TODO: Ernte Kaffeekirschen implementieren
+                    player.displayClientMessage(Component.literal("Coffee cherries harvested!"), true);
+                } else {
+                    player.displayClientMessage(Component.translatable(
+                        "block.plant_pot.coffee_not_fully_grown",
+                        (age * 100 / 9)
+                    ), true);
                 }
+                potBE.setChanged();
             }
 
             if (half == DoubleBlockHalf.UPPER) {

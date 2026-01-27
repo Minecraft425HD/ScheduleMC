@@ -19,7 +19,7 @@ public class BrewedCoffeeItem extends Item {
 
     public BrewedCoffeeItem() {
         super(new Properties().stacksTo(16).food(
-            net.minecraft.world.food.FoodProperties.Builder.of()
+            new net.minecraft.world.food.FoodProperties.Builder()
                 .nutrition(1)
                 .saturationMod(0.1f)
                 .alwaysEat()

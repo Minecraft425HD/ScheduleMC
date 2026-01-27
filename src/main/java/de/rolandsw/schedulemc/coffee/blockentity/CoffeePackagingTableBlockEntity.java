@@ -7,9 +7,14 @@ import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -27,7 +32,7 @@ import org.jetbrains.annotations.Nullable;
  * Slot 1: Packaging Material (Coffee Bags)
  * Slot 2: Output (Packaged Coffee)
  */
-public class CoffeePackagingTableBlockEntity extends BlockEntity implements IUtilityConsumer {
+public class CoffeePackagingTableBlockEntity extends BlockEntity implements IUtilityConsumer, MenuProvider {
 
     private boolean lastActiveState = false;
 
@@ -284,5 +289,17 @@ public class CoffeePackagingTableBlockEntity extends BlockEntity implements IUti
     @Override
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public Component getDisplayName() {
+        return Component.translatable("block.schedulemc.coffee_packaging_table");
+    }
+
+    @Nullable
+    @Override
+    public AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
+        // TODO: Implement menu when GUI is created
+        return null;
     }
 }
