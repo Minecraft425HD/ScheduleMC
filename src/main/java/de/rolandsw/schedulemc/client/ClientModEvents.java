@@ -27,6 +27,8 @@ import de.rolandsw.schedulemc.cannabis.menu.CannabisMenuTypes;
 import de.rolandsw.schedulemc.cannabis.screen.TrimmStationScreen;
 import de.rolandsw.schedulemc.towing.menu.TowingMenuTypes;
 import de.rolandsw.schedulemc.towing.screen.TowingInvoiceScreen;
+import de.rolandsw.schedulemc.coffee.menu.CoffeeMenuTypes;
+import de.rolandsw.schedulemc.coffee.screen.*;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -77,6 +79,17 @@ public class ClientModEvents {
 
                 // Towing-System
                 MenuScreens.register(TowingMenuTypes.TOWING_INVOICE.get(), TowingInvoiceScreen::new);
+
+                // Coffee-System
+                MenuScreens.register(CoffeeMenuTypes.SMALL_DRYING_TRAY_MENU.get(), SmallDryingTrayScreen::new);
+                MenuScreens.register(CoffeeMenuTypes.MEDIUM_DRYING_TRAY_MENU.get(), MediumDryingTrayScreen::new);
+                MenuScreens.register(CoffeeMenuTypes.LARGE_DRYING_TRAY_MENU.get(), LargeDryingTrayScreen::new);
+                MenuScreens.register(CoffeeMenuTypes.WET_PROCESSING_STATION_MENU.get(), WetProcessingStationScreen::new);
+                MenuScreens.register(CoffeeMenuTypes.SMALL_COFFEE_ROASTER_MENU.get(), SmallCoffeeRoasterScreen::new);
+                MenuScreens.register(CoffeeMenuTypes.MEDIUM_COFFEE_ROASTER_MENU.get(), MediumCoffeeRoasterScreen::new);
+                MenuScreens.register(CoffeeMenuTypes.LARGE_COFFEE_ROASTER_MENU.get(), LargeCoffeeRoasterScreen::new);
+                MenuScreens.register(CoffeeMenuTypes.COFFEE_GRINDER_MENU.get(), CoffeeGrinderScreen::new);
+                MenuScreens.register(CoffeeMenuTypes.COFFEE_PACKAGING_TABLE_MENU.get(), CoffeePackagingTableScreen::new);
             });
         }, "onClientSetup");
     }
