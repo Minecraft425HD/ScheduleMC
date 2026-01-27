@@ -66,6 +66,6 @@ public class BeerMenuTypes {
 
     // Bottling Station
     public static final RegistryObject<MenuType<BottlingStationMenu>> BOTTLING_STATION_MENU =
-        MENUS.register("bottling_station_menu", () ->
+        MENUS.register("beer_bottling_station_menu", () ->
             IForgeMenuType.create(BottlingStationMenu::new));
 }
