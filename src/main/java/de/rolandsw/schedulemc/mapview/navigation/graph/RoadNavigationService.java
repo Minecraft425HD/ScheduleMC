@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.mapview.navigation.graph;
 
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.mapview.service.data.WorldMapData;
+import de.rolandsw.schedulemc.util.ThreadPoolManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -122,7 +123,7 @@ public class RoadNavigationService {
                 LOGGER.error("[RoadNavigationService] Error building graph", e);
                 return null;
             }
-        }, executor);
+        }, ThreadPoolManager.getComputationPool());
     }
 
     /**
