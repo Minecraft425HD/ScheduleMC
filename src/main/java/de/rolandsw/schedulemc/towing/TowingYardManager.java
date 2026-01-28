@@ -326,27 +326,111 @@ public class TowingYardManager {
         protected void onDataLoaded(Map<String, ParkingSpotSaveData> data) {
             parkingSpots.clear();
 
+            int invalidCount = 0;
+            int correctedCount = 0;
+
+            // NULL CHECK
+            if (data == null) {
+                LOGGER.warn("Null data loaded for parking spots");
+                invalidCount++;
+                return;
+            }
+
+            // Check collection size
+            if (data.size() > 10000) {
+                LOGGER.warn("Parking spots map size ({}) exceeds limit, potential corruption",
+                    data.size());
+                correctedCount++;
+            }
+
             data.forEach((spotIdStr, saveData) -> {
                 try {
-                    UUID spotId = UUID.fromString(spotIdStr);
-                    String towingYardPlotId = saveData.towingYardPlotId;
+                    // VALIDATE UUID STRING
+                    if (spotIdStr == null || spotIdStr.isEmpty()) {
+                        LOGGER.warn("Null/empty spot ID string, skipping");
+                        return;
+                    }
 
-                    BlockPos location = new BlockPos(
-                        Integer.parseInt(saveData.locationX),
-                        Integer.parseInt(saveData.locationY),
-                        Integer.parseInt(saveData.locationZ)
-                    );
+                    // NULL CHECK
+                    if (saveData == null) {
+                        LOGGER.warn("Null parking spot data for ID {}, skipping", spotIdStr);
+                        return;
+                    }
+
+                    UUID spotId;
+                    try {
+                        spotId = UUID.fromString(spotIdStr);
+                    } catch (IllegalArgumentException e) {
+                        LOGGER.error("Invalid spot UUID: {}", spotIdStr, e);
+                        return;
+                    }
+
+                    // VALIDATE TOWING YARD PLOT ID
+                    if (saveData.towingYardPlotId == null || saveData.towingYardPlotId.isEmpty()) {
+                        LOGGER.warn("Spot {} has null/empty towing yard plot ID, skipping", spotId);
+                        return;
+                    }
+
+                    // VALIDATE LOCATION COORDINATES
+                    if (saveData.locationX == null || saveData.locationY == null || saveData.locationZ == null) {
+                        LOGGER.warn("Spot {} has null location coordinates, skipping", spotId);
+                        return;
+                    }
+
+                    BlockPos location;
+                    try {
+                        location = new BlockPos(
+                            Integer.parseInt(saveData.locationX),
+                            Integer.parseInt(saveData.locationY),
+                            Integer.parseInt(saveData.locationZ)
+                        );
+                    } catch (NumberFormatException e) {
+                        LOGGER.error("Invalid location coordinates for spot {}: {}, {}, {}",
+                            spotId, saveData.locationX, saveData.locationY, saveData.locationZ);
+                        return;
+                    }
+
+                    String towingYardPlotId = saveData.towingYardPlotId;
 
                     TowingYardParkingSpot spot = new TowingYardParkingSpot(spotId, location, towingYardPlotId);
 
                     if (saveData.occupied && saveData.vehicleEntityId != null && saveData.ownerPlayerId != null) {
-                        spot.parkVehicle(
-                            UUID.fromString(saveData.vehicleEntityId),
-                            UUID.fromString(saveData.ownerPlayerId),
-                            saveData.owedAmount,
-                            saveData.originalDamage,
-                            saveData.engineWasRunning
-                        );
+                        try {
+                            UUID vehicleId = UUID.fromString(saveData.vehicleEntityId);
+                            UUID ownerId = UUID.fromString(saveData.ownerPlayerId);
+
+                            // VALIDATE OWED AMOUNT (>= 0)
+                            if (saveData.owedAmount < 0) {
+                                LOGGER.warn("Spot {} has negative owed amount {}, resetting to 0",
+                                    spotId, saveData.owedAmount);
+                                saveData.owedAmount = 0;
+                            }
+
+                            // VALIDATE ORIGINAL DAMAGE (0-1)
+                            if (saveData.originalDamage < 0 || saveData.originalDamage > 1) {
+                                LOGGER.warn("Spot {} has invalid original damage {}, clamping to 0-1",
+                                    spotId, saveData.originalDamage);
+                                saveData.originalDamage = Math.max(0, Math.min(1, saveData.originalDamage));
+                            }
+
+                            // VALIDATE TOWED TIMESTAMP (>= 0)
+                            if (saveData.towedTimestamp < 0) {
+                                LOGGER.warn("Spot {} has negative towed timestamp {}, resetting to 0",
+                                    spotId, saveData.towedTimestamp);
+                                saveData.towedTimestamp = 0;
+                            }
+
+                            spot.parkVehicle(
+                                vehicleId,
+                                ownerId,
+                                saveData.owedAmount,
+                                saveData.originalDamage,
+                                saveData.engineWasRunning
+                            );
+                        } catch (IllegalArgumentException e) {
+                            LOGGER.error("Invalid vehicle/owner UUID for spot {}: vehicle={}, owner={}",
+                                spotId, saveData.vehicleEntityId, saveData.ownerPlayerId, e);
+                        }
                     }
 
                     parkingSpots.put(spotId, spot);
@@ -354,6 +438,15 @@ public class TowingYardManager {
                     LOGGER.error("Invalid parking spot data: {}", spotIdStr, e);
                 }
             });
+
+            // SUMMARY
+            if (invalidCount > 0 || correctedCount > 0) {
+                LOGGER.warn("Data validation: {} invalid entries, {} corrected entries",
+                    invalidCount, correctedCount);
+                if (correctedCount > 0) {
+                    markDirty(); // Re-save corrected data
+                }
+            }
         }
 
         @Override

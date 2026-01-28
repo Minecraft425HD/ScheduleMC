@@ -163,9 +163,62 @@ public class PlayerTracker {
         protected void onDataLoaded(Map<String, PlayerContactData> data) {
             playerContacts.clear();
 
+            int invalidCount = 0;
+            int correctedCount = 0;
+
+            // NULL CHECK
+            if (data == null) {
+                LOGGER.warn("Null data loaded for player contacts");
+                invalidCount++;
+                return;
+            }
+
+            // Check collection size
+            if (data.size() > 10000) {
+                LOGGER.warn("Player contacts map size ({}) exceeds limit, potential corruption",
+                    data.size());
+                correctedCount++;
+            }
+
             data.forEach((uuidStr, contactData) -> {
                 try {
-                    UUID uuid = UUID.fromString(uuidStr);
+                    // VALIDATE UUID STRING
+                    if (uuidStr == null || uuidStr.isEmpty()) {
+                        LOGGER.warn("Null/empty UUID string in player contacts, skipping");
+                        return;
+                    }
+
+                    // NULL CHECK
+                    if (contactData == null) {
+                        LOGGER.warn("Null contact data for UUID {}, skipping", uuidStr);
+                        return;
+                    }
+
+                    UUID uuid;
+                    try {
+                        uuid = UUID.fromString(uuidStr);
+                    } catch (IllegalArgumentException e) {
+                        LOGGER.error("Invalid UUID in player contacts: {}", uuidStr, e);
+                        return;
+                    }
+
+                    // VALIDATE NAME
+                    if (contactData.name == null || contactData.name.isEmpty()) {
+                        LOGGER.warn("Player contact {} has null/empty name, setting default", uuid);
+                        contactData.name = "Unknown Player";
+                    } else if (contactData.name.length() > 100) {
+                        LOGGER.warn("Player contact {} name too long ({} chars), truncating",
+                            uuid, contactData.name.length());
+                        contactData.name = contactData.name.substring(0, 100);
+                    }
+
+                    // VALIDATE LAST SEEN (>= 0)
+                    if (contactData.lastSeen < 0) {
+                        LOGGER.warn("Player contact {} has negative lastSeen {}, resetting to 0",
+                            uuid, contactData.lastSeen);
+                        contactData.lastSeen = 0;
+                    }
+
                     PlayerContact contact = new PlayerContact(uuid, contactData.name);
                     contact.setLastSeen(contactData.lastSeen);
                     playerContacts.put(uuid, contact);
@@ -173,6 +226,15 @@ public class PlayerTracker {
                     LOGGER.error("Invalid UUID in player contacts: {}", uuidStr, e);
                 }
             });
+
+            // SUMMARY
+            if (invalidCount > 0 || correctedCount > 0) {
+                LOGGER.warn("Data validation: {} invalid entries, {} corrected entries",
+                    invalidCount, correctedCount);
+                if (correctedCount > 0) {
+                    markDirty(); // Re-save corrected data
+                }
+            }
         }
 
         @Override

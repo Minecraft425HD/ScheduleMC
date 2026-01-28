@@ -60,18 +60,104 @@ public class TaxManager extends AbstractPersistenceManager<Map<String, Object>> 
         lastTaxDay.clear();
         taxDebt.clear();
 
+        int invalidCount = 0;
+        int correctedCount = 0;
+
+        // NULL CHECK
+        if (data == null) {
+            LOGGER.warn("Null data loaded for tax manager");
+            invalidCount++;
+            return;
+        }
+
         // Load lastTaxDay
         Object lastTaxObj = data.get("lastTaxDay");
         if (lastTaxObj instanceof Map) {
-            ((Map<String, Number>) lastTaxObj).forEach((k, v) ->
-                lastTaxDay.put(UUID.fromString(k), v.longValue()));
+            ((Map<String, Number>) lastTaxObj).forEach((k, v) -> {
+                try {
+                    // VALIDATE UUID STRING
+                    if (k == null || k.isEmpty()) {
+                        LOGGER.warn("Null/empty UUID string in lastTaxDay, skipping");
+                        return;
+                    }
+
+                    UUID playerUUID;
+                    try {
+                        playerUUID = UUID.fromString(k);
+                    } catch (IllegalArgumentException e) {
+                        LOGGER.error("Invalid UUID in lastTaxDay: {}", k, e);
+                        return;
+                    }
+
+                    // NULL CHECK
+                    if (v == null) {
+                        LOGGER.warn("Null last tax day for player {}, skipping", playerUUID);
+                        return;
+                    }
+
+                    // VALIDATE DAY (>= 0)
+                    long day = v.longValue();
+                    if (day < 0) {
+                        LOGGER.warn("Player {} has negative last tax day {}, resetting to 0",
+                            playerUUID, day);
+                        lastTaxDay.put(playerUUID, 0L);
+                    } else {
+                        lastTaxDay.put(playerUUID, day);
+                    }
+                } catch (Exception e) {
+                    LOGGER.error("Error loading lastTaxDay for {}", k, e);
+                }
+            });
         }
 
         // Load taxDebt
         Object debtObj = data.get("taxDebt");
         if (debtObj instanceof Map) {
-            ((Map<String, Number>) debtObj).forEach((k, v) ->
-                taxDebt.put(UUID.fromString(k), v.doubleValue()));
+            ((Map<String, Number>) debtObj).forEach((k, v) -> {
+                try {
+                    // VALIDATE UUID STRING
+                    if (k == null || k.isEmpty()) {
+                        LOGGER.warn("Null/empty UUID string in taxDebt, skipping");
+                        return;
+                    }
+
+                    UUID playerUUID;
+                    try {
+                        playerUUID = UUID.fromString(k);
+                    } catch (IllegalArgumentException e) {
+                        LOGGER.error("Invalid UUID in taxDebt: {}", k, e);
+                        return;
+                    }
+
+                    // NULL CHECK
+                    if (v == null) {
+                        LOGGER.warn("Null tax debt for player {}, setting to 0", playerUUID);
+                        taxDebt.put(playerUUID, 0.0);
+                        return;
+                    }
+
+                    // VALIDATE DEBT (>= 0)
+                    double debt = v.doubleValue();
+                    if (debt < 0) {
+                        LOGGER.warn("Player {} has negative tax debt {}, resetting to 0",
+                            playerUUID, debt);
+                        taxDebt.put(playerUUID, 0.0);
+                    } else {
+                        taxDebt.put(playerUUID, debt);
+                    }
+                } catch (Exception e) {
+                    LOGGER.error("Error loading taxDebt for {}", k, e);
+                }
+            });
+        }
+
+        // SUMMARY
+        if (invalidCount > 0 || correctedCount > 0) {
+            LOGGER.warn("Data validation: {} invalid entries, {} corrected entries",
+                invalidCount, correctedCount);
+            if (correctedCount > 0) {
+                markDirty(); // Re-save corrected data
+            }
         }
     }
 

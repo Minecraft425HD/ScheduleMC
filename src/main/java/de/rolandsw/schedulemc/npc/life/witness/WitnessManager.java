@@ -475,14 +475,131 @@ public class WitnessManager extends AbstractPersistenceManager<WitnessManager.Wi
         wantedPlayers.clear();
         bounties.clear();
 
+        int invalidCount = 0;
+        int correctedCount = 0;
+
+        // Validate and load reports
         if (data.reports != null) {
-            reportsByCriminal.putAll(data.reports);
+            // Check collection size
+            if (data.reports.size() > 10000) {
+                LOGGER.warn("Reports map size ({}) exceeds limit, potential corruption",
+                    data.reports.size());
+                correctedCount++;
+            }
+
+            for (Map.Entry<UUID, List<WitnessReport>> entry : data.reports.entrySet()) {
+                try {
+                    UUID criminalUUID = entry.getKey();
+                    List<WitnessReport> reports = entry.getValue();
+
+                    // NULL CHECK
+                    if (reports == null) {
+                        LOGGER.warn("Null reports list for criminal {}, skipping", criminalUUID);
+                        invalidCount++;
+                        continue;
+                    }
+
+                    // VALIDATE LIST SIZE
+                    if (reports.size() > 1000) {
+                        LOGGER.warn("Criminal {} has too many reports ({}), truncating to 1000",
+                            criminalUUID, reports.size());
+                        reports = new ArrayList<>(reports.subList(0, 1000));
+                        correctedCount++;
+                    }
+
+                    // VALIDATE REPORTS - check for null entries
+                    List<WitnessReport> validReports = new ArrayList<>();
+                    for (WitnessReport report : reports) {
+                        if (report == null) {
+                            LOGGER.warn("Criminal {} has null report, skipping", criminalUUID);
+                            invalidCount++;
+                            continue;
+                        }
+                        validReports.add(report);
+                    }
+
+                    if (validReports.size() != reports.size()) {
+                        correctedCount++;
+                    }
+
+                    reportsByCriminal.put(criminalUUID, validReports);
+                } catch (Exception e) {
+                    LOGGER.error("Error loading reports for criminal {}", entry.getKey(), e);
+                    invalidCount++;
+                }
+            }
         }
+
+        // Validate and load wantedPlayers
         if (data.wantedPlayers != null) {
-            wantedPlayers.addAll(data.wantedPlayers);
+            // Check collection size
+            if (data.wantedPlayers.size() > 10000) {
+                LOGGER.warn("Wanted players set size ({}) exceeds limit, potential corruption",
+                    data.wantedPlayers.size());
+                correctedCount++;
+            }
+
+            for (UUID playerUUID : data.wantedPlayers) {
+                try {
+                    // NULL CHECK
+                    if (playerUUID == null) {
+                        LOGGER.warn("Null UUID in wanted players set, skipping");
+                        invalidCount++;
+                        continue;
+                    }
+
+                    wantedPlayers.add(playerUUID);
+                } catch (Exception e) {
+                    LOGGER.error("Error loading wanted player UUID", e);
+                    invalidCount++;
+                }
+            }
         }
+
+        // Validate and load bounties
         if (data.bounties != null) {
-            bounties.putAll(data.bounties);
+            // Check collection size
+            if (data.bounties.size() > 10000) {
+                LOGGER.warn("Bounties map size ({}) exceeds limit, potential corruption",
+                    data.bounties.size());
+                correctedCount++;
+            }
+
+            for (Map.Entry<UUID, Integer> entry : data.bounties.entrySet()) {
+                try {
+                    UUID playerUUID = entry.getKey();
+                    Integer bountyAmount = entry.getValue();
+
+                    // NULL CHECK
+                    if (bountyAmount == null) {
+                        LOGGER.warn("Null bounty amount for player {}, skipping", playerUUID);
+                        invalidCount++;
+                        continue;
+                    }
+
+                    // VALIDATE BOUNTY AMOUNT (>= 0)
+                    if (bountyAmount < 0) {
+                        LOGGER.warn("Player {} has negative bounty {}, resetting to 0",
+                            playerUUID, bountyAmount);
+                        bountyAmount = 0;
+                        correctedCount++;
+                    }
+
+                    bounties.put(playerUUID, bountyAmount);
+                } catch (Exception e) {
+                    LOGGER.error("Error loading bounty for player {}", entry.getKey(), e);
+                    invalidCount++;
+                }
+            }
+        }
+
+        // SUMMARY
+        if (invalidCount > 0 || correctedCount > 0) {
+            LOGGER.warn("Data validation: {} invalid entries, {} corrected entries",
+                invalidCount, correctedCount);
+            if (correctedCount > 0) {
+                markDirty(); // Re-save corrected data
+            }
         }
     }
 

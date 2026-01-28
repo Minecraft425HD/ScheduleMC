@@ -187,8 +187,55 @@ public class CreditScoreManager extends AbstractPersistenceManager<Map<UUID, Cre
     @Override
     protected void onDataLoaded(Map<UUID, CreditScore> data) {
         creditScores.clear();
-        if (data != null) {
-            creditScores.putAll(data);
+
+        int invalidCount = 0;
+        int correctedCount = 0;
+
+        // NULL CHECK
+        if (data == null) {
+            LOGGER.warn("Null data loaded for credit scores");
+            invalidCount++;
+            return;
+        }
+
+        // Check collection size
+        if (data.size() > 10000) {
+            LOGGER.warn("Credit scores map size ({}) exceeds limit, potential corruption",
+                data.size());
+            correctedCount++;
+        }
+
+        for (Map.Entry<UUID, CreditScore> entry : data.entrySet()) {
+            try {
+                UUID playerUUID = entry.getKey();
+                CreditScore score = entry.getValue();
+
+                // NULL CHECK
+                if (playerUUID == null) {
+                    LOGGER.warn("Null player UUID in credit scores, skipping");
+                    invalidCount++;
+                    continue;
+                }
+                if (score == null) {
+                    LOGGER.warn("Null credit score for player {}, skipping", playerUUID);
+                    invalidCount++;
+                    continue;
+                }
+
+                creditScores.put(playerUUID, score);
+            } catch (Exception e) {
+                LOGGER.error("Error loading credit score for player {}", entry.getKey(), e);
+                invalidCount++;
+            }
+        }
+
+        // SUMMARY
+        if (invalidCount > 0 || correctedCount > 0) {
+            LOGGER.warn("Data validation: {} invalid entries, {} corrected entries",
+                invalidCount, correctedCount);
+            if (correctedCount > 0) {
+                markDirty(); // Re-save corrected data
+            }
         }
     }
 

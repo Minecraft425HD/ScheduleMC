@@ -278,8 +278,59 @@ public class BountyManager extends AbstractPersistenceManager<Map<UUID, BountyDa
     @Override
     protected void onDataLoaded(Map<UUID, BountyData> data) {
         activeBounties.clear();
-        activeBounties.putAll(data);
+
+        int invalidCount = 0;
+        int correctedCount = 0;
+
+        // NULL CHECK
+        if (data == null) {
+            LOGGER.warn("Null data loaded for bounties");
+            invalidCount++;
+            cleanupExpiredBounties();
+            return;
+        }
+
+        // Check collection size
+        if (data.size() > 10000) {
+            LOGGER.warn("Bounties map size ({}) exceeds limit, potential corruption",
+                data.size());
+            correctedCount++;
+        }
+
+        for (Map.Entry<UUID, BountyData> entry : data.entrySet()) {
+            try {
+                UUID targetUUID = entry.getKey();
+                BountyData bounty = entry.getValue();
+
+                // NULL CHECK
+                if (targetUUID == null) {
+                    LOGGER.warn("Null target UUID in bounties, skipping");
+                    invalidCount++;
+                    continue;
+                }
+                if (bounty == null) {
+                    LOGGER.warn("Null bounty for target {}, skipping", targetUUID);
+                    invalidCount++;
+                    continue;
+                }
+
+                activeBounties.put(targetUUID, bounty);
+            } catch (Exception e) {
+                LOGGER.error("Error loading bounty for target {}", entry.getKey(), e);
+                invalidCount++;
+            }
+        }
+
         cleanupExpiredBounties();
+
+        // SUMMARY
+        if (invalidCount > 0 || correctedCount > 0) {
+            LOGGER.warn("Data validation: {} invalid entries, {} corrected entries",
+                invalidCount, correctedCount);
+            if (correctedCount > 0) {
+                markDirty(); // Re-save corrected data
+            }
+        }
     }
 
     @Override

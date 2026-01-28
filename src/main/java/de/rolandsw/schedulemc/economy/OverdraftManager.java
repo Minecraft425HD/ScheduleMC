@@ -472,22 +472,83 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
         lastWarningDay.clear();
         lastInterestDay.clear();
 
+        int invalidCount = 0;
+        int correctedCount = 0;
+
+        // NULL CHECK
+        if (data == null) {
+            LOGGER.warn("Null data loaded for overdraft manager");
+            invalidCount++;
+            return;
+        }
+
+        // Load debtStartDay
         Object debtStartObj = data.get("debtStartDay");
         if (debtStartObj instanceof Map) {
-            ((Map<String, Number>) debtStartObj).forEach((k, v) ->
-                debtStartDay.put(UUID.fromString(k), v.longValue()));
+            ((Map<String, Number>) debtStartObj).forEach((k, v) -> {
+                try {
+                    if (k == null || k.isEmpty()) return;
+                    UUID playerUUID = UUID.fromString(k);
+                    long day = v != null ? v.longValue() : 0;
+                    if (day < 0) {
+                        LOGGER.warn("Player {} has negative debt start day {}, resetting to 0",
+                            playerUUID, day);
+                        day = 0;
+                    }
+                    debtStartDay.put(playerUUID, day);
+                } catch (IllegalArgumentException e) {
+                    LOGGER.error("Invalid UUID in debtStartDay: {}", k, e);
+                }
+            });
         }
 
+        // Load lastWarningDay
         Object warningObj = data.get("lastWarningDay");
         if (warningObj instanceof Map) {
-            ((Map<String, Number>) warningObj).forEach((k, v) ->
-                lastWarningDay.put(UUID.fromString(k), v.longValue()));
+            ((Map<String, Number>) warningObj).forEach((k, v) -> {
+                try {
+                    if (k == null || k.isEmpty()) return;
+                    UUID playerUUID = UUID.fromString(k);
+                    long day = v != null ? v.longValue() : 0;
+                    if (day < 0) {
+                        LOGGER.warn("Player {} has negative warning day {}, resetting to 0",
+                            playerUUID, day);
+                        day = 0;
+                    }
+                    lastWarningDay.put(playerUUID, day);
+                } catch (IllegalArgumentException e) {
+                    LOGGER.error("Invalid UUID in lastWarningDay: {}", k, e);
+                }
+            });
         }
 
+        // Load lastInterestDay
         Object interestObj = data.get("lastInterestDay");
         if (interestObj instanceof Map) {
-            ((Map<String, Number>) interestObj).forEach((k, v) ->
-                lastInterestDay.put(UUID.fromString(k), v.longValue()));
+            ((Map<String, Number>) interestObj).forEach((k, v) -> {
+                try {
+                    if (k == null || k.isEmpty()) return;
+                    UUID playerUUID = UUID.fromString(k);
+                    long day = v != null ? v.longValue() : 0;
+                    if (day < 0) {
+                        LOGGER.warn("Player {} has negative interest day {}, resetting to 0",
+                            playerUUID, day);
+                        day = 0;
+                    }
+                    lastInterestDay.put(playerUUID, day);
+                } catch (IllegalArgumentException e) {
+                    LOGGER.error("Invalid UUID in lastInterestDay: {}", k, e);
+                }
+            });
+        }
+
+        // SUMMARY
+        if (invalidCount > 0 || correctedCount > 0) {
+            LOGGER.warn("Data validation: {} invalid entries, {} corrected entries",
+                invalidCount, correctedCount);
+            if (correctedCount > 0) {
+                markDirty(); // Re-save corrected data
+            }
         }
     }
 

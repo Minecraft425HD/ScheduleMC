@@ -293,12 +293,97 @@ public class CrimeManager {
             wantedLevels.clear();
             lastCrimeDay.clear();
 
-            for (Map.Entry<String, Integer> entry : data.wantedLevels.entrySet()) {
-                wantedLevels.put(UUID.fromString(entry.getKey()), entry.getValue());
+            int invalidCount = 0;
+            int correctedCount = 0;
+
+            // NULL CHECK
+            if (data == null) {
+                LOGGER.warn("Null data loaded for crime manager");
+                invalidCount++;
+                return;
             }
 
-            for (Map.Entry<String, Long> entry : data.lastCrimeDay.entrySet()) {
-                lastCrimeDay.put(UUID.fromString(entry.getKey()), entry.getValue());
+            // Load wantedLevels
+            if (data.wantedLevels != null) {
+                for (Map.Entry<String, Integer> entry : data.wantedLevels.entrySet()) {
+                    try {
+                        // VALIDATE UUID STRING
+                        if (entry.getKey() == null || entry.getKey().isEmpty()) {
+                            LOGGER.warn("Null/empty UUID string in wanted levels, skipping");
+                            invalidCount++;
+                            continue;
+                        }
+
+                        UUID playerUUID = UUID.fromString(entry.getKey());
+                        Integer level = entry.getValue();
+
+                        // NULL CHECK
+                        if (level == null) {
+                            LOGGER.warn("Null wanted level for player {}, setting to 0", playerUUID);
+                            level = 0;
+                            correctedCount++;
+                        }
+
+                        // VALIDATE WANTED LEVEL (>= 0)
+                        if (level < 0) {
+                            LOGGER.warn("Player {} has negative wanted level {}, resetting to 0",
+                                playerUUID, level);
+                            level = 0;
+                            correctedCount++;
+                        }
+
+                        wantedLevels.put(playerUUID, level);
+                    } catch (IllegalArgumentException e) {
+                        LOGGER.error("Invalid UUID in wanted levels: {}", entry.getKey(), e);
+                        invalidCount++;
+                    }
+                }
+            }
+
+            // Load lastCrimeDay
+            if (data.lastCrimeDay != null) {
+                for (Map.Entry<String, Long> entry : data.lastCrimeDay.entrySet()) {
+                    try {
+                        // VALIDATE UUID STRING
+                        if (entry.getKey() == null || entry.getKey().isEmpty()) {
+                            LOGGER.warn("Null/empty UUID string in last crime day, skipping");
+                            invalidCount++;
+                            continue;
+                        }
+
+                        UUID playerUUID = UUID.fromString(entry.getKey());
+                        Long day = entry.getValue();
+
+                        // NULL CHECK
+                        if (day == null) {
+                            LOGGER.warn("Null last crime day for player {}, setting to 0", playerUUID);
+                            day = 0L;
+                            correctedCount++;
+                        }
+
+                        // VALIDATE DAY (>= 0)
+                        if (day < 0) {
+                            LOGGER.warn("Player {} has negative last crime day {}, resetting to 0",
+                                playerUUID, day);
+                            day = 0L;
+                            correctedCount++;
+                        }
+
+                        lastCrimeDay.put(playerUUID, day);
+                    } catch (IllegalArgumentException e) {
+                        LOGGER.error("Invalid UUID in last crime day: {}", entry.getKey(), e);
+                        invalidCount++;
+                    }
+                }
+            }
+
+            // SUMMARY
+            if (invalidCount > 0 || correctedCount > 0) {
+                LOGGER.warn("Data validation: {} invalid entries, {} corrected entries",
+                    invalidCount, correctedCount);
+                if (correctedCount > 0) {
+                    markDirty(); // Re-save corrected data
+                }
             }
         }
 

@@ -462,13 +462,122 @@ public class WorldEventManager extends AbstractPersistenceManager<WorldEventMana
         activeEvents.clear();
         eventHistory.clear();
 
+        int invalidCount = 0;
+        int correctedCount = 0;
+
+        // Validate and load activeEvents
         if (data.activeEvents != null) {
-            activeEvents.addAll(data.activeEvents);
+            // Check collection size
+            if (data.activeEvents.size() > 1000) {
+                LOGGER.warn("Active events list size ({}) exceeds limit, potential corruption",
+                    data.activeEvents.size());
+                correctedCount++;
+            }
+
+            for (WorldEvent event : data.activeEvents) {
+                try {
+                    // NULL CHECK
+                    if (event == null) {
+                        LOGGER.warn("Null world event in active events, skipping");
+                        invalidCount++;
+                        continue;
+                    }
+
+                    activeEvents.add(event);
+                } catch (Exception e) {
+                    LOGGER.error("Error loading active event", e);
+                    invalidCount++;
+                }
+            }
         }
+
+        // Validate and load eventHistory
         if (data.eventHistory != null) {
-            eventHistory.putAll(data.eventHistory);
+            // Check collection size
+            if (data.eventHistory.size() > 10000) {
+                LOGGER.warn("Event history map size ({}) exceeds limit, potential corruption",
+                    data.eventHistory.size());
+                correctedCount++;
+            }
+
+            for (Map.Entry<Long, List<String>> entry : data.eventHistory.entrySet()) {
+                try {
+                    Long day = entry.getKey();
+                    List<String> eventIds = entry.getValue();
+
+                    // NULL CHECK
+                    if (day == null) {
+                        LOGGER.warn("Null day key in event history, skipping");
+                        invalidCount++;
+                        continue;
+                    }
+                    if (eventIds == null) {
+                        LOGGER.warn("Null event IDs list for day {}, skipping", day);
+                        invalidCount++;
+                        continue;
+                    }
+
+                    // VALIDATE DAY (>= 0)
+                    if (day < 0) {
+                        LOGGER.warn("Negative day {} in event history, skipping", day);
+                        invalidCount++;
+                        continue;
+                    }
+
+                    // VALIDATE LIST SIZE
+                    if (eventIds.size() > 100) {
+                        LOGGER.warn("Day {} has too many event IDs ({}), truncating to 100",
+                            day, eventIds.size());
+                        eventIds = new ArrayList<>(eventIds.subList(0, 100));
+                        correctedCount++;
+                    }
+
+                    // VALIDATE EVENT IDS - check for null or empty strings
+                    List<String> validEventIds = new ArrayList<>();
+                    for (String eventId : eventIds) {
+                        if (eventId == null || eventId.isEmpty()) {
+                            LOGGER.warn("Day {} has null/empty event ID, skipping", day);
+                            invalidCount++;
+                            continue;
+                        }
+                        if (eventId.length() > 200) {
+                            LOGGER.warn("Day {} has too long event ID ({} chars), skipping",
+                                day, eventId.length());
+                            invalidCount++;
+                            continue;
+                        }
+                        validEventIds.add(eventId);
+                    }
+
+                    if (validEventIds.size() != eventIds.size()) {
+                        correctedCount++;
+                    }
+
+                    eventHistory.put(day, validEventIds);
+                } catch (Exception e) {
+                    LOGGER.error("Error loading event history for day {}", entry.getKey(), e);
+                    invalidCount++;
+                }
+            }
         }
-        lastCheckedDay = data.lastCheckedDay;
+
+        // VALIDATE LAST CHECKED DAY
+        if (data.lastCheckedDay < -1) {
+            LOGGER.warn("Invalid lastCheckedDay {}, resetting to -1", data.lastCheckedDay);
+            lastCheckedDay = -1;
+            correctedCount++;
+        } else {
+            lastCheckedDay = data.lastCheckedDay;
+        }
+
+        // SUMMARY
+        if (invalidCount > 0 || correctedCount > 0) {
+            LOGGER.warn("Data validation: {} invalid entries, {} corrected entries",
+                invalidCount, correctedCount);
+            if (correctedCount > 0) {
+                markDirty(); // Re-save corrected data
+            }
+        }
     }
 
     @Override

@@ -190,32 +190,144 @@ public class MessageManager {
         protected void onDataLoaded(Map<String, Map<String, ConversationData>> data) {
             playerConversations.clear();
 
+            int invalidCount = 0;
+            int correctedCount = 0;
+
+            // NULL CHECK
+            if (data == null) {
+                LOGGER.warn("Null data loaded for messages");
+                invalidCount++;
+                return;
+            }
+
+            // Check collection size
+            if (data.size() > 10000) {
+                LOGGER.warn("Message data map size ({}) exceeds limit, potential corruption",
+                    data.size());
+                correctedCount++;
+            }
+
             data.forEach((playerKey, conversations) -> {
                 try {
-                    UUID playerUUID = UUID.fromString(playerKey);
+                    // VALIDATE UUID STRING
+                    if (playerKey == null || playerKey.isEmpty()) {
+                        LOGGER.warn("Null/empty player UUID string in messages, skipping");
+                        return;
+                    }
+
+                    // NULL CHECK
+                    if (conversations == null) {
+                        LOGGER.warn("Null conversations for player {}, skipping", playerKey);
+                        return;
+                    }
+
+                    UUID playerUUID;
+                    try {
+                        playerUUID = UUID.fromString(playerKey);
+                    } catch (IllegalArgumentException e) {
+                        LOGGER.error("Invalid player UUID: {}", playerKey, e);
+                        return;
+                    }
+
                     Map<UUID, Conversation> convMap = new ConcurrentHashMap<>();
 
                     conversations.forEach((participantKey, convData) -> {
                         try {
-                            UUID participantUUID = UUID.fromString(participantKey);
+                            // VALIDATE UUID STRING
+                            if (participantKey == null || participantKey.isEmpty()) {
+                                LOGGER.warn("Null/empty participant UUID string for player {}, skipping",
+                                    playerUUID);
+                                return;
+                            }
+
+                            // NULL CHECK
+                            if (convData == null) {
+                                LOGGER.warn("Null conversation data for player {} participant {}, skipping",
+                                    playerUUID, participantKey);
+                                return;
+                            }
+
+                            UUID participantUUID;
+                            try {
+                                participantUUID = UUID.fromString(participantKey);
+                            } catch (IllegalArgumentException e) {
+                                LOGGER.error("Invalid participant UUID: {}", participantKey, e);
+                                return;
+                            }
+
+                            // VALIDATE PARTICIPANT NAME
+                            String participantName = convData.participantName;
+                            if (participantName == null || participantName.isEmpty()) {
+                                participantName = "Unknown";
+                            } else if (participantName.length() > 100) {
+                                participantName = participantName.substring(0, 100);
+                            }
+
                             Conversation conv = new Conversation(
                                 participantUUID,
-                                convData.participantName,
+                                participantName,
                                 convData.isPlayerParticipant
                             );
 
-                            conv.setReputation(convData.reputation);
+                            // VALIDATE REPUTATION (-100 to 100)
+                            int reputation = convData.reputation;
+                            if (reputation < -100 || reputation > 100) {
+                                reputation = Math.max(-100, Math.min(100, reputation));
+                            }
+                            conv.setReputation(reputation);
 
-                            convData.messages.forEach(msgData -> {
-                                Message msg = new Message(
-                                    UUID.fromString(msgData.senderUUID),
-                                    msgData.senderName,
-                                    msgData.content,
-                                    msgData.timestamp,
-                                    msgData.isPlayerSender
-                                );
-                                conv.addMessage(msg);
-                            });
+                            // VALIDATE MESSAGES
+                            if (convData.messages != null) {
+                                convData.messages.forEach(msgData -> {
+                                    try {
+                                        if (msgData == null) return;
+
+                                        // VALIDATE SENDER UUID
+                                        if (msgData.senderUUID == null || msgData.senderUUID.isEmpty()) {
+                                            return;
+                                        }
+
+                                        UUID senderUUID;
+                                        try {
+                                            senderUUID = UUID.fromString(msgData.senderUUID);
+                                        } catch (IllegalArgumentException e) {
+                                            return;
+                                        }
+
+                                        // VALIDATE MESSAGE CONTENT
+                                        String content = msgData.content;
+                                        if (content == null) content = "";
+                                        if (content.length() > 500) {
+                                            content = content.substring(0, 500);
+                                        }
+
+                                        // VALIDATE SENDER NAME
+                                        String senderName = msgData.senderName;
+                                        if (senderName == null || senderName.isEmpty()) {
+                                            senderName = "Unknown";
+                                        } else if (senderName.length() > 100) {
+                                            senderName = senderName.substring(0, 100);
+                                        }
+
+                                        // VALIDATE TIMESTAMP (>= 0)
+                                        long timestamp = msgData.timestamp;
+                                        if (timestamp < 0) {
+                                            timestamp = 0;
+                                        }
+
+                                        Message msg = new Message(
+                                            senderUUID,
+                                            senderName,
+                                            content,
+                                            timestamp,
+                                            msgData.isPlayerSender
+                                        );
+                                        conv.addMessage(msg);
+                                    } catch (Exception e) {
+                                        LOGGER.error("Error loading message", e);
+                                    }
+                                });
+                            }
 
                             convMap.put(participantUUID, conv);
                         } catch (IllegalArgumentException e) {
@@ -228,6 +340,15 @@ public class MessageManager {
                     LOGGER.error("Invalid player UUID: {}", playerKey, e);
                 }
             });
+
+            // SUMMARY
+            if (invalidCount > 0 || correctedCount > 0) {
+                LOGGER.warn("Data validation: {} invalid entries, {} corrected entries",
+                    invalidCount, correctedCount);
+                if (correctedCount > 0) {
+                    markDirty(); // Re-save corrected data
+                }
+            }
         }
 
         @Override

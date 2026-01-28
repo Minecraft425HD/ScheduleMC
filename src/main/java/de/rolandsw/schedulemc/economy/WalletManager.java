@@ -142,7 +142,68 @@ public class WalletManager {
         protected void onDataLoaded(Map<String, Double> data) {
             // SICHERHEIT: Thread-safe clear und fill
             wallets.clear();
-            data.forEach((key, value) -> wallets.put(UUID.fromString(key), value));
+
+            int invalidCount = 0;
+            int correctedCount = 0;
+
+            // NULL CHECK
+            if (data == null) {
+                LOGGER.warn("Null data loaded for wallets");
+                invalidCount++;
+                return;
+            }
+
+            // Check collection size
+            if (data.size() > 10000) {
+                LOGGER.warn("Wallets map size ({}) exceeds limit, potential corruption",
+                    data.size());
+                correctedCount++;
+            }
+
+            data.forEach((key, value) -> {
+                try {
+                    // VALIDATE UUID STRING
+                    if (key == null || key.isEmpty()) {
+                        LOGGER.warn("Null/empty UUID string in wallets, skipping");
+                        return;
+                    }
+
+                    UUID playerUUID;
+                    try {
+                        playerUUID = UUID.fromString(key);
+                    } catch (IllegalArgumentException e) {
+                        LOGGER.error("Invalid UUID in wallets: {}", key, e);
+                        return;
+                    }
+
+                    // NULL CHECK
+                    if (value == null) {
+                        LOGGER.warn("Null wallet value for player {}, setting to 0", playerUUID);
+                        wallets.put(playerUUID, 0.0);
+                        return;
+                    }
+
+                    // VALIDATE BALANCE (>= 0)
+                    if (value < 0) {
+                        LOGGER.warn("Player {} has negative wallet balance {}, resetting to 0",
+                            playerUUID, value);
+                        wallets.put(playerUUID, 0.0);
+                    } else {
+                        wallets.put(playerUUID, value);
+                    }
+                } catch (Exception e) {
+                    LOGGER.error("Error loading wallet for {}", key, e);
+                }
+            });
+
+            // SUMMARY
+            if (invalidCount > 0 || correctedCount > 0) {
+                LOGGER.warn("Data validation: {} invalid entries, {} corrected entries",
+                    invalidCount, correctedCount);
+                if (correctedCount > 0) {
+                    markDirty(); // Re-save corrected data
+                }
+            }
         }
 
         @Override

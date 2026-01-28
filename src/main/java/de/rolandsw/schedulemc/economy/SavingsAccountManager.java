@@ -315,7 +315,79 @@ public class SavingsAccountManager extends AbstractPersistenceManager<Map<UUID, 
     @Override
     protected void onDataLoaded(Map<UUID, List<SavingsAccount>> data) {
         accounts.clear();
-        accounts.putAll(data);
+
+        int invalidCount = 0;
+        int correctedCount = 0;
+
+        // NULL CHECK
+        if (data == null) {
+            LOGGER.warn("Null data loaded for savings accounts");
+            invalidCount++;
+            return;
+        }
+
+        // Check collection size
+        if (data.size() > 10000) {
+            LOGGER.warn("Savings accounts map size ({}) exceeds limit, potential corruption",
+                data.size());
+            correctedCount++;
+        }
+
+        for (Map.Entry<UUID, List<SavingsAccount>> entry : data.entrySet()) {
+            try {
+                UUID playerUUID = entry.getKey();
+                List<SavingsAccount> accountList = entry.getValue();
+
+                // NULL CHECK
+                if (playerUUID == null) {
+                    LOGGER.warn("Null player UUID in savings accounts, skipping");
+                    invalidCount++;
+                    continue;
+                }
+                if (accountList == null) {
+                    LOGGER.warn("Null account list for player {}, skipping", playerUUID);
+                    invalidCount++;
+                    continue;
+                }
+
+                // VALIDATE LIST SIZE
+                if (accountList.size() > 100) {
+                    LOGGER.warn("Player {} has too many savings accounts ({}), truncating to 100",
+                        playerUUID, accountList.size());
+                    accountList = new ArrayList<>(accountList.subList(0, 100));
+                    correctedCount++;
+                }
+
+                // VALIDATE ACCOUNTS - check for null entries
+                List<SavingsAccount> validAccounts = new ArrayList<>();
+                for (SavingsAccount account : accountList) {
+                    if (account == null) {
+                        LOGGER.warn("Player {} has null savings account, skipping", playerUUID);
+                        invalidCount++;
+                        continue;
+                    }
+                    validAccounts.add(account);
+                }
+
+                if (validAccounts.size() != accountList.size()) {
+                    correctedCount++;
+                }
+
+                accounts.put(playerUUID, validAccounts);
+            } catch (Exception e) {
+                LOGGER.error("Error loading savings accounts for player {}", entry.getKey(), e);
+                invalidCount++;
+            }
+        }
+
+        // SUMMARY
+        if (invalidCount > 0 || correctedCount > 0) {
+            LOGGER.warn("Data validation: {} invalid entries, {} corrected entries",
+                invalidCount, correctedCount);
+            if (correctedCount > 0) {
+                markDirty(); // Re-save corrected data
+            }
+        }
     }
 
     @Override

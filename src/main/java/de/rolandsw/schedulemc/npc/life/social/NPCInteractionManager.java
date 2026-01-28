@@ -377,6 +377,29 @@ public class NPCInteractionManager extends AbstractPersistenceManager<Map<String
         // werden bei Level-Load automatisch zurückgesetzt
         activeInteractions.clear();
         interactionCooldowns.clear();
+
+        int invalidCount = 0;
+        int correctedCount = 0;
+
+        // NULL CHECK
+        if (data == null) {
+            LOGGER.warn("Null data loaded, using defaults");
+            invalidCount++;
+        } else if (!data.isEmpty()) {
+            // If data is not empty, log a warning since we don't persist data
+            LOGGER.warn("Unexpected data loaded ({}), ignoring - no persistent data expected",
+                data.size());
+            correctedCount++;
+        }
+
+        // SUMMARY
+        if (invalidCount > 0 || correctedCount > 0) {
+            LOGGER.warn("Data validation: {} invalid entries, {} corrected entries",
+                invalidCount, correctedCount);
+            if (correctedCount > 0) {
+                markDirty(); // Re-save corrected data
+            }
+        }
     }
 
     @Override

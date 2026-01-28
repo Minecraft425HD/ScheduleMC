@@ -207,7 +207,56 @@ public class LoanManager extends AbstractPersistenceManager<Map<UUID, Loan>> {
     @Override
     protected void onDataLoaded(Map<UUID, Loan> data) {
         activeLoans.clear();
-        activeLoans.putAll(data);
+
+        int invalidCount = 0;
+        int correctedCount = 0;
+
+        // NULL CHECK
+        if (data == null) {
+            LOGGER.warn("Null data loaded for loans");
+            invalidCount++;
+            return;
+        }
+
+        // Check collection size
+        if (data.size() > 10000) {
+            LOGGER.warn("Loans map size ({}) exceeds limit, potential corruption",
+                data.size());
+            correctedCount++;
+        }
+
+        for (Map.Entry<UUID, Loan> entry : data.entrySet()) {
+            try {
+                UUID playerUUID = entry.getKey();
+                Loan loan = entry.getValue();
+
+                // NULL CHECK
+                if (playerUUID == null) {
+                    LOGGER.warn("Null player UUID in loans, skipping");
+                    invalidCount++;
+                    continue;
+                }
+                if (loan == null) {
+                    LOGGER.warn("Null loan for player {}, skipping", playerUUID);
+                    invalidCount++;
+                    continue;
+                }
+
+                activeLoans.put(playerUUID, loan);
+            } catch (Exception e) {
+                LOGGER.error("Error loading loan for player {}", entry.getKey(), e);
+                invalidCount++;
+            }
+        }
+
+        // SUMMARY
+        if (invalidCount > 0 || correctedCount > 0) {
+            LOGGER.warn("Data validation: {} invalid entries, {} corrected entries",
+                invalidCount, correctedCount);
+            if (correctedCount > 0) {
+                markDirty(); // Re-save corrected data
+            }
+        }
     }
 
     @Override
