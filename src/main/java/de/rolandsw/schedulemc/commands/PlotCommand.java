@@ -14,6 +14,7 @@ import de.rolandsw.schedulemc.region.PlotType;
 import de.rolandsw.schedulemc.region.blocks.PlotBlocks;
 import de.rolandsw.schedulemc.commands.CommandExecutor;
 import de.rolandsw.schedulemc.util.InputValidation;
+import de.rolandsw.schedulemc.util.RateLimiter;
 import de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -37,6 +38,10 @@ import java.util.UUID;
  * Refactored mit CommandExecutor
  */
 public class PlotCommand {
+
+    // RATE LIMITING: DoS Protection
+    private static final RateLimiter plotCreateLimiter = new RateLimiter("plot_create", 5, 1000L); // 5 per second
+    private static final RateLimiter plotDeleteLimiter = new RateLimiter("plot_delete", 3, 1000L); // 3 per second
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("plot")
@@ -212,6 +217,14 @@ public class PlotCommand {
     private static int createPlotWithType(CommandContext<CommandSourceStack> ctx, PlotType type) {
         return CommandExecutor.executePlayerCommand(ctx, Component.translatable("command.plot.create.error", type.name()).getString(),
             player -> {
+                // RATE LIMITING: DoS Protection für Plot-Erstellung
+                if (!plotCreateLimiter.allowOperation(player.getUUID())) {
+                    CommandExecutor.sendFailure(ctx.getSource(),
+                        Component.translatable("error.rate_limit.plot_create").getString()
+                    );
+                    return;
+                }
+
                 String name = StringArgumentType.getString(ctx, "name");
 
                 // ✅ INPUT VALIDATION: Name validieren
@@ -833,6 +846,14 @@ public class PlotCommand {
     private static int removePlot(CommandContext<CommandSourceStack> ctx) {
         return CommandExecutor.executePlayerCommand(ctx, "command.plot.remove.error",
             admin -> {
+                // RATE LIMITING: DoS Protection für Plot-Löschung
+                if (!plotDeleteLimiter.allowOperation(admin.getUUID())) {
+                    CommandExecutor.sendFailure(ctx.getSource(),
+                        Component.translatable("error.rate_limit.plot_delete").getString()
+                    );
+                    return;
+                }
+
                 PlotRegion plot = PlotManager.getPlotAt(admin.blockPosition());
 
                 if (plot == null) {

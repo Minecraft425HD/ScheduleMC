@@ -11,6 +11,7 @@ import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.entity.NPCEntities;
 import de.rolandsw.schedulemc.util.InputValidation;
 import de.rolandsw.schedulemc.util.PacketHandler;
+import de.rolandsw.schedulemc.util.RateLimiter;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
@@ -24,6 +25,9 @@ import java.util.function.Supplier;
  * Packet zum Spawnen eines NPCs vom Client zum Server
  */
 public class SpawnNPCPacket {
+    // RATE LIMITING: DoS Protection für NPC-Spawning
+    private static final RateLimiter npcSpawnLimiter = new RateLimiter("npc_spawn", 10, 60000L); // 10 per minute
+
     private final BlockPos position;
     private final String npcName;
     private final String skinFile;
@@ -67,6 +71,13 @@ public class SpawnNPCPacket {
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         PacketHandler.handleServerPacket(ctx, player -> {
             ServerLevel level = player.serverLevel();
+
+            // RATE LIMITING: DoS Protection für NPC-Spawning
+            if (!npcSpawnLimiter.allowOperation(player.getUUID())) {
+                player.sendSystemMessage(Component.translatable("error.rate_limit.npc_spawn")
+                    .withStyle(ChatFormatting.RED));
+                return;
+            }
 
             // SICHERHEIT: Validiere alle Eingaben
             InputValidation.Result nameResult = InputValidation.validateNPCName(npcName);

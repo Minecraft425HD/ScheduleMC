@@ -22,6 +22,26 @@ import java.util.stream.Collectors;
 public class TowingYardManager {
 
     private static final Logger LOGGER = LogUtils.getLogger();
+
+    // MEMORY LEAK PREVENTION: Size limits for all collections
+    /**
+     * Maximum parking spots (50000 entries)
+     * Prevents unbounded growth - reasonable limit for towing yard parking system
+     */
+    private static final int MAX_PARKING_SPOTS = 50000;
+
+    /**
+     * Maximum invoices per player (100 entries)
+     * Prevents unbounded growth - reasonable limit for unpaid invoices
+     */
+    private static final int MAX_UNPAID_INVOICES = 10000;
+
+    /**
+     * Maximum transactions per towing yard (1000 entries)
+     * Prevents unbounded growth - keeps only recent transactions
+     */
+    private static final int MAX_TRANSACTIONS_PER_YARD = 1000;
+
     private static final Map<UUID, TowingYardParkingSpot> parkingSpots = new ConcurrentHashMap<>();
     private static final Map<String, List<TowingTransaction>> towingTransactions = new ConcurrentHashMap<>();
     private static final Map<UUID, TowingInvoiceData> unpaidInvoices = new ConcurrentHashMap<>();
@@ -49,8 +69,16 @@ public class TowingYardManager {
 
     /**
      * Adds a new parking spot
+     * MEMORY LEAK PREVENTION: Enforces size limit on parking spots
      */
     public static UUID addParkingSpot(BlockPos location, String towingYardPlotId) {
+        // SIZE CHECK before adding
+        if (parkingSpots.size() >= MAX_PARKING_SPOTS) {
+            LOGGER.error("Parking spots limit reached ({}), cannot add new spot at {} for yard {}",
+                MAX_PARKING_SPOTS, location, towingYardPlotId);
+            throw new IllegalStateException("Maximum parking spots limit reached: " + MAX_PARKING_SPOTS);
+        }
+
         UUID spotId = UUID.randomUUID();
         TowingYardParkingSpot spot = new TowingYardParkingSpot(spotId, location, towingYardPlotId);
         parkingSpots.put(spotId, spot);
@@ -160,6 +188,7 @@ public class TowingYardManager {
 
     /**
      * Records a towing transaction for revenue tracking
+     * MEMORY LEAK PREVENTION: Enforces size limit per towing yard
      */
     public static void recordTransaction(long timestamp, UUID playerId, UUID vehicleId, String towingYardPlotId,
                                           double totalCost, double playerPaid, MembershipTier membershipTier) {
@@ -171,7 +200,18 @@ public class TowingYardManager {
             totalCost, playerPaid, yardRevenue, membershipTier
         );
 
-        towingTransactions.computeIfAbsent(towingYardPlotId, k -> new ArrayList<>()).add(transaction);
+        List<TowingTransaction> transactions = towingTransactions.computeIfAbsent(
+            towingYardPlotId, k -> new ArrayList<>());
+
+        // SIZE CHECK: Limit transactions per yard
+        if (transactions.size() >= MAX_TRANSACTIONS_PER_YARD) {
+            // Remove oldest transaction
+            transactions.remove(0);
+            LOGGER.warn("Transaction limit reached for yard {} ({}), removed oldest entry",
+                towingYardPlotId, MAX_TRANSACTIONS_PER_YARD);
+        }
+
+        transactions.add(transaction);
         markDirty();
         LOGGER.info("Recorded towing transaction: {} → yard {} (revenue: {}€)", playerId, towingYardPlotId, yardRevenue);
     }
@@ -237,9 +277,22 @@ public class TowingYardManager {
 
     /**
      * Creates a new invoice for a towed vehicle
+     * MEMORY LEAK PREVENTION: Enforces size limit on unpaid invoices
      */
     public static TowingInvoiceData createInvoice(UUID playerId, UUID vehicleId, String towingYardPlotId,
                                                     double amount, long timestamp) {
+        // SIZE CHECK before adding
+        if (unpaidInvoices.size() >= MAX_UNPAID_INVOICES) {
+            // Find and remove oldest invoice
+            unpaidInvoices.entrySet().stream()
+                .min(Comparator.comparingLong(e -> e.getValue().getTimestamp()))
+                .ifPresent(oldest -> {
+                    unpaidInvoices.remove(oldest.getKey());
+                    LOGGER.warn("Unpaid invoices limit reached ({}), removed oldest invoice: {}",
+                        MAX_UNPAID_INVOICES, oldest.getKey());
+                });
+        }
+
         TowingInvoiceData invoice = new TowingInvoiceData(playerId, vehicleId, towingYardPlotId, amount, timestamp);
         unpaidInvoices.put(invoice.getInvoiceId(), invoice);
         markDirty();
@@ -288,6 +341,28 @@ public class TowingYardManager {
             unpaidInvoices.remove(invoiceId);
             markDirty();
             LOGGER.info("Invoice {} paid ({}€)", invoiceId, invoice.getAmount());
+        }
+    }
+
+    /**
+     * Clears ALL static data. Called on server shutdown.
+     * MEMORY LEAK PREVENTION: Ensures no data persists across sessions.
+     * Clears all 3 static collections (parking spots, transactions, invoices).
+     */
+    public static void clearAll() {
+        int spotCount = parkingSpots.size();
+        int transactionCount = towingTransactions.values().stream()
+            .mapToInt(List::size)
+            .sum();
+        int invoiceCount = unpaidInvoices.size();
+
+        parkingSpots.clear();
+        towingTransactions.clear();
+        unpaidInvoices.clear();
+
+        if (spotCount > 0 || transactionCount > 0 || invoiceCount > 0) {
+            LOGGER.info("[TowingYardManager] Cleared all static data: {} parking spots, {} transactions, {} invoices",
+                spotCount, transactionCount, invoiceCount);
         }
     }
 
