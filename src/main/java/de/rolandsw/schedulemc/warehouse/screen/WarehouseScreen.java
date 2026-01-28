@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.economy.ShopAccountManager;
 import de.rolandsw.schedulemc.economy.ShopAccount;
+import de.rolandsw.schedulemc.util.ThreadPoolManager;
 import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity;
@@ -989,34 +990,27 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
 
     /**
      * Plant ein GUI-Refresh nach kurzer Zeit ein, damit Server-Daten synchronisiert werden können
+     * THREAD-SAFETY: Verwendet ThreadPoolManager statt direkter Thread-Erzeugung
      */
     private void scheduleRefresh() {
-        // Schedule refresh after 5 ticks to allow server sync
-        new Thread(() -> {
-            try {
-                Thread.sleep(250); // 250ms delay for server sync
-            } catch (InterruptedException e) {
-                // Ignore
-            }
+        // Schedule refresh after 250ms to allow server sync
+        ThreadPoolManager.scheduleDelayed(() -> {
             // Execute on main thread
             minecraft.execute(() -> {
                 if (this.menu != null && this.menu.getWarehouse() != null) {
                     initTabComponents();
                 }
             });
-        }).start();
+        }, 250L);
     }
 
     /**
      * Spezielle Refresh-Methode für Item-Hinzufügung mit längerer Verzögerung
+     * THREAD-SAFETY: Verwendet ThreadPoolManager statt direkter Thread-Erzeugung
      */
     private void scheduleRefreshForItemAddition() {
-        new Thread(() -> {
-            try {
-                Thread.sleep(500); // Längere Verzögerung für Item-Addition
-            } catch (InterruptedException e) {
-                // Ignore
-            }
+        // Schedule refresh after 500ms for item addition
+        ThreadPoolManager.scheduleDelayed(() -> {
             // Execute on main thread - kompletter Refresh
             minecraft.execute(() -> {
                 if (this.menu != null && this.menu.getWarehouse() != null) {
@@ -1028,7 +1022,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
                     init();
                 }
             });
-        }).start();
+        }, 500L);
     }
 
     // ═══════════════════════════════════════════════════════════

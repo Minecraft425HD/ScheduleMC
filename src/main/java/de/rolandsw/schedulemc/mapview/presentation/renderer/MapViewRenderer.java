@@ -55,6 +55,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import de.rolandsw.schedulemc.mapview.util.ARGBCompat;
+import de.rolandsw.schedulemc.util.ThreadPoolManager;
 import net.minecraft.util.Mth;
 // EnvironmentAttributes doesn't exist in 1.20.1
 import net.minecraft.world.effect.MobEffectInstance;
@@ -85,6 +86,7 @@ import java.util.Arrays;
 import java.util.OptionalInt;
 import java.util.Random;
 import java.util.TreeSet;
+import java.util.concurrent.Future;
 
 public class MapViewRenderer implements Runnable, MapChangeListener {
     private final Minecraft minecraft = Minecraft.getInstance();
@@ -165,7 +167,9 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     private float percentX;
     private float percentY;
     private int northRotate;
-    private Thread zCalc = new Thread(this, "MapDataManager LiveMap Calculation Thread");
+    // THREAD-SAFETY: Worker thread managed by ThreadPoolManager
+    private Future<?> zCalcTask;
+    private final Object zCalcLock = new Object(); // Lock for coordination with worker thread
     private int zCalcTicker;
     private int[] lightmapColors = new int[256];
     private double zoomScale = 1.0;
@@ -200,7 +204,8 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         tempBindings.addAll(Arrays.asList(this.options.keyBindings));
         minecraft.options.keyMappings = tempBindings.toArray(new KeyMapping[0]);
 
-        this.zCalc.start();
+        // Start worker thread via ThreadPoolManager
+        this.zCalcTask = ThreadPoolManager.getAsyncPool().submit(this);
         this.mapData[0] = new MapDataRepository(32, 32);
         this.mapData[1] = new MapDataRepository(64, 64);
         this.mapData[2] = new MapDataRepository(128, 128);
@@ -311,9 +316,10 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
                 }
 
                 this.zCalcTicker = 0;
-                synchronized (this.zCalc) {
+                // THREAD-SAFETY: Use dedicated lock for wait/notify coordination
+                synchronized (this.zCalcLock) {
                     try {
-                        this.zCalc.wait(0L);
+                        this.zCalcLock.wait(0L);
                     } catch (InterruptedException exception) {
                         MapViewConstants.getLogger().error("MapDataManager LiveMap Calculation Thread", exception);
                     }
@@ -399,9 +405,9 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         }
 
         if (this.threading) {
-            if (!this.zCalc.isAlive()) {
-                this.zCalc = new Thread(this, "MapDataManager LiveMap Calculation Thread");
-                this.zCalc.start();
+            // THREAD-SAFETY: Check if worker task has finished and restart if needed
+            if (this.zCalcTask == null || this.zCalcTask.isDone()) {
+                this.zCalcTask = ThreadPoolManager.getAsyncPool().submit(this);
                 this.zCalcTicker = 0;
             }
 
@@ -409,15 +415,14 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
                 ++this.zCalcTicker;
                 if (this.zCalcTicker > 2000) {
                     this.zCalcTicker = 0;
-                    Exception ex = new Exception();
-                    ex.setStackTrace(this.zCalc.getStackTrace());
                     DebugRenderState.print();
-                    MapViewConstants.getLogger().error("MapDataManager LiveMap Calculation Thread is hanging?", ex);
+                    MapViewConstants.getLogger().error("MapDataManager LiveMap Calculation Thread is hanging?");
                 }
                 // Performance-Optimierung: Notify nur wenn Update nötig
                 if (shouldUpdate) {
-                    synchronized (this.zCalc) {
-                        this.zCalc.notify();
+                    // THREAD-SAFETY: Use dedicated lock for wait/notify coordination
+                    synchronized (this.zCalcLock) {
+                        this.zCalcLock.notify();
                     }
                 }
             }

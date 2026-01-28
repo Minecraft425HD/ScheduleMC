@@ -11,9 +11,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 /**
  * RoadNavigationService - Koordiniert die Straßen-Navigation
@@ -41,7 +38,6 @@ public class RoadNavigationService {
 
     // Services
     private final WorldMapData mapData;
-    private final ExecutorService executor;
 
     // Zustand
     private RoadGraph currentGraph;
@@ -83,11 +79,6 @@ public class RoadNavigationService {
 
     private RoadNavigationService(WorldMapData mapData) {
         this.mapData = mapData;
-        this.executor = Executors.newSingleThreadExecutor(r -> {
-            Thread t = new Thread(r, "RoadNavigation-Worker");
-            t.setDaemon(true);
-            return t;
-        });
         this.currentPath = Collections.emptyList();
         this.simplifiedPath = Collections.emptyList();
         this.isNavigationActive = false;
@@ -519,17 +510,7 @@ public class RoadNavigationService {
      */
     public void shutdown() {
         stopNavigation();
-        executor.shutdown();
-        try {
-            if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
-                LOGGER.warn("[RoadNavigationService] Executor did not terminate in time, forcing shutdown");
-                executor.shutdownNow();
-            }
-        } catch (InterruptedException e) {
-            LOGGER.warn("[RoadNavigationService] Shutdown interrupted, forcing shutdown");
-            executor.shutdownNow();
-            Thread.currentThread().interrupt();
-        }
+        // ThreadPoolManager wird zentral heruntergefahren, keine lokale Aktion nötig
         synchronized (INSTANCE_LOCK) {
             instance = null;
         }
