@@ -207,7 +207,7 @@ public class GuiFuelStation extends ScreenBase<ContainerFuelStation> {
         String costText = String.format("%.2f\u20AC", costCents / 100.0);
         Component costLine = Component.translatable("gui.fuel_station.session_cost",
                 Component.literal(costText).withStyle(ChatFormatting.GOLD))
-                .append(Component.literal(" inkl. MwSt").withStyle(ChatFormatting.GRAY));
+                .append(Component.literal(" inkl. MwSt").withStyle(ChatFormatting.BLACK));
         g.drawString(font, costLine.getVisualOrderText(), 8, 135, TEXT_DARK, false);
     }
 
