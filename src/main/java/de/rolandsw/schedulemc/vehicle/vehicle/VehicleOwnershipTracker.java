@@ -85,11 +85,21 @@ public class VehicleOwnershipTracker extends SavedData {
         int nextOffset = 0;
         while (prefixMap.containsValue(nextOffset)) {
             nextOffset += 10;
-        }
-
-        // Begrenze auf 90 (max 99)
-        if (nextOffset > 90) {
-            nextOffset = 0; // Wrap-around
+            // Sicherheitsbegrenzung: Bei > 90 suche ersten ungenutzten Offset
+            if (nextOffset > 90) {
+                // Suche Lücken in existierenden Offsets (z.B. wenn ein Spieler entfernt wurde)
+                for (int candidate = 0; candidate <= 90; candidate += 10) {
+                    if (!prefixMap.containsValue(candidate)) {
+                        nextOffset = candidate;
+                        break;
+                    }
+                }
+                // Wenn wirklich alle belegt, nutze overflow mit dreistelligen Nummern
+                if (nextOffset > 90) {
+                    nextOffset = prefixMap.size() * 10;
+                }
+                break;
+            }
         }
 
         prefixMap.put(playerUUID, nextOffset);

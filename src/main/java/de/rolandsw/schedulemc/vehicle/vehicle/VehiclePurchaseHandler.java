@@ -38,11 +38,27 @@ public class VehiclePurchaseHandler {
      * @param price Preis des Fahrzeugs
      * @return true wenn erfolgreich, false sonst
      */
+    /** Maximum distance (in blocks) a player can be from a dealer to purchase */
+    private static final double MAX_DEALER_DISTANCE = 10.0;
+
     public static boolean purchaseVehicle(Player player, UUID dealerId, ItemStack vehicleItem, int price) {
         Level level = player.level();
 
         if (level.isClientSide()) {
             return false;
+        }
+
+        // Verify player is near the dealer's spawn points (proximity check)
+        List<VehicleSpawnRegistry.VehicleSpawnPoint> dealerPoints = VehicleSpawnRegistry.getSpawnPoints(dealerId);
+        if (!dealerPoints.isEmpty()) {
+            boolean isNearDealer = dealerPoints.stream()
+                .anyMatch(sp -> player.blockPosition().distSqr(sp.getPosition()) <= MAX_DEALER_DISTANCE * MAX_DEALER_DISTANCE);
+            if (!isNearDealer) {
+                LOGGER.warn("Fahrzeugkauf abgelehnt: Spieler {} ist zu weit vom Händler {} entfernt",
+                    player.getName().getString(), dealerId);
+                player.sendSystemMessage(Component.translatable("vehicle.purchase.too_far").withStyle(ChatFormatting.RED));
+                return false;
+            }
         }
 
         LOGGER.info("Fahrzeugkauf gestartet: Spieler={}, Händler={}, Fahrzeug={}, Preis={}",
@@ -82,8 +98,6 @@ public class VehiclePurchaseHandler {
                 dealerId, allPoints.size());
             player.sendSystemMessage(Component.translatable("vehicle.purchase.no_parking").withStyle(ChatFormatting.RED));
             player.sendSystemMessage(Component.translatable("vehicle.purchase.wait_for_parking").withStyle(ChatFormatting.GRAY));
-            player.sendSystemMessage(Component.literal("DEBUG: Händler hat " + allPoints.size() + " Spawn-Punkte, alle belegt")
-                .withStyle(ChatFormatting.DARK_GRAY));
             return false;
         }
 
