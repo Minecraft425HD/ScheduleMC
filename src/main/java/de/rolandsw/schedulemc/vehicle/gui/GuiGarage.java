@@ -517,6 +517,12 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
         int statusY = 120;
         guiGraphics.drawString(font, "Status:", 10, statusY, fontColor, false);
         guiGraphics.drawString(font, "Gesperrt", 10, statusY + 10, 0xFFAA00, false);
+
+        // Odometer display
+        long odo = vehicle.getOdometer();
+        String odometerText = String.format("%,d Bl.", odo).replace(',', '.');
+        guiGraphics.drawString(font, "Kilometerstand:", 10, statusY + 24, fontColor, false);
+        guiGraphics.drawString(font, odometerText, 10, statusY + 34, partColor, false);
     }
 
     private void renderRepairTab(GuiGraphics guiGraphics, int mouseX, int mouseY) {

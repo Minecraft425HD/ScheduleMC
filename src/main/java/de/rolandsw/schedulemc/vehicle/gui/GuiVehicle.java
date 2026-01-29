@@ -64,6 +64,9 @@ public class GuiVehicle extends ScreenBase<ContainerVehicle> {
         guiGraphics.drawString(font, Component.translatable("gui.vehicle.status.temperature"), labelX, startY + lineHeight * 3, fontColor, false);
         guiGraphics.drawString(font, getTempValueString(), valueX, startY + lineHeight * 3, fontColor, false);
 
+        guiGraphics.drawString(font, Component.translatable("gui.vehicle.status.odometer"), labelX, startY + lineHeight * 4, fontColor, false);
+        guiGraphics.drawString(font, getOdometerValueString(), valueX, startY + lineHeight * 4, fontColor, false);
+
         // Vehicle name at bottom of status area
         guiGraphics.drawString(font, vehicle.getDisplayName().getVisualOrderText(), 8, 87, fontColor, false);
     }
@@ -122,6 +125,11 @@ public class GuiVehicle extends ScreenBase<ContainerVehicle> {
 
     public String getTempValueString() {
         return String.format("%.1f°C", getTemperatureCelsius());
+    }
+
+    public String getOdometerValueString() {
+        long odo = vehicle.getOdometer();
+        return String.format("%,d Bl.", odo).replace(',', '.');
     }
 
     @Override

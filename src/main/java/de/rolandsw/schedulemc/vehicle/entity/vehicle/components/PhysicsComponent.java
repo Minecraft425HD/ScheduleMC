@@ -50,6 +50,7 @@ public class PhysicsComponent extends VehicleComponent {
     private static final EntityDataAccessor<Boolean> BACKWARD = SynchedEntityData.defineId(EntityGenericVehicle.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> LEFT = SynchedEntityData.defineId(EntityGenericVehicle.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> RIGHT = SynchedEntityData.defineId(EntityGenericVehicle.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Integer> ODOMETER_SYNCED = SynchedEntityData.defineId(EntityGenericVehicle.class, EntityDataSerializers.INT);
 
     private float wheelRotation;
 
@@ -86,6 +87,7 @@ public class PhysicsComponent extends VehicleComponent {
         entityData.define(BACKWARD, false);
         entityData.define(LEFT, false);
         entityData.define(RIGHT, false);
+        entityData.define(ODOMETER_SYNCED, 0);
     }
 
     @Override
@@ -668,6 +670,7 @@ public class PhysicsComponent extends VehicleComponent {
             long dist = (long) Math.sqrt(distSq);
             if (dist > 0) {
                 odometer += dist;
+                vehicle.getEntityData().set(ODOMETER_SYNCED, (int) odometer);
             }
             lastPosX = currentX;
             lastPosZ = currentZ;
@@ -675,11 +678,15 @@ public class PhysicsComponent extends VehicleComponent {
     }
 
     public long getOdometer() {
+        if (vehicle.level().isClientSide) {
+            return vehicle.getEntityData().get(ODOMETER_SYNCED);
+        }
         return odometer;
     }
 
     public void setOdometer(long odometer) {
         this.odometer = odometer;
+        vehicle.getEntityData().set(ODOMETER_SYNCED, (int) odometer);
     }
 
     /**
@@ -716,5 +723,6 @@ public class PhysicsComponent extends VehicleComponent {
     public void readAdditionalData(CompoundTag compound) {
         setStarted(compound.getBoolean("started"), false, false);
         odometer = compound.getLong("odometer");
+        vehicle.getEntityData().set(ODOMETER_SYNCED, (int) odometer);
     }
 }

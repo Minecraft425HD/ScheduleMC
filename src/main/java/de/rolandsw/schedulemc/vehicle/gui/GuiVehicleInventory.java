@@ -32,6 +32,12 @@ public class GuiVehicleInventory extends ScreenBase<ContainerVehicleInventory> {
         // Vehicle title
         guiGraphics.drawString(font, vehicle.getDisplayName().getVisualOrderText(), 8, yOffset, FONT_COLOR, false);
 
+        // Odometer
+        long odo = vehicle.getOdometer();
+        String odometerText = String.format("%,d Bl.", odo).replace(',', '.');
+        int odometerWidth = font.width(odometerText);
+        guiGraphics.drawString(font, odometerText, imageWidth - 8 - odometerWidth, yOffset, FONT_COLOR, false);
+
         // Internal inventory label (if it exists)
         int internalSlots = menu.getInternalSlots();
         if (internalSlots > 0) {

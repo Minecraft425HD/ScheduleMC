@@ -73,8 +73,10 @@ public class GuiFuelStation extends ScreenBase<ContainerFuelStation> {
 
         if (fluidHandler instanceof Entity) {
             drawVehicleName(guiGraphics, (Entity) fluidHandler);
+            if (fluidHandler instanceof EntityGenericVehicle vehicle) {
+                drawOdometer(guiGraphics, vehicle);
+            }
         }
-
 
         drawVehicleFuel(guiGraphics, fluidHandler);
         drawRefueled(guiGraphics);
@@ -110,6 +112,14 @@ public class GuiFuelStation extends ScreenBase<ContainerFuelStation> {
             name = entity.getDisplayName().getString();
         }
         guiGraphics.drawString(font, Component.translatable("fuel_station.vehicle_info", Component.literal(name).withStyle(ChatFormatting.WHITE)).getVisualOrderText(), leftPos + 63, topPos + 20, FONT_COLOR, false);
+    }
+
+    private void drawOdometer(GuiGraphics guiGraphics, EntityGenericVehicle vehicle) {
+        long odo = vehicle.getOdometer();
+        String odometerText = String.format("%,d Bl.", odo).replace(',', '.');
+        guiGraphics.drawString(font, Component.translatable("fuel_station.odometer",
+                Component.literal(odometerText).withStyle(ChatFormatting.WHITE)).getVisualOrderText(),
+                leftPos + 63, topPos + 50, FONT_COLOR, false);
     }
 
     private void drawVehicleFuel(GuiGraphics guiGraphics, IFluidHandler handler) {
