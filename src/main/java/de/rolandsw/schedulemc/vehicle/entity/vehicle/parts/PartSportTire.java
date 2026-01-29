@@ -6,7 +6,7 @@ import net.minecraft.resources.ResourceLocation;
 public class PartSportTire extends PartTireBase {
 
     public PartSportTire(OBJModel model, ResourceLocation texture, float rotationModifier, float stepHeight) {
-        super(model, texture, rotationModifier, stepHeight);
+        super(model, texture, rotationModifier, stepHeight, TireSeasonType.SUMMER);
     }
 
 }

@@ -53,6 +53,12 @@ public class PhysicsComponent extends VehicleComponent {
 
     private float wheelRotation;
 
+    // Odometer: Gesamte gefahrene Distanz in Blöcken (1 Block ≈ 1 Meter)
+    private long odometer;
+    private double lastPosX;
+    private double lastPosZ;
+    private boolean odometerInitialized;
+
     @OnlyIn(Dist.CLIENT)
     private boolean collidedLastTick;
 
@@ -109,6 +115,11 @@ public class PhysicsComponent extends VehicleComponent {
         }
 
         vehicle.move(MoverType.SELF, vehicle.getDeltaMovement());
+
+        // Odometer: Distanz messen (nur serverseitig)
+        if (!vehicle.level().isClientSide) {
+            updateOdometer();
+        }
 
         if (vehicle.level().isClientSide) {
             updateSounds();
@@ -295,11 +306,27 @@ public class PhysicsComponent extends VehicleComponent {
         BlockPos pos = new BlockPos((int) vehicle.getX(), (int) (vehicle.getY() - 0.1D), (int) vehicle.getZ());
         BlockState state = vehicle.level().getBlockState(pos);
 
+        float baseModifier;
         if (state.isAir() || ModConfigHandler.VEHICLE_SERVER.vehicleDriveBlockList.stream().anyMatch(tag -> tag.contains(state.getBlock()))) {
-            return ModConfigHandler.VEHICLE_SERVER.vehicleOnroadSpeed.get().floatValue();
+            baseModifier = ModConfigHandler.VEHICLE_SERVER.vehicleOnroadSpeed.get().floatValue();
         } else {
-            return ModConfigHandler.VEHICLE_SERVER.vehicleOffroadSpeed.get().floatValue();
+            baseModifier = ModConfigHandler.VEHICLE_SERVER.vehicleOffroadSpeed.get().floatValue();
         }
+
+        // Tire season modifier (Serene Seasons Integration)
+        float seasonModifier = getTireSeasonModifier();
+
+        return baseModifier * seasonModifier;
+    }
+
+    private float getTireSeasonModifier() {
+        de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartTireBase tire = vehicle.getPartByClass(
+            de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartTireBase.class);
+        if (tire == null) {
+            return 1.0F;
+        }
+        return de.rolandsw.schedulemc.vehicle.util.SereneSeasonsCompat.getTireSeasonModifier(
+            tire.getSeasonType(), vehicle.level());
     }
 
     public void onCollision(float speed) {
@@ -617,13 +644,77 @@ public class PhysicsComponent extends VehicleComponent {
         );
     }
 
+    // ═══════════════════════════════════════════════════════════
+    // ODOMETER
+    // ═══════════════════════════════════════════════════════════
+
+    private void updateOdometer() {
+        double currentX = vehicle.getX();
+        double currentZ = vehicle.getZ();
+
+        if (!odometerInitialized) {
+            lastPosX = currentX;
+            lastPosZ = currentZ;
+            odometerInitialized = true;
+            return;
+        }
+
+        double dx = currentX - lastPosX;
+        double dz = currentZ - lastPosZ;
+        double distSq = dx * dx + dz * dz;
+
+        // Nur zählen wenn sich das Fahrzeug tatsächlich bewegt hat (> 0.01 Blöcke)
+        if (distSq > 0.0001) {
+            long dist = (long) Math.sqrt(distSq);
+            if (dist > 0) {
+                odometer += dist;
+            }
+            lastPosX = currentX;
+            lastPosZ = currentZ;
+        }
+    }
+
+    public long getOdometer() {
+        return odometer;
+    }
+
+    public void setOdometer(long odometer) {
+        this.odometer = odometer;
+    }
+
+    /**
+     * Gibt die maximale Gesundheit (0.0 - 1.0) basierend auf dem Kilometerstand zurück.
+     * Wird von DamageComponent verwendet um den Schaden zu begrenzen.
+     */
+    public float getMaxHealthPercent() {
+        if (!ModConfigHandler.VEHICLE_SERVER.vehicleAgingEnabled.get()) {
+            return 1.0F;
+        }
+
+        long tier1 = ModConfigHandler.VEHICLE_SERVER.odometerTier1.get();
+        long tier2 = ModConfigHandler.VEHICLE_SERVER.odometerTier2.get();
+        long tier3 = ModConfigHandler.VEHICLE_SERVER.odometerTier3.get();
+
+        if (odometer < tier1) {
+            return ModConfigHandler.VEHICLE_SERVER.agingMaxHealthTier0.get().floatValue();
+        } else if (odometer < tier2) {
+            return ModConfigHandler.VEHICLE_SERVER.agingMaxHealthTier1.get().floatValue();
+        } else if (odometer < tier3) {
+            return ModConfigHandler.VEHICLE_SERVER.agingMaxHealthTier2.get().floatValue();
+        } else {
+            return ModConfigHandler.VEHICLE_SERVER.agingMaxHealthTier3.get().floatValue();
+        }
+    }
+
     @Override
     public void saveAdditionalData(CompoundTag compound) {
         compound.putBoolean("started", isStarted());
+        compound.putLong("odometer", odometer);
     }
 
     @Override
     public void readAdditionalData(CompoundTag compound) {
         setStarted(compound.getBoolean("started"), false, false);
+        odometer = compound.getLong("odometer");
     }
 }

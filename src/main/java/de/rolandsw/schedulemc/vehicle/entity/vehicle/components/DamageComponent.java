@@ -233,7 +233,28 @@ public class DamageComponent extends VehicleComponent {
         } else if (damage < 0) {
             damage = 0;
         }
+        // Vehicle Aging: Schaden kann nicht unter den Aging-Mindestwert repariert werden
+        float minDamage = getAgingMinDamage();
+        if (damage < minDamage) {
+            damage = minDamage;
+        }
         vehicle.getEntityData().set(DAMAGE, damage);
+    }
+
+    /**
+     * Berechnet den minimalen Schaden basierend auf Kilometerstand (Aging).
+     * Bei 100% max health = 0 min damage
+     * Bei 75% max health = 25 min damage
+     * Bei 50% max health = 50 min damage
+     * Bei 25% max health = 75 min damage
+     */
+    public float getAgingMinDamage() {
+        PhysicsComponent physics = vehicle.getPhysicsComponent();
+        if (physics == null) {
+            return 0F;
+        }
+        float maxHealthPercent = physics.getMaxHealthPercent();
+        return VehicleConstants.MAX_DAMAGE * (1.0F - maxHealthPercent);
     }
 
     public float getDamage() {

@@ -107,6 +107,23 @@ public class ServerConfig extends ConfigBase {
     public final ForgeConfigSpec.DoubleValue membershipGoldFee;
     public final ForgeConfigSpec.IntValue membershipGoldCoveragePercent;
 
+    // Vehicle Aging (Odometer)
+    public final ForgeConfigSpec.BooleanValue vehicleAgingEnabled;
+    public final ForgeConfigSpec.LongValue odometerTier1;
+    public final ForgeConfigSpec.LongValue odometerTier2;
+    public final ForgeConfigSpec.LongValue odometerTier3;
+    public final ForgeConfigSpec.LongValue odometerTier4;
+    public final ForgeConfigSpec.DoubleValue agingMaxHealthTier0;
+    public final ForgeConfigSpec.DoubleValue agingMaxHealthTier1;
+    public final ForgeConfigSpec.DoubleValue agingMaxHealthTier2;
+    public final ForgeConfigSpec.DoubleValue agingMaxHealthTier3;
+
+    // Tire Season System (Serene Seasons Integration)
+    public final ForgeConfigSpec.BooleanValue tireSeasonEnabled;
+    public final ForgeConfigSpec.DoubleValue tireSeasonCorrectModifier;
+    public final ForgeConfigSpec.DoubleValue tireSeasonWrongModifier;
+    public final ForgeConfigSpec.DoubleValue tireSeasonAllSeasonModifier;
+
     public List<Tag<Fluid>> fuelStationValidFuelList = new ArrayList<>();
     public List<Tag<Block>> vehicleDriveBlockList = new ArrayList<>();
 
@@ -234,6 +251,49 @@ public class ServerConfig extends ConfigBase {
         membershipGoldCoveragePercent = builder
             .comment("Percentage of towing costs covered by Gold membership (100 = free towing)")
             .defineInRange("towing.membership.gold.coverage_percent", 100, 0, 100);
+
+        // Vehicle Aging (Odometer)
+        vehicleAgingEnabled = builder
+            .comment("Enable vehicle aging system. Vehicles degrade as they accumulate distance.")
+            .define("vehicle.aging.enabled", true);
+        odometerTier1 = builder
+            .comment("Blocks driven until max health drops to tier 1 (default: 250000 = 250km)")
+            .defineInRange("vehicle.aging.odometer_tier_1", 250_000L, 1L, 10_000_000L);
+        odometerTier2 = builder
+            .comment("Blocks driven until max health drops to tier 2 (default: 500000 = 500km)")
+            .defineInRange("vehicle.aging.odometer_tier_2", 500_000L, 1L, 10_000_000L);
+        odometerTier3 = builder
+            .comment("Blocks driven until max health drops to tier 3 (default: 750000 = 750km)")
+            .defineInRange("vehicle.aging.odometer_tier_3", 750_000L, 1L, 10_000_000L);
+        odometerTier4 = builder
+            .comment("Blocks driven until max health drops to tier 4 (default: 1000000 = 1000km)")
+            .defineInRange("vehicle.aging.odometer_tier_4", 1_000_000L, 1L, 10_000_000L);
+        agingMaxHealthTier0 = builder
+            .comment("Max health percentage for tier 0 (0-tier1 blocks). 1.0 = 100%")
+            .defineInRange("vehicle.aging.max_health_tier_0", 1.0D, 0.01D, 1.0D);
+        agingMaxHealthTier1 = builder
+            .comment("Max health percentage for tier 1 (tier1-tier2 blocks). 0.75 = 75%")
+            .defineInRange("vehicle.aging.max_health_tier_1", 0.75D, 0.01D, 1.0D);
+        agingMaxHealthTier2 = builder
+            .comment("Max health percentage for tier 2 (tier2-tier3 blocks). 0.5 = 50%")
+            .defineInRange("vehicle.aging.max_health_tier_2", 0.5D, 0.01D, 1.0D);
+        agingMaxHealthTier3 = builder
+            .comment("Max health percentage for tier 3 (tier3+ blocks). 0.25 = 25%")
+            .defineInRange("vehicle.aging.max_health_tier_3", 0.25D, 0.01D, 1.0D);
+
+        // Tire Season System
+        tireSeasonEnabled = builder
+            .comment("Enable tire season system. Requires Serene Seasons mod. Wrong tires reduce speed.")
+            .define("vehicle.tire_season.enabled", true);
+        tireSeasonCorrectModifier = builder
+            .comment("Speed modifier when correct tires for the season are equipped (1.0 = 100%)")
+            .defineInRange("vehicle.tire_season.correct_modifier", 1.0D, 0.1D, 2.0D);
+        tireSeasonWrongModifier = builder
+            .comment("Speed modifier when wrong tires for the season are equipped (0.5 = 50%)")
+            .defineInRange("vehicle.tire_season.wrong_modifier", 0.5D, 0.1D, 2.0D);
+        tireSeasonAllSeasonModifier = builder
+            .comment("Speed modifier for all-season tires (0.85 = 85%)")
+            .defineInRange("vehicle.tire_season.all_season_modifier", 0.85D, 0.1D, 2.0D);
     }
 
     @Override
