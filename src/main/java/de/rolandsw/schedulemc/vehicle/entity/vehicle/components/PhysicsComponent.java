@@ -58,6 +58,7 @@ public class PhysicsComponent extends VehicleComponent {
     private long odometer;
     private double lastPosX;
     private double lastPosZ;
+    private double odometerAccumulator;
     private boolean odometerInitialized;
 
     @OnlyIn(Dist.CLIENT)
@@ -667,13 +668,16 @@ public class PhysicsComponent extends VehicleComponent {
 
         // Nur zählen wenn sich das Fahrzeug tatsächlich bewegt hat (> 0.01 Blöcke)
         if (distSq > 0.0001) {
-            long dist = (long) Math.sqrt(distSq);
-            if (dist > 0) {
-                odometer += dist;
-                vehicle.getEntityData().set(ODOMETER_SYNCED, (int) odometer);
-            }
+            odometerAccumulator += Math.sqrt(distSq);
             lastPosX = currentX;
             lastPosZ = currentZ;
+
+            if (odometerAccumulator >= 1.0) {
+                long blocks = (long) odometerAccumulator;
+                odometer += blocks;
+                odometerAccumulator -= blocks;
+                vehicle.getEntityData().set(ODOMETER_SYNCED, (int) odometer);
+            }
         }
     }
 
