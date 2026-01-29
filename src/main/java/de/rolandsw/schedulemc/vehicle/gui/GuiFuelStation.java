@@ -179,15 +179,15 @@ public class GuiFuelStation extends ScreenBase<ContainerFuelStation> {
         int eveningPrice = fuelStation.getEveningPrice();
 
         // Day price line (highlighted green if active)
-        String dayText = "Tag:     " + (morningPrice * 100) + "\u20AC / 1000 mB";
+        // morningPrice = Cent pro 10mB → pro 1000mB = morningPrice Euro
+        String dayText = String.format("Tag:     %.2f\u20AC / 1000 mB", (double) morningPrice);
         g.drawString(font, dayText, 8, 81, isDay ? TEXT_GREEN : TEXT_GRAY, false);
-        // Arrow indicator for active price
         if (isDay) {
             drawRightAligned(g, "\u25C0", 168, 81, TEXT_GREEN);
         }
 
         // Night price line
-        String nightText = "Nacht:  " + (eveningPrice * 100) + "\u20AC / 1000 mB";
+        String nightText = String.format("Nacht:  %.2f\u20AC / 1000 mB", (double) eveningPrice);
         g.drawString(font, nightText, 8, 93, !isDay ? TEXT_GREEN : TEXT_GRAY, false);
         if (!isDay) {
             drawRightAligned(g, "\u25C0", 168, 93, TEXT_GREEN);
@@ -205,10 +205,10 @@ public class GuiFuelStation extends ScreenBase<ContainerFuelStation> {
         // Session cost (in cents, formatted as euros incl. MwSt)
         int costCents = fuelStation.getTotalCostThisSessionCents();
         String costText = String.format("%.2f\u20AC", costCents / 100.0);
-        g.drawString(font, Component.translatable("gui.fuel_station.session_cost",
-                Component.literal(costText).withStyle(ChatFormatting.GOLD)).getVisualOrderText(),
-                8, 135, TEXT_DARK, false);
-        g.drawString(font, "inkl. MwSt", 8, 147, TEXT_GRAY, false);
+        Component costLine = Component.translatable("gui.fuel_station.session_cost",
+                Component.literal(costText).withStyle(ChatFormatting.GOLD))
+                .append(Component.literal(" inkl. MwSt").withStyle(ChatFormatting.GRAY));
+        g.drawString(font, costLine.getVisualOrderText(), 8, 135, TEXT_DARK, false);
     }
 
     // ==================== Helpers ====================

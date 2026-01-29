@@ -334,9 +334,10 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
             totalFueledThisSession += result.getAmount();
 
             // Kosten immer berechnen (inkl. MwSt), unabhängig vom Zahlungsmodus
-            double pricePerMb = getCurrentPrice() / 10.0;
+            // getCurrentPrice() = Cent pro 10mB → / 1000.0 = Euro pro mB
+            double pricePerMbEuros = getCurrentPrice() / 1000.0;
             double salesTaxRate = ModConfigHandler.COMMON.TAX_SALES_RATE.get();
-            totalCostThisSession += pricePerMb * result.getAmount() * (1.0 + salesTaxRate);
+            totalCostThisSession += pricePerMbEuros * result.getAmount() * (1.0 + salesTaxRate);
 
             synchronize(2);
             setChanged();
