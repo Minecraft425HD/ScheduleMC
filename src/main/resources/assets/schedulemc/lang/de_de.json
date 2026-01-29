@@ -2569,6 +2569,7 @@
   "gui.vehicle.status.title": "Status",
   "gui.vehicle.status.volt": "Volt",
   "gui.vehicle.status_header": "Status",
+  "gui.vehicle.hotbar": "Hotbar",
   "gui.vehicle.wartung": "Wartung:",
   "gui.vehicle.temperature_display": "%.1f°C",
   "gui.vehicle.temperature_label": "Temperatur:",

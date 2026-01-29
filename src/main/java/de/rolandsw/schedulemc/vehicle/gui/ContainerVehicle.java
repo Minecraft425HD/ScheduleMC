@@ -8,18 +8,16 @@ import net.minecraft.world.inventory.Slot;
 public class ContainerVehicle extends ContainerBase {
 
     protected EntityGenericVehicle vehicle;
-    private int invOffset;
+    private int hotbarY;
 
     public ContainerVehicle(int id, EntityGenericVehicle vehicle, Inventory playerInv) {
         super(Main.VEHICLE_CONTAINER_TYPE.get(), id, playerInv, vehicle);
         this.vehicle = vehicle;
 
         // CRITICAL: Ensure inventories have correct sizes BEFORE adding slots!
-        // Use synced sizes from entityData (guaranteed to be in sync between client/server)
         int internalSlots = vehicle.getSyncedInternalInventorySize();
         int externalSlots = vehicle.getSyncedExternalInventorySize();
 
-        // Resize inventories if needed (ensures inventory size matches synced size)
         vehicle.getInventoryComponent().setInternalInventorySize(internalSlots);
         vehicle.getInventoryComponent().setExternalInventorySize(externalSlots);
 
@@ -38,7 +36,7 @@ public class ContainerVehicle extends ContainerBase {
                     }
                 }
             }
-            slotY += internalRows * 18 + 2; // Move down for external slots
+            slotY += internalRows * 18 + 2;
         }
 
         // Add EXTERNAL inventory slots (container: 0 or 12 slots)
@@ -61,18 +59,20 @@ public class ContainerVehicle extends ContainerBase {
         addSlot(new SlotBattery(vehicle, 0, 116, 66, playerInv.player));
         addSlot(new SlotRepairKit(vehicle, 0, 134, 66, playerInv.player));
 
-        // Calculate offset so player inventory appears below vehicle content
+        // Calculate hotbar position below vehicle content
         int invHeight = internalRows * 18;
         if (internalRows > 0 && externalRows > 0) invHeight += 2;
         invHeight += externalRows * 18;
-        this.invOffset = invHeight + 28;
+        this.hotbarY = 98 + invHeight + 16;
 
-        addPlayerInventorySlots();
+        // Add ONLY hotbar slots (player inventory slots 0-8)
+        for (int col = 0; col < 9; col++) {
+            addSlot(new Slot(playerInv, col, 8 + col * 18, hotbarY));
+        }
     }
 
-    @Override
-    public int getInvOffset() {
-        return invOffset;
+    public int getHotbarY() {
+        return hotbarY;
     }
 
     public EntityGenericVehicle getVehicle() {
