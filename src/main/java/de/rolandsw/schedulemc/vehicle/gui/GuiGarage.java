@@ -29,14 +29,22 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
     private static final ResourceLocation GARAGE_GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(Main.MODID, "textures/gui/gui_garage.png");
     private static final ResourceLocation FALLBACK_TEXTURE = ResourceLocation.fromNamespaceAndPath(Main.MODID, "textures/gui/gui_vehicle.png");
 
-    private static final int fontColor = 4210752;
+    // Frame colors (consistent with other vehicle GUIs)
+    private static final int COL_BLACK = 0xFF000000;
+    private static final int COL_WHITE = 0xFFFFFFFF;
+    private static final int COL_SHADOW = 0xFF555555;
+    private static final int COL_BG = 0xFFC6C6C6;
+    private static final int COL_CARD_BG = 0xFFAAAAAA;
+    private static final int COL_CARD_HEADER = 0xFF404040;
+
+    private static final int fontColor = 0x404040;
     private static final int costColor = 0x00AA00;
     private static final int titleColor = 0xFFFFFF;
     private static final int partColor = 0x555555;
-    private static final int barGoodColor = 0x00FF00;
-    private static final int barMediumColor = 0xFFFF00;
-    private static final int barBadColor = 0xFF0000;
-    private static final int barBackgroundColor = 0x333333;
+    private static final int barGoodColor = 0xFF00CC00;
+    private static final int barMediumColor = 0xFFCCCC00;
+    private static final int barBadColor = 0xFFCC0000;
+    private static final int barBackgroundColor = 0xFF555555;
 
     private Inventory playerInv;
     private EntityGenericVehicle vehicle;
@@ -455,18 +463,38 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
     protected void renderBg(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY) {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
-        // Draw a simple custom background (no texture needed)
-        // Outer border - dark gray
-        guiGraphics.fill(leftPos, topPos, leftPos + imageWidth, topPos + imageHeight, 0xFF404040);
+        int x = leftPos;
+        int y = topPos;
+        int w = imageWidth;
+        int h = imageHeight;
 
-        // Main background - light gray
-        guiGraphics.fill(leftPos + 2, topPos + 2, leftPos + imageWidth - 2, topPos + imageHeight - 2, 0xFFC6C6C6);
+        // 3D beveled frame (consistent with other vehicle GUIs)
+        guiGraphics.fill(x, y, x + w, y + 1, COL_BLACK);
+        guiGraphics.fill(x, y + h - 1, x + w, y + h, COL_BLACK);
+        guiGraphics.fill(x, y, x + 1, y + h, COL_BLACK);
+        guiGraphics.fill(x + w - 1, y, x + w, y + h, COL_BLACK);
+        guiGraphics.fill(x + 1, y + 1, x + w - 1, y + 2, COL_WHITE);
+        guiGraphics.fill(x + 1, y + 1, x + 2, y + h - 1, COL_WHITE);
+        guiGraphics.fill(x + 1, y + h - 2, x + w - 1, y + h - 1, COL_SHADOW);
+        guiGraphics.fill(x + w - 2, y + 1, x + w - 1, y + h - 1, COL_SHADOW);
+        guiGraphics.fill(x + 2, y + 2, x + w - 2, y + h - 2, COL_BG);
 
-        // Top bar for tabs - darker
-        guiGraphics.fill(leftPos + 2, topPos + 2, leftPos + imageWidth - 2, topPos + 28, 0xFF8B8B8B);
+        // Tab area (inset panel)
+        drawInsetPanel(guiGraphics, x + 5, y + 3, w - 10, 24, 0xFF8B8B8B);
 
-        // Right panel separator
-        guiGraphics.fill(leftPos + 135, topPos + 30, leftPos + 137, topPos + imageHeight - 2, 0xFF666666);
+        // Left panel - vehicle display (inset card)
+        drawInsetPanel(guiGraphics, x + 5, y + 30, 130, h - 35, COL_CARD_BG);
+
+        // Right panel - tab content (inset card)
+        drawInsetPanel(guiGraphics, x + 140, y + 30, w - 145, h - 35, COL_BG);
+    }
+
+    private void drawInsetPanel(GuiGraphics g, int x, int y, int w, int h, int bgColor) {
+        g.fill(x, y, x + w, y + 1, COL_SHADOW);
+        g.fill(x, y, x + 1, y + h, COL_SHADOW);
+        g.fill(x, y + h - 1, x + w, y + h, COL_WHITE);
+        g.fill(x + w - 1, y, x + w, y + h, COL_WHITE);
+        g.fill(x + 1, y + 1, x + w - 1, y + h - 1, bgColor);
     }
 
     @Override
