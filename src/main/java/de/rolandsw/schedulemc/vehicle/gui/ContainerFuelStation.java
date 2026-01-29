@@ -11,7 +11,8 @@ public class ContainerFuelStation extends ContainerBase {
     public ContainerFuelStation(int id, TileEntityFuelStation fuelStation, Inventory playerInv) {
         super(Main.FUEL_STATION_CONTAINER_TYPE.get(), id, playerInv, null);
         this.fuelStation = fuelStation;
-        // No slots - fuel station GUI is display-only with START/STOP buttons
+        // Register data slots for per-tick GUI sync (prices, cost, fueling state)
+        addDataSlots(fuelStation.getFields());
     }
 
     public TileEntityFuelStation getFuelStation() {
