@@ -83,9 +83,14 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
     @Nullable
     private IFluidHandler fluidHandlerInFront;
 
+    // Entity-Referenz für GUI (Vehicle-Name, Odometer etc.)
+    @Nullable
+    private Entity entityInFront;
+
     // OPTIMIERUNG: Cache für Entity-Scan (reduziert von 20x/sek auf 5x/sek)
     private static final int ENTITY_SCAN_INTERVAL = 4; // Alle 4 Ticks (200ms)
     private int entityScanCounter = 0;
+    private Entity cachedEntityInFront = null;
     private IFluidHandler cachedFluidHandler = null;
 
     public TileEntityFuelStation(BlockPos pos, BlockState state) {
@@ -201,10 +206,14 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
     public void tick() {
         // Entity-Scan läuft auf BEIDEN Seiten (Client braucht es für die GUI-Anzeige)
         entityScanCounter++;
-        if (entityScanCounter >= ENTITY_SCAN_INTERVAL || cachedFluidHandler == null) {
+        if (entityScanCounter >= ENTITY_SCAN_INTERVAL || cachedEntityInFront == null) {
             entityScanCounter = 0;
-            cachedFluidHandler = searchFluidHandlerInFront();
+            cachedEntityInFront = searchEntityWithFluidHandlerInFront();
+            cachedFluidHandler = cachedEntityInFront != null
+                    ? cachedEntityInFront.getCapability(ForgeCapabilities.FLUID_HANDLER).orElse(null)
+                    : null;
         }
+        entityInFront = cachedEntityInFront;
         fluidHandlerInFront = cachedFluidHandler;
 
         // Alles ab hier nur serverseitig - keine Tank-Logik auf dem Client!
@@ -392,7 +401,8 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
         totalCostThisSession = 0;
         totalFueledThisSession = 0;
         currentFuelingPlayer = null;
-        cachedFluidHandler = null; // Cache invalidieren für nächstes Fahrzeug
+        cachedEntityInFront = null; // Cache invalidieren für nächstes Fahrzeug
+        cachedFluidHandler = null;
         synchronize();
         setChanged();
     }
@@ -675,15 +685,18 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
     private CachedValue<Vec3> center = new CachedValue<>(() -> new Vec3(worldPosition.getX() + 0.5D, worldPosition.getY() + 1.5D, worldPosition.getZ() + 0.5D));
 
     @Nullable
-    private IFluidHandler searchFluidHandlerInFront() {
+    private Entity searchEntityWithFluidHandlerInFront() {
         if (level == null) {
             return null;
         }
-        return level.getEntitiesOfClass(Entity.class, getDetectionBox())
+        AABB box = getDetectionBox();
+        if (box == null) {
+            return null;
+        }
+        return level.getEntitiesOfClass(Entity.class, box)
                 .stream()
                 .sorted(Comparator.comparingDouble(o -> o.distanceToSqr(center.get())))
-                .map(entity -> entity.getCapability(ForgeCapabilities.FLUID_HANDLER).orElse(null))
-                .filter(Objects::nonNull)
+                .filter(entity -> entity.getCapability(ForgeCapabilities.FLUID_HANDLER).isPresent())
                 .findFirst()
                 .orElse(null);
     }
@@ -691,6 +704,11 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
     @Nullable
     public IFluidHandler getFluidHandlerInFront() {
         return fluidHandlerInFront;
+    }
+
+    @Nullable
+    public Entity getEntityInFront() {
+        return entityInFront;
     }
 
     private CachedValue<AABB> detectionBox = new CachedValue<>(this::createDetectionBox);

@@ -95,7 +95,7 @@ public class GuiFuelStation extends ScreenBase<ContainerFuelStation> {
 
         // Tank fill bar (only when vehicle present)
         IFluidHandler handler = fuelStation.getFluidHandlerInFront();
-        if (handler instanceof Entity) {
+        if (handler != null && fuelStation.getEntityInFront() != null) {
             int barX = x + 8;
             int barY = y + 55;
             int barW = 120;
@@ -128,8 +128,9 @@ public class GuiFuelStation extends ScreenBase<ContainerFuelStation> {
         // === CARD 1: Vehicle Info ===
         g.drawString(font, Component.translatable("gui.fuel_station").getString(), 8, 6, TEXT_WHITE, false);
 
+        Entity entity = fuelStation.getEntityInFront();
         IFluidHandler handler = fuelStation.getFluidHandlerInFront();
-        if (handler instanceof Entity entity) {
+        if (entity != null && handler != null) {
             // Vehicle name
             String name;
             if (entity instanceof EntityGenericVehicle vehicle) {
