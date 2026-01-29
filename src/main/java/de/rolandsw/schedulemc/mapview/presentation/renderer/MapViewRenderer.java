@@ -295,7 +295,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     @Override
     public void run() {
         if (minecraft != null) {
-            while (true) {
+            while (!Thread.currentThread().isInterrupted()) {
                 if (this.world != null) {
                     if (this.options.minimapAllowed) {
                         try {
@@ -321,7 +321,8 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
                     try {
                         this.zCalcLock.wait(0L);
                     } catch (InterruptedException exception) {
-                        MapViewConstants.getLogger().error("MapDataManager LiveMap Calculation Thread", exception);
+                        Thread.currentThread().interrupt();
+                        break;
                     }
                 }
             }

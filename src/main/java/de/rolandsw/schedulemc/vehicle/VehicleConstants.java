@@ -161,4 +161,42 @@ public final class VehicleConstants {
      */
     public static final int PARTICLE_CHANCE_LOW = 10;
     public static final int PARTICLE_CHANCE_MEDIUM = 5;
+
+    // ═══════════════════════════════════════════════════════════
+    // ODOMETER & VEHICLE AGING
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Kilometer-Schwellwerte für maximale Fahrzeug-Gesundheit.
+     * Werte in Blöcken (1 Block ≈ 1 Meter).
+     *
+     * 0 - 250.000: 100% max health
+     * 250.000 - 500.000: 75% max health
+     * 500.000 - 750.000: 50% max health
+     * 750.000 - 1.000.000: 25% max health
+     */
+    public static final long ODOMETER_TIER_1 = 250_000L;
+    public static final long ODOMETER_TIER_2 = 500_000L;
+    public static final long ODOMETER_TIER_3 = 750_000L;
+    public static final long ODOMETER_TIER_4 = 1_000_000L;
+
+    /**
+     * Maximale Gesundheit in Prozent pro Altersstufe (0.0 - 1.0)
+     */
+    public static final float AGING_MAX_HEALTH_TIER_0 = 1.00F;  // 100%
+    public static final float AGING_MAX_HEALTH_TIER_1 = 0.75F;  //  75%
+    public static final float AGING_MAX_HEALTH_TIER_2 = 0.50F;  //  50%
+    public static final float AGING_MAX_HEALTH_TIER_3 = 0.25F;  //  25%
+
+    // ═══════════════════════════════════════════════════════════
+    // TIRE SEASONS
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Speed-Modifier wenn falsche Reifen für die Jahreszeit montiert sind.
+     * 1.0 = volle Geschwindigkeit, 0.5 = halbe Geschwindigkeit
+     */
+    public static final float TIRE_SEASON_CORRECT_MODIFIER = 1.0F;
+    public static final float TIRE_SEASON_WRONG_MODIFIER = 0.5F;
+    public static final float TIRE_SEASON_ALLSEASON_MODIFIER = 0.85F;
 }

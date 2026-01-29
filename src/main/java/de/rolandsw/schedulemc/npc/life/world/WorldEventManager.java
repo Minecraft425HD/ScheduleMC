@@ -500,62 +500,33 @@ public class WorldEventManager extends AbstractPersistenceManager<WorldEventMana
                 correctedCount++;
             }
 
-            for (Map.Entry<Long, List<String>> entry : data.eventHistory.entrySet()) {
+            for (Map.Entry<WorldEventType, Long> entry : data.eventHistory.entrySet()) {
                 try {
-                    Long day = entry.getKey();
-                    List<String> eventIds = entry.getValue();
+                    WorldEventType eventType = entry.getKey();
+                    Long day = entry.getValue();
 
                     // NULL CHECK
-                    if (day == null) {
-                        LOGGER.warn("Null day key in event history, skipping");
+                    if (eventType == null) {
+                        LOGGER.warn("Null event type key in event history, skipping");
                         invalidCount++;
                         continue;
                     }
-                    if (eventIds == null) {
-                        LOGGER.warn("Null event IDs list for day {}, skipping", day);
+                    if (day == null) {
+                        LOGGER.warn("Null day value for event type {}, skipping", eventType);
                         invalidCount++;
                         continue;
                     }
 
                     // VALIDATE DAY (>= 0)
                     if (day < 0) {
-                        LOGGER.warn("Negative day {} in event history, skipping", day);
+                        LOGGER.warn("Negative day {} for event type {}, skipping", day, eventType);
                         invalidCount++;
                         continue;
                     }
 
-                    // VALIDATE LIST SIZE
-                    if (eventIds.size() > 100) {
-                        LOGGER.warn("Day {} has too many event IDs ({}), truncating to 100",
-                            day, eventIds.size());
-                        eventIds = new ArrayList<>(eventIds.subList(0, 100));
-                        correctedCount++;
-                    }
-
-                    // VALIDATE EVENT IDS - check for null or empty strings
-                    List<String> validEventIds = new ArrayList<>();
-                    for (String eventId : eventIds) {
-                        if (eventId == null || eventId.isEmpty()) {
-                            LOGGER.warn("Day {} has null/empty event ID, skipping", day);
-                            invalidCount++;
-                            continue;
-                        }
-                        if (eventId.length() > 200) {
-                            LOGGER.warn("Day {} has too long event ID ({} chars), skipping",
-                                day, eventId.length());
-                            invalidCount++;
-                            continue;
-                        }
-                        validEventIds.add(eventId);
-                    }
-
-                    if (validEventIds.size() != eventIds.size()) {
-                        correctedCount++;
-                    }
-
-                    eventHistory.put(day, validEventIds);
+                    eventHistory.put(eventType, day);
                 } catch (Exception e) {
-                    LOGGER.error("Error loading event history for day {}", entry.getKey(), e);
+                    LOGGER.error("Error loading event history for {}", entry.getKey(), e);
                     invalidCount++;
                 }
             }

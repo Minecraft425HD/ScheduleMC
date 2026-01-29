@@ -371,7 +371,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
      * Markiert Daten als geändert
      */
     public static void markDirty() {
-        dirty = true;
+        dirty.set(true);
     }
 
     /**
@@ -671,7 +671,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
     public static void clearAllPlots() {
         synchronized (PLOT_LOCK) {
             int plotCount = plots.size();
-            int cacheCount = plotCache.getStatistics().size;
+            int cacheCount = plotCache.getStatistics().currentSize;
 
             plots.clear();
             spatialIndex.clear();

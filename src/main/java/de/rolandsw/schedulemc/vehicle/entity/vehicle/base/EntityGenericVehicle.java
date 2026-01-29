@@ -565,6 +565,28 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         return 90F;
     }
 
+    // ═══════════════════════════════════════════════════════════
+    // ODOMETER (Delegate to PhysicsComponent)
+    // ═══════════════════════════════════════════════════════════
+
+    public long getOdometer() {
+        return physicsComponent != null ? physicsComponent.getOdometer() : 0L;
+    }
+
+    public void setOdometer(long value) {
+        if (physicsComponent != null) {
+            physicsComponent.setOdometer(value);
+        }
+    }
+
+    /**
+     * Maximale Gesundheit in Prozent (0.0 - 1.0) basierend auf Kilometerstand.
+     * 100% bei 0-250k Blöcken, 75% bei 250k-500k, 50% bei 500k-750k, 25% bei 750k+
+     */
+    public float getMaxHealthPercent() {
+        return physicsComponent != null ? physicsComponent.getMaxHealthPercent() : 1.0F;
+    }
+
     public int getMaxFuel() {
         PartTank tank = getPartByClass(PartTank.class);
         return tank != null ? tank.getSize() : 500;

@@ -453,10 +453,10 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
                 correctedCount++;
             }
 
-            for (Map.Entry<String, PriceModifier> entry : data.temporaryModifiers.entrySet()) {
+            for (Map.Entry<String, TemporaryModifier> entry : data.temporaryModifiers.entrySet()) {
                 try {
                     String key = entry.getKey();
-                    PriceModifier modifier = entry.getValue();
+                    TemporaryModifier modifier = entry.getValue();
 
                     // NULL CHECK
                     if (key == null || key.isEmpty()) {

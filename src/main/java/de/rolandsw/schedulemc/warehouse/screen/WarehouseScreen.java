@@ -994,14 +994,14 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
      */
     private void scheduleRefresh() {
         // Schedule refresh after 250ms to allow server sync
-        ThreadPoolManager.scheduleDelayed(() -> {
+        ThreadPoolManager.getScheduledPool().schedule(() -> {
             // Execute on main thread
             minecraft.execute(() -> {
                 if (this.menu != null && this.menu.getWarehouse() != null) {
                     initTabComponents();
                 }
             });
-        }, 250L);
+        }, 250L, java.util.concurrent.TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -1010,7 +1010,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
      */
     private void scheduleRefreshForItemAddition() {
         // Schedule refresh after 500ms for item addition
-        ThreadPoolManager.scheduleDelayed(() -> {
+        ThreadPoolManager.getScheduledPool().schedule(() -> {
             // Execute on main thread - kompletter Refresh
             minecraft.execute(() -> {
                 if (this.menu != null && this.menu.getWarehouse() != null) {
@@ -1022,7 +1022,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
                     init();
                 }
             });
-        }, 500L);
+        }, 500L, java.util.concurrent.TimeUnit.MILLISECONDS);
     }
 
     // ═══════════════════════════════════════════════════════════
