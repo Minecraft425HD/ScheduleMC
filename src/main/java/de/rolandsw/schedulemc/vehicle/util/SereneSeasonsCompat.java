@@ -119,25 +119,37 @@ public final class SereneSeasonsCompat {
     private static class SereneSeasonsHelper {
 
         static boolean isWinterSeason(Level level) {
-            sereneseasons.api.season.Season season = sereneseasons.api.season.SeasonHelper.getCurrentSeason(level);
-            if (season == null) return false;
+            try {
+                Class<?> seasonHelperClass = Class.forName("sereneseasons.api.season.SeasonHelper");
+                Object season = seasonHelperClass.getMethod("getCurrentSeason", Level.class).invoke(null, level);
+                if (season == null) return false;
 
-            sereneseasons.api.season.Season.SubSeason subSeason = season.getSubSeason();
-            return subSeason == sereneseasons.api.season.Season.SubSeason.LATE_AUTUMN
-                || subSeason == sereneseasons.api.season.Season.SubSeason.EARLY_WINTER
-                || subSeason == sereneseasons.api.season.Season.SubSeason.MID_WINTER
-                || subSeason == sereneseasons.api.season.Season.SubSeason.LATE_WINTER;
+                Object subSeason = season.getClass().getMethod("getSubSeason").invoke(season);
+                String name = subSeason.toString();
+                return "LATE_AUTUMN".equals(name)
+                    || "EARLY_WINTER".equals(name)
+                    || "MID_WINTER".equals(name)
+                    || "LATE_WINTER".equals(name);
+            } catch (Exception e) {
+                return false;
+            }
         }
 
         static boolean isSummerSeason(Level level) {
-            sereneseasons.api.season.Season season = sereneseasons.api.season.SeasonHelper.getCurrentSeason(level);
-            if (season == null) return false;
+            try {
+                Class<?> seasonHelperClass = Class.forName("sereneseasons.api.season.SeasonHelper");
+                Object season = seasonHelperClass.getMethod("getCurrentSeason", Level.class).invoke(null, level);
+                if (season == null) return false;
 
-            sereneseasons.api.season.Season.SubSeason subSeason = season.getSubSeason();
-            return subSeason == sereneseasons.api.season.Season.SubSeason.LATE_SPRING
-                || subSeason == sereneseasons.api.season.Season.SubSeason.EARLY_SUMMER
-                || subSeason == sereneseasons.api.season.Season.SubSeason.MID_SUMMER
-                || subSeason == sereneseasons.api.season.Season.SubSeason.LATE_SUMMER;
+                Object subSeason = season.getClass().getMethod("getSubSeason").invoke(season);
+                String name = subSeason.toString();
+                return "LATE_SPRING".equals(name)
+                    || "EARLY_SUMMER".equals(name)
+                    || "MID_SUMMER".equals(name)
+                    || "LATE_SUMMER".equals(name);
+            } catch (Exception e) {
+                return false;
+            }
         }
     }
 }

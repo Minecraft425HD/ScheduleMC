@@ -260,6 +260,8 @@ public class QuestProgress {
         return activeQuests.size();
     }
 
+    public Set<String> getCompletedQuestIds() { return completedQuestIds; }
+    public Map<String, Long> getQuestCooldowns() { return questCooldowns; }
     public int getTotalQuestsCompleted() { return totalQuestsCompleted; }
     public int getTotalQuestsFailed() { return totalQuestsFailed; }
     public int getTotalQuestsAbandoned() { return totalQuestsAbandoned; }
