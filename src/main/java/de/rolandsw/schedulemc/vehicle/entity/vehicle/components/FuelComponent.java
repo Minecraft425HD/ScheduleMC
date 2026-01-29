@@ -123,16 +123,16 @@ public class FuelComponent extends VehicleComponent implements IFluidHandler {
 
     /**
      * Returns how many blocks the vehicle can travel per liter (1000 mB).
-     * Base range (default 500) minus penalty per engine upgrade level (default 25).
+     * Calculated from the engine's fuel consumption in L/10km (500 blocks = 1 km).
      */
     public double getBlocksPerLiter() {
-        int baseRange = ModConfigHandler.VEHICLE_SERVER.baseBlocksPerLiter.get();
-        int penalty = ModConfigHandler.VEHICLE_SERVER.engineUpgradeRangePenalty.get();
-
         PartEngine engine = vehicle.getPartByClass(PartEngine.class);
-        int upgradeLevel = engine != null ? engine.getUpgradeLevel() : 0;
+        double consumptionPer10km = engine != null
+                ? engine.getFuelConsumptionPer10km()
+                : ModConfigHandler.VEHICLE_SERVER.normalMotorFuelConsumption.get();
 
-        return Math.max(1, baseRange - penalty * upgradeLevel);
+        // 10 km = 5000 blocks, so: blocksPerLiter = 5000 / consumptionPer10km
+        return 5000.0 / Math.max(0.1, consumptionPer10km);
     }
 
     public void removeFuel(int amount) {

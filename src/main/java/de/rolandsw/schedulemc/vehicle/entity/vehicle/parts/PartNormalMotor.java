@@ -12,6 +12,7 @@ public class PartNormalMotor extends PartEngine {
         this.maxReverseSpeed = () -> ModConfigHandler.VEHICLE_SERVER.normalMotorMaxReverseSpeed.get().floatValue();
         this.acceleration = () -> ModConfigHandler.VEHICLE_SERVER.normalMotorAcceleration.get().floatValue();
         this.fuelEfficiency = () -> ModConfigHandler.VEHICLE_SERVER.normalMotorFuelEfficiency.get().floatValue();
+        this.fuelConsumptionPer10km = () -> ModConfigHandler.VEHICLE_SERVER.normalMotorFuelConsumption.get();
     }
 
     @Override

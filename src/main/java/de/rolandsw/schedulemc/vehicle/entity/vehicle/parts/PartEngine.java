@@ -12,6 +12,7 @@ public abstract class PartEngine extends Part {
     protected Supplier<Float> maxReverseSpeed;
     protected Supplier<Float> acceleration;
     protected Supplier<Float> fuelEfficiency;
+    protected Supplier<Double> fuelConsumptionPer10km;
 
     public PartEngine() {
 
@@ -50,8 +51,14 @@ public abstract class PartEngine extends Part {
     }
 
     /**
-     * Returns the upgrade level of this engine (0 = Standard, 1 = first upgrade, 2 = second upgrade, etc.).
-     * Each upgrade level reduces fuel range by engineUpgradeRangePenalty blocks per liter.
+     * Returns fuel consumption in liters per 10 km (500 blocks = 1 km).
+     */
+    public double getFuelConsumptionPer10km() {
+        return fuelConsumptionPer10km.get();
+    }
+
+    /**
+     * Returns the upgrade level of this engine (0 = Standard, 1 = first upgrade, 2 = second upgrade).
      */
     public abstract int getUpgradeLevel();
 
