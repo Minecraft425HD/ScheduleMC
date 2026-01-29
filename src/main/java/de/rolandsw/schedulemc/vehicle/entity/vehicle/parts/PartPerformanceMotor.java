@@ -15,6 +15,11 @@ public class PartPerformanceMotor extends PartEngine {
     }
 
     @Override
+    public int getUpgradeLevel() {
+        return 1;
+    }
+
+    @Override
     public SoundEvent getStopSound() {
         return ModSounds.SPORT_ENGINE_STOP.get();
     }

@@ -15,6 +15,11 @@ public class PartIndustrialMotor extends PartEngine {
     }
 
     @Override
+    public int getUpgradeLevel() {
+        return 2;
+    }
+
+    @Override
     public SoundEvent getStopSound() {
         return ModSounds.TRUCK_ENGINE_STOP.get();
     }

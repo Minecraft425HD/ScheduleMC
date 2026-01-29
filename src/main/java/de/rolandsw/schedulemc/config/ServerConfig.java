@@ -45,6 +45,10 @@ public class ServerConfig extends ConfigBase {
     public final ForgeConfigSpec.IntValue tankMediumMaxFuel;
     public final ForgeConfigSpec.IntValue tankLargeMaxFuel;
 
+    // Distance-based fuel consumption
+    public final ForgeConfigSpec.IntValue baseBlocksPerLiter;
+    public final ForgeConfigSpec.IntValue engineUpgradeRangePenalty;
+
     public final ForgeConfigSpec.DoubleValue performanceMotorFuelEfficiency;
     public final ForgeConfigSpec.DoubleValue normalMotorFuelEfficiency;
     public final ForgeConfigSpec.DoubleValue industrialMotorFuelEfficiency;
@@ -154,9 +158,12 @@ public class ServerConfig extends ConfigBase {
         vehicleOnroadSpeed = builder.comment("The speed modifier for vehicles on road blocks", "On road blocks are defined in the config section 'road_blocks'").defineInRange("vehicle.onroad_speed_modifier", 1D, 0.001D, 10D);
         vehicleDriveBlocks = builder.comment("If it starts with '#' it is a tag").defineList("vehicle.road_blocks.blocks", Collections.singletonList("#vehicle:drivable_blocks"), Objects::nonNull);
 
-        tankSmallMaxFuel = builder.defineInRange("vehicle.parts.small_tank.max_fuel", 500, 100, 100_000);
-        tankMediumMaxFuel = builder.defineInRange("vehicle.parts.medium_tank.max_fuel", 1000, 100, 100_000);
-        tankLargeMaxFuel = builder.defineInRange("vehicle.parts.large_tank.max_fuel", 1500, 100, 100_000);
+        tankSmallMaxFuel = builder.comment("Default tank: 10 Liter = 10000 mB").defineInRange("vehicle.parts.small_tank.max_fuel", 10000, 100, 100_000);
+        tankMediumMaxFuel = builder.comment("1st upgrade: +2 Liter = 12000 mB").defineInRange("vehicle.parts.medium_tank.max_fuel", 12000, 100, 100_000);
+        tankLargeMaxFuel = builder.comment("2nd upgrade: +2 Liter = 14000 mB").defineInRange("vehicle.parts.large_tank.max_fuel", 14000, 100, 100_000);
+
+        baseBlocksPerLiter = builder.comment("How many blocks a vehicle can travel per liter (1000 mB) with the default engine").defineInRange("vehicle.fuel.base_blocks_per_liter", 500, 1, 100_000);
+        engineUpgradeRangePenalty = builder.comment("How many blocks per liter are lost per engine upgrade level").defineInRange("vehicle.fuel.engine_upgrade_range_penalty", 25, 0, 10_000);
 
         performanceMotorFuelEfficiency = builder.defineInRange("vehicle.parts.performance_motor.fuel_efficiency", 0.25D, 0.001D, 10D);
         normalMotorFuelEfficiency = builder.defineInRange("vehicle.parts.normal_motor.fuel_efficiency", 0.5D, 0.001D, 10D);

@@ -15,6 +15,11 @@ public class PartNormalMotor extends PartEngine {
     }
 
     @Override
+    public int getUpgradeLevel() {
+        return 0;
+    }
+
+    @Override
     public SoundEvent getStopSound() {
         return ModSounds.ENGINE_STOP.get();
     }

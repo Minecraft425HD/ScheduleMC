@@ -49,6 +49,12 @@ public abstract class PartEngine extends Part {
         return fuelEfficiency.get();
     }
 
+    /**
+     * Returns the upgrade level of this engine (0 = Standard, 1 = first upgrade, 2 = second upgrade, etc.).
+     * Each upgrade level reduces fuel range by engineUpgradeRangePenalty blocks per liter.
+     */
+    public abstract int getUpgradeLevel();
+
     @Override
     public boolean validate(List<Part> parts, List<Component> messages) {
         if (getAmount(parts, part -> part instanceof PartTank) > 1) {
