@@ -76,6 +76,10 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
     private int totalFueledThisSession;
     private UUID currentFuelingPlayer;
 
+    // Client-synced price data (updated from config on server, synced via NBT)
+    private int morningPrice;
+    private int eveningPrice;
+
     @Nullable
     private IFluidHandler fluidHandlerInFront;
 
@@ -177,6 +181,17 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
     public void tick() {
         if (level.getGameTime() % 100 == 0) {
             fixTop();
+            // Sync price config to client via NBT
+            if (!level.isClientSide) {
+                int newMorning = ModConfigHandler.VEHICLE_SERVER.fuelStationMorningPricePer10mb.get();
+                int newEvening = ModConfigHandler.VEHICLE_SERVER.fuelStationEveningPricePer10mb.get();
+                if (newMorning != morningPrice || newEvening != eveningPrice) {
+                    morningPrice = newMorning;
+                    eveningPrice = newEvening;
+                    setChanged();
+                    synchronize();
+                }
+            }
         }
 
         // OPTIMIERUNG: Entity-Scan nur alle ENTITY_SCAN_INTERVAL Ticks
@@ -538,6 +553,11 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
         if (shopPlotId != null && !shopPlotId.isEmpty()) {
             compound.putString("shop_plot_id", shopPlotId);
         }
+
+        compound.putInt("morning_price", morningPrice);
+        compound.putInt("evening_price", eveningPrice);
+        compound.putDouble("total_cost_session", totalCostThisSession);
+        compound.putInt("total_fueled_session", totalFueledThisSession);
     }
 
     @Override
@@ -571,6 +591,12 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
         } else {
             owner = new UUID(0L, 0L);
         }
+
+        morningPrice = compound.getInt("morning_price");
+        eveningPrice = compound.getInt("evening_price");
+        totalCostThisSession = compound.getDouble("total_cost_session");
+        totalFueledThisSession = compound.getInt("total_fueled_session");
+
         super.load(compound);
     }
 
@@ -718,6 +744,22 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
             return storage.getAmount();
         }
         return 0;
+    }
+
+    public int getMorningPrice() {
+        return morningPrice;
+    }
+
+    public int getEveningPrice() {
+        return eveningPrice;
+    }
+
+    public int getTotalCostThisSession() {
+        return (int) totalCostThisSession;
+    }
+
+    public int getTotalFueledThisSession() {
+        return totalFueledThisSession;
     }
 
     @Override
