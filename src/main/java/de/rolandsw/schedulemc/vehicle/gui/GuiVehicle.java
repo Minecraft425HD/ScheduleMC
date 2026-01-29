@@ -64,11 +64,11 @@ public class GuiVehicle extends ScreenBase<ContainerVehicle> {
         guiGraphics.drawString(font, Component.translatable("gui.vehicle.status.temperature"), labelX, startY + lineHeight * 3, fontColor, false);
         guiGraphics.drawString(font, getTempValueString(), valueX, startY + lineHeight * 3, fontColor, false);
 
-        guiGraphics.drawString(font, Component.translatable("gui.vehicle.status.odometer"), labelX, startY + lineHeight * 4, fontColor, false);
-        guiGraphics.drawString(font, getOdometerValueString(), valueX, startY + lineHeight * 4, fontColor, false);
-
-        // Vehicle name at bottom of status area
+        // Vehicle name and odometer on the same line
         guiGraphics.drawString(font, vehicle.getDisplayName().getVisualOrderText(), 8, 87, fontColor, false);
+        String odoStr = getOdometerValueString();
+        int odoWidth = font.width(odoStr);
+        guiGraphics.drawString(font, odoStr, imageWidth - 8 - odoWidth, 87, fontColor, false);
     }
 
     private void drawRightAlignedString(GuiGraphics guiGraphics, String text, int rightX, int y) {
@@ -186,12 +186,10 @@ public class GuiVehicle extends ScreenBase<ContainerVehicle> {
 
         // Cover ALL empty rows that should not be visible
         int totalSlots = internalSlots + externalSlots;
-        if (totalSlots < 27) { // If less than 3 full rows
-            int totalRows = (int) Math.ceil(totalSlots / 9.0);
-            int startCoverY = 98 + totalRows * 18;
-            // Cover from after last used row to end of potential inventory area
-            guiGraphics.fill(leftPos + 7, topPos + startCoverY, leftPos + 169, topPos + 98 + 3 * 18, bgColor);
-        }
+        int totalRows = totalSlots > 0 ? (int) Math.ceil(totalSlots / 9.0) : 0;
+        int startCoverY = 98 + totalRows * 18;
+        // Cover from after last used row to the bottom of the GUI
+        guiGraphics.fill(leftPos + 7, topPos + startCoverY, leftPos + 169, topPos + imageHeight - 4, bgColor);
     }
 
 }
