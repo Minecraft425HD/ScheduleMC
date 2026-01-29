@@ -283,7 +283,12 @@ public class PhysicsComponent extends VehicleComponent {
     }
 
     private float subtractToZero(float value, float subtract) {
-        return Math.max(0, value - subtract);
+        if (value > 0) {
+            return Math.max(0, value - subtract);
+        } else if (value < 0) {
+            return Math.min(0, value + subtract);
+        }
+        return 0;
     }
 
     public float getModifier() {
@@ -484,6 +489,9 @@ public class PhysicsComponent extends VehicleComponent {
     }
 
     public boolean isLeft() {
+        if (vehicle.getDriver() == null || !canPlayerDriveVehicle(vehicle.getDriver())) {
+            return false;
+        }
         return vehicle.getEntityData().get(LEFT);
     }
 
@@ -492,6 +500,9 @@ public class PhysicsComponent extends VehicleComponent {
     }
 
     public boolean isRight() {
+        if (vehicle.getDriver() == null || !canPlayerDriveVehicle(vehicle.getDriver())) {
+            return false;
+        }
         return vehicle.getEntityData().get(RIGHT);
     }
 

@@ -216,7 +216,7 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
             int pricePerUnit = getCurrentPrice();
 
             // DEBUG: Log price
-            Main.LOGGER.info("[FuelStation] Current price: {}€ per 10mB (tradeAmount: {})", pricePerUnit, tradeAmount);
+            Main.LOGGER.debug("[FuelStation] Current price: {}€ per 10mB (tradeAmount: {})", pricePerUnit, tradeAmount);
 
             if (tradeAmount <= 0) {
                 // If no trade amount set, fuel on credit (bill payment system)
@@ -251,9 +251,9 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
                             player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
 
                             // DEBUG LOGGING
-                            Main.LOGGER.info("[FuelStation] Player {} started fueling at station {} ({})",
+                            Main.LOGGER.debug("[FuelStation] Player {} started fueling at station {} ({})",
                                 player.getName().getString(), stationName, fuelStationId);
-                            Main.LOGGER.info("[FuelStation] Price: {}€ per 10mB ({})", pricePerUnit, timeOfDay);
+                            Main.LOGGER.debug("[FuelStation] Price: {}€ per 10mB ({})", pricePerUnit, timeOfDay);
                         }
 
                         // Calculate cost for 10 mB and add to bill (no immediate payment)
@@ -309,15 +309,15 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
     private void sendFuelBillToPlayer(UUID playerUUID, int totalFueled, double totalCost) {
         // DEBUG LOGGING
         String stationName = FuelStationRegistry.getDisplayName(fuelStationId);
-        Main.LOGGER.info("[FuelStation] Creating bill for player {} at station {} ({})",
+        Main.LOGGER.debug("[FuelStation] Creating bill for player {} at station {} ({})",
             playerUUID, stationName, fuelStationId);
-        Main.LOGGER.info("[FuelStation] Bill details: {} mB fueled, total cost: {}€", totalFueled, totalCost);
+        Main.LOGGER.debug("[FuelStation] Bill details: {} mB fueled, total cost: {}€", totalFueled, totalCost);
 
         // Erstelle Fuel Bill für spätere Bezahlung am Tankstellen-NPC
         FuelBillManager.createBill(playerUUID, fuelStationId, totalFueled, totalCost);
         FuelBillManager.saveIfNeeded();
 
-        Main.LOGGER.info("[FuelStation] Bill created and saved successfully");
+        Main.LOGGER.debug("[FuelStation] Bill created and saved successfully");
 
         Player player = level.getPlayerByUUID(playerUUID);
         if (player != null) {
@@ -382,22 +382,23 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
      */
     private Player findPlayerForFueling() {
         // Search for entities in the detection box
-        List<Entity> entities = level.getEntitiesOfClass(Entity.class, getDetectionBox());
-
-        // DEBUG: Log what entities we found
-        Main.LOGGER.info("[FuelStation] Searching for player in detection box. Found {} entities", entities.size());
+        AABB box = getDetectionBox();
+        if (box == null) {
+            return null;
+        }
+        List<Entity> entities = level.getEntitiesOfClass(Entity.class, box);
 
         Entity vehicleWithFluidHandler = null;
 
         for (Entity entity : entities) {
             if (entity.getCapability(ForgeCapabilities.FLUID_HANDLER).isPresent()) {
                 vehicleWithFluidHandler = entity;
-                Main.LOGGER.info("[FuelStation] Found vehicle with fluid handler: {}", entity.getClass().getSimpleName());
+                Main.LOGGER.debug("[FuelStation] Found vehicle with fluid handler: {}", entity.getClass().getSimpleName());
 
                 // First try to get the controlling passenger
                 if (entity.getControllingPassenger() instanceof Player) {
                     Player player = (Player) entity.getControllingPassenger();
-                    Main.LOGGER.info("[FuelStation] Found controlling passenger: {}", player.getName().getString());
+                    Main.LOGGER.debug("[FuelStation] Found controlling passenger: {}", player.getName().getString());
                     return player;
                 }
 
@@ -405,7 +406,7 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
                 for (Entity passenger : entity.getPassengers()) {
                     if (passenger instanceof Player) {
                         Player player = (Player) passenger;
-                        Main.LOGGER.info("[FuelStation] Found passenger: {}", player.getName().getString());
+                        Main.LOGGER.debug("[FuelStation] Found passenger: {}", player.getName().getString());
                         return player;
                     }
                 }
@@ -414,19 +415,18 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
 
         // If no player in vehicle, search for nearby players who might have just exited
         if (vehicleWithFluidHandler != null) {
-            Main.LOGGER.info("[FuelStation] No player in vehicle, searching for nearby players...");
             List<Player> nearbyPlayers = level.getEntitiesOfClass(Player.class,
-                getDetectionBox().inflate(3.0D), // 3 block radius around detection box
+                box.inflate(3.0D), // 3 block radius around detection box
                 p -> !p.isSpectator());
 
             if (!nearbyPlayers.isEmpty()) {
                 Player nearestPlayer = nearbyPlayers.get(0);
-                Main.LOGGER.info("[FuelStation] Found nearby player: {}", nearestPlayer.getName().getString());
+                Main.LOGGER.debug("[FuelStation] Found nearby player: {}", nearestPlayer.getName().getString());
                 return nearestPlayer;
             }
         }
 
-        Main.LOGGER.info("[FuelStation] No player found for fueling!");
+        Main.LOGGER.debug("[FuelStation] No player found for fueling!");
         return null;
     }
 
@@ -779,9 +779,9 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
     @Nonnull
     @Override
     public FluidStack drain(FluidStack resource, FluidAction action) {
-        // Always return unlimited Bio-Diesel
+        // Only provide Bio-Diesel, capped at transfer rate to prevent abuse
         if (resource.getFluid().equals(ModFluids.BIO_DIESEL.get())) {
-            int amount = resource.getAmount();
+            int amount = Math.min(resource.getAmount(), transferRate);
 
             if (action.execute()) {
                 setChanged();
@@ -796,8 +796,8 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
     @Nonnull
     @Override
     public FluidStack drain(int maxDrain, FluidAction action) {
-        // Always return unlimited Bio-Diesel
-        int amount = maxDrain;
+        // Cap at transfer rate to prevent unlimited extraction by external systems
+        int amount = Math.min(maxDrain, transferRate);
 
         if (action.execute()) {
             setChanged();

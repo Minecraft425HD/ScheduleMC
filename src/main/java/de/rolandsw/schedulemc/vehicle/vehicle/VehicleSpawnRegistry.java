@@ -46,7 +46,7 @@ public class VehicleSpawnRegistry {
             if (loaded != null) {
                 dealerSpawnPoints.clear();
                 for (Map.Entry<String, List<VehicleSpawnPoint>> entry : loaded.entrySet()) {
-                    dealerSpawnPoints.put(UUID.fromString(entry.getKey()), entry.getValue());
+                    dealerSpawnPoints.put(UUID.fromString(entry.getKey()), new CopyOnWriteArrayList<>(entry.getValue()));
                 }
                 LOGGER.info("Fahrzeug-Spawn-Punkte geladen: {} Händler", dealerSpawnPoints.size());
             }
@@ -86,7 +86,7 @@ public class VehicleSpawnRegistry {
      * Fügt einen Spawn-Punkt für einen Händler hinzu
      */
     public static void addSpawnPoint(UUID dealerId, BlockPos position, float yaw) {
-        List<VehicleSpawnPoint> points = dealerSpawnPoints.computeIfAbsent(dealerId, k -> new ArrayList<>());
+        List<VehicleSpawnPoint> points = dealerSpawnPoints.computeIfAbsent(dealerId, k -> new CopyOnWriteArrayList<>());
         points.add(new VehicleSpawnPoint(position, yaw));
         isDirty = true;
     }
