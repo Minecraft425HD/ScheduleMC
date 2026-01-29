@@ -379,8 +379,74 @@ public class DialogueManager extends AbstractPersistenceManager<DialogueManager.
     protected void onDataLoaded(DialogueManagerData data) {
         npcTrees.clear();
 
+        int invalidCount = 0;
+        int correctedCount = 0;
+
+        // Validate and load npcTrees
         if (data.npcTrees != null) {
-            npcTrees.putAll(data.npcTrees);
+            // Check collection size
+            if (data.npcTrees.size() > 10000) {
+                LOGGER.warn("NPC dialogue trees map size ({}) exceeds limit, potential corruption",
+                    data.npcTrees.size());
+                correctedCount++;
+            }
+
+            for (Map.Entry<UUID, List<String>> entry : data.npcTrees.entrySet()) {
+                try {
+                    UUID npcUUID = entry.getKey();
+                    List<String> treeIds = entry.getValue();
+
+                    // NULL CHECK
+                    if (treeIds == null) {
+                        LOGGER.warn("Null tree IDs list for NPC {}, skipping", npcUUID);
+                        invalidCount++;
+                        continue;
+                    }
+
+                    // VALIDATE LIST SIZE
+                    if (treeIds.size() > 100) {
+                        LOGGER.warn("NPC {} has too many tree IDs ({}), truncating to 100",
+                            npcUUID, treeIds.size());
+                        treeIds = new ArrayList<>(treeIds.subList(0, 100));
+                        correctedCount++;
+                    }
+
+                    // VALIDATE TREE IDS - check for null or empty strings
+                    List<String> validTreeIds = new ArrayList<>();
+                    for (String treeId : treeIds) {
+                        if (treeId == null || treeId.isEmpty()) {
+                            LOGGER.warn("NPC {} has null/empty tree ID, skipping", npcUUID);
+                            invalidCount++;
+                            continue;
+                        }
+                        if (treeId.length() > 200) {
+                            LOGGER.warn("NPC {} has too long tree ID ({} chars), skipping",
+                                npcUUID, treeId.length());
+                            invalidCount++;
+                            continue;
+                        }
+                        validTreeIds.add(treeId);
+                    }
+
+                    if (validTreeIds.size() != treeIds.size()) {
+                        correctedCount++;
+                    }
+
+                    npcTrees.put(npcUUID, validTreeIds);
+                } catch (Exception e) {
+                    LOGGER.error("Error loading dialogue trees for NPC {}", entry.getKey(), e);
+                    invalidCount++;
+                }
+            }
+        }
+
+        // SUMMARY
+        if (invalidCount > 0 || correctedCount > 0) {
+            LOGGER.warn("Data validation: {} invalid entries, {} corrected entries",
+                invalidCount, correctedCount);
+            if (correctedCount > 0) {
+                markDirty(); // Re-save corrected data
+            }
         }
     }
 

@@ -264,7 +264,79 @@ public class RecurringPaymentManager extends AbstractPersistenceManager<Map<UUID
     @Override
     protected void onDataLoaded(Map<UUID, List<RecurringPayment>> data) {
         payments.clear();
-        payments.putAll(data);
+
+        int invalidCount = 0;
+        int correctedCount = 0;
+
+        // NULL CHECK
+        if (data == null) {
+            LOGGER.warn("Null data loaded for recurring payments");
+            invalidCount++;
+            return;
+        }
+
+        // Check collection size
+        if (data.size() > 10000) {
+            LOGGER.warn("Recurring payments map size ({}) exceeds limit, potential corruption",
+                data.size());
+            correctedCount++;
+        }
+
+        for (Map.Entry<UUID, List<RecurringPayment>> entry : data.entrySet()) {
+            try {
+                UUID playerUUID = entry.getKey();
+                List<RecurringPayment> paymentList = entry.getValue();
+
+                // NULL CHECK
+                if (playerUUID == null) {
+                    LOGGER.warn("Null player UUID in recurring payments, skipping");
+                    invalidCount++;
+                    continue;
+                }
+                if (paymentList == null) {
+                    LOGGER.warn("Null payment list for player {}, skipping", playerUUID);
+                    invalidCount++;
+                    continue;
+                }
+
+                // VALIDATE LIST SIZE
+                if (paymentList.size() > 100) {
+                    LOGGER.warn("Player {} has too many recurring payments ({}), truncating to 100",
+                        playerUUID, paymentList.size());
+                    paymentList = new ArrayList<>(paymentList.subList(0, 100));
+                    correctedCount++;
+                }
+
+                // VALIDATE PAYMENTS - check for null entries
+                List<RecurringPayment> validPayments = new ArrayList<>();
+                for (RecurringPayment payment : paymentList) {
+                    if (payment == null) {
+                        LOGGER.warn("Player {} has null payment, skipping", playerUUID);
+                        invalidCount++;
+                        continue;
+                    }
+                    validPayments.add(payment);
+                }
+
+                if (validPayments.size() != paymentList.size()) {
+                    correctedCount++;
+                }
+
+                payments.put(playerUUID, validPayments);
+            } catch (Exception e) {
+                LOGGER.error("Error loading recurring payments for player {}", entry.getKey(), e);
+                invalidCount++;
+            }
+        }
+
+        // SUMMARY
+        if (invalidCount > 0 || correctedCount > 0) {
+            LOGGER.warn("Data validation: {} invalid entries, {} corrected entries",
+                invalidCount, correctedCount);
+            if (correctedCount > 0) {
+                markDirty(); // Re-save corrected data
+            }
+        }
     }
 
     @Override

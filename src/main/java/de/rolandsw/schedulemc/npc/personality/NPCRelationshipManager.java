@@ -249,13 +249,60 @@ public class NPCRelationshipManager extends AbstractPersistenceManager<NPCRelati
         playerToNPCs.clear();
         npcToPlayers.clear();
 
+        int invalidCount = 0;
+        int correctedCount = 0;
+
         if (data.relationships != null) {
+            // Check collection size
+            if (data.relationships.size() > 100000) {
+                LOGGER.warn("Relationships list size ({}) exceeds limit, potential corruption",
+                    data.relationships.size());
+                correctedCount++;
+            }
+
             for (SerializedRelationship sr : data.relationships) {
                 try {
-                    UUID npcId = UUID.fromString(sr.npcId);
-                    UUID playerId = UUID.fromString(sr.playerId);
+                    // NULL CHECK
+                    if (sr == null) {
+                        LOGGER.warn("Null serialized relationship, skipping");
+                        invalidCount++;
+                        continue;
+                    }
+
+                    // VALIDATE UUIDs
+                    if (sr.npcId == null || sr.npcId.isEmpty()) {
+                        LOGGER.warn("Null/empty NPC ID in relationship, skipping");
+                        invalidCount++;
+                        continue;
+                    }
+                    if (sr.playerId == null || sr.playerId.isEmpty()) {
+                        LOGGER.warn("Null/empty player ID in relationship, skipping");
+                        invalidCount++;
+                        continue;
+                    }
+
+                    UUID npcId;
+                    UUID playerId;
+                    try {
+                        npcId = UUID.fromString(sr.npcId);
+                        playerId = UUID.fromString(sr.playerId);
+                    } catch (IllegalArgumentException e) {
+                        LOGGER.warn("Invalid UUID in relationship (npc: {}, player: {}), skipping",
+                            sr.npcId, sr.playerId);
+                        invalidCount++;
+                        continue;
+                    }
 
                     NPCRelationship rel = new NPCRelationship(npcId, playerId);
+
+                    // VALIDATE RELATIONSHIP LEVEL
+                    if (sr.relationshipLevel < -100 || sr.relationshipLevel > 100) {
+                        LOGGER.warn("Relationship level {} out of range for NPC {} and player {}, clamping to -100/100",
+                            sr.relationshipLevel, npcId, playerId);
+                        sr.relationshipLevel = Math.max(-100, Math.min(100, sr.relationshipLevel));
+                        correctedCount++;
+                    }
+
                     rel.setRelationshipLevel(sr.relationshipLevel);
 
                     String key = makeKey(npcId, playerId);
@@ -267,7 +314,17 @@ public class NPCRelationshipManager extends AbstractPersistenceManager<NPCRelati
 
                 } catch (Exception e) {
                     LOGGER.error("Error loading relationship: {}", sr, e);
+                    invalidCount++;
                 }
+            }
+        }
+
+        // SUMMARY
+        if (invalidCount > 0 || correctedCount > 0) {
+            LOGGER.warn("Data validation: {} invalid entries, {} corrected entries",
+                invalidCount, correctedCount);
+            if (correctedCount > 0) {
+                markDirty(); // Re-save corrected data
             }
         }
     }

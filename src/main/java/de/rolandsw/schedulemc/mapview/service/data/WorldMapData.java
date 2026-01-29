@@ -21,7 +21,9 @@ import de.rolandsw.schedulemc.mapview.util.ChunkCache;
 import de.rolandsw.schedulemc.mapview.util.MapViewHelper;
 import de.rolandsw.schedulemc.mapview.util.MutableBlockPos;
 import de.rolandsw.schedulemc.mapview.util.TextUtils;
+import de.rolandsw.schedulemc.util.ThreadPoolManager;
 import java.io.File;
+import java.util.concurrent.TimeUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -113,22 +115,12 @@ public class WorldMapData implements MapChangeListener {
         if (world != null) {
             this.newWorldStuff();
         } else {
-            Thread pauseForSubworldNamesThread = new Thread(null, null, "MapDataManager Pause for Subworld Name Thread") {
-                @Override
-                public void run() {
-                    try {
-                        Thread.sleep(2000L);
-                    } catch (InterruptedException var2) {
-                        MapViewConstants.getLogger().error(var2);
-                    }
-
-                    if (WorldMapData.this.world != null) {
-                        WorldMapData.this.newWorldStuff();
-                    }
-
+            // THREAD-SAFETY: Use ThreadPoolManager for delayed task
+            ThreadPoolManager.schedule(() -> {
+                if (WorldMapData.this.world != null) {
+                    WorldMapData.this.newWorldStuff();
                 }
-            };
-            pauseForSubworldNamesThread.start();
+            }, 2000L, TimeUnit.MILLISECONDS);
         }
 
     }

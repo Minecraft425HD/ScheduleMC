@@ -244,10 +244,72 @@ public class MembershipManager {
         protected void onDataLoaded(Map<String, MembershipSaveData> data) {
             memberships.clear();
 
+            int invalidCount = 0;
+            int correctedCount = 0;
+
+            // NULL CHECK
+            if (data == null) {
+                LOGGER.warn("Null data loaded for memberships");
+                invalidCount++;
+                return;
+            }
+
+            // Check collection size
+            if (data.size() > 10000) {
+                LOGGER.warn("Memberships map size ({}) exceeds limit, potential corruption",
+                    data.size());
+                correctedCount++;
+            }
+
             data.forEach((uuidStr, saveData) -> {
                 try {
-                    UUID playerId = UUID.fromString(uuidStr);
+                    // VALIDATE UUID STRING
+                    if (uuidStr == null || uuidStr.isEmpty()) {
+                        LOGGER.warn("Null/empty UUID string in memberships, skipping");
+                        return;
+                    }
+
+                    // NULL CHECK
+                    if (saveData == null) {
+                        LOGGER.warn("Null membership data for UUID {}, skipping", uuidStr);
+                        return;
+                    }
+
+                    UUID playerId;
+                    try {
+                        playerId = UUID.fromString(uuidStr);
+                    } catch (IllegalArgumentException e) {
+                        LOGGER.error("Invalid player UUID in memberships: {}", uuidStr, e);
+                        return;
+                    }
+
+                    // VALIDATE TIER ORDINAL
+                    if (saveData.tierOrdinal < 0 || saveData.tierOrdinal >= MembershipTier.values().length) {
+                        LOGGER.warn("Player {} has invalid tier ordinal {}, resetting to 0",
+                            playerId, saveData.tierOrdinal);
+                        saveData.tierOrdinal = 0;
+                    }
+
                     MembershipTier tier = MembershipTier.fromOrdinal(saveData.tierOrdinal);
+
+                    // VALIDATE TOWS THIS PERIOD (>= 0)
+                    if (saveData.towsThisPeriod < 0) {
+                        LOGGER.warn("Player {} has negative tows this period {}, resetting to 0",
+                            playerId, saveData.towsThisPeriod);
+                        saveData.towsThisPeriod = 0;
+                    }
+
+                    // VALIDATE DATES (>= 0)
+                    if (saveData.subscriptionStartDate < 0) {
+                        LOGGER.warn("Player {} has negative subscription start date {}, resetting to 0",
+                            playerId, saveData.subscriptionStartDate);
+                        saveData.subscriptionStartDate = 0;
+                    }
+                    if (saveData.nextPaymentDate < 0) {
+                        LOGGER.warn("Player {} has negative next payment date {}, resetting to 0",
+                            playerId, saveData.nextPaymentDate);
+                        saveData.nextPaymentDate = 0;
+                    }
 
                     MembershipData membershipData = new MembershipData(playerId, tier);
                     membershipData.setActive(saveData.active);
@@ -263,6 +325,15 @@ public class MembershipManager {
                     LOGGER.error("Invalid player UUID in memberships: {}", uuidStr, e);
                 }
             });
+
+            // SUMMARY
+            if (invalidCount > 0 || correctedCount > 0) {
+                LOGGER.warn("Data validation: {} invalid entries, {} corrected entries",
+                    invalidCount, correctedCount);
+                if (correctedCount > 0) {
+                    markDirty(); // Re-save corrected data
+                }
+            }
         }
 
         @Override

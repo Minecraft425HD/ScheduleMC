@@ -219,7 +219,56 @@ public class TerritoryManager extends AbstractPersistenceManager<Map<Long, Terri
     @Override
     protected void onDataLoaded(Map<Long, Territory> data) {
         territories.clear();
-        territories.putAll(data);
+
+        int invalidCount = 0;
+        int correctedCount = 0;
+
+        // NULL CHECK
+        if (data == null) {
+            LOGGER.warn("Null data loaded for territories");
+            invalidCount++;
+            return;
+        }
+
+        // Check collection size
+        if (data.size() > 100000) {
+            LOGGER.warn("Territories map size ({}) exceeds limit, potential corruption",
+                data.size());
+            correctedCount++;
+        }
+
+        for (Map.Entry<Long, Territory> entry : data.entrySet()) {
+            try {
+                Long territoryId = entry.getKey();
+                Territory territory = entry.getValue();
+
+                // NULL CHECK
+                if (territoryId == null) {
+                    LOGGER.warn("Null territory ID, skipping");
+                    invalidCount++;
+                    continue;
+                }
+                if (territory == null) {
+                    LOGGER.warn("Null territory for ID {}, skipping", territoryId);
+                    invalidCount++;
+                    continue;
+                }
+
+                territories.put(territoryId, territory);
+            } catch (Exception e) {
+                LOGGER.error("Error loading territory {}", entry.getKey(), e);
+                invalidCount++;
+            }
+        }
+
+        // SUMMARY
+        if (invalidCount > 0 || correctedCount > 0) {
+            LOGGER.warn("Data validation: {} invalid entries, {} corrected entries",
+                invalidCount, correctedCount);
+            if (correctedCount > 0) {
+                markDirty(); // Re-save corrected data
+            }
+        }
     }
 
     @Override

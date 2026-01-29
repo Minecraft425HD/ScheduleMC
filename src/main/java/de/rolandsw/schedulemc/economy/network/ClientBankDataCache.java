@@ -12,11 +12,24 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class ClientBankDataCache {
 
+    // MEMORY LEAK PREVENTION: Size limits for all collections
     /**
      * Maximum stock market history size (90 days)
      * Prevents unbounded memory growth - daily updates would grow infinitely otherwise
      */
     private static final int MAX_HISTORY_SIZE = 90;
+
+    /**
+     * Maximum transaction history size (500 entries)
+     * Prevents unbounded growth - keeps recent transactions only
+     */
+    private static final int MAX_TRANSACTIONS_SIZE = 500;
+
+    /**
+     * Maximum recurring payments size (100 entries)
+     * Prevents unbounded growth - reasonable limit for active payments
+     */
+    private static final int MAX_RECURRING_PAYMENTS_SIZE = 100;
 
     // Girokonto
     private static double balance = 0.0;
@@ -85,7 +98,8 @@ public class ClientBankDataCache {
     public static void updateData(double newBalance, List<Transaction> newTransactions,
                                   double newTotalIncome, double newTotalExpenses) {
         balance = newBalance;
-        transactions = new CopyOnWriteArrayList<>(newTransactions);
+        // MEMORY LEAK PREVENTION: Limit transaction list size
+        transactions = limitTransactionSize(newTransactions);
         totalIncome = newTotalIncome;
         totalExpenses = newTotalExpenses;
         hasData = true;
@@ -115,8 +129,9 @@ public class ClientBankDataCache {
         savingsBalance = newSavingsBalance;
         remainingTransferLimit = newRemainingLimit;
         maxTransferLimit = newMaxLimit;
-        transactions = new CopyOnWriteArrayList<>(newTransactions);
-        recurringPayments = new CopyOnWriteArrayList<>(newRecurringPayments);
+        // MEMORY LEAK PREVENTION: Limit collection sizes
+        transactions = limitTransactionSize(newTransactions);
+        recurringPayments = limitRecurringPaymentSize(newRecurringPayments);
         activeLoan = newActiveLoan;
         hasData = true;
         lastUpdateTime = System.currentTimeMillis();
@@ -138,8 +153,9 @@ public class ClientBankDataCache {
         savingsBalance = newSavingsBalance;
         remainingTransferLimit = newRemainingLimit;
         maxTransferLimit = newMaxLimit;
-        transactions = new CopyOnWriteArrayList<>(newTransactions);
-        recurringPayments = new CopyOnWriteArrayList<>(newRecurringPayments);
+        // MEMORY LEAK PREVENTION: Limit collection sizes
+        transactions = limitTransactionSize(newTransactions);
+        recurringPayments = limitRecurringPaymentSize(newRecurringPayments);
         activeLoan = newActiveLoan;
 
         // Dispo-Daten
@@ -360,17 +376,34 @@ public class ClientBankDataCache {
         return System.currentTimeMillis() - lastUpdateTime > 5000;
     }
 
+    /**
+     * Clears ALL cached data. Called on disconnect or world unload.
+     * MEMORY LEAK PREVENTION: Ensures no data persists across sessions.
+     * Clears all 5 static collections and resets all scalar values.
+     */
     public static void clear() {
+        // Clear all scalar values
         balance = 0.0;
         walletBalance = 0.0;
         savingsBalance = 0.0;
         remainingTransferLimit = 0.0;
         maxTransferLimit = 0.0;
-        transactions.clear();
-        recurringPayments.clear();
-        activeLoan = null;
         totalIncome = 0.0;
         totalExpenses = 0.0;
+
+        // MEMORY LEAK PREVENTION: Clear all collections
+        int transactionCount = transactions.size();
+        int recurringPaymentCount = recurringPayments.size();
+        int totalHistoryCount = goldHistory.size() + diamondHistory.size() + emeraldHistory.size();
+
+        transactions.clear();
+        recurringPayments.clear();
+        goldHistory.clear();
+        diamondHistory.clear();
+        emeraldHistory.clear();
+
+        // Clear complex objects
+        activeLoan = null;
 
         // Clear overdraft data
         overdraftAmount = 0.0;
@@ -379,10 +412,22 @@ public class ClientBankDataCache {
         daysUntilPrison = 0;
         potentialPrisonMinutes = 0.0;
 
-        // Clear stock data
-        goldHistory.clear();
-        diamondHistory.clear();
-        emeraldHistory.clear();
+        // Clear stock market data
+        goldPrice = 150.0;
+        diamondPrice = 800.0;
+        emeraldPrice = 100.0;
+        goldTrend = 0;
+        diamondTrend = 0;
+        emeraldTrend = 0;
+        goldHigh = 150.0;
+        goldLow = 150.0;
+        goldAvg = 150.0;
+        diamondHigh = 800.0;
+        diamondLow = 800.0;
+        diamondAvg = 800.0;
+        emeraldHigh = 100.0;
+        emeraldLow = 100.0;
+        emeraldAvg = 100.0;
 
         hasData = false;
         lastUpdateTime = 0;
@@ -405,6 +450,45 @@ public class ClientBankDataCache {
         // Keep only last MAX_HISTORY_SIZE entries
         int startIndex = history.size() - MAX_HISTORY_SIZE;
         List<Double> limited = history.subList(startIndex, history.size());
+        return new CopyOnWriteArrayList<>(limited);
+    }
+
+    /**
+     * Limits transaction list size to MAX_TRANSACTIONS_SIZE (500 entries).
+     * Keeps only the most recent entries.
+     * MEMORY LEAK PREVENTION: Prevents unbounded growth of transaction history.
+     */
+    private static List<Transaction> limitTransactionSize(List<Transaction> transactionList) {
+        if (transactionList == null) {
+            return new CopyOnWriteArrayList<>();
+        }
+
+        if (transactionList.size() <= MAX_TRANSACTIONS_SIZE) {
+            return new CopyOnWriteArrayList<>(transactionList);
+        }
+
+        // Keep only last MAX_TRANSACTIONS_SIZE entries (most recent)
+        int startIndex = transactionList.size() - MAX_TRANSACTIONS_SIZE;
+        List<Transaction> limited = transactionList.subList(startIndex, transactionList.size());
+        return new CopyOnWriteArrayList<>(limited);
+    }
+
+    /**
+     * Limits recurring payment list size to MAX_RECURRING_PAYMENTS_SIZE (100 entries).
+     * MEMORY LEAK PREVENTION: Prevents unbounded growth of recurring payments.
+     */
+    private static List<RecurringPaymentData> limitRecurringPaymentSize(List<RecurringPaymentData> paymentList) {
+        if (paymentList == null) {
+            return new CopyOnWriteArrayList<>();
+        }
+
+        if (paymentList.size() <= MAX_RECURRING_PAYMENTS_SIZE) {
+            return new CopyOnWriteArrayList<>(paymentList);
+        }
+
+        // Keep only first MAX_RECURRING_PAYMENTS_SIZE entries
+        // (assuming older payments are more important to keep)
+        List<RecurringPaymentData> limited = paymentList.subList(0, MAX_RECURRING_PAYMENTS_SIZE);
         return new CopyOnWriteArrayList<>(limited);
     }
 

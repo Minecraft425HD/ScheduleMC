@@ -221,8 +221,55 @@ public class CreditLoanManager extends AbstractPersistenceManager<Map<UUID, Cred
     @Override
     protected void onDataLoaded(Map<UUID, CreditLoan> data) {
         activeLoans.clear();
-        if (data != null) {
-            activeLoans.putAll(data);
+
+        int invalidCount = 0;
+        int correctedCount = 0;
+
+        // NULL CHECK
+        if (data == null) {
+            LOGGER.warn("Null data loaded for credit loans");
+            invalidCount++;
+            return;
+        }
+
+        // Check collection size
+        if (data.size() > 10000) {
+            LOGGER.warn("Credit loans map size ({}) exceeds limit, potential corruption",
+                data.size());
+            correctedCount++;
+        }
+
+        for (Map.Entry<UUID, CreditLoan> entry : data.entrySet()) {
+            try {
+                UUID playerUUID = entry.getKey();
+                CreditLoan loan = entry.getValue();
+
+                // NULL CHECK
+                if (playerUUID == null) {
+                    LOGGER.warn("Null player UUID in credit loans, skipping");
+                    invalidCount++;
+                    continue;
+                }
+                if (loan == null) {
+                    LOGGER.warn("Null credit loan for player {}, skipping", playerUUID);
+                    invalidCount++;
+                    continue;
+                }
+
+                activeLoans.put(playerUUID, loan);
+            } catch (Exception e) {
+                LOGGER.error("Error loading credit loan for player {}", entry.getKey(), e);
+                invalidCount++;
+            }
+        }
+
+        // SUMMARY
+        if (invalidCount > 0 || correctedCount > 0) {
+            LOGGER.warn("Data validation: {} invalid entries, {} corrected entries",
+                invalidCount, correctedCount);
+            if (correctedCount > 0) {
+                markDirty(); // Re-save corrected data
+            }
         }
     }
 

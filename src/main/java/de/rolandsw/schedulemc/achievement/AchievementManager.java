@@ -577,7 +577,56 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
     @Override
     protected void onDataLoaded(Map<UUID, PlayerAchievements> data) {
         playerData.clear();
-        playerData.putAll(data);
+
+        int invalidCount = 0;
+        int correctedCount = 0;
+
+        // NULL CHECK
+        if (data == null) {
+            LOGGER.warn("Null data loaded for achievements");
+            invalidCount++;
+            return;
+        }
+
+        // Check collection size
+        if (data.size() > 10000) {
+            LOGGER.warn("Achievement data map size ({}) exceeds limit, potential corruption",
+                data.size());
+            correctedCount++;
+        }
+
+        for (Map.Entry<UUID, PlayerAchievements> entry : data.entrySet()) {
+            try {
+                UUID playerUUID = entry.getKey();
+                PlayerAchievements achievements = entry.getValue();
+
+                // NULL CHECK
+                if (playerUUID == null) {
+                    LOGGER.warn("Null player UUID in achievements, skipping");
+                    invalidCount++;
+                    continue;
+                }
+                if (achievements == null) {
+                    LOGGER.warn("Null player achievements for player {}, skipping", playerUUID);
+                    invalidCount++;
+                    continue;
+                }
+
+                playerData.put(playerUUID, achievements);
+            } catch (Exception e) {
+                LOGGER.error("Error loading achievements for player {}", entry.getKey(), e);
+                invalidCount++;
+            }
+        }
+
+        // SUMMARY
+        if (invalidCount > 0 || correctedCount > 0) {
+            LOGGER.warn("Data validation: {} invalid entries, {} corrected entries",
+                invalidCount, correctedCount);
+            if (correctedCount > 0) {
+                markDirty(); // Re-save corrected data
+            }
+        }
     }
 
     @Override

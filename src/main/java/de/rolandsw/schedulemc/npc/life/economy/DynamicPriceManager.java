@@ -376,29 +376,149 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
 
     @Override
     protected void onDataLoaded(DynamicPriceManagerData data) {
+        int invalidCount = 0;
+        int correctedCount = 0;
+
+        // VALIDATE GLOBAL CONDITION
         if (data.globalCondition != null) {
             try {
                 globalCondition = MarketCondition.valueOf(data.globalCondition);
             } catch (IllegalArgumentException e) {
+                LOGGER.warn("Invalid global market condition {}, resetting to NORMAL", data.globalCondition);
                 globalCondition = MarketCondition.NORMAL;
+                correctedCount++;
+            }
+        } else {
+            globalCondition = MarketCondition.NORMAL;
+        }
+
+        // VALIDATE LAST KNOWN DAY
+        if (data.lastKnownDay < 0) {
+            LOGGER.warn("Invalid lastKnownDay {}, resetting to 0", data.lastKnownDay);
+            lastKnownDay = 0;
+            correctedCount++;
+        } else {
+            lastKnownDay = data.lastKnownDay;
+        }
+
+        // Validate and load categoryConditions
+        categoryConditions.clear();
+        if (data.categoryConditions != null) {
+            // Check collection size
+            if (data.categoryConditions.size() > 1000) {
+                LOGGER.warn("Category conditions map size ({}) exceeds limit, potential corruption",
+                    data.categoryConditions.size());
+                correctedCount++;
+            }
+
+            for (Map.Entry<String, MarketCondition> entry : data.categoryConditions.entrySet()) {
+                try {
+                    String category = entry.getKey();
+                    MarketCondition condition = entry.getValue();
+
+                    // NULL CHECK
+                    if (category == null || category.isEmpty()) {
+                        LOGGER.warn("Null/empty category key, skipping");
+                        invalidCount++;
+                        continue;
+                    }
+                    if (condition == null) {
+                        LOGGER.warn("Null market condition for category {}, skipping", category);
+                        invalidCount++;
+                        continue;
+                    }
+
+                    // VALIDATE CATEGORY LENGTH
+                    if (category.length() > 100) {
+                        LOGGER.warn("Category name too long ({} chars), skipping", category.length());
+                        invalidCount++;
+                        continue;
+                    }
+
+                    categoryConditions.put(category, condition);
+                } catch (Exception e) {
+                    LOGGER.error("Error loading category condition for {}", entry.getKey(), e);
+                    invalidCount++;
+                }
             }
         }
 
-        lastKnownDay = data.lastKnownDay;
-
-        categoryConditions.clear();
-        if (data.categoryConditions != null) {
-            categoryConditions.putAll(data.categoryConditions);
-        }
-
+        // Validate and load temporaryModifiers
         temporaryModifiers.clear();
         if (data.temporaryModifiers != null) {
-            temporaryModifiers.putAll(data.temporaryModifiers);
+            // Check collection size
+            if (data.temporaryModifiers.size() > 1000) {
+                LOGGER.warn("Temporary modifiers map size ({}) exceeds limit, potential corruption",
+                    data.temporaryModifiers.size());
+                correctedCount++;
+            }
+
+            for (Map.Entry<String, PriceModifier> entry : data.temporaryModifiers.entrySet()) {
+                try {
+                    String key = entry.getKey();
+                    PriceModifier modifier = entry.getValue();
+
+                    // NULL CHECK
+                    if (key == null || key.isEmpty()) {
+                        LOGGER.warn("Null/empty modifier key, skipping");
+                        invalidCount++;
+                        continue;
+                    }
+                    if (modifier == null) {
+                        LOGGER.warn("Null price modifier for key {}, skipping", key);
+                        invalidCount++;
+                        continue;
+                    }
+
+                    // VALIDATE KEY LENGTH
+                    if (key.length() > 100) {
+                        LOGGER.warn("Modifier key too long ({} chars), skipping", key.length());
+                        invalidCount++;
+                        continue;
+                    }
+
+                    temporaryModifiers.put(key, modifier);
+                } catch (Exception e) {
+                    LOGGER.error("Error loading temporary modifier for {}", entry.getKey(), e);
+                    invalidCount++;
+                }
+            }
         }
 
+        // Validate and load priceHistory
         priceHistory.clear();
         if (data.priceHistory != null) {
-            priceHistory.addAll(data.priceHistory);
+            // Check collection size
+            if (data.priceHistory.size() > MAX_HISTORY * 2) {
+                LOGGER.warn("Price history size ({}) exceeds limit, potential corruption",
+                    data.priceHistory.size());
+                correctedCount++;
+            }
+
+            for (PriceSnapshot snapshot : data.priceHistory) {
+                try {
+                    // NULL CHECK
+                    if (snapshot == null) {
+                        LOGGER.warn("Null price snapshot in history, skipping");
+                        invalidCount++;
+                        continue;
+                    }
+
+                    priceHistory.add(snapshot);
+                } catch (Exception e) {
+                    LOGGER.error("Error loading price snapshot", e);
+                    invalidCount++;
+                }
+            }
+        }
+
+        // SUMMARY
+        if (invalidCount > 0 || correctedCount > 0) {
+            LOGGER.warn("Data validation: {} invalid entries, {} corrected entries",
+                invalidCount, correctedCount);
+            if (correctedCount > 0) {
+                markDirty(); // Re-save corrected data
+            }
         }
     }
 

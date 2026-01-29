@@ -197,8 +197,89 @@ public class FuelBillManager {
         @Override
         protected void onDataLoaded(Map<String, List<UnpaidBill>> data) {
             playerBills.clear();
+
+            int invalidCount = 0;
+            int correctedCount = 0;
+
+            // NULL CHECK
+            if (data == null) {
+                LOGGER.warn("Null data loaded for fuel bills");
+                invalidCount++;
+                return;
+            }
+
+            // Check collection size
+            if (data.size() > 10000) {
+                LOGGER.warn("Fuel bills map size ({}) exceeds limit, potential corruption",
+                    data.size());
+                correctedCount++;
+            }
+
             for (Map.Entry<String, List<UnpaidBill>> entry : data.entrySet()) {
-                playerBills.put(UUID.fromString(entry.getKey()), entry.getValue());
+                try {
+                    String uuidStr = entry.getKey();
+                    List<UnpaidBill> bills = entry.getValue();
+
+                    // VALIDATE UUID STRING
+                    if (uuidStr == null || uuidStr.isEmpty()) {
+                        LOGGER.warn("Null/empty UUID string in fuel bills, skipping");
+                        invalidCount++;
+                        continue;
+                    }
+
+                    UUID playerUUID;
+                    try {
+                        playerUUID = UUID.fromString(uuidStr);
+                    } catch (IllegalArgumentException e) {
+                        LOGGER.error("Invalid UUID in fuel bills: {}", uuidStr, e);
+                        invalidCount++;
+                        continue;
+                    }
+
+                    // NULL CHECK
+                    if (bills == null) {
+                        LOGGER.warn("Null bills list for player {}, skipping", playerUUID);
+                        invalidCount++;
+                        continue;
+                    }
+
+                    // VALIDATE LIST SIZE
+                    if (bills.size() > 1000) {
+                        LOGGER.warn("Player {} has too many bills ({}), truncating to 1000",
+                            playerUUID, bills.size());
+                        bills = new ArrayList<>(bills.subList(0, 1000));
+                        correctedCount++;
+                    }
+
+                    // VALIDATE BILLS - check for null entries
+                    List<UnpaidBill> validBills = new ArrayList<>();
+                    for (UnpaidBill bill : bills) {
+                        if (bill == null) {
+                            LOGGER.warn("Player {} has null bill, skipping", playerUUID);
+                            invalidCount++;
+                            continue;
+                        }
+                        validBills.add(bill);
+                    }
+
+                    if (validBills.size() != bills.size()) {
+                        correctedCount++;
+                    }
+
+                    playerBills.put(playerUUID, validBills);
+                } catch (Exception e) {
+                    LOGGER.error("Error loading fuel bills for {}", entry.getKey(), e);
+                    invalidCount++;
+                }
+            }
+
+            // SUMMARY
+            if (invalidCount > 0 || correctedCount > 0) {
+                LOGGER.warn("Data validation: {} invalid entries, {} corrected entries",
+                    invalidCount, correctedCount);
+                if (correctedCount > 0) {
+                    markDirty(); // Re-save corrected data
+                }
             }
         }
 

@@ -433,11 +433,172 @@ public class CompanionManager extends AbstractPersistenceManager<CompanionManage
         allCompanions.clear();
         playerCompanions.clear();
 
+        int invalidCount = 0;
+        int correctedCount = 0;
+
+        // Validate and load allCompanions
         if (data.allCompanions != null) {
-            allCompanions.putAll(data.allCompanions);
+            // Check collection size
+            if (data.allCompanions.size() > 10000) {
+                LOGGER.warn("Companion map size ({}) exceeds limit, potential corruption",
+                    data.allCompanions.size());
+                correctedCount++;
+            }
+
+            for (Map.Entry<UUID, CompanionData> entry : data.allCompanions.entrySet()) {
+                try {
+                    UUID companionUUID = entry.getKey();
+                    CompanionData companion = entry.getValue();
+
+                    // NULL CHECK
+                    if (companion == null) {
+                        LOGGER.warn("Null CompanionData for UUID {}, skipping", companionUUID);
+                        invalidCount++;
+                        continue;
+                    }
+
+                    boolean companionCorrected = false;
+
+                    // VALIDATE NAME
+                    if (companion.getName() == null || companion.getName().isEmpty()) {
+                        LOGGER.warn("Companion {} has null/empty name, setting default", companionUUID);
+                        companion.setName("Companion");
+                        companionCorrected = true;
+                    } else if (companion.getName().length() > 100) {
+                        LOGGER.warn("Companion {} name too long ({} chars), truncating",
+                            companionUUID, companion.getName().length());
+                        companion.setName(companion.getName().substring(0, 100));
+                        companionCorrected = true;
+                    }
+
+                    // VALIDATE LEVEL (1-10)
+                    int level = companion.getLevel();
+                    if (level < 1 || level > 10) {
+                        LOGGER.warn("Companion {} invalid level {}, resetting to 1",
+                            companionUUID, level);
+                        companionCorrected = true;
+                        // Note: No setter, but validation happens in load
+                    }
+
+                    // VALIDATE LOYALTY (0-100)
+                    int loyalty = companion.getLoyalty();
+                    if (loyalty < 0 || loyalty > 100) {
+                        LOGGER.warn("Companion {} invalid loyalty {}, clamping to 0-100",
+                            companionUUID, loyalty);
+                        companion.setLoyalty(loyalty); // Setter clamps automatically
+                        companionCorrected = true;
+                    }
+
+                    // VALIDATE HEALTH
+                    float health = companion.getHealth();
+                    float maxHealth = companion.getMaxHealth();
+                    if (maxHealth <= 0) {
+                        LOGGER.warn("Companion {} invalid maxHealth {}, resetting to 20",
+                            companionUUID, maxHealth);
+                        companionCorrected = true;
+                    }
+                    if (health < 0 || health > maxHealth) {
+                        LOGGER.warn("Companion {} invalid health {} (max: {}), clamping",
+                            companionUUID, health, maxHealth);
+                        companion.setHealth(health); // Setter clamps automatically
+                        companionCorrected = true;
+                    }
+
+                    // VALIDATE SATISFACTION (0-100)
+                    float satisfaction = companion.getSatisfaction();
+                    if (satisfaction < 0 || satisfaction > 100) {
+                        LOGGER.warn("Companion {} invalid satisfaction {}, clamping to 0-100",
+                            companionUUID, satisfaction);
+                        companion.setSatisfaction(satisfaction); // Setter clamps automatically
+                        companionCorrected = true;
+                    }
+
+                    // VALIDATE EXPERIENCE (>= 0)
+                    int experience = companion.getExperience();
+                    if (experience < 0) {
+                        LOGGER.warn("Companion {} negative experience {}, resetting to 0",
+                            companionUUID, experience);
+                        companionCorrected = true;
+                    }
+
+                    // VALIDATE RESPAWN COOLDOWN (>= 0)
+                    int respawnCooldown = companion.getRespawnCooldown();
+                    if (respawnCooldown < 0) {
+                        LOGGER.warn("Companion {} negative respawn cooldown {}, resetting to 0",
+                            companionUUID, respawnCooldown);
+                        companionCorrected = true;
+                    }
+
+                    if (companionCorrected) {
+                        correctedCount++;
+                    }
+
+                    allCompanions.put(companionUUID, companion);
+                } catch (Exception e) {
+                    LOGGER.error("Error loading companion {}", entry.getKey(), e);
+                    invalidCount++;
+                }
+            }
         }
+
+        // Validate and load playerCompanions
         if (data.playerCompanions != null) {
-            playerCompanions.putAll(data.playerCompanions);
+            for (Map.Entry<UUID, List<UUID>> entry : data.playerCompanions.entrySet()) {
+                try {
+                    UUID playerUUID = entry.getKey();
+                    List<UUID> companionList = entry.getValue();
+
+                    // NULL CHECK
+                    if (companionList == null) {
+                        LOGGER.warn("Null companion list for player {}, skipping", playerUUID);
+                        invalidCount++;
+                        continue;
+                    }
+
+                    // VALIDATE LIST SIZE
+                    if (companionList.size() > MAX_TOTAL_COMPANIONS) {
+                        LOGGER.warn("Player {} has too many companions ({}), truncating to {}",
+                            playerUUID, companionList.size(), MAX_TOTAL_COMPANIONS);
+                        companionList = new ArrayList<>(companionList.subList(0, MAX_TOTAL_COMPANIONS));
+                        correctedCount++;
+                    }
+
+                    // VALIDATE COMPANION REFERENCES
+                    List<UUID> validCompanions = new ArrayList<>();
+                    for (UUID companionUUID : companionList) {
+                        if (companionUUID == null) {
+                            LOGGER.warn("Null companion UUID in player {} list, skipping", playerUUID);
+                            invalidCount++;
+                            continue;
+                        }
+                        if (!allCompanions.containsKey(companionUUID)) {
+                            LOGGER.warn("Player {} references non-existent companion {}, removing",
+                                playerUUID, companionUUID);
+                            invalidCount++;
+                            continue;
+                        }
+                        validCompanions.add(companionUUID);
+                    }
+
+                    if (validCompanions.size() != companionList.size()) {
+                        correctedCount++;
+                    }
+
+                    playerCompanions.put(playerUUID, validCompanions);
+                } catch (Exception e) {
+                    LOGGER.error("Error loading player companions for {}", entry.getKey(), e);
+                    invalidCount++;
+                }
+            }
+        }
+
+        // SUMMARY
+        if (invalidCount > 0 || correctedCount > 0) {
+            LOGGER.warn("Data validation: {} invalid entries, {} corrected entries",
+                invalidCount, correctedCount);
+            if (correctedCount > 0) {
+                markDirty(); // Re-save corrected data
+            }
         }
     }
 

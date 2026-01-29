@@ -509,15 +509,177 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
 
     @Override
     protected void onDataLoaded(QuestManagerData data) {
-        questIdCounter = data.questIdCounter;
         playerProgress.clear();
         npcQuestOffers.clear();
 
-        if (data.playerProgress != null) {
-            playerProgress.putAll(data.playerProgress);
+        int invalidCount = 0;
+        int correctedCount = 0;
+
+        // VALIDATE QUEST ID COUNTER
+        if (data.questIdCounter < 0) {
+            LOGGER.warn("Invalid quest ID counter {}, resetting to 0", data.questIdCounter);
+            questIdCounter = 0;
+            correctedCount++;
+        } else {
+            questIdCounter = data.questIdCounter;
         }
+
+        // Validate and load playerProgress
+        if (data.playerProgress != null) {
+            // Check collection size
+            if (data.playerProgress.size() > 10000) {
+                LOGGER.warn("Player progress map size ({}) exceeds limit, potential corruption",
+                    data.playerProgress.size());
+                correctedCount++;
+            }
+
+            for (Map.Entry<UUID, QuestProgress> entry : data.playerProgress.entrySet()) {
+                try {
+                    UUID playerUUID = entry.getKey();
+                    QuestProgress progress = entry.getValue();
+
+                    // NULL CHECK
+                    if (progress == null) {
+                        LOGGER.warn("Null QuestProgress for player {}, skipping", playerUUID);
+                        invalidCount++;
+                        continue;
+                    }
+
+                    boolean progressCorrected = false;
+
+                    // VALIDATE ACTIVE QUESTS SIZE
+                    if (progress.getActiveQuests().size() > QuestProgress.MAX_ACTIVE_QUESTS) {
+                        LOGGER.warn("Player {} has too many active quests ({}), will be limited",
+                            playerUUID, progress.getActiveQuests().size());
+                        progressCorrected = true;
+                    }
+
+                    // VALIDATE ACTIVE QUESTS - check for null quests
+                    for (Map.Entry<String, Quest> questEntry : new HashMap<>(progress.getActiveQuests()).entrySet()) {
+                        if (questEntry.getValue() == null) {
+                            LOGGER.warn("Player {} has null quest with ID {}, removing",
+                                playerUUID, questEntry.getKey());
+                            progress.getActiveQuests().remove(questEntry.getKey());
+                            invalidCount++;
+                            progressCorrected = true;
+                        }
+                    }
+
+                    // VALIDATE COMPLETED QUESTS SIZE
+                    if (progress.getCompletedQuestIds().size() > QuestProgress.MAX_COMPLETED_HISTORY * 2) {
+                        LOGGER.warn("Player {} has too many completed quests ({}), potential corruption",
+                            playerUUID, progress.getCompletedQuestIds().size());
+                        progressCorrected = true;
+                    }
+
+                    // VALIDATE QUEST STATISTICS (>= 0)
+                    if (progress.getTotalQuestsCompleted() < 0) {
+                        LOGGER.warn("Player {} has negative completed quests count {}, resetting to 0",
+                            playerUUID, progress.getTotalQuestsCompleted());
+                        progressCorrected = true;
+                    }
+                    if (progress.getTotalQuestsFailed() < 0) {
+                        LOGGER.warn("Player {} has negative failed quests count {}, resetting to 0",
+                            playerUUID, progress.getTotalQuestsFailed());
+                        progressCorrected = true;
+                    }
+                    if (progress.getTotalQuestsAbandoned() < 0) {
+                        LOGGER.warn("Player {} has negative abandoned quests count {}, resetting to 0",
+                            playerUUID, progress.getTotalQuestsAbandoned());
+                        progressCorrected = true;
+                    }
+
+                    // VALIDATE COOLDOWNS - check for null keys/values and negative values
+                    for (Map.Entry<String, Long> cooldownEntry : new HashMap<>(progress.getQuestCooldowns()).entrySet()) {
+                        if (cooldownEntry.getKey() == null || cooldownEntry.getValue() == null) {
+                            LOGGER.warn("Player {} has null cooldown entry, removing", playerUUID);
+                            progress.getQuestCooldowns().remove(cooldownEntry.getKey());
+                            invalidCount++;
+                            progressCorrected = true;
+                        } else if (cooldownEntry.getValue() < 0) {
+                            LOGGER.warn("Player {} has negative cooldown {} for quest {}, resetting to 0",
+                                playerUUID, cooldownEntry.getValue(), cooldownEntry.getKey());
+                            progress.getQuestCooldowns().put(cooldownEntry.getKey(), 0L);
+                            progressCorrected = true;
+                        }
+                    }
+
+                    if (progressCorrected) {
+                        correctedCount++;
+                    }
+
+                    playerProgress.put(playerUUID, progress);
+                } catch (Exception e) {
+                    LOGGER.error("Error loading quest progress for player {}", entry.getKey(), e);
+                    invalidCount++;
+                }
+            }
+        }
+
+        // Validate and load npcQuestOffers
         if (data.npcQuestOffers != null) {
-            npcQuestOffers.putAll(data.npcQuestOffers);
+            // Check collection size
+            if (data.npcQuestOffers.size() > 10000) {
+                LOGGER.warn("NPC quest offers map size ({}) exceeds limit, potential corruption",
+                    data.npcQuestOffers.size());
+                correctedCount++;
+            }
+
+            for (Map.Entry<UUID, List<String>> entry : data.npcQuestOffers.entrySet()) {
+                try {
+                    UUID npcUUID = entry.getKey();
+                    List<String> offers = entry.getValue();
+
+                    // NULL CHECK
+                    if (offers == null) {
+                        LOGGER.warn("Null quest offers list for NPC {}, skipping", npcUUID);
+                        invalidCount++;
+                        continue;
+                    }
+
+                    // VALIDATE LIST SIZE
+                    if (offers.size() > 100) {
+                        LOGGER.warn("NPC {} has too many quest offers ({}), truncating to 100",
+                            npcUUID, offers.size());
+                        offers = new ArrayList<>(offers.subList(0, 100));
+                        correctedCount++;
+                    }
+
+                    // VALIDATE QUEST IDS - check for null or empty strings
+                    List<String> validOffers = new ArrayList<>();
+                    for (String questId : offers) {
+                        if (questId == null || questId.isEmpty()) {
+                            LOGGER.warn("NPC {} has null/empty quest ID in offers, skipping", npcUUID);
+                            invalidCount++;
+                            continue;
+                        }
+                        if (questId.length() > 200) {
+                            LOGGER.warn("NPC {} has too long quest ID ({}), skipping", npcUUID, questId.length());
+                            invalidCount++;
+                            continue;
+                        }
+                        validOffers.add(questId);
+                    }
+
+                    if (validOffers.size() != offers.size()) {
+                        correctedCount++;
+                    }
+
+                    npcQuestOffers.put(npcUUID, validOffers);
+                } catch (Exception e) {
+                    LOGGER.error("Error loading NPC quest offers for {}", entry.getKey(), e);
+                    invalidCount++;
+                }
+            }
+        }
+
+        // SUMMARY
+        if (invalidCount > 0 || correctedCount > 0) {
+            LOGGER.warn("Data validation: {} invalid entries, {} corrected entries",
+                invalidCount, correctedCount);
+            if (correctedCount > 0) {
+                markDirty(); // Re-save corrected data
+            }
         }
     }
 

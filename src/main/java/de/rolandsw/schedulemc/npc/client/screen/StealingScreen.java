@@ -7,6 +7,8 @@ import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.menu.StealingMenu;
 import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
 import de.rolandsw.schedulemc.npc.network.StealingAttemptPacket;
+import de.rolandsw.schedulemc.util.ThreadPoolManager;
+import java.util.concurrent.TimeUnit;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -307,17 +309,13 @@ public class StealingScreen extends AbstractContainerScreen<StealingMenu> {
                     minecraft.player.displayClientMessage(Component.translatable("message.stealing.failed"), true);
                 }
 
+                // THREAD-SAFETY: Use ThreadPoolManager for delayed task
                 // Schließe GUI nach 2 Sekunden
-                new Thread(() -> {
-                    try {
-                        Thread.sleep(2000);
-                        if (minecraft != null) {
-                            minecraft.execute(this::onClose);
-                        }
-                    } catch (InterruptedException e) {
-                        // Ignore
+                ThreadPoolManager.schedule(() -> {
+                    if (minecraft != null) {
+                        minecraft.execute(this::onClose);
                     }
-                }).start();
+                }, 2000L, TimeUnit.MILLISECONDS);
             } else {
                 // Noch ein Versuch
                 if (minecraft != null && minecraft.player != null) {

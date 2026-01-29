@@ -49,7 +49,65 @@ public class InterestManager extends AbstractPersistenceManager<Map<UUID, Long>>
     @Override
     protected void onDataLoaded(Map<UUID, Long> data) {
         lastInterestPayout.clear();
-        lastInterestPayout.putAll(data);
+
+        int invalidCount = 0;
+        int correctedCount = 0;
+
+        // NULL CHECK
+        if (data == null) {
+            LOGGER.warn("Null data loaded for interest manager");
+            invalidCount++;
+            return;
+        }
+
+        // Check collection size
+        if (data.size() > 10000) {
+            LOGGER.warn("Interest payout map size ({}) exceeds limit, potential corruption",
+                data.size());
+            correctedCount++;
+        }
+
+        for (Map.Entry<UUID, Long> entry : data.entrySet()) {
+            try {
+                UUID playerUUID = entry.getKey();
+                Long lastPayout = entry.getValue();
+
+                // NULL CHECK
+                if (playerUUID == null) {
+                    LOGGER.warn("Null player UUID in interest manager, skipping");
+                    invalidCount++;
+                    continue;
+                }
+                if (lastPayout == null) {
+                    LOGGER.warn("Null last payout day for player {}, setting to 0", playerUUID);
+                    lastInterestPayout.put(playerUUID, 0L);
+                    correctedCount++;
+                    continue;
+                }
+
+                // VALIDATE DAY (>= 0)
+                if (lastPayout < 0) {
+                    LOGGER.warn("Player {} has negative last payout day {}, resetting to 0",
+                        playerUUID, lastPayout);
+                    lastInterestPayout.put(playerUUID, 0L);
+                    correctedCount++;
+                } else {
+                    lastInterestPayout.put(playerUUID, lastPayout);
+                }
+            } catch (Exception e) {
+                LOGGER.error("Error loading interest data for player {}", entry.getKey(), e);
+                invalidCount++;
+            }
+        }
+
+        // SUMMARY
+        if (invalidCount > 0 || correctedCount > 0) {
+            LOGGER.warn("Data validation: {} invalid entries, {} corrected entries",
+                invalidCount, correctedCount);
+            if (correctedCount > 0) {
+                markDirty(); // Re-save corrected data
+            }
+        }
     }
 
     @Override

@@ -232,7 +232,56 @@ public class StockTradingTracker extends AbstractPersistenceManager<Map<UUID, St
     @Override
     protected void onDataLoaded(Map<UUID, PlayerTradingData> data) {
         playerData.clear();
-        playerData.putAll(data);
+
+        int invalidCount = 0;
+        int correctedCount = 0;
+
+        // NULL CHECK
+        if (data == null) {
+            LOGGER.warn("Null data loaded for stock trading tracker");
+            invalidCount++;
+            return;
+        }
+
+        // Check collection size
+        if (data.size() > 10000) {
+            LOGGER.warn("Stock trading data map size ({}) exceeds limit, potential corruption",
+                data.size());
+            correctedCount++;
+        }
+
+        for (Map.Entry<UUID, PlayerTradingData> entry : data.entrySet()) {
+            try {
+                UUID playerUUID = entry.getKey();
+                PlayerTradingData tradingData = entry.getValue();
+
+                // NULL CHECK
+                if (playerUUID == null) {
+                    LOGGER.warn("Null player UUID in stock trading data, skipping");
+                    invalidCount++;
+                    continue;
+                }
+                if (tradingData == null) {
+                    LOGGER.warn("Null trading data for player {}, skipping", playerUUID);
+                    invalidCount++;
+                    continue;
+                }
+
+                playerData.put(playerUUID, tradingData);
+            } catch (Exception e) {
+                LOGGER.error("Error loading stock trading data for player {}", entry.getKey(), e);
+                invalidCount++;
+            }
+        }
+
+        // SUMMARY
+        if (invalidCount > 0 || correctedCount > 0) {
+            LOGGER.warn("Data validation: {} invalid entries, {} corrected entries",
+                invalidCount, correctedCount);
+            if (correctedCount > 0) {
+                markDirty(); // Re-save corrected data
+            }
+        }
     }
 
     @Override

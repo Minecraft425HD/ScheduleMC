@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -39,9 +40,21 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
     private PlotManager() {}
 
     private static final Logger LOGGER = LogUtils.getLogger();
+
+    // MEMORY LEAK PREVENTION: Size limits for all collections
+    /**
+     * Maximum plots (50000 entries)
+     * Prevents unbounded growth - reasonable limit for plot management system
+     */
+    private static final int MAX_PLOTS = 50000;
+
     private static final Map<String, PlotRegion> plots = new ConcurrentHashMap<>();
     private static final File PLOTS_FILE = new File("config/plotmod_plots.json");
     private static final Gson GSON = GsonHelper.get();
+
+    // THREAD-SAFETY: Lock für atomare Multi-Step-Operationen
+    // Schützt Konsistenz zwischen plots, spatialIndex, und plotCache
+    private static final Object PLOT_LOCK = new Object();
 
     // Spatial Index für schnelle Lookups
     private static final PlotSpatialIndex spatialIndex = new PlotSpatialIndex();
@@ -49,8 +62,9 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
     // Plot-Cache für Performance-Optimierung
     private static final PlotCache plotCache = new PlotCache(1000);
 
-    // SICHERHEIT: volatile für Memory Visibility zwischen Threads (IncrementalSaveManager)
-    private static volatile boolean dirty = false;
+    // THREAD-SAFETY: AtomicBoolean für atomare dirty flag Operationen
+    // Verhindert race conditions bei Check-then-Act Patterns
+    private static final AtomicBoolean dirty = new AtomicBoolean(false);
     // SICHERHEIT: AtomicInteger für Thread-safe Plot-ID Inkrement
     private static final AtomicInteger plotCounter = new AtomicInteger(1);
     private static volatile boolean isHealthy = true;
@@ -83,6 +97,12 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
      * @return Der erstellte Plot
      */
     public static PlotRegion createPlot(BlockPos pos1, BlockPos pos2, String customName, PlotType type, double price) {
+        // MEMORY LEAK PREVENTION: SIZE CHECK before creating
+        if (plots.size() >= MAX_PLOTS) {
+            LOGGER.error("Plot limit reached ({}), cannot create new plot", MAX_PLOTS);
+            throw new IllegalStateException("Maximum plot limit reached: " + MAX_PLOTS);
+        }
+
         // SICHERHEIT: Validiere Eingaben
         InputValidation.Result regionResult = InputValidation.validatePlotRegion(pos1, pos2);
         if (!regionResult.isValid()) {
@@ -118,16 +138,19 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
         PlotRegion plot = new PlotRegion(plotId, min, max, price);
         plot.setType(type);
 
-        plots.put(plotId, plot);
-        spatialIndex.addPlot(plot);
+        // THREAD-SAFETY: Atomare Operation für Plot-Hinzufügung
+        synchronized (PLOT_LOCK) {
+            plots.put(plotId, plot);
+            spatialIndex.addPlot(plot);
 
-        // Automatisch ShopAccount erstellen für Shop-Plots
-        if (type.isShop()) {
-            ShopAccountManager.getOrCreateAccount(plotId);
-            LOGGER.info("ShopAccount automatically created for shop plot: {}", plotId);
+            // Automatisch ShopAccount erstellen für Shop-Plots
+            if (type.isShop()) {
+                ShopAccountManager.getOrCreateAccount(plotId);
+                LOGGER.info("ShopAccount automatically created for shop plot: {}", plotId);
+            }
+
+            dirty.set(true);
         }
-
-        dirty = true;
 
         LOGGER.info("Plot created: {} ({}) from {} to {} ({}€)",
             plotId, type.getDisplayName(), min.toShortString(), max.toShortString(), price);
@@ -275,33 +298,46 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
     
     /**
      * Fügt einen Plot hinzu
+     * THREAD-SAFETY: Synchronized um Atomizität zu gewährleisten
+     * MEMORY LEAK PREVENTION: Enforces size limit
      */
     public static void addPlot(PlotRegion plot) {
-        plots.put(plot.getPlotId(), plot);
-        spatialIndex.addPlot(plot);
+        synchronized (PLOT_LOCK) {
+            // SIZE CHECK before adding
+            if (plots.size() >= MAX_PLOTS && !plots.containsKey(plot.getPlotId())) {
+                LOGGER.error("Plot limit reached ({}), cannot add plot: {}", MAX_PLOTS, plot.getPlotId());
+                throw new IllegalStateException("Maximum plot limit reached: " + MAX_PLOTS);
+            }
 
-        // Invalidiere Cache-Einträge in der Plot-Region
-        plotCache.invalidateRegion(plot.getMin(), plot.getMax());
+            plots.put(plot.getPlotId(), plot);
+            spatialIndex.addPlot(plot);
 
-        dirty = true;
+            // Invalidiere Cache-Einträge in der Plot-Region
+            plotCache.invalidateRegion(plot.getMin(), plot.getMax());
+
+            dirty.set(true);
+        }
     }
 
     /**
      * Entfernt einen Plot
+     * THREAD-SAFETY: Synchronized um Atomizität zu gewährleisten
      */
     public static boolean removePlot(String plotId) {
-        PlotRegion removed = plots.remove(plotId);
-        if (removed != null) {
-            spatialIndex.removePlot(plotId);
+        synchronized (PLOT_LOCK) {
+            PlotRegion removed = plots.remove(plotId);
+            if (removed != null) {
+                spatialIndex.removePlot(plotId);
 
-            // Invalidiere alle Cache-Einträge für diesen Plot
-            plotCache.invalidatePlot(plotId);
+                // Invalidiere alle Cache-Einträge für diesen Plot
+                plotCache.invalidatePlot(plotId);
 
-            dirty = true;
-            LOGGER.info("Plot removed: {}", plotId);
-            return true;
+                dirty.set(true);
+                LOGGER.info("Plot removed: {}", plotId);
+                return true;
+            }
+            return false;
         }
-        return false;
     }
     
     /**
@@ -366,7 +402,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
             loadPlotsFromFile(PLOTS_FILE);
             isHealthy = true;
             lastError = null;
-            dirty = false;
+            dirty.set(false);
             LOGGER.info("Plots loaded successfully: {} plots", plots.size());
             LOGGER.info("Spatial Index: {}", spatialIndex.getStats());
         } catch (Exception e) {
@@ -381,7 +417,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
                     LOGGER.info("Plots successfully restored from backup: {} plots", plots.size());
                     isHealthy = true;
                     lastError = "Recovered from backup";
-                    dirty = false;
+                    dirty.set(false);
                 } catch (Exception backupError) {
                     LOGGER.error("CRITICAL: Backup restoration failed!", backupError);
                     handleCriticalLoadFailure();
@@ -395,6 +431,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
 
     /**
      * Lädt Plots aus einer spezifischen Datei
+     * THREAD-SAFETY: Synchronized um Atomizität während des Ladevorgangs zu gewährleisten
      */
     private static void loadPlotsFromFile(File sourceFile) throws Exception {
         Type mapType = new TypeToken<Map<String, PlotRegion>>(){}.getType();
@@ -406,44 +443,50 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
                 throw new IOException("Loaded plot data is null");
             }
 
-            plots.clear();
-            plots.putAll(loaded);
+            // THREAD-SAFETY: Atomare Operation für Plot-Neuladen
+            synchronized (PLOT_LOCK) {
+                plots.clear();
+                plots.putAll(loaded);
 
-            // Finde höchste Plot-Nummer für Counter
-            int maxId = plots.keySet().stream()
-                .filter(id -> id.startsWith("plot_"))
-                .map(id -> id.substring(5))
-                .mapToInt(s -> {
-                    try {
-                        return Integer.parseInt(s);
-                    } catch (NumberFormatException e) {
-                        return 0;
-                    }
-                })
-                .max()
-                .orElse(0);
+                // Finde höchste Plot-Nummer für Counter
+                int maxId = plots.keySet().stream()
+                    .filter(id -> id.startsWith("plot_"))
+                    .map(id -> id.substring(5))
+                    .mapToInt(s -> {
+                        try {
+                            return Integer.parseInt(s);
+                        } catch (NumberFormatException e) {
+                            return 0;
+                        }
+                    })
+                    .max()
+                    .orElse(0);
 
-            plotCounter.set(maxId + 1);
+                plotCounter.set(maxId + 1);
 
-            // Spatial Index neu aufbauen
-            spatialIndex.rebuild(plots.values());
+                // Spatial Index neu aufbauen
+                spatialIndex.rebuild(plots.values());
+            }
         }
     }
 
     /**
      * Behandelt kritischen Ladefehler mit Graceful Degradation
+     * THREAD-SAFETY: Synchronized um Atomizität zu gewährleisten
      */
     private static void handleCriticalLoadFailure() {
         LOGGER.error("CRITICAL: Plot system could not be loaded!");
         LOGGER.error("Starting with empty plot system as fallback");
 
-        plots.clear();
-        spatialIndex.clear();
-        plotCounter.set(1);
-        isHealthy = false;
-        lastError = "Critical load failure - running with empty data";
+        synchronized (PLOT_LOCK) {
+            plots.clear();
+            spatialIndex.clear();
+            plotCounter.set(1);
+            isHealthy = false;
+            lastError = "Critical load failure - running with empty data";
+        }
 
-        // Erstelle Notfall-Backup der korrupten Datei
+        // Erstelle Notfall-Backup der korrupten Datei (außerhalb Lock - I/O Operation)
         if (PLOTS_FILE.exists()) {
             File corruptBackup = new File(PLOTS_FILE.getParent(),
                 PLOTS_FILE.getName() + ".CORRUPT_" + System.currentTimeMillis());
@@ -481,7 +524,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
                 java.nio.file.StandardCopyOption.REPLACE_EXISTING,
                 java.nio.file.StandardCopyOption.ATOMIC_MOVE);
 
-            dirty = false;
+            dirty.set(false);
             isHealthy = true;
             lastError = null;
             LOGGER.info("Plots saved: {} plots", plots.size());
@@ -521,11 +564,11 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
             LOGGER.info("Retry successful - plots saved");
             isHealthy = true;
             lastError = null;
-            dirty = false;
+            dirty.set(false);
 
         } catch (Exception retryError) {
             LOGGER.error("CRITICAL: Retry failed - plots could not be saved!", retryError);
-            dirty = true;
+            dirty.set(true);
         }
     }
     
@@ -533,7 +576,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
      * Speichert nur wenn Änderungen vorhanden (dirty)
      */
     public static void saveIfNeeded() {
-        if (dirty) {
+        if (dirty.get()) {
             savePlots();
         }
     }
@@ -621,14 +664,24 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
     
     /**
      * Löscht alle Plots (für Tests/Reset)
+     * THREAD-SAFETY: Synchronized um Atomizität zu gewährleisten
+     * MEMORY LEAK PREVENTION: Ensures no data persists across sessions.
+     * Clears all 3 static collections (plots, spatialIndex, plotCache).
      */
     public static void clearAllPlots() {
-        plots.clear();
-        spatialIndex.clear();
-        plotCache.clear();
-        dirty = true;
-        plotCounter.set(1);
-        LOGGER.warn("All plots deleted!");
+        synchronized (PLOT_LOCK) {
+            int plotCount = plots.size();
+            int cacheCount = plotCache.getStatistics().size;
+
+            plots.clear();
+            spatialIndex.clear();
+            plotCache.clear();
+            dirty.set(true);
+            plotCounter.set(1);
+
+            LOGGER.warn("[PlotManager] All plots deleted! Cleared {} plots, {} cache entries",
+                plotCount, cacheCount);
+        }
     }
     
     /**
@@ -637,7 +690,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
     public static void printDebugInfo() {
         LOGGER.info("═══ PlotManager Debug Info ═══");
         LOGGER.info("Total plots: {}", plots.size());
-        LOGGER.info("Dirty flag: {}", dirty);
+        LOGGER.info("Dirty flag: {}", dirty.get());
         LOGGER.info("Plot counter: {}", plotCounter);
         LOGGER.info("File: {}", PLOTS_FILE.getAbsolutePath());
 
@@ -703,7 +756,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
 
     @Override
     public boolean isDirty() {
-        return dirty;
+        return dirty.get();
     }
 
     @Override

@@ -304,6 +304,9 @@ public class FactionManager extends AbstractPersistenceManager<Map<String, Map<S
     protected void onDataLoaded(Map<String, Map<String, FactionRelation>> data) {
         playerFactions.clear();
 
+        int invalidCount = 0;
+        int correctedCount = 0;
+
         for (Map.Entry<String, Map<String, FactionRelation>> entry : data.entrySet()) {
             try {
                 UUID playerUUID = UUID.fromString(entry.getKey());
@@ -312,9 +315,38 @@ public class FactionManager extends AbstractPersistenceManager<Map<String, Map<S
                 for (Map.Entry<String, FactionRelation> relEntry : entry.getValue().entrySet()) {
                     try {
                         Faction faction = Faction.valueOf(relEntry.getKey());
-                        relations.put(faction, relEntry.getValue());
+                        FactionRelation relation = relEntry.getValue();
+
+                        // DATA VALIDATION: Validate loaded relation data
+                        if (relation == null) {
+                            LOGGER.warn("Null relation for player {} faction {}, creating default",
+                                playerUUID, faction);
+                            relation = new FactionRelation(faction);
+                            invalidCount++;
+                        } else {
+                            // Validate reputation range
+                            int rep = relation.getReputation();
+                            if (rep < FactionRelation.MIN_REPUTATION || rep > FactionRelation.MAX_REPUTATION) {
+                                LOGGER.warn("Invalid reputation {} for player {} faction {}, clamping to range",
+                                    rep, playerUUID, faction);
+                                relation.setReputation(Math.max(FactionRelation.MIN_REPUTATION,
+                                    Math.min(FactionRelation.MAX_REPUTATION, rep)));
+                                correctedCount++;
+                            }
+
+                            // Validate member title length (prevent oversized data)
+                            if (relation.isMember() && relation.getMemberTitle() != null
+                                    && relation.getMemberTitle().length() > 100) {
+                                LOGGER.warn("Member title too long ({} chars) for player {} faction {}, keeping as-is (no setter available)",
+                                    relation.getMemberTitle().length(), playerUUID, faction);
+                                // Note: FactionRelation has no setMemberTitle(), would need to re-join faction to fix
+                            }
+                        }
+
+                        relations.put(faction, relation);
                     } catch (IllegalArgumentException e) {
                         LOGGER.warn("Unknown faction: {}", relEntry.getKey());
+                        invalidCount++;
                     }
                 }
 
@@ -326,6 +358,16 @@ public class FactionManager extends AbstractPersistenceManager<Map<String, Map<S
                 playerFactions.put(playerUUID, relations);
             } catch (IllegalArgumentException e) {
                 LOGGER.error("Invalid player UUID in faction data: {}", entry.getKey(), e);
+                invalidCount++;
+            }
+        }
+
+        // Log validation summary
+        if (invalidCount > 0 || correctedCount > 0) {
+            LOGGER.warn("Data validation: {} invalid entries, {} corrected entries",
+                invalidCount, correctedCount);
+            if (correctedCount > 0) {
+                markDirty(); // Re-save corrected data
             }
         }
     }

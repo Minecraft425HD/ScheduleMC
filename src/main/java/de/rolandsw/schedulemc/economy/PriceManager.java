@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.economy;
 
+import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.cannabis.items.CannabisItems;
 import de.rolandsw.schedulemc.coca.items.CocaItems;
 import de.rolandsw.schedulemc.lsd.items.LSDItems;
@@ -9,6 +10,7 @@ import de.rolandsw.schedulemc.mushroom.items.MushroomItems;
 import de.rolandsw.schedulemc.poppy.items.PoppyItems;
 import de.rolandsw.schedulemc.tobacco.items.TobaccoItems;
 import net.minecraft.world.item.Item;
+import org.slf4j.Logger;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -23,6 +25,15 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * SICHERHEIT: Thread-safe List für concurrent access
  */
 public class PriceManager {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
+
+    // MEMORY LEAK PREVENTION: Size limit for active events
+    /**
+     * Maximum active events (20 concurrent events)
+     * Prevents unbounded growth - reasonable limit for simultaneous economic events
+     */
+    private static final int MAX_ACTIVE_EVENTS = 20;
 
     // SICHERHEIT: CopyOnWriteArrayList für Thread-safe Iteration ohne ConcurrentModificationException
     private static final List<EconomicEvent> activeEvents = new CopyOnWriteArrayList<>();
@@ -84,8 +95,22 @@ public class PriceManager {
 
     /**
      * Fügt Wirtschafts-Event hinzu
+     * MEMORY LEAK PREVENTION: Enforces size limit, removes oldest event if limit reached
      */
     public static void addEvent(EconomicEvent event) {
+        // SIZE CHECK before adding
+        if (activeEvents.size() >= MAX_ACTIVE_EVENTS) {
+            // Remove oldest expired event, or oldest event if none are expired
+            boolean removedExpired = activeEvents.removeIf(EconomicEvent::isExpired);
+
+            if (!removedExpired && activeEvents.size() >= MAX_ACTIVE_EVENTS) {
+                // No expired events, remove the oldest one
+                EconomicEvent oldest = activeEvents.get(0);
+                activeEvents.remove(0);
+                LOGGER.warn("Active events limit reached ({}), removed oldest event: {}",
+                    MAX_ACTIVE_EVENTS, oldest.getName());
+            }
+        }
         activeEvents.add(event);
     }
 
@@ -291,5 +316,24 @@ public class PriceManager {
      */
     public static void triggerEventManually() {
         triggerRandomEvent();
+    }
+
+    /**
+     * Clears all active events. Called on server shutdown.
+     * MEMORY LEAK PREVENTION: Ensures no events persist across sessions.
+     */
+    public static void clearAllEvents() {
+        int count = activeEvents.size();
+        activeEvents.clear();
+        if (count > 0) {
+            LOGGER.info("Cleared {} active economic events", count);
+        }
+    }
+
+    /**
+     * Gets the current size of active events (for monitoring)
+     */
+    public static int getActiveEventCount() {
+        return activeEvents.size();
     }
 }

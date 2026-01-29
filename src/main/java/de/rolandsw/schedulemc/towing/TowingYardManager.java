@@ -22,6 +22,26 @@ import java.util.stream.Collectors;
 public class TowingYardManager {
 
     private static final Logger LOGGER = LogUtils.getLogger();
+
+    // MEMORY LEAK PREVENTION: Size limits for all collections
+    /**
+     * Maximum parking spots (50000 entries)
+     * Prevents unbounded growth - reasonable limit for towing yard parking system
+     */
+    private static final int MAX_PARKING_SPOTS = 50000;
+
+    /**
+     * Maximum invoices per player (100 entries)
+     * Prevents unbounded growth - reasonable limit for unpaid invoices
+     */
+    private static final int MAX_UNPAID_INVOICES = 10000;
+
+    /**
+     * Maximum transactions per towing yard (1000 entries)
+     * Prevents unbounded growth - keeps only recent transactions
+     */
+    private static final int MAX_TRANSACTIONS_PER_YARD = 1000;
+
     private static final Map<UUID, TowingYardParkingSpot> parkingSpots = new ConcurrentHashMap<>();
     private static final Map<String, List<TowingTransaction>> towingTransactions = new ConcurrentHashMap<>();
     private static final Map<UUID, TowingInvoiceData> unpaidInvoices = new ConcurrentHashMap<>();
@@ -49,8 +69,16 @@ public class TowingYardManager {
 
     /**
      * Adds a new parking spot
+     * MEMORY LEAK PREVENTION: Enforces size limit on parking spots
      */
     public static UUID addParkingSpot(BlockPos location, String towingYardPlotId) {
+        // SIZE CHECK before adding
+        if (parkingSpots.size() >= MAX_PARKING_SPOTS) {
+            LOGGER.error("Parking spots limit reached ({}), cannot add new spot at {} for yard {}",
+                MAX_PARKING_SPOTS, location, towingYardPlotId);
+            throw new IllegalStateException("Maximum parking spots limit reached: " + MAX_PARKING_SPOTS);
+        }
+
         UUID spotId = UUID.randomUUID();
         TowingYardParkingSpot spot = new TowingYardParkingSpot(spotId, location, towingYardPlotId);
         parkingSpots.put(spotId, spot);
@@ -160,6 +188,7 @@ public class TowingYardManager {
 
     /**
      * Records a towing transaction for revenue tracking
+     * MEMORY LEAK PREVENTION: Enforces size limit per towing yard
      */
     public static void recordTransaction(long timestamp, UUID playerId, UUID vehicleId, String towingYardPlotId,
                                           double totalCost, double playerPaid, MembershipTier membershipTier) {
@@ -171,7 +200,18 @@ public class TowingYardManager {
             totalCost, playerPaid, yardRevenue, membershipTier
         );
 
-        towingTransactions.computeIfAbsent(towingYardPlotId, k -> new ArrayList<>()).add(transaction);
+        List<TowingTransaction> transactions = towingTransactions.computeIfAbsent(
+            towingYardPlotId, k -> new ArrayList<>());
+
+        // SIZE CHECK: Limit transactions per yard
+        if (transactions.size() >= MAX_TRANSACTIONS_PER_YARD) {
+            // Remove oldest transaction
+            transactions.remove(0);
+            LOGGER.warn("Transaction limit reached for yard {} ({}), removed oldest entry",
+                towingYardPlotId, MAX_TRANSACTIONS_PER_YARD);
+        }
+
+        transactions.add(transaction);
         markDirty();
         LOGGER.info("Recorded towing transaction: {} → yard {} (revenue: {}€)", playerId, towingYardPlotId, yardRevenue);
     }
@@ -237,9 +277,22 @@ public class TowingYardManager {
 
     /**
      * Creates a new invoice for a towed vehicle
+     * MEMORY LEAK PREVENTION: Enforces size limit on unpaid invoices
      */
     public static TowingInvoiceData createInvoice(UUID playerId, UUID vehicleId, String towingYardPlotId,
                                                     double amount, long timestamp) {
+        // SIZE CHECK before adding
+        if (unpaidInvoices.size() >= MAX_UNPAID_INVOICES) {
+            // Find and remove oldest invoice
+            unpaidInvoices.entrySet().stream()
+                .min(Comparator.comparingLong(e -> e.getValue().getTimestamp()))
+                .ifPresent(oldest -> {
+                    unpaidInvoices.remove(oldest.getKey());
+                    LOGGER.warn("Unpaid invoices limit reached ({}), removed oldest invoice: {}",
+                        MAX_UNPAID_INVOICES, oldest.getKey());
+                });
+        }
+
         TowingInvoiceData invoice = new TowingInvoiceData(playerId, vehicleId, towingYardPlotId, amount, timestamp);
         unpaidInvoices.put(invoice.getInvoiceId(), invoice);
         markDirty();
@@ -292,6 +345,28 @@ public class TowingYardManager {
     }
 
     /**
+     * Clears ALL static data. Called on server shutdown.
+     * MEMORY LEAK PREVENTION: Ensures no data persists across sessions.
+     * Clears all 3 static collections (parking spots, transactions, invoices).
+     */
+    public static void clearAll() {
+        int spotCount = parkingSpots.size();
+        int transactionCount = towingTransactions.values().stream()
+            .mapToInt(List::size)
+            .sum();
+        int invoiceCount = unpaidInvoices.size();
+
+        parkingSpots.clear();
+        towingTransactions.clear();
+        unpaidInvoices.clear();
+
+        if (spotCount > 0 || transactionCount > 0 || invoiceCount > 0) {
+            LOGGER.info("[TowingYardManager] Cleared all static data: {} parking spots, {} transactions, {} invoices",
+                spotCount, transactionCount, invoiceCount);
+        }
+    }
+
+    /**
      * Data class for JSON serialization
      */
     private static class ParkingSpotSaveData {
@@ -326,27 +401,111 @@ public class TowingYardManager {
         protected void onDataLoaded(Map<String, ParkingSpotSaveData> data) {
             parkingSpots.clear();
 
+            int invalidCount = 0;
+            int correctedCount = 0;
+
+            // NULL CHECK
+            if (data == null) {
+                LOGGER.warn("Null data loaded for parking spots");
+                invalidCount++;
+                return;
+            }
+
+            // Check collection size
+            if (data.size() > 10000) {
+                LOGGER.warn("Parking spots map size ({}) exceeds limit, potential corruption",
+                    data.size());
+                correctedCount++;
+            }
+
             data.forEach((spotIdStr, saveData) -> {
                 try {
-                    UUID spotId = UUID.fromString(spotIdStr);
-                    String towingYardPlotId = saveData.towingYardPlotId;
+                    // VALIDATE UUID STRING
+                    if (spotIdStr == null || spotIdStr.isEmpty()) {
+                        LOGGER.warn("Null/empty spot ID string, skipping");
+                        return;
+                    }
 
-                    BlockPos location = new BlockPos(
-                        Integer.parseInt(saveData.locationX),
-                        Integer.parseInt(saveData.locationY),
-                        Integer.parseInt(saveData.locationZ)
-                    );
+                    // NULL CHECK
+                    if (saveData == null) {
+                        LOGGER.warn("Null parking spot data for ID {}, skipping", spotIdStr);
+                        return;
+                    }
+
+                    UUID spotId;
+                    try {
+                        spotId = UUID.fromString(spotIdStr);
+                    } catch (IllegalArgumentException e) {
+                        LOGGER.error("Invalid spot UUID: {}", spotIdStr, e);
+                        return;
+                    }
+
+                    // VALIDATE TOWING YARD PLOT ID
+                    if (saveData.towingYardPlotId == null || saveData.towingYardPlotId.isEmpty()) {
+                        LOGGER.warn("Spot {} has null/empty towing yard plot ID, skipping", spotId);
+                        return;
+                    }
+
+                    // VALIDATE LOCATION COORDINATES
+                    if (saveData.locationX == null || saveData.locationY == null || saveData.locationZ == null) {
+                        LOGGER.warn("Spot {} has null location coordinates, skipping", spotId);
+                        return;
+                    }
+
+                    BlockPos location;
+                    try {
+                        location = new BlockPos(
+                            Integer.parseInt(saveData.locationX),
+                            Integer.parseInt(saveData.locationY),
+                            Integer.parseInt(saveData.locationZ)
+                        );
+                    } catch (NumberFormatException e) {
+                        LOGGER.error("Invalid location coordinates for spot {}: {}, {}, {}",
+                            spotId, saveData.locationX, saveData.locationY, saveData.locationZ);
+                        return;
+                    }
+
+                    String towingYardPlotId = saveData.towingYardPlotId;
 
                     TowingYardParkingSpot spot = new TowingYardParkingSpot(spotId, location, towingYardPlotId);
 
                     if (saveData.occupied && saveData.vehicleEntityId != null && saveData.ownerPlayerId != null) {
-                        spot.parkVehicle(
-                            UUID.fromString(saveData.vehicleEntityId),
-                            UUID.fromString(saveData.ownerPlayerId),
-                            saveData.owedAmount,
-                            saveData.originalDamage,
-                            saveData.engineWasRunning
-                        );
+                        try {
+                            UUID vehicleId = UUID.fromString(saveData.vehicleEntityId);
+                            UUID ownerId = UUID.fromString(saveData.ownerPlayerId);
+
+                            // VALIDATE OWED AMOUNT (>= 0)
+                            if (saveData.owedAmount < 0) {
+                                LOGGER.warn("Spot {} has negative owed amount {}, resetting to 0",
+                                    spotId, saveData.owedAmount);
+                                saveData.owedAmount = 0;
+                            }
+
+                            // VALIDATE ORIGINAL DAMAGE (0-1)
+                            if (saveData.originalDamage < 0 || saveData.originalDamage > 1) {
+                                LOGGER.warn("Spot {} has invalid original damage {}, clamping to 0-1",
+                                    spotId, saveData.originalDamage);
+                                saveData.originalDamage = Math.max(0, Math.min(1, saveData.originalDamage));
+                            }
+
+                            // VALIDATE TOWED TIMESTAMP (>= 0)
+                            if (saveData.towedTimestamp < 0) {
+                                LOGGER.warn("Spot {} has negative towed timestamp {}, resetting to 0",
+                                    spotId, saveData.towedTimestamp);
+                                saveData.towedTimestamp = 0;
+                            }
+
+                            spot.parkVehicle(
+                                vehicleId,
+                                ownerId,
+                                saveData.owedAmount,
+                                saveData.originalDamage,
+                                saveData.engineWasRunning
+                            );
+                        } catch (IllegalArgumentException e) {
+                            LOGGER.error("Invalid vehicle/owner UUID for spot {}: vehicle={}, owner={}",
+                                spotId, saveData.vehicleEntityId, saveData.ownerPlayerId, e);
+                        }
                     }
 
                     parkingSpots.put(spotId, spot);
@@ -354,6 +513,15 @@ public class TowingYardManager {
                     LOGGER.error("Invalid parking spot data: {}", spotIdStr, e);
                 }
             });
+
+            // SUMMARY
+            if (invalidCount > 0 || correctedCount > 0) {
+                LOGGER.warn("Data validation: {} invalid entries, {} corrected entries",
+                    invalidCount, correctedCount);
+                if (correctedCount > 0) {
+                    markDirty(); // Re-save corrected data
+                }
+            }
         }
 
         @Override

@@ -255,7 +255,58 @@ public class DailyRewardManager {
         @Override
         protected void onDataLoaded(Map<String, DailyReward> data) {
             rewards.clear();
-            rewards.putAll(data);
+
+            int invalidCount = 0;
+            int correctedCount = 0;
+
+            // NULL CHECK
+            if (data == null) {
+                LOGGER.warn("Null data loaded for daily rewards");
+                invalidCount++;
+                return;
+            }
+
+            // Check collection size
+            if (data.size() > 10000) {
+                LOGGER.warn("Daily rewards map size ({}) exceeds limit, potential corruption",
+                    data.size());
+                correctedCount++;
+            }
+
+            for (Map.Entry<String, DailyReward> entry : data.entrySet()) {
+                try {
+                    String key = entry.getKey();
+                    DailyReward reward = entry.getValue();
+
+                    // VALIDATE KEY
+                    if (key == null || key.isEmpty()) {
+                        LOGGER.warn("Null/empty key in daily rewards, skipping");
+                        invalidCount++;
+                        continue;
+                    }
+
+                    // NULL CHECK
+                    if (reward == null) {
+                        LOGGER.warn("Null daily reward for key {}, skipping", key);
+                        invalidCount++;
+                        continue;
+                    }
+
+                    rewards.put(key, reward);
+                } catch (Exception e) {
+                    LOGGER.error("Error loading daily reward for key {}", entry.getKey(), e);
+                    invalidCount++;
+                }
+            }
+
+            // SUMMARY
+            if (invalidCount > 0 || correctedCount > 0) {
+                LOGGER.warn("Data validation: {} invalid entries, {} corrected entries",
+                    invalidCount, correctedCount);
+                if (correctedCount > 0) {
+                    markDirty(); // Re-save corrected data
+                }
+            }
         }
 
         @Override
