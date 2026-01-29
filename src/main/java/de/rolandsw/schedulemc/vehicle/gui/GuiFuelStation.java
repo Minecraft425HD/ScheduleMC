@@ -99,11 +99,11 @@ public class GuiFuelStation extends ScreenBase<ContainerFuelStation> {
         buttonStart.active = !fuelStation.isFueling();
         buttonStop.active = fuelStation.isFueling();
 
-        // === PLAYER INVENTORY ===
-        drawInsetPanel(g, x + 5, y + 124, w - 10, 89, COL_BG);
-        // Player inventory slot backgrounds (main inv at Y=135, hotbar at Y=193)
+        // === PLAYER INVENTORY (with dark header for label) ===
         int invOffset = 51;
         int mainInvY = y + 84 + invOffset;
+        drawInsetPanel(g, x + 5, mainInvY - 14, w - 10, 93, COL_BG);
+        g.fill(x + 6, mainInvY - 13, x + w - 6, mainInvY - 2, COL_CARD_HEADER);
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
                 drawSlotBg(g, x + 8 + col * 18, mainInvY + row * 18);
@@ -137,11 +137,11 @@ public class GuiFuelStation extends ScreenBase<ContainerFuelStation> {
             g.drawString(font, Component.translatable("fuel_station.vehicle_info",
                     Component.literal(name).withStyle(ChatFormatting.WHITE)).getVisualOrderText(),
                     8, ly, TEXT_DARK, false);
-            ly += 10;
+            ly += 13;
 
             // Fuel info
             drawFuelInfo(g, fluidHandler, ly);
-            ly += 20; // two lines for fuel
+            ly += 26; // two lines for fuel (13px each)
 
             // Odometer
             if (entity instanceof EntityGenericVehicle vehicle) {
@@ -150,25 +150,26 @@ public class GuiFuelStation extends ScreenBase<ContainerFuelStation> {
                 g.drawString(font, Component.translatable("fuel_station.odometer",
                         Component.literal(odometerText).withStyle(ChatFormatting.WHITE)).getVisualOrderText(),
                         8, ly, TEXT_DARK, false);
-                ly += 10;
+                ly += 13;
             }
         } else {
             g.drawString(font, Component.translatable("fuel_station.no_vehicle").getVisualOrderText(),
                     8, ly, TEXT_DARK, false);
-            ly += 20;
+            ly += 26;
         }
 
         // Refueled counter
         g.drawString(font, Component.translatable("fuel_station.refueled",
                 Component.literal(String.valueOf(fuelStation.getFuelCounter())).withStyle(ChatFormatting.WHITE)).getVisualOrderText(),
                 8, ly, TEXT_DARK, false);
-        ly += 10;
+        ly += 13;
 
         // Buffer info
         drawBufferInfo(g, ly);
 
-        // === Player inventory label ===
-        g.drawString(font, playerInventory.getDisplayName().getVisualOrderText(), 8, imageHeight - 93, TEXT_DARK, false);
+        // === Player inventory label (inside dark header) ===
+        int mainInvRelY = 84 + 51; // 51 = invOffset for fuel station
+        g.drawString(font, playerInventory.getDisplayName().getVisualOrderText(), 8, mainInvRelY - 11, TEXT_WHITE, false);
 
         // === Tooltip for trade slot ===
         ItemStack stack = fuelStation.getTradingInventory().getItem(0);
@@ -197,7 +198,7 @@ public class GuiFuelStation extends ScreenBase<ContainerFuelStation> {
         if (!tank.isEmpty()) {
             g.drawString(font, Component.translatable("fuel_station.vehicle_fuel_type",
                     Component.literal(tank.getDisplayName().getString()).withStyle(ChatFormatting.WHITE)).getVisualOrderText(),
-                    8, y + 10, TEXT_DARK, false);
+                    8, y + 13, TEXT_DARK, false);
         }
     }
 
@@ -215,7 +216,7 @@ public class GuiFuelStation extends ScreenBase<ContainerFuelStation> {
                 8, y, TEXT_DARK, false);
         g.drawString(font, Component.translatable("fuel_station.fuel_buffer_type",
                 Component.literal(stack.getDisplayName().getString()).withStyle(ChatFormatting.WHITE)).getVisualOrderText(),
-                8, y + 10, TEXT_DARK, false);
+                8, y + 13, TEXT_DARK, false);
     }
 
     // ==================== Drawing Helpers ====================

@@ -96,10 +96,11 @@ public class GuiVehicleInventory extends ScreenBase<ContainerVehicleInventory> {
             }
         }
 
-        // === PLAYER INVENTORY CARD ===
+        // === PLAYER INVENTORY CARD (with dark header for label) ===
         int mainInvY = y + 84 + invOffset;
         int hotbarY = y + 142 + invOffset;
-        drawInsetPanel(g, x + 5, mainInvY - 4, w - 10, 82, COL_BG);
+        drawInsetPanel(g, x + 5, mainInvY - 14, w - 10, 93, COL_BG);
+        g.fill(x + 6, mainInvY - 13, x + w - 6, mainInvY - 2, COL_CARD_HEADER);
 
         // Main inventory slots (3 rows × 9)
         for (int row = 0; row < 3; row++) {
@@ -137,8 +138,8 @@ public class GuiVehicleInventory extends ScreenBase<ContainerVehicleInventory> {
             g.drawString(font, Component.translatable("gui.vehicle.external_inventory").getVisualOrderText(), 8, extLabelY, TEXT_DARK, false);
         }
 
-        // === Player inventory label ===
-        g.drawString(font, playerInventory.getDisplayName().getVisualOrderText(), 8, 84 + invOffset - 12, TEXT_DARK, false);
+        // === Player inventory label (inside dark header) ===
+        g.drawString(font, playerInventory.getDisplayName().getVisualOrderText(), 8, 84 + invOffset - 11, TEXT_WHITE, false);
     }
 
     // ==================== Drawing Helpers ====================

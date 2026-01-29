@@ -8,6 +8,7 @@ import net.minecraft.world.inventory.Slot;
 public class ContainerVehicle extends ContainerBase {
 
     protected EntityGenericVehicle vehicle;
+    private int invOffset;
 
     public ContainerVehicle(int id, EntityGenericVehicle vehicle, Inventory playerInv) {
         super(Main.VEHICLE_CONTAINER_TYPE.get(), id, playerInv, vehicle);
@@ -25,8 +26,9 @@ public class ContainerVehicle extends ContainerBase {
         int slotY = 98; // Start Y position for inventory slots
 
         // Add INTERNAL inventory slots (chassis-specific: 0-6 slots)
+        int internalRows = 0;
         if (internalSlots > 0) {
-            int internalRows = (int) Math.ceil(internalSlots / 9.0);
+            internalRows = (int) Math.ceil(internalSlots / 9.0);
             int slotIndex = 0;
             for (int row = 0; row < internalRows; row++) {
                 for (int col = 0; col < 9; col++) {
@@ -40,8 +42,9 @@ public class ContainerVehicle extends ContainerBase {
         }
 
         // Add EXTERNAL inventory slots (container: 0 or 12 slots)
+        int externalRows = 0;
         if (externalSlots > 0) {
-            int externalRows = (int) Math.ceil(externalSlots / 9.0);
+            externalRows = (int) Math.ceil(externalSlots / 9.0);
             int slotIndex = 0;
             for (int row = 0; row < externalRows; row++) {
                 for (int col = 0; col < 9; col++) {
@@ -58,7 +61,18 @@ public class ContainerVehicle extends ContainerBase {
         addSlot(new SlotBattery(vehicle, 0, 116, 66, playerInv.player));
         addSlot(new SlotRepairKit(vehicle, 0, 134, 66, playerInv.player));
 
-        // Player inventory removed - not needed for vehicle GUI
+        // Calculate offset so player inventory appears below vehicle content
+        int invHeight = internalRows * 18;
+        if (internalRows > 0 && externalRows > 0) invHeight += 2;
+        invHeight += externalRows * 18;
+        this.invOffset = invHeight + 28;
+
+        addPlayerInventorySlots();
+    }
+
+    @Override
+    public int getInvOffset() {
+        return invOffset;
     }
 
     public EntityGenericVehicle getVehicle() {

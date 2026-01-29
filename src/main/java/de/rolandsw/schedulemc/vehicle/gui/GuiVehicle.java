@@ -12,6 +12,7 @@ import net.minecraft.world.entity.player.Inventory;
 
 /**
  * Card-based vehicle GUI - fully programmatic rendering, no background texture artifacts.
+ * Includes player inventory + hotbar for item transfer.
  */
 public class GuiVehicle extends ScreenBase<ContainerVehicle> {
 
@@ -45,6 +46,7 @@ public class GuiVehicle extends ScreenBase<ContainerVehicle> {
     private int externalRows;
     private int internalSlots;
     private int externalSlots;
+    private int playerInvOffset; // offset for player inventory positioning
 
     public GuiVehicle(ContainerVehicle containerVehicle, Inventory playerInv, Component title) {
         super(TEXTURE, containerVehicle, playerInv, title);
@@ -64,8 +66,11 @@ public class GuiVehicle extends ScreenBase<ContainerVehicle> {
         }
         invHeight += externalRows * 18;
 
-        // 98 = top sections, invHeight = slot rows, 8 = card border + bottom margin
-        imageHeight = 98 + invHeight + 8;
+        // Player inventory offset (matches ContainerVehicle calculation)
+        playerInvOffset = invHeight + 28;
+
+        // imageHeight: hotbar bottom (142 + offset + 18) + bottom margin (6)
+        imageHeight = 142 + playerInvOffset + 18 + 6;
     }
 
     @Override
@@ -81,26 +86,26 @@ public class GuiVehicle extends ScreenBase<ContainerVehicle> {
         // === Main GUI frame (3D beveled) ===
         drawFrame(g, x, y, w, h);
 
-        // === STATUS CARD (Y=4 to Y=58) ===
-        drawInsetPanel(g, x + 5, y + 4, w - 10, 54, COL_CARD_BG);
+        // === STATUS CARD (Y=4 to Y=63, height=59) ===
+        drawInsetPanel(g, x + 5, y + 4, w - 10, 59, COL_CARD_BG);
         g.fill(x + 6, y + 5, x + w - 6, y + 17, COL_CARD_HEADER);
 
-        // Status progress bars
+        // Status progress bars (12px line spacing, bars at text+2)
         int barX = x + 68;
         int barW = 42;
-        drawBar(g, barX, y + 19, barW, 5, getFuelPercent(), false);
-        drawBar(g, barX, y + 29, barW, 5, getBatteryPercent(), false);
-        drawBar(g, barX, y + 39, barW, 5, getDamagePercent(), true);
-        drawBar(g, barX, y + 49, barW, 5, getTemperaturePercent(), true);
+        drawBar(g, barX, y + 21, barW, 5, getFuelPercent(), false);
+        drawBar(g, barX, y + 33, barW, 5, getBatteryPercent(), false);
+        drawBar(g, barX, y + 45, barW, 5, getDamagePercent(), true);
+        drawBar(g, barX, y + 57, barW, 5, getTemperaturePercent(), true);
 
-        // === WARTUNG SECTION (Y=60 to Y=85) ===
-        drawInsetPanel(g, x + 5, y + 60, w - 10, 26, COL_CARD_BG);
-        // Special slot backgrounds
+        // === WARTUNG SECTION (Y=64 to Y=86, height=22) ===
+        drawInsetPanel(g, x + 5, y + 64, w - 10, 22, COL_CARD_BG);
+        // Special slot backgrounds (Y=66 fixed by container)
         drawSlotBg(g, x + 98, y + 66);
         drawSlotBg(g, x + 116, y + 66);
         drawSlotBg(g, x + 134, y + 66);
 
-        // === VEHICLE + INVENTORY SECTION (Y=87 to end) ===
+        // === VEHICLE NAME + INVENTORY CARD (Y=87 to ...) ===
         int invHeight = internalRows * 18;
         if (internalRows > 0 && externalRows > 0) invHeight += 2;
         invHeight += externalRows * 18;
@@ -110,7 +115,7 @@ public class GuiVehicle extends ScreenBase<ContainerVehicle> {
             // Dark header strip for vehicle name
             g.fill(x + 6, y + 88, x + w - 6, y + 98, COL_CARD_HEADER);
 
-            // Inventory slot backgrounds
+            // Vehicle inventory slot backgrounds (Y=98 fixed by container)
             int slotY = y + 98;
             for (int row = 0; row < internalRows; row++) {
                 for (int col = 0; col < 9 && (row * 9 + col) < internalSlots; col++) {
@@ -125,6 +130,25 @@ public class GuiVehicle extends ScreenBase<ContainerVehicle> {
                 }
             }
         }
+
+        // === PLAYER INVENTORY + HOTBAR CARD ===
+        int mainInvY = y + 84 + playerInvOffset;
+        int hotbarY = y + 142 + playerInvOffset;
+
+        // Player inv card (includes label header + 3 rows + gap + hotbar)
+        drawInsetPanel(g, x + 5, mainInvY - 14, w - 10, 93, COL_BG);
+        g.fill(x + 6, mainInvY - 13, x + w - 6, mainInvY - 2, COL_CARD_HEADER);
+
+        // Main inventory slots (3 rows x 9)
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 9; col++) {
+                drawSlotBg(g, x + 8 + col * 18, mainInvY + row * 18);
+            }
+        }
+        // Hotbar (1 row x 9)
+        for (int col = 0; col < 9; col++) {
+            drawSlotBg(g, x + 8 + col * 18, hotbarY);
+        }
     }
 
     @Override
@@ -134,25 +158,25 @@ public class GuiVehicle extends ScreenBase<ContainerVehicle> {
         // === Status card header ===
         g.drawString(font, Component.translatable("gui.vehicle.status.title"), 8, 6, TEXT_WHITE, false);
 
-        // === Status lines (label + value after bar) ===
-        int ly = 17;
+        // === Status lines (12px spacing, text at Y=19,31,43,55) ===
+        int ly = 19;
         g.drawString(font, Component.translatable("gui.vehicle.status.fuel"), 9, ly, TEXT_DARK, false);
         drawRightAligned(g, getFuelValueString(), 168, ly, TEXT_DARK);
 
-        ly += 10;
+        ly += 12;
         g.drawString(font, Component.translatable("gui.vehicle.status.battery"), 9, ly, TEXT_DARK, false);
         drawRightAligned(g, getBatteryValueString(), 168, ly, TEXT_DARK);
 
-        ly += 10;
+        ly += 12;
         g.drawString(font, Component.translatable("gui.vehicle.status.damage"), 9, ly, TEXT_DARK, false);
         drawRightAligned(g, getDamageValueString(), 168, ly, TEXT_DARK);
 
-        ly += 10;
+        ly += 12;
         g.drawString(font, Component.translatable("gui.vehicle.status.temperature"), 9, ly, TEXT_DARK, false);
         drawRightAligned(g, getTempValueString(), 168, ly, TEXT_DARK);
 
-        // === Wartung label ===
-        g.drawString(font, Component.translatable("gui.vehicle.wartung"), 8, 63, TEXT_DARK, false);
+        // === Wartung label (inside wartung card, left of slots) ===
+        g.drawString(font, Component.translatable("gui.vehicle.wartung"), 8, 67, TEXT_DARK, false);
 
         // === Vehicle name + Odometer ===
         if (internalSlots > 0 || externalSlots > 0) {
@@ -160,10 +184,14 @@ public class GuiVehicle extends ScreenBase<ContainerVehicle> {
             g.drawString(font, vehicle.getDisplayName().getVisualOrderText(), 8, 89, TEXT_WHITE, false);
             drawRightAligned(g, getOdometerValueString(), 170, 89, TEXT_LIGHT);
         } else {
-            // Standalone text
+            // No inventory - show standalone
             g.drawString(font, vehicle.getDisplayName().getVisualOrderText(), 8, 89, TEXT_DARK, false);
             drawRightAligned(g, getOdometerValueString(), 170, 89, TEXT_DARK);
         }
+
+        // === Player inventory label (inside dark header of player inv card) ===
+        int mainInvRelY = 84 + playerInvOffset;
+        g.drawString(font, playerInv.getDisplayName().getVisualOrderText(), 8, mainInvRelY - 11, TEXT_WHITE, false);
     }
 
     // ==================== Drawing Helpers ====================
