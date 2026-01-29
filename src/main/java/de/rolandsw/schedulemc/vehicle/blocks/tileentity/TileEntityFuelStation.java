@@ -140,7 +140,7 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
                 case 4:
                     return eveningPrice;
                 case 5:
-                    return (int) totalCostThisSession;
+                    return (int) Math.round(totalCostThisSession * 100);
                 case 6:
                     return isFueling ? 1 : 0;
             }
@@ -169,7 +169,7 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
                     eveningPrice = value;
                     break;
                 case 5:
-                    totalCostThisSession = value;
+                    totalCostThisSession = value / 100.0;
                     break;
                 case 6:
                     isFueling = value != 0;
@@ -303,9 +303,7 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
                         }
 
                         // Calculate cost for 10 mB and add to bill (no immediate payment)
-                        double cost = pricePerUnit;
                         freeAmountLeft = 10; // Allow 10 mB per pricing cycle
-                        totalCostThisSession += cost;
                         setChanged();
                     } else {
                         // No player found, stop fueling
@@ -334,8 +332,13 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
             fuelCounter += result.getAmount();
             freeAmountLeft -= result.getAmount();
             totalFueledThisSession += result.getAmount();
-            synchronize(2);
 
+            // Kosten immer berechnen (inkl. MwSt), unabhängig vom Zahlungsmodus
+            double pricePerMb = getCurrentPrice() / 10.0;
+            double salesTaxRate = ModConfigHandler.COMMON.TAX_SALES_RATE.get();
+            totalCostThisSession += pricePerMb * result.getAmount() * (1.0 + salesTaxRate);
+
+            synchronize(2);
             setChanged();
             if (!wasFueling) {
                 synchronize();
@@ -796,8 +799,11 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
         return eveningPrice;
     }
 
-    public int getTotalCostThisSession() {
-        return (int) totalCostThisSession;
+    /**
+     * Returns session cost in cents for GUI display.
+     */
+    public int getTotalCostThisSessionCents() {
+        return (int) Math.round(totalCostThisSession * 100);
     }
 
     public int getTotalFueledThisSession() {

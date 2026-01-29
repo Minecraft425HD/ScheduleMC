@@ -202,11 +202,13 @@ public class GuiFuelStation extends ScreenBase<ContainerFuelStation> {
                 Component.literal(String.valueOf(fueled)).withStyle(ChatFormatting.WHITE)).getVisualOrderText(),
                 8, 123, TEXT_DARK, false);
 
-        // Session cost
-        int cost = fuelStation.getTotalCostThisSession();
+        // Session cost (in cents, formatted as euros incl. MwSt)
+        int costCents = fuelStation.getTotalCostThisSessionCents();
+        String costText = String.format("%.2f\u20AC", costCents / 100.0);
         g.drawString(font, Component.translatable("gui.fuel_station.session_cost",
-                Component.literal(cost + "\u20AC").withStyle(ChatFormatting.GOLD)).getVisualOrderText(),
+                Component.literal(costText).withStyle(ChatFormatting.GOLD)).getVisualOrderText(),
                 8, 135, TEXT_DARK, false);
+        g.drawString(font, "inkl. MwSt", 8, 147, TEXT_GRAY, false);
     }
 
     // ==================== Helpers ====================
