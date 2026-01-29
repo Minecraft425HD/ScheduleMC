@@ -589,7 +589,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
 
     public int getMaxFuel() {
         PartTank tank = getPartByClass(PartTank.class);
-        return tank != null ? tank.getSize() : 500;
+        return tank != null ? tank.getSize() : 11000;
     }
 
     public float getVehicleFuelEfficiency() {

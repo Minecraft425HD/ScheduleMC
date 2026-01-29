@@ -76,12 +76,21 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
     private int totalFueledThisSession;
     private UUID currentFuelingPlayer;
 
+    // Client-synced price data (updated from config on server, synced via NBT)
+    private int morningPrice;
+    private int eveningPrice;
+
     @Nullable
     private IFluidHandler fluidHandlerInFront;
+
+    // Entity-Referenz für GUI (Vehicle-Name, Odometer etc.)
+    @Nullable
+    private Entity entityInFront;
 
     // OPTIMIERUNG: Cache für Entity-Scan (reduziert von 20x/sek auf 5x/sek)
     private static final int ENTITY_SCAN_INTERVAL = 4; // Alle 4 Ticks (200ms)
     private int entityScanCounter = 0;
+    private Entity cachedEntityInFront = null;
     private IFluidHandler cachedFluidHandler = null;
 
     public TileEntityFuelStation(BlockPos pos, BlockState state) {
@@ -126,6 +135,14 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
                     return 0;
                 case 2:
                     return tradeAmount;
+                case 3:
+                    return morningPrice;
+                case 4:
+                    return eveningPrice;
+                case 5:
+                    return (int) Math.round(totalCostThisSession * 100);
+                case 6:
+                    return isFueling ? 1 : 0;
             }
             return 0;
         }
@@ -145,12 +162,24 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
                     tradeAmount = value;
                     setChanged();
                     break;
+                case 3:
+                    morningPrice = value;
+                    break;
+                case 4:
+                    eveningPrice = value;
+                    break;
+                case 5:
+                    totalCostThisSession = value / 100.0;
+                    break;
+                case 6:
+                    isFueling = value != 0;
+                    break;
             }
         }
 
         @Override
         public int getCount() {
-            return 3;
+            return 7;
         }
     };
 
@@ -175,18 +204,35 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
 
     @Override
     public void tick() {
-        if (level.getGameTime() % 100 == 0) {
-            fixTop();
+        // Entity-Scan läuft auf BEIDEN Seiten (Client braucht es für die GUI-Anzeige)
+        entityScanCounter++;
+        if (entityScanCounter >= ENTITY_SCAN_INTERVAL || cachedEntityInFront == null) {
+            entityScanCounter = 0;
+            cachedEntityInFront = searchEntityWithFluidHandlerInFront();
+            cachedFluidHandler = cachedEntityInFront != null
+                    ? cachedEntityInFront.getCapability(ForgeCapabilities.FLUID_HANDLER).orElse(null)
+                    : null;
+        }
+        entityInFront = cachedEntityInFront;
+        fluidHandlerInFront = cachedFluidHandler;
+
+        // Alles ab hier nur serverseitig - keine Tank-Logik auf dem Client!
+        if (level.isClientSide) {
+            return;
         }
 
-        // OPTIMIERUNG: Entity-Scan nur alle ENTITY_SCAN_INTERVAL Ticks
-        // Reduziert CPU-Last um 75% (von 20x/sek auf 5x/sek)
-        entityScanCounter++;
-        if (entityScanCounter >= ENTITY_SCAN_INTERVAL || cachedFluidHandler == null) {
-            entityScanCounter = 0;
-            cachedFluidHandler = searchFluidHandlerInFront();
+        if (level.getGameTime() % 100 == 0) {
+            fixTop();
+            // Sync price config to client via NBT
+            int newMorning = ModConfigHandler.VEHICLE_SERVER.fuelStationMorningPricePer10mb.get();
+            int newEvening = ModConfigHandler.VEHICLE_SERVER.fuelStationEveningPricePer10mb.get();
+            if (newMorning != morningPrice || newEvening != eveningPrice) {
+                morningPrice = newMorning;
+                eveningPrice = newEvening;
+                setChanged();
+                synchronize();
+            }
         }
-        fluidHandlerInFront = cachedFluidHandler;
 
         if (fluidHandlerInFront == null) {
             if (fuelCounter > 0 || isFueling) {
@@ -257,9 +303,7 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
                         }
 
                         // Calculate cost for 10 mB and add to bill (no immediate payment)
-                        double cost = pricePerUnit;
                         freeAmountLeft = 10; // Allow 10 mB per pricing cycle
-                        totalCostThisSession += cost;
                         setChanged();
                     } else {
                         // No player found, stop fueling
@@ -288,8 +332,14 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
             fuelCounter += result.getAmount();
             freeAmountLeft -= result.getAmount();
             totalFueledThisSession += result.getAmount();
-            synchronize(100);
 
+            // Kosten immer berechnen (inkl. MwSt), unabhängig vom Zahlungsmodus
+            // getCurrentPrice() = Cent pro 10mB → / 1000.0 = Euro pro mB
+            double pricePerMbEuros = getCurrentPrice() / 1000.0;
+            double salesTaxRate = ModConfigHandler.COMMON.TAX_SALES_RATE.get();
+            totalCostThisSession += pricePerMbEuros * result.getAmount() * (1.0 + salesTaxRate);
+
+            synchronize(2);
             setChanged();
             if (!wasFueling) {
                 synchronize();
@@ -355,7 +405,8 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
         totalCostThisSession = 0;
         totalFueledThisSession = 0;
         currentFuelingPlayer = null;
-        cachedFluidHandler = null; // Cache invalidieren für nächstes Fahrzeug
+        cachedEntityInFront = null; // Cache invalidieren für nächstes Fahrzeug
+        cachedFluidHandler = null;
         synchronize();
         setChanged();
     }
@@ -538,6 +589,12 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
         if (shopPlotId != null && !shopPlotId.isEmpty()) {
             compound.putString("shop_plot_id", shopPlotId);
         }
+
+        compound.putBoolean("is_fueling", isFueling);
+        compound.putInt("morning_price", morningPrice);
+        compound.putInt("evening_price", eveningPrice);
+        compound.putDouble("total_cost_session", totalCostThisSession);
+        compound.putInt("total_fueled_session", totalFueledThisSession);
     }
 
     @Override
@@ -571,6 +628,13 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
         } else {
             owner = new UUID(0L, 0L);
         }
+
+        isFueling = compound.getBoolean("is_fueling");
+        morningPrice = compound.getInt("morning_price");
+        eveningPrice = compound.getInt("evening_price");
+        totalCostThisSession = compound.getDouble("total_cost_session");
+        totalFueledThisSession = compound.getInt("total_fueled_session");
+
         super.load(compound);
     }
 
@@ -625,15 +689,18 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
     private CachedValue<Vec3> center = new CachedValue<>(() -> new Vec3(worldPosition.getX() + 0.5D, worldPosition.getY() + 1.5D, worldPosition.getZ() + 0.5D));
 
     @Nullable
-    private IFluidHandler searchFluidHandlerInFront() {
+    private Entity searchEntityWithFluidHandlerInFront() {
         if (level == null) {
             return null;
         }
-        return level.getEntitiesOfClass(Entity.class, getDetectionBox())
+        AABB box = getDetectionBox();
+        if (box == null) {
+            return null;
+        }
+        return level.getEntitiesOfClass(Entity.class, box)
                 .stream()
                 .sorted(Comparator.comparingDouble(o -> o.distanceToSqr(center.get())))
-                .map(entity -> entity.getCapability(ForgeCapabilities.FLUID_HANDLER).orElse(null))
-                .filter(Objects::nonNull)
+                .filter(entity -> entity.getCapability(ForgeCapabilities.FLUID_HANDLER).isPresent())
                 .findFirst()
                 .orElse(null);
     }
@@ -641,6 +708,11 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
     @Nullable
     public IFluidHandler getFluidHandlerInFront() {
         return fluidHandlerInFront;
+    }
+
+    @Nullable
+    public Entity getEntityInFront() {
+        return entityInFront;
     }
 
     private CachedValue<AABB> detectionBox = new CachedValue<>(this::createDetectionBox);
@@ -718,6 +790,25 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
             return storage.getAmount();
         }
         return 0;
+    }
+
+    public int getMorningPrice() {
+        return morningPrice;
+    }
+
+    public int getEveningPrice() {
+        return eveningPrice;
+    }
+
+    /**
+     * Returns session cost in cents for GUI display.
+     */
+    public int getTotalCostThisSessionCents() {
+        return (int) Math.round(totalCostThisSession * 100);
+    }
+
+    public int getTotalFueledThisSession() {
+        return totalFueledThisSession;
     }
 
     @Override

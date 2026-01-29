@@ -213,6 +213,7 @@ public class MessageGarageUpgrade implements Message<MessageGarageUpgrade> {
         // Update the vehicle's serialized parts data
         if (replacedAny) {
             vehicle.setPartSerializer();
+            vehicle.invalidatePartCache();
         }
 
         return replacedAny;

@@ -12,6 +12,12 @@ public class PartIndustrialMotor extends PartEngine {
         this.maxReverseSpeed = () -> ModConfigHandler.VEHICLE_SERVER.industrialMotorMaxReverseSpeed.get().floatValue();
         this.acceleration = () -> ModConfigHandler.VEHICLE_SERVER.industrialMotorAcceleration.get().floatValue();
         this.fuelEfficiency = () -> ModConfigHandler.VEHICLE_SERVER.industrialMotorFuelEfficiency.get().floatValue();
+        this.fuelConsumptionPer10km = () -> ModConfigHandler.VEHICLE_SERVER.industrialMotorFuelConsumption.get();
+    }
+
+    @Override
+    public int getUpgradeLevel() {
+        return 2;
     }
 
     @Override

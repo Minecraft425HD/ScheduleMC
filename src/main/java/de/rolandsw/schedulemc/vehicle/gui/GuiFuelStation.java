@@ -10,18 +10,15 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Card-based fuel station GUI - fully programmatic rendering.
+ * 3 cards: Vehicle Info, Prices (day/night), Fueling Session.
+ * No slots, no player inventory.
  */
 public class GuiFuelStation extends ScreenBase<ContainerFuelStation> {
 
@@ -36,40 +33,47 @@ public class GuiFuelStation extends ScreenBase<ContainerFuelStation> {
     // Card colors
     private static final int COL_CARD_BG = 0xFFAAAAAA;
     private static final int COL_CARD_HEADER = 0xFF404040;
-    private static final int COL_SLOT_BG = 0xFF8B8B8B;
+
+    // Bar colors
+    private static final int COL_BAR_BG = 0xFF8B8B8B;
+    private static final int COL_BAR_FILL = 0xFF00AA00;
 
     // Text colors
     private static final int TEXT_DARK = 0x404040;
     private static final int TEXT_WHITE = 0xFFFFFF;
+    private static final int TEXT_LIGHT = 0xAAAAAA;
+    private static final int TEXT_GREEN = 0x55FF55;
+    private static final int TEXT_GRAY = 0x888888;
 
     private TileEntityFuelStation fuelStation;
-    private Inventory playerInventory;
 
     protected Button buttonStart;
     protected Button buttonStop;
 
-    public GuiFuelStation(ContainerFuelStation fuelStation, Inventory playerInventory, Component title) {
-        super(GUI_TEXTURE, fuelStation, playerInventory, title);
-        this.fuelStation = fuelStation.getFuelStation();
-        this.playerInventory = playerInventory;
+    public GuiFuelStation(ContainerFuelStation container, Inventory playerInventory, Component title) {
+        super(GUI_TEXTURE, container, playerInventory, title);
+        this.fuelStation = container.getFuelStation();
 
         imageWidth = 176;
-        imageHeight = 217;
+        imageHeight = 178;
     }
 
     @Override
     protected void init() {
         super.init();
 
+        // START button: left half
         buttonStart = addRenderableWidget(Button.builder(Component.translatable("button.vehicle.start"), button -> {
             fuelStation.setFueling(true);
             fuelStation.sendStartFuelPacket(true);
-        }).bounds((width / 2) - 20, topPos + 100, 40, 20).build());
+        }).bounds(leftPos + 8, topPos + 150, 75, 20).build());
+
+        // STOP button: right half
         buttonStop = addRenderableWidget(Button.builder(Component.translatable("button.vehicle.stop"), button -> {
             fuelStation.setFueling(false);
             fuelStation.sendStartFuelPacket(false);
             minecraft.setScreen(null);
-        }).bounds(leftPos + imageWidth - 40 - 7, topPos + 100, 40, 20).build());
+        }).bounds(leftPos + 93, topPos + 150, 75, 20).build());
     }
 
     @Override
@@ -82,51 +86,51 @@ public class GuiFuelStation extends ScreenBase<ContainerFuelStation> {
         int w = imageWidth;
         int h = imageHeight;
 
-        // === Main GUI frame ===
+        // === Main GUI frame (3D beveled) ===
         drawFrame(g, x, y, w, h);
 
-        // === INFO CARD (Y=3 to Y=90) ===
-        drawInsetPanel(g, x + 5, y + 3, w - 10, 87, COL_CARD_BG);
-        g.fill(x + 6, y + 4, x + w - 6, y + 16, COL_CARD_HEADER);
+        // === CARD 1: Vehicle Info (Y=4, h=60) ===
+        drawInsetPanel(g, x + 5, y + 4, w - 10, 60, COL_CARD_BG);
+        g.fill(x + 6, y + 5, x + w - 6, y + 17, COL_CARD_HEADER);
 
-        // === ACTION SECTION (Y=93 to Y=122) ===
-        drawInsetPanel(g, x + 5, y + 93, w - 10, 29, COL_CARD_BG);
-        // Trade slot backgrounds
-        drawSlotBg(g, x + 18, y + 99);
-        drawSlotBg(g, x + 38, y + 99);
-
-        // Button state
-        buttonStart.active = !fuelStation.isFueling();
-        buttonStop.active = fuelStation.isFueling();
-
-        // === PLAYER INVENTORY (with dark header for label) ===
-        int invOffset = 51;
-        int mainInvY = y + 84 + invOffset;
-        drawInsetPanel(g, x + 5, mainInvY - 14, w - 10, 93, COL_BG);
-        g.fill(x + 6, mainInvY - 13, x + w - 6, mainInvY - 2, COL_CARD_HEADER);
-        for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 9; col++) {
-                drawSlotBg(g, x + 8 + col * 18, mainInvY + row * 18);
+        // Tank fill bar (only when vehicle present)
+        IFluidHandler handler = fuelStation.getFluidHandlerInFront();
+        if (handler != null && fuelStation.getEntityInFront() != null) {
+            int barX = x + 8;
+            int barY = y + 55;
+            int barW = 120;
+            int barH = 5;
+            g.fill(barX, barY, barX + barW, barY + barH, COL_BAR_BG);
+            float percent = getTankPercent(handler);
+            int fillW = (int) (barW * percent);
+            if (fillW > 0) {
+                g.fill(barX, barY, barX + fillW, barY + barH, COL_BAR_FILL);
             }
         }
-        int hotbarY = y + 142 + invOffset;
-        for (int col = 0; col < 9; col++) {
-            drawSlotBg(g, x + 8 + col * 18, hotbarY);
-        }
+
+        // === CARD 2: Prices (Y=66, h=40) ===
+        drawInsetPanel(g, x + 5, y + 66, w - 10, 40, COL_CARD_BG);
+        g.fill(x + 6, y + 67, x + w - 6, y + 79, COL_CARD_HEADER);
+
+        // === CARD 3: Fueling Session (Y=108, h=66) ===
+        drawInsetPanel(g, x + 5, y + 108, w - 10, 66, COL_CARD_BG);
+        g.fill(x + 6, y + 109, x + w - 6, y + 121, COL_CARD_HEADER);
+
+        // Button state
+        buttonStart.active = !fuelStation.isFueling() && fuelStation.getFluidHandlerInFront() != null;
+        buttonStop.active = fuelStation.isFueling();
     }
 
     @Override
     protected void renderLabels(GuiGraphics g, int mouseX, int mouseY) {
         // Do NOT call super - fully custom
 
-        // === Info card header ===
-        g.drawString(font, Component.translatable("gui.fuel_station").getString(), 8, 5, TEXT_WHITE, false);
+        // === CARD 1: Vehicle Info ===
+        g.drawString(font, Component.translatable("gui.fuel_station").getString(), 8, 6, TEXT_WHITE, false);
 
-        // === Info content ===
-        IFluidHandler fluidHandler = fuelStation.getFluidHandlerInFront();
-
-        int ly = 19;
-        if (fluidHandler instanceof Entity entity) {
+        Entity entity = fuelStation.getEntityInFront();
+        IFluidHandler handler = fuelStation.getFluidHandlerInFront();
+        if (entity != null && handler != null) {
             // Vehicle name
             String name;
             if (entity instanceof EntityGenericVehicle vehicle) {
@@ -136,12 +140,7 @@ public class GuiFuelStation extends ScreenBase<ContainerFuelStation> {
             }
             g.drawString(font, Component.translatable("fuel_station.vehicle_info",
                     Component.literal(name).withStyle(ChatFormatting.WHITE)).getVisualOrderText(),
-                    8, ly, TEXT_DARK, false);
-            ly += 13;
-
-            // Fuel info
-            drawFuelInfo(g, fluidHandler, ly);
-            ly += 26; // two lines for fuel (13px each)
+                    8, 19, TEXT_DARK, false);
 
             // Odometer
             if (entity instanceof EntityGenericVehicle vehicle) {
@@ -149,74 +148,88 @@ public class GuiFuelStation extends ScreenBase<ContainerFuelStation> {
                 String odometerText = String.format("%,d Bl.", odo).replace(',', '.');
                 g.drawString(font, Component.translatable("fuel_station.odometer",
                         Component.literal(odometerText).withStyle(ChatFormatting.WHITE)).getVisualOrderText(),
-                        8, ly, TEXT_DARK, false);
-                ly += 13;
+                        8, 31, TEXT_DARK, false);
+            }
+
+            // Tank level text
+            if (handler.getTanks() > 0) {
+                FluidStack tank = handler.getFluidInTank(0);
+                int cur = tank.getAmount();
+                int max = handler.getTankCapacity(0);
+                g.drawString(font, Component.translatable("fuel_station.vehicle_fuel_amount",
+                        Component.literal(String.valueOf(cur)).withStyle(ChatFormatting.WHITE),
+                        Component.literal(String.valueOf(max)).withStyle(ChatFormatting.WHITE)).getVisualOrderText(),
+                        8, 43, TEXT_DARK, false);
+
+                // Percentage text after bar
+                int pct = max > 0 ? (int) (100f * cur / max) : 0;
+                drawRightAligned(g, pct + "%", 168, 54, TEXT_DARK);
             }
         } else {
+            // No vehicle
             g.drawString(font, Component.translatable("fuel_station.no_vehicle").getVisualOrderText(),
-                    8, ly, TEXT_DARK, false);
-            ly += 26;
+                    8, 19, TEXT_DARK, false);
         }
 
-        // Refueled counter
+        // === CARD 2: Prices ===
+        g.drawString(font, Component.translatable("gui.fuel_station.prices").getString(), 8, 68, TEXT_WHITE, false);
+
+        boolean isDay = isDaytime();
+        int morningPrice = fuelStation.getMorningPrice();
+        int eveningPrice = fuelStation.getEveningPrice();
+
+        // Day price line (highlighted green if active)
+        // morningPrice = Cent pro 10mB → pro 1000mB = morningPrice Euro
+        String dayText = String.format("Tag:     %.2f\u20AC / 1000 mB", (double) morningPrice);
+        g.drawString(font, dayText, 8, 81, isDay ? TEXT_GREEN : TEXT_GRAY, false);
+        if (isDay) {
+            drawRightAligned(g, "\u25C0", 168, 81, TEXT_GREEN);
+        }
+
+        // Night price line
+        String nightText = String.format("Nacht:  %.2f\u20AC / 1000 mB", (double) eveningPrice);
+        g.drawString(font, nightText, 8, 93, !isDay ? TEXT_GREEN : TEXT_GRAY, false);
+        if (!isDay) {
+            drawRightAligned(g, "\u25C0", 168, 93, TEXT_GREEN);
+        }
+
+        // === CARD 3: Fueling Session ===
+        g.drawString(font, Component.translatable("gui.fuel_station.fueling").getString(), 8, 110, TEXT_WHITE, false);
+
+        // Fueled amount
+        int fueled = fuelStation.getFuelCounter();
         g.drawString(font, Component.translatable("fuel_station.refueled",
-                Component.literal(String.valueOf(fuelStation.getFuelCounter())).withStyle(ChatFormatting.WHITE)).getVisualOrderText(),
-                8, ly, TEXT_DARK, false);
-        ly += 13;
+                Component.literal(String.valueOf(fueled)).withStyle(ChatFormatting.WHITE)).getVisualOrderText(),
+                8, 123, TEXT_DARK, false);
 
-        // Buffer info
-        drawBufferInfo(g, ly);
-
-        // === Player inventory label (inside dark header) ===
-        int mainInvRelY = 84 + 51; // 51 = invOffset for fuel station
-        g.drawString(font, playerInventory.getDisplayName().getVisualOrderText(), 8, mainInvRelY - 11, TEXT_WHITE, false);
-
-        // === Tooltip for trade slot ===
-        ItemStack stack = fuelStation.getTradingInventory().getItem(0);
-        if (!stack.isEmpty()) {
-            if (mouseX >= leftPos + 18 && mouseX <= leftPos + 33) {
-                if (mouseY >= topPos + 99 && mouseY <= topPos + 114) {
-                    List<FormattedCharSequence> list = new ArrayList<>();
-                    list.add(Component.translatable("tooltip.trade", stack.getCount(), stack.getHoverName(), fuelStation.getTradeAmount()).getVisualOrderText());
-                    g.renderTooltip(font, list, mouseX - leftPos, mouseY - topPos);
-                }
-            }
-        }
+        // Session cost (in cents, formatted as euros incl. MwSt)
+        int costCents = fuelStation.getTotalCostThisSessionCents();
+        String costText = String.format("%.2f\u20AC", costCents / 100.0);
+        Component costLine = Component.translatable("gui.fuel_station.session_cost",
+                Component.literal(costText).withStyle(ChatFormatting.GOLD))
+                .append(Component.literal(" inkl. MwSt").withStyle(ChatFormatting.BLACK));
+        g.drawString(font, costLine.getVisualOrderText(), 8, 135, TEXT_DARK, false);
     }
 
-    private void drawFuelInfo(GuiGraphics g, IFluidHandler handler, int y) {
-        if (handler.getTanks() <= 0) {
-            g.drawString(font, Component.translatable("fuel_station.fuel_empty").getVisualOrderText(),
-                    8, y, TEXT_DARK, false);
-            return;
-        }
-        FluidStack tank = handler.getFluidInTank(0);
-        g.drawString(font, Component.translatable("fuel_station.vehicle_fuel_amount",
-                Component.literal(String.valueOf(tank.getAmount())).withStyle(ChatFormatting.WHITE),
-                Component.literal(String.valueOf(handler.getTankCapacity(0))).withStyle(ChatFormatting.WHITE)).getVisualOrderText(),
-                8, y, TEXT_DARK, false);
-        if (!tank.isEmpty()) {
-            g.drawString(font, Component.translatable("fuel_station.vehicle_fuel_type",
-                    Component.literal(tank.getDisplayName().getString()).withStyle(ChatFormatting.WHITE)).getVisualOrderText(),
-                    8, y + 13, TEXT_DARK, false);
-        }
+    // ==================== Helpers ====================
+
+    private float getTankPercent(IFluidHandler handler) {
+        if (handler.getTanks() <= 0) return 0f;
+        int cur = handler.getFluidInTank(0).getAmount();
+        int max = handler.getTankCapacity(0);
+        return max > 0 ? (float) cur / max : 0f;
     }
 
-    private void drawBufferInfo(GuiGraphics g, int y) {
-        FluidStack stack = fuelStation.getStorage();
-        if (stack.isEmpty()) {
-            g.drawString(font, Component.translatable("fuel_station.fuel_empty").getVisualOrderText(),
-                    8, y, TEXT_DARK, false);
-            return;
+    private boolean isDaytime() {
+        if (minecraft != null && minecraft.level != null) {
+            return minecraft.level.getDayTime() % 24000 < 12000;
         }
-        int amount = fuelStation.getFuelAmount();
-        g.drawString(font, Component.translatable("fuel_station.fuel_buffer_amount",
-                Component.literal(String.valueOf(amount)).withStyle(ChatFormatting.WHITE),
-                Component.literal(String.valueOf(fuelStation.maxStorageAmount)).withStyle(ChatFormatting.WHITE)).getVisualOrderText(),
-                8, y, TEXT_DARK, false);
-        g.drawString(font, Component.translatable("fuel_station.fuel_buffer_type",
-                Component.literal(stack.getDisplayName().getString()).withStyle(ChatFormatting.WHITE)).getVisualOrderText(),
-                8, y + 13, TEXT_DARK, false);
+        return true;
+    }
+
+    private void drawRightAligned(GuiGraphics g, String text, int rightX, int y, int color) {
+        int textW = font.width(text);
+        g.drawString(font, text, rightX - textW, y, color, false);
     }
 
     // ==================== Drawing Helpers ====================
@@ -239,14 +252,6 @@ public class GuiFuelStation extends ScreenBase<ContainerFuelStation> {
         g.fill(x, y + h - 1, x + w, y + h, COL_WHITE);
         g.fill(x + w - 1, y, x + w, y + h, COL_WHITE);
         g.fill(x + 1, y + 1, x + w - 1, y + h - 1, bgColor);
-    }
-
-    private void drawSlotBg(GuiGraphics g, int x, int y) {
-        g.fill(x, y, x + 18, y + 1, COL_SHADOW);
-        g.fill(x, y, x + 1, y + 18, COL_SHADOW);
-        g.fill(x + 1, y + 17, x + 18, y + 18, COL_WHITE);
-        g.fill(x + 17, y + 1, x + 18, y + 18, COL_WHITE);
-        g.fill(x + 1, y + 1, x + 17, y + 17, COL_SLOT_BG);
     }
 
     // ==================== Overrides ====================

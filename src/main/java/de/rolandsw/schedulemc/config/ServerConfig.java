@@ -45,6 +45,11 @@ public class ServerConfig extends ConfigBase {
     public final ForgeConfigSpec.IntValue tankMediumMaxFuel;
     public final ForgeConfigSpec.IntValue tankLargeMaxFuel;
 
+    // Distance-based fuel consumption (L per 10 km, where 500 blocks = 1 km)
+    public final ForgeConfigSpec.DoubleValue normalMotorFuelConsumption;
+    public final ForgeConfigSpec.DoubleValue performanceMotorFuelConsumption;
+    public final ForgeConfigSpec.DoubleValue industrialMotorFuelConsumption;
+
     public final ForgeConfigSpec.DoubleValue performanceMotorFuelEfficiency;
     public final ForgeConfigSpec.DoubleValue normalMotorFuelEfficiency;
     public final ForgeConfigSpec.DoubleValue industrialMotorFuelEfficiency;
@@ -154,9 +159,13 @@ public class ServerConfig extends ConfigBase {
         vehicleOnroadSpeed = builder.comment("The speed modifier for vehicles on road blocks", "On road blocks are defined in the config section 'road_blocks'").defineInRange("vehicle.onroad_speed_modifier", 1D, 0.001D, 10D);
         vehicleDriveBlocks = builder.comment("If it starts with '#' it is a tag").defineList("vehicle.road_blocks.blocks", Collections.singletonList("#vehicle:drivable_blocks"), Objects::nonNull);
 
-        tankSmallMaxFuel = builder.defineInRange("vehicle.parts.small_tank.max_fuel", 500, 100, 100_000);
-        tankMediumMaxFuel = builder.defineInRange("vehicle.parts.medium_tank.max_fuel", 1000, 100, 100_000);
-        tankLargeMaxFuel = builder.defineInRange("vehicle.parts.large_tank.max_fuel", 1500, 100, 100_000);
+        tankSmallMaxFuel = builder.comment("Default tank: 11 Liter = 11000 mB").defineInRange("vehicle.parts.small_tank.max_fuel", 11000, 100, 100_000);
+        tankMediumMaxFuel = builder.comment("1st upgrade: 15 Liter = 15000 mB").defineInRange("vehicle.parts.medium_tank.max_fuel", 15000, 100, 100_000);
+        tankLargeMaxFuel = builder.comment("2nd upgrade: 20 Liter = 20000 mB").defineInRange("vehicle.parts.large_tank.max_fuel", 20000, 100, 100_000);
+
+        normalMotorFuelConsumption = builder.comment("Fuel consumption of the normal motor in liters per 10 km (500 blocks = 1 km)").defineInRange("vehicle.fuel.normal_motor_consumption_per_10km", 5.5D, 0.1D, 100.0D);
+        performanceMotorFuelConsumption = builder.comment("Fuel consumption of the performance motor in liters per 10 km").defineInRange("vehicle.fuel.performance_motor_consumption_per_10km", 7.0D, 0.1D, 100.0D);
+        industrialMotorFuelConsumption = builder.comment("Fuel consumption of the industrial motor in liters per 10 km").defineInRange("vehicle.fuel.industrial_motor_consumption_per_10km", 8.5D, 0.1D, 100.0D);
 
         performanceMotorFuelEfficiency = builder.defineInRange("vehicle.parts.performance_motor.fuel_efficiency", 0.25D, 0.001D, 10D);
         normalMotorFuelEfficiency = builder.defineInRange("vehicle.parts.normal_motor.fuel_efficiency", 0.5D, 0.001D, 10D);
