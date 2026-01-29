@@ -334,7 +334,7 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
             fuelCounter += result.getAmount();
             freeAmountLeft -= result.getAmount();
             totalFueledThisSession += result.getAmount();
-            synchronize(100);
+            synchronize(2);
 
             setChanged();
             if (!wasFueling) {
