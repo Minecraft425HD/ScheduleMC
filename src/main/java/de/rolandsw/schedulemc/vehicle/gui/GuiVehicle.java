@@ -80,8 +80,8 @@ public class GuiVehicle extends ScreenBase<ContainerVehicle> {
         // === Main GUI frame (3D beveled) ===
         drawFrame(g, x, y, w, h);
 
-        // === STATUS CARD (Y=4 to Y=63, height=59) ===
-        drawInsetPanel(g, x + 5, y + 4, w - 10, 59, COL_CARD_BG);
+        // === STATUS CARD (Y=4 to Y=70, height=66 - extra bottom padding) ===
+        drawInsetPanel(g, x + 5, y + 4, w - 10, 66, COL_CARD_BG);
         g.fill(x + 6, y + 5, x + w - 6, y + 17, COL_CARD_HEADER);
 
         // Status progress bars (12px line spacing, bars at text+2)
@@ -92,24 +92,22 @@ public class GuiVehicle extends ScreenBase<ContainerVehicle> {
         drawBar(g, barX, y + 45, barW, 5, getDamagePercent(), true);
         drawBar(g, barX, y + 57, barW, 5, getTemperaturePercent(), true);
 
-        // === WARTUNG SECTION (Y=64 to Y=86, height=22) ===
-        drawInsetPanel(g, x + 5, y + 64, w - 10, 22, COL_CARD_BG);
-        // Special slot backgrounds (Y=66 fixed by container)
-        drawSlotBg(g, x + 98, y + 66);
-        drawSlotBg(g, x + 116, y + 66);
-        drawSlotBg(g, x + 134, y + 66);
+        // === WARTUNG SECTION (Y=71 to Y=93, height=22) ===
+        drawInsetPanel(g, x + 5, y + 71, w - 10, 22, COL_CARD_BG);
+        // Single maintenance slot background (Y=73 fixed by container)
+        drawSlotBg(g, x + 150, y + 73);
 
-        // === VEHICLE NAME + INVENTORY CARD (Y=87 to ...) ===
+        // === VEHICLE NAME + INVENTORY CARD (Y=94 to ...) ===
         int invHeight = internalRows * 18;
         if (internalRows > 0 && externalRows > 0) invHeight += 2;
         invHeight += externalRows * 18;
 
         if (invHeight > 0) {
-            drawInsetPanel(g, x + 5, y + 87, w - 10, invHeight + 13, COL_BG);
-            g.fill(x + 6, y + 88, x + w - 6, y + 98, COL_CARD_HEADER);
+            drawInsetPanel(g, x + 5, y + 94, w - 10, invHeight + 13, COL_BG);
+            g.fill(x + 6, y + 95, x + w - 6, y + 105, COL_CARD_HEADER);
 
-            // Vehicle inventory slot backgrounds (Y=98 fixed by container)
-            int slotY = y + 98;
+            // Vehicle inventory slot backgrounds (Y=105 fixed by container)
+            int slotY = y + 105;
             for (int row = 0; row < internalRows; row++) {
                 for (int col = 0; col < 9 && (row * 9 + col) < internalSlots; col++) {
                     drawSlotBg(g, x + 8 + col * 18, slotY + row * 18);
@@ -159,15 +157,15 @@ public class GuiVehicle extends ScreenBase<ContainerVehicle> {
         drawRightAligned(g, getTempValueString(), 168, ly, TEXT_DARK);
 
         // === Wartung label ===
-        g.drawString(font, Component.translatable("gui.vehicle.wartung"), 8, 67, TEXT_DARK, false);
+        g.drawString(font, Component.translatable("gui.vehicle.wartung"), 8, 74, TEXT_DARK, false);
 
         // === Vehicle name + Odometer ===
         if (internalSlots > 0 || externalSlots > 0) {
-            g.drawString(font, vehicle.getDisplayName().getVisualOrderText(), 8, 89, TEXT_WHITE, false);
-            drawRightAligned(g, getOdometerValueString(), 170, 89, TEXT_LIGHT);
+            g.drawString(font, vehicle.getDisplayName().getVisualOrderText(), 8, 96, TEXT_WHITE, false);
+            drawRightAligned(g, getOdometerValueString(), 170, 96, TEXT_LIGHT);
         } else {
-            g.drawString(font, vehicle.getDisplayName().getVisualOrderText(), 8, 89, TEXT_DARK, false);
-            drawRightAligned(g, getOdometerValueString(), 170, 89, TEXT_DARK);
+            g.drawString(font, vehicle.getDisplayName().getVisualOrderText(), 8, 96, TEXT_DARK, false);
+            drawRightAligned(g, getOdometerValueString(), 170, 96, TEXT_DARK);
         }
 
         // === Hotbar label (inside dark header) ===
