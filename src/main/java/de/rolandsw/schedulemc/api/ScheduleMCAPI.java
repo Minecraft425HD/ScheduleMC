@@ -164,7 +164,7 @@ public class ScheduleMCAPI {
     }
 
     /**
-     * Vehicle API - Fahrzeuge, Fuel, Garage, etc.
+     * Vehicle API - Fahrzeuge, Fuel, Werkstatt, etc.
      */
     public IVehicleAPI getVehicleAPI() {
         if (vehicleAPI == null) {

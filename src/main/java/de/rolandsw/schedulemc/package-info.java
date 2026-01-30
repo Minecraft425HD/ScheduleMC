@@ -12,7 +12,7 @@
  *   <li><b>NPCs</b>: Intelligent NPCs with schedules, personalities, and shops</li>
  *   <li><b>Production Chains</b>: 8 different drug production systems</li>
  *   <li><b>Police & Crime</b>: Wanted levels, chases, arrests, raids</li>
- *   <li><b>Vehicles</b>: Drivable vehicles with fuel and garage systems</li>
+ *   <li><b>Vehicles</b>: Drivable vehicles with fuel and werkstatt systems</li>
  *   <li><b>Warehouses</b>: Inventory management with automatic deliveries</li>
  * </ul>
  *

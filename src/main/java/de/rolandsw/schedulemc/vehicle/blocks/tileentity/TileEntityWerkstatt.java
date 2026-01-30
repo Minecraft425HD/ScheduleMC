@@ -3,7 +3,7 @@ package de.rolandsw.schedulemc.vehicle.blocks.tileentity;
 import de.rolandsw.schedulemc.vehicle.Main;
 import de.rolandsw.schedulemc.vehicle.blocks.ModBlocks;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
-import de.rolandsw.schedulemc.vehicle.gui.ContainerGarage;
+import de.rolandsw.schedulemc.vehicle.gui.ContainerWerkstatt;
 import de.rolandsw.schedulemc.vehicle.gui.TileEntityContainerProvider;
 import de.maxhenkel.corelib.blockentity.ITickableBlockEntity;
 import net.minecraft.core.BlockPos;
@@ -24,7 +24,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 
-public class TileEntityGarage extends TileEntityBase implements ITickableBlockEntity {
+public class TileEntityWerkstatt extends TileEntityBase implements ITickableBlockEntity {
 
     private static final double DETECTION_RADIUS = 1.5D;
     private static final double PRE_SCAN_RADIUS = 3.0D;
@@ -54,8 +54,8 @@ public class TileEntityGarage extends TileEntityBase implements ITickableBlockEn
         }
     };
 
-    public TileEntityGarage(BlockPos pos, BlockState state) {
-        super(ModBlocks.GARAGE_TILE_ENTITY_TYPE.get(), pos, state);
+    public TileEntityWerkstatt(BlockPos pos, BlockState state) {
+        super(ModBlocks.WERKSTATT_TILE_ENTITY_TYPE.get(), pos, state);
     }
 
     @Override
@@ -76,7 +76,7 @@ public class TileEntityGarage extends TileEntityBase implements ITickableBlockEn
     }
 
     private void scanForVehicles() {
-        // Get the position in front of the garage (based on facing direction)
+        // Get the position in front of the werkstatt (based on facing direction)
         BlockPos scanPos = getBlockPos();
         Vec3 scanCenter = new Vec3(scanPos.getX() + 0.5, scanPos.getY() + 0.5, scanPos.getZ() + 0.5);
 
@@ -111,7 +111,7 @@ public class TileEntityGarage extends TileEntityBase implements ITickableBlockEn
 
                 // Lock the vehicle if it has a driver and isn't already locked
                 if (nearestVehicle.getControllingPassenger() instanceof Player driver) {
-                    if (!nearestVehicle.isLockedInGarage()) {
+                    if (!nearestVehicle.isLockedInWerkstatt()) {
                         lockVehicle(nearestVehicle, driver);
                     }
                 }
@@ -147,7 +147,7 @@ public class TileEntityGarage extends TileEntityBase implements ITickableBlockEn
     }
 
     private void lockVehicle(EntityGenericVehicle vehicle, Player driver) {
-        vehicle.lockInGarage(getBlockPos());
+        vehicle.lockInWerkstatt(getBlockPos());
 
         // Play lock sound
         level.playSound(null, getBlockPos(), SoundEvents.IRON_DOOR_CLOSE,
@@ -155,21 +155,21 @@ public class TileEntityGarage extends TileEntityBase implements ITickableBlockEn
 
         // Notify player
         driver.displayClientMessage(
-            Component.translatable("message.schedulemc.garage.vehicle_locked"),
+            Component.translatable("message.schedulemc.werkstatt.vehicle_locked"),
             true
         );
 
         // Open GUI automatically ONLY if it hasn't been opened for this vehicle yet
         if (driver instanceof ServerPlayer serverPlayer && !guiOpenedForCurrentVehicle) {
             guiOpenedForCurrentVehicle = true; // Set flag BEFORE opening GUI
-            openGarageGUI(serverPlayer, vehicle);
+            openWerkstattGUI(serverPlayer, vehicle);
         }
     }
 
     private void unlockTrackedVehicle() {
         EntityGenericVehicle vehicle = getTrackedVehicle();
         if (vehicle != null) {
-            vehicle.unlockFromGarage();
+            vehicle.unlockFromWerkstatt();
 
             // Play unlock sound
             level.playSound(null, getBlockPos(), SoundEvents.IRON_DOOR_OPEN,
@@ -223,18 +223,18 @@ public class TileEntityGarage extends TileEntityBase implements ITickableBlockEn
             .orElse(null);
     }
 
-    public void openGarageGUI(ServerPlayer player, EntityGenericVehicle vehicle) {
+    public void openWerkstattGUI(ServerPlayer player, EntityGenericVehicle vehicle) {
         TileEntityContainerProvider.openGui(player, this, packetBuffer -> {
             // Send vehicle UUID to client
             packetBuffer.writeUUID(vehicle.getUUID());
         }, (i, playerInventory, playerEntity) ->
-            new ContainerGarage(i, vehicle, this, playerInventory)
+            new ContainerWerkstatt(i, vehicle, this, playerInventory)
         );
     }
 
     @Override
     public Component getTranslatedName() {
-        return Component.translatable("container.schedulemc.garage");
+        return Component.translatable("container.schedulemc.werkstatt");
     }
 
     @Override

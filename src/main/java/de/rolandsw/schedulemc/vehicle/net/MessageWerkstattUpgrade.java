@@ -15,17 +15,17 @@ import net.minecraftforge.network.NetworkEvent;
 
 import java.util.UUID;
 
-public class MessageGarageUpgrade implements Message<MessageGarageUpgrade> {
+public class MessageWerkstattUpgrade implements Message<MessageWerkstattUpgrade> {
 
     private UUID playerUuid;
     private UUID vehicleUuid;
     private UpgradeType upgradeType;
     private int value; // Used for: motor/tank/fender level, tire type index, or paint color
 
-    public MessageGarageUpgrade() {
+    public MessageWerkstattUpgrade() {
     }
 
-    public MessageGarageUpgrade(UUID playerUuid, UUID vehicleUuid, UpgradeType upgradeType, int value) {
+    public MessageWerkstattUpgrade(UUID playerUuid, UUID vehicleUuid, UpgradeType upgradeType, int value) {
         this.playerUuid = playerUuid;
         this.vehicleUuid = vehicleUuid;
         this.upgradeType = upgradeType;
@@ -60,7 +60,7 @@ public class MessageGarageUpgrade implements Message<MessageGarageUpgrade> {
 
         if (vehicle == null) {
             player.displayClientMessage(
-                Component.translatable("message.garage.vehicle_not_found").withStyle(ChatFormatting.RED),
+                Component.translatable("message.werkstatt.vehicle_not_found").withStyle(ChatFormatting.RED),
                 false
             );
             return;
@@ -71,7 +71,7 @@ public class MessageGarageUpgrade implements Message<MessageGarageUpgrade> {
 
         if (upgradeCost < 0) {
             player.displayClientMessage(
-                Component.translatable("message.garage.invalid_upgrade").withStyle(ChatFormatting.RED),
+                Component.translatable("message.werkstatt.invalid_upgrade").withStyle(ChatFormatting.RED),
                 false
             );
             return;
@@ -82,7 +82,7 @@ public class MessageGarageUpgrade implements Message<MessageGarageUpgrade> {
 
         if (playerBalance < upgradeCost) {
             player.displayClientMessage(
-                Component.translatable("message.garage.insufficient_funds",
+                Component.translatable("message.werkstatt.insufficient_funds",
                     String.format("%.2f€", upgradeCost),
                     String.format("%.2f€", playerBalance))
                     .withStyle(ChatFormatting.RED),
@@ -97,7 +97,7 @@ public class MessageGarageUpgrade implements Message<MessageGarageUpgrade> {
 
             if (success) {
                 player.displayClientMessage(
-                    Component.translatable("message.garage.upgrade_success", String.format("%.2f€", upgradeCost))
+                    Component.translatable("message.werkstatt.upgrade_success", String.format("%.2f€", upgradeCost))
                         .withStyle(ChatFormatting.GREEN),
                     false
                 );
@@ -105,7 +105,7 @@ public class MessageGarageUpgrade implements Message<MessageGarageUpgrade> {
                 // Refund if upgrade failed
                 EconomyManager.deposit(player.getUUID(), upgradeCost);
                 player.displayClientMessage(
-                    Component.translatable("message.garage.upgrade_failed").withStyle(ChatFormatting.RED),
+                    Component.translatable("message.werkstatt.upgrade_failed").withStyle(ChatFormatting.RED),
                     false
                 );
             }
@@ -115,26 +115,26 @@ public class MessageGarageUpgrade implements Message<MessageGarageUpgrade> {
     private double calculateUpgradeCost(UpgradeType type, int value, EntityGenericVehicle vehicle) {
         return switch (type) {
             case MOTOR -> {
-                if (value == 2) yield ModConfigHandler.COMMON.GARAGE_MOTOR_UPGRADE_COST_LVL2.get();
-                if (value == 3) yield ModConfigHandler.COMMON.GARAGE_MOTOR_UPGRADE_COST_LVL3.get();
+                if (value == 2) yield ModConfigHandler.COMMON.WERKSTATT_MOTOR_UPGRADE_COST_LVL2.get();
+                if (value == 3) yield ModConfigHandler.COMMON.WERKSTATT_MOTOR_UPGRADE_COST_LVL3.get();
                 yield -1.0;
             }
             case TANK -> {
-                if (value == 2) yield ModConfigHandler.COMMON.GARAGE_TANK_UPGRADE_COST_LVL2.get();
-                if (value == 3) yield ModConfigHandler.COMMON.GARAGE_TANK_UPGRADE_COST_LVL3.get();
+                if (value == 2) yield ModConfigHandler.COMMON.WERKSTATT_TANK_UPGRADE_COST_LVL2.get();
+                if (value == 3) yield ModConfigHandler.COMMON.WERKSTATT_TANK_UPGRADE_COST_LVL3.get();
                 yield -1.0;
             }
-            case TIRE -> ModConfigHandler.COMMON.GARAGE_TIRE_UPGRADE_COST.get();
+            case TIRE -> ModConfigHandler.COMMON.WERKSTATT_TIRE_UPGRADE_COST.get();
             case PAINT -> {
                 // Only charge if color is different from current
                 if (vehicle.getPaintColor() == value) {
                     yield 0.0;
                 }
-                yield ModConfigHandler.COMMON.GARAGE_PAINT_CHANGE_COST.get();
+                yield ModConfigHandler.COMMON.WERKSTATT_PAINT_CHANGE_COST.get();
             }
             case FENDER -> {
-                if (value == 2) yield ModConfigHandler.COMMON.GARAGE_FENDER_UPGRADE_COST_LVL2.get();
-                if (value == 3) yield ModConfigHandler.COMMON.GARAGE_FENDER_UPGRADE_COST_LVL3.get();
+                if (value == 2) yield ModConfigHandler.COMMON.WERKSTATT_FENDER_UPGRADE_COST_LVL2.get();
+                if (value == 3) yield ModConfigHandler.COMMON.WERKSTATT_FENDER_UPGRADE_COST_LVL3.get();
                 yield -1.0;
             }
         };
@@ -299,7 +299,7 @@ public class MessageGarageUpgrade implements Message<MessageGarageUpgrade> {
     }
 
     @Override
-    public MessageGarageUpgrade fromBytes(FriendlyByteBuf buf) {
+    public MessageWerkstattUpgrade fromBytes(FriendlyByteBuf buf) {
         playerUuid = buf.readUUID();
         vehicleUuid = buf.readUUID();
         upgradeType = buf.readEnum(UpgradeType.class);

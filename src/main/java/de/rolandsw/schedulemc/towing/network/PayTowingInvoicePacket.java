@@ -72,7 +72,7 @@ public class PayTowingInvoicePacket {
             }
 
             // Process payment from bank account
-            if (!EconomyManager.withdraw(sender.getUUID(), amount, TransactionType.GARAGE_FEE,
+            if (!EconomyManager.withdraw(sender.getUUID(), amount, TransactionType.WERKSTATT_FEE,
                     "Towing invoice payment: " + invoice.getTowingYardPlotId())) {
                 sender.displayClientMessage(
                     Component.translatable("towing.error.not_enough_money"),

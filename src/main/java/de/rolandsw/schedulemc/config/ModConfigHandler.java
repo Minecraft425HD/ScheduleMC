@@ -167,22 +167,22 @@ public class ModConfigHandler {
         public final ForgeConfigSpec.DoubleValue STOCK_MAX_PRICE_CHANGE_PERCENT;
 
         // ═══════════════════════════════════════════════════════════
-        // GARAGE SYSTEM
+        // WERKSTATT SYSTEM
         // ═══════════════════════════════════════════════════════════
-        public final ForgeConfigSpec.DoubleValue GARAGE_BASE_INSPECTION_FEE;
-        public final ForgeConfigSpec.DoubleValue GARAGE_REPAIR_COST_PER_PERCENT;
-        public final ForgeConfigSpec.DoubleValue GARAGE_BATTERY_COST_PER_PERCENT;
-        public final ForgeConfigSpec.DoubleValue GARAGE_OIL_CHANGE_COST;
+        public final ForgeConfigSpec.DoubleValue WERKSTATT_BASE_INSPECTION_FEE;
+        public final ForgeConfigSpec.DoubleValue WERKSTATT_REPAIR_COST_PER_PERCENT;
+        public final ForgeConfigSpec.DoubleValue WERKSTATT_BATTERY_COST_PER_PERCENT;
+        public final ForgeConfigSpec.DoubleValue WERKSTATT_OIL_CHANGE_COST;
 
         // Upgrade costs
-        public final ForgeConfigSpec.DoubleValue GARAGE_MOTOR_UPGRADE_COST_LVL2;
-        public final ForgeConfigSpec.DoubleValue GARAGE_MOTOR_UPGRADE_COST_LVL3;
-        public final ForgeConfigSpec.DoubleValue GARAGE_TANK_UPGRADE_COST_LVL2;
-        public final ForgeConfigSpec.DoubleValue GARAGE_TANK_UPGRADE_COST_LVL3;
-        public final ForgeConfigSpec.DoubleValue GARAGE_TIRE_UPGRADE_COST;
-        public final ForgeConfigSpec.DoubleValue GARAGE_PAINT_CHANGE_COST;
-        public final ForgeConfigSpec.DoubleValue GARAGE_FENDER_UPGRADE_COST_LVL2;
-        public final ForgeConfigSpec.DoubleValue GARAGE_FENDER_UPGRADE_COST_LVL3;
+        public final ForgeConfigSpec.DoubleValue WERKSTATT_MOTOR_UPGRADE_COST_LVL2;
+        public final ForgeConfigSpec.DoubleValue WERKSTATT_MOTOR_UPGRADE_COST_LVL3;
+        public final ForgeConfigSpec.DoubleValue WERKSTATT_TANK_UPGRADE_COST_LVL2;
+        public final ForgeConfigSpec.DoubleValue WERKSTATT_TANK_UPGRADE_COST_LVL3;
+        public final ForgeConfigSpec.DoubleValue WERKSTATT_TIRE_UPGRADE_COST;
+        public final ForgeConfigSpec.DoubleValue WERKSTATT_PAINT_CHANGE_COST;
+        public final ForgeConfigSpec.DoubleValue WERKSTATT_FENDER_UPGRADE_COST_LVL2;
+        public final ForgeConfigSpec.DoubleValue WERKSTATT_FENDER_UPGRADE_COST_LVL3;
 
         public Common(ForgeConfigSpec.Builder builder) {
             
@@ -575,54 +575,54 @@ public class ModConfigHandler {
 
             builder.pop();
 
-            builder.comment("Garage System Settings")
-                    .push("garage");
+            builder.comment("Werkstatt System Settings")
+                    .push("werkstatt");
 
-            GARAGE_BASE_INSPECTION_FEE = builder
+            WERKSTATT_BASE_INSPECTION_FEE = builder
                     .comment("Basis-Inspektionsgebühr in Euro (wird immer berechnet)")
                     .defineInRange("base_inspection_fee", 25.0, 0.0, 1000.0);
 
-            GARAGE_REPAIR_COST_PER_PERCENT = builder
+            WERKSTATT_REPAIR_COST_PER_PERCENT = builder
                     .comment("Reparaturkosten pro Prozent Schaden in Euro")
                     .defineInRange("repair_cost_per_percent", 2.0, 0.1, 100.0);
 
-            GARAGE_BATTERY_COST_PER_PERCENT = builder
+            WERKSTATT_BATTERY_COST_PER_PERCENT = builder
                     .comment("Batterieladungskosten pro Prozent in Euro")
                     .defineInRange("battery_cost_per_percent", 0.5, 0.1, 50.0);
 
-            GARAGE_OIL_CHANGE_COST = builder
+            WERKSTATT_OIL_CHANGE_COST = builder
                     .comment("Ölwechsel-Kosten in Euro")
                     .defineInRange("oil_change_cost", 15.0, 1.0, 500.0);
 
-            GARAGE_MOTOR_UPGRADE_COST_LVL2 = builder
+            WERKSTATT_MOTOR_UPGRADE_COST_LVL2 = builder
                     .comment("Kosten für Motor-Upgrade Level 2 (Normal -> Performance)")
                     .defineInRange("motor_upgrade_cost_lvl2", 500.0, 10.0, 10000.0);
 
-            GARAGE_MOTOR_UPGRADE_COST_LVL3 = builder
+            WERKSTATT_MOTOR_UPGRADE_COST_LVL3 = builder
                     .comment("Kosten für Motor-Upgrade Level 3 (Performance -> Performance 2)")
                     .defineInRange("motor_upgrade_cost_lvl3", 1000.0, 10.0, 20000.0);
 
-            GARAGE_TANK_UPGRADE_COST_LVL2 = builder
+            WERKSTATT_TANK_UPGRADE_COST_LVL2 = builder
                     .comment("Kosten für Tank-Upgrade Level 2 (15L -> 30L)")
                     .defineInRange("tank_upgrade_cost_lvl2", 200.0, 10.0, 5000.0);
 
-            GARAGE_TANK_UPGRADE_COST_LVL3 = builder
+            WERKSTATT_TANK_UPGRADE_COST_LVL3 = builder
                     .comment("Kosten für Tank-Upgrade Level 3 (30L -> 50L)")
                     .defineInRange("tank_upgrade_cost_lvl3", 400.0, 10.0, 10000.0);
 
-            GARAGE_TIRE_UPGRADE_COST = builder
+            WERKSTATT_TIRE_UPGRADE_COST = builder
                     .comment("Kosten für Reifen-Upgrade (pro Level)")
                     .defineInRange("tire_upgrade_cost", 150.0, 10.0, 5000.0);
 
-            GARAGE_PAINT_CHANGE_COST = builder
+            WERKSTATT_PAINT_CHANGE_COST = builder
                     .comment("Kosten für Lackierungswechsel")
                     .defineInRange("paint_change_cost", 100.0, 10.0, 5000.0);
 
-            GARAGE_FENDER_UPGRADE_COST_LVL2 = builder
+            WERKSTATT_FENDER_UPGRADE_COST_LVL2 = builder
                     .comment("Kosten für Fender-Upgrade Level 2 (Basic -> Chrome)")
                     .defineInRange("fender_upgrade_cost_lvl2", 250.0, 10.0, 5000.0);
 
-            GARAGE_FENDER_UPGRADE_COST_LVL3 = builder
+            WERKSTATT_FENDER_UPGRADE_COST_LVL3 = builder
                     .comment("Kosten für Fender-Upgrade Level 3 (Chrome -> Sport)")
                     .defineInRange("fender_upgrade_cost_lvl3", 500.0, 10.0, 10000.0);
 
