@@ -129,6 +129,7 @@ public class Main {
             CommonRegistry.registerMessage(SIMPLE_CHANNEL, 16, MessageWerkstattPayment.class);
             CommonRegistry.registerMessage(SIMPLE_CHANNEL, 17, MessageWerkstattUpgrade.class);
             CommonRegistry.registerMessage(SIMPLE_CHANNEL, 18, MessageContainerOperation.class);
+            CommonRegistry.registerMessage(SIMPLE_CHANNEL, 19, MessageWerkstattCheckout.class);
         }, "commonSetup");
     }
 
