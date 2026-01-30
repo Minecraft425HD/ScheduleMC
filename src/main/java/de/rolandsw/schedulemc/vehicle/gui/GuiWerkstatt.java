@@ -262,12 +262,12 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
 
         btnCheckout = addRenderableWidget(Button.builder(
                 Component.translatable("werkstatt.btn.checkout"),
-                b -> sendCheckout())
+                b -> { sendCheckout(); onClose(); })
                 .bounds(leftPos + 10, topPos + imageHeight - 28, btnW, btnH).build());
 
         btnLeave = addRenderableWidget(Button.builder(
                 Component.translatable("werkstatt.btn.leave"),
-                b -> leaveWithoutPaying())
+                b -> onClose())
                 .bounds(leftPos + 180, topPos + imageHeight - 28, btnW, btnH).build());
 
         updateCheckoutButton();
