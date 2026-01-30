@@ -26,7 +26,7 @@ public class ModItems {
 
     public static final RegistryObject<ItemVehiclePart> NORMAL_MOTOR = ITEM_REGISTER.register("normal_motor", () -> new ItemVehiclePart(PartRegistry.NORMAL_MOTOR));
     public static final RegistryObject<ItemVehiclePart> PERFORMANCE_MOTOR = ITEM_REGISTER.register("performance_motor", () -> new ItemVehiclePart(PartRegistry.PERFORMANCE_MOTOR));
-    public static final RegistryObject<ItemVehiclePart> INDUSTRIAL_MOTOR = ITEM_REGISTER.register("industrial_motor", () -> new ItemVehiclePart(PartRegistry.INDUSTRIAL_MOTOR));
+    public static final RegistryObject<ItemVehiclePart> PERFORMANCE_2_MOTOR = ITEM_REGISTER.register("performance_2_motor", () -> new ItemVehiclePart(PartRegistry.PERFORMANCE_2_MOTOR));
 
     // Normal vehicle tires
     public static final RegistryObject<ItemVehiclePart> STANDARD_TIRE = ITEM_REGISTER.register("standard_tire", () -> new ItemVehiclePart(PartRegistry.STANDARD_TIRE));

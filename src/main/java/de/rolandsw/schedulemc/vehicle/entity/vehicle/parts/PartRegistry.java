@@ -15,7 +15,7 @@ public class PartRegistry {
     // Engines (Motors)
     public static final Part NORMAL_MOTOR = new PartNormalMotor();
     public static final Part PERFORMANCE_MOTOR = new PartPerformanceMotor();
-    public static final Part INDUSTRIAL_MOTOR = new PartIndustrialMotor();
+    public static final Part PERFORMANCE_2_MOTOR = new PartPerformance2Motor();
 
     // Bodies (Chassis)
     public static final Part LIMOUSINE_CHASSIS = new PartLimousineChassis(ResourceLocation.fromNamespaceAndPath(Main.MODID, "textures/entity/vehicle_wood_oak.png"), "white");

@@ -59,29 +59,29 @@
         "subtitle": "sound.vehicle.sport_engine_fail",
         "sounds": [ "schedulemc:performance_motor_fail" ]
     },
-    "industrial_motor_idle": {
+    "performance_2_motor_idle": {
         "subtitle": "sound.vehicle.truck_engine_idle",
-        "sounds": [ "schedulemc:industrial_motor_idle" ]
+        "sounds": [ "schedulemc:performance_2_motor_idle" ]
     },
-    "industrial_motor_start": {
+    "performance_2_motor_start": {
         "subtitle": "sound.vehicle.truck_engine_start",
-        "sounds": [ "schedulemc:industrial_motor_start" ]
+        "sounds": [ "schedulemc:performance_2_motor_start" ]
     },
-    "industrial_motor_starting": {
+    "performance_2_motor_starting": {
         "subtitle": "sound.vehicle.truck_engine_starting",
-        "sounds": [ "schedulemc:industrial_motor_starting" ]
+        "sounds": [ "schedulemc:performance_2_motor_starting" ]
     },
-    "industrial_motor_stop": {
+    "performance_2_motor_stop": {
         "subtitle": "sound.vehicle.truck_engine_stop",
-        "sounds": [ "schedulemc:industrial_motor_stop" ]
+        "sounds": [ "schedulemc:performance_2_motor_stop" ]
     },
-    "industrial_motor_high": {
+    "performance_2_motor_high": {
         "subtitle": "sound.vehicle.truck_engine_high",
-        "sounds": [ "schedulemc:industrial_motor_high" ]
+        "sounds": [ "schedulemc:performance_2_motor_high" ]
     },
-    "industrial_motor_fail": {
+    "performance_2_motor_fail": {
         "subtitle": "sound.vehicle.truck_engine_fail",
-        "sounds": [ "schedulemc:industrial_motor_fail" ]
+        "sounds": [ "schedulemc:performance_2_motor_fail" ]
     },
     "vehicle_horn": {
         "subtitle": "sound.vehicle.vehicle_horn",

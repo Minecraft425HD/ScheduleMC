@@ -48,23 +48,23 @@ public class ServerConfig extends ConfigBase {
     // Distance-based fuel consumption (L per 10 km, where 500 blocks = 1 km)
     public final ForgeConfigSpec.DoubleValue normalMotorFuelConsumption;
     public final ForgeConfigSpec.DoubleValue performanceMotorFuelConsumption;
-    public final ForgeConfigSpec.DoubleValue industrialMotorFuelConsumption;
+    public final ForgeConfigSpec.DoubleValue performance2MotorFuelConsumption;
 
     public final ForgeConfigSpec.DoubleValue performanceMotorFuelEfficiency;
     public final ForgeConfigSpec.DoubleValue normalMotorFuelEfficiency;
-    public final ForgeConfigSpec.DoubleValue industrialMotorFuelEfficiency;
+    public final ForgeConfigSpec.DoubleValue performance2MotorFuelEfficiency;
 
     public final ForgeConfigSpec.DoubleValue performanceMotorAcceleration;
     public final ForgeConfigSpec.DoubleValue normalMotorAcceleration;
-    public final ForgeConfigSpec.DoubleValue industrialMotorAcceleration;
+    public final ForgeConfigSpec.DoubleValue performance2MotorAcceleration;
 
     public final ForgeConfigSpec.DoubleValue performanceMotorMaxSpeed;
     public final ForgeConfigSpec.DoubleValue normalMotorMaxSpeed;
-    public final ForgeConfigSpec.DoubleValue industrialMotorMaxSpeed;
+    public final ForgeConfigSpec.DoubleValue performance2MotorMaxSpeed;
 
     public final ForgeConfigSpec.DoubleValue performanceMotorMaxReverseSpeed;
     public final ForgeConfigSpec.DoubleValue normalMotorMaxReverseSpeed;
-    public final ForgeConfigSpec.DoubleValue industrialMotorMaxReverseSpeed;
+    public final ForgeConfigSpec.DoubleValue performance2MotorMaxReverseSpeed;
 
     public final ForgeConfigSpec.DoubleValue vanChassisFuelEfficiency;
     public final ForgeConfigSpec.DoubleValue vanChassisAcceleration;
@@ -165,20 +165,20 @@ public class ServerConfig extends ConfigBase {
 
         normalMotorFuelConsumption = builder.comment("Fuel consumption of the normal motor in liters per 10 km (500 blocks = 1 km)").defineInRange("vehicle.fuel.normal_motor_consumption_per_10km", 5.5D, 0.1D, 100.0D);
         performanceMotorFuelConsumption = builder.comment("Fuel consumption of the performance motor in liters per 10 km").defineInRange("vehicle.fuel.performance_motor_consumption_per_10km", 7.0D, 0.1D, 100.0D);
-        industrialMotorFuelConsumption = builder.comment("Fuel consumption of the industrial motor in liters per 10 km").defineInRange("vehicle.fuel.industrial_motor_consumption_per_10km", 8.5D, 0.1D, 100.0D);
+        performance2MotorFuelConsumption = builder.comment("Fuel consumption of the performance 2 motor in liters per 10 km").defineInRange("vehicle.fuel.performance_2_motor_consumption_per_10km", 8.5D, 0.1D, 100.0D);
 
-        performanceMotorFuelEfficiency = builder.defineInRange("vehicle.parts.performance_motor.fuel_efficiency", 0.25D, 0.001D, 10D);
         normalMotorFuelEfficiency = builder.defineInRange("vehicle.parts.normal_motor.fuel_efficiency", 0.5D, 0.001D, 10D);
-        industrialMotorFuelEfficiency = builder.defineInRange("vehicle.parts.industrial_motor.fuel_efficiency", 0.7D, 0.001D, 10D);
-        performanceMotorAcceleration = builder.defineInRange("vehicle.parts.performance_motor.acceleration", 0.04D, 0.001D, 10D);
-        normalMotorAcceleration = builder.defineInRange("vehicle.parts.normal_motor.acceleration", 0.035D, 0.001D, 10D);
-        industrialMotorAcceleration = builder.defineInRange("vehicle.parts.industrial_motor.acceleration", 0.032D, 0.001D, 10D);
-        performanceMotorMaxSpeed = builder.defineInRange("vehicle.parts.performance_motor.max_speed", 0.75D, 0.001D, 10D);
-        normalMotorMaxSpeed = builder.defineInRange("vehicle.parts.normal_motor.max_speed", 0.65D, 0.001D, 10D);
-        industrialMotorMaxSpeed = builder.defineInRange("vehicle.parts.industrial_motor.max_speed", 0.6D, 0.001D, 10D);
-        performanceMotorMaxReverseSpeed = builder.defineInRange("vehicle.parts.performance_motor.max_reverse_speed", 0.2D, 0.001D, 10D);
-        normalMotorMaxReverseSpeed = builder.defineInRange("vehicle.parts.normal_motor.max_reverse_speed", 0.2D, 0.001D, 10D);
-        industrialMotorMaxReverseSpeed = builder.defineInRange("vehicle.parts.industrial_motor.max_reverse_speed", 0.15D, 0.001D, 10D);
+        performanceMotorFuelEfficiency = builder.defineInRange("vehicle.parts.performance_motor.fuel_efficiency", 0.25D, 0.001D, 10D);
+        performance2MotorFuelEfficiency = builder.defineInRange("vehicle.parts.performance_2_motor.fuel_efficiency", 0.15D, 0.001D, 10D);
+        normalMotorAcceleration = builder.defineInRange("vehicle.parts.normal_motor.acceleration", 0.030D, 0.001D, 10D);
+        performanceMotorAcceleration = builder.defineInRange("vehicle.parts.performance_motor.acceleration", 0.035D, 0.001D, 10D);
+        performance2MotorAcceleration = builder.defineInRange("vehicle.parts.performance_2_motor.acceleration", 0.040D, 0.001D, 10D);
+        normalMotorMaxSpeed = builder.defineInRange("vehicle.parts.normal_motor.max_speed", 0.55D, 0.001D, 10D);
+        performanceMotorMaxSpeed = builder.defineInRange("vehicle.parts.performance_motor.max_speed", 0.65D, 0.001D, 10D);
+        performance2MotorMaxSpeed = builder.defineInRange("vehicle.parts.performance_2_motor.max_speed", 0.75D, 0.001D, 10D);
+        normalMotorMaxReverseSpeed = builder.defineInRange("vehicle.parts.normal_motor.max_reverse_speed", 0.15D, 0.001D, 10D);
+        performanceMotorMaxReverseSpeed = builder.defineInRange("vehicle.parts.performance_motor.max_reverse_speed", 0.18D, 0.001D, 10D);
+        performance2MotorMaxReverseSpeed = builder.defineInRange("vehicle.parts.performance_2_motor.max_reverse_speed", 0.20D, 0.001D, 10D);
 
         vanChassisFuelEfficiency = builder.defineInRange("vehicle.parts.van_chassis.fuel_efficiency", 0.7D, 0.001D, 10D);
         vanChassisAcceleration = builder.defineInRange("vehicle.parts.van_chassis.acceleration", 0.95D, 0.001D, 10D);

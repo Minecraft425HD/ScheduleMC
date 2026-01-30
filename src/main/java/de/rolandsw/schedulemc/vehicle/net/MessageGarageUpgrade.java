@@ -226,7 +226,7 @@ public class MessageGarageUpgrade implements Message<MessageGarageUpgrade> {
         // Map parts to their items
         if (part == PartRegistry.NORMAL_MOTOR) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.NORMAL_MOTOR.get());
         if (part == PartRegistry.PERFORMANCE_MOTOR) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.PERFORMANCE_MOTOR.get());
-        if (part == PartRegistry.INDUSTRIAL_MOTOR) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.INDUSTRIAL_MOTOR.get());
+        if (part == PartRegistry.PERFORMANCE_2_MOTOR) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.PERFORMANCE_2_MOTOR.get());
 
         if (part == PartRegistry.TANK_15L) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.TANK_15L.get());
         if (part == PartRegistry.TANK_30L) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.TANK_30L.get());
@@ -250,7 +250,7 @@ public class MessageGarageUpgrade implements Message<MessageGarageUpgrade> {
         return switch (level) {
             case 1 -> PartRegistry.NORMAL_MOTOR;
             case 2 -> PartRegistry.PERFORMANCE_MOTOR;
-            case 3 -> PartRegistry.INDUSTRIAL_MOTOR;
+            case 3 -> PartRegistry.PERFORMANCE_2_MOTOR;
             default -> null;
         };
     }

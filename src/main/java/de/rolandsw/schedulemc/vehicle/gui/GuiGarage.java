@@ -865,7 +865,7 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
             if (!stack.isEmpty() && stack.getItem() instanceof IVehiclePart partItem) {
                 Part part = partItem.getPart(stack);
                 if (part instanceof PartEngine) {
-                    if (part == PartRegistry.INDUSTRIAL_MOTOR) return 3;
+                    if (part == PartRegistry.PERFORMANCE_2_MOTOR) return 3;
                     if (part == PartRegistry.PERFORMANCE_MOTOR) return 2;
                     return 1;
                 }

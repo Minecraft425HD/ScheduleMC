@@ -5,14 +5,14 @@ import de.rolandsw.schedulemc.vehicle.Main;
 import de.rolandsw.schedulemc.vehicle.sounds.ModSounds;
 import net.minecraft.sounds.SoundEvent;
 
-public class PartIndustrialMotor extends PartEngine {
+public class PartPerformance2Motor extends PartEngine {
 
-    public PartIndustrialMotor() {
-        this.maxSpeed = () -> ModConfigHandler.VEHICLE_SERVER.industrialMotorMaxSpeed.get().floatValue();
-        this.maxReverseSpeed = () -> ModConfigHandler.VEHICLE_SERVER.industrialMotorMaxReverseSpeed.get().floatValue();
-        this.acceleration = () -> ModConfigHandler.VEHICLE_SERVER.industrialMotorAcceleration.get().floatValue();
-        this.fuelEfficiency = () -> ModConfigHandler.VEHICLE_SERVER.industrialMotorFuelEfficiency.get().floatValue();
-        this.fuelConsumptionPer10km = () -> ModConfigHandler.VEHICLE_SERVER.industrialMotorFuelConsumption.get();
+    public PartPerformance2Motor() {
+        this.maxSpeed = () -> ModConfigHandler.VEHICLE_SERVER.performance2MotorMaxSpeed.get().floatValue();
+        this.maxReverseSpeed = () -> ModConfigHandler.VEHICLE_SERVER.performance2MotorMaxReverseSpeed.get().floatValue();
+        this.acceleration = () -> ModConfigHandler.VEHICLE_SERVER.performance2MotorAcceleration.get().floatValue();
+        this.fuelEfficiency = () -> ModConfigHandler.VEHICLE_SERVER.performance2MotorFuelEfficiency.get().floatValue();
+        this.fuelConsumptionPer10km = () -> ModConfigHandler.VEHICLE_SERVER.performance2MotorFuelConsumption.get();
     }
 
     @Override
