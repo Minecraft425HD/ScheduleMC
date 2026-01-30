@@ -494,7 +494,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
 
         // Odometer
         long odo = vehicle.getOdometer();
-        String odoFormatted = String.format("%,d", odo).replace(',', '.');
+        String odoFormatted = String.format("%,d", odo).replace(",", tr("werkstatt.gui.thousand_sep"));
         g.drawString(font, tr("werkstatt.gui.odometer", odoFormatted), x, y, COL_TEXT, false);
         y += 14;
 
@@ -790,7 +790,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         int barColor = percent > 75 ? COL_BAR_GOOD : percent > 40 ? COL_BAR_MED : COL_BAR_BAD;
         g.fill(barX, barY, barX + fillW, barY + barH, barColor);
 
-        g.drawString(font, String.format("%.0f%%", percent), barX + barW + 4, y, COL_TEXT_LIGHT, false);
+        g.drawString(font, tr("werkstatt.gui.percent_format", percent), barX + barW + 4, y, COL_TEXT_LIGHT, false);
     }
 
     // === Vehicle Data Helpers ===

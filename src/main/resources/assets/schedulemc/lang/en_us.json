@@ -1700,6 +1700,8 @@
   "werkstatt.gui.fender.sport": "Sport",
   "werkstatt.gui.price_format": "%.2f\u20ac",
   "werkstatt.gui.price_format_short": "%.0f\u20ac",
+  "werkstatt.gui.percent_format": "%.0f%%",
+  "werkstatt.gui.thousand_sep": ",",
   "gui.achievement_app.back": "← Back",
   "gui.achievement_app.back_button": "← Back",
   "gui.achievement_app.categories": "§6Categories:",
