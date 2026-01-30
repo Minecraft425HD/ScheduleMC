@@ -14,7 +14,7 @@ import net.minecraftforge.network.NetworkEvent;
 
 import java.util.UUID;
 
-public class MessageGaragePayment implements Message<MessageGaragePayment> {
+public class MessageWerkstattPayment implements Message<MessageWerkstattPayment> {
 
     private UUID playerUuid;
     private UUID vehicleUuid;
@@ -22,10 +22,10 @@ public class MessageGaragePayment implements Message<MessageGaragePayment> {
     private boolean chargeBattery;
     private boolean changeOil;
 
-    public MessageGaragePayment() {
+    public MessageWerkstattPayment() {
     }
 
-    public MessageGaragePayment(UUID playerUuid, UUID vehicleUuid, boolean repairDamage, boolean chargeBattery, boolean changeOil) {
+    public MessageWerkstattPayment(UUID playerUuid, UUID vehicleUuid, boolean repairDamage, boolean chargeBattery, boolean changeOil) {
         this.playerUuid = playerUuid;
         this.vehicleUuid = vehicleUuid;
         this.repairDamage = repairDamage;
@@ -61,7 +61,7 @@ public class MessageGaragePayment implements Message<MessageGaragePayment> {
 
         if (vehicle == null) {
             player.displayClientMessage(
-                Component.translatable("message.garage.vehicle_not_found").withStyle(ChatFormatting.RED),
+                Component.translatable("message.werkstatt.vehicle_not_found").withStyle(ChatFormatting.RED),
                 false
             );
             player.closeContainer();
@@ -76,7 +76,7 @@ public class MessageGaragePayment implements Message<MessageGaragePayment> {
 
         if (playerBalance < totalCost) {
             player.displayClientMessage(
-                Component.translatable("message.garage.insufficient_funds",
+                Component.translatable("message.werkstatt.insufficient_funds",
                     String.format("%.2f€", totalCost),
                     String.format("%.2f€", playerBalance))
                     .withStyle(ChatFormatting.RED),
@@ -84,7 +84,7 @@ public class MessageGaragePayment implements Message<MessageGaragePayment> {
             );
 
             // Revert vehicle changes (currently just unlock it)
-            vehicle.unlockFromGarage();
+            vehicle.unlockFromWerkstatt();
             player.closeContainer();
             return;
         }
@@ -95,13 +95,13 @@ public class MessageGaragePayment implements Message<MessageGaragePayment> {
             applyServices(vehicle, repairDamage, chargeBattery, changeOil);
 
             player.displayClientMessage(
-                Component.translatable("message.garage.payment_success", String.format("%.2f€", totalCost))
+                Component.translatable("message.werkstatt.payment_success", String.format("%.2f€", totalCost))
                     .withStyle(ChatFormatting.GREEN),
                 false
             );
 
             // Unlock vehicle
-            vehicle.unlockFromGarage();
+            vehicle.unlockFromWerkstatt();
 
             // Close GUI
             player.closeContainer();
@@ -110,13 +110,13 @@ public class MessageGaragePayment implements Message<MessageGaragePayment> {
 
     private double calculateServiceCost(EntityGenericVehicle vehicle, boolean repairDamage, boolean chargeBattery, boolean changeOil) {
         // Base inspection fee (always charged)
-        double cost = ModConfigHandler.COMMON.GARAGE_BASE_INSPECTION_FEE.get();
+        double cost = ModConfigHandler.COMMON.WERKSTATT_BASE_INSPECTION_FEE.get();
 
         // Repair cost based on damage
         if (repairDamage) {
             float damage = vehicle.getDamageComponent().getDamage();
             if (damage > 0) {
-                cost += damage * ModConfigHandler.COMMON.GARAGE_REPAIR_COST_PER_PERCENT.get();
+                cost += damage * ModConfigHandler.COMMON.WERKSTATT_REPAIR_COST_PER_PERCENT.get();
             }
         }
 
@@ -124,13 +124,13 @@ public class MessageGaragePayment implements Message<MessageGaragePayment> {
         if (chargeBattery) {
             float batteryPercent = vehicle.getBatteryComponent().getBatteryPercentage() * 100F;
             if (batteryPercent < 50) {
-                cost += (50 - batteryPercent) * ModConfigHandler.COMMON.GARAGE_BATTERY_COST_PER_PERCENT.get();
+                cost += (50 - batteryPercent) * ModConfigHandler.COMMON.WERKSTATT_BATTERY_COST_PER_PERCENT.get();
             }
         }
 
         // Oil change cost
         if (changeOil) {
-            cost += ModConfigHandler.COMMON.GARAGE_OIL_CHANGE_COST.get();
+            cost += ModConfigHandler.COMMON.WERKSTATT_OIL_CHANGE_COST.get();
         }
 
         return cost;
@@ -155,7 +155,7 @@ public class MessageGaragePayment implements Message<MessageGaragePayment> {
     }
 
     @Override
-    public MessageGaragePayment fromBytes(FriendlyByteBuf buf) {
+    public MessageWerkstattPayment fromBytes(FriendlyByteBuf buf) {
         playerUuid = buf.readUUID();
         vehicleUuid = buf.readUUID();
         repairDamage = buf.readBoolean();

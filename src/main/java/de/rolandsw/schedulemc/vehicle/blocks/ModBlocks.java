@@ -2,7 +2,7 @@ package de.rolandsw.schedulemc.vehicle.blocks;
 
 import de.rolandsw.schedulemc.vehicle.Main;
 import de.rolandsw.schedulemc.vehicle.blocks.fluid.VehicleFluidBlock;
-import de.rolandsw.schedulemc.vehicle.blocks.tileentity.TileEntityGarage;
+import de.rolandsw.schedulemc.vehicle.blocks.tileentity.TileEntityWerkstatt;
 import de.rolandsw.schedulemc.vehicle.fluids.ModFluids;
 import de.maxhenkel.corelib.block.IItemBlock;
 import de.maxhenkel.corelib.reflection.ReflectionUtils;
@@ -21,11 +21,11 @@ public class ModBlocks {
 
     public static final RegistryObject<BlockFuelStation> FUEL_STATION = BLOCK_REGISTER.register("fuel_station", () -> new BlockFuelStation());
     public static final RegistryObject<BlockFuelStationTop> FUEL_STATION_TOP = BLOCK_REGISTER.register("fuel_station_top", () -> new BlockFuelStationTop());
-    public static final RegistryObject<BlockGarage> GARAGE = BLOCK_REGISTER.register("garage", () -> new BlockGarage());
+    public static final RegistryObject<BlockWerkstatt> WERKSTATT = BLOCK_REGISTER.register("werkstatt", () -> new BlockWerkstatt());
     public static final RegistryObject<LiquidBlock> BIO_DIESEL = BLOCK_REGISTER.register("diesel", () -> new VehicleFluidBlock(() -> ModFluids.BIO_DIESEL.get()));
 
-    public static final RegistryObject<BlockEntityType<TileEntityGarage>> GARAGE_TILE_ENTITY_TYPE = BLOCK_ENTITY_REGISTER.register("garage", () ->
-            BlockEntityType.Builder.of(TileEntityGarage::new, GARAGE.get()).build(null)
+    public static final RegistryObject<BlockEntityType<TileEntityWerkstatt>> WERKSTATT_TILE_ENTITY_TYPE = BLOCK_ENTITY_REGISTER.register("werkstatt", () ->
+            BlockEntityType.Builder.of(TileEntityWerkstatt::new, WERKSTATT.get()).build(null)
     );
 
     public static void init(IEventBus modEventBus) {

@@ -103,7 +103,7 @@ public class ModItems {
     public static final RegistryObject<ItemSpawnVehicle> SPAWN_VEHICLE_WHITE_SPORT = ITEM_REGISTER.register("sports_car", () -> new ItemSpawnVehicle(PartRegistry.LUXUS_CHASSIS));
 
     public static final RegistryObject<Item> FUEL_STATION = ITEM_REGISTER.register("fuel_station", () -> ModBlocks.FUEL_STATION.get().toItem());
-    public static final RegistryObject<Item> GARAGE = ITEM_REGISTER.register("garage", () -> ModBlocks.GARAGE.get().toItem());
+    public static final RegistryObject<Item> WERKSTATT = ITEM_REGISTER.register("werkstatt", () -> ModBlocks.WERKSTATT.get().toItem());
 
     public static void init(IEventBus modEventBus) {
         ITEM_REGISTER.register(modEventBus);

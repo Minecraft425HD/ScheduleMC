@@ -71,10 +71,10 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     private BlockPos homeSpawnPoint;
     private boolean spawnPointReleased = false; // Track if spawn point was released when driving away
 
-    // Garage locking system
-    private boolean isLockedInGarage;
+    // Werkstatt locking system
+    private boolean isLockedInWerkstatt;
     @Nullable
-    private BlockPos garagePosition;
+    private BlockPos werkstattPosition;
 
     // Container installation tracking (for cost system)
     // First installation is free, reinstallation after removal costs money
@@ -689,30 +689,30 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         return getEngineSoundOrDefault(PartEngine::getHornSound, () -> ModSounds.VEHICLE_HORN.get());
     }
 
-    // Garage locking system methods
-    public void lockInGarage(BlockPos garagePos) {
-        this.isLockedInGarage = true;
-        this.garagePosition = garagePos;
+    // Werkstatt locking system methods
+    public void lockInWerkstatt(BlockPos werkstattPos) {
+        this.isLockedInWerkstatt = true;
+        this.werkstattPosition = werkstattPos;
         // Stop all movement
         this.setDeltaMovement(Vec3.ZERO);
     }
 
-    public void unlockFromGarage() {
-        this.isLockedInGarage = false;
-        this.garagePosition = null;
+    public void unlockFromWerkstatt() {
+        this.isLockedInWerkstatt = false;
+        this.werkstattPosition = null;
     }
 
-    public boolean isLockedInGarage() {
-        return isLockedInGarage;
+    public boolean isLockedInWerkstatt() {
+        return isLockedInWerkstatt;
     }
 
     @Nullable
-    public BlockPos getGaragePosition() {
-        return garagePosition;
+    public BlockPos getWerkstattPosition() {
+        return werkstattPosition;
     }
 
     public boolean canMove() {
-        return !isLockedInGarage;
+        return !isLockedInWerkstatt;
     }
 
     // Container installation tracking
@@ -788,15 +788,15 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
             this.spawnPointReleased = compound.getBoolean("SpawnPointReleased");
         }
 
-        // Load garage locking data
-        if (compound.contains("IsLockedInGarage")) {
-            this.isLockedInGarage = compound.getBoolean("IsLockedInGarage");
+        // Load werkstatt locking data
+        if (compound.contains("IsLockedInWerkstatt")) {
+            this.isLockedInWerkstatt = compound.getBoolean("IsLockedInWerkstatt");
         }
-        if (compound.contains("GarageX")) {
-            int x = compound.getInt("GarageX");
-            int y = compound.getInt("GarageY");
-            int z = compound.getInt("GarageZ");
-            this.garagePosition = new BlockPos(x, y, z);
+        if (compound.contains("WerkstattX")) {
+            int x = compound.getInt("WerkstattX");
+            int y = compound.getInt("WerkstattY");
+            int z = compound.getInt("WerkstattZ");
+            this.werkstattPosition = new BlockPos(x, y, z);
         }
 
         // Load paint color
@@ -859,12 +859,12 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         }
         compound.putBoolean("SpawnPointReleased", this.spawnPointReleased);
 
-        // Save garage locking data
-        compound.putBoolean("IsLockedInGarage", this.isLockedInGarage);
-        if (this.garagePosition != null) {
-            compound.putInt("GarageX", this.garagePosition.getX());
-            compound.putInt("GarageY", this.garagePosition.getY());
-            compound.putInt("GarageZ", this.garagePosition.getZ());
+        // Save werkstatt locking data
+        compound.putBoolean("IsLockedInWerkstatt", this.isLockedInWerkstatt);
+        if (this.werkstattPosition != null) {
+            compound.putInt("WerkstattX", this.werkstattPosition.getX());
+            compound.putInt("WerkstattY", this.werkstattPosition.getY());
+            compound.putInt("WerkstattZ", this.werkstattPosition.getZ());
         }
 
         // Save paint color

@@ -7,8 +7,8 @@ import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.*;
 import de.rolandsw.schedulemc.vehicle.items.IVehiclePart;
 import de.rolandsw.schedulemc.vehicle.net.MessageContainerOperation;
-import de.rolandsw.schedulemc.vehicle.net.MessageGaragePayment;
-import de.rolandsw.schedulemc.vehicle.net.MessageGarageUpgrade;
+import de.rolandsw.schedulemc.vehicle.net.MessageWerkstattPayment;
+import de.rolandsw.schedulemc.vehicle.net.MessageWerkstattUpgrade;
 import de.rolandsw.schedulemc.vehicle.net.UpgradeType;
 import de.rolandsw.schedulemc.vehicle.util.VehicleUtils;
 import de.maxhenkel.corelib.inventory.ScreenBase;
@@ -24,9 +24,9 @@ import net.minecraft.world.item.ItemStack;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GuiGarage extends ScreenBase<ContainerGarage> {
+public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
 
-    private static final ResourceLocation GARAGE_GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(Main.MODID, "textures/gui/gui_garage.png");
+    private static final ResourceLocation WERKSTATT_GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(Main.MODID, "textures/gui/gui_werkstatt.png");
     private static final ResourceLocation FALLBACK_TEXTURE = ResourceLocation.fromNamespaceAndPath(Main.MODID, "textures/gui/gui_vehicle.png");
 
     // Frame colors (consistent with other vehicle GUIs)
@@ -82,10 +82,10 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
     private Button installFluidContainerButton;
     private Button removeFluidContainerButton;
 
-    public GuiGarage(ContainerGarage containerGarage, Inventory playerInv, Component title) {
-        super(GARAGE_GUI_TEXTURE, containerGarage, playerInv, title);
+    public GuiWerkstatt(ContainerWerkstatt containerWerkstatt, Inventory playerInv, Component title) {
+        super(WERKSTATT_GUI_TEXTURE, containerWerkstatt, playerInv, title);
         this.playerInv = playerInv;
-        this.vehicle = containerGarage.getVehicle();
+        this.vehicle = containerWerkstatt.getVehicle();
         this.vehicleRenderer = new VehicleUtils.VehicleRenderer(1.0F); // Slower rotation (50% speed)
 
         imageWidth = 290; // Breiter für besseren Platz
@@ -123,7 +123,7 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
         // Container tab (only for trucks)
         if (vehicle.getPartByClass(PartBody.class) instanceof PartTruckChassis) {
             containerTabButton = addRenderableWidget(Button.builder(
-                Component.translatable("garage.container.tab"),
+                Component.translatable("werkstatt.container.tab"),
                 button -> switchTab(Tab.CONTAINER))
                 .bounds(leftPos + 180, tabY, tabWidth, tabHeight)
                 .build()
@@ -210,8 +210,8 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
         int motorLevel = getCurrentMotorLevel();
         if (motorLevel < 3) {
             double motorCost = motorLevel == 1 ?
-                ModConfigHandler.COMMON.GARAGE_MOTOR_UPGRADE_COST_LVL2.get() :
-                ModConfigHandler.COMMON.GARAGE_MOTOR_UPGRADE_COST_LVL3.get();
+                ModConfigHandler.COMMON.WERKSTATT_MOTOR_UPGRADE_COST_LVL2.get() :
+                ModConfigHandler.COMMON.WERKSTATT_MOTOR_UPGRADE_COST_LVL3.get();
             upgradeMotorButton = addRenderableWidget(Button.builder(
                 Component.literal(String.format("Motor Lvl %d: %.0f€", motorLevel + 1, motorCost)),
                 button -> {
@@ -232,8 +232,8 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
         int tankLevel = getCurrentTankLevel();
         if (tankLevel < 3) {
             double tankCost = tankLevel == 1 ?
-                ModConfigHandler.COMMON.GARAGE_TANK_UPGRADE_COST_LVL2.get() :
-                ModConfigHandler.COMMON.GARAGE_TANK_UPGRADE_COST_LVL3.get();
+                ModConfigHandler.COMMON.WERKSTATT_TANK_UPGRADE_COST_LVL2.get() :
+                ModConfigHandler.COMMON.WERKSTATT_TANK_UPGRADE_COST_LVL3.get();
             upgradeTankButton = addRenderableWidget(Button.builder(
                 Component.literal(String.format("Tank Lvl %d: %.0f€", tankLevel + 1, tankCost)),
                 button -> {
@@ -255,7 +255,7 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
         if (currentTire < 2) {
             upgradeTireButton = addRenderableWidget(Button.builder(
                 Component.literal(String.format("Reifen Lvl %d: %.0f€", currentTire + 2,
-                    ModConfigHandler.COMMON.GARAGE_TIRE_UPGRADE_COST.get())),
+                    ModConfigHandler.COMMON.WERKSTATT_TIRE_UPGRADE_COST.get())),
                 button -> {
                     sendUpgrade(UpgradeType.TIRE, currentTire + 1);
                     // Refresh GUI after upgrade
@@ -274,8 +274,8 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
         int fenderLevel = getCurrentFenderLevel();
         if (fenderLevel < 3) {
             double fenderCost = fenderLevel == 1 ?
-                ModConfigHandler.COMMON.GARAGE_FENDER_UPGRADE_COST_LVL2.get() :
-                ModConfigHandler.COMMON.GARAGE_FENDER_UPGRADE_COST_LVL3.get();
+                ModConfigHandler.COMMON.WERKSTATT_FENDER_UPGRADE_COST_LVL2.get() :
+                ModConfigHandler.COMMON.WERKSTATT_FENDER_UPGRADE_COST_LVL3.get();
             upgradeFenderButton = addRenderableWidget(Button.builder(
                 Component.literal(String.format("Fender Lvl %d: %.0f€", fenderLevel + 1, fenderCost)),
                 button -> {
@@ -333,7 +333,7 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
             Component.literal(buttonText),
             button -> {
                 if (vehicle != null && minecraft != null && minecraft.player != null) {
-                    Main.SIMPLE_CHANNEL.sendToServer(new MessageGaragePayment(
+                    Main.SIMPLE_CHANNEL.sendToServer(new MessageWerkstattPayment(
                         minecraft.player.getUUID(),
                         vehicle.getUUID(),
                         repairDamageSelected,
@@ -354,14 +354,14 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
 
         // Item Container Section
         installItemContainerButton = addRenderableWidget(Button.builder(
-            Component.translatable("garage.container.install"),
+            Component.translatable("werkstatt.container.install"),
             button -> installContainer(true)) // true = Item Container
             .bounds(leftPos + 10, startY, buttonWidth, buttonHeight)
             .build()
         );
 
         removeItemContainerButton = addRenderableWidget(Button.builder(
-            Component.translatable("garage.container.remove"),
+            Component.translatable("werkstatt.container.remove"),
             button -> removeContainer(true)) // true = Item Container
             .bounds(leftPos + 120, startY, buttonWidth, buttonHeight)
             .build()
@@ -369,14 +369,14 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
 
         // Fluid Container Section
         installFluidContainerButton = addRenderableWidget(Button.builder(
-            Component.translatable("garage.container.install"),
+            Component.translatable("werkstatt.container.install"),
             button -> installContainer(false)) // false = Fluid Container
             .bounds(leftPos + 10, startY + 70, buttonWidth, buttonHeight)
             .build()
         );
 
         removeFluidContainerButton = addRenderableWidget(Button.builder(
-            Component.translatable("garage.container.remove"),
+            Component.translatable("werkstatt.container.remove"),
             button -> removeContainer(false)) // false = Fluid Container
             .bounds(leftPos + 120, startY + 70, buttonWidth, buttonHeight)
             .build()
@@ -578,20 +578,20 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
         // Reparatur
         guiGraphics.drawString(font, "Reparatur", labelX, checkY, partColor, false);
         if (getDamagePercent() > 0) {
-            double repairCost = getDamagePercent() * ModConfigHandler.COMMON.GARAGE_REPAIR_COST_PER_PERCENT.get();
+            double repairCost = getDamagePercent() * ModConfigHandler.COMMON.WERKSTATT_REPAIR_COST_PER_PERCENT.get();
             guiGraphics.drawString(font, String.format("%.2f€", repairCost), priceX, checkY, costColor, false);
         }
 
         // Batterie
         guiGraphics.drawString(font, "Batterie", labelX, checkY + lineSpacing, partColor, false);
         if (getBatteryPercent() < 50) {
-            double batteryCost = (50 - getBatteryPercent()) * ModConfigHandler.COMMON.GARAGE_BATTERY_COST_PER_PERCENT.get();
+            double batteryCost = (50 - getBatteryPercent()) * ModConfigHandler.COMMON.WERKSTATT_BATTERY_COST_PER_PERCENT.get();
             guiGraphics.drawString(font, String.format("%.2f€", batteryCost), priceX, checkY + lineSpacing, costColor, false);
         }
 
         // Ölwechsel
         guiGraphics.drawString(font, "Ölwechsel", labelX, checkY + lineSpacing * 2, partColor, false);
-        guiGraphics.drawString(font, String.format("%.2f€", ModConfigHandler.COMMON.GARAGE_OIL_CHANGE_COST.get()), priceX, checkY + lineSpacing * 2, costColor, false);
+        guiGraphics.drawString(font, String.format("%.2f€", ModConfigHandler.COMMON.WERKSTATT_OIL_CHANGE_COST.get()), priceX, checkY + lineSpacing * 2, costColor, false);
     }
 
     private void renderUpgradeTab(GuiGraphics guiGraphics, int mouseX, int mouseY) {
@@ -676,58 +676,58 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
 
         // Item Container Section
         int sectionY = startY + 15;
-        guiGraphics.drawString(font, Component.translatable("garage.container.item_container").getString(),
+        guiGraphics.drawString(font, Component.translatable("werkstatt.container.item_container").getString(),
             10, sectionY, titleColor, false);
 
         PartContainer itemContainer = vehicle.getPartByClass(PartContainer.class);
         boolean hasItemContainer = itemContainer != null;
 
         String itemStatus = hasItemContainer ?
-            Component.translatable("garage.container.status_installed").getString() :
-            Component.translatable("garage.container.status_not_installed").getString();
+            Component.translatable("werkstatt.container.status_installed").getString() :
+            Component.translatable("werkstatt.container.status_not_installed").getString();
 
         guiGraphics.drawString(font, "Status: " + itemStatus, 10, sectionY + 10, fontColor, false);
 
         if (hasItemContainer) {
-            String slots = Component.translatable("garage.container.item_slots", "12").getString();
+            String slots = Component.translatable("werkstatt.container.item_slots", "12").getString();
             guiGraphics.drawString(font, slots, 10, sectionY + 20, partColor, false);
         } else {
             // Show cost info
             if (vehicle.hasHadItemContainer()) {
                 double cost = ModConfigHandler.VEHICLE_SERVER.containerReinstallationCost.get();
-                String costText = Component.translatable("garage.container.cost", String.format("%.0f", cost)).getString();
+                String costText = Component.translatable("werkstatt.container.cost", String.format("%.0f", cost)).getString();
                 guiGraphics.drawString(font, costText, 10, sectionY + 20, costColor, false);
             } else {
-                String freeText = Component.translatable("garage.container.cost_free").getString();
+                String freeText = Component.translatable("werkstatt.container.cost_free").getString();
                 guiGraphics.drawString(font, freeText, 10, sectionY + 20, barGoodColor, false);
             }
         }
 
         // Fluid Container Section
         sectionY += 75;
-        guiGraphics.drawString(font, Component.translatable("garage.container.fluid_container").getString(),
+        guiGraphics.drawString(font, Component.translatable("werkstatt.container.fluid_container").getString(),
             10, sectionY, titleColor, false);
 
         PartTankContainer fluidContainer = vehicle.getPartByClass(PartTankContainer.class);
         boolean hasFluidContainer = fluidContainer != null;
 
         String fluidStatus = hasFluidContainer ?
-            Component.translatable("garage.container.status_installed").getString() :
-            Component.translatable("garage.container.status_not_installed").getString();
+            Component.translatable("werkstatt.container.status_installed").getString() :
+            Component.translatable("werkstatt.container.status_not_installed").getString();
 
         guiGraphics.drawString(font, "Status: " + fluidStatus, 10, sectionY + 10, fontColor, false);
 
         if (hasFluidContainer) {
-            String capacity = Component.translatable("garage.container.fluid_capacity", "100").getString();
+            String capacity = Component.translatable("werkstatt.container.fluid_capacity", "100").getString();
             guiGraphics.drawString(font, capacity, 10, sectionY + 20, partColor, false);
         } else {
             // Show cost info
             if (vehicle.hasHadFluidContainer()) {
                 double cost = ModConfigHandler.VEHICLE_SERVER.containerReinstallationCost.get();
-                String costText = Component.translatable("garage.container.cost", String.format("%.0f", cost)).getString();
+                String costText = Component.translatable("werkstatt.container.cost", String.format("%.0f", cost)).getString();
                 guiGraphics.drawString(font, costText, 10, sectionY + 20, costColor, false);
             } else {
-                String freeText = Component.translatable("garage.container.cost_free").getString();
+                String freeText = Component.translatable("werkstatt.container.cost_free").getString();
                 guiGraphics.drawString(font, freeText, 10, sectionY + 20, barGoodColor, false);
             }
         }
@@ -788,25 +788,25 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
         if (vehicle == null) return 0.0;
 
         // Base inspection fee (always charged)
-        double cost = ModConfigHandler.COMMON.GARAGE_BASE_INSPECTION_FEE.get();
+        double cost = ModConfigHandler.COMMON.WERKSTATT_BASE_INSPECTION_FEE.get();
 
         // Add costs only for selected checkboxes
         if (repairDamageSelected) {
             float damage = getDamagePercent();
             if (damage > 0) {
-                cost += damage * ModConfigHandler.COMMON.GARAGE_REPAIR_COST_PER_PERCENT.get();
+                cost += damage * ModConfigHandler.COMMON.WERKSTATT_REPAIR_COST_PER_PERCENT.get();
             }
         }
 
         if (chargeBatterySelected) {
             float batteryPercent = getBatteryPercent();
             if (batteryPercent < 50) {
-                cost += (50 - batteryPercent) * ModConfigHandler.COMMON.GARAGE_BATTERY_COST_PER_PERCENT.get();
+                cost += (50 - batteryPercent) * ModConfigHandler.COMMON.WERKSTATT_BATTERY_COST_PER_PERCENT.get();
             }
         }
 
         if (changeOilSelected) {
-            cost += ModConfigHandler.COMMON.GARAGE_OIL_CHANGE_COST.get();
+            cost += ModConfigHandler.COMMON.WERKSTATT_OIL_CHANGE_COST.get();
         }
 
         return cost;
@@ -847,7 +847,7 @@ public class GuiGarage extends ScreenBase<ContainerGarage> {
 
     private void sendUpgrade(UpgradeType type, int value) {
         if (vehicle != null && minecraft != null && minecraft.player != null) {
-            Main.SIMPLE_CHANNEL.sendToServer(new MessageGarageUpgrade(
+            Main.SIMPLE_CHANNEL.sendToServer(new MessageWerkstattUpgrade(
                 minecraft.player.getUUID(),
                 vehicle.getUUID(),
                 type,

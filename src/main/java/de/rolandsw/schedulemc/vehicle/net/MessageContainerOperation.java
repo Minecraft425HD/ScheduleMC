@@ -48,20 +48,20 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
 
         net.minecraft.world.entity.Entity entity = player.level().getEntity(vehicleId);
         if (!(entity instanceof EntityGenericVehicle vehicle)) {
-            player.sendSystemMessage(Component.translatable("garage.container.error").withStyle(ChatFormatting.RED));
+            player.sendSystemMessage(Component.translatable("werkstatt.container.error").withStyle(ChatFormatting.RED));
             return;
         }
 
         // Permission check
         if (vehicle.getOwnerId() == null || !vehicle.getOwnerId().equals(player.getUUID())) {
-            player.sendSystemMessage(Component.translatable("garage.container.error").withStyle(ChatFormatting.RED));
+            player.sendSystemMessage(Component.translatable("werkstatt.container.error").withStyle(ChatFormatting.RED));
             return;
         }
 
         // Only trucks allowed
         PartBody chassis = vehicle.getPartByClass(PartBody.class);
         if (!(chassis instanceof PartTruckChassis)) {
-            player.sendSystemMessage(Component.translatable("garage.container.truck_only"));
+            player.sendSystemMessage(Component.translatable("werkstatt.container.truck_only"));
             return;
         }
 
@@ -89,7 +89,7 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
             double balance = EconomyManager.getBalance(player.getUUID());
             if (balance < cost) {
                 player.sendSystemMessage(
-                    Component.translatable("garage.container.not_enough_money", String.format("%.0f", cost))
+                    Component.translatable("werkstatt.container.not_enough_money", String.format("%.0f", cost))
                         .withStyle(ChatFormatting.RED)
                 );
                 return;
@@ -97,7 +97,7 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
 
             // Deduct money
             if (!EconomyManager.withdraw(player.getUUID(), cost)) {
-                player.sendSystemMessage(Component.translatable("garage.container.error").withStyle(ChatFormatting.RED));
+                player.sendSystemMessage(Component.translatable("werkstatt.container.error").withStyle(ChatFormatting.RED));
                 return;
             }
         }
@@ -139,7 +139,7 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
         // Success message
         String costMsg = cost > 0 ? String.format(" (Kosten: %.0f€)", cost) : " (Kostenlos!)";
         player.sendSystemMessage(
-            Component.translatable("garage.container.installed_successfully")
+            Component.translatable("werkstatt.container.installed_successfully")
                 .append(Component.literal(costMsg).withStyle(ChatFormatting.GRAY))
                 .withStyle(ChatFormatting.GREEN)
         );
@@ -173,7 +173,7 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
         vehicle.tryInitPartsAndModel(); // Update 3D models
 
         player.sendSystemMessage(
-            Component.translatable("garage.container.removed_successfully").withStyle(ChatFormatting.GREEN)
+            Component.translatable("werkstatt.container.removed_successfully").withStyle(ChatFormatting.GREEN)
         );
     }
 
@@ -193,7 +193,7 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
             double balance = EconomyManager.getBalance(player.getUUID());
             if (balance < cost) {
                 player.sendSystemMessage(
-                    Component.translatable("garage.container.not_enough_money", String.format("%.0f", cost))
+                    Component.translatable("werkstatt.container.not_enough_money", String.format("%.0f", cost))
                         .withStyle(ChatFormatting.RED)
                 );
                 return;
@@ -201,7 +201,7 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
 
             // Deduct money
             if (!EconomyManager.withdraw(player.getUUID(), cost)) {
-                player.sendSystemMessage(Component.translatable("garage.container.error").withStyle(ChatFormatting.RED));
+                player.sendSystemMessage(Component.translatable("werkstatt.container.error").withStyle(ChatFormatting.RED));
                 return;
             }
         }
@@ -243,7 +243,7 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
         // Success message
         String costMsg = cost > 0 ? String.format(" (Kosten: %.0f€)", cost) : " (Kostenlos!)";
         player.sendSystemMessage(
-            Component.translatable("garage.container.installed_successfully")
+            Component.translatable("werkstatt.container.installed_successfully")
                 .append(Component.literal(costMsg).withStyle(ChatFormatting.GRAY))
                 .withStyle(ChatFormatting.GREEN)
         );
@@ -277,7 +277,7 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
         vehicle.tryInitPartsAndModel(); // Update 3D models
 
         player.sendSystemMessage(
-            Component.translatable("garage.container.removed_successfully").withStyle(ChatFormatting.GREEN)
+            Component.translatable("werkstatt.container.removed_successfully").withStyle(ChatFormatting.GREEN)
         );
     }
 

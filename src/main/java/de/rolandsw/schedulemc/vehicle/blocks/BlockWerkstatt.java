@@ -1,6 +1,6 @@
 package de.rolandsw.schedulemc.vehicle.blocks;
 
-import de.rolandsw.schedulemc.vehicle.blocks.tileentity.TileEntityGarage;
+import de.rolandsw.schedulemc.vehicle.blocks.tileentity.TileEntityWerkstatt;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import de.rolandsw.schedulemc.vehicle.gui.TileEntityContainerProvider;
 import de.maxhenkel.corelib.blockentity.SimpleBlockEntityTicker;
@@ -20,9 +20,9 @@ import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nullable;
 
-public class BlockGarage extends BlockOrientableHorizontal {
+public class BlockWerkstatt extends BlockOrientableHorizontal {
 
-    public BlockGarage() {
+    public BlockWerkstatt() {
         super(MapColor.METAL, SoundType.METAL, 4.5F, 60F);
     }
 
@@ -30,19 +30,19 @@ public class BlockGarage extends BlockOrientableHorizontal {
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (!level.isClientSide && hand == InteractionHand.MAIN_HAND) {
             BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity instanceof TileEntityGarage garage) {
-                // Try to find a vehicle near the garage
-                EntityGenericVehicle vehicle = garage.getTrackedVehicle();
+            if (blockEntity instanceof TileEntityWerkstatt werkstatt) {
+                // Try to find a vehicle near the werkstatt
+                EntityGenericVehicle vehicle = werkstatt.getTrackedVehicle();
 
                 if (vehicle != null && !vehicle.isRemoved()) {
-                    // Open garage GUI with the tracked vehicle
+                    // Open werkstatt GUI with the tracked vehicle
                     if (player instanceof ServerPlayer serverPlayer) {
-                        garage.openGarageGUI(serverPlayer, vehicle);
+                        werkstatt.openWerkstattGUI(serverPlayer, vehicle);
                     }
                     return InteractionResult.SUCCESS;
                 } else {
                     player.displayClientMessage(
-                        net.minecraft.network.chat.Component.translatable("message.schedulemc.garage.no_vehicle"),
+                        net.minecraft.network.chat.Component.translatable("message.schedulemc.werkstatt.no_vehicle"),
                         true
                     );
                     return InteractionResult.FAIL;
@@ -55,7 +55,7 @@ public class BlockGarage extends BlockOrientableHorizontal {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new TileEntityGarage(pos, state);
+        return new TileEntityWerkstatt(pos, state);
     }
 
     @Nullable
