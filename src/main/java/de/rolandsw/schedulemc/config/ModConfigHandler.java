@@ -599,7 +599,7 @@ public class ModConfigHandler {
                     .defineInRange("motor_upgrade_cost_lvl2", 500.0, 10.0, 10000.0);
 
             GARAGE_MOTOR_UPGRADE_COST_LVL3 = builder
-                    .comment("Kosten für Motor-Upgrade Level 3 (Performance -> Industrial)")
+                    .comment("Kosten für Motor-Upgrade Level 3 (Performance -> Performance 2)")
                     .defineInRange("motor_upgrade_cost_lvl3", 1000.0, 10.0, 20000.0);
 
             GARAGE_TANK_UPGRADE_COST_LVL2 = builder

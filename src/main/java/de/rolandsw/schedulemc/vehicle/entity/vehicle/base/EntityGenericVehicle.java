@@ -611,7 +611,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         if (maxSpd <= 0F) return 0F;
         float speed = Math.abs(physicsComponent.getSpeed()) / maxSpd;
         PartEngine engine = getPartByClass(PartEngine.class);
-        return engine instanceof PartIndustrialMotor ? 1F + 0.35F * speed : speed;
+        return engine instanceof PartPerformance2Motor ? 1F + 0.35F * speed : speed;
     }
 
     public double getPlayerYOffset() {
