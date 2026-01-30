@@ -143,9 +143,9 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
     }
 
     private void initServiceButtons() {
-        int btnW = 120;
+        int btnW = 96;
         int btnH = 16;
-        int btnX = leftPos + 140;
+        int btnX = leftPos + 100;
 
         btnAddRepair = addRenderableWidget(Button.builder(
                 Component.translatable("werkstatt.btn.add_to_cart"),
@@ -164,9 +164,9 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
     }
 
     private void initUpgradeButtons() {
-        int btnW = 120;
+        int btnW = 96;
         int btnH = 16;
-        int btnX = leftPos + 140;
+        int btnX = leftPos + 100;
         int spacing = 48;
 
         int motorLevel = getCurrentMotorLevel();
@@ -198,8 +198,8 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         paintButtons.clear();
         int size = 30;
         int gap = 8;
-        int startX = leftPos + 20;
-        int startY = topPos + 85;
+        int startX = leftPos + 12;
+        int startY = topPos + 60;
 
         for (int i = 0; i < 5; i++) {
             final int colorIdx = i;
@@ -207,7 +207,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
             int row = i / 3;
             Button btn = addRenderableWidget(Button.builder(
                     Component.literal(""),
-                    b -> selectedPaintColor = colorIdx)
+                    b -> { selectedPaintColor = colorIdx; updateWidgetVisibility(); })
                     .bounds(startX + col * (size + gap), startY + row * (size + gap), size, size).build());
             paintButtons.add(btn);
         }
@@ -221,7 +221,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
                         addToCart(new WerkstattCartItem(WerkstattCartItem.Type.PAINT_CHANGE, selectedPaintColor));
                     }
                 })
-                .bounds(leftPos + 20, topPos + 165, 120, 16).build());
+                .bounds(leftPos + 8, topPos + 178, 96, 16).build());
     }
 
     private void initCartRemoveButtons() {
@@ -310,7 +310,10 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
 
         // Paint buttons
         for (Button pb : paintButtons) pb.visible = isPaint;
-        if (btnAddPaint != null) btnAddPaint.visible = isPaint;
+        if (btnAddPaint != null) btnAddPaint.visible = isPaint
+                && selectedPaintColor >= 0
+                && selectedPaintColor != vehicle.getPaintColor()
+                && !isInCart(WerkstattCartItem.Type.PAINT_CHANGE);
 
         // Cart remove buttons always visible
         for (Button rb : cartRemoveButtons) rb.visible = true;
@@ -467,14 +470,14 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         // 3D vehicle preview
         vehicleRenderer.tick();
         if (vehicle != null) {
-            vehicleRenderer.render(g, vehicle, 75, y + 40, 22);
+            vehicleRenderer.render(g, vehicle, 75, y + 35, 22);
         }
-        y += 85;
+        y += 75;
 
         // Odometer
         long odo = vehicle.getOdometer();
         g.drawString(font, "KM-Stand: " + String.format("%,d Bl.", odo).replace(',', '.'), x, y, COL_TEXT, false);
-        y += 16;
+        y += 14;
 
         // Status bars
         g.drawString(font, "--- Zustand ---", x, y, COL_TEXT, false);
@@ -482,20 +485,20 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         renderBar(g, x, y, "Schaden", 100 - getDamagePercent());
         y += 16;
         renderBar(g, x, y, "Batterie", getBatteryPercent());
-        y += 22;
+        y += 18;
 
         // Current parts
         g.drawString(font, "--- Verbaute Teile ---", x, y, COL_TEXT, false);
         y += 12;
 
         g.drawString(font, "Motor: " + getMotorName(), x, y, COL_TEXT_LIGHT, false);
-        y += 11;
+        y += 10;
         g.drawString(font, "Tank: " + getTankName(), x, y, COL_TEXT_LIGHT, false);
-        y += 11;
+        y += 10;
         g.drawString(font, "Reifen: " + getTireName(), x, y, COL_TEXT_LIGHT, false);
-        y += 11;
+        y += 10;
         g.drawString(font, "Fender: " + getFenderName(), x, y, COL_TEXT_LIGHT, false);
-        y += 11;
+        y += 10;
 
         String[] colorNames = {"Weiss", "Schwarz", "Rot", "Blau", "Gelb"};
         int paintIdx = vehicle.getPaintColor();
@@ -612,7 +615,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
                 g.drawString(font, next, x + 4, y + 24, COL_TEXT_LIGHT, false);
             }
             if (inCart) {
-                g.drawString(font, "\u2713 Im Auftrag", x + 130, y + 3, COL_GREEN, false);
+                g.drawString(font, "\u2713 Im Auftrag", x + 100, y + 3, COL_GREEN, false);
             }
         }
     }
