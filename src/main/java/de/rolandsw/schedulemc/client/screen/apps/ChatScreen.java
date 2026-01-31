@@ -40,7 +40,7 @@ public class ChatScreen extends Screen {
     private int selectedNPCMessage = -1;
 
     public ChatScreen(Screen parent, Conversation conversation) {
-        super(Component.literal("Chat"));
+        super(Component.translatable("gui.app.chat.title"));
         this.parentScreen = parent;
         this.conversation = conversation;
     }
@@ -74,12 +74,12 @@ public class ChatScreen extends Screen {
         } else {
             // Player chat - show text input
             messageInput = new EditBox(this.font, leftPos + 10, topPos + HEIGHT - 55, WIDTH - 20, 20,
-                Component.literal("Nachricht..."));
+                Component.translatable("gui.app.chat.message_hint"));
             messageInput.setMaxLength(100);
             addRenderableWidget(messageInput);
 
             // Send button
-            addRenderableWidget(Button.builder(Component.literal("Senden"), button -> {
+            addRenderableWidget(Button.builder(Component.translatable("gui.app.chat.send"), button -> {
                 if (messageInput != null && !messageInput.getValue().isEmpty()) {
                     sendMessage(messageInput.getValue());
                     messageInput.setValue("");
@@ -140,7 +140,7 @@ public class ChatScreen extends Screen {
         guiGraphics.drawString(this.font, displayName, headX + headSize + 8, topPos + 12, 0xFFFFFFFF, false);
 
         // Online status (small text below name) - no shadow
-        guiGraphics.drawString(this.font, "online", headX + headSize + 8, topPos + 24, 0xFFCCCCCC, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.app.chat.online").getString(), headX + headSize + 8, topPos + 24, 0xFFCCCCCC, false);
 
         // Messages area
         int messagesY = topPos + 45;
@@ -155,7 +155,7 @@ public class ChatScreen extends Screen {
         List<Message> messages = conversation.getMessages();
 
         if (messages.isEmpty()) {
-            guiGraphics.drawCenteredString(this.font, "§7Keine Nachrichten", leftPos + WIDTH / 2, startY + 20, 0xFFFFFF);
+            guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.chat.no_messages").getString(), leftPos + WIDTH / 2, startY + 20, 0xFFFFFF);
             return;
         }
 
@@ -258,7 +258,7 @@ public class ChatScreen extends Screen {
         } else if (minutes > 0) {
             return minutes + "m";
         } else {
-            return "now";
+            return Component.translatable("gui.app.chat.now").getString();
         }
     }
 

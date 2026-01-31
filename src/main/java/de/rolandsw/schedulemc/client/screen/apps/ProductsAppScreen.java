@@ -23,7 +23,7 @@ public class ProductsAppScreen extends Screen {
     private int topPos;
 
     public ProductsAppScreen(Screen parent) {
-        super(Component.literal("Produkte"));
+        super(Component.translatable("gui.app.products.title"));
         this.parentScreen = parent;
     }
 
@@ -54,7 +54,7 @@ public class ProductsAppScreen extends Screen {
 
         // Header
         guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 30, 0xFF1A1A1A);
-        guiGraphics.drawCenteredString(this.font, "§6§lProdukte", leftPos + WIDTH / 2, topPos + 12, 0xFFFFFF);
+        guiGraphics.drawCenteredString(this.font, "\u00a76\u00a7l" + Component.translatable("gui.app.products.title").getString(), leftPos + WIDTH / 2, topPos + 12, 0xFFFFFF);
 
         // Content-Bereich
         int contentY = topPos + 40;

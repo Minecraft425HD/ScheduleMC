@@ -33,7 +33,7 @@ public class MessagesAppScreen extends Screen {
     private List<Conversation> conversations;
 
     public MessagesAppScreen(Screen parent) {
-        super(Component.literal("Nachrichten"));
+        super(Component.translatable("gui.app.messages.title"));
         this.parentScreen = parent;
     }
 
@@ -165,7 +165,7 @@ public class MessagesAppScreen extends Screen {
         } else if (minutes > 0) {
             return minutes + "m";
         } else {
-            return "now";
+            return Component.translatable("gui.app.chat.now").getString();
         }
     }
 

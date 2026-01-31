@@ -114,7 +114,7 @@ public class SettingsAppScreen extends Screen {
     }
 
     public SettingsAppScreen(Screen parent) {
-        super(Component.literal("Settings"));
+        super(Component.translatable("gui.app.settings.title"));
         this.parentScreen = parent;
     }
 

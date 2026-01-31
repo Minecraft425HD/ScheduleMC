@@ -91,7 +91,7 @@ public class BankAppScreen extends Screen {
     private double totalExpenses = 0.0;
 
     public BankAppScreen(Screen parent) {
-        super(Component.literal("Bank"));
+        super(Component.translatable("gui.app.bank.title"));
         this.parentScreen = parent;
     }
 
@@ -333,7 +333,7 @@ public class BankAppScreen extends Screen {
 
         // Header
         guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 28, 0xFF1A1A1A);
-        guiGraphics.drawCenteredString(this.font, "§6§lBank", leftPos + WIDTH / 2, topPos + 10, 0xFFFFFF);
+        guiGraphics.drawCenteredString(this.font, "\u00a76\u00a7l" + Component.translatable("gui.app.bank.title").getString(), leftPos + WIDTH / 2, topPos + 10, 0xFFFFFF);
 
         // Tab-Hintergrund (aktiver Tab hervorheben)
         int currentX = leftPos + 5;

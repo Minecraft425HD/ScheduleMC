@@ -53,7 +53,7 @@ public class CrimeStatsAppScreen extends Screen {
     private static final double BAIL_COST_PER_STAR = 1000.0;
 
     public CrimeStatsAppScreen(Screen parent) {
-        super(Component.literal("Crime Stats"));
+        super(Component.translatable("gui.app.crime.title"));
         this.parentScreen = parent;
     }
 
