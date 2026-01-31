@@ -24,6 +24,10 @@ public class SyncFullBankDataPacket {
     private final List<RecurringPaymentData> recurringPayments;
     private final CreditLoanData activeLoan; // null if no active loan
 
+    // Einnahmen/Ausgaben
+    private final double totalIncome;
+    private final double totalExpenses;
+
     // Dispo-Daten
     private final double overdraftAmount;
     private final int debtDaysPassed;
@@ -36,6 +40,7 @@ public class SyncFullBankDataPacket {
                                   List<Transaction> transactions,
                                   List<ClientBankDataCache.RecurringPaymentData> recurringPayments,
                                   ClientBankDataCache.CreditLoanData activeLoan,
+                                  double totalIncome, double totalExpenses,
                                   double overdraftAmount, int debtDaysPassed,
                                   int daysUntilAutoRepay, int daysUntilPrison,
                                   double potentialPrisonMinutes) {
@@ -44,6 +49,10 @@ public class SyncFullBankDataPacket {
         this.savingsBalance = savingsBalance;
         this.remainingTransferLimit = remainingTransferLimit;
         this.maxTransferLimit = maxTransferLimit;
+
+        // Einnahmen/Ausgaben
+        this.totalIncome = totalIncome;
+        this.totalExpenses = totalExpenses;
 
         // Dispo-Daten
         this.overdraftAmount = overdraftAmount;
@@ -100,6 +109,7 @@ public class SyncFullBankDataPacket {
                                    List<TransactionData> transactions,
                                    List<RecurringPaymentData> recurringPayments,
                                    CreditLoanData activeLoan,
+                                   double totalIncome, double totalExpenses,
                                    double overdraftAmount, int debtDaysPassed,
                                    int daysUntilAutoRepay, int daysUntilPrison,
                                    double potentialPrisonMinutes) {
@@ -111,6 +121,10 @@ public class SyncFullBankDataPacket {
         this.transactions = transactions;
         this.recurringPayments = recurringPayments;
         this.activeLoan = activeLoan;
+
+        // Einnahmen/Ausgaben
+        this.totalIncome = totalIncome;
+        this.totalExpenses = totalExpenses;
 
         // Dispo-Daten
         this.overdraftAmount = overdraftAmount;
@@ -167,6 +181,10 @@ public class SyncFullBankDataPacket {
             buf.writeDouble(activeLoan.dailyPayment);
             buf.writeInt(activeLoan.remainingDays);
         }
+
+        // Einnahmen/Ausgaben
+        buf.writeDouble(totalIncome);
+        buf.writeDouble(totalExpenses);
 
         // Dispo-Daten
         buf.writeDouble(overdraftAmount);
@@ -225,6 +243,10 @@ public class SyncFullBankDataPacket {
             activeLoan = new CreditLoanData(loanType, totalAmount, remainingAmount, dailyPayment, remainingDays);
         }
 
+        // Einnahmen/Ausgaben
+        double totalIncome = buf.readDouble();
+        double totalExpenses = buf.readDouble();
+
         // Dispo-Daten
         double overdraftAmount = buf.readDouble();
         int debtDaysPassed = buf.readInt();
@@ -234,6 +256,7 @@ public class SyncFullBankDataPacket {
 
         return new SyncFullBankDataPacket(balance, walletBalance, savingsBalance,
             remainingTransferLimit, maxTransferLimit, transactions, recurringPayments, activeLoan,
+            totalIncome, totalExpenses,
             overdraftAmount, debtDaysPassed, daysUntilAutoRepay, daysUntilPrison, potentialPrisonMinutes);
     }
 
@@ -287,6 +310,8 @@ public class SyncFullBankDataPacket {
                 transactionList,
                 recurringList,
                 loanData,
+                totalIncome,
+                totalExpenses,
                 overdraftAmount,
                 debtDaysPassed,
                 daysUntilAutoRepay,
