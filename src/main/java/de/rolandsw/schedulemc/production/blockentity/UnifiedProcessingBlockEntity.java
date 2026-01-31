@@ -136,7 +136,7 @@ public class UnifiedProcessingBlockEntity extends BlockEntity {
                 // Check if Processing Complete
                 if (progress[i] >= processingTime) {
                     // Create Output
-                    outputs[i] = createOutput(i, stageConfig);
+                    outputs[i] = createOutput(i, cachedStageConfig);
 
                     // Clear Input
                     inputs[i] = ItemStack.EMPTY;

@@ -441,6 +441,8 @@ public class ScheduleMC {
             LOGGER.info("Parallel data loading completed in {}ms ({} managers)", loadTime, parallelLoads.length);
 
             // Sequentielle Initialisierungen (haben Abhängigkeiten)
+            // OPTIMIERT: Server-Referenz cachen statt event.getServer() wiederholt aufzurufen
+            final net.minecraft.server.MinecraftServer server = event.getServer();
             de.rolandsw.schedulemc.towing.TowingServiceRegistry.initializeDefaultServices();
             MinecraftForge.EVENT_BUS.register(ShopAccountManager.class);
             WarehouseManager.load(server);
@@ -454,8 +456,6 @@ public class ScheduleMC {
             LOGGER.info("Crime, Territory, and Market Systems initialized");
 
             // Economy System - Advanced Features
-            // OPTIMIERT: Server-Referenz cachen statt event.getServer() wiederholt aufzurufen
-            final MinecraftServer server = event.getServer();
             EconomyManager.initialize(server);
             TransactionHistory.getInstance(server);
             InterestManager.getInstance(server);
