@@ -290,8 +290,7 @@ public class ShopAccount {
                     .getPlayer(holder.getPlayerUUID());
                 if (player != null) {
                     player.sendSystemMessage(
-                        Component.literal("§c[Shop " + shopId + "] Kein Gewinn diese Woche. " +
-                            "Nettoumsatz: " + netRevenue + "€")
+                        Component.translatable("message.shop.no_profit_full", shopId, netRevenue)
                             .withStyle(ChatFormatting.RED)
                     );
                 }
@@ -313,13 +312,14 @@ public class ShopAccount {
                 EconomyManager.getInstance().deposit(holder.getPlayerUUID(), payout);
 
                 player.sendSystemMessage(
-                    Component.literal("§a§l[Shop Investment]§r\n" +
-                        "§aGewinnausschüttung von Shop §e" + shopId + "§a!\n" +
-                        "§7Deine Aktien: §e" + holder.getSharesOwned() + " §7(" +
-                        String.format("%.1f", holder.getOwnershipPercentage()) + "%)\n" +
-                        "§77-Tage-Nettoumsatz: §6" + netRevenue + "€\n" +
-                        "§aDeine Auszahlung: §2§l" + payout + "€")
-                        .withStyle(ChatFormatting.GREEN)
+                    Component.translatable("message.shop.investment_header")
+                        .append(Component.translatable("message.shop.profit_from_shop", shopId))
+                        .append(Component.literal("\n"))
+                        .append(Component.translatable("message.shop.your_shares", holder.getSharesOwned(), String.format("%.1f", holder.getOwnershipPercentage())))
+                        .append(Component.literal("\n"))
+                        .append(Component.translatable("message.shop.net_revenue_7days", netRevenue))
+                        .append(Component.literal("\n"))
+                        .append(Component.translatable("message.shop.payout", payout))
                 );
 
                 LOGGER.info("Shareholder {}: {}€ paid out ({}% = {} shares)",

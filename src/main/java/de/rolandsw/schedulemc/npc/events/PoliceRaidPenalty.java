@@ -105,15 +105,9 @@ public class PoliceRaidPenalty {
                 EconomyManager.withdraw(player.getUUID(), availableBalance);
             }
 
-            player.sendSystemMessage(Component.literal(
-                "§c§l✗ NICHT GENUG GELD FÜR STRAFE!"
-            ));
-            player.sendSystemMessage(Component.literal(
-                "§7Kontostand konfisziert: §c" + String.format("%.2f", availableBalance) + "€"
-            ));
-            player.sendSystemMessage(Component.literal(
-                "§c§lHAFTZEIT WIRD VERDOPPELT!"
-            ));
+            player.sendSystemMessage(Component.translatable("message.police.insufficient_funds"));
+            player.sendSystemMessage(Component.translatable("message.police.balance_confiscated", String.format("%.2f", availableBalance)));
+            player.sendSystemMessage(Component.translatable("message.police.sentence_doubled"));
 
             // Verdopple Gefängnis-Zeit wird in PoliceAIHandler.arrestPlayer() gemacht
             player.getPersistentData().putBoolean("DoublePenalty", true);

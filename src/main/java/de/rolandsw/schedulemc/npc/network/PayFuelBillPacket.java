@@ -72,12 +72,12 @@ public class PayFuelBillPacket {
                     .append(Component.literal(String.valueOf(billCount)).withStyle(ChatFormatting.AQUA)));
                 player.sendSystemMessage(Component.translatable("message.common.total_amount_label").withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(String.format("%.2f€", totalAmount)).withStyle(ChatFormatting.GOLD)));
-                player.sendSystemMessage(Component.literal("Neues Guthaben: ").withStyle(ChatFormatting.GRAY)
+                player.sendSystemMessage(Component.translatable("message.fuel.new_balance_label").withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(String.format("%.2f€", WalletManager.getBalance(playerUUID))).withStyle(ChatFormatting.YELLOW)));
                 player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
             } else {
                 player.sendSystemMessage(Component.literal("⚠ ").withStyle(ChatFormatting.RED)
-                    .append(Component.literal("Fehler bei der Zahlung!").withStyle(ChatFormatting.RED)));
+                    .append(Component.translatable("message.fuel.payment_error").withStyle(ChatFormatting.RED)));
             }
         });
     }
