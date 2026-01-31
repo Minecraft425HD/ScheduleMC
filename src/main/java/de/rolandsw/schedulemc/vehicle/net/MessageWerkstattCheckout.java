@@ -160,8 +160,10 @@ public class MessageWerkstattCheckout implements Message<MessageWerkstattCheckou
 
         // Update vehicle if parts were changed
         if (partsChanged) {
-            vehicle.setPartSerializer();
             vehicle.invalidatePartCache();
+            vehicle.initParts();
+            vehicle.setPartSerializer();
+            vehicle.checkInitializing();
         }
 
         // Success message

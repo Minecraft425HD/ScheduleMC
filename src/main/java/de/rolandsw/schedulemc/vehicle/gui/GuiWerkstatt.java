@@ -53,14 +53,14 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
     private VehicleUtils.VehicleRenderer vehicleRenderer;
 
     // Tab system
-    private enum Tab { OVERVIEW, SERVICE, UPGRADE, PAINT }
+    private enum Tab { OVERVIEW, SERVICE, UPGRADE, PAINT, CONTAINER }
     private Tab currentTab = Tab.OVERVIEW;
 
     // Shopping cart
     private final List<WerkstattCartItem> cart = new ArrayList<>();
 
     // Tab buttons
-    private Button tabOverview, tabService, tabUpgrade, tabPaint;
+    private Button tabOverview, tabService, tabUpgrade, tabPaint, tabContainer;
 
     // Service buttons (add to cart)
     private Button btnAddRepair, btnAddBattery, btnAddOil;
@@ -72,6 +72,10 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
     private final List<Button> paintButtons = new ArrayList<>();
     private int selectedPaintColor = -1;
     private Button btnAddPaint;
+
+    // Container buttons (direct operations, not cart)
+    private Button btnInstallItemContainer, btnRemoveItemContainer;
+    private Button btnInstallFluidContainer, btnRemoveFluidContainer;
 
     // Cart remove buttons
     private final List<Button> cartRemoveButtons = new ArrayList<>();
@@ -149,11 +153,18 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
                 Component.translatable("werkstatt.tab.paint"),
                 b -> switchTab(Tab.PAINT))
                 .bounds(tabX, tabY, tabW, tabH).build());
+        tabX += tabW + 2;
+
+        tabContainer = addRenderableWidget(Button.builder(
+                Component.translatable("werkstatt.container.tab"),
+                b -> switchTab(Tab.CONTAINER))
+                .bounds(tabX, tabY, tabW + 5, tabH).build());
 
         // Service buttons
         initServiceButtons();
         initUpgradeButtons();
         initPaintButtons();
+        initContainerButtons();
         initCartRemoveButtons();
         initBottomButtons();
 
@@ -242,6 +253,37 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
                 .bounds(leftPos + 8, topPos + 178, 96, 16).build());
     }
 
+    private void initContainerButtons() {
+        int btnW = 96;
+        int btnH = 16;
+        int btnX = leftPos + 100;
+
+        btnInstallItemContainer = addRenderableWidget(Button.builder(
+                Component.translatable("werkstatt.container.install"),
+                b -> sendContainerOperation(MessageContainerOperation.Operation.INSTALL_ITEM))
+                .bounds(btnX, topPos + 80, btnW, btnH).build());
+
+        btnRemoveItemContainer = addRenderableWidget(Button.builder(
+                Component.translatable("werkstatt.container.remove"),
+                b -> sendContainerOperation(MessageContainerOperation.Operation.REMOVE_ITEM))
+                .bounds(btnX, topPos + 80, btnW, btnH).build());
+
+        btnInstallFluidContainer = addRenderableWidget(Button.builder(
+                Component.translatable("werkstatt.container.install"),
+                b -> sendContainerOperation(MessageContainerOperation.Operation.INSTALL_FLUID))
+                .bounds(btnX, topPos + 150, btnW, btnH).build());
+
+        btnRemoveFluidContainer = addRenderableWidget(Button.builder(
+                Component.translatable("werkstatt.container.remove"),
+                b -> sendContainerOperation(MessageContainerOperation.Operation.REMOVE_FLUID))
+                .bounds(btnX, topPos + 150, btnW, btnH).build());
+    }
+
+    private void sendContainerOperation(MessageContainerOperation.Operation operation) {
+        if (vehicle == null || minecraft == null) return;
+        Main.SIMPLE_CHANNEL.sendToServer(new MessageContainerOperation(vehicle.getId(), operation));
+    }
+
     private void initCartRemoveButtons() {
         cartRemoveButtons.forEach(this::removeWidget);
         cartRemoveButtons.clear();
@@ -314,6 +356,11 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         boolean isService = currentTab == Tab.SERVICE;
         boolean isUpgrade = currentTab == Tab.UPGRADE;
         boolean isPaint = currentTab == Tab.PAINT;
+        boolean isContainer = currentTab == Tab.CONTAINER;
+        boolean isTruck = isTruckVehicle();
+
+        // Container tab only visible for trucks
+        if (tabContainer != null) tabContainer.visible = isTruck;
 
         // Service buttons
         if (btnAddRepair != null) btnAddRepair.visible = isService && !isInCart(WerkstattCartItem.Type.SERVICE_REPAIR);
@@ -333,8 +380,22 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
                 && selectedPaintColor != vehicle.getPaintColor()
                 && !isInCart(WerkstattCartItem.Type.PAINT_CHANGE);
 
+        // Container buttons
+        boolean hasItemContainer = vehicle != null && vehicle.getPartByClass(PartContainer.class) != null;
+        boolean hasFluidContainer = vehicle != null && vehicle.getPartByClass(PartTankContainer.class) != null;
+        if (btnInstallItemContainer != null) btnInstallItemContainer.visible = isContainer && isTruck && !hasItemContainer && !hasFluidContainer;
+        if (btnRemoveItemContainer != null) btnRemoveItemContainer.visible = isContainer && isTruck && hasItemContainer;
+        if (btnInstallFluidContainer != null) btnInstallFluidContainer.visible = isContainer && isTruck && !hasFluidContainer && !hasItemContainer;
+        if (btnRemoveFluidContainer != null) btnRemoveFluidContainer.visible = isContainer && isTruck && hasFluidContainer;
+
         // Cart remove buttons always visible
         for (Button rb : cartRemoveButtons) rb.visible = true;
+    }
+
+    private boolean isTruckVehicle() {
+        if (vehicle == null) return false;
+        PartBody body = vehicle.getPartByClass(PartBody.class);
+        return body instanceof PartTruckChassis;
     }
 
     // === Cart Management ===
@@ -469,6 +530,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
             case SERVICE -> renderServiceTab(g);
             case UPGRADE -> renderUpgradeTab(g);
             case PAINT -> renderPaintTab(g);
+            case CONTAINER -> renderContainerTab(g);
         }
 
         // Render cart (right side)
@@ -686,6 +748,52 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
                     g.drawString(font, tr("werkstatt.gui.in_order"), x, infoY + 24, COL_GREEN, false);
                 }
             }
+        }
+    }
+
+    // === Tab: Container ===
+
+    private void renderContainerTab(GuiGraphics g) {
+        int x = 8;
+        int y = 28;
+
+        g.drawString(font, tr("werkstatt.container.tab"), x, y, COL_TEXT, false);
+        y += 16;
+
+        if (!isTruckVehicle()) {
+            g.drawString(font, tr("werkstatt.container.truck_only"), x, y, COL_RED, false);
+            return;
+        }
+
+        boolean hasItemContainer = vehicle.getPartByClass(PartContainer.class) != null;
+        boolean hasFluidContainer = vehicle.getPartByClass(PartTankContainer.class) != null;
+
+        // Item Container card
+        drawContainerCard(g, x, y,
+                tr("werkstatt.container.item_container"),
+                tr("werkstatt.container.item_slots", "12"),
+                hasItemContainer);
+        y += 70;
+
+        // Fluid Container card
+        drawContainerCard(g, x, y,
+                tr("werkstatt.container.fluid_container"),
+                tr("werkstatt.container.fluid_capacity", "100"),
+                hasFluidContainer);
+    }
+
+    private void drawContainerCard(GuiGraphics g, int x, int y, String title, String info, boolean installed) {
+        g.fill(x, y, x + 190, y + 60, 0xFF999999);
+        g.fill(x + 1, y + 1, x + 189, y + 59, 0xFFBBBBBB);
+
+        g.drawString(font, title, x + 4, y + 3, COL_TEXT, false);
+        g.drawString(font, info, x + 4, y + 14, COL_TEXT_LIGHT, false);
+
+        if (installed) {
+            g.drawString(font, tr("werkstatt.container.status_installed"), x + 4, y + 26, COL_GREEN, false);
+        } else {
+            g.drawString(font, tr("werkstatt.container.status_not_installed"), x + 4, y + 26, COL_TEXT_LIGHT, false);
+            g.drawString(font, tr("werkstatt.container.cost_free"), x + 4, y + 38, COL_PRICE, false);
         }
     }
 
