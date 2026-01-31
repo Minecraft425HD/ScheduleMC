@@ -79,14 +79,14 @@ public class PasteurizationStationScreen extends AbstractContainerScreen<Pasteur
         int y = this.topPos;
 
         // Title
-        graphics.drawString(this.font, "Pasteurisierungsstation", x + 8, y + 6, 0xFFFFFF, false);
+        graphics.drawString(this.font, Component.translatable("block.schedulemc.pasteurization_station"), x + 8, y + 6, 0xFFFFFF, false);
 
         // Progress percentage
         int progress = menu.getProgress();
         int maxProgress = menu.getMaxProgress();
         if (progress > 0 && maxProgress > 0) {
             int percent = (int) (100.0f * progress / maxProgress);
-            graphics.drawString(this.font, percent + "%", x + 80, y + 56, 0xFFFFAA00, false);
+            graphics.drawString(this.font, Component.translatable("gui.progress_percent", percent).getString(), x + 80, y + 56, 0xFFFFAA00, false);
         }
     }
 

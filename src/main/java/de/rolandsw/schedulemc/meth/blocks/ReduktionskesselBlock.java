@@ -68,17 +68,11 @@ public class ReduktionskesselBlock extends Block implements EntityBlock {
                 if (!player.isCreative()) {
                     heldItem.shrink(1);
                 }
-                player.displayClientMessage(Component.literal(
-                        "§a✓ Meth-Paste eingefüllt!\n" +
-                        "§c⚠ ACHTUNG: Temperaturkontrolle erforderlich!\n" +
-                        "§7Leere Hand → GUI öffnen"
-                ), true);
+                player.displayClientMessage(Component.translatable("block.meth.paste_added"), true);
                 player.playSound(net.minecraft.sounds.SoundEvents.BUCKET_FILL_LAVA, 0.5f, 1.0f);
                 return InteractionResult.SUCCESS;
             } else {
-                player.displayClientMessage(Component.literal(
-                        "§c✗ Kessel bereits gefüllt oder Produkt noch nicht entnommen!"
-                ), true);
+                player.displayClientMessage(Component.translatable("block.meth.kessel_full"), true);
                 return InteractionResult.FAIL;
             }
         }
@@ -92,9 +86,7 @@ public class ReduktionskesselBlock extends Block implements EntityBlock {
                     if (!player.getInventory().add(output)) {
                         player.drop(output, false);
                     }
-                    player.displayClientMessage(Component.literal(
-                            "§a✓ Roh-Meth entnommen!"
-                    ), true);
+                    player.displayClientMessage(Component.translatable("block.meth.output_taken"), true);
                     player.playSound(net.minecraft.sounds.SoundEvents.ITEM_PICKUP, 1.0f, 1.0f);
                     return InteractionResult.SUCCESS;
                 }
@@ -107,11 +99,9 @@ public class ReduktionskesselBlock extends Block implements EntityBlock {
             }
 
             // Status anzeigen
-            player.displayClientMessage(Component.literal(
-                    "§6⚗ Reduktionskessel\n" +
-                    "§7Temperatur: §f" + kessel.getTemperatureInt() + "°C " + kessel.getTemperatureZone() + "\n" +
-                    "§8Füge Meth-Paste hinzu um zu starten"
-            ), true);
+            player.displayClientMessage(Component.translatable("block.meth.status_header").append(Component.literal("\n"))
+                    .append(Component.translatable("block.meth.status_temp", kessel.getTemperatureInt(), kessel.getTemperatureZone())).append(Component.literal("\n"))
+                    .append(Component.translatable("block.meth.add_paste_hint")), true);
             return InteractionResult.SUCCESS;
         }
 
@@ -126,7 +116,7 @@ public class ReduktionskesselBlock extends Block implements EntityBlock {
         NetworkHooks.openScreen(serverPlayer, new MenuProvider() {
             @Override
             public Component getDisplayName() {
-                return Component.literal("Reduktionskessel");
+                return Component.translatable("block.schedulemc.reduktionskessel");
             }
 
             @Override

@@ -102,7 +102,7 @@ public class GroundCoffeeItem extends Item {
         tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
         tooltip.add(Component.translatable("tooltip.coffee.roast_level").append(roastLevel.getColoredName()));
         tooltip.add(Component.translatable("tooltip.coffee.grind_size").append(grindSize.getColoredName()));
-        tooltip.add(Component.literal("§7" + grindSize.getBestFor()));
+        tooltip.add(Component.translatable(grindSize.getBestFor()));
         tooltip.add(Component.literal(""));
 
         double pricePerGram = getPrice(new ItemStack(this, 1));

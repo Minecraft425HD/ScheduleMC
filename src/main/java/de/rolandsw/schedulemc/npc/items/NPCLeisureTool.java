@@ -159,7 +159,7 @@ public class NPCLeisureTool extends Item {
             selectedNPCs.put(player.getUUID(), npc.getId());
 
             player.sendSystemMessage(
-                Component.literal("NPC ")
+                Component.translatable("message.npc.tool.select_prefix")
                     .withStyle(ChatFormatting.GREEN)
                     .append(Component.literal(npc.getNpcName())
                         .withStyle(ChatFormatting.YELLOW))
@@ -198,7 +198,7 @@ public class NPCLeisureTool extends Item {
      */
     private void showLeisureInfo(Player player, CustomNPCEntity npc) {
         player.sendSystemMessage(
-            Component.literal("═══ Freizeitorte: " + npc.getNpcName() + " ═══")
+            Component.translatable("message.npc.tool.leisure_header", npc.getNpcName())
                 .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)
         );
 
@@ -206,13 +206,13 @@ public class NPCLeisureTool extends Item {
         int count = leisureLocations.size();
 
         player.sendSystemMessage(
-            Component.literal("Anzahl: " + count + "/10")
+            Component.translatable("message.npc.tool.count_detail", count)
                 .withStyle(ChatFormatting.AQUA)
         );
 
         if (count > 0) {
             player.sendSystemMessage(
-                Component.literal("Orte:")
+                Component.translatable("message.npc.tool.locations_label")
                     .withStyle(ChatFormatting.GRAY)
             );
             for (int i = 0; i < count; i++) {

@@ -34,7 +34,7 @@ public class CoffeePackagingTableScreen extends AbstractContainerScreen<CoffeePa
         // 250g Button
         this.addRenderableWidget(
             Button.builder(
-                Component.literal("250g"),
+                Component.translatable("gui.coffee.button_250g"),
                 btn -> onPackageButton(250)
             )
             .bounds(centerX - 80, buttonY, buttonWidth, buttonHeight)
@@ -44,7 +44,7 @@ public class CoffeePackagingTableScreen extends AbstractContainerScreen<CoffeePa
         // 500g Button
         this.addRenderableWidget(
             Button.builder(
-                Component.literal("500g"),
+                Component.translatable("gui.coffee.button_500g"),
                 btn -> onPackageButton(500)
             )
             .bounds(centerX - 25, buttonY, buttonWidth, buttonHeight)
@@ -54,7 +54,7 @@ public class CoffeePackagingTableScreen extends AbstractContainerScreen<CoffeePa
         // 1kg Button
         this.addRenderableWidget(
             Button.builder(
-                Component.literal("1kg"),
+                Component.translatable("gui.coffee.button_1kg"),
                 btn -> onPackageButton(1000)
             )
             .bounds(centerX + 30, buttonY, buttonWidth, buttonHeight)
@@ -131,22 +131,22 @@ public class CoffeePackagingTableScreen extends AbstractContainerScreen<CoffeePa
         int y = this.topPos;
 
         // Title
-        graphics.drawString(this.font, "Coffee Packaging", x + 8, y + 6, 0xFFFFFF, false);
+        graphics.drawString(this.font, Component.translatable("gui.coffee.packaging").getString(), x + 8, y + 6, 0xFFFFFF, false);
 
         // Instructions
-        graphics.drawString(this.font, "Select Size:", x + 8, y + 22, 0xCCCCCC, false);
+        graphics.drawString(this.font, Component.translatable("gui.coffee.select_size").getString(), x + 8, y + 22, 0xCCCCCC, false);
 
         // Slot Labels
-        graphics.drawString(this.font, "Coffee", x + 48, y + 56, 0xCCCCCC, false);
-        graphics.drawString(this.font, "Bag", x + 82, y + 56, 0xCCCCCC, false);
-        graphics.drawString(this.font, "Package", x + 116, y + 56, 0xCCCCCC, false);
+        graphics.drawString(this.font, Component.translatable("gui.coffee.label_coffee").getString(), x + 48, y + 56, 0xCCCCCC, false);
+        graphics.drawString(this.font, Component.translatable("gui.coffee.label_bag").getString(), x + 82, y + 56, 0xCCCCCC, false);
+        graphics.drawString(this.font, Component.translatable("gui.coffee.label_package").getString(), x + 116, y + 56, 0xCCCCCC, false);
 
         // Progress Percentage
         int progress = menu.getProgress();
         int maxProgress = menu.getMaxProgress();
         if (progress > 0 && maxProgress > 0) {
             int percentage = (int) ((float) progress / maxProgress * 100);
-            String progressText = percentage + "%";
+            String progressText = Component.translatable("gui.progress_percent", percentage).getString();
             int textWidth = this.font.width(progressText);
             graphics.drawString(this.font, progressText, x + 113 - textWidth / 2, y + 82, 0x00FF00, false);
         }
@@ -154,10 +154,10 @@ public class CoffeePackagingTableScreen extends AbstractContainerScreen<CoffeePa
         // Selected Package Size Indicator
         int selectedSize = menu.getSelectedPackageSize(); // 0=SMALL, 1=MEDIUM, 2=LARGE
         String sizeText = switch (selectedSize) {
-            case 0 -> "Selected: 250g";
-            case 1 -> "Selected: 500g";
-            case 2 -> "Selected: 1kg";
-            default -> "Selected: 500g";
+            case 0 -> Component.translatable("gui.coffee.selected_250g").getString();
+            case 1 -> Component.translatable("gui.coffee.selected_500g").getString();
+            case 2 -> Component.translatable("gui.coffee.selected_1kg").getString();
+            default -> Component.translatable("gui.coffee.selected_500g").getString();
         };
         graphics.drawString(this.font, sizeText, x + 8, y + 82, 0xFFFF00, false);
     }

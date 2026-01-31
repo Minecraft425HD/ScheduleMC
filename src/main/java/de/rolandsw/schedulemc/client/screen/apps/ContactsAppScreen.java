@@ -30,7 +30,7 @@ public class ContactsAppScreen extends Screen {
     private List<PlayerTracker.PlayerContact> contacts;
 
     public ContactsAppScreen(Screen parent) {
-        super(Component.literal("Kontakte"));
+        super(Component.translatable("gui.app.contacts.title"));
         this.parentScreen = parent;
     }
 
@@ -67,7 +67,7 @@ public class ContactsAppScreen extends Screen {
 
         // Header (iOS-style)
         guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 35, 0xFFF8F8F8);
-        guiGraphics.drawString(this.font, "§0§lKontakte", leftPos + 10, topPos + 13, 0x000000, false);
+        guiGraphics.drawString(this.font, "\u00a70\u00a7l" + Component.translatable("gui.app.contacts.title").getString(), leftPos + 10, topPos + 13, 0x000000, false);
 
         // Content area
         int contentY = topPos + 40;

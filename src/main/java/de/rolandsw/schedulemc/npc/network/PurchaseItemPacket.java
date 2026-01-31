@@ -336,8 +336,8 @@ public class PurchaseItemPacket {
         player.sendSystemMessage(Component.translatable("message.fuel.pump_label").withStyle(ChatFormatting.GRAY)
             .append(Component.literal(stationName).withStyle(ChatFormatting.AQUA)));
         player.sendSystemMessage(Component.translatable("message.fuel.refueled_label").withStyle(ChatFormatting.GRAY)
-            .append(Component.literal(totalFueled + " mB Bio-Diesel").withStyle(ChatFormatting.YELLOW)));
-        player.sendSystemMessage(Component.literal("Gezahlt: ").withStyle(ChatFormatting.GRAY)
+            .append(Component.translatable("message.fuel.amount_biodiesel", totalFueled).withStyle(ChatFormatting.YELLOW)));
+        player.sendSystemMessage(Component.translatable("message.fuel.paid_label").withStyle(ChatFormatting.GRAY)
             .append(Component.literal(String.format("%.2f€", totalCost)).withStyle(ChatFormatting.GOLD)));
         player.sendSystemMessage(Component.translatable("message.bank.remaining_credit_label").withStyle(ChatFormatting.GRAY)
             .append(Component.literal(String.format("%.2f€", EconomyManager.getBalance(player.getUUID()))).withStyle(ChatFormatting.YELLOW)));

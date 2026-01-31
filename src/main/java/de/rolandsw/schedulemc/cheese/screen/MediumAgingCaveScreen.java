@@ -67,7 +67,7 @@ public class MediumAgingCaveScreen extends AbstractContainerScreen<MediumAgingCa
         int y = this.topPos;
 
         // Title
-        graphics.drawString(this.font, "Mittlere Reifekammer", x + 8, y + 6, 0xFFFFFF, false);
+        graphics.drawString(this.font, Component.translatable("block.schedulemc.medium_aging_cave"), x + 8, y + 6, 0xFFFFFF, false);
     }
 
     @Override

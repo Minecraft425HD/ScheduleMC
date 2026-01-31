@@ -119,9 +119,9 @@ public class PillenPresseBlock extends Block implements EntityBlock {
             }
 
             // Status
-            player.displayClientMessage(Component.literal("§d⚗ Pillen-Presse\n")
-                    .append(Component.literal("§7Design: " + presse.getSelectedDesign().getColoredName() + " " + presse.getSelectedDesign().getSymbol() + "\n"))
-                    .append(Component.literal("§7Farbe: " + presse.getSelectedColor().getColoredName() + "\n"))
+            player.displayClientMessage(Component.translatable("gui.pill_press.status_header").append(Component.literal("\n"))
+                    .append(Component.translatable("gui.pill_press.status_design", presse.getSelectedDesign().getColoredName(), presse.getSelectedDesign().getSymbol())).append(Component.literal("\n"))
+                    .append(Component.translatable("gui.pill_press.status_color", presse.getSelectedColor().getColoredName())).append(Component.literal("\n"))
                     .append(Component.translatable("block.mdma.press_crystal_count", presse.getKristallCount()))
                     .append(Component.literal("\n"))
                     .append(Component.translatable("block.mdma.press_binder_count", presse.getBindemittelCount()))
@@ -143,7 +143,7 @@ public class PillenPresseBlock extends Block implements EntityBlock {
         NetworkHooks.openScreen(serverPlayer, new MenuProvider() {
             @Override
             public Component getDisplayName() {
-                return Component.literal("Pillen-Presse");
+                return Component.translatable("block.schedulemc.pillen_presse");
             }
 
             @Override

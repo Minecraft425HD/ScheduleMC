@@ -46,7 +46,7 @@ public class PauseRecurringPaymentPacket {
                 // Erfolgs-Nachricht
                 player.sendSystemMessage(Component.literal("⏸ ")
                     .withStyle(ChatFormatting.YELLOW)
-                    .append(Component.literal("Dauerauftrag pausiert")
+                    .append(Component.translatable("message.payment.recurring_paused")
                         .withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD)));
                 player.sendSystemMessage(Component.literal("ID: ")
                     .withStyle(ChatFormatting.GRAY)

@@ -33,7 +33,7 @@ public class LargePackagingTableScreen extends AbstractContainerScreen<LargePack
         // 20g Button
         this.addRenderableWidget(
             Button.builder(
-                Component.literal("20g"),
+                Component.translatable("gui.packaging_table.weight_20g"),
                 btn -> onPackageButton(20)
             )
             .bounds(startX, startY, buttonWidth, buttonHeight)
@@ -106,7 +106,7 @@ public class LargePackagingTableScreen extends AbstractContainerScreen<LargePack
 
         int x = this.leftPos;
         int y = this.topPos;
-        graphics.drawString(this.font, "Großer Packtisch", x + 8, y + 6, 0xFFFFFF, false);
+        graphics.drawString(this.font, Component.translatable("block.schedulemc.large_packaging_table").getString(), x + 8, y + 6, 0xFFFFFF, false);
     }
 
     @Override

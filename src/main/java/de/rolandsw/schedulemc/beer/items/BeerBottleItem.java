@@ -176,19 +176,19 @@ public class BeerBottleItem extends Item {
         double abv = getABV(stack);
         int daysSinceProduction = getDaysSinceProduction(stack);
 
-        tooltip.add(Component.literal("§7Type: " + type.getDisplayName()));
-        tooltip.add(Component.literal("§7Quality: " + quality.getDisplayName()));
-        tooltip.add(Component.literal("§7Age: " + ageLevel.getDisplayName()));
-        tooltip.add(Component.literal("§7Method: " + method.getDisplayName()));
-        tooltip.add(Component.literal("§7Volume: §f" + String.format("%.2fL", volumeLiters)));
-        tooltip.add(Component.literal("§7ABV: §f" + String.format("%.1f%%", abv)));
+        tooltip.add(Component.translatable("tooltip.beer.type", type.getDisplayName()));
+        tooltip.add(Component.translatable("tooltip.beer.quality", quality.getDisplayName()));
+        tooltip.add(Component.translatable("tooltip.beer.age", ageLevel.getDisplayName()));
+        tooltip.add(Component.translatable("tooltip.beer.method", method.getDisplayName()));
+        tooltip.add(Component.translatable("tooltip.beer.volume", volumeLiters));
+        tooltip.add(Component.translatable("tooltip.beer.abv", abv));
 
         if (daysSinceProduction > 0) {
-            tooltip.add(Component.literal("§7Days Aged: §f" + daysSinceProduction));
+            tooltip.add(Component.translatable("tooltip.beer.days_aged", daysSinceProduction));
         }
 
         double price = calculatePrice(stack);
-        tooltip.add(Component.literal("§6Value: §f" + String.format("%.2f€", price)));
+        tooltip.add(Component.translatable("tooltip.beer.value", price));
     }
 
     @Override
@@ -197,8 +197,7 @@ public class BeerBottleItem extends Item {
         BeerQuality quality = getQuality(stack);
         BeerProcessingMethod method = getProcessingMethod(stack);
 
-        return Component.literal(quality.getColorCode() + type.getDisplayName() +
-                               " " + method.getDisplayName() +
-                               " (" + String.format("%.2fL", volumeLiters) + ")");
+        return Component.translatable("item.schedulemc.beer_bottle.display",
+                quality.getColorCode(), type.getDisplayName(), method.getDisplayName(), volumeLiters);
     }
 }

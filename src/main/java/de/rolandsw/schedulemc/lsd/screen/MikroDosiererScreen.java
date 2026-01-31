@@ -91,9 +91,9 @@ public class MikroDosiererScreen extends AbstractContainerScreen<MikroDosiererMe
         graphics.fill(handleX, y - 2, handleX + 10, y + SLIDER_HEIGHT + 2, 0xFFDDDDDD);
 
         // Labels unter dem Slider
-        graphics.drawString(this.font, "50μg", x, y + SLIDER_HEIGHT + 5, 0x888888, false);
-        graphics.drawString(this.font, "175μg", x + SLIDER_WIDTH / 2 - 15, y + SLIDER_HEIGHT + 5, 0x888888, false);
-        graphics.drawString(this.font, "300μg", x + SLIDER_WIDTH - 25, y + SLIDER_HEIGHT + 5, 0x888888, false);
+        graphics.drawString(this.font, Component.translatable("gui.mikro_dosierer.dose_50").getString(), x, y + SLIDER_HEIGHT + 5, 0x888888, false);
+        graphics.drawString(this.font, Component.translatable("gui.mikro_dosierer.dose_175").getString(), x + SLIDER_WIDTH / 2 - 15, y + SLIDER_HEIGHT + 5, 0x888888, false);
+        graphics.drawString(this.font, Component.translatable("gui.mikro_dosierer.dose_300").getString(), x + SLIDER_WIDTH - 25, y + SLIDER_HEIGHT + 5, 0x888888, false);
     }
 
     private void renderDosageInfo(GuiGraphics graphics, int x, int y) {
@@ -105,7 +105,7 @@ public class MikroDosiererScreen extends AbstractContainerScreen<MikroDosiererMe
         graphics.fill(x + 30, infoY, x + GUI_WIDTH - 30, infoY + 20, 0xFF16213E);
 
         // Dosierung anzeigen
-        String dosageText = micrograms + "μg - " + dosage.getDisplayName();
+        String dosageText = Component.translatable("gui.mikro_dosierer.dose_display", micrograms, dosage.getDisplayName()).getString();
         int textColor = switch (dosage) {
             case SCHWACH -> 0xAAAAAA;
             case STANDARD -> 0x55FF55;

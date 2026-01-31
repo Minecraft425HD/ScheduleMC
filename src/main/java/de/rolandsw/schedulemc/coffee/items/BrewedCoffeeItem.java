@@ -46,7 +46,7 @@ public class BrewedCoffeeItem extends Item {
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
         tooltip.add(Component.translatable("tooltip.brewed_coffee.description"));
-        tooltip.add(Component.literal("§9+3:00 Speed I"));
-        tooltip.add(Component.literal("§9+3:00 Haste I"));
+        tooltip.add(Component.translatable("tooltip.brewed_coffee.effect_speed"));
+        tooltip.add(Component.translatable("tooltip.brewed_coffee.effect_haste"));
     }
 }

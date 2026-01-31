@@ -62,15 +62,14 @@ public class KristallisatorBlock extends Block implements EntityBlock {
                 if (!player.isCreative()) {
                     heldItem.shrink(1);
                 }
-                player.displayClientMessage(Component.literal(
-                        "§a✓ Roh-Meth eingefüllt!\n" +
-                        "§7Kristallisation läuft... (" + kristall.getActiveSlots() + "/4)"
+                player.displayClientMessage(Component.translatable(
+                        "block.meth.kristallisator_input", kristall.getActiveSlots()
                 ), true);
                 player.playSound(net.minecraft.sounds.SoundEvents.GLASS_PLACE, 0.5f, 1.2f);
                 return InteractionResult.SUCCESS;
             } else {
-                player.displayClientMessage(Component.literal(
-                        "§c✗ Kristallisator ist voll!"
+                player.displayClientMessage(Component.translatable(
+                        "block.meth.kristallisator_full"
                 ), true);
                 return InteractionResult.FAIL;
             }
@@ -85,8 +84,8 @@ public class KristallisatorBlock extends Block implements EntityBlock {
                     if (!player.getInventory().add(output)) {
                         player.drop(output, false);
                     }
-                    player.displayClientMessage(Component.literal(
-                            "§a✓ " + output.getCount() + "x Kristall-Meth entnommen!"
+                    player.displayClientMessage(Component.translatable(
+                            "block.meth.kristallisator_output", output.getCount()
                     ), true);
                     player.playSound(net.minecraft.sounds.SoundEvents.ITEM_PICKUP, 1.0f, 1.0f);
                     return InteractionResult.SUCCESS;
@@ -95,18 +94,18 @@ public class KristallisatorBlock extends Block implements EntityBlock {
 
             // Status anzeigen
             StringBuilder status = new StringBuilder();
-            status.append("§b❄ Kristallisator\n");
+            status.append(Component.translatable("block.meth.kristallisator_title").getString()).append("\n");
 
             if (kristall.isActive()) {
                 int progress = (int) (kristall.getAverageProgress() * 100);
-                status.append("§7Aktive Prozesse: §f").append(kristall.getActiveSlots()).append("/4\n");
-                status.append("§7Fortschritt: §e").append(progress).append("%\n");
+                status.append(Component.translatable("block.meth.kristallisator_active", kristall.getActiveSlots()).getString()).append("\n");
+                status.append(Component.translatable("block.meth.kristallisator_progress", progress).getString()).append("\n");
             }
 
             if (kristall.hasOutput()) {
-                status.append("§a").append(kristall.getOutputCount()).append("x Kristall-Meth fertig!");
+                status.append(Component.translatable("block.meth.kristallisator_ready", kristall.getOutputCount()).getString());
             } else if (!kristall.hasInput()) {
-                status.append("§8Füge Roh-Meth hinzu um zu starten");
+                status.append(Component.translatable("block.meth.kristallisator_hint").getString());
             }
 
             player.displayClientMessage(Component.literal(status.toString()), true);

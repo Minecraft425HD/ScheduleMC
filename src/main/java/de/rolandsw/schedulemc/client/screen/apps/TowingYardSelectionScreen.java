@@ -86,7 +86,7 @@ public class TowingYardSelectionScreen extends Screen {
 
         // Header
         guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 35, 0xFFF8F8F8);
-        guiGraphics.drawString(this.font, "§0§lAbschlepphof wählen", leftPos + 10, topPos + 13, 0x000000, false);
+        guiGraphics.drawString(this.font, "\u00a70\u00a7l" + Component.translatable("gui.app.towing.select_yard").getString(), leftPos + 10, topPos + 13, 0x000000, false);
 
         // Towing yard list
         int listY = topPos + 45;

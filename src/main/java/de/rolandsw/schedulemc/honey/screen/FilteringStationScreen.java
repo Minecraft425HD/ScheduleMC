@@ -83,14 +83,14 @@ public class FilteringStationScreen extends AbstractContainerScreen<FilteringSta
         int y = this.topPos;
 
         // Title
-        graphics.drawString(this.font, "Filterstation", x + 8, y + 6, 0xFFFFFF, false);
+        graphics.drawString(this.font, Component.translatable("gui.honey.filtering_station").getString(), x + 8, y + 6, 0xFFFFFF, false);
 
         // Progress percentage
         int progress = menu.getProgress();
         int maxProgress = menu.getMaxProgress();
         if (progress > 0 && maxProgress > 0) {
             int percent = (int) (100.0f * progress / maxProgress);
-            graphics.drawString(this.font, percent + "%", x + 78, y + 56, 0xFFAA00, false);
+            graphics.drawString(this.font, Component.translatable("gui.progress_percent", percent).getString(), x + 78, y + 56, 0xFFAA00, false);
         }
     }
 

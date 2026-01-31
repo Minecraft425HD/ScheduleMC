@@ -178,27 +178,27 @@ public class ChocolateBarItem extends Item {
         ChocolateProcessingMethod method = getProcessingMethod(stack);
         double weight = getWeightKg(stack);
 
-        tooltip.add(Component.literal("§7Type: " + type.getColorCode() + type.getDisplayName()));
-        tooltip.add(Component.literal("§7Quality: " + quality.getColoredName()));
-        tooltip.add(Component.literal("§7Age: " + ageLevel.getDisplayName()));
-        tooltip.add(Component.literal("§7Method: " + method.getDisplayName()));
-        tooltip.add(Component.literal("§7Weight: §f" + (weight * 1000) + "g"));
-        tooltip.add(Component.literal("§7Cocoa: §f" + type.getCocoaPercentage() + "%"));
+        tooltip.add(Component.translatable("tooltip.chocolate.type", type.getColorCode(), type.getDisplayName()));
+        tooltip.add(Component.translatable("tooltip.chocolate.quality", quality.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.chocolate.age", ageLevel.getDisplayName()));
+        tooltip.add(Component.translatable("tooltip.chocolate.method", method.getDisplayName()));
+        tooltip.add(Component.translatable("tooltip.chocolate.weight", (int)(weight * 1000)));
+        tooltip.add(Component.translatable("tooltip.chocolate.cocoa", type.getCocoaPercentage()));
 
         // Show age in days if available
         if (level != null && getProductionDate(stack) > 0) {
             int ageDays = calculateAgeDays(stack, level.getGameTime());
-            tooltip.add(Component.literal("§7Age Days: §f" + ageDays));
+            tooltip.add(Component.translatable("tooltip.chocolate.age_days", ageDays));
 
             // Show days until next age level
             if (ageLevel.canAge()) {
                 int daysUntilNext = ageLevel.getDaysUntilNext(ageDays);
-                tooltip.add(Component.literal("§7Next Stage: §e" + daysUntilNext + " days"));
+                tooltip.add(Component.translatable("tooltip.chocolate.next_stage", daysUntilNext));
             }
         }
 
         double price = calculatePrice(stack);
-        tooltip.add(Component.literal("§6Value: §f" + String.format("%.2f€", price)));
+        tooltip.add(Component.translatable("tooltip.chocolate.value", price));
     }
 
     @Override
@@ -208,6 +208,7 @@ public class ChocolateBarItem extends Item {
         double weight = getWeightKg(stack);
         int weightGrams = (int) (weight * 1000);
 
-        return Component.literal(quality.getColorCode() + type.getDisplayName() + " (" + weightGrams + "g)");
+        return Component.translatable("item.schedulemc.chocolate_bar.display",
+                quality.getColorCode(), type.getDisplayName(), weightGrams);
     }
 }

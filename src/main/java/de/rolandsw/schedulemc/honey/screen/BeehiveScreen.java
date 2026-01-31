@@ -67,14 +67,14 @@ public class BeehiveScreen extends AbstractContainerScreen<BeehiveMenu> {
         int y = this.topPos;
 
         // Title
-        graphics.drawString(this.font, "Bienenstock", x + 8, y + 6, 0xFFFFFF, false);
+        graphics.drawString(this.font, Component.translatable("gui.honey.beehive").getString(), x + 8, y + 6, 0xFFFFFF, false);
 
         // Progress percentage
         int progress = menu.getProgress();
         int maxProgress = menu.getMaxProgress();
         if (progress > 0 && maxProgress > 0) {
             int percent = (int) (100.0f * progress / maxProgress);
-            graphics.drawString(this.font, percent + "%", x + 84, y + 56, 0xFFAA00, false);
+            graphics.drawString(this.font, Component.translatable("gui.progress_percent", percent).getString(), x + 84, y + 56, 0xFFAA00, false);
         }
     }
 

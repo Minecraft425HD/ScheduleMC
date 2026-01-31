@@ -40,7 +40,7 @@ public class OpenBankerMenuPacket {
                 if (npc.getNpcType() == NPCType.BANK && npc.getBankCategory() == BankCategory.BANKER) {
                     NetworkHooks.openScreen(player, new SimpleMenuProvider(
                         (id, playerInventory, p) -> new BankerMenu(id, playerInventory, npc),
-                        Component.literal("Banker")
+                        Component.translatable("gui.npc.banker.title")
                     ), buf -> {
                         buf.writeInt(npc.getId());
                     });

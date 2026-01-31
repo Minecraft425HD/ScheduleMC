@@ -63,8 +63,8 @@ public class PoliceRaidPenalty {
                 }
             }
 
-            player.sendSystemMessage(Component.literal(
-                "§c⚠ FAHNDUNGSLEVEL ERHÖHT: +" + wantedIncrease + "★ (Illegal possession)"
+            player.sendSystemMessage(Component.translatable(
+                "message.police.wanted_level_increased", wantedIncrease
             ));
 
             if (LOGGER.isDebugEnabled()) {
@@ -77,21 +77,22 @@ public class PoliceRaidPenalty {
         double accountBalance = EconomyManager.getBalance(player.getUUID());
         double fine = calculateFine(accountBalance, scanResult.calculateSeverity());
 
-        player.sendSystemMessage(Component.literal(
-            "§c§l⚠ POLIZEI RAID - ILLEGALE AKTIVITÄTEN FESTGESTELLT ⚠"
+        player.sendSystemMessage(Component.translatable(
+            "message.police.raid_header"
         ));
-        player.sendSystemMessage(Component.literal(
-            "§7Gefunden: §c" + scanResult.illegalPlantCount + " Pflanzen, " +
-            String.format("%.0f", scanResult.totalCashFound) + "€ Bargeld, " +
-            scanResult.illegalItemCount + " Items"
+        player.sendSystemMessage(Component.translatable(
+            "message.police.raid_found",
+            scanResult.illegalPlantCount,
+            String.format("%.0f", scanResult.totalCashFound),
+            scanResult.illegalItemCount
         ));
 
         // 3. Ziehe Geldstrafe ab
         if (EconomyManager.getBalance(player.getUUID()) >= fine) {
             // Genug Geld - ziehe von Konto ab
             EconomyManager.withdraw(player.getUUID(), fine);
-            player.sendSystemMessage(Component.literal(
-                "§c✗ GELDSTRAFE: " + String.format("%.2f", fine) + "€ vom Konto abgezogen"
+            player.sendSystemMessage(Component.translatable(
+                "message.police.fine_deducted", String.format("%.2f", fine)
             ));
 
             if (LOGGER.isDebugEnabled()) {
@@ -105,15 +106,9 @@ public class PoliceRaidPenalty {
                 EconomyManager.withdraw(player.getUUID(), availableBalance);
             }
 
-            player.sendSystemMessage(Component.literal(
-                "§c§l✗ NICHT GENUG GELD FÜR STRAFE!"
-            ));
-            player.sendSystemMessage(Component.literal(
-                "§7Kontostand konfisziert: §c" + String.format("%.2f", availableBalance) + "€"
-            ));
-            player.sendSystemMessage(Component.literal(
-                "§c§lHAFTZEIT WIRD VERDOPPELT!"
-            ));
+            player.sendSystemMessage(Component.translatable("message.police.insufficient_funds"));
+            player.sendSystemMessage(Component.translatable("message.police.balance_confiscated", String.format("%.2f", availableBalance)));
+            player.sendSystemMessage(Component.translatable("message.police.sentence_doubled"));
 
             // Verdopple Gefängnis-Zeit wird in PoliceAIHandler.arrestPlayer() gemacht
             player.getPersistentData().putBoolean("DoublePenalty", true);

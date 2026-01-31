@@ -69,10 +69,10 @@ public class ReaktionsKesselBlock extends Block implements EntityBlock {
                 return InteractionResult.SUCCESS;
             }
 
-            player.displayClientMessage(Component.literal("§6⚗ Reaktions-Kessel\n")
+            player.displayClientMessage(Component.translatable("gui.reaktion.status_header").append(Component.literal("\n"))
                     .append(Component.translatable("block.mdma.reaction_count", kessel.getSafrolCount()))
                     .append(Component.literal("\n"))
-                    .append(kessel.isActive() ? Component.literal("§7Fortschritt: §e" + (int)(kessel.getProgress() * 100) + "%") : Component.literal(""))
+                    .append(kessel.isActive() ? Component.translatable("gui.block.progress", (int)(kessel.getProgress() * 100)) : Component.literal(""))
             , true);
             return InteractionResult.SUCCESS;
         }

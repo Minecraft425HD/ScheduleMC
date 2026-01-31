@@ -90,16 +90,16 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu> {
 
         // "ALLES" Button (deposit all wallet / withdraw all balance)
         quickButtons[QUICK_AMOUNTS.length] = addRenderableWidget(Button.builder(
-            Component.literal("ALLES"),
+            Component.translatable("gui.atm.all_button"),
             button -> executeAllTransaction()
         ).bounds(x + 15, y + 130, 80, 18).build());
 
         // ═══════════════════════════════════════════════════════════════════════════
         // Amount Input Field
         // ═══════════════════════════════════════════════════════════════════════════
-        amountInput = new EditBox(this.font, x + 15, y + 155, 110, 18, Component.literal("Amount"));
+        amountInput = new EditBox(this.font, x + 15, y + 155, 110, 18, Component.translatable("gui.atm.amount_field"));
         amountInput.setValue("");
-        amountInput.setHint(Component.literal("Eigener Betrag..."));
+        amountInput.setHint(Component.translatable("gui.atm.custom_hint"));
         amountInput.setMaxLength(12);
         addRenderableWidget(amountInput);
 
@@ -232,17 +232,17 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu> {
         int y = (height - imageHeight) / 2;
 
         // Title
-        graphics.drawCenteredString(this.font, "§l GELDAUTOMAT", x + imageWidth / 2, y + 7, 0xFFFFFF);
+        graphics.drawCenteredString(this.font, "\u00a7l " + Component.translatable("gui.atm.title").getString(), x + imageWidth / 2, y + 7, 0xFFFFFF);
 
         // Balance Info
-        graphics.drawString(this.font, "Konto:", x + 15, y + 28, 0xAAAAAA, false);
-        graphics.drawString(this.font, String.format("%.2f€", balance), x + 100, y + 28, 0xFFD700, false);
+        graphics.drawString(this.font, Component.translatable("gui.atm.account_label").getString(), x + 15, y + 28, 0xAAAAAA, false);
+        graphics.drawString(this.font, String.format("%.2f\u20ac", balance), x + 100, y + 28, 0xFFD700, false);
 
-        graphics.drawString(this.font, "Bargeld:", x + 15, y + 40, 0xAAAAAA, false);
-        graphics.drawString(this.font, String.format("%.2f€", walletBalance), x + 100, y + 40, 0x00FF00, false);
+        graphics.drawString(this.font, Component.translatable("gui.atm.cash_label").getString(), x + 15, y + 40, 0xAAAAAA, false);
+        graphics.drawString(this.font, String.format("%.2f\u20ac", walletBalance), x + 100, y + 40, 0x00FF00, false);
 
         // ATM Fee info
-        graphics.drawString(this.font, "§8Gebühr: 5,00€ pro Transaktion", x + 15, y + 182, 0x666666, false);
+        graphics.drawString(this.font, Component.translatable("gui.atm.fee_info").getString(), x + 15, y + 182, 0x666666, false);
     }
 
     @Override

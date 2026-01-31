@@ -66,17 +66,17 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
 
         // === LEFT PANEL: Stock Selection (3 buttons) ===
         goldSelectButton = addRenderableWidget(Button.builder(
-            Component.literal("▶ Gold"),
+            Component.literal("▶ ").append(Component.translatable("gui.boerse.stock_gold")),
             btn -> selectStock(StockTradePacket.StockType.GOLD)
         ).bounds(x + 7, y + 40, 120, 20).build());
 
         diamondSelectButton = addRenderableWidget(Button.builder(
-            Component.literal("  Diamond"),
+            Component.literal("  ").append(Component.translatable("gui.boerse.stock_diamond")),
             btn -> selectStock(StockTradePacket.StockType.DIAMOND)
         ).bounds(x + 7, y + 68, 120, 20).build());
 
         emeraldSelectButton = addRenderableWidget(Button.builder(
-            Component.literal("  Emerald"),
+            Component.literal("  ").append(Component.translatable("gui.boerse.stock_emerald")),
             btn -> selectStock(StockTradePacket.StockType.EMERALD)
         ).bounds(x + 7, y + 96, 120, 20).build());
 
@@ -93,13 +93,13 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
 
         // Sell Button
         sellButton = addRenderableWidget(Button.builder(
-            Component.literal("Sell"),
+            Component.translatable("gui.boerse.sell"),
             btn -> executeTrade(StockTradePacket.TradeType.SELL)
         ).bounds(x + 194, y + 90, 56, 20).build());
 
         // Max Buy Button (calculates max affordable)
         maxBuyButton = addRenderableWidget(Button.builder(
-            Component.literal("Max Buy"),
+            Component.translatable("gui.boerse.max_buy"),
             btn -> {
                 int max = calculateMaxAffordable();
                 quantitySlider.setValue(Math.min(max, 64));
@@ -108,7 +108,7 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
 
         // Sell All Button
         sellAllButton = addRenderableWidget(Button.builder(
-            Component.literal("Sell All"),
+            Component.translatable("gui.boerse.sell_all"),
             btn -> executeSellAll()
         ).bounds(x + 194, y + 113, 56, 18).build());
 
@@ -133,14 +133,14 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
 
         // Update button labels to show selection
         goldSelectButton.setMessage(Component.literal(
-            (stock == StockTradePacket.StockType.GOLD ? "▶ " : "  ") + "Gold"
-        ));
+            stock == StockTradePacket.StockType.GOLD ? "▶ " : "  "
+        ).append(Component.translatable("gui.boerse.stock_gold")));
         diamondSelectButton.setMessage(Component.literal(
-            (stock == StockTradePacket.StockType.DIAMOND ? "▶ " : "  ") + "Diamond"
-        ));
+            stock == StockTradePacket.StockType.DIAMOND ? "▶ " : "  "
+        ).append(Component.translatable("gui.boerse.stock_diamond")));
         emeraldSelectButton.setMessage(Component.literal(
-            (stock == StockTradePacket.StockType.EMERALD ? "▶ " : "  ") + "Emerald"
-        ));
+            stock == StockTradePacket.StockType.EMERALD ? "▶ " : "  "
+        ).append(Component.translatable("gui.boerse.stock_emerald")));
 
         // Reset slider
         quantitySlider.setValue(1);
@@ -219,7 +219,7 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
         int y = (height - imageHeight) / 2;
 
         // === LEFT PANEL: Stock Market Overview ===
-        guiGraphics.drawString(this.font, "STOCK MARKET", x + 8, y + 22, 0x404040, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.boerse.stock_market").getString(), x + 8, y + 22, 0x404040, false);
 
         // Render each stock row
         renderStockRow(guiGraphics, x + 7, y + 42, StockTradePacket.StockType.GOLD);
@@ -232,7 +232,7 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
         renderMiniChart(guiGraphics, x + 8, y + 125, 120, 30, ClientBankDataCache.getEmeraldHistory(), 0x55FF55);
 
         // === RIGHT PANEL: Trade Info ===
-        guiGraphics.drawString(this.font, "TRADE PANEL", x + 137, y + 22, 0x404040, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.boerse.trade_panel").getString(), x + 137, y + 22, 0x404040, false);
 
         // Selected stock info
         String stockName = selectedStock.getDisplayName();
@@ -247,39 +247,39 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
         double low = getLowPrice(selectedStock);
         double avg = getAvgPrice(selectedStock);
 
-        guiGraphics.drawString(this.font, "24h High:", x + 137, y + 50, 0x808080, false);
-        guiGraphics.drawString(this.font, String.format("%.0f€", high), x + 210, y + 50, 0x00AA00, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.boerse.high_24h").getString(), x + 137, y + 50, 0x808080, false);
+        guiGraphics.drawString(this.font, String.format("%.0f\u20ac", high), x + 210, y + 50, 0x00AA00, false);
 
-        guiGraphics.drawString(this.font, "24h Low:", x + 137, y + 58, 0x808080, false);
-        guiGraphics.drawString(this.font, String.format("%.0f€", low), x + 210, y + 58, 0xFF5555, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.boerse.low_24h").getString(), x + 137, y + 58, 0x808080, false);
+        guiGraphics.drawString(this.font, String.format("%.0f\u20ac", low), x + 210, y + 58, 0xFF5555, false);
 
         // Quantity & Cost
         int quantity = quantitySlider.getQuantity();
         double totalCost = currentPrice * quantity;
 
-        guiGraphics.drawString(this.font, "Quantity: " + quantity, x + 137, y + 135, 0x404040, false);
-        guiGraphics.drawString(this.font, String.format("Cost: %.0f€", totalCost), x + 137, y + 145, 0xFFAA00, false);
-        guiGraphics.drawString(this.font, "Own: " + playerStock + "x", x + 137, y + 155, 0x606060, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.boerse.quantity", quantity).getString(), x + 137, y + 135, 0x404040, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.boerse.cost", String.format("%.0f", totalCost)).getString(), x + 137, y + 145, 0xFFAA00, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.boerse.own", playerStock).getString(), x + 137, y + 155, 0x606060, false);
 
         // Steuer-Hinweis (falls Spieler Items besitzt)
         if (playerStock > 0) {
-            guiGraphics.drawString(this.font, "⚠ Hold 7d for tax-free", x + 137, y + 164, 0xFFAA00, false);
+            guiGraphics.drawString(this.font, Component.translatable("gui.boerse.tax_hint").getString(), x + 137, y + 164, 0xFFAA00, false);
         }
 
         // === BOTTOM PANEL: Portfolio ===
-        guiGraphics.drawString(this.font, "PORTFOLIO", x + 8, y + 165, 0x404040, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.boerse.portfolio").getString(), x + 8, y + 165, 0x404040, false);
 
         double balance = ClientBankDataCache.getBalance();
         double portfolioValue = calculatePortfolioValue();
 
-        guiGraphics.drawString(this.font, "Balance:", x + 8, y + 177, 0x808080, false);
-        guiGraphics.drawString(this.font, String.format("%.2f€", balance), x + 70, y + 177, 0x00AA00, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.boerse.balance_label").getString(), x + 8, y + 177, 0x808080, false);
+        guiGraphics.drawString(this.font, String.format("%.2f\u20ac", balance), x + 70, y + 177, 0x00AA00, false);
 
-        guiGraphics.drawString(this.font, "Holdings:", x + 8, y + 186, 0x808080, false);
-        guiGraphics.drawString(this.font, String.format("%.0f€", portfolioValue), x + 70, y + 186, 0xFFAA00, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.boerse.holdings").getString(), x + 8, y + 186, 0x808080, false);
+        guiGraphics.drawString(this.font, String.format("%.0f\u20ac", portfolioValue), x + 70, y + 186, 0xFFAA00, false);
 
-        guiGraphics.drawString(this.font, "Total:", x + 135, y + 177, 0x808080, false);
-        guiGraphics.drawString(this.font, String.format("%.0f€", balance + portfolioValue),
+        guiGraphics.drawString(this.font, Component.translatable("gui.boerse.total").getString(), x + 135, y + 177, 0x808080, false);
+        guiGraphics.drawString(this.font, String.format("%.0f\u20ac", balance + portfolioValue),
             x + 185, y + 177, 0x55FFFF, false);
     }
 
@@ -400,7 +400,7 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
 
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        guiGraphics.drawString(this.font, "TRADING DASHBOARD", 8, 6, 0x404040, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.boerse.title").getString(), 8, 6, 0x404040, false);
     }
 
     /**
@@ -411,13 +411,13 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
         private static final int MAX = 64;
 
         public QuantitySlider(int x, int y, int width, int height) {
-            super(x, y, width, height, Component.literal("Qty: 1"), 0.0);
+            super(x, y, width, height, Component.translatable("gui.boerse.qty_label", 1), 0.0);
             updateMessage();
         }
 
         @Override
         protected void updateMessage() {
-            this.setMessage(Component.literal("Qty: " + getQuantity()));
+            this.setMessage(Component.translatable("gui.boerse.qty_label", getQuantity()));
         }
 
         @Override

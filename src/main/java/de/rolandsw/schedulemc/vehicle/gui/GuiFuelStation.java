@@ -145,7 +145,9 @@ public class GuiFuelStation extends ScreenBase<ContainerFuelStation> {
             // Odometer
             if (entity instanceof EntityGenericVehicle vehicle) {
                 long odo = vehicle.getOdometer();
-                String odometerText = String.format("%,d Bl.", odo).replace(',', '.');
+                String sep = Component.translatable("werkstatt.gui.thousand_sep").getString();
+                String odometerText = Component.translatable("fuel_station.odometer_format",
+                        String.format("%,d", odo).replace(",", sep)).getString();
                 g.drawString(font, Component.translatable("fuel_station.odometer",
                         Component.literal(odometerText).withStyle(ChatFormatting.WHITE)).getVisualOrderText(),
                         8, 31, TEXT_DARK, false);
@@ -163,7 +165,7 @@ public class GuiFuelStation extends ScreenBase<ContainerFuelStation> {
 
                 // Percentage text after bar
                 int pct = max > 0 ? (int) (100f * cur / max) : 0;
-                drawRightAligned(g, pct + "%", 168, 54, TEXT_DARK);
+                drawRightAligned(g, Component.translatable("gui.progress_percent", pct).getString(), 168, 54, TEXT_DARK);
             }
         } else {
             // No vehicle
@@ -180,14 +182,14 @@ public class GuiFuelStation extends ScreenBase<ContainerFuelStation> {
 
         // Day price line (highlighted green if active)
         // morningPrice = Cent pro 10mB → pro 1000mB = morningPrice Euro
-        String dayText = String.format("Tag:     %.2f\u20AC / 1000 mB", (double) morningPrice);
+        String dayText = String.format(Component.translatable("fuel_station.day_price_format").getString(), (double) morningPrice);
         g.drawString(font, dayText, 8, 81, isDay ? TEXT_GREEN : TEXT_GRAY, false);
         if (isDay) {
             drawRightAligned(g, "\u25C0", 168, 81, TEXT_GREEN);
         }
 
         // Night price line
-        String nightText = String.format("Nacht:  %.2f\u20AC / 1000 mB", (double) eveningPrice);
+        String nightText = String.format(Component.translatable("fuel_station.night_price_format").getString(), (double) eveningPrice);
         g.drawString(font, nightText, 8, 93, !isDay ? TEXT_GREEN : TEXT_GRAY, false);
         if (!isDay) {
             drawRightAligned(g, "\u25C0", 168, 93, TEXT_GREEN);
@@ -207,7 +209,7 @@ public class GuiFuelStation extends ScreenBase<ContainerFuelStation> {
         String costText = String.format("%.2f\u20AC", costCents / 100.0);
         Component costLine = Component.translatable("gui.fuel_station.session_cost",
                 Component.literal(costText).withStyle(ChatFormatting.GOLD))
-                .append(Component.literal(" inkl. MwSt").withStyle(ChatFormatting.BLACK));
+                .append(Component.translatable("fuel_station.tax_label").withStyle(ChatFormatting.BLACK));
         g.drawString(font, costLine.getVisualOrderText(), 8, 135, TEXT_DARK, false);
     }
 

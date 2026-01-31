@@ -65,8 +65,8 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
         boolean isCreditAdvisor = isBank && npc != null && npc.getBankCategory() == BankCategory.KREDITBERATER;
 
         // Dialog/Chat Button - opens chat for BEWOHNER and VERKAEUFER, dialog for others
-        String buttonLabel = canMessage ? "📱 Chat" : "Dialog";
-        dialogButton = addRenderableWidget(Button.builder(Component.literal(buttonLabel), button -> {
+        Component buttonLabel = canMessage ? Component.translatable("gui.npc.interaction.chat") : Component.translatable("gui.npc.interaction.dialog");
+        dialogButton = addRenderableWidget(Button.builder(buttonLabel, button -> {
             if (canMessage) {
                 openMessage();
             } else {
@@ -92,7 +92,7 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
         creditAdvisorButton.visible = isCreditAdvisor;
 
         // Shop Verkaufen Button (nicht für Bank-NPCs)
-        shopSellButton = addRenderableWidget(Button.builder(Component.literal("Verkaufen"), button -> {
+        shopSellButton = addRenderableWidget(Button.builder(Component.translatable("gui.npc.interaction.sell"), button -> {
             openShopSell();
         }).bounds(x + 8, y + 54, 78, 20).build());
         shopSellButton.visible = !isBank;

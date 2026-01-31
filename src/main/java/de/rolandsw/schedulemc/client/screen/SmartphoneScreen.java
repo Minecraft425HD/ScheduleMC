@@ -60,7 +60,7 @@ public class SmartphoneScreen extends Screen {
     private int dragStartScrollOffset = 0; // Scroll-Offset beim Start des Draggens
 
     public SmartphoneScreen() {
-        super(Component.literal("Smartphone"));
+        super(Component.translatable("gui.smartphone.title"));
     }
 
     @Override
@@ -209,7 +209,7 @@ public class SmartphoneScreen extends Screen {
         guiGraphics.fill(leftPos, topPos, leftPos + PHONE_WIDTH, topPos + 30, 0xFF1A1A1A);
 
         // Smartphone-Titel
-        guiGraphics.drawCenteredString(this.font, "§6§lSmartphone", leftPos + PHONE_WIDTH / 2, topPos + 12, 0xFFFFFF);
+        guiGraphics.drawCenteredString(this.font, Component.translatable("gui.smartphone.title").getString(), leftPos + PHONE_WIDTH / 2, topPos + 12, 0xFFFFFF);
 
         // Berechne Grid-Position für App-Labels
         int gridWidth = (APP_ICON_SIZE * 2) + APP_SPACING;

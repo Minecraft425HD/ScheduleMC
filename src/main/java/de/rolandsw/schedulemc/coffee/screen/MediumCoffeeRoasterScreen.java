@@ -146,29 +146,29 @@ public class MediumCoffeeRoasterScreen extends AbstractContainerScreen<MediumCof
         int y = this.topPos;
 
         // Title
-        graphics.drawString(this.font, "Mittlerer Kaffeeröster", x + 8, y + 6, 0xFFFFFF, false);
+        graphics.drawString(this.font, Component.translatable("gui.coffee.medium_roaster").getString(), x + 8, y + 6, 0xFFFFFF, false);
 
         // Kapazität
-        graphics.drawString(this.font, "Max: 32 Bohnen", x + 8, y + 22, 0xCCCCCC, false);
+        graphics.drawString(this.font, Component.translatable("gui.coffee.capacity_beans", 32).getString(), x + 8, y + 22, 0xCCCCCC, false);
 
         // Progress Prozent
         int progress = menu.getProgress();
         int maxProgress = menu.getMaxProgress();
         if (maxProgress > 0 && progress > 0) {
             int percent = (int) (100 * ((float) progress / maxProgress));
-            graphics.drawString(this.font, percent + "%", x + 80, y + 56, 0xFF6F00, false);
+            graphics.drawString(this.font, Component.translatable("gui.progress_percent", percent).getString(), x + 80, y + 56, 0xFF6F00, false);
         }
 
         // Labels
-        graphics.drawString(this.font, "Grün", x + 48, y + 56, 0xCCCCCC, false);
-        graphics.drawString(this.font, "Geröstet", x + 100, y + 56, 0xCCCCCC, false);
+        graphics.drawString(this.font, Component.translatable("gui.coffee.label_green").getString(), x + 48, y + 56, 0xCCCCCC, false);
+        graphics.drawString(this.font, Component.translatable("gui.coffee.label_roasted").getString(), x + 100, y + 56, 0xCCCCCC, false);
 
         // Roast Level Button Labels
         int buttonY = y + 67;
-        graphics.drawString(this.font, "Hell", x + 13, buttonY + 4, 0xFFFFFF, false);
-        graphics.drawString(this.font, "Mittel", x + 47, buttonY + 4, 0xFFFFFF, false);
-        graphics.drawString(this.font, "Dunkel", x + 82, buttonY + 4, 0xFFFFFF, false);
-        graphics.drawString(this.font, "Esp.", x + 124, buttonY + 4, 0xFFFFFF, false);
+        graphics.drawString(this.font, Component.translatable("gui.coffee.roast_light").getString(), x + 13, buttonY + 4, 0xFFFFFF, false);
+        graphics.drawString(this.font, Component.translatable("gui.coffee.roast_medium").getString(), x + 47, buttonY + 4, 0xFFFFFF, false);
+        graphics.drawString(this.font, Component.translatable("gui.coffee.roast_dark").getString(), x + 82, buttonY + 4, 0xFFFFFF, false);
+        graphics.drawString(this.font, Component.translatable("gui.coffee.roast_espresso").getString(), x + 124, buttonY + 4, 0xFFFFFF, false);
     }
 
     @Override

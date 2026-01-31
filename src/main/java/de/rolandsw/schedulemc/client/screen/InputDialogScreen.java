@@ -58,7 +58,7 @@ public class InputDialogScreen extends Screen {
 
         // Input-Feld
         inputField = new EditBox(this.font, leftPos + 20, topPos + 50, dialogWidth - 40, 20,
-            Component.literal("Input"));
+            Component.translatable("gui.dialog.input_label"));
         inputField.setMaxLength(inputType == InputType.TEXT ? 200 : 20);
         inputField.setResponder(this::onInputChanged);
         addRenderableWidget(inputField);

@@ -77,10 +77,11 @@ public class FermentationsTankBlock extends Block implements EntityBlock {
             }
 
             // Status
-            player.displayClientMessage(Component.literal("§5⚗ Fermentations-Tank\n")
+            player.displayClientMessage(Component.translatable("block.lsd.fermentation_title")
+                    .append(Component.literal("\n"))
                     .append(Component.translatable("block.lsd.fermentation_count", tank.getMutterkornCount()))
                     .append(Component.literal("\n"))
-                    .append(tank.isActive() ? Component.literal("§7Fortschritt: §e").append(Component.literal((int)(tank.getProgress() * 100) + "%")) : tank.hasOutput() ? Component.literal("§a").append(Component.literal(tank.getOutputCount() + "x Ergot-Kultur fertig!")) : Component.literal(""))
+                    .append(tank.isActive() ? Component.translatable("block.lsd.fermentation_progress", (int)(tank.getProgress() * 100)) : tank.hasOutput() ? Component.translatable("block.lsd.fermentation_ready", tank.getOutputCount()) : Component.literal(""))
             , true);
             return InteractionResult.SUCCESS;
         }

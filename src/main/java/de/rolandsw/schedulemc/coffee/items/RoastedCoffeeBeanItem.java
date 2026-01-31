@@ -89,7 +89,7 @@ public class RoastedCoffeeBeanItem extends Item {
         tooltip.add(Component.translatable("tooltip.coffee.type_label").append(type.getColoredName()));
         tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
         tooltip.add(Component.translatable("tooltip.coffee.roast_level").append(roastLevel.getColoredName()));
-        tooltip.add(Component.literal("§7" + roastLevel.getFlavorProfile()));
+        tooltip.add(Component.translatable(roastLevel.getFlavorProfile()));
         tooltip.add(Component.literal(""));
 
         double pricePerGram = type.calculatePrice(quality, 1) * roastLevel.getPriceMultiplier();

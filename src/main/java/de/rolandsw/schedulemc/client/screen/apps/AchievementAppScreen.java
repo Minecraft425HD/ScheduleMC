@@ -59,7 +59,7 @@ public class AchievementAppScreen extends Screen {
     private AchievementData selectedAchievementData = null;
 
     public AchievementAppScreen(Screen parent) {
-        super(Component.literal("Achievements"));
+        super(Component.translatable("gui.app.achievement.title"));
         this.parentScreen = parent;
     }
 
@@ -210,7 +210,7 @@ public class AchievementAppScreen extends Screen {
 
         // Header
         guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 28, 0xFF1A1A1A);
-        guiGraphics.drawCenteredString(this.font, "§e§l🏆 Achievements", leftPos + WIDTH / 2, topPos + 10, 0xFFFFFF);
+        guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.achievement.title").getString(), leftPos + WIDTH / 2, topPos + 10, 0xFFFFFF);
 
         // Content basierend auf View
         int contentY = topPos + 32;

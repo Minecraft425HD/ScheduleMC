@@ -60,10 +60,9 @@ public class PlotSelectionTool extends Item {
         position2.put(player.getUUID(), pos);
        
         // Info anzeigen
-        player.displayClientMessage(Component.literal(
-            "§a✓ Position 2 gesetzt!\n" +
-            "§7Koordinaten: §f" + pos.getX() + ", " + pos.getY() + ", " + pos.getZ() + "\n" +
-            "§7Linksklick für Position 1"
+        player.displayClientMessage(Component.translatable(
+            "message.plot.tool.pos2_set",
+            pos.getX(), pos.getY(), pos.getZ()
         ), true);
        
         // Sound abspielen
@@ -95,29 +94,23 @@ public class PlotSelectionTool extends Item {
         BlockPos pos2 = position2.get(player.getUUID());
        
         if (pos1 == null && pos2 == null) {
-            player.displayClientMessage(Component.literal(
-                "§e⚠ Keine Selection\n" +
-                "§7Linksklick: Position 1\n" +
-                "§7Rechtsklick auf Block: Position 2"
+            player.displayClientMessage(Component.translatable(
+                "message.plot.tool.no_selection"
             ), false);
         } else if (pos1 != null && pos2 == null) {
-            player.displayClientMessage(Component.literal(
-                "§6═══ Selection ═══\n" +
-                "§aPos 1: §f" + pos1.toShortString() + "\n" +
-                "§cPos 2: §7Nicht gesetzt\n" +
-                "§7Rechtsklick auf Block für Pos 2"
+            player.displayClientMessage(Component.translatable(
+                "message.plot.tool.selection_partial", pos1.toShortString()
             ), false);
         } else if (pos1 != null && pos2 != null) {
             long volume = Math.abs((long)(pos2.getX() - pos1.getX() + 1) *
                                   (pos2.getY() - pos1.getY() + 1) *
                                   (pos2.getZ() - pos1.getZ() + 1));
            
-            player.displayClientMessage(Component.literal(
-                "§6═══ Selection ═══\n" +
-                "§aPos 1: §f" + pos1.toShortString() + "\n" +
-                "§aPos 2: §f" + pos2.toShortString() + "\n" +
-                Component.translatable("item.plot_selection_tool.size", String.format("%,d", volume)).getString() + "\n" +
-                "§7Nutze: §e/plot create <preis>"
+            player.displayClientMessage(Component.translatable(
+                "message.plot.tool.selection_complete",
+                pos1.toShortString(),
+                pos2.toShortString(),
+                Component.translatable("item.plot_selection_tool.size", String.format("%,d", volume)).getString()
             ), false);
         }
     }

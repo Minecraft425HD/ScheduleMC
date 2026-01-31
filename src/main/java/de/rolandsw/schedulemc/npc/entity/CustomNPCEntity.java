@@ -236,7 +236,7 @@ public class CustomNPCEntity extends PathfinderMob {
     private void openShopEditor(ServerPlayer player) {
         NetworkHooks.openScreen(player, new SimpleMenuProvider(
             (id, playerInventory, p) -> new de.rolandsw.schedulemc.npc.menu.ShopEditorMenu(id, playerInventory, this),
-            Component.literal("Shop Editor: " + this.getNpcName())
+            Component.translatable("gui.npc.shop_editor.title_name", this.getNpcName())
         ), buf -> {
             buf.writeInt(this.getId()); // Entity ID
             // Sende aktuelle Shop-Items

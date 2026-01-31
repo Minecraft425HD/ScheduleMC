@@ -107,7 +107,7 @@ public class BlockProtectionHandler {
             // Null-Safety: Prüfe ob NPC-Daten vorhanden sind
             if (npc.getNpcData() == null) {
                 player.sendSystemMessage(
-                    Component.literal("§cFehler: NPC-Daten nicht verfügbar!"));
+                    Component.translatable("message.npc.data_unavailable"));
                 event.setCanceled(true);
                 return;
             }
@@ -179,7 +179,7 @@ public class BlockProtectionHandler {
             // Null-Safety: Prüfe ob NPC-Daten vorhanden sind
             if (npc.getNpcData() == null) {
                 player.sendSystemMessage(
-                    Component.literal("§cFehler: NPC-Daten nicht verfügbar!"));
+                    Component.translatable("message.npc.data_unavailable"));
                 event.setCanceled(true);
                 return;
             }
@@ -275,7 +275,7 @@ public class BlockProtectionHandler {
                     NPCPatrolTool.setSelectedNPC(player.getUUID(), npc.getId());
 
                     player.sendSystemMessage(
-                        Component.literal("Polizist ")
+                        Component.translatable("message.npc.police_officer_prefix")
                             .withStyle(ChatFormatting.GREEN)
                             .append(Component.literal(npc.getNpcName())
                                 .withStyle(ChatFormatting.YELLOW))

@@ -76,7 +76,7 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
     private void installItemContainer(EntityGenericVehicle vehicle, ServerPlayer player) {
         // Check if already installed
         if (vehicle.getPartByClass(PartContainer.class) != null) {
-            player.sendSystemMessage(Component.literal("Already installed!").withStyle(ChatFormatting.YELLOW));
+            player.sendSystemMessage(Component.translatable("message.vehicle.container_already_installed").withStyle(ChatFormatting.YELLOW));
             return;
         }
 
@@ -121,7 +121,7 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
             if (cost > 0) {
                 EconomyManager.deposit(player.getUUID(), cost);
             }
-            player.sendSystemMessage(Component.literal("§cKein Platz im Parts-Inventar!"));
+            player.sendSystemMessage(Component.translatable("message.vehicle.no_parts_space"));
             return;
         }
 
@@ -137,7 +137,7 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
         vehicle.tryInitPartsAndModel(); // Update 3D models (now actually runs!)
 
         // Success message
-        String costMsg = cost > 0 ? String.format(" (Kosten: %.0f€)", cost) : " (Kostenlos!)";
+        String costMsg = cost > 0 ? Component.translatable("message.vehicle.install_cost", cost).getString() : Component.translatable("message.vehicle.install_free").getString();
         player.sendSystemMessage(
             Component.translatable("werkstatt.container.installed_successfully")
                 .append(Component.literal(costMsg).withStyle(ChatFormatting.GRAY))
@@ -148,7 +148,7 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
     private void removeItemContainer(EntityGenericVehicle vehicle, ServerPlayer player) {
         PartContainer container = vehicle.getPartByClass(PartContainer.class);
         if (container == null) {
-            player.sendSystemMessage(Component.literal("No container installed!").withStyle(ChatFormatting.YELLOW));
+            player.sendSystemMessage(Component.translatable("message.vehicle.no_container_installed").withStyle(ChatFormatting.YELLOW));
             return;
         }
 
@@ -180,7 +180,7 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
     private void installFluidContainer(EntityGenericVehicle vehicle, ServerPlayer player) {
         // Check if already installed
         if (vehicle.getPartByClass(PartTankContainer.class) != null) {
-            player.sendSystemMessage(Component.literal("Already installed!").withStyle(ChatFormatting.YELLOW));
+            player.sendSystemMessage(Component.translatable("message.vehicle.container_already_installed").withStyle(ChatFormatting.YELLOW));
             return;
         }
 
@@ -225,7 +225,7 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
             if (cost > 0) {
                 EconomyManager.deposit(player.getUUID(), cost);
             }
-            player.sendSystemMessage(Component.literal("§cKein Platz im Parts-Inventar!"));
+            player.sendSystemMessage(Component.translatable("message.vehicle.no_parts_space"));
             return;
         }
 
@@ -241,7 +241,7 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
         vehicle.tryInitPartsAndModel(); // Update 3D models
 
         // Success message
-        String costMsg = cost > 0 ? String.format(" (Kosten: %.0f€)", cost) : " (Kostenlos!)";
+        String costMsg = cost > 0 ? Component.translatable("message.vehicle.install_cost", cost).getString() : Component.translatable("message.vehicle.install_free").getString();
         player.sendSystemMessage(
             Component.translatable("werkstatt.container.installed_successfully")
                 .append(Component.literal(costMsg).withStyle(ChatFormatting.GRAY))
@@ -252,7 +252,7 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
     private void removeFluidContainer(EntityGenericVehicle vehicle, ServerPlayer player) {
         PartTankContainer container = vehicle.getPartByClass(PartTankContainer.class);
         if (container == null) {
-            player.sendSystemMessage(Component.literal("No container installed!").withStyle(ChatFormatting.YELLOW));
+            player.sendSystemMessage(Component.translatable("message.vehicle.no_container_installed").withStyle(ChatFormatting.YELLOW));
             return;
         }
 

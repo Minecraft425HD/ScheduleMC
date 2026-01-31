@@ -63,15 +63,14 @@ public class VakuumTrocknerBlock extends Block implements EntityBlock {
                 if (!player.isCreative()) {
                     heldItem.shrink(1);
                 }
-                player.displayClientMessage(Component.literal(
-                        "§a✓ Kristall-Meth eingefüllt!\n" +
-                        "§7Trocknung läuft... (" + trockner.getActiveSlots() + "/6)"
+                player.displayClientMessage(Component.translatable(
+                        "block.meth.vakuum_input", trockner.getActiveSlots()
                 ), true);
                 player.playSound(net.minecraft.sounds.SoundEvents.IRON_DOOR_CLOSE, 0.5f, 1.5f);
                 return InteractionResult.SUCCESS;
             } else {
-                player.displayClientMessage(Component.literal(
-                        "§c✗ Vakuum-Trockner ist voll!"
+                player.displayClientMessage(Component.translatable(
+                        "block.meth.vakuum_full"
                 ), true);
                 return InteractionResult.FAIL;
             }
@@ -89,11 +88,11 @@ public class VakuumTrocknerBlock extends Block implements EntityBlock {
 
                     // Spezielle Nachricht für Blue Sky
                     MethQuality quality = de.rolandsw.schedulemc.meth.items.MethItem.getQuality(output);
-                    String message = quality == MethQuality.BLUE_SKY ?
-                            "§b✓ " + output.getCount() + "x Blue Sky entnommen!\n§7\"I am the one who knocks.\"" :
-                            "§a✓ " + output.getCount() + "x Crystal Meth entnommen!";
+                    Component message = quality == MethQuality.BLUE_SKY ?
+                            Component.translatable("block.meth.vakuum_output_blue_sky", output.getCount()) :
+                            Component.translatable("block.meth.vakuum_output_crystal", output.getCount());
 
-                    player.displayClientMessage(Component.literal(message), true);
+                    player.displayClientMessage(message, true);
                     player.playSound(net.minecraft.sounds.SoundEvents.ITEM_PICKUP, 1.0f, 1.0f);
                     return InteractionResult.SUCCESS;
                 }
@@ -101,26 +100,26 @@ public class VakuumTrocknerBlock extends Block implements EntityBlock {
 
             // Status anzeigen
             StringBuilder status = new StringBuilder();
-            status.append("§7⬛ Vakuum-Trockner\n");
+            status.append(Component.translatable("block.meth.vakuum_title").getString()).append("\n");
 
             if (trockner.isActive()) {
                 int progress = (int) (trockner.getAverageProgress() * 100);
-                status.append("§7Aktive Prozesse: §f").append(trockner.getActiveSlots()).append("/6\n");
-                status.append("§7Fortschritt: §e").append(progress).append("%\n");
+                status.append(Component.translatable("block.meth.vakuum_active", trockner.getActiveSlots()).getString()).append("\n");
+                status.append(Component.translatable("block.meth.vakuum_progress", progress).getString()).append("\n");
 
                 MethQuality best = trockner.getBestQuality();
                 String qualityInfo = switch (best) {
-                    case STANDARD -> "§fStandard";
-                    case GUT -> "§ePremium";
-                    case BLUE_SKY -> "§b§lBlue Sky";
+                    case STANDARD -> Component.translatable("block.meth.vakuum_quality_standard").getString();
+                    case GUT -> Component.translatable("block.meth.vakuum_quality_premium").getString();
+                    case BLUE_SKY -> Component.translatable("block.meth.vakuum_quality_blue_sky").getString();
                 };
-                status.append("§7Beste Qualität: ").append(qualityInfo);
+                status.append(Component.translatable("block.meth.vakuum_best_quality", qualityInfo).getString());
             }
 
             if (trockner.hasOutput()) {
-                status.append("§a").append(trockner.getOutputCount()).append("x Crystal Meth fertig!");
+                status.append(Component.translatable("block.meth.vakuum_ready", trockner.getOutputCount()).getString());
             } else if (!trockner.hasInput()) {
-                status.append("§8Füge Kristall-Meth hinzu um zu starten");
+                status.append(Component.translatable("block.meth.vakuum_hint").getString());
             }
 
             player.displayClientMessage(Component.literal(status.toString()), true);

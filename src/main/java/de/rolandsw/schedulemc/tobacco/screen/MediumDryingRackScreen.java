@@ -82,22 +82,22 @@ public class MediumDryingRackScreen extends AbstractContainerScreen<MediumDrying
         int y = this.topPos;
 
         // Title
-        graphics.drawString(this.font, "Mittleres Trocknungsgestell", x + 8, y + 6, 0xFFFFFF, false);
+        graphics.drawString(this.font, Component.translatable("gui.medium_drying_rack.title").getString(), x + 8, y + 6, 0xFFFFFF, false);
 
         // Kapazität
-        graphics.drawString(this.font, "Max: 8 Blätter", x + 8, y + 22, 0xCCCCCC, false);
+        graphics.drawString(this.font, Component.translatable("gui.medium_drying_rack.capacity").getString(), x + 8, y + 22, 0xCCCCCC, false);
 
         // Progress Prozent
         int progress = menu.getProgress();
         int maxProgress = menu.getMaxProgress();
         if (maxProgress > 0 && progress > 0) {
             int percent = (int) (100 * ((float) progress / maxProgress));
-            graphics.drawString(this.font, percent + "%", x + 80, y + 56, 0xFF9800, false);
+            graphics.drawString(this.font, Component.translatable("gui.progress_percent", percent).getString(), x + 80, y + 56, 0xFF9800, false);
         }
 
         // Labels
-        graphics.drawString(this.font, "Frisch", x + 48, y + 56, 0xCCCCCC, false);
-        graphics.drawString(this.font, "Trocken", x + 104, y + 56, 0xCCCCCC, false);
+        graphics.drawString(this.font, Component.translatable("gui.medium_drying_rack.fresh_label").getString(), x + 48, y + 56, 0xCCCCCC, false);
+        graphics.drawString(this.font, Component.translatable("gui.medium_drying_rack.dried_label").getString(), x + 104, y + 56, 0xCCCCCC, false);
     }
 
     @Override

@@ -61,8 +61,8 @@ public class DriedMushroomItem extends Item {
 
         tooltip.add(Component.translatable("tooltip.mushroom.type_label").append(mushroomType.getColoredName()));
         tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
-        tooltip.add(Component.translatable("tooltip.mushroom.potency").append(Component.literal("§d" + String.format("%.1f", potency * 100) + "%")));
-        tooltip.add(Component.translatable("tooltip.mushroom.weight").append(Component.literal("§f" + stack.getCount() + "g §8(" + stack.getCount() + "x 1g)")));
+        tooltip.add(Component.translatable("tooltip.mushroom.potency").append(Component.translatable("tooltip.mushroom.potency_value", String.format("%.1f", potency * 100))));
+        tooltip.add(Component.translatable("tooltip.mushroom.weight").append(Component.translatable("tooltip.mushroom.weight_value", stack.getCount(), stack.getCount())));
         tooltip.add(Component.literal(""));
         tooltip.add(Component.translatable("tooltip.dried_mushroom.durable"));
         tooltip.add(Component.translatable("tooltip.dried_mushroom.ready_to_sell"));

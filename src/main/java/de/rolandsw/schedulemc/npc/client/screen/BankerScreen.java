@@ -417,7 +417,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         g.drawString(font, String.format("%.2f€", gesamt), x + 125, y + 130, 0xFFD700, false);
 
         if (!ClientBankDataCache.hasData()) {
-            g.drawString(font, "§7Lade Daten...", x + 30, y + 150, 0x808080, false);
+            g.drawString(font, Component.translatable("gui.bank.loading").getString(), x + 30, y + 150, 0x808080, false);
         }
     }
 
@@ -447,20 +447,20 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
             double prisonMinutes = ClientBankDataCache.getPotentialPrisonMinutes();
 
             // Warnung: KONTO ÜBERZOGEN!
-            g.drawString(font, "§c§l⚠ KONTO ÜBERZOGEN!", x + 20, y + 185, 0xFF5555, false);
-            g.drawString(font, String.format("§cSchulden: %.2f€", overdraft), x + 20, y + 197, 0xFF5555, false);
+            g.drawString(font, Component.translatable("gui.bank.overdrawn_warning").getString(), x + 20, y + 185, 0xFF5555, false);
+            g.drawString(font, Component.translatable("gui.bank.debt_amount", String.format("%.2f", overdraft)).getString(), x + 20, y + 197, 0xFF5555, false);
 
             // Phase-abhängige Anzeige
             if (daysPassed < 7) {
                 // Tag 1-6: Countdown zu Auto-Repay
-                g.drawString(font, String.format("§eAuto-Ausgleich in %d Tagen", daysUntilAutoRepay), x + 20, y + 209, 0xFFAA00, false);
+                g.drawString(font, Component.translatable("gui.bank.auto_repay_countdown", daysUntilAutoRepay).getString(), x + 20, y + 209, 0xFFAA00, false);
             } else if (daysPassed >= 7 && daysUntilPrison > 0) {
                 // Tag 7-27: Countdown zu Gefängnis
-                g.drawString(font, String.format("§cGefängnis in %d Tagen!", daysUntilPrison), x + 20, y + 209, 0xFF0000, false);
-                g.drawString(font, String.format("§cStrafe: %.1f Minuten", prisonMinutes), x + 20, y + 221, 0xFF5555, false);
+                g.drawString(font, Component.translatable("gui.bank.prison_countdown", daysUntilPrison).getString(), x + 20, y + 209, 0xFF0000, false);
+                g.drawString(font, Component.translatable("gui.bank.penalty_duration", String.format("%.1f", prisonMinutes)).getString(), x + 20, y + 221, 0xFF5555, false);
             } else if (daysUntilPrison == 0) {
                 // Tag 28+: KRITISCH!
-                g.drawString(font, "§4§lAB INS GEFÄNGNIS!", x + 20, y + 209, 0xAA0000, false);
+                g.drawString(font, Component.translatable("gui.bank.going_to_prison").getString(), x + 20, y + 209, 0xAA0000, false);
             }
         }
     }
@@ -507,7 +507,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         List<Transaction> transactions = ClientBankDataCache.getTransactions();
 
         if (transactions.isEmpty()) {
-            String msg = !ClientBankDataCache.hasData() ? "§7Lade Transaktionen..." : Component.translatable("gui.bank.no_transactions").getString();
+            String msg = !ClientBankDataCache.hasData() ? Component.translatable("gui.bank.loading_transactions").getString() : Component.translatable("gui.bank.no_transactions").getString();
             g.drawString(font, msg, x + 50, y + 80, 0x808080, false);
             return;
         }
@@ -552,7 +552,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         g.drawString(font, Component.translatable("gui.bank.limit").getString() + limitStr, x + 200, y + 60, payments.size() >= maxPerPlayer ? 0xFF5555 : 0x00AA00, false);
 
         if (payments.size() >= maxPerPlayer) {
-            g.drawString(font, "MAX!", x + 200, y + 73, 0xFF5555, false);
+            g.drawString(font, Component.translatable("gui.bank.max_reached").getString(), x + 200, y + 73, 0xFF5555, false);
         }
 
         g.fill(x + 15, y + 168, x + 265, y + 169, 0x44FFFFFF);
@@ -589,7 +589,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
             int total = payments.size() + (loan != null ? 1 : 0);
             int displayed = maxDisplay + (loan != null ? 1 : 0);
             if (total > displayed) {
-                g.drawString(font, "+" + (total - displayed) + " weitere...", x + 85, yOffset, 0x808080, false);
+                g.drawString(font, Component.translatable("gui.bank.more_items", (total - displayed)).getString(), x + 85, yOffset, 0x808080, false);
             }
         }
     }

@@ -48,8 +48,8 @@ public class EspressoItem extends Item {
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
         tooltip.add(Component.translatable("tooltip.espresso.description"));
-        tooltip.add(Component.literal("§9+5:00 Speed II"));
-        tooltip.add(Component.literal("§9+5:00 Haste II"));
-        tooltip.add(Component.literal("§c+0:30 Regeneration I"));
+        tooltip.add(Component.translatable("tooltip.espresso.effect_speed"));
+        tooltip.add(Component.translatable("tooltip.espresso.effect_haste"));
+        tooltip.add(Component.translatable("tooltip.espresso.effect_regen"));
     }
 }

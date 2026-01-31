@@ -87,7 +87,7 @@ public class HashItem extends Item {
 
         tooltip.add(Component.translatable("tooltip.cannabis.strain_label").append(strain.getColoredName()));
         tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
-        tooltip.add(Component.translatable("tooltip.cannabis.thc_label").append(Component.literal("§f~" + (strain.getThcContent() * 1.5) + "%")));
+        tooltip.add(Component.translatable("tooltip.cannabis.thc_label").append(Component.translatable("tooltip.cannabis.thc_value", "~" + (strain.getThcContent() * 1.5))));
         tooltip.add(Component.translatable("tooltip.cannabis.weight_label").append(Component.literal("§f" + weight + "g")));
         tooltip.add(Component.empty());
         tooltip.add(Component.translatable("tooltip.cannabis.value_label").append(Component.translatable("tooltip.cannabis.value", String.format("%.2f", price))));

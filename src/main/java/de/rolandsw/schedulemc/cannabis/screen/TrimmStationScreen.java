@@ -127,9 +127,9 @@ public class TrimmStationScreen extends AbstractContainerScreen<TrimmStationMenu
         }
 
         // Labels
-        graphics.drawString(this.font, "§cSchlecht", x + 5, y + BAR_HEIGHT + 5, 0xAAAAAA, false);
-        graphics.drawString(this.font, "§aPERFEKT", x + BAR_WIDTH/2 - 20, y + BAR_HEIGHT + 5, 0xAAAAAA, false);
-        graphics.drawString(this.font, "§cSchlecht", x + BAR_WIDTH - 50, y + BAR_HEIGHT + 5, 0xAAAAAA, false);
+        graphics.drawString(this.font, Component.translatable("gui.trimm_station.label_poor").getString(), x + 5, y + BAR_HEIGHT + 5, 0xAAAAAA, false);
+        graphics.drawString(this.font, Component.translatable("gui.trimm_station.label_perfect").getString(), x + BAR_WIDTH/2 - 20, y + BAR_HEIGHT + 5, 0xAAAAAA, false);
+        graphics.drawString(this.font, Component.translatable("gui.trimm_station.label_poor").getString(), x + BAR_WIDTH - 50, y + BAR_HEIGHT + 5, 0xAAAAAA, false);
     }
 
     private void renderTrimButton(GuiGraphics graphics, int x, int y, int mouseX, int mouseY) {
@@ -142,16 +142,16 @@ public class TrimmStationScreen extends AbstractContainerScreen<TrimmStationMenu
 
         if (!gameStarted && !menu.isMinigameActive()) {
             buttonColor = hovered ? 0xFF55AA55 : 0xFF44AA44;
-            buttonText = "§f▶ STARTEN";
+            buttonText = Component.translatable("gui.trimm_station.button_start").getString();
         } else if (canTrim && hovered) {
             buttonColor = 0xFF55DD55;
-            buttonText = "§f✂ SCHNEIDEN!";
+            buttonText = Component.translatable("gui.trimm_station.button_cut").getString();
         } else if (canTrim) {
             buttonColor = 0xFF44AA44;
-            buttonText = "§f✂ SCHNEIDEN!";
+            buttonText = Component.translatable("gui.trimm_station.button_cut").getString();
         } else {
             buttonColor = 0xFF333355;
-            buttonText = "§7Fertig!";
+            buttonText = Component.translatable("gui.trimm_station.button_done").getString();
         }
 
         // Animation
@@ -178,8 +178,8 @@ public class TrimmStationScreen extends AbstractContainerScreen<TrimmStationMenu
         // Stats-Box
         graphics.fill(x + 20, statsY, x + GUI_WIDTH - 20, statsY + 25, 0xFF0A1A0A);
 
-        String stats = String.format("§aPerfekt: %d §7| §eGut: %d §7| §cSchlecht: %d",
-                menu.getPerfectTrims(), menu.getGoodTrims(), menu.getBadTrims());
+        String stats = Component.translatable("gui.trimm_station.stats",
+                menu.getPerfectTrims(), menu.getGoodTrims(), menu.getBadTrims()).getString();
 
         int statsWidth = this.font.width(stats);
         graphics.drawString(this.font, stats, x + GUI_WIDTH/2 - statsWidth/2, statsY + 8, 0xFFFFFF, false);
@@ -193,15 +193,15 @@ public class TrimmStationScreen extends AbstractContainerScreen<TrimmStationMenu
 
         switch (lastTrimResult) {
             case 2 -> {
-                feedbackText = "§a★ PERFEKT! ★";
+                feedbackText = Component.translatable("gui.trimm_station.feedback_perfect").getString();
                 feedbackColor = 0x4455FF55;
             }
             case 1 -> {
-                feedbackText = "§eGut!";
+                feedbackText = Component.translatable("gui.trimm_station.feedback_good").getString();
                 feedbackColor = 0x44FFFF55;
             }
             default -> {
-                feedbackText = "§cDaneben...";
+                feedbackText = Component.translatable("gui.trimm_station.feedback_miss").getString();
                 feedbackColor = 0x44FF5555;
             }
         }
@@ -221,11 +221,11 @@ public class TrimmStationScreen extends AbstractContainerScreen<TrimmStationMenu
         int y = this.topPos;
 
         // Titel
-        graphics.drawString(this.font, "§a✂ §lTRIMM-STATION §a✂", x + 10, y + 8, 0xFF88FF88, true);
+        graphics.drawString(this.font, Component.translatable("gui.trimm_station.title").getString(), x + 10, y + 8, 0xFF88FF88, true);
 
         // Anleitung
         if (menu.isMinigameActive()) {
-            String hint = "§e▶ Klicke im §a§lGRÜNEN§e Bereich! ◀";
+            String hint = Component.translatable("gui.trimm_station.hint").getString();
             int hintWidth = this.font.width(hint);
             graphics.drawString(this.font, hint, x + GUI_WIDTH/2 - hintWidth/2, y + 143, 0xFFFFFF, true);
         }
