@@ -153,6 +153,11 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
             setIsInitialized(false);
         }
 
+        // When paint color changes, rebuild model instances with new texture
+        if (level().isClientSide && key.equals(PAINT_COLOR)) {
+            initModel();
+        }
+
         // When inventory sizes change, update the inventory component
         if (key.equals(INTERNAL_INV_SIZE) || key.equals(EXTERNAL_INV_SIZE)) {
             if (level().isClientSide) {
