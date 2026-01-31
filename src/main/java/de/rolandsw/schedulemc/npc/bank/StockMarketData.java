@@ -318,21 +318,34 @@ public class StockMarketData {
          * Berechnet Höchstpreis der letzten 7 Tage
          */
         public double getHighPrice() {
-            return priceHistory.stream().mapToDouble(Double::doubleValue).max().orElse(currentPrice);
+            double high = currentPrice;
+            for (double p : priceHistory) {
+                if (p > high) high = p;
+            }
+            return high;
         }
 
         /**
          * Berechnet Tiefstpreis der letzten 7 Tage
          */
         public double getLowPrice() {
-            return priceHistory.stream().mapToDouble(Double::doubleValue).min().orElse(currentPrice);
+            double low = currentPrice;
+            for (double p : priceHistory) {
+                if (p < low) low = p;
+            }
+            return low;
         }
 
         /**
          * Berechnet Durchschnittspreis der letzten 7 Tage
          */
         public double getAveragePrice() {
-            return priceHistory.stream().mapToDouble(Double::doubleValue).average().orElse(currentPrice);
+            if (priceHistory.isEmpty()) return currentPrice;
+            double sum = 0;
+            for (double p : priceHistory) {
+                sum += p;
+            }
+            return sum / priceHistory.size();
         }
     }
 

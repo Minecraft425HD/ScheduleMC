@@ -325,9 +325,8 @@ public class PlotUtilityManager {
      * Nützlich für Polizei-Heat-System
      */
     public static List<PlotUtilityData> getTopConsumers(int limit) {
-        return getAllPlotsSortedByConsumption().stream()
-                .limit(limit)
-                .toList();
+        List<PlotUtilityData> sorted = getAllPlotsSortedByConsumption();
+        return sorted.subList(0, Math.min(limit, sorted.size()));
     }
 
     /**
@@ -476,12 +475,12 @@ public class PlotUtilityManager {
      * Gibt Statistik-Zusammenfassung zurück
      */
     public static String getStatsSummary() {
-        double totalElec = plotData.values().stream()
-                .mapToDouble(PlotUtilityData::get7DayAverageElectricity)
-                .sum();
-        double totalWater = plotData.values().stream()
-                .mapToDouble(PlotUtilityData::get7DayAverageWater)
-                .sum();
+        double totalElec = 0;
+        double totalWater = 0;
+        for (PlotUtilityData data : plotData.values()) {
+            totalElec += data.get7DayAverageElectricity();
+            totalWater += data.get7DayAverageWater();
+        }
 
         return String.format("Utility-Stats: %d Plots, %s Strom, %s Wasser (7-Tage-Ø)",
                 plotData.size(), formatElectricity(totalElec), formatWater(totalWater));

@@ -161,12 +161,9 @@ public class CreditScoreManager extends AbstractPersistenceManager<Map<UUID, Cre
      * Aktualisiert die durchschnittlichen Kontostände aller Spieler
      */
     private void updateAllBalances() {
-        for (UUID playerUUID : creditScores.keySet()) {
-            double balance = EconomyManager.getBalance(playerUUID);
-            CreditScore score = creditScores.get(playerUUID);
-            if (score != null) {
-                score.updateAverageBalance(balance);
-            }
+        for (Map.Entry<UUID, CreditScore> entry : creditScores.entrySet()) {
+            double balance = EconomyManager.getBalance(entry.getKey());
+            entry.getValue().updateAverageBalance(balance);
         }
     }
 

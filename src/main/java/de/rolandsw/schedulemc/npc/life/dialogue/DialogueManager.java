@@ -228,11 +228,19 @@ public class DialogueManager extends AbstractPersistenceManager<DialogueManager.
         // Erstelle temporären Kontext für Bedingungsprüfung
         DialogueContext tempContext = new DialogueContext(player, npc, trees.get(0));
 
-        // Filtere nach Start-Bedingung und sortiere nach Priorität
-        return trees.stream()
-            .filter(t -> t.canStart(tempContext, npc))
-            .max(Comparator.comparingInt(DialogueTree::getPriority))
-            .orElse(null);
+        // Filtere nach Start-Bedingung und finde höchste Priorität
+        DialogueTree best = null;
+        int bestPriority = Integer.MIN_VALUE;
+        for (DialogueTree t : trees) {
+            if (t.canStart(tempContext, npc)) {
+                int prio = t.getPriority();
+                if (prio > bestPriority) {
+                    bestPriority = prio;
+                    best = t;
+                }
+            }
+        }
+        return best;
     }
 
     /**
@@ -276,10 +284,13 @@ public class DialogueManager extends AbstractPersistenceManager<DialogueManager.
         }
 
         // Option finden
-        DialogueOption selectedOption = currentNode.getOptions().stream()
-            .filter(opt -> opt.getId().equals(optionId))
-            .findFirst()
-            .orElse(null);
+        DialogueOption selectedOption = null;
+        for (DialogueOption opt : currentNode.getOptions()) {
+            if (opt.getId().equals(optionId)) {
+                selectedOption = opt;
+                break;
+            }
+        }
 
         if (selectedOption == null) {
             return null;

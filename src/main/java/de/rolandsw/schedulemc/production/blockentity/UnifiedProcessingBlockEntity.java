@@ -40,6 +40,9 @@ public class UnifiedProcessingBlockEntity extends BlockEntity {
     protected final int capacity;              // Anzahl Slots
     protected final String processingStageId;  // Processing Stage (aus Config)
     protected final ProductionConfig config;   // Production Config
+    /** Gecachter StageConfig-Lookup (vermeidet Map.get() pro Tick) */
+    @Nullable
+    protected final ProductionConfig.ProcessingStageConfig cachedStageConfig;
 
     // Slot Arrays
     protected ItemStack[] inputs;
@@ -81,10 +84,12 @@ public class UnifiedProcessingBlockEntity extends BlockEntity {
             productionIds[i] = "";
         }
 
+        // Cache StageConfig einmalig im Konstruktor
+        this.cachedStageConfig = config.getProcessingStages().get(processingStageId);
+
         // Resource System
-        ProductionConfig.ProcessingStageConfig stageConfig = config.getProcessingStages().get(processingStageId);
-        if (stageConfig != null && stageConfig.requiresResource()) {
-            this.requiredResource = stageConfig.getRequiredResource();
+        if (cachedStageConfig != null && cachedStageConfig.requiresResource()) {
+            this.requiredResource = cachedStageConfig.getRequiredResource();
             this.maxResourceLevel = 10000;  // 10 Liter default
             this.resourceLevel = 0;
         }
@@ -102,13 +107,11 @@ public class UnifiedProcessingBlockEntity extends BlockEntity {
             return;
         }
 
-        ProductionConfig.ProcessingStageConfig stageConfig = config.getProcessingStages().get(processingStageId);
-        if (stageConfig == null) {
-            LOGGER.error("Processing stage '{}' not found in config!", processingStageId);
+        if (cachedStageConfig == null) {
             return;
         }
 
-        int processingTime = stageConfig.getProcessingTime();
+        int processingTime = cachedStageConfig.getProcessingTime();
         boolean anyProgress = false;
 
         // Process alle Slots
@@ -116,8 +119,8 @@ public class UnifiedProcessingBlockEntity extends BlockEntity {
             if (!inputs[i].isEmpty() && outputs[i].isEmpty()) {
 
                 // Check Resource Requirement
-                if (stageConfig.requiresResource()) {
-                    if (resourceLevel < stageConfig.getResourceAmount()) {
+                if (cachedStageConfig.requiresResource()) {
+                    if (resourceLevel < cachedStageConfig.getResourceAmount()) {
                         continue;  // Nicht genug Resource, skip diesen Slot
                     }
                 }
@@ -126,8 +129,8 @@ public class UnifiedProcessingBlockEntity extends BlockEntity {
                 progress[i]++;
 
                 // Consume Resources (jede Sekunde)
-                if (stageConfig.requiresResource() && progress[i] % 20 == 0) {
-                    resourceLevel = Math.max(0, resourceLevel - stageConfig.getResourceAmount());
+                if (cachedStageConfig.requiresResource() && progress[i] % 20 == 0) {
+                    resourceLevel = Math.max(0, resourceLevel - cachedStageConfig.getResourceAmount());
                 }
 
                 // Check if Processing Complete
@@ -278,11 +281,10 @@ public class UnifiedProcessingBlockEntity extends BlockEntity {
     }
 
     public float getProgressPercentage(int slot) {
-        ProductionConfig.ProcessingStageConfig stageConfig = config.getProcessingStages().get(processingStageId);
-        if (stageConfig == null || slot < 0 || slot >= capacity) {
+        if (cachedStageConfig == null || slot < 0 || slot >= capacity) {
             return 0.0f;
         }
-        return (float) progress[slot] / stageConfig.getProcessingTime();
+        return (float) progress[slot] / cachedStageConfig.getProcessingTime();
     }
 
     public String getProductionId(int slot) {

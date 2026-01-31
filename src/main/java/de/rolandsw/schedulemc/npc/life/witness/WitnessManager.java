@@ -23,7 +23,6 @@ import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
 
 /**
  * WitnessManager - Verwaltet das Zeugensystem mit JSON-Persistenz
@@ -269,11 +268,15 @@ public class WitnessManager extends AbstractPersistenceManager<WitnessManager.Wi
             report.getCriminalUUID(), k -> new ArrayList<>()
         );
 
-        // Limit einhalten
+        // Limit einhalten: Direkte Index-Suche statt O(n²) stream().min() in while-Loop
         while (reports.size() >= MAX_REPORTS_PER_PLAYER) {
-            reports.stream()
-                .min(Comparator.comparingLong(WitnessReport::getTimestamp))
-                .ifPresent(reports::remove);
+            int oldestIdx = 0;
+            long oldestTs = Long.MAX_VALUE;
+            for (int i = 0; i < reports.size(); i++) {
+                long ts = reports.get(i).getTimestamp();
+                if (ts < oldestTs) { oldestTs = ts; oldestIdx = i; }
+            }
+            reports.remove(oldestIdx);
         }
 
         reports.add(report);
@@ -291,9 +294,12 @@ public class WitnessManager extends AbstractPersistenceManager<WitnessManager.Wi
      * Holt alle nicht gemeldeten Berichte über einen Spieler
      */
     public List<WitnessReport> getUnreportedReports(UUID criminalUUID) {
-        return getReportsAbout(criminalUUID).stream()
-            .filter(r -> !r.isReported() && !r.isBribed())
-            .collect(Collectors.toList());
+        List<WitnessReport> all = getReportsAbout(criminalUUID);
+        List<WitnessReport> result = new ArrayList<>();
+        for (WitnessReport r : all) {
+            if (!r.isReported() && !r.isBribed()) result.add(r);
+        }
+        return result;
     }
 
     /**
@@ -301,11 +307,12 @@ public class WitnessManager extends AbstractPersistenceManager<WitnessManager.Wi
      */
     @Nullable
     public WitnessReport getReportByWitness(UUID criminalUUID, UUID witnessNPCUUID) {
-        return getReportsAbout(criminalUUID).stream()
-            .filter(r -> r.getWitnessNPCUUID().equals(witnessNPCUUID))
-            .filter(r -> !r.isReported() && !r.isBribed())
-            .findFirst()
-            .orElse(null);
+        for (WitnessReport r : getReportsAbout(criminalUUID)) {
+            if (r.getWitnessNPCUUID().equals(witnessNPCUUID) && !r.isReported() && !r.isBribed()) {
+                return r;
+            }
+        }
+        return null;
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -380,15 +387,18 @@ public class WitnessManager extends AbstractPersistenceManager<WitnessManager.Wi
     }
 
     /**
-     * Verarbeitet ausstehende Berichte
+     * Verarbeitet ausstehende Berichte.
+     * Optimiert: Nutzt PoliceAIHandler-Cache statt getEntitiesOfClass() pro Report.
      */
+    private static final List<CustomNPCEntity> processReportsPoliceBuffer = new ArrayList<>();
+
     private void processReports(ServerLevel level) {
         long currentDay = level.getDayTime() / 24000;
 
         // Abgelaufene Berichte entfernen
-        reportsByCriminal.values().forEach(reports ->
-            reports.removeIf(r -> !r.isValid(currentDay))
-        );
+        for (List<WitnessReport> reports : reportsByCriminal.values()) {
+            reports.removeIf(r -> !r.isValid(currentDay));
+        }
 
         // Leere Listen entfernen
         reportsByCriminal.entrySet().removeIf(e -> e.getValue().isEmpty());
@@ -397,13 +407,11 @@ public class WitnessManager extends AbstractPersistenceManager<WitnessManager.Wi
         for (Map.Entry<UUID, List<WitnessReport>> entry : reportsByCriminal.entrySet()) {
             for (WitnessReport report : entry.getValue()) {
                 if (!report.isReported() && !report.isBribed()) {
-                    // Prüfe ob Polizei-NPC in der Nähe ist (50 Block Radius vom Zeugen)
+                    // Nutze PoliceAIHandler-Cache statt getEntitiesOfClass() pro Report
                     BlockPos witnessPos = report.getCrimeLocation();
-                    boolean policeNearby = level.getEntitiesOfClass(
-                        de.rolandsw.schedulemc.npc.entity.CustomNPCEntity.class,
-                        AABB.ofSize(witnessPos.getCenter(), 100, 50, 100),
-                        npc -> npc.getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.POLIZEI
-                    ).size() > 0;
+                    de.rolandsw.schedulemc.npc.events.PoliceAIHandler.getPoliceInRadius(
+                        witnessPos.getCenter(), 50.0, processReportsPoliceBuffer);
+                    boolean policeNearby = !processReportsPoliceBuffer.isEmpty();
 
                     // Meldungs-Chance: 90% wenn Polizei in der Nähe, sonst 10%
                     double reportChance = policeNearby ? 0.9 : 0.1;
@@ -415,7 +423,7 @@ public class WitnessManager extends AbstractPersistenceManager<WitnessManager.Wi
                         // Wenn Polizei in der Nähe, sofort Wanted-Level erhöhen
                         if (policeNearby) {
                             de.rolandsw.schedulemc.npc.crime.CrimeManager.addWantedLevel(
-                                report.getCriminalUUID(), 1, level.getDayTime() / 24000);
+                                report.getCriminalUUID(), 1, currentDay);
                         }
                     }
                 }
@@ -456,9 +464,13 @@ public class WitnessManager extends AbstractPersistenceManager<WitnessManager.Wi
      */
     @Nullable
     public WitnessReport getMostSevereCrime(UUID playerUUID) {
-        return getUnreportedReports(playerUUID).stream()
-            .max(Comparator.comparingInt(r -> r.getCrimeType().getSeverity()))
-            .orElse(null);
+        WitnessReport best = null;
+        int bestSeverity = Integer.MIN_VALUE;
+        for (WitnessReport r : getUnreportedReports(playerUUID)) {
+            int severity = r.getCrimeType().getSeverity();
+            if (severity > bestSeverity) { bestSeverity = severity; best = r; }
+        }
+        return best;
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -620,7 +632,8 @@ public class WitnessManager extends AbstractPersistenceManager<WitnessManager.Wi
 
     @Override
     protected String getHealthDetails() {
-        int totalReports = reportsByCriminal.values().stream().mapToInt(List::size).sum();
+        int totalReports = 0;
+        for (List<WitnessReport> reports : reportsByCriminal.values()) totalReports += reports.size();
         return String.format("%d Berichte, %d Gesuchte", totalReports, wantedPlayers.size());
     }
 
@@ -647,7 +660,8 @@ public class WitnessManager extends AbstractPersistenceManager<WitnessManager.Wi
 
     @Override
     public String toString() {
-        int totalReports = reportsByCriminal.values().stream().mapToInt(List::size).sum();
+        int totalReports = 0;
+        for (List<WitnessReport> reports : reportsByCriminal.values()) totalReports += reports.size();
         return String.format("WitnessManager{reports=%d, wanted=%d}",
             totalReports, wantedPlayers.size());
     }

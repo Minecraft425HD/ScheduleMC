@@ -73,13 +73,17 @@ public class RumorNetwork {
         List<Rumor> playerRumors = rumorsByPlayer.computeIfAbsent(subject, k -> new ArrayList<>());
 
         // Prüfen ob gleiches Gerücht schon existiert
-        Optional<Rumor> existing = playerRumors.stream()
-            .filter(r -> r.getType() == rumor.getType())
-            .findFirst();
+        Rumor existing = null;
+        for (Rumor r : playerRumors) {
+            if (r.getType() == rumor.getType()) {
+                existing = r;
+                break;
+            }
+        }
 
-        if (existing.isPresent()) {
+        if (existing != null) {
             // Verstärken statt duplizieren
-            existing.get().reinforce(lastKnownDay);
+            existing.reinforce(lastKnownDay);
         } else {
             // PERFORMANCE: Limit einhalten - sortiere einmal statt Stream pro Iteration
             // Vorher: Stream-Erstellung in While-Schleife (O(n) pro Iteration)
@@ -121,19 +125,27 @@ public class RumorNetwork {
      * Holt alle Gerüchte eines bestimmten Typs über einen Spieler
      */
     public List<Rumor> getRumorsOfType(UUID playerUUID, RumorType type) {
-        return getRumorsAbout(playerUUID).stream()
-            .filter(r -> r.getType() == type)
-            .toList();
+        List<Rumor> all = getRumorsAbout(playerUUID);
+        List<Rumor> result = new ArrayList<>();
+        for (Rumor r : all) {
+            if (r.getType() == type) {
+                result.add(r);
+            }
+        }
+        return result;
     }
 
     /**
      * Berechnet die Gesamt-Reputation eines Spielers basierend auf Gerüchten
      */
     public int calculateReputationFromRumors(UUID playerUUID) {
-        return getRumorsAbout(playerUUID).stream()
-            .filter(Rumor::isCredible)
-            .mapToInt(Rumor::getEffectiveReputationImpact)
-            .sum();
+        int sum = 0;
+        for (Rumor r : getRumorsAbout(playerUUID)) {
+            if (r.isCredible()) {
+                sum += r.getEffectiveReputationImpact();
+            }
+        }
+        return sum;
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -183,9 +195,14 @@ public class RumorNetwork {
      */
     public List<Rumor> getRumorsKnownByNPC(UUID npcUUID, UUID playerUUID) {
         Set<String> knownKeys = npcKnownRumors.getOrDefault(npcUUID, Collections.emptySet());
-        return getRumorsAbout(playerUUID).stream()
-            .filter(r -> knownKeys.contains(createRumorKey(r)))
-            .toList();
+        List<Rumor> all = getRumorsAbout(playerUUID);
+        List<Rumor> result = new ArrayList<>();
+        for (Rumor r : all) {
+            if (knownKeys.contains(createRumorKey(r))) {
+                result.add(r);
+            }
+        }
+        return result;
     }
 
     private String createRumorKey(Rumor rumor) {
@@ -203,9 +220,9 @@ public class RumorNetwork {
         lastKnownDay = currentDay;
 
         // Abgelaufene Gerüchte entfernen
-        rumorsByPlayer.values().forEach(rumors ->
-            rumors.removeIf(r -> r.isExpired(currentDay) || !r.isCredible())
-        );
+        for (List<Rumor> rumors : rumorsByPlayer.values()) {
+            rumors.removeIf(r -> r.isExpired(currentDay) || !r.isCredible());
+        }
 
         // Leere Listen entfernen
         rumorsByPlayer.entrySet().removeIf(e -> e.getValue().isEmpty());
@@ -252,8 +269,7 @@ public class RumorNetwork {
         UUID npc2UUID = npc2.getNpcData().getNpcUUID();
 
         // Alle Spieler-UUIDs die beide NPCs kennen
-        Set<UUID> allPlayers = new HashSet<>();
-        rumorsByPlayer.keySet().forEach(allPlayers::add);
+        Set<UUID> allPlayers = new HashSet<>(rumorsByPlayer.keySet());
 
         for (UUID playerUUID : allPlayers) {
             List<Rumor> rumors = getRumorsAbout(playerUUID);
@@ -278,16 +294,24 @@ public class RumorNetwork {
      * Prüft ob es negative Gerüchte über einen Spieler gibt
      */
     public boolean hasNegativeRumors(UUID playerUUID) {
-        return getRumorsAbout(playerUUID).stream()
-            .anyMatch(r -> r.getType().isNegative() && r.isCredible());
+        for (Rumor r : getRumorsAbout(playerUUID)) {
+            if (r.getType().isNegative() && r.isCredible()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
      * Prüft ob es kriminelle Gerüchte über einen Spieler gibt
      */
     public boolean hasCrimeRumors(UUID playerUUID) {
-        return getRumorsAbout(playerUUID).stream()
-            .anyMatch(r -> r.getType().isCrimeRelated() && r.isCredible());
+        for (Rumor r : getRumorsAbout(playerUUID)) {
+            if (r.getType().isCrimeRelated() && r.isCredible()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -295,10 +319,18 @@ public class RumorNetwork {
      */
     @Nullable
     public Rumor getMostSevereRumor(UUID playerUUID) {
-        return getRumorsAbout(playerUUID).stream()
-            .filter(Rumor::isCredible)
-            .min(Comparator.comparingInt(r -> r.getType().getReputationImpact()))
-            .orElse(null);
+        Rumor best = null;
+        int bestImpact = Integer.MAX_VALUE;
+        for (Rumor r : getRumorsAbout(playerUUID)) {
+            if (r.isCredible()) {
+                int impact = r.getType().getReputationImpact();
+                if (impact < bestImpact) {
+                    bestImpact = impact;
+                    best = r;
+                }
+            }
+        }
+        return best;
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -365,7 +397,10 @@ public class RumorNetwork {
 
     @Override
     public String toString() {
-        int totalRumors = rumorsByPlayer.values().stream().mapToInt(List::size).sum();
+        int totalRumors = 0;
+        for (List<Rumor> rumors : rumorsByPlayer.values()) {
+            totalRumors += rumors.size();
+        }
         return String.format("RumorNetwork{totalRumors=%d, playersAffected=%d}",
             totalRumors, rumorsByPlayer.size());
     }
