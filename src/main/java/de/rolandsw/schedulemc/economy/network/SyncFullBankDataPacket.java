@@ -143,7 +143,7 @@ public class SyncFullBankDataPacket {
             }
             buf.writeDouble(t.amount);
             buf.writeLong(t.timestamp);
-            buf.writeUtf(t.description);
+            buf.writeUtf(t.description != null ? t.description : "");
             buf.writeDouble(t.balanceAfter);
         }
 
