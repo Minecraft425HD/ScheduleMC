@@ -84,30 +84,30 @@ public class WetProcessingStationScreen extends AbstractContainerScreen<WetProce
         int y = this.topPos;
 
         // Title
-        graphics.drawString(this.font, "Nassaufbereitungsstation", x + 8, y + 6, 0xFFFFFF, false);
+        graphics.drawString(this.font, Component.translatable("gui.coffee.wet_processing").getString(), x + 8, y + 6, 0xFFFFFF, false);
 
         // Current Stage
         if (menu.blockEntity != null) {
             WetProcessingStationBlockEntity.ProcessingStage stage = menu.blockEntity.getCurrentStage();
             String stageText = switch (stage) {
-                case IDLE -> "Bereit";
-                case PULPING -> "Entpulpen";
-                case FERMENTATION -> "Fermentation";
-                case WASHING -> "Waschen";
+                case IDLE -> Component.translatable("gui.coffee.stage_idle").getString();
+                case PULPING -> Component.translatable("gui.coffee.stage_pulping").getString();
+                case FERMENTATION -> Component.translatable("gui.coffee.stage_fermentation").getString();
+                case WASHING -> Component.translatable("gui.coffee.stage_washing").getString();
             };
-            graphics.drawString(this.font, "Phase: " + stageText, x + 8, y + 22, 0xCCCCCC, false);
+            graphics.drawString(this.font, Component.translatable("gui.coffee.stage_label", stageText).getString(), x + 8, y + 22, 0xCCCCCC, false);
 
             // Progress Prozent
             float percentage = menu.blockEntity.getProcessingPercentage();
             if (percentage > 0 && stage != WetProcessingStationBlockEntity.ProcessingStage.IDLE) {
                 int percent = (int) (100 * percentage);
-                graphics.drawString(this.font, percent + "%", x + 80, y + 56, 0x2196F3, false);
+                graphics.drawString(this.font, Component.translatable("gui.progress_percent", percent).getString(), x + 80, y + 56, 0x2196F3, false);
             }
         }
 
         // Labels
-        graphics.drawString(this.font, "Kirsche", x + 44, y + 56, 0xCCCCCC, false);
-        graphics.drawString(this.font, "Bohne", x + 108, y + 56, 0xCCCCCC, false);
+        graphics.drawString(this.font, Component.translatable("gui.coffee.label_cherry").getString(), x + 44, y + 56, 0xCCCCCC, false);
+        graphics.drawString(this.font, Component.translatable("gui.coffee.label_bean").getString(), x + 108, y + 56, 0xCCCCCC, false);
     }
 
     @Override

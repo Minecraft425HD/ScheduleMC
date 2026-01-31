@@ -82,22 +82,22 @@ public class SmallDryingTrayScreen extends AbstractContainerScreen<SmallDryingTr
         int y = this.topPos;
 
         // Title
-        graphics.drawString(this.font, "Kleine Kaffee-Trocknungsschale", x + 8, y + 6, 0xFFFFFF, false);
+        graphics.drawString(this.font, Component.translatable("gui.coffee.small_drying_tray").getString(), x + 8, y + 6, 0xFFFFFF, false);
 
         // Kapazität
-        graphics.drawString(this.font, "Max: 10 Kirschen", x + 8, y + 22, 0xCCCCCC, false);
+        graphics.drawString(this.font, Component.translatable("gui.coffee.capacity_cherries", 10).getString(), x + 8, y + 22, 0xCCCCCC, false);
 
         // Progress Prozent
         int progress = menu.getProgress();
         int maxProgress = menu.getMaxProgress();
         if (maxProgress > 0 && progress > 0) {
             int percent = (int) (100 * ((float) progress / maxProgress));
-            graphics.drawString(this.font, percent + "%", x + 80, y + 56, 0xD2691E, false);
+            graphics.drawString(this.font, Component.translatable("gui.progress_percent", percent).getString(), x + 80, y + 56, 0xD2691E, false);
         }
 
         // Labels
-        graphics.drawString(this.font, "Kirsche", x + 44, y + 56, 0xCCCCCC, false);
-        graphics.drawString(this.font, "Bohne", x + 108, y + 56, 0xCCCCCC, false);
+        graphics.drawString(this.font, Component.translatable("gui.coffee.label_cherry").getString(), x + 44, y + 56, 0xCCCCCC, false);
+        graphics.drawString(this.font, Component.translatable("gui.coffee.label_bean").getString(), x + 108, y + 56, 0xCCCCCC, false);
     }
 
     @Override

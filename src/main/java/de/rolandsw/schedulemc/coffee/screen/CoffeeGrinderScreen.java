@@ -147,27 +147,27 @@ public class CoffeeGrinderScreen extends AbstractContainerScreen<CoffeeGrinderMe
         int y = this.topPos;
 
         // Title
-        graphics.drawString(this.font, "Kaffeemühle", x + 8, y + 6, 0xFFFFFF, false);
+        graphics.drawString(this.font, Component.translatable("gui.coffee.grinder").getString(), x + 8, y + 6, 0xFFFFFF, false);
 
         // Progress Prozent
         if (menu.blockEntity != null) {
             float percentage = menu.blockEntity.getGrindingPercentage();
             if (percentage > 0) {
                 int percent = (int) (100 * percentage);
-                graphics.drawString(this.font, percent + "%", x + 80, y + 56, 0x8B4513, false);
+                graphics.drawString(this.font, Component.translatable("gui.progress_percent", percent).getString(), x + 80, y + 56, 0x8B4513, false);
             }
         }
 
         // Labels
-        graphics.drawString(this.font, "Geröstet", x + 40, y + 56, 0xCCCCCC, false);
-        graphics.drawString(this.font, "Gemahlen", x + 100, y + 56, 0xCCCCCC, false);
+        graphics.drawString(this.font, Component.translatable("gui.coffee.label_roasted").getString(), x + 40, y + 56, 0xCCCCCC, false);
+        graphics.drawString(this.font, Component.translatable("gui.coffee.label_ground").getString(), x + 100, y + 56, 0xCCCCCC, false);
 
         // Grind Size Button Labels
         int buttonY = y + 67;
-        graphics.drawString(this.font, "XFein", x + 12, buttonY + 4, 0xFFFFFF, false);
-        graphics.drawString(this.font, "Fein", x + 50, buttonY + 4, 0xFFFFFF, false);
-        graphics.drawString(this.font, "Mittel", x + 84, buttonY + 4, 0xFFFFFF, false);
-        graphics.drawString(this.font, "Grob", x + 124, buttonY + 4, 0xFFFFFF, false);
+        graphics.drawString(this.font, Component.translatable("gui.coffee.grind_xfine").getString(), x + 12, buttonY + 4, 0xFFFFFF, false);
+        graphics.drawString(this.font, Component.translatable("gui.coffee.grind_fine").getString(), x + 50, buttonY + 4, 0xFFFFFF, false);
+        graphics.drawString(this.font, Component.translatable("gui.coffee.grind_medium").getString(), x + 84, buttonY + 4, 0xFFFFFF, false);
+        graphics.drawString(this.font, Component.translatable("gui.coffee.grind_coarse").getString(), x + 124, buttonY + 4, 0xFFFFFF, false);
     }
 
     @Override
