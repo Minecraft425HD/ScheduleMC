@@ -60,6 +60,23 @@ public class CreditAdvisorScreen extends AbstractContainerScreen<CreditAdvisorMe
     // Ausgewählter Kredittyp für Details
     private CreditLoan.CreditLoanType selectedLoanType = null;
 
+    // PERFORMANCE: Cache static translatable strings
+    private String cachedHeaderText;
+    private String cachedAvailableCreditsText;
+    private String cachedYourRatingText;
+    private String cachedScoreLabelText;
+    private String cachedInterestLabelText;
+    private String cachedEightPercentText;
+    private String cachedTwelvePercentText;
+    private String cachedFifteenPercentText;
+    private String cachedTenPercentText;
+    private String cachedDurationLabelText;
+    private String cachedFourteenDaysText;
+    private String cachedTwentyEightDaysText;
+    private String cachedFiftySixDaysText;
+    private String cachedNinetyDaysText;
+    private String cachedLowRatingWarningText;
+
     public CreditAdvisorScreen(CreditAdvisorMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.imageWidth = 280;
@@ -69,6 +86,23 @@ public class CreditAdvisorScreen extends AbstractContainerScreen<CreditAdvisorMe
     @Override
     protected void init() {
         super.init();
+
+        // Populate cached translatable strings
+        cachedHeaderText = Component.translatable("screen.credit_advisor.header").getString();
+        cachedAvailableCreditsText = Component.translatable("screen.credit_advisor.available_credits").getString();
+        cachedYourRatingText = Component.translatable("screen.credit_advisor.your_rating").getString();
+        cachedScoreLabelText = Component.translatable("screen.credit_advisor.score_label").getString();
+        cachedInterestLabelText = Component.translatable("screen.credit_advisor.interest_label").getString();
+        cachedEightPercentText = Component.translatable("gui.npc.credit.8_percent").getString();
+        cachedTwelvePercentText = Component.translatable("gui.npc.credit.12_percent").getString();
+        cachedFifteenPercentText = Component.translatable("gui.npc.credit.15_percent").getString();
+        cachedTenPercentText = Component.translatable("gui.npc.credit.10_percent").getString();
+        cachedDurationLabelText = Component.translatable("screen.credit_advisor.duration_label").getString();
+        cachedFourteenDaysText = Component.translatable("gui.npc.credit.14days").getString();
+        cachedTwentyEightDaysText = Component.translatable("gui.npc.credit.28days").getString();
+        cachedFiftySixDaysText = Component.translatable("gui.npc.credit.56days").getString();
+        cachedNinetyDaysText = Component.translatable("gui.npc.credit.90days").getString();
+        cachedLowRatingWarningText = Component.translatable("screen.credit_advisor.low_rating_warning").getString();
 
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
@@ -236,13 +270,13 @@ public class CreditAdvisorScreen extends AbstractContainerScreen<CreditAdvisorMe
         int y = (height - imageHeight) / 2;
 
         // Header
-        guiGraphics.drawString(this.font, Component.translatable("screen.credit_advisor.header").getString(), x + 95, y + 6, 0x404040, false);
+        guiGraphics.drawString(this.font, cachedHeaderText, x + 95, y + 6, 0x404040, false);
 
         // Bonitätsanzeige
         renderCreditScore(guiGraphics, x, y);
 
         // Verfügbare Kredite Header
-        guiGraphics.drawString(this.font, Component.translatable("screen.credit_advisor.available_credits").getString(), x + 10, y + 72, 0x606060, false);
+        guiGraphics.drawString(this.font, cachedAvailableCreditsText, x + 10, y + 72, 0x606060, false);
 
         // Kredit-Details (Zinsen, Laufzeit)
         renderLoanDetails(guiGraphics, x, y);
@@ -263,7 +297,7 @@ public class CreditAdvisorScreen extends AbstractContainerScreen<CreditAdvisorMe
         guiGraphics.fill(x + 10, boxY, x + 270, boxY + 45, 0x44000000);
 
         // "Ihre Bonität:" Label
-        guiGraphics.drawString(this.font, Component.translatable("screen.credit_advisor.your_rating").getString(), x + 15, boxY + 5, 0x808080, false);
+        guiGraphics.drawString(this.font, cachedYourRatingText, x + 15, boxY + 5, 0x808080, false);
 
         // Sterne
         String stars = creditRating.getStarsString();
@@ -274,7 +308,7 @@ public class CreditAdvisorScreen extends AbstractContainerScreen<CreditAdvisorMe
             x + 145, boxY + 5, creditRating.getColor(), false);
 
         // Score-Zahl
-        String scoreLabel = Component.translatable("screen.credit_advisor.score_label").getString() + creditScore + "/1000";
+        String scoreLabel = cachedScoreLabelText + creditScore + "/1000";
         guiGraphics.drawString(this.font, scoreLabel, x + 15, boxY + 18, 0xAAAAAA, false);
 
         // Max Kreditbetrag
@@ -294,21 +328,21 @@ public class CreditAdvisorScreen extends AbstractContainerScreen<CreditAdvisorMe
         int detailY = y + 135;
 
         // Kleine Info unter den Buttons
-        guiGraphics.drawString(this.font, Component.translatable("screen.credit_advisor.interest_label").getString(), x + 10, detailY, 0x808080, false);
-        guiGraphics.drawString(this.font, Component.translatable("gui.npc.credit.8_percent").getString(), x + 55, detailY, 0xFFAAAA, false);
-        guiGraphics.drawString(this.font, Component.translatable("gui.npc.credit.12_percent").getString(), x + 80, detailY, 0xFFAAAA, false);
-        guiGraphics.drawString(this.font, Component.translatable("gui.npc.credit.15_percent").getString(), x + 115, detailY, 0xFFAAAA, false);
-        guiGraphics.drawString(this.font, Component.translatable("gui.npc.credit.10_percent").getString(), x + 150, detailY, 0xFFAAAA, false);
+        guiGraphics.drawString(this.font, cachedInterestLabelText, x + 10, detailY, 0x808080, false);
+        guiGraphics.drawString(this.font, cachedEightPercentText, x + 55, detailY, 0xFFAAAA, false);
+        guiGraphics.drawString(this.font, cachedTwelvePercentText, x + 80, detailY, 0xFFAAAA, false);
+        guiGraphics.drawString(this.font, cachedFifteenPercentText, x + 115, detailY, 0xFFAAAA, false);
+        guiGraphics.drawString(this.font, cachedTenPercentText, x + 150, detailY, 0xFFAAAA, false);
 
-        guiGraphics.drawString(this.font, Component.translatable("screen.credit_advisor.duration_label").getString(), x + 10, detailY + 12, 0x808080, false);
-        guiGraphics.drawString(this.font, Component.translatable("gui.npc.credit.14days").getString(), x + 55, detailY + 12, 0xAAAAFF, false);
-        guiGraphics.drawString(this.font, Component.translatable("gui.npc.credit.28days").getString(), x + 80, detailY + 12, 0xAAAAFF, false);
-        guiGraphics.drawString(this.font, Component.translatable("gui.npc.credit.56days").getString(), x + 115, detailY + 12, 0xAAAAFF, false);
-        guiGraphics.drawString(this.font, Component.translatable("gui.npc.credit.90days").getString(), x + 150, detailY + 12, 0xAAAAFF, false);
+        guiGraphics.drawString(this.font, cachedDurationLabelText, x + 10, detailY + 12, 0x808080, false);
+        guiGraphics.drawString(this.font, cachedFourteenDaysText, x + 55, detailY + 12, 0xAAAAFF, false);
+        guiGraphics.drawString(this.font, cachedTwentyEightDaysText, x + 80, detailY + 12, 0xAAAAFF, false);
+        guiGraphics.drawString(this.font, cachedFiftySixDaysText, x + 115, detailY + 12, 0xAAAAFF, false);
+        guiGraphics.drawString(this.font, cachedNinetyDaysText, x + 150, detailY + 12, 0xAAAAFF, false);
 
         // Hinweis bei niedrigem Rating
         if (creditRating.ordinal() >= CreditScore.CreditRating.CCC.ordinal()) {
-            guiGraphics.drawString(this.font, Component.translatable("screen.credit_advisor.low_rating_warning").getString(),
+            guiGraphics.drawString(this.font, cachedLowRatingWarningText,
                 x + 10, detailY + 28, 0xFF5555, false);
         }
     }

@@ -51,6 +51,26 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
     // Close button
     private Button closeButton;
 
+    // PERFORMANCE: Cache static translatable strings (eliminates ~13 Component allocations per frame)
+    private String cachedStockMarketStr;
+    private String cachedTradePanelStr;
+    private String cachedHigh24hStr;
+    private String cachedLow24hStr;
+    private String cachedTaxHintStr;
+    private String cachedPortfolioStr;
+    private String cachedBalanceLabelStr;
+    private String cachedHoldingsStr;
+    private String cachedTotalStr;
+    private String cachedTitleStr;
+
+    // PERFORMANCE: Cache dynamic strings - only recompute when values change
+    private int lastCachedQuantity = -1;
+    private String cachedQuantityStr = "";
+    private String lastCachedCostKey = "";
+    private String cachedCostStr = "";
+    private int lastCachedPlayerStock = -1;
+    private String cachedOwnStr = "";
+
     public BoerseScreen(BoerseMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.imageWidth = 256;
@@ -123,6 +143,18 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
 
         // Initial stock selection
         selectStock(StockTradePacket.StockType.GOLD);
+
+        // PERFORMANCE: Cache static translatable strings once in init()
+        cachedStockMarketStr = Component.translatable("gui.boerse.stock_market").getString();
+        cachedTradePanelStr = Component.translatable("gui.boerse.trade_panel").getString();
+        cachedHigh24hStr = Component.translatable("gui.boerse.high_24h").getString();
+        cachedLow24hStr = Component.translatable("gui.boerse.low_24h").getString();
+        cachedTaxHintStr = Component.translatable("gui.boerse.tax_hint").getString();
+        cachedPortfolioStr = Component.translatable("gui.boerse.portfolio").getString();
+        cachedBalanceLabelStr = Component.translatable("gui.boerse.balance_label").getString();
+        cachedHoldingsStr = Component.translatable("gui.boerse.holdings").getString();
+        cachedTotalStr = Component.translatable("gui.boerse.total").getString();
+        cachedTitleStr = Component.translatable("gui.boerse.title").getString();
     }
 
     /**
@@ -219,20 +251,22 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
         int y = (height - imageHeight) / 2;
 
         // === LEFT PANEL: Stock Market Overview ===
-        guiGraphics.drawString(this.font, Component.translatable("gui.boerse.stock_market").getString(), x + 8, y + 22, 0x404040, false);
+        guiGraphics.drawString(this.font, cachedStockMarketStr, x + 8, y + 22, 0x404040, false);
 
         // Render each stock row
         renderStockRow(guiGraphics, x + 7, y + 42, StockTradePacket.StockType.GOLD);
         renderStockRow(guiGraphics, x + 7, y + 70, StockTradePacket.StockType.DIAMOND);
         renderStockRow(guiGraphics, x + 7, y + 98, StockTradePacket.StockType.EMERALD);
 
-        // === MINI CHARTS ===
-        renderMiniChart(guiGraphics, x + 8, y + 125, 120, 30, ClientBankDataCache.getGoldHistory(), 0xFFAA00);
-        renderMiniChart(guiGraphics, x + 8, y + 125, 120, 30, ClientBankDataCache.getDiamondHistory(), 0x55FFFF);
-        renderMiniChart(guiGraphics, x + 8, y + 125, 120, 30, ClientBankDataCache.getEmeraldHistory(), 0x55FF55);
+        // === MINI CHARTS (only render selected stock chart to avoid overlapping waste) ===
+        switch (selectedStock) {
+            case GOLD -> renderMiniChart(guiGraphics, x + 8, y + 125, 120, 30, ClientBankDataCache.getGoldHistory(), 0xFFAA00);
+            case DIAMOND -> renderMiniChart(guiGraphics, x + 8, y + 125, 120, 30, ClientBankDataCache.getDiamondHistory(), 0x55FFFF);
+            case EMERALD -> renderMiniChart(guiGraphics, x + 8, y + 125, 120, 30, ClientBankDataCache.getEmeraldHistory(), 0x55FF55);
+        }
 
         // === RIGHT PANEL: Trade Info ===
-        guiGraphics.drawString(this.font, Component.translatable("gui.boerse.trade_panel").getString(), x + 137, y + 22, 0x404040, false);
+        guiGraphics.drawString(this.font, cachedTradePanelStr, x + 137, y + 22, 0x404040, false);
 
         // Selected stock info
         String stockName = selectedStock.getDisplayName();
@@ -245,40 +279,53 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
         // Statistics
         double high = getHighPrice(selectedStock);
         double low = getLowPrice(selectedStock);
-        double avg = getAvgPrice(selectedStock);
 
-        guiGraphics.drawString(this.font, Component.translatable("gui.boerse.high_24h").getString(), x + 137, y + 50, 0x808080, false);
+        guiGraphics.drawString(this.font, cachedHigh24hStr, x + 137, y + 50, 0x808080, false);
         guiGraphics.drawString(this.font, String.format("%.0f\u20ac", high), x + 210, y + 50, 0x00AA00, false);
 
-        guiGraphics.drawString(this.font, Component.translatable("gui.boerse.low_24h").getString(), x + 137, y + 58, 0x808080, false);
+        guiGraphics.drawString(this.font, cachedLow24hStr, x + 137, y + 58, 0x808080, false);
         guiGraphics.drawString(this.font, String.format("%.0f\u20ac", low), x + 210, y + 58, 0xFF5555, false);
 
-        // Quantity & Cost
+        // Quantity & Cost - PERFORMANCE: only recompute strings when values change
         int quantity = quantitySlider.getQuantity();
         double totalCost = currentPrice * quantity;
 
-        guiGraphics.drawString(this.font, Component.translatable("gui.boerse.quantity", quantity).getString(), x + 137, y + 135, 0x404040, false);
-        guiGraphics.drawString(this.font, Component.translatable("gui.boerse.cost", String.format("%.0f", totalCost)).getString(), x + 137, y + 145, 0xFFAA00, false);
-        guiGraphics.drawString(this.font, Component.translatable("gui.boerse.own", playerStock).getString(), x + 137, y + 155, 0x606060, false);
+        if (quantity != lastCachedQuantity) {
+            lastCachedQuantity = quantity;
+            cachedQuantityStr = Component.translatable("gui.boerse.quantity", quantity).getString();
+        }
+        String costKey = String.format("%.0f", totalCost);
+        if (!costKey.equals(lastCachedCostKey)) {
+            lastCachedCostKey = costKey;
+            cachedCostStr = Component.translatable("gui.boerse.cost", costKey).getString();
+        }
+        if (playerStock != lastCachedPlayerStock) {
+            lastCachedPlayerStock = playerStock;
+            cachedOwnStr = Component.translatable("gui.boerse.own", playerStock).getString();
+        }
+
+        guiGraphics.drawString(this.font, cachedQuantityStr, x + 137, y + 135, 0x404040, false);
+        guiGraphics.drawString(this.font, cachedCostStr, x + 137, y + 145, 0xFFAA00, false);
+        guiGraphics.drawString(this.font, cachedOwnStr, x + 137, y + 155, 0x606060, false);
 
         // Steuer-Hinweis (falls Spieler Items besitzt)
         if (playerStock > 0) {
-            guiGraphics.drawString(this.font, Component.translatable("gui.boerse.tax_hint").getString(), x + 137, y + 164, 0xFFAA00, false);
+            guiGraphics.drawString(this.font, cachedTaxHintStr, x + 137, y + 164, 0xFFAA00, false);
         }
 
         // === BOTTOM PANEL: Portfolio ===
-        guiGraphics.drawString(this.font, Component.translatable("gui.boerse.portfolio").getString(), x + 8, y + 165, 0x404040, false);
+        guiGraphics.drawString(this.font, cachedPortfolioStr, x + 8, y + 165, 0x404040, false);
 
         double balance = ClientBankDataCache.getBalance();
         double portfolioValue = calculatePortfolioValue();
 
-        guiGraphics.drawString(this.font, Component.translatable("gui.boerse.balance_label").getString(), x + 8, y + 177, 0x808080, false);
+        guiGraphics.drawString(this.font, cachedBalanceLabelStr, x + 8, y + 177, 0x808080, false);
         guiGraphics.drawString(this.font, String.format("%.2f\u20ac", balance), x + 70, y + 177, 0x00AA00, false);
 
-        guiGraphics.drawString(this.font, Component.translatable("gui.boerse.holdings").getString(), x + 8, y + 186, 0x808080, false);
+        guiGraphics.drawString(this.font, cachedHoldingsStr, x + 8, y + 186, 0x808080, false);
         guiGraphics.drawString(this.font, String.format("%.0f\u20ac", portfolioValue), x + 70, y + 186, 0xFFAA00, false);
 
-        guiGraphics.drawString(this.font, Component.translatable("gui.boerse.total").getString(), x + 135, y + 177, 0x808080, false);
+        guiGraphics.drawString(this.font, cachedTotalStr, x + 135, y + 177, 0x808080, false);
         guiGraphics.drawString(this.font, String.format("%.0f\u20ac", balance + portfolioValue),
             x + 185, y + 177, 0x55FFFF, false);
     }
@@ -305,9 +352,16 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
     private void renderMiniChart(GuiGraphics guiGraphics, int x, int y, int width, int height, List<Double> history, int color) {
         if (history == null || history.size() < 2) return;
 
-        // Find min/max for scaling
-        double min = history.stream().mapToDouble(Double::doubleValue).min().orElse(0);
-        double max = history.stream().mapToDouble(Double::doubleValue).max().orElse(100);
+        // PERFORMANCE: Simple loop statt .stream().min()/.max() (eliminiert Stream + OptionalDouble Allokation)
+        double min = Double.MAX_VALUE;
+        double max = -Double.MAX_VALUE;
+        for (int idx = 0, sz = history.size(); idx < sz; idx++) {
+            double val = history.get(idx);
+            if (val < min) min = val;
+            if (val > max) max = val;
+        }
+        if (min == Double.MAX_VALUE) min = 0;
+        if (max == -Double.MAX_VALUE) max = 100;
         double range = max - min;
         if (range < 0.01) range = 1.0; // Avoid division by zero
 
@@ -400,7 +454,7 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
 
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        guiGraphics.drawString(this.font, Component.translatable("gui.boerse.title").getString(), 8, 6, 0x404040, false);
+        guiGraphics.drawString(this.font, cachedTitleStr, 8, 6, 0x404040, false);
     }
 
     /**

@@ -97,6 +97,46 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
     // Close Button
     private Button closeButton;
 
+    // PERFORMANCE: Cache static translatable strings
+    private String cachedOverviewTitle;
+    private String cachedCash;
+    private String cachedCheckingBalance;
+    private String cachedSavings;
+    private String cachedTotal;
+    private String cachedLoading;
+    private String cachedCheckingTitle;
+    private String cachedBalance;
+    private String cachedCashBalance;
+    private String cachedDepositFromCash;
+    private String cachedWithdrawToCash;
+    private String cachedLimit;
+    private String cachedOverdrawnWarning;
+    private String cachedGoingToPrison;
+    private String cachedSavingsTitle;
+    private String cachedDepositFromChecking;
+    private String cachedWithdrawToChecking;
+    private String cachedInterest;
+    private String cachedMinimum;
+    private String cachedLockPeriod;
+    private String cachedTransferTitle;
+    private String cachedRecipientName;
+    private String cachedAmountLabel;
+    private String cachedAvailableBalance;
+    private String cachedDailyLimit;
+    private String cachedHistoryTitle;
+    private String cachedLoadingTransactions;
+    private String cachedNoTransactions;
+    private String cachedStandingOrdersTitle;
+    private String cachedNewStandingOrder;
+    private String cachedRecipient;
+    private String cachedInterval;
+    private String cachedMaxReached;
+    private String cachedActiveOrders;
+    private String cachedCreditPayment;
+    private String cachedIntervalDaily;
+    private String cachedNoStandingOrders;
+    private String cachedBanker;
+
     public BankerScreen(BankerMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.imageWidth = 280;
@@ -246,6 +286,46 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         closeButton = addRenderableWidget(Button.builder(Component.translatable("gui.common.close"), button -> {
             this.onClose();
         }).bounds(x + 210, y + 205, 60, 20).build());
+
+        // PERFORMANCE: Cache static translatable strings
+        cachedOverviewTitle = Component.translatable("gui.bank.overview_title").getString();
+        cachedCash = Component.translatable("gui.bank.cash").getString();
+        cachedCheckingBalance = Component.translatable("gui.bank.checking_balance").getString();
+        cachedSavings = Component.translatable("gui.bank.savings").getString();
+        cachedTotal = Component.translatable("gui.bank.total").getString();
+        cachedLoading = Component.translatable("gui.bank.loading").getString();
+        cachedCheckingTitle = Component.translatable("gui.bank.checking_title").getString();
+        cachedBalance = Component.translatable("gui.bank.balance").getString();
+        cachedCashBalance = Component.translatable("gui.bank.cash_balance").getString();
+        cachedDepositFromCash = Component.translatable("gui.bank.deposit_from_cash").getString();
+        cachedWithdrawToCash = Component.translatable("gui.bank.withdraw_to_cash").getString();
+        cachedLimit = Component.translatable("gui.bank.limit").getString();
+        cachedOverdrawnWarning = Component.translatable("gui.bank.overdrawn_warning").getString();
+        cachedGoingToPrison = Component.translatable("gui.bank.going_to_prison").getString();
+        cachedSavingsTitle = Component.translatable("gui.bank.savings_title").getString();
+        cachedDepositFromChecking = Component.translatable("gui.bank.deposit_from_checking").getString();
+        cachedWithdrawToChecking = Component.translatable("gui.bank.withdraw_to_checking").getString();
+        cachedInterest = Component.translatable("gui.bank.interest").getString();
+        cachedMinimum = Component.translatable("gui.bank.minimum").getString();
+        cachedLockPeriod = Component.translatable("gui.bank.lock_period").getString();
+        cachedTransferTitle = Component.translatable("gui.bank.transfer_title").getString();
+        cachedRecipientName = Component.translatable("gui.bank.recipient_name").getString();
+        cachedAmountLabel = Component.translatable("gui.bank.amount_label").getString();
+        cachedAvailableBalance = Component.translatable("gui.bank.available_balance").getString();
+        cachedDailyLimit = Component.translatable("gui.bank.daily_limit").getString();
+        cachedHistoryTitle = Component.translatable("gui.bank.history_title").getString();
+        cachedLoadingTransactions = Component.translatable("gui.bank.loading_transactions").getString();
+        cachedNoTransactions = Component.translatable("gui.bank.no_transactions").getString();
+        cachedStandingOrdersTitle = Component.translatable("gui.bank.standing_orders_title").getString();
+        cachedNewStandingOrder = Component.translatable("gui.bank.new_standing_order").getString();
+        cachedRecipient = Component.translatable("gui.bank.recipient").getString();
+        cachedInterval = Component.translatable("gui.bank.interval").getString();
+        cachedMaxReached = Component.translatable("gui.bank.max_reached").getString();
+        cachedActiveOrders = Component.translatable("gui.bank.active_orders").getString();
+        cachedCreditPayment = Component.translatable("gui.bank.credit_payment").getString();
+        cachedIntervalDaily = Component.translatable("gui.bank.interval_daily").getString();
+        cachedNoStandingOrders = Component.translatable("gui.bank.no_standing_orders").getString();
+        cachedBanker = Component.translatable("gui.bank.banker").getString();
 
         // Initial tab
         updateComponentVisibility();

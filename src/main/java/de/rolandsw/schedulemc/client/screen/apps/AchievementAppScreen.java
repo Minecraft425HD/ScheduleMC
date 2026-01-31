@@ -58,6 +58,15 @@ public class AchievementAppScreen extends Screen {
     private List<AchievementData> currentAchievements = new ArrayList<>();
     private AchievementData selectedAchievementData = null;
 
+    // PERFORMANCE: Cache static translatable strings (eliminates per-frame allocations)
+    private String cachedTitleStr;
+    private String cachedTotalProgressStr;
+    private String cachedCategoriesStr;
+    private String cachedNoAchievementsStr;
+    private String cachedUnlockedStr;
+    private String cachedInProgressStr;
+    private String cachedRewardStr;
+
     public AchievementAppScreen(Screen parent) {
         super(Component.translatable("gui.app.achievement.title"));
         this.parentScreen = parent;
@@ -77,6 +86,15 @@ public class AchievementAppScreen extends Screen {
 
         // Cache data
         refreshData();
+
+        // PERFORMANCE: Cache static translatable strings once in init()
+        cachedTitleStr = Component.translatable("gui.app.achievement.title").getString();
+        cachedTotalProgressStr = Component.translatable("gui.app.achievement.total_progress").getString();
+        cachedCategoriesStr = Component.translatable("gui.app.achievement.categories").getString();
+        cachedNoAchievementsStr = Component.translatable("gui.app.achievement.no_achievements").getString();
+        cachedUnlockedStr = Component.translatable("gui.app.achievement.unlocked").getString();
+        cachedInProgressStr = Component.translatable("gui.app.achievement.in_progress").getString();
+        cachedRewardStr = Component.translatable("gui.app.achievement.reward").getString();
 
         // Buttons basierend auf aktuellem View
         initButtons();
@@ -210,7 +228,7 @@ public class AchievementAppScreen extends Screen {
 
         // Header
         guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 28, 0xFF1A1A1A);
-        guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.achievement.title").getString(), leftPos + WIDTH / 2, topPos + 10, 0xFFFFFF);
+        guiGraphics.drawCenteredString(this.font, cachedTitleStr, leftPos + WIDTH / 2, topPos + 10, 0xFFFFFF);
 
         // Content basierend auf View
         int contentY = topPos + 32;
@@ -235,7 +253,7 @@ public class AchievementAppScreen extends Screen {
 
         // Fortschritts-Prozent
         double percentage = totalAchievements > 0 ? (double) unlockedAchievements / totalAchievements * 100.0 : 0;
-        guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.achievement.total_progress").getString(), leftPos + WIDTH / 2, startY + 5, 0xFFFFFF);
+        guiGraphics.drawCenteredString(this.font, cachedTotalProgressStr, leftPos + WIDTH / 2, startY + 5, 0xFFFFFF);
         guiGraphics.drawCenteredString(this.font,
             "§e" + unlockedAchievements + "§7/§e" + totalAchievements + " §7(" + String.format("%.1f%%", percentage) + ")",
             leftPos + WIDTH / 2, startY + 18, 0xFFFFFF);
@@ -258,7 +276,7 @@ public class AchievementAppScreen extends Screen {
             leftPos + WIDTH / 2, startY + 44, 0xFFFFFF);
 
         // Kategorien-Header
-        guiGraphics.drawString(this.font, Component.translatable("gui.app.achievement.categories").getString(), leftPos + 15, startY + 80, 0xFFAA00);
+        guiGraphics.drawString(this.font, cachedCategoriesStr, leftPos + 15, startY + 80, 0xFFAA00);
 
         // Kategorie-Buttons werden in initButtons() erstellt
     }
@@ -337,7 +355,7 @@ public class AchievementAppScreen extends Screen {
 
         // Empty State
         if (currentAchievements.isEmpty()) {
-            guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.achievement.no_achievements").getString(),
+            guiGraphics.drawCenteredString(this.font, cachedNoAchievementsStr,
                 leftPos + WIDTH / 2, listStartY + 20, 0xAAAAAA);
         }
 
@@ -403,14 +421,12 @@ public class AchievementAppScreen extends Screen {
             leftPos + WIDTH / 2, startY + 95, 0xFFFFFF);
 
         // Status
-        String statusText = unlocked ?
-            Component.translatable("gui.app.achievement.unlocked").getString() :
-            Component.translatable("gui.app.achievement.in_progress").getString();
+        String statusText = unlocked ? cachedUnlockedStr : cachedInProgressStr;
         guiGraphics.drawCenteredString(this.font, statusText,
             leftPos + WIDTH / 2, startY + 115, 0xFFFFFF);
 
         // Reward
-        guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.achievement.reward").getString(),
+        guiGraphics.drawCenteredString(this.font, cachedRewardStr,
             leftPos + WIDTH / 2, startY + 140, 0xAAAAAA);
         String rewardString = String.format("§a+%.2f€", ach.getTier().getRewardMoney());
         guiGraphics.drawCenteredString(this.font, rewardString,

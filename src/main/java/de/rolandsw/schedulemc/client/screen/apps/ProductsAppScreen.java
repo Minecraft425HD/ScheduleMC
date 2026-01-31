@@ -22,6 +22,13 @@ public class ProductsAppScreen extends Screen {
     private int leftPos;
     private int topPos;
 
+    // PERFORMANCE: Cache static translatable strings
+    private String cachedTitle;
+    private String cachedProductCatalog;
+    private String cachedAvailableProducts;
+    private String cachedProductA;
+    private String cachedProductB;
+
     public ProductsAppScreen(Screen parent) {
         super(Component.translatable("gui.app.products.title"));
         this.parentScreen = parent;
@@ -35,6 +42,13 @@ public class ProductsAppScreen extends Screen {
 
         // Positioniere oben mit Margin
         this.topPos = MARGIN_TOP;
+
+        // Cache translatable strings
+        this.cachedTitle = Component.translatable("gui.app.products.title").getString();
+        this.cachedProductCatalog = Component.translatable("gui.app.products.product_catalog").getString();
+        this.cachedAvailableProducts = Component.translatable("gui.app.products.available_products").getString();
+        this.cachedProductA = Component.translatable("gui.app.products.product_a").getString();
+        this.cachedProductB = Component.translatable("gui.app.products.product_b").getString();
 
         // Zurück-Button
         addRenderableWidget(Button.builder(Component.translatable("gui.app.products.back"), button -> {
@@ -54,19 +68,19 @@ public class ProductsAppScreen extends Screen {
 
         // Header
         guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 30, 0xFF1A1A1A);
-        guiGraphics.drawCenteredString(this.font, "\u00a76\u00a7l" + Component.translatable("gui.app.products.title").getString(), leftPos + WIDTH / 2, topPos + 12, 0xFFFFFF);
+        guiGraphics.drawCenteredString(this.font, "\u00a76\u00a7l" + cachedTitle, leftPos + WIDTH / 2, topPos + 12, 0xFFFFFF);
 
         // Content-Bereich
         int contentY = topPos + 40;
-        guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.products.product_catalog").getString(), leftPos + WIDTH / 2, contentY, 0xFFFFFF);
+        guiGraphics.drawCenteredString(this.font, cachedProductCatalog, leftPos + WIDTH / 2, contentY, 0xFFFFFF);
         contentY += 20;
 
         // Platzhalter für Produkte
-        guiGraphics.drawString(this.font, Component.translatable("gui.app.products.available_products").getString(), leftPos + 20, contentY, 0xAAAAAA);
+        guiGraphics.drawString(this.font, cachedAvailableProducts, leftPos + 20, contentY, 0xAAAAAA);
         contentY += 15;
-        guiGraphics.drawString(this.font, Component.translatable("gui.app.products.product_a").getString(), leftPos + 25, contentY, 0xFFFFFF);
+        guiGraphics.drawString(this.font, cachedProductA, leftPos + 25, contentY, 0xFFFFFF);
         contentY += 12;
-        guiGraphics.drawString(this.font, Component.translatable("gui.app.products.product_b").getString(), leftPos + 25, contentY, 0xFFFFFF);
+        guiGraphics.drawString(this.font, cachedProductB, leftPos + 25, contentY, 0xFFFFFF);
 
         super.render(guiGraphics, mouseX, mouseY, partialTick);
     }    @Override
