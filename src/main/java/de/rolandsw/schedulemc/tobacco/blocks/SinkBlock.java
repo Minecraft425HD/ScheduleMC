@@ -42,8 +42,8 @@ public class SinkBlock extends Block implements EntityBlock {
         // ═══════════════════════════════════════════════════════════
         if (heldItem.getItem() instanceof WateringCanItem) {
             if (WateringCanItem.isFull(heldItem)) {
-                player.displayClientMessage(Component.literal(
-                    "§e⚠ Gießkanne ist bereits voll!"
+                player.displayClientMessage(Component.translatable(
+                    "message.sink.watering_can_full"
                 ), true);
                 return InteractionResult.FAIL;
             }
@@ -56,9 +56,8 @@ public class SinkBlock extends Block implements EntityBlock {
                 sinkBE.onWaterUsed();
             }
 
-            player.displayClientMessage(Component.literal(
-                "§b✓ Gießkanne aufgefüllt!\n" +
-                "§7Wasser: §b1000/1000"
+            player.displayClientMessage(Component.translatable(
+                "message.sink.watering_can_filled"
             ), true);
 
             // Spiele Sound ab
@@ -70,10 +69,8 @@ public class SinkBlock extends Block implements EntityBlock {
         // ═══════════════════════════════════════════════════════════
         // INFO ANZEIGEN
         // ═══════════════════════════════════════════════════════════
-        player.displayClientMessage(Component.literal(
-            "§b═══ Waschbecken ═══\n" +
-            "§7Rechtsklick mit Gießkanne\n" +
-            "§7zum Auffüllen"
+        player.displayClientMessage(Component.translatable(
+            "message.sink.info"
         ), false);
 
         return InteractionResult.SUCCESS;

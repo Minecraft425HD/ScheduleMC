@@ -76,7 +76,7 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
     private void installItemContainer(EntityGenericVehicle vehicle, ServerPlayer player) {
         // Check if already installed
         if (vehicle.getPartByClass(PartContainer.class) != null) {
-            player.sendSystemMessage(Component.literal("Already installed!").withStyle(ChatFormatting.YELLOW));
+            player.sendSystemMessage(Component.translatable("message.vehicle.container_already_installed").withStyle(ChatFormatting.YELLOW));
             return;
         }
 
@@ -148,7 +148,7 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
     private void removeItemContainer(EntityGenericVehicle vehicle, ServerPlayer player) {
         PartContainer container = vehicle.getPartByClass(PartContainer.class);
         if (container == null) {
-            player.sendSystemMessage(Component.literal("No container installed!").withStyle(ChatFormatting.YELLOW));
+            player.sendSystemMessage(Component.translatable("message.vehicle.no_container_installed").withStyle(ChatFormatting.YELLOW));
             return;
         }
 
@@ -180,7 +180,7 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
     private void installFluidContainer(EntityGenericVehicle vehicle, ServerPlayer player) {
         // Check if already installed
         if (vehicle.getPartByClass(PartTankContainer.class) != null) {
-            player.sendSystemMessage(Component.literal("Already installed!").withStyle(ChatFormatting.YELLOW));
+            player.sendSystemMessage(Component.translatable("message.vehicle.container_already_installed").withStyle(ChatFormatting.YELLOW));
             return;
         }
 
@@ -252,7 +252,7 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
     private void removeFluidContainer(EntityGenericVehicle vehicle, ServerPlayer player) {
         PartTankContainer container = vehicle.getPartByClass(PartTankContainer.class);
         if (container == null) {
-            player.sendSystemMessage(Component.literal("No container installed!").withStyle(ChatFormatting.YELLOW));
+            player.sendSystemMessage(Component.translatable("message.vehicle.no_container_installed").withStyle(ChatFormatting.YELLOW));
             return;
         }
 

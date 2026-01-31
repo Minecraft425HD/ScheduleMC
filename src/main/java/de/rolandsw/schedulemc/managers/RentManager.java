@@ -193,9 +193,10 @@ public class RentManager {
             long hoursLeft = plot.getRentHoursLeft();
             
             if (hoursLeft <= 24 && hoursLeft > 0) {
-                player.sendSystemMessage(Component.literal(
-                    "§e⚠ Warnung: Die Miete für Plot §6" + plot.getPlotName() + 
-                    " §eläuft in §c" + hoursLeft + " Stunden §eab!"
+                player.sendSystemMessage(Component.translatable(
+                    "message.rent.expiring_warning",
+                    plot.getPlotName(),
+                    hoursLeft
                 ));
             }
         }

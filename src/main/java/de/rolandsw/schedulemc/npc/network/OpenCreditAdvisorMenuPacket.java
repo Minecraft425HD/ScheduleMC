@@ -39,16 +39,16 @@ public class OpenCreditAdvisorMenuPacket {
                 // Prüfe ob NPC ein Kreditberater ist
                 if (npc.getNpcType() != NPCType.BANK ||
                     npc.getBankCategory() != BankCategory.KREDITBERATER) {
-                    player.sendSystemMessage(Component.literal(
-                        "§c§lFehler: §7Dieser NPC ist kein Kreditberater!"
+                    player.sendSystemMessage(Component.translatable(
+                        "message.credit.error_not_advisor"
                     ));
                     return;
                 }
 
                 // Prüfe Distanz
                 if (player.distanceToSqr(npc) > 64.0D) {
-                    player.sendSystemMessage(Component.literal(
-                        "§c§lFehler: §7Du bist zu weit vom Kreditberater entfernt!"
+                    player.sendSystemMessage(Component.translatable(
+                        "message.credit.error_too_far"
                     ));
                     return;
                 }

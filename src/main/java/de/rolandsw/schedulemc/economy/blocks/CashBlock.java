@@ -86,8 +86,8 @@ public class CashBlock extends Block implements EntityBlock {
         double blockValue = getValue(level, pos);
 
         if (blockValue <= 0) {
-            player.displayClientMessage(Component.literal(
-                "§c✗ Block ist leer!"
+            player.displayClientMessage(Component.translatable(
+                "message.cash.block_empty"
             ), true);
             return;
         }
@@ -98,8 +98,8 @@ public class CashBlock extends Block implements EntityBlock {
         // Entferne Block komplett
         level.removeBlock(pos, false);
 
-        player.displayClientMessage(Component.literal(
-            "§a✓ " + String.format("%.0f€", blockValue) + " aufgesammelt"
+        player.displayClientMessage(Component.translatable(
+            "message.cash.collected", String.format("%.0f€", blockValue)
         ), true);
 
         level.playSound(null, pos, SoundEvents.METAL_BREAK, SoundSource.BLOCKS, 1.0f, 0.8f);

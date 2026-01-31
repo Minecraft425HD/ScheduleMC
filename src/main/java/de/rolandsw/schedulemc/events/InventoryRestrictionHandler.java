@@ -65,12 +65,12 @@ public class InventoryRestrictionHandler {
                     player.drop(stack, false);
                     player.getInventory().setItem(i, ItemStack.EMPTY);
 
-                    player.displayClientMessage(Component.literal(
-                        "§c⚠ Inventar gesperrt! Item wurde gedroppt."
+                    player.displayClientMessage(Component.translatable(
+                        "message.inventory.locked_item_dropped"
                     ), true);
                 } else {
-                    player.displayClientMessage(Component.literal(
-                        "§e⚠ Inventar gesperrt! Item wurde zur Hotbar verschoben."
+                    player.displayClientMessage(Component.translatable(
+                        "message.inventory.locked_item_moved"
                     ), true);
                 }
             }

@@ -61,9 +61,8 @@ public class RespawnHandler {
             // Bargeld überlebt Tod automatisch (ist im WalletManager gespeichert!)
             // Keine Aktion nötig - WalletManager ist UUID-basiert und persistent
 
-            player.displayClientMessage(Component.literal(
-                "§c☠ Du bist gestorben!\n" +
-                "§7Du wirst ins Krankenhaus gebracht..."
+            player.displayClientMessage(Component.translatable(
+                "event.respawn.death_message"
             ), false);
         });
     }
@@ -100,15 +99,11 @@ public class RespawnHandler {
         
         // Nachricht an Spieler
         if (actualFee > 0) {
-            player.displayClientMessage(Component.literal(
-                "§c╔════════════════════════╗\n" +
-                "§c║  §f⚕ KRANKENHAUSRECHNUNG §c║\n" +
-                "§c╠════════════════════════╣\n" +
-                "§7║ Behandlungskosten: §e" + String.format("%.0f€", HOSPITAL_FEE) + "\n" +
-                "§7║ Bezahlt: §c-" + String.format("%.0f€", actualFee) + "\n" +
-                "§7║ Verbleibendes Guthaben: §a" + String.format("%.0f€", newBalance) + "\n" +
-                "§c╚════════════════════════╝\n" +
-                "§7Gute Besserung!"
+            player.displayClientMessage(Component.translatable(
+                "event.respawn.hospital_bill",
+                String.format("%.0f€", HOSPITAL_FEE),
+                String.format("%.0f€", actualFee),
+                String.format("%.0f€", newBalance)
             ), false);
         } else {
             player.displayClientMessage(Component.translatable(

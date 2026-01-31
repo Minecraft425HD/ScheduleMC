@@ -137,7 +137,7 @@ public class CoffeePlantBlock extends Block {
                     int yield = level.random.nextInt(3) + 2; // 2-4 cherries
                     ItemStack cherries = new ItemStack(CoffeeItems.ARABICA_CHERRY.get(), yield);
                     Block.popResource(level, pos, cherries);
-                    player.displayClientMessage(Component.literal("§aCoffee cherries harvested! +" + yield), true);
+                    player.displayClientMessage(Component.translatable("message.coffee.cherries_harvested", yield), true);
                 } else {
                     player.displayClientMessage(Component.translatable(
                         "block.plant_pot.coffee_not_fully_grown",

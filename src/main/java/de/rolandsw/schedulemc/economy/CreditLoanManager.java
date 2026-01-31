@@ -137,11 +137,9 @@ public class CreditLoanManager extends AbstractPersistenceManager<Map<UUID, Cred
 
                     ServerPlayer player = server.getPlayerList().getPlayer(playerUUID);
                     if (player != null) {
-                        player.sendSystemMessage(Component.literal(
-                            "§a§l[KREDIT] Vollständig abbezahlt!\n" +
-                            "§7Kredit: §e" + loan.getType().getDisplayName().getString() + "\n" +
-                            "§aDu bist nun schuldenfrei!\n" +
-                            "§7Dein Kredit-Score wurde verbessert!"
+                        player.sendSystemMessage(Component.translatable(
+                            "message.credit.fully_repaid",
+                            loan.getType().getDisplayName().getString()
                         ));
                     }
                 }
@@ -151,12 +149,10 @@ public class CreditLoanManager extends AbstractPersistenceManager<Map<UUID, Cred
 
                 ServerPlayer player = server.getPlayerList().getPlayer(playerUUID);
                 if (player != null) {
-                    player.sendSystemMessage(Component.literal(
-                        "§c§l[KREDIT] Zahlung fehlgeschlagen!\n" +
-                        "§7Fällig: §c" + String.format("%.2f€", payment) + "\n" +
-                        "§7Kontostand: §e" + String.format("%.2f€", EconomyManager.getBalance(playerUUID)) + "\n" +
-                        "§c⚠ Dein Kredit-Score wurde verschlechtert!\n" +
-                        "§7Zahle Geld ein um weitere Strafen zu vermeiden!"
+                    player.sendSystemMessage(Component.translatable(
+                        "message.credit.payment_failed",
+                        String.format("%.2f", payment),
+                        String.format("%.2f", EconomyManager.getBalance(playerUUID))
                     ));
                 }
             }
