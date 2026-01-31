@@ -64,7 +64,7 @@ public class SoilBagItem extends Item {
         tooltip.add(Component.translatable("tooltip.soil_bag.contains", soilAmount));
         tooltip.add(Component.translatable("tooltip.soil_bag.enough_for_one_plant"));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal("§7Stack: §f" + type.getMaxStackSize()));
+        tooltip.add(Component.translatable("tooltip.soil_bag.stack_size", type.getMaxStackSize()));
         tooltip.add(Component.literal(""));
         tooltip.add(Component.translatable("tooltip.soil_bag.right_click_pot"));
     }

@@ -1,11 +1,13 @@
 package de.rolandsw.schedulemc.coffee;
 
+import net.minecraft.network.chat.Component;
+
 /**
  * Verarbeitungsmethoden für Kaffee
  */
 public enum CoffeeProcessingMethod {
-    WET("Wet Process", "§b", 1.3, "Clean, bright, acidic"),
-    DRY("Dry Process", "§e", 1.1, "Fruity, full-bodied, sweet");
+    WET("coffee.process.wet.name", "§b", 1.3, "coffee.process.wet.flavor"),
+    DRY("coffee.process.dry.name", "§e", 1.1, "coffee.process.dry.flavor");
 
     private final String displayName;
     private final String colorCode;
@@ -37,6 +39,6 @@ public enum CoffeeProcessingMethod {
     }
 
     public String getColoredName() {
-        return colorCode + displayName;
+        return colorCode + Component.translatable(displayName).getString();
     }
 }

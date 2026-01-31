@@ -1,13 +1,15 @@
 package de.rolandsw.schedulemc.coffee;
 
+import net.minecraft.network.chat.Component;
+
 /**
  * Röstgrade für Kaffee
  */
 public enum CoffeeRoastLevel {
-    LIGHT("Light Roast", "§e", 1.0, 200, "Sauer, fruchtig, heller Körper"),
-    MEDIUM("Medium Roast", "§6", 1.2, 220, "Balanced, süß, karamellisiert"),
-    DARK("Dark Roast", "§c", 1.4, 240, "Kräftig, bitter, voller Körper"),
-    ESPRESSO("Espresso Roast", "§4§l", 1.6, 260, "Sehr dunkel, ölig, intensiv");
+    LIGHT("coffee.roast.light.name", "§e", 1.0, 200, "coffee.roast.light.flavor"),
+    MEDIUM("coffee.roast.medium.name", "§6", 1.2, 220, "coffee.roast.medium.flavor"),
+    DARK("coffee.roast.dark.name", "§c", 1.4, 240, "coffee.roast.dark.flavor"),
+    ESPRESSO("coffee.roast.espresso.name", "§4§l", 1.6, 260, "coffee.roast.espresso.flavor");
 
     private final String displayName;
     private final String colorCode;
@@ -45,6 +47,6 @@ public enum CoffeeRoastLevel {
     }
 
     public String getColoredName() {
-        return colorCode + displayName;
+        return colorCode + Component.translatable(displayName).getString();
     }
 }
