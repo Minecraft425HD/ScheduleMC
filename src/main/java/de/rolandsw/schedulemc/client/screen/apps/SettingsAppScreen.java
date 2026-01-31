@@ -915,8 +915,8 @@ public class SettingsAppScreen extends Screen {
         // ═══════════════════════════════════════════════════════════════════════════
         if (y >= startY - 10 && y < endY) {
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 30, 0x33222222);
-            guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.settings.earn_money").getString(), leftPos + WIDTH / 2, y + 5, 0x666666);
-            guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.settings.sell_products").getString(), leftPos + WIDTH / 2, y + 17, 0xAAAAAA);
+            guiGraphics.drawCenteredString(this.font, cachedEarnMoney, leftPos + WIDTH / 2, y + 5, 0x666666);
+            guiGraphics.drawCenteredString(this.font, cachedSellProducts, leftPos + WIDTH / 2, y + 17, 0xAAAAAA);
         }
         y += 35;
         contentHeight += 35;

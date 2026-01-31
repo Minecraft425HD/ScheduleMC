@@ -619,40 +619,40 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
     }
 
     private void renderDauerauftraegeTab(GuiGraphics g, int x, int y) {
-        g.drawString(font, Component.translatable("gui.bank.standing_orders_title").getString(), x + 85, y + 45, 0x404040, false);
-        g.drawString(font, Component.translatable("gui.bank.new_standing_order").getString(), x + 15, y + 60, 0x606060, false);
-        g.drawString(font, Component.translatable("gui.bank.recipient").getString(), x + 15, y + 73, 0x808080, false);
-        g.drawString(font, Component.translatable("gui.bank.amount_label").getString(), x + 15, y + 103, 0x808080, false);
-        g.drawString(font, Component.translatable("gui.bank.interval").getString(), x + 15, y + 133, 0x808080, false);
+        g.drawString(font, cachedStandingOrdersTitle, x + 85, y + 45, 0x404040, false);
+        g.drawString(font, cachedNewStandingOrder, x + 15, y + 60, 0x606060, false);
+        g.drawString(font, cachedRecipient, x + 15, y + 73, 0x808080, false);
+        g.drawString(font, cachedAmountLabel, x + 15, y + 103, 0x808080, false);
+        g.drawString(font, cachedInterval, x + 15, y + 133, 0x808080, false);
 
         List<ClientBankDataCache.RecurringPaymentData> payments = ClientBankDataCache.getRecurringPayments();
         int maxPerPlayer = ModConfigHandler.COMMON.RECURRING_MAX_PER_PLAYER.get();
 
         String limitStr = payments.size() + "/" + maxPerPlayer;
-        g.drawString(font, Component.translatable("gui.bank.limit").getString() + limitStr, x + 200, y + 60, payments.size() >= maxPerPlayer ? 0xFF5555 : 0x00AA00, false);
+        g.drawString(font, cachedLimit + limitStr, x + 200, y + 60, payments.size() >= maxPerPlayer ? 0xFF5555 : 0x00AA00, false);
 
         if (payments.size() >= maxPerPlayer) {
-            g.drawString(font, Component.translatable("gui.bank.max_reached").getString(), x + 200, y + 73, 0xFF5555, false);
+            g.drawString(font, cachedMaxReached, x + 200, y + 73, 0xFF5555, false);
         }
 
         g.fill(x + 15, y + 168, x + 265, y + 169, 0x44FFFFFF);
-        g.drawString(font, Component.translatable("gui.bank.active_orders").getString(), x + 15, y + 173, 0x606060, false);
+        g.drawString(font, cachedActiveOrders, x + 15, y + 173, 0x606060, false);
 
         int yOffset = y + 186;
         ClientBankDataCache.CreditLoanData loan = ClientBankDataCache.getActiveLoan();
 
         if (loan != null) {
             g.fill(x + 15, yOffset - 2, x + 260, yOffset + 10, 0x44004400);
-            g.drawString(font, Component.translatable("gui.bank.credit_payment").getString(), x + 18, yOffset, 0xFFD700, false);
+            g.drawString(font, cachedCreditPayment, x + 18, yOffset, 0xFFD700, false);
             g.drawString(font, String.format("-%.0f€", loan.dailyPayment), x + 90, yOffset, 0xFF5555, false);
-            g.drawString(font, Component.translatable("gui.bank.interval_daily").getString(), x + 145, yOffset, 0x00AAAA, false);
+            g.drawString(font, cachedIntervalDaily, x + 145, yOffset, 0x00AAAA, false);
             g.drawString(font, "✓", x + 195, yOffset, 0x00FF00, false);
             g.drawString(font, loan.loanType.length() > 3 ? loan.loanType.substring(0, 3) : loan.loanType, x + 210, yOffset, 0x808080, false);
             yOffset += 13;
         }
 
         if (payments.isEmpty() && loan == null) {
-            g.drawString(font, Component.translatable("gui.bank.no_standing_orders").getString(), x + 65, yOffset, 0x808080, false);
+            g.drawString(font, cachedNoStandingOrders, x + 65, yOffset, 0x808080, false);
         } else {
             int maxDisplay = Math.min(loan != null ? 2 : 3, payments.size());
             for (int i = 0; i < maxDisplay; i++) {
@@ -690,6 +690,6 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
 
     @Override
     protected void renderLabels(GuiGraphics g, int mouseX, int mouseY) {
-        g.drawString(font, Component.translatable("gui.bank.banker").getString(), 8, 6, 0x404040, false);
+        g.drawString(font, cachedBanker, 8, 6, 0x404040, false);
     }
 }
