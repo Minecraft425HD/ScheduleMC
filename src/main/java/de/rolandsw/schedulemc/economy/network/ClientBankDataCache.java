@@ -145,6 +145,7 @@ public class ClientBankDataCache {
                                       double newMaxLimit, List<Transaction> newTransactions,
                                       List<RecurringPaymentData> newRecurringPayments,
                                       CreditLoanData newActiveLoan,
+                                      double newTotalIncome, double newTotalExpenses,
                                       double newOverdraftAmount, int newDebtDaysPassed,
                                       int newDaysUntilAutoRepay, int newDaysUntilPrison,
                                       double newPotentialPrisonMinutes) {
@@ -157,6 +158,10 @@ public class ClientBankDataCache {
         transactions = limitTransactionSize(newTransactions);
         recurringPayments = limitRecurringPaymentSize(newRecurringPayments);
         activeLoan = newActiveLoan;
+
+        // Einnahmen/Ausgaben
+        totalIncome = newTotalIncome;
+        totalExpenses = newTotalExpenses;
 
         // Dispo-Daten
         overdraftAmount = newOverdraftAmount;

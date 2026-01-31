@@ -61,7 +61,7 @@ public class SyncBankDataPacket {
             }
             buf.writeDouble(t.amount);
             buf.writeLong(t.timestamp);
-            buf.writeUtf(t.description);
+            buf.writeUtf(t.description != null ? t.description : "");
             buf.writeDouble(t.balanceAfter);
         }
         buf.writeDouble(totalIncome);

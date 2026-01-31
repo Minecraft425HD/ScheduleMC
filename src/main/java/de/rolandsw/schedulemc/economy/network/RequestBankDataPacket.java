@@ -162,6 +162,8 @@ public class RequestBankDataPacket {
             transactions,
             recurringPayments,
             activeLoan,
+            totalIncome,
+            totalExpenses,
             overdraftAmount,
             debtDaysPassed,
             daysUntilAutoRepay,
