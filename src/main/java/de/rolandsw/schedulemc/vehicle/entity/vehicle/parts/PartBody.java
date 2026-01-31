@@ -45,16 +45,10 @@ public abstract class PartBody extends PartModel {
             // Use original texture for white (default)
             textureToUse = texture;
         } else {
-            // Try to use colored texture, but this will fall back to missing texture if not available
-            // TODO: Create texture files: vehicle_{translationKey}_{colorName}.png
-            // For now, just use the original texture as fallback
-            textureToUse = texture;
-
-            // Uncomment when textures are available:
-            // textureToUse = ResourceLocation.fromNamespaceAndPath(
-            //     Main.MODID,
-            //     "textures/entity/vehicle_" + translationKey + "_" + colorName + ".png"
-            // );
+            textureToUse = ResourceLocation.fromNamespaceAndPath(
+                Main.MODID,
+                "textures/entity/vehicle_" + translationKey + "_" + colorName + ".png"
+            );
         }
 
         List<OBJModelInstance<EntityGenericVehicle>> list = new ArrayList<>();
