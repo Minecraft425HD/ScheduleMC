@@ -259,7 +259,7 @@ public class PlotAppScreen extends Screen {
             if (y >= startY - 10 && y < endY) {
                 guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 25, 0x44C71585);
                 guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.for_rent").getString(), leftPos + 15, y + 3, 0xFF00FF);
-                guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.rent").getString() + String.format("%.0f", currentPlot.getRentPricePerDay()) + "€/Tag", leftPos + 15, y + 14, 0xFFFFFF);
+                guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.rent").getString() + String.format("%.0f", currentPlot.getRentPricePerDay()) + "€" + Component.translatable("format.per_day").getString(), leftPos + 15, y + 14, 0xFFFFFF);
             }
             y += 30;
             contentHeight += 30;
@@ -369,7 +369,7 @@ public class PlotAppScreen extends Screen {
                     price = String.format("%.0f€", plot.getSalePrice());
                 } else {
                     status = Component.translatable("gui.app.plot.rent_label").getString();
-                    price = String.format("%.0f€/Tag", plot.getRentPricePerDay());
+                    price = String.format("%.0f€", plot.getRentPricePerDay()) + Component.translatable("format.per_day").getString();
                 }
 
                 guiGraphics.drawString(this.font, status, leftPos + 15, y + 14, 0xFFFFFF);
@@ -531,7 +531,7 @@ public class PlotAppScreen extends Screen {
                 // Gesamtsumme
                 guiGraphics.fill(leftPos + 15, y + 38, leftPos + WIDTH - 15, y + 39, 0x44FFFFFF);
                 guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.sum").getString(), leftPos + 15, y + 41, 0xFFFFFF);
-                guiGraphics.drawString(this.font, String.format("§e§l%.2f€/Tag", totalCost), leftPos + 100, y + 41, 0xFFAA00);
+                guiGraphics.drawString(this.font, String.format("§e§l%.2f€", totalCost) + Component.translatable("format.per_day").getString(), leftPos + 100, y + 41, 0xFFAA00);
             }
             y += 55;
             contentHeight += 55;

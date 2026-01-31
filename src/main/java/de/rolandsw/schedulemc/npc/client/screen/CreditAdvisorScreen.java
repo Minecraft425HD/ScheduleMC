@@ -80,25 +80,25 @@ public class CreditAdvisorScreen extends AbstractContainerScreen<CreditAdvisorMe
         int spacing = 25;
 
         starterLoanButton = addRenderableWidget(Button.builder(
-            Component.literal("STARTER - 5.000€"), button -> {
+            Component.translatable("gui.npc.credit.starter"), button -> {
                 selectLoanType(CreditLoan.CreditLoanType.STARTER);
             }
         ).bounds(x + 10, startY, buttonWidth, buttonHeight).build());
 
         standardLoanButton = addRenderableWidget(Button.builder(
-            Component.literal("STANDARD - 25.000€"), button -> {
+            Component.translatable("gui.npc.credit.standard"), button -> {
                 selectLoanType(CreditLoan.CreditLoanType.STANDARD);
             }
         ).bounds(x + 145, startY, buttonWidth, buttonHeight).build());
 
         premiumLoanButton = addRenderableWidget(Button.builder(
-            Component.literal("PREMIUM - 100.000€"), button -> {
+            Component.translatable("gui.npc.credit.premium"), button -> {
                 selectLoanType(CreditLoan.CreditLoanType.PREMIUM);
             }
         ).bounds(x + 10, startY + spacing, buttonWidth, buttonHeight).build());
 
         vipLoanButton = addRenderableWidget(Button.builder(
-            Component.literal("VIP - 500.000€"), button -> {
+            Component.translatable("gui.npc.credit.vip"), button -> {
                 selectLoanType(CreditLoan.CreditLoanType.VIP);
             }
         ).bounds(x + 145, startY + spacing, buttonWidth, buttonHeight).build());
@@ -295,16 +295,16 @@ public class CreditAdvisorScreen extends AbstractContainerScreen<CreditAdvisorMe
 
         // Kleine Info unter den Buttons
         guiGraphics.drawString(this.font, Component.translatable("screen.credit_advisor.interest_label").getString(), x + 10, detailY, 0x808080, false);
-        guiGraphics.drawString(this.font, "8%", x + 55, detailY, 0xFFAAAA, false);
-        guiGraphics.drawString(this.font, "12%", x + 80, detailY, 0xFFAAAA, false);
-        guiGraphics.drawString(this.font, "15%", x + 115, detailY, 0xFFAAAA, false);
-        guiGraphics.drawString(this.font, "10%", x + 150, detailY, 0xFFAAAA, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.npc.credit.8_percent").getString(), x + 55, detailY, 0xFFAAAA, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.npc.credit.12_percent").getString(), x + 80, detailY, 0xFFAAAA, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.npc.credit.15_percent").getString(), x + 115, detailY, 0xFFAAAA, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.npc.credit.10_percent").getString(), x + 150, detailY, 0xFFAAAA, false);
 
         guiGraphics.drawString(this.font, Component.translatable("screen.credit_advisor.duration_label").getString(), x + 10, detailY + 12, 0x808080, false);
-        guiGraphics.drawString(this.font, "14T", x + 55, detailY + 12, 0xAAAAFF, false);
-        guiGraphics.drawString(this.font, "28T", x + 80, detailY + 12, 0xAAAAFF, false);
-        guiGraphics.drawString(this.font, "56T", x + 115, detailY + 12, 0xAAAAFF, false);
-        guiGraphics.drawString(this.font, "90T", x + 150, detailY + 12, 0xAAAAFF, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.npc.credit.14days").getString(), x + 55, detailY + 12, 0xAAAAFF, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.npc.credit.28days").getString(), x + 80, detailY + 12, 0xAAAAFF, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.npc.credit.56days").getString(), x + 115, detailY + 12, 0xAAAAFF, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.npc.credit.90days").getString(), x + 150, detailY + 12, 0xAAAAFF, false);
 
         // Hinweis bei niedrigem Rating
         if (creditRating.ordinal() >= CreditScore.CreditRating.CCC.ordinal()) {

@@ -95,7 +95,7 @@ public class NPCPatrolTool extends Item {
                         .withStyle(ChatFormatting.GREEN)
                         .append(Component.literal(npc.getNpcName())
                             .withStyle(ChatFormatting.YELLOW))
-                        .append(Component.literal(" bei " + clickedPos.toShortString())
+                        .append(Component.translatable("message.npc.station_at_location", clickedPos.toShortString())
                             .withStyle(ChatFormatting.WHITE))
                 );
                 player.sendSystemMessage(
@@ -187,7 +187,7 @@ public class NPCPatrolTool extends Item {
      */
     private void showPatrolInfo(Player player, CustomNPCEntity npc) {
         player.sendSystemMessage(
-            Component.literal("═══ Patrol-Info: " + npc.getNpcName() + " ═══")
+            Component.translatable("message.npc.patrol_info_header", npc.getNpcName())
                 .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)
         );
 
@@ -203,7 +203,7 @@ public class NPCPatrolTool extends Item {
             player.sendSystemMessage(
                 Component.translatable("message.npc.police_station_label")
                     .withStyle(ChatFormatting.AQUA)
-                    .append(Component.literal("Nicht gesetzt")
+                    .append(Component.translatable("message.npc.not_set")
                         .withStyle(ChatFormatting.RED))
             );
         }
@@ -222,13 +222,13 @@ public class NPCPatrolTool extends Item {
             for (int i = 0; i < Math.min(patrolCount, 5); i++) {
                 BlockPos point = npc.getNpcData().getPatrolPoints().get(i);
                 player.sendSystemMessage(
-                    Component.literal("  " + (i + 1) + ". " + point.toShortString())
+                    Component.translatable("message.npc.patrol_point_entry", (i + 1), point.toShortString())
                         .withStyle(ChatFormatting.WHITE)
                 );
             }
             if (patrolCount > 5) {
                 player.sendSystemMessage(
-                    Component.literal("  ... und " + (patrolCount - 5) + " weitere")
+                    Component.translatable("message.npc.patrol_more_points", (patrolCount - 5))
                         .withStyle(ChatFormatting.GRAY)
                 );
             }

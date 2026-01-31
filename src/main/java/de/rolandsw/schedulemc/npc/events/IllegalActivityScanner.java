@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.npc.events;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.economy.items.CashItem;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -179,16 +180,16 @@ public class IllegalActivityScanner {
         // Prüfe auf Tabakpflanzen
         if (blockName.contains("schedulemc:") && blockName.contains("_plant")) {
             result.illegalPlantCount++;
-            result.foundIllegalItems.add("Tabakpflanze bei " + pos.toShortString());
+            result.foundIllegalItems.add(Component.translatable("police.scan.tobacco_plant", pos.toShortString()).getString());
         }
 
         // Prüfe auf illegale Blöcke (Gold, Diamant)
         if (blockName.equals("minecraft:gold_block")) {
             result.illegalBlockCount++;
-            result.foundIllegalItems.add("Goldblock bei " + pos.toShortString());
+            result.foundIllegalItems.add(Component.translatable("police.scan.gold_block", pos.toShortString()).getString());
         } else if (blockName.equals("minecraft:diamond_block")) {
             result.illegalBlockCount++;
-            result.foundIllegalItems.add("Diamantblock bei " + pos.toShortString());
+            result.foundIllegalItems.add(Component.translatable("police.scan.diamond_block", pos.toShortString()).getString());
         }
 
         // TODO: Bargeld-Blöcke scannen (wenn implementiert)
@@ -213,7 +214,7 @@ public class IllegalActivityScanner {
             double cashAmount = CashItem.getValue(wallet);
             if (cashAmount > ModConfigHandler.COMMON.POLICE_ILLEGAL_CASH_THRESHOLD.get()) {
                 result.totalCashFound += cashAmount;
-                result.foundIllegalItems.add("Bargeld: " + cashAmount + "€");
+                result.foundIllegalItems.add(Component.translatable("police.scan.cash_found", String.valueOf(cashAmount)).getString());
             }
         }
     }
@@ -247,26 +248,26 @@ public class IllegalActivityScanner {
      */
     public static String generateReport(ScanResult result) {
         StringBuilder report = new StringBuilder();
-        report.append("§c§l⚠ POLIZEI RAID ⚠\n");
-        report.append("§7Illegale Aktivitäten festgestellt:\n\n");
+        report.append(Component.translatable("police.report.header").getString());
+        report.append(Component.translatable("police.report.illegal_found").getString());
 
         if (result.illegalPlantCount > 0) {
-            report.append("§c• ").append(result.illegalPlantCount).append(" Tabakpflanzen\n");
+            report.append(Component.translatable("police.report.plants", result.illegalPlantCount).getString());
         }
 
         if (result.totalCashFound > 10000.0) {
-            report.append("§c• ").append(String.format("%.0f", result.totalCashFound)).append("€ illegales Bargeld\n");
+            report.append(Component.translatable("police.report.cash", String.format("%.0f", result.totalCashFound)).getString());
         }
 
         if (result.illegalItemCount > 0) {
-            report.append("§c• ").append(result.illegalItemCount).append(" illegale Tabak-Produkte\n");
+            report.append(Component.translatable("police.report.items", result.illegalItemCount).getString());
         }
 
         if (result.illegalBlockCount > 0) {
-            report.append("§c• ").append(result.illegalBlockCount).append(" illegale Blöcke\n");
+            report.append(Component.translatable("police.report.blocks", result.illegalBlockCount).getString());
         }
 
-        report.append("\n§eSchweregrad: ").append(result.calculateSeverity()).append("/10");
+        report.append(Component.translatable("police.report.severity", result.calculateSeverity()).getString());
 
         return report.toString();
     }
