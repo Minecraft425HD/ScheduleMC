@@ -197,7 +197,7 @@ public class ReduktionskesselScreen extends AbstractContainerScreen<Reduktionske
 
         // Progress Text
         int percent = (int) (progress * 100);
-        String progressText = menu.isProcessing() ? percent + "%" : Component.translatable("gui.reduktionskessel.waiting").getString();
+        String progressText = menu.isProcessing() ? Component.translatable("gui.progress_percent", percent).getString() : Component.translatable("gui.reduktionskessel.waiting").getString();
         graphics.drawString(this.font, progressText, x + (barWidth - this.font.width(progressText)) / 2, y + 4, 0xFFFFFF, false);
 
         // Label

@@ -92,7 +92,7 @@ public class BigDryingRackScreen extends AbstractContainerScreen<BigDryingRackMe
         int maxProgress = menu.getMaxProgress();
         if (maxProgress > 0 && progress > 0) {
             int percent = (int) (100 * ((float) progress / maxProgress));
-            graphics.drawString(this.font, percent + "%", x + 80, y + 56, 0xF44336, false);
+            graphics.drawString(this.font, Component.translatable("gui.progress_percent", percent).getString(), x + 80, y + 56, 0xF44336, false);
         }
 
         // Labels
