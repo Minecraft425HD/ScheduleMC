@@ -43,15 +43,10 @@ public class PlotAppScreen extends Screen {
     private static final int TAB_WIDTH = 45;
 
     /**
-     * Get localized tab names
+     * Get localized tab names (returns cached array populated in init())
      */
     private String[] getTabNames() {
-        return new String[]{
-            Component.translatable("gui.app.plot.tab.plot").getString(),
-            Component.translatable("gui.app.plot.tab.market").getString(),
-            Component.translatable("gui.app.plot.tab.mine").getString(),
-            Component.translatable("gui.app.plot.tab.finances").getString()
-        };
+        return cachedTabNames;
     }
 
     // Scrolling
@@ -69,6 +64,49 @@ public class PlotAppScreen extends Screen {
     private List<PlotRegion> availablePlots;
     private List<PlotRegion> myPlots;
 
+    // Cached localized strings (populated in init() to avoid per-frame allocations)
+    private String[] cachedTabNames;
+    private String cachedTitle;
+    private String cachedNoPlot;
+    private String cachedStandOnPlot;
+    private String cachedUnnamed;
+    private String cachedNoOwner;
+    private String cachedOwnerLabel;
+    private String cachedSizeLabel;
+    private String cachedBlocksLabel;
+    private String cachedForSale;
+    private String cachedPriceLabel;
+    private String cachedForRent;
+    private String cachedRentPriceLabel;
+    private String cachedPerDay;
+    private String cachedConsumption;
+    private String cachedElectricity;
+    private String cachedAvg7day;
+    private String cachedWater;
+    private String cachedDevicesLabel;
+    private String cachedNoOffers;
+    private String cachedOffersLabel;
+    private String cachedBuyLabel;
+    private String cachedRentLabel;
+    private String cachedNoPlots;
+    private String cachedBuyInMarket;
+    private String cachedProperties;
+    private String cachedPrivateStatus;
+    private String cachedForSaleShort;
+    private String cachedRented;
+    private String cachedToRent;
+    private String cachedDevicesCount;
+    private String cachedWarning;
+    private String cachedHighConsumption;
+    private String cachedBills;
+    private String cachedNoProperties;
+    private String cachedTotalAvg;
+    private String cachedSum;
+    private String cachedPerProperty;
+    private String cachedHistory7day;
+    private String[] cachedDayLabels;
+    private String cachedPrices;
+
     public PlotAppScreen(Screen parent) {
         super(Component.translatable("gui.app.plot.title"));
         this.parentScreen = parent;
@@ -85,6 +123,62 @@ public class PlotAppScreen extends Screen {
 
         // Cache data
         refreshData();
+
+        // Cache all localized strings to avoid per-frame allocations
+        cachedTabNames = new String[]{
+            Component.translatable("gui.app.plot.tab.plot").getString(),
+            Component.translatable("gui.app.plot.tab.market").getString(),
+            Component.translatable("gui.app.plot.tab.mine").getString(),
+            Component.translatable("gui.app.plot.tab.finances").getString()
+        };
+        cachedTitle = Component.translatable("gui.app.plot.title").getString();
+        cachedNoPlot = Component.translatable("gui.app.plot.no_plot").getString();
+        cachedStandOnPlot = Component.translatable("gui.app.plot.stand_on_plot").getString();
+        cachedUnnamed = Component.translatable("plot.unnamed").getString();
+        cachedNoOwner = Component.translatable("gui.app.plot.no_owner").getString();
+        cachedOwnerLabel = Component.translatable("gui.app.plot.owner").getString();
+        cachedSizeLabel = Component.translatable("gui.app.plot.size").getString();
+        cachedBlocksLabel = Component.translatable("gui.app.plot.blocks").getString();
+        cachedForSale = Component.translatable("gui.app.plot.for_sale").getString();
+        cachedPriceLabel = Component.translatable("gui.app.plot.price").getString();
+        cachedForRent = Component.translatable("gui.app.plot.for_rent").getString();
+        cachedRentPriceLabel = Component.translatable("gui.app.plot.rent").getString();
+        cachedPerDay = Component.translatable("format.per_day").getString();
+        cachedConsumption = Component.translatable("gui.app.plot.consumption").getString();
+        cachedElectricity = Component.translatable("gui.app.plot.electricity").getString();
+        cachedAvg7day = Component.translatable("gui.app.plot.avg_7day").getString();
+        cachedWater = Component.translatable("gui.app.plot.water").getString();
+        cachedDevicesLabel = Component.translatable("gui.app.plot.devices").getString();
+        cachedNoOffers = Component.translatable("gui.app.plot.no_offers").getString();
+        cachedOffersLabel = Component.translatable("gui.app.plot.offers").getString();
+        cachedBuyLabel = Component.translatable("gui.app.plot.buy_label").getString();
+        cachedRentLabel = Component.translatable("gui.app.plot.rent_label").getString();
+        cachedNoPlots = Component.translatable("gui.app.plot.no_plots").getString();
+        cachedBuyInMarket = Component.translatable("gui.app.plot.buy_in_market").getString();
+        cachedProperties = Component.translatable("gui.app.plot.properties").getString();
+        cachedPrivateStatus = Component.translatable("gui.app.plot.private").getString();
+        cachedForSaleShort = Component.translatable("gui.app.plot.for_sale_short").getString();
+        cachedRented = Component.translatable("gui.app.plot.rented").getString();
+        cachedToRent = Component.translatable("gui.app.plot.to_rent").getString();
+        cachedDevicesCount = Component.translatable("gui.app.plot.devices_count").getString();
+        cachedWarning = Component.translatable("gui.app.plot.warning").getString();
+        cachedHighConsumption = Component.translatable("gui.app.plot.high_consumption").getString();
+        cachedBills = Component.translatable("gui.app.plot.bills").getString();
+        cachedNoProperties = Component.translatable("gui.app.plot.no_properties").getString();
+        cachedTotalAvg = Component.translatable("gui.app.plot.total_avg").getString();
+        cachedSum = Component.translatable("gui.app.plot.sum").getString();
+        cachedPerProperty = Component.translatable("gui.app.plot.per_property").getString();
+        cachedHistory7day = Component.translatable("gui.app.plot.history_7day").getString();
+        cachedDayLabels = new String[]{
+            Component.translatable("gui.app.plot.today").getString(),
+            Component.translatable("gui.app.plot.yesterday").getString(),
+            Component.translatable("gui.app.plot.days_ago_2").getString(),
+            Component.translatable("gui.app.plot.days_ago_3").getString(),
+            Component.translatable("gui.app.plot.days_ago_4").getString(),
+            Component.translatable("gui.app.plot.days_ago_5").getString(),
+            Component.translatable("gui.app.plot.days_ago_6").getString()
+        };
+        cachedPrices = Component.translatable("gui.app.plot.prices").getString();
 
         // Tab-Buttons
         for (int i = 0; i < getTabNames().length; i++) {
@@ -153,7 +247,7 @@ public class PlotAppScreen extends Screen {
 
         // Header
         guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 28, 0xFF1A1A1A);
-        guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.plot.title").getString(), leftPos + WIDTH / 2, topPos + 10, 0xFFFFFF);
+        guiGraphics.drawCenteredString(this.font, cachedTitle, leftPos + WIDTH / 2, topPos + 10, 0xFFFFFF);
 
         // Tab-Hintergrund (aktiver Tab hervorheben)
         for (int i = 0; i < getTabNames().length; i++) {
@@ -196,8 +290,8 @@ public class PlotAppScreen extends Screen {
         int contentHeight = 0;
 
         if (currentPlot == null) {
-            guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.plot.no_plot").getString(), leftPos + WIDTH / 2, y + 20, 0xAAAAAA);
-            guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.plot.stand_on_plot").getString(), leftPos + WIDTH / 2, y + 35, 0x666666);
+            guiGraphics.drawCenteredString(this.font, cachedNoPlot, leftPos + WIDTH / 2, y + 20, 0xAAAAAA);
+            guiGraphics.drawCenteredString(this.font, cachedStandOnPlot, leftPos + WIDTH / 2, y + 35, 0x666666);
             maxScroll = 0;
             return;
         }
@@ -209,7 +303,7 @@ public class PlotAppScreen extends Screen {
         if (y >= startY - 15 && y < endY) {
             String plotName = currentPlot.getPlotName();
             if (plotName == null || plotName.isEmpty()) {
-                plotName = Component.translatable("plot.unnamed").getString();
+                plotName = cachedUnnamed;
             }
             guiGraphics.drawString(this.font, "§6§l" + plotName, leftPos + 15, y, 0xFFAA00);
         }
@@ -225,15 +319,15 @@ public class PlotAppScreen extends Screen {
 
         // Besitzer
         if (y >= startY - 10 && y < endY) {
-            String owner = currentPlot.hasOwner() ? currentPlot.getOwnerName() : Component.translatable("gui.app.plot.no_owner").getString();
-            guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.owner").getString() + owner, leftPos + 15, y, 0xFFFFFF);
+            String owner = currentPlot.hasOwner() ? currentPlot.getOwnerName() : cachedNoOwner;
+            guiGraphics.drawString(this.font, cachedOwnerLabel + owner, leftPos + 15, y, 0xFFFFFF);
         }
         y += 12;
         contentHeight += 12;
 
         // Größe
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.size").getString() + String.format("%,d", currentPlot.getVolume()) + Component.translatable("gui.app.plot.blocks").getString(), leftPos + 15, y, 0xFFFFFF);
+            guiGraphics.drawString(this.font, cachedSizeLabel + String.format("%,d", currentPlot.getVolume()) + cachedBlocksLabel, leftPos + 15, y, 0xFFFFFF);
         }
         y += 15;
         contentHeight += 15;
@@ -242,24 +336,24 @@ public class PlotAppScreen extends Screen {
         if (!currentPlot.hasOwner()) {
             if (y >= startY - 10 && y < endY) {
                 guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 25, 0x44228B22);
-                guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.for_sale").getString(), leftPos + 15, y + 3, 0x00FF00);
-                guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.price").getString() + String.format("%.0f", currentPlot.getPrice()) + "€", leftPos + 15, y + 14, 0xFFFFFF);
+                guiGraphics.drawString(this.font, cachedForSale, leftPos + 15, y + 3, 0x00FF00);
+                guiGraphics.drawString(this.font, cachedPriceLabel + String.format("%.0f", currentPlot.getPrice()) + "€", leftPos + 15, y + 14, 0xFFFFFF);
             }
             y += 30;
             contentHeight += 30;
         } else if (currentPlot.isForSale()) {
             if (y >= startY - 10 && y < endY) {
                 guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 25, 0x44228B22);
-                guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.for_sale").getString(), leftPos + 15, y + 3, 0x00FF00);
-                guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.price").getString() + String.format("%.0f", currentPlot.getSalePrice()) + "€", leftPos + 15, y + 14, 0xFFFFFF);
+                guiGraphics.drawString(this.font, cachedForSale, leftPos + 15, y + 3, 0x00FF00);
+                guiGraphics.drawString(this.font, cachedPriceLabel + String.format("%.0f", currentPlot.getSalePrice()) + "€", leftPos + 15, y + 14, 0xFFFFFF);
             }
             y += 30;
             contentHeight += 30;
         } else if (currentPlot.isForRent() && !currentPlot.isRented()) {
             if (y >= startY - 10 && y < endY) {
                 guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 25, 0x44C71585);
-                guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.for_rent").getString(), leftPos + 15, y + 3, 0xFF00FF);
-                guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.rent").getString() + String.format("%.0f", currentPlot.getRentPricePerDay()) + "€" + Component.translatable("format.per_day").getString(), leftPos + 15, y + 14, 0xFFFFFF);
+                guiGraphics.drawString(this.font, cachedForRent, leftPos + 15, y + 3, 0xFF00FF);
+                guiGraphics.drawString(this.font, cachedRentPriceLabel + String.format("%.0f", currentPlot.getRentPricePerDay()) + "€" + cachedPerDay, leftPos + 15, y + 14, 0xFFFFFF);
             }
             y += 30;
             contentHeight += 30;
@@ -278,7 +372,7 @@ public class PlotAppScreen extends Screen {
 
             // Überschrift
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.consumption").getString(), leftPos + 15, y, 0x55FFFF);
+                guiGraphics.drawString(this.font, cachedConsumption, leftPos + 15, y, 0x55FFFF);
             }
             y += 14;
             contentHeight += 14;
@@ -287,14 +381,14 @@ public class PlotAppScreen extends Screen {
             if (y >= startY - 10 && y < endY) {
                 double elec = utilityData.getCurrentElectricity();
                 double avgElec = utilityData.get7DayAverageElectricity();
-                guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.electricity").getString(), leftPos + 15, y, 0xFFAA00);
+                guiGraphics.drawString(this.font, cachedElectricity, leftPos + 15, y, 0xFFAA00);
                 guiGraphics.drawString(this.font, PlotUtilityManager.formatElectricity(elec), leftPos + 80, y, 0xFFFFFF);
             }
             y += 11;
             contentHeight += 11;
 
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.avg_7day").getString() + PlotUtilityManager.formatElectricity(utilityData.get7DayAverageElectricity()), leftPos + 15, y, 0x888888);
+                guiGraphics.drawString(this.font, cachedAvg7day + PlotUtilityManager.formatElectricity(utilityData.get7DayAverageElectricity()), leftPos + 15, y, 0x888888);
             }
             y += 13;
             contentHeight += 13;
@@ -302,21 +396,21 @@ public class PlotAppScreen extends Screen {
             // Wasser
             if (y >= startY - 10 && y < endY) {
                 double water = utilityData.getCurrentWater();
-                guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.water").getString(), leftPos + 15, y, 0x55AAFF);
+                guiGraphics.drawString(this.font, cachedWater, leftPos + 15, y, 0x55AAFF);
                 guiGraphics.drawString(this.font, PlotUtilityManager.formatWater(water), leftPos + 80, y, 0xFFFFFF);
             }
             y += 11;
             contentHeight += 11;
 
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.avg_7day").getString() + PlotUtilityManager.formatWater(utilityData.get7DayAverageWater()), leftPos + 15, y, 0x888888);
+                guiGraphics.drawString(this.font, cachedAvg7day + PlotUtilityManager.formatWater(utilityData.get7DayAverageWater()), leftPos + 15, y, 0x888888);
             }
             y += 13;
             contentHeight += 13;
 
             // Verbraucher-Anzahl
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.devices").getString() + utilityData.getConsumerCount(), leftPos + 15, y, 0xFFFFFF);
+                guiGraphics.drawString(this.font, cachedDevicesLabel + utilityData.getConsumerCount(), leftPos + 15, y, 0xFFFFFF);
             }
             y += 15;
             contentHeight += 15;
@@ -334,14 +428,14 @@ public class PlotAppScreen extends Screen {
         int contentHeight = 0;
 
         if (availablePlots.isEmpty()) {
-            guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.plot.no_offers").getString(), leftPos + WIDTH / 2, y + 20, 0xAAAAAA);
+            guiGraphics.drawCenteredString(this.font, cachedNoOffers, leftPos + WIDTH / 2, y + 20, 0xAAAAAA);
             maxScroll = 0;
             return;
         }
 
         // Header
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, "§e" + availablePlots.size() + Component.translatable("gui.app.plot.offers").getString(), leftPos + 15, y, 0xFFAA00);
+            guiGraphics.drawString(this.font, "§e" + availablePlots.size() + cachedOffersLabel, leftPos + 15, y, 0xFFAA00);
         }
         y += 15;
         contentHeight += 15;
@@ -354,7 +448,7 @@ public class PlotAppScreen extends Screen {
                 // Name
                 String plotName = plot.getPlotName();
                 if (plotName == null || plotName.isEmpty()) {
-                    plotName = Component.translatable("plot.unnamed").getString();
+                    plotName = cachedUnnamed;
                 }
                 guiGraphics.drawString(this.font, "§f" + plotName, leftPos + 15, y + 3, 0xFFFFFF);
 
@@ -362,21 +456,21 @@ public class PlotAppScreen extends Screen {
                 String status;
                 String price;
                 if (!plot.hasOwner()) {
-                    status = Component.translatable("gui.app.plot.buy_label").getString();
+                    status = cachedBuyLabel;
                     price = String.format("%.0f€", plot.getPrice());
                 } else if (plot.isForSale()) {
-                    status = Component.translatable("gui.app.plot.buy_label").getString();
+                    status = cachedBuyLabel;
                     price = String.format("%.0f€", plot.getSalePrice());
                 } else {
-                    status = Component.translatable("gui.app.plot.rent_label").getString();
-                    price = String.format("%.0f€", plot.getRentPricePerDay()) + Component.translatable("format.per_day").getString();
+                    status = cachedRentLabel;
+                    price = String.format("%.0f€", plot.getRentPricePerDay()) + cachedPerDay;
                 }
 
                 guiGraphics.drawString(this.font, status, leftPos + 15, y + 14, 0xFFFFFF);
                 guiGraphics.drawString(this.font, "§e" + price, leftPos + 70, y + 14, 0xFFFFFF);
 
                 // Größe
-                guiGraphics.drawString(this.font, "§8" + String.format("%,d", plot.getVolume()) + Component.translatable("gui.app.plot.blocks").getString(), leftPos + 15, y + 25, 0x666666);
+                guiGraphics.drawString(this.font, "§8" + String.format("%,d", plot.getVolume()) + cachedBlocksLabel, leftPos + 15, y + 25, 0x666666);
             }
             y += 40;
             contentHeight += 40;
@@ -394,15 +488,15 @@ public class PlotAppScreen extends Screen {
         int contentHeight = 0;
 
         if (myPlots.isEmpty()) {
-            guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.plot.no_plots").getString(), leftPos + WIDTH / 2, y + 20, 0xAAAAAA);
-            guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.plot.buy_in_market").getString(), leftPos + WIDTH / 2, y + 35, 0x666666);
+            guiGraphics.drawCenteredString(this.font, cachedNoPlots, leftPos + WIDTH / 2, y + 20, 0xAAAAAA);
+            guiGraphics.drawCenteredString(this.font, cachedBuyInMarket, leftPos + WIDTH / 2, y + 35, 0x666666);
             maxScroll = 0;
             return;
         }
 
         // Header
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, "§6" + myPlots.size() + Component.translatable("gui.app.plot.properties").getString(), leftPos + 15, y, 0xFFAA00);
+            guiGraphics.drawString(this.font, "§6" + myPlots.size() + cachedProperties, leftPos + 15, y, 0xFFAA00);
         }
         y += 15;
         contentHeight += 15;
@@ -415,7 +509,7 @@ public class PlotAppScreen extends Screen {
                 // Name
                 String plotName = plot.getPlotName();
                 if (plotName == null || plotName.isEmpty()) {
-                    plotName = Component.translatable("plot.unnamed").getString();
+                    plotName = cachedUnnamed;
                 }
                 guiGraphics.drawString(this.font, "§6§l" + plotName, leftPos + 15, y + 3, 0xFFAA00);
 
@@ -428,14 +522,14 @@ public class PlotAppScreen extends Screen {
                 }
 
                 // Status
-                String status = Component.translatable("gui.app.plot.private").getString();
-                if (plot.isForSale()) status = Component.translatable("gui.app.plot.for_sale_short").getString();
-                else if (plot.isForRent()) status = plot.isRented() ? Component.translatable("gui.app.plot.rented").getString() : Component.translatable("gui.app.plot.to_rent").getString();
+                String status = cachedPrivateStatus;
+                if (plot.isForSale()) status = cachedForSaleShort;
+                else if (plot.isForRent()) status = plot.isRented() ? cachedRented : cachedToRent;
                 guiGraphics.drawString(this.font, status, leftPos + 15, y + 27, 0xFFFFFF);
 
                 // Geräte-Anzahl
                 if (dataOpt.isPresent()) {
-                    guiGraphics.drawString(this.font, "§8" + dataOpt.get().getConsumerCount() + Component.translatable("gui.app.plot.devices_count").getString(), leftPos + 100, y + 27, 0x666666);
+                    guiGraphics.drawString(this.font, "§8" + dataOpt.get().getConsumerCount() + cachedDevicesCount, leftPos + 100, y + 27, 0x666666);
                 }
             }
             y += 50;
@@ -487,8 +581,8 @@ public class PlotAppScreen extends Screen {
         if (hasWarnings) {
             if (y >= startY - 10 && y < endY) {
                 guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 25, 0x66AA0000);
-                guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.warning").getString(), leftPos + 15, y + 3, 0xFF5555);
-                guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.high_consumption").getString(), leftPos + 15, y + 14, 0xFFFFFF);
+                guiGraphics.drawString(this.font, cachedWarning, leftPos + 15, y + 3, 0xFF5555);
+                guiGraphics.drawString(this.font, cachedHighConsumption, leftPos + 15, y + 14, 0xFFFFFF);
             }
             y += 30;
             contentHeight += 30;
@@ -498,14 +592,14 @@ public class PlotAppScreen extends Screen {
         // AKTUELLE RECHNUNGEN
         // ═══════════════════════════════════════════════════════════════════════════
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.bills").getString(), leftPos + 15, y, 0xFFAA00);
+            guiGraphics.drawString(this.font, cachedBills, leftPos + 15, y, 0xFFAA00);
         }
         y += 15;
         contentHeight += 15;
 
         if (myPlots.isEmpty()) {
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.no_properties").getString(), leftPos + 15, y, 0x666666);
+                guiGraphics.drawString(this.font, cachedNoProperties, leftPos + 15, y, 0x666666);
             }
             y += 15;
             contentHeight += 15;
@@ -518,7 +612,7 @@ public class PlotAppScreen extends Screen {
             // Gesamt-Box
             if (y >= startY - 10 && y < endY) {
                 guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 50, 0x44333333);
-                guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.total_avg").getString(), leftPos + 15, y + 3, 0xFFFFFF);
+                guiGraphics.drawString(this.font, cachedTotalAvg, leftPos + 15, y + 3, 0xFFFFFF);
 
                 // Strom
                 guiGraphics.drawString(this.font, "§e⚡ " + PlotUtilityManager.formatElectricity(totalElectricity), leftPos + 15, y + 15, 0xFFFFFF);
@@ -530,15 +624,15 @@ public class PlotAppScreen extends Screen {
 
                 // Gesamtsumme
                 guiGraphics.fill(leftPos + 15, y + 38, leftPos + WIDTH - 15, y + 39, 0x44FFFFFF);
-                guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.sum").getString(), leftPos + 15, y + 41, 0xFFFFFF);
-                guiGraphics.drawString(this.font, String.format("§e§l%.2f€", totalCost) + Component.translatable("format.per_day").getString(), leftPos + 100, y + 41, 0xFFAA00);
+                guiGraphics.drawString(this.font, cachedSum, leftPos + 15, y + 41, 0xFFFFFF);
+                guiGraphics.drawString(this.font, String.format("§e§l%.2f€", totalCost) + cachedPerDay, leftPos + 100, y + 41, 0xFFAA00);
             }
             y += 55;
             contentHeight += 55;
 
             // Pro-Plot Aufschlüsselung
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.per_property").getString(), leftPos + 15, y, 0x888888);
+                guiGraphics.drawString(this.font, cachedPerProperty, leftPos + 15, y, 0x888888);
             }
             y += 12;
             contentHeight += 12;
@@ -555,7 +649,7 @@ public class PlotAppScreen extends Screen {
                         guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 25, 0x33333333);
                         String plotName = plot.getPlotName();
                         if (plotName == null || plotName.isEmpty()) {
-                            plotName = Component.translatable("plot.unnamed").getString();
+                            plotName = cachedUnnamed;
                         }
                         guiGraphics.drawString(this.font, "§7" + plotName, leftPos + 15, y + 3, 0xAAAAAA);
                         guiGraphics.drawString(this.font, String.format("§e%.2f€", cost), leftPos + 140, y + 3, 0xFFAA00);
@@ -582,7 +676,7 @@ public class PlotAppScreen extends Screen {
         contentHeight += 8;
 
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, Component.translatable("gui.app.plot.history_7day").getString(), leftPos + 15, y, 0xFFAA00);
+            guiGraphics.drawString(this.font, cachedHistory7day, leftPos + 15, y, 0xFFAA00);
         }
         y += 15;
         contentHeight += 15;
@@ -604,17 +698,7 @@ public class PlotAppScreen extends Screen {
             }
         }
 
-        // Tages-Anzeige (0 = Heute, 6 = Vor 6 Tagen)
-        String[] dayLabels = {
-            Component.translatable("gui.app.plot.today").getString(),
-            Component.translatable("gui.app.plot.yesterday").getString(),
-            Component.translatable("gui.app.plot.days_ago_2").getString(),
-            Component.translatable("gui.app.plot.days_ago_3").getString(),
-            Component.translatable("gui.app.plot.days_ago_4").getString(),
-            Component.translatable("gui.app.plot.days_ago_5").getString(),
-            Component.translatable("gui.app.plot.days_ago_6").getString()
-        };
-
+        // Tages-Anzeige (0 = Heute, 6 = Vor 6 Tagen) - uses cached day labels
         for (int i = 0; i < 7; i++) {
             double elec = totalDailyElec[i];
             double water = totalDailyWater[i];
@@ -625,7 +709,7 @@ public class PlotAppScreen extends Screen {
                 int bgColor = (i == 0) ? 0x44228B22 : 0x22333333;
                 guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 14, bgColor);
 
-                guiGraphics.drawString(this.font, "§7" + dayLabels[i], leftPos + 15, y + 3, 0xAAAAAA);
+                guiGraphics.drawString(this.font, "§7" + cachedDayLabels[i], leftPos + 15, y + 3, 0xAAAAAA);
                 guiGraphics.drawString(this.font, String.format("§e%.2f€", cost), leftPos + 80, y + 3, 0xFFAA00);
                 guiGraphics.drawString(this.font, String.format("§8%.0fkWh", elec), leftPos + 130, y + 3, 0x666666);
             }
@@ -640,7 +724,7 @@ public class PlotAppScreen extends Screen {
         contentHeight += 10;
 
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.plot.prices").getString(), leftPos + WIDTH / 2, y, 0x666666);
+            guiGraphics.drawCenteredString(this.font, cachedPrices, leftPos + WIDTH / 2, y, 0x666666);
         }
         y += 12;
         contentHeight += 12;

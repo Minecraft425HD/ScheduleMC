@@ -28,6 +28,8 @@ public class ContactsAppScreen extends Screen {
     private int topPos;
     private int scrollOffset = 0;
     private List<PlayerTracker.PlayerContact> contacts;
+    private String cachedTitle;
+    private String cachedNoContacts;
 
     public ContactsAppScreen(Screen parent) {
         super(Component.translatable("gui.app.contacts.title"));
@@ -40,6 +42,10 @@ public class ContactsAppScreen extends Screen {
 
         this.leftPos = (this.width - WIDTH) / 2;
         this.topPos = MARGIN_TOP;
+
+        // Cache translated strings to avoid per-frame allocations
+        this.cachedTitle = Component.translatable("gui.app.contacts.title").getString();
+        this.cachedNoContacts = Component.translatable("gui.app.contacts.no_contacts").getString();
 
         // Load all player contacts, excluding the current player
         contacts = PlayerTracker.getAllContacts();
@@ -67,7 +73,7 @@ public class ContactsAppScreen extends Screen {
 
         // Header (iOS-style)
         guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 35, 0xFFF8F8F8);
-        guiGraphics.drawString(this.font, "\u00a70\u00a7l" + Component.translatable("gui.app.contacts.title").getString(), leftPos + 10, topPos + 13, 0x000000, false);
+        guiGraphics.drawString(this.font, "\u00a70\u00a7l" + cachedTitle, leftPos + 10, topPos + 13, 0x000000, false);
 
         // Content area
         int contentY = topPos + 40;
@@ -75,7 +81,7 @@ public class ContactsAppScreen extends Screen {
 
         if (contacts == null || contacts.isEmpty()) {
             // Empty state
-            guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.contacts.no_contacts").getString(),
+            guiGraphics.drawCenteredString(this.font, cachedNoContacts,
                 leftPos + WIDTH / 2, contentY + 30, 0xFF999999);
         } else {
             // Render contact list

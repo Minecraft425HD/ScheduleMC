@@ -49,6 +49,55 @@ public class CrimeStatsAppScreen extends Screen {
     private double bailCost = 0.0;
     private boolean isBeingChased = false;
 
+    // PERFORMANCE: Tab-Namen einmal cachen statt Component.translatable().getString() pro Aufruf
+    private String[] cachedTabNames;
+
+    private String[] getTabNames() {
+        return cachedTabNames;
+    }
+
+    // PERFORMANCE: Gecachte Render-Strings - eliminiert per-frame GC pressure
+    // Header
+    private String cachedHeaderStr;
+    // Status tab
+    private String cachedWantedLevelTitle;
+    private String cachedLevelNumeric;
+    private String cachedBeingChased;
+    private String cachedPoliceSearching;
+    private String cachedNoWanted;
+    private String cachedTipsTitle;
+    private String cachedTipHide;
+    private String cachedTipPayBail;
+    private String cachedTipWait;
+    private String cachedTipStayClean;
+    private String cachedTipAvoidCrime;
+    // Bail tab
+    private String cachedBailTitle;
+    private String cachedNoBailNeeded;
+    private String cachedInnocent;
+    private String cachedWantedLevelLabel;
+    private String cachedStarsStr;
+    private String cachedCostPerStar;
+    private String cachedTotal;
+    private String cachedHowToPay;
+    private String cachedGotoPolice;
+    private String cachedPayBailAction;
+    private String cachedWantedCleared;
+    private String cachedAlternative;
+    private String cachedWaitDecay;
+    // Info tab
+    private String cachedWantedSystemTitle;
+    private String cachedStarMeaning;
+    private String[] cachedStarInfo;
+    private String cachedPoliceBehavior;
+    private String[] cachedPoliceInfo;
+    private String cachedEscapeTitle;
+    private String cachedEscapeHide;
+    private String cachedEscapeDistance;
+    // Pre-computed wanted level display (updated in refreshData when wantedLevel changes)
+    private String cachedStarDisplay;
+    private String cachedLevelText;
+
     // Kosten pro Wanted-Stern
     private static final double BAIL_COST_PER_STAR = 1000.0;
 
@@ -66,15 +115,67 @@ public class CrimeStatsAppScreen extends Screen {
         // Positioniere oben mit Margin
         this.topPos = MARGIN_TOP;
 
+        // PERFORMANCE: Cache all translatable strings once in init()
+        this.cachedTabNames = new String[]{
+            Component.translatable("app.crime_stats.tab_status").getString(),
+            Component.translatable("app.crime_stats.tab_bail").getString(),
+            Component.translatable("app.crime_stats.tab_info").getString()
+        };
+        this.cachedHeaderStr = Component.translatable("app.crime_stats.header").getString();
+        // Status tab strings
+        this.cachedWantedLevelTitle = Component.translatable("app.crime_stats.wanted_level_title").getString();
+        this.cachedBeingChased = Component.translatable("app.crime_stats.being_chased").getString();
+        this.cachedPoliceSearching = Component.translatable("app.crime_stats.police_searching").getString();
+        this.cachedNoWanted = Component.translatable("app.crime_stats.no_wanted").getString();
+        this.cachedTipsTitle = Component.translatable("app.crime_stats.tips_title").getString();
+        this.cachedTipHide = Component.translatable("app.crime_stats.tip_hide").getString();
+        this.cachedTipPayBail = Component.translatable("app.crime_stats.tip_pay_bail").getString();
+        this.cachedTipWait = Component.translatable("app.crime_stats.tip_wait").getString();
+        this.cachedTipStayClean = Component.translatable("app.crime_stats.tip_stay_clean").getString();
+        this.cachedTipAvoidCrime = Component.translatable("app.crime_stats.tip_avoid_crime").getString();
+        // Bail tab strings
+        this.cachedBailTitle = Component.translatable("app.crime_stats.bail_title").getString();
+        this.cachedNoBailNeeded = Component.translatable("app.crime_stats.no_bail_needed").getString();
+        this.cachedInnocent = Component.translatable("app.crime_stats.innocent").getString();
+        this.cachedWantedLevelLabel = Component.translatable("app.crime_stats.wanted_level_label").getString();
+        this.cachedStarsStr = Component.translatable("app.crime_stats.stars").getString();
+        this.cachedCostPerStar = Component.translatable("app.crime_stats.cost_per_star").getString();
+        this.cachedTotal = Component.translatable("app.crime_stats.total").getString();
+        this.cachedHowToPay = Component.translatable("app.crime_stats.how_to_pay").getString();
+        this.cachedGotoPolice = Component.translatable("app.crime_stats.goto_police").getString();
+        this.cachedPayBailAction = Component.translatable("app.crime_stats.pay_bail_action").getString();
+        this.cachedWantedCleared = Component.translatable("app.crime_stats.wanted_cleared").getString();
+        this.cachedAlternative = Component.translatable("app.crime_stats.alternative").getString();
+        this.cachedWaitDecay = Component.translatable("app.crime_stats.wait_decay").getString();
+        // Info tab strings
+        this.cachedWantedSystemTitle = Component.translatable("app.crime_stats.wanted_system_title").getString();
+        this.cachedStarMeaning = Component.translatable("app.crime_stats.star_meaning").getString();
+        this.cachedStarInfo = new String[]{
+            Component.translatable("app.crime_stats.star_1").getString(),
+            Component.translatable("app.crime_stats.star_2").getString(),
+            Component.translatable("app.crime_stats.star_3").getString(),
+            Component.translatable("app.crime_stats.star_4").getString(),
+            Component.translatable("app.crime_stats.star_5").getString()
+        };
+        this.cachedPoliceBehavior = Component.translatable("app.crime_stats.police_behavior").getString();
+        this.cachedPoliceInfo = new String[]{
+            Component.translatable("app.crime_stats.police_1_2").getString(),
+            Component.translatable("app.crime_stats.police_3_4").getString(),
+            Component.translatable("app.crime_stats.police_5").getString()
+        };
+        this.cachedEscapeTitle = Component.translatable("app.crime_stats.escape_title").getString();
+        this.cachedEscapeHide = Component.translatable("app.crime_stats.escape_hide").getString();
+        this.cachedEscapeDistance = Component.translatable("app.crime_stats.escape_distance").getString();
+
         // Cache data
         refreshData();
 
         // Tab-Buttons
-        String[] tabKeys = {"app.crime_stats.tab_status", "app.crime_stats.tab_bail", "app.crime_stats.tab_info"};
-        for (int i = 0; i < tabKeys.length; i++) {
+        String[] tabNames = getTabNames();
+        for (int i = 0; i < tabNames.length; i++) {
             final int tabIndex = i;
             addRenderableWidget(Button.builder(
-                Component.translatable(tabKeys[i]),
+                Component.literal(tabNames[i]),
                 button -> {
                     currentTab = tabIndex;
                     scrollOffset = 0;
@@ -113,6 +214,11 @@ public class CrimeStatsAppScreen extends Screen {
 
         // TODO: Check if being chased (würde Server-Packet benötigen)
         isBeingChased = wantedLevel > 0;
+
+        // PERFORMANCE: Pre-compute wanted level display strings (only changes when wantedLevel changes)
+        cachedStarDisplay = getStarDisplay(wantedLevel);
+        cachedLevelText = getLevelText(wantedLevel);
+        cachedLevelNumeric = Component.translatable("app.crime_stats.level_text", wantedLevel).getString();
     }
 
     @Override
@@ -125,7 +231,7 @@ public class CrimeStatsAppScreen extends Screen {
 
         // Header
         guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 28, 0xFF1A1A1A);
-        guiGraphics.drawCenteredString(this.font, Component.translatable("app.crime_stats.header").getString(), leftPos + WIDTH / 2, topPos + 10, 0xFFFFFF);
+        guiGraphics.drawCenteredString(this.font, cachedHeaderStr, leftPos + WIDTH / 2, topPos + 10, 0xFFFFFF);
 
         // Tab-Hintergrund (aktiver Tab hervorheben)
         for (int i = 0; i < 3; i++) {
@@ -171,19 +277,17 @@ public class CrimeStatsAppScreen extends Screen {
             int boxColor = wantedLevel > 0 ? 0x44AA0000 : 0x44228B22;
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 75, boxColor);
 
-            guiGraphics.drawCenteredString(this.font, Component.translatable("app.crime_stats.wanted_level_title").getString(), leftPos + WIDTH / 2, y + 5, 0xFFFFFF);
+            guiGraphics.drawCenteredString(this.font, cachedWantedLevelTitle, leftPos + WIDTH / 2, y + 5, 0xFFFFFF);
 
-            // Sterne visualisieren
-            String stars = getStarDisplay(wantedLevel);
-            guiGraphics.drawCenteredString(this.font, stars, leftPos + WIDTH / 2, y + 22, 0xFFFFFF);
+            // Sterne visualisieren (pre-computed in refreshData)
+            guiGraphics.drawCenteredString(this.font, cachedStarDisplay, leftPos + WIDTH / 2, y + 22, 0xFFFFFF);
 
-            // Level-Text
-            String levelText = getLevelText(wantedLevel);
+            // Level-Text (pre-computed in refreshData)
             String levelColor = wantedLevel > 0 ? "§c" : "§a";
-            guiGraphics.drawCenteredString(this.font, levelColor + "§l" + levelText, leftPos + WIDTH / 2, y + 40, 0xFFFFFF);
+            guiGraphics.drawCenteredString(this.font, levelColor + "§l" + cachedLevelText, leftPos + WIDTH / 2, y + 40, 0xFFFFFF);
 
-            // Numerischer Level
-            guiGraphics.drawCenteredString(this.font, Component.translatable("app.crime_stats.level_text", wantedLevel).getString(), leftPos + WIDTH / 2, y + 55, 0xAAAAAA);
+            // Numerischer Level (pre-computed in refreshData)
+            guiGraphics.drawCenteredString(this.font, cachedLevelNumeric, leftPos + WIDTH / 2, y + 55, 0xAAAAAA);
         }
         y += 80;
         contentHeight += 80;
@@ -198,15 +302,15 @@ public class CrimeStatsAppScreen extends Screen {
         if (wantedLevel > 0) {
             if (y >= startY - 35 && y < endY) {
                 guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 30, 0x66AA0000);
-                guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.being_chased").getString(), leftPos + 15, y + 3, 0xFF5555);
-                guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.police_searching").getString(), leftPos + 15, y + 14, 0xFFFFFF);
+                guiGraphics.drawString(this.font, cachedBeingChased, leftPos + 15, y + 3, 0xFF5555);
+                guiGraphics.drawString(this.font, cachedPoliceSearching, leftPos + 15, y + 14, 0xFFFFFF);
             }
             y += 35;
             contentHeight += 35;
         } else {
             if (y >= startY - 25 && y < endY) {
                 guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 20, 0x44228B22);
-                guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.no_wanted").getString(), leftPos + 15, y + 5, 0x55FF55);
+                guiGraphics.drawString(this.font, cachedNoWanted, leftPos + 15, y + 5, 0x55FF55);
             }
             y += 25;
             contentHeight += 25;
@@ -220,38 +324,38 @@ public class CrimeStatsAppScreen extends Screen {
         contentHeight += 8;
 
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.tips_title").getString(), leftPos + 15, y, 0xFFAA00);
+            guiGraphics.drawString(this.font, cachedTipsTitle, leftPos + 15, y, 0xFFAA00);
         }
         y += 12;
         contentHeight += 12;
 
         if (wantedLevel > 0) {
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.tip_hide").getString(), leftPos + 15, y, 0xAAAAAA);
+                guiGraphics.drawString(this.font, cachedTipHide, leftPos + 15, y, 0xAAAAAA);
             }
             y += 11;
             contentHeight += 11;
 
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.tip_pay_bail").getString(), leftPos + 15, y, 0xAAAAAA);
+                guiGraphics.drawString(this.font, cachedTipPayBail, leftPos + 15, y, 0xAAAAAA);
             }
             y += 11;
             contentHeight += 11;
 
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.tip_wait").getString(), leftPos + 15, y, 0xAAAAAA);
+                guiGraphics.drawString(this.font, cachedTipWait, leftPos + 15, y, 0xAAAAAA);
             }
             y += 11;
             contentHeight += 11;
         } else {
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.tip_stay_clean").getString(), leftPos + 15, y, 0xAAAAAA);
+                guiGraphics.drawString(this.font, cachedTipStayClean, leftPos + 15, y, 0xAAAAAA);
             }
             y += 11;
             contentHeight += 11;
 
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.tip_avoid_crime").getString(), leftPos + 15, y, 0xAAAAAA);
+                guiGraphics.drawString(this.font, cachedTipAvoidCrime, leftPos + 15, y, 0xAAAAAA);
             }
             y += 11;
             contentHeight += 11;
@@ -270,15 +374,15 @@ public class CrimeStatsAppScreen extends Screen {
 
         // Kautions-Info
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.bail_title").getString(), leftPos + 15, y, 0xFFAA00);
+            guiGraphics.drawString(this.font, cachedBailTitle, leftPos + 15, y, 0xFFAA00);
         }
         y += 15;
         contentHeight += 15;
 
         if (wantedLevel == 0) {
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawCenteredString(this.font, Component.translatable("app.crime_stats.no_bail_needed").getString(), leftPos + WIDTH / 2, y + 20, 0x55FF55);
-                guiGraphics.drawCenteredString(this.font, Component.translatable("app.crime_stats.innocent").getString(), leftPos + WIDTH / 2, y + 35, 0xAAAAAA);
+                guiGraphics.drawCenteredString(this.font, cachedNoBailNeeded, leftPos + WIDTH / 2, y + 20, 0x55FF55);
+                guiGraphics.drawCenteredString(this.font, cachedInnocent, leftPos + WIDTH / 2, y + 35, 0xAAAAAA);
             }
             y += 60;
             contentHeight += 60;
@@ -287,15 +391,15 @@ public class CrimeStatsAppScreen extends Screen {
             if (y >= startY - 60 && y < endY) {
                 guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 55, 0x44AA0000);
 
-                guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.wanted_level_label").getString(), leftPos + 15, y + 5, 0xFFFFFF);
-                guiGraphics.drawString(this.font, "§c" + wantedLevel + Component.translatable("app.crime_stats.stars").getString(), leftPos + 120, y + 5, 0xFF5555);
+                guiGraphics.drawString(this.font, cachedWantedLevelLabel, leftPos + 15, y + 5, 0xFFFFFF);
+                guiGraphics.drawString(this.font, "§c" + wantedLevel + cachedStarsStr, leftPos + 120, y + 5, 0xFF5555);
 
-                guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.cost_per_star").getString(), leftPos + 15, y + 18, 0xFFFFFF);
+                guiGraphics.drawString(this.font, cachedCostPerStar, leftPos + 15, y + 18, 0xFFFFFF);
                 guiGraphics.drawString(this.font, String.format("§e%.0f€", BAIL_COST_PER_STAR), leftPos + 120, y + 18, 0xFFAA00);
 
                 guiGraphics.fill(leftPos + 15, y + 30, leftPos + WIDTH - 15, y + 31, 0x44FFFFFF);
 
-                guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.total").getString(), leftPos + 15, y + 35, 0xFFFFFF);
+                guiGraphics.drawString(this.font, cachedTotal, leftPos + 15, y + 35, 0xFFFFFF);
                 guiGraphics.drawString(this.font, String.format("§c§l%.0f€", bailCost), leftPos + 100, y + 35, 0xFF5555);
             }
             y += 60;
@@ -309,25 +413,25 @@ public class CrimeStatsAppScreen extends Screen {
             contentHeight += 8;
 
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.how_to_pay").getString(), leftPos + 15, y, 0x888888);
+                guiGraphics.drawString(this.font, cachedHowToPay, leftPos + 15, y, 0x888888);
             }
             y += 12;
             contentHeight += 12;
 
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.goto_police").getString(), leftPos + 15, y, 0xAAAAAA);
+                guiGraphics.drawString(this.font, cachedGotoPolice, leftPos + 15, y, 0xAAAAAA);
             }
             y += 11;
             contentHeight += 11;
 
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.pay_bail_action").getString(), leftPos + 15, y, 0xAAAAAA);
+                guiGraphics.drawString(this.font, cachedPayBailAction, leftPos + 15, y, 0xAAAAAA);
             }
             y += 11;
             contentHeight += 11;
 
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.wanted_cleared").getString(), leftPos + 15, y, 0xAAAAAA);
+                guiGraphics.drawString(this.font, cachedWantedCleared, leftPos + 15, y, 0xAAAAAA);
             }
             y += 15;
             contentHeight += 15;
@@ -341,13 +445,13 @@ public class CrimeStatsAppScreen extends Screen {
         contentHeight += 8;
 
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.alternative").getString(), leftPos + 15, y, 0x888888);
+            guiGraphics.drawString(this.font, cachedAlternative, leftPos + 15, y, 0x888888);
         }
         y += 12;
         contentHeight += 12;
 
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.wait_decay").getString(), leftPos + 15, y, 0xAAAAAA);
+            guiGraphics.drawString(this.font, cachedWaitDecay, leftPos + 15, y, 0xAAAAAA);
         }
         y += 11;
         contentHeight += 11;
@@ -365,29 +469,21 @@ public class CrimeStatsAppScreen extends Screen {
 
         // Überschrift
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.wanted_system_title").getString(), leftPos + 15, y, 0xFFAA00);
+            guiGraphics.drawString(this.font, cachedWantedSystemTitle, leftPos + 15, y, 0xFFAA00);
         }
         y += 15;
         contentHeight += 15;
 
         // Erklärung
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.star_meaning").getString(), leftPos + 15, y, 0xFFFFFF);
+            guiGraphics.drawString(this.font, cachedStarMeaning, leftPos + 15, y, 0xFFFFFF);
         }
         y += 12;
         contentHeight += 12;
 
-        String[] starInfoKeys = {
-            "app.crime_stats.star_1",
-            "app.crime_stats.star_2",
-            "app.crime_stats.star_3",
-            "app.crime_stats.star_4",
-            "app.crime_stats.star_5"
-        };
-
-        for (String key : starInfoKeys) {
+        for (String starInfo : cachedStarInfo) {
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawString(this.font, Component.translatable(key).getString(), leftPos + 15, y, 0xFFFFFF);
+                guiGraphics.drawString(this.font, starInfo, leftPos + 15, y, 0xFFFFFF);
             }
             y += 11;
             contentHeight += 11;
@@ -404,20 +500,14 @@ public class CrimeStatsAppScreen extends Screen {
         contentHeight += 8;
 
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.police_behavior").getString(), leftPos + 15, y, 0xFFFFFF);
+            guiGraphics.drawString(this.font, cachedPoliceBehavior, leftPos + 15, y, 0xFFFFFF);
         }
         y += 12;
         contentHeight += 12;
 
-        String[] policeInfoKeys = {
-            "app.crime_stats.police_1_2",
-            "app.crime_stats.police_3_4",
-            "app.crime_stats.police_5"
-        };
-
-        for (String key : policeInfoKeys) {
+        for (String policeInfo : cachedPoliceInfo) {
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawString(this.font, Component.translatable(key).getString(), leftPos + 15, y, 0xAAAAAA);
+                guiGraphics.drawString(this.font, policeInfo, leftPos + 15, y, 0xAAAAAA);
             }
             y += 11;
             contentHeight += 11;
@@ -434,19 +524,19 @@ public class CrimeStatsAppScreen extends Screen {
         contentHeight += 8;
 
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.escape_title").getString(), leftPos + 15, y, 0xFFFFFF);
+            guiGraphics.drawString(this.font, cachedEscapeTitle, leftPos + 15, y, 0xFFFFFF);
         }
         y += 12;
         contentHeight += 12;
 
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.escape_hide").getString(), leftPos + 15, y, 0xAAAAAA);
+            guiGraphics.drawString(this.font, cachedEscapeHide, leftPos + 15, y, 0xAAAAAA);
         }
         y += 11;
         contentHeight += 11;
 
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, Component.translatable("app.crime_stats.escape_distance").getString(), leftPos + 15, y, 0xAAAAAA);
+            guiGraphics.drawString(this.font, cachedEscapeDistance, leftPos + 15, y, 0xAAAAAA);
         }
         y += 11;
         contentHeight += 11;

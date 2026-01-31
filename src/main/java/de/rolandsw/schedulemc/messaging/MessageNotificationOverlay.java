@@ -40,8 +40,12 @@ public class MessageNotificationOverlay {
 
         // Check if we need to show a new notification
         if (currentNotification == null && !notifications.isEmpty()) {
-            currentNotification = notifications.poll();
-            notificationStartTime = currentTime;
+            Notification next = notifications.poll();
+            if (next != null) {
+                next.computeWidths(mc.font);
+                notificationStartTime = currentTime;
+                currentNotification = next;
+            }
         }
 
         // Render current notification
@@ -70,14 +74,7 @@ public class MessageNotificationOverlay {
                                           Notification notification, float alpha) {
         int screenWidth = mc.getWindow().getGuiScaledWidth();
 
-        String title = "§6§l" + notification.senderName;
-        String message = "§7" + notification.message;
-
-        int titleWidth = mc.font.width(title);
-        int messageWidth = mc.font.width(message);
-        int maxWidth = Math.max(titleWidth, messageWidth);
-
-        int boxWidth = maxWidth + 20;
+        int boxWidth = notification.boxWidth;
         int boxHeight = 40;
         int x = (screenWidth - boxWidth) / 2;
         int y = 10;
@@ -95,20 +92,35 @@ public class MessageNotificationOverlay {
         guiGraphics.fill(x, y, x + 1, y + boxHeight, borderColor);
         guiGraphics.fill(x + boxWidth - 1, y, x + boxWidth, y + boxHeight, borderColor);
 
-        // Draw text
+        // Draw text (uses pre-computed formatted strings from Notification)
         RenderSystem.enableBlend();
-        guiGraphics.drawString(mc.font, title, x + 10, y + 8, 0xFFFFFF | (alphaValue << 24));
-        guiGraphics.drawString(mc.font, message, x + 10, y + 22, 0xFFFFFF | (alphaValue << 24));
+        guiGraphics.drawString(mc.font, notification.formattedTitle, x + 10, y + 8, 0xFFFFFF | (alphaValue << 24));
+        guiGraphics.drawString(mc.font, notification.formattedMessage, x + 10, y + 22, 0xFFFFFF | (alphaValue << 24));
         RenderSystem.disableBlend();
     }
 
     private static class Notification {
         final String senderName;
         final String message;
+        // Pre-computed formatted strings (avoids per-frame string concatenation)
+        final String formattedTitle;
+        final String formattedMessage;
+        // Cached font width calculations (computed once when notification becomes active)
+        int titleWidth;
+        int messageWidth;
+        int boxWidth;
 
         Notification(String senderName, String message) {
             this.senderName = senderName;
             this.message = message.length() > 40 ? message.substring(0, 37) + "..." : message;
+            this.formattedTitle = "\u00A76\u00A7l" + senderName;
+            this.formattedMessage = "\u00A77" + this.message;
+        }
+
+        void computeWidths(net.minecraft.client.gui.Font font) {
+            this.titleWidth = font.width(formattedTitle);
+            this.messageWidth = font.width(formattedMessage);
+            this.boxWidth = Math.max(titleWidth, messageWidth) + 20;
         }
     }
 }
