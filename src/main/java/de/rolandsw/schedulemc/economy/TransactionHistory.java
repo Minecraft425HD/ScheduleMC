@@ -39,11 +39,13 @@ public class TransactionHistory {
 
     private TransactionHistory(MinecraftServer server) {
         this.savePath = server.getServerDirectory().toPath().resolve("config").resolve(FILE_NAME);
-        load();
+        // PERFORMANCE: load() wird nicht im Konstruktor aufgerufen, sondern separat nach Konstruktion.
+        // Dies vermeidet File-I/O während der Objekterstellung und ermöglicht paralleles Laden.
     }
 
     /**
      * SICHERHEIT: Double-Checked Locking für Thread-Safety
+     * PERFORMANCE: load() wird nach Konstruktion aufgerufen statt im Konstruktor
      */
     public static TransactionHistory getInstance(MinecraftServer server) {
         TransactionHistory localRef = instance;
@@ -51,7 +53,9 @@ public class TransactionHistory {
             synchronized (TransactionHistory.class) {
                 localRef = instance;
                 if (localRef == null) {
-                    instance = localRef = new TransactionHistory(server);
+                    localRef = new TransactionHistory(server);
+                    localRef.load();
+                    instance = localRef;
                 }
             }
         }

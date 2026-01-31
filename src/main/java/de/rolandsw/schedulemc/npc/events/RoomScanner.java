@@ -181,33 +181,34 @@ public class RoomScanner {
     }
 
     /**
-     * Prüft ob ein Block eine Tür oder ein Durchgang ist
+     * PERFORMANCE: Nutzt Block-Klassen-Prüfung statt String-Vergleiche.
+     * Vermeidet getDescriptionId().toLowerCase() + 3x contains() pro Block.
      */
     private static boolean isDoorOrOpening(Level level, BlockPos pos) {
         BlockState state = level.getBlockState(pos);
-        String blockName = state.getBlock().getDescriptionId().toLowerCase();
+        net.minecraft.world.level.block.Block block = state.getBlock();
 
-        // Prüfe auf Türen
-        if (blockName.contains("door")) {
-            return true;
-        }
-
-        // Prüfe auf Falltüren
-        if (blockName.contains("trapdoor")) {
-            return true;
-        }
-
-        // Prüfe auf Tore
-        if (blockName.contains("gate")) {
-            return true;
-        }
+        // Direkte Typ-Prüfung statt String-Vergleich
+        if (block instanceof net.minecraft.world.level.block.DoorBlock) return true;
+        if (block instanceof net.minecraft.world.level.block.TrapDoorBlock) return true;
+        if (block instanceof net.minecraft.world.level.block.FenceGateBlock) return true;
 
         return false;
     }
 
     /**
-     * Gibt alle 6 direkten Nachbarn zurück (N, S, E, W, Oben, Unten)
+     * PERFORMANCE: Direkte BlockPos-Offsets statt Arrays.asList() Allokation.
+     * Vermeidet 6 BlockPos-Objekte + 1 List-Wrapper pro Flood-Fill-Schritt.
      */
+    private static final BlockPos[] NEIGHBOR_OFFSETS = {
+        new BlockPos(0, 0, -1), // north
+        new BlockPos(0, 0, 1),  // south
+        new BlockPos(1, 0, 0),  // east
+        new BlockPos(-1, 0, 0), // west
+        new BlockPos(0, 1, 0),  // above
+        new BlockPos(0, -1, 0)  // below
+    };
+
     private static List<BlockPos> get6Neighbors(BlockPos pos) {
         return Arrays.asList(
             pos.north(),

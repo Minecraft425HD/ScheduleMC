@@ -47,6 +47,31 @@ public class PoliceSearchBehavior {
     // NPC UUID -> Last Search Target Update Time
     private static final Map<UUID, Long> lastTargetUpdate = new ConcurrentHashMap<>();
 
+    // ═══════════════════════════════════════════════════════════════════════════
+    // PERFORMANCE: Positions-basierter Cache für Block-Scanning Ergebnisse
+    // Vermeidet 100+ Block-Lookups pro Tick wenn Spieler sich nicht bewegt hat
+    // ═══════════════════════════════════════════════════════════════════════════
+    private static final Map<UUID, CachedIndoorResult> indoorCache = new ConcurrentHashMap<>();
+    private static final Map<UUID, CachedWindowResult> windowCache = new ConcurrentHashMap<>();
+
+    private static class CachedIndoorResult {
+        final BlockPos position;
+        final boolean isIndoors;
+        CachedIndoorResult(BlockPos position, boolean isIndoors) {
+            this.position = position;
+            this.isIndoors = isIndoors;
+        }
+    }
+
+    private static class CachedWindowResult {
+        final BlockPos position;
+        final boolean nearWindow;
+        CachedWindowResult(BlockPos position, boolean nearWindow) {
+            this.position = position;
+            this.nearWindow = nearWindow;
+        }
+    }
+
     /**
      * Prüft, ob ein Spieler sich erfolgreich vor der Polizei versteckt
      *
@@ -87,12 +112,29 @@ public class PoliceSearchBehavior {
     }
 
     /**
-     * Prüft ob Spieler nah an einem Fenster/transparenten Block steht
+     * Prüft ob Spieler nah an einem Fenster/transparenten Block steht.
+     * PERFORMANCE: Ergebnis wird pro BlockPos gecacht - nur bei Positionsänderung neu berechnet.
+     * Reduziert Block-Lookups von 100/Tick auf 100/Positionsänderung.
      */
     private static boolean isPlayerNearWindow(ServerPlayer player) {
-        Level level = player.level();
         BlockPos playerPos = player.blockPosition();
+        UUID playerUUID = player.getUUID();
 
+        // Cache-Check: Nur neu berechnen wenn Spieler sich bewegt hat
+        CachedWindowResult cached = windowCache.get(playerUUID);
+        if (cached != null && cached.position.equals(playerPos)) {
+            return cached.nearWindow;
+        }
+
+        boolean result = computeNearWindow(player.level(), playerPos);
+        windowCache.put(playerUUID, new CachedWindowResult(playerPos, result));
+        return result;
+    }
+
+    /**
+     * Berechnet ob Fenster in der Nähe sind. Optimiert: Early-Return bei erstem Fund.
+     */
+    private static boolean computeNearWindow(Level level, BlockPos playerPos) {
         // Prüfe Blöcke im 2-Block-Radius um den Spieler
         for (int x = -2; x <= 2; x++) {
             for (int y = -1; y <= 2; y++) {
@@ -107,17 +149,33 @@ public class PoliceSearchBehavior {
                 }
             }
         }
-
-        return false; // Kein Fenster in der Nähe
+        return false;
     }
 
     /**
-     * Prüft, ob ein Spieler sich in einem Gebäude befindet
+     * Prüft, ob ein Spieler sich in einem Gebäude befindet.
+     * PERFORMANCE: Ergebnis wird pro BlockPos gecacht - nur bei Positionsänderung neu berechnet.
+     * Reduziert Block-Lookups von 14/Tick auf 14/Positionsänderung.
      */
     private static boolean isPlayerIndoors(ServerPlayer player) {
-        Level level = player.level();
         BlockPos playerPos = player.blockPosition();
+        UUID playerUUID = player.getUUID();
 
+        // Cache-Check: Nur neu berechnen wenn Spieler sich bewegt hat
+        CachedIndoorResult cached = indoorCache.get(playerUUID);
+        if (cached != null && cached.position.equals(playerPos)) {
+            return cached.isIndoors;
+        }
+
+        boolean result = computeIndoors(player.level(), playerPos);
+        indoorCache.put(playerUUID, new CachedIndoorResult(playerPos, result));
+        return result;
+    }
+
+    /**
+     * Berechnet ob Spieler indoor ist (Dach + mindestens 2 Wände).
+     */
+    private static boolean computeIndoors(Level level, BlockPos playerPos) {
         // Prüfe ob über dem Spieler ein Dach ist (innerhalb von 10 Blöcken)
         boolean hasRoof = false;
         for (int y = 1; y <= 10; y++) {
@@ -147,11 +205,11 @@ public class PoliceSearchBehavior {
             BlockState state = level.getBlockState(wallPos);
             if (!state.isAir() && state.isRedstoneConductor(level, wallPos)) {
                 wallCount++;
+                if (wallCount >= 2) return true; // Early-exit: Genug Wände gefunden
             }
         }
 
-        // Mindestens 2 Wände = in einem Gebäude
-        return wallCount >= 2;
+        return false;
     }
 
     /**
@@ -437,6 +495,8 @@ public class PoliceSearchBehavior {
         lastKnownPositions.remove(playerUUID);
         searchTimers.remove(playerUUID);
         movementDirections.remove(playerUUID);
+        indoorCache.remove(playerUUID);
+        windowCache.remove(playerUUID);
 
         // Entferne alle NPCs, die diesen Spieler suchen
         activeSearches.entrySet().removeIf(entry -> playerUUID.equals(entry.getValue()));

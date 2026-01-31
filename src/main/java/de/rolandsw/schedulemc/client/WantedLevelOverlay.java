@@ -94,19 +94,26 @@ public class WantedLevelOverlay {
         }, "onRenderGuiOverlay");
     }
 
+    // PERFORMANCE: Star-Strings vorberechnet statt StringBuilder pro Frame
+    private static final String[] STAR_STRINGS = new String[6];
+    static {
+        for (int level = 0; level <= 5; level++) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < level; i++) sb.append("★");
+            for (int i = level; i < 5; i++) sb.append("§8☆");
+            STAR_STRINGS[level] = sb.toString();
+        }
+    }
+
     /**
-     * Erzeugt Stern-String basierend auf Wanted-Level
+     * Erzeugt Stern-String basierend auf Wanted-Level.
+     * PERFORMANCE: Nutzt vorberechnetes Array statt StringBuilder pro Frame.
      */
     private static String getStarString(int level) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < level; i++) {
-            sb.append("★");
+        if (level >= 0 && level < STAR_STRINGS.length) {
+            return STAR_STRINGS[level];
         }
-        // Leere Sterne für restliche (max 5)
-        for (int i = level; i < 5; i++) {
-            sb.append("§8☆");
-        }
-        return sb.toString();
+        return STAR_STRINGS[5]; // Max 5 Sterne
     }
 
     /**

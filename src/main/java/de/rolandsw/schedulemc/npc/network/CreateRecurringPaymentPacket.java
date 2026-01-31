@@ -107,14 +107,9 @@ public class CreateRecurringPaymentPacket {
                 return;
             }
 
-            // Empfänger-UUID finden
-            UUID recipientUUID = null;
-            for (ServerPlayer p : player.getServer().getPlayerList().getPlayers()) {
-                if (p.getName().getString().equalsIgnoreCase(recipientName)) {
-                    recipientUUID = p.getUUID();
-                    break;
-                }
-            }
+            // PERFORMANCE: Direkter Lookup statt linearer Suche über alle Spieler
+            ServerPlayer recipient = player.getServer().getPlayerList().getPlayerByName(recipientName);
+            UUID recipientUUID = recipient != null ? recipient.getUUID() : null;
 
             // Prüfe ob Empfänger existiert
             if (recipientUUID == null) {

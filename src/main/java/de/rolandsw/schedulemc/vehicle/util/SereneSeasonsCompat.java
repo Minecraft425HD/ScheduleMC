@@ -115,41 +115,62 @@ public final class SereneSeasonsCompat {
     /**
      * Isolierte Hilfsklasse um ClassNotFoundException zu vermeiden wenn
      * Serene Seasons nicht installiert ist (Lazy Loading).
+     *
+     * PERFORMANCE: Reflection-Ergebnisse (Class, Method) werden gecacht.
+     * Vorher: Class.forName() + getMethod() bei JEDEM Aufruf (potenziell jeden Tick).
+     * Nachher: Einmaliges Lookup, danach nur noch Method.invoke().
      */
     private static class SereneSeasonsHelper {
 
-        static boolean isWinterSeason(Level level) {
+        // PERFORMANCE: Gecachte Reflection-Referenzen (einmaliges Lookup)
+        private static java.lang.reflect.Method cachedGetCurrentSeason;
+        private static java.lang.reflect.Method cachedGetSubSeason;
+        private static boolean reflectionInitialized = false;
+        private static boolean reflectionFailed = false;
+
+        private static void initReflection() {
+            if (reflectionInitialized) return;
+            reflectionInitialized = true;
             try {
                 Class<?> seasonHelperClass = Class.forName("sereneseasons.api.season.SeasonHelper");
-                Object season = seasonHelperClass.getMethod("getCurrentSeason", Level.class).invoke(null, level);
-                if (season == null) return false;
-
-                Object subSeason = season.getClass().getMethod("getSubSeason").invoke(season);
-                String name = subSeason.toString();
-                return "LATE_AUTUMN".equals(name)
-                    || "EARLY_WINTER".equals(name)
-                    || "MID_WINTER".equals(name)
-                    || "LATE_WINTER".equals(name);
+                cachedGetCurrentSeason = seasonHelperClass.getMethod("getCurrentSeason", Level.class);
             } catch (Exception e) {
-                return false;
+                reflectionFailed = true;
             }
         }
 
-        static boolean isSummerSeason(Level level) {
+        private static String getSubSeasonName(Level level) {
+            initReflection();
+            if (reflectionFailed) return "";
             try {
-                Class<?> seasonHelperClass = Class.forName("sereneseasons.api.season.SeasonHelper");
-                Object season = seasonHelperClass.getMethod("getCurrentSeason", Level.class).invoke(null, level);
-                if (season == null) return false;
+                Object season = cachedGetCurrentSeason.invoke(null, level);
+                if (season == null) return "";
 
-                Object subSeason = season.getClass().getMethod("getSubSeason").invoke(season);
-                String name = subSeason.toString();
-                return "LATE_SPRING".equals(name)
-                    || "EARLY_SUMMER".equals(name)
-                    || "MID_SUMMER".equals(name)
-                    || "LATE_SUMMER".equals(name);
+                // Cache getSubSeason beim ersten erfolgreichen Aufruf
+                if (cachedGetSubSeason == null) {
+                    cachedGetSubSeason = season.getClass().getMethod("getSubSeason");
+                }
+                Object subSeason = cachedGetSubSeason.invoke(season);
+                return subSeason != null ? subSeason.toString() : "";
             } catch (Exception e) {
-                return false;
+                return "";
             }
+        }
+
+        static boolean isWinterSeason(Level level) {
+            String name = getSubSeasonName(level);
+            return "LATE_AUTUMN".equals(name)
+                || "EARLY_WINTER".equals(name)
+                || "MID_WINTER".equals(name)
+                || "LATE_WINTER".equals(name);
+        }
+
+        static boolean isSummerSeason(Level level) {
+            String name = getSubSeasonName(level);
+            return "LATE_SPRING".equals(name)
+                || "EARLY_SUMMER".equals(name)
+                || "MID_SUMMER".equals(name)
+                || "LATE_SUMMER".equals(name);
         }
     }
 }

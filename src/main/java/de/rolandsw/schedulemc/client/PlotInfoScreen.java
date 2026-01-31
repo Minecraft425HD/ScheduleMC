@@ -33,6 +33,12 @@ public class PlotInfoScreen extends Screen {
     private int ratingButtonY = -1;
     private int ratingButtonX = -1;
 
+    // PERFORMANCE: SubArea-Daten einmalig in init() cachen statt pro Frame in render()
+    private int cachedSubAreaCount;
+    private int cachedAvailableCount;
+    private int cachedRentedCount;
+    private List<PlotArea> cachedAvailableSubAreas;
+
     public PlotInfoScreen(PlotRegion plot) {
         super(Component.translatable("gui.plotinfo.title"));
         this.plot = plot;
@@ -46,8 +52,14 @@ public class PlotInfoScreen extends Screen {
         this.leftPos = (this.width - this.backgroundWidth) / 2;
         this.topPos = (this.height - this.backgroundHeight) / 2;
 
+        // PERFORMANCE: SubArea-Daten einmal cachen statt bei jedem render() Aufruf
+        this.cachedSubAreaCount = plot.getSubAreaCount();
+        this.cachedAvailableCount = plot.getAvailableSubAreaCount();
+        this.cachedRentedCount = plot.getRentedSubAreaCount();
+        this.cachedAvailableSubAreas = plot.getAvailableSubAreas();
+
         // Dynamische Höhe basierend auf Apartments
-        int apartmentCount = plot.getAvailableSubAreaCount();
+        int apartmentCount = cachedAvailableCount;
         if (apartmentCount > 0) {
             // Erhöhe Höhe für Apartment-Liste
             this.backgroundHeight = 250 + (apartmentCount * 25);
@@ -91,12 +103,12 @@ public class PlotInfoScreen extends Screen {
             ).bounds(leftPos + 90, buttonY, 70, 20).build());
         }
 
-        // Apartment-Buttons
+        // Apartment-Buttons - PERFORMANCE: Gecachte Liste nutzen
         if (apartmentCount > 0) {
             int aptButtonY = topPos + 130;
             int index = 0;
 
-            for (PlotArea apt : plot.getAvailableSubAreas()) {
+            for (PlotArea apt : cachedAvailableSubAreas) {
                 final String aptId = apt.getId();
                 addRenderableWidget(Button.builder(
                     Component.translatable("gui.plotinfo.button.rent_apartment"),
@@ -261,27 +273,26 @@ public class PlotInfoScreen extends Screen {
             }
         }
 
-        // === APARTMENTS ===
-        if (plot.getSubAreaCount() > 0) {
+        // === APARTMENTS === PERFORMANCE: Gecachte Werte nutzen statt wiederholter Aufrufe
+        if (cachedSubAreaCount > 0) {
             // Trennlinie
             guiGraphics.fill(leftPos + 10, currentY, leftPos + backgroundWidth - 10, currentY + 1, 0x66FFFFFF);
             currentY += 8;
 
-            int availableCount = plot.getAvailableSubAreaCount();
             guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.apartments.title").getString(),
                 leftPos + 15, currentY, 0xFFAA00);
             currentY += 12;
 
-            guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.apartments.stats", plot.getSubAreaCount(), availableCount, plot.getRentedSubAreaCount()).getString(),
+            guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.apartments.stats", cachedSubAreaCount, cachedAvailableCount, cachedRentedCount).getString(),
                 leftPos + 15, currentY, 0xFFFFFF);
             currentY += 15;
 
             // Zeige verfügbare Apartments
-            if (availableCount > 0) {
+            if (cachedAvailableCount > 0) {
                 guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.apartments.available").getString(), leftPos + 15, currentY, 0xFF00FF);
                 currentY += 12;
 
-                for (PlotArea apt : plot.getAvailableSubAreas()) {
+                for (PlotArea apt : cachedAvailableSubAreas) {
                     // Apartment-Zeile
                     guiGraphics.drawString(this.font, "§e" + apt.getName(),
                         leftPos + 20, currentY + 4, 0xFFFFFF);

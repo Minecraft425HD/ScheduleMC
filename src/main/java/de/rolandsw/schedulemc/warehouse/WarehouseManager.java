@@ -104,6 +104,8 @@ public class WarehouseManager {
 
                 // OPTIMIERUNG: Direkte Iteration ohne Kopie, ConcurrentHashMap.newKeySet() ist iterationssicher
                 for (BlockPos pos : entry.getValue()) {
+                    // PERFORMANCE: Nur geladene Chunks prüfen - verhindert Chunk-Loading durch Warehouse-Checks
+                    if (!level.isLoaded(pos)) continue;
                     checkWarehouseDelivery(level, pos, currentDay);
                 }
             }

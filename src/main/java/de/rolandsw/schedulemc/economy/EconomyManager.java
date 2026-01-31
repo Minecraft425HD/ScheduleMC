@@ -209,7 +209,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
     /**
      * Markiert, dass Änderungen vorliegen
      */
-    private static void markDirty() {
+    public static void markDirty() {
         needsSave = true;
     }
 

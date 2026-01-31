@@ -51,6 +51,10 @@ public class RumorNetwork {
     /** Maximum an Gerüchten pro Spieler */
     private static final int MAX_RUMORS_PER_PLAYER = 20;
 
+    // PERFORMANCE: Globale Größenlimits verhindern unbegrenztes Wachstum bei langer Laufzeit
+    private static final int MAX_TRACKED_PLAYERS = 5000;
+    private static final int MAX_TRACKED_NPCS = 10000;
+
     // ═══════════════════════════════════════════════════════════
     // RUMOR MANAGEMENT
     // ═══════════════════════════════════════════════════════════
@@ -60,6 +64,12 @@ public class RumorNetwork {
      */
     public void addRumor(Rumor rumor) {
         UUID subject = rumor.getSubjectUUID();
+
+        // PERFORMANCE: Globales Limit prüfen - verhindert unbegrenztes Wachstum
+        if (rumorsByPlayer.size() >= MAX_TRACKED_PLAYERS && !rumorsByPlayer.containsKey(subject)) {
+            return; // Neue Spieler ablehnen wenn Limit erreicht
+        }
+
         List<Rumor> playerRumors = rumorsByPlayer.computeIfAbsent(subject, k -> new ArrayList<>());
 
         // Prüfen ob gleiches Gerücht schon existiert
@@ -71,12 +81,15 @@ public class RumorNetwork {
             // Verstärken statt duplizieren
             existing.get().reinforce(lastKnownDay);
         } else {
-            // Limit einhalten
-            while (playerRumors.size() >= MAX_RUMORS_PER_PLAYER) {
-                // Ältestes entfernen
-                playerRumors.stream()
-                    .min(Comparator.comparingLong(Rumor::getCreatedDay))
-                    .ifPresent(playerRumors::remove);
+            // PERFORMANCE: Limit einhalten - sortiere einmal statt Stream pro Iteration
+            // Vorher: Stream-Erstellung in While-Schleife (O(n) pro Iteration)
+            // Nachher: Einmaliges Sortieren + removeRange-äquivalent (O(n log n) einmalig)
+            if (playerRumors.size() >= MAX_RUMORS_PER_PLAYER) {
+                playerRumors.sort(Comparator.comparingLong(Rumor::getCreatedDay));
+                // Entferne die ältesten, bis Platz für das neue Gerücht ist
+                while (playerRumors.size() >= MAX_RUMORS_PER_PLAYER) {
+                    playerRumors.remove(0); // Ältestes Element (nach Sortierung vorne)
+                }
             }
             playerRumors.add(rumor);
         }
@@ -131,6 +144,10 @@ public class RumorNetwork {
      * Markiert ein Gerücht als bekannt für einen NPC
      */
     public void markRumorKnown(UUID npcUUID, Rumor rumor) {
+        // PERFORMANCE: Globales NPC-Limit prüfen
+        if (npcKnownRumors.size() >= MAX_TRACKED_NPCS && !npcKnownRumors.containsKey(npcUUID)) {
+            return;
+        }
         String rumorKey = createRumorKey(rumor);
         npcKnownRumors.computeIfAbsent(npcUUID, k -> new HashSet<>()).add(rumorKey);
     }
