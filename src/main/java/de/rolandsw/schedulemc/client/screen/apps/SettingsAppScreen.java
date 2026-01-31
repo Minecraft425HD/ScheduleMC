@@ -685,7 +685,7 @@ public class SettingsAppScreen extends Screen {
         contentHeight += 10;
 
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, Component.translatable("gui.app.settings.thresholds").getString(), leftPos + 15, y, 0x55FFFF);
+            guiGraphics.drawString(this.font, cachedThresholds, leftPos + 15, y, 0x55FFFF);
         }
         y += 18;
         contentHeight += 18;
@@ -693,8 +693,8 @@ public class SettingsAppScreen extends Screen {
         // Strom-Schwellenwert
         if (y >= startY - 10 && y < endY) {
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 30, 0x33333333);
-            guiGraphics.drawString(this.font, Component.translatable("gui.app.settings.power_warning").getString(), leftPos + 15, y + 4, 0xFFAA00);
-            guiGraphics.drawString(this.font, "§f" + String.format("%.0f", electricityWarningThreshold) + Component.translatable("gui.app.settings.kwh").getString(), leftPos + 130, y + 4, 0xFFFFFF);
+            guiGraphics.drawString(this.font, cachedPowerWarning, leftPos + 15, y + 4, 0xFFAA00);
+            guiGraphics.drawString(this.font, "§f" + String.format("%.0f", electricityWarningThreshold) + cachedKwh, leftPos + 130, y + 4, 0xFFFFFF);
 
             // Mini-Balken (Interaktiv!)
             int barWidth = WIDTH - 40;
@@ -718,8 +718,8 @@ public class SettingsAppScreen extends Screen {
         // Wasser-Schwellenwert
         if (y >= startY - 10 && y < endY) {
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 30, 0x33333333);
-            guiGraphics.drawString(this.font, Component.translatable("gui.app.settings.water_warning").getString(), leftPos + 15, y + 4, 0x55AAFF);
-            guiGraphics.drawString(this.font, "§f" + String.format("%.0f", waterWarningThreshold) + Component.translatable("gui.app.settings.liters").getString(), leftPos + 135, y + 4, 0xFFFFFF);
+            guiGraphics.drawString(this.font, cachedWaterWarning, leftPos + 15, y + 4, 0x55AAFF);
+            guiGraphics.drawString(this.font, "§f" + String.format("%.0f", waterWarningThreshold) + cachedLiters, leftPos + 135, y + 4, 0xFFFFFF);
 
             // Mini-Balken (Interaktiv!)
             int barWidth = WIDTH - 40;
@@ -742,13 +742,13 @@ public class SettingsAppScreen extends Screen {
 
         // Info-Text
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, Component.translatable("gui.app.settings.threshold_info1").getString(), leftPos + 15, y, 0x666666);
+            guiGraphics.drawString(this.font, cachedThresholdInfo1, leftPos + 15, y, 0x666666);
         }
         y += 11;
         contentHeight += 11;
 
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, Component.translatable("gui.app.settings.threshold_info2").getString(), leftPos + 15, y, 0x666666);
+            guiGraphics.drawString(this.font, cachedThresholdInfo2, leftPos + 15, y, 0x666666);
         }
         y += 20;
         contentHeight += 20;
@@ -763,16 +763,16 @@ public class SettingsAppScreen extends Screen {
         contentHeight += 10;
 
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, Component.translatable("gui.app.settings.police_heat").getString(), leftPos + 15, y, 0xFF5555);
+            guiGraphics.drawString(this.font, cachedPoliceHeat, leftPos + 15, y, 0xFF5555);
         }
         y += 15;
         contentHeight += 15;
 
         if (y >= startY - 10 && y < endY) {
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 45, 0x44330000);
-            guiGraphics.drawString(this.font, Component.translatable("gui.app.settings.heat_info1").getString(), leftPos + 15, y + 5, 0x666666);
-            guiGraphics.drawString(this.font, Component.translatable("gui.app.settings.heat_info2").getString(), leftPos + 15, y + 15, 0x666666);
-            guiGraphics.drawString(this.font, Component.translatable("gui.app.settings.heat_threshold").getString(), leftPos + 15, y + 30, 0xAA5555);
+            guiGraphics.drawString(this.font, cachedHeatInfo1, leftPos + 15, y + 5, 0x666666);
+            guiGraphics.drawString(this.font, cachedHeatInfo2, leftPos + 15, y + 15, 0x666666);
+            guiGraphics.drawString(this.font, cachedHeatThreshold, leftPos + 15, y + 30, 0xAA5555);
         }
         y += 50;
         contentHeight += 50;
@@ -792,7 +792,7 @@ public class SettingsAppScreen extends Screen {
         // KONTOSTAND
         // ═══════════════════════════════════════════════════════════════════════════
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, Component.translatable("gui.app.settings.balance").getString(), leftPos + 15, y, 0xFFAA00);
+            guiGraphics.drawString(this.font, cachedBalance, leftPos + 15, y, 0xFFAA00);
         }
         y += 18;
         contentHeight += 18;
@@ -806,13 +806,13 @@ public class SettingsAppScreen extends Screen {
             }
 
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 50, 0x44228B22);
-            guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.settings.available").getString(), leftPos + WIDTH / 2, y + 8, 0xFFFFFF);
+            guiGraphics.drawCenteredString(this.font, cachedAvailable, leftPos + WIDTH / 2, y + 8, 0xFFFFFF);
 
             // Großer Betrag
             String balanceStr = String.format("§a§l%.2f €", accountBalance);
             guiGraphics.drawCenteredString(this.font, balanceStr, leftPos + WIDTH / 2, y + 25, 0x55FF55);
 
-            guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.settings.bank_name").getString(), leftPos + WIDTH / 2, y + 40, 0x666666);
+            guiGraphics.drawCenteredString(this.font, cachedBankName, leftPos + WIDTH / 2, y + 40, 0x666666);
         }
         y += 58;
         contentHeight += 58;
@@ -827,7 +827,7 @@ public class SettingsAppScreen extends Screen {
         contentHeight += 10;
 
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, Component.translatable("gui.app.settings.running_costs").getString(), leftPos + 15, y, 0xFFAA00);
+            guiGraphics.drawString(this.font, cachedRunningCosts, leftPos + 15, y, 0xFFAA00);
         }
         y += 15;
         contentHeight += 15;
@@ -852,20 +852,20 @@ public class SettingsAppScreen extends Screen {
         if (y >= startY - 10 && y < endY) {
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 55, 0x33333333);
 
-            guiGraphics.drawString(this.font, Component.translatable("gui.app.settings.daily").getString(), leftPos + 15, y + 5, 0xAAAAAA);
+            guiGraphics.drawString(this.font, cachedDaily, leftPos + 15, y + 5, 0xAAAAAA);
             guiGraphics.drawString(this.font, String.format("§e%.2f €", dailyCost), leftPos + 100, y + 5, 0xFFAA00);
 
-            guiGraphics.drawString(this.font, Component.translatable("gui.app.settings.weekly").getString(), leftPos + 15, y + 18, 0xAAAAAA);
+            guiGraphics.drawString(this.font, cachedWeekly, leftPos + 15, y + 18, 0xAAAAAA);
             guiGraphics.drawString(this.font, String.format("§e%.2f €", weeklyCost), leftPos + 100, y + 18, 0xFFAA00);
 
-            guiGraphics.drawString(this.font, Component.translatable("gui.app.settings.monthly").getString(), leftPos + 15, y + 31, 0xAAAAAA);
+            guiGraphics.drawString(this.font, cachedMonthly, leftPos + 15, y + 31, 0xAAAAAA);
             guiGraphics.drawString(this.font, String.format("§e%.2f €", monthlyCost), leftPos + 100, y + 31, 0xFFAA00);
 
             // Reichweite - lade echten Kontostand
             double currentBalance = minecraft.player != null ? EconomyManager.getBalance(minecraft.player.getUUID()) : 0.0;
             int daysUntilEmpty = dailyCost > 0 ? (int) (currentBalance / dailyCost) : 999;
             String reichweiteColor = daysUntilEmpty < 7 ? "§c" : (daysUntilEmpty < 30 ? "§e" : "§a");
-            guiGraphics.drawString(this.font, Component.translatable("gui.app.settings.range").getString() + reichweiteColor + daysUntilEmpty + Component.translatable("gui.app.settings.days").getString(), leftPos + 15, y + 44, 0x888888);
+            guiGraphics.drawString(this.font, cachedRange + reichweiteColor + daysUntilEmpty + cachedDays, leftPos + 15, y + 44, 0x888888);
         }
         y += 60;
         contentHeight += 60;
@@ -880,20 +880,20 @@ public class SettingsAppScreen extends Screen {
         contentHeight += 10;
 
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, Component.translatable("gui.app.settings.property").getString(), leftPos + 15, y, 0x55FFFF);
+            guiGraphics.drawString(this.font, cachedProperty, leftPos + 15, y, 0x55FFFF);
         }
         y += 15;
         contentHeight += 15;
 
         if (myPlots.isEmpty()) {
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawString(this.font, Component.translatable("gui.app.settings.no_properties").getString(), leftPos + 15, y, 0x666666);
+                guiGraphics.drawString(this.font, cachedNoProperties, leftPos + 15, y, 0x666666);
             }
             y += 12;
             contentHeight += 12;
         } else {
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawString(this.font, "§a" + myPlots.size() + Component.translatable("gui.app.settings.properties_count").getString(), leftPos + 15, y, 0x55FF55);
+                guiGraphics.drawString(this.font, "§a" + myPlots.size() + cachedPropertiesCount, leftPos + 15, y, 0x55FF55);
             }
             y += 12;
             contentHeight += 12;

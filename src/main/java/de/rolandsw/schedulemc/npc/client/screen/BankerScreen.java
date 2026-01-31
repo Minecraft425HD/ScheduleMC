@@ -476,47 +476,47 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
     // ═══════════════════════════════════════════════════════════════════════════
 
     private void renderUebersichtTab(GuiGraphics g, int x, int y) {
-        g.drawString(font, Component.translatable("gui.bank.overview_title").getString(), x + 55, y + 45, 0x404040, false);
+        g.drawString(font, cachedOverviewTitle, x + 55, y + 45, 0x404040, false);
 
         double bargeld = ClientBankDataCache.getWalletBalance();
-        g.drawString(font, Component.translatable("gui.bank.cash").getString(), x + 30, y + 65, 0x808080, false);
+        g.drawString(font, cachedCash, x + 30, y + 65, 0x808080, false);
         g.drawString(font, String.format("%.2f€", bargeld), x + 125, y + 65, 0xFFAA00, false);
 
         double girokonto = ClientBankDataCache.getBalance();
-        g.drawString(font, Component.translatable("gui.bank.checking_balance").getString(), x + 30, y + 85, 0x808080, false);
+        g.drawString(font, cachedCheckingBalance, x + 30, y + 85, 0x808080, false);
         g.drawString(font, String.format("%.2f€", girokonto), x + 125, y + 85, 0x00AA00, false);
 
         double sparkonto = ClientBankDataCache.getSavingsBalance();
-        g.drawString(font, Component.translatable("gui.bank.savings").getString(), x + 30, y + 105, 0x808080, false);
+        g.drawString(font, cachedSavings, x + 30, y + 105, 0x808080, false);
         g.drawString(font, String.format("%.2f€", sparkonto), x + 125, y + 105, 0x6666FF, false);
 
         g.fill(x + 20, y + 120, x + 200, y + 121, 0x44FFFFFF);
 
         double gesamt = bargeld + girokonto + sparkonto;
-        g.drawString(font, Component.translatable("gui.bank.total").getString(), x + 30, y + 130, 0x404040, false);
+        g.drawString(font, cachedTotal, x + 30, y + 130, 0x404040, false);
         g.drawString(font, String.format("%.2f€", gesamt), x + 125, y + 130, 0xFFD700, false);
 
         if (!ClientBankDataCache.hasData()) {
-            g.drawString(font, Component.translatable("gui.bank.loading").getString(), x + 30, y + 150, 0x808080, false);
+            g.drawString(font, cachedLoading, x + 30, y + 150, 0x808080, false);
         }
     }
 
     private void renderGirokontoTab(GuiGraphics g, int x, int y) {
-        g.drawString(font, Component.translatable("gui.bank.checking_title").getString(), x + 75, y + 45, 0x404040, false);
+        g.drawString(font, cachedCheckingTitle, x + 75, y + 45, 0x404040, false);
 
         double girokonto = ClientBankDataCache.getBalance();
-        g.drawString(font, Component.translatable("gui.bank.balance").getString(), x + 20, y + 60, 0x808080, false);
+        g.drawString(font, cachedBalance, x + 20, y + 60, 0x808080, false);
         g.drawString(font, String.format("%.2f€", girokonto), x + 125, y + 60, 0x00AA00, false);
 
         double bargeld = ClientBankDataCache.getWalletBalance();
-        g.drawString(font, Component.translatable("gui.bank.cash_balance").getString(), x + 20, y + 72, 0x808080, false);
+        g.drawString(font, cachedCashBalance, x + 20, y + 72, 0x808080, false);
         g.drawString(font, String.format("%.2f€", bargeld), x + 125, y + 72, 0xFFAA00, false);
 
-        g.drawString(font, Component.translatable("gui.bank.deposit_from_cash").getString(), x + 15, y + 85, 0x808080, false);
-        g.drawString(font, Component.translatable("gui.bank.withdraw_to_cash").getString(), x + 15, y + 128, 0x808080, false);
+        g.drawString(font, cachedDepositFromCash, x + 15, y + 85, 0x808080, false);
+        g.drawString(font, cachedWithdrawToCash, x + 15, y + 128, 0x808080, false);
 
         double depositLimit = ModConfigHandler.COMMON.BANK_DEPOSIT_LIMIT.get();
-        g.drawString(font, Component.translatable("gui.bank.limit").getString() + String.format("%.0f€", depositLimit), x + 15, y + 170, 0x606060, false);
+        g.drawString(font, cachedLimit + String.format("%.0f€", depositLimit), x + 15, y + 170, 0x606060, false);
 
         // DISPO-ANZEIGE
         if (ClientBankDataCache.isOverdrawn()) {
@@ -527,7 +527,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
             double prisonMinutes = ClientBankDataCache.getPotentialPrisonMinutes();
 
             // Warnung: KONTO ÜBERZOGEN!
-            g.drawString(font, Component.translatable("gui.bank.overdrawn_warning").getString(), x + 20, y + 185, 0xFF5555, false);
+            g.drawString(font, cachedOverdrawnWarning, x + 20, y + 185, 0xFF5555, false);
             g.drawString(font, Component.translatable("gui.bank.debt_amount", String.format("%.2f", overdraft)).getString(), x + 20, y + 197, 0xFF5555, false);
 
             // Phase-abhängige Anzeige
@@ -540,54 +540,54 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
                 g.drawString(font, Component.translatable("gui.bank.penalty_duration", String.format("%.1f", prisonMinutes)).getString(), x + 20, y + 221, 0xFF5555, false);
             } else if (daysUntilPrison == 0) {
                 // Tag 28+: KRITISCH!
-                g.drawString(font, Component.translatable("gui.bank.going_to_prison").getString(), x + 20, y + 209, 0xAA0000, false);
+                g.drawString(font, cachedGoingToPrison, x + 20, y + 209, 0xAA0000, false);
             }
         }
     }
 
     private void renderSparkontoTab(GuiGraphics g, int x, int y) {
-        g.drawString(font, Component.translatable("gui.bank.savings_title").getString(), x + 75, y + 45, 0x404040, false);
+        g.drawString(font, cachedSavingsTitle, x + 75, y + 45, 0x404040, false);
 
         double sparkonto = ClientBankDataCache.getSavingsBalance();
-        g.drawString(font, Component.translatable("gui.bank.balance").getString(), x + 20, y + 60, 0x808080, false);
+        g.drawString(font, cachedBalance, x + 20, y + 60, 0x808080, false);
         g.drawString(font, String.format("%.2f€", sparkonto), x + 125, y + 60, 0x6666FF, false);
 
         double girokonto = ClientBankDataCache.getBalance();
-        g.drawString(font, Component.translatable("gui.bank.checking_balance").getString(), x + 20, y + 72, 0x808080, false);
+        g.drawString(font, cachedCheckingBalance, x + 20, y + 72, 0x808080, false);
         g.drawString(font, String.format("%.2f€", girokonto), x + 125, y + 72, 0x00AA00, false);
 
-        g.drawString(font, Component.translatable("gui.bank.deposit_from_checking").getString(), x + 15, y + 85, 0x808080, false);
-        g.drawString(font, Component.translatable("gui.bank.withdraw_to_checking").getString(), x + 15, y + 128, 0x808080, false);
+        g.drawString(font, cachedDepositFromChecking, x + 15, y + 85, 0x808080, false);
+        g.drawString(font, cachedWithdrawToChecking, x + 15, y + 128, 0x808080, false);
 
         // Label für Checkbox
         g.drawString(font, "10%", x + 235, y + 144, 0xFF5555, false);
 
-        g.drawString(font, Component.translatable("gui.bank.interest").getString(), x + 15, y + 170, 0x606060, false);
-        g.drawString(font, Component.translatable("gui.bank.minimum").getString(), x + 15, y + 182, 0x606060, false);
-        g.drawString(font, Component.translatable("gui.bank.lock_period").getString(), x + 15, y + 194, 0x606060, false);
+        g.drawString(font, cachedInterest, x + 15, y + 170, 0x606060, false);
+        g.drawString(font, cachedMinimum, x + 15, y + 182, 0x606060, false);
+        g.drawString(font, cachedLockPeriod, x + 15, y + 194, 0x606060, false);
     }
 
     private void renderUeberweisungTab(GuiGraphics g, int x, int y) {
-        g.drawString(font, Component.translatable("gui.bank.transfer_title").getString(), x + 70, y + 45, 0x404040, false);
-        g.drawString(font, Component.translatable("gui.bank.recipient_name").getString(), x + 15, y + 58, 0x808080, false);
-        g.drawString(font, Component.translatable("gui.bank.amount_label").getString(), x + 15, y + 96, 0x808080, false);
+        g.drawString(font, cachedTransferTitle, x + 70, y + 45, 0x404040, false);
+        g.drawString(font, cachedRecipientName, x + 15, y + 58, 0x808080, false);
+        g.drawString(font, cachedAmountLabel, x + 15, y + 96, 0x808080, false);
 
         double balance = ClientBankDataCache.getBalance();
-        g.drawString(font, Component.translatable("gui.bank.available_balance").getString(), x + 15, y + 160, 0x606060, false);
+        g.drawString(font, cachedAvailableBalance, x + 15, y + 160, 0x606060, false);
         g.drawString(font, String.format("%.2f€", balance), x + 140, y + 160, 0xFFD700, false);
 
         double remaining = ClientBankDataCache.getRemainingTransferLimit();
-        g.drawString(font, Component.translatable("gui.bank.daily_limit").getString(), x + 15, y + 172, 0x606060, false);
+        g.drawString(font, cachedDailyLimit, x + 15, y + 172, 0x606060, false);
         g.drawString(font, String.format("%.2f€", remaining), x + 140, y + 172, remaining > 0 ? 0x00AA00 : 0xFF5555, false);
     }
 
     private void renderHistorieTab(GuiGraphics g, int x, int y) {
-        g.drawString(font, Component.translatable("gui.bank.history_title").getString(), x + 65, y + 45, 0x404040, false);
+        g.drawString(font, cachedHistoryTitle, x + 65, y + 45, 0x404040, false);
 
         List<Transaction> transactions = ClientBankDataCache.getTransactions();
 
         if (transactions.isEmpty()) {
-            String msg = !ClientBankDataCache.hasData() ? Component.translatable("gui.bank.loading_transactions").getString() : Component.translatable("gui.bank.no_transactions").getString();
+            String msg = !ClientBankDataCache.hasData() ? cachedLoadingTransactions : cachedNoTransactions;
             g.drawString(font, msg, x + 50, y + 80, 0x808080, false);
             return;
         }
