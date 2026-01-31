@@ -61,7 +61,7 @@ public class LargeConditioningTankScreen extends AbstractContainerScreen<LargeCo
         int y = this.topPos;
 
         // Title
-        graphics.drawString(this.font, "Großer Lagertank", x + 8, y + 6, 0xFFFFFF, false);
+        graphics.drawString(this.font, Component.translatable("gui.beer.large_conditioning_tank").getString(), x + 8, y + 6, 0xFFFFFF, false);
     }
 
     @Override

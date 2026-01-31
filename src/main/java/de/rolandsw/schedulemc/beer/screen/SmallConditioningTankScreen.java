@@ -61,7 +61,7 @@ public class SmallConditioningTankScreen extends AbstractContainerScreen<SmallCo
         int y = this.topPos;
 
         // Title
-        graphics.drawString(this.font, "Kleiner Lagertank", x + 8, y + 6, 0xFFFFFF, false);
+        graphics.drawString(this.font, Component.translatable("gui.beer.small_conditioning_tank").getString(), x + 8, y + 6, 0xFFFFFF, false);
     }
 
     @Override

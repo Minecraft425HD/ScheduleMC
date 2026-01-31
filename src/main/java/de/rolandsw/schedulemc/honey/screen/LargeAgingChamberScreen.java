@@ -71,7 +71,7 @@ public class LargeAgingChamberScreen extends AbstractContainerScreen<LargeAgingC
         int y = this.topPos;
 
         // Title
-        graphics.drawString(this.font, "Große Reifekammer", x + 8, y + 6, 0xFFFFFF, false);
+        graphics.drawString(this.font, Component.translatable("gui.honey.large_aging_chamber").getString(), x + 8, y + 6, 0xFFFFFF, false);
     }
 
     @Override

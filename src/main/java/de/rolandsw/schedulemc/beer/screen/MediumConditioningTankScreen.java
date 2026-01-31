@@ -61,7 +61,7 @@ public class MediumConditioningTankScreen extends AbstractContainerScreen<Medium
         int y = this.topPos;
 
         // Title
-        graphics.drawString(this.font, "Mittlerer Lagertank", x + 8, y + 6, 0xFFFFFF, false);
+        graphics.drawString(this.font, Component.translatable("gui.beer.medium_conditioning_tank").getString(), x + 8, y + 6, 0xFFFFFF, false);
     }
 
     @Override

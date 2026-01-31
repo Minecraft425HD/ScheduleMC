@@ -71,7 +71,7 @@ public class MediumAgingChamberScreen extends AbstractContainerScreen<MediumAgin
         int y = this.topPos;
 
         // Title
-        graphics.drawString(this.font, "Mittlere Reifekammer", x + 8, y + 6, 0xFFFFFF, false);
+        graphics.drawString(this.font, Component.translatable("gui.honey.medium_aging_chamber").getString(), x + 8, y + 6, 0xFFFFFF, false);
     }
 
     @Override

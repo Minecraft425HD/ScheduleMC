@@ -70,7 +70,7 @@ public class SmallAgingChamberScreen extends AbstractContainerScreen<SmallAgingC
         int y = this.topPos;
 
         // Title
-        graphics.drawString(this.font, "Kleine Reifekammer", x + 8, y + 6, 0xFFFFFF, false);
+        graphics.drawString(this.font, Component.translatable("gui.honey.small_aging_chamber").getString(), x + 8, y + 6, 0xFFFFFF, false);
     }
 
     @Override

@@ -75,14 +75,14 @@ public class MashTunScreen extends AbstractContainerScreen<MashTunMenu> {
         int y = this.topPos;
 
         // Title
-        graphics.drawString(this.font, "Maischbottich", x + 8, y + 6, 0xFFFFFF, false);
+        graphics.drawString(this.font, Component.translatable("gui.beer.mash_tun").getString(), x + 8, y + 6, 0xFFFFFF, false);
 
         // Progress percentage
         int progress = menu.getProgress();
         int maxProgress = menu.getMaxProgress();
         if (progress > 0 && maxProgress > 0) {
             int percent = (int) (100.0f * progress / maxProgress);
-            graphics.drawString(this.font, percent + "%", x + 80, y + 56, 0xC57F00, false);
+            graphics.drawString(this.font, Component.translatable("gui.progress_percent", percent).getString(), x + 80, y + 56, 0xC57F00, false);
         }
     }
 
