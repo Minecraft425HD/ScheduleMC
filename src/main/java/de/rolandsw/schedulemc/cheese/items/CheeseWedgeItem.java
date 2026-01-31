@@ -129,20 +129,20 @@ public class CheeseWedgeItem extends Item {
         CheeseProcessingMethod method = getProcessingMethod(stack);
         double weight = getWeightGrams(stack);
 
-        tooltip.add(Component.literal("§7Sorte: " + type.getDisplayName()));
-        tooltip.add(Component.literal("§7Qualitat: " + quality.getDisplayName()));
-        tooltip.add(Component.literal("§7Reifegrad: " + ageLevel.getDisplayName()));
-        tooltip.add(Component.literal("§7Verarbeitung: " + method.getDisplayName()));
-        tooltip.add(Component.literal("§7Gewicht: §f" + String.format("%.0f", weight) + "g"));
+        tooltip.add(Component.translatable("tooltip.cheese.type", type.getDisplayName()));
+        tooltip.add(Component.translatable("tooltip.cheese.quality", quality.getDisplayName()));
+        tooltip.add(Component.translatable("tooltip.cheese.age_level", ageLevel.getDisplayName()));
+        tooltip.add(Component.translatable("tooltip.cheese.processing", method.getDisplayName()));
+        tooltip.add(Component.translatable("tooltip.cheese.weight_g", weight));
 
         double price = calculatePrice(stack);
-        tooltip.add(Component.literal("§6Wert: §f" + String.format("%.2f€", price)));
+        tooltip.add(Component.translatable("tooltip.cheese.value", price));
     }
 
     @Override
     public @NotNull Component getName(@NotNull ItemStack stack) {
         CheeseType type = getCheeseType(stack);
         CheeseQuality quality = getQuality(stack);
-        return Component.literal(quality.getColorCode() + type.getDisplayName() + " Stuck");
+        return Component.translatable("item.schedulemc.cheese_wedge.display", quality.getColorCode(), type.getDisplayName());
     }
 }

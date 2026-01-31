@@ -46,6 +46,6 @@ public class CheeseCurdItem extends Item {
     public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level,
                                 @NotNull List<Component> tooltip, @NotNull TooltipFlag flag) {
         CheeseQuality quality = getQuality(stack);
-        tooltip.add(Component.literal("§7Qualitat: " + quality.getDisplayName()));
+        tooltip.add(Component.translatable("tooltip.cheese.quality", quality.getDisplayName()));
     }
 }

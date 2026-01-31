@@ -67,7 +67,7 @@ public class LargeAgingCaveScreen extends AbstractContainerScreen<LargeAgingCave
         int y = this.topPos;
 
         // Title
-        graphics.drawString(this.font, "Große Reifekammer", x + 8, y + 6, 0xFFFFFF, false);
+        graphics.drawString(this.font, Component.translatable("block.schedulemc.large_aging_cave"), x + 8, y + 6, 0xFFFFFF, false);
     }
 
     @Override

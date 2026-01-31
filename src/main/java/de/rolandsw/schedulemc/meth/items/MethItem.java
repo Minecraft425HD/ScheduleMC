@@ -51,8 +51,8 @@ public class MethItem extends Item {
         MethQuality quality = getQuality(stack);
 
         tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
-        tooltip.add(Component.translatable("tooltip.meth.purity").append(Component.literal("§f" + getPurityPercent(quality) + "%")));
-        tooltip.add(Component.translatable("tooltip.meth.weight").append(Component.literal("§f" + stack.getCount() + "g §8(" + stack.getCount() + "x 1g)")));
+        tooltip.add(Component.translatable("tooltip.meth.purity").append(Component.translatable("tooltip.meth.purity_value", getPurityPercent(quality))));
+        tooltip.add(Component.translatable("tooltip.meth.weight").append(Component.translatable("tooltip.meth.weight_value", stack.getCount(), stack.getCount())));
         tooltip.add(Component.literal(""));
 
         String colorDesc = switch (quality) {
@@ -80,11 +80,11 @@ public class MethItem extends Item {
     @Override
     public Component getName(ItemStack stack) {
         MethQuality quality = getQuality(stack);
-        String name = switch (quality) {
-            case STANDARD -> "Crystal Meth";
-            case GUT -> "Premium Crystal";
-            case BLUE_SKY -> "Blue Sky";
+        String key = switch (quality) {
+            case STANDARD -> "item.schedulemc.meth.standard_name";
+            case GUT -> "item.schedulemc.meth.gut_name";
+            case BLUE_SKY -> "item.schedulemc.meth.blue_sky_name";
         };
-        return Component.literal(quality.getColorCode() + name);
+        return Component.literal(quality.getColorCode() + Component.translatable(key).getString());
     }
 }

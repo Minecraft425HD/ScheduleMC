@@ -119,10 +119,10 @@ public class ReduktionskesselScreen extends AbstractContainerScreen<Reduktionske
         graphics.fill(x, indicatorY, x + THERMO_WIDTH, indicatorY + 2, tempColor | 0xFF000000);
 
         // Temperatur-Labels
-        graphics.drawString(this.font, "150°C", x + THERMO_WIDTH + 5, y + 2, 0xFF5555, false);
-        graphics.drawString(this.font, "120°C", x + THERMO_WIDTH + 5, y + optimalStart - 4, 0xFFAA00, false);
-        graphics.drawString(this.font, "80°C", x + THERMO_WIDTH + 5, y + optimalEnd - 4, 0x55FF55, false);
-        graphics.drawString(this.font, "20°C", x + THERMO_WIDTH + 5, y + THERMO_HEIGHT - 10, 0x5555FF, false);
+        graphics.drawString(this.font, Component.translatable("gui.reduktionskessel.temp_150").getString(), x + THERMO_WIDTH + 5, y + 2, 0xFF5555, false);
+        graphics.drawString(this.font, Component.translatable("gui.reduktionskessel.temp_120").getString(), x + THERMO_WIDTH + 5, y + optimalStart - 4, 0xFFAA00, false);
+        graphics.drawString(this.font, Component.translatable("gui.reduktionskessel.temp_80").getString(), x + THERMO_WIDTH + 5, y + optimalEnd - 4, 0x55FF55, false);
+        graphics.drawString(this.font, Component.translatable("gui.reduktionskessel.temp_20").getString(), x + THERMO_WIDTH + 5, y + THERMO_HEIGHT - 10, 0x5555FF, false);
     }
 
     private void renderHeatButton(GuiGraphics graphics, int x, int y, int mouseX, int mouseY) {
@@ -163,10 +163,10 @@ public class ReduktionskesselScreen extends AbstractContainerScreen<Reduktionske
 
         // Temperatur-Anzeige auf Button
         int temp = menu.getTemperature();
-        String tempStr = temp + "°C";
         String zoneStr = menu.getTemperatureZone();
-        graphics.drawString(this.font, "§f" + tempStr + " " + zoneStr,
-                x + (BUTTON_WIDTH - this.font.width(tempStr + " " + zoneStr)) / 2 + 10,
+        String tempDisplay = Component.translatable("gui.reduktionskessel.temp_display", temp, zoneStr).getString();
+        graphics.drawString(this.font, tempDisplay,
+                x + (BUTTON_WIDTH - this.font.width(tempDisplay)) / 2 + 10,
                 y + 30, 0xFFFFFF, false);
 
         // Warnhinweis

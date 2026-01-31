@@ -69,10 +69,10 @@ public class TrocknungsOfenBlock extends Block implements EntityBlock {
                 return InteractionResult.SUCCESS;
             }
 
-            player.displayClientMessage(Component.literal("§6⚗ Trocknungs-Ofen\n")
+            player.displayClientMessage(Component.translatable("gui.trocknung.status_header").append(Component.literal("\n"))
                     .append(Component.translatable("block.mdma.oven_count", ofen.getInputCount()))
                     .append(Component.literal("\n"))
-                    .append(ofen.isActive() ? Component.literal("§7Fortschritt: §e" + (int)(ofen.getProgress() * 100) + "%") : Component.literal(""))
+                    .append(ofen.isActive() ? Component.translatable("gui.block.progress", (int)(ofen.getProgress() * 100)) : Component.literal(""))
             , true);
             return InteractionResult.SUCCESS;
         }

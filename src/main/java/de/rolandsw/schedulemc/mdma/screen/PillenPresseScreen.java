@@ -90,9 +90,8 @@ public class PillenPresseScreen extends AbstractContainerScreen<PillenPresseMenu
         graphics.fill(x + 20, infoY, x + GUI_WIDTH - 20, infoY + 28, 0xFF1A0A1A);
 
         // Design und Farbe
-        String designText = "§7Design: " + menu.getSelectedDesign().getColoredName() +
-                           " " + menu.getSelectedDesign().getSymbol();
-        String colorText = "§7Farbe: " + menu.getSelectedColor().getColoredName();
+        String designText = Component.translatable("gui.pill_press.status_design", menu.getSelectedDesign().getColoredName(), menu.getSelectedDesign().getSymbol()).getString();
+        String colorText = Component.translatable("gui.pill_press.status_color", menu.getSelectedColor().getColoredName()).getString();
 
         graphics.drawString(this.font, designText, x + 30, infoY + 5, 0xFFFFFF, false);
         graphics.drawString(this.font, colorText, x + 30, infoY + 16, 0xFFFFFF, false);
@@ -148,9 +147,9 @@ public class PillenPresseScreen extends AbstractContainerScreen<PillenPresseMenu
         }
 
         // Labels
-        graphics.drawString(this.font, "§cZu früh", x + 5, y + BAR_HEIGHT + 5, 0xAAAAAA, false);
-        graphics.drawString(this.font, "§aPERFEKT", x + BAR_WIDTH/2 - 20, y + BAR_HEIGHT + 5, 0xAAAAAA, false);
-        graphics.drawString(this.font, "§cZu spät", x + BAR_WIDTH - 45, y + BAR_HEIGHT + 5, 0xAAAAAA, false);
+        graphics.drawString(this.font, Component.translatable("gui.pill_press.too_early").getString(), x + 5, y + BAR_HEIGHT + 5, 0xAAAAAA, false);
+        graphics.drawString(this.font, Component.translatable("gui.pill_press.perfect").getString(), x + BAR_WIDTH/2 - 20, y + BAR_HEIGHT + 5, 0xAAAAAA, false);
+        graphics.drawString(this.font, Component.translatable("gui.pill_press.too_late").getString(), x + BAR_WIDTH - 45, y + BAR_HEIGHT + 5, 0xAAAAAA, false);
     }
 
     private void renderPressButton(GuiGraphics graphics, int x, int y, int mouseX, int mouseY) {
@@ -163,16 +162,16 @@ public class PillenPresseScreen extends AbstractContainerScreen<PillenPresseMenu
 
         if (hasPressed) {
             buttonColor = 0xFF333355;
-            buttonText = "§7GEPRESST!";
+            buttonText = Component.translatable("gui.pill_press.pressed").getString();
         } else if (canPress && hovered) {
             buttonColor = 0xFFDD55DD;
-            buttonText = "§f⚡ PRESS! ⚡";
+            buttonText = Component.translatable("gui.pill_press.press").getString();
         } else if (canPress) {
             buttonColor = 0xFFAA44AA;
-            buttonText = "§f⚡ PRESS! ⚡";
+            buttonText = Component.translatable("gui.pill_press.press").getString();
         } else {
             buttonColor = 0xFF444455;
-            buttonText = "§8Warte...";
+            buttonText = Component.translatable("gui.pill_press.wait").getString();
         }
 
         // Button mit Animation wenn aktiv
@@ -203,19 +202,19 @@ public class PillenPresseScreen extends AbstractContainerScreen<PillenPresseMenu
 
         switch (quality) {
             case PREMIUM -> {
-                qualityText = "§6★ PERFEKT! ★ §fPremium-Qualität!";
+                qualityText = Component.translatable("gui.pill_press.result.premium").getString();
                 qualityColor = 0xFFFFAA00;
             }
             case GUT -> {
-                qualityText = "§aGUT! §fGute Qualität";
+                qualityText = Component.translatable("gui.pill_press.result.good").getString();
                 qualityColor = 0xFF55FF55;
             }
             case STANDARD -> {
-                qualityText = "§eOKAY §7Standard-Qualität";
+                qualityText = Component.translatable("gui.pill_press.result.standard").getString();
                 qualityColor = 0xFFFFFF55;
             }
             default -> {
-                qualityText = "§cSCHLECHT §7Minderwertig...";
+                qualityText = Component.translatable("gui.pill_press.result.bad").getString();
                 qualityColor = 0xFFFF5555;
             }
         }
@@ -236,11 +235,11 @@ public class PillenPresseScreen extends AbstractContainerScreen<PillenPresseMenu
         int y = this.topPos;
 
         // Titel
-        graphics.drawString(this.font, "§d💊 §lPILLEN-PRESSE §d💊", x + 10, y + 8, 0xFFDD88FF, true);
+        graphics.drawString(this.font, Component.translatable("gui.pill_press.title").getString(), x + 10, y + 8, 0xFFDD88FF, true);
 
         // Anleitung
         if (menu.isWaitingForPress() && !hasPressed) {
-            String hint = "§e▶ Drücke im §a§lGRÜNEN§e Bereich! ◀";
+            String hint = Component.translatable("gui.pill_press.hint").getString();
             int hintWidth = this.font.width(hint);
             graphics.drawString(this.font, hint, x + GUI_WIDTH / 2 - hintWidth / 2, y + 108, 0xFFFFFF, true);
         }

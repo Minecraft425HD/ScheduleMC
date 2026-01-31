@@ -67,7 +67,7 @@ public class SmallAgingCaveScreen extends AbstractContainerScreen<SmallAgingCave
         int y = this.topPos;
 
         // Title
-        graphics.drawString(this.font, "Kleine Reifekammer", x + 8, y + 6, 0xFFFFFF, false);
+        graphics.drawString(this.font, Component.translatable("block.schedulemc.small_aging_cave"), x + 8, y + 6, 0xFFFFFF, false);
     }
 
     @Override

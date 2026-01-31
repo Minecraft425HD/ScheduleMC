@@ -106,16 +106,16 @@ public class CheeseWheelItem extends Item {
         CheeseAgeLevel ageLevel = getAgeLevel(stack);
         double weight = getWeightKg(stack);
 
-        tooltip.add(Component.literal("§7Sorte: " + type.getDisplayName()));
-        tooltip.add(Component.literal("§7Qualitat: " + quality.getDisplayName()));
-        tooltip.add(Component.literal("§7Reifegrad: " + ageLevel.getDisplayName()));
-        tooltip.add(Component.literal("§7Gewicht: §f" + String.format("%.1f", weight) + "kg"));
+        tooltip.add(Component.translatable("tooltip.cheese.type", type.getDisplayName()));
+        tooltip.add(Component.translatable("tooltip.cheese.quality", quality.getDisplayName()));
+        tooltip.add(Component.translatable("tooltip.cheese.age_level", ageLevel.getDisplayName()));
+        tooltip.add(Component.translatable("tooltip.cheese.weight_kg", weight));
     }
 
     @Override
     public @NotNull Component getName(@NotNull ItemStack stack) {
         CheeseType type = getCheeseType(stack);
         CheeseQuality quality = getQuality(stack);
-        return Component.literal(quality.getColorCode() + type.getDisplayName() + " Laib");
+        return Component.translatable("item.schedulemc.cheese_wheel.display", quality.getColorCode(), type.getDisplayName());
     }
 }
