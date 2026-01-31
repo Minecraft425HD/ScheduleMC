@@ -40,6 +40,19 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
     private int scrollOffset = 0;
     private static final int VISIBLE_ROWS = 4; // Zeige 4 Zeilen gleichzeitig (keine Überlappung)
 
+    // PERFORMANCE: Cache static translatable strings
+    private String cachedColumnNumber;
+    private String cachedColumnItem;
+    private String cachedColumnPrice;
+    private String cachedColumnUnlimited;
+    private String cachedColumnStock;
+    private String cachedEmptySlot;
+    private String cachedHotbarLabel;
+    private String cachedHintLine1;
+    private String cachedHintLine2;
+    private String cachedTitle;
+    private String cachedShopItemsHeading;
+
     public ShopEditorScreen(ShopEditorMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.imageWidth = 320; // Breiter für alle Felder
@@ -74,6 +87,19 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
             Component.translatable("screen.shop_editor.save_button"),
             button -> saveShopItems()
         ).bounds(x + 8, y + imageHeight - 26, 304, 20).build());
+
+        // PERFORMANCE: Cache translatable strings once in init()
+        cachedColumnNumber = Component.translatable("screen.shop_editor.column_number").getString();
+        cachedColumnItem = Component.translatable("screen.shop_editor.column_item").getString();
+        cachedColumnPrice = Component.translatable("screen.shop_editor.column_price").getString();
+        cachedColumnUnlimited = Component.translatable("screen.shop_editor.column_unlimited").getString();
+        cachedColumnStock = Component.translatable("screen.shop_editor.column_stock").getString();
+        cachedEmptySlot = Component.translatable("screen.shop_editor.empty_slot").getString();
+        cachedHotbarLabel = Component.translatable("screen.shop_editor.hotbar_label").getString();
+        cachedHintLine1 = Component.translatable("screen.shop_editor.hint_line1").getString();
+        cachedHintLine2 = Component.translatable("screen.shop_editor.hint_line2").getString();
+        cachedTitle = Component.translatable("screen.shop_editor.title").getString();
+        cachedShopItemsHeading = Component.translatable("screen.shop_editor.shop_items_heading").getString();
     }
 
     /**
@@ -225,11 +251,11 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
         int y = (height - imageHeight) / 2;
 
         // Render Tabellen-Header
-        guiGraphics.drawString(this.font, Component.translatable("screen.shop_editor.column_number").getString(), x + 92, y + 18, 0x404040, false);
-        guiGraphics.drawString(this.font, Component.translatable("screen.shop_editor.column_item").getString(), x + 110, y + 18, 0x404040, false);
-        guiGraphics.drawString(this.font, Component.translatable("screen.shop_editor.column_price").getString(), x + 180, y + 18, 0x404040, false);
-        guiGraphics.drawString(this.font, Component.translatable("screen.shop_editor.column_unlimited").getString(), x + 228, y + 18, 0x404040, false);
-        guiGraphics.drawString(this.font, Component.translatable("screen.shop_editor.column_stock").getString(), x + 250, y + 18, 0x404040, false);
+        guiGraphics.drawString(this.font, cachedColumnNumber, x + 92, y + 18, 0x404040, false);
+        guiGraphics.drawString(this.font, cachedColumnItem, x + 110, y + 18, 0x404040, false);
+        guiGraphics.drawString(this.font, cachedColumnPrice, x + 180, y + 18, 0x404040, false);
+        guiGraphics.drawString(this.font, cachedColumnUnlimited, x + 228, y + 18, 0x404040, false);
+        guiGraphics.drawString(this.font, cachedColumnStock, x + 250, y + 18, 0x404040, false);
 
         // Render Tabellen-Einträge
         for (int i = 0; i < Math.min(VISIBLE_ROWS, ShopEditorMenu.SHOP_SLOTS - scrollOffset); i++) {
@@ -249,19 +275,16 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
                 }
                 guiGraphics.drawString(this.font, itemName, x + 110, rowY + 4, 0xFFFFFF, false);
             } else {
-                guiGraphics.drawString(this.font, Component.translatable("screen.shop_editor.empty_slot").getString(), x + 110, rowY + 4, 0x666666, false);
+                guiGraphics.drawString(this.font, cachedEmptySlot, x + 110, rowY + 4, 0x666666, false);
             }
         }
 
         // Hotbar-Label
-        guiGraphics.drawString(this.font, Component.translatable("screen.shop_editor.hotbar_label").getString(),
-            x + 92, y + 144, 0x404040, false);
+        guiGraphics.drawString(this.font, cachedHotbarLabel, x + 92, y + 144, 0x404040, false);
 
-        // Hinweistext unten (dunkle Farbe für gute Lesbarkeit auf hellgrauem Hintergrund)
-        guiGraphics.drawString(this.font, Component.translatable("screen.shop_editor.hint_line1").getString(),
-            x + 10, y + imageHeight - 38, 0x404040, false);
-        guiGraphics.drawString(this.font, Component.translatable("screen.shop_editor.hint_line2").getString(),
-            x + 10, y + imageHeight - 28, 0x404040, false);
+        // Hinweistext unten
+        guiGraphics.drawString(this.font, cachedHintLine1, x + 10, y + imageHeight - 38, 0x404040, false);
+        guiGraphics.drawString(this.font, cachedHintLine2, x + 10, y + imageHeight - 28, 0x404040, false);
     }
 
     @Override
@@ -288,14 +311,12 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
 
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        String title = Component.translatable("screen.shop_editor.title").getString();
-        guiGraphics.drawString(this.font, title, 8, 6, 0xFFD700, false);
+        guiGraphics.drawString(this.font, cachedTitle, 8, 6, 0xFFD700, false);
 
         String category = "§7" + menu.getCategory().getDisplayName();
         guiGraphics.drawString(this.font, category, imageWidth - font.width(category) - 8, 6, 0xAAAAAA, false);
 
-        // Überschrift für Shop Items
-        guiGraphics.drawString(this.font, Component.translatable("screen.shop_editor.shop_items_heading").getString(), 8, 94, 0xFFFFFF, false);
+        guiGraphics.drawString(this.font, cachedShopItemsHeading, 8, 94, 0xFFFFFF, false);
     }
 
     @Override

@@ -22,6 +22,12 @@ public class WantedLevelOverlay {
     private static final int HUD_Y = 10;
     private static final float SCALE = 1.2f;
 
+    // PERFORMANCE: Cache wanted text per level to avoid per-frame Component allocation
+    private static final String[] WANTED_TEXTS = new String[6];
+    // PERFORMANCE: Cache last escape text to avoid per-frame allocation
+    private static int lastCachedEscapeSeconds = -1;
+    private static String cachedEscapeText = "";
+
     @SubscribeEvent
     public static void onRenderGuiOverlay(RenderGuiOverlayEvent.Post event) {
         EventHelper.handleEvent(() -> {
@@ -47,8 +53,13 @@ public class WantedLevelOverlay {
 
             // === WANTED LEVEL STERNE ===
             if (wantedLevel > 0) {
-                String stars = getStarString(wantedLevel);
-                String wantedText = net.minecraft.network.chat.Component.translatable("hud.wanted.wanted", stars).getString();
+                // PERFORMANCE: Cache wanted text per level (only 5 possible values)
+                int idx = Math.min(wantedLevel, 5);
+                if (WANTED_TEXTS[idx] == null) {
+                    String stars = getStarString(wantedLevel);
+                    WANTED_TEXTS[idx] = net.minecraft.network.chat.Component.translatable("hud.wanted.wanted", stars).getString();
+                }
+                String wantedText = WANTED_TEXTS[idx];
 
                 guiGraphics.pose().pushPose();
                 guiGraphics.pose().scale(SCALE, SCALE, 1.0f);
@@ -62,7 +73,12 @@ public class WantedLevelOverlay {
             if (escapeTime > 0) {
                 // Konvertiere Ticks zu Sekunden
                 int secondsRemaining = (int) Math.ceil(escapeTime / 20.0);
-                String escapeText = net.minecraft.network.chat.Component.translatable("hud.wanted.hidden", secondsRemaining).getString();
+                // PERFORMANCE: Only recompute string when seconds value changes
+                if (secondsRemaining != lastCachedEscapeSeconds) {
+                    lastCachedEscapeSeconds = secondsRemaining;
+                    cachedEscapeText = net.minecraft.network.chat.Component.translatable("hud.wanted.hidden", secondsRemaining).getString();
+                }
+                String escapeText = cachedEscapeText;
 
                 // Fortschrittsbalken
                 float progress = (float) escapeTime / CrimeManager.ESCAPE_DURATION;
