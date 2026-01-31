@@ -269,7 +269,7 @@ public class WorldMapScreen extends PopupScreen {
             int nameInputY = paletteY - 4; // Slightly adjusted for vertical alignment with small buttons
             territoryNameInput = new EditBox(minecraft.font, nameInputX, nameInputY, NAME_INPUT_WIDTH, NAME_INPUT_HEIGHT,
                 Component.literal("Territory Name"));
-            territoryNameInput.setHint(Component.literal("Gebietsname..."));
+            territoryNameInput.setHint(Component.translatable("gui.worldmap.territory_hint"));
             territoryNameInput.setMaxLength(32);
             territoryNameInput.setValue(currentTerritoryName);
             territoryNameInput.setResponder(value -> currentTerritoryName = value);
@@ -1204,12 +1204,12 @@ public class WorldMapScreen extends PopupScreen {
         entries.add(entry);
 
         // Navigation Option
-        PopupComponent.PopupEntry navEntry = new PopupComponent.PopupEntry("Hierhin navigieren", 4, true, true);
+        PopupComponent.PopupEntry navEntry = new PopupComponent.PopupEntry(Component.translatable("gui.worldmap.navigate_here").getString(), 4, true, true);
         entries.add(navEntry);
 
         // Navigation stoppen (wenn aktiv)
         if (RoadNavigationService.getInstance() != null && RoadNavigationService.getInstance().isNavigationActive()) {
-            PopupComponent.PopupEntry stopEntry = new PopupComponent.PopupEntry("Navigation beenden", 5, true, true);
+            PopupComponent.PopupEntry stopEntry = new PopupComponent.PopupEntry(Component.translatable("gui.worldmap.stop_navigation").getString(), 5, true, true);
             entries.add(stopEntry);
         }
 
@@ -1248,7 +1248,7 @@ public class WorldMapScreen extends PopupScreen {
                 // Navigation starten
                 MapViewConstants.getLogger().info("[Navigation] Target coordinates from popup: x={}, z={}", x, z);
                 BlockPos targetPos = new BlockPos(x, y, z);
-                NavigationTarget target = NavigationTarget.atPosition(targetPos, "Kartenziel (" + x + ", " + z + ")");
+                NavigationTarget target = NavigationTarget.atPosition(targetPos, Component.translatable("gui.worldmap.map_target", x, z).getString());
                 // Initialisiere Service falls nötig
                 RoadNavigationService navService = RoadNavigationService.getInstance();
                 if (navService == null) {
@@ -1478,8 +1478,8 @@ public class WorldMapScreen extends PopupScreen {
                 territoryNameInput.setValue(currentTerritoryName);
             }
             if (minecraft != null && minecraft.player != null) {
-                String displayName = currentTerritoryName.isEmpty() ? "Unbenannt" : currentTerritoryName;
-                minecraft.player.sendSystemMessage(Component.literal("§eTerritory geladen: " + displayName));
+                String displayName = currentTerritoryName.isEmpty() ? Component.translatable("gui.worldmap.unnamed").getString() : currentTerritoryName;
+                minecraft.player.sendSystemMessage(Component.translatable("gui.worldmap.territory_loaded", displayName));
             }
             return; // Don't paint, just load
         }
@@ -1500,7 +1500,7 @@ public class WorldMapScreen extends PopupScreen {
             // Only show message if we changed territory name
             if (territoryChanged && minecraft != null && minecraft.player != null) {
                 if (lastPaintedTerritoryName != null && !lastPaintedTerritoryName.isEmpty()) {
-                    minecraft.player.sendSystemMessage(Component.literal("§7Verlassen: " + lastPaintedTerritoryName));
+                    minecraft.player.sendSystemMessage(Component.translatable("gui.worldmap.leaving", lastPaintedTerritoryName));
                 }
                 lastPaintedTerritoryName = null;
             }
@@ -1510,9 +1510,9 @@ public class WorldMapScreen extends PopupScreen {
             if (territoryChanged && minecraft != null && minecraft.player != null) {
                 String displayName = currentTerritoryName != null && !currentTerritoryName.isEmpty()
                     ? currentTerritoryName
-                    : "Unbenanntes Gebiet";
+                    : Component.translatable("gui.worldmap.unnamed_territory").getString();
 
-                minecraft.player.sendSystemMessage(Component.literal("§aBetreten: " + displayName));
+                minecraft.player.sendSystemMessage(Component.translatable("gui.worldmap.entering", displayName));
                 lastPaintedTerritoryName = displayName;
             } else {
                 // Update lastPaintedTerritoryName even if no message shown

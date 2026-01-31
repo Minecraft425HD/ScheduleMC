@@ -121,7 +121,7 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
             if (cost > 0) {
                 EconomyManager.deposit(player.getUUID(), cost);
             }
-            player.sendSystemMessage(Component.literal("§cKein Platz im Parts-Inventar!"));
+            player.sendSystemMessage(Component.translatable("message.vehicle.no_parts_space"));
             return;
         }
 
@@ -137,7 +137,7 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
         vehicle.tryInitPartsAndModel(); // Update 3D models (now actually runs!)
 
         // Success message
-        String costMsg = cost > 0 ? String.format(" (Kosten: %.0f€)", cost) : " (Kostenlos!)";
+        String costMsg = cost > 0 ? Component.translatable("message.vehicle.install_cost", cost).getString() : Component.translatable("message.vehicle.install_free").getString();
         player.sendSystemMessage(
             Component.translatable("werkstatt.container.installed_successfully")
                 .append(Component.literal(costMsg).withStyle(ChatFormatting.GRAY))
@@ -225,7 +225,7 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
             if (cost > 0) {
                 EconomyManager.deposit(player.getUUID(), cost);
             }
-            player.sendSystemMessage(Component.literal("§cKein Platz im Parts-Inventar!"));
+            player.sendSystemMessage(Component.translatable("message.vehicle.no_parts_space"));
             return;
         }
 
@@ -241,7 +241,7 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
         vehicle.tryInitPartsAndModel(); // Update 3D models
 
         // Success message
-        String costMsg = cost > 0 ? String.format(" (Kosten: %.0f€)", cost) : " (Kostenlos!)";
+        String costMsg = cost > 0 ? Component.translatable("message.vehicle.install_cost", cost).getString() : Component.translatable("message.vehicle.install_free").getString();
         player.sendSystemMessage(
             Component.translatable("werkstatt.container.installed_successfully")
                 .append(Component.literal(costMsg).withStyle(ChatFormatting.GRAY))

@@ -112,7 +112,7 @@ public class SpawnNPCPacket {
                         .withStyle(ChatFormatting.RED)
                         .append(Component.literal(validatedName)
                             .withStyle(ChatFormatting.YELLOW))
-                        .append(Component.literal("' existiert bereits!")
+                        .append(Component.translatable("message.npc.already_exists_suffix")
                             .withStyle(ChatFormatting.RED))
                 );
                 return;
