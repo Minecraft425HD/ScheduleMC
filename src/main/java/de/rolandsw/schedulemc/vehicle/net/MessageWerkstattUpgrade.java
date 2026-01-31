@@ -210,10 +210,12 @@ public class MessageWerkstattUpgrade implements Message<MessageWerkstattUpgrade>
             }
         }
 
-        // Update the vehicle's serialized parts data
+        // Update the vehicle's serialized parts data and reinitialize
         if (replacedAny) {
-            vehicle.setPartSerializer();
             vehicle.invalidatePartCache();
+            vehicle.initParts();
+            vehicle.setPartSerializer();
+            vehicle.checkInitializing();
         }
 
         return replacedAny;
