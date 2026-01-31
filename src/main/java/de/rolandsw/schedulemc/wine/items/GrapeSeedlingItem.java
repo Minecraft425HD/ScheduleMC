@@ -30,9 +30,9 @@ public class GrapeSeedlingItem extends Item {
     @Override
     public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level,
                                 @NotNull List<Component> tooltip, @NotNull TooltipFlag flag) {
-        tooltip.add(Component.literal("§7Typ: " + wineType.getDisplayName()));
-        tooltip.add(Component.literal("§7Wachstumszeit: §f" + wineType.getGrowthTimeDays() + " Tage"));
-        tooltip.add(Component.literal("§7Ertrag: §f" + wineType.getYieldPerPlant() + " Trauben"));
-        tooltip.add(Component.literal("§8Zum Pflanzen in Topf rechtsklicken"));
+        tooltip.add(Component.translatable("tooltip.grape_seedling.type", wineType.getDisplayName()));
+        tooltip.add(Component.translatable("tooltip.grape_seedling.growth_time", wineType.getGrowthTimeDays()));
+        tooltip.add(Component.translatable("tooltip.grape_seedling.yield", wineType.getYieldPerPlant()));
+        tooltip.add(Component.translatable("tooltip.grape_seedling.hint"));
     }
 }

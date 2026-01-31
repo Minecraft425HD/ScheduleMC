@@ -59,9 +59,9 @@ public class GrapeItem extends Item {
     @Override
     public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level,
                                 @NotNull List<Component> tooltip, @NotNull TooltipFlag flag) {
-        tooltip.add(Component.literal("§7Sorte: " + wineType.getDisplayName()));
+        tooltip.add(Component.translatable("tooltip.grape.type", wineType.getDisplayName()));
 
         WineQuality quality = getQuality(stack);
-        tooltip.add(Component.literal("§7Qualität: " + quality.getDisplayName()));
+        tooltip.add(Component.translatable("tooltip.grape.quality", quality.getDisplayName()));
     }
 }

@@ -138,20 +138,20 @@ public class WineBottleItem extends Item {
         WineAgeLevel ageLevel = getAgeLevel(stack);
         WineProcessingMethod method = getProcessingMethod(stack);
 
-        tooltip.add(Component.literal("§7Sorte: " + type.getDisplayName()));
-        tooltip.add(Component.literal("§7Qualität: " + quality.getDisplayName()));
-        tooltip.add(Component.literal("§7Reifegrad: " + ageLevel.getDisplayName()));
-        tooltip.add(Component.literal("§7Stil: " + method.getDisplayName()));
-        tooltip.add(Component.literal("§7Volumen: §f" + volumeLiters + "L"));
+        tooltip.add(Component.translatable("tooltip.wine.type", type.getDisplayName()));
+        tooltip.add(Component.translatable("tooltip.wine.quality", quality.getDisplayName()));
+        tooltip.add(Component.translatable("tooltip.wine.age_level", ageLevel.getDisplayName()));
+        tooltip.add(Component.translatable("tooltip.wine.style", method.getDisplayName()));
+        tooltip.add(Component.translatable("tooltip.wine.volume", volumeLiters));
 
         double price = calculatePrice(stack);
-        tooltip.add(Component.literal("§6Wert: §f" + String.format("%.2f€", price)));
+        tooltip.add(Component.translatable("tooltip.wine.value", price));
     }
 
     @Override
     public @NotNull Component getName(@NotNull ItemStack stack) {
         WineType type = getWineType(stack);
         WineQuality quality = getQuality(stack);
-        return Component.literal(quality.getColorCode() + type.getDisplayName() + " (" + volumeLiters + "L)");
+        return Component.translatable("tooltip.wine.name", quality.getColorCode() + type.getDisplayName(), volumeLiters);
     }
 }

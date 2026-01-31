@@ -191,20 +191,20 @@ public class HoneyJarItem extends Item {
         HoneyProcessingMethod method = getProcessingMethod(stack);
         double weight = getWeightKg(stack);
 
-        tooltip.add(Component.literal("§7Sorte: " + type.getColorCode() + type.getDisplayName()));
-        tooltip.add(Component.literal("§7Qualität: " + quality.getColorCode() + quality.getDisplayName()));
-        tooltip.add(Component.literal("§7Reifegrad: " + ageLevel.getColorCode() + ageLevel.getDisplayName()));
-        tooltip.add(Component.literal("§7Verarbeitung: " + method.getColorCode() + method.getDisplayName()));
-        tooltip.add(Component.literal("§7Gewicht: §f" + String.format("%.2f", weight) + " kg"));
+        tooltip.add(Component.translatable("tooltip.honey.type", type.getColorCode() + type.getDisplayName()));
+        tooltip.add(Component.translatable("tooltip.honey.quality", quality.getColorCode() + quality.getDisplayName()));
+        tooltip.add(Component.translatable("tooltip.honey.age_level", ageLevel.getColorCode() + ageLevel.getDisplayName()));
+        tooltip.add(Component.translatable("tooltip.honey.processing", method.getColorCode() + method.getDisplayName()));
+        tooltip.add(Component.translatable("tooltip.honey.weight", weight));
 
         // Zeige Alter wenn Produktionsdatum gesetzt ist
         if (level != null && getProductionDate(stack) != 0L) {
             int ageDays = getAgeDays(stack, level.getGameTime());
-            tooltip.add(Component.literal("§7Alter: §f" + ageDays + " Tage"));
+            tooltip.add(Component.translatable("tooltip.honey.age_days", ageDays));
         }
 
         double price = calculatePrice(stack);
-        tooltip.add(Component.literal("§6Wert: §f" + String.format("%.2f€", price)));
+        tooltip.add(Component.translatable("tooltip.honey.value", price));
 
         // Zusätzliche Info im erweiterten Tooltip
         if (flag.isAdvanced()) {
@@ -226,6 +226,6 @@ public class HoneyJarItem extends Item {
             weightStr = String.format("%.1fkg", weight);
         }
 
-        return Component.literal(quality.getColorCode() + type.getDisplayName() + " Honey (" + weightStr + ")");
+        return Component.translatable("tooltip.honey.name", quality.getColorCode() + type.getDisplayName(), weightStr);
     }
 }
