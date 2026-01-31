@@ -524,20 +524,20 @@ public class SettingsAppScreen extends Screen {
         contentHeight += 8;
 
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, Component.translatable("gui.app.settings.plot_name").getString(), leftPos + 15, y, 0xFF55FF);
+            guiGraphics.drawString(this.font, cachedPlotName, leftPos + 15, y, 0xFF55FF);
         }
         y += 15;
         contentHeight += 15;
 
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, Component.translatable("gui.app.settings.current").getString() + currentPlot.getPlotName(), leftPos + 15, y, 0xFFFFFF);
+            guiGraphics.drawString(this.font, cachedCurrent + currentPlot.getPlotName(), leftPos + 15, y, 0xFFFFFF);
         }
         y += 12;
         contentHeight += 12;
 
         // ✅ "Umbenennen" Button
         if (y >= startY - 30 && y < endY + 30) {
-            drawButton(guiGraphics, leftPos + 10, y + 3, WIDTH - 20, 18, Component.translatable("gui.app.settings.rename").getString(), 0xFFAA00, mouseX, mouseY);
+            drawButton(guiGraphics, leftPos + 10, y + 3, WIDTH - 20, 18, cachedRename, 0xFFAA00, mouseX, mouseY);
             clickableRegions.add(new ClickableRegion(leftPos + 10, y + 3, leftPos + WIDTH - 10, y + 21, () -> {
                 minecraft.setScreen(new InputDialogScreen(this, Component.translatable("gui.app.settings.rename_plot").getString(), Component.translatable("gui.app.settings.enter_new_name").getString(),
                     InputDialogScreen.InputType.TEXT, newName -> {
@@ -558,7 +558,7 @@ public class SettingsAppScreen extends Screen {
         contentHeight += 8;
 
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, Component.translatable("gui.app.settings.description").getString(), leftPos + 15, y, 0xFFAA00);
+            guiGraphics.drawString(this.font, cachedDescription, leftPos + 15, y, 0xFFAA00);
         }
         y += 15;
         contentHeight += 15;
@@ -572,7 +572,7 @@ public class SettingsAppScreen extends Screen {
             contentHeight += 12;
         } else {
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawString(this.font, Component.translatable("gui.app.settings.no_description").getString(), leftPos + 15, y, 0x666666);
+                guiGraphics.drawString(this.font, cachedNoDescription, leftPos + 15, y, 0x666666);
             }
             y += 12;
             contentHeight += 12;
@@ -580,7 +580,7 @@ public class SettingsAppScreen extends Screen {
 
         // ✅ "Beschreibung ändern" Button
         if (y >= startY - 30 && y < endY + 30) {
-            drawButton(guiGraphics, leftPos + 10, y + 3, WIDTH - 20, 18, Component.translatable("gui.app.settings.change_description").getString(), 0x55FF55, mouseX, mouseY);
+            drawButton(guiGraphics, leftPos + 10, y + 3, WIDTH - 20, 18, cachedChangeDescription, 0x55FF55, mouseX, mouseY);
             clickableRegions.add(new ClickableRegion(leftPos + 10, y + 3, leftPos + WIDTH - 10, y + 21, () -> {
                 minecraft.setScreen(new InputDialogScreen(this, Component.translatable("gui.app.settings.description_label").getString(), Component.translatable("gui.app.settings.enter_description").getString(),
                     InputDialogScreen.InputType.TEXT, description -> {
@@ -601,22 +601,22 @@ public class SettingsAppScreen extends Screen {
         contentHeight += 8;
 
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, Component.translatable("gui.app.settings.abandon_plot").getString(), leftPos + 15, y, 0xFF5555);
+            guiGraphics.drawString(this.font, cachedAbandonPlot, leftPos + 15, y, 0xFF5555);
         }
         y += 15;
         contentHeight += 15;
 
         if (y >= startY - 10 && y < endY) {
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 30, 0x44330000);
-            guiGraphics.drawString(this.font, Component.translatable("gui.app.settings.warning_irreversible").getString(), leftPos + 15, y + 5, 0x666666);
-            guiGraphics.drawString(this.font, Component.translatable("gui.app.settings.returned_to_server").getString(), leftPos + 15, y + 15, 0x666666);
+            guiGraphics.drawString(this.font, cachedWarningIrreversible, leftPos + 15, y + 5, 0x666666);
+            guiGraphics.drawString(this.font, cachedReturnedToServer, leftPos + 15, y + 15, 0x666666);
         }
         y += 35;
         contentHeight += 35;
 
         // ✅ "Plot aufgeben" Button (ROT)
         if (y >= startY - 30 && y < endY + 30) {
-            drawButton(guiGraphics, leftPos + 10, y, WIDTH - 20, 18, Component.translatable("gui.app.settings.abandon_button").getString(), 0xFF5555, mouseX, mouseY);
+            drawButton(guiGraphics, leftPos + 10, y, WIDTH - 20, 18, cachedAbandonButton, 0xFF5555, mouseX, mouseY);
             clickableRegions.add(new ClickableRegion(leftPos + 10, y, leftPos + WIDTH - 10, y + 18, () -> {
                 minecraft.setScreen(new ConfirmDialogScreen(this, Component.translatable("gui.app.settings.confirm_abandon").getString(),
                     Component.translatable("gui.app.settings.confirm_message").getString(),
@@ -644,7 +644,7 @@ public class SettingsAppScreen extends Screen {
         // UTILITY-WARNUNGEN
         // ═══════════════════════════════════════════════════════════════════════════
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, Component.translatable("gui.app.settings.utility_warnings").getString(), leftPos + 15, y, 0xFFAA00);
+            guiGraphics.drawString(this.font, cachedUtilityWarnings, leftPos + 15, y, 0xFFAA00);
         }
         y += 18;
         contentHeight += 18;
@@ -652,7 +652,7 @@ public class SettingsAppScreen extends Screen {
         // ✅ An/Aus Toggle (Checkbox)
         if (y >= startY - 30 && y < endY + 30) {
             String checkBox = utilityWarningsEnabled ? "§a[✓]" : "§7[ ]";
-            guiGraphics.drawString(this.font, checkBox + Component.translatable("gui.app.settings.utility_warnings_enabled").getString(), leftPos + 15, y, 0xFFFFFF);
+            guiGraphics.drawString(this.font, checkBox + cachedUtilityWarningsEnabled, leftPos + 15, y, 0xFFFFFF);
 
             clickableRegions.add(new ClickableRegion(leftPos + 15, y - 2, leftPos + WIDTH - 10, y + 10, () -> {
                 utilityWarningsEnabled = !utilityWarningsEnabled;
@@ -664,13 +664,13 @@ public class SettingsAppScreen extends Screen {
 
         // Info über Warnungen
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, Component.translatable("gui.app.settings.warnings_info1").getString(), leftPos + 15, y, 0x666666);
+            guiGraphics.drawString(this.font, cachedWarningsInfo1, leftPos + 15, y, 0x666666);
         }
         y += 11;
         contentHeight += 11;
 
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, Component.translatable("gui.app.settings.warnings_info2").getString(), leftPos + 15, y, 0x666666);
+            guiGraphics.drawString(this.font, cachedWarningsInfo2, leftPos + 15, y, 0x666666);
         }
         y += 18;
         contentHeight += 18;
