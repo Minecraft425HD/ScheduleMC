@@ -33,6 +33,22 @@ public class PlotInfoScreen extends Screen {
     private int ratingButtonY = -1;
     private int ratingButtonX = -1;
 
+    // PERFORMANCE: SubArea-Daten einmalig in init() cachen statt pro Frame in render()
+    private int cachedSubAreaCount;
+    private int cachedAvailableCount;
+    private int cachedRentedCount;
+    private List<PlotArea> cachedAvailableSubAreas;
+
+    // PERFORMANCE: Alle render()-Strings einmalig in init() cachen
+    private String cachedPlotName;
+    private String cachedOwnerStr;
+    private String cachedSizeStr;
+    private String cachedIdStr;
+    private String cachedRatingTitle;
+    private String cachedRatingInfo;
+    private String cachedNoRating;
+    private String cachedClickToRate;
+
     public PlotInfoScreen(PlotRegion plot) {
         super(Component.translatable("gui.plotinfo.title"));
         this.plot = plot;
@@ -46,8 +62,36 @@ public class PlotInfoScreen extends Screen {
         this.leftPos = (this.width - this.backgroundWidth) / 2;
         this.topPos = (this.height - this.backgroundHeight) / 2;
 
+        // PERFORMANCE: SubArea-Daten einmal cachen statt bei jedem render() Aufruf
+        this.cachedSubAreaCount = plot.getSubAreaCount();
+        this.cachedAvailableCount = plot.getAvailableSubAreaCount();
+        this.cachedRentedCount = plot.getRentedSubAreaCount();
+        this.cachedAvailableSubAreas = plot.getAvailableSubAreas();
+
+        // PERFORMANCE: Render-Strings einmalig cachen
+        String plotName = plot.getPlotName();
+        this.cachedPlotName = (plotName == null || plotName.isEmpty())
+            ? Component.translatable("plot.unnamed").getString() : plotName;
+
+        if (!plot.hasOwner()) {
+            this.cachedOwnerStr = Component.translatable("gui.plotinfo.owner_none").getString();
+        } else {
+            String ownerName = plot.getOwnerName();
+            this.cachedOwnerStr = Component.translatable("gui.plotinfo.owner",
+                ownerName != null ? ownerName : Component.translatable("plot.no_owner").getString()).getString();
+        }
+        this.cachedSizeStr = Component.translatable("gui.plotinfo.size", String.format("%,d", plot.getVolume())).getString();
+        this.cachedIdStr = Component.translatable("gui.plotinfo.id", plot.getPlotId()).getString();
+        this.cachedRatingTitle = Component.translatable("gui.plotinfo.rating.title").getString();
+        if (plot.getRatingCount() > 0) {
+            String avgRating = String.format("%.1f", plot.getAverageRating());
+            this.cachedRatingInfo = Component.translatable("gui.plotinfo.rating.average", avgRating, plot.getRatingCount()).getString();
+        }
+        this.cachedNoRating = Component.translatable("gui.plotinfo.rating.none").getString();
+        this.cachedClickToRate = Component.translatable("gui.plotinfo.rating.click_to_rate").getString();
+
         // Dynamische Höhe basierend auf Apartments
-        int apartmentCount = plot.getAvailableSubAreaCount();
+        int apartmentCount = cachedAvailableCount;
         if (apartmentCount > 0) {
             // Erhöhe Höhe für Apartment-Liste
             this.backgroundHeight = 250 + (apartmentCount * 25);
@@ -91,12 +135,12 @@ public class PlotInfoScreen extends Screen {
             ).bounds(leftPos + 90, buttonY, 70, 20).build());
         }
 
-        // Apartment-Buttons
+        // Apartment-Buttons - PERFORMANCE: Gecachte Liste nutzen
         if (apartmentCount > 0) {
             int aptButtonY = topPos + 130;
             int index = 0;
 
-            for (PlotArea apt : plot.getAvailableSubAreas()) {
+            for (PlotArea apt : cachedAvailableSubAreas) {
                 final String aptId = apt.getId();
                 addRenderableWidget(Button.builder(
                     Component.translatable("gui.plotinfo.button.rent_apartment"),
@@ -129,12 +173,8 @@ public class PlotInfoScreen extends Screen {
 
         int currentY = topPos + 15;
 
-        // === PLOT-NAME (Titel) ===
-        String plotName = plot.getPlotName();
-        if (plotName == null || plotName.isEmpty()) {
-            plotName = Component.translatable("plot.unnamed").getString();
-        }
-        guiGraphics.drawCenteredString(this.font, "§6§l" + plotName, leftPos + backgroundWidth / 2, currentY, 0xFFD700);
+        // === PLOT-NAME (Titel) === PERFORMANCE: gecachter String
+        guiGraphics.drawCenteredString(this.font, "§6§l" + cachedPlotName, leftPos + backgroundWidth / 2, currentY, 0xFFD700);
         currentY += 15;
 
         // === BESCHREIBUNG ===
@@ -150,22 +190,16 @@ public class PlotInfoScreen extends Screen {
         guiGraphics.fill(leftPos + 10, currentY, leftPos + backgroundWidth - 10, currentY + 1, 0x66FFFFFF);
         currentY += 8;
 
-        // === BESITZER ===
-        if (!plot.hasOwner()) {
-            guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.owner_none").getString(), leftPos + 15, currentY, 0xFFFFFF);
-        } else {
-            String ownerName = plot.getOwnerName();
-            guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.owner", ownerName != null ? ownerName : Component.translatable("plot.no_owner").getString()).getString(), leftPos + 15, currentY, 0xFFFFFF);
-        }
+        // === BESITZER === PERFORMANCE: gecachter String
+        guiGraphics.drawString(this.font, cachedOwnerStr, leftPos + 15, currentY, 0xFFFFFF);
         currentY += 12;
 
-        // === GRÖSSE ===
-        guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.size", String.format("%,d", plot.getVolume())).getString(),
-            leftPos + 15, currentY, 0xFFFFFF);
+        // === GRÖSSE === PERFORMANCE: gecachter String
+        guiGraphics.drawString(this.font, cachedSizeStr, leftPos + 15, currentY, 0xFFFFFF);
         currentY += 12;
 
-        // === ID ===
-        guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.id", plot.getPlotId()).getString(), leftPos + 15, currentY, 0x888888);
+        // === ID === PERFORMANCE: gecachter String
+        guiGraphics.drawString(this.font, cachedIdStr, leftPos + 15, currentY, 0x888888);
         currentY += 15;
 
         // === RATING SECTION ===
@@ -176,18 +210,17 @@ public class PlotInfoScreen extends Screen {
         // Rating Box
         guiGraphics.fill(leftPos + 10, currentY, leftPos + backgroundWidth - 10, currentY + 55, 0x44FFD700);
 
-        // Rating Titel
-        guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.rating.title").getString(), leftPos + 15, currentY + 5, 0xFFD700);
+        // Rating Titel - PERFORMANCE: gecachte Strings
+        guiGraphics.drawString(this.font, cachedRatingTitle, leftPos + 15, currentY + 5, 0xFFD700);
 
         // Durchschnittliches Rating
         if (plot.getRatingCount() > 0) {
-            String avgRating = String.format("%.1f", plot.getAverageRating());
-            guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.rating.average", avgRating, plot.getRatingCount()).getString(), leftPos + 15, currentY + 18, 0xFFFFFF);
+            guiGraphics.drawString(this.font, cachedRatingInfo, leftPos + 15, currentY + 18, 0xFFFFFF);
 
             // Stern-Anzeige
             guiGraphics.drawString(this.font, "§e" + plot.getRatingStars(), leftPos + 15, currentY + 30, 0xFFFFFF);
         } else {
-            guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.rating.none").getString(), leftPos + 15, currentY + 18, 0xAAAAAA);
+            guiGraphics.drawString(this.font, cachedNoRating, leftPos + 15, currentY + 18, 0xAAAAAA);
         }
 
         // Spieler kann nicht eigene Plots bewerten
@@ -202,7 +235,7 @@ public class PlotInfoScreen extends Screen {
                 guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.rating.your_rating", stars).getString(),
                     leftPos + 15, currentY + 42, 0xFFFFFF);
             } else {
-                guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.rating.click_to_rate").getString(),
+                guiGraphics.drawString(this.font, cachedClickToRate,
                     leftPos + 15, currentY + 42, 0xAAAAAA);
             }
 
@@ -261,27 +294,26 @@ public class PlotInfoScreen extends Screen {
             }
         }
 
-        // === APARTMENTS ===
-        if (plot.getSubAreaCount() > 0) {
+        // === APARTMENTS === PERFORMANCE: Gecachte Werte nutzen statt wiederholter Aufrufe
+        if (cachedSubAreaCount > 0) {
             // Trennlinie
             guiGraphics.fill(leftPos + 10, currentY, leftPos + backgroundWidth - 10, currentY + 1, 0x66FFFFFF);
             currentY += 8;
 
-            int availableCount = plot.getAvailableSubAreaCount();
             guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.apartments.title").getString(),
                 leftPos + 15, currentY, 0xFFAA00);
             currentY += 12;
 
-            guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.apartments.stats", plot.getSubAreaCount(), availableCount, plot.getRentedSubAreaCount()).getString(),
+            guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.apartments.stats", cachedSubAreaCount, cachedAvailableCount, cachedRentedCount).getString(),
                 leftPos + 15, currentY, 0xFFFFFF);
             currentY += 15;
 
             // Zeige verfügbare Apartments
-            if (availableCount > 0) {
+            if (cachedAvailableCount > 0) {
                 guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.apartments.available").getString(), leftPos + 15, currentY, 0xFF00FF);
                 currentY += 12;
 
-                for (PlotArea apt : plot.getAvailableSubAreas()) {
+                for (PlotArea apt : cachedAvailableSubAreas) {
                     // Apartment-Zeile
                     guiGraphics.drawString(this.font, "§e" + apt.getName(),
                         leftPos + 20, currentY + 4, 0xFFFFFF);

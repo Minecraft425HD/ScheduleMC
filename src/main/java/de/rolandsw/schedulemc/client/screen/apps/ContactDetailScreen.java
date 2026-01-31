@@ -25,6 +25,9 @@ public class ContactDetailScreen extends Screen {
     private int leftPos;
     private int topPos;
 
+    // PERFORMANCE: Cache header string
+    private String cachedDetailTitle;
+
     public ContactDetailScreen(Screen parent, PlayerTracker.PlayerContact contact) {
         super(Component.translatable("gui.app.contact.detail_title"));
         this.parentScreen = parent;
@@ -37,6 +40,8 @@ public class ContactDetailScreen extends Screen {
 
         this.leftPos = (this.width - WIDTH) / 2;
         this.topPos = MARGIN_TOP;
+
+        cachedDetailTitle = Component.translatable("gui.app.contact.detail_title").getString();
 
         int buttonY = topPos + 140;
         int buttonWidth = WIDTH - 40;
@@ -87,7 +92,7 @@ public class ContactDetailScreen extends Screen {
 
         // Header (iOS-style)
         guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 35, 0xFFF8F8F8);
-        guiGraphics.drawString(this.font, "\u00a70\u00a7l" + Component.translatable("gui.app.contact.detail_title").getString(), leftPos + 10, topPos + 13, 0x000000, false);
+        guiGraphics.drawString(this.font, "\u00a70\u00a7l" + cachedDetailTitle, leftPos + 10, topPos + 13, 0x000000, false);
 
         // Profile section
         int profileY = topPos + 50;

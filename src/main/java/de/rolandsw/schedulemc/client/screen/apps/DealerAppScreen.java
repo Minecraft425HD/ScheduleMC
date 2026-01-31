@@ -22,6 +22,13 @@ public class DealerAppScreen extends Screen {
     private int leftPos;
     private int topPos;
 
+    // PERFORMANCE: Cache static translatable strings
+    private String cachedTitle;
+    private String cachedDealerOverview;
+    private String cachedAvailableDealers;
+    private String cachedDealer1;
+    private String cachedDealer2;
+
     public DealerAppScreen(Screen parent) {
         super(Component.translatable("gui.app.dealer.title"));
         this.parentScreen = parent;
@@ -35,6 +42,13 @@ public class DealerAppScreen extends Screen {
 
         // Positioniere oben mit Margin
         this.topPos = MARGIN_TOP;
+
+        // Cache translatable strings
+        this.cachedTitle = Component.translatable("gui.app.dealer.title").getString();
+        this.cachedDealerOverview = Component.translatable("gui.app.dealer.dealer_overview").getString();
+        this.cachedAvailableDealers = Component.translatable("gui.app.dealer.available_dealers").getString();
+        this.cachedDealer1 = Component.translatable("gui.app.dealer.dealer_1").getString();
+        this.cachedDealer2 = Component.translatable("gui.app.dealer.dealer_2").getString();
 
         // Zurück-Button
         addRenderableWidget(Button.builder(Component.translatable("gui.app.dealer.back"), button -> {
@@ -54,19 +68,19 @@ public class DealerAppScreen extends Screen {
 
         // Header
         guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 30, 0xFF1A1A1A);
-        guiGraphics.drawCenteredString(this.font, "\u00a76\u00a7l" + Component.translatable("gui.app.dealer.title").getString(), leftPos + WIDTH / 2, topPos + 12, 0xFFFFFF);
+        guiGraphics.drawCenteredString(this.font, "\u00a76\u00a7l" + cachedTitle, leftPos + WIDTH / 2, topPos + 12, 0xFFFFFF);
 
         // Content-Bereich
         int contentY = topPos + 40;
-        guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.dealer.dealer_overview").getString(), leftPos + WIDTH / 2, contentY, 0xFFFFFF);
+        guiGraphics.drawCenteredString(this.font, cachedDealerOverview, leftPos + WIDTH / 2, contentY, 0xFFFFFF);
         contentY += 20;
 
         // Platzhalter für Dealer-Liste
-        guiGraphics.drawString(this.font, Component.translatable("gui.app.dealer.available_dealers").getString(), leftPos + 20, contentY, 0xAAAAAA);
+        guiGraphics.drawString(this.font, cachedAvailableDealers, leftPos + 20, contentY, 0xAAAAAA);
         contentY += 15;
-        guiGraphics.drawString(this.font, Component.translatable("gui.app.dealer.dealer_1").getString(), leftPos + 25, contentY, 0xFFFFFF);
+        guiGraphics.drawString(this.font, cachedDealer1, leftPos + 25, contentY, 0xFFFFFF);
         contentY += 12;
-        guiGraphics.drawString(this.font, Component.translatable("gui.app.dealer.dealer_2").getString(), leftPos + 25, contentY, 0xFFFFFF);
+        guiGraphics.drawString(this.font, cachedDealer2, leftPos + 25, contentY, 0xFFFFFF);
 
         super.render(guiGraphics, mouseX, mouseY, partialTick);
     }    @Override

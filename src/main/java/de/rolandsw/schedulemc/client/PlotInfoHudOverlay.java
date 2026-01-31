@@ -16,10 +16,14 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import java.util.List;
 
 /**
  * HUD-Overlay für Plot-Info-Block
  * Zeigt Plot-Informationen wenn der Spieler den Block anschaut
+ *
+ * PERFORMANCE: Plot-Daten und SubArea-Listen werden gecacht und nur bei
+ * Positionsänderung des Fadenkreuzes neu berechnet (statt 60x/Sek).
  */
 @Mod.EventBusSubscriber(modid = ScheduleMC.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class PlotInfoHudOverlay {
@@ -28,6 +32,14 @@ public class PlotInfoHudOverlay {
     private static final int HUD_X = 10;
     private static final int HUD_Y = 10;
     private static final int LINE_HEIGHT = 11;
+
+    // PERFORMANCE: Cache für Plot-Daten - vermeidet wiederholte Lookups/Stream-Ops pro Frame
+    private static BlockPos lastTargetPos = null;
+    private static PlotRegion cachedPlot = null;
+    private static List<PlotArea> cachedAvailableSubAreas = null;
+    private static int cachedSubAreaCount = 0;
+    private static int cachedAvailableCount = 0;
+    private static int cachedRentedCount = 0;
 
     @SubscribeEvent
     public static void onRenderGuiOverlay(RenderGuiOverlayEvent.Post event) {
@@ -44,11 +56,25 @@ public class PlotInfoHudOverlay {
 
             // Prüfe ob Spieler auf PlotInfoBlock schaut
             if (state.getBlock() instanceof PlotInfoBlock) {
-                PlotRegion plot = PlotManager.getPlotAt(targetPos);
-
-                if (plot != null) {
-                    renderPlotHud(event.getGuiGraphics(), mc, plot);
+                // PERFORMANCE: Nur bei neuer Position Plot-Daten neu laden
+                if (!targetPos.equals(lastTargetPos)) {
+                    lastTargetPos = targetPos;
+                    cachedPlot = PlotManager.getPlotAt(targetPos);
+                    if (cachedPlot != null) {
+                        cachedSubAreaCount = cachedPlot.getSubAreaCount();
+                        cachedAvailableCount = cachedPlot.getAvailableSubAreaCount();
+                        cachedRentedCount = cachedPlot.getRentedSubAreaCount();
+                        cachedAvailableSubAreas = cachedPlot.getAvailableSubAreas();
+                    }
                 }
+
+                if (cachedPlot != null) {
+                    renderPlotHud(event.getGuiGraphics(), mc, cachedPlot);
+                }
+            } else {
+                // Nicht mehr auf PlotInfoBlock → Cache invalidieren
+                lastTargetPos = null;
+                cachedPlot = null;
             }
         }, "onRenderGuiOverlay");
     }
@@ -77,13 +103,12 @@ public class PlotInfoHudOverlay {
             totalLines += 2;
         }
 
-        // Apartments
-        if (plot.getSubAreaCount() > 0) {
+        // Apartments - PERFORMANCE: Gecachte Werte nutzen statt wiederholter Stream-Aufrufe
+        if (cachedSubAreaCount > 0) {
             totalLines += 1; // Apartment-Überschrift
-            int availableApts = plot.getAvailableSubAreaCount();
-            if (availableApts > 0) {
-                totalLines += Math.min(availableApts, 3); // Max 3 Apartments anzeigen
-                if (availableApts > 3) {
+            if (cachedAvailableCount > 0) {
+                totalLines += Math.min(cachedAvailableCount, 3); // Max 3 Apartments anzeigen
+                if (cachedAvailableCount > 3) {
                     totalLines += 1; // "... und X weitere"
                 }
             }
@@ -161,22 +186,19 @@ public class PlotInfoHudOverlay {
             }
         }
 
-        // === APARTMENTS ===
-        if (plot.getSubAreaCount() > 0) {
+        // === APARTMENTS === PERFORMANCE: Gecachte Werte nutzen
+        if (cachedSubAreaCount > 0) {
             // Trennlinie
             gui.fill(HUD_X, currentY, HUD_X + bgWidth - 10, currentY + 1, 0x44FFFFFF);
             currentY += 4;
 
-            int rentedCount = plot.getRentedSubAreaCount();
-            int availableCount = plot.getAvailableSubAreaCount();
-
-            drawLine(gui, mc, net.minecraft.network.chat.Component.translatable("hud.plot.apartments", availableCount, plot.getSubAreaCount()).getString(), currentY);
+            drawLine(gui, mc, net.minecraft.network.chat.Component.translatable("hud.plot.apartments", cachedAvailableCount, cachedSubAreaCount).getString(), currentY);
             currentY += LINE_HEIGHT;
 
             // Zeige verfügbare Apartments (max 3)
-            if (availableCount > 0) {
+            if (cachedAvailableCount > 0 && cachedAvailableSubAreas != null) {
                 int shown = 0;
-                for (PlotArea apt : plot.getAvailableSubAreas()) {
+                for (PlotArea apt : cachedAvailableSubAreas) {
                     if (shown >= 3) break;
 
                     String aptLine = "  §7├─ §e" + apt.getName() +
@@ -187,8 +209,8 @@ public class PlotInfoHudOverlay {
                 }
 
                 // "... und X weitere"
-                if (availableCount > 3) {
-                    drawLine(gui, mc, net.minecraft.network.chat.Component.translatable("hud.plot.apartments_more", availableCount - 3).getString(), currentY);
+                if (cachedAvailableCount > 3) {
+                    drawLine(gui, mc, net.minecraft.network.chat.Component.translatable("hud.plot.apartments_more", cachedAvailableCount - 3).getString(), currentY);
                     currentY += LINE_HEIGHT;
                 }
             }

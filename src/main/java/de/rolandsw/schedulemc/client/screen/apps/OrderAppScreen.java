@@ -22,6 +22,12 @@ public class OrderAppScreen extends Screen {
     private int leftPos;
     private int topPos;
 
+    // PERFORMANCE: Cache static translatable strings
+    private String cachedTitle;
+    private String cachedMyOrders;
+    private String cachedActiveOrders;
+    private String cachedNoOrders;
+
     public OrderAppScreen(Screen parent) {
         super(Component.translatable("gui.app.order.title"));
         this.parentScreen = parent;
@@ -35,6 +41,12 @@ public class OrderAppScreen extends Screen {
 
         // Positioniere oben mit Margin
         this.topPos = MARGIN_TOP;
+
+        // Cache translatable strings
+        this.cachedTitle = Component.translatable("gui.app.order.title").getString();
+        this.cachedMyOrders = Component.translatable("gui.app.order.my_orders").getString();
+        this.cachedActiveOrders = Component.translatable("gui.app.order.active_orders").getString();
+        this.cachedNoOrders = Component.translatable("gui.app.order.no_orders").getString();
 
         // Zurück-Button
         addRenderableWidget(Button.builder(Component.translatable("gui.app.order.back"), button -> {
@@ -54,17 +66,17 @@ public class OrderAppScreen extends Screen {
 
         // Header
         guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 30, 0xFF1A1A1A);
-        guiGraphics.drawCenteredString(this.font, "\u00a76\u00a7l" + Component.translatable("gui.app.order.title").getString(), leftPos + WIDTH / 2, topPos + 12, 0xFFFFFF);
+        guiGraphics.drawCenteredString(this.font, "\u00a76\u00a7l" + cachedTitle, leftPos + WIDTH / 2, topPos + 12, 0xFFFFFF);
 
         // Content-Bereich
         int contentY = topPos + 40;
-        guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.order.my_orders").getString(), leftPos + WIDTH / 2, contentY, 0xFFFFFF);
+        guiGraphics.drawCenteredString(this.font, cachedMyOrders, leftPos + WIDTH / 2, contentY, 0xFFFFFF);
         contentY += 20;
 
         // Platzhalter für Bestellungen
-        guiGraphics.drawString(this.font, Component.translatable("gui.app.order.active_orders").getString(), leftPos + 20, contentY, 0xAAAAAA);
+        guiGraphics.drawString(this.font, cachedActiveOrders, leftPos + 20, contentY, 0xAAAAAA);
         contentY += 15;
-        guiGraphics.drawString(this.font, Component.translatable("gui.app.order.no_orders").getString(), leftPos + 25, contentY, 0xFFFFFF);
+        guiGraphics.drawString(this.font, cachedNoOrders, leftPos + 25, contentY, 0xFFFFFF);
 
         super.render(guiGraphics, mouseX, mouseY, partialTick);
     }    @Override

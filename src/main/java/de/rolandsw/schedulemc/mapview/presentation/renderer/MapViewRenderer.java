@@ -176,6 +176,11 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     private double zoomScaleAdjusted = 1.0;
     private static double minTablistOffset;
     private static float statusIconOffset = 0.0F;
+    // PERFORMANCE: Cache biome registry reference (avoid registryAccess().registryOrThrow() per frame)
+    private net.minecraft.core.Registry<Biome> cachedBiomeRegistry;
+    // PERFORMANCE: Cache status effect offset to avoid iterator creation per frame
+    private int lastEffectCount = -1;
+    private float cachedEffectOffset = 0.0F;
 
     private final ResourceLocation[] resourceMapImageFiltered = new ResourceLocation[5];
     private final ResourceLocation[] resourceMapImageUnfiltered = new ResourceLocation[5];
@@ -332,6 +337,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
 
     public void newWorld(ClientLevel world) {
         this.world = world;
+        this.cachedBiomeRegistry = null; // Invalidate cached registry on world change
         this.lightmapTexture = this.getLightmapTexture();
         this.mapData[this.zoom].blank();
         this.doFullRender = true;
@@ -578,7 +584,11 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
                 }
 
                 MutableBlockPos blockPos = BlockPositionCache.get();
-                int biomeID = this.world.registryAccess().registryOrThrow(Registries.BIOME).getId(this.world.getBiome(blockPos.withXYZ(MinecraftAccessor.xCoord(), MinecraftAccessor.yCoord(), MinecraftAccessor.zCoord())).value());
+                // PERFORMANCE: Cache biome registry reference instead of looking it up every frame
+                if (cachedBiomeRegistry == null) {
+                    cachedBiomeRegistry = this.world.registryAccess().registryOrThrow(Registries.BIOME);
+                }
+                int biomeID = cachedBiomeRegistry.getId(this.world.getBiome(blockPos.withXYZ(MinecraftAccessor.xCoord(), MinecraftAccessor.yCoord(), MinecraftAccessor.zCoord())).value());
                 BlockPositionCache.release(blockPos);
                 if (biomeID != this.lastBiome) {
                     this.needSkyColor = true;
@@ -655,20 +665,30 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
 
         float statusIconOffset = 0.0F;
         if (MapDataManager.mapOptions.moveMapDownWhileStatusEffect) {
-            if (this.options.mapCorner == 1 && !MapViewConstants.getPlayer().getActiveEffects().isEmpty()) {
-
-                for (MobEffectInstance statusEffectInstance : MapViewConstants.getPlayer().getActiveEffects()) {
-                    if (statusEffectInstance.showIcon()) {
-                        if (statusEffectInstance.getEffect().isBeneficial()) {
-                            statusIconOffset = Math.max(statusIconOffset, 24.0F);
-                        } else {
-                            statusIconOffset = 50.0F;
+            if (this.options.mapCorner == 1) {
+                // PERFORMANCE: Cache effect offset - only recalculate when effect count changes
+                int currentEffectCount = MapViewConstants.getPlayer().getActiveEffects().size();
+                if (currentEffectCount != lastEffectCount) {
+                    lastEffectCount = currentEffectCount;
+                    cachedEffectOffset = 0.0F;
+                    if (currentEffectCount > 0) {
+                        for (MobEffectInstance statusEffectInstance : MapViewConstants.getPlayer().getActiveEffects()) {
+                            if (statusEffectInstance.showIcon()) {
+                                if (statusEffectInstance.getEffect().isBeneficial()) {
+                                    cachedEffectOffset = Math.max(cachedEffectOffset, 24.0F);
+                                } else {
+                                    cachedEffectOffset = 50.0F;
+                                }
+                            }
                         }
                     }
                 }
-                int scHeight = minecraft.getWindow().getGuiScaledHeight();
-                float resFactor = (float) this.scHeight / scHeight;
-                mapY += (int) (statusIconOffset * resFactor);
+                statusIconOffset = cachedEffectOffset;
+                if (statusIconOffset > 0) {
+                    int scHeight = minecraft.getWindow().getGuiScaledHeight();
+                    float resFactor = (float) this.scHeight / scHeight;
+                    mapY += (int) (statusIconOffset * resFactor);
+                }
             }
         }
         MapViewRenderer.statusIconOffset = statusIconOffset;

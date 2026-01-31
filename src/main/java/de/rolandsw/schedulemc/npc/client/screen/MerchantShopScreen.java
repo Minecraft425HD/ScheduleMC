@@ -41,6 +41,13 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
     private static final int VISIBLE_ROWS = 6; // Wie viele Items gleichzeitig sichtbar sind
     private Button buyButton; // Einziger Kaufen-Button unten rechts
 
+    // PERFORMANCE: Spaltenüberschriften einmal cachen statt 5x Component.translatable().getString() pro Frame
+    private String cachedColItem;
+    private String cachedColPrice;
+    private String cachedColStock;
+    private String cachedColQuantity;
+    private String cachedTotalCostLabel;
+
     public MerchantShopScreen(MerchantShopMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.imageWidth = 320; // Breitere GUI für alle Spalten
@@ -51,6 +58,13 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
     @Override
     protected void init() {
         super.init();
+
+        // PERFORMANCE: Spaltenüberschriften einmal cachen
+        this.cachedColItem = Component.translatable("screen.merchant_shop.column_item").getString();
+        this.cachedColPrice = Component.translatable("screen.merchant_shop.column_price").getString();
+        this.cachedColStock = Component.translatable("screen.merchant_shop.column_stock").getString();
+        this.cachedColQuantity = Component.translatable("screen.merchant_shop.column_quantity").getString();
+        this.cachedTotalCostLabel = Component.translatable("screen.merchant_shop.total_cost").getString();
 
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
@@ -255,11 +269,11 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
 
-        // Render Spaltenüberschriften
-        guiGraphics.drawString(this.font, Component.translatable("screen.merchant_shop.column_item").getString(), x + 25, y + 18, 0x404040, false);
-        guiGraphics.drawString(this.font, Component.translatable("screen.merchant_shop.column_price").getString(), x + 110, y + 18, 0x404040, false);
-        guiGraphics.drawString(this.font, Component.translatable("screen.merchant_shop.column_stock").getString(), x + 155, y + 18, 0x404040, false);
-        guiGraphics.drawString(this.font, Component.translatable("screen.merchant_shop.column_quantity").getString(), x + 230, y + 18, 0x404040, false);
+        // Render Spaltenüberschriften - PERFORMANCE: gecachte Strings
+        guiGraphics.drawString(this.font, cachedColItem, x + 25, y + 18, 0x404040, false);
+        guiGraphics.drawString(this.font, cachedColPrice, x + 110, y + 18, 0x404040, false);
+        guiGraphics.drawString(this.font, cachedColStock, x + 155, y + 18, 0x404040, false);
+        guiGraphics.drawString(this.font, cachedColQuantity, x + 230, y + 18, 0x404040, false);
 
         // Render Shop Items
         for (int i = 0; i < Math.min(VISIBLE_ROWS, shopItemRows.size() - scrollOffset); i++) {
@@ -269,7 +283,7 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
 
         // Render Kostenaufstellung unten
         int totalCost = calculateTotalCost();
-        guiGraphics.drawString(this.font, Component.translatable("screen.merchant_shop.total_cost").getString(), x + 10, y + imageHeight - 22, 0x404040, false);
+        guiGraphics.drawString(this.font, cachedTotalCostLabel, x + 10, y + imageHeight - 22, 0x404040, false);
         guiGraphics.drawString(this.font, totalCost + "$", x + 90, y + imageHeight - 22, totalCost > 0 ? 0xFFFF55 : 0x888888, false);
     }
 

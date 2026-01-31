@@ -40,6 +40,15 @@ public class TobaccoPotHudOverlay {
     private static final int BOX_WIDTH = PADDING + BAR_WIDTH + PADDING; // 4px links + Balken + 4px rechts = 88px
     private static final int LINE_HEIGHT = 10;
 
+    // PERFORMANCE: Cache für Licht-Berechnungen - nur neuberechnen wenn sich Position ändert
+    private static BlockPos lastLightCheckPos = null;
+    private static int cachedLightLevel = 0;
+    private static boolean cachedIsGrowLight = false;
+    private static String cachedLightSource = "";
+    private static boolean cachedHasGrowLight = false;
+    private static long lastLightCheckFrame = 0;
+    private static final int LIGHT_CHECK_INTERVAL = 5; // Alle 5 Frames statt jeden Frame
+
     @SubscribeEvent
     public static void onRenderGuiOverlay(RenderGuiOverlayEvent.Post event) {
         EventHelper.handleEvent(() -> {
@@ -116,20 +125,47 @@ public class TobaccoPotHudOverlay {
         // Prüfe ob Pflanze erntebereit ist
         boolean isHarvestReady = isPlantHarvestReady(potData);
 
-        // Prüfe ob Growlight vorhanden ist (für Höhenberechnung)
-        boolean hasGrowLight = false;
-        if (!potData.hasMushroomPlant()) {
-            BlockPos potPos = potBE.getBlockPos();
+        // PERFORMANCE: Growlight/Licht-Check nur bei Position-Wechsel oder alle LIGHT_CHECK_INTERVAL Frames
+        BlockPos potPos = potBE.getBlockPos();
+        long currentFrame = lastLightCheckFrame + 1;
+        boolean needsLightRecalc = !potPos.equals(lastLightCheckPos) || (currentFrame - lastLightCheckFrame >= LIGHT_CHECK_INTERVAL);
+
+        boolean hasGrowLight;
+        if (needsLightRecalc && !potData.hasMushroomPlant()) {
+            cachedHasGrowLight = false;
+            cachedIsGrowLight = false;
+            cachedLightLevel = 0;
+            cachedLightSource = "";
             for (int yOffset = 2; yOffset <= 3; yOffset++) {
                 BlockPos growLightPos = potPos.above(yOffset);
                 BlockState growLightState = mc.level.getBlockState(growLightPos);
                 Block growLightBlock = growLightState.getBlock();
-                if (growLightBlock instanceof de.rolandsw.schedulemc.tobacco.blocks.GrowLightSlabBlock) {
-                    hasGrowLight = true;
+                if (growLightBlock instanceof de.rolandsw.schedulemc.tobacco.blocks.GrowLightSlabBlock growLight) {
+                    cachedHasGrowLight = true;
+                    cachedIsGrowLight = true;
+                    cachedLightLevel = growLight.getTier().getLightLevel();
+                    cachedLightSource = growLight.getTier().name();
                     break;
                 }
             }
+            if (!cachedIsGrowLight) {
+                BlockPos checkPos = potPos.above(2);
+                int skyLight = mc.level.getBrightness(net.minecraft.world.level.LightLayer.SKY, checkPos);
+                int blockLight = mc.level.getBrightness(net.minecraft.world.level.LightLayer.BLOCK, checkPos);
+                int skyDarken = 0;
+                if (mc.level.dimensionType().hasSkyLight()) {
+                    float celestialAngle = mc.level.getTimeOfDay(1.0F);
+                    float brightness = (float) Math.cos(celestialAngle * 2.0F * Math.PI) * 2.0F + 0.5F;
+                    brightness = net.minecraft.util.Mth.clamp(brightness, 0.0F, 1.0F);
+                    skyDarken = Math.round((1.0F - brightness) * 11.0F);
+                }
+                int adjustedSkyLight = Math.max(0, skyLight - skyDarken);
+                cachedLightLevel = Math.max(adjustedSkyLight, blockLight);
+            }
+            lastLightCheckPos = potPos;
+            lastLightCheckFrame = currentFrame;
         }
+        hasGrowLight = cachedHasGrowLight;
 
         // Berechne Box-Höhe dynamisch (exakt wie currentY-Inkremente)
         int boxHeight = PADDING; // Oberer Rand
@@ -241,44 +277,10 @@ public class TobaccoPotHudOverlay {
         drawScaledText(guiGraphics, mc, capacityText, x + PADDING, currentY, 0xFFFFFF);
         currentY += LINE_HEIGHT + 2;
 
-        // Licht (nur wenn nicht Pilze)
+        // Licht (nur wenn nicht Pilze) - PERFORMANCE: Nutze gecachte Werte
         if (!potData.hasMushroomPlant()) {
-            BlockPos potPos = potBE.getBlockPos();
-            int lightLevel = 0;
-            String lightSource = "";
-            boolean isGrowLight = false;
-
-            // Prüfe Growlight (2-3 Blöcke über Topf)
-            for (int yOffset = 2; yOffset <= 3; yOffset++) {
-                BlockPos growLightPos = potPos.above(yOffset);
-                BlockState growLightState = mc.level.getBlockState(growLightPos);
-                Block growLightBlock = growLightState.getBlock();
-
-                if (growLightBlock instanceof de.rolandsw.schedulemc.tobacco.blocks.GrowLightSlabBlock growLight) {
-                    lightLevel = growLight.getTier().getLightLevel();
-                    lightSource = growLight.getTier().name();
-                    isGrowLight = true;
-                    break;
-                }
-            }
-
-            if (!isGrowLight) {
-                // Natürliches Licht berechnen
-                BlockPos checkPos = potPos.above(2);
-                int skyLight = mc.level.getBrightness(net.minecraft.world.level.LightLayer.SKY, checkPos);
-                int blockLight = mc.level.getBrightness(net.minecraft.world.level.LightLayer.BLOCK, checkPos);
-
-                int skyDarken = 0;
-                if (mc.level.dimensionType().hasSkyLight()) {
-                    float celestialAngle = mc.level.getTimeOfDay(1.0F);
-                    float brightness = (float) Math.cos(celestialAngle * 2.0F * Math.PI) * 2.0F + 0.5F;
-                    brightness = net.minecraft.util.Mth.clamp(brightness, 0.0F, 1.0F);
-                    skyDarken = Math.round((1.0F - brightness) * 11.0F);
-                }
-
-                int adjustedSkyLight = Math.max(0, skyLight - skyDarken);
-                lightLevel = Math.max(adjustedSkyLight, blockLight);
-            }
+            int lightLevel = cachedLightLevel;
+            boolean isGrowLight = cachedIsGrowLight;
 
             int minLight = de.rolandsw.schedulemc.config.ModConfigHandler.TOBACCO.MIN_LIGHT_LEVEL.get();
             boolean hasEnoughLight = lightLevel >= minLight;

@@ -50,6 +50,12 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
     private Button prevNPCTypeButton;
     private Button nextNPCTypeButton;
 
+    // PERFORMANCE: Cache label strings
+    private String cachedLabelName;
+    private String cachedLabelSkin;
+    private String cachedLabelType;
+    private String cachedLabelCategory;
+
     // Verkäufer Kategorie Auswahl
     private int selectedMerchantCategoryIndex = 0;
     private Button prevMerchantCategoryButton;
@@ -145,6 +151,12 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
 
         // Initial visibility update
         updateCategoryVisibility();
+
+        // PERFORMANCE: Cache label strings once in init()
+        cachedLabelName = Component.translatable("screen.npc_spawner.label_name").getString();
+        cachedLabelSkin = Component.translatable("screen.npc_spawner.label_skin").getString();
+        cachedLabelType = Component.translatable("screen.npc_spawner.label_type").getString();
+        cachedLabelCategory = Component.translatable("screen.npc_spawner.label_category").getString();
     }
 
     /**
@@ -368,24 +380,14 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         guiGraphics.drawString(this.font, this.title, 8, 6, 0x404040, false);
-        guiGraphics.drawString(this.font, Component.translatable("screen.npc_spawner.label_name").getString(), 8, 18, 0x404040, false);
-        guiGraphics.drawString(this.font, Component.translatable("screen.npc_spawner.label_skin").getString(), 8, 43, 0x404040, false);
-        guiGraphics.drawString(this.font, Component.translatable("screen.npc_spawner.label_type").getString(), 8, 73, 0x404040, false);
+        guiGraphics.drawString(this.font, cachedLabelName, 8, 18, 0x404040, false);
+        guiGraphics.drawString(this.font, cachedLabelSkin, 8, 43, 0x404040, false);
+        guiGraphics.drawString(this.font, cachedLabelType, 8, 73, 0x404040, false);
 
-        // Verkäufer-Kategorie Label nur anzeigen wenn Verkäufer ausgewählt
+        // PERFORMANCE: Single check instead of 3 duplicate branches
         NPCType currentType = NPCType.values()[selectedNPCTypeIndex];
-        if (currentType == NPCType.VERKAEUFER) {
-            guiGraphics.drawString(this.font, Component.translatable("screen.npc_spawner.label_category").getString(), 8, 103, 0x404040, false);
-        }
-
-        // Bank-Kategorie Label nur anzeigen wenn Bank ausgewählt
-        if (currentType == NPCType.BANK) {
-            guiGraphics.drawString(this.font, Component.translatable("screen.npc_spawner.label_category").getString(), 8, 103, 0x404040, false);
-        }
-
-        // Service-Kategorie Label nur anzeigen wenn Abschlepper ausgewählt
-        if (currentType == NPCType.ABSCHLEPPER) {
-            guiGraphics.drawString(this.font, Component.translatable("screen.npc_spawner.label_category").getString(), 8, 103, 0x404040, false);
+        if (currentType == NPCType.VERKAEUFER || currentType == NPCType.BANK || currentType == NPCType.ABSCHLEPPER) {
+            guiGraphics.drawString(this.font, cachedLabelCategory, 8, 103, 0x404040, false);
         }
     }
 }

@@ -31,6 +31,15 @@ public class RoadPathRenderer {
     // Konfiguration
     private static final float LINE_WIDTH_BLOCKS = 1.0f;      // 1 Block breit
 
+    // Cached rotation values - avoid recomputing trig every frame/segment
+    private float cachedRotation = Float.NaN;
+    private float cachedCos;
+    private float cachedSin;
+
+    // Cached distance overlay - avoid String.format() every frame
+    private double cachedDistance = -1;
+    private String cachedDistanceText = "";
+
     /**
      * Setzt den Fortschritt zurück (bei neuer Navigation)
      */
@@ -115,6 +124,14 @@ public class RoadPathRenderer {
         float g = ((color >> 8) & 0xFF) / 255.0f;
         float b = (color & 0xFF) / 255.0f;
 
+        // Cache cos/sin - only recompute when rotation angle changes
+        if (rotation != 0 && rotation != cachedRotation) {
+            float angleRad = (float) Math.toRadians(rotation);
+            cachedCos = (float) Math.cos(angleRad);
+            cachedSin = (float) Math.sin(angleRad);
+            cachedRotation = rotation;
+        }
+
         for (int i = startIndex; i < path.size() - 1; i++) {
             BlockPos current = path.get(i);
             BlockPos next = path.get(i + 1);
@@ -125,14 +142,16 @@ public class RoadPathRenderer {
             float relX2 = (next.getX() - worldCenterX) * scale;
             float relZ2 = (next.getZ() - worldCenterZ) * scale;
 
-            // Rotation anwenden
+            // Rotation anwenden - inline math, no float[] allocation
             if (rotation != 0) {
-                float[] rotated1 = rotatePoint(relX1, relZ1, 0, 0, rotation);
-                float[] rotated2 = rotatePoint(relX2, relZ2, 0, 0, rotation);
-                relX1 = rotated1[0];
-                relZ1 = rotated1[1];
-                relX2 = rotated2[0];
-                relZ2 = rotated2[1];
+                float newX1 = relX1 * cachedCos - relZ1 * cachedSin;
+                float newZ1 = relX1 * cachedSin + relZ1 * cachedCos;
+                relX1 = newX1;
+                relZ1 = newZ1;
+                float newX2 = relX2 * cachedCos - relZ2 * cachedSin;
+                float newZ2 = relX2 * cachedSin + relZ2 * cachedCos;
+                relX2 = newX2;
+                relZ2 = newZ2;
             }
 
             // Zu Bildschirmkoordinaten
@@ -412,19 +431,22 @@ public class RoadPathRenderer {
      * Rendert die Distanzanzeige
      */
     public void renderDistanceOverlay(GuiGraphics graphics, double distance, int x, int y) {
-        String distanceText;
-        if (distance >= 1000) {
-            distanceText = String.format("%.1f km", distance / 1000);
-        } else {
-            distanceText = String.format("%.0f m", distance);
+        // Only reformat when distance changes significantly (> 0.1 difference)
+        if (Math.abs(distance - cachedDistance) > 0.1) {
+            cachedDistance = distance;
+            if (distance >= 1000) {
+                cachedDistanceText = String.format("%.1f km", distance / 1000);
+            } else {
+                cachedDistanceText = String.format("%.0f m", distance);
+            }
         }
 
         // Hintergrund
-        int textWidth = Minecraft.getInstance().font.width(distanceText);
+        int textWidth = Minecraft.getInstance().font.width(cachedDistanceText);
         graphics.fill(x - 2, y - 2, x + textWidth + 2, y + 10, 0x80000000);
 
         // Text
-        graphics.drawString(Minecraft.getInstance().font, distanceText, x, y, 0xFFFFFFFF, false);
+        graphics.drawString(Minecraft.getInstance().font, cachedDistanceText, x, y, 0xFFFFFFFF, false);
     }
 
     // ═══════════════════════════════════════════════════════════

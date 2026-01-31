@@ -7,11 +7,14 @@ import de.rolandsw.schedulemc.util.EventHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.slf4j.Logger;
+
+import java.util.List;
 
 /**
  * Globaler Handler für tägliche NPC-Gehaltszahlungen
@@ -62,6 +65,9 @@ public class NPCDailySalaryHandler {
         // VORHER: getAllEntities() durchläuft ALLE Entities (kann 1000+ sein)
         // NACHHER: Nur NPCs durchlaufen (typisch 10-100)
         for (ServerLevel serverLevel : level.getServer().getAllLevels()) {
+            // PERFORMANCE: Spielerliste einmal pro Level cachen statt pro NPC
+            List<ServerPlayer> levelPlayers = serverLevel.players();
+
             for (CustomNPCEntity npc : NPCEntityRegistry.getAllNPCs(serverLevel)) {
                     // Nur BEWOHNER und VERKAEUFER (nicht Polizei)
                     if (!npc.getNpcData().hasInventoryAndWallet()) {
@@ -83,17 +89,20 @@ public class NPCDailySalaryHandler {
                         paidCount++;
                         totalAmount += income;
 
-                        // Nachricht an Spieler in der Nähe (optional)
-                        serverLevel.getPlayers(player -> player.distanceToSqr(npc) < 2500) // 50 Blöcke
-                            .forEach(player -> player.sendSystemMessage(
-                                Component.translatable("message.npc.received_daily_income", npc.getNpcName())
-                                    .withStyle(ChatFormatting.GREEN)
-                                    .append(Component.literal(income + " Bargeld")
-                                        .withStyle(ChatFormatting.GOLD))
-                                    .append(Component.translatable("message.npc.daily_income_info", currentDay,
-                                        oldWallet + " → " + npc.getNpcData().getWallet() + ")")
-                                        .withStyle(ChatFormatting.GRAY))
-                            ));
+                        // PERFORMANCE: Nutze gecachte Spielerliste statt serverLevel.getPlayers() pro NPC
+                        for (ServerPlayer player : levelPlayers) {
+                            if (player.distanceToSqr(npc) < 2500) { // 50 Blöcke
+                                player.sendSystemMessage(
+                                    Component.translatable("message.npc.received_daily_income", npc.getNpcName())
+                                        .withStyle(ChatFormatting.GREEN)
+                                        .append(Component.literal(income + " Bargeld")
+                                            .withStyle(ChatFormatting.GOLD))
+                                        .append(Component.translatable("message.npc.daily_income_info", currentDay,
+                                            oldWallet + " → " + npc.getNpcData().getWallet() + ")")
+                                            .withStyle(ChatFormatting.GRAY))
+                                );
+                            }
+                        }
                     }
                 }
             }

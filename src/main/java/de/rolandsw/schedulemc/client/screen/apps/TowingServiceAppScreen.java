@@ -41,6 +41,15 @@ public class TowingServiceAppScreen extends Screen {
     private MembershipData membership;
     private UUID playerId;
 
+    // PERFORMANCE: Cache static translatable strings
+    private String cachedTitleText;
+    private String cachedNoVehiclesText;
+    private String cachedTierNoneText;
+    private String cachedNoCoverageText;
+    private String cachedEngineRunningText;
+    private String cachedEngineOffText;
+    private String cachedRequestText;
+
     public TowingServiceAppScreen(Screen parent) {
         super(Component.translatable("gui.app.towing.title"));
         this.parentScreen = parent;
@@ -49,6 +58,15 @@ public class TowingServiceAppScreen extends Screen {
     @Override
     protected void init() {
         super.init();
+
+        // Populate cached translatable strings
+        cachedTitleText = Component.translatable("gui.app.towing.title").getString();
+        cachedNoVehiclesText = Component.translatable("gui.app.towing.no_vehicles").getString();
+        cachedTierNoneText = Component.translatable("towing.membership.tier.none").getString();
+        cachedNoCoverageText = Component.translatable("gui.app.towing.no_coverage").getString();
+        cachedEngineRunningText = Component.translatable("gui.app.towing.engine.running").getString();
+        cachedEngineOffText = Component.translatable("gui.app.towing.engine.off").getString();
+        cachedRequestText = Component.translatable("gui.app.towing.request").getString();
 
         this.leftPos = (this.width - WIDTH) / 2;
         this.topPos = MARGIN_TOP;
@@ -160,7 +178,7 @@ public class TowingServiceAppScreen extends Screen {
 
         // Header
         guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 35, 0xFFF8F8F8);
-        guiGraphics.drawString(this.font, "\u00a70\u00a7l" + Component.translatable("gui.app.towing.title").getString(), leftPos + 10, topPos + 13, 0x000000, false);
+        guiGraphics.drawString(this.font, "\u00a70\u00a7l" + cachedTitleText, leftPos + 10, topPos + 13, 0x000000, false);
 
         // Membership status area
         int membershipY = topPos + 40;
@@ -172,7 +190,7 @@ public class TowingServiceAppScreen extends Screen {
 
         if (vehicles.isEmpty()) {
             guiGraphics.drawCenteredString(this.font,
-                Component.translatable("gui.app.towing.no_vehicles").getString(),
+                cachedNoVehiclesText,
                 leftPos + WIDTH / 2, vehicleListY + 20, 0xFF999999);
         } else {
             renderVehicleList(guiGraphics, vehicleListY, vehicleListHeight, mouseX, mouseY);
@@ -198,9 +216,9 @@ public class TowingServiceAppScreen extends Screen {
             guiGraphics.drawString(this.font, "§7" + Component.translatable("gui.app.towing.next_payment", daysUntilPayment).getString(),
                 leftPos + 15, y + 28, 0xFF666666, false);
         } else {
-            guiGraphics.drawString(this.font, "§0§l" + Component.translatable("towing.membership.tier.none").getString(),
+            guiGraphics.drawString(this.font, "§0§l" + cachedTierNoneText,
                 leftPos + 15, y + 5, 0x000000, false);
-            guiGraphics.drawString(this.font, "§7" + Component.translatable("gui.app.towing.no_coverage").getString(),
+            guiGraphics.drawString(this.font, "§7" + cachedNoCoverageText,
                 leftPos + 15, y + 18, 0xFF666666, false);
         }
     }
@@ -240,8 +258,8 @@ public class TowingServiceAppScreen extends Screen {
 
         // Engine status
         String engineStatus = vehicleInfo.isEngineRunning ?
-            Component.translatable("gui.app.towing.engine.running").getString() :
-            Component.translatable("gui.app.towing.engine.off").getString();
+            cachedEngineRunningText :
+            cachedEngineOffText;
         int engineColor = vehicleInfo.isEngineRunning ? 0xFF00AA00 : 0xFF666666;
         guiGraphics.drawString(this.font, engineStatus, itemX + 5, y + 30, engineColor, false);
 
@@ -259,7 +277,7 @@ public class TowingServiceAppScreen extends Screen {
         guiGraphics.fill(buttonX, buttonY, buttonX + 70, buttonY + 35, buttonColor);
 
         guiGraphics.drawCenteredString(this.font,
-            Component.translatable("gui.app.towing.request").getString(),
+            cachedRequestText,
             buttonX + 35, buttonY + 7, 0xFFFFFFFF);
         guiGraphics.drawCenteredString(this.font, costText, buttonX + 35, buttonY + 20, 0xFFFFFFFF);
     }

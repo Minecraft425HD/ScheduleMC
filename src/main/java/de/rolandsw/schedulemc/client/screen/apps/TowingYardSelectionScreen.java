@@ -35,6 +35,10 @@ public class TowingYardSelectionScreen extends Screen {
 
     private List<TowingYardInfo> towingYards = new ArrayList<>();
 
+    // PERFORMANCE: Cache static translatable strings
+    private String cachedSelectYardHeader;
+    private String cachedNoYards;
+
     public TowingYardSelectionScreen(Screen parent, TowingServiceAppScreen.VehicleInfo vehicleInfo) {
         super(Component.translatable("gui.app.towing.select_yard"));
         this.parentScreen = parent;
@@ -49,6 +53,10 @@ public class TowingYardSelectionScreen extends Screen {
         this.topPos = MARGIN_TOP;
 
         loadTowingYards();
+
+        // PERFORMANCE: Cache translatable strings once in init()
+        cachedSelectYardHeader = Component.translatable("gui.app.towing.select_yard").getString();
+        cachedNoYards = Component.translatable("gui.app.towing.no_yards").getString();
 
         // Zurück-Button
         addRenderableWidget(Button.builder(Component.translatable("gui.app.back"), button -> {
@@ -86,16 +94,14 @@ public class TowingYardSelectionScreen extends Screen {
 
         // Header
         guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 35, 0xFFF8F8F8);
-        guiGraphics.drawString(this.font, "\u00a70\u00a7l" + Component.translatable("gui.app.towing.select_yard").getString(), leftPos + 10, topPos + 13, 0x000000, false);
+        guiGraphics.drawString(this.font, "\u00a70\u00a7l" + cachedSelectYardHeader, leftPos + 10, topPos + 13, 0x000000, false);
 
         // Towing yard list
         int listY = topPos + 45;
         int listHeight = HEIGHT - 85;
 
         if (towingYards.isEmpty()) {
-            guiGraphics.drawCenteredString(this.font,
-                Component.translatable("gui.app.towing.no_yards").getString(),
-                leftPos + WIDTH / 2, listY + 20, 0xFF999999);
+            guiGraphics.drawCenteredString(this.font, cachedNoYards, leftPos + WIDTH / 2, listY + 20, 0xFF999999);
         } else {
             renderYardList(guiGraphics, listY, listHeight, mouseX, mouseY);
         }

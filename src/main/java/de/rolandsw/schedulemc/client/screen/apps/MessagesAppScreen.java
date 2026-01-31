@@ -32,6 +32,13 @@ public class MessagesAppScreen extends Screen {
     private int scrollOffset = 0;
     private List<Conversation> conversations;
 
+    // PERFORMANCE: Cache static strings and per-frame timestamp
+    private String cachedNoChatsStr;
+    private String cachedTapPlayerLine1;
+    private String cachedTapPlayerLine2;
+    private String cachedNowStr;
+    private long renderFrameTime;
+
     public MessagesAppScreen(Screen parent) {
         super(Component.translatable("gui.app.messages.title"));
         this.parentScreen = parent;
@@ -50,6 +57,12 @@ public class MessagesAppScreen extends Screen {
         if (minecraft != null && minecraft.player != null) {
             conversations = MessageManager.getConversations(minecraft.player.getUUID());
         }
+
+        // PERFORMANCE: Cache static translatable strings once in init()
+        cachedNoChatsStr = Component.translatable("gui.app.messages.no_chats").getString();
+        cachedTapPlayerLine1 = Component.translatable("gui.app.messages.tap_player_line1").getString();
+        cachedTapPlayerLine2 = Component.translatable("gui.app.messages.tap_player_line2").getString();
+        cachedNowStr = Component.translatable("gui.app.chat.now").getString();
 
         // Zurück-Button
         addRenderableWidget(Button.builder(Component.translatable("gui.app.messages.back"), button -> {
@@ -79,12 +92,15 @@ public class MessagesAppScreen extends Screen {
         int contentY = topPos + 40;
         int contentHeight = HEIGHT - 80;
 
+        // PERFORMANCE: Single timestamp per frame instead of per conversation
+        renderFrameTime = System.currentTimeMillis();
+
         if (conversations == null || conversations.isEmpty()) {
             // Empty state
             guiGraphics.fill(leftPos, contentY, leftPos + WIDTH, contentY + 60, 0xFFFFFFFF);
-            guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.messages.no_chats").getString(), leftPos + WIDTH / 2, contentY + 20, 0xFF666666);
-            guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.messages.tap_player_line1").getString(), leftPos + WIDTH / 2, contentY + 32, 0xFF999999);
-            guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.messages.tap_player_line2").getString(), leftPos + WIDTH / 2, contentY + 42, 0xFF999999);
+            guiGraphics.drawCenteredString(this.font, cachedNoChatsStr, leftPos + WIDTH / 2, contentY + 20, 0xFF666666);
+            guiGraphics.drawCenteredString(this.font, cachedTapPlayerLine1, leftPos + WIDTH / 2, contentY + 32, 0xFF999999);
+            guiGraphics.drawCenteredString(this.font, cachedTapPlayerLine2, leftPos + WIDTH / 2, contentY + 42, 0xFF999999);
         } else {
             // Render conversation list
             for (int i = 0; i < conversations.size(); i++) {
@@ -150,8 +166,8 @@ public class MessagesAppScreen extends Screen {
     }
 
     private String getTimeString(long timestamp) {
-        long now = System.currentTimeMillis();
-        long diff = now - timestamp;
+        // PERFORMANCE: Use cached frame time instead of System.currentTimeMillis() per conversation
+        long diff = renderFrameTime - timestamp;
 
         long seconds = diff / 1000;
         long minutes = seconds / 60;
@@ -165,7 +181,7 @@ public class MessagesAppScreen extends Screen {
         } else if (minutes > 0) {
             return minutes + "m";
         } else {
-            return Component.translatable("gui.app.chat.now").getString();
+            return cachedNowStr;
         }
     }
 

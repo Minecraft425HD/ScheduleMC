@@ -16,7 +16,9 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Individual chat screen for a conversation (WhatsApp-style)
@@ -39,6 +41,13 @@ public class ChatScreen extends Screen {
     private List<Component> npcMessageOptions;
     private int selectedNPCMessage = -1;
 
+    // PERFORMANCE: Cache für per-Frame Allokationen
+    private String cachedOnlineStr;
+    private String cachedNoMessagesStr;
+    private String cachedNowStr;
+    private final Map<String, List<String>> wrappedTextCache = new HashMap<>();
+    private long renderFrameTime; // Einmal pro Frame statt pro Message
+
     public ChatScreen(Screen parent, Conversation conversation) {
         super(Component.translatable("gui.app.chat.title"));
         this.parentScreen = parent;
@@ -53,6 +62,11 @@ public class ChatScreen extends Screen {
 
         // Positioniere oben mit Margin
         this.topPos = MARGIN_TOP;
+
+        // PERFORMANCE: Strings einmal cachen
+        this.cachedOnlineStr = Component.translatable("gui.app.chat.online").getString();
+        this.cachedNoMessagesStr = Component.translatable("gui.app.chat.no_messages").getString();
+        this.cachedNowStr = Component.translatable("gui.app.chat.now").getString();
 
         // Check if chatting with NPC to show message templates
         if (!conversation.isPlayerParticipant()) {
@@ -139,8 +153,11 @@ public class ChatScreen extends Screen {
         String displayName = conversation.getParticipantName();
         guiGraphics.drawString(this.font, displayName, headX + headSize + 8, topPos + 12, 0xFFFFFFFF, false);
 
-        // Online status (small text below name) - no shadow
-        guiGraphics.drawString(this.font, Component.translatable("gui.app.chat.online").getString(), headX + headSize + 8, topPos + 24, 0xFFCCCCCC, false);
+        // Online status (small text below name) - no shadow - PERFORMANCE: gecacht
+        guiGraphics.drawString(this.font, cachedOnlineStr, headX + headSize + 8, topPos + 24, 0xFFCCCCCC, false);
+
+        // PERFORMANCE: Frame-Zeit einmal pro render() statt pro Message
+        this.renderFrameTime = System.currentTimeMillis();
 
         // Messages area
         int messagesY = topPos + 45;
@@ -155,7 +172,7 @@ public class ChatScreen extends Screen {
         List<Message> messages = conversation.getMessages();
 
         if (messages.isEmpty()) {
-            guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.chat.no_messages").getString(), leftPos + WIDTH / 2, startY + 20, 0xFFFFFF);
+            guiGraphics.drawCenteredString(this.font, cachedNoMessagesStr, leftPos + WIDTH / 2, startY + 20, 0xFFFFFF);
             return;
         }
 
@@ -180,8 +197,8 @@ public class ChatScreen extends Screen {
         String content = message.getContent();
         int maxWidth = WIDTH - 70;
 
-        // Word wrap
-        List<String> lines = wrapText(content, maxWidth);
+        // PERFORMANCE: wrapText Ergebnis cachen statt pro Frame neu zu berechnen
+        List<String> lines = wrappedTextCache.computeIfAbsent(content, k -> wrapText(k, maxWidth));
 
         // Calculate bubble size
         int maxLineWidth = 0;
@@ -246,8 +263,8 @@ public class ChatScreen extends Screen {
     }
 
     private String getMessageTime(long timestamp) {
-        long now = System.currentTimeMillis();
-        long diff = now - timestamp;
+        // PERFORMANCE: renderFrameTime statt System.currentTimeMillis() pro Message
+        long diff = renderFrameTime - timestamp;
 
         long seconds = diff / 1000;
         long minutes = seconds / 60;
@@ -258,7 +275,7 @@ public class ChatScreen extends Screen {
         } else if (minutes > 0) {
             return minutes + "m";
         } else {
-            return Component.translatable("gui.app.chat.now").getString();
+            return cachedNowStr;
         }
     }
 

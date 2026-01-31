@@ -119,8 +119,10 @@ public class PlayerJoinHandler {
                 freezeWorld(level);
             }
 
-            // Speichere Economy-Daten beim Logout für Datensicherheit
-            EconomyManager.saveAccounts();
+            // PERFORMANCE: Kein synchrones Speichern beim Logout - IncrementalSaveManager
+            // übernimmt die Persistierung über Dirty-Flags automatisch.
+            // Vorher: EconomyManager.saveAccounts() blockierte den Main Thread bei jedem Disconnect.
+            EconomyManager.markDirty();
         });
     }
 

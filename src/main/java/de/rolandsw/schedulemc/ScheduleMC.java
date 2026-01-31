@@ -124,6 +124,8 @@ import de.rolandsw.schedulemc.utility.UtilityRegistry;
 import de.rolandsw.schedulemc.utility.PlotUtilityManager;
 import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import de.rolandsw.schedulemc.utility.commands.UtilityCommand;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
@@ -390,23 +392,40 @@ public class ScheduleMC {
     @SubscribeEvent
     public void onServerStarted(ServerStartedEvent event) {
         EventHelper.handleEvent(() -> {
-            PlotManager.loadPlots();
-            EconomyManager.loadAccounts();
-            DailyRewardManager.load();
-            WalletManager.load();
-            de.rolandsw.schedulemc.npc.crime.CrimeManager.load();
-            NPCNameRegistry.loadRegistry();
-            MessageManager.loadMessages();
-            PlayerTracker.load();
-            de.rolandsw.schedulemc.player.PlayerSettingsManager.load();
+            // ═══════════════════════════════════════════════════════════
+            // PERFORMANCE: Paralleles Laden unabhängiger Daten beim Start
+            // Reduziert Startup-Zeit durch gleichzeitiges File-I/O
+            // ═══════════════════════════════════════════════════════════
+            LOGGER.info("Loading persistent data in parallel...");
+            long startTime = System.currentTimeMillis();
+            ExecutorService ioPool = ThreadPoolManager.getIOPool();
 
-            // Towing Service System
-            de.rolandsw.schedulemc.towing.MembershipManager.load();
-            de.rolandsw.schedulemc.towing.TowingYardManager.load();
+            CompletableFuture<?>[] parallelLoads = {
+                CompletableFuture.runAsync(PlotManager::loadPlots, ioPool),
+                CompletableFuture.runAsync(EconomyManager::loadAccounts, ioPool),
+                CompletableFuture.runAsync(DailyRewardManager::load, ioPool),
+                CompletableFuture.runAsync(WalletManager::load, ioPool),
+                CompletableFuture.runAsync(de.rolandsw.schedulemc.npc.crime.CrimeManager::load, ioPool),
+                CompletableFuture.runAsync(NPCNameRegistry::loadRegistry, ioPool),
+                CompletableFuture.runAsync(MessageManager::loadMessages, ioPool),
+                CompletableFuture.runAsync(PlayerTracker::load, ioPool),
+                CompletableFuture.runAsync(de.rolandsw.schedulemc.player.PlayerSettingsManager::load, ioPool),
+                CompletableFuture.runAsync(de.rolandsw.schedulemc.towing.MembershipManager::load, ioPool),
+                CompletableFuture.runAsync(de.rolandsw.schedulemc.towing.TowingYardManager::load, ioPool),
+                CompletableFuture.runAsync(StateAccount::load, ioPool),
+                CompletableFuture.runAsync(de.rolandsw.schedulemc.vehicle.vehicle.VehicleSpawnRegistry::load, ioPool),
+                CompletableFuture.runAsync(de.rolandsw.schedulemc.vehicle.fuel.FuelStationRegistry::load, ioPool),
+                CompletableFuture.runAsync(de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager::load, ioPool),
+                CompletableFuture.runAsync(PlotUtilityManager::load, ioPool),
+            };
+
+            // Warte auf alle parallelen Loads
+            CompletableFuture.allOf(parallelLoads).join();
+            long loadTime = System.currentTimeMillis() - startTime;
+            LOGGER.info("Parallel data loading completed in {}ms ({} managers)", loadTime, parallelLoads.length);
+
+            // Sequentielle Initialisierungen (haben Abhängigkeiten)
             de.rolandsw.schedulemc.towing.TowingServiceRegistry.initializeDefaultServices();
-
-            // NEU: Warehouse & Shop System initialisieren
-            StateAccount.load();
             MinecraftForge.EVENT_BUS.register(ShopAccountManager.class);
             WarehouseManager.load(event.getServer());
 
@@ -450,13 +469,7 @@ public class ScheduleMC {
             de.rolandsw.schedulemc.npc.life.economy.DynamicPriceManager.getInstance(event.getServer());
             LOGGER.info("NPC Life System Managers initialized (9/9 completed)");
 
-            // Vehicle System - Vehicle Spawn Registry, Gas Station Registry, Fuel Bills
-            de.rolandsw.schedulemc.vehicle.vehicle.VehicleSpawnRegistry.load();
-            de.rolandsw.schedulemc.vehicle.fuel.FuelStationRegistry.load();
-            de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager.load();
-
-            // Utility-System laden
-            PlotUtilityManager.load();
+            // Vehicle & Utility-System: Bereits parallel geladen (siehe oben)
 
             // ═══════════════════════════════════════════════════════════
             // INCREMENTAL SAVE MANAGER - Performance Optimization

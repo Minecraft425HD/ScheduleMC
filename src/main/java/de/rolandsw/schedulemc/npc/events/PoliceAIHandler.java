@@ -90,11 +90,13 @@ public class PoliceAIHandler {
     };
 
     // ═══════════════════════════════════════════════════════════════════════════
-    // OPTIMIERUNG: Globaler Spieler-Cache (aktualisiert einmal pro Server-Tick)
+    // OPTIMIERUNG: Globaler Spieler-Cache (aktualisiert alle 5 Ticks = 250ms)
     // Verhindert teure getEntitiesOfClass() Aufrufe für jeden Polizisten
+    // Atomic swap statt clear()+put() verhindert Race Conditions
     // ═══════════════════════════════════════════════════════════════════════════
-    private static final Map<UUID, CachedPlayerData> playerCache = new ConcurrentHashMap<>();
+    private static volatile Map<UUID, CachedPlayerData> playerCache = Map.of();
     private static volatile long lastCacheUpdateTick = -1;
+    private static final int CACHE_UPDATE_INTERVAL = 5; // Alle 5 Ticks (250ms) statt jeden Tick
 
     /**
      * Gecachte Spielerdaten für schnellen Zugriff
@@ -112,22 +114,25 @@ public class PoliceAIHandler {
     }
 
     /**
-     * Aktualisiert den Spieler-Cache einmal pro Server-Tick.
+     * Aktualisiert den Spieler-Cache alle 5 Ticks (250ms).
+     * Baut neuen Cache auf und tauscht ihn atomar aus (kein clear()+put() mehr).
      * Sollte vom Server-Tick-Handler aufgerufen werden.
      *
      * @param server Der Minecraft Server
      * @param currentTick Aktueller Game-Tick
      */
     public static void updatePlayerCache(net.minecraft.server.MinecraftServer server, long currentTick) {
-        // Nur einmal pro Tick aktualisieren
-        if (currentTick == lastCacheUpdateTick) return;
+        // Nur alle 5 Ticks aktualisieren (250ms statt 50ms)
+        if (currentTick - lastCacheUpdateTick < CACHE_UPDATE_INTERVAL) return;
         lastCacheUpdateTick = currentTick;
 
-        // Alte Einträge entfernen und neue hinzufügen
-        playerCache.clear();
-        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-            playerCache.put(player.getUUID(), new CachedPlayerData(player));
+        // Neuen Cache aufbauen und atomar tauschen (keine Race Condition möglich)
+        List<ServerPlayer> players = server.getPlayerList().getPlayers();
+        Map<UUID, CachedPlayerData> newCache = new HashMap<>(players.size() * 2);
+        for (ServerPlayer player : players) {
+            newCache.put(player.getUUID(), new CachedPlayerData(player));
         }
+        playerCache = newCache;
     }
 
     /**
@@ -696,7 +701,8 @@ public class PoliceAIHandler {
      * @param playerUUID UUID des Spielers der den Server verlässt
      */
     public static void cleanupPlayer(UUID playerUUID) {
-        playerCache.remove(playerUUID);
+        // playerCache wird nicht manuell bereinigt - der atomare Swap alle 5 Ticks
+        // entfernt abgemeldete Spieler automatisch beim nächsten Rebuild
         arrestTimers.remove(playerUUID);
         lastSyncedWantedLevel.remove(playerUUID);
         lastSyncedEscapeTime.remove(playerUUID);

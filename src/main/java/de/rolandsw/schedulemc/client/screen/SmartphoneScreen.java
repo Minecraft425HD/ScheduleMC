@@ -50,6 +50,9 @@ public class SmartphoneScreen extends Screen {
     private static final ResourceLocation APP_TOWING = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/app_towing.png");
     private static final ResourceLocation CLOSE_ICON = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/close.png");
 
+    // PERFORMANCE: Statisches Icon-Array statt Neuallokation pro Frame
+    private static final ResourceLocation[] APP_ICONS = {APP_MAP, APP_DEALER, APP_PRODUCTS, APP_ORDER, APP_CONTACTS, APP_MESSAGES, APP_PLOT, APP_SETTINGS, APP_BANK, APP_CRIME, APP_ACHIEVEMENT, APP_TOWING};
+
     private int leftPos;
     private int topPos;
     private int scrollOffset = 0; // Scroll-Offset in Pixeln
@@ -59,6 +62,10 @@ public class SmartphoneScreen extends Screen {
     private int dragStartY = 0; // Y-Position beim Start des Draggens
     private int dragStartScrollOffset = 0; // Scroll-Offset beim Start des Draggens
 
+    // PERFORMANCE: App-Labels einmal in init() cachen statt 12x Component.translatable().getString() pro Frame
+    private String cachedTitle;
+    private String[] cachedAppLabels;
+
     public SmartphoneScreen() {
         super(Component.translatable("gui.smartphone.title"));
     }
@@ -66,6 +73,23 @@ public class SmartphoneScreen extends Screen {
     @Override
     protected void init() {
         super.init();
+
+        // PERFORMANCE: Alle App-Labels einmal cachen
+        this.cachedTitle = Component.translatable("gui.smartphone.title").getString();
+        this.cachedAppLabels = new String[] {
+            Component.translatable("gui.smartphone.app_map").getString(),
+            Component.translatable("gui.smartphone.app_dealer").getString(),
+            Component.translatable("gui.smartphone.app_products").getString(),
+            Component.translatable("gui.smartphone.app_order").getString(),
+            Component.translatable("gui.smartphone.app_contacts").getString(),
+            Component.translatable("gui.smartphone.app_messages").getString(),
+            Component.translatable("gui.smartphone.app_plot").getString(),
+            Component.translatable("gui.smartphone.app_settings").getString(),
+            Component.translatable("gui.smartphone.app_bank").getString(),
+            Component.translatable("gui.smartphone.app_crime").getString(),
+            Component.translatable("gui.smartphone.app_achievements").getString(),
+            Component.translatable("gui.smartphone.app_towing").getString()
+        };
 
         // Sende Paket an Server: Smartphone ist jetzt offen
         SmartphoneNetworkHandler.sendToServer(new SmartphoneStatePacket(true));
@@ -208,8 +232,8 @@ public class SmartphoneScreen extends Screen {
         // Oberer Bereich (Status-Bar)
         guiGraphics.fill(leftPos, topPos, leftPos + PHONE_WIDTH, topPos + 30, 0xFF1A1A1A);
 
-        // Smartphone-Titel
-        guiGraphics.drawCenteredString(this.font, Component.translatable("gui.smartphone.title").getString(), leftPos + PHONE_WIDTH / 2, topPos + 12, 0xFFFFFF);
+        // Smartphone-Titel (PERFORMANCE: gecachter String)
+        guiGraphics.drawCenteredString(this.font, cachedTitle, leftPos + PHONE_WIDTH / 2, topPos + 12, 0xFFFFFF);
 
         // Berechne Grid-Position für App-Labels
         int gridWidth = (APP_ICON_SIZE * 2) + APP_SPACING;
@@ -256,29 +280,15 @@ public class SmartphoneScreen extends Screen {
             gridStartY + scissorHeight
         );
 
-        // App-Icons rendern mit scrollOffset (4 Reihen x 2 Spalten)
-        renderAppIcon(guiGraphics, gridStartX, gridStartY - scrollOffset, APP_MAP, Component.translatable("gui.smartphone.app_map").getString(), 0);
-        renderAppIcon(guiGraphics, gridStartX + APP_ICON_SIZE + APP_SPACING, gridStartY - scrollOffset, APP_DEALER, Component.translatable("gui.smartphone.app_dealer").getString(), 1);
-
-        renderAppIcon(guiGraphics, gridStartX, gridStartY + APP_ICON_SIZE + APP_SPACING - scrollOffset, APP_PRODUCTS, Component.translatable("gui.smartphone.app_products").getString(), 2);
-        renderAppIcon(guiGraphics, gridStartX + APP_ICON_SIZE + APP_SPACING, gridStartY + APP_ICON_SIZE + APP_SPACING - scrollOffset,
-            APP_ORDER, Component.translatable("gui.smartphone.app_order").getString(), 3);
-
-        renderAppIcon(guiGraphics, gridStartX, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 2 - scrollOffset, APP_CONTACTS, Component.translatable("gui.smartphone.app_contacts").getString(), 4);
-        renderAppIcon(guiGraphics, gridStartX + APP_ICON_SIZE + APP_SPACING, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 2 - scrollOffset,
-            APP_MESSAGES, Component.translatable("gui.smartphone.app_messages").getString(), 5);
-
-        renderAppIcon(guiGraphics, gridStartX, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 3 - scrollOffset, APP_PLOT, Component.translatable("gui.smartphone.app_plot").getString(), 6);
-        renderAppIcon(guiGraphics, gridStartX + APP_ICON_SIZE + APP_SPACING, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 3 - scrollOffset,
-            APP_SETTINGS, Component.translatable("gui.smartphone.app_settings").getString(), 7);
-
-        renderAppIcon(guiGraphics, gridStartX, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 4 - scrollOffset, APP_BANK, Component.translatable("gui.smartphone.app_bank").getString(), 8);
-        renderAppIcon(guiGraphics, gridStartX + APP_ICON_SIZE + APP_SPACING, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 4 - scrollOffset,
-            APP_CRIME, Component.translatable("gui.smartphone.app_crime").getString(), 9);
-
-        renderAppIcon(guiGraphics, gridStartX, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 5 - scrollOffset, APP_ACHIEVEMENT, Component.translatable("gui.smartphone.app_achievements").getString(), 10);
-        renderAppIcon(guiGraphics, gridStartX + APP_ICON_SIZE + APP_SPACING, gridStartY + (APP_ICON_SIZE + APP_SPACING) * 5 - scrollOffset,
-            APP_TOWING, Component.translatable("gui.smartphone.app_towing").getString(), 11);
+        // App-Icons rendern mit scrollOffset (6 Reihen x 2 Spalten) - PERFORMANCE: gecachte Labels
+        int rowStep = APP_ICON_SIZE + APP_SPACING;
+        for (int i = 0; i < 12; i++) {
+            int col = i % 2;
+            int row = i / 2;
+            int iconX = gridStartX + col * (APP_ICON_SIZE + APP_SPACING);
+            int iconY = gridStartY + row * rowStep - scrollOffset;
+            renderAppIcon(guiGraphics, iconX, iconY, APP_ICONS[i], cachedAppLabels[i], i);
+        }
 
         // Deaktiviere Scissor
         guiGraphics.disableScissor();

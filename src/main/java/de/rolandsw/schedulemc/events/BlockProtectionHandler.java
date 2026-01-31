@@ -39,13 +39,16 @@ public class BlockProtectionHandler {
     // NPC Work Location Cache (Performance-Optimierung)
     private static final Map<BlockPos, CustomNPCEntity> npcWorkLocationCache = new ConcurrentHashMap<>();
     private static long lastNPCCacheUpdate = 0;
-    private static final long CACHE_DURATION_MS = 5000; // 5 Sekunden Cache
+    // PERFORMANCE: Cache-Dauer von 5s auf 30s erhöht - NPC-Arbeitsorte ändern sich selten
+    private static final long CACHE_DURATION_MS = 30000; // 30 Sekunden Cache
 
     /**
      * Verhindert das Abbauen von Blöcken in fremden Plots oder NPC-Arbeitsorten
      */
     @SubscribeEvent
     public void onBlockBreak(BlockEvent.BreakEvent event) {
+        // PERFORMANCE: Skip wenn Event bereits von anderem Mod gecancelt wurde
+        if (event.isCanceled()) return;
         EventHelper.handleBlockBreak(event, player -> {
             BlockPos pos = event.getPos();
 
@@ -379,6 +382,8 @@ public class BlockProtectionHandler {
      */
     @SubscribeEvent
     public void onBlockPlace(BlockEvent.EntityPlaceEvent event) {
+        // PERFORMANCE: Skip wenn Event bereits von anderem Mod gecancelt wurde
+        if (event.isCanceled()) return;
         EventHelper.handleBlockPlace(event, player -> {
             BlockPos pos = event.getPos();
 
@@ -463,6 +468,8 @@ public class BlockProtectionHandler {
      */
     @SubscribeEvent
     public void onBlockInteract(PlayerInteractEvent.RightClickBlock event) {
+        // PERFORMANCE: Skip wenn Event bereits von anderem Mod gecancelt wurde
+        if (event.isCanceled()) return;
         EventHelper.handleRightClickBlock(event, player -> {
             BlockPos pos = event.getPos();
 

@@ -203,19 +203,21 @@ public class RentManager {
     }
     
     /**
-     * Berechnet Gesamteinnahmen aus Vermietungen für einen Besitzer
+     * PERFORMANCE: Berechnet Gesamteinnahmen aus Vermietungen.
+     * UUID.toString() einmal aufrufen, currentTimeMillis() vor der Schleife holen.
      */
     public static double calculateRentIncome(UUID ownerUUID) {
         double income = 0;
         String uuid = ownerUUID.toString();
-        
+        long now = System.currentTimeMillis(); // PERFORMANCE: Einmal vor der Schleife statt in jeder Iteration
+
         for (PlotRegion plot : PlotManager.getPlots()) {
             if (plot.getOwnerUUID().equals(uuid) && plot.isRented()) {
-                long daysRented = (plot.getRentEndTime() - System.currentTimeMillis()) / (1000 * 60 * 60 * 24);
+                long daysRented = (plot.getRentEndTime() - now) / (1000 * 60 * 60 * 24);
                 income += plot.getRentPricePerDay() * daysRented;
             }
         }
-        
+
         return income;
     }
 }

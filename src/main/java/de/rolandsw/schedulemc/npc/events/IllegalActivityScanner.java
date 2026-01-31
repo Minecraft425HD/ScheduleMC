@@ -169,31 +169,35 @@ public class IllegalActivityScanner {
         return result;
     }
 
+    // PERFORMANCE: Block-Referenzen cachen statt String-Vergleiche pro Block
+    private static final Block GOLD_BLOCK = net.minecraft.world.level.block.Blocks.GOLD_BLOCK;
+    private static final Block DIAMOND_BLOCK = net.minecraft.world.level.block.Blocks.DIAMOND_BLOCK;
+    private static final String SCHEDULEMC_NAMESPACE = "schedulemc";
+
     /**
-     * Scannt einen einzelnen Block
+     * Scannt einen einzelnen Block.
+     * PERFORMANCE: Nutzt direkte Block-Referenz-Vergleiche statt toString() + contains().
+     * Vermeidet String-Allokation für jeden gescannten Block.
      */
     private static void scanBlock(Level level, BlockPos pos, ScanResult result) {
         BlockState state = level.getBlockState(pos);
         Block block = state.getBlock();
-        String blockName = BuiltInRegistries.BLOCK.getKey(block).toString();
 
-        // Prüfe auf Tabakpflanzen
-        if (blockName.contains("schedulemc:") && blockName.contains("_plant")) {
-            result.illegalPlantCount++;
-            result.foundIllegalItems.add(Component.translatable("police.scan.tobacco_plant", pos.toShortString()).getString());
-        }
-
-        // Prüfe auf illegale Blöcke (Gold, Diamant)
-        if (blockName.equals("minecraft:gold_block")) {
+        // PERFORMANCE: Direkte Block-Referenz-Vergleiche statt String-Operationen
+        if (block == GOLD_BLOCK) {
             result.illegalBlockCount++;
             result.foundIllegalItems.add(Component.translatable("police.scan.gold_block", pos.toShortString()).getString());
-        } else if (blockName.equals("minecraft:diamond_block")) {
+        } else if (block == DIAMOND_BLOCK) {
             result.illegalBlockCount++;
             result.foundIllegalItems.add(Component.translatable("police.scan.diamond_block", pos.toShortString()).getString());
         }
 
-        // TODO: Bargeld-Blöcke scannen (wenn implementiert)
-        // TODO: Verarbeitungsmaschinen scannen
+        // Prüfe auf Pflanzen: Nur String-Check wenn nötig, Namespace zuerst
+        net.minecraft.resources.ResourceLocation blockKey = BuiltInRegistries.BLOCK.getKey(block);
+        if (SCHEDULEMC_NAMESPACE.equals(blockKey.getNamespace()) && blockKey.getPath().contains("_plant")) {
+            result.illegalPlantCount++;
+            result.foundIllegalItems.add(Component.translatable("police.scan.tobacco_plant", pos.toShortString()).getString());
+        }
     }
 
     /**

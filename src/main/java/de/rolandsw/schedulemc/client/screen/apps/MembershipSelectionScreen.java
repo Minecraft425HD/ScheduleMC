@@ -27,6 +27,13 @@ public class MembershipSelectionScreen extends Screen {
     private int leftPos;
     private int topPos;
 
+    // PERFORMANCE: Cache translatable strings
+    private String cachedMembershipHeader;
+    private String cachedActiveText;
+    private String[] cachedTierNames;
+    private String[] cachedCoverageTexts;
+    private String[] cachedFeeTexts;
+
     public MembershipSelectionScreen(Screen parent, MembershipData currentMembership) {
         super(Component.translatable("gui.app.towing.membership"));
         this.parentScreen = parent;
@@ -39,6 +46,19 @@ public class MembershipSelectionScreen extends Screen {
 
         this.leftPos = (this.width - WIDTH) / 2;
         this.topPos = MARGIN_TOP;
+
+        // PERFORMANCE: Cache all tier translatable strings once in init()
+        cachedMembershipHeader = Component.translatable("gui.app.towing.membership").getString();
+        cachedActiveText = Component.translatable("gui.app.towing.active").getString();
+        MembershipTier[] tiers = {MembershipTier.BRONZE, MembershipTier.SILVER, MembershipTier.GOLD};
+        cachedTierNames = new String[tiers.length];
+        cachedCoverageTexts = new String[tiers.length];
+        cachedFeeTexts = new String[tiers.length];
+        for (int i = 0; i < tiers.length; i++) {
+            cachedTierNames[i] = Component.translatable(tiers[i].getTranslationKey()).getString();
+            cachedCoverageTexts[i] = Component.translatable("gui.app.towing.coverage", tiers[i].getCoveragePercent()).getString();
+            cachedFeeTexts[i] = Component.translatable("gui.app.towing.monthly_fee", String.format("%.0f", tiers[i].getMonthlyFee())).getString();
+        }
 
         // Zurück-Button
         addRenderableWidget(Button.builder(Component.translatable("gui.app.back"), button -> {
@@ -60,21 +80,21 @@ public class MembershipSelectionScreen extends Screen {
 
         // Header
         guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 35, 0xFFF8F8F8);
-        guiGraphics.drawString(this.font, "\u00a70\u00a7l" + Component.translatable("gui.app.towing.membership").getString(), leftPos + 10, topPos + 13, 0x000000, false);
+        guiGraphics.drawString(this.font, "\u00a70\u00a7l" + cachedMembershipHeader, leftPos + 10, topPos + 13, 0x000000, false);
 
         // Render tier options
         int contentY = topPos + 45;
         MembershipTier currentTier = currentMembership != null && currentMembership.isActive() ?
             currentMembership.getTier() : MembershipTier.NONE;
 
-        renderTierOption(guiGraphics, MembershipTier.BRONZE, contentY, currentTier, mouseX, mouseY);
-        renderTierOption(guiGraphics, MembershipTier.SILVER, contentY + TIER_ITEM_HEIGHT + 5, currentTier, mouseX, mouseY);
-        renderTierOption(guiGraphics, MembershipTier.GOLD, contentY + (TIER_ITEM_HEIGHT + 5) * 2, currentTier, mouseX, mouseY);
+        renderTierOption(guiGraphics, MembershipTier.BRONZE, 0, contentY, currentTier, mouseX, mouseY);
+        renderTierOption(guiGraphics, MembershipTier.SILVER, 1, contentY + TIER_ITEM_HEIGHT + 5, currentTier, mouseX, mouseY);
+        renderTierOption(guiGraphics, MembershipTier.GOLD, 2, contentY + (TIER_ITEM_HEIGHT + 5) * 2, currentTier, mouseX, mouseY);
 
         super.render(guiGraphics, mouseX, mouseY, partialTick);
     }
 
-    private void renderTierOption(GuiGraphics guiGraphics, MembershipTier tier, int y, MembershipTier currentTier, int mouseX, int mouseY) {
+    private void renderTierOption(GuiGraphics guiGraphics, MembershipTier tier, int tierIndex, int y, MembershipTier currentTier, int mouseX, int mouseY) {
         int x = leftPos + 10;
         int itemWidth = WIDTH - 20;
 
@@ -85,11 +105,11 @@ public class MembershipSelectionScreen extends Screen {
         // Background color
         int bgColor;
         if (isCurrentTier) {
-            bgColor = 0xFFE6F3FF; // Light blue for current tier
+            bgColor = 0xFFE6F3FF;
         } else if (isHovering) {
-            bgColor = 0xFFF5F5F5; // Light gray on hover
+            bgColor = 0xFFF5F5F5;
         } else {
-            bgColor = 0xFFFFFFFF; // White
+            bgColor = 0xFFFFFFFF;
         }
 
         guiGraphics.fill(x, y, x + itemWidth, y + TIER_ITEM_HEIGHT, bgColor);
@@ -99,29 +119,19 @@ public class MembershipSelectionScreen extends Screen {
         guiGraphics.fill(x, y, x + itemWidth, y + 1, borderColor);
         guiGraphics.fill(x, y + TIER_ITEM_HEIGHT - 1, x + itemWidth, y + TIER_ITEM_HEIGHT, borderColor);
 
-        // Tier name
-        String tierName = Component.translatable(tier.getTranslationKey()).getString();
-        guiGraphics.drawString(this.font, "§0§l" + tierName, x + 5, y + 5, 0x000000, false);
-
-        // Coverage
-        int coverage = tier.getCoveragePercent();
-        String coverageText = Component.translatable("gui.app.towing.coverage", coverage).getString();
-        guiGraphics.drawString(this.font, "§7" + coverageText, x + 5, y + 18, 0xFF666666, false);
-
-        // Monthly fee
-        double fee = tier.getMonthlyFee();
-        String feeText = Component.translatable("gui.app.towing.monthly_fee", String.format("%.0f", fee)).getString();
-        guiGraphics.drawString(this.font, "§7" + feeText, x + 5, y + 30, 0xFF666666, false);
+        // PERFORMANCE: Use cached strings instead of per-frame translations
+        guiGraphics.drawString(this.font, "§0§l" + cachedTierNames[tierIndex], x + 5, y + 5, 0x000000, false);
+        guiGraphics.drawString(this.font, "§7" + cachedCoverageTexts[tierIndex], x + 5, y + 18, 0xFF666666, false);
+        guiGraphics.drawString(this.font, "§7" + cachedFeeTexts[tierIndex], x + 5, y + 30, 0xFF666666, false);
 
         // Status badge
         if (isCurrentTier) {
-            String activeText = Component.translatable("gui.app.towing.active").getString();
-            int badgeWidth = font.width(activeText) + 10;
+            int badgeWidth = font.width(cachedActiveText) + 10;
             int badgeX = x + itemWidth - badgeWidth - 5;
             int badgeY = y + 5;
 
             guiGraphics.fill(badgeX, badgeY, badgeX + badgeWidth, badgeY + 12, 0xFF00AA00);
-            guiGraphics.drawString(this.font, activeText, badgeX + 5, badgeY + 2, 0xFFFFFFFF, false);
+            guiGraphics.drawString(this.font, cachedActiveText, badgeX + 5, badgeY + 2, 0xFFFFFFFF, false);
         }
     }
 
