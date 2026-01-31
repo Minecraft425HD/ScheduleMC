@@ -56,10 +56,10 @@ public class UpdateShopItemsPacket {
     public static UpdateShopItemsPacket decode(FriendlyByteBuf buf) {
         int entityId = buf.readInt();
         int count = buf.readInt();
-        List<ItemStack> items = new ArrayList<>();
-        List<Integer> prices = new ArrayList<>();
-        List<Boolean> unlimited = new ArrayList<>();
-        List<Integer> stock = new ArrayList<>();
+        List<ItemStack> items = new ArrayList<>(count);
+        List<Integer> prices = new ArrayList<>(count);
+        List<Boolean> unlimited = new ArrayList<>(count);
+        List<Integer> stock = new ArrayList<>(count);
 
         for (int i = 0; i < count; i++) {
             items.add(buf.readItem());

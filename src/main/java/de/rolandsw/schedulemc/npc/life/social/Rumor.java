@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.npc.life.social;
 import net.minecraft.nbt.CompoundTag;
 
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Rumor - Ein einzelnes Gerücht über einen Spieler
@@ -144,7 +145,7 @@ public class Rumor {
         // Jede Weitergabe verringert die Chance
         chance *= Math.pow(0.9, spreadCount);
 
-        if (Math.random() < chance) {
+        if (ThreadLocalRandom.current().nextDouble() < chance) {
             spreadCount++;
             // Glaubwürdigkeit sinkt mit jeder Weitergabe ("Stille Post" Effekt)
             credibility = Math.max(10.0f, credibility - 5.0f);

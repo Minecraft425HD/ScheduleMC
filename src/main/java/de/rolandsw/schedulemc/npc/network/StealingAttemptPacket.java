@@ -17,6 +17,7 @@ import net.minecraftforge.network.NetworkEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
 
 /**
@@ -138,7 +139,7 @@ public class StealingAttemptPacket {
 
                         if (!availableSlots.isEmpty()) {
                             // Wähle zufälligen Slot
-                            int randomIndex = (int)(Math.random() * availableSlots.size());
+                            int randomIndex = ThreadLocalRandom.current().nextInt(availableSlots.size());
                             int slot = availableSlots.get(randomIndex);
 
                             ItemStack stack = npcInventory.get(slot);
@@ -191,7 +192,7 @@ public class StealingAttemptPacket {
                         }
 
                         // 33% Chance: NPC attackiert Spieler
-                        if (Math.random() < 0.33) {
+                        if (ThreadLocalRandom.current().nextDouble() < 0.33) {
                             npc.setTarget(player);
                             player.sendSystemMessage(Component.translatable("message.stealing.npc_attacks", npc.getNpcName()));
                             if (LOGGER.isDebugEnabled()) {
@@ -231,7 +232,7 @@ public class StealingAttemptPacket {
                             detectionChance = Math.min(0.9, witnesses.size() * 0.15);
                         }
 
-                        if (Math.random() < detectionChance) {
+                        if (ThreadLocalRandom.current().nextDouble() < detectionChance) {
                             // Verbrechen wurde gesehen!
                             CrimeManager.addWantedLevel(player.getUUID(), 2, currentDay);
 

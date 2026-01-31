@@ -12,7 +12,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * StandardActions - Sammlung von Standard-Verhaltensaktionen
@@ -62,11 +62,10 @@ public class StandardActions {
                 fleeDirection = npcPos.subtract(threatPos).normalize();
             } else {
                 // Zufällige Richtung
-                Random rand = new Random();
                 fleeDirection = new Vec3(
-                    rand.nextDouble() * 2 - 1,
+                    ThreadLocalRandom.current().nextDouble() * 2 - 1,
                     0,
-                    rand.nextDouble() * 2 - 1
+                    ThreadLocalRandom.current().nextDouble() * 2 - 1
                 ).normalize();
             }
 
@@ -110,11 +109,10 @@ public class StandardActions {
                 stuckCounter++;
                 if (stuckCounter > 20) {
                     // Neue Richtung versuchen
-                    Random rand = new Random();
                     fleeDirection = new Vec3(
-                        rand.nextDouble() * 2 - 1,
+                        ThreadLocalRandom.current().nextDouble() * 2 - 1,
                         0,
-                        rand.nextDouble() * 2 - 1
+                        ThreadLocalRandom.current().nextDouble() * 2 - 1
                     ).normalize();
 
                     Vec3 newFleePos = npc.position().add(fleeDirection.scale(FLEE_DISTANCE / 2));
@@ -289,11 +287,10 @@ public class StandardActions {
                 investigateTarget = targetEntity.blockPosition();
             } else {
                 // Zufälliger Punkt in der Nähe
-                Random rand = new Random();
                 investigateTarget = npc.blockPosition().offset(
-                    rand.nextInt(10) - 5,
+                    ThreadLocalRandom.current().nextInt(10) - 5,
                     0,
-                    rand.nextInt(10) - 5
+                    ThreadLocalRandom.current().nextInt(10) - 5
                 );
             }
 
@@ -323,9 +320,9 @@ public class StandardActions {
                 // "Untersuchen" - NPC schaut sich um
                 if (investigateTime % 20 == 0) {
                     npc.getLookControl().setLookAt(
-                        npc.getX() + Math.random() * 4 - 2,
+                        npc.getX() + ThreadLocalRandom.current().nextDouble() * 4 - 2,
                         npc.getY() + 1,
-                        npc.getZ() + Math.random() * 4 - 2
+                        npc.getZ() + ThreadLocalRandom.current().nextDouble() * 4 - 2
                     );
                 }
 
@@ -399,9 +396,8 @@ public class StandardActions {
 
         private BlockPos findNearbyHideSpot(CustomNPCEntity npc) {
             // Vereinfacht: Geh 10-20 Blöcke in eine Richtung
-            Random rand = new Random();
-            int dx = rand.nextInt(20) - 10;
-            int dz = rand.nextInt(20) - 10;
+            int dx = ThreadLocalRandom.current().nextInt(20) - 10;
+            int dz = ThreadLocalRandom.current().nextInt(20) - 10;
             return npc.blockPosition().offset(dx, 0, dz);
         }
 

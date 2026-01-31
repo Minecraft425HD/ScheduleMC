@@ -18,6 +18,7 @@ import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * NPCs können nicht sterben - sie werden stattdessen "knockout"
@@ -115,7 +116,7 @@ public class NPCKnockoutHandler {
                     detectionChance = Math.min(0.9, witnesses.size() * 0.15);
                 }
 
-                if (Math.random() < detectionChance) {
+                if (ThreadLocalRandom.current().nextDouble() < detectionChance) {
                     // Verbrechen wurde gesehen!
                     long currentDay = npc.level().getDayTime() / 24000;
                     int starsToAdd;

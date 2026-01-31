@@ -9,6 +9,7 @@ import de.rolandsw.schedulemc.npc.life.social.FactionRelation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.BiPredicate;
 
 /**
@@ -169,7 +170,7 @@ public class DialogueCondition {
     public static DialogueCondition random(float chance) {
         return new DialogueCondition("random_" + (int)(chance * 100),
             "Zufällig " + (int)(chance * 100) + "%",
-            (ctx, npc) -> Math.random() < chance);
+            (ctx, npc) -> ThreadLocalRandom.current().nextDouble() < chance);
     }
 
     public static DialogueCondition factionReputationAtLeast(Faction faction, int minRep) {

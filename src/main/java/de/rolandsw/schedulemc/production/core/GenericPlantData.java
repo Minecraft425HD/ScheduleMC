@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.nbt.CompoundTag;
 import org.slf4j.Logger;
 
+import java.util.concurrent.ThreadLocalRandom;
 import javax.annotation.Nullable;
 
 /**
@@ -123,7 +124,7 @@ public class GenericPlantData<T extends ProductionType, Q extends ProductionQual
 
         // Fertilizer Bonus: +1-2 Yield
         if (hasFertilizer) {
-            baseYield += 1 + (int)(Math.random() * 2);
+            baseYield += 1 + ThreadLocalRandom.current().nextInt(2);
         }
 
         // Quality Multiplier (Standard)

@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.npc.life.core;
 import net.minecraft.nbt.CompoundTag;
 
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * NPCTraits - Persönlichkeits-Eigenschaften eines NPCs (3 Achsen)
@@ -207,7 +208,7 @@ public class NPCTraits {
             chance += 0.1f;
         }
 
-        return Math.random() < Math.min(0.95f, chance);
+        return ThreadLocalRandom.current().nextDouble() < Math.min(0.95f, chance);
     }
 
     /**

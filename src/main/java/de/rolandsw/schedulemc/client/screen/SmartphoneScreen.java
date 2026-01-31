@@ -65,6 +65,10 @@ public class SmartphoneScreen extends Screen {
     // PERFORMANCE: App-Labels einmal in init() cachen statt 12x Component.translatable().getString() pro Frame
     private String cachedTitle;
     private String[] cachedAppLabels;
+    // OPTIMIERT: Truncated Labels und Initialen vorberechnet statt StringBuilder-Loop pro Frame
+    private String[] cachedDisplayLabels;
+    private String[] cachedInitials;
+    private int[] cachedLabelWidths;
 
     public SmartphoneScreen() {
         super(Component.translatable("gui.smartphone.title"));
@@ -90,6 +94,32 @@ public class SmartphoneScreen extends Screen {
             Component.translatable("gui.smartphone.app_achievements").getString(),
             Component.translatable("gui.smartphone.app_towing").getString()
         };
+
+        // OPTIMIERT: Truncated Labels und Initialen einmalig vorberechnen
+        // Vorher: StringBuilder-Loop mit substring() pro Buchstabe pro Label pro Frame
+        int maxLabelWidth = APP_ICON_SIZE + 15;
+        cachedDisplayLabels = new String[cachedAppLabels.length];
+        cachedInitials = new String[cachedAppLabels.length];
+        cachedLabelWidths = new int[cachedAppLabels.length];
+        for (int i = 0; i < cachedAppLabels.length; i++) {
+            String label = cachedAppLabels[i];
+            cachedInitials[i] = label.length() >= 2 ? label.substring(0, 2).toUpperCase() : label.toUpperCase();
+            int labelWidth = this.font.width(label);
+            if (labelWidth > maxLabelWidth) {
+                String truncated = label;
+                for (int c = label.length() - 1; c >= 0; c--) {
+                    String test = label.substring(0, c) + "...";
+                    if (this.font.width(test) <= maxLabelWidth) {
+                        truncated = test;
+                        break;
+                    }
+                }
+                cachedDisplayLabels[i] = truncated;
+            } else {
+                cachedDisplayLabels[i] = label;
+            }
+            cachedLabelWidths[i] = this.font.width(cachedDisplayLabels[i]);
+        }
 
         // Sende Paket an Server: Smartphone ist jetzt offen
         SmartphoneNetworkHandler.sendToServer(new SmartphoneStatePacket(true));
@@ -365,6 +395,8 @@ public class SmartphoneScreen extends Screen {
         }
 
         boolean iconRendered = false;
+        // OPTIMIERT: App-Index einmal berechnen statt mehrfach
+        int appIdx = findAppIndex(label);
 
         // Versuche Icon zu laden, falls nicht vorhanden zeige Platzhalter
         if (iconTexture != null) {
@@ -381,8 +413,9 @@ public class SmartphoneScreen extends Screen {
             // Platzhalter wenn Bild nicht gefunden
             guiGraphics.fill(x + 2, y + 2, x + APP_ICON_SIZE - 2, y + APP_ICON_SIZE - 2, 0xFF505050);
 
-            // Erste 2 Buchstaben als Platzhalter
-            String initials = label.length() >= 2 ? label.substring(0, 2).toUpperCase() : label.toUpperCase();
+            // OPTIMIERT: Gecachte Initialen nutzen statt substring().toUpperCase() pro Frame
+            String initials = (appIdx >= 0 && cachedInitials != null) ? cachedInitials[appIdx]
+                : (label.length() >= 2 ? label.substring(0, 2).toUpperCase() : label.toUpperCase());
             int textWidth = this.font.width(initials);
             guiGraphics.drawString(this.font, "§f" + initials,
                 x + (APP_ICON_SIZE - textWidth) / 2,
@@ -390,24 +423,16 @@ public class SmartphoneScreen extends Screen {
                 0xFFFFFF);
         }
 
-        // Label unter dem Icon mit Ellipsis wenn zu lang
-        String displayLabel = label;
-        int maxLabelWidth = APP_ICON_SIZE + 15; // Mehr Platz für Labels
-        int labelWidth = this.font.width(label);
-
-        // Kürze Label wenn zu lang
-        if (labelWidth > maxLabelWidth) {
-            // Finde die maximale Länge die passt
-            StringBuilder truncated = new StringBuilder();
-            for (int i = 0; i < label.length(); i++) {
-                String test = label.substring(0, i) + "...";
-                if (this.font.width(test) > maxLabelWidth) {
-                    break;
-                }
-                truncated = new StringBuilder(label.substring(0, i));
-            }
-            displayLabel = truncated.toString() + "...";
-            labelWidth = this.font.width(displayLabel);
+        // OPTIMIERT: Gecachte truncated Labels nutzen statt StringBuilder-Loop pro Frame
+        // Vorher: N StringBuilder + N substring() Allokationen pro Label pro Frame
+        String displayLabel;
+        int labelWidth;
+        if (appIdx >= 0 && cachedDisplayLabels != null) {
+            displayLabel = cachedDisplayLabels[appIdx];
+            labelWidth = cachedLabelWidths[appIdx];
+        } else {
+            displayLabel = label;
+            labelWidth = this.font.width(label);
         }
 
         // Label direkt unter dem Icon
@@ -415,6 +440,18 @@ public class SmartphoneScreen extends Screen {
             x + (APP_ICON_SIZE - labelWidth) / 2,
             y + APP_ICON_SIZE + 4,
             0xFFFFFF);
+    }
+
+    /**
+     * OPTIMIERT: Findet den Index eines App-Labels in cachedAppLabels
+     */
+    private int findAppIndex(String label) {
+        if (cachedAppLabels != null) {
+            for (int i = 0; i < cachedAppLabels.length; i++) {
+                if (cachedAppLabels[i].equals(label)) return i;
+            }
+        }
+        return -1;
     }
 
     @Override

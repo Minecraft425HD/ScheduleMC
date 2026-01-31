@@ -9,6 +9,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Fertiges Meth - Endprodukt aus Vakuum-Trockner
@@ -71,9 +72,9 @@ public class MethItem extends Item {
 
     private int getPurityPercent(MethQuality quality) {
         return switch (quality) {
-            case STANDARD -> 70 + (int)(Math.random() * 10); // 70-79%
-            case GUT -> 80 + (int)(Math.random() * 10);      // 80-89%
-            case BLUE_SKY -> 96 + (int)(Math.random() * 4);  // 96-99%
+            case STANDARD -> 70 + ThreadLocalRandom.current().nextInt(10); // 70-79%
+            case GUT -> 80 + ThreadLocalRandom.current().nextInt(10);      // 80-89%
+            case BLUE_SKY -> 96 + ThreadLocalRandom.current().nextInt(4);  // 96-99%
         };
     }
 

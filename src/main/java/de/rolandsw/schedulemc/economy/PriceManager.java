@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Verwaltet dynamische Preise für Shop-Items
@@ -143,7 +144,7 @@ public class PriceManager {
         removeExpiredEvents();
 
         // 10% Chance auf neues Event
-        if (Math.random() < 0.1) {
+        if (ThreadLocalRandom.current().nextDouble() < 0.1) {
             triggerRandomEvent();
         }
     }
@@ -152,8 +153,7 @@ public class PriceManager {
      * Triggert zufälliges Event aus dem Event-Pool
      */
     private static void triggerRandomEvent() {
-        Random random = new Random();
-        int eventType = random.nextInt(12);
+        int eventType = ThreadLocalRandom.current().nextInt(12);
 
         EconomicEvent event = switch (eventType) {
             // ═══════════════════════════════════════════════════════════

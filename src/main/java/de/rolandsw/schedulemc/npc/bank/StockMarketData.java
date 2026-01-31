@@ -16,6 +16,7 @@ import java.io.FileWriter;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Verwaltet Börsenpreise für handelbare Items
@@ -29,7 +30,6 @@ public class StockMarketData {
     private final Map<Item, StockPrice> prices = new ConcurrentHashMap<>();
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private final File saveFile;
-    private final Random random = new Random();
 
     private long currentDay = 0;
     private long lastPriceUpdate = 0;
@@ -174,7 +174,7 @@ public class StockMarketData {
             price.previousPrice = price.currentPrice;
 
             // Berechne zufällige Änderung (-maxChange bis +maxChange)
-            double changePercent = (random.nextDouble() * 2.0 - 1.0) * maxChange;
+            double changePercent = (ThreadLocalRandom.current().nextDouble() * 2.0 - 1.0) * maxChange;
             double changeAmount = price.currentPrice * changePercent;
 
             // Neuer Preis
@@ -318,21 +318,34 @@ public class StockMarketData {
          * Berechnet Höchstpreis der letzten 7 Tage
          */
         public double getHighPrice() {
-            return priceHistory.stream().mapToDouble(Double::doubleValue).max().orElse(currentPrice);
+            double high = currentPrice;
+            for (double p : priceHistory) {
+                if (p > high) high = p;
+            }
+            return high;
         }
 
         /**
          * Berechnet Tiefstpreis der letzten 7 Tage
          */
         public double getLowPrice() {
-            return priceHistory.stream().mapToDouble(Double::doubleValue).min().orElse(currentPrice);
+            double low = currentPrice;
+            for (double p : priceHistory) {
+                if (p < low) low = p;
+            }
+            return low;
         }
 
         /**
          * Berechnet Durchschnittspreis der letzten 7 Tage
          */
         public double getAveragePrice() {
-            return priceHistory.stream().mapToDouble(Double::doubleValue).average().orElse(currentPrice);
+            if (priceHistory.isEmpty()) return currentPrice;
+            double sum = 0;
+            for (double p : priceHistory) {
+                sum += p;
+            }
+            return sum / priceHistory.size();
         }
     }
 

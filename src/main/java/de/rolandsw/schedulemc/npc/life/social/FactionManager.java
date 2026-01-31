@@ -233,10 +233,12 @@ public class FactionManager extends AbstractPersistenceManager<Map<String, Map<S
      */
     public Optional<Faction> getPlayerMemberFaction(UUID playerUUID) {
         Map<Faction, FactionRelation> relations = getAllRelations(playerUUID);
-        return relations.entrySet().stream()
-            .filter(e -> e.getValue().isMember())
-            .map(Map.Entry::getKey)
-            .findFirst();
+        for (Map.Entry<Faction, FactionRelation> e : relations.entrySet()) {
+            if (e.getValue().isMember()) {
+                return Optional.of(e.getKey());
+            }
+        }
+        return Optional.empty();
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -275,20 +277,32 @@ public class FactionManager extends AbstractPersistenceManager<Map<String, Map<S
      * Findet die Fraktion mit der besten Beziehung zum Spieler
      */
     public Faction getBestFaction(UUID playerUUID) {
-        return getAllRelations(playerUUID).entrySet().stream()
-            .max(Comparator.comparingInt(e -> e.getValue().getReputation()))
-            .map(Map.Entry::getKey)
-            .orElse(Faction.BUERGER);
+        Faction best = Faction.BUERGER;
+        int bestRep = Integer.MIN_VALUE;
+        for (Map.Entry<Faction, FactionRelation> e : getAllRelations(playerUUID).entrySet()) {
+            int rep = e.getValue().getReputation();
+            if (rep > bestRep) {
+                bestRep = rep;
+                best = e.getKey();
+            }
+        }
+        return best;
     }
 
     /**
      * Findet die Fraktion mit der schlechtesten Beziehung zum Spieler
      */
     public Faction getWorstFaction(UUID playerUUID) {
-        return getAllRelations(playerUUID).entrySet().stream()
-            .min(Comparator.comparingInt(e -> e.getValue().getReputation()))
-            .map(Map.Entry::getKey)
-            .orElse(Faction.ORDNUNG);
+        Faction worst = Faction.ORDNUNG;
+        int worstRep = Integer.MAX_VALUE;
+        for (Map.Entry<Faction, FactionRelation> e : getAllRelations(playerUUID).entrySet()) {
+            int rep = e.getValue().getReputation();
+            if (rep < worstRep) {
+                worstRep = rep;
+                worst = e.getKey();
+            }
+        }
+        return worst;
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -392,11 +406,19 @@ public class FactionManager extends AbstractPersistenceManager<Map<String, Map<S
         return "FactionManager";
     }
 
+    private int totalRelations() {
+        int total = 0;
+        for (Map<Faction, FactionRelation> m : playerFactions.values()) {
+            total += m.size();
+        }
+        return total;
+    }
+
     @Override
     protected String getHealthDetails() {
         return String.format("%d Spieler, %d Beziehungen",
             playerFactions.size(),
-            playerFactions.values().stream().mapToInt(Map::size).sum());
+            totalRelations());
     }
 
     @Override

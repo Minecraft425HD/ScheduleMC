@@ -27,7 +27,7 @@ import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Curdling Vat - Dicklegt pasteurisierte Milch mit Lab zu Käsebruch
@@ -47,7 +47,6 @@ public class CurdlingVatBlockEntity extends BlockEntity implements IUtilityConsu
 
     protected ItemStackHandler itemHandler;
     private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
-    private final Random random = new Random();
 
     public CurdlingVatBlockEntity(BlockPos pos, BlockState state) {
         super(CheeseBlockEntities.CURDLING_VAT.get(), pos, state);
@@ -139,7 +138,7 @@ public class CurdlingVatBlockEntity extends BlockEntity implements IUtilityConsu
             if (curdlingProgress >= getTotalCurdlingTime()) {
                 // Determine quality once at completion
                 if (quality == null) {
-                    quality = CheeseQuality.determineQuality(1.0, random);
+                    quality = CheeseQuality.determineQuality(1.0, ThreadLocalRandom.current());
                 }
 
                 // Curdling complete: Milk + Rennet → Cheese Curd

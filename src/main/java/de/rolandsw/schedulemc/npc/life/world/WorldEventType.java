@@ -2,6 +2,8 @@ package de.rolandsw.schedulemc.npc.life.world;
 
 import de.rolandsw.schedulemc.npc.life.economy.MarketCondition;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 /**
  * WorldEventType - Typen von Welt-Events
  *
@@ -242,7 +244,7 @@ public enum WorldEventType {
      */
     public int getRandomDuration() {
         if (minDuration == maxDuration) return minDuration;
-        return minDuration + (int)(Math.random() * (maxDuration - minDuration + 1));
+        return minDuration + ThreadLocalRandom.current().nextInt(maxDuration - minDuration + 1);
     }
 
     /**

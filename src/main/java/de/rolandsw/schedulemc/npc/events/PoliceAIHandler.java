@@ -98,6 +98,14 @@ public class PoliceAIHandler {
     private static volatile long lastCacheUpdateTick = -1;
     private static final int CACHE_UPDATE_INTERVAL = 5; // Alle 5 Ticks (250ms) statt jeden Tick
 
+    // ═══════════════════════════════════════════════════════════════════════════
+    // OPTIMIERUNG: Polizei-NPC-Cache (aktualisiert alle 10 Ticks = 500ms)
+    // Verhindert teuren getEntitiesOfClass() World-Scan pro Spieler pro Tick
+    // ═══════════════════════════════════════════════════════════════════════════
+    private static volatile List<CachedPoliceData> policeCache = List.of();
+    private static volatile long lastPoliceCacheUpdateTick = -1;
+    private static final int POLICE_CACHE_UPDATE_INTERVAL = 10; // Alle 10 Ticks (500ms)
+
     /**
      * Gecachte Spielerdaten für schnellen Zugriff
      */
@@ -110,6 +118,21 @@ public class PoliceAIHandler {
             this.player = player;
             this.position = player.position();
             this.wantedLevel = CrimeManager.getWantedLevel(player.getUUID());
+        }
+    }
+
+    /**
+     * Gecachte Polizei-NPC-Daten für schnellen Zugriff ohne World-Scan
+     */
+    private static class CachedPoliceData {
+        final CustomNPCEntity npc;
+        final Vec3 position;
+        final UUID uuid;
+
+        CachedPoliceData(CustomNPCEntity npc) {
+            this.npc = npc;
+            this.position = npc.position();
+            this.uuid = npc.getUUID();
         }
     }
 
@@ -133,6 +156,48 @@ public class PoliceAIHandler {
             newCache.put(player.getUUID(), new CachedPlayerData(player));
         }
         playerCache = newCache;
+    }
+
+    /**
+     * Aktualisiert den Polizei-NPC-Cache alle 10 Ticks (500ms).
+     * Ersetzt teuren getEntitiesOfClass() World-Scan pro Spieler pro Tick.
+     *
+     * @param server Der Minecraft Server
+     * @param currentTick Aktueller Game-Tick
+     */
+    public static void updatePoliceCache(net.minecraft.server.MinecraftServer server, long currentTick) {
+        if (currentTick - lastPoliceCacheUpdateTick < POLICE_CACHE_UPDATE_INTERVAL) return;
+        lastPoliceCacheUpdateTick = currentTick;
+
+        List<CachedPoliceData> newCache = new ArrayList<>();
+        for (ServerLevel level : server.getAllLevels()) {
+            for (net.minecraft.world.entity.Entity entity : level.getAllEntities()) {
+                if (entity instanceof CustomNPCEntity npc
+                        && npc.getNpcType() == NPCType.POLIZEI
+                        && !npc.getPersistentData().getBoolean("IsKnockedOut")) {
+                    newCache.add(new CachedPoliceData(npc));
+                }
+            }
+        }
+        policeCache = newCache;
+    }
+
+    /**
+     * Findet Polizei-NPCs im Radius einer Position (nutzt Cache statt World-Scan).
+     * O(n) mit n = Anzahl Polizei-NPCs statt O(alle World Entities).
+     *
+     * @param center Zentrum der Suche
+     * @param radius Suchradius
+     * @param result Wiederverwendbare Liste (wird geleert und gefüllt)
+     */
+    public static void getPoliceInRadius(Vec3 center, double radius, List<CustomNPCEntity> result) {
+        result.clear();
+        double radiusSq = radius * radius;
+        for (CachedPoliceData data : policeCache) {
+            if (data.position.distanceToSqr(center) <= radiusSq) {
+                result.add(data.npc);
+            }
+        }
     }
 
     /**
@@ -599,45 +664,35 @@ public class PoliceAIHandler {
         if (wantedLevel > 0) {
             long currentTick = player.level().getGameTime();
 
-            // Finde nächste Polizei (OPTIMIERT: konfigurierbar statt hardcoded 100)
+            // Finde nächste Polizei (OPTIMIERT: Cache statt getEntitiesOfClass World-Scan)
             int backupSearchRadius = ModConfigHandler.COMMON.POLICE_BACKUP_SEARCH_RADIUS.get();
-            List<CustomNPCEntity> nearbyPolice = player.level().getEntitiesOfClass(
-                CustomNPCEntity.class,
-                AABB.ofSize(player.position(), backupSearchRadius, backupSearchRadius, backupSearchRadius),
-                npc -> npc.getNpcType() == NPCType.POLIZEI && !npc.getPersistentData().getBoolean("IsKnockedOut")
-            );
+            List<CustomNPCEntity> nearbyPolice = new ArrayList<>();
+            getPoliceInRadius(player.position(), backupSearchRadius, nearbyPolice);
 
+            // OPTIMIERT: Kombinierte Schleife für minDistance + hiddenFromAll Check
+            // Vorher: 2 separate Iterationen, jetzt: 1 einzige
             double minDistance = Double.MAX_VALUE;
+            boolean hiddenFromAll = !nearbyPolice.isEmpty();
             for (CustomNPCEntity police : nearbyPolice) {
-                double distance = player.distanceTo(police);
-                if (distance < minDistance) {
-                    minDistance = distance;
+                double distSq = player.distanceToSqr(police);
+                if (distSq < minDistance) {
+                    minDistance = distSq;
+                }
+                if (hiddenFromAll && !PoliceSearchBehavior.isPlayerHidden(player, police)) {
+                    hiddenFromAll = false;
                 }
             }
+            // Konvertiere squared distance zurück für Vergleich
+            minDistance = Math.sqrt(minDistance);
 
             // Escape-Logic
             boolean canHide = false;
 
-            // Prüfe ob Spieler sich verstecken kann
             if (!nearbyPolice.isEmpty()) {
-                // Es gibt Polizei in der Nähe - prüfe ob Spieler vor ALLEN versteckt ist
-                boolean hiddenFromAll = true;
-
-                for (CustomNPCEntity police : nearbyPolice) {
-                    // isPlayerHidden gibt FALSE zurück wenn Polizei den Spieler SEHEN kann
-                    if (!PoliceSearchBehavior.isPlayerHidden(player, police)) {
-                        // Diese Polizei kann den Spieler sehen (z.B. draußen oder durch Fenster)
-                        hiddenFromAll = false;
-                        break;
-                    }
-                }
-
                 if (hiddenFromAll) {
-                    // Spieler ist vor ALLER Polizei versteckt (im Gebäude, nicht am Fenster)
                     canHide = true;
                 }
             } else if (minDistance > CrimeManager.ESCAPE_DISTANCE) {
-                // Keine Polizei in der Nähe UND weit genug entfernt
                 canHide = true;
             }
 

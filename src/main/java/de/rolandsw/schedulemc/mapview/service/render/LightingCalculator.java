@@ -3,6 +3,8 @@ package de.rolandsw.schedulemc.mapview.service.render;
 import net.minecraft.client.Minecraft;
 import de.rolandsw.schedulemc.mapview.util.ARGBCompat;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 /**
  * from map lighting shader + net.minecraft.client.renderer.LightTexture
  */
@@ -19,6 +21,10 @@ public class LightingCalculator {
     private float SkyLightColorG = 1.0f;
     private float SkyLightColorB = 1.0f;
     private float BrightnessFactor = 0.0f;
+
+    // Precomputed brightness tables (16 discrete light levels each)
+    private final float[] blockBrightnessLookup = new float[16];
+    private final float[] skyBrightnessLookup = new float[16];
 
     public static LightingCalculator getInstance() {
         return INSTANCE;
@@ -46,7 +52,8 @@ public class LightingCalculator {
 
         SkyFactor = h;
 
-        this.blockLightRedFlicker = this.blockLightRedFlicker + (float) ((Math.random() - Math.random()) * Math.random() * Math.random() * 0.1);
+        ThreadLocalRandom tlr = ThreadLocalRandom.current();
+        this.blockLightRedFlicker = this.blockLightRedFlicker + (float) ((tlr.nextDouble() - tlr.nextDouble()) * tlr.nextDouble() * tlr.nextDouble() * 0.1);
         this.blockLightRedFlicker *= 0.9F;
         BlockFactor = this.blockLightRedFlicker + 1.5F;
 
@@ -56,11 +63,17 @@ public class LightingCalculator {
 
         float p = MINECRAFT.options.gamma().get().floatValue();
         BrightnessFactor = Math.max(0.0F, p);
+
+        // Precompute brightness lookup tables (16 discrete light levels)
+        for (int i = 0; i < 16; i++) {
+            blockBrightnessLookup[i] = get_brightness(i / 15f) * BlockFactor;
+            skyBrightnessLookup[i] = get_brightness(i / 15f) * SkyFactor;
+        }
     }
 
     public int getLight(int blockLight, int skyLight) {
-        float block_brightness = get_brightness(blockLight / 15f) * BlockFactor;
-        float sky_brightness = get_brightness(skyLight / 15f) * SkyFactor;
+        float block_brightness = blockBrightnessLookup[blockLight];
+        float sky_brightness = skyBrightnessLookup[skyLight];
 
         // cubic nonsense, dips to yellowish in the middle, white when fully saturated
         float colorr = block_brightness;

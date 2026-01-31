@@ -9,7 +9,6 @@ import net.minecraft.client.multiplayer.ClientLevel;
 
 public class MapViewHelper {
     private static MapViewConfiguration options;
-    private static Random slimeRandom = new Random();
     private static String lastSeed;
     private static long lastSeedLong;
     private static int lastSlimeX;
@@ -58,8 +57,8 @@ public class MapViewHelper {
         if (xPosition != lastSlimeX || zPosition != lastSlimeZ) {
             lastSlimeX = xPosition;
             lastSlimeZ = zPosition;
-            slimeRandom.setSeed(lastSeedLong + (int) (xPosition * xPosition * 0x4C1906) + (int) (xPosition * 0x5ac0db) + (int) (zPosition * zPosition) * 0x4307a7L + (int) (zPosition * 0x5f24f) ^ 0x3ad8025fL);
-            isSlimeChunk = slimeRandom.nextInt(10) == 0;
+            Random seededRandom = new Random(lastSeedLong + (int) (xPosition * xPosition * 0x4C1906) + (int) (xPosition * 0x5ac0db) + (int) (zPosition * zPosition) * 0x4307a7L + (int) (zPosition * 0x5f24f) ^ 0x3ad8025fL);
+            isSlimeChunk = seededRandom.nextInt(10) == 0;
         }
 
         return isSlimeChunk;

@@ -35,6 +35,19 @@ public class NPCMapRenderer {
     private static final float MARKER_SIZE = 4.0f;
     private static final float MARKER_BORDER = 1.0f;
 
+    // Precomputed sin/cos table for circle rendering (avoids trig per frame per NPC)
+    private static final int CIRCLE_SEGMENTS = 16;
+    private static final float[] COS_TABLE = new float[CIRCLE_SEGMENTS + 1];
+    private static final float[] SIN_TABLE = new float[CIRCLE_SEGMENTS + 1];
+
+    static {
+        for (int i = 0; i <= CIRCLE_SEGMENTS; i++) {
+            float angle = (float) (i * 2 * Math.PI / CIRCLE_SEGMENTS);
+            COS_TABLE[i] = (float) Math.cos(angle);
+            SIN_TABLE[i] = (float) Math.sin(angle);
+        }
+    }
+
     // Animation
     private float pulseAnimation = 0;
     private static final float PULSE_SPEED = 0.05f;
@@ -199,12 +212,10 @@ public class NPCMapRenderer {
         // Zentrum
         buffer.vertex(matrix, x, y, 0).color(r, g, b, alpha).endVertex();
 
-        // Kreispunkte
-        int segments = 16;
-        for (int i = 0; i <= segments; i++) {
-            float angle = (float) (i * 2 * Math.PI / segments);
-            float px = x + (float) Math.cos(angle) * radius;
-            float py = y + (float) Math.sin(angle) * radius;
+        // Kreispunkte (precomputed sin/cos)
+        for (int i = 0; i <= CIRCLE_SEGMENTS; i++) {
+            float px = x + COS_TABLE[i] * radius;
+            float py = y + SIN_TABLE[i] * radius;
             buffer.vertex(matrix, px, py, 0).color(r, g, b, alpha * 0.8f).endVertex();
         }
 

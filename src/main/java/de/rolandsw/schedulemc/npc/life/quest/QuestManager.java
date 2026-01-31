@@ -24,6 +24,7 @@ import java.io.File;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * QuestManager - Verwaltet alle Quests im System mit JSON-Persistenz
@@ -356,7 +357,7 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
         if (suitable.isEmpty()) return null;
 
         // Zufällig auswählen
-        QuestTemplate selected = suitable.get(new Random().nextInt(suitable.size()));
+        QuestTemplate selected = suitable.get(ThreadLocalRandom.current().nextInt(suitable.size()));
         return generateQuest(selected.getId(), npc, player);
     }
 
@@ -455,7 +456,7 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
         List<String> offers = new ArrayList<>();
 
         // Generiere 1-3 Quest-Angebote
-        int numQuests = 1 + new Random().nextInt(3);
+        int numQuests = 1 + ThreadLocalRandom.current().nextInt(3);
         for (int i = 0; i < numQuests; i++) {
             // Hier würden wir Quests generieren und speichern
         }

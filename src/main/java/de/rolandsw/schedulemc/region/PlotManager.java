@@ -21,7 +21,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 /**
  * PlotManager - Verwaltet alle Plots
@@ -247,49 +246,82 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
     
     /**
      * Gibt alle Plots eines Besitzers zurück
+     * OPTIMIERT: Loop statt Stream (vermeidet Stream-Pipeline-Allokation)
      */
     public static List<PlotRegion> getPlotsByOwner(UUID ownerUUID) {
-        return plots.values().stream()
-            .filter(p -> p.isOwnedBy(ownerUUID))
-            .collect(Collectors.toList());
+        List<PlotRegion> result = new ArrayList<>();
+        for (PlotRegion p : plots.values()) {
+            if (p.isOwnedBy(ownerUUID)) {
+                result.add(p);
+            }
+        }
+        return result;
     }
-    
+
     /**
      * Gibt alle verfügbaren (kaufbaren) Plots zurück
+     * OPTIMIERT: Loop statt Stream
      */
     public static List<PlotRegion> getAvailablePlots() {
-        return plots.values().stream()
-            .filter(p -> !p.hasOwner())
-            .collect(Collectors.toList());
+        List<PlotRegion> result = new ArrayList<>();
+        for (PlotRegion p : plots.values()) {
+            if (!p.hasOwner()) {
+                result.add(p);
+            }
+        }
+        return result;
     }
-    
+
     /**
      * Gibt alle zum Verkauf stehenden Plots zurück
+     * OPTIMIERT: Loop statt Stream
      */
     public static List<PlotRegion> getPlotsForSale() {
-        return plots.values().stream()
-            .filter(PlotRegion::isForSale)
-            .collect(Collectors.toList());
+        List<PlotRegion> result = new ArrayList<>();
+        for (PlotRegion p : plots.values()) {
+            if (p.isForSale()) {
+                result.add(p);
+            }
+        }
+        return result;
     }
-    
+
     /**
      * Gibt alle zur Miete stehenden Plots zurück
+     * OPTIMIERT: Loop statt Stream
      */
     public static List<PlotRegion> getPlotsForRent() {
-        return plots.values().stream()
-            .filter(p -> p.isForRent() && !p.isRented())
-            .collect(Collectors.toList());
+        List<PlotRegion> result = new ArrayList<>();
+        for (PlotRegion p : plots.values()) {
+            if (p.isForRent() && !p.isRented()) {
+                result.add(p);
+            }
+        }
+        return result;
     }
-    
+
     /**
      * Gibt Top X Plots nach Rating zurück
+     * OPTIMIERT: PriorityQueue für O(n log k) statt O(n log n) Full-Sort
      */
     public static List<PlotRegion> getTopRatedPlots(int limit) {
-        return plots.values().stream()
-            .filter(p -> p.getRatingCount() > 0)
-            .sorted((p1, p2) -> Double.compare(p2.getAverageRating(), p1.getAverageRating()))
-            .limit(limit)
-            .collect(Collectors.toList());
+        // Min-Heap: das schlechteste Element liegt oben, sodass wir es schnell ersetzen können
+        PriorityQueue<PlotRegion> topK = new PriorityQueue<>(limit + 1,
+            Comparator.comparingDouble(PlotRegion::getAverageRating));
+
+        for (PlotRegion p : plots.values()) {
+            if (p.getRatingCount() > 0) {
+                topK.offer(p);
+                if (topK.size() > limit) {
+                    topK.poll(); // Entferne schlechtestes
+                }
+            }
+        }
+
+        // Ergebnis in absteigender Reihenfolge
+        List<PlotRegion> result = new ArrayList<>(topK);
+        result.sort((p1, p2) -> Double.compare(p2.getAverageRating(), p1.getAverageRating()));
+        return result;
     }
     
     // ═══════════════════════════════════════════════════════════
@@ -360,11 +392,14 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
     
     /**
      * Gibt die Gesamtfläche aller Plots zurück
+     * OPTIMIERT: Loop statt Stream
      */
     public static long getTotalPlotVolume() {
-        return plots.values().stream()
-            .mapToLong(PlotRegion::getVolume)
-            .sum();
+        long total = 0;
+        for (PlotRegion p : plots.values()) {
+            total += p.getVolume();
+        }
+        return total;
     }
     
     /**
@@ -448,19 +483,16 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
                 plots.clear();
                 plots.putAll(loaded);
 
-                // Finde höchste Plot-Nummer für Counter
-                int maxId = plots.keySet().stream()
-                    .filter(id -> id.startsWith("plot_"))
-                    .map(id -> id.substring(5))
-                    .mapToInt(s -> {
+                // OPTIMIERT: Loop statt Stream (vermeidet substring + parseInt Allokationen)
+                int maxId = 0;
+                for (String id : plots.keySet()) {
+                    if (id.startsWith("plot_")) {
                         try {
-                            return Integer.parseInt(s);
-                        } catch (NumberFormatException e) {
-                            return 0;
-                        }
-                    })
-                    .max()
-                    .orElse(0);
+                            int num = Integer.parseInt(id.substring(5));
+                            if (num > maxId) maxId = num;
+                        } catch (NumberFormatException ignored) {}
+                    }
+                }
 
                 plotCounter.set(maxId + 1);
 
@@ -534,13 +566,16 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
             isHealthy = false;
             lastError = "Save failed: " + e.getMessage();
 
-            // Retry-Mechanismus
-            try {
-                Thread.sleep(100);
+            // OPTIMIERT: Asynchroner Retry statt Thread.sleep() (blockiert keinen I/O-Thread)
+            de.rolandsw.schedulemc.util.ThreadPoolManager.getIOPool().execute(() -> {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
                 retrySavePlots();
-            } catch (InterruptedException ie) {
-                Thread.currentThread().interrupt();
-            }
+            });
         }
     }
 

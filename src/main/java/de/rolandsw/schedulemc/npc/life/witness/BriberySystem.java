@@ -10,6 +10,7 @@ import net.minecraft.server.level.ServerPlayer;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * BriberySystem - Verwaltet Bestechungs-Mechaniken
@@ -68,7 +69,7 @@ public class BriberySystem {
         float successChance = calculateSuccessChance(traits, crimeType, offeredAmount, minimumAmount);
 
         // 4. Würfeln
-        boolean success = Math.random() < successChance;
+        boolean success = ThreadLocalRandom.current().nextDouble() < successChance;
 
         // 5. Ergebnis verarbeiten
         if (success) {

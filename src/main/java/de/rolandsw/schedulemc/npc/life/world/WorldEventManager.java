@@ -20,6 +20,7 @@ import java.io.File;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * WorldEventManager - Verwaltet alle Welt-Events mit JSON-Persistenz
@@ -173,7 +174,7 @@ public class WorldEventManager extends AbstractPersistenceManager<WorldEventMana
             .mapToDouble(WorldEventType::getProbability)
             .sum();
 
-        double random = Math.random() * totalProbability;
+        double random = ThreadLocalRandom.current().nextDouble() * totalProbability;
         double cumulative = 0;
 
         for (WorldEventType type : candidates) {

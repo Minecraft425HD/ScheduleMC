@@ -14,6 +14,7 @@ import javax.annotation.Nullable;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * CompanionBehavior - Steuert das KI-Verhalten eines Begleiters
@@ -319,7 +320,7 @@ public class CompanionBehavior {
      */
     private void teleportToOwner(ServerPlayer owner) {
         Vec3 pos = owner.position();
-        companion.teleportTo(pos.x + (Math.random() * 2 - 1), pos.y, pos.z + (Math.random() * 2 - 1));
+        companion.teleportTo(pos.x + (ThreadLocalRandom.current().nextDouble() * 2 - 1), pos.y, pos.z + (ThreadLocalRandom.current().nextDouble() * 2 - 1));
     }
 
     /**
@@ -355,8 +356,8 @@ public class CompanionBehavior {
         double range = data.getType().getMaxFollowDistance() - 5;
 
         // Zufällige Position in Reichweite
-        int dx = (int) ((Math.random() * 2 - 1) * range);
-        int dz = (int) ((Math.random() * 2 - 1) * range);
+        int dx = (int) ((ThreadLocalRandom.current().nextDouble() * 2 - 1) * range);
+        int dz = (int) ((ThreadLocalRandom.current().nextDouble() * 2 - 1) * range);
 
         BlockPos target = ownerPos.offset(dx, 0, dz);
 

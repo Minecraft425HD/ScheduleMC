@@ -9,7 +9,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Verhandlungs-Algorithmus mit dynamischen Gegenangeboten
@@ -19,7 +19,6 @@ import java.util.Random;
  */
 public class NegotiationEngine {
 
-    private static final Random random = new Random();
     private static final String NEGOTIATION_STATE_KEY = "NegotiationState_";
     private static final String NEGOTIATION_BLOCKED_KEY = "NegotiationBlocked_";
     private static final long BLOCK_DURATION_MS = 10 * 60 * 1000; // 10 Minuten Sperre nach Abbruch
@@ -85,7 +84,7 @@ public class NegotiationEngine {
             // Wenn Spieler mehr bietet, bewegen wir uns stärker darauf zu
             if (playerOffer > lastNPCOffer) {
                 double diff = playerOffer - lastNPCOffer;
-                double increase = diff * (0.30 + random.nextDouble() * 0.20); // 30-50% der Differenz
+                double increase = diff * (0.30 + ThreadLocalRandom.current().nextDouble() * 0.20); // 30-50% der Differenz
                 npcOffer = lastNPCOffer + increase;
             } else {
                 // Spieler bietet weniger/gleich - NPC erhöht trotzdem etwas
@@ -130,7 +129,7 @@ public class NegotiationEngine {
         if (difference <= 0.10) {
             // Akzeptanz-Chance basierend auf Runde und Reputation
             double acceptChance = 0.3 + round * 0.15 + reputation / 200.0;
-            if (random.nextDouble() < acceptChance) {
+            if (ThreadLocalRandom.current().nextDouble() < acceptChance) {
                 return new NPCResponse(
                     true,
                     playerOffer,
@@ -558,6 +557,6 @@ public class NegotiationEngine {
             "Ich bin raus! Das ist mir zu blöd!",
             "Nein! Ich handle nicht weiter mit dir!"
         };
-        return messages[random.nextInt(messages.length)];
+        return messages[ThreadLocalRandom.current().nextInt(messages.length)];
     }
 }

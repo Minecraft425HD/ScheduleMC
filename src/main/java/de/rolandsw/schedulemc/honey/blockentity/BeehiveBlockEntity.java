@@ -42,6 +42,7 @@ public class BeehiveBlockEntity extends BlockEntity implements IUtilityConsumer,
     private int tickCount = 0;
     private HoneyType honeyType = HoneyType.WILDFLOWER;
     private HoneyQuality quality = HoneyQuality.BASIC;
+    private boolean biomeDetermined = false;
 
     protected ItemStackHandler itemHandler;
     private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
@@ -94,9 +95,10 @@ public class BeehiveBlockEntity extends BlockEntity implements IUtilityConsumer,
         if (output.isEmpty() || (output.getItem() == HoneyItems.RAW_HONEYCOMB.get() && output.getCount() < 64)) {
             tickCount++;
 
-            // Determine quality based on biome
-            if (tickCount == 1) {
+            // Determine quality based on biome (once — biome at fixed position doesn't change)
+            if (!biomeDetermined) {
                 determineQualityFromBiome();
+                biomeDetermined = true;
             }
 
             if (tickCount >= PRODUCTION_TIME) {

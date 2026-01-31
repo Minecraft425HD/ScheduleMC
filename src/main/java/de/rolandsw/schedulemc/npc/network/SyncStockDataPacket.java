@@ -105,7 +105,7 @@ public class SyncStockDataPacket {
 
         // Gold history & stats
         int goldHistorySize = buf.readInt();
-        List<Double> goldHistory = new ArrayList<>();
+        List<Double> goldHistory = new ArrayList<>(goldHistorySize);
         for (int i = 0; i < goldHistorySize; i++) {
             goldHistory.add(buf.readDouble());
         }
@@ -115,7 +115,7 @@ public class SyncStockDataPacket {
 
         // Diamond history & stats
         int diamondHistorySize = buf.readInt();
-        List<Double> diamondHistory = new ArrayList<>();
+        List<Double> diamondHistory = new ArrayList<>(diamondHistorySize);
         for (int i = 0; i < diamondHistorySize; i++) {
             diamondHistory.add(buf.readDouble());
         }
@@ -125,7 +125,7 @@ public class SyncStockDataPacket {
 
         // Emerald history & stats
         int emeraldHistorySize = buf.readInt();
-        List<Double> emeraldHistory = new ArrayList<>();
+        List<Double> emeraldHistory = new ArrayList<>(emeraldHistorySize);
         for (int i = 0; i < emeraldHistorySize; i++) {
             emeraldHistory.add(buf.readDouble());
         }

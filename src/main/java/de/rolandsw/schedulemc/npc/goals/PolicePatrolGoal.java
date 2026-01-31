@@ -8,7 +8,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Goal: Polizist patrouilliert zwischen gesetzten Patrouillenpunkten
@@ -30,7 +30,6 @@ public class PolicePatrolGoal extends Goal {
     private int wanderTickCounter = 0;
     private int distanceCheckCounter = 0;
     private static final int WANDER_INTERVAL = 200; // Alle 10 Sekunden neues Wander-Ziel
-    private final Random random = new Random();
     private boolean hasArrived = false;
 
     public PolicePatrolGoal(CustomNPCEntity npc) {
@@ -222,8 +221,8 @@ public class PolicePatrolGoal extends Goal {
         int radius = ModConfigHandler.COMMON.POLICE_PATROL_RADIUS.get();
 
         // Zufällige Position im Radius
-        int offsetX = random.nextInt(radius * 2 + 1) - radius;
-        int offsetZ = random.nextInt(radius * 2 + 1) - radius;
+        int offsetX = ThreadLocalRandom.current().nextInt(radius * 2 + 1) - radius;
+        int offsetZ = ThreadLocalRandom.current().nextInt(radius * 2 + 1) - radius;
 
         wanderTarget = currentTarget.offset(offsetX, 0, offsetZ);
 

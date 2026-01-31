@@ -64,6 +64,10 @@ public class PlotAppScreen extends Screen {
     private List<PlotRegion> availablePlots;
     private List<PlotRegion> myPlots;
 
+    // OPTIMIERT: Wiederverwendbare Arrays statt Allokation pro Frame in renderFinanceTab()
+    private final double[] totalDailyElec = new double[7];
+    private final double[] totalDailyWater = new double[7];
+
     // Cached localized strings (populated in init() to avoid per-frame allocations)
     private String[] cachedTabNames;
     private String cachedTitle;
@@ -681,9 +685,9 @@ public class PlotAppScreen extends Screen {
         y += 15;
         contentHeight += 15;
 
-        // Sammle Historie für alle Plots
-        double[] totalDailyElec = new double[7];
-        double[] totalDailyWater = new double[7];
+        // OPTIMIERT: Wiederverwendbare Instance-Arrays statt new double[7] pro Frame
+        java.util.Arrays.fill(totalDailyElec, 0.0);
+        java.util.Arrays.fill(totalDailyWater, 0.0);
 
         for (PlotRegion plot : myPlots) {
             Optional<PlotUtilityData> dataOpt = PlotUtilityManager.getPlotData(plot.getPlotId());

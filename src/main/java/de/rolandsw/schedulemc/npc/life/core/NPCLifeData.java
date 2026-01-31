@@ -1,11 +1,16 @@
 package de.rolandsw.schedulemc.npc.life.core;
 
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
+import de.rolandsw.schedulemc.npc.events.PoliceAIHandler;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
-import java.util.Random;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * NPCLifeData - Container für alle Life-System Daten eines NPCs
@@ -56,7 +61,7 @@ public class NPCLifeData {
         this.needs = new NPCNeeds();
         this.emotions = new NPCEmotions();
         this.memory = new NPCMemory();
-        this.traits = NPCTraits.randomize(new Random());
+        this.traits = NPCTraits.randomize(ThreadLocalRandom.current());
     }
 
     public NPCLifeData(@Nullable CustomNPCEntity entity) {
@@ -127,66 +132,72 @@ public class NPCLifeData {
         }
     }
 
+    /** Wiederverwendbare Listen für updateSafety (vermeidet Allokationen) */
+    private final List<ServerPlayer> safetyNearbyPlayers = new ArrayList<>();
+    private final List<CustomNPCEntity> safetyPoliceList = new ArrayList<>();
+
     /**
-     * Aktualisiert den Sicherheitswert basierend auf Umgebung
+     * Aktualisiert den Sicherheitswert basierend auf Umgebung.
+     * Optimiert: Nutzt Police-Cache statt getEntitiesOfClass(),
+     * ersetzt Streams durch Loops, kombiniert recentCrime + knownCriminal in einem Pass.
      */
     private void updateSafety(CustomNPCEntity npc) {
         if (npc.level() instanceof ServerLevel level) {
             var npcPos = npc.blockPosition();
             var homePos = npc.getNpcData().getHomeLocation();
 
-            // Spieler in der Nähe sammeln
-            var nearbyPlayers = level.players().stream()
-                .filter(p -> p.distanceToSqr(npc) < 400) // 20 Blöcke
-                .toList();
+            // Spieler in der Nähe sammeln (Loop statt Stream)
+            safetyNearbyPlayers.clear();
+            for (ServerPlayer p : level.players()) {
+                if (p.distanceToSqr(npc) < 400) { // 20 Blöcke
+                    safetyNearbyPlayers.add(p);
+                }
+            }
 
-            // Ist es Nacht?
             boolean isNight = level.isNight();
 
-            // Polizei in der Nähe? (NPCs vom Typ POLIZEI in 30 Block Radius)
-            boolean policeNearby = level.getEntitiesOfClass(
-                    de.rolandsw.schedulemc.npc.entity.CustomNPCEntity.class,
-                    npc.getBoundingBox().inflate(30),
-                    e -> e.getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.POLIZEI
-                ).size() > 0;
+            // Polizei in der Nähe? (Nutze globalen Police-Cache statt getEntitiesOfClass)
+            PoliceAIHandler.getPoliceInRadius(npc.position(), 30.0, safetyPoliceList);
+            boolean policeNearby = !safetyPoliceList.isEmpty();
 
-            // Freund in der Nähe? (NPCs mit positiver Beziehung zum gleichen Spieler)
-            boolean friendNearby = level.getEntitiesOfClass(
-                    de.rolandsw.schedulemc.npc.entity.CustomNPCEntity.class,
-                    npc.getBoundingBox().inflate(15),
-                    e -> e != npc && e.getLifeData() != null && e.getLifeData().getMemory() != null
-                ).stream()
-                .anyMatch(friend -> {
-                    // Prüfe ob beide NPCs einen gemeinsamen Spieler kennen und mögen
-                    for (var player : nearbyPlayers) {
-                        var myProfile = memory.getPlayerProfile(player.getUUID());
-                        var friendLifeData = friend.getLifeData();
-                        if (myProfile == null || friendLifeData == null || friendLifeData.getMemory() == null) {
-                            continue;
-                        }
-                        var friendProfile = friendLifeData.getMemory().getPlayerProfile(player.getUUID());
-                        if (friendProfile == null) {
-                            continue;
-                        }
-                        if (myProfile.getRelationLevel() > 20 && friendProfile.getRelationLevel() > 20) {
-                            return true;
-                        }
+            // Freund in der Nähe? (Nutze gleichen Cache — nur NPCs in 15 Block Radius prüfen)
+            // Statt getEntitiesOfClass: iteriere über alle geladenen Entities im Level
+            boolean friendNearby = false;
+            double friendRadiusSq = 15.0 * 15.0;
+            Vec3 npcVec = npc.position();
+            for (CustomNPCEntity candidate : level.getEntitiesOfClass(
+                    CustomNPCEntity.class, npc.getBoundingBox().inflate(15),
+                    e -> e != npc && e.getLifeData() != null && e.getLifeData().getMemory() != null)) {
+                // Direkte Loop statt Stream.anyMatch
+                for (ServerPlayer player : safetyNearbyPlayers) {
+                    var myProfile = memory.getPlayerProfile(player.getUUID());
+                    if (myProfile == null || myProfile.getRelationLevel() <= 20) continue;
+                    var friendLifeData = candidate.getLifeData();
+                    if (friendLifeData == null || friendLifeData.getMemory() == null) break;
+                    var friendProfile = friendLifeData.getMemory().getPlayerProfile(player.getUUID());
+                    if (friendProfile != null && friendProfile.getRelationLevel() > 20) {
+                        friendNearby = true;
+                        break;
                     }
-                    return false;
-                });
+                }
+                if (friendNearby) break;
+            }
 
-            // Kürzliches Verbrechen? (CrimeManager prüfen)
-            boolean recentCrime = nearbyPlayers.stream()
-                .anyMatch(p -> de.rolandsw.schedulemc.npc.crime.CrimeManager.getWantedLevel(p.getUUID()) > 0);
+            // Kombinierter Single-Pass: recentCrime + knownCriminal in einer Schleife
+            boolean recentCrime = false;
+            ServerPlayer knownCriminal = null;
+            for (ServerPlayer p : safetyNearbyPlayers) {
+                if (!recentCrime && de.rolandsw.schedulemc.npc.crime.CrimeManager.getWantedLevel(p.getUUID()) > 0) {
+                    recentCrime = true;
+                }
+                if (knownCriminal == null && (memory.playerHasTag(p.getUUID(), "Kriminell") ||
+                        memory.playerHasTag(p.getUUID(), "Gefährlich"))) {
+                    knownCriminal = p;
+                }
+                if (recentCrime && knownCriminal != null) break;
+            }
 
-            // Bekannter Verbrecher?
-            var knownCriminal = nearbyPlayers.stream()
-                .filter(p -> memory.playerHasTag(p.getUUID(), "Kriminell") ||
-                            memory.playerHasTag(p.getUUID(), "Gefährlich"))
-                .findFirst()
-                .orElse(null);
-
-            needs.calculateSafety(level, npcPos, homePos, nearbyPlayers,
+            needs.calculateSafety(level, npcPos, homePos, safetyNearbyPlayers,
                 isNight, policeNearby, friendNearby, recentCrime, knownCriminal);
         }
     }

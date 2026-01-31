@@ -10,8 +10,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.ConcurrentSkipListMap;
 import net.minecraft.Util;
 import net.minecraft.client.resources.language.I18n;
@@ -21,7 +21,6 @@ import net.minecraft.world.level.biome.Biome;
 import org.jetbrains.annotations.NotNull;
 
 public final class BiomeColors {
-    private static final Random generator = new Random();
     // SICHERHEIT: Thread-Safe Collections für parallele Zugriffe
     private static final ConcurrentHashMap<Biome, Integer> IDtoColor = new ConcurrentHashMap<>(256);
     private static final ConcurrentSkipListMap<String, Integer> nameToColor = new ConcurrentSkipListMap<>();
@@ -151,9 +150,9 @@ public final class BiomeColors {
         }
 
         if (color == null) {
-            int r = generator.nextInt(255);
-            int g = generator.nextInt(255);
-            int b = generator.nextInt(255);
+            int r = ThreadLocalRandom.current().nextInt(255);
+            int g = ThreadLocalRandom.current().nextInt(255);
+            int b = ThreadLocalRandom.current().nextInt(255);
 
             color = r << 16 | g << 8 | b;
             nameToColor.put(identifier, color);

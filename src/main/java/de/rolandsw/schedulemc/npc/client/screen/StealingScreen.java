@@ -18,6 +18,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import java.util.concurrent.ThreadLocalRandom;
 import org.lwjgl.glfw.GLFW;
 
 /**
@@ -135,7 +136,7 @@ public class StealingScreen extends AbstractContainerScreen<StealingMenu> {
             }
 
             // Zufällige Target-Position
-            targetPosition = 0.3f + (float)(Math.random() * 0.4f);
+            targetPosition = 0.3f + (float)(ThreadLocalRandom.current().nextDouble() * 0.4f);
         }
     }
 

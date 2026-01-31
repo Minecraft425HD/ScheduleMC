@@ -9,7 +9,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.HashSet;
+import net.minecraft.world.level.block.Block;
+
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -20,6 +22,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class NPCPathNavigation extends GroundPathNavigation {
 
     private static Set<String> allowedBlocks = ConcurrentHashMap.newKeySet();
+    /** Cache: Block → Walkability-Ergebnis (vermeidet wiederholte ForgeRegistries-Lookups) */
+    private static final Map<Block, Boolean> walkabilityCache = new ConcurrentHashMap<>();
 
     public NPCPathNavigation(Mob mob, Level level) {
         super(mob, level);
@@ -44,19 +48,18 @@ public class NPCPathNavigation extends GroundPathNavigation {
     }
 
     /**
-     * Prüft, ob ein Block zum Laufen erlaubt ist
+     * Prüft, ob ein Block zum Laufen erlaubt ist.
+     * Optimiert: Nutzt Block→Boolean Cache statt ForgeRegistries-Lookup pro Aufruf.
      */
     public static boolean isBlockWalkable(BlockState state) {
         if (allowedBlocks.isEmpty()) {
             loadAllowedBlocks();
         }
 
-        ResourceLocation blockId = ForgeRegistries.BLOCKS.getKey(state.getBlock());
-        if (blockId == null) {
-            return false;
-        }
-
-        return allowedBlocks.contains(blockId.toString());
+        return walkabilityCache.computeIfAbsent(state.getBlock(), block -> {
+            ResourceLocation blockId = ForgeRegistries.BLOCKS.getKey(block);
+            return blockId != null && allowedBlocks.contains(blockId.toString());
+        });
     }
 
     /**
@@ -73,5 +76,6 @@ public class NPCPathNavigation extends GroundPathNavigation {
      */
     public static void reloadConfig() {
         loadAllowedBlocks();
+        walkabilityCache.clear();
     }
 }

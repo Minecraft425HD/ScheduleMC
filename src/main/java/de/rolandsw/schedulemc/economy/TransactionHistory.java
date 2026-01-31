@@ -14,7 +14,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 /**
  * Verwaltet die Transaktionshistorie aller Spieler
@@ -121,6 +120,7 @@ public class TransactionHistory {
 
     /**
      * Holt Transaktionen eines Typs
+     * OPTIMIERT: Loop statt Stream (vermeidet Stream + Collectors.toList() Allokation)
      */
     public List<Transaction> getTransactionsByType(UUID playerUUID, TransactionType type) {
         List<Transaction> playerTransactions = transactions.get(playerUUID);
@@ -128,13 +128,18 @@ public class TransactionHistory {
             return Collections.emptyList();
         }
 
-        return playerTransactions.stream()
-            .filter(t -> t.getType() == type)
-            .collect(Collectors.toList());
+        List<Transaction> result = new ArrayList<>();
+        for (Transaction t : playerTransactions) {
+            if (t.getType() == type) {
+                result.add(t);
+            }
+        }
+        return result;
     }
 
     /**
      * Holt Transaktionen in einem Zeitraum
+     * OPTIMIERT: Loop statt Stream (vermeidet Stream + Collectors.toList() Allokation)
      */
     public List<Transaction> getTransactionsBetween(UUID playerUUID, long startTime, long endTime) {
         List<Transaction> playerTransactions = transactions.get(playerUUID);
@@ -142,13 +147,19 @@ public class TransactionHistory {
             return Collections.emptyList();
         }
 
-        return playerTransactions.stream()
-            .filter(t -> t.getTimestamp() >= startTime && t.getTimestamp() <= endTime)
-            .collect(Collectors.toList());
+        List<Transaction> result = new ArrayList<>();
+        for (Transaction t : playerTransactions) {
+            long ts = t.getTimestamp();
+            if (ts >= startTime && ts <= endTime) {
+                result.add(t);
+            }
+        }
+        return result;
     }
 
     /**
      * Berechnet Gesamteinnahmen eines Spielers
+     * OPTIMIERT: Loop statt Stream (vermeidet Stream-Pipeline-Allokation)
      */
     public double getTotalIncome(UUID playerUUID) {
         List<Transaction> playerTransactions = transactions.get(playerUUID);
@@ -156,14 +167,19 @@ public class TransactionHistory {
             return 0.0;
         }
 
-        return playerTransactions.stream()
-            .filter(t -> t.getAmount() > 0)
-            .mapToDouble(Transaction::getAmount)
-            .sum();
+        double sum = 0.0;
+        for (Transaction t : playerTransactions) {
+            double amount = t.getAmount();
+            if (amount > 0) {
+                sum += amount;
+            }
+        }
+        return sum;
     }
 
     /**
      * Berechnet Gesamtausgaben eines Spielers
+     * OPTIMIERT: Loop statt Stream (vermeidet Stream-Pipeline-Allokation)
      */
     public double getTotalExpenses(UUID playerUUID) {
         List<Transaction> playerTransactions = transactions.get(playerUUID);
@@ -171,10 +187,14 @@ public class TransactionHistory {
             return 0.0;
         }
 
-        return playerTransactions.stream()
-            .filter(t -> t.getAmount() < 0)
-            .mapToDouble(t -> Math.abs(t.getAmount()))
-            .sum();
+        double sum = 0.0;
+        for (Transaction t : playerTransactions) {
+            double amount = t.getAmount();
+            if (amount < 0) {
+                sum += -amount;
+            }
+        }
+        return sum;
     }
 
     /**
@@ -199,9 +219,7 @@ public class TransactionHistory {
      */
     public void clearAllTransactions() {
         int totalPlayers = transactions.size();
-        int totalTransactions = transactions.values().stream()
-            .mapToInt(List::size)
-            .sum();
+        int totalTransactions = countTotalTransactions();
 
         transactions.clear();
         needsSave = true;
@@ -219,6 +237,9 @@ public class TransactionHistory {
         int totalRemoved = 0;
         int playersAffected = 0;
 
+        // OPTIMIERT: Sammle leere Keys separat, um ConcurrentModificationException zu vermeiden
+        List<UUID> emptyKeys = null;
+
         for (Map.Entry<UUID, List<Transaction>> entry : transactions.entrySet()) {
             List<Transaction> playerTransactions = entry.getValue();
             int sizeBefore = playerTransactions.size();
@@ -232,9 +253,17 @@ public class TransactionHistory {
                 playersAffected++;
             }
 
-            // Entferne leere Listen
+            // Sammle leere Listen für spätere Entfernung
             if (playerTransactions.isEmpty()) {
-                transactions.remove(entry.getKey());
+                if (emptyKeys == null) emptyKeys = new ArrayList<>();
+                emptyKeys.add(entry.getKey());
+            }
+        }
+
+        // Entferne leere Einträge nach der Iteration
+        if (emptyKeys != null) {
+            for (UUID key : emptyKeys) {
+                transactions.remove(key);
             }
         }
 
@@ -276,11 +305,8 @@ public class TransactionHistory {
 
             if (loaded != null) {
                 transactions.putAll(loaded);
-                int totalTransactions = transactions.values().stream()
-                    .mapToInt(List::size)
-                    .sum();
                 LOGGER.info("Loaded {} transactions for {} players",
-                    totalTransactions, transactions.size());
+                    countTotalTransactions(), transactions.size());
             }
         } catch (Exception e) {
             LOGGER.error("Failed to load transaction history", e);
@@ -300,11 +326,8 @@ public class TransactionHistory {
                 gson.toJson(transactions, writer);
                 needsSave = false;
 
-                int totalTransactions = transactions.values().stream()
-                    .mapToInt(List::size)
-                    .sum();
                 LOGGER.debug("Saved {} transactions for {} players",
-                    totalTransactions, transactions.size());
+                    countTotalTransactions(), transactions.size());
             }
         } catch (Exception e) {
             LOGGER.error("Failed to save transaction history", e);
@@ -312,15 +335,22 @@ public class TransactionHistory {
     }
 
     /**
+     * Berechnet die Gesamtanzahl aller Transaktionen.
+     * OPTIMIERT: Extrahierte Hilfsmethode (war vorher 3x dupliziert)
+     */
+    private int countTotalTransactions() {
+        int total = 0;
+        for (List<Transaction> list : transactions.values()) {
+            total += list.size();
+        }
+        return total;
+    }
+
+    /**
      * Gibt Statistiken zurück
      */
     public String getStatistics() {
-        int totalPlayers = transactions.size();
-        int totalTransactions = transactions.values().stream()
-            .mapToInt(List::size)
-            .sum();
-
         return String.format("Transaction History: %d players, %d total transactions",
-            totalPlayers, totalTransactions);
+            transactions.size(), countTotalTransactions());
     }
 }

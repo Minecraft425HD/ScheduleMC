@@ -6,6 +6,7 @@ import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * NPCBehaviorEngine - Haupt-Entscheidungssystem für NPC-Verhalten
@@ -29,8 +30,10 @@ public class NPCBehaviorEngine {
     @Nullable
     private BehaviorAction currentAction;
 
-    // Verfügbare Aktionen
+    // Verfügbare Aktionen (sortiert nach Priorität, höchste zuerst)
     private final List<BehaviorAction> availableActions = new ArrayList<>();
+    /** Index: BehaviorState → Aktionen für schnellen Lookup statt linearer Suche */
+    private final Map<BehaviorState, List<BehaviorAction>> actionsByState = new EnumMap<>(BehaviorState.class);
 
     // Aktion-History (für Debug)
     private final Deque<String> actionHistory = new ArrayDeque<>();
@@ -68,22 +71,60 @@ public class NPCBehaviorEngine {
     }
 
     /**
-     * Fügt eine Aktion zum Pool hinzu
+     * Fügt eine Aktion zum Pool hinzu (sorted insertion statt sort() nach jedem add).
      */
     public void registerAction(BehaviorAction action) {
-        availableActions.add(action);
-        // Nach Priorität sortieren (höchste zuerst)
-        availableActions.sort((a, b) -> Integer.compare(
-            b.getPriority().getValue(),
-            a.getPriority().getValue()
-        ));
+        // Sorted insert: höchste Priorität zuerst
+        int insertIndex = 0;
+        int actionPriority = action.getPriority().getValue();
+        for (int i = 0; i < availableActions.size(); i++) {
+            if (availableActions.get(i).getPriority().getValue() < actionPriority) {
+                break;
+            }
+            insertIndex = i + 1;
+        }
+        availableActions.add(insertIndex, action);
+        // State-Index aktualisieren
+        actionsByState.computeIfAbsent(action.getResultState(), k -> new ArrayList<>()).add(action);
     }
 
     /**
      * Entfernt eine Aktion aus dem Pool
      */
     public void unregisterAction(String actionId) {
-        availableActions.removeIf(a -> a.getId().equals(actionId));
+        availableActions.removeIf(a -> {
+            if (a.getId().equals(actionId)) {
+                List<BehaviorAction> stateList = actionsByState.get(a.getResultState());
+                if (stateList != null) stateList.remove(a);
+                return true;
+            }
+            return false;
+        });
+    }
+
+    /**
+     * Findet die erste ausführbare Aktion für einen BehaviorState via Index (O(1) statt O(n)).
+     */
+    @Nullable
+    private BehaviorAction findExecutableByState(BehaviorState state) {
+        List<BehaviorAction> actions = actionsByState.get(state);
+        if (actions == null) return null;
+        for (BehaviorAction action : actions) {
+            if (action.canExecute(npc)) return action;
+        }
+        return null;
+    }
+
+    /**
+     * Findet die erste ausführbare Aktion für einen von mehreren States.
+     */
+    @Nullable
+    private BehaviorAction findExecutableByStates(BehaviorState... states) {
+        for (BehaviorState state : states) {
+            BehaviorAction action = findExecutableByState(state);
+            if (action != null) return action;
+        }
+        return null;
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -143,7 +184,8 @@ public class NPCBehaviorEngine {
     }
 
     /**
-     * Findet die beste verfügbare Aktion basierend auf aktueller Situation
+     * Findet die beste verfügbare Aktion basierend auf aktueller Situation.
+     * Optimiert: Nutzt State-Index statt wiederholter linearer Suche.
      */
     @Nullable
     private BehaviorAction findBestAction() {
@@ -152,37 +194,19 @@ public class NPCBehaviorEngine {
 
         // Notfall-Check: Emotionen und Bedürfnisse
         if (lifeData.getEmotions().wouldFlee()) {
-            // Suche Flucht-Aktion
-            for (BehaviorAction action : availableActions) {
-                if (action.getResultState() == BehaviorState.FLEEING && action.canExecute(npc)) {
-                    return action;
-                }
-            }
+            BehaviorAction flee = findExecutableByState(BehaviorState.FLEEING);
+            if (flee != null) return flee;
         }
 
         if (lifeData.getNeeds().isCritical(NeedType.SAFETY)) {
-            // Suche Versteck- oder Alarmierungs-Aktion
-            for (BehaviorAction action : availableActions) {
-                if ((action.getResultState() == BehaviorState.HIDING ||
-                     action.getResultState() == BehaviorState.ALERTING) && action.canExecute(npc)) {
-                    return action;
-                }
-            }
+            BehaviorAction safety = findExecutableByStates(BehaviorState.HIDING, BehaviorState.ALERTING);
+            if (safety != null) return safety;
         }
 
-        // Trait-basierte Entscheidung
-        NPCTraits traits = lifeData.getTraits();
-
-        // Mutige NPCs untersuchen eher
-        if (traits.wouldInvestigate()) {
-            for (BehaviorAction action : availableActions) {
-                if (action.getResultState() == BehaviorState.INVESTIGATING && action.canExecute(npc)) {
-                    // Nur mit gewisser Wahrscheinlichkeit
-                    if (Math.random() < 0.3) {
-                        return action;
-                    }
-                }
-            }
+        // Trait-basierte Entscheidung: Mutige NPCs untersuchen eher
+        if (lifeData.getTraits().wouldInvestigate() && ThreadLocalRandom.current().nextDouble() < 0.3) {
+            BehaviorAction investigate = findExecutableByState(BehaviorState.INVESTIGATING);
+            if (investigate != null) return investigate;
         }
 
         // Standard: Erste passende Aktion mit höchster Priorität
@@ -318,25 +342,16 @@ public class NPCBehaviorEngine {
             lifeData.getEmotions().trigger(EmotionState.SUSPICIOUS, severity * 8.0f);
         }
 
-        // Verhalten: Entscheidung ob melden oder nicht
+        // Verhalten: Entscheidung ob melden oder nicht (nutze State-Index)
         if (lifeData.getTraits().wouldReport(severity)) {
-            // Suche Alert-Aktion
-            for (BehaviorAction action : availableActions) {
-                if (action.getResultState() == BehaviorState.ALERTING && action.canExecute(npc)) {
-                    switchToAction(action);
-                    return;
-                }
-            }
+            BehaviorAction alert = findExecutableByState(BehaviorState.ALERTING);
+            if (alert != null) { switchToAction(alert); return; }
         }
 
         // Wenn nicht melden, vielleicht fliehen
         if (severity >= 7 || lifeData.getEmotions().wouldFlee()) {
-            for (BehaviorAction action : availableActions) {
-                if (action.getResultState() == BehaviorState.FLEEING && action.canExecute(npc)) {
-                    switchToAction(action);
-                    return;
-                }
-            }
+            BehaviorAction flee = findExecutableByState(BehaviorState.FLEEING);
+            if (flee != null) { switchToAction(flee); return; }
         }
     }
 
@@ -367,16 +382,13 @@ public class NPCBehaviorEngine {
         // Emotion
         lifeData.getEmotions().trigger(EmotionState.FEARFUL, threatLevel * 15.0f);
 
-        // Verhalten: Je nach Mut fliehen oder nicht
+        // Verhalten: Je nach Mut fliehen oder nicht (nutze State-Index)
         float fearThreshold = lifeData.getTraits().getFearThreshold();
         if (threatLevel * 10 > fearThreshold) {
-            // Fliehen
-            for (BehaviorAction action : availableActions) {
-                if (action.getResultState() == BehaviorState.FLEEING && action.canExecute(npc)) {
-                    action.setTargetEntity(attacker);
-                    switchToAction(action);
-                    return;
-                }
+            BehaviorAction flee = findExecutableByState(BehaviorState.FLEEING);
+            if (flee != null) {
+                flee.setTargetEntity(attacker);
+                switchToAction(flee);
             }
         }
     }
@@ -391,16 +403,12 @@ public class NPCBehaviorEngine {
         // Emotion
         lifeData.getEmotions().trigger(EmotionState.SUSPICIOUS, 40.0f);
 
-        // Wenn mutig genug, untersuchen
+        // Wenn mutig genug, untersuchen (nutze State-Index)
         if (lifeData.getTraits().wouldInvestigate()) {
-            for (BehaviorAction action : availableActions) {
-                if (action.getResultState() == BehaviorState.INVESTIGATING && action.canExecute(npc)) {
-                    if (suspect != null) {
-                        action.setTargetEntity(suspect);
-                    }
-                    switchToAction(action);
-                    return;
-                }
+            BehaviorAction investigate = findExecutableByState(BehaviorState.INVESTIGATING);
+            if (investigate != null) {
+                if (suspect != null) investigate.setTargetEntity(suspect);
+                switchToAction(investigate);
             }
         }
     }
@@ -440,8 +448,8 @@ public class NPCBehaviorEngine {
         actionHistory.addFirst(actionId);
     }
 
-    public List<String> getActionHistory() {
-        return new ArrayList<>(actionHistory);
+    public Collection<String> getActionHistory() {
+        return Collections.unmodifiableCollection(actionHistory);
     }
 
     // ═══════════════════════════════════════════════════════════
