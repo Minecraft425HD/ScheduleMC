@@ -66,17 +66,17 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
 
         // === LEFT PANEL: Stock Selection (3 buttons) ===
         goldSelectButton = addRenderableWidget(Button.builder(
-            Component.literal("▶ Gold"),
+            Component.literal("▶ ").append(Component.translatable("gui.boerse.stock_gold")),
             btn -> selectStock(StockTradePacket.StockType.GOLD)
         ).bounds(x + 7, y + 40, 120, 20).build());
 
         diamondSelectButton = addRenderableWidget(Button.builder(
-            Component.literal("  Diamond"),
+            Component.literal("  ").append(Component.translatable("gui.boerse.stock_diamond")),
             btn -> selectStock(StockTradePacket.StockType.DIAMOND)
         ).bounds(x + 7, y + 68, 120, 20).build());
 
         emeraldSelectButton = addRenderableWidget(Button.builder(
-            Component.literal("  Emerald"),
+            Component.literal("  ").append(Component.translatable("gui.boerse.stock_emerald")),
             btn -> selectStock(StockTradePacket.StockType.EMERALD)
         ).bounds(x + 7, y + 96, 120, 20).build());
 
@@ -133,14 +133,14 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
 
         // Update button labels to show selection
         goldSelectButton.setMessage(Component.literal(
-            (stock == StockTradePacket.StockType.GOLD ? "▶ " : "  ") + "Gold"
-        ));
+            stock == StockTradePacket.StockType.GOLD ? "▶ " : "  "
+        ).append(Component.translatable("gui.boerse.stock_gold")));
         diamondSelectButton.setMessage(Component.literal(
-            (stock == StockTradePacket.StockType.DIAMOND ? "▶ " : "  ") + "Diamond"
-        ));
+            stock == StockTradePacket.StockType.DIAMOND ? "▶ " : "  "
+        ).append(Component.translatable("gui.boerse.stock_diamond")));
         emeraldSelectButton.setMessage(Component.literal(
-            (stock == StockTradePacket.StockType.EMERALD ? "▶ " : "  ") + "Emerald"
-        ));
+            stock == StockTradePacket.StockType.EMERALD ? "▶ " : "  "
+        ).append(Component.translatable("gui.boerse.stock_emerald")));
 
         // Reset slider
         quantitySlider.setValue(1);

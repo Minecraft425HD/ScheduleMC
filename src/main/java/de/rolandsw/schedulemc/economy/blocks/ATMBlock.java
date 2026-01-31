@@ -114,7 +114,7 @@ public class ATMBlock extends Block implements EntityBlock {
             NetworkHooks.openScreen(serverPlayer, new MenuProvider() {
                 @Override
                 public Component getDisplayName() {
-                    return Component.literal("ATM");
+                    return Component.translatable("gui.atm.title");
                 }
 
                 @Override

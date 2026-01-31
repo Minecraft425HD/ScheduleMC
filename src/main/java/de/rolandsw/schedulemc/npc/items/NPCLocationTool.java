@@ -135,7 +135,7 @@ public class NPCLocationTool extends Item {
             selectedNPCs.put(player.getUUID(), npc.getId());
 
             player.sendSystemMessage(
-                Component.literal("NPC ")
+                Component.translatable("message.npc.tool.select_prefix")
                     .withStyle(ChatFormatting.GREEN)
                     .append(Component.literal(npc.getNpcName())
                         .withStyle(ChatFormatting.YELLOW))

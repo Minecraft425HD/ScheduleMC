@@ -120,7 +120,7 @@ public class WarehouseBlock extends Block implements EntityBlock {
                 NetworkHooks.openScreen(serverPlayer, new MenuProvider() {
                     @Override
                     public Component getDisplayName() {
-                        return Component.literal("Warehouse Management");
+                        return Component.translatable("gui.warehouse.title");
                     }
 
                     @Override
