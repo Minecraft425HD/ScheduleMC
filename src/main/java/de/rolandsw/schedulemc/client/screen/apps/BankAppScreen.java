@@ -51,16 +51,29 @@ public class BankAppScreen extends Screen {
     // Tab widths: Account (45), History (45), Transfer (56), Recurring (76)
     private static final int[] TAB_WIDTHS = {45, 45, 56, 76};
 
-    /**
-     * Get localized tab names
-     */
+    // PERFORMANCE: Tab-Namen einmal cachen statt 4x Component.translatable().getString() pro Aufruf
+    private String[] cachedTabNames;
+
+    // PERFORMANCE: Gecachte Render-Strings die sich nur bei refreshData() ändern
+    private String cachedBalanceStr;
+    private String cachedIncomeStr;
+    private String cachedExpenseStr;
+    private String cachedBilanzStr;
+    private String cachedBilanzColor;
+    private String cachedTitleStr;
+    private String cachedBalanceTitleStr;
+    private String cachedBalanceStatusStr;
+    private String cachedStatisticsStr;
+    private String cachedIncomeLabel;
+    private String cachedExpenseLabel;
+    private String cachedBilanzLabel;
+    private String cachedAvailableLabel;
+    private String cachedRecipientLabel;
+    private String cachedAmountLabel;
+    private String cachedTransferInfoStr;
+
     private String[] getTabNames() {
-        return new String[]{
-            Component.translatable("gui.app.bank.tab.account").getString(),
-            Component.translatable("gui.app.bank.tab.history").getString(),
-            Component.translatable("gui.app.bank.tab.transfer").getString(),
-            Component.translatable("gui.app.bank.tab.recurring").getString()
-        };
+        return cachedTabNames;
     }
 
     // Scrolling
@@ -103,6 +116,24 @@ public class BankAppScreen extends Screen {
 
         // Positioniere oben mit Margin
         this.topPos = MARGIN_TOP;
+
+        // PERFORMANCE: Tab-Namen und statische Labels einmal cachen
+        this.cachedTabNames = new String[] {
+            Component.translatable("gui.app.bank.tab.account").getString(),
+            Component.translatable("gui.app.bank.tab.history").getString(),
+            Component.translatable("gui.app.bank.tab.transfer").getString(),
+            Component.translatable("gui.app.bank.tab.recurring").getString()
+        };
+        this.cachedTitleStr = Component.translatable("gui.app.bank.title").getString();
+        this.cachedBalanceTitleStr = Component.translatable("gui.app.bank.balance_title").getString();
+        this.cachedStatisticsStr = Component.translatable("gui.app.bank.statistics").getString();
+        this.cachedIncomeLabel = Component.translatable("gui.app.bank.income").getString();
+        this.cachedExpenseLabel = Component.translatable("gui.app.bank.expenses").getString();
+        this.cachedBilanzLabel = Component.translatable("gui.app.bank.balance_calc").getString();
+        this.cachedAvailableLabel = Component.translatable("gui.app.bank.available").getString();
+        this.cachedRecipientLabel = Component.translatable("gui.app.bank.recipient_name").getString();
+        this.cachedAmountLabel = Component.translatable("gui.app.bank.amount_label").getString();
+        this.cachedTransferInfoStr = Component.translatable("gui.app.bank.transfer_info").getString();
 
         // Cache data
         refreshData();
@@ -208,6 +239,17 @@ public class BankAppScreen extends Screen {
         recentTransactions = ClientBankDataCache.getTransactions();
         totalIncome = ClientBankDataCache.getTotalIncome();
         totalExpenses = ClientBankDataCache.getTotalExpenses();
+
+        // PERFORMANCE: Formatierte Strings einmal berechnen statt pro Frame
+        cachedBalanceStr = String.format("\u00a76\u00a7l%.2f\u20ac", balance);
+        cachedIncomeStr = String.format("\u00a7f+%.2f\u20ac", totalIncome);
+        cachedExpenseStr = String.format("\u00a7f-%.2f\u20ac", totalExpenses);
+        double bilanz = totalIncome - totalExpenses;
+        cachedBilanzColor = bilanz >= 0 ? "\u00a7a" : "\u00a7c";
+        cachedBilanzStr = cachedBilanzColor + String.format("%.2f\u20ac", bilanz);
+        cachedBalanceStatusStr = balance >= 0
+            ? ("\u00a7a" + (cachedBalanceTitleStr != null ? Component.translatable("gui.app.bank.balance_positive").getString() : ""))
+            : ("\u00a7c" + (cachedBalanceTitleStr != null ? Component.translatable("gui.app.bank.balance_overdraft").getString() : ""));
     }
 
     /**
@@ -333,7 +375,7 @@ public class BankAppScreen extends Screen {
 
         // Header
         guiGraphics.fill(leftPos, topPos, leftPos + WIDTH, topPos + 28, 0xFF1A1A1A);
-        guiGraphics.drawCenteredString(this.font, "\u00a76\u00a7l" + Component.translatable("gui.app.bank.title").getString(), leftPos + WIDTH / 2, topPos + 10, 0xFFFFFF);
+        guiGraphics.drawCenteredString(this.font, "\u00a76\u00a7l" + cachedTitleStr, leftPos + WIDTH / 2, topPos + 10, 0xFFFFFF);
 
         // Tab-Hintergrund (aktiver Tab hervorheben)
         int currentX = leftPos + 5;
@@ -380,16 +422,9 @@ public class BankAppScreen extends Screen {
         if (y >= startY - 60 && y < endY) {
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 55, 0x44228B22);
 
-            guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.bank.balance_title").getString(), leftPos + WIDTH / 2, y + 5, 0xFFFFFF);
-
-            String balanceStr = String.format("§6§l%.2f€", balance);
-            guiGraphics.drawCenteredString(this.font, balanceStr, leftPos + WIDTH / 2, y + 22, 0xFFAA00);
-
-            String balanceColor = balance >= 0 ? "§a" : "§c";
-            String balanceStatus = balance >= 0 ?
-                Component.translatable("gui.app.bank.balance_positive").getString() :
-                Component.translatable("gui.app.bank.balance_overdraft").getString();
-            guiGraphics.drawCenteredString(this.font, balanceColor + balanceStatus, leftPos + WIDTH / 2, y + 40, 0xFFFFFF);
+            guiGraphics.drawCenteredString(this.font, cachedBalanceTitleStr, leftPos + WIDTH / 2, y + 5, 0xFFFFFF);
+            guiGraphics.drawCenteredString(this.font, cachedBalanceStr, leftPos + WIDTH / 2, y + 22, 0xFFAA00);
+            guiGraphics.drawCenteredString(this.font, cachedBalanceStatusStr, leftPos + WIDTH / 2, y + 40, 0xFFFFFF);
         }
         y += 60;
         contentHeight += 60;
@@ -402,33 +437,31 @@ public class BankAppScreen extends Screen {
         contentHeight += 8;
 
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, Component.translatable("gui.app.bank.statistics").getString(), leftPos + 15, y, 0xFFAA00);
+            guiGraphics.drawString(this.font, cachedStatisticsStr, leftPos + 15, y, 0xFFAA00);
         }
         y += 15;
         contentHeight += 15;
 
-        // Einnahmen
+        // Einnahmen - PERFORMANCE: gecachte Strings
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, Component.translatable("gui.app.bank.income").getString(), leftPos + 15, y, 0x55FF55);
-            guiGraphics.drawString(this.font, String.format("§f+%.2f€", totalIncome), leftPos + 110, y, 0xFFFFFF);
+            guiGraphics.drawString(this.font, cachedIncomeLabel, leftPos + 15, y, 0x55FF55);
+            guiGraphics.drawString(this.font, cachedIncomeStr, leftPos + 110, y, 0xFFFFFF);
         }
         y += 12;
         contentHeight += 12;
 
-        // Ausgaben
+        // Ausgaben - PERFORMANCE: gecachte Strings
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, Component.translatable("gui.app.bank.expenses").getString(), leftPos + 15, y, 0xFF5555);
-            guiGraphics.drawString(this.font, String.format("§f-%.2f€", totalExpenses), leftPos + 110, y, 0xFFFFFF);
+            guiGraphics.drawString(this.font, cachedExpenseLabel, leftPos + 15, y, 0xFF5555);
+            guiGraphics.drawString(this.font, cachedExpenseStr, leftPos + 110, y, 0xFFFFFF);
         }
         y += 12;
         contentHeight += 12;
 
-        // Bilanz
-        double balance = totalIncome - totalExpenses;
-        String balanceColor = balance >= 0 ? "§a" : "§c";
+        // Bilanz - PERFORMANCE: gecachte Strings
         if (y >= startY - 10 && y < endY) {
-            guiGraphics.drawString(this.font, Component.translatable("gui.app.bank.balance_calc").getString(), leftPos + 15, y, 0xFFFFFF);
-            guiGraphics.drawString(this.font, balanceColor + String.format("%.2f€", balance), leftPos + 110, y, 0xFFFFFF);
+            guiGraphics.drawString(this.font, cachedBilanzLabel, leftPos + 15, y, 0xFFFFFF);
+            guiGraphics.drawString(this.font, cachedBilanzStr, leftPos + 110, y, 0xFFFFFF);
         }
         y += 15;
         contentHeight += 15;
@@ -504,13 +537,12 @@ public class BankAppScreen extends Screen {
     // ═══════════════════════════════════════════════════════════
 
     private void renderTransferTab(GuiGraphics guiGraphics, int startY, int endY) {
-        // Aktueller Kontostand
-        guiGraphics.drawString(this.font, Component.translatable("gui.app.bank.available").getString(), leftPos + 15, startY, 0xAAAAAA);
-        guiGraphics.drawString(this.font, String.format("§6%.2f€", balance), leftPos + 110, startY, 0xFFAA00);
+        // PERFORMANCE: gecachte Strings
+        guiGraphics.drawString(this.font, cachedAvailableLabel, leftPos + 15, startY, 0xAAAAAA);
+        guiGraphics.drawString(this.font, cachedBalanceStr, leftPos + 110, startY, 0xFFAA00);
 
-        // Labels für Form-Felder (über den EditBoxen mit ausreichend Abstand)
-        guiGraphics.drawString(this.font, Component.translatable("gui.app.bank.recipient_name").getString(), leftPos + 15, startY + 13, 0xFFFFFF);
-        guiGraphics.drawString(this.font, Component.translatable("gui.app.bank.amount_label").getString(), leftPos + 15, startY + 51, 0xFFFFFF);
+        guiGraphics.drawString(this.font, cachedRecipientLabel, leftPos + 15, startY + 13, 0xFFFFFF);
+        guiGraphics.drawString(this.font, cachedAmountLabel, leftPos + 15, startY + 51, 0xFFFFFF);
 
         // Transfer-Message
         if (!transferMessage.isEmpty()) {
@@ -523,8 +555,8 @@ public class BankAppScreen extends Screen {
             }
         }
 
-        // Info
-        guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.bank.transfer_info").getString(), leftPos + WIDTH / 2, startY + 130, 0x666666);
+        // Info - PERFORMANCE: gecachter String
+        guiGraphics.drawCenteredString(this.font, cachedTransferInfoStr, leftPos + WIDTH / 2, startY + 130, 0x666666);
     }
 
     // ═══════════════════════════════════════════════════════════

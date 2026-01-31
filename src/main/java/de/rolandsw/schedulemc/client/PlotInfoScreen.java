@@ -39,6 +39,16 @@ public class PlotInfoScreen extends Screen {
     private int cachedRentedCount;
     private List<PlotArea> cachedAvailableSubAreas;
 
+    // PERFORMANCE: Alle render()-Strings einmalig in init() cachen
+    private String cachedPlotName;
+    private String cachedOwnerStr;
+    private String cachedSizeStr;
+    private String cachedIdStr;
+    private String cachedRatingTitle;
+    private String cachedRatingInfo;
+    private String cachedNoRating;
+    private String cachedClickToRate;
+
     public PlotInfoScreen(PlotRegion plot) {
         super(Component.translatable("gui.plotinfo.title"));
         this.plot = plot;
@@ -57,6 +67,28 @@ public class PlotInfoScreen extends Screen {
         this.cachedAvailableCount = plot.getAvailableSubAreaCount();
         this.cachedRentedCount = plot.getRentedSubAreaCount();
         this.cachedAvailableSubAreas = plot.getAvailableSubAreas();
+
+        // PERFORMANCE: Render-Strings einmalig cachen
+        String plotName = plot.getPlotName();
+        this.cachedPlotName = (plotName == null || plotName.isEmpty())
+            ? Component.translatable("plot.unnamed").getString() : plotName;
+
+        if (!plot.hasOwner()) {
+            this.cachedOwnerStr = Component.translatable("gui.plotinfo.owner_none").getString();
+        } else {
+            String ownerName = plot.getOwnerName();
+            this.cachedOwnerStr = Component.translatable("gui.plotinfo.owner",
+                ownerName != null ? ownerName : Component.translatable("plot.no_owner").getString()).getString();
+        }
+        this.cachedSizeStr = Component.translatable("gui.plotinfo.size", String.format("%,d", plot.getVolume())).getString();
+        this.cachedIdStr = Component.translatable("gui.plotinfo.id", plot.getPlotId()).getString();
+        this.cachedRatingTitle = Component.translatable("gui.plotinfo.rating.title").getString();
+        if (plot.getRatingCount() > 0) {
+            String avgRating = String.format("%.1f", plot.getAverageRating());
+            this.cachedRatingInfo = Component.translatable("gui.plotinfo.rating.average", avgRating, plot.getRatingCount()).getString();
+        }
+        this.cachedNoRating = Component.translatable("gui.plotinfo.rating.none").getString();
+        this.cachedClickToRate = Component.translatable("gui.plotinfo.rating.click_to_rate").getString();
 
         // Dynamische Höhe basierend auf Apartments
         int apartmentCount = cachedAvailableCount;
@@ -141,12 +173,8 @@ public class PlotInfoScreen extends Screen {
 
         int currentY = topPos + 15;
 
-        // === PLOT-NAME (Titel) ===
-        String plotName = plot.getPlotName();
-        if (plotName == null || plotName.isEmpty()) {
-            plotName = Component.translatable("plot.unnamed").getString();
-        }
-        guiGraphics.drawCenteredString(this.font, "§6§l" + plotName, leftPos + backgroundWidth / 2, currentY, 0xFFD700);
+        // === PLOT-NAME (Titel) === PERFORMANCE: gecachter String
+        guiGraphics.drawCenteredString(this.font, "§6§l" + cachedPlotName, leftPos + backgroundWidth / 2, currentY, 0xFFD700);
         currentY += 15;
 
         // === BESCHREIBUNG ===
@@ -162,22 +190,16 @@ public class PlotInfoScreen extends Screen {
         guiGraphics.fill(leftPos + 10, currentY, leftPos + backgroundWidth - 10, currentY + 1, 0x66FFFFFF);
         currentY += 8;
 
-        // === BESITZER ===
-        if (!plot.hasOwner()) {
-            guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.owner_none").getString(), leftPos + 15, currentY, 0xFFFFFF);
-        } else {
-            String ownerName = plot.getOwnerName();
-            guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.owner", ownerName != null ? ownerName : Component.translatable("plot.no_owner").getString()).getString(), leftPos + 15, currentY, 0xFFFFFF);
-        }
+        // === BESITZER === PERFORMANCE: gecachter String
+        guiGraphics.drawString(this.font, cachedOwnerStr, leftPos + 15, currentY, 0xFFFFFF);
         currentY += 12;
 
-        // === GRÖSSE ===
-        guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.size", String.format("%,d", plot.getVolume())).getString(),
-            leftPos + 15, currentY, 0xFFFFFF);
+        // === GRÖSSE === PERFORMANCE: gecachter String
+        guiGraphics.drawString(this.font, cachedSizeStr, leftPos + 15, currentY, 0xFFFFFF);
         currentY += 12;
 
-        // === ID ===
-        guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.id", plot.getPlotId()).getString(), leftPos + 15, currentY, 0x888888);
+        // === ID === PERFORMANCE: gecachter String
+        guiGraphics.drawString(this.font, cachedIdStr, leftPos + 15, currentY, 0x888888);
         currentY += 15;
 
         // === RATING SECTION ===
@@ -188,18 +210,17 @@ public class PlotInfoScreen extends Screen {
         // Rating Box
         guiGraphics.fill(leftPos + 10, currentY, leftPos + backgroundWidth - 10, currentY + 55, 0x44FFD700);
 
-        // Rating Titel
-        guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.rating.title").getString(), leftPos + 15, currentY + 5, 0xFFD700);
+        // Rating Titel - PERFORMANCE: gecachte Strings
+        guiGraphics.drawString(this.font, cachedRatingTitle, leftPos + 15, currentY + 5, 0xFFD700);
 
         // Durchschnittliches Rating
         if (plot.getRatingCount() > 0) {
-            String avgRating = String.format("%.1f", plot.getAverageRating());
-            guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.rating.average", avgRating, plot.getRatingCount()).getString(), leftPos + 15, currentY + 18, 0xFFFFFF);
+            guiGraphics.drawString(this.font, cachedRatingInfo, leftPos + 15, currentY + 18, 0xFFFFFF);
 
             // Stern-Anzeige
             guiGraphics.drawString(this.font, "§e" + plot.getRatingStars(), leftPos + 15, currentY + 30, 0xFFFFFF);
         } else {
-            guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.rating.none").getString(), leftPos + 15, currentY + 18, 0xAAAAAA);
+            guiGraphics.drawString(this.font, cachedNoRating, leftPos + 15, currentY + 18, 0xAAAAAA);
         }
 
         // Spieler kann nicht eigene Plots bewerten
@@ -214,7 +235,7 @@ public class PlotInfoScreen extends Screen {
                 guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.rating.your_rating", stars).getString(),
                     leftPos + 15, currentY + 42, 0xFFFFFF);
             } else {
-                guiGraphics.drawString(this.font, Component.translatable("gui.plotinfo.rating.click_to_rate").getString(),
+                guiGraphics.drawString(this.font, cachedClickToRate,
                     leftPos + 15, currentY + 42, 0xAAAAAA);
             }
 

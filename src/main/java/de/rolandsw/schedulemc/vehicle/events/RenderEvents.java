@@ -31,6 +31,10 @@ public class RenderEvents {
     protected static final ResourceLocation GUI_ICONS_LOCATION = ResourceLocation.parse("textures/gui/icons.png");
     private static final Minecraft mc = Minecraft.getInstance();
 
+    // PERFORMANCE: Speed-String nur bei Änderung neu berechnen statt pro Frame
+    private static float lastCachedSpeed = Float.NaN;
+    private static String cachedSpeedStr = "";
+
     @SubscribeEvent
     public void onRender(ViewportEvent.ComputeCameraAngles evt) {
         EventHelper.handleEvent(() -> {
@@ -101,7 +105,13 @@ public class RenderEvents {
 
     public static void renderSpeed(GuiGraphics guiGraphics, float speed) {
         Font font = mc.gui.getFont();
-        String s = String.valueOf(MathUtils.round(Math.abs(speed), 2));
+        // PERFORMANCE: String nur bei Speed-Änderung neu erstellen
+        float absSpeed = Math.abs(speed);
+        if (absSpeed != lastCachedSpeed) {
+            lastCachedSpeed = absSpeed;
+            cachedSpeedStr = String.valueOf(MathUtils.round(absSpeed, 2));
+        }
+        String s = cachedSpeedStr;
         int i1 = (mc.getWindow().getGuiScaledWidth() - font.width(s)) / 2;
         int j1 = mc.getWindow().getGuiScaledHeight() - 31 - 4;
         guiGraphics.drawString(font, s, i1 + 1, j1, 0, false);
