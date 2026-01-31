@@ -58,7 +58,7 @@ public class RawOpiumItem extends Item {
 
         tooltip.add(Component.translatable("tooltip.poppy.type_label").append(type.getColoredName()));
         tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
-        tooltip.add(Component.translatable("tooltip.poppy.potency_label").append(Component.literal("§c" + String.format("%.0f%%", type.getPotencyMultiplier() * 100))));
+        tooltip.add(Component.translatable("tooltip.poppy.potency_label").append(Component.translatable("tooltip.poppy.potency_value", String.format("%.0f", type.getPotencyMultiplier() * 100))));
         tooltip.add(Component.literal(""));
         tooltip.add(Component.translatable("tooltip.raw_opium.cook_to_morphine"));
     }

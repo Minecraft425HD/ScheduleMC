@@ -33,7 +33,7 @@ public class MediumPackagingTableScreen extends AbstractContainerScreen<MediumPa
         // 10g Button
         this.addRenderableWidget(
             Button.builder(
-                Component.literal("10g"),
+                Component.translatable("gui.packaging_table.weight_10g"),
                 btn -> onPackageButton(10)
             )
             .bounds(centerX - 55, buttonY, buttonWidth, buttonHeight)
@@ -106,8 +106,8 @@ public class MediumPackagingTableScreen extends AbstractContainerScreen<MediumPa
 
         int x = this.leftPos;
         int y = this.topPos;
-        graphics.drawString(this.font, "Mittlerer Packtisch", x + 8, y + 6, 0xFFFFFF, false);
-        graphics.drawString(this.font, "Schachteln", x + 71, y + 40, 0xCCCCCC, false);
+        graphics.drawString(this.font, Component.translatable("block.schedulemc.medium_packaging_table").getString(), x + 8, y + 6, 0xFFFFFF, false);
+        graphics.drawString(this.font, Component.translatable("gui.packaging_table.boxes").getString(), x + 71, y + 40, 0xCCCCCC, false);
     }
 
     @Override

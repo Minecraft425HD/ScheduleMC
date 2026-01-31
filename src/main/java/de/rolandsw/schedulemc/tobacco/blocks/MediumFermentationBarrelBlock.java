@@ -104,15 +104,15 @@ public class MediumFermentationBarrelBlock extends Block implements EntityBlock 
             int inputCount = barrelBE.getInputCount();
             int outputCount = barrelBE.getOutputCount();
 
-            player.displayClientMessage(Component.literal("§6═══ Mittleres Fermentierungsfass ═══\n")
+            player.displayClientMessage(Component.translatable("gui.fermentation.medium_header")
                 .append(Component.translatable("block.fermentation.capacity", inputCount, 8))
-                .append(Component.literal("\n§7Fortschritt: " + bar + " §e" + String.format("%.1f", progress) + "%\n"))
+                .append(Component.translatable("gui.fermentation.progress_line", bar, String.format("%.1f", progress)))
                 .append(Component.translatable("block.fermentation.finished", outputCount))
                 .append(Component.literal("\n"))
                 .append(barrelBE.hasOutput() ? Component.translatable("block.fermentation.shift_extract") : Component.translatable("block.fermentation.processing"))
             , false);
         } else {
-            player.displayClientMessage(Component.literal("§6═══ Mittleres Fermentierungsfass ═══\n")
+            player.displayClientMessage(Component.translatable("gui.fermentation.medium_header")
                 .append(Component.translatable("block.fermentation.capacity_max", 8))
                 .append(Component.literal("\n"))
                 .append(Component.translatable("block.fermentation.empty"))

@@ -173,7 +173,7 @@ public class EnrobingMachineBlockEntity extends BlockEntity implements IUtilityC
                 }
 
                 // Add custom name
-                enrobedItem.setHoverName(Component.literal("Chocolate-Covered " +
+                enrobedItem.setHoverName(Component.translatable("item.chocolate.covered_name",
                     itemInput.getItem().getDescriptionId()));
 
                 outputStack = enrobedItem;
