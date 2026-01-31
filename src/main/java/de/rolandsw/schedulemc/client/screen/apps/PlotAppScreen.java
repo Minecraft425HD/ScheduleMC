@@ -70,7 +70,7 @@ public class PlotAppScreen extends Screen {
     private List<PlotRegion> myPlots;
 
     public PlotAppScreen(Screen parent) {
-        super(Component.literal("Plot App"));
+        super(Component.translatable("gui.app.plot.title"));
         this.parentScreen = parent;
     }
 
