@@ -7,6 +7,8 @@ import de.rolandsw.schedulemc.npc.life.core.NPCLifeData;
 import de.rolandsw.schedulemc.npc.life.core.NPCTraits;
 import net.minecraft.server.level.ServerPlayer;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 /**
  * NegotiationSystem - Verhandlungssystem für Preise
  *
@@ -73,7 +75,7 @@ public class NegotiationSystem {
         float successChance = calculateSuccessChance(traits, tactic, session);
 
         // Würfeln
-        boolean success = Math.random() < successChance;
+        boolean success = ThreadLocalRandom.current().nextDouble() < successChance;
 
         if (success) {
             // Rabatt berechnen
@@ -194,7 +196,7 @@ public class NegotiationSystem {
 
         // Basis-Rabatt
         float discount = MIN_DISCOUNT_PER_ROUND +
-                        (float) Math.random() * (MAX_DISCOUNT_PER_ROUND - MIN_DISCOUNT_PER_ROUND);
+                        (float) ThreadLocalRandom.current().nextDouble() * (MAX_DISCOUNT_PER_ROUND - MIN_DISCOUNT_PER_ROUND);
 
         // Taktik-Modifikator
         discount *= tactic.getDiscountMultiplier();

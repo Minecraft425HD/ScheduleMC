@@ -607,14 +607,12 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     private int getSkyColor() {
         this.needSkyColor = false;
         boolean aboveHorizon = this.lastAboveHorizon;
-        // Original: Vector4f color = Minecraft.getInstance().gameRenderer.fogRenderer.computeFogColor(minecraft.gameRenderer.getMainCamera(), 0.0F, this.world, minecraft.options.renderDistance().get(), minecraft.gameRenderer.getDarkenWorldAmount(0.0F));
-        // Fallback: Get biome sky color
+        // OPTIMIERT: Direkte float-Berechnung statt Vector4f-Allokation
+        // Vorher: new Vector4f() + int→float→int Doppelkonvertierung
         net.minecraft.world.phys.Vec3 skyColorVec = this.world.getSkyColor(minecraft.gameRenderer.getMainCamera().getPosition(), 0.0F);
-        int skyColorInt = ((int)(skyColorVec.x * 255) << 16) | ((int)(skyColorVec.y * 255) << 8) | (int)(skyColorVec.z * 255);
-        Vector4f color = new Vector4f(((skyColorInt >> 16) & 0xFF) / 255.0F, ((skyColorInt >> 8) & 0xFF) / 255.0F, (skyColorInt & 0xFF) / 255.0F, 1.0F);
-        float r = color.x;
-        float g = color.y;
-        float b = color.z;
+        float r = (float) skyColorVec.x;
+        float g = (float) skyColorVec.y;
+        float b = (float) skyColorVec.z;
         if (!aboveHorizon) {
             return 0x0A000000 + (int) (r * 255.0F) * 65536 + (int) (g * 255.0F) * 256 + (int) (b * 255.0F);
         } else {

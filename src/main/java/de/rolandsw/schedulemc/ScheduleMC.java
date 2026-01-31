@@ -400,26 +400,42 @@ public class ScheduleMC {
             long startTime = System.currentTimeMillis();
             ExecutorService ioPool = ThreadPoolManager.getIOPool();
 
-            CompletableFuture<?>[] parallelLoads = {
-                CompletableFuture.runAsync(PlotManager::loadPlots, ioPool),
-                CompletableFuture.runAsync(EconomyManager::loadAccounts, ioPool),
-                CompletableFuture.runAsync(DailyRewardManager::load, ioPool),
-                CompletableFuture.runAsync(WalletManager::load, ioPool),
-                CompletableFuture.runAsync(de.rolandsw.schedulemc.npc.crime.CrimeManager::load, ioPool),
-                CompletableFuture.runAsync(NPCNameRegistry::loadRegistry, ioPool),
-                CompletableFuture.runAsync(MessageManager::loadMessages, ioPool),
-                CompletableFuture.runAsync(PlayerTracker::load, ioPool),
-                CompletableFuture.runAsync(de.rolandsw.schedulemc.player.PlayerSettingsManager::load, ioPool),
-                CompletableFuture.runAsync(de.rolandsw.schedulemc.towing.MembershipManager::load, ioPool),
-                CompletableFuture.runAsync(de.rolandsw.schedulemc.towing.TowingYardManager::load, ioPool),
-                CompletableFuture.runAsync(StateAccount::load, ioPool),
-                CompletableFuture.runAsync(de.rolandsw.schedulemc.vehicle.vehicle.VehicleSpawnRegistry::load, ioPool),
-                CompletableFuture.runAsync(de.rolandsw.schedulemc.vehicle.fuel.FuelStationRegistry::load, ioPool),
-                CompletableFuture.runAsync(de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager::load, ioPool),
-                CompletableFuture.runAsync(PlotUtilityManager::load, ioPool),
+            // OPTIMIERT: Jedes Future mit Exception-Handling wrappen
+            // Vorher: Ein fehlgeschlagener Load konnte den gesamten Start blockieren
+            String[] loadNames = {
+                "PlotManager", "EconomyManager", "DailyRewardManager", "WalletManager",
+                "CrimeManager", "NPCNameRegistry", "MessageManager", "PlayerTracker",
+                "PlayerSettingsManager", "MembershipManager", "TowingYardManager",
+                "StateAccount", "VehicleSpawnRegistry", "FuelStationRegistry",
+                "FuelBillManager", "PlotUtilityManager"
+            };
+            Runnable[] loadTasks = {
+                PlotManager::loadPlots, EconomyManager::loadAccounts,
+                DailyRewardManager::load, WalletManager::load,
+                de.rolandsw.schedulemc.npc.crime.CrimeManager::load, NPCNameRegistry::loadRegistry,
+                MessageManager::loadMessages, PlayerTracker::load,
+                de.rolandsw.schedulemc.player.PlayerSettingsManager::load,
+                de.rolandsw.schedulemc.towing.MembershipManager::load,
+                de.rolandsw.schedulemc.towing.TowingYardManager::load,
+                StateAccount::load,
+                de.rolandsw.schedulemc.vehicle.vehicle.VehicleSpawnRegistry::load,
+                de.rolandsw.schedulemc.vehicle.fuel.FuelStationRegistry::load,
+                de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager::load,
+                PlotUtilityManager::load,
             };
 
-            // Warte auf alle parallelen Loads
+            CompletableFuture<?>[] parallelLoads = new CompletableFuture[loadTasks.length];
+            for (int i = 0; i < loadTasks.length; i++) {
+                final String name = loadNames[i];
+                final Runnable task = loadTasks[i];
+                parallelLoads[i] = CompletableFuture.runAsync(task, ioPool)
+                    .exceptionally(ex -> {
+                        LOGGER.error("CRITICAL: Failed to load {} - continuing with empty data", name, ex);
+                        return null;
+                    });
+            }
+
+            // Warte auf alle parallelen Loads (kein Hang mehr bei einzelnem Fehler)
             CompletableFuture.allOf(parallelLoads).join();
             long loadTime = System.currentTimeMillis() - startTime;
             LOGGER.info("Parallel data loading completed in {}ms ({} managers)", loadTime, parallelLoads.length);
@@ -427,46 +443,48 @@ public class ScheduleMC {
             // Sequentielle Initialisierungen (haben Abhängigkeiten)
             de.rolandsw.schedulemc.towing.TowingServiceRegistry.initializeDefaultServices();
             MinecraftForge.EVENT_BUS.register(ShopAccountManager.class);
-            WarehouseManager.load(event.getServer());
+            WarehouseManager.load(server);
 
             // Crime & Territory Systems - Initialize managers with persistence
-            de.rolandsw.schedulemc.npc.crime.BountyManager.getInstance(event.getServer());
-            de.rolandsw.schedulemc.territory.TerritoryManager.getInstance(event.getServer());
+            de.rolandsw.schedulemc.npc.crime.BountyManager.getInstance(server);
+            de.rolandsw.schedulemc.territory.TerritoryManager.getInstance(server);
 
             // Market System - Load market data
             de.rolandsw.schedulemc.market.DynamicMarketManager.getInstance().load();
             LOGGER.info("Crime, Territory, and Market Systems initialized");
 
             // Economy System - Advanced Features
-            EconomyManager.initialize(event.getServer());
-            TransactionHistory.getInstance(event.getServer());
-            InterestManager.getInstance(event.getServer());
-            LoanManager.getInstance(event.getServer());
-            TaxManager.getInstance(event.getServer());
-            SavingsAccountManager.getInstance(event.getServer());
-            OverdraftManager.getInstance(event.getServer());
-            RecurringPaymentManager.getInstance(event.getServer());
+            // OPTIMIERT: Server-Referenz cachen statt event.getServer() wiederholt aufzurufen
+            final MinecraftServer server = event.getServer();
+            EconomyManager.initialize(server);
+            TransactionHistory.getInstance(server);
+            InterestManager.getInstance(server);
+            LoanManager.getInstance(server);
+            TaxManager.getInstance(server);
+            SavingsAccountManager.getInstance(server);
+            OverdraftManager.getInstance(server);
+            RecurringPaymentManager.getInstance(server);
 
             // Credit System - NPC-based loans with credit score
-            CreditScoreManager.getInstance(event.getServer());
-            CreditLoanManager.getInstance(event.getServer());
+            CreditScoreManager.getInstance(server);
+            CreditLoanManager.getInstance(server);
             LOGGER.info("Advanced Economy Systems initialized (Transaction History, Interest, Loans, Taxes, Savings, Overdraft, Recurring Payments, Credit Score)");
 
             // Achievement System
-            AchievementManager.getInstance(event.getServer());
+            AchievementManager.getInstance(server);
             LOGGER.info("Achievement System initialized");
 
             // NPC Life System Manager - All managers with JSON persistence
             LOGGER.info("Initializing NPC Life System Managers...");
-            de.rolandsw.schedulemc.npc.life.social.FactionManager.getInstance(event.getServer());
-            de.rolandsw.schedulemc.npc.life.witness.WitnessManager.getInstance(event.getServer());
-            de.rolandsw.schedulemc.npc.personality.NPCRelationshipManager.getInstance(event.getServer());
-            de.rolandsw.schedulemc.npc.life.companion.CompanionManager.getInstance(event.getServer());
-            de.rolandsw.schedulemc.npc.life.quest.QuestManager.getInstance(event.getServer());
-            de.rolandsw.schedulemc.npc.life.dialogue.DialogueManager.getInstance(event.getServer());
-            de.rolandsw.schedulemc.npc.life.social.NPCInteractionManager.getInstance(event.getServer());
-            de.rolandsw.schedulemc.npc.life.world.WorldEventManager.getInstance(event.getServer());
-            de.rolandsw.schedulemc.npc.life.economy.DynamicPriceManager.getInstance(event.getServer());
+            de.rolandsw.schedulemc.npc.life.social.FactionManager.getInstance(server);
+            de.rolandsw.schedulemc.npc.life.witness.WitnessManager.getInstance(server);
+            de.rolandsw.schedulemc.npc.personality.NPCRelationshipManager.getInstance(server);
+            de.rolandsw.schedulemc.npc.life.companion.CompanionManager.getInstance(server);
+            de.rolandsw.schedulemc.npc.life.quest.QuestManager.getInstance(server);
+            de.rolandsw.schedulemc.npc.life.dialogue.DialogueManager.getInstance(server);
+            de.rolandsw.schedulemc.npc.life.social.NPCInteractionManager.getInstance(server);
+            de.rolandsw.schedulemc.npc.life.world.WorldEventManager.getInstance(server);
+            de.rolandsw.schedulemc.npc.life.economy.DynamicPriceManager.getInstance(server);
             LOGGER.info("NPC Life System Managers initialized (9/9 completed)");
 
             // Vehicle & Utility-System: Bereits parallel geladen (siehe oben)
@@ -482,8 +500,8 @@ public class ScheduleMC {
             saveManager.register(PlotManager.getInstance());
 
             // Crime & Territory Systems (Priority 2)
-            saveManager.register(de.rolandsw.schedulemc.npc.crime.BountyManager.getInstance(event.getServer()));
-            saveManager.register(de.rolandsw.schedulemc.territory.TerritoryManager.getInstance(event.getServer()));
+            saveManager.register(de.rolandsw.schedulemc.npc.crime.BountyManager.getInstance(server));
+            saveManager.register(de.rolandsw.schedulemc.territory.TerritoryManager.getInstance(server));
 
             // Market System (Priority 3)
             saveManager.register(new de.rolandsw.schedulemc.util.SaveableWrapper(
@@ -556,7 +574,7 @@ public class ScheduleMC {
             // Warehouse System (Priority 6)
             saveManager.register(new de.rolandsw.schedulemc.util.SaveableWrapper(
                 "WarehouseManager",
-                () -> de.rolandsw.schedulemc.warehouse.WarehouseManager.save(event.getServer()),
+                () -> de.rolandsw.schedulemc.warehouse.WarehouseManager.save(server),
                 6
             ));
 
@@ -575,14 +593,15 @@ public class ScheduleMC {
             ));
 
             // Economy Advanced Systems (Priority 3)
-            saveManager.register(InterestManager.getInstance(event.getServer()));
-            saveManager.register(LoanManager.getInstance(event.getServer()));
-            saveManager.register(TaxManager.getInstance(event.getServer()));
-            saveManager.register(SavingsAccountManager.getInstance(event.getServer()));
-            saveManager.register(OverdraftManager.getInstance(event.getServer()));
-            saveManager.register(RecurringPaymentManager.getInstance(event.getServer()));
-            saveManager.register(CreditScoreManager.getInstance(event.getServer()));
-            saveManager.register(CreditLoanManager.getInstance(event.getServer()));
+            // OPTIMIERT: server-Referenz nutzen statt event.getServer() (bereits oben gecacht)
+            saveManager.register(InterestManager.getInstance(server));
+            saveManager.register(LoanManager.getInstance(server));
+            saveManager.register(TaxManager.getInstance(server));
+            saveManager.register(SavingsAccountManager.getInstance(server));
+            saveManager.register(OverdraftManager.getInstance(server));
+            saveManager.register(RecurringPaymentManager.getInstance(server));
+            saveManager.register(CreditScoreManager.getInstance(server));
+            saveManager.register(CreditLoanManager.getInstance(server));
 
             // Transaction History (Priority 3)
             saveManager.register(new de.rolandsw.schedulemc.util.SaveableWrapper(
@@ -655,6 +674,7 @@ public class ScheduleMC {
             // OPTIMIERUNG: Spieler-Cache für Polizei-KI aktualisieren (einmal pro Tick)
             long currentTick = server.overworld() != null ? server.overworld().getGameTime() : 0;
             de.rolandsw.schedulemc.npc.events.PoliceAIHandler.updatePlayerCache(server, currentTick);
+            de.rolandsw.schedulemc.npc.events.PoliceAIHandler.updatePoliceCache(server, currentTick);
 
             // Economy Systems - Tick every server tick for day tracking
             if (server.overworld() != null) {

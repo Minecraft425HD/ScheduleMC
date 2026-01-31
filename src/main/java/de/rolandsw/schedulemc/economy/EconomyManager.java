@@ -265,19 +265,14 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
             }
         }
 
-        // SICHERHEIT: Atomare Operation mit compute()
-        final double[] newBalance = {0.0};
-        balances.compute(uuid, (key, currentBalance) -> {
-            if (currentBalance == null) currentBalance = 0.0;
-            newBalance[0] = currentBalance + amount;
-            return newBalance[0];
-        });
+        // SICHERHEIT: Atomare Operation mit merge() — vermeidet Array-Allokation für Lambda-Capture
+        double newBalance = balances.merge(uuid, amount, Double::sum);
 
         markDirty();
         LOGGER.debug("Deposit: {} € for {} ({})", amount, uuid, type);
 
         // Transaction History
-        logTransaction(uuid, type, null, uuid, amount, description, newBalance[0]);
+        logTransaction(uuid, type, null, uuid, amount, description, newBalance);
     }
 
     /**
@@ -307,30 +302,18 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
             }
         }
 
-        // SICHERHEIT: Atomare read-modify-write Operation mit compute()
-        final double[] resultBalance = {0.0};
-        final boolean[] success = {false};
+        // SICHERHEIT: Atomare read-modify-write Operation mit merge()
+        // OPTIMIERT: Kein Array-Wrapper mehr für Lambda-Capture
+        // UNBEGRENZTES Dispo - Spieler kann immer ins Minus gehen
+        // OverdraftManager regelt Konsequenzen (Tag 7: Auto-Repay, Tag 28: Gefängnis)
+        double resultBalance = balances.merge(uuid, -amount, Double::sum);
 
-        balances.compute(uuid, (key, currentBalance) -> {
-            if (currentBalance == null) currentBalance = 0.0;
-            double newBalance = currentBalance - amount;
+        markDirty();
+        LOGGER.debug("Withdrawal: {} € from {} ({}) - New balance: {}", amount, uuid, type, resultBalance);
 
-            // UNBEGRENZTES Dispo - Spieler kann immer ins Minus gehen
-            // OverdraftManager regelt Konsequenzen (Tag 7: Auto-Repay, Tag 28: Gefängnis)
-            resultBalance[0] = newBalance;
-            success[0] = true;
-            return newBalance;
-        });
-
-        if (success[0]) {
-            markDirty();
-            LOGGER.debug("Withdrawal: {} € from {} ({}) - New balance: {}", amount, uuid, type, resultBalance[0]);
-
-            // Transaction History
-            logTransaction(uuid, type, uuid, null, -amount, description, resultBalance[0]);
-            return true;
-        }
-        return false;
+        // Transaction History
+        logTransaction(uuid, type, uuid, null, -amount, description, resultBalance);
+        return true;
     }
 
     /**
@@ -347,9 +330,10 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
         if (amount < 0) {
             amount = 0;
         }
-        double oldBalance = balances.getOrDefault(uuid, 0.0);
-        double difference = amount - oldBalance;
-        balances.put(uuid, amount);
+        // OPTIMIERT: Einziger Map-Zugriff statt getOrDefault + put (2 Lookups)
+        final double setAmount = amount;
+        Double oldBalance = balances.put(uuid, setAmount);
+        double difference = setAmount - (oldBalance != null ? oldBalance : 0.0);
         markDirty();
         LOGGER.info("Balance set: {} to {} € ({})", uuid, amount, type);
 

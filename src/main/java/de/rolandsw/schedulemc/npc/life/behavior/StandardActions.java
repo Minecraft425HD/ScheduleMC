@@ -13,6 +13,7 @@ import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * StandardActions - Sammlung von Standard-Verhaltensaktionen
@@ -323,9 +324,9 @@ public class StandardActions {
                 // "Untersuchen" - NPC schaut sich um
                 if (investigateTime % 20 == 0) {
                     npc.getLookControl().setLookAt(
-                        npc.getX() + Math.random() * 4 - 2,
+                        npc.getX() + ThreadLocalRandom.current().nextDouble() * 4 - 2,
                         npc.getY() + 1,
-                        npc.getZ() + Math.random() * 4 - 2
+                        npc.getZ() + ThreadLocalRandom.current().nextDouble() * 4 - 2
                     );
                 }
 

@@ -6,6 +6,7 @@ import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * NPCBehaviorEngine - Haupt-Entscheidungssystem für NPC-Verhalten
@@ -178,7 +179,7 @@ public class NPCBehaviorEngine {
             for (BehaviorAction action : availableActions) {
                 if (action.getResultState() == BehaviorState.INVESTIGATING && action.canExecute(npc)) {
                     // Nur mit gewisser Wahrscheinlichkeit
-                    if (Math.random() < 0.3) {
+                    if (ThreadLocalRandom.current().nextDouble() < 0.3) {
                         return action;
                     }
                 }

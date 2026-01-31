@@ -14,6 +14,7 @@ import java.io.File;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * DynamicPriceManager - Verwaltet dynamische Preise und Marktbedingungen mit JSON-Persistenz
@@ -152,11 +153,11 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
      */
     private void updateMarketConditions() {
         // Globale Bedingung möglicherweise ändern
-        if (Math.random() < MARKET_CHANGE_CHANCE) {
+        if (ThreadLocalRandom.current().nextDouble() < MARKET_CHANGE_CHANCE) {
             MarketCondition[] possible = globalCondition.getPossibleTransitions();
             if (possible.length > 0) {
                 // Gewichtete Auswahl
-                float roll = (float) Math.random();
+                float roll = (float) ThreadLocalRandom.current().nextDouble();
                 float cumulative = 0;
                 for (MarketCondition condition : possible) {
                     cumulative += globalCondition.getTransitionChance(condition);
@@ -172,11 +173,11 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
         // Kategorie-Bedingungen ähnlich aktualisieren
         List<String> categoriesToUpdate = new ArrayList<>(categoryConditions.keySet());
         for (String category : categoriesToUpdate) {
-            if (Math.random() < MARKET_CHANGE_CHANCE * 0.5) {
+            if (ThreadLocalRandom.current().nextDouble() < MARKET_CHANGE_CHANCE * 0.5) {
                 MarketCondition current = categoryConditions.get(category);
                 MarketCondition[] possible = current.getPossibleTransitions();
-                if (possible.length > 0 && Math.random() < 0.5) {
-                    categoryConditions.put(category, possible[(int) (Math.random() * possible.length)]);
+                if (possible.length > 0 && ThreadLocalRandom.current().nextDouble() < 0.5) {
+                    categoryConditions.put(category, possible[ThreadLocalRandom.current().nextInt(possible.length)]);
                     markDirty();
                 }
             }
@@ -287,7 +288,7 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
         modifier *= getCombinedTemporaryModifier();
 
         // Zufällige kleine Schwankung (±5%)
-        modifier *= 0.95f + (float) Math.random() * 0.1f;
+        modifier *= 0.95f + (float) ThreadLocalRandom.current().nextDouble() * 0.1f;
 
         return Math.max(1, Math.round(basePrice * modifier));
     }

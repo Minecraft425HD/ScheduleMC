@@ -2,6 +2,8 @@ package de.rolandsw.schedulemc.npc.personality;
 
 import net.minecraft.nbt.CompoundTag;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 /**
  * NPC Personality Trait - Charaktereigenschaften für NPCs
  *
@@ -130,14 +132,14 @@ public enum NPCPersonalityTrait {
      * Sollte NPC Polizei rufen?
      */
     public boolean shouldCallPolice() {
-        return Math.random() < policeCallChance;
+        return ThreadLocalRandom.current().nextDouble() < policeCallChance;
     }
 
     /**
      * Sollte NPC Gratis-Item geben?
      */
     public boolean shouldGiveFreeItem() {
-        return Math.random() < freeItemChance;
+        return ThreadLocalRandom.current().nextDouble() < freeItemChance;
     }
 
     /**
@@ -162,7 +164,7 @@ public enum NPCPersonalityTrait {
      * - SUSPICIOUS: 10%
      */
     public static NPCPersonalityTrait random() {
-        double rand = Math.random();
+        double rand = ThreadLocalRandom.current().nextDouble();
 
         if (rand < 0.40) return NEUTRAL;        // 40%
         if (rand < 0.60) return FRIENDLY;       // 20%

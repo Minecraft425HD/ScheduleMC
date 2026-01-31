@@ -107,12 +107,20 @@ public class IncrementalSaveManager {
 
     /**
      * Registriert Saveable
+     * OPTIMIERT: Sortiertes Einfügen statt CopyOnWriteArrayList.sort() nach jedem add()
+     * Vorher: O(n log n) Sort + Array-Kopie pro register()
+     * Jetzt: O(n) Suche + Einfügen
      */
     public void register(ISaveable saveable) {
-        saveables.add(saveable);
-
-        // Sort nach Priorität
-        saveables.sort(Comparator.comparingInt(ISaveable::getPriority));
+        // Finde korrekte Position für sortiertes Einfügen
+        int insertIndex = 0;
+        for (int i = 0; i < saveables.size(); i++) {
+            if (saveables.get(i).getPriority() > saveable.getPriority()) {
+                break;
+            }
+            insertIndex = i + 1;
+        }
+        saveables.add(insertIndex, saveable);
 
         LOGGER.info("Registered saveable: {} (priority {})", saveable.getName(), saveable.getPriority());
     }
@@ -169,34 +177,22 @@ public class IncrementalSaveManager {
 
     /**
      * Wird jeden saveIntervalTicks aufgerufen
+     * OPTIMIERT: Single-Pass statt zwei separate Iterationen (dirty-Sammlung + Batch-Limit)
      */
     private void incrementalSaveTick() {
         if (!running.get()) {
             return;
         }
 
-        // Finde dirty saveables
-        List<ISaveable> dirtyComponents = new ArrayList<>();
-        for (ISaveable saveable : saveables) {
-            if (saveable.isDirty()) {
-                dirtyComponents.add(saveable);
-            }
-        }
-
-        if (dirtyComponents.isEmpty()) {
-            return;  // Nichts zu speichern
-        }
-
-        // Speichere bis zu batchSize Komponenten
         int saved = 0;
-
-        for (ISaveable saveable : dirtyComponents) {
+        for (ISaveable saveable : saveables) {
             if (saved >= batchSize) {
-                break;  // Batch-Limit erreicht
+                break; // Batch-Limit erreicht
             }
-
-            saveSingleComponent(saveable);
-            saved++;
+            if (saveable.isDirty()) {
+                saveSingleComponent(saveable);
+                saved++;
+            }
         }
 
         if (saved > 0) {

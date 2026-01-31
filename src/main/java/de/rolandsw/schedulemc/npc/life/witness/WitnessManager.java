@@ -22,6 +22,7 @@ import java.io.File;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 /**
@@ -407,7 +408,7 @@ public class WitnessManager extends AbstractPersistenceManager<WitnessManager.Wi
                     // Meldungs-Chance: 90% wenn Polizei in der Nähe, sonst 10%
                     double reportChance = policeNearby ? 0.9 : 0.1;
 
-                    if (Math.random() < reportChance) {
+                    if (ThreadLocalRandom.current().nextDouble() < reportChance) {
                         report.markAsReported();
                         addToWantedList(report.getCriminalUUID(), report.getCrimeType());
 

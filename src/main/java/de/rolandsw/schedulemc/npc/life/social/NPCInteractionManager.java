@@ -16,6 +16,7 @@ import java.io.File;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * NPCInteractionManager - Verwaltet Interaktionen zwischen NPCs mit JSON-Persistenz
@@ -142,7 +143,7 @@ public class NPCInteractionManager extends AbstractPersistenceManager<Map<String
         float warnerHonesty = warnerLife.getTraits().getHonesty();
         float targetTrust = 0.5f + (warnerHonesty / 200.0f); // 0.0 - 1.0
 
-        if (Math.random() > targetTrust) {
+        if (ThreadLocalRandom.current().nextDouble() > targetTrust) {
             // Target glaubt nicht
             return false;
         }
