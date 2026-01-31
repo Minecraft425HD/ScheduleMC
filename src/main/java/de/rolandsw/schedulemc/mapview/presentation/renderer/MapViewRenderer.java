@@ -84,7 +84,6 @@ import org.joml.Vector4f;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.OptionalInt;
-import java.util.Random;
 import java.util.TreeSet;
 import java.util.concurrent.Future;
 
@@ -130,7 +129,6 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     private boolean lastAboveHorizon = true;
     private int lastBiome;
     private int lastSkyColor;
-    private final Random generator = new Random();
     private Screen lastGuiScreen;
     private boolean fullscreenMap;
     private int zoom;

@@ -8,7 +8,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Goal: NPC geht in seiner Freizeit zu einem von bis zu 10 festgelegten Orten
@@ -19,7 +19,6 @@ import java.util.Random;
 public class MoveToLeisureGoal extends Goal {
 
     private final CustomNPCEntity npc;
-    private final Random random;
     private BlockPos targetLeisurePos;
     private BlockPos currentWanderTarget;
 
@@ -35,7 +34,6 @@ public class MoveToLeisureGoal extends Goal {
 
     public MoveToLeisureGoal(CustomNPCEntity npc) {
         this.npc = npc;
-        this.random = new Random();
         this.setFlags(EnumSet.of(Goal.Flag.MOVE));
     }
 
@@ -64,7 +62,7 @@ public class MoveToLeisureGoal extends Goal {
 
         // Wähle zufälligen Freizeitort aus, wenn noch keiner gewählt wurde
         if (targetLeisurePos == null) {
-            targetLeisurePos = leisureLocations.get(random.nextInt(leisureLocations.size()));
+            targetLeisurePos = leisureLocations.get(ThreadLocalRandom.current().nextInt(leisureLocations.size()));
         }
 
         return true;
@@ -98,7 +96,7 @@ public class MoveToLeisureGoal extends Goal {
             // Wähle einen anderen Freizeitort (nicht den aktuellen)
             BlockPos newTarget;
             do {
-                newTarget = leisureLocations.get(random.nextInt(leisureLocations.size()));
+                newTarget = leisureLocations.get(ThreadLocalRandom.current().nextInt(leisureLocations.size()));
             } while (newTarget.equals(targetLeisurePos) && leisureLocations.size() > 1);
 
             targetLeisurePos = newTarget;
@@ -180,8 +178,8 @@ public class MoveToLeisureGoal extends Goal {
         }
 
         // Wähle zufälligen Punkt im Umkreis von LEISURE_RADIUS
-        int offsetX = random.nextInt(LEISURE_RADIUS * 2 + 1) - LEISURE_RADIUS;
-        int offsetZ = random.nextInt(LEISURE_RADIUS * 2 + 1) - LEISURE_RADIUS;
+        int offsetX = ThreadLocalRandom.current().nextInt(LEISURE_RADIUS * 2 + 1) - LEISURE_RADIUS;
+        int offsetZ = ThreadLocalRandom.current().nextInt(LEISURE_RADIUS * 2 + 1) - LEISURE_RADIUS;
 
         currentWanderTarget = targetLeisurePos.offset(offsetX, 0, offsetZ);
     }

@@ -100,6 +100,9 @@ public class CrimeStatsAppScreen extends Screen {
 
     // Kosten pro Wanted-Stern
     private static final double BAIL_COST_PER_STAR = 1000.0;
+    /** Gecachte formatierte Strings (statt String.format() pro Frame) */
+    private static final String CACHED_BAIL_COST_PER_STAR = String.format("§e%.0f€", BAIL_COST_PER_STAR);
+    private String cachedBailCostFormatted = "";
 
     public CrimeStatsAppScreen(Screen parent) {
         super(Component.translatable("gui.app.crime.title"));
@@ -211,6 +214,7 @@ public class CrimeStatsAppScreen extends Screen {
 
         // Bail Cost (1000€ pro Stern)
         bailCost = wantedLevel * BAIL_COST_PER_STAR;
+        cachedBailCostFormatted = String.format("§c§l%.0f€", bailCost);
 
         // TODO: Check if being chased (würde Server-Packet benötigen)
         isBeingChased = wantedLevel > 0;
@@ -395,12 +399,12 @@ public class CrimeStatsAppScreen extends Screen {
                 guiGraphics.drawString(this.font, "§c" + wantedLevel + cachedStarsStr, leftPos + 120, y + 5, 0xFF5555);
 
                 guiGraphics.drawString(this.font, cachedCostPerStar, leftPos + 15, y + 18, 0xFFFFFF);
-                guiGraphics.drawString(this.font, String.format("§e%.0f€", BAIL_COST_PER_STAR), leftPos + 120, y + 18, 0xFFAA00);
+                guiGraphics.drawString(this.font, CACHED_BAIL_COST_PER_STAR, leftPos + 120, y + 18, 0xFFAA00);
 
                 guiGraphics.fill(leftPos + 15, y + 30, leftPos + WIDTH - 15, y + 31, 0x44FFFFFF);
 
                 guiGraphics.drawString(this.font, cachedTotal, leftPos + 15, y + 35, 0xFFFFFF);
-                guiGraphics.drawString(this.font, String.format("§c§l%.0f€", bailCost), leftPos + 100, y + 35, 0xFF5555);
+                guiGraphics.drawString(this.font, cachedBailCostFormatted, leftPos + 100, y + 35, 0xFF5555);
             }
             y += 60;
             contentHeight += 60;

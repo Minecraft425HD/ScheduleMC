@@ -190,7 +190,7 @@ public class PoliceAIHandler {
      * @param radius Suchradius
      * @param result Wiederverwendbare Liste (wird geleert und gefüllt)
      */
-    private static void getPoliceInRadius(Vec3 center, double radius, List<CustomNPCEntity> result) {
+    public static void getPoliceInRadius(Vec3 center, double radius, List<CustomNPCEntity> result) {
         result.clear();
         double radiusSq = radius * radius;
         for (CachedPoliceData data : policeCache) {

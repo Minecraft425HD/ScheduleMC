@@ -36,8 +36,9 @@ public class AchievementData {
         buf.writeUtf(id);
         buf.writeUtf(name);
         buf.writeUtf(description);
-        buf.writeUtf(categoryName);
-        buf.writeUtf(tierName);
+        // Enum-Ordinal statt String: spart ~20 Bytes pro Achievement
+        buf.writeInt(AchievementCategory.valueOf(categoryName).ordinal());
+        buf.writeInt(AchievementTier.valueOf(tierName).ordinal());
         buf.writeDouble(requirement);
         buf.writeBoolean(hidden);
         buf.writeDouble(progress);
@@ -47,13 +48,21 @@ public class AchievementData {
     /**
      * SICHERHEIT: Max-Länge für Strings gegen DoS/Memory-Angriffe
      */
+    private static final AchievementCategory[] CATEGORIES = AchievementCategory.values();
+    private static final AchievementTier[] TIERS = AchievementTier.values();
+
     public static AchievementData decode(FriendlyByteBuf buf) {
+        String id = buf.readUtf(64);
+        String name = buf.readUtf(64);
+        String description = buf.readUtf(256);
+        int categoryOrdinal = buf.readInt();
+        int tierOrdinal = buf.readInt();
+        String categoryName = (categoryOrdinal >= 0 && categoryOrdinal < CATEGORIES.length)
+            ? CATEGORIES[categoryOrdinal].name() : AchievementCategory.values()[0].name();
+        String tierName = (tierOrdinal >= 0 && tierOrdinal < TIERS.length)
+            ? TIERS[tierOrdinal].name() : AchievementTier.values()[0].name();
         return new AchievementData(
-            buf.readUtf(64),   // id max 64 chars
-            buf.readUtf(64),   // name max 64 chars
-            buf.readUtf(256),  // description max 256 chars
-            buf.readUtf(32),   // categoryName max 32 chars
-            buf.readUtf(32),   // tierName max 32 chars
+            id, name, description, categoryName, tierName,
             buf.readDouble(),
             buf.readBoolean(),
             buf.readDouble(),

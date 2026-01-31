@@ -3,6 +3,8 @@ package de.rolandsw.schedulemc.mapview.service.render;
 import net.minecraft.client.Minecraft;
 import de.rolandsw.schedulemc.mapview.util.ARGBCompat;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 /**
  * from map lighting shader + net.minecraft.client.renderer.LightTexture
  */
@@ -46,7 +48,7 @@ public class LightingCalculator {
 
         SkyFactor = h;
 
-        this.blockLightRedFlicker = this.blockLightRedFlicker + (float) ((Math.random() - Math.random()) * Math.random() * Math.random() * 0.1);
+        this.blockLightRedFlicker = this.blockLightRedFlicker + (float) ((ThreadLocalRandom.current().nextDouble() - ThreadLocalRandom.current().nextDouble()) * ThreadLocalRandom.current().nextDouble() * ThreadLocalRandom.current().nextDouble() * 0.1);
         this.blockLightRedFlicker *= 0.9F;
         BlockFactor = this.blockLightRedFlicker + 1.5F;
 

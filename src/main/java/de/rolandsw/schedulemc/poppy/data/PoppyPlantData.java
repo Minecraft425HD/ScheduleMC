@@ -3,6 +3,8 @@ package de.rolandsw.schedulemc.poppy.data;
 import de.rolandsw.schedulemc.poppy.PoppyType;
 import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 /**
  * Speichert Daten einer Mohn-Pflanze
  */
@@ -118,7 +120,7 @@ public class PoppyPlantData {
         // Afghanisch hat höhere Qualitäts-Chance
         upgradeChance *= type.getPotencyMultiplier();
 
-        if (Math.random() < upgradeChance) {
+        if (ThreadLocalRandom.current().nextDouble() < upgradeChance) {
             quality = quality.upgrade();
         }
     }

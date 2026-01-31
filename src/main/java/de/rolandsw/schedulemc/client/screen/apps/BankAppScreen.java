@@ -102,6 +102,9 @@ public class BankAppScreen extends Screen {
     private List<Transaction> recentTransactions = List.of();
     private double totalIncome = 0.0;
     private double totalExpenses = 0.0;
+    /** Pre-formatted transaction strings (statt String.format() + substring() pro Frame pro Transaktion) */
+    private String[] cachedTxAmountStrings = new String[0];
+    private String[] cachedTxDescStrings = new String[0];
 
     public BankAppScreen(Screen parent) {
         super(Component.translatable("gui.app.bank.title"));
@@ -239,6 +242,21 @@ public class BankAppScreen extends Screen {
         recentTransactions = ClientBankDataCache.getTransactions();
         totalIncome = ClientBankDataCache.getTotalIncome();
         totalExpenses = ClientBankDataCache.getTotalExpenses();
+
+        // Pre-format transaction strings (statt String.format() + substring() pro Frame)
+        int txSize = recentTransactions.size();
+        cachedTxAmountStrings = new String[txSize];
+        cachedTxDescStrings = new String[txSize];
+        for (int i = 0; i < txSize; i++) {
+            Transaction tx = recentTransactions.get(i);
+            String amountColor = tx.getAmount() > 0 ? "§a" : "§c";
+            cachedTxAmountStrings[i] = String.format("%s%.2f€", amountColor, Math.abs(tx.getAmount()));
+            String desc = tx.getDescription();
+            if (desc != null && !desc.isEmpty() && desc.length() > 20) {
+                desc = desc.substring(0, 17) + "...";
+            }
+            cachedTxDescStrings[i] = "§8" + (desc != null ? desc : "");
+        }
 
         // PERFORMANCE: Formatierte Strings einmal berechnen statt pro Frame
         cachedBalanceStr = String.format("\u00a76\u00a7l%.2f\u20ac", balance);
@@ -503,24 +521,22 @@ public class BankAppScreen extends Screen {
         y += 15;
         contentHeight += 15;
 
-        for (Transaction tx : recentTransactions) {
+        for (int txIdx = 0; txIdx < recentTransactions.size(); txIdx++) {
+            Transaction tx = recentTransactions.get(txIdx);
             if (y >= startY - 40 && y < endY) {
                 // Transaction-Box
                 guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 35, 0x44333333);
 
-                // Typ & Betrag
-                String amountColor = tx.getAmount() > 0 ? "§a" : "§c";
-                String amountStr = String.format("%s%.2f€", amountColor, Math.abs(tx.getAmount()));
-
+                // Typ & Betrag (gecacht statt String.format() pro Frame)
                 guiGraphics.drawString(this.font, "§f" + tx.getType().getDisplayName(), leftPos + 15, y + 3, 0xFFFFFF);
-                guiGraphics.drawString(this.font, amountStr, leftPos + 130, y + 3, 0xFFFFFF);
-
-                // Beschreibung
-                String desc = tx.getDescription();
-                if (desc != null && !desc.isEmpty() && desc.length() > 20) {
-                    desc = desc.substring(0, 17) + "...";
+                if (txIdx < cachedTxAmountStrings.length) {
+                    guiGraphics.drawString(this.font, cachedTxAmountStrings[txIdx], leftPos + 130, y + 3, 0xFFFFFF);
                 }
-                guiGraphics.drawString(this.font, "§8" + (desc != null ? desc : ""), leftPos + 15, y + 14, 0x666666);
+
+                // Beschreibung (gecacht statt substring() pro Frame)
+                if (txIdx < cachedTxDescStrings.length) {
+                    guiGraphics.drawString(this.font, cachedTxDescStrings[txIdx], leftPos + 15, y + 14, 0x666666);
+                }
 
                 // Datum
                 guiGraphics.drawString(this.font, "§7" + tx.getFormattedDate(), leftPos + 15, y + 25, 0x888888);

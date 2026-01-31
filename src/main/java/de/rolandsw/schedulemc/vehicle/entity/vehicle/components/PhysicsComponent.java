@@ -77,6 +77,10 @@ public class PhysicsComponent extends VehicleComponent {
     // Optimierung: ArrayDeque statt LinkedBlockingQueue (single-threaded, kein Sync-Overhead)
     private final Deque<Runnable> tasks = new ArrayDeque<>(4);
 
+    /** Throttle-Counter für checkPush() — nur alle 4 Ticks statt jeden Tick */
+    private int pushCheckCounter = 0;
+    private static final int PUSH_CHECK_INTERVAL = 4;
+
     public PhysicsComponent(EntityGenericVehicle vehicle) {
         super(vehicle);
     }
@@ -149,6 +153,10 @@ public class PhysicsComponent extends VehicleComponent {
     }
 
     public void checkPush() {
+        // Throttle: nur alle PUSH_CHECK_INTERVAL Ticks prüfen (Entity-Lookup ist teuer)
+        if (++pushCheckCounter < PUSH_CHECK_INTERVAL) return;
+        pushCheckCounter = 0;
+
         List<Player> list = vehicle.level().getEntitiesOfClass(Player.class, vehicle.getBoundingBox().expandTowards(0.2, 0, 0.2).expandTowards(-0.2, 0, -0.2));
 
         for (Player player : list) {

@@ -16,6 +16,7 @@ import java.io.FileWriter;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Verwaltet Börsenpreise für handelbare Items
@@ -29,7 +30,6 @@ public class StockMarketData {
     private final Map<Item, StockPrice> prices = new ConcurrentHashMap<>();
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private final File saveFile;
-    private final Random random = new Random();
 
     private long currentDay = 0;
     private long lastPriceUpdate = 0;
@@ -174,7 +174,7 @@ public class StockMarketData {
             price.previousPrice = price.currentPrice;
 
             // Berechne zufällige Änderung (-maxChange bis +maxChange)
-            double changePercent = (random.nextDouble() * 2.0 - 1.0) * maxChange;
+            double changePercent = (ThreadLocalRandom.current().nextDouble() * 2.0 - 1.0) * maxChange;
             double changeAmount = price.currentPrice * changePercent;
 
             // Neuer Preis

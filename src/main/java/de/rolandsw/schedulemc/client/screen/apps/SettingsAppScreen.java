@@ -122,6 +122,17 @@ public class SettingsAppScreen extends Screen {
     private String cachedMonthly;
     private String cachedRange;
     private String cachedDays;
+    /** Gecachte formatierte Kosten/Balance Strings (statt String.format pro Frame) */
+    private double lastRenderedBalance = Double.NaN;
+    private String cachedBalanceFormatted = "";
+    private double lastRenderedDailyCost = Double.NaN;
+    private String cachedDailyCostStr = "";
+    private String cachedWeeklyCostStr = "";
+    private String cachedMonthlyCostStr = "";
+    private double lastElecThreshold = Double.NaN;
+    private String cachedElecThresholdStr = "";
+    private double lastWaterThreshold = Double.NaN;
+    private String cachedWaterThresholdStr = "";
     private String cachedProperty;
     private String cachedNoProperties;
     private String cachedPropertiesCount;
@@ -694,7 +705,11 @@ public class SettingsAppScreen extends Screen {
         if (y >= startY - 10 && y < endY) {
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 30, 0x33333333);
             guiGraphics.drawString(this.font, cachedPowerWarning, leftPos + 15, y + 4, 0xFFAA00);
-            guiGraphics.drawString(this.font, "§f" + String.format("%.0f", electricityWarningThreshold) + cachedKwh, leftPos + 130, y + 4, 0xFFFFFF);
+            if (electricityWarningThreshold != lastElecThreshold) {
+                lastElecThreshold = electricityWarningThreshold;
+                cachedElecThresholdStr = "§f" + String.format("%.0f", electricityWarningThreshold) + cachedKwh;
+            }
+            guiGraphics.drawString(this.font, cachedElecThresholdStr, leftPos + 130, y + 4, 0xFFFFFF);
 
             // Mini-Balken (Interaktiv!)
             int barWidth = WIDTH - 40;
@@ -719,7 +734,11 @@ public class SettingsAppScreen extends Screen {
         if (y >= startY - 10 && y < endY) {
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 30, 0x33333333);
             guiGraphics.drawString(this.font, cachedWaterWarning, leftPos + 15, y + 4, 0x55AAFF);
-            guiGraphics.drawString(this.font, "§f" + String.format("%.0f", waterWarningThreshold) + cachedLiters, leftPos + 135, y + 4, 0xFFFFFF);
+            if (waterWarningThreshold != lastWaterThreshold) {
+                lastWaterThreshold = waterWarningThreshold;
+                cachedWaterThresholdStr = "§f" + String.format("%.0f", waterWarningThreshold) + cachedLiters;
+            }
+            guiGraphics.drawString(this.font, cachedWaterThresholdStr, leftPos + 135, y + 4, 0xFFFFFF);
 
             // Mini-Balken (Interaktiv!)
             int barWidth = WIDTH - 40;
@@ -808,9 +827,12 @@ public class SettingsAppScreen extends Screen {
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 50, 0x44228B22);
             guiGraphics.drawCenteredString(this.font, cachedAvailable, leftPos + WIDTH / 2, y + 8, 0xFFFFFF);
 
-            // Großer Betrag
-            String balanceStr = String.format("§a§l%.2f €", accountBalance);
-            guiGraphics.drawCenteredString(this.font, balanceStr, leftPos + WIDTH / 2, y + 25, 0x55FF55);
+            // Großer Betrag (nur re-formatieren wenn Wert sich ändert)
+            if (accountBalance != lastRenderedBalance) {
+                lastRenderedBalance = accountBalance;
+                cachedBalanceFormatted = String.format("§a§l%.2f €", accountBalance);
+            }
+            guiGraphics.drawCenteredString(this.font, cachedBalanceFormatted, leftPos + WIDTH / 2, y + 25, 0x55FF55);
 
             guiGraphics.drawCenteredString(this.font, cachedBankName, leftPos + WIDTH / 2, y + 40, 0x666666);
         }
@@ -852,14 +874,21 @@ public class SettingsAppScreen extends Screen {
         if (y >= startY - 10 && y < endY) {
             guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 55, 0x33333333);
 
+            // Nur re-formatieren wenn dailyCost sich geändert hat
+            if (dailyCost != lastRenderedDailyCost) {
+                lastRenderedDailyCost = dailyCost;
+                cachedDailyCostStr = String.format("§e%.2f €", dailyCost);
+                cachedWeeklyCostStr = String.format("§e%.2f €", weeklyCost);
+                cachedMonthlyCostStr = String.format("§e%.2f €", monthlyCost);
+            }
             guiGraphics.drawString(this.font, cachedDaily, leftPos + 15, y + 5, 0xAAAAAA);
-            guiGraphics.drawString(this.font, String.format("§e%.2f €", dailyCost), leftPos + 100, y + 5, 0xFFAA00);
+            guiGraphics.drawString(this.font, cachedDailyCostStr, leftPos + 100, y + 5, 0xFFAA00);
 
             guiGraphics.drawString(this.font, cachedWeekly, leftPos + 15, y + 18, 0xAAAAAA);
-            guiGraphics.drawString(this.font, String.format("§e%.2f €", weeklyCost), leftPos + 100, y + 18, 0xFFAA00);
+            guiGraphics.drawString(this.font, cachedWeeklyCostStr, leftPos + 100, y + 18, 0xFFAA00);
 
             guiGraphics.drawString(this.font, cachedMonthly, leftPos + 15, y + 31, 0xAAAAAA);
-            guiGraphics.drawString(this.font, String.format("§e%.2f €", monthlyCost), leftPos + 100, y + 31, 0xFFAA00);
+            guiGraphics.drawString(this.font, cachedMonthlyCostStr, leftPos + 100, y + 31, 0xFFAA00);
 
             // Reichweite - lade echten Kontostand
             double currentBalance = minecraft.player != null ? EconomyManager.getBalance(minecraft.player.getUUID()) : 0.0;

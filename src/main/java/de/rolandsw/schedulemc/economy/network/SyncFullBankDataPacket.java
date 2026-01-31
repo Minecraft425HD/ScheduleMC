@@ -204,7 +204,7 @@ public class SyncFullBankDataPacket {
 
         // Transactions
         int txCount = buf.readInt();
-        List<TransactionData> transactions = new ArrayList<>();
+        List<TransactionData> transactions = new ArrayList<>(txCount);
         for (int i = 0; i < txCount; i++) {
             String transactionId = buf.readUtf();
             TransactionType type = buf.readEnum(TransactionType.class);
@@ -220,7 +220,7 @@ public class SyncFullBankDataPacket {
 
         // Recurring Payments
         int rpCount = buf.readInt();
-        List<RecurringPaymentData> recurringPayments = new ArrayList<>();
+        List<RecurringPaymentData> recurringPayments = new ArrayList<>(rpCount);
         for (int i = 0; i < rpCount; i++) {
             String paymentId = buf.readUtf();
             String recipientName = buf.readUtf();

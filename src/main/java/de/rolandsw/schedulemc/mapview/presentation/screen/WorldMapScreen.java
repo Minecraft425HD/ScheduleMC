@@ -57,13 +57,11 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicReference;
 
 @OnlyIn(Dist.CLIENT)
 public class WorldMapScreen extends PopupScreen {
-    private final Random generator = new Random();
     private final WorldMapData persistentMap;
     private final Screen parent;
     private final MapViewConfiguration mapOptions;
