@@ -9,10 +9,11 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
 
-public class PartTruckChassis extends PartBody {
+public class PartTruckChassis extends PartChassisBase {
 
     public PartTruckChassis(ResourceLocation texture, String materialTranslationKey) {
         super(new OBJModel(ResourceLocation.fromNamespaceAndPath(Main.MODID, "models/entity/transporter_body.obj")), texture, new Vector3d(0D, 4D / 16D, 0D), "transporter", materialTranslationKey);
+        this.bumperOffset = new Vector3d(0D, 6D / 16D, -17.5D / 16D);
         this.wheelOffsets = new Vector3d[]{
                 new Vector3d(14.5F / 16F, 4F / 16F, 12F / 16F),
                 new Vector3d(14.5F / 16F, 4F / 16F, -16F / 16F),

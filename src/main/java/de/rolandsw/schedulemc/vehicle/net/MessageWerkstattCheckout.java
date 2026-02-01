@@ -160,8 +160,10 @@ public class MessageWerkstattCheckout implements Message<MessageWerkstattCheckou
 
         // Update vehicle if parts were changed
         if (partsChanged) {
-            vehicle.setPartSerializer();
             vehicle.invalidatePartCache();
+            vehicle.initParts();
+            vehicle.setPartSerializer();
+            vehicle.checkInitializing();
         }
 
         // Success message
@@ -199,6 +201,21 @@ public class MessageWerkstattCheckout implements Message<MessageWerkstattCheckou
                 }
             }
         }
+
+        // If no existing part was found (e.g. vehicle has no fender yet), add to empty slot
+        if (!replacedAny && !PartTireBase.class.isAssignableFrom(partClass)) {
+            ItemStack newStack = getItemStackForPart(newPart);
+            if (!newStack.isEmpty()) {
+                for (int i = 0; i < partInventory.getContainerSize(); i++) {
+                    if (partInventory.getItem(i).isEmpty()) {
+                        partInventory.setItem(i, newStack);
+                        replacedAny = true;
+                        break;
+                    }
+                }
+            }
+        }
+
         return replacedAny;
     }
 

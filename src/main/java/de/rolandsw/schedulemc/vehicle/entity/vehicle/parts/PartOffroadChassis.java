@@ -6,10 +6,11 @@ import de.rolandsw.schedulemc.vehicle.Main;
 import de.maxhenkel.corelib.client.obj.OBJModel;
 import net.minecraft.resources.ResourceLocation;
 
-public class PartOffroadChassis extends PartBody {
+public class PartOffroadChassis extends PartChassisBase {
 
     public PartOffroadChassis(ResourceLocation texture, String materialTranslationKey) {
         super(new OBJModel(ResourceLocation.fromNamespaceAndPath(Main.MODID, "models/entity/suv_body.obj")), texture, new Vector3d(0D, 4D / 16D, 0D), "suv", materialTranslationKey);
+        this.bumperOffset = new Vector3d(0D, 6D / 16D, -16.5D / 16D);
         this.wheelOffsets = new Vector3d[]{
                 new Vector3d(11F / 16F, 5F / 16F, 10F / 16F),
                 new Vector3d(11F / 16F, 5F / 16F, -10F / 16F),

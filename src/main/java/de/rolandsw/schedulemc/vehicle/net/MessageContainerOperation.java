@@ -133,8 +133,7 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
         vehicle.initParts(); // Reload parts from part inventory
         vehicle.setPartSerializer(); // Sync parts to client (shows 3D model!)
         vehicle.checkInitializing(); // Recalculate inventory sizes (sets external to 12!)
-        vehicle.setIsInitialized(false); // Force re-initialization on client
-        vehicle.tryInitPartsAndModel(); // Update 3D models (now actually runs!)
+        // Client re-init is triggered by setPartSerializer() via onSyncedDataUpdated(PARTS)
 
         // Success message
         String costMsg = cost > 0 ? Component.translatable("message.vehicle.install_cost", cost).getString() : Component.translatable("message.vehicle.install_free").getString();
@@ -169,8 +168,7 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
         vehicle.initParts(); // Reload parts from part inventory
         vehicle.setPartSerializer(); // Sync parts to client (updates 3D model!)
         vehicle.checkInitializing(); // Recalculate inventory sizes (sets external back to 0!)
-        vehicle.setIsInitialized(false); // Force re-initialization on client
-        vehicle.tryInitPartsAndModel(); // Update 3D models
+        // Client re-init is triggered by setPartSerializer() via onSyncedDataUpdated(PARTS)
 
         player.sendSystemMessage(
             Component.translatable("werkstatt.container.removed_successfully").withStyle(ChatFormatting.GREEN)
@@ -237,8 +235,7 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
         vehicle.initParts(); // Reload parts from part inventory
         vehicle.setPartSerializer(); // Sync parts to client (shows 3D model!)
         vehicle.checkInitializing(); // Recalculate inventory sizes
-        vehicle.setIsInitialized(false); // Force re-initialization on client
-        vehicle.tryInitPartsAndModel(); // Update 3D models
+        // Client re-init is triggered by setPartSerializer() via onSyncedDataUpdated(PARTS)
 
         // Success message
         String costMsg = cost > 0 ? Component.translatable("message.vehicle.install_cost", cost).getString() : Component.translatable("message.vehicle.install_free").getString();
@@ -273,8 +270,7 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
         vehicle.initParts(); // Reload parts from part inventory
         vehicle.setPartSerializer(); // Sync parts to client (updates 3D model!)
         vehicle.checkInitializing(); // Recalculate inventory sizes (sets external back to 0!)
-        vehicle.setIsInitialized(false); // Force re-initialization on client
-        vehicle.tryInitPartsAndModel(); // Update 3D models
+        // Client re-init is triggered by setPartSerializer() via onSyncedDataUpdated(PARTS)
 
         player.sendSystemMessage(
             Component.translatable("werkstatt.container.removed_successfully").withStyle(ChatFormatting.GREEN)
