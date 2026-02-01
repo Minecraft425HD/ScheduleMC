@@ -350,7 +350,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         Container partInv = inventoryComponent.getPartInventory();
         NonNullList<ItemStack> stacks = NonNullList.withSize(partInv.getContainerSize(), ItemStack.EMPTY);
         for (int i = 0; i < partInv.getContainerSize(); i++) {
-            stacks.set(i, partInv.getItem(i));
+            stacks.set(i, partInv.getItem(i).copy());
         }
         entityData.set(PARTS, stacks);
     }

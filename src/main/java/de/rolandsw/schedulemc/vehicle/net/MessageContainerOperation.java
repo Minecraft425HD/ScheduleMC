@@ -151,13 +151,13 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
             return;
         }
 
-        // Remove from part inventory
+        // Remove from part inventory - use setItem(EMPTY) to properly clear the slot reference
         Container partInventory = vehicle.getInventoryComponent().getPartInventory();
         for (int i = 0; i < partInventory.getContainerSize(); i++) {
             ItemStack stack = partInventory.getItem(i);
-            if (stack.getItem() instanceof IVehiclePart vehiclePart) {
+            if (!stack.isEmpty() && stack.getItem() instanceof IVehiclePart vehiclePart) {
                 if (vehiclePart.getPart(stack) instanceof PartContainer) {
-                    partInventory.removeItem(i, 1);
+                    partInventory.setItem(i, ItemStack.EMPTY);
                     break;
                 }
             }
@@ -253,13 +253,13 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
             return;
         }
 
-        // Remove from part inventory
+        // Remove from part inventory - use setItem(EMPTY) to properly clear the slot reference
         Container partInventory = vehicle.getInventoryComponent().getPartInventory();
         for (int i = 0; i < partInventory.getContainerSize(); i++) {
             ItemStack stack = partInventory.getItem(i);
-            if (stack.getItem() instanceof IVehiclePart vehiclePart) {
+            if (!stack.isEmpty() && stack.getItem() instanceof IVehiclePart vehiclePart) {
                 if (vehiclePart.getPart(stack) instanceof PartTankContainer) {
-                    partInventory.removeItem(i, 1);
+                    partInventory.setItem(i, ItemStack.EMPTY);
                     break;
                 }
             }
