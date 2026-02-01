@@ -19,7 +19,9 @@ public class WerkstattCartItem {
         UPGRADE_TANK,
         UPGRADE_TIRE,
         UPGRADE_FENDER,
-        PAINT_CHANGE
+        PAINT_CHANGE,
+        CONTAINER_ITEM,
+        CONTAINER_FLUID
     }
 
     private final Type type;
@@ -76,6 +78,10 @@ public class WerkstattCartItem {
                 if (vehicle.getPaintColor() == value) yield 0.0;
                 yield ModConfigHandler.COMMON.WERKSTATT_PAINT_CHANGE_COST.get();
             }
+            case CONTAINER_ITEM -> vehicle.hasHadItemContainer()
+                    ? ModConfigHandler.VEHICLE_SERVER.containerReinstallationCost.get() : 0.0;
+            case CONTAINER_FLUID -> vehicle.hasHadFluidContainer()
+                    ? ModConfigHandler.VEHICLE_SERVER.containerReinstallationCost.get() : 0.0;
         };
     }
 
@@ -92,6 +98,8 @@ public class WerkstattCartItem {
             case UPGRADE_TIRE -> "werkstatt.cart.tire_upgrade";
             case UPGRADE_FENDER -> "werkstatt.cart.fender_upgrade";
             case PAINT_CHANGE -> "werkstatt.cart.paint_change";
+            case CONTAINER_ITEM -> "werkstatt.cart.container_item";
+            case CONTAINER_FLUID -> "werkstatt.cart.container_fluid";
         };
     }
 

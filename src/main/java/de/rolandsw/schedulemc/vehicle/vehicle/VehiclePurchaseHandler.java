@@ -169,6 +169,7 @@ public class VehiclePurchaseHandler {
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
+            parts.add(new ItemStack(ModItems.FENDER_BASIC.get()));
         } else if (spawnVehicleItem == ModItems.SPAWN_VEHICLE_BIG_OAK.get()) {
             parts.add(new ItemStack(ModItems.VAN_CHASSIS.get()));
             parts.add(new ItemStack(ModItems.NORMAL_MOTOR.get()));
@@ -176,6 +177,7 @@ public class VehiclePurchaseHandler {
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
+            parts.add(new ItemStack(ModItems.FENDER_BASIC.get()));
         } else if (spawnVehicleItem == ModItems.SPAWN_VEHICLE_WHITE_TRANSPORTER.get()) {
             parts.add(new ItemStack(ModItems.TRUCK_CHASSIS.get()));
             parts.add(new ItemStack(ModItems.NORMAL_MOTOR.get()));
@@ -185,6 +187,7 @@ public class VehiclePurchaseHandler {
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
+            parts.add(new ItemStack(ModItems.FENDER_BASIC.get()));
         } else if (spawnVehicleItem == ModItems.SPAWN_VEHICLE_WHITE_SUV.get()) {
             parts.add(new ItemStack(ModItems.OFFROAD_CHASSIS.get()));
             parts.add(new ItemStack(ModItems.NORMAL_MOTOR.get()));
@@ -192,6 +195,7 @@ public class VehiclePurchaseHandler {
             parts.add(new ItemStack(ModItems.OFFROAD_TIRE.get()));
             parts.add(new ItemStack(ModItems.OFFROAD_TIRE.get()));
             parts.add(new ItemStack(ModItems.OFFROAD_TIRE.get()));
+            parts.add(new ItemStack(ModItems.FENDER_BASIC.get()));
         } else if (spawnVehicleItem == ModItems.SPAWN_VEHICLE_WHITE_SPORT.get()) {
             parts.add(new ItemStack(ModItems.LUXUS_CHASSIS.get()));
             parts.add(new ItemStack(ModItems.NORMAL_MOTOR.get()));
@@ -199,6 +203,7 @@ public class VehiclePurchaseHandler {
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
+            parts.add(new ItemStack(ModItems.FENDER_BASIC.get()));
         } else {
             return null; // Unbekanntes Fahrzeug
         }

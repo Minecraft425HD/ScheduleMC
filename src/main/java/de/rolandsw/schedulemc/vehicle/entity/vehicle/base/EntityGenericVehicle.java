@@ -51,6 +51,8 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     private static final EntityDataAccessor<Boolean> IS_INITIALIZED = SynchedEntityData.defineId(EntityGenericVehicle.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> INTERNAL_INV_SIZE = SynchedEntityData.defineId(EntityGenericVehicle.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> EXTERNAL_INV_SIZE = SynchedEntityData.defineId(EntityGenericVehicle.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Boolean> HAS_HAD_ITEM_CONTAINER = SynchedEntityData.defineId(EntityGenericVehicle.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> HAS_HAD_FLUID_CONTAINER = SynchedEntityData.defineId(EntityGenericVehicle.class, EntityDataSerializers.BOOLEAN);
 
     // Components - lazy initialization to avoid issues with Entity constructor
     private PhysicsComponent physicsComponent;
@@ -64,6 +66,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     // Optimierung: Cache für Part-Lookups (vermeidet 30+ Iterationen pro Tick)
     private Map<Class<? extends Part>, Part> partCache;
     private boolean partCacheValid = false;  // OPTIMIERT: Cache-Invalidierungs-Flag
+    private boolean needsModelRebuild = true; // Local flag for client-side model rebuild (not synched)
 
     // Vehicle ownership and tracking
     private UUID ownerId;
@@ -76,10 +79,8 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     @Nullable
     private BlockPos werkstattPosition;
 
-    // Container installation tracking (for cost system)
+    // Container installation tracking is via synched data (HAS_HAD_ITEM_CONTAINER / HAS_HAD_FLUID_CONTAINER)
     // First installation is free, reinstallation after removal costs money
-    private boolean hasHadItemContainer = false;
-    private boolean hasHadFluidContainer = false;
 
     private boolean isSpawned = true;
 
@@ -134,6 +135,8 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         this.entityData.define(IS_INITIALIZED, false); // Default: not initialized
         this.entityData.define(INTERNAL_INV_SIZE, 0); // Default: 0 internal slots
         this.entityData.define(EXTERNAL_INV_SIZE, 0); // Default: 0 external slots
+        this.entityData.define(HAS_HAD_ITEM_CONTAINER, false);
+        this.entityData.define(HAS_HAD_FLUID_CONTAINER, false);
 
         // Define component data directly (components not yet initialized at this point)
         PhysicsComponent.defineData(this.entityData);
@@ -149,7 +152,10 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
 
         // When PARTS data changes from server, re-initialize on client
         if (level().isClientSide && key.equals(PARTS)) {
-            // Force re-initialization on next tick
+            // Force re-initialization on next tick via local flag
+            // (setIsInitialized alone is unreliable: on initial entity spawn,
+            // IS_INITIALIZED=true from server overwrites our false)
+            needsModelRebuild = true;
             setIsInitialized(false);
         }
 
@@ -350,7 +356,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         Container partInv = inventoryComponent.getPartInventory();
         NonNullList<ItemStack> stacks = NonNullList.withSize(partInv.getContainerSize(), ItemStack.EMPTY);
         for (int i = 0; i < partInv.getContainerSize(); i++) {
-            stacks.set(i, partInv.getItem(i));
+            stacks.set(i, partInv.getItem(i).copy());
         }
         entityData.set(PARTS, stacks);
     }
@@ -448,13 +454,16 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     }
 
     public void tryInitPartsAndModel() {
-        if (!isInitialized()) {
+        // On client: also check needsModelRebuild flag which can't be overridden by server sync
+        boolean shouldInit = !isInitialized() || (level().isClientSide && needsModelRebuild);
+        if (shouldInit) {
             if (level().isClientSide) {
                 if (!isSpawned || updateClientSideItems()) {
                     initParts();
                     checkInitializing(); // CRITICAL: Recalculate inventory sizes based on loaded parts!
                     initModel();
                     setIsInitialized(true);
+                    needsModelRebuild = false;
                 }
             } else {
                 initParts();
@@ -720,21 +729,21 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         return !isLockedInWerkstatt;
     }
 
-    // Container installation tracking
+    // Container installation tracking (synched so client GUI can show correct cost)
     public boolean hasHadItemContainer() {
-        return hasHadItemContainer;
+        return entityData.get(HAS_HAD_ITEM_CONTAINER);
     }
 
     public void setHasHadItemContainer(boolean hasHad) {
-        this.hasHadItemContainer = hasHad;
+        entityData.set(HAS_HAD_ITEM_CONTAINER, hasHad);
     }
 
     public boolean hasHadFluidContainer() {
-        return hasHadFluidContainer;
+        return entityData.get(HAS_HAD_FLUID_CONTAINER);
     }
 
     public void setHasHadFluidContainer(boolean hasHad) {
-        this.hasHadFluidContainer = hasHad;
+        entityData.set(HAS_HAD_FLUID_CONTAINER, hasHad);
     }
 
     @Override
@@ -816,10 +825,10 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
 
         // Load container installation tracking
         if (compound.contains("HasHadItemContainer")) {
-            this.hasHadItemContainer = compound.getBoolean("HasHadItemContainer");
+            setHasHadItemContainer(compound.getBoolean("HasHadItemContainer"));
         }
         if (compound.contains("HasHadFluidContainer")) {
-            this.hasHadFluidContainer = compound.getBoolean("HasHadFluidContainer");
+            setHasHadFluidContainer(compound.getBoolean("HasHadFluidContainer"));
         }
 
         // Load all component data
@@ -879,8 +888,8 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         compound.putBoolean("IsOnTowingYard", isOnTowingYard());
 
         // Save container installation tracking
-        compound.putBoolean("HasHadItemContainer", this.hasHadItemContainer);
-        compound.putBoolean("HasHadFluidContainer", this.hasHadFluidContainer);
+        compound.putBoolean("HasHadItemContainer", hasHadItemContainer());
+        compound.putBoolean("HasHadFluidContainer", hasHadFluidContainer());
 
         // Save all component data
         physicsComponent.saveAdditionalData(compound);

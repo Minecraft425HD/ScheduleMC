@@ -155,6 +155,34 @@ public class MessageWerkstattCheckout implements Message<MessageWerkstattCheckou
                 case PAINT_CHANGE -> {
                     vehicle.setPaintColor(item.getValue());
                 }
+                case CONTAINER_ITEM -> {
+                    if (vehicle.getPartByClass(PartContainer.class) == null) {
+                        ItemStack containerItem = new ItemStack(ModItems.CARGO_MODULE.get());
+                        Container partInv = vehicle.getInventoryComponent().getPartInventory();
+                        for (int i = 0; i < partInv.getContainerSize(); i++) {
+                            if (partInv.getItem(i).isEmpty()) {
+                                partInv.setItem(i, containerItem);
+                                vehicle.setHasHadItemContainer(true);
+                                partsChanged = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                case CONTAINER_FLUID -> {
+                    if (vehicle.getPartByClass(PartTankContainer.class) == null) {
+                        ItemStack containerItem = new ItemStack(ModItems.FLUID_MODULE.get());
+                        Container partInv = vehicle.getInventoryComponent().getPartInventory();
+                        for (int i = 0; i < partInv.getContainerSize(); i++) {
+                            if (partInv.getItem(i).isEmpty()) {
+                                partInv.setItem(i, containerItem);
+                                vehicle.setHasHadFluidContainer(true);
+                                partsChanged = true;
+                                break;
+                            }
+                        }
+                    }
+                }
             }
         }
 

@@ -86,6 +86,9 @@ public class ItemSpawnVehicle extends Item {
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
         }
 
+        // Add basic fender
+        parts.add(new ItemStack(ModItems.FENDER_BASIC.get()));
+
         // Add 15L tank
         parts.add(new ItemStack(ModItems.TANK_15L.get()));
 
