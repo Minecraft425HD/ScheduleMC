@@ -175,7 +175,8 @@ public class MessageWerkstattUpgrade implements Message<MessageWerkstattUpgrade>
     }
 
     /**
-     * Helper method to replace a part in the vehicle's part inventory
+     * Helper method to replace a part in the vehicle's part inventory.
+     * If no existing part of the given class is found, adds the new part to an empty slot.
      */
     private boolean replacePartInInventory(EntityGenericVehicle vehicle, Class<? extends Part> partClass, Part newPart) {
         if (newPart == null) {
@@ -205,6 +206,20 @@ public class MessageWerkstattUpgrade implements Message<MessageWerkstattUpgrade>
                         if (!PartTireBase.class.isAssignableFrom(partClass)) {
                             break;
                         }
+                    }
+                }
+            }
+        }
+
+        // If no existing part was found (e.g. vehicle has no fender yet), add to empty slot
+        if (!replacedAny && !PartTireBase.class.isAssignableFrom(partClass)) {
+            ItemStack newStack = getItemStackForPart(newPart);
+            if (!newStack.isEmpty()) {
+                for (int i = 0; i < partInventory.getContainerSize(); i++) {
+                    if (partInventory.getItem(i).isEmpty()) {
+                        partInventory.setItem(i, newStack);
+                        replacedAny = true;
+                        break;
                     }
                 }
             }

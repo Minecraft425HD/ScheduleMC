@@ -446,6 +446,17 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         ));
     }
 
+    // === Tick-based updates ===
+
+    @Override
+    protected void containerTick() {
+        super.containerTick();
+        // Refresh container tab buttons after server processes install/remove
+        if (currentTab == Tab.CONTAINER) {
+            updateWidgetVisibility();
+        }
+    }
+
     // === ESC/Close behavior ===
 
     @Override
