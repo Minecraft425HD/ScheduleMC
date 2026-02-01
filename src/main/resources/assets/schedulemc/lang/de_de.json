@@ -1655,6 +1655,8 @@
   "werkstatt.cart.tire_upgrade": "Reifen-Upgrade",
   "werkstatt.cart.fender_upgrade": "Fender-Upgrade",
   "werkstatt.cart.paint_change": "Lackierung",
+  "werkstatt.cart.container_item": "Item-Container",
+  "werkstatt.cart.container_fluid": "Fluid-Container",
   "werkstatt.gui.no_vehicle": "Kein Fahrzeug!",
   "werkstatt.gui.odometer": "KM-Stand: %s Bl.",
   "werkstatt.gui.condition_header": "--- Zustand ---",

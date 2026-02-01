@@ -258,28 +258,30 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         int btnH = 16;
         int btnX = leftPos + 100;
 
+        // Install buttons add to cart (checkout required)
         btnInstallItemContainer = addRenderableWidget(Button.builder(
-                Component.translatable("werkstatt.container.install"),
-                b -> sendContainerOperation(MessageContainerOperation.Operation.INSTALL_ITEM))
+                Component.translatable("werkstatt.btn.add_to_cart"),
+                b -> addToCart(new WerkstattCartItem(WerkstattCartItem.Type.CONTAINER_ITEM)))
                 .bounds(btnX, topPos + 80, btnW, btnH).build());
 
+        // Remove buttons are direct operations (no cart needed)
         btnRemoveItemContainer = addRenderableWidget(Button.builder(
                 Component.translatable("werkstatt.container.remove"),
-                b -> sendContainerOperation(MessageContainerOperation.Operation.REMOVE_ITEM))
+                b -> sendContainerRemove(MessageContainerOperation.Operation.REMOVE_ITEM))
                 .bounds(btnX, topPos + 80, btnW, btnH).build());
 
         btnInstallFluidContainer = addRenderableWidget(Button.builder(
-                Component.translatable("werkstatt.container.install"),
-                b -> sendContainerOperation(MessageContainerOperation.Operation.INSTALL_FLUID))
+                Component.translatable("werkstatt.btn.add_to_cart"),
+                b -> addToCart(new WerkstattCartItem(WerkstattCartItem.Type.CONTAINER_FLUID)))
                 .bounds(btnX, topPos + 150, btnW, btnH).build());
 
         btnRemoveFluidContainer = addRenderableWidget(Button.builder(
                 Component.translatable("werkstatt.container.remove"),
-                b -> sendContainerOperation(MessageContainerOperation.Operation.REMOVE_FLUID))
+                b -> sendContainerRemove(MessageContainerOperation.Operation.REMOVE_FLUID))
                 .bounds(btnX, topPos + 150, btnW, btnH).build());
     }
 
-    private void sendContainerOperation(MessageContainerOperation.Operation operation) {
+    private void sendContainerRemove(MessageContainerOperation.Operation operation) {
         if (vehicle == null || minecraft == null) return;
         Main.SIMPLE_CHANNEL.sendToServer(new MessageContainerOperation(vehicle.getId(), operation));
     }
@@ -383,9 +385,11 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         // Container buttons - use direct inventory scan for reliable detection after install/remove
         boolean hasItemContainer = hasInstalledItemContainer();
         boolean hasFluidContainer = hasInstalledFluidContainer();
-        if (btnInstallItemContainer != null) btnInstallItemContainer.visible = isContainer && isTruck && !hasItemContainer && !hasFluidContainer;
+        boolean itemInCart = isInCart(WerkstattCartItem.Type.CONTAINER_ITEM);
+        boolean fluidInCart = isInCart(WerkstattCartItem.Type.CONTAINER_FLUID);
+        if (btnInstallItemContainer != null) btnInstallItemContainer.visible = isContainer && isTruck && !hasItemContainer && !hasFluidContainer && !itemInCart && !fluidInCart;
         if (btnRemoveItemContainer != null) btnRemoveItemContainer.visible = isContainer && isTruck && hasItemContainer;
-        if (btnInstallFluidContainer != null) btnInstallFluidContainer.visible = isContainer && isTruck && !hasFluidContainer && !hasItemContainer;
+        if (btnInstallFluidContainer != null) btnInstallFluidContainer.visible = isContainer && isTruck && !hasFluidContainer && !hasItemContainer && !fluidInCart && !itemInCart;
         if (btnRemoveFluidContainer != null) btnRemoveFluidContainer.visible = isContainer && isTruck && hasFluidContainer;
 
         // Cart remove buttons always visible
@@ -807,21 +811,24 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         boolean hadItem = vehicle.hasHadItemContainer();
         boolean hadFluid = vehicle.hasHadFluidContainer();
 
+        boolean itemInCart = isInCart(WerkstattCartItem.Type.CONTAINER_ITEM);
+        boolean fluidInCart = isInCart(WerkstattCartItem.Type.CONTAINER_FLUID);
+
         // Item Container card
         drawContainerCard(g, x, y,
                 tr("werkstatt.container.item_container"),
                 tr("werkstatt.container.item_slots", "12"),
-                hasItemContainer, hadItem);
+                hasItemContainer, hadItem, itemInCart);
         y += 70;
 
         // Fluid Container card
         drawContainerCard(g, x, y,
                 tr("werkstatt.container.fluid_container"),
                 tr("werkstatt.container.fluid_capacity", "100"),
-                hasFluidContainer, hadFluid);
+                hasFluidContainer, hadFluid, fluidInCart);
     }
 
-    private void drawContainerCard(GuiGraphics g, int x, int y, String title, String info, boolean installed, boolean hadBefore) {
+    private void drawContainerCard(GuiGraphics g, int x, int y, String title, String info, boolean installed, boolean hadBefore, boolean inCart) {
         g.fill(x, y, x + 190, y + 60, 0xFF999999);
         g.fill(x + 1, y + 1, x + 189, y + 59, 0xFFBBBBBB);
 
@@ -830,6 +837,8 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
 
         if (installed) {
             g.drawString(font, tr("werkstatt.container.status_installed"), x + 4, y + 26, COL_GREEN, false);
+        } else if (inCart) {
+            g.drawString(font, tr("werkstatt.gui.in_order"), x + 4, y + 26, COL_GREEN, false);
         } else {
             g.drawString(font, tr("werkstatt.container.status_not_installed"), x + 4, y + 26, COL_TEXT_LIGHT, false);
             if (hadBefore) {

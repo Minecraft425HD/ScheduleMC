@@ -66,6 +66,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     // Optimierung: Cache für Part-Lookups (vermeidet 30+ Iterationen pro Tick)
     private Map<Class<? extends Part>, Part> partCache;
     private boolean partCacheValid = false;  // OPTIMIERT: Cache-Invalidierungs-Flag
+    private boolean needsModelRebuild = true; // Local flag for client-side model rebuild (not synched)
 
     // Vehicle ownership and tracking
     private UUID ownerId;
@@ -151,7 +152,10 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
 
         // When PARTS data changes from server, re-initialize on client
         if (level().isClientSide && key.equals(PARTS)) {
-            // Force re-initialization on next tick
+            // Force re-initialization on next tick via local flag
+            // (setIsInitialized alone is unreliable: on initial entity spawn,
+            // IS_INITIALIZED=true from server overwrites our false)
+            needsModelRebuild = true;
             setIsInitialized(false);
         }
 
@@ -450,13 +454,16 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     }
 
     public void tryInitPartsAndModel() {
-        if (!isInitialized()) {
+        // On client: also check needsModelRebuild flag which can't be overridden by server sync
+        boolean shouldInit = !isInitialized() || (level().isClientSide && needsModelRebuild);
+        if (shouldInit) {
             if (level().isClientSide) {
                 if (!isSpawned || updateClientSideItems()) {
                     initParts();
                     checkInitializing(); // CRITICAL: Recalculate inventory sizes based on loaded parts!
                     initModel();
                     setIsInitialized(true);
+                    needsModelRebuild = false;
                 }
             } else {
                 initParts();
