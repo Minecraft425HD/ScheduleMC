@@ -1720,6 +1720,7 @@
   "werkstatt.gui.tire.offroad": "Offroad",
   "werkstatt.gui.tire.allterrain": "Allterrain",
   "werkstatt.gui.tire.heavyduty": "Heavy Duty",
+  "werkstatt.gui.fender.none": "Keiner",
   "werkstatt.gui.fender.basic": "Basic",
   "werkstatt.gui.fender.chrome": "Chrome",
   "werkstatt.gui.fender.sport": "Sport",

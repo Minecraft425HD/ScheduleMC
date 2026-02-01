@@ -380,9 +380,9 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
                 && selectedPaintColor != vehicle.getPaintColor()
                 && !isInCart(WerkstattCartItem.Type.PAINT_CHANGE);
 
-        // Container buttons
-        boolean hasItemContainer = vehicle != null && vehicle.getPartByClass(PartContainer.class) != null;
-        boolean hasFluidContainer = vehicle != null && vehicle.getPartByClass(PartTankContainer.class) != null;
+        // Container buttons - use direct inventory scan for reliable detection after install/remove
+        boolean hasItemContainer = hasInstalledItemContainer();
+        boolean hasFluidContainer = hasInstalledFluidContainer();
         if (btnInstallItemContainer != null) btnInstallItemContainer.visible = isContainer && isTruck && !hasItemContainer && !hasFluidContainer;
         if (btnRemoveItemContainer != null) btnRemoveItemContainer.visible = isContainer && isTruck && hasItemContainer;
         if (btnInstallFluidContainer != null) btnInstallFluidContainer.visible = isContainer && isTruck && !hasFluidContainer && !hasItemContainer;
@@ -396,6 +396,32 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         if (vehicle == null) return false;
         PartBody body = vehicle.getPartByClass(PartBody.class);
         return body instanceof PartTruckChassis;
+    }
+
+    private boolean hasInstalledItemContainer() {
+        if (vehicle == null) return false;
+        Container partInv = vehicle.getInventoryComponent().getPartInventory();
+        for (int i = 0; i < partInv.getContainerSize(); i++) {
+            ItemStack stack = partInv.getItem(i);
+            if (!stack.isEmpty() && stack.getItem() instanceof IVehiclePart partItem) {
+                Part part = partItem.getPart(stack);
+                if (part instanceof PartContainer) return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean hasInstalledFluidContainer() {
+        if (vehicle == null) return false;
+        Container partInv = vehicle.getInventoryComponent().getPartInventory();
+        for (int i = 0; i < partInv.getContainerSize(); i++) {
+            ItemStack stack = partInv.getItem(i);
+            if (!stack.isEmpty() && stack.getItem() instanceof IVehiclePart partItem) {
+                Part part = partItem.getPart(stack);
+                if (part instanceof PartTankContainer) return true;
+            }
+        }
+        return false;
     }
 
     // === Cart Management ===
@@ -776,8 +802,8 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
             return;
         }
 
-        boolean hasItemContainer = vehicle.getPartByClass(PartContainer.class) != null;
-        boolean hasFluidContainer = vehicle.getPartByClass(PartTankContainer.class) != null;
+        boolean hasItemContainer = hasInstalledItemContainer();
+        boolean hasFluidContainer = hasInstalledFluidContainer();
 
         // Item Container card
         drawContainerCard(g, x, y,
@@ -985,20 +1011,20 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
     }
 
     private int getCurrentFenderLevel() {
-        if (vehicle == null) return 1;
+        if (vehicle == null) return 0;
         Container partInv = vehicle.getInventoryComponent().getPartInventory();
         for (int i = 0; i < partInv.getContainerSize(); i++) {
             ItemStack stack = partInv.getItem(i);
             if (!stack.isEmpty() && stack.getItem() instanceof IVehiclePart partItem) {
                 Part part = partItem.getPart(stack);
-                if (part instanceof PartBumper || part instanceof PartChromeBumper || part instanceof PartSportBumper) {
+                if (part instanceof PartBumper) { // PartChromeBumper and PartSportBumper extend PartBumper
                     if (part == PartRegistry.FENDER_SPORT) return 3;
                     if (part == PartRegistry.FENDER_CHROME) return 2;
                     return 1;
                 }
             }
         }
-        return 1;
+        return 0; // No fender installed
     }
 
     // === Name Helpers ===
@@ -1060,6 +1086,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
 
     private String getFenderNameByLevel(int level) {
         return switch (level) {
+            case 0 -> tr("werkstatt.gui.fender.none");
             case 1 -> tr("werkstatt.gui.fender.basic");
             case 2 -> tr("werkstatt.gui.fender.chrome");
             case 3 -> tr("werkstatt.gui.fender.sport");
@@ -1080,8 +1107,11 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
     }
 
     private double getFenderUpgradeCost(int currentLevel) {
-        return currentLevel == 1 ? ModConfigHandler.COMMON.WERKSTATT_FENDER_UPGRADE_COST_LVL2.get()
-                : ModConfigHandler.COMMON.WERKSTATT_FENDER_UPGRADE_COST_LVL3.get();
+        return switch (currentLevel) {
+            case 0 -> 0.0; // Basic fender is free for vehicles without one
+            case 1 -> ModConfigHandler.COMMON.WERKSTATT_FENDER_UPGRADE_COST_LVL2.get();
+            default -> ModConfigHandler.COMMON.WERKSTATT_FENDER_UPGRADE_COST_LVL3.get();
+        };
     }
 
     @Override
