@@ -373,7 +373,8 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         if (btnAddMotor != null) btnAddMotor.visible = isUpgrade && getCurrentMotorLevel() < 3 && !isInCart(WerkstattCartItem.Type.UPGRADE_MOTOR);
         if (btnAddTank != null) btnAddTank.visible = isUpgrade && getCurrentTankLevel() < 3 && !isInCart(WerkstattCartItem.Type.UPGRADE_TANK);
         if (btnAddTire != null) btnAddTire.visible = isUpgrade && getCurrentTireIndex() < 2 && !isInCart(WerkstattCartItem.Type.UPGRADE_TIRE);
-        if (btnAddFender != null) btnAddFender.visible = isUpgrade && getCurrentFenderLevel() < 3 && !isInCart(WerkstattCartItem.Type.UPGRADE_FENDER);
+        boolean canHaveFender = !isTruckVehicle() && !isSportVehicle();
+        if (btnAddFender != null) btnAddFender.visible = isUpgrade && canHaveFender && getCurrentFenderLevel() < 3 && !isInCart(WerkstattCartItem.Type.UPGRADE_FENDER);
 
         // Paint buttons
         for (Button pb : paintButtons) pb.visible = isPaint;
@@ -400,6 +401,12 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         if (vehicle == null) return false;
         PartBody body = vehicle.getPartByClass(PartBody.class);
         return body instanceof PartTruckChassis;
+    }
+
+    private boolean isSportVehicle() {
+        if (vehicle == null) return false;
+        PartBody body = vehicle.getPartByClass(PartBody.class);
+        return body instanceof PartLuxusChassis;
     }
 
     private boolean hasInstalledItemContainer() {
@@ -619,8 +626,10 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         y += 10;
         g.drawString(font, tr("werkstatt.gui.part_tire", getTireName()), x, y, COL_TEXT_LIGHT, false);
         y += 10;
-        g.drawString(font, tr("werkstatt.gui.part_fender", getFenderName()), x, y, COL_TEXT_LIGHT, false);
-        y += 10;
+        if (!isTruckVehicle() && !isSportVehicle()) {
+            g.drawString(font, tr("werkstatt.gui.part_fender", getFenderName()), x, y, COL_TEXT_LIGHT, false);
+            y += 10;
+        }
 
         g.drawString(font, tr("werkstatt.gui.part_paint", getColorName(vehicle.getPaintColor())), x, y, COL_TEXT_LIGHT, false);
     }
@@ -710,14 +719,16 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
                 isInCart(WerkstattCartItem.Type.UPGRADE_TIRE));
         y += spacing;
 
-        // Fender
-        int fenderLevel = getCurrentFenderLevel();
-        drawUpgradeCard(g, x, y, tr("werkstatt.gui.upgrade.fender"),
-                tr("werkstatt.gui.upgrade.current", getFenderName(), fenderLevel),
-                fenderLevel < 3 ? tr("werkstatt.gui.upgrade.next", getFenderNameByLevel(fenderLevel + 1), fenderLevel + 1) : null,
-                fenderLevel < 3 ? getFenderUpgradeCost(fenderLevel) : -1,
-                fenderLevel >= 3,
-                isInCart(WerkstattCartItem.Type.UPGRADE_FENDER));
+        // Fender (not available for trucks and sports cars)
+        if (!isTruckVehicle() && !isSportVehicle()) {
+            int fenderLevel = getCurrentFenderLevel();
+            drawUpgradeCard(g, x, y, tr("werkstatt.gui.upgrade.fender"),
+                    tr("werkstatt.gui.upgrade.current", getFenderName(), fenderLevel),
+                    fenderLevel < 3 ? tr("werkstatt.gui.upgrade.next", getFenderNameByLevel(fenderLevel + 1), fenderLevel + 1) : null,
+                    fenderLevel < 3 ? getFenderUpgradeCost(fenderLevel) : -1,
+                    fenderLevel >= 3,
+                    isInCart(WerkstattCartItem.Type.UPGRADE_FENDER));
+        }
     }
 
     private void drawUpgradeCard(GuiGraphics g, int x, int y, String title, String current, String next, double cost, boolean isMax, boolean inCart) {

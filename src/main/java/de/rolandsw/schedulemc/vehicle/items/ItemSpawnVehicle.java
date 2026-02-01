@@ -108,7 +108,7 @@ public class ItemSpawnVehicle extends Item {
         // Set position and spawn
         vehicle.setPos(spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5);
         vehicle.setYRot(context.getPlayer() != null ? context.getPlayer().getYRot() : 0);
-        vehicle.setFuelAmount(100);
+        vehicle.setFuelAmount(vehicle.getMaxFuel() / 4);
         vehicle.setBatteryLevel(500);
 
         // Set owner and vehicle UUID

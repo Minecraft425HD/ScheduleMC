@@ -147,9 +147,14 @@ public class MessageWerkstattCheckout implements Message<MessageWerkstattCheckou
                     }
                 }
                 case UPGRADE_FENDER -> {
-                    Part newFender = getFenderByLevel(item.getValue());
-                    if (newFender != null && replacePartInInventory(vehicle, PartBumper.class, newFender)) {
-                        partsChanged = true;
+                    // Fender upgrades not allowed for trucks and sports cars
+                    PartBody body = vehicle.getPartByClass(PartBody.class);
+                    boolean canHaveFender = !(body instanceof PartTruckChassis) && !(body instanceof PartLuxusChassis);
+                    if (canHaveFender) {
+                        Part newFender = getFenderByLevel(item.getValue());
+                        if (newFender != null && replacePartInInventory(vehicle, PartBumper.class, newFender)) {
+                            partsChanged = true;
+                        }
                     }
                 }
                 case PAINT_CHANGE -> {
