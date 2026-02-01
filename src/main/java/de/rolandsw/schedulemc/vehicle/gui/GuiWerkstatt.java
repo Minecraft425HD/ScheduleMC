@@ -932,6 +932,8 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
             case UPGRADE_TIRE -> tr("werkstatt.gui.cart.item.tire", item.getValue() + 1);
             case UPGRADE_FENDER -> tr("werkstatt.gui.cart.item.fender", item.getValue());
             case PAINT_CHANGE -> tr("werkstatt.gui.cart.item.paint");
+            case CONTAINER_ITEM -> tr("werkstatt.cart.container_item");
+            case CONTAINER_FLUID -> tr("werkstatt.cart.container_fluid");
         };
     }
 
