@@ -804,22 +804,24 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
 
         boolean hasItemContainer = hasInstalledItemContainer();
         boolean hasFluidContainer = hasInstalledFluidContainer();
+        boolean hadItem = vehicle.hasHadItemContainer();
+        boolean hadFluid = vehicle.hasHadFluidContainer();
 
         // Item Container card
         drawContainerCard(g, x, y,
                 tr("werkstatt.container.item_container"),
                 tr("werkstatt.container.item_slots", "12"),
-                hasItemContainer);
+                hasItemContainer, hadItem);
         y += 70;
 
         // Fluid Container card
         drawContainerCard(g, x, y,
                 tr("werkstatt.container.fluid_container"),
                 tr("werkstatt.container.fluid_capacity", "100"),
-                hasFluidContainer);
+                hasFluidContainer, hadFluid);
     }
 
-    private void drawContainerCard(GuiGraphics g, int x, int y, String title, String info, boolean installed) {
+    private void drawContainerCard(GuiGraphics g, int x, int y, String title, String info, boolean installed, boolean hadBefore) {
         g.fill(x, y, x + 190, y + 60, 0xFF999999);
         g.fill(x + 1, y + 1, x + 189, y + 59, 0xFFBBBBBB);
 
@@ -830,7 +832,12 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
             g.drawString(font, tr("werkstatt.container.status_installed"), x + 4, y + 26, COL_GREEN, false);
         } else {
             g.drawString(font, tr("werkstatt.container.status_not_installed"), x + 4, y + 26, COL_TEXT_LIGHT, false);
-            g.drawString(font, tr("werkstatt.container.cost_free"), x + 4, y + 38, COL_PRICE, false);
+            if (hadBefore) {
+                double cost = ModConfigHandler.VEHICLE_SERVER.containerReinstallationCost.get();
+                g.drawString(font, tr("werkstatt.gui.price_format_short", cost), x + 4, y + 38, COL_PRICE, false);
+            } else {
+                g.drawString(font, tr("werkstatt.container.cost_free"), x + 4, y + 38, COL_PRICE, false);
+            }
         }
     }
 

@@ -51,6 +51,8 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     private static final EntityDataAccessor<Boolean> IS_INITIALIZED = SynchedEntityData.defineId(EntityGenericVehicle.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> INTERNAL_INV_SIZE = SynchedEntityData.defineId(EntityGenericVehicle.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> EXTERNAL_INV_SIZE = SynchedEntityData.defineId(EntityGenericVehicle.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Boolean> HAS_HAD_ITEM_CONTAINER = SynchedEntityData.defineId(EntityGenericVehicle.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> HAS_HAD_FLUID_CONTAINER = SynchedEntityData.defineId(EntityGenericVehicle.class, EntityDataSerializers.BOOLEAN);
 
     // Components - lazy initialization to avoid issues with Entity constructor
     private PhysicsComponent physicsComponent;
@@ -76,10 +78,8 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     @Nullable
     private BlockPos werkstattPosition;
 
-    // Container installation tracking (for cost system)
+    // Container installation tracking is via synched data (HAS_HAD_ITEM_CONTAINER / HAS_HAD_FLUID_CONTAINER)
     // First installation is free, reinstallation after removal costs money
-    private boolean hasHadItemContainer = false;
-    private boolean hasHadFluidContainer = false;
 
     private boolean isSpawned = true;
 
@@ -134,6 +134,8 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         this.entityData.define(IS_INITIALIZED, false); // Default: not initialized
         this.entityData.define(INTERNAL_INV_SIZE, 0); // Default: 0 internal slots
         this.entityData.define(EXTERNAL_INV_SIZE, 0); // Default: 0 external slots
+        this.entityData.define(HAS_HAD_ITEM_CONTAINER, false);
+        this.entityData.define(HAS_HAD_FLUID_CONTAINER, false);
 
         // Define component data directly (components not yet initialized at this point)
         PhysicsComponent.defineData(this.entityData);
@@ -720,21 +722,21 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         return !isLockedInWerkstatt;
     }
 
-    // Container installation tracking
+    // Container installation tracking (synched so client GUI can show correct cost)
     public boolean hasHadItemContainer() {
-        return hasHadItemContainer;
+        return entityData.get(HAS_HAD_ITEM_CONTAINER);
     }
 
     public void setHasHadItemContainer(boolean hasHad) {
-        this.hasHadItemContainer = hasHad;
+        entityData.set(HAS_HAD_ITEM_CONTAINER, hasHad);
     }
 
     public boolean hasHadFluidContainer() {
-        return hasHadFluidContainer;
+        return entityData.get(HAS_HAD_FLUID_CONTAINER);
     }
 
     public void setHasHadFluidContainer(boolean hasHad) {
-        this.hasHadFluidContainer = hasHad;
+        entityData.set(HAS_HAD_FLUID_CONTAINER, hasHad);
     }
 
     @Override
@@ -816,10 +818,10 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
 
         // Load container installation tracking
         if (compound.contains("HasHadItemContainer")) {
-            this.hasHadItemContainer = compound.getBoolean("HasHadItemContainer");
+            setHasHadItemContainer(compound.getBoolean("HasHadItemContainer"));
         }
         if (compound.contains("HasHadFluidContainer")) {
-            this.hasHadFluidContainer = compound.getBoolean("HasHadFluidContainer");
+            setHasHadFluidContainer(compound.getBoolean("HasHadFluidContainer"));
         }
 
         // Load all component data
@@ -879,8 +881,8 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         compound.putBoolean("IsOnTowingYard", isOnTowingYard());
 
         // Save container installation tracking
-        compound.putBoolean("HasHadItemContainer", this.hasHadItemContainer);
-        compound.putBoolean("HasHadFluidContainer", this.hasHadFluidContainer);
+        compound.putBoolean("HasHadItemContainer", hasHadItemContainer());
+        compound.putBoolean("HasHadFluidContainer", hasHadFluidContainer());
 
         // Save all component data
         physicsComponent.saveAdditionalData(compound);
