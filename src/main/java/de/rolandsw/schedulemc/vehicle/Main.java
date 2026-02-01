@@ -115,6 +115,7 @@ public class Main {
         EventHelper.handleEvent(() -> {
             MinecraftForge.EVENT_BUS.register(this);
             MinecraftForge.EVENT_BUS.register(new BlockEvents());
+            MinecraftForge.EVENT_BUS.register(new VehicleSessionHandler());
 
             SIMPLE_CHANNEL = CommonRegistry.registerChannel(Main.MODID, "default");
             CommonRegistry.registerMessage(SIMPLE_CHANNEL, 0, MessageControlVehicle.class);
