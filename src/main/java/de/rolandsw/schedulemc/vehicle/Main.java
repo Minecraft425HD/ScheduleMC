@@ -88,7 +88,6 @@ public class Main {
         ModBlocks.init(modEventBus);
         ModItems.init(modEventBus);
         ModSounds.init(modEventBus);
-        ModCreativeTabs.init(modEventBus);
 
         MENU_TYPE_REGISTER.register(modEventBus);
         BLOCK_ENTITY_REGISTER.register(modEventBus);
