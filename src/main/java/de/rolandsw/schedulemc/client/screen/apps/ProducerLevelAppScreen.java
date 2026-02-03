@@ -142,43 +142,6 @@ public class ProducerLevelAppScreen extends Screen {
         addRenderableWidget(Button.builder(Component.literal("\u21BB"), button -> {
             refreshData();
         }).bounds(leftPos + WIDTH - 30, topPos + HEIGHT - 30, 20, 20).build());
-
-        // Kategorie-Buttons nur in Overview
-        if (currentView == ViewMode.OVERVIEW) {
-            int btnY = topPos + 130;
-            int btnWidth = 105;
-            int btnHeight = 24;
-            int col = 0;
-            int row = 0;
-
-            for (UnlockCategory category : UnlockCategory.values()) {
-                final UnlockCategory cat = category;
-                int x = leftPos + 15 + (col * (btnWidth + 5));
-                int y = btnY + (row * (btnHeight + 4));
-
-                // Zaehler fuer freigeschaltete Inhalte
-                int unlocked = ClientProducerLevelCache.getUnlockedCountForCategory(cat);
-                int total = ClientProducerLevelCache.getTotalCountForCategory(cat);
-                String countText = total > 0 ? " (" + unlocked + "/" + total + ")" : "";
-
-                addRenderableWidget(Button.builder(
-                        Component.literal(category.getColorCode() + category.getDisplayName() + "\u00A77" + countText),
-                        button -> {
-                            selectedCategory = cat;
-                            currentView = ViewMode.CATEGORY;
-                            scrollOffset = 0;
-                            loadCategoryUnlockables();
-                            initButtons();
-                        }
-                ).bounds(x, y, btnWidth, btnHeight).build());
-
-                col++;
-                if (col >= 2) {
-                    col = 0;
-                    row++;
-                }
-            }
-        }
     }
 
     private void refreshData() {
@@ -225,6 +188,10 @@ public class ProducerLevelAppScreen extends Screen {
     // OVERVIEW VIEW
     // ═══════════════════════════════════════════════════════════
 
+    /** Feste Hoehe des Level-Info-Headers in der Overview */
+    private static final int OVERVIEW_HEADER_HEIGHT = 90;
+    private static final int CATEGORY_ROW_HEIGHT = 30;
+
     private void renderOverviewView(GuiGraphics guiGraphics, int startY, int endY) {
         int level = ClientProducerLevelCache.getCurrentLevel();
         double prog = ClientProducerLevelCache.getProgress();
@@ -233,10 +200,9 @@ public class ProducerLevelAppScreen extends Screen {
         int unlocked = ClientProducerLevelCache.getTotalUnlocked();
         int total = ClientProducerLevelCache.getTotalUnlockables();
 
-        // Level-Info Box
-        guiGraphics.fill(leftPos + 10, startY, leftPos + WIDTH - 10, startY + 85, 0x44228B22);
+        // ── Fester Header: Level-Info ──
+        guiGraphics.fill(leftPos + 10, startY, leftPos + WIDTH - 10, startY + 75, 0x44228B22);
 
-        // Level-Anzeige
         String levelText = "\u00A76\u00A7lLevel " + level + " \u00A77/ " + LevelRequirements.MAX_LEVEL;
         guiGraphics.drawCenteredString(this.font, levelText, leftPos + WIDTH / 2, startY + 5, 0xFFFFFF);
 
@@ -249,39 +215,80 @@ public class ProducerLevelAppScreen extends Screen {
 
         guiGraphics.fill(barX, barY, barX + barWidth, barY + barHeight, 0xFF333333);
         if (filledWidth > 0) {
-            // Farbverlauf basierend auf Level
             int barColor = level >= 25 ? 0xFFFFAA00 : (level >= 15 ? 0xFF00AAFF : 0xFF00AA00);
             guiGraphics.fill(barX, barY, barX + filledWidth, barY + barHeight, barColor);
         }
 
-        // Progress-Text im Balken
         String progressPercent = String.format("%.0f%%", prog * 100);
         guiGraphics.drawCenteredString(this.font, progressPercent, leftPos + WIDTH / 2, barY + 2, 0xFFFFFF);
 
-        // XP-Details
         if (level < LevelRequirements.MAX_LEVEL) {
-            String xpText = "\u00A7eXP: \u00A7f" + totalXP + " \u00A77| \u00A7e" + xpToNext + " \u00A77bis Level " + (level + 1);
+            String xpText = "\u00A7eXP: \u00A7f" + totalXP + " \u00A77| \u00A7e" + xpToNext + " \u00A77bis Lv." + (level + 1);
             guiGraphics.drawCenteredString(this.font, xpText, leftPos + WIDTH / 2, startY + 37, 0xFFFFFF);
         } else {
-            guiGraphics.drawCenteredString(this.font, "\u00A76\u00A7lMAX LEVEL ERREICHT!",
+            guiGraphics.drawCenteredString(this.font, "\u00A76\u00A7lMAX LEVEL!",
                     leftPos + WIDTH / 2, startY + 37, 0xFFAA00);
         }
 
-        // Freischaltungen-Zaehler
         double unlockPercent = total > 0 ? (double) unlocked / total * 100.0 : 0;
         String unlockText = "\u00A7a" + unlocked + "\u00A77/\u00A7a" + total +
                 " \u00A77Freigeschaltet (" + String.format("%.0f%%", unlockPercent) + ")";
         guiGraphics.drawCenteredString(this.font, unlockText, leftPos + WIDTH / 2, startY + 52, 0xFFFFFF);
 
-        // Statistiken
         int soldTotal = ClientProducerLevelCache.getTotalItemsSold();
         double revenue = ClientProducerLevelCache.getTotalRevenue();
         String statsText = "\u00A77" + cachedItemsSoldStr + ": \u00A7f" + soldTotal +
                 " \u00A77| " + cachedRevenueStr + ": \u00A7a" + String.format("%.0f\u20AC", revenue);
-        guiGraphics.drawCenteredString(this.font, statsText, leftPos + WIDTH / 2, startY + 67, 0xFFFFFF);
+        guiGraphics.drawCenteredString(this.font, statsText, leftPos + WIDTH / 2, startY + 62, 0xFFFFFF);
 
-        // Kategorien-Titel
-        guiGraphics.drawString(this.font, cachedCategoriesStr, leftPos + 15, startY + 90, 0xFFAA00);
+        // ── Scrollbare Kategorien-Liste (1 pro Zeile) ──
+        int listStartY = startY + OVERVIEW_HEADER_HEIGHT;
+        guiGraphics.drawString(this.font, cachedCategoriesStr, leftPos + 15, listStartY - 12, 0xFFAA00);
+
+        guiGraphics.enableScissor(leftPos + 5, listStartY, leftPos + WIDTH - 5, endY);
+
+        UnlockCategory[] categories = UnlockCategory.values();
+        int contentHeight = categories.length * CATEGORY_ROW_HEIGHT;
+        int y = listStartY - scrollOffset;
+
+        for (UnlockCategory category : categories) {
+            if (y >= listStartY - CATEGORY_ROW_HEIGHT && y < endY + CATEGORY_ROW_HEIGHT) {
+                int catUnlocked = ClientProducerLevelCache.getUnlockedCountForCategory(category);
+                int catTotal = ClientProducerLevelCache.getTotalCountForCategory(category);
+                boolean allDone = catTotal > 0 && catUnlocked >= catTotal;
+
+                // Hintergrund
+                int boxColor = allDone ? 0x4400AA00 : 0x44333333;
+                guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + CATEGORY_ROW_HEIGHT - 3, boxColor);
+
+                // Kategorie-Name mit Farbe
+                String catName = category.getColorCode() + category.getDisplayName();
+                guiGraphics.drawString(this.font, catName, leftPos + 15, y + 4, 0xFFFFFF);
+
+                // Zaehler rechts
+                String countText = "\u00A7a" + catUnlocked + "\u00A77/\u00A7f" + catTotal;
+                int countWidth = this.font.width(countText);
+                guiGraphics.drawString(this.font, countText, leftPos + WIDTH - 18 - countWidth, y + 4, 0xFFFFFF);
+
+                // Beschreibung
+                guiGraphics.drawString(this.font, "\u00A78" + category.getDescription(),
+                        leftPos + 15, y + 16, 0x888888);
+            }
+            y += CATEGORY_ROW_HEIGHT;
+        }
+
+        guiGraphics.disableScissor();
+
+        // Scrollbar
+        int visibleHeight = endY - listStartY;
+        maxScroll = Math.max(0, contentHeight - visibleHeight);
+        if (maxScroll > 0) {
+            int scrollBarHeight = Math.max(20, visibleHeight * visibleHeight / (visibleHeight + maxScroll));
+            int scrollBarY = listStartY + (scrollOffset * (visibleHeight - scrollBarHeight) / maxScroll);
+            guiGraphics.fill(leftPos + WIDTH - 8, listStartY, leftPos + WIDTH - 5, endY, 0x44FFFFFF);
+            guiGraphics.fill(leftPos + WIDTH - 8, scrollBarY, leftPos + WIDTH - 5,
+                    scrollBarY + scrollBarHeight, 0xAAFFFFFF);
+        }
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -455,8 +462,38 @@ public class ProducerLevelAppScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (button == 0 && currentView == ViewMode.CATEGORY && currentCategoryUnlockables != null) {
-            int listStartY = topPos + 32 + 30;
+        if (button != 0) return super.mouseClicked(mouseX, mouseY, button);
+
+        int contentY = topPos + 32;
+        int contentEndY = topPos + HEIGHT - 40;
+
+        // Klick auf Kategorie-Zeile in OVERVIEW
+        if (currentView == ViewMode.OVERVIEW) {
+            int listStartY = contentY + OVERVIEW_HEADER_HEIGHT;
+            if (mouseX >= leftPos + 10 && mouseX <= leftPos + WIDTH - 10 &&
+                    mouseY >= listStartY && mouseY < contentEndY) {
+                int y = listStartY - scrollOffset;
+                UnlockCategory[] categories = UnlockCategory.values();
+                for (UnlockCategory category : categories) {
+                    int boxTop = y;
+                    int boxBottom = y + CATEGORY_ROW_HEIGHT - 3;
+                    if (mouseY >= boxTop && mouseY <= boxBottom &&
+                            boxTop >= listStartY && boxBottom <= contentEndY) {
+                        selectedCategory = category;
+                        currentView = ViewMode.CATEGORY;
+                        scrollOffset = 0;
+                        loadCategoryUnlockables();
+                        initButtons();
+                        return true;
+                    }
+                    y += CATEGORY_ROW_HEIGHT;
+                }
+            }
+        }
+
+        // Klick auf Unlockable-Zeile in CATEGORY
+        if (currentView == ViewMode.CATEGORY && currentCategoryUnlockables != null) {
+            int listStartY = contentY + 30;
             int y = listStartY - scrollOffset;
             int itemHeight = 35;
 
@@ -466,7 +503,7 @@ public class ProducerLevelAppScreen extends Screen {
 
                 if (mouseX >= leftPos + 10 && mouseX <= leftPos + WIDTH - 10 &&
                         mouseY >= boxTop && mouseY <= boxBottom &&
-                        boxTop >= listStartY - itemHeight && boxBottom <= topPos + HEIGHT - 40) {
+                        boxTop >= listStartY && boxBottom <= contentEndY) {
                     selectedUnlockable = unlock;
                     currentView = ViewMode.DETAIL;
                     scrollOffset = 0;
@@ -481,7 +518,7 @@ public class ProducerLevelAppScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-        if (currentView == ViewMode.CATEGORY && maxScroll > 0) {
+        if ((currentView == ViewMode.OVERVIEW || currentView == ViewMode.CATEGORY) && maxScroll > 0) {
             scrollOffset = (int) Math.max(0, Math.min(maxScroll, scrollOffset - delta * SCROLL_SPEED));
             return true;
         }
