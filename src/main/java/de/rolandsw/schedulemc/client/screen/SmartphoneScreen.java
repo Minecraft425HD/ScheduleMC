@@ -49,10 +49,11 @@ public class SmartphoneScreen extends Screen {
     private static final ResourceLocation APP_ACHIEVEMENT = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/app_achievement.png");
     private static final ResourceLocation APP_TOWING = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/app_towing.png");
     private static final ResourceLocation APP_LEVEL = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/app_level.png");
+    private static final ResourceLocation APP_GANG = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/app_gang.png");
     private static final ResourceLocation CLOSE_ICON = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/close.png");
 
     // PERFORMANCE: Statisches Icon-Array statt Neuallokation pro Frame
-    private static final ResourceLocation[] APP_ICONS = {APP_MAP, APP_DEALER, APP_PRODUCTS, APP_ORDER, APP_CONTACTS, APP_MESSAGES, APP_PLOT, APP_SETTINGS, APP_BANK, APP_CRIME, APP_ACHIEVEMENT, APP_TOWING, APP_LEVEL};
+    private static final ResourceLocation[] APP_ICONS = {APP_MAP, APP_DEALER, APP_PRODUCTS, APP_ORDER, APP_CONTACTS, APP_MESSAGES, APP_PLOT, APP_SETTINGS, APP_BANK, APP_CRIME, APP_ACHIEVEMENT, APP_TOWING, APP_LEVEL, APP_GANG};
 
     private int leftPos;
     private int topPos;
@@ -94,7 +95,8 @@ public class SmartphoneScreen extends Screen {
             Component.translatable("gui.smartphone.app_crime").getString(),
             Component.translatable("gui.smartphone.app_achievements").getString(),
             Component.translatable("gui.smartphone.app_towing").getString(),
-            Component.translatable("gui.smartphone.app_level").getString()
+            Component.translatable("gui.smartphone.app_level").getString(),
+            Component.translatable("gui.smartphone.app_gang").getString()
         };
 
         // OPTIMIERT: Truncated Labels und Initialen einmalig vorberechnen
@@ -244,6 +246,7 @@ public class SmartphoneScreen extends Screen {
                             case 10: openApp(new AchievementAppScreen(this)); return true;
                             case 11: openApp(new TowingServiceAppScreen(this)); return true;
                             case 12: openApp(new ProducerLevelAppScreen(this)); return true;
+                            case 13: openApp(new GangAppScreen(this)); return true;
                         }
                     }
                 }

@@ -155,6 +155,8 @@ public class ScheduleMC {
     private static final int ECONOMY_UPDATE_INTERVAL = 1200; // 1 Minute (1200 Ticks)
     private int tickCounter = 0; // Für periodische Saves der noch nicht migrierten Manager
     private int economyTickCounter = 0; // Für periodische Wirtschafts-Updates
+    private int gangSyncTickCounter = 0; // Für periodische Gang-Sync
+    private static final int GANG_SYNC_INTERVAL = 1200; // 60 Sekunden (1200 Ticks)
     private long lastDayTime = -1; // Für Tageswechsel-Erkennung
 
     // Incremental Save Manager - Optimized Data Persistence
@@ -341,6 +343,7 @@ public class ScheduleMC {
             de.rolandsw.schedulemc.towing.network.TowingNetworkHandler.register();
             de.rolandsw.schedulemc.npc.crime.prison.PrisonManager.init();
             de.rolandsw.schedulemc.territory.network.TerritoryNetworkHandler.register();
+            de.rolandsw.schedulemc.gang.network.GangNetworkHandler.register();
 
             // MapView (LightMap) network packets - must be registered on both client and server
             de.rolandsw.schedulemc.mapview.integration.forge.ForgeEvents.registerNetworkPackets();
@@ -387,6 +390,7 @@ public class ScheduleMC {
             de.rolandsw.schedulemc.territory.MapCommand.register(event.getDispatcher());
             de.rolandsw.schedulemc.npc.crime.BountyCommand.register(event.getDispatcher());
             de.rolandsw.schedulemc.market.MarketCommand.register(event.getDispatcher());
+            de.rolandsw.schedulemc.gang.GangCommand.register(event.getDispatcher());
 
             // Vehicle Mod handles its own commands via event bus (registered in Main.commonSetup)
         }, "onRegisterCommands");
@@ -482,6 +486,10 @@ public class ScheduleMC {
             // Achievement System
             AchievementManager.getInstance(server);
             LOGGER.info("Achievement System initialized");
+
+            // Gang System
+            de.rolandsw.schedulemc.gang.GangManager.getInstance(server);
+            LOGGER.info("Gang System initialized");
 
             // NPC Life System Manager - All managers with JSON persistence
             LOGGER.info("Initializing NPC Life System Managers...");
@@ -624,6 +632,9 @@ public class ScheduleMC {
                 3
             ));
 
+            // Gang System (Priority 3)
+            saveManager.register(de.rolandsw.schedulemc.gang.GangManager.getInstance(server));
+
             // Vehicle Systems (Priority 5)
             saveManager.register(new de.rolandsw.schedulemc.util.SaveableWrapper(
                 "FuelBillManager",
@@ -727,6 +738,17 @@ public class ScheduleMC {
                 }
             }
 
+            // Gang-Sync - Periodisches Broadcast (alle 60 Sekunden)
+            gangSyncTickCounter++;
+            if (gangSyncTickCounter >= GANG_SYNC_INTERVAL) {
+                gangSyncTickCounter = 0;
+                try {
+                    de.rolandsw.schedulemc.gang.network.GangSyncHelper.broadcastAllPlayerInfos(server);
+                } catch (Exception e) {
+                    LOGGER.error("Gang-Sync: Error during periodic broadcast", e);
+                }
+            }
+
             if (tickCounter >= SAVE_INTERVAL) {
                 tickCounter = 0;
                 // ALLE Manager werden jetzt via IncrementalSaveManager gespeichert
@@ -756,6 +778,10 @@ public class ScheduleMC {
                 LOGGER.error("Error saving UDPS data during shutdown", e);
             }
 
+            // Gang System - Reset singleton
+            de.rolandsw.schedulemc.gang.GangManager.resetInstance();
+            LOGGER.info("Gang System saved and reset");
+
             if (saveManager != null) {
                 LOGGER.info("Stopping IncrementalSaveManager and performing final save...");
                 saveManager.saveAll(); // Finaler Save aller registrierten Manager
@@ -781,6 +807,13 @@ public class ScheduleMC {
             if (event.getEntity() instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
                 // Automatische Daily-Belohnung beim Login
                 DailyRewardManager.claimOnLogin(serverPlayer);
+
+                // Gang-Sync: Sende alle Gang-Infos an den neuen Spieler
+                de.rolandsw.schedulemc.gang.network.GangSyncHelper.sendAllPlayerInfosToPlayer(
+                        serverPlayer, serverPlayer.getServer());
+                // Broadcast aktualisierte Infos an alle (neuer Spieler hinzugefuegt)
+                de.rolandsw.schedulemc.gang.network.GangSyncHelper.broadcastAllPlayerInfos(
+                        serverPlayer.getServer());
             }
         }, "onPlayerLoggedIn");
     }

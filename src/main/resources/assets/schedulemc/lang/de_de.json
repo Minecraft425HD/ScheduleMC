@@ -5718,5 +5718,22 @@
 
   "beer.processing.draft": "Vom Fass",
   "beer.processing.bottled": "Abgefüllt (Flasche)",
-  "beer.processing.canned": "Abgefüllt (Dose)"
+  "beer.processing.canned": "Abgefüllt (Dose)",
+
+  "gui.smartphone.app_gang": "Gang",
+  "gui.app.gang.title": "Gang",
+  "gui.app.gang.back": "Zurueck",
+  "gui.app.gang.tab_overview": "Uebersicht",
+  "gui.app.gang.tab_perks": "Perks",
+  "gui.app.gang.tab_missions": "Missionen",
+  "gui.app.gang.no_gang": "Du bist in keiner Gang",
+  "gui.app.gang.no_gang.hint": "Nutze /gang create <name> <tag> um eine Gang zu gruenden",
+  "gui.app.gang.members": "Mitglieder",
+  "gui.app.gang.territory": "Gebiet",
+  "gui.app.gang.perk_points": "Perk-Punkte",
+  "gui.app.gang.balance": "Kasse",
+  "gui.app.gang.reputation": "Reputation",
+  "gui.app.gang.xp": "XP",
+  "gui.app.gang.level": "Level",
+  "gui.app.gang.no_missions": "Keine aktiven Missionen"
 }

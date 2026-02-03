@@ -5746,5 +5746,22 @@
 
   "economy.risk.info": "Risk Premium: %sx",
   "economy.risk.wanted_level": "Wanted Level: %s",
-  "economy.risk.raid_recent": "Recent raid activity detected!"
+  "economy.risk.raid_recent": "Recent raid activity detected!",
+
+  "gui.smartphone.app_gang": "Gang",
+  "gui.app.gang.title": "Gang",
+  "gui.app.gang.back": "Back",
+  "gui.app.gang.tab_overview": "Overview",
+  "gui.app.gang.tab_perks": "Perks",
+  "gui.app.gang.tab_missions": "Missions",
+  "gui.app.gang.no_gang": "You are not in a gang",
+  "gui.app.gang.no_gang.hint": "Use /gang create <name> <tag> to found a gang",
+  "gui.app.gang.members": "Members",
+  "gui.app.gang.territory": "Territory",
+  "gui.app.gang.perk_points": "Perk Points",
+  "gui.app.gang.balance": "Balance",
+  "gui.app.gang.reputation": "Reputation",
+  "gui.app.gang.xp": "XP",
+  "gui.app.gang.level": "Level",
+  "gui.app.gang.no_missions": "No active missions"
 }
