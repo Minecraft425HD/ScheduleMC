@@ -187,7 +187,6 @@ public class VehiclePurchaseHandler {
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
-            parts.add(new ItemStack(ModItems.FENDER_BASIC.get()));
         } else if (spawnVehicleItem == ModItems.SPAWN_VEHICLE_WHITE_SUV.get()) {
             parts.add(new ItemStack(ModItems.OFFROAD_CHASSIS.get()));
             parts.add(new ItemStack(ModItems.NORMAL_MOTOR.get()));
@@ -203,7 +202,6 @@ public class VehiclePurchaseHandler {
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
-            parts.add(new ItemStack(ModItems.FENDER_BASIC.get()));
         } else {
             return null; // Unbekanntes Fahrzeug
         }
@@ -230,7 +228,7 @@ public class VehiclePurchaseHandler {
         vehicle.setPos(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
         vehicle.setYRot(yaw);
         vehicle.yRotO = yaw;
-        vehicle.setFuelAmount(100);
+        vehicle.setFuelAmount(vehicle.getMaxFuel() / 4);
         vehicle.setBatteryLevel(500);
 
         // WICHTIG: Setze Kennzeichen auch auf der Entity (nicht nur auf dem Item)

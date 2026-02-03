@@ -851,7 +851,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
             Container internal = inventoryComponent.getInternalInventory();
             internal.setItem(0, ItemKey.getKeyForVehicle(getUUID()));
             internal.setItem(1, ItemKey.getKeyForVehicle(getUUID()));
-            fuelComponent.setFuelAmount(100);
+            fuelComponent.setFuelAmount(getMaxFuel() / 4);
             batteryComponent.setBatteryLevel(500);
             damageComponent.initTemperature();
         }

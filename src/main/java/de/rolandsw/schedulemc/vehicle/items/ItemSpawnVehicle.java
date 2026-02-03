@@ -86,8 +86,10 @@ public class ItemSpawnVehicle extends Item {
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
         }
 
-        // Add basic fender
-        parts.add(new ItemStack(ModItems.FENDER_BASIC.get()));
+        // Add basic fender (not for trucks and sports cars)
+        if (bodyPart != PartRegistry.TRUCK_CHASSIS && bodyPart != PartRegistry.LUXUS_CHASSIS) {
+            parts.add(new ItemStack(ModItems.FENDER_BASIC.get()));
+        }
 
         // Add 15L tank
         parts.add(new ItemStack(ModItems.TANK_15L.get()));
@@ -108,7 +110,7 @@ public class ItemSpawnVehicle extends Item {
         // Set position and spawn
         vehicle.setPos(spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5);
         vehicle.setYRot(context.getPlayer() != null ? context.getPlayer().getYRot() : 0);
-        vehicle.setFuelAmount(100);
+        vehicle.setFuelAmount(vehicle.getMaxFuel() / 4);
         vehicle.setBatteryLevel(500);
 
         // Set owner and vehicle UUID

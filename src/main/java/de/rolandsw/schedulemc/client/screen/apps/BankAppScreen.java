@@ -102,6 +102,9 @@ public class BankAppScreen extends Screen {
     private List<Transaction> recentTransactions = List.of();
     private double totalIncome = 0.0;
     private double totalExpenses = 0.0;
+
+    /** Timestamp of last known cache update - used to detect server responses */
+    private long lastKnownCacheUpdate = 0;
     /** Pre-formatted transaction strings (statt String.format() + substring() pro Frame pro Transaktion) */
     private String[] cachedTxAmountStrings = new String[0];
     private String[] cachedTxDescStrings = new String[0];
@@ -228,7 +231,7 @@ public class BankAppScreen extends Screen {
     }
 
     /**
-     * Aktualisiert gecachte Daten
+     * Sends a data request to the server and reads current cache
      */
     private void refreshData() {
         Minecraft mc = Minecraft.getInstance();
@@ -237,7 +240,17 @@ public class BankAppScreen extends Screen {
         // Request latest data from server
         NPCNetworkHandler.INSTANCE.sendToServer(new RequestBankDataPacket());
 
-        // Read from client-side cache (will be updated by server response)
+        // Record current cache timestamp so tick() can detect server response
+        lastKnownCacheUpdate = ClientBankDataCache.getLastUpdateTime();
+
+        // Read currently available data (will be refreshed automatically when server responds)
+        updateCachedData();
+    }
+
+    /**
+     * Re-reads data from ClientBankDataCache and updates all cached display strings
+     */
+    private void updateCachedData() {
         balance = ClientBankDataCache.getBalance();
         recentTransactions = ClientBankDataCache.getTransactions();
         totalIncome = ClientBankDataCache.getTotalIncome();
@@ -381,6 +394,17 @@ public class BankAppScreen extends Screen {
         // Felder leeren
         recurringRecipientBox.setValue("");
         recurringAmountBox.setValue("");
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        // Check if the server has sent updated bank data since our last request
+        long cacheTime = ClientBankDataCache.getLastUpdateTime();
+        if (cacheTime > lastKnownCacheUpdate) {
+            lastKnownCacheUpdate = cacheTime;
+            updateCachedData();
+        }
     }
 
     @Override
