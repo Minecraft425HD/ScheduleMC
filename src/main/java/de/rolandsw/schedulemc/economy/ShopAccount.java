@@ -39,6 +39,12 @@ public class ShopAccount {
     @Nullable
     private DailyRevenueRecord todayRecord = null;
 
+    // === SHOP-KONTOSTAND ===
+    // Realer akkumulierter Netto-Umsatz.
+    // Einnahmen (nach MwSt) fließen hier rein, Lieferkosten werden abgezogen,
+    // und die Gewinnausschüttung verteilt den Rest an Aktionäre.
+    private int shopBalance = 0;
+
     // === PAYOUT ===
     private long lastPayoutDay = 0;
     private static final int PAYOUT_INTERVAL_DAYS = 7;
@@ -76,8 +82,9 @@ public class ShopAccount {
     // ═══════════════════════════════════════════════════════════
 
     /**
-     * Registriert Einnahmen (Verkaufserlös)
-     * - 19% MwSt werden automatisch abgeführt
+     * Registriert Einnahmen (Verkaufserlös).
+     * - 19% MwSt werden automatisch an die Staatskasse abgeführt
+     * - Netto-Erlös fließt in den Shop-Kontostand
      */
     public void addRevenue(Level level, int amount, String source) {
         updateDayIfNeeded(level);
@@ -87,25 +94,76 @@ public class ShopAccount {
         int salesTax = (int) (amount * salesTaxRate);
         int netRevenue = amount - salesTax;
 
-        // Registriere nur den Netto-Umsatz
+        // Registriere Netto-Umsatz im Tracking
         todayRecord.addRevenue(netRevenue);
+
+        // Netto-Erlös zum Shop-Kontostand addieren
+        shopBalance += netRevenue;
 
         // Führe MwSt an Staatskasse ab
         if (salesTax > 0 && level.getServer() != null) {
             StateAccount.getInstance(level.getServer()).deposit(salesTax, "MwSt Shop " + shopId);
         }
 
-        LOGGER.debug("Shop {}: +{}€ revenue ({}) - Sales tax: {}€, Net: {}€",
-            shopId, amount, source, salesTax, netRevenue);
+        LOGGER.debug("Shop {}: +{}€ revenue ({}) - Sales tax: {}€, Net: {}€, Balance: {}€",
+            shopId, amount, source, salesTax, netRevenue, shopBalance);
     }
 
     /**
-     * Registriert Ausgaben (Lieferkosten)
+     * Registriert Ausgaben im 7-Tage-Tracking (ohne den Kontostand zu ändern).
+     * Für direkte Kontostand-Abzüge nutze {@link #payDeliveryCost(Level, int, String)}.
      */
     public void addExpense(Level level, int amount, String reason) {
         updateDayIfNeeded(level);
         todayRecord.addExpense(amount);
         LOGGER.debug("Shop {}: -{}€ expenses ({})", shopId, amount, reason);
+    }
+
+    /**
+     * Zahlt Lieferkosten aus dem Shop-Kontostand.
+     * Der Shop bezahlt so viel wie möglich, der Rest muss extern gedeckt werden.
+     *
+     * @param level  Welt-Instanz
+     * @param amount Gesamtbetrag der Lieferkosten
+     * @param reason Beschreibung der Ausgabe
+     * @return Betrag der tatsächlich vom Shop bezahlt wurde (0 bis amount)
+     */
+    public int payDeliveryCost(Level level, int amount, String reason) {
+        updateDayIfNeeded(level);
+
+        int shopPays = Math.min(shopBalance, amount);
+
+        if (shopPays > 0) {
+            shopBalance -= shopPays;
+            todayRecord.addExpense(shopPays);
+            LOGGER.info("Shop {}: -{}€ Lieferkosten ({}) vom Kontostand, Rest-Balance: {}€",
+                shopId, shopPays, reason, shopBalance);
+        }
+
+        return shopPays;
+    }
+
+    /**
+     * Erstattet einen Betrag direkt auf den Shop-Kontostand zurück (ohne MwSt-Abzug).
+     * Wird bei fehlgeschlagenen Lieferungen verwendet.
+     *
+     * @param level  Welt-Instanz
+     * @param amount Erstattungsbetrag
+     * @param reason Beschreibung
+     */
+    public void refundDeliveryCost(Level level, int amount, String reason) {
+        updateDayIfNeeded(level);
+        shopBalance += amount;
+        // Expense-Tracking rückgängig machen
+        todayRecord.addRevenue(amount);
+        LOGGER.info("Shop {}: +{}€ Rückerstattung ({}), Balance: {}€", shopId, amount, reason, shopBalance);
+    }
+
+    /**
+     * Gibt den aktuellen Shop-Kontostand zurück.
+     */
+    public int getShopBalance() {
+        return shopBalance;
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -271,7 +329,9 @@ public class ShopAccount {
     }
 
     /**
-     * Führt Gewinnausschüttung durch
+     * Führt Gewinnausschüttung durch.
+     * Verteilt den aktuellen Shop-Kontostand an die Aktionäre.
+     * Nach der Ausschüttung wird der Kontostand auf 0 gesetzt.
      */
     private void performPayout(Level level) {
         if (shareholders.isEmpty()) {
@@ -279,10 +339,12 @@ public class ShopAccount {
             return;
         }
 
-        int netRevenue = get7DayNetRevenue();
+        // Nutze den realen Shop-Kontostand für die Ausschüttung
+        int distributable = shopBalance;
 
-        if (netRevenue <= 0) {
-            LOGGER.info("Shop {}: No profit (7-day net revenue: {}€)", shopId, netRevenue);
+        if (distributable <= 0) {
+            LOGGER.info("Shop {}: Keine Ausschüttung (Kontostand: {}€, 7-Tage-Netto: {}€)",
+                shopId, shopBalance, get7DayNetRevenue());
 
             // Benachrichtige Aktionäre
             for (ShareHolder holder : shareholders) {
@@ -290,7 +352,7 @@ public class ShopAccount {
                     .getPlayer(holder.getPlayerUUID());
                 if (player != null) {
                     player.sendSystemMessage(
-                        Component.translatable("message.shop.no_profit_full", shopId, netRevenue)
+                        Component.translatable("message.shop.no_profit_full", shopId, distributable)
                             .withStyle(ChatFormatting.RED)
                     );
                 }
@@ -298,17 +360,18 @@ public class ShopAccount {
             return;
         }
 
-        LOGGER.info("Shop {}: Profit distribution! 7-day net revenue: {}€", shopId, netRevenue);
+        LOGGER.info("Shop {}: Gewinnausschüttung! Kontostand: {}€ (7-Tage-Netto: {}€)",
+            shopId, distributable, get7DayNetRevenue());
 
         // Zahle jeden Aktionär basierend auf Shares
         for (ShareHolder holder : shareholders) {
-            int payout = holder.calculatePayout(netRevenue);
+            int payout = holder.calculatePayout(distributable);
 
             ServerPlayer player = level.getServer().getPlayerList()
                 .getPlayer(holder.getPlayerUUID());
 
             if (player != null) {
-                // Geld zum Konto hinzufügen
+                // Geld zum Spieler-Konto hinzufügen
                 EconomyManager.getInstance().deposit(holder.getPlayerUUID(), payout);
 
                 player.sendSystemMessage(
@@ -317,7 +380,7 @@ public class ShopAccount {
                         .append(Component.literal("\n"))
                         .append(Component.translatable("message.shop.your_shares", holder.getSharesOwned(), String.format("%.1f", holder.getOwnershipPercentage())))
                         .append(Component.literal("\n"))
-                        .append(Component.translatable("message.shop.net_revenue_7days", netRevenue))
+                        .append(Component.translatable("message.shop.net_revenue_7days", get7DayNetRevenue()))
                         .append(Component.literal("\n"))
                         .append(Component.translatable("message.shop.payout", payout))
                 );
@@ -328,6 +391,9 @@ public class ShopAccount {
                     holder.getSharesOwned());
             }
         }
+
+        // Kontostand nach Ausschüttung zurücksetzen
+        shopBalance = 0;
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -341,6 +407,7 @@ public class ShopAccount {
     public String getDetailedInfo() {
         StringBuilder sb = new StringBuilder();
         sb.append("§e§l=== Shop: ").append(shopId).append(" ===§r\n");
+        sb.append("§7Kontostand: §6§l").append(shopBalance).append("€§r\n");
         sb.append("§77-Tage-Einnahmen: §a").append(get7DayRevenue()).append("€\n");
         sb.append("§77-Tage-Ausgaben: §c").append(get7DayExpenses()).append("€\n");
         sb.append("§7Nettoumsatz: §6§l").append(get7DayNetRevenue()).append("€\n\n");

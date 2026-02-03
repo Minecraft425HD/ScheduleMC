@@ -193,14 +193,22 @@ public class WarehouseBlockEntity extends BlockEntity {
     }
 
     /**
-     * Führt Warehouse-Lieferung durch
-     * Staatskasse zahlt, Shop-Konto registriert Ausgaben
+     * Führt Warehouse-Lieferung durch.
+     *
+     * UDPS-Integration:
+     * - Lieferkosten werden dynamisch via EconomyController berechnet
+     *   (Wirtschaftszyklus + Inflation berücksichtigt)
+     *
+     * Zahlungsmodell:
+     * 1. Shop-Konto zahlt aus akkumuliertem Umsatz (primär)
+     * 2. Staatskasse übernimmt den Rest als Subvention (Fallback)
+     * 3. Wenn auch Staatskasse leer: Lieferung schlägt fehl
      */
     public void performDelivery(Level level) {
         LOGGER.info("Warehouse @ {}: performDelivery() aufgerufen, shopId={}", worldPosition.toShortString(), shopId);
 
-        // Berechne Lieferkosten
-        int totalCost = 0;
+        // Berechne dynamische Lieferkosten via UDPS
+        double totalCostDynamic = 0.0;
         Map<Item, Integer> toDeliver = new HashMap<>();
         int slotsWithItems = 0;
         int emptySlots = 0;
@@ -219,15 +227,19 @@ public class WarehouseBlockEntity extends BlockEntity {
 
             if (restockAmount > 0 && slot.getAllowedItem() != null) {
                 Item item = slot.getAllowedItem();
-                int pricePerItem = DeliveryPriceConfig.getPrice(item);
-                totalCost += restockAmount * pricePerItem;
+                // UDPS: Dynamischer Lieferpreis statt statischem Preis
+                double dynamicCost = DeliveryPriceConfig.getDynamicPrice(item, restockAmount);
+                totalCostDynamic += dynamicCost;
                 toDeliver.put(item, restockAmount);
-                LOGGER.debug("  Slot needs restock: item={}, amount={}, price={}",
-                    item.getDescription().getString(), restockAmount, pricePerItem);
+                LOGGER.debug("  Slot needs restock: item={}, amount={}, dynamicCost={:.2f}€ (base={}€/stk)",
+                    item.getDescription().getString(), restockAmount, dynamicCost,
+                    DeliveryPriceConfig.getBasePrice(item));
             }
         }
 
-        LOGGER.info("Warehouse @ {}: Analysis - slotsWithItems={}, emptySlots={}, fullSlots={}, toDeliver={}, totalCost={}",
+        int totalCost = (int) Math.ceil(totalCostDynamic);
+
+        LOGGER.info("Warehouse @ {}: Analysis - slots={}, empty={}, full={}, toDeliver={}, dynamicCost={}€",
             worldPosition.toShortString(), slotsWithItems, emptySlots, fullSlots, toDeliver.size(), totalCost);
 
         if (totalCost == 0 || toDeliver.isEmpty()) {
@@ -236,45 +248,70 @@ public class WarehouseBlockEntity extends BlockEntity {
             return; // Nichts zu liefern
         }
 
-        // STAATSKASSE ZAHLT!
-        if (StateAccount.withdraw(totalCost, "Warehouse-Lieferung @ " + worldPosition.toShortString())) {
-            // Liefere Items
-            for (Map.Entry<Item, Integer> entry : toDeliver.entrySet()) {
-                addItem(entry.getKey(), entry.getValue());
+        // === ZAHLUNGSMODELL: Shop zahlt primär, Staat subventioniert Rest ===
+        int shopPaid = 0;
+        int statePaid = 0;
+
+        // Schritt 1: Shop-Konto zahlt aus eigenem Umsatz
+        if (shopId != null) {
+            ShopAccount account = ShopAccountManager.getAccount(shopId);
+            if (account != null) {
+                shopPaid = account.payDeliveryCost(level, totalCost, "Warehouse-Lieferung");
             }
-
-            // Registriere Kosten im Shop-Konto (für 7-Tage-Nettoumsatz)
-            if (shopId != null) {
-                ShopAccount account = ShopAccountManager.getAccount(shopId);
-                if (account != null) {
-                    account.addExpense(level, totalCost, "Warehouse-Lieferung");
-                }
-            }
-
-            // EXPENSE TRACKING: Füge Ausgabe zur Historie hinzu
-            addExpense(level.getGameTime(), totalCost, "Auto-Lieferung (" + toDeliver.size() + " Items)");
-
-            LOGGER.info("Warehouse-Lieferung erfolgreich @ {}: {}€ (Staatskasse), {} Items",
-                worldPosition.toShortString(), totalCost, toDeliver.size());
-
-            // Benachrichtige nahe Spieler
-            final int finalCost = totalCost;
-            level.players().stream()
-                .filter(player -> player.blockPosition().distSqr(worldPosition) < 2500) // 50 Blöcke
-                .forEach(player -> player.sendSystemMessage(
-                    Component.translatable("message.warehouse.delivery_received", finalCost)
-                ));
-        } else {
-            LOGGER.warn("Warehouse-Lieferung fehlgeschlagen @ {}: Staatskasse hat nicht genug Geld (benötigt: {}€)",
-                worldPosition.toShortString(), totalCost);
-
-            // Benachrichtige nahe Spieler über Fehler
-            level.players().stream()
-                .filter(player -> player.blockPosition().distSqr(worldPosition) < 2500)
-                .forEach(player -> player.sendSystemMessage(
-                    Component.translatable("message.warehouse.delivery_failed_treasury")
-                ));
         }
+
+        int remaining = totalCost - shopPaid;
+
+        // Schritt 2: Staatskasse übernimmt den Rest (Subvention)
+        if (remaining > 0) {
+            if (StateAccount.withdraw(remaining, "Warehouse-Subvention @ " + worldPosition.toShortString())) {
+                statePaid = remaining;
+            } else {
+                // Auch Staatskasse kann nicht zahlen - Lieferung schlägt fehl
+                LOGGER.warn("Warehouse-Lieferung fehlgeschlagen @ {}: Shop zahlte {}€, Staatskasse kann {}€ nicht decken",
+                    worldPosition.toShortString(), shopPaid, remaining);
+
+                // Shop-Konto Geld zurückgeben falls teilgezahlt
+                if (shopPaid > 0 && shopId != null) {
+                    ShopAccount account = ShopAccountManager.getAccount(shopId);
+                    if (account != null) {
+                        // Direkte Rückerstattung (ohne erneute MwSt)
+                        account.refundDeliveryCost(level, shopPaid, "Lieferung fehlgeschlagen");
+                    }
+                }
+
+                // Benachrichtige nahe Spieler
+                level.players().stream()
+                    .filter(player -> player.blockPosition().distSqr(worldPosition) < 2500)
+                    .forEach(player -> player.sendSystemMessage(
+                        Component.translatable("message.warehouse.delivery_failed_treasury")
+                    ));
+                return;
+            }
+        }
+
+        // === LIEFERUNG ERFOLGREICH ===
+        for (Map.Entry<Item, Integer> entry : toDeliver.entrySet()) {
+            addItem(entry.getKey(), entry.getValue());
+        }
+
+        // EXPENSE TRACKING: Füge Ausgabe zur Historie hinzu
+        String costBreakdown = String.format("Auto-Lieferung (%d Items) - Shop: %d€, Staat: %d€",
+            toDeliver.size(), shopPaid, statePaid);
+        addExpense(level.getGameTime(), totalCost, costBreakdown);
+
+        LOGGER.info("Warehouse-Lieferung erfolgreich @ {}: {}€ gesamt (Shop: {}€, Staat: {}€), {} Items",
+            worldPosition.toShortString(), totalCost, shopPaid, statePaid, toDeliver.size());
+
+        // Benachrichtige nahe Spieler
+        final int fCost = totalCost;
+        final int fShop = shopPaid;
+        final int fState = statePaid;
+        level.players().stream()
+            .filter(player -> player.blockPosition().distSqr(worldPosition) < 2500)
+            .forEach(player -> player.sendSystemMessage(
+                Component.translatable("message.warehouse.delivery_received", fCost)
+            ));
     }
 
     /**
