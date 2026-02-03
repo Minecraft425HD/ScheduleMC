@@ -44,6 +44,10 @@ public class RequestGangDataPacket {
                 return;
             }
 
+            // Rang des anfragenden Spielers
+            GangRank myRank = gang.getRank(player.getUUID());
+            int myRankPriority = myRank != null ? myRank.getPriority() : 0;
+
             // Mitglieder-Info zusammenstellen
             List<SyncGangDataPacket.GangMemberInfo> memberInfos = new ArrayList<>();
             for (Map.Entry<UUID, GangMemberData> entry : gang.getMembers().entrySet()) {
@@ -69,9 +73,11 @@ public class RequestGangDataPacket {
                 }
 
                 memberInfos.add(new SyncGangDataPacket.GangMemberInfo(
+                        memberUUID,
                         name,
                         memberData.getRank().getDisplayName(),
                         memberData.getRank().getColorCode(),
+                        memberData.getRank().getPriority(),
                         memberData.getContributedXP(),
                         online
                 ));
@@ -97,6 +103,7 @@ public class RequestGangDataPacket {
                     gang.getMaxTerritory(),
                     gang.getAvailablePerkPoints(),
                     gang.getProgress(),
+                    myRankPriority,
                     memberInfos,
                     unlockedPerks,
                     missions

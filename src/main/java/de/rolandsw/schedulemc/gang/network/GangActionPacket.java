@@ -43,6 +43,10 @@ public class GangActionPacket {
         return new GangActionPacket(ActionType.INVITE, "", "", targetUUID);
     }
 
+    public static GangActionPacket inviteByName(String playerName) {
+        return new GangActionPacket(ActionType.INVITE, playerName, "", UUID.randomUUID());
+    }
+
     public static GangActionPacket acceptInvite(UUID gangId) {
         return new GangActionPacket(ActionType.ACCEPT_INVITE, "", "", gangId);
     }
@@ -131,10 +135,16 @@ public class GangActionPacket {
         GangRank rank = gang.getRank(player.getUUID());
         if (rank == null || !rank.canInvite()) { sendError(player, "Keine Berechtigung."); return; }
 
-        ServerPlayer target = player.getServer().getPlayerList().getPlayer(targetUUID);
+        // Name-basierte Einladung (aus App) oder UUID-basiert (aus Command)
+        ServerPlayer target;
+        if (!stringParam.isEmpty()) {
+            target = player.getServer().getPlayerList().getPlayerByName(stringParam);
+        } else {
+            target = player.getServer().getPlayerList().getPlayer(targetUUID);
+        }
         if (target == null) { sendError(player, "Spieler nicht online."); return; }
 
-        if (gang.invite(targetUUID)) {
+        if (gang.invite(target.getUUID())) {
             sendSuccess(player, target.getGameProfile().getName() + " eingeladen.");
             target.sendSystemMessage(Component.literal(
                     "\u00A76Gang-Einladung: \u00A7f" + gang.getName() +

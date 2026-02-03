@@ -30,8 +30,9 @@ public class SyncGangDataPacket {
     private final int maxTerritory;
     private final int availablePerkPoints;
     private final double gangProgress;
+    private final int myRankPriority; // Rang-Prioritaet des anfragenden Spielers (4=Boss, 1=Recruit, 0=kein)
 
-    // Mitglieder-Liste: Name, Rang, beigetragene XP
+    // Mitglieder-Liste: UUID, Name, Rang, beigetragene XP
     private final List<GangMemberInfo> members;
     // Freigeschaltete Perks
     private final Set<String> unlockedPerks;
@@ -42,7 +43,8 @@ public class SyncGangDataPacket {
                               int gangLevel, int gangXP, int gangBalance,
                               int gangColorOrdinal, int memberCount, int maxMembers,
                               int territoryCount, int maxTerritory, int availablePerkPoints,
-                              double gangProgress, List<GangMemberInfo> members,
+                              double gangProgress, int myRankPriority,
+                              List<GangMemberInfo> members,
                               Set<String> unlockedPerks, List<MissionInfo> missions) {
         this.hasGang = hasGang;
         this.gangName = gangName;
@@ -57,6 +59,7 @@ public class SyncGangDataPacket {
         this.maxTerritory = maxTerritory;
         this.availablePerkPoints = availablePerkPoints;
         this.gangProgress = gangProgress;
+        this.myRankPriority = myRankPriority;
         this.members = members;
         this.unlockedPerks = unlockedPerks;
         this.missions = missions;
@@ -64,7 +67,7 @@ public class SyncGangDataPacket {
 
     /** Kein Gang */
     public static SyncGangDataPacket noGang() {
-        return new SyncGangDataPacket(false, "", "", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        return new SyncGangDataPacket(false, "", "", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                 List.of(), Set.of(), List.of());
     }
 
@@ -84,13 +87,16 @@ public class SyncGangDataPacket {
         buf.writeInt(maxTerritory);
         buf.writeInt(availablePerkPoints);
         buf.writeDouble(gangProgress);
+        buf.writeInt(myRankPriority);
 
         // Members
         buf.writeInt(members.size());
         for (GangMemberInfo m : members) {
+            buf.writeUUID(m.uuid);
             buf.writeUtf(m.name, 32);
             buf.writeUtf(m.rank, 16);
             buf.writeUtf(m.rankColor, 8);
+            buf.writeInt(m.rankPriority);
             buf.writeInt(m.contributedXP);
             buf.writeBoolean(m.online);
         }
@@ -129,14 +135,15 @@ public class SyncGangDataPacket {
         int maxTerritory = buf.readInt();
         int perkPoints = buf.readInt();
         double progress = buf.readDouble();
+        int myRank = buf.readInt();
 
         // Members
         int memberCount = Math.min(buf.readInt(), 50);
         List<GangMemberInfo> memberList = new ArrayList<>(memberCount);
         for (int i = 0; i < memberCount; i++) {
             memberList.add(new GangMemberInfo(
-                    buf.readUtf(32), buf.readUtf(16), buf.readUtf(8),
-                    buf.readInt(), buf.readBoolean()));
+                    buf.readUUID(), buf.readUtf(32), buf.readUtf(16), buf.readUtf(8),
+                    buf.readInt(), buf.readInt(), buf.readBoolean()));
         }
 
         // Perks
@@ -156,7 +163,7 @@ public class SyncGangDataPacket {
         }
 
         return new SyncGangDataPacket(true, name, tag, level, xp, balance, colorOrd,
-                members, maxMembers, territory, maxTerritory, perkPoints, progress,
+                members, maxMembers, territory, maxTerritory, perkPoints, progress, myRank,
                 memberList, perks, missionList);
     }
 
@@ -186,6 +193,7 @@ public class SyncGangDataPacket {
     public int getMaxTerritory() { return maxTerritory; }
     public int getAvailablePerkPoints() { return availablePerkPoints; }
     public double getGangProgress() { return gangProgress; }
+    public int getMyRankPriority() { return myRankPriority; }
     public List<GangMemberInfo> getMembers() { return members; }
     public Set<String> getUnlockedPerks() { return unlockedPerks; }
     public List<MissionInfo> getMissions() { return missions; }
@@ -194,11 +202,20 @@ public class SyncGangDataPacket {
         return unlockedPerks.contains(perk.name());
     }
 
+    /** Prueft ob der Spieler Invite-Berechtigung hat (Boss/Underboss) */
+    public boolean canInvite() { return myRankPriority >= 3; }
+    /** Prueft ob der Spieler Kick-Berechtigung hat (Boss/Underboss) */
+    public boolean canKick() { return myRankPriority >= 3; }
+    /** Prueft ob der Spieler die Gang aufloesen kann (nur Boss) */
+    public boolean canDisband() { return myRankPriority >= 4; }
+    /** Prueft ob der Spieler Perks verwalten kann (nur Boss) */
+    public boolean canManagePerks() { return myRankPriority >= 4; }
+
     /**
      * Mitglieder-Info fuer die Client-Anzeige
      */
-    public record GangMemberInfo(String name, String rank, String rankColor,
-                                  int contributedXP, boolean online) {}
+    public record GangMemberInfo(UUID uuid, String name, String rank, String rankColor,
+                                  int rankPriority, int contributedXP, boolean online) {}
 
     /**
      * Missions-Info fuer die Client-Anzeige
