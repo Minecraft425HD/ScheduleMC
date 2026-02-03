@@ -153,7 +153,10 @@ public class ScheduleMC {
     public static final String MOD_ID = "schedulemc";
     public static final Logger LOGGER = LogUtils.getLogger();
     private static final int SAVE_INTERVAL = 6000; // 5 Minuten (6000 Ticks)
+    private static final int ECONOMY_UPDATE_INTERVAL = 1200; // 1 Minute (1200 Ticks)
     private int tickCounter = 0; // Für periodische Saves der noch nicht migrierten Manager
+    private int economyTickCounter = 0; // Für periodische Wirtschafts-Updates
+    private long lastDayTime = -1; // Für Tageswechsel-Erkennung
 
     // Incremental Save Manager - Optimized Data Persistence
     private IncrementalSaveManager saveManager;
@@ -470,6 +473,12 @@ public class ScheduleMC {
             CreditLoanManager.getInstance(server);
             LOGGER.info("Advanced Economy Systems initialized (Transaction History, Interest, Loans, Taxes, Savings, Overdraft, Recurring Payments, Credit Score)");
 
+            // UDPS - Unified Dynamic Pricing System
+            de.rolandsw.schedulemc.economy.EconomyController.getInstance().onServerStart();
+            de.rolandsw.schedulemc.level.ProducerLevel.getInstance().setServer(server);
+            de.rolandsw.schedulemc.level.ProducerLevel.getInstance().loadData();
+            LOGGER.info("UDPS (Unified Dynamic Pricing System) and ProducerLevel initialized");
+
             // Achievement System
             AchievementManager.getInstance(server);
             LOGGER.info("Achievement System initialized");
@@ -693,6 +702,29 @@ public class ScheduleMC {
                 // Bank Systems
                 de.rolandsw.schedulemc.npc.bank.StockMarketData.getInstance(server).tick(dayTime);
                 de.rolandsw.schedulemc.npc.bank.TransferLimitTracker.getInstance(server).tick(dayTime);
+
+                // UDPS - Tageswechsel-Erkennung (24000 Ticks = 1 Minecraft-Tag)
+                long currentDay = dayTime / 24000L;
+                if (lastDayTime >= 0 && currentDay != lastDayTime / 24000L) {
+                    try {
+                        de.rolandsw.schedulemc.economy.EconomyController.getInstance().onNewDay();
+                        LOGGER.debug("UDPS: New economy day triggered (day {})", currentDay);
+                    } catch (Exception e) {
+                        LOGGER.error("UDPS: Error during onNewDay", e);
+                    }
+                }
+                lastDayTime = dayTime;
+            }
+
+            // UDPS - Periodisches Wirtschafts-Update (alle 60 Sekunden)
+            economyTickCounter++;
+            if (economyTickCounter >= ECONOMY_UPDATE_INTERVAL) {
+                economyTickCounter = 0;
+                try {
+                    de.rolandsw.schedulemc.economy.EconomyController.getInstance().periodicUpdate();
+                } catch (Exception e) {
+                    LOGGER.error("UDPS: Error during periodicUpdate", e);
+                }
             }
 
             if (tickCounter >= SAVE_INTERVAL) {
@@ -715,6 +747,15 @@ public class ScheduleMC {
             // ═══════════════════════════════════════════════════════════
             // INCREMENTAL SAVE MANAGER - Final Save & Shutdown
             // ═══════════════════════════════════════════════════════════
+            // UDPS - Save economy data before shutdown
+            try {
+                de.rolandsw.schedulemc.economy.EconomyController.getInstance().onServerShutdown();
+                de.rolandsw.schedulemc.level.ProducerLevel.getInstance().saveData();
+                LOGGER.info("UDPS and ProducerLevel data saved");
+            } catch (Exception e) {
+                LOGGER.error("Error saving UDPS data during shutdown", e);
+            }
+
             if (saveManager != null) {
                 LOGGER.info("Stopping IncrementalSaveManager and performing final save...");
                 saveManager.saveAll(); // Finaler Save aller registrierten Manager

@@ -45,7 +45,11 @@ public enum XPSource {
     // ═══════════════════════════════════════════════════════════
     DAILY_LOGIN("Tägliches Login", 5, false),
     COMPLETE_ACHIEVEMENT("Achievement abgeschlossen", 25, false),
-    SURVIVE_RAID("Razzia überlebt", 50, true);
+    SURVIVE_RAID("Razzia überlebt", 50, true),
+
+    // Generische Quellen (Fallback wenn spezifische Quelle nicht bekannt)
+    SELL_ILLEGAL("Illegalen Artikel verkauft", 10, true),
+    SELL_LEGAL("Legalen Artikel verkauft", 4, false);
 
     private final String displayName;
     private final int baseXP;

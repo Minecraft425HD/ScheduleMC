@@ -1,6 +1,8 @@
 package de.rolandsw.schedulemc.economy;
 
 import com.mojang.logging.LogUtils;
+import de.rolandsw.schedulemc.level.ProducerLevel;
+import de.rolandsw.schedulemc.level.XPSource;
 import de.rolandsw.schedulemc.market.MarketData;
 import de.rolandsw.schedulemc.production.core.ProductionQuality;
 import de.rolandsw.schedulemc.production.core.ProductionType;
@@ -134,10 +136,19 @@ public class EconomyController {
             afterTax *= exploitMult;
         }
 
-        // Tracking
+        // Tracking & XP
         if (playerUUID != null) {
             GlobalEconomyTracker.getInstance().onSale(playerUUID, category, amount, afterTax);
             updateSupplyOnSale(productId, amount);
+
+            // ProducerLevel XP vergeben
+            try {
+                XPSource xpSource = category.isIllegal() ? XPSource.SELL_ILLEGAL : XPSource.SELL_LEGAL;
+                ProducerLevel.getInstance().awardSaleXP(playerUUID, xpSource, amount,
+                        qualityMult, afterTax);
+            } catch (Exception e) {
+                LOGGER.debug("Could not award sale XP: {}", e.getMessage());
+            }
         }
 
         LOGGER.debug("Sell price for {}(q={}, amt={}): {:.2f}€ (tax: {:.0f}%)",
@@ -177,6 +188,15 @@ public class EconomyController {
         if (playerUUID != null) {
             GlobalEconomyTracker.getInstance().onSale(playerUUID, category, amount, afterTax);
             updateSupplyOnSale(productId, amount);
+
+            // ProducerLevel XP vergeben
+            try {
+                XPSource xpSource = category.isIllegal() ? XPSource.SELL_ILLEGAL : XPSource.SELL_LEGAL;
+                ProducerLevel.getInstance().awardSaleXP(playerUUID, xpSource, amount,
+                        qualityMultiplier, afterTax);
+            } catch (Exception e) {
+                LOGGER.debug("Could not award sale XP: {}", e.getMessage());
+            }
         }
 
         return afterTax;
