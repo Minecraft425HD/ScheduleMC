@@ -410,7 +410,6 @@ Next: Step 7 - Advanced Features
 **Objectives:**
 - Explore smartphone system
 - Learn about vehicles
-- Understand shop investment
 - Master savings accounts
 - Complete tutorial achievement
 
@@ -442,11 +441,7 @@ Next: Step 7 - Advanced Features
    Command: /savings create 1000
    Learn: 5% weekly interest, 4-week lock
 
-4. Check shop investment
-   Command: /shopinvest list
-   Info: Buy shares, earn weekly dividends
-
-5. Review all systems
+4. Review all systems
    Summary of learned mechanics
 ```
 
@@ -488,9 +483,8 @@ You're ready for the full ScheduleMC experience!
 Recommended Next Steps:
 1. Build on your plot
 2. Expand production
-3. Invest in shops (/shopinvest)
-4. Join server economy
-5. Help other new players!
+3. Join server economy
+4. Help other new players!
 
 Use /tutorial to review anytime.
 ```

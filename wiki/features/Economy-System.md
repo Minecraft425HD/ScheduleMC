@@ -2,7 +2,7 @@
 
 <div align="center">
 
-**Complete Banking, Loans, Savings & Investment System**
+**Complete Banking, Loans, Savings & Payment System**
 
 Thread-safe transaction processing with automatic backup
 
@@ -20,19 +20,18 @@ Thread-safe transaction processing with automatic backup
 4. [Loan System](#loan-system)
 5. [Savings Accounts](#savings-accounts)
 6. [Daily Rewards](#daily-rewards)
-7. [Shop Investment](#shop-investment)
-8. [Recurring Payments](#recurring-payments)
-9. [State Treasury](#state-treasury)
-10. [Transaction System](#transaction-system)
-11. [Overdraft System](#overdraft-system-dispo)
-12. [Best Practices](#best-practices)
-13. [Troubleshooting](#troubleshooting)
+7. [Recurring Payments](#recurring-payments)
+8. [State Treasury](#state-treasury)
+9. [Transaction System](#transaction-system)
+10. [Overdraft System](#overdraft-system-dispo)
+11. [Best Practices](#best-practices)
+12. [Troubleshooting](#troubleshooting)
 
 ---
 
 ## Overview
 
-The Economy System is the financial backbone of ScheduleMC, providing a complete banking infrastructure with loans, savings, investments, and automated payment processing.
+The Economy System is the financial backbone of ScheduleMC, providing a complete banking infrastructure with loans, savings, and automated payment processing.
 
 ### Key Features
 
@@ -40,7 +39,6 @@ The Economy System is the financial backbone of ScheduleMC, providing a complete
 ✅ **3-Tier Loan System** - SMALL (5K), MEDIUM (25K), LARGE (100K)
 ✅ **Savings Accounts** - 5% weekly interest, 4-week lock
 ✅ **Daily Rewards** - Up to 340€/day with streak bonuses
-✅ **Shop Investment** - Buy shares, earn weekly dividends
 ✅ **Recurring Payments** - Automated standing orders
 ✅ **Transaction History** - Full audit trail (1000 transactions/player)
 ✅ **Overdraft Protection** - Up to -5,000€ credit line
@@ -56,7 +54,6 @@ EconomyManager (Singleton)
 ├── SavingsAccountManager (5% weekly interest)
 ├── RecurringPaymentManager (Autopay system)
 ├── DailyRewardManager (Streak bonuses)
-├── ShopInvestmentManager (Dividend system)
 └── StateAccount (Government treasury)
 ```
 
@@ -148,9 +145,6 @@ Transaction History (Last 10):
 
 4. -10€ - Transfer Fee - 2024-01-15 12:15
    Balance after: 8,430€
-
-5. +500€ - Shop Dividend (Electronics) - 2024-01-14 08:00
-   Balance after: 8,930€
 ```
 
 ---
@@ -774,184 +768,6 @@ Next Claim Available: 05:32:18
 
 ---
 
-## Shop Investment
-
-### Share System
-
-**Configuration:**
-- **Total Shares per Shop:** 100
-- **Share Price:** 1,000€ each
-- **Max Shareholders:** 2 players
-- **Max Purchase:** 99 shares (must leave room for 2nd shareholder)
-- **Sell Penalty:** 25% (receive 75% back)
-
----
-
-### Buying Shares
-
-```bash
-/shopinvest buy <shopId> <shares>
-```
-
-**Example:**
-```bash
-/shopinvest buy Electronics 50
-```
-
-**Cost:**
-```
-Shares: 50
-Price per Share: 1,000€
-Total Cost: 50,000€
-
-Your Ownership: 50% (50/100 shares)
-```
-
-**Result:**
-```
-✓ Share Purchase Successful!
-
-Shop: Electronics
-Shares Purchased: 50 (50%)
-Total Investment: 50,000€
-
-Expected Weekly Dividend: Based on shop revenue
-(Check with /shopinvest info Electronics)
-```
-
----
-
-### Dividend System
-
-**7-Day Revenue Tracking:**
-- Shops track revenue for rolling 7-day period
-- Automatic tax deduction (19% MwSt)
-- Weekly dividend payout
-
-**Calculation:**
-```
-7-Day Gross Revenue: 100,000€
-Sales Tax (19%): -19,000€
-Net Revenue: 81,000€
-
-Your Shares: 50 (50%)
-Your Dividend: 81,000 × 0.50 = 40,500€
-```
-
----
-
-### Dividend Examples
-
-#### Example 1: High-Revenue Shop
-```
-Shop: Electronics Store
-7-Day Gross: 100,000€
-Sales Tax (19%): -19,000€
-Net Revenue: 81,000€
-
-Shareholder A (60 shares): 81,000 × 0.60 = 48,600€
-Shareholder B (40 shares): 81,000 × 0.40 = 32,400€
-```
-
-#### Example 2: Moderate Shop
-```
-Shop: Corner Market
-7-Day Gross: 20,000€
-Sales Tax (19%): -3,800€
-Net Revenue: 16,200€
-
-Shareholder A (70 shares): 16,200 × 0.70 = 11,340€
-Shareholder B (30 shares): 16,200 × 0.30 = 4,860€
-```
-
----
-
-### ROI Calculation
-
-**Investment Analysis:**
-```
-Initial Investment: 50,000€ (50 shares)
-Weekly Net Revenue: 81,000€
-Weekly Dividend: 40,500€
-
-ROI Metrics:
-- Payback Period: 1.23 weeks
-- Weekly Return: 81% (40,500 / 50,000)
-- Annual Return: 4,212% (if consistent)
-```
-
-**Long-Term Projection:**
-
-| Week | Dividend | Cumulative | ROI |
-|------|----------|------------|-----|
-| 1 | 40,500€ | 40,500€ | 81% |
-| 2 | 40,500€ | 81,000€ | 162% |
-| 4 | 40,500€ | 162,000€ | 324% |
-| 8 | 40,500€ | 324,000€ | 648% |
-| 12 | 40,500€ | 486,000€ | 972% |
-
----
-
-### Selling Shares
-
-```bash
-/shopinvest sell <shopId> <shares>
-```
-
-**Penalty:** 75% refund only
-
-**Example:**
-```bash
-/shopinvest sell Electronics 20
-```
-
-**Calculation:**
-```
-Original Purchase: 20 shares × 1,000€ = 20,000€
-Refund Rate: 75%
-You Receive: 20,000 × 0.75 = 15,000€
-Loss: 5,000€ (25%)
-
-Remaining Shares: 30 (30%)
-```
-
-**Why the Penalty?**
-- Prevents market manipulation
-- Encourages long-term investment
-- 25% stays with shop (becomes available shares)
-
----
-
-### Shop Investment Commands
-
-```bash
-/shopinvest list                    # List all shops
-/shopinvest info <shopId>          # Shop details
-/shopinvest buy <shopId> <shares>  # Buy shares
-/shopinvest sell <shopId> <shares> # Sell shares (75% refund)
-/shopinvest myshares               # Your portfolio
-```
-
-**Example Output:**
-```
-═══ Shop Info: Electronics ═══
-
-Available Shares: 40 / 100
-Share Price: 1,000€
-
-7-Day Net Revenue: 81,000€
-Tax Paid (19%): 19,000€
-
-Shareholders:
-- PlayerA: 60 shares (60%)
-  Investment: 60,000€
-  Weekly Dividend: 48,600€
-
-Available for Purchase: 40 shares (40,000€)
-```
-
----
-
 ## Recurring Payments
 
 ### Autopay System
@@ -1224,15 +1040,14 @@ Remaining: 275,600€
 
 ### Transaction Types
 
-**40 Transaction Types Tracked:**
+**Transaction Types Tracked:**
 
 | Category | Types |
 |----------|-------|
 | **Transfers** | TRANSFER, TRANSFER_FEE |
 | **ATM** | ATM_DEPOSIT, ATM_WITHDRAW, ATM_FEE |
-| **Purchases** | NPC_PURCHASE, VEHICLE_PURCHASE, SHOP_PAYOUT |
+| **Purchases** | NPC_PURCHASE, VEHICLE_PURCHASE |
 | **Admin** | ADMIN_SET, ADMIN_GIVE, ADMIN_TAKE |
-| **Investments** | SHOP_INVESTMENT, SHOP_DIVESTMENT |
 | **Taxes** | TAX_INCOME, TAX_SALES, TAX_PROPERTY |
 | **Interest** | INTEREST, INTEREST_SAVINGS |
 | **Loans** | LOAN_DISBURSEMENT, LOAN_REPAYMENT, LOAN_INTEREST |
@@ -1397,12 +1212,13 @@ Maintain Streak: 30-day streak = 340€/day
 Annual Value: 124,100€ (if daily for year)
 ```
 
-#### 4. Diversify Investments
+#### 4. Diversify Income
 ```
-Portfolio Example:
-- 30% Savings (safe, 5% weekly)
-- 50% Shop Investment (high return)
-- 20% Liquid (emergencies)
+Income Strategy Example:
+- Savings accounts (safe, 5% weekly)
+- Production & selling products
+- Plot rentals & apartments
+- Keep liquid funds for emergencies
 ```
 
 ---
@@ -1497,7 +1313,6 @@ Retention: 7 days
    - Work for other players
 
 3. **Emergency Measures:**
-   - Sell shop shares (/shopinvest sell)
    - Withdraw savings (with penalty)
    - Abandon unused plots
 

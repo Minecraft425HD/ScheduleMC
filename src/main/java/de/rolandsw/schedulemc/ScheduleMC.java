@@ -6,7 +6,6 @@ import de.rolandsw.schedulemc.util.ThreadPoolManager;
 import de.rolandsw.schedulemc.commands.*;
 import de.rolandsw.schedulemc.economy.commands.HospitalCommand;
 import de.rolandsw.schedulemc.util.HealthCheckManager;
-import de.rolandsw.schedulemc.economy.commands.ShopInvestCommand;
 import de.rolandsw.schedulemc.economy.commands.StateCommand;
 import de.rolandsw.schedulemc.npc.commands.NPCCommand;
 import de.rolandsw.schedulemc.warehouse.commands.WarehouseCommand;
@@ -379,7 +378,7 @@ public class ScheduleMC {
             NPCCommand.register(event.getDispatcher(), event.getBuildContext());
             de.rolandsw.schedulemc.npc.commands.AdminToolsCommand.register(event.getDispatcher());
             WarehouseCommand.register(event.getDispatcher(), event.getBuildContext());
-            ShopInvestCommand.register(event.getDispatcher());
+
             StateCommand.register(event.getDispatcher());
             UtilityCommand.register(event.getDispatcher());
             HealthCommand.register(event.getDispatcher());

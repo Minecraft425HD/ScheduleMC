@@ -33,8 +33,7 @@ Common questions and answers about ScheduleMC.
 1. **Daily reward:** `/daily` (50€ + streak bonus)
 2. **Sell products:** To NPCs or players
 3. **Rent plots:** Create apartments
-4. **Shop investment:** Buy shares, earn dividends
-5. **Loans:** `/loan apply SMALL/MEDIUM/LARGE`
+4. **Loans:** `/loan apply SMALL/MEDIUM/LARGE`
 
 ### Q: What's the maximum daily reward streak?
 **A:** 30 days maximum = 300€/day (50€ base + 250€ bonus)
@@ -399,7 +398,6 @@ Admin commands: `/warehouse add/remove/setshop`
 **A: Various commands:**
 - `/money history` - Transaction history
 - `/daily streak` - Daily reward streak
-- `/shopinvest myshares` - Your investments
 - `/plot list` - Your plots
 
 ### Q: Is there an achievement system?
@@ -437,7 +435,7 @@ See [API Documentation](API.md) for developers.
 ### Q: What's the best money-making strategy?
 **A: Recommended path:**
 1. **Week 1:** Daily rewards + mushroom production (low risk)
-2. **Week 2:** Cannabis production + shop investment
+2. **Week 2:** Cannabis production + savings accounts
 3. **Week 3:** Expand to poppy/LSD (high profit)
 4. **Week 4+:** Multiple production chains + rental income
 

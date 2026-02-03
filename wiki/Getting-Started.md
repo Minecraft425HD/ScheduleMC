@@ -179,7 +179,6 @@ When you first join a ScheduleMC server:
 **Day 4-7:**
 - [x] Expand plot or buy second plot
 - [x] Try different production (cannabis, etc.)
-- [x] Invest in NPC shop: `/shopinvest buy shopId 10`
 - [x] Build up 50,000€ savings
 
 ---
@@ -428,24 +427,6 @@ Edit `config/schedulemc-common.toml`:
 → Pays back full amount
 ```
 
-#### ...Invest in a Shop?
-
-```bash
-# List shops
-/shopinvest list
-
-# Check shop details
-/shopinvest info shopId
-
-# Buy shares
-/shopinvest buy shopId 25
-→ Buy 25% (25,000€)
-
-# Check investments
-/shopinvest myshares
-→ Weekly profit payouts!
-```
-
 #### ...Start Cannabis Production?
 
 ```bash
@@ -476,7 +457,6 @@ Edit `config/schedulemc-common.toml`:
 ### Money Making
 
 💰 **Daily Login**: Never miss `/daily` - 30-day streak = 300€/day
-💰 **Shop Investment**: Buy shop shares for passive income
 💰 **Plot Rental**: Create apartments for recurring revenue
 💰 **Quality Matters**: Golden pots + quality boosters = legendary products
 💰 **Market Timing**: Check `/market prices` for best selling times

@@ -421,7 +421,6 @@ Dried Mushrooms (final product)
 - **Batch Processing:** Use bigger machines
 - **Parallel Production:** Run multiple chains
 - **Warehouses:** Auto-sell via NPC shops
-- **Investments:** Buy shop shares for passive income
 
 ### Safety
 - **Police:** High production = higher wanted risk
