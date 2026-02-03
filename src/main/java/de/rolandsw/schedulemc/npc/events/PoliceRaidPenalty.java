@@ -1,7 +1,9 @@
 package de.rolandsw.schedulemc.npc.events;
 
 import de.rolandsw.schedulemc.config.ModConfigHandler;
+import de.rolandsw.schedulemc.economy.EconomyController;
 import de.rolandsw.schedulemc.economy.EconomyManager;
+import de.rolandsw.schedulemc.economy.RiskPremium;
 import de.rolandsw.schedulemc.economy.items.CashItem;
 import de.rolandsw.schedulemc.npc.crime.CrimeManager;
 import com.mojang.logging.LogUtils;
@@ -116,6 +118,28 @@ public class PoliceRaidPenalty {
             LOGGER.warn("[RAID] Player {} cannot pay fine - jail time doubled",
                 player.getName().getString());
         }
+
+        // ═══════════════════════════════════════════════════════════
+        // UDPS INTEGRATION: Notify RiskPremium and EconomyController
+        // Raids increase risk premiums → illegal goods become more expensive
+        // ═══════════════════════════════════════════════════════════
+
+        // Determine raid reason based on what was found
+        if (scanResult.illegalPlantCount > 0) {
+            RiskPremium.onRaidOccurred("ILLEGAL_PLANTS");
+        } else if (scanResult.illegalItemCount > 0) {
+            RiskPremium.onRaidOccurred("MACHINE_CONFISCATION");
+        } else {
+            RiskPremium.onRaidOccurred("CONTRABAND_FOUND");
+        }
+
+        // Update global wanted level on EconomyController
+        // Uses the player's new wanted level after the raid to influence pricing
+        int newWantedLevel = CrimeManager.getWantedLevel(player.getUUID());
+        EconomyController.getInstance().setGlobalWantedLevel(newWantedLevel);
+
+        LOGGER.info("[RAID-UDPS] Risk premium notified, global wanted level set to {}",
+            newWantedLevel);
     }
 
     /**

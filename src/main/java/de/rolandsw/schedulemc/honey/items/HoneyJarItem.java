@@ -4,6 +4,7 @@ import de.rolandsw.schedulemc.honey.HoneyAgeLevel;
 import de.rolandsw.schedulemc.honey.HoneyProcessingMethod;
 import de.rolandsw.schedulemc.honey.HoneyQuality;
 import de.rolandsw.schedulemc.honey.HoneyType;
+import de.rolandsw.schedulemc.economy.EconomyController;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
@@ -173,13 +174,20 @@ public class HoneyJarItem extends Item {
         HoneyProcessingMethod method = getProcessingMethod(stack);
         double weight = getWeightKg(stack);
 
-        double basePrice = type.getBasePricePerKg();
-        double totalPrice = basePrice * weight;
-        totalPrice *= quality.getPriceMultiplier();
-        totalPrice *= ageLevel.getPriceMultiplier();
-        totalPrice *= method.getPriceMultiplier();
-
-        return totalPrice;
+        try {
+            // Dynamischer Preis: EconomyController-Basis + produktspezifische Multiplikatoren
+            double dynamicBase = EconomyController.getInstance().getSellPrice(
+                    type.getProductId(), quality.getPriceMultiplier(), 1, null);
+            return dynamicBase * weight * ageLevel.getPriceMultiplier() * method.getPriceMultiplier();
+        } catch (Exception e) {
+            // Fallback auf alte Formel
+            double basePrice = type.getBasePricePerKg();
+            double totalPrice = basePrice * weight;
+            totalPrice *= quality.getPriceMultiplier();
+            totalPrice *= ageLevel.getPriceMultiplier();
+            totalPrice *= method.getPriceMultiplier();
+            return totalPrice;
+        }
     }
 
     @Override

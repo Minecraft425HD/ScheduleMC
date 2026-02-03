@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.honey;
 
 import de.rolandsw.schedulemc.production.core.ProductionType;
 import de.rolandsw.schedulemc.production.core.ProductionQuality;
+import de.rolandsw.schedulemc.economy.ItemCategory;
 
 /**
  * Honigtypen mit verschiedenen Eigenschaften
@@ -54,6 +55,16 @@ public enum HoneyType implements ProductionType {
 
     public double getQualityFactor() {
         return qualityFactor;
+    }
+
+    @Override
+    public String getProductId() {
+        return "HONEY_" + name();
+    }
+
+    @Override
+    public ItemCategory getItemCategory() {
+        return ItemCategory.HONEY;
     }
 
     @Override

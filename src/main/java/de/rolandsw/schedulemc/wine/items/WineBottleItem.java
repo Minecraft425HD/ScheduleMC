@@ -4,6 +4,7 @@ import de.rolandsw.schedulemc.wine.WineAgeLevel;
 import de.rolandsw.schedulemc.wine.WineProcessingMethod;
 import de.rolandsw.schedulemc.wine.WineQuality;
 import de.rolandsw.schedulemc.wine.WineType;
+import de.rolandsw.schedulemc.economy.EconomyController;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
@@ -121,13 +122,20 @@ public class WineBottleItem extends Item {
         CompoundTag tag = stack.getTag();
         double volume = tag != null && tag.contains("VolumeLiters") ? tag.getDouble("VolumeLiters") : 0.75;
 
-        double basePrice = type.getBasePricePerLiter();
-        double totalPrice = basePrice * volume;
-        totalPrice *= quality.getPriceMultiplier();
-        totalPrice *= ageLevel.getPriceMultiplier();
-        totalPrice *= method.getPriceMultiplier();
-
-        return totalPrice;
+        try {
+            // Dynamischer Preis: EconomyController-Basis + produktspezifische Multiplikatoren
+            double dynamicBase = EconomyController.getInstance().getSellPrice(
+                    type.getProductId(), quality.getPriceMultiplier(), 1, null);
+            return dynamicBase * volume * ageLevel.getPriceMultiplier() * method.getPriceMultiplier();
+        } catch (Exception e) {
+            // Fallback auf alte Formel
+            double basePrice = type.getBasePricePerLiter();
+            double totalPrice = basePrice * volume;
+            totalPrice *= quality.getPriceMultiplier();
+            totalPrice *= ageLevel.getPriceMultiplier();
+            totalPrice *= method.getPriceMultiplier();
+            return totalPrice;
+        }
     }
 
     @Override

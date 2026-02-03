@@ -4,6 +4,7 @@ import de.rolandsw.schedulemc.beer.BeerAgeLevel;
 import de.rolandsw.schedulemc.beer.BeerProcessingMethod;
 import de.rolandsw.schedulemc.beer.BeerQuality;
 import de.rolandsw.schedulemc.beer.BeerType;
+import de.rolandsw.schedulemc.economy.EconomyController;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
@@ -144,13 +145,18 @@ public class BeerBottleItem extends Item {
         CompoundTag tag = stack.getTag();
         double volume = tag != null && tag.contains("VolumeLiters") ? tag.getDouble("VolumeLiters") : 0.5;
 
-        double basePrice = type.getBasePricePerLiter();
-        double totalPrice = basePrice * volume;
-        totalPrice *= quality.getPriceMultiplier();
-        totalPrice *= ageLevel.getPriceMultiplier();
-        totalPrice *= method.getPriceMultiplier();
-
-        return totalPrice;
+        try {
+            double dynamicBase = EconomyController.getInstance().getSellPrice(
+                    type.getProductId(), quality.getPriceMultiplier(), 1, null);
+            return dynamicBase * volume * ageLevel.getPriceMultiplier() * method.getPriceMultiplier();
+        } catch (Exception e) {
+            double basePrice = type.getBasePricePerLiter();
+            double totalPrice = basePrice * volume;
+            totalPrice *= quality.getPriceMultiplier();
+            totalPrice *= ageLevel.getPriceMultiplier();
+            totalPrice *= method.getPriceMultiplier();
+            return totalPrice;
+        }
     }
 
     /**

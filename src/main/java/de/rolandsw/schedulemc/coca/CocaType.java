@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.coca;
 
+import de.rolandsw.schedulemc.economy.ItemCategory;
 import de.rolandsw.schedulemc.production.core.ProductionType;
 import de.rolandsw.schedulemc.production.core.ProductionQuality;
 import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
@@ -54,6 +55,16 @@ public enum CocaType implements ProductionType {
 
     public String getColoredName() {
         return colorCode + getDisplayName();
+    }
+
+    @Override
+    public String getProductId() {
+        return "COCA_" + name();
+    }
+
+    @Override
+    public ItemCategory getItemCategory() {
+        return ItemCategory.COCAINE;
     }
 
     /**

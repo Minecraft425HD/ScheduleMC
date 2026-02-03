@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.cannabis;
 
+import de.rolandsw.schedulemc.economy.ItemCategory;
 import de.rolandsw.schedulemc.production.core.ProductionType;
 import de.rolandsw.schedulemc.production.core.ProductionQuality;
 import net.minecraft.network.chat.Component;
@@ -46,6 +47,16 @@ public enum CannabisStrain implements ProductionType {
     public int getBaseYield() { return baseYield; }
     public int getFloweringDays() { return floweringDays; }
     public String getRegistryName() { return name().toLowerCase(); }
+
+    @Override
+    public String getProductId() {
+        return "CANNABIS_" + name();
+    }
+
+    @Override
+    public ItemCategory getItemCategory() {
+        return ItemCategory.CANNABIS;
+    }
 
     @Override
     public double getBasePrice() {

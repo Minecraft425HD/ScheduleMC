@@ -132,8 +132,19 @@ public class PurchaseItemPacket {
         // ═══════════════════════════════════════════════════════════
         float priceModifier = merchant.getPersonalPriceModifier();
 
+        // UDPS: Dynamischen Shop-Preis berechnen
+        double dynamicUnitPrice;
+        try {
+            de.rolandsw.schedulemc.economy.ItemCategory shopCategory =
+                    de.rolandsw.schedulemc.economy.ItemCategory.fromMerchantCategory(merchant.getMerchantCategory());
+            dynamicUnitPrice = de.rolandsw.schedulemc.economy.EconomyController.getInstance()
+                    .getDynamicShopPrice(entry.getPrice(), shopCategory, 1);
+        } catch (Exception e) {
+            dynamicUnitPrice = entry.getPrice();
+        }
+
         // SICHERHEIT: Berechne mit long um Overflow zu erkennen
-        long basePriceLong = (long) entry.getPrice() * safeQuantity;
+        long basePriceLong = (long) Math.ceil(dynamicUnitPrice) * safeQuantity;
         long totalPriceLong = (long) (basePriceLong * priceModifier);
         if (totalPriceLong > Integer.MAX_VALUE) {
             player.sendSystemMessage(Component.translatable("message.shop.total_too_high"));

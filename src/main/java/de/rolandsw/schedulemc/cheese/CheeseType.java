@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.cheese;
 
 import de.rolandsw.schedulemc.production.core.ProductionType;
+import de.rolandsw.schedulemc.economy.ItemCategory;
 
 /**
  * Kasetypen mit verschiedenen Eigenschaften
@@ -50,6 +51,16 @@ public enum CheeseType implements ProductionType {
 
     public double getQualityFactor() {
         return qualityFactor;
+    }
+
+    @Override
+    public String getProductId() {
+        return "CHEESE_" + name();
+    }
+
+    @Override
+    public ItemCategory getItemCategory() {
+        return ItemCategory.CHEESE;
     }
 
     @Override

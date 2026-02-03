@@ -76,8 +76,13 @@ public class RoastedCoffeeBeanItem extends Item {
         CoffeeQuality quality = getQuality(stack);
         CoffeeRoastLevel roastLevel = getRoastLevel(stack);
 
-        double basePrice = type.calculatePrice(quality, stack.getCount());
-        return basePrice * roastLevel.getPriceMultiplier();
+        try {
+            double dynamicBase = type.calculateDynamicPrice(quality, stack.getCount(), null);
+            return dynamicBase * roastLevel.getPriceMultiplier();
+        } catch (Exception e) {
+            double basePrice = type.calculatePrice(quality, stack.getCount());
+            return basePrice * roastLevel.getPriceMultiplier();
+        }
     }
 
     @Override
@@ -92,7 +97,12 @@ public class RoastedCoffeeBeanItem extends Item {
         tooltip.add(Component.translatable(roastLevel.getFlavorProfile()));
         tooltip.add(Component.literal(""));
 
-        double pricePerGram = type.calculatePrice(quality, 1) * roastLevel.getPriceMultiplier();
+        double pricePerGram;
+        try {
+            pricePerGram = type.calculateDynamicPrice(quality, 1, null) * roastLevel.getPriceMultiplier();
+        } catch (Exception e) {
+            pricePerGram = type.calculatePrice(quality, 1) * roastLevel.getPriceMultiplier();
+        }
         tooltip.add(Component.translatable("tooltip.roasted_coffee.sale_price_per", String.format("%.2f", pricePerGram)));
 
         if (stack.getCount() > 1) {

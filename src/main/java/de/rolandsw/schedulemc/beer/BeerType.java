@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.beer;
 
 import de.rolandsw.schedulemc.production.core.ProductionType;
 import de.rolandsw.schedulemc.production.core.ProductionQuality;
+import de.rolandsw.schedulemc.economy.ItemCategory;
 
 /**
  * Biertypen mit verschiedenen Eigenschaften
@@ -61,6 +62,16 @@ public enum BeerType implements ProductionType {
 
     public double getAlcoholPercentage() {
         return alcoholPercentage;
+    }
+
+    @Override
+    public String getProductId() {
+        return "BEER_" + name();
+    }
+
+    @Override
+    public ItemCategory getItemCategory() {
+        return ItemCategory.BEER;
     }
 
     @Override

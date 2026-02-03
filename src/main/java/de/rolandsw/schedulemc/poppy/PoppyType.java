@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.poppy;
 
+import de.rolandsw.schedulemc.economy.ItemCategory;
 import de.rolandsw.schedulemc.production.core.ProductionType;
 import de.rolandsw.schedulemc.production.core.ProductionQuality;
 import net.minecraft.network.chat.Component;
@@ -59,6 +60,16 @@ public enum PoppyType implements ProductionType {
 
     public double getPotencyMultiplier() {
         return potencyMultiplier;
+    }
+
+    @Override
+    public String getProductId() {
+        return "POPPY_" + name();
+    }
+
+    @Override
+    public ItemCategory getItemCategory() {
+        return ItemCategory.HEROIN;
     }
 
     @Override

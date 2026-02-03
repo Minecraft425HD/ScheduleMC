@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.mushroom;
 
 import de.rolandsw.schedulemc.production.core.ProductionType;
 import de.rolandsw.schedulemc.production.core.ProductionQuality;
+import de.rolandsw.schedulemc.economy.ItemCategory;
 
 /**
  * Pilz-Sorten mit unterschiedlichen Eigenschaften
@@ -84,6 +85,16 @@ public enum MushroomType implements ProductionType {
 
     public String getRegistryName() {
         return name().toLowerCase();
+    }
+
+    @Override
+    public String getProductId() {
+        return "MUSHROOM_" + name();
+    }
+
+    @Override
+    public ItemCategory getItemCategory() {
+        return ItemCategory.MUSHROOM;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.wine;
 
 import de.rolandsw.schedulemc.production.core.ProductionType;
+import de.rolandsw.schedulemc.economy.ItemCategory;
 
 /**
  * Weintypen mit verschiedenen Eigenschaften
@@ -90,6 +91,16 @@ public enum WineType implements ProductionType {
         if (diff <= 6) return 1.1; // Gute Bedingungen: +10%
         if (diff <= 10) return 1.0; // Normale Bedingungen
         return 0.8; // Schlechte Bedingungen: -20%
+    }
+
+    @Override
+    public String getProductId() {
+        return "WINE_" + name();
+    }
+
+    @Override
+    public ItemCategory getItemCategory() {
+        return ItemCategory.WINE;
     }
 
     @Override

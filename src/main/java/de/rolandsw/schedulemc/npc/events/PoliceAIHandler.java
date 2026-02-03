@@ -3,6 +3,8 @@ package de.rolandsw.schedulemc.npc.events;
 import de.rolandsw.schedulemc.util.EventHelper;
 import de.rolandsw.schedulemc.util.ConfigCache;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
+import de.rolandsw.schedulemc.economy.EconomyController;
+import de.rolandsw.schedulemc.economy.RiskPremium;
 import de.rolandsw.schedulemc.economy.items.CashItem;
 import de.rolandsw.schedulemc.npc.crime.CrimeManager;
 import de.rolandsw.schedulemc.npc.data.NPCType;
@@ -529,6 +531,19 @@ public class PoliceAIHandler {
         } else {
             // Keine illegalen Items - normale Verfolgung (max 2 Polizisten)
             PoliceBackupSystem.registerPolice(player.getUUID(), police.getUUID(), false);
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // UDPS INTEGRATION: Update EconomyController with global wanted level
+        // Arrests influence the global risk assessment for illegal goods pricing
+        // ═══════════════════════════════════════════════════════════
+        EconomyController.getInstance().setGlobalWantedLevel(wantedLevel);
+
+        // If illegal activity was found during the raid, also notify RiskPremium
+        // (PoliceRaidPenalty.applyPenalties already sends specific reason-based notifications,
+        //  but we also send a general arrest-level notification here for completeness)
+        if (scanResult.hasIllegalActivity()) {
+            LOGGER.info("[ARREST-UDPS] Arrest with illegal activity - global wanted level: {}", wantedLevel);
         }
 
         // Strafe berechnen

@@ -118,6 +118,7 @@ public class DynamicMarketManager {
 
     /**
      * Item wurde an NPC verkauft (erhöht Supply)
+     * Benachrichtigt auch den EconomyController für UDPS-Integration.
      */
     public void onItemSoldToNPC(Item item, int amount) {
         if (!enabled) return;
@@ -127,10 +128,29 @@ public class DynamicMarketManager {
             data.onItemSold(amount);
             dirty = true;
         }
+
+        // UDPS Bridge: Auch EconomyController benachrichtigen
+        try {
+            de.rolandsw.schedulemc.economy.EconomyController ec =
+                    de.rolandsw.schedulemc.economy.EconomyController.getInstance();
+            // Versuche productId aus Registry-Name abzuleiten
+            net.minecraft.resources.ResourceLocation itemId =
+                    net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(item);
+            if (itemId != null) {
+                String productId = itemId.getPath().toUpperCase().replace("schedulemc:", "");
+                MarketData ecMarketData = ec.getMarketData(productId);
+                if (ecMarketData != null) {
+                    ecMarketData.onItemSold(amount);
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.debug("Could not bridge sale to EconomyController: {}", e.getMessage());
+        }
     }
 
     /**
      * Item wurde von NPC gekauft (erhöht Demand)
+     * Benachrichtigt auch den EconomyController für UDPS-Integration.
      */
     public void onItemBoughtFromNPC(Item item, int amount) {
         if (!enabled) return;
@@ -139,6 +159,23 @@ public class DynamicMarketManager {
         if (data != null) {
             data.onItemBought(amount);
             dirty = true;
+        }
+
+        // UDPS Bridge: Auch EconomyController benachrichtigen
+        try {
+            de.rolandsw.schedulemc.economy.EconomyController ec =
+                    de.rolandsw.schedulemc.economy.EconomyController.getInstance();
+            net.minecraft.resources.ResourceLocation itemId =
+                    net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(item);
+            if (itemId != null) {
+                String productId = itemId.getPath().toUpperCase().replace("schedulemc:", "");
+                MarketData ecMarketData = ec.getMarketData(productId);
+                if (ecMarketData != null) {
+                    ecMarketData.onItemBought(amount);
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.debug("Could not bridge purchase to EconomyController: {}", e.getMessage());
         }
     }
 
