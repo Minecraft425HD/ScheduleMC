@@ -3,6 +3,8 @@ package de.rolandsw.schedulemc.level;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.logging.LogUtils;
+import de.rolandsw.schedulemc.level.network.LevelUpNotificationPacket;
+import de.rolandsw.schedulemc.level.network.ProducerLevelNetworkHandler;
 import de.rolandsw.schedulemc.util.GsonHelper;
 import de.rolandsw.schedulemc.util.IncrementalSaveManager;
 import de.rolandsw.schedulemc.util.PersistenceHelper;
@@ -152,6 +154,14 @@ public class ProducerLevel implements IncrementalSaveManager.ISaveable {
                         ));
                     }
                 }
+
+                // Smartphone-Notification senden
+                List<String> unlockDescriptions = new ArrayList<>();
+                for (Unlockable unlock : newUnlocks) {
+                    unlockDescriptions.add(unlock.getDescription());
+                }
+                ProducerLevelNetworkHandler.sendToPlayer(
+                        new LevelUpNotificationPacket(newLevel, unlockDescriptions), player);
             }
         }
     }
