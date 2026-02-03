@@ -54,6 +54,20 @@ public class GangNetworkHandler {
                 .encoder(GangActionPacket::encode)
                 .consumerMainThread(GangActionPacket::handle)
                 .add();
+
+        // Client -> Server: Gang-Liste anfordern
+        INSTANCE.messageBuilder(RequestGangListPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(RequestGangListPacket::decode)
+                .encoder(RequestGangListPacket::encode)
+                .consumerMainThread(RequestGangListPacket::handle)
+                .add();
+
+        // Server -> Client: Gang-Liste (alle Gangs auf dem Server)
+        INSTANCE.messageBuilder(SyncGangListPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(SyncGangListPacket::decode)
+                .encoder(SyncGangListPacket::encode)
+                .consumerMainThread(SyncGangListPacket::handle)
+                .add();
     }
 
     public static <MSG> void sendToServer(MSG message) {

@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.gang.client;
 
 import de.rolandsw.schedulemc.gang.network.PlayerGangInfo;
 import de.rolandsw.schedulemc.gang.network.SyncGangDataPacket;
+import de.rolandsw.schedulemc.gang.network.SyncGangListPacket;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Client-seitiger Cache fuer Gang-Daten.
@@ -27,6 +29,9 @@ public class ClientGangCache {
 
     // Vollstaendige Gang-Daten (fuer Gang-App)
     private static volatile SyncGangDataPacket myGangData = null;
+
+    // Liste aller Gangs auf dem Server (fuer "Andere Gangs" Sektion)
+    private static volatile List<SyncGangListPacket.GangListEntry> gangList = new CopyOnWriteArrayList<>();
 
     private static volatile Runnable updateListener = null;
 
@@ -78,12 +83,28 @@ public class ClientGangCache {
     }
 
     // ═══════════════════════════════════════════════════════════
+    // GANG-LISTE (Andere Gangs)
+    // ═══════════════════════════════════════════════════════════
+
+    public static void updateGangList(List<SyncGangListPacket.GangListEntry> list) {
+        gangList = new CopyOnWriteArrayList<>(list);
+        if (updateListener != null) {
+            updateListener.run();
+        }
+    }
+
+    public static List<SyncGangListPacket.GangListEntry> getGangList() {
+        return gangList;
+    }
+
+    // ═══════════════════════════════════════════════════════════
     // LIFECYCLE
     // ═══════════════════════════════════════════════════════════
 
     public static void clear() {
         playerInfos.clear();
         myGangData = null;
+        gangList = new CopyOnWriteArrayList<>();
         updateListener = null;
     }
 
