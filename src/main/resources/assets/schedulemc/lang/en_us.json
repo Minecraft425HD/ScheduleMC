@@ -5750,5 +5750,33 @@
 
   "beer.processing.draft": "Draft",
   "beer.processing.bottled": "Bottled",
-  "beer.processing.canned": "Canned"
+  "beer.processing.canned": "Canned",
+
+  "economy.cycle.normal": "Normal",
+  "economy.cycle.boom": "Boom",
+  "economy.cycle.ueberhitzung": "Overheating",
+  "economy.cycle.rezession": "Recession",
+  "economy.cycle.depression": "Depression",
+  "economy.cycle.erholung": "Recovery",
+
+  "economy.info.cycle_phase": "Current Phase: %s",
+  "economy.info.cycle_remaining": "Remaining: %s days",
+  "economy.info.cycle_multiplier": "Price Multiplier: %sx",
+  "economy.info.money_supply": "Money Supply: %s",
+  "economy.info.inflation": "Inflation: %s%%",
+  "economy.info.player_level": "Producer Level: %s",
+  "economy.info.daily_earnings": "Daily Earnings: %s",
+
+  "level.up.message": "Level Up! You are now level %s!",
+  "level.up.unlocked": "New unlock: %s",
+  "level.xp.gained": "+%s XP (%s)",
+  "level.progress": "Level %s - %s/%s XP",
+
+  "economy.exploit.daily_limit": "You are approaching the daily sell limit.",
+  "economy.exploit.mass_sell": "Warning: Mass selling detected. Prices reduced.",
+  "economy.exploit.warning_level": "Warning level: %s",
+
+  "economy.risk.info": "Risk Premium: %sx",
+  "economy.risk.wanted_level": "Wanted Level: %s",
+  "economy.risk.raid_recent": "Recent raid activity detected!"
 }

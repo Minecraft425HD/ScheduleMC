@@ -4,6 +4,7 @@ import de.rolandsw.schedulemc.cheese.CheeseAgeLevel;
 import de.rolandsw.schedulemc.cheese.CheeseProcessingMethod;
 import de.rolandsw.schedulemc.cheese.CheeseQuality;
 import de.rolandsw.schedulemc.cheese.CheeseType;
+import de.rolandsw.schedulemc.economy.EconomyController;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
@@ -111,13 +112,20 @@ public class CheeseWedgeItem extends Item {
         // Convert grams to kg for price calculation
         double weightKg = weightGrams / 1000.0;
 
-        double basePrice = type.getBasePricePerKg();
-        double totalPrice = basePrice * weightKg;
-        totalPrice *= quality.getPriceMultiplier();
-        totalPrice *= ageLevel.getPriceMultiplier();
-        totalPrice *= method.getPriceMultiplier();
-
-        return totalPrice;
+        try {
+            // Dynamischer Preis: EconomyController-Basis + produktspezifische Multiplikatoren
+            double dynamicBase = EconomyController.getInstance().getSellPrice(
+                    type.getProductId(), quality.getPriceMultiplier(), 1, null);
+            return dynamicBase * weightKg * ageLevel.getPriceMultiplier() * method.getPriceMultiplier();
+        } catch (Exception e) {
+            // Fallback auf alte Formel
+            double basePrice = type.getBasePricePerKg();
+            double totalPrice = basePrice * weightKg;
+            totalPrice *= quality.getPriceMultiplier();
+            totalPrice *= ageLevel.getPriceMultiplier();
+            totalPrice *= method.getPriceMultiplier();
+            return totalPrice;
+        }
     }
 
     @Override

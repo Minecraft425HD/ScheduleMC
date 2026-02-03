@@ -297,6 +297,51 @@ public class WarehouseBlockEntity extends BlockEntity {
         return slots;
     }
 
+    /**
+     * Returns the number of slots in this warehouse.
+     */
+    public int getSlotCount() {
+        return slots.length;
+    }
+
+    /**
+     * Returns a specific slot by index with bounds checking.
+     * @param index the slot index (0-based)
+     * @return the WarehouseSlot, or null if index is out of bounds
+     */
+    @Nullable
+    public WarehouseSlot getSlot(int index) {
+        if (index < 0 || index >= slots.length) {
+            return null;
+        }
+        return slots[index];
+    }
+
+    /**
+     * Returns all slots as an unmodifiable list.
+     */
+    public List<WarehouseSlot> getAllSlots() {
+        return List.of(slots);
+    }
+
+    /**
+     * Returns the overall fill rate of this warehouse (0.0-1.0).
+     * Calculated as totalStock / totalCapacity across all slots.
+     * Returns 0.0 if the warehouse has no capacity.
+     */
+    public double getFillRate() {
+        int totalStock = 0;
+        int totalCapacity = 0;
+        for (WarehouseSlot slot : slots) {
+            totalStock += slot.getStock();
+            totalCapacity += slot.getMaxCapacity();
+        }
+        if (totalCapacity == 0) {
+            return 0.0;
+        }
+        return (double) totalStock / totalCapacity;
+    }
+
     public int getEmptySlotCount() {
         int count = 0;
         for (WarehouseSlot slot : slots) {

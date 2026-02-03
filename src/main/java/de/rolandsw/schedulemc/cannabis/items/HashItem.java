@@ -64,8 +64,13 @@ public class HashItem extends Item {
         CannabisStrain strain = getStrain(stack);
         CannabisQuality quality = getQuality(stack);
         int weight = getWeight(stack);
-        // Hash ist pro Gramm teurer als Blüten
-        return strain.calculatePrice(quality) * 1.5 * (weight / 10.0);
+        try {
+            // Hash ist pro Gramm teurer als Blüten - 1.5x Multiplikator
+            return strain.calculateDynamicPrice(quality, weight, null) * 1.5;
+        } catch (Exception e) {
+            // Fallback auf alte Formel
+            return strain.calculatePrice(quality) * 1.5 * (weight / 10.0);
+        }
     }
 
     @Override

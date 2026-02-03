@@ -64,8 +64,13 @@ public class CannabisOilItem extends Item {
         CannabisStrain strain = getStrain(stack);
         CannabisQuality quality = getQuality(stack);
         int ml = getMilliliters(stack);
-        // Öl ist am teuersten - 3x Basispreis
-        return strain.calculatePrice(quality) * 3.0 * (ml / 10.0);
+        try {
+            // Öl ist am teuersten - 3x Multiplikator
+            return strain.calculateDynamicPrice(quality, ml, null) * 3.0;
+        } catch (Exception e) {
+            // Fallback auf alte Formel
+            return strain.calculatePrice(quality) * 3.0 * (ml / 10.0);
+        }
     }
 
     @Override

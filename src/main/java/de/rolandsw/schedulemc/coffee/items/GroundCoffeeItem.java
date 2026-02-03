@@ -87,8 +87,13 @@ public class GroundCoffeeItem extends Item {
         CoffeeQuality quality = getQuality(stack);
         CoffeeRoastLevel roastLevel = getRoastLevel(stack);
 
-        double basePrice = type.calculatePrice(quality, stack.getCount());
-        return basePrice * roastLevel.getPriceMultiplier() * 1.2; // +20% für Mahlung
+        try {
+            double dynamicBase = type.calculateDynamicPrice(quality, stack.getCount(), null);
+            return dynamicBase * roastLevel.getPriceMultiplier() * 1.2; // +20% für Mahlung
+        } catch (Exception e) {
+            double basePrice = type.calculatePrice(quality, stack.getCount());
+            return basePrice * roastLevel.getPriceMultiplier() * 1.2; // +20% für Mahlung
+        }
     }
 
     @Override

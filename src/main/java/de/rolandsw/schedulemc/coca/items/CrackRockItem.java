@@ -62,10 +62,14 @@ public class CrackRockItem extends Item {
         CocaType type = getType(stack);
         CrackQuality quality = getQuality(stack);
 
-        // Crack ist pro Gramm günstiger als Kokain, aber schnellerer Umsatz
-        // Preis pro Gramm * Anzahl Items
-        double basePrice = type.getBasePrice() * 0.8;
-        return basePrice * quality.getPriceMultiplier() * stack.getCount() / 10.0;
+        try {
+            // Crack ist günstiger als Kokain: 0.8x Multiplikator
+            return type.calculateDynamicPrice(quality, stack.getCount(), null) * 0.8;
+        } catch (Exception e) {
+            // Fallback auf alte Formel
+            double basePrice = type.getBasePrice() * 0.8;
+            return basePrice * quality.getPriceMultiplier() * stack.getCount() / 10.0;
+        }
     }
 
     @Override

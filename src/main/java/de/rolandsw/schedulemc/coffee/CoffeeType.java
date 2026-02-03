@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.coffee;
 
 import de.rolandsw.schedulemc.production.core.ProductionType;
 import de.rolandsw.schedulemc.production.core.ProductionQuality;
+import de.rolandsw.schedulemc.economy.ItemCategory;
 
 /**
  * Kaffeesorten mit unterschiedlichen Eigenschaften
@@ -66,6 +67,16 @@ public enum CoffeeType implements ProductionType {
 
     public String getColoredName() {
         return colorCode + displayName;
+    }
+
+    @Override
+    public String getProductId() {
+        return "COFFEE_" + name();
+    }
+
+    @Override
+    public ItemCategory getItemCategory() {
+        return ItemCategory.COFFEE;
     }
 
     /**

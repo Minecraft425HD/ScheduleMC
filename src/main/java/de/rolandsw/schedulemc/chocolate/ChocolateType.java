@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.chocolate;
 
 import de.rolandsw.schedulemc.production.core.ProductionType;
 import de.rolandsw.schedulemc.production.core.ProductionQuality;
+import de.rolandsw.schedulemc.economy.ItemCategory;
 
 /**
  * Schokoladentypen mit verschiedenen Eigenschaften
@@ -54,6 +55,16 @@ public enum ChocolateType implements ProductionType {
 
     public double getQualityFactor() {
         return qualityFactor;
+    }
+
+    @Override
+    public String getProductId() {
+        return "CHOCOLATE_" + name();
+    }
+
+    @Override
+    public ItemCategory getItemCategory() {
+        return ItemCategory.CHOCOLATE;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.tobacco;
 
+import de.rolandsw.schedulemc.economy.ItemCategory;
 import de.rolandsw.schedulemc.production.core.ProductionType;
 import de.rolandsw.schedulemc.production.core.ProductionQuality;
 
@@ -55,6 +56,16 @@ public enum TobaccoType implements ProductionType {
     
     public String getColoredName() {
         return colorCode + displayName;
+    }
+
+    @Override
+    public String getProductId() {
+        return "TOBACCO_" + name();
+    }
+
+    @Override
+    public ItemCategory getItemCategory() {
+        return ItemCategory.TOBACCO_PRODUCT;
     }
 
     /**

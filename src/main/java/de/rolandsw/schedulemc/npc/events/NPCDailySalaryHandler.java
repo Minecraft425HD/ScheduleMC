@@ -76,8 +76,16 @@ public class NPCDailySalaryHandler {
 
                     // Prüfen ob heute schon Gehalt ausgezahlt wurde
                     if (npc.getNpcData().getLastDailyIncome() < currentDay) {
-                        // Zufälliger Betrag zwischen 20 und 150
-                        int income = 20 + npc.getRandom().nextInt(131); // 20 + [0-130] = 20-150
+                        // Zufälliger Basis-Betrag zwischen 20 und 150
+                        int baseIncome = 20 + npc.getRandom().nextInt(131); // 20 + [0-130] = 20-150
+                        // UDPS: Gehalt über EconomyController harmonisieren
+                        int income;
+                        try {
+                            income = (int) de.rolandsw.schedulemc.economy.EconomyController.getInstance()
+                                    .getHarmonizedDailyReward(baseIncome);
+                        } catch (Exception e) {
+                            income = baseIncome;
+                        }
                         int oldWallet = npc.getNpcData().getWallet();
 
                         npc.getNpcData().addMoney(income);

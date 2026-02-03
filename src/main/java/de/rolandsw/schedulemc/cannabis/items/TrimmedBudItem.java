@@ -61,8 +61,12 @@ public class TrimmedBudItem extends Item {
     public static double calculatePrice(ItemStack stack) {
         CannabisStrain strain = getStrain(stack);
         CannabisQuality quality = getQuality(stack);
-        // Preis pro Gramm * Anzahl Items
-        return strain.calculatePrice(quality) * stack.getCount() / 10.0;
+        try {
+            return strain.calculateDynamicPrice(quality, stack.getCount(), null);
+        } catch (Exception e) {
+            // Fallback auf alte Formel
+            return strain.calculatePrice(quality) * stack.getCount() / 10.0;
+        }
     }
 
     @Override

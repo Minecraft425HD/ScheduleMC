@@ -245,25 +245,31 @@ public class PackagedDrugItem extends Item {
         ProductionQuality quality = parseQuality(getQuality(stack));
         ProductionType variant = parseVariant(getVariant(stack));
 
-        // Basis-Preis pro Gramm (vom Variant, falls vorhanden)
+        // Dynamische Preisberechnung über EconomyController
+        if (variant != null) {
+            try {
+                return variant.calculateDynamicPrice(quality, weight, null);
+            } catch (Exception e) {
+                // Fallback auf statische Formel
+            }
+        }
+
+        // Statische Fallback-Formel
         double basePricePerGram;
         if (variant != null) {
             basePricePerGram = variant.getBasePrice();
         } else {
-            // Realistische Fallback-Preise basierend auf durchschnittlichen Varianten-Preisen
             basePricePerGram = switch (drugType) {
-                case TOBACCO -> 0.75;   // Durchschnitt Virginia-Havana
-                case COCAINE -> 2.75;   // Durchschnitt Bolivianisch-Kolumbianisch
-                case HEROIN -> 3.50;    // Durchschnitt Indisch-Afghanisch
-                case METH -> 3.00;      // Keine Varianten - fester Preis
-                case MUSHROOM -> 3.50;  // Durchschnitt Mexicana-Azurescens
-                case CANNABIS -> 2.75;  // Durchschnitt Autoflower-Hybrid
+                case TOBACCO -> 0.75;
+                case COCAINE -> 2.75;
+                case HEROIN -> 3.50;
+                case METH -> 3.00;
+                case MUSHROOM -> 3.50;
+                case CANNABIS -> 2.75;
             };
         }
 
-        // Qualitäts-Multiplikator
         double qualityMultiplier = quality.getPriceMultiplier();
-
         return basePricePerGram * weight * qualityMultiplier;
     }
 

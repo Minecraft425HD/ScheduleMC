@@ -167,6 +167,53 @@ public class ModConfigHandler {
         public final ForgeConfigSpec.DoubleValue STOCK_MAX_PRICE_CHANGE_PERCENT;
 
         // ═══════════════════════════════════════════════════════════
+        // DYNAMIC PRICING SYSTEM (UDPS)
+        // ═══════════════════════════════════════════════════════════
+        public final ForgeConfigSpec.BooleanValue DYNAMIC_PRICING_ENABLED;
+        public final ForgeConfigSpec.DoubleValue DYNAMIC_PRICING_SD_FACTOR;
+        public final ForgeConfigSpec.DoubleValue DYNAMIC_PRICING_MIN_MULTIPLIER;
+        public final ForgeConfigSpec.DoubleValue DYNAMIC_PRICING_MAX_MULTIPLIER;
+        public final ForgeConfigSpec.IntValue DYNAMIC_PRICING_UPDATE_INTERVAL_MINUTES;
+        public final ForgeConfigSpec.DoubleValue DYNAMIC_PRICING_SD_DECAY_RATE;
+        public final ForgeConfigSpec.DoubleValue DYNAMIC_PRICING_DAILY_FOOD_COST;
+        public final ForgeConfigSpec.DoubleValue DYNAMIC_PRICING_DAILY_REFERENCE_INCOME;
+
+        // ═══════════════════════════════════════════════════════════
+        // ECONOMIC CYCLE
+        // ═══════════════════════════════════════════════════════════
+        public final ForgeConfigSpec.BooleanValue ECONOMY_CYCLE_ENABLED;
+        public final ForgeConfigSpec.IntValue ECONOMY_CYCLE_MIN_DURATION_DAYS;
+        public final ForgeConfigSpec.IntValue ECONOMY_CYCLE_MAX_DURATION_DAYS;
+        public final ForgeConfigSpec.DoubleValue ECONOMY_CYCLE_EVENT_BASE_CHANCE;
+
+        // ═══════════════════════════════════════════════════════════
+        // PRODUCER LEVEL SYSTEM
+        // ═══════════════════════════════════════════════════════════
+        public final ForgeConfigSpec.BooleanValue LEVEL_SYSTEM_ENABLED;
+        public final ForgeConfigSpec.IntValue LEVEL_MAX;
+        public final ForgeConfigSpec.IntValue LEVEL_BASE_XP;
+        public final ForgeConfigSpec.DoubleValue LEVEL_XP_EXPONENT;
+        public final ForgeConfigSpec.DoubleValue LEVEL_ILLEGAL_XP_MULTIPLIER;
+        public final ForgeConfigSpec.DoubleValue LEVEL_LEGAL_XP_MULTIPLIER;
+
+        // ═══════════════════════════════════════════════════════════
+        // RISK PREMIUM
+        // ═══════════════════════════════════════════════════════════
+        public final ForgeConfigSpec.DoubleValue RISK_BASE_CANNABIS;
+        public final ForgeConfigSpec.DoubleValue RISK_BASE_COCAINE;
+        public final ForgeConfigSpec.DoubleValue RISK_BASE_HEROIN;
+        public final ForgeConfigSpec.DoubleValue RISK_BASE_METH;
+        public final ForgeConfigSpec.DoubleValue RISK_CONFISCATION_MULTIPLIER;
+
+        // ═══════════════════════════════════════════════════════════
+        // ANTI-EXPLOIT
+        // ═══════════════════════════════════════════════════════════
+        public final ForgeConfigSpec.DoubleValue ANTI_EXPLOIT_DAILY_SELL_LIMIT;
+        public final ForgeConfigSpec.IntValue ANTI_EXPLOIT_MASS_SELL_COOLDOWN_SECONDS;
+        public final ForgeConfigSpec.IntValue ANTI_EXPLOIT_MASS_SELL_THRESHOLD;
+        public final ForgeConfigSpec.DoubleValue ANTI_EXPLOIT_MASS_SELL_PENALTY;
+
+        // ═══════════════════════════════════════════════════════════
         // WERKSTATT SYSTEM
         // ═══════════════════════════════════════════════════════════
         public final ForgeConfigSpec.DoubleValue WERKSTATT_BASE_INSPECTION_FEE;
@@ -659,6 +706,148 @@ public class ModConfigHandler {
             STOCK_MAX_PRICE_CHANGE_PERCENT = builder
                     .comment("Maximale Preisänderung pro Tag in Prozent (0.10 = 10%)")
                     .defineInRange("max_price_change_percent", 0.10, 0.01, 0.50);
+
+            builder.pop();
+
+            // ═══════════════════════════════════════════════════════════
+            // DYNAMIC PRICING SYSTEM (UDPS)
+            // ═══════════════════════════════════════════════════════════
+
+            builder.comment("Unified Dynamic Pricing System (UDPS)",
+                            "Harmonisiert alle Preise dynamisch mit Angebot/Nachfrage")
+                    .push("dynamic_pricing");
+
+            DYNAMIC_PRICING_ENABLED = builder
+                    .comment("Dynamisches Preissystem aktivieren")
+                    .define("enabled", true);
+
+            DYNAMIC_PRICING_SD_FACTOR = builder
+                    .comment("Angebot/Nachfrage-Faktor (wie stark S&D Preise beeinflusst, 0.0-1.0)")
+                    .defineInRange("sd_factor", 0.3, 0.0, 1.0);
+
+            DYNAMIC_PRICING_MIN_MULTIPLIER = builder
+                    .comment("Minimaler globaler Preis-Multiplikator")
+                    .defineInRange("min_multiplier", 0.3, 0.1, 1.0);
+
+            DYNAMIC_PRICING_MAX_MULTIPLIER = builder
+                    .comment("Maximaler globaler Preis-Multiplikator")
+                    .defineInRange("max_multiplier", 5.0, 1.0, 20.0);
+
+            DYNAMIC_PRICING_UPDATE_INTERVAL_MINUTES = builder
+                    .comment("Update-Intervall für Preisberechnung in Minuten")
+                    .defineInRange("update_interval_minutes", 5, 1, 30);
+
+            DYNAMIC_PRICING_SD_DECAY_RATE = builder
+                    .comment("Angebot/Nachfrage Decay-Rate pro Update (0.02 = 2%)")
+                    .defineInRange("sd_decay_rate", 0.02, 0.001, 0.1);
+
+            DYNAMIC_PRICING_DAILY_FOOD_COST = builder
+                    .comment("Erwartete tägliche Essenskosten auf Hard-Difficulty")
+                    .defineInRange("daily_food_cost", 20.0, 5.0, 200.0);
+
+            DYNAMIC_PRICING_DAILY_REFERENCE_INCOME = builder
+                    .comment("Referenz-Tageseinkommen für Preiskalibrierung")
+                    .defineInRange("daily_reference_income", 150.0, 50.0, 1000.0);
+
+            builder.pop();
+
+            builder.comment("Economic Cycle Settings",
+                            "6-Phasen Wirtschaftszyklus: Normal -> Boom -> Ueberhitzung -> Rezession -> Depression -> Erholung")
+                    .push("economy_cycle");
+
+            ECONOMY_CYCLE_ENABLED = builder
+                    .comment("Wirtschaftszyklus aktivieren")
+                    .define("enabled", true);
+
+            ECONOMY_CYCLE_MIN_DURATION_DAYS = builder
+                    .comment("Minimale Phasendauer in MC-Tagen")
+                    .defineInRange("min_duration_days", 2, 1, 30);
+
+            ECONOMY_CYCLE_MAX_DURATION_DAYS = builder
+                    .comment("Maximale Phasendauer in MC-Tagen")
+                    .defineInRange("max_duration_days", 10, 2, 60);
+
+            ECONOMY_CYCLE_EVENT_BASE_CHANCE = builder
+                    .comment("Basis-Chance für Wirtschafts-Events pro Tag (0.1 = 10%)")
+                    .defineInRange("event_base_chance", 0.10, 0.0, 1.0);
+
+            builder.pop();
+
+            builder.comment("Producer Level System Settings",
+                            "Spieler-Fortschritt durch Produktion und Verkauf")
+                    .push("level_system");
+
+            LEVEL_SYSTEM_ENABLED = builder
+                    .comment("Level-System aktivieren")
+                    .define("enabled", true);
+
+            LEVEL_MAX = builder
+                    .comment("Maximales Produzenten-Level")
+                    .defineInRange("max_level", 30, 10, 100);
+
+            LEVEL_BASE_XP = builder
+                    .comment("Basis-XP fuer Level 1")
+                    .defineInRange("base_xp", 100, 10, 10000);
+
+            LEVEL_XP_EXPONENT = builder
+                    .comment("Exponent fuer XP-Kurve (hoeher = steilere Kurve)")
+                    .defineInRange("xp_exponent", 1.8, 1.0, 3.0);
+
+            LEVEL_ILLEGAL_XP_MULTIPLIER = builder
+                    .comment("XP-Multiplikator fuer illegale Verkaeufe (hoeher = schnellerer Aufstieg)")
+                    .defineInRange("illegal_xp_multiplier", 1.5, 0.5, 5.0);
+
+            LEVEL_LEGAL_XP_MULTIPLIER = builder
+                    .comment("XP-Multiplikator fuer legale Verkaeufe")
+                    .defineInRange("legal_xp_multiplier", 1.0, 0.5, 5.0);
+
+            builder.pop();
+
+            builder.comment("Risk Premium Settings",
+                            "Risiko-Aufschlaege fuer illegale Produkte")
+                    .push("risk_premium");
+
+            RISK_BASE_CANNABIS = builder
+                    .comment("Basis-Risiko-Multiplikator fuer Cannabis (1.15 = 15% Aufschlag)")
+                    .defineInRange("base_cannabis", 1.15, 1.0, 3.0);
+
+            RISK_BASE_COCAINE = builder
+                    .comment("Basis-Risiko-Multiplikator fuer Kokain")
+                    .defineInRange("base_cocaine", 1.40, 1.0, 3.0);
+
+            RISK_BASE_HEROIN = builder
+                    .comment("Basis-Risiko-Multiplikator fuer Heroin")
+                    .defineInRange("base_heroin", 1.50, 1.0, 3.0);
+
+            RISK_BASE_METH = builder
+                    .comment("Basis-Risiko-Multiplikator fuer Methamphetamin")
+                    .defineInRange("base_meth", 1.45, 1.0, 3.0);
+
+            RISK_CONFISCATION_MULTIPLIER = builder
+                    .comment("Konfiszierungs-Risiko-Aufschlag fuer illegale Maschinen")
+                    .defineInRange("confiscation_multiplier", 1.25, 1.0, 3.0);
+
+            builder.pop();
+
+            builder.comment("Anti-Exploit Settings",
+                            "Schutz gegen Wirtschafts-Exploits")
+                    .push("anti_exploit");
+
+            ANTI_EXPLOIT_DAILY_SELL_LIMIT = builder
+                    .comment("Maximaler Tagesumsatz pro Spieler in Euro (0 = unbegrenzt)")
+                    .defineInRange("daily_sell_limit", 5000.0, 0.0, 1000000.0);
+
+            ANTI_EXPLOIT_MASS_SELL_COOLDOWN_SECONDS = builder
+                    .comment("Cooldown in Sekunden nach Massenverkauf")
+                    .defineInRange("mass_sell_cooldown_seconds", 30, 5, 300);
+
+            ANTI_EXPLOIT_MASS_SELL_THRESHOLD = builder
+                    .comment("Ab wie vielen Items pro Verkauf gilt es als Massenverkauf")
+                    .defineInRange("mass_sell_threshold", 64, 10, 1000);
+
+            ANTI_EXPLOIT_MASS_SELL_PENALTY = builder
+                    .comment("Preisreduzierung bei Massenverkauf (0.8 = 20% weniger)")
+                    .defineInRange("mass_sell_penalty", 0.80, 0.1, 1.0);
 
             builder.pop();
         }

@@ -61,7 +61,11 @@ public class FermentedTobaccoLeafItem extends Item {
     public static double getPrice(ItemStack stack) {
         TobaccoType type = getType(stack);
         TobaccoQuality quality = getQuality(stack);
-        return type.calculatePrice(quality, stack.getCount());
+        try {
+            return type.calculateDynamicPrice(quality, stack.getCount(), null);
+        } catch (Exception e) {
+            return type.calculatePrice(quality, stack.getCount());
+        }
     }
     
     @Override
@@ -73,11 +77,21 @@ public class FermentedTobaccoLeafItem extends Item {
         tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
         tooltip.add(Component.literal(""));
         
-        double pricePerItem = type.calculatePrice(quality, 1);
+        double pricePerItem;
+        try {
+            pricePerItem = type.calculateDynamicPrice(quality, 1, null);
+        } catch (Exception e) {
+            pricePerItem = type.calculatePrice(quality, 1);
+        }
         tooltip.add(Component.translatable("tooltip.fermented_tobacco.sale_price_per", String.format("%.2f", pricePerItem)));
-        
+
         if (stack.getCount() > 1) {
-            double totalPrice = type.calculatePrice(quality, stack.getCount());
+            double totalPrice;
+            try {
+                totalPrice = type.calculateDynamicPrice(quality, stack.getCount(), null);
+            } catch (Exception e) {
+                totalPrice = type.calculatePrice(quality, stack.getCount());
+            }
             tooltip.add(Component.translatable("tooltip.fermented_tobacco.total", String.format("%.2f", totalPrice)));
         }
     }
