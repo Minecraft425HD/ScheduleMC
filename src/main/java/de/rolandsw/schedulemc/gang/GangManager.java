@@ -116,6 +116,14 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
         markDirty();
 
         LOGGER.info("Gang created: '{}' [{}] by {}", name, tag, founderUUID);
+
+        // Sofort Missionen generieren damit sie direkt in der App sichtbar sind
+        de.rolandsw.schedulemc.gang.mission.GangMissionManager mm =
+                de.rolandsw.schedulemc.gang.mission.GangMissionManager.getInstance();
+        if (mm != null) {
+            mm.generateInitialMissions(gangId);
+        }
+
         return gang;
     }
 

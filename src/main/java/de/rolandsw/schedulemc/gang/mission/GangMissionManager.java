@@ -109,6 +109,22 @@ public class GangMissionManager {
         }
     }
 
+    /**
+     * Generiert sofort alle Missionen fuer eine neu gegruendete Gang.
+     * Wird direkt nach Gang-Erstellung aufgerufen.
+     */
+    public void generateInitialMissions(UUID gangId) {
+        gangMissions.computeIfAbsent(gangId, k -> new ArrayList<>());
+        Map<MissionType, Long> resets = lastResets.computeIfAbsent(gangId, k -> new EnumMap<>(MissionType.class));
+
+        long now = System.currentTimeMillis();
+        for (MissionType type : MissionType.values()) {
+            generateMissions(gangId, type);
+            resets.put(type, now);
+        }
+        LOGGER.info("Generated initial missions for new gang {}", gangId);
+    }
+
     private void generateMissions(UUID gangId, MissionType type) {
         List<GangMission> missions = gangMissions.get(gangId);
         if (missions == null) return;
