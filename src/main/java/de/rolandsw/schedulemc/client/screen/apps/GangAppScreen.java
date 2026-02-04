@@ -117,7 +117,8 @@ public class GangAppScreen extends Screen {
     // WIDGET SETUP
     // ═══════════════════════════════════════════════════════════
 
-    private void rebuildWidgets() {
+    @Override
+    protected void rebuildWidgets() {
         clearWidgets();
         createNameInput = null;
         createTagInput = null;
