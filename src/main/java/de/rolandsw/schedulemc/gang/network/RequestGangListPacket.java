@@ -9,16 +9,16 @@ import java.util.*;
 import java.util.function.Supplier;
 
 /**
- * Client fordert die Liste aller Gangs an (fuer "Andere Gangs" Sektion in der App).
+ * Client fordert die Liste aller Gangs an (fuer Rivalen-Seite in der App).
  * Client -> Server
+ *
+ * Alle Gangs werden nach Level sortiert und mit Rang + Bedrohungslevel versehen.
  */
 public class RequestGangListPacket {
 
     public RequestGangListPacket() {}
 
-    public void encode(FriendlyByteBuf buf) {
-        // Leer - keine Parameter noetig
-    }
+    public void encode(FriendlyByteBuf buf) {}
 
     public static RequestGangListPacket decode(FriendlyByteBuf buf) {
         return new RequestGangListPacket();
@@ -35,14 +35,36 @@ public class RequestGangListPacket {
                 return;
             }
 
+            // Alle Gangs nach Level sortieren
+            List<Gang> allGangs = new ArrayList<>(manager.getAllGangs());
+            allGangs.sort((a, b) -> {
+                int cmp = Integer.compare(b.getGangLevel(), a.getGangLevel());
+                if (cmp != 0) return cmp;
+                return Integer.compare(b.getGangXP(), a.getGangXP());
+            });
+
+            // Eigene Gang fuer Bedrohungsberechnung
+            Gang myGang = manager.getPlayerGang(player.getUUID());
+            int myLevel = myGang != null ? myGang.getGangLevel() : 0;
+
+            // Eintraege mit Rang und Bedrohungslevel
             List<SyncGangListPacket.GangListEntry> entries = new ArrayList<>();
-            UUID playerGangId = manager.getPlayerGangId(player.getUUID());
+            int rank = 0;
+            for (Gang gang : allGangs) {
+                rank++;
 
-            for (Gang gang : manager.getAllGangs()) {
-                // Eigene Gang ueberspringen (wird separat angezeigt)
-                if (gang.getGangId().equals(playerGangId)) continue;
-
+                // Eigene Gang wird mitgesendet (fuer Rangposition)
                 GangReputation rep = GangReputation.getForLevel(gang.getGangLevel());
+
+                int threatLevel = 0; // niedrig
+                if (myGang != null && !gang.getGangId().equals(myGang.getGangId())) {
+                    int levelDiff = gang.getGangLevel() - myLevel;
+                    if (levelDiff >= 3 || (levelDiff >= 0 && gang.getMemberCount() > myGang.getMemberCount() + 2)) {
+                        threatLevel = 2; // hoch
+                    } else if (levelDiff >= -2 && levelDiff < 3) {
+                        threatLevel = 1; // mittel
+                    }
+                }
 
                 entries.add(new SyncGangListPacket.GangListEntry(
                         gang.getGangId(),
@@ -53,12 +75,13 @@ public class RequestGangListPacket {
                         gang.getMaxMembers(),
                         gang.getTerritoryCount(),
                         gang.getColor().ordinal(),
-                        rep.getDisplayName()
+                        rep.getDisplayName(),
+                        rank,
+                        0, // rankChange - TODO: persistentes Tracking
+                        threatLevel,
+                        gang.getGangBalance()
                 ));
             }
-
-            // Nach Level absteigend sortieren
-            entries.sort((a, b) -> Integer.compare(b.level(), a.level()));
 
             GangNetworkHandler.sendToPlayer(new SyncGangListPacket(entries), player);
         });

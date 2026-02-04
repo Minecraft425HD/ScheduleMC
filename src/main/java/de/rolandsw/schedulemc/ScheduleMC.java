@@ -489,7 +489,9 @@ public class ScheduleMC {
 
             // Gang System
             de.rolandsw.schedulemc.gang.GangManager.getInstance(server);
-            LOGGER.info("Gang System initialized");
+            java.nio.file.Path configDir = server.getServerDirectory().toPath().resolve("config");
+            de.rolandsw.schedulemc.gang.mission.GangMissionManager.getInstance(configDir);
+            LOGGER.info("Gang System initialized (incl. Mission Manager)");
 
             // NPC Life System Manager - All managers with JSON persistence
             LOGGER.info("Initializing NPC Life System Managers...");
@@ -635,6 +637,16 @@ public class ScheduleMC {
             // Gang System (Priority 3)
             saveManager.register(de.rolandsw.schedulemc.gang.GangManager.getInstance(server));
 
+            // Gang Mission System (Priority 4)
+            saveManager.register(new de.rolandsw.schedulemc.util.SaveableWrapper(
+                "GangMissionManager",
+                () -> {
+                    de.rolandsw.schedulemc.gang.mission.GangMissionManager mmSave = de.rolandsw.schedulemc.gang.mission.GangMissionManager.getInstance();
+                    if (mmSave != null) mmSave.save();
+                },
+                4
+            ));
+
             // Vehicle Systems (Priority 5)
             saveManager.register(new de.rolandsw.schedulemc.util.SaveableWrapper(
                 "FuelBillManager",
@@ -746,6 +758,11 @@ public class ScheduleMC {
                     de.rolandsw.schedulemc.gang.network.GangSyncHelper.broadcastAllPlayerInfos(server);
                     // Wochenbeitraege einziehen (prueft intern ob faellig)
                     de.rolandsw.schedulemc.gang.GangManager.getInstance().collectWeeklyFees(server);
+                    // Gang-Missionen: Reset pruefen, neue generieren, Threshold-Check
+                    de.rolandsw.schedulemc.gang.mission.GangMissionManager mm = de.rolandsw.schedulemc.gang.mission.GangMissionManager.getInstance();
+                    if (mm != null) {
+                        mm.checkAndGenerateMissions(server);
+                    }
                 } catch (Exception e) {
                     LOGGER.error("Gang-Sync: Error during periodic broadcast", e);
                 }
@@ -780,9 +797,10 @@ public class ScheduleMC {
                 LOGGER.error("Error saving UDPS data during shutdown", e);
             }
 
-            // Gang System - Reset singleton
+            // Gang System - Save missions + reset singletons
+            de.rolandsw.schedulemc.gang.mission.GangMissionManager.resetInstance();
             de.rolandsw.schedulemc.gang.GangManager.resetInstance();
-            LOGGER.info("Gang System saved and reset");
+            LOGGER.info("Gang System saved and reset (incl. Mission Manager)");
 
             if (saveManager != null) {
                 LOGGER.info("Stopping IncrementalSaveManager and performing final save...");

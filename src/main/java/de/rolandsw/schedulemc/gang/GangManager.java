@@ -161,6 +161,10 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
             gang.removeInvite(playerUUID);
             markDirty();
             LOGGER.info("Player {} joined gang '{}'", playerUUID, gang.getName());
+
+            // Mission-Tracking: Mitglied rekrutiert
+            de.rolandsw.schedulemc.gang.mission.GangMissionManager mm = de.rolandsw.schedulemc.gang.mission.GangMissionManager.getInstance();
+            if (mm != null) mm.onMemberRecruited(gangId);
         }
         return added;
     }
@@ -238,7 +242,16 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
         }
 
         boolean result = gang.setRank(targetUUID, newRank);
-        if (result) markDirty();
+        if (result) {
+            markDirty();
+
+            // Mission-Tracking: Mitglied befoerdert
+            UUID gid = playerToGang.get(promoterUUID);
+            if (gid != null) {
+                de.rolandsw.schedulemc.gang.mission.GangMissionManager mm = de.rolandsw.schedulemc.gang.mission.GangMissionManager.getInstance();
+                if (mm != null) mm.onMemberPromoted(gid);
+            }
+        }
         return result;
     }
 
@@ -259,6 +272,10 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
         int xp = source.calculateXP(amount);
         boolean leveledUp = gang.addXP(xp, playerUUID);
         markDirty();
+
+        // Mission-Tracking: Gang-XP vergeben
+        de.rolandsw.schedulemc.gang.mission.GangMissionManager mm = de.rolandsw.schedulemc.gang.mission.GangMissionManager.getInstance();
+        if (mm != null) mm.onGangXPAwarded(gangId, xp);
 
         if (leveledUp) {
             onGangLevelUp(gang);
@@ -324,6 +341,10 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
                     gang.deposit(fee);
                     memberData.resetFeePaid();
                     markDirty();
+
+                    // Mission-Tracking: Beitraege kassiert
+                    de.rolandsw.schedulemc.gang.mission.GangMissionManager mmFee = de.rolandsw.schedulemc.gang.mission.GangMissionManager.getInstance();
+                    if (mmFee != null) mmFee.onFeesCollected(gang.getGangId(), fee);
 
                     player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
                             "\u00A76[Gang] \u00A77Wochenbeitrag von \u00A7c" + fee +

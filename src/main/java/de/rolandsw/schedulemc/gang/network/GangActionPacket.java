@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.gang.network;
 
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.gang.*;
+import de.rolandsw.schedulemc.gang.mission.GangMissionManager;
 import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.level.ProducerLevel;
 import net.minecraft.ChatFormatting;
@@ -22,7 +23,7 @@ public class GangActionPacket {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public enum ActionType {
-        CREATE, INVITE, ACCEPT_INVITE, LEAVE, KICK, PROMOTE, DISBAND, UNLOCK_PERK, SET_FEE
+        CREATE, INVITE, ACCEPT_INVITE, LEAVE, KICK, PROMOTE, DISBAND, UNLOCK_PERK, SET_FEE, CLAIM_MISSION
     }
 
     private final ActionType action;
@@ -77,6 +78,10 @@ public class GangActionPacket {
         return new GangActionPacket(ActionType.SET_FEE, String.valueOf(fee), "", UUID.randomUUID());
     }
 
+    public static GangActionPacket claimMission(String missionId) {
+        return new GangActionPacket(ActionType.CLAIM_MISSION, missionId, "", UUID.randomUUID());
+    }
+
     public void encode(FriendlyByteBuf buf) {
         buf.writeEnum(action);
         buf.writeUtf(stringParam, 64);
@@ -113,6 +118,7 @@ public class GangActionPacket {
                 case DISBAND -> handleDisband(player, manager);
                 case UNLOCK_PERK -> handleUnlockPerk(player, manager);
                 case SET_FEE -> handleSetFee(player, manager);
+                case CLAIM_MISSION -> handleClaimMission(player, manager);
             }
         });
         ctx.get().setPacketHandled(true);
@@ -298,6 +304,28 @@ public class GangActionPacket {
             }
         } catch (NumberFormatException e) {
             sendError(player, "Ungueltiger Betrag.");
+        }
+    }
+
+    private void handleClaimMission(ServerPlayer player, GangManager manager) {
+        Gang gang = manager.getPlayerGang(player.getUUID());
+        if (gang == null) { sendError(player, "Du bist in keiner Gang."); return; }
+
+        GangMissionManager mm = GangMissionManager.getInstance();
+        if (mm == null) { sendError(player, "Missions-System nicht verfuegbar."); return; }
+
+        int[] reward = mm.claimReward(gang.getGangId(), stringParam);
+        if (reward != null) {
+            if (reward[0] > 0) {
+                manager.awardGangXP(player.getUUID(), de.rolandsw.schedulemc.gang.GangXPSource.MISSION_COMPLETED, reward[0]);
+            }
+            if (reward[1] > 0) {
+                gang.deposit(reward[1]);
+                manager.markDirty();
+            }
+            sendSuccess(player, "Belohnung: +" + reward[0] + " XP" + (reward[1] > 0 ? ", +" + reward[1] + "\u20AC in Gang-Kasse" : ""));
+        } else {
+            sendError(player, "Belohnung kann nicht eingeloest werden.");
         }
     }
 

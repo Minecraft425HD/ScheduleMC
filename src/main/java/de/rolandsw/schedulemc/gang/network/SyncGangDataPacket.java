@@ -30,23 +30,36 @@ public class SyncGangDataPacket {
     private final int maxTerritory;
     private final int availablePerkPoints;
     private final double gangProgress;
-    private final int myRankPriority; // Rang-Prioritaet des anfragenden Spielers (4=Boss, 1=Recruit, 0=kein)
-    private final int weeklyFee; // Wochenbeitrag (0 = kein Beitrag)
+    private final int myRankPriority;
+    private final int weeklyFee;
 
-    // Mitglieder-Liste: UUID, Name, Rang, beigetragene XP
+    // Timer: Verbleibende MS bis zum naechsten Reset
+    private final long hourlyResetMs;
+    private final long dailyResetMs;
+    private final long weeklyResetMs;
+
     private final List<GangMemberInfo> members;
-    // Freigeschaltete Perks
     private final Set<String> unlockedPerks;
-    // Aktive Missionen
     private final List<MissionInfo> missions;
+
+    // Woechentliche Stats
+    private final int weekXPGained;
+    private final int weekMoneyEarned;
+    private final int weekFeesCollected;
+    private final int weekHourlyDone;
+    private final int weekDailyDone;
+    private final int weekWeeklyDone;
 
     public SyncGangDataPacket(boolean hasGang, String gangName, String gangTag,
                               int gangLevel, int gangXP, int gangBalance,
                               int gangColorOrdinal, int memberCount, int maxMembers,
                               int territoryCount, int maxTerritory, int availablePerkPoints,
                               double gangProgress, int myRankPriority, int weeklyFee,
+                              long hourlyResetMs, long dailyResetMs, long weeklyResetMs,
                               List<GangMemberInfo> members,
-                              Set<String> unlockedPerks, List<MissionInfo> missions) {
+                              Set<String> unlockedPerks, List<MissionInfo> missions,
+                              int weekXPGained, int weekMoneyEarned, int weekFeesCollected,
+                              int weekHourlyDone, int weekDailyDone, int weekWeeklyDone) {
         this.hasGang = hasGang;
         this.gangName = gangName;
         this.gangTag = gangTag;
@@ -62,15 +75,24 @@ public class SyncGangDataPacket {
         this.gangProgress = gangProgress;
         this.myRankPriority = myRankPriority;
         this.weeklyFee = weeklyFee;
+        this.hourlyResetMs = hourlyResetMs;
+        this.dailyResetMs = dailyResetMs;
+        this.weeklyResetMs = weeklyResetMs;
         this.members = members;
         this.unlockedPerks = unlockedPerks;
         this.missions = missions;
+        this.weekXPGained = weekXPGained;
+        this.weekMoneyEarned = weekMoneyEarned;
+        this.weekFeesCollected = weekFeesCollected;
+        this.weekHourlyDone = weekHourlyDone;
+        this.weekDailyDone = weekDailyDone;
+        this.weekWeeklyDone = weekWeeklyDone;
     }
 
     /** Kein Gang */
     public static SyncGangDataPacket noGang() {
         return new SyncGangDataPacket(false, "", "", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                List.of(), Set.of(), List.of());
+                0, 0, 0, List.of(), Set.of(), List.of(), 0, 0, 0, 0, 0, 0);
     }
 
     public void encode(FriendlyByteBuf buf) {
@@ -92,6 +114,11 @@ public class SyncGangDataPacket {
         buf.writeInt(myRankPriority);
         buf.writeInt(weeklyFee);
 
+        // Reset-Timer
+        buf.writeLong(hourlyResetMs);
+        buf.writeLong(dailyResetMs);
+        buf.writeLong(weeklyResetMs);
+
         // Members
         buf.writeInt(members.size());
         for (GangMemberInfo m : members) {
@@ -110,16 +137,27 @@ public class SyncGangDataPacket {
             buf.writeUtf(perk, 64);
         }
 
-        // Missions
+        // Missions (erweitert mit ID, Typ, Claimable)
         buf.writeInt(missions.size());
         for (MissionInfo mi : missions) {
+            buf.writeUtf(mi.missionId, 32);
+            buf.writeInt(mi.missionType);
             buf.writeUtf(mi.description, 128);
             buf.writeInt(mi.currentProgress);
             buf.writeInt(mi.targetAmount);
             buf.writeInt(mi.xpReward);
             buf.writeInt(mi.moneyReward);
             buf.writeBoolean(mi.completed);
+            buf.writeBoolean(mi.claimable);
         }
+
+        // Weekly Stats
+        buf.writeInt(weekXPGained);
+        buf.writeInt(weekMoneyEarned);
+        buf.writeInt(weekFeesCollected);
+        buf.writeInt(weekHourlyDone);
+        buf.writeInt(weekDailyDone);
+        buf.writeInt(weekWeeklyDone);
     }
 
     public static SyncGangDataPacket decode(FriendlyByteBuf buf) {
@@ -141,6 +179,11 @@ public class SyncGangDataPacket {
         int myRank = buf.readInt();
         int wFee = buf.readInt();
 
+        // Reset-Timer
+        long hourlyReset = buf.readLong();
+        long dailyReset = buf.readLong();
+        long weeklyReset = buf.readLong();
+
         // Members
         int memberCount = Math.min(buf.readInt(), 50);
         List<GangMemberInfo> memberList = new ArrayList<>(memberCount);
@@ -157,18 +200,29 @@ public class SyncGangDataPacket {
             perks.add(buf.readUtf(64));
         }
 
-        // Missions
-        int missionCount = Math.min(buf.readInt(), 10);
+        // Missions (erweitert)
+        int missionCount = Math.min(buf.readInt(), 20);
         List<MissionInfo> missionList = new ArrayList<>(missionCount);
         for (int i = 0; i < missionCount; i++) {
             missionList.add(new MissionInfo(
+                    buf.readUtf(32), buf.readInt(),
                     buf.readUtf(128), buf.readInt(), buf.readInt(),
-                    buf.readInt(), buf.readInt(), buf.readBoolean()));
+                    buf.readInt(), buf.readInt(), buf.readBoolean(), buf.readBoolean()));
         }
+
+        // Weekly Stats
+        int wXP = buf.readInt();
+        int wMoney = buf.readInt();
+        int wFees = buf.readInt();
+        int wH = buf.readInt();
+        int wD = buf.readInt();
+        int wW = buf.readInt();
 
         return new SyncGangDataPacket(true, name, tag, level, xp, balance, colorOrd,
                 members, maxMembers, territory, maxTerritory, perkPoints, progress, myRank, wFee,
-                memberList, perks, missionList);
+                hourlyReset, dailyReset, weeklyReset,
+                memberList, perks, missionList,
+                wXP, wMoney, wFees, wH, wD, wW);
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
@@ -199,34 +253,48 @@ public class SyncGangDataPacket {
     public double getGangProgress() { return gangProgress; }
     public int getMyRankPriority() { return myRankPriority; }
     public int getWeeklyFee() { return weeklyFee; }
+    public long getHourlyResetMs() { return hourlyResetMs; }
+    public long getDailyResetMs() { return dailyResetMs; }
+    public long getWeeklyResetMs() { return weeklyResetMs; }
     public List<GangMemberInfo> getMembers() { return members; }
     public Set<String> getUnlockedPerks() { return unlockedPerks; }
     public List<MissionInfo> getMissions() { return missions; }
+    public int getWeekXPGained() { return weekXPGained; }
+    public int getWeekMoneyEarned() { return weekMoneyEarned; }
+    public int getWeekFeesCollected() { return weekFeesCollected; }
+    public int getWeekHourlyDone() { return weekHourlyDone; }
+    public int getWeekDailyDone() { return weekDailyDone; }
+    public int getWeekWeeklyDone() { return weekWeeklyDone; }
 
     public boolean hasPerk(GangPerk perk) {
         return unlockedPerks.contains(perk.name());
     }
 
-    /** Prueft ob der Spieler Invite-Berechtigung hat (Boss/Underboss) */
     public boolean canInvite() { return myRankPriority >= 3; }
-    /** Prueft ob der Spieler Kick-Berechtigung hat (Boss/Underboss) */
     public boolean canKick() { return myRankPriority >= 3; }
-    /** Prueft ob der Spieler die Gang aufloesen kann (nur Boss) */
     public boolean canDisband() { return myRankPriority >= 4; }
-    /** Prueft ob der Spieler Perks verwalten kann (nur Boss) */
     public boolean canManagePerks() { return myRankPriority >= 4; }
 
-    /**
-     * Mitglieder-Info fuer die Client-Anzeige
-     */
+    /** Missions nach Typ filtern */
+    public List<MissionInfo> getMissionsByType(int type) {
+        return missions.stream().filter(m -> m.missionType == type).toList();
+    }
+
+    public int getCompletedMissionCount() {
+        return (int) missions.stream().filter(MissionInfo::completed).count();
+    }
+
     public record GangMemberInfo(UUID uuid, String name, String rank, String rankColor,
                                   int rankPriority, int contributedXP, boolean online) {}
 
     /**
-     * Missions-Info fuer die Client-Anzeige
+     * Erweiterte Missions-Info mit ID, Typ und Claimable-Status.
+     * missionType: 0=HOURLY, 1=DAILY, 2=WEEKLY
      */
-    public record MissionInfo(String description, int currentProgress, int targetAmount,
-                               int xpReward, int moneyReward, boolean completed) {
+    public record MissionInfo(String missionId, int missionType,
+                               String description, int currentProgress, int targetAmount,
+                               int xpReward, int moneyReward,
+                               boolean completed, boolean claimable) {
         public double getProgressPercent() {
             return targetAmount > 0 ? (double) currentProgress / targetAmount : 0;
         }

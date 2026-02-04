@@ -5,6 +5,7 @@ import de.rolandsw.schedulemc.gang.GangPerk;
 import de.rolandsw.schedulemc.gang.GangRank;
 import de.rolandsw.schedulemc.gang.GangReputation;
 import de.rolandsw.schedulemc.gang.client.ClientGangCache;
+import de.rolandsw.schedulemc.gang.mission.MissionType;
 import de.rolandsw.schedulemc.gang.network.*;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -18,16 +19,12 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Gang-App im Messenger-Style (WhatsApp Gruppen-Info).
+ * Gang-App im GTA-Handy-Style.
  *
- * Einzige scrollbare Seite mit Sektionen:
- * - Profil-Header (Name, Tag, Level, XP-Bar, Stats)
- * - Mitglieder (Kontakt-Zeilen mit Kick/Promote)
- * - Perks (Klick-zum-Freischalten)
- * - Andere Gangs (Server-Gang-Liste = /gang list + /gang info)
- * - Missionen (Fortschrittsbalken)
+ * Hauptansicht: Nachrichten-Inbox (wie WhatsApp-Chats).
+ * Jede Kategorie fuehrt zu einer scrollbaren Unterseite.
  *
- * NO_GANG: Gang gruenden oder Einladung annehmen.
+ * SubPages: INBOX, ZENTRALE, AUFTRAEGE, RIVALEN, MITGLIEDER, PERKS, BERICHT
  */
 @OnlyIn(Dist.CLIENT)
 public class GangAppScreen extends Screen {
@@ -37,53 +34,75 @@ public class GangAppScreen extends Screen {
     private static final int HEIGHT = 260;
     private static final int SCROLL_SPEED = 15;
 
-    // Layout-Bereiche
     private static final int HEADER_HEIGHT = 28;
-    private static final int FOOTER_HEIGHT = 50;
+    private static final int FOOTER_HEIGHT = 26;
 
+    // ═══════════════════════════════════════════════════════════
+    // NAVIGATION
+    // ═══════════════════════════════════════════════════════════
+
+    private enum SubPage {
+        INBOX("Gang"),
+        ZENTRALE("Gang-Zentrale"),
+        AUFTRAEGE("Auftraege"),
+        RIVALEN("Rivalen"),
+        MITGLIEDER("Mitglieder"),
+        PERKS("Perks & Upgrades"),
+        BERICHT("Wochenbericht");
+
+        final String title;
+        SubPage(String title) { this.title = title; }
+    }
+
+    private SubPage currentPage = SubPage.INBOX;
     private boolean hasGang = false;
     private int scrollOffset = 0;
     private int maxScroll = 0;
 
-    private int leftPos;
-    private int topPos;
+    private int leftPos, topPos;
+    private int contentTop, contentBottom;
 
-    // Fester Inhaltbereich (zwischen Header und Footer)
-    private int contentTop;
-    private int contentBottom;
+    // Packet-Erstellungszeit (fuer Timer-Berechnung)
+    private long dataReceivedAt = 0;
 
-    // NO_GANG Widgets
+    // Widgets (werden pro Page neu erstellt)
     private EditBox createNameInput;
     private EditBox createTagInput;
-
-    // HAS_GANG Widgets (im Footer)
     private EditBox inviteInput;
     private EditBox feeInput;
 
-    // Berechnete Sektions-Positionen (fuer Klick-Erkennung)
-    private int membersSectionY;
-    private int perksSectionY;
+    // Inbox-Zeilen-Positionen fuer Klick-Erkennung
+    private static final int INBOX_ROW_HEIGHT = 30;
+    private static final int MEMBER_ROW_HEIGHT = 22;
+    private static final int PERK_ROW_HEIGHT = 24;
+    private static final int MISSION_CARD_HEIGHT = 32;
 
     public GangAppScreen(Screen parent) {
         super(Component.translatable("gui.app.gang.title"));
         this.parentScreen = parent;
     }
 
+    private void navigateTo(SubPage page) {
+        currentPage = page;
+        scrollOffset = 0;
+        rebuildWidgets();
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // LIFECYCLE
+    // ═══════════════════════════════════════════════════════════
+
     @Override
     protected void init() {
         super.init();
-
         this.leftPos = (this.width - WIDTH) / 2;
         this.topPos = 5;
         this.contentTop = topPos + HEADER_HEIGHT;
         this.contentBottom = topPos + HEIGHT - FOOTER_HEIGHT;
 
         ClientGangCache.setUpdateListener(this::onCacheUpdated);
-
-        // Daten laden
         GangNetworkHandler.sendToServer(new RequestGangDataPacket());
         GangNetworkHandler.sendToServer(new RequestGangListPacket());
-
         updateState();
         rebuildWidgets();
     }
@@ -98,8 +117,10 @@ public class GangAppScreen extends Screen {
         boolean wasInGang = hasGang;
         updateState();
         if (wasInGang != hasGang) {
+            currentPage = SubPage.INBOX;
             scrollOffset = 0;
         }
+        dataReceivedAt = System.currentTimeMillis();
         rebuildWidgets();
     }
 
@@ -114,7 +135,7 @@ public class GangAppScreen extends Screen {
     }
 
     // ═══════════════════════════════════════════════════════════
-    // WIDGET SETUP
+    // WIDGET SETUP (per Page)
     // ═══════════════════════════════════════════════════════════
 
     @Override
@@ -127,8 +148,33 @@ public class GangAppScreen extends Screen {
 
         if (!hasGang) {
             buildNoGangWidgets();
+            return;
+        }
+
+        int footerY = contentBottom + 3;
+
+        // Zurueck-Button (alle Seiten)
+        if (currentPage == SubPage.INBOX) {
+            addRenderableWidget(Button.builder(Component.literal("\u00A77Zurueck"), b -> {
+                if (minecraft != null) minecraft.setScreen(parentScreen);
+            }).bounds(leftPos + 5, footerY, 50, 18).build());
         } else {
-            buildGangWidgets();
+            addRenderableWidget(Button.builder(Component.literal("\u00A7f\u25C0 Inbox"), b -> {
+                navigateTo(SubPage.INBOX);
+            }).bounds(leftPos + 5, footerY, 55, 18).build());
+        }
+
+        // Refresh-Button (alle Seiten)
+        addRenderableWidget(Button.builder(Component.literal("\u21BB"), b -> {
+            GangNetworkHandler.sendToServer(new RequestGangDataPacket());
+            GangNetworkHandler.sendToServer(new RequestGangListPacket());
+        }).bounds(leftPos + WIDTH - 25, footerY, 20, 18).build());
+
+        // Page-spezifische Widgets
+        switch (currentPage) {
+            case MITGLIEDER -> buildMitgliederWidgets(footerY);
+            case ZENTRALE -> buildZentraleWidgets(footerY);
+            default -> {}
         }
     }
 
@@ -136,20 +182,17 @@ public class GangAppScreen extends Screen {
         int cx = leftPos + 15;
         int cy = contentTop + 5;
 
-        // Gang-Name Eingabe
         createNameInput = new EditBox(this.font, cx, cy + 36, 140, 16, Component.literal("Name"));
         createNameInput.setMaxLength(20);
         createNameInput.setHint(Component.literal("Gang-Name..."));
         addRenderableWidget(createNameInput);
 
-        // Gang-Tag Eingabe
         createTagInput = new EditBox(this.font, cx, cy + 68, 55, 16, Component.literal("Tag"));
         createTagInput.setMaxLength(5);
         createTagInput.setHint(Component.literal("TAG"));
         addRenderableWidget(createTagInput);
 
-        // Gruenden-Button (25.000€)
-        addRenderableWidget(Button.builder(Component.literal("\u00A7aGruenden \u00A7225.000\u20AC"), button -> {
+        addRenderableWidget(Button.builder(Component.literal("\u00A7aGruenden \u00A7225.000\u20AC"), b -> {
             String name = createNameInput.getValue().trim();
             String tag = createTagInput.getValue().trim().toUpperCase();
             if (!name.isEmpty() && !tag.isEmpty() && tag.length() >= 2) {
@@ -157,75 +200,58 @@ public class GangAppScreen extends Screen {
             }
         }).bounds(cx + 60, cy + 68, 100, 16).build());
 
-        // Einladung annehmen (2.500€)
-        addRenderableWidget(Button.builder(Component.literal("\u00A7eEinladung annehmen \u00A7a2.500\u20AC"), button -> {
+        addRenderableWidget(Button.builder(Component.literal("\u00A7eEinladung annehmen \u00A7a2.500\u20AC"), b -> {
             sendActionAndRefresh(GangActionPacket.acceptInvite(UUID.randomUUID()));
         }).bounds(cx, cy + 140, 170, 18).build());
 
-        // Zurueck
-        addRenderableWidget(Button.builder(Component.translatable("gui.app.gang.back"), button -> {
+        addRenderableWidget(Button.builder(Component.translatable("gui.app.gang.back"), b -> {
             if (minecraft != null) minecraft.setScreen(parentScreen);
         }).bounds(leftPos + 10, topPos + HEIGHT - 30, 60, 20).build());
     }
 
-    private void buildGangWidgets() {
+    private void buildMitgliederWidgets(int footerY) {
         SyncGangDataPacket data = ClientGangCache.getMyGangData();
         if (data == null) return;
 
-        int footerY = contentBottom + 4;
-
-        // Zeile 1: Einladen (wenn Berechtigung)
         if (data.canInvite()) {
-            inviteInput = new EditBox(this.font, leftPos + 10, footerY, 120, 16, Component.literal("Invite"));
+            inviteInput = new EditBox(this.font, leftPos + 63, footerY, 100, 18, Component.literal("Invite"));
             inviteInput.setMaxLength(32);
-            inviteInput.setHint(Component.literal("Spieler einladen..."));
+            inviteInput.setHint(Component.literal("Einladen..."));
             addRenderableWidget(inviteInput);
 
-            addRenderableWidget(Button.builder(Component.literal("\u00A7a+"), button -> {
+            addRenderableWidget(Button.builder(Component.literal("\u00A7a+"), b -> {
                 if (inviteInput != null && !inviteInput.getValue().trim().isEmpty()) {
                     sendActionAndRefresh(GangActionPacket.inviteByName(inviteInput.getValue().trim()));
                     inviteInput.setValue("");
                 }
-            }).bounds(leftPos + 133, footerY, 20, 16).build());
+            }).bounds(leftPos + 166, footerY, 18, 18).build());
         }
 
-        // Verlassen (rechts oben im Footer)
-        addRenderableWidget(Button.builder(Component.literal("\u00A7cVerlassen"), button -> {
+        addRenderableWidget(Button.builder(Component.literal("\u00A7cVerlassen"), b -> {
             sendActionAndRefresh(GangActionPacket.leave());
-        }).bounds(leftPos + 160, footerY, 70, 16).build());
+        }).bounds(leftPos + 187, footerY, 48, 18).build());
+    }
 
-        // Zeile 2: Zurueck + Beitrag (Boss) + Aufloesen (Boss) + Refresh
-        int row2Y = footerY + 20;
+    private void buildZentraleWidgets(int footerY) {
+        SyncGangDataPacket data = ClientGangCache.getMyGangData();
+        if (data == null || !data.canDisband()) return;
 
-        addRenderableWidget(Button.builder(Component.translatable("gui.app.gang.back"), button -> {
-            if (minecraft != null) minecraft.setScreen(parentScreen);
-        }).bounds(leftPos + 10, row2Y, 50, 18).build());
+        feeInput = new EditBox(this.font, leftPos + 63, footerY, 45, 18, Component.literal("Fee"));
+        feeInput.setMaxLength(5);
+        feeInput.setHint(Component.literal(String.valueOf(data.getWeeklyFee())));
+        feeInput.setFilter(s -> s.matches("\\d*"));
+        addRenderableWidget(feeInput);
 
-        if (data.canDisband()) {
-            // Beitrag-Eingabe (nur Boss)
-            feeInput = new EditBox(this.font, leftPos + 63, row2Y, 45, 18, Component.literal("Fee"));
-            feeInput.setMaxLength(5);
-            feeInput.setHint(Component.literal(String.valueOf(data.getWeeklyFee())));
-            feeInput.setFilter(s -> s.matches("\\d*"));
-            addRenderableWidget(feeInput);
+        addRenderableWidget(Button.builder(Component.literal("\u00A7a\u20AC"), b -> {
+            if (feeInput != null && !feeInput.getValue().trim().isEmpty()) {
+                sendActionAndRefresh(GangActionPacket.setFee(Integer.parseInt(feeInput.getValue().trim())));
+                feeInput.setValue("");
+            }
+        }).bounds(leftPos + 110, footerY, 18, 18).build());
 
-            addRenderableWidget(Button.builder(Component.literal("\u00A7a\u20AC"), button -> {
-                if (feeInput != null && !feeInput.getValue().trim().isEmpty()) {
-                    sendActionAndRefresh(GangActionPacket.setFee(
-                            Integer.parseInt(feeInput.getValue().trim())));
-                    feeInput.setValue("");
-                }
-            }).bounds(leftPos + 110, row2Y, 18, 18).build());
-
-            addRenderableWidget(Button.builder(Component.literal("\u00A74X"), button -> {
-                sendActionAndRefresh(GangActionPacket.disband());
-            }).bounds(leftPos + 131, row2Y, 18, 18).build());
-        }
-
-        addRenderableWidget(Button.builder(Component.literal("\u21BB"), button -> {
-            GangNetworkHandler.sendToServer(new RequestGangDataPacket());
-            GangNetworkHandler.sendToServer(new RequestGangListPacket());
-        }).bounds(leftPos + WIDTH - 30, row2Y, 20, 18).build());
+        addRenderableWidget(Button.builder(Component.literal("\u00A74Aufloesen"), b -> {
+            sendActionAndRefresh(GangActionPacket.disband());
+        }).bounds(leftPos + 132, footerY, 52, 18).build());
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -236,21 +262,55 @@ public class GangAppScreen extends Screen {
     public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
         renderBackground(g);
 
-        // Smartphone Rahmen
+        // Phone-Rahmen
         g.fill(leftPos - 5, topPos - 5, leftPos + WIDTH + 5, topPos + HEIGHT + 5, 0xFF1C1C1C);
         g.fill(leftPos, topPos, leftPos + WIDTH, topPos + HEIGHT, 0xFF2A2A2A);
 
         // Header
         g.fill(leftPos, topPos, leftPos + WIDTH, topPos + HEADER_HEIGHT, 0xFF1A1A1A);
-        g.drawCenteredString(this.font, "\u00A7f\u00A7lGang", leftPos + WIDTH / 2, topPos + 10, 0xFFFFFF);
+        String title = hasGang ? "\u00A7f\u00A7l" + currentPage.title : "\u00A7f\u00A7lGang";
+        g.drawCenteredString(this.font, title, leftPos + WIDTH / 2, topPos + 10, 0xFFFFFF);
 
         if (!hasGang) {
             renderNoGangView(g);
         } else {
-            renderGangView(g, mouseX, mouseY);
+            renderCurrentPage(g, mouseX, mouseY);
         }
 
         super.render(g, mouseX, mouseY, partialTick);
+    }
+
+    private void renderCurrentPage(GuiGraphics g, int mouseX, int mouseY) {
+        // Footer
+        g.fill(leftPos, contentBottom, leftPos + WIDTH, topPos + HEIGHT, 0xFF1A1A1A);
+        g.fill(leftPos, contentBottom, leftPos + WIDTH, contentBottom + 1, 0x44FFFFFF);
+
+        // Scrollbarer Content
+        g.enableScissor(leftPos, contentTop, leftPos + WIDTH, contentBottom);
+
+        int totalHeight = switch (currentPage) {
+            case INBOX -> renderInbox(g);
+            case ZENTRALE -> renderZentrale(g);
+            case AUFTRAEGE -> renderAuftraege(g);
+            case RIVALEN -> renderRivalen(g);
+            case MITGLIEDER -> renderMitglieder(g);
+            case PERKS -> renderPerks(g);
+            case BERICHT -> renderBericht(g);
+        };
+
+        g.disableScissor();
+
+        // Scroll
+        int visibleH = contentBottom - contentTop;
+        maxScroll = Math.max(0, totalHeight - visibleH);
+        scrollOffset = Math.max(0, Math.min(maxScroll, scrollOffset));
+
+        if (maxScroll > 0) {
+            int barH = Math.max(15, visibleH * visibleH / (visibleH + maxScroll));
+            int barY = contentTop + (scrollOffset * (visibleH - barH) / maxScroll);
+            g.fill(leftPos + WIDTH - 5, contentTop, leftPos + WIDTH - 2, contentBottom, 0x33FFFFFF);
+            g.fill(leftPos + WIDTH - 5, barY, leftPos + WIDTH - 2, barY + barH, 0xAAFFFFFF);
+        }
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -261,33 +321,24 @@ public class GangAppScreen extends Screen {
         int cx = leftPos + 15;
         int cy = contentTop + 5;
 
-        // ── Gang gruenden ──
         g.drawString(this.font, "\u00A76\u00A7lGang gruenden", cx, cy, 0xFFAA00);
         g.drawString(this.font, "\u00A78Voraussetzung: \u00A7eLv.15 \u00A78| \u00A7a25.000\u20AC", cx, cy + 11, 0x888888);
         g.drawString(this.font, "\u00A77Name:", cx, cy + 26, 0xAAAAAA);
-        // createNameInput bei cy + 36
         g.drawString(this.font, "\u00A77Tag (2-5):", cx, cy + 58, 0xAAAAAA);
-        // createTagInput bei cy + 68 + Gruenden-Button
 
-        // Trennlinie
         g.fill(leftPos + 10, cy + 98, leftPos + WIDTH - 10, cy + 99, 0x44FFFFFF);
 
-        // ── Einladung annehmen ──
         g.drawString(this.font, "\u00A76\u00A7lGang beitreten", cx, cy + 105, 0xFFAA00);
         g.drawString(this.font, "\u00A78Voraussetzung: \u00A7eLv.5 \u00A78| \u00A7a2.500\u20AC", cx, cy + 116, 0x888888);
         g.drawString(this.font, "\u00A78Einladung erforderlich!", cx, cy + 127, 0x888888);
-        // Einladung annehmen Button bei cy + 140
 
-        // Trennlinie
         g.fill(leftPos + 10, cy + 163, leftPos + WIDTH - 10, cy + 164, 0x44FFFFFF);
 
-        // ── Stufenrabatt Info ──
         g.drawString(this.font, "\u00A76\u00A7lWochenbeitrag-System", cx, cy + 170, 0xFFAA00);
-        g.drawString(this.font, "\u00A78Der Boss legt den Beitrag fest (0-10.000\u20AC)", cx, cy + 181, 0x888888);
+        g.drawString(this.font, "\u00A78Boss legt Beitrag fest (0-10.000\u20AC)", cx, cy + 181, 0x888888);
         g.drawString(this.font, "\u00A7cRecruit: \u00A7f100% \u00A78| \u00A7eMember: \u00A7f50%", cx, cy + 192, 0xFFFFFF);
         g.drawString(this.font, "\u00A7bUnderboss: \u00A7f10% \u00A78| \u00A76Boss: \u00A7abefreit", cx, cy + 203, 0xFFFFFF);
 
-        // Andere Gangs anzeigen (auch ohne eigene Gang)
         renderGangListStandalone(g, cy + 220);
     }
 
@@ -302,130 +353,141 @@ public class GangAppScreen extends Screen {
         int shown = Math.min(gangs.size(), 4);
         for (int i = 0; i < shown; i++) {
             SyncGangListPacket.GangListEntry gang = gangs.get(i);
-            String tagColor = getColorForOrdinal(gang.colorOrdinal());
-            g.drawString(this.font, tagColor + "[" + gang.tag() + "] \u00A7f" + gang.name() +
+            String tc = getColorForOrdinal(gang.colorOrdinal());
+            g.drawString(this.font, tc + "[" + gang.tag() + "] \u00A7f" + gang.name() +
                     " \u00A77Lv." + gang.level() + " \u00A78(" + gang.memberCount() + " Mitgl.)",
                     leftPos + 15, y, 0xFFFFFF);
             y += 12;
         }
         if (gangs.size() > shown) {
-            g.drawString(this.font, "\u00A78...und " + (gangs.size() - shown) + " weitere",
-                    leftPos + 15, y, 0x888888);
+            g.drawString(this.font, "\u00A78...und " + (gangs.size() - shown) + " weitere", leftPos + 15, y, 0x888888);
         }
     }
 
     // ═══════════════════════════════════════════════════════════
-    // GANG VIEW (Messenger-Style: Einzelne scrollbare Seite)
+    // PAGE: INBOX
     // ═══════════════════════════════════════════════════════════
 
-    private void renderGangView(GuiGraphics g, int mouseX, int mouseY) {
+    private int renderInbox(GuiGraphics g) {
         SyncGangDataPacket data = ClientGangCache.getMyGangData();
-        if (data == null || !data.hasGang()) return;
+        if (data == null || !data.hasGang()) return 0;
 
-        // Footer-Hintergrund
-        g.fill(leftPos, contentBottom, leftPos + WIDTH, topPos + HEIGHT, 0xFF1A1A1A);
-        g.fill(leftPos, contentBottom, leftPos + WIDTH, contentBottom + 1, 0x44FFFFFF);
+        int y = contentTop - scrollOffset + 3;
+        int startY = y;
 
-        // Scrollbarer Bereich
-        g.enableScissor(leftPos, contentTop, leftPos + WIDTH, contentBottom);
+        // Zeile 1: Gang-Zentrale
+        y = renderInboxRow(g, y, "\u00A76\u2302 \u00A7fGang-Zentrale",
+                formatGangTag(data) + " " + data.getGangName(),
+                "\u00A78Kasse: \u00A7a" + data.getGangBalance() + "\u20AC \u00A78| \u00A7f" + data.getMemberCount() + " Mitgl.",
+                0x33FF8800);
 
-        int y = contentTop - scrollOffset;
-        int totalHeight = 0;
+        // Zeile 2: Auftraege
+        int done = data.getCompletedMissionCount();
+        int total = data.getMissions().size();
+        String timerStr = getShortTimerString(data);
+        y = renderInboxRow(g, y, "\u00A7e\u2606 \u00A7fAuftraege  \u00A7a" + done + "\u00A77/" + total,
+                timerStr,
+                done >= total && total > 0 ? "\u00A7aBelohnungen abholen!" : "\u00A78Fortschritt pruefen...",
+                0x3300AA00);
 
-        // ── PROFIL-HEADER ──
-        totalHeight += renderProfileSection(g, data, y);
-        y = contentTop - scrollOffset + totalHeight;
-
-        // ── SEKTION: MITGLIEDER ──
-        membersSectionY = totalHeight;
-        totalHeight += renderMembersSection(g, data, y);
-        y = contentTop - scrollOffset + totalHeight;
-
-        // ── SEKTION: PERKS ──
-        perksSectionY = totalHeight;
-        totalHeight += renderPerksSection(g, data, y);
-        y = contentTop - scrollOffset + totalHeight;
-
-        // ── SEKTION: ANDERE GANGS ──
-        totalHeight += renderGangListSection(g, y);
-        y = contentTop - scrollOffset + totalHeight;
-
-        // ── SEKTION: MISSIONEN ──
-        totalHeight += renderMissionsSection(g, data, y);
-
-        g.disableScissor();
-
-        // Scroll berechnen
-        int visibleHeight = contentBottom - contentTop;
-        maxScroll = Math.max(0, totalHeight - visibleHeight);
-        scrollOffset = Math.max(0, Math.min(maxScroll, scrollOffset));
-
-        // Scrollbar
-        if (maxScroll > 0) {
-            int barHeight = Math.max(15, visibleHeight * visibleHeight / (visibleHeight + maxScroll));
-            int barY = contentTop + (scrollOffset * (visibleHeight - barHeight) / maxScroll);
-            g.fill(leftPos + WIDTH - 6, contentTop, leftPos + WIDTH - 3, contentBottom, 0x33FFFFFF);
-            g.fill(leftPos + WIDTH - 6, barY, leftPos + WIDTH - 3, barY + barHeight, 0xAAFFFFFF);
+        // Zeile 3: Rivalen
+        List<SyncGangListPacket.GangListEntry> gangs = ClientGangCache.getGangList();
+        String ownRank = "\u00A78Kein Ranking";
+        for (SyncGangListPacket.GangListEntry ge : gangs) {
+            if (ge.name().equals(data.getGangName())) {
+                ownRank = "\u00A77Rang \u00A7e#" + ge.rank();
+                break;
+            }
         }
+        y = renderInboxRow(g, y, "\u00A7c\u2694 \u00A7fRivalen  " + ownRank,
+                "\u00A78" + gangs.size() + " Gangs auf dem Server",
+                null, 0x33CC3333);
+
+        // Zeile 4: Mitglieder
+        int online = (int) data.getMembers().stream().filter(SyncGangDataPacket.GangMemberInfo::online).count();
+        int feeWarnings = 0; // TODO: Track from member data
+        String mInfo = "\u00A7a" + online + " online";
+        if (feeWarnings > 0) mInfo += " \u00A78| \u00A7c" + feeWarnings + " \u26A0";
+        y = renderInboxRow(g, y, "\u00A7b\u263A \u00A7fMitglieder  " + mInfo,
+                "\u00A78" + data.getMemberCount() + "/" + data.getMaxMembers() + " Mitglieder",
+                null, 0x330055AA);
+
+        // Zeile 5: Perks
+        int usedPerks = data.getUnlockedPerks().size();
+        int totalPerks = GangLevelRequirements.getAvailablePerkPoints(data.getGangLevel());
+        int freePerks = data.getAvailablePerkPoints();
+        String perkInfo = freePerks > 0 ? "\u00A7a" + freePerks + " Punkte verfuegbar!" : "\u00A78" + usedPerks + "/" + totalPerks;
+        y = renderInboxRow(g, y, "\u00A7d\u2726 \u00A7fPerks & Upgrades",
+                perkInfo, null, 0x33AA00AA);
+
+        // Zeile 6: Wochenbericht
+        y = renderInboxRow(g, y, "\u00A7a\u2261 \u00A7fWochenbericht",
+                "\u00A78+" + data.getWeekXPGained() + " XP \u00A77| \u00A7a+" + data.getWeekMoneyEarned() + "\u20AC",
+                null, 0x3300AA00);
+
+        return y - startY + scrollOffset;
     }
 
-    // ── PROFIL-SEKTION ──
-    private int renderProfileSection(GuiGraphics g, SyncGangDataPacket data, int y) {
+    private int renderInboxRow(GuiGraphics g, int y, String line1, String line2, String line3, int bgColor) {
+        if (y > contentTop - INBOX_ROW_HEIGHT && y < contentBottom + INBOX_ROW_HEIGHT) {
+            g.fill(leftPos + 5, y, leftPos + WIDTH - 5, y + INBOX_ROW_HEIGHT - 2, bgColor);
+            g.drawString(this.font, line1, leftPos + 10, y + 3, 0xFFFFFF);
+            if (line2 != null) g.drawString(this.font, line2, leftPos + 10, y + 14, 0xAAAAAA);
+            if (line3 != null) g.drawString(this.font, line3, leftPos + 10, y + 20, 0xAAAAAA);
+            // Pfeil rechts
+            g.drawString(this.font, "\u00A78\u25B6", leftPos + WIDTH - 18, y + 10, 0x555555);
+        }
+        return y + INBOX_ROW_HEIGHT;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // PAGE: ZENTRALE
+    // ═══════════════════════════════════════════════════════════
+
+    private int renderZentrale(GuiGraphics g) {
+        SyncGangDataPacket data = ClientGangCache.getMyGangData();
+        if (data == null || !data.hasGang()) return 0;
+
+        int y = contentTop - scrollOffset + 5;
         int startY = y;
         int cx = leftPos + WIDTH / 2;
 
-        y += 5;
-
         // Gang-Name + Tag
-        String tagStr = formatGangTag(data);
-        g.drawCenteredString(this.font, tagStr + " \u00A7f\u00A7l" + data.getGangName(), cx, y, 0xFFFFFF);
+        g.drawCenteredString(this.font, formatGangTag(data) + " \u00A7f\u00A7l" + data.getGangName(), cx, y, 0xFFFFFF);
         y += 13;
 
         // Level + Reputation
         GangReputation rep = GangReputation.getForLevel(data.getGangLevel());
-        g.drawCenteredString(this.font, "\u00A76Lv." + data.getGangLevel() + " \u00A77| " +
-                rep.getFormattedName(), cx, y, 0xFFFFFF);
+        g.drawCenteredString(this.font, "\u00A76Lv." + data.getGangLevel() + " \u00A77| " + rep.getFormattedName(), cx, y, 0xFFFFFF);
         y += 13;
 
-        // XP-Fortschrittsbalken
+        // XP-Bar
         int barX = leftPos + 15;
-        int barWidth = WIDTH - 30;
-        int filledWidth = (int) (barWidth * data.getGangProgress());
-        g.fill(barX, y, barX + barWidth, y + 7, 0xFF333333);
-        if (filledWidth > 0) {
-            int barColor = data.getGangLevel() >= 25 ? 0xFFFFAA00 :
-                    (data.getGangLevel() >= 15 ? 0xFF00AAFF : 0xFF00AA00);
-            g.fill(barX, y, barX + filledWidth, y + 7, barColor);
+        int barW = WIDTH - 30;
+        int filled = (int) (barW * data.getGangProgress());
+        g.fill(barX, y, barX + barW, y + 7, 0xFF333333);
+        if (filled > 0) {
+            int barCol = data.getGangLevel() >= 25 ? 0xFFFFAA00 : (data.getGangLevel() >= 15 ? 0xFF00AAFF : 0xFF00AA00);
+            g.fill(barX, y, barX + filled, y + 7, barCol);
         }
-        String pctText = String.format("%.0f%%", data.getGangProgress() * 100);
-        g.drawCenteredString(this.font, pctText, cx, y - 1, 0xFFFFFF);
-        y += 11;
+        g.drawCenteredString(this.font, String.format("%.0f%%", data.getGangProgress() * 100), cx, y - 1, 0xFFFFFF);
+        y += 14;
 
-        // Stats in 2x2 Grid
+        // Stats
         int halfW = WIDTH / 2;
-        g.drawString(this.font, "\u00A78Kasse: \u00A7a" + data.getGangBalance() + "\u20AC",
-                leftPos + 15, y, 0xFFFFFF);
-        g.drawString(this.font, "\u00A78Mitglieder: \u00A7f" + data.getMemberCount() + "/" + data.getMaxMembers(),
-                leftPos + halfW, y, 0xFFFFFF);
+        g.drawString(this.font, "\u00A78Kasse: \u00A7a" + data.getGangBalance() + "\u20AC", leftPos + 15, y, 0xFFFFFF);
+        g.drawString(this.font, "\u00A78Mitglieder: \u00A7f" + data.getMemberCount() + "/" + data.getMaxMembers(), leftPos + halfW, y, 0xFFFFFF);
         y += 11;
-        g.drawString(this.font, "\u00A78Territory: \u00A7f" + data.getTerritoryCount() + "/" + data.getMaxTerritory(),
-                leftPos + 15, y, 0xFFFFFF);
+        g.drawString(this.font, "\u00A78Territory: \u00A7f" + data.getTerritoryCount() + "/" + data.getMaxTerritory(), leftPos + 15, y, 0xFFFFFF);
         g.drawString(this.font, "\u00A78Perks: \u00A7f" + data.getUnlockedPerks().size() + "/" +
-                GangLevelRequirements.getAvailablePerkPoints(data.getGangLevel()),
-                leftPos + halfW, y, 0xFFFFFF);
-        y += 11;
+                GangLevelRequirements.getAvailablePerkPoints(data.getGangLevel()), leftPos + halfW, y, 0xFFFFFF);
+        y += 14;
 
-        // Wochenbeitrag
+        // Beitrag
         int fee = data.getWeeklyFee();
         if (fee > 0) {
-            // Eigenen Beitrag berechnen (basierend auf Rang-Multiplikator)
             int myRank = data.getMyRankPriority();
-            double mult = switch (myRank) {
-                case 4 -> 0.0;   // Boss
-                case 3 -> 0.10;  // Underboss
-                case 2 -> 0.50;  // Member
-                default -> 1.0;  // Recruit
-            };
+            double mult = switch (myRank) { case 4 -> 0.0; case 3 -> 0.10; case 2 -> 0.50; default -> 1.0; };
             int myFee = (int) Math.ceil(fee * mult);
             String feeText = myFee > 0
                     ? "\u00A78Beitrag: \u00A7e" + fee + "\u20AC/Wo \u00A77(dein: \u00A7a" + myFee + "\u20AC\u00A77)"
@@ -436,46 +498,239 @@ public class GangAppScreen extends Screen {
         }
         y += 14;
 
-        return y - startY;
+        // Trennlinie
+        g.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
+        y += 8;
+
+        // Stufenrabatt-Info
+        g.drawString(this.font, "\u00A76\u00A7lStufenrabatt", leftPos + 15, y, 0xFFAA00);
+        y += 12;
+        g.drawString(this.font, "\u00A7cRecruit: \u00A7f100% \u00A78| \u00A7eMember: \u00A7f50%", leftPos + 15, y, 0xFFFFFF);
+        y += 11;
+        g.drawString(this.font, "\u00A7bUnderboss: \u00A7f10% \u00A78| \u00A76Boss: \u00A7abefreit", leftPos + 15, y, 0xFFFFFF);
+        y += 18;
+
+        return y - startY + scrollOffset;
     }
 
-    // ── MITGLIEDER-SEKTION ──
-    private static final int MEMBER_ROW_HEIGHT = 20;
+    // ═══════════════════════════════════════════════════════════
+    // PAGE: AUFTRAEGE
+    // ═══════════════════════════════════════════════════════════
 
-    private int renderMembersSection(GuiGraphics g, SyncGangDataPacket data, int y) {
+    private int renderAuftraege(GuiGraphics g) {
+        SyncGangDataPacket data = ClientGangCache.getMyGangData();
+        if (data == null || !data.hasGang()) return 0;
+
+        int y = contentTop - scrollOffset + 3;
         int startY = y;
 
-        // Sektions-Header
-        g.fill(leftPos + 5, y, leftPos + WIDTH - 5, y + 1, 0x44FFFFFF);
-        y += 4;
-        g.drawString(this.font, "\u00A76\u00A7l\u25B6 Mitglieder", leftPos + 10, y, 0xFFAA00);
-        y += 13;
+        // Timer-Leiste
+        g.fill(leftPos + 5, y, leftPos + WIDTH - 5, y + 12, 0x33FFFFFF);
+        long elapsed = System.currentTimeMillis() - dataReceivedAt;
+        String h = "\u00A7e\u23F1" + MissionType.formatTimer(Math.max(0, data.getHourlyResetMs() - elapsed));
+        String d = "\u00A7a\u2600" + MissionType.formatTimer(Math.max(0, data.getDailyResetMs() - elapsed));
+        String w = "\u00A76\u2605" + MissionType.formatTimer(Math.max(0, data.getWeeklyResetMs() - elapsed));
+        g.drawString(this.font, h + " \u00A78| " + d + " \u00A78| " + w, leftPos + 10, y + 2, 0xFFFFFF);
+        y += 16;
 
-        List<SyncGangDataPacket.GangMemberInfo> members = data.getMembers();
+        // Stuendliche Auftraege
+        y = renderMissionCategory(g, data, y, 0, "\u00A7e\u00A7l\u23F1 Stuendlich", 0x33FFAA00);
+        // Taegliche Auftraege
+        y = renderMissionCategory(g, data, y, 1, "\u00A7a\u00A7l\u2600 Taeglich", 0x3300AA00);
+        // Woechentliche Auftraege
+        y = renderMissionCategory(g, data, y, 2, "\u00A76\u00A7l\u2605 Woechentlich", 0x33FF8800);
+
+        return y - startY + scrollOffset;
+    }
+
+    private int renderMissionCategory(GuiGraphics g, SyncGangDataPacket data, int y, int typeOrd, String header, int headerBg) {
+        List<SyncGangDataPacket.MissionInfo> missions = data.getMissionsByType(typeOrd);
+
+        if (y > contentTop - 16 && y < contentBottom + 16) {
+            g.fill(leftPos + 5, y, leftPos + WIDTH - 5, y + 14, headerBg);
+            g.drawString(this.font, header, leftPos + 10, y + 3, 0xFFFFFF);
+        }
+        y += 16;
+
+        if (missions.isEmpty()) {
+            if (y > contentTop - 12 && y < contentBottom + 12) {
+                g.drawString(this.font, "\u00A78Keine Auftraege.", leftPos + 15, y, 0x888888);
+            }
+            y += 14;
+        } else {
+            for (SyncGangDataPacket.MissionInfo mi : missions) {
+                if (y > contentTop - MISSION_CARD_HEIGHT && y < contentBottom + MISSION_CARD_HEIGHT) {
+                    int bg = mi.claimable() ? 0x4400AA00 : (mi.completed() ? 0x3300AA00 : 0x22333333);
+                    g.fill(leftPos + 8, y, leftPos + WIDTH - 8, y + MISSION_CARD_HEIGHT - 2, bg);
+
+                    String icon = mi.claimable() ? "\u00A7a\u2713 " : (mi.completed() ? "\u00A72\u2713 " : "\u00A7e\u25B6 ");
+                    g.drawString(this.font, icon + "\u00A7f" + mi.description(), leftPos + 12, y + 2, 0xFFFFFF);
+
+                    // Fortschrittsbalken
+                    int barX = leftPos + 12;
+                    int barW = WIDTH - 75;
+                    double prog = mi.getProgressPercent();
+                    int filledW = (int) (barW * Math.min(1.0, prog));
+                    g.fill(barX, y + 13, barX + barW, y + 18, 0xFF333333);
+                    if (filledW > 0) {
+                        g.fill(barX, y + 13, barX + filledW, y + 18, mi.completed() ? 0xFF00AA00 : 0xFFFFAA00);
+                    }
+                    g.drawString(this.font, "\u00A77" + mi.currentProgress() + "/" + mi.targetAmount(),
+                            barX + barW + 3, y + 12, 0xAAAAAA);
+
+                    // Belohnung
+                    String reward = "\u00A7e+" + mi.xpReward() + "XP";
+                    if (mi.moneyReward() > 0) reward += " \u00A7a+" + mi.moneyReward() + "\u20AC";
+                    g.drawString(this.font, reward, leftPos + 12, y + 21, 0xFFFFFF);
+
+                    if (mi.claimable()) {
+                        g.drawString(this.font, "\u00A7e[Abholen!]", leftPos + WIDTH - 60, y + 21, 0xFFFF55);
+                    }
+                }
+                y += MISSION_CARD_HEIGHT;
+            }
+
+            // Bonus-Check
+            long completedCount = missions.stream().filter(SyncGangDataPacket.MissionInfo::completed).count();
+            MissionType mt = MissionType.values()[typeOrd];
+            if (y > contentTop - 14 && y < contentBottom + 14) {
+                if (completedCount >= mt.getMissionCount()) {
+                    g.drawString(this.font, "\u00A7a\u00A7l\u2713 BONUS: +" + mt.getBonusXP() + "XP +" + mt.getBonusMoney() + "\u20AC",
+                            leftPos + 15, y, 0x55FF55);
+                } else {
+                    g.drawString(this.font, "\u00A78Alle " + mt.getMissionCount() + " = Bonus +" + mt.getBonusXP() + "XP (" +
+                            completedCount + "/" + mt.getMissionCount() + ")", leftPos + 15, y, 0x888888);
+                }
+            }
+            y += 16;
+        }
+        return y;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // PAGE: RIVALEN
+    // ═══════════════════════════════════════════════════════════
+
+    private int renderRivalen(GuiGraphics g) {
+        SyncGangDataPacket data = ClientGangCache.getMyGangData();
+        if (data == null || !data.hasGang()) return 0;
+
+        List<SyncGangListPacket.GangListEntry> gangs = ClientGangCache.getGangList();
+
+        int y = contentTop - scrollOffset + 3;
+        int startY = y;
+
+        // Eigener Rang finden
+        int ownRank = 0;
+        for (SyncGangListPacket.GangListEntry ge : gangs) {
+            if (ge.name().equals(data.getGangName())) { ownRank = ge.rank(); break; }
+        }
+        if (y > contentTop - 14 && y < contentBottom + 14) {
+            g.drawString(this.font, "\u00A77Euer Rang: \u00A7e\u00A7l#" + ownRank, leftPos + 10, y, 0xFFFFFF);
+        }
+        y += 16;
+
+        // Nach Bedrohungslevel gruppieren
+        int lastThreat = -1;
+        for (SyncGangListPacket.GangListEntry ge : gangs) {
+            boolean isOwn = ge.name().equals(data.getGangName());
+
+            // Bedrohungs-Header
+            if (!isOwn && ge.threatLevel() != lastThreat) {
+                lastThreat = ge.threatLevel();
+                if (y > contentTop - 14 && y < contentBottom + 14) {
+                    String tHeader = switch (ge.threatLevel()) {
+                        case 2 -> "\u00A7c\u00A7l\u26A0 HOHE BEDROHUNG";
+                        case 1 -> "\u00A7e\u00A7l\u25CF MITTEL";
+                        default -> "\u00A7a\u00A7l\u25CB NIEDRIG";
+                    };
+                    g.fill(leftPos + 5, y, leftPos + WIDTH - 5, y + 1, 0x44FFFFFF);
+                    y += 4;
+                    g.drawString(this.font, tHeader, leftPos + 10, y, 0xFFFFFF);
+                    y += 13;
+                } else {
+                    y += 17;
+                }
+            }
+
+            if (y > contentTop - 40 && y < contentBottom + 40) {
+                if (isOwn) {
+                    // Eigene Gang hervorgehoben
+                    g.fill(leftPos + 8, y, leftPos + WIDTH - 8, y + 14, 0x4400AAFF);
+                    g.drawString(this.font, "\u00A7e#" + ge.rank() + " \u00A7b\u25B6 " +
+                            getColorForOrdinal(ge.colorOrdinal()) + "[" + ge.tag() + "] \u00A7f" + ge.name() +
+                            " \u00A78(EURE GANG)", leftPos + 12, y + 3, 0xFFFFFF);
+                    y += 18;
+                } else {
+                    // Rival-Eintrag
+                    int rowBg = switch (ge.threatLevel()) { case 2 -> 0x22CC3333; case 1 -> 0x22CCAA33; default -> 0x22333333; };
+                    g.fill(leftPos + 8, y, leftPos + WIDTH - 8, y + 28, rowBg);
+
+                    String arrow = switch (ge.rankChange()) { case 1 -> "\u00A7a\u2191"; case -1 -> "\u00A7c\u2193"; default -> "\u00A7e\u2192"; };
+                    String tc = getColorForOrdinal(ge.colorOrdinal());
+                    g.drawString(this.font, "\u00A7e#" + ge.rank() + " " + arrow + " " +
+                            tc + "[" + ge.tag() + "] \u00A7f" + ge.name(),
+                            leftPos + 12, y + 2, 0xFFFFFF);
+
+                    // Stats-Zeile
+                    g.drawString(this.font, "\u00A78Lv.\u00A7f" + ge.level() +
+                            " \u00A78| " + ge.reputationName() +
+                            " \u00A78| \u00A7f" + ge.memberCount() + " Mitgl." +
+                            " \u00A78| \u00A7f" + ge.territoryCount() + " Geb.",
+                            leftPos + 12, y + 14, 0x888888);
+
+                    y += 32;
+                }
+            } else {
+                y += isOwn ? 18 : 32;
+            }
+        }
+
+        if (gangs.isEmpty()) {
+            g.drawString(this.font, "\u00A78Keine anderen Gangs auf dem Server.", leftPos + 15, y, 0x888888);
+            y += 14;
+        }
+
+        return y - startY + scrollOffset;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // PAGE: MITGLIEDER
+    // ═══════════════════════════════════════════════════════════
+
+    private int renderMitglieder(GuiGraphics g) {
+        SyncGangDataPacket data = ClientGangCache.getMyGangData();
+        if (data == null || !data.hasGang()) return 0;
+
+        int y = contentTop - scrollOffset + 3;
+        int startY = y;
+
+        int online = (int) data.getMembers().stream().filter(SyncGangDataPacket.GangMemberInfo::online).count();
+        g.drawString(this.font, "\u00A78" + data.getMemberCount() + "/" + data.getMaxMembers() +
+                " Mitglieder \u00A77| \u00A7a" + online + " online", leftPos + 10, y, 0xFFFFFF);
+        y += 14;
+
         int myRank = data.getMyRankPriority();
+        int fee = data.getWeeklyFee();
 
-        for (SyncGangDataPacket.GangMemberInfo member : members) {
+        for (SyncGangDataPacket.GangMemberInfo m : data.getMembers()) {
             if (y > contentTop - MEMBER_ROW_HEIGHT && y < contentBottom + MEMBER_ROW_HEIGHT) {
-                // Zeile
-                int bgColor = member.online() ? 0x2200AA00 : 0x11333333;
-                g.fill(leftPos + 8, y, leftPos + WIDTH - 8, y + MEMBER_ROW_HEIGHT - 2, bgColor);
+                int bg = m.online() ? 0x2200AA00 : 0x11333333;
+                g.fill(leftPos + 8, y, leftPos + WIDTH - 8, y + MEMBER_ROW_HEIGHT - 2, bg);
 
                 // Online-Dot + Rang + Name
-                String onlineDot = member.online() ? "\u00A7a\u25CF " : "\u00A78\u25CB ";
-                g.drawString(this.font, onlineDot + member.rankColor() + member.rank() +
-                        " \u00A7f" + member.name(), leftPos + 12, y + 3, 0xFFFFFF);
+                String dot = m.online() ? "\u00A7a\u25CF " : "\u00A78\u25CB ";
+                g.drawString(this.font, dot + m.rankColor() + m.rank() + " \u00A7f" + m.name(),
+                        leftPos + 12, y + 2, 0xFFFFFF);
 
-                // Rechte Seite: XP + Aktions-Buttons
+                // Rechte Seite: Beitrag + XP + Buttons
                 int rightX = leftPos + WIDTH - 12;
-                boolean canAct = myRank > member.rankPriority() && member.rankPriority() < 4;
+                boolean canAct = myRank > m.rankPriority() && m.rankPriority() < 4;
 
                 if (canAct && myRank >= 3) {
-                    // [X] Kick
                     g.fill(rightX - 11, y + 2, rightX, y + MEMBER_ROW_HEIGHT - 4, 0x55CC3333);
                     g.drawCenteredString(this.font, "\u00A7cX", rightX - 5, y + 3, 0xFF5555);
                     rightX -= 14;
-
-                    // [↑] Promote (nur Boss)
                     if (myRank >= 4) {
                         g.fill(rightX - 11, y + 2, rightX, y + MEMBER_ROW_HEIGHT - 4, 0x5533AA33);
                         g.drawCenteredString(this.font, "\u00A7a\u2191", rightX - 5, y + 3, 0x55FF55);
@@ -483,39 +738,46 @@ public class GangAppScreen extends Screen {
                     }
                 }
 
-                // XP-Beitrag
-                String xpText = "\u00A78+" + member.contributedXP() + "XP";
-                int xpWidth = this.font.width(xpText);
-                g.drawString(this.font, xpText, rightX - xpWidth - 2, y + 3, 0x888888);
+                // XP + Beitrag
+                double mult = switch (m.rankPriority()) { case 4 -> 0.0; case 3 -> 0.10; case 2 -> 0.50; default -> 1.0; };
+                int memberFee = (int) Math.ceil(fee * mult);
+                String info = "\u00A78+" + m.contributedXP() + "XP";
+                if (fee > 0) info += " \u00A77" + memberFee + "\u20AC";
+                int infoW = this.font.width(info);
+                g.drawString(this.font, info, rightX - infoW - 2, y + 2, 0x888888);
+
+                // Zeile 2 fuer Beitragsstatus
+                if (fee > 0 && m.rankPriority() < 4) {
+                    g.drawString(this.font, "\u00A78Beitrag/Wo: \u00A7f" + memberFee + "\u20AC",
+                            leftPos + 24, y + 12, 0x888888);
+                }
             }
             y += MEMBER_ROW_HEIGHT;
         }
 
-        y += 3;
-        return y - startY;
+        return y - startY + scrollOffset;
     }
 
-    // ── PERKS-SEKTION ──
-    private static final int PERK_ROW_HEIGHT = 24;
+    // ═══════════════════════════════════════════════════════════
+    // PAGE: PERKS
+    // ═══════════════════════════════════════════════════════════
 
-    private int renderPerksSection(GuiGraphics g, SyncGangDataPacket data, int y) {
+    private int renderPerks(GuiGraphics g) {
+        SyncGangDataPacket data = ClientGangCache.getMyGangData();
+        if (data == null || !data.hasGang()) return 0;
+
+        int y = contentTop - scrollOffset + 3;
         int startY = y;
-
-        // Sektions-Header
-        g.fill(leftPos + 5, y, leftPos + WIDTH - 5, y + 1, 0x44FFFFFF);
-        y += 4;
 
         int available = data.getAvailablePerkPoints();
         int used = data.getUnlockedPerks().size();
         int total = GangLevelRequirements.getAvailablePerkPoints(data.getGangLevel());
-        g.drawString(this.font, "\u00A76\u00A7l\u2726 Perks \u00A77(" + used + "/" + total +
-                (available > 0 ? ", \u00A7a" + available + " frei" : "") + "\u00A77)",
-                leftPos + 10, y, 0xFFAA00);
-        y += 13;
+        g.drawString(this.font, "\u00A77Punkte: \u00A7a" + available + " frei \u00A77(" + used + "/" + total + ")",
+                leftPos + 10, y, 0xFFFFFF);
+        y += 12;
 
         if (data.canManagePerks() && available > 0) {
-            g.drawString(this.font, "\u00A7e\u00A7oKlicke zum Freischalten",
-                    leftPos + 15, y, 0xFFFF55);
+            g.drawString(this.font, "\u00A7e\u00A7oKlicke zum Freischalten", leftPos + 15, y, 0xFFFF55);
             y += 10;
         }
 
@@ -523,7 +785,6 @@ public class GangAppScreen extends Screen {
         GangPerk.PerkBranch lastBranch = null;
 
         for (GangPerk perk : perks) {
-            // Zweig-Ueberschrift
             if (perk.getBranch() != lastBranch) {
                 lastBranch = perk.getBranch();
                 if (y > contentTop - 14 && y < contentBottom + 14) {
@@ -535,134 +796,94 @@ public class GangAppScreen extends Screen {
 
             if (y > contentTop - PERK_ROW_HEIGHT && y < contentBottom + PERK_ROW_HEIGHT) {
                 boolean unlocked = data.hasPerk(perk);
-                boolean canUnlock = !unlocked && perk.canUnlock(data.getGangLevel()) &&
-                        available > 0 && data.canManagePerks();
+                boolean canUnlock = !unlocked && perk.canUnlock(data.getGangLevel()) && available > 0 && data.canManagePerks();
 
                 int bg = unlocked ? 0x3300AA00 : (canUnlock ? 0x33FFAA00 : 0x22222222);
                 g.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + PERK_ROW_HEIGHT - 3, bg);
 
-                // Icon + Name
                 String icon = unlocked ? "\u00A7a\u2713" : (canUnlock ? "\u00A7e\u25CB" : "\u00A78\u2718");
-                String nameColor = unlocked ? "\u00A7a" : (canUnlock ? "\u00A7f" : "\u00A78");
-                g.drawString(this.font, icon + " " + nameColor + perk.getDisplayName(),
-                        leftPos + 13, y + 2, 0xFFFFFF);
+                String nameCol = unlocked ? "\u00A7a" : (canUnlock ? "\u00A7f" : "\u00A78");
+                g.drawString(this.font, icon + " " + nameCol + perk.getDisplayName(), leftPos + 13, y + 2, 0xFFFFFF);
 
-                // Level rechts
                 String lvl = "\u00A77Lv." + perk.getRequiredGangLevel();
                 g.drawString(this.font, lvl, leftPos + WIDTH - 15 - this.font.width(lvl), y + 2, 0xFFFFFF);
 
-                // Beschreibung
                 String desc = (unlocked ? "\u00A72" : "\u00A78") + perk.getDescription();
                 g.drawString(this.font, desc, leftPos + 13, y + 12, 0x888888);
             }
             y += PERK_ROW_HEIGHT;
         }
 
-        y += 3;
-        return y - startY;
+        return y - startY + scrollOffset;
     }
 
-    // ── ANDERE GANGS SEKTION ──
-    private static final int GANG_ROW_HEIGHT = 28;
+    // ═══════════════════════════════════════════════════════════
+    // PAGE: WOCHENBERICHT
+    // ═══════════════════════════════════════════════════════════
 
-    private int renderGangListSection(GuiGraphics g, int y) {
+    private int renderBericht(GuiGraphics g) {
+        SyncGangDataPacket data = ClientGangCache.getMyGangData();
+        if (data == null || !data.hasGang()) return 0;
+
+        int y = contentTop - scrollOffset + 3;
         int startY = y;
 
-        List<SyncGangListPacket.GangListEntry> gangs = ClientGangCache.getGangList();
+        // Timer
+        long elapsed = System.currentTimeMillis() - dataReceivedAt;
+        g.drawString(this.font, "\u00A78Reset in: \u00A7f" + MissionType.formatTimer(
+                Math.max(0, data.getWeeklyResetMs() - elapsed)), leftPos + 10, y, 0xFFFFFF);
+        y += 16;
 
-        // Sektions-Header
+        // Zusammenfassung
         g.fill(leftPos + 5, y, leftPos + WIDTH - 5, y + 1, 0x44FFFFFF);
         y += 4;
-        g.drawString(this.font, "\u00A76\u00A7l\u2691 Andere Gangs \u00A77(" + gangs.size() + ")",
-                leftPos + 10, y, 0xFFAA00);
-        y += 13;
+        g.drawString(this.font, "\u00A7e\u00A7lZusammenfassung", leftPos + 10, y, 0xFFFF55);
+        y += 14;
 
-        if (gangs.isEmpty()) {
-            g.drawString(this.font, "\u00A78Keine anderen Gangs auf dem Server.",
-                    leftPos + 15, y, 0x888888);
-            y += 14;
-        } else {
-            for (SyncGangListPacket.GangListEntry gang : gangs) {
-                if (y > contentTop - GANG_ROW_HEIGHT && y < contentBottom + GANG_ROW_HEIGHT) {
-                    g.fill(leftPos + 8, y, leftPos + WIDTH - 8, y + GANG_ROW_HEIGHT - 3, 0x22333333);
+        g.drawString(this.font, "\u00A78Gang-XP gewonnen:   \u00A7a+" + data.getWeekXPGained(), leftPos + 15, y, 0xFFFFFF);
+        y += 11;
+        g.drawString(this.font, "\u00A78Einnahmen:          \u00A7a+" + data.getWeekMoneyEarned() + "\u20AC", leftPos + 15, y, 0xFFFFFF);
+        y += 11;
+        g.drawString(this.font, "\u00A78Beitraege kassiert: \u00A7a+" + data.getWeekFeesCollected() + "\u20AC", leftPos + 15, y, 0xFFFFFF);
+        y += 16;
 
-                    // Zeile 1: Tag + Name + Level
-                    String tagColor = getColorForOrdinal(gang.colorOrdinal());
-                    String stars = GangReputation.getLevelStars(gang.level());
-                    String tagDisplay = tagColor + "[" + gang.tag();
-                    if (!stars.isEmpty()) tagDisplay += " " + stars + tagColor;
-                    tagDisplay += "]";
-
-                    g.drawString(this.font, tagDisplay + " \u00A7f" + gang.name(),
-                            leftPos + 12, y + 2, 0xFFFFFF);
-
-                    // Zeile 2: Details
-                    g.drawString(this.font, "\u00A78Lv.\u00A7f" + gang.level() +
-                                    " \u00A78| " + gang.reputationName() +
-                                    " \u00A78| \u00A7f" + gang.memberCount() + "/" + gang.maxMembers() + " Mitgl." +
-                                    " \u00A78| \u00A7f" + gang.territoryCount() + " Gebiet" + (gang.territoryCount() != 1 ? "e" : ""),
-                            leftPos + 12, y + 14, 0x888888);
-                }
-                y += GANG_ROW_HEIGHT;
-            }
-        }
-
-        y += 3;
-        return y - startY;
-    }
-
-    // ── MISSIONEN-SEKTION ──
-    private static final int MISSION_ROW_HEIGHT = 36;
-
-    private int renderMissionsSection(GuiGraphics g, SyncGangDataPacket data, int y) {
-        int startY = y;
-
-        // Sektions-Header
+        // Auftrags-Statistik
         g.fill(leftPos + 5, y, leftPos + WIDTH - 5, y + 1, 0x44FFFFFF);
         y += 4;
-        g.drawString(this.font, "\u00A76\u00A7l\u2605 Missionen", leftPos + 10, y, 0xFFAA00);
-        y += 13;
+        g.drawString(this.font, "\u00A7e\u00A7lAuftrags-Statistik", leftPos + 10, y, 0xFFFF55);
+        y += 14;
 
-        List<SyncGangDataPacket.MissionInfo> missions = data.getMissions();
+        g.drawString(this.font, "\u00A78Stuendlich:   \u00A7a" + data.getWeekHourlyDone(), leftPos + 15, y, 0xFFFFFF);
+        y += 11;
+        g.drawString(this.font, "\u00A78Taeglich:     \u00A7a" + data.getWeekDailyDone(), leftPos + 15, y, 0xFFFFFF);
+        y += 11;
+        g.drawString(this.font, "\u00A78Woechentlich: \u00A7a" + data.getWeekWeeklyDone(), leftPos + 15, y, 0xFFFFFF);
+        y += 11;
+        int totalDone = data.getWeekHourlyDone() + data.getWeekDailyDone() + data.getWeekWeeklyDone();
+        g.drawString(this.font, "\u00A78Gesamt:       \u00A7f" + totalDone + " Auftraege", leftPos + 15, y, 0xFFFFFF);
+        y += 16;
 
-        if (missions.isEmpty()) {
-            g.drawString(this.font, "\u00A78Keine aktiven Missionen.", leftPos + 15, y, 0x888888);
-            g.drawString(this.font, "\u00A78Missionen werden taeglich generiert.", leftPos + 15, y + 11, 0x888888);
-            y += 24;
-        } else {
-            for (SyncGangDataPacket.MissionInfo mission : missions) {
-                if (y > contentTop - MISSION_ROW_HEIGHT && y < contentBottom + MISSION_ROW_HEIGHT) {
-                    int bg = mission.completed() ? 0x3300AA00 : 0x22333333;
-                    g.fill(leftPos + 8, y, leftPos + WIDTH - 8, y + MISSION_ROW_HEIGHT - 3, bg);
+        // Top-Mitglieder
+        g.fill(leftPos + 5, y, leftPos + WIDTH - 5, y + 1, 0x44FFFFFF);
+        y += 4;
+        g.drawString(this.font, "\u00A7e\u00A7lTop-Mitglieder (XP)", leftPos + 10, y, 0xFFFF55);
+        y += 14;
 
-                    // Beschreibung
-                    String icon = mission.completed() ? "\u00A7a\u2713 " : "\u00A7e\u25B6 ";
-                    g.drawString(this.font, icon + "\u00A7f" + mission.description(), leftPos + 12, y + 2, 0xFFFFFF);
+        List<SyncGangDataPacket.GangMemberInfo> sorted = data.getMembers().stream()
+                .sorted((a, b) -> Integer.compare(b.contributedXP(), a.contributedXP()))
+                .limit(3).toList();
 
-                    // Fortschrittsbalken
-                    int barX = leftPos + 12;
-                    int barW = WIDTH - 55;
-                    double progress = mission.getProgressPercent();
-                    int filledW = (int) (barW * Math.min(1.0, progress));
-
-                    g.fill(barX, y + 14, barX + barW, y + 20, 0xFF333333);
-                    if (filledW > 0) {
-                        g.fill(barX, y + 14, barX + filledW, y + 20,
-                                mission.completed() ? 0xFF00AA00 : 0xFFFFAA00);
-                    }
-                    g.drawString(this.font, "\u00A77" + mission.currentProgress() + "/" + mission.targetAmount(),
-                            barX + barW + 3, y + 14, 0xAAAAAA);
-
-                    // Belohnung
-                    g.drawString(this.font, "\u00A7e+" + mission.xpReward() + "XP \u00A7a+" +
-                            mission.moneyReward() + "\u20AC", leftPos + 12, y + 24, 0xFFFFFF);
-                }
-                y += MISSION_ROW_HEIGHT;
-            }
+        String[] medals = {"\u00A7e\u2655 ", "\u00A77\u2655 ", "\u00A76\u2655 "};
+        for (int i = 0; i < sorted.size(); i++) {
+            SyncGangDataPacket.GangMemberInfo m = sorted.get(i);
+            String medal = i < medals.length ? medals[i] : "\u00A78  ";
+            g.drawString(this.font, medal + "\u00A7f" + m.name() + " \u00A78+" + m.contributedXP() + "XP",
+                    leftPos + 15, y, 0xFFFFFF);
+            y += 11;
         }
 
-        y += 5;
-        return y - startY;
+        y += 10;
+        return y - startY + scrollOffset;
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -671,17 +892,22 @@ public class GangAppScreen extends Screen {
 
     private String formatGangTag(SyncGangDataPacket data) {
         int colorOrd = data.getGangColorOrdinal();
-        String colorCode = getColorForOrdinal(colorOrd);
+        String cc = getColorForOrdinal(colorOrd);
         String stars = GangReputation.getLevelStars(data.getGangLevel());
-        if (stars.isEmpty()) {
-            return colorCode + "[" + data.getGangTag() + "]";
-        }
-        return colorCode + "[" + data.getGangTag() + " " + stars + colorCode + "]";
+        if (stars.isEmpty()) return cc + "[" + data.getGangTag() + "]";
+        return cc + "[" + data.getGangTag() + " " + stars + cc + "]";
     }
 
     private static String getColorForOrdinal(int ordinal) {
         net.minecraft.ChatFormatting cf = net.minecraft.ChatFormatting.getById(ordinal);
         return cf != null ? "\u00A7" + cf.getChar() : "\u00A7f";
+    }
+
+    private String getShortTimerString(SyncGangDataPacket data) {
+        long elapsed = System.currentTimeMillis() - dataReceivedAt;
+        return "\u00A7e\u23F1" + MissionType.formatTimer(Math.max(0, data.getHourlyResetMs() - elapsed)) +
+                " \u00A78| \u00A7a\u2600" + MissionType.formatTimer(Math.max(0, data.getDailyResetMs() - elapsed)) +
+                " \u00A78| \u00A76\u2605" + MissionType.formatTimer(Math.max(0, data.getWeeklyResetMs() - elapsed));
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -690,7 +916,7 @@ public class GangAppScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-        if (hasGang && maxScroll > 0) {
+        if (maxScroll > 0) {
             scrollOffset = (int) Math.max(0, Math.min(maxScroll, scrollOffset - delta * SCROLL_SPEED));
             return true;
         }
@@ -699,34 +925,97 @@ public class GangAppScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (button == 0 && hasGang) {
-            // Klick im scrollbaren Bereich?
-            if (mouseY >= contentTop && mouseY < contentBottom) {
-                double relY = mouseY - contentTop + scrollOffset;
+        if (button == 0 && hasGang && mouseY >= contentTop && mouseY < contentBottom) {
+            double relY = mouseY - contentTop + scrollOffset;
 
-                // Perk-Klick?
-                if (handlePerkClick(relY, mouseX)) return true;
-
-                // Member-Klick?
-                if (handleMemberClick(relY, mouseX)) return true;
+            switch (currentPage) {
+                case INBOX -> { if (handleInboxClick(relY)) return true; }
+                case AUFTRAEGE -> { if (handleMissionClick(relY, mouseX)) return true; }
+                case MITGLIEDER -> { if (handleMemberClick(relY, mouseX)) return true; }
+                case PERKS -> { if (handlePerkClick(relY, mouseX)) return true; }
             }
         }
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
-    private boolean handlePerkClick(double relativeY, double mouseX) {
+    private boolean handleInboxClick(double relY) {
+        int rowIndex = (int) ((relY - 3) / INBOX_ROW_HEIGHT);
+        SubPage[] targets = {SubPage.ZENTRALE, SubPage.AUFTRAEGE, SubPage.RIVALEN,
+                SubPage.MITGLIEDER, SubPage.PERKS, SubPage.BERICHT};
+        if (rowIndex >= 0 && rowIndex < targets.length) {
+            navigateTo(targets[rowIndex]);
+            return true;
+        }
+        return false;
+    }
+
+    private boolean handleMissionClick(double relY, double mouseX) {
+        SyncGangDataPacket data = ClientGangCache.getMyGangData();
+        if (data == null) return false;
+
+        // Einfache Klick-Erkennung: Klick auf eine claimable Mission
+        double y = 19; // Timer-Leiste
+        for (int typeOrd = 0; typeOrd < 3; typeOrd++) {
+            y += 16; // Kategorie-Header
+            List<SyncGangDataPacket.MissionInfo> missions = data.getMissionsByType(typeOrd);
+            if (missions.isEmpty()) {
+                y += 14;
+            } else {
+                for (SyncGangDataPacket.MissionInfo mi : missions) {
+                    if (relY >= y && relY < y + MISSION_CARD_HEIGHT && mi.claimable()) {
+                        sendActionAndRefresh(GangActionPacket.claimMission(mi.missionId()));
+                        return true;
+                    }
+                    y += MISSION_CARD_HEIGHT;
+                }
+                y += 16; // Bonus-Zeile
+            }
+        }
+        return false;
+    }
+
+    private boolean handleMemberClick(double relY, double mouseX) {
+        SyncGangDataPacket data = ClientGangCache.getMyGangData();
+        if (data == null) return false;
+
+        int myRank = data.getMyRankPriority();
+        if (myRank < 3) return false;
+
+        double memberStart = 14; // Header
+        int memberIndex = (int) ((relY - memberStart) / MEMBER_ROW_HEIGHT);
+        List<SyncGangDataPacket.GangMemberInfo> members = data.getMembers();
+        if (memberIndex < 0 || memberIndex >= members.size()) return false;
+
+        SyncGangDataPacket.GangMemberInfo member = members.get(memberIndex);
+        if (myRank <= member.rankPriority() || member.rankPriority() >= 4) return false;
+
+        int rightX = leftPos + WIDTH - 12;
+
+        if (mouseX >= rightX - 11 && mouseX <= rightX) {
+            sendActionAndRefresh(GangActionPacket.kick(member.uuid()));
+            return true;
+        }
+        if (myRank >= 4 && mouseX >= rightX - 25 && mouseX <= rightX - 14) {
+            GangRank nextRank = switch (member.rankPriority()) {
+                case 1 -> GangRank.MEMBER;
+                case 2 -> GangRank.UNDERBOSS;
+                default -> null;
+            };
+            if (nextRank != null) {
+                sendActionAndRefresh(GangActionPacket.promote(member.uuid(), nextRank));
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean handlePerkClick(double relY, double mouseX) {
         SyncGangDataPacket data = ClientGangCache.getMyGangData();
         if (data == null || !data.canManagePerks() || data.getAvailablePerkPoints() <= 0) return false;
         if (mouseX < leftPos + 10 || mouseX > leftPos + WIDTH - 10) return false;
 
-        // Position innerhalb der Perk-Sektion
-        double yInSection = relativeY - perksSectionY;
-
-        // Header + "Klicke zum Freischalten" Text ueberspringen
-        int available = data.getAvailablePerkPoints();
-        double perkContentStart = 17 + (data.canManagePerks() && available > 0 ? 10 : 0);
-
-        double localY = yInSection - perkContentStart;
+        double perkStart = 12 + (data.canManagePerks() && data.getAvailablePerkPoints() > 0 ? 10 : 0);
+        double localY = relY - perkStart;
         if (localY < 0) return false;
 
         GangPerk[] perks = GangPerk.values();
@@ -736,12 +1025,10 @@ public class GangAppScreen extends Screen {
         for (GangPerk perk : perks) {
             if (perk.getBranch() != lastBranch) {
                 lastBranch = perk.getBranch();
-                yOffset += 12; // Branch header
+                yOffset += 12;
             }
-
             if (localY >= yOffset && localY < yOffset + PERK_ROW_HEIGHT) {
-                boolean unlocked = data.hasPerk(perk);
-                if (!unlocked && perk.canUnlock(data.getGangLevel())) {
+                if (!data.hasPerk(perk) && perk.canUnlock(data.getGangLevel())) {
                     sendActionAndRefresh(GangActionPacket.unlockPerk(perk.name()));
                     return true;
                 }
@@ -751,61 +1038,12 @@ public class GangAppScreen extends Screen {
         return false;
     }
 
-    private boolean handleMemberClick(double relativeY, double mouseX) {
-        SyncGangDataPacket data = ClientGangCache.getMyGangData();
-        if (data == null) return false;
-
-        int myRank = data.getMyRankPriority();
-        if (myRank < 3) return false;
-
-        // Position innerhalb der Mitglieder-Sektion
-        double yInSection = relativeY - membersSectionY;
-        double memberContentStart = 17; // Header
-        double localY = yInSection - memberContentStart;
-        if (localY < 0) return false;
-
-        List<SyncGangDataPacket.GangMemberInfo> members = data.getMembers();
-        int memberIndex = (int) (localY / MEMBER_ROW_HEIGHT);
-        if (memberIndex < 0 || memberIndex >= members.size()) return false;
-
-        SyncGangDataPacket.GangMemberInfo member = members.get(memberIndex);
-        if (myRank <= member.rankPriority() || member.rankPriority() >= 4) return false;
-
-        int rightX = leftPos + WIDTH - 12;
-
-        // [X] Kick
-        if (mouseX >= rightX - 11 && mouseX <= rightX) {
-            sendActionAndRefresh(GangActionPacket.kick(member.uuid()));
-            return true;
-        }
-
-        // [↑] Promote (nur Boss)
-        if (myRank >= 4 && mouseX >= rightX - 25 && mouseX <= rightX - 14) {
-            GangRank nextRank = getNextRank(member.rankPriority());
-            if (nextRank != null) {
-                sendActionAndRefresh(GangActionPacket.promote(member.uuid(), nextRank));
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private GangRank getNextRank(int currentPriority) {
-        return switch (currentPriority) {
-            case 1 -> GangRank.MEMBER;
-            case 2 -> GangRank.UNDERBOSS;
-            default -> null;
-        };
-    }
-
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (getFocused() instanceof EditBox) {
             return super.keyPressed(keyCode, scanCode, modifiers);
         }
-        if (keyCode == 69) { // GLFW_KEY_E
-            return true;
-        }
+        if (keyCode == 69) return true; // Block E-key
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
 

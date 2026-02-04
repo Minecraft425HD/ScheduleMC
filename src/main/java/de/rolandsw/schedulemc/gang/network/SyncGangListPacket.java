@@ -11,8 +11,10 @@ import java.util.*;
 import java.util.function.Supplier;
 
 /**
- * Server sendet Liste aller Gangs an den Client (fuer "Andere Gangs" in der App).
+ * Server sendet Liste aller Gangs an den Client (fuer Rivalen-Seite in der App).
  * Server -> Client
+ *
+ * Erweitert mit Rival-Daten: Rang, Rang-Aenderung, Bedrohungslevel.
  */
 public class SyncGangListPacket {
 
@@ -34,6 +36,11 @@ public class SyncGangListPacket {
             buf.writeInt(e.territoryCount);
             buf.writeInt(e.colorOrdinal);
             buf.writeUtf(e.reputationName, 32);
+            // Rival-Felder
+            buf.writeInt(e.rank);
+            buf.writeInt(e.rankChange);
+            buf.writeInt(e.threatLevel);
+            buf.writeInt(e.balance);
         }
     }
 
@@ -50,7 +57,11 @@ public class SyncGangListPacket {
                     buf.readInt(),
                     buf.readInt(),
                     buf.readInt(),
-                    buf.readUtf(32)
+                    buf.readUtf(32),
+                    buf.readInt(),
+                    buf.readInt(),
+                    buf.readInt(),
+                    buf.readInt()
             ));
         }
         return new SyncGangListPacket(list);
@@ -73,10 +84,17 @@ public class SyncGangListPacket {
     }
 
     /**
-     * Zusammenfassung einer Gang fuer die Listenansicht.
+     * Zusammenfassung einer Gang fuer die Rivalen-/Listenansicht.
+     *
+     * rank: Position im Ranking (1 = bester)
+     * rankChange: Aenderung seit letzter Woche (-1=abgestiegen, 0=gleich, +1=aufgestiegen)
+     * threatLevel: 0=niedrig, 1=mittel, 2=hoch (basierend auf Level-Differenz)
+     * balance: Ungefaehres Gang-Guthaben
      */
     public record GangListEntry(UUID gangId, String name, String tag,
                                  int level, int memberCount, int maxMembers,
                                  int territoryCount, int colorOrdinal,
-                                 String reputationName) {}
+                                 String reputationName,
+                                 int rank, int rankChange, int threatLevel,
+                                 int balance) {}
 }

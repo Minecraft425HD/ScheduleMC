@@ -1,9 +1,9 @@
 package de.rolandsw.schedulemc.gang.network;
 
 import de.rolandsw.schedulemc.gang.*;
-import de.rolandsw.schedulemc.level.LevelRequirements;
-import de.rolandsw.schedulemc.level.ProducerLevel;
-import de.rolandsw.schedulemc.level.ProducerLevelData;
+import de.rolandsw.schedulemc.gang.mission.GangMission;
+import de.rolandsw.schedulemc.gang.mission.GangMissionManager;
+import de.rolandsw.schedulemc.gang.mission.MissionType;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
@@ -19,9 +19,7 @@ public class RequestGangDataPacket {
 
     public RequestGangDataPacket() {}
 
-    public void encode(FriendlyByteBuf buf) {
-        // Leer - Spieler-UUID kommt aus dem Context
-    }
+    public void encode(FriendlyByteBuf buf) {}
 
     public static RequestGangDataPacket decode(FriendlyByteBuf buf) {
         return new RequestGangDataPacket();
@@ -54,7 +52,6 @@ public class RequestGangDataPacket {
                 UUID memberUUID = entry.getKey();
                 GangMemberData memberData = entry.getValue();
 
-                // Spielername bestimmen
                 String name = "???";
                 boolean online = false;
                 ServerPlayer memberPlayer = player.getServer().getPlayerList().getPlayer(memberUUID);
@@ -62,7 +59,6 @@ public class RequestGangDataPacket {
                     name = memberPlayer.getGameProfile().getName();
                     online = true;
                 } else {
-                    // Offline-Name via GameProfile Cache
                     var profile = player.getServer().getProfileCache();
                     if (profile != null) {
                         var optional = profile.get(memberUUID);
@@ -73,8 +69,7 @@ public class RequestGangDataPacket {
                 }
 
                 memberInfos.add(new SyncGangDataPacket.GangMemberInfo(
-                        memberUUID,
-                        name,
+                        memberUUID, name,
                         memberData.getRank().getDisplayName(),
                         memberData.getRank().getColorCode(),
                         memberData.getRank().getPriority(),
@@ -86,28 +81,53 @@ public class RequestGangDataPacket {
             // Perks
             Set<String> unlockedPerks = gang.getUnlockedPerks();
 
-            // Missionen (Platzhalter - wird spaeter durch MissionManager gefuellt)
-            List<SyncGangDataPacket.MissionInfo> missions = List.of();
+            // Missionen aus dem MissionManager
+            List<SyncGangDataPacket.MissionInfo> missionInfos = new ArrayList<>();
+            long hourlyResetMs = 0, dailyResetMs = 0, weeklyResetMs = 0;
+            int weekXP = 0, weekMoney = 0, weekFees = 0, weekH = 0, weekD = 0, weekW = 0;
+
+            GangMissionManager mm = GangMissionManager.getInstance();
+            if (mm != null) {
+                UUID gangId = gang.getGangId();
+                for (GangMission m : mm.getMissions(gangId)) {
+                    missionInfos.add(new SyncGangDataPacket.MissionInfo(
+                            m.getMissionId(),
+                            m.getType().ordinal(),
+                            m.getDescription(),
+                            m.getCurrentProgress(),
+                            m.getTargetAmount(),
+                            m.getXpReward(),
+                            m.getMoneyReward(),
+                            m.isCompleted(),
+                            m.isClaimable()
+                    ));
+                }
+
+                hourlyResetMs = mm.getResetRemainingMs(gangId, MissionType.HOURLY);
+                dailyResetMs = mm.getResetRemainingMs(gangId, MissionType.DAILY);
+                weeklyResetMs = mm.getResetRemainingMs(gangId, MissionType.WEEKLY);
+
+                GangMissionManager.WeeklyStats ws = mm.getWeeklyStats(gangId);
+                weekXP = ws.xpGained;
+                weekMoney = ws.moneyEarned;
+                weekFees = ws.feesCollected;
+                weekH = ws.hourlyCompleted;
+                weekD = ws.dailyCompleted;
+                weekW = ws.weeklyCompleted;
+            }
 
             SyncGangDataPacket packet = new SyncGangDataPacket(
                     true,
-                    gang.getName(),
-                    gang.getTag(),
-                    gang.getGangLevel(),
-                    gang.getGangXP(),
-                    gang.getGangBalance(),
+                    gang.getName(), gang.getTag(),
+                    gang.getGangLevel(), gang.getGangXP(), gang.getGangBalance(),
                     gang.getColor().ordinal(),
-                    gang.getMemberCount(),
-                    gang.getMaxMembers(),
-                    gang.getTerritoryCount(),
-                    gang.getMaxTerritory(),
-                    gang.getAvailablePerkPoints(),
-                    gang.getProgress(),
-                    myRankPriority,
-                    gang.getWeeklyFee(),
-                    memberInfos,
-                    unlockedPerks,
-                    missions
+                    gang.getMemberCount(), gang.getMaxMembers(),
+                    gang.getTerritoryCount(), gang.getMaxTerritory(),
+                    gang.getAvailablePerkPoints(), gang.getProgress(),
+                    myRankPriority, gang.getWeeklyFee(),
+                    hourlyResetMs, dailyResetMs, weeklyResetMs,
+                    memberInfos, unlockedPerks, missionInfos,
+                    weekXP, weekMoney, weekFees, weekH, weekD, weekW
             );
 
             GangNetworkHandler.sendToPlayer(packet, player);
