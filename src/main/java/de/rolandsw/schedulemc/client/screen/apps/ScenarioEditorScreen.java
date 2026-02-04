@@ -65,6 +65,13 @@ public class ScenarioEditorScreen extends Screen {
     private static final String[] DIFFICULTIES = {"1 - Leicht", "2 - Normal", "3 - Mittel", "4 - Schwer", "5 - Extrem"};
     private static final String[] ENTITY_TYPES = {"zombie", "skeleton", "spider", "creeper", "enderman",
             "witch", "pillager", "vindicator", "ravager", "phantom"};
+    private static final String[] VEHICLE_TYPES = {"AUTO", "MOTORRAD", "LKW", "BUS", "BOOT", "HELIKOPTER"};
+    private static final String[] OUTFIT_TYPES = {"POLIZIST", "ARZT", "BAUARBEITER", "GESCHAEFTSMANN",
+            "LIEFERANT", "MECHANIKER"};
+    private static final String[] METHOD_TYPES = {"ABLENKUNG", "BESTECHUNG", "FALSCHALARM", "GERAEUSCH", "KOEDER"};
+    private static final String[] EVENT_TYPES = {"POLIZEI_KONTROLLE", "UEBERFALL", "UNFALL", "BRAND",
+            "STROMAUSFALL", "UNWETTER"};
+    private static final String[] COLOR_TYPES = {"WEISS", "ROT", "GRUEN", "BLAU", "GELB", "LILA", "ORANGE", "GRAU"};
     private static final String[] MISSION_TYPES = {"HOURLY", "DAILY", "WEEKLY"};
     private static final String[] MISSION_TYPE_LABELS = {"Stuendlich", "Taeglich", "Woechentlich"};
 
@@ -452,6 +459,11 @@ public class ScenarioEditorScreen extends Screen {
             case DROPDOWN_PLOT, DROPDOWN_PLOT_TYPE -> "\u00A7d\u2302 ";
             case DROPDOWN_DIFFICULTY -> "\u00A7c\u2605 ";
             case DROPDOWN_ENTITY -> "\u00A74\u2694 ";
+            case DROPDOWN_VEHICLE -> "\u00A79\u2708 ";
+            case DROPDOWN_OUTFIT -> "\u00A78\u2663 ";
+            case DROPDOWN_METHOD -> "\u00A73\u2699 ";
+            case DROPDOWN_EVENT -> "\u00A7c? ";
+            case DROPDOWN_COLOR -> "\u00A7e\u25CF ";
             default -> "\u00A77\u25AA ";
         };
     }
@@ -638,6 +650,11 @@ public class ScenarioEditorScreen extends Screen {
             case DROPDOWN_PLOT_TYPE -> new String[]{"RESIDENTIAL", "COMMERCIAL", "SHOP", "PUBLIC", "GOVERNMENT", "PRISON", "TOWING_YARD"};
             case DROPDOWN_DIFFICULTY -> DIFFICULTIES;
             case DROPDOWN_ENTITY -> ENTITY_TYPES;
+            case DROPDOWN_VEHICLE -> VEHICLE_TYPES;
+            case DROPDOWN_OUTFIT -> OUTFIT_TYPES;
+            case DROPDOWN_METHOD -> METHOD_TYPES;
+            case DROPDOWN_EVENT -> EVENT_TYPES;
+            case DROPDOWN_COLOR -> COLOR_TYPES;
             default -> new String[]{};
         };
     }
