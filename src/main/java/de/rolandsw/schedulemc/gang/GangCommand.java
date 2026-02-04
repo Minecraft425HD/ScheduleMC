@@ -391,7 +391,7 @@ public class GangCommand {
             for (de.rolandsw.schedulemc.region.PlotRegion plot : de.rolandsw.schedulemc.region.PlotManager.getPlots()) {
                 net.minecraft.core.BlockPos center = plot.getCenter();
                 String plotName = plot.getPlotName() != null ? plot.getPlotName() : plot.getPlotId();
-                String plotType = plot.getPlotType() != null ? plot.getPlotType().name() : "PUBLIC";
+                String plotType = plot.getType() != null ? plot.getType().name() : "PUBLIC";
                 plots.add(new de.rolandsw.schedulemc.gang.network.OpenScenarioEditorPacket.PlotInfo(
                         plot.getPlotId(), plotName, plotType,
                         center.getX(), center.getY(), center.getZ()));
