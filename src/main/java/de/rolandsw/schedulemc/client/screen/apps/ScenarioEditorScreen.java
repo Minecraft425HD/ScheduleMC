@@ -530,16 +530,25 @@ public class ScenarioEditorScreen extends Screen {
         return 1;
     }
 
-    // ─── TOOLBAR DROPDOWNS ───
+    // ─── TOOLBAR DROPDOWNS (im Vordergrund) ───
     private void renderToolbarDropdowns(GuiGraphics g, int mx, int my) {
         if (toolbarDD == ToolbarDD.NONE) return;
+
+        // Vordergrund: Schatten-Overlay + Z-Translation
+        g.pose().pushPose();
+        g.pose().translate(0, 0, 400);
+
+        // Abdunkelung hinter dem Dropdown
+        g.fill(0, TOOLBAR_H, this.width, this.height, 0x88000000);
+
         int ddX = 4;
         if (toolbarDD == ToolbarDD.OPEN) {
             String[] items = allScenarios.stream().map(s -> s.getName() + (s.isActive() ? " \u00A7a\u2713" : "")).toArray(String[]::new);
-            renderDD(g, ddX, TOOLBAR_H, items, mx, my, 0xFF3498DB, 130);
+            if (items.length == 0) items = new String[]{"\u00A78Keine Szenarien"};
+            renderDD(g, ddX, TOOLBAR_H, items, mx, my, 0xFF3498DB, 140);
         } else if (toolbarDD == ToolbarDD.TEMPLATES) {
             ddX = 4 + this.font.width("Oeffnen") + 8 + 3 + this.font.width("Speichern") + 8 + 3;
-            renderDD(g, ddX, TOOLBAR_H, ScenarioTemplates.getTemplateNames(), mx, my, 0xFFF39C12, 130);
+            renderDD(g, ddX, TOOLBAR_H, ScenarioTemplates.getTemplateNames(), mx, my, 0xFFF39C12, 140);
         } else if (toolbarDD == ToolbarDD.ACTIVE) {
             ddX = 4 + this.font.width("Oeffnen") + 8 + 3 + this.font.width("Speichern") + 8 + 3
                     + this.font.width("Vorlagen") + 8 + 3;
@@ -547,11 +556,13 @@ public class ScenarioEditorScreen extends Screen {
                     .map(s -> (s.isActive() ? "\u00A7a\u25CF " : "\u00A7c\u25CB ") + "\u00A7f" + s.getName())
                     .toArray(String[]::new);
             if (items.length == 0) items = new String[]{"\u00A78Keine Szenarien"};
-            renderDD(g, ddX, TOOLBAR_H, items, mx, my, 0xFF9B59B6, 130);
+            renderDD(g, ddX, TOOLBAR_H, items, mx, my, 0xFF9B59B6, 140);
         }
+
+        g.pose().popPose();
     }
 
-    // ─── PARAM DROPDOWN (Properties) ───
+    // ─── PARAM DROPDOWN (Properties, im Vordergrund) ───
     private void renderParamDropdown(GuiGraphics g, int mx, int my) {
         if (activeParamDD == null || selectedBlockId == null) return;
         ScenarioObjective obj = currentScenario.getObjective(selectedBlockId);
@@ -572,19 +583,48 @@ public class ScenarioEditorScreen extends Screen {
         int maxVisible = Math.min(items.length, 10);
         int ddH = maxVisible * itemH + 4;
 
-        g.fill(ddX - 1, paramY + 22, ddX + ddW + 1, paramY + 22 + ddH + 1, 0xFF000000);
-        g.fill(ddX, paramY + 22, ddX + ddW, paramY + 22 + ddH, C_DD_BG);
+        // Dropdown kann ueber Properties-Panel hinausragen -> links erweitern wenn noetig
+        int actualDDW = Math.max(ddW, 120);
+        int actualDDX = ddX;
+        if (actualDDX + actualDDW > this.width) {
+            actualDDX = this.width - actualDDW - 2;
+        }
 
-        g.enableScissor(ddX, paramY + 22, ddX + ddW, paramY + 22 + ddH);
+        // Vordergrund: Z-Translation
+        g.pose().pushPose();
+        g.pose().translate(0, 0, 500);
+
+        // Abdunkelung
+        g.fill(0, TOOLBAR_H, this.width, this.height, 0x66000000);
+
+        // Rahmen + Hintergrund
+        g.fill(actualDDX - 2, paramY + 20, actualDDX + actualDDW + 2, paramY + 22 + ddH + 2, 0xFF000000);
+        g.fill(actualDDX - 1, paramY + 21, actualDDX + actualDDW + 1, paramY + 22 + ddH + 1, 0xFF3A3A5A);
+        g.fill(actualDDX, paramY + 22, actualDDX + actualDDW, paramY + 22 + ddH, C_DD_BG);
+        // Akzentlinie oben
+        g.fill(actualDDX, paramY + 22, actualDDX + actualDDW, paramY + 23, 0xFF3498DB);
+
+        g.enableScissor(actualDDX, paramY + 23, actualDDX + actualDDW, paramY + 22 + ddH);
         for (int i = 0; i < items.length; i++) {
             int iy = paramY + 24 + (i - paramDDScroll) * itemH;
             if (iy < paramY + 20 || iy > paramY + 22 + ddH) continue;
-            boolean hover = mx >= ddX && mx < ddX + ddW && my >= iy && my < iy + itemH;
-            if (hover) g.fill(ddX + 1, iy, ddX + ddW - 1, iy + itemH, C_DD_HOVER);
-            String t = items[i].length() > 16 ? items[i].substring(0, 15) + ".." : items[i];
-            g.drawString(this.font, t, ddX + 3, iy + 2, 0xDDDDDD);
+            boolean hover = mx >= actualDDX && mx < actualDDX + actualDDW && my >= iy && my < iy + itemH;
+            if (hover) g.fill(actualDDX + 1, iy, actualDDX + actualDDW - 1, iy + itemH, C_DD_HOVER);
+            String t = items[i].length() > 18 ? items[i].substring(0, 17) + ".." : items[i];
+            g.drawString(this.font, t, actualDDX + 3, iy + 2, 0xDDDDDD);
         }
         g.disableScissor();
+
+        // Scrollbar Hinweis
+        if (items.length > maxVisible) {
+            int sbH = ddH - 4;
+            int thumbH = Math.max(8, sbH * maxVisible / items.length);
+            int thumbY = paramY + 24 + (sbH - thumbH) * paramDDScroll / Math.max(1, items.length - maxVisible);
+            g.fill(actualDDX + actualDDW - 3, paramY + 24, actualDDX + actualDDW - 1, paramY + 22 + ddH - 2, 0x33FFFFFF);
+            g.fill(actualDDX + actualDDW - 3, thumbY, actualDDX + actualDDW - 1, thumbY + thumbH, 0xAAFFFFFF);
+        }
+
+        g.pose().popPose();
     }
 
     private String[] getDropdownItems(ObjectiveType.ParamDef def) {
@@ -602,7 +642,7 @@ public class ScenarioEditorScreen extends Screen {
         };
     }
 
-    // ─── TOOLTIP ───
+    // ─── TOOLTIP (im Vordergrund) ───
     private void renderBlockTooltip(GuiGraphics g, int mx, int my) {
         ScenarioObjective obj = currentScenario.getObjective(hoveredBlockId);
         if (obj == null) return;
@@ -625,22 +665,27 @@ public class ScenarioEditorScreen extends Screen {
         if (tx + tw + 6 > this.width) tx = mx - tw - 14;
         if (ty < TOOLBAR_H) ty = my + 10;
 
+        g.pose().pushPose();
+        g.pose().translate(0, 0, 300);
         g.fill(tx - 2, ty - 2, tx + tw + 4, ty + lines.size() * 10 + 2, 0xEE000000);
         g.fill(tx - 2, ty - 2, tx + tw + 4, ty - 1, 0xFF3498DB);
         for (int i = 0; i < lines.size(); i++)
             g.drawString(this.font, lines.get(i), tx, ty + i * 10, 0xFFFFFF);
+        g.pose().popPose();
     }
 
     // ─── GENERIC DROPDOWN ───
     private void renderDD(GuiGraphics g, int x, int y, String[] items, int mx, int my, int ac, int w) {
         int ih = 13, h = items.length * ih + 4;
+        // Schatten + Rahmen
+        g.fill(x - 1, y - 1, x + w + 1, y + h + 1, 0xFF000000);
         g.fill(x, y, x + w, y + h, C_DD_BG);
-        g.fill(x, y, x + w, y + 1, ac);
+        g.fill(x, y, x + w, y + 2, ac);
         for (int i = 0; i < items.length; i++) {
-            int iy = y + 2 + i * ih;
+            int iy = y + 3 + i * ih;
             boolean hov = mx >= x && mx < x + w && my >= iy && my < iy + ih;
             if (hov) g.fill(x + 1, iy, x + w - 1, iy + ih, ac & 0x33FFFFFF);
-            String t = items[i].length() > 20 ? items[i].substring(0, 19) + ".." : items[i];
+            String t = items[i].length() > 22 ? items[i].substring(0, 21) + ".." : items[i];
             g.drawString(this.font, t, x + 4, iy + 2, 0xDDDDDD);
         }
     }
