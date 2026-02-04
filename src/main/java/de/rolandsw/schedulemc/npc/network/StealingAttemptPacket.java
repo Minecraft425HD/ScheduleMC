@@ -2,11 +2,17 @@ package de.rolandsw.schedulemc.npc.network;
 
 import de.rolandsw.schedulemc.economy.WalletManager;
 import de.rolandsw.schedulemc.economy.items.CashItem;
+import de.rolandsw.schedulemc.lock.LockData;
+import de.rolandsw.schedulemc.lock.LockManager;
+import de.rolandsw.schedulemc.lock.LockType;
+import de.rolandsw.schedulemc.lock.items.KeyItem;
+import de.rolandsw.schedulemc.lock.items.LockItems;
 import de.rolandsw.schedulemc.npc.crime.CrimeManager;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.util.PacketHandler;
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -161,6 +167,87 @@ public class StealingAttemptPacket {
                                 }
                             }
                         }
+                    } else if (stealType == 2) {
+                        // ═══════════════════════════════════════════
+                        // SCHLUESSEL KLAUEN (nahe Schloesser durchsuchen)
+                        // ═══════════════════════════════════════════
+                        LockManager lockMgr = LockManager.getInstance();
+                        if (lockMgr != null) {
+                            // Suche Schloesser im Umkreis von 32 Bloecken um den NPC
+                            LockData nearbyLock = findNearbyKeyLock(lockMgr, npc, player);
+                            if (nearbyLock != null && nearbyLock.getType().supportsKeys()) {
+                                // Erstelle gestohlenen Schluessel
+                                int requiredTier = nearbyLock.getType().getRequiredBlankTier();
+                                ItemStack keyStack;
+                                if (requiredTier >= 2) {
+                                    keyStack = new ItemStack(LockItems.KEY_BLANK_NETHERITE.get());
+                                } else if (requiredTier >= 1) {
+                                    keyStack = new ItemStack(LockItems.KEY_BLANK_IRON.get());
+                                } else {
+                                    keyStack = new ItemStack(LockItems.KEY_BLANK_COPPER.get());
+                                }
+                                // Verwandle Rohling in gestohlenen Schluessel
+                                KeyItem.createKey(keyStack, nearbyLock, LockType.KeyOrigin.STOLEN);
+
+                                // Gib dem Spieler
+                                if (!player.getInventory().add(keyStack)) {
+                                    player.drop(keyStack, false);
+                                }
+
+                                stolenItem = keyStack;
+                                player.sendSystemMessage(Component.literal(
+                                        "\u00A76\u2714 Schluessel geklaut! (" + nearbyLock.getType().getDisplayName()
+                                                + " - " + nearbyLock.getLockId() + ")"));
+                                player.sendSystemMessage(Component.literal(
+                                        "\u00A78Gestohlen: 25% Haltbarkeit & Nutzungen!"));
+
+                                if (LOGGER.isDebugEnabled()) {
+                                    LOGGER.debug("[STEALING] Key stolen for lock {} by {}",
+                                            nearbyLock.getLockId(), player.getName().getString());
+                                }
+                            } else {
+                                player.sendSystemMessage(Component.literal(
+                                        "\u00A7cKein passendes Schloss in der Naehe gefunden!"));
+                            }
+                        }
+                    } else if (stealType == 3) {
+                        // ═══════════════════════════════════════════
+                        // CODE KLAUEN (Zahlenschloss-Code vom NPC)
+                        // ═══════════════════════════════════════════
+                        LockManager lockMgr = LockManager.getInstance();
+                        if (lockMgr != null) {
+                            LockData nearbyCodeLock = findNearbyCodeLock(lockMgr, npc, player);
+                            if (nearbyCodeLock != null && nearbyCodeLock.getCode() != null) {
+                                String code = nearbyCodeLock.getCode();
+                                player.sendSystemMessage(Component.literal(
+                                        "\u00A7d\u2714 Code geklaut!"));
+                                player.sendSystemMessage(Component.literal(
+                                        "\u00A76Schloss: \u00A7f" + nearbyCodeLock.getLockId()
+                                                + " (" + nearbyCodeLock.getType().getDisplayName() + ")"));
+                                player.sendSystemMessage(Component.literal(
+                                        "\u00A76Code: \u00A7a\u00A7l" + code));
+
+                                if (nearbyCodeLock.getType() == LockType.DUAL) {
+                                    long rotMs = nearbyCodeLock.getType().getCodeRotationMs();
+                                    long elapsed = System.currentTimeMillis() - nearbyCodeLock.getLastCodeRotation();
+                                    long remaining = rotMs - elapsed;
+                                    if (remaining > 0) {
+                                        long hours = remaining / 3600_000L;
+                                        long mins = (remaining % 3600_000L) / 60_000L;
+                                        player.sendSystemMessage(Component.literal(
+                                                "\u00A7e\u26A0 Code rotiert in " + hours + "h " + mins + "m!"));
+                                    }
+                                }
+
+                                if (LOGGER.isDebugEnabled()) {
+                                    LOGGER.debug("[STEALING] Code stolen for lock {} by {}",
+                                            nearbyCodeLock.getLockId(), player.getName().getString());
+                                }
+                            } else {
+                                player.sendSystemMessage(Component.literal(
+                                        "\u00A7cKein Zahlenschloss in der Naehe gefunden!"));
+                            }
+                        }
                     }
 
                         // Setze Cooldown (aktueller Tag)
@@ -280,5 +367,65 @@ public class StealingAttemptPacket {
                     }
                 }
         });
+    }
+
+    /**
+     * Sucht ein Schloss mit Schluessel-Unterstuetzung im Umkreis von 32 Bloecken um den NPC.
+     * Bevorzugt Schloesser mit hoeherem Sicherheitslevel.
+     */
+    private static LockData findNearbyKeyLock(LockManager mgr, CustomNPCEntity npc,
+                                               net.minecraft.server.level.ServerPlayer player) {
+        String dim = player.level().dimension().location().toString();
+        int npcX = npc.blockPosition().getX();
+        int npcY = npc.blockPosition().getY();
+        int npcZ = npc.blockPosition().getZ();
+
+        LockData best = null;
+        double bestDist = Double.MAX_VALUE;
+
+        for (LockData data : mgr.getAllLocks()) {
+            if (!data.getDimension().equals(dim)) continue;
+            if (!data.getType().supportsKeys()) continue;
+
+            double dist = Math.sqrt(
+                    Math.pow(data.getDoorX() - npcX, 2) +
+                    Math.pow(data.getDoorY() - npcY, 2) +
+                    Math.pow(data.getDoorZ() - npcZ, 2));
+            if (dist <= 32.0 && dist < bestDist) {
+                bestDist = dist;
+                best = data;
+            }
+        }
+        return best;
+    }
+
+    /**
+     * Sucht ein Zahlenschloss (COMBINATION oder DUAL) im Umkreis von 32 Bloecken.
+     */
+    private static LockData findNearbyCodeLock(LockManager mgr, CustomNPCEntity npc,
+                                                net.minecraft.server.level.ServerPlayer player) {
+        String dim = player.level().dimension().location().toString();
+        int npcX = npc.blockPosition().getX();
+        int npcY = npc.blockPosition().getY();
+        int npcZ = npc.blockPosition().getZ();
+
+        LockData best = null;
+        double bestDist = Double.MAX_VALUE;
+
+        for (LockData data : mgr.getAllLocks()) {
+            if (!data.getDimension().equals(dim)) continue;
+            if (!data.getType().hasCode()) continue;
+            if (data.getCode() == null) continue;
+
+            double dist = Math.sqrt(
+                    Math.pow(data.getDoorX() - npcX, 2) +
+                    Math.pow(data.getDoorY() - npcY, 2) +
+                    Math.pow(data.getDoorZ() - npcZ, 2));
+            if (dist <= 32.0 && dist < bestDist) {
+                bestDist = dist;
+                best = data;
+            }
+        }
+        return best;
     }
 }

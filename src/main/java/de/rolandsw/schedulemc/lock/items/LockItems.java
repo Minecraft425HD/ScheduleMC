@@ -44,4 +44,8 @@ public class LockItems {
     // ─── Dietrich-Set ───
     public static final RegistryObject<Item> LOCK_PICK = ITEMS.register("lock_pick",
             () -> new LockPickItem());
+
+    // ─── Hacking-Tool ───
+    public static final RegistryObject<Item> HACKING_TOOL = ITEMS.register("hacking_tool",
+            () -> new HackingToolItem());
 }

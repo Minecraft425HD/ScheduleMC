@@ -88,6 +88,7 @@ public class ModCreativeTabs {
                 output.accept(de.rolandsw.schedulemc.lock.items.LockItems.KEY_BLANK_NETHERITE.get());
                 output.accept(de.rolandsw.schedulemc.lock.items.LockItems.KEY_RING.get());
                 output.accept(de.rolandsw.schedulemc.lock.items.LockItems.LOCK_PICK.get());
+                output.accept(de.rolandsw.schedulemc.lock.items.LockItems.HACKING_TOOL.get());
 
                 // ═══════════════════════════════════════════════════════════
                 // ECONOMY BLOCKS

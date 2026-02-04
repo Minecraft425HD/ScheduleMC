@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.lock;
 
 import de.rolandsw.schedulemc.lock.items.DoorLockItem;
+import de.rolandsw.schedulemc.lock.items.HackingToolItem;
 import de.rolandsw.schedulemc.lock.items.KeyItem;
 import de.rolandsw.schedulemc.lock.items.KeyRingItem;
 import de.rolandsw.schedulemc.lock.items.LockPickItem;
@@ -54,6 +55,7 @@ public class DoorLockHandler {
         if (heldItem.getItem() instanceof KeyItem) return;
         if (heldItem.getItem() instanceof KeyRingItem) return;
         if (heldItem.getItem() instanceof LockPickItem) return;
+        if (heldItem.getItem() instanceof HackingToolItem) return;
 
         // Besitzer darf immer oeffnen
         if (event.getEntity() instanceof ServerPlayer player) {

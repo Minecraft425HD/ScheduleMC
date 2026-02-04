@@ -52,11 +52,13 @@ public class StealingScreen extends AbstractContainerScreen<StealingMenu> {
     // Buttons
     private Button moneyButton;
     private Button itemsButton;
+    private Button keyButton;
+    private Button codeButton;
 
     public StealingScreen(StealingMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.imageWidth = 176;
-        this.imageHeight = 120;
+        this.imageHeight = 150;
     }
 
     @Override
@@ -67,24 +69,40 @@ public class StealingScreen extends AbstractContainerScreen<StealingMenu> {
         int buttonWidth = 70;
         int buttonHeight = 20;
         int centerX = (width - imageWidth) / 2 + imageWidth / 2;
-        int centerY = (height - imageHeight) / 2 + imageHeight / 2;
+        int topY = (height - imageHeight) / 2 + 40;
 
         moneyButton = Button.builder(Component.translatable("screen.stealing.button_money"), button -> {
             stealType = 0;
             choosingMode = false;
             startGame();
             updateButtons();
-        }).bounds(centerX - buttonWidth - 5, centerY - buttonHeight / 2, buttonWidth, buttonHeight).build();
+        }).bounds(centerX - buttonWidth - 5, topY, buttonWidth, buttonHeight).build();
 
         itemsButton = Button.builder(Component.translatable("screen.stealing.button_items"), button -> {
             stealType = 1;
             choosingMode = false;
             startGame();
             updateButtons();
-        }).bounds(centerX + 5, centerY - buttonHeight / 2, buttonWidth, buttonHeight).build();
+        }).bounds(centerX + 5, topY, buttonWidth, buttonHeight).build();
+
+        keyButton = Button.builder(Component.literal("\u00A76Schluessel"), button -> {
+            stealType = 2;
+            choosingMode = false;
+            startGame();
+            updateButtons();
+        }).bounds(centerX - buttonWidth - 5, topY + buttonHeight + 4, buttonWidth, buttonHeight).build();
+
+        codeButton = Button.builder(Component.literal("\u00A7dCode"), button -> {
+            stealType = 3;
+            choosingMode = false;
+            startGame();
+            updateButtons();
+        }).bounds(centerX + 5, topY + buttonHeight + 4, buttonWidth, buttonHeight).build();
 
         addRenderableWidget(moneyButton);
         addRenderableWidget(itemsButton);
+        addRenderableWidget(keyButton);
+        addRenderableWidget(codeButton);
 
         updateButtons();
     }
@@ -95,6 +113,8 @@ public class StealingScreen extends AbstractContainerScreen<StealingMenu> {
     private void updateButtons() {
         moneyButton.visible = choosingMode;
         itemsButton.visible = choosingMode;
+        keyButton.visible = choosingMode;
+        codeButton.visible = choosingMode;
     }
 
     /**
