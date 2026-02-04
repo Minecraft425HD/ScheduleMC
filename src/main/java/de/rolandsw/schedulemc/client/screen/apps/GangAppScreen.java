@@ -133,34 +133,34 @@ public class GangAppScreen extends Screen {
     }
 
     private void buildNoGangWidgets() {
-        int cx = leftPos + 25;
-        int cy = contentTop + 20;
+        int cx = leftPos + 15;
+        int cy = contentTop + 5;
 
         // Gang-Name Eingabe
-        createNameInput = new EditBox(this.font, cx, cy + 25, 150, 18, Component.literal("Name"));
+        createNameInput = new EditBox(this.font, cx, cy + 36, 140, 16, Component.literal("Name"));
         createNameInput.setMaxLength(20);
         createNameInput.setHint(Component.literal("Gang-Name..."));
         addRenderableWidget(createNameInput);
 
         // Gang-Tag Eingabe
-        createTagInput = new EditBox(this.font, cx, cy + 55, 60, 18, Component.literal("Tag"));
+        createTagInput = new EditBox(this.font, cx, cy + 68, 55, 16, Component.literal("Tag"));
         createTagInput.setMaxLength(5);
         createTagInput.setHint(Component.literal("TAG"));
         addRenderableWidget(createTagInput);
 
-        // Gruenden-Button
-        addRenderableWidget(Button.builder(Component.literal("\u00A7aGruenden"), button -> {
+        // Gruenden-Button (25.000€)
+        addRenderableWidget(Button.builder(Component.literal("\u00A7aGruenden \u00A7225.000\u20AC"), button -> {
             String name = createNameInput.getValue().trim();
             String tag = createTagInput.getValue().trim().toUpperCase();
             if (!name.isEmpty() && !tag.isEmpty() && tag.length() >= 2) {
                 sendActionAndRefresh(GangActionPacket.create(name, tag, "RED"));
             }
-        }).bounds(cx + 70, cy + 55, 80, 18).build());
+        }).bounds(cx + 60, cy + 68, 100, 16).build());
 
-        // Einladung annehmen
-        addRenderableWidget(Button.builder(Component.literal("\u00A7eEinladung annehmen"), button -> {
+        // Einladung annehmen (2.500€)
+        addRenderableWidget(Button.builder(Component.literal("\u00A7eEinladung annehmen \u00A7a2.500\u20AC"), button -> {
             sendActionAndRefresh(GangActionPacket.acceptInvite(UUID.randomUUID()));
-        }).bounds(cx, cy + 110, 150, 20).build());
+        }).bounds(cx, cy + 140, 170, 18).build());
 
         // Zurueck
         addRenderableWidget(Button.builder(Component.translatable("gui.app.gang.back"), button -> {
@@ -258,21 +258,37 @@ public class GangAppScreen extends Screen {
     // ═══════════════════════════════════════════════════════════
 
     private void renderNoGangView(GuiGraphics g) {
-        int cx = leftPos + 25;
-        int cy = contentTop + 20;
+        int cx = leftPos + 15;
+        int cy = contentTop + 5;
 
-        g.drawString(this.font, "\u00A76\u00A7lGang gruenden", cx, cy + 10, 0xFFAA00);
-        g.drawString(this.font, "\u00A77Name:", cx, cy + 16, 0xAAAAAA);
-        g.drawString(this.font, "\u00A77Tag (2-5):", cx, cy + 46, 0xAAAAAA);
+        // ── Gang gruenden ──
+        g.drawString(this.font, "\u00A76\u00A7lGang gruenden", cx, cy, 0xFFAA00);
+        g.drawString(this.font, "\u00A78Voraussetzung: \u00A7eLv.15 \u00A78| \u00A7a25.000\u20AC", cx, cy + 11, 0x888888);
+        g.drawString(this.font, "\u00A77Name:", cx, cy + 26, 0xAAAAAA);
+        // createNameInput bei cy + 36
+        g.drawString(this.font, "\u00A77Tag (2-5):", cx, cy + 58, 0xAAAAAA);
+        // createTagInput bei cy + 68 + Gruenden-Button
 
         // Trennlinie
-        g.fill(leftPos + 15, cy + 85, leftPos + WIDTH - 15, cy + 86, 0x44FFFFFF);
+        g.fill(leftPos + 10, cy + 98, leftPos + WIDTH - 10, cy + 99, 0x44FFFFFF);
 
-        g.drawString(this.font, "\u00A76Einladung erhalten?", cx, cy + 95, 0xFFAA00);
-        g.drawString(this.font, "\u00A78Klicke um beizutreten:", cx, cy + 105, 0x888888);
+        // ── Einladung annehmen ──
+        g.drawString(this.font, "\u00A76\u00A7lGang beitreten", cx, cy + 105, 0xFFAA00);
+        g.drawString(this.font, "\u00A78Voraussetzung: \u00A7eLv.5 \u00A78| \u00A7a2.500\u20AC", cx, cy + 116, 0x888888);
+        g.drawString(this.font, "\u00A78Einladung erforderlich!", cx, cy + 127, 0x888888);
+        // Einladung annehmen Button bei cy + 140
+
+        // Trennlinie
+        g.fill(leftPos + 10, cy + 163, leftPos + WIDTH - 10, cy + 164, 0x44FFFFFF);
+
+        // ── Stufenrabatt Info ──
+        g.drawString(this.font, "\u00A76\u00A7lWochenbeitrag-System", cx, cy + 170, 0xFFAA00);
+        g.drawString(this.font, "\u00A78Der Boss legt den Beitrag fest (0-10.000\u20AC)", cx, cy + 181, 0x888888);
+        g.drawString(this.font, "\u00A7cRecruit: \u00A7f100% \u00A78| \u00A7eMember: \u00A7f50%", cx, cy + 192, 0xFFFFFF);
+        g.drawString(this.font, "\u00A7bUnderboss: \u00A7f10% \u00A78| \u00A76Boss: \u00A7abefreit", cx, cy + 203, 0xFFFFFF);
 
         // Andere Gangs anzeigen (auch ohne eigene Gang)
-        renderGangListStandalone(g, cy + 140);
+        renderGangListStandalone(g, cy + 220);
     }
 
     private void renderGangListStandalone(GuiGraphics g, int startY) {
