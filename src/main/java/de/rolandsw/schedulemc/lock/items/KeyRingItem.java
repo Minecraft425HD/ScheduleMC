@@ -1,0 +1,277 @@
+package de.rolandsw.schedulemc.lock.items;
+
+import de.rolandsw.schedulemc.lock.LockManager;
+import de.rolandsw.schedulemc.lock.LockType;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Schluesselring: Haelt bis zu 8 Schluessel.
+ *
+ * - Rechtsklick auf Tuer: Versucht passenden Schluessel zu finden und zu nutzen
+ * - Rechtsklick in Luft: Zeigt Info ueber alle gespeicherten Schluessel
+ * - Sneak + Rechtsklick mit Schluessel in anderer Hand: Schluessel hinzufuegen
+ *
+ * NBT: { "Keys": [ {key compound tags}, ... ] }
+ */
+public class KeyRingItem extends Item {
+
+    public static final int MAX_KEYS = 8;
+
+    public KeyRingItem() {
+        super(new Properties().stacksTo(1));
+    }
+
+    /** Schluessel zum Ring hinzufuegen. Gibt true zurueck bei Erfolg. */
+    public static boolean addKey(ItemStack ring, ItemStack key) {
+        if (getKeyCount(ring) >= MAX_KEYS) return false;
+        CompoundTag tag = ring.getOrCreateTag();
+        ListTag keys = tag.getList("Keys", Tag.TAG_COMPOUND);
+        CompoundTag keyData = key.getTag() != null ? key.getTag().copy() : new CompoundTag();
+        // Item-Registry-Name speichern fuer spaetere Rekonstruktion
+        keyData.putString("_item", key.getItem().builtInRegistryHolder().key().location().toString());
+        keys.add(keyData);
+        tag.put("Keys", keys);
+        return true;
+    }
+
+    /** Schluessel aus dem Ring entfernen (nach Index). */
+    public static void removeKey(ItemStack ring, int index) {
+        CompoundTag tag = ring.getTag();
+        if (tag == null) return;
+        ListTag keys = tag.getList("Keys", Tag.TAG_COMPOUND);
+        if (index >= 0 && index < keys.size()) keys.remove(index);
+    }
+
+    /** Anzahl der Schluessel im Ring. */
+    public static int getKeyCount(ItemStack ring) {
+        CompoundTag tag = ring.getTag();
+        if (tag == null) return 0;
+        return tag.getList("Keys", Tag.TAG_COMPOUND).size();
+    }
+
+    /** Abgelaufene Schluessel entfernen. Gibt Anzahl entfernter Schluessel zurueck. */
+    public static int cleanExpiredKeys(ItemStack ring) {
+        CompoundTag tag = ring.getTag();
+        if (tag == null) return 0;
+        ListTag keys = tag.getList("Keys", Tag.TAG_COMPOUND);
+        int removed = 0;
+        List<Integer> toRemove = new ArrayList<>();
+        long now = System.currentTimeMillis();
+        for (int i = 0; i < keys.size(); i++) {
+            CompoundTag kt = keys.getCompound(i);
+            if (kt.contains("expire_time") && now > kt.getLong("expire_time")) {
+                toRemove.add(i);
+            }
+        }
+        for (int i = toRemove.size() - 1; i >= 0; i--) {
+            keys.remove((int) toRemove.get(i));
+            removed++;
+        }
+        return removed;
+    }
+
+    /** Passenden Schluessel fuer ein Schloss finden. Gibt Index zurueck, -1 wenn keiner passt. */
+    public static int findKeyForLock(ItemStack ring, String lockId) {
+        CompoundTag tag = ring.getTag();
+        if (tag == null) return -1;
+        ListTag keys = tag.getList("Keys", Tag.TAG_COMPOUND);
+        long now = System.currentTimeMillis();
+        for (int i = 0; i < keys.size(); i++) {
+            CompoundTag kt = keys.getCompound(i);
+            if (!kt.getString("lock_id").equals(lockId)) continue;
+            // Abgelaufen?
+            if (kt.contains("expire_time") && now > kt.getLong("expire_time")) continue;
+            // Nutzungen?
+            if (kt.contains("uses_left") && kt.getInt("uses_left") <= 0) continue;
+            return i;
+        }
+        return -1;
+    }
+
+    /** Nutzung auf einem Schluessel im Ring abziehen. Gibt true wenn leer. */
+    public static boolean consumeKeyUse(ItemStack ring, int index) {
+        CompoundTag tag = ring.getTag();
+        if (tag == null) return false;
+        ListTag keys = tag.getList("Keys", Tag.TAG_COMPOUND);
+        if (index < 0 || index >= keys.size()) return false;
+        CompoundTag kt = keys.getCompound(index);
+        if (!kt.contains("uses_left")) return false;
+        int left = kt.getInt("uses_left") - 1;
+        kt.putInt("uses_left", left);
+        if (left <= 0) {
+            keys.remove(index);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public InteractionResult useOn(UseOnContext ctx) {
+        Level level = ctx.getLevel();
+        BlockPos pos = ctx.getClickedPos();
+
+        if (level.isClientSide()) return InteractionResult.PASS;
+        if (!(level.getBlockState(pos).getBlock() instanceof DoorBlock)) return InteractionResult.PASS;
+        if (!(ctx.getPlayer() instanceof ServerPlayer player)) return InteractionResult.PASS;
+
+        if (level.getBlockState(pos).getValue(DoorBlock.HALF) == DoubleBlockHalf.UPPER) {
+            pos = pos.below();
+        }
+
+        LockManager mgr = LockManager.getInstance();
+        if (mgr == null) return InteractionResult.FAIL;
+
+        String dim = level.dimension().location().toString();
+        String posKey = LockManager.posKey(dim, pos.getX(), pos.getY(), pos.getZ());
+        var lockData = mgr.getLock(posKey);
+
+        if (lockData == null) return InteractionResult.PASS; // Nicht gesperrt
+
+        ItemStack ring = ctx.getItemInHand();
+
+        // Abgelaufene Schluessel bereinigen
+        int expired = cleanExpiredKeys(ring);
+        if (expired > 0) {
+            player.sendSystemMessage(Component.literal(
+                    "\u00A78" + expired + " abgelaufene Schluessel entfernt."));
+        }
+
+        // Passenden Schluessel suchen
+        int keyIdx = findKeyForLock(ring, lockData.getLockId());
+        if (keyIdx < 0) {
+            player.sendSystemMessage(Component.literal(
+                    "\u00A7cKein passender Schluessel im Ring!"));
+            return InteractionResult.FAIL;
+        }
+
+        // Dual-Lock: Code noetig
+        if (lockData.getType() == LockType.DUAL) {
+            player.sendSystemMessage(Component.literal(
+                    "\u00A7eSchluessel gefunden! Gib jetzt den Code ein (Linksklick auf die Tuer)."));
+            return InteractionResult.SUCCESS;
+        }
+
+        // Nutzung abziehen
+        boolean depleted = consumeKeyUse(ring, keyIdx);
+        if (depleted) {
+            player.sendSystemMessage(Component.literal(
+                    "\u00A77Ein Schluessel im Ring wurde aufgebraucht."));
+        }
+
+        // Tuer oeffnen
+        DoorBlock door = (DoorBlock) level.getBlockState(pos).getBlock();
+        door.setOpen(null, level, level.getBlockState(pos), pos, !level.getBlockState(pos).getValue(DoorBlock.OPEN));
+        player.sendSystemMessage(Component.literal("\u00A7a\u2714 Tuer entriegelt (Ring)!"));
+
+        return InteractionResult.SUCCESS;
+    }
+
+    @Override
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+        ItemStack ring = player.getItemInHand(hand);
+        if (level.isClientSide()) return InteractionResultHolder.pass(ring);
+
+        // Abgelaufene bereinigen
+        int expired = cleanExpiredKeys(ring);
+        if (expired > 0) {
+            player.sendSystemMessage(Component.literal(
+                    "\u00A78" + expired + " abgelaufene Schluessel entfernt."));
+        }
+
+        // Sneak: Schluessel aus anderer Hand hinzufuegen
+        if (player.isShiftKeyDown()) {
+            InteractionHand other = hand == InteractionHand.MAIN_HAND ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
+            ItemStack otherItem = player.getItemInHand(other);
+            if (otherItem.getItem() instanceof KeyItem && !KeyItem.isBlank(otherItem)) {
+                if (getKeyCount(ring) >= MAX_KEYS) {
+                    player.sendSystemMessage(Component.literal(
+                            "\u00A7cSchluesselring ist voll! (Max " + MAX_KEYS + ")"));
+                } else {
+                    addKey(ring, otherItem);
+                    player.setItemInHand(other, ItemStack.EMPTY);
+                    player.sendSystemMessage(Component.literal(
+                            "\u00A7a\u2714 Schluessel zum Ring hinzugefuegt (" +
+                                    getKeyCount(ring) + "/" + MAX_KEYS + ")"));
+                }
+                return InteractionResultHolder.success(ring);
+            }
+        }
+
+        // Info anzeigen
+        showKeyRingInfo(player, ring);
+        return InteractionResultHolder.success(ring);
+    }
+
+    private void showKeyRingInfo(Player player, ItemStack ring) {
+        int count = getKeyCount(ring);
+        player.sendSystemMessage(Component.literal(
+                "\u00A76\u2550\u2550\u2550 Schluesselring (" + count + "/" + MAX_KEYS + ") \u2550\u2550\u2550"));
+
+        CompoundTag tag = ring.getTag();
+        if (tag == null || count == 0) {
+            player.sendSystemMessage(Component.literal("\u00A78Keine Schluessel."));
+            return;
+        }
+
+        ListTag keys = tag.getList("Keys", Tag.TAG_COMPOUND);
+        long now = System.currentTimeMillis();
+        for (int i = 0; i < keys.size(); i++) {
+            CompoundTag kt = keys.getCompound(i);
+            String lockId = kt.getString("lock_id");
+            String lockType = kt.getString("lock_type");
+            String origin = kt.getString("origin");
+            int usesLeft = kt.contains("uses_left") ? kt.getInt("uses_left") : -1;
+            long remaining = kt.contains("expire_time") ? kt.getLong("expire_time") - now : -1;
+
+            String timeStr;
+            if (remaining < 0) timeStr = "\u00A7a\u221E";
+            else if (remaining <= 0) timeStr = "\u00A7cAbgelaufen";
+            else if (remaining > 86400000) timeStr = "\u00A7a" + (remaining / 86400000) + "d";
+            else if (remaining > 3600000) timeStr = "\u00A7e" + (remaining / 3600000) + "h";
+            else timeStr = "\u00A7c" + (remaining / 60000) + "m";
+
+            String usesStr = usesLeft > 0 ? usesLeft + "x" : "\u00A7cLeer";
+            String originShort = origin.equals("STOLEN") ? "\u00A7c[G]" :
+                    origin.equals("COPY") ? "\u00A7e[K]" : "\u00A7a[O]";
+
+            player.sendSystemMessage(Component.literal(
+                    "\u00A77" + (i + 1) + ". " + originShort + " \u00A7f" + lockId +
+                            " \u00A78(" + lockType + ") " + timeStr + " \u00A78| " + usesStr));
+        }
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, Level level, List<Component> tips, TooltipFlag flag) {
+        int count = getKeyCount(stack);
+        tips.add(Component.literal("\u00A76Schluesselring").withStyle(ChatFormatting.GOLD));
+        tips.add(Component.literal("\u00A77" + count + "/" + MAX_KEYS + " Schluessel"));
+        tips.add(Component.literal("\u00A78Rechtsklick auf Tuer: Oeffnen"));
+        tips.add(Component.literal("\u00A78Rechtsklick in Luft: Info"));
+        tips.add(Component.literal("\u00A78Sneak+Rechtsklick: Schluessel hinzufuegen"));
+    }
+
+    @Override
+    public boolean isFoil(ItemStack stack) {
+        return getKeyCount(stack) > 0;
+    }
+}

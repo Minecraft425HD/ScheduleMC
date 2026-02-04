@@ -123,6 +123,10 @@ import de.rolandsw.schedulemc.utility.UtilityRegistry;
 import de.rolandsw.schedulemc.utility.PlotUtilityManager;
 import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import de.rolandsw.schedulemc.utility.commands.UtilityCommand;
+import de.rolandsw.schedulemc.lock.items.LockItems;
+import de.rolandsw.schedulemc.lock.DoorLockHandler;
+import de.rolandsw.schedulemc.lock.LockCommand;
+import de.rolandsw.schedulemc.lock.LockManager;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import net.minecraft.core.BlockPos;
@@ -290,6 +294,9 @@ public class ScheduleMC {
         NPCItems.ITEMS.register(modEventBus);
         NPCEntities.ENTITIES.register(modEventBus);
         NPCMenuTypes.MENUS.register(modEventBus);
+
+        // Lock-System registrieren
+        LockItems.ITEMS.register(modEventBus);
         de.rolandsw.schedulemc.towing.menu.TowingMenuTypes.MENUS.register(modEventBus);
         ModCreativeTabs.CREATIVE_MODE_TABS.register(modEventBus);
 
@@ -314,6 +321,7 @@ public class ScheduleMC {
         MinecraftForge.EVENT_BUS.register(BusinessMetricsUpdateHandler.class);
         MinecraftForge.EVENT_BUS.register(WarehouseManager.class);
         MinecraftForge.EVENT_BUS.register(UtilityEventHandler.class);
+        MinecraftForge.EVENT_BUS.register(new DoorLockHandler());
 
         LOGGER.info("ScheduleMC initialized");
     }
@@ -392,6 +400,7 @@ public class ScheduleMC {
             de.rolandsw.schedulemc.market.MarketCommand.register(event.getDispatcher());
             de.rolandsw.schedulemc.gang.GangCommand.register(event.getDispatcher());
             de.rolandsw.schedulemc.commands.AdminCommand.register(event.getDispatcher());
+            LockCommand.register(event.getDispatcher());
 
             // Vehicle Mod handles its own commands via event bus (registered in Main.commonSetup)
         }, "onRegisterCommands");
@@ -494,6 +503,10 @@ public class ScheduleMC {
             de.rolandsw.schedulemc.gang.mission.GangMissionManager.getInstance(configDir);
             de.rolandsw.schedulemc.gang.scenario.ScenarioManager.getInstance(configDir);
             LOGGER.info("Gang System initialized (incl. Mission Manager + Scenario Manager)");
+
+            // Lock System - Door locks with keys, combination codes, and lock picks
+            LockManager.getInstance(configDir);
+            LOGGER.info("Lock System initialized");
 
             // NPC Life System Manager - All managers with JSON persistence
             LOGGER.info("Initializing NPC Life System Managers...");
@@ -649,6 +662,16 @@ public class ScheduleMC {
                 4
             ));
 
+            // Lock System (Priority 5)
+            saveManager.register(new de.rolandsw.schedulemc.util.SaveableWrapper(
+                "LockManager",
+                () -> {
+                    LockManager lockMgr = LockManager.getInstance();
+                    if (lockMgr != null) lockMgr.save();
+                },
+                5
+            ));
+
             // Vehicle Systems (Priority 5)
             saveManager.register(new de.rolandsw.schedulemc.util.SaveableWrapper(
                 "FuelBillManager",
@@ -770,6 +793,12 @@ public class ScheduleMC {
                 }
             }
 
+            // Lock System - Code-Rotation pruefen (alle 5 Minuten reicht)
+            if (tickCounter % SAVE_INTERVAL == 100) {
+                LockManager lockMgr = LockManager.getInstance();
+                if (lockMgr != null) lockMgr.tickCodeRotation();
+            }
+
             if (tickCounter >= SAVE_INTERVAL) {
                 tickCounter = 0;
                 // ALLE Manager werden jetzt via IncrementalSaveManager gespeichert
@@ -804,6 +833,12 @@ public class ScheduleMC {
             de.rolandsw.schedulemc.gang.mission.GangMissionManager.resetInstance();
             de.rolandsw.schedulemc.gang.GangManager.resetInstance();
             LOGGER.info("Gang System saved and reset (incl. Mission Manager + Scenario Manager)");
+
+            // Lock System - Save and reset
+            LockManager lockMgr = LockManager.getInstance();
+            if (lockMgr != null) lockMgr.save();
+            LockManager.resetInstance();
+            LOGGER.info("Lock System saved and reset");
 
             if (saveManager != null) {
                 LOGGER.info("Stopping IncrementalSaveManager and performing final save...");
