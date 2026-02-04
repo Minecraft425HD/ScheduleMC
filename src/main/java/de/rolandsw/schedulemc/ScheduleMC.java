@@ -492,7 +492,8 @@ public class ScheduleMC {
             de.rolandsw.schedulemc.gang.GangManager.getInstance(server);
             java.nio.file.Path configDir = server.getServerDirectory().toPath().resolve("config");
             de.rolandsw.schedulemc.gang.mission.GangMissionManager.getInstance(configDir);
-            LOGGER.info("Gang System initialized (incl. Mission Manager)");
+            de.rolandsw.schedulemc.gang.scenario.ScenarioManager.getInstance(configDir);
+            LOGGER.info("Gang System initialized (incl. Mission Manager + Scenario Manager)");
 
             // NPC Life System Manager - All managers with JSON persistence
             LOGGER.info("Initializing NPC Life System Managers...");
@@ -799,9 +800,10 @@ public class ScheduleMC {
             }
 
             // Gang System - Save missions + reset singletons
+            de.rolandsw.schedulemc.gang.scenario.ScenarioManager.resetInstance();
             de.rolandsw.schedulemc.gang.mission.GangMissionManager.resetInstance();
             de.rolandsw.schedulemc.gang.GangManager.resetInstance();
-            LOGGER.info("Gang System saved and reset (incl. Mission Manager)");
+            LOGGER.info("Gang System saved and reset (incl. Mission Manager + Scenario Manager)");
 
             if (saveManager != null) {
                 LOGGER.info("Stopping IncrementalSaveManager and performing final save...");

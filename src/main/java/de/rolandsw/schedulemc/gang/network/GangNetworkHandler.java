@@ -68,6 +68,20 @@ public class GangNetworkHandler {
                 .encoder(SyncGangListPacket::encode)
                 .consumerMainThread(SyncGangListPacket::handle)
                 .add();
+
+        // Server -> Client: Szenario-Editor oeffnen
+        INSTANCE.messageBuilder(OpenScenarioEditorPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(OpenScenarioEditorPacket::decode)
+                .encoder(OpenScenarioEditorPacket::encode)
+                .consumerMainThread(OpenScenarioEditorPacket::handle)
+                .add();
+
+        // Client -> Server: Szenario speichern
+        INSTANCE.messageBuilder(SaveScenarioPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(SaveScenarioPacket::decode)
+                .encoder(SaveScenarioPacket::encode)
+                .consumerMainThread(SaveScenarioPacket::handle)
+                .add();
     }
 
     public static <MSG> void sendToServer(MSG message) {

@@ -94,6 +94,10 @@ public class GangCommand {
                                 .then(Commands.argument("gangname", StringArgumentType.string())
                                         .executes(ctx -> adminGangInfo(ctx.getSource(),
                                                 StringArgumentType.getString(ctx, "gangname"))))))
+                .then(Commands.literal("task")
+                        .requires(source -> source.hasPermission(2))
+                        .then(Commands.literal("editor")
+                                .executes(ctx -> openScenarioEditor(ctx.getSource()))))
         );
     }
 
@@ -357,6 +361,30 @@ public class GangCommand {
         }
         source.sendFailure(Component.literal("Gang nicht gefunden: " + gangName));
         return 0;
+    }
+
+    private static int openScenarioEditor(CommandSourceStack source) {
+        if (!(source.getEntity() instanceof ServerPlayer player)) {
+            source.sendFailure(Component.literal("Nur Spieler koennen den Editor oeffnen."));
+            return 0;
+        }
+
+        de.rolandsw.schedulemc.gang.scenario.ScenarioManager sm =
+                de.rolandsw.schedulemc.gang.scenario.ScenarioManager.getInstance();
+        if (sm == null) {
+            source.sendFailure(Component.literal("Szenario-System nicht initialisiert!"));
+            return 0;
+        }
+
+        String scenariosJson = sm.toJson();
+        de.rolandsw.schedulemc.gang.network.GangNetworkHandler.sendToPlayer(
+                new de.rolandsw.schedulemc.gang.network.OpenScenarioEditorPacket(scenariosJson),
+                player
+        );
+        source.sendSystemMessage(Component.literal(
+                "\u00A7a[Szenario-Editor] Editor geoeffnet. ("
+                + sm.getScenarioCount() + " Szenarien, " + sm.getActiveCount() + " aktiv)"));
+        return 1;
     }
 
     private static void sendSuccess(ServerPlayer player, String message) {
