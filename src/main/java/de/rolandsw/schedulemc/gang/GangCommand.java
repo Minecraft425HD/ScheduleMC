@@ -377,13 +377,36 @@ public class GangCommand {
         }
 
         String scenariosJson = sm.toJson();
+
+        // NPC-Namen vom Server sammeln
+        java.util.List<String> npcNames = new java.util.ArrayList<>();
+        try {
+            npcNames = de.rolandsw.schedulemc.managers.NPCNameRegistry.getAllNamesSorted();
+        } catch (Exception ignored) {}
+
+        // Grundstuecke vom Server sammeln
+        java.util.List<de.rolandsw.schedulemc.gang.network.OpenScenarioEditorPacket.PlotInfo> plots =
+                new java.util.ArrayList<>();
+        try {
+            for (de.rolandsw.schedulemc.region.PlotRegion plot : de.rolandsw.schedulemc.region.PlotManager.getPlots()) {
+                net.minecraft.core.BlockPos center = plot.getCenter();
+                String plotName = plot.getPlotName() != null ? plot.getPlotName() : plot.getPlotId();
+                String plotType = plot.getPlotType() != null ? plot.getPlotType().name() : "PUBLIC";
+                plots.add(new de.rolandsw.schedulemc.gang.network.OpenScenarioEditorPacket.PlotInfo(
+                        plot.getPlotId(), plotName, plotType,
+                        center.getX(), center.getY(), center.getZ()));
+            }
+        } catch (Exception ignored) {}
+
         de.rolandsw.schedulemc.gang.network.GangNetworkHandler.sendToPlayer(
-                new de.rolandsw.schedulemc.gang.network.OpenScenarioEditorPacket(scenariosJson),
+                new de.rolandsw.schedulemc.gang.network.OpenScenarioEditorPacket(
+                        scenariosJson, npcNames, plots),
                 player
         );
         source.sendSystemMessage(Component.literal(
                 "\u00A7a[Szenario-Editor] Editor geoeffnet. ("
-                + sm.getScenarioCount() + " Szenarien, " + sm.getActiveCount() + " aktiv)"));
+                + sm.getScenarioCount() + " Szenarien, " + sm.getActiveCount() + " aktiv, "
+                + npcNames.size() + " NPCs, " + plots.size() + " Grundstuecke)"));
         return 1;
     }
 

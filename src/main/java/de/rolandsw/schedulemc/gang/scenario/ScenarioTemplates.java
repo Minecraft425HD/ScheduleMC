@@ -61,14 +61,13 @@ public class ScenarioTemplates {
         gotoBank.setParam("radius", "10");
         y += STEP;
         ScenarioObjective rob = new ScenarioObjective("o2", ObjectiveType.ROB_BANK, CX, y);
-        rob.setParam("difficulty", "3"); rob.setParam("time_limit", "180");
+        rob.setParam("plot_id", ""); rob.setParam("difficulty", "3"); rob.setParam("time_limit", "180");
         y += STEP;
         ScenarioObjective crack = new ScenarioObjective("o3", ObjectiveType.CRACK_SAFE, CX, y);
         crack.setParam("difficulty", "3"); crack.setParam("time_limit", "60");
         y += STEP;
         ScenarioObjective escape = new ScenarioObjective("o4", ObjectiveType.ESCAPE_ZONE, CX, y);
-        escape.setParam("center_x", "150"); escape.setParam("center_y", "64");
-        escape.setParam("center_z", "200"); escape.setParam("radius", "100");
+        escape.setParam("plot_id", ""); escape.setParam("radius", "100");
         y += STEP;
         ScenarioObjective evade = new ScenarioObjective("o5", ObjectiveType.EVADE_POLICE, CX, y);
         evade.setParam("wanted_level", "3"); evade.setParam("duration", "120");
@@ -102,11 +101,10 @@ public class ScenarioTemplates {
         goTo.setParam("radius", "5");
         y += STEP;
         ScenarioObjective rob = new ScenarioObjective("o2", ObjectiveType.ROB_STORE, CX, y);
-        rob.setParam("difficulty", "1"); rob.setParam("time_limit", "90");
+        rob.setParam("plot_id", ""); rob.setParam("difficulty", "1"); rob.setParam("time_limit", "90");
         y += STEP;
         ScenarioObjective escape = new ScenarioObjective("o3", ObjectiveType.ESCAPE_ZONE, CX, y);
-        escape.setParam("center_x", "80"); escape.setParam("center_y", "64");
-        escape.setParam("center_z", "50"); escape.setParam("radius", "50");
+        escape.setParam("plot_id", ""); escape.setParam("radius", "50");
         y += STEP;
         ScenarioObjective reward = new ScenarioObjective("r0", ObjectiveType.REWARD, CX, y);
         reward.setParam("xp", "100"); reward.setParam("money", "3000");
@@ -137,14 +135,13 @@ public class ScenarioTemplates {
         hack.setParam("difficulty", "3");
         y += STEP;
         ScenarioObjective rob = new ScenarioObjective("o3", ObjectiveType.ROB_JEWELRY, CX, y);
-        rob.setParam("difficulty", "3"); rob.setParam("time_limit", "120");
+        rob.setParam("plot_id", ""); rob.setParam("difficulty", "3"); rob.setParam("time_limit", "120");
         y += STEP;
         ScenarioObjective collect = new ScenarioObjective("o4", ObjectiveType.COLLECT_ITEMS, CX, y);
         collect.setParam("item_id", "minecraft:diamond"); collect.setParam("amount", "5");
         y += STEP;
         ScenarioObjective escape = new ScenarioObjective("o5", ObjectiveType.ESCAPE_ZONE, CX, y);
-        escape.setParam("center_x", "200"); escape.setParam("center_y", "64");
-        escape.setParam("center_z", "300"); escape.setParam("radius", "80");
+        escape.setParam("plot_id", ""); escape.setParam("radius", "80");
         y += STEP;
         ScenarioObjective evade = new ScenarioObjective("o6", ObjectiveType.EVADE_POLICE, CX, y);
         evade.setParam("wanted_level", "4"); evade.setParam("duration", "180");
@@ -175,14 +172,13 @@ public class ScenarioTemplates {
         ScenarioObjective start = new ScenarioObjective("s0", ObjectiveType.START, CX, y);
         y += STEP;
         ScenarioObjective goNPC = new ScenarioObjective("o1", ObjectiveType.GOTO_NPC, CX, y);
-        goNPC.setParam("npc_type", "WAREHOUSE_WORKER");
+        goNPC.setParam("npc_name", ""); goNPC.setParam("npc_type", "VERKAEUFER");
         y += STEP;
         ScenarioObjective collect = new ScenarioObjective("o2", ObjectiveType.COLLECT_ITEMS, CX, y);
         collect.setParam("item_id", "minecraft:paper"); collect.setParam("amount", "3");
         y += STEP;
         ScenarioObjective deliver = new ScenarioObjective("o3", ObjectiveType.DELIVER_ITEM, CX, y);
-        deliver.setParam("item_id", "minecraft:paper");
-        deliver.setParam("target_x", "300"); deliver.setParam("target_y", "64"); deliver.setParam("target_z", "100");
+        deliver.setParam("item_id", "minecraft:paper"); deliver.setParam("plot_id", "");
         y += STEP;
         ScenarioObjective reward = new ScenarioObjective("r0", ObjectiveType.REWARD, CX, y);
         reward.setParam("xp", "80"); reward.setParam("money", "2000");
@@ -213,8 +209,7 @@ public class ScenarioTemplates {
         goTo.setParam("radius", "10");
         y += STEP;
         ScenarioObjective deliver = new ScenarioObjective("o3", ObjectiveType.DELIVER_ITEM, CX, y);
-        deliver.setParam("item_id", "minecraft:sugar");
-        deliver.setParam("target_x", "400"); deliver.setParam("target_y", "64"); deliver.setParam("target_z", "-100");
+        deliver.setParam("item_id", "minecraft:sugar"); deliver.setParam("plot_id", "");
         y += STEP;
         ScenarioObjective evade = new ScenarioObjective("o4", ObjectiveType.EVADE_POLICE, CX, y);
         evade.setParam("wanted_level", "2"); evade.setParam("duration", "90");
@@ -247,11 +242,10 @@ public class ScenarioTemplates {
         goTo.setParam("radius", "5");
         y += STEP;
         ScenarioObjective rob = new ScenarioObjective("o2", ObjectiveType.ROB_GAS_STATION, CX, y);
-        rob.setParam("difficulty", "1"); rob.setParam("time_limit", "60");
+        rob.setParam("plot_id", ""); rob.setParam("difficulty", "1"); rob.setParam("time_limit", "60");
         y += STEP;
         ScenarioObjective escape = new ScenarioObjective("o3", ObjectiveType.ESCAPE_ZONE, CX, y);
-        escape.setParam("center_x", "50"); escape.setParam("center_y", "64");
-        escape.setParam("center_z", "50"); escape.setParam("radius", "40");
+        escape.setParam("plot_id", ""); escape.setParam("radius", "40");
         y += STEP;
         ScenarioObjective reward = new ScenarioObjective("r0", ObjectiveType.REWARD, CX, y);
         reward.setParam("xp", "60"); reward.setParam("money", "1500");
@@ -282,8 +276,7 @@ public class ScenarioTemplates {
         kill.setParam("entity_type", "zombie"); kill.setParam("count", "10");
         y += STEP;
         ScenarioObjective defend = new ScenarioObjective("o3", ObjectiveType.DEFEND_AREA, CX, y);
-        defend.setParam("center_x", "0"); defend.setParam("center_y", "64");
-        defend.setParam("center_z", "0"); defend.setParam("duration", "300");
+        defend.setParam("plot_id", ""); defend.setParam("duration", "300");
         y += STEP;
         ScenarioObjective survive = new ScenarioObjective("o4", ObjectiveType.SURVIVE_TIME, CX, y);
         survive.setParam("duration", "120");
@@ -312,10 +305,11 @@ public class ScenarioTemplates {
         ScenarioObjective start = new ScenarioObjective("s0", ObjectiveType.START, CX, y);
         y += STEP;
         ScenarioObjective goNPC = new ScenarioObjective("o1", ObjectiveType.GOTO_NPC, CX, y);
-        goNPC.setParam("npc_type", "SHOPKEEPER");
+        goNPC.setParam("npc_name", ""); goNPC.setParam("npc_type", "VERKAEUFER");
         y += STEP;
-        ScenarioObjective interact = new ScenarioObjective("o2", ObjectiveType.INTERACT_NPC, CX, y);
-        interact.setParam("npc_type", "SHOPKEEPER"); interact.setParam("dialog_id", "extortion");
+        ScenarioObjective talk = new ScenarioObjective("o2", ObjectiveType.TALK_TO_NPC, CX, y);
+        talk.setParam("npc_name", ""); talk.setParam("npc_type", "VERKAEUFER");
+        talk.setParam("dialog_id", "extortion");
         y += STEP;
         ScenarioObjective earn = new ScenarioObjective("o3", ObjectiveType.EARN_MONEY, CX, y);
         earn.setParam("amount", "2000");
@@ -325,10 +319,10 @@ public class ScenarioTemplates {
 
         start.setNextObjectiveId("o1");
         goNPC.setNextObjectiveId("o2");
-        interact.setNextObjectiveId("o3");
+        talk.setNextObjectiveId("o3");
         earn.setNextObjectiveId("r0");
 
-        objs.add(start); objs.add(goNPC); objs.add(interact); objs.add(earn); objs.add(reward);
+        objs.add(start); objs.add(goNPC); objs.add(talk); objs.add(earn); objs.add(reward);
 
         return new MissionScenario("tpl_extort", "Schutzgeld",
                 "Schutzgeld von Ladenbesitzern eintreiben",
