@@ -2,6 +2,8 @@ package de.rolandsw.schedulemc.gang.network;
 
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.gang.*;
+import de.rolandsw.schedulemc.economy.EconomyManager;
+import de.rolandsw.schedulemc.level.ProducerLevel;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -20,7 +22,7 @@ public class GangActionPacket {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public enum ActionType {
-        CREATE, INVITE, ACCEPT_INVITE, LEAVE, KICK, PROMOTE, DISBAND, UNLOCK_PERK
+        CREATE, INVITE, ACCEPT_INVITE, LEAVE, KICK, PROMOTE, DISBAND, UNLOCK_PERK, SET_FEE
     }
 
     private final ActionType action;
@@ -71,6 +73,10 @@ public class GangActionPacket {
         return new GangActionPacket(ActionType.UNLOCK_PERK, perkName, "", UUID.randomUUID());
     }
 
+    public static GangActionPacket setFee(int fee) {
+        return new GangActionPacket(ActionType.SET_FEE, String.valueOf(fee), "", UUID.randomUUID());
+    }
+
     public void encode(FriendlyByteBuf buf) {
         buf.writeEnum(action);
         buf.writeUtf(stringParam, 64);
@@ -106,12 +112,32 @@ public class GangActionPacket {
                 case PROMOTE -> handlePromote(player, manager);
                 case DISBAND -> handleDisband(player, manager);
                 case UNLOCK_PERK -> handleUnlockPerk(player, manager);
+                case SET_FEE -> handleSetFee(player, manager);
             }
         });
         ctx.get().setPacketHandled(true);
     }
 
+    private static final int GANG_CREATE_LEVEL = 15;
+    private static final double GANG_CREATE_COST = 25000.0;
+    private static final int GANG_JOIN_LEVEL = 5;
+    private static final double GANG_JOIN_COST = 2500.0;
+
     private void handleCreate(ServerPlayer player, GangManager manager) {
+        // Level-Check
+        int playerLevel = ProducerLevel.getInstance().getPlayerLevel(player.getUUID());
+        if (playerLevel < GANG_CREATE_LEVEL) {
+            sendError(player, "Du brauchst Level " + GANG_CREATE_LEVEL + " um eine Gang zu gruenden (aktuell: " + playerLevel + ").");
+            return;
+        }
+
+        // Geld-Check
+        double balance = EconomyManager.getBalance(player.getUUID());
+        if (balance < GANG_CREATE_COST) {
+            sendError(player, "Du brauchst " + (int) GANG_CREATE_COST + "\u20AC um eine Gang zu gruenden (aktuell: " + (int) balance + "\u20AC).");
+            return;
+        }
+
         String[] parts = stringParam2.split("\\|", 2);
         String tag = parts.length > 0 ? parts[0] : "";
         String colorName = parts.length > 1 ? parts[1] : "WHITE";
@@ -121,7 +147,8 @@ public class GangActionPacket {
 
         Gang gang = manager.createGang(stringParam, tag, player.getUUID(), color);
         if (gang != null) {
-            sendSuccess(player, "Gang '" + gang.getName() + "' [" + gang.getTag() + "] gegruendet!");
+            EconomyManager.withdraw(player.getUUID(), GANG_CREATE_COST);
+            sendSuccess(player, "Gang '" + gang.getName() + "' [" + gang.getTag() + "] gegruendet! (-" + (int) GANG_CREATE_COST + "\u20AC)");
             GangSyncHelper.broadcastAllPlayerInfos(player.getServer());
         } else {
             sendError(player, "Gang konnte nicht erstellt werden. Name/Tag bereits vergeben oder ungueltig.");
@@ -155,12 +182,25 @@ public class GangActionPacket {
     }
 
     private void handleAcceptInvite(ServerPlayer player, GangManager manager) {
-        // targetUUID = gangId bei ACCEPT_INVITE
-        // Suche nach einer Gang die eine Einladung fuer diesen Spieler hat
+        // Level-Check
+        int playerLevel = ProducerLevel.getInstance().getPlayerLevel(player.getUUID());
+        if (playerLevel < GANG_JOIN_LEVEL) {
+            sendError(player, "Du brauchst Level " + GANG_JOIN_LEVEL + " um einer Gang beizutreten (aktuell: " + playerLevel + ").");
+            return;
+        }
+
+        // Geld-Check
+        double balance = EconomyManager.getBalance(player.getUUID());
+        if (balance < GANG_JOIN_COST) {
+            sendError(player, "Du brauchst " + (int) GANG_JOIN_COST + "\u20AC um beizutreten (aktuell: " + (int) balance + "\u20AC).");
+            return;
+        }
+
         for (Gang gang : manager.getAllGangs()) {
             if (gang.hasValidInvite(player.getUUID())) {
                 if (manager.joinGang(player.getUUID(), gang.getGangId())) {
-                    sendSuccess(player, "Du bist der Gang '" + gang.getName() + "' beigetreten!");
+                    EconomyManager.withdraw(player.getUUID(), GANG_JOIN_COST);
+                    sendSuccess(player, "Du bist der Gang '" + gang.getName() + "' beigetreten! (-" + (int) GANG_JOIN_COST + "\u20AC)");
                     GangSyncHelper.broadcastAllPlayerInfos(player.getServer());
                     return;
                 }
@@ -233,6 +273,31 @@ public class GangActionPacket {
             }
         } catch (IllegalArgumentException e) {
             sendError(player, "Ungueltiger Perk.");
+        }
+    }
+
+    private void handleSetFee(ServerPlayer player, GangManager manager) {
+        Gang gang = manager.getPlayerGang(player.getUUID());
+        if (gang == null) { sendError(player, "Du bist in keiner Gang."); return; }
+
+        GangRank rank = gang.getRank(player.getUUID());
+        if (rank != GangRank.BOSS) { sendError(player, "Nur der Boss kann den Beitrag aendern."); return; }
+
+        try {
+            int fee = Integer.parseInt(stringParam.trim());
+            if (fee < 0 || fee > 10000) {
+                sendError(player, "Beitrag muss zwischen 0 und 10.000\u20AC liegen.");
+                return;
+            }
+            gang.setWeeklyFee(fee);
+            manager.markDirty();
+            if (fee == 0) {
+                sendSuccess(player, "Wochenbeitrag deaktiviert.");
+            } else {
+                sendSuccess(player, "Wochenbeitrag auf " + fee + "\u20AC/Woche gesetzt.");
+            }
+        } catch (NumberFormatException e) {
+            sendError(player, "Ungueltiger Betrag.");
         }
     }
 

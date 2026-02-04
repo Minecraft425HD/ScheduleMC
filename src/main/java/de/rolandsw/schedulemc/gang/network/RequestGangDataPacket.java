@@ -104,6 +104,7 @@ public class RequestGangDataPacket {
                     gang.getAvailablePerkPoints(),
                     gang.getProgress(),
                     myRankPriority,
+                    gang.getWeeklyFee(),
                     memberInfos,
                     unlockedPerks,
                     missions

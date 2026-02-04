@@ -24,6 +24,7 @@ public class Gang {
     private volatile int gangBalance;
     private volatile ChatFormatting color;
     private volatile long foundedTimestamp;
+    private volatile int weeklyFee; // Wochenbeitrag (0 = kein Beitrag, max 10000)
 
     private final ConcurrentHashMap<UUID, GangMemberData> members = new ConcurrentHashMap<>();
     private final Set<String> unlockedPerks = ConcurrentHashMap.newKeySet();
@@ -44,6 +45,7 @@ public class Gang {
         this.gangBalance = 0;
         this.color = color;
         this.foundedTimestamp = System.currentTimeMillis();
+        this.weeklyFee = 0;
 
         // Gruender ist Boss
         members.put(founderUUID, new GangMemberData(founderUUID, GangRank.BOSS));
@@ -54,6 +56,11 @@ public class Gang {
      */
     public Gang(UUID gangId, String name, String tag, int gangLevel, int gangXP,
                 int gangBalance, ChatFormatting color, long foundedTimestamp) {
+        this(gangId, name, tag, gangLevel, gangXP, gangBalance, color, foundedTimestamp, 0);
+    }
+
+    public Gang(UUID gangId, String name, String tag, int gangLevel, int gangXP,
+                int gangBalance, ChatFormatting color, long foundedTimestamp, int weeklyFee) {
         this.gangId = gangId;
         this.name = name;
         this.tag = tag;
@@ -62,6 +69,7 @@ public class Gang {
         this.gangBalance = gangBalance;
         this.color = color;
         this.foundedTimestamp = foundedTimestamp;
+        this.weeklyFee = Math.max(0, Math.min(10000, weeklyFee));
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -281,6 +289,8 @@ public class Gang {
     public void setName(String name) { this.name = name; }
     public void setTag(String tag) { this.tag = tag.toUpperCase(); }
     public void setColor(ChatFormatting color) { this.color = color; }
+    public int getWeeklyFee() { return weeklyFee; }
+    public void setWeeklyFee(int fee) { this.weeklyFee = Math.max(0, Math.min(10000, fee)); }
 
     public GangReputation getReputation() {
         return GangReputation.getForLevel(gangLevel);

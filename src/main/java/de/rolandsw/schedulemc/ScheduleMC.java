@@ -744,6 +744,8 @@ public class ScheduleMC {
                 gangSyncTickCounter = 0;
                 try {
                     de.rolandsw.schedulemc.gang.network.GangSyncHelper.broadcastAllPlayerInfos(server);
+                    // Wochenbeitraege einziehen (prueft intern ob faellig)
+                    de.rolandsw.schedulemc.gang.GangManager.getInstance().collectWeeklyFees(server);
                 } catch (Exception e) {
                     LOGGER.error("Gang-Sync: Error during periodic broadcast", e);
                 }

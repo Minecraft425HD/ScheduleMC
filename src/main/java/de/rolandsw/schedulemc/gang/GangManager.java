@@ -9,6 +9,9 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import org.slf4j.Logger;
 
+import de.rolandsw.schedulemc.economy.EconomyManager;
+import de.rolandsw.schedulemc.level.ProducerLevel;
+
 import javax.annotation.Nullable;
 import java.io.File;
 import java.lang.reflect.Type;
@@ -281,6 +284,83 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
     }
 
     // ═══════════════════════════════════════════════════════════
+    // WOCHENBEITRAG
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Sammelt faellige Wochenbeitraege von allen Online-Mitgliedern aller Gangs.
+     * Wird periodisch aufgerufen (z.B. alle 60 Sekunden).
+     *
+     * Vorschlag 2 Staffelung:
+     * RECRUIT: 100%, MEMBER: 50%, UNDERBOSS: 10%, BOSS: 0%
+     *
+     * Bei 3 verpassten Zahlungen: Auto-Kick.
+     */
+    public void collectWeeklyFees(MinecraftServer srv) {
+        if (srv == null) return;
+
+        for (Gang gang : gangs.values()) {
+            int baseFee = gang.getWeeklyFee();
+            if (baseFee <= 0) continue;
+
+            List<UUID> toKick = new ArrayList<>();
+
+            for (Map.Entry<UUID, GangMemberData> entry : gang.getMembers().entrySet()) {
+                UUID memberUUID = entry.getKey();
+                GangMemberData memberData = entry.getValue();
+
+                if (memberData.getRank() == GangRank.BOSS) continue;
+                if (!memberData.isFeeDue()) continue;
+
+                int fee = memberData.calculateFee(baseFee);
+                if (fee <= 0) continue;
+
+                ServerPlayer player = srv.getPlayerList().getPlayer(memberUUID);
+                if (player == null) continue;
+
+                double balance = EconomyManager.getBalance(memberUUID);
+                if (balance >= fee) {
+                    EconomyManager.withdraw(memberUUID, fee);
+                    gang.deposit(fee);
+                    memberData.resetFeePaid();
+                    markDirty();
+
+                    player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+                            "\u00A76[Gang] \u00A77Wochenbeitrag von \u00A7c" + fee +
+                            "\u20AC \u00A77fuer \u00A7f" + gang.getName() + " \u00A77eingezogen."));
+                } else {
+                    memberData.incrementMissedFeePayments();
+                    markDirty();
+
+                    if (memberData.getMissedFeePayments() >= 3) {
+                        toKick.add(memberUUID);
+                        player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+                                "\u00A7c[Gang] \u00A77Du wurdest aus \u00A7f" + gang.getName() +
+                                " \u00A77entfernt (3x Beitrag nicht gezahlt)."));
+                    } else {
+                        player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+                                "\u00A7c[Gang] \u00A77Nicht genug Geld fuer Wochenbeitrag (" +
+                                fee + "\u20AC). Verpasst: " + memberData.getMissedFeePayments() + "/3"));
+                    }
+                }
+            }
+
+            for (UUID kickUUID : toKick) {
+                gang.removeMember(kickUUID);
+                playerToGang.remove(kickUUID);
+                LOGGER.info("Auto-kicked {} from gang '{}' (missed 3 fee payments)", kickUUID, gang.getName());
+            }
+            if (!toKick.isEmpty()) {
+                markDirty();
+                if (gang.getMemberCount() == 0) {
+                    gangs.remove(gang.getGangId());
+                    LOGGER.info("Gang '{}' auto-disbanded (no members after fee kicks)", gang.getName());
+                }
+            }
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════
     // QUERIES
     // ═══════════════════════════════════════════════════════════
 
@@ -335,7 +415,7 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
                 if (cf == null) cf = ChatFormatting.WHITE;
 
                 Gang gang = new Gang(gangId, saved.name, saved.tag, saved.gangLevel,
-                        saved.gangXP, saved.gangBalance, cf, saved.foundedTimestamp);
+                        saved.gangXP, saved.gangBalance, cf, saved.foundedTimestamp, saved.weeklyFee);
 
                 // Mitglieder laden
                 if (saved.members != null) {
@@ -350,7 +430,8 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
                                 rank = GangRank.RECRUIT;
                             }
                             gang.addMemberDirect(memberUUID,
-                                    new GangMemberData(memberUUID, rank, sm.contributedXP, sm.joinTimestamp));
+                                    new GangMemberData(memberUUID, rank, sm.contributedXP,
+                                            sm.joinTimestamp, sm.lastFeePaid, sm.missedFeePayments));
                             playerToGang.put(memberUUID, gangId);
                         } catch (IllegalArgumentException e) {
                             LOGGER.error("Invalid member UUID: {}", memberEntry.getKey());
@@ -395,6 +476,7 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
             saved.gangBalance = gang.getGangBalance();
             saved.color = gang.getColor().getName();
             saved.foundedTimestamp = gang.getFoundedTimestamp();
+            saved.weeklyFee = gang.getWeeklyFee();
 
             // Mitglieder
             saved.members = new HashMap<>();
@@ -404,6 +486,8 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
                 sm.rank = md.getRank().name();
                 sm.contributedXP = md.getContributedXP();
                 sm.joinTimestamp = md.getJoinTimestamp();
+                sm.lastFeePaid = md.getLastFeePaid();
+                sm.missedFeePayments = md.getMissedFeePayments();
                 saved.members.put(memberEntry.getKey().toString(), sm);
             }
 
@@ -452,6 +536,7 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
         int gangBalance;
         String color;
         long foundedTimestamp;
+        int weeklyFee;
         Map<String, SavedMemberData> members;
         List<String> unlockedPerks;
         List<Long> territories;
@@ -461,5 +546,7 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
         String rank;
         int contributedXP;
         long joinTimestamp;
+        long lastFeePaid;
+        int missedFeePayments;
     }
 }

@@ -63,6 +63,22 @@ public enum GangRank {
         return this.priority > targetRank.priority && targetRank.priority > 1;
     }
 
+    /**
+     * Mitgliederbeitrag-Multiplikator (Vorschlag 2: Stufenrabatt).
+     * BOSS: 0% (zahlt nichts)
+     * UNDERBOSS: 10%
+     * MEMBER: 50%
+     * RECRUIT: 100% (voller Beitrag)
+     */
+    public double getFeeMultiplier() {
+        return switch (this) {
+            case BOSS -> 0.0;
+            case UNDERBOSS -> 0.10;
+            case MEMBER -> 0.50;
+            case RECRUIT -> 1.0;
+        };
+    }
+
     public String getFormattedName() {
         return colorCode + displayName;
     }

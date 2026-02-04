@@ -58,6 +58,7 @@ public class GangAppScreen extends Screen {
 
     // HAS_GANG Widgets (im Footer)
     private EditBox inviteInput;
+    private EditBox feeInput;
 
     // Berechnete Sektions-Positionen (fuer Klick-Erkennung)
     private int membersSectionY;
@@ -121,6 +122,7 @@ public class GangAppScreen extends Screen {
         createNameInput = null;
         createTagInput = null;
         inviteInput = null;
+        feeInput = null;
 
         if (!hasGang) {
             buildNoGangWidgets();
@@ -191,17 +193,32 @@ public class GangAppScreen extends Screen {
             sendActionAndRefresh(GangActionPacket.leave());
         }).bounds(leftPos + 160, footerY, 70, 16).build());
 
-        // Zeile 2: Zurueck + Aufloesen (Boss) + Refresh
+        // Zeile 2: Zurueck + Beitrag (Boss) + Aufloesen (Boss) + Refresh
         int row2Y = footerY + 20;
 
         addRenderableWidget(Button.builder(Component.translatable("gui.app.gang.back"), button -> {
             if (minecraft != null) minecraft.setScreen(parentScreen);
-        }).bounds(leftPos + 10, row2Y, 55, 18).build());
+        }).bounds(leftPos + 10, row2Y, 50, 18).build());
 
         if (data.canDisband()) {
-            addRenderableWidget(Button.builder(Component.literal("\u00A74Aufloesen"), button -> {
+            // Beitrag-Eingabe (nur Boss)
+            feeInput = new EditBox(this.font, leftPos + 63, row2Y, 45, 18, Component.literal("Fee"));
+            feeInput.setMaxLength(5);
+            feeInput.setHint(Component.literal(String.valueOf(data.getWeeklyFee())));
+            feeInput.setFilter(s -> s.matches("\\d*"));
+            addRenderableWidget(feeInput);
+
+            addRenderableWidget(Button.builder(Component.literal("\u00A7a\u20AC"), button -> {
+                if (feeInput != null && !feeInput.getValue().trim().isEmpty()) {
+                    sendActionAndRefresh(GangActionPacket.setFee(
+                            Integer.parseInt(feeInput.getValue().trim())));
+                    feeInput.setValue("");
+                }
+            }).bounds(leftPos + 110, row2Y, 18, 18).build());
+
+            addRenderableWidget(Button.builder(Component.literal("\u00A74X"), button -> {
                 sendActionAndRefresh(GangActionPacket.disband());
-            }).bounds(leftPos + 70, row2Y, 65, 18).build());
+            }).bounds(leftPos + 131, row2Y, 18, 18).build());
         }
 
         addRenderableWidget(Button.builder(Component.literal("\u21BB"), button -> {
@@ -379,6 +396,27 @@ public class GangAppScreen extends Screen {
         g.drawString(this.font, "\u00A78Perks: \u00A7f" + data.getUnlockedPerks().size() + "/" +
                 GangLevelRequirements.getAvailablePerkPoints(data.getGangLevel()),
                 leftPos + halfW, y, 0xFFFFFF);
+        y += 11;
+
+        // Wochenbeitrag
+        int fee = data.getWeeklyFee();
+        if (fee > 0) {
+            // Eigenen Beitrag berechnen (basierend auf Rang-Multiplikator)
+            int myRank = data.getMyRankPriority();
+            double mult = switch (myRank) {
+                case 4 -> 0.0;   // Boss
+                case 3 -> 0.10;  // Underboss
+                case 2 -> 0.50;  // Member
+                default -> 1.0;  // Recruit
+            };
+            int myFee = (int) Math.ceil(fee * mult);
+            String feeText = myFee > 0
+                    ? "\u00A78Beitrag: \u00A7e" + fee + "\u20AC/Wo \u00A77(dein: \u00A7a" + myFee + "\u20AC\u00A77)"
+                    : "\u00A78Beitrag: \u00A7e" + fee + "\u20AC/Wo \u00A77(du: \u00A7abefreit\u00A77)";
+            g.drawString(this.font, feeText, leftPos + 15, y, 0xFFFFFF);
+        } else {
+            g.drawString(this.font, "\u00A78Beitrag: \u00A7akein Beitrag", leftPos + 15, y, 0xFFFFFF);
+        }
         y += 14;
 
         return y - startY;

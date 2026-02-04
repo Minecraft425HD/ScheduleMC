@@ -13,7 +13,8 @@ public enum UnlockCategory {
     PROCESSING("Verarbeitungsmethode", "§5", "Neue Verarbeitungsarten"),
     VEHICLE("Fahrzeug", "§7", "Bessere Fahrzeuge kaufen"),
     SHOP_FEATURE("Shop-Feature", "§f", "Erweiterte Shop-Funktionen"),
-    ECONOMY_FEATURE("Wirtschafts-Feature", "§6", "Erweiterte Wirtschafts-Features");
+    ECONOMY_FEATURE("Wirtschafts-Feature", "§6", "Erweiterte Wirtschafts-Features"),
+    GANG("Gang", "§c", "Gang-System Funktionen");
 
     private final String displayName;
     private final String colorCode;
