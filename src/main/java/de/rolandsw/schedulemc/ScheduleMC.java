@@ -391,6 +391,7 @@ public class ScheduleMC {
             de.rolandsw.schedulemc.npc.crime.BountyCommand.register(event.getDispatcher());
             de.rolandsw.schedulemc.market.MarketCommand.register(event.getDispatcher());
             de.rolandsw.schedulemc.gang.GangCommand.register(event.getDispatcher());
+            de.rolandsw.schedulemc.commands.AdminCommand.register(event.getDispatcher());
 
             // Vehicle Mod handles its own commands via event bus (registered in Main.commonSetup)
         }, "onRegisterCommands");

@@ -325,6 +325,33 @@ public class Gang {
     }
 
     /**
+     * Setzt das Gang-Level direkt (Admin-Befehl).
+     * XP wird auf das Minimum des Ziellevels gesetzt.
+     */
+    public void setLevelDirect(int level) {
+        this.gangLevel = Math.max(1, Math.min(GangLevelRequirements.MAX_LEVEL, level));
+        this.gangXP = GangLevelRequirements.getRequiredXP(this.gangLevel);
+    }
+
+    /**
+     * Fuegt XP direkt hinzu ohne Contributor-Tracking (Admin-Befehl).
+     * @return true wenn Level-Up stattfand
+     */
+    public boolean addXPDirect(int xp) {
+        if (xp <= 0) return false;
+        if (gangLevel >= GangLevelRequirements.MAX_LEVEL) return false;
+        gangXP += xp;
+        int newLevel = GangLevelRequirements.getLevelForXP(gangXP);
+        if (newLevel > gangLevel) {
+            int oldLevel = gangLevel;
+            gangLevel = newLevel;
+            LOGGER.info("Gang '{}' leveled up (admin): {} -> {}", name, oldLevel, newLevel);
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Interne Serialisierungsdaten fuer Mitglieder.
      */
     public void addMemberDirect(UUID uuid, GangMemberData data) {

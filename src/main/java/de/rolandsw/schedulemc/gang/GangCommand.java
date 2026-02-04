@@ -83,7 +83,17 @@ public class GangCommand {
                                         .then(Commands.argument("level", IntegerArgumentType.integer(1, 30))
                                                 .executes(ctx -> adminSetLevel(ctx.getSource(),
                                                         StringArgumentType.getString(ctx, "gangname"),
-                                                        IntegerArgumentType.getInteger(ctx, "level")))))))
+                                                        IntegerArgumentType.getInteger(ctx, "level"))))))
+                        .then(Commands.literal("addxp")
+                                .then(Commands.argument("gangname", StringArgumentType.string())
+                                        .then(Commands.argument("xp", IntegerArgumentType.integer(1, 100000))
+                                                .executes(ctx -> adminAddXP(ctx.getSource(),
+                                                        StringArgumentType.getString(ctx, "gangname"),
+                                                        IntegerArgumentType.getInteger(ctx, "xp"))))))
+                        .then(Commands.literal("info")
+                                .then(Commands.argument("gangname", StringArgumentType.string())
+                                        .executes(ctx -> adminGangInfo(ctx.getSource(),
+                                                StringArgumentType.getString(ctx, "gangname"))))))
         );
     }
 
@@ -291,20 +301,57 @@ public class GangCommand {
 
         for (Gang gang : manager.getAllGangs()) {
             if (gang.getName().equalsIgnoreCase(gangName)) {
-                // XP auf das Minimum des Ziellevels setzen
-                // (Gang-Objekt direkt modifizieren fuer Admin)
-                int requiredXP = GangLevelRequirements.getRequiredXP(level);
-                // Wir brauchen direkten Zugriff - nutze addXP
-                int currentXP = gang.getGangXP();
-                int diff = requiredXP - currentXP;
-                if (diff > 0) {
-                    UUID boss = gang.getBoss();
-                    if (boss != null) gang.addXP(diff, boss);
-                }
+                int oldLevel = gang.getGangLevel();
+                gang.setLevelDirect(level);
                 manager.markDirty();
                 source.sendSystemMessage(Component.literal(
-                        "\u00A7a[Admin] Gang '" + gangName + "' auf Level " + level + " gesetzt."));
+                        "\u00A7a[Admin] Gang '" + gang.getName() + "' Level: " + oldLevel + " \u2192 " + gang.getGangLevel() +
+                        " (XP: " + gang.getGangXP() + ")"));
                 GangSyncHelper.broadcastAllPlayerInfos(source.getServer());
+                return 1;
+            }
+        }
+        source.sendFailure(Component.literal("Gang nicht gefunden: " + gangName));
+        return 0;
+    }
+
+    private static int adminAddXP(CommandSourceStack source, String gangName, int xp) {
+        GangManager manager = GangManager.getInstance();
+        if (manager == null) return 0;
+
+        for (Gang gang : manager.getAllGangs()) {
+            if (gang.getName().equalsIgnoreCase(gangName)) {
+                int oldLevel = gang.getGangLevel();
+                boolean leveledUp = gang.addXPDirect(xp);
+                manager.markDirty();
+                String msg = "\u00A7a[Admin] Gang '" + gang.getName() + "' +" + xp + " XP (Gesamt: " + gang.getGangXP() + ")";
+                if (leveledUp) {
+                    msg += " \u00A76Level-Up! " + oldLevel + " \u2192 " + gang.getGangLevel();
+                }
+                source.sendSystemMessage(Component.literal(msg));
+                GangSyncHelper.broadcastAllPlayerInfos(source.getServer());
+                return 1;
+            }
+        }
+        source.sendFailure(Component.literal("Gang nicht gefunden: " + gangName));
+        return 0;
+    }
+
+    private static int adminGangInfo(CommandSourceStack source, String gangName) {
+        GangManager manager = GangManager.getInstance();
+        if (manager == null) return 0;
+
+        for (Gang gang : manager.getAllGangs()) {
+            if (gang.getName().equalsIgnoreCase(gangName)) {
+                source.sendSystemMessage(Component.literal("\u00A76\u2550\u2550\u2550 [Admin] " + gang.getFormattedTag() + " \u00A76\u2550\u2550\u2550"));
+                source.sendSystemMessage(Component.literal("\u00A77Name: \u00A7f" + gang.getName() + " \u00A78(ID: " + gang.getGangId() + ")"));
+                source.sendSystemMessage(Component.literal("\u00A77Level: \u00A76" + gang.getGangLevel() + "/" + GangLevelRequirements.MAX_LEVEL));
+                source.sendSystemMessage(Component.literal("\u00A77XP: \u00A7f" + gang.getGangXP() + " \u00A77(naechstes Level: " + gang.getXPToNextLevel() + " XP)"));
+                source.sendSystemMessage(Component.literal("\u00A77Mitglieder: \u00A7f" + gang.getMemberCount() + "/" + gang.getMaxMembers()));
+                source.sendSystemMessage(Component.literal("\u00A77Kasse: \u00A7f" + gang.getGangBalance() + "\u20AC"));
+                source.sendSystemMessage(Component.literal("\u00A77Beitrag: \u00A7f" + (gang.getWeeklyFee() > 0 ? gang.getWeeklyFee() + "\u20AC/Woche" : "keiner")));
+                source.sendSystemMessage(Component.literal("\u00A77Perks: \u00A7f" + gang.getUsedPerkPoints() + " genutzt, " + gang.getAvailablePerkPoints() + " frei"));
+                source.sendSystemMessage(Component.literal("\u00A77Reputation: " + gang.getReputation().getFormattedName()));
                 return 1;
             }
         }
