@@ -51,6 +51,17 @@ public class DoorLockHandler {
         String posKey = LockManager.posKey(dim, pos.getX(), pos.getY(), pos.getZ());
         LockData lockData = mgr.getLock(posKey);
 
+        // Gehaltenes Item pruefen
+        ItemStack heldItem = player.getMainHandItem();
+
+        // ═══════════════════════════════════════════════════════════
+        // DoorLockItem auf ungesperrte Tuer: Schloss platzieren lassen
+        // ═══════════════════════════════════════════════════════════
+        if (heldItem.getItem() instanceof DoorLockItem && lockData == null) {
+            // Event durchlassen → DoorLockItem.useOn() platziert das Schloss
+            return;
+        }
+
         // ═══════════════════════════════════════════════════════════
         // SHIFT+Rechtsklick: Lock-Info anzeigen
         // ═══════════════════════════════════════════════════════════
@@ -63,7 +74,6 @@ public class DoorLockHandler {
         if (lockData == null) return; // Nicht gesperrt → normal weiter
 
         // Spezial-Items ueberspringen (haben bereits in useOn() reagiert)
-        ItemStack heldItem = event.getEntity().getMainHandItem();
         if (heldItem.getItem() instanceof DoorLockItem) return;
         if (heldItem.getItem() instanceof KeyItem) return;
         if (heldItem.getItem() instanceof KeyRingItem) return;
