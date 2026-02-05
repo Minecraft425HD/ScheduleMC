@@ -398,15 +398,34 @@ public class GangCommand {
             }
         } catch (Exception ignored) {}
 
+        // Schloesser vom Server sammeln
+        java.util.List<de.rolandsw.schedulemc.gang.network.OpenScenarioEditorPacket.LockInfo> locks =
+                new java.util.ArrayList<>();
+        try {
+            de.rolandsw.schedulemc.lock.LockManager lockMgr = de.rolandsw.schedulemc.lock.LockManager.getInstance();
+            if (lockMgr != null) {
+                for (de.rolandsw.schedulemc.lock.LockData lock : lockMgr.getAllLocks()) {
+                    locks.add(new de.rolandsw.schedulemc.gang.network.OpenScenarioEditorPacket.LockInfo(
+                            lock.getLockId(),
+                            lock.getType().name(),
+                            lock.getOwnerName(),
+                            lock.getDoorX(),
+                            lock.getDoorY(),
+                            lock.getDoorZ(),
+                            lock.getType().hasCode()));
+                }
+            }
+        } catch (Exception ignored) {}
+
         de.rolandsw.schedulemc.gang.network.GangNetworkHandler.sendToPlayer(
                 new de.rolandsw.schedulemc.gang.network.OpenScenarioEditorPacket(
-                        scenariosJson, npcNames, plots),
+                        scenariosJson, npcNames, plots, locks),
                 player
         );
         source.sendSystemMessage(Component.literal(
                 "\u00A7a[Szenario-Editor] Editor geoeffnet. ("
                 + sm.getScenarioCount() + " Szenarien, " + sm.getActiveCount() + " aktiv, "
-                + npcNames.size() + " NPCs, " + plots.size() + " Grundstuecke)"));
+                + npcNames.size() + " NPCs, " + plots.size() + " Grundstuecke, " + locks.size() + " Schloesser)"));
         return 1;
     }
 

@@ -3,7 +3,7 @@ package de.rolandsw.schedulemc.gang.scenario;
 /**
  * Alle verfuegbaren Baustein-Typen fuer den Szenario-Editor.
  *
- * 61 Bloecke in 10 Kategorien.
+ * 63 Bloecke in 10 Kategorien.
  * Jeder Typ hat: Anzeigename, Symbol, Farbe, Kategorie, Parameter-Definitionen.
  * Jeder Parameter hat einen Widget-Typ der bestimmt wie er im Editor dargestellt wird.
  */
@@ -45,7 +45,7 @@ public enum ObjectiveType {
             }),
 
     // ═══════════════════════════════════════════════════════════
-    // INTERAKTION (10)
+    // INTERAKTION (12)
     // ═══════════════════════════════════════════════════════════
     TALK_TO_NPC("Mit NPC reden", "I", 0xFFF1C40F, Category.INTERAKTION,
             new ParamDef[]{
@@ -99,6 +99,16 @@ public enum ObjectiveType {
                     new ParamDef("npc_name", "Haendler", "", ParamWidget.DROPDOWN_NPC_NAME),
                     new ParamDef("merchant_cat", "Kategorie", "LEBENSMITTEL", ParamWidget.DROPDOWN_MERCHANT_CAT),
                     new ParamDef("item_id", "Item", "minecraft:bread", ParamWidget.TEXT)
+            }),
+    RECEIVE_KEY("Schluessel erhalten", "\uD83D\uDD11", 0xFF8E44AD, Category.INTERAKTION,
+            new ParamDef[]{
+                    new ParamDef("lock_id", "Schloss", "", ParamWidget.DROPDOWN_LOCK),
+                    new ParamDef("npc_name", "Von NPC", "", ParamWidget.DROPDOWN_NPC_NAME)
+            }),
+    RECEIVE_CODE("Code erhalten", "\uD83D\uDD22", 0xFF9B59B6, Category.INTERAKTION,
+            new ParamDef[]{
+                    new ParamDef("lock_id", "Schloss", "", ParamWidget.DROPDOWN_LOCK),
+                    new ParamDef("npc_name", "Von NPC", "", ParamWidget.DROPDOWN_NPC_NAME)
             }),
 
     // ═══════════════════════════════════════════════════════════
@@ -403,7 +413,8 @@ public enum ObjectiveType {
         DROPDOWN_OUTFIT,         // Verkleidungs-Outfit
         DROPDOWN_METHOD,         // Ablenkungs-Methode
         DROPDOWN_EVENT,          // Zufallsereignis-Typ
-        DROPDOWN_COLOR           // Nachrichtenfarbe
+        DROPDOWN_COLOR,          // Nachrichtenfarbe
+        DROPDOWN_LOCK            // Tuer-Schloss aus Server-Daten (Lock-ID + Position)
     }
 
     // ═══════════════════════════════════════════════════════════
