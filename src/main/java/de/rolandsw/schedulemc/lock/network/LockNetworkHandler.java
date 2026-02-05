@@ -9,13 +9,10 @@ import net.minecraftforge.network.simple.SimpleChannel;
 
 /**
  * Network Handler fuer Lock-System Packets.
- *
- * Hacking-Packets (OpenHackingScreenPacket, HackingResultPacket) wurden entfernt:
- * Hacking-Tools entscheiden jetzt serverseitig sofort mit 50% Chance.
  */
 public class LockNetworkHandler {
 
-    private static final String PROTOCOL_VERSION = "2";
+    private static final String PROTOCOL_VERSION = "3";
     public static final SimpleChannel INSTANCE = NetworkRegistry.newSimpleChannel(
             ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "lock_network"),
             () -> PROTOCOL_VERSION,
@@ -23,8 +20,16 @@ public class LockNetworkHandler {
             PROTOCOL_VERSION::equals
     );
 
+    private static int id = 0;
+
     public static void register() {
-        // Keine Packets mehr noetig - Hacking ist jetzt rein serverseitig
+        // Server -> Client: Code-Eingabe GUI oeffnen
+        INSTANCE.registerMessage(id++, OpenCodeEntryPacket.class,
+                OpenCodeEntryPacket::encode, OpenCodeEntryPacket::new, OpenCodeEntryPacket::handle);
+
+        // Client -> Server: Code wurde eingegeben
+        INSTANCE.registerMessage(id++, CodeEntryPacket.class,
+                CodeEntryPacket::encode, CodeEntryPacket::new, CodeEntryPacket::handle);
     }
 
     public static <MSG> void sendToServer(MSG message) {

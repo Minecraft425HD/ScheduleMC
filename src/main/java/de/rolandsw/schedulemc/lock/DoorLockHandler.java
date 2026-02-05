@@ -5,6 +5,8 @@ import de.rolandsw.schedulemc.lock.items.HackingToolItem;
 import de.rolandsw.schedulemc.lock.items.KeyItem;
 import de.rolandsw.schedulemc.lock.items.KeyRingItem;
 import de.rolandsw.schedulemc.lock.items.LockPickItem;
+import de.rolandsw.schedulemc.lock.network.LockNetworkHandler;
+import de.rolandsw.schedulemc.lock.network.OpenCodeEntryPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -51,6 +53,17 @@ public class DoorLockHandler {
         String posKey = LockManager.posKey(dim, pos.getX(), pos.getY(), pos.getZ());
         LockData lockData = mgr.getLock(posKey);
 
+        // Gehaltenes Item pruefen
+        ItemStack heldItem = player.getMainHandItem();
+
+        // ═══════════════════════════════════════════════════════════
+        // DoorLockItem auf ungesperrte Tuer: Schloss platzieren lassen
+        // ═══════════════════════════════════════════════════════════
+        if (heldItem.getItem() instanceof DoorLockItem && lockData == null) {
+            // Event durchlassen → DoorLockItem.useOn() platziert das Schloss
+            return;
+        }
+
         // ═══════════════════════════════════════════════════════════
         // SHIFT+Rechtsklick: Lock-Info anzeigen
         // ═══════════════════════════════════════════════════════════
@@ -63,7 +76,6 @@ public class DoorLockHandler {
         if (lockData == null) return; // Nicht gesperrt → normal weiter
 
         // Spezial-Items ueberspringen (haben bereits in useOn() reagiert)
-        ItemStack heldItem = event.getEntity().getMainHandItem();
         if (heldItem.getItem() instanceof DoorLockItem) return;
         if (heldItem.getItem() instanceof KeyItem) return;
         if (heldItem.getItem() instanceof KeyRingItem) return;
@@ -73,11 +85,17 @@ public class DoorLockHandler {
         // Besitzer darf immer oeffnen
         if (lockData.isAuthorized(player.getUUID())) return;
 
-        // Reines Zahlenschloss: Code-Eingabe noetig
-        if (lockData.getType() == LockType.COMBINATION || lockData.getType() == LockType.DUAL) {
+        // Zahlenschloss: Code-Eingabe GUI oeffnen
+        if (lockData.getType() == LockType.COMBINATION) {
+            // Reines Zahlenschloss: Nur Code noetig
+            LockNetworkHandler.sendToPlayer(
+                    new OpenCodeEntryPacket(lockData.getLockId(), pos, dim), player);
+        } else if (lockData.getType() == LockType.DUAL) {
+            // Dual-Lock: Schluessel + Code noetig (Schluessel oeffnet die GUI via KeyItem)
             player.sendSystemMessage(Component.literal(
-                    "\u00A7e\u2699 Diese Tuer hat ein Zahlenschloss. " +
-                            "Benutze /lock code " + lockData.getLockId() + " <code>"));
+                    "\u00A7e\u2699 Diese Tuer braucht Schluessel UND Code!"));
+            player.sendSystemMessage(Component.literal(
+                    "\u00A77Benutze einen passenden Schluessel."));
         } else {
             player.sendSystemMessage(Component.literal(
                     "\u00A7c\u2716 Diese Tuer ist mit einem " + lockData.getType().getDisplayName() +
@@ -109,11 +127,15 @@ public class DoorLockHandler {
         player.sendSystemMessage(Component.literal(""));
 
         player.sendSystemMessage(Component.literal("\u00A77Schloss-Typ: " + getLockTypeColor(lockData.getType()) + lockData.getType().getDisplayName()));
-        player.sendSystemMessage(Component.literal("\u00A77Besitzer: \u00A7f" + lockData.getOwnerName()));
+        if (lockData.hasNoOwner()) {
+            player.sendSystemMessage(Component.literal("\u00A77Besitzer: \u00A7d[Kein Besitzer]"));
+        } else {
+            player.sendSystemMessage(Component.literal("\u00A77Besitzer: \u00A7f" + lockData.getOwnerName()));
+        }
 
         // Zeige benoetigte Schluessel-Stufe
-        if (lockData.getType().getKeyTier() >= 0) {
-            String keyTierName = switch (lockData.getType().getKeyTier()) {
+        if (lockData.getType().getRequiredBlankTier() >= 0) {
+            String keyTierName = switch (lockData.getType().getRequiredBlankTier()) {
                 case 0 -> "\u00A76Kupfer-Schluessel";
                 case 1 -> "\u00A77Eisen-Schluessel";
                 case 2 -> "\u00A75Netherite-Schluessel";
@@ -122,11 +144,18 @@ public class DoorLockHandler {
             player.sendSystemMessage(Component.literal("\u00A77Schluessel-Typ: " + keyTierName));
         }
 
-        // Zeige ob Code benoetigt wird
+        // Zeige Code-Info (Besitzer/OPs sehen den Code, andere nur den Hinweis)
         if (lockData.getType().hasCode()) {
             player.sendSystemMessage(Component.literal(""));
-            player.sendSystemMessage(Component.literal("\u00A7e\uD83D\uDD22 Code erforderlich:"));
-            player.sendSystemMessage(Component.literal("\u00A77  /lock code \u00A7b" + lockData.getLockId() + " \u00A7e<4-stellig>"));
+            boolean canSeeCode = lockData.isAuthorized(player.getUUID()) || player.hasPermissions(2);
+            if (canSeeCode) {
+                // Besitzer/Autorisierte/OPs sehen den Code
+                player.sendSystemMessage(Component.literal("\u00A7e\uD83D\uDD22 Aktueller Code: \u00A7a\u00A7l" + lockData.getCode()));
+            } else {
+                // Andere sehen nur den Hinweis
+                player.sendSystemMessage(Component.literal("\u00A7e\uD83D\uDD22 Code erforderlich:"));
+                player.sendSystemMessage(Component.literal("\u00A77  /lock code \u00A7b" + lockData.getLockId() + " \u00A7e<4-stellig>"));
+            }
         }
 
         // Zeige Dietrich-Chance

@@ -3,6 +3,8 @@ package de.rolandsw.schedulemc.lock.items;
 import de.rolandsw.schedulemc.lock.LockData;
 import de.rolandsw.schedulemc.lock.LockManager;
 import de.rolandsw.schedulemc.lock.LockType;
+import de.rolandsw.schedulemc.lock.network.LockNetworkHandler;
+import de.rolandsw.schedulemc.lock.network.OpenCodeEntryPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -211,11 +213,15 @@ public class KeyItem extends Item {
             return InteractionResult.FAIL;
         }
 
-        // Bei Dual-Lock: Code wird separat geprueft (via CombinationLockScreen)
+        // Bei Dual-Lock: Schluessel akzeptiert, jetzt Code-GUI oeffnen
         if (lockData.getType() == LockType.DUAL) {
             player.sendSystemMessage(Component.literal(
-                    "\u00A7eSchluessel akzeptiert! Gib jetzt den Code ein (Linksklick auf die Tuer)."));
-            // Nutzung wird erst nach Code-Eingabe abgezogen
+                    "\u00A7a\u2714 Schluessel akzeptiert! Gib jetzt den Code ein."));
+            // Code-Eingabe GUI oeffnen
+            String dim = level.dimension().location().toString();
+            LockNetworkHandler.sendToPlayer(
+                    new OpenCodeEntryPacket(lockData.getLockId(), pos, dim), player);
+            // Nutzung wird bei Code-Eingabe im CodeEntryPacket abgezogen
             return InteractionResult.SUCCESS;
         }
 
@@ -226,12 +232,40 @@ public class KeyItem extends Item {
             player.sendSystemMessage(Component.literal("\u00A77Schluessel aufgebraucht."));
         }
 
-        // Tuer oeffnen (Toggle)
-        DoorBlock door = (DoorBlock) level.getBlockState(pos).getBlock();
-        door.setOpen(null, level, level.getBlockState(pos), pos, !level.getBlockState(pos).getValue(DoorBlock.OPEN));
-        player.sendSystemMessage(Component.literal("\u00A7a\u2714 Tuer entriegelt!"));
+        // Tuer oeffnen (nur oeffnen, nicht toggle - schliesst automatisch)
+        net.minecraft.world.level.block.state.BlockState state = level.getBlockState(pos);
+        if (!state.getValue(DoorBlock.OPEN)) {
+            DoorBlock door = (DoorBlock) state.getBlock();
+            door.setOpen(null, level, state, pos, true);
+            player.sendSystemMessage(Component.literal("\u00A7a\u2714 Tuer entriegelt!"));
+
+            // Automatisch schliessen nach 3 Sekunden
+            if (level instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+                scheduleAutoClose(serverLevel, pos);
+            }
+        }
 
         return InteractionResult.SUCCESS;
+    }
+
+    /** Ticks bis die Tuer sich automatisch schliesst (3 Sekunden = 60 Ticks). */
+    private static final int AUTO_CLOSE_TICKS = 60;
+
+    /**
+     * Plant das automatische Schliessen der Tuer nach AUTO_CLOSE_TICKS.
+     */
+    private void scheduleAutoClose(net.minecraft.server.level.ServerLevel level, BlockPos pos) {
+        level.getServer().tell(new net.minecraft.server.TickTask(
+                level.getServer().getTickCount() + AUTO_CLOSE_TICKS,
+                () -> {
+                    net.minecraft.world.level.block.state.BlockState state = level.getBlockState(pos);
+                    if (state.getBlock() instanceof DoorBlock && state.getValue(DoorBlock.OPEN)) {
+                        level.setBlock(pos, state.setValue(DoorBlock.OPEN, false), 10);
+                        // Schliess-Sound
+                        level.levelEvent(null, 1006, pos, 0);
+                    }
+                }
+        ));
     }
 
     @Override
