@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "schedulemc:item/wine_bottle_750ml",
+    "layer1": "schedulemc:item/quality_frame"
+  }
+}

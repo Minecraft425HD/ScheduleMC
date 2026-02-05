@@ -1,15 +1,21 @@
 package de.rolandsw.schedulemc.client;
 
 import de.rolandsw.schedulemc.ScheduleMC;
+import de.rolandsw.schedulemc.beer.items.BeerItems;
 import de.rolandsw.schedulemc.cannabis.CannabisQuality;
 import de.rolandsw.schedulemc.cannabis.items.CannabisItems;
+import de.rolandsw.schedulemc.chocolate.items.ChocolateItems;
 import de.rolandsw.schedulemc.coca.items.CocaItems;
+import de.rolandsw.schedulemc.coffee.items.CoffeeItems;
+import de.rolandsw.schedulemc.cheese.items.CheeseItems;
+import de.rolandsw.schedulemc.honey.items.HoneyItems;
 import de.rolandsw.schedulemc.items.ModItems;
 import de.rolandsw.schedulemc.mdma.items.MDMAItems;
 import de.rolandsw.schedulemc.meth.MethQuality;
 import de.rolandsw.schedulemc.meth.items.MethItems;
 import de.rolandsw.schedulemc.poppy.items.PoppyItems;
 import de.rolandsw.schedulemc.tobacco.items.TobaccoItems;
+import de.rolandsw.schedulemc.wine.items.WineItems;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
@@ -88,6 +94,69 @@ public class QualityItemColors {
         // Packaged Drug (universal)
         event.register(QualityItemColors::getQualityColor,
                 ModItems.PACKAGED_DRUG.get()
+        );
+
+        // ═══════════════════════════════════════════════════════════
+        // LEGALE PRODUKTE
+        // ═══════════════════════════════════════════════════════════
+
+        // Coffee Items (7)
+        event.register(QualityItemColors::getQualityColor,
+                CoffeeItems.ROASTED_COFFEE_BEANS.get(),
+                CoffeeItems.GROUND_COFFEE.get(),
+                CoffeeItems.COFFEE_PACKAGE_250G.get(),
+                CoffeeItems.COFFEE_PACKAGE_500G.get(),
+                CoffeeItems.COFFEE_PACKAGE_1KG.get(),
+                CoffeeItems.BREWED_COFFEE.get(),
+                CoffeeItems.ESPRESSO.get()
+        );
+
+        // Wine Items (8)
+        event.register(QualityItemColors::getQualityColor,
+                WineItems.WINE_BOTTLE_375ML.get(),
+                WineItems.WINE_BOTTLE_750ML.get(),
+                WineItems.WINE_BOTTLE_1500ML.get(),
+                WineItems.GLASS_OF_WINE.get(),
+                WineItems.RIESLING_GRAPES.get(),
+                WineItems.SPAETBURGUNDER_GRAPES.get(),
+                WineItems.CHARDONNAY_GRAPES.get(),
+                WineItems.MERLOT_GRAPES.get()
+        );
+
+        // Cheese Items (13)
+        event.register(QualityItemColors::getQualityColor,
+                CheeseItems.CHEESE_CURD.get(),
+                CheeseItems.CHEESE_WHEEL.get(),
+                CheeseItems.GOUDA_WHEEL.get(),
+                CheeseItems.EMMENTAL_WHEEL.get(),
+                CheeseItems.CAMEMBERT_WHEEL.get(),
+                CheeseItems.PARMESAN_WHEEL.get(),
+                CheeseItems.CHEESE_WEDGE.get(),
+                CheeseItems.GOUDA_WEDGE.get(),
+                CheeseItems.EMMENTAL_WEDGE.get(),
+                CheeseItems.CAMEMBERT_WEDGE.get(),
+                CheeseItems.PARMESAN_WEDGE.get(),
+                CheeseItems.SMOKED_CHEESE.get(),
+                CheeseItems.HERB_CHEESE.get()
+        );
+
+        // Honey Items (3)
+        event.register(QualityItemColors::getQualityColor,
+                HoneyItems.HONEY_JAR_250G.get(),
+                HoneyItems.HONEY_JAR_500G.get(),
+                HoneyItems.HONEY_JAR_1KG.get()
+        );
+
+        // Chocolate Items (3)
+        event.register(QualityItemColors::getQualityColor,
+                ChocolateItems.CHOCOLATE_BAR_100G.get(),
+                ChocolateItems.CHOCOLATE_BAR_200G.get(),
+                ChocolateItems.CHOCOLATE_BAR_500G.get()
+        );
+
+        // Beer Items (1)
+        event.register(QualityItemColors::getQualityColor,
+                BeerItems.BEER_BOTTLE.get()
         );
     }
 
