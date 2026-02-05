@@ -423,7 +423,6 @@ Privacy:
 - Transfer money
 - View loans
 - Manage savings
-- Shop investments
 
 **Usage:**
 ```

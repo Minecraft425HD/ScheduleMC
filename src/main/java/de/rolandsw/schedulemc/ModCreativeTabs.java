@@ -76,6 +76,21 @@ public class ModCreativeTabs {
                 output.accept(NPCItems.ENTITY_REMOVER.get());
 
                 // ═══════════════════════════════════════════════════════════
+                // SCHLOSS-SYSTEM (Locks, Keys, Lock Picks)
+                // ═══════════════════════════════════════════════════════════
+                output.accept(de.rolandsw.schedulemc.lock.items.LockItems.SIMPLE_LOCK.get());
+                output.accept(de.rolandsw.schedulemc.lock.items.LockItems.SECURITY_LOCK.get());
+                output.accept(de.rolandsw.schedulemc.lock.items.LockItems.HIGH_SECURITY_LOCK.get());
+                output.accept(de.rolandsw.schedulemc.lock.items.LockItems.COMBINATION_LOCK.get());
+                output.accept(de.rolandsw.schedulemc.lock.items.LockItems.DUAL_LOCK.get());
+                output.accept(de.rolandsw.schedulemc.lock.items.LockItems.KEY_BLANK_COPPER.get());
+                output.accept(de.rolandsw.schedulemc.lock.items.LockItems.KEY_BLANK_IRON.get());
+                output.accept(de.rolandsw.schedulemc.lock.items.LockItems.KEY_BLANK_NETHERITE.get());
+                output.accept(de.rolandsw.schedulemc.lock.items.LockItems.KEY_RING.get());
+                output.accept(de.rolandsw.schedulemc.lock.items.LockItems.LOCK_PICK.get());
+                output.accept(de.rolandsw.schedulemc.lock.items.LockItems.HACKING_TOOL.get());
+
+                // ═══════════════════════════════════════════════════════════
                 // ECONOMY BLOCKS
                 // ═══════════════════════════════════════════════════════════
                 output.accept(EconomyBlocks.CASH_BLOCK.get());

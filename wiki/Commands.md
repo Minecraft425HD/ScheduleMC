@@ -1074,7 +1074,7 @@ Your Savings Accounts:
 /autopay add Steve 2000 7 "Apartment rent"
 
 # Monthly subscription
-/autopay add Alex 1000 30 "Shop investment"
+/autopay add Alex 1000 30 "Monthly subscription"
 
 # Daily payment
 /autopay add Bob 100 1 "Daily fee"
@@ -1260,129 +1260,6 @@ Claim Available: Yes
 **Notes:**
 - Can result in negative balance
 - Monitor with /state balance
-
----
-
-## Shop Investment
-
-### `/shopinvest list`
-👤 **Player Command**
-**Description:** List all shops available for investment
-
-**Usage:**
-```bash
-/shopinvest list
-```
-
-**Output:**
-```
-Available Shops:
-1. Downtown Shop (downtown_shop)
-   Shares Available: 50/100
-   Share Price: 1,000€
-   Dividend Rate: 5% weekly
-
-2. Main Street Market (main_market)
-   Shares Available: 75/100
-   Share Price: 1,000€
-   Dividend Rate: 5% weekly
-```
-
----
-
-### `/shopinvest info <shopId>`
-👤 **Player Command**
-**Description:** Show detailed shop info
-
-**Usage:**
-```bash
-/shopinvest info downtown_shop
-```
-
-**Output:**
-```
-Shop: Downtown Shop (downtown_shop)
-Total Shares: 100
-Available: 50
-Share Price: 1,000€
-
-Shareholders:
-- Steve: 25 shares (25%)
-- Alex: 15 shares (15%)
-- Bob: 10 shares (10%)
-
-Dividend: 5% weekly
-Last Payment: 2024-01-15
-Next Payment: 2024-01-22
-```
-
----
-
-### `/shopinvest buy <shopId> <shares>`
-👤 **Player Command**
-**Description:** Buy shop shares
-
-**Usage:**
-```bash
-/shopinvest buy downtown_shop 10
-```
-
-**Cost:**
-- 1,000€ per share
-- Example: 10 shares = 10,000€
-
-**Returns:**
-- 5% weekly dividend on share value
-- Example: 10 shares = 10,000€ value → 500€/week
-
-**Limits:**
-- Max 99 shares per player per shop
-- Must have available shares
-
----
-
-### `/shopinvest sell <shopId> <shares>`
-👤 **Player Command**
-**Description:** Sell your shares
-
-**Usage:**
-```bash
-/shopinvest sell downtown_shop 5
-```
-
-**Refund:**
-- 75% of purchase price
-- Example: 5 shares → 3,750€ refund (75% of 5,000€)
-
-**Notes:**
-- 25% fee to prevent market manipulation
-- Immediate sale
-
----
-
-### `/shopinvest myshares`
-👤 **Player Command**
-**Description:** Show all your investments
-
-**Usage:**
-```bash
-/shopinvest myshares
-```
-
-**Output:**
-```
-Your Shop Investments:
-1. Downtown Shop: 10 shares (10%)
-   Value: 10,000€
-   Weekly Dividend: 500€
-
-2. Main Market: 5 shares (5%)
-   Value: 5,000€
-   Weekly Dividend: 250€
-
-Total Investment: 15,000€
-Total Weekly Income: 750€
-```
 
 ---
 
@@ -2844,7 +2721,6 @@ All players have access to these commands without any special permissions.
 | `/daily` | Daily rewards |
 | `/plot` | Most plot commands |
 | `/bail`, `/jailtime` | Prison interaction |
-| `/shopinvest` | Investments |
 | `/utility` | Utility info |
 | `/tobacco` | Farming info |
 | `/market` | Market prices |
@@ -2925,10 +2801,6 @@ Some commands have both player and admin subcommands:
 
 # Check utility costs
 /utility
-
-# Invest in shops
-/shopinvest list
-/shopinvest buy downtown_shop 5
 
 # Save money
 /savings create 10000
@@ -3058,21 +2930,6 @@ Some commands have both player and admin subcommands:
 # Link warehouse (unlimited stock)
 /npc Hans warehouse set
 ```
-
-### Managing Shop Investment
-```bash
-# Check shop performance
-/shopinvest info downtown_shop
-
-# Check your investments
-/shopinvest myshares
-
-# Market analysis
-/market prices
-/market trends
-```
-
----
 
 <div align="center">
 

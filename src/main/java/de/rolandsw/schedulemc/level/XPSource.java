@@ -49,7 +49,10 @@ public enum XPSource {
 
     // Generische Quellen (Fallback wenn spezifische Quelle nicht bekannt)
     SELL_ILLEGAL("Illegalen Artikel verkauft", 10, true),
-    SELL_LEGAL("Legalen Artikel verkauft", 4, false);
+    SELL_LEGAL("Legalen Artikel verkauft", 4, false),
+
+    // Admin
+    ADMIN_GRANT("Admin-Vergabe", 1, false);
 
     private final String displayName;
     private final int baseXP;

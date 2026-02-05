@@ -132,14 +132,11 @@ ScheduleMC supports 5 distinct plot types, each with specific purposes and permi
 **Features:**
 - Warehouse linkage support
 - NPC merchant assignment
-- Shop investment system
-- Dividend distribution
 
 **Special Properties:**
 - No creation price (admin-only)
 - Can link to warehouse blocks
 - NPCs sell from shop inventory
-- Players can buy shares
 
 **Use Cases:**
 ```

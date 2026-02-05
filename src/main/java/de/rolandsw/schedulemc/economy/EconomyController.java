@@ -271,6 +271,47 @@ public class EconomyController {
     }
 
     // ═══════════════════════════════════════════════════════════
+    // HAUPT-API: LIEFERKOSTEN (dynamisch via UDPS)
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Berechnet den dynamischen Lieferpreis für Warehouse-Lieferungen.
+     *
+     * Lieferkosten schwanken mit Wirtschaftszyklus und Inflation,
+     * sind aber weniger volatil als Verkaufspreise (60% Zyklus-Dämpfung).
+     *
+     * Formel: baseDeliveryPrice × dampedCycle × inflationAdjustment × amount
+     *
+     * @param baseDeliveryPrice Basis-Lieferpreis pro Stück (aus DeliveryPriceConfig)
+     * @param amount            Menge
+     * @return Dynamischer Gesamt-Lieferpreis
+     */
+    public double getDeliveryPrice(double baseDeliveryPrice, int amount) {
+        double inflationAdj = GlobalEconomyTracker.getInstance().getInflationAdjustment();
+        // Lieferkosten schwanken mit 60% der Zyklusstärke (moderat volatil)
+        double dampedCycle = 1.0 + (cycleMultiplier - 1.0) * 0.6;
+        double unitPrice = baseDeliveryPrice * dampedCycle * inflationAdj;
+        double total = Math.max(0.01, unitPrice) * amount;
+
+        LOGGER.debug("Delivery price: base={:.2f} × cycle={:.2f} × infl={:.2f} × {} = {:.2f}€",
+                baseDeliveryPrice, dampedCycle, inflationAdj, amount, total);
+
+        return total;
+    }
+
+    /**
+     * Gibt den aktuellen Lieferkosten-Multiplikator zurück (für UI-Anzeige).
+     * Kombiniert Wirtschaftszyklus (60% gedämpft) und Inflation.
+     *
+     * @return Multiplikator relativ zum Basispreis (1.0 = neutral)
+     */
+    public double getDeliveryCostMultiplier() {
+        double inflationAdj = GlobalEconomyTracker.getInstance().getInflationAdjustment();
+        double dampedCycle = 1.0 + (cycleMultiplier - 1.0) * 0.6;
+        return dampedCycle * inflationAdj;
+    }
+
+    // ═══════════════════════════════════════════════════════════
     // PREIS-INFO (für UI/Tooltip-Anzeige)
     // ═══════════════════════════════════════════════════════════
 

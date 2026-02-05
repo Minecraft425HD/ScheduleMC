@@ -88,7 +88,7 @@ The Most Comprehensive Minecraft Economy & Roleplay Mod
 
 ### Key Features
 
-✨ **Complete Economy** - Banking, loans, savings, investments, taxes
+✨ **Complete Economy** - Banking, loans, savings, taxes
 ✨ **8 Production Chains** - Tobacco, Cannabis, Coca, Poppy, Meth, LSD, MDMA, Mushrooms
 ✨ **Advanced NPCs** - AI with schedules, personalities, shops
 ✨ **GTA-Style Police** - 5-star wanted level, prison system
@@ -196,7 +196,6 @@ See [Getting Started Guide](Getting-Started.md) for detailed setup instructions.
 💰 **Daily Login** - Don't forget `/daily` for streak bonuses (up to 300€/day)
 🏠 **Plot Ratings** - Rate plots to earn reputation
 📱 **Smartphone** - Press P to open (immune to damage while using)
-💸 **Shop Investment** - Buy shares in NPC shops for passive income
 
 ### For Admins
 🔧 **Health Checks** - Use `/health` to monitor system status

@@ -32,6 +32,7 @@ public enum Unlockable {
     CHEESE_GOUDA(3, UnlockCategory.PRODUCTION_CHAIN, "Käse: Gouda"),
     CHOCOLATE_MILK(3, UnlockCategory.PRODUCTION_CHAIN, "Schokolade: Milch"),
 
+    GANG_JOIN(5, UnlockCategory.GANG, "Gang beitreten (mit Einladung, 2.500\u20AC)"),
     BEER_WEIZEN(5, UnlockCategory.STRAIN, "Bier: Weizen"),
     WINE_RIESLING(5, UnlockCategory.PRODUCTION_CHAIN, "Wein: Riesling"),
     HONEY_WILDFLOWER(5, UnlockCategory.STRAIN, "Honig: Wildblumen"),
@@ -71,6 +72,7 @@ public enum Unlockable {
     WINE_SPAETBURGUNDER(13, UnlockCategory.STRAIN, "Wein: Spätburgunder"),
     COFFEE_LIBERICA(13, UnlockCategory.STRAIN, "Kaffee: Liberica"),
 
+    GANG_CREATE(15, UnlockCategory.GANG, "Gang gruenden (25.000\u20AC)"),
     POPPY_INDISCH(15, UnlockCategory.PRODUCTION_CHAIN, "Mohn: Indisch (Heroin)"),
     COCA_PERUANISCH(15, UnlockCategory.STRAIN, "Kokain: Peruanisch"),
     METH_PRODUCTION(15, UnlockCategory.PRODUCTION_CHAIN, "Meth-Produktion"),

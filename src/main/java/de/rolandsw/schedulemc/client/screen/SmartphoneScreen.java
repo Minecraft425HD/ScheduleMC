@@ -33,7 +33,7 @@ public class SmartphoneScreen extends Screen {
     private static final int SCROLLBAR_WIDTH = 8; // Etwas breiter für bessere Klickbarkeit
     private static final int SCROLLBAR_MARGIN = 10; // Abstand zwischen Apps und Scrollbar
     private static final int VISIBLE_ROWS = 3; // Nur 3 Reihen sichtbar (6 Apps)
-    private static final int TOTAL_ROWS = 6; // Insgesamt 6 Reihen (12 Apps)
+    private static final int TOTAL_ROWS = 7; // Insgesamt 7 Reihen (13 Apps)
 
     // App-Icons (konfigurierbar über Ressourcen)
     private static final ResourceLocation APP_MAP = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/app_map.png");
@@ -48,10 +48,12 @@ public class SmartphoneScreen extends Screen {
     private static final ResourceLocation APP_CRIME = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/app_crime.png");
     private static final ResourceLocation APP_ACHIEVEMENT = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/app_achievement.png");
     private static final ResourceLocation APP_TOWING = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/app_towing.png");
+    private static final ResourceLocation APP_LEVEL = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/app_level.png");
+    private static final ResourceLocation APP_GANG = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/app_gang.png");
     private static final ResourceLocation CLOSE_ICON = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/close.png");
 
     // PERFORMANCE: Statisches Icon-Array statt Neuallokation pro Frame
-    private static final ResourceLocation[] APP_ICONS = {APP_MAP, APP_DEALER, APP_PRODUCTS, APP_ORDER, APP_CONTACTS, APP_MESSAGES, APP_PLOT, APP_SETTINGS, APP_BANK, APP_CRIME, APP_ACHIEVEMENT, APP_TOWING};
+    private static final ResourceLocation[] APP_ICONS = {APP_MAP, APP_DEALER, APP_PRODUCTS, APP_ORDER, APP_CONTACTS, APP_MESSAGES, APP_PLOT, APP_SETTINGS, APP_BANK, APP_CRIME, APP_ACHIEVEMENT, APP_TOWING, APP_LEVEL, APP_GANG};
 
     private int leftPos;
     private int topPos;
@@ -92,7 +94,9 @@ public class SmartphoneScreen extends Screen {
             Component.translatable("gui.smartphone.app_bank").getString(),
             Component.translatable("gui.smartphone.app_crime").getString(),
             Component.translatable("gui.smartphone.app_achievements").getString(),
-            Component.translatable("gui.smartphone.app_towing").getString()
+            Component.translatable("gui.smartphone.app_towing").getString(),
+            Component.translatable("gui.smartphone.app_level").getString(),
+            Component.translatable("gui.smartphone.app_gang").getString()
         };
 
         // OPTIMIERT: Truncated Labels und Initialen einmalig vorberechnen
@@ -241,6 +245,8 @@ public class SmartphoneScreen extends Screen {
                             case 9: openApp(new CrimeStatsAppScreen(this)); return true;
                             case 10: openApp(new AchievementAppScreen(this)); return true;
                             case 11: openApp(new TowingServiceAppScreen(this)); return true;
+                            case 12: openApp(new ProducerLevelAppScreen(this)); return true;
+                            case 13: openApp(new GangAppScreen(this)); return true;
                         }
                     }
                 }
@@ -310,9 +316,9 @@ public class SmartphoneScreen extends Screen {
             gridStartY + scissorHeight
         );
 
-        // App-Icons rendern mit scrollOffset (6 Reihen x 2 Spalten) - PERFORMANCE: gecachte Labels
+        // App-Icons rendern mit scrollOffset (7 Reihen x 2 Spalten) - PERFORMANCE: gecachte Labels
         int rowStep = APP_ICON_SIZE + APP_SPACING;
-        for (int i = 0; i < 12; i++) {
+        for (int i = 0; i < APP_ICONS.length; i++) {
             int col = i % 2;
             int row = i / 2;
             int iconX = gridStartX + col * (APP_ICON_SIZE + APP_SPACING);

@@ -236,7 +236,7 @@ public class StockTradePacket {
         }
 
         // Zahle Netto-Betrag an Spieler aus
-        EconomyManager.deposit(player.getUUID(), netRevenue, TransactionType.SHOP_PAYOUT,
+        EconomyManager.deposit(player.getUUID(), netRevenue, TransactionType.OTHER,
             "Börsenverkauf: " + quantity + "x " + itemName);
 
         // Erfolgs-Nachricht

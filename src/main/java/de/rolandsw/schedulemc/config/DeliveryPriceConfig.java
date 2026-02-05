@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.config;
 
+import de.rolandsw.schedulemc.economy.EconomyController;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 
@@ -72,10 +73,53 @@ public class DeliveryPriceConfig {
     }
 
     /**
-     * Gibt Lieferpreis für ein Item zurück
+     * Gibt den statischen Basis-Lieferpreis für ein Item zurück.
+     * Nutze getDynamicPrice() für den UDPS-angepassten Preis.
      */
+    public static int getBasePrice(Item item) {
+        return PRICES.getOrDefault(item, defaultPrice);
+    }
+
+    /**
+     * Gibt Lieferpreis für ein Item zurück.
+     * @deprecated Nutze {@link #getDynamicPrice(Item)} für UDPS-basierte Preise
+     */
+    @Deprecated
     public static int getPrice(Item item) {
         return PRICES.getOrDefault(item, defaultPrice);
+    }
+
+    /**
+     * Gibt den dynamischen Lieferpreis via UDPS zurück (1 Stück).
+     * Berücksichtigt Wirtschaftszyklus und Inflation.
+     * Fallback auf statischen Basispreis bei Fehler.
+     *
+     * @param item Das zu liefernde Item
+     * @return Dynamischer Lieferpreis pro Stück
+     */
+    public static double getDynamicPrice(Item item) {
+        int basePrice = getBasePrice(item);
+        try {
+            return EconomyController.getInstance().getDeliveryPrice(basePrice, 1);
+        } catch (Exception e) {
+            return basePrice;
+        }
+    }
+
+    /**
+     * Gibt den dynamischen Lieferpreis via UDPS für eine bestimmte Menge zurück.
+     *
+     * @param item   Das zu liefernde Item
+     * @param amount Menge
+     * @return Dynamischer Gesamt-Lieferpreis
+     */
+    public static double getDynamicPrice(Item item, int amount) {
+        int basePrice = getBasePrice(item);
+        try {
+            return EconomyController.getInstance().getDeliveryPrice(basePrice, amount);
+        } catch (Exception e) {
+            return (double) basePrice * amount;
+        }
     }
 
     /**
@@ -86,7 +130,7 @@ public class DeliveryPriceConfig {
     }
 
     /**
-     * Gibt alle konfigurierten Preise zurück
+     * Gibt alle konfigurierten Basis-Preise zurück
      */
     public static Map<Item, Integer> getAllPrices() {
         return new HashMap<>(PRICES);

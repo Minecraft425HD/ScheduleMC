@@ -255,26 +255,4 @@ class NPCIntegrationTest {
         assertThat(personalities).contains("FRIENDLY", "GRUMPY");
     }
 
-    // ==================== Scenario 10: NPC Shop Investment ====================
-
-    @Test
-    @Order(10)
-    @DisplayName("Scenario: Player invests in NPC shop")
-    void scenarioShopInvestment() {
-        // Arrange
-        double investmentAmount = 5000.0;
-        int shares = 25; // 25% ownership
-
-        // Act - Calculate weekly dividend
-        double weeklyRevenue = 1000.0;
-        double dividend = weeklyRevenue * (shares / 100.0);
-
-        // ROI calculation
-        double yearlyReturn = dividend * 52; // 52 weeks
-        double roi = (yearlyReturn / investmentAmount) * 100;
-
-        // Assert
-        assertThat(dividend).isEqualTo(250.0);
-        assertThat(roi).isEqualTo(260.0); // 260% yearly ROI
-    }
 }
