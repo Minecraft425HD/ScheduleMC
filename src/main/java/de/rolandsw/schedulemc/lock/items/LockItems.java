@@ -10,7 +10,7 @@ import net.minecraftforge.registries.RegistryObject;
 /**
  * Registrierung aller Schloss-Items.
  *
- * 5 Schloss-Typen + 3 Schluessel-Rohlinge + Schluesselring + Dietrich = 10 Items
+ * 5 Schloss-Typen + 3 Schluessel-Rohlinge + Schluesselring + Dietrich + 3 Hacking-Tools = 13 Items
  */
 public class LockItems {
 
@@ -45,7 +45,11 @@ public class LockItems {
     public static final RegistryObject<Item> LOCK_PICK = ITEMS.register("lock_pick",
             () -> new LockPickItem());
 
-    // ─── Hacking-Tool ───
-    public static final RegistryObject<Item> HACKING_TOOL = ITEMS.register("hacking_tool",
-            () -> new HackingToolItem());
+    // ─── Hacking-Tools (3 Stufen) ───
+    public static final RegistryObject<Item> HACKING_CODE_CRACKER = ITEMS.register("hacking_code_cracker",
+            () -> new CodeCrackerItem());
+    public static final RegistryObject<Item> HACKING_BYPASS = ITEMS.register("hacking_bypass",
+            () -> new BypassModuleItem());
+    public static final RegistryObject<Item> HACKING_OMNI = ITEMS.register("hacking_omni",
+            () -> new OmniHackItem());
 }
