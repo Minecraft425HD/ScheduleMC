@@ -3,6 +3,8 @@ package de.rolandsw.schedulemc.lock.items;
 import de.rolandsw.schedulemc.lock.LockData;
 import de.rolandsw.schedulemc.lock.LockManager;
 import de.rolandsw.schedulemc.lock.LockType;
+import de.rolandsw.schedulemc.lock.network.LockNetworkHandler;
+import de.rolandsw.schedulemc.lock.network.OpenCodeEntryPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -211,11 +213,15 @@ public class KeyItem extends Item {
             return InteractionResult.FAIL;
         }
 
-        // Bei Dual-Lock: Code wird separat geprueft (via CombinationLockScreen)
+        // Bei Dual-Lock: Schluessel akzeptiert, jetzt Code-GUI oeffnen
         if (lockData.getType() == LockType.DUAL) {
             player.sendSystemMessage(Component.literal(
-                    "\u00A7eSchluessel akzeptiert! Gib jetzt den Code ein (Linksklick auf die Tuer)."));
-            // Nutzung wird erst nach Code-Eingabe abgezogen
+                    "\u00A7a\u2714 Schluessel akzeptiert! Gib jetzt den Code ein."));
+            // Code-Eingabe GUI oeffnen
+            String dim = level.dimension().location().toString();
+            LockNetworkHandler.sendToPlayer(
+                    new OpenCodeEntryPacket(lockData.getLockId(), pos, dim), player);
+            // Nutzung wird bei Code-Eingabe im CodeEntryPacket abgezogen
             return InteractionResult.SUCCESS;
         }
 

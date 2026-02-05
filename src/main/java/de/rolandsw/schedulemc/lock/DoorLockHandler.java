@@ -5,6 +5,8 @@ import de.rolandsw.schedulemc.lock.items.HackingToolItem;
 import de.rolandsw.schedulemc.lock.items.KeyItem;
 import de.rolandsw.schedulemc.lock.items.KeyRingItem;
 import de.rolandsw.schedulemc.lock.items.LockPickItem;
+import de.rolandsw.schedulemc.lock.network.LockNetworkHandler;
+import de.rolandsw.schedulemc.lock.network.OpenCodeEntryPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -83,11 +85,17 @@ public class DoorLockHandler {
         // Besitzer darf immer oeffnen
         if (lockData.isAuthorized(player.getUUID())) return;
 
-        // Reines Zahlenschloss: Code-Eingabe noetig
-        if (lockData.getType() == LockType.COMBINATION || lockData.getType() == LockType.DUAL) {
+        // Zahlenschloss: Code-Eingabe GUI oeffnen
+        if (lockData.getType() == LockType.COMBINATION) {
+            // Reines Zahlenschloss: Nur Code noetig
+            LockNetworkHandler.sendToPlayer(
+                    new OpenCodeEntryPacket(lockData.getLockId(), pos, dim), player);
+        } else if (lockData.getType() == LockType.DUAL) {
+            // Dual-Lock: Schluessel + Code noetig (Schluessel oeffnet die GUI via KeyItem)
             player.sendSystemMessage(Component.literal(
-                    "\u00A7e\u2699 Diese Tuer hat ein Zahlenschloss. " +
-                            "Benutze /lock code " + lockData.getLockId() + " <code>"));
+                    "\u00A7e\u2699 Diese Tuer braucht Schluessel UND Code!"));
+            player.sendSystemMessage(Component.literal(
+                    "\u00A77Benutze einen passenden Schluessel."));
         } else {
             player.sendSystemMessage(Component.literal(
                     "\u00A7c\u2716 Diese Tuer ist mit einem " + lockData.getType().getDisplayName() +
