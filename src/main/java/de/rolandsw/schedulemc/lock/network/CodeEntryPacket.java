@@ -5,6 +5,7 @@ import de.rolandsw.schedulemc.lock.LockManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DoorBlock;
@@ -17,8 +18,12 @@ import java.util.function.Supplier;
 /**
  * Client -> Server: Spieler hat Code eingegeben.
  * Server validiert und oeffnet ggf. die Tuer.
+ * Tuer schliesst sich automatisch nach 3 Sekunden.
  */
 public class CodeEntryPacket {
+
+    /** Ticks bis die Tuer sich automatisch schliesst (3 Sekunden = 60 Ticks). */
+    private static final int AUTO_CLOSE_TICKS = 60;
 
     private final String lockId;
     private final BlockPos doorPos;
@@ -89,12 +94,17 @@ public class CodeEntryPacket {
                 // Tuer oeffnen
                 Level level = player.level();
                 BlockState state = level.getBlockState(doorPos);
-                if (state.getBlock() instanceof DoorBlock) {
+                if (state.getBlock() instanceof DoorBlock door) {
                     boolean currentlyOpen = state.getValue(BlockStateProperties.OPEN);
                     if (!currentlyOpen) {
                         level.setBlock(doorPos, state.setValue(BlockStateProperties.OPEN, true), 10);
                         // Sound abspielen
                         level.levelEvent(null, 1005, doorPos, 0);
+
+                        // Automatisch schliessen nach 3 Sekunden
+                        if (level instanceof ServerLevel serverLevel) {
+                            scheduleAutoClose(serverLevel, doorPos);
+                        }
                     }
                 }
             } else {
@@ -103,5 +113,25 @@ public class CodeEntryPacket {
             }
         });
         ctx.get().setPacketHandled(true);
+    }
+
+    /**
+     * Plant das automatische Schliessen der Tuer nach AUTO_CLOSE_TICKS.
+     */
+    private void scheduleAutoClose(ServerLevel level, BlockPos pos) {
+        final long closeTime = level.getGameTime() + AUTO_CLOSE_TICKS;
+
+        // Einfacher Delayed-Task via Server
+        level.getServer().tell(new net.minecraft.server.TickTask(
+                level.getServer().getTickCount() + AUTO_CLOSE_TICKS,
+                () -> {
+                    BlockState state = level.getBlockState(pos);
+                    if (state.getBlock() instanceof DoorBlock && state.getValue(BlockStateProperties.OPEN)) {
+                        level.setBlock(pos, state.setValue(BlockStateProperties.OPEN, false), 10);
+                        // Schliess-Sound
+                        level.levelEvent(null, 1006, pos, 0);
+                    }
+                }
+        ));
     }
 }
