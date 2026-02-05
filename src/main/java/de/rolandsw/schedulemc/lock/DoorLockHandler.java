@@ -93,16 +93,21 @@ public class DoorLockHandler {
      * Hilfreich fuer Missions-Setup und allgemeine Information.
      */
     private void showLockInfo(ServerPlayer player, LockData lockData, BlockPos pos) {
-        player.sendSystemMessage(Component.literal("\u00A78\u2550\u2550\u2550 \u00A7eTuer-Info \u00A78\u2550\u2550\u2550"));
+        player.sendSystemMessage(Component.literal("\u00A78\u2550\u2550\u2550\u2550\u2550 \u00A7e\uD83D\uDD12 Tuer-Info \u00A78\u2550\u2550\u2550\u2550\u2550"));
         player.sendSystemMessage(Component.literal("\u00A77Position: \u00A7f" + pos.getX() + ", " + pos.getY() + ", " + pos.getZ()));
 
         if (lockData == null) {
-            player.sendSystemMessage(Component.literal("\u00A77Status: \u00A7aKein Schloss"));
-            player.sendSystemMessage(Component.literal("\u00A78\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"));
+            player.sendSystemMessage(Component.literal("\u00A77Status: \u00A7aKein Schloss vorhanden"));
+            player.sendSystemMessage(Component.literal("\u00A78\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"));
             return;
         }
 
-        player.sendSystemMessage(Component.literal("\u00A77Lock-ID: \u00A7b" + lockData.getLockId()));
+        // Lock-ID prominent anzeigen
+        player.sendSystemMessage(Component.literal(""));
+        player.sendSystemMessage(Component.literal("\u00A7e\u00A7l\u2192 Schloss-ID: \u00A7b\u00A7l" + lockData.getLockId()));
+        player.sendSystemMessage(Component.literal("\u00A78  (Fuer Task-Bloecke & Schluessel)"));
+        player.sendSystemMessage(Component.literal(""));
+
         player.sendSystemMessage(Component.literal("\u00A77Schloss-Typ: " + getLockTypeColor(lockData.getType()) + lockData.getType().getDisplayName()));
         player.sendSystemMessage(Component.literal("\u00A77Besitzer: \u00A7f" + lockData.getOwnerName()));
 
@@ -114,12 +119,14 @@ public class DoorLockHandler {
                 case 2 -> "\u00A75Netherite-Schluessel";
                 default -> "\u00A7fUnbekannt";
             };
-            player.sendSystemMessage(Component.literal("\u00A77Benoetigt: " + keyTierName));
+            player.sendSystemMessage(Component.literal("\u00A77Schluessel-Typ: " + keyTierName));
         }
 
         // Zeige ob Code benoetigt wird
         if (lockData.getType().hasCode()) {
-            player.sendSystemMessage(Component.literal("\u00A77Code: \u00A7e4-stelliger Zahlencode erforderlich"));
+            player.sendSystemMessage(Component.literal(""));
+            player.sendSystemMessage(Component.literal("\u00A7e\uD83D\uDD22 Code erforderlich:"));
+            player.sendSystemMessage(Component.literal("\u00A77  /lock code \u00A7b" + lockData.getLockId() + " \u00A7e<4-stellig>"));
         }
 
         // Zeige Dietrich-Chance
@@ -133,10 +140,10 @@ public class DoorLockHandler {
 
         // Zeige Alarm-Status
         if (lockData.getType().triggersAlarm()) {
-            player.sendSystemMessage(Component.literal("\u00A77Alarm: \u00A7c\u26A0 Loest Alarm aus!"));
+            player.sendSystemMessage(Component.literal("\u00A7c\u26A0 Loest Alarm bei Einbruch aus!"));
         }
 
-        player.sendSystemMessage(Component.literal("\u00A78\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"));
+        player.sendSystemMessage(Component.literal("\u00A78\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"));
     }
 
     private String getLockTypeColor(LockType type) {
