@@ -112,8 +112,8 @@ public class DoorLockHandler {
         player.sendSystemMessage(Component.literal("\u00A77Besitzer: \u00A7f" + lockData.getOwnerName()));
 
         // Zeige benoetigte Schluessel-Stufe
-        if (lockData.getType().getKeyTier() >= 0) {
-            String keyTierName = switch (lockData.getType().getKeyTier()) {
+        if (lockData.getType().getRequiredBlankTier() >= 0) {
+            String keyTierName = switch (lockData.getType().getRequiredBlankTier()) {
                 case 0 -> "\u00A76Kupfer-Schluessel";
                 case 1 -> "\u00A77Eisen-Schluessel";
                 case 2 -> "\u00A75Netherite-Schluessel";
