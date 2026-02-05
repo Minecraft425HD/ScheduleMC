@@ -157,7 +157,7 @@ public class ScenarioEditorScreen extends Screen {
         nameField.setResponder(s -> currentScenario.setName(s));
         nameField.setBordered(false);
         nameField.setTextColor(0xFFFFFF);
-        addWidget(nameField);
+        addRenderableWidget(nameField);
         rebuildProps();
     }
 

@@ -132,11 +132,17 @@ public class DoorLockHandler {
             player.sendSystemMessage(Component.literal("\u00A77Schluessel-Typ: " + keyTierName));
         }
 
-        // Zeige ob Code benoetigt wird
+        // Zeige Code-Info (Besitzer sieht den Code, andere nur den Hinweis)
         if (lockData.getType().hasCode()) {
             player.sendSystemMessage(Component.literal(""));
-            player.sendSystemMessage(Component.literal("\u00A7e\uD83D\uDD22 Code erforderlich:"));
-            player.sendSystemMessage(Component.literal("\u00A77  /lock code \u00A7b" + lockData.getLockId() + " \u00A7e<4-stellig>"));
+            if (lockData.isAuthorized(player.getUUID())) {
+                // Besitzer/Autorisierte sehen den Code
+                player.sendSystemMessage(Component.literal("\u00A7e\uD83D\uDD22 Aktueller Code: \u00A7a\u00A7l" + lockData.getCode()));
+            } else {
+                // Andere sehen nur den Hinweis
+                player.sendSystemMessage(Component.literal("\u00A7e\uD83D\uDD22 Code erforderlich:"));
+                player.sendSystemMessage(Component.literal("\u00A77  /lock code \u00A7b" + lockData.getLockId() + " \u00A7e<4-stellig>"));
+            }
         }
 
         // Zeige Dietrich-Chance
