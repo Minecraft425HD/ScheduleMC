@@ -60,7 +60,12 @@ public class DoorLockItem extends Item {
         }
 
         // Schloss platzieren
-        LockData data = mgr.placeLock(lockType, player.getUUID(), player.getGameProfile().getName(),
+        // Admin (OP Level 2+) platziert Schloesser ohne Besitzer (fuer Szenarien/Missionen)
+        boolean isAdmin = player.hasPermissions(2);
+        java.util.UUID ownerUUID = isAdmin ? LockData.NO_OWNER : player.getUUID();
+        String ownerName = isAdmin ? "[Server]" : player.getGameProfile().getName();
+
+        LockData data = mgr.placeLock(lockType, ownerUUID, ownerName,
                 pos.getX(), pos.getY(), pos.getZ(), dim);
 
         // Item verbrauchen
@@ -82,6 +87,12 @@ public class DoorLockItem extends Item {
         }
         player.sendSystemMessage(Component.literal(
                 "\u00A78Lock-ID: " + data.getLockId()));
+
+        // Admin-Hinweis
+        if (isAdmin) {
+            player.sendSystemMessage(Component.literal(
+                    "\u00A7d[Admin] Schloss ohne Besitzer platziert."));
+        }
 
         return InteractionResult.SUCCESS;
     }

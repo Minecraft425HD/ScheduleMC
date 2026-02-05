@@ -127,7 +127,11 @@ public class DoorLockHandler {
         player.sendSystemMessage(Component.literal(""));
 
         player.sendSystemMessage(Component.literal("\u00A77Schloss-Typ: " + getLockTypeColor(lockData.getType()) + lockData.getType().getDisplayName()));
-        player.sendSystemMessage(Component.literal("\u00A77Besitzer: \u00A7f" + lockData.getOwnerName()));
+        if (lockData.hasNoOwner()) {
+            player.sendSystemMessage(Component.literal("\u00A77Besitzer: \u00A7d[Kein Besitzer]"));
+        } else {
+            player.sendSystemMessage(Component.literal("\u00A77Besitzer: \u00A7f" + lockData.getOwnerName()));
+        }
 
         // Zeige benoetigte Schluessel-Stufe
         if (lockData.getType().getRequiredBlankTier() >= 0) {
@@ -140,11 +144,12 @@ public class DoorLockHandler {
             player.sendSystemMessage(Component.literal("\u00A77Schluessel-Typ: " + keyTierName));
         }
 
-        // Zeige Code-Info (Besitzer sieht den Code, andere nur den Hinweis)
+        // Zeige Code-Info (Besitzer/OPs sehen den Code, andere nur den Hinweis)
         if (lockData.getType().hasCode()) {
             player.sendSystemMessage(Component.literal(""));
-            if (lockData.isAuthorized(player.getUUID())) {
-                // Besitzer/Autorisierte sehen den Code
+            boolean canSeeCode = lockData.isAuthorized(player.getUUID()) || player.hasPermissions(2);
+            if (canSeeCode) {
+                // Besitzer/Autorisierte/OPs sehen den Code
                 player.sendSystemMessage(Component.literal("\u00A7e\uD83D\uDD22 Aktueller Code: \u00A7a\u00A7l" + lockData.getCode()));
             } else {
                 // Andere sehen nur den Hinweis

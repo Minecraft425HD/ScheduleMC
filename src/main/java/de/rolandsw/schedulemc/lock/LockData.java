@@ -7,6 +7,9 @@ import java.util.*;
  */
 public class LockData {
 
+    /** Nil-UUID fuer Schloesser ohne Besitzer (Admin-Platzierung). */
+    public static final UUID NO_OWNER = new UUID(0, 0);
+
     private String lockId;
     private LockType type;
     private UUID ownerUUID;
@@ -67,8 +70,19 @@ public class LockData {
     public Set<UUID> getAuthorizedPlayers() { return authorizedPlayers; }
     public void addAuthorized(UUID uuid) { authorizedPlayers.add(uuid); }
     public void removeAuthorized(UUID uuid) { authorizedPlayers.remove(uuid); }
+
+    /** Prueft ob ein Spieler autorisiert ist (Besitzer oder explizit berechtigt). */
     public boolean isAuthorized(UUID uuid) {
+        // Schloesser ohne Besitzer (Admin-Platzierung) haben keine automatische Berechtigung
+        if (NO_OWNER.equals(ownerUUID)) {
+            return authorizedPlayers.contains(uuid);
+        }
         return ownerUUID.equals(uuid) || authorizedPlayers.contains(uuid);
+    }
+
+    /** Prueft ob dieses Schloss keinen Besitzer hat (Admin-Platzierung). */
+    public boolean hasNoOwner() {
+        return NO_OWNER.equals(ownerUUID);
     }
 
     /** Prueft ob der Code rotiert werden muss (basierend auf LockType). */
