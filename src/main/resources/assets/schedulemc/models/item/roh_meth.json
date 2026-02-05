@@ -1,6 +1,7 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "schedulemc:item/roh_meth"
+    "layer0": "schedulemc:item/roh_meth",
+    "layer1": "schedulemc:item/quality_frame"
   }
 }
